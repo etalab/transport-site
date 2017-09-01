@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Rendre disponible, valoriser et améliorer les données transports.">
+    <meta name="author" content="Mauko Quiroga">
+
+    <title>transport.beta.gouv.fr</title>
+    <link rel="stylesheet" media="all" href="<%= static_path(@conn, "/css/app.css") %>">
+  </head>
+
+  <body>
+    <main role="main">
+      <%= render(@view_module, @view_template, assigns) %>
+    </main>
+    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+  </body>
+</html>
