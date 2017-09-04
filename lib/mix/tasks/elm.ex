@@ -5,12 +5,10 @@ defmodule Mix.Tasks.Elm do
 
   use Mix.Task
 
-  @elm_path "./node_modules/elm/binwrappers/elm-package"
-
   def run([cmd | _tail]) do
-    case Mix.shell.cmd("cd ./assets && #{@elm_path} #{cmd}", stderr_to_stdout: true) do
+    case Mix.shell.cmd("cd ./client && npm run elm-#{cmd}", stderr_to_stdout: true) do
       0 -> :ok
-      a -> raise "elm command failure exit code: #{a}"
+      a -> raise "elm-#{cmd} command failure exit code: #{a}"
     end
   end
 end

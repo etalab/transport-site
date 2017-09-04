@@ -1,0 +1,34 @@
+@import '~normalize.css';
+@import '~bourbon/core/bourbon';
+@import '~bourbon-neat/core/neat';
+@import '~purecss';
+@import '~typeplate-starter-kit/dist/scss/typeplate-index';
+
+@import 'navigation';
+
+html,
+body {
+  height: 100%;
+}
+
+main {
+  margin: calc(4vw + 1em) calc(8vw + 1em);
+}
+
+h1,
+h2,
+h3 {
+  text-align: center;
+}
+
+h1 {
+  font-size: calc(4vw + .5em);
+}
+
+h2 {
+  font-size: calc(1vw + 1em);
+}
+
+h3 {
+  font-size: calc(.5vw + 1em);
+}

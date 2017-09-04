@@ -1,0 +1,5 @@
+<nav role="navigation">
+  <div class="navigation-wrapper">
+    <%= img_tag("images/logo.svg", alt: "transport.beta.gouv.fr") |> link(to: "/", class: "logo") %>
+  </div>
+</nav>
