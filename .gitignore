@@ -9,16 +9,13 @@ erl_crash.dump
 
 # Elm stuff
 /**/*/elm-stuff
-/elm-package.json
-/repl-temp-*
+/**/*/repl-temp-*
 
 # Npm stuff
-/assets/npm-debug.*
+/**/*/node_modules
+/**/*/npm-debug.*
 
-# Static artifacts
-/assets/node_modules
-
-# Since we are building assets from assets/static,
+# Since we are building assets from client,
 # we ignore priv/static.
 /priv/static/
 

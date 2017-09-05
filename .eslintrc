@@ -1,3 +1,7 @@
 {
-  "extends": "airbnb"
+  "extends": ["eslint:recommended", "standard"],
+  "rules": {
+    "indent": ["error", 4],
+    "no-multi-spaces": ["error", { exceptions: { "VariableDeclarator": true } }]
+  }
 }
