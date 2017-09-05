@@ -1,6 +1,6 @@
-const { resolve }       = require('path');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const extractSass       = new ExtractTextPlugin({ filename: '../css/app.css', allChunks: true });
+const { resolve }       = require('path')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const extractSass       = new ExtractTextPlugin({ filename: '../css/app.css', allChunks: true })
 
 module.exports = {
     entry: ['./javascripts/app.js', './stylesheets/app.scss'],
@@ -62,4 +62,4 @@ module.exports = {
             loader: 'import-glob-loader'
         }]
     }
-};
+}
