@@ -22,5 +22,5 @@ suite =
             \_ ->
                 Transport.view
                     |> Query.fromHtml
-                    |> Query.has [ tag "h3" ]
+                    |> Query.has [ tag "h2" ]
         ]
