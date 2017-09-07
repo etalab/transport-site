@@ -8,10 +8,11 @@ import Transport
 
 suite : Test
 suite =
-    -- When I visit transport.beta.gouv.fr
-    -- I want to know what they do,
-    -- so that I can be reassured I'm in the right place,
-    -- and build my shiny app around open transport data.
+    {- When I visit transport.beta.gouv.fr
+       I want to know what they do,
+       so that I can be reassured I'm in the right place,
+       and build my shiny app around open transport data.
+    -}
     describe "Landing"
         [ test "Shows startup's name" <|
             \() ->
