@@ -3,6 +3,7 @@
 @import '~bourbon-neat/core/neat';
 @import '~purecss';
 @import '~typeplate-starter-kit/dist/scss/typeplate-index';
+@import '~leaflet/dist/leaflet';
 
 @import 'navigation';
 
@@ -12,7 +13,7 @@ body {
 }
 
 [role='main'] {
-  margin: calc(4vw + 1em) calc(8vw + 1em);
+  margin: calc(1vw + 1em) calc(8vw + 1em);
 }
 
 h1,
@@ -26,4 +27,11 @@ h1 {
 
 h2 {
   font-size: calc(.5vw + 1em);
+}
+
+// sass-lint:disable no-ids
+#map {
+  height: 40em;
+  margin-bottom: 5em;
+  width: 100%;
 }

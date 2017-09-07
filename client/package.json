@@ -22,13 +22,16 @@
     "elm-test": "^0.18.8",
     "elm-webpack-loader": "^4.3.1",
     "extract-text-webpack-plugin": "^3.0.0",
+    "file-loader": "v1.0.0",
     "img-loader": "^2.0.0",
     "import-glob-loader": "^1.1.0",
+    "leaflet": "^1.2.0",
     "node-sass": "^4.5.3",
     "normalize.css": "^7.0.0",
     "purecss": "^1.0.0",
     "sass-loader": "^6.0.5",
     "typeplate-starter-kit": "^3.0.2",
+    "url-loader": "v0.5.9",
     "webpack": "^3.5.6"
   }
 }
