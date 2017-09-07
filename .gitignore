@@ -17,7 +17,8 @@ erl_crash.dump
 
 # Since we are building assets from client,
 # we ignore priv/static.
-/priv/static/
+/priv/static/js
+/priv/static/css
 
 # The config/prod.secret.exs file by default contains sensitive
 # data and you should not commit it into version control.
