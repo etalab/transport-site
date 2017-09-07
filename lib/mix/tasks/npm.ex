@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Npm do
   use Mix.Task
 
   def run([cmd | _tail]) do
-    case Mix.shell.cmd("cd ./assets && npm #{cmd}", stderr_to_stdout: true) do
+    case Mix.shell.cmd("cd ./client && npm #{cmd}", stderr_to_stdout: true) do
       0 -> :ok
       a -> raise "npm command failure exit code: #{a}"
     end

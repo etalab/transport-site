@@ -11,7 +11,7 @@ config :transport, TransportWeb.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  watchers: ["npm": ["run", "--prefix", "assets", "watch"]]
+  watchers: ["npm": ["run", "--prefix", "client", "watch"]]
 
 # ## SSL Support
 #

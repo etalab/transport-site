@@ -1,0 +1,30 @@
+[role='navigation'] {
+  $dark-gray: #333 !default;
+  $navigation-background: $dark-gray;
+  $navigation-height: 2em;
+  $navigation-padding: 2em;
+  $image-padding: .8em;
+
+  background-color: $navigation-background;
+  border-bottom: 1px solid darken($navigation-background, 10);
+  height: $navigation-height + $image-padding * 2;
+  width: 100%;
+  z-index: 999;
+
+  .navigation-wrapper {
+    @include clearfix;
+    position: relative;
+    z-index: 9999;
+  }
+
+  .logo {
+    float: left;
+    height: $navigation-height + $image-padding * 2;
+    padding-left: $navigation-padding;
+
+    img {
+      height: $navigation-height;
+      padding: .8em 0;
+    }
+  }
+}
