@@ -13,7 +13,9 @@
 
   <body>
     <%= render(TransportWeb.LayoutView, "_navigation.html") %>
-    <main id="main" role="main"><%= render(@view_module, @view_template, assigns) %></main>
+    <main id="main" role="main">
+      <%= render(@view_module, @view_template, assigns) %>
+    </main>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>
