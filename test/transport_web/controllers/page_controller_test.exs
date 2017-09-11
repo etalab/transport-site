@@ -3,6 +3,6 @@ defmodule TransportWeb.PageControllerTest do
 
   test "GET /", %{conn: conn} do
     conn = get conn, "/"
-    assert html_response(conn, 200) =~ "<div id=\"elm-main\"></div>"
+    assert html_response(conn, 200) =~ "<main id=\"main\" role=\"main\">\n\n    </main>"
   end
 end
