@@ -16,8 +16,7 @@ main {
 }
 
 h1,
-h2,
-h3 {
+h2 {
   text-align: center;
 }
 
@@ -26,9 +25,5 @@ h1 {
 }
 
 h2 {
-  font-size: calc(1vw + 1em);
-}
-
-h3 {
   font-size: calc(.5vw + 1em);
 }
