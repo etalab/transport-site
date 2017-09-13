@@ -1,6 +1,7 @@
 module Transport exposing (..)
 
 import Html exposing (..)
+import Html.Attributes exposing (id)
 
 
 -- MAIN
@@ -19,8 +20,17 @@ view : Html String
 view =
     div []
         [ h1 [] [ text "Rendre disponible, valoriser et améliorer les données transports" ]
+        , div [ id "map" ] []
         , h2 [] [ text "transport.beta.gouv.fr c'est quoi ?" ]
         , p [] [ text "C'est la plateforme de diffusion des données ouvertes relatives au transport. Mais c'est aussi la plateforme qui permet à la communauté des diffuseurs et des ré-utilisateurs de se rassembler, de dialoguer, de réfléchir ensemble aux problèmes autour des données transport (qualité, complétude, licences) et de construire les outils pour les résoudre." ]
+        , h2 [] [ text "Comment lire cette carte ?" ]
+        , p [] [ text "La carte ci-dessus permet de visualiser l’avancement de l’ouverture des données transport. Elle référence les données présentes sur le portail de données ouvertes françaises https://www.data.gouv.fr/" ]
+        , p [] [ text "Comme vous pouvez le remarquer la carte affiche trois couleurs de point :" ]
+        , ul []
+            [ li [] [ text "Vert : il indique qu’un jeu de données correspondant à cette autorité de mobilité a été trouvé, qu’il est compatible avec la plateforme, et qu’il est valide." ]
+            , li [] [ text "Orange : ici un jeu de données a été trouvé, mais il est soit pas compatible avec la plateforme, soit il n’est plus valide." ]
+            , li [] [ text "Rouge : aucun jeu de données n’a été trouvé pour cette autorité de transport." ]
+            ]
         , h2 [] [ text "Pourquoi transport.beta.gouv.fr ?" ]
         , p [] [ text "Les données de transport lorsqu’elles existent, sont exposées sur différents portails de diffusion de données ouvertes. On constate souvent un manque d’homogénéité entre les différentes sources ce qui limite la réutilisation des données et freine le déploiement de solutions innovantes sur tout le territoire ou pour tous les utilisateurs. transport.beta.gouv.fr a pour but de résoudre ces différents problèmes et de maximiser les réutilisations pour permettre :" ]
         , ul []

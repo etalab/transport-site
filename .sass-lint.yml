@@ -1,11 +1,5 @@
 files:
-  include: client/scss/**/*.scss
+  include: client/stylesheets/**/*.scss
 options:
   formatter: stylish
   merge-default-rules: false
-rules:
-  no-css-comments: 0
-  placeholder-in-extend: 0
-  quotes:
-    - 1
-    - style: single
