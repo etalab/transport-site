@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: elixir:1.5.1
+      - image: maukoquiroga/transport:0.0.1
         environment:
           MIX_ENV: test
 
@@ -12,29 +12,44 @@ jobs:
 
       - restore_cache:
           keys:
-            - project-{{ checksum "mix.exs" }}-{{ checksum "mix.lock" }}
+            - elixir-{{ checksum "mix.lock" }}
+
+      - restore_cache:
+          keys:
+            - node-{{ checksum "client/package.json" }}
 
       - run:
           name: Install dependencies
           command: |
-            mix local.rebar --force
-            mix local.hex --force
             mix deps.get
+            mix npm install
 
       - run:
           name: Run compile
-          command: mix compile
+          command: |
+            mix deps.compile
+            mix compile
+            mix npm "run errors"
 
       - save_cache:
-          key: project-{{ checksum "mix.exs" }}-{{ checksum "mix.lock" }}
+          key: elixir-{{ checksum "mix.lock" }}
           paths:
             - _build
             - deps
+            - ~/.mix
+
+      - save_cache:
+          key: node-{{ checksum "client/package.json" }}
+          paths:
+            - client/node_modules
 
       - run:
-          name: Run Test
+          name: Run tests
           command: mix test
 
       - run:
-          name: Run Linter
-          command: mix credo --strict
+          name: Run linters
+          command: |
+            mix credo --strict
+            eslint -c .eslintrc client
+            sass-lint -c .sass-lint.yml client
