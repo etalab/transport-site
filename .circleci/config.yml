@@ -1,0 +1,40 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: elixir:1.5.1
+        environment:
+          MIX_ENV: test
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - project-{{ checksum "mix.exs" }}-{{ checksum "mix.lock" }}
+
+      - run:
+          name: Install dependencies
+          command: |
+            mix local.rebar --force
+            mix local.hex --force
+            mix deps.get
+
+      - run:
+          name: Run compile
+          command: mix compile
+
+      - save_cache:
+          key: project-{{ checksum "mix.exs" }}-{{ checksum "mix.lock" }}
+          paths:
+            - _build
+            - deps
+
+      - run:
+          name: Run Test
+          command: mix test
+
+      - run:
+          name: Run Linter
+          command: mix credo --strict
