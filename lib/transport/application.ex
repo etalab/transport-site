@@ -1,8 +1,12 @@
 defmodule Transport.Application do
-  use Application
+  @moduledoc """
+  See https://hexdocs.pm/elixir/Application.html
+  for more information on OTP Applications
+  """
 
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
+  use Application
+  alias TransportWeb.Endpoint
+
   def start(_type, _args) do
     import Supervisor.Spec
 
@@ -10,7 +14,7 @@ defmodule Transport.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(TransportWeb.Endpoint, []),
-      # Start your own worker by calling: Transport.Worker.start_link(arg1, arg2, arg3)
+      # Start worker by calling: Transport.Worker.start_link(arg1, arg2, arg3)
       # worker(Transport.Worker, [arg1, arg2, arg3]),
     ]
 
@@ -23,7 +27,7 @@ defmodule Transport.Application do
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
   def config_change(changed, _new, removed) do
-    TransportWeb.Endpoint.config_change(changed, removed)
+    Endpoint.config_change(changed, removed)
     :ok
   end
 end
