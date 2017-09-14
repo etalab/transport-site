@@ -16,13 +16,13 @@ jobs:
 
       - restore_cache:
           keys:
-            - node-{{ checksum "client/package.json" }}
+            - node-{{ checksum "client/yarn.lock" }}
 
       - run:
           name: Install dependencies
           command: |
             mix deps.get
-            mix npm install
+            mix yarn install
 
       - run:
           name: Run compile
@@ -39,7 +39,7 @@ jobs:
             - ~/.mix
 
       - save_cache:
-          key: node-{{ checksum "client/package.json" }}
+          key: node-{{ checksum "client/yarn.lock" }}
           paths:
             - client/node_modules
 

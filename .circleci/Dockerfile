@@ -7,14 +7,15 @@ RUN apt-get update \
                           curl
 
 # Install node
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_7.x | bash -
 RUN apt-get update -qy \
     && apt-get install -y nodejs
 
 # Install app dependencies
 RUN mix local.hex --force
 RUN mix local.rebar --force
-RUN npm i -g eslint \
+RUN npm i -g yarn \
+             eslint \
              eslint-config-standard \
              eslint-plugin-import \
              eslint-plugin-node \
