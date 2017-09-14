@@ -1,0 +1,55 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: maukoquiroga/transport:0.0.1
+        environment:
+          MIX_ENV: test
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - elixir-{{ checksum "mix.lock" }}
+
+      - restore_cache:
+          keys:
+            - node-{{ checksum "client/yarn.lock" }}
+
+      - run:
+          name: Install dependencies
+          command: |
+            mix deps.get
+            mix yarn install
+
+      - run:
+          name: Run compile
+          command: |
+            mix deps.compile
+            mix compile
+            cd client && npm run build
+
+      - save_cache:
+          key: elixir-{{ checksum "mix.lock" }}
+          paths:
+            - _build
+            - deps
+            - ~/.mix
+
+      - save_cache:
+          key: node-{{ checksum "client/yarn.lock" }}
+          paths:
+            - client/node_modules
+
+      - run:
+          name: Run tests
+          command: mix test
+
+      - run:
+          name: Run linters
+          command: |
+            mix credo --strict
+            eslint -c .eslintrc client
+            sass-lint -c .sass-lint.yml client

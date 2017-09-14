@@ -1,4 +1,4 @@
-const Leaflet = require('Leaflet')
+const Leaflet = require('leaflet')
 
 /**
  * Represents a Mapbox object.
@@ -27,7 +27,7 @@ const addMap = (id, featuresUrl) => {
         id: Mapbox.id
     }).addTo(map)
 
-    fetch(featuresUrl)
+    fetch(featuresUrl) // eslint-disable-line no-undef
         .then(response => { return response.json() })
         .then(data => {
             const geoJSON = Leaflet.geoJSON(data, {

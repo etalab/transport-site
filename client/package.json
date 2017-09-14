@@ -8,13 +8,13 @@
     "build": "webpack",
     "deploy": "webpack -p",
     "errors": "webpack --display-error-details",
-    "elm-install": "elm-package install && cd tests && elm-package install",
+    "elm-install": "elm-package install -y && cd tests && elm-package install -y",
     "elm-test": "elm-test"
   },
   "devDependencies": {
-    "babel-core": "^7.0.0-alpha.20",
+    "babel-core": "^7.0.0-beta.0",
     "babel-loader": "^7.0.0",
-    "babel-preset-es2017": "^7.0.0-alpha.20",
+    "babel-preset-es2017": "^7.0.0-beta.0",
     "bourbon": "^5.0.0-beta.8",
     "bourbon-neat": "^2.1.0",
     "css-loader": "^0.28.4",
