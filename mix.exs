@@ -19,7 +19,7 @@ defmodule Transport.Mixfile do
   def application do
     [
       mod: {Transport.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :oauth2]
     ]
   end
 
@@ -39,7 +39,9 @@ defmodule Transport.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:earmark, "~> 1.2"},
-      {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
+      {:oauth2, "~> 0.9"},
+      {:hound, "~> 1.0.2", only: :test},
+      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
     ]
   end
 end

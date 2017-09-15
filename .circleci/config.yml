@@ -44,6 +44,10 @@ jobs:
             - client/node_modules
 
       - run:
+          name: Start webdriver
+          command: /etc/init.d/phantomjs start
+
+      - run:
           name: Run tests
           command: mix test
 
@@ -52,4 +56,4 @@ jobs:
           command: |
             mix credo --strict
             eslint -c .eslintrc client
-            sass-lint -c .sass-lint.yml client
+            sass-lint -c .sass-lint.yml  -v -q

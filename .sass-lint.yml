@@ -1,5 +1,7 @@
 files:
-  include: client/stylesheets/**/*.scss
+  include: client/**/*.scss
+  ignore: client/node_modules/**/*.scss
+
 options:
   formatter: stylish
-  merge-default-rules: false
+  merge-default-rules: true
