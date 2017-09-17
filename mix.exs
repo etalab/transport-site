@@ -19,7 +19,7 @@ defmodule Transport.Mixfile do
   def application do
     [
       mod: {Transport.Application, []},
-      extra_applications: [:logger, :runtime_tools, :oauth2]
+      extra_applications: [:logger, :runtime_tools, :oauth2, :httpoison]
     ]
   end
 
@@ -37,6 +37,7 @@ defmodule Transport.Mixfile do
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
+      {:httpoison, "~> 0.13"},
       {:cowboy, "~> 1.0"},
       {:earmark, "~> 1.2"},
       {:oauth2, "~> 0.9"},
