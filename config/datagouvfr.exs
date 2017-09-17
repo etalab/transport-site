@@ -1,10 +1,10 @@
 use Mix.Config
 
-alias Transport.OAuth2.Strategy.Datagouvfr
+alias Transport.Datagouvfr.Authentication
 
-# Configure OAuth2's data.gouv.fr strategy
-config :oauth2, Datagouvfr,
-  strategy: Datagouvfr,
+# Configure data.gouv.fr
+config :oauth2, Authentication,
+  strategy: Authentication,
   site: System.get_env("DATAGOUVFR_SITE"),
   client_id: System.get_env("DATAGOUVFR_CLIENT_ID"),
   client_secret: System.get_env("DATAGOUVFR_CLIENT_SECRET"),

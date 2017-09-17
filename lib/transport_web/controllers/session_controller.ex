@@ -1,10 +1,10 @@
 defmodule TransportWeb.SessionController do
   @moduledoc """
-  Session management through OAuth2 for data.gouv.fr.
+  Session management for transport.
   """
 
   use TransportWeb, :controller
-  alias Transport.OAuth2.Strategy.Datagouvfr
+  alias Transport.Datagouvfr.Authentication
   alias OAuth2.Client
 
   @user_fields "avatar,avatar_thumbnail,first_name,id,last_name,page,slug,uri,apikey,email"
@@ -33,11 +33,11 @@ defmodule TransportWeb.SessionController do
   # private
 
   defp authorize_url! do
-    Datagouvfr.authorize_url!
+    Authentication.authorize_url!
   end
 
   defp get_token!(code) do
-    Datagouvfr.get_token!(code: code)
+    Authentication.get_token!(code: code)
   end
 
   defp get_user!(client) do

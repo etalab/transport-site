@@ -22,6 +22,7 @@ Usage:
   * Run the server with `mix phx.server`
   * Run the webdriver server with `phantomjs --wd`
   * Run the tests with `mix test`
+  * Run the integration tests with `mix test --only integration`
   * Run the elixir linter with `mix credo --strict`
   * Run the javascript linter with `eslint -c .eslintrc client`
   * Run the sass linter with `sass-lint -c .sass-lint.yml  -v -q`

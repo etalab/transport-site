@@ -9,11 +9,12 @@ defmodule TransportWeb.LoginTest do
   and that I wont be left to my fate.
   """
 
-  use TransportWeb.ConnCase
+  use TransportWeb.ConnCase, async: true
   use Hound.Helpers
 
   hound_session()
 
+  @tag :integration
   test "I can see a log in link" do
     home_url() |> navigate_to
 
