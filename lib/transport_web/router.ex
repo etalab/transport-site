@@ -18,12 +18,13 @@ defmodule TransportWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/search_organizations", PageController, :search_organizations
 
     # Authentication
 
     scope "/login" do
       get "/", SessionController, :new
-      get "/login/explanation", PageController, :login
+      get "/explanation", PageController, :login
       get "/oauth/datagouvfr/callback", SessionController, :create
     end
 

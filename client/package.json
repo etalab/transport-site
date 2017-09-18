@@ -10,26 +10,28 @@
     "errors": "webpack --display-error-details"
   },
   "devDependencies": {
-    "babel-core": "^7.0.0-beta.0",
+    "babel-core": "^7.0.0-beta.1",
     "babel-loader": "^7.0.0",
-    "babel-preset-es2017": "^7.0.0-beta.0",
+    "babel-preset-es2015": "^7.0.0-beta.1",
+    "babel-preset-es2015-riot": "^1.1.0",
     "bourbon": "^5.0.0-beta.8",
     "bourbon-neat": "^2.1.0",
     "css-loader": "^0.28.4",
+    "exports-loader": "^0.6.4",
     "extract-text-webpack-plugin": "^3.0.0",
     "file-loader": "^1.0.0",
-    "img-loader": "^2.0.0",
+    "font-awesome": "^4.7.0",
+    "imports-loader": "^0.7.1",
     "import-glob-loader": "^1.1.0",
     "leaflet": "^1.2.0",
     "node-sass": "^4.5.3",
     "normalize.css": "^7.0.0",
     "purecss": "^1.0.0",
+    "riot": "^3.7.0",
+    "riot-tag-loader": "^1.0.0",
     "sass-loader": "^6.0.5",
     "typeplate-starter-kit": "^3.0.2",
-    "url-loader": "v0.5.9",
-    "webpack": "^3.5.6"
-  },
-  "dependencies": {
-    "font-awesome": "^4.7.0"
+    "webpack": "^3.5.6",
+    "whatwg-fetch": "2.0.3"
   }
 }
