@@ -11,7 +11,7 @@
           <%= gettext "sign_out" %>
         </a>
       <% else %>
-        <a class="pure-button" href="<%= session_path @conn, :new %>">
+        <a class="pure-button" href="<%= session_path @conn, :explanations %>">
           <i class="fa fa-sign-in" aria-hidden="true"></i>
           <%= gettext "sign_in" %>
         </a>
