@@ -12,8 +12,10 @@
   </head>
 
   <body>
-    <%= render(LayoutView, "_navigation.html", conn: @conn, current_user: @current_user) %>
-    <main id="main" role="main">
+    <header role="banner">
+      <%= render(LayoutView, "_navigation.html", conn: @conn, current_user: @current_user) %>
+    </header>
+    <main role="main">
       <%= render(@view_module, @view_template, assigns) %>
     </main>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>

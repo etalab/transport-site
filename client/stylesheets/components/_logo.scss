@@ -1,0 +1,16 @@
+.logo {
+  @include desktop {
+    height: modular-scale(3);
+  }
+
+  @include tablet {
+    height: modular-scale(3);
+  }
+
+  float: left;
+  height: modular-scale(1);
+
+  img {
+    height: 100%;
+  }
+}

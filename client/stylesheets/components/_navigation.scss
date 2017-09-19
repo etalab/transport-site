@@ -1,0 +1,44 @@
+[role='navigation'] {
+  @include desktop {
+    height: modular-scale(3);
+  }
+
+  @include tablet {
+    height: modular-scale(3);
+  }
+
+  float: right;
+  height: modular-scale(1);
+
+  [role='link'] {
+    &.navigation-login {
+      @include desktop {
+        display: block;
+      }
+
+      @include tablet {
+        display: block;
+      }
+
+      @extend .button-success;
+      @extend .fa;
+      @extend .fa-sign-in;
+      display: none;
+    }
+
+    &.navigation-logout {
+      @include desktop {
+        display: block;
+      }
+
+      @include tablet {
+        display: block;
+      }
+
+      @extend .button-warning;
+      @extend .fa;
+      @extend .fa-sign-out;
+      display: none;
+    }
+  }
+}

@@ -1,0 +1,21 @@
+[role='banner'] {
+  $dark-gray: #333 !default;
+  $background: $dark-gray;
+
+  @include desktop {
+    min-height: modular-scale(3);
+    padding: modular-scale(-1) modular-scale(1);
+  }
+
+  @include tablet {
+    min-height: modular-scale(3);
+    padding: modular-scale(-1) modular-scale(1);
+  }
+
+  @include clearfix;
+  background-color: $background;
+  border-bottom: 1px solid darken($background, 10);
+  min-height: modular-scale(1);
+  padding: modular-scale(-3) modular-scale(-2);
+  z-index: 999;
+}
