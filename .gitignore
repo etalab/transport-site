@@ -8,6 +8,7 @@
 erl_crash.dump
 
 # Npm stuff
+/node_modules
 /**/*/node_modules
 /**/*/npm-debug.*
 
