@@ -13,9 +13,6 @@ end_of_line              = lf
 [*.js]
 indent_size              = 4
 
-[*.elm]
-indent_size              = 4
-
 [*.md]
 trim_trailing_whitespace = false
 
