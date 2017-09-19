@@ -10,7 +10,6 @@ module.exports = {
     },
     resolve: {
         modules: [
-            resolve('./elm-stuff'),
             resolve('./node_modules'),
             resolve('./javascripts'),
             resolve('./stylesheets'),
@@ -24,26 +23,14 @@ module.exports = {
             './images/marker-icon-2x.png$': resolve('./node_modules/leaflet/dist/images/marker-icon-2x.png'),
             './images/marker-shadow.png$': resolve('./node_modules/leaflet/dist/images/marker-shadow.png')
         },
-        extensions: ['.elm', '.js', '.scss', '.jpg', '.jpeg', '.png', '.gif', '.svg']
+        extensions: ['.js', '.scss', '.jpg', '.jpeg', '.png', '.gif', '.svg']
     },
     plugins: [extractSass],
     devtool: 'source-map',
     module: {
-        noParse: /\.elm$/,
         rules: [{
-            test: /\.elm$/,
-            exclude: [/elm-stuff/, /node_modules/],
-            use: {
-                loader: 'elm-webpack-loader',
-                options: {
-                    cwd: __dirname,
-                    debug: false,
-                    warn: true
-                }
-            }
-        }, {
             test: /\.js$/,
-            exclude: [/elm-stuff/, /node_modules/],
+            exclude: [/node_modules/],
             use: {
                 loader: 'babel-loader',
                 options: {
