@@ -5,12 +5,10 @@ Installation:
   * Make sure you have **Elixir**, **Node**, **Yarn** and **PhantomJS** installed and up-to-date
   * Install Elixir dependencies with `mix deps.get`
   * Install Node.js dependencies with `mix yarn install`
-  * Install Elm dependencies with `mix elm install`
   * Optional: install linters with
 
     ```
-    npm install -g elm \
-                   eslint \
+    npm install -g eslint \
                    eslint-config-standard \
                    eslint-plugin-import \
                    eslint-plugin-node \
@@ -21,8 +19,9 @@ Installation:
 
 Usage:
 
-  * Run the up with `mix phx.server`
-  * Run the tests with `mix test` and `mix elm test` (you need to have `phantomjs --wd` running)
+  * Run the server with `mix phx.server`
+  * Run the webdriver server with `phantomjs --wd`
+  * Run the tests with `mix test`
   * Run the elixir linter with `mix credo --strict`
   * Run the javascript linter with `eslint -c .eslintrc client`
   * Run the sass linter with `sass-lint -c .sass-lint.yml  -v -q`

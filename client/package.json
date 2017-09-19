@@ -7,9 +7,7 @@
     "watch": "webpack --stdin --progress --color",
     "build": "webpack",
     "deploy": "webpack -p",
-    "errors": "webpack --display-error-details",
-    "elm-install": "elm-package install -y && cd tests && elm-package install -y",
-    "elm-test": "elm-test"
+    "errors": "webpack --display-error-details"
   },
   "devDependencies": {
     "babel-core": "^7.0.0-beta.0",
@@ -18,9 +16,6 @@
     "bourbon": "^5.0.0-beta.8",
     "bourbon-neat": "^2.1.0",
     "css-loader": "^0.28.4",
-    "elm": "^0.18.0",
-    "elm-test": "^0.18.8",
-    "elm-webpack-loader": "^4.3.1",
     "extract-text-webpack-plugin": "^3.0.0",
     "file-loader": "v1.0.0",
     "img-loader": "^2.0.0",
