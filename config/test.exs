@@ -4,7 +4,10 @@ use Mix.Config
 # you can enable the server option below.
 config :transport, TransportWeb.Endpoint,
   http: [port: 5001],
-  server: false
+  server: true
+
+# Integration testing with Hound and PhantomJS
+config :hound, driver: "phantomjs"
 
 # Print only warnings and errors during test
 config :logger, level: :warn

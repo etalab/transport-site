@@ -12,7 +12,7 @@
   </head>
 
   <body>
-    <%= render(TransportWeb.LayoutView, "_navigation.html") %>
+    <%= render(LayoutView, "_navigation.html", conn: @conn, current_user: @current_user) %>
     <main id="main" role="main">
       <%= render(@view_module, @view_template, assigns) %>
     </main>
