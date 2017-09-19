@@ -10,10 +10,19 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 
-#: lib/transport_web/templates/layout/_navigation.html.eex:14
+#: lib/transport_web/templates/layout/_navigation.html.eex:12
+#: lib/transport_web/templates/page/login.html.eex:7
 msgid "sign_in"
-msgstr "S'enregistrer"
+msgstr "S'identifier"
 
-#: lib/transport_web/templates/layout/_navigation.html.eex:10
+#: lib/transport_web/templates/layout/_navigation.html.eex:7
 msgid "sign_out"
 msgstr "Se déconnecter"
+
+#: lib/transport_web/templates/page/login.html.eex:3
+msgid "sign_in_explanation_text"
+msgstr "transport.data.gouv.fr est un site affilié à data.gouv.fr. Ces deux sites utilisent les mêmes comptes utiliateurs. En cliquant sur le bouton ci-dessous vous allez pouvoir créer un compte et/ou vous identifier avec data.gouv.fr et autoriser transport.data.gouv.fr à utiliser votre compte data.gouv.fr"
+
+#: lib/transport_web/templates/page/login.html.eex:1
+msgid "sign_in_explanation_title"
+msgstr "Identification avec un compte data.gouv.fr"

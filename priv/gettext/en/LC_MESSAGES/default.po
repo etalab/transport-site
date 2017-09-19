@@ -10,10 +10,19 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/layout/_navigation.html.eex:14
+#: lib/transport_web/templates/layout/_navigation.html.eex:12
+#: lib/transport_web/templates/page/login.html.eex:7
 msgid "sign_in"
 msgstr "Sign In"
 
-#: lib/transport_web/templates/layout/_navigation.html.eex:10
+#: lib/transport_web/templates/layout/_navigation.html.eex:7
 msgid "sign_out"
 msgstr "Sign Out"
+
+#: lib/transport_web/templates/page/login.html.eex:3
+msgid "sign_in_explanation_text"
+msgstr "transport.data.gouv.fr is affiliated to data.gouv.fr. These two websites use the same user accounts. By clicking on the below button you'll be able to create and/or login to a data.gouv.fr user account and authorize transport.data.gouv.fr to use your data.gouv.fr user account"
+
+#: lib/transport_web/templates/page/login.html.eex:1
+msgid "sign_in_explanation_title"
+msgstr "Sign In with data.gouv.fr"

@@ -25,5 +25,8 @@ $fa-font-path: '~font-awesome/fonts';
 @import 'components/logo';
 @import 'components/navigation';
 
+// Contexts: special layout/component mashups, i.e. login, etc...
+@import 'contexts/login';
+
 // Transitional styles: hacky or dirty styles used for prototyping.
 @import 'transitional';

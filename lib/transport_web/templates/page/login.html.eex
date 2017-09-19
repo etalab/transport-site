@@ -1,0 +1,11 @@
+<section class=login>
+  <h1><%= gettext "sign_in_explanation_title" %></h1>
+  <p><%= gettext "sign_in_explanation_text" %></p>
+
+  <div class="login-actions">
+    <a class="login-signin" href="<%= session_path @conn, :new %>" role="link">
+      <i aria-hidden="true"></i>
+      <%= gettext "sign_in" %>
+    </a>
+  </div>
+<section>
