@@ -7,10 +7,6 @@
 # Generated on crash by the VM
 erl_crash.dump
 
-# Elm stuff
-/**/*/elm-stuff
-/**/*/repl-temp-*
-
 # Npm stuff
 /**/*/node_modules
 /**/*/npm-debug.*
