@@ -3,7 +3,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const extractSass       = new ExtractTextPlugin({ filename: '../css/app.css', allChunks: true })
 
 module.exports = {
-    entry: ['./javascripts/app.js', './stylesheets/app.scss'],
+    entry: ['./javascripts/app.js', './stylesheets/app.scss', 'font-awesome/scss/font-awesome.scss'],
     output: {
         path: resolve('../priv/static/js'),
         filename: 'app.js'
@@ -62,6 +62,15 @@ module.exports = {
                 'url-loader?limit=10000',
                 'img-loader'
             ]
-        }]
+        },
+        {
+            test: /\.woff2?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+            use: 'url-loader'
+        },
+        {
+            test: /\.(ttf|eot)(\?[\s\S]+)?$/,
+            use: 'file-loader'
+        }
+        ]
     }
 }

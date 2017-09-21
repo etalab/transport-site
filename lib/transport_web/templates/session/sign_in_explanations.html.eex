@@ -1,0 +1,9 @@
+<h3><%= gettext "sign_in_explanation_title" %></h3>
+<p>
+<%= gettext "sign_in_explanation_text" %>
+<br>
+<a class="pure-button" href="<%= session_path @conn, :new %>" style="font-size: 150%">
+  <i class="fa fa-sign-in" aria-hidden="true"></i>
+  <%= gettext "sign_in" %>
+</a>
+</p>

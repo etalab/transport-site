@@ -6,11 +6,13 @@
       <%= if @current_user do %>
         <%= "Hi #{@current_user["first_name"]}" %>
 
-        <a style="color: white;" href="<%= session_path @conn, :delete %>">
+        <a class="pure-button" href="<%= session_path @conn, :delete %>">
+          <i class="fa fa-sign-out" aria-hidden="true"></i>
           <%= gettext "sign_out" %>
         </a>
       <% else %>
-        <a style="color: white;" href="<%= session_path @conn, :new %>">
+        <a class="pure-button" href="<%= session_path @conn, :explanations %>">
+          <i class="fa fa-sign-in" aria-hidden="true"></i>
           <%= gettext "sign_in" %>
         </a>
       <% end %>

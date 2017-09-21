@@ -30,6 +30,10 @@ defmodule TransportWeb.SessionController do
     |> redirect(to: "/")
   end
 
+  def explanations(conn, _) do
+     render(conn, "sign_in_explanations.html")
+  end
+
   # private
 
   defp authorize_url! do
