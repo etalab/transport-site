@@ -60,3 +60,32 @@ jobs:
             mix credo --strict
             eslint -c .eslintrc client
             sass-lint -c .sass-lint.yml  -v -q
+
+      - run:
+          name: Setup Heroku
+          command: |
+            git remote add heroku https://git.heroku.com/transport-beta.git
+
+            cat > ~/.netrc << EOF
+            machine api.heroku.com
+              login $HEROKU_LOGIN
+              password $HEROKU_API_KEY
+            machine git.heroku.com
+              login $HEROKU_LOGIN
+              password $HEROKU_API_KEY
+            EOF
+
+            ssh-keyscan -H heroku.com >> ~/.ssh/known_hosts
+
+      - add_ssh_keys:
+          fingerprints:
+            - "ec:1c:68:6e:d7:46:29:87:af:67:46:a2:ea:a5:8e:fb"
+
+      - deploy:
+          name: Deploy master to Heroku
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              git push heroku master
+              heroku restart
+            fi
+
