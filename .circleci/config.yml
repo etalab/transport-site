@@ -6,6 +6,7 @@ jobs:
       - image: maukoquiroga/transport:0.0.1
         environment:
           MIX_ENV: test
+          DATAGOUVFR_SITE: https://www.data.gouv.fr
 
     steps:
       - checkout
@@ -49,7 +50,9 @@ jobs:
 
       - run:
           name: Run tests
-          command: mix test
+          command: |
+            mix test
+            mix test --only integration
 
       - run:
           name: Run linters
