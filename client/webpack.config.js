@@ -3,18 +3,16 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const extractSass       = new ExtractTextPlugin({ filename: '../css/app.css', allChunks: true })
 
 module.exports = {
-    entry: ['./javascripts/app.js', './stylesheets/app.scss'],
+    entry: [
+        './javascripts/app.js',
+        './stylesheets/app.scss'
+    ],
     output: {
         path: resolve('../priv/static/js'),
         filename: 'app.js'
     },
     resolve: {
-        modules: [
-            resolve('./node_modules'),
-            resolve('./javascripts'),
-            resolve('./stylesheets'),
-            resolve('./images')
-        ],
+        modules: [resolve('./node_modules')],
         // https://github.com/Leaflet/Leaflet/issues/4849#issuecomment-307436996
         alias: {
             './images/layers.png$': resolve('./node_modules/leaflet/dist/images/layers.png'),
@@ -23,7 +21,7 @@ module.exports = {
             './images/marker-icon-2x.png$': resolve('./node_modules/leaflet/dist/images/marker-icon-2x.png'),
             './images/marker-shadow.png$': resolve('./node_modules/leaflet/dist/images/marker-shadow.png')
         },
-        extensions: ['.js', '.scss', '.jpg', '.jpeg', '.png', '.gif', '.svg']
+        extensions: ['.js', '.scss']
     },
     plugins: [extractSass],
     devtool: 'source-map',
@@ -39,6 +37,7 @@ module.exports = {
             }
         }, {
             test: /\.scss$/,
+            exclude: [/node_modules/],
             use: extractSass.extract({
                 use: [{
                     loader: 'css-loader',
@@ -54,14 +53,28 @@ module.exports = {
             })
         }, {
             test: /\.(js|scss)$/,
+            exclude: [/node_modules/],
             enforce: 'pre',
             loader: 'import-glob-loader'
         }, {
             test: /\.(jpe?g|png|gif|svg)$/,
-            use: [
-                'url-loader?limit=10000',
-                'img-loader'
-            ]
+            exclude: [/font-awesome/],
+            use: [{
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]',
+                    outputPath: '../images/'
+                }
+            }]
+        }, {
+            test: /\.(eot|ttf|woff|woff2|svg)(\?v=\d+\.\d+\.\d+)?$/,
+            use: [{
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]',
+                    outputPath: '../fonts/'
+                }
+            }]
         }]
     }
 }

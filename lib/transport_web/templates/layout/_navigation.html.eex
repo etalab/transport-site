@@ -1,19 +1,15 @@
-<nav id="navigation" role="navigation">
-  <div class="navigation-wrapper">
-    <%= img_tag("images/logo.svg", alt: "transport.beta.gouv.fr") |> link(to: "/", class: "logo") %>
+<%= img_tag("/images/logo.svg", alt: "transport.beta.gouv.fr") |> link(to: "/", class: "logo") %>
 
-    <div style="float:right; color: white; margin: 1em;">
-      <%= if @current_user do %>
-        <%= "Hi #{@current_user["first_name"]}" %>
-
-        <a style="color: white;" href="<%= session_path @conn, :delete %>">
-          <%= gettext "sign_out" %>
-        </a>
-      <% else %>
-        <a style="color: white;" href="<%= session_path @conn, :new %>">
-          <%= gettext "sign_in" %>
-        </a>
-      <% end %>
-    </div>
-  </div>
+<nav role="navigation">
+  <%= if @current_user do %>
+    <a class="navigation-logout" href="<%= session_path @conn, :delete %>" role="link">
+      <i aria-hidden="true"></i>
+      <span><%= gettext "sign_out" %></span>
+    </a>
+  <% else %>
+    <a class="navigation-login" href="<%= page_path @conn, :login %>" role="link">
+      <i aria-hidden="true"></i>
+      <span><%= gettext "sign_in" %></span>
+    </a>
+  <% end %>
 </nav>

@@ -1,0 +1,28 @@
+.login {
+  $light-gray: #eee !default;
+  $font-size: calc(2vw + 1em);
+
+  background: $light-gray;
+  padding: $font-size;
+
+  h1 {
+    font-size: $font-size;
+  }
+
+  p {
+    padding: 1em;
+  }
+
+  .login-actions {
+    text-align: center;
+
+    [role='link'] {
+      &.login-signin {
+        @extend .button-success;
+        @extend .fa;
+        @extend .fa-sign-in;
+        font-size: $font-size;
+      }
+    }
+  }
+}

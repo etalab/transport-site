@@ -8,6 +8,7 @@
 erl_crash.dump
 
 # Npm stuff
+/node_modules
 /**/*/node_modules
 /**/*/npm-debug.*
 
@@ -15,6 +16,9 @@ erl_crash.dump
 # we ignore priv/static.
 /priv/static/js
 /priv/static/css
+/priv/static/fonts
+/priv/static/images
+!/priv/static/images/logo.svg
 
 # For now, we'll be ignoring data files.
 /priv/static/data/aots

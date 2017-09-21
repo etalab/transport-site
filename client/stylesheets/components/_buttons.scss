@@ -1,0 +1,26 @@
+%button {
+  @extend .pure-button;
+  $white: #fff !default;
+  $black: #000 !default;
+  $text-shadow: rgba($black, .2);
+
+  border-radius: .25em;
+  color: $white;
+  line-height: 1em;
+  text-shadow: $text-shadow;
+}
+
+[role='button'],
+[role='link'] {
+  &.button-success {
+    @extend %button;
+    $green: rgb(28, 184, 65) !default;
+    background: $green;
+  }
+
+  &.button-warning {
+    @extend %button;
+    $red: rgb(223, 117, 20) !default;
+    background: $red;
+  }
+}
