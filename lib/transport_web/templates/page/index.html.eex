@@ -1,6 +1,7 @@
 <section class="landing">
   <h1>Rendre disponible, valoriser et améliorer les données transports</h1>
-  <div id="map"></div>
+
+  <map></map>
 
   <h2>transport.beta.gouv.fr c'est quoi ?</h2>
 

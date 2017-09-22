@@ -8,4 +8,8 @@ defmodule TransportWeb.PageController do
   def login(conn, _) do
     render conn, "login.html"
   end
+
+  def search_organizations(conn, _) do
+    render conn, "search_organizations.html"
+  end
 end

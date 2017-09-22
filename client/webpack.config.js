@@ -1,6 +1,9 @@
 const { resolve }       = require('path')
+const webpack           = require('webpack')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const extractSass       = new ExtractTextPlugin({ filename: '../css/app.css', allChunks: true })
+const fetchPolyfill     = new webpack.ProvidePlugin({ fetch: 'imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch' })
+const processEnv        = new webpack.DefinePlugin({ 'process.env': { 'DATAGOUVFR_SITE': JSON.stringify(process.env.DATAGOUVFR_SITE) } })
 
 module.exports = {
     entry: [
@@ -20,19 +23,44 @@ module.exports = {
             './images/marker-icon.png$': resolve('./node_modules/leaflet/dist/images/marker-icon.png'),
             './images/marker-icon-2x.png$': resolve('./node_modules/leaflet/dist/images/marker-icon-2x.png'),
             './images/marker-shadow.png$': resolve('./node_modules/leaflet/dist/images/marker-shadow.png')
-        },
-        extensions: ['.js', '.scss']
+        }
     },
-    plugins: [extractSass],
+    plugins: [
+        extractSass,
+        fetchPolyfill,
+        processEnv
+    ],
     devtool: 'source-map',
     module: {
         rules: [{
+            test: /\.(js|scss)$/,
+            exclude: [/node_modules/],
+            enforce: 'pre',
+            loader: 'import-glob-loader'
+        }, {
+            test: /\.tag$/,
+            exclude: /node_modules/,
+            enforce: 'pre',
+            loader: 'riot-tag-loader',
+            query: {
+                type: 'es6'
+            }
+        }, {
+            test: /\.tag$/,
+            exclude: [/node_modules/],
+            use: {
+                loader: 'babel-loader',
+                options: {
+                    presets: ['es2015-riot']
+                }
+            }
+        }, {
             test: /\.js$/,
             exclude: [/node_modules/],
             use: {
                 loader: 'babel-loader',
                 options: {
-                    presets: ['es2017']
+                    presets: ['es2015']
                 }
             }
         }, {
@@ -51,11 +79,6 @@ module.exports = {
                     }
                 }]
             })
-        }, {
-            test: /\.(js|scss)$/,
-            exclude: [/node_modules/],
-            enforce: 'pre',
-            loader: 'import-glob-loader'
         }, {
             test: /\.(jpe?g|png|gif|svg)$/,
             exclude: [/font-awesome/],

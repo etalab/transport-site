@@ -1,3 +1,4 @@
-const { addMap } = require('./leaflet')
+import riot from 'riot'
+import './components/**/*.tag'
 
-addMap('map', '/data/home.geojson')
+riot.mount('*')
