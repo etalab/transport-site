@@ -10,6 +10,9 @@ $fa-font-path: '~font-awesome/fonts';
 @import '~leaflet/dist/leaflet';
 @import '~font-awesome/scss/font-awesome';
 
+// Variables: to setup globally some site standard values
+@import 'variables';
+
 // Mixins: to enhance your styles programmatically
 @import 'mixins';
 
