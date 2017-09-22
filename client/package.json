@@ -31,7 +31,7 @@
     "riot-tag-loader": "^1.0.0",
     "sass-loader": "^6.0.5",
     "typeplate-starter-kit": "^3.0.2",
-    "webpack": "^3.5.6",
+    "webpack": "^3.6.0",
     "whatwg-fetch": "2.0.3"
   }
 }
