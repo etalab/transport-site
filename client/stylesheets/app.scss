@@ -17,17 +17,13 @@ $fa-font-path: '~font-awesome/fonts';
 @import 'base';
 
 // Layouts: header, main, footer, ...
-@import 'layouts/header';
-@import 'layouts/main';
+@import 'layouts/**/*';
 
 // Components: abstract building blocks as buttons, navigation, etc...
-@import 'components/buttons';
-@import 'components/logo';
-@import 'components/navigation';
-@import 'components/organization';
+@import 'components/**/*';
 
 // Contexts: special layout/component mashups, i.e. login, etc...
-@import 'contexts/login';
+@import 'contexts/**/*';
 
 // Transitional styles: hacky or dirty styles used for prototyping.
 @import 'transitional';

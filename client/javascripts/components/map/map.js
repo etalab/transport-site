@@ -1,4 +1,4 @@
-const Leaflet = require('leaflet')
+import Leaflet from 'leaflet'
 
 /**
  * Represents a Mapbox object.
@@ -17,7 +17,7 @@ const Mapbox = {
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} featuresUrl Url exposing a {FeatureCollection}.
  */
-const addMap = (id, featuresUrl) => {
+export const addMap = (id, featuresUrl) => {
     const map = Leaflet.map(id).setView([51.505, -0.09], 13)
 
     Leaflet.tileLayer(Mapbox.url, {
@@ -45,5 +45,3 @@ const addMap = (id, featuresUrl) => {
 
     return map
 }
-
-export { addMap }
