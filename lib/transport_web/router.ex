@@ -19,9 +19,12 @@ defmodule TransportWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    get "/search_organizations", PageController, :search_organizations
-    get "/organizations/:slug", PageController, :organization
-    get "/organizations/:slug/claim", PageController, :organization_claim
+
+  scope "/organizations" do 
+    get "/:slug", OrganizationsController, :organization
+    get "/:slug/claim", OrganizationsController, :claim
+    get "/_search", OrganizationsController, :search
+  end
 
     # Authentication
 

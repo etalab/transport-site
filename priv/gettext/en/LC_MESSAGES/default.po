@@ -27,6 +27,14 @@ msgstr "transport.data.gouv.fr is affiliated to data.gouv.fr. These two websites
 msgid "sign_in_explanation_title"
 msgstr "Sign In with data.gouv.fr"
 
+#: lib/transport_web/controllers/page_controller.ex:36
+msgid "connection_needed"
+msgstr "You need to login before claiming an organization. Please click on the sign in button above."
+
+#: lib/transport_web/controllers/page_controller.ex:46
+msgid "already_organization_member"
+msgstr "You are already a member of this organization"
+
 #: lib/transport_web/templates/page/index.html.eex:2
 msgid "landing_heading"
 msgstr "Publish and re-use public transport data"
@@ -54,3 +62,11 @@ msgstr "You need to login before claiming an organization. Please click on the s
 #: lib/transport_web/controllers/page_controller.ex:45
 msgid "already_organization_member"
 msgstr "You are already a member of this organization"
+
+#: lib/transport_web/templates/page/organization.html.eex:8
+msgid "pending_membership"
+msgstr "You already have a request for membership pending."
+
+#: lib/transport_web/templates/page/organization.html.eex:11
+msgid "refused_membership"
+msgstr "You asked for membership, and you're request have been denied."

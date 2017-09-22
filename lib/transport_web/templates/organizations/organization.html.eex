@@ -4,6 +4,12 @@
 <%= if get_flash(@conn, :error) do %>
 <p class="info"><%= get_flash(@conn, :error) %></p>
 <% end %>
+<%= if @has_pending_membership do %>
+<p class="info"><%= gettext "pending_membership" %></p>
+<% end %>
+<%= if @has_refused_membership do %>
+<p class="info"><%= gettext "refused_membership" %></p>
+<% end %>
 
 <section class="organization">
     <h1><%= @organization["name"] %></h1>
@@ -12,7 +18,7 @@
       <%= if @is_member do %>
       <li>Vous êtes membre de l'organisation</li>
       <% else %>
-      <li><a href="<%= @organization["slug"] %>/claim">Claim</a></li>
+      <li><a href="<%= organizations_path @conn, :claim, @organization["slug"] %>">Claim</a></li>
       <% end %>
     </ul>
 </section>
