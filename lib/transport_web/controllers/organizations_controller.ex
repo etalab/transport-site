@@ -2,7 +2,7 @@ defmodule TransportWeb.OrganizationsController do
   use TransportWeb, :controller
   alias Transport.Datagouvfr.Client
   def search(conn, _) do
-    render conn, "search_organizations.html"
+    render conn, "search.html"
   end
 
   def organization(conn, %{"slug" => slug}) do
@@ -58,7 +58,7 @@ defmodule TransportWeb.OrganizationsController do
     organization["members"]
     |> Enum.filter(fn member -> member["id"] == current_user(conn)["id"] end)
     |> Enum.empty?
-    != true
+    != false
   end
 
   def has_pending_membership(organization, conn) do
@@ -74,7 +74,7 @@ defmodule TransportWeb.OrganizationsController do
     |> Enum.filter(fn ms -> ms["user"]["id"] == current_user(conn)["id"]
                             and ms["status"] == status end)
     |> Enum.empty?
-    != true
+    != false
   end
 
   def current_user(conn) do

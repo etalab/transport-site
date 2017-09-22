@@ -3,6 +3,6 @@ defmodule TransportWeb.OrganizationsControllerTest do
 
   test "GET /organizations/_search", %{conn: conn} do
     conn = get conn, "/organizations/_search"
-    assert html_response(conn, 200) =~ "<organization-search></organization-search>"
+    assert html_response(conn, 200) =~ "<organizations-search></organizations-search>"
   end
 end

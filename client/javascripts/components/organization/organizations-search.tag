@@ -1,4 +1,4 @@
-<organization-search>
+<organizations-search>
     <form role="search">
         <input type="search" value={ keyword }  onkeyup={ update_query } placeholder="recherche">
     </form>
@@ -35,4 +35,4 @@
             this.fetch_orgs()
         }
     </script>
-</organization-search>
+</organizations-search>
