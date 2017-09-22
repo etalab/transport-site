@@ -37,7 +37,8 @@ defmodule TransportWeb.OrganizationsController do
       conn
       |> put_flash(:error, gettext "already_organization_member")
       |> organization({:ok, response})
-    has_pending_membership(response, conn) or has_refused_membership(response, conn) ->
+    has_pending_membership(response, conn) or
+    has_refused_membership(response, conn) ->
       organization(conn,  {:ok, response})
     true ->
       case Client.request_organization_membership(response["slug"],

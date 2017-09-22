@@ -20,10 +20,10 @@ defmodule TransportWeb.Router do
 
     get "/", PageController, :index
 
-  scope "/organizations" do 
+  scope "/organizations" do
+    get "/_search", OrganizationsController, :search
     get "/:slug", OrganizationsController, :organization
     get "/:slug/claim", OrganizationsController, :claim
-    get "/_search", OrganizationsController, :search
   end
 
     # Authentication
