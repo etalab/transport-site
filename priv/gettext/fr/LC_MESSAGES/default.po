@@ -46,3 +46,11 @@ msgstr "Ouvrir mes données"
 #: lib/transport_web/templates/page/index.html.eex:8
 msgid "landing-hero_reuse"
 msgstr "Ré-utiliser ces données"
+
+#: lib/transport_web/controllers/page_controller.ex:35
+msgid "connection_needed"
+msgstr "Vous devez vous identifier avant de joindre une organisation, s'il vous plait cliquez sur le bouton ci-dessus S'identifier."
+
+#: lib/transport_web/controllers/page_controller.ex:45
+msgid "already_organization_member"
+msgstr "Vous êtes déjà membre de cette organisation"

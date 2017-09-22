@@ -4,6 +4,7 @@ alias Transport.Datagouvfr.Authentication
 
 # Configure data.gouv.fr
 config :oauth2, Authentication,
+  apikey: System.get_env("DATAGOUVFR_APIKEY"),
   strategy: Authentication,
   site: System.get_env("DATAGOUVFR_SITE"),
   client_id: System.get_env("DATAGOUVFR_CLIENT_ID"),
