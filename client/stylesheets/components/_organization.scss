@@ -1,8 +1,5 @@
-organization-search {
+organizations-search {
   $width: 500px;
-  $lightblue: #eeeeff;
-  $lighterblue: #f7fBfa;
-  $grey: #eee;
 
   input {
     background: $grey;
@@ -18,18 +15,20 @@ organization-search {
 
     organization {
       a {
+        color: $black;
         text-decoration: none;
-        color: black;
+
+        &:hover {
+          h1 {
+            text-decoration: underline;
+          }
+
+          section {
+            background-color: $lighterblue;
+          }
+        }
       }
 
-      a:hover {
-        h1 {
-          text-decoration: underline;
-        }
-        section {
-          background-color: $lighterblue;
-        }
-      }
 
       section {
         border-bottom: 1px solid $lightblue;
@@ -47,5 +46,34 @@ organization-search {
         }
       }
     }
+  }
+}
+
+.organization {
+  h1 {
+    text-align: left;
+  }
+
+  [role='link'] {
+    &.navigation-join {
+      @extend .button-success;
+      @extend .fa;
+      @extend .fa-handshake-o;
+
+      @include desktop {
+        display: block;
+      }
+
+      @include tablet {
+        display: block;
+      }
+
+      display: none;
+    }
+  }
+
+  .actions {
+    list-style: none;
+    width: 200px;
   }
 }
