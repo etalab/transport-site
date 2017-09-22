@@ -1,6 +1,7 @@
 organization-search {
   $width: 500px;
-  $lightblue: #e6e6fa;
+  $lightblue: #eeeeff;
+  $lighterblue: #f7fBfa;
   $grey: #eee;
 
   input {
@@ -16,6 +17,20 @@ organization-search {
     padding-top: 2em;
 
     organization {
+      a {
+        text-decoration: none;
+        color: black;
+      }
+
+      a:hover {
+        h1 {
+          text-decoration: underline;
+        }
+        section {
+          background-color: $lighterblue;
+        }
+      }
+
       section {
         border-bottom: 1px solid $lightblue;
 

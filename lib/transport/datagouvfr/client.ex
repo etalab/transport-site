@@ -31,6 +31,18 @@ defmodule Transport.Datagouvfr.Client do
     end
   end
 
+  @doc """
+  Call to GET /organizations/{slug}/
+  You can see documentation here: http://www.data.gouv.fr/fr/apslugoc/#!/organizations/get_organization
+  """
+  @spec organization(map) :: {atom, map}
+  def organization(slug) do
+    case get(Path.join("organizations", slug)) do
+      {:ok, response} -> response.body
+      {:error, error} -> {:error, error}
+    end
+  end
+
   # extended functions of HTTPoison
 
   def process_response_body(body) do

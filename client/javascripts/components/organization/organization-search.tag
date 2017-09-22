@@ -4,7 +4,7 @@
     </form>
 
     <section class="organizations">
-        <organization each={ organizations.slice(0, 10) } name={ name } description={ description }/>
+        <organization each={ organizations.slice(0, 10) } name={ name } description={ description } slug={ slug }/>
     </section>
 
     <script type="es6">
