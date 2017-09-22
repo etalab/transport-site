@@ -47,19 +47,22 @@ msgstr "Ouvrir mes données"
 msgid "landing-hero_reuse"
 msgstr "Ré-utiliser ces données"
 
-#: lib/transport_web/controllers/page_controller.ex:36
+#: lib/transport_web/controllers/organizations_controller.ex:27
 msgid "connection_needed"
 msgstr "Vous devez vous identifier avant de joindre une organisation, s'il vous plait cliquez sur le bouton ci-dessus S'identifier."
 
 #: lib/transport_web/controllers/page_controller.ex:46
 msgid "already_organization_member"
-msgstr "Vous êtes déjà membre de cette organisation"
+msgstr "Vous êtes déjà membre de cette organisation."
 
-#: lib/transport_web/templates/page/organization.html.eex:8
+#: lib/transport_web/templates/organizations/organization.html.eex:9
 msgid "pending_membership"
 msgstr "Votre demande à rejoindre cette organisation est en cours de traitement."
 
-#: lib/transport_web/templates/page/organization.html.eex:11
+#: lib/transport_web/templates/organizations/organization.html.eex:12
 msgid "refused_membership"
 msgstr "Votre demande à rejoindre cette organisation a été refusée."
 
+#: lib/transport_web/templates/organizations/organization.html.eex:22
+msgid "join organization"
+msgstr "Je suis responsable de cette organisation"

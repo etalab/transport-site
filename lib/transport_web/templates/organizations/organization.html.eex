@@ -19,7 +19,7 @@
       <% else %>
       <li><a class="navigation-join" href="<%= organizations_path @conn, :claim, @organization["slug"] %>" role="link">
       <i aria-hidden="true"></i>
-      <span><%= gettext "join" %></span>
+      <span><%= gettext "join organization" %></span>
     </a></li>
       <% end %>
     </ul>
