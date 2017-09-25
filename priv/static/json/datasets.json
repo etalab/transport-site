@@ -1,87 +1,141 @@
 [
-    {"slug": "horaires-des-lignes-ter-sncf",
-     "anomalies": ["csv_exposed", "bad_licence"]
-    },
-    {"slug": "offre-transport-de-la-ratp-format-gtfs-ratp",
-     "anomalies": ["no_file", "bad_licence"]
+    {
+        "slug": "horaires-des-lignes-ter-sncf",
+        "license": "other-open",
+        "anomalies": ["csv_exposed", "bad_licence"]
     },
     {
-     "slug": "horaires-des-lignes-intercites-sncf",
-     "anomalies": ["csv_exposed", "bad_licence"]
+        "slug": "offre-transport-de-la-ratp-format-gtfs-ratp",
+        "license": "odc-odbl",
+        "anomalies": ["no_file", "bad_licence"]
     },
-    {"slug": "horaires-et-arrets-du-reseau-irigo-format-gtfs",
-     "anomalies": []
+    {
+        "slug": "horaires-des-lignes-intercites-sncf",
+        "license": "other-open",
+        "anomalies": ["csv_exposed", "bad_licence"]
     },
-    {"slug": "tisseo-offre-de-transport-gtfs",
-     "anomalies": ["bad_format"]
+    {
+        "license": "odc-odbl",
+        "slug": "horaires-et-arrets-du-reseau-irigo-format-gtfs",
+        "anomalies": []
     },
-    {"slug": "horaires-theoriques-des-bus-et-tramways-tag",
-     "anomalies": []
+    {
+        "slug": "tisseo-offre-de-transport-gtfs",
+        "license": "odc-odbl",
+        "anomalies": ["bad_format"]
     },
-    {"slug": "mobilite-arrets-services-et-horaires-theoriques-bus-fichier-gtfs",
-     "anomalies": ["csv_exposed"]
+    {
+        "slug": "horaires-theoriques-des-bus-et-tramways-tag",
+        "license": "odc-odbl",
+        "anomalies": []
+    }, 
+    {
+        "slug": "mobilite-arrets-services-et-horaires-theoriques-bus-fichier-gtfs",
+        "license": "odc-odbl",
+        "anomalies": ["csv_exposed"]
     },
-    {"slug": "versions-des-horaires-theoriques-des-lignes-du-reseau-star-au-format-gtfs-1",
-     "anomalies": ["csv_exposed"]
+    {
+        "slug": "versions-des-horaires-theoriques-des-lignes-du-reseau-star-au-format-gtfs-1",
+        "license": "odc-odbl",
+        "anomalies": ["csv_exposed"]
     },
-    {"slug": "liste-des-arrets-horaires-et-parcours-de-tous-les-bus-et-tramways-circulant-sur-le-territoire-de-brest-metropole",
-     "anomalies": []
+    {
+        "slug": "liste-des-arrets-horaires-et-parcours-de-tous-les-bus-et-tramways-circulant-sur-le-territoire-de-brest-metropole",
+        "license": "fr-lo",
+        "anomalies": []
     },
-    {"slug": "horaires-des-tram-train-ter-pays-de-la-loire",
-     "anomalies": ["csv_exposed", "bad_licence"]
+    {
+        "slug": "horaires-des-tram-train-ter-pays-de-la-loire",
+        "license": "notspecified",
+        "anomalies": ["csv_exposed", "bad_licence"]
     },
-    {"slug": "donnees-sur-le-reseau-de-bus-surf-service-urbain-de-la-region-fougeraise",
-     "anomalies": []
+    {
+        "slug": "donnees-sur-le-reseau-de-bus-surf-service-urbain-de-la-region-fougeraise",
+        "license": "fr-lo",
+        "anomalies": []
     },
-    {"slug": "donnees-gtfs-du-reseau-de-transport-public-carabus-1",
-     "anomalies": ["redirection"]
+    {
+        "slug": "donnees-gtfs-du-reseau-de-transport-public-carabus-1",
+        "license": "fr-lo",
+        "anomalies": ["redirection"]
     },
-    {"slug": "horaires-des-lignes-transilien-1",
-     "anomalies": ["csv_exposed", "bad_licence"]
+    {
+        "slug": "horaires-des-lignes-transilien-1",
+        "license": "notspecified",
+        "anomalies": ["csv_exposed", "bad_licence"]
     },
-    {"slug": "horaires-des-lignes-du-reseau-transgironde-2",
-     "anomalies": ["bad_licence"]
+    {
+        "slug": "horaires-des-lignes-du-reseau-transgironde-2",
+        "license": "notspecified",
+        "anomalies": ["bad_licence"]
     },
-    {"slug": "horaires-theoriques-du-reseau-de-transport-cg-38-transisere",
-     "anomalies": []
+    {
+        "slug": "horaires-theoriques-du-reseau-de-transport-cg-38-transisere",
+        "license": "odc-odbl",
+        "anomalies": []
     },
-    {"slug": "horaires-theoriques-des-reseaux-de-transport-le-pilote",
-     "anomalies": ["redirection"]
+    {
+        "slug": "horaires-theoriques-des-reseaux-de-transport-le-pilote",
+        "license": "fr-lo",
+        "anomalies": ["redirection"]
     },
-    {"slug": "horaires-theoriques-du-reseau-de-transport-ouibus",
-     "anomalies": ["outofdate"]
+    {
+        "slug": "horaires-theoriques-du-reseau-de-transport-ouibus",
+        "license": "notspecified",
+        "anomalies": ["outofdate"]
     },
-    {"slug": "horaires-theoriques-du-reseau-de-transport-aerocar",
-     "anomalies": ["outofdate"]
+    {
+        "slug": "horaires-theoriques-du-reseau-de-transport-aerocar",
+        "license": "odc-odbl",
+        "anomalies": ["outofdate"]
     },
-    {"slug": "horaires-theoriques-du-reseau-de-transport-cts",
-     "anomalies": ["redirection"]
+    {
+        "slug": "horaires-theoriques-du-reseau-de-transport-cts",
+        "license": "odc-odbl",
+        "anomalies": ["redirection"]
     },
-    {"slug": "horaires-theoriques-du-reseau-de-transport-ruban",
-     "anomalies": ["bad_format"]
+    {
+        "slug": "horaires-theoriques-du-reseau-de-transport-ruban",
+        "license": "odc-odbl",
+        "anomalies": ["bad_format"]
     },
-    {"slug": "horaires-theoriques-du-reseau-de-transport-lva",
-     "anomalies": []
+    {
+        "slug": "horaires-theoriques-du-reseau-de-transport-lva",
+        "license": "odc-odbl",
+        "anomalies": []
     },
-    {"slug": "horaires-theoriques-du-reseau-de-transport-impulsyon",
-     "anomalies": []
+    {
+        "slug": "horaires-theoriques-du-reseau-de-transport-impulsyon",
+        "license": "notspecified",
+        "anomalies": []
     },
-    {"slug": "horaires-theoriques-du-reseau-de-transport-transpole",
-     "anomalies": ["redirection"]
+    {
+        "slug": "horaires-theoriques-du-reseau-de-transport-transpole",
+        "license": "fr-lo",
+        "anomalies": ["redirection"]
     },
-    {"slug": "horaires-theoriques-du-reseau-de-transport-cd-31-arc-en-ciel",
-     "anomalies": ["redirection"]
+    {
+        "slug": "horaires-theoriques-du-reseau-de-transport-cd-31-arc-en-ciel",
+        "license": "odc-odbl",
+        "anomalies": ["redirection"]
     },
-    {"slug": "horaires-theoriques-du-reseau-de-transport-transports-du-pays-voironnais",
-     "anomalies": []
+    {
+        "slug": "horaires-theoriques-du-reseau-de-transport-transports-du-pays-voironnais",
+        "license": "odc-odbl",
+        "anomalies": []
     },
-    {"slug": "horaires-theoriques-du-reseau-de-transport-transaltitude",
-     "anomalies": ["outofdate"]
+    {
+        "slug": "horaires-theoriques-du-reseau-de-transport-transaltitude",
+        "license": "odc-odbl",
+        "anomalies": ["outofdate"]
     },
-    {"slug": "horaires-theoriques-du-reseau-de-transport-tougo",
-     "anomalies": []
+    {
+        "slug": "horaires-theoriques-du-reseau-de-transport-tougo",
+        "license": "odc-odbl",
+        "anomalies": []
     },
-    {"slug": "horaires-theoriques-du-reseau-de-transport-stan",
-     "anomalies": []
-    }
-]
+    {
+        "slug": "horaires-theoriques-du-reseau-de-transport-stan",
+        "license": "fr-lo",
+        "anomalies": []
+    }]
