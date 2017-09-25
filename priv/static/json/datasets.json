@@ -1,0 +1,87 @@
+[
+    {"slug": "horaires-des-lignes-ter-sncf",
+     "anomalies": ["csv_exposed", "bad_licence"]
+    },
+    {"slug": "offre-transport-de-la-ratp-format-gtfs-ratp",
+     "anomalies": ["no_file", "bad_licence"]
+    },
+    {
+     "slug": "horaires-des-lignes-intercites-sncf",
+     "anomalies": ["csv_exposed", "bad_licence"]
+    },
+    {"slug": "horaires-et-arrets-du-reseau-irigo-format-gtfs",
+     "anomalies": []
+    },
+    {"slug": "tisseo-offre-de-transport-gtfs",
+     "anomalies": ["bad_format"]
+    },
+    {"slug": "horaires-theoriques-des-bus-et-tramways-tag",
+     "anomalies": []
+    },
+    {"slug": "mobilite-arrets-services-et-horaires-theoriques-bus-fichier-gtfs",
+     "anomalies": ["csv_exposed"]
+    },
+    {"slug": "versions-des-horaires-theoriques-des-lignes-du-reseau-star-au-format-gtfs-1",
+     "anomalies": ["csv_exposed"]
+    },
+    {"slug": "liste-des-arrets-horaires-et-parcours-de-tous-les-bus-et-tramways-circulant-sur-le-territoire-de-brest-metropole",
+     "anomalies": []
+    },
+    {"slug": "horaires-des-tram-train-ter-pays-de-la-loire",
+     "anomalies": ["csv_exposed", "bad_licence"]
+    },
+    {"slug": "donnees-sur-le-reseau-de-bus-surf-service-urbain-de-la-region-fougeraise",
+     "anomalies": []
+    },
+    {"slug": "donnees-gtfs-du-reseau-de-transport-public-carabus-1",
+     "anomalies": ["redirection"]
+    },
+    {"slug": "horaires-des-lignes-transilien-1",
+     "anomalies": ["csv_exposed", "bad_licence"]
+    },
+    {"slug": "horaires-des-lignes-du-reseau-transgironde-2",
+     "anomalies": ["bad_licence"]
+    },
+    {"slug": "horaires-theoriques-du-reseau-de-transport-cg-38-transisere",
+     "anomalies": []
+    },
+    {"slug": "horaires-theoriques-des-reseaux-de-transport-le-pilote",
+     "anomalies": ["redirection"]
+    },
+    {"slug": "horaires-theoriques-du-reseau-de-transport-ouibus",
+     "anomalies": ["outofdate"]
+    },
+    {"slug": "horaires-theoriques-du-reseau-de-transport-aerocar",
+     "anomalies": ["outofdate"]
+    },
+    {"slug": "horaires-theoriques-du-reseau-de-transport-cts",
+     "anomalies": ["redirection"]
+    },
+    {"slug": "horaires-theoriques-du-reseau-de-transport-ruban",
+     "anomalies": ["bad_format"]
+    },
+    {"slug": "horaires-theoriques-du-reseau-de-transport-lva",
+     "anomalies": []
+    },
+    {"slug": "horaires-theoriques-du-reseau-de-transport-impulsyon",
+     "anomalies": []
+    },
+    {"slug": "horaires-theoriques-du-reseau-de-transport-transpole",
+     "anomalies": ["redirection"]
+    },
+    {"slug": "horaires-theoriques-du-reseau-de-transport-cd-31-arc-en-ciel",
+     "anomalies": ["redirection"]
+    },
+    {"slug": "horaires-theoriques-du-reseau-de-transport-transports-du-pays-voironnais",
+     "anomalies": []
+    },
+    {"slug": "horaires-theoriques-du-reseau-de-transport-transaltitude",
+     "anomalies": ["outofdate"]
+    },
+    {"slug": "horaires-theoriques-du-reseau-de-transport-tougo",
+     "anomalies": []
+    },
+    {"slug": "horaires-theoriques-du-reseau-de-transport-stan",
+     "anomalies": []
+    }
+]
