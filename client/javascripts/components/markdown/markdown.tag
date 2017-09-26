@@ -1,11 +1,15 @@
-import showdown from 'showdown'
-riot.tag('markdown', '<div></div>', function (opts) {
-  this.set = () => { this.root.childNodes[0].innerHTML = convert(opts.content)}
-  this.on('update', this.set)
-  this.on('mount', this.set)
-})
+import { Converter } from 'showdown'
 
-var convert = (markdown) => {
-  var converter = new showdown.Converter()
-  return converter.makeHtml(markdown)
-}
+<markdown>
+    <div></div>
+
+    <script type="es6">
+        this.converter = new Converter()
+        this.set = () => {
+            this.root.firstChild.innerHTML = this.converter.makeHtml(this.opts.content)
+        }
+        this.on('update', this.set)
+        this.on('mount', this.set)
+    </script>
+
+</markdown>
