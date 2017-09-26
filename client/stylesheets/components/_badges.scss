@@ -1,10 +1,16 @@
-$small-font-size: 0.75em;
+$small-font-size: .75em;
+$light-green: #e6efc2 !default;
+$light-yellow: #fff6bf !default;
+$light-red: #fbe3e4 !default;
+$light-pink: #e5edf8 !default;
+$grey: #999 !default;
+
 $badges: (
-  "alert": #fff6bf,
-  "default": #999,
-  "error": #fbe3e4,
-  "notice": #e5edf8,
-  "success": #e6efc2,
+  'alert': $light-yellow,
+  'default': $grey,
+  'error': $light-red,
+  'notice': $light-pink,
+  'success': $light-green,
 ) !default;
 
 @each $badge-type, $color in $badges {
@@ -15,7 +21,6 @@ $badges: (
     display: inline-block;
     font-size: $small-font-size;
     line-height: 1;
-    padding: 0.4em 1.2em;
+    padding: .4em 1.2em;
   }
 }
-
