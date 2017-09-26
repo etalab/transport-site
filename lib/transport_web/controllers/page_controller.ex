@@ -12,4 +12,9 @@ defmodule TransportWeb.PageController do
   def search_organizations(conn, _) do
     render conn, "search_organizations.html"
   end
+
+  def shortlist(conn, _) do
+      render conn, "shortlist.html"
+  end
+
 end
