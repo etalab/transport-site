@@ -46,3 +46,15 @@ msgstr ""
 #: lib/transport_web/templates/page/index.html.eex:8
 msgid "landing-hero_reuse"
 msgstr ""
+
+#: lib/transport_web/templates/page/shortlist.html.eex:2
+msgid "download"
+msgstr ""
+
+#: lib/transport_web/templates/page/shortlist.html.eex:1
+msgid "frlo"
+msgstr ""
+
+#: lib/transport_web/templates/page/shortlist.html.eex:3
+msgid "licence"
+msgstr ""

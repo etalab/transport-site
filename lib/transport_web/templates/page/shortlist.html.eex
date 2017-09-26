@@ -1,1 +1,4 @@
-<shortlist></shortlist>
+<shortlist frlo="<%= gettext "frlo" %>"
+           download="<%= gettext "download" %>"
+           licence="<%= gettext "licence" %>">
+</shortlist>
