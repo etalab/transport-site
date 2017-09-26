@@ -24,6 +24,7 @@
     "slug": "horaires-des-lignes-intercites-sncf"
 }, {
     "description": "La liste des heures de passage, arr\u00eat, stations, direction et jour du r\u00e9seau bus et tram Irigo sur le territoire d'Angers Loire M\u00e9tropole\n\nLa liste des arr\u00eats, horaires et parcours du r\u00e9seau Irigo Bus+Tram au format GTFS sont valables :\npour la p\u00e9riode allant **du 1er avril au 26 juin 2016** pour le fichier Keolis_Irigo_Angers_20160401-20160626  \npour la p\u00e9riode allant du **du 27 juin au 27 ao\u00fbt 2016** pour le fichier Keolis_Irigo_Angers_20160627-20160827\npour la p\u00e9riode allant du **du 5 septembre au 19 octobre 2016** pour le fichier Keolis_Irigo_Angers_20160905-20161019\npour la p\u00e9riode allant du **17 octobre au 25 d\u00e9cembre 2016** pour le fichier Keolis_Irigo_Angers_20161017-20161225\npour la p\u00e9riode allant du **26 d\u00e9cembre 2016 au 28 janvier 2017** pour le fichier Keolis_Irigo_Angers_20161226-20170128\npour la p\u00e9riode allant du **28 janvier au 9 avril 2017** pour le fichier Keolis_Irigo_Angers_20170128-20170409.\n\nDocumentation GTFS: [https://developers.google.com/transit/gtfs/](https://developers.google.com/transit/gtfs/)\n**\nRemarques Keolis Angers apr\u00e8s derni\u00e8re M\u00e0J**\n\n> M\u00e0j de coordonn\u00e9es d\u2019arr\u00eats du sub qui occasionnaient des vitesses calcul\u00e9es trop \u00e9lev\u00e9es. Les valeurs restantes peuvent encore para\u00eetre \u00e9lev\u00e9es mais on est dans le raisonnable et sont vraiment les valeurs de la base. Seule une campagne de remesure compl\u00e8te permettra de pr\u00e9ciser l\u2019emplacement des arr\u00eats.\n\n> Ajout des lieux de r\u00e9f\u00e9rence pour des arr\u00eats situ\u00e9es dans une m\u00eame zone :\n- test sur le lieu GARE SNCF qui regroupe les diff\u00e9rents arr\u00eats Gare (papin, br\u00e9mont, etc.)\n- test sur le lieu CENTRE (lorraine, foch, Huit mai, joffre, etc.)\n\n> Ajout de coordonn\u00e9es pour ces lieux de r\u00e9f\u00e9rence (parent_station) en prenant un arr\u00eat de la zone concern\u00e9e\n\n> Maj code couleur hexadecimal ligne 5\n\n> Correction d\u2019un bug sur les jours en service pour le sub\n\n> Correction du bug de s\u00e9quence d\u2019arr\u00eat qui faisait que l\u2019heure de d\u00e9part de l\u2019arr\u00eat N-1 \u00e9tait ult\u00e9rieure \u00e0 l\u2019heure d\u2019arriv\u00e9e \u00e0 l\u2019arr\u00eat N.\n\n> Correction de l\u2019info de ligne A qui venait 2 fois.",
+    "download_uri": "https://www.data.gouv.fr/s/resources/horaires-et-arrets-du-reseau-irigo-format-gtfs/20170130-094427/Keolis_Irigo_Angers_20170129-20170409.zip",
     "license": "odc-odbl",
     "title": "Horaires et arr\u00eats du r\u00e9seau IRIGO - format GTFS",
     "anomalies": [],
@@ -40,6 +41,7 @@
     "slug": "tisseo-offre-de-transport-gtfs"
 }, {
     "description": "Donn\u00e9es descriptives de l'offre th\u00e9orique de transport des bus et tramways exploit\u00e9s par la Semitag (arr\u00eats, horaires th\u00e9oriques, parcours, ...) au format GTFS.\n\nCertaines courses correspondant \u00e0 des TAD ne sont pas d\u00e9crites, le format ne le permettant pas.\n\nLes specifications du format GTFS sont disponibles ici : https://developers.google.com/transit/gtfs/reference\n\n",
+    "download_uri": "http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip",
     "license": "odc-odbl",
     "title": "Horaires th\u00e9oriques des bus et tramways TAG",
     "anomalies": [],
@@ -64,6 +66,7 @@
     "slug": "versions-des-horaires-theoriques-des-lignes-du-reseau-star-au-format-gtfs-1"
 }, {
     "description": "Liste des arr\u00eats, horaires et parcours de tous les bus et tramways circulant sur le territoire de Brest m\u00e9tropole au format GTFS",
+    "download_uri": "https://applications002.brest-metropole.fr/VIPDU72/GPB/Lot_BrestMetropole_Bibus.zip",
     "license": "fr-lo",
     "title": "Liste des arr\u00eats, horaires et parcours de tous les bus et tramways circulant sur le territoire de Brest m\u00e9tropole",
     "anomalies": [],
@@ -80,6 +83,7 @@
     "slug": "horaires-des-tram-train-ter-pays-de-la-loire"
 }, {
     "description": "Trois fichiers sont inclus dans ce jeu de donn\u00e9es :\n- deux fichiers GTFS d\u00e9taillant les arr\u00eats et horaires du r\u00e9seau, par p\u00e9riode\n- un fichier CSV d\u00e9taillant les tarifs applicables\n\nVous pouvez \u00e9galement suivre les messages d'info trafic du r\u00e9seau en vous abonnant au flux RSS du SURF (http://www.lesurf.fr/presentation/?rub_code=73)",
+    "download_uri": "https://www.data.gouv.fr/s/resources/donnees-sur-le-reseau-de-bus-surf-service-urbain-de-la-region-fougeraise/20170901-130759/GTFS_01092017_01_Periode_scolaire.zip",
     "license": "fr-lo",
     "title": "Donn\u00e9es sur le r\u00e9seau de bus SURF (Service Urbain de la R\u00e9gion Fougeraise)",
     "anomalies": [],
@@ -112,6 +116,7 @@
     "slug": "horaires-des-lignes-du-reseau-transgironde-2"
 }, {
     "description": "Horaires th\u00e9oriques du r\u00e9seau 'CG 38 Transis\u00e8re' [38 ISERE (D\u00e9partement)]",
+    "download_uri": "http://www.itinisere.fr/fr/api-open-services/169/OpenData/download?fileName=CG38.GTFS.zip",
     "license": "odc-odbl",
     "title": "Horaires th\u00e9oriques du r\u00e9seau de transport 'CG 38 Transis\u00e8re'",
     "anomalies": [],
@@ -160,6 +165,7 @@
     "slug": "horaires-theoriques-du-reseau-de-transport-ruban"
 }, {
     "description": "Horaires th\u00e9oriques du r\u00e9seau 'L'VA' [PTU101 VIENNE (P\u00e9rim\u00e8tre de transport urbain)]",
+    "download_uri": "http://www.itinisere.fr/fr/api-open-services/169/OpenData/download?fileName=VIENNE.GTFS.zip",
     "license": "odc-odbl",
     "title": "Horaires th\u00e9oriques du r\u00e9seau de transport 'L'VA'",
     "anomalies": [],
@@ -192,6 +198,7 @@
     "slug": "horaires-theoriques-du-reseau-de-transport-cd-31-arc-en-ciel"
 }, {
     "description": "Horaires th\u00e9oriques du r\u00e9seau 'Transports du Pays Voironnais' [PTU272 VOIRON (P\u00e9rim\u00e8tre de transport urbain)]",
+    "download_uri": "http://www.itinisere.fr/fr/api-open-services/169/OpenData/download?fileName=VOIRON.GTFS.zip",
     "license": "odc-odbl",
     "title": "Horaires th\u00e9oriques du r\u00e9seau de transport 'Transports du Pays Voironnais'",
     "anomalies": [],
@@ -208,6 +215,7 @@
     "slug": "horaires-theoriques-du-reseau-de-transport-transaltitude"
 }, {
     "description": "Horaires th\u00e9oriques du r\u00e9seau 'Tougo' [PTU338 GRESIVAUDAN (P\u00e9rim\u00e8tre de transport urbain)]",
+    "download_uri": "http://www.itinisere.fr/fr/api-open-services/169/OpenData/download?fileName=GRESIV.GTFS.zip",
     "license": "odc-odbl",
     "title": "Horaires th\u00e9oriques du r\u00e9seau de transport 'Tougo'",
     "anomalies": [],
