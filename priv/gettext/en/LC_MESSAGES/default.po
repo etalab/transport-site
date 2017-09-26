@@ -61,3 +61,7 @@ msgstr "Licence"
 #: lib/transport_web/templates/page/shortlist.html.eex:4
 msgid "territory"
 msgstr "Territory"
+
+#: lib/transport_web/templates/page/shortlist.html.eex:5
+msgid "seedatagouvfr"
+msgstr "See on data.gouv.fr"

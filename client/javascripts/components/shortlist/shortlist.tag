@@ -7,13 +7,19 @@
     <h1>{ item.title }</h1>
     <markdown content={ item.description }/>
     <div class="shortlist-details">
-      <div>&nbsp;</div>
+      <div>
+        <i class="fa fa-external-link" aria-hidden="true"></i>
+        <a href="https://www.data.gouv.fr/datasets/{ item.slug }/">
+          { parent.opts.seedatagouvfr }
+        </a>
+      </div>
       <div>
         <span>{ parent.opts.territory }</span>
         <span class="badge-notice">{ item.spatial }</span>
       </div>
-      <div class="download"><i class="fa fa-download" aria-hidden="true"></i>
-        <a href="#">{ parent.opts.download }</a>
+      <div class="download">
+        <i class="fa fa-download" aria-hidden="true"></i>
+        <a href="#" class="linethrough">{ parent.opts.download }</a>
       </div>
       <div>
         <div>
@@ -31,6 +37,7 @@
 
 
 <script type="es6">
+console.log(this.opts)
 this.shortlist = []
 
 this.fetch_shortlist = () => {

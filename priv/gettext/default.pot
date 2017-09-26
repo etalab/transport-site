@@ -62,3 +62,7 @@ msgstr ""
 #: lib/transport_web/templates/page/shortlist.html.eex:4
 msgid "territory"
 msgstr ""
+
+#: lib/transport_web/templates/page/shortlist.html.eex:5
+msgid "seedatagouvfr"
+msgstr ""
