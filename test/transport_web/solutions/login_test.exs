@@ -18,7 +18,7 @@ defmodule TransportWeb.LoginTest do
   test "I can see a log in link" do
     home_url() |> navigate_to
 
-    assert page_source() =~ "Sign In"
+    assert page_source() =~ "S'identifier"
   end
 
   # helpers

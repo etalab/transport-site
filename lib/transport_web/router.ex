@@ -7,6 +7,7 @@ defmodule TransportWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :put_locale
     plug :assign_current_user
   end
 
@@ -29,6 +30,19 @@ defmodule TransportWeb.Router do
     end
 
     get "/logout", SessionController, :delete
+  end
+
+  # private
+
+  defp put_locale(conn, _) do
+    case conn.params["locale"] || get_session(conn, :locale) do
+      nil ->
+        TransportWeb.Gettext |> Gettext.put_locale("fr")
+        conn |> put_session(:locale, "fr")
+      locale  ->
+        TransportWeb.Gettext |> Gettext.put_locale(locale)
+        conn |> put_session(:locale, locale)
+    end
   end
 
   defp assign_current_user(conn, _) do
