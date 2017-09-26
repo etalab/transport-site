@@ -20,7 +20,7 @@
         </div>
         <div class="download">
           <i class="fa fa-download" aria-hidden="true"></i>
-          <a href="#" class="linethrough">{ parent.opts.download }</a>
+          <a href="{ item.download_uri }">{ parent.opts.download }</a>
         </div>
         <div>
           <div>
