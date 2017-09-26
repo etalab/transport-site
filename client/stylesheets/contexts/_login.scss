@@ -19,9 +19,12 @@
     [role='link'] {
       &.login-signin {
         @extend .button-success;
-        @extend .fa;
-        @extend .fa-sign-in;
         font-size: $font-size;
+
+        i {
+          @extend .fa;
+          @extend .fa-sign-in;
+        }
       }
     }
   }

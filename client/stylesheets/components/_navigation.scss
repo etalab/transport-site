@@ -21,9 +21,13 @@
       }
 
       @extend .button-success;
-      @extend .fa;
-      @extend .fa-sign-in;
       display: none;
+
+      i {
+        @extend .fa;
+        @extend .fa-sign-in;
+
+      }
     }
 
     &.navigation-logout {
@@ -36,9 +40,13 @@
       }
 
       @extend .button-warning;
-      @extend .fa;
-      @extend .fa-sign-out;
       display: none;
+
+      i {
+        @extend .fa;
+        @extend .fa-sign-out;
+
+      }
     }
   }
 }

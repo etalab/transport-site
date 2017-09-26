@@ -11,23 +11,24 @@ organization-search {
     width: $width;
   }
 
-  section.organizations {
-    padding-top: 2em;
+  .organizations {
     margin-left: 1em;
+    padding-top: 2em;
+
     organization {
       section {
         border-bottom: 1px solid $lightblue;
 
         h1 {
           font-size: 1em;
-          text-align: left;
-          margin-bottom: 0.2em;
+          margin-bottom: .2em;
           margin-top: 1.5em;
+          text-align: left;
         }
 
         p {
           margin: 0;
-          margin-left: 0.5em;
+          margin-left: .5em;
         }
       }
     }
