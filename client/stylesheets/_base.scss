@@ -3,6 +3,10 @@ body {
   height: 100%;
 }
 
+body {
+  font-family: 'Hurme-No3', sans-serif;
+}
+
 h1,
 h2 {
   text-align: center;
@@ -14,4 +18,27 @@ h1 {
 
 h2 {
   font-size: calc(.5vw + 1em);
+}
+
+img {
+  @extend .pure-img;
+}
+
+form {
+  @extend .pure-form;
+}
+
+fieldset {
+  @extend .pure-group;
+}
+
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  @extend .pure-button;
+}
+
+table {
+  @extend .pure-table;
 }
