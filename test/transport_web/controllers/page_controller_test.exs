@@ -10,4 +10,9 @@ defmodule TransportWeb.PageControllerTest do
     conn = get conn, "/search_organizations"
     assert html_response(conn, 200) =~ "<organization-search></organization-search>"
   end
+
+  test "GET /shortlist", %{conn: conn} do
+    conn = get conn, "/shortlist"
+    assert html_response(conn, 200) =~ "</shortlist>"
+  end
 end
