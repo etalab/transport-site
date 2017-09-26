@@ -11,7 +11,10 @@ config :transport, TransportWeb.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  watchers: ["npm": ["run", "--prefix", "client", "watch"]]
+  watchers: [
+    "mix": ["gettext.extract", "--merge"],
+    "npm": ["run", "--prefix", "client", "watch"]
+  ]
 
 # ## SSL Support
 #
