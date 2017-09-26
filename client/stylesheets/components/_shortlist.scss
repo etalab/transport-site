@@ -1,15 +1,19 @@
 shortlist {
+ $base-spacing: 1.5em !default;
+ $dark-gray: #333 !default;
+ $light-gray: #777 !default;
+ $dark-blue: #244e87 !default;
+ $base-font-color: $dark-gray !default;
+ $shortlist-gutter: 1.4em;
+ $shortlist-image-padding: 0.7em;
+ $shortlist-image-width: 4em;
+ $shortlist-color: $base-font-color;
+ $shortlist-image-vert-alignment: top;
+ > div {
+   padding-top: 100px;
+ }
+
 .shortlist {
-  $base-spacing: 1.5em !default;
-  $dark-gray: #333 !default;
-  $light-gray: #777 !default;
-  $dark-blue: #244e87 !default;
-  $base-font-color: $dark-gray !default;
-  $shortlist-gutter: 1.4em;
-  $shortlist-image-padding: 0.7em;
-  $shortlist-image-width: 4em;
-  $shortlist-color: $base-font-color;
-  $shortlist-image-vert-alignment: top;
 
   border-bottom: 1px solid transparentize($shortlist-color, 0.9);
   display: table;

@@ -1,6 +1,7 @@
+<h1><%= gettext "shortlist_title" %></h1>
 <shortlist frlo="<%= gettext "frlo" %>"
-           download="<%= gettext "download" %>"
-           licence="<%= gettext "licence" %>"
-           territory="<%= gettext "territory" %>"
-           seedatagouvfr="<%= gettext "seedatagouvfr" %>">
+           download="<%= gettext "shortlist_download" %>"
+           licence="<%= gettext "shortlist_licence" %>"
+           territory="<%= gettext "shortlist_territory" %>"
+           seedatagouvfr="<%= gettext "shortlist_seedatagouvfr" %>">
 </shortlist>
