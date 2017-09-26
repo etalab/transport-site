@@ -1,7 +1,13 @@
+import { addMap } from './map'
+
 <map>
+    <div class="map"></div>
+
     <script type="es6">
-        import { addMap } from './map'
-        this.root.innerHTML = '<div id="canvas" class="canvas"></div>'
-        addMap('canvas', '/data/home.geojson')
+        this.render = () => {
+            addMap(this.root.firstChild, '/data/home.geojson')
+        }
+
+        this.on('mount', this.render)
     </script>
 </map>
