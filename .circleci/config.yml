@@ -60,7 +60,7 @@ jobs:
           command: |
             mix credo --strict
             eslint -c .eslintrc client
-            sass-lint -c .sass-lint.yml  -v -q
+            sass-lint -c .sass-lint.yml  -v
 
       - run:
           name: Setup Heroku
