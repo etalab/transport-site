@@ -12,15 +12,13 @@
 
   [role='link'] {
     &.navigation-login {
+      @extend .button-success;
       @include desktop {
         display: block;
       }
-
       @include tablet {
         display: block;
       }
-
-      @extend .button-success;
       display: none;
 
       i {
@@ -31,15 +29,13 @@
     }
 
     &.navigation-logout {
+      @extend .button-warning;
       @include desktop {
         display: block;
       }
-
       @include tablet {
         display: block;
       }
-
-      @extend .button-warning;
       display: none;
 
       i {
