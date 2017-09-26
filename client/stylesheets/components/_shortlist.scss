@@ -1,79 +1,69 @@
 shortlist {
- $base-spacing: 1.5em !default;
- $dark-gray: #333 !default;
- $light-gray: #777 !default;
- $dark-blue: #244e87 !default;
- $base-font-color: $dark-gray !default;
- $shortlist-gutter: 1.4em;
- $shortlist-image-padding: 0.7em;
- $shortlist-image-width: 4em;
- $shortlist-color: $base-font-color;
- $shortlist-image-vert-alignment: top;
- > div {
-   padding-top: 100px;
- }
+  $base-spacing: 1.5em !default;
+  $shortlist-gutter: 1.4em;
+  $shortlist-image-padding: .7em;
+  $shortlist-image-width: 4em;
+  $shortlist-image-vert-alignment: top;
 
-.shortlist {
+  .shortlist {
+    @include grid-container;
+    border-bottom: 1px solid transparentize($dark-grey, .9);
+    margin-bottom: 4em;
+    padding-bottom: .8em;
 
-  border-bottom: 1px solid transparentize($shortlist-color, 0.9);
-  display: table;
-  margin-bottom: $base-spacing;
-  padding-bottom: 1em;
-  width: 100%;
 
-  .shortlist-image,
-  .shortlist-content {
-    display: table-cell;
-    vertical-align: $shortlist-image-vert-alignment;
-  }
-
-  .shortlist-image {
-    padding-right: $shortlist-gutter;
-
-    > img {
-      display: block;
-      height: auto;
-      max-width: none;
-      padding: $shortlist-image-padding;
-      width: $shortlist-image-width;
+    .shortlist-image {
+      @include grid-mobile(1, 1);
+      @include grid-tablet-up(8, 1);
     }
-  }
 
-  .shortlist-content {
-    width: 100%;
+    .shortlist-content {
+      @include grid-mobile(1, 1);
+      @include grid-tablet-up(8, 7);
+    }
 
-    h1 {
-      font-size: 1em;
-      margin: 0 0 0.5em 0;
-      text-align: left;
+    .shortlist-description {
+      h1 {
+        font-size: 1em;
+        margin: 0 0 .5em;
+        text-align: left;
+      }
+
+      markdown > div {
+        color: $dark-grey;
+        line-height: 1.8em;
+        margin-bottom: 1em;
+        margin-left: 20px;
+        max-height: 3.6em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-wrap: break-word;
+      }
     }
-    markdown {
-     > div {
-      color: $light-gray;
-      display: block;
-      line-height: 1.8em;
-      margin-left: 20px;
-      max-height: 3.6em;
-      overflow: hidden;
-      margin-bottom: 1em;
-      text-overflow: ellipsis;
-      word-wrap: break-word;
-     }
-    }
+
     .shortlist-details {
-      div {
-        display: block;
-        float: left;
-        width: 50%;
+      @grid-container;
+
+      > div {
+        @grid-container;
+        @include grid-mobile(1, 1);
+        @include grid-tablet-up(2, 1) {
+          margin-left: 0;
+        }
+
+        span {
+          margin-bottom: .4em;
+        }
       }
+
       a {
+        color: $black;
         text-decoration: none;
-        color: black;
-      }
-      a:hover {
-        color: #777;
+
+        &:hover {
+          text-decoration: underline;
+       }
       }
     }
-   }
   }
 }
