@@ -1,18 +1,33 @@
 <shortlist>
-<section each={ item in shortlist }>
-  <img src={ item.logo }/>
-  <h1>{ item.title }</h1>
-  <markdown content={ item.description }/>
-  <footer>
-    <span class="download"><i class="fa fa-download" aria-hidden="true"></i>
-      <a href="#">{ parent.opts.download }</a>
-    </span>
-    <div class="details">
-      <div><span>{ parent.opts.licence } :</span> <span class="badge-notice">{ item.license } </span></div>
-      <div><span>Format :</span> <span class="badge-notice">GTFS</span></div>
+<div class="shortlist" each={ item in shortlist }>
+  <div class="shortlist-image">
+    <img src={ item.logo }/>
+  </div>
+  <div class="shortlist-content">
+    <h1>{ item.title }</h1>
+    <markdown content={ item.description }/>
+    <div class="shortlist-details">
+      <div>&nbsp;</div>
+      <div>
+        <span>{ parent.opts.territory }</span>
+        <span class="badge-notice">{ item.spatial }</span>
+      </div>
+      <div class="download"><i class="fa fa-download" aria-hidden="true"></i>
+        <a href="#">{ parent.opts.download }</a>
+      </div>
+      <div>
+        <div>
+          <span>{ parent.opts.licence } :</span>
+          <span class="badge-notice">{ item.license } </span>
+        </div>
+        <div>
+          <span>Format :</span>
+          <span class="badge-notice">GTFS</span>
+        </div>
+      </div>
     </div>
-  </footer>
-</section>
+  </div>
+</div>
 
 
 <script type="es6">

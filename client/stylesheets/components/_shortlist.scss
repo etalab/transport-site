@@ -1,37 +1,51 @@
 shortlist {
-  section {
-    border-bottom: 1px solid;
-    min-height: 120px;
+.shortlist {
+  $base-spacing: 1.5em !default;
+  $dark-gray: #333 !default;
+  $light-gray: #777 !default;
+  $dark-blue: #244e87 !default;
+  $base-font-color: $dark-gray !default;
+  $shortlist-gutter: 1.4em;
+  $shortlist-image-padding: 0.7em;
+  $shortlist-image-width: 4em;
+  $shortlist-color: $base-font-color;
+  $shortlist-image-vert-alignment: top;
+
+  border-bottom: 1px solid transparentize($shortlist-color, 0.9);
+  display: table;
+  margin-bottom: $base-spacing;
+  padding-bottom: 1em;
+  width: 100%;
+
+  .shortlist-image,
+  .shortlist-content {
+    display: table-cell;
+    vertical-align: $shortlist-image-vert-alignment;
   }
 
-  img {
-    float: left;
-    margin-right: 20px;
-  }
+  .shortlist-image {
+    padding-right: $shortlist-gutter;
 
-  h1 {
-    font-size: 1em;
-    text-align: left;
-    margin: 0px;
-    margin-top: 60px;
-  }
-
-  .download {
-    margin-right: 30px;
-  }
-
-  .details {
-    float: right;
-    div {
+    > img {
       display: block;
-      float: right;
-      width: 250px;
+      height: auto;
+      max-width: none;
+      padding: $shortlist-image-padding;
+      width: $shortlist-image-width;
     }
   }
 
-  markdown {
-    div {
-      color: #777;
+  .shortlist-content {
+    width: 100%;
+
+    h1 {
+      font-size: 1em;
+      margin: 0 0 0.5em 0;
+      text-align: left;
+    }
+    markdown {
+     > div {
+      color: $light-gray;
       display: block;
       line-height: 1.8em;
       margin-left: 20px;
@@ -40,20 +54,23 @@ shortlist {
       margin-bottom: 1em;
       text-overflow: ellipsis;
       word-wrap: break-word;
+     }
     }
+    .shortlist-details {
+      div {
+        display: block;
+        float: left;
+        width: 50%;
+      }
+      a {
+        text-decoration: none;
+        color: black;
+      }
+      a:hover {
+        text-decoration: line-through;
+        color: #777;
+      }
+    }
+   }
   }
-
-  footer {
-    padding-left: 120px;
-    a {
-      text-decoration: none;
-      color: #000;
-    }
-    a:hover {
-      text-decoration: line-through;
-      color: #777;
-    }
-  }
-
 }
-

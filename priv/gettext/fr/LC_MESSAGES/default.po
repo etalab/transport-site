@@ -57,3 +57,7 @@ msgstr "License ouverte"
 #: lib/transport_web/templates/page/shortlist.html.eex:3
 msgid "licence"
 msgstr "License"
+
+#: lib/transport_web/templates/page/shortlist.html.eex:4
+msgid "territory"
+msgstr "Territoire"
