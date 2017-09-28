@@ -26,3 +26,23 @@ msgstr "transport.data.gouv.fr est un site affilié à data.gouv.fr. Ces deux si
 #: lib/transport_web/templates/page/login.html.eex:2
 msgid "sign_in_explanation_title"
 msgstr "Identification avec un compte data.gouv.fr"
+
+#: lib/transport_web/templates/page/index.html.eex:2
+msgid "landing_heading"
+msgstr "Ouvrir et ré-utiliser les données transports"
+
+#: lib/transport_web/templates/page/index.html.eex:12
+msgid "landing-hero_heading"
+msgstr "Qu'est-ce que c'est transport.beta.gouv.fr ?"
+
+#: lib/transport_web/templates/page/index.html.eex:13
+msgid "landing-hero_description"
+msgstr "C'est la plateforme unique de **diffusion des données ouvertes** relatives au transport qui permet la **ré-utilisation des données ouvertes** pour **améliorer la vie des usagers**."
+
+#: lib/transport_web/templates/page/index.html.eex:18
+msgid "landing-hero_open"
+msgstr "Ouvrir mes données"
+
+#: lib/transport_web/templates/page/index.html.eex:8
+msgid "landing-hero_reuse"
+msgstr "Ré-utiliser ces données"

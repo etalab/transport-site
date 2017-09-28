@@ -26,3 +26,23 @@ msgstr "transport.data.gouv.fr is affiliated to data.gouv.fr. These two websites
 #: lib/transport_web/templates/page/login.html.eex:2
 msgid "sign_in_explanation_title"
 msgstr "Sign In with data.gouv.fr"
+
+#: lib/transport_web/templates/page/index.html.eex:2
+msgid "landing_heading"
+msgstr "Publish and re-use public transport data"
+
+#: lib/transport_web/templates/page/index.html.eex:12
+msgid "landing-hero_heading"
+msgstr "transport.beta.gouv.fr, What is it?"
+
+#: lib/transport_web/templates/page/index.html.eex:13
+msgid "landing-hero_description"
+msgstr "The single entry point for publication and re-use of public transport data, allowing to make people lives better."
+
+#: lib/transport_web/templates/page/index.html.eex:18
+msgid "landing-hero_open"
+msgstr "Publish my data"
+
+#: lib/transport_web/templates/page/index.html.eex:8
+msgid "landing-hero_reuse"
+msgstr "R-use this data"

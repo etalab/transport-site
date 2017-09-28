@@ -1,0 +1,58 @@
+.landing {
+  margin-top: 2em;
+
+  h1 {
+    font-size: calc(3vw + .5em);
+  }
+}
+
+.landing-hero {
+  @include grid-container;
+  background-color: $light-grey;
+  padding: 2em 0;
+
+  .landing-column {
+    @include grid-mobile(1, 1);
+    @include grid-tablet-up(2, 1) {
+      margin-bottom: 0;
+    }
+
+    margin-bottom: 2em;
+
+    h1 {
+      font-size: calc(1vw + 1em);
+    }
+  }
+}
+
+.landing-actions {
+  margin-top: 5em;
+  text-align: center;
+}
+
+[role='link'] {
+  &.landing-open,
+  &.landing-reuse {
+    @extend .button-success;
+
+    i {
+      @extend .fa;
+    }
+  }
+
+  &.landing-open {
+    font-size: calc(2vw + .5em);
+
+    i {
+      @extend .fa-folder-open;
+    }
+  }
+
+  &.landing-reuse {
+    font-size: modular-scale(2);
+
+    i {
+      @extend .fa-mobile-phone;
+    }
+  }
+}

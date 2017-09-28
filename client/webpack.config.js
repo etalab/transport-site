@@ -3,6 +3,7 @@ const webpack           = require('webpack')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const extractSass       = new ExtractTextPlugin({ filename: '../css/app.css', allChunks: true })
 const fetchPolyfill     = new webpack.ProvidePlugin({ fetch: 'imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch' })
+const promisePolyfill   = new webpack.ProvidePlugin({ Promise: 'core-js/es6/promise' })
 const processEnv        = new webpack.DefinePlugin({ 'process.env': { 'DATAGOUVFR_SITE': JSON.stringify(process.env.DATAGOUVFR_SITE) } })
 
 module.exports = {
@@ -28,6 +29,7 @@ module.exports = {
     plugins: [
         extractSass,
         fetchPolyfill,
+        promisePolyfill,
         processEnv
     ],
     devtool: 'source-map',
