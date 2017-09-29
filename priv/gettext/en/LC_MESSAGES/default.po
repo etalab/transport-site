@@ -47,13 +47,17 @@ msgstr "Publish my data"
 msgid "landing-hero_reuse"
 msgstr "R-use this data"
 
-#: lib/transport_web/templates/page/shortlist.html.eex:3
-msgid "shortlist_download"
-msgstr "Download"
+#: lib/transport_web/templates/page/index.html.eex:22
+msgid "landing-hero_reusedatasets"
+msgstr "Re-use data"
 
 #: lib/transport_web/templates/page/shortlist.html.eex:2
 msgid "frlo"
 msgstr "Open Licence"
+
+#: lib/transport_web/templates/page/shortlist.html.eex:3
+msgid "shortlist_download"
+msgstr "Download"
 
 #: lib/transport_web/templates/page/shortlist.html.eex:4
 msgid "shortlist_licence"

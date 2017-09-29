@@ -43,17 +43,21 @@ msgstr "C'est la plateforme unique de **diffusion des données ouvertes** relati
 msgid "landing-hero_open"
 msgstr "Ouvrir mes données"
 
+#: lib/transport_web/templates/page/index.html.eex:22
+msgid "landing-hero_reusedatasets"
+msgstr "Réutiliser des données"
+
 #: lib/transport_web/templates/page/index.html.eex:8
 msgid "landing-hero_reuse"
 msgstr "Ré-utiliser ces données"
 
-#: lib/transport_web/templates/page/shortlist.html.eex:3
-msgid "shortlist_download"
-msgstr "Télécharger"
-
 #: lib/transport_web/templates/page/shortlist.html.eex:2
 msgid "frlo"
 msgstr "License ouverte"
+
+#: lib/transport_web/templates/page/shortlist.html.eex:3
+msgid "shortlist_download"
+msgstr "Télécharger"
 
 #: lib/transport_web/templates/page/shortlist.html.eex:4
 msgid "shortlist_licence"

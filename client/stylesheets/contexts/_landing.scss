@@ -34,6 +34,8 @@
   &.landing-open,
   &.landing-reuse {
     @extend .button-success;
+    margin-bottom: 1em;
+    width: 100%;
 
     i {
       @extend .fa;
