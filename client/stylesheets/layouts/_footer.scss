@@ -1,0 +1,80 @@
+[role='contentinfo'] {
+  $base-spacing: 1.5em !default;
+  $background: $white !default;
+  $link-color: $dark-grey !default;
+
+  @include tablet {
+    display: inline-block;
+  }
+
+  @include desktop {
+    display: inline-block;
+  }
+
+  background: $background;
+  display: block;
+  padding: $base-spacing;
+
+  .logo {
+    @include tablet {
+      float: left;
+    }
+
+    @include desktop {
+      float: left;
+    }
+
+    margin-bottom: 1em;
+    margin-right: 1em;
+
+    img {
+      height: 50px;
+    }
+  }
+
+  ul {
+    @include tablet {
+      float: left;
+      line-height: $base-spacing * 2;
+      margin-bottom: 0;
+      margin-left: 1em;
+    }
+
+    @include desktop {
+      float: left;
+      line-height: $base-spacing * 2;
+      margin-bottom: 0;
+      margin-left: 1em;
+    }
+
+    line-height: $base-spacing;
+    margin: 0 0 1em;
+    padding: 0;
+
+
+    li {
+      @include tablet {
+        display: inline;
+        text-align: left;
+      }
+
+      @include desktop {
+        display: inline;
+        text-align: left;
+      }
+
+      list-style: none;
+      padding-right: 1em;
+
+      a {
+        color: $link-color;
+        text-decoration: none;
+
+        &:focus,
+        &:hover {
+          color: transparentize($link-color, .5);
+        }
+      }
+    }
+  }
+}

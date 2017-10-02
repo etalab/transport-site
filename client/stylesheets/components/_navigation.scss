@@ -13,13 +13,10 @@
   [role='link'] {
     &.navigation-login {
       @extend .button-success;
-      @include desktop {
-        display: block;
+      @include mobile {
+        background: none;
+        display: inline;
       }
-      @include tablet {
-        display: block;
-      }
-      display: none;
 
       i {
         @extend .fa;
@@ -30,13 +27,10 @@
 
     &.navigation-logout {
       @extend .button-warning;
-      @include desktop {
-        display: block;
+      @include mobile {
+        background: none;
+        display: inline;
       }
-      @include tablet {
-        display: block;
-      }
-      display: none;
 
       i {
         @extend .fa;

@@ -10,12 +10,12 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/layout/_navigation.html.eex:12
+#: lib/transport_web/templates/layout/_header.html.eex:13
 #: lib/transport_web/templates/page/login.html.eex:8
 msgid "sign_in"
 msgstr "Sign In"
 
-#: lib/transport_web/templates/layout/_navigation.html.eex:7
+#: lib/transport_web/templates/layout/_header.html.eex:8
 msgid "sign_out"
 msgstr "Sign Out"
 
@@ -74,3 +74,12 @@ msgstr "Available datasets"
 #: lib/transport_web/templates/page/shortlist.html.eex:5
 msgid "shortlist_territory"
 msgstr "Territory"
+
+#: lib/transport_web/templates/layout/_footer.html.eex:10
+msgid "contact"
+msgstr "Contact"
+
+#: lib/transport_web/templates/layout/_footer.html.eex:17
+msgid "tos"
+msgstr "Terms of Service"
+
