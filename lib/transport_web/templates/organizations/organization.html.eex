@@ -1,0 +1,26 @@
+<section class="organization">
+   <%= if get_flash(@conn, :info) do %>
+   <p class="info"><%= get_flash(@conn, :info) %></p>
+   <% end %>
+   <%= if get_flash(@conn, :error) do %>
+   <p class="info"><%= get_flash(@conn, :error) %></p>
+   <% end %>
+   <%= if @has_pending_membership do %>
+   <p class="info"><%= gettext "pending_membership" %></p>
+   <% end %>
+   <%= if @has_refused_membership do %>
+   <p class="info"><%= gettext "refused_membership" %></p>
+   <% end %>
+    <h1><%= @organization["name"] %></h1>
+    <p><%= @organization["description"] %></p>
+    <ul class="actions">
+      <%= if @is_member do %>
+      <li>Vous êtes membre de l'organisation</li>
+      <% else %>
+      <li><a class="navigation-join" href="<%= organizations_path @conn, :claim, @organization["slug"] %>" role="link">
+      <i aria-hidden="true"></i>
+      <span><%= gettext "join organization" %></span>
+    </a></li>
+      <% end %>
+    </ul>
+</section>

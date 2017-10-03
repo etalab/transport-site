@@ -1,5 +1,6 @@
 defmodule TransportWeb.PageController do
   use TransportWeb, :controller
+  alias Transport.Datagouvfr.Client
 
   def index(conn, _params) do
     render conn, "index.html"
@@ -9,7 +10,4 @@ defmodule TransportWeb.PageController do
     render conn, "login.html"
   end
 
-  def search_organizations(conn, _) do
-    render conn, "search_organizations.html"
-  end
 end

@@ -46,3 +46,23 @@ msgstr "Publish my data"
 #: lib/transport_web/templates/page/index.html.eex:8
 msgid "landing-hero_reuse"
 msgstr "R-use this data"
+
+#: lib/transport_web/controllers/page_controller.ex:35
+msgid "connection_needed"
+msgstr "You need to login before claiming an organization. Please click on the sign in button above."
+
+#: lib/transport_web/controllers/page_controller.ex:45
+msgid "already_organization_member"
+msgstr "You are already a member of this organization"
+
+#: lib/transport_web/templates/organizations/organization.html.eex:9
+msgid "pending_membership"
+msgstr "You already have a request for membership pending."
+
+#: lib/transport_web/templates/organizations/organization.html.eex:12
+msgid "refused_membership"
+msgstr "You asked for membership, and you're request have been denied."
+
+#: lib/transport_web/templates/organizations/organization.html.eex:22
+msgid "join organization"
+msgstr "Claim this organization"

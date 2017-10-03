@@ -1,10 +1,10 @@
-<organization-search>
+<organizations-search>
     <form role="search">
         <input type="search" value={ keyword }  onkeyup={ update_query } placeholder="recherche">
     </form>
 
     <section class="organizations">
-        <organization each={ organizations.slice(0, 10) } name={ name } description={ description }/>
+        <organization each={ organizations.slice(0, 10) } name={ name } description={ description } slug={ slug }/>
     </section>
 
     <script type="es6">
@@ -35,4 +35,4 @@
             this.fetch_orgs()
         }
     </script>
-</organization-search>
+</organizations-search>
