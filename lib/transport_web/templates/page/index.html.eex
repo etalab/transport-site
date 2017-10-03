@@ -17,6 +17,10 @@
           <i aria-hidden="true"></i>
           <%= gettext "landing-hero_open" %>
         </a>
+        <a class="landing-open" href="<%= page_path @conn, :shortlist %>" role="link">
+          <i aria-hidden="true"></i>
+          <%= gettext "landing-hero_reusedatasets" %>
+        </a>
       </div>
     </section>
   </section>

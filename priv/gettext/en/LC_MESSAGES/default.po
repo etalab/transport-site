@@ -46,3 +46,31 @@ msgstr "Publish my data"
 #: lib/transport_web/templates/page/index.html.eex:8
 msgid "landing-hero_reuse"
 msgstr "R-use this data"
+
+#: lib/transport_web/templates/page/index.html.eex:22
+msgid "landing-hero_reusedatasets"
+msgstr "Re-use data"
+
+#: lib/transport_web/templates/page/shortlist.html.eex:2
+msgid "frlo"
+msgstr "Open Licence"
+
+#: lib/transport_web/templates/page/shortlist.html.eex:3
+msgid "shortlist_download"
+msgstr "Download"
+
+#: lib/transport_web/templates/page/shortlist.html.eex:4
+msgid "shortlist_licence"
+msgstr "Licence"
+
+#: lib/transport_web/templates/page/shortlist.html.eex:6
+msgid "shortlist_seedatagouvfr"
+msgstr "See on data.gouv.fr"
+
+#: lib/transport_web/templates/page/shortlist.html.eex:1
+msgid "shortlist_title"
+msgstr "Available datasets"
+
+#: lib/transport_web/templates/page/shortlist.html.eex:5
+msgid "shortlist_territory"
+msgstr "Territory"
