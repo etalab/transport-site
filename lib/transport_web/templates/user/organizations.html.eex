@@ -1,0 +1,29 @@
+<h1><%= gettext "first_step" %></h1>
+<h2><%= gettext "declare_organization" %></h1>
+<%= if @has_organizations do %>
+
+<div class="user-organizations">
+<%= for organization <- @organizations do %>
+    <div>
+        <div class="organization-image">
+          <img src="<%= organization["logo"] %>" alt="<%= organization["name"]%>">
+        </div>
+        <div class="organization-details">
+          <%= organization["name"] %>
+        </div>
+        <div>
+            <a href="mailto:contact@transport.data.gouv.fr" class="button" role="link">
+                <%= gettext "thisIsTransportPublisher" %>
+            </a>
+        </div>
+    </div>
+
+<% end %>
+
+</div>
+
+<% else %>
+
+    <%= gettext "organizations_needed" %>
+
+<% end %>

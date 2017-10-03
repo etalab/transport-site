@@ -1,4 +1,11 @@
 <section class=login>
+  <%= if get_flash(@conn, :info) do %>
+    <p class="info"><%= get_flash(@conn, :info) %></p>
+  <% end %>
+  <%= if get_flash(@conn, :error) do %>
+    <p class="error"><%= get_flash(@conn, :error) %></p>
+  <% end %>
+
   <h1><%= gettext "login_title" %></h1>
   <ul class="list">
     <li class="list-item">

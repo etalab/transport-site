@@ -16,5 +16,4 @@ defmodule TransportWeb.PageController do
   def shortlist(conn, _) do
       render conn, "shortlist.html"
   end
-
 end
