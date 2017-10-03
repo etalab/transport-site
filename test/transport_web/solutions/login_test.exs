@@ -16,14 +16,10 @@ defmodule TransportWeb.LoginTest do
 
   @tag :integration
   test "I can see a log in link" do
-    home_url() |> navigate_to
+    @endpoint
+    |> page_url(:index)
+    |> navigate_to
 
     assert page_source() =~ "S'identifier"
-  end
-
-  # helpers
-
-  defp home_url do
-    TransportWeb.Endpoint.url
   end
 end
