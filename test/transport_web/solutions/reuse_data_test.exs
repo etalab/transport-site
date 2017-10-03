@@ -13,10 +13,13 @@ defmodule TransportWeb.ReuseDataTest do
 
   @tag :integration
   test "I can click on the map to reuse transport data" do
-    home_url() |> navigate_to
+    @endpoint
+    |> page_url(:index)
+    |> navigate_to
+
     click({:css, "svg > g > path"})
 
-    find_element(:class, "landing-reuse")
+    find_element(:class, "landing-reuse-marker")
     |> attribute_value("href")
     |> Kernel.=~("mailto:contact@transport.beta.gouv.fr")
     |> assert
@@ -24,34 +27,32 @@ defmodule TransportWeb.ReuseDataTest do
 
   @tag :integration
   test "I can click on a button to see available datasets" do
-    home_url() |> navigate_to
-    click({:css, "section"})
+    @endpoint
+    |> page_url(:index)
+    |> navigate_to
 
-    find_all_elements(:class, "landing-open")
-    |> Enum.any?(fn(a) -> attribute_value(a, "href") =~ shortlist_url() end)
+    click({:class, "landing-reuse"})
+
+    assert visible_page_text() =~ "Jeux de données disponibles"
+
+    find_element(:class, "shortlist")
+    |> find_within_element(:class, "shortlist-description")
+    |> find_within_element(:tag, "h1")
+    |> inner_text
+    |> Kernel.=~("Horaires et arrêts du réseau IRIGO - format GTFS")
     |> assert
   end
 
   @tag :integration
-  test "I can download a datasets on /shortlist" do
-    shortlist_url() |> navigate_to
+  test "I can download a dataset from the list of available datasets" do
+    @endpoint
+    |> page_url(:shortlist)
+    |> navigate_to
 
     find_element(:class, "download")
-    |> find_within_element(:tag, "a")
+    |> find_within_element(:link_text, "Télécharger")
     |> attribute_value("href")
     |> Kernel.=~("zip")
     |> assert
-  end
-
-  # helpers
-
-  defp home_url do
-    TransportWeb.Endpoint.url
-  end
-
-  defp shortlist_url do
-    Path.join(TransportWeb.Endpoint.url,
-        TransportWeb.Router.Helpers.page_path(TransportWeb.Endpoint, :shortlist)
-    )
   end
 end

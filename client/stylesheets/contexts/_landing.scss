@@ -32,14 +32,19 @@
 
 [role='link'] {
   &.landing-open,
-  &.landing-reuse {
+  &.landing-reuse,
+  &.landing-reuse-marker {
     @extend .button-success;
-    margin-bottom: 1em;
-    width: 100%;
 
     i {
       @extend .fa;
     }
+  }
+
+  &.landing-open,
+  &.landing-reuse {
+    margin-bottom: 1em;
+    width: 90%;
   }
 
   &.landing-open {
@@ -51,6 +56,14 @@
   }
 
   &.landing-reuse {
+    font-size: calc(2vw + .5em);
+
+    i {
+      @extend .fa-mobile-phone;
+    }
+  }
+
+  &.landing-reuse-marker {
     font-size: modular-scale(2);
 
     i {

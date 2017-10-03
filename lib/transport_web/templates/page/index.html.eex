@@ -3,7 +3,7 @@
 
   <section class="landing-hero">
     <map class="landing-column",
-         link-class='landing-reuse'
+         link-class='landing-reuse-marker'
          link-href='mailto:contact@transport.beta.gouv.fr'
          link-text='<%= gettext "landing-hero_reuse" %>'>
     </map>
@@ -17,7 +17,7 @@
           <i aria-hidden="true"></i>
           <%= gettext "landing-hero_open" %>
         </a>
-        <a class="landing-open" href="<%= page_path @conn, :shortlist %>" role="link">
+        <a class="landing-reuse" href="<%= page_path @conn, :shortlist %>" role="link">
           <i aria-hidden="true"></i>
           <%= gettext "landing-hero_reusedatasets" %>
         </a>
