@@ -32,7 +32,7 @@
                             <span class="badge-notice">{ item.license } </span>
                         </div>
                         <div>
-                            <span>Format </span>
+                            <span>Format</span>
                             <span class="badge-notice">GTFS</span>
                         </div>
                     </div>
@@ -42,22 +42,24 @@
     </div>
 
 
-<script type="es6">
-    this.shortlist = []
+    <script type="es6">
+        this.shortlist = []
 
-    this.fetch_shortlist = () => {
-        var licences = {
-            'odc-odbl': 'ODbL',
-            'fr-lo': opts.frlo
+        this.fetch_shortlist = () => {
+            let licences = {
+                'odc-odbl': 'ODbL',
+                'fr-lo': opts.frlo
+            }
+
+            fetch('/data/datasets.json',)
+                .then(response => { return response.json() })
+                .then(data => {
+                    data = data.filter(l => l['anomalies'].length == 0)
+                    data.forEach(l => l['license'] = licences[l['license']])
+                    this.update(this.shortlist = data)
+                 })
         }
-        fetch('/data/datasets.json',)
-            .then(response => { return response.json() })
-            .then(data => {
-                data = data.filter(l => l['anomalies'].length == 0)
-                data.forEach(l => l['license'] = licences[l['license']])
-                this.update( this.shortlist = data )
-             })
-    }
-    this.on('mount', this.fetch_shortlist)
-</script>
+
+        this.on('mount', this.fetch_shortlist)
+    </script>
 </shortlist>
