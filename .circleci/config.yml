@@ -30,7 +30,7 @@ jobs:
           command: |
             mix deps.compile
             mix compile
-            cd client && npm run build
+            cd client && npm run deploy
 
       - save_cache:
           key: elixir-{{ checksum "mix.lock" }}
