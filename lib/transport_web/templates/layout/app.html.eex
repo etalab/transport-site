@@ -12,12 +12,13 @@
   </head>
 
   <body>
-    <header role="banner">
-      <%= render(LayoutView, "_navigation.html", conn: @conn, current_user: @current_user) %>
-    </header>
+    <%= render(LayoutView, "_header.html", conn: @conn, current_user: @current_user) %>
+
     <main role="main">
       <%= render(@view_module, @view_template, assigns) %>
     </main>
+
+    <%= render(LayoutView, "_footer.html", conn: @conn, current_user: @current_user) %>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>

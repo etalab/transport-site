@@ -1,6 +1,5 @@
 [role='banner'] {
-  $dark-gray: #333 !default;
-  $background: $dark-gray;
+  $background: $dark-grey !default;
 
   @include desktop {
     min-height: modular-scale(3);

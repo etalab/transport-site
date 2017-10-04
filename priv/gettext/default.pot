@@ -10,12 +10,12 @@
 msgid ""
 msgstr ""
 
-#: lib/transport_web/templates/layout/_navigation.html.eex:12
+#: lib/transport_web/templates/layout/_header.html.eex:13
 #: lib/transport_web/templates/page/login.html.eex:8
 msgid "sign_in"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_navigation.html.eex:7
+#: lib/transport_web/templates/layout/_header.html.eex:8
 msgid "sign_out"
 msgstr ""
 
@@ -73,4 +73,12 @@ msgstr ""
 
 #: lib/transport_web/templates/page/index.html.eex:22
 msgid "landing-hero_reusedatasets"
+msgstr ""
+
+#: lib/transport_web/templates/layout/_footer.html.eex:10
+msgid "contact"
+msgstr ""
+
+#: lib/transport_web/templates/layout/_footer.html.eex:17
+msgid "tos"
 msgstr ""

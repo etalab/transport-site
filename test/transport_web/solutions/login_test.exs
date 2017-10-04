@@ -20,6 +20,13 @@ defmodule TransportWeb.LoginTest do
     |> page_url(:index)
     |> navigate_to
 
+    # I can see a log in / sign up link
+    click({:class, "navigation-login"})
+
+    # I can click somewhere to start the log in / sign up process
     assert page_source() =~ "S'identifier"
+
+    # I can click somewhere to ask for help
+    assert page_source() =~ "Nous contacter"
   end
 end

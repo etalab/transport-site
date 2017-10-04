@@ -1,0 +1,17 @@
+<header role="banner">
+  <%= img_tag("/images/logo-header.svg", alt: "transport.beta.gouv.fr") |> link(to: "/", class: "logo") %>
+
+  <nav role="navigation">
+    <%= if @current_user do %>
+      <a class="navigation-logout" href="<%= session_path @conn, :delete %>" role="link">
+        <i aria-hidden="true"></i>
+        <span><%= gettext "sign_out" %></span>
+      </a>
+    <% else %>
+      <a class="navigation-login" href="<%= page_path @conn, :login %>" role="link">
+        <i aria-hidden="true"></i>
+        <span><%= gettext "sign_in" %></span>
+      </a>
+    <% end %>
+  </nav>
+</header>
