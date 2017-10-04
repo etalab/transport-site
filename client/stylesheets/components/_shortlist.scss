@@ -29,23 +29,24 @@ shortlist {
         text-align: left;
       }
 
-      markdown > div {
-        color: $dark-grey;
-        line-height: 1.8em;
-        margin-bottom: 1em;
-        margin-left: 20px;
-        max-height: 3.6em;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        word-wrap: break-word;
+      markdown {
+        & > div {
+          color: $dark-grey;
+          line-height: 1.8em;
+          margin-bottom: 1em;
+          margin-left: 20px;
+          max-height: 3.6em;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          word-wrap: break-word;
+        }
       }
     }
 
     .shortlist-details {
-      @grid-container;
+      @include grid-container;
 
-      > div {
-        @grid-container;
+      & > div {
         @include grid-mobile(1, 1);
         @include grid-tablet-up(2, 1) {
           margin-left: 0;
@@ -62,7 +63,7 @@ shortlist {
 
         &:hover {
           text-decoration: underline;
-       }
+        }
       }
     }
   }
