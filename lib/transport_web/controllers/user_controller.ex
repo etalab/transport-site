@@ -38,6 +38,20 @@ defmodule TransportWeb.UserController do
      end
   end
 
+  def add_badge_dataset(conn, %{"slug" => slug}) do
+    slug
+    |> Client.put_datasets({:add_tag, "GTFS"}, get_session(conn, :current_user)["apikey"])
+    |> case do
+      {:ok, _} ->
+        conn
+        |> render("add_badge_dataset.html")
+      {:error, _} ->
+        conn
+        |> put_status(:internal_server_error)
+        |> render(ErrorView, "500.html")
+     end
+  end
+
   defp authentication_required(conn, _) do
     case conn.assigns[:current_user]  do
       nil ->
