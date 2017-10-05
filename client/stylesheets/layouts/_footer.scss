@@ -4,11 +4,11 @@
   $link-color: $dark-grey !default;
 
   @include tablet {
-    display: inline-block;
+    display: block;
   }
 
   @include desktop {
-    display: inline-block;
+    display: block;
   }
 
   background: $background;
