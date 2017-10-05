@@ -3,24 +3,12 @@
   $background: $white !default;
   $link-color: $dark-grey !default;
 
-  @include tablet {
-    display: block;
-  }
-
-  @include desktop {
-    display: block;
-  }
-
   background: $background;
   display: block;
   padding: $base-spacing;
 
   .logo {
-    @include tablet {
-      float: left;
-    }
-
-    @include desktop {
+    @include media-tablet-up {
       float: left;
     }
 
@@ -33,14 +21,7 @@
   }
 
   ul {
-    @include tablet {
-      float: left;
-      line-height: $base-spacing * 2;
-      margin-bottom: 0;
-      margin-left: 1em;
-    }
-
-    @include desktop {
+    @include media-tablet-up {
       float: left;
       line-height: $base-spacing * 2;
       margin-bottom: 0;
@@ -53,12 +34,7 @@
 
 
     li {
-      @include tablet {
-        display: inline;
-        text-align: left;
-      }
-
-      @include desktop {
+      @include media-tablet-up {
         display: inline;
         text-align: left;
       }

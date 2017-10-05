@@ -1,0 +1,20 @@
+.list {
+  padding: 1em;
+}
+
+.list-item {
+  @include grid-container;
+  padding: .5em 1em;
+
+  .list-item-icon {
+    @include grid-mobile(6, 1);
+    @include grid-tablet-up(12, 1);
+    @include grid-desktop-up(24, 1);
+  }
+
+  .list-item-content {
+    @include grid-mobile(6, 5);
+    @include grid-tablet-up(12, 11);
+    @include grid-desktop-up(24, 23);
+  }
+}

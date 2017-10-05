@@ -1,12 +1,7 @@
 [role='banner'] {
   $background: $dark-grey !default;
 
-  @include desktop {
-    min-height: modular-scale(3);
-    padding: modular-scale(-1) modular-scale(1);
-  }
-
-  @include tablet {
+  @include media-tablet-up {
     min-height: modular-scale(3);
     padding: modular-scale(-1) modular-scale(1);
   }

@@ -23,10 +23,20 @@ defmodule TransportWeb.LoginTest do
     # I can see a log in / sign up link
     click({:class, "navigation-login"})
 
+    # I have an explanation of what data.gouv.fr is
+    assert visible_page_text() =~ "plateforme ouverte des données publiques françaises"
+
+    # I have an explanation of what the relationship is between data.gouv.fr and Transport
+    assert visible_page_text() =~ "transport.data.gouv.fr est un site affilié à data.gouv.fr"
+
+    # I have an explanation of what's going to happen and what I'm I supposed to do
+    assert visible_page_text() =~ "créer un compte et/ou vous identifier"
+    assert visible_page_text() =~ "autoriser transport.data.gouv.fr à utiliser votre compte data.gouv.fr"
+
     # I can click somewhere to start the log in / sign up process
-    assert page_source() =~ "S'identifier"
+    assert visible_page_text() =~ "S'identifier"
 
     # I can click somewhere to ask for help
-    assert page_source() =~ "Nous contacter"
+    assert visible_page_text() =~ "Nous contacter"
   end
 end
