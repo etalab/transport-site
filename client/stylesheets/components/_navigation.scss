@@ -1,9 +1,5 @@
 [role='navigation'] {
-  @include desktop {
-    height: modular-scale(3);
-  }
-
-  @include tablet {
+  @include media-tablet-up {
     height: modular-scale(3);
   }
 

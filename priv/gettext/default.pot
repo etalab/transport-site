@@ -11,20 +11,12 @@ msgid ""
 msgstr ""
 
 #: lib/transport_web/templates/layout/_header.html.eex:13
-#: lib/transport_web/templates/page/login.html.eex:8
+#: lib/transport_web/templates/page/login.html.eex:48
 msgid "sign_in"
 msgstr ""
 
 #: lib/transport_web/templates/layout/_header.html.eex:8
 msgid "sign_out"
-msgstr ""
-
-#: lib/transport_web/templates/page/login.html.eex:3
-msgid "sign_in_explanation_text"
-msgstr ""
-
-#: lib/transport_web/templates/page/login.html.eex:2
-msgid "sign_in_explanation_title"
 msgstr ""
 
 #: lib/transport_web/templates/page/index.html.eex:2
@@ -81,4 +73,24 @@ msgstr ""
 
 #: lib/transport_web/templates/layout/_footer.html.eex:17
 msgid "tos"
+msgstr ""
+
+#: lib/transport_web/templates/page/login.html.eex:20
+msgid "login_link_between_transport_data"
+msgstr ""
+
+#: lib/transport_web/templates/page/login.html.eex:2
+msgid "login_title"
+msgstr ""
+
+#: lib/transport_web/templates/page/login.html.eex:40
+msgid "login_what_am_i_supossed_to_do"
+msgstr ""
+
+#: lib/transport_web/templates/page/login.html.eex:10
+msgid "login_what_is_data_gouv_fr"
+msgstr ""
+
+#: lib/transport_web/templates/page/login.html.eex:30
+msgid "login_what_is_going_to_happen"
 msgstr ""

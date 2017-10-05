@@ -1,6 +1,46 @@
 <section class=login>
-  <h1><%= gettext "sign_in_explanation_title" %></h1>
-  <p><%= gettext "sign_in_explanation_text" %></p>
+  <h1><%= gettext "login_title" %></h1>
+  <ul class="list">
+    <li class="list-item">
+      <div class="list-item-icon">
+        <i class="fa fa-cubes" aria-hidden="true"></i>
+      </div>
+
+      <div class="list-item-content">
+        <%= gettext "login_what_is_data_gouv_fr" %>
+      </div>
+    </li>
+
+    <li class="list-item">
+      <div class="list-item-icon">
+        <i class="fa fa-id-badge" aria-hidden="true"></i>
+      </div>
+
+      <div class="list-item-content">
+        <%= gettext "login_link_between_transport_data" %>
+      </div>
+    </li>
+
+    <li class="list-item">
+      <div class="list-item-icon">
+        <i class="fa fa-hand-o-up" aria-hidden="true"></i>
+      </div>
+
+      <div class="list-item-content">
+        <%= gettext "login_what_is_going_to_happen" %>
+      </div>
+    </li>
+
+    <li class="list-item">
+      <div class="list-item-icon">
+        <i class="fa fa-user-plus" aria-hidden="true"></i>
+      </div>
+
+      <div class="list-item-content">
+        <%= gettext "login_what_am_i_supossed_to_do" %>
+      </div>
+    </li>
+  </ul>
 
   <div class="login-actions">
     <a class="login-signin" href="<%= session_path @conn, :new %>" role="link">
