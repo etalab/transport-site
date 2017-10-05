@@ -12,7 +12,7 @@
           <%= organization["name"] %>
         </div>
         <div>
-            <a href="mailto:contact@transport.data.gouv.fr" class="button" role="link">
+            <a href=<%= user_path @conn, :org_datasets, organization["slug"] %> class="button" role="link">
                 <%= gettext "thisIsTransportPublisher" %>
             </a>
         </div>
