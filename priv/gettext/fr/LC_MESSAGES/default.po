@@ -75,6 +75,10 @@ msgstr "Jeux de données disponibles"
 msgid "shortlist_territory"
 msgstr "Territoire"
 
+#: lib/transport_web/templates/page/index.html.eex:22
+msgid "landing-hero_reusedatasets"
+msgstr "Réutiliser des données"
+
 #: lib/transport_web/templates/layout/_footer.html.eex:10
 msgid "contact"
 msgstr "Nous contacter"

@@ -46,36 +46,4 @@ defmodule TransportWeb.UserController do
     end
   end
 
-
-  def org_datasets(conn, %{"slug" => slug}) do
-    conn
-    |> get_session(:current_user)
-    |> org_datasets(conn, slug)
-  end
-
-  def org_datasets({:error, _}, conn, _) do
-    conn
-    |> render("500.html")
-  end
-
-  def org_datasets({:ok, response}, conn, _) do
-    conn
-    |> assign(:has_datasets, Enum.empty?(response["datasets"]) == false)
-    |> assign(:datasets, response["datasets"])
-    |> assign(:organization, response)
-    |> render("org_datasets.html")
-  end
-
-  def org_datasets(nil, conn, _) do
-    conn
-    |> put_flash(:info, gettext "connection_needed")
-    |> redirect(to: "/login/explanation")
-  end
-
-  def org_datasets(user, conn, slug) do
-    slug
-    |> Client.organizations(:with_datasets)
-    |> org_datasets(conn, nil)
-  end
-
 end
