@@ -1,0 +1,28 @@
+<h1><%= gettext "second" %></h1>
+<h2><%= gettext "add_badge_dataset" %></h1>
+<div>
+  <a href=<%= user_path @conn, :organizations %>><%= gettext "go_back_organizations" %></a>
+</div>
+<span><%= gettext "organization" %>: <b><%= @organization["name"] %></b></span>
+<%= if @has_datasets do %>
+<div class="cards">
+    <%= for dataset <- @datasets do %>
+    <div class="card">
+        <h1><%= dataset["title"] %></h1>
+        <div class="datasetdetails">
+          <%= dataset["description"] %>
+        </div>
+        <div>
+            <a href="mailto:contact@transport.data.gouv.fr" class="button" role="link">
+                <%= gettext "add_dataset" %>
+            </a>
+        </div>
+    </div>
+    <% end %>
+</div>
+
+<% else %>
+
+    <%= gettext "datasets_needed" %>
+
+<% end %>
