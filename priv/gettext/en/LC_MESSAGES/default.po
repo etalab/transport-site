@@ -11,7 +11,7 @@ msgstr ""
 "Language: en\n"
 
 #: lib/transport_web/templates/layout/_header.html.eex:13
-#: lib/transport_web/templates/page/login.html.eex:57
+#: lib/transport_web/templates/page/login.html.eex:55
 msgid "sign_in"
 msgstr "Sign In"
 
@@ -74,10 +74,6 @@ msgstr "Available datasets"
 #: lib/transport_web/templates/page/shortlist.html.eex:5
 msgid "shortlist_territory"
 msgstr "Territory"
-
-#: lib/transport_web/templates/page/index.html.eex:22
-msgid "landing-hero_reusedatasets"
-msgstr "Re-use data"
 
 #: lib/transport_web/templates/layout/_footer.html.eex:10
 msgid "contact"

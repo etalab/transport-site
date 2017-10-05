@@ -22,7 +22,7 @@ defmodule Transport.Datagouvfr.Client do
   You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/me/
   """
   @spec me(map) :: {atom, [map]}
-  def me(%{:apikey => apikey}) do
+  def me(%{"apikey" => apikey}) do
     case get("me",
              [{"X-API-KEY", apikey}],
              [timeout: 50_000, recv_timeout: 50_000]) do
