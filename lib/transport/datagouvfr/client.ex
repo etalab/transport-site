@@ -31,6 +31,21 @@ defmodule Transport.Datagouvfr.Client do
     end
   end
 
+  @doc """
+  Call to GET /api/1/me/
+  You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/me/
+  """
+  @spec me(map) :: {atom, [map]}
+  def me(%{:apikey => apikey}) do
+    case get("me",
+             [{"X-API-KEY", apikey}],
+             [timeout: 50_000, recv_timeout: 50_000]) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} -> body
+      {:ok, %HTTPoison.Response{status_code: _, body: body}} -> {:error, body}
+      {:error, error} -> {:error, error}
+    end
+  end
+
   # extended functions of HTTPoison
 
   def process_response_body(body) do

@@ -22,6 +22,10 @@ defmodule TransportWeb.Router do
     get "/search_organizations", PageController, :search_organizations
     get "/shortlist", PageController, :shortlist
 
+    scope "/user" do
+      get "/organizations", UserController, :organizations
+    end
+
     # Authentication
 
     scope "/login" do

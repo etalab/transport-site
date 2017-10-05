@@ -13,7 +13,7 @@
       <p><markdown content='<%= gettext "landing-hero_description" %>'></markdown></p>
 
       <div class="landing-actions">
-        <a class="landing-open" href="<%= page_path @conn, :login %>" role="link">
+        <a class="landing-open" href="<%= user_path @conn, :organizations %>" role="link">
           <i aria-hidden="true"></i>
           <%= gettext "landing-hero_open" %>
         </a>
