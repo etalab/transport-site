@@ -23,8 +23,8 @@ defmodule TransportWeb.Router do
     get "/shortlist", PageController, :shortlist
 
     scope "/user" do
-      get "/organizations", UserController, :organizations
-      get "/organizations/:slug/datasets/", UserController, :org_datasets
+      get "/organizations/", UserController, :organizations
+      get "/organizations/:slug/datasets/", UserController, :organization_datasets
     end
 
     # Authentication

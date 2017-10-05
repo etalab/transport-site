@@ -11,20 +11,12 @@ msgid ""
 msgstr ""
 
 #: lib/transport_web/templates/layout/_header.html.eex:13
-#: lib/transport_web/templates/page/login.html.eex:57
+#: lib/transport_web/templates/page/login.html.eex:55
 msgid "sign_in"
 msgstr ""
 
 #: lib/transport_web/templates/layout/_header.html.eex:8
 msgid "sign_out"
-msgstr ""
-
-#: lib/transport_web/templates/page/login.html.eex:9
-msgid "sign_in_explanation_text"
-msgstr ""
-
-#: lib/transport_web/templates/page/login.html.eex:8
-msgid "sign_in_explanation_title"
 msgstr ""
 
 #: lib/transport_web/templates/page/index.html.eex:2
@@ -83,28 +75,27 @@ msgstr ""
 msgid "tos"
 msgstr ""
 
-#: lib/transport_web/templates/page/login.html.eex:29
+#: lib/transport_web/templates/page/login.html.eex:27
 msgid "login_link_between_transport_data"
 msgstr ""
 
-#: lib/transport_web/templates/page/login.html.eex:11
+#: lib/transport_web/templates/page/login.html.eex:9
 msgid "login_title"
 msgstr ""
 
-#: lib/transport_web/templates/page/login.html.eex:49
+#: lib/transport_web/templates/page/login.html.eex:47
 msgid "login_what_am_i_supossed_to_do"
 msgstr ""
 
-#: lib/transport_web/templates/page/login.html.eex:19
+#: lib/transport_web/templates/page/login.html.eex:17
 msgid "login_what_is_data_gouv_fr"
 msgstr ""
 
-#: lib/transport_web/templates/page/login.html.eex:39
+#: lib/transport_web/templates/page/login.html.eex:37
 msgid "login_what_is_going_to_happen"
 msgstr ""
 
-#: lib/transport_web/controllers/user_controller.ex:15
-#: lib/transport_web/controllers/user_controller.ex:62
+#: lib/transport_web/controllers/user_controller.ex:45
 msgid "connection_needed"
 msgstr ""
 
@@ -124,26 +115,26 @@ msgstr ""
 msgid "thisIsTransportPublisher"
 msgstr ""
 
-#: lib/transport_web/templates/user/org_datasets.html.eex:2
+#: lib/transport_web/templates/user/organization_datasets.html.eex:2
 msgid "add_badge_dataset"
 msgstr ""
 
-#: lib/transport_web/templates/user/org_datasets.html.eex:26
+#: lib/transport_web/templates/user/organization_datasets.html.eex:26
 msgid "datasets_needed"
 msgstr ""
 
-#: lib/transport_web/templates/user/org_datasets.html.eex:1
+#: lib/transport_web/templates/user/organization_datasets.html.eex:1
 msgid "second"
 msgstr ""
 
-#: lib/transport_web/templates/user/org_datasets.html.eex:17
+#: lib/transport_web/templates/user/organization_datasets.html.eex:17
 msgid "add_dataset"
 msgstr ""
 
-#: lib/transport_web/templates/user/org_datasets.html.eex:4
+#: lib/transport_web/templates/user/organization_datasets.html.eex:4
 msgid "go_back_organizations"
 msgstr ""
 
-#: lib/transport_web/templates/user/org_datasets.html.eex:6
+#: lib/transport_web/templates/user/organization_datasets.html.eex:6
 msgid "organization"
 msgstr ""

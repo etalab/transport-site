@@ -11,21 +11,13 @@ msgstr ""
 "Language: fr\n"
 
 #: lib/transport_web/templates/layout/_header.html.eex:13
-#: lib/transport_web/templates/page/login.html.eex:57
+#: lib/transport_web/templates/page/login.html.eex:55
 msgid "sign_in"
 msgstr "S'identifier"
 
 #: lib/transport_web/templates/layout/_header.html.eex:8
 msgid "sign_out"
 msgstr "Se déconnecter"
-
-#: lib/transport_web/templates/page/login.html.eex:9
-msgid "sign_in_explanation_text"
-msgstr "transport.data.gouv.fr est un site affilié à data.gouv.fr. Ces deux sites utilisent les mêmes comptes utiliateurs. En cliquant sur le bouton ci-dessous vous allez pouvoir créer un compte et/ou vous identifier avec data.gouv.fr et autoriser transport.data.gouv.fr à utiliser votre compte data.gouv.fr"
-
-#: lib/transport_web/templates/page/login.html.eex:8
-msgid "sign_in_explanation_title"
-msgstr "Identification avec un compte data.gouv.fr"
 
 #: lib/transport_web/templates/page/index.html.eex:2
 msgid "landing_heading"
@@ -42,10 +34,6 @@ msgstr "C'est la plateforme unique de **diffusion des données ouvertes** relati
 #: lib/transport_web/templates/page/index.html.eex:18
 msgid "landing-hero_open"
 msgstr "Ouvrir mes données"
-
-#: lib/transport_web/templates/page/index.html.eex:22
-msgid "landing-hero_reusedatasets"
-msgstr "Réutiliser des données"
 
 #: lib/transport_web/templates/page/index.html.eex:8
 msgid "landing-hero_reuse"
@@ -75,6 +63,10 @@ msgstr "Jeux de données disponibles"
 msgid "shortlist_territory"
 msgstr "Territoire"
 
+#: lib/transport_web/templates/page/index.html.eex:22
+msgid "landing-hero_reusedatasets"
+msgstr "Réutiliser des données"
+
 #: lib/transport_web/templates/layout/_footer.html.eex:10
 msgid "contact"
 msgstr "Nous contacter"
@@ -83,27 +75,27 @@ msgstr "Nous contacter"
 msgid "tos"
 msgstr "Conditions d'utilisation"
 
-#: lib/transport_web/templates/page/login.html.eex:29
+#: lib/transport_web/templates/page/login.html.eex:27
 msgid "login_link_between_transport_data"
 msgstr "transport.data.gouv.fr est un site affilié à data.gouv.fr, les deux sites utilisent le même compte"
 
-#: lib/transport_web/templates/page/login.html.eex:11
+#: lib/transport_web/templates/page/login.html.eex:9
 msgid "login_title"
 msgstr "Identification avec un compte data.gouv.fr"
 
-#: lib/transport_web/templates/page/login.html.eex:49
+#: lib/transport_web/templates/page/login.html.eex:47
 msgid "login_what_am_i_supossed_to_do"
 msgstr "Après avoir cliqué le bouton, vous devrez cliquer sur « accepter » pour autoriser transport.data.gouv.fr à utiliser votre compte data.gouv.fr"
 
-#: lib/transport_web/templates/page/login.html.eex:19
+#: lib/transport_web/templates/page/login.html.eex:17
 msgid "login_what_is_data_gouv_fr"
 msgstr "data.gouv.fr est la plateforme ouverte des données publiques françaises"
 
-#: lib/transport_web/templates/page/login.html.eex:39
+#: lib/transport_web/templates/page/login.html.eex:37
 msgid "login_what_is_going_to_happen"
 msgstr "En cliquant sur le bouton ci-dessous vous allez pouvoir créer un compte et/ou vous identifier avec votre compte data.gouv.fr"
 
-#: lib/transport_web/controllers/user_controller.ex:15
+#: lib/transport_web/controllers/user_controller.ex:45
 msgid "connection_needed"
 msgstr "Vous devez être préalablement connecté·e."
 
@@ -123,26 +115,26 @@ msgstr "Vous devez avoir une organisation"
 msgid "thisIsTransportPublisher"
 msgstr "Cette organisation publie des données transport"
 
-#: lib/transport_web/templates/user/org_datasets.html.eex:2
+#: lib/transport_web/templates/user/organization_datasets.html.eex:2
 msgid "add_badge_dataset"
 msgstr "Choisissez un jeu de données que vous voulez voir afficher sur transport.data.gouv.fr"
 
-#: lib/transport_web/templates/user/org_datasets.html.eex:26
+#: lib/transport_web/templates/user/organization_datasets.html.eex:26
 msgid "datasets_needed"
 msgstr "Vous devez ajouter un jeu de données sur data.gouv.fr avant."
 
-#: lib/transport_web/templates/user/org_datasets.html.eex:1
+#: lib/transport_web/templates/user/organization_datasets.html.eex:1
 msgid "second"
 msgstr "Deuxième étape"
 
-#: lib/transport_web/templates/user/org_datasets.html.eex:17
+#: lib/transport_web/templates/user/organization_datasets.html.eex:17
 msgid "add_dataset"
 msgstr "Ajouter ce jeu de données"
 
-#: lib/transport_web/templates/user/org_datasets.html.eex:4
+#: lib/transport_web/templates/user/organization_datasets.html.eex:4
 msgid "go_back_organizations"
 msgstr "Revenir à la liste des organisations"
 
-#: lib/transport_web/templates/user/org_datasets.html.eex:6
+#: lib/transport_web/templates/user/organization_datasets.html.eex:6
 msgid "organization"
 msgstr "Organisation "
