@@ -21,13 +21,15 @@ defmodule TransportWeb.SessionController do
     conn
     |> put_session(:current_user, user)
     |> put_session(:access_token, client.token.access_token)
-    |> redirect(to: "/search_organizations")
+    |> redirect(to: user_path(conn, :organizations))
+    |> halt()
   end
 
   def delete(conn, _) do
     conn
     |> configure_session(drop: true)
-    |> redirect(to: "/")
+    |> redirect(to: page_path(conn, :index))
+    |> halt()
   end
 
   # private
