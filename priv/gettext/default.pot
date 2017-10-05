@@ -19,14 +19,6 @@ msgstr ""
 msgid "sign_out"
 msgstr ""
 
-#: lib/transport_web/templates/page/login.html.eex:9
-msgid "sign_in_explanation_text"
-msgstr ""
-
-#: lib/transport_web/templates/page/login.html.eex:8
-msgid "sign_in_explanation_title"
-msgstr ""
-
 #: lib/transport_web/templates/page/index.html.eex:2
 msgid "landing_heading"
 msgstr ""
@@ -103,7 +95,7 @@ msgstr ""
 msgid "login_what_is_going_to_happen"
 msgstr ""
 
-#: lib/transport_web/controllers/user_controller.ex:42
+#: lib/transport_web/controllers/user_controller.ex:55
 msgid "connection_needed"
 msgstr ""
 
@@ -145,4 +137,8 @@ msgstr ""
 
 #: lib/transport_web/templates/user/org_datasets.html.eex:6
 msgid "organization"
+msgstr ""
+
+#: lib/transport_web/templates/user/add_badge_dataset.html.eex:1
+msgid "final_message_add_dataset"
 msgstr ""

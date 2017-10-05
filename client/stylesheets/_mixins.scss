@@ -54,6 +54,7 @@
 
 @mixin cards {
   @include grid-container;
+
   > div {
     @include grid-mobile(1, 1);
     @include grid-tablet-up(3, 1);
