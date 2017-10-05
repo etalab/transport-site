@@ -104,6 +104,7 @@ msgid "login_what_is_going_to_happen"
 msgstr ""
 
 #: lib/transport_web/controllers/user_controller.ex:15
+#: lib/transport_web/controllers/user_controller.ex:62
 msgid "connection_needed"
 msgstr ""
 
@@ -121,4 +122,28 @@ msgstr ""
 
 #: lib/transport_web/templates/user/organizations.html.eex:16
 msgid "thisIsTransportPublisher"
+msgstr ""
+
+#: lib/transport_web/templates/user/org_datasets.html.eex:2
+msgid "add_badge_dataset"
+msgstr ""
+
+#: lib/transport_web/templates/user/org_datasets.html.eex:26
+msgid "datasets_needed"
+msgstr ""
+
+#: lib/transport_web/templates/user/org_datasets.html.eex:1
+msgid "second"
+msgstr ""
+
+#: lib/transport_web/templates/user/org_datasets.html.eex:17
+msgid "add_dataset"
+msgstr ""
+
+#: lib/transport_web/templates/user/org_datasets.html.eex:4
+msgid "go_back_organizations"
+msgstr ""
+
+#: lib/transport_web/templates/user/org_datasets.html.eex:6
+msgid "organization"
 msgstr ""
