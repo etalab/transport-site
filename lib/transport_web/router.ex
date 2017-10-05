@@ -24,6 +24,8 @@ defmodule TransportWeb.Router do
 
     scope "/user" do
       get "/organizations", UserController, :organizations
+      get "/organizations/:slug/datasets/", UserController, :org_datasets
+      get "/dataset/:slug/_add", UserController, :add_badge_dataset
     end
 
     # Authentication
