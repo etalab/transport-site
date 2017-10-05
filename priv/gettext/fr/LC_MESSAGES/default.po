@@ -104,6 +104,7 @@ msgid "login_what_is_going_to_happen"
 msgstr "En cliquant sur le bouton ci-dessous vous allez pouvoir créer un compte et/ou vous identifier avec votre compte data.gouv.fr"
 
 #: lib/transport_web/controllers/user_controller.ex:15
+#: lib/transport_web/controllers/user_controller.ex:62
 msgid "connection_needed"
 msgstr "Vous devez être préalablement connecté·e."
 

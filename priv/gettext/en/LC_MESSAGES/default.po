@@ -47,10 +47,6 @@ msgstr "Publish my data"
 msgid "landing-hero_reuse"
 msgstr "R-use this data"
 
-#: lib/transport_web/templates/page/index.html.eex:22
-msgid "landing-hero_reusedatasets"
-msgstr "Re-use data"
-
 #: lib/transport_web/templates/page/shortlist.html.eex:2
 msgid "frlo"
 msgstr "Open Licence"
@@ -74,6 +70,10 @@ msgstr "Available datasets"
 #: lib/transport_web/templates/page/shortlist.html.eex:5
 msgid "shortlist_territory"
 msgstr "Territory"
+
+#: lib/transport_web/templates/page/index.html.eex:22
+msgid "landing-hero_reusedatasets"
+msgstr "Re-use data"
 
 #: lib/transport_web/templates/layout/_footer.html.eex:10
 msgid "contact"

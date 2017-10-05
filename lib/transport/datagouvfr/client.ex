@@ -22,7 +22,7 @@ defmodule Transport.Datagouvfr.Client do
   You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/organizations/list_organizations
   """
   @spec organizations(map) :: {atom, [map]}
-  def organizations(params) do
+  def organizations(params) when is_map(params) do
     headers = []
 
     case get("organizations", headers, params: params) do
