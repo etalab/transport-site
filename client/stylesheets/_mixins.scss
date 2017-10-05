@@ -51,3 +51,43 @@
     @content;
   }
 }
+
+@mixin cards {
+  @include grid-container;
+  > div {
+    @include grid-mobile(1, 1);
+    @include grid-tablet-up(3, 1);
+
+    background-color: lighten($light-grey, 2%);
+    border: 1px solid $light-grey;
+    border-radius: 3px;
+    margin-bottom: 2em;
+
+    > div {
+      margin-bottom: 1em;
+      text-align: center;
+    }
+
+    > h1 {
+      font-size: 1.4em;
+
+    }
+
+    > .image > img {
+      height: 100px;
+      margin-left: auto;
+      margin-right: auto;
+      width: 100px;
+    }
+
+    .details {
+      border-bottom: 1px solid darken($light-grey, 30%);
+    }
+
+    [role='link'] {
+      &.button {
+        @extend .button-success;
+      }
+    }
+  }
+}
