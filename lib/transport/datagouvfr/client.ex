@@ -21,10 +21,10 @@ defmodule Transport.Datagouvfr.Client do
   Call to GET /api/1/me/
   You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/me/
   """
-  @spec me(map) :: {atom, [map]}
-  def me(%{"apikey" => apikey}) do
+  @spec me(%Plug.Conn{}) :: {atom, [map]}
+  def me(%Plug.Conn{} = conn) do
     case get("me",
-             [{"X-API-KEY", apikey}],
+             [authorization_header_with_bearer(conn)],
              [timeout: 50_000, recv_timeout: 50_000]) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} -> body
       {:ok, %HTTPoison.Response{status_code: _, body: body}} -> {:error, body}
@@ -114,12 +114,13 @@ defmodule Transport.Datagouvfr.Client do
   Call to PUT /api/1/datasets/:slug/
   You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/datasets/put_dataset
   """
-  @spec put_datasets(String.t, map, String.t) :: {atom, map}
-  def put_datasets(slug, dataset, apikey) when is_map(dataset) do
+  @spec put_datasets(String.t, map, %Plug.Conn{}) :: {atom, map}
+  def put_datasets(slug, dataset, %Plug.Conn{} = conn) when is_map(dataset) do
     ["datasets", slug]
     |> Path.join()
     |> put(Poison.encode!(dataset),
-           [{"X-API-KEY", apikey}, {"Content-Type", "application/json"}],
+           [authorization_header_with_bearer(conn),
+            {"Content-Type", "application/json"}],
            [timeout: 50_000, recv_timeout: 50_000])
     |> case do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} -> body
@@ -128,20 +129,24 @@ defmodule Transport.Datagouvfr.Client do
     end
   end
 
-  @spec put_datasets({:atom, map}, {:atom, String.t}, String.t) :: {atom, map}
-  def put_datasets({:ok, dataset}, {:add_tag, tag}, apikey) when is_map(dataset) do
+  @spec put_datasets({:atom, map},
+                     {:atom, String.t},
+                     %Plug.Conn{}) :: {atom, map}
+  def put_datasets({:ok, dataset},
+                   {:add_tag, tag},
+                   %Plug.Conn{} = conn) when is_map(dataset) do
     dataset["slug"]
-    |> put_datasets(Map.put(dataset, "tags", [tag | dataset["tags"]]), apikey)
+    |> put_datasets(Map.put(dataset, "tags", [tag | dataset["tags"]]), conn)
   end
 
   @doc """
   Add a tag to a dataset
   """
-  @spec put_datasets(String.t, {:atom, String.t}, String.t) :: {atom, map}
-  def put_datasets(slug, {:add_tag, tag}, apikey) do
+  @spec put_datasets(String.t, {:atom, String.t}, %Plug.Conn{}) :: {atom, map}
+  def put_datasets(slug, {:add_tag, tag}, %Plug.Conn{} = conn) do
     slug
     |> datasets()
-    |> put_datasets({:add_tag, tag}, apikey)
+    |> put_datasets({:add_tag, tag}, conn)
   end
 
   # extended functions of HTTPoison
@@ -170,5 +175,9 @@ defmodule Transport.Datagouvfr.Client do
       "/" -> path
       _ -> path <> "/"
     end
+  end
+
+  defp authorization_header_with_bearer(%Plug.Conn{} = conn) do
+    {"Authorization", "Bearer " <> Conn.get_session(conn, :access_token)}
   end
 end
