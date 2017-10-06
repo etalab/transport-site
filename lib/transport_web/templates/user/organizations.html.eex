@@ -5,10 +5,10 @@
 <div class="cards">
     <%= for organization <- @organizations do %>
     <div class="card">
-        <div class="organization-image">
+        <div class="image">
           <img src="<%= organization["logo"] %>" alt="<%= organization["name"]%>">
         </div>
-        <div class="organization-details">
+        <div class="details">
           <%= organization["name"] %>
         </div>
         <div>
