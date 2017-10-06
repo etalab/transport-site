@@ -10,7 +10,6 @@ defmodule TransportWeb.UserController do
     |> case do
      {:ok, response} ->
        conn
-       |> assign(:has_organizations, Enum.empty?(response["organizations"]) == false)
        |> assign(:organizations, response["organizations"])
        |> render("organizations.html")
      {:error, _} ->
@@ -58,8 +57,8 @@ defmodule TransportWeb.UserController do
         |> put_flash(:info, gettext "connection_needed")
         |> redirect(to: page_path(conn, :login))
         |> halt()
-      _ -> conn
+      _ ->
+        conn
     end
   end
-
 end

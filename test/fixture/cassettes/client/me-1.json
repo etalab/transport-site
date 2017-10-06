@@ -1,0 +1,68 @@
+[
+  {
+    "request": {
+      "body": "",
+      "headers": {
+        "Authorization": "Bearer secret"
+      },
+      "method": "get",
+      "options": {
+        "recv_timeout": 50000,
+        "connect_timeout": 50000
+      },
+      "request_body": "",
+      "url": "http://udata.transport/api/1/me/"
+    },
+    "response": {
+      "body": "{\"about\": null, \"active\": true, \"apikey\": \"secret\", \"avatar\": null, \"avatar_thumbnail\": null, \"email\": \"example@example.com\", \"first_name\": \"Jean\", \"id\": \"1\", \"last_name\": \"Serien\", \"metrics\": {\"datasets\": 0, \"followers\": 0, \"following\": 0, \"reuses\": 0}, \"organizations\": [], \"page\": \"https://data.gouv.fr/fr/users/jean-serien-1/\", \"roles\": [], \"since\": \"2017-10-05T14:19:29.760000\", \"slug\": \"jean-serien-1\", \"uri\": \"https://data.gouv.fr/api/1/users/jean-serien-1/\", \"website\": null}",
+      "headers": {
+        "Server": "nginx/1.10.3 (Ubuntu)",
+        "Date": "Fri, 06 Oct 2017 18:04:28 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "652",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "HEAD, GET, PUT, OPTIONS, DELETE",
+        "Access-Control-Max-Age": "21600",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
+        "Set-Cookie": "session=.cookie; Domain=.data.gouv.fr; HttpOnly; Path=/"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  },
+  {
+    "request": {
+      "body": "",
+      "headers": {
+        "Authorization": "Bearer secret"
+      },
+      "method": "get",
+      "options": {
+        "recv_timeout": 50000,
+        "connect_timeout": 50000
+      },
+      "request_body": "",
+      "url": "https://www.data.gouv.fr/api/1/me/"
+    },
+    "response": {
+      "body": "{\"about\": null, \"active\": true, \"apikey\": \"secret\", \"avatar\": null, \"avatar_thumbnail\": null, \"email\": \"example@example.com\", \"first_name\": \"Jean\", \"id\": \"1\", \"last_name\": \"Serien\", \"metrics\": {\"datasets\": 0, \"followers\": 0, \"following\": 0, \"reuses\": 0}, \"organizations\": [], \"page\": \"https://www.data.gouv.fr/fr/users/jean-serien-1/\", \"roles\": [], \"since\": \"2017-10-05T14:19:29.760000\", \"slug\": \"jean-serien-1\", \"uri\": \"https://www.data.gouv.fr/api/1/users/jean-serien-1/\", \"website\": null}",
+      "headers": {
+        "Server": "nginx/1.10.3 (Ubuntu)",
+        "Date": "Fri, 06 Oct 2017 18:04:28 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "652",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "HEAD, GET, PUT, OPTIONS, DELETE",
+        "Access-Control-Max-Age": "21600",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
+        "Set-Cookie": "session=.cookie; Domain=.data.gouv.fr; HttpOnly; Path=/"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]

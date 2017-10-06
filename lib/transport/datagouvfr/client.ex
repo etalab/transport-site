@@ -178,6 +178,6 @@ defmodule Transport.Datagouvfr.Client do
   end
 
   defp authorization_header_with_bearer(%Plug.Conn{} = conn) do
-    {"Authorization", "Bearer " <> Conn.get_session(conn, :access_token)}
+    {"Authorization", "Bearer " <> conn.assigns[:access_token]}
   end
 end

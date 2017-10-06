@@ -9,6 +9,7 @@ defmodule TransportWeb.Router do
     plug :put_secure_browser_headers
     plug :put_locale
     plug :assign_current_user
+    plug :assign_access_token
   end
 
   pipeline :api do
@@ -54,6 +55,10 @@ defmodule TransportWeb.Router do
 
   defp assign_current_user(conn, _) do
     assign(conn, :current_user, get_session(conn, :current_user))
+  end
+
+  defp assign_access_token(conn, _) do
+    assign(conn, :access_token, get_session(conn, :access_token))
   end
 
   # Other scopes may use custom stacks.
