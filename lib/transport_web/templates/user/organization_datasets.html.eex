@@ -13,7 +13,7 @@
           <%= dataset["description"] %>
         </div>
         <div>
-            <a href="mailto:contact@transport.data.gouv.fr" class="button" role="link">
+            <a href="<%= user_path(@conn, :add_badge_dataset, dataset["slug"])%>" class="button" role="link">
                 <%= gettext "add_dataset" %>
             </a>
         </div>

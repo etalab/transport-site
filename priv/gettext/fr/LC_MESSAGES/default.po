@@ -95,7 +95,7 @@ msgstr "data.gouv.fr est la plateforme ouverte des données publiques française
 msgid "login_what_is_going_to_happen"
 msgstr "En cliquant sur le bouton ci-dessous vous allez pouvoir créer un compte et/ou vous identifier avec votre compte data.gouv.fr"
 
-#: lib/transport_web/controllers/user_controller.ex:45
+#: lib/transport_web/controllers/user_controller.ex:58
 msgid "connection_needed"
 msgstr "Vous devez être préalablement connecté·e."
 
@@ -138,3 +138,7 @@ msgstr "Revenir à la liste des organisations"
 #: lib/transport_web/templates/user/organization_datasets.html.eex:6
 msgid "organization"
 msgstr "Organisation "
+
+#: lib/transport_web/templates/user/add_badge_dataset.html.eex:1
+msgid "final_message_add_dataset"
+msgstr "Votre fichier va maintenant être vérifié avant d'être ajouté."
