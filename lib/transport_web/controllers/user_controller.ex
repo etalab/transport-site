@@ -6,7 +6,6 @@ defmodule TransportWeb.UserController do
 
   def organizations(%Plug.Conn{} = conn, _) do
     conn
-    |> get_session(:current_user)
     |> Client.me
     |> case do
      {:ok, response} ->
@@ -40,7 +39,7 @@ defmodule TransportWeb.UserController do
 
   def add_badge_dataset(conn, %{"slug" => slug}) do
     slug
-    |> Client.put_datasets({:add_tag, "GTFS"}, get_session(conn, :current_user)["apikey"])
+    |> Client.put_datasets({:add_tag, "GTFS"}, conn)
     |> case do
       {:ok, _} ->
         conn
