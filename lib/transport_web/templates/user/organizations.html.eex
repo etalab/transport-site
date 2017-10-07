@@ -1,29 +1,28 @@
 <h1><%= gettext "first_step" %></h1>
 <h2><%= gettext "declare_organization" %></h1>
-<%= if @has_organizations do %>
 
 <div class="cards">
+  <%= if Enum.empty?(@organizations) do %>
+    <div class="card card-full-width">
+      <p><%= gettext "organizations_needed" %></p>
+    </div>
+  <% else %>
     <%= for organization <- @organizations do %>
-    <div class="card">
+      <div class="card">
         <div class="image">
           <img src="<%= organization["logo"] %>" alt="<%= organization["name"]%>">
         </div>
+
         <div class="details">
           <%= organization["name"] %>
         </div>
+
         <div>
-            <a href="<%= user_path(@conn, :organization_datasets, organization["slug"]) %>" class="button" role="link">
-                <%= gettext "thisIsTransportPublisher" %>
-            </a>
+          <a href='<%= user_path(@conn, :organization_datasets, organization["slug"]) %>' class="button" role="link">
+            <%= gettext "transport_publisher" %>
+          </a>
         </div>
-    </div>
-
+      </div>
     <% end %>
-
+  <% end %>
 </div>
-
-<% else %>
-
-    <%= gettext "organizations_needed" %>
-
-<% end %>

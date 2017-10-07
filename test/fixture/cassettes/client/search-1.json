@@ -6,6 +6,40 @@
       "method": "get",
       "options": [],
       "request_body": "",
+      "url": "http://udata.transport/api/1/organizations/?q=Reims"
+    },
+    "response": {
+      "body": "{\"data\": [{\"acronym\": \"PNRMR\", \"badges\": [], \"created_at\": \"2016-08-02T16:00:39.580000\", \"deleted\": null, \"description\": \"Que vous veniez du Nord, de l'Est ou du Sud, le Parc naturel r\\u00e9gional de la Montagne de Reims surgit au-dessus des plaines agricoles de Champagne : son plateau couvert d'une immense for\\u00eat est bord\\u00e9 de coteaux portant un vignoble d'exception. Ce Parc p\\u00e9ri-urbain, cr\\u00e9\\u00e9 en 1976 aux portes de trois agglom\\u00e9rations Reims, Epernay et Ch\\u00e2lons-en-Champagne, est alors consid\\u00e9r\\u00e9 comme le poumon vert par les citadins et comme un espace rural \\u00e0 pr\\u00e9server par les habitants des 65 communes rurales qui le composent. \\n\\nIl est implant\\u00e9 sur un v\\u00e9ritable mille-feuille g\\u00e9ologique vieux de 70 millions d'ann\\u00e9es qui \\u00e0 contribu\\u00e9 \\u00e0 cr\\u00e9er une mosa\\u00efque de milieux. Ceux-ci h\\u00e9bergent une faune et une flore riches et diversifi\\u00e9es, parfois rares mais toujours fragiles ; les Faux de Verzy en sont un des fleurons. Les paysages vari\\u00e9s, caract\\u00e9ris\\u00e9s par leur trilogie (for\\u00eats, vignes, cultures), donnent \\u00e0 ce territoire une  identit\\u00e9 singuli\\u00e8re. Le point culminant, identifi\\u00e9 sur le plateau forestier \\u00e0 288 m\\u00e8tres, est aussi celui du d\\u00e9partement de la Marne.  \", \"id\": \"57a0a78788ee383e74d73ff5\", \"last_modified\": \"2017-09-05T03:13:36.041000\", \"logo\": \"https://www.data.gouv.fr/s/avatars/36/c2c11b8e7a453eace4544dff7447ab-original.jpg\", \"logo_thumbnail\": \"https://www.data.gouv.fr/s/avatars/36/c2c11b8e7a453eace4544dff7447ab-100.jpg\", \"members\": [{\"role\": \"admin\", \"user\": {\"avatar\": null, \"avatar_thumbnail\": null, \"class\": \"User\", \"first_name\": \"Emilie\", \"id\": \"57a0a4eb88ee3846bfd73ff5\", \"last_name\": \"Gatinois\", \"page\": \"https://www.data.gouv.fr/fr/users/emilie-gatinois/\", \"slug\": \"emilie-gatinois\", \"uri\": \"https://www.data.gouv.fr/api/1/users/emilie-gatinois/\"}}], \"metrics\": {\"badges\": 0, \"dataset_views\": 1, \"datasets\": 7, \"followers\": 1, \"members\": 1, \"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"permitted_reuses\": 0, \"resource_downloads\": 2, \"reuse_views\": 0, \"reuses\": 0, \"views\": 22}, \"name\": \"Parc naturel r\\u00e9gional de la Montagne de Reims\", \"page\": \"https://www.data.gouv.fr/fr/organizations/parc-naturel-regional-de-la-montagne-de-reims/\", \"slug\": \"parc-naturel-regional-de-la-montagne-de-reims\", \"uri\": \"https://www.data.gouv.fr/api/1/organizations/parc-naturel-regional-de-la-montagne-de-reims/\", \"url\": \"http://www.parc-montagnedereims.fr/\"}], \"facets\": {}, \"next_page\": null, \"page\": 1, \"page_size\": 20, \"previous_page\": null, \"total\": 1}",
+      "headers": {
+        "Server": "nginx",
+        "Date": "Wed, 20 Sep 2017 16:24:16 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "2642",
+        "Connection": "keep-alive",
+        "Vary": "Accept-Encoding",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "HEAD, GET, POST, OPTIONS",
+        "Access-Control-Max-Age": "21600",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
+        "Pragma": "public",
+        "Cache-Control": "public",
+        "Strict-Transport-Security": "max-age=500",
+        "X-Frame-Options": "SAMEORIGIN",
+        "X-Content-Type-Options": "nosniff",
+        "X-XSS-Protection": "1; mode=block"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  },
+  {
+    "request": {
+      "body": "",
+      "headers": [],
+      "method": "get",
+      "options": [],
+      "request_body": "",
       "url": "https://www.data.gouv.fr/api/1/organizations/?q=Reims"
     },
     "response": {
