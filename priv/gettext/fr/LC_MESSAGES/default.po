@@ -135,11 +135,6 @@ msgstr "Revenir à la liste des organisations"
 msgid "organization"
 msgstr "Organisation "
 
-#: lib/transport_web/templates/user/add_badge_dataset.html.eex:1
-msgid "final_message_add_dataset"
-msgstr "Votre fichier va maintenant être vérifié avant d'être ajouté."
-
-#, fuzzy
 #: lib/transport_web/templates/user/organizations.html.eex:22
 msgid "transport_publisher"
 msgstr "Cette organisation publie des données transport"
