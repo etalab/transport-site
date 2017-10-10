@@ -98,27 +98,3 @@ msgstr "By clicking this button, you'll be able to create an account or use your
 #: lib/transport_web/controllers/user_controller.ex:57
 msgid "connection_needed"
 msgstr "You need to be connected before doing this."
-
-#: lib/transport_web/templates/user/organization_datasets.html.eex:2
-msgid "add_badge_dataset"
-msgstr "Choose a dataset you want to be on transport.data.gouv.fr"
-
-#: lib/transport_web/templates/user/organization_datasets.html.eex:26
-msgid "datasets_needed"
-msgstr "You need to add a dataset on data.gouv.fr"
-
-#: lib/transport_web/templates/user/organization_datasets.html.eex:1
-msgid "second"
-msgstr "Second step"
-
-#: lib/transport_web/templates/user/organization_datasets.html.eex:17
-msgid "add_dataset"
-msgstr "Add this dataset"
-
-#: lib/transport_web/templates/user/organization_datasets.html.eex:4
-msgid "go_back_organizations"
-msgstr "Go back to organizations list"
-
-#: lib/transport_web/templates/user/organization_datasets.html.eex:6
-msgid "organization"
-msgstr "Organization"

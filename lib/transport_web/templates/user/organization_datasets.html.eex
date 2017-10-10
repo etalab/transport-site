@@ -1,28 +1,33 @@
-<h1><%= gettext "second" %></h1>
-<h2><%= gettext "add_badge_dataset" %></h1>
+<h1><%= dgettext("user", "Second step") %></h1>
+<h2><%= dgettext("user", "Choose a dataset you want to be on transport.data.gouv.fr") %></h1>
+
 <div>
-  <a href=<%= user_path @conn, :organizations %>><%= gettext "go_back_organizations" %></a>
+  <a href="<%= user_path @conn, :organizations %>"><%= dgettext("user", "Go back to organizations list") %></a>
 </div>
-<span><%= gettext "organization" %>: <b><%= @organization["name"] %></b></span>
+
+<span>
+  <%= dgettext("user", "Organization") %>: <b><%= @organization["name"] %>
+  </b>
+</span>
+
 <%= if @has_datasets do %>
-<div class="cards">
+  <div class="cards">
     <%= for dataset <- @datasets do %>
-    <div class="card">
+      <div class="card">
         <h1><%= dataset["title"] %></h1>
+
         <div class="datasetdetails">
           <%= dataset["description"] %>
         </div>
+
         <div>
-            <a href="<%= user_path(@conn, :add_badge_dataset, dataset["slug"])%>" class="button" role="link">
-                <%= gettext "add_dataset" %>
-            </a>
+          <a href="<%= user_path(@conn, :add_badge_dataset, dataset["slug"])%>" class="button" role="link">
+            <%= dgettext("user", "Add this dataset") %>
+          </a>
         </div>
-    </div>
+      </div>
     <% end %>
-</div>
-
+  </div>
 <% else %>
-
-    <%= gettext "datasets_needed" %>
-
+  <%= dgettext("user", "You need to add a dataset on data.gouv.fr") %>
 <% end %>

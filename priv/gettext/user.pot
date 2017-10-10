@@ -29,3 +29,27 @@ msgstr ""
 #: lib/transport_web/templates/user/organizations.html.eex:7
 msgid "You need an organization"
 msgstr ""
+
+#: lib/transport_web/templates/user/organization_datasets.html.eex:2
+msgid "Choose a dataset you want to be on transport.data.gouv.fr"
+msgstr ""
+
+#: lib/transport_web/templates/user/organization_datasets.html.eex:1
+msgid "Second step"
+msgstr ""
+
+#: lib/transport_web/templates/user/organization_datasets.html.eex:32
+msgid "You need to add a dataset on data.gouv.fr"
+msgstr ""
+
+#: lib/transport_web/templates/user/organization_datasets.html.eex:25
+msgid "Add this dataset"
+msgstr ""
+
+#: lib/transport_web/templates/user/organization_datasets.html.eex:9
+msgid "Organization"
+msgstr ""
+
+#: lib/transport_web/templates/user/organization_datasets.html.eex:5
+msgid "Go back to organizations list"
+msgstr ""
