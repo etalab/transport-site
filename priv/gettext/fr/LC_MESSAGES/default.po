@@ -99,18 +99,6 @@ msgstr "En cliquant sur le bouton ci-dessous vous allez pouvoir créer un compte
 msgid "connection_needed"
 msgstr "Vous devez être préalablement connecté·e."
 
-#: lib/transport_web/templates/user/organizations.html.eex:2
-msgid "declare_organization"
-msgstr "Sélectionner une organisation publiant des données transport"
-
-#: lib/transport_web/templates/user/organizations.html.eex:1
-msgid "first_step"
-msgstr "Première étape"
-
-#: lib/transport_web/templates/user/organizations.html.eex:7
-msgid "organizations_needed"
-msgstr "Vous devez avoir une organisation"
-
 #: lib/transport_web/templates/user/organization_datasets.html.eex:2
 msgid "add_badge_dataset"
 msgstr "Choisissez un jeu de données que vous voulez voir afficher sur transport.data.gouv.fr"
@@ -134,7 +122,3 @@ msgstr "Revenir à la liste des organisations"
 #: lib/transport_web/templates/user/organization_datasets.html.eex:6
 msgid "organization"
 msgstr "Organisation "
-
-#: lib/transport_web/templates/user/organizations.html.eex:22
-msgid "transport_publisher"
-msgstr "Cette organisation publie des données transport"

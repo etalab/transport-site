@@ -99,18 +99,6 @@ msgstr "By clicking this button, you'll be able to create an account or use your
 msgid "connection_needed"
 msgstr "You need to be connected before doing this."
 
-#: lib/transport_web/templates/user/organizations.html.eex:2
-msgid "declare_organization"
-msgstr "Select an organization that publishes transport data"
-
-#: lib/transport_web/templates/user/organizations.html.eex:1
-msgid "first_step"
-msgstr "First step"
-
-#: lib/transport_web/templates/user/organizations.html.eex:7
-msgid "organizations_needed"
-msgstr "You need an organization"
-
 #: lib/transport_web/templates/user/organization_datasets.html.eex:2
 msgid "add_badge_dataset"
 msgstr "Choose a dataset you want to be on transport.data.gouv.fr"
@@ -134,7 +122,3 @@ msgstr "Go back to organizations list"
 #: lib/transport_web/templates/user/organization_datasets.html.eex:6
 msgid "organization"
 msgstr "Organization"
-
-#: lib/transport_web/templates/user/organizations.html.eex:22
-msgid "transport_publisher"
-msgstr "This organization publishes transport data"
