@@ -8,7 +8,8 @@
     "build": "webpack",
     "deploy": "webpack -p",
     "errors": "webpack --display-error-details",
-    "linter:ecma": "eslint -c ../.eslintrc .",
+    "linter:ecma": "eslint -c ../.eslintrc --ext .js .",
+    "linter:riot": "eslint -c ../.eslintrc --ext .tag .",
     "linter:sass": "sass-lint -c ../.sass-lint.yml  -v -q"
   },
   "dependencies":{
@@ -41,6 +42,7 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-riot": "^0.1.7",
     "eslint-plugin-standard": "^3.0.1",
     "sass-lint": "^1.12.1"
   }

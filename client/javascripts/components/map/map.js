@@ -48,7 +48,7 @@ export const addMap = (id, featuresUrl, opts) => {
         id: Mapbox.id
     }).addTo(map)
 
-    fetch(featuresUrl) // eslint-disable-line no-undef
+    fetch(featuresUrl)
         .then(response => { return response.json() })
         .then(response => {
             const geoJSON = Leaflet.geoJSON(features(response.data), {

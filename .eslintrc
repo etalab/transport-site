@@ -1,7 +1,14 @@
 {
   "extends": ["eslint:recommended", "standard"],
+  "plugins": ["riot"],
   "rules": {
     "indent": ["error", 4],
-    "no-multi-spaces": ["error", { exceptions: { "VariableDeclarator": true } }]
+    "no-multi-spaces": "off"
+  },
+  "globals": {
+    "fetch": true,
+    "opts": true,
+    "Headers": true,
+    "FormData": true
   }
 }
