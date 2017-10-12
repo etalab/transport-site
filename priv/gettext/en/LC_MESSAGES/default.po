@@ -94,3 +94,7 @@ msgstr "data.gouv.fr is the open platform for French public data"
 #: lib/transport_web/templates/page/login.html.eex:37
 msgid "login_what_is_going_to_happen"
 msgstr "By clicking this button, you'll be able to create an account or use your existing data.gouv.fr account to log in"
+
+#: lib/transport_web/controllers/session_controller.ex:27
+msgid "An error occured, please try again"
+msgstr ""

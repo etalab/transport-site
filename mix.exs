@@ -41,7 +41,6 @@ defmodule Transport.Mixfile do
       {:cowboy, "~> 1.0"},
       {:earmark, "~> 1.2"},
       {:oauth2, "~> 0.9"},
-      {:httpoison, "~> 0.13"},
       {:exvcr, "~> 0.8", only: :test},
       {:hound, "~> 1.0.2", only: :test},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
