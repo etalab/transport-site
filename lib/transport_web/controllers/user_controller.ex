@@ -2,7 +2,6 @@ defmodule TransportWeb.UserController do
   use TransportWeb, :controller
   alias Transport.Datagouvfr.Client
   alias TransportWeb.ErrorView
-  plug :authentication_required
 
   def organizations(%Plug.Conn{} = conn, _) do
     conn
@@ -48,17 +47,5 @@ defmodule TransportWeb.UserController do
         |> put_status(:internal_server_error)
         |> render(ErrorView, "500.html")
      end
-  end
-
-  defp authentication_required(conn, _) do
-    case conn.assigns[:current_user]  do
-      nil ->
-        conn
-        |> put_flash(:info, dgettext("alert", "You need to be connected before doing this."))
-        |> redirect(to: page_path(conn, :login))
-        |> halt()
-      _ ->
-        conn
-    end
   end
 end
