@@ -1,5 +1,7 @@
 defmodule TransportWeb.Router do
   use TransportWeb, :router
+  import TransportWeb.Gettext, only: [dgettext: 2]
+  alias TransportWeb.Router.Helpers
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -24,6 +26,7 @@ defmodule TransportWeb.Router do
     get "/shortlist", PageController, :shortlist
 
     scope "/user" do
+      pipe_through [:authentication_required]
       get "/organizations/", UserController, :organizations
       get "/organizations/:slug/datasets/", UserController, :organization_datasets
       get "/datasets/:slug/_add", UserController, :add_badge_dataset
@@ -59,6 +62,18 @@ defmodule TransportWeb.Router do
 
   defp assign_access_token(conn, _) do
     assign(conn, :access_token, get_session(conn, :access_token))
+  end
+
+  defp authentication_required(conn, _) do
+    case conn.assigns[:current_user]  do
+      nil ->
+        conn
+        |> put_flash(:info, dgettext("alert", "You need to be connected before doing this."))
+        |> redirect(to: Helpers.page_path(conn, :login))
+        |> halt()
+      _ ->
+        conn
+    end
   end
 
   # Other scopes may use custom stacks.
