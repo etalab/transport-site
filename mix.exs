@@ -20,7 +20,7 @@ defmodule Transport.Mixfile do
   def application do
     [
       mod: {Transport.Application, []},
-      extra_applications: [:logger, :runtime_tools, :oauth2]
+      extra_applications: [:logger, :oauth2, :amqp]
     ]
   end
 
@@ -33,13 +33,15 @@ defmodule Transport.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:amqp, "~> 0.3.0"},
       {:cowboy, "~> 1.0"},
       {:earmark, "~> 1.2"},
       {:gettext, "~> 0.11"},
-      {:oauth2, "~> 0.9"},
+      {:httpoison, "~> 0.13"},
       {:phoenix, "~> 1.3"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_pubsub, "~> 1.0"},
+      {:oauth2, "~> 0.9"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:exvcr, "~> 0.8", only: :test},
       {:eye_drops, "~> 1.3", only: :dev},

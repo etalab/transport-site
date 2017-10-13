@@ -14,6 +14,7 @@ defmodule Transport.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(TransportWeb.Endpoint, []),
+      worker(Transport.DataValidator.Server, [])
       # Start worker by calling: Transport.Worker.start_link(arg1, arg2, arg3)
       # worker(Transport.Worker, [arg1, arg2, arg3]),
     ]
