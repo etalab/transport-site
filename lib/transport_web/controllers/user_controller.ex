@@ -54,7 +54,7 @@ defmodule TransportWeb.UserController do
     case conn.assigns[:current_user]  do
       nil ->
         conn
-        |> put_flash(:info, gettext "connection_needed")
+        |> put_flash(:info, dgettext("alert", "You need to be connected before doing this."))
         |> redirect(to: page_path(conn, :login))
         |> halt()
       _ ->

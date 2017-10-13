@@ -1,10 +1,10 @@
-<h1><%= gettext "first_step" %></h1>
-<h2><%= gettext "declare_organization" %></h1>
+<h1><%= dgettext("user", "First step") %></h1>
+<h2><%= dgettext("user", "Select an organization that publishes transport data") %></h1>
 
 <div class="cards">
   <%= if Enum.empty?(@organizations) do %>
     <div class="card card-full-width">
-      <p><%= gettext "organizations_needed" %></p>
+      <p><%= dgettext("user", "You need an organization") %></p>
     </div>
   <% else %>
     <%= for organization <- @organizations do %>
@@ -18,8 +18,8 @@
         </div>
 
         <div>
-          <a href='<%= user_path(@conn, :organization_datasets, organization["slug"]) %>' class="button" role="link">
-            <%= gettext "transport_publisher" %>
+          <a href="<%= user_path(@conn, :organization_datasets, organization["slug"]) %>" class="button" role="link">
+            <%= dgettext("user", "This organization publishes transport data") %>
           </a>
         </div>
       </div>
