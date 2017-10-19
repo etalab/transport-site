@@ -27,7 +27,7 @@ defmodule Transport.DataValidator.Server do
   ## Server Callbacks
 
   def init(:ok) do
-    {:ok, conn} = Connection.open
+    {:ok, conn} = Connection.open(server_url())
     {:ok, chan} = Channel.open(conn)
     {:ok, _}    = Queue.declare(chan, @queue)
     :ok         = Exchange.fanout(chan, @exchange)
@@ -60,6 +60,12 @@ defmodule Transport.DataValidator.Server do
   end
 
   # private
+
+  defp server_url do
+    :amqp
+    |> Application.get_all_env
+    |> Keyword.get(:rabbitmq_url)
+  end
 
   defp put_subscriber(state, pid) do
     Map.put(state, :subscribers, [pid | state.subscribers])

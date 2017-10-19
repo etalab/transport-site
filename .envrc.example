@@ -1,4 +1,5 @@
 export SECRET_KEY_BASE=asdf1234
+export RABBITMQ_URL=amqp://guest:guest@localhost
 export DATAGOUVFR_SITE=https://www.data.gouv.fr
 export DATAGOUVFR_CLIENT_ID=asdf1234
 export DATAGOUVFR_CLIENT_SECRET= asdf1234
