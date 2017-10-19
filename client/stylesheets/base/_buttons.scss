@@ -3,4 +3,5 @@ button,
 [type='reset'],
 [type='submit'] {
   @extend .pure-button;
+  outline: none;
 }
