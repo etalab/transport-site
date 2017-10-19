@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: maukoquiroga/transport:0.0.1
+      - image: maukoquiroga/transport:0.0.2
         environment:
           MIX_ENV: test
           DATAGOUVFR_SITE: https://www.data.gouv.fr
@@ -45,6 +45,10 @@ jobs:
             - client/node_modules
 
       - run:
+          name: Start message broker
+          command: /etc/init.d/rabbitmq-server start
+
+      - run:
           name: Start webdriver
           command: /etc/init.d/phantomjs start
 
@@ -59,8 +63,8 @@ jobs:
           name: Run linters
           command: |
             mix credo --strict
-            eslint -c .eslintrc client
-            sass-lint -c .sass-lint.yml  -v
+            mix npm "run linter:ecma"
+            mix npm "run linter:sass"
 
       - run:
           name: Setup Heroku
