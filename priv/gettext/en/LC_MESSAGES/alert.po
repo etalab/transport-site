@@ -10,6 +10,6 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/controllers/user_controller.ex:57
+#: lib/transport_web/controllers/user_controller.ex:58
 msgid "You need to be connected before doing this."
 msgstr ""

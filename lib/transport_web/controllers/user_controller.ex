@@ -1,17 +1,18 @@
 defmodule TransportWeb.UserController do
   use TransportWeb, :controller
-  alias Transport.Datagouvfr.Client
+  alias Transport.Datagouvfr.Client.{Organizations, User, Datasets}
   alias TransportWeb.ErrorView
 
   def organizations(%Plug.Conn{} = conn, _) do
     conn
-    |> Client.me
+    |> User.me
     |> case do
      {:ok, response} ->
        conn
        |> assign(:organizations, response["organizations"])
        |> render("organizations.html")
-     {:error, _} ->
+     {:error, error} ->
+       IO.puts(error)
        conn
        |> put_status(:internal_server_error)
        |> render(ErrorView, "500.html")
@@ -19,8 +20,8 @@ defmodule TransportWeb.UserController do
   end
 
   def organization_datasets(conn, %{"slug" => slug}) do
-    slug
-    |> Client.organizations(:with_datasets)
+    conn
+    |> Organizations.get(slug, :with_datasets)
     |> case do
       {:ok, response} ->
         conn
@@ -36,8 +37,8 @@ defmodule TransportWeb.UserController do
   end
 
   def add_badge_dataset(conn, %{"slug" => slug}) do
-    slug
-    |> Client.put_datasets({:add_tag, "GTFS"}, conn)
+    conn
+    |> Datasets.put(slug, {:add_tag, "GTFS"})
     |> case do
       {:ok, _} ->
         conn

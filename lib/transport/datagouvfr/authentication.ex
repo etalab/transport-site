@@ -9,9 +9,10 @@ defmodule Transport.Datagouvfr.Authentication do
 
   # Public API
 
-  def client do
+  def client(token \\ nil) do
     :oauth2
     |> Application.get_env(__MODULE__)
+    |> Keyword.put(:token, token)
     |> Client.new()
   end
 

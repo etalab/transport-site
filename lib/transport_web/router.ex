@@ -11,7 +11,7 @@ defmodule TransportWeb.Router do
     plug :put_secure_browser_headers
     plug :put_locale
     plug :assign_current_user
-    plug :assign_access_token
+    plug :assign_client
   end
 
   pipeline :api do
@@ -60,8 +60,8 @@ defmodule TransportWeb.Router do
     assign(conn, :current_user, get_session(conn, :current_user))
   end
 
-  defp assign_access_token(conn, _) do
-    assign(conn, :access_token, get_session(conn, :access_token))
+  defp assign_client(conn, _) do
+    assign(conn, :client, get_session(conn, :client))
   end
 
   defp authentication_required(conn, _) do

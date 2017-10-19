@@ -94,3 +94,7 @@ msgstr "data.gouv.fr est la plateforme ouverte des données publiques française
 #: lib/transport_web/templates/page/login.html.eex:37
 msgid "login_what_is_going_to_happen"
 msgstr "En cliquant sur le bouton ci-dessous vous allez pouvoir créer un compte et/ou vous identifier avec votre compte data.gouv.fr"
+
+#: lib/transport_web/controllers/session_controller.ex:27
+msgid "An error occured, please try again"
+msgstr "Une erreur est survenue, veuillez réessayer."
