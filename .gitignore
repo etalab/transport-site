@@ -17,8 +17,7 @@ erl_crash.dump
 /priv/static/js
 /priv/static/css
 /priv/static/fonts
-/priv/static/images/**/*
-!/priv/static/images/logo-*.svg
+/priv/static/images
 
 # For now, we'll be ignoring data files.
 /priv/static/data/aots
