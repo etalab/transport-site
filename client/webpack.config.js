@@ -1,6 +1,8 @@
 const { resolve }       = require('path')
 const webpack           = require('webpack')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const extractFonts      = new CopyWebpackPlugin([{ from: 'fonts', to: '../fonts' }])
 const extractSass       = new ExtractTextPlugin({ filename: '../css/app.css', allChunks: true })
 const fetchPolyfill     = new webpack.ProvidePlugin({ fetch: 'imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch' })
 const promisePolyfill   = new webpack.ProvidePlugin({ Promise: 'core-js/es6/promise' })
@@ -27,6 +29,7 @@ module.exports = {
         }
     },
     plugins: [
+        extractFonts,
         extractSass,
         fetchPolyfill,
         promisePolyfill,
@@ -93,7 +96,7 @@ module.exports = {
                 }
             }]
         }, {
-            test: /\.(eot|ttf|woff|woff2|svg)(\?v=\d+\.\d+\.\d+)?$/,
+            test: /\.(eot|ttf|otf|woff|woff2|svg)(\?v=\d+\.\d+\.\d+)?$/,
             use: [{
                 loader: 'file-loader',
                 options: {
