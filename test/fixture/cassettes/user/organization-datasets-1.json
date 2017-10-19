@@ -9,6 +9,36 @@
       "method": "get",
       "options": [],
       "request_body": "",
+      "url": "http://udata.transport/api/1/organizations/mon-aot/"
+    },
+    "response": {
+      "body": "{\"acronym\": null, \"badges\": [], \"created_at\": \"2017-10-06T15:49:06.314000\", \"deleted\": null, \"description\": \"Mon Autorit\\u00e9 Organisatrice de transport de ma commune\", \"id\": \"59d7a5f20b5b3901fed55fb7\", \"last_modified\": \"2017-10-06T15:49:13.054000\", \"logo\": \"http://udata.transport/avatars/6b/c9842e7f5b40fc9dcaf752f59330f9-original.png\", \"logo_thumbnail\": \"http://udata.transport/avatars/6b/c9842e7f5b40fc9dcaf752f59330f9-100.png\", \"members\": [{\"role\": \"admin\", \"user\": {\"avatar\": null, \"avatar_thumbnail\": null, \"class\": \"User\", \"first_name\": \"Mon AOT\", \"id\": \"59d787800b5b3901fd5497b0\", \"last_name\": \"Ma commune\", \"page\": \"http://udata.transport/fr/users/mon-aot-ma-commune/\", \"slug\": \"mon-aot-ma-commune\", \"uri\": \"http://udata.transport/api/1/users/mon-aot-ma-commune/\"}}], \"metrics\": {\"datasets\": 1, \"followers\": 0, \"members\": 1, \"permitted_reuses\": 0, \"reuses\": 0}, \"name\": \"Mon AOT\", \"page\": \"http://udata.transport/fr/organizations/mon-aot/\", \"slug\": \"mon-aot\", \"uri\": \"http://udata.transport/api/1/organizations/mon-aot/\", \"url\": null}",
+      "headers": {
+        "Server": "nginx/1.10.3 (Ubuntu)",
+        "Date": "Fri, 13 Oct 2017 09:57:10 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "1045",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "HEAD, GET, PUT, OPTIONS, DELETE",
+        "Access-Control-Max-Age": "21600",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  },
+  {
+    "request": {
+      "body": "null",
+      "headers": {
+        "accept": "application/json",
+        "authorization": "Bearer secret"
+      },
+      "method": "get",
+      "options": [],
+      "request_body": "",
       "url": "https://www.data.gouv.fr/api/1/organizations/mon-aot/"
     },
     "response": {
@@ -21,6 +51,36 @@
         "Connection": "keep-alive",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "HEAD, GET, PUT, OPTIONS, DELETE",
+        "Access-Control-Max-Age": "21600",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  },
+  {
+    "request": {
+      "body": "null",
+      "headers": {
+        "accept": "application/json",
+        "authorization": "Bearer secret"
+      },
+      "method": "get",
+      "options": [],
+      "request_body": "",
+      "url": "http://udata.transport/api/1/organizations/mon-aot/datasets/"
+    },
+    "response": {
+      "body": "[{\"badges\": [], \"created_at\": \"2017-10-06T15:50:24.242000\", \"deleted\": null, \"description\": \"Le plan de transport de ma commune au format GTFS\", \"extras\": {}, \"frequency\": \"fourTimesAWeek\", \"frequency_date\": null, \"id\": \"59d7a6400b5b3901fed55fb8\", \"last_modified\": \"2017-10-13T09:50:42.157000\", \"last_update\": \"2017-10-06T15:50:40\", \"license\": \"notspecified\", \"metrics\": {\"discussions\": 0, \"followers\": 0, \"issues\": 0, \"reuses\": 0}, \"organization\": {\"acronym\": null, \"class\": \"Organization\", \"id\": \"59d7a5f20b5b3901fed55fb7\", \"logo\": \"http://udata.transport/avatars/6b/c9842e7f5b40fc9dcaf752f59330f9-original.png\", \"logo_thumbnail\": \"http://udata.transport/avatars/6b/c9842e7f5b40fc9dcaf752f59330f9-100.png\", \"name\": \"Mon AOT\", \"page\": \"http://udata.transport/fr/organizations/mon-aot/\", \"slug\": \"mon-aot\", \"uri\": \"http://udata.transport/api/1/organizations/mon-aot/\"}, \"owner\": null, \"page\": \"http://udata.transport/fr/datasets/mon-aot/\", \"private\": false, \"resources\": [{\"checksum\": {\"type\": \"sha1\", \"value\": \"5465bec87fc4a09951522ba508bc6421b94660ad\"}, \"created_at\": \"2017-10-06T15:50:40.556000\", \"description\": \"Fichier au format GFTS\", \"extras\": {}, \"filesize\": 2082, \"filetype\": \"file\", \"format\": \"png\", \"id\": \"cf6fd138-a5a5-46cb-b88d-506ca15adaca\", \"is_available\": true, \"last_modified\": \"2017-10-06T15:50:43.380000\", \"latest\": \"http://udata.transport/fr/datasets/r/cf6fd138-a5a5-46cb-b88d-506ca15adaca\", \"metrics\": {}, \"mime\": \"image/png\", \"published\": \"2017-10-06T15:50:40\", \"title\": \"GTFS \", \"url\": \"http://udata.transport/resources/le-plan-de-transport-de-ma-commune/20171006-155040/logo_commune.png\"}], \"slug\": \"mon-aot\", \"spatial\": null, \"tags\": [\"gtfs\", \"montag\"], \"temporal_coverage\": null, \"title\": \"Mon AOT\", \"uri\": \"http://udata.transport/api/1/datasets/mon-aot/\"}]",
+      "headers": {
+        "Server": "nginx/1.10.3 (Ubuntu)",
+        "Date": "Fri, 13 Oct 2017 09:57:10 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "1783",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "HEAD, GET, OPTIONS",
         "Access-Control-Max-Age": "21600",
         "Access-Control-Allow-Credentials": "true",
         "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO"
