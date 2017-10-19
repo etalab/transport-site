@@ -1,4 +1,7 @@
+// Variables to setup globally some site standard values.
+
 // Colours
+
 $light-grey: hsl(0, 0%, 93%);
 $dark-grey: hsl(0, 0%, 20%);
 $white: hsl(0, 0%, 100%);
@@ -8,5 +11,10 @@ $red: hsl(29, 84%, 48%);
 $dark-blue: hsl(215, 58%, 34%);
 
 // Content breakpoints
+
 $breakpoint-tablet: 40em;
 $breakpoint-desktop: 53.75em;
+
+// Other global variables
+
+$fa-font-path: '~font-awesome/fonts';
