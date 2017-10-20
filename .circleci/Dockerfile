@@ -6,22 +6,19 @@ RUN apt-get update \
                           lsb-release \
                           curl
 
+# Install RabbitMQ
+RUN apt-get install -y rabbitmq-server
+
 # Install Node
-RUN curl -sL https://deb.nodesource.com/setup_7.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
 RUN apt-get update -qy \
     && apt-get install -y nodejs
 
 # Install app dependencies
 RUN mix local.hex --force
 RUN mix local.rebar --force
-RUN npm i -g yarn \
-             eslint \
-             eslint-config-standard \
-             eslint-plugin-import \
-             eslint-plugin-node \
-             eslint-plugin-promise \
-             eslint-plugin-standard \
-             sass-lint
+RUN npm i -g yarn
+
 # Install PhantomJS
 RUN mkdir /tmp/phantomjs \
     && curl -L https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 | tar -xvj -C /tmp/phantomjs --strip-components=1 phantomjs-2.1.1-linux-x86_64/bin \
