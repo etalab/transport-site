@@ -26,14 +26,18 @@ defmodule Transport.DataValidator.Server do
 
   ## Server Callbacks
 
+  @spec init(:ok) :: {:ok, map()} | {:error, any()}
   def init(:ok) do
-    {:ok, conn} = Connection.open(server_url())
-    {:ok, chan} = Channel.open(conn)
-    {:ok, _}    = Queue.declare(chan, @queue)
-    :ok         = Exchange.fanout(chan, @exchange)
-    :ok         = Queue.bind(chan, @queue, @exchange)
-    {:ok, _}    = Basic.consume(chan, @exchange)
-    {:ok, %{conn: conn, chan: chan, subscribers: []}}
+    with {:ok, conn} <- Connection.open(server_url()),
+         {:ok, chan} <- Channel.open(conn),
+         {:ok, _} <- Queue.declare(chan, @queue),
+         :ok <- Exchange.fanout(chan, @exchange),
+         :ok <- Queue.bind(chan, @queue, @exchange),
+         {:ok, _} <- Basic.consume(chan, @exchange) do
+      {:ok, %{conn: conn, chan: chan, subscribers: []}}
+    else
+      {_, error} -> {:error, error}
+    end
   end
 
   def handle_call({:subscribe, pid}, _, state) do
