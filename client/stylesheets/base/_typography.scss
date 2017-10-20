@@ -1,5 +1,6 @@
 body {
   font-family: 'Source Sans Pro', Arial, sans-serif;
+  font-size: 15px;
 }
 
 h1,
@@ -22,4 +23,17 @@ h1 {
 
 h2 {
   font-size: calc(.5vw + 1em);
+}
+
+a,
+[role='link'] {
+  outline: none;
+  text-decoration: none;
+
+  &:hover,
+  &:focus,
+  &:visited,
+  &:active {
+    text-decoration: none;
+  }
 }
