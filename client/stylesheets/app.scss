@@ -1,23 +1,11 @@
-// Global variables.
-$fa-font-path: '~font-awesome/fonts';
-
-// External styles and libraries.
-@import '~normalize.css';
-@import '~bourbon/core/bourbon';
-@import '~bourbon-neat/core/neat';
-@import '~purecss';
-// @import '~typeplate-starter-kit/dist/scss/typeplate-index';
-@import '~leaflet/dist/leaflet';
-@import '~font-awesome/scss/font-awesome';
-
-// Variables: to setup globally some site standard values
-@import 'variables';
-
-// Mixins: to enhance your styles programmatically
-@import 'mixins';
+// Global styles: variables, mixins, external libraries, and so on.
+@import 'globals/variables';
+@import 'globals/externals';
+@import 'globals/mixins';
+@import 'globals/fonts';
 
 // Base styles: styles to be applied globally.
-@import 'base';
+@import 'base/**/*';
 
 // Layouts: header, main, footer, ...
 @import 'layouts/**/*';
