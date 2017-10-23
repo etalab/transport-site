@@ -24,7 +24,7 @@ defmodule TransportWeb.OpenDataTest do
     |> Kernel.=~("/login/explanation")
     |> assert
 
-    find_element(:class, "info")
+    find_element(:class, "message--info")
     |> inner_text
     |> Kernel.=~("connecté")
     |> assert

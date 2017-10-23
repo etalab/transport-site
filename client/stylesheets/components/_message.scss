@@ -1,7 +1,11 @@
-.info {
-  background-color: $green;
+.message--success {
+  background: $background-message-success;
 }
 
-.error {
-  background-color: $red;
+.message--info {
+  background: $background-message-info;
+}
+
+.message--error {
+  background: $background-message-error;
 }

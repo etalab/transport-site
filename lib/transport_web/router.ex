@@ -12,6 +12,7 @@ defmodule TransportWeb.Router do
     plug :put_locale
     plug :assign_current_user
     plug :assign_client
+    plug :assign_contact_email
   end
 
   pipeline :api do
@@ -62,6 +63,10 @@ defmodule TransportWeb.Router do
 
   defp assign_client(conn, _) do
     assign(conn, :client, get_session(conn, :client))
+  end
+
+  defp assign_contact_email(conn, _) do
+    assign(conn, :contact_email, "contact@transport.beta.gouv.fr")
   end
 
   defp authentication_required(conn, _) do

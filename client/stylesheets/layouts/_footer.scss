@@ -1,37 +1,32 @@
 [role='contentinfo'] {
-  $base-spacing: 1.5em !default;
-  $background: $white !default;
-  $link-color: $dark-grey !default;
+  background: $background-grey;
+  border-top: 1px solid $border;
+  line-height: 2em;
+  padding: 2em 0;
 
-  background: $background;
-  display: block;
-  padding: $base-spacing;
+  .footer__container {
+    @extend .container;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
 
-  .logo {
-    @include media-tablet-up {
-      float: left;
-    }
-
-    margin-bottom: 1em;
-    margin-right: 1em;
-
+  .footer__logo {
     img {
-      height: 50px;
+      width: 5em;
     }
   }
 
-  ul {
+  .footer__links {
     @include media-tablet-up {
       float: left;
-      line-height: $base-spacing * 2;
       margin-bottom: 0;
       margin-left: 1em;
     }
 
-    line-height: $base-spacing;
-    margin: 0 0 1em;
-    padding: 0;
-
+    margin: 0;
 
     li {
       @include media-tablet-up {
@@ -39,18 +34,7 @@
         text-align: left;
       }
 
-      list-style: none;
       padding-right: 1em;
-
-      a {
-        color: $link-color;
-        text-decoration: none;
-
-        &:focus,
-        &:hover {
-          color: transparentize($link-color, .5);
-        }
-      }
     }
   }
 }

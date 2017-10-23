@@ -3,7 +3,7 @@
 
   <section class="landing-hero">
     <map class="landing-column",
-         link-class='landing-reuse-marker'
+         link-class='button landing-reuse-marker'
          link-href='mailto:contact@transport.beta.gouv.fr'
          link-text='<%= gettext "landing-hero_reuse" %>'>
     </map>
@@ -13,11 +13,11 @@
       <p><markdown content='<%= gettext "landing-hero_description" %>'></markdown></p>
 
       <div class="landing-actions">
-        <a class="landing-open" href="<%= user_path @conn, :organizations %>" role="link">
+        <a class="button landing-open" href="<%= user_path @conn, :organizations %>" role="link">
           <i aria-hidden="true"></i>
           <%= gettext "landing-hero_open" %>
         </a>
-        <a class="landing-reuse" href="<%= page_path @conn, :shortlist %>" role="link">
+        <a class="button landing-reuse" href="<%= page_path @conn, :shortlist %>" role="link">
           <i aria-hidden="true"></i>
           <%= gettext "landing-hero_reusedatasets" %>
         </a>

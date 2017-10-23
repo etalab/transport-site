@@ -18,13 +18,7 @@
 
     [role='link'] {
       &.login-signin {
-        @extend .button-success;
         font-size: $font-size;
-
-        i {
-          @extend .fa;
-          @extend .fa-sign-in;
-        }
       }
     }
   }

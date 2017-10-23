@@ -21,7 +21,7 @@ defmodule TransportWeb.LoginTest do
     |> navigate_to
 
     # I can see a log in / sign up link
-    click({:class, "navigation-login"})
+    click({:class, "navigation__link--login"})
 
     # I have an explanation of what data.gouv.fr is
     assert visible_page_text() =~ "plateforme ouverte des données publiques françaises"

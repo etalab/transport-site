@@ -38,10 +38,4 @@
   .details {
     border-bottom: 1px solid darken($light-grey, 30%);
   }
-
-  [role='link'] {
-    &.button {
-      @extend .button-success;
-    }
-  }
 }

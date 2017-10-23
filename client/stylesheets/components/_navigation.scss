@@ -6,33 +6,12 @@
   float: right;
   height: modular-scale(1);
 
-  [role='link'] {
-    &.navigation-login {
-      @extend .button-success;
-      @include mobile {
-        background: none;
-        display: inline;
-      }
-
-      i {
-        @extend .fa;
-        @extend .fa-sign-in;
-
-      }
+  .navigation__link {
+    @include media-tablet-up {
+      line-height: modular-scale(3);
     }
 
-    &.navigation-logout {
-      @extend .button-warning;
-      @include mobile {
-        background: none;
-        display: inline;
-      }
-
-      i {
-        @extend .fa;
-        @extend .fa-sign-out;
-
-      }
-    }
+    color: $white;
+    line-height: modular-scale(1);
   }
 }

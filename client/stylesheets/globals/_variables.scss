@@ -1,20 +1,63 @@
 // Variables to setup globally some site standard values.
 
-// Colours
+// # Colours
 
-$light-grey: hsl(0, 0%, 93%);
-$dark-grey: hsl(0, 0%, 20%);
-$white: hsl(0, 0%, 100%);
-$black: hsl(0, 0%, 0%);
-$green: hsl(134, 74%, 42%);
-$red: hsl(29, 84%, 48%);
-$dark-blue: hsl(215, 58%, 34%);
+$light-green:                 hsl(122, 38%, 84%) !default;
+$light-red:                   hsl(354, 100%, 90%) !default;
+$light-blue:                  hsl(207, 89%, 86%) !default;
+$blue:                        hsl(201, 63%, 56%) !default;
+$dark-blue:                   hsl(201, 50%, 44%) !default;
+$white:                       hsl(0, 0%, 100%) !default;
+$almost-black:                hsl(0, 0%, 25%) !default;
+$black:                       hsl(0, 0%, 11%) !default;
+$light-grey:                  hsl(0, 0%, 91%) !default;
+$grey:                        hsl(0, 0%, 85%) !default;
+$dark-grey:                   hsl(0, 0%, 80%) !default;
+$black-alpha-2:               hsla(0, 0%, 0%, .3) !default;
+$black-alpha-3:               hsla(0, 0%, 0%, .3) !default;
 
-// Content breakpoints
+// # Theme colours
 
-$breakpoint-tablet: 40em;
-$breakpoint-desktop: 53.75em;
+$primary:                     $blue !default;
+$primary-darker:              $blue !default;
+$secondary:                   $blue !default;
+$secondary-darken:            $dark-blue !default;
+$border:                      $dark-grey !default;
+$border-lighter:              $grey !default;
+$background-white:            $white !default;
+$background-grey:             $light-grey !default;
+$background-color:            $blue !default;
+$background-dark:             $black !default;
+$box-shadow:                  $grey !default;
+$dark-text:                   $almost-black !default;
 
-// Other global variables
+// # Component colours
 
-$fa-font-path: '~font-awesome/fonts';
+// ## Dropdown
+
+$box-shadow-dropdown:         $black-alpha-2 !default;
+
+// ## Buttons
+$box-shadow-button:           $black-alpha-3 !default;
+$box-shadow-button-hover:     $secondary-darken !default;
+
+// ## Messages
+
+$background-message-success:  $light-green;
+$background-message-info:     $light-blue;
+$background-message-error:    $light-red;
+
+// # Typography
+
+$font-size:                   15px;
+$font-family-primary:         'Source Sans Pro', Arial, sans-serif !default;
+$font-family-secondary:       'Evolventa', 'Trebuchet MS', sans-serif !default;
+
+// # Content breakpoints
+
+$breakpoint-tablet:           40em !default;
+$breakpoint-desktop:          53.75em !default;
+
+// # Other global variables
+
+$fa-font-path:                '~font-awesome/fonts' !default;

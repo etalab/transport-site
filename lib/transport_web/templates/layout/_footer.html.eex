@@ -1,21 +1,21 @@
 <footer role="contentinfo">
-  <div class="divider">&nbsp;~&nbsp;</div>
+  <div class="footer__container">
+    <div class="footer__logo">
+      <%= link(img_tag("/images/logo-footer.svg", alt: "transport.beta.gouv.fr"), to: "/") %>
+    </div>
 
-  <%= img_tag("/images/logo-footer.svg", alt: "transport.beta.gouv.fr") |> link(to: "/", class: "logo") %>
+    <ul class="footer__links">
+      <li>
+        <a class="footer__link footer__link--contact" href='mailto:<%= @contact_email %>' role="link">
+          <%= gettext "contact" %>
+        </a>
+      </li>
 
-  <ul class="footer-links">
-    <li>
-      <a class="footer-links-contact" href='mailto:<%= assigns[:contact_email] %>' role="link">
-        <i aria-hidden="true"></i>
-        <%= gettext "contact" %>
-      </a>
-    </li>
-
-    <li>
-      <a class="footer-links-tos" href="#" role="link">
-        <i aria-hidden="true"></i>
-        <%= gettext "tos" %>
-      </a>
-    </li>
-  </ul>
+      <li>
+        <a class="footer__link footer__link--tos" href="#" role="link">
+          <%= gettext "tos" %>
+        </a>
+      </li>
+    </ul>
+  </div>
 </footer>

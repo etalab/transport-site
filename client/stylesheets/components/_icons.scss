@@ -1,0 +1,11 @@
+.icon {
+  @extend .fa;
+}
+
+.icon--login {
+  @extend .fa-sign-in;
+}
+
+.icon--logout {
+  @extend .fa-sign-out;
+}
