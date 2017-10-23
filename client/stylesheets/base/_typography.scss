@@ -1,6 +1,6 @@
 body {
-  font-family: 'Source Sans Pro', Arial, sans-serif;
-  font-size: 15px;
+  font-family: $font-family-primary;
+  font-size: $font-size;
 }
 
 h1,
@@ -9,7 +9,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Evolventa', 'Trebuchet MS', sans-serif;
+  font-family: $font-family-secondary;
 }
 
 h1,
@@ -25,11 +25,10 @@ h2 {
   font-size: calc(.5vw + 1em);
 }
 
-a,
-[role='link'] {
+a {
   outline: none;
-  text-decoration: none;
 
+  &,
   &:hover,
   &:focus,
   &:visited,

@@ -1,9 +1,9 @@
 <section class=login>
   <%= if get_flash(@conn, :info) do %>
-    <p class="info"><%= get_flash(@conn, :info) %></p>
+    <p class="message message--info"><%= get_flash(@conn, :info) %></p>
   <% end %>
   <%= if get_flash(@conn, :error) do %>
-    <p class="error"><%= get_flash(@conn, :error) %></p>
+    <p class="message message--error"><%= get_flash(@conn, :error) %></p>
   <% end %>
 
   <h1><%= gettext "login_title" %></h1>
@@ -50,8 +50,8 @@
   </ul>
 
   <div class="login-actions">
-    <a class="login-signin" href="<%= session_path @conn, :new %>" role="link">
-      <i aria-hidden="true"></i>
+    <a class="button login-signin" href="<%= session_path @conn, :new %>" role="link">
+      <i class="icon icon--login" aria-hidden="true"></i>
       <%= gettext "sign_in" %>
     </a>
   </div>

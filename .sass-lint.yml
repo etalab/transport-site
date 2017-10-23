@@ -55,7 +55,7 @@ rules:
   force-pseudo-nesting: 2
 
   # Name Formats
-  class-name-format: 2
+  class-name-format: 0
   function-name-format: 2
   id-name-format: 0
   mixin-name-format: 2

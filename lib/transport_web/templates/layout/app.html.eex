@@ -18,7 +18,7 @@
       <%= render(@view_module, @view_template, assigns) %>
     </main>
 
-    <%= render(LayoutView, "_footer.html", conn: @conn, current_user: @current_user) %>
+    <%= render(LayoutView, "_footer.html", assigns) %>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>

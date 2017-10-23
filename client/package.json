@@ -29,8 +29,6 @@
     "leaflet": "^1.2.0",
     "showdown": "^1.7.6",
     "node-sass": "^4.5.3",
-    "normalize.css": "^7.0.0",
-    "purecss": "^1.0.0",
     "riot": "^3.7.3",
     "riot-tag-loader": "^1.0.0",
     "sass-loader": "^6.0.6",

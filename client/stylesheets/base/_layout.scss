@@ -1,6 +1,17 @@
 body {
+  background: $background-white;
   margin: 0;
   overflow: auto;
   padding: 0;
   position: relative;
+}
+
+a {
+  &,
+  &:hover,
+  &:focus,
+  &:visited,
+  &:active {
+    color: $primary;
+  }
 }

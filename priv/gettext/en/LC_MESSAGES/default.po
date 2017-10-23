@@ -10,12 +10,12 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/layout/_header.html.eex:13
+#: lib/transport_web/templates/layout/_header.html.eex:14
 #: lib/transport_web/templates/page/login.html.eex:55
 msgid "sign_in"
 msgstr "Sign In"
 
-#: lib/transport_web/templates/layout/_header.html.eex:8
+#: lib/transport_web/templates/layout/_header.html.eex:9
 msgid "sign_out"
 msgstr "Sign Out"
 
@@ -71,7 +71,7 @@ msgstr "Re-use data"
 msgid "contact"
 msgstr "Contact"
 
-#: lib/transport_web/templates/layout/_footer.html.eex:17
+#: lib/transport_web/templates/layout/_footer.html.eex:16
 msgid "tos"
 msgstr "Terms of Service"
 
