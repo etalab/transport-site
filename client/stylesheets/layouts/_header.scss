@@ -1,13 +1,8 @@
+header,
+.layout-header,
 [role='banner'] {
-  @include media-tablet-up {
-    min-height: modular-scale(3);
-    padding: modular-scale(-1) modular-scale(1);
-  }
-
-  @include clearfix;
-  background: $background-dark;
-  border-bottom: 1px solid darken($background-dark, 10);
   min-height: modular-scale(1);
   padding: modular-scale(-3) modular-scale(-2);
-  z-index: 999;
+  width: 100%;
+  z-index: 100;
 }

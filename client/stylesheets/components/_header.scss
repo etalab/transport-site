@@ -1,0 +1,28 @@
+header,
+[role='banner'] {
+  background: $background-white;
+  box-shadow: 0 1px 4px $box-shadow;
+}
+
+.header__container {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.header__logo {
+  width: 60%;
+}
+
+@include media-tablet-up {
+  .header__logo {
+    width: 45%;
+  }
+}
+
+@include media-desktop-up {
+  .header__logo {
+    width: 30%;
+  }
+}

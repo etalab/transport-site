@@ -1,40 +1,6 @@
+footer,
+.layout-footer,
 [role='contentinfo'] {
-  background: $background-grey;
-  border-top: 1px solid $border;
-  line-height: 2em;
+  line-height: 1.5;
   padding: 2em 0;
-
-  .footer__container {
-    @extend .container;
-    align-items: center;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-
-  .footer__logo {
-    img {
-      width: 5em;
-    }
-  }
-
-  .footer__links {
-    @include media-tablet-up {
-      float: left;
-      margin-bottom: 0;
-      margin-left: 1em;
-    }
-
-    margin: 0;
-
-    li {
-      @include media-tablet-up {
-        display: inline;
-        text-align: left;
-      }
-
-      padding-right: 1em;
-    }
-  }
 }

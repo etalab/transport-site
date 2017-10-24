@@ -1,9 +1,22 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: $font-size;
+}
+
 body {
-  background: $background-white;
+  background: $background-grey;
   margin: 0;
   overflow: auto;
   padding: 0;
   position: relative;
+}
+
+section {
+  background: $background-white;
+  padding: 1em;
 }
 
 a {

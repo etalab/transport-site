@@ -1,3 +1,13 @@
 .button {
   @extend button;
 }
+
+.button--fullwidth {
+  &,
+  &:hover,
+  &:focus,
+  &:active,
+  &:visited {
+    display: block;
+  }
+}

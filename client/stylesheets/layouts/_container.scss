@@ -1,0 +1,20 @@
+.layout-container {
+  margin: 0 auto;
+  max-width: 80em;
+  padding: 0 2em;
+  position: relative;
+  width: 100%;
+}
+
+@include media-tablet-up {
+  .layout-container {
+    padding: 0;
+    width: 85%;
+  }
+}
+
+@include media-desktop-up {
+  .layout-container {
+    width: 80%;
+  }
+}

@@ -1,17 +1,14 @@
 [role='navigation'] {
-  @include media-tablet-up {
-    height: modular-scale(3);
-  }
+  display: inline;
+  list-style-type: none;
+  margin: 0;
+  text-align: right;
+}
 
-  float: right;
-  height: modular-scale(1);
+.navigation__links {
+  padding: 1em;
 
-  .navigation__link {
-    @include media-tablet-up {
-      line-height: modular-scale(3);
-    }
-
-    color: $white;
-    line-height: modular-scale(1);
+  a {
+    color: $black;
   }
 }
