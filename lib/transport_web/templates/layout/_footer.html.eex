@@ -1,4 +1,4 @@
-<footer role="contentinfo">
+<footer class="layout-footer" role="contentinfo">
   <div class="footer__container">
     <div class="footer__logo">
       <%= link(img_tag("/images/logo-footer.svg", alt: "transport.beta.gouv.fr"), to: "/") %>

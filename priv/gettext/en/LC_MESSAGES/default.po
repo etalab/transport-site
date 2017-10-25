@@ -10,12 +10,12 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/layout/_header.html.eex:14
+#: lib/transport_web/templates/layout/_header.html.eex:17
 #: lib/transport_web/templates/page/login.html.eex:55
 msgid "sign_in"
 msgstr "Sign In"
 
-#: lib/transport_web/templates/layout/_header.html.eex:9
+#: lib/transport_web/templates/layout/_header.html.eex:12
 msgid "sign_out"
 msgstr "Sign Out"
 
@@ -39,27 +39,27 @@ msgstr "Publish my data"
 msgid "landing-hero_reuse"
 msgstr "R-use this data"
 
-#: lib/transport_web/templates/page/shortlist.html.eex:2
+#: lib/transport_web/templates/page/shortlist.html.eex:3
 msgid "frlo"
 msgstr "Open Licence"
 
-#: lib/transport_web/templates/page/shortlist.html.eex:3
+#: lib/transport_web/templates/page/shortlist.html.eex:4
 msgid "shortlist_download"
 msgstr "Download"
 
-#: lib/transport_web/templates/page/shortlist.html.eex:4
+#: lib/transport_web/templates/page/shortlist.html.eex:5
 msgid "shortlist_licence"
 msgstr "Licence"
 
-#: lib/transport_web/templates/page/shortlist.html.eex:6
+#: lib/transport_web/templates/page/shortlist.html.eex:7
 msgid "shortlist_seedatagouvfr"
 msgstr "See on data.gouv.fr"
 
-#: lib/transport_web/templates/page/shortlist.html.eex:1
+#: lib/transport_web/templates/page/shortlist.html.eex:2
 msgid "shortlist_title"
 msgstr "Available datasets"
 
-#: lib/transport_web/templates/page/shortlist.html.eex:5
+#: lib/transport_web/templates/page/shortlist.html.eex:6
 msgid "shortlist_territory"
 msgstr "Territory"
 
