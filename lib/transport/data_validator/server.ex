@@ -7,8 +7,8 @@ defmodule Transport.DataValidator.Server do
   use GenServer
   alias AMQP.{Connection, Channel, Queue, Exchange, Basic}
 
-  @exchange "data_validations"
-  @queue "data_validations"
+  @routing_key "celery"
+  @exchange "celery"
 
   ## Client API
 
@@ -30,9 +30,7 @@ defmodule Transport.DataValidator.Server do
   def init(:ok) do
     with {:ok, conn} <- Connection.open(server_url()),
          {:ok, chan} <- Channel.open(conn),
-         {:ok, _} <- Queue.declare(chan, @queue),
-         :ok <- Exchange.fanout(chan, @exchange),
-         :ok <- Queue.bind(chan, @queue, @exchange),
+         :ok <- Exchange.direct(chan, @exchange, durable: true),
          {:ok, _} <- Basic.consume(chan, @exchange) do
       {:ok, %{conn: conn, chan: chan, subscribers: []}}
     else
@@ -45,7 +43,7 @@ defmodule Transport.DataValidator.Server do
   end
 
   def handle_cast({:publish, message}, state) do
-    :ok = Basic.publish(state.chan, @exchange, @queue, message)
+    :ok = Basic.publish(state.chan, @exchange, @routing_key, message)
     {:noreply, state}
   end
 
