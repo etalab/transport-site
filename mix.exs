@@ -46,7 +46,8 @@ defmodule Transport.Mixfile do
       {:exvcr, "~> 0.8", only: :test},
       {:eye_drops, "~> 1.3", only: :dev},
       {:hound, "~> 1.0.2", only: :test},
-      {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
+      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
+      {:uuid, "~> 1.1"}
     ]
   end
 end
