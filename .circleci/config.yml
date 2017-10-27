@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: maukoquiroga/transport:0.0.2
+      - image: maukoquiroga/transport:0.0.5
         environment:
           MIX_ENV: test
           RABBITMQ_URL: amqp://guest:guest@localhost
@@ -50,8 +50,15 @@ jobs:
           command: /etc/init.d/rabbitmq-server start
 
       - run:
+          name: Start mongodb
+          command: service mongodb start
+      - run:
           name: Start webdriver
           command: /etc/init.d/phantomjs start
+
+      - run:
+          name: Start celery
+          command: /etc/init.d/celeryd start
 
       - run:
           name: Run tests
