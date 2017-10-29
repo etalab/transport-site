@@ -1,9 +1,9 @@
 <section>
-  <h1><%= gettext "shortlist_title" %></h1>
-  <shortlist frlo="<%= gettext "frlo" %>"
-             download="<%= gettext "shortlist_download" %>"
-             licence="<%= gettext "shortlist_licence" %>"
-             territory="<%= gettext "shortlist_territory" %>"
-             seedatagouvfr="<%= gettext "shortlist_seedatagouvfr" %>">
+  <h1><%= dgettext("page-shortlist", "Available datasets") %></h1>
+  <shortlist frlo='<%= dgettext("page-shortlist", "Open Licence") %>'
+             download='<%= dgettext("page-shortlist", "Download") %>'
+             licence='<%= dgettext("page-shortlist", "Licence") %>'
+             territory='<%= dgettext("page-shortlist", "Territory") %>'
+             seedatagouvfr='<%= dgettext("page-shortlist", "See on data.gouv.fr") %>'
   </shortlist>
 </section>

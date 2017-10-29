@@ -1,0 +1,35 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
+#: lib/transport_web/templates/page/index.html.eex:2
+msgid "Publish and reuse public transport data"
+msgstr ""
+
+#: lib/transport_web/templates/page/index.html.eex:8
+msgid "Reuse this data"
+msgstr ""
+
+#: lib/transport_web/templates/page/index.html.eex:12
+msgid "What is transport.beta.gouv.fr?"
+msgstr ""
+
+#: lib/transport_web/templates/page/index.html.eex:20
+msgid "Publish my data"
+msgstr ""
+
+#: lib/transport_web/templates/page/index.html.eex:14
+msgid "The single entry point for publication and reuse of public transport data, allowing to make people lives better."
+msgstr ""
+
+#: lib/transport_web/templates/page/index.html.eex:24
+msgid "Reuse data"
+msgstr ""

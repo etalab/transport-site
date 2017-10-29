@@ -1,0 +1,35 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
+#: lib/transport_web/templates/page/shortlist.html.eex:3
+msgid "Open Licence"
+msgstr ""
+
+#: lib/transport_web/templates/page/shortlist.html.eex:4
+msgid "Download"
+msgstr ""
+
+#: lib/transport_web/templates/page/shortlist.html.eex:5
+msgid "Licence"
+msgstr ""
+
+#: lib/transport_web/templates/page/shortlist.html.eex:7
+msgid "See on data.gouv.fr"
+msgstr ""
+
+#: lib/transport_web/templates/page/shortlist.html.eex:6
+msgid "Territory"
+msgstr ""
+
+#: lib/transport_web/templates/page/shortlist.html.eex:2
+msgid "Available datasets"
+msgstr ""

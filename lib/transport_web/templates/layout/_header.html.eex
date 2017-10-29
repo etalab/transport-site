@@ -1,7 +1,7 @@
 <header class="layout-header" role="banner">
   <div class="header__container">
     <div class="header__logo">
-      <%= link(img_tag("/images/logo-header.svg", alt: "transport.beta.gouv.fr"), to: "/") %>
+      <%= link(img_tag("/images/logo-header.svg", alt: gettext("transport.beta.gouv.fr")), to: "/") %>
     </div>
 
     <nav role="navigation">
@@ -9,12 +9,12 @@
         <%= if @current_user do %>
           <a class="navigation__link nagivation__link--logout" href="<%= session_path @conn, :delete %>" role="link">
             <i class="icon icon--logout" aria-hidden="true"></i>
-            <span><%= gettext "sign_out" %></span>
+            <span><%= gettext "Sign Out" %></span>
           </a>
         <% else %>
           <a class="navigation__link navigation__link--login" href="<%= page_path @conn, :login %>" role="link">
             <i class="icon icon--login" aria-hidden="true"></i>
-            <span><%= gettext "sign_in" %></span>
+            <span><%= gettext "Sign In" %></span>
           </a>
         <% end %>
       </div>

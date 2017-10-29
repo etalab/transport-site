@@ -1,0 +1,31 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+
+#: lib/transport_web/templates/page/login.html.eex:28
+msgid "transport.data.gouv.fr belongs to the data.gouv.fr network, and share the same user account"
+msgstr ""
+
+#: lib/transport_web/templates/page/login.html.eex:48
+msgid "After having clicked this button, you should click on 'accepter' to authorise transport.data.gouv.fr to access your data.gouv.fr account details"
+msgstr ""
+
+#: lib/transport_web/templates/page/login.html.eex:18
+msgid "data.gouv.fr is the open platform for French public data"
+msgstr ""
+
+#: lib/transport_web/templates/page/login.html.eex:10
+msgid "Sign In with data.gouv.fr"
+msgstr ""
+
+#: lib/transport_web/templates/page/login.html.eex:38
+msgid "By clicking this button, you'll be able to create an account or use your existing data.gouv.fr account to log in"
+msgstr ""

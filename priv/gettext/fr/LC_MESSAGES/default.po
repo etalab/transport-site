@@ -11,90 +11,27 @@ msgstr ""
 "Language: fr\n"
 
 #: lib/transport_web/templates/layout/_header.html.eex:17
-#: lib/transport_web/templates/page/login.html.eex:55
-msgid "sign_in"
+#: lib/transport_web/templates/page/login.html.eex:56
+msgid "Sign In"
 msgstr "S'identifier"
 
 #: lib/transport_web/templates/layout/_header.html.eex:12
-msgid "sign_out"
+msgid "Sign Out"
 msgstr "Se déconnecter"
 
-#: lib/transport_web/templates/page/index.html.eex:2
-msgid "landing_heading"
-msgstr "Ouvrir et réutiliser les données transports"
-
-#: lib/transport_web/templates/page/index.html.eex:12
-msgid "landing-hero_heading"
-msgstr "Qu'est-ce que transport.beta.gouv.fr ?"
-
-#: lib/transport_web/templates/page/index.html.eex:13
-msgid "landing-hero_description"
-msgstr "La plateforme de **diffusion des données ouvertes de transport** pour simplifier le **réutilisation** et leur **amélioration**."
-
-#: lib/transport_web/templates/page/index.html.eex:18
-msgid "landing-hero_open"
-msgstr "Ouvrir des données"
-
-#: lib/transport_web/templates/page/index.html.eex:8
-msgid "landing-hero_reuse"
-msgstr "Réutiliser ces données"
-
-#: lib/transport_web/templates/page/shortlist.html.eex:3
-msgid "frlo"
-msgstr "License ouverte"
-
-#: lib/transport_web/templates/page/shortlist.html.eex:4
-msgid "shortlist_download"
-msgstr "Télécharger"
-
-#: lib/transport_web/templates/page/shortlist.html.eex:5
-msgid "shortlist_licence"
-msgstr "License"
-
-#: lib/transport_web/templates/page/shortlist.html.eex:7
-msgid "shortlist_seedatagouvfr"
-msgstr "Voir sur data.gouv.fr"
-
-#: lib/transport_web/templates/page/shortlist.html.eex:2
-msgid "shortlist_title"
-msgstr "Jeux de données disponibles"
-
-#: lib/transport_web/templates/page/shortlist.html.eex:6
-msgid "shortlist_territory"
-msgstr "Territoire"
-
-#: lib/transport_web/templates/page/index.html.eex:22
-msgid "landing-hero_reusedatasets"
-msgstr "Réutiliser des données"
-
 #: lib/transport_web/templates/layout/_footer.html.eex:10
-msgid "contact"
+msgid "Contact"
 msgstr "Nous contacter"
 
 #: lib/transport_web/templates/layout/_footer.html.eex:16
-msgid "tos"
+msgid "Terms of Service"
 msgstr "Conditions d'utilisation"
 
-#: lib/transport_web/templates/page/login.html.eex:27
-msgid "login_link_between_transport_data"
-msgstr "transport.data.gouv.fr est un site affilié à data.gouv.fr, les deux sites utilisent le même compte"
+#: lib/transport_web/templates/layout/app.html.eex:7
+msgid "Publish, improve and reuse French public transport data"
+msgstr "Rendre disponible, valoriser et améliorer les données transports"
 
-#: lib/transport_web/templates/page/login.html.eex:9
-msgid "login_title"
-msgstr "Identification avec un compte data.gouv.fr"
-
-#: lib/transport_web/templates/page/login.html.eex:47
-msgid "login_what_am_i_supossed_to_do"
-msgstr "Après avoir cliqué le bouton, vous devrez cliquer sur « accepter » pour autoriser transport.data.gouv.fr à utiliser votre compte data.gouv.fr"
-
-#: lib/transport_web/templates/page/login.html.eex:17
-msgid "login_what_is_data_gouv_fr"
-msgstr "data.gouv.fr est la plateforme ouverte des données publiques françaises"
-
-#: lib/transport_web/templates/page/login.html.eex:37
-msgid "login_what_is_going_to_happen"
-msgstr "En cliquant sur le bouton ci-dessous vous allez créer un compte ou vous identifier avec votre compte data.gouv.fr"
-
-#: lib/transport_web/controllers/session_controller.ex:27
-msgid "An error occured, please try again"
-msgstr "Une erreur est survenue, veuillez réessayer."
+#: lib/transport_web/templates/layout/_header.html.eex:4
+#: lib/transport_web/templates/layout/app.html.eex:10
+msgid "transport.beta.gouv.fr"
+msgstr ""

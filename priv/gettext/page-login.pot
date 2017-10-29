@@ -1,0 +1,31 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
+#: lib/transport_web/templates/page/login.html.eex:28
+msgid "transport.data.gouv.fr belongs to the data.gouv.fr network, and share the same user account"
+msgstr ""
+
+#: lib/transport_web/templates/page/login.html.eex:48
+msgid "After having clicked this button, you should click on 'accepter' to authorise transport.data.gouv.fr to access your data.gouv.fr account details"
+msgstr ""
+
+#: lib/transport_web/templates/page/login.html.eex:18
+msgid "data.gouv.fr is the open platform for French public data"
+msgstr ""
+
+#: lib/transport_web/templates/page/login.html.eex:10
+msgid "Sign In with data.gouv.fr"
+msgstr ""
+
+#: lib/transport_web/templates/page/login.html.eex:38
+msgid "By clicking this button, you'll be able to create an account or use your existing data.gouv.fr account to log in"
+msgstr ""

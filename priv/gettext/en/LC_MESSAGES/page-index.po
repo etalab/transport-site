@@ -1,0 +1,35 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+
+#: lib/transport_web/templates/page/index.html.eex:2
+msgid "Publish and reuse public transport data"
+msgstr ""
+
+#: lib/transport_web/templates/page/index.html.eex:8
+msgid "Reuse this data"
+msgstr ""
+
+#: lib/transport_web/templates/page/index.html.eex:12
+msgid "What is transport.beta.gouv.fr?"
+msgstr ""
+
+#: lib/transport_web/templates/page/index.html.eex:20
+msgid "Publish my data"
+msgstr ""
+
+#: lib/transport_web/templates/page/index.html.eex:14
+msgid "The single entry point for publication and reuse of public transport data, allowing to make people lives better."
+msgstr ""
+
+#: lib/transport_web/templates/page/index.html.eex:24
+msgid "Reuse data"
+msgstr ""

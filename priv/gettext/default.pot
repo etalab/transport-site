@@ -11,86 +11,27 @@ msgid ""
 msgstr ""
 
 #: lib/transport_web/templates/layout/_header.html.eex:17
-#: lib/transport_web/templates/page/login.html.eex:55
-msgid "sign_in"
+#: lib/transport_web/templates/page/login.html.eex:56
+msgid "Sign In"
 msgstr ""
 
 #: lib/transport_web/templates/layout/_header.html.eex:12
-msgid "sign_out"
-msgstr ""
-
-#: lib/transport_web/templates/page/index.html.eex:2
-msgid "landing_heading"
-msgstr ""
-
-#: lib/transport_web/templates/page/index.html.eex:12
-msgid "landing-hero_heading"
-msgstr ""
-
-#: lib/transport_web/templates/page/index.html.eex:13
-msgid "landing-hero_description"
-msgstr ""
-
-#: lib/transport_web/templates/page/index.html.eex:18
-msgid "landing-hero_open"
-msgstr ""
-
-#: lib/transport_web/templates/page/index.html.eex:8
-msgid "landing-hero_reuse"
-msgstr ""
-
-#: lib/transport_web/templates/page/shortlist.html.eex:3
-msgid "frlo"
-msgstr ""
-
-#: lib/transport_web/templates/page/shortlist.html.eex:4
-msgid "shortlist_download"
-msgstr ""
-
-#: lib/transport_web/templates/page/shortlist.html.eex:5
-msgid "shortlist_licence"
-msgstr ""
-
-#: lib/transport_web/templates/page/shortlist.html.eex:7
-msgid "shortlist_seedatagouvfr"
-msgstr ""
-
-#: lib/transport_web/templates/page/shortlist.html.eex:2
-msgid "shortlist_title"
-msgstr ""
-
-#: lib/transport_web/templates/page/shortlist.html.eex:6
-msgid "shortlist_territory"
-msgstr ""
-
-#: lib/transport_web/templates/page/index.html.eex:22
-msgid "landing-hero_reusedatasets"
+msgid "Sign Out"
 msgstr ""
 
 #: lib/transport_web/templates/layout/_footer.html.eex:10
-msgid "contact"
+msgid "Contact"
 msgstr ""
 
 #: lib/transport_web/templates/layout/_footer.html.eex:16
-msgid "tos"
+msgid "Terms of Service"
 msgstr ""
 
-#: lib/transport_web/templates/page/login.html.eex:27
-msgid "login_link_between_transport_data"
+#: lib/transport_web/templates/layout/app.html.eex:7
+msgid "Publish, improve and reuse French public transport data"
 msgstr ""
 
-#: lib/transport_web/templates/page/login.html.eex:9
-msgid "login_title"
-msgstr ""
-
-#: lib/transport_web/templates/page/login.html.eex:47
-msgid "login_what_am_i_supossed_to_do"
-msgstr ""
-
-#: lib/transport_web/templates/page/login.html.eex:17
-msgid "login_what_is_data_gouv_fr"
-msgstr ""
-
-#: lib/transport_web/templates/page/login.html.eex:37
-msgid "login_what_is_going_to_happen"
+#: lib/transport_web/templates/layout/_header.html.eex:4
+#: lib/transport_web/templates/layout/app.html.eex:10
+msgid "transport.beta.gouv.fr"
 msgstr ""
