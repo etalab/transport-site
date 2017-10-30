@@ -25,6 +25,7 @@
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [:rebar3], [], "hexpm"},
   "mime": {:hex, :mime, "1.1.0", "01c1d6f4083d8aa5c7b8c246ade95139620ef8effb009edde934e0ec3b28090a", [:mix], [], "hexpm"},
   "mimerl": {:hex, :mimerl, "1.0.2", "993f9b0e084083405ed8252b99460c4f0563e41729ab42d9074fd5e52439be88", [:rebar3], [], "hexpm"},
+  "mock": {:hex, :mock, "0.2.1", "bfdba786903e77f9c18772dee472d020ceb8ef000783e737725a4c8f54ad28ec", [], [{:meck, "~> 0.8.2", [hex: :meck, repo: "hexpm", optional: false]}], "hexpm"},
   "mongodb": {:hex, :mongodb, "0.4.3", "6a857bc798af11733502495783344882e90eeb865b0a1ca0dc953b038bca2e25", [], [{:connection, "~> 1.0", [hex: :connection, repo: "hexpm", optional: false]}, {:db_connection, "~> 1.1", [hex: :db_connection, repo: "hexpm", optional: false]}], "hexpm"},
   "oauth2": {:hex, :oauth2, "0.9.1", "cac86d87f35ec835bfe4c791263bdb88c0d8bf1617d64f555ede4e9d913e35ef", [:mix], [{:hackney, "~> 1.7", [hex: :hackney, repo: "hexpm", optional: false]}], "hexpm"},
   "phoenix": {:hex, :phoenix, "1.3.0", "1c01124caa1b4a7af46f2050ff11b267baa3edb441b45dbf243e979cd4c5891b", [:mix], [{:cowboy, "~> 1.0", [hex: :cowboy, repo: "hexpm", optional: true]}, {:phoenix_pubsub, "~> 1.0", [hex: :phoenix_pubsub, repo: "hexpm", optional: false]}, {:plug, "~> 1.3.3 or ~> 1.4", [hex: :plug, repo: "hexpm", optional: false]}, {:poison, "~> 2.2 or ~> 3.0", [hex: :poison, repo: "hexpm", optional: false]}], "hexpm"},

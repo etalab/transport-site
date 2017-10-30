@@ -7,6 +7,7 @@ defmodule Transport.DataValidator.Server do
   use GenServer
   use AMQP
   alias UUID
+  alias Transport.DataValidator.CeleryTask
 
   @exchange "celery"
   @routing_key "celery"
@@ -22,6 +23,10 @@ defmodule Transport.DataValidator.Server do
 
   def validate_data(url) do
     GenServer.call(:publisher, {:apply_async, "tasks.perform", [args: [url]]})
+  end
+
+  def get_task(task_id) do
+    CeleryTask.find_one(task_id)
   end
 
   ## Server Callbacks
