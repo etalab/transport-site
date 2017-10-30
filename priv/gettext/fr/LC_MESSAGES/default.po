@@ -21,23 +21,23 @@ msgstr "Se déconnecter"
 
 #: lib/transport_web/templates/page/index.html.eex:2
 msgid "landing_heading"
-msgstr "Ouvrir et ré-utiliser les données transports"
+msgstr "Ouvrir et réutiliser les données transports"
 
 #: lib/transport_web/templates/page/index.html.eex:12
 msgid "landing-hero_heading"
-msgstr "Qu'est-ce que c'est transport.beta.gouv.fr ?"
+msgstr "Qu'est-ce que transport.beta.gouv.fr ?"
 
 #: lib/transport_web/templates/page/index.html.eex:13
 msgid "landing-hero_description"
-msgstr "C'est la plateforme unique de **diffusion des données ouvertes** relatives au transport qui permet la **ré-utilisation des données ouvertes** pour **améliorer la vie des usagers**."
+msgstr "La plateforme de **diffusion des données ouvertes de transport** pour simplifier le **réutilisation** et leur **amélioration**."
 
 #: lib/transport_web/templates/page/index.html.eex:18
 msgid "landing-hero_open"
-msgstr "Ouvrir mes données"
+msgstr "Ouvrir des données"
 
 #: lib/transport_web/templates/page/index.html.eex:8
 msgid "landing-hero_reuse"
-msgstr "Ré-utiliser ces données"
+msgstr "Réutiliser ces données"
 
 #: lib/transport_web/templates/page/shortlist.html.eex:3
 msgid "frlo"
@@ -93,7 +93,7 @@ msgstr "data.gouv.fr est la plateforme ouverte des données publiques française
 
 #: lib/transport_web/templates/page/login.html.eex:37
 msgid "login_what_is_going_to_happen"
-msgstr "En cliquant sur le bouton ci-dessous vous allez pouvoir créer un compte et/ou vous identifier avec votre compte data.gouv.fr"
+msgstr "En cliquant sur le bouton ci-dessous vous allez créer un compte ou vous identifier avec votre compte data.gouv.fr"
 
 #: lib/transport_web/controllers/session_controller.ex:27
 msgid "An error occured, please try again"

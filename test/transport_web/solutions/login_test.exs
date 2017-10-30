@@ -30,7 +30,7 @@ defmodule TransportWeb.LoginTest do
     assert visible_page_text() =~ "transport.data.gouv.fr est un site affilié à data.gouv.fr"
 
     # I have an explanation of what's going to happen and what I'm I supposed to do
-    assert visible_page_text() =~ "créer un compte et/ou vous identifier"
+    assert visible_page_text() =~ "créer un compte ou vous identifier avec votre compte data.gouv.fr"
     assert visible_page_text() =~ "autoriser transport.data.gouv.fr à utiliser votre compte data.gouv.fr"
 
     # I can click somewhere to start the log in / sign up process

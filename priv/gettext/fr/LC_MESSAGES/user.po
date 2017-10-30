@@ -28,11 +28,11 @@ msgstr "Cette organisation publie des données transport"
 
 #: lib/transport_web/templates/user/organizations.html.eex:7
 msgid "You need an organization"
-msgstr "Vous devez avoir une organisation"
+msgstr "Vous devez appartenir à une organisation"
 
 #: lib/transport_web/templates/user/organization_datasets.html.eex:2
 msgid "Choose a dataset you want to be on transport.data.gouv.fr"
-msgstr "Choisissez un jeu de données que vous voulez voir afficher sur transport.data.gouv.fr"
+msgstr "Choisissez un jeu de données que vous voulez publier sur transport.data.gouv.fr"
 
 #: lib/transport_web/templates/user/organization_datasets.html.eex:1
 msgid "Second step"
@@ -40,7 +40,7 @@ msgstr "Deuxième étape"
 
 #: lib/transport_web/templates/user/organization_datasets.html.eex:32
 msgid "You need to add a dataset on data.gouv.fr"
-msgstr "Vous devez ajouter un jeu de données sur data.gouv.fr avant"
+msgstr "Vous devez publier le jeu de données sur data.gouv.fr avant"
 
 #: lib/transport_web/templates/user/organization_datasets.html.eex:25
 msgid "Add this dataset"
