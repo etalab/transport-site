@@ -3,6 +3,7 @@ defmodule TransportWeb.UserController do
   alias Transport.Datagouvfr.Client.{Organizations, User, Datasets}
   alias Transport.DataValidator.Server
   alias TransportWeb.ErrorView
+  require Logger
 
   def organizations(%Plug.Conn{} = conn, _) do
     conn
@@ -13,7 +14,7 @@ defmodule TransportWeb.UserController do
        |> assign(:organizations, response["organizations"])
        |> render("organizations.html")
      {:error, error} ->
-       IO.puts(error)
+       Logger.error(error)
        conn
        |> put_status(:internal_server_error)
        |> render(ErrorView, "500.html")
@@ -30,7 +31,8 @@ defmodule TransportWeb.UserController do
         |> assign(:datasets, response["datasets"])
         |> assign(:organization, response)
         |> render("organization_datasets.html")
-     {:error, _} ->
+     {:error, error} ->
+       Logger.error(error)
        conn
        |> put_status(:internal_server_error)
        |> render(ErrorView, "500.html")
@@ -45,7 +47,8 @@ defmodule TransportWeb.UserController do
         Server.validate_data(List.first(dataset["resources"])["url"])
         conn
         |> render("add_badge_dataset.html")
-      {:error, _} ->
+      {:error, error} ->
+        Logger.error(error)
         conn
         |> put_status(:internal_server_error)
         |> render(ErrorView, "500.html")

@@ -5,6 +5,7 @@ defmodule TransportWeb.SessionController do
 
   use TransportWeb, :controller
   alias Transport.Datagouvfr.{Authentication, Client.User}
+  require Logger
 
   def new(conn, _) do
     redirect conn, external: Authentication.authorize_url!()
@@ -22,7 +23,8 @@ defmodule TransportWeb.SessionController do
         |> put_session(:client, client)
         |> redirect(to: user_path(conn, :organizations))
         |> halt()
-      {:error, _} ->
+      {:error, error} ->
+        Logger.error(error)
         conn
         |> put_flash(:error, dgettext("alert", "An error occured, please try again"))
         |> redirect(to: session_path(conn, :new))
