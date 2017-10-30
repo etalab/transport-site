@@ -14,6 +14,6 @@ msgstr ""
 msgid "You need to be connected before doing this."
 msgstr ""
 
-#: lib/transport_web/controllers/session_controller.ex:27
+#: lib/transport_web/controllers/session_controller.ex:29
 msgid "An error occured, please try again"
 msgstr ""

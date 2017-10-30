@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 
-#: lib/transport_web/templates/page/index.html.eex:2
+#: lib/transport_web/templates/page/index.html.eex:1
 msgid "Publish and reuse public transport data"
 msgstr "Ouvrir et réutiliser les données transports"
 
@@ -22,14 +22,14 @@ msgstr "Réutiliser ces données"
 msgid "What is transport.beta.gouv.fr?"
 msgstr "Qu'est-ce que transport.beta.gouv.fr ?"
 
-#: lib/transport_web/templates/page/index.html.eex:20
+#: lib/transport_web/templates/page/index.html.eex:18
 msgid "Publish my data"
 msgstr "Ouvrir des données"
 
-#: lib/transport_web/templates/page/index.html.eex:14
+#: lib/transport_web/templates/page/index.html.eex:13
 msgid "The single entry point for publication and reuse of public transport data, allowing to make people lives better."
 msgstr "La plateforme de **diffusion des données ouvertes de transport** pour simplifier leur **réutilisation** et **amélioration**."
 
-#: lib/transport_web/templates/page/index.html.eex:24
+#: lib/transport_web/templates/page/index.html.eex:22
 msgid "Reuse data"
 msgstr "Réutiliser des données"

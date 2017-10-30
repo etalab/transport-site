@@ -1,26 +1,24 @@
-<section class="landing">
-  <h1><%= dgettext("page-index", "Publish and reuse public transport data") %></h1>
+<h1><%= dgettext("page-index", "Publish and reuse public transport data") %></h1>
 
-  <section class="landing-hero">
-    <map class="landing-column",
-         link-class='button landing-reuse-marker'
+<section class="hero">
+  <div class="hero__container">
+    <map class="hero__column",
+         link-class='map__link map__link--reuse'
          link-href='mailto:contact@transport.beta.gouv.fr'
          link-text='<%= dgettext("page-index", "Reuse this data") %>'>
     </map>
 
-    <section class="landing-column">
+    <div class="hero__column">
       <h1><%= dgettext("page-index", "What is transport.beta.gouv.fr?") %></h1>
-      <p>
-        <markdown content='<%= dgettext("page-index", "The single entry point for publication and reuse of public transport data, allowing to make people lives better.") %>'></markdown>
-      </p>
+      <markdown content='<%= dgettext("page-index", "The single entry point for publication and reuse of public transport data, allowing to make people lives better.") %>'></markdown>
 
-      <div class="landing-actions">
-        <a class="button button--fullwidth landing-open" href="<%= user_path @conn, :organizations %>" role="link">
-          <i aria-hidden="true"></i>
+      <div class="hero__links is-centered">
+        <a class="button button--fullwidth hero__link hero__link--open" href="<%= user_path @conn, :organizations %>" role="link">
+          <i class="icon icon--open" aria-hidden="true"></i>
           <%= dgettext("page-index", "Publish my data") %>
         </a>
-        <a class="button button--fullwidth landing-reuse" href="<%= page_path @conn, :shortlist %>" role="link">
-          <i aria-hidden="true"></i>
+        <a class="button button--fullwidth hero__link hero__link--reuse" href="<%= page_path @conn, :shortlist %>" role="link">
+          <i class="icon icon--reuse" aria-hidden="true"></i>
           <%= dgettext("page-index", "Reuse data") %>
         </a>
       </div>

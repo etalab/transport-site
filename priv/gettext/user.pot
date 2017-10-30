@@ -14,19 +14,19 @@ msgstr ""
 msgid "The dataset has been sent for review, it'll be added to transport.data.gouv.fr shortly."
 msgstr ""
 
-#: lib/transport_web/templates/user/organizations.html.eex:1
+#: lib/transport_web/templates/user/organizations.html.eex:2
 msgid "First step"
 msgstr ""
 
-#: lib/transport_web/templates/user/organizations.html.eex:2
+#: lib/transport_web/templates/user/organizations.html.eex:3
 msgid "Select an organization that publishes transport data"
 msgstr ""
 
-#: lib/transport_web/templates/user/organizations.html.eex:22
+#: lib/transport_web/templates/user/organizations.html.eex:23
 msgid "This organization publishes transport data"
 msgstr ""
 
-#: lib/transport_web/templates/user/organizations.html.eex:7
+#: lib/transport_web/templates/user/organizations.html.eex:8
 msgid "You need an organization"
 msgstr ""
 

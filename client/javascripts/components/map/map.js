@@ -19,7 +19,7 @@ const Mapbox = {
  */
 export const addMap = (id, featuresUrl, opts) => {
     const map   = Leaflet.map(id).setView([51.505, -0.09], 13)
-    const popup = `<a class="${opts.linkClass}" role="link" href="${opts.linkHref}"><i aria-hidden="true"></i> ${opts.linkText}</a>`
+    const popup = `<a class="${opts.linkClass}" role="link" href="${opts.linkHref}">${opts.linkText}</a>`
 
     Leaflet.tileLayer(Mapbox.url, {
         accessToken: Mapbox.accessToken,

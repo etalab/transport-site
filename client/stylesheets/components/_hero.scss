@@ -1,0 +1,16 @@
+.hero__container {
+  @include grid-container;
+}
+
+.hero__column {
+  @include grid-mobile(1, 1);
+  @include grid-tablet-up(2, 1)
+}
+
+.hero__links {
+  margin-top: 5em;
+
+  [role='link'] {
+    margin-bottom: 1em;
+  }
+}
