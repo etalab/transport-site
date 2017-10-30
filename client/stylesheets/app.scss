@@ -16,5 +16,8 @@
 // Contexts: special layout/component mashups, i.e. login, etc...
 @import 'contexts/**/*';
 
+// States: microinteractions...
+@import 'states';
+
 // Transitional styles: hacky or dirty styles used for prototyping.
 @import 'transitional';
