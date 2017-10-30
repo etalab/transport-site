@@ -9,3 +9,27 @@
 .icon--logout {
   @extend .fa-sign-out;
 }
+
+.icon--open {
+  @extend .fa-folder-open;
+}
+
+.icon--reuse {
+  @extend .fa-mobile-phone;
+}
+
+.icon--cubes {
+  @extend .fa-cubes;
+}
+
+.icon--badge {
+  @extend .fa-id-badge;
+}
+
+.icon--hand-up {
+  @extend .fa-hand-o-up;
+}
+
+.icon--user-plus {
+  @extend .fa-user-plus;
+}

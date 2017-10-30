@@ -19,7 +19,7 @@ defmodule TransportWeb.ReuseDataTest do
 
     click({:css, "svg > g > path"})
 
-    find_element(:class, "landing-reuse-marker")
+    find_element(:class, "map__link")
     |> attribute_value("href")
     |> Kernel.=~("mailto:contact@transport.beta.gouv.fr")
     |> assert
@@ -31,7 +31,7 @@ defmodule TransportWeb.ReuseDataTest do
     |> page_url(:index)
     |> navigate_to
 
-    click({:class, "landing-reuse"})
+    click({:class, "hero__link--reuse"})
 
     assert visible_page_text() =~ "Jeux de données disponibles"
 

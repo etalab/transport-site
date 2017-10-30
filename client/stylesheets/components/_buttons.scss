@@ -2,6 +2,10 @@
   @extend button;
 }
 
+.button--large {
+  font-size: 2em;
+}
+
 .button--fullwidth {
   &,
   &:hover,
