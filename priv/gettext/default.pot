@@ -94,7 +94,3 @@ msgstr ""
 #: lib/transport_web/templates/page/login.html.eex:37
 msgid "login_what_is_going_to_happen"
 msgstr ""
-
-#: lib/transport_web/controllers/session_controller.ex:27
-msgid "An error occured, please try again"
-msgstr ""

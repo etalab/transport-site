@@ -24,7 +24,7 @@ defmodule TransportWeb.SessionController do
         |> halt()
       {:error, _} ->
         conn
-        |> put_flash(:error, gettext("An error occured, please try again"))
+        |> put_flash(:error, dgettext("alert", "An error occured, please try again"))
         |> redirect(to: session_path(conn, :new))
         |> halt()
     end
