@@ -10,5 +10,10 @@
 
   a {
     color: $black;
+    padding: .4em .8em;
+
+    &::after {
+      content: none;
+    }
   }
 }

@@ -9,15 +9,15 @@ button,
     background-color: $secondary;
     border: 1px solid transparent;
     border-bottom: 1px solid $border;
-    border-radius: 2px;
     box-shadow: 0 1px 4px 0 $box-shadow-button;
     color: $background-white;
+    cursor: pointer;
     display: inline-block;
     font-family: $font-family-secondary;
     margin: 0 auto;
     outline: none;
     overflow: hidden;
-    padding: .85em 3em;
+    padding: .5em 3em;
     position: relative;
     transition: box-shadow .25s;
   }

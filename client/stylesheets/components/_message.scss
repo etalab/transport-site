@@ -1,11 +1,19 @@
 .message--success {
   background: $background-message-success;
+  border: 1px solid $border-message-success;
 }
 
-.message--info {
-  background: $background-message-info;
+.message--warning {
+  background: $background-message-warning;
+  border: 1px solid $border-message-warning;
 }
 
 .message--error {
   background: $background-message-error;
+  border: 1px solid $border-message-error;
+}
+
+.message--info {
+  background: $background-message-info;
+  border: 1px solid $border-message-info;
 }

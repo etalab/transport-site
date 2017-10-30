@@ -16,6 +16,7 @@ body {
 
 section {
   background: $background-white;
+  color: $black;
   padding: 1em;
 }
 
@@ -26,5 +27,6 @@ a {
   &:visited,
   &:active {
     color: $primary;
+    cursor: pointer;
   }
 }
