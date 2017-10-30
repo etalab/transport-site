@@ -1,25 +1,27 @@
 <section class="landing">
-  <h1><%= gettext "landing_heading" %></h1>
+  <h1><%= dgettext("page-index", "Publish and reuse public transport data") %></h1>
 
   <section class="landing-hero">
     <map class="landing-column",
          link-class='button landing-reuse-marker'
          link-href='mailto:contact@transport.beta.gouv.fr'
-         link-text='<%= gettext "landing-hero_reuse" %>'>
+         link-text='<%= dgettext("page-index", "Reuse this data") %>'>
     </map>
 
     <section class="landing-column">
-      <h1><%= gettext "landing-hero_heading" %></h1>
-      <p><markdown content='<%= gettext "landing-hero_description" %>'></markdown></p>
+      <h1><%= dgettext("page-index", "What is transport.beta.gouv.fr?") %></h1>
+      <p>
+        <markdown content='<%= dgettext("page-index", "The single entry point for publication and reuse of public transport data, allowing to make people lives better.") %>'></markdown>
+      </p>
 
       <div class="landing-actions">
         <a class="button button--fullwidth landing-open" href="<%= user_path @conn, :organizations %>" role="link">
           <i aria-hidden="true"></i>
-          <%= gettext "landing-hero_open" %>
+          <%= dgettext("page-index", "Publish my data") %>
         </a>
         <a class="button button--fullwidth landing-reuse" href="<%= page_path @conn, :shortlist %>" role="link">
           <i aria-hidden="true"></i>
-          <%= gettext "landing-hero_reusedatasets" %>
+          <%= dgettext("page-index", "Reuse data") %>
         </a>
       </div>
     </section>

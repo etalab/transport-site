@@ -7,13 +7,13 @@
     <ul class="footer__links">
       <li>
         <a class="footer__link footer__link--contact" href='mailto:<%= @contact_email %>' role="link">
-          <%= gettext "contact" %>
+          <%= gettext "Contact" %>
         </a>
       </li>
 
       <li>
         <a class="footer__link footer__link--tos" href="#" role="link">
-          <%= gettext "tos" %>
+          <%= gettext "Terms of Service" %>
         </a>
       </li>
     </ul>
