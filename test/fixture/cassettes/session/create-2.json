@@ -9,34 +9,7 @@
       "method": "post",
       "options": [],
       "request_body": "",
-      "url": "http://udata.transport/oauth/token"
-    },
-    "response": {
-      "body": "{\"access_token\": \"secret\", \"token_type\": \"Bearer\", \"refresh_token\": \"secret\", \"scope\": \"default\"}",
-      "headers": {
-        "Server": "nginx/1.10.3 (Ubuntu)",
-        "Date": "Thu, 05 Oct 2017 19:22:59 GMT",
-        "Content-Type": "application/json",
-        "Content-Length": "145",
-        "Connection": "keep-alive",
-        "Pragma": "no-cache",
-        "Cache-Control": "no-store"
-      },
-      "status_code": 200,
-      "type": "ok"
-    }
-  },
-  {
-    "request": {
-      "body": "client_id=1&client_secret=secret&code=secret&grant_type=authorization_code&redirect_uri=http%3A%2F%2Ftransport.beta.gouv.fr%2Flogin%2Fcallback",
-      "headers": {
-        "content-type": "application/x-www-form-urlencoded",
-        "accept": "application/json"
-      },
-      "method": "post",
-      "options": [],
-      "request_body": "",
-      "url": "https://www.data.gouv.fr/oauth/token"
+      "url": "https://next.data.gouv.fr/oauth/token"
     },
     "response": {
       "body": "{\"access_token\": \"secret\", \"token_type\": \"Bearer\", \"refresh_token\": \"secret\", \"scope\": \"default\"}",
@@ -64,39 +37,7 @@
       "method": "get",
       "options": [],
       "request_body": "",
-      "url": "http://udata.transport/api/1/me/"
-    },
-    "response": {
-      "body": "{\"apikey\": \"secret\", \"avatar\": null, \"avatar_thumbnail\": null, \"email\": \"example@example.com\", \"first_name\": \"Jean\", \"id\": \"1\", \"last_name\": \"Serien\", \"page\": \"https://www.data.gouv.fr/fr/users/jean-serien-1/\", \"slug\": \"jean-serien-1\", \"uri\": \"https://www.data.gouv.fr/api/1/users/jean-serien-1/\"}",
-      "headers": {
-        "Server": "nginx/1.10.3 (Ubuntu)",
-        "Date": "Thu, 05 Oct 2017 19:22:59 GMT",
-        "Content-Type": "application/json",
-        "Content-Length": "458",
-        "Connection": "keep-alive",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "HEAD, GET, PUT, OPTIONS, DELETE",
-        "Access-Control-Max-Age": "21600",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
-        "Set-Cookie": "session=.cookie; Domain=.data.gouv.fr; HttpOnly; Path=/"
-      },
-      "status_code": 200,
-      "type": "ok"
-    }
-  },
-  {
-    "request": {
-      "body": "",
-      "headers": {
-        "accept": "application/json",
-        "authorization": "Bearer secret",
-        "x-fields": "avatar,avatar_thumbnail,first_name,id,last_name,page,slug,uri,apikey,email"
-      },
-      "method": "get",
-      "options": [],
-      "request_body": "",
-      "url": "https://www.data.gouv.fr/api/1/me/"
+      "url": "https://next.data.gouv.fr/api/1/me/"
     },
     "response": {
       "body": "{\"apikey\": \"secret\", \"avatar\": null, \"avatar_thumbnail\": null, \"email\": \"example@example.com\", \"first_name\": \"Jean\", \"id\": \"1\", \"last_name\": \"Serien\", \"page\": \"https://www.data.gouv.fr/fr/users/jean-serien-1/\", \"slug\": \"jean-serien-1\", \"uri\": \"https://www.data.gouv.fr/api/1/users/jean-serien-1/\"}",
