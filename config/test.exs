@@ -1,4 +1,5 @@
 use Mix.Config
+alias Transport.Datagouvfr.Authentication
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
@@ -11,3 +12,6 @@ config :hound, driver: "phantomjs"
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+config :oauth2, Authentication,
+  site: "https://next.data.gouv.fr"
