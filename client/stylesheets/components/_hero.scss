@@ -1,10 +1,17 @@
 .hero__container {
-  @include grid-container;
+  @extend .layout-container;
+  display: block;
+}
+
+@include media-tablet-up {
+  .hero__container {
+    display: flex;
+  }
 }
 
 .hero__column {
-  @include grid-mobile(1, 1);
-  @include grid-tablet-up(2, 1)
+  @extend .layout-column;
+  margin: 1em;
 }
 
 .hero__links {

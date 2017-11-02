@@ -1,24 +1,23 @@
 .cards {
-  @include grid-container;
+  @extend .layout-container;
+  display: block;
+}
+
+@include media-tablet-up {
+  .cards {
+    display: flex;
+  }
 }
 
 .card {
-  @include grid-mobile(1, 1);
-  @include grid-tablet-up(3, 1);
-
-  background-color: lighten($light-grey, 2%);
-  border: 1px solid $light-grey;
+  @extend .layout-column;
+  border: 1px solid $lighter-grey;
   border-radius: 3px;
   margin-bottom: 2em;
 
   & > div {
     margin-bottom: 1em;
     text-align: center;
-  }
-
-  & > h1 {
-    font-size: 1.4em;
-
   }
 
   & > .image > img {
@@ -28,14 +27,26 @@
     width: 100px;
   }
 
-  &.card-full-width {
-    @include grid-tablet-up(1, 1);
-    background: none;
-    border: 0;
-    text-align: center;
-  }
-
   .details {
-    border-bottom: 1px solid darken($light-grey, 30%);
+    border-bottom: 1px solid $lighter-grey;
   }
+}
+
+@include media-tablet-up {
+  .card {
+    flex: 0 0 48%;
+  }
+}
+
+@include media-desktop-up {
+  .card {
+    flex: 0 0 32%;
+  }
+}
+
+.card--fullwidth {
+  background: none;
+  border: 0;
+  flex: 1;
+  text-align: center;
 }

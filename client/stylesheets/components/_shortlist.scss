@@ -6,20 +6,22 @@ shortlist {
   $shortlist-image-vert-alignment: top;
 
   .shortlist {
-    @include grid-container;
+    @extend .layout-container;
     border-bottom: 1px solid transparentize($dark-grey, .9);
     margin-bottom: 4em;
     padding-bottom: .8em;
 
 
     .shortlist-image {
-      @include grid-mobile(1, 1);
-      @include grid-tablet-up(8, 1);
+      @extend .layout-column;
+      flex: 0 0 5%;
+      margin: 1em auto;
     }
 
     .shortlist-content {
-      @include grid-mobile(1, 1);
-      @include grid-tablet-up(8, 7);
+      @extend .layout-column;
+      flex: 0 0 85%;
+      margin: 1em auto;
     }
 
     .shortlist-description {
@@ -44,13 +46,10 @@ shortlist {
     }
 
     .shortlist-details {
-      @include grid-container;
+      @extend .layout-container;
 
       & > div {
-        @include grid-mobile(1, 1);
-        @include grid-tablet-up(2, 1) {
-          margin-left: 0;
-        }
+        @extend .layout-column;
 
         span {
           margin-bottom: .4em;

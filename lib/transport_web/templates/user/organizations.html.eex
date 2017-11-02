@@ -4,7 +4,7 @@
 
   <div class="cards">
     <%= if Enum.empty?(@organizations) do %>
-      <div class="card card-full-width">
+      <div class="card card--fullwidth">
         <p><%= dgettext("user", "You need an organization") %></p>
       </div>
     <% else %>
