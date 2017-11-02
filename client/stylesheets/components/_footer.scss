@@ -5,11 +5,9 @@ footer,
 
 .footer__container {
   @extend .layout-container;
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  margin: 0 auto;
+  max-width: 80em;
+  padding: 0 2em;
 }
 
 .footer__logo {

@@ -1,26 +1,17 @@
 .layout-container {
-  margin: 0 auto;
-  max-width: 80em;
-  padding: 0 2em;
-  position: relative;
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0;
   width: 100%;
+
 
   h1 {
     &:first-of-type {
       margin-top: 0;
     }
-  }
-}
-
-@include media-tablet-up {
-  .layout-container {
-    padding: 0;
-    width: 85%;
-  }
-}
-
-@include media-desktop-up {
-  .layout-container {
-    width: 80%;
   }
 }
