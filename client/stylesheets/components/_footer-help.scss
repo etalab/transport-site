@@ -1,0 +1,73 @@
+.footer-help__round {
+  background-color: $dark-blue;
+  border-radius: 1.8em;
+  bottom: 1em;
+  color: $light-grey;
+  display: block;
+  font-size: 2em;
+  height: 1.8em;
+  line-height: 1.8em;
+  position: fixed;
+  right: 1em;
+  text-align: center;
+  width: 1.8em;
+  z-index: 10000;
+}
+
+.footer-help__contact {
+  background-color: $background-grey;
+  border: 1px solid $border-active;
+  bottom: 1em;
+  padding: 1em;
+  position: fixed;
+  right: 1em;
+  width: 90%;
+  z-index: 10000;
+}
+
+.footer-help__contact--header {
+  h6 {
+    margin: 10px;
+  }
+}
+
+.footer-help__contact--close {
+  float: right;
+}
+
+.footer-help__message {
+  bottom: 1em;
+  color: $white;
+  padding: 1em;
+  position: fixed;
+  right: 1em;
+  z-index: 10000;
+}
+
+.footer-help__message--error {
+    background-color: $background-message-error
+}
+
+.footer-help__message--success {
+    background-color: $green
+}
+
+.footer-help__contact {
+  textarea {
+    height: 20em;
+  }
+}
+
+@include media-desktop-up {
+    .footer-help__contact {
+       width: 40em;
+    }
+
+    .footer-help__round {
+       bottom: 2.5em;
+    }
+
+    .footer-help__contact {
+       bottom: 2.5em;
+    }
+}
