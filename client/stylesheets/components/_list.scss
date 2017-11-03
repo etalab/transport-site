@@ -3,18 +3,16 @@
 }
 
 .list__item {
-  @include grid-container;
+  @extend .layout-container;
   padding: .5em 1em;
 }
 
 .list__item--icon {
-  @include grid-mobile(6, 1);
-  @include grid-tablet-up(12, 1);
-  @include grid-desktop-up(24, 1);
+  @extend .layout-column;
+  flex: 0 0 5%;
+  margin-right: 1em;
 }
 
 .list__item--content {
-  @include grid-mobile(6, 5);
-  @include grid-tablet-up(12, 11);
-  @include grid-desktop-up(24, 23);
+  @extend .layout-column;
 }
