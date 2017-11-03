@@ -4,6 +4,6 @@
              download='<%= dgettext("page-shortlist", "Download") %>'
              licence='<%= dgettext("page-shortlist", "Licence") %>'
              territory='<%= dgettext("page-shortlist", "Territory") %>'
-             seedatagouvfr='<%= dgettext("page-shortlist", "See on data.gouv.fr") %>'
+             seedatagouvfr='<%= dgettext("page-shortlist", "See on data.gouv.fr") %>'>
   </shortlist>
 </section>
