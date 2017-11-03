@@ -25,6 +25,7 @@ defmodule TransportWeb.Router do
     get "/", PageController, :index
     get "/search_organizations", PageController, :search_organizations
     get "/shortlist", PageController, :shortlist
+    post "/send_mail", ContactController, :send_mail
 
     scope "/user" do
       pipe_through [:authentication_required]
