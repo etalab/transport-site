@@ -10,18 +10,18 @@
 msgid ""
 msgstr ""
 
-#: lib/transport/reusable_data/licence.ex:9
+#: lib/transport/reusable_data/licence.ex:31
 msgid "fr-lo"
 msgstr ""
 
-#: lib/transport/reusable_data/licence.ex:12
+#: lib/transport/reusable_data/licence.ex:34
 msgid "notspecified"
 msgstr ""
 
-#: lib/transport/reusable_data/licence.ex:10
+#: lib/transport/reusable_data/licence.ex:32
 msgid "odc-odbl"
 msgstr ""
 
-#: lib/transport/reusable_data/licence.ex:11
+#: lib/transport/reusable_data/licence.ex:33
 msgid "other-open"
 msgstr ""

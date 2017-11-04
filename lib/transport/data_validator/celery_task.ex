@@ -3,8 +3,6 @@ defmodule Transport.DataValidator.CeleryTask do
     Module to get celerytask from mongoDB
   """
 
-  alias Transport.DataValidator.CeleryTask
-
   defstruct [:task_id, :status, :result, :date_done, :traceback, :children]
 
   def find_one(task_id) do
@@ -21,7 +19,7 @@ defmodule Transport.DataValidator.CeleryTask do
     with {:ok, result}    <- Poison.decode(obj["result"]),
          {:ok, traceback} <- Poison.decode(obj["traceback"]),
          {:ok, children}  <- Poison.decode(obj["children"]) do
-      {:ok, %CeleryTask{
+      {:ok, %__MODULE__{
           :task_id   => obj["_id"],
           :status    => obj["status"],
           :date_done => obj["date_done"],
