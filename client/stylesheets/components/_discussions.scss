@@ -1,0 +1,29 @@
+discussions {
+  h1 {
+    font-size: 1.2em;
+    margin-bottom: .2em;
+    text-align: left;
+  }
+
+  .discussion-comment {
+    padding-left: 1em;
+    margin-bottom: 1em;
+  }
+
+  .discussion-comment__form {
+    padding-left: 1em;
+  }
+
+  textarea {
+    height: 10em;
+    width: 70%;
+  }
+
+  input {
+    width: 70%;
+  }
+
+  .discussion__post {
+    padding-top: 2em;
+  }
+}
