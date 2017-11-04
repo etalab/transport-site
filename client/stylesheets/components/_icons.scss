@@ -2,6 +2,26 @@
   @extend .fa;
 }
 
+.icon--badge {
+  @extend .fa-id-badge;
+}
+
+.icon--cubes {
+  @extend .fa-cubes;
+}
+
+.icon--download {
+  @extend .fa-download;
+}
+
+.icon--hand-up {
+  @extend .fa-hand-o-up;
+}
+
+.icon--link {
+  @extend .fa-external-link;
+}
+
 .icon--login {
   @extend .fa-sign-in;
 }
@@ -16,18 +36,6 @@
 
 .icon--reuse {
   @extend .fa-mobile-phone;
-}
-
-.icon--cubes {
-  @extend .fa-cubes;
-}
-
-.icon--badge {
-  @extend .fa-id-badge;
-}
-
-.icon--hand-up {
-  @extend .fa-hand-o-up;
 }
 
 .icon--user-plus {

@@ -3,6 +3,8 @@ defmodule Transport.DataValidator.CeleryTask do
     Module to get celerytask from mongoDB
   """
 
+  alias Transport.DataValidator.CeleryTask
+
   defstruct [:task_id, :status, :result, :date_done, :traceback, :children]
 
   def find_one(task_id) do
@@ -16,10 +18,10 @@ defmodule Transport.DataValidator.CeleryTask do
   end
 
   def apply(obj) do
-    with {:ok, result}    = Poison.decode(obj["result"]),
-         {:ok, traceback} = Poison.decode(obj["traceback"]),
-         {:ok, children}  = Poison.decode(obj["children"]) do
-      {:ok, %__MODULE__{
+    with {:ok, result}    <- Poison.decode(obj["result"]),
+         {:ok, traceback} <- Poison.decode(obj["traceback"]),
+         {:ok, children}  <- Poison.decode(obj["children"]) do
+      {:ok, %CeleryTask{
           :task_id   => obj["_id"],
           :status    => obj["status"],
           :date_done => obj["date_done"],
@@ -31,5 +33,4 @@ defmodule Transport.DataValidator.CeleryTask do
       error -> {:error, error}
     end
   end
-
 end

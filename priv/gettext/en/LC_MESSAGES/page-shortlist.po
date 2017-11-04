@@ -10,26 +10,26 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/page/shortlist.html.eex:3
-msgid "Open Licence"
-msgstr ""
-
-#: lib/transport_web/templates/page/shortlist.html.eex:4
+#: lib/transport_web/templates/dataset/index.html.eex:29
 msgid "Download"
 msgstr ""
 
-#: lib/transport_web/templates/page/shortlist.html.eex:5
+#: lib/transport_web/templates/dataset/index.html.eex:43
 msgid "Licence"
 msgstr ""
 
-#: lib/transport_web/templates/page/shortlist.html.eex:7
+#: lib/transport_web/templates/dataset/index.html.eex:20
 msgid "See on data.gouv.fr"
 msgstr ""
 
-#: lib/transport_web/templates/page/shortlist.html.eex:6
+#: lib/transport_web/templates/dataset/index.html.eex:37
 msgid "Territory"
 msgstr ""
 
-#: lib/transport_web/templates/page/shortlist.html.eex:2
+#: lib/transport_web/templates/dataset/index.html.eex:2
 msgid "Available datasets"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/index.html.eex:48
+msgid "Format"
 msgstr ""

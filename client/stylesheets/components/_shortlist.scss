@@ -1,67 +1,66 @@
-shortlist {
-  $base-spacing: 1.5em !default;
-  $shortlist-gutter: 1.4em;
-  $shortlist-image-padding: .7em;
-  $shortlist-image-width: 4em;
-  $shortlist-image-vert-alignment: top;
+$base-spacing: 1.5em !default;
+$shortlist-gutter: 1.4em;
+$shortlist-image-padding: .7em;
+$shortlist-image-width: 4em;
+$shortlist-image-vert-alignment: top;
 
-  .shortlist {
-    @extend .layout-container;
-    border-bottom: 1px solid transparentize($dark-grey, .9);
-    margin-bottom: 4em;
-    padding-bottom: .8em;
+.shortlist {
+  @extend .layout-container;
+  border-bottom: 1px solid transparentize($dark-grey, .9);
+  margin-bottom: 4em;
+  padding-bottom: .8em;
 
-    .shortlist-image {
-      @extend .layout-column;
-      flex: 0 0 5%;
-      margin: 1em auto;
+  .shortlist-image {
+    @extend .layout-column;
+    flex: 0 0 5%;
+    margin: 1em auto;
+  }
+
+  .shortlist-content {
+    @extend .layout-column;
+    flex: 0 0 85%;
+    margin: 1em auto;
+  }
+
+  .shortlist-description {
+    h2 {
+      font-size: 1em;
+      margin: 0 0 .5em;
+      text-align: left;
+      text-transform: none;
     }
 
-    .shortlist-content {
-      @extend .layout-column;
-      flex: 0 0 85%;
-      margin: 1em auto;
-    }
-
-    .shortlist-description {
-      h1 {
-        font-size: 1em;
-        margin: 0 0 .5em;
-        text-align: left;
-      }
-
-      markdown {
-        & > div {
-          color: $dark-grey;
-          line-height: 1.8em;
-          margin-bottom: 1em;
-          margin-left: 20px;
-          max-height: 3.6em;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          word-wrap: break-word;
-        }
-      }
-    }
-
-    .shortlist-details {
-      @extend .layout-container;
-
+    markdown {
       & > div {
-        @extend .layout-column;
-
-        span {
-          margin-bottom: .4em;
-        }
+        color: $dark-grey;
+        line-height: 1.8em;
+        margin-bottom: 1em;
+        margin-left: 20px;
+        max-height: 3.6em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-wrap: break-word;
       }
+    }
+  }
 
-      a {
-        color: $black;
-        text-decoration: none;
+  .shortlist-details {
+    @extend .layout-container;
 
-        &:hover {
-          text-decoration: underline;
-        }
+    & > div {
+      @extend .layout-column;
+
+      span {
+        margin-bottom: .4em;
+      }
+    }
+
+    a {
+      color: $black;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
       }
     }
   }

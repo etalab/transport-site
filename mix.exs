@@ -39,17 +39,17 @@ defmodule Transport.Mixfile do
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 0.13"},
       {:mongodb, ">= 0.0.0"},
+      {:oauth2, "~> 0.9"},
       {:phoenix, "~> 1.3"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_pubsub, "~> 1.0"},
-      {:oauth2, "~> 0.9"},
-      {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:poolboy, ">= 0.0.0"},
-      {:exvcr, "~> 0.8", only: :test},
+      {:uuid, "~> 1.1"},
       {:eye_drops, "~> 1.3", only: :dev},
+      {:phoenix_live_reload, "~> 1.0", only: :dev},
+      {:exvcr, "~> 0.8", only: :test},
       {:hound, "~> 1.0.2", only: :test},
-      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
-      {:uuid, "~> 1.1"}
+      {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
     ]
   end
 end

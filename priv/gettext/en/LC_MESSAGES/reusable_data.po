@@ -10,10 +10,18 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/router.ex:80
-msgid "You need to be connected before doing this."
-msgstr ""
+#: lib/transport/reusable_data/licence.ex:9
+msgid "fr-lo"
+msgstr "Open Licence"
 
-#: lib/transport_web/controllers/session_controller.ex:29
-msgid "An error occured, please try again"
-msgstr ""
+#: lib/transport/reusable_data/licence.ex:12
+msgid "notspecified"
+msgstr "Not specified"
+
+#: lib/transport/reusable_data/licence.ex:10
+msgid "odc-odbl"
+msgstr "ODbL"
+
+#: lib/transport/reusable_data/licence.ex:11
+msgid "other-open"
+msgstr "Other open"

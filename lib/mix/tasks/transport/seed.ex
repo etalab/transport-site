@@ -1,0 +1,298 @@
+defmodule Mix.Tasks.Transport.Seed do
+  @moduledoc """
+  Seeds stuff to the database.
+  """
+
+  use Mix.Task
+
+  def run(_) do
+    Mix.Task.run("app.start", [])
+
+    datasets = [
+      %{
+        description: "Horaires des lignes TER au format [GTFS](https://developers.google.com/transit/gtfs/reference).\n\nCes horaires sont les horaires th\u00e9oriques mis \u00e0 jour tous les mois.",
+        license: "other-open",
+        title: "Horaires des lignes TER",
+        anomalies: ["csv_exposed", "bad_licence"],
+        spatial: "France",
+        logo: "https://www.data.gouv.fr/s/avatars/f3/0b8ad932f74086a6ab3f291ee9243f-100.png",
+        slug: "horaires-des-lignes-ter-sncf",
+        format: "GTFS"
+      },
+      %{
+        description: "Ces donn\u00e9es sont mises \u00e0 jour de mani\u00e8re automatique tous les 15 jours environ.",
+        license: "odc-odbl",
+        title: "Offre transport de la RATP - format GTFS",
+        anomalies: ["no_file", "bad_licence"],
+        spatial: "Paris",
+        logo: "https://www.data.gouv.fr/s/avatars/91/5b9234998a4a288198a725129b4b0b-100.jpg",
+        slug: "offre-transport-de-la-ratp-format-gtfs-ratp",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires des lignes Intercit\u00e9s au format [GTFS](https://developers.google.com/transit/gtfs/reference).\n\nCes horaires sont les horaires th\u00e9oriques mis \u00e0 jour tous les deux mois.",
+        license: "other-open",
+        title: "Horaires des lignes Intercit\u00e9s",
+        anomalies: ["csv_exposed", "bad_licence"],
+        spatial: "France",
+        logo: "https://www.data.gouv.fr/s/avatars/f3/0b8ad932f74086a6ab3f291ee9243f-100.png",
+        slug: "horaires-des-lignes-intercites-sncf",
+        format: "GTFS"
+      },
+      %{
+        description: "La liste des heures de passage, arr\u00eat, stations, direction et jour du r\u00e9seau bus et tram Irigo sur le territoire d'Angers Loire M\u00e9tropole\n\nLa liste des arr\u00eats, horaires et parcours du r\u00e9seau Irigo Bus+Tram au format GTFS sont valables :\npour la p\u00e9riode allant **du 1er avril au 26 juin 2016** pour le fichier Keolis_Irigo_Angers_20160401-20160626  \npour la p\u00e9riode allant du **du 27 juin au 27 ao\u00fbt 2016** pour le fichier Keolis_Irigo_Angers_20160627-20160827\npour la p\u00e9riode allant du **du 5 septembre au 19 octobre 2016** pour le fichier Keolis_Irigo_Angers_20160905-20161019\npour la p\u00e9riode allant du **17 octobre au 25 d\u00e9cembre 2016** pour le fichier Keolis_Irigo_Angers_20161017-20161225\npour la p\u00e9riode allant du **26 d\u00e9cembre 2016 au 28 janvier 2017** pour le fichier Keolis_Irigo_Angers_20161226-20170128\npour la p\u00e9riode allant du **28 janvier au 9 avril 2017** pour le fichier Keolis_Irigo_Angers_20170128-20170409.\n\nDocumentation GTFS: [https://developers.google.com/transit/gtfs/](https://developers.google.com/transit/gtfs/)\n**\nRemarques Keolis Angers apr\u00e8s derni\u00e8re M\u00e0J**\n\n> M\u00e0j de coordonn\u00e9es d\u2019arr\u00eats du sub qui occasionnaient des vitesses calcul\u00e9es trop \u00e9lev\u00e9es. Les valeurs restantes peuvent encore para\u00eetre \u00e9lev\u00e9es mais on est dans le raisonnable et sont vraiment les valeurs de la base. Seule une campagne de remesure compl\u00e8te permettra de pr\u00e9ciser l\u2019emplacement des arr\u00eats.\n\n> Ajout des lieux de r\u00e9f\u00e9rence pour des arr\u00eats situ\u00e9es dans une m\u00eame zone :\n- test sur le lieu GARE SNCF qui regroupe les diff\u00e9rents arr\u00eats Gare (papin, br\u00e9mont, etc.)\n- test sur le lieu CENTRE (lorraine, foch, Huit mai, joffre, etc.)\n\n> Ajout de coordonn\u00e9es pour ces lieux de r\u00e9f\u00e9rence (parent_station) en prenant un arr\u00eat de la zone concern\u00e9e\n\n> Maj code couleur hexadecimal ligne 5\n\n> Correction d\u2019un bug sur les jours en service pour le sub\n\n> Correction du bug de s\u00e9quence d\u2019arr\u00eat qui faisait que l\u2019heure de d\u00e9part de l\u2019arr\u00eat N-1 \u00e9tait ult\u00e9rieure \u00e0 l\u2019heure d\u2019arriv\u00e9e \u00e0 l\u2019arr\u00eat N.\n\n> Correction de l\u2019info de ligne A qui venait 2 fois.",
+        download_uri: "https://www.data.gouv.fr/s/resources/horaires-et-arrets-du-reseau-irigo-format-gtfs/20170130-094427/Keolis_Irigo_Angers_20170129-20170409.zip",
+        license: "odc-odbl",
+        title: "Horaires et arr\u00eats du r\u00e9seau IRIGO - format GTFS",
+        anomalies: [],
+        spatial: "Agglo Angevine",
+        logo: "https://www.data.gouv.fr/s/avatars/58/da9908bc7c42f48a9ddd61e873fe91-100.png",
+        slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
+        format: "GTFS"
+      },
+      %{
+        description: "Donn\u00e9es descriptives de l'offre de transport (lignes, arr\u00eats, horaires) de Tiss\u00e9o. Ces donn\u00e9es sont disponibles sur ce portail en t\u00e9l\u00e9chargement libre sous licence Odbl.\n\nParticularit\u00e9s des lignes :\n\n  * Certaines lignes (TAD 105, 201, 202, 204, 205) sous soumises \u00e0 r\u00e9servation, les arr\u00eats ne sont desservis qu'en cas de r\u00e9servation \n  * Certaines lignes (106, 118, 119, 120) correspondant \u00e0 des TAD Zonaux ne sont pas d\u00e9crites, le format ne le permettant pas. \n\nLes donn\u00e9es sont publi\u00e9es au format GTFS. Pour plus d'informations sur ce format : [la r\u00e9f\u00e9rence](https://developers.google.com/transit/gtfs/reference)\n\nPour toute question, vous pouvez adresser vos mails \u00e0 opendata@tisseo.fr",
+        license: "odc-odbl",
+        title: "Tiss\u00e9o : offre de transport - GTFS",
+        anomalies: ["bad_format"],
+        spatial: nil,
+        logo: "https://www.data.gouv.fr/s/avatars/c0/2606ddc0b241378babea024e259e5b-100.jpg",
+        slug: "tisseo-offre-de-transport-gtfs",
+        format: "GTFS"
+      },
+      %{
+        description: "Donn\u00e9es descriptives de l'offre th\u00e9orique de transport des bus et tramways exploit\u00e9s par la Semitag (arr\u00eats, horaires th\u00e9oriques, parcours, ...) au format GTFS.\n\nCertaines courses correspondant \u00e0 des TAD ne sont pas d\u00e9crites, le format ne le permettant pas.\n\nLes specifications du format GTFS sont disponibles ici : https://developers.google.com/transit/gtfs/reference\n\n",
+        download_uri: "http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip",
+        license: "odc-odbl",
+        title: "Horaires th\u00e9oriques des bus et tramways TAG",
+        anomalies: [],
+        spatial: "Communaut\u00e9 d'Agglom\u00e9ration de Grenoble-Alpes-M\u00e9tropole",
+        logo: "https://www.data.gouv.fr/s/avatars/41/1232bce00148eaac91fb2fc5443fdb-100.png",
+        slug: "horaires-theoriques-des-bus-et-tramways-tag",
+        format: "GTFS"
+      },
+      %{
+        description: "Ce jeu de donn\u00e9es est produit par l'op\u00e9rateur de transport de Grand Poitiers (VITALIS) et mis \u00e0 jour chaque semaine. Il contient les\u00a0arr\u00eats,\u00a0 services et horaires th\u00e9oriques\u00a0au format GTFS. On peut visualiser les arr\u00eats et services dans le\u00a0tableau et la\u00a0carte. Les horaires sont disponibles par t\u00e9l\u00e9chargement du fichier archive :",
+        license: "odc-odbl",
+        title: "Mobilit\u00e9 - arr\u00eats, services et horaires th\u00e9oriques bus - fichier GTFS",
+        anomalies: ["csv_exposed"],
+        logo: "https://www.data.gouv.fr/s/avatars/2d/8ee06454214021a2592805c8faa799-100.png",
+        slug: "mobilite-arrets-services-et-horaires-theoriques-bus-fichier-gtfs",
+        format: "GTFS"
+      },
+      %{
+        description: "**Liste des lots GTFS comprenant la description de l'offre horaire th\u00e9orique du r\u00e9seau STAR, comprenant notamment leurs dates de validit\u00e9 et l'emplacement de t\u00e9l\u00e9chargement du lot.**\n\nPour conna\u00eetre le lot actif pour une date donn\u00e9e, il faut rechercher le lot correspondant dans le tableau en filtrant sur les champs _D\u00e9but de validit\u00e9_ et _Fin de validit\u00e9_. A titre indicatif, les lots sont publi\u00e9s environ 7 jours avant leur entr\u00e9e en vigueur.\n\n* * *\n\n#### Particularit\u00e9s des lots GTFS publi\u00e9s par Keolis Rennes\n\n_routes.txt_\n\nLe champ _route_desc_ contient la description de la cat\u00e9gorie de la ligne (Majeure, Express, ...).\n\n_stops.txt_\n\nLe champ _stop_desc_ contient la commune de rattachement de l'arr\u00eat (au sens de l'INSEE).\n\nAttention : pour qu'une PMR puisse prendre une ligne \u00e0 un arr\u00eat accessible, il faut que le voyage\u00a0soit \u00e9galement accessible (voir le fichier_ trips.txt_).\n\n_trips.txt_\n\nLe champ _shape_id _contient l'identifiant du parcours d\u00e9crit dans les jeux de donn\u00e9es \"Parcours des lignes de bus du r\u00e9seau STAR\" et \"Parcours des lignes de m\u00e9tro du r\u00e9seau STAR\".\n\nAttention : Pour qu'une PMR puisse prendre le voyage indiqu\u00e9 comme accessible, il faut que l'arr\u00eat soit \u00e9galement accessible (voir le fichier _stops.txt_).\n\n* * *\n\n### **NOUVEAU - A partir du 09/04/2017**\n\n****Le fichier _shapes.txt_ est d\u00e9sormais fourni dans le lot.\n\n* * *",
+        license: "odc-odbl",
+        title: "Versions des horaires th\u00e9oriques des lignes du r\u00e9seau STAR au format GTFS",
+        anomalies: ["csv_exposed"],
+        slug: "versions-des-horaires-theoriques-des-lignes-du-reseau-star-au-format-gtfs-1",
+        format: "GTFS"
+      },
+      %{
+        description: "Liste des arr\u00eats, horaires et parcours de tous les bus et tramways circulant sur le territoire de Brest m\u00e9tropole au format GTFS",
+        download_uri: "https://applications002.brest-metropole.fr/VIPDU72/GPB/Lot_BrestMetropole_Bibus.zip",
+        license: "fr-lo",
+        title: "Liste des arr\u00eats, horaires et parcours de tous les bus et tramways circulant sur le territoire de Brest m\u00e9tropole",
+        anomalies: [],
+        spatial: "Communaut\u00e9 Urbaine de Brest",
+        logo: "https://www.data.gouv.fr/s/avatars/2015-09-01/774544d223bd4df7a927a0dd60f080db/Mono-jpg-Logo_Brest_metropole_E_cyan-100.jpg",
+        slug: "liste-des-arrets-horaires-et-parcours-de-tous-les-bus-et-tramways-circulant-sur-le-territoire-de-brest-metropole",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires des lignes Tram-Train TER Pays de la Loire\u00a0au format [GTFS](https://developers.google.com/transit/gtfs/reference).\n\nCes horaires sont les horaires th\u00e9oriques mis \u00e0 jour tous les deux mois.",
+        license: "notspecified",
+        title: "Horaires des Tram-Train TER Pays de la Loire",
+        anomalies: ["csv_exposed", "bad_licence"],
+        logo: "https://www.data.gouv.fr/s/avatars/f3/0b8ad932f74086a6ab3f291ee9243f-100.png",
+        slug: "horaires-des-tram-train-ter-pays-de-la-loire",
+        format: "GTFS"
+      },
+      %{
+        description: "Trois fichiers sont inclus dans ce jeu de donn\u00e9es :\n- deux fichiers GTFS d\u00e9taillant les arr\u00eats et horaires du r\u00e9seau, par p\u00e9riode\n- un fichier CSV d\u00e9taillant les tarifs applicables\n\nVous pouvez \u00e9galement suivre les messages d'info trafic du r\u00e9seau en vous abonnant au flux RSS du SURF (http://www.lesurf.fr/presentation/?rub_code=73)",
+        download_uri: "https://www.data.gouv.fr/s/resources/donnees-sur-le-reseau-de-bus-surf-service-urbain-de-la-region-fougeraise/20170901-130759/GTFS_01092017_01_Periode_scolaire.zip",
+        license: "fr-lo",
+        title: "Donn\u00e9es sur le r\u00e9seau de bus SURF (Service Urbain de la R\u00e9gion Fougeraise)",
+        anomalies: [],
+        spatial: "L\u00e9cousse",
+        logo: "https://www.data.gouv.fr/s/avatars/e7/f22ea87a174acea3f02bac524e67d4-100.png",
+        slug: "donnees-sur-le-reseau-de-bus-surf-service-urbain-de-la-region-fougeraise",
+        format: "GTFS"
+      },
+      %{
+        description: "Jeu de donn\u00e9es GTFS du r\u00e9seau cara'bus",
+        license: "fr-lo",
+        title: "Donn\u00e9es GTFS du r\u00e9seau de transport public cara'bus",
+        anomalies: ["redirection"],
+        spatial: "Pays Royannais",
+        logo: "https://www.data.gouv.fr/s/avatars/23/682d43205e45e7bd730ba55c8ee09e-100.png",
+        slug: "donnees-gtfs-du-reseau-de-transport-public-carabus-1",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires des lignes Transilien\u00a0au format [GTFS](https://developers.google.com/transit/gtfs/reference) (ferr\u00e9 et bus de substitutions pr\u00e9vus, lors de travaux notamment)\n\nCes horaires sont les horaires th\u00e9oriques mis \u00e0 jour toutes les semaines dans la nuit de jeudi \u00e0 vendredi.\n\nVous avez \u00e0 votre disposition deux exports:\n\n  * un export de type \"lines\" pour\u00a0les lignes commerciales du r\u00e9seau avec\u00a0des\u00a0circulations qui\u00a0se font en sens aller et retour.\n  * un export de type \"routes\" pour les diff\u00e9rents parcours (missions) de chaque ligne. Cet export permet notamment de rep\u00e9rer plus facilement les bus.\n\n\n\n[](http://files.transilien.com/horaires/gtfs/export-TN-GTFS-LAST.zip)",
+        license: "notspecified",
+        title: "Horaires des lignes Transilien",
+        anomalies: ["csv_exposed", "bad_licence"],
+        logo: "https://www.data.gouv.fr/s/avatars/f3/0b8ad932f74086a6ab3f291ee9243f-100.png",
+        slug: "horaires-des-lignes-transilien-1",
+        format: "GTFS"
+      },
+      %{
+        description: "Les jeux de donn\u00e9es mis \u00e0 disposition permettent de disposer de la liste des arr\u00eats d'autocar du r\u00e9seau TransGironde avec pour chaque ligne du r\u00e9seau, l'indication des points d'arr\u00eats et des horaires th\u00e9oriques de passage. \n\nCes informations sont structur\u00e9es aux formats Trident et GTFS dans un souci d'interop\u00e9rabilit\u00e9 avec le format transmodel.\n\nLes jeux de donn\u00e9es sont disponibles en plusieurs versions :\n\n* donn\u00e9es concernant seulement les donn\u00e9es de lignes r\u00e9guli\u00e8res : intitul\u00e9 des exports commen\u00e7ant par LR\n* donn\u00e9es concernant les lignes r\u00e9guli\u00e8res, les renforts scolaires et les dessertes d'\u00e9tablissements",
+        license: "notspecified",
+        title: "Horaires des lignes du r\u00e9seau transgironde",
+        anomalies: ["bad_licence"],
+        logo: "https://www.data.gouv.fr/s/avatars/31/cf4595fbd243ecb00c81cfd43cb2c4-100.png",
+        slug: "horaires-des-lignes-du-reseau-transgironde-2",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires th\u00e9oriques du r\u00e9seau 'CG 38 Transis\u00e8re' [38 ISERE (D\u00e9partement)]",
+        download_uri: "http://www.itinisere.fr/fr/api-open-services/169/OpenData/download?fileName=CG38.GTFS.zip",
+        license: "odc-odbl",
+        title: "Horaires th\u00e9oriques du r\u00e9seau de transport 'CG 38 Transis\u00e8re'",
+        anomalies: [],
+        spatial: "Is\u00e8re",
+        logo: "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
+        slug: "horaires-theoriques-du-reseau-de-transport-cg-38-transisere",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires th\u00e9oriques des r\u00e9seaux de transport de la plate-forme \u2018Le Pilote\u2019 [13 BOUCHES DU RHONE (D\u00e9partement)]",
+        license: "fr-lo",
+        title: "Horaires th\u00e9oriques des r\u00e9seaux de transport \u2018Le Pilote'",
+        anomalies: ["redirection"],
+        spatial: "Bouches-du-Rh\u00f4ne",
+        logo: "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
+        slug: "horaires-theoriques-des-reseaux-de-transport-le-pilote",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires th\u00e9oriques du r\u00e9seau 'Ouibus' [FRANCE METROPOLITAINE (M\u00e9tropole)]",
+        license: "notspecified",
+        title: "Horaires th\u00e9oriques du r\u00e9seau de transport 'Ouibus'",
+        anomalies: ["outofdate"],
+        spatial: "France",
+        logo: "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
+        slug: "horaires-theoriques-du-reseau-de-transport-ouibus",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires th\u00e9oriques du r\u00e9seau 'A\u00e9rocar' [73 SAVOIE (D\u00e9partement) 38 ISERE (D\u00e9partement)]",
+        license: "odc-odbl",
+        title: "Horaires th\u00e9oriques du r\u00e9seau de transport 'A\u00e9rocar'",
+        anomalies: ["outofdate"],
+        spatial: "Savoie",
+        logo: "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
+        slug: "horaires-theoriques-du-reseau-de-transport-aerocar",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires th\u00e9oriques du r\u00e9seau 'CTS' [PTU91 STRASBOURG (P\u00e9rim\u00e8tre de transport urbain)]",
+        license: "odc-odbl",
+        title: "Horaires th\u00e9oriques du r\u00e9seau de transport 'CTS'",
+        anomalies: ["redirection"],
+        spatial: "Communaut\u00e9 Urbaine de Strasbourg",
+        logo: "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
+        slug: "horaires-theoriques-du-reseau-de-transport-cts",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires th\u00e9oriques du r\u00e9seau 'RUBAN' [PTU144 ISLE D ABEAU L (P\u00e9rim\u00e8tre de transport urbain)]",
+        license: "odc-odbl",
+        title: "Horaires th\u00e9oriques du r\u00e9seau de transport 'RUBAN'",
+        anomalies: ["bad_format"],
+        spatial: "Isle d'Abeau",
+        logo: "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
+        slug: "horaires-theoriques-du-reseau-de-transport-ruban",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires th\u00e9oriques du r\u00e9seau 'L'VA' [PTU101 VIENNE (P\u00e9rim\u00e8tre de transport urbain)]",
+        download_uri: "http://www.itinisere.fr/fr/api-open-services/169/OpenData/download?fileName=VIENNE.GTFS.zip",
+        license: "odc-odbl",
+        title: "Horaires th\u00e9oriques du r\u00e9seau de transport 'L'VA'",
+        anomalies: [],
+        spatial: "District de Vienne",
+        logo: "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
+        slug: "horaires-theoriques-du-reseau-de-transport-lva",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires th\u00e9oriques du r\u00e9seau 'Impulsyon' [PTU81 ROCHE SUR YON LA (P\u00e9rim\u00e8tre de transport urbain)]",
+        license: "notspecified",
+        title: "Horaires th\u00e9oriques du r\u00e9seau de transport 'Impulsyon'",
+        anomalies: ["bad_licence"],
+        spatial: "Pays Yonnais",
+        logo: "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
+        slug: "horaires-theoriques-du-reseau-de-transport-impulsyon",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires th\u00e9oriques du r\u00e9seau 'TRANSPOLE' [PTU53 LILLE (P\u00e9rim\u00e8tre de transport urbain)]. Attention, le calendrier est limit\u00e9 et s\u2019arr\u00eate au 10 juillet 2016. Le Cerema n'est pas le producteur des donn\u00e9es : il ne fait que les r\u00e9f\u00e9rencer. Si l'autorit\u00e9 organisatrice ou l'exploitant renseignent une fiche sur cette plate-forme pour ces m\u00eames donn\u00e9es, le Cerema retirera cette fiche.",
+        license: "fr-lo",
+        title: "Horaires th\u00e9oriques du r\u00e9seau de transport 'TRANSPOLE'",
+        anomalies: ["redirection"],
+        spatial: "Communaut\u00e9 Urbaine de Lille",
+        logo: "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
+        slug: "horaires-theoriques-du-reseau-de-transport-transpole",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires th\u00e9oriques du r\u00e9seau 'CD 31 ARC EN CIEL' [31 HAUTE GARONNE (D\u00e9partement)]. Le Cerema n'est pas le producteur des donn\u00e9es : il ne fait que les r\u00e9f\u00e9rencer. Si l'autorit\u00e9 organisatrice ou l'exploitant renseignent une fiche sur cette plate-forme pour ces m\u00eames donn\u00e9es, le Cerema retirera cette fiche.",
+        license: "odc-odbl",
+        title: "Horaires th\u00e9oriques du r\u00e9seau de transport 'CD 31 ARC EN CIEL'",
+        anomalies: ["redirection"],
+        spatial: "Haute-Garonne",
+        logo: "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
+        slug: "horaires-theoriques-du-reseau-de-transport-cd-31-arc-en-ciel",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires th\u00e9oriques du r\u00e9seau 'Transports du Pays Voironnais' [PTU272 VOIRON (P\u00e9rim\u00e8tre de transport urbain)]",
+        download_uri: "http://www.itinisere.fr/fr/api-open-services/169/OpenData/download?fileName=VOIRON.GTFS.zip",
+        license: "odc-odbl",
+        title: "Horaires th\u00e9oriques du r\u00e9seau de transport 'Transports du Pays Voironnais'",
+        anomalies: [],
+        spatial: "Pays Voironnais",
+        logo: "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
+        slug: "horaires-theoriques-du-reseau-de-transport-transports-du-pays-voironnais",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires th\u00e9oriques du r\u00e9seau 'Transaltitude' [38 ISERE (D\u00e9partement)]",
+        license: "odc-odbl",
+        title: "Horaires th\u00e9oriques du r\u00e9seau de transport 'Transaltitude'",
+        anomalies: ["outofdate"],
+        spatial: "Is\u00e8re",
+        logo: "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
+        slug: "horaires-theoriques-du-reseau-de-transport-transaltitude",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires th\u00e9oriques du r\u00e9seau 'Tougo' [PTU338 GRESIVAUDAN (P\u00e9rim\u00e8tre de transport urbain)]",
+        download_uri: "http://www.itinisere.fr/fr/api-open-services/169/OpenData/download?fileName=GRESIV.GTFS.zip",
+        license: "odc-odbl",
+        title: "Horaires th\u00e9oriques du r\u00e9seau de transport 'Tougo'",
+        anomalies: [],
+        spatial: "Communaut\u00e9 de Communes du Pays du Gr\u00e9sivaudan",
+        logo: "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
+        slug: "horaires-theoriques-du-reseau-de-transport-tougo",
+        format: "GTFS"
+      },
+      %{
+        description: "Horaires th\u00e9oriques du r\u00e9seau 'STAN' [PTU66 NANCY (P\u00e9rim\u00e8tre de transport urbain)]",
+        license: "fr-lo",
+        title: "Horaires th\u00e9oriques du r\u00e9seau de transport 'STAN'",
+        anomalies: [],
+        spatial: "Communaut\u00e9 Urbaine de Nancy",
+        logo: "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
+        slug: "horaires-theoriques-du-reseau-de-transport-stan",
+        format: "GTFS"
+      }
+    ]
+
+    Mongo.insert_many(:mongo, "datasets", datasets, pool: DBConnection.Poolboy)
+  end
+end
