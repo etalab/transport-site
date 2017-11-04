@@ -1,4 +1,11 @@
 <footer class="layout-footer" role="contentinfo">
+  <footer-help email_address='<%= gettext("Email address") %>'
+    send_email='<%= gettext("Send email") %>''
+    mail_sent='<%= gettext("Your email has been sent, we will contact you soon") %>'
+    mail_error='<%= gettext("There has been an error, try again later") %>''
+    ask_for_help='<%= gettext("Ask help") %>'
+    close='<%= gettext("Close") %>'>
+  </footer-help>
   <div class="footer__container">
     <div class="footer__logo">
       <%= link(img_tag("/images/logo-footer.svg", alt: "transport.beta.gouv.fr"), to: "/") %>
