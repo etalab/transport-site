@@ -24,10 +24,15 @@ $shortlist-image-vert-alignment: top;
 
   .shortlist-description {
     h2 {
+      color: $black;
       font-size: 1em;
       margin: 0 0 .5em;
       text-align: left;
       text-transform: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
 
     markdown {

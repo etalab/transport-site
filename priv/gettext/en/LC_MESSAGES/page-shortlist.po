@@ -10,19 +10,19 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/dataset/index.html.eex:29
+#: lib/transport_web/templates/dataset/index.html.eex:31
 msgid "Download"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/index.html.eex:43
+#: lib/transport_web/templates/dataset/index.html.eex:45
 msgid "Licence"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/index.html.eex:20
+#: lib/transport_web/templates/dataset/index.html.eex:22
 msgid "See on data.gouv.fr"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/index.html.eex:37
+#: lib/transport_web/templates/dataset/index.html.eex:39
 msgid "Territory"
 msgstr ""
 
@@ -30,6 +30,6 @@ msgstr ""
 msgid "Available datasets"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/index.html.eex:48
+#: lib/transport_web/templates/dataset/index.html.eex:50
 msgid "Format"
 msgstr ""

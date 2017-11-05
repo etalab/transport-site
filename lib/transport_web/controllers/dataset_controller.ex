@@ -7,4 +7,10 @@ defmodule TransportWeb.DatasetController do
     |> assign(:datasets, ReusableData.list_datasets)
     |> render("index.html")
   end
+
+  def details(conn, params) do
+    IO.inspect(params)
+
+    render conn, "details.html"
+  end
 end
