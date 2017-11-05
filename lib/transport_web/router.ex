@@ -37,6 +37,12 @@ defmodule TransportWeb.Router do
       get "/datasets/:slug/_add", UserController, :add_badge_dataset
     end
 
+    scope "/discussions" do
+      pipe_through [:authentication_required]
+      post "/", DiscussionController, :post_discussion
+      post "/:id_", DiscussionController, :post_discussion_id
+    end
+
     # Authentication
 
     scope "/login" do

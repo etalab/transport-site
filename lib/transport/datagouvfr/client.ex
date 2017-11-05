@@ -25,6 +25,15 @@ defmodule Transport.Datagouvfr.Client do
     |> Transport.Datagouvfr.Client.request(conn, url, body, headers, opts)
   end
 
+  @spec post_request(%Plug.Conn{}, binary, OAuth2Client.body,
+                    OAuth2Client.headers, Keyword.t)
+                    :: {:ok, Response.t} | {:error, Error.t}
+  def post_request(%Plug.Conn{} = conn, url, body \\ "", headers \\ [], opts \\ []) do
+    headers = [{"content-type", "application/json"} | headers]
+    :post
+    |> Transport.Datagouvfr.Client.request(conn, url, body, headers, opts)
+  end
+
   #credo:disable-for-lines:9
   @doc """
   We disable for now the credo test because the arity is to high
@@ -54,6 +63,7 @@ defmodule Transport.Datagouvfr.Client do
   def post_process_request(response) do
     case response do
       {:ok, %OAuth2.Response{status_code: 200, body: body}} -> {:ok, body}
+      {:ok, %OAuth2.Response{status_code: 201, body: body}} -> {:ok, body}
       {:ok, %OAuth2.Response{status_code: _, body: body}} -> {:error, body}
       {:error, error} -> {:error, error}
     end
