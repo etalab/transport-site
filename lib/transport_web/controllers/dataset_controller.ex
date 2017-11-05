@@ -1,6 +1,8 @@
 defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Transport.ReusableData
+  alias Transport.Datagouvfr.Client.Datasets
+  alias Transport.Datagouvfr.Authentication
 
   def index(conn, _) do
     conn
@@ -18,11 +20,23 @@ defmodule TransportWeb.DatasetController do
                  |> assign(:nb_errors, count_errors(dataset))
                  |> assign(:nb_warnings, count_warnings(dataset))
                  |> assign(:nb_notices, count_notices(dataset))
+                 |> assign(:datasetid, get_dataset_id(conn, dataset))
+                 |> assign(:datagouvfrsite,
+                      Application.get_env(:oauth2, Authentication)[:site])
                  |> render("details.html")
     end
   end
 
 #private functions
+
+  defp get_dataset_id(conn, dataset) do
+    conn
+    |> Datasets.get(dataset.slug)
+    |> case do
+      {:ok, d}    -> d["id"]
+      {:error, _} -> nil
+    end
+  end
 
   defp count_errors(dataset) do
     dataset.celery_task.result

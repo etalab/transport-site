@@ -53,7 +53,18 @@
       <div class="dataset-detail__markdown">
         <markdown content="<%= @dataset.description %>"></markdown>
       </div>
+      <div class="dataset-details__discussions">
+        <h1>Discussions</h1>
+        <discussions
+          datasetid="<%= @datasetid %>"
+          datagouvfrsite="<%= @datagouvfrsite %>"
+          connected="<%= @current_user != nil %>"
+          posted_on="<%= dgettext("page-dataset-details", "Posted on") %>"
+          respond_comment="<%= dgettext("page-dataset-details", "Respond") %>"
+          post_discussion="<%= dgettext("page-dataset-details", "Begin a new conversation") %>"
+          title="<%= dgettext("page-dataset-details", "Title") %>">
+        </discussions>
+      </div>
     </div>
-    <a href="#description">+</a>
   </div>
 </section>

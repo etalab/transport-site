@@ -10,6 +10,21 @@
 .dataset-details__main-pan {
   width: 80%;
 }
+
+.dataset-details__discussions {
+  margin-top: 6em;
+
+  h1 {
+    background-color: $light-grey;
+  }
+
+  discussions {
+    h1 {
+      background-color: $white;
+    }
+  }
+}
+
 .stats {
   $base-spacing: 1.5em !default;
   $dark-gray: #333 !default;

@@ -14,17 +14,30 @@ msgstr ""
 msgid "GTFS Validation"
 msgstr "Validations GTFS"
 
-#, fuzzy
 #: lib/transport_web/templates/dataset/details.html.eex:45
 msgid "Errors"
 msgstr "Erreurs"
 
-#, fuzzy
 #: lib/transport_web/templates/dataset/details.html.eex:47
 msgid "Notices"
 msgstr "Astuces"
 
-#, fuzzy
 #: lib/transport_web/templates/dataset/details.html.eex:46
 msgid "Warnings"
 msgstr "Avertissements"
+
+#: lib/transport_web/templates/dataset/details.html.eex:62
+msgid "Posted on"
+msgstr "le"
+
+#: lib/transport_web/templates/dataset/details.html.eex:63
+msgid "Respond"
+msgstr "Répondre"
+
+#: lib/transport_web/templates/dataset/details.html.eex:64
+msgid "Begin a new conversation"
+msgstr "Ouvrir une discussion"
+
+#: lib/transport_web/templates/dataset/details.html.eex:65
+msgid "Title"
+msgstr "Titre"
