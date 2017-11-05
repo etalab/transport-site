@@ -38,24 +38,24 @@ msgstr ""
 
 #: lib/transport_web/templates/layout/_footer.html.eex:6
 msgid "Ask help"
-msgstr ""
+msgstr "Demander de l'aide"
 
 #: lib/transport_web/templates/layout/_footer.html.eex:7
 msgid "Close"
-msgstr ""
+msgstr "fermer"
 
 #: lib/transport_web/templates/layout/_footer.html.eex:2
 msgid "Email address"
-msgstr ""
+msgstr "Adresse email"
 
 #: lib/transport_web/templates/layout/_footer.html.eex:3
 msgid "Send email"
-msgstr ""
+msgstr "Envoyer un email"
 
 #: lib/transport_web/templates/layout/_footer.html.eex:5
 msgid "There has been an error, try again later"
-msgstr ""
+msgstr "Il y a eu une erreur réessayez."
 
 #: lib/transport_web/templates/layout/_footer.html.eex:4
 msgid "Your email has been sent, we will contact you soon"
-msgstr ""
+msgstr "Votre email a été envoyé, nous vous recontacterons prochainement."
