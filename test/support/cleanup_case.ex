@@ -1,13 +1,9 @@
-defmodule TransportWeb.FactoryCase do
+defmodule TransportWeb.CleanupCase do
   use ExUnit.CaseTemplate
 
   using(options) do
     quote do
-      def insert(factory, collection) do
-        Mongo.insert_one(:mongo, collection, factory, pool: DBConnection.Poolboy)
-      end
-
-      defp cleanup(:all) do
+      defp cleanup do
         collections() |> Enum.each(&(cleanup(&1)))
       end
 
@@ -16,14 +12,14 @@ defmodule TransportWeb.FactoryCase do
       end
 
       defp collections do
-        unquote(options)[:collections]
+        unquote(options)[:cleanup]
       end
 
       setup_all do
-        cleanup(:all)
+        cleanup()
 
         on_exit fn ->
-          cleanup(:all)
+          cleanup()
         end
       end
     end

@@ -7,23 +7,19 @@ defmodule TransportWeb.ReuseDataTest do
   """
 
   use TransportWeb.ConnCase, async: true
-  use TransportWeb.FactoryCase, collections: ["datasets"]
+  use TransportWeb.CleanupCase, cleanup: ["datasets"]
   use Hound.Helpers
+  alias Transport.ReusableData
 
   hound_session()
 
   setup_all do
-    %{
-      description: "Liste des heures de passage.",
+    ReusableData.create_dataset %{
       download_uri: "https://link.to/angers.zip",
       license: "odc-odbl",
       title: "Angers GTFS",
-      anomalies: [],
-      spatial: "Agglo Angevine",
-      logo: "https://link.to/logo.png",
-      slug: "angers-gtfs",
-      format: "GTFS"
-    } |> insert("datasets")
+      anomalies: []
+    }
 
     :ok
   end

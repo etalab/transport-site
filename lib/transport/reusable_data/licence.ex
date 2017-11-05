@@ -19,14 +19,14 @@ defmodule Transport.ReusableData.Licence do
   ## Examples
 
       iex> Licence.new("fr-lo")
-      %Licence{name: "Licence ouverte"}
+      %Licence{name: "Open Licence"}
 
       iex> Licence.new("asdf")
       %Licence{name: "asdf"}
 
   """
   @spec new(String.t) :: %__MODULE__{}
-  def new(code) do
+  def new(<<_ :: binary>> = code) do
     case code do
       "fr-lo" -> %__MODULE__{name: dgettext("reusable_data", "fr-lo")}
       "odc-odbl" -> %__MODULE__{name: dgettext("reusable_data", "odc-odbl")}

@@ -12,8 +12,11 @@ defmodule Transport.ReusableData do
 
   ## Examples
 
+      iex> ReusableData.create_dataset(%{title: "Leningrad metro dataset", anomalies: [], download_uri: "link.to"})
       iex> ReusableData.list_datasets()
-      [%Dataset{title: "Leningrad metro dataset", anomalies: []}, ...]
+      ...> |> List.first
+      ...> |> Map.get(:title)
+      "Leningrad metro dataset"
 
   """
   @spec list_datasets() :: [%Dataset{}]
@@ -23,7 +26,27 @@ defmodule Transport.ReusableData do
     :mongo
     |> Mongo.find("datasets", query, pool: @pool)
     |> Enum.to_list()
-    |> Enum.map(&structify(&1, %Dataset{}))
+    |> Enum.map(&Dataset.new(&1))
+  end
+
+  @doc """
+  Creates a dataset.
+
+  ## Examples
+
+      iex> ReusableData.create_dataset(%{title: "Saintes"})
+      ...> |> Map.get(:title)
+      "Saintes"
+
+  """
+  @spec create_dataset(map()) :: %Dataset{}
+  def create_dataset(%{} = attrs) do
+    {:ok, result} = Mongo.insert_one(:mongo, "datasets", attrs, pool: @pool)
+    query         = %{"_id"  => result.inserted_id}
+
+    :mongo
+    |> Mongo.find_one("datasets", query, pool: @pool)
+    |> Dataset.new
   end
 
   @doc """
@@ -31,31 +54,24 @@ defmodule Transport.ReusableData do
 
   ## Examples
 
-      iex> update_dataset(existing_dataset, %{field: new_value})
+      iex> ReusableData.create_dataset(%{title: "Creative title"})
+      ...> |> ReusableData.update_dataset(%{title: "Lame title"})
       :ok
 
-      iex> update_dataset(non_existing_dataset, %{field: new_value})
-      {:error, :nodocument}
+      iex> ReusableData.update_dataset(%Dataset{}, %{title: "Alphaville"})
+      {:error, :enodoc}
 
   """
-  @spec update_dataset(%Dataset{}, map()) :: :ok | {:error, :nodocument}
-  def update_dataset(%Dataset{} = dataset, attrs) do
+  @spec update_dataset(%Dataset{}, map()) :: :ok | {:error, :enodoc}
+  def update_dataset(%Dataset{} = dataset, %{} = attrs) do
     query     = %{"_id"  => dataset._id}
     changeset = %{"$set" => attrs}
 
     :mongo
     |> Mongo.find_one_and_update("datasets", query, changeset, pool: @pool)
     |> case do
-      {:ok, nil} -> {:error, :nodocument}
+      {:ok, nil} -> {:error, :enodoc}
       {:ok, _}   -> :ok
     end
-  end
-
-  # private
-
-  defp structify(document, struct) do
-    Enum.reduce(document, struct, fn({key, value}, map) ->
-      Map.put(map, String.to_existing_atom(key), value)
-    end)
   end
 end

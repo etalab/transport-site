@@ -7,7 +7,7 @@ jobs:
         environment:
           MIX_ENV: test
           RABBITMQ_URL: amqp://guest:guest@localhost
-          MONGODB_URL: mongodb://localhost/transport
+          MONGODB_URL: mongodb://localhost/transport_test
           DATAGOUVFR_SITE: https://www.data.gouv.fr
 
     steps:

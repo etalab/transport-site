@@ -20,15 +20,31 @@ defmodule Transport.ReusableData.Dataset do
 
   @type t :: %__MODULE__{
     _id:            %BSON.ObjectId{},
-    title:          String.t | nil,
-    description:    String.t | nil,
-    logo:           String.t | nil,
-    spatial:        String.t | nil,
-    license:        String.t | nil,
-    slug:           String.t | nil,
-    download_uri:   String.t | nil,
+    title:          String.t,
+    description:    String.t,
+    logo:           String.t,
+    spatial:        String.t,
+    license:        String.t,
+    slug:           String.t,
+    download_uri:   String.t,
     anomalies:      [String.t],
-    format:         String.t | nil,
-    celery_task_id: String.t | nil,
+    format:         String.t,
+    celery_task_id: String.t,
   }
+
+  @doc """
+  Initialises a licence struct from a given map. Map's keys must be strings.
+
+  ## Examples
+
+      iex> Dataset.new(%{"title" => "Dataset"})
+      %Dataset{title: "Dataset"}
+
+  """
+  @spec new(map()) :: %__MODULE__{}
+  def new(%{} = map) do
+    Enum.reduce(map, %__MODULE__{}, fn({key, value}, map) ->
+      Map.put(map, String.to_existing_atom(key), value)
+    end)
+  end
 end

@@ -15,3 +15,6 @@ config :logger, level: :warn
 
 config :oauth2, Authentication,
   site: "https://next.data.gouv.fr"
+
+# MongoDB configuration.
+config :mongodb, url: "mongodb://localhost/transport_test"
