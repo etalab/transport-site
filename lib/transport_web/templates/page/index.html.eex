@@ -17,7 +17,7 @@
           <i class="icon icon--open" aria-hidden="true"></i>
           <%= dgettext("page-index", "Publish my data") %>
         </a>
-        <a class="button button--fullwidth hero__link hero__link--reuse" href="<%= page_path @conn, :shortlist %>" role="link">
+        <a class="button button--fullwidth hero__link hero__link--reuse" href="<%= dataset_path @conn, :index %>" role="link">
           <i class="icon icon--reuse" aria-hidden="true"></i>
           <%= dgettext("page-index", "Reuse data") %>
         </a>

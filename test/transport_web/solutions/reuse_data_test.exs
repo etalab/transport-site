@@ -7,9 +7,22 @@ defmodule TransportWeb.ReuseDataTest do
   """
 
   use TransportWeb.ConnCase, async: true
+  use TransportWeb.CleanupCase, cleanup: ["datasets"]
   use Hound.Helpers
+  alias Transport.ReusableData
 
   hound_session()
+
+  setup_all do
+    ReusableData.create_dataset %{
+      download_uri: "https://link.to/angers.zip",
+      license: "odc-odbl",
+      title: "Angers GTFS",
+      anomalies: []
+    }
+
+    :ok
+  end
 
   @tag :integration
   test "I can click on the map to reuse transport data" do
@@ -37,19 +50,19 @@ defmodule TransportWeb.ReuseDataTest do
 
     find_element(:class, "shortlist")
     |> find_within_element(:class, "shortlist-description")
-    |> find_within_element(:tag, "h1")
+    |> find_within_element(:tag, "h2")
     |> inner_text
-    |> Kernel.=~("Horaires et arrêts du réseau IRIGO - format GTFS")
+    |> Kernel.=~("Angers GTFS")
     |> assert
   end
 
   @tag :integration
   test "I can download a dataset from the list of available datasets" do
     @endpoint
-    |> page_url(:shortlist)
+    |> dataset_url(:index)
     |> navigate_to
 
-    find_element(:class, "download")
+    find_element(:class, "shortlist__link--download")
     |> find_within_element(:link_text, "Télécharger")
     |> attribute_value("href")
     |> Kernel.=~("zip")

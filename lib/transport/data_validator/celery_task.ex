@@ -16,9 +16,9 @@ defmodule Transport.DataValidator.CeleryTask do
   end
 
   def apply(obj) do
-    with {:ok, result}    = Poison.decode(obj["result"]),
-         {:ok, traceback} = Poison.decode(obj["traceback"]),
-         {:ok, children}  = Poison.decode(obj["children"]) do
+    with {:ok, result}    <- Poison.decode(obj["result"]),
+         {:ok, traceback} <- Poison.decode(obj["traceback"]),
+         {:ok, children}  <- Poison.decode(obj["children"]) do
       {:ok, %__MODULE__{
           :task_id   => obj["_id"],
           :status    => obj["status"],
@@ -31,5 +31,4 @@ defmodule Transport.DataValidator.CeleryTask do
       error -> {:error, error}
     end
   end
-
 end

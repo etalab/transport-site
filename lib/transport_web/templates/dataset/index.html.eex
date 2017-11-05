@@ -1,0 +1,57 @@
+<section>
+  <h1><%= dgettext("page-shortlist", "Available datasets") %></h1>
+  <%= for dataset <- @datasets do %>
+    <div class="shortlist">
+      <div class="shortlist-image">
+        <%= img_tag(dataset.logo, alt: dataset.title) %>
+      </div>
+
+      <div class="shortlist-content">
+        <div class="shortlist-description">
+          <h2><%= dataset.title %></h2>
+          <markdown content="<%= dataset.description %>"></markdown>
+        </div>
+
+        <div class="shortlist-details">
+          <div>
+            <%= if dataset.download_uri do %>
+              <div class="shortlist__link shortlist__link--external-link">
+                <i class="icon icon--link" aria-hidden="true"></i>
+                <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
+                         to: "https://www.data.gouv.fr/datasets/#{dataset.slug}/",
+                         role: "link") %>
+              </div>
+            <% end %>
+
+            <%= if dataset.download_uri do %>
+              <div class="shortlist__link shortlist__link--download">
+                <i class="icon icon--download" aria-hidden="true"></i>
+                <%= link(dgettext("page-shortlist", "Download"),
+                         to: dataset.download_uri,
+                         role: "link") %>
+              </div>
+            <% end %>
+          </div>
+          <div>
+            <div class="shortlist__notice">
+              <span><%= dgettext("page-shortlist", "Territory") %></span>
+              <span class="badge-notice"><%= dataset.spatial %></span>
+            </div>
+
+            <div class="shortlist-details">
+              <div class="shortlist__notice">
+                <span><%= dgettext("page-shortlist", "Licence") %></span>
+                <span class="badge-notice"><%= dataset.license |> Licence.new |> Map.get(:name) %></span>
+              </div>
+
+              <div class="shortlist__notice">
+                <span><%= dgettext("page-shortlist", "Format") %></span>
+                <span class="badge-notice"><%= dataset.format %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</section>
