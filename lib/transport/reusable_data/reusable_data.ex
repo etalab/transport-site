@@ -30,7 +30,6 @@ defmodule Transport.ReusableData do
     |> Enum.map(&Dataset.new(&1))
   end
 
-
   @doc """
   Return one dataset and its attached celery task.
   """
