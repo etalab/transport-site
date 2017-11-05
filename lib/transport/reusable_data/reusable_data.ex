@@ -4,6 +4,7 @@ defmodule Transport.ReusableData do
   """
 
   alias Transport.ReusableData.Dataset
+  alias Transport.DataValidator.CeleryTask
 
   @pool DBConnection.Poolboy
 
@@ -31,13 +32,23 @@ defmodule Transport.ReusableData do
 
 
   @doc """
+  Return one dataset and its attached celery task.
+  """
+  @spec get_dataset(String.t, atom) :: %Dataset{}
+  def get_dataset(slug, :with_celery_task) do
+    with dataset <- get_dataset(slug),
+         {:ok, celery_task} <- CeleryTask.find_one(dataset.celery_task_id) do
+      Map.put(dataset, :celery_task, celery_task)
+    end
+  end
+
+  @doc """
   Return one dataset.
 
-  ## Examples
-
-    iex> ResuableData.get_dataset("leningrad")
-    %Dataset{slug: "leningrad", title: "Leningrad metro dataset", ...]
-
+      iex> ReusableData.create_dataset(%{slug: "leningrad-metro-dataset", anomalies: [], download_uri: "link.to"})
+      iex> ReusableData.get_dataset("leningrad-metro-dataset")
+      ...> |> Map.get(:slug)
+      "leningrad-metro-dataset"
   """
   @spec get_dataset(String.t) :: %Dataset{}
   def get_dataset(slug) do
