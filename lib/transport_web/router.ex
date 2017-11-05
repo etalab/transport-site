@@ -28,6 +28,7 @@ defmodule TransportWeb.Router do
 
     scope "/datasets" do
       get "/", DatasetController, :index
+      get "/:slug/", DatasetController, :details
     end
 
     scope "/user" do

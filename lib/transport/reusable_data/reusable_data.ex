@@ -4,6 +4,8 @@ defmodule Transport.ReusableData do
   """
 
   alias Transport.ReusableData.Dataset
+  alias Transport.Datagouvfr.Client.Datasets
+  alias Transport.DataValidator.CeleryTask
 
   @pool DBConnection.Poolboy
 
@@ -27,6 +29,37 @@ defmodule Transport.ReusableData do
     |> Mongo.find("datasets", query, pool: @pool)
     |> Enum.to_list()
     |> Enum.map(&Dataset.new(&1))
+  end
+
+  @doc """
+  Return dataset by slug and its attached celery task.
+  """
+  @spec get_dataset(String.t, atom) :: %Dataset{}
+  def get_dataset(slug, :with_celery_task) do
+    with dataset <- get_dataset(slug),
+         {:ok, celery_task} <- CeleryTask.find_one(dataset.celery_task_id) do
+      Map.put(dataset, :celery_task, celery_task)
+    end
+  end
+
+  @doc """
+  Return one dataset by slug
+
+      iex> ReusableData.create_dataset(%{slug: "leningrad-metro-dataset", anomalies: [], download_uri: "link.to"})
+      iex> ReusableData.get_dataset("leningrad-metro-dataset")
+      ...> |> Map.get(:slug)
+      "leningrad-metro-dataset"
+  """
+  @spec get_dataset(String.t) :: %Dataset{}
+  def get_dataset(slug) do
+    query = %{slug: slug}
+
+    :mongo
+    |> Mongo.find_one("datasets", query, pool: @pool)
+    |> case do
+      nil -> nil
+      dataset -> Dataset.new(dataset)
+    end
   end
 
   @doc """
@@ -73,5 +106,35 @@ defmodule Transport.ReusableData do
       {:ok, nil} -> {:error, :enodoc}
       {:ok, _}   -> :ok
     end
+  end
+
+  def get_dataset_id(conn, dataset) do
+    conn
+    |> Datasets.get(dataset.slug)
+    |> case do
+      {:ok, d}    -> d["id"]
+      {:error, _} -> nil
+    end
+  end
+
+  def count_errors(dataset) do
+    dataset.celery_task.result
+    |> Map.get("validations")
+    |> Map.get("errors")
+    |> Enum.count()
+  end
+
+  def count_warnings(dataset) do
+    dataset.celery_task.result
+    |> Map.get("validations")
+    |> Map.get("warnings")
+    |> Enum.count()
+  end
+
+  def count_notices(dataset) do
+    dataset.celery_task.result
+    |> Map.get("validations")
+    |> Map.get("notices")
+    |> Enum.count()
   end
 end

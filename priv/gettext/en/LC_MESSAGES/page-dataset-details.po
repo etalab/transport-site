@@ -1,0 +1,43 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+
+#: lib/transport_web/templates/dataset/details.html.eex:43
+msgid "GTFS Validation"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:45
+msgid "Errors"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:47
+msgid "Notices"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:46
+msgid "Warnings"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:62
+msgid "Posted on"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:63
+msgid "Respond"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:64
+msgid "Begin a new conversation"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:65
+msgid "Title"
+msgstr ""

@@ -7,10 +7,12 @@
       </div>
 
       <div class="shortlist-content">
-        <div class="shortlist-description">
-          <h2><%= dataset.title %></h2>
-          <markdown content="<%= dataset.description %>"></markdown>
-        </div>
+        <a href="/datasets/<%= dataset.slug %>/">
+          <div class="shortlist-description">
+            <h2><%= dataset.title %></h2>
+            <markdown content="<%= dataset.description %>"></markdown>
+          </div>
+        </a>
 
         <div class="shortlist-details">
           <div>

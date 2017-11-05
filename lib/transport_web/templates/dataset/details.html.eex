@@ -1,0 +1,70 @@
+<section>
+  <h1><%= @dataset.title %></h1>
+  <div class="documentation">
+    <div class="side-pan dataset-details__side-pan">
+      <div>
+        <%= img_tag(@dataset.logo, alt: @dataset.title) %>
+        <%= if @dataset.download_uri do %>
+          <div class="shortlist__link shortlist__link--external-link">
+            <i class="icon icon--link" aria-hidden="true"></i>
+            <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
+                     to: "https://www.data.gouv.fr/datasets/#{@dataset.slug}/",
+                     role: "link") %>
+          </div>
+        <% end %>
+
+        <%= if @dataset.download_uri do %>
+          <div class="shortlist__link shortlist__link--download">
+            <i class="icon icon--download" aria-hidden="true"></i>
+            <%= link(dgettext("page-shortlist", "Download"),
+                     to: @dataset.download_uri,
+                     role: "link") %>
+          </div>
+        <% end %>
+      </div>
+      <div>
+        <div class="shortlist__notice">
+          <span><%= dgettext("page-shortlist", "Territory") %></span>
+          <span class="badge-notice"><%= @dataset.spatial %></span>
+        </div>
+
+        <div class="shortlist-details">
+          <div class="shortlist__notice">
+            <span><%= dgettext("page-shortlist", "Licence") %></span>
+            <span class="badge-notice"><%= @dataset.license |> Licence.new |> Map.get(:name) %></span>
+          </div>
+
+          <div class="shortlist__notice">
+            <span><%= dgettext("page-shortlist", "Format") %></span>
+            <span class="badge-notice"><%= @dataset.format %></span>
+          </div>
+        </div>
+        <div>
+          <h2><%= dgettext("page-dataset-details", "GTFS Validation") %></h2>
+          <ul class="stats">
+            <li><span><%= dgettext("page-dataset-details", "Errors") %></span> <%= @nb_errors %></li>
+            <li><span><%= dgettext("page-dataset-details", "Warnings") %></span> <%= @nb_warnings %></li>
+            <li><span><%= dgettext("page-dataset-details", "Notices") %></span> <%= @nb_notices %></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="main-pan dataset-details__main-pan" id="description">
+      <div class="dataset-detail__markdown">
+        <markdown content="<%= @dataset.description %>"></markdown>
+      </div>
+      <div class="dataset-details__discussions">
+        <h1>Discussions</h1>
+        <discussions
+          datasetid="<%= @datasetid %>"
+          datagouvfrsite="<%= @datagouvfrsite %>"
+          connected="<%= @current_user != nil %>"
+          posted_on="<%= dgettext("page-dataset-details", "Posted on") %>"
+          respond_comment="<%= dgettext("page-dataset-details", "Respond") %>"
+          post_discussion="<%= dgettext("page-dataset-details", "Begin a new conversation") %>"
+          title="<%= dgettext("page-dataset-details", "Title") %>">
+        </discussions>
+      </div>
+    </div>
+  </div>
+</section>
