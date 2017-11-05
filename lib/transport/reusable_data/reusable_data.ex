@@ -29,6 +29,28 @@ defmodule Transport.ReusableData do
     |> Enum.map(&Dataset.new(&1))
   end
 
+
+  @doc """
+  Return one dataset.
+
+  ## Examples
+
+    iex> ResuableData.get_dataset("leningrad")
+    %Dataset{slug: "leningrad", title: "Leningrad metro dataset", ...]
+
+  """
+  @spec get_dataset(String.t) :: %Dataset{}
+  def get_dataset(slug) do
+    query = %{slug: slug}
+
+    :mongo
+    |> Mongo.find_one("datasets", query, pool: @pool)
+    |> case do
+      nil -> nil
+      dataset -> Dataset.new(dataset)
+    end
+  end
+
   @doc """
   Creates a dataset.
 
