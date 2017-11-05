@@ -8,9 +8,14 @@ defmodule TransportWeb.DatasetController do
     |> render("index.html")
   end
 
-  def details(conn, params) do
-    IO.inspect(params)
-
-    render conn, "details.html"
+  def details(conn, %{"slug" => slug}) do
+    slug
+    |> ReusableData.get_dataset()
+    |> case do
+      nil    -> render conn, "error.html"
+      dataset -> conn
+                 |> assign(:dataset, dataset)
+                 |> render("details.html")
+    end
   end
 end
