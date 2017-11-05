@@ -4,6 +4,7 @@ defmodule Transport.ReusableData do
   """
 
   alias Transport.ReusableData.Dataset
+  alias Transport.Datagouvfr.Client.Datasets
   alias Transport.DataValidator.CeleryTask
 
   @pool DBConnection.Poolboy
@@ -31,7 +32,7 @@ defmodule Transport.ReusableData do
   end
 
   @doc """
-  Return one dataset and its attached celery task.
+  Return dataset by slug and its attached celery task.
   """
   @spec get_dataset(String.t, atom) :: %Dataset{}
   def get_dataset(slug, :with_celery_task) do
@@ -42,7 +43,7 @@ defmodule Transport.ReusableData do
   end
 
   @doc """
-  Return one dataset.
+  Return one dataset by slug
 
       iex> ReusableData.create_dataset(%{slug: "leningrad-metro-dataset", anomalies: [], download_uri: "link.to"})
       iex> ReusableData.get_dataset("leningrad-metro-dataset")
@@ -105,5 +106,35 @@ defmodule Transport.ReusableData do
       {:ok, nil} -> {:error, :enodoc}
       {:ok, _}   -> :ok
     end
+  end
+
+  def get_dataset_id(conn, dataset) do
+    conn
+    |> Datasets.get(dataset.slug)
+    |> case do
+      {:ok, d}    -> d["id"]
+      {:error, _} -> nil
+    end
+  end
+
+  def count_errors(dataset) do
+    dataset.celery_task.result
+    |> Map.get("validations")
+    |> Map.get("errors")
+    |> Enum.count()
+  end
+
+  def count_warnings(dataset) do
+    dataset.celery_task.result
+    |> Map.get("validations")
+    |> Map.get("warnings")
+    |> Enum.count()
+  end
+
+  def count_notices(dataset) do
+    dataset.celery_task.result
+    |> Map.get("validations")
+    |> Map.get("notices")
+    |> Enum.count()
   end
 end
