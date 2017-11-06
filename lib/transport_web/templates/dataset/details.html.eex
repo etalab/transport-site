@@ -62,7 +62,8 @@
           posted_on="<%= dgettext("page-dataset-details", "Posted on") %>"
           respond_comment="<%= dgettext("page-dataset-details", "Respond") %>"
           post_discussion="<%= dgettext("page-dataset-details", "Begin a new conversation") %>"
-          title="<%= dgettext("page-dataset-details", "Title") %>">
+          title="<%= dgettext("page-dataset-details", "Title") %>"
+          connection_needed="<%= dgettext("page-dataset-details", "You need to be connected to post comments")%>">
         </discussions>
       </div>
     </div>
