@@ -15,10 +15,10 @@
         { comment.content }
       </div>
     </div>
-    <span if={ !opts.connected }>
+    <span if={ !connected() } class="discussion-commment__connection-needed">
       { opts.connection_needed }
     </span>
-    <a if={ opts.connected && !respond_comment_visible[discussion.id] } onclick={ show_respond_comment }>
+    <a if={ connected() && !respond_comment_visible[discussion.id] } onclick={ show_respond_comment }>
       { opts.respond_comment }
     </a>
     <form class="discussion-comment__form"
@@ -33,7 +33,7 @@
     </form>
   </div>
   <div class="discussion__post">
-    <a if={ opts.connected && !post_discussion_visible } onclick={ show_post_discussion }>
+    <a if={ connected() && !post_discussion_visible } onclick={ show_post_discussion }>
       { opts.post_discussion }
     </a>
     <form class="discussion__form"
@@ -62,6 +62,10 @@
         this.post_discussion_visible = false
     })
 
+    this.on('mount', () => {
+      this.update_discussions()
+    })
+
     this.show_respond_comment = (e) => {
       Object.keys(this.respond_comment_visible).map(
         k => { this.respond_comment_visible[k] = false}
@@ -73,10 +77,6 @@
     this.show_post_discussion = (e) => {
         this.post_discussion_visible = true
     }
-
-    this.on('mount', () => {
-      this.update_discussions()
-    })
 
     this.send_comment = (e) => {
       e.preventDefault()
@@ -137,6 +137,8 @@
         this.update()
       })
     }
+
+    this.connected = () => { (this.opts.connected == "true") }
 
   </script>
 </discussions>

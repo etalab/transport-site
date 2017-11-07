@@ -26,18 +26,22 @@ msgstr ""
 msgid "Warnings"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:62
+#: lib/transport_web/templates/dataset/details.html.eex:63
 msgid "Posted on"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:63
+#: lib/transport_web/templates/dataset/details.html.eex:64
 msgid "Respond"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:64
+#: lib/transport_web/templates/dataset/details.html.eex:65
 msgid "Begin a new conversation"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:65
+#: lib/transport_web/templates/dataset/details.html.eex:66
 msgid "Title"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:67
+msgid "You need to be connected to post comments"
 msgstr ""
