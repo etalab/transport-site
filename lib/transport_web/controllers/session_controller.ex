@@ -21,7 +21,7 @@ defmodule TransportWeb.SessionController do
         conn
         |> put_session(:current_user, user)
         |> put_session(:client, client)
-        |> redirect(to: user_path(conn, :organizations))
+        |> redirect(to: get_redirect_path(conn))
         |> halt()
       {:error, error} ->
         Logger.error(error)
@@ -37,5 +37,14 @@ defmodule TransportWeb.SessionController do
     |> configure_session(drop: true)
     |> redirect(to: page_path(conn, :index))
     |> halt()
+  end
+
+  #private functions
+
+  defp get_redirect_path(conn) do
+    case get_session(conn, :redirect_path) do
+      nil -> "/"
+      path -> path
+    end
   end
 end
