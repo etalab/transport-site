@@ -4,5 +4,16 @@ defmodule Transport.ReusableDataTest do
   alias Transport.ReusableData
   alias Transport.ReusableData.Dataset
 
+  setup_all do
+    ReusableData.create_dataset %{
+      title: "Leningrad metro dataset",
+      anomalies: [],
+      download_uri: "link.to",
+      slug: "leningrad-metro-dataset"
+    }
+
+    :ok
+  end
+
   doctest ReusableData
 end
