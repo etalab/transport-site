@@ -14,7 +14,6 @@ defmodule Transport.ReusableData do
 
   ## Examples
 
-      iex> ReusableData.create_dataset(%{title: "Leningrad metro dataset", anomalies: [], download_uri: "link.to"})
       iex> ReusableData.list_datasets()
       ...> |> List.first
       ...> |> Map.get(:title)
@@ -45,10 +44,10 @@ defmodule Transport.ReusableData do
   @doc """
   Return one dataset by slug
 
-      iex> ReusableData.create_dataset(%{slug: "leningrad-metro-dataset", anomalies: [], download_uri: "link.to"})
-      iex> ReusableData.get_dataset("leningrad-metro-dataset")
-      ...> |> Map.get(:slug)
-      "leningrad-metro-dataset"
+      iex> "leningrad-metro-dataset"
+      ...> |> ReusableData.get_dataset
+      ...> |> Map.get(:title)
+      "Leningrad metro dataset"
   """
   @spec get_dataset(String.t) :: %Dataset{}
   def get_dataset(slug) do
@@ -67,7 +66,8 @@ defmodule Transport.ReusableData do
 
   ## Examples
 
-      iex> ReusableData.create_dataset(%{title: "Saintes"})
+      iex> %{title: "Saintes"}
+      ...> |> ReusableData.create_dataset
       ...> |> Map.get(:title)
       "Saintes"
 
@@ -87,7 +87,8 @@ defmodule Transport.ReusableData do
 
   ## Examples
 
-      iex> ReusableData.create_dataset(%{title: "Creative title"})
+      iex> %{title: "Creative title"}
+      ...> |> ReusableData.create_dataset
       ...> |> ReusableData.update_dataset(%{title: "Lame title"})
       :ok
 
