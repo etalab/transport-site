@@ -34,6 +34,8 @@ defmodule TransportWeb.Router do
     scope "/user" do
       pipe_through [:authentication_required]
       get "/organizations/", UserController, :organizations
+      get "/organizations/form", UserController, :organization_form
+      post "/organizations/_create", UserController, :organization_create
       get "/organizations/:slug/datasets/", UserController, :organization_datasets
       get "/datasets/:slug/_add", UserController, :add_badge_dataset
     end

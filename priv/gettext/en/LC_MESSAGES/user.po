@@ -18,38 +18,63 @@ msgstr ""
 msgid "First step"
 msgstr ""
 
-#: lib/transport_web/templates/user/organizations.html.eex:3
+#: lib/transport_web/templates/user/organizations.html.eex:8
 msgid "Select an organization that publishes transport data"
 msgstr ""
 
-#: lib/transport_web/templates/user/organizations.html.eex:23
+#: lib/transport_web/templates/user/organizations.html.eex:19
 msgid "This organization publishes transport data"
 msgstr ""
 
-#: lib/transport_web/templates/user/organizations.html.eex:8
-msgid "You need an organization"
-msgstr ""
-
-#: lib/transport_web/templates/user/organization_datasets.html.eex:2
+#: lib/transport_web/templates/user/organization_datasets.html.eex:6
 msgid "Choose a dataset you want to be on transport.data.gouv.fr"
 msgstr ""
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:1
+#: lib/transport_web/templates/user/organization_datasets.html.eex:5
 msgid "Second step"
 msgstr ""
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:32
-msgid "You need to add a dataset on data.gouv.fr"
-msgstr ""
-
-#: lib/transport_web/templates/user/organization_datasets.html.eex:25
+#: lib/transport_web/templates/user/organization_datasets.html.eex:27
 msgid "Add this dataset"
 msgstr ""
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:9
+#: lib/transport_web/templates/user/organization_datasets.html.eex:13
 msgid "Organization"
 msgstr ""
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:5
+#: lib/transport_web/templates/user/organization_datasets.html.eex:9
 msgid "Go back to organizations list"
+msgstr ""
+
+#: lib/transport_web/templates/user/organization_form.html.eex:7
+#: lib/transport_web/templates/user/organizations.html.eex:5
+msgid "Create an organization"
+msgstr ""
+
+#: lib/transport_web/templates/user/organization_datasets.html.eex:34
+msgid "You need to add a dataset on data.gouv.fr"
+msgstr ""
+
+#: lib/transport_web/templates/user/organization_form.html.eex:16
+msgid "Organization's description"
+msgstr ""
+
+#: lib/transport_web/templates/user/organization_form.html.eex:11
+msgid "Organization's name"
+msgstr ""
+
+#: lib/transport_web/templates/user/organization_form.html.eex:22
+msgid "Create organization"
+msgstr ""
+
+#: lib/transport_web/controllers/user_controller.ex:38
+msgid "Organization added"
+msgstr ""
+
+#: lib/transport/datagouvfr/client/organizations.ex:76
+msgid "You need to provide an organisation description"
+msgstr ""
+
+#: lib/transport/datagouvfr/client/organizations.ex:70
+msgid "You need to provide an organisation name"
 msgstr ""

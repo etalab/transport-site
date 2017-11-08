@@ -1,0 +1,34 @@
+[
+  {
+    "request": {
+      "body": "null",
+      "headers": {
+        "accept": "application/json",
+        "authorization": "Bearer secret",
+        "x-fields": "avatar,avatar_thumbail,first_name,id,last_name,organizations,page,slug,uri,apikey,email"
+      },
+      "method": "get",
+      "options": [],
+      "request_body": "",
+      "url": "https://next.data.gouv.fr/api/1/me/"
+    },
+    "response": {
+      "body": "{\"apikey\": null, \"avatar\": null, \"email\": \"monaot@macommune.com\", \"first_name\": \"Mon AOT\", \"id\": \"59d787800b5b3901fd5497b0\", \"last_name\": \"Ma commune\", \"organizations\": [], \"page\": \"http://udata.transport/fr/users/mon-aot-ma-commune/\", \"slug\": \"mon-aot-ma-commune\", \"uri\": \"http://udata.transport/api/1/users/mon-aot-ma-commune/\"}",
+      "headers": {
+        "Server": "nginx/1.10.3 (Ubuntu)",
+        "Date": "Thu, 12 Oct 2017 09:34:42 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "749",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "HEAD, GET, PUT, OPTIONS, DELETE",
+        "Access-Control-Max-Age": "21600",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
+        "Set-Cookie": "session=cookie; Domain=.www.data.gouv.fr; HttpOnly; Path=/"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]
