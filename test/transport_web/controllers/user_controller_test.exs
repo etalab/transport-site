@@ -18,8 +18,9 @@ defmodule TransportWeb.UserControllerTest do
     end
 
     test "not logged in", %{conn: conn} do
-      conn = conn |> get(user_path(conn, :organizations))
-      assert redirected_to(conn, 302) == page_path(conn, :login)
+      path = user_path(conn, :organizations)
+      conn = conn |> get(path)
+      assert redirected_to(conn, 302) == page_path(conn, :login, redirect_path: path)
     end
   end
 
@@ -39,8 +40,9 @@ defmodule TransportWeb.UserControllerTest do
     end
 
     test "not logged in", %{conn: conn} do
-      conn = conn |> get(user_path(conn, :organization_datasets, "mon-aot"))
-      assert redirected_to(conn, 302) == page_path(conn, :login)
+      path = user_path(conn, :organization_datasets, "mon-aot")
+      conn = conn |> get(path)
+      assert redirected_to(conn, 302) == page_path(conn, :login, redirect_path: path)
     end
   end
 
@@ -58,8 +60,9 @@ defmodule TransportWeb.UserControllerTest do
     end
 
     test "not logged in", %{conn: conn} do
-      conn = conn |> get(user_path(conn, :add_badge_dataset, "le-plan-de-transport"))
-      assert redirected_to(conn, 302) == page_path(conn, :login)
+      path = user_path(conn, :add_badge_dataset, "le-plan-de-transport")
+      conn = conn |> get(path)
+      assert redirected_to(conn, 302) == page_path(conn, :login, redirect_path: path)
     end
   end
 end

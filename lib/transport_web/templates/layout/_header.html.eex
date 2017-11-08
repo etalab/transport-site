@@ -12,7 +12,7 @@
             <span><%= gettext "Sign Out" %></span>
           </a>
         <% else %>
-          <a class="navigation__link navigation__link--login" href="<%= page_path @conn, :login %>" role="link">
+          <a class="navigation__link navigation__link--login" href="<%= page_path @conn, :login, redirect_path: current_path(@conn) %>" role="link">
             <i class="icon icon--login" aria-hidden="true"></i>
             <span><%= gettext "Sign In" %></span>
           </a>

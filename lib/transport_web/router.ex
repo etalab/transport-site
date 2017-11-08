@@ -85,7 +85,8 @@ defmodule TransportWeb.Router do
       nil ->
         conn
         |> put_flash(:info, dgettext("alert", "You need to be connected before doing this."))
-        |> redirect(to: Helpers.page_path(conn, :login))
+        |> redirect(to: Helpers.page_path(conn, :login,
+                    redirect_path: current_path(conn)))
         |> halt()
       _ ->
         conn

@@ -26,22 +26,22 @@ msgstr "Astuces"
 msgid "Warnings"
 msgstr "Avertissements"
 
-#: lib/transport_web/templates/dataset/details.html.eex:63
+#: lib/transport_web/templates/dataset/details.html.eex:62
 msgid "Posted on"
 msgstr "le"
 
-#: lib/transport_web/templates/dataset/details.html.eex:64
+#: lib/transport_web/templates/dataset/details.html.eex:63
 msgid "Respond"
 msgstr "Répondre"
 
-#: lib/transport_web/templates/dataset/details.html.eex:65
+#: lib/transport_web/templates/dataset/details.html.eex:64
 msgid "Begin a new conversation"
 msgstr "Ouvrir une discussion"
 
-#: lib/transport_web/templates/dataset/details.html.eex:66
+#: lib/transport_web/templates/dataset/details.html.eex:65
 msgid "Title"
 msgstr "Titre"
 
-#: lib/transport_web/templates/dataset/details.html.eex:67
+#: lib/transport_web/templates/dataset/details.html.eex:66
 msgid "You need to be connected to post comments"
 msgstr "Vous devez être identifié pour écrire un commentaire."

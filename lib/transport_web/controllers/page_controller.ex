@@ -5,8 +5,10 @@ defmodule TransportWeb.PageController do
     render conn, "index.html"
   end
 
-  def login(conn, _) do
-    render conn, "login.html"
+  def login(conn, %{"redirect_path" => redirect_path}) do
+    conn
+    |> put_session(:redirect_path, redirect_path)
+    |> render("login.html")
   end
 
   def search_organizations(conn, _) do
