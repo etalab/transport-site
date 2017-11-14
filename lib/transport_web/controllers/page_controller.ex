@@ -2,7 +2,7 @@ defmodule TransportWeb.PageController do
   use TransportWeb, :controller
 
   def index(conn, _params) do
-    render conn, "index.html"
+    render(conn, "index.html")
   end
 
   def login(conn, %{"redirect_path" => redirect_path}) do
@@ -11,7 +11,7 @@ defmodule TransportWeb.PageController do
     |> render("login.html")
   end
 
-  def search_organizations(conn, _) do
-    render conn, "search_organizations.html"
+  def search_organizations(conn, _params) do
+    render(conn, "search_organizations.html")
   end
 end

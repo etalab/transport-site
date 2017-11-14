@@ -67,14 +67,14 @@ msgstr "Nom de l'organisation"
 msgid "Create organization"
 msgstr "Créer une organisation"
 
-#: lib/transport_web/controllers/user_controller.ex:38
+#: lib/transport_web/controllers/user_controller.ex:36
 msgid "Organization added"
 msgstr "Organisation ajoutée"
 
-#: lib/transport/datagouvfr/client/organizations.ex:76
+#: lib/transport/datagouvfr/client/organizations.ex:75
 msgid "You need to provide an organisation description"
 msgstr ""
 
-#: lib/transport/datagouvfr/client/organizations.ex:70
+#: lib/transport/datagouvfr/client/organizations.ex:69
 msgid "You need to provide an organisation name"
 msgstr ""
