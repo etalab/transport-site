@@ -1,0 +1,27 @@
+<section>
+  <%= if get_flash(@conn, :errors) do %>
+    <%= for error <- get_flash(@conn, :errors) do %>
+      <p class="message message--error"><%= error %></p>
+    <% end %>
+  <% end %>
+  <h1><%= dgettext("user", "Create an organization") %></h1>
+  <form action="<%= user_path(@conn, :organization_create) %>" method="POST">
+    <input type="hidden" name="_csrf_token" value="<%= get_csrf_token() %>">
+    <div class="form__group">
+      <label for="name"><%= dgettext("user", "Organization's name") %> <label>
+        <input type="text" name="name">
+    </div>
+    <div class="form__group">
+      <label for="description">
+        <%= dgettext("user", "Organization's description") %>
+      </label>
+      <textarea name="description"></textarea>
+    </div>
+    <div class="form__group">
+       <button class="button">
+        <%= dgettext("user", "Create organization") %>
+       </button>
+    </div>
+  </form>
+</section>
+

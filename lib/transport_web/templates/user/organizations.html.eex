@@ -1,30 +1,25 @@
 <section>
   <h1><%= dgettext("user", "First step") %></h1>
+  <div class="is-centered">
+    <a class="button" href="<%= user_path(@conn, :organization_form) %>">
+      <%= dgettext("user", "Create an organization") %>
+    </a>
+  </div>
   <h2><%= dgettext("user", "Select an organization that publishes transport data") %></h1>
 
   <div class="cards">
-    <%= if Enum.empty?(@organizations) do %>
-      <div class="card card--fullwidth">
-        <p><%= dgettext("user", "You need an organization") %></p>
-      </div>
-    <% else %>
-      <%= for organization <- @organizations do %>
-        <div class="card">
-          <div class="image">
-            <img src="<%= organization["logo"] %>" alt="<%= organization["name"]%>">
-          </div>
-
-          <div class="details">
-            <%= organization["name"] %>
-          </div>
-
-          <div>
-            <a href="<%= user_path(@conn, :organization_datasets, organization["slug"]) %>" class="button" role="link">
-              <%= dgettext("user", "This organization publishes transport data") %>
-            </a>
-          </div>
+    <%= for organization <- @organizations do %>
+      <div class="card">
+        <div class="image">
+          <img src="<%= organization["logo"] %>" alt="<%= organization["name"]%>">
         </div>
-      <% end %>
+
+        <div>
+          <a href="<%= user_path(@conn, :organization_datasets, organization["slug"]) %>" class="button" role="link">
+            <%= dgettext("user", "This organization publishes transport data") %>
+          </a>
+        </div>
+      </div>
     <% end %>
   </div>
 </section>

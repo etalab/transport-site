@@ -9,6 +9,8 @@ defmodule TransportWeb.UserController do
     conn
     |> User.me
     |> case do
+     {:ok, %{"organizations" => []}} ->
+        redirect(conn, to: user_path(conn, :organization_form))
      {:ok, response} ->
        conn
        |> assign(:organizations, response["organizations"])
@@ -18,6 +20,30 @@ defmodule TransportWeb.UserController do
        conn
        |> put_status(:internal_server_error)
        |> render(ErrorView, "500.html")
+    end
+  end
+
+  def organization_form(conn, _params) do
+    render conn, "organization_form.html"
+  end
+
+  def organization_create(conn, params) do
+    conn
+    |> Organizations.post(params)
+    |> case do
+      {:ok, response} ->
+        conn
+        |> put_flash(:info, dgettext("user", "Organization added"))
+        |> redirect(to: user_path(conn, :organization_datasets, response["slug"]))
+      {:error, error} ->
+        Logger.error(error)
+        conn
+        |> put_status(:internal_server_error)
+        |> render(ErrorView, "500.html")
+      {:validation_error, errors} ->
+        conn
+        |> put_flash(:errors, errors)
+        |> redirect(to: user_path(conn, :organization_form))
     end
   end
 

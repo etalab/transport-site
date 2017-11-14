@@ -3,7 +3,9 @@ defmodule Transport.Datagouvfr.Client.Organizations do
   An API client for data.gouv.fr organizations
   """
 
-  import Transport.Datagouvfr.Client, only: [get_request: 2, get_request: 4]
+  import Transport.Datagouvfr.Client, only: [get_request: 2, get_request: 4,
+                                             post_request: 3]
+  import TransportWeb.Gettext
   alias Transport.Datagouvfr.Client.Datasets
 
   @endpoint "organizations"
@@ -52,5 +54,28 @@ defmodule Transport.Datagouvfr.Client.Organizations do
 
   def get(%Plug.Conn{} = _, {:error, error}, _, _) do
     {:error, error}
+  end
+
+  def post(%Plug.Conn{} = conn, %{"name"        => name,
+                                  "description" => description} = params)
+    when name != "" and description != "" do
+    conn
+    |> post_request("/organizations/", params)
+  end
+
+  def post(%Plug.Conn{} = _conn, params) do
+    errors =
+      if not Map.has_key?(params, "name") or params["name"] == "" do
+        [dgettext("user", "You need to provide an organisation name")]
+      else
+        []
+      end
+    errors =
+      if not Map.has_key?(params, "description") or params["description"] == "" do
+        errors ++ [dgettext("user", "You need to provide an organisation description")]
+      else
+        errors
+      end
+    {:validation_error, errors}
   end
 end

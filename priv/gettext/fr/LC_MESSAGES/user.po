@@ -18,38 +18,63 @@ msgstr "Votre fichier va maintenant être vérifié avant d'être ajouté."
 msgid "First step"
 msgstr "Première étape"
 
-#: lib/transport_web/templates/user/organizations.html.eex:3
+#: lib/transport_web/templates/user/organizations.html.eex:8
 msgid "Select an organization that publishes transport data"
 msgstr "Sélectionner une organisation publiant des données transport"
 
-#: lib/transport_web/templates/user/organizations.html.eex:23
+#: lib/transport_web/templates/user/organizations.html.eex:19
 msgid "This organization publishes transport data"
 msgstr "Cette organisation publie des données transport"
 
-#: lib/transport_web/templates/user/organizations.html.eex:8
-msgid "You need an organization"
-msgstr "Vous devez appartenir à une organisation"
-
-#: lib/transport_web/templates/user/organization_datasets.html.eex:2
+#: lib/transport_web/templates/user/organization_datasets.html.eex:6
 msgid "Choose a dataset you want to be on transport.data.gouv.fr"
 msgstr "Choisissez un jeu de données que vous voulez publier sur transport.data.gouv.fr"
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:1
+#: lib/transport_web/templates/user/organization_datasets.html.eex:5
 msgid "Second step"
 msgstr "Deuxième étape"
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:32
-msgid "You need to add a dataset on data.gouv.fr"
-msgstr "Vous devez publier le jeu de données sur data.gouv.fr avant"
-
-#: lib/transport_web/templates/user/organization_datasets.html.eex:25
+#: lib/transport_web/templates/user/organization_datasets.html.eex:27
 msgid "Add this dataset"
 msgstr "Ajouter ce jeu de données"
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:9
+#: lib/transport_web/templates/user/organization_datasets.html.eex:13
 msgid "Organization"
 msgstr "Organisation"
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:5
+#: lib/transport_web/templates/user/organization_datasets.html.eex:9
 msgid "Go back to organizations list"
 msgstr "Revenir à la liste des organisations"
+
+#: lib/transport_web/templates/user/organization_form.html.eex:7
+#: lib/transport_web/templates/user/organizations.html.eex:5
+msgid "Create an organization"
+msgstr "Créer une organisation"
+
+#: lib/transport_web/templates/user/organization_datasets.html.eex:34
+msgid "You need to add a dataset on data.gouv.fr"
+msgstr "Vous devez ajouter un jeu de données"
+
+#: lib/transport_web/templates/user/organization_form.html.eex:16
+msgid "Organization's description"
+msgstr "Description de l'organisation"
+
+#: lib/transport_web/templates/user/organization_form.html.eex:11
+msgid "Organization's name"
+msgstr "Nom de l'organisation"
+
+#: lib/transport_web/templates/user/organization_form.html.eex:22
+msgid "Create organization"
+msgstr "Créer une organisation"
+
+#: lib/transport_web/controllers/user_controller.ex:38
+msgid "Organization added"
+msgstr "Organisation ajoutée"
+
+#: lib/transport/datagouvfr/client/organizations.ex:76
+msgid "You need to provide an organisation description"
+msgstr ""
+
+#: lib/transport/datagouvfr/client/organizations.ex:70
+msgid "You need to provide an organisation name"
+msgstr ""

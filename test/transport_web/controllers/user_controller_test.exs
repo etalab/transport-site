@@ -3,6 +3,7 @@ defmodule TransportWeb.UserControllerTest do
   use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
   import Plug.Test
   alias Transport.Datagouvfr.Authentication
+  import TransportWeb.Gettext
 
   doctest TransportWeb.UserController
 
@@ -19,6 +20,34 @@ defmodule TransportWeb.UserControllerTest do
 
     test "not logged in", %{conn: conn} do
       path = user_path(conn, :organizations)
+      conn = conn |> get(path)
+      assert redirected_to(conn, 302) == page_path(conn, :login, redirect_path: path)
+    end
+
+    test "user with no organisation", %{conn: conn} do
+      use_cassette "user/user-without-organization-3" do
+        conn = conn
+        |> init_test_session(current_user: %{}, client: Authentication.client("secret"))
+        |> get(user_path(conn, :organizations))
+
+        assert redirected_to(conn, 302) == user_path(conn, :organization_form)
+      end
+    end
+  end
+
+  describe "GET /user/organizations/form" do
+    test "logged in", %{conn: conn} do
+      use_cassette "user/organizations-0" do
+        conn = conn
+        |> init_test_session(current_user: %{}, client: Authentication.client("secret"))
+        |> get(user_path(conn, :organization_form))
+
+        assert html_response(conn, 200) =~ "<form"
+      end
+    end
+
+    test "not logged in", %{conn: conn} do
+      path = user_path(conn, :organization_form)
       conn = conn |> get(path)
       assert redirected_to(conn, 302) == page_path(conn, :login, redirect_path: path)
     end
@@ -64,5 +93,77 @@ defmodule TransportWeb.UserControllerTest do
       conn = conn |> get(path)
       assert redirected_to(conn, 302) == page_path(conn, :login, redirect_path: path)
     end
+  end
+
+  describe "POST /user/organizations/_create" do
+    test "logged in", %{conn: conn} do
+      use_cassette "user/organization-create-4" do
+        conn = conn
+        |> init_test_session(current_user: %{}, client: Authentication.client("secret"))
+        |> post(user_path(conn, :organization_create, name: "name", description: "description"))
+        assert redirected_to(conn, 302) == user_path(conn, :organization_datasets, "name")
+      end
+    end
+
+    test "not logged in", %{conn: conn} do
+      path = user_path(conn, :organization_create, %{"name" => "", "description" => ""})
+      conn = conn |> post(path)
+      assert redirected_to(conn, 302) == page_path(conn, :login, redirect_path: path)
+    end
+
+    test "name field missing", %{conn: conn} do
+      conn = conn
+      |> init_test_session(current_user: %{}, client: Authentication.client("secret"))
+      |> post(user_path(conn, :organization_create, description: "description"))
+      assert redirected_to(conn, 302) == user_path(conn, :organization_form)
+
+      conn = conn
+      |> get(user_path(conn, :organization_form))
+      assert html_response(conn, 200) =~ dgettext("user", "You need to provide an organisation name")
+      assert false == (html_response(conn, 200) =~ dgettext("user", "You need to provide an organisation description"))
+    end
+
+    test "description field missing", %{conn: conn} do
+      conn =
+      conn
+      |> init_test_session(current_user: %{}, client: Authentication.client("secret"))
+      |> post(user_path(conn, :organization_create, name: "name"))
+      assert redirected_to(conn, 302) == user_path(conn, :organization_form)
+
+      conn =
+      conn
+      |> get(user_path(conn, :organization_form))
+      assert false == (html_response(conn, 200) =~ dgettext("user", "You need to provide an organisation name"))
+      assert html_response(conn, 200) =~ dgettext("user", "You need to provide an organisation description")
+    end
+
+    test "name field is empty", %{conn: conn} do
+      conn =
+      conn
+      |> init_test_session(current_user: %{}, client: Authentication.client("secret"))
+      |> post(user_path(conn, :organization_create, name: "", description: "description"))
+      assert redirected_to(conn, 302) == user_path(conn, :organization_form)
+
+      conn =
+      conn
+      |> get(user_path(conn, :organization_form))
+      assert html_response(conn, 200) =~ dgettext("user", "You need to provide an organisation name")
+      assert false == (html_response(conn, 200) =~ dgettext("user", "You need to provide an organisation description"))
+    end
+
+    test "description field is empty", %{conn: conn} do
+      conn =
+      conn
+      |> init_test_session(current_user: %{}, client: Authentication.client("secret"))
+      |> post(user_path(conn, :organization_create, name: "name", description: ""))
+      assert redirected_to(conn, 302) == user_path(conn, :organization_form)
+
+      conn =
+      conn
+      |> get(user_path(conn, :organization_form))
+      assert false == (html_response(conn, 200) =~ dgettext("user", "You need to provide an organisation name"))
+      assert html_response(conn, 200) =~ dgettext("user", "You need to provide an organisation description")
+    end
+
   end
 end
