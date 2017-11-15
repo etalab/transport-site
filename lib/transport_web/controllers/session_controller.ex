@@ -8,7 +8,7 @@ defmodule TransportWeb.SessionController do
   require Logger
 
   def new(conn, _) do
-    redirect conn, external: Authentication.authorize_url!()
+    redirect(conn, external: Authentication.authorize_url!)
   end
 
   def create(conn, %{"code" => code}) do
@@ -19,7 +19,7 @@ defmodule TransportWeb.SessionController do
     |> case do
       {:ok, user} ->
         conn
-        |> put_session(:current_user, user)
+        |> put_session(:current_user, user_params(user))
         |> put_session(:client, client)
         |> redirect(to: get_redirect_path(conn))
         |> halt()
@@ -40,6 +40,10 @@ defmodule TransportWeb.SessionController do
   end
 
   #private functions
+
+  defp user_params(%{} = user) do
+    Map.take(user, ["id", "apikey", "email", "first_name", "last_name"])
+  end
 
   defp get_redirect_path(conn) do
     case get_session(conn, :redirect_path) do
