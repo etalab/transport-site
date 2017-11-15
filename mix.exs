@@ -47,6 +47,7 @@ defmodule Transport.Mixfile do
       {:phoenix_pubsub, "~> 1.0"},
       {:poolboy, ">= 0.0.0"},
       {:uuid, "~> 1.1"},
+      {:vex, "~> 0.6"},
       {:eye_drops, "~> 1.3", only: :dev},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:exvcr, "~> 0.8", only: :test},
