@@ -31,11 +31,6 @@ msgstr "Conditions d'utilisation"
 msgid "Publish, improve and reuse French public transport data"
 msgstr "Rendre disponible, valoriser et améliorer les données transports"
 
-#: lib/transport_web/templates/layout/_header.html.eex:4
-#: lib/transport_web/templates/layout/app.html.eex:11
-msgid "transport.beta.gouv.fr"
-msgstr ""
-
 #: lib/transport_web/templates/layout/_footer.html.eex:6
 msgid "Ask help"
 msgstr "Demander de l'aide"
@@ -59,3 +54,9 @@ msgstr "Il y a eu une erreur réessayez."
 #: lib/transport_web/templates/layout/_footer.html.eex:4
 msgid "Your email has been sent, we will contact you soon"
 msgstr "Votre email a été envoyé, nous vous recontacterons prochainement."
+
+#, fuzzy
+#: lib/transport_web/templates/layout/_header.html.eex:4
+#: lib/transport_web/templates/layout/app.html.eex:11
+msgid "transport.data.gouv.fr"
+msgstr ""

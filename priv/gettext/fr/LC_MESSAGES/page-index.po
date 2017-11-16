@@ -18,10 +18,6 @@ msgstr "Ouvrir et réutiliser les données transports"
 msgid "Reuse this data"
 msgstr "Réutiliser ces données"
 
-#: lib/transport_web/templates/page/index.html.eex:12
-msgid "What is transport.beta.gouv.fr?"
-msgstr "Qu'est-ce que transport.beta.gouv.fr ?"
-
 #: lib/transport_web/templates/page/index.html.eex:18
 msgid "Publish my data"
 msgstr "Ouvrir des données"
@@ -33,3 +29,8 @@ msgstr "La plateforme de **diffusion des données ouvertes de transport** pour s
 #: lib/transport_web/templates/page/index.html.eex:22
 msgid "Reuse data"
 msgstr "Réutiliser des données"
+
+#, fuzzy
+#: lib/transport_web/templates/page/index.html.eex:12
+msgid "What is transport.data.gouv.fr?"
+msgstr "Qu'est-ce que transport.data.gouv.fr ?"

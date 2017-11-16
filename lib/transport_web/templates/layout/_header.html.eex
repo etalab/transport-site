@@ -1,7 +1,7 @@
 <header class="layout-header" role="banner">
   <div class="header__container">
     <div class="header__logo">
-      <%= link(img_tag("/images/logo-header.svg", alt: gettext("transport.beta.gouv.fr")), to: "/") %>
+      <%= link(img_tag("/images/logo-header.svg", alt: gettext("transport.data.gouv.fr")), to: "/") %>
     </div>
 
     <nav role="navigation">
