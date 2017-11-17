@@ -42,13 +42,15 @@ defmodule Transport.Datagouvfr.Client.DatasetsTest do
 
   test "post dataset" do
     use_cassette "client/datasets/post-4" do
+      params = %{
+        "description"  => "desc",
+        "frequency"    => "monthly",
+        "licence"      => "ODbl",
+        "organization" => "name-2",
+        "title"        => "title"
+      }
       conn = build_conn() |> assign(:client, Authentication.client("secret"))
-      assert {:ok, dataset} = Client.Datasets.post(conn,
-                                            %{"description"  => "desc",
-                                              "frequency"    => "monthly",
-                                              "licence"      => "ODbl",
-                                              "organization" => "name-2",
-                                              "title"        => "title"})
+      assert {:ok, dataset} = Client.Datasets.post(conn, params)
       assert dataset |> Map.get("title") =~ "title"
     end
   end

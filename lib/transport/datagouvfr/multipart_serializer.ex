@@ -1,6 +1,6 @@
 defmodule Transport.Datagouvfr.MultipartSerializer do
   @moduledoc """
-    Use to encode multipart/form-data body of requests
+  Use to encode multipart/form-data body of requests
   """
   def encode!({name, %Plug.Upload{} = file}) do
     {

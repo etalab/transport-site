@@ -34,15 +34,15 @@ msgstr ""
 msgid "Second step"
 msgstr ""
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:27
+#: lib/transport_web/templates/user/organization_datasets.html.eex:33
 msgid "Add this dataset"
 msgstr ""
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:13
+#: lib/transport_web/templates/user/organization_datasets.html.eex:19
 msgid "Organization"
 msgstr ""
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:9
+#: lib/transport_web/templates/user/organization_datasets.html.eex:15
 msgid "Go back to organizations list"
 msgstr ""
 
@@ -51,7 +51,7 @@ msgstr ""
 msgid "Create an organization"
 msgstr ""
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:34
+#: lib/transport_web/templates/user/organization_datasets.html.eex:40
 msgid "You need to add a dataset on data.gouv.fr"
 msgstr ""
 
@@ -77,4 +77,12 @@ msgstr ""
 
 #: lib/transport/datagouvfr/client/organizations.ex:69
 msgid "You need to provide an organisation name"
+msgstr ""
+
+#: lib/transport_web/templates/user/organization_datasets.html.eex:10
+msgid "Upload a new dataset"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/form.html.eex:50
+msgid "Upload dataset"
 msgstr ""

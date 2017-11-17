@@ -98,7 +98,8 @@ defmodule Transport.Datagouvfr.Client.Datasets do
   @doc """
   Post a dataset
   """
-  @spec post(%Plug.Conn{}, map) :: {atom, %Datasets{}} | {:error, atom} | {:validation_error, [String.t]}
+  @spec post(%Plug.Conn{}, map)
+    :: {atom, %Datasets{}} | {:error, atom} | {:validation_error, [String.t]}
   def post(%Plug.Conn{} = conn, %{} = params)
   do
     params
