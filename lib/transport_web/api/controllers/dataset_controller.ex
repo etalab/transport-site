@@ -3,6 +3,10 @@ defmodule TransportWeb.API.DatasetController do
   alias Transport.ReusableData
 
   def index(conn, _params) do
-    render(conn, "index.jsonapi", data: ReusableData.list_datasets)
+    render(conn, data: ReusableData.list_datasets)
+  end
+
+  def show(conn, %{"slug" => slug}) do
+    render(conn, data: ReusableData.get_dataset(slug))
   end
 end
