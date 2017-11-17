@@ -9,9 +9,20 @@ use Mix.Config
 config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
-  render_errors: [view: TransportWeb.ErrorView, accepts: ~w(html json)],
+  render_errors: [view: TransportWeb.ErrorView, accepts: ~w(html json jsonapi)],
   pubsub: [name: Transport.PubSub,
            adapter: Phoenix.PubSub.PG2]
+
+# Configures format encoders
+config :phoenix, :format_encoders,
+  html: Phoenix.Template.HTML,
+  json: Poison,
+  jsonapi: Poison
+
+# Configures MIME types
+config :mime, :types, %{
+  "application/vnd.api+json" => ["jsonapi"]
+}
 
 # Configures Elixir's Logger
 config :logger, :console,

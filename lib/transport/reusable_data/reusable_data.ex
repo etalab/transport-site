@@ -22,7 +22,11 @@ defmodule Transport.ReusableData do
   """
   @spec list_datasets() :: [%Dataset{}]
   def list_datasets do
-    query = %{anomalies: [], download_uri: %{"$ne" => nil}}
+    query = %{
+      anomalies: [],
+      coordinates: %{"$ne" => nil},
+      download_uri: %{"$ne" => nil},
+    }
 
     :mongo
     |> Mongo.find("datasets", query, pool: @pool)

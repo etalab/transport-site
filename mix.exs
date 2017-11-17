@@ -20,7 +20,7 @@ defmodule Transport.Mixfile do
   def application do
     [
       mod: {Transport.Application, []},
-      extra_applications: [:logger, :oauth2, :amqp, :mongodb, :poolboy]
+      extra_applications: [:logger, :oauth2, :amqp, :mongodb, :poolboy, :mime]
     ]
   end
 
@@ -38,6 +38,8 @@ defmodule Transport.Mixfile do
       {:earmark, "~> 1.2"},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 0.13"},
+      {:ja_serializer, "~> 0.12.0"},
+      {:mime, "~> 1.1.0"},
       {:mongodb, ">= 0.0.0"},
       {:oauth2, "~> 0.9"},
       {:phoenix, "~> 1.3"},
