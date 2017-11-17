@@ -121,7 +121,7 @@
 
 
     this.update_discussions = () => {
-      fetch(this.opts.datagouvfrsite + '/api/1/discussions/?for=' + this.opts.datasetid,
+      fetch(this.opts.site + '/api/1/discussions/?for=' + this.opts.datasetid,
         {method: 'GET',
          mode: 'cors'
       }).then(response => {

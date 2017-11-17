@@ -1,5 +1,6 @@
 defmodule TransportWeb.API.DatasetControllerTest do
   use TransportWeb.ConnCase
+  use TransportWeb.CleanupCase, cleanup: ["datasets"]
   alias Transport.ReusableData
 
   setup do

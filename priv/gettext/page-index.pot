@@ -14,22 +14,18 @@ msgstr ""
 msgid "Publish and reuse public transport data"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:8
-msgid "Reuse this data"
-msgstr ""
-
-#: lib/transport_web/templates/page/index.html.eex:18
+#: lib/transport_web/templates/page/index.html.eex:14
 msgid "Publish my data"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:13
+#: lib/transport_web/templates/page/index.html.eex:9
 msgid "The single entry point for publication and reuse of public transport data, allowing to make people lives better."
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:22
+#: lib/transport_web/templates/page/index.html.eex:18
 msgid "Reuse data"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:12
+#: lib/transport_web/templates/page/index.html.eex:8
 msgid "What is transport.data.gouv.fr?"
 msgstr ""

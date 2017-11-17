@@ -18,7 +18,9 @@ defmodule TransportWeb.ReuseDataTest do
       download_uri: "https://link.to/angers.zip",
       license: "odc-odbl",
       title: "Angers GTFS",
-      anomalies: []
+      anomalies: [],
+      coordinates: [1.0, 1.0],
+      slug: "angers-gtfs"
     }
 
     :ok
@@ -30,11 +32,11 @@ defmodule TransportWeb.ReuseDataTest do
     |> page_url(:index)
     |> navigate_to
 
-    click({:css, "svg > g > path"})
+    click({:class, "leaflet-marker-icon"})
 
     find_element(:class, "map__link")
     |> attribute_value("href")
-    |> Kernel.=~("mailto:contact@transport.beta.gouv.fr")
+    |> Kernel.=~("/datasets/angers-gtfs")
     |> assert
   end
 

@@ -56,8 +56,8 @@
       <div class="dataset-details__discussions">
         <h1>Discussions</h1>
         <discussions
-          datasetid="<%= @datasetid %>"
-          datagouvfrsite="<%= @datagouvfrsite %>"
+          datasetid="<%= @dataset_id %>"
+          site="<%= @site %>"
           connected="<%= @current_user != nil %>"
           posted_on="<%= dgettext("page-dataset-details", "Posted on") %>"
           respond_comment="<%= dgettext("page-dataset-details", "Respond") %>"
