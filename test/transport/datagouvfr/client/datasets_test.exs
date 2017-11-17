@@ -52,4 +52,15 @@ defmodule Transport.Datagouvfr.Client.DatasetsTest do
       assert dataset |> Map.get("title") =~ "title"
     end
   end
+
+  test "upload resource" do
+    use_cassette "client/datasets/upload_resource-5" do
+      upload = %Plug.Upload{path: "test/fixture/files/gtfs.zip",
+                            filename: "gtfs.zip"}
+      conn = build_conn() |> assign(:client, Authentication.client("secret"))
+      assert {:ok, dataset} = Client.Datasets.upload_resource(conn,
+                              "un-nouveau-jeu-6", upload)
+      assert dataset |> Map.get("title") =~ "gtfs.zip"
+    end
+  end
 end
