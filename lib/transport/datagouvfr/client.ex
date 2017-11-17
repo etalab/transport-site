@@ -20,7 +20,7 @@ defmodule Transport.Datagouvfr.Client do
                     OAuth2Client.headers, Keyword.t)
                     :: {:ok, Response.t} | {:error, Error.t}
   def put_request(%Plug.Conn{} = conn, url, body \\ "", headers \\ [], opts \\ []) do
-    headers = [{"content-type", "application/json"} | headers]
+    headers = default_content_type(headers)
     :put
     |> Transport.Datagouvfr.Client.request(conn, url, body, headers, opts)
   end
@@ -29,7 +29,7 @@ defmodule Transport.Datagouvfr.Client do
                     OAuth2Client.headers, Keyword.t)
                     :: {:ok, Response.t} | {:error, Error.t}
   def post_request(%Plug.Conn{} = conn, url, body \\ "", headers \\ [], opts \\ []) do
-    headers = [{"content-type", "application/json"} | headers]
+    headers = default_content_type(headers)
     :post
     |> Transport.Datagouvfr.Client.request(conn, url, body, headers, opts)
   end
@@ -89,5 +89,19 @@ defmodule Transport.Datagouvfr.Client do
       "/" -> path
       _ -> path <> "/"
     end
+  end
+
+  defp default_content_type(headers) do
+    case Enum.any?(headers, &content_type?(&1)) do
+      true -> headers
+      false -> [{"content-type", "application/json"} | headers]
+    end
+  end
+
+  defp content_type?(header) do
+    header
+    |> elem(0)
+    |> String.downcase
+    |> Kernel.==("content-type")
   end
 end
