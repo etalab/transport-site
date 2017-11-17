@@ -6,7 +6,7 @@
     { opts.mail_error }
   </div>
   <div>
-    <a href="#"onclick={toggleVisibility}><div class="footer-help__round" if={ roundVisible }>?</div></a>
+    <a href="#" onclick={toggleVisibility}><div class="footer-help__round" if={ roundVisible }>?</div></a>
     <div class="footer-help__contact" if={ contactVisible }>
       <a class="footer-help__contact--close" onclick={toggleVisibility}>{ opts.close }</a>
       <div class="footer-help__contact--header">
@@ -47,6 +47,7 @@
 
     let headers = new Headers()
     headers.append("X-CSRF-TOKEN", document.querySelector("meta[name=csrf]").content)
+    headers.append("Accept", "application/json")
     fetch("/send_mail", {
       method: "POST",
       body: form,

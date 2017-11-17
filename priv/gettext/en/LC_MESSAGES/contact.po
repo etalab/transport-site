@@ -8,12 +8,8 @@
 ## to merge POT files into PO files.
 msgid ""
 msgstr ""
-"Language: fr\n"
+"Language: en\n"
 
-#: lib/transport_web/router.ex:101
-msgid "You need to be connected before doing this."
-msgstr "Vous devez être préalablement connecté·e."
-
-#: lib/transport_web/controllers/session_controller.ex:29
-msgid "An error occured, please try again"
-msgstr "Une erreur est survenue, veuillez réessayer"
+#: lib/transport_web/controllers/contact_controller.ex:13
+msgid "Message sent, we will contact you soon."
+msgstr ""

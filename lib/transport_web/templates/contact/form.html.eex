@@ -1,0 +1,19 @@
+<section>
+  <div>
+    <div>
+      <div class="footer-help__contact--header">
+        <h1>Contact</h1>
+      </div>
+      <form method="POST" action="<%= contact_path(@conn, :send_mail) %>">
+        <input type="hidden" name="_csrf_token" value="<%= get_csrf_token() %>">
+        <div class="form__group">
+          <input type="email" value="" ref="email" id="email" placeholder="<%= gettext("Email address") %>">
+        </div>
+        <div class="form__group">
+          <textarea placeholder="<%= gettext("Ask help") %>" ref="demande" id="demande"></textarea>
+        </div>
+        <button><%= gettext("Send email") %></button>
+      </form>
+    </div>
+  </div>
+</section>

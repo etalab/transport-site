@@ -25,6 +25,7 @@ defmodule TransportWeb.Router do
     get "/", PageController, :index
     get "/search_organizations", PageController, :search_organizations
     post "/send_mail", ContactController, :send_mail
+    get "/contact", ContactController, :form
 
     scope "/datasets" do
       get "/", DatasetController, :index
