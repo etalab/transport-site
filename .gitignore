@@ -19,9 +19,6 @@ erl_crash.dump
 /priv/static/fonts
 /priv/static/images
 
-# For now, we'll be ignoring data files.
-/priv/static/data/aots
-
 # Environment varabiables files
 /.env
 /.envrc
