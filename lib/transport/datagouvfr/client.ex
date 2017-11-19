@@ -46,6 +46,7 @@ defmodule Transport.Datagouvfr.Client do
   def request(method, %Plug.Conn{} = conn, url, body, headers, opts) do
     client = get_client(conn)
     url = process_url(url)
+    opts = Keyword.put(opts, :timeout, 15_000)
     method
     |> Request.request(client, url, body, headers, opts)
     |> post_process_request()
