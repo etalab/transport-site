@@ -1,7 +1,7 @@
 [
   {
     "request": {
-      "body": "client_id=1&client_secret=secret&code=secret&grant_type=authorization_code&redirect_uri=http%3A%2F%2Ftransport.beta.gouv.fr%2Flogin%2Fcallback",
+      "body": "client_id=1&client_secret=secret&code=secret&grant_type=authorization_code&redirect_uri=http%3A%2F%2Ftransport.data.gouv.fr%2Flogin%2Fcallback",
       "headers": {
         "content-type": "application/x-www-form-urlencoded",
         "accept": "application/json"

@@ -8,7 +8,7 @@
     <meta name="author" content="Mauko Quiroga">
     <meta name="csrf" content="<%= get_csrf_token() %>">
 
-    <title><%= gettext "transport.beta.gouv.fr" %></title>
+    <title><%= gettext "transport.data.gouv.fr" %></title>
     <link rel="stylesheet" media="all" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
 

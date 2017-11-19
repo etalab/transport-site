@@ -31,11 +31,6 @@ msgstr ""
 msgid "Publish, improve and reuse French public transport data"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_header.html.eex:4
-#: lib/transport_web/templates/layout/app.html.eex:11
-msgid "transport.beta.gouv.fr"
-msgstr ""
-
 #: lib/transport_web/templates/layout/_footer.html.eex:6
 msgid "Ask help"
 msgstr ""
@@ -58,4 +53,10 @@ msgstr ""
 
 #: lib/transport_web/templates/layout/_footer.html.eex:4
 msgid "Your email has been sent, we will contact you soon"
+msgstr ""
+
+#, fuzzy
+#: lib/transport_web/templates/layout/_header.html.eex:4
+#: lib/transport_web/templates/layout/app.html.eex:11
+msgid "transport.data.gouv.fr"
 msgstr ""

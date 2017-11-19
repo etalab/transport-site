@@ -8,7 +8,7 @@
   </footer-help>
   <div class="footer__container">
     <div class="footer__logo">
-      <%= link(img_tag("/images/logo-footer.svg", alt: "transport.beta.gouv.fr"), to: "/") %>
+      <%= link(img_tag("/images/logo-footer.svg", alt: "transport.data.gouv.fr"), to: "/") %>
     </div>
 
     <ul class="footer__links">

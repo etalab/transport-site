@@ -4,12 +4,12 @@
   <div class="hero__container">
     <map class="hero__column",
          link-class='map__link map__link--reuse'
-         link-href='mailto:contact@transport.beta.gouv.fr'
+         link-href='mailto:<%= @contact_email %>'
          link-text='<%= dgettext("page-index", "Reuse this data") %>'>
     </map>
 
     <div class="hero__column">
-      <h1><%= dgettext("page-index", "What is transport.beta.gouv.fr?") %></h1>
+      <h1><%= dgettext("page-index", "What is transport.data.gouv.fr?") %></h1>
       <markdown content='<%= dgettext("page-index", "The single entry point for publication and reuse of public transport data, allowing to make people lives better.") %>'></markdown>
 
       <div class="hero__links is-centered">
