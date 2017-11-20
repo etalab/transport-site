@@ -32,7 +32,7 @@ defmodule TransportWeb.ReuseDataTest do
     |> page_url(:index)
     |> navigate_to
 
-    click({:class, "leaflet-marker-icon"})
+    click({:css, "svg > g > path"})
 
     find_element(:class, "map__link")
     |> attribute_value("href")

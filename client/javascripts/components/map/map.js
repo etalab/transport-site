@@ -53,7 +53,14 @@ export const addMap = (id, featuresUrl, opts) => {
         .then(response => {
             const geoJSON = Leaflet.geoJSON(features(response.data), {
                 pointToLayer: (feature, latlng) => {
-                    return Leaflet.marker(latlng).bindPopup(
+                    return Leaflet.circleMarker(latlng, {
+                        color: '#B5E28C',
+                        opacity: 0.6,
+                        fillColor: '#6ECC39',
+                        fillOpacity: 0.7,
+                        weight: 10,
+                        radius: 13
+                    }).bindPopup(
                         `<a class="${opts.linkClass}" role="link" href="${feature.properties.link}">
                             ${feature.properties.title}
                         </a>`
