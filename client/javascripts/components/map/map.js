@@ -1,4 +1,5 @@
 import Leaflet from 'leaflet'
+import 'leaflet.markercluster'
 
 /**
  * Represents a Mapbox object.
@@ -18,8 +19,27 @@ const Mapbox = {
  * @param  {String} featuresUrl Url exposing a {FeatureCollection}.
  */
 export const addMap = (id, featuresUrl, opts) => {
-    const map   = Leaflet.map(id).setView([51.505, -0.09], 13)
-    const popup = `<a class="${opts.linkClass}" role="link" href="${opts.linkHref}">${opts.linkText}</a>`
+    const map     = Leaflet.map(id).setView([51.505, -0.09], 13)
+    const cluster = Leaflet.markerClusterGroup()
+
+    const features = (data) => {
+        return {
+            'type': 'FeatureCollection',
+            'features': data.map(dataset => {
+                return {
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': dataset.attributes.coordinates
+                    },
+                    'properties': {
+                        'title': dataset.attributes.title,
+                        'link': dataset.links.self
+                    },
+                    'type': 'Feature'
+                }
+            })
+        }
+    }
 
     Leaflet.tileLayer(Mapbox.url, {
         accessToken: Mapbox.accessToken,
@@ -30,21 +50,19 @@ export const addMap = (id, featuresUrl, opts) => {
 
     fetch(featuresUrl) // eslint-disable-line no-undef
         .then(response => { return response.json() })
-        .then(data => {
-            const geoJSON = Leaflet.geoJSON(data, {
+        .then(response => {
+            const geoJSON = Leaflet.geoJSON(features(response.data), {
                 pointToLayer: (feature, latlng) => {
-                    if (!feature.properties.has_data) { return }
-
-                    return Leaflet.circleMarker(latlng, {
-                        color: '#1CB841',
-                        fillColor: '#1CB841',
-                        fillOpacity: 0.25,
-                        radius: 25
-                    }).bindPopup(popup)
+                    return Leaflet.marker(latlng).bindPopup(
+                        `<a class="${opts.linkClass}" role="link" href="${feature.properties.link}">
+                            ${feature.properties.title}
+                        </a>`
+                    )
                 }
             })
 
-            geoJSON.addTo(map)
+            cluster.addLayer(geoJSON)
+            map.addLayer(cluster)
             map.fitBounds(geoJSON.getBounds())
         })
 

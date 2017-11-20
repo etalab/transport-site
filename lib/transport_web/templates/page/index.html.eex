@@ -2,11 +2,7 @@
 
 <section class="hero">
   <div class="hero__container">
-    <map class="hero__column",
-         link-class='map__link map__link--reuse'
-         link-href='mailto:<%= @contact_email %>'
-         link-text='<%= dgettext("page-index", "Reuse this data") %>'>
-    </map>
+    <map class="hero__column", link-class='map__link map__link--reuse'></map>
 
     <div class="hero__column">
       <h1><%= dgettext("page-index", "What is transport.data.gouv.fr?") %></h1>

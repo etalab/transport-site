@@ -1,7 +1,5 @@
 defmodule TransportWeb.Router do
   use TransportWeb, :router
-  import TransportWeb.Gettext, only: [dgettext: 2]
-  alias TransportWeb.Router.Helpers
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -16,7 +14,9 @@ defmodule TransportWeb.Router do
   end
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug :accepts, ["jsonapi"]
+    plug JaSerializer.ContentTypeNegotiation
+    plug JaSerializer.Deserializer
   end
 
   scope "/", TransportWeb do
@@ -57,6 +57,15 @@ defmodule TransportWeb.Router do
     get "/logout", SessionController, :delete
   end
 
+  scope "/api", TransportWeb do
+    pipe_through :api
+
+    scope "/datasets" do
+      get "/", API.DatasetController, :index
+      get "/:slug/", API.DatasetController, :show
+    end
+  end
+
   # private
 
   defp put_locale(conn, _) do
@@ -94,9 +103,4 @@ defmodule TransportWeb.Router do
         conn
     end
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", TransportWeb do
-  #   pipe_through :api
-  # end
 end

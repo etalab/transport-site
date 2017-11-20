@@ -49,6 +49,8 @@ defmodule TransportWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+      import TransportWeb.Gettext, only: [dgettext: 2]
+      alias TransportWeb.Router.Helpers
     end
   end
 
@@ -56,6 +58,12 @@ defmodule TransportWeb do
     quote do
       use Phoenix.Channel
       import TransportWeb.Gettext
+    end
+  end
+
+  def serializer do
+    quote do
+      use JaSerializer
     end
   end
 

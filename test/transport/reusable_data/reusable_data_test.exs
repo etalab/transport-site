@@ -8,6 +8,7 @@ defmodule Transport.ReusableDataTest do
     ReusableData.create_dataset %{
       title: "Leningrad metro dataset",
       anomalies: [],
+      coordinates: [-1.0, 1.0],
       download_uri: "link.to",
       slug: "leningrad-metro-dataset"
     }

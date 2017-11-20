@@ -1,4 +1,4 @@
-defmodule TransportWeb.Integrations.LoginTest do
+defmodule TransportWeb.Integration.LoginTest do
   use TransportWeb.ConnCase, async: true
   use Hound.Helpers
   alias URI

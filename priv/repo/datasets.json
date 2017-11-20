@@ -13,6 +13,7 @@
     "title": "Offre transport de la RATP - format GTFS",
     "anomalies": ["no_file", "bad_licence"],
     "spatial": "Paris",
+    "coordinates": [2.3760858842364394,48.84495371275856],
     "logo": "https://www.data.gouv.fr/s/avatars/91/5b9234998a4a288198a725129b4b0b-100.jpg",
     "slug": "offre-transport-de-la-ratp-format-gtfs-ratp",
     "format": "GTFS"
@@ -32,6 +33,7 @@
     "title": "Horaires et arr\u00eats du r\u00e9seau IRIGO - format GTFS",
     "anomalies": [],
     "spatial": "Agglo Angevine",
+    "coordinates": [-0.5630548425091684,47.47654241641714],
     "logo": "https://www.data.gouv.fr/s/avatars/58/da9908bc7c42f48a9ddd61e873fe91-100.png",
     "slug": "horaires-et-arrets-du-reseau-irigo-format-gtfs",
     "format": "GTFS"
@@ -51,6 +53,7 @@
     "title": "Horaires th\u00e9oriques des bus et tramways TAG",
     "anomalies": [],
     "spatial": "Communaut\u00e9 d'Agglom\u00e9ration de Grenoble-Alpes-M\u00e9tropole",
+    "coordinates": [5.727284698779995,45.183084492763555],
     "logo": "https://www.data.gouv.fr/s/avatars/41/1232bce00148eaac91fb2fc5443fdb-100.png",
     "slug": "horaires-theoriques-des-bus-et-tramways-tag"
 }, {
@@ -78,6 +81,7 @@
     "title": "Liste des arr\u00eats, horaires et parcours de tous les bus et tramways circulant sur le territoire de Brest m\u00e9tropole",
     "anomalies": [],
     "spatial": "Communaut\u00e9 Urbaine de Brest",
+    "coordinates": [-4.501836106095889,48.40258602824494],
     "logo": "https://www.data.gouv.fr/s/avatars/2015-09-01/774544d223bd4df7a927a0dd60f080db/Mono-jpg-Logo_Brest_metropole_E_cyan-100.jpg",
     "slug": "liste-des-arrets-horaires-et-parcours-de-tous-les-bus-et-tramways-circulant-sur-le-territoire-de-brest-metropole",
     "format": "GTFS"
@@ -97,6 +101,7 @@
     "title": "Donn\u00e9es sur le r\u00e9seau de bus SURF (Service Urbain de la R\u00e9gion Fougeraise)",
     "anomalies": [],
     "spatial": "L\u00e9cousse",
+    "coordinates": [-1.2169342170275785,48.3574408821666],
     "logo": "https://www.data.gouv.fr/s/avatars/e7/f22ea87a174acea3f02bac524e67d4-100.png",
     "slug": "donnees-sur-le-reseau-de-bus-surf-service-urbain-de-la-region-fougeraise",
     "format": "GTFS"
@@ -106,6 +111,7 @@
     "title": "Donn\u00e9es GTFS du r\u00e9seau de transport public cara'bus",
     "anomalies": ["redirection"],
     "spatial": "Pays Royannais",
+    "coordinates": [-1.0225419254931776,45.63154499267228],
     "logo": "https://www.data.gouv.fr/s/avatars/23/682d43205e45e7bd730ba55c8ee09e-100.png",
     "slug": "donnees-gtfs-du-reseau-de-transport-public-carabus-1",
     "format": "GTFS"
@@ -170,6 +176,7 @@
     "title": "Horaires th\u00e9oriques du r\u00e9seau de transport 'CTS'",
     "anomalies": ["redirection"],
     "spatial": "Communaut\u00e9 Urbaine de Strasbourg",
+    "coordinates": [7.753170716968435,48.57320644960992],
     "logo": "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
     "slug": "horaires-theoriques-du-reseau-de-transport-cts",
     "format": "GTFS"
@@ -179,6 +186,7 @@
     "title": "Horaires th\u00e9oriques du r\u00e9seau de transport 'RUBAN'",
     "anomalies": ["bad_format"],
     "spatial": "Isle d'Abeau",
+    "coordinates": [5.209974794908041,45.618390676577384],
     "logo": "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
     "slug": "horaires-theoriques-du-reseau-de-transport-ruban",
     "format": "GTFS"
@@ -189,6 +197,7 @@
     "title": "Horaires th\u00e9oriques du r\u00e9seau de transport 'L'VA'",
     "anomalies": [],
     "spatial": "District de Vienne",
+    "coordinates": [4.8824498137036345,45.52050086618516],
     "logo": "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
     "slug": "horaires-theoriques-du-reseau-de-transport-lva",
     "format": "GTFS"
@@ -198,6 +207,7 @@
     "title": "Horaires th\u00e9oriques du r\u00e9seau de transport 'Impulsyon'",
     "anomalies": ["bad_licence"],
     "spatial": "Pays Yonnais",
+    "coordinates": [-1.422743546140963,46.66651565103845],
     "logo": "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
     "slug": "horaires-theoriques-du-reseau-de-transport-impulsyon",
     "format": "GTFS"
@@ -207,6 +217,7 @@
     "title": "Horaires th\u00e9oriques du r\u00e9seau de transport 'TRANSPOLE'",
     "anomalies": ["redirection"],
     "spatial": "Communaut\u00e9 Urbaine de Lille",
+    "coordinates": [3.0515458841440357,50.63448939228107],
     "logo": "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
     "slug": "horaires-theoriques-du-reseau-de-transport-transpole",
     "format": "GTFS"
@@ -226,6 +237,7 @@
     "title": "Horaires th\u00e9oriques du r\u00e9seau de transport 'Transports du Pays Voironnais'",
     "anomalies": [],
     "spatial": "Pays Voironnais",
+    "coordinates": [5.584407907332353,45.37450771430333],
     "logo": "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
     "slug": "horaires-theoriques-du-reseau-de-transport-transports-du-pays-voironnais",
     "format": "GTFS"
@@ -245,6 +257,7 @@
     "title": "Horaires th\u00e9oriques du r\u00e9seau de transport 'Tougo'",
     "anomalies": [],
     "spatial": "Communaut\u00e9 de Communes du Pays du Gr\u00e9sivaudan",
+    "coordinates": [5.88607442660678,45.28539479137319],
     "logo": "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
     "slug": "horaires-theoriques-du-reseau-de-transport-tougo",
     "format": "GTFS"
@@ -254,6 +267,7 @@
     "title": "Horaires th\u00e9oriques du r\u00e9seau de transport 'STAN'",
     "anomalies": [],
     "spatial": "Communaut\u00e9 Urbaine de Nancy",
+    "coordinates": [6.173628809615401,48.688599228262134],
     "logo": "https://www.data.gouv.fr/s/avatars/a3/4fddcd8a2441438a7d1ecb0dffa2dc-100.png",
     "slug": "horaires-theoriques-du-reseau-de-transport-stan",
     "format": "GTFS"
