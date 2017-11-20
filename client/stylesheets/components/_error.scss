@@ -1,0 +1,18 @@
+.error__background {
+  background: url('../images/error-background-1920.jpg') no-repeat center center fixed;
+  background-size: cover;
+  margin: 1em 3em;
+  min-height: 90vw;
+}
+
+@include media-tablet-up {
+  .error__background {
+    min-height: 45vw;
+  }
+}
+
+@include media-desktop-up {
+  .error__background {
+    min-height: 25vw;
+  }
+}

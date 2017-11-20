@@ -49,7 +49,9 @@ defmodule TransportWeb.DatasetController do
     |> ReusableData.get_dataset(:with_celery_task)
     |> case do
       nil ->
-        render(conn, "error.html")
+        conn
+        |> put_status(:internal_server_error)
+        |> render(ErrorView, "500.html")
       dataset ->
         conn
         |> assign(:dataset, dataset)

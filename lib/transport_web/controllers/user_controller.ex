@@ -2,7 +2,6 @@ defmodule TransportWeb.UserController do
   use TransportWeb, :controller
   alias Transport.Datagouvfr.Client.{Organizations, User, Datasets}
   alias Transport.DataValidator.Server
-  alias TransportWeb.ErrorView
   require Logger
 
   def organizations(%Plug.Conn{} = conn, _) do
