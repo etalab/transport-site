@@ -4,7 +4,6 @@ const CopyWebpackPlugin    = require('copy-webpack-plugin')
 const ExtractTextPlugin    = require('extract-text-webpack-plugin')
 const extractFonts         = new CopyWebpackPlugin([{ from: 'fonts', to: '../fonts' }])
 const extractImages        = new CopyWebpackPlugin([{ from: 'images', to: '../images' }])
-const extractLeafletImages = new CopyWebpackPlugin([{ from: 'node_modules/leaflet/dist/images', to: '../images' }])
 const extractSass          = new ExtractTextPlugin({ filename: '../css/app.css', allChunks: true })
 const fetchPolyfill        = new webpack.ProvidePlugin({ fetch: 'imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch' })
 const promisePolyfill      = new webpack.ProvidePlugin({ Promise: 'core-js/es6/promise' })
@@ -33,7 +32,6 @@ module.exports = {
     plugins: [
         extractFonts,
         extractImages,
-        extractLeafletImages,
         extractSass,
         fetchPolyfill,
         promisePolyfill,
