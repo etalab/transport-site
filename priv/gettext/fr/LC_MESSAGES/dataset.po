@@ -1,0 +1,71 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+
+#: lib/transport_web/templates/dataset/form.html.eex:29
+msgid "Annual"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/form.html.eex:26
+msgid "Bimonthly"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/form.html.eex:36
+msgid "Description of the dataset"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/form.html.eex:27
+msgid "Monthly"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/form.html.eex:28
+msgid "Semi annual"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/form.html.eex:24
+msgid "Semi weekly"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/form.html.eex:7
+msgid "The licence of the dataset will be ODbL"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/form.html.eex:14
+msgid "Title of the dataset"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/form.html.eex:30
+msgid "Unknown"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/form.html.eex:21
+msgid "Update frequency of the dataset"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/form.html.eex:25
+msgid "Weekly"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/form.html.eex:43
+msgid "Dataset file"
+msgstr ""
+
+#: lib/transport/datagouvfr/client/datasets.ex:25
+msgid "A description is needed"
+msgstr ""
+
+#: lib/transport/datagouvfr/client/datasets.ex:45
+msgid "A title is needed"
+msgstr ""
+
+#: lib/transport/datagouvfr/client/datasets.ex:40
+msgid "An organization is needed"
+msgstr ""

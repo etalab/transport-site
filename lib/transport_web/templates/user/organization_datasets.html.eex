@@ -3,7 +3,13 @@
     <p class="message message--info"><%= get_flash(@conn, :info) %></p>
   <% end %>
   <h1><%= dgettext("user", "Second step") %></h1>
-  <h2><%= dgettext("user", "Choose a dataset you want to be on transport.data.gouv.fr") %></h1>
+  <h2><%= dgettext("user", "Choose a dataset you want to be on transport.data.gouv.fr") %></h2>
+
+  <div class="is-centered">
+    <a class="button" href="<%= dataset_path(@conn, :new, @organization["id"]) %>">
+      <%= dgettext("user", "Upload a new dataset") %>
+    </a>
+  </div>
 
   <div>
     <a href="<%= user_path @conn, :organizations %>"><%= dgettext("user", "Go back to organizations list") %></a>

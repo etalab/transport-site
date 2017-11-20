@@ -1,0 +1,54 @@
+<section>
+  <%= if get_flash(@conn, :errors) do %>
+    <%= for error <- get_flash(@conn, :errors) do %>
+      <p class="message message--error"><%= error %></p>
+    <% end %>
+  <% end %>
+  <%= dgettext("dataset", "The licence of the dataset will be ODbL") %>
+  <form action="<%= dataset_path(@conn, :create, @organization["id"]) %>" method="POST"
+        enctype='multipart/form-data'>
+    <input type="hidden" name="_csrf_token" value="<%= get_csrf_token() %>">
+
+    <div class="form__group">
+      <label for="title">
+        <%= dgettext("dataset", "Title of the dataset") %> 
+      <label>
+        <input type="text" name="title">
+    </div>
+
+    <div class="form__group">
+      <label for="frequency">
+        <%= dgettext("dataset", "Update frequency of the dataset") %>
+      <label>
+      <select name="frequency">
+        <option value="semiweekly"><%= dgettext("dataset", "Semi weekly") %> </option>
+        <option value="weekly"><%= dgettext("dataset", "Weekly") %> </option>
+        <option value="bimonthly"><%= dgettext("dataset", "Bimonthly") %> </option>
+        <option value="monthly"><%= dgettext("dataset", "Monthly") %> </option>
+        <option value="semiannual"><%= dgettext("dataset", "Semi annual") %> </option>
+        <option value="annual"><%= dgettext("dataset", "Annual") %> </option>
+        <option value="unknown"><%= dgettext("dataset", "Unknown") %> </option>
+      </select>
+    </div>
+
+    <div class="form__group">
+      <label for="description">
+        <%= dgettext("dataset", "Description of the dataset") %>
+      </label>
+      <textarea name="description"></textarea>
+    </div>
+
+    <div class="form__group">
+      <label for="dataset">
+        <%= dgettext("dataset", "Dataset file") %>
+      </label>
+      <input type="file" name="dataset">
+    </div>
+
+    <div class="form__group">
+       <button class="button">
+        <%= dgettext("user", "Upload dataset") %>
+       </button>
+    </div>
+  </form>
+</section>

@@ -9,3 +9,9 @@ config :oauth2, Authentication,
   client_id: System.get_env("DATAGOUVFR_CLIENT_ID"),
   client_secret: System.get_env("DATAGOUVFR_CLIENT_SECRET"),
   redirect_uri: System.get_env("DATAGOUVFR_REDIRECT_URI")
+
+config :oauth2,
+  serializers: %{
+    "multipart/form-data" => Transport.Datagouvfr.MultipartSerializer,
+    "application/json"    => Poison
+  }
