@@ -67,7 +67,7 @@ msgstr ""
 msgid "Create organization"
 msgstr ""
 
-#: lib/transport_web/controllers/user_controller.ex:36
+#: lib/transport_web/controllers/user_controller.ex:35
 msgid "Organization added"
 msgstr ""
 

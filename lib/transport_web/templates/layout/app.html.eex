@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content='<%= gettext "Publish, improve and reuse French public transport data" %>'>
-    <meta name="author" content="Mauko Quiroga">
+    <meta name="author" content="DINSIC">
     <meta name="csrf" content="<%= get_csrf_token() %>">
 
     <title><%= gettext "transport.data.gouv.fr" %></title>
