@@ -31,6 +31,7 @@ msgstr ""
 msgid "Publish, improve and reuse French public transport data"
 msgstr ""
 
+#: lib/transport_web/templates/contact/form.html.eex:13
 #: lib/transport_web/templates/layout/_footer.html.eex:6
 msgid "Ask help"
 msgstr ""
@@ -39,10 +40,12 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+#: lib/transport_web/templates/contact/form.html.eex:10
 #: lib/transport_web/templates/layout/_footer.html.eex:2
 msgid "Email address"
 msgstr ""
 
+#: lib/transport_web/templates/contact/form.html.eex:15
 #: lib/transport_web/templates/layout/_footer.html.eex:3
 msgid "Send email"
 msgstr ""

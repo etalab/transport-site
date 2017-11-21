@@ -17,17 +17,17 @@ defmodule Transport.Datagouvfr.Authentication do
   end
 
   def authorize_url! do
-    client() |> Client.authorize_url!(%{scope: "default"})
+    Client.authorize_url!(client(), %{scope: "default"})
   end
 
   def get_token!(params \\ []) do
-    client() |> Client.get_token!(params)
+    Client.get_token!(client(), params, [], [{:timeout, 15_000}])
   end
 
   # Strategy Callbacks
 
   def authorize_url(client, params) do
-    client |> AuthCode.authorize_url(params)
+    AuthCode.authorize_url(client, params)
   end
 
   def get_token(client, params, headers) do
