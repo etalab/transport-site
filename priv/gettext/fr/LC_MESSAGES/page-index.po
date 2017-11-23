@@ -16,7 +16,7 @@ msgstr "Ouvrir et réutiliser les données transports"
 
 #: lib/transport_web/templates/page/index.html.eex:14
 msgid "Publish my data"
-msgstr "Ouvrir des données"
+msgstr "Publier des données"
 
 #: lib/transport_web/templates/page/index.html.eex:9
 msgid "The single entry point for publication and reuse of public transport data, allowing to make people lives better."
