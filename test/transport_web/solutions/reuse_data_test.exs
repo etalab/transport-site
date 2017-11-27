@@ -7,20 +7,27 @@ defmodule TransportWeb.ReuseDataTest do
   """
 
   use TransportWeb.ConnCase, async: true
-  use TransportWeb.CleanupCase, cleanup: ["datasets"]
+  use TransportWeb.CleanupCase, cleanup: ["celery_taskmeta", "datasets"]
   use Hound.Helpers
   alias Transport.ReusableData
 
   hound_session()
 
   setup_all do
+    celery_task = ReusableData.create_dataset_validation! %{
+      "result" => "{\"validations\": {\"errors\": []}}",
+      "children" => "[]",
+      "traceback" => "null"
+    }
+
     ReusableData.create_dataset %{
       download_uri: "https://link.to/angers.zip",
       license: "odc-odbl",
       title: "Angers GTFS",
       anomalies: [],
       coordinates: [1.0, 1.0],
-      slug: "angers-gtfs"
+      slug: "angers-gtfs",
+      celery_task_id: celery_task.task_id
     }
 
     :ok
