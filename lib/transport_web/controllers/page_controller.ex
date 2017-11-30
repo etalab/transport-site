@@ -10,8 +10,4 @@ defmodule TransportWeb.PageController do
     |> put_session(:redirect_path, redirect_path)
     |> render("login.html")
   end
-
-  def search_organizations(conn, _params) do
-    render(conn, "search_organizations.html")
-  end
 end

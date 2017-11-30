@@ -10,44 +10,44 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/dataset/details.html.eex:22
-#: lib/transport_web/templates/dataset/details.html.eex:86
 #: lib/transport_web/templates/dataset/index.html.eex:31
+#: lib/transport_web/templates/dataset/show.html.eex:22
+#: lib/transport_web/templates/dataset/show.html.eex:86
 msgid "Download"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:37
 #: lib/transport_web/templates/dataset/index.html.eex:47
+#: lib/transport_web/templates/dataset/show.html.eex:37
 msgid "Licence"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:13
 #: lib/transport_web/templates/dataset/index.html.eex:22
+#: lib/transport_web/templates/dataset/show.html.eex:13
 msgid "See on data.gouv.fr"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:30
 #: lib/transport_web/templates/dataset/index.html.eex:40
+#: lib/transport_web/templates/dataset/show.html.eex:30
 msgid "Territory"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:44
 #: lib/transport_web/templates/dataset/index.html.eex:54
+#: lib/transport_web/templates/dataset/show.html.eex:44
 msgid "Format"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:50
 #: lib/transport_web/templates/dataset/index.html.eex:60
+#: lib/transport_web/templates/dataset/show.html.eex:50
 msgid "Status"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:54
 #: lib/transport_web/templates/dataset/index.html.eex:64
+#: lib/transport_web/templates/dataset/show.html.eex:54
 msgid "Invalid"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:52
 #: lib/transport_web/templates/dataset/index.html.eex:62
+#: lib/transport_web/templates/dataset/show.html.eex:52
 msgid "Valid"
 msgstr ""
 

@@ -23,30 +23,35 @@ defmodule TransportWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    get "/search_organizations", PageController, :search_organizations
     post "/send_mail", ContactController, :send_mail
 
     scope "/datasets" do
       get "/", DatasetController, :index
-      get "/:slug/", DatasetController, :details
+      get "/:slug/", DatasetController, :show
+
+      scope "/discussions" do
+        pipe_through [:authentication_required]
+        post "/", DiscussionController, :post_discussion
+        post "/:id_", DiscussionController, :post_discussion_id
+      end
     end
 
     scope "/user" do
       pipe_through [:authentication_required]
-      get "/organizations/", UserController, :organizations
-      get "/organizations/form", UserController, :organization_form
-      post "/organizations/_create", UserController, :organization_create
-      get "/organizations/:slug/datasets/", UserController, :organization_datasets
-      get "/organizations/:slug/datasets/new", DatasetController, :new
-      post "/organizations/:organization/datasets/_create", DatasetController, :create
-      post "/organizations/:organization/datasets/_create_community_resource", DatasetController, :create_community_resource
-      get "/datasets/:slug/_add", UserController, :add_badge_dataset
-    end
 
-    scope "/discussions" do
-      pipe_through [:authentication_required]
-      post "/", DiscussionController, :post_discussion
-      post "/:id_", DiscussionController, :post_discussion_id
+      scope "/organizations" do
+        get "/", UserController, :organizations
+        get "/form", UserController, :organization_form
+        post "/_create", UserController, :organization_create
+        get "/:slug/datasets/", UserController, :organization_datasets
+        get "/:slug/datasets/new", DatasetController, :new
+        post "/:organization/datasets/_create", DatasetController, :create
+        post "/:organization/datasets/_create_community_resource", DatasetController, :create_community_resource
+      end
+
+      scope "/datasets" do
+        get "/:slug/_add", UserController, :add_badge_dataset
+      end
     end
 
     # Authentication
