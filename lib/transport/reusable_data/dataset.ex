@@ -38,18 +38,19 @@ defmodule Transport.ReusableData.Dataset do
   }
 
   @doc """
-  Initialises a licence struct from a given map. Map's keys must be strings.
+  Initialises a licence struct from a given map. Map's keys must be atoms.
 
   ## Examples
 
-      iex> Dataset.new(%{"title" => "Dataset"})
+      iex> Dataset.new(%{title: "Dataset"})
       %Dataset{title: "Dataset"}
+
+      iex> Dataset.new(%{"title" => "Dataset"})
+      %Dataset{title: nil}
 
   """
   @spec new(map()) :: %__MODULE__{}
-  def new(%{} = map) do
-    Enum.reduce(map, %__MODULE__{}, fn({key, value}, map) ->
-      Map.put(map, String.to_existing_atom(key), value)
-    end)
+  def new(%{} = attrs) do
+    struct(%__MODULE__{}, attrs)
   end
 end

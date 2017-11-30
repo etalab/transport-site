@@ -31,7 +31,7 @@
         <div class="shortlist-details">
           <div class="shortlist__notice">
             <span><%= dgettext("page-shortlist", "Licence") %></span>
-            <span class="badge-notice"><%= @dataset.license |> Licence.new |> Map.get(:name) %></span>
+            <span class="badge-notice"><%= ReusableData.build_licence(%{name: @dataset.license}).name %></span>
           </div>
 
           <div class="shortlist__notice">

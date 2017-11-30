@@ -16,23 +16,30 @@ defmodule Transport.ReusableData.Licence do
   Initialises a licence struct with a given code. If the code is within a known
   list of codes, it is localised to the current Gettext locale.
 
+  If it is not, then it returns an error.
+
   ## Examples
 
-      iex> Licence.new("fr-lo")
+      iex> Licence.new(%{name: "fr-lo"})
       %Licence{name: "Open Licence"}
 
-      iex> Licence.new("asdf")
-      %Licence{name: "asdf"}
+      iex> Licence.new(%{name: "Lolbertarian"})
+      %Licence{name: nil}
 
   """
-  @spec new(String.t) :: %__MODULE__{}
-  def new(<<_ :: binary>> = code) do
-    case code do
-      "fr-lo" -> %__MODULE__{name: dgettext("reusable_data", "fr-lo")}
-      "odc-odbl" -> %__MODULE__{name: dgettext("reusable_data", "odc-odbl")}
-      "other-open" -> %__MODULE__{name: dgettext("reusable_data", "other-open")}
-      "notspecified" -> %__MODULE__{name: dgettext("reusable_data", "notspecified")}
-      other -> %__MODULE__{name: other}
+  @spec new(map()) :: %__MODULE__{}
+  def new(%{} = attrs) do
+    case Map.get(attrs, :name) do
+      "fr-lo" ->
+        %__MODULE__{name: dgettext("reusable_data", "fr-lo")}
+      "odc-odbl" ->
+        %__MODULE__{name: dgettext("reusable_data", "odc-odbl")}
+      "other-open" ->
+        %__MODULE__{name: dgettext("reusable_data", "other-open")}
+      "notspecified" ->
+        %__MODULE__{name: dgettext("reusable_data", "notspecified")}
+      _ ->
+        %__MODULE__{name: nil}
     end
   end
 end

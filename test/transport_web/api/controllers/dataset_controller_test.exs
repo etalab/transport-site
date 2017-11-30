@@ -1,16 +1,23 @@
 defmodule TransportWeb.API.DatasetControllerTest do
   use TransportWeb.ConnCase
-  use TransportWeb.CleanupCase, cleanup: ["datasets"]
+  use TransportWeb.CleanupCase, cleanup: ["celery_taskmeta", "datasets"]
   alias Transport.ReusableData
 
   setup do
+    celery_task = ReusableData.create_dataset_validation! %{
+      "result" => "{\"validations\": {\"errors\": []}}",
+      "children" => "[]",
+      "traceback" => "null"
+    }
+
     dataset = ReusableData.create_dataset %{
       title: "Leningrad metro dataset",
       anomalies: [],
       coordinates: [-1.0, 1.0],
       download_uri: "link.to",
       license: "odc-odbl",
-      slug: "leningrad-metro-dataset"
+      slug: "leningrad-metro-dataset",
+      celery_task_id: celery_task.task_id
     }
 
     {:ok, dataset: dataset}
