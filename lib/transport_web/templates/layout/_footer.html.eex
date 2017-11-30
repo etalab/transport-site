@@ -13,7 +13,7 @@
 
     <ul class="footer__links">
       <li>
-        <a class="footer__link footer__link--contact" href='mailto:<%= @contact_email %>' role="link">
+        <a class="footer__link footer__link--contact" href='<%= contact_path(@conn, :form) %>' role="link">
           <%= gettext "Contact" %>
         </a>
       </li>

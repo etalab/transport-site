@@ -1,6 +1,9 @@
 <h1><%= dgettext("page-index", "Publish and reuse public transport data") %></h1>
 
 <section class="hero">
+  <%= if get_flash(@conn, :info) do %>
+    <p class="message message--info"><%= get_flash(@conn, :info) %></p>
+  <% end %>
   <div class="hero__container">
     <map class="hero__column", link-class='map__link map__link--reuse'></map>
 
