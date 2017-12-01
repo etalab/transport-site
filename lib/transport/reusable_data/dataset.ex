@@ -21,6 +21,8 @@ defmodule Transport.ReusableData.Dataset do
     :celery_task
   ]
 
+  use ExConstructor
+
   @type t :: %__MODULE__{
     _id:            %BSON.ObjectId{},
     title:          String.t,
@@ -36,21 +38,4 @@ defmodule Transport.ReusableData.Dataset do
     celery_task_id: String.t,
     celery_task:    CeleryTask,
   }
-
-  @doc """
-  Initialises a licence struct from a given map. Map's keys must be atoms.
-
-  ## Examples
-
-      iex> Dataset.new(%{title: "Dataset"})
-      %Dataset{title: "Dataset"}
-
-      iex> Dataset.new(%{"title" => "Dataset"})
-      %Dataset{title: nil}
-
-  """
-  @spec new(map()) :: %__MODULE__{}
-  def new(%{} = attrs) do
-    struct(%__MODULE__{}, attrs)
-  end
 end

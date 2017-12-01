@@ -3,7 +3,14 @@ defmodule Transport.DataValidator.CeleryTask do
     Module to get celerytask from mongoDB
   """
 
-  defstruct [:task_id, :status, :result, :date_done, :traceback, :children]
+  defstruct [
+    :task_id,
+    :status,
+    :result,
+    :date_done,
+    :traceback,
+    :children
+  ]
 
   def find_one(task_id) do
      :mongo

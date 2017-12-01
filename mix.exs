@@ -20,7 +20,14 @@ defmodule Transport.Mixfile do
   def application do
     [
       mod: {Transport.Application, []},
-      extra_applications: [:logger, :oauth2, :amqp, :mongodb, :poolboy, :mime]
+      extra_applications: [
+        :amqp,
+        :logger,
+        :mime,
+        :mongodb,
+        :oauth2,
+        :poolboy
+      ]
     ]
   end
 
@@ -33,25 +40,27 @@ defmodule Transport.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:amqp, "~> 0.3.0"},
+      {:amqp, "~> 0.3"},
       {:cowboy, "~> 1.0"},
       {:earmark, "~> 1.2"},
+      {:exconstructor, "~> 1.1"},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 0.13"},
-      {:ja_serializer, "~> 0.12.0"},
-      {:mime, "~> 1.1.0"},
-      {:mongodb, ">= 0.0.0"},
+      {:ja_serializer, "~> 0.12"},
+      {:mime, "~> 1.1"},
+      {:mongodb, "~> 0.4"},
       {:oauth2, "~> 0.9"},
       {:phoenix, "~> 1.3"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_pubsub, "~> 1.0"},
-      {:poolboy, ">= 0.0.0"},
+      {:poolboy, "~> 1.5"},
+      {:recon, "~> 2.3"},
       {:uuid, "~> 1.1"},
       {:vex, "~> 0.6"},
       {:eye_drops, "~> 1.3", only: :dev},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:exvcr, "~> 0.8", only: :test},
-      {:hound, "~> 1.0.2", only: :test},
+      {:hound, "~> 1.0", only: :test},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
     ]
   end
