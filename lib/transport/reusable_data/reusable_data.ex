@@ -1,6 +1,6 @@
 defmodule Transport.ReusableData do
   @moduledoc """
-  The ReusableData context.
+  The ReusableData bounded context.
   """
 
   alias Transport.ReusableData.{Dataset, Licence}

@@ -13,7 +13,7 @@ defmodule Transport.ReusableData.Licence do
     name: String.t
   }
 
-  @mappings %{
+  @localisations %{
     "fr-lo" => dgettext("reusable_data", "fr-lo"),
     "odc-odbl" => dgettext("reusable_data", "odc-odbl"),
     "other-open" => dgettext("reusable_data", "other-open"),
@@ -42,10 +42,14 @@ defmodule Transport.ReusableData.Licence do
   @spec new(map()) :: %__MODULE__{}
   def new(%{} = attrs) do
     attrs
-      |> super
-      |> Map.get(:name)
-      |> List.wrap
-      |> Map.new(&({:name, Map.get(@mappings, &1)}))
-      |> super
+    |> super
+    |> assign_localised_name
+  end
+
+  # private
+
+  @spec assign_localised_name(%__MODULE__{}) :: %__MODULE__{}
+  defp assign_localised_name(licence) do
+    %__MODULE__{licence | name: Map.get(@localisations, licence.name)}
   end
 end
