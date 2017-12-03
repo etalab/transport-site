@@ -8,7 +8,7 @@ defmodule TransportWeb.API.DatasetSerializer do
   alias Transport.ReusableData.Dataset
 
   location "/datasets/:slug/"
-  attributes [:title, :slug, :coordinates]
+  attributes [:title, :slug, :coordinates, :validations]
 
   def id(%Dataset{} = dataset, _) do
     ObjectId.encode!(dataset._id)

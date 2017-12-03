@@ -17,7 +17,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
       download_uri: "link.to",
       license: "odc-odbl",
       slug: "leningrad-metro-dataset",
-      celery_task_id: celery_task.task_id
+      celery_task_id: celery_task.task_id,
+      validations: %{"errors": [], "warnings": [], "notices": []},
     }
 
     {:ok, dataset: dataset}

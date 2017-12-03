@@ -3,7 +3,6 @@ defmodule Transport.ReusableData.Dataset do
   Represents a dataset as it is published by a producer and consumed by a
   reuser.
   """
-  alias Transport.DataValidator.CeleryTask
 
   defstruct [
     :_id,
@@ -18,7 +17,7 @@ defmodule Transport.ReusableData.Dataset do
     :anomalies,
     :format,
     :celery_task_id,
-    :celery_task
+    :validations
   ]
 
   use ExConstructor
@@ -36,6 +35,6 @@ defmodule Transport.ReusableData.Dataset do
     anomalies:      [String.t],
     format:         String.t,
     celery_task_id: String.t,
-    celery_task:    CeleryTask,
+    validations:    Map.t,
   }
 end

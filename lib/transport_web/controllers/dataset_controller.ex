@@ -46,7 +46,7 @@ defmodule TransportWeb.DatasetController do
 
   def details(%Plug.Conn{} = conn, %{"slug" => slug}) do
     slug
-    |> ReusableData.get_dataset(:with_celery_task)
+    |> ReusableData.get_dataset()
     |> case do
       nil ->
         conn
