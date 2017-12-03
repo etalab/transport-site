@@ -65,6 +65,17 @@
       <div class="dataset-detail__markdown">
         <markdown content="<%= @dataset.description %>"></markdown>
       </div>
+      <div class="dataset-details__validation">
+        <validation
+          slug="<%= @dataset.slug %>"
+          errors="<%= dgettext("page-dataset-details", "Errors") %>"
+          no_errors="<%= dgettext("page-dataset-details", "No errors") %>"
+          warnings="<%= dgettext("page-dataset-details", "Warnings") %>"
+          no_warnings="<%= dgettext("page-dataset-details", "No warnings") %>"
+          notices="<%= dgettext("page-dataset-details", "Notices") %>"
+          no_notices="<%= dgettext("page-dataset-details", "No notices") %>">
+        </validation>
+      </div>
       <div class="dataset-details__discussions">
         <h1>Discussions</h1>
         <discussions
