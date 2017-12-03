@@ -210,22 +210,19 @@ defmodule Transport.ReusableData do
   end
 
   def count_errors(dataset) do
-    dataset.celery_task.result
-    |> Map.get("validations")
+    dataset.validations
     |> Map.get("errors")
     |> Enum.count()
   end
 
   def count_warnings(dataset) do
-    dataset.celery_task.result
-    |> Map.get("validations")
+    dataset.validations
     |> Map.get("warnings")
     |> Enum.count()
   end
 
   def count_notices(dataset) do
-    dataset.celery_task.result
-    |> Map.get("validations")
+    dataset.validations
     |> Map.get("notices")
     |> Enum.count()
   end

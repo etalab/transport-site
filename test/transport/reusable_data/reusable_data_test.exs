@@ -17,7 +17,8 @@ defmodule Transport.ReusableDataTest do
       coordinates: [-1.0, 1.0],
       download_uri: "link.to",
       slug: "leningrad-metro-dataset",
-      celery_task_id: celery_task.task_id
+      celery_task_id: celery_task.task_id,
+      validations: %{"errors" => [], "warnings" => [], "notices" => []}
     }
 
     :ok

@@ -27,7 +27,8 @@ defmodule TransportWeb.ReuseDataTest do
       anomalies: [],
       coordinates: [1.0, 1.0],
       slug: "angers-gtfs",
-      celery_task_id: celery_task.task_id
+      celery_task_id: celery_task.task_id,
+      validations: %{"errors" => [], "warnings" => [], "notices" => []},
     }
 
     :ok
