@@ -1,5 +1,5 @@
 <section>
-  <h1><%= dgettext("page-shortlist", "Available datasets") %></h1>
+  <h1><%= dgettext("page-shortlist", "Valid datasets available") %></h1>
   <%= for dataset <- @datasets do %>
     <div class="shortlist">
       <div class="shortlist-image">
@@ -35,21 +35,34 @@
             <% end %>
           </div>
           <div>
-            <div class="shortlist__notice">
-              <span><%= dgettext("page-shortlist", "Territory") %></span>
-              <span class="badge-notice"><%= dataset.spatial %></span>
-            </div>
+            <%= if dataset.spatial do %>
+              <div class="shortlist__notice">
+                <span><%= dgettext("page-shortlist", "Territory") %></span>
+                <span class="badge-notice"><%= dataset.spatial %></span>
+              </div>
+            <% end %>
 
-            <div class="shortlist-details">
+            <%= if dataset.licence do %>
               <div class="shortlist__notice">
                 <span><%= dgettext("page-shortlist", "Licence") %></span>
-                <span class="badge-notice"><%= ReusableData.build_licence(%{name: dataset.license}).name %></span>
+                <span class="badge-notice"><%= ReusableData.build_licence(%{name: dataset.licence}).name %></span>
               </div>
+            <% end %>
 
+            <%= if dataset.format do %>
               <div class="shortlist__notice">
                 <span><%= dgettext("page-shortlist", "Format") %></span>
                 <span class="badge-notice"><%= dataset.format %></span>
               </div>
+            <% end %>
+
+            <div class="shortlist__notice">
+              <span><%= dgettext("page-shortlist", "Status") %></span>
+              <%= if dataset.valid? do %>
+                <span class="badge-success"><%= dgettext("page-shortlist", "Valid") %></span>
+              <% else %>
+                <span class="badge-error"><%= dgettext("page-shortlist", "Invalid") %></span>
+              <% end %>
             </div>
           </div>
         </div>

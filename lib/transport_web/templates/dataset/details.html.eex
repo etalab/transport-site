@@ -24,27 +24,39 @@
       </div>
       <div>
         <div class="shortlist__notice">
-          <span><%= dgettext("page-shortlist", "Territory") %></span>
-          <span class="badge-notice"><%= @dataset.spatial %></span>
+          <div><%= dgettext("page-shortlist", "Territory") %></div>
+          <div class="badge-notice"><%= @dataset.spatial %></div>
         </div>
 
         <div class="shortlist-details">
-          <div class="shortlist__notice">
-            <span><%= dgettext("page-shortlist", "Licence") %></span>
-            <span class="badge-notice"><%= ReusableData.build_licence(%{name: @dataset.license}).name %></span>
-          </div>
+          <%= if @dataset.licence do %>
+            <div class="shortlist__notice">
+              <div><%= dgettext("page-shortlist", "Licence") %></div>
+              <div class="badge-notice"><%= ReusableData.build_licence(%{name: @dataset.licence}).name %></div>
+            </div>
+          <% end %>
+
+          <%= if @dataset.format do %>
+            <div class="shortlist__notice">
+              <div><%= dgettext("page-shortlist", "Format") %></div>
+              <div class="badge-notice"><%= @dataset.format %></div>
+            </div>
+          <% end %>
 
           <div class="shortlist__notice">
-            <span><%= dgettext("page-shortlist", "Format") %></span>
-            <span class="badge-notice"><%= @dataset.format %></span>
+            <div><%= dgettext("page-shortlist", "Status") %></div>
+            <%= if @dataset.valid? do %>
+              <div class="badge-success"><%= dgettext("page-shortlist", "Valid") %></div>
+            <% else %>
+              <div class="badge-error"><%= dgettext("page-shortlist", "Invalid") %></div>
+            <% end %>
           </div>
         </div>
         <div>
           <h2><%= dgettext("page-dataset-details", "GTFS Validation") %></h2>
           <ul class="stats">
-            <li><span><%= dgettext("page-dataset-details", "Errors") %></span> <%= @nb_errors %></li>
-            <li><span><%= dgettext("page-dataset-details", "Warnings") %></span> <%= @nb_warnings %></li>
-            <li><span><%= dgettext("page-dataset-details", "Notices") %></span> <%= @nb_notices %></li>
+            <li><span><%= dgettext("page-dataset-details", "Warnings") %></span> <%= @dataset.warning_count %></li>
+            <li><span><%= dgettext("page-dataset-details", "Notices") %></span> <%= @dataset.notice_count %></li>
           </ul>
         </div>
       </div>

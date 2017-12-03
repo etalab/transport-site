@@ -46,7 +46,7 @@ defmodule TransportWeb.DatasetController do
 
   def details(%Plug.Conn{} = conn, %{"slug" => slug}) do
     slug
-    |> ReusableData.get_dataset()
+    |> ReusableData.get_dataset
     |> case do
       nil ->
         conn
@@ -55,9 +55,6 @@ defmodule TransportWeb.DatasetController do
       dataset ->
         conn
         |> assign(:dataset, dataset)
-        |> assign(:nb_errors, ReusableData.count_errors(dataset))
-        |> assign(:nb_warnings, ReusableData.count_warnings(dataset))
-        |> assign(:nb_notices, ReusableData.count_notices(dataset))
         |> assign(:dataset_id, ReusableData.get_dataset_id(conn, dataset))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> render("details.html")
