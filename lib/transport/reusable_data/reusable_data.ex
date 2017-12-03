@@ -1,6 +1,6 @@
 defmodule Transport.ReusableData do
   @moduledoc """
-  The ReusableData context.
+  The ReusableData bounded context.
   """
 
   alias Transport.ReusableData.{Dataset, Licence}
@@ -31,7 +31,6 @@ defmodule Transport.ReusableData do
     :mongo
     |> Mongo.find("datasets", query, pool: @pool)
     |> Enum.to_list()
-    |> Enum.map(&atomise(&1))
     |> Enum.map(&Dataset.new(&1))
     |> Enum.reduce([], fn(dataset, acc) ->
       case CeleryTask.find_one(dataset.celery_task_id) do
@@ -64,7 +63,7 @@ defmodule Transport.ReusableData do
     |> Mongo.find_one("datasets", query, pool: @pool)
     |> case do
       nil -> nil
-      dataset -> dataset |> atomise |> Dataset.new
+      dataset -> Dataset.new(dataset)
     end
   end
 
@@ -113,7 +112,6 @@ defmodule Transport.ReusableData do
 
     :mongo
     |> Mongo.find_one("datasets", query, pool: @pool)
-    |> atomise
     |> Dataset.new
   end
 
@@ -230,13 +228,5 @@ defmodule Transport.ReusableData do
     |> Map.get("validations")
     |> Map.get("notices")
     |> Enum.count()
-  end
-
-  # private
-
-  defp atomise(%{} = attrs) do
-    Enum.reduce(attrs, %{}, fn({key, value}, map) ->
-      Map.put(map, String.to_existing_atom(key), value)
-    end)
   end
 end

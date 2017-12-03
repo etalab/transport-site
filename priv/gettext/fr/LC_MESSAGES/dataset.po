@@ -69,3 +69,11 @@ msgstr ""
 #: lib/transport/datagouvfr/client/datasets.ex:40
 msgid "An organization is needed"
 msgstr ""
+
+#: lib/transport/data_improvement/commands/upload_dataset_file.ex:66
+msgid "A dataset file is needed"
+msgstr "Un fichier contenant un jeu de données est requis"
+
+#: lib/transport/data_improvement/commands/upload_dataset_file.ex:48
+msgid "Invalid dataset identifier"
+msgstr "L’identificateur du jeu de données n’est pas valide"

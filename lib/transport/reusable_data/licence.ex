@@ -5,41 +5,51 @@ defmodule Transport.ReusableData.Licence do
 
   import TransportWeb.Gettext
 
-  @enforce_keys [:name]
   defstruct [:name]
+
+  use ExConstructor
 
   @type t :: %__MODULE__{
     name: String.t
+  }
+
+  @localisations %{
+    "fr-lo" => dgettext("reusable_data", "fr-lo"),
+    "odc-odbl" => dgettext("reusable_data", "odc-odbl"),
+    "other-open" => dgettext("reusable_data", "other-open"),
+    "notspecified" => dgettext("reusable_data", "notspecified")
   }
 
   @doc """
   Initialises a licence struct with a given code. If the code is within a known
   list of codes, it is localised to the current Gettext locale.
 
-  If it is not, then it returns an error.
-
   ## Examples
 
       iex> Licence.new(%{name: "fr-lo"})
       %Licence{name: "Open Licence"}
 
+      iex> Licence.new(%{"name" => "fr-lo"})
+      %Licence{name: "Open Licence"}
+
       iex> Licence.new(%{name: "Lolbertarian"})
+      %Licence{name: nil}
+
+      iex> Licence.new(%{})
       %Licence{name: nil}
 
   """
   @spec new(map()) :: %__MODULE__{}
   def new(%{} = attrs) do
-    case Map.get(attrs, :name) do
-      "fr-lo" ->
-        %__MODULE__{name: dgettext("reusable_data", "fr-lo")}
-      "odc-odbl" ->
-        %__MODULE__{name: dgettext("reusable_data", "odc-odbl")}
-      "other-open" ->
-        %__MODULE__{name: dgettext("reusable_data", "other-open")}
-      "notspecified" ->
-        %__MODULE__{name: dgettext("reusable_data", "notspecified")}
-      _ ->
-        %__MODULE__{name: nil}
-    end
+    attrs
+    |> super
+    |> assign_localised_name
+  end
+
+  # private
+
+  @spec assign_localised_name(%__MODULE__{}) :: %__MODULE__{}
+  defp assign_localised_name(licence) do
+    %__MODULE__{licence | name: Map.get(@localisations, licence.name)}
   end
 end
