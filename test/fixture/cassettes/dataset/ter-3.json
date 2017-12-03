@@ -1,0 +1,68 @@
+[
+  {
+    "request": {
+      "body": "",
+      "headers": [],
+      "method": "get",
+      "options": [],
+      "request_body": "",
+      "url": "https://next.data.gouv.fr/api/1/datasets/horaires-des-lignes-ter-sncf/"
+    },
+    "response": {
+      "body": "{\"badges\": [{\"kind\": \"c3\"}], \"created_at\": \"2014-05-26T08:18:55.932000\", \"deleted\": null, \"description\": \"Horaires des lignes TER au format [GTFS](https://developers.google.com/transit/gtfs/reference).\\n\\nCes horaires sont les horaires th\\u00e9oriques mis \\u00e0 jour tous les mois.\", \"extras\": {\"datagouv_ckan_id\": \"250a80e7-7f8c-4e56-9afb-b2eb16f9993f\", \"datagouv_ckan_last_sync\": \"2014-09-16T09:14:20.686000\", \"harvest:domain\": \"ressources.data.sncf.com\", \"harvest:last_update\": \"2017-11-30T05:55:14.296892\", \"harvest:remote_id\": \"sncf-ter-gtfs\", \"harvest:source_id\": \"563dd01f88ee386a21e72046\", \"ods:has_records\": true, \"ods:url\": \"https://ressources.data.sncf.com/explore/dataset/sncf-ter-gtfs/\", \"remote_url\": \"http://ressources.data.sncf.com/explore/dataset/sncf-ter-gtfs/\"}, \"frequency\": \"unknown\", \"frequency_date\": null, \"id\": \"53835289a3a72906c7ec5c58\", \"last_modified\": \"2017-11-30T05:55:14.298000\", \"last_update\": \"2017-11-30T05:55:14.296000\", \"license\": \"other-open\", \"metrics\": {\"cow_criticals\": 0, \"cow_errors\": 0, \"cow_score\": 2.399573749860555, \"cow_warnings\": 3, \"discussions\": 1, \"followers\": 3, \"issues\": 1, \"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"reuses\": 0, \"views\": 18}, \"organization\": {\"acronym\": null, \"class\": \"Organization\", \"id\": \"534fffb0a3a7292c64a78115\", \"logo\": \"https://next.data.gouv.fr/s/avatars/f3/0b8ad932f74086a6ab3f291ee9243f-original.png\", \"logo_thumbnail\": \"https://next.data.gouv.fr/s/avatars/f3/0b8ad932f74086a6ab3f291ee9243f-100.png\", \"name\": \"SNCF\", \"page\": \"https://next.data.gouv.fr/fr/organizations/sncf/\", \"slug\": \"sncf\", \"uri\": \"https://next.data.gouv.fr/api/1/organizations/sncf/\"}, \"owner\": null, \"page\": \"https://next.data.gouv.fr/fr/datasets/horaires-des-lignes-ter-sncf/\", \"private\": false, \"resources\": [{\"checksum\": null, \"created_at\": \"2017-11-30T05:55:14.295000\", \"description\": \"- *Donnees*: donn_es[text]\\n- *format*: format[text]\\n- *Download*: download[file]\\n\", \"extras\": {}, \"filesize\": null, \"filetype\": \"remote\", \"format\": \"csv\", \"id\": \"ace4c616-aeb1-4984-a3d6-e024d421bfc4\", \"last_modified\": \"2017-11-16T09:51:55\", \"latest\": \"https://next.data.gouv.fr/fr/datasets/r/ace4c616-aeb1-4984-a3d6-e024d421bfc4\", \"metrics\": {\"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"views\": 0}, \"mime\": \"text/csv\", \"published\": \"2017-11-30T05:55:14.295000\", \"title\": \"Export au format CSV\", \"url\": \"https://ressources.data.sncf.com/explore/dataset/sncf-ter-gtfs/download?format=csv&timezone=Europe/Berlin&use_labels_for_header=true\"}, {\"checksum\": null, \"created_at\": \"2017-11-30T05:55:14.296000\", \"description\": \"- *Donnees*: donn_es[text]\\n- *format*: format[text]\\n- *Download*: download[file]\\n\", \"extras\": {\"check:available\": true, \"check:count-availability\": 1, \"check:date\": \"2017-08-03T13:07:48.009000\", \"check:status\": 200, \"check:url\": \"https://ressources.data.sncf.com/explore/dataset/sncf-ter-gtfs/download?format=json&timezone=Europe/Berlin&use_labels_for_header=true\"}, \"filesize\": null, \"filetype\": \"remote\", \"format\": \"json\", \"id\": \"00499405-8921-4e56-b342-f467dd730237\", \"last_modified\": \"2017-11-16T09:51:55\", \"latest\": \"https://next.data.gouv.fr/fr/datasets/r/00499405-8921-4e56-b342-f467dd730237\", \"metrics\": {\"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"views\": 0}, \"mime\": \"application/json\", \"published\": \"2017-11-30T05:55:14.296000\", \"title\": \"Export au format JSON\", \"url\": \"https://ressources.data.sncf.com/explore/dataset/sncf-ter-gtfs/download?format=json&timezone=Europe/Berlin&use_labels_for_header=true\"}], \"slug\": \"horaires-des-lignes-ter-sncf\", \"spatial\": {\"geom\": null, \"granularity\": \"other\", \"zones\": [\"country:fr\"]}, \"tags\": [\"france\", \"gare-de-voyageurs\", \"gtfs\", \"horaire\", \"horaires-et-itineraires\", \"train\"], \"temporal_coverage\": null, \"title\": \"Horaires des lignes TER\", \"uri\": \"https://next.data.gouv.fr/api/1/datasets/horaires-des-lignes-ter-sncf/\"}",
+      "headers": {
+        "Server": "nginx",
+        "Date": "Thu, 30 Nov 2017 16:27:54 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "3874",
+        "Connection": "keep-alive",
+        "Vary": "Accept-Encoding",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "PUT, HEAD, GET, OPTIONS, DELETE",
+        "Access-Control-Max-Age": "21600",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
+        "Pragma": "public",
+        "Cache-Control": "public",
+        "Strict-Transport-Security": "max-age=500",
+        "X-Frame-Options": "SAMEORIGIN",
+        "X-Content-Type-Options": "nosniff",
+        "X-XSS-Protection": "1; mode=block"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  },
+  {
+    "request": {
+      "body": "",
+      "headers": [],
+      "method": "get",
+      "options": [],
+      "request_body": "",
+      "url": "https://ressources.data.sncf.com/explore/dataset/sncf-ter-gtfs/download?format=csv&timezone=Europe/Berlin&use_labels_for_header=true"
+    },
+    "response": {
+      "body": "Donnees;format;Download\r\nHoraires des lignes TER;GTFS;https://ressources.data.sncf.com/api/v2/catalog/datasets/sncf-ter-gtfs/files/24e02fa969496e2caa5863a365c66ec2\r\n",
+      "headers": {
+        "Server": "nginx",
+        "Date": "Thu, 30 Nov 2017 16:27:54 GMT",
+        "Content-Type": "application/csv; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "keep-alive",
+        "X-RateLimit-Remaining": "19997",
+        "Content-Language": "fr",
+        "Content-Disposition": "attachment; filename=\"sncf-ter-gtfs.csv\"",
+        "Expires": "Fri, 01 Jan 1990 00:00:00 GMT",
+        "Vary": "Accept-Language, Cookie, Host",
+        "X-RateLimit-Limit": "20000",
+        "Pragma": "no-cache",
+        "Cache-Control": "no-cache, no-store, max-age=0, must-revalidate",
+        "X-RateLimit-Reset": "2017-12-01 00:00:00+00:00",
+        "X-UA-Compatible": "IE=edge"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]

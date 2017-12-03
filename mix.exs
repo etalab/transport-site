@@ -42,6 +42,7 @@ defmodule Transport.Mixfile do
     [
       {:amqp, "~> 0.3"},
       {:cowboy, "~> 1.0"},
+      {:csv, "~> 2.0.0"},
       {:earmark, "~> 1.2"},
       {:exconstructor, "~> 1.1"},
       {:gettext, "~> 0.11"},
