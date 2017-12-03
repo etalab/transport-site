@@ -73,6 +73,7 @@ jobs:
           command: |
             mix credo --strict
             mix npm "run linter:ecma"
+            mix npm "run linter:riot"
             mix npm "run linter:sass"
 
       - run:
