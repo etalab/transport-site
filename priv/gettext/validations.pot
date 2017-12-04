@@ -30,10 +30,6 @@ msgstr ""
 msgid "High speed travel detected in trip %{trip_id}: %{prev_stop}\" to %{next_stop}. %{dist} meters in %{time} seconds. (%{speed} km/h).\n"
 msgstr ""
 
-#: lib/transport/validation/validation.ex:62
-msgid "Invalid numeric value %{value}. \nPlease ensure that the number includes an explicit whole number portion (ie. use 0.5 instead of .5), that you do not use the exponential notation (ie. use 0.001 instead of 1E-3), and that it is a properly formated decimal value.\")\n"
-msgstr ""
-
 #: lib/transport/validation/validation.ex:71
 msgid "Invalid value %{value} in field %{column_name}"
 msgstr ""
@@ -64,4 +60,8 @@ msgstr ""
 
 #: lib/transport/validation/validation.ex:88
 msgid "This feed expires on %{year}/%{month}/%{day}"
+msgstr ""
+
+#: lib/transport/validation/validation.ex:62
+msgid "Invalid numeric value %{value}.\nPlease ensure that the number includes an explicit whole number portion (ie. use 0.5 instead of .5), that you do not use the exponential notation (ie. use 0.001 instead of 1E-3), and that it is a properly formated decimal value.\")\n"
 msgstr ""

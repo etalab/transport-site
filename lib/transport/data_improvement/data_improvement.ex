@@ -25,7 +25,7 @@ defmodule Transport.DataImprovement do
         |> Dataset.new
         |> DatasetRepository.update_file(conn)
       {:error, errors} ->
-        {:validation_error, errors}
+        {:error, :validation_errors, errors}
     end
   end
 end
