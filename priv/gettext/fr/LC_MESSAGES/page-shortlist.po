@@ -15,8 +15,8 @@ msgstr ""
 msgid "Download"
 msgstr "Télécharger"
 
-#: lib/transport_web/templates/dataset/details.html.eex:33
-#: lib/transport_web/templates/dataset/index.html.eex:45
+#: lib/transport_web/templates/dataset/details.html.eex:34
+#: lib/transport_web/templates/dataset/index.html.eex:47
 msgid "Licence"
 msgstr "License"
 
@@ -26,15 +26,30 @@ msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
 
 #: lib/transport_web/templates/dataset/details.html.eex:27
-#: lib/transport_web/templates/dataset/index.html.eex:39
+#: lib/transport_web/templates/dataset/index.html.eex:40
 msgid "Territory"
 msgstr "Territoire"
 
-#: lib/transport_web/templates/dataset/index.html.eex:2
-msgid "Available datasets"
-msgstr "Jeux de données disponibles"
-
-#: lib/transport_web/templates/dataset/details.html.eex:38
-#: lib/transport_web/templates/dataset/index.html.eex:50
+#: lib/transport_web/templates/dataset/details.html.eex:41
+#: lib/transport_web/templates/dataset/index.html.eex:54
 msgid "Format"
 msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:47
+#: lib/transport_web/templates/dataset/index.html.eex:60
+msgid "Status"
+msgstr "État"
+
+#: lib/transport_web/templates/dataset/details.html.eex:51
+#: lib/transport_web/templates/dataset/index.html.eex:64
+msgid "Invalid"
+msgstr "Invalide"
+
+#: lib/transport_web/templates/dataset/details.html.eex:49
+#: lib/transport_web/templates/dataset/index.html.eex:62
+msgid "Valid"
+msgstr "Valide"
+
+#: lib/transport_web/templates/dataset/index.html.eex:2
+msgid "Valid datasets available"
+msgstr "Jeux de données valides disponibles"

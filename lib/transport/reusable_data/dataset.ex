@@ -11,13 +11,17 @@ defmodule Transport.ReusableData.Dataset do
     :logo,
     :spatial,
     :coordinates,
-    :license,
+    :licence,
     :slug,
     :download_uri,
     :anomalies,
     :format,
     :celery_task_id,
-    :validations
+    :validations,
+    :error_count,
+    :notice_count,
+    :warning_count,
+    :valid?
   ]
 
   use ExConstructor
@@ -28,13 +32,67 @@ defmodule Transport.ReusableData.Dataset do
     description:    String.t,
     logo:           String.t,
     spatial:        String.t,
-    coordinates:    [float],
-    license:        String.t,
+    coordinates:    [float()],
+    licence:        String.t,
     slug:           String.t,
     download_uri:   String.t,
     anomalies:      [String.t],
     format:         String.t,
     celery_task_id: String.t,
     validations:    Map.t,
+    error_count:    integer(),
+    notice_count:   integer(),
+    warning_count:  integer(),
+    valid?:         boolean()
   }
+
+  @doc """
+  Calculate and add the number of errors to the dataset.
+  """
+  @spec assign(%__MODULE__{}, :error_count) :: %__MODULE__{}
+  def assign(%__MODULE__{} = dataset, :error_count) do
+    error_count =
+      dataset
+      |> Map.get(:validations)
+      |> Map.get("errors")
+      |> Enum.count()
+
+    new(%{dataset | error_count: error_count})
+  end
+
+  @doc """
+  Calculate and add the number of notices to the dataset.
+  """
+  @spec assign(%__MODULE__{}, :notice_count) :: %__MODULE__{}
+  def assign(%__MODULE__{} = dataset, :notice_count) do
+    notice_count =
+      dataset
+      |> Map.get(:validations)
+      |> Map.get("notices")
+      |> Enum.count()
+
+    new(%{dataset | notice_count: notice_count})
+  end
+
+  @doc """
+  Calculate and add the number of warnings to the dataset.
+  """
+  @spec assign(%__MODULE__{}, :warning_count) :: %__MODULE__{}
+  def assign(%__MODULE__{} = dataset, :warning_count) do
+    warning_count =
+      dataset
+      |> Map.get(:validations)
+      |> Map.get("warnings")
+      |> Enum.count()
+
+    new(%{dataset | warning_count: warning_count})
+  end
+
+  @doc """
+  Add whether the dataset is valid or no.
+  """
+  @spec assign(%__MODULE__{}, :valid?) :: %__MODULE__{}
+  def assign(%__MODULE__{} = dataset, :valid?) do
+    new(%{dataset | valid?: dataset.error_count == 0})
+  end
 end

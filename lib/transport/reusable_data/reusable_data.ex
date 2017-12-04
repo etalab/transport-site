@@ -5,7 +5,6 @@ defmodule Transport.ReusableData do
 
   alias Transport.ReusableData.{Dataset, Licence}
   alias Transport.Datagouvfr.Client.Datasets
-  alias Transport.DataValidator.CeleryTask
 
   @pool DBConnection.Poolboy
 
@@ -33,12 +32,16 @@ defmodule Transport.ReusableData do
     |> Enum.to_list()
     |> Enum.map(&Dataset.new(&1))
     |> Enum.reduce([], fn(dataset, acc) ->
-      case CeleryTask.find_one(dataset.celery_task_id) do
-        {:ok, task} -> [Map.put(dataset, :celery_task, task) | acc]
-        _ -> acc
-      end
+      dataset =
+        dataset
+        |> Dataset.assign(:error_count)
+        |> Dataset.assign(:notice_count)
+        |> Dataset.assign(:warning_count)
+        |> Dataset.assign(:valid?)
+
+      [dataset | acc]
     end)
-    |> Enum.filter(&(count_errors(&1) == 0))
+    |> Enum.filter(&(&1.valid?))
   end
 
   @doc """
@@ -54,6 +57,11 @@ defmodule Transport.ReusableData do
       iex> ReusableData.get_dataset("")
       nil
 
+      iex> "leningrad-metro-dataset"
+      ...> |> ReusableData.get_dataset
+      ...> |> Map.get(:valid?)
+      true
+
   """
   @spec get_dataset(String.t) :: %Dataset{}
   def get_dataset(slug) do
@@ -62,30 +70,16 @@ defmodule Transport.ReusableData do
     :mongo
     |> Mongo.find_one("datasets", query, pool: @pool)
     |> case do
-      nil -> nil
-      dataset -> Dataset.new(dataset)
-    end
-  end
+      nil ->
+        nil
 
-  @doc """
-  Return dataset by slug and its attached celery task.
-
-  ## Examples
-
-      iex> "leningrad-metro-dataset"
-      ...> |> ReusableData.get_dataset(:with_celery_task)
-      ...> |> Map.get(:celery_task)
-      ...> |> Map.get(:result)
-      ...> |> Map.get("validations")
-      ...> |> Map.get("errors")
-      []
-
-  """
-  @spec get_dataset(String.t, :with_celery_task) :: %Dataset{}
-  def get_dataset(slug, :with_celery_task) do
-    with dataset <- get_dataset(slug),
-         {:ok, celery_task} <- CeleryTask.find_one(dataset.celery_task_id) do
-      Map.put(dataset, :celery_task, celery_task)
+      dataset ->
+        dataset
+        |> Dataset.new
+        |> Dataset.assign(:error_count)
+        |> Dataset.assign(:notice_count)
+        |> Dataset.assign(:warning_count)
+        |> Dataset.assign(:valid?)
     end
   end
 
@@ -168,38 +162,6 @@ defmodule Transport.ReusableData do
     Licence.new(attrs)
   end
 
-  @doc """
-  Creates a dataset validation.
-
-  ## Examples
-
-      iex> %{status: "SUCCESS", result: "{}", children: "[]", traceback: "null"}
-      ...> |> ReusableData.create_dataset_validation!
-      ...> |> Map.get(:status)
-      "SUCCESS"
-
-      iex> %{}
-      ...> |> ReusableData.create_dataset_validation!
-      ** (ArgumentError) argument error
-  """
-  @spec create_dataset_validation!(map()) :: %CeleryTask{}
-  def create_dataset_validation!(%{} = attrs) do
-    case Mongo.insert_one(:mongo, "celery_taskmeta", attrs, pool: @pool) do
-      {:ok, result} ->
-        query = %{"_id"  => result.inserted_id}
-
-        :mongo
-        |> Mongo.find_one("celery_taskmeta", query, pool: @pool)
-        |> CeleryTask.apply
-        |> case do
-          {:ok, celery_task} -> celery_task
-          {:error, error} -> {:error, error}
-        end
-
-      {:error, error} -> {:error, error}
-    end
-  end
-
   def get_dataset_id(conn, dataset) do
     conn
     |> Datasets.get(dataset.slug)
@@ -207,23 +169,5 @@ defmodule Transport.ReusableData do
       {:ok, d}    -> d["id"]
       {:error, _} -> nil
     end
-  end
-
-  def count_errors(dataset) do
-    dataset.validations
-    |> Map.get("errors")
-    |> Enum.count()
-  end
-
-  def count_warnings(dataset) do
-    dataset.validations
-    |> Map.get("warnings")
-    |> Enum.count()
-  end
-
-  def count_notices(dataset) do
-    dataset.validations
-    |> Map.get("notices")
-    |> Enum.count()
   end
 end
