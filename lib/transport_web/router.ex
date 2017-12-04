@@ -65,6 +65,7 @@ defmodule TransportWeb.Router do
     scope "/datasets" do
       get "/", API.DatasetController, :index
       get "/:slug/", API.DatasetController, :show
+      get "/:slug/validations/", API.DatasetController, :validations
     end
   end
 

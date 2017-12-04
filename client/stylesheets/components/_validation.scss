@@ -1,0 +1,17 @@
+validation {
+  h1 {
+    background-color: $light-grey;
+  }
+
+  .validation__chooser {
+    margin-bottom: 2em;
+  }
+
+  .validation__pagination {
+    margin-top: 2em;
+  }
+
+  .validation__message {
+    margin-top: .5em;
+  }
+}
