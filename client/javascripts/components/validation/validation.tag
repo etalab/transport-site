@@ -33,10 +33,7 @@
         })
 
         this.on('mount', () => {
-            let headers = new Headers()
-            headers.append('Accept', 'application/vnd.api+json')
-            fetch('/api/datasets/' + this.opts.slug + '/validations/',
-                {headers: headers}
+            fetch('/api/datasets/' + this.opts.slug + '/validations/'
             ).then((response) => {
                 return response.json()
             }).then((data) => {
