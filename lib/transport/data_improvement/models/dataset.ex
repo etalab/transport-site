@@ -3,11 +3,11 @@ defmodule Transport.DataImprovement.Dataset do
   A dataset in the context of data improvement.
   """
 
-  defstruct [:dataset_uuid, :file]
+  defstruct [:dataset_id, :file]
   use Transport.DataImprovement.Macros, :model
 
   @type t :: %__MODULE__{
-    dataset_uuid: String.t,
+    dataset_id: String.t,
     file: String.t
   }
 end

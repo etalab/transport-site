@@ -12,7 +12,7 @@ defmodule TransportWeb.DatasetControllerTest do
     assert html_response(conn, 200) =~ "Jeux de données valides disponibles"
   end
 
-  describe "GET /user/organizations/:organization/datasets/_create" do
+  describe "POST /user/organizations/:organization/datasets/_create" do
     test "logged in", %{conn: conn} do
       use_cassette "dataset/create-0" do
         file = %Plug.Upload{path: "test/fixture/files/gtfs.zip",
@@ -38,10 +38,36 @@ defmodule TransportWeb.DatasetControllerTest do
       conn = conn |> post(path)
       assert redirected_to(conn, 302) == page_path(conn, :login, redirect_path: path)
     end
+  end
 
-    test "field missing" do
-#pending
+  describe "PATCH /user/datasets/:slug/improve" do
+    test "logged in", %{conn: conn} do
+      conn =
+        conn
+        |> init_test_session(
+          current_user: %{},
+          client: Authentication.client("secret")
+        )
 
+      file = %Plug.Upload{
+        path: "test/fixture/files/gtfs.zip",
+        filename: "gtfs.zip"
+      }
+
+      params = %{
+        "slug" => "hola",
+        "dataset" => %{
+          "dataset_id" => "5a0b1b240b5b39318769c3b1",
+          "file" => file
+        }
+      }
+
+      path = dataset_path(conn, :improve, params["slug"])
+      conn = use_cassette "dataset/upload-dataset-file-0" do
+        patch(conn, path, params)
+      end
+
+      assert redirected_to(conn, 302) == dataset_path(conn, :details, params["slug"])
     end
   end
 end

@@ -3,6 +3,7 @@ defmodule TransportWeb.DatasetController do
   alias Transport.ReusableData
   alias Transport.Datagouvfr.Authentication
   alias Transport.Datagouvfr.Client.{Organizations, Datasets}
+  alias Transport.DataImprovement
   require Logger
 
   def index(%Plug.Conn{} = conn, _params) do
@@ -36,6 +37,27 @@ defmodule TransportWeb.DatasetController do
         conn
         |> put_flash(:errors, Enum.map(errors, fn({_, _, _, s}) -> s end))
         |> redirect(to: dataset_path(conn, :new, organization))
+      {:error, error} ->
+        Logger.error(error)
+        conn
+        |> put_status(:internal_server_error)
+        |> render(ErrorView, "500.html")
+    end
+  end
+
+  def improve(%Plug.Conn{} = conn, %{"slug" => slug, "dataset" => params}) do
+    case DataImprovement.upload_dataset_file(conn, params) do
+      {:ok, _} ->
+        conn
+        |> put_flash(
+          :success,
+          dgettext("alert", "Your improvement has been successfully proposed.")
+        )
+        |> redirect(to: dataset_path(conn, :details, slug))
+      {:error, :validation_errors, errors} ->
+        conn
+        |> put_flash(:errors, Enum.map(errors, fn({_, _, _, s}) -> s end))
+        |> render("details.html")
       {:error, error} ->
         Logger.error(error)
         conn

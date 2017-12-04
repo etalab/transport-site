@@ -22,7 +22,7 @@ defmodule Transport.DataImprovement.DatasetRepositoryTest do
     )
 
     dataset = %Dataset{
-      dataset_uuid: "5a0b1b240b5b39318769c3b1",
+      dataset_id: "5a0b1b240b5b39318769c3b1",
       file: file
     }
 

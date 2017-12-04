@@ -1,10 +1,10 @@
 defmodule Transport.Validation do
   @moduledoc """
-    Represent a validation produced by transitfeed validation
+  Represents validations produced by TransitFeed validator.
   """
 
   import TransportWeb.Gettext
-  import Logger
+  require Logger
   alias Transport.ReusableData
 
   @epoch :calendar.datetime_to_gregorian_seconds({{1970, 1, 1}, {0, 0, 0}})
@@ -61,7 +61,7 @@ defmodule Transport.Validation do
                "dict" => dict}) do
     dgettext("validations",
       """
-      Invalid numeric value %{value}. 
+      Invalid numeric value %{value}.
       Please ensure that the number includes an explicit whole number portion (ie. use 0.5 instead of .5), that you do not use the exponential notation (ie. use 0.001 instead of 1E-3), and that it is a properly formated decimal value.")
       """, value: dict["value"])
   end

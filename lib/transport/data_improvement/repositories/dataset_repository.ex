@@ -7,7 +7,7 @@ defmodule Transport.DataImprovement.DatasetRepository do
   alias Transport.DataImprovement.Dataset
   alias Transport.Datagouvfr.Client.Datasets, as: Repo # smell
 
-  @entity_id :dataset_uuid
+  @entity_id :dataset_id
 
   # write API
 
