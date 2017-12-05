@@ -18,11 +18,11 @@ defmodule Transport.ReusableData.Dataset do
     :anomalies,
     :format,
     :celery_task_id,
-    :validations,
     :error_count,
     :notice_count,
     :warning_count,
-    :valid?
+    :valid?,
+    validations: %{},
   ]
 
   use ExConstructor
@@ -55,7 +55,7 @@ defmodule Transport.ReusableData.Dataset do
     error_count =
       dataset
       |> Map.get(:validations)
-      |> Map.get("errors")
+      |> Map.get("errors", [])
       |> Enum.count()
 
     new(%{dataset | error_count: error_count})
@@ -69,7 +69,7 @@ defmodule Transport.ReusableData.Dataset do
     notice_count =
       dataset
       |> Map.get(:validations)
-      |> Map.get("notices")
+      |> Map.get("notices", [])
       |> Enum.count()
 
     new(%{dataset | notice_count: notice_count})
@@ -83,7 +83,7 @@ defmodule Transport.ReusableData.Dataset do
     warning_count =
       dataset
       |> Map.get(:validations)
-      |> Map.get("warnings")
+      |> Map.get("warnings", [])
       |> Enum.count()
 
     new(%{dataset | warning_count: warning_count})
