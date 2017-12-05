@@ -60,6 +60,9 @@
           </ul>
         </div>
       </div>
+      <div>
+        <a class="button is-centered" href="<%= user_path(@conn, :organizations, slug: @dataset.slug) %>"><%= dgettext("page-dataset-details", "Publish a linked dataset") %></a>
+      </div>
     </div>
     <div class="main-pan dataset-details__main-pan" id="description">
       <div class="dataset-detail__markdown">

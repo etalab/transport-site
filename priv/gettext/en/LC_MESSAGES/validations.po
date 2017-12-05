@@ -62,7 +62,6 @@ msgstr ""
 msgid "Unrecognized column %{column_name} in file %{file_name}.\nThis might be a misspelled column name (capitalization matters!). Or it could be extra information (such as a proposed feed extension) that the validator doesn't know about yet. Extra information is fine; this warning is here to catch misspelled optional column names.\n"
 msgstr ""
 
-#, fuzzy
 #: lib/transport/validation/validation.ex:88
 msgid "This feed expires on %{year}/%{month}/%{day}"
 msgstr ""
