@@ -41,7 +41,7 @@ defmodule TransportWeb.DatasetControllerTest do
     test "field missing"
   end
 
-  describe "GET /user/organizations/:organization/datasets/_create_community_resource" do
+  describe "POST /user/organizations/:organization/datasets/_create_community_resource" do
     test "logged in", %{conn: conn} do
       use_cassette "dataset/create-community-resource-4" do
         linked_dataset_slug = "horaires-theoriques-du-reseau-de-transport-lva"
@@ -74,9 +74,7 @@ defmodule TransportWeb.DatasetControllerTest do
       assert redirected_to(conn, 302) == page_path(conn, :login, redirect_path: path)
     end
 
-    test "field missing" do
-#pending
-
-    end
+    @tag :pending
+    test "field missing"
   end
 end

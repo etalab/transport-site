@@ -30,7 +30,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
     :ok
   end
 
-  @tag :integration
+  @tag :solution
   test "I can list available datasets to find and download transport data" do
     @endpoint
     |> page_url(:index)

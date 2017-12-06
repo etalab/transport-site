@@ -1,0 +1,41 @@
+[
+  {
+    "request": {
+      "body": "null",
+      "headers": {
+        "accept": "application/json"
+      },
+      "method": "get",
+      "options": {
+        "timeout": 15000
+      },
+      "request_body": "",
+      "url": "https://next.data.gouv.fr/api/1/datasets/community_resources/?dataset=1"
+    },
+    "response": {
+      "binary": false,
+      "body": "{\"data\": [{\"checksum\": null, \"created_at\": \"2017-09-30T10:32:44.900000\", \"dataset\": {\"class\": \"Dataset\", \"id\": \"1\", \"page\": \"https://next.data.gouv.fr/fr/datasets/cadastre/\", \"title\": \"Cadastre\", \"uri\": \"https://next.data.gouv.fr/api/1/datasets/cadastre/\"}, \"description\": \"Fichier .torrent pour BitTorrent permettant de t\\u00e9l\\u00e9charger et partager les fichiers geojson du cadastre produits par Etalab.\", \"extras\": {}, \"filesize\": null, \"filetype\": \"remote\", \"format\": \"torrent\", \"id\": \"1\", \"last_modified\": \"2017-09-30T10:32:44.900000\", \"latest\": \"https://next.data.gouv.fr/fr/datasets/r/1\", \"metrics\": {\"nb_hits\": 2, \"nb_uniq_visitors\": 2, \"nb_visits\": 2, \"views\": 9}, \"mime\": null, \"organization\": null, \"owner\": {\"avatar\": \"https://next.data.gouv.fr/s/avatars/96/ab9b0987f447bc97dc8adab0581352-original.png\", \"avatar_thumbnail\": \"https://next.data.gouv.fr/s/avatars/96/ab9b0987f447bc97dc8adab0581352-100.png\", \"class\": \"User\", \"first_name\": \"Jean\", \"id\": \"1\", \"last_name\": \"Serien\", \"page\": \"https://next.data.gouv.fr/fr/users1jean-serien-!/\", \"slug\": \"jean-serien-1\", \"uri\": \"https://next.data.gouv.fr/api/1/users/jean-serien-1/\"}, \"published\": \"2017-09-29T00:00:00\", \"title\": \"Diffusion rapide et collaborative des fichiers geojson du cadastre en \\\"pair \\u00e0 pair\\\"\", \"url\": \"http://212.47.238.202/torrents/cadastre/\"}], \"facets\": null, \"next_page\": null, \"page\": 1, \"page_size\": 20, \"previous_page\": null, \"total\": 1}",
+      "headers": {
+        "Server": "nginx",
+        "Date": "Wed, 06 Dec 2017 16:56:34 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "1564",
+        "Connection": "keep-alive",
+        "Vary": "Accept-Encoding",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "HEAD, GET, PUT, POST, OPTIONS, DELETE",
+        "Access-Control-Max-Age": "21600",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
+        "Pragma": "public",
+        "Cache-Control": "public",
+        "Strict-Transport-Security": "max-age=500",
+        "X-Frame-Options": "SAMEORIGIN",
+        "X-Content-Type-Options": "nosniff",
+        "X-XSS-Protection": "1; mode=block"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]

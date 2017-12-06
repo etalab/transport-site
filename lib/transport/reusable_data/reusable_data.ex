@@ -3,8 +3,8 @@ defmodule Transport.ReusableData do
   The ReusableData bounded context.
   """
 
-  alias Transport.ReusableData.{Dataset, Licence}
-  alias Transport.Datagouvfr.Client.Datasets
+  alias Transport.ReusableData.{Dataset, Licence, CommunityResource}
+  alias Transport.Datagouvfr.Client.{Datasets, Resources}
 
   @pool DBConnection.Poolboy
 
@@ -45,7 +45,7 @@ defmodule Transport.ReusableData do
   end
 
   @doc """
-  Return one dataset by slug
+  Find a dataset by slug
 
   ## Examples
 
@@ -168,6 +168,22 @@ defmodule Transport.ReusableData do
     |> case do
       {:ok, d}    -> d["id"]
       {:error, _} -> nil
+    end
+  end
+
+  @doc """
+  List a dataset's community resources
+  """
+  @spec list_community_resources(%Plug.Conn{}, String.t) :: [%{}]
+  def list_community_resources(%Plug.Conn{} = conn, dataset_id) do
+    case Resources.get(conn, dataset_id) do
+      {:ok, %{"data" => resources}} ->
+        Enum.map(resources, fn(resource) ->
+          resource
+          |> CommunityResource.new
+          |> CommunityResource.assign(:organization)
+        end)
+      {:error, error} -> "fuck!"
     end
   end
 end

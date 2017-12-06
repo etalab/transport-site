@@ -3,7 +3,6 @@ defmodule Transport.ReusableData.Dataset do
   Represents a dataset as it is published by a producer and consumed by a
   reuser.
   """
-  alias Transport.DataValidator.CeleryTask
 
   defstruct [
     :_id,

@@ -4,7 +4,12 @@ defmodule Transport.Datagouvfr.Client.Resources do
   """
 
   import TransportWeb.Gettext
-  import Transport.Datagouvfr.Client, only: [put_request: 3, post_request: 4]
+  import Transport.Datagouvfr.Client, only: [
+    get_request: 2,
+    put_request: 3,
+    post_request: 4
+  ]
+
   use Vex.Struct
   alias __MODULE__
 
@@ -32,6 +37,18 @@ defmodule Transport.Datagouvfr.Client.Resources do
     map
     |> Map.take(keys())
     |> Enum.reduce(%Resources{}, &accumulator_atomizer/2)
+  end
+
+  @doc """
+  Call to GET /api/1/datasets/community_resources/?sort=-created&dataset=1
+  You can see documentation here: https://www.data.gouv.fr/en/apidoc/#!/datasets/list_community_resources
+  """
+  @spec get(%Plug.Conn{}, String.t) :: {atom(), [map()]}
+  def get(%Plug.Conn{} = conn, dataset_id) do
+    get_request(
+      conn,
+      Path.join(@endpoint, "/community_resources/?sort=-created&dataset=#{dataset_id}")
+    )
   end
 
   @doc """
