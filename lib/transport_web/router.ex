@@ -60,13 +60,14 @@ defmodule TransportWeb.Router do
     get "/logout", SessionController, :delete
   end
 
-  scope "/api", TransportWeb do
+  scope "/api", TransportWeb.API do
     pipe_through :api
 
     scope "/datasets" do
-      get "/", API.DatasetController, :index
-      get "/:slug/", API.DatasetController, :show
-      get "/:slug/validations/", API.DatasetController, :validations
+      get "/", DatasetController, :index
+      get "/:slug/", DatasetController, :show
+      get "/:slug/validations/", DatasetController, :validations
+      get "/:dataset_id/community_resources", CommunityResourceController, :index
     end
   end
 

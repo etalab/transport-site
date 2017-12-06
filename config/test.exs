@@ -5,7 +5,9 @@ alias Transport.Datagouvfr.Authentication
 # you can enable the server option below.
 config :transport, TransportWeb.Endpoint,
   http: [port: 5001],
-  server: true
+  server: true,
+  debug_errors: true,
+  catch_errors: false
 
 # Integration testing with Hound and PhantomJS
 config :hound, driver: "phantomjs"

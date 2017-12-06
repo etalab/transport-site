@@ -58,17 +58,17 @@ msgstr ""
 msgid "Dataset file"
 msgstr ""
 
-#: lib/transport/datagouvfr/client/datasets.ex:25
-#: lib/transport/datagouvfr/client/resources.ex:21
+#: lib/transport/datagouvfr/client/datasets.ex:29
+#: lib/transport/datagouvfr/client/resources.ex:27
 msgid "A description is needed"
 msgstr ""
 
-#: lib/transport/datagouvfr/client/datasets.ex:45
-#: lib/transport/datagouvfr/client/resources.ex:26
+#: lib/transport/datagouvfr/client/datasets.ex:49
+#: lib/transport/datagouvfr/client/resources.ex:32
 msgid "A title is needed"
 msgstr ""
 
-#: lib/transport/datagouvfr/client/datasets.ex:40
+#: lib/transport/datagouvfr/client/datasets.ex:44
 msgid "An organization is needed"
 msgstr ""
 

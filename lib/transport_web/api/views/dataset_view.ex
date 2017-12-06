@@ -1,6 +1,5 @@
 defmodule TransportWeb.API.DatasetView do
   alias TransportWeb.API.DatasetSerializer
-  alias TransportWeb.API.ErrorSerializer
 
   def render(_conn, %{data: data}) do
     JaSerializer.format(DatasetSerializer, data)

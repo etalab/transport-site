@@ -4,8 +4,12 @@ defmodule Transport.Datagouvfr.Client.Datasets do
   """
 
   import TransportWeb.Gettext
-  import Transport.Datagouvfr.Client, only: [get_request: 2, put_request: 3,
-                                             post_request: 3, post_request: 4]
+  import Transport.Datagouvfr.Client, only: [
+    get_request: 2,
+    put_request: 3,
+    post_request: 3,
+    post_request: 4
+  ]
 
   use Vex.Struct
   alias __MODULE__
