@@ -9,7 +9,7 @@ defmodule TransportWeb.UserController do
          conn <- put_session(
                    conn,
                    :linked_dataset_slug,
-                   Map.get(params, :linked_dataset_slug)),
+                   Map.get(params, "linked_dataset_slug")),
          conn <- put_session(conn, :linked_dataset_id, linked_dataset_id),
          {:ok, %{"organizations" => organizations}} <- User.me(conn)
     do
