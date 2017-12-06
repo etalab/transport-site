@@ -5,7 +5,9 @@
     <% end %>
   <% end %>
   <%= dgettext("dataset", "The licence of the dataset will be ODbL") %>
-  <form action="<%= dataset_path(@conn, :create, @organization["id"]) %>" method="POST"
+  <%= @form_action_function %>
+  <form action="<%= dataset_path(@conn, @form_action_function, @organization["id"]) %>"
+        method="POST"
         enctype='multipart/form-data'>
     <input type="hidden" name="_csrf_token" value="<%= get_csrf_token() %>">
 
@@ -16,20 +18,22 @@
         <input type="text" name="title">
     </div>
 
-    <div class="form__group">
-      <label for="frequency">
-        <%= dgettext("dataset", "Update frequency of the dataset") %>
-      <label>
-      <select name="frequency">
-        <option value="semiweekly"><%= dgettext("dataset", "Semi weekly") %> </option>
-        <option value="weekly"><%= dgettext("dataset", "Weekly") %> </option>
-        <option value="bimonthly"><%= dgettext("dataset", "Bimonthly") %> </option>
-        <option value="monthly"><%= dgettext("dataset", "Monthly") %> </option>
-        <option value="semiannual"><%= dgettext("dataset", "Semi annual") %> </option>
-        <option value="annual"><%= dgettext("dataset", "Annual") %> </option>
-        <option value="unknown"><%= dgettext("dataset", "Unknown") %> </option>
-      </select>
-    </div>
+    <%= if @linked_dataset_id == nil do %>
+      <div class="form__group">
+        <label for="frequency">
+          <%= dgettext("dataset", "Update frequency of the dataset") %>
+        <label>
+        <select name="frequency">
+          <option value="semiweekly"><%= dgettext("dataset", "Semi weekly") %> </option>
+          <option value="weekly"><%= dgettext("dataset", "Weekly") %> </option>
+          <option value="bimonthly"><%= dgettext("dataset", "Bimonthly") %> </option>
+          <option value="monthly"><%= dgettext("dataset", "Monthly") %> </option>
+          <option value="semiannual"><%= dgettext("dataset", "Semi annual") %> </option>
+          <option value="annual"><%= dgettext("dataset", "Annual") %> </option>
+          <option value="unknown"><%= dgettext("dataset", "Unknown") %> </option>
+        </select>
+      </div>
+    <% end %>
 
     <div class="form__group">
       <label for="description">

@@ -40,4 +40,43 @@ defmodule TransportWeb.DatasetControllerTest do
     @tag :pending
     test "field missing"
   end
+
+  describe "GET /user/organizations/:organization/datasets/_create_community_resource" do
+    test "logged in", %{conn: conn} do
+      use_cassette "dataset/create-community-resource-4" do
+        linked_dataset_slug = "horaires-theoriques-du-reseau-de-transport-lva"
+        linked_dataset_id = "5a26e9da0b5b39443a3b56d8"
+        file = %Plug.Upload{path: "test/fixture/files/gtfs.zip",
+                          filename: "gtfs.zip"}
+        organization = "5a16ee520b5b39245053b052"
+        path = dataset_path(conn, :create_community_resource, organization)
+        params = %{
+          "description"  => "desc",
+          "dataset"      => file,
+          "licence"      => "ODbl",
+          "organization" => organization,
+          "title"        => "title"
+        }
+        conn = conn
+        |> init_test_session(
+             current_user: %{},
+             client: Authentication.client("secret"),
+             linked_dataset_id: linked_dataset_id,
+             linked_dataset_slug: linked_dataset_slug)
+        |> post(path, params)
+        assert redirected_to(conn, 302) == dataset_path(conn, :details, linked_dataset_slug)
+      end
+    end
+
+    test "not logged in", %{conn: conn} do
+      path = dataset_path(conn, :create_community_resource, "name-2")
+      conn = conn |> post(path)
+      assert redirected_to(conn, 302) == page_path(conn, :login, redirect_path: path)
+    end
+
+    test "field missing" do
+#pending
+
+    end
+  end
 end

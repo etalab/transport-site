@@ -1,0 +1,76 @@
+[
+  {
+    "request": {
+      "body": "{:multipart, [{:file, \"test/fixture/files/gtfs.zip\", {\"form-data\", [{\"name\", \"\\\"file\\\"\"}, {\"filename\", \"\\\"gtfs.zip\\\"\"}]}, []}]}",
+      "headers": {
+        "accept": "multipart/form-data",
+        "authorization": "Bearer secret",
+        "content-type": "multipart/form-data"
+      },
+      "method": "post",
+      "options": {
+        "timeout": 15000
+      },
+      "request_body": "",
+      "url": "https://next.data.gouv.fr/api/1/datasets/5a26e9da0b5b39443a3b56d8/upload/community/"
+    },
+    "response": {
+      "binary": false,
+      "body": "{\"checksum\": {\"type\": \"sha1\", \"value\": \"0d79614044f81440eef906fc7cf412c17bac67f0\"}, \"created_at\": \"2017-12-06T14:21:26.359037\", \"description\": null, \"extras\": {}, \"filesize\": 3318, \"filetype\": \"file\", \"format\": \"zip\", \"id\": \"24a35df3-cbd7-4597-8e58-4fe2c37d68a0\", \"is_available\": true, \"last_modified\": \"2017-12-06T14:21:26.359169\", \"latest\": \"https://next.data.gouv.fr/fr/datasets/r/24a35df3-cbd7-4597-8e58-4fe2c37d68a0\", \"metrics\": {}, \"mime\": \"application/zip\", \"published\": \"2017-12-06T14:21:26.359387\", \"success\": true, \"title\": \"gtfs.zip\", \"url\": \"https://next.data.gouv.fr/resources/horaires-theoriques-du-reseau-de-transport-lva/20171206-142126/gtfs.zip\"}",
+      "headers": {
+        "Server": "nginx/1.10.3 (Ubuntu)",
+        "Date": "Wed, 06 Dec 2017 14:21:26 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "657",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "HEAD, POST, OPTIONS, GET",
+        "Access-Control-Max-Age": "21600",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
+        "Set-Cookie": "session=.eJwdjsFqg0AUAH-lvHMOusaSCD00rJEE3pPIVtm9hKpr9Ll7MQ0VQ_690tNcBmaecO0me-8h-ZkedgPXoYXkCW81JIDV5TdXGBtf9ujNgHyLSeFsvHFakaOlHLHCrVbOaz5wnpXO-COjuCwmo5WpMKoJqFq9rPSG-xHFafXTyPC5J4kzVsVIXDqUR5_L04yycJqbMFc0oMRILwVTlq5dPZPUIbFetLrNRjrGTAvkL0HL5we8NvC42-n_H-LvwO472wV1XEd7Idrwvdm2uxhef2caTgg.DQmOZg.ccBM_eIVMYhLbp01vQ48VCYGPkc; Domain=.udata.transport; HttpOnly; Path=/",
+        "Pragma": "public",
+        "Cache-Control": "public"
+      },
+      "status_code": 201,
+      "type": "ok"
+    }
+  },
+  {
+    "request": {
+      "body": "{\"title\":\"title\",\"description\":\"desc\",\"dataset\":\"5a26e9da0b5b39443a3b56d8\"}",
+      "headers": {
+        "accept": "application/json",
+        "authorization": "Bearer secret",
+        "content-type": "application/json"
+      },
+      "method": "put",
+      "options": {
+        "timeout": 15000
+      },
+      "request_body": "",
+      "url": "https://next.data.gouv.fr/api/1/datasets/community_resources/24a35df3-cbd7-4597-8e58-4fe2c37d68a0/"
+    },
+    "response": {
+      "binary": false,
+      "body": "{\"checksum\": {\"type\": \"sha1\", \"value\": \"0d79614044f81440eef906fc7cf412c17bac67f0\"}, \"created_at\": \"2017-12-06T14:21:26.359000\", \"dataset\": {\"class\": \"Dataset\", \"id\": \"5a26e9da0b5b39443a3b56d8\", \"page\": \"https://next.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-de-transport-lva/\", \"title\": \"horaires theoriques du reseau de transport lva\", \"uri\": \"https://next.data.gouv.fr/api/1/datasets/horaires-theoriques-du-reseau-de-transport-lva/\"}, \"description\": \"desc\", \"extras\": {}, \"filesize\": 3318, \"filetype\": \"file\", \"format\": null, \"id\": \"24a35df3-cbd7-4597-8e58-4fe2c37d68a0\", \"is_available\": true, \"last_modified\": \"2017-12-06T14:21:26.785910\", \"latest\": \"https://next.data.gouv.fr/fr/datasets/r/24a35df3-cbd7-4597-8e58-4fe2c37d68a0\", \"metrics\": {}, \"mime\": null, \"organization\": null, \"owner\": {\"avatar\": null, \"avatar_thumbnail\": null, \"class\": \"User\", \"first_name\": \"Vincent\", \"id\": \"5a0e9fef0b5b3922d16c4d85\", \"last_name\": \"Lara\", \"page\": \"https://next.data.gouv.fr/fr/users/vincent-lara-1/\", \"slug\": \"vincent-lara-1\", \"uri\": \"https://next.data.gouv.fr/api/1/users/vincent-lara-1/\"}, \"published\": \"2017-12-06T14:21:26.359000\", \"title\": \"title\", \"url\": \"https://next.data.gouv.fr/resources/horaires-theoriques-du-reseau-de-transport-lva/20171206-142126/gtfs.zip\"}",
+      "headers": {
+        "Server": "nginx/1.10.3 (Ubuntu)",
+        "Date": "Wed, 06 Dec 2017 14:21:26 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "1259",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "HEAD, GET, PUT, OPTIONS, DELETE",
+        "Access-Control-Max-Age": "21600",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
+        "Set-Cookie": "session=.eJwdjsFqg0AUAH-lvHMOusaSCD00rJEE3pPIVtm9hKpr9Ll7MQ0VQ_690tNcBmaecO0me-8h-ZkedgPXoYXkCW81JIDV5TdXGBtf9ujNgHyLSeFsvHFakaOlHLHCrVbOaz5wnpXO-COjuCwmo5WpMKoJqFq9rPSG-xHFafXTyPC5J4kzVsVIXDqUR5_L04yycJqbMFc0oMRILwVTlq5dPZPUIbFetLrNRjrGTAvkL0HL5we8NvC42-n_H-LvwO472wV1XEd7Idrwvdm2uxhef2caTgg.DQmOZg.ccBM_eIVMYhLbp01vQ48VCYGPkc; Domain=.udata.transport; HttpOnly; Path=/",
+        "Pragma": "public",
+        "Cache-Control": "public"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]

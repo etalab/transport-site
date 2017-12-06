@@ -39,6 +39,7 @@ defmodule TransportWeb.Router do
       get "/organizations/:slug/datasets/", UserController, :organization_datasets
       get "/organizations/:slug/datasets/new", DatasetController, :new
       post "/organizations/:organization/datasets/_create", DatasetController, :create
+      post "/organizations/:organization/datasets/_create_community_resource", DatasetController, :create_community_resource
       get "/datasets/:slug/_add", UserController, :add_badge_dataset
     end
 
