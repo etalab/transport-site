@@ -2,7 +2,7 @@
 Application.ensure_all_started(:hound)
 
 # Exclude all external tests from running.
-ExUnit.configure(exclude: [integration: true])
+ExUnit.configure(exclude: [integration: true, solution: true, pending: true])
 
 # Start ExUnit.
 ExUnit.start()

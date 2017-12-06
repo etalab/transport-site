@@ -1,7 +1,6 @@
 defmodule TransportWeb.SessionControllerTest do
-  use TransportWeb.ConnCase
-  use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
-  import Plug.Test
+  use TransportWeb.ConnCase, async: false
+  use TransportWeb.ExternalCase
 
   doctest TransportWeb.SessionController
 

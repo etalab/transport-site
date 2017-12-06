@@ -1,5 +1,5 @@
 defmodule Transport.DataValidator.CeleryTaskTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   alias Transport.DataValidator.CeleryTask
 
   test "apply" do

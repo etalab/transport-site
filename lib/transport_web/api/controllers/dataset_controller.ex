@@ -1,6 +1,7 @@
 defmodule TransportWeb.API.DatasetController do
   use TransportWeb, :controller
   alias Transport.ReusableData
+  alias Transport.Validation
 
   def index(%Plug.Conn{} = conn, _params) do
     render(conn, data: ReusableData.list_datasets)
@@ -11,6 +12,6 @@ defmodule TransportWeb.API.DatasetController do
   end
 
   def validations(%Plug.Conn{} = conn, %{"slug" => slug}) do
-    render(conn, errors: Transport.Validation.list_errors(slug))
+    render(conn, errors: Validation.list_errors(slug))
   end
 end

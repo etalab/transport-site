@@ -1,15 +1,9 @@
-defmodule TransportWeb.ContacTest do
-  @moduledoc """
-  When I'm on a page I want to be able to easily contact the team
-  """
-
+defmodule TransportWeb.Integration.ContactTest do
   use TransportWeb.ConnCase, async: true
-  use Hound.Helpers
-
-  hound_session()
+  use TransportWeb.UserFacingCase
 
   @tag :integration
-  test "I can see a button to ask for help" do
+  test "add a button to contact the team and ask for help" do
     @endpoint
     |> page_url(:index)
     |> navigate_to

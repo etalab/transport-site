@@ -1,4 +1,4 @@
-defmodule TransportWeb.OpenDataTest do
+defmodule TransportWeb.Solution.DataSharingTest do
   @moduledoc """
     When I've already published my data in data.gouv.fr,
     And the Transport team sends me an email to make my transportation data reusable,
@@ -10,11 +10,9 @@ defmodule TransportWeb.OpenDataTest do
   """
 
   use TransportWeb.ConnCase, async: true
-  use Hound.Helpers
+  use TransportWeb.UserFacingCase
 
-  hound_session()
-
-  @tag :integration
+  @tag :solution
   test "I'm redirected to the login page when I'm not logged in" do
     @endpoint
     |> user_url(:organizations)

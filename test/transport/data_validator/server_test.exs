@@ -1,5 +1,5 @@
 defmodule Transport.DataValidator.ServerTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   alias Transport.DataValidator.Server
 
   test "publish a message" do

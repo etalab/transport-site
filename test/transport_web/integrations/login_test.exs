@@ -1,9 +1,7 @@
 defmodule TransportWeb.Integration.LoginTest do
   use TransportWeb.ConnCase, async: true
-  use Hound.Helpers
+  use TransportWeb.UserFacingCase
   alias URI
-
-  hound_session()
 
   @tag :integration
   test "adds a redirect path to login link with current path" do

@@ -67,6 +67,7 @@ jobs:
             export SECRET_KEY_BASE=`mix phx.gen.secret`
             mix test
             mix test --only integration
+            mix test --only solution
 
       - run:
           name: Run linters

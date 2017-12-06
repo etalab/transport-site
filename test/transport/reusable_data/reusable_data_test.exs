@@ -1,6 +1,6 @@
 defmodule Transport.ReusableDataTest do
   use ExUnit.Case, async: true
-  use TransportWeb.CleanupCase, cleanup: ["celery_taskmeta", "datasets"]
+  use TransportWeb.DatabaseCase, cleanup: ["celery_taskmeta", "datasets"]
   alias Transport.ReusableData
   alias Transport.ReusableData.Dataset
 

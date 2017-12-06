@@ -4,8 +4,8 @@ defmodule Transport.Validation do
   """
 
   import TransportWeb.Gettext
-  import Logger
   alias Transport.ReusableData
+  require Logger
 
   @epoch :calendar.datetime_to_gregorian_seconds({{1970, 1, 1}, {0, 0, 0}})
 
@@ -61,7 +61,7 @@ defmodule Transport.Validation do
                "dict" => dict}) do
     dgettext("validations",
       """
-      Invalid numeric value %{value}. 
+      Invalid numeric value %{value}.
       Please ensure that the number includes an explicit whole number portion (ie. use 0.5 instead of .5), that you do not use the exponential notation (ie. use 0.001 instead of 1E-3), and that it is a properly formated decimal value.")
       """, value: dict["value"])
   end
@@ -84,7 +84,8 @@ defmodule Transport.Validation do
   def to_str(%{"type" => "<class 'transitfeed.problems.ExpirationDate'>",
                "dict" => dict}) do
     epoch_expiration = (@epoch) + round(dict["expiration"])
-    {{year, month, day}, _} = :calendar.gregorian_seconds_to_datetime(epoch_expiration)
+    {{year, month, day}, _} =
+      :calendar.gregorian_seconds_to_datetime(epoch_expiration)
     dgettext("validations", "This feed expires on %{year}/%{month}/%{day}",
       year: year, month: month, day: day)
   end
@@ -142,15 +143,24 @@ defmodule Transport.Validation do
   """
   @spec list_errors(String.t) :: Map.t
   def list_errors(slug) do
-    validations = slug
-                  |> ReusableData.get_dataset
-                  |> Map.get(:validations)
-    %{"errors" => Enum.map(validations["errors"], &to_str/1)
-                  |> Enum.filter(&(&1 != nil)),
-      "warnings" => Enum.map(validations["warnings"], &to_str/1)
-                    |> Enum.filter(&(&1 != nil)),
-      "notices" => Enum.map(validations["notices"], &to_str/1)
-                   |> Enum.filter(&(&1 != nil))
+    validations =
+      slug
+      |> ReusableData.get_dataset
+      |> Map.get(:validations)
+
+    %{
+      "errors" =>
+        validations["errors"]
+        |> Enum.map(&to_str/1)
+        |> Enum.filter(&(&1 != nil)),
+      "warnings" =>
+        validations["warnings"]
+        |> Enum.map(&to_str/1)
+        |> Enum.filter(&(&1 != nil)),
+      "notices" =>
+        validations["notices"]
+        |> Enum.map(&to_str/1)
+        |> Enum.filter(&(&1 != nil))
     }
   end
 end
