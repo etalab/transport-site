@@ -14,6 +14,7 @@ defmodule Transport.Datagouvfr.Client.Resources do
     description: nil,
     title: nil,
     dataset: nil,
+    organization: nil
   ]
 
   validates :description, length: [
