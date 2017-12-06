@@ -1,4 +1,4 @@
-defmodule TransportWeb.LoginTest do
+defmodule TransportWeb.Solution.LoginTest do
   @moduledoc """
   When I click to open my data,
   And I see a page explaining me I'll be redirected to data.gouv.fr
@@ -10,11 +10,9 @@ defmodule TransportWeb.LoginTest do
   """
 
   use TransportWeb.ConnCase, async: true
-  use Hound.Helpers
+  use TransportWeb.UserFacingCase
 
-  hound_session()
-
-  @tag :integration
+  @tag :solution
   test "I can see a log in link" do
     @endpoint
     |> page_url(:index)

@@ -13,7 +13,8 @@ defmodule Mix.Tasks.Transport.ValidateData do
   def run(_) do
     Mix.Task.run("app.start", [])
 
-    Mongo.find(:mongo, "datasets", %{}, pool: @pool)
+    :mongo
+    |> Mongo.find("datasets", %{}, pool: @pool)
     |> Enum.map(&Dataset.new/1)
     |> Enum.each(fn(dataset) ->
       with {:ok, id} <- Server.validate_data(dataset.download_uri),

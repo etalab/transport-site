@@ -1,8 +1,6 @@
 defmodule Transport.DataImprovement.DatasetRepositoryTest do
-  use ExUnit.Case, async: true
-  use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
-  use TransportWeb.ConnCase # smell
-  import Plug.Test # smell
+  use TransportWeb.ConnCase, async: false # smell
+  use TransportWeb.ExternalCase # smell
   alias Transport.DataImprovement.{Dataset, DatasetRepository}
   alias Transport.Datagouvfr.Authentication # smell
 

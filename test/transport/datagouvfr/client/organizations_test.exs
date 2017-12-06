@@ -1,7 +1,6 @@
 defmodule Transport.Datagouvfr.Client.OrganizationsTest do
-  use ExUnit.Case, async: false
-  use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
-  use Phoenix.ConnTest
+  use TransportWeb.ConnCase, async: false # smell
+  use TransportWeb.ExternalCase # smell
   alias Transport.Datagouvfr.Client
 
   doctest Client

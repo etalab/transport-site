@@ -1,9 +1,8 @@
 defmodule TransportWeb.UserControllerTest do
-  use TransportWeb.ConnCase
-  use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
-  import Plug.Test
-  alias Transport.Datagouvfr.Authentication
+  use TransportWeb.ConnCase, async: false
+  use TransportWeb.ExternalCase
   import TransportWeb.Gettext
+  alias Transport.Datagouvfr.Authentication
 
   doctest TransportWeb.UserController
 

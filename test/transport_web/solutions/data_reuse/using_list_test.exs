@@ -1,4 +1,4 @@
-defmodule TransportWeb.DataReuse.UsingListTest do
+defmodule TransportWeb.Solution.DataReuse.UsingListTest do
   @moduledoc """
   When the Transport team direct me to transport.data.gouv.fr,
   And that I'm looking for transport datasets to include in my application,
@@ -12,11 +12,9 @@ defmodule TransportWeb.DataReuse.UsingListTest do
   """
 
   use TransportWeb.ConnCase, async: true
-  use TransportWeb.CleanupCase, cleanup: ["celery_taskmeta", "datasets"]
-  use Hound.Helpers
+  use TransportWeb.DatabaseCase, cleanup: ["celery_taskmeta", "datasets"]
+  use TransportWeb.UserFacingCase
   alias Transport.ReusableData
-
-  hound_session()
 
   setup_all do
     %_{} = ReusableData.create_dataset %{

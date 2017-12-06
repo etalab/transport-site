@@ -1,8 +1,6 @@
 defmodule TransportWeb.DatasetControllerTest do
-  use TransportWeb.ConnCase
-  use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
-  use Phoenix.ConnTest
-  import Plug.Test
+  use TransportWeb.ConnCase, async: false
+  use TransportWeb.ExternalCase
   alias Transport.Datagouvfr.Authentication
 
   doctest TransportWeb.DatasetController
@@ -39,9 +37,7 @@ defmodule TransportWeb.DatasetControllerTest do
       assert redirected_to(conn, 302) == page_path(conn, :login, redirect_path: path)
     end
 
-    test "field missing" do
-#pending
-
-    end
+    @tag :pending
+    test "field missing"
   end
 end

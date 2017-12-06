@@ -1,4 +1,4 @@
-defmodule TransportWeb.DataReuse.UsingMapTest do
+defmodule TransportWeb.Solution.DataReuse.UsingMapTest do
   @moduledoc """
   When the Transport team direct me to transport.data.gouv.fr,
   And that I'm looking for transport datasets to include in my application,
@@ -12,11 +12,9 @@ defmodule TransportWeb.DataReuse.UsingMapTest do
   """
 
   use TransportWeb.ConnCase, async: true
-  use TransportWeb.CleanupCase, cleanup: ["celery_taskmeta", "datasets"]
-  use Hound.Helpers
+  use TransportWeb.DatabaseCase, cleanup: ["celery_taskmeta", "datasets"]
+  use TransportWeb.UserFacingCase
   alias Transport.ReusableData
-
-  hound_session()
 
   setup_all do
     %_{} = ReusableData.create_dataset %{
@@ -32,7 +30,7 @@ defmodule TransportWeb.DataReuse.UsingMapTest do
     :ok
   end
 
-  @tag :integration
+  @tag :solution
   test "I can use the map to find and download transport data" do
     @endpoint
     |> page_url(:index)
