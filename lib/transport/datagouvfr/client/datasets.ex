@@ -115,10 +115,10 @@ defmodule Transport.Datagouvfr.Client.Datasets do
   upload a resource to a dataset
   """
   @spec upload_resource(%Plug.Conn{}, String.t, %Plug.Upload{}) :: {atom, map}
-  def upload_resource(%Plug.Conn{} = conn, dataset, file) do
+  def upload_resource(%Plug.Conn{} = conn, dataset_id, file) do
     post_request(
       conn,
-      Path.join([@endpoint, dataset, "upload"]),
+      Path.join([@endpoint, dataset_id, "upload"]),
       {"file", file},
       [{"content-type", "multipart/form-data"}]
     )

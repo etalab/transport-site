@@ -4,16 +4,24 @@ defmodule TransportWeb.UserController do
   alias Transport.DataValidator.Server
   require Logger
 
-  def organizations(%Plug.Conn{} = conn, _) do
-    conn
-    |> User.me
-    |> case do
-     {:ok, %{"organizations" => []}} ->
-        redirect(conn, to: user_path(conn, :organization_form))
-     {:ok, response} ->
-       conn
-       |> assign(:organizations, response["organizations"])
-       |> render("organizations.html")
+  def organizations(%Plug.Conn{} = conn, params) do
+    with {:ok, linked_dataset_id} <- get_linked_dataset_id(conn, params),
+         conn <- put_session(
+                   conn,
+                   :linked_dataset_slug,
+                   Map.get(params, :linked_dataset_slug)),
+         conn <- put_session(conn, :linked_dataset_id, linked_dataset_id),
+         {:ok, %{"organizations" => organizations}} <- User.me(conn)
+    do
+      case organizations do
+        [] ->
+           redirect(conn, to: user_path(conn, :organization_form))
+        _  ->
+          conn
+          |> assign(:organizations, organizations)
+          |> render("organizations.html")
+      end
+    else
      {:error, error} ->
        Logger.error(error)
        conn
@@ -50,12 +58,21 @@ defmodule TransportWeb.UserController do
     conn
     |> Organizations.get(slug, :with_datasets)
     |> case do
+      {:ok, %{"datasets" => []}} ->
+        redirect(conn, to: dataset_path(conn, :new, slug))
       {:ok, response} ->
         conn
-        |> assign(:has_datasets, Enum.empty?(response["datasets"]) == false)
-        |> assign(:datasets, response["datasets"])
-        |> assign(:organization, response)
-        |> render("organization_datasets.html")
+        |> get_session(:linked_dataset_id)
+        |> case do
+          nil ->
+            conn
+            |> assign(:has_datasets, Enum.empty?(response["datasets"]) == false)
+            |> assign(:datasets, response["datasets"])
+            |> assign(:organization, response)
+            |> render("organization_datasets.html")
+          _ ->
+            redirect(conn, to: dataset_path(conn, :new, slug))
+        end
      {:error, error} ->
        Logger.error(error)
        conn
@@ -78,5 +95,16 @@ defmodule TransportWeb.UserController do
         |> put_status(:internal_server_error)
         |> render(ErrorView, "500.html")
      end
+  end
+
+  defp get_linked_dataset_id(conn, params) do
+    case Map.get(params, "linked_dataset_slug") do
+      nil -> {:ok, nil}
+      dataset_slug ->
+        case Datasets.get(conn, dataset_slug) do
+          {:ok, dataset} -> {:ok, dataset["id"]}
+          {:error, error} -> {:error, error}
+        end
+    end
   end
 end

@@ -1,4 +1,7 @@
 <section>
+  <%= if get_flash(@conn, :info) do %>
+    <p class="message message--info"><%= get_flash(@conn, :info) %></p>
+  <% end %>
   <h1><%= @dataset.title %></h1>
   <div class="documentation">
     <div class="side-pan dataset-details__side-pan">
@@ -61,7 +64,7 @@
         </div>
       </div>
       <div>
-        <a class="button is-centered" href="<%= user_path(@conn, :organizations, slug: @dataset.slug) %>"><%= dgettext("page-dataset-details", "Publish a linked dataset") %></a>
+        <a class="button is-centered" href="<%= user_path(@conn, :organizations, linked_dataset_slug: @dataset.slug) %>"><%= dgettext("page-dataset-details", "Publish a modified version dataset") %></a>
       </div>
     </div>
     <div class="main-pan dataset-details__main-pan" id="description">

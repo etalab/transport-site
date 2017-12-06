@@ -10,27 +10,27 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/dataset/form.html.eex:29
+#: lib/transport_web/templates/dataset/form.html.eex:32
 msgid "Annual"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/form.html.eex:26
+#: lib/transport_web/templates/dataset/form.html.eex:29
 msgid "Bimonthly"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/form.html.eex:36
+#: lib/transport_web/templates/dataset/form.html.eex:40
 msgid "Description of the dataset"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/form.html.eex:27
+#: lib/transport_web/templates/dataset/form.html.eex:30
 msgid "Monthly"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/form.html.eex:28
+#: lib/transport_web/templates/dataset/form.html.eex:31
 msgid "Semi annual"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/form.html.eex:24
+#: lib/transport_web/templates/dataset/form.html.eex:27
 msgid "Semi weekly"
 msgstr ""
 
@@ -38,31 +38,33 @@ msgstr ""
 msgid "The licence of the dataset will be ODbL"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/form.html.eex:14
+#: lib/transport_web/templates/dataset/form.html.eex:16
 msgid "Title of the dataset"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/form.html.eex:30
+#: lib/transport_web/templates/dataset/form.html.eex:33
 msgid "Unknown"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/form.html.eex:21
+#: lib/transport_web/templates/dataset/form.html.eex:24
 msgid "Update frequency of the dataset"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/form.html.eex:25
+#: lib/transport_web/templates/dataset/form.html.eex:28
 msgid "Weekly"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/form.html.eex:43
+#: lib/transport_web/templates/dataset/form.html.eex:47
 msgid "Dataset file"
 msgstr ""
 
 #: lib/transport/datagouvfr/client/datasets.ex:25
+#: lib/transport/datagouvfr/client/resources.ex:21
 msgid "A description is needed"
 msgstr ""
 
 #: lib/transport/datagouvfr/client/datasets.ex:45
+#: lib/transport/datagouvfr/client/resources.ex:26
 msgid "A title is needed"
 msgstr ""
 
@@ -76,4 +78,8 @@ msgstr ""
 
 #: lib/transport/data_improvement/commands/upload_dataset_file.ex:48
 msgid "Invalid dataset identifier"
+msgstr ""
+
+#: lib/transport_web/controllers/dataset_controller.ex:64
+msgid "Your modified version of this dataset has beed added"
 msgstr ""
