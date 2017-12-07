@@ -14,52 +14,56 @@ msgstr ""
 msgid "GTFS Validation"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:77
+#: lib/transport_web/templates/dataset/details.html.eex:85
 msgid "Errors"
 msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:62
-#: lib/transport_web/templates/dataset/details.html.eex:81
+#: lib/transport_web/templates/dataset/details.html.eex:89
 msgid "Notices"
 msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:61
-#: lib/transport_web/templates/dataset/details.html.eex:79
+#: lib/transport_web/templates/dataset/details.html.eex:87
 msgid "Warnings"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:91
+#: lib/transport_web/templates/dataset/details.html.eex:99
 msgid "Posted on"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:92
+#: lib/transport_web/templates/dataset/details.html.eex:100
 msgid "Respond"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:93
+#: lib/transport_web/templates/dataset/details.html.eex:101
 msgid "Begin a new conversation"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:94
+#: lib/transport_web/templates/dataset/details.html.eex:102
 msgid "Title"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:95
+#: lib/transport_web/templates/dataset/details.html.eex:103
 msgid "You need to be connected to post comments"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:78
+#: lib/transport_web/templates/dataset/details.html.eex:86
 msgid "No errors"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:82
+#: lib/transport_web/templates/dataset/details.html.eex:90
 msgid "No notices"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:80
+#: lib/transport_web/templates/dataset/details.html.eex:88
 msgid "No warnings"
 msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:67
 msgid "Publish a modified version dataset"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:79
+msgid "Modified datasets"
 msgstr ""

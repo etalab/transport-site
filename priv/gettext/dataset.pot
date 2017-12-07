@@ -59,12 +59,12 @@ msgid "Dataset file"
 msgstr ""
 
 #: lib/transport/datagouvfr/client/datasets.ex:25
-#: lib/transport/datagouvfr/client/resources.ex:21
+#: lib/transport/datagouvfr/client/resources.ex:22
 msgid "A description is needed"
 msgstr ""
 
 #: lib/transport/datagouvfr/client/datasets.ex:45
-#: lib/transport/datagouvfr/client/resources.ex:26
+#: lib/transport/datagouvfr/client/resources.ex:27
 msgid "A title is needed"
 msgstr ""
 

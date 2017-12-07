@@ -71,6 +71,14 @@
       <div class="dataset-detail__markdown">
         <markdown content="<%= @dataset.description %>"></markdown>
       </div>
+      <div class="dataset-details__community-resources">
+        <communityresources
+          download="<%= dgettext("page-shortlist", "Download") %>"
+          site="<%= @site %>"
+          slug="<%= @dataset.slug %>"
+          title="<%= dgettext("page-dataset-details", "Modified datasets") %>">
+        </communityresources>
+      </div>
       <div class="dataset-details__validation">
         <validation
           slug="<%= @dataset.slug %>"
