@@ -166,8 +166,9 @@ defmodule Transport.ReusableData do
     conn
     |> Datasets.get(dataset.slug)
     |> case do
-      {:ok, d}    -> d["id"]
-      {:error, _} -> nil
+      {:ok, %{"id" => id}} -> id
+      {:ok, _}            -> nil
+      {:error, _}          -> nil
     end
   end
 end

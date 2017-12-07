@@ -22,6 +22,9 @@
             </div>
         <li>
     </ul>
+    <span if={ this.data == null || !this.data.data }>
+        { this.opts.no_community_resources }
+    </span>
 
     <script type="es6">
         this.on('before-mount', () => {
@@ -29,17 +32,15 @@
         })
 
         this.on('mount', () => {
-            fetch(this.opts.site + '/api/1/datasets/' +  this.opts.slug + '/'
+            if (!this.opts.datasetid) {
+                return
+            }
+            fetch(this.opts.site + '/api/1/datasets/community_resources/?dataset=' + this.opts.datasetid
             ).then((response) => {
                 return response.json()
             }).then((data) => {
-                fetch(this.opts.site + '/api/1/datasets/community_resources/?dataset=' + data.id
-                ).then((response) => {
-                    return response.json()
-                }).then((data) => {
-                    this.data = data
-                    this.update()
-                })
+                this.data = data
+                this.update()
             })
         })
     </script>
