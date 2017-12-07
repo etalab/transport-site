@@ -70,6 +70,15 @@
     <div class="main-pan dataset-details__main-pan" id="description">
       <div class="dataset-detail__markdown">
         <markdown content="<%= @dataset.description %>"></markdown>
+        <h1 style="background: hsl(213, 26%, 83%);">Conditions d'utilisation</h1>
+        <p>
+          Cette donnée est disponible sous licence ODbL assortie de la clause de restriction suivante :
+          <br />
+          <br />
+          <i>
+            En précision de la clause de partage à l’identique prévue au paragraphe 4.4 de la Licence ODbL, celle-ci est volontairement limitée par le Concédant aux données supportant des informations de même nature, de même granularité, de même conditions temporelles et de même emprise géographique. Le Concédant n’exige donc pas de partage à l’identique d’autres données pouvant être liées aux données couvertes par les présentes conditions d’utilisation.
+          </i>i>
+        </p>
       </div>
       <div class="dataset-details__community-resources">
         <communityresources
