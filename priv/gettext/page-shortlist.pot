@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:22
-#: lib/transport_web/templates/dataset/details.html.eex:76
+#: lib/transport_web/templates/dataset/details.html.eex:77
 #: lib/transport_web/templates/dataset/index.html.eex:31
 msgid "Download"
 msgstr ""

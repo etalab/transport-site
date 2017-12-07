@@ -14,49 +14,49 @@ msgstr ""
 msgid "GTFS Validation"
 msgstr "Validations GTFS"
 
-#: lib/transport_web/templates/dataset/details.html.eex:85
+#: lib/transport_web/templates/dataset/details.html.eex:87
 msgid "Errors"
 msgstr "Erreurs"
 
 #: lib/transport_web/templates/dataset/details.html.eex:62
-#: lib/transport_web/templates/dataset/details.html.eex:89
+#: lib/transport_web/templates/dataset/details.html.eex:91
 msgid "Notices"
 msgstr "Astuces"
 
 #: lib/transport_web/templates/dataset/details.html.eex:61
-#: lib/transport_web/templates/dataset/details.html.eex:87
+#: lib/transport_web/templates/dataset/details.html.eex:89
 msgid "Warnings"
 msgstr "Avertissements"
 
-#: lib/transport_web/templates/dataset/details.html.eex:99
+#: lib/transport_web/templates/dataset/details.html.eex:101
 msgid "Posted on"
 msgstr "le"
 
-#: lib/transport_web/templates/dataset/details.html.eex:100
+#: lib/transport_web/templates/dataset/details.html.eex:102
 msgid "Respond"
 msgstr "Répondre"
 
-#: lib/transport_web/templates/dataset/details.html.eex:101
+#: lib/transport_web/templates/dataset/details.html.eex:103
 msgid "Begin a new conversation"
 msgstr "Ouvrir une discussion"
 
-#: lib/transport_web/templates/dataset/details.html.eex:102
+#: lib/transport_web/templates/dataset/details.html.eex:104
 msgid "Title"
 msgstr "Titre"
 
-#: lib/transport_web/templates/dataset/details.html.eex:103
+#: lib/transport_web/templates/dataset/details.html.eex:105
 msgid "You need to be connected to post comments"
 msgstr "Vous devez être identifié pour écrire un commentaire."
 
-#: lib/transport_web/templates/dataset/details.html.eex:86
+#: lib/transport_web/templates/dataset/details.html.eex:88
 msgid "No errors"
 msgstr "Pas d'erreur"
 
-#: lib/transport_web/templates/dataset/details.html.eex:90
+#: lib/transport_web/templates/dataset/details.html.eex:92
 msgid "No notices"
 msgstr "Pas d'astuce"
 
-#: lib/transport_web/templates/dataset/details.html.eex:88
+#: lib/transport_web/templates/dataset/details.html.eex:90
 msgid "No warnings"
 msgstr "Pas d'avertissement"
 
@@ -64,6 +64,10 @@ msgstr "Pas d'avertissement"
 msgid "Publish a modified version dataset"
 msgstr "Publier une version modifié du jeu de données"
 
-#: lib/transport_web/templates/dataset/details.html.eex:79
+#: lib/transport_web/templates/dataset/details.html.eex:81
 msgid "Modified datasets"
 msgstr "Jeux de données modifiés"
+
+#: lib/transport_web/templates/dataset/details.html.eex:78
+msgid "There is no linked dataset yet"
+msgstr "Il n'y a pas encore de jeu de données lié"

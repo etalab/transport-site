@@ -73,7 +73,9 @@
       </div>
       <div class="dataset-details__community-resources">
         <communityresources
+          datasetid="<%= @dataset_id %>"
           download="<%= dgettext("page-shortlist", "Download") %>"
+          no_community_resources="<%= dgettext("page-dataset-details", "There is no linked dataset yet") %>"
           site="<%= @site %>"
           slug="<%= @dataset.slug %>"
           title="<%= dgettext("page-dataset-details", "Modified datasets") %>">

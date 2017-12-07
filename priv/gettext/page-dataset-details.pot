@@ -14,49 +14,49 @@ msgstr ""
 msgid "GTFS Validation"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:85
+#: lib/transport_web/templates/dataset/details.html.eex:87
 msgid "Errors"
 msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:62
-#: lib/transport_web/templates/dataset/details.html.eex:89
+#: lib/transport_web/templates/dataset/details.html.eex:91
 msgid "Notices"
 msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:61
-#: lib/transport_web/templates/dataset/details.html.eex:87
+#: lib/transport_web/templates/dataset/details.html.eex:89
 msgid "Warnings"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:99
+#: lib/transport_web/templates/dataset/details.html.eex:101
 msgid "Posted on"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:100
+#: lib/transport_web/templates/dataset/details.html.eex:102
 msgid "Respond"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:101
+#: lib/transport_web/templates/dataset/details.html.eex:103
 msgid "Begin a new conversation"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:102
+#: lib/transport_web/templates/dataset/details.html.eex:104
 msgid "Title"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:103
+#: lib/transport_web/templates/dataset/details.html.eex:105
 msgid "You need to be connected to post comments"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:86
+#: lib/transport_web/templates/dataset/details.html.eex:88
 msgid "No errors"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:90
+#: lib/transport_web/templates/dataset/details.html.eex:92
 msgid "No notices"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:88
+#: lib/transport_web/templates/dataset/details.html.eex:90
 msgid "No warnings"
 msgstr ""
 
@@ -64,6 +64,10 @@ msgstr ""
 msgid "Publish a modified version dataset"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:79
+#: lib/transport_web/templates/dataset/details.html.eex:81
 msgid "Modified datasets"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:78
+msgid "There is no linked dataset yet"
 msgstr ""
