@@ -10,67 +10,63 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 
-#: lib/transport_web/templates/dataset/form.html.eex:32
-msgid "Annual"
-msgstr ""
-
-#: lib/transport_web/templates/dataset/form.html.eex:29
-msgid "Bimonthly"
-msgstr ""
-
-#: lib/transport_web/templates/dataset/form.html.eex:40
-msgid "Description of the dataset"
-msgstr ""
-
 #: lib/transport_web/templates/dataset/form.html.eex:30
-msgid "Monthly"
-msgstr ""
-
-#: lib/transport_web/templates/dataset/form.html.eex:31
-msgid "Semi annual"
-msgstr ""
+msgid "Annual"
+msgstr "Annuelle"
 
 #: lib/transport_web/templates/dataset/form.html.eex:27
-msgid "Semi weekly"
-msgstr ""
+msgid "Bimonthly"
+msgstr "Bimensuelle"
 
-#: lib/transport_web/templates/dataset/form.html.eex:7
-msgid "The licence of the dataset will be ODbL"
-msgstr ""
-
-#: lib/transport_web/templates/dataset/form.html.eex:16
-msgid "Title of the dataset"
-msgstr ""
-
-#: lib/transport_web/templates/dataset/form.html.eex:33
-msgid "Unknown"
-msgstr ""
-
-#: lib/transport_web/templates/dataset/form.html.eex:24
-msgid "Update frequency of the dataset"
-msgstr ""
+#: lib/transport_web/templates/dataset/form.html.eex:38
+msgid "Description of the dataset"
+msgstr "Description du jeu de données"
 
 #: lib/transport_web/templates/dataset/form.html.eex:28
-msgid "Weekly"
-msgstr ""
+msgid "Monthly"
+msgstr "Mensuelle"
 
-#: lib/transport_web/templates/dataset/form.html.eex:47
+#: lib/transport_web/templates/dataset/form.html.eex:29
+msgid "Semi annual"
+msgstr "Bi-annuelle"
+
+#: lib/transport_web/templates/dataset/form.html.eex:25
+msgid "Semi weekly"
+msgstr "Semi hebdomadaire"
+
+#: lib/transport_web/templates/dataset/form.html.eex:14
+msgid "Title of the dataset"
+msgstr "Titre"
+
+#: lib/transport_web/templates/dataset/form.html.eex:31
+msgid "Unknown"
+msgstr "Inconnue"
+
+#: lib/transport_web/templates/dataset/form.html.eex:22
+msgid "Update frequency of the dataset"
+msgstr "Fréquence de mise à jour du jeu de données"
+
+#: lib/transport_web/templates/dataset/form.html.eex:26
+msgid "Weekly"
+msgstr "Hebdomadaire"
+
+#: lib/transport_web/templates/dataset/form.html.eex:45
 msgid "Dataset file"
-msgstr ""
+msgstr "Fichier"
 
 #: lib/transport/datagouvfr/client/datasets.ex:25
 #: lib/transport/datagouvfr/client/resources.ex:22
 msgid "A description is needed"
-msgstr ""
+msgstr "Vous devez fournir une description"
 
 #: lib/transport/datagouvfr/client/datasets.ex:45
 #: lib/transport/datagouvfr/client/resources.ex:27
 msgid "A title is needed"
-msgstr ""
+msgstr "Vous devez fournir un titre"
 
 #: lib/transport/datagouvfr/client/datasets.ex:40
 msgid "An organization is needed"
-msgstr ""
+msgstr "Une organisation est requise"
 
 #: lib/transport/data_improvement/commands/upload_dataset_file.ex:66
 msgid "A dataset file is needed"
@@ -82,4 +78,4 @@ msgstr "L’identificateur du jeu de données n’est pas valide"
 
 #: lib/transport_web/controllers/dataset_controller.ex:64
 msgid "Your modified version of this dataset has beed added"
-msgstr ""
+msgstr "Votre version a été ajoutée"
