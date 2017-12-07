@@ -73,16 +73,16 @@ msgstr "Organisation ajoutée"
 
 #: lib/transport/datagouvfr/client/organizations.ex:75
 msgid "You need to provide an organisation description"
-msgstr ""
+msgstr "Vous devez donner une description"
 
 #: lib/transport/datagouvfr/client/organizations.ex:69
 msgid "You need to provide an organisation name"
-msgstr ""
+msgstr "Vous devez donner un nom"
 
 #: lib/transport_web/templates/user/organization_datasets.html.eex:18
 msgid "Upload a new dataset"
-msgstr ""
+msgstr "Ajouter un nouveau de données"
 
-#: lib/transport_web/templates/dataset/form.html.eex:54
+#: lib/transport_web/templates/dataset/form.html.eex:52
 msgid "Upload dataset"
-msgstr ""
+msgstr "Ajouter un jeu de données"

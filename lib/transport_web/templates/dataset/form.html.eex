@@ -4,8 +4,6 @@
       <p class="message message--error"><%= error %></p>
     <% end %>
   <% end %>
-  <%= dgettext("dataset", "The licence of the dataset will be ODbL") %>
-  <%= @form_action_function %>
   <form action="<%= dataset_path(@conn, @form_action_function, @organization["id"]) %>"
         method="POST"
         enctype='multipart/form-data'>
