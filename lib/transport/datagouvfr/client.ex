@@ -54,11 +54,8 @@ defmodule Transport.Datagouvfr.Client do
 
   def get_client(conn) do
     conn.assigns
-    |> Map.get(:client, nil)
-    |> case do
-      nil -> Authentication.client()
-      client -> client
-    end
+    |> Map.get(:token, nil)
+    |> Authentication.client()
   end
 
   def post_process_request(response) do

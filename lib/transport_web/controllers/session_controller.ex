@@ -12,17 +12,17 @@ defmodule TransportWeb.SessionController do
   end
 
   def create(conn, %{"code" => code}) do
-    client = Authentication.get_token!(code: code)
-    conn
-    |> assign(:client, client)
-    |> User.me()
-    |> case do
-      {:ok, user} ->
-        conn
-        |> put_session(:current_user, user_params(user))
-        |> put_session(:client, client)
-        |> redirect(to: get_redirect_path(conn))
-        |> halt()
+    with %{token: token} <- Authentication.get_token!(code: code),
+         conn <- conn
+                 |> put_session(:token, token)
+                 |> assign(:token, token),
+         {:ok, user} <- User.me(conn)
+    do
+      conn
+      |> put_session(:current_user, user_params(user))
+      |> redirect(to: get_redirect_path(conn))
+      |> halt()
+    else
       {:error, error} ->
         Logger.error(error)
         conn
