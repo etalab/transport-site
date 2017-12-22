@@ -22,6 +22,7 @@ defmodule Transport.ReusableData.Dataset do
     :notice_count,
     :warning_count,
     :valid?,
+    :catalogue_id,
     validations: %{},
   ]
 
@@ -44,7 +45,8 @@ defmodule Transport.ReusableData.Dataset do
     error_count:    integer(),
     notice_count:   integer(),
     warning_count:  integer(),
-    valid?:         boolean()
+    valid?:         boolean(),
+    catalogue_id:   String.t
   }
 
   @doc """

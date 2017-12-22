@@ -12,7 +12,7 @@
     "linter:riot": "eslint -c ../.eslintrc --ext .tag .",
     "linter:sass": "sass-lint -c ../.sass-lint.yml  -v -q"
   },
-  "dependencies":{
+  "dependencies": {
     "babel-core": "^7.0.0-beta.1",
     "babel-loader": "^7.1.2",
     "babel-preset-es2015": "^7.0.0-beta.1",
@@ -24,15 +24,16 @@
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.5",
     "font-awesome": "^4.7.0",
-    "imports-loader": "^0.7.1",
+    "graphql-request": "^1.4.0",
     "import-glob-loader": "^1.1.0",
+    "imports-loader": "^0.7.1",
     "leaflet": "^1.2.0",
     "leaflet.markercluster": "^1.2.0",
-    "showdown": "^1.8.2",
     "node-sass": "^4.7.1",
     "riot": "^3.7.4",
     "riot-tag-loader": "^1.0.0",
     "sass-loader": "^6.0.6",
+    "showdown": "^1.8.2",
     "webpack": "^3.8.1",
     "whatwg-fetch": "2.0.3"
   },

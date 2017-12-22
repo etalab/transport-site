@@ -58,8 +58,8 @@
         <div>
           <h2><%= dgettext("page-dataset-details", "GTFS Validation") %></h2>
           <ul class="stats">
-            <li><span><%= dgettext("page-dataset-details", "Warnings") %></span> <%= @dataset.warning_count %></li>
-            <li><span><%= dgettext("page-dataset-details", "Notices") %></span> <%= @dataset.notice_count %></li>
+            <li><span><%= dgettext("page-dataset-details", "Warnings") %></span> <span id="stats-warnings"><%= @dataset.warning_count %></span></li>
+            <li><span><%= dgettext("page-dataset-details", "Notices") %></span> <span><%= @dataset.notice_count %></span></li>
           </ul>
         </div>
       </div>
@@ -93,12 +93,19 @@
       <div class="dataset-details__validation">
         <validation
           slug="<%= @dataset.slug %>"
+          catalogue_id="<%= @dataset.catalogue_id %>"
           errors="<%= dgettext("page-dataset-details", "Errors") %>"
           no_errors="<%= dgettext("page-dataset-details", "No errors") %>"
           warnings="<%= dgettext("page-dataset-details", "Warnings") %>"
           no_warnings="<%= dgettext("page-dataset-details", "No warnings") %>"
           notices="<%= dgettext("page-dataset-details", "Notices") %>"
-          no_notices="<%= dgettext("page-dataset-details", "No notices") %>">
+          no_notices="<%= dgettext("page-dataset-details", "No notices") %>"
+          stop_unused="<%= dgettext("page-dataset-details", "This stop is not referenced by any trips.") %>"
+          duplicate_stop="<%= dgettext("page-dataset-details", "More than one stop was located in exactly the same place.") %>"
+          travel_time_zero="<%= dgettext("page-dataset-details", "The vehicle arrives at this stop at the same time it departs from the previous stop.") %>"
+          travel_time_stoo_slow="<%= dgettext("page-dataset-details", "The vehicle is traveling very slowly to reach this stop from the previous one.") %>"
+          route_long_name_contains_short_name="<%= dgettext("page-dataset-details", "The long name of a route should complement the short name, not include it.") %>"
+          travel_distance_zero="<%= dgettext("page-dataset-details", "The vehicle does not cover any distance between the last stop and this one.") %>">
         </validation>
       </div>
       <div class="dataset-details__discussions">
