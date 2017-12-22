@@ -45,11 +45,8 @@
 
   li {
     border-right: 1px solid transparentize($base-font-color, 0.8);
-    color: $stats-color;
     display: inline;
     float: left;
-    font-size: 1.2em;
-    line-height: 1.1em;
     padding: 0 0.7em;
 
     &:first-child {
@@ -58,6 +55,12 @@
 
     &:last-child {
       border-right: 0;
+    }
+
+    span:last-child {
+      color: $stats-color;
+      font-size: 1.2em;
+      line-height: 1.1em;
     }
   }
 

@@ -1,19 +1,21 @@
 <validation>
     <h1>Validation</h1>
-    <div class="validation__chooser">
+    <div class="validation__chooser" if={ validator == "transitfeed" }>
         <a class="badge-notice" onclick={ init_errors }>{ this.opts.errors }</a>
         <a class="badge-notice" onclick={ init_warnings }>{ this.opts.warnings }</a>
         <a class="badge-notice" onclick={ init_notices }>{ this.opts.notices }</a>
     </div>
-    <ul if={ this.page_count > 0}>
+    <catalogue-errors catalogue_id={ this.opts.catalogue_id }>
+    </catalogue-errors>
+    <ul if={ this.page_count > 0} if= { validator == "transitfeed" }>
         <li class="validation__message" each="{ text, i in messages }">
             { text }
         </li>
     </ul>
 
-    <span if={ this.page_count == 0 }> { this.empty_messages[this.to_display] } </span>
+    <span if={ this.page_count == 0 && validator == "transitfeed" }> { this.empty_messages[this.to_display] } </span>
 
-    <div class="validation__pagination">
+    <div class="validation__pagination" if= { validator == "transitfeed" }>
         <button class="badge-notice" disabled={ page == 0 } onclick={ before }> < </button>
         <button class="badge-notice" disabled={ page == this.page_count - 1} onclick={ next }> > </button>
     </div>
@@ -30,10 +32,22 @@
                 'errors': this.opts.no_errors,
                 'warnings': this.opts.no_warnings,
                 'notices': this.opts.no_notices}
+            this.validator = 'transitfeed'
         })
 
         this.on('mount', () => {
-            fetch('/api/datasets/' + this.opts.slug + '/validations/'
+            if (this.opts.catalogue_id == null || this.opts.catalogue_id === '') {
+                this.get_validations(this.opts.slug)
+                this.validator = 'transitfeed'
+            } else {
+                this.validator = 'catalogue'
+            }
+            this.update()
+        })
+
+        this.get_validations = (slug) => {
+            this.validator = 'transitfeed'
+            fetch('/api/datasets/' + slug + '/validations/'
             ).then((response) => {
                 return response.json()
             }).then((data) => {
@@ -41,14 +55,16 @@
                 this.init_warnings()
                 this.update()
             })
-        })
+        }
 
         this.init_errors = () => {
             this.init_messages('errors')
         }
+
         this.init_warnings = () => {
             this.init_messages('warnings')
         }
+
         this.init_notices = () => {
             this.init_messages('notices')
         }

@@ -1,5 +1,6 @@
 input,
-textarea {
+textarea,
+select {
   width: 100%;
   outline: none;
   padding: 10px 15px;
@@ -14,8 +15,20 @@ textarea {
   position: relative;
 }
 
+select {
+  appearance: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  background: $background-white url("/images/arrow-down.svg") no-repeat;
+  background-position: center right 1em;
+  background-size: 15px;
+  padding: 10px 35px 10px 15px;
+  border-radius: $border-radius;
+}
+
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus{
   background-color: $background-white;
   border-color: $primary;
   transition: border-color 0.2s ease-out;
