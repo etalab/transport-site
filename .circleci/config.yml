@@ -6,8 +6,9 @@ jobs:
       - image: maukoquiroga/transport:0.0.5
         environment:
           MIX_ENV: test
-          RABBITMQ_URL: amqp://guest:guest@localhost
           MONGODB_URL: mongodb://localhost/transport_test
+          RABBITMQ_URL: amqp://guest:guest@localhost
+          DATATOOLS_URL: http://localhost:4000
           DATAGOUVFR_SITE: https://www.data.gouv.fr
 
     steps:
