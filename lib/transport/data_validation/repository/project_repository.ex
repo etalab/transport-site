@@ -8,22 +8,22 @@ defmodule Transport.DataValidation.Repository.ProjectRepository do
   alias Transport.DataValidation.Commands.CreateProject
 
   @endpoint Application.get_env(:transport, :datatools_url) <> "/api/manager/secure/project"
+  @client HTTPoison
+  @res HTTPoison.Response
+  @err HTTPoison.Error
 
   @doc """
   Finds a project by name.
   """
   @spec find(FindProject.t) :: {:ok, Project.t} | {:ok, nil} | {:error, any()}
   def find(%FindProject{name: name}) when not is_nil(name) do
-    case HTTPoison.get(@endpoint) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        project =
-          body
-          |> Poison.decode!(as: [%Project{}])
-          |> Enum.find(&(&1.name == name))
-
-        {:ok, project}
-      {:error, %HTTPoison.Error{reason: error}} ->
-        {:error, error}
+    with {:ok, %@res{status_code: 200, body: body}} <- @client.get(@endpoint),
+         {:ok, projects} <- Poison.decode(body, as: [%Project{}]),
+         project <- Enum.find(projects, &(&1.name == name)) do
+      {:ok, project}
+    else
+      {:error, %@err{reason: error}} -> {:error, error}
+      {:error, error} -> {:error, error}
     end
   end
 
@@ -32,10 +32,10 @@ defmodule Transport.DataValidation.Repository.ProjectRepository do
   """
   @spec create(CreateProject.t) :: {:ok, Project.t} | {:error, any()}
   def create(%CreateProject{} = command) do
-    case HTTPoison.post(@endpoint, Poison.encode!(command)) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        {:ok, Poison.decode!(body, as: %Project{})}
-      {:error, %HTTPoison.Error{reason: error}} ->
+    case @client.post(@endpoint, Poison.encode!(command)) do
+      {:ok, %@res{status_code: 200, body: body}} ->
+        Poison.decode(body, as: %Project{})
+      {:error, %@err{reason: error}} ->
         {:error, error}
     end
   end
