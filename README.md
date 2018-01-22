@@ -6,6 +6,12 @@
   * Install Elixir dependencies with `mix deps.get`
   * Install Node.js dependencies with `mix yarn install`
 
+In order to validate datasets:
+
+  * Make sure you have [**datatools-server**](http://conveyal-data-tools.readthedocs.io/en/dev/) installed and up-to-date
+  * In `path/to/datatools/configurations/default/env.yml`, set `DISABLE_AUTH` to `true`
+  * Set the environment variable `DATATOOLS_URL` to your datatools running instance URL.
+
 ### Usage
 
   * Run the server with `mix phx.server`
