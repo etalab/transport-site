@@ -7,7 +7,7 @@ defmodule Transport.DataValidation.Repository.ProjectRepository do
   alias Transport.DataValidation.Queries.FindProject
   alias Transport.DataValidation.Commands.CreateProject
 
-  @endpoint "http://localhost:4000/api/manager/secure/project"
+  @endpoint Application.get_env(:transport, :datatools_url) <> "/api/manager/secure/project"
 
   @doc """
   Finds a project by name.
