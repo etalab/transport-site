@@ -32,11 +32,12 @@ defmodule Transport.DataValidation.Repository.ProjectRepository do
   """
   @spec create(CreateProject.t) :: {:ok, Project.t} | {:error, any()}
   def create(%CreateProject{} = command) do
-    case @client.post(@endpoint, Poison.encode!(command)) do
-      {:ok, %@res{status_code: 200, body: body}} ->
-        Poison.decode(body, as: %Project{})
-      {:error, %@err{reason: error}} ->
-        {:error, error}
+    with {:ok, body} <- Poison.encode(command),
+         {:ok, %@res{status_code: 200, body: body}} <- @client.post(@endpoint, body) do
+      Poison.decode(body, as: %Project{})
+    else
+      {:error, %@err{reason: error}} -> {:error, error}
+      {:error, error} -> {:error, error}
     end
   end
 end
