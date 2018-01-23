@@ -11,9 +11,10 @@ defmodule Transport.DataValidation do
   """
   @spec create_project(map()) :: {:ok, Project.t} | {:error, any()}
   def create_project(%{} = params) do
-    command = CreateProject.new(params)
-
-    case CreateProject.validate(command) do
+    params
+    |> CreateProject.new
+    |> CreateProject.validate
+    |> case do
       {:ok, command} -> Project.execute(command)
       {:error, error} -> {:error, error}
     end
