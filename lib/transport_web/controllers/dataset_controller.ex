@@ -11,6 +11,23 @@ defmodule TransportWeb.DatasetController do
     |> render("index.html")
   end
 
+  def show(%Plug.Conn{} = conn, %{"slug" => slug}) do
+    slug
+    |> ReusableData.get_dataset
+    |> case do
+      nil ->
+        conn
+        |> put_status(:internal_server_error)
+        |> render(ErrorView, "500.html")
+      dataset ->
+        conn
+        |> assign(:dataset, dataset)
+        |> assign(:dataset_id, ReusableData.get_dataset_id(conn, dataset))
+        |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
+        |> render("show.html")
+    end
+  end
+
   def new(%Plug.Conn{} = conn, %{"slug" => slug}) do
     case Organizations.get(conn, slug) do
       {:ok, organization} ->
@@ -64,7 +81,7 @@ defmodule TransportWeb.DatasetController do
                      dgettext("dataset",
                               "Your modified version of this dataset has beed added"))
         |> redirect(to: dataset_path(conn,
-                                     :details,
+                                     :show,
                                      get_session(conn, :linked_dataset_slug)))
     else
       {:validation_error, errors} ->
@@ -76,23 +93,6 @@ defmodule TransportWeb.DatasetController do
         conn
         |> put_status(:internal_server_error)
         |> render(ErrorView, "500.html")
-    end
-  end
-
-  def details(%Plug.Conn{} = conn, %{"slug" => slug}) do
-    slug
-    |> ReusableData.get_dataset
-    |> case do
-      nil ->
-        conn
-        |> put_status(:internal_server_error)
-        |> render(ErrorView, "500.html")
-      dataset ->
-        conn
-        |> assign(:dataset, dataset)
-        |> assign(:dataset_id, ReusableData.get_dataset_id(conn, dataset))
-        |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
-        |> render("details.html")
     end
   end
 

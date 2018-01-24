@@ -97,7 +97,7 @@
             form.append('comment', this.refs['comment-' + id].value)
             headers.append('X-CSRF-TOKEN', document.querySelector('meta[name=csrf]').content)
 
-            fetch('/discussions/' + id, {
+            fetch('/datasets/discussions/' + id, {
                 method: 'POST',
                 body: form,
                 headers: headers,
@@ -118,7 +118,7 @@
             form.append('id_', this.opts.datasetid)
             headers.append('X-CSRF-TOKEN', document.querySelector('meta[name=csrf]').content)
 
-            fetch('/discussions/', {
+            fetch('/datasets/discussions/', {
                 method: 'POST',
                 body: form,
                 headers: headers,

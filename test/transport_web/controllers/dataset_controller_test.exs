@@ -64,7 +64,7 @@ defmodule TransportWeb.DatasetControllerTest do
              linked_dataset_id: linked_dataset_id,
              linked_dataset_slug: linked_dataset_slug)
         |> post(path, params)
-        assert redirected_to(conn, 302) == dataset_path(conn, :details, linked_dataset_slug)
+        assert redirected_to(conn, 302) == dataset_path(conn, :show, linked_dataset_slug)
       end
     end
 
