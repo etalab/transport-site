@@ -37,6 +37,7 @@ config :logger, :console,
 # of this file so it overrides the configuration defined above.
 import_config "amqp.exs"
 import_config "datagouvfr.exs"
+import_config "datatools.exs"
 import_config "mailgun.exs"
 import_config "mongodb.exs"
 import_config "#{Mix.env}.exs"

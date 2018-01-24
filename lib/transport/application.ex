@@ -13,6 +13,8 @@ defmodule Transport.Application do
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
+      supervisor(Registry, [:unique, :data_validation_project_registry]),
+      supervisor(Transport.DataValidation.Supervisor, []),
       supervisor(TransportWeb.Endpoint, []),
       worker(Transport.DataValidator.Server, []),
       worker(Mongo, [get_mongodb_keywords!()])

@@ -1,5 +1,7 @@
 export SECRET_KEY_BASE=asdf1234
+export MONGODB_URL=mongodb://localhost/transport
 export RABBITMQ_URL=amqp://guest:guest@localhost
+export DATATOOLS_URL=http://datatools.test
 export DATAGOUVFR_SITE=https://www.data.gouv.fr
 export DATAGOUVFR_CLIENT_ID=asdf1234
 export DATAGOUVFR_CLIENT_SECRET= asdf1234
