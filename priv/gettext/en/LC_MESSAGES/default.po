@@ -19,11 +19,11 @@ msgstr ""
 msgid "Sign Out"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_footer.html.eex:17
+#: lib/transport_web/templates/layout/_footer.html.eex:18
 msgid "Contact"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_footer.html.eex:23
+#: lib/transport_web/templates/layout/_footer.html.eex:25
 msgid "Terms of Service"
 msgstr ""
 

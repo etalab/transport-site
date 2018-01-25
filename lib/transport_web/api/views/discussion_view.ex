@@ -1,5 +1,4 @@
 defmodule TransportWeb.API.DiscussionView do
-
   def render(_conn, %{data: data}) do
     case Poison.encode(data) do
       {:ok, body} -> body
