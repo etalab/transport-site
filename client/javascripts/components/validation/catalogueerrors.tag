@@ -9,7 +9,7 @@
         </div>
         <table>
             <thead>
-                <tr>
+                <tr if={ this.errors}>
                     <th>Line #</th>
                     <th>{ this.errors[0].entity_type } ID</th>
                     <th> Bad value </th>
@@ -27,6 +27,18 @@
             <button class="badge-notice" disabled={ page == 0 } onclick={ previous }> < </button>
             <button class="badge-notice" disabled={ page == this.page_count } onclick={ next }> > </button>
         </div>
+            <discussions
+              if={ this.selected_category}
+              datasetid={ parent.opts.datasetid }
+              site={ parent.opts.site }
+              connected={ parent.opts.connected }
+              posted_on={ parent.opts.posted_on }
+              respond_comment={ parent.opts.respond_comment }
+              post_discussion={ parent.opts.post_discussion }
+              title={ parent.opts.title }
+              connection_needed={ parent.opts.connection_needed }
+              type={ selected_category.value.toUpperCase() }>
+            </discussions>
     </div>
     <script type="es6">
         import { GraphQLClient } from 'graphql-request'
@@ -36,7 +48,6 @@
             this.page_count = 1
             this.selected_category = null
             this.categories = []
-            this.selected_category = null
             this.catalogue_client = new GraphQLClient(
                 'http://catalogue.transport.data.gouv.fr/api/manager/graphql',
                 {
@@ -93,26 +104,26 @@
 
         this.show_page_catalogue = () => {
             var query = `
-            query errorsQuery($namespace: String,
-                              $errorType: [String],
-                              $limit: Int,
-                              $offset: Int) {
-                feed(namespace: $namespace) {
-                    feed_id
-                    feed_version
-                    filename
-                    errors (error_type: $errorType,
-                            limit: $limit,
-                            offset: $offset) {
-                        error_type
-                        entity_type
-                        entity_id
-                        line_number
-                        bad_value
-                        entity_sequence 
-                    } 
-                } 
-            }
+                query errorsQuery($namespace: String,
+                                  $errorType: [String],
+                                  $limit: Int,
+                                  $offset: Int) {
+                    feed(namespace: $namespace) {
+                        feed_id
+                        feed_version
+                        filename
+                        errors (error_type: $errorType,
+                                limit: $limit,
+                                offset: $offset) {
+                            error_type
+                            entity_type
+                            entity_id
+                            line_number
+                            bad_value
+                            entity_sequence 
+                        }
+                    }
+                }
             `
             var variables = {
                 namespace: this.opts.catalogue_id,
@@ -140,7 +151,10 @@
         }
 
         this.change_category = (e) => {
-            this.select_category(this.categories.find(c => e.target.value === c.value))
+            let category = this.categories.find(c => e.target.value === c.value)
+            this.select_category(category)
+            this.tags.discussions.type = category
+            this.tags.discussions.update_discussions()
         }
     </script>
 </catalogue-errors>

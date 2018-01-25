@@ -116,14 +116,14 @@
             let payload = {
                 'id_': this.opts.datasetid,
                 'title': this.refs.discussion_title.value,
-                'comment': this.refs.discussion_comment.value,
+                'comment': this.refs.discussion_comment.value
             }
-            if (this.opts.type !== "null") {
+            if (this.opts.type !== 'null') {
                 payload['extras'] = {'type': this.opts.type}
             }
             let headers = new Headers()
             headers.append('X-CSRF-TOKEN',
-              document.querySelector('meta[name=csrf]').content
+                document.querySelector('meta[name=csrf]').content
             )
             headers.append('Content-Type', 'application/json')
 
@@ -144,6 +144,19 @@
             this.get_discussion(this.opts.site + '/api/1/discussions/?for=' + this.opts.datasetid)
         }
 
+        this.discussion_is_null = discussion => {
+            return this.opts.type === 'null' &&
+                 (discussion.extras === undefined ||
+                 discussion.extras === null ||
+                 Object.keys(discussion.extras).length === 0 ||
+                 discussion.extras.type === null)
+        }
+
+        this.filter_discussion_by_type = discussion => {
+            return this.discussion_is_null(discussion) ||
+            discussion.extras.type === this.opts.type
+        }
+
         this.get_discussion = (url) => {
             fetch(url, {
                 method: 'GET',
@@ -152,22 +165,15 @@
                 return response.json()
             }).then((data) => {
                 this.discussion_page = this.discussion_page.concat(
-                    data.data.filter(d => (this.opts.type === "null" &&
-                                            (d.extras == undefined ||
-                                             d.extras == null ||
-                                             d.extras.type == null))
-                                          || d.extras.type == this.opts.type)
+                    data.data.filter(this.filter_discussion_by_type)
                 )
                 Object.values(this.discussion_page).map((discussion) => {
                     this.respond_comment_visible[discussion.id] = false
                 })
-                this.post_discussion_visible = false;
+                this.post_discussion_visible = false
                 if (data.next_page != null) {
                     this.get_discussion(data.next_page)
                 }
-                this.update()
-            }).catch((error) => {
-                this.error = true
                 this.update()
             })
         }
