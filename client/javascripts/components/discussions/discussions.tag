@@ -1,5 +1,5 @@
 <discussions>
-    <div class="discussion" each={ discussion in discussion_page.data } id="discussion-{ discussion.id}">
+    <div class="discussion" each={ discussion in discussion_page } id="discussion-{ discussion.id}">
         <div class="discussion__title">
             <h1>{ discussion.title }</h1>
         </div>
@@ -92,14 +92,16 @@
         this.send_comment = (e) => {
             e.preventDefault()
             let id      = e.target.parentNode.id.split('-')[1]
-            let form    = new FormData()
+            let payload = {
+                'comment': this.refs['comment-' + id].value
+            }
             let headers = new Headers()
-            form.append('comment', this.refs['comment-' + id].value)
             headers.append('X-CSRF-TOKEN', document.querySelector('meta[name=csrf]').content)
+            headers.append('Content-Type', 'application/json')
 
             fetch('/api/discussions/' + id, {
                 method: 'POST',
-                body: form,
+                body: JSON.stringify(payload),
                 headers: headers,
                 credentials: 'same-origin'
             }).then((response) => {
@@ -111,16 +113,23 @@
 
         this.post_discussion = (e) => {
             e.preventDefault()
-            let form    = new FormData()
+            let payload = {
+                'id_': this.opts.datasetid,
+                'title': this.refs.discussion_title.value,
+                'comment': this.refs.discussion_comment.value,
+            }
+            if (this.opts.type !== "null") {
+                payload['extras'] = {'type': this.opts.type}
+            }
             let headers = new Headers()
-            form.append('title', this.refs.discussion_title.value)
-            form.append('comment', this.refs.discussion_comment.value)
-            form.append('id_', this.opts.datasetid)
-            headers.append('X-CSRF-TOKEN', document.querySelector('meta[name=csrf]').content)
+            headers.append('X-CSRF-TOKEN',
+              document.querySelector('meta[name=csrf]').content
+            )
+            headers.append('Content-Type', 'application/json')
 
             fetch('/api/discussions', {
                 method: 'POST',
-                body: form,
+                body: JSON.stringify(payload),
                 headers: headers,
                 credentials: 'same-origin'
             }).then((response) => {
@@ -131,18 +140,33 @@
         }
 
         this.update_discussions = () => {
-            fetch(this.opts.site + '/api/1/discussions/?for=' + this.opts.datasetid, {
+            this.discussion_page = []
+            this.get_discussion(this.opts.site + '/api/1/discussions/?for=' + this.opts.datasetid)
+        }
+
+        this.get_discussion = (url) => {
+            fetch(url, {
                 method: 'GET',
                 mode: 'cors'
             }).then((response) => {
                 return response.json()
             }).then((data) => {
-                this.discussion_page = data
+                this.discussion_page = this.discussion_page.concat(
+                    data.data.filter(d => (this.opts.type === "null" &&
+                                            (d.extras == undefined ||
+                                             d.extras == null ||
+                                             d.extras.type == null))
+                                          || d.extras.type == this.opts.type)
+                )
                 Object.values(this.discussion_page).map((discussion) => {
                     this.respond_comment_visible[discussion.id] = false
                 })
+                this.post_discussion_visible = false;
+                if (data.next_page != null) {
+                    this.get_discussion(data.next_page)
+                }
                 this.update()
-            }).catch(() => {
+            }).catch((error) => {
                 this.error = true
                 this.update()
             })

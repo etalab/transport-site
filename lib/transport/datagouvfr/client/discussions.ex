@@ -21,11 +21,11 @@ defmodule Transport.Datagouvfr.Client.Discussions do
   Call to post /api/1/discussions/
   You can see documentation here: https://www.data.gouv.fr/fr/apidoc/#!/discussions/create_discussion
   """
-  @spec post(%Plug.Conn{}, String.t, String.t, String.t) :: {atom, [map]}
-  def post(%Plug.Conn{} = conn, id_, comment, title) do
+  @spec post(%Plug.Conn{}, String.t, String.t, String.t, map) :: {atom, [map]}
+  def post(%Plug.Conn{} = conn, id_, title, comment, extras \\ nil) do
     conn
     |> post_request(@endpoint,
-                    %{comment: comment, title: title,
+                    %{comment: comment, title: title, extras: extras,
                       subject: %{class: "Dataset", id: id_}})
   end
 end

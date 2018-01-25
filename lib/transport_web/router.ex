@@ -20,7 +20,7 @@ defmodule TransportWeb.Router do
   end
 
   pipeline :api_authenticated do
-    plug :accepts, ~w(json)
+    plug :accepts, ["json"]
     plug :fetch_session
     plug :assign_current_user
     plug :assign_token
@@ -74,7 +74,7 @@ defmodule TransportWeb.Router do
     scope "/discussions" do
       pipe_through :api_authenticated
       post "/", API.DiscussionController, :post_discussion
-      post "/:id_", API.DiscussionController, :post_discussion_id
+      post "/:id_", API.DiscussionController, :post_discussion
     end
   end
 
@@ -106,11 +106,11 @@ defmodule TransportWeb.Router do
   defp authentication_required(conn, _) do
     case conn.assigns[:current_user]  do
       nil ->
-    conn
-        |> put_flash(:info, dgettext("alert", "You need to be connected before doing this."))
-        |> redirect(to: Helpers.page_path(conn, :login,
-                    redirect_path: current_path(conn)))
-        |> halt()
+        conn
+            |> put_flash(:info, dgettext("alert", "You need to be connected before doing this."))
+            |> redirect(to: Helpers.page_path(conn, :login,
+                        redirect_path: current_path(conn)))
+            |> halt()
       _ ->
         conn
     end
