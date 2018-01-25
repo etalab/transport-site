@@ -18,3 +18,5 @@ config :oauth2, Authentication,
 
 # MongoDB configuration.
 config :mongodb, url: "mongodb://localhost/transport_test"
+
+config :transport, datatools_url: "http://localhost:4000"

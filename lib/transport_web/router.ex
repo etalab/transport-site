@@ -19,6 +19,14 @@ defmodule TransportWeb.Router do
     plug JaSerializer.Deserializer
   end
 
+  pipeline :api_authenticated do
+    plug :accepts, ~w(json)
+    plug :fetch_session
+    plug :assign_current_user
+    plug :assign_token
+    plug :authentication_required
+  end
+
   scope "/", TransportWeb do
     pipe_through :browser
 
@@ -43,12 +51,6 @@ defmodule TransportWeb.Router do
       get "/datasets/:slug/_add", UserController, :add_badge_dataset
     end
 
-    scope "/discussions" do
-      pipe_through [:authentication_required]
-      post "/", DiscussionController, :post_discussion
-      post "/:id_", DiscussionController, :post_discussion_id
-    end
-
     # Authentication
 
     scope "/login" do
@@ -61,12 +63,18 @@ defmodule TransportWeb.Router do
   end
 
   scope "/api", TransportWeb do
-    pipe_through :api
 
     scope "/datasets" do
+      pipe_through :api
       get "/", API.DatasetController, :index
       get "/:slug/", API.DatasetController, :show
       get "/:slug/validations/", API.DatasetController, :validations
+    end
+
+    scope "/discussions" do
+      pipe_through :api_authenticated
+      post "/", API.DiscussionController, :post_discussion
+      post "/:id_", API.DiscussionController, :post_discussion_id
     end
   end
 
@@ -98,7 +106,7 @@ defmodule TransportWeb.Router do
   defp authentication_required(conn, _) do
     case conn.assigns[:current_user]  do
       nil ->
-        conn
+    conn
         |> put_flash(:info, dgettext("alert", "You need to be connected before doing this."))
         |> redirect(to: Helpers.page_path(conn, :login,
                     redirect_path: current_path(conn)))
