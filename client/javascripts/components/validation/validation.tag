@@ -1,5 +1,7 @@
 <validation>
-    <h1>Validation</h1>
+    <div class="validation__title">
+        <h1>Validation</h1>
+    </div>
     <div class="validation__chooser" if={ validator == "transitfeed" }>
         <a class="badge-notice" onclick={ init_errors }>{ this.opts.errors }</a>
         <a class="badge-notice" onclick={ init_warnings }>{ this.opts.warnings }</a>

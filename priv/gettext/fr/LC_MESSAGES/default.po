@@ -19,11 +19,11 @@ msgstr "S'identifier"
 msgid "Sign Out"
 msgstr "Se déconnecter"
 
-#: lib/transport_web/templates/layout/_footer.html.eex:17
+#: lib/transport_web/templates/layout/_footer.html.eex:18
 msgid "Contact"
 msgstr "Nous contacter"
 
-#: lib/transport_web/templates/layout/_footer.html.eex:23
+#: lib/transport_web/templates/layout/_footer.html.eex:25
 msgid "Terms of Service"
 msgstr "Conditions d'utilisation"
 

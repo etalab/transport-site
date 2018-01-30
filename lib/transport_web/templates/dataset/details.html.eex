@@ -94,6 +94,7 @@
         <validation
           slug="<%= @dataset.slug %>"
           catalogue_id="<%= @dataset.catalogue_id %>"
+          datasetid="<%= @dataset_id %>"
           errors="<%= dgettext("page-dataset-details", "Errors") %>"
           no_errors="<%= dgettext("page-dataset-details", "No errors") %>"
           warnings="<%= dgettext("page-dataset-details", "Warnings") %>"
@@ -105,7 +106,14 @@
           travel_time_zero="<%= dgettext("page-dataset-details", "The vehicle arrives at this stop at the same time it departs from the previous stop.") %>"
           travel_time_stoo_slow="<%= dgettext("page-dataset-details", "The vehicle is traveling very slowly to reach this stop from the previous one.") %>"
           route_long_name_contains_short_name="<%= dgettext("page-dataset-details", "The long name of a route should complement the short name, not include it.") %>"
-          travel_distance_zero="<%= dgettext("page-dataset-details", "The vehicle does not cover any distance between the last stop and this one.") %>">
+          travel_distance_zero="<%= dgettext("page-dataset-details", "The vehicle does not cover any distance between the last stop and this one.") %>"
+          site="<%= @site %>"
+          connected="<%= @current_user != nil %>"
+          posted_on="<%= dgettext("page-dataset-details", "Posted on") %>"
+          respond_comment="<%= dgettext("page-dataset-details", "Respond") %>"
+          post_discussion="<%= dgettext("page-dataset-details", "Begin a new conversation") %>"
+          title="<%= dgettext("page-dataset-details", "Title") %>"
+          connection_needed="<%= dgettext("page-dataset-details", "You need to be connected to post comments")%>">
         </validation>
       </div>
       <div class="dataset-details__discussions">
@@ -118,7 +126,8 @@
           respond_comment="<%= dgettext("page-dataset-details", "Respond") %>"
           post_discussion="<%= dgettext("page-dataset-details", "Begin a new conversation") %>"
           title="<%= dgettext("page-dataset-details", "Title") %>"
-          connection_needed="<%= dgettext("page-dataset-details", "You need to be connected to post comments")%>">
+          connection_needed="<%= dgettext("page-dataset-details", "You need to be connected to post comments")%>"
+          type="null">
         </discussions>
       </div>
     </div>

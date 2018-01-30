@@ -31,7 +31,7 @@ defmodule Transport.Datagouvfr.Client do
   def post_request(%Plug.Conn{} = conn, url, body \\ "", headers \\ [], opts \\ []) do
     headers = default_content_type(headers)
     :post
-    |> Transport.Datagouvfr.Client.request(conn, url, body, headers, opts)
+    |> request(conn, url, body, headers, opts)
   end
 
   #credo:disable-for-lines:9
