@@ -1,4 +1,4 @@
-FROM elixir:1.5.1
+FROM elixir:1.6.1
 
 # Install system dependencies
 RUN apt-get update \
@@ -28,7 +28,7 @@ RUN curl https://gist.githubusercontent.com/maukoquiroga/48e9aa501ca8c7d63615644
 RUN chmod +x /etc/init.d/phantomjs
 
 #Install data-validator
-RUN apt-get install -y mongodb-server python-pip python-virtualenv
+RUN apt-get install -y mongodb-server python-dev python-pip python-virtualenv
 RUN git clone https://github.com/etalab/transport-validator
 WORKDIR transport-validator
 RUN virtualenv venv

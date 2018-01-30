@@ -6,6 +6,9 @@ defmodule TransportWeb.API.DatasetView do
   end
 
   def render(_conn, %{errors: errors}) do
-    Poison.encode(errors)
+    case Poison.encode(errors) do
+      {:ok, body} -> body
+      {:error, error} -> error
+    end
   end
 end
