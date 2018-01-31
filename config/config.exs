@@ -29,6 +29,14 @@ config :mime, :types, %{
 }
 
 # Configures Elixir's Logger
+config :logger,
+  handle_otp_reports: true,
+  handle_sasl_reports: true,
+  translators: [
+    {Support.Logger.Translator, :translate},
+    {Logger.Translator, :translate}
+  ]
+
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]

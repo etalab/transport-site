@@ -28,8 +28,13 @@ defmodule Transport.DataValidation.Aggregates.Project do
   end
 
   def init(%__MODULE__{} = project) do
-    GenServer.cast(self(), {:find_project, %FindProject{name: project.name}})
+    GenServer.cast(self(), {:populate_project, %FindProject{name: project.name}})
     {:ok, project}
+  end
+
+  def execute(%FindProject{} = query) do
+    {:ok, pid} = get_pid(query.name)
+    GenServer.call(pid, {:find_project})
   end
 
   def execute(%CreateProject{} = command) do
@@ -37,12 +42,8 @@ defmodule Transport.DataValidation.Aggregates.Project do
     GenServer.cast(pid, {:create_project, command})
   end
 
-  def handle_cast({:find_project, %FindProject{} = query}, %__MODULE__{} = project) do
-    case ProjectRepository.find(query) do
-      {:ok, nil} -> {:noreply, project}
-      {:ok, project} -> {:noreply, project}
-      {:error, _} -> {:noreply, project}
-    end
+  def handle_call({:find_project}, _from, %__MODULE__{} = project) do
+    {:reply, {:ok, project}, project}
   end
 
   def handle_cast({:create_project, %CreateProject{} = command}, %__MODULE__{id: nil} = project) do
@@ -54,6 +55,14 @@ defmodule Transport.DataValidation.Aggregates.Project do
 
   def handle_cast({:create_project, %CreateProject{}}, %__MODULE__{} = project) do
     {:noreply, project}
+  end
+
+  def handle_cast({:populate_project, %FindProject{} = query}, %__MODULE__{} = project) do
+    case ProjectRepository.find(query) do
+      {:ok, nil} -> {:noreply, project}
+      {:ok, project} -> {:noreply, project}
+      {:error, error} -> {:stop, error, project}
+    end
   end
 
   # private

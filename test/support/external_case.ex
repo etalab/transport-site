@@ -8,7 +8,7 @@ defmodule TransportWeb.ExternalCase do
 
   using do
     quote do
-      use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
+      use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney, options: [clear_mock: true]
       import Plug.Test
     end
   end
