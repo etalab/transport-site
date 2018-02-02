@@ -39,6 +39,10 @@
     </div>
 
     <div class="discussion__post">
+        <span if={ !isConnected() } class="discussion-commment__connection-needed">
+            { opts.connection_needed }
+        </span>
+
         <a if={ isConnected() && !post_discussion_visible } onclick={ show_post_discussion }>
             { opts.post_discussion }
         </a>
