@@ -34,50 +34,6 @@ select:focus{
   transition: border-color 0.2s ease-out;
 }
 
-input[type=radio],
-input[type=checkbox] {
-  margin-right: 6px;
-  margin-top: 0;
-}
-
-input[type=radio]:empty,
-input[type=checkbox]:empty {
-  background-color: $background-grey;
-}
-
-input[type=radio] {
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  display: inline-block;
-  appearance: none;
-  padding: 0;
-}
-
-input[type=radio]::before {
-  content: '';
-  border-color: $primary;
-  border-radius: 50%;
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  width: 8px;
-  height: 8px;
-  transform: scale(0);
-}
-
-input[type=radio]:checked {
-  background-color: $background-white;
-  border-color: $primary;
-  opacity: 1;
-}
-
-input[type=radio]:checked::before {
-  background-color: $primary;
-  transform: scale(1);
-  transition: transform 0.2s ease-out;
-}
-
 label,
 legend {
   display: block;
