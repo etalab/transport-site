@@ -29,3 +29,11 @@ msgstr "Réutiliser des données"
 #: lib/transport_web/templates/page/index.html.eex:8
 msgid "What is transport.data.gouv.fr?"
 msgstr "Qu'est-ce que transport.data.gouv.fr ?"
+
+#: lib/transport_web/templates/page/index.html.eex:32
+msgid "Email address"
+msgstr "Adresse email"
+
+#: lib/transport_web/templates/page/index.html.eex:27
+msgid "Subscribe to our email newsletter to receive update"
+msgstr "Pour être informé des nouveautés, inscrivez-vous à notre newsletter :"
