@@ -3,13 +3,13 @@ textarea,
 select {
   width: 100%;
   outline: none;
-  padding: 10px 15px;
+  padding: 0.7em 1.4em;
   font: inherit;
   line-height: 1.6;
   color: $black;
   border-radius: $border-radius;
   box-sizing: border-box;
-  border: 1px solid $border;
+  border: 0.1em solid $border;
   background: $background-white;
   vertical-align: middle;
   position: relative;
@@ -21,8 +21,8 @@ select {
   -webkit-appearance: none;
   background: $background-white url("/images/arrow-down.svg") no-repeat;
   background-position: center right 1em;
-  background-size: 15px;
-  padding: 10px 35px 10px 15px;
+  background-size: 1.4em;
+  padding: 0.9em 3em 0.9em 3em;
   border-radius: $border-radius;
 }
 
@@ -92,7 +92,7 @@ label.label-inline {
 
 .label-inline + input[type=radio],
 .label-inline + input[type=checkbox] {
-  margin-left: 10px;
+  margin-left: 0.9em;
 }
 
 .form__container {
