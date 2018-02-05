@@ -34,6 +34,14 @@ defmodule Transport.Datagouvfr.Client do
     |> request(conn, url, body, headers, opts)
   end
 
+  @spec delete_request(%Plug.Conn{}, binary, OAuth2Client.headers, Keyword.t)
+                    :: {:ok, Response.t} | {:error, Error.t}
+  def delete_request(%Plug.Conn{} = conn, url, headers \\ [], opts \\ []) do
+    headers = default_content_type(headers)
+    :delete
+    |> request(conn, url, nil, headers, opts)
+  end
+
   #credo:disable-for-lines:9
   @doc """
   We disable for now the credo test because the arity is to high
