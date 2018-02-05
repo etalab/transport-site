@@ -169,7 +169,7 @@ defmodule Transport.ReusableData do
     |> case do
       {:ok, %{"id" => id}} -> id
       {:ok, _}             -> nil
-      {:error, error}          ->
+      {:error, error}      ->
         Logger.error(error)
         nil
     end

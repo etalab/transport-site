@@ -11,7 +11,7 @@ msgstr ""
 "Language: en\n"
 
 #: lib/transport_web/templates/dataset/details.html.eex:22
-#: lib/transport_web/templates/dataset/details.html.eex:88
+#: lib/transport_web/templates/dataset/details.html.eex:97
 #: lib/transport_web/templates/dataset/index.html.eex:31
 msgid "Download"
 msgstr ""

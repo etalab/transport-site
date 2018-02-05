@@ -71,6 +71,12 @@ defmodule TransportWeb.Router do
       get "/:slug/validations/", API.DatasetController, :validations
     end
 
+    scope "/datasets" do
+      pipe_through :api_authenticated
+      post "/:dataset_id/followers/", API.FollowerController, :create
+      delete "/:dataset_id/followers/", API.FollowerController, :delete
+    end
+
     scope "/discussions" do
       pipe_through :api_authenticated
       post "/", API.DiscussionController, :post_discussion
