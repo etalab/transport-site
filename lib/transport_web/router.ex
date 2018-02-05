@@ -22,6 +22,7 @@ defmodule TransportWeb.Router do
   pipeline :api_authenticated do
     plug :accepts, ["json"]
     plug :fetch_session
+    plug :fetch_flash
     plug :assign_current_user
     plug :assign_token
     plug :authentication_required

@@ -11,7 +11,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
   And that I can be reassured that I'm not wasting my time.
   """
 
-  use TransportWeb.ConnCase, async: true
+  use TransportWeb.ConnCase, async: false
   use TransportWeb.DatabaseCase, cleanup: ["celery_taskmeta", "datasets"]
   use TransportWeb.UserFacingCase
   alias Transport.ReusableData

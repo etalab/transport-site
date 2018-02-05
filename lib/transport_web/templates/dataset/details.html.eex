@@ -72,7 +72,7 @@
           <dataset-followers
             dataset_id="<%= @dataset_id %>"
             site="<%= @site %>"
-            user_id="<%= if is_nil(@current_user), do: @current_user["id"], else: nil %>"
+            user_id="<%= if @current_user != nil, do: @current_user["id"], else: nil %>"
             subscribe_to_dataset="<%= dgettext("page-dataset-details", "Subscribe to dataset") %>"
             unsubscribe_to_dataset="<%= dgettext("page-dataset-details", "Unsubscribe to dataset") %>"
           ></dataset-followers>
