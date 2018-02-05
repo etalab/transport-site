@@ -24,9 +24,9 @@
 <section class="mailing-list">
     <div class="mailing-list__container">
         <strong>
-            <%= dgettext("page-index", "Subscribe to the newsletter to receive update") %>
+            <%= dgettext("page-index", "Subscribe to our email newsletter to receive update") %>
         </strong><br/>
-        <form action="//gouv.us13.list-manage.com/subscribe/post?u=5ee8bfe0f1b073b49de06a063&amp;id=13db2e9a94" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+        <form action="<%= @mailchimp_newsletter_url %>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
             <div id="mc_embed_signup_scroll">
               <label for="mce-EMAIL"></label>
               <input type="email" value="" name="EMAIL" id="mce-EMAIL" placeholder="<%= dgettext("page-index", "Email address") %>">
