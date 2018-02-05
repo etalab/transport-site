@@ -5,6 +5,7 @@ defmodule Transport.ReusableData do
 
   alias Transport.ReusableData.{Dataset, Licence}
   alias Transport.Datagouvfr.Client.Datasets
+  require Logger
 
   @pool DBConnection.Poolboy
 
@@ -167,8 +168,10 @@ defmodule Transport.ReusableData do
     |> Datasets.get(dataset.slug)
     |> case do
       {:ok, %{"id" => id}} -> id
-      {:ok, _}            -> nil
-      {:error, _}          -> nil
+      {:ok, _}             -> nil
+      {:error, error}          ->
+        Logger.error(error)
+        nil
     end
   end
 end
