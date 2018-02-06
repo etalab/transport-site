@@ -31,10 +31,6 @@ msgstr "Conditions d'utilisation"
 msgid "Publish, improve and reuse French public transport data"
 msgstr "Rendre disponible, valoriser et améliorer les données transports"
 
-#: lib/transport_web/templates/layout/_footer.html.eex:6
-msgid "Ask help"
-msgstr "Demander de l'aide"
-
 #: lib/transport_web/templates/layout/_footer.html.eex:7
 msgid "Close"
 msgstr "fermer"
@@ -59,3 +55,7 @@ msgstr "Votre email a été envoyé, nous vous recontacterons prochainement."
 #: lib/transport_web/templates/layout/app.html.eex:11
 msgid "transport.data.gouv.fr"
 msgstr ""
+
+#: lib/transport_web/templates/layout/_footer.html.eex:6
+msgid "Ask for help"
+msgstr "Demander de l'aide"
