@@ -18,7 +18,7 @@ defmodule Transport.DataValidation do
   @doc """
   Creates a new project.
   """
-  @spec create_project(map()) :: {:ok, Project.t} | {:error, any()}
+  @spec create_project(map()) :: :ok | {:error, any()}
   def create_project(%{} = params) do
     params
     |> CreateProject.new
@@ -27,5 +27,13 @@ defmodule Transport.DataValidation do
       {:ok, command} -> Project.execute(command)
       {:error, error} -> {:error, error}
     end
+  end
+
+  @doc """
+  Validates a feed version.
+  """
+  @spec validate_feed_version(Project.t, map()) :: :ok | {:error, any()}
+  def validate_feed_version(%Project{} = project, %{} = params) do
+    :ok
   end
 end

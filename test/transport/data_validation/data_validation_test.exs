@@ -20,4 +20,11 @@ defmodule Transport.DataValidationTest do
       refute is_nil(project.id)
     end
   end
+
+  test "validates a feed version" do
+    use_cassette "data_validation/find_project" do
+      assert {:ok, project} = DataValidation.find_project("transport")
+      assert :ok == DataValidation.validate_feed_version(project, %{id: "1"})
+    end
+  end
 end
