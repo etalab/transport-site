@@ -5,7 +5,7 @@ defmodule Transport.DataValidation do
 
   alias Transport.DataValidation.Aggregates.Project
   alias Transport.DataValidation.Queries.FindProject
-  alias Transport.DataValidation.Commands.CreateProject
+  alias Transport.DataValidation.Commands.{CreateProject, ValidateFeedVersion}
 
   @doc """
   Finds a project.
@@ -33,7 +33,13 @@ defmodule Transport.DataValidation do
   Validates a feed version.
   """
   @spec validate_feed_version(Project.t, map()) :: :ok | {:error, any()}
-  def validate_feed_version(%Project{} = project, %{} = params) do
-    :ok
+  def validate_feed_version(%Project{} = %{name: name} = project, %{} = params) when is_binary(name) do
+    params
+    |> ValidateFeedVersion.new
+    |> ValidateFeedVersion.validate
+    |> case do
+      {:ok, command} -> :ok
+      {:error, error} -> {:error, error}
+    end
   end
 end
