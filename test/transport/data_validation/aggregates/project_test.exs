@@ -2,7 +2,7 @@ defmodule Transport.DataValidation.Aggregates.ProjectTest do
   use ExUnit.Case, async: false
   use TransportWeb.ExternalCase
   alias Transport.DataValidation.Aggregates.Project
-  alias Transport.DataValidation.Commands.CreateProject
+  alias Transport.DataValidation.Commands.{CreateProject, ValidateFeedVersion}
   alias Transport.DataValidation.Queries.FindProject
 
   doctest Project
@@ -63,5 +63,11 @@ defmodule Transport.DataValidation.Aggregates.ProjectTest do
         assert {:reply, {:error, "econnrefused"}, ^project} = Project.handle_call({:create_project, command}, nil, project)
       end
     end
+  end
+
+  test "validate a feed version" do
+    project = %Project{id: "1"}
+    command = %ValidateFeedVersion{id: "1"}
+    assert {:reply, {:ok, ^project}, ^project} = Project.handle_call({:validate_feed_version, command}, nil, project)
   end
 end

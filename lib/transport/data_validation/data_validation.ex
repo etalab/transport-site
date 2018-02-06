@@ -33,12 +33,12 @@ defmodule Transport.DataValidation do
   Validates a feed version.
   """
   @spec validate_feed_version(Project.t, map()) :: :ok | {:error, any()}
-  def validate_feed_version(%Project{} = %{name: name} = project, %{} = params) when is_binary(name) do
+  def validate_feed_version(%Project{} = %{id: id} = project, %{} = params) when is_binary(id) do
     params
     |> ValidateFeedVersion.new
     |> ValidateFeedVersion.validate
     |> case do
-      {:ok, command} -> :ok
+      {:ok, command} -> Project.execute(project, command)
       {:error, error} -> {:error, error}
     end
   end

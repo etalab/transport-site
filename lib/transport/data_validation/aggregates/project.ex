@@ -9,7 +9,7 @@ defmodule Transport.DataValidation.Aggregates.Project do
   use ExConstructor
   alias Transport.DataValidation.Supervisor
   alias Transport.DataValidation.Queries.FindProject
-  alias Transport.DataValidation.Commands.CreateProject
+  alias Transport.DataValidation.Commands.{CreateProject, ValidateFeedVersion}
   alias Transport.DataValidation.Repository.ProjectRepository
 
   @registry :data_validation_project_registry
@@ -41,6 +41,11 @@ defmodule Transport.DataValidation.Aggregates.Project do
     GenServer.call(pid, {:create_project, command})
   end
 
+  def execute(%__MODULE__{} = project, %ValidateFeedVersion{} = command) do
+    {:ok, pid} = get_pid(project.name)
+    GenServer.call(pid, {:validate_feed_version, command})
+  end
+
   def handle_call({:find_project, query}, _from, %__MODULE__{id: nil} = project) do
     case ProjectRepository.find(query) do
       {:ok, nil} -> {:reply, {:ok, nil}, project}
@@ -61,6 +66,10 @@ defmodule Transport.DataValidation.Aggregates.Project do
   end
 
   def handle_call({:create_project, %CreateProject{}}, _from, %__MODULE__{} = project) do
+    {:reply, {:ok, project}, project}
+  end
+
+  def handle_call({:validate_feed_version, %ValidateFeedVersion{} = command}, _from, %__MODULE__{} = project) do
     {:reply, {:ok, project}, project}
   end
 
