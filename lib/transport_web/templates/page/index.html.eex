@@ -1,22 +1,46 @@
 <h1><%= dgettext("page-index", "Publish and reuse public transport data") %></h1>
 
 <section class="hero">
-  <div class="hero__container">
-    <map class="hero__column", link-class='map__link map__link--reuse'></map>
+    <div class="hero__container">
+        <map class="hero__column", link-class='map__link map__link--reuse'></map>
 
-    <div class="hero__column">
-      <h1><%= dgettext("page-index", "What is transport.data.gouv.fr?") %></h1>
-      <markdown content='<%= dgettext("page-index", "The single entry point for publication and reuse of public transport data, allowing to make people lives better.") %>'></markdown>
+        <div class="hero__column">
+            <h1><%= dgettext("page-index", "What is transport.data.gouv.fr?") %></h1>
+            <markdown content='<%= dgettext("page-index", "The single entry point for publication and reuse of public transport data, allowing to make people lives better.") %>'></markdown>
 
-      <div class="hero__links is-centered">
-        <a class="button button--fullwidth hero__link hero__link--open" href="<%= user_path @conn, :organizations %>" role="link">
-          <i class="icon icon--open" aria-hidden="true"></i>
-          <%= dgettext("page-index", "Publish my data") %>
-        </a>
-        <a class="button button--fullwidth hero__link hero__link--reuse" href="<%= dataset_path @conn, :index %>" role="link">
-          <i class="icon icon--reuse" aria-hidden="true"></i>
-          <%= dgettext("page-index", "Reuse data") %>
-        </a>
-      </div>
-    </section>
-  </section>
+            <div class="hero__links is-centered">
+                <a class="button button--fullwidth hero__link hero__link--open" href="<%= user_path @conn, :organizations %>" role="link">
+                <i class="icon icon--open" aria-hidden="true"></i>
+                <%= dgettext("page-index", "Publish my data") %>
+                </a>
+                <a class="button button--fullwidth hero__link hero__link--reuse" href="<%= dataset_path @conn, :index %>" role="link">
+                <i class="icon icon--reuse" aria-hidden="true"></i>
+                <%= dgettext("page-index", "Reuse data") %>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="mailing-list">
+    <div class="mailing-list__container">
+        <strong>
+            <%= dgettext("page-index", "Subscribe to our email newsletter to receive update") %>
+        </strong><br/>
+        <form action="<%= @mailchimp_newsletter_url %>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+            <div id="mc_embed_signup_scroll">
+              <label for="mce-EMAIL"></label>
+              <input type="email" value="" name="EMAIL" id="mce-EMAIL" placeholder="<%= dgettext("page-index", "Email address") %>">
+              <div id="mce-responses" class="clear">
+                  <div class="response" id="mce-error-response" style="display:none"></div>
+                  <div class="response" id="mce-success-response" style="display:none"></div>
+              </div>
+              <div>
+                  <input type="hidden" name="b_5ee8bfe0f1b073b49de06a063_13db2e9a94" tabindex="-1" value="">
+              </div>
+              <div class="mailing-list__button">
+                  <button type="submit" name="subscribe" id="mc-embedded-subscribe">INSCRIPTION</button>
+              </div>
+            </div>
+       </form>
+    </div>
+</section>

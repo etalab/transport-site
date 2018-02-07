@@ -2,7 +2,13 @@ defmodule TransportWeb.PageController do
   use TransportWeb, :controller
 
   def index(conn, _params) do
-    render(conn, "index.html")
+    render(
+      conn,
+      "index.html",
+      %{:mailchimp_newsletter_url => :transport
+                                     |> Application.get_all_env()
+                                     |> Keyword.get(:mailchimp_newsletter_url)}
+    )
   end
 
   def login(conn, %{"redirect_path" => redirect_path}) do
