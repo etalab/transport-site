@@ -65,9 +65,17 @@ defmodule Transport.DataValidation.Aggregates.ProjectTest do
     end
   end
 
-  test "validate a feed version" do
-    project = %Project{id: "1"}
-    command = %ValidateFeedVersion{id: "1"}
-    assert {:reply, {:ok, ^project}, ^project} = Project.handle_call({:validate_feed_version, command}, nil, project)
+  describe "validate a feed version" do
+    test "when the feed version exists it validates it" do
+      project = %Project{id: "1"}
+      command = %ValidateFeedVersion{id: "1"}
+      assert {:reply, {:ok, ^project}, ^project} = Project.handle_call({:validate_feed_version, command}, nil, project)
+    end
+
+    test "when the feed version does not exist it fails" do
+      project = %Project{id: "1"}
+      command = %ValidateFeedVersion{id: "2"}
+      assert {:reply, {:error, _}, ^project} = Project.handle_call({:validate_feed_version, command}, nil, project)
+    end
   end
 end
