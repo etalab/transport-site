@@ -1,0 +1,29 @@
+[
+  {
+    "request": {
+      "body": "",
+      "headers": [],
+      "method": "get",
+      "options": [],
+      "request_body": "",
+      "url": "http://localhost:4000/api/manager/secure/project"
+    },
+    "response": {
+      "binary": false,
+      "body": "[{\"id\":\"5a96ddc0-2497-48b0-8a1d-dac2fb7c507a\",\"lastUpdated\":1516473992946,\"dateCreated\":1516473992946,\"name\":\"transport\",\"useCustomOsmBounds\":false,\"buildConfig\":{\"fetchElevationUS\":null,\"elevationBucket\":null,\"stationTransfers\":null,\"subwayAccessTime\":null,\"fares\":null},\"routerConfig\":{\"numItineraries\":null,\"walkSpeed\":null,\"stairsReluctance\":null,\"carDropoffTime\":null,\"updaters\":null,\"brandingUrlRoot\":null,\"requestLogFile\":null},\"otpServers\":null,\"organizationId\":null,\"defaultTimeZone\":null,\"defaultLanguage\":null,\"defaultLocationLat\":0.0,\"defaultLocationLon\":0.0,\"autoFetchFeeds\":false,\"autoFetchHour\":0,\"autoFetchMinute\":0,\"bounds\":null,\"user\":null}]",
+      "headers": {
+        "Date": "Tue, 23 Jan 2018 17:12:26 GMT",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,",
+        "Content-Type": "application/json",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked",
+        "Server": "Jetty(9.3.z-SNAPSHOT)"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]

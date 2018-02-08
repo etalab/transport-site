@@ -4,7 +4,16 @@ defmodule Transport.DataValidation do
   """
 
   alias Transport.DataValidation.Aggregates.Project
+  alias Transport.DataValidation.Queries.FindProject
   alias Transport.DataValidation.Commands.CreateProject
+
+  @doc """
+  Finds a project.
+  """
+  @spec find_project(String.t) :: {:ok, Project.t} | {:error, any()}
+  def find_project(name) when is_binary(name) do
+    Project.execute(%FindProject{name: name})
+  end
 
   @doc """
   Creates a new project.
