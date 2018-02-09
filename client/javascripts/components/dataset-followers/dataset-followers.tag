@@ -25,9 +25,8 @@
         }).then((response) => {
             return response.json()
         }).then((data) => {
-            console.log(data)
             this.user_subscribed = data.data.reduce(
-                (acc, value) => {return acc || (value['follower']['id'] === this.opts.user_id)},
+                (acc, value) => { return acc || (value['follower']['id'] === this.opts.user_id) },
                 false
             )
             if (!this.user_subscribed && data.next_page != null) {
