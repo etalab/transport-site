@@ -3,20 +3,22 @@ defmodule Transport.DataValidation.Aggregates.Project do
   A project is a container of feed sources and its versions.
   """
 
-  defstruct [:id, :name]
+  defstruct [:id, :name, feed_sources: []]
 
   use GenServer
   use ExConstructor
   alias Transport.DataValidation.Supervisor
+  alias Transport.DataValidation.Aggregates.FeedSource
   alias Transport.DataValidation.Queries.FindProject
-  alias Transport.DataValidation.Commands.{CreateProject, ValidateFeedVersion}
-  alias Transport.DataValidation.Repository.{ProjectRepository, FeedVersionRepository}
+  alias Transport.DataValidation.Commands.{CreateProject, CreateFeedSource}
+  alias Transport.DataValidation.Repository.{ProjectRepository, FeedSourceRepository}
 
   @registry :data_validation_project_registry
 
   @type t :: %__MODULE__{
     id: String.t,
-    name: String.t
+    name: String.t,
+    feed_sources: [FeedSource.t]
   }
 
   def start_link(name) when is_binary(name) do
@@ -41,9 +43,9 @@ defmodule Transport.DataValidation.Aggregates.Project do
     GenServer.call(pid, {:create_project, command})
   end
 
-  def execute(%ValidateFeedVersion{} = command) do
+  def execute(%CreateFeedSource{} = command) do
     {:ok, pid} = get_pid(command.project.name)
-    GenServer.call(pid, {:validate_feed_version, command})
+    GenServer.call(pid, {:create_feed_source, command})
   end
 
   def handle_call({:find_project, query}, _from, %__MODULE__{id: nil} = project) do
@@ -69,23 +71,31 @@ defmodule Transport.DataValidation.Aggregates.Project do
     {:reply, {:ok, project}, project}
   end
 
-  def handle_call({:validate_feed_version, %ValidateFeedVersion{} = command}, _from, %__MODULE__{} = project) do
-    case FeedVersionRepository.execute(command) do
-      {:ok, _} -> {:reply, {:ok, project}, project}
-      {:error, error} -> {:reply, {:error, error}, project}
+  def handle_call({:create_feed_source, %CreateFeedSource{} = command}, _from, %__MODULE__{} = project) do
+    case find_feed_source(project, command.name) do
+      nil ->
+        case FeedSourceRepository.execute(command) do
+          {:ok, feed_source} ->
+            project = %{project | feed_sources: [feed_source | project.feed_sources]}
+            {:reply, {:ok, feed_source}, project}
+          {:error, error} ->
+            {:reply, {:error, error}, project}
+        end
+      feed_source ->
+        {:reply, {:ok, feed_source}, project}
     end
-  end
-
-  def handle_call({:validate_feed_version, %ValidateFeedVersion{} = command}, _from, %__MODULE__{} = project) do
-    {:reply, {:ok, project}, project}
   end
 
   # private
 
-  defp get_pid(name) do
+  defp get_pid(name) when is_binary(name) do
     case Registry.lookup(@registry, name) do
       [{pid, _}] -> {:ok, pid}
       [] -> Supervisor.start_project(name)
     end
+  end
+
+  defp find_feed_source(%__MODULE__{} = project, name) when is_binary(name) do
+    Enum.find(project.feed_sources, &(&1.name == name))
   end
 end

@@ -1,0 +1,19 @@
+[
+  {
+    "request": {
+      "body": "{\"projectId\":\"1\",\"name\":\"tisseo\"}",
+      "headers": [],
+      "method": "post",
+      "options": [],
+      "request_body": "",
+      "url": "http://localhost:4000/api/manager/secure/feedsource"
+    },
+    "response": {
+      "binary": false,
+      "body": "econnrefused",
+      "headers": [],
+      "status_code": null,
+      "type": "error"
+    }
+  }
+]

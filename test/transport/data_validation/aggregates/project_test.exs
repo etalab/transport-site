@@ -1,8 +1,8 @@
 defmodule Transport.DataValidation.Aggregates.ProjectTest do
   use ExUnit.Case, async: false
   use TransportWeb.ExternalCase
-  alias Transport.DataValidation.Aggregates.Project
-  alias Transport.DataValidation.Commands.{CreateProject, ValidateFeedVersion}
+  alias Transport.DataValidation.Aggregates.{Project, FeedSource}
+  alias Transport.DataValidation.Commands.{CreateProject, CreateFeedSource}
   alias Transport.DataValidation.Queries.FindProject
 
   doctest Project
@@ -65,17 +65,29 @@ defmodule Transport.DataValidation.Aggregates.ProjectTest do
     end
   end
 
-  describe "validate a feed version" do
-    test "when the feed version exists it validates it" do
-      project = %Project{id: "1"}
-      command = %ValidateFeedVersion{id: "1"}
-      assert {:reply, {:ok, ^project}, ^project} = Project.handle_call({:validate_feed_version, command}, nil, project)
+  describe "create a feed source" do
+    test "when the feed source does not exist it creates it" do
+      use_cassette "data_validation/create_feed_source-ok" do
+        project = %Project{id: "1"}
+        command = %CreateFeedSource{project: project, name: "tisseo"}
+        assert {:reply, {:ok, feed_source}, project} = Project.handle_call({:create_feed_source, command}, nil, project)
+        assert %{feed_sources: [^feed_source]} = project
+      end
     end
 
-    test "when the feed version does not exist it fails" do
-      project = %Project{id: "1"}
-      command = %ValidateFeedVersion{id: "2"}
-      assert {:reply, {:error, _}, ^project} = Project.handle_call({:validate_feed_version, command}, nil, project)
+    test "when the feed source already exists it serves it from memory" do
+      feed_source = %FeedSource{id: "1", name: "tisseo"}
+      project     = %Project{id: "1", feed_sources: [feed_source]}
+      command     = %CreateFeedSource{project: project, name: "tisseo"}
+      assert {:reply, {:ok, ^feed_source}, ^project} = Project.handle_call({:create_feed_source, command}, nil, project)
+    end
+
+    test "when the API is not available it returns an error" do
+      use_cassette "data_validation/create_feed_source-error" do
+        project = %Project{id: "1"}
+        command = %CreateFeedSource{project: project, name: "tisseo"}
+        assert {:reply, {:error, "econnrefused"}, ^project} = Project.handle_call({:create_feed_source, command}, nil, project)
+      end
     end
   end
 end

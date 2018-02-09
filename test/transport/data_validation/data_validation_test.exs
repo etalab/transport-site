@@ -21,10 +21,11 @@ defmodule Transport.DataValidationTest do
     end
   end
 
-  test "validates a feed version" do
-    use_cassette "data_validation/find_project-ok" do
+  test "creates a feed source" do
+    use_cassette "data_validation/create_feed_source-ok" do
       assert {:ok, project} = DataValidation.find_project("transport")
-      assert {:ok, ^project} = DataValidation.validate_feed_version(%{project: project, id: "1"})
+      assert {:ok, feed_source} = DataValidation.create_feed_source(%{project: project, name: "tisseo"})
+      refute is_nil(feed_source.id)
     end
   end
 end
