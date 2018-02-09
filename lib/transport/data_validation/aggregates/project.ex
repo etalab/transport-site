@@ -28,41 +28,40 @@ defmodule Transport.DataValidation.Aggregates.Project do
   end
 
   def init(%__MODULE__{} = project) do
-    GenServer.cast(self(), {:populate_project, %FindProject{name: project.name}})
     {:ok, project}
   end
 
   def execute(%FindProject{} = query) do
     {:ok, pid} = get_pid(query.name)
-    GenServer.call(pid, {:find_project})
+    GenServer.call(pid, {:find_project, query})
   end
 
   def execute(%CreateProject{} = command) do
     {:ok, pid} = get_pid(command.name)
-    GenServer.cast(pid, {:create_project, command})
+    GenServer.call(pid, {:create_project, command})
   end
 
-  def handle_call({:find_project}, _from, %__MODULE__{} = project) do
+  def handle_call({:find_project, query}, _from, %__MODULE__{id: nil} = project) do
+    case ProjectRepository.find(query) do
+      {:ok, nil} -> {:reply, {:ok, nil}, project}
+      {:ok, project} -> {:reply, {:ok, project}, project}
+      {:error, error} -> {:reply, {:error, error}, project}
+    end
+  end
+
+  def handle_call({:find_project, _query}, _from, %__MODULE__{} = project) do
     {:reply, {:ok, project}, project}
   end
 
-  def handle_cast({:create_project, %CreateProject{} = command}, %__MODULE__{id: nil} = project) do
+  def handle_call({:create_project, %CreateProject{} = command}, _from, %__MODULE__{id: nil} = project) do
     case ProjectRepository.create(command) do
-      {:ok, project} -> {:noreply, project}
-      {:error, error} -> {:stop, error, project}
+      {:ok, project} -> {:reply, {:ok, project}, project}
+      {:error, error} -> {:reply, {:error, error}, project}
     end
   end
 
-  def handle_cast({:create_project, %CreateProject{}}, %__MODULE__{} = project) do
-    {:noreply, project}
-  end
-
-  def handle_cast({:populate_project, %FindProject{} = query}, %__MODULE__{} = project) do
-    case ProjectRepository.find(query) do
-      {:ok, nil} -> {:noreply, project}
-      {:ok, project} -> {:noreply, project}
-      {:error, error} -> {:stop, error, project}
-    end
+  def handle_call({:create_project, %CreateProject{}}, _from, %__MODULE__{} = project) do
+    {:reply, {:ok, project}, project}
   end
 
   # private

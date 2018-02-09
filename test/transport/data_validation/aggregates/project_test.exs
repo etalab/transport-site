@@ -7,54 +7,61 @@ defmodule Transport.DataValidation.Aggregates.ProjectTest do
 
   doctest Project
 
-  setup do
-    query   = %FindProject{name: "transport"}
-    command = %CreateProject{name: "transport"}
-
-    {:ok, query: query, command: command}
-  end
-
-  @tag :capture_log
-  describe "init" do
-    test "when API is not available it fails" do
-      {:ok, pid} = start_supervised({Project, "transport"})
-      ref        = Process.monitor(pid)
-      assert_receive {:DOWN, ^ref, :process, ^pid, :econnrefused}
+  describe "find a project" do
+    test "when the project does not exist it returns nil" do
+      use_cassette "data_validation/find_project-ok" do
+        project = %Project{}
+        query   = %FindProject{name: "aires de covoiturage"}
+        assert {:reply, {:ok, nil}, ^project} = Project.handle_call({:find_project, query}, nil, project)
+      end
     end
-  end
 
-  test "find a project" do
-    assert {:reply, {:ok, project}, project} = Project.handle_call({:find_project}, nil, %Project{id: "1"})
+    test "when the project exists it returns it from the API" do
+      use_cassette "data_validation/find_project-ok" do
+        project = %Project{}
+        query   = %FindProject{name: "transport"}
+        assert {:reply, {:ok, project}, project} = Project.handle_call({:find_project, query}, nil, project)
+        refute is_nil(project.id)
+      end
+    end
+
+    test "when the project exists and already loaded it returns it from memory" do
+      project = %Project{id: "1"}
+      query   = %FindProject{name: "transport"}
+      assert {:reply, {:ok, ^project}, ^project} = Project.handle_call({:find_project, query}, nil, project)
+    end
+
+    test "when the API is not available it returns an error" do
+      use_cassette "data_validation/find_project-error" do
+        project = %Project{}
+        query   = %FindProject{name: "transport"}
+        assert {:reply, {:error, "econnrefused"}, ^project} = Project.handle_call({:find_project, query}, nil, project)
+      end
+    end
   end
 
   describe "create a project" do
-    test "when the project does not exist it creates it", %{command: command} do
-      use_cassette "data_validation/aggregates/project/create_project" do
-        assert {:noreply, project} = Project.handle_cast({:create_project, command}, %Project{id: nil})
+    test "when the project does not exist it creates it" do
+      use_cassette "data_validation/create_project-ok" do
+        project = %Project{id: nil}
+        command = %CreateProject{name: "transport"}
+        assert {:reply, {:ok, project}, project} = Project.handle_call({:create_project, command}, nil, project)
         refute is_nil(project.id)
       end
     end
 
-    test "when the project already exists it serves it from memory", %{command: command} do
-      assert {:noreply, project} = Project.handle_cast({:create_project, command}, %Project{id: "1"})
-      assert project.id == "1"
+    test "when the project already exists it serves it from memory" do
+      project = %Project{id: "1"}
+      command = %CreateProject{name: "transport"}
+      assert {:reply, {:ok, ^project}, ^project} = Project.handle_call({:create_project, command}, nil, project)
     end
 
-    test "when the API is not available it fails", %{command: command} do
-      assert {:stop, :econnrefused, _} = Project.handle_cast({:create_project, command}, %Project{id: nil})
-    end
-  end
-
-  describe "populate project" do
-    test "it calls the API to retrieve the project", %{query: query} do
-      use_cassette "data_validation/aggregates/project/populate_project" do
-        assert {:noreply, project} = Project.handle_cast({:populate_project, query}, %Project{})
-        refute is_nil(project.id)
+    test "when the API is not available it returns an error" do
+      use_cassette "data_validation/create_project-error" do
+        project = %Project{}
+        command = %CreateProject{name: "transport"}
+        assert {:reply, {:error, "econnrefused"}, ^project} = Project.handle_call({:create_project, command}, nil, project)
       end
-    end
-
-    test "when the API is not available it fails", %{query: query} do
-      assert {:stop, :econnrefused, _} = Project.handle_cast({:populate_project, query}, %Project{})
     end
   end
 end
