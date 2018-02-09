@@ -35,7 +35,7 @@
             <% end %>
           </div>
           <div>
-            <%= if dataset.spatial do %>
+            <%= if !is_nil(dataset.spatial) do %>
               <div class="shortlist__notice">
                 <span><%= dgettext("page-shortlist", "Territory") %></span>
                 <span class="badge-notice"><%= dataset.spatial %></span>
