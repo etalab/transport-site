@@ -40,7 +40,7 @@ defmodule Transport.ImportDataService do
      dataset
      |> Map.take(["description", "license", "title", "slug"])
      |> Map.put("spatial", dataset["organization"]["name"])
-     |> Map.put("logo", dataset["logo"]["image"])
+     |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
      |> Map.put("task_id", Map.get(dataset, "task_id"))
      |> Map.put("download_uri", get_download_uri(dataset))
     }
@@ -219,8 +219,7 @@ defmodule Transport.ImportDataService do
       ...> |> ImportDataService.get_url_from_csv()
       "http"
 
-      iex> 
-      ...> |> ImportDataService.get_url_from_csv()
+      iex> |> ImportDataService.get_url_from_csv()
       {:error, "no column file"}
 
   """
