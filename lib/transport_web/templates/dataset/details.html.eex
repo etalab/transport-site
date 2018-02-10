@@ -64,7 +64,7 @@
         </div>
       </div>
       <div>
-        <a class="button is-centered" href="<%= user_path(@conn, :organizations, linked_dataset_slug: @dataset.slug) %>"><%= dgettext("page-dataset-details", "Publish a modified version dataset") %></a>
+        <a class="button button--fullwidth is-centered" href="<%= user_path(@conn, :organizations, linked_dataset_slug: @dataset.slug) %>"><%= dgettext("page-dataset-details", "Publish a modified version dataset") %></a>
       </div>
     </div>
     <div class="main-pan dataset-details__main-pan" id="description">
