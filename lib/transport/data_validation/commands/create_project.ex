@@ -9,11 +9,6 @@ defmodule Transport.DataValidation.Commands.CreateProject do
       ...> |> CreateProject.validate
       {:ok, %CreateProject{name: "transport"}}
 
-      iex> %{name: "covoiturage", autoFetchFeeds: "true"}
-      ...> |> CreateProject.new
-      ...> |> CreateProject.validate
-      {:ok, %CreateProject{name: "covoiturage"}}
-
       iex> %{}
       ...> |> CreateProject.new
       ...> |> CreateProject.validate

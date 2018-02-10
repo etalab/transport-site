@@ -4,21 +4,23 @@ defmodule Transport.DataValidation do
   """
 
   alias Transport.DataValidation.Aggregates.Project
-  alias Transport.DataValidation.Queries.FindProject
+  alias Transport.DataValidation.Queries.{FindProject, FindFeedSource}
   alias Transport.DataValidation.Commands.{CreateProject, CreateFeedSource}
 
   @doc """
   Finds a project.
   """
-  @spec find_project(String.t) :: {:ok, Project.t} | {:error, any()}
-  def find_project(name) when is_binary(name) do
-    Project.execute(%FindProject{name: name})
+  @spec find_project(map()) :: {:ok, Project.t} | {:error, any()}
+  def find_project(%{} = params) do
+    params
+    |> FindProject.new
+    |> Project.execute
   end
 
   @doc """
   Creates a new project.
   """
-  @spec create_project(map()) :: :ok | {:error, any()}
+  @spec create_project(map()) :: {:ok, Project.t} | {:error, any()}
   def create_project(%{} = params) do
     params
     |> CreateProject.new
@@ -30,9 +32,19 @@ defmodule Transport.DataValidation do
   end
 
   @doc """
+  Finds a feed source.
+  """
+  @spec find_feed_source(map()) :: {:ok, FeedSource.t} | {:error, any()}
+  def find_feed_source(%{} = params) do
+    params
+    |> FindFeedSource.new
+    |> Project.execute
+  end
+
+  @doc """
   Creates a feed source.
   """
-  @spec create_feed_source(map()) :: :ok | {:error, any()}
+  @spec create_feed_source(map()) :: {:ok, FeedSource.t} | {:error, any()}
   def create_feed_source(%{} = params) do
     params
     |> CreateFeedSource.new

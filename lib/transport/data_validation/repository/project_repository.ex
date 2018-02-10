@@ -13,13 +13,13 @@ defmodule Transport.DataValidation.Repository.ProjectRepository do
   @err HTTPoison.Error
 
   @doc """
-  Finds a project by name.
+  Finds a project (by name).
   """
   @spec execute(FindProject.t) :: {:ok, Project.t} | {:ok, nil} | {:error, any()}
-  def execute(%FindProject{name: name}) when not is_nil(name) do
+  def execute(%FindProject{} = query) do
     with {:ok, %@res{status_code: 200, body: body}} <- @client.get(@endpoint),
          {:ok, projects} <- Poison.decode(body, as: [%Project{}]),
-         project <- Enum.find(projects, &(&1.name == name)) do
+         project <- Enum.find(projects, &(&1.name == query.name)) do
       {:ok, project}
     else
       {:error, %@err{reason: error}} -> {:error, error}

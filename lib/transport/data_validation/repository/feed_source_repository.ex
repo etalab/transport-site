@@ -4,12 +4,28 @@ defmodule Transport.DataValidation.Repository.FeedSourceRepository do
   """
 
   alias Transport.DataValidation.Aggregates.FeedSource
+  alias Transport.DataValidation.Queries.FindFeedSource
   alias Transport.DataValidation.Commands.CreateFeedSource
 
   @endpoint Application.get_env(:transport, :datatools_url) <> "/api/manager/secure/feedsource"
   @client HTTPoison
   @res HTTPoison.Response
   @err HTTPoison.Error
+
+  @doc """
+  Finds a feed source (by project and by name).
+  """
+  @spec execute(FindFeedSource.t) :: {:ok, FeedSource.t} | {:ok, nil} | {:error, any()}
+  def execute(%FindFeedSource{} = query) do
+    with {:ok, %@res{status_code: 200, body: body}} <- @client.get(@endpoint <> "?projectId=#{query.project.id}"),
+         {:ok, feed_sources} <- Poison.decode(body, as: [%FeedSource{}]),
+         feed_source <- Enum.find(feed_sources, &(&1.name == query.name)) do
+      {:ok, feed_source}
+    else
+      {:error, %@err{reason: error}} -> {:error, error}
+      {:error, error} -> {:error, error}
+    end
+  end
 
   @doc """
   Creates a feed source.
@@ -28,7 +44,7 @@ defmodule Transport.DataValidation.Repository.FeedSourceRepository do
 
   # private
 
-  defp represent(%CreateFeedSource{} = command) do
-    {:ok, %{"projectId" => command.project.id, "name" => command.name}}
+  defp represent(action) do
+    {:ok, %{"projectId" => action.project.id, "name" => action.name}}
   end
 end

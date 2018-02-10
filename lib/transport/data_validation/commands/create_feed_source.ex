@@ -9,12 +9,7 @@ defmodule Transport.DataValidation.Commands.CreateFeedSource do
       ...> |> CreateFeedSource.validate
       {:ok, %CreateFeedSource{project: %Project{id: "1"}, name: "tisseo"}}
 
-      iex> %{project: %Project{id: "1"}, name: "tisseo", format: "netex"}
-      ...> |> CreateFeedSource.new
-      ...> |> CreateFeedSource.validate
-      {:ok, %CreateFeedSource{project: %Project{id: "1"}, name: "tisseo"}}
-
-      iex> %{project: %Project{id: nil}, name: "tisseo", format: "netex"}
+      iex> %{project: %Project{id: nil}, name: "tisseo"}
       ...> |> CreateFeedSource.new
       ...> |> CreateFeedSource.validate
       {:error, [{:error, :project, :by, "must exist"}]}
@@ -22,21 +17,12 @@ defmodule Transport.DataValidation.Commands.CreateFeedSource do
       iex> %{project: "1", name: "tisseo"}
       ...> |> CreateFeedSource.new
       ...> |> CreateFeedSource.validate
-      {:error,
-       [
-         {:error, :project, :by, "must be a project"},
-         {:error, :project, :by, "must exist"}
-        ]}
+      {:error, [{:error, :project, :by, "must be a project"}, {:error, :project, :by, "must exist"}]}
 
-      iex> %{}
+      iex> %{project: %Project{id: "1"}}
       ...> |> CreateFeedSource.new
       ...> |> CreateFeedSource.validate
-      {:error,
-       [
-         {:error, :name, :presence, "must be present"},
-         {:error, :project, :by, "must be a project"},
-         {:error, :project, :by, "must exist"}
-       ]}
+      {:error, [{:error, :name, :presence, "must be present"}]}
 
   """
 
