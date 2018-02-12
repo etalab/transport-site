@@ -19,6 +19,10 @@ defmodule TransportWeb.Router do
     plug JaSerializer.Deserializer
   end
 
+  pipeline :accept_json do
+    plug :accepts, ["json"]
+  end
+
   pipeline :api_authenticated do
     plug :accepts, ["json"]
     plug :fetch_session
@@ -69,6 +73,10 @@ defmodule TransportWeb.Router do
       pipe_through :json_api
       get "/", API.DatasetController, :index
       get "/:slug/", API.DatasetController, :show
+    end
+
+    scope "/datasets" do
+      pipe_through :accept_json
       get "/:slug/validations/", API.DatasetController, :validations
     end
 
