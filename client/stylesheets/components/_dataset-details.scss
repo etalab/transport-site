@@ -1,6 +1,6 @@
-.dataset-details__side-pan {
-  padding-right: 2em;
-  width: 20%;
+div.dataset-details__side-pane {
+  background: $background-white;
+  border: none;
 
   img {
     padding-bottom: 3em;
@@ -10,10 +10,6 @@
   button {
     margin-top: 3em;
   }
-}
-
-.dataset-details__main-pan {
-  width: 80%;
 }
 
 .dataset-details__discussions {
