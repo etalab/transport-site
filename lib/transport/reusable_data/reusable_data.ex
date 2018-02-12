@@ -24,8 +24,7 @@ defmodule Transport.ReusableData do
   def list_datasets do
     query = %{
       anomalies: [],
-      coordinates: %{"$ne" => nil},
-      download_uri: %{"$ne" => nil},
+      coordinates: %{"$ne" => nil}
     }
 
     :mongo
