@@ -1,15 +1,9 @@
 defmodule TransportWeb.API.JSONView do
   def render(_conn, %{data: data}) do
-    case Poison.encode(data) do
-      {:ok, body} -> body
-      {:error, error} -> error
-    end
+    data
   end
 
   def render(_conn, %{errors: errors}) do
-    case Poison.encode(errors) do
-      {:ok, body} -> body
-      {:error, error} -> error
-    end
+    errors
   end
 end
