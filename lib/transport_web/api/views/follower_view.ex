@@ -1,4 +1,4 @@
-defmodule TransportWeb.API.DiscussionView do
+defmodule TransportWeb.API.FollowerView do
   alias TransportWeb.API.JSONView
 
   def render(conn, assigns) do

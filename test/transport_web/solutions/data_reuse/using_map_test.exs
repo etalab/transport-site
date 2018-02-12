@@ -20,10 +20,10 @@ defmodule TransportWeb.Solution.DataReuse.UsingMapTest do
     %_{} = ReusableData.create_dataset %{
       download_uri: "https://link.to/angers.zip",
       license: "odc-odbl",
-      title: "Angers GTFS",
+      title: "Horaires et arrêts du réseau IRIGO - format GTFS",
       anomalies: [],
       coordinates: [-0.5630548425091684,47.47654241641714],
-      slug: "angers-gtfs",
+      slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
       validations: %{"errors" => [], "warnings" => [], "notices" => []}
     }
 
@@ -39,8 +39,8 @@ defmodule TransportWeb.Solution.DataReuse.UsingMapTest do
     # I can see a map with available datasets, and I can click on one of them
     # and see its details
     click({:css, "svg > g > path"})
-    click({:link_text, "Angers GTFS"})
-    assert visible_page_text() =~ "Angers GTFS"
+    click({:link_text, "Horaires et arrêts du réseau IRIGO - format GTFS"})
+    assert visible_page_text() =~ "Horaires et arrêts du réseau IRIGO - format GTFS"
 
     # I can see or read somewhere that the dataset is valid
     assert visible_page_text() =~ "Valide"

@@ -5,7 +5,8 @@ defmodule Transport.Datagouvfr.Client.Datasets do
 
   import TransportWeb.Gettext
   import Transport.Datagouvfr.Client, only: [get_request: 2, put_request: 3,
-                                             post_request: 3, post_request: 4]
+                                             post_request: 3, post_request: 4,
+                                             post_request: 2, delete_request: 2]
 
   use Vex.Struct
   alias __MODULE__
@@ -121,6 +122,28 @@ defmodule Transport.Datagouvfr.Client.Datasets do
       Path.join([@endpoint, dataset_id, "upload"]),
       {"file", file},
       [{"content-type", "multipart/form-data"}]
+    )
+  end
+
+  @doc """
+  Make a user follow a dataset
+  """
+  @spec post_followers(%Plug.Conn{}, String.t) :: {atom, map}
+  def post_followers(%Plug.Conn{} = conn, dataset_id) do
+    post_request(
+      conn,
+      Path.join([@endpoint, dataset_id, "followers"])
+    )
+  end
+
+  @doc """
+  Make a user unfollow a dataset
+  """
+  @spec delete_followers(%Plug.Conn{}, String.t) :: {atom, map}
+  def delete_followers(%Plug.Conn{} = conn, dataset_id) do
+    delete_request(
+      conn,
+      Path.join([@endpoint, dataset_id, "followers"])
     )
   end
 

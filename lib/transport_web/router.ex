@@ -13,7 +13,7 @@ defmodule TransportWeb.Router do
     plug :assign_token
   end
 
-  pipeline :api do
+  pipeline :json_api do
     plug :accepts, ["jsonapi"]
     plug JaSerializer.ContentTypeNegotiation
     plug JaSerializer.Deserializer
@@ -22,6 +22,7 @@ defmodule TransportWeb.Router do
   pipeline :api_authenticated do
     plug :accepts, ["json"]
     plug :fetch_session
+    plug :fetch_flash
     plug :assign_current_user
     plug :assign_token
     plug :authentication_required
@@ -65,10 +66,16 @@ defmodule TransportWeb.Router do
   scope "/api", TransportWeb do
 
     scope "/datasets" do
-      pipe_through :api
+      pipe_through :json_api
       get "/", API.DatasetController, :index
       get "/:slug/", API.DatasetController, :show
       get "/:slug/validations/", API.DatasetController, :validations
+    end
+
+    scope "/datasets" do
+      pipe_through :api_authenticated
+      post "/:dataset_id/followers/", API.FollowerController, :create
+      delete "/:dataset_id/followers/", API.FollowerController, :delete
     end
 
     scope "/discussions" do
