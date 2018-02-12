@@ -1,21 +1,33 @@
 [{
+    "spatial": "Brest M\u00e9tropole",
     "slug": "liste-des-arrets-horaires-et-parcours-de-tous-les-bus-et-tramways-circulant-sur-le-territoire-de-brest-metropole",
     "coordinates": [-4.487808, 48.389729]
 }, {
+    "spatial": "Toulouse M\u00e9tropole",
     "slug": "tisseo-offre-de-transport-gtfs",
     "coordinates": [1.441019, 43.604268]
 }, {
+    "spatial": "Rennes M\u00e9tropole",
     "slug": "versions-des-horaires-theoriques-des-lignes-du-reseau-star-au-format-gtfs",
     "coordinates": [-1.681632, 48.113844]
 }, {
+    "spatial": "Angers Loire M\u00e9tropole",
     "slug": "horaires-et-arrets-du-reseau-irigo-format-gtfs",
     "coordinates": [-0.556585, 47.47207]
 }, {
-    "spatial": "Communaut\u00e9 Urbaine de Lille",
+    "spatial": "M\u00e9tropole europ\u00e9enne de Lille",
     "coordinates": [3.05644, 50.631564],
     "slug": "horaires-theoriques-du-reseau-de-transport-transpole"
 }, {
-    "spatial": "Communaut\u00e9 Urbaine de Nancy",
+    "spatial": "Communaut\u00e9 urbaine de Nancy",
     "coordinates": [6.182711, 48.692365],
     "slug": "horaires-theoriques-du-reseau-de-transport-stan"
+}, {
+    "spatial": "Communauté d'agglomération du Boulonnais",
+    "coordinates": [1.613152, 50.725249],
+    "slug": "horaires-theoriques-du-reseau-de-transport-marineo"
+}, {
+    "spatial": "Communauté d'agglomération Royan Atlantique",
+    "coordinates": [-1.027697, 45.625611],
+    "slug": "horaires-theoriques-du-reseau-de-transport-carabus"
 }]

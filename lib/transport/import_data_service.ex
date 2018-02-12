@@ -40,7 +40,6 @@ defmodule Transport.ImportDataService do
      dataset
      |> Map.take(["title", "description", "license", "slug"])
      |> Map.put("datagouv_id", dataset["id"])
-     |> Map.put("spatial", dataset["organization"]["name"])
      |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
      |> Map.put("task_id", Map.get(dataset, "task_id"))
      |> Map.put("download_uri", get_download_uri(dataset))
