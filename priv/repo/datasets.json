@@ -5,29 +5,36 @@
 }, {
     "spatial": "Toulouse M\u00e9tropole",
     "slug": "tisseo-offre-de-transport-gtfs",
-    "coordinates": [1.441019, 43.604268]
+    "coordinates": [1.441019, 43.604268],
+    "catalogue_id": "mnpt_awffxdugmycpgilpizywts"
 }, {
     "spatial": "Rennes M\u00e9tropole",
     "slug": "versions-des-horaires-theoriques-des-lignes-du-reseau-star-au-format-gtfs",
-    "coordinates": [-1.681632, 48.113844]
+    "coordinates": [-1.681632, 48.113844],
+    "catalogue_id": "ybme_rgecnpggxxtffoivxkeoru"
 }, {
     "spatial": "Angers Loire M\u00e9tropole",
     "slug": "horaires-et-arrets-du-reseau-irigo-format-gtfs",
-    "coordinates": [-0.556585, 47.47207]
+    "coordinates": [-0.556585, 47.47207],
+    "catalogue_id": "vwti_qvcukzprkegeyyffrfsqpu"
 }, {
     "spatial": "M\u00e9tropole europ\u00e9enne de Lille",
     "coordinates": [3.05644, 50.631564],
-    "slug": "horaires-theoriques-du-reseau-de-transport-transpole"
+    "slug": "horaires-theoriques-du-reseau-de-transport-transpole",
+    "catalogue_id": "jmip_pimzsibzmhmhbnysphbshl"
 }, {
     "spatial": "Communaut\u00e9 urbaine de Nancy",
     "coordinates": [6.182711, 48.692365],
-    "slug": "horaires-theoriques-du-reseau-de-transport-stan"
+    "slug": "horaires-theoriques-du-reseau-de-transport-stan",
+    "catalogue_id": "cand_pfsczgqybntnedumqalhat"
 }, {
     "spatial": "Communauté d'agglomération du Boulonnais",
     "coordinates": [1.613152, 50.725249],
-    "slug": "horaires-theoriques-du-reseau-de-transport-marineo"
+    "slug": "horaires-theoriques-du-reseau-de-transport-marineo",
+    "catalogue_id" :"azfk_kxfxbmscztlcjdfmvvgznd"
 }, {
     "spatial": "Communauté d'agglomération Royan Atlantique",
     "coordinates": [-1.027697, 45.625611],
-    "slug": "horaires-theoriques-du-reseau-de-transport-carabus"
+    "slug": "horaires-theoriques-du-reseau-de-transport-carabus",
+    "catalogue_id": "duja_uvmrqriwvujcrfugxmyngp"
 }]
