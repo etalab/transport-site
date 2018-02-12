@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Transport.ImportData do
   @moduledoc """
-  Seeds datasets from a udata website to the database.
+  Parses and imports datasets from a udata website to the database.
   """
 
   use Mix.Task

@@ -38,11 +38,12 @@ defmodule Transport.ImportDataService do
   def get_dataset(%{} = dataset) do
     {:ok,
      dataset
-     |> Map.take(["description", "license", "title", "slug"])
-     |> Map.put("spatial", dataset["organization"]["name"])
+     |> Map.take(["title", "description", "license", "slug"])
+     |> Map.put("datagouv_id", dataset["id"])
      |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
      |> Map.put("task_id", Map.get(dataset, "task_id"))
      |> Map.put("download_uri", get_download_uri(dataset))
+     |> Map.put("format", "GTFS")
     }
   end
 
@@ -322,7 +323,8 @@ defmodule Transport.ImportDataService do
   end
 
   @doc """
-  Check for license, returns ["bad_license"] if the license is not odbl
+  Check for licence, returns ["bad_license"] if the licence is not "odc-odbl"
+  or "fr-lo".
 
   ## Examples
 
@@ -332,8 +334,12 @@ defmodule Transport.ImportDataService do
       iex> ImportDataService.check_license(%{"license" => "odc-odbl"})
       true
 
+      iex> ImportDataService.check_license(%{"license" => "fr-lo"})
+      true
+
   """
   def check_license(%{"license" => "odc-odbl"}), do: true
+  def check_license(%{"license" => "fr-lo"}), do: true
   def check_license(_), do: false
 
   @doc """
