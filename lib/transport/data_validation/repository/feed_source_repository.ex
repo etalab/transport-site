@@ -45,6 +45,6 @@ defmodule Transport.DataValidation.Repository.FeedSourceRepository do
   # private
 
   defp represent(action) do
-    {:ok, %{"projectId" => action.project.id, "name" => action.name}}
+    {:ok, %{"projectId" => action.project.id, "name" => action.name, "url" => action.url}}
   end
 end

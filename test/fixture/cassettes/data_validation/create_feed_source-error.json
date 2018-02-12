@@ -1,7 +1,7 @@
 [
   {
     "request": {
-      "body": "{\"projectId\":\"1\",\"name\":\"tisseo\"}",
+      "body": "{\"url\":\"gtfs.zip\",\"projectId\":\"1\",\"name\":\"tisseo\"}",
       "headers": [],
       "method": "post",
       "options": [],

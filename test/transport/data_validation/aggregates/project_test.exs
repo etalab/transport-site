@@ -103,14 +103,14 @@ defmodule Transport.DataValidation.Aggregates.ProjectTest do
     test "when the feed source does not exist it creates it" do
       use_cassette "data_validation/create_feed_source-ok" do
         project = %Project{id: "1"}
-        command = %CreateFeedSource{project: project, name: "tisseo"}
+        command = %CreateFeedSource{project: project, name: "tisseo", url: "gtfs.zip"}
         assert {:reply, {:ok, feed_source}, project} = Project.handle_call({:create_feed_source, command}, nil, project)
         assert %{feed_sources: [^feed_source]} = project
       end
     end
 
     test "when the feed source already exists it serves it from memory" do
-      feed_source = %FeedSource{id: "1", name: "tisseo"}
+      feed_source = %FeedSource{id: "1", name: "tisseo", url: "gtfs.zip"}
       project     = %Project{id: "1", feed_sources: [feed_source]}
       command     = %CreateFeedSource{project: project, name: "tisseo"}
       assert {:reply, {:ok, ^feed_source}, ^project} = Project.handle_call({:create_feed_source, command}, nil, project)
@@ -119,7 +119,7 @@ defmodule Transport.DataValidation.Aggregates.ProjectTest do
     test "when the API is not available it returns an error" do
       use_cassette "data_validation/create_feed_source-error" do
         project = %Project{id: "1"}
-        command = %CreateFeedSource{project: project, name: "tisseo"}
+        command = %CreateFeedSource{project: project, name: "tisseo", url: "gtfs.zip"}
         assert {:reply, {:error, "econnrefused"}, ^project} = Project.handle_call({:create_feed_source, command}, nil, project)
       end
     end

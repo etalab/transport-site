@@ -4,29 +4,34 @@ defmodule Transport.DataValidation.Commands.CreateFeedSource do
 
   ## Examples
 
-      iex> %{project: %Project{id: "1"}, name: "tisseo"}
+      iex> %{project: %Project{id: "1"}, name: "tisseo", url: "https://opendata.ville.fr/gtfs.zip"}
       ...> |> CreateFeedSource.new
       ...> |> CreateFeedSource.validate
-      {:ok, %CreateFeedSource{project: %Project{id: "1"}, name: "tisseo"}}
+      {:ok, %CreateFeedSource{project: %Project{id: "1"}, name: "tisseo", url: "https://opendata.ville.fr/gtfs.zip"}}
 
-      iex> %{project: %Project{id: nil}, name: "tisseo"}
+      iex> %{project: %Project{id: nil}, name: "tisseo", url: "https://opendata.ville.fr/gtfs.zip"}
       ...> |> CreateFeedSource.new
       ...> |> CreateFeedSource.validate
       {:error, [{:error, :project, :by, "must exist"}]}
 
-      iex> %{project: "1", name: "tisseo"}
+      iex> %{project: "1", name: "tisseo", url: "https://opendata.ville.fr/gtfs.zip"}
       ...> |> CreateFeedSource.new
       ...> |> CreateFeedSource.validate
       {:error, [{:error, :project, :by, "must be a project"}, {:error, :project, :by, "must exist"}]}
 
-      iex> %{project: %Project{id: "1"}}
+      iex> %{project: %Project{id: "1"}, url: "https://opendata.ville.fr/gtfs.zip"}
       ...> |> CreateFeedSource.new
       ...> |> CreateFeedSource.validate
       {:error, [{:error, :name, :presence, "must be present"}]}
 
+      iex> %{project: %Project{id: "1"}, name: "tisseo"}
+      ...> |> CreateFeedSource.new
+      ...> |> CreateFeedSource.validate
+      {:error, [{:error, :url, :presence, "must be present"}]}
+
   """
 
-  defstruct [:project, :name]
+  defstruct [:project, :name, :url]
 
   use ExConstructor
   use Vex.Struct
@@ -36,7 +41,8 @@ defmodule Transport.DataValidation.Commands.CreateFeedSource do
 
   @type t :: %__MODULE__{
     project: Project.t,
-    name: String.t
+    name: String.t,
+    url: String.t
   }
 
   validates :project,
@@ -44,6 +50,7 @@ defmodule Transport.DataValidation.Commands.CreateFeedSource do
     by: &__MODULE__.validate_project_existance/1
 
   validates :name, presence: true
+  validates :url, presence: true
 
   def validate_project_type(%Project{}), do: :ok
   def validate_project_type(_), do: {:error, "must be a project"}
