@@ -7,7 +7,7 @@ defmodule Transport.ImportDataService do
   require Logger
 
   @separators [?;, ?,]
-  @csv_headers ["Download", "file"]
+  @csv_headers ["Download", "file", "Fichier"]
 
   def call(%{"_id" => id, "slug" => slug}) do
     case import_from_udata(slug) do
