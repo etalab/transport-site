@@ -26,10 +26,12 @@
         <% end %>
       </div>
       <div>
-        <div class="shortlist__notice">
-          <div><%= dgettext("page-shortlist", "Territory") %></div>
-          <div class="badge-notice"><%= @dataset.spatial %></div>
-        </div>
+        <%= if !is_nil(@dataset.spatial) do %>
+            <div class="shortlist__notice">
+              <div><%= dgettext("page-shortlist", "Territory") %></div>
+              <div class="badge-notice"><%= @dataset.spatial %></div>
+            </div>
+        <% end %>
 
         <div class="shortlist-details">
           <%= if @dataset.licence do %>

@@ -10,93 +10,93 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/dataset/details.html.eex:59
+#: lib/transport_web/templates/dataset/details.html.eex:61
 msgid "GTFS Validation"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:98
+#: lib/transport_web/templates/dataset/details.html.eex:100
 msgid "Errors"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:62
-#: lib/transport_web/templates/dataset/details.html.eex:102
+#: lib/transport_web/templates/dataset/details.html.eex:64
+#: lib/transport_web/templates/dataset/details.html.eex:104
 msgid "Notices"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:61
-#: lib/transport_web/templates/dataset/details.html.eex:100
+#: lib/transport_web/templates/dataset/details.html.eex:63
+#: lib/transport_web/templates/dataset/details.html.eex:102
 msgid "Warnings"
-msgstr ""
-
-#: lib/transport_web/templates/dataset/details.html.eex:112
-#: lib/transport_web/templates/dataset/details.html.eex:125
-msgid "Posted on"
-msgstr ""
-
-#: lib/transport_web/templates/dataset/details.html.eex:113
-#: lib/transport_web/templates/dataset/details.html.eex:126
-msgid "Respond"
 msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:114
 #: lib/transport_web/templates/dataset/details.html.eex:127
-msgid "Begin a new conversation"
+msgid "Posted on"
 msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:115
 #: lib/transport_web/templates/dataset/details.html.eex:128
-msgid "Title"
+msgid "Respond"
 msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:116
 #: lib/transport_web/templates/dataset/details.html.eex:129
+msgid "Begin a new conversation"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:117
+#: lib/transport_web/templates/dataset/details.html.eex:130
+msgid "Title"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:118
+#: lib/transport_web/templates/dataset/details.html.eex:131
 msgid "You need to be connected to post comments"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:99
+#: lib/transport_web/templates/dataset/details.html.eex:101
 msgid "No errors"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:103
+#: lib/transport_web/templates/dataset/details.html.eex:105
 msgid "No notices"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:101
+#: lib/transport_web/templates/dataset/details.html.eex:103
 msgid "No warnings"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:67
+#: lib/transport_web/templates/dataset/details.html.eex:69
 msgid "Publish a modified version dataset"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:90
+#: lib/transport_web/templates/dataset/details.html.eex:92
 msgid "Modified datasets"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:87
+#: lib/transport_web/templates/dataset/details.html.eex:89
 msgid "There is no linked dataset yet"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:108
+#: lib/transport_web/templates/dataset/details.html.eex:110
 msgid "The long name of a route should complement the short name, not include it."
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:109
+#: lib/transport_web/templates/dataset/details.html.eex:111
 msgid "The vehicle does not cover any distance between the last stop and this one."
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:105
+#: lib/transport_web/templates/dataset/details.html.eex:107
 msgid "More than one stop was located in exactly the same place."
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:106
+#: lib/transport_web/templates/dataset/details.html.eex:108
 msgid "The vehicle arrives at this stop at the same time it departs from the previous stop."
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:107
+#: lib/transport_web/templates/dataset/details.html.eex:109
 msgid "The vehicle is traveling very slowly to reach this stop from the previous one."
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:104
+#: lib/transport_web/templates/dataset/details.html.eex:106
 msgid "This stop is not referenced by any trips."
 msgstr ""
