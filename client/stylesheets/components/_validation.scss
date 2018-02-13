@@ -9,8 +9,25 @@ validation {
 
   .validation__pagination {
     margin-top: 2em;
-  }
+    width: 4em;
 
+    .badge-notice {
+      float: left;
+      width: 30%;
+      &,
+      &:focus,
+      &:active,
+      &:visited {
+        margin-right: 1em;
+        padding: .5em .3em;
+      }
+
+      &:disabled {
+        box-shadow: none;
+        color: $grey;
+      }
+    }
+  }
   .validation__message {
     margin-top: .5em;
   }
