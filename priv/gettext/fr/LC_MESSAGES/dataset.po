@@ -54,17 +54,17 @@ msgstr "Hebdomadaire"
 msgid "Dataset file"
 msgstr "Fichier"
 
-#: lib/transport/datagouvfr/client/datasets.ex:26
+#: lib/transport/datagouvfr/client/datasets.ex:27
 #: lib/transport/datagouvfr/client/resources.ex:22
 msgid "A description is needed"
 msgstr "Vous devez fournir une description"
 
-#: lib/transport/datagouvfr/client/datasets.ex:46
+#: lib/transport/datagouvfr/client/datasets.ex:47
 #: lib/transport/datagouvfr/client/resources.ex:27
 msgid "A title is needed"
 msgstr "Vous devez fournir un titre"
 
-#: lib/transport/datagouvfr/client/datasets.ex:41
+#: lib/transport/datagouvfr/client/datasets.ex:42
 msgid "An organization is needed"
 msgstr "Une organisation est requise"
 

@@ -7,6 +7,7 @@ defmodule Transport.Datagouvfr.Client.Datasets do
   import Transport.Datagouvfr.Client, only: [get_request: 2, put_request: 3,
                                              post_request: 3, post_request: 4,
                                              post_request: 2, delete_request: 2]
+  require Logger
 
   use Vex.Struct
   alias __MODULE__
@@ -61,6 +62,13 @@ defmodule Transport.Datagouvfr.Client.Datasets do
   def get(%Plug.Conn{} = conn, %{:organization => slug}) do
     conn
     |> get_request(Path.join(["organizations", slug, @endpoint]))
+    |> case do #We need that for backward compatibility
+      {:ok, %{"data" => data}} -> {:ok, data}
+      {:ok, data} -> {:ok, data}
+      {:error, error} ->
+        Logger.error(error)
+        {:error, error}
+    end
   end
 
   @doc """
