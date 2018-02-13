@@ -3,7 +3,7 @@ defmodule Transport.DataValidation.Aggregates.ProjectTest do
   use TransportWeb.ExternalCase
   alias Transport.DataValidation.Aggregates.{Project, FeedSource}
   alias Transport.DataValidation.Queries.{FindProject, FindFeedSource}
-  alias Transport.DataValidation.Commands.{CreateProject, CreateFeedSource}
+  alias Transport.DataValidation.Commands.{CreateProject, CreateFeedSource, ValidateFeedSource}
 
   doctest Project
 
@@ -121,6 +121,35 @@ defmodule Transport.DataValidation.Aggregates.ProjectTest do
         project = %Project{id: "1"}
         command = %CreateFeedSource{project: project, name: "tisseo", url: "gtfs.zip"}
         assert {:reply, {:error, "econnrefused"}, ^project} = Project.handle_call({:create_feed_source, command}, nil, project)
+      end
+    end
+  end
+
+  describe "validate a feed source" do
+    test "when the feed source exists it validates it" do
+      use_cassette "data_validation/validate_feed_source-ok" do
+        feed_source = %FeedSource{id: "1", name: "tisseo", url: "gtfs.zip"}
+        project     = %Project{id: "1", feed_sources: [feed_source]}
+        command     = %ValidateFeedSource{project: project, feed_source: feed_source}
+        assert {:reply, :ok, ^project} = Project.handle_call({:validate_feed_source, command}, nil, project)
+      end
+    end
+
+    test "when the feed source does not exist it returns an error" do
+      use_cassette "data_validation/find_feed_source-not_found" do
+        feed_source = %FeedSource{id: "2", name: "tisseo", url: "gtfs.zip"}
+        project     = %Project{id: "1"}
+        command     = %ValidateFeedSource{project: project, feed_source: feed_source}
+        assert {:reply, {:error, "Feed source ID does not exist"}, ^project} = Project.handle_call({:validate_feed_source, command}, nil, project)
+      end
+    end
+
+    test "when the API is not available it returns an error" do
+      use_cassette "data_validation/validate_feed_source-error" do
+        feed_source = %FeedSource{id: "1", name: "tisseo", url: "gtfs.zip"}
+        project     = %Project{id: "1", feed_sources: [feed_source]}
+        command     = %ValidateFeedSource{project: project, feed_source: feed_source}
+        assert {:reply, {:error, "econnrefused"}, ^project} = Project.handle_call({:validate_feed_source, command}, nil, project)
       end
     end
   end

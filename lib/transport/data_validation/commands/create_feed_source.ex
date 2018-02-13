@@ -9,12 +9,12 @@ defmodule Transport.DataValidation.Commands.CreateFeedSource do
       ...> |> CreateFeedSource.validate
       {:ok, %CreateFeedSource{project: %Project{id: "1"}, name: "tisseo", url: "https://opendata.ville.fr/gtfs.zip"}}
 
-      iex> %{project: %Project{id: nil}, name: "tisseo", url: "https://opendata.ville.fr/gtfs.zip"}
+      iex> %{project: %Project{}, name: "tisseo", url: "https://opendata.ville.fr/gtfs.zip"}
       ...> |> CreateFeedSource.new
       ...> |> CreateFeedSource.validate
       {:error, [{:error, :project, :by, "must exist"}]}
 
-      iex> %{project: "1", name: "tisseo", url: "https://opendata.ville.fr/gtfs.zip"}
+      iex> %{name: "tisseo", url: "https://opendata.ville.fr/gtfs.zip"}
       ...> |> CreateFeedSource.new
       ...> |> CreateFeedSource.validate
       {:error, [{:error, :project, :by, "must be a project"}, {:error, :project, :by, "must exist"}]}

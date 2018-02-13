@@ -10,7 +10,7 @@ defmodule Transport.DataValidation.Aggregates.Project do
   alias Transport.DataValidation.Supervisor
   alias Transport.DataValidation.Aggregates.FeedSource
   alias Transport.DataValidation.Queries.{FindProject, FindFeedSource}
-  alias Transport.DataValidation.Commands.{CreateProject, CreateFeedSource}
+  alias Transport.DataValidation.Commands.{CreateProject, CreateFeedSource, ValidateFeedSource}
   alias Transport.DataValidation.Repository.{ProjectRepository, FeedSourceRepository}
 
   @registry :data_validation_project_registry
@@ -53,6 +53,11 @@ defmodule Transport.DataValidation.Aggregates.Project do
     GenServer.call(pid, {:create_feed_source, command})
   end
 
+  def execute(%ValidateFeedSource{} = command) do
+    {:ok, pid} = get_pid(command.project.name)
+    GenServer.call(pid, {:validate_feed_source, command})
+  end
+
   def handle_call({:find_project, query}, _from, %__MODULE__{id: nil} = project) do
     case ProjectRepository.execute(query) do
       {:ok, nil} -> {:reply, {:ok, nil}, project}
@@ -88,6 +93,13 @@ defmodule Transport.DataValidation.Aggregates.Project do
     case handle_feed_source_action(project, command) do
       {:ok, feed_source, project} -> {:reply, {:ok, feed_source}, project}
       {:ok, feed_source} -> {:reply, {:ok, feed_source}, project}
+      {:error, error} -> {:reply, {:error, error}, project}
+    end
+  end
+
+  def handle_call({:validate_feed_source, %ValidateFeedSource{} = command}, _from, %__MODULE__{} = project) do
+    case FeedSourceRepository.execute(command) do
+      :ok -> {:reply, :ok, project}
       {:error, error} -> {:reply, {:error, error}, project}
     end
   end

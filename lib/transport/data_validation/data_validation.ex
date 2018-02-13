@@ -5,7 +5,7 @@ defmodule Transport.DataValidation do
 
   alias Transport.DataValidation.Aggregates.Project
   alias Transport.DataValidation.Queries.{FindProject, FindFeedSource}
-  alias Transport.DataValidation.Commands.{CreateProject, CreateFeedSource}
+  alias Transport.DataValidation.Commands.{CreateProject, CreateFeedSource, ValidateFeedSource}
 
   @doc """
   Finds a project.
@@ -49,6 +49,20 @@ defmodule Transport.DataValidation do
     params
     |> CreateFeedSource.new
     |> CreateFeedSource.validate
+    |> case do
+      {:ok, command} -> Project.execute(command)
+      {:error, error} -> {:error, error}
+    end
+  end
+
+  @doc """
+  Validates a feed source.
+  """
+  @spec validate_feed_source(map()) :: :ok | {:error, any()}
+  def validate_feed_source(%{} = params) do
+    params
+    |> ValidateFeedSource.new
+    |> ValidateFeedSource.validate
     |> case do
       {:ok, command} -> Project.execute(command)
       {:error, error} -> {:error, error}

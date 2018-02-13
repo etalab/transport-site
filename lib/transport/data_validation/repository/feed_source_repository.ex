@@ -5,7 +5,7 @@ defmodule Transport.DataValidation.Repository.FeedSourceRepository do
 
   alias Transport.DataValidation.Aggregates.FeedSource
   alias Transport.DataValidation.Queries.FindFeedSource
-  alias Transport.DataValidation.Commands.CreateFeedSource
+  alias Transport.DataValidation.Commands.{CreateFeedSource, ValidateFeedSource}
 
   @endpoint Application.get_env(:transport, :datatools_url) <> "/api/manager/secure/feedsource"
   @client HTTPoison
@@ -39,6 +39,24 @@ defmodule Transport.DataValidation.Repository.FeedSourceRepository do
     else
       {:error, %@err{reason: error}} -> {:error, error}
       {:error, error} -> {:error, error}
+    end
+  end
+
+  @doc """
+  Validates a feed source.
+  """
+  @spec execute(ValidateFeedSource.t) :: :ok | {:error, any()}
+  def execute(%ValidateFeedSource{} = command) do
+    case @client.post(@endpoint <> "/#{command.feed_source.id}/fetch?projectId=#{command.project.id}", []) do
+      {:ok, %@res{status_code: 200}} ->
+        :ok
+      {:ok, %@res{body: body}} ->
+        {:ok, %{"message" => error}} = Poison.decode(body)
+        {:error, error}
+      {:error, %@err{reason: error}} ->
+        {:error, error}
+      {:error, error} ->
+        {:error, error}
     end
   end
 

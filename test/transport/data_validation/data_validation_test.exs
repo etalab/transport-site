@@ -43,4 +43,18 @@ defmodule Transport.DataValidationTest do
       refute is_nil(id)
     end
   end
+
+  test "validates a feed source" do
+    {:ok, project} = use_cassette "data_validation/find_project-ok" do
+      DataValidation.find_project(%{name: "transport"})
+    end
+
+    {:ok, feed_source} = use_cassette "data_validation/find_feed_source-ok" do
+      DataValidation.find_feed_source(%{project: project, name: "tisseo"})
+    end
+
+    use_cassette "data_validation/validate_feed_source-ok" do
+      assert :ok = DataValidation.validate_feed_source(%{project: project, feed_source: feed_source})
+    end
+  end
 end
