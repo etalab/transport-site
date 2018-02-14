@@ -8,10 +8,13 @@
     </div>
 
     <div>
-        <a href="#"onclick={toggleVisibility}><div class="footer-help__round" if={ roundVisible }>?</div></a>
+        <a href="#"onclick={ showMessageBox }>
+          <div class="footer-help--on" if={ roundVisible } onmouseover={ showHelpMessage }>?</div>
+          <div class="footer-help--on" if={ helpMessageVisible } onmouseleave={ showRound }>{ opts.ask_for_help }</div>
+        </a>
 
         <div class="footer-help__contact" if={ contactVisible }>
-            <a class="footer-help__contact--close" onclick={toggleVisibility}>{ opts.close }</a>
+            <a class="footer-help__contact--close" onclick={ showRound }>{ opts.close }</a>
 
             <div class="footer-help__contact--header">
                 <h6>Contact</h6>
@@ -33,16 +36,32 @@
 
     <script type="es6">
         this.on('mount', () => {
-            this.roundVisible   = true
-            this.contactVisible = false
-            this.successVisible = false
-            this.errorVisible   = false
+            this.roundVisible       = true
+            this.helpMessageVisible = false
+            this.contactVisible     = false
+            this.successVisible     = false
+            this.errorVisible       = false
             this.update()
         })
 
-        this.toggleVisibility = () => {
-            this.roundVisible   = !this.roundVisible
-            this.contactVisible = !this.contactVisible
+        this.showHelpMessage = () => {
+            this.roundVisible   = false
+            this.contactVisible = false
+            this.helpMessageVisible = true
+            this.update()
+        }
+
+        this.showRound = () => {
+            this.roundVisible   = true
+            this.contactVisible = false
+            this.helpMessageVisible = false
+            this.update()
+        }
+
+        this.showMessageBox = () => {
+            this.roundVisible   = false
+            this.contactVisible = true
+            this.helpMessageVisible = false
             this.update()
         }
 

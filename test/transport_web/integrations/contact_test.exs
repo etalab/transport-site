@@ -10,7 +10,7 @@ defmodule TransportWeb.Integration.ContactTest do
 
     assert visible_page_text() =~ "?"
 
-    find_element(:class, "footer-help__round")
+    find_element(:class, "footer-help--on")
     |> inner_text
     |> Kernel.=~("?")
     |> assert

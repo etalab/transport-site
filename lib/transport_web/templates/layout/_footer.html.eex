@@ -3,7 +3,7 @@
     send_email='<%= gettext("Send email") %>''
     mail_sent='<%= gettext("Your email has been sent, we will contact you soon") %>'
     mail_error='<%= gettext("There has been an error, try again later") %>''
-    ask_for_help='<%= gettext("Ask help") %>'
+    ask_for_help='<%= gettext("Ask for help") %>'
     close='<%= gettext("Close") %>'>
   </footer-help>
   <div class="footer__container">
