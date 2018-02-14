@@ -1,0 +1,29 @@
+[
+  {
+    "request": {
+      "body": "{\"url\":\"https://data.toulouse-metropole.fr/api/v2/catalog/datasets/tisseo-gtfs/files/bd1298f158bc39ed9065e0c17ebb773b\",\"projectId\":\"f372930c-2b48-4cda-bd9c-5e39aea2c63d\",\"name\":\"tisseo\"}",
+      "headers": [],
+      "method": "post",
+      "options": [],
+      "request_body": "",
+      "url": "http://localhost:4000/api/manager/secure/feedsource"
+    },
+    "response": {
+      "binary": false,
+      "body": "{\"id\":\"e7c23b60-ebfa-4f87-8f2f-8022ffecb33c\",\"dateCreated\":1518473030433,\"projectId\":\"f372930c-2b48-4cda-bd9c-5e39aea2c63d\",\"name\":\"tisseo\",\"isPublic\":false,\"deployable\":false,\"retrievalMethod\":\"MANUALLY_UPLOADED\",\"lastFetched\":null,\"url\":\"https://data.toulouse-metropole.fr/api/v2/catalog/datasets/tisseo-gtfs/files/bd1298f158bc39ed9065e0c17ebb773b\",\"s3Url\":null,\"snapshotVersion\":null,\"publishedVersionId\":null,\"organizationId\":null,\"externalProperties\":{\"TRANSITFEEDS\":{},\"TRANSITLAND\":{}},\"feedVersionCount\":0,\"noteCount\":0,\"user\":null}",
+      "headers": {
+        "Date": "Mon, 12 Feb 2018 22:03:50 GMT",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,",
+        "Content-Type": "application/json",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked",
+        "Server": "Jetty(9.3.z-SNAPSHOT)"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]

@@ -13,10 +13,10 @@ defmodule Transport.DataValidation.Repository.ProjectRepository do
   @err HTTPoison.Error
 
   @doc """
-  Finds a project by name.
+  Finds a project (by name).
   """
-  @spec find(FindProject.t) :: {:ok, Project.t} | {:ok, nil} | {:error, any()}
-  def find(%FindProject{name: name}) when not is_nil(name) do
+  @spec execute(FindProject.t) :: {:ok, Project.t} | {:ok, nil} | {:error, any()}
+  def execute(%FindProject{name: name}) when is_binary(name) do
     with {:ok, %@res{status_code: 200, body: body}} <- @client.get(@endpoint),
          {:ok, projects} <- Poison.decode(body, as: [%Project{}]),
          project <- Enum.find(projects, &(&1.name == name)) do
@@ -30,8 +30,8 @@ defmodule Transport.DataValidation.Repository.ProjectRepository do
   @doc """
   Creates a project.
   """
-  @spec create(CreateProject.t) :: {:ok, Project.t} | {:error, any()}
-  def create(%CreateProject{} = command) do
+  @spec execute(CreateProject.t) :: {:ok, Project.t} | {:error, any()}
+  def execute(%CreateProject{} = command) do
     with {:ok, body} <- Poison.encode(command),
          {:ok, %@res{status_code: 200, body: body}} <- @client.post(@endpoint, body) do
       Poison.decode(body, as: %Project{})

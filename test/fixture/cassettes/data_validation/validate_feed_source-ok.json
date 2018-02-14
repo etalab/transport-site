@@ -1,0 +1,57 @@
+[
+  {
+    "request": {
+      "body": "",
+      "headers": [],
+      "method": "post",
+      "options": [],
+      "request_body": "",
+      "url": "http://localhost:4000/api/manager/secure/feedsource/e7c23b60-ebfa-4f87-8f2f-8022ffecb33c/fetch?projectId=f372930c-2b48-4cda-bd9c-5e39aea2c63d"
+    },
+    "response": {
+      "binary": false,
+      "body": "\"{\\\"result\\\":\\\"OK\\\",\\\"message\\\":\\\"ok\\\",\\\"code\\\":200, \\\"detail\\\":\\\"null\\\"}\"",
+      "headers": {
+        "Date": "Tue, 13 Feb 2018 00:31:44 GMT",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,",
+        "Content-Type": "application/json",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked",
+        "Server": "Jetty(9.3.z-SNAPSHOT)"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  },
+  {
+    "request": {
+      "body": "",
+      "headers": [],
+      "method": "post",
+      "options": [],
+      "request_body": "",
+      "url": "http://localhost:4000/api/manager/secure/feedsource/1/fetch?projectId=1"
+    },
+    "response": {
+      "binary": false,
+      "body": "\"{\\\"result\\\":\\\"OK\\\",\\\"message\\\":\\\"ok\\\",\\\"code\\\":200, \\\"detail\\\":\\\"null\\\"}\"",
+      "headers": {
+        "Date": "Tue, 13 Feb 2018 00:31:44 GMT",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,",
+        "Content-Type": "application/json",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked",
+        "Server": "Jetty(9.3.z-SNAPSHOT)"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+
+]
