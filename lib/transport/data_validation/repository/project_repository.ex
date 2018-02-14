@@ -16,10 +16,10 @@ defmodule Transport.DataValidation.Repository.ProjectRepository do
   Finds a project (by name).
   """
   @spec execute(FindProject.t) :: {:ok, Project.t} | {:ok, nil} | {:error, any()}
-  def execute(%FindProject{} = query) do
+  def execute(%FindProject{name: name}) when is_binary(name) do
     with {:ok, %@res{status_code: 200, body: body}} <- @client.get(@endpoint),
          {:ok, projects} <- Poison.decode(body, as: [%Project{}]),
-         project <- Enum.find(projects, &(&1.name == query.name)) do
+         project <- Enum.find(projects, &(&1.name == name)) do
       {:ok, project}
     else
       {:error, %@err{reason: error}} -> {:error, error}
