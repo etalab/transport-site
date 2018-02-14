@@ -82,19 +82,11 @@ defmodule Transport.DataValidation.Aggregates.Project do
   end
 
   def handle_call({:find_feed_source, %FindFeedSource{} = query}, _from, %__MODULE__{} = project) do
-    case handle_feed_source_action(project, query) do
-      {:ok, feed_source, project} -> {:reply, {:ok, feed_source}, project}
-      {:ok, feed_source} -> {:reply, {:ok, feed_source}, project}
-      {:error, error} -> {:reply, {:error, error}, project}
-    end
+    handle_feed_source_action(project, query)
   end
 
   def handle_call({:create_feed_source, %CreateFeedSource{} = command}, _from, %__MODULE__{} = project) do
-    case handle_feed_source_action(project, command) do
-      {:ok, feed_source, project} -> {:reply, {:ok, feed_source}, project}
-      {:ok, feed_source} -> {:reply, {:ok, feed_source}, project}
-      {:error, error} -> {:reply, {:error, error}, project}
-    end
+    handle_feed_source_action(project, command)
   end
 
   def handle_call({:validate_feed_source, %ValidateFeedSource{} = command}, _from, %__MODULE__{} = project) do
@@ -116,14 +108,15 @@ defmodule Transport.DataValidation.Aggregates.Project do
   defp handle_feed_source_action(%__MODULE__{} = project, action) do
     with nil <- Enum.find(project.feed_sources, &(&1.name == action.name)),
          {:ok, nil} <- FeedSourceRepository.execute(action) do
-      {:ok, nil}
+      {:reply, {:ok, nil}, project}
     else
       {:ok, feed_source} ->
-        {:ok, feed_source, %{project | feed_sources: [feed_source | project.feed_sources]}}
+        project = %{project | feed_sources: [feed_source | project.feed_sources]}
+        {:reply, {:ok, feed_source}, project}
       {:error, error} ->
-        {:error, error}
+        {:reply, {:error, error}, project}
       feed_source ->
-        {:ok, feed_source}
+        {:reply, {:ok, feed_source}, project}
     end
   end
 end
