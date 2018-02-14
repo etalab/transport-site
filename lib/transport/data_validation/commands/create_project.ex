@@ -14,6 +14,11 @@ defmodule Transport.DataValidation.Commands.CreateProject do
       ...> |> CreateProject.validate
       {:error, [{:error, :name, :presence, "must be present"}]}
 
+      iex> nil
+      ...> |> CreateProject.new
+      ...> |> CreateProject.validate
+      ** (RuntimeError) second argument must be a map or keyword list
+
   """
 
   defstruct [:name]

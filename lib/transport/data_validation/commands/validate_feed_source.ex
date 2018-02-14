@@ -17,7 +17,10 @@ defmodule Transport.DataValidation.Commands.ValidateFeedSource do
       iex> %{feed_source: %FeedSource{id: "1", url: "gtfs.zip"}}
       ...> |> ValidateFeedSource.new
       ...> |> ValidateFeedSource.validate
-      {:error, [{:error, :project, :by, "must be a project"}, {:error, :project, :by, "must exist"}]}
+      {:error, [
+        {:error, :project, :by, "must be a project"},
+        {:error, :project, :by, "must exist"}
+      ]}
 
       iex> %{project: %Project{id: "1"}, feed_source: %FeedSource{url: "gtfs.zip"}}
       ...> |> ValidateFeedSource.new
@@ -32,7 +35,27 @@ defmodule Transport.DataValidation.Commands.ValidateFeedSource do
       iex> %{project: %Project{id: "1"}}
       ...> |> ValidateFeedSource.new
       ...> |> ValidateFeedSource.validate
-      {:error, [{:error, :feed_source, :by, "must be a feed source"}, {:error, :feed_source, :by, "must exist"}, {:error, :feed_source, :by, "must have a url"}]}
+      {:error, [
+        {:error, :feed_source, :by, "must be a feed source"},
+        {:error, :feed_source, :by, "must exist"},
+        {:error, :feed_source, :by, "must have a url"}
+      ]}
+
+      iex> %{}
+      ...> |> ValidateFeedSource.new
+      ...> |> ValidateFeedSource.validate
+      {:error, [
+        {:error, :feed_source, :by, "must be a feed source"},
+        {:error, :feed_source, :by, "must exist"},
+        {:error, :feed_source, :by, "must have a url"},
+        {:error, :project, :by, "must be a project"},
+        {:error, :project, :by, "must exist"}
+      ]}
+
+      iex> nil
+      ...> |> ValidateFeedSource.new
+      ...> |> ValidateFeedSource.validate
+      ** (RuntimeError) second argument must be a map or keyword list
 
   """
 

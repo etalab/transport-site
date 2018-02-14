@@ -17,7 +17,10 @@ defmodule Transport.DataValidation.Commands.CreateFeedSource do
       iex> %{name: "tisseo", url: "https://opendata.ville.fr/gtfs.zip"}
       ...> |> CreateFeedSource.new
       ...> |> CreateFeedSource.validate
-      {:error, [{:error, :project, :by, "must be a project"}, {:error, :project, :by, "must exist"}]}
+      {:error, [
+        {:error, :project, :by, "must be a project"},
+        {:error, :project, :by, "must exist"}
+      ]}
 
       iex> %{project: %Project{id: "1"}, url: "https://opendata.ville.fr/gtfs.zip"}
       ...> |> CreateFeedSource.new
@@ -28,6 +31,21 @@ defmodule Transport.DataValidation.Commands.CreateFeedSource do
       ...> |> CreateFeedSource.new
       ...> |> CreateFeedSource.validate
       {:error, [{:error, :url, :presence, "must be present"}]}
+
+      iex> %{}
+      ...> |> CreateFeedSource.new
+      ...> |> CreateFeedSource.validate
+      {:error, [
+        {:error, :name, :presence, "must be present"},
+        {:error, :project, :by, "must be a project"},
+        {:error, :project, :by, "must exist"},
+        {:error, :url, :presence, "must be present"}
+      ]}
+
+      iex> nil
+      ...> |> CreateFeedSource.new
+      ...> |> CreateFeedSource.validate
+      ** (RuntimeError) second argument must be a map or keyword list
 
   """
 
