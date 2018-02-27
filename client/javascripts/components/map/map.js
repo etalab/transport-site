@@ -19,7 +19,7 @@ const Mapbox = {
  * @param  {String} featuresUrl Url exposing a {FeatureCollection}.
  */
 export const addMap = (id, featuresUrl, opts) => {
-    const map     = Leaflet.map(id).setView([51.505, -0.09], 13)
+    const map     = Leaflet.map(id).setView([46.370, 2.087], 5)
     const cluster = Leaflet.markerClusterGroup()
 
     const features = (data) => {
