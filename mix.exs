@@ -21,7 +21,6 @@ defmodule Transport.Mixfile do
     [
       mod: {Transport.Application, []},
       extra_applications: [
-        :amqp,
         :logger,
         :mime,
         :mongodb,
@@ -40,7 +39,6 @@ defmodule Transport.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:amqp, "~> 0.3"},
       {:cowboy, "~> 1.0"},
       {:csv, "~> 2.0.0"},
       {:earmark, "~> 1.2"},

@@ -1,6 +1,6 @@
 defmodule TransportWeb.API.DatasetControllerTest do
   use TransportWeb.ConnCase, async: false
-  use TransportWeb.DatabaseCase, cleanup: ["celery_taskmeta", "datasets"]
+  use TransportWeb.DatabaseCase, cleanup: ["datasets"]
   alias Transport.ReusableData
 
   setup do

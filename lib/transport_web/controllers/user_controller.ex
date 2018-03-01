@@ -1,7 +1,6 @@
 defmodule TransportWeb.UserController do
   use TransportWeb, :controller
   alias Transport.Datagouvfr.Client.{Organizations, User, Datasets}
-  alias Transport.DataValidator.Server
   require Logger
 
   def organizations(%Plug.Conn{} = conn, params) do
@@ -85,8 +84,7 @@ defmodule TransportWeb.UserController do
     conn
     |> Datasets.put(slug, {:add_tag, "GTFS"})
     |> case do
-      {:ok, dataset} ->
-        Server.validate_data(List.first(dataset["resources"])["url"])
+      {:ok, _} ->
         conn
         |> render("add_badge_dataset.html")
       {:error, error} ->

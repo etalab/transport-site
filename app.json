@@ -3,9 +3,6 @@
   "scripts": {
   },
   "env": {
-    "CLOUDAMQP_URL": {
-      "required": true
-    },
     "DATAGOUVFR_CLIENT_ID": {
       "required": true
     },
@@ -34,7 +31,6 @@
   "formation": {
   },
   "addons": [
-    "cloudamqp",
     "mongolab"
   ],
   "buildpacks": [

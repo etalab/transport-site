@@ -12,7 +12,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingMapTest do
   """
 
   use TransportWeb.ConnCase, async: true
-  use TransportWeb.DatabaseCase, cleanup: ["celery_taskmeta", "datasets"]
+  use TransportWeb.DatabaseCase, cleanup: ["datasets"]
   use TransportWeb.UserFacingCase
   alias Transport.ReusableData
 
