@@ -5,7 +5,7 @@ defmodule Transport.Datagouvfr.Client.User do
 
   import Transport.Datagouvfr.Client, only: [get_request: 3]
 
-  @me_fields ~w(avatar avatar_thumbail first_name id last_name
+  @me_fields ~w(avatar avatar_thumbnail first_name id last_name
                 organizations page slug uri apikey email)
 
   @doc """
