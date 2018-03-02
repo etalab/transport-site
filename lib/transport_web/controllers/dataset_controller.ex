@@ -39,6 +39,10 @@ defmodule TransportWeb.DatasetController do
         conn
         |> put_flash(:errors, Enum.map(errors, fn({_, _, _, s}) -> s end))
         |> redirect(to: dataset_path(conn, :new, organization))
+      {:bad_request, error} ->
+        conn
+        |> put_flash(:errors, [error["message"]])
+        |> redirect(to: dataset_path(conn, :new, organization))
       {:error, error} ->
         Logger.error(error)
         conn
