@@ -14,7 +14,7 @@
     "catalogue_id": "ybme_rgecnpggxxtffoivxkeoru"
 }, {
     "spatial": "Angers Loire M\u00e9tropole",
-    "slug": "horaires-et-arrets-du-reseau-irigo-format-gtfs",
+    "slug": "horaires-theoriques-et-arrets-du-reseau-irigo-gtfs",
     "coordinates": [-0.556585, 47.47207],
     "catalogue_id": "vwti_qvcukzprkegeyyffrfsqpu"
 }, {
@@ -33,8 +33,24 @@
     "slug": "horaires-theoriques-du-reseau-de-transport-marineo",
     "catalogue_id" :"azfk_kxfxbmscztlcjdfmvvgznd"
 }, {
-    "spatial": "Communauté d'agglomération Royan Atlantique",
+    "spatial": "Données GTFS du réseau de transport public cara'bus"
     "coordinates": [-1.027697, 45.625611],
-    "slug": "horaires-theoriques-du-reseau-de-transport-carabus",
+    "slug": "donnees-gtfs-du-reseau-de-transport-public-carabus-1",
     "catalogue_id": "duja_uvmrqriwvujcrfugxmyngp"
+}]
+    "spatial": "Horaires théoriques du réseau de transport 'TAG'",
+    "coordinates": [5.7154, 45.1841],
+    "slug": "horaires-theoriques-du-reseau-de-transport-tag",
+}]
+    "spatial": "Horaires théoriques du réseau CTRL- format GTFS de Lorient Agglomération",
+    "coordinates": [-3.3792, 47.7494],
+    "slug": "horaires-theoriques-du-reseau-ctrl-format-gtfs-de-lorient-agglomeration",
+}]
+    "spatial": "Transport - Données GTFS",
+    "coordinates": [6.1962, 49.1048],
+    "slug": "transport-donnees-gtfs",
+}]
+    "spatial": "Offre de transport du réseau Kicéo",
+    "coordinates": [-2.7486, 47.6577],
+    "slug": "offre-de-transport-du-reseau-kiceo-1",
 }]
