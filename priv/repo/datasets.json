@@ -14,7 +14,7 @@
     "catalogue_id": "ybme_rgecnpggxxtffoivxkeoru"
 }, {
     "spatial": "Angers Loire M\u00e9tropole",
-    "slug": "horaires-et-arrets-du-reseau-irigo-format-gtfs",
+    "slug": "horaires-theoriques-et-arrets-du-reseau-irigo-gtfs",
     "coordinates": [-0.556585, 47.47207],
     "catalogue_id": "vwti_qvcukzprkegeyyffrfsqpu"
 }, {
@@ -23,7 +23,7 @@
     "slug": "horaires-theoriques-du-reseau-de-transport-transpole",
     "catalogue_id": "jmip_pimzsibzmhmhbnysphbshl"
 }, {
-    "spatial": "Communaut\u00e9 urbaine de Nancy",
+    "spatial": "Métropole du Grand Nancy",
     "coordinates": [6.182711, 48.692365],
     "slug": "horaires-theoriques-du-reseau-de-transport-stan",
     "catalogue_id": "cand_pfsczgqybntnedumqalhat"
@@ -35,6 +35,29 @@
 }, {
     "spatial": "Communauté d'agglomération Royan Atlantique",
     "coordinates": [-1.027697, 45.625611],
-    "slug": "horaires-theoriques-du-reseau-de-transport-carabus",
+    "slug": "donnees-gtfs-du-reseau-de-transport-public-carabus-1",
     "catalogue_id": "duja_uvmrqriwvujcrfugxmyngp"
+}, {
+    "spatial": "Grenoble-Alpes Métropole",
+    "coordinates": [5.7154, 45.1841],
+    "slug": "horaires-theoriques-du-reseau-de-transport-tag"
+}, {
+    "spatial": "Lorient Agglomération",
+    "coordinates": [-3.3792, 47.7494],
+    "slug": "horaires-theoriques-du-reseau-ctrl-format-gtfs-de-lorient-agglomeration"
+}, {
+    "spatial": "Communauté d'agglomération de Metz Métropole",
+    "coordinates": [6.1962, 49.1048],
+    "slug": "transport-donnees-gtfs"
+}, {
+    "spatial": "Vannes Agglo",
+    "coordinates": [-2.7486, 47.6577],
+    "slug": "offre-de-transport-du-reseau-kiceo-1"
+}, {
+    "spatial": "Métropole Nice-Côte-d'Azur",
+    "coordinates": [7.2529, 43.7031],
+    "slug": "export-quotidien-au-format-gtfs-du-reseau-de-transport-lignes-d-azur"
 }]
+
+
+
