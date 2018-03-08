@@ -33,30 +33,30 @@
     "slug": "horaires-theoriques-du-reseau-de-transport-marineo",
     "catalogue_id" :"azfk_kxfxbmscztlcjdfmvvgznd"
 }, {
-    "spatial": "Communauté d'agglomération Royan Atlantique"
+    "spatial": "Communauté d'agglomération Royan Atlantique",
     "coordinates": [-1.027697, 45.625611],
     "slug": "donnees-gtfs-du-reseau-de-transport-public-carabus-1",
     "catalogue_id": "duja_uvmrqriwvujcrfugxmyngp"
-}]
+}, {
     "spatial": "Grenoble-Alpes Métropole",
     "coordinates": [5.7154, 45.1841],
-    "slug": "horaires-theoriques-du-reseau-de-transport-tag",
-}]
+    "slug": "horaires-theoriques-du-reseau-de-transport-tag"
+}, {
     "spatial": "Lorient Agglomération",
     "coordinates": [-3.3792, 47.7494],
-    "slug": "horaires-theoriques-du-reseau-ctrl-format-gtfs-de-lorient-agglomeration",
-}]
+    "slug": "horaires-theoriques-du-reseau-ctrl-format-gtfs-de-lorient-agglomeration"
+}, {
     "spatial": "Communauté d'agglomération de Metz Métropole",
     "coordinates": [6.1962, 49.1048],
-    "slug": "transport-donnees-gtfs",
-}]
+    "slug": "transport-donnees-gtfs"
+}, {
     "spatial": "Vannes Agglo",
     "coordinates": [-2.7486, 47.6577],
-    "slug": "offre-de-transport-du-reseau-kiceo-1",
-}]
+    "slug": "offre-de-transport-du-reseau-kiceo-1"
+}, {
     "spatial": "Métropole Nice-Côte-d'Azur",
     "coordinates": [7.2529, 43.7031],
-    "slug": "export-quotidien-au-format-gtfs-du-reseau-de-transport-lignes-d-azur",
+    "slug": "export-quotidien-au-format-gtfs-du-reseau-de-transport-lignes-d-azur"
 }]
 
 
