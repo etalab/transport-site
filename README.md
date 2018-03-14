@@ -33,6 +33,7 @@ Now you can visit [`127.0.0.1:5000`](http://127.0.0.1:5000) from your browser.
   * Run `mix transport.seed` to seed datasets to the database.
   * Run `mix transport.import_data` to import data from data.gouv.fr.
   * Run `mix transport.validate_data` to queue dataset validations.
+  * Run `mix transport.fetch_validation_results` to fetch all the validation namespaces.
 
 ### Docker
 

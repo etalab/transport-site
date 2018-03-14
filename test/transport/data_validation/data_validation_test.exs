@@ -57,4 +57,29 @@ defmodule Transport.DataValidationTest do
       assert :ok = DataValidation.validate_feed_source(%{project: project, feed_source: feed_source})
     end
   end
+
+  test "retrives all feed sources" do
+    {:ok, project} = use_cassette "data_validation/create_project-ok" do
+      DataValidation.create_project(%{name: "transport"})
+    end
+
+    {:ok, feed_source} = use_cassette "data_validation/create_feed_source-ok" do
+      name = "tisseo"
+      url  = "https://data.toulouse-metropole.fr/api/v2/catalog/datasets/tisseo-gtfs/files/bd1298f158bc39ed9065e0c17ebb773b"
+      DataValidation.create_feed_source(%{project: project, name: name, url: url})
+    end
+
+    use_cassette "data_validation/validate_feed_source-ok" do
+      DataValidation.validate_feed_source(%{project: project, feed_source: feed_source})
+    end
+
+    {:ok, [%{latest_version_id: latest_version_id}]} = use_cassette "data_validation/list_feed_sources-ok" do
+      DataValidation.list_feed_sources(%{project: project})
+    end
+
+    use_cassette "data_validation/find_feed_version-ok" do
+      {:ok, %{namespace: namespace}} = DataValidation.find_feed_version(%{project: project, latest_version_id: latest_version_id})
+      assert namespace == "njgv_blmzbjxrgkbuiyiwlrzpcd"
+    end
+  end
 end

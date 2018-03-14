@@ -4,7 +4,7 @@ defmodule Transport.DataValidation.Repository.FeedSourceRepository do
   """
 
   alias Transport.DataValidation.Aggregates.FeedSource
-  alias Transport.DataValidation.Queries.FindFeedSource
+  alias Transport.DataValidation.Queries.{FindFeedSource, ListFeedSources}
   alias Transport.DataValidation.Commands.{CreateFeedSource, ValidateFeedSource}
 
   @endpoint Application.get_env(:transport, :datatools_url) <> "/api/manager/secure/feedsource"
@@ -60,9 +60,40 @@ defmodule Transport.DataValidation.Repository.FeedSourceRepository do
     end
   end
 
+  @doc """
+  List all feed source.
+  """
+  @spec execute(ListFeedSources.t) :: {:ok, any()} | {:error, any()}
+  def execute(%ListFeedSources{project: %{id: project_id}}) do
+    case @client.get(@endpoint <> "?projectId=#{project_id}") do
+      {:ok, %@res{status_code: 200, body: body}} ->
+        parse(body)
+      {:error, %@err{reason: error}} ->
+        {:error, error}
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
   # private
 
   defp represent(action) do
     {:ok, %{"projectId" => action.project.id, "name" => action.name, "url" => action.url}}
+  end
+
+  defp parse(body) do
+    case Poison.decode(body, as: [%{}]) do
+      {:ok, feed_sources} ->
+        feed_sources =
+          Enum.map(feed_sources, fn(feed_source) ->
+            feed_source
+            |> Map.put(:last_version_id, feed_source["latestVersionId"])
+            |> FeedSource.new
+          end)
+
+        {:ok, feed_sources}
+      {:error, error} ->
+        {:error, error}
+    end
   end
 end
