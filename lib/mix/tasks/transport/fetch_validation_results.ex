@@ -4,7 +4,6 @@ defmodule Mix.Tasks.Transport.FetchValidationResults do
     """
 
     use Mix.Task
-    alias Transport.ReusableData.Dataset
     alias Transport.DataValidation
     require Logger
 

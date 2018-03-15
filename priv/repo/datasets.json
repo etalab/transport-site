@@ -5,38 +5,31 @@
 }, {
     "spatial": "Toulouse M\u00e9tropole",
     "slug": "tisseo-offre-de-transport-gtfs",
-    "coordinates": [1.441019, 43.604268],
-    "catalogue_id": "mnpt_awffxdugmycpgilpizywts"
+    "coordinates": [1.441019, 43.604268]
 }, {
     "spatial": "Rennes M\u00e9tropole",
     "slug": "versions-des-horaires-theoriques-des-lignes-du-reseau-star-au-format-gtfs",
-    "coordinates": [-1.681632, 48.113844],
-    "catalogue_id": "ybme_rgecnpggxxtffoivxkeoru"
+    "coordinates": [-1.681632, 48.113844]
 }, {
     "spatial": "Angers Loire M\u00e9tropole",
     "slug": "arrets-parcours-et-horaires-theoriques-du-reseau-irigo-gtfs",
-    "coordinates": [-0.556585, 47.47207],
-    "catalogue_id": "vwti_qvcukzprkegeyyffrfsqpu"
+    "coordinates": [-0.556585, 47.47207]
 }, {
     "spatial": "M\u00e9tropole europ\u00e9enne de Lille",
     "coordinates": [3.05644, 50.631564],
-    "slug": "localisation-des-arrets-de-bus-metro-et-tram-gtfs-pictogrammes-du-reseau-transpole",
-    "catalogue_id": "jmip_pimzsibzmhmhbnysphbshl"
+    "slug": "localisation-des-arrets-de-bus-metro-et-tram-gtfs-pictogrammes-du-reseau-transpole"
 }, {
     "spatial": "Métropole du Grand Nancy",
     "coordinates": [6.182711, 48.692365],
-    "slug": "arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs",
-    "catalogue_id": "cand_pfsczgqybntnedumqalhat"
+    "slug": "arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs"
 }, {
     "spatial": "Communauté d'agglomération du Boulonnais",
     "coordinates": [1.613152, 50.725249],
-    "slug": "horaires-theoriques-du-reseau-de-transport-marineo",
-    "catalogue_id" :"azfk_kxfxbmscztlcjdfmvvgznd"
+    "slug": "horaires-theoriques-du-reseau-de-transport-marineo"
 }, {
     "spatial": "Communauté d'agglomération Royan Atlantique",
     "coordinates": [-1.027697, 45.625611],
-    "slug": "donnees-gtfs-du-reseau-de-transport-public-cara-bus",
-    "catalogue_id": "duja_uvmrqriwvujcrfugxmyngp"
+    "slug": "donnees-gtfs-du-reseau-de-transport-public-cara-bus"
 }, {
     "spatial": "Grenoble-Alpes Métropole",
     "coordinates": [5.7154, 45.1841],
