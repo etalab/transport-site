@@ -8,8 +8,8 @@ defmodule Transport.ImportDataServiceTest do
 
   describe "import_from_udata" do
     test "import dataset with a zip" do
-      url = "https://www.data.gouv.fr/s/resources/horaires-et-arrets-du-reseau-irigo-format-gtfs/20170130-094427/Keolis_Irigo_Angers_20170129-20170409.zip"
-      assert {:ok, dataset} = ImportDataService.import_from_udata("horaires-et-arrets-du-reseau-irigo-format-gtfs")
+      url = "http://hstan.g-ny.org/grandnancy/data/public/gtfs_stan.zip"
+      assert {:ok, dataset} = ImportDataService.import_from_udata("arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs")
       assert dataset["download_uri"] == url
     end
 

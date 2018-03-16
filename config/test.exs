@@ -13,6 +13,7 @@ config :hound, driver: "phantomjs"
 # Print only warnings and errors during test
 config :logger, level: :warn
 
+# Configure data.gouv.fr authentication
 config :oauth2, Authentication,
   site: "https://next.data.gouv.fr"
 
