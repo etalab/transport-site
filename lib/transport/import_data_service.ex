@@ -31,8 +31,13 @@ defmodule Transport.ImportDataService do
          anomalies <- get_anomalies(dataset) do
       {:ok, Map.put(dataset, "anomalies", anomalies)}
     else
-     {:error, error} -> {:error, error}
+      {:error, error} ->
+        raise "Unable to fetch #{slug}"
     end
+  end
+
+  def get_dataset(%{"message" => error}) do
+    {:error, error}
   end
 
   def get_dataset(%{} = dataset) do
