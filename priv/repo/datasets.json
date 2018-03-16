@@ -33,11 +33,6 @@
     "slug": "horaires-theoriques-du-reseau-de-transport-marineo",
     "catalogue_id" :"azfk_kxfxbmscztlcjdfmvvgznd"
 }, {
-    "spatial": "Communauté d'agglomération Royan Atlantique",
-    "coordinates": [-1.027697, 45.625611],
-    "slug": "donnees-gtfs-du-reseau-de-transport-public-carabus-1",
-    "catalogue_id": "duja_uvmrqriwvujcrfugxmyngp"
-}, {
     "spatial": "Grenoble-Alpes Métropole",
     "coordinates": [5.7154, 45.1841],
     "slug": "horaires-theoriques-du-reseau-de-transport-tag"
