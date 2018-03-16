@@ -14,13 +14,13 @@
     "catalogue_id": "ybme_rgecnpggxxtffoivxkeoru"
 }, {
     "spatial": "Angers Loire M\u00e9tropole",
-    "slug": "horaires-theoriques-et-arrets-du-reseau-irigo-gtfs",
+    "slug": "arrets-parcours-et-horaires-theoriques-du-reseau-irigo-gtfs",
     "coordinates": [-0.556585, 47.47207],
     "catalogue_id": "vwti_qvcukzprkegeyyffrfsqpu"
 }, {
     "spatial": "M\u00e9tropole europ\u00e9enne de Lille",
     "coordinates": [3.05644, 50.631564],
-    "slug": "horaires-theoriques-du-reseau-de-transport-transpole",
+    "slug": "gtfs-et-visualisation-du-reseau-transpole",
     "catalogue_id": "jmip_pimzsibzmhmhbnysphbshl"
 }, {
     "spatial": "Métropole du Grand Nancy",
