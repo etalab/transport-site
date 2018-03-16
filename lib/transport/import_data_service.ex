@@ -25,14 +25,20 @@ defmodule Transport.ImportDataService do
   def import_from_udata(slug) do
     base_url = Application.get_env(:oauth2, Authentication)[:site]
     url = "#{base_url}/api/1/datasets/#{slug}/"
-    with {:ok, response}  <- HTTPoison.get(url),
+
+    Logger.info(" <message>  Importing dataset")
+    Logger.info(" <slug>     #{slug}")
+
+    with {:ok, response}  <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
          {:ok, json} <- Poison.decode(response.body),
          {:ok, dataset} <- get_dataset(json),
          anomalies <- get_anomalies(dataset) do
       {:ok, Map.put(dataset, "anomalies", anomalies)}
     else
       {:error, error} ->
-        raise "Unable to fetch #{slug}"
+        Logger.error("<message>  #{inspect error}")
+        Logger.error("<slug>     #{slug}\n")
+        {:error, error}
     end
   end
 
@@ -63,7 +69,14 @@ defmodule Transport.ImportDataService do
              {:ok, urls} <- get_url_from_csv(bodys) do
           List.first(urls)
         else
-          {:error, _error} -> nil
+          {:error, error} ->
+            Logger.warn(" <message>  #{inspect error}")
+
+            Enum.map(resources, fn resource ->
+              Logger.warn(" <resource> #{resource["url"]}")
+            end)
+
+            nil
         end
       true ->
         nil
@@ -202,7 +215,7 @@ defmodule Transport.ImportDataService do
     |> Enum.filter(&has_csv?/1)
     |> case do
       bodys = [_ | _] -> {:ok, Enum.map(bodys, fn {_, v} -> v.body end)}
-      [] -> {:error, "no csv found"}
+      [] -> {:error, "No csv found"}
     end
   end
 
@@ -211,7 +224,7 @@ defmodule Transport.ImportDataService do
       {:ok, response = %{status_code: 200}} ->
         {:ok, response}
       {:ok, response} ->
-        {:error, "bad status code, needs 200, wants #{response.status_code}"}
+        {:error, "Bad status code, needs 200, wants #{response.status_code}"}
       {:error, error} ->
         {:error, error}
     end
@@ -226,7 +239,7 @@ defmodule Transport.ImportDataService do
       "http"
 
       iex> |> ImportDataService.get_url_from_csv()
-      {:error, "no column file"}
+      {:error, "No column file"}
 
   """
   def get_url_from_csv(bodies) when is_list(bodies) do
@@ -235,7 +248,7 @@ defmodule Transport.ImportDataService do
     |> Enum.filter(fn {status, _} -> status == :ok end)
     |> case do
       urls = [_ | _] -> {:ok, Enum.map(urls, fn {_, v} -> v end)}
-      [] -> {:error, "no url found"}
+      [] -> {:error, "No url found"}
     end
   end
 
@@ -249,7 +262,7 @@ defmodule Transport.ImportDataService do
 
       iex> "stop,lon,lat\\n1,48.8,2.3"
       ...> |> ImportDataService.get_url_from_csv()
-      {:error, "no column file"}
+      {:error, "No column file"}
 
       iex> "Donnees;format;Download\\r\\nHoraires des lignes TER;GTFS;https\\r\\n"
       ...> |> ImportDataService.get_url_from_csv()
@@ -262,7 +275,7 @@ defmodule Transport.ImportDataService do
     |> Enum.filter(&(&1 != nil))
     |> case do
       [url | _] -> {:ok, url}
-      _ -> {:error, "no column file"}
+      _ -> {:error, "No column file"}
     end
   end
 
