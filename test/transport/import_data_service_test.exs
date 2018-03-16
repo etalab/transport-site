@@ -1,31 +1,37 @@
 defmodule Transport.ImportDataServiceTest do
-  use ExUnit.Case, async: false
-  use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
+  use ExUnit.Case, async: true
   alias Transport.ImportDataService
+
+  @moduletag :external
 
   doctest ImportDataService
 
-  test "import dataset with a zip" do
-    use_cassette "dataset/irigo-1" do
+  describe "import_from_udata" do
+    test "import dataset with a zip" do
       url = "https://www.data.gouv.fr/s/resources/horaires-et-arrets-du-reseau-irigo-format-gtfs/20170130-094427/Keolis_Irigo_Angers_20170129-20170409.zip"
       assert {:ok, dataset} = ImportDataService.import_from_udata("horaires-et-arrets-du-reseau-irigo-format-gtfs")
       assert dataset["download_uri"] == url
     end
-  end
 
-  test "import dataset with GTFS format" do
-    use_cassette "dataset/metz-2" do
+    test "import dataset with GTFS format" do
       url = "https://si.metzmetropole.fr/fiches/opendata/gtfs_current.zip"
       assert {:ok, dataset} = ImportDataService.import_from_udata("transport-donnees-gtfs")
       assert dataset["download_uri"] == url
     end
-  end
 
-  test "import dataset with CSV" do
-    use_cassette "dataset/ter-3" do
+    test "import dataset with CSV" do
       url = "https://ressources.data.sncf.com/api/v2/catalog/datasets/sncf-ter-gtfs/files/24e02fa969496e2caa5863a365c66ec2"
       assert {:ok, dataset} = ImportDataService.import_from_udata("horaires-des-lignes-ter-sncf")
       assert dataset["download_uri"] == url
+    end
+
+    test "import all datasets on the curated list" do
+      "priv/repo/datasets.json"
+      |> File.read!
+      |> Poison.decode!
+      |> Enum.each(fn %{"slug" => slug} ->
+        assert {:ok, _} = ImportDataService.import_from_udata(slug)
+      end)
     end
   end
 end
