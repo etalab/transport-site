@@ -3,7 +3,6 @@ defmodule Transport.ImportDataService do
   Service use to import data from datagouv to mongodb
   """
 
-  alias Transport.Datagouvfr.Authentication
   require Logger
 
   @separators [?;, ?,]
@@ -23,8 +22,8 @@ defmodule Transport.ImportDataService do
   end
 
   def import_from_udata(slug) do
-    base_url = Application.get_env(:oauth2, Authentication)[:site]
-    url = "#{base_url}/api/1/datasets/#{slug}/"
+    base_url = Application.get_env(:transport, :datagouvfr_site)
+    url      = "#{base_url}/api/1/datasets/#{slug}/"
 
     Logger.info(" <message>  Importing dataset")
     Logger.info(" <slug>     #{slug}")

@@ -18,6 +18,8 @@ In order to validate datasets:
   * Run the webdriver server with `phantomjs --wd`
   * Run the tests with `mix test`
   * Run the integration tests with `mix test --only integration`
+  * Run the solution tests with `mix test --only solution`
+  * Run the external tests with `mix test --only external`
   * Run the elixir linter with `mix credo --strict`
   * Run the javascript linter with `mix npm "run linter:ecma"`
   * Run the riot linter with `mix npm "run linter:riot"`
