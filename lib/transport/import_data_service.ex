@@ -130,57 +130,71 @@ defmodule Transport.ImportDataService do
 
   """
   def filter_gtfs(resources) do
-    Enum.filter(resources,
-      fn %{"format" => format} -> String.downcase(format) == "gtfs"
-         _ -> false
-      end
-    )
+    Enum.filter(resources, fn %{"format" => format} ->
+      String.downcase(format) == "gtfs"
+    end)
   end
 
   @doc """
   filter dataset with zip resources
 
   ## Examples
-      iex> [%{"mime" => "application/zip"}]
+      iex> [%{"mime" => "application/zip", "format" => nil}]
       ...> |> ImportDataService.filter_zip
-      [%{"mime" => "application/zip"}]
+      [%{"mime" => "application/zip", "format" => "zip"}]
 
-      iex> [%{"mime" => "application/exe"}]
+      iex> [%{"mime" => nil, "format" => "zip"}]
+      ...> |> ImportDataService.filter_zip
+      [%{"mime" => "application/zip", "format" => "zip"}]
+
+      iex> [%{"mime" => nil, "format" => "ZIP"}]
+      ...> |> ImportDataService.filter_zip
+      [%{"mime" => "application/zip", "format" => "zip"}]
+
+      iex> [%{"mime" => "application/exe", "format" => nil}]
       ...> |> ImportDataService.filter_zip
       []
 
-      iex> [%{"mime" => "application/zip"}, %{"mime" => "application/neptune"}]
+      iex> [%{"mime" => "application/zip", "format" => nil}, %{"mime" => "application/neptune", "format" => nil}]
       ...> |> ImportDataService.filter_zip
-      [%{"mime" => "application/zip"}]
+      [%{"mime" => "application/zip", "format" => "zip"}]
 
   """
   def filter_zip(resources) do
-    Enum.filter(resources,
-      fn %{"mime" => mime} -> mime == "application/zip"
-         _ -> false end)
+    for resource <- resources, "#{resource["mime"]}#{resource["format"]}" =~ ~r/zip/i do
+      %{resource | "mime" => "application/zip", "format" => "zip"}
+    end
   end
 
   @doc """
   filter dataset with csv resources
 
   ## Examples
-      iex> [%{"mime" => "text/csv"}]
-      ...> |> ImportDataService.filter_csv()
-      [%{"mime" => "text/csv"}]
+      iex> [%{"mime" => "text/csv", "format" => nil}]
+      ...> |> ImportDataService.filter_csv
+      [%{"mime" => "text/csv", "format" => "csv"}]
 
-      iex> [%{"mime" => "text/cv"}]
-      ...> |> ImportDataService.filter_csv()
+      iex> [%{"mime" => nil, "format" => "csv"}]
+      ...> |> ImportDataService.filter_csv
+      [%{"mime" => "text/csv", "format" => "csv"}]
+
+      iex> [%{"mime" => nil, "format" => "CSV"}]
+      ...> |> ImportDataService.filter_csv
+      [%{"mime" => "text/csv", "format" => "csv"}]
+
+      iex> [%{"mime" => "text/cv", "format" => nil}]
+      ...> |> ImportDataService.filter_csv
       []
 
-      iex> [%{"mime" => "text/csv"}, %{"mime" => "application/neptune"}]
-      ...> |> ImportDataService.filter_csv()
-      [%{"mime" => "text/csv"}]
+      iex> [%{"mime" => "text/csv", "format" => nil}, %{"mime" => "application/neptune", "format" => nil}]
+      ...> |> ImportDataService.filter_csv
+      [%{"mime" => "text/csv", "format" => "csv"}]
 
   """
   def filter_csv(resources) do
-    Enum.filter(resources,
-      fn %{"mime" => mime} -> mime == "text/csv"
-         _ -> false end)
+    for resource <- resources, "#{resource["mime"]}#{resource["format"]}" =~ ~r/csv/i do
+      %{resource | "mime" => "text/csv", "format" => "csv"}
+    end
   end
 
   @doc """
