@@ -36,7 +36,7 @@ defmodule Transport.ImportDataService do
     else
       {:error, error} ->
         Logger.error("<message>  #{inspect error}")
-        Logger.error("<slug>     #{slug}\n")
+        Logger.error("<slug>     #{slug}")
         {:error, error}
     end
   end
@@ -46,15 +46,19 @@ defmodule Transport.ImportDataService do
   end
 
   def get_dataset(%{} = dataset) do
-    {:ok,
-     dataset
-     |> Map.take(["title", "description", "license", "slug"])
-     |> Map.put("datagouv_id", dataset["id"])
-     |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
-     |> Map.put("task_id", Map.get(dataset, "task_id"))
-     |> Map.put("download_uri", get_download_uri(dataset))
-     |> Map.put("format", "GTFS")
-    }
+    dataset =
+      dataset
+      |> Map.take(["title", "description", "license", "slug"])
+      |> Map.put("datagouv_id", dataset["id"])
+      |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
+      |> Map.put("task_id", Map.get(dataset, "task_id"))
+      |> Map.put("download_uri", get_download_uri(dataset))
+      |> Map.put("format", "GTFS")
+
+    case Map.get(dataset, "download_uri") do
+      nil -> {:error, "No download uri found"}
+      _ -> {:ok, dataset}
+    end
   end
 
   def get_dataset(_), do: {:error, "Dataset needs to be a map"}
