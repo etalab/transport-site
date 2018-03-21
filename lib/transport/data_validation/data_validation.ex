@@ -10,7 +10,11 @@ defmodule Transport.DataValidation do
     ListFeedSources,
     FindFeedVersion
   }
-  alias Transport.DataValidation.Commands.{CreateProject, CreateFeedSource, ValidateFeedSource}
+  alias Transport.DataValidation.Commands.{
+    CreateProject,
+    CreateFeedSource,
+    ValidateFeedSource
+  }
 
   @doc """
   Finds a project.
@@ -49,7 +53,7 @@ defmodule Transport.DataValidation do
   @doc """
   Finds a feed version.
   """
-  @spec find_feed_version(map()) :: {:ok, FeedSourceVersion.t} | {:error, any()}
+  @spec find_feed_version(map()) :: {:ok, FeedVersion.t} | {:error, any()}
   def find_feed_version(%{} = params) do
     params
     |> FindFeedVersion.new

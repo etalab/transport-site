@@ -61,7 +61,7 @@ defmodule Transport.DataValidation.Repository.FeedSourceRepository do
   end
 
   @doc """
-  List all feed source.
+  List all feed sources.
   """
   @spec execute(ListFeedSources.t) :: {:ok, any()} | {:error, any()}
   def execute(%ListFeedSources{project: %{id: project_id}}) do

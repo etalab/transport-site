@@ -15,7 +15,11 @@ defmodule Transport.DataValidation.Aggregates.Project do
     ListFeedSources,
     FindFeedVersion
   }
-  alias Transport.DataValidation.Commands.{CreateProject, CreateFeedSource, ValidateFeedSource}
+  alias Transport.DataValidation.Commands.{
+    CreateProject,
+    CreateFeedSource,
+    ValidateFeedSource
+  }
   alias Transport.DataValidation.Repository.{
     ProjectRepository,
     FeedSourceRepository,
@@ -52,14 +56,14 @@ defmodule Transport.DataValidation.Aggregates.Project do
     GenServer.call(pid, {:create_project, command})
   end
 
+  def execute(%ListFeedSources{} = query) do
+    {:ok, pid} = get_pid(query.project.name)
+    GenServer.call(pid, {:list_feed_sources, query})
+  end
+
   def execute(%FindFeedSource{} = query) do
     {:ok, pid} = get_pid(query.project.name)
     GenServer.call(pid, {:find_feed_source, query})
-  end
-
-  def execute(%FindFeedVersion{} = query) do
-    {:ok, pid} = get_pid(query.project.name)
-    GenServer.call(pid, {:find_feed_version, query})
   end
 
   def execute(%CreateFeedSource{} = command) do
@@ -72,9 +76,9 @@ defmodule Transport.DataValidation.Aggregates.Project do
     GenServer.call(pid, {:validate_feed_source, command})
   end
 
-  def execute(%ListFeedSources{} = query) do
+  def execute(%FindFeedVersion{} = query) do
     {:ok, pid} = get_pid(query.project.name)
-    GenServer.call(pid, {:list_feed_sources, query})
+    GenServer.call(pid, {:find_feed_version, query})
   end
 
   def handle_call({:find_project, query}, _from, %__MODULE__{id: nil} = project) do
@@ -122,8 +126,8 @@ defmodule Transport.DataValidation.Aggregates.Project do
     end
   end
 
-  def handle_call({:list_feed_sources, %ListFeedSources{} = command}, _from, %__MODULE__{} = project) do
-    case FeedSourceRepository.execute(command) do
+  def handle_call({:list_feed_sources, %ListFeedSources{} = query}, _from, %__MODULE__{} = project) do
+    case FeedSourceRepository.execute(query) do
       {:ok, feed_sources} -> {:reply, {:ok, feed_sources}, project}
       {:error, error} -> {:reply, {:error, error}, project}
     end

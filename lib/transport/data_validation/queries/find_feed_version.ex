@@ -4,9 +4,9 @@ defmodule Transport.DataValidation.Queries.FindFeedVersion do
 
   ## Examples
 
-      iex> %{project: %Project{id: "1"}, latest_version_id: "export-quotidien-au-format-gtfs-du-reseau-de-transport-lignes-d-azur-20180315T162637Z-16f8b757-1427-42d9-937f-a89633616334.zip"}
+      iex> %{project: %Project{id: "1"}, latest_version_id: "gtfs-a89633616334.zip"}
       ...> |> FindFeedVersion.new
-      %FindFeedVersion{project: %Project{id: "1"}, name: "export-quotidien-au-format-gtfs-du-reseau-de-transport-lignes-d-azur-20180315T162637Z-16f8b757-1427-42d9-937f-a89633616334.zip"}
+      %FindFeedVersion{project: %Project{id: "1"}, name: "gtfs-a89633616334.zip"}
 
   """
 

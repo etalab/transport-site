@@ -6,6 +6,7 @@ defmodule Mix.Tasks.Transport.ValidateData do
   use Mix.Task
   alias Transport.ReusableData.Dataset
   alias Transport.DataValidation
+  require Logger
 
   @pool DBConnection.Poolboy
 
@@ -23,7 +24,7 @@ defmodule Mix.Tasks.Transport.ValidateData do
       |> case do
         {:ok, feed_source} ->
           :ok = DataValidation.validate_feed_source(%{project: project, feed_source: feed_source})
-        {:error, error} -> IO.puts("Unable to create source feed: #{inspect(error)}")
+        {:error, error} -> Logger.error("Unable to create source feed: #{inspect(error)}")
       end
     end)
   end
