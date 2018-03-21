@@ -30,14 +30,6 @@ defmodule Transport.DataValidation.Aggregates.ProjectTest do
       query   = %FindProject{name: "transport"}
       assert {:reply, {:ok, ^project}, ^project} = Project.handle_call({:find_project, query}, nil, project)
     end
-
-    test "when the API is not available it returns an error" do
-      use_cassette "data_validation/find_project-error" do
-        project = %Project{}
-        query   = %FindProject{name: "transport"}
-        assert {:reply, {:error, "econnrefused"}, ^project} = Project.handle_call({:find_project, query}, nil, project)
-      end
-    end
   end
 
   describe "create a project" do
@@ -54,14 +46,6 @@ defmodule Transport.DataValidation.Aggregates.ProjectTest do
       project = %Project{id: "1"}
       command = %CreateProject{name: "transport"}
       assert {:reply, {:ok, ^project}, ^project} = Project.handle_call({:create_project, command}, nil, project)
-    end
-
-    test "when the API is not available it returns an error" do
-      use_cassette "data_validation/create_project-error" do
-        project = %Project{}
-        command = %CreateProject{name: "transport"}
-        assert {:reply, {:error, "econnrefused"}, ^project} = Project.handle_call({:create_project, command}, nil, project)
-      end
     end
   end
 
