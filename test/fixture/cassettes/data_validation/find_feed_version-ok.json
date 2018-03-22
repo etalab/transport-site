@@ -1,0 +1,29 @@
+[
+  {
+    "request": {
+      "body": "",
+      "headers": [],
+      "method": "get",
+      "options": [],
+      "request_body": "",
+      "url": "http://localhost:4000/api/manager/secure/feedversion/tisseo-20180314T171015Z-96ec3610-ee98-4dbe-990c-3bfeb95564aa.zip"
+    },
+    "response": {
+      "binary": false,
+      "body": "{\"id\":\"tisseo-20180314T171015Z-96ec3610-ee98-4dbe-990c-3bfeb95564aa.zip\",\"lastUpdated\":1521047415984,\"dateCreated\":1521047415984,\"retrievalMethod\":\"FETCHED_AUTOMATICALLY\",\"validationResult\":{\"fatalException\":null,\"errorCount\":77462,\"declaredStartDate\":null,\"declaredEndDate\":null,\"firstCalendarDate\":\"20180308\",\"lastCalendarDate\":\"20180327\",\"dailyBusSeconds\":[14774280,14810280,7974120,3342780,14770800,14782320,14716080,14779440,14815380,7970640,3342780,14770800,14782320,14716080,14779440,14815380,7970640,3342780,14770800,14782320],\"dailyTramSeconds\":[923280,942960,790140,511140,923280,923280,923280,923280,942960,790140,511140,909720,909720,909720,923280,942960,790140,511140,923280,923280],\"dailyMetroSeconds\":[3263880,3602400,2740920,1445700,3081600,3138480,3214260,3263880,3602400,2740920,1445700,3081600,3138480,3214260,3263880,3602400,2740920,1445700,3081600,3138480],\"dailyRailSeconds\":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],\"dailyTotalSeconds\":[18961440,19355640,11505180,5299620,18775680,18844080,18853620,18966600,19360740,11501700,5299620,18762120,18830520,18840060,18966600,19360740,11501700,5299620,18775680,18844080],\"dailyTripCounts\":[10938,11201,7273,3394,10811,10856,10865,10937,11200,7273,3394,10813,10858,10867,10937,11200,7273,3394,10811,10856],\"fullBounds\":{\"minLon\":1.16198,\"minLat\":43.3912,\"maxLon\":1.69044,\"maxLat\":43.7465},\"boundsWithoutOutliers\":{\"minLon\":0.0,\"minLat\":0.0,\"maxLon\":0.0,\"maxLat\":0.0},\"validationTime\":4852},\"feedLoadResult\":{\"uniqueIdentifier\":\"njgv_blmzbjxrgkbuiyiwlrzpcd\",\"errorCount\":965,\"fatalException\":null,\"agency\":{\"rowCount\":1,\"errorCount\":0,\"fatalException\":null},\"calendar\":{\"rowCount\":132,\"errorCount\":0,\"fatalException\":null},\"calendarDates\":{\"rowCount\":3,\"errorCount\":0,\"fatalException\":null},\"fareAttributes\":{\"rowCount\":0,\"errorCount\":0,\"fatalException\":null},\"fareRules\":{\"rowCount\":0,\"errorCount\":0,\"fatalException\":null},\"feedInfo\":{\"rowCount\":0,\"errorCount\":0,\"fatalException\":null},\"frequencies\":{\"rowCount\":0,\"errorCount\":0,\"fatalException\":null},\"routes\":{\"rowCount\":111,\"errorCount\":0,\"fatalException\":null},\"shapes\":{\"rowCount\":192527,\"errorCount\":0,\"fatalException\":null},\"stops\":{\"rowCount\":5977,\"errorCount\":965,\"fatalException\":null},\"stopTimes\":{\"rowCount\":552137,\"errorCount\":0,\"fatalException\":null},\"transfers\":{\"rowCount\":0,\"errorCount\":0,\"fatalException\":null},\"trips\":{\"rowCount\":23595,\"errorCount\":0,\"fatalException\":null}},\"updated\":1521047415984,\"version\":1,\"name\":\"03/14/2018 17:10 Version\",\"namespace\":\"njgv_blmzbjxrgkbuiyiwlrzpcd\",\"validationSummary\":{\"loadStatus\":\"SUCCESS\",\"loadFailureReason\":null,\"agencies\":null,\"errorCount\":77462,\"agencyCount\":1,\"routeCount\":111,\"tripCount\":23595,\"stopTimesCount\":552137,\"avgDailyRevenueTime\":0,\"startDate\":\"20180308\",\"endDate\":\"20180327\",\"bounds\":{\"north\":43.7465,\"south\":43.3912,\"east\":1.69044,\"west\":1.16198}},\"fileSize\":5790779,\"fileTimestamp\":0,\"noteCount\":0,\"feedSource\":{\"id\":\"96ec3610-ee98-4dbe-990c-3bfeb95564aa\",\"dateCreated\":1521047415546,\"projectId\":\"d9ccb3b8-161e-4ca1-a5de-fb525f4761df\",\"name\":\"tisseo\",\"isPublic\":false,\"deployable\":false,\"retrievalMethod\":\"MANUALLY_UPLOADED\",\"lastFetched\":1521047415984,\"url\":\"https://data.toulouse-metropole.fr/api/v2/catalog/datasets/tisseo-gtfs/files/bd1298f158bc39ed9065e0c17ebb773b\",\"s3Url\":null,\"snapshotVersion\":null,\"publishedVersionId\":null,\"lastUpdated\":1521047415984,\"organizationId\":null,\"latestVersionId\":\"tisseo-20180314T171015Z-96ec3610-ee98-4dbe-990c-3bfeb95564aa.zip\",\"latestValidation\":{\"loadStatus\":\"SUCCESS\",\"loadFailureReason\":null,\"agencies\":null,\"errorCount\":77462,\"agencyCount\":1,\"routeCount\":111,\"tripCount\":23595,\"stopTimesCount\":552137,\"avgDailyRevenueTime\":0,\"startDate\":\"20180308\",\"endDate\":\"20180327\",\"bounds\":{\"north\":43.7465,\"south\":43.3912,\"east\":1.69044,\"west\":1.16198}},\"externalProperties\":{},\"feedVersionCount\":1,\"noteCount\":0,\"user\":null},\"previousVersionId\":null,\"nextVersionId\":null,\"user\":\"no_auth@conveyal.com\"}",
+      "headers": {
+        "Date": "Wed, 21 Mar 2018 15:13:06 GMT",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,",
+        "Content-Type": "application/json",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked",
+        "Server": "Jetty(9.3.z-SNAPSHOT)"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]
