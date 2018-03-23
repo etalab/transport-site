@@ -7,7 +7,6 @@ defmodule Mix.Tasks.Transport.Reset do
 
   def run(_) do
     Mix.Task.run("app.start", [])
-    Mongo.delete_many(:mongo, "celery_taskmeta", %{}, pool: DBConnection.Poolboy)
     Mongo.delete_many(:mongo, "datasets", %{}, pool: DBConnection.Poolboy)
   end
 end

@@ -10,12 +10,12 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 
-#: lib/transport_web/templates/layout/_header.html.eex:17
+#: lib/transport_web/templates/layout/_header.html.eex:23
 #: lib/transport_web/templates/page/login.html.eex:57
 msgid "Sign In"
 msgstr "S'identifier"
 
-#: lib/transport_web/templates/layout/_header.html.eex:12
+#: lib/transport_web/templates/layout/_header.html.eex:18
 msgid "Sign Out"
 msgstr "Se déconnecter"
 

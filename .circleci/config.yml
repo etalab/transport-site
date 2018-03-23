@@ -7,7 +7,6 @@ jobs:
         environment:
           MIX_ENV: test
           MONGODB_URL: mongodb://localhost/transport_test
-          RABBITMQ_URL: amqp://guest:guest@localhost
           DATATOOLS_URL: http://localhost:4000
           DATAGOUVFR_SITE: https://www.data.gouv.fr
           MAILCHIMP_NEWSLETTER_URL: //gouv.us13.list-manage.com/subscribe/post?u=5ee8bfe0f1b073b49de06a063&amp;id=13db2e9a94
@@ -49,19 +48,11 @@ jobs:
             - client/node_modules
 
       - run:
-          name: Start message broker
-          command: /etc/init.d/rabbitmq-server start
-
-      - run:
           name: Start mongodb
           command: service mongodb start
       - run:
           name: Start webdriver
           command: /etc/init.d/phantomjs start
-
-      - run:
-          name: Start celery
-          command: /etc/init.d/celeryd start
 
       - run:
           name: Run tests
