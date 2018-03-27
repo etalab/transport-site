@@ -37,3 +37,7 @@ msgstr ""
 #: lib/transport_web/templates/page/index.html.eex:27
 msgid "Subscribe to our email newsletter to receive update"
 msgstr ""
+
+#: lib/transport_web/templates/page/index.html.eex:41
+msgid "SUBSCRIBE"
+msgstr ""
