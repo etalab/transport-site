@@ -37,3 +37,7 @@ msgstr "Adresse email"
 #: lib/transport_web/templates/page/index.html.eex:27
 msgid "Subscribe to our email newsletter to receive update"
 msgstr "Pour être informé des nouveautés, inscrivez-vous à notre newsletter :"
+
+#: lib/transport_web/templates/page/index.html.eex:41
+msgid "SUBSCRIBE"
+msgstr "INSCRIPTION"

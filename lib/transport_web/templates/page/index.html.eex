@@ -38,7 +38,7 @@
                   <input type="hidden" name="b_5ee8bfe0f1b073b49de06a063_13db2e9a94" tabindex="-1" value="">
               </div>
               <div class="mailing-list__button">
-                  <button type="submit" name="subscribe" id="mc-embedded-subscribe">INSCRIPTION</button>
+                  <button type="submit" name="subscribe" id="mc-embedded-subscribe"><%= dgettext("page-index", "SUBSCRIBE") %></button>
               </div>
             </div>
        </form>
