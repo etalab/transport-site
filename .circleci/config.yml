@@ -10,6 +10,9 @@ jobs:
           DATATOOLS_URL: http://localhost:4000
           DATAGOUVFR_SITE: https://www.data.gouv.fr
           MAILCHIMP_NEWSLETTER_URL: //gouv.us13.list-manage.com/subscribe/post?u=5ee8bfe0f1b073b49de06a063&amp;id=13db2e9a94
+      - image: mongo:3.7-jessie
+      - image: wernight/phantomjs
+        command: phantomjs --webdriver=8910
 
     steps:
       - checkout
@@ -46,13 +49,6 @@ jobs:
           key: node-{{ checksum "client/yarn.lock" }}
           paths:
             - client/node_modules
-
-      - run:
-          name: Start mongodb
-          command: service mongodb start
-      - run:
-          name: Start webdriver
-          command: /etc/init.d/phantomjs start
 
       - run:
           name: Run tests
