@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: betagouv/transport:0.0.8
+      - image: betagouv/transport:0.1.0
         environment:
           MIX_ENV: test
           MONGODB_URL: mongodb://localhost/transport_test
