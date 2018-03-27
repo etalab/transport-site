@@ -37,9 +37,7 @@ Now you can visit [`127.0.0.1:5000`](http://127.0.0.1:5000) from your browser.
 
 ### Docker
 
-  After having made your changes:
+  The Dockerfile needed to run the continuous integration is in the project:
+  https://github.com/etalab/transport-ops
 
-  * `docker build . -t username/transport:x.y.z`
-  * `docker push username/transport:x.y.z`
-
-  And then update `.circleci/config.yml`.
+  Update it if needed (e.g. updating Elixir’s version) and then update `.circleci/config.yml`.
