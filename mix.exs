@@ -21,6 +21,7 @@ defmodule Transport.Mixfile do
     [
       mod: {Transport.Application, []},
       extra_applications: [
+        :faker,
         :logger,
         :mime,
         :mongodb,
@@ -60,7 +61,8 @@ defmodule Transport.Mixfile do
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:exvcr, "~> 0.8", only: :test},
       {:hound, "~> 1.0", only: :test},
-      {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
+      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
+      {:faker, "~> 0.10", only: [:dev, :test], runtime: false}
     ]
   end
 end
