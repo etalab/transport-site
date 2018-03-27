@@ -33,7 +33,7 @@
 }, {
     "spatial": "Grenoble-Alpes Métropole",
     "coordinates": [5.7154, 45.1841],
-    "slug": "horaires-theoriques-du-reseau-de-transport-tag"
+    "slug": "horaires-theoriques-des-bus-et-tramways-tag"
 }, {
     "spatial": "Lorient Agglomération",
     "coordinates": [-3.3792, 47.7494],
@@ -50,7 +50,12 @@
     "spatial": "Métropole Nice-Côte-d'Azur",
     "coordinates": [7.2529, 43.7031],
     "slug": "export-quotidien-au-format-gtfs-du-reseau-de-transport-lignes-d-azur"
+}, {
+    "spatial": "Communauté urbaine du Grand Poitiers",
+    "coordinates": [0.3714, 46.5846],
+    "slug": "mobilite-arrets-services-et-horaires-theoriques-bus-fichier-gtfs"
+}, {
+    "spatial": "Communauté d'agglomération du Grand Montauban",
+    "coordinates": [1.3647, 44.0218],
+    "slug": "reseau-urbain-2017-2018-zip"
 }]
-
-
-
