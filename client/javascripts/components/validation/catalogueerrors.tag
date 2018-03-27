@@ -49,7 +49,7 @@
             this.selected_category = null
             this.categories = []
             this.catalogue_client = new GraphQLClient(
-                'http://catalogue.transport.data.gouv.fr/api/manager/graphql',
+                'https://catalogue.transport.data.gouv.fr/api/manager/graphql',
                 {
                     credential: 'credentials',
                     mode: 'cors'
@@ -120,7 +120,7 @@
                             entity_id
                             line_number
                             bad_value
-                            entity_sequence 
+                            entity_sequence
                         }
                     }
                 }
