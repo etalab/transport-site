@@ -44,6 +44,7 @@ defmodule Transport.Mixfile do
       {:csv, "~> 2.0.0"},
       {:earmark, "~> 1.2"},
       {:exconstructor, "~> 1.1"},
+      {:faker, "~> 0.10"},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 0.13"},
       {:ja_serializer, "~> 0.12"},
@@ -61,8 +62,7 @@ defmodule Transport.Mixfile do
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:exvcr, "~> 0.8", only: :test},
       {:hound, "~> 1.0", only: :test},
-      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
-      {:faker, "~> 0.10", only: [:dev, :test], runtime: false}
+      {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
     ]
   end
 end
