@@ -16,8 +16,10 @@ defmodule Transport.DataValidation.Repository.FeedVersionRepository do
   """
   @spec execute(FindFeedVersion.t) :: {:ok, FeedVersion.t} | {:ok, nil} | {:error, any()}
   def execute(
-        %FindFeedVersion{project: %{id: project_id},
-        latest_version_id: latest_version_id}
+        %FindFeedVersion{
+          project: %{id: project_id},
+          latest_version_id: latest_version_id
+        }
       )
       when is_binary(project_id) and is_binary(latest_version_id) do
     with {:ok, %@res{status_code: 200, body: body}} <- @client.get(@endpoint <> "/#{latest_version_id}"),
