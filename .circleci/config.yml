@@ -169,9 +169,15 @@ jobs:
       - image: betagouv/transport:0.1.0
         environment:
           MIX_ENV: test
+      - image: mongo:3.7-jessie
+      - image: postgres:10.3
+        environment:
+          POSTGRES_DB: catalogue
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
       - image: wernight/phantomjs
         command: phantomjs --webdriver=8910
-      - image: mongo:3.7-jessie
+      - image: betagouv/datatools:fix_graphql_spec
 
     working_directory: ~/transport
 

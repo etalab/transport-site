@@ -41,22 +41,22 @@ defmodule Transport.DataValidation do
   end
 
   @doc """
+  Lists feed sources.
+  """
+  @spec list_feed_sources(map()) :: {:ok, [FeedSource.t]} | {:error, any()}
+  def list_feed_sources(%{} = params) do
+    params
+    |> ListFeedSources.new
+    |> Project.execute
+  end
+
+  @doc """
   Finds a feed source.
   """
   @spec find_feed_source(map()) :: {:ok, FeedSource.t} | {:error, any()}
   def find_feed_source(%{} = params) do
     params
     |> FindFeedSource.new
-    |> Project.execute
-  end
-
-  @doc """
-  Finds a feed version.
-  """
-  @spec find_feed_version(map()) :: {:ok, FeedVersion.t} | {:error, any()}
-  def find_feed_version(%{} = params) do
-    params
-    |> FindFeedVersion.new
     |> Project.execute
   end
 
@@ -89,12 +89,12 @@ defmodule Transport.DataValidation do
   end
 
   @doc """
-  Lists the feed sources.
+  Finds a feed version.
   """
-  @spec list_feed_sources(map()) :: {:ok, [FeedSource.t]} | {:error, any()}
-  def list_feed_sources(%{} = params) do
+  @spec find_feed_version(map()) :: {:ok, FeedVersion.t} | {:error, any()}
+  def find_feed_version(%{} = params) do
     params
-    |> ListFeedSources.new
+    |> FindFeedVersion.new
     |> Project.execute
   end
 end
