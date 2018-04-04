@@ -13,7 +13,7 @@
                 <span>{ new Date(comment.posted_on).toLocaleString() }</span>
             </div>
             <div class="discussion-comment__content">
-                { comment.content }
+                <markdown content="{ comment.content }"></markdown>
             </div>
         </div>
 

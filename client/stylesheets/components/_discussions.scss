@@ -30,4 +30,18 @@ discussions {
   .discussion__post {
     padding-top: 2em;
   }
+
+  .discussion-comment__content {
+    p {
+      padding: 0;
+      margin-top: 0.4em;
+      margin-bottom: 0.4em;
+      margin-left: 1em;
+    }
+
+    li {
+      margin-left: 1em;
+      list-style: circle inside;
+    }
+  }
 }
