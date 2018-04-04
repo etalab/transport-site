@@ -10,7 +10,7 @@
                     { comment.posted_by.first_name } { comment.posted_by.last_name }
                 </a>
                 <span> { opts.posted_on } </span>
-                <span>{ new Date(comment.posted_on).toLocaleString() }</span>
+                <span>{ new Date(comment.posted_on).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }) }</span>
             </div>
             <div class="discussion-comment__content">
                 <markdown content="{ comment.content }"></markdown>
