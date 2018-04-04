@@ -334,7 +334,6 @@ workflows:
             - test_unit
             - test_integration
             - test_solution
-            - test_external
           filters:
             branches:
               only: master
