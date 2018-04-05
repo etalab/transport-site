@@ -18,6 +18,7 @@ defmodule Mix.Tasks.Transport.ValidateData do
     :mongo
     |> Mongo.find("datasets", %{}, pool: @pool)
     |> Enum.map(&Dataset.new/1)
+    |> Enum.filter(&(is_nil(&1.download_uri)))
     |> Enum.each(fn(dataset) ->
       %{project: project, name: dataset.slug, url: dataset.download_uri}
       |> DataValidation.create_feed_source
