@@ -284,6 +284,7 @@ jobs:
 
       - deploy:
           name: Deploy master to Heroku
+          command: |
             git push heroku master
             heroku restart
 
