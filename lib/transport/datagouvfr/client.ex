@@ -70,6 +70,7 @@ defmodule Transport.Datagouvfr.Client do
     case response do
       {:ok, %OAuth2.Response{status_code: 200, body: body}} -> {:ok, body}
       {:ok, %OAuth2.Response{status_code: 201, body: body}} -> {:ok, body}
+      {:error, %OAuth2.Response{status_code: 400, body: body}} -> {:bad_request, body}
       {:ok, %OAuth2.Response{status_code: _, body: body}} -> {:error, body}
       {:error, error} -> {:error, error}
     end

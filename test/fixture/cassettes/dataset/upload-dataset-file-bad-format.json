@@ -1,0 +1,30 @@
+[
+  {
+    "request": {
+      "body": "{:multipart, [{:file, \"test/fixture/files/unknow_file_format\", {\"form-data\", [{\"name\", \"\\\"file\\\"\"}, {\"filename\", \"\\\"francis_lalanne.wave\\\"\"}]}, []}]}",
+      "headers": {
+        "accept": "multipart/form-data",
+        "content-type": "multipart/form-data"
+      },
+      "method": "post",
+      "options": {
+        "timeout": 15000
+      },
+      "request_body": "",
+      "url": "https://next.data.gouv.fr/api/1/datasets/5a0b1b240b5b39318769c3b1/upload/"
+    },
+    "response": {
+      "binary": false,
+      "body": "{\"message\": \"Bad file extension\"}",
+      "headers": {
+        "Server": "nginx",
+        "Date": "Thu, 22 Mar 2018 10:17:21 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "276",
+        "Connection": "keep-alive"
+      },
+      "status_code": 400,
+      "type": "ok"
+    }
+  }
+]
