@@ -18,14 +18,17 @@ defmodule Mix.Tasks.Transport.ValidateData do
     :mongo
     |> Mongo.find("datasets", %{}, pool: @pool)
     |> Enum.map(&Dataset.new/1)
-    |> Enum.filter(&(is_nil(&1.download_uri)))
     |> Enum.each(fn(dataset) ->
       %{project: project, name: dataset.slug, url: dataset.download_uri}
       |> DataValidation.create_feed_source
       |> case do
         {:ok, feed_source} ->
           :ok = DataValidation.validate_feed_source(%{project: project, feed_source: feed_source})
-        {:error, error} -> Logger.error("Unable to create source feed: #{inspect(error)}")
+          Logger.info(" <message>  Validating dataset")
+          Logger.info(" <slug>     #{dataset.slug}")
+        {:error, error} ->
+          Logger.error("<message>  Unable to create feed source: #{inspect(error)}")
+          Logger.error("<slug>     #{dataset.slug}")
       end
     end)
   end

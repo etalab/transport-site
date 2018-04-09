@@ -58,4 +58,8 @@
     "spatial": "Communauté d'agglomération du Grand Montauban",
     "coordinates": [1.3647, 44.0218],
     "slug": "reseau-urbain-2017-2018-zip"
+}, {
+    "spatial": "Nantes Métropole",
+    "coordinates": [-1.5603, 47.2383],
+    "slug": "arrets-horaires-et-circuits-tan-2017-2018-2"
 }]
