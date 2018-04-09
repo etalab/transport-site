@@ -62,4 +62,8 @@
     "spatial": "Nantes Métropole",
     "coordinates": [-1.5603, 47.2383],
     "slug": "arrets-horaires-et-circuits-tan-2017-2018-2"
+}, {
+    "spatial": "Saint-Brieuc Armor Agglomération",
+    "coordinates": [-2.7657, 48.5109],
+    "slug": "gtfs-du-reseau-de-transports-publics-de-saint-brieuc-armor-agglomeration"
 }]
