@@ -52,10 +52,10 @@ defmodule Transport.ImportDataService do
       |> Map.put("datagouv_id", dataset["id"])
       |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
       |> Map.put("task_id", Map.get(dataset, "task_id"))
-      |> Map.put("download_uri", get_download_uri(dataset))
+      |> Map.put("download_url", get_download_url(dataset))
       |> Map.put("format", "GTFS")
 
-    case Map.get(dataset, "download_uri") do
+    case Map.get(dataset, "download_url") do
       nil -> {:error, "No download uri found"}
       _ -> {:ok, dataset}
     end
@@ -63,7 +63,7 @@ defmodule Transport.ImportDataService do
 
   def get_dataset(_), do: {:error, "Dataset needs to be a map"}
 
-  def get_download_uri(%{"resources" => resources}) do
+  def get_download_url(%{"resources" => resources}) do
     cond do
       (l = get_url(resources, &filter_gtfs/1)) != nil -> l
       (l = get_url(resources, &filter_zip/1)) != nil -> l
@@ -331,11 +331,11 @@ defmodule Transport.ImportDataService do
 
   ## Examples
 
-      iex> %{"license" => "bliblablou", "download_uri" => nil}
+      iex> %{"license" => "bliblablou", "download_url" => nil}
       ...> |> ImportDataService.get_anomalies()
-      ["bad_license", "no_download_uri"]
+      ["bad_license", "no_download_url"]
 
-      iex> %{"license" => "odc-odbl", "download_uri" => "http"}
+      iex> %{"license" => "odc-odbl", "download_url" => "http"}
       ...> |> ImportDataService.get_anomalies()
       []
 
@@ -349,10 +349,10 @@ defmodule Transport.ImportDataService do
     else
       MapSet.put(anomalies, "bad_license")
     end
-    anomalies = if check_download_uri(dataset) do
-      MapSet.delete(anomalies, "no_download_uri")
+    anomalies = if check_download_url(dataset) do
+      MapSet.delete(anomalies, "no_download_url")
     else
-      MapSet.put(anomalies, "no_download_uri")
+      MapSet.put(anomalies, "no_download_url")
     end
     MapSet.to_list(anomalies)
   end
@@ -378,17 +378,17 @@ defmodule Transport.ImportDataService do
   def check_license(_), do: false
 
   @doc """
-  Check for download uri, returns ["no_download_uri"] if there's no download_uri
+  Check for download uri, returns ["no_download_url"] if there's no download_url
 
   ## Examples
 
-      iex> ImportDataService.check_download_uri(%{"download_uri" => nil})
+      iex> ImportDataService.check_download_url(%{"download_url" => nil})
       false
 
-      iex> ImportDataService.check_download_uri(%{"download_uri" => "http"})
+      iex> ImportDataService.check_download_url(%{"download_url" => "http"})
       true
 
   """
-  def check_download_uri(%{"download_uri" => nil}), do: false
-  def check_download_uri(%{"download_uri" => _}), do: true
+  def check_download_url(%{"download_url" => nil}), do: false
+  def check_download_url(%{"download_url" => _}), do: true
 end
