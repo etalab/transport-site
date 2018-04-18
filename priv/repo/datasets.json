@@ -66,7 +66,7 @@
     "spatial": "Saint-Brieuc Armor Agglomération",
     "coordinates": [-2.7657, 48.5109],
     "slug": "gtfs-du-reseau-de-transports-publics-de-saint-brieuc-armor-agglomeration"
-}]
+}, {
     "spatial": "Le Mans Métropole",
     "coordinates": [0.1957, 47.9820],
     "slug": "gtfs-du-reseau-des-transports-bus-et-tramway-setram-circulant-sur-le-territoire-le-mans-metropole"
