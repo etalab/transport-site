@@ -7,7 +7,7 @@
     <div class="dataset-details__side-pane side-pane">
       <div>
         <%= img_tag(@dataset.logo, alt: @dataset.title) %>
-        <%= if @dataset.download_uri do %>
+        <%= if @dataset.download_url do %>
           <div class="shortlist__link shortlist__link--external-link">
             <i class="icon icon--link" aria-hidden="true"></i>
             <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
@@ -16,11 +16,11 @@
           </div>
         <% end %>
 
-        <%= if @dataset.download_uri do %>
+        <%= if @dataset.download_url do %>
           <div class="shortlist__link shortlist__link--download">
             <i class="icon icon--download" aria-hidden="true"></i>
             <%= link(dgettext("page-shortlist", "Download"),
-                     to: @dataset.download_uri,
+                     to: @dataset.download_url,
                      role: "link") %>
           </div>
         <% end %>
