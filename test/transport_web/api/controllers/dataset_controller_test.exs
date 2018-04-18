@@ -8,7 +8,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
       title: "Leningrad metro dataset",
       anomalies: [],
       coordinates: [-0.5630548425091684,47.47654241641714],
-      download_uri: "link.to",
+      download_url: "link.to",
       license: "odc-odbl",
       slug: "leningrad-metro-dataset",
       validations: %{"errors": [], "warnings": [], "notices": []},
