@@ -70,4 +70,11 @@
     "spatial": "Le Mans Métropole",
     "coordinates": [0.1957, 47.9820],
     "slug": "gtfs-du-reseau-des-transports-bus-et-tramway-setram-circulant-sur-le-territoire-le-mans-metropole"
+}, {
+    "spatial": "Fougères Agglomération",
+    "coordinates": [-1.1953, 48.3512],
+    "slug": "donnees-sur-le-reseau-de-bus-surf-service-urbain-de-la-region-fougeraise"
 }]
+
+
+
