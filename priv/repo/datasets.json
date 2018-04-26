@@ -74,6 +74,10 @@
     "spatial": "Fougères Agglomération",
     "coordinates": [-1.1953, 48.3512],
     "slug": "donnees-sur-le-reseau-de-bus-surf-service-urbain-de-la-region-fougeraise"
+}, {
+    "spatial": "Eurométropole de Strasbourg",
+    "coordinates": [7.7621, 48.5691],
+    "slug": "gtfs-strasbourg"
 }]
 
 
