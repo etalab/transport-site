@@ -17,7 +17,7 @@
 }, {
     "spatial": "M\u00e9tropole europ\u00e9enne de Lille",
     "coordinates": [3.05644, 50.631564],
-    "slug": "localisation-des-arrets-de-bus-metro-et-tram-gtfs-pictogrammes-du-reseau-transpole"
+    "slug": "localisation-des-arrets-transpole-bus-metro-et-tram-gtfs-pictogrammes-du-reseau-transpole"
 }, {
     "spatial": "Métropole du Grand Nancy",
     "coordinates": [6.182711, 48.692365],
@@ -33,7 +33,7 @@
 }, {
     "spatial": "Grenoble-Alpes Métropole",
     "coordinates": [5.7154, 45.1841],
-    "slug": "horaires-theoriques-des-bus-et-tramways-tag"
+    "slug": "horaires-theoriques-du-reseau-de-transport-tag-1"
 }, {
     "spatial": "Lorient Agglomération",
     "coordinates": [-3.3792, 47.7494],
