@@ -78,7 +78,9 @@
     "spatial": "Eurométropole de Strasbourg",
     "coordinates": [7.7621, 48.5691],
     "slug": "gtfs-strasbourg"
+},{
+    "spatial": "Grand Avignon",
+    "coordiantes": [4.8065, 43.9497],
+    "slug": "gtfs-des-transports-urbains-du-grand-avignon-tcra"
 }]
-
-
 
