@@ -11,10 +11,11 @@ defmodule Transport.DataValidation.Aggregates.Dataset do
   alias Transport.DataValidation.Aggregates.Dataset
   alias Transport.DataValidation.Queries.FindDataset
   alias Transport.DataValidation.Commands.{CreateDataset, ValidateDataset}
+  alias Transport.DataValidation.Events.{DatasetCreated, DatasetValidated}
   alias Transport.DataValidation.Repo.Dataset, as: Repo
 
   @registry :dataset_registry
-  @timeout 50_000
+  @timeout 60_000
 
   @type t :: %__MODULE__{
           uuid: String.t(),
@@ -30,10 +31,6 @@ defmodule Transport.DataValidation.Aggregates.Dataset do
     )
   end
 
-  def init(%__MODULE__{} = dataset) do
-    {:ok, dataset}
-  end
-
   def execute(%FindDataset{} = query) do
     query.download_url
     |> registry_lookup
@@ -43,13 +40,17 @@ defmodule Transport.DataValidation.Aggregates.Dataset do
   def execute(%CreateDataset{} = command) do
     command.download_url
     |> registry_lookup
-    |> GenServer.call({:create_dataset, command}, @timeout)
+    |> GenServer.call({:dataset_created, DatasetCreated.new(command)}, @timeout)
   end
 
   def execute(%ValidateDataset{} = command) do
     command.download_url
     |> registry_lookup
-    |> GenServer.call({:validate_dataset, command}, @timeout)
+    |> GenServer.call({:dataset_validated, DatasetValidated.new(command)}, @timeout)
+  end
+
+  def init(%__MODULE__{} = dataset) do
+    {:ok, dataset}
   end
 
   def handle_call(
@@ -57,7 +58,7 @@ defmodule Transport.DataValidation.Aggregates.Dataset do
         _from,
         %__MODULE__{uuid: nil} = dataset
       ) do
-    case Repo.execute(query) do
+    case Repo.read(query) do
       {:ok, dataset} -> {:reply, {:ok, dataset}, dataset}
       {:error, error} -> {:reply, {:error, error}, dataset}
     end
@@ -68,26 +69,26 @@ defmodule Transport.DataValidation.Aggregates.Dataset do
   end
 
   def handle_call(
-        {:create_dataset, %CreateDataset{} = command},
+        {:dataset_created, %DatasetCreated{} = event},
         _from,
         %__MODULE__{uuid: nil} = dataset
       ) do
-    case Repo.execute(command) do
+    case Repo.project(event) do
       {:ok, dataset} -> {:reply, {:ok, dataset}, dataset}
       {:error, error} -> {:reply, {:error, error}, dataset}
     end
   end
 
-  def handle_call({:create_dataset, %CreateDataset{}}, _from, %__MODULE__{} = dataset) do
+  def handle_call({:dataset_created, %DatasetCreated{}}, _from, %__MODULE__{} = dataset) do
     {:reply, {:ok, dataset}, dataset}
   end
 
   def handle_call(
-        {:validate_dataset, %ValidateDataset{} = command},
+        {:dataset_validated, %DatasetValidated{} = event},
         _from,
         %__MODULE__{} = dataset
       ) do
-    case Repo.execute(command) do
+    case Repo.project(event) do
       {:ok, validations} ->
         {:reply, {:ok, validations}, %Dataset{dataset | validations: validations}}
 
