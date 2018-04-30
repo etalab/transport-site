@@ -1,5 +1,5 @@
 defmodule Transport.DataValidationTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   use TransportWeb.DatabaseCase, cleanup: ["datasets"]
   alias Transport.DataValidation
 
@@ -7,7 +7,9 @@ defmodule Transport.DataValidationTest do
   doctest DataValidation
 
   setup do
-    {:ok, download_url: "https://applications002.brest-metropole.fr/VIPDU72/GPB/Lot_BrestMetropole_Bibus.zip"}
+    {:ok,
+     download_url:
+       "https://applications002.brest-metropole.fr/VIPDU72/GPB/Lot_BrestMetropole_Bibus.zip"}
   end
 
   test "validates a dataset", attrs do
