@@ -3,12 +3,10 @@ defmodule Transport.DataValidation.Repo.Dataset do
   A repository to validate datasets.
   """
 
-  @behaviour Transport.DataValidation.Repo
-
-  alias Transport.DataValidation.Aggregates.Dataset
+  alias BSON.ObjectId
+  alias Transport.DataValidation.Aggregates.{Dataset, Dataset.Validation}
   alias Transport.DataValidation.Queries.FindDataset
-  alias Transport.DataValidation.Commands.CreateDataset
-  alias Transport.DataValidation.Commands.ValidateDataset
+  alias Transport.DataValidation.Events.{DatasetCreated, DatasetValidated}
 
   # mongodb
   @pool DBConnection.Poolboy
@@ -18,13 +16,13 @@ defmodule Transport.DataValidation.Repo.Dataset do
   @client HTTPoison
   @res HTTPoison.Response
   @err HTTPoison.Error
-  @timeout 50_000
+  @timeout 60_000
 
   @doc """
   Finds a dataset.
   """
-  @spec execute(FindDataset.t()) :: {:ok, nil} | {:ok, Dataset.t()} | {:error, any}
-  def execute(%FindDataset{} = query) do
+  @spec read(FindDataset.t()) :: {:ok, nil} | {:ok, Dataset.t()} | {:error, any}
+  def read(%FindDataset{} = query) do
     :mongo
     |> Mongo.find_one("datasets", Map.from_struct(query), pool: @pool)
     |> case do
@@ -38,7 +36,7 @@ defmodule Transport.DataValidation.Repo.Dataset do
         uuid =
           result
           |> Map.get("_id")
-          |> BSON.ObjectId.encode!()
+          |> ObjectId.encode!()
 
         dataset =
           result
@@ -52,33 +50,42 @@ defmodule Transport.DataValidation.Repo.Dataset do
   @doc """
   Creates a dataset.
   """
-  @spec execute(CreateDataset.t()) :: {:ok, Dataset.t()} | {:error, any}
-  def execute(%CreateDataset{} = command) do
+  @spec project(DatasetCreated.t()) :: {:ok, Dataset.t()} | {:error, any}
+  def project(%DatasetCreated{} = event) do
     :mongo
-    |> Mongo.insert_one("datasets", Map.from_struct(command), pool: @pool)
+    |> Mongo.insert_one("datasets", Map.from_struct(event), pool: @pool)
     |> case do
       {:error, error} ->
         {:error, error}
 
       {:ok, _} ->
-        command
+        event
         |> FindDataset.new()
-        |> execute
+        |> read
     end
   end
 
   @doc """
   Validates a dataset by url.
   """
-  @spec execute(ValidateDataset.t()) :: {:ok, [Dataset.Validation.t()]} | {:error, any()}
-  def execute(%ValidateDataset{download_url: url}) when is_binary(url) do
+  @spec project(DatasetValidated.t()) :: {:ok, [Validation.t()]} | {:error, any()}
+  def project(%DatasetValidated{download_url: url}) when is_binary(url) do
     with {:ok, %@res{status_code: 200, body: body}} <-
            @client.get(@endpoint <> "?url=#{url}", [], timeout: @timeout, recv_timeout: @timeout),
-         {:ok, validations} <- Poison.decode(body, as: [%Dataset.Validation{}]) do
+         {:ok, validations} <- Poison.decode(body, as: [%Validation{}]) do
       {:ok, validations}
     else
-      {:error, %@err{reason: error}} -> {:error, error}
-      {:error, error} -> {:error, error}
+      {:ok, %@res{status_code: 500, body: body}} ->
+        {:error,
+         body
+         |> Poison.decode!()
+         |> Map.get("error")}
+
+      {:error, %@err{reason: error}} ->
+        {:error, error}
+
+      {:error, error} ->
+        {:error, error}
     end
   end
 end
