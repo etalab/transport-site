@@ -82,5 +82,13 @@
     "spatial": "Grand Avignon",
     "coordinates": [4.8065, 43.9497],
     "slug": "gtfs-des-transports-urbains-du-grand-avignon-tcra"
+},{
+    "spatial": "Communauté d'Agglomération de La Rochelle",
+    "coordinates": [-1.1765, 46.1620],
+    "slug": "arrets-horaires-et-parcours-theoriques-du-reseau-yelo-de-la-rochelle-lignes-transdev-gtfs"
+},{
+    "spatial": "Communauté d'Agglomération de La Rochelle",
+    "coordinates": [-1.1765, 46.1620],
+    "slug": "arrets-horaires-et-parcours-theoriques-du-reseau-yelo-de-la-rochelle-lignes-rtcr-gtfs"
 }]
 
