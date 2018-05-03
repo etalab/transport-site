@@ -4,7 +4,13 @@
         <div class="hero__title">
             <div class="container">
                 <h1><%= dgettext("page-index", "What is transport.data.gouv.fr?") %></h1>
-                <markdown content='<%= dgettext("page-index", "The single entry point for publication and reuse of public transport data, allowing to make people lives better.") %>'></markdown>
+                <p>L’ouverture des données transport est une opportunité pour garantir une information voyageur fiable sur l’ensemble du territoire national.<br/>
+
+La plateforme transport.data.gouv.fr constitue le Point d’Accès National français et vise à référencer l’ensemble des données transports.<br/>
+Elle améliore significativement les liens entre producteurs et réutilisateurs de données, et fournit l’ensemble des outils et informations nécessaires à leur mise en qualité, leur interopérabilité et leur réutilisation.</p>
+
+
+                </p>
             </div>
         </div>
     </div>
@@ -26,39 +32,60 @@
         </div>
     </div>
 </section-->
-<section>
+<section class="flex">
     <div class="container">
-        <h2>Pas cher</h2>
-        <p>Blahblahblah</p>
-        <ul>
-            <li>Valoriser votre offre par ville</li>
-            <li>0,0€</li>
-            <li>Sécurité juridique</li>
-            <li>Respect de la loi</li>
-        </ul>
+        <h2>Autorités organisatrices de mobilité (AOM)</h2>
+        <h3>De nouveaux services de mobilité connectés pour vos citoyens</h3>
+        <p>
+        En ouvrant vos données, vous avez l’opportunité de diffuser l’ensemble de l’offre de transport de votre territoire pour améliorer l’information voyageur multimodale dont bénéficient les citoyens.<br/>
+        Ce Point d’Accès National vous garantit une mise en conformité avec les règlementations en vigueur et à venir, de manière pérenne, opérationnelle et gratuite.<br/>
+        La licence harmonisée et les conditions d’utilisation de la plateforme écrites à l’issue d’une concertation équilibrée vous assurent une sécurité juridique totale.
+        </p>
+    </div>
+    <div class="container">
+    <a class="button button--fullwidth hero__link" href="<%= static_path(@conn, "/documents/20180320_TransportDataGouv.pdf") %>" role="link">
+    <i class="icon icon--file" aria-hidden="true"></i>
+    <%= dgettext("page-index", "Download presentation") %>
+    </a>
+    <div>
+</section>
+<section class="flex section-grey">
+    <div class="container">
+        <h2>Des outils à votre disposition pour publier vos données en quelques clics</h2>
+        <h3>Publiez en quelques clics</h3>
+        <p>Si votre territoire possède déjà une plateforme de données locale, continuez à l’utiliser : le Point d’Accès National la <em>moissonnera</em> pour référencer vos données transport. Sinon, déposez les directement sur la <a href="https://data.gouv.fr">plateforme nationale</a>.<br/>
+        Dans un premier temps, nous recueillons les données théoriques au format GTFS ou NeTEx et les convertirons au besoin.<br/>
+        Une série d’outils seront mis à votre disposition et la communauté des producteurs et des réutilisateurs vous accompagnera dans la mise en qualité de vos jeux de données pour assurer une information voyageur fiable.</p>
+    </div>
+    <div class="container">
+    <!--<p>
+     <a class="button button--fullwidth hero__link hero__link--book" href="<%= static_path(@conn, "/documents/guide_publication.pdf") %>" role="link">
+        <i class="icon icon--book" aria-hidden="true"></i>
+        <%= dgettext("page-index", "Publication guide") %>
+    </a>
+    </p>-->
+    <p>
+    <a class="button button--fullwidth hero__link hero__link--open" href="https://www.data.gouv.fr/fr/admin/dataset/new/" role="link">
+        <i class="icon icon--open" aria-hidden="true"></i>
+        <%= dgettext("page-index", "Publish my data") %>
+    </a>
+    </p>
     </div>
 </section>
-<section class="section-grey">
+<section class="flex">
     <div class="container">
-        <h2>Pas chiant</h2>
-        <p>Blahblahblah</p>
-        <ul>
-            <li>GTFS</li>
-            <li>Come as you are</li>
-            <li>ODBL</li>
-            <li>Outillage</li>
-            <li>Un truc que j'arrive pas à lire</li>
-        </ul>
+        <h2>Ré-utilisateurs des données</h2>
+        <h3>Un point d’accès unique pour toutes les données de France</h3>
+        <p>En rendant disponible l’ensemble des données transport, nous en facilitons la réutilisation pour accélérer le déploiement de vos services de mobilité et améliorer l’information voyageur.<br/>
+        Les données sont proposées dans une licence et un format homogènes réduisant ainsi les barrières à leur exploitation.</br>
+        Pour chaque jeu de données, un interlocuteur est identifié pour vous permettre de communiquer directement avec chaque territoire. </p>
     </div>
-</section>
-<section>
     <div class="container">
-        <h2>Business ready</h2>
-        <p>Blahblahblah</p>
-        <ul>
-            <li>Sécu ODBL</li>
-            <li>Point de contact</li>
-        </ul>
+    <a class="button button--fullwidth hero__link hero__link--reuse" href="<%= dataset_path @conn, :index %>" role="link">
+        <i class="icon icon--reuse" aria-hidden="true"></i>
+        <%= dgettext("page-index", "Reuse data") %>
+    </a>
+
     </div>
 </section>
 <section class="section-grey mailing-list">

@@ -10,15 +10,13 @@
 msgid ""
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:19
+#: lib/transport_web/templates/page/index.html.eex:25
+#: lib/transport_web/templates/page/index.html.eex:70
 msgid "Publish my data"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:7
-msgid "The single entry point for publication and reuse of public transport data, allowing to make people lives better."
-msgstr ""
-
-#: lib/transport_web/templates/page/index.html.eex:23
+#: lib/transport_web/templates/page/index.html.eex:29
+#: lib/transport_web/templates/page/index.html.eex:86
 msgid "Reuse data"
 msgstr ""
 
@@ -26,18 +24,26 @@ msgstr ""
 msgid "What is transport.data.gouv.fr?"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:70
+#: lib/transport_web/templates/page/index.html.eex:97
 msgid "Email address"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:69
+#: lib/transport_web/templates/page/index.html.eex:96
 msgid "Subscribe to our email newsletter to receive update"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:79
+#: lib/transport_web/templates/page/index.html.eex:106
 msgid "SUBSCRIBE"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:86
+#: lib/transport_web/templates/page/index.html.eex:113
 msgid "Join us on Slack"
+msgstr ""
+
+#: lib/transport_web/templates/page/index.html.eex:64
+msgid "Publication guide"
+msgstr ""
+
+#: lib/transport_web/templates/page/index.html.eex:48
+msgid "Download presentation"
 msgstr ""

@@ -270,8 +270,6 @@ a.button.secondary {
 
 .container {
   position: relative;
-  width: 100%;
-  max-width: 1000px;
   margin: 0 auto;
   padding: 0 20px;
   -webkit-box-sizing: border-box;
@@ -292,6 +290,16 @@ a.button.secondary {
 @media (min-width: 550px) {
   .container {
     width: 80%;
+    max-width: 1000px;
+  }
+
+  .flex .container {
+    width: 40%;
+  }
+
+  .flex {
+    padding-left: 12em;
+    padding-right: 12em;
   }
 }
 
@@ -688,6 +696,11 @@ section {
   padding: 5em 0;
   background-color: #fff;
   color: #1c1c1c;
+  padding: 48px 16px 48px 16px;
+
+  h1 {
+    text-align: center;
+  }
 }
 
 .section-grey {
@@ -1337,3 +1350,26 @@ article {
   margin-left: 1em;
 }
 
+.flex {
+  display: flex;
+  justify-content: center;
+  flex-flow: row wrap;
+  align-items: center;
+
+  .container {
+    padding: 2em;
+  }
+
+  :first-child {
+    flex-grow: 2;
+  }
+}
+
+.container .hero__link {
+  width: 80%;
+}
+
+.dataset-container {
+  margin: calc(1vw + 1em) calc(8vw + 1em);
+  max-width: 1300px;
+}
