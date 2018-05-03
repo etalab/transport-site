@@ -6,6 +6,8 @@
 
 // Base styles: styles to be applied globally.
 @import 'base/**/*';
+@import 'template.scss';
+
 
 // Layouts: header, main, footer, ...
 @import 'layouts/**/*';
