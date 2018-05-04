@@ -13,9 +13,10 @@ defmodule Transport.DataValidationTest do
   end
 
   test "validates a dataset", attrs do
-    {:ok, dataset} = DataValidation.create_dataset(attrs)
-    {:ok, ^dataset} = DataValidation.find_dataset(attrs)
-    {:ok, [%{issue_type: "UnusedStop"} | _]} = DataValidation.validate_dataset(dataset)
-    {:ok, %{validations: [%{issue_type: "UnusedStop"} | _]}} = DataValidation.find_dataset(attrs)
+    assert {:ok, dataset}  = DataValidation.create_dataset(attrs)
+    assert {:ok, ^dataset} = DataValidation.find_dataset(attrs)
+    assert {:ok, dataset}  = DataValidation.validate_dataset(dataset)
+    assert {:ok, ^dataset} = DataValidation.find_dataset(attrs)
+    assert %{validations: [%{issue_type: "UnusedStop"} | _]} = dataset
   end
 end

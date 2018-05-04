@@ -3,7 +3,7 @@ defmodule Transport.DataValidation do
   The boundary of the DataValidation context.
   """
 
-  alias Transport.DataValidation.Aggregates.{Dataset, Dataset.Validation}
+  alias Transport.DataValidation.Aggregates.Dataset
   alias Transport.DataValidation.Queries.FindDataset
   alias Transport.DataValidation.Commands.{CreateDataset, ValidateDataset}
 
