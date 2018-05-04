@@ -4,9 +4,9 @@ defmodule Transport.DataValidation.Repo.Dataset do
   """
 
   alias BSON.ObjectId
-  alias Transport.DataValidation.Aggregates.{Dataset, Dataset.Validation}
+  alias Transport.DataValidation.Aggregates.Dataset
   alias Transport.DataValidation.Queries.FindDataset
-  alias Transport.DataValidation.Events.{DatasetCreated, DatasetValidated}
+  alias Transport.DataValidation.Events.{DatasetCreated, DatasetUpdated, DatasetValidated}
 
   # mongodb
   @pool DBConnection.Poolboy
@@ -66,13 +66,33 @@ defmodule Transport.DataValidation.Repo.Dataset do
   end
 
   @doc """
+  Updates a dataset.
+  """
+  @spec project(DatasetUpdated.t()) :: {:ok, Dataset.t()} | {:error, any}
+  def project(%DatasetUpdated{download_url: url, validations: validations}) when is_binary(url) do
+    changeset = Enum.map(validations, &Map.from_struct/1)
+
+    :mongo
+    |> Mongo.find_one_and_update(
+      "datasets",
+      %{"download_url" => url},
+      %{"$set" => %{validations: changeset}},
+      pool: @pool
+    )
+    |> case do
+      {:ok, nil} -> {:error, :enodoc}
+      {:ok, _} -> :ok
+    end
+  end
+
+  @doc """
   Validates a dataset by url.
   """
-  @spec project(DatasetValidated.t()) :: {:ok, [Validation.t()]} | {:error, any()}
+  @spec project(DatasetValidated.t()) :: {:ok, [Dataset.Validation.t()]} | {:error, any()}
   def project(%DatasetValidated{download_url: url}) when is_binary(url) do
     with {:ok, %@res{status_code: 200, body: body}} <-
            @client.get(@endpoint <> "?url=#{url}", [], timeout: @timeout, recv_timeout: @timeout),
-         {:ok, validations} <- Poison.decode(body, as: [%Validation{}]) do
+         {:ok, validations} <- Poison.decode(body, as: [%Dataset.Validation{}]) do
       {:ok, validations}
     else
       {:ok, %@res{status_code: 500, body: body}} ->

@@ -12,7 +12,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
       license: "odc-odbl",
       slug: "leningrad-metro-dataset",
       id: "beebeebee",
-      validations: %{"errors": [], "warnings": [], "notices": []},
+      validations: [],
     }
 
     {:ok, dataset: dataset}

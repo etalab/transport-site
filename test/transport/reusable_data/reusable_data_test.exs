@@ -11,7 +11,7 @@ defmodule Transport.ReusableDataTest do
       coordinates: [-0.5630548425091684,47.47654241641714],
       download_url: "link.to",
       slug: "leningrad-metro-dataset",
-      validations: %{"errors" => [], "warnings" => [], "notices" => []}
+      validations: []
     }
 
     :ok

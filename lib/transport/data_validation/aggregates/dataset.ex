@@ -11,7 +11,7 @@ defmodule Transport.DataValidation.Aggregates.Dataset do
   alias Transport.DataValidation.Aggregates.Dataset
   alias Transport.DataValidation.Queries.FindDataset
   alias Transport.DataValidation.Commands.{CreateDataset, ValidateDataset}
-  alias Transport.DataValidation.Events.{DatasetCreated, DatasetValidated}
+  alias Transport.DataValidation.Events.{DatasetCreated, DatasetValidated, DatasetUpdated}
   alias Transport.DataValidation.Repo.Dataset, as: Repo
 
   @registry :dataset_registry
@@ -44,9 +44,15 @@ defmodule Transport.DataValidation.Aggregates.Dataset do
   end
 
   def execute(%ValidateDataset{} = command) do
-    command.download_url
-    |> registry_lookup
-    |> GenServer.call({:dataset_validated, DatasetValidated.new(command)}, @timeout)
+    with pid <- registry_lookup(command.download_url),
+         dataset_validated <- DatasetValidated.new(command),
+         {:ok, dataset} <- GenServer.call(pid, {:dataset_validated, dataset_validated}, @timeout),
+         dataset_updated <- DatasetUpdated.new(dataset),
+         :ok <- GenServer.cast(pid, {:dataset_updated, dataset_updated}) do
+      {:ok, dataset}
+    else
+      {:error, error} -> {:error, error}
+    end
   end
 
   def init(%__MODULE__{} = dataset) do
@@ -90,10 +96,18 @@ defmodule Transport.DataValidation.Aggregates.Dataset do
       ) do
     case Repo.project(event) do
       {:ok, validations} ->
-        {:reply, {:ok, validations}, %Dataset{dataset | validations: validations}}
+        dataset = %Dataset{dataset | validations: validations}
+        {:reply, {:ok, dataset}, dataset}
 
       {:error, error} ->
         {:reply, {:error, error}, dataset}
+    end
+  end
+
+  def handle_cast({:dataset_updated, %DatasetUpdated{} = event}, %__MODULE__{} = dataset) do
+    case Repo.project(event) do
+      :ok -> {:noreply, dataset}
+      {:error, error} -> {:stop, error, dataset}
     end
   end
 

@@ -22,7 +22,7 @@ defmodule Transport.ReusableData.Dataset do
     :warning_count,
     :valid?,
     :catalogue_id,
-    validations: %{},
+    validations: [],
   ]
 
   use ExConstructor
@@ -39,7 +39,7 @@ defmodule Transport.ReusableData.Dataset do
     download_uri:   String.t,
     anomalies:      [String.t],
     format:         String.t,
-    validations:    Map.t,
+    validations:    [Map.t],
     error_count:    integer(),
     notice_count:   integer(),
     warning_count:  integer(),
@@ -55,7 +55,7 @@ defmodule Transport.ReusableData.Dataset do
     error_count =
       dataset
       |> Map.get(:validations)
-      |> Map.get("errors", [])
+      |> Enum.filter(&(&1["severity"] == "Error"))
       |> Enum.count()
 
     new(%{dataset | error_count: error_count})
@@ -69,7 +69,7 @@ defmodule Transport.ReusableData.Dataset do
     notice_count =
       dataset
       |> Map.get(:validations)
-      |> Map.get("notices", [])
+      |> Enum.filter(&(&1["severity"] == "Notice"))
       |> Enum.count()
 
     new(%{dataset | notice_count: notice_count})
@@ -83,7 +83,7 @@ defmodule Transport.ReusableData.Dataset do
     warning_count =
       dataset
       |> Map.get(:validations)
-      |> Map.get("warnings", [])
+      |> Enum.filter(&(&1["severity"] == "Warning"))
       |> Enum.count()
 
     new(%{dataset | warning_count: warning_count})
