@@ -24,7 +24,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingMapTest do
       anomalies: [],
       coordinates: [-0.5630548425091684,47.47654241641714],
       slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
-      validations: %{"errors" => [], "warnings" => [], "notices" => []}
+      validations: []
     }
 
     :ok

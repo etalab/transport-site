@@ -4,17 +4,16 @@ defmodule Transport.DataValidation.Events.DatasetValidated do
 
   ## Examples
 
-      iex> DatasetValidated.new(%{uuid: "1", download_url: "https://link.to/dataset.zip"})
-      %DatasetValidated{uuid: "1", download_url: "https://link.to/dataset.zip"}
+      iex> DatasetValidated.new(%{download_url: "https://link.to/dataset.zip"})
+      %DatasetValidated{download_url: "https://link.to/dataset.zip"}
 
   """
 
-  defstruct [:uuid, :download_url]
+  defstruct [:download_url]
 
   use ExConstructor
 
   @type t :: %__MODULE__{
-          uuid: String.t(),
           download_url: String.t()
         }
 end
