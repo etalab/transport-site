@@ -20,4 +20,5 @@ config :oauth2, Authentication,
 # MongoDB configuration.
 config :mongodb, url: "mongodb://localhost/transport_test"
 
-config :transport, datatools_url: "http://localhost:4000"
+# Validator configuration
+config :transport, gtfs_validator_url: System.get_env("GTFS_VALIDATOR_URL") || "http://127.0.0.1:7878"
