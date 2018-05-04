@@ -169,6 +169,7 @@ jobs:
       - image: betagouv/transport:0.1.0
         environment:
           MIX_ENV: test
+          GTFS_VALIDATOR_URL: $GTFS_VALIDATOR_URL
       - image: mongo:3.7-jessie
       - image: postgres:10.3
         environment:
