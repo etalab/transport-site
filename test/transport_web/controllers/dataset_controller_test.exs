@@ -27,7 +27,7 @@ defmodule TransportWeb.DatasetControllerTest do
         conn = conn
         |> init_test_session(current_user: %{}, client: Authentication.client("secret"))
         |> post(path, params)
-        assert redirected_to(conn, 302) == user_path(conn, :add_badge_dataset, "title-3")
+        assert redirected_to(conn, 302) == user_path(conn, :add_badge_dataset, "5a0b1b240b5b39318769c3b1")
       end
     end
 
@@ -44,7 +44,6 @@ defmodule TransportWeb.DatasetControllerTest do
   describe "GET /user/organizations/:organization/datasets/_create_community_resource" do
     test "logged in", %{conn: conn} do
       use_cassette "dataset/create-community-resource-4" do
-        linked_dataset_slug = "horaires-theoriques-du-reseau-de-transport-lva"
         linked_dataset_id = "5a26e9da0b5b39443a3b56d8"
         file = %Plug.Upload{path: "test/fixture/files/gtfs.zip",
                           filename: "gtfs.zip"}
@@ -61,10 +60,9 @@ defmodule TransportWeb.DatasetControllerTest do
         |> init_test_session(
              current_user: %{},
              client: Authentication.client("secret"),
-             linked_dataset_id: linked_dataset_id,
-             linked_dataset_slug: linked_dataset_slug)
+             linked_dataset_id: linked_dataset_id)
         |> post(path, params)
-        assert redirected_to(conn, 302) == dataset_path(conn, :details, linked_dataset_slug)
+        assert redirected_to(conn, 302) == dataset_path(conn, :details, linked_dataset_id)
       end
     end
 

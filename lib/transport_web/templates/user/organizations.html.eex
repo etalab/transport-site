@@ -15,7 +15,7 @@
         </div>
 
         <div>
-          <a href="<%= user_path(@conn, :organization_datasets, organization["slug"]) %>" class="button" role="link">
+          <a href="<%= user_path(@conn, :organization_datasets, organization["id"]) %>" class="button" role="link">
             <%= dgettext("user", "This organization publishes transport data") %>
           </a>
         </div>

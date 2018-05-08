@@ -11,8 +11,8 @@ defmodule TransportWeb.DatasetController do
     |> render("index.html")
   end
 
-  def new(%Plug.Conn{} = conn, %{"slug" => slug}) do
-    case Organizations.get(conn, slug) do
+  def new(%Plug.Conn{} = conn, %{"id" => id}) do
+    case Organizations.get(conn, id) do
       {:ok, organization} ->
         conn
         |> assign(:organization, organization)
@@ -33,7 +33,7 @@ defmodule TransportWeb.DatasetController do
                                               dataset["id"],
                                               params["dataset"])
     do
-        redirect(conn, to: user_path(conn, :add_badge_dataset, dataset["slug"]))
+        redirect(conn, to: user_path(conn, :add_badge_dataset, dataset["id"]))
     else
       {:validation_error, errors} ->
         conn
@@ -65,7 +65,7 @@ defmodule TransportWeb.DatasetController do
                               "Your modified version of this dataset has beed added"))
         |> redirect(to: dataset_path(conn,
                                      :details,
-                                     get_session(conn, :linked_dataset_slug)))
+                                     get_session(conn, :linked_dataset_id)))
     else
       {:validation_error, errors} ->
         conn
@@ -90,7 +90,6 @@ defmodule TransportWeb.DatasetController do
       dataset ->
         conn
         |> assign(:dataset, dataset)
-        |> assign(:dataset_id, ReusableData.get_dataset_id(conn, dataset))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> render("details.html")
     end

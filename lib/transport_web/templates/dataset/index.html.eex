@@ -20,7 +20,7 @@
               <div class="shortlist__link shortlist__link--external-link">
                 <i class="icon icon--link" aria-hidden="true"></i>
                 <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
-                         to: "https://www.data.gouv.fr/datasets/#{dataset.slug}/",
+                         to: "https://www.data.gouv.fr/datasets/#{dataset.id}/",
                          role: "link") %>
               </div>
             <% end %>

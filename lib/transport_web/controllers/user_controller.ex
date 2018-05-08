@@ -7,8 +7,8 @@ defmodule TransportWeb.UserController do
     with {:ok, linked_dataset_id} <- get_linked_dataset_id(conn, params),
          conn <- put_session(
                    conn,
-                   :linked_dataset_slug,
-                   Map.get(params, "linked_dataset_slug")),
+                   :linked_dataset_id,
+                   Map.get(params, "linked_dataset_id")),
          conn <- put_session(conn, :linked_dataset_id, linked_dataset_id),
          {:ok, %{"organizations" => organizations}} <- User.me(conn)
     do
@@ -53,12 +53,12 @@ defmodule TransportWeb.UserController do
     end
   end
 
-  def organization_datasets(conn, %{"slug" => slug}) do
+  def organization_datasets(conn, %{"id" => id}) do
     conn
-    |> Organizations.get(slug, :with_datasets)
+    |> Organizations.get(id, :with_datasets)
     |> case do
       {:ok, %{"datasets" => []}} ->
-        redirect(conn, to: dataset_path(conn, :new, slug))
+        redirect(conn, to: dataset_path(conn, :new, id))
       {:ok, response} ->
         conn
         |> get_session(:linked_dataset_id)
@@ -70,7 +70,7 @@ defmodule TransportWeb.UserController do
             |> assign(:organization, response)
             |> render("organization_datasets.html")
           _ ->
-            redirect(conn, to: dataset_path(conn, :new, slug))
+            redirect(conn, to: dataset_path(conn, :new, id))
         end
      {:error, error} ->
        Logger.error(error)
@@ -80,9 +80,9 @@ defmodule TransportWeb.UserController do
      end
   end
 
-  def add_badge_dataset(conn, %{"slug" => slug}) do
+  def add_badge_dataset(conn, %{"id" => id}) do
     conn
-    |> Datasets.put(slug, {:add_tag, "GTFS"})
+    |> Datasets.put(id, {:add_tag, "GTFS"})
     |> case do
       {:ok, _} ->
         conn
@@ -96,10 +96,10 @@ defmodule TransportWeb.UserController do
   end
 
   defp get_linked_dataset_id(conn, params) do
-    case Map.get(params, "linked_dataset_slug") do
+    case Map.get(params, "linked_dataset_id") do
       nil -> {:ok, nil}
-      dataset_slug ->
-        case Datasets.get(conn, dataset_slug) do
+      dataset_id ->
+        case Datasets.get(conn, dataset_id) do
           {:ok, dataset} -> {:ok, dataset["id"]}
           {:error, error} -> {:error, error}
         end

@@ -26,27 +26,27 @@ defmodule Transport.Datagouvfr.Client.Organizations do
   end
 
   @doc """
-  Call to GET /api/1/organizations/:slug/
+  Call to GET /api/1/organizations/:id/
   You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/organizations/get_organization
   """
   @spec get(%Plug.Conn{}, String.t) :: {atom, [map]}
-  def get(%Plug.Conn{} = conn, slug) do
+  def get(%Plug.Conn{} = conn, id) do
     conn
-    |> get_request(Path.join(@endpoint, slug))
+    |> get_request(Path.join(@endpoint, id))
   end
 
   @doc """
-  Call to GET /api/1/organizations/:slug/
+  Call to GET /api/1/organizations/:id/
   And add datasets to it.
   """
   @spec get(%Plug.Conn{}, String.t, atom) :: {atom, map}
-  def get(%Plug.Conn{} = conn, slug, :with_datasets) do
+  def get(%Plug.Conn{} = conn, id, :with_datasets) do
     conn
-    |> get(get(conn, slug), slug, :with_datasets)
+    |> get(get(conn, id), id, :with_datasets)
   end
 
-  def get(%Plug.Conn{} = conn, {:ok, body}, slug, :with_datasets) do
-    case Datasets.get(conn, %{:organization => slug}) do
+  def get(%Plug.Conn{} = conn, {:ok, body}, id, :with_datasets) do
+    case Datasets.get(conn, %{:organization => id}) do
       {:ok, body_datasets} -> {:ok, Map.put(body, "datasets", body_datasets)}
       {:error, error} -> {:error, error}
     end

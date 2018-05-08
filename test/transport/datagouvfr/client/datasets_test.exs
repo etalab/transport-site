@@ -16,15 +16,15 @@ defmodule Transport.Datagouvfr.Client.DatasetsTest do
   test "get datasets of an organization old format" do
     use_cassette "client/datasets/organization-datasets-1" do
       assert {:ok, data} = Client.Datasets.get(build_conn(),
-                             %{:organization => "angers-loire-metropole"})
-      assert data |> Enum.any?(fn(d) -> d["slug"] |> String.contains?("irigo") end)
+                             %{:organization => "538346d6a3a72906c7ec5c36"})
+      assert data |> Enum.any?(fn(d) -> d["id"] == "5387f0a0a3a7291cb367549e" end)
     end
   end
 
   test "get datasets of an organization new format" do
     use_cassette "client/datasets/organization-datasets-6" do
       assert {:ok, data} = Client.Datasets.get(build_conn(),
-                             %{:organization => "angers-loire-metropole"})
+                             %{:organization => "538346d6a3a72906c7ec5c36"})
       assert Enum.empty?(data)
     end
   end
