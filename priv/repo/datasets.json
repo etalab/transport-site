@@ -1,94 +1,94 @@
 [{
     "spatial": "Brest M\u00e9tropole",
-    "slug": "liste-des-arrets-horaires-et-parcours-de-tous-les-bus-et-tramways-circulant-sur-le-territoire-de-brest-metropole",
+    "id": "55ffbe0888ee387348ccb97d",
     "coordinates": [-4.487808, 48.389729]
 }, {
     "spatial": "Toulouse M\u00e9tropole",
-    "slug": "tisseo-offre-de-transport-gtfs",
+    "id": "56b0c2fba3a7294d39b88a86",
     "coordinates": [1.441019, 43.604268]
 }, {
     "spatial": "Rennes M\u00e9tropole",
-    "slug": "versions-des-horaires-theoriques-des-lignes-du-reseau-star-au-format-gtfs",
+    "id": "580a574aa3a7292dcfa9d1da",
     "coordinates": [-1.681632, 48.113844]
 }, {
     "spatial": "Angers Loire M\u00e9tropole",
-    "slug": "arrets-parcours-et-horaires-theoriques-du-reseau-irigo-gtfs",
+    "id": "5aa35ca2b59508207b0d3df0",
     "coordinates": [-0.556585, 47.47207]
 }, {
     "spatial": "M\u00e9tropole europ\u00e9enne de Lille",
     "coordinates": [3.05644, 50.631564],
-    "slug": "localisation-des-arrets-transpole-bus-metro-et-tram-gtfs-pictogrammes-du-reseau-transpole"
+    "id": "58b69b59a3a7295a7d8251db"
 }, {
     "spatial": "Métropole du Grand Nancy",
     "coordinates": [6.182711, 48.692365],
-    "slug": "arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs"
+    "id": "5aa94714c751df666fefc80f"
 }, {
     "spatial": "Communauté d'agglomération du Boulonnais",
     "coordinates": [1.613152, 50.725249],
-    "slug": "horaires-theoriques-du-reseau-de-transport-marineo"
+    "id": "59e4c7c2c751df26e9b7cee0"
 }, {
     "spatial": "Communauté d'agglomération Royan Atlantique",
     "coordinates": [-1.027697, 45.625611],
-    "slug": "donnees-gtfs-du-reseau-de-transport-public-cara-bus"
+    "id": "5ad0207bb595085722c04a3c"
 }, {
     "spatial": "Grenoble-Alpes Métropole",
     "coordinates": [5.7154, 45.1841],
-    "slug": "horaires-theoriques-du-reseau-de-transport-tag-1"
+    "id": "5760038cc751df708cac31a0"
 }, {
     "spatial": "Lorient Agglomération",
     "coordinates": [-3.3792, 47.7494],
-    "slug": "horaires-theoriques-du-reseau-ctrl-format-gtfs-de-lorient-agglomeration"
+    "id": "5a09aa9488ee383f43ef7e0a"
 }, {
     "spatial": "Communauté d'agglomération de Metz Métropole",
     "coordinates": [6.1962, 49.1048],
-    "slug": "transport-donnees-gtfs"
+    "id": "546609c1c751df1a6f6c8d07"
 }, {
     "spatial": "Vannes Agglo",
     "coordinates": [-2.7486, 47.6577],
-    "slug": "offre-de-transport-du-reseau-kiceo-1"
+    "id": "5a6f2ae8c751df6d2358936b"
 }, {
     "spatial": "Métropole Nice-Côte-d'Azur",
     "coordinates": [7.2529, 43.7031],
-    "slug": "export-quotidien-au-format-gtfs-du-reseau-de-transport-lignes-d-azur"
+    "id": "59aea7b3b595087a239169d7"
 }, {
     "spatial": "Communauté urbaine du Grand Poitiers",
     "coordinates": [0.3714, 46.5846],
-    "slug": "mobilite-arrets-services-et-horaires-theoriques-bus-fichier-gtfs"
+    "id": "58ef2cefa3a7293d49c4e178"
 }, {
     "spatial": "Communauté d'agglomération du Grand Montauban",
     "coordinates": [1.3647, 44.0218],
-    "slug": "reseau-urbain-2017-2018-zip"
+    "id": "5ab2376488ee383b60034880"
 }, {
     "spatial": "Nantes Métropole",
     "coordinates": [-1.5603, 47.2383],
-    "slug": "arrets-horaires-et-circuits-tan-2017-2018-2"
+    "id": "5ac77abfc751df6ae38ffe90"
 }, {
     "spatial": "Saint-Brieuc Armor Agglomération",
     "coordinates": [-2.7657, 48.5109],
-    "slug": "gtfs-du-reseau-de-transports-publics-de-saint-brieuc-armor-agglomeration"
+    "id": "5acb317988ee381778cbecf0"
 }, {
     "spatial": "Le Mans Métropole",
     "coordinates": [0.1957, 47.9820],
-    "slug": "gtfs-du-reseau-des-transports-bus-et-tramway-setram-circulant-sur-le-territoire-le-mans-metropole"
+    "id": "5acb75f0c751df341652c886"
 }, {
     "spatial": "Fougères Agglomération",
     "coordinates": [-1.1953, 48.3512],
-    "slug": "donnees-sur-le-reseau-de-bus-surf-service-urbain-de-la-region-fougeraise"
+    "id": "588a238d88ee3846659b81a4"
 }, {
     "spatial": "Eurométropole de Strasbourg",
     "coordinates": [7.7621, 48.5691],
-    "slug": "gtfs-strasbourg"
+    "id": "5ae1715488ee384c8ba0342b"
 },{
     "spatial": "Grand Avignon",
     "coordinates": [4.8065, 43.9497],
-    "slug": "gtfs-des-transports-urbains-du-grand-avignon-tcra"
+    "id": "5ae2e01d88ee381811e691b5"
 },{
     "spatial": "Communauté d'Agglomération de La Rochelle",
     "coordinates": [-1.1765, 46.1620],
-    "slug": "arrets-horaires-et-parcours-theoriques-du-reseau-yelo-de-la-rochelle-lignes-transdev-gtfs"
+    "id": "5ae6eadd88ee3801aab1d2e6"
 },{
     "spatial": "Communauté d'Agglomération de La Rochelle",
     "coordinates": [-1.1765, 46.1620],
-    "slug": "arrets-horaires-et-parcours-theoriques-du-reseau-yelo-de-la-rochelle-lignes-rtcr-gtfs"
+    "id": "5ae6e81f88ee38775129a7bd"
 }]
 
