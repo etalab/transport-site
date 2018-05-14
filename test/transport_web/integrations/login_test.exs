@@ -11,6 +11,6 @@ defmodule TransportWeb.Integration.LoginTest do
 
     click({:class, "hero__link--open"})
 
-    assert "redirect_path=%2Fuser%2Forganizations" == URI.parse(current_url()).query
+    assert "next=%2Ffr%2Fadmin%2Fdataset%2Fnew%2F" == URI.parse(current_url()).query
   end
 end

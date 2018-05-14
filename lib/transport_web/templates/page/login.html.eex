@@ -1,4 +1,4 @@
-<section>
+<section class="dataset-container">
   <%= if get_flash(@conn, :info) do %>
     <p class="message message--info"><%= get_flash(@conn, :info) %></p>
   <% end %>

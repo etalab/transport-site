@@ -1,4 +1,4 @@
-<section>
+<section class="dataset-container">
   <h1><%= dgettext("page-shortlist", "Valid datasets available") %></h1>
   <%= for dataset <- @datasets do %>
     <div class="shortlist">
