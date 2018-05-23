@@ -4,7 +4,6 @@ defmodule Transport.ReusableData do
   """
 
   alias Transport.ReusableData.{Dataset, Licence}
-  alias Transport.Datagouvfr.Client.Datasets
   require Logger
 
   @pool DBConnection.Poolboy
