@@ -28,24 +28,24 @@ defmodule Transport.ReusableData.Dataset do
   use ExConstructor
 
   @type t :: %__MODULE__{
-    _id:            %BSON.ObjectId{},
-    title:          String.t,
-    description:    String.t,
-    logo:           String.t,
-    spatial:        String.t,
-    coordinates:    [float()],
-    licence:        String.t,
-    id:             String.t,
-    download_uri:   String.t,
-    anomalies:      [String.t],
-    format:         String.t,
-    validations:    [Map.t],
-    error_count:    integer(),
-    notice_count:   integer(),
-    warning_count:  integer(),
-    valid?:         boolean(),
-    catalogue_id:   String.t
-  }
+          _id: %BSON.ObjectId{},
+          title: String.t(),
+          description: String.t(),
+          logo: String.t(),
+          spatial: String.t(),
+          coordinates: [float()],
+          licence: String.t(),
+          slug: String.t(),
+          download_url: String.t(),
+          anomalies: [String.t()],
+          format: String.t(),
+          validations: [Map.t()] | Map.t(),
+          error_count: integer(),
+          notice_count: integer(),
+          warning_count: integer(),
+          valid?: boolean(),
+          catalogue_id: String.t()
+        }
 
   @doc """
   Calculate and add the number of errors to the dataset.
@@ -87,6 +87,18 @@ defmodule Transport.ReusableData.Dataset do
       |> Enum.count()
 
     new(%{dataset | warning_count: warning_count})
+  end
+
+  @doc """
+  Group by issue type.
+  """
+  @spec assign(%__MODULE__{}, :group_validations) :: %__MODULE__{}
+  def assign(%__MODULE__{} = dataset, :group_validations) do
+    %{
+      dataset
+      | validations:
+          Enum.group_by(dataset.validations, fn validation -> validation["issue_type"] end)
+    }
   end
 
   @doc """

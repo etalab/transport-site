@@ -79,6 +79,7 @@ defmodule Transport.ReusableData do
         |> Dataset.assign(:error_count)
         |> Dataset.assign(:notice_count)
         |> Dataset.assign(:warning_count)
+        |> Dataset.assign(:group_validations)
         |> Dataset.assign(:valid?)
     end
   end
