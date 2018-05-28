@@ -1,39 +1,33 @@
-validation {
-  .validation__title {
+.dataset-details__validation {
+  h1 {
     background-color: $light-grey;
   }
 
-  .validation__chooser {
-    margin-bottom: 2em;
-  }
-
-  .validation__pagination {
-    margin-top: 2em;
-    width: 4em;
-
-    .badge-notice {
-      float: left;
-      width: 30%;
-      &,
-      &:focus,
-      &:active,
-      &:visited {
-        margin-right: 1em;
-        padding: .5em .3em;
-      }
-
-      &:disabled {
-        box-shadow: none;
-        color: $grey;
-      }
-    }
-  }
-  .validation__message {
-    margin-top: .5em;
-  }
-
   table {
+    width: 80%;
+    margin: auto;
+  }
+
+  td, th {
+    padding: 8px;
+    font-size: 90%;
+  }
+
+  tbody {
     width: 100%;
-    text-align: left;
+  }
+
+  .collapse{
+    cursor: pointer;
+    display: block;
+  }
+  .collapse + input{
+    display: none; /* hide the checkboxes */
+  }
+  .collapse + input + table {
+    display:none;
+  }
+  .collapse + input:checked + table {
+    display:table;
   }
 }
