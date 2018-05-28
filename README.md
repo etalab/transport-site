@@ -29,9 +29,10 @@ Now you can visit [`127.0.0.1:5000`](http://127.0.0.1:5000) from your browser.
 
 ### Tasks
 
-  * Run `mix transport.reset` to delete datasets from the database.
-  * Run `mix transport.seed` to seed datasets to the database.
-  * Run `mix transport.import_data` to import data from data.gouv.fr.
+  * Run `mix transport.reset_and_import_data` to import all the data. It will run the following tasks:
+    * `mix transport.reset` to delete datasets from the database.
+    * `mix transport.seed` to seed datasets to the database.
+    * `mix transport.import_data` to import data from data.gouv.fr.
   * Run `mix transport.validate_data` to queue dataset validations.
   * Run `mix transport.fetch_validation_results` to fetch all the validation results.
 
