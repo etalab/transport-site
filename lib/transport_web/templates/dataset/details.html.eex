@@ -101,32 +101,31 @@
           title="<%= dgettext("page-dataset-details", "Modified datasets") %>">
         </communityresources>
       </div>
+
       <div class="dataset-details__validation">
-        <validation
-          slug="<%= @dataset.slug %>"
-          catalogue_id="<%= @dataset.catalogue_id %>"
-          datasetid="<%= @dataset_id %>"
-          errors="<%= dgettext("page-dataset-details", "Errors") %>"
-          no_errors="<%= dgettext("page-dataset-details", "No errors") %>"
-          warnings="<%= dgettext("page-dataset-details", "Warnings") %>"
-          no_warnings="<%= dgettext("page-dataset-details", "No warnings") %>"
-          notices="<%= dgettext("page-dataset-details", "Notices") %>"
-          no_notices="<%= dgettext("page-dataset-details", "No notices") %>"
-          stop_unused="<%= dgettext("page-dataset-details", "This stop is not referenced by any trips.") %>"
-          duplicate_stop="<%= dgettext("page-dataset-details", "More than one stop was located in exactly the same place.") %>"
-          travel_time_zero="<%= dgettext("page-dataset-details", "The vehicle arrives at this stop at the same time it departs from the previous stop.") %>"
-          travel_time_stoo_slow="<%= dgettext("page-dataset-details", "The vehicle is traveling very slowly to reach this stop from the previous one.") %>"
-          route_long_name_contains_short_name="<%= dgettext("page-dataset-details", "The long name of a route should complement the short name, not include it.") %>"
-          travel_distance_zero="<%= dgettext("page-dataset-details", "The vehicle does not cover any distance between the last stop and this one.") %>"
-          site="<%= @site %>"
-          connected="<%= @current_user != nil %>"
-          posted_on="<%= dgettext("page-dataset-details", "Posted on") %>"
-          respond_comment="<%= dgettext("page-dataset-details", "Respond") %>"
-          post_discussion="<%= dgettext("page-dataset-details", "Begin a new conversation") %>"
-          title="<%= dgettext("page-dataset-details", "Title") %>"
-          connection_needed="<%= dgettext("page-dataset-details", "You need to be connected to post comments")%>">
-        </validation>
+        <h2>Validations</h2>
+        <%= for {issue_type, issues} <- @dataset.validations do %>
+          <h3><%= issue_type %></h3>
+          <table>
+            <tr>
+              <th>OBject ID</th>
+              <th>Object name</th>
+              <th>Related object ID</th>
+              <th>Severity</th>
+            </tr>
+
+            <%= for issue <- issues do %>
+              <tr>
+                <td><%= issue["object_id"] %></td>
+                <td><%= issue["object_name"] %></td>
+                <td><%= issue["related_object_id"] %></td>
+                <td><%= issue["severity"] %></td>
+              </tr>
+            <%= end %>
+          </table>
+        <%= end %>
       </div>
+
       <div class="dataset-details__discussions">
         <h1>Discussions</h1>
         <discussions
