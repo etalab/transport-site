@@ -68,3 +68,12 @@ div.dataset-details__side-pane {
   }
 }
 
+div.dataset-details__validation {
+  table {
+    width: 80%;
+    margin: auto;
+  }
+  td, th {
+    padding: 8px;
+  }
+}
