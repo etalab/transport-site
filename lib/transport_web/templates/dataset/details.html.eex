@@ -101,16 +101,17 @@
           title="<%= dgettext("page-dataset-details", "Modified datasets") %>">
         </communityresources>
       </div>
+
       <div class="dataset-details__validation">
         <h2>Validations</h2>
         <%= for {issue_type, issues} <- @dataset.validations do %>
           <h3><%= issue_type %></h3>
           <table>
             <tr>
-              <th>Object ID</th>
-              <th>Object name</th>
-              <th>Related object ID</th>
-              <th>Severity</th>
+              <th><%= dgettext("page-dataset-details", "Object ID") %></th>
+              <th><%= dgettext("page-dataset-details", "Object name") %></th>
+              <th><%= dgettext("page-dataset-details", "Related object ID") %></th>
+              <th><%= dgettext("page-dataset-details", "Severity") %></th>
             </tr>
 
             <%= for issue <- issues do %>
@@ -118,12 +119,13 @@
                 <td><%= issue["object_id"] %></td>
                 <td><%= issue["object_name"] %></td>
                 <td><%= issue["related_object_id"] %></td>
-                <td><%= issue["severity"] %></td>
+                <td><%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue["severity"]) %></td>
               </tr>
-            <%= end %>
+            <% end %>
           </table>
-        <%= end %>
+        <% end %>
       </div>
+
       <div class="dataset-details__discussions">
         <h1>Discussions</h1>
         <discussions
