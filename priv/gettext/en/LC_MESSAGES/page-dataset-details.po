@@ -11,6 +11,7 @@ msgstr ""
 "Language: en\n"
 
 #: lib/transport_web/templates/dataset/details.html.eex:61
+#: lib/transport_web/templates/dataset/details.html.eex:106
 msgid "GTFS Validation"
 msgstr ""
 
@@ -61,3 +62,55 @@ msgstr ""
 #: lib/transport_web/templates/dataset/details.html.eex:77
 msgid "Unsubscribe to dataset"
 msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:111
+msgid "Object ID"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:112
+msgid "Object name"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:113
+msgid "Related object ID"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:114
+msgid "Severity"
+msgstr ""
+
+msgid "Fatal"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Warning"
+msgstr ""
+
+msgid "Notice"
+msgstr ""
+
+msgid "UnusedStop"
+msgstr "Unused stop"
+
+msgid "Slow"
+msgstr "Very slow between two stops"
+
+msgid "ExcessiveSpeed"
+msgstr "Very fast between two stops"
+
+msgid "NegativeTravelTime"
+msgstr "Negative travel time between two stops"
+
+msgid "CloseStops"
+msgstr "Very close stops"
+
+msgid "NullDuration"
+msgstr "Travel time between two stops is null"
+
+msgid "InvalidReference"
+msgstr "Reference to an unknown object"
+
+msgid "InvalidArchive"
+msgstr "Could not open the GTFS archive"
