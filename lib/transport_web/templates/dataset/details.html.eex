@@ -105,7 +105,8 @@
       <div class="dataset-details__validation">
         <h2><%= dgettext("page-dataset-details", "GTFS Validation") %></h2>
         <%= for {issue_type, issues} <- @dataset.validations do %>
-          <h3><%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue_type) %></h3>
+        <label class="collapse" for="<%= issue_type %>"><h3><%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue_type) %></h3></label>
+        <input id="<%= issue_type %>" type="checkbox">
           <table>
             <tr>
               <th><%= dgettext("page-dataset-details", "Object ID") %></th>
