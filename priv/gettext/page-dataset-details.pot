@@ -23,23 +23,23 @@ msgstr ""
 msgid "Warnings"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:136
+#: lib/transport_web/templates/dataset/details.html.eex:138
 msgid "Posted on"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:137
+#: lib/transport_web/templates/dataset/details.html.eex:139
 msgid "Respond"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:138
+#: lib/transport_web/templates/dataset/details.html.eex:140
 msgid "Begin a new conversation"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:139
+#: lib/transport_web/templates/dataset/details.html.eex:141
 msgid "Title"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:140
+#: lib/transport_web/templates/dataset/details.html.eex:142
 msgid "You need to be connected to post comments"
 msgstr ""
 
@@ -63,19 +63,19 @@ msgstr ""
 msgid "Unsubscribe to dataset"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:112
+#: lib/transport_web/templates/dataset/details.html.eex:114
 msgid "Object ID"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:113
+#: lib/transport_web/templates/dataset/details.html.eex:115
 msgid "Object name"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:114
+#: lib/transport_web/templates/dataset/details.html.eex:116
 msgid "Related object ID"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:115
+#: lib/transport_web/templates/dataset/details.html.eex:117
 msgid "Severity"
 msgstr ""
 
