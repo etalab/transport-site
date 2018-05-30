@@ -106,7 +106,7 @@
         <h1><%= dgettext("page-dataset-details", "GTFS Validation") %></h1>
         <%= for {issue_type, issues} <- @dataset.validations do %>
         <label class="collapse" for="<%= issue_type %>">
-          <h3><%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue_type) %> (<%= Enum.count issues %>)</h3>
+          <h3><%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue_type) %> (<%= issues.count %>)</h3>
           </label>
         <input id="<%= issue_type %>" type="checkbox">
           <table>
@@ -117,7 +117,7 @@
               <th><%= dgettext("page-dataset-details", "Severity") %></th>
             </tr>
 
-            <%= for issue <- issues do %>
+            <%= for issue <- issues.issues do %>
               <tr>
                 <td><%= issue["object_id"] %></td>
                 <td><%= issue["object_name"] %></td>

@@ -93,11 +93,12 @@ defmodule Transport.ReusableData.Dataset do
   """
   @spec assign(%__MODULE__{}, :group_validations) :: %__MODULE__{}
   def assign(%__MODULE__{} = dataset, :group_validations) do
-    %{
-      dataset
-      | validations:
-          Enum.group_by(dataset.validations, fn validation -> validation["issue_type"] end)
-    }
+    validations =
+    dataset.validations
+    |> Enum.group_by(fn validation -> validation["issue_type"] end)
+    |> Map.new(fn {type, issues} -> {type, %{issues: issues, count: Enum.count issues}} end)
+
+    %{dataset | validations: validations}
   end
 
   @doc """
