@@ -11,58 +11,36 @@ msgstr ""
 "Language: en\n"
 
 #: lib/transport_web/templates/dataset/details.html.eex:61
+#: lib/transport_web/templates/dataset/details.html.eex:106
 msgid "GTFS Validation"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:109
-msgid "Errors"
-msgstr ""
-
 #: lib/transport_web/templates/dataset/details.html.eex:64
-#: lib/transport_web/templates/dataset/details.html.eex:113
 msgid "Notices"
 msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:63
-#: lib/transport_web/templates/dataset/details.html.eex:111
 msgid "Warnings"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:123
-#: lib/transport_web/templates/dataset/details.html.eex:136
+#: lib/transport_web/templates/dataset/details.html.eex:138
 msgid "Posted on"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:124
-#: lib/transport_web/templates/dataset/details.html.eex:137
+#: lib/transport_web/templates/dataset/details.html.eex:139
 msgid "Respond"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:125
-#: lib/transport_web/templates/dataset/details.html.eex:138
+#: lib/transport_web/templates/dataset/details.html.eex:140
 msgid "Begin a new conversation"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:126
-#: lib/transport_web/templates/dataset/details.html.eex:139
+#: lib/transport_web/templates/dataset/details.html.eex:141
 msgid "Title"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:127
-#: lib/transport_web/templates/dataset/details.html.eex:140
+#: lib/transport_web/templates/dataset/details.html.eex:142
 msgid "You need to be connected to post comments"
-msgstr ""
-
-#: lib/transport_web/templates/dataset/details.html.eex:110
-msgid "No errors"
-msgstr ""
-
-#: lib/transport_web/templates/dataset/details.html.eex:114
-msgid "No notices"
-msgstr ""
-
-#: lib/transport_web/templates/dataset/details.html.eex:112
-msgid "No warnings"
 msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:69
@@ -77,30 +55,6 @@ msgstr ""
 msgid "There is no linked dataset yet"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:119
-msgid "The long name of a route should complement the short name, not include it."
-msgstr ""
-
-#: lib/transport_web/templates/dataset/details.html.eex:120
-msgid "The vehicle does not cover any distance between the last stop and this one."
-msgstr ""
-
-#: lib/transport_web/templates/dataset/details.html.eex:116
-msgid "More than one stop was located in exactly the same place."
-msgstr ""
-
-#: lib/transport_web/templates/dataset/details.html.eex:117
-msgid "The vehicle arrives at this stop at the same time it departs from the previous stop."
-msgstr ""
-
-#: lib/transport_web/templates/dataset/details.html.eex:118
-msgid "The vehicle is traveling very slowly to reach this stop from the previous one."
-msgstr ""
-
-#: lib/transport_web/templates/dataset/details.html.eex:115
-msgid "This stop is not referenced by any trips."
-msgstr ""
-
 #: lib/transport_web/templates/dataset/details.html.eex:76
 msgid "Subscribe to dataset"
 msgstr ""
@@ -108,3 +62,55 @@ msgstr ""
 #: lib/transport_web/templates/dataset/details.html.eex:77
 msgid "Unsubscribe to dataset"
 msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:114
+msgid "Object ID"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:115
+msgid "Object name"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:116
+msgid "Related object ID"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:117
+msgid "Severity"
+msgstr ""
+
+msgid "Fatal"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Warning"
+msgstr ""
+
+msgid "Notice"
+msgstr ""
+
+msgid "UnusedStop"
+msgstr "Unused stop"
+
+msgid "Slow"
+msgstr "Very slow between two stops"
+
+msgid "ExcessiveSpeed"
+msgstr "Very fast between two stops"
+
+msgid "NegativeTravelTime"
+msgstr "Negative travel time between two stops"
+
+msgid "CloseStops"
+msgstr "Very close stops"
+
+msgid "NullDuration"
+msgstr "Travel time between two stops is null"
+
+msgid "InvalidReference"
+msgstr "Reference to an unknown object"
+
+msgid "InvalidArchive"
+msgstr "Could not open the GTFS archive"

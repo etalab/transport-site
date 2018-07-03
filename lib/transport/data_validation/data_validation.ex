@@ -3,98 +3,45 @@ defmodule Transport.DataValidation do
   The boundary of the DataValidation context.
   """
 
-  alias Transport.DataValidation.Aggregates.Project
-  alias Transport.DataValidation.Queries.{
-    FindProject,
-    FindFeedSource,
-    ListFeedSources,
-    FindFeedVersion
-  }
-  alias Transport.DataValidation.Commands.{
-    CreateProject,
-    CreateFeedSource,
-    ValidateFeedSource
-  }
+  alias Transport.DataValidation.Aggregates.Dataset
+  alias Transport.DataValidation.Commands.{CreateDataset, ValidateDataset}
+  alias Transport.DataValidation.Queries.FindDataset
 
   @doc """
-  Finds a project.
+  Finds a dataset.
   """
-  @spec find_project(map()) :: {:ok, Project.t} | {:error, any()}
-  def find_project(%{} = params) do
-    params
-    |> FindProject.new
-    |> Project.execute
+  @spec find_dataset(map) :: {:ok, Dataset.t()} | {:error, any}
+  def find_dataset(%{} = attrs) do
+    attrs
+    |> FindDataset.new()
+    |> Dataset.execute()
   end
 
   @doc """
-  Creates a new project.
+  Creates a dataset.
   """
-  @spec create_project(map()) :: {:ok, Project.t} | {:error, any()}
-  def create_project(%{} = params) do
-    params
-    |> CreateProject.new
-    |> CreateProject.validate
+  @spec create_dataset(map) :: {:ok, Dataset.t()} | {:error, any}
+  def create_dataset(%{} = attrs) do
+    attrs
+    |> CreateDataset.new()
+    |> CreateDataset.validate()
     |> case do
-      {:ok, command} -> Project.execute(command)
+      {:ok, command} -> Dataset.execute(command)
       {:error, error} -> {:error, error}
     end
   end
 
   @doc """
-  Lists feed sources.
+  Validates a dataset.
   """
-  @spec list_feed_sources(map()) :: {:ok, [FeedSource.t]} | {:error, any()}
-  def list_feed_sources(%{} = params) do
-    params
-    |> ListFeedSources.new
-    |> Project.execute
-  end
-
-  @doc """
-  Finds a feed source.
-  """
-  @spec find_feed_source(map()) :: {:ok, FeedSource.t} | {:error, any()}
-  def find_feed_source(%{} = params) do
-    params
-    |> FindFeedSource.new
-    |> Project.execute
-  end
-
-  @doc """
-  Creates a feed source.
-  """
-  @spec create_feed_source(map()) :: {:ok, FeedSource.t} | {:error, any()}
-  def create_feed_source(%{} = params) do
-    params
-    |> CreateFeedSource.new
-    |> CreateFeedSource.validate
+  @spec validate_dataset(Dataset.t()) :: {:ok, [Dataset.Validation.t()]} | {:error, any}
+  def validate_dataset(%Dataset{} = attrs) do
+    attrs
+    |> ValidateDataset.new()
+    |> ValidateDataset.validate()
     |> case do
-      {:ok, command} -> Project.execute(command)
+      {:ok, command} -> Dataset.execute(command)
       {:error, error} -> {:error, error}
     end
-  end
-
-  @doc """
-  Validates a feed source.
-  """
-  @spec validate_feed_source(map()) :: :ok | {:error, any()}
-  def validate_feed_source(%{} = params) do
-    params
-    |> ValidateFeedSource.new
-    |> ValidateFeedSource.validate
-    |> case do
-      {:ok, command} -> Project.execute(command)
-      {:error, error} -> {:error, error}
-    end
-  end
-
-  @doc """
-  Finds a feed version.
-  """
-  @spec find_feed_version(map()) :: {:ok, FeedVersion.t} | {:error, any()}
-  def find_feed_version(%{} = params) do
-    params
-    |> FindFeedVersion.new
-    |> Project.execute
   end
 end

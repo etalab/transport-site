@@ -14,7 +14,7 @@ defmodule Transport.ReusableData.Dataset do
     :licence,
     :slug,
     :id,
-    :download_uri,
+    :download_url,
     :anomalies,
     :format,
     :error_count,
@@ -22,30 +22,30 @@ defmodule Transport.ReusableData.Dataset do
     :warning_count,
     :valid?,
     :catalogue_id,
-    validations: %{},
+    validations: [],
   ]
 
   use ExConstructor
 
   @type t :: %__MODULE__{
-    _id:            %BSON.ObjectId{},
-    title:          String.t,
-    description:    String.t,
-    logo:           String.t,
-    spatial:        String.t,
-    coordinates:    [float()],
-    licence:        String.t,
-    id:             String.t,
-    download_uri:   String.t,
-    anomalies:      [String.t],
-    format:         String.t,
-    validations:    Map.t,
-    error_count:    integer(),
-    notice_count:   integer(),
-    warning_count:  integer(),
-    valid?:         boolean(),
-    catalogue_id:   String.t
-  }
+          _id: %BSON.ObjectId{},
+          title: String.t(),
+          description: String.t(),
+          logo: String.t(),
+          spatial: String.t(),
+          coordinates: [float()],
+          licence: String.t(),
+          slug: String.t(),
+          download_url: String.t(),
+          anomalies: [String.t()],
+          format: String.t(),
+          validations: [Map.t()] | Map.t(),
+          error_count: integer(),
+          notice_count: integer(),
+          warning_count: integer(),
+          valid?: boolean(),
+          catalogue_id: String.t()
+        }
 
   @doc """
   Calculate and add the number of errors to the dataset.
@@ -55,7 +55,7 @@ defmodule Transport.ReusableData.Dataset do
     error_count =
       dataset
       |> Map.get(:validations)
-      |> Map.get("errors", [])
+      |> Enum.filter(&(&1["severity"] == "Error"))
       |> Enum.count()
 
     new(%{dataset | error_count: error_count})
@@ -69,7 +69,7 @@ defmodule Transport.ReusableData.Dataset do
     notice_count =
       dataset
       |> Map.get(:validations)
-      |> Map.get("notices", [])
+      |> Enum.filter(&(&1["severity"] == "Notice"))
       |> Enum.count()
 
     new(%{dataset | notice_count: notice_count})
@@ -83,10 +83,23 @@ defmodule Transport.ReusableData.Dataset do
     warning_count =
       dataset
       |> Map.get(:validations)
-      |> Map.get("warnings", [])
+      |> Enum.filter(&(&1["severity"] == "Warning"))
       |> Enum.count()
 
     new(%{dataset | warning_count: warning_count})
+  end
+
+  @doc """
+  Group by issue type.
+  """
+  @spec assign(%__MODULE__{}, :group_validations) :: %__MODULE__{}
+  def assign(%__MODULE__{} = dataset, :group_validations) do
+    validations =
+    dataset.validations
+    |> Enum.group_by(fn validation -> validation["issue_type"] end)
+    |> Map.new(fn {type, issues} -> {type, %{issues: issues, count: Enum.count issues}} end)
+
+    %{dataset | validations: validations}
   end
 
   @doc """

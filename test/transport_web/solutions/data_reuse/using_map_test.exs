@@ -18,13 +18,13 @@ defmodule TransportWeb.Solution.DataReuse.UsingMapTest do
 
   setup_all do
     %_{} = ReusableData.create_dataset %{
-      download_uri: "https://link.to/angers.zip",
+      download_url: "https://link.to/angers.zip",
       license: "odc-odbl",
       title: "Horaires et arrêts du réseau IRIGO - format GTFS",
       anomalies: [],
       coordinates: [-0.5630548425091684,47.47654241641714],
       slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
-      validations: %{"errors" => [], "warnings" => [], "notices" => []}
+      validations: []
     }
 
     :ok
@@ -48,7 +48,8 @@ defmodule TransportWeb.Solution.DataReuse.UsingMapTest do
     assert visible_page_text() =~ "Valide"
 
     # I can download the dataset
-    find_element(:class, "shortlist__link--download")
+    :class
+    |> find_element("shortlist__link--download")
     |> find_within_element(:link_text, "Télécharger")
     |> attribute_value("href")
     |> Kernel.=~("zip")

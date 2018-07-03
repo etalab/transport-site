@@ -7,7 +7,7 @@
     <div class="dataset-details__side-pane side-pane">
       <div>
         <%= img_tag(@dataset.logo, alt: @dataset.title) %>
-        <%= if @dataset.download_uri do %>
+        <%= if @dataset.download_url do %>
           <div class="shortlist__link shortlist__link--external-link">
             <i class="icon icon--link" aria-hidden="true"></i>
             <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
@@ -16,11 +16,11 @@
           </div>
         <% end %>
 
-        <%= if @dataset.download_uri do %>
+        <%= if @dataset.download_url do %>
           <div class="shortlist__link shortlist__link--download">
             <i class="icon icon--download" aria-hidden="true"></i>
             <%= link(dgettext("page-shortlist", "Download"),
-                     to: @dataset.download_uri,
+                     to: @dataset.download_url,
                      role: "link") %>
           </div>
         <% end %>
@@ -101,32 +101,34 @@
           title="<%= dgettext("page-dataset-details", "Modified datasets") %>">
         </communityresources>
       </div>
+
       <div class="dataset-details__validation">
-        <validation
-          id="<%= @dataset.id %>"
-          catalogue_id="<%= @dataset.catalogue_id %>"
-          datasetid="<%= @dataset.id %>"
-          errors="<%= dgettext("page-dataset-details", "Errors") %>"
-          no_errors="<%= dgettext("page-dataset-details", "No errors") %>"
-          warnings="<%= dgettext("page-dataset-details", "Warnings") %>"
-          no_warnings="<%= dgettext("page-dataset-details", "No warnings") %>"
-          notices="<%= dgettext("page-dataset-details", "Notices") %>"
-          no_notices="<%= dgettext("page-dataset-details", "No notices") %>"
-          stop_unused="<%= dgettext("page-dataset-details", "This stop is not referenced by any trips.") %>"
-          duplicate_stop="<%= dgettext("page-dataset-details", "More than one stop was located in exactly the same place.") %>"
-          travel_time_zero="<%= dgettext("page-dataset-details", "The vehicle arrives at this stop at the same time it departs from the previous stop.") %>"
-          travel_time_stoo_slow="<%= dgettext("page-dataset-details", "The vehicle is traveling very slowly to reach this stop from the previous one.") %>"
-          route_long_name_contains_short_name="<%= dgettext("page-dataset-details", "The long name of a route should complement the short name, not include it.") %>"
-          travel_distance_zero="<%= dgettext("page-dataset-details", "The vehicle does not cover any distance between the last stop and this one.") %>"
-          site="<%= @site %>"
-          connected="<%= @current_user != nil %>"
-          posted_on="<%= dgettext("page-dataset-details", "Posted on") %>"
-          respond_comment="<%= dgettext("page-dataset-details", "Respond") %>"
-          post_discussion="<%= dgettext("page-dataset-details", "Begin a new conversation") %>"
-          title="<%= dgettext("page-dataset-details", "Title") %>"
-          connection_needed="<%= dgettext("page-dataset-details", "You need to be connected to post comments")%>">
-        </validation>
+        <h1><%= dgettext("page-dataset-details", "GTFS Validation") %></h1>
+        <%= for {issue_type, issues} <- @dataset.validations do %>
+        <label class="collapse" for="<%= issue_type %>">
+          <h3><%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue_type) %> (<%= issues.count %>)</h3>
+          </label>
+        <input id="<%= issue_type %>" type="checkbox">
+          <table>
+            <tr>
+              <th><%= dgettext("page-dataset-details", "Object ID") %></th>
+              <th><%= dgettext("page-dataset-details", "Object name") %></th>
+              <th><%= dgettext("page-dataset-details", "Related object ID") %></th>
+              <th><%= dgettext("page-dataset-details", "Severity") %></th>
+            </tr>
+
+            <%= for issue <- issues.issues do %>
+              <tr>
+                <td><%= issue["object_id"] %></td>
+                <td><%= issue["object_name"] %></td>
+                <td><%= issue["related_object_id"] %></td>
+                <td><%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue["severity"]) %></td>
+              </tr>
+            <% end %>
+          </table>
+        <% end %>
       </div>
+
       <div class="dataset-details__discussions">
         <h1>Discussions</h1>
         <discussions
