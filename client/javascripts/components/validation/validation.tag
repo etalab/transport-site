@@ -25,9 +25,9 @@
             this.update()
         })
 
-        this.get_validations = (slug) => {
+        this.get_validations = (id) => {
             this.validator = 'catalogue'
-            fetch('/api/datasets/' + slug + '/validations/'
+            fetch('/api/datasets/' + id + '/validations/'
             ).then((response) => {
                 return response.json()
             }).then((data) => {

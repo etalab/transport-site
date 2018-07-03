@@ -21,7 +21,7 @@ defmodule Mix.Tasks.Transport.FetchValidationResults do
       # 3. For each feed source, use the latest_version_id to get the namespace
       Enum.each(feed_sources, fn(feed_source) ->
         case feed_source.latest_version_id do
-          nil -> Logger.warn("No latest version id for slug #{feed_source.name}")
+          nil -> Logger.warn("No latest version id for id #{feed_source.name}")
           latest_version_id ->
             {:ok, feed_version} =
               DataValidation.find_feed_version(%{
@@ -31,7 +31,7 @@ defmodule Mix.Tasks.Transport.FetchValidationResults do
             Mongo.find_one_and_update(
               :mongo,
               "datasets",
-              %{"slug" => feed_source.name},
+              %{"id" => feed_source.name},
               %{"$set" => %{"catalogue_id" => feed_version.namespace}},
               pool: @pool
             )

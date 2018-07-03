@@ -11,6 +11,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
       download_uri: "link.to",
       license: "odc-odbl",
       slug: "leningrad-metro-dataset",
+      id: "beebeebee",
       validations: %{"errors": [], "warnings": [], "notices": []},
     }
 

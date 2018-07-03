@@ -55,13 +55,13 @@ defmodule Transport.Datagouvfr.Client.Datasets do
   end
 
   @doc """
-  Call to GET /api/1/organizations/:slug/datasets/
+  Call to GET /api/1/organizations/:id/datasets/
   You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/organizations/list_organization_datasets
   """
   @spec get(%Plug.Conn{}, map) :: {atom, [map]}
-  def get(%Plug.Conn{} = conn, %{:organization => slug}) do
+  def get(%Plug.Conn{} = conn, %{:organization => id}) do
     conn
-    |> get_request(Path.join(["organizations", slug, @endpoint]))
+    |> get_request(Path.join(["organizations", id, @endpoint]))
     |> case do #We need that for backward compatibility
       {:ok, %{"data" => data}} -> {:ok, data}
       {:ok, data} -> {:ok, data}
@@ -72,34 +72,34 @@ defmodule Transport.Datagouvfr.Client.Datasets do
   end
 
   @doc """
-  Call to GET /api/1/datasets/:slug/
+  Call to GET /api/1/datasets/:id/
   You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/datasets/put_dataset
   """
   @spec get(%Plug.Conn{}, String.t) :: {atom, [map]}
-  def get(%Plug.Conn{} = conn, slug) do
+  def get(%Plug.Conn{} = conn, id) do
     conn
-    |> get_request(Path.join(@endpoint, slug))
+    |> get_request(Path.join(@endpoint, id))
   end
 
   @doc """
-  Call to PUT /api/1/datasets/:slug/
+  Call to PUT /api/1/datasets/:id/
   You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/datasets/put_dataset
   """
   @spec put(%Plug.Conn{}, String.t, map) :: {atom, map}
-  def put(%Plug.Conn{} = conn, slug, dataset) when is_map(dataset) do
+  def put(%Plug.Conn{} = conn, id, dataset) when is_map(dataset) do
     conn
-    |> put_request(Path.join(@endpoint, slug), dataset)
+    |> put_request(Path.join(@endpoint, id), dataset)
   end
 
   @doc """
   Add a tag to a dataset
   """
   @spec put(%Plug.Conn{}, String.t, {:atom, String.t}) :: {atom, map}
-  def put(%Plug.Conn{} = conn, slug, {:add_tag, tag}) do
+  def put(%Plug.Conn{} = conn, id, {:add_tag, tag}) do
     conn
-    |> get(slug)
+    |> get(id)
     |> case do
-      {:ok, dataset} -> put(conn, slug, add_tag(dataset, tag))
+      {:ok, dataset} -> put(conn, id, add_tag(dataset, tag))
       {:error, error} -> {:error, error}
     end
   end

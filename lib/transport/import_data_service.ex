@@ -8,12 +8,12 @@ defmodule Transport.ImportDataService do
   @separators [?;, ?,]
   @csv_headers ["Download", "file", "Fichier"]
 
-  def call(%{"_id" => id, "slug" => slug}) do
-    case import_from_udata(slug) do
+  def call(%{"_id" => mongo_id, "id" => id}) do
+    case import_from_udata(id) do
       {:ok, new_data} ->
         Mongo.find_one_and_update(:mongo,
                                   "datasets",
-                                  %{"_id" => id},
+                                  %{"_id" => mongo_id},
                                   %{"$set" => new_data},
                                   pool: DBConnection.Poolboy)
       {:error, error} ->
@@ -21,12 +21,12 @@ defmodule Transport.ImportDataService do
     end
   end
 
-  def import_from_udata(slug) do
+  def import_from_udata(id) do
     base_url = Application.get_env(:transport, :datagouvfr_site)
-    url      = "#{base_url}/api/1/datasets/#{slug}/"
+    url      = "#{base_url}/api/1/datasets/#{id}/"
 
     Logger.info(" <message>  Importing dataset")
-    Logger.info(" <slug>     #{slug}")
+    Logger.info(" <id>       #{id}")
 
     with {:ok, response}  <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
          {:ok, json} <- Poison.decode(response.body),
@@ -36,7 +36,7 @@ defmodule Transport.ImportDataService do
     else
       {:error, error} ->
         Logger.error("<message>  #{inspect error}")
-        Logger.error("<slug>     #{slug}")
+        Logger.error("<id>       #{id}")
         {:error, error}
     end
   end
@@ -48,7 +48,7 @@ defmodule Transport.ImportDataService do
   def get_dataset(%{} = dataset) do
     dataset =
       dataset
-      |> Map.take(["title", "description", "license", "slug"])
+      |> Map.take(["title", "description", "license", "id", "slug"])
       |> Map.put("datagouv_id", dataset["id"])
       |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
       |> Map.put("task_id", Map.get(dataset, "task_id"))

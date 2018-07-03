@@ -4,7 +4,6 @@ defmodule Transport.ReusableData do
   """
 
   alias Transport.ReusableData.{Dataset, Licence}
-  alias Transport.Datagouvfr.Client.Datasets
   require Logger
 
   @pool DBConnection.Poolboy
@@ -45,7 +44,7 @@ defmodule Transport.ReusableData do
   end
 
   @doc """
-  Return one dataset by slug
+  Return one dataset by id
 
   ## Examples
 
@@ -162,15 +161,4 @@ defmodule Transport.ReusableData do
     Licence.new(attrs)
   end
 
-  def get_dataset_id(conn, dataset) do
-    conn
-    |> Datasets.get(dataset.slug)
-    |> case do
-      {:ok, %{"id" => id}} -> id
-      {:ok, _}             -> nil
-      {:error, error}      ->
-        Logger.error(error)
-        nil
-    end
-  end
 end

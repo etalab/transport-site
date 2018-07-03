@@ -23,7 +23,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
       title: "Horaires et arrêts du réseau IRIGO - format GTFS",
       anomalies: [],
       coordinates: [-0.5630548425091684,47.47654241641714],
-      slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
+      id: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
       validations: %{"errors" => [], "warnings" => [], "notices" => []}
     }
 

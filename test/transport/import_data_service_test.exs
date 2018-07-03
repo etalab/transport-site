@@ -29,8 +29,8 @@ defmodule Transport.ImportDataServiceTest do
       "priv/repo/datasets.json"
       |> File.read!
       |> Poison.decode!
-      |> Enum.each(fn %{"slug" => slug} ->
-        assert {:ok, _} = ImportDataService.import_from_udata(slug)
+      |> Enum.each(fn %{"id" => id} ->
+        assert {:ok, _} = ImportDataService.import_from_udata(id)
       end)
     end
   end

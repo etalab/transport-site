@@ -15,24 +15,24 @@ defmodule Transport.Datagouvfr.Client.OrganizationsTest do
   test "search organizations" do
     use_cassette "client/organizations/search-1" do
       assert {:ok, data} = Client.Organizations.get(build_conn(), %{:q => "angers"})
-      assert %{"data" => [%{"slug" => slug}|_]} = data
-      assert slug == "angers-loire-metropole"
+      assert %{"data" => [%{"id" => id}|_]} = data
+      assert id == "538346d6a3a72906c7ec5c36"
     end
   end
 
   test "get one organization" do
     use_cassette "client/organizations/one-3" do
-      assert {:ok, data} = Client.Organizations.get(build_conn(), "angers-loire-metropole")
-      assert %{"slug" => slug} = data
-      assert slug == "angers-loire-metropole"
+      assert {:ok, data} = Client.Organizations.get(build_conn(), "538346d6a3a72906c7ec5c36")
+      assert %{"id" => id} = data
+      assert id == "538346d6a3a72906c7ec5c36"
     end
   end
 
   test "get one organization with datasets" do
     use_cassette "client/organizations/with-datasets-3" do
-      assert {:ok, data} = Client.Organizations.get(build_conn(), "angers-loire-metropole", :with_datasets)
-      assert %{"slug" => slug} = data
-      assert slug == "angers-loire-metropole"
+      assert {:ok, data} = Client.Organizations.get(build_conn(), "538346d6a3a72906c7ec5c36", :with_datasets)
+      assert %{"id" => id} = data
+      assert id == "538346d6a3a72906c7ec5c36"
       assert data |> Map.get("datasets") |> Enum.count() > 0
     end
   end

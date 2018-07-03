@@ -66,11 +66,11 @@
         </div>
       </div>
       <div>
-        <a class="button button--fullwidth is-centered" href="<%= user_path(@conn, :organizations, linked_dataset_slug: @dataset.slug) %>"><%= dgettext("page-dataset-details", "Publish a modified version dataset") %></a>
+        <a class="button button--fullwidth is-centered" href="<%= user_path(@conn, :organizations, linked_dataset_id: @dataset.id) %>"><%= dgettext("page-dataset-details", "Publish a modified version dataset") %></a>
       </div>
       <div class="dataset-details__followers">
           <dataset-followers
-            dataset_id="<%= @dataset_id %>"
+            dataset_id="<%= @dataset.id %>"
             site="<%= @site %>"
             user_id="<%= if !is_nil(@current_user), do: @current_user["id"], else: nil %>"
             subscribe_to_dataset="<%= dgettext("page-dataset-details", "Subscribe to dataset") %>"
@@ -93,19 +93,19 @@
       </div>
       <div class="dataset-details__community-resources">
         <communityresources
-          datasetid="<%= @dataset_id %>"
+          datasetid="<%= @dataset.id %>"
           download="<%= dgettext("page-shortlist", "Download") %>"
           no_community_resources="<%= dgettext("page-dataset-details", "There is no linked dataset yet") %>"
           site="<%= @site %>"
-          slug="<%= @dataset.slug %>"
+          id="<%= @dataset.id %>"
           title="<%= dgettext("page-dataset-details", "Modified datasets") %>">
         </communityresources>
       </div>
       <div class="dataset-details__validation">
         <validation
-          slug="<%= @dataset.slug %>"
+          id="<%= @dataset.id %>"
           catalogue_id="<%= @dataset.catalogue_id %>"
-          datasetid="<%= @dataset_id %>"
+          datasetid="<%= @dataset.id %>"
           errors="<%= dgettext("page-dataset-details", "Errors") %>"
           no_errors="<%= dgettext("page-dataset-details", "No errors") %>"
           warnings="<%= dgettext("page-dataset-details", "Warnings") %>"
@@ -130,7 +130,7 @@
       <div class="dataset-details__discussions">
         <h1>Discussions</h1>
         <discussions
-          datasetid="<%= @dataset_id %>"
+          datasetid="<%= @dataset.id %>"
           site="<%= @site %>"
           connected="<%= @current_user != nil %>"
           posted_on="<%= dgettext("page-dataset-details", "Posted on") %>"
