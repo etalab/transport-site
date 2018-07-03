@@ -7,12 +7,12 @@ defmodule Transport.DataValidation.Aggregates.Dataset do
 
   use GenServer
   use ExConstructor
-  alias Transport.DataValidation.Supervisor
   alias Transport.DataValidation.Aggregates.Dataset
-  alias Transport.DataValidation.Queries.FindDataset
   alias Transport.DataValidation.Commands.{CreateDataset, ValidateDataset}
-  alias Transport.DataValidation.Events.{DatasetCreated, DatasetValidated, DatasetUpdated}
+  alias Transport.DataValidation.Events.{DatasetCreated, DatasetUpdated, DatasetValidated}
+  alias Transport.DataValidation.Queries.FindDataset
   alias Transport.DataValidation.Repo.Dataset, as: Repo
+  alias Transport.DataValidation.Supervisor
 
   @registry :dataset_registry
   @timeout 60_000

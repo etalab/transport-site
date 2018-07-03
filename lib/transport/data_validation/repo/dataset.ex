@@ -5,8 +5,8 @@ defmodule Transport.DataValidation.Repo.Dataset do
 
   alias BSON.ObjectId
   alias Transport.DataValidation.Aggregates.Dataset
-  alias Transport.DataValidation.Queries.FindDataset
   alias Transport.DataValidation.Events.{DatasetCreated, DatasetUpdated, DatasetValidated}
+  alias Transport.DataValidation.Queries.FindDataset
 
   # mongodb
   @pool DBConnection.Poolboy

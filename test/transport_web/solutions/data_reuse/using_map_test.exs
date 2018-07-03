@@ -48,7 +48,8 @@ defmodule TransportWeb.Solution.DataReuse.UsingMapTest do
     assert visible_page_text() =~ "Valide"
 
     # I can download the dataset
-    find_element(:class, "shortlist__link--download")
+    :class
+    |> find_element("shortlist__link--download")
     |> find_within_element(:link_text, "Télécharger")
     |> attribute_value("href")
     |> Kernel.=~("zip")

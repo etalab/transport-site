@@ -75,7 +75,7 @@ defmodule Transport.ImportDataService do
           {:error, error} ->
             Logger.warn(" <message>  #{inspect error}")
 
-            Enum.map(resources, fn resource ->
+            Enum.each(resources, fn resource ->
               Logger.warn(" <resource> #{resource["url"]}")
             end)
 

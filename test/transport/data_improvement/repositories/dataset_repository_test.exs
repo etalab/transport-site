@@ -1,8 +1,8 @@
 defmodule Transport.DataImprovement.DatasetRepositoryTest do
   use TransportWeb.ConnCase, async: false # smell
   use TransportWeb.ExternalCase # smell
-  alias Transport.DataImprovement.{Dataset, DatasetRepository}
   alias Transport.Datagouvfr.Authentication # smell
+  alias Transport.DataImprovement.{Dataset, DatasetRepository}
 
   doctest DatasetRepository
 

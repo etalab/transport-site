@@ -4,8 +4,8 @@ defmodule Transport.DataValidation do
   """
 
   alias Transport.DataValidation.Aggregates.Dataset
-  alias Transport.DataValidation.Queries.FindDataset
   alias Transport.DataValidation.Commands.{CreateDataset, ValidateDataset}
+  alias Transport.DataValidation.Queries.FindDataset
 
   @doc """
   Finds a dataset.
