@@ -14,7 +14,7 @@ defmodule Transport.ReusableData.Dataset do
     :licence,
     :slug,
     :id,
-    :download_uri,
+    :download_url,
     :anomalies,
     :format,
     :error_count,
