@@ -13,6 +13,7 @@
     "linter:sass": "sass-lint -c ../.sass-lint.yml  -v -q"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.1.0",
     "babel-core": "^7.0.0-beta.1",
     "babel-loader": "^7.1.2",
     "babel-preset-es2015": "^7.0.0-beta.1",
@@ -23,7 +24,6 @@
     "exports-loader": "^0.6.4",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.5",
-    "font-awesome": "^4.7.0",
     "graphql-request": "^1.4.0",
     "import-glob-loader": "^1.1.0",
     "imports-loader": "^0.7.1",
