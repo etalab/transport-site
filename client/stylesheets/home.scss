@@ -1,0 +1,24 @@
+.illustration {
+  height: 500px;
+  background: url('/images/transport.svg') center center no-repeat;
+  background-size: cover;
+}
+
+.tools .row {
+  direction: rtl;
+}
+
+.tools .column {
+  direction: ltr;
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 899px) {
+  .row {
+    flex-direction: column;
+  }
+}
