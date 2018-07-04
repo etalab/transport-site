@@ -8,11 +8,9 @@ defmodule TransportWeb.Integration.ContactTest do
     |> page_url(:index)
     |> navigate_to
 
-    assert visible_page_text() =~ "?"
-
-    find_element(:class, "footer-help--on")
-    |> inner_text
-    |> Kernel.=~("?")
+    :class
+    |> find_element("footer-help--on")
+    |> find_within_element(:class, "icon--envelope")
     |> assert
   end
 end
