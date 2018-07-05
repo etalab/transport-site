@@ -5,12 +5,10 @@
   <h1><%= dgettext("user", "Second step") %></h1>
   <h2><%= dgettext("user", "Choose a dataset you want to be on transport.data.gouv.fr") %></h2>
   <p>
-    La réutilisation des informations disponibles sur transports.data.gouv.fr est soumise à la licence ODbL.
+    La réutilisation des informations disponibles sur transport.data.gouv.fr est soumise à la licence ODbL.
     <br />
     <br />
-    <i>
-      Il est précisé que la clause de partage à l’identique figurant à l’article 4.4 concerne les informations de même nature, de même granularité, de même conditions temporelles et de même emprise géographique.
-    </i>
+    Il est précisé que la clause de partage à l’identique figurant à l’article 4.4 concerne les informations de même nature, de même granularité, de même conditions temporelles et de même emprise géographique.
   </p>
 
   <div class="is-centered">

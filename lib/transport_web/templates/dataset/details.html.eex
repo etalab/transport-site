@@ -83,12 +83,10 @@
         <markdown content="<%= @dataset.description %>"></markdown>
         <h1 style="background: hsl(213, 26%, 83%);">Conditions d'utilisation</h1>
         <p>
-          La réutilisation des informations disponibles sur transports.data.gouv.fr est soumise à la licence ODbL.
+          La réutilisation des informations disponibles sur transport.data.gouv.fr est soumise à la licence ODbL.
           <br />
           <br />
-          <i>
-            Il est précisé que la clause de partage à l’identique figurant à l’article 4.4 concerne les informations de même nature, de même granularité, de même conditions temporelles et de même emprise géographique.
-          </i>
+          Il est précisé que la clause de partage à l’identique figurant à l’article 4.4 concerne les informations de même nature, de même granularité, de même conditions temporelles et de même emprise géographique.
         </p>
       </div>
       <div class="dataset-details__community-resources">
