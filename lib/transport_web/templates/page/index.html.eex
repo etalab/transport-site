@@ -31,7 +31,7 @@ Elle améliore significativement les liens entre producteurs et réutilisateurs 
             <div class="column cta">
                 <div>
                     <img src="<%= static_path(@conn, "/images/bus.svg") %>" alt="" />
-                    <a class="button button--fullwidth" href="<%= static_path(@conn, "/documents/20180320_TransportDataGouv.pdf") %>" role="link">
+                    <a class="button button--fullwidth" href="<%= static_path(@conn, "/documents/TransportDataGouv.pdf") %>" role="link">
                     <i class="icon icon--file" aria-hidden="true"></i>
                     <%= dgettext("page-index", "Download presentation") %>
                     </a>
