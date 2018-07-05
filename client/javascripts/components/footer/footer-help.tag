@@ -9,7 +9,7 @@
 
     <div>
         <a href="#"onclick={ showMessageBox }>
-          <div class="footer-help--on" if={ roundVisible } onmouseover={ showHelpMessage }>?</div>
+          <div class="footer-help--on" if={ roundVisible } onmouseover={ showHelpMessage }><i class="fas icon--envelope"></i></div>
           <div class="footer-help--on" if={ helpMessageVisible } onmouseleave={ showRound }>{ opts.ask_for_help }</div>
         </a>
 

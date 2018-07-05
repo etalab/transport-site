@@ -34,15 +34,15 @@ msgstr "Choisissez un jeu de données que vous voulez publier sur transport.data
 msgid "Second step"
 msgstr "Deuxième étape"
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:41
+#: lib/transport_web/templates/user/organization_datasets.html.eex:39
 msgid "Add this dataset"
 msgstr "Ajouter ce jeu de données"
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:27
+#: lib/transport_web/templates/user/organization_datasets.html.eex:25
 msgid "Organization"
 msgstr "Organisation"
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:23
+#: lib/transport_web/templates/user/organization_datasets.html.eex:21
 msgid "Go back to organizations list"
 msgstr "Revenir à la liste des organisations"
 
@@ -51,7 +51,7 @@ msgstr "Revenir à la liste des organisations"
 msgid "Create an organization"
 msgstr "Créer une organisation"
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:48
+#: lib/transport_web/templates/user/organization_datasets.html.eex:46
 msgid "You need to add a dataset on data.gouv.fr"
 msgstr "Vous devez ajouter un jeu de données"
 
@@ -79,7 +79,7 @@ msgstr "Vous devez donner une description"
 msgid "You need to provide an organisation name"
 msgstr "Vous devez donner un nom"
 
-#: lib/transport_web/templates/user/organization_datasets.html.eex:18
+#: lib/transport_web/templates/user/organization_datasets.html.eex:16
 msgid "Upload a new dataset"
 msgstr "Ajouter un nouveau de données"
 

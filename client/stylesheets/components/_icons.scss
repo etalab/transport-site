@@ -1,5 +1,5 @@
 .icon {
-  @extend .fa;
+  @extend .fas;
 }
 
 .icon--badge {
@@ -15,19 +15,19 @@
 }
 
 .icon--hand-up {
-  @extend .fa-hand-o-up;
+  @extend .fa-hand-point-up;
 }
 
 .icon--link {
-  @extend .fa-external-link;
+  @extend .fa-external-link-alt;
 }
 
 .icon--login {
-  @extend .fa-sign-in;
+  @extend .fa-sign-in-alt;
 }
 
 .icon--logout {
-  @extend .fa-sign-out;
+  @extend .fa-sign-out-alt;
 }
 
 .icon--open {
@@ -35,7 +35,7 @@
 }
 
 .icon--reuse {
-  @extend .fa-mobile-phone;
+  @extend .fa-mobile-alt;
 }
 
 .icon--user-plus {
@@ -48,4 +48,8 @@
 
 .icon--file {
   @extend .fa-file;
+}
+
+.icon--envelope {
+  @extend .fa-envelope;
 }
