@@ -12,7 +12,7 @@
     "coordinates": [-1.681632, 48.113844]
 }, {
     "spatial": "Angers Loire M\u00e9tropole",
-    "id": "5aa35ca2b59508207b0d3df0",
+    "id": "5a9804ff88ee38702d82ea8d",
     "coordinates": [-0.556585, 47.47207]
 }, {
     "spatial": "M\u00e9tropole europ\u00e9enne de Lille",
@@ -90,5 +90,19 @@
     "spatial": "Communauté d'Agglomération de La Rochelle",
     "coordinates": [-1.1765, 46.1620],
     "id": "5ae6e81f88ee38775129a7bd"
+},{
+    "spatial": "Région Sud Provence Alpes Côte d'Azur",
+    "coordinates": [5.976, 44.064],
+    "id": "5b3b79b988ee38449536e083"
+},{
+    "spatial": "Région Sud Provence Alpes Côte d'Azur",
+    "coordinates": [5.976, 44.064],
+    "id": "5b433339c751df1f28d49574"
+},{
+    "spatial": "Métropole d'Aix-Marseille-Provence",
+    "coordinates": [5.3475, 43.4953],
+    "id": "5b3b3de988ee38708ada1789"
 }]
+
+
 
