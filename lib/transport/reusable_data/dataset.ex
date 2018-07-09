@@ -18,6 +18,7 @@ defmodule Transport.ReusableData.Dataset do
     :anomalies,
     :format,
     :error_count,
+    :fatal_count,
     :notice_count,
     :warning_count,
     :valid?,
@@ -41,6 +42,7 @@ defmodule Transport.ReusableData.Dataset do
           format: String.t(),
           validations: [Map.t()] | Map.t(),
           error_count: integer(),
+          fatal_count: integer(),
           notice_count: integer(),
           warning_count: integer(),
           valid?: boolean(),
@@ -59,6 +61,20 @@ defmodule Transport.ReusableData.Dataset do
       |> Enum.count()
 
     new(%{dataset | error_count: error_count})
+  end
+
+  @doc """
+  Calculate and add the number of fatals errors to the dataset.
+  """
+  @spec assign(%__MODULE__{}, :fatal_count) :: %__MODULE__{}
+  def assign(%__MODULE__{} = dataset, :fatal_count) do
+    fatal_count =
+      dataset
+      |> Map.get(:validations)
+      |> Enum.filter(&(&1["severity"] == "Fatal"))
+      |> Enum.count()
+
+    new(%{dataset | fatal_count: fatal_count})
   end
 
   @doc """
@@ -107,6 +123,6 @@ defmodule Transport.ReusableData.Dataset do
   """
   @spec assign(%__MODULE__{}, :valid?) :: %__MODULE__{}
   def assign(%__MODULE__{} = dataset, :valid?) do
-    new(%{dataset | valid?: dataset.error_count == 0})
+    new(%{dataset | valid?: dataset.fatal_count == 0})
   end
 end
