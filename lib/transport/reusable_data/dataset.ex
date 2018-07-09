@@ -123,6 +123,9 @@ defmodule Transport.ReusableData.Dataset do
   """
   @spec assign(%__MODULE__{}, :valid?) :: %__MODULE__{}
   def assign(%__MODULE__{} = dataset, :valid?) do
-    new(%{dataset | valid?: dataset.fatal_count == 0})
+    # We have some neptune datasets. Until we know how to handle them,
+    # we accept files that won’t be validated
+    # new(%{dataset | valid?: dataset.fatal_count == 0})
+    new(%{dataset | valid?: true})
   end
 end
