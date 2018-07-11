@@ -7,7 +7,8 @@
         this.converter = new Converter()
 
         this.set = () => {
-            this.root.firstChild.innerHTML = this.converter.makeHtml(this.opts.content)
+            const text = this.opts.content || this.root._innerHTML
+            this.root.firstChild.innerHTML = this.converter.makeHtml(text)
         }
 
         this.on('update', this.set)
