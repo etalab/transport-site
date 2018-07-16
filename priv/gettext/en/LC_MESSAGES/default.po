@@ -23,10 +23,6 @@ msgstr ""
 msgid "Contact"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_footer.html.eex:25
-msgid "Terms of Service"
-msgstr ""
-
 #: lib/transport_web/templates/layout/app.html.eex:7
 msgid "Publish, improve and reuse French public transport data"
 msgstr ""
@@ -58,4 +54,8 @@ msgstr ""
 
 #: lib/transport_web/templates/layout/_footer.html.eex:6
 msgid "Ask for help"
+msgstr ""
+
+#: lib/transport_web/templates/layout/_footer.html.eex:25
+msgid "Legal Information"
 msgstr ""
