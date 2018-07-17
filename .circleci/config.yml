@@ -26,7 +26,7 @@ jobs:
 
   install_back:
     docker:
-      - image: betagouv/transport:0.1.0
+      - image: betagouv/transport:0.1.1
         environment:
           MIX_ENV: test
 
@@ -58,7 +58,7 @@ jobs:
 
   install_front:
     docker:
-      - image: betagouv/transport:0.1.0
+      - image: betagouv/transport:0.1.1
 
     working_directory: ~/transport
 
@@ -82,7 +82,7 @@ jobs:
 
   compile_assets:
     docker:
-      - image: betagouv/transport:0.1.0
+      - image: betagouv/transport:0.1.1
 
     working_directory: ~/transport
 
@@ -113,7 +113,7 @@ jobs:
 
   test_lint:
     docker:
-      - image: betagouv/transport:0.1.0
+      - image: betagouv/transport:0.1.1
         environment:
           MIX_ENV: test
 
@@ -142,7 +142,7 @@ jobs:
 
   test_unit:
     docker:
-      - image: betagouv/transport:0.1.0
+      - image: betagouv/transport:0.1.1
         environment:
           MIX_ENV: test
       - image: mongo:3.7-jessie
@@ -166,19 +166,13 @@ jobs:
 
   test_integration:
     docker:
-      - image: betagouv/transport:0.1.0
+      - image: betagouv/transport:0.1.1
         environment:
           MIX_ENV: test
-          GTFS_VALIDATOR_URL: $GTFS_VALIDATOR_URL
+          GTFS_VALIDATOR_URL: transport-validator.cleverapps.io
       - image: mongo:3.7-jessie
-      - image: postgres:10.3
-        environment:
-          POSTGRES_DB: catalogue
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: password
       - image: wernight/phantomjs
         command: phantomjs --webdriver=8910
-      - image: betagouv/datatools:fix_graphql_spec
 
     working_directory: ~/transport
 
@@ -203,7 +197,7 @@ jobs:
 
   test_solution:
     docker:
-      - image: betagouv/transport:0.1.0
+      - image: betagouv/transport:0.1.1
         environment:
           MIX_ENV: test
       - image: wernight/phantomjs
@@ -233,7 +227,7 @@ jobs:
 
   test_external:
     docker:
-      - image: betagouv/transport:0.1.0
+      - image: betagouv/transport:0.1.1
         environment:
           MIX_ENV: test
           DATAGOUVFR_SITE: https://www.data.gouv.fr
