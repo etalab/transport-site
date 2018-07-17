@@ -3,13 +3,8 @@
         <map class="hero__map", link-class='map__link map__link--reuse'></map>
         <div class="hero__title">
             <div class="container">
-                <h1><%= dgettext("page-index", "What is transport.data.gouv.fr?") %></h1>
-                <p>L’ouverture des données transport est une opportunité pour garantir une information voyageur fiable sur l’ensemble du territoire national.<br/>
-
-La plateforme transport.data.gouv.fr constitue le Point d’Accès National français et vise à référencer l’ensemble des données transports.<br/>
-Elle améliore significativement les liens entre producteurs et réutilisateurs de données, et fournit l’ensemble des outils et informations nécessaires à leur mise en qualité, leur interopérabilité et leur réutilisation.</p>
-
-
+                <h1><Le Point d'Accès National></h1>
+                <p>La plateforme transport.data.gouv.fr vise à référencer l’ensemble des données transports pour en faciliter la réutilisation et garantir aux usagers une information voyageur fiable sur leurs déplacements au quotidien.</p>
                 </p>
             </div>
         </div>
@@ -21,12 +16,8 @@ Elle améliore significativement les liens entre producteurs et réutilisateurs 
         <div class="row">
             <div class="column">
                 <h2>Autorités organisatrices de mobilité (AOM)</h2>
-                <h3>De nouveaux services de mobilité connectés pour vos citoyens</h3>
-                <p>
-                En ouvrant vos données, vous avez l’opportunité de diffuser l’ensemble de l’offre de transport de votre territoire pour améliorer l’information voyageur multimodale dont bénéficient les citoyens.<br/>
-                Ce Point d’Accès National vous garantit une mise en conformité avec les règlementations en vigueur et à venir, de manière pérenne, opérationnelle et gratuite.<br/>
-                La licence harmonisée et les conditions d’utilisation de la plateforme écrites à l’issue d’une concertation équilibrée vous assurent une sécurité juridique totale.
-                </p>
+                <h3>Accélérez le déploiement de services de mobilité innovants au bénéfice des usagers</h3>
+                <p> Les autorités organisatrices ouvrant leurs données via le Point d'Accès National seront les premières à faire bénéficier les usagers de services numériques améliorant l'information voyageur multimodale sur leur ressort territorial. En rejoignant la démarche nationale, elles bénéficient d'outils facilitant la mise en qualité et la mise en conformité avec les règlementations en vigueur et à venir, de manière pérenne, opérationnelle et gratuite. </p>
             </div>
             <div class="column cta">
                 <div>
@@ -44,11 +35,9 @@ Elle améliore significativement les liens entre producteurs et réutilisateurs 
     <div class="container">
         <div class="row">
             <div class="column">
-                <h2>Des outils à votre disposition pour publier vos données en quelques clics</h2>
-                <h3>Publiez en quelques clics</h3>
-                <p>Si votre territoire possède déjà une plateforme de données locale, continuez à l’utiliser : le Point d’Accès National la <em>moissonnera</em> pour référencer vos données transport. Sinon, déposez les directement sur la <a href="https://data.gouv.fr">plateforme nationale</a>.<br/>
-                Dans un premier temps, nous recueillons les données théoriques au format GTFS ou NeTEx et les convertirons au besoin.<br/>
-                Une série d’outils seront mis à votre disposition et la communauté des producteurs et des réutilisateurs vous accompagnera dans la mise en qualité de vos jeux de données pour assurer une information voyageur fiable.</p>
+                <h2>Opérateurs de transport</h2>
+                <h3>Publiez ou référencez vos données en quelques clics</h3>
+                <p>Tous les opérateurs de transport sont tenus de mettre à disposition leurs données relatives à l'information voyageur sur le Point d'Accès National. La publication des données se fait sur la <a href="https://data.gouv.fr">plateforme nationale data.gouv.fr</a>.<br/> en créant un compte personnel rattaché à une organisation. Les données peuvent être au choix hébergées ou simplement référencées par le <em>moissonnage</em> d'une plateforme locale. </p>
             </div>
             <div class="column cta">
                 <div>
@@ -66,11 +55,9 @@ Elle améliore significativement les liens entre producteurs et réutilisateurs 
     <div class="container">
         <div class="row">
             <div class="column">
-                <h2>Ré-utilisateurs des données</h2>
-                <h3>Un point d’accès unique pour toutes les données de France</h3>
-                <p>En rendant disponible l’ensemble des données transport, nous en facilitons la réutilisation pour accélérer le déploiement de vos services de mobilité et améliorer l’information voyageur.<br/>
-                Les données sont proposées dans une licence et un format homogènes réduisant ainsi les barrières à leur exploitation.</br>
-                Pour chaque jeu de données, un interlocuteur est identifié pour vous permettre de communiquer directement avec chaque territoire. </p>
+                <h2>Réutilisateurs de données</h2>
+                <h3>Déployez votre service de mobilité sur de nouveaux territoire, plus facilement</h3>
+                <p>Le Point d'Accès National fournit aux réutilisateurs (éditeurs d'applications, chargés d'études, etc.) un catalogue des données transport mises à disposition en France et téléchargeables sans besoin de s'identifier. Dans la mesure du possible, les données sont proposées dans une licence et un format homogènes, réduisant ainsi les barrières à leur exploitation. Pour chaque jeu de données, un interlocuteur est identifié pour faciliter la communication entre producteurs et réutilisateurs. </p>
             </div>
             <div class="column cta">
                 <div>
