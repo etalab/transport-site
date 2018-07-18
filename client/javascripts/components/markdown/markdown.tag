@@ -4,7 +4,7 @@
     <script type="es6">
         import { Converter } from 'showdown'
 
-        this.converter = new Converter()
+        this.converter = new Converter({simpleLineBreaks: true})
 
         this.set = () => {
             const text = this.opts.content || this.root._innerHTML

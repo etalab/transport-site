@@ -23,10 +23,6 @@ msgstr "Se déconnecter"
 msgid "Contact"
 msgstr "Nous contacter"
 
-#: lib/transport_web/templates/layout/_footer.html.eex:25
-msgid "Terms of Service"
-msgstr "Conditions d'utilisation"
-
 #: lib/transport_web/templates/layout/app.html.eex:7
 msgid "Publish, improve and reuse French public transport data"
 msgstr "Rendre disponible, valoriser et améliorer les données transports"
@@ -59,3 +55,7 @@ msgstr ""
 #: lib/transport_web/templates/layout/_footer.html.eex:6
 msgid "Ask for help"
 msgstr "Demander de l'aide"
+
+#: lib/transport_web/templates/layout/_footer.html.eex:25
+msgid "Legal Information"
+msgstr "Mentions légales"

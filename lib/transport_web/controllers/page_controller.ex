@@ -20,4 +20,8 @@ defmodule TransportWeb.PageController do
   def search_organizations(conn, _params) do
     render(conn, "search_organizations.html")
   end
+
+  def legal(conn, _params) do
+    render(conn, "legal.html")
+  end
 end

@@ -36,6 +36,7 @@ defmodule TransportWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/legal", PageController, :legal
     get "/search_organizations", PageController, :search_organizations
     post "/send_mail", ContactController, :send_mail
 

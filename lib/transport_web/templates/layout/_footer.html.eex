@@ -21,8 +21,8 @@
       <% end %>
 
       <li>
-        <a class="footer__link footer__link--tos" href="#" role="link">
-          <%= gettext "Terms of Service" %>
+        <a class="footer__link footer__link--tos" href="/legal" role="link">
+          <%= gettext "Legal Information" %>
         </a>
       </li>
     </ul>
