@@ -15,7 +15,7 @@ use Mix.Config
 # which you typically run after static files are built.
 config :transport, TransportWeb.Endpoint,
   http: [port: {:system, "PORT"}],
-  url: [scheme: "https", host: "transport-beta.herokuapp.com", port: 443],
+  url: [scheme: "https", host: "transport.data.gouv.fr", port: 443],
   cache_static_manifest: "priv/static/cache_manifest.json",
   secret_key_base: System.get_env("SECRET_KEY_BASE")
 
