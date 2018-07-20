@@ -107,6 +107,10 @@
     "coordinates": [5.3475, 43.4953],
     "id": "5b3b3de988ee38708ada1789"
 },{
+    "spatial": "Bordeaux Métropole",
+    "coordinates": [-0.5862, 44.8635],
+    "id": "5b51eb1fc751df3df77905bc"
+},{
     "spatial": "Région Bretagne",
     "coordinates": [-2.75, 48.2],
     "id": "5b4f2f52c751df4ea419aef3"
