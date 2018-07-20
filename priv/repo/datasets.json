@@ -1,158 +1,198 @@
 [{
     "spatial": "Brest M\u00e9tropole",
     "id": "55ffbe0888ee387348ccb97d",
+    "commune_principale": 29019,
     "coordinates": [-4.487808, 48.389729]
 }, {
     "spatial": "Toulouse M\u00e9tropole",
     "id": "56b0c2fba3a7294d39b88a86",
+    "commune_principale": 31555,
     "coordinates": [1.441019, 43.604268]
 }, {
     "spatial": "Rennes M\u00e9tropole",
     "id": "580a574aa3a7292dcfa9d1da",
+    "commune_principale": 35238,
     "coordinates": [-1.681632, 48.113844]
 }, {
     "spatial": "Angers Loire M\u00e9tropole",
     "id": "5aa35ca2b59508207b0d3df0",
+    "commune_principale": 49007,
     "coordinates": [-0.556585, 47.47207]
 }, {
     "spatial": "M\u00e9tropole europ\u00e9enne de Lille",
     "coordinates": [3.05644, 50.631564],
+    "commune_principale": 59350,
     "id": "58b69b59a3a7295a7d8251db"
 }, {
     "spatial": "Métropole du Grand Nancy",
     "coordinates": [6.182711, 48.692365],
+    "commune_principale": 54395,
     "id": "5aa94714c751df666fefc80f"
 }, {
     "spatial": "Communauté d'agglomération du Boulonnais",
     "coordinates": [1.613152, 50.725249],
+    "commune_principale": 62160,
     "id": "5b0d18ed88ee3836341f603d"
 }, {
     "spatial": "Communauté d'agglomération Royan Atlantique",
     "coordinates": [-1.027697, 45.625611],
+    "commune_principale": 17306,
     "id": "5ad0207bb595085722c04a3c"
 }, {
     "spatial": "Grenoble-Alpes Métropole",
     "coordinates": [5.7154, 45.1841],
+    "commune_principale": 38185,
     "id": "5760038cc751df708cac31a0"
 }, {
     "spatial": "Lorient Agglomération",
     "coordinates": [-3.3792, 47.7494],
+    "commune_principale": 56121,
     "id": "5a09aa9488ee383f43ef7e0a"
 }, {
     "spatial": "Communauté d'agglomération de Metz Métropole",
     "coordinates": [6.1962, 49.1048],
+    "commune_principale": 57463,
     "id": "546609c1c751df1a6f6c8d07"
 }, {
     "spatial": "Vannes Agglo",
     "coordinates": [-2.7486, 47.6577],
+    "commune_principale": 56260,
     "id": "5a6f2ae8c751df6d2358936b"
 }, {
     "spatial": "Métropole Nice-Côte-d'Azur",
     "coordinates": [7.2529, 43.7031],
+    "commune_principale": 6088,
     "id": "59aea7b3b595087a239169d7"
 }, {
     "spatial": "Communauté urbaine du Grand Poitiers",
     "coordinates": [0.3714, 46.5846],
+    "commune_principale": 86194,
     "id": "58ef2cefa3a7293d49c4e178"
 }, {
     "spatial": "Communauté d'agglomération du Grand Montauban",
     "coordinates": [1.3647, 44.0218],
+    "commune_principale": 82121,
     "id": "5ab2376488ee383b60034880"
 }, {
     "spatial": "Nantes Métropole",
     "coordinates": [-1.5603, 47.2383],
+    "commune_principale": 44109,
     "id": "5b475173c751df3f69bba627"
 }, {
     "spatial": "Saint-Brieuc Armor Agglomération",
     "coordinates": [-2.7657, 48.5109],
+    "commune_principale": 22278,
     "id": "5acb317988ee381778cbecf0"
 }, {
     "spatial": "Le Mans Métropole",
     "coordinates": [0.1957, 47.9820],
+    "commune_principale": 72181,
     "id": "5acb75f0c751df341652c886"
 }, {
     "spatial": "Fougères Agglomération",
     "coordinates": [-1.1953, 48.3512],
+    "commune_principale": 35115,
     "id": "588a238d88ee3846659b81a4"
 }, {
     "spatial": "Eurométropole de Strasbourg",
     "coordinates": [7.7621, 48.5691],
+    "commune_principale": 67482,
     "id": "5ae1715488ee384c8ba0342b"
 },{
     "spatial": "Grand Avignon",
     "coordinates": [4.8065, 43.9497],
+    "commune_principale": 84007,
     "id": "5ae2e01d88ee381811e691b5"
 },{
     "spatial": "Communauté d'Agglomération de La Rochelle",
     "coordinates": [-1.1765, 46.1620],
+    "commune_principale": 17300,
     "id": "5ae6eadd88ee3801aab1d2e6"
 },{
     "spatial": "Communauté d'Agglomération de La Rochelle",
     "coordinates": [-1.1765, 46.1620],
+    "commune_principale": 17300,
     "id": "5ae6e81f88ee38775129a7bd"
 },{
     "spatial": "Région Sud Provence Alpes Côte d'Azur",
     "coordinates": [5.976, 44.064],
+    "region": "Région Sud",
     "id": "5b3b79b988ee38449536e083"
 },{
     "spatial": "Région Sud Provence Alpes Côte d'Azur",
     "coordinates": [5.976, 44.064],
+    "region": "Région Sud",
     "id": "5b433339c751df1f28d49574"
 },{
     "spatial": "Région Sud Provence Alpes Côte d'Azur",
     "coordinates": [5.976, 44.064],
+    "region": "Région Sud",
     "id": "5b4333f8c751df212a8d511d"
 },{
     "spatial": "Métropole d'Aix-Marseille-Provence",
     "coordinates": [5.3475, 43.4953],
+    "commune_principale": 13055,
     "id": "5b3b3de988ee38708ada1789"
 },{
     "spatial": "Bordeaux Métropole",
     "coordinates": [-0.5862, 44.8635],
+    "commune_principale": 33063,
     "id": "5b51eb1fc751df3df77905bc"
 },{
     "spatial": "Communauté de communes Maremne Adour Côte-Sud",
     "coordinates": [-1.4290, 43.6311],
+    "commune_principale": 40065,
     "id": "5b58a05c88ee3805b7e7aebd"
 },{
     "spatial": "Communauté d'agglomération du Grand Dax",
     "coordinates": [-1.0636, 43.7026],
+    "commune_principale": 40088,
     "id": "5b5981f688ee386aabb6b331"
 },{
     "spatial": "Communauté d'agglomération Pays Basque",
     "coordinates": [-1.6335, 43.3937],
+    "commune_principale": 64102,
     "id": "5b589f3c88ee38075eaf5f01"
 },{
     "spatial": "Région Nouvelle Aquitaine",
     "coordinates": [0.410, 45.019],
+    "region": "Nouvelle Aquitaine",
     "id": "5b5982d988ee386aabb6b332"
 },{
     "spatial": "Région Nouvelle Aquitaine",
     "coordinates": [0.410, 45.019],
-    "id": "5b5983be88ee386e6b69acde"
+    "id": "5b5983be88ee386e6b69acde",
+    "region": "Nouvelle Aquitaine"
 },{
     "spatial": "Communauté d'agglomération Pays Basque",
     "coordinates": [-1.7515, 43.3833],
+    "commune_principale": 64102,
     "id": "5b5985fd88ee38714b1fe91f"
-},{  
+},{
     "spatial": "Communauté d'Agglomération du Grand Cahors",
     "coordinates": [1.4390, 44.4566],
+    "commune_principale": 46042,
     "id": "5b4f299cc751df452b86361b"
 },{
     "spatial": "Communauté d'Agglomération du Grand Besançon",
     "coordinates": [6.0122, 47.2604],
+    "commune_principale": 25056,
     "id": "5b5b090988ee385b10198107"
 },{
     "spatial": "Région Bretagne",
     "coordinates": [-2.75, 48.2],
+    "region": "Bretagne",
     "id": "5b4f2f52c751df4ea419aef3"
 },{
     "spatial": "Métropole Toulon Provence Méditerranée",
     "coordinates": [5.9334, 43.1368],
+    "commune_principale": 83137,
+    "region": "Région Sud — Provence-Alpes-Côte d’Azur",
     "id": "5b6c1650634f4160a32d2a77"
 },{
     "spatial": "Communauté d'Agglomération Béziers Méditerranée",
     "coordinates": [3.2343, 43.3478],
+    "commune_principale": 34032,
+    "region": "Occitanie",
     "id": "5b6c30668b4c412a8de5191e"
 }]
-
