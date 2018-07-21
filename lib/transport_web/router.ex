@@ -39,6 +39,7 @@ defmodule TransportWeb.Router do
     get "/legal", PageController, :legal
     get "/guide", PageController, :guide
     get "/search_organizations", PageController, :search_organizations
+    get "/stats", StatsController, :index
     post "/send_mail", ContactController, :send_mail
 
     scope "/datasets" do
@@ -92,6 +93,11 @@ defmodule TransportWeb.Router do
       pipe_through :api_authenticated
       post "/", API.DiscussionController, :post_discussion
       post "/:id_", API.DiscussionController, :post_discussion
+    end
+
+    scope "/stats" do
+      pipe_through :accept_json
+      get "/", API.StatsController, :index
     end
   end
 
