@@ -22,7 +22,8 @@ defmodule Transport.ReusableData do
   @spec list_datasets :: [%Dataset{}]
   def list_datasets do
     query = %{
-      anomalies: [],
+      # We display also datasets with anomalies
+      # anomalies: [],
       coordinates: %{"$ne" => nil},
       download_url: %{"$ne" => nil}
     }
