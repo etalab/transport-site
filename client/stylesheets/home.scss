@@ -10,11 +10,17 @@
 
 .tools .column {
   direction: ltr;
+  align-self: center;
 }
 
 .cta {
   display: flex;
   align-items: center;
+}
+
+.button--fullwidth {
+  width: 14em;
+  margin: 0.5em;
 }
 
 @media (max-width: 899px) {

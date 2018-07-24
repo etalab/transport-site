@@ -24,4 +24,8 @@ defmodule TransportWeb.PageController do
   def legal(conn, _params) do
     render(conn, "legal.html")
   end
+
+  def guide(conn, _params) do
+    render(conn, "guide.html")
+  end
 end
