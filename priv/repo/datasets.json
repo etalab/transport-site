@@ -111,6 +111,26 @@
     "coordinates": [-0.5862, 44.8635],
     "id": "5b51eb1fc751df3df77905bc"
 },{
+    "spatial": "Communauté de communes Maremne Adour Côte-Sud",
+    "coordinates": [-1.4290, 43.6311],
+    "id": "5b58a05c88ee3805b7e7aebd"
+},{
+    "spatial": "Communauté d'agglomération du Grand Dax",
+    "coordinates": [-1.0636, 43.7026],
+    "id": "5b5981f688ee386aabb6b331"
+},{
+    "spatial": "Communauté d'agglomération Pays Basque",
+    "coordinates": [-1.6335, 43.3937],
+    "id": "5b589f3c88ee38075eaf5f01"
+},{
+    "spatial": "Région Nouvelle Aquitaine",
+    "coordinates": [0.410, 45.019],
+    "id": "5b5982d988ee386aabb6b332"
+},{
+    "spatial": "Région Nouvelle Aquitaine",
+    "coordinates": [0.410, 45.019],
+    "id": "5b5983be88ee386e6b69acde"
+},{
     "spatial": "Communauté d'Agglomération du Grand Cahors",
     "coordinates": [1.4390, 44.4566],
     "id": "5b4f299cc751df452b86361b"
