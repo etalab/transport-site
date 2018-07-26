@@ -1,6 +1,5 @@
 <div class="hero">
     <div class="hero__container">
-        <map class="hero__map", link-class='map__link map__link--reuse'></map>
         <div class="hero__title">
             <div class="container">
                 <h1>Le Point d'Accès National</h1>
