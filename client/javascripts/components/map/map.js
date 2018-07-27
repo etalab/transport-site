@@ -20,24 +20,28 @@ const Mapbox = {
  */
 export const addMap = (id, featuresUrl, opts) => {
     const map     = Leaflet.map(id).setView([46.370, 2.087], 5)
-    const cluster = Leaflet.markerClusterGroup()
 
-    const features = (data) => {
-        return {
-            'type': 'FeatureCollection',
-            'features': data.map(dataset => {
-                return {
-                    'geometry': {
-                        'type': 'Point',
-                        'coordinates': dataset.attributes.coordinates
-                    },
-                    'properties': {
-                        'title': dataset.attributes.title,
-                        'link': dataset.links.self
-                    },
-                    'type': 'Feature'
-                }
-            })
+    function onEachFeature (feature, layer) {
+        const name = feature.properties['liste_aom_Nom de l’AOM']
+        const type = feature.properties['liste_aom_Forme juridique 2017']
+        const count = feature.properties['dataset_count']
+        const text = count === 0 ? 'Aucun jeu de données'
+            : count === 1 ? 'Un jeu de données'
+            : `${count} jeux de données`
+        const commune = feature.properties['liste_aom_Code INSEE Commune Principale']
+        layer.bindPopup(`<strong>${name}</strong><br/>${type}<br/><a href="/datasets/aom/${commune}">${text}</a>`)
+    }
+
+    const style = feature => {
+        if(feature.properties.dataset_count == 0) {
+            return {
+                weight: 1,
+                color: 'grey'
+            }
+        } else {
+            return {
+                color: 'green'
+            }
         }
     }
 
@@ -51,25 +55,11 @@ export const addMap = (id, featuresUrl, opts) => {
     fetch(featuresUrl)
         .then(response => { return response.json() })
         .then(response => {
-            const geoJSON = Leaflet.geoJSON(features(response.data), {
-                pointToLayer: (feature, latlng) => {
-                    return Leaflet.circleMarker(latlng, {
-                        color: '#B5E28C',
-                        opacity: 0.6,
-                        fillColor: '#6ECC39',
-                        fillOpacity: 0.7,
-                        weight: 10,
-                        radius: 13
-                    }).bindPopup(
-                        `<a class="${opts.linkClass}" role="link" href="${feature.properties.link}">
-                            ${feature.properties.title}
-                        </a>`
-                    )
-                }
+            const geoJSON = Leaflet.geoJSON(response, {
+                onEachFeature: onEachFeature,
+                style: style
             })
-
-            cluster.addLayer(geoJSON)
-            map.addLayer(cluster)
+            map.addLayer(geoJSON)
             map.fitBounds(geoJSON.getBounds())
         })
 
