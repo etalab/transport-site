@@ -6,7 +6,7 @@
 .hero__title {
   position: absolute;
   z-index: 100;
-  background: transparentize($blue, 0.3);
+  background: $blue;
   width: 100%;
   height: 100%;
   display: flex;
@@ -15,16 +15,15 @@
   flex-direction: column;
   opacity: 1;
   transition: opacity 0.5s;
+
+  a.inverted_color {
+    color: white;
+    text-decoration: underline;
+  }
 }
 
 .hero__title markdown {
   width: 90%;
-}
-
-.hero__map {
-  height: 100%;
-  width: 100%;
-  z-index: 10;
 }
 
 .hero h1,
