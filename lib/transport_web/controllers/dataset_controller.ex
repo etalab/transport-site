@@ -95,6 +95,13 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
+  def by_aom(%Plug.Conn{} = conn, %{"commune" => commune}) do
+    communes = ReusableData.list_datasets(commune)
+    conn
+    |> assign(:datasets, communes)
+    |> render("index.html")
+  end
+
   defp get_form_action_function(conn) do
     if get_session(conn, :linked_dataset_id) == nil do
       :create

@@ -13,7 +13,7 @@ defmodule TransportWeb.API.StatsController do
     :mongo
     |> Mongo.aggregate(
       "aoms",
-      [%{ "$lookup" => %{
+      [%{"$lookup" => %{
         "from" => "datasets",
         "localField" => "properties.liste_aom_Code INSEE Commune Principale",
         "foreignField" => "commune_principale",
@@ -21,7 +21,7 @@ defmodule TransportWeb.API.StatsController do
       }}],
       pool: DBConnection.Poolboy
     )
-    |> Enum.map( fn %{"geometry" => geom, "type" => type, "properties" => properties, "datasets" => datasets} -> %{
+    |> Enum.map(fn %{"geometry" => geom, "type" => type, "properties" => properties, "datasets" => datasets} -> %{
       "geometry" => geom,
       "type" => type,
       "properties" => Map.put(properties, "dataset_count", Enum.count datasets)
