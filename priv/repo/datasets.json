@@ -131,6 +131,10 @@
     "coordinates": [0.410, 45.019],
     "id": "5b5983be88ee386e6b69acde"
 },{
+    "spatial": "Communauté d'agglomération Pays Basque",
+    "coordinates": [-1.7515, 43.3833],
+    "id": "5b5985fd88ee38714b1fe91f"
+},{  
     "spatial": "Communauté d'Agglomération du Grand Cahors",
     "coordinates": [1.4390, 44.4566],
     "id": "5b4f299cc751df452b86361b"
