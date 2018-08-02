@@ -46,6 +46,7 @@ defmodule TransportWeb.Router do
       get "/", DatasetController, :index
       get "/:slug/", DatasetController, :details
       get "/aom/:commune", DatasetController, :by_aom
+      get "/region/:region", DatasetController, :by_region
     end
 
     scope "/user" do
@@ -99,6 +100,7 @@ defmodule TransportWeb.Router do
     scope "/stats" do
       pipe_through :accept_json
       get "/", API.StatsController, :index
+      get "/regions", API.StatsController, :regions
     end
   end
 

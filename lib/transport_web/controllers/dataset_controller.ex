@@ -102,6 +102,13 @@ defmodule TransportWeb.DatasetController do
     |> render("index.html")
   end
 
+  def by_region(%Plug.Conn{} = conn, %{"region" => region}) do
+    regions = ReusableData.list_datasets_region(region)
+    conn
+    |> assign(:datasets, regions)
+    |> render("index.html")
+  end
+
   defp get_form_action_function(conn) do
     if get_session(conn, :linked_dataset_id) == nil do
       :create

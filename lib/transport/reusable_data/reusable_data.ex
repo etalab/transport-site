@@ -171,6 +171,16 @@ defmodule Transport.ReusableData do
     })
   end
 
+  def list_datasets_region(region) do
+    query_datasets(%{
+      # We display also datasets with anomalies
+      # anomalies: [],
+      coordinates: %{"$ne" => nil},
+      download_url: %{"$ne" => nil},
+      region: region
+    })
+  end
+
   @spec query_datasets(Map.t) :: [%Dataset{}]
   def query_datasets(%{} = query) do
     :mongo
