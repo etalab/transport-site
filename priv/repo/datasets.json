@@ -146,5 +146,13 @@
     "spatial": "Région Bretagne",
     "coordinates": [-2.75, 48.2],
     "id": "5b4f2f52c751df4ea419aef3"
+},{
+    "spatial": "Métropole Toulon Provence Méditerranée",
+    "coordinates": [5.9334, 43.1368],
+    "id": "5b6c1650634f4160a32d2a77"
+},{
+    "spatial": "Communauté d'Agglomération Béziers Méditerranée",
+    "coordinates": [3.2343, 43.3478],
+    "id": "5b6c30668b4c412a8de5191e"
 }]
 
