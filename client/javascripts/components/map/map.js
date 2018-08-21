@@ -1,5 +1,4 @@
 import Leaflet from 'leaflet'
-import 'leaflet.markercluster'
 
 /**
  * Represents a Mapbox object.
