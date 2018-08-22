@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 
-#: lib/transport_web/templates/dataset/details.html.eex:22
+#: lib/transport_web/templates/dataset/details.html.eex:14
 #: lib/transport_web/templates/dataset/details.html.eex:95
 #: lib/transport_web/templates/dataset/index.html.eex:31
 msgid "Download"
@@ -21,7 +21,7 @@ msgstr "Télécharger"
 msgid "Licence"
 msgstr "License"
 
-#: lib/transport_web/templates/dataset/details.html.eex:13
+#: lib/transport_web/templates/dataset/details.html.eex:23
 #: lib/transport_web/templates/dataset/index.html.eex:22
 msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
