@@ -15,18 +15,17 @@ jobs:
 
     steps:
       - checkout
-      - save_cache:
-          key: v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
+      - persist_to_workspace:
+          root: ~/transport
           paths:
-            - ~/transport
+            - .
 
   install_back:
     <<: *defaults
 
     steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
+      - attach_workspace:
+          at: ~/transport
 
       - restore_cache:
           keys:
