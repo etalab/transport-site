@@ -1,36 +1,27 @@
 version: 2
 
-jobs:
-  checkout:
-    docker:
-      - image: betagouv/transport:0.1.1
-        environment:
+defaults: &defaults
+  working_directory: ~/transport
+  docker:
+    - image: betagouv/transport:0.1.1
+      environment:
           MIX_ENV: test
           MONGODB_URL: mongodb://localhost/transport_test
-          DATATOOLS_URL: http://localhost:4000
           DATAGOUVFR_SITE: https://www.data.gouv.fr
           MAILCHIMP_NEWSLETTER_URL: //gouv.us13.list-manage.com/subscribe/post?u=5ee8bfe0f1b073b49de06a063&amp;id=13db2e9a94
-      - image: mongo:3.7-jessie
-      - image: wernight/phantomjs
-        command: phantomjs --webdriver=8910
-
-    working_directory: ~/transport
+jobs:
+  checkout:
+    <<: *defaults
 
     steps:
       - checkout
-
       - save_cache:
           key: v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - ~/transport
 
   install_back:
-    docker:
-      - image: betagouv/transport:0.1.1
-        environment:
-          MIX_ENV: test
-
-    working_directory: ~/transport
+    <<: *defaults
 
     steps:
       - restore_cache:
@@ -57,10 +48,7 @@ jobs:
             - ~/.mix
 
   install_front:
-    docker:
-      - image: betagouv/transport:0.1.1
-
-    working_directory: ~/transport
+    <<: *defaults
 
     steps:
       - restore_cache:
@@ -81,10 +69,7 @@ jobs:
             - ~/transport/client/node_modules
 
   compile_assets:
-    docker:
-      - image: betagouv/transport:0.1.1
-
-    working_directory: ~/transport
+    <<: *defaults
 
     steps:
       - restore_cache:
@@ -112,12 +97,7 @@ jobs:
             - ~/transport/priv/static/images
 
   test_lint:
-    docker:
-      - image: betagouv/transport:0.1.1
-        environment:
-          MIX_ENV: test
-
-    working_directory: ~/transport
+    <<: *defaults
 
     steps:
       - restore_cache:
@@ -141,13 +121,9 @@ jobs:
             mix npm "run linter:sass"
 
   test_unit:
+    <<: *defaults
     docker:
-      - image: betagouv/transport:0.1.1
-        environment:
-          MIX_ENV: test
       - image: mongo:3.7-jessie
-
-    working_directory: ~/transport
 
     steps:
       - restore_cache:
@@ -165,16 +141,11 @@ jobs:
             mix test
 
   test_integration:
+    <<: *defaults
     docker:
-      - image: betagouv/transport:0.1.1
-        environment:
-          MIX_ENV: test
-          GTFS_VALIDATOR_URL: transport-validator.cleverapps.io
       - image: mongo:3.7-jessie
       - image: wernight/phantomjs
         command: phantomjs --webdriver=8910
-
-    working_directory: ~/transport
 
     steps:
       - restore_cache:
@@ -196,15 +167,11 @@ jobs:
             mix test --only integration
 
   test_solution:
+    <<: *defaults
     docker:
-      - image: betagouv/transport:0.1.1
-        environment:
-          MIX_ENV: test
       - image: wernight/phantomjs
         command: phantomjs --webdriver=8910
       - image: mongo:3.7-jessie
-
-    working_directory: ~/transport
 
     steps:
       - restore_cache:
@@ -226,14 +193,9 @@ jobs:
             mix test --only solution
 
   test_external:
+    <<: *defaults
     docker:
-      - image: betagouv/transport:0.1.1
-        environment:
-          MIX_ENV: test
-          DATAGOUVFR_SITE: https://www.data.gouv.fr
       - image: mongo:3.7-jessie
-
-    working_directory: ~/transport
 
     steps:
       - restore_cache:
