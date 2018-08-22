@@ -1,35 +1,39 @@
 version: 2
 
+default_docker: &default_docker
+  image: betagouv/transport:0.1.1
+  environment:
+    MIX_ENV: test
+    MONGODB_URL: mongodb://localhost/transport_test
+    DATAGOUVFR_SITE: https://www.data.gouv.fr
+    MAILCHIMP_NEWSLETTER_URL: //gouv.us13.list-manage.com/subscribe/post?u=5ee8bfe0f1b073b49de06a063&amp;id=13db2e9a94
+    GTFS_VALIDATOR_URL: https://transport-validator.cleverapps.io
+
 defaults: &defaults
   working_directory: ~/transport
   docker:
-    - image: betagouv/transport:0.1.1
-      environment:
-          MIX_ENV: test
-          MONGODB_URL: mongodb://localhost/transport_test
-          DATAGOUVFR_SITE: https://www.data.gouv.fr
-          MAILCHIMP_NEWSLETTER_URL: //gouv.us13.list-manage.com/subscribe/post?u=5ee8bfe0f1b073b49de06a063&amp;id=13db2e9a94
+    - *default_docker
+
+defaults_with_mongo: &defaults_with_mongo
+  <<: *defaults
+  docker:
+    - *default_docker
+    - image: mongo:3.7-jessie
+
+defaults_with_mongo_and_phantom: &defaults_with_mongo_and_phantom
+    <<: *defaults
+    docker:
+      - *default_docker
+      - image: wernight/phantomjs
+        command: phantomjs --webdriver=8910
+      - image: mongo:3.7-jessie
+
 jobs:
-  checkout:
+  build:
     <<: *defaults
 
     steps:
       - checkout
-      - persist_to_workspace:
-          root: ~/transport
-          paths:
-            - .
-
-  install_back:
-    <<: *defaults
-
-    steps:
-      - attach_workspace:
-          at: ~/transport
-
-      - restore_cache:
-          keys:
-            - v1-deps_back-{{ checksum "mix.lock" }}
 
       - run:
           name: Install mix dependencies
@@ -39,77 +43,25 @@ jobs:
           name: Compile mix dependencies
           command: mix deps.compile
 
-      - save_cache:
-          key: v1-deps_back-{{ checksum "mix.lock" }}
-          paths:
-            - ~/transport/_build
-            - ~/transport/deps
-            - ~/.mix
-
-  install_front:
-    <<: *defaults
-
-    steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_front-{{ checksum "client/yarn.lock" }}
-
       - run:
           name: Install yarn dependencies
           command: cd ~/transport/client && yarn install
-
-      - save_cache:
-          key: v1-deps_front-{{ checksum "client/yarn.lock" }}
-          paths:
-            - ~/transport/client/node_modules
-
-  compile_assets:
-    <<: *defaults
-
-    steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_front-{{ checksum "client/yarn.lock" }}
-
-      - restore_cache:
-          keys:
-            - v1-static-{{ .Environment.CIRCLE_SHA1 }}
 
       - run:
           name: Compile assets
           command: cd ~/transport/client && npm run deploy
 
-      - save_cache:
-          key: v1-static-{{ .Environment.CIRCLE_SHA1 }}
+      - persist_to_workspace:
+          root: ~/transport
           paths:
-            - ~/transport/priv/static/js
-            - ~/transport/priv/static/css
-            - ~/transport/priv/static/fonts
-            - ~/transport/priv/static/images
+            - .
 
   test_lint:
     <<: *defaults
 
     steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_back-{{ checksum "mix.lock" }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_front-{{ checksum "client/yarn.lock" }}
+      - attach_workspace:
+          at: ~/transport
 
       - run:
           name: Run linters
@@ -120,18 +72,10 @@ jobs:
             mix npm "run linter:sass"
 
   test_unit:
-    <<: *defaults
-    docker:
-      - image: mongo:3.7-jessie
-
+    <<: *defaults_with_mongo
     steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_back-{{ checksum "mix.lock" }}
+      - attach_workspace:
+          at: ~/transport
 
       - run:
           name: Run tests
@@ -140,24 +84,11 @@ jobs:
             mix test
 
   test_integration:
-    <<: *defaults
-    docker:
-      - image: mongo:3.7-jessie
-      - image: wernight/phantomjs
-        command: phantomjs --webdriver=8910
+    <<: *defaults_with_mongo_and_phantom
 
     steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_back-{{ checksum "mix.lock" }}
-
-      - restore_cache:
-          keys:
-            - v1-static-{{ .Environment.CIRCLE_SHA1 }}
+      - attach_workspace:
+          at: ~/transport
 
       - run:
           name: Run tests
@@ -166,24 +97,11 @@ jobs:
             mix test --only integration
 
   test_solution:
-    <<: *defaults
-    docker:
-      - image: wernight/phantomjs
-        command: phantomjs --webdriver=8910
-      - image: mongo:3.7-jessie
+    <<: *defaults_with_mongo_and_phantom
 
     steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_back-{{ checksum "mix.lock" }}
-
-      - restore_cache:
-          keys:
-            - v1-static-{{ .Environment.CIRCLE_SHA1 }}
+      - attach_workspace:
+          at: ~/transport
 
       - run:
           name: Run tests
@@ -192,18 +110,11 @@ jobs:
             mix test --only solution
 
   test_external:
-    <<: *defaults
-    docker:
-      - image: mongo:3.7-jessie
+    <<: *defaults_with_mongo
 
     steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_back-{{ checksum "mix.lock" }}
+      - attach_workspace:
+          at: ~/transport
 
       - run:
           name: Run tests
@@ -242,46 +153,32 @@ jobs:
             sleep 5
             heroku restart
 
+
 workflows:
   version: 2
   transport:
     jobs:
-      - checkout
-
-      - install_back:
-          requires:
-            - checkout
-
-      - install_front:
-          requires:
-            - checkout
-
-      - compile_assets:
-          requires:
-            - install_front
+      - build
 
       - test_lint:
           requires:
-            - install_back
-            - install_front
+            - build
 
       - test_unit:
           requires:
-            - install_back
+            - build
 
       - test_integration:
           requires:
-            - install_back
-            - compile_assets
+            - build
 
       - test_solution:
           requires:
-            - install_back
-            - compile_assets
+            - build
 
       - test_external:
           requires:
-            - install_back
+            - build
 
       - deploy:
           requires:
