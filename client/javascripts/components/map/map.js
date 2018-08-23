@@ -126,5 +126,25 @@ export const addMap = (id, aomsUrl, regionsUrl, opts) => {
             //map.fitBounds(geoJSON.getBounds())
         })
 
+    const legend = L.control({position: 'bottomright'});
+    legend.onAdd = function (map) {
+
+        const div = L.DomUtil.create('div', 'info legend'),
+              colors = ['green', 'orange', 'grey'],
+              labels = ['Données disponible', 'Données partiellement disponible', 'Aucune donnée disponible'];
+
+        div.innerHTML += '<h4>Disponibilté des horaires théoriques</h4>'
+        // loop through our density intervals and generate a label with a colored square for each interval
+        for (var i = 0; i < colors.length; i++) {
+            div.innerHTML +=
+                `<i style="background:${colors[i]}"></i>${labels[i]}<br/>`;
+        }
+
+        return div;
+    };
+
+    legend.addTo(map);
+
+
     return map
 }
