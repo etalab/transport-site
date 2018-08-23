@@ -21,29 +21,12 @@ defmodule Transport.ReusableData do
   """
   @spec list_datasets :: [%Dataset{}]
   def list_datasets do
-    query = %{
+    query_datasets(%{
       # We display also datasets with anomalies
       # anomalies: [],
       coordinates: %{"$ne" => nil},
       download_url: %{"$ne" => nil}
-    }
-
-    :mongo
-    |> Mongo.find("datasets", query, pool: @pool)
-    |> Enum.to_list()
-    |> Enum.map(&Dataset.new(&1))
-    |> Enum.reduce([], fn(dataset, acc) ->
-      dataset =
-        dataset
-        |> Dataset.assign(:error_count)
-        |> Dataset.assign(:fatal_count)
-        |> Dataset.assign(:notice_count)
-        |> Dataset.assign(:warning_count)
-        |> Dataset.assign(:valid?)
-
-      [dataset | acc]
-    end)
-    |> Enum.filter(&(&1.valid?))
+    })
   end
 
   @doc """
@@ -166,4 +149,55 @@ defmodule Transport.ReusableData do
     Licence.new(attrs)
   end
 
+  @doc """
+  Returns the list of reusable datasets containing of a specific.
+
+  ## Examples
+
+      iex> ReusableData.list_datasets
+      ...> |> List.first
+      ...> |> Map.get(:title)
+      "Leningrad metro dataset"
+
+  """
+  @spec list_datasets(String.t) :: [%Dataset{}]
+  def list_datasets(commune) do
+    query_datasets(%{
+      # We display also datasets with anomalies
+      # anomalies: [],
+      coordinates: %{"$ne" => nil},
+      download_url: %{"$ne" => nil},
+      commune_principale: String.to_integer commune
+    })
+  end
+
+  def list_datasets_region(region) do
+    query_datasets(%{
+      # We display also datasets with anomalies
+      # anomalies: [],
+      coordinates: %{"$ne" => nil},
+      download_url: %{"$ne" => nil},
+      region: region
+    })
+  end
+
+  @spec query_datasets(Map.t) :: [%Dataset{}]
+  def query_datasets(%{} = query) do
+    :mongo
+    |> Mongo.find("datasets", query, pool: @pool)
+    |> Enum.to_list()
+    |> Enum.map(&Dataset.new(&1))
+    |> Enum.reduce([], fn(dataset, acc) ->
+      dataset =
+        dataset
+        |> Dataset.assign(:error_count)
+        |> Dataset.assign(:fatal_count)
+        |> Dataset.assign(:notice_count)
+        |> Dataset.assign(:warning_count)
+        |> Dataset.assign(:valid?)
+
+      [dataset | acc]
+    end)
+    |> Enum.filter(&(&1.valid?))
+  end
 end
