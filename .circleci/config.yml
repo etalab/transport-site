@@ -1,45 +1,43 @@
 version: 2
 
-jobs:
-  checkout:
+default_docker: &default_docker
+  image: betagouv/transport:0.2.0
+  environment:
+    MIX_ENV: test
+    MONGODB_URL: mongodb://localhost/transport_test
+    DATAGOUVFR_SITE: https://www.data.gouv.fr
+    MAILCHIMP_NEWSLETTER_URL: //gouv.us13.list-manage.com/subscribe/post?u=5ee8bfe0f1b073b49de06a063&amp;id=13db2e9a94
+    GTFS_VALIDATOR_URL: https://transport-validator.cleverapps.io
+
+defaults: &defaults
+  working_directory: ~/transport
+  docker:
+    - *default_docker
+
+defaults_with_mongo: &defaults_with_mongo
+  <<: *defaults
+  docker:
+    - *default_docker
+    - image: circleci/mongo:3.6-jessie
+
+defaults_with_mongo_and_phantom: &defaults_with_mongo_and_phantom
+    <<: *defaults
     docker:
-      - image: betagouv/transport:0.1.1
-        environment:
-          MIX_ENV: test
-          MONGODB_URL: mongodb://localhost/transport_test
-          DATATOOLS_URL: http://localhost:4000
-          DATAGOUVFR_SITE: https://www.data.gouv.fr
-          MAILCHIMP_NEWSLETTER_URL: //gouv.us13.list-manage.com/subscribe/post?u=5ee8bfe0f1b073b49de06a063&amp;id=13db2e9a94
-      - image: mongo:3.7-jessie
+      - *default_docker
       - image: wernight/phantomjs
         command: phantomjs --webdriver=8910
+      - image: circleci/mongo:3.6-jessie
 
-    working_directory: ~/transport
+jobs:
+  build:
+    <<: *defaults
 
     steps:
       - checkout
 
-      - save_cache:
-          key: v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-          paths:
-            - ~/transport
-
-  install_back:
-    docker:
-      - image: betagouv/transport:0.1.1
-        environment:
-          MIX_ENV: test
-
-    working_directory: ~/transport
-
-    steps:
       - restore_cache:
           keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_back-{{ checksum "mix.lock" }}
+            - elixir-v2-{{ checksum "mix.lock" }}
 
       - run:
           name: Install mix dependencies
@@ -49,88 +47,32 @@ jobs:
           name: Compile mix dependencies
           command: mix deps.compile
 
-      - save_cache:
-          key: v1-deps_back-{{ checksum "mix.lock" }}
-          paths:
-            - ~/transport/_build
-            - ~/transport/deps
-            - ~/.mix
-
-  install_front:
-    docker:
-      - image: betagouv/transport:0.1.1
-
-    working_directory: ~/transport
-
-    steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_front-{{ checksum "client/yarn.lock" }}
-
       - run:
           name: Install yarn dependencies
           command: cd ~/transport/client && yarn install
-
-      - save_cache:
-          key: v1-deps_front-{{ checksum "client/yarn.lock" }}
-          paths:
-            - ~/transport/client/node_modules
-
-  compile_assets:
-    docker:
-      - image: betagouv/transport:0.1.1
-
-    working_directory: ~/transport
-
-    steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_front-{{ checksum "client/yarn.lock" }}
-
-      - restore_cache:
-          keys:
-            - v1-static-{{ .Environment.CIRCLE_SHA1 }}
 
       - run:
           name: Compile assets
           command: cd ~/transport/client && npm run deploy
 
-      - save_cache:
-          key: v1-static-{{ .Environment.CIRCLE_SHA1 }}
+      - persist_to_workspace:
+          root: ~/transport
           paths:
-            - ~/transport/priv/static/js
-            - ~/transport/priv/static/css
-            - ~/transport/priv/static/fonts
-            - ~/transport/priv/static/images
+            - .
+
+      - save_cache:
+          key: elixir-v2-{{ checksum "mix.lock" }}
+          paths:
+            - ~/transport/_build
+            - ~/transport/deps
+            - ~/.mix
 
   test_lint:
-    docker:
-      - image: betagouv/transport:0.1.1
-        environment:
-          MIX_ENV: test
-
-    working_directory: ~/transport
+    <<: *defaults
 
     steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_back-{{ checksum "mix.lock" }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_front-{{ checksum "client/yarn.lock" }}
+      - attach_workspace:
+          at: ~/transport
 
       - run:
           name: Run linters
@@ -141,22 +83,10 @@ jobs:
             mix npm "run linter:sass"
 
   test_unit:
-    docker:
-      - image: betagouv/transport:0.1.1
-        environment:
-          MIX_ENV: test
-      - image: mongo:3.7-jessie
-
-    working_directory: ~/transport
-
+    <<: *defaults_with_mongo
     steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_back-{{ checksum "mix.lock" }}
+      - attach_workspace:
+          at: ~/transport
 
       - run:
           name: Run tests
@@ -165,29 +95,11 @@ jobs:
             mix test
 
   test_integration:
-    docker:
-      - image: betagouv/transport:0.1.1
-        environment:
-          MIX_ENV: test
-          GTFS_VALIDATOR_URL: transport-validator.cleverapps.io
-      - image: mongo:3.7-jessie
-      - image: wernight/phantomjs
-        command: phantomjs --webdriver=8910
-
-    working_directory: ~/transport
+    <<: *defaults_with_mongo_and_phantom
 
     steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_back-{{ checksum "mix.lock" }}
-
-      - restore_cache:
-          keys:
-            - v1-static-{{ .Environment.CIRCLE_SHA1 }}
+      - attach_workspace:
+          at: ~/transport
 
       - run:
           name: Run tests
@@ -196,28 +108,11 @@ jobs:
             mix test --only integration
 
   test_solution:
-    docker:
-      - image: betagouv/transport:0.1.1
-        environment:
-          MIX_ENV: test
-      - image: wernight/phantomjs
-        command: phantomjs --webdriver=8910
-      - image: mongo:3.7-jessie
-
-    working_directory: ~/transport
+    <<: *defaults_with_mongo_and_phantom
 
     steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_back-{{ checksum "mix.lock" }}
-
-      - restore_cache:
-          keys:
-            - v1-static-{{ .Environment.CIRCLE_SHA1 }}
+      - attach_workspace:
+          at: ~/transport
 
       - run:
           name: Run tests
@@ -226,23 +121,11 @@ jobs:
             mix test --only solution
 
   test_external:
-    docker:
-      - image: betagouv/transport:0.1.1
-        environment:
-          MIX_ENV: test
-          DATAGOUVFR_SITE: https://www.data.gouv.fr
-      - image: mongo:3.7-jessie
-
-    working_directory: ~/transport
+    <<: *defaults_with_mongo
 
     steps:
-      - restore_cache:
-          keys:
-            - v1-checkout-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-          keys:
-            - v1-deps_back-{{ checksum "mix.lock" }}
+      - attach_workspace:
+          at: ~/transport
 
       - run:
           name: Run tests
@@ -281,46 +164,32 @@ jobs:
             sleep 5
             heroku restart
 
+
 workflows:
   version: 2
   transport:
     jobs:
-      - checkout
-
-      - install_back:
-          requires:
-            - checkout
-
-      - install_front:
-          requires:
-            - checkout
-
-      - compile_assets:
-          requires:
-            - install_front
+      - build
 
       - test_lint:
           requires:
-            - install_back
-            - install_front
+            - build
 
       - test_unit:
           requires:
-            - install_back
+            - build
 
       - test_integration:
           requires:
-            - install_back
-            - compile_assets
+            - build
 
       - test_solution:
           requires:
-            - install_back
-            - compile_assets
+            - build
 
       - test_external:
           requires:
-            - install_back
+            - build
 
       - deploy:
           requires:
