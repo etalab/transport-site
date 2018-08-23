@@ -26,7 +26,7 @@ export const addMap = (id, aomsUrl, regionsUrl, opts) => {
         const count = feature.properties['dataset_count']
         const text = count === 0 ? 'Aucun jeu de données'
             : count === 1 ? 'Un jeu de données'
-            : `${count} jeux de données`
+                : `${count} jeux de données`
         const extra = feature.properties['liste_aom_Nouvelles régions'] === 'Bretagne'
             ? '<br>Données incluses dans le <a href="/datasets/base-de-donnees-multimodale-transports-publics-en-bretagne-mobibreizh/">jeu de données Bretagne</a>'
             : ''
@@ -39,7 +39,7 @@ export const addMap = (id, aomsUrl, regionsUrl, opts) => {
         const count = feature.properties['dataset_count']
         const text = count === 0 ? 'Aucun jeu de données'
             : count === 1 ? 'Un jeu de données'
-            : `${count} jeux de données`
+                : `${count} jeux de données`
         layer.bindPopup(`<strong>${name}</strong><br/><a href="/datasets/region/${name}">${text}</a>`)
     }
 
@@ -62,9 +62,9 @@ export const addMap = (id, aomsUrl, regionsUrl, opts) => {
     }
 
     const style = feature => {
-        if(feature.properties.dataset_count > 0) {
+        if (feature.properties.dataset_count > 0) {
             return styles.available
-        } else if(feature.properties['liste_aom_Nouvelles régions'] === 'Bretagne') {
+        } else if (feature.properties['liste_aom_Nouvelles régions'] === 'Bretagne') {
             return styles.availableElsewhere
         } else {
             return styles.unavailable
@@ -82,15 +82,15 @@ export const addMap = (id, aomsUrl, regionsUrl, opts) => {
         },
         unavailable: {
             stroke: false,
-            fill: false,
+            fill: false
         }
     }
 
     const styleRegion = feature => {
-        if(feature.properties.completed) {
+        if (feature.properties.completed) {
             return regionStyles.completed
         }
-        if(feature.properties.dataset_count == 0) {
+        if (feature.properties.dataset_count === 0) {
             return regionStyles.unavailable
         } else {
             return regionStyles.partial
@@ -105,15 +105,15 @@ export const addMap = (id, aomsUrl, regionsUrl, opts) => {
     }).addTo(map)
 
     fetch(regionsUrl)
-    .then(response => { return response.json() })
-    .then(response => {
-        const geoJSON = Leaflet.geoJSON(response, {
-            onEachFeature: onEachRegionFeature,
-            style: styleRegion
+        .then(response => { return response.json() })
+        .then(response => {
+            const geoJSON = Leaflet.geoJSON(response, {
+                onEachFeature: onEachRegionFeature,
+                style: styleRegion
+            })
+            map.addLayer(geoJSON)
+            map.fitBounds(geoJSON.getBounds())
         })
-        map.addLayer(geoJSON)
-        map.fitBounds(geoJSON.getBounds())
-    })
 
     fetch(aomsUrl)
         .then(response => { return response.json() })
@@ -123,28 +123,24 @@ export const addMap = (id, aomsUrl, regionsUrl, opts) => {
                 style: style
             })
             map.addLayer(geoJSON)
-            //map.fitBounds(geoJSON.getBounds())
         })
 
-    const legend = L.control({position: 'bottomright'});
+    const legend = Leaflet.control({position: 'bottomright'})
     legend.onAdd = function (map) {
-
-        const div = L.DomUtil.create('div', 'info legend'),
-              colors = ['green', 'orange', 'grey'],
-              labels = ['Données disponible', 'Données partiellement disponible', 'Aucune donnée disponible'];
+        const div = Leaflet.DomUtil.create('div', 'info legend')
+        const colors = ['green', 'orange', 'grey']
+        const labels = ['Données disponible', 'Données partiellement disponible', 'Aucune donnée disponible']
 
         div.innerHTML += '<h4>Disponibilté des horaires théoriques</h4>'
         // loop through our density intervals and generate a label with a colored square for each interval
         for (var i = 0; i < colors.length; i++) {
-            div.innerHTML +=
-                `<i style="background:${colors[i]}"></i>${labels[i]}<br/>`;
+            div.innerHTML += `<i style="background:${colors[i]}"></i>${labels[i]}<br/>`
         }
 
-        return div;
-    };
+        return div
+    }
 
-    legend.addTo(map);
-
+    legend.addTo(map)
 
     return map
 }
