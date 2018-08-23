@@ -18,7 +18,7 @@ defaults_with_mongo: &defaults_with_mongo
   <<: *defaults
   docker:
     - *default_docker
-    - image: circleci/mongo:3.6-jessie-ram
+    - image: circleci/mongo:3.6-jessie
 
 defaults_with_mongo_and_phantom: &defaults_with_mongo_and_phantom
     <<: *defaults
@@ -26,7 +26,7 @@ defaults_with_mongo_and_phantom: &defaults_with_mongo_and_phantom
       - *default_docker
       - image: wernight/phantomjs
         command: phantomjs --webdriver=8910
-      - image: circleci/mongo:3.6-jessie-ram
+      - image: circleci/mongo:3.6-jessie
 
 jobs:
   build:
@@ -34,6 +34,10 @@ jobs:
 
     steps:
       - checkout
+
+      - restore_cache:
+          keys:
+            - elixir-v2-{{ checksum "mix.lock" }}
 
       - run:
           name: Install mix dependencies
@@ -55,6 +59,13 @@ jobs:
           root: ~/transport
           paths:
             - .
+
+      - save_cache:
+          key: elixir-v2-{{ checksum "mix.lock" }}
+          paths:
+            - ~/transport/_build
+            - ~/transport/deps
+            - ~/.mix
 
   test_lint:
     <<: *defaults
