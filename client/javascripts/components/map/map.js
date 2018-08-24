@@ -19,8 +19,8 @@ const Mapbox = {
  */
 export const addMap = (id, aomsUrl, regionsUrl, opts) => {
     const map = Leaflet.map(id).setView([46.370, 2.087], 5)
-    map.createPane('aoms');
-    map.getPane('aoms').style.zIndex = 650;
+    map.createPane('aoms')
+    map.getPane('aoms').style.zIndex = 650
 
     function onEachAomFeature (feature, layer) {
         const name = feature.properties['liste_aom_Nom de l’AOM']
