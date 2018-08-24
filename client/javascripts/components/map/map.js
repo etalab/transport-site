@@ -18,7 +18,9 @@ const Mapbox = {
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
 export const addMap = (id, aomsUrl, regionsUrl, opts) => {
-    const map     = Leaflet.map(id).setView([46.370, 2.087], 5)
+    const map = Leaflet.map(id).setView([46.370, 2.087], 5)
+    map.createPane('aoms');
+    map.getPane('aoms').style.zIndex = 650;
 
     function onEachAomFeature (feature, layer) {
         const name = feature.properties['liste_aom_Nom de l’AOM']
@@ -112,7 +114,6 @@ export const addMap = (id, aomsUrl, regionsUrl, opts) => {
                 style: styleRegion
             })
             map.addLayer(geoJSON)
-            map.fitBounds(geoJSON.getBounds())
         })
 
     fetch(aomsUrl)
@@ -120,7 +121,8 @@ export const addMap = (id, aomsUrl, regionsUrl, opts) => {
         .then(response => {
             const geoJSON = Leaflet.geoJSON(response, {
                 onEachFeature: onEachAomFeature,
-                style: style
+                style: style,
+                pane: 'aoms'
             })
             map.addLayer(geoJSON)
         })
