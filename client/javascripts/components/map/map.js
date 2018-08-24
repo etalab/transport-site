@@ -18,7 +18,9 @@ const Mapbox = {
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
 export const addMap = (id, aomsUrl, regionsUrl, opts) => {
-    const map     = Leaflet.map(id).setView([46.370, 2.087], 5)
+    const map = Leaflet.map(id).setView([46.370, 2.087], 5)
+    map.createPane('aoms');
+    map.getPane('aoms').style.zIndex = 650;
 
     function onEachAomFeature (feature, layer) {
         const name = feature.properties['liste_aom_Nom de l’AOM']
@@ -112,7 +114,6 @@ export const addMap = (id, aomsUrl, regionsUrl, opts) => {
                 style: styleRegion
             })
             map.addLayer(geoJSON)
-            map.fitBounds(geoJSON.getBounds())
         })
 
     fetch(aomsUrl)
@@ -120,7 +121,8 @@ export const addMap = (id, aomsUrl, regionsUrl, opts) => {
         .then(response => {
             const geoJSON = Leaflet.geoJSON(response, {
                 onEachFeature: onEachAomFeature,
-                style: style
+                style: style,
+                pane: 'aoms'
             })
             map.addLayer(geoJSON)
         })
@@ -131,7 +133,7 @@ export const addMap = (id, aomsUrl, regionsUrl, opts) => {
         const colors = ['green', 'orange', 'grey']
         const labels = ['Données disponible', 'Données partiellement disponible', 'Aucune donnée disponible']
 
-        div.innerHTML += '<h4>Disponibilté des horaires théoriques</h4>'
+        div.innerHTML += '<h4>Disponibilité des horaires théoriques</h4>'
         // loop through our density intervals and generate a label with a colored square for each interval
         for (var i = 0; i < colors.length; i++) {
             div.innerHTML += `<i style="background:${colors[i]}"></i>${labels[i]}<br/>`
