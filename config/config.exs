@@ -45,7 +45,7 @@ config :logger, :console,
 # of this file so it overrides the configuration defined above.
 import_config "datagouvfr.exs"
 import_config "gtfs_validator.exs"
-import_config "mailgun.exs"
+import_config "mailjet.exs"
 import_config "mongodb.exs"
 import_config "mailchimp.exs"
 import_config "#{Mix.env}.exs"
