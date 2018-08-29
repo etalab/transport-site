@@ -56,6 +56,6 @@ msgstr ""
 msgid "Ask for help"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_footer.html.eex:25
+#: lib/transport_web/templates/layout/_footer.html.eex:29
 msgid "Legal Information"
 msgstr ""
