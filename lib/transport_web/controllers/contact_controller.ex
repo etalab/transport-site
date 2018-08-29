@@ -1,6 +1,6 @@
 defmodule TransportWeb.ContactController do
   use TransportWeb, :controller
-  alias Transport.Mailgun.Client
+  alias Transport.Mailjet.Client
 
   def send_mail(conn, params) do
     case Client.send_mail(params["email"], params["demande"]) do

@@ -1,6 +1,6 @@
-defmodule Transport.Mailgun.Client do
+defmodule Transport.Mailjet.Client do
   @moduledoc """
-    Helper to send mail via mailgun
+    Helper to send mail via mailjet
   """
   use HTTPoison.Base
 
@@ -11,7 +11,7 @@ defmodule Transport.Mailgun.Client do
   def payload!(sender, body) do
     Poison.encode!(%{"Messages": [%{
         "From": %{"Name": "PAN, Formulaire Contact", "Email": "contact@transport.beta.gouv.fr"},
-        "To": [%{"Email": "contact@transport.beta.gouv.fr"}],
+        "To": [%{"Email": "tristram.grabener@beta.gouv.fr"}],
         "Subject": "Question sur transport.data.gouv.fr",
         "TextPart": body,
         "ReplyTo": %{"Email": sender}
