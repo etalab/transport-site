@@ -28,4 +28,8 @@ defmodule TransportWeb.PageController do
   def guide(conn, _params) do
     render(conn, "guide.html")
   end
+
+  def faq(conn, _params) do
+    render(conn, "faq.html")
+  end
 end

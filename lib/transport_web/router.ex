@@ -38,6 +38,7 @@ defmodule TransportWeb.Router do
     get "/", PageController, :index
     get "/legal", PageController, :legal
     get "/guide", PageController, :guide
+    get "/faq", PageController, :faq
     get "/search_organizations", PageController, :search_organizations
     get "/stats", StatsController, :index
     post "/send_mail", ContactController, :send_mail

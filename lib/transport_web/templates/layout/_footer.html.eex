@@ -21,6 +21,10 @@
       <% end %>
 
       <li>
+        <a class="footer__link footer__link--tos" href="/faq" role="link">FAQ</a>
+      </li>
+
+      <li>
         <a class="footer__link footer__link--tos" href="/legal" role="link">
           <%= gettext "Legal Information" %>
         </a>
