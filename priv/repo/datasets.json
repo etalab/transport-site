@@ -231,4 +231,10 @@
     "coordinates": [-0.854, 47.430],
     "region": "Pays de la Loire",
     "id": "5b873aca9ce2e71157bc02c2"
+},{
+    "spatial": "La Roche-sur-Yon Agglomération",
+    "coordinates": [-1.4162, 46.6659],
+    "commune_principale": 85191,
+    "region": "Pays de la Loire",
+    "id": "5b4cd6c6b595080a07d496ea"
 }]
