@@ -226,4 +226,9 @@
     "commune_principale": 34032,
     "region": "Occitanie",
     "id": "5b6c30668b4c412a8de5191e"
+},{
+    "spatial": "Région Pays de la Loire",
+    "coordinates": [-0.854, 47.430],
+    "region": "Pays de la Loire",
+    "id": "5b873aca9ce2e71157bc02c2"
 }]
