@@ -11,7 +11,7 @@ msgstr ""
 "Language: fr\n"
 
 #: lib/transport_web/templates/dataset/details.html.eex:14
-#: lib/transport_web/templates/dataset/details.html.eex:95
+#: lib/transport_web/templates/dataset/details.html.eex:115
 #: lib/transport_web/templates/dataset/index.html.eex:31
 msgid "Download"
 msgstr "Télécharger"
@@ -54,3 +54,91 @@ msgstr "Valide"
 #: lib/transport_web/templates/dataset/index.html.eex:2
 msgid "Valid datasets available"
 msgstr "Jeux de données valides disponibles"
+
+#: lib/transport_web/templates/dataset/details.html.eex:66
+msgid "Last update"
+msgstr "Dernière mise à jour"
+
+#: lib/transport_web/templates/dataset/details.html.eex:61
+msgid "Publication date"
+msgstr "Date de publication"
+
+#: lib/transport_web/templates/dataset/details.html.eex:76
+msgid "Tags"
+msgstr "Mots clefs"
+
+#: lib/transport_web/templates/dataset/details.html.eex:71
+msgid "Update frequency"
+msgstr "Fréquence de mises à jour"
+
+msgid "unknown"
+msgstr "Inconnu"
+
+msgid "punctual"
+msgstr "Ponctuelle"
+
+msgid "hourly"
+msgstr "Toutes les heures"
+
+msgid "fourTimesADay"
+msgstr "Quatre fois par jour"
+
+msgid "threeTimesADay"
+msgstr "Trois fois par jour"
+
+msgid "semidaily"
+msgstr "Deux fois par jour"
+
+msgid "daily"
+msgstr "Quotidienne"
+
+msgid "fourTimesAWeek"
+msgstr "Quatre fois par semaine"
+
+msgid "threeTimesAWeek"
+msgstr "Trois fois par semaine"
+
+msgid "semiweekly"
+msgstr "Deux fois par semaine"
+
+msgid "weekly"
+msgstr "Hebdomadaire"
+
+msgid "biweekly"
+msgstr "Toutes les deux semaines"
+
+msgid "threeTimesAMonth"
+msgstr "Trois fois par mois"
+
+msgid "semimonthly"
+msgstr "Deux fois par mois"
+
+msgid "monthly"
+msgstr "Mensuelle"
+
+msgid "bimonthly"
+msgstr "Bimestrielle"
+
+msgid "quarterly"
+msgstr "Trimestrielle"
+
+msgid "threeTimesAYear"
+msgstr "Trois fois par an"
+
+msgid "biannual"
+msgstr "Semestrielle"
+
+msgid "annual"
+msgstr "Annuelle"
+
+msgid "biennial"
+msgstr "Biennale"
+
+msgid "triennial"
+msgstr "Triennale"
+
+msgid "quinquennial"
+msgstr "Quinquennale"
+
+msgid "irregular"
+msgstr "Sans régularité"

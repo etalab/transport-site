@@ -22,7 +22,11 @@ defmodule Transport.ReusableData.Dataset do
     :notice_count,
     :warning_count,
     :valid?,
+    :frequency,
+    :created_at,
+    :last_update,
     validations: [],
+    tags: [],
   ]
 
   use ExConstructor
@@ -44,7 +48,11 @@ defmodule Transport.ReusableData.Dataset do
           fatal_count: integer(),
           notice_count: integer(),
           warning_count: integer(),
-          valid?: boolean()
+          valid?: boolean(),
+          frequency: String.t(),
+          created_at: String.t(),
+          last_update: String.t(),
+          tags: [String.t()],
         }
 
   @doc """

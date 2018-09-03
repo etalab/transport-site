@@ -56,6 +56,26 @@
               <div class="badge-error"><%= dgettext("page-shortlist", "Invalid") %></div>
             <% end %>
           </div>
+
+          <div class="shortlist__notice">
+            <div><%= dgettext("page-shortlist", "Publication date") %></div>
+            <div class="badge-notice"><%= @dataset.created_at %></div>
+          </div>
+
+          <div class="shortlist__notice">
+            <div><%= dgettext("page-shortlist", "Last update") %></div>
+            <div class="badge-notice"><%= @dataset.last_update %></div>
+          </div>
+
+          <div class="shortlist__notice">
+            <div><%= dgettext("page-shortlist", "Update frequency") %></div>
+            <div class="badge-notice"><%=  Gettext.dgettext(TransportWeb.Gettext, "page-shortlist", @dataset.frequency) %></div>
+          </div>
+
+          <div class="shortlist__notice">
+            <div><%= dgettext("page-shortlist", "Tags") %></div>
+            <div class="badge-notice"><%= Enum.join(@dataset.tags, ", ") %></div>
+          </div>
         </div>
         <div>
           <h2><%= dgettext("page-dataset-details", "GTFS Validation") %></h2>
