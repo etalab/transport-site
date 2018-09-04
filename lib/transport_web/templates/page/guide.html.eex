@@ -11,7 +11,7 @@ Au fur et à mesure de l’élargissement du Point d’Accès National vers le t
 Deux **formats** principaux existent pour décrire des réseaux de transports publics :
 
 * **[NeTEx](http://netex-cen.eu/)** : norme européenne visant l’interopérabilité des données entre États membres ;
-* **[GTFS](https://developers.google.com/transit/gtfs/)** : standard le plus utilisé par les services de mobilité d’information voyageur multimodale. Il est moins riche, mais plus normés que le NeTEx et plus simple à utiliser (plus d’outils compatible et plus simple de développer ses propres outils).
+* **[GTFS](https://developers.google.com/transit/gtfs/)** : standard le plus utilisé par les services de mobilité d’information voyageur multimodale. Il est moins riche, mais plus normé que le NeTEx et plus simple à utiliser (plus d’outils compatible et plus simple de développer ses propres outils).
 
 Pour l’instant, **la plateforme transport.data.gouv.fr accepte des fichiers au format GTFS** : c’est le format qui permettra aux usagers de votre territoire de bénéficier de services de mobilité innovants au plus vite.
 
