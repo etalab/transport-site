@@ -48,12 +48,14 @@ defmodule Transport.ImportDataService do
   def get_dataset(%{} = dataset) do
     dataset =
       dataset
-      |> Map.take(["title", "description", "license", "id", "slug"])
+      |> Map.take(["title", "description", "license", "id", "slug", "frequency", "tags"])
       |> Map.put("datagouv_id", dataset["id"])
       |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
       |> Map.put("task_id", Map.get(dataset, "task_id"))
       |> Map.put("download_url", get_download_url(dataset))
       |> Map.put("format", "GTFS")
+      |> Map.put("created_at", parse_date(dataset["created_at"]))
+      |> Map.put("last_update", parse_date(dataset["last_update"]))
 
     case Map.get(dataset, "download_url") do
       nil -> {:error, "No download uri found"}
@@ -391,4 +393,16 @@ defmodule Transport.ImportDataService do
   """
   def check_download_url(%{"download_url" => nil}), do: false
   def check_download_url(%{"download_url" => _}), do: true
+
+  def parse_date(date) when is_binary(date) do
+    with {:ok, date} <- NaiveDateTime.from_iso8601(date) do
+      date
+      |> NaiveDateTime.to_date
+      |> Date.to_string
+    end
+  end
+
+  def parse_date(nil = dataset) do
+    nil
+  end
 end

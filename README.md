@@ -8,9 +8,8 @@
 
 In order to validate datasets:
 
-  * Make sure you have [**datatools-server**](http://conveyal-data-tools.readthedocs.io/en/dev/) installed and up-to-date
-  * In `path/to/datatools/configurations/default/env.yml`, set `DISABLE_AUTH` to `true`
-  * Set the environment variable `DATATOOLS_URL` to your datatools running instance URL.
+  * Make sure you have [**gtfs-validator**](https://github.com/etalab/transport-validator) installed and up-to-date
+  * Set the environment variable `GTFS_VALIDATOR_URL` to your datatools running instance URL.
 
 ### Usage
 

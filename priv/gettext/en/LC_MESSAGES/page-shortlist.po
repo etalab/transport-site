@@ -11,7 +11,7 @@ msgstr ""
 "Language: en\n"
 
 #: lib/transport_web/templates/dataset/details.html.eex:14
-#: lib/transport_web/templates/dataset/details.html.eex:95
+#: lib/transport_web/templates/dataset/details.html.eex:115
 #: lib/transport_web/templates/dataset/index.html.eex:31
 msgid "Download"
 msgstr ""
@@ -54,3 +54,91 @@ msgstr ""
 #: lib/transport_web/templates/dataset/index.html.eex:2
 msgid "Valid datasets available"
 msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:66
+msgid "Last update"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:61
+msgid "Publication date"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:76
+msgid "Tags"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:71
+msgid "Update frequency"
+msgstr ""
+
+msgid "unknown"
+msgstr "Unknown"
+
+msgid "punctual"
+msgstr "Punctual"
+
+msgid "hourly"
+msgstr "Hourly"
+
+msgid "fourTimesADay"
+msgstr "Four times a day"
+
+msgid "threeTimesADay"
+msgstr "Three times a day"
+
+msgid "semidaily"
+msgstr "Semidaily"
+
+msgid "daily"
+msgstr "Daily"
+
+msgid "fourTimesAWeek"
+msgstr "Four times a week"
+
+msgid "threeTimesAWeek"
+msgstr "Three times a week"
+
+msgid "semiweekly"
+msgstr "Semiweekly"
+
+msgid "weekly"
+msgstr "Weekly"
+
+msgid "biweekly"
+msgstr "Biweekly"
+
+msgid "threeTimesAMonth"
+msgstr "Three times a month"
+
+msgid "semimonthly"
+msgstr "Semimonthly"
+
+msgid "monthly"
+msgstr "Monthly"
+
+msgid "bimonthly"
+msgstr "Bimonthly"
+
+msgid "quarterly"
+msgstr "Quaterly"
+
+msgid "threeTimesAYear"
+msgstr "Three times a year"
+
+msgid "biannual"
+msgstr "Biannual"
+
+msgid "annual"
+msgstr "Annual"
+
+msgid "biennial"
+msgstr "Biennial"
+
+msgid "triennial"
+msgstr "Triennial"
+
+msgid "quinquennial"
+msgstr "Quinquennial"
+
+msgid "irregular"
+msgstr "Irregular"

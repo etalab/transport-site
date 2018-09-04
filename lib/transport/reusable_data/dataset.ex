@@ -22,8 +22,11 @@ defmodule Transport.ReusableData.Dataset do
     :notice_count,
     :warning_count,
     :valid?,
-    :catalogue_id,
+    :frequency,
+    :created_at,
+    :last_update,
     validations: [],
+    tags: [],
   ]
 
   use ExConstructor
@@ -46,7 +49,10 @@ defmodule Transport.ReusableData.Dataset do
           notice_count: integer(),
           warning_count: integer(),
           valid?: boolean(),
-          catalogue_id: String.t()
+          frequency: String.t(),
+          created_at: String.t(),
+          last_update: String.t(),
+          tags: [String.t()],
         }
 
   @doc """
