@@ -133,38 +133,6 @@ jobs:
             export SECRET_KEY_BASE=`mix phx.gen.secret`
             mix test --only external
 
-  deploy:
-    machine:
-        enabled: true
-
-    working_directory: ~/transport
-
-    steps:
-      - checkout
-
-      - run:
-          name: Setup Heroku
-          command: |
-            cat > ~/.netrc << EOF
-            machine api.heroku.com
-              login $HEROKU_LOGIN
-              password $HEROKU_API_KEY
-            EOF
-
-            ssh-keyscan -H heroku.com >> ~/.ssh/known_hosts
-
-      - add_ssh_keys:
-          fingerprints:
-            - "ec:1c:68:6e:d7:46:29:87:af:67:46:a2:ea:a5:8e:fb"
-
-      - run:
-          command: |
-            heroku git:remote -a transport-beta
-            git push --force git@heroku.com:transport-beta.git HEAD:refs/heads/master
-            sleep 5
-            heroku restart
-
-
 workflows:
   version: 2
   transport:
@@ -191,12 +159,3 @@ workflows:
           requires:
             - build
 
-      - deploy:
-          requires:
-            - test_lint
-            - test_unit
-            - test_integration
-            - test_solution
-          filters:
-            branches:
-              only: master
