@@ -402,7 +402,7 @@ defmodule Transport.ImportDataService do
     end
   end
 
-  def parse_date(nil = dataset) do
+  def parse_date(nil) do
     nil
   end
 end
