@@ -34,7 +34,7 @@ defmodule Transport.DataValidation do
   @doc """
   Validates a dataset.
   """
-  @spec validate_dataset(Dataset.t()) :: {:ok, [Dataset.Validation.t()]} | {:error, any}
+  @spec validate_dataset(Dataset.t()) :: {:ok, %{}} | {:error, any}
   def validate_dataset(%Dataset{} = attrs) do
     attrs
     |> ValidateDataset.new()

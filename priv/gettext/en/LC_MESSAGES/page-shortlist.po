@@ -11,7 +11,7 @@ msgstr ""
 "Language: en\n"
 
 #: lib/transport_web/templates/dataset/details.html.eex:14
-#: lib/transport_web/templates/dataset/details.html.eex:115
+#: lib/transport_web/templates/dataset/details.html.eex:160
 #: lib/transport_web/templates/dataset/index.html.eex:31
 msgid "Download"
 msgstr ""
@@ -142,3 +142,55 @@ msgstr "Quinquennial"
 
 msgid "irregular"
 msgstr "Irregular"
+
+#: lib/transport_web/templates/dataset/details.html.eex:82
+msgid "Timetable begin"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:87
+msgid "Timetable end"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:92
+msgid "Number of lines"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:97
+msgid "Number of stop areas"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:102
+msgid "Number of stop points"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:107
+msgid "Networks"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:112
+msgid "Modes"
+msgstr ""
+
+msgid "tramway"
+msgstr "Tramway"
+
+msgid "subway"
+msgstr "Subway"
+
+msgid "rail"
+msgstr "Railway"
+
+msgid "bus"
+msgstr "Bus"
+
+msgid "ferry"
+msgstr "Ferry"
+
+msgid "cable_car"
+msgstr "Cable car"
+
+msgid "gondola"
+msgstr "Gondola"
+
+msgid "funicular"
+msgstr "Funicular"
