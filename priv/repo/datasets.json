@@ -237,4 +237,10 @@
     "commune_principale": 85191,
     "region": "Pays de la Loire",
     "id": "5b4cd6c6b595080a07d496ea"
+},{
+    "spatial": "Territoire de Belfort",
+    "coordinates": [6.8410, 47.6458],
+    "commune_principale": 90010,
+    "region": "Bourgogne-Franche-Comté",
+    "id": "5b11435b88ee387a7f45434c"
 }]
