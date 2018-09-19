@@ -25,6 +25,8 @@ defmodule Transport.ReusableData.Dataset do
     :frequency,
     :created_at,
     :last_update,
+    :metadata,
+    :fatal_error,
     validations: [],
     tags: [],
   ]
@@ -52,6 +54,8 @@ defmodule Transport.ReusableData.Dataset do
           frequency: String.t(),
           created_at: String.t(),
           last_update: String.t(),
+          metadata: Map.t(),
+          fatal_error: Map.t(),
           tags: [String.t()],
         }
 

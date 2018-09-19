@@ -20,7 +20,7 @@ defmodule Transport.DataValidation.Aggregates.Dataset do
   @type t :: %__MODULE__{
           uuid: String.t(),
           download_url: String.t(),
-          validations: [Dataset.Validation.t()]
+          validations: Map.t(),
         }
 
   def start_link(download_url) when is_binary(download_url) do

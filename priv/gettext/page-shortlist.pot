@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:14
-#: lib/transport_web/templates/dataset/details.html.eex:115
+#: lib/transport_web/templates/dataset/details.html.eex:160
 #: lib/transport_web/templates/dataset/index.html.eex:31
 msgid "Download"
 msgstr ""
@@ -69,4 +69,128 @@ msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:71
 msgid "Update frequency"
+msgstr ""
+
+msgid "unknown"
+msgstr ""
+
+msgid "punctual"
+msgstr ""
+
+msgid "hourly"
+msgstr ""
+
+msgid "fourTimesADay"
+msgstr ""
+
+msgid "threeTimesADay"
+msgstr ""
+
+msgid "semidaily"
+msgstr ""
+
+msgid "daily"
+msgstr ""
+
+msgid "fourTimesAWeek"
+msgstr ""
+
+msgid "threeTimesAWeek"
+msgstr ""
+
+msgid "semiweekly"
+msgstr ""
+
+msgid "weekly"
+msgstr ""
+
+msgid "biweekly"
+msgstr ""
+
+msgid "threeTimesAMonth"
+msgstr ""
+
+msgid "semimonthly"
+msgstr ""
+
+msgid "monthly"
+msgstr ""
+
+msgid "bimonthly"
+msgstr ""
+
+msgid "quarterly"
+msgstr ""
+
+msgid "threeTimesAYear"
+msgstr ""
+
+msgid "biannual"
+msgstr ""
+
+msgid "annual"
+msgstr ""
+
+msgid "biennial"
+msgstr ""
+
+msgid "triennial"
+msgstr ""
+
+msgid "quinquennial"
+msgstr ""
+
+msgid "irregular"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:82
+msgid "Timetable begin"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:87
+msgid "Timetable end"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:92
+msgid "Number of lines"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:97
+msgid "Number of stop areas"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:102
+msgid "Number of stop points"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:107
+msgid "Networks"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/details.html.eex:112
+msgid "Modes"
+msgstr ""
+
+msgid "tramway"
+msgstr ""
+
+msgid "subway"
+msgstr ""
+
+msgid "rail"
+msgstr ""
+
+msgid "bus"
+msgstr ""
+
+msgid "ferry"
+msgstr ""
+
+msgid "cable_car"
+msgstr ""
+
+msgid "gondola"
+msgstr ""
+
+msgid "funicular"
 msgstr ""
