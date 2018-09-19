@@ -70,13 +70,12 @@ defmodule Transport.DataValidation.Repo.Dataset do
   """
   @spec project(DatasetUpdated.t()) :: {:ok, Dataset.t()} | {:error, any}
   def project(%DatasetUpdated{download_url: url, validations: validations}) when is_binary(url) do
-    changeset = Enum.map(validations, &Map.from_struct/1)
 
     :mongo
     |> Mongo.find_one_and_update(
       "datasets",
       %{"download_url" => url},
-      %{"$set" => %{validations: changeset}},
+      %{"$set" => validations},
       pool: @pool
     )
     |> case do
@@ -88,11 +87,11 @@ defmodule Transport.DataValidation.Repo.Dataset do
   @doc """
   Validates a dataset by url.
   """
-  @spec project(DatasetValidated.t()) :: {:ok, [Dataset.Validation.t()]} | {:error, any()}
+  @spec project(DatasetValidated.t()) :: {:ok, %{}} | {:error, any()}
   def project(%DatasetValidated{download_url: url}) when is_binary(url) do
     with {:ok, %@res{status_code: 200, body: body}} <-
            @client.get(@endpoint <> "?url=#{url}", [], timeout: @timeout, recv_timeout: @timeout),
-         {:ok, validations} <- Poison.decode(body, as: [%Dataset.Validation{}]) do
+         {:ok, validations} <- Poison.decode(body) do
       {:ok, validations}
     else
       {:ok, %@res{status_code: 500, body: body}} ->
