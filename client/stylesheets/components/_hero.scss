@@ -4,7 +4,6 @@
 }
 
 .hero__title {
-  position: absolute;
   z-index: 100;
   background: $blue;
   width: 100%;
@@ -30,4 +29,8 @@
 .hero p {
   color: $white;
   font-style: initial;
+}
+
+.hero form {
+  margin-left: 0;
 }

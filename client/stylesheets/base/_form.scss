@@ -71,3 +71,22 @@ fieldset {
   padding: 0;
   width: 100%;
 }
+
+.search__group {
+  position: relative;
+}
+
+.overlay-button {
+  position: absolute;
+  right: 2em;
+  top: 1.25em;
+  background: 0;
+  border: 0;
+  width: 15px;
+  height: 15px;
+}
+
+.overlayed-button .icon-search {
+  height: 15px;
+  width: 15px;
+}

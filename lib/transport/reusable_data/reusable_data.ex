@@ -18,6 +18,9 @@ defmodule Transport.ReusableData do
       ...> |> Map.get(:title)
       "Leningrad metro dataset"
 
+      iex> ReusableData.search_datasets("hyperloop express")
+      []
+
   """
   @spec search_datasets(String.t) :: [%Dataset{}]
   def search_datasets(q) when is_binary(q) do

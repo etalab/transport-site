@@ -8,13 +8,14 @@ defmodule TransportWeb.DatasetController do
   def index(%Plug.Conn{} = conn, %{"q" => q} = _params) when q != "" do
     conn
     |> assign(:datasets, ReusableData.search_datasets(q))
+    |> assign(:q, q)
     |> render("index.html")
   end
-
 
   def index(%Plug.Conn{} = conn, _params) do
     conn
     |> assign(:datasets, ReusableData.list_datasets)
+    |> assign(:q, "")
     |> render("index.html")
   end
 
