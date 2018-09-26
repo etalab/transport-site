@@ -1,72 +1,86 @@
 <section class="dataset-container">
   <h1><%= dgettext("page-shortlist", "Valid datasets available") %></h1>
-  <%= for dataset <- @datasets do %>
-    <div class="shortlist">
-      <div class="shortlist-image">
-        <%= img_tag(dataset.logo, alt: dataset.title) %>
+    <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
+      <div class="form__group">
+      <div class="search__group">
+          <%= text_input f, :q, [{"value", @q}, {"placeholder", dgettext("page-index", "Find dataset")}] %>
+          <button class="overlay-button" aria-label="Recherche">
+              <i class="fas icon--magnifier"></i>
+          </button>
       </div>
+      </div>
+    <% end %>
+  <%= if Enum.empty? @datasets do %>
+    <%= dgettext("page-shortlist", "No dataset found") %>
+  <% else %>
+    <%= for dataset <- @datasets do %>
+      <div class="shortlist">
+        <div class="shortlist-image">
+          <%= img_tag(dataset.logo, alt: dataset.title) %>
+        </div>
 
-      <div class="shortlist-content">
-        <a href="/datasets/<%= dataset.slug %>/">
-          <div class="shortlist-description">
-            <h2><%= dataset.title %></h2>
-            <markdown content="<%= dataset.description %>"></markdown>
-          </div>
-        </a>
+        <div class="shortlist-content">
+          <a href="/datasets/<%= dataset.slug %>/">
+            <div class="shortlist-description">
+              <h2><%= dataset.title %></h2>
+              <markdown content="<%= dataset.description %>"></markdown>
+            </div>
+          </a>
 
-        <div class="shortlist-details">
-          <div>
-            <%= if dataset.download_url do %>
-              <div class="shortlist__link shortlist__link--external-link">
-                <i class="icon icon--link" aria-hidden="true"></i>
-                <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
-                         to: "https://www.data.gouv.fr/datasets/#{dataset.id}/",
-                         role: "link") %>
-              </div>
-            <% end %>
-
-            <%= if dataset.download_url do %>
-              <div class="shortlist__link shortlist__link--download">
-                <i class="icon icon--download" aria-hidden="true"></i>
-                <%= link(dgettext("page-shortlist", "Download"),
-                         to: dataset.download_url,
-                         role: "link") %>
-              </div>
-            <% end %>
-          </div>
-          <div>
-            <%= if !is_nil(dataset.spatial) do %>
-              <div class="shortlist__notice">
-                <span><%= dgettext("page-shortlist", "Territory") %></span>
-                <span class="badge-notice"><%= dataset.spatial %></span>
-              </div>
-            <% end %>
-
-            <%= if dataset.licence do %>
-              <div class="shortlist__notice">
-                <span><%= dgettext("page-shortlist", "Licence") %></span>
-                <span class="badge-notice"><%= ReusableData.build_licence(%{name: dataset.licence}).name %></span>
-              </div>
-            <% end %>
-
-            <%= if dataset.format do %>
-              <div class="shortlist__notice">
-                <span><%= dgettext("page-shortlist", "Format") %></span>
-                <span class="badge-notice"><%= dataset.format %></span>
-              </div>
-            <% end %>
-
-            <div class="shortlist__notice">
-              <span><%= dgettext("page-shortlist", "Status") %></span>
-              <%= if dataset.valid? do %>
-                <span class="badge-success"><%= dgettext("page-shortlist", "Valid") %></span>
-              <% else %>
-                <span class="badge-error"><%= dgettext("page-shortlist", "Invalid") %></span>
+          <div class="shortlist-details">
+            <div>
+              <%= if dataset.download_url do %>
+                <div class="shortlist__link shortlist__link--external-link">
+                  <i class="icon icon--link" aria-hidden="true"></i>
+                  <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
+                          to: "https://www.data.gouv.fr/datasets/#{dataset.id}/",
+                          role: "link") %>
+                </div>
               <% end %>
+
+              <%= if dataset.download_url do %>
+                <div class="shortlist__link shortlist__link--download">
+                  <i class="icon icon--download" aria-hidden="true"></i>
+                  <%= link(dgettext("page-shortlist", "Download"),
+                          to: dataset.download_url,
+                          role: "link") %>
+                </div>
+              <% end %>
+            </div>
+            <div>
+              <%= if !is_nil(dataset.spatial) do %>
+                <div class="shortlist__notice">
+                  <span><%= dgettext("page-shortlist", "Territory") %></span>
+                  <span class="badge-notice"><%= dataset.spatial %></span>
+                </div>
+              <% end %>
+
+              <%= if dataset.licence do %>
+                <div class="shortlist__notice">
+                  <span><%= dgettext("page-shortlist", "Licence") %></span>
+                  <span class="badge-notice"><%= ReusableData.build_licence(%{name: dataset.licence}).name %></span>
+                </div>
+              <% end %>
+
+              <%= if dataset.format do %>
+                <div class="shortlist__notice">
+                  <span><%= dgettext("page-shortlist", "Format") %></span>
+                  <span class="badge-notice"><%= dataset.format %></span>
+                </div>
+              <% end %>
+
+              <div class="shortlist__notice">
+                <span><%= dgettext("page-shortlist", "Status") %></span>
+                <%= if dataset.valid? do %>
+                  <span class="badge-success"><%= dgettext("page-shortlist", "Valid") %></span>
+                <% else %>
+                  <span class="badge-error"><%= dgettext("page-shortlist", "Invalid") %></span>
+                <% end %>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    <% end %>
   <% end %>
 </section>

@@ -9,6 +9,31 @@ defmodule Transport.ReusableData do
   @pool DBConnection.Poolboy
 
   @doc """
+  Returns the list of reusable datasets filtered by a full text search.
+
+  ## Examples
+
+      iex> ReusableData.search_datasets("metro")
+      ...> |> List.first
+      ...> |> Map.get(:title)
+      "Leningrad metro dataset"
+
+      iex> ReusableData.search_datasets("hyperloop express")
+      []
+
+  """
+  @spec search_datasets(String.t) :: [%Dataset{}]
+  def search_datasets(q) when is_binary(q) do
+    query_datasets(%{
+      # We display also datasets with anomalies
+      # anomalies: [],
+      coordinates: %{"$ne" => nil},
+      download_url: %{"$ne" => nil},
+      "$text": %{"$search" => q}
+    })
+  end
+
+  @doc """
   Returns the list of reusable datasets containing no validation errors.
 
   ## Examples

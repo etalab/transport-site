@@ -12,42 +12,42 @@ msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:14
 #: lib/transport_web/templates/dataset/details.html.eex:160
-#: lib/transport_web/templates/dataset/index.html.eex:31
+#: lib/transport_web/templates/dataset/index.html.eex:44
 msgid "Download"
 msgstr "Télécharger"
 
 #: lib/transport_web/templates/dataset/details.html.eex:39
-#: lib/transport_web/templates/dataset/index.html.eex:47
+#: lib/transport_web/templates/dataset/index.html.eex:60
 msgid "Licence"
 msgstr "License"
 
 #: lib/transport_web/templates/dataset/details.html.eex:23
-#: lib/transport_web/templates/dataset/index.html.eex:22
+#: lib/transport_web/templates/dataset/index.html.eex:35
 msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
 
 #: lib/transport_web/templates/dataset/details.html.eex:31
-#: lib/transport_web/templates/dataset/index.html.eex:40
+#: lib/transport_web/templates/dataset/index.html.eex:53
 msgid "Territory"
 msgstr "Territoire"
 
 #: lib/transport_web/templates/dataset/details.html.eex:46
-#: lib/transport_web/templates/dataset/index.html.eex:54
+#: lib/transport_web/templates/dataset/index.html.eex:67
 msgid "Format"
 msgstr ""
 
 #: lib/transport_web/templates/dataset/details.html.eex:52
-#: lib/transport_web/templates/dataset/index.html.eex:60
+#: lib/transport_web/templates/dataset/index.html.eex:73
 msgid "Status"
 msgstr "État"
 
 #: lib/transport_web/templates/dataset/details.html.eex:56
-#: lib/transport_web/templates/dataset/index.html.eex:64
+#: lib/transport_web/templates/dataset/index.html.eex:77
 msgid "Invalid"
 msgstr "Invalide"
 
 #: lib/transport_web/templates/dataset/details.html.eex:54
-#: lib/transport_web/templates/dataset/index.html.eex:62
+#: lib/transport_web/templates/dataset/index.html.eex:75
 msgid "Valid"
 msgstr "Valide"
 
@@ -194,3 +194,7 @@ msgstr "Télécabine"
 
 msgid "funicular"
 msgstr "Funiculaire"
+
+#: lib/transport_web/templates/dataset/index.html.eex:14
+msgid "No dataset found"
+msgstr "Aucun jeu de données trouvé"
