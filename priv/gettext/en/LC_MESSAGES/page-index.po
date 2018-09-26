@@ -10,34 +10,39 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/page/index.html.eex:47
+#: lib/transport_web/templates/page/index.html.eex:57
 msgid "Publish my data"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:71
+#: lib/transport_web/templates/page/index.html.eex:81
 msgid "Reuse data"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:85
+#: lib/transport_web/templates/page/index.html.eex:95
 msgid "Email address"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:84
+#: lib/transport_web/templates/page/index.html.eex:94
 msgid "Subscribe to our email newsletter to receive update"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:94
+#: lib/transport_web/templates/page/index.html.eex:104
 msgid "SUBSCRIBE"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:101
+#: lib/transport_web/templates/page/index.html.eex:111
 msgid "Join us on Slack"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:27
+#: lib/transport_web/templates/page/index.html.eex:37
 msgid "Download presentation"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:51
+#: lib/transport_web/templates/page/index.html.eex:61
 msgid "Publication guide"
+msgstr ""
+
+#: lib/transport_web/templates/dataset/index.html.eex:6
+#: lib/transport_web/templates/page/index.html.eex:12
+msgid "Find dataset"
 msgstr ""

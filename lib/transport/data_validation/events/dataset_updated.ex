@@ -15,6 +15,6 @@ defmodule Transport.DataValidation.Events.DatasetUpdated do
 
   @type t :: %__MODULE__{
           download_url: String.t(),
-          validations: [Dataset.Validation.t()]
+          validations: Map.t(),
         }
 end

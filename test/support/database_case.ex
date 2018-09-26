@@ -20,8 +20,21 @@ defmodule TransportWeb.DatabaseCase do
         unquote(options)[:cleanup]
       end
 
+      defp fulltext_index(coll) do
+        query = %{
+          createIndexes: coll,
+          indexes: [%{
+            key: %{"$**" => "text"},
+            name: "fulltext" <> coll
+            }]
+        }
+        Mongo.command(:mongo, query, pool: DBConnection.Poolboy)
+      end
+
       setup_all do
         cleanup()
+
+        collections() |> Enum.each(&(fulltext_index(&1)))
 
         on_exit fn ->
           cleanup()
