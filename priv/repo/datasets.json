@@ -14,7 +14,7 @@
     "spatial": "Rennes M\u00e9tropole",
     "id": "580a574aa3a7292dcfa9d1da",
     "commune_principale": 35238,
-    "region": "Pays de la Loire",
+    "region": "Bretagne",
     "coordinates": [-1.681632, 48.113844]
 }, {
     "spatial": "Angers Loire M\u00e9tropole",
@@ -180,7 +180,13 @@
     "coordinates": [-1.6335, 43.3937],
     "commune_principale": 64102,
     "region": "Nouvelle Aquitaine",
-    "id": "5b589f3c88ee38075eaf5f01"
+    "id": "5bab606e634f4157da35a21d"
+},{
+    "spatial": "Communauté d'agglomération Pays Basque",
+    "coordinates": [-1.6335, 43.3937],
+    "commune_principale": 64102,
+    "region": "Nouvelle Aquitaine",
+    "id": "5bab632d634f4163882365df"
 },{
     "spatial": "Région Nouvelle Aquitaine",
     "coordinates": [0.410, 45.019],
