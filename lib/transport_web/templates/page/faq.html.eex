@@ -126,7 +126,6 @@ L’exemple ci-dessous illustre ce qui est attendu des réutilisateurs.
         <li> Corrections des coordonnées </li>
         <li> Correction des noms des arrêts</li>
         <li> Ajout de coordonnées</li>
-        <li> Ajout de lignes manquantes</li>
         <li> etc.</li>
       </ul>
     </td>
@@ -134,7 +133,12 @@ L’exemple ci-dessous illustre ce qui est attendu des réutilisateurs.
     <td>Nature de la donnée</td>
   </tr>
   <tr>
-    <td>Ajustement des temps de correspondance</td>
+    <td>
+      <ul>
+        <li> Ajustement des temps de correspondance </li>
+        <li> Ajout d'une ligne manquante d'un autre producteur que celui du GTFS initial</li>
+      </ul>
+    </td>
     <td>Cheminement piéton des correspondances</td>
     <td>Granularité de la donnée </td>
   </tr>
@@ -144,8 +148,8 @@ L’exemple ci-dessous illustre ce qui est attendu des réutilisateurs.
     <td>Conditions temporelles de la donnée</td>
   </tr>
   <tr>
-    <td>GTFS dérivé comprenant la navette privée vers l’aéroport local</td>
-    <td>GTFS dérivé comprenant le réseau frontalier </td>
+    <td>ajout d'une ligne manquante du réseau du producteur du GTFS initial</td>
+    <td>ajout d'une ligne d'un réseau strictement frontalier</td>
     <td>emprise géographique de la donnée</td>
   </tr>
 </table>
