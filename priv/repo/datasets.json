@@ -244,6 +244,12 @@
     "region": "Pays de la Loire",
     "id": "5b4cd6c6b595080a07d496ea"
 },{
+    "spatial": "Communauté d’Agglomération Hérault Méditerranée",
+    "coordinates": [3.4838, 43.3084],
+    "commune_principale": 34003,
+    "region": "Occitanie",
+    "id": "5baca31a634f413886106fc9"
+},{
     "spatial": "Territoire de Belfort",
     "coordinates": [6.8410, 47.6458],
     "commune_principale": 90010,
