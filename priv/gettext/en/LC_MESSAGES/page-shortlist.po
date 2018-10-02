@@ -10,6 +10,7 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
+#: lib/transport_web/templates/backoffice/index.html.eex:33
 #: lib/transport_web/templates/dataset/details.html.eex:14
 #: lib/transport_web/templates/dataset/details.html.eex:160
 #: lib/transport_web/templates/dataset/index.html.eex:44
@@ -21,6 +22,7 @@ msgstr ""
 msgid "Licence"
 msgstr ""
 
+#: lib/transport_web/templates/backoffice/index.html.eex:25
 #: lib/transport_web/templates/dataset/details.html.eex:23
 #: lib/transport_web/templates/dataset/index.html.eex:35
 msgid "See on data.gouv.fr"
@@ -51,6 +53,7 @@ msgstr ""
 msgid "Valid"
 msgstr ""
 
+#: lib/transport_web/templates/backoffice/index.html.eex:2
 #: lib/transport_web/templates/dataset/index.html.eex:2
 msgid "Valid datasets available"
 msgstr ""

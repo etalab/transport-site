@@ -50,6 +50,10 @@ defmodule TransportWeb.Router do
       get "/region/:region", DatasetController, :by_region
     end
 
+    scope "/backoffice" do
+      get "/", BackofficeController, :index
+    end
+
     scope "/user" do
       pipe_through [:authentication_required]
       get "/organizations/", UserController, :organizations
