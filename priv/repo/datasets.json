@@ -250,6 +250,12 @@
     "region": "Occitanie",
     "id": "5baca31a634f413886106fc9"
 },{
+    "spatial": "Grand Chambéry",
+    "coordinates": [5.871334, 45.5822142],
+    "commune_principale": 34003,
+    "region": "Auvergne-Rhône-Alpes",
+    "id": "5bae8c2806e3e75b699dc606"
+},{
     "spatial": "Territoire de Belfort",
     "coordinates": [6.8410, 47.6458],
     "commune_principale": 90010,
