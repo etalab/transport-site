@@ -261,4 +261,16 @@
     "commune_principale": 90010,
     "region": "Bourgogne-Franche-Comté",
     "id": "5b11435b88ee387a7f45434c"
+},{
+    "spatial": "Communauté Urbaine du Grand Reims",
+    "coordinates": [4.0577, 49.2536],
+    "commune_principale": 51454,
+    "region": "Grand Est",
+    "id": "5bb493b18b4c417d7f3f6b05"
+},{
+    "spatial": "Communauté d'Agglomération du Sud Bassin d'Arcachon",
+    "coordinates": [-1.1721, 44.6517],
+    "commune_principale": 33009,
+    "region": "Nouvelle Aquitaine",
+    "id": "5bb335e08b4c4132def7e755"
 }]
