@@ -3,7 +3,7 @@ defmodule TransportWeb.BackofficeController do
   alias Transport.{ImportDataService, ReusableData}
   require Logger
 
-  defp region_names() do
+  defp region_names do
     :mongo
     |> Mongo.find("regions", %{}, pool:  DBConnection.Poolboy)
     |> Enum.map(fn r -> r["properties"]["NOM_REG"] end)

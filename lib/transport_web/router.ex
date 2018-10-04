@@ -155,14 +155,15 @@ defmodule TransportWeb.Router do
   defp transport_data_gouv_member(conn, _) do
     conn.assigns[:current_user]
     |> Map.get("organizations", [])
-    |> case do
-      [%{"slug" => "equipe-transport-data-gouv-fr" } | _] ->
+    |> Enum.any?(fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end)
+    |> if do
         conn
-      _ ->  conn
-            |> put_flash(:error, dgettext("alert", "You need to be a member of the transport.data.gouv.fr team."))
-            |> redirect(to: Helpers.page_path(conn, :login,
-                        redirect_path: current_path(conn)))
-            |> halt()
-    end
+       else
+        conn
+        |> put_flash(:error, dgettext("alert", "You need to be a member of the transport.data.gouv.fr team."))
+        |> redirect(to: Helpers.page_path(conn, :login,
+                    redirect_path: current_path(conn)))
+        |> halt()
+       end
   end
 end
