@@ -10,10 +10,14 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/router.ex:136
+#: lib/transport_web/router.ex:146
 msgid "You need to be connected before doing this."
-msgstr ""
+msgstr "Vous devez être connecté avant de poursuivre."
 
 #: lib/transport_web/controllers/session_controller.ex:29
 msgid "An error occured, please try again"
-msgstr ""
+msgstr "Il y a eu une erreur, veuillez ré-essayer"
+
+#: lib/transport_web/router.ex:162
+msgid "You need to be a member of the transport.data.gouv.fr team."
+msgstr "Vous devez être membre de l’équipe transport.data.gouv.fr."

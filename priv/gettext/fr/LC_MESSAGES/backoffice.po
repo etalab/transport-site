@@ -34,10 +34,10 @@ msgstr "id data.gouv.fr"
 msgid "name"
 msgstr "nom"
 
-#: lib/transport_web/controllers/backoffice_controller.ex:44
+#: lib/transport_web/controllers/backoffice_controller.ex:34
 msgid "Dataset added with success"
 msgstr "Jeux de données ajouté avec succès"
 
-#: lib/transport_web/controllers/backoffice_controller.ex:48
+#: lib/transport_web/controllers/backoffice_controller.ex:38
 msgid "Dataset not added"
 msgstr "Échec à l’ajout du jeu de données"

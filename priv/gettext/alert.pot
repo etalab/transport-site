@@ -10,10 +10,14 @@
 msgid ""
 msgstr ""
 
-#: lib/transport_web/router.ex:136
+#: lib/transport_web/router.ex:146
 msgid "You need to be connected before doing this."
 msgstr ""
 
 #: lib/transport_web/controllers/session_controller.ex:29
 msgid "An error occured, please try again"
+msgstr ""
+
+#: lib/transport_web/router.ex:162
+msgid "You need to be a member of the transport.data.gouv.fr team."
 msgstr ""
