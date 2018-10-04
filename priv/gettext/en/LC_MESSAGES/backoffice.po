@@ -1,0 +1,43 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+
+#: lib/transport_web/templates/backoffice/index.html.eex:19
+msgid "Add"
+msgstr ""
+
+#: lib/transport_web/templates/backoffice/index.html.eex:4
+msgid "Add a dataset"
+msgstr ""
+
+#: lib/transport_web/templates/backoffice/index.html.eex:17
+msgid "INSEE Code"
+msgstr ""
+
+#: lib/transport_web/templates/backoffice/index.html.eex:2
+msgid "Valid datasets available"
+msgstr ""
+
+#: lib/transport_web/templates/backoffice/index.html.eex:15
+msgid "data.gouv.fr id"
+msgstr ""
+
+#: lib/transport_web/templates/backoffice/index.html.eex:16
+msgid "name"
+msgstr ""
+
+#: lib/transport_web/controllers/backoffice_controller.ex:44
+msgid "Dataset added with success"
+msgstr ""
+
+#: lib/transport_web/controllers/backoffice_controller.ex:48
+msgid "Dataset not added"
+msgstr ""

@@ -52,6 +52,7 @@ defmodule TransportWeb.Router do
 
     scope "/backoffice" do
       get "/", BackofficeController, :index
+      post "/", BackofficeController, :new_dataset
     end
 
     scope "/user" do
