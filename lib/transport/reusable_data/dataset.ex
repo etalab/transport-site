@@ -27,6 +27,8 @@ defmodule Transport.ReusableData.Dataset do
     :last_update,
     :metadata,
     :fatal_error,
+    :region,
+    :commune_principale,
     validations: [],
     tags: [],
   ]
@@ -57,6 +59,8 @@ defmodule Transport.ReusableData.Dataset do
           metadata: Map.t(),
           fatal_error: Map.t(),
           tags: [String.t()],
+          region: String.t(),
+          commune_principale: String.t(),
         }
 
   @doc """

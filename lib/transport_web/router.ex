@@ -32,6 +32,14 @@ defmodule TransportWeb.Router do
     plug :authentication_required
   end
 
+  pipeline :admin_rights do
+    plug :fetch_session
+    plug :fetch_flash
+    plug :assign_current_user
+    plug :authentication_required
+    plug :transport_data_gouv_member
+  end
+
   scope "/", TransportWeb do
     pipe_through :browser
 
@@ -48,6 +56,12 @@ defmodule TransportWeb.Router do
       get "/:slug/", DatasetController, :details
       get "/aom/:commune", DatasetController, :by_aom
       get "/region/:region", DatasetController, :by_region
+    end
+
+    scope "/backoffice" do
+      pipe_through [:admin_rights]
+      get "/", BackofficeController, :index
+      post "/", BackofficeController, :new_dataset
     end
 
     scope "/user" do
@@ -136,5 +150,20 @@ defmodule TransportWeb.Router do
       _ ->
         conn
     end
+  end
+
+  defp transport_data_gouv_member(conn, _) do
+    conn.assigns[:current_user]
+    |> Map.get("organizations", [])
+    |> Enum.any?(fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end)
+    |> if do
+        conn
+       else
+        conn
+        |> put_flash(:error, dgettext("alert", "You need to be a member of the transport.data.gouv.fr team."))
+        |> redirect(to: Helpers.page_path(conn, :login,
+                    redirect_path: current_path(conn)))
+        |> halt()
+       end
   end
 end

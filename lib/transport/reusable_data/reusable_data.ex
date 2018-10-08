@@ -49,7 +49,6 @@ defmodule Transport.ReusableData do
     query_datasets(%{
       # We display also datasets with anomalies
       # anomalies: [],
-      coordinates: %{"$ne" => nil},
       download_url: %{"$ne" => nil}
     })
   end

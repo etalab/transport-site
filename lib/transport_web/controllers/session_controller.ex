@@ -42,7 +42,7 @@ defmodule TransportWeb.SessionController do
   #private functions
 
   defp user_params(%{} = user) do
-    Map.take(user, ["id", "apikey", "email", "first_name", "last_name", "avatar_thumbnail"])
+    Map.take(user, ["id", "apikey", "email", "first_name", "last_name", "avatar_thumbnail", "organizations"])
   end
 
   defp get_redirect_path(conn) do
