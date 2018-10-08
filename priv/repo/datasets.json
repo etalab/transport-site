@@ -273,4 +273,10 @@
     "commune_principale": 33009,
     "region": "Nouvelle Aquitaine",
     "id": "5bb335e08b4c4132def7e755"
+  },{
+    "spatial": "Communauté de la Riviera Française",
+    "coordinates": [7.50185, 43.77621],
+    "commune_principale": 6083,
+    "region": "Provence-Alpes-Côte-d'Azur",
+    "id": "5bb49085634f4115ddc9293b"
 }]
