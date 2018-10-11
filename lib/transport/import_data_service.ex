@@ -51,6 +51,7 @@ defmodule Transport.ImportDataService do
       |> Map.take(["title", "description", "license", "id", "slug", "frequency", "tags"])
       |> Map.put("datagouv_id", dataset["id"])
       |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
+      |> Map.put("full_logo", dataset["organization"]["logo"])
       |> Map.put("task_id", Map.get(dataset, "task_id"))
       |> Map.put("download_url", get_download_url(dataset))
       |> Map.put("format", "GTFS")
