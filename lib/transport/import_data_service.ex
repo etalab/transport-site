@@ -123,6 +123,7 @@ defmodule Transport.ImportDataService do
   filter gtfs resources
 
   ## Examples
+
       iex> [%{"format" => "GTFS"}]
       ...> |> ImportDataService.filter_gtfs
       [%{"format" => "GTFS"}]
@@ -135,10 +136,16 @@ defmodule Transport.ImportDataService do
       ...> |> ImportDataService.filter_gtfs
       [%{"format" => "GTFS"}]
 
+      iex> [%{"format" => "gtfs.zip"}]
+      ...> |> ImportDataService.filter_gtfs
+      [%{"format" => "gtfs.zip"}]
+
   """
   def filter_gtfs(resources) do
     Enum.filter(resources, fn %{"format" => format} ->
-      String.downcase(format) == "gtfs"
+      format
+      |> String.downcase
+      |> String.contains?("gtfs")
     end)
   end
 
