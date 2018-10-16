@@ -1,5 +1,5 @@
 <communityresources>
-    <h1>{ this.opts.title }</h1>
+    <h2>{ this.opts.title }</h2>
     <ul if={ this.data && this.data.data }>
         <li each={ resource, i in this.data.data }>
             <div class="documentation">

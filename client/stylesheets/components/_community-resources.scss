@@ -1,16 +1,4 @@
-communityresources {
-  h1 {
-    background-color: $light-grey;
-  }
-
-  h2 {
-    font-size: 1.4em;
-  }
-
-  p {
-    margin: 0;
-  }
-
+.communityresources {
   .community-resources__logo {
     min-width: 3em;
     min-height: 3em;
@@ -19,11 +7,6 @@ communityresources {
   .community-resources__side-pan {
     margin-right: 4em;
     position: relative;
-
-    h3 {
-      font-size: .9em;
-      bottom: 0;
-    }
   }
 
   .community-resources__organization-name {

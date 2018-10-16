@@ -2,7 +2,6 @@ const { resolve }          = require('path')
 const webpack              = require('webpack')
 const CopyWebpackPlugin    = require('copy-webpack-plugin')
 const ExtractTextPlugin    = require('extract-text-webpack-plugin')
-const extractFonts         = new CopyWebpackPlugin([{ from: 'fonts', to: '../fonts' }])
 const extractImages        = new CopyWebpackPlugin([{ from: 'images', to: '../images' }])
 const extractSass          = new ExtractTextPlugin({ filename: '../css/app.css', allChunks: true })
 const fetchPolyfill        = new webpack.ProvidePlugin({ fetch: 'imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch' })
@@ -30,7 +29,6 @@ module.exports = {
         }
     },
     plugins: [
-        extractFonts,
         extractImages,
         extractSass,
         fetchPolyfill,
@@ -39,7 +37,8 @@ module.exports = {
     ],
     devtool: 'source-map',
     module: {
-        rules: [{
+        rules: [{ test: /\.css$/, use: [ 'style-loader', 'css-loader' ] },
+        {
             test: /\.(js|scss)$/,
             exclude: [/node_modules/],
             enforce: 'pre',

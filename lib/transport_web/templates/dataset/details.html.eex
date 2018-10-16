@@ -1,8 +1,4 @@
 <section>
-  <%= if get_flash(@conn, :info) do %>
-    <p class="message message--info"><%= get_flash(@conn, :info) %></p>
-  <% end %>
-  <h1><%= @dataset.title %></h1>
   <div class="documentation">
     <div class="dataset-details__side-pane side-pane">
       <div>
@@ -29,7 +25,7 @@
         <%= if !is_nil(@dataset.spatial) do %>
             <div class="shortlist__notice">
               <div><%= dgettext("page-shortlist", "Territory") %></div>
-              <div class="badge-notice"><%= @dataset.spatial %></div>
+              <div class="label label-notice"><%= @dataset.spatial %></div>
             </div>
         <% end %>
 
@@ -37,80 +33,80 @@
           <%= if @dataset.licence do %>
             <div class="shortlist__notice">
               <div><%= dgettext("page-shortlist", "Licence") %></div>
-              <div class="badge-notice"><%= ReusableData.build_licence(%{name: @dataset.licence}).name %></div>
+              <div class="label label-notice"><%= ReusableData.build_licence(%{name: @dataset.licence}).name %></div>
             </div>
           <% end %>
 
           <%= if @dataset.format do %>
             <div class="shortlist__notice">
               <div><%= dgettext("page-shortlist", "Format") %></div>
-              <div class="badge-notice"><%= @dataset.format %></div>
+              <div class="label label-notice"><%= @dataset.format %></div>
             </div>
           <% end %>
 
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Status") %></div>
             <%= if @dataset.valid? do %>
-              <div class="badge-success"><%= dgettext("page-shortlist", "Valid") %></div>
+              <div class="label label-success"><%= dgettext("page-shortlist", "Valid") %></div>
             <% else %>
-              <div class="badge-error"><%= dgettext("page-shortlist", "Invalid") %></div>
+              <div class="label label-error"><%= dgettext("page-shortlist", "Invalid") %></div>
             <% end %>
           </div>
 
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Publication date") %></div>
-            <div class="badge-notice"><%= @dataset.created_at %></div>
+            <div class="label label-notice"><%= @dataset.created_at %></div>
           </div>
 
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Last update") %></div>
-            <div class="badge-notice"><%= @dataset.last_update %></div>
+            <div class="label label-notice"><%= @dataset.last_update %></div>
           </div>
 
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Update frequency") %></div>
-            <div class="badge-notice"><%=  Gettext.dgettext(TransportWeb.Gettext, "page-shortlist", @dataset.frequency) %></div>
+            <div class="label label-notice"><%=  Gettext.dgettext(TransportWeb.Gettext, "page-shortlist", @dataset.frequency) %></div>
           </div>
 
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Tags") %></div>
-            <div class="badge-notice"><%= Enum.join(@dataset.tags, ", ") %></div>
+            <div class="label label-notice"><%= Enum.join(@dataset.tags, ", ") %></div>
           </div>
 
           <%= if @dataset.metadata do %>
             <div class="shortlist__notice">
               <div><%= dgettext("page-shortlist", "Timetable begin") %></div>
-              <div class="badge-notice"><%=  @dataset.metadata["start_date"] %></div>
+              <div class="label label-notice"><%=  @dataset.metadata["start_date"] %></div>
             </div>
 
             <div class="shortlist__notice">
               <div><%= dgettext("page-shortlist", "Timetable end") %></div>
-              <div class="badge-notice"><%=  @dataset.metadata["end_date"] %></div>
+              <div class="label label-notice"><%=  @dataset.metadata["end_date"] %></div>
             </div>
 
             <div class="shortlist__notice">
               <div><%= dgettext("page-shortlist", "Number of lines") %></div>
-              <div class="badge-notice"><%=  @dataset.metadata["lines_count"] %></div>
+              <div class="label label-notice"><%=  @dataset.metadata["lines_count"] %></div>
             </div>
 
             <div class="shortlist__notice">
               <div><%= dgettext("page-shortlist", "Number of stop areas") %></div>
-              <div class="badge-notice"><%=  @dataset.metadata["stop_areas_count"] %></div>
+              <div class="label label-notice"><%=  @dataset.metadata["stop_areas_count"] %></div>
             </div>
 
             <div class="shortlist__notice">
               <div><%= dgettext("page-shortlist", "Number of stop points") %></div>
-              <div class="badge-notice"><%=  @dataset.metadata["stop_points_count"] %></div>
+              <div class="label label-notice"><%=  @dataset.metadata["stop_points_count"] %></div>
             </div>
 
             <div class="shortlist__notice">
               <div><%= dgettext("page-shortlist", "Networks") %></div>
-              <div class="badge-notice"><%=  Enum.join(@dataset.metadata["networks"], ", ") %></div>
+              <div class="label label-notice"><%=  Enum.join(@dataset.metadata["networks"], ", ") %></div>
             </div>
 
             <div class="shortlist__notice">
               <div><%= dgettext("page-shortlist", "Modes") %></div>
-              <div class="badge-notice">
+              <div class="label label-notice">
                 <%=
                   @dataset.metadata["modes"]
                   |> Enum.map(fn m -> Gettext.dgettext(TransportWeb.Gettext, "page-shortlist", m) end)
@@ -144,9 +140,13 @@
       </div>
     </div>
     <div class="main-pane dataset-details__main-pane" id="description">
+      <%= if get_flash(@conn, :info) do %>
+        <p class="message message--info"><%= get_flash(@conn, :info) %></p>
+      <% end %>
+      <h1><%= @dataset.title %></h1>
       <div class="dataset-detail__markdown">
         <markdown content="<%= @dataset.description %>"></markdown>
-        <h1 style="background: hsl(213, 26%, 83%);">Conditions d'utilisation</h1>
+        <h2>Conditions d'utilisation</h2>
         <p>
           La réutilisation des informations disponibles sur transport.data.gouv.fr est soumise à la licence ODbL.
           <br />
@@ -166,13 +166,13 @@
       </div>
 
       <div class="dataset-details__validation">
-        <h1><%= dgettext("page-dataset-details", "GTFS Validation") %></h1>
+        <h2><%= dgettext("page-dataset-details", "GTFS Validation") %></h2>
         <%= for {issue_type, issues} <- @dataset.validations do %>
         <label class="collapse" for="<%= issue_type %>">
           <h3><%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue_type) %> (<%= issues.count %>)</h3>
           </label>
         <input id="<%= issue_type %>" type="checkbox">
-          <table>
+          <table class="table">
             <tr>
               <th><%= dgettext("page-dataset-details", "Object ID") %></th>
               <th><%= dgettext("page-dataset-details", "Object name") %></th>
@@ -193,7 +193,7 @@
       </div>
 
       <div class="dataset-details__discussions">
-        <h1>Discussions</h1>
+        <h2>Discussions</h2>
         <discussions
           datasetid="<%= @dataset.id %>"
           site="<%= @site %>"
