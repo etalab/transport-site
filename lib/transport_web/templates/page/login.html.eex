@@ -1,4 +1,4 @@
-<section id="login" class="section section-grey">
+<section id="login" class="section">
   <div class="container">
     <%= if get_flash(@conn, :info) do %>
       <p class="notification"><%= get_flash(@conn, :info) %></p>
