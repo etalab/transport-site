@@ -1,10 +1,14 @@
 <discussions>
+    <div if={ !isConnected() } class="notification warning discussion-commment__connection-needed">
+        { opts.connection_needed }
+    </div>
+
     <div class="discussion" each={ discussion in discussion_page } id="discussion-{ discussion.id}">
         <div class="discussion__title">
-            <h1>{ discussion.title }</h1>
+            <h3><i class="fas fa-comments"></i> { discussion.title }</h3>
         </div>
 
-        <div class="discussion-comment" each={ comment in discussion.discussion }>
+        <div class="discussion-comment panel" each={ comment in discussion.discussion }>
             <div class="discussion-comment__header">
                 <a href={ comment.posted_by.page }>
                     { comment.posted_by.first_name } { comment.posted_by.last_name }
@@ -39,10 +43,6 @@
     </div>
 
     <div class="discussion__post">
-        <span if={ !isConnected() } class="discussion-commment__connection-needed">
-            { opts.connection_needed }
-        </span>
-
         <a if={ isConnected() && !post_discussion_visible } onclick={ show_post_discussion }>
             { opts.post_discussion }
         </a>
@@ -57,14 +57,11 @@
             <div class="form__group">
                 <textarea ref="discussion_comment"></textarea>
             </div>
-
-            <div class="form__group">
-                <button>{ opts.respond_comment }</button>
-            </div>
+            <button class="button">{ opts.respond_comment }</button>
         </form>
     </div>
 
-    <div class="discussions--error" if={ error }>
+    <div class="notification error" if={ error }>
         { this.opts.errorText }
     </div>
 

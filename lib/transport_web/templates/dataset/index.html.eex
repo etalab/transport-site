@@ -16,64 +16,70 @@
     <% else %>
       <%= for dataset <- @datasets do %>
         <div class="shortlist panel">
-          <div class="panel__side">
-            <%= img_tag(dataset.logo, alt: dataset.title, class: 'shortlist-image') %>
-            <div class="shortlist__notices">
-              <%= if dataset.licence do %>
-                <div class="shortlist__notice">
-                  <div class="shortlist__label"><%= dgettext("page-shortlist", "Licence") %></div>
-                  <span class="label label-notice"><%= ReusableData.build_licence(%{name: dataset.licence}).name %></span>
-                </div>
-              <% end %>
-
-              <%= if dataset.format do %>
-                <div class="shortlist__notice">
-                  <div class="shortlist__label"><%= dgettext("page-shortlist", "Format") %></div>
-                  <span class="label label-notice"><%= dataset.format %></span>
-                </div>
-              <% end %>
-
-              <div class="shortlist__notice">
-                <div class="shortlist__label"><%= dgettext("page-shortlist", "Status") %></div>
-                <%= if dataset.valid? do %>
-                  <span class="label label-success"><%= dgettext("page-shortlist", "Valid") %></span>
-                <% else %>
-                  <span class="label label-error"><%= dgettext("page-shortlist", "Invalid") %></span>
-                <% end %>
-              </div>
+          <div class="panel__header">
+            <div class="shortlist-image">
+              <%= img_tag(dataset.logo, alt: dataset.title) %>
             </div>
-            <div class="shortlist__links">
+            <a href="/datasets/<%= dataset.slug %>/">
+              <h2><%= dataset.title %></h2>
+            </a>
+          </div>
+          <div class="panel__content">
+            <div class="panel__side">
+              <div class="shortlist__notices">
+                <%= if dataset.licence do %>
+                  <div class="shortlist__notice">
+                    <div class="shortlist__label"><%= dgettext("page-shortlist", "Licence") %></div>
+                    <span class="label label-notice"><%= ReusableData.build_licence(%{name: dataset.licence}).name %></span>
+                  </div>
+                <% end %>
+
+                <%= if dataset.format do %>
+                  <div class="shortlist__notice">
+                    <div class="shortlist__label"><%= dgettext("page-shortlist", "Format") %></div>
+                    <span class="label label-notice"><%= dataset.format %></span>
+                  </div>
+                <% end %>
+
+                <div class="shortlist__notice">
+                  <div class="shortlist__label"><%= dgettext("page-shortlist", "Status") %></div>
+                  <%= if dataset.valid? do %>
+                    <span class="label label-success"><%= dgettext("page-shortlist", "Valid") %></span>
+                  <% else %>
+                    <span class="label label-error"><%= dgettext("page-shortlist", "Invalid") %></span>
+                  <% end %>
+                </div>
+              </div>
               <%= if !is_nil(dataset.spatial) do %>
                 <div class="shortlist__notice">
                   <div class="shortlist__label"><%= dgettext("page-shortlist", "Territory") %></div>
                   <span class="label label-notice"><%= dataset.spatial %></span>
                 </div>
               <% end %>
-              <%= if dataset.download_url do %>
-                <div class="shortlist__link shortlist__link--external-link">
-                  <i class="icon icon--link" aria-hidden="true"></i>
-                  <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
-                          to: "https://www.data.gouv.fr/datasets/#{dataset.id}/",
-                          role: "link") %>
-                </div>
-              <% end %>
+              <div class="shortlist__links">
+                <%= if dataset.download_url do %>
+                  <div class="shortlist__link shortlist__link--external-link">
+                    <i class="icon icon--link" aria-hidden="true"></i>
+                    <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
+                            to: "https://www.data.gouv.fr/datasets/#{dataset.id}/",
+                            role: "link") %>
+                  </div>
+                <% end %>
 
-              <%= if dataset.download_url do %>
-                <div class="shortlist__link shortlist__link--download">
-                  <i class="icon icon--download" aria-hidden="true"></i>
-                  <%= link(dgettext("page-shortlist", "Download"),
-                          to: dataset.download_url,
-                          role: "link") %>
-                </div>
-              <% end %>
+                <%= if dataset.download_url do %>
+                  <div class="shortlist__link shortlist__link--download">
+                    <i class="icon icon--download" aria-hidden="true"></i>
+                    <%= link(dgettext("page-shortlist", "Download"),
+                            to: dataset.download_url,
+                            role: "link") %>
+                  </div>
+                <% end %>
+              </div>
             </div>
-          </div>
-          <div class="shortlist-content">
-            <a href="/datasets/<%= dataset.slug %>/">
-              <h2><%= dataset.title %></h2>
-            </a>
-            <div class="shortlist-description">
-              <markdown content="<%= dataset.description %>"></markdown>
+            <div class="shortlist-content">
+              <div class="shortlist-description">
+                <markdown content="<%= dataset.description %>"></markdown>
+              </div>
             </div>
           </div>
         </div>
