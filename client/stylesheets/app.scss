@@ -2,15 +2,6 @@
 @import 'globals/variables';
 @import 'globals/externals';
 @import 'globals/mixins';
-@import 'globals/fonts';
-
-// Base styles: styles to be applied globally.
-@import 'base/**/*';
-@import 'template.scss';
-
-
-// Layouts: header, main, footer, ...
-@import 'layouts/**/*';
 
 // Components: abstract building blocks as buttons, navigation, etc...
 @import 'components/**/*';
@@ -18,7 +9,8 @@
 // States: microinteractions...
 @import 'states';
 
-// Transitional styles: hacky or dirty styles used for prototyping.
-@import 'transitional';
+@import 'main';
 
+// Pages
 @import 'home';
+@import 'datasets';

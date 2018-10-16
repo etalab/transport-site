@@ -1,7 +1,22 @@
-.illustration {
-  height: 500px;
-  background: url('/images/transport.svg') center center no-repeat;
+.hero__container {
+  background: $white;
+  color: $dark-text;
+  padding: 5em 0;
+  background: #d7edff url("/images/transport.svg") center bottom no-repeat;
   background-size: cover;
+  height: 45em;
+  flex-direction: row;
+  align-items: start;
+}
+
+.hero p,
+.hero h1 {
+  font-style: normal;
+  color: $dark-text;
+}
+
+.hero form {
+  margin-top: 2em;
 }
 
 .tools .row {
@@ -16,11 +31,18 @@
 .cta {
   display: flex;
   align-items: center;
+  min-width: 25%;
+  justify-content: center;
 }
 
 .button--fullwidth {
-  width: 14em;
-  margin: 0.5em;
+  text-align: center;
+  width: 100%;
+  margin: 0;
+}
+
+.button--fullwidth + .button--fullwidth {
+  margin-left: 0;
 }
 
 @media (max-width: 899px) {
