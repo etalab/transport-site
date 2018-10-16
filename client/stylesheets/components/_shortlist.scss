@@ -1,18 +1,38 @@
-.shortlist {
+.shortlist .panel__header {
+  display: flex;
+  flex-direction: row;
+}
+
+.shortlist .panel__header::after {
+  content: none;
+}
+
+.shortlist .panel__header .shortlist-image {
+  flex-basis: 200px;
+  flex-shrink: 0;
+}
+
+.shortlist .panel__header .shortlist-image + a {
+  margin-left: 2em;
+}
+
+.shortlist .panel__content {
   display: flex;
   flex-direction: row;
 }
 
 .shortlist .panel__side {
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  padding-right: 2em;
-  min-width: 200px;
+  padding-top: 1em;
+  flex-basis: 200px;
+  flex-shrink: 0;
 }
 
-.shortlist .panel__header-content img + a {
+.shortlist-content {
   margin-left: 2em;
+}
+
+.shortlist__links {
+  margin-top: 2em;
 }
 
 .shortlist__link {

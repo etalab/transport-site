@@ -1,8 +1,8 @@
 <dataset-followers>
-  <button if={ this.opts.user_id && !user_subscribed } onclick={ subscribe }>
+  <button class="button" if={ this.opts.user_id && !user_subscribed } onclick={ subscribe }>
     { opts.subscribe_to_dataset }
   </button>
-  <button if={ this.opts.user_id && user_subscribed } onclick={ unsubscribe }>
+  <button class="button secondary" if={ this.opts.user_id && user_subscribed } onclick={ unsubscribe }>
     { opts.unsubscribe_to_dataset }
   </button>
   <script type="es6">

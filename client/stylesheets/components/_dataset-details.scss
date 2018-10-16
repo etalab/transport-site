@@ -1,68 +1,31 @@
 div.dataset-details__side-pane {
   background: $background-white;
+  border: 0;
 
-  img {
-    padding-bottom: 3em;
-    min-width: 0;
+  .shortlist-details {
+    margin-top: 2em;
   }
 
-  button {
+  .side-pane__title {
     margin-top: 3em;
   }
-}
 
-.dataset-details__discussions {
-  margin-top: 6em;
-
-  h1 {
-    background-color: $light-grey;
+  img {
+    padding-bottom: 2em;
   }
 
-  discussions {
-    h1 {
-      background-color: $white;
-    }
+  .shortlist-publish {
+    margin-top: 2em;
   }
 }
 
-.stats {
-  $base-spacing: 1.5em !default;
-  $dark-gray: #333 !default;
-  $base-font-color: $dark-gray !default;
-  $action-color: #477dca !default;
-  $stats-color: lighten($action-color, 10%);
 
-  padding: $base-spacing / 2;
-
-  ul {
-    padding: 0;
+.dataset-details {
+  h2:first-child {
+    margin-top: 2em;
   }
 
-  li {
-    border-right: 1px solid transparentize($base-font-color, 0.8);
-    display: inline;
-    float: left;
-    padding: 0 0.7em;
-
-    &:first-child {
-      padding-left: 0;
-    }
-
-    &:last-child {
-      border-right: 0;
-    }
-
-    span:last-child {
-      color: $stats-color;
-      font-size: 1.2em;
-      line-height: 1.1em;
-    }
-  }
-
-  span {
-    color: $base-font-color;
-    display: block;
-    font-size: 0.7em;
-    font-weight: normal;
+  .shortlist__notice + .shortlist__notice {
+    margin-top: 1em;
   }
 }
