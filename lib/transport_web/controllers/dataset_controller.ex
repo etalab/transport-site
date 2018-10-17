@@ -15,7 +15,6 @@ defmodule TransportWeb.DatasetController do
   def index(%Plug.Conn{} = conn, _params) do
     conn
     |> assign(:datasets, ReusableData.list_datasets)
-    |> assign(:q, "")
     |> render("index.html")
   end
 

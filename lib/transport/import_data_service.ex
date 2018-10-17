@@ -51,6 +51,7 @@ defmodule Transport.ImportDataService do
       |> Map.take(["title", "description", "license", "id", "slug", "frequency", "tags"])
       |> Map.put("datagouv_id", dataset["id"])
       |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
+      |> Map.put("full_logo", dataset["organization"]["logo"])
       |> Map.put("task_id", Map.get(dataset, "task_id"))
       |> Map.put("download_url", get_download_url(dataset))
       |> Map.put("format", "GTFS")
@@ -122,6 +123,7 @@ defmodule Transport.ImportDataService do
   filter gtfs resources
 
   ## Examples
+
       iex> [%{"format" => "GTFS"}]
       ...> |> ImportDataService.filter_gtfs
       [%{"format" => "GTFS"}]
@@ -134,10 +136,16 @@ defmodule Transport.ImportDataService do
       ...> |> ImportDataService.filter_gtfs
       [%{"format" => "GTFS"}]
 
+      iex> [%{"format" => "gtfs.zip"}]
+      ...> |> ImportDataService.filter_gtfs
+      [%{"format" => "gtfs.zip"}]
+
   """
   def filter_gtfs(resources) do
     Enum.filter(resources, fn %{"format" => format} ->
-      String.downcase(format) == "gtfs"
+      format
+      |> String.downcase
+      |> String.contains?("gtfs")
     end)
   end
 
