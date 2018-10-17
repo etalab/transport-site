@@ -25,13 +25,5 @@ defmodule Transport.ImportDataServiceTest do
       assert dataset["download_url"] == url
     end
 
-    test "import all datasets on the curated list" do
-      "priv/repo/datasets.json"
-      |> File.read!
-      |> Poison.decode!
-      |> Enum.each(fn %{"id" => id} ->
-        assert {:ok, _} = ImportDataService.import_from_udata(id)
-      end)
-    end
   end
 end
