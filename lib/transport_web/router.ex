@@ -62,6 +62,7 @@ defmodule TransportWeb.Router do
       pipe_through [:admin_rights]
       get "/", BackofficeController, :index
       post "/", BackofficeController, :new_dataset
+      post "/datasets/:id/_import", BackofficeController, :import_from_data_gouv_fr
     end
 
     scope "/user" do

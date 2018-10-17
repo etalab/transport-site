@@ -25,6 +25,7 @@
     <th>Fin de validité</th>
     <th></th>
     <th></th>
+    <th></th>
     <th>Region</th>
     <th>Commune principale</th>
   </tr>
@@ -38,12 +39,10 @@
         <% end %>
       </td>
       <td>
-        <%= if dataset.download_url do %>
-            <i class="icon icon--link" aria-hidden="true"></i>
-            <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
-                    to: "https://www.data.gouv.fr/datasets/#{dataset.id}/",
-                    role: "link") %>
-        <% end %>
+          <i class="icon icon--link" aria-hidden="true"></i>
+          <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
+                  to: "https://www.data.gouv.fr/datasets/#{dataset.id}/",
+                  role: "link") %>
       </td>
       <td>
         <%= if dataset.download_url do %>
@@ -53,8 +52,13 @@
                     role: "link") %>
         <% end %>
       </td>
+      <td>
+        <%= form_for @conn, backoffice_path(@conn, :import_from_data_gouv_fr, dataset.id), [method: "post"], fn f -> %>
+          <%= submit "Importer", class: "button" %>
+        <% end %>
+      </td>
       <td><%= dataset.region %></td>
-      <td><%= dataset.commune_principale %>
+      <td><%= dataset.commune_principale %></td>
     </tr>
   <% end %>
     </table>

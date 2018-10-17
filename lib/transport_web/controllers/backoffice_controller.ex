@@ -47,4 +47,12 @@ defmodule TransportWeb.BackofficeController do
     |> index(%{})
   end
 
+  def import_from_data_gouv_fr(%Plug.Conn{} = conn, params) do
+    :mongo
+    |> Mongo.find("datasets", %{"id" => params["id"]}, pool:  DBConnection.Poolboy)
+    |> Enum.map(fn dataset -> import_data({:ok, dataset}) end)
+    |> Enum.reduce(conn, fn(result, c) -> flash(result, c) end)
+    |> index(%{})
+  end
+
 end
