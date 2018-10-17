@@ -24,7 +24,6 @@
     "exports-loader": "^0.6.4",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.5",
-    "fsevents": "^1.2.4",
     "import-glob-loader": "^1.1.0",
     "imports-loader": "^0.7.1",
     "leaflet": "^1.2.0",
