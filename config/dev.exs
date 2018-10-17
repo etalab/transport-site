@@ -13,7 +13,7 @@ config :transport, TransportWeb.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: [
-    "mix": ["eye_drops"],
+    "mix": ["guard"],
     "npm": ["run", "--prefix", "client", "watch"]
   ]
 
@@ -43,18 +43,6 @@ config :transport, TransportWeb.Endpoint,
       ~r{lib/transport_web/views/.*(ex)$},
       ~r{lib/transport_web/templates/.*(eex)$}
     ]
-  ]
-
-# Watch templates for internationalisation update.
-config :eye_drops,
-  tasks: [
-    %{
-      id: :gettext,
-      name: "gettext extract merge",
-      run_on_start: true,
-      cmd: "mix gettext.extract --merge",
-      paths: ["lib/transport_web/templates/**/*.eex"]
-    }
   ]
 
 # Do not include metadata nor timestamps in development logs
