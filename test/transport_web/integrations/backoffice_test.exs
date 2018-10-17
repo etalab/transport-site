@@ -1,5 +1,5 @@
 defmodule TransportWeb.Integration.BackofficeTest do
-  use TransportWeb.ConnCase, async: true
+  use TransportWeb.ConnCase, async: false
   use TransportWeb.UserFacingCase
   import Plug.Test
 
