@@ -4,8 +4,8 @@ defmodule Mix.Tasks.Transport.ValidateData do
   """
 
   use Mix.Task
-  alias Transport.ReusableData
   alias Transport.DataValidation
+  alias Transport.ReusableData
   require Logger
 
   @concurrency 5

@@ -3,9 +3,9 @@ defmodule Transport.Datagouvfr.Authentication do
   An OAuth2 strategy for data.gouv.fr.
   """
 
+  alias OAuth2.Client
   use OAuth2.Strategy
   alias OAuth2.Strategy.AuthCode
-  alias OAuth2.Client
 
   # Public API
 
