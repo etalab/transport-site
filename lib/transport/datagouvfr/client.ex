@@ -3,9 +3,9 @@ defmodule Transport.Datagouvfr.Client do
   An API client for data.gouv.fr
   """
 
-  alias Transport.Datagouvfr.Authentication
   alias OAuth2.Client, as: OAuth2Client
-  alias OAuth2.{Response, Request, Error}
+  alias OAuth2.{Error, Request, Response}
+  alias Transport.Datagouvfr.Authentication
 
   @base_url Application.get_env(:oauth2, Authentication)[:site] |> Path.join("/api/1/")
 

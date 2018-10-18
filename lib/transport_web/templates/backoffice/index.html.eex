@@ -53,7 +53,7 @@
         <% end %>
       </td>
       <td>
-        <%= form_for @conn, backoffice_path(@conn, :import_from_data_gouv_fr, dataset.id), [method: "post"], fn f -> %>
+        <%= form_for @conn, backoffice_path(@conn, :import_from_data_gouv_fr, dataset.id), [method: "post"], fn _ -> %>
           <%= submit "Importer", class: "button" %>
         <% end %>
       </td>
