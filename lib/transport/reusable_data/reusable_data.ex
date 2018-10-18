@@ -3,6 +3,7 @@ defmodule Transport.ReusableData do
   The ReusableData bounded context.
   """
 
+  alias Transport.ImportDataService
   alias Transport.ReusableData.{Dataset, Licence}
   require Logger
 
@@ -223,5 +224,12 @@ defmodule Transport.ReusableData do
       [dataset | acc]
     end)
     |> Enum.filter(&(&1.valid?))
+  end
+
+  @spec import :: none()
+  def import do
+    :mongo
+    |> Mongo.find("datasets", %{}, pool: DBConnection.Poolboy)
+    |> Enum.map(&ImportDataService.call/1)
   end
 end

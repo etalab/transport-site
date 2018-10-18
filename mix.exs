@@ -58,6 +58,8 @@ defmodule Transport.Mixfile do
       {:recon, "~> 2.3"},
       {:uuid, "~> 1.1"},
       {:vex, "~> 0.6"},
+      {:quantum, "~> 2.3"},
+      {:timex, "~> 3.0"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:exvcr, "~> 0.8", only: :test},
       {:hound, "~> 1.0", only: :test},

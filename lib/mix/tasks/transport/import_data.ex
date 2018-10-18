@@ -4,13 +4,11 @@ defmodule Mix.Tasks.Transport.ImportData do
   """
 
   use Mix.Task
-  alias Transport.ImportDataService
+  alias Transport.ReusableData
 
   def run(_) do
     Mix.Task.run("app.start", [])
 
-    :mongo
-    |> Mongo.find("datasets", %{}, pool: DBConnection.Poolboy)
-    |> Enum.map(&ImportDataService.call/1)
+    ReusableData.import()
   end
 end
