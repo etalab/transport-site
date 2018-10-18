@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 
-#: lib/transport_web/templates/backoffice/index.html.eex:51
+#: lib/transport_web/templates/backoffice/index.html.eex:50
 #: lib/transport_web/templates/dataset/details.html.eex:10
 #: lib/transport_web/templates/dataset/details.html.eex:160
 #: lib/transport_web/templates/dataset/index.html.eex:72
