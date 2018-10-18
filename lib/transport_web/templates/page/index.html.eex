@@ -1,27 +1,26 @@
-<div class="hero">
+<div class="hero" role="banner">
     <div class="hero__container">
-        <div class="hero__title">
-            <div class="container">
-                <h1>Le Point d'Accès National</h1>
-                <p>La plateforme transport.data.gouv.fr vise à référencer l’ensemble des données transports pour en faciliter la réutilisation et garantir aux usagers une information voyageur fiable sur leurs déplacements au quotidien.</p>
-                </p>
-                <p>Suivez l’avancement sur la <a href="/stats" class="inverted_color">page dédiée au déploiement</a>.</p>
-                <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
-                    <div class="form__group">
-                    <div class="search__group">
-                        <%= text_input f, :q, [{"placeholder", dgettext("page-index", "Find dataset")}] %>
-                        <button class="overlay-button" aria-label="Recherche">
-                            <i class="fas icon--magnifier"></i>
-                        </button>
-                    </div>
-                    </div>
-                <% end %>
-            </div>
+        <div class="container">
+            <h1>Le Point d'Accès National</h1>
+            <p>La plateforme transport.data.gouv.fr vise à référencer l’ensemble des données transports pour en faciliter la réutilisation et garantir aux usagers une information voyageur fiable sur leurs déplacements au quotidien.</p>
+            </p>
+            <p>Suivez l’avancement sur la <a href="/stats" class="inverted_color">page dédiée au déploiement</a>.</p>
+            <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
+                <div class="form__group">
+                <div class="search__group">
+                    <%= text_input f, :q, [{"placeholder", dgettext("page-index", "Find dataset")}] %>
+                    <button class="overlay-button" aria-label="Recherche">
+                        <i class="fas icon--magnifier"></i>
+                    </button>
+                </div>
+                <p class="text-center"><a href="#about">➞ Plus d'informations</a></p>
+                </div>
+            <% end %>
         </div>
     </div>
 </div>
 
-<section class="aom">
+<section class="section section-white aom" id="about">
     <div class="container">
         <div class="row">
             <div class="column">
@@ -41,13 +40,13 @@
         </div>
     <div>
 </section>
-<section class="tools section-grey">
+<section class="tools section section-grey">
     <div class="container">
         <div class="row">
             <div class="column">
                 <h2>Opérateurs de transport</h2>
                 <h3>Publiez ou référencez vos données en quelques clics</h3>
-                <p>Tous les opérateurs de transport sont tenus de mettre à disposition leurs données relatives à l'information voyageur sur le Point d'Accès National. La publication des données se fait sur la <a href="https://data.gouv.fr">plateforme nationale data.gouv.fr</a> en créant un compte personnel rattaché à une organisation. Les données peuvent être au choix hébergées ou simplement référencées par le <em>moissonnage</em> d'une plateforme locale. </p>
+                <p>Tous les opérateurs de transport sont tenus de mettre à disposition leurs données relatives à l'information voyageur sur le Point d'Accès National. La publication des données se fait sur la plateforme nationale <a href="https://data.gouv.fr">data.gouv.fr</a> en créant un compte personnel rattaché à une organisation. Les données peuvent être au choix hébergées ou simplement référencées par le <em>moissonnage</em> d'une plateforme locale. </p>
             </div>
             <div class="column cta">
                 <div>
@@ -65,7 +64,7 @@
         </div>
     </div>
 </section>
-<section class="users">
+<section class="users section section-white">
     <div class="container">
         <div class="row">
             <div class="column">
@@ -85,8 +84,7 @@
         </div>
     </div>
 </section>
-<div class="illustration"></div>
-<section class="section-grey mailing-list">
+<section class="section section-grey mailing-list">
     <div class="container mailing-list__container">
         <div class="form__container">
             <form action="<%= @mailchimp_newsletter_url %>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
