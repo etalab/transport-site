@@ -1,8 +1,8 @@
 defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
-  alias Transport.ReusableData
   alias Transport.Datagouvfr.Authentication
-  alias Transport.Datagouvfr.Client.{Organizations, Datasets, Resources}
+  alias Transport.Datagouvfr.Client.{Datasets, Organizations, Resources}
+  alias Transport.ReusableData
   require Logger
 
   def index(%Plug.Conn{} = conn, %{"q" => q} = _params) when q != "" do

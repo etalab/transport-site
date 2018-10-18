@@ -3,8 +3,8 @@ defmodule Transport.DataImprovement.DatasetRepository do
   A dataset repository in the context of data improvement.
   """
 
-  use Transport.DataImprovement.Macros, :repository
   alias Transport.DataImprovement.Dataset
+  use Transport.DataImprovement.Macros, :repository
   alias Transport.Datagouvfr.Client.Datasets, as: Repo # smell
 
   @entity_id :dataset_uuid
