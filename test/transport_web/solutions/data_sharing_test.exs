@@ -22,7 +22,7 @@ defmodule TransportWeb.Solution.DataSharingTest do
     |> Kernel.=~("/login/explanation")
     |> assert
 
-    find_element(:class, "message--info")
+    find_element(:class, "notification")
     |> inner_text
     |> Kernel.=~("connecté")
     |> assert

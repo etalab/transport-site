@@ -1,5 +1,5 @@
 .cards {
-  @extend .layout-container;
+  // @extend .layout-container;
   display: block;
 }
 
@@ -10,7 +10,7 @@
 }
 
 .card {
-  @extend .layout-column;
+  // @extend .layout-column;
   border: 1px solid $lighter-grey;
   border-radius: 3px;
   margin-bottom: 2em;

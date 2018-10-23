@@ -99,6 +99,8 @@ defmodule Transport.DataValidation.Repo.Dataset do
          body
          |> Poison.decode!()
          |> Map.get("error")}
+      {:ok, %@res{status_code: 404}} ->
+        {:error, "404 Page not found #{url}"}
 
       {:error, %@err{reason: error}} ->
         {:error, error}

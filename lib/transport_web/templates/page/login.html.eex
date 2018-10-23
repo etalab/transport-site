@@ -1,60 +1,64 @@
-<section class="dataset-container">
-  <%= if get_flash(@conn, :info) do %>
-    <p class="message message--info"><%= get_flash(@conn, :info) %></p>
-  <% end %>
+<section id="login" class="section">
+  <div class="container">
+    <%= if get_flash(@conn, :info) do %>
+      <p class="notification"><%= get_flash(@conn, :info) %></p>
+    <% end %>
 
-  <%= if get_flash(@conn, :error) do %>
-    <p class="message message--error"><%= get_flash(@conn, :error) %></p>
-  <% end %>
+    <%= if get_flash(@conn, :error) do %>
+      <p class="notification error"><%= get_flash(@conn, :error) %></p>
+    <% end %>
 
-  <h1><%= dgettext("page-login", "Sign In with data.gouv.fr") %></h1>
+    <div class="panel">
+      <h1><%= dgettext("page-login", "Sign In with data.gouv.fr") %></h1>
 
-  <ul class="list">
-    <li class="list__item">
-      <div class="list__item--icon">
-        <i class="icon icon--cubes" aria-hidden="true"></i>
+      <ul class="list">
+        <li class="list__item">
+          <div class="list__item--icon">
+            <i class="icon icon--cubes" aria-hidden="true"></i>
+          </div>
+
+          <div class="list__item--content">
+            <%= dgettext("page-login", "data.gouv.fr is the open platform for French public data") %>
+          </div>
+        </li>
+
+        <li class="list__item">
+          <div class="list__item--icon">
+            <i class="icon icon--badge" aria-hidden="true"></i>
+          </div>
+
+          <div class="list__item--content">
+            <%= dgettext("page-login", "transport.data.gouv.fr belongs to the data.gouv.fr network, and share the same user account") %>
+          </div>
+        </li>
+
+        <li class="list__item">
+          <div class="list__item--icon">
+            <i class="icon icon--hand-up" aria-hidden="true"></i>
+          </div>
+
+          <div class="list__item--content">
+            <%= dgettext("page-login", "By clicking this button, you'll be able to create an account or use your existing data.gouv.fr account to log in") %>
+          </div>
+        </li>
+
+        <li class="list__item">
+          <div class="list__item--icon">
+            <i class="icon icon--user-plus" aria-hidden="true"></i>
+          </div>
+
+          <div class="list__item--content">
+            <%= dgettext("page-login", "After having clicked this button, you should click on 'accepter' to authorise transport.data.gouv.fr to access your data.gouv.fr account details") %>
+          </div>
+        </li>
+      </ul>
+
+      <div class="is-centered">
+        <a class="button button--large" href="<%= session_path @conn, :new %>" role="link">
+          <i class="icon icon--login" aria-hidden="true"></i>
+          <%= gettext("Sign In") %>
+        </a>
       </div>
-
-      <div class="list__item--content">
-        <%= dgettext("page-login", "data.gouv.fr is the open platform for French public data") %>
-      </div>
-    </li>
-
-    <li class="list__item">
-      <div class="list__item--icon">
-        <i class="icon icon--badge" aria-hidden="true"></i>
-      </div>
-
-      <div class="list__item--content">
-        <%= dgettext("page-login", "transport.data.gouv.fr belongs to the data.gouv.fr network, and share the same user account") %>
-      </div>
-    </li>
-
-    <li class="list__item">
-      <div class="list__item--icon">
-        <i class="icon icon--hand-up" aria-hidden="true"></i>
-      </div>
-
-      <div class="list__item--content">
-        <%= dgettext("page-login", "By clicking this button, you'll be able to create an account or use your existing data.gouv.fr account to log in") %>
-      </div>
-    </li>
-
-    <li class="list__item">
-      <div class="list__item--icon">
-        <i class="icon icon--user-plus" aria-hidden="true"></i>
-      </div>
-
-      <div class="list__item--content">
-        <%= dgettext("page-login", "After having clicked this button, you should click on 'accepter' to authorise transport.data.gouv.fr to access your data.gouv.fr account details") %>
-      </div>
-    </li>
-  </ul>
-
-  <div class="is-centered">
-    <a class="button button--large" href="<%= session_path @conn, :new %>" role="link">
-      <i class="icon icon--login" aria-hidden="true"></i>
-      <%= gettext("Sign In") %>
-    </a>
+    </div>
   </div>
 </section>

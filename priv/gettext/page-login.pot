@@ -10,22 +10,22 @@
 msgid ""
 msgstr ""
 
-#: lib/transport_web/templates/page/login.html.eex:29
+#: lib/transport_web/templates/page/login.html.eex:31
 msgid "transport.data.gouv.fr belongs to the data.gouv.fr network, and share the same user account"
 msgstr ""
 
-#: lib/transport_web/templates/page/login.html.eex:49
+#: lib/transport_web/templates/page/login.html.eex:51
 msgid "After having clicked this button, you should click on 'accepter' to authorise transport.data.gouv.fr to access your data.gouv.fr account details"
 msgstr ""
 
-#: lib/transport_web/templates/page/login.html.eex:19
+#: lib/transport_web/templates/page/login.html.eex:21
 msgid "data.gouv.fr is the open platform for French public data"
 msgstr ""
 
-#: lib/transport_web/templates/page/login.html.eex:10
+#: lib/transport_web/templates/page/login.html.eex:12
 msgid "Sign In with data.gouv.fr"
 msgstr ""
 
-#: lib/transport_web/templates/page/login.html.eex:39
+#: lib/transport_web/templates/page/login.html.eex:41
 msgid "By clicking this button, you'll be able to create an account or use your existing data.gouv.fr account to log in"
 msgstr ""
