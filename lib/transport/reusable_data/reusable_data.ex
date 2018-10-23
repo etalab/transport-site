@@ -8,6 +8,11 @@ defmodule Transport.ReusableData do
   require Logger
 
   @pool DBConnection.Poolboy
+  @endpoint Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
+  @client HTTPoison
+  @res HTTPoison.Response
+  @err HTTPoison.Error
+  @timeout 60_000
 
   @doc """
   Returns the list of reusable datasets filtered by a full text search.
@@ -226,7 +231,39 @@ defmodule Transport.ReusableData do
   @spec import :: none()
   def import do
     :mongo
-    |> Mongo.find("datasets", %{}, pool: DBConnection.Poolboy)
+    |> Mongo.find("datasets", %{}, pool: @pool)
     |> Enum.map(&ImportDataService.call/1)
   end
+
+  def validate_and_save(%Dataset{} = dataset) do
+    Logger.info("Validating " <> dataset.download_url )
+    case dataset |> validate |> save_validations do
+      {:ok, _} -> Logger.info("Ok!")
+      {:error, error} -> Logger.warn("Error: " <> error)
+      _ -> Logger.warn("Unknown error")
+    end
+  end
+
+  def validate(%Dataset{download_url: url}) do
+    with {:ok, %@res{status_code: 200, body: body}} <-
+           @client.get(@endpoint <> "?url=#{url}", [], timeout: @timeout, recv_timeout: @timeout),
+         {:ok, validations} <- Poison.decode(body) do
+      {:ok, %{url: url, validations: validations}}
+    else
+      {:ok, %@res{body: body}} -> {:error, body}
+      {:error, %@err{reason: error}} -> {:error, error}
+      {:error, error} -> {:error, error}
+      _ -> {:error, "Unknown error"}
+    end
+  end
+
+  def save_validations({:ok, %{url: url, validations: validations}}) do
+    Mongo.find_one_and_update(:mongo,
+                              "datasets",
+                              %{"download_url" => url},
+                              %{"$set" => validations},
+                              pool: @pool)
+  end
+  def save_validations({:error, error}), do: error
+  def save_validations(error), do: {:error, error}
 end

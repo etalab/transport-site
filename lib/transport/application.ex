@@ -14,7 +14,6 @@ defmodule Transport.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(Registry, [:unique, :dataset_registry]),
-      supervisor(Transport.DataValidation.Supervisor, []),
       supervisor(TransportWeb.Endpoint, []),
       worker(Mongo, [get_mongodb_keywords!()]),
       worker(Transport.Scheduler, [])
