@@ -16,7 +16,8 @@ defmodule Transport.Application do
       supervisor(Registry, [:unique, :dataset_registry]),
       supervisor(Transport.DataValidation.Supervisor, []),
       supervisor(TransportWeb.Endpoint, []),
-      worker(Mongo, [get_mongodb_keywords!()])
+      worker(Mongo, [get_mongodb_keywords!()]),
+      worker(Transport.Scheduler, [])
       # Start worker by calling: Transport.Worker.start_link(arg1, arg2, arg3)
       # worker(Transport.Worker, [arg1, arg2, arg3]),
     ]
