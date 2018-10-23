@@ -21,7 +21,7 @@ config :transport, TransportWeb.Endpoint,
 
 config :transport, Transport.Scheduler,
   jobs: [
-    {"@daily", {Transport.ReusableData, :import, []}}
+    {"0 7 * * *", {Transport.ReusableData, :import, []}} # Every day at 7am
   ]
 
 # Do not print debug messages in production
