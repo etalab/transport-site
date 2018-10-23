@@ -1,6 +1,6 @@
 <communityresources>
-    <h1>{ this.opts.title }</h1>
-    <ul if={ this.data && this.data.data }>
+    <h2>{ this.opts.title }</h2>
+    <ul if={ this.data && this.data.length && this.data.data }>
         <li each={ resource, i in this.data.data }>
             <div class="documentation">
                 <div class="side-pan community-resources__side-pan">
@@ -22,9 +22,9 @@
             </div>
         <li>
     </ul>
-    <span if={ this.data == null || !this.data.data }>
+    <div if={ this.data == null || this.data.length !== 0 || !this.data.data }>
         { this.opts.no_community_resources }
-    </span>
+    </div>
 
     <script type="es6">
         this.on('before-mount', () => {

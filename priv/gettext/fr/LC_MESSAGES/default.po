@@ -11,7 +11,7 @@ msgstr ""
 "Language: fr\n"
 
 #: lib/transport_web/templates/layout/_header.html.eex:21
-#: lib/transport_web/templates/page/login.html.eex:57
+#: lib/transport_web/templates/page/login.html.eex:59
 msgid "Sign In"
 msgstr "S'identifier"
 

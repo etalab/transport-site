@@ -10,40 +10,40 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 
-#: lib/transport_web/templates/dataset/details.html.eex:126
+#: lib/transport_web/templates/dataset/details.html.eex:121
 #: lib/transport_web/templates/dataset/details.html.eex:169
 msgid "GTFS Validation"
 msgstr "Validations GTFS"
 
-#: lib/transport_web/templates/dataset/details.html.eex:129
+#: lib/transport_web/templates/dataset/details.html.eex:125
 msgid "Notices"
 msgstr "Astuces"
 
-#: lib/transport_web/templates/dataset/details.html.eex:128
+#: lib/transport_web/templates/dataset/details.html.eex:124
 msgid "Warnings"
 msgstr "Avertissements"
 
-#: lib/transport_web/templates/dataset/details.html.eex:201
+#: lib/transport_web/templates/dataset/details.html.eex:204
 msgid "Posted on"
 msgstr "le"
 
-#: lib/transport_web/templates/dataset/details.html.eex:202
+#: lib/transport_web/templates/dataset/details.html.eex:205
 msgid "Respond"
 msgstr "Répondre"
 
-#: lib/transport_web/templates/dataset/details.html.eex:203
+#: lib/transport_web/templates/dataset/details.html.eex:206
 msgid "Begin a new conversation"
 msgstr "Ouvrir une discussion"
 
-#: lib/transport_web/templates/dataset/details.html.eex:204
+#: lib/transport_web/templates/dataset/details.html.eex:207
 msgid "Title"
 msgstr "Titre"
 
-#: lib/transport_web/templates/dataset/details.html.eex:205
+#: lib/transport_web/templates/dataset/details.html.eex:208
 msgid "You need to be connected to post comments"
 msgstr "Vous devez être identifié pour écrire un commentaire."
 
-#: lib/transport_web/templates/dataset/details.html.eex:134
+#: lib/transport_web/templates/dataset/details.html.eex:129
 msgid "Publish a modified version dataset"
 msgstr "Publier une version modifiée du jeu de données"
 
@@ -55,27 +55,27 @@ msgstr "Jeux de données modifiés"
 msgid "There is no linked dataset yet"
 msgstr "Il n'y a pas encore de jeu de données lié"
 
-#: lib/transport_web/templates/dataset/details.html.eex:141
+#: lib/transport_web/templates/dataset/details.html.eex:135
 msgid "Subscribe to dataset"
 msgstr "S'abonner à ce jeu de données"
 
-#: lib/transport_web/templates/dataset/details.html.eex:142
+#: lib/transport_web/templates/dataset/details.html.eex:136
 msgid "Unsubscribe to dataset"
 msgstr "Se désabonner de ce jeu de données"
 
-#: lib/transport_web/templates/dataset/details.html.eex:177
+#: lib/transport_web/templates/dataset/details.html.eex:180
 msgid "Object ID"
 msgstr "Identifiant"
 
-#: lib/transport_web/templates/dataset/details.html.eex:178
+#: lib/transport_web/templates/dataset/details.html.eex:181
 msgid "Object name"
 msgstr "Nom de l’objet"
 
-#: lib/transport_web/templates/dataset/details.html.eex:179
+#: lib/transport_web/templates/dataset/details.html.eex:182
 msgid "Related object ID"
 msgstr "Identifiant associé"
 
-#: lib/transport_web/templates/dataset/details.html.eex:180
+#: lib/transport_web/templates/dataset/details.html.eex:183
 msgid "Severity"
 msgstr "Gravité"
 

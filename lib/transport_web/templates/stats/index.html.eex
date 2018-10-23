@@ -1,14 +1,11 @@
+<map></map>
 
-<section class="single-page">
+<section class="section section-white">
+<div class="container">
 <markdown>
 # État du déploiement
 ## Transport collectif théorique
 ### Par autorités organisatrices de mobilité
-</markdown>
-
-<map></map>
-
-<markdown>
 ## Transport collectif, temps réel
 
 Une réunion de lancement des travaux a eu lieu le 20 septembre 2018.
@@ -32,4 +29,5 @@ Réunion ouverte de lancement : 16 octobre 2018
 
 Elles seront abordées courant 2019
 </markdown>
+</div>
 </section>

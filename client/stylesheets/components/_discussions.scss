@@ -6,42 +6,24 @@ discussions {
   }
 
   .discussion-comment {
-    padding-left: 1em;
-    margin-bottom: 1em;
+    border-left: 5px solid #c9d3df;
+    background-color: #ebeff3;
+    padding: 1em;
   }
 
-  .discussion-comment__form {
-    padding-left: 1em;
+  .discussion-comment + .discussion-comment {
+    margin-top: 1em;
   }
 
-  .discussion-commment__connection-needed {
-    font-style: italic;
+  .discussion-comment__content p:last-child {
+    margin-bottom: 0;
   }
 
   textarea {
     height: 10em;
-    width: 70%;
-  }
-
-  input {
-    width: 70%;
   }
 
   .discussion__post {
     padding-top: 2em;
-  }
-
-  .discussion-comment__content {
-    p {
-      padding: 0;
-      margin-top: 0.4em;
-      margin-bottom: 0.4em;
-      margin-left: 1em;
-    }
-
-    li {
-      margin-left: 1em;
-      list-style: circle inside;
-    }
   }
 }

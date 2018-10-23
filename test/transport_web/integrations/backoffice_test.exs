@@ -11,7 +11,7 @@ defmodule TransportWeb.Integration.BackofficeTest do
     |> navigate_to
 
     :class
-    |> find_element("message--info")
+    |> find_element("notification")
     |> visible_text
     |> Kernel.==("Vous devez être préalablement connecté·e.")
     |> assert
