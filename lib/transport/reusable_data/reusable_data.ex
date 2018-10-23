@@ -27,7 +27,6 @@ defmodule Transport.ReusableData do
     query_datasets(%{
       # We display also datasets with anomalies
       # anomalies: [],
-      coordinates: %{"$ne" => nil},
       download_url: %{"$ne" => nil},
       "$text": %{"$search" => q}
     })
@@ -189,7 +188,6 @@ defmodule Transport.ReusableData do
     query_datasets(%{
       # We display also datasets with anomalies
       # anomalies: [],
-      coordinates: %{"$ne" => nil},
       download_url: %{"$ne" => nil},
       commune_principale: String.to_integer commune
     })
@@ -199,7 +197,6 @@ defmodule Transport.ReusableData do
     query_datasets(%{
       # We display also datasets with anomalies
       # anomalies: [],
-      coordinates: %{"$ne" => nil},
       download_url: %{"$ne" => nil},
       region: region
     })
