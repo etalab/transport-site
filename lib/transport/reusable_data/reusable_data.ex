@@ -31,8 +31,6 @@ defmodule Transport.ReusableData do
   @spec search_datasets(String.t) :: [%Dataset{}]
   def search_datasets(q) when is_binary(q) do
     query_datasets(%{
-      # We display also datasets with anomalies
-      # anomalies: [],
       download_url: %{"$ne" => nil},
       "$text": %{"$search" => q}
     })
@@ -52,8 +50,6 @@ defmodule Transport.ReusableData do
   @spec list_datasets :: [%Dataset{}]
   def list_datasets do
     query_datasets(%{
-      # We display also datasets with anomalies
-      # anomalies: [],
       download_url: %{"$ne" => nil}
     })
   end
@@ -192,8 +188,6 @@ defmodule Transport.ReusableData do
   @spec list_datasets(String.t) :: [%Dataset{}]
   def list_datasets(commune) do
     query_datasets(%{
-      # We display also datasets with anomalies
-      # anomalies: [],
       download_url: %{"$ne" => nil},
       commune_principale: String.to_integer commune
     })
@@ -201,8 +195,6 @@ defmodule Transport.ReusableData do
 
   def list_datasets_region(region) do
     query_datasets(%{
-      # We display also datasets with anomalies
-      # anomalies: [],
       download_url: %{"$ne" => nil},
       region: region
     })

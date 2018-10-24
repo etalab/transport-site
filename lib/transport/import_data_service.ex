@@ -30,9 +30,8 @@ defmodule Transport.ImportDataService do
 
     with {:ok, response}  <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
          {:ok, json} <- Poison.decode(response.body),
-         {:ok, dataset} <- get_dataset(json),
-         anomalies <- get_anomalies(dataset) do
-      {:ok, Map.put(dataset, "anomalies", anomalies)}
+         {:ok, dataset} <- get_dataset(json) do
+      {:ok, dataset}
     else
       {:error, error} ->
         Logger.error("<message>  #{inspect error}")
@@ -334,37 +333,6 @@ defmodule Transport.ImportDataService do
       [] -> nil
       [head | _] -> head
     end
-  end
-
-  @doc """
-  Get anomalies of a dataset
-
-  ## Examples
-
-      iex> %{"license" => "bliblablou", "download_url" => nil}
-      ...> |> ImportDataService.get_anomalies()
-      ["bad_license", "no_download_url"]
-
-      iex> %{"license" => "odc-odbl", "download_url" => "http"}
-      ...> |> ImportDataService.get_anomalies()
-      []
-
-  """
-  def get_anomalies(dataset) do
-    anomalies = dataset
-                |> Map.get("anomalies", [])
-                |> MapSet.new
-    anomalies = if check_license(dataset) do
-      MapSet.delete(anomalies, "bad_license")
-    else
-      MapSet.put(anomalies, "bad_license")
-    end
-    anomalies = if check_download_url(dataset) do
-      MapSet.delete(anomalies, "no_download_url")
-    else
-      MapSet.put(anomalies, "no_download_url")
-    end
-    MapSet.to_list(anomalies)
   end
 
   @doc """
