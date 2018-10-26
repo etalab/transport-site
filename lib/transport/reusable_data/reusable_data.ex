@@ -3,8 +3,9 @@ defmodule Transport.ReusableData do
   The ReusableData bounded context.
   """
 
+  import TransportWeb.Gettext
   alias Transport.ImportDataService
-  alias Transport.ReusableData.{Dataset, Licence}
+  alias Transport.ReusableData.Dataset
   require Logger
 
   @pool DBConnection.Poolboy
@@ -31,8 +32,6 @@ defmodule Transport.ReusableData do
   @spec search_datasets(String.t) :: [%Dataset{}]
   def search_datasets(q) when is_binary(q) do
     query_datasets(%{
-      # We display also datasets with anomalies
-      # anomalies: [],
       download_url: %{"$ne" => nil},
       "$text": %{"$search" => q}
     })
@@ -52,8 +51,6 @@ defmodule Transport.ReusableData do
   @spec list_datasets :: [%Dataset{}]
   def list_datasets do
     query_datasets(%{
-      # We display also datasets with anomalies
-      # anomalies: [],
       download_url: %{"$ne" => nil}
     })
   end
@@ -157,25 +154,23 @@ defmodule Transport.ReusableData do
 
   ## Examples
 
-      iex> %{name: "fr-lo"}
-      ...> |> ReusableData.build_licence
-      ...> |> Map.get(:name)
+      iex> %Dataset{licence: "fr-lo"}
+      ...> |> ReusableData.localise_licence
       "Open Licence"
 
-      iex> %{name: "Libertarian"}
-      ...> |> ReusableData.build_licence
-      ...> |> Map.get(:name)
-      nil
-
-      iex> %{}
-      ...> |> ReusableData.build_licence
-      ...> |> Map.get(:alias)
-      nil
+      iex> %Dataset{licence: "Libertarian"}
+      ...> |> ReusableData.localise_licence
+      "Not specified"
 
   """
-  @spec build_licence(map()) :: %Licence{}
-  def build_licence(%{} = attrs) do
-    Licence.new(attrs)
+  @spec localise_licence(%Dataset{}) :: String.t
+  def localise_licence(%Dataset{licence: licence}) do
+    case licence do
+      "fr-lo" -> dgettext("reusable_data", "fr-lo")
+      "odc-odbl" -> dgettext("reusable_data", "odc-odbl")
+      "other-open" -> dgettext("reusable_data", "other-open")
+      _ -> dgettext("reusable_data", "notspecified")
+    end
   end
 
   @doc """
@@ -192,8 +187,6 @@ defmodule Transport.ReusableData do
   @spec list_datasets(String.t) :: [%Dataset{}]
   def list_datasets(commune) do
     query_datasets(%{
-      # We display also datasets with anomalies
-      # anomalies: [],
       download_url: %{"$ne" => nil},
       commune_principale: String.to_integer commune
     })
@@ -201,8 +194,6 @@ defmodule Transport.ReusableData do
 
   def list_datasets_region(region) do
     query_datasets(%{
-      # We display also datasets with anomalies
-      # anomalies: [],
       download_url: %{"$ne" => nil},
       region: region
     })

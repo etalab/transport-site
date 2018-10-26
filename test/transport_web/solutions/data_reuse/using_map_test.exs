@@ -21,8 +21,6 @@ defmodule TransportWeb.Solution.DataReuse.UsingMapTest do
       download_url: "https://link.to/angers.zip",
       license: "odc-odbl",
       title: "Horaires et arrêts du réseau IRIGO - format GTFS",
-      anomalies: [],
-      coordinates: [-0.5630548425091684,47.47654241641714],
       slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
       validations: []
     }

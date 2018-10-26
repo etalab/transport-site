@@ -6,6 +6,6 @@ defmodule TransportWeb.API.DatasetSerializer do
   use TransportWeb, :serializer
 
   location "/datasets/:slug/"
-  attributes [:title, :slug, :id, :coordinates, :validations]
+  attributes [:title, :slug, :id, :validations]
 
 end
