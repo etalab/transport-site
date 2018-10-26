@@ -9,3 +9,23 @@ main {
 .icon {
   margin-right: 0.5em;
 }
+
+.icon--logout {
+  margin: 0;
+}
+
+.nav__links {
+  display: flex;
+  align-items: center;
+}
+
+.header__avatar {
+  height: 35px;
+  width: 35px;
+  border-radius: 50%;
+  margin-right: 1em;
+}
+
+.nav__username {
+  margin-right: 1em;
+}
