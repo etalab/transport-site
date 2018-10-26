@@ -28,6 +28,10 @@
   align-self: center;
 }
 
+.tools .button + .button {
+  margin-top: 0.5em;
+} 
+
 .cta {
   display: flex;
   align-items: center;

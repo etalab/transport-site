@@ -6,8 +6,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
   setup do
     dataset = ReusableData.create_dataset %{
       title: "Leningrad metro dataset",
-      anomalies: [],
-      coordinates: [-0.5630548425091684,47.47654241641714],
       download_url: "link.to",
       license: "odc-odbl",
       slug: "leningrad-metro-dataset",
@@ -33,7 +31,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
     assert response_content_type(conn, :jsonapi) =~ "application/vnd.api+json"
     refute is_list(data)
-    assert get_in(data, ["attributes", "coordinates"]) == dataset.coordinates
     assert get_in(data, ["links", "self"]) == "/datasets/#{dataset.slug}/"
   end
 end
