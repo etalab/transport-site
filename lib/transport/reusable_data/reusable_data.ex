@@ -227,8 +227,12 @@ defmodule Transport.ReusableData do
   end
 
   def validate_and_save(%Dataset{} = dataset) do
-    Logger.info("Validating " <> dataset.download_url )
-    case dataset |> validate |> save_validations do
+    Logger.info("Validating " <> dataset.download_url)
+    dataset
+    |> validate
+    |> add_metadata
+    |> save_validations
+    |> case do
       {:ok, _} -> Logger.info("Ok!")
       {:error, error} -> Logger.warn("Error: " <> error)
       _ -> Logger.warn("Unknown error")
@@ -257,4 +261,14 @@ defmodule Transport.ReusableData do
   end
   def save_validations({:error, error}), do: error
   def save_validations(error), do: {:error, error}
+
+  def add_metadata({:ok, %{url: url, validations: validations}}) do
+    {:ok,
+    %{
+      url: url,
+      validations: Map.put(validations, "validation_date", DateTime.utc_now |> DateTime.to_string)
+      }
+    }
+  end
+  def add_metadata(error), do: error
 end
