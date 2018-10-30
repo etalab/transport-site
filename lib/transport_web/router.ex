@@ -90,6 +90,11 @@ defmodule TransportWeb.Router do
 
   scope "/api", TransportWeb do
 
+    scope "/aoms" do
+      pipe_through :json_api
+      get "/", API.AOMController, :index
+    end
+
     scope "/datasets" do
       pipe_through :json_api
       get "/", API.DatasetController, :index
@@ -106,6 +111,11 @@ defmodule TransportWeb.Router do
       pipe_through :api_authenticated
       post "/", API.DiscussionController, :post_discussion
       post "/:id_", API.DiscussionController, :post_discussion
+    end
+
+    scope "/regions" do
+      pipe_through :json_api
+      get "/", API.RegionController, :index
     end
 
     scope "/stats" do
