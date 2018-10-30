@@ -1,5 +1,6 @@
 defmodule TransportWeb.StatsController do
   alias Transport.ReusableData
+  alias Transport.ReusableData.Dataset
   use TransportWeb, :controller
 
   defp has_dataset?(aom), do: !Enum.empty?(Map.get(aom, "datasets", []))
@@ -9,17 +10,13 @@ defmodule TransportWeb.StatsController do
     aoms = Mongo.aggregate(
       :mongo,
       "aoms",
-      [
-        ReusableData.Dataset.aoms_lookup,
-      ],
+      [Dataset.aoms_lookup],
       pool: DBConnection.Poolboy
     )
     regions = Mongo.aggregate(
       :mongo,
       "regions",
-      [
-        ReusableData.Dataset.regions_lookup,
-      ],
+      [Dataset.regions_lookup],
       pool: DBConnection.Poolboy
     )
     render(conn, "index.html",
