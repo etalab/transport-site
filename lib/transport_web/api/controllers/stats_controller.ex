@@ -1,5 +1,6 @@
 defmodule TransportWeb.API.StatsController do
   use TransportWeb, :controller
+  alias Transport.ReusableData.Dataset
 
   def geojson(features) do
     %{
@@ -9,36 +10,11 @@ defmodule TransportWeb.API.StatsController do
     }
   end
 
-  def region_features do
+  def features(collection_name, lookup) do
     :mongo
     |> Mongo.aggregate(
-      "regions",
-      [%{"$lookup" => %{
-        "from" => "datasets",
-        "localField" => "properties.NOM_REG",
-        "foreignField" => "region",
-        "as" => "datasets"
-      }}],
-      pool: DBConnection.Poolboy
-    )
-    |> Enum.map(fn %{"geometry" => geom, "type" => type, "properties" => properties, "datasets" => datasets} -> %{
-      "geometry" => geom,
-      "type" => type,
-      "properties" => Map.put(properties, "dataset_count", Enum.count datasets)
-    } end)
-    |> Enum.to_list
-  end
-
-  def aom_features do
-    :mongo
-    |> Mongo.aggregate(
-      "aoms",
-      [%{"$lookup" => %{
-        "from" => "datasets",
-        "localField" => "properties.liste_aom_Code INSEE Commune Principale",
-        "foreignField" => "commune_principale",
-        "as" => "datasets"
-      }}],
+      collection_name,
+      [lookup],
       pool: DBConnection.Poolboy
     )
     |> Enum.map(fn %{"geometry" => geom, "type" => type, "properties" => properties, "datasets" => datasets} -> %{
@@ -50,10 +26,10 @@ defmodule TransportWeb.API.StatsController do
   end
 
   def index(%Plug.Conn{} = conn, _params) do
-    render(conn, %{data: geojson(aom_features())})
+    render(conn, %{data: geojson(features("aoms", Dataset.aoms_lookup))})
   end
 
   def regions(%Plug.Conn{} = conn, _params) do
-    render(conn, %{data: geojson(region_features())})
+    render(conn, %{data: geojson(features("regions", Dataset.regions_lookup))})
   end
 end
