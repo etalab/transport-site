@@ -28,6 +28,7 @@ defmodule Transport.ReusableData.Dataset do
     :fatal_error,
     :region,
     :commune_principale,
+    :import_date,
     validations: [],
     tags: [],
   ]
@@ -59,6 +60,7 @@ defmodule Transport.ReusableData.Dataset do
           tags: [String.t()],
           region: String.t(),
           commune_principale: String.t(),
+          import_date: String.t(),
         }
 
   def regions_lookup, do:  %{"$lookup" => %{
