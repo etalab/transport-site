@@ -61,6 +61,20 @@ defmodule Transport.ReusableData.Dataset do
           commune_principale: String.t(),
         }
 
+  def regions_lookup, do:  %{"$lookup" => %{
+        "from" => "datasets",
+        "localField" => "properties.NOM_REG",
+        "foreignField" => "region",
+        "as" => "datasets"
+      }}
+
+  def aoms_lookup, do: %{"$lookup" => %{
+        "from" => "datasets",
+        "localField" => "properties.liste_aom_Code INSEE Commune Principale",
+        "foreignField" => "commune_principale",
+        "as" => "datasets"
+      }}
+
   @doc """
   Calculate and add the number of errors to the dataset.
   """
