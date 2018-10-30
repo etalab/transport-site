@@ -2,10 +2,36 @@
 
 <section class="section section-white">
 <div class="container">
+<h1>État du déploiement</h1>
+<h2>Transport collectif théorique</h2>
+<div class="section cards">
+  <div class="container">
+    <div class="row">
+      <div class="card">
+        <div class="card__content">
+          <h3>Jeux ouverts</h3>
+          <h1><%= @nb_datasets %></h1>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card__content">
+          <h3>AOMS couvertes</h3>
+          <h1><%= @nb_aoms_with_data %></h1>
+          <h4>sur <%= @nb_aoms %></h4>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card__content">
+          <h3>Régions couvertes</h3>
+          <h1><%= @nb_regions_completed %></h1>
+          <h4>sur <%= @nb_regions %></h4>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <markdown>
-# État du déploiement
-## Transport collectif théorique
-### Par autorités organisatrices de mobilité
 ## Transport collectif, temps réel
 
 Une réunion de lancement des travaux a eu lieu le 20 septembre 2018.
