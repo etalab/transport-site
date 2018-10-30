@@ -271,4 +271,24 @@ defmodule Transport.ReusableData do
     }
   end
   def add_metadata(error), do: error
+
+  @doc """
+  A validation is needed if the last update from the data is newer than the last validation.
+
+  ## Examples
+
+      iex> ReusableData.needs_validation(%Dataset{last_update: "2018-01-30", validation_date: "2018-01-01"})
+      true
+
+      iex> ReusableData.needs_validation(%Dataset{last_update: "2018-01-01", validation_date: "2018-01-30"})
+      false
+
+      iex> ReusableData.needs_validation(%Dataset{last_update: "2018-01-30"})
+      true
+
+  """
+  def needs_validation(%Dataset{last_update: last_update, validation_date: validation_date}) do
+    last_update > validation_date
+  end
+  def nedds_validation(_dataset), do: true
 end
