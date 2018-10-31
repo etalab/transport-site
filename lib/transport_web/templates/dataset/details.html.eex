@@ -113,18 +113,7 @@
               %>
             </div>
           </div>
-
-
         <% end %>
-        <div>
-          <div class="side-pane__title">
-            <h3><%= dgettext("page-dataset-details", "GTFS Validation") %></h3>
-          </div>
-          <ul class="stats">
-            <li><strong id="stats-warnings"><%= @dataset.warning_count %></strong> <%= dgettext("page-dataset-details", "Warnings") %></li>
-            <li><strong><%= @dataset.notice_count %></strong> <%= dgettext("page-dataset-details", "Notices") %></li>
-          </ul>
-        </div>
       </div>
       <a class="button button--fullwidth is-centered shortlist-publish" href="<%= user_path(@conn, :organizations, linked_dataset_id: @dataset.id) %>"><%= dgettext("page-dataset-details", "Publish a modified version dataset") %></a>
       <div class="dataset-details__followers">

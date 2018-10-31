@@ -87,10 +87,6 @@ defmodule Transport.ReusableData do
       dataset ->
         dataset
         |> Dataset.new
-        |> Dataset.assign(:error_count)
-        |> Dataset.assign(:fatal_count)
-        |> Dataset.assign(:notice_count)
-        |> Dataset.assign(:warning_count)
         |> Dataset.assign(:group_validations)
         |> Dataset.assign(:valid?)
     end
@@ -208,10 +204,6 @@ defmodule Transport.ReusableData do
     |> Enum.reduce([], fn(dataset, acc) ->
       dataset =
         dataset
-        |> Dataset.assign(:error_count)
-        |> Dataset.assign(:fatal_count)
-        |> Dataset.assign(:notice_count)
-        |> Dataset.assign(:warning_count)
         |> Dataset.assign(:valid?)
 
       [dataset | acc]
