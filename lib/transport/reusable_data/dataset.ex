@@ -72,19 +72,6 @@ defmodule Transport.ReusableData.Dataset do
       }}
 
   @doc """
-  Group by issue type.
-  """
-  @spec assign(%__MODULE__{}, :group_validations) :: %__MODULE__{}
-  def assign(%__MODULE__{} = dataset, :group_validations) do
-    validations =
-    dataset.validations
-    |> Enum.group_by(fn validation -> validation["issue_type"] end)
-    |> Map.new(fn {type, issues} -> {type, %{issues: issues, count: Enum.count issues}} end)
-
-    %{dataset | validations: validations}
-  end
-
-  @doc """
   Add whether the dataset is valid or no.
   """
   @spec assign(%__MODULE__{}, :valid?) :: %__MODULE__{}

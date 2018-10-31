@@ -87,7 +87,6 @@ defmodule Transport.ReusableData do
       dataset ->
         dataset
         |> Dataset.new
-        |> Dataset.assign(:group_validations)
         |> Dataset.assign(:valid?)
     end
   end
@@ -222,6 +221,7 @@ defmodule Transport.ReusableData do
     Logger.info("Validating " <> dataset.download_url)
     dataset
     |> validate
+    |> group_validations
     |> add_metadata
     |> save_validations
     |> case do
@@ -283,4 +283,30 @@ defmodule Transport.ReusableData do
     last_update > validation_date
   end
   def nedds_validation(_dataset), do: true
+
+  @doc """
+  A validation is needed if the last update from the data is newer than the last validation.
+
+  ## Examples
+
+      iex> ReusableData.group_validations(nil)
+      nil
+
+      iex> ReusableData.group_validations({:error, "moo"})
+      {:error, "moo"}
+
+      iex> v = %{"validations" => [%{"issue_type" => "Error"}]}
+      iex> ReusableData.group_validations({:ok, %{url: "http", validations: v}})
+      {:ok, %{url: "http", validations: %{"Error" => %{count: 1, issues: [%{"issue_type" => "Error"}]}}}}
+  """
+  def group_validations({:ok, %{url: url, validations: validations}}) do
+    grouped_validations =
+    validations
+    |> Map.get("validations", [])
+    |> Enum.group_by(fn validation -> validation["issue_type"] end)
+    |> Map.new(fn {type, issues} -> {type, %{issues: issues, count: Enum.count issues}} end)
+
+    {:ok, %{url: url, validations: grouped_validations}}
+  end
+  def group_validations(error), do: error
 end
