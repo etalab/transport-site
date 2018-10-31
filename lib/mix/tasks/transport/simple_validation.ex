@@ -9,6 +9,7 @@ defmodule Mix.Tasks.Transport.SimpleValidation do
   def run(_) do
     Mix.Task.run("app.start", [])
     ReusableData.list_datasets
+    |> Enum.filter(&ReusableData.needs_validation/1)
     |> Enum.each(&ReusableData.validate_and_save/1)
   end
 end

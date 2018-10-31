@@ -227,8 +227,12 @@ defmodule Transport.ReusableData do
   end
 
   def validate_and_save(%Dataset{} = dataset) do
-    Logger.info("Validating " <> dataset.download_url )
-    case dataset |> validate |> save_validations do
+    Logger.info("Validating " <> dataset.download_url)
+    dataset
+    |> validate
+    |> add_metadata
+    |> save_validations
+    |> case do
       {:ok, _} -> Logger.info("Ok!")
       {:error, error} -> Logger.warn("Error: " <> error)
       _ -> Logger.warn("Unknown error")
@@ -257,4 +261,34 @@ defmodule Transport.ReusableData do
   end
   def save_validations({:error, error}), do: error
   def save_validations(error), do: {:error, error}
+
+  def add_metadata({:ok, %{url: url, validations: validations}}) do
+    {:ok,
+    %{
+      url: url,
+      validations: Map.put(validations, "validation_date", DateTime.utc_now |> DateTime.to_string)
+      }
+    }
+  end
+  def add_metadata(error), do: error
+
+  @doc """
+  A validation is needed if the last update from the data is newer than the last validation.
+
+  ## Examples
+
+      iex> ReusableData.needs_validation(%Dataset{last_update: "2018-01-30", validation_date: "2018-01-01"})
+      true
+
+      iex> ReusableData.needs_validation(%Dataset{last_update: "2018-01-01", validation_date: "2018-01-30"})
+      false
+
+      iex> ReusableData.needs_validation(%Dataset{last_update: "2018-01-30"})
+      true
+
+  """
+  def needs_validation(%Dataset{last_update: last_update, validation_date: validation_date}) do
+    last_update > validation_date
+  end
+  def nedds_validation(_dataset), do: true
 end

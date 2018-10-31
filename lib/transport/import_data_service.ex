@@ -56,6 +56,7 @@ defmodule Transport.ImportDataService do
       |> Map.put("format", "GTFS")
       |> Map.put("created_at", parse_date(dataset["created_at"]))
       |> Map.put("last_update", parse_date(dataset["last_update"]))
+      |> Map.put("last_import", DateTime.utc_now |> DateTime.to_string)
 
     case Map.get(dataset, "download_url") do
       nil -> {:error, "No download uri found"}
@@ -370,6 +371,14 @@ defmodule Transport.ImportDataService do
   def check_download_url(%{"download_url" => nil}), do: false
   def check_download_url(%{"download_url" => _}), do: true
 
+  @doc """
+  Returns an date only part of the datetime
+
+  ## Examples
+
+      iex> ImportDataService.parse_date("2018-09-28T13:37:00")
+      "2018-09-28"
+  """
   def parse_date(date) when is_binary(date) do
     with {:ok, date} <- NaiveDateTime.from_iso8601(date) do
       date
