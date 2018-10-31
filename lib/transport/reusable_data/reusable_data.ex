@@ -68,11 +68,6 @@ defmodule Transport.ReusableData do
       iex> ReusableData.get_dataset("")
       nil
 
-      iex> "leningrad-metro-dataset"
-      ...> |> ReusableData.get_dataset
-      ...> |> Map.get(:valid?)
-      true
-
   """
   @spec get_dataset(String.t) :: %Dataset{}
   def get_dataset(slug) do
@@ -81,13 +76,8 @@ defmodule Transport.ReusableData do
     :mongo
     |> Mongo.find_one("datasets", query, pool: @pool)
     |> case do
-      nil ->
-        nil
-
-      dataset ->
-        dataset
-        |> Dataset.new
-        |> Dataset.assign(:valid?)
+      nil -> nil
+      dataset -> Dataset.new(dataset)
     end
   end
 
@@ -200,14 +190,6 @@ defmodule Transport.ReusableData do
     |> Mongo.find("datasets", query, pool: @pool)
     |> Enum.to_list()
     |> Enum.map(&Dataset.new(&1))
-    |> Enum.reduce([], fn(dataset, acc) ->
-      dataset =
-        dataset
-        |> Dataset.assign(:valid?)
-
-      [dataset | acc]
-    end)
-    |> Enum.filter(&(&1.valid?))
   end
 
   @spec import :: none()

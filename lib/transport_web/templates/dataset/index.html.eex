@@ -41,14 +41,6 @@
                   </div>
                 <% end %>
 
-                <div class="shortlist__notice">
-                  <div class="shortlist__label"><%= dgettext("page-shortlist", "Status") %></div>
-                  <%= if dataset.valid? do %>
-                    <span class="label label-success"><%= dgettext("page-shortlist", "Valid") %></span>
-                  <% else %>
-                    <span class="label label-error"><%= dgettext("page-shortlist", "Invalid") %></span>
-                  <% end %>
-                </div>
               </div>
               <%= if !is_nil(dataset.spatial) do %>
                 <div class="shortlist__notice">

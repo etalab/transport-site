@@ -16,7 +16,6 @@ defmodule Transport.ReusableData.Dataset do
     :id,
     :download_url,
     :format,
-    :valid?,
     :frequency,
     :created_at,
     :last_update,
@@ -44,7 +43,6 @@ defmodule Transport.ReusableData.Dataset do
           download_url: String.t(),
           format: String.t(),
           validations: Map.t(),
-          valid?: boolean(),
           frequency: String.t(),
           created_at: String.t(),
           last_update: String.t(),
@@ -70,15 +68,4 @@ defmodule Transport.ReusableData.Dataset do
         "foreignField" => "commune_principale",
         "as" => "datasets"
       }}
-
-  @doc """
-  Add whether the dataset is valid or no.
-  """
-  @spec assign(%__MODULE__{}, :valid?) :: %__MODULE__{}
-  def assign(%__MODULE__{} = dataset, :valid?) do
-    # We have some neptune datasets. Until we know how to handle them,
-    # we accept files that won’t be validated
-    # new(%{dataset | valid?: dataset.fatal_count == 0})
-    new(%{dataset | valid?: true})
-  end
 end
