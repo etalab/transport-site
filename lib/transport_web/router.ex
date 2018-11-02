@@ -90,16 +90,10 @@ defmodule TransportWeb.Router do
 
   scope "/api", TransportWeb do
 
-    scope "/datasets" do
-      pipe_through :json_api
-      get "/", API.DatasetController, :index
-      get "/:slug/", API.DatasetController, :show
-    end
-
-    scope "/datasets" do
+    scope "/datasets/:dataset_id/followers" do
       pipe_through :api_authenticated
-      post "/:dataset_id/followers/", API.FollowerController, :create
-      delete "/:dataset_id/followers/", API.FollowerController, :delete
+      post "/", API.FollowerController, :create
+      delete "/", API.FollowerController, :delete
     end
 
     scope "/discussions" do
