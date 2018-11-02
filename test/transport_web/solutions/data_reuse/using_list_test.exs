@@ -44,9 +44,6 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
     click({:link_text, "Horaires et arrêts du réseau IRIGO - format GTFS"})
     assert visible_page_text() =~ "IRIGO"
 
-    # I can see or read somewhere that the dataset is valid
-    assert visible_page_text() =~ "Valide"
-
     # I can download the dataset
     :class
     |> find_element("shortlist__link--download")

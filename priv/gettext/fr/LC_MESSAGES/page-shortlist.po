@@ -12,8 +12,8 @@ msgstr ""
 
 #: lib/transport_web/templates/backoffice/index.html.eex:50
 #: lib/transport_web/templates/dataset/details.html.eex:10
-#: lib/transport_web/templates/dataset/details.html.eex:160
-#: lib/transport_web/templates/dataset/index.html.eex:72
+#: lib/transport_web/templates/dataset/details.html.eex:140
+#: lib/transport_web/templates/dataset/index.html.eex:64
 msgid "Download"
 msgstr "Télécharger"
 
@@ -24,12 +24,12 @@ msgstr "License"
 
 #: lib/transport_web/templates/backoffice/index.html.eex:43
 #: lib/transport_web/templates/dataset/details.html.eex:19
-#: lib/transport_web/templates/dataset/index.html.eex:63
+#: lib/transport_web/templates/dataset/index.html.eex:55
 msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
 
 #: lib/transport_web/templates/dataset/details.html.eex:27
-#: lib/transport_web/templates/dataset/index.html.eex:55
+#: lib/transport_web/templates/dataset/index.html.eex:47
 msgid "Territory"
 msgstr "Territoire"
 
@@ -57,19 +57,19 @@ msgstr "Valide"
 msgid "Valid datasets available"
 msgstr "Jeux de données valides disponibles"
 
-#: lib/transport_web/templates/dataset/details.html.eex:61
+#: lib/transport_web/templates/dataset/details.html.eex:52
 msgid "Last update"
 msgstr "Dernière mise à jour"
 
-#: lib/transport_web/templates/dataset/details.html.eex:56
+#: lib/transport_web/templates/dataset/details.html.eex:47
 msgid "Publication date"
 msgstr "Date de publication"
 
-#: lib/transport_web/templates/dataset/details.html.eex:71
+#: lib/transport_web/templates/dataset/details.html.eex:62
 msgid "Tags"
 msgstr "Mots clefs"
 
-#: lib/transport_web/templates/dataset/details.html.eex:66
+#: lib/transport_web/templates/dataset/details.html.eex:57
 msgid "Update frequency"
 msgstr "Fréquence de mises à jour"
 
@@ -145,31 +145,31 @@ msgstr "Quinquennale"
 msgid "irregular"
 msgstr "Sans régularité"
 
-#: lib/transport_web/templates/dataset/details.html.eex:77
+#: lib/transport_web/templates/dataset/details.html.eex:68
 msgid "Timetable begin"
 msgstr "Début de validité des horaires"
 
-#: lib/transport_web/templates/dataset/details.html.eex:82
+#: lib/transport_web/templates/dataset/details.html.eex:73
 msgid "Timetable end"
 msgstr "Fin de validité des horaires"
 
-#: lib/transport_web/templates/dataset/details.html.eex:87
+#: lib/transport_web/templates/dataset/details.html.eex:78
 msgid "Number of lines"
 msgstr "Nombre de lignes"
 
-#: lib/transport_web/templates/dataset/details.html.eex:92
+#: lib/transport_web/templates/dataset/details.html.eex:83
 msgid "Number of stop areas"
 msgstr "Nombre de zones d’arrêt"
 
-#: lib/transport_web/templates/dataset/details.html.eex:97
+#: lib/transport_web/templates/dataset/details.html.eex:88
 msgid "Number of stop points"
 msgstr "Nombre de points d’arrêts"
 
-#: lib/transport_web/templates/dataset/details.html.eex:102
+#: lib/transport_web/templates/dataset/details.html.eex:93
 msgid "Networks"
 msgstr "Réseaux"
 
-#: lib/transport_web/templates/dataset/details.html.eex:107
+#: lib/transport_web/templates/dataset/details.html.eex:98
 msgid "Modes"
 msgstr ""
 
