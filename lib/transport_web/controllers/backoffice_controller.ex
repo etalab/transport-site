@@ -58,4 +58,11 @@ defmodule TransportWeb.BackofficeController do
     |> index(%{})
   end
 
+  def delete(%Plug.Conn{} = conn, %{"id" => id}) do
+    :mongo
+    |> Mongo.delete_one("datasets", %{"id" => id}, pool:  DBConnection.Poolboy)
+    |> flash(conn, dgettext("backoffice", "Dataset deleted"), dgettext("backoffice", "Could not delete dataset"))
+    |> index(%{})
+  end
+
 end
