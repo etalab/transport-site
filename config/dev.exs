@@ -53,4 +53,4 @@ config :logger, :console, format: "[$level] $message\n"
 config :phoenix, :stacktrace_depth, 20
 
 # MongoDB configuration.
-config :mongodb, url: "mongodb://localhost/transport"
+config :mongodb, url: System.get_env() |> Map.get("MONGODB_URL", "mongodb://localhost/transport")
