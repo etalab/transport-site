@@ -42,7 +42,22 @@ msgstr "Jeux de données ajouté avec succès"
 msgid "Dataset not added"
 msgstr "Échec à l’ajout du jeu de données"
 
-#, elixir-format
 #: lib/transport_web/templates/backoffice/index.html.eex:19
 msgid "transport static"
 msgstr "transport statique"
+
+#: lib/transport_web/controllers/backoffice_controller.ex:55
+msgid "Dataset imported with success"
+msgstr "Jeux de données ajouté avec succès"
+
+#: lib/transport_web/controllers/backoffice_controller.ex:56
+msgid "Dataset not imported"
+msgstr "Échec à l’ajout du jeu de données"
+
+#: lib/transport_web/controllers/backoffice_controller.ex:64
+msgid "Could not delete dataset"
+msgstr "Impossible de supprimer le jeu de données"
+
+#: lib/transport_web/controllers/backoffice_controller.ex:64
+msgid "Dataset deleted"
+msgstr "Jeu de données supprimé"
