@@ -10,30 +10,32 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
+#: lib/transport_web/templates/backoffice/_dataset.html.eex:17
 #: lib/transport_web/templates/backoffice/index.html.eex:51
-#: lib/transport_web/templates/dataset/details.html.eex:10
-#: lib/transport_web/templates/dataset/details.html.eex:140
+#: lib/transport_web/templates/dataset/_sidebar_common.html.eex:7
+#: lib/transport_web/templates/dataset/details.html.eex:38
 #: lib/transport_web/templates/dataset/index.html.eex:64
 msgid "Download"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:34
+#: lib/transport_web/templates/dataset/_sidebar_common.html.eex:31
 #: lib/transport_web/templates/dataset/index.html.eex:32
 msgid "Licence"
 msgstr ""
 
+#: lib/transport_web/templates/backoffice/_dataset.html.eex:10
 #: lib/transport_web/templates/backoffice/index.html.eex:44
-#: lib/transport_web/templates/dataset/details.html.eex:19
+#: lib/transport_web/templates/dataset/_sidebar_common.html.eex:16
 #: lib/transport_web/templates/dataset/index.html.eex:55
 msgid "See on data.gouv.fr"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:27
+#: lib/transport_web/templates/dataset/_sidebar_common.html.eex:24
 #: lib/transport_web/templates/dataset/index.html.eex:47
 msgid "Territory"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:41
+#: lib/transport_web/templates/dataset/_sidebar_common.html.eex:38
 #: lib/transport_web/templates/dataset/index.html.eex:39
 msgid "Format"
 msgstr ""
@@ -57,19 +59,19 @@ msgstr ""
 msgid "Valid datasets available"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:52
+#: lib/transport_web/templates/dataset/_sidebar_common.html.eex:49
 msgid "Last update"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:47
+#: lib/transport_web/templates/dataset/_sidebar_common.html.eex:44
 msgid "Publication date"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:62
+#: lib/transport_web/templates/dataset/_sidebar_common.html.eex:59
 msgid "Tags"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:57
+#: lib/transport_web/templates/dataset/_sidebar_common.html.eex:54
 msgid "Update frequency"
 msgstr ""
 
@@ -145,31 +147,31 @@ msgstr "Quinquennial"
 msgid "irregular"
 msgstr "Irregular"
 
-#: lib/transport_web/templates/dataset/details.html.eex:68
+#: statique.html.eex:3
 msgid "Timetable begin"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:73
+#: statique.html.eex:8
 msgid "Timetable end"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:78
+#: statique.html.eex:13
 msgid "Number of lines"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:83
+#: statique.html.eex:18
 msgid "Number of stop areas"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:88
+#: statique.html.eex:23
 msgid "Number of stop points"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:93
+#: statique.html.eex:28
 msgid "Networks"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:98
+#: statique.html.eex:33
 msgid "Modes"
 msgstr ""
 

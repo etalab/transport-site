@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/dataset/details.html.eex:149
+#: statique.html.eex:2
 msgid "GTFS Validation"
 msgstr ""
 
@@ -22,59 +22,59 @@ msgstr ""
 msgid "Warnings"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:184
+#: lib/transport_web/templates/dataset/details.html.eex:54
 msgid "Posted on"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:185
+#: lib/transport_web/templates/dataset/details.html.eex:55
 msgid "Respond"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:186
+#: lib/transport_web/templates/dataset/details.html.eex:56
 msgid "Begin a new conversation"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:187
+#: lib/transport_web/templates/dataset/details.html.eex:57
 msgid "Title"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:188
+#: lib/transport_web/templates/dataset/details.html.eex:58
 msgid "You need to be connected to post comments"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:109
+#: lib/transport_web/templates/dataset/details.html.eex:7
 msgid "Publish a modified version dataset"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:144
+#: lib/transport_web/templates/dataset/details.html.eex:42
 msgid "Modified datasets"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:141
+#: lib/transport_web/templates/dataset/details.html.eex:39
 msgid "There is no linked dataset yet"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:115
+#: lib/transport_web/templates/dataset/details.html.eex:13
 msgid "Subscribe to dataset"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:116
+#: lib/transport_web/templates/dataset/details.html.eex:14
 msgid "Unsubscribe to dataset"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:160
+#: statique.html.eex:13
 msgid "Object ID"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:161
+#: statique.html.eex:14
 msgid "Object name"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:162
+#: statique.html.eex:15
 msgid "Related object ID"
 msgstr ""
 
-#: lib/transport_web/templates/dataset/details.html.eex:163
+#: statique.html.eex:16
 msgid "Severity"
 msgstr ""
 
