@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 
-#: lib/transport_web/templates/backoffice/index.html.eex:19
+#: lib/transport_web/templates/backoffice/index.html.eex:20
 msgid "Add"
 msgstr "Ajouter"
 
@@ -41,3 +41,8 @@ msgstr "Jeux de données ajouté avec succès"
 #: lib/transport_web/controllers/backoffice_controller.ex:38
 msgid "Dataset not added"
 msgstr "Échec à l’ajout du jeu de données"
+
+#, elixir-format
+#: lib/transport_web/templates/backoffice/index.html.eex:19
+msgid "transport static"
+msgstr "transport statique"

@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/backoffice/index.html.eex:19
+#: lib/transport_web/templates/backoffice/index.html.eex:20
 msgid "Add"
 msgstr ""
 
@@ -40,4 +40,9 @@ msgstr ""
 
 #: lib/transport_web/controllers/backoffice_controller.ex:38
 msgid "Dataset not added"
+msgstr ""
+
+#, elixir-format
+#: lib/transport_web/templates/backoffice/index.html.eex:19
+msgid "transport static"
 msgstr ""
