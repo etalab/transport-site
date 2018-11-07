@@ -1,4 +1,7 @@
 defmodule TransportWeb.InputHelpers do
+  @moduledoc ~S"""
+  We override some Phoenix.HTML.Form function to make it easier to integrate template.data.gouv.fr
+  """
   alias Phoenix.HTML.Form
   import Phoenix.HTML.Tag
 
