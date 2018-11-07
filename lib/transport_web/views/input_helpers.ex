@@ -20,10 +20,14 @@ defmodule TransportWeb.InputHelpers do
   end
 
   def form_for(form_data, action, options \\ [], fun) when is_function(fun, 1) do
-    content_tag(:div,
-      Form.form_for(form_data, action, options, fun),
-     class: "container"
-    )
+    if Keyword.get(options, :nodiv) do
+      Form.form_for(form_data, action, options, fun)
+    else
+      content_tag(:div,
+        Form.form_for(form_data, action, options, fun),
+      class: "container"
+      )
+    end
   end
 
   def form_group(field) do
@@ -52,9 +56,12 @@ defmodule TransportWeb.InputHelpers do
   def submit([do: _] = block_option), do: submit([], block_option)
   def submit(_, opts \\ [])
   def submit(value, opts) do
-    opts = Keyword.put_new(opts, :class, "button")
+    nodiv = Keyword.get(opts, :nodiv)
+    opts = opts
+    |> Keyword.put_new(:class, "button")
+    |> Keyword.drop([:nodiv])
 
-    form_group(Form.submit(value, opts))
+    if nodiv do Form.submit(value, opts) else form_group(Form.submit(value, opts)) end
   end
 
   def text_input(form, field, opts \\ []) do

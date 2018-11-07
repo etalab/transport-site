@@ -20,13 +20,13 @@
         <% end %>
       </td>
       <td>
-        <%= form_for @conn, backoffice_path(@conn, :import_from_data_gouv_fr, @dataset.id), fn _ -> %>
-          <%= submit "Importer", class: "button" %>
+        <%= form_for @conn, backoffice_path(@conn, :import_from_data_gouv_fr, @dataset.id), [nodiv: true], fn _ -> %>
+          <%= submit "Importer", [class: "button", nodiv: true] %>
         <% end %>
       </td>
       <td>
-        <%= form_for @conn, backoffice_path(@conn, :delete, @dataset.id), fn _ -> %>
-          <%= submit "Supprimer", class: "button" %>
+        <%= form_for @conn, backoffice_path(@conn, :delete, @dataset.id), [nodiv: true], fn _ -> %>
+          <%= submit "Supprimer", [class: "button", nodiv: true] %>
         <% end %>
       </td>
       <td><%= @dataset.region %></td>
