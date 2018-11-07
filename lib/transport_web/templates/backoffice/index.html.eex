@@ -16,6 +16,7 @@
     <%= text_input f, :spatial, [{"placeholder", dgettext("backoffice", "name")}] %>
     <%= text_input f, :commune_principale, [{"placeholder", dgettext("backoffice", "INSEE Code")}] %>
     <%= select f, :region, @regions %>
+    <%= select f, :type, [{dgettext("backoffice", "transport static"), "transport-statique"}]%>
     <%= submit dgettext("backoffice", "Add") %>
   <% end %>
 
@@ -53,8 +54,13 @@
         <% end %>
       </td>
       <td>
-        <%= form_for @conn, backoffice_path(@conn, :import_from_data_gouv_fr, dataset.id), [method: "post"], fn _ -> %>
+        <%= form_for @conn, backoffice_path(@conn, :import_from_data_gouv_fr, dataset.id), fn _ -> %>
           <%= submit "Importer", class: "button" %>
+        <% end %>
+      </td>
+      <td>
+        <%= form_for @conn, backoffice_path(@conn, :delete, dataset.id), fn _ -> %>
+          <%= submit "Supprimer", class: "button" %>
         <% end %>
       </td>
       <td><%= dataset.region %></td>
