@@ -30,12 +30,7 @@ defmodule Transport.ReusableData do
 
   """
   @spec search_datasets(String.t) :: [%Dataset{}]
-  def search_datasets(q) when is_binary(q) do
-    query_datasets(%{
-      download_url: %{"$ne" => nil},
-      "$text": %{"$search" => q}
-    })
-  end
+  def search_datasets(q) when is_binary(q), do: list_datasets(%{"$text": %{"$search" => q}})
 
   @doc """
   Returns the list of reusable datasets containing no validation errors.
@@ -48,11 +43,11 @@ defmodule Transport.ReusableData do
       "Leningrad metro dataset"
 
   """
-  @spec list_datasets :: [%Dataset{}]
-  def list_datasets do
-    query_datasets(%{
-      download_url: %{"$ne" => nil}
-    })
+  @spec list_datasets(%{}) :: [%Dataset{}]
+  def list_datasets(%{} = query \\ %{}) do
+    %{download_url: %{"$ne" => nil}}
+    |> Map.merge(query)
+    |> query_datasets
   end
 
   @doc """
@@ -129,32 +124,6 @@ defmodule Transport.ReusableData do
       "other-open" -> dgettext("reusable_data", "other-open")
       _ -> dgettext("reusable_data", "notspecified")
     end
-  end
-
-  @doc """
-  Returns the list of reusable datasets containing of a specific.
-
-  ## Examples
-
-      iex> ReusableData.list_datasets
-      ...> |> List.first
-      ...> |> Map.get(:title)
-      "Leningrad metro dataset"
-
-  """
-  @spec list_datasets(String.t) :: [%Dataset{}]
-  def list_datasets(commune) do
-    query_datasets(%{
-      download_url: %{"$ne" => nil},
-      commune_principale: commune
-    })
-  end
-
-  def list_datasets_region(region) do
-    query_datasets(%{
-      download_url: %{"$ne" => nil},
-      region: region
-    })
   end
 
   @spec query_datasets(Map.t) :: [%Dataset{}]
