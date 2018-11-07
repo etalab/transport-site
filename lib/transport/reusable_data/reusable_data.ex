@@ -108,33 +108,6 @@ defmodule Transport.ReusableData do
   end
 
   @doc """
-  Updates a dataset.
-
-  ## Examples
-
-      iex> %{title: "Creative title"}
-      ...> |> ReusableData.create_dataset
-      ...> |> ReusableData.update_dataset(%{title: "Lame title"})
-      :ok
-
-      iex> ReusableData.update_dataset(%Dataset{}, %{title: "Alphaville"})
-      {:error, :enodoc}
-
-  """
-  @spec update_dataset(%Dataset{}, map()) :: :ok | {:error, :enodoc}
-  def update_dataset(%Dataset{} = dataset, %{} = attrs) do
-    query     = %{"_id"  => dataset._id}
-    changeset = %{"$set" => attrs}
-
-    :mongo
-    |> Mongo.find_one_and_update("datasets", query, changeset, pool: @pool)
-    |> case do
-      {:ok, nil} -> {:error, :enodoc}
-      {:ok, _}   -> :ok
-    end
-  end
-
-  @doc """
   Builds a licence.
 
   ## Examples
