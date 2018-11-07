@@ -11,6 +11,7 @@ msgstr ""
 "Language: fr\n"
 
 #: lib/transport_web/templates/backoffice/_dataset.html.eex:17
+<<<<<<< HEAD
 #: lib/transport_web/templates/backoffice/index.html.eex:51
 <<<<<<< HEAD
 #: lib/transport_web/templates/dataset/_sidebar_common.html.eex:7
@@ -22,6 +23,8 @@ msgstr "Télécharger"
 #: lib/transport_web/templates/dataset/_sidebar_common.html.eex:31
 #: lib/transport_web/templates/dataset/index.html.eex:32
 =======
+=======
+>>>>>>> Split backoffice avec vues partielles
 #: lib/transport_web/templates/dataset/details.html.eex:10
 #: lib/transport_web/templates/dataset/details.html.eex:140
 #: lib/transport_web/templates/dataset/index.html.eex:57
@@ -35,6 +38,7 @@ msgid "Licence"
 msgstr "License"
 
 #: lib/transport_web/templates/backoffice/_dataset.html.eex:10
+<<<<<<< HEAD
 #: lib/transport_web/templates/backoffice/index.html.eex:44
 <<<<<<< HEAD
 #: lib/transport_web/templates/dataset/_sidebar_common.html.eex:16
@@ -50,6 +54,8 @@ msgstr "Territoire"
 #: lib/transport_web/templates/dataset/_sidebar_common.html.eex:38
 #: lib/transport_web/templates/dataset/index.html.eex:39
 =======
+=======
+>>>>>>> Split backoffice avec vues partielles
 #: lib/transport_web/templates/dataset/details.html.eex:19
 #: lib/transport_web/templates/dataset/index.html.eex:48
 msgid "See on data.gouv.fr"

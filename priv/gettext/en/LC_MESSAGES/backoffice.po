@@ -10,6 +10,7 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
+<<<<<<< HEAD
 #: lib/transport_web/templates/backoffice/index.html.eex:20
 msgid "Add"
 msgstr ""
@@ -19,6 +20,17 @@ msgid "Add a dataset"
 msgstr ""
 
 #: lib/transport_web/templates/backoffice/index.html.eex:17
+=======
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:18
+msgid "Add"
+msgstr ""
+
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:2
+msgid "Add a dataset"
+msgstr ""
+
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:16
+>>>>>>> Split backoffice avec vues partielles
 msgid "INSEE Code"
 msgstr ""
 
@@ -26,11 +38,19 @@ msgstr ""
 msgid "Valid datasets available"
 msgstr ""
 
+<<<<<<< HEAD
 #: lib/transport_web/templates/backoffice/index.html.eex:15
 msgid "data.gouv.fr id"
 msgstr ""
 
 #: lib/transport_web/templates/backoffice/index.html.eex:16
+=======
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:13
+msgid "data.gouv.fr id"
+msgstr ""
+
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:14
+>>>>>>> Split backoffice avec vues partielles
 msgid "name"
 msgstr ""
 
@@ -42,7 +62,12 @@ msgstr ""
 msgid "Dataset not added"
 msgstr ""
 
+<<<<<<< HEAD
 #: lib/transport_web/templates/backoffice/index.html.eex:19
+=======
+#, elixir-format
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:17
+>>>>>>> Split backoffice avec vues partielles
 msgid "transport static"
 msgstr ""
 
