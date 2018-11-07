@@ -1,7 +1,11 @@
 <section class="dataset-container">
+  <%= render("_form_dataset.html", conn: @conn, regions: @regions) %>
+
   <h1><%= dgettext("backoffice", "Valid datasets available") %></h1>
 
-  <%= render("_form_dataset.html", conn: @conn, regions: @regions) %>
+  <%= form_for @conn, backoffice_path(@conn, :index), [method: "get"], fn f -> %>
+    <%= search_input f, :q, [{"value", assigns[:q] || ""}, {"placeholder", dgettext("page-index", "Find dataset")}] %>
+  <% end %>
 
   <table>
   <tr>
@@ -15,5 +19,5 @@
     <th>Commune principale</th>
   </tr>
   <%= render_many(@datasets, TransportWeb.BackofficeView, "_dataset.html", as: :dataset, conn: @conn)%>
-    </table>
+  </table>
 </section>

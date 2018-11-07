@@ -42,6 +42,7 @@ msgstr "Télécharger la présentation"
 msgid "Publication guide"
 msgstr "Guide de publication"
 
+#: lib/transport_web/templates/backoffice/index.html.eex:7
 #: lib/transport_web/templates/dataset/index.html.eex:5
 #: lib/transport_web/templates/page/index.html.eex:8
 msgid "Find dataset"

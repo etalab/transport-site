@@ -9,6 +9,14 @@ defmodule TransportWeb.BackofficeController do
     |> Enum.map(fn r -> r["properties"]["NOM_REG"] end)
   end
 
+  def index(%Plug.Conn{} = conn, %{"q" => q} = _params) when q != "" do
+    conn
+    |> assign(:regions, region_names())
+    |> assign(:datasets, ReusableData.search_datasets(q))
+    |> assign(:q, q)
+    |> render("index.html")
+  end
+
   def index(%Plug.Conn{} = conn, _params) do
     conn
     |> assign(:regions, region_names())

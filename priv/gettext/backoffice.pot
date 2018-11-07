@@ -34,7 +34,7 @@ msgstr ""
 msgid "INSEE Code"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/index.html.eex:2
+#: lib/transport_web/templates/backoffice/index.html.eex:4
 msgid "Valid datasets available"
 msgstr ""
 
@@ -54,7 +54,11 @@ msgstr ""
 msgid "name"
 msgstr ""
 
+<<<<<<< HEAD
 #: lib/transport_web/controllers/backoffice_controller.ex:34
+=======
+#: lib/transport_web/controllers/backoffice_controller.ex:54
+>>>>>>> Ajout de la recherche dans le backoffice
 msgid "Dataset added with success"
 msgstr ""
 
@@ -71,23 +75,23 @@ msgstr ""
 msgid "transport static"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:55
+#: lib/transport_web/controllers/backoffice_controller.ex:63
 msgid "Dataset imported with success"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:56
+#: lib/transport_web/controllers/backoffice_controller.ex:64
 msgid "Dataset not imported"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:64
+#: lib/transport_web/controllers/backoffice_controller.ex:72
 msgid "Could not delete dataset"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:64
+#: lib/transport_web/controllers/backoffice_controller.ex:72
 msgid "Dataset deleted"
 msgstr ""
 
 #, elixir-format
-#: lib/transport_web/controllers/backoffice_controller.ex:46
+#: lib/transport_web/controllers/backoffice_controller.ex:54
 msgid "Could not add dataset"
 msgstr ""
