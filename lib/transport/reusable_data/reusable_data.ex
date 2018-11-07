@@ -146,7 +146,7 @@ defmodule Transport.ReusableData do
   def list_datasets(commune) do
     query_datasets(%{
       download_url: %{"$ne" => nil},
-      commune_principale: String.to_integer commune
+      commune_principale: commune
     })
   end
 
