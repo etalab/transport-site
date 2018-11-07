@@ -10,17 +10,14 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:18
 #: lib/transport_web/templates/backoffice/index.html.eex:20
 msgid "Add"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:2
 #: lib/transport_web/templates/backoffice/index.html.eex:4
 msgid "Add a dataset"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:15
 #: lib/transport_web/templates/backoffice/index.html.eex:17
 msgid "INSEE Code"
 msgstr ""
@@ -29,17 +26,15 @@ msgstr ""
 msgid "Valid datasets available"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:13
 #: lib/transport_web/templates/backoffice/index.html.eex:15
 msgid "data.gouv.fr id"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:14
 #: lib/transport_web/templates/backoffice/index.html.eex:16
 msgid "name"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:46
+#: lib/transport_web/controllers/backoffice_controller.ex:34
 msgid "Dataset added with success"
 msgstr ""
 
@@ -47,7 +42,6 @@ msgstr ""
 msgid "Dataset not added"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:17
 #: lib/transport_web/templates/backoffice/index.html.eex:19
 msgid "transport static"
 msgstr ""
