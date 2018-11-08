@@ -10,22 +10,17 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 
-#: lib/transport_web/templates/page/login.html.eex:31
 msgid "transport.data.gouv.fr belongs to the data.gouv.fr network, and share the same user account"
 msgstr "transport.data.gouv.fr est un site affilié à data.gouv.fr, les deux sites utilisent le même compte"
 
-#: lib/transport_web/templates/page/login.html.eex:51
 msgid "After having clicked this button, you should click on 'accepter' to authorise transport.data.gouv.fr to access your data.gouv.fr account details"
 msgstr "Après avoir cliqué le bouton, vous devrez cliquer sur « accepter » pour autoriser transport.data.gouv.fr à utiliser votre compte data.gouv.fr"
 
-#: lib/transport_web/templates/page/login.html.eex:21
 msgid "data.gouv.fr is the open platform for French public data"
 msgstr "data.gouv.fr est la plateforme ouverte des données publiques françaises"
 
-#: lib/transport_web/templates/page/login.html.eex:12
 msgid "Sign In with data.gouv.fr"
 msgstr "Identification avec un compte data.gouv.fr"
 
-#: lib/transport_web/templates/page/login.html.eex:41
 msgid "By clicking this button, you'll be able to create an account or use your existing data.gouv.fr account to log in"
 msgstr "En cliquant sur le bouton ci-dessous vous allez créer un compte ou vous identifier avec votre compte data.gouv.fr"

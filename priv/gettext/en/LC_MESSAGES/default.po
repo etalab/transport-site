@@ -10,52 +10,38 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/layout/_header.html.eex:22
-#: lib/transport_web/templates/page/login.html.eex:59
 msgid "Sign In"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_header.html.eex:17
 msgid "Sign Out"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_footer.html.eex:18
 msgid "Contact"
 msgstr ""
 
-#: lib/transport_web/templates/layout/app.html.eex:7
 msgid "Publish, improve and reuse French public transport data"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_footer.html.eex:7
 msgid "Close"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_footer.html.eex:2
 msgid "Email address"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_footer.html.eex:3
 msgid "Send email"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_footer.html.eex:5
 msgid "There has been an error, try again later"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_footer.html.eex:4
 msgid "Your email has been sent, we will contact you soon"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_header.html.eex:3
-#: lib/transport_web/templates/layout/app.html.eex:11
 msgid "transport.data.gouv.fr"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_footer.html.eex:6
 msgid "Ask for help"
 msgstr ""
 
-#: lib/transport_web/templates/layout/_footer.html.eex:29
 msgid "Legal Information"
 msgstr ""
