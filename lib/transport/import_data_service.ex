@@ -8,8 +8,8 @@ defmodule Transport.ImportDataService do
   @separators [?;, ?,]
   @csv_headers ["Download", "file", "Fichier"]
 
-  def call(%{"_id" => mongo_id, "id" => id}) do
-    case import_from_udata(id) do
+  def call(%{"_id" => mongo_id, "id" => id, "type" => type}) do
+    case import_from_udata(id, type) do
       {:ok, new_data} ->
         Mongo.find_one_and_update(:mongo,
                                   "datasets",
@@ -21,7 +21,7 @@ defmodule Transport.ImportDataService do
     end
   end
 
-  def import_from_udata(id) do
+  def import_from_udata(id, type) do
     base_url = Application.get_env(:transport, :datagouvfr_site)
     url      = "#{base_url}/api/1/datasets/#{id}/"
 
@@ -30,7 +30,7 @@ defmodule Transport.ImportDataService do
 
     with {:ok, response}  <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
          {:ok, json} <- Poison.decode(response.body),
-         {:ok, dataset} <- get_dataset(json) do
+         {:ok, dataset} <- get_dataset(json, type) do
       {:ok, dataset}
     else
       {:error, error} ->
@@ -42,7 +42,7 @@ defmodule Transport.ImportDataService do
 
   def get_dataset(%{"message" => error}, _), do: {:error, error}
 
-  def get_dataset(%{} = dataset) do
+  def get_dataset(%{} = dataset, type) do
     dataset =
       dataset
       |> Map.take(["title", "description", "license", "id", "slug", "frequency", "tags"])
@@ -50,7 +50,7 @@ defmodule Transport.ImportDataService do
       |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
       |> Map.put("full_logo", dataset["organization"]["logo"])
       |> Map.put("task_id", Map.get(dataset, "task_id"))
-      |> Map.put("download_url", get_download_url(dataset))
+      |> Map.put("download_url", get_download_url(dataset, type))
       |> Map.put("format", "GTFS")
       |> Map.put("created_at", parse_date(dataset["created_at"]))
       |> Map.put("last_update", parse_date(dataset["last_update"]))
@@ -64,7 +64,11 @@ defmodule Transport.ImportDataService do
 
   def get_dataset(_), do: {:error, "Dataset needs to be a map"}
 
-  def get_download_url(%{"resources" => resources}) do
+  def get_download_url(%{"resources" => resources}, "aires-covoiturage") do
+    get_url(resources)
+  end
+
+  def get_download_url(%{"resources" => resources}, _) do
     cond do
       (l = get_url(resources, &filter_gtfs/1)) != nil -> l
       (l = get_url(resources, &filter_zip/1)) != nil -> l
@@ -116,6 +120,8 @@ defmodule Transport.ImportDataService do
             |> Map.get("url")
     end
   end
+
+  def get_url(ressources), do: get_url(ressources, fn l -> l end)
 
   @doc """
   filter gtfs resources

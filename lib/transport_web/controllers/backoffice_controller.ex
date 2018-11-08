@@ -33,7 +33,7 @@ defmodule TransportWeb.BackofficeController do
   defp insert_into_mongo(%{"id" => id} = dataset) do
     case Mongo.insert_one(:mongo, "datasets", dataset, pool: DBConnection.Poolboy) do
       {:ok, %Mongo.InsertOneResult{inserted_id: mongo_id}} ->
-        {:ok, %{"_id" => mongo_id, "id" => id}}
+        {:ok, %{"_id" => mongo_id, "id" => id, "type" => dataset["type"]}}
       error ->
         error
     end
@@ -54,7 +54,7 @@ defmodule TransportWeb.BackofficeController do
 
   def new_dataset(%Plug.Conn{} = conn, params) do
     params
-    |> Map.take(["spatial", "id", "commune_principale", "region"])
+    |> Map.take(["spatial", "id", "commune_principale", "region", "type"])
     |> insert_into_mongo
     |> import_data
     |> flash(conn, dgettext("backoffice", "Dataset added with success"), dgettext("backoffice", "Could not add dataset"))
