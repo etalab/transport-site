@@ -54,7 +54,7 @@ defmodule TransportWeb.StatsController do
       int
     else
       _ ->
-        Logger.debug("Unable to parse population for #{aom}")
+        Logger.info("Unable to parse population for #{aom}")
         0
     end
   end
