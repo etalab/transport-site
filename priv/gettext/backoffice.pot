@@ -7,10 +7,7 @@
 ## Run `mix gettext.extract` to bring this file up to
 ## date. Leave `msgstr`s empty as changing them here as no
 ## effect: edit them in PO (`.po`) files instead.
-msgid ""
-msgstr ""
 
-<<<<<<< HEAD
 #: lib/transport_web/templates/backoffice/index.html.eex:20
 msgid "Add"
 msgstr ""
@@ -19,18 +16,8 @@ msgstr ""
 msgid "Add a dataset"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/index.html.eex:17
-=======
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:18
-msgid "Add"
-msgstr ""
-
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:2
-msgid "Add a dataset"
-msgstr ""
 
 #: lib/transport_web/templates/backoffice/_form_dataset.html.eex:16
->>>>>>> Split backoffice avec vues partielles
 msgid "INSEE Code"
 msgstr ""
 
@@ -38,27 +25,16 @@ msgstr ""
 msgid "Valid datasets available"
 msgstr ""
 
-<<<<<<< HEAD
 #: lib/transport_web/templates/backoffice/index.html.eex:15
 msgid "data.gouv.fr id"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/index.html.eex:16
-=======
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:13
-msgid "data.gouv.fr id"
-msgstr ""
 
 #: lib/transport_web/templates/backoffice/_form_dataset.html.eex:14
->>>>>>> Split backoffice avec vues partielles
 msgid "name"
 msgstr ""
 
-<<<<<<< HEAD
 #: lib/transport_web/controllers/backoffice_controller.ex:34
-=======
-#: lib/transport_web/controllers/backoffice_controller.ex:54
->>>>>>> Ajout de la recherche dans le backoffice
 msgid "Dataset added with success"
 msgstr ""
 
@@ -66,12 +42,7 @@ msgstr ""
 msgid "Dataset not added"
 msgstr ""
 
-<<<<<<< HEAD
-#: lib/transport_web/templates/backoffice/index.html.eex:19
-=======
-#, elixir-format
 #: lib/transport_web/templates/backoffice/_form_dataset.html.eex:17
->>>>>>> Split backoffice avec vues partielles
 msgid "transport static"
 msgstr ""
 
