@@ -23,6 +23,7 @@ defmodule TransportWeb do
       import Plug.Conn
       import TransportWeb.Router.Helpers
       import TransportWeb.Gettext
+      import TransportWeb.PaginationHelpers
       alias TransportWeb.ErrorView
     end
   end
@@ -37,10 +38,11 @@ defmodule TransportWeb do
                                         get_csrf_token: 0]
 
       # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
+      use TransportWeb.InputHelpers
 
       import TransportWeb.Router.Helpers
       import TransportWeb.ErrorHelpers
+      import TransportWeb.InputHelpers
       import TransportWeb.Gettext
     end
   end

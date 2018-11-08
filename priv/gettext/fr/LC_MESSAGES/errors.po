@@ -10,10 +10,8 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 
-#: lib/transport_web/templates/error/internal_server_error.html.eex:2
 msgid "End of the road!"
 msgstr "Erreur sur la ligne 500 !"
 
-#: lib/transport_web/templates/error/internal_server_error.html.eex:3
 msgid "Try to refresh the page in a few seconds, or contact us."
 msgstr "Essayez de recharger la page ou contactez-nous."

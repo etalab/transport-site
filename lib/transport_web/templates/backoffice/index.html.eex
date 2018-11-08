@@ -1,24 +1,13 @@
 <section class="dataset-container">
+  <%= render("_form_dataset.html", conn: @conn, regions: @regions) %>
+
   <h1><%= dgettext("backoffice", "Valid datasets available") %></h1>
 
-  <h2><%= dgettext("backoffice", "Add a dataset") %></h2>
-
-  <%= if get_flash(@conn, :info) do %>
-  FLASH INFO : <%= get_flash(@conn, :info) %>
+  <%= form_for @conn, backoffice_path(@conn, :index), [method: "get"], fn f -> %>
+    <%= search_input f, :q, [{"value", assigns[:q] || ""}, {"placeholder", dgettext("page-index", "Find dataset")}] %>
   <% end %>
 
-  <%= if get_flash(@conn, :error) do %>
-  FLASH ERROR : <%= get_flash(@conn, :error) %>
-  <% end %>
-
-  <%= form_for @conn, backoffice_path(@conn, :new_dataset), fn f -> %>
-    <%= text_input f, :id, [{"placeholder", dgettext("backoffice", "data.gouv.fr id")}] %>
-    <%= text_input f, :spatial, [{"placeholder", dgettext("backoffice", "name")}] %>
-    <%= text_input f, :commune_principale, [{"placeholder", dgettext("backoffice", "INSEE Code")}] %>
-    <%= select f, :region, @regions %>
-    <%= select f, :type, [{dgettext("backoffice", "transport static"), "transport-statique"}]%>
-    <%= submit dgettext("backoffice", "Add") %>
-  <% end %>
+  <%= pagination_links @conn, @datasets, path: &backoffice_path/3 %>
 
   <table>
   <tr>
@@ -27,45 +16,11 @@
     <th></th>
     <th></th>
     <th></th>
+    <th></th>
     <th>Region</th>
     <th>Commune principale</th>
   </tr>
-
-  <%= for dataset <- @datasets do %>
-    <tr>
-      <td><%= dataset.spatial %></td>
-      <td>
-        <%= if dataset.metadata do %>
-          <%= dataset.metadata["end_date"] %>
-        <% end %>
-      </td>
-      <td>
-          <i class="icon icon--link" aria-hidden="true"></i>
-          <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
-                  to: "https://www.data.gouv.fr/datasets/#{dataset.id}/",
-                  role: "link") %>
-      </td>
-      <td>
-        <%= if dataset.download_url do %>
-            <i class="icon icon--download" aria-hidden="true"></i>
-            <%= link(dgettext("page-shortlist", "Download"),
-                    to: dataset.download_url,
-                    role: "link") %>
-        <% end %>
-      </td>
-      <td>
-        <%= form_for @conn, backoffice_path(@conn, :import_from_data_gouv_fr, dataset.id), fn _ -> %>
-          <%= submit "Importer", class: "button" %>
-        <% end %>
-      </td>
-      <td>
-        <%= form_for @conn, backoffice_path(@conn, :delete, dataset.id), fn _ -> %>
-          <%= submit "Supprimer", class: "button" %>
-        <% end %>
-      </td>
-      <td><%= dataset.region %></td>
-      <td><%= dataset.commune_principale %></td>
-    </tr>
-  <% end %>
-    </table>
+  <%= render_many(@datasets, TransportWeb.BackofficeView, "_dataset.html", as: :dataset, conn: @conn)%>
+  </table>
+  <%= pagination_links @conn, @datasets, path: &backoffice_path/3 %>
 </section>

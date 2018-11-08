@@ -14,7 +14,9 @@
         </a>
 
         <div class="footer-help__contact" if={ contactVisible }>
-            <a class="footer-help__contact--close" onclick={ showRound }>{ opts.close }</a>
+            <a class="footer-help__contact--close" onclick={ showRound }>
+                <i class="fas icon--times-circle"></i>
+            </a>
 
             <div class="footer-help__contact--header">
                 <h6>Contact</h6>
@@ -29,7 +31,7 @@
                     <textarea placeholder="{ opts.ask_for_help }" ref="demande" id="demande"></textarea>
                 </div>
 
-                <button>{ opts.send_email }</button>
+                <button class="button">{ opts.send_email }</button>
             </form>
         </div>
     </div>

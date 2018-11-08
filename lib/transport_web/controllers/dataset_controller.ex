@@ -5,16 +5,22 @@ defmodule TransportWeb.DatasetController do
   alias Transport.ReusableData
   require Logger
 
-  def index(%Plug.Conn{} = conn, %{"q" => q} = _params) when q != "" do
+  def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do
+    config = make_pagination_config(params)
+    datasets = q |> ReusableData.search_datasets |> Scrivener.paginate(config)
+
     conn
-    |> assign(:datasets, ReusableData.search_datasets(q))
+    |> assign(:datasets, datasets)
     |> assign(:q, q)
     |> render("index.html")
   end
 
-  def index(%Plug.Conn{} = conn, _params) do
+  def index(%Plug.Conn{} = conn, params) do
+    config = make_pagination_config(params)
+    datasets = ReusableData.list_datasets |> Scrivener.paginate(config)
+
     conn
-    |> assign(:datasets, ReusableData.list_datasets)
+    |> assign(:datasets, datasets)
     |> render("index.html")
   end
 
@@ -110,6 +116,7 @@ defmodule TransportWeb.DatasetController do
 
   def by_aom(%Plug.Conn{} = conn, %{"commune" => commune}), do: filtered_datasets(conn, %{commune_principale: commune})
   def by_region(%Plug.Conn{} = conn, %{"region" => region}), do: filtered_datasets(conn, %{region: region})
+  def by_type(%Plug.Conn{} = conn, %{"type" => type}), do: filtered_datasets(conn, %{type: type})
 
   defp get_form_action_function(conn) do
     if get_session(conn, :linked_dataset_id) == nil do

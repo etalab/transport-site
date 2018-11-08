@@ -57,6 +57,7 @@ defmodule TransportWeb.Router do
       get "/:slug/", DatasetController, :details
       get "/aom/:commune", DatasetController, :by_aom
       get "/region/:region", DatasetController, :by_region
+      get "/type/:type", DatasetController, :by_type
     end
 
     scope "/backoffice" do

@@ -10,18 +10,14 @@
 msgid ""
 msgstr ""
 
-#: lib/transport/reusable_data/reusable_data.ex:122
 msgid "fr-lo"
 msgstr ""
 
-#: lib/transport/reusable_data/reusable_data.ex:125
 msgid "notspecified"
 msgstr ""
 
-#: lib/transport/reusable_data/reusable_data.ex:123
 msgid "odc-odbl"
 msgstr ""
 
-#: lib/transport/reusable_data/reusable_data.ex:124
 msgid "other-open"
 msgstr ""

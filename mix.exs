@@ -7,6 +7,7 @@ defmodule Transport.Mixfile do
       version: "0.0.1",
       elixir: "~> 1.6.1",
       elixirc_paths: elixirc_paths(Mix.env),
+      gettext: [{:write_reference_comments, false}],
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
@@ -26,7 +27,9 @@ defmodule Transport.Mixfile do
         :mime,
         :mongodb,
         :oauth2,
-        :poolboy
+        :poolboy,
+        :scrivener,
+        :scrivener_html
       ]
     ]
   end
@@ -60,6 +63,9 @@ defmodule Transport.Mixfile do
       {:vex, "~> 0.6"},
       {:quantum, "~> 2.3"},
       {:timex, "~> 3.0"},
+      {:scrivener, "~> 2.0"},
+      {:scrivener_html, "~> 1.7"},
+      {:scrivener_list, "~> 1.0"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:exvcr, "~> 0.8", only: :test},
       {:hound, "~> 1.0", only: :test},

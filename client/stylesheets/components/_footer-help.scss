@@ -31,13 +31,20 @@
 }
 
 .footer-help__contact--header {
+  color: $blue;
+
   h6 {
     margin: 10px;
   }
 }
 
 .footer-help__contact--close {
+  color: $blue;
   float: right;
+
+  &:hover {
+    color: $dark-blue;
+  }
 }
 
 .footer-help__message {
