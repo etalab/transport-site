@@ -40,9 +40,7 @@ defmodule Transport.ImportDataService do
     end
   end
 
-  def get_dataset(%{"message" => error}) do
-    {:error, error}
-  end
+  def get_dataset(%{"message" => error}, _), do: {:error, error}
 
   def get_dataset(%{} = dataset) do
     dataset =
@@ -387,7 +385,5 @@ defmodule Transport.ImportDataService do
     end
   end
 
-  def parse_date(nil) do
-    nil
-  end
+  def parse_date(nil), do: nil
 end
