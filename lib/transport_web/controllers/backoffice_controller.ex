@@ -9,18 +9,24 @@ defmodule TransportWeb.BackofficeController do
     |> Enum.map(fn r -> r["properties"]["NOM_REG"] end)
   end
 
-  def index(%Plug.Conn{} = conn, %{"q" => q} = _params) when q != "" do
+  def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do
+    config = make_pagination_config(params)
+    datasets = q |> ReusableData.search_datasets |> Scrivener.paginate(config)
+
     conn
     |> assign(:regions, region_names())
-    |> assign(:datasets, ReusableData.search_datasets(q))
+    |> assign(:datasets, datasets)
     |> assign(:q, q)
     |> render("index.html")
   end
 
-  def index(%Plug.Conn{} = conn, _params) do
+  def index(%Plug.Conn{} = conn, params) do
+    config = make_pagination_config(params)
+    datasets = ReusableData.list_datasets |> Scrivener.paginate(config)
+
     conn
     |> assign(:regions, region_names())
-    |> assign(:datasets, ReusableData.list_datasets)
+    |> assign(:datasets, datasets)
     |> render("index.html")
   end
 
