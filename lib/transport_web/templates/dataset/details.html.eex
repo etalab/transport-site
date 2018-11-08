@@ -1,110 +1,8 @@
 <section>
   <div class="documentation dataset-details">
     <div class="dataset-details__side-pane side-pane">
-      <div>
-        <%= img_tag(@dataset.logo, alt: @dataset.title) %>
-        <%= if @dataset.download_url do %>
-          <div class="shortlist__link shortlist__link--download">
-            <%= link to: @dataset.download_url, class: "button button--fullwidth", role: "link" do %>
-              <i class="icon icon--download fa-lg" aria-hidden="true"></i>
-              <%= dgettext("page-shortlist", "Download") %>
-            <% end %>
-          </div>
-        <% end %>
-
-        <%= if @dataset.download_url do %>
-          <div class="shortlist__link shortlist__link--external-link">
-            <%= link to: "https://www.data.gouv.fr/datasets/#{@dataset.slug}/", class: "button button--fullwidth", role: "link" do %>
-              <i class="icon icon--link" aria-hidden="true"></i>
-              <%= dgettext("page-shortlist", "See on data.gouv.fr") %>
-            <% end %>
-          </div>
-        <% end %>
-      </div>
-      <div class="shortlist-details">
-        <%= if !is_nil(@dataset.spatial) do %>
-            <div class="shortlist__notice">
-              <div><%= dgettext("page-shortlist", "Territory") %></div>
-              <div class="label label-notice"><%= @dataset.spatial %></div>
-            </div>
-        <% end %>
-
-        <%= if @dataset.licence do %>
-          <div class="shortlist__notice">
-            <div><%= dgettext("page-shortlist", "Licence") %></div>
-            <div class="label label-notice"><%= ReusableData.localise_licence(@dataset) %></div>
-          </div>
-        <% end %>
-
-        <%= if @dataset.format do %>
-          <div class="shortlist__notice">
-            <div><%= dgettext("page-shortlist", "Format") %></div>
-            <div class="label label-notice"><%= @dataset.format %></div>
-          </div>
-        <% end %>
-
-        <div class="shortlist__notice">
-          <div><%= dgettext("page-shortlist", "Publication date") %></div>
-          <div class="label label-notice"><%= @dataset.created_at %></div>
-        </div>
-
-        <div class="shortlist__notice">
-          <div><%= dgettext("page-shortlist", "Last update") %></div>
-          <div class="label label-notice"><%= @dataset.last_update %></div>
-        </div>
-
-        <div class="shortlist__notice">
-          <div><%= dgettext("page-shortlist", "Update frequency") %></div>
-          <div class="label label-notice"><%=  Gettext.dgettext(TransportWeb.Gettext, "page-shortlist", @dataset.frequency) %></div>
-        </div>
-
-        <div class="shortlist__notice">
-          <div><%= dgettext("page-shortlist", "Tags") %></div>
-          <div class="label label-notice"><%= Enum.join(@dataset.tags, ", ") %></div>
-        </div>
-
-        <%= if @dataset.metadata do %>
-          <div class="shortlist__notice">
-            <div><%= dgettext("page-shortlist", "Timetable begin") %></div>
-            <div class="label label-notice"><%=  @dataset.metadata["start_date"] %></div>
-          </div>
-
-          <div class="shortlist__notice">
-            <div><%= dgettext("page-shortlist", "Timetable end") %></div>
-            <div class="label label-notice"><%=  @dataset.metadata["end_date"] %></div>
-          </div>
-
-          <div class="shortlist__notice">
-            <div><%= dgettext("page-shortlist", "Number of lines") %></div>
-            <div class="label label-notice"><%=  @dataset.metadata["lines_count"] %></div>
-          </div>
-
-          <div class="shortlist__notice">
-            <div><%= dgettext("page-shortlist", "Number of stop areas") %></div>
-            <div class="label label-notice"><%=  @dataset.metadata["stop_areas_count"] %></div>
-          </div>
-
-          <div class="shortlist__notice">
-            <div><%= dgettext("page-shortlist", "Number of stop points") %></div>
-            <div class="label label-notice"><%=  @dataset.metadata["stop_points_count"] %></div>
-          </div>
-
-          <div class="shortlist__notice">
-            <div><%= dgettext("page-shortlist", "Networks") %></div>
-            <div class="label label-notice"><%=  Enum.join(@dataset.metadata["networks"], ", ") %></div>
-          </div>
-
-          <div class="shortlist__notice">
-            <div><%= dgettext("page-shortlist", "Modes") %></div>
-            <div class="label label-notice">
-              <%=
-                @dataset.metadata["modes"]
-                |> Enum.map(fn m -> Gettext.dgettext(TransportWeb.Gettext, "page-shortlist", m) end)
-                |> Enum.join(", ")
-              %>
-            </div>
-          </div>
-        <% end %>
+      <%= render "_sidebar_common.html", dataset: @dataset, conn: @conn %>
+      <%= TransportWeb.DatasetView.render_sidebar_from_type(@dataset) %>
       </div>
       <a class="button button--fullwidth is-centered shortlist-publish" href="<%= user_path(@conn, :organizations, linked_dataset_id: @dataset.id) %>"><%= dgettext("page-dataset-details", "Publish a modified version dataset") %></a>
       <div class="dataset-details__followers">
@@ -145,35 +43,7 @@
         </communityresources>
       </div>
 
-      <div class="dataset-details__validation">
-        <h2><%= dgettext("page-dataset-details", "GTFS Validation") %></h2>
-        <div if={ @dataset.validations.length === 0 }>
-          Pas de validation disponible
-        </div>
-        <%= for {issue_type, issues} <- @dataset.validations do %>
-        <label class="collapse" for="<%= issue_type %>">
-          <h3><i class="fas fa-angle-right"></i> <%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue_type) %> (<%= issues.count %>)</h3>
-          </label>
-        <input id="<%= issue_type %>" type="checkbox">
-          <table class="table">
-            <tr>
-              <th><%= dgettext("page-dataset-details", "Object ID") %></th>
-              <th><%= dgettext("page-dataset-details", "Object name") %></th>
-              <th><%= dgettext("page-dataset-details", "Related object ID") %></th>
-              <th><%= dgettext("page-dataset-details", "Severity") %></th>
-            </tr>
-
-            <%= for issue <- issues.issues do %>
-              <tr>
-                <td><%= issue["object_id"] %></td>
-                <td><%= issue["object_name"] %></td>
-                <td><%= issue["related_object_id"] %></td>
-                <td><%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue["severity"]) %></td>
-              </tr>
-            <% end %>
-          </table>
-        <% end %>
-      </div>
+      <%= TransportWeb.DatasetView.render_description_from_type(@dataset) %>
 
       <div class="dataset-details__discussions">
         <h2>Discussions</h2>

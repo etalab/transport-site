@@ -102,19 +102,14 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  def by_aom(%Plug.Conn{} = conn, %{"commune" => commune}) do
-    communes = ReusableData.list_datasets(commune)
+  def filtered_datasets(%Plug.Conn{} = conn, %{} = query) do
     conn
-    |> assign(:datasets, communes)
+    |> assign(:datasets, ReusableData.list_datasets(query))
     |> render("index.html")
   end
 
-  def by_region(%Plug.Conn{} = conn, %{"region" => region}) do
-    regions = ReusableData.list_datasets_region(region)
-    conn
-    |> assign(:datasets, regions)
-    |> render("index.html")
-  end
+  def by_aom(%Plug.Conn{} = conn, %{"commune" => commune}), do: filtered_datasets(conn, %{commune_principale: commune})
+  def by_region(%Plug.Conn{} = conn, %{"region" => region}), do: filtered_datasets(conn, %{region: region})
 
   defp get_form_action_function(conn) do
     if get_session(conn, :linked_dataset_id) == nil do
