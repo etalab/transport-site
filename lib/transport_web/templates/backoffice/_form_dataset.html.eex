@@ -1,0 +1,19 @@
+
+  <h1><%= dgettext("backoffice", "Add a dataset") %></h2>
+
+  <%= if get_flash(@conn, :info) do %>
+  FLASH INFO : <%= get_flash(@conn, :info) %>
+  <% end %>
+
+  <%= if get_flash(@conn, :error) do %>
+  FLASH ERROR : <%= get_flash(@conn, :error) %>
+  <% end %>
+
+  <%= form_for @conn, backoffice_path(@conn, :new_dataset), fn f -> %>
+    <%= text_input f, :id, [{"placeholder", dgettext("backoffice", "data.gouv.fr id")}] %>
+    <%= text_input f, :spatial, [{"placeholder", dgettext("backoffice", "name")}] %>
+    <%= select f, :region, @regions %>
+    <%= text_input f, :commune_principale, [{"placeholder", dgettext("backoffice", "INSEE Code")}] %>
+    <%= select f, :type, [{dgettext("backoffice", "transport static"), "transport-statique"}]%>
+    <%= submit dgettext("backoffice", "Add") %>
+  <% end %>

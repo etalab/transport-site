@@ -2,14 +2,7 @@
   <div class="container">
     <h1 class="text-center"><%= dgettext("page-shortlist", "Valid datasets available") %></h1>
       <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
-        <div class="form__group">
-          <div class="search__group">
-            <%= text_input f, :q, [{"value", assigns[:q] || ""}, {"placeholder", dgettext("page-index", "Find dataset")}] %>
-            <button class="overlay-button" aria-label="Recherche">
-              <i class="fas icon--magnifier"></i>
-            </button>
-          </div>
-        </div>
+        <%= search_input f, :q, [{"value", assigns[:q] || ""}, {"placeholder", dgettext("page-index", "Find dataset")}] %>
       <% end %>
     <%= if Enum.empty? @datasets do %>
       <%= dgettext("page-shortlist", "No dataset found") %>

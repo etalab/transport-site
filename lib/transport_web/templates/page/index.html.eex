@@ -3,18 +3,9 @@
         <div class="container">
             <h1>Le Point d'Accès National</h1>
             <h2>De l’information voyageur pour tous, partout en France, grâce à l’ouverture des données.</h2>
-            </p>
-            </p>
             <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
-                <div class="form__group">
-                <div class="search__group">
-                    <%= text_input f, :q, [{"placeholder", dgettext("page-index", "Find dataset")}] %>
-                    <button class="overlay-button" aria-label="Recherche">
-                        <i class="fas icon--magnifier"></i>
-                    </button>
-                </div>
+                <%= search_input f, :q, [{"placeholder", dgettext("page-index", "Find dataset")}] %>
                 <p class="text-center"><a href="#about">➞ Plus d'informations</a></p>
-                </div>
             <% end %>
         </div>
     </div>
@@ -37,7 +28,7 @@
                 </div>
             </div>
         </div>
-    <div>
+    </div>
 </section>
 <section class="tools section section-grey">
     <div class="container">
