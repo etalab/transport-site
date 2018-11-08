@@ -27,6 +27,16 @@
           <h4>sur <%= @nb_regions %></h4>
         </div>
       </div>
+      <div class="card">
+        <div class="card__content">
+          <h3>Population couverte</h3>
+          <h1><%= @population_couverte %>M</h1>
+          <h4> sur <%= @population_totale %>M</h4>
+        </div>
+        <div class="card__footer">
+        Seule la population couverte par une AOM est comptée
+        </div>
+      </div>
     </div>
   </div>
 </div>
