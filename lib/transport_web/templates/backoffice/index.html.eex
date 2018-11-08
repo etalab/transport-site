@@ -8,6 +8,7 @@
   <% end %>
 
   <%= pagination_links @conn, @datasets, path: &backoffice_path/3 %>
+
   <table>
   <tr>
     <th>Territoire</th>

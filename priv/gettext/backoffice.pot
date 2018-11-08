@@ -7,15 +7,16 @@
 ## Run `mix gettext.extract` to bring this file up to
 ## date. Leave `msgstr`s empty as changing them here as no
 ## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
 
-#: lib/transport_web/templates/backoffice/index.html.eex:20
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:18
 msgid "Add"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/index.html.eex:4
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:2
 msgid "Add a dataset"
 msgstr ""
-
 
 #: lib/transport_web/templates/backoffice/_form_dataset.html.eex:16
 msgid "INSEE Code"
@@ -25,16 +26,15 @@ msgstr ""
 msgid "Valid datasets available"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/index.html.eex:15
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:13
 msgid "data.gouv.fr id"
 msgstr ""
-
 
 #: lib/transport_web/templates/backoffice/_form_dataset.html.eex:14
 msgid "name"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:34
+#: lib/transport_web/controllers/backoffice_controller.ex:60
 msgid "Dataset added with success"
 msgstr ""
 
@@ -42,27 +42,33 @@ msgstr ""
 msgid "Dataset not added"
 msgstr ""
 
+#: lib/transport_web/controllers/backoffice_controller.ex:7
 #: lib/transport_web/templates/backoffice/_form_dataset.html.eex:17
 msgid "transport static"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:63
+#: lib/transport_web/controllers/backoffice_controller.ex:69
 msgid "Dataset imported with success"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:64
+#: lib/transport_web/controllers/backoffice_controller.ex:70
 msgid "Dataset not imported"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:72
+#: lib/transport_web/controllers/backoffice_controller.ex:78
 msgid "Could not delete dataset"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:72
+#: lib/transport_web/controllers/backoffice_controller.ex:78
 msgid "Dataset deleted"
 msgstr ""
 
 #, elixir-format
-#: lib/transport_web/controllers/backoffice_controller.ex:54
+#: lib/transport_web/controllers/backoffice_controller.ex:60
 msgid "Could not add dataset"
+msgstr ""
+
+#, elixir-format
+#: lib/transport_web/controllers/backoffice_controller.ex:8
+msgid "carsharing areas"
 msgstr ""
