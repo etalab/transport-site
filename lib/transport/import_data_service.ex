@@ -27,6 +27,7 @@ defmodule Transport.ImportDataService do
 
     Logger.info(" <message>  Importing dataset")
     Logger.info(" <id>       #{id}")
+    Logger.info(" <url>      #{url}")
 
     with {:ok, response}  <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
          {:ok, json} <- Poison.decode(response.body),
