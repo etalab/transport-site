@@ -1,5 +1,5 @@
 <section class="dataset-container">
-  <%= render("_form_dataset.html", conn: @conn, regions: @regions) %>
+  <%= render("_form_dataset.html", conn: @conn, regions: @regions, dataset_types: @dataset_types) %>
 
   <h1><%= dgettext("backoffice", "Valid datasets available") %></h1>
 
