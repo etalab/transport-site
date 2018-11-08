@@ -12,6 +12,7 @@ defmodule TransportWeb.BackofficeController do
     :mongo
     |> Mongo.find("regions", %{}, pool:  DBConnection.Poolboy)
     |> Enum.map(fn r -> r["properties"]["NOM_REG"] end)
+    |> Enum.concat(["National"])
   end
 
   def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do

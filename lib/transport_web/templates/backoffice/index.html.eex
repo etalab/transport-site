@@ -8,14 +8,6 @@
   <% end %>
 
   <%= pagination_links @conn, @datasets, path: &backoffice_path/3 %>
-  <%= form_for @conn, backoffice_path(@conn, :new_dataset), fn f -> %>
-    <%= text_input f, :id, [{"placeholder", dgettext("backoffice", "data.gouv.fr id")}] %>
-    <%= text_input f, :spatial, [{"placeholder", dgettext("backoffice", "name")}] %>
-    <%= text_input f, :commune_principale, [{"placeholder", dgettext("backoffice", "INSEE Code")}] %>
-    <%= select f, :region, @regions %>
-    <%= select f, :type, @dataset_types %>
-    <%= submit dgettext("backoffice", "Add") %>
-  <% end %>
 
   <table>
   <tr>
