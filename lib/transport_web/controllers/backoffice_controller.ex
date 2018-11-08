@@ -23,6 +23,7 @@ defmodule TransportWeb.BackofficeController do
     |> assign(:regions, region_names())
     |> assign(:datasets, datasets)
     |> assign(:q, q)
+    |> assign(:dataset_types, @dataset_types)
     |> render("index.html")
   end
 
