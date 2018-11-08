@@ -7,6 +7,9 @@
 ## Run `mix gettext.extract` to bring this file up to
 ## date. Leave `msgstr`s empty as changing them here as no
 ## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
 msgid "Add"
 msgstr ""
 

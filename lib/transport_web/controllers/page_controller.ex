@@ -32,4 +32,8 @@ defmodule TransportWeb.PageController do
   def faq(conn, _params) do
     render(conn, "faq.html")
   end
+
+  def partners(conn, _params) do
+    render(conn, "partners.html")
+  end
 end
