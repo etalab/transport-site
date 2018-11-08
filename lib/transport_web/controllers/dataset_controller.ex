@@ -5,16 +5,22 @@ defmodule TransportWeb.DatasetController do
   alias Transport.ReusableData
   require Logger
 
-  def index(%Plug.Conn{} = conn, %{"q" => q} = _params) when q != "" do
+  def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do
+    config = make_pagination_config(params)
+    datasets = q |> ReusableData.search_datasets |> Scrivener.paginate(config)
+
     conn
-    |> assign(:datasets, ReusableData.search_datasets(q))
+    |> assign(:datasets, datasets)
     |> assign(:q, q)
     |> render("index.html")
   end
 
-  def index(%Plug.Conn{} = conn, _params) do
+  def index(%Plug.Conn{} = conn, params) do
+    config = make_pagination_config(params)
+    datasets = ReusableData.list_datasets |> Scrivener.paginate(config)
+
     conn
-    |> assign(:datasets, ReusableData.list_datasets)
+    |> assign(:datasets, datasets)
     |> render("index.html")
   end
 
@@ -118,4 +124,14 @@ defmodule TransportWeb.DatasetController do
       :create_community_resource
     end
   end
+
+  defp make_pagination_config(%{"page" => page_number}) do
+    page_number = case Integer.parse(page_number) do
+      :error -> 1
+      {int, _} -> int
+    end
+
+    %Scrivener.Config{page_number: page_number, page_size: 10}
+  end
+  defp make_pagination_config(_), do: %Scrivener.Config{page_number: 1, page_size: 10}
 end
