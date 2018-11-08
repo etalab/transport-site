@@ -7,17 +7,18 @@
 ## Run `mix gettext.extract` to bring this file up to
 ## date. Leave `msgstr`s empty as changing them here as no
 ## effect: edit them in PO (`.po`) files instead.
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:18
-#: lib/transport_web/templates/backoffice/index.html.eex:16
+msgid ""
+msgstr ""
+
+#: lib/transport_web/templates/backoffice/index.html.eex:20
 msgid "Add"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:2
+#: lib/transport_web/templates/backoffice/index.html.eex:4
 msgid "Add a dataset"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:16
-#: lib/transport_web/templates/backoffice/index.html.eex:13
+#: lib/transport_web/templates/backoffice/index.html.eex:17
 msgid "INSEE Code"
 msgstr ""
 
@@ -25,17 +26,15 @@ msgstr ""
 msgid "Valid datasets available"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:13
-#: lib/transport_web/templates/backoffice/index.html.eex:11
+#: lib/transport_web/templates/backoffice/index.html.eex:15
 msgid "data.gouv.fr id"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:14
-#: lib/transport_web/templates/backoffice/index.html.eex:12
+#: lib/transport_web/templates/backoffice/index.html.eex:16
 msgid "name"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:60
+#: lib/transport_web/controllers/backoffice_controller.ex:52
 msgid "Dataset added with success"
 msgstr ""
 
@@ -44,28 +43,27 @@ msgid "Dataset not added"
 msgstr ""
 
 #: lib/transport_web/controllers/backoffice_controller.ex:7
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:17
 msgid "transport static"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:69
+#: lib/transport_web/controllers/backoffice_controller.ex:62
 msgid "Dataset imported with success"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:70
+#: lib/transport_web/controllers/backoffice_controller.ex:63
 msgid "Dataset not imported"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:78
+#: lib/transport_web/controllers/backoffice_controller.ex:71
 msgid "Could not delete dataset"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:78
+#: lib/transport_web/controllers/backoffice_controller.ex:71
 msgid "Dataset deleted"
 msgstr ""
 
 #, elixir-format
-#: lib/transport_web/controllers/backoffice_controller.ex:60
+#: lib/transport_web/controllers/backoffice_controller.ex:52
 msgid "Could not add dataset"
 msgstr ""
 

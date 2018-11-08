@@ -10,17 +10,15 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:18
-#: lib/transport_web/templates/backoffice/index.html.eex:16
+#: lib/transport_web/templates/backoffice/index.html.eex:20
 msgid "Add"
 msgstr "Ajouter"
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:2
+#: lib/transport_web/templates/backoffice/index.html.eex:4
 msgid "Add a dataset"
 msgstr "Ajouter un jeu de données"
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:16
-#: lib/transport_web/templates/backoffice/index.html.eex:13
+#: lib/transport_web/templates/backoffice/index.html.eex:17
 msgid "INSEE Code"
 msgstr "Code INSEE"
 
@@ -28,17 +26,15 @@ msgstr "Code INSEE"
 msgid "Valid datasets available"
 msgstr "Jeux de données disponibles"
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:13
-#: lib/transport_web/templates/backoffice/index.html.eex:11
+#: lib/transport_web/templates/backoffice/index.html.eex:15
 msgid "data.gouv.fr id"
 msgstr "id data.gouv.fr"
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:14
-#: lib/transport_web/templates/backoffice/index.html.eex:12
+#: lib/transport_web/templates/backoffice/index.html.eex:16
 msgid "name"
 msgstr "nom"
 
-#: lib/transport_web/controllers/backoffice_controller.ex:60
+#: lib/transport_web/controllers/backoffice_controller.ex:52
 msgid "Dataset added with success"
 msgstr "Jeux de données ajouté avec succès"
 
@@ -47,32 +43,31 @@ msgid "Dataset not added"
 msgstr "Échec à l’ajout du jeu de données"
 
 #: lib/transport_web/controllers/backoffice_controller.ex:7
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:17
 msgid "transport static"
 msgstr "transport statique"
 
-#: lib/transport_web/controllers/backoffice_controller.ex:69
+#: lib/transport_web/controllers/backoffice_controller.ex:62
 msgid "Dataset imported with success"
 msgstr "Jeux de données ajouté avec succès"
 
-#: lib/transport_web/controllers/backoffice_controller.ex:70
+#: lib/transport_web/controllers/backoffice_controller.ex:63
 msgid "Dataset not imported"
 msgstr "Échec à l’ajout du jeu de données"
 
-#: lib/transport_web/controllers/backoffice_controller.ex:78
+#: lib/transport_web/controllers/backoffice_controller.ex:71
 msgid "Could not delete dataset"
 msgstr "Impossible de supprimer le jeu de données"
 
-#: lib/transport_web/controllers/backoffice_controller.ex:78
+#: lib/transport_web/controllers/backoffice_controller.ex:71
 msgid "Dataset deleted"
 msgstr "Jeu de données supprimé"
 
 #, elixir-format
-#: lib/transport_web/controllers/backoffice_controller.ex:60
+#: lib/transport_web/controllers/backoffice_controller.ex:52
 msgid "Could not add dataset"
-msgstr "Impossible de supprimer le jeu de données"
+msgstr "Impossible d’ajouter le jeu de données"
 
 #, elixir-format
 #: lib/transport_web/controllers/backoffice_controller.ex:8
 msgid "carsharing areas"
-msgstr ""
+msgstr "Aires de covoiturage"
