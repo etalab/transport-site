@@ -23,6 +23,7 @@ defmodule TransportWeb do
       import Plug.Conn
       import TransportWeb.Router.Helpers
       import TransportWeb.Gettext
+      import TransportWeb.PaginationHelpers
       alias TransportWeb.ErrorView
     end
   end
