@@ -10,18 +10,14 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport/reusable_data/reusable_data.ex:154
 msgid "fr-lo"
 msgstr "Open Licence"
 
-#: lib/transport/reusable_data/reusable_data.ex:157
 msgid "notspecified"
 msgstr "Not specified"
 
-#: lib/transport/reusable_data/reusable_data.ex:155
 msgid "odc-odbl"
 msgstr "ODbL"
 
-#: lib/transport/reusable_data/reusable_data.ex:156
 msgid "other-open"
 msgstr "Other open"

@@ -7,6 +7,7 @@ defmodule Transport.Mixfile do
       version: "0.0.1",
       elixir: "~> 1.6.1",
       elixirc_paths: elixirc_paths(Mix.env),
+      gettext: [{:write_reference_comments, false}],
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,

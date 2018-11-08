@@ -10,60 +10,48 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:18
 msgid "Add"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:2
 msgid "Add a dataset"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:16
 msgid "INSEE Code"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/index.html.eex:2
 msgid "Valid datasets available"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:13
 msgid "data.gouv.fr id"
 msgstr ""
 
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:14
 msgid "name"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:34
 msgid "Dataset added with success"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:38
 msgid "Dataset not added"
 msgstr ""
 
-#, elixir-format
-#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:17
 msgid "transport static"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:55
 msgid "Dataset imported with success"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:56
 msgid "Dataset not imported"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:64
 msgid "Could not delete dataset"
 msgstr ""
 
-#: lib/transport_web/controllers/backoffice_controller.ex:64
 msgid "Dataset deleted"
 msgstr ""
 
-#, elixir-format
-#: lib/transport_web/controllers/backoffice_controller.ex:46
 msgid "Could not add dataset"
+msgstr ""
+
+#, elixir-format
+msgid "carsharing areas"
 msgstr ""

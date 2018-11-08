@@ -8,8 +8,8 @@ defmodule Transport.ImportDataService do
   @separators [?;, ?,]
   @csv_headers ["Download", "file", "Fichier"]
 
-  def call(%{"_id" => mongo_id, "id" => id}) do
-    case import_from_udata(id) do
+  def call(%{"_id" => mongo_id, "id" => id, "type" => type}) do
+    case import_from_udata(id, type) do
       {:ok, new_data} ->
         Mongo.find_one_and_update(:mongo,
                                   "datasets",
@@ -21,16 +21,17 @@ defmodule Transport.ImportDataService do
     end
   end
 
-  def import_from_udata(id) do
+  def import_from_udata(id, type) do
     base_url = Application.get_env(:transport, :datagouvfr_site)
     url      = "#{base_url}/api/1/datasets/#{id}/"
 
     Logger.info(" <message>  Importing dataset")
     Logger.info(" <id>       #{id}")
+    Logger.info(" <url>      #{url}")
 
     with {:ok, response}  <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
          {:ok, json} <- Poison.decode(response.body),
-         {:ok, dataset} <- get_dataset(json) do
+         {:ok, dataset} <- get_dataset(json, type) do
       {:ok, dataset}
     else
       {:error, error} ->
@@ -40,11 +41,9 @@ defmodule Transport.ImportDataService do
     end
   end
 
-  def get_dataset(%{"message" => error}) do
-    {:error, error}
-  end
+  def get_dataset(%{"message" => error}, _), do: {:error, error}
 
-  def get_dataset(%{} = dataset) do
+  def get_dataset(%{} = dataset, type) do
     dataset =
       dataset
       |> Map.take(["title", "description", "license", "id", "slug", "frequency", "tags"])
@@ -52,11 +51,12 @@ defmodule Transport.ImportDataService do
       |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
       |> Map.put("full_logo", dataset["organization"]["logo"])
       |> Map.put("task_id", Map.get(dataset, "task_id"))
-      |> Map.put("download_url", get_download_url(dataset))
-      |> Map.put("format", "GTFS")
+      |> Map.put("download_url", get_download_url(dataset, type))
+      |> Map.put("format", formated_format(dataset["resources"]))
       |> Map.put("created_at", parse_date(dataset["created_at"]))
       |> Map.put("last_update", parse_date(dataset["last_update"]))
       |> Map.put("last_import", DateTime.utc_now |> DateTime.to_string)
+      |> Map.put("type", type)
 
     case Map.get(dataset, "download_url") do
       nil -> {:error, "No download uri found"}
@@ -66,10 +66,14 @@ defmodule Transport.ImportDataService do
 
   def get_dataset(_), do: {:error, "Dataset needs to be a map"}
 
-  def get_download_url(%{"resources" => resources}) do
+  def get_download_url(%{"resources" => resources}, "aires-covoiturage") do
+    get_url(resources)
+  end
+
+  def get_download_url(%{"resources" => resources}, _) do
     cond do
-      (l = get_url(resources, &filter_gtfs/1)) != nil -> l
-      (l = get_url(resources, &filter_zip/1)) != nil -> l
+      (l = get_url(resources, &is_gtfs?/1)) != nil -> l
+      (l = get_url(resources, &is_zip?/1)) != nil -> l
       (csv_list = filter_csv(resources)) != [] ->
         with {:ok, bodys} <- download_csv_list(csv_list),
              {:ok, urls} <- get_url_from_csv(bodys) do
@@ -90,6 +94,22 @@ defmodule Transport.ImportDataService do
   end
 
   @doc """
+  Get the latest resource with a given filter
+
+  """
+  def get_last_resource(resources, filter \\ fn _ -> true end) do
+    resources
+    |> Enum.filter(&(Map.has_key?(&1, "url") && Map.has_key?(&1, "last_modified")))
+    |> Enum.filter(filter)
+    |> case do
+      [] -> %{}
+      list  -> list
+            |> Enum.sort_by(&(&1["last_modified"]))
+            |> List.last
+    end
+  end
+
+  @doc """
   Get latest resource url from a set of resources filtered by filter
 
   ## Examples
@@ -106,79 +126,45 @@ defmodule Transport.ImportDataService do
       "http1"
 
   """
-  def get_url(resources, filter) do
-    resources
-    |> Enum.filter(&(Map.has_key?(&1, "url") && Map.has_key?(&1, "last_modified")))
-    |> filter.()
-    |> case do
-      [] -> nil
-      list  -> list
-            |> Enum.sort_by(&(&1["last_modified"]))
-            |> List.last
-            |> Map.get("url")
-    end
-  end
+  def get_url(resources, filter), do: resources |> get_last_resource(filter) |> Map.get("url")
+
+  def get_url(ressources), do: get_url(ressources, fn _ -> true end)
 
   @doc """
-  filter gtfs resources
+  Is it a gtfs file?
 
   ## Examples
 
-      iex> [%{"format" => "GTFS"}]
-      ...> |> ImportDataService.filter_gtfs
-      [%{"format" => "GTFS"}]
+      iex> ImportDataService.is_gtfs?("netex")
+      false
 
-      iex> [%{"format" => "gtf"}]
-      ...> |> ImportDataService.filter_gtfs
-      []
-
-      iex> [%{"format" => "GTFS"}, %{"format" => "zip"}]
-      ...> |> ImportDataService.filter_gtfs
-      [%{"format" => "GTFS"}]
-
-      iex> [%{"format" => "gtfs.zip"}]
-      ...> |> ImportDataService.filter_gtfs
-      [%{"format" => "gtfs.zip"}]
+      iex> ImportDataService.is_gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
+      true
 
   """
-  def filter_gtfs(resources) do
-    Enum.filter(resources, fn %{"format" => format} ->
-      format
-      |> String.downcase
-      |> String.contains?("gtfs")
-    end)
-  end
+  def is_gtfs?(%{"format" => format}), do: is_gtfs?(format)
+  def is_gtfs?(format), do: format |> String.downcase |> String.contains?("gtfs")
 
   @doc """
-  filter dataset with zip resources
+  Is the ressource a zip file?
 
   ## Examples
-      iex> [%{"mime" => "application/zip", "format" => nil}]
-      ...> |> ImportDataService.filter_zip
-      [%{"mime" => "application/zip", "format" => "zip"}]
+      iex> ImportDataService.is_zip?(%{"mime" => "application/zip", "format" => nil})
+      true
 
-      iex> [%{"mime" => nil, "format" => "zip"}]
-      ...> |> ImportDataService.filter_zip
-      [%{"mime" => "application/zip", "format" => "zip"}]
+      iex> ImportDataService.is_zip?(%{"mime" => nil, "format" => "zip"})
+      true
 
-      iex> [%{"mime" => nil, "format" => "ZIP"}]
-      ...> |> ImportDataService.filter_zip
-      [%{"mime" => "application/zip", "format" => "zip"}]
+      iex> ImportDataService.is_zip?(%{"mime" => nil, "format" => "ZIP"})
+      true
 
-      iex> [%{"mime" => "application/exe", "format" => nil}]
-      ...> |> ImportDataService.filter_zip
-      []
-
-      iex> [%{"mime" => "application/zip", "format" => nil}, %{"mime" => "application/neptune", "format" => nil}]
-      ...> |> ImportDataService.filter_zip
-      [%{"mime" => "application/zip", "format" => "zip"}]
-
+      iex> ImportDataService.is_zip?(%{"mime" => "application/exe", "format" => nil})
+      false
   """
-  def filter_zip(resources) do
-    for resource <- resources, "#{resource["mime"]}#{resource["format"]}" =~ ~r/zip/i do
-      %{resource | "mime" => "application/zip", "format" => "zip"}
-    end
-  end
+  def is_zip?(%{"mime" => nil, "format" => format}), do: is_zip?(format)
+  def is_zip?(%{"mime" => mime, "format" => nil}), do: is_zip?(mime)
+  def is_zip?(%{"mime" => mime, "format" => format}), do: is_zip?(mime) || is_zip?(format)
+  def is_zip?(str), do: str |> String.downcase |> String.contains?("zip")
 
   @doc """
   filter dataset with csv resources
@@ -387,7 +373,27 @@ defmodule Transport.ImportDataService do
     end
   end
 
-  def parse_date(nil) do
-    nil
+  def parse_date(nil), do: nil
+
+  @doc """
+  Formats the file format in a human readable form
+
+  ## Examples
+
+      iex> [%{"last_modified" => "2017-11-29T23:54:05", "url" => "http1", "format" => "gtfs.zip", "mime" => "foo"}]
+      ...> |> ImportDataService.formated_format
+      "GTFS"
+
+      iex> [%{"last_modified" => "2017-11-29T23:54:05", "url" => "http1", "format" => "xls", "mime" => "foo"}]
+      ...> |> ImportDataService.formated_format
+      "xls"
+  """
+  def formated_format(resources) do
+    format = resources
+    |> get_last_resource
+    |> Map.get("format", "")
+
+    if is_gtfs?(format), do: "GTFS", else: format
   end
+
 end

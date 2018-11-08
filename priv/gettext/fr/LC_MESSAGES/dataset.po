@@ -10,72 +10,53 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 
-#: lib/transport_web/templates/dataset/form.html.eex:30
 msgid "Annual"
 msgstr "Annuelle"
 
-#: lib/transport_web/templates/dataset/form.html.eex:27
 msgid "Bimonthly"
 msgstr "Bimensuelle"
 
-#: lib/transport_web/templates/dataset/form.html.eex:38
 msgid "Description of the dataset"
 msgstr "Description du jeu de données"
 
-#: lib/transport_web/templates/dataset/form.html.eex:28
 msgid "Monthly"
 msgstr "Mensuelle"
 
-#: lib/transport_web/templates/dataset/form.html.eex:29
 msgid "Semi annual"
 msgstr "Bi-annuelle"
 
-#: lib/transport_web/templates/dataset/form.html.eex:25
 msgid "Semi weekly"
 msgstr "Semi hebdomadaire"
 
-#: lib/transport_web/templates/dataset/form.html.eex:14
 msgid "Title of the dataset"
 msgstr "Titre"
 
-#: lib/transport_web/templates/dataset/form.html.eex:31
 msgid "Unknown"
 msgstr "Inconnue"
 
-#: lib/transport_web/templates/dataset/form.html.eex:22
 msgid "Update frequency of the dataset"
 msgstr "Fréquence de mise à jour du jeu de données"
 
-#: lib/transport_web/templates/dataset/form.html.eex:26
 msgid "Weekly"
 msgstr "Hebdomadaire"
 
-#: lib/transport_web/templates/dataset/form.html.eex:45
 msgid "Dataset file"
 msgstr "Fichier"
 
-#: lib/transport/datagouvfr/client/datasets.ex:27
-#: lib/transport/datagouvfr/client/resources.ex:22
 msgid "A description is needed"
 msgstr "Vous devez fournir une description"
 
-#: lib/transport/datagouvfr/client/datasets.ex:47
-#: lib/transport/datagouvfr/client/resources.ex:27
 msgid "A title is needed"
 msgstr "Vous devez fournir un titre"
 
-#: lib/transport/datagouvfr/client/datasets.ex:42
 msgid "An organization is needed"
 msgstr "Une organisation est requise"
 
-#: lib/transport/data_improvement/commands/upload_dataset_file.ex:66
 msgid "A dataset file is needed"
 msgstr "Un fichier contenant un jeu de données est requis"
 
-#: lib/transport/data_improvement/commands/upload_dataset_file.ex:48
 msgid "Invalid dataset identifier"
 msgstr "L’identificateur du jeu de données n’est pas valide"
 
-#: lib/transport_web/controllers/dataset_controller.ex:71
 msgid "Your modified version of this dataset has beed added"
 msgstr "Votre version a été ajoutée"
