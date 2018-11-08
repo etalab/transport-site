@@ -3,6 +3,11 @@ defmodule TransportWeb.BackofficeController do
   alias Transport.{ImportDataService, ReusableData}
   require Logger
 
+  @dataset_types [
+    {dgettext("backoffice", "transport static"), "transport-statique"},
+    {dgettext("backoffice", "carsharing areas"), "aires-covoiturage"}
+  ]
+
   defp region_names do
     :mongo
     |> Mongo.find("regions", %{}, pool:  DBConnection.Poolboy)
@@ -27,6 +32,7 @@ defmodule TransportWeb.BackofficeController do
     conn
     |> assign(:regions, region_names())
     |> assign(:datasets, datasets)
+    |> assign(:dataset_types, @dataset_types)
     |> render("index.html")
   end
 
