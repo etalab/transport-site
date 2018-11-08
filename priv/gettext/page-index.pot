@@ -10,35 +10,35 @@
 msgid ""
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:56
+#: lib/transport_web/templates/page/index.html.eex:55
 msgid "Publish my data"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:80
+#: lib/transport_web/templates/page/index.html.eex:79
 msgid "Reuse data"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:93
+#: lib/transport_web/templates/page/index.html.eex:92
 msgid "Email address"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:92
+#: lib/transport_web/templates/page/index.html.eex:91
 msgid "Subscribe to our email newsletter to receive update"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:102
+#: lib/transport_web/templates/page/index.html.eex:101
 msgid "SUBSCRIBE"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:109
+#: lib/transport_web/templates/page/index.html.eex:108
 msgid "Join us on Slack"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:36
+#: lib/transport_web/templates/page/index.html.eex:35
 msgid "Download presentation"
 msgstr ""
 
-#: lib/transport_web/templates/page/index.html.eex:60
+#: lib/transport_web/templates/page/index.html.eex:59
 msgid "Publication guide"
 msgstr ""
 

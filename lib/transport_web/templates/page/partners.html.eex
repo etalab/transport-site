@@ -1,16 +1,17 @@
 <section class="single-page section section-grey">
 <div class="container">
 <article class="panel">
-<markdown>
-# Qui sont les réutilisateurs de vos données ?
+<h1> Qui sont les réutilisateurs de vos données ?</h1>
 
+<p>
 Les réutilisateurs suivants déploient leurs services de mobilité sur les territoires des acteurs du transport ayant ouvert leurs données. Ainsi, de plus en plus d’usagers peuvent en profiter et bénéficier d’une information voyageur plus complète lors de leurs déplacements.
+</p>
 
 <table>
   <tr>
-    <td>Réutilisateur</td>
-    <td>Description</td>
-    <td>Couverture</td>
+    <th>Réutilisateur</th>
+    <th>Description</th>
+    <th>Couverture</th>
   </tr>
   <tr>
     <td>MyBus</td>
@@ -55,15 +56,17 @@ Les réutilisateurs suivants déploient leurs services de mobilité sur les terr
 </table>
 
 
-**Autres partenaires**
+<h2>Autres partenaires</h2>
 
+<p>
 Les partenaires suivants ont contribué à l’ouverture des données transport.
+</p>
 
 <table>
   <tr>
-    <td>Partenaire</td>
-    <td>Description</td>
-    <td>Contribution</td>
+    <th>Partenaire</th>
+    <th>Description</th>
+    <th>Contribution</th>
   </tr>
   <tr>
     <td>Blablacar</td>
@@ -77,5 +80,7 @@ Les partenaires suivants ont contribué à l’ouverture des données transport.
   </tr>
 </table>
 
-
-Vous êtes un réutilisateur de données référencées sur ce site et vous souhaitez apparaître sur cette page ? Contactez-nous à [contact@transport.beta.gouv.fr](mailto:contact@transport.beta.gouv.fr). 
+<p>
+Vous êtes un réutilisateur de données référencées sur ce site et vous souhaitez apparaître sur cette page ?
+Contactez-nous à <a href="mailto:contact@transport.beta.gouv.fr">contact@transport.beta.gouv.fr</a>. 
+</p>
