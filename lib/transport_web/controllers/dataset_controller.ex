@@ -116,6 +116,7 @@ defmodule TransportWeb.DatasetController do
 
   def by_aom(%Plug.Conn{} = conn, %{"commune" => commune}), do: filtered_datasets(conn, %{commune_principale: commune})
   def by_region(%Plug.Conn{} = conn, %{"region" => region}), do: filtered_datasets(conn, %{region: region})
+  def by_type(%Plug.Conn{} = conn, %{"type" => type}), do: filtered_datasets(conn, %{type: type})
 
   defp get_form_action_function(conn) do
     if get_session(conn, :linked_dataset_id) == nil do
