@@ -1,0 +1,198 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+
+<<<<<<< HEAD
+#: lib/transport_web/templates/backoffice/_dataset.html.eex:17
+#: lib/transport_web/templates/dataset/_sidebar_common.html.eex:7
+#: lib/transport_web/templates/dataset/details.html.eex:38
+#: lib/transport_web/templates/dataset/index.html.eex:57
+msgid "Download"
+msgstr "Télécharger"
+
+#: lib/transport_web/templates/dataset/_sidebar_common.html.eex:31
+#: lib/transport_web/templates/dataset/index.html.eex:25
+msgid "Licence"
+msgstr "License"
+
+#: lib/transport_web/templates/backoffice/_dataset.html.eex:10
+#: lib/transport_web/templates/dataset/_sidebar_common.html.eex:16
+#: lib/transport_web/templates/dataset/index.html.eex:48
+msgid "See on data.gouv.fr"
+msgstr "Voir sur data.gouv.fr"
+
+#: lib/transport_web/templates/dataset/_sidebar_common.html.eex:24
+#: lib/transport_web/templates/dataset/index.html.eex:40
+msgid "Territory"
+msgstr "Territoire"
+
+#: lib/transport_web/templates/dataset/_sidebar_common.html.eex:38
+#: lib/transport_web/templates/dataset/index.html.eex:32
+=======
+msgid "Download"
+msgstr "Télécharger"
+
+msgid "Licence"
+msgstr "License"
+
+msgid "See on data.gouv.fr"
+msgstr "Voir sur data.gouv.fr"
+
+msgid "Territory"
+msgstr "Territoire"
+
+>>>>>>> Suppression des commentaires dans les fichiers .pot, .po
+msgid "Format"
+msgstr ""
+
+msgid "Status"
+msgstr "État"
+
+msgid "Invalid"
+msgstr "Invalide"
+
+msgid "Valid"
+msgstr "Valide"
+
+msgid "Valid datasets available"
+msgstr "Jeux de données valides disponibles"
+
+msgid "Last update"
+msgstr "Dernière mise à jour"
+
+msgid "Publication date"
+msgstr "Date de publication"
+
+msgid "Tags"
+msgstr "Mots clefs"
+
+msgid "Update frequency"
+msgstr "Fréquence de mises à jour"
+
+msgid "unknown"
+msgstr "Inconnu"
+
+msgid "punctual"
+msgstr "Ponctuelle"
+
+msgid "hourly"
+msgstr "Toutes les heures"
+
+msgid "fourTimesADay"
+msgstr "Quatre fois par jour"
+
+msgid "threeTimesADay"
+msgstr "Trois fois par jour"
+
+msgid "semidaily"
+msgstr "Deux fois par jour"
+
+msgid "daily"
+msgstr "Quotidienne"
+
+msgid "fourTimesAWeek"
+msgstr "Quatre fois par semaine"
+
+msgid "threeTimesAWeek"
+msgstr "Trois fois par semaine"
+
+msgid "semiweekly"
+msgstr "Deux fois par semaine"
+
+msgid "weekly"
+msgstr "Hebdomadaire"
+
+msgid "biweekly"
+msgstr "Toutes les deux semaines"
+
+msgid "threeTimesAMonth"
+msgstr "Trois fois par mois"
+
+msgid "semimonthly"
+msgstr "Deux fois par mois"
+
+msgid "monthly"
+msgstr "Mensuelle"
+
+msgid "bimonthly"
+msgstr "Bimestrielle"
+
+msgid "quarterly"
+msgstr "Trimestrielle"
+
+msgid "threeTimesAYear"
+msgstr "Trois fois par an"
+
+msgid "biannual"
+msgstr "Semestrielle"
+
+msgid "annual"
+msgstr "Annuelle"
+
+msgid "biennial"
+msgstr "Biennale"
+
+msgid "triennial"
+msgstr "Triennale"
+
+msgid "quinquennial"
+msgstr "Quinquennale"
+
+msgid "irregular"
+msgstr "Sans régularité"
+
+msgid "Timetable begin"
+msgstr "Début de validité des horaires"
+
+msgid "Timetable end"
+msgstr "Fin de validité des horaires"
+
+msgid "Number of lines"
+msgstr "Nombre de lignes"
+
+msgid "Number of stop areas"
+msgstr "Nombre de zones d’arrêt"
+
+msgid "Number of stop points"
+msgstr "Nombre de points d’arrêts"
+
+msgid "Networks"
+msgstr "Réseaux"
+
+msgid "Modes"
+msgstr ""
+
+msgid "tramway"
+msgstr "Tramway"
+
+msgid "subway"
+msgstr "Métro"
+
+msgid "rail"
+msgstr "Chemin de fer"
+
+msgid "bus"
+msgstr "Bus"
+
+msgid "ferry"
+msgstr "Ferry"
+
+msgid "cable_car"
+msgstr "Tramway à cable"
+
+msgid "gondola"
+msgstr "Télécabine"
+
+msgid "funicular"
+msgstr "Funiculaire"
+
+msgid "No dataset found"
+msgstr "Aucun jeu de données trouvé"

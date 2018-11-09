@@ -1,16 +1,15 @@
-defmodule Transport.Mixfile do
+defmodule Transportsite.Mixfile do
   use Mix.Project
 
   def project do
     [
-      app: :transport,
+      app: :transportsite,
       version: "0.0.1",
-      elixir: "~> 1.6.1",
+      elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env),
-      gettext: [{:write_reference_comments, false}],
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
-      build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
+      aliases: aliases(),
       deps: deps()
     ]
   end
@@ -20,17 +19,8 @@ defmodule Transport.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Transport.Application, []},
-      extra_applications: [
-        :faker,
-        :logger,
-        :mime,
-        :mongodb,
-        :oauth2,
-        :poolboy,
-        :scrivener,
-        :scrivener_html
-      ]
+      mod: {Transportsite.Application, []},
+      extra_applications: [:logger, :runtime_tools]
     ]
   end
 
@@ -43,34 +33,28 @@ defmodule Transport.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:cowboy, "~> 1.0"},
-      {:csv, "~> 2.0.0"},
-      {:earmark, "~> 1.2"},
-      {:exconstructor, "~> 1.1"},
-      {:faker, "~> 0.10"},
-      {:gettext, "~> 0.11"},
-      {:httpoison, "~> 0.13"},
-      {:ja_serializer, "~> 0.12"},
-      {:mime, "~> 1.1"},
-      {:mongodb, "~> 0.4"},
-      {:oauth2, "~> 0.9"},
-      {:phoenix, "~> 1.3"},
-      {:phoenix_html, "~> 2.10"},
+      {:phoenix, "~> 1.3.4"},
       {:phoenix_pubsub, "~> 1.0"},
-      {:poolboy, "~> 1.5"},
-      {:recon, "~> 2.3"},
-      {:uuid, "~> 1.1"},
-      {:vex, "~> 0.6"},
-      {:quantum, "~> 2.3"},
-      {:timex, "~> 3.0"},
-      {:scrivener, "~> 2.0"},
-      {:scrivener_html, "~> 1.7"},
-      {:scrivener_list, "~> 1.0"},
+      {:phoenix_ecto, "~> 3.2"},
+      {:postgrex, ">= 0.0.0"},
+      {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
-      {:exvcr, "~> 0.8", only: :test},
-      {:hound, "~> 1.0", only: :test},
-      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
-      {:ex_guard, "~> 1.3", only: :dev}
+      {:gettext, "~> 0.11"},
+      {:cowboy, "~> 1.0"}
+    ]
+  end
+
+  # Aliases are shortcuts or tasks specific to the current project.
+  # For example, to create, migrate and run the seeds file at once:
+  #
+  #     $ mix ecto.setup
+  #
+  # See the documentation for `Mix` for more info on aliases.
+  defp aliases do
+    [
+      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+      "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "test": ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end
 end

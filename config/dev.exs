@@ -6,16 +6,13 @@ use Mix.Config
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
-config :transport, TransportWeb.Endpoint,
-  http: [port: 5000],
-  debug_errors: false,
-  catch_errors: true,
+config :transportsite, TransportsiteWeb.Endpoint,
+  http: [port: 4000],
+  debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  watchers: [
-    "mix": ["guard"],
-    "npm": ["run", "--prefix", "client", "watch"]
-  ]
+  watchers: [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin",
+                    cd: Path.expand("../assets", __DIR__)]]
 
 # ## SSL Support
 #
@@ -33,15 +30,14 @@ config :transport, TransportWeb.Endpoint,
 # configured to run both http and https servers on
 # different ports.
 
-# Watch static files and templates for browser reloading.
-config :transport, TransportWeb.Endpoint,
+# Watch static and templates for browser reloading.
+config :transportsite, TransportsiteWeb.Endpoint,
   live_reload: [
-    url: "ws://127.0.0.1:5000",
     patterns: [
       ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
       ~r{priv/gettext/.*(po)$},
-      ~r{lib/transport_web/views/.*(ex)$},
-      ~r{lib/transport_web/templates/.*(eex)$}
+      ~r{lib/transportsite_web/views/.*(ex)$},
+      ~r{lib/transportsite_web/templates/.*(eex)$}
     ]
   ]
 
@@ -52,5 +48,11 @@ config :logger, :console, format: "[$level] $message\n"
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
-# MongoDB configuration.
-config :mongodb, url: System.get_env() |> Map.get("MONGODB_URL", "mongodb://localhost/transport")
+# Configure your database
+config :transportsite, Transportsite.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  username: "postgres",
+  password: "postgres",
+  database: "transportsite_dev",
+  hostname: "localhost",
+  pool_size: 10

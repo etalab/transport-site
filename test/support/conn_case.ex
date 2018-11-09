@@ -1,4 +1,4 @@
-defmodule TransportWeb.ConnCase do
+defmodule TransportsiteWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -19,15 +19,19 @@ defmodule TransportWeb.ConnCase do
     quote do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
-      import TransportWeb.Router.Helpers
+      import TransportsiteWeb.Router.Helpers
 
       # The default endpoint for testing
-      @endpoint TransportWeb.Endpoint
+      @endpoint TransportsiteWeb.Endpoint
     end
   end
 
 
-  setup _tags do
+  setup tags do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Transportsite.Repo)
+    unless tags[:async] do
+      Ecto.Adapters.SQL.Sandbox.mode(Transportsite.Repo, {:shared, self()})
+    end
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 

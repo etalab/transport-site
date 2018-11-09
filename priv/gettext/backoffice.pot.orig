@@ -1,0 +1,108 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+<<<<<<< HEAD
+msgid ""
+msgstr ""
+
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:18
+msgid "Add"
+msgstr ""
+
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:2
+msgid "Add a dataset"
+msgstr ""
+
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:16
+=======
+msgid "Add"
+msgstr ""
+
+msgid "Add a dataset"
+msgstr ""
+
+>>>>>>> Suppression des commentaires dans les fichiers .pot, .po
+msgid "INSEE Code"
+msgstr ""
+
+msgid "Valid datasets available"
+msgstr ""
+
+<<<<<<< HEAD
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:13
+msgid "data.gouv.fr id"
+msgstr ""
+
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:14
+msgid "name"
+msgstr ""
+
+#: lib/transport_web/controllers/backoffice_controller.ex:60
+=======
+msgid "data.gouv.fr id"
+msgstr ""
+
+msgid "name"
+msgstr ""
+
+>>>>>>> Suppression des commentaires dans les fichiers .pot, .po
+msgid "Dataset added with success"
+msgstr ""
+
+msgid "Dataset not added"
+msgstr ""
+
+<<<<<<< HEAD
+#: lib/transport_web/controllers/backoffice_controller.ex:7
+#: lib/transport_web/templates/backoffice/_form_dataset.html.eex:17
+msgid "transport static"
+msgstr ""
+
+#: lib/transport_web/controllers/backoffice_controller.ex:69
+msgid "Dataset imported with success"
+msgstr ""
+
+#: lib/transport_web/controllers/backoffice_controller.ex:70
+msgid "Dataset not imported"
+msgstr ""
+
+#: lib/transport_web/controllers/backoffice_controller.ex:78
+msgid "Could not delete dataset"
+msgstr ""
+
+#: lib/transport_web/controllers/backoffice_controller.ex:78
+=======
+msgid "transport static"
+msgstr ""
+
+msgid "Dataset imported with success"
+msgstr ""
+
+msgid "Dataset not imported"
+msgstr ""
+
+msgid "Could not delete dataset"
+msgstr ""
+
+>>>>>>> Suppression des commentaires dans les fichiers .pot, .po
+msgid "Dataset deleted"
+msgstr ""
+
+#, elixir-format
+<<<<<<< HEAD
+#: lib/transport_web/controllers/backoffice_controller.ex:60
+=======
+>>>>>>> Suppression des commentaires dans les fichiers .pot, .po
+msgid "Could not add dataset"
+msgstr ""
+
+#, elixir-format
+#: lib/transport_web/controllers/backoffice_controller.ex:8
+msgid "carsharing areas"
+msgstr ""

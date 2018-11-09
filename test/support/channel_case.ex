@@ -1,4 +1,4 @@
-defmodule TransportWeb.ChannelCase do
+defmodule TransportsiteWeb.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -21,12 +21,16 @@ defmodule TransportWeb.ChannelCase do
       use Phoenix.ChannelTest
 
       # The default endpoint for testing
-      @endpoint TransportWeb.Endpoint
+      @endpoint TransportsiteWeb.Endpoint
     end
   end
 
 
-  setup _tags do
+  setup tags do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Transportsite.Repo)
+    unless tags[:async] do
+      Ecto.Adapters.SQL.Sandbox.mode(Transportsite.Repo, {:shared, self()})
+    end
     :ok
   end
 
