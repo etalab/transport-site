@@ -46,8 +46,9 @@ defmodule Transport.ReusableData do
   @spec list_datasets(Map.t, Map.t) :: [%Dataset{}]
   def list_datasets([projection: projection]), do: list_datasets(%{}, projection)
   def list_datasets(%{} = query \\ %{}, %{} = projection \\ %{}) do
-    %{download_url: %{"$ne" => nil}}
-    |> Map.merge(query)
+    query
+    |> Map.take([:commune_principale, :region, :type, :"$text"])
+    |> Map.merge(%{download_url: %{"$ne" => nil}})
     |> query_datasets(projection)
   end
 
