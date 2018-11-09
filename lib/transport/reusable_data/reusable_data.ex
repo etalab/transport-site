@@ -43,8 +43,8 @@ defmodule Transport.ReusableData do
       "Leningrad metro dataset"
 
   """
-  def list_datasets([projection: projection]), do: list_datasets(%{}, projection)
   @spec list_datasets(Map.t, Map.t) :: [%Dataset{}]
+  def list_datasets([projection: projection]), do: list_datasets(%{}, projection)
   def list_datasets(%{} = query \\ %{}, %{} = projection \\ %{}) do
     %{download_url: %{"$ne" => nil}}
     |> Map.merge(query)
