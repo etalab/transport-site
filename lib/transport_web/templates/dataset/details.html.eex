@@ -4,7 +4,6 @@
       <%= render "_sidebar_common.html", dataset: @dataset, conn: @conn %>
       <%= TransportWeb.DatasetView.render_sidebar_from_type(@dataset) %>
       </div>
-      <a class="button button--fullwidth is-centered shortlist-publish" href="<%= user_path(@conn, :organizations, linked_dataset_id: @dataset.id) %>"><%= dgettext("page-dataset-details", "Publish a modified version dataset") %></a>
       <div class="dataset-details__followers">
           <dataset-followers
             dataset_id="<%= @dataset.id %>"
