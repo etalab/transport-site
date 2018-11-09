@@ -109,8 +109,11 @@ defmodule TransportWeb.DatasetController do
   end
 
   def filtered_datasets(%Plug.Conn{} = conn, %{} = query) do
+    config = make_pagination_config(query)
+    datasets = query |> ReusableData.list_datasets |> Scrivener.paginate(config)
+
     conn
-    |> assign(:datasets, ReusableData.list_datasets(query))
+    |> assign(:datasets, datasets)
     |> render("index.html")
   end
 
