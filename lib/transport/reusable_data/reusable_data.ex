@@ -29,8 +29,8 @@ defmodule Transport.ReusableData do
       []
 
   """
-  @spec search_datasets(String.t) :: [%Dataset{}]
-  def search_datasets(q) when is_binary(q), do: list_datasets(%{"$text": %{"$search" => q}})
+  @spec search_datasets(String.t, Map.t) :: [%Dataset{}]
+  def search_datasets(q, %{} = projection \\ %{}) when is_binary(q), do: list_datasets(%{"$text": %{"$search" => q}}, projection)
 
   @doc """
   Returns the list of reusable datasets containing no validation errors.
@@ -43,11 +43,12 @@ defmodule Transport.ReusableData do
       "Leningrad metro dataset"
 
   """
-  @spec list_datasets(%{}) :: [%Dataset{}]
-  def list_datasets(%{} = query \\ %{}) do
+  def list_datasets([projection: projection]), do: list_datasets(%{}, projection)
+  @spec list_datasets(Map.t, Map.t) :: [%Dataset{}]
+  def list_datasets(%{} = query \\ %{}, %{} = projection \\ %{}) do
     %{download_url: %{"$ne" => nil}}
     |> Map.merge(query)
-    |> query_datasets
+    |> query_datasets(projection)
   end
 
   @doc """
@@ -126,10 +127,10 @@ defmodule Transport.ReusableData do
     end
   end
 
-  @spec query_datasets(Map.t) :: [%Dataset{}]
-  def query_datasets(%{} = query) do
+  @spec query_datasets(Map.t, Map.t) :: [%Dataset{}]
+  def query_datasets(%{} = query, %{} = projection \\ %{}) do
     :mongo
-    |> Mongo.find("datasets", query, pool: @pool)
+    |> Mongo.find("datasets", query, pool: @pool, projection: projection)
     |> Enum.to_list()
     |> Enum.map(&Dataset.new(&1))
   end

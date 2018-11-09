@@ -8,7 +8,8 @@ defmodule TransportWeb.StatsController do
     aoms = Mongo.aggregate(
       :mongo,
       "aoms",
-      [Dataset.aoms_lookup],
+      [Dataset.aoms_lookup,
+      %{"$project" => %{"properties" => %{"liste_aom_Nouvelles régions" => 1, "liste_aom_Population Totale 2014" => 1}}}],
       pool: DBConnection.Poolboy
     )
     aoms_with_datasets = aoms |> Enum.filter(&(has_dataset?(&1) || is_bretagne?(&1)))
@@ -16,7 +17,8 @@ defmodule TransportWeb.StatsController do
     regions = Mongo.aggregate(
       :mongo,
       "regions",
-      [Dataset.regions_lookup],
+      [Dataset.regions_lookup,
+      %{"$project" => %{"properties" => 1}}],
       pool: DBConnection.Poolboy
     )
     regions_completed = regions |> Enum.filter(&is_completed?/1)
@@ -33,7 +35,7 @@ defmodule TransportWeb.StatsController do
       |> Float.round(2)
 
     render(conn, "index.html",
-     nb_datasets: Enum.count(ReusableData.list_datasets),
+     nb_datasets: Enum.count(ReusableData.list_datasets(projection: %{"_id" => 1})),
      nb_aoms: Enum.count(aoms),
      nb_aoms_with_data: aoms_with_datasets |> Enum.count,
      nb_regions: Enum.count(regions),

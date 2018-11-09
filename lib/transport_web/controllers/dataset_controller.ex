@@ -7,7 +7,7 @@ defmodule TransportWeb.DatasetController do
 
   def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do
     config = make_pagination_config(params)
-    datasets = q |> ReusableData.search_datasets |> Scrivener.paginate(config)
+    datasets = q |> ReusableData.search_datasets(projection: %{"validations" => 0}) |> Scrivener.paginate(config)
 
     conn
     |> assign(:datasets, datasets)
@@ -17,7 +17,7 @@ defmodule TransportWeb.DatasetController do
 
   def index(%Plug.Conn{} = conn, params) do
     config = make_pagination_config(params)
-    datasets = ReusableData.list_datasets |> Scrivener.paginate(config)
+    datasets = ReusableData.list_datasets(projection: %{"validations" => 0}) |> Scrivener.paginate(config)
 
     conn
     |> assign(:datasets, datasets)
@@ -110,7 +110,7 @@ defmodule TransportWeb.DatasetController do
 
   def filtered_datasets(%Plug.Conn{} = conn, %{} = query) do
     config = make_pagination_config(query)
-    datasets = query |> ReusableData.list_datasets |> Scrivener.paginate(config)
+    datasets = query |> ReusableData.list_datasets(projection: %{"validations" => 0}) |> Scrivener.paginate(config)
 
     conn
     |> assign(:datasets, datasets)
