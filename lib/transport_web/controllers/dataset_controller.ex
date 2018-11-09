@@ -4,22 +4,21 @@ defmodule TransportWeb.DatasetController do
   alias Transport.ReusableData
   require Logger
 
-  def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do
+  def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params)
+
+  def list_datasets(%Plug.Conn{} = conn, %{} = params) do
     config = make_pagination_config(params)
-    datasets = q |> ReusableData.search_datasets |> Scrivener.paginate(config)
+    datasets =
+        params
+        |> case do
+          %{"q" => q} -> ReusableData.search_datasets(q, %{:validations => 0})
+          _ -> ReusableData.list_datasets(params, %{:validations => 0})
+        end
+        |> Scrivener.paginate(config)
 
     conn
     |> assign(:datasets, datasets)
-    |> assign(:q, q)
-    |> render("index.html")
-  end
-
-  def index(%Plug.Conn{} = conn, params) do
-    config = make_pagination_config(params)
-    datasets = ReusableData.list_datasets |> Scrivener.paginate(config)
-
-    conn
-    |> assign(:datasets, datasets)
+    |> assign(:q, Map.get(params, "q"))
     |> render("index.html")
   end
 
@@ -39,16 +38,7 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  def filtered_datasets(%Plug.Conn{} = conn, %{} = query) do
-    config = make_pagination_config(query)
-    datasets = query |> ReusableData.list_datasets |> Scrivener.paginate(config)
-
-    conn
-    |> assign(:datasets, datasets)
-    |> render("index.html")
-  end
-
-  def by_aom(%Plug.Conn{} = conn, %{"commune" => commune}), do: filtered_datasets(conn, %{commune_principale: commune})
-  def by_region(%Plug.Conn{} = conn, %{"region" => region}), do: filtered_datasets(conn, %{region: region})
-  def by_type(%Plug.Conn{} = conn, %{"type" => type}), do: filtered_datasets(conn, %{type: type})
+  def by_aom(%Plug.Conn{} = conn, %{"commune" => commune}), do: list_datasets(conn, %{commune_principale: commune})
+  def by_region(%Plug.Conn{} = conn, %{"region" => region}), do: list_datasets(conn, %{region: region})
+  def by_type(%Plug.Conn{} = conn, %{"type" => type}), do: list_datasets(conn, %{type: type})
 end
