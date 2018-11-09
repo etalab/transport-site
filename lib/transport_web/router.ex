@@ -68,18 +68,6 @@ defmodule TransportWeb.Router do
       post "/datasets/:id/_delete", BackofficeController, :delete
     end
 
-    scope "/user" do
-      pipe_through [:authentication_required]
-      get "/organizations/", UserController, :organizations
-      get "/organizations/form", UserController, :organization_form
-      post "/organizations/_create", UserController, :organization_create
-      get "/organizations/:id/datasets/", UserController, :organization_datasets
-      get "/organizations/:id/datasets/new", DatasetController, :new
-      post "/organizations/:organization/datasets/_create", DatasetController, :create
-      post "/organizations/:organization/datasets/_create_community_resource", DatasetController, :create_community_resource
-      get "/datasets/:id/_add", UserController, :add_badge_dataset
-    end
-
     # Authentication
 
     scope "/login" do
