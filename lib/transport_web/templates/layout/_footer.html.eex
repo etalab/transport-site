@@ -1,11 +1,25 @@
-<footer class="footer" role="contentinfo">
-  <footer-help email_address='<%= gettext("Email address") %>'
-    send_email='<%= gettext("Send email") %>''
-    mail_sent='<%= gettext("Your email has been sent, we will contact you soon") %>'
-    mail_error='<%= gettext("There has been an error, try again later") %>''
-    ask_for_help='<%= gettext("Ask for help") %>'
-    close='<%= gettext("Close") %>'>
-  </footer-help>
+<footer class="footer" role="contentinfo" id="footer">
+
+        <a href="#mail_form" >
+          <div class="footer--on"><i class="fas icon--envelope"></i></div>
+        </a>
+
+      <div class="modal__backdrop" id="mail_form">
+        <div class="footer__contact">
+            <a class="footer__contact--close" href="#">
+              <i class="fas icon--times-circle"></i>
+            </a>
+
+            <h3>Contact</h3>
+
+            <%= form_for @conn, contact_path(@conn, :send_mail), fn f -> %>
+              <%= email_input(f, :email, placeholder: gettext("Email address")) %>
+              <%= textarea(f, :demande, placeholder: gettext("Ask for help")) %>
+              <%= submit gettext("Send email") %>
+            <% end %>
+        </div>
+      </div>
+
   <div class="container">
     <div class="footer__logo">
       <%= link(img_tag("/images/logo-footer.svg", alt: "transport.data.gouv.fr"), to: "/") %>
