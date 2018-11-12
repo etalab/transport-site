@@ -9,7 +9,13 @@ defmodule TransportWeb.StatsController do
       :mongo,
       "aoms",
       [Dataset.aoms_lookup,
-      %{"$project" => %{"properties" => %{"liste_aom_Nouvelles régions" => 1, "liste_aom_Population Totale 2014" => 1}}}],
+      %{
+        "$project" => %{
+          "datasets" => 1,
+          "properties" => %{"liste_aom_Nouvelles régions" => 1, "liste_aom_Population Totale 2014" => 1}
+          }
+        }
+      ],
       pool: DBConnection.Poolboy
     )
     aoms_with_datasets = aoms |> Enum.filter(&(has_dataset?(&1) || is_bretagne?(&1)))
