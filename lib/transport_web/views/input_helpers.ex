@@ -13,11 +13,13 @@ defmodule TransportWeb.InputHelpers do
       import Phoenix.HTML.Tag
       import Phoenix.HTML.Format
       import Phoenix.HTML.Form, except: [
-        text_input: 3,
+        email_input: 3,
         form_for: 3, form_for: 4,
         select: 3, select: 4,
         search_input: 3,
-        submit: 1, submit: 2
+        submit: 1, submit: 2,
+        text_input: 3,
+        textarea: 3
       ]
     end
   end
@@ -69,5 +71,13 @@ defmodule TransportWeb.InputHelpers do
 
   def text_input(form, field, opts \\ []) do
     form_group(Form.text_input(form, field, opts))
+  end
+
+  def email_input(form, field, opts \\ []) do
+    form_group(Form.email_input(form, field, opts))
+  end
+
+  def textarea(form, field, opts \\ []) do
+    form_group(Form.textarea(form, field, opts))
   end
 end

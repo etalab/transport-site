@@ -5,3 +5,89 @@
 .footer__links li + li {
   margin-left: 1em;
 }
+
+.footer--on {
+  background-color: $blue;
+  border-radius: 50px;
+  bottom: 1em;
+  color: $white;
+  font-size: 1.3em;
+  position: fixed;
+  right: 1em;
+  text-align: center;
+  z-index: 9;
+  padding: 0.5em;
+  width: 50px;
+  height: 50px;
+}
+
+.footer__contact {
+  color: $blue;
+  background-color: $background-grey;
+  border: 1px solid $border-active;
+  bottom: 1em;
+  padding: 1em;
+  position: fixed;
+  right: 1em;
+  width: 10%;
+  z-index: 10000;
+
+  textarea {
+    height: 20em;
+  }
+
+  form {
+    width: 100%;
+  }
+
+  h3 {
+    margin: 10px;
+  }
+}
+
+.footer__contact--close {
+  float: right;
+  font-size: 1.3em;
+
+  &:hover {
+    color: $dark-blue;
+  }
+}
+
+@include media-desktop-up {
+    .footer__contact {
+       width: 30em;
+    }
+
+    .footer__alwayson {
+       bottom: 2.5em;
+    }
+
+    .footer__contact {
+       bottom: 2.5em;
+    }
+}
+
+.modal__backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, .5);
+  height: 100%;
+  width: 100%;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  display: none;
+  z-index: 10;
+}
+
+/* no js modal */
+.modal__backdrop:target {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
