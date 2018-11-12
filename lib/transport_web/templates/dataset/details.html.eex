@@ -20,7 +20,7 @@
       <% end %>
       <h1><%= @dataset.title %></h1>
       <div class="dataset-detail__markdown">
-        <markdown content="<%= @dataset.description %>"></markdown>
+        <%= raw Earmark.as_html!(dataset.description) %>
       </div>
       <div class="dataset__use-terms">
         <h2>Conditions d'utilisation</h2>
