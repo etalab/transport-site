@@ -17,10 +17,6 @@ defmodule TransportWeb.PageController do
     |> render("login.html")
   end
 
-  def search_organizations(conn, _params) do
-    render(conn, "search_organizations.html")
-  end
-
   def single_page(conn, %{"page" => page}) do
     conn
     |> assign(:page, page <> ".html")
