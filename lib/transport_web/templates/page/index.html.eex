@@ -45,7 +45,7 @@
                         <i class="icon icon--open" aria-hidden="true"></i>
                         <%= dgettext("page-index", "Publish my data") %>
                     </a>
-                    <a class="button button--fullwidth hero__link--book" href="<%= page_path @conn, :guide %>" role="link">
+                    <a class="button button--fullwidth hero__link--book" href="<%= page_path @conn, :single_page, "guide" %>" role="link">
                         <i class="icon icon--book" aria-hidden="true"></i>
                         <%= dgettext("page-index", "Publication guide") %>
                     </a>

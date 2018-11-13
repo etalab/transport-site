@@ -56,3 +56,7 @@ import_config "mailjet.exs"
 import_config "mongodb.exs"
 import_config "mailchimp.exs"
 import_config "#{Mix.env}.exs"
+
+# Allow to have Markdown templates
+config :phoenix, :template_engines,
+  md: PhoenixMarkdown.Engine

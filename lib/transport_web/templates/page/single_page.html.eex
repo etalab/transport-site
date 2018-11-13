@@ -1,0 +1,7 @@
+<section class="single-page section section-grey">
+<div class="container">
+<article class="panel">
+  <%= render(@page) %>
+</article>
+</div>
+</section>

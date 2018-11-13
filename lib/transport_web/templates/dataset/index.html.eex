@@ -62,11 +62,13 @@
                 <% end %>
               </div>
             </div>
+            <%= if dataset.description do %>
             <div class="shortlist-content">
               <div class="shortlist-description">
-                <markdown content="<%= dataset.description %>"></markdown>
+                <%= raw Earmark.as_html!(dataset.description) %>
               </div>
             </div>
+            <% end %>
           </div>
         </div>
       <% end %>
