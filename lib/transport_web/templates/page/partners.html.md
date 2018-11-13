@@ -1,11 +1,6 @@
-<section class="single-page section section-grey">
-<div class="container">
-<article class="panel">
-<h1> Qui sont les réutilisateurs de vos données ?</h1>
+# Qui sont les réutilisateurs de vos données ?
 
-<p>
 Les réutilisateurs suivants déploient leurs services de mobilité sur les territoires des acteurs du transport ayant ouvert leurs données. Ainsi, de plus en plus d’usagers peuvent en profiter et bénéficier d’une information voyageur plus complète lors de leurs déplacements.
-</p>
 
 <table>
   <tr>
@@ -56,11 +51,9 @@ Les réutilisateurs suivants déploient leurs services de mobilité sur les terr
 </table>
 
 
-<h2>Autres partenaires</h2>
+## Autres partenaires
 
-<p>
 Les partenaires suivants ont contribué à l’ouverture des données transport.
-</p>
 
 <table>
   <tr>
@@ -80,7 +73,5 @@ Les partenaires suivants ont contribué à l’ouverture des données transport.
   </tr>
 </table>
 
-<p>
 Vous êtes un réutilisateur de données référencées sur ce site et vous souhaitez apparaître sur cette page ?
-Contactez-nous à <a href="mailto:contact@transport.beta.gouv.fr">contact@transport.beta.gouv.fr</a>. 
-</p>
+Contactez-nous à <a href="mailto:contact@transport.beta.gouv.fr">contact@transport.beta.gouv.fr</a>.
