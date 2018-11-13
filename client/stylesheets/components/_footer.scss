@@ -21,6 +21,18 @@
   height: 50px;
 }
 
+.mail__button:hover a div {
+  width: auto;
+}
+
+.mail__button:hover a div i {
+  display: none;
+}
+
+.mail__button:hover a div:after {
+  content: 'Demandez de l\'aide';
+}
+
 .footer__contact {
   color: $blue;
   background-color: $background-grey;
