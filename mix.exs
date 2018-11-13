@@ -9,6 +9,9 @@ defmodule Transport.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env),
       gettext: [{:write_reference_comments, false}],
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
+      preferred_cli_env: [
+        vcr: :test, "vcr.delete": :test, "vcr.check": :test, "vcr.show": :test
+      ],
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       deps: deps()
@@ -49,7 +52,7 @@ defmodule Transport.Mixfile do
       {:exconstructor, "~> 1.1"},
       {:faker, "~> 0.10"},
       {:gettext, "~> 0.11"},
-      {:httpoison, "~> 0.13"},
+      {:httpoison, "~> 1.0"},
       {:ja_serializer, "~> 0.12"},
       {:mime, "~> 1.1"},
       {:mongodb, "~> 0.4"},
@@ -67,7 +70,7 @@ defmodule Transport.Mixfile do
       {:scrivener_html, "~> 1.7"},
       {:scrivener_list, "~> 1.0"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
-      {:exvcr, "~> 0.8", only: :test},
+      {:exvcr, "~> 0.10.3", only: :test},
       {:hound, "~> 1.0", only: :test},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:ex_guard, "~> 1.3", only: :dev}
