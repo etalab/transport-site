@@ -1,7 +1,3 @@
-<section class="single-page section section-grey">
-<article class="container article__container">
-<div class="panel">
-<markdown>
 # Mentions légales
 
 ## Éditeur
@@ -54,8 +50,3 @@ Les illustrations créées spécifiquement pour le site sont disponibles sous li
 ## Contact
 
 Vous pouvez nous contacter par courriel à contact@transport.beta.gouv.fr ou en utilisant le formulaire en pied de page.
-
-</markdown>
-</div>
-</article>
-</section>

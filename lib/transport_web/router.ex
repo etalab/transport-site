@@ -44,9 +44,6 @@ defmodule TransportWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    get "/legal", PageController, :legal
-    get "/guide", PageController, :guide
-    get "/faq", PageController, :faq
     get "/partners", PageController, :partners
     get "/search_organizations", PageController, :search_organizations
     get "/stats", StatsController, :index
@@ -77,6 +74,9 @@ defmodule TransportWeb.Router do
     end
 
     get "/logout", SessionController, :delete
+
+    # If nothing else matches, it’s probably a dummy single page
+    get "/:page", PageController, :single_page
   end
 
   scope "/api", TransportWeb do

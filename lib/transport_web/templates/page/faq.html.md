@@ -1,7 +1,3 @@
-<section class="single-page section section-grey">
-<div class="container">
-<article class="panel">
-<markdown>
 # Foire aux questions - Point d’Accès National
 
 ## Questions générales
@@ -171,8 +167,3 @@ Comme le recommande OpenData France, la source pourra être mentionnée de la fa
 ### …comment déclarer que je réutilise un jeu de données ?
 
 Pour l’heure, transport.data.gouv.fr ne permet pas aux réutilisateurs de déclarer l’utilisation d’un jeu de données. Cependant, il est possible de déclarer des réutilisations publiques sur la page data.gouv.fr associée à chaque jeu de données référencé sur le Point d’Accès National. Les réutilisations publiées sur [data.gouv.fr](https://www.data.gouv.fr/) peuvent être des fichiers téléchargées directement (cartes, tableaux, graphiques, etc) sur le site web ou des liens qui redirigent le visiteur à voir la réutilisation (vers le site web de start-ups, l’AppStore, GooglePlay, etc).
-
-</markdown>
-</article>
-</div>
-</section>

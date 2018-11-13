@@ -1,7 +1,3 @@
-<section class="single-page section section-grey">
-<div class="container">
-<article class="panel">
-<markdown>
 # Guide de publication des données statiques de transport collectif (lignes régulières)
 
 Ce guide s’adresse spécifiquement aux personnes souhaitant publier leurs données théoriques de transport collectif (points d’arrêts, lignes, tracés, tarifs, accessibilité et horaires théoriques).
@@ -66,8 +62,3 @@ Quelques points à retenir :
 * Mot clé : spécifiez « GTFS »,
 * Description : décrivez les spécificités du réseau et du fichier publié pour aider les réutilisateurs à faire bon usage de votre jeu de données,
 * Licence : nos recommandations sont la Licence **[ODbL](https://opendatacommons.org/licenses/odbl/summary/)** ou la **[Licence Ouverte Etalab]((https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf)**. Les fichiers publiés sous Licence Ouverte — plus permissive — seront référencés sous Licence ODbL + conditions d’utilisation sur le Point d’Accès National, selon le principe du « qui peut le plus peut le moins ».
-
-</markdown>
-</article>
-</div>
-</section>

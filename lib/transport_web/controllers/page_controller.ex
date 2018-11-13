@@ -21,19 +21,13 @@ defmodule TransportWeb.PageController do
     render(conn, "search_organizations.html")
   end
 
-  def legal(conn, _params) do
-    render(conn, "legal.html")
-  end
-
-  def guide(conn, _params) do
-    render(conn, "guide.html")
-  end
-
-  def faq(conn, _params) do
-    render(conn, "faq.html")
-  end
-
   def partners(conn, _params) do
     render(conn, "partners.html")
+  end
+
+  def single_page(conn, %{"page" => page}) do
+    conn
+    |> assign(:page, page <> ".html")
+    |> render("single_page.html")
   end
 end

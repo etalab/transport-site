@@ -41,7 +41,7 @@ config :transport, TransportWeb.Endpoint,
       ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
       ~r{priv/gettext/.*(po)$},
       ~r{lib/transport_web/views/.*(ex)$},
-      ~r{lib/transport_web/templates/.*(eex)$}
+      ~r{lib/transport_web/templates/.*(eex|md)$}
     ]
   ]
 

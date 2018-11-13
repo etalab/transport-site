@@ -59,6 +59,7 @@ defmodule Transport.Mixfile do
       {:oauth2, "~> 0.9"},
       {:phoenix, "~> 1.3"},
       {:phoenix_html, "~> 2.10"},
+      {:phoenix_markdown, "~> 1.0"},
       {:phoenix_pubsub, "~> 1.0"},
       {:poolboy, "~> 1.5"},
       {:recon, "~> 2.3"},
