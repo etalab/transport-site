@@ -22,14 +22,20 @@ defmodule TransportWeb.DatasetController do
     |> render("index.html")
   end
 
-  def details(%Plug.Conn{} = conn, %{"slug" => slug}) do
-    slug
+  def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
+    slug_or_id
     |> ReusableData.get_dataset
     |> case do
       nil ->
-        conn
-        |> put_status(:internal_server_error)
-        |> render(ErrorView, "500.html")
+        slug_or_id
+        |> ReusableData.get_dataset_slug
+        |> case do
+          nil ->
+            conn
+            |> put_status(:internal_server_error)
+            |> render(ErrorView, "500.html")
+          slug -> redirect(conn, to: dataset_path(conn, :details, slug))
+        end
       dataset ->
         conn
         |> assign(:dataset, dataset)
