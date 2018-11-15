@@ -23,13 +23,17 @@ defmodule TransportWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :api_authenticated do
-    plug :accepts, ["json"]
+  pipeline :authenticated do
     plug :fetch_session
     plug :fetch_flash
     plug :assign_current_user
     plug :assign_token
     plug :authentication_required
+  end
+
+  pipeline :api_authenticated do
+    plug :accepts, ["json"]
+    plug :authenticated
   end
 
   pipeline :admin_rights do
@@ -53,6 +57,11 @@ defmodule TransportWeb.Router do
       get "/aom/:commune", DatasetController, :by_aom
       get "/region/:region", DatasetController, :by_region
       get "/type/:type", DatasetController, :by_type
+
+      scope "/:dataset_id/followers/" do
+        pipe_through [:authenticated]
+        post "/", FollowerController, :create
+      end
     end
 
     scope "/backoffice" do
@@ -78,12 +87,6 @@ defmodule TransportWeb.Router do
   end
 
   scope "/api", TransportWeb do
-
-    scope "/datasets/:dataset_id/followers" do
-      pipe_through :api_authenticated
-      post "/", API.FollowerController, :create
-      delete "/", API.FollowerController, :delete
-    end
 
     scope "/discussions" do
       pipe_through :api_authenticated

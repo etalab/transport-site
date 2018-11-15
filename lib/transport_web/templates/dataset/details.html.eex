@@ -5,13 +5,16 @@
       <%= TransportWeb.DatasetView.render_sidebar_from_type(@dataset) %>
       </div>
       <div class="dataset-details__followers">
-          <dataset-followers
-            dataset_id="<%= @dataset.id %>"
-            site="<%= @site %>"
-            user_id="<%= if !is_nil(@current_user), do: @current_user["id"], else: nil %>"
-            subscribe_to_dataset="<%= dgettext("page-dataset-details", "Subscribe to dataset") %>"
-            unsubscribe_to_dataset="<%= dgettext("page-dataset-details", "Unsubscribe to dataset") %>"
-          ></dataset-followers>
+      <%= if @current_user do %>
+      <%= form_for @conn, follower_path(@conn, :create, @dataset.id),  fn f -> %>
+        <%= hidden_input f, :is_subscribed, value: @is_subscribed %>
+        <%= if @is_subscribed do %>
+          <%= submit dgettext("page-dataset-details", "Unsubscribe to dataset"), class: "button secondary" %>
+        <% else %>
+          <%= submit dgettext("page-dataset-details", "Subscribe to dataset") %>
+        <% end %>
+      <% end %>
+      <% end %>
       </div>
     </div>
     <div class="main-pane dataset-details__main-pane" id="description">
