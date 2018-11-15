@@ -13,4 +13,10 @@ defmodule TransportWeb.DatasetView do
       dataset: dataset
     )
   end
+
+  def format_date(date) do
+    date
+    |> Timex.parse!("{ISO:Extended}")
+    |> Timex.format!("{0D}/{0M}/{YYYY} à {h24}h{0m}")
+  end
 end

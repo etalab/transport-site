@@ -54,7 +54,8 @@ defmodule Transport.Datagouvfr.Client do
   def request(method, %Plug.Conn{} = conn, url, body, headers, opts) do
     client = get_client(conn)
     url = process_url(url)
-    opts = Keyword.put(opts, :timeout, 15_000)
+    opts = Keyword.put_new(opts, :timeout, 15_000)
+    opts = Keyword.put_new(opts, :follow_redirect, true)
     method
     |> Request.request(client, url, body, headers, opts)
     |> post_process_request()
@@ -72,6 +73,15 @@ defmodule Transport.Datagouvfr.Client do
       {:ok, %OAuth2.Response{status_code: 201, body: body}} -> {:ok, body}
       {:ok, %OAuth2.Response{status_code: _, body: body}} -> {:error, body}
       {:error, error} -> {:error, error}
+    end
+  end
+
+  def get_discussions(conn, id) do
+    conn
+    |> get_request("/discussions?for=#{id}", [], follow_redirect: true)
+    |> case do
+      {:ok, %{"data" => data}} -> data
+      _ -> []
     end
   end
 

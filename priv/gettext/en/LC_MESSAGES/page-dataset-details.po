@@ -96,3 +96,6 @@ msgstr "Reference to an unknown object"
 
 msgid "InvalidArchive"
 msgstr "Could not open the GTFS archive"
+
+msgid "You need to be connected to start a discussion"
+msgstr ""

@@ -20,12 +20,11 @@ defmodule TransportWeb.API.DiscussionController do
                               "title" => _title} = params) do
     post_discussion(conn, Map.put(params, "extras", nil))
   end
-
-  def post_discussion(conn, %{"id_" => id_, "comment" => comment}) do
+  def post_answer(conn, %{"id_" => id_, "comment" => comment}) do
     conn
     |> Discussions.post(id_, comment)
     |> case do
-      {:ok, body} -> render(conn, data: body)
+      {:ok, _} -> redirect(conn, to: dataset_path(conn, :index))
       {:error, error} -> render(conn, errors: [error])
     end
   end

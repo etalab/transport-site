@@ -96,3 +96,6 @@ msgstr ""
 
 msgid "InvalidArchive"
 msgstr ""
+
+msgid "You need to be connected to start a discussion"
+msgstr ""

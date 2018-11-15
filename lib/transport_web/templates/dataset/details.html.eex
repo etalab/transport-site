@@ -44,17 +44,24 @@
 
       <div class="dataset-details__discussions">
         <h2>Discussions</h2>
-        <discussions
-          datasetid="<%= @dataset.id %>"
-          site="<%= @site %>"
-          connected="<%= @current_user != nil %>"
-          posted_on="<%= dgettext("page-dataset-details", "Posted on") %>"
-          respond_comment="<%= dgettext("page-dataset-details", "Respond") %>"
-          post_discussion="<%= dgettext("page-dataset-details", "Begin a new conversation") %>"
-          title="<%= dgettext("page-dataset-details", "Title") %>"
-          connection_needed="<%= dgettext("page-dataset-details", "You need to be connected to post comments")%>"
-          type="null">
-        </discussions>
+        <%= render_many @discussions, Transport.DatsetView, "_discussion.html", as: :discussion, current_user: @current_user, conn: @conn %>
+
+        <%= if @current_user do %>
+          <a href="#new_discussion">
+            <%= dgettext("page-dataset-details", "Begin a new conversation") %>
+          </a>
+          <div id="new_discussion" class="discussion-modal">
+            <%= form_for @conn, discussion_path(@conn, :post_discussion), fn f -> %>
+              <%= text_input(f, :title, placeholder: dgettext("page-dataset-details", "Title") )%>
+              <%= textarea(f, :comment) %>
+              <%= submit dgettext("page-dataset-details", "Respond") %>
+            <% end %>
+          </div>
+        <% else %>
+          <span class="discussion-commment__connection-needed">
+            <%= dgettext("page-dataset-details", "You need to be connected to start a discussion")%>
+          </span>
+        <% end %>
       </div>
     </div>
   </div>
