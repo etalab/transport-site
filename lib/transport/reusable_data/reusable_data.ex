@@ -53,7 +53,7 @@ defmodule Transport.ReusableData do
   end
 
   @doc """
-  Return one dataset by id
+  Return one dataset by slug
 
   ## Examples
 
@@ -75,6 +75,15 @@ defmodule Transport.ReusableData do
     |> case do
       nil -> nil
       dataset -> Dataset.new(dataset)
+    end
+  end
+
+  def get_dataset_slug(id) do
+    :mongo
+    |> Mongo.find_one("datasets", %{id: id}, pool: @pool)
+    |> case do
+      nil -> nil
+      dataset -> dataset["slug"]
     end
   end
 
