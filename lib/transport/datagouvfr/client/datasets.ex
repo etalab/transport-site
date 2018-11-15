@@ -155,6 +155,39 @@ defmodule Transport.Datagouvfr.Client.Datasets do
     )
   end
 
+  @doc """
+  Get folowers of a dataset
+  """
+  @spec get_followers(%Plug.Conn{}, String.t) :: {atom, map}
+  def get_followers(%Plug.Conn{} = conn, dataset_id) do
+    get_request(
+      conn,
+      Path.join([@endpoint, dataset_id, "followers"])
+    )
+  end
+
+  @doc """
+  Is current_user subscribed to this dataset?
+  """
+  @spec get_followers(%Plug.Conn{}, String.t) :: {atom, map}
+  def current_user_subscribed?(%Plug.Conn{assigns: %{current_user: %{"id" => user_id}}} = conn, dataset_id) do
+    conn
+    |> get_followers(dataset_id)
+    |> current_user_subscribed?(user_id, conn)
+  end
+  def current_user_subscribed?(_, _), do: false
+  def current_user_subscribed?({:ok, %{"data" => data} = page}, user_id, conn) when is_list(data) do
+    Enum.any?(data,
+      &(&1["follower"]["id"] == user_id)
+    ) or current_user_subscribed?(page['next_page'], user_id, conn)
+  end
+  def current_user_subscribed?(page, user_id, conn) when is_binary(page) do
+    conn
+    |> get_request(page)
+    |> current_user_subscribed?(user_id, conn)
+  end
+  def current_user_subscribed?(_, _, _), do: false
+
   #private functions
 
   @spec add_tag(map, String.t) :: map
