@@ -99,3 +99,15 @@ msgstr "Impossible d’ouvrir l’archive GTFS"
 
 msgid "You need to be connected to start a discussion"
 msgstr "Vous devez être identifié pour commencer une discussion."
+
+msgid "Answer published"
+msgstr "Réponse publiée"
+
+msgid "New discussion started"
+msgstr "Nouvelle discussion commencée"
+
+msgid "Unable to publish the answer"
+msgstr "Impossible de publier la réponse"
+
+msgid "Unable to start a new discussion"
+msgstr "Impossible de commencer une nouvelle discussion"

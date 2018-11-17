@@ -99,3 +99,15 @@ msgstr "Could not open the GTFS archive"
 
 msgid "You need to be connected to start a discussion"
 msgstr ""
+
+msgid "Answer published"
+msgstr ""
+
+msgid "New discussion started"
+msgstr ""
+
+msgid "Unable to publish the answer"
+msgstr ""
+
+msgid "Unable to start a new discussion"
+msgstr ""
