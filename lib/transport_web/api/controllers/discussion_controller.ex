@@ -1,5 +1,6 @@
 defmodule TransportWeb.API.DiscussionController do
   use TransportWeb, :controller
+  require Logger
 
   alias Transport.Datagouvfr.Client.Discussions
 
@@ -12,7 +13,9 @@ defmodule TransportWeb.API.DiscussionController do
     |> case do
       {:ok, _} -> conn
       |> put_flash(:info, dgettext("page-dataset-details", "New discussion started"))
-    {:error, error} -> conn
+    {:error, error} ->
+      Logger.error("When starting a new discussion: #{error}")
+      conn
       |> put_flash(:error, dgettext("page-dataset-details", "Unable to start a new discussion"))
     end
     |> redirect(to: dataset_path(conn, :details, dataset_slug))
@@ -24,7 +27,9 @@ defmodule TransportWeb.API.DiscussionController do
     |> case do
       {:ok, _} -> conn
         |> put_flash(:info, dgettext("page-dataset-details", "Answer published"))
-      {:error, error} -> conn
+      {:error, error} ->
+        Logger.error("When publishing an answer: #{error}")
+        conn
         |> put_flash(:error, dgettext("page-dataset-details", "Unable to publish the answer"))
       end
     |> redirect(to: dataset_path(conn, :details, dataset_slug))

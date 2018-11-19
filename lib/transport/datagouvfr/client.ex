@@ -6,6 +6,7 @@ defmodule Transport.Datagouvfr.Client do
   alias OAuth2.Client, as: OAuth2Client
   alias OAuth2.{Error, Request, Response}
   alias Transport.Datagouvfr.Authentication
+  require Logger
 
   @base_url Application.get_env(:oauth2, Authentication)[:site] |> Path.join("/api/1/")
 
@@ -81,7 +82,9 @@ defmodule Transport.Datagouvfr.Client do
     |> get_request("/discussions?for=#{id}", [], follow_redirect: true)
     |> case do
       {:ok, %{"data" => data}} -> data
-      _ -> []
+      error ->
+        Logger.error("When fetching discussions for id #{id}: #{error}")
+        []
     end
   end
 
