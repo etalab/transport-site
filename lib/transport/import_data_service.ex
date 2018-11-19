@@ -142,8 +142,12 @@ defmodule Transport.ImportDataService do
       true
 
   """
-  def is_gtfs?(%{"format" => format}), do: is_gtfs?(format)
+  def is_gtfs?(%{"format" => format, "description" => description, "url" => url}) do
+    is_gtfs?(format) or is_gtfs?(description) or (is_gtfs?(url) and !is_json?(url) and !is_csv?(url))
+  end
   def is_gtfs?(format), do: format |> String.downcase |> String.contains?("gtfs")
+  def is_json?(url), do: url |> String.downcase |> String.contains?("json")
+  def is_csv?(url), do: url |> String.downcase |> String.contains?("csv")
 
   @doc """
   Is the ressource a zip file?
@@ -395,5 +399,4 @@ defmodule Transport.ImportDataService do
 
     if is_gtfs?(format), do: "GTFS", else: format
   end
-
 end
