@@ -186,7 +186,7 @@ defmodule Transport.ReusableData do
                               %{"$set" => validations},
                               pool: @pool)
   end
-  def save_validations({:error, error}), do: error
+  def save_validations({:error, error}), do: {:error, error}
   def save_validations(error), do: {:error, error}
 
   def add_metadata({:ok, %{url: url, validations: validations}}) do

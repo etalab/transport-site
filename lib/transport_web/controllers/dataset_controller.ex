@@ -2,6 +2,7 @@ defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Transport.Datagouvfr.Authentication
   alias Transport.Datagouvfr.Client.Datasets
+  alias Transport.Datagouvfr.{Authentication, Client}
   alias Transport.ReusableData
   require Logger
 
@@ -31,6 +32,7 @@ defmodule TransportWeb.DatasetController do
       dataset ->
         conn
         |> assign(:dataset, dataset)
+        |> assign(:discussions, Client.get_discussions(conn, dataset.id))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.id))
         |> render("details.html")

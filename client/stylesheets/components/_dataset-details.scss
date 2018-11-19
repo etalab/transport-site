@@ -29,3 +29,10 @@ div.dataset-details__side-pane {
     margin-top: 1em;
   }
 }
+
+.discussion-modal {
+  display: none;
+  &:target {
+    display: inline;
+  }
+}
