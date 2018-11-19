@@ -88,7 +88,7 @@ defmodule TransportWeb.Router do
     scope "/discussions" do
       pipe_through :api_authenticated
       post "/", API.DiscussionController, :post_discussion
-      post "/:id_", API.DiscussionController, :post_discussion
+      post "/:id_", API.DiscussionController, :post_answer
     end
 
     scope "/stats" do

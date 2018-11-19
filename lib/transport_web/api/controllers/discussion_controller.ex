@@ -1,32 +1,37 @@
 defmodule TransportWeb.API.DiscussionController do
   use TransportWeb, :controller
+  require Logger
 
   alias Transport.Datagouvfr.Client.Discussions
 
   def post_discussion(conn, %{"comment" => comment,
                               "id_" => id_,
                               "title" => title,
-                              "extras" => extras}) do
+                              "dataset_slug" => dataset_slug}) do
     conn
-    |> Discussions.post(id_, title, comment, extras)
+    |> Discussions.post(id_, title, comment)
     |> case do
-      {:ok, body} -> render(conn, data: body)
-      {:error, error} -> render(conn, errors: [error])
+      {:ok, _} -> conn
+      |> put_flash(:info, dgettext("page-dataset-details", "New discussion started"))
+    {:error, error} ->
+      Logger.error("When starting a new discussion: #{error}")
+      conn
+      |> put_flash(:error, dgettext("page-dataset-details", "Unable to start a new discussion"))
     end
+    |> redirect(to: dataset_path(conn, :details, dataset_slug))
   end
 
-  def post_discussion(conn, %{"comment" => _comment,
-                              "id_" => _id_,
-                              "title" => _title} = params) do
-    post_discussion(conn, Map.put(params, "extras", nil))
-  end
-
-  def post_discussion(conn, %{"id_" => id_, "comment" => comment}) do
+  def post_answer(conn, %{"id_" => id_, "comment" => comment, "dataset_slug" => dataset_slug}) do
     conn
     |> Discussions.post(id_, comment)
     |> case do
-      {:ok, body} -> render(conn, data: body)
-      {:error, error} -> render(conn, errors: [error])
-    end
+      {:ok, _} -> conn
+        |> put_flash(:info, dgettext("page-dataset-details", "Answer published"))
+      {:error, error} ->
+        Logger.error("When publishing an answer: #{error}")
+        conn
+        |> put_flash(:error, dgettext("page-dataset-details", "Unable to publish the answer"))
+      end
+    |> redirect(to: dataset_path(conn, :details, dataset_slug))
   end
 end
