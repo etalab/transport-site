@@ -1,5 +1,7 @@
 defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
+  alias Transport.Datagouvfr.Authentication
+  alias Transport.Datagouvfr.Client.Datasets
   alias Transport.Datagouvfr.{Authentication, Client}
   alias Transport.ReusableData
   require Logger
@@ -22,19 +24,17 @@ defmodule TransportWeb.DatasetController do
     |> render("index.html")
   end
 
-  def details(%Plug.Conn{} = conn, %{"slug" => slug}) do
-    slug
+  def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
+    slug_or_id
     |> ReusableData.get_dataset
     |> case do
-      nil ->
-        conn
-        |> put_status(:internal_server_error)
-        |> render(ErrorView, "500.html")
+      nil -> redirect_to_slug_or_404(conn, slug_or_id)
       dataset ->
         conn
         |> assign(:dataset, dataset)
         |> assign(:discussions, Client.get_discussions(conn, dataset.id))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
+        |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.id))
         |> render("details.html")
     end
   end
@@ -42,4 +42,16 @@ defmodule TransportWeb.DatasetController do
   def by_aom(%Plug.Conn{} = conn, %{"commune" => commune}), do: list_datasets(conn, %{commune_principale: commune})
   def by_region(%Plug.Conn{} = conn, %{"region" => region}), do: list_datasets(conn, %{region: region})
   def by_type(%Plug.Conn{} = conn, %{"type" => type}), do: list_datasets(conn, %{type: type})
+
+  defp redirect_to_slug_or_404(conn, slug_or_id) do
+    slug_or_id
+    |> ReusableData.get_dataset_slug
+    |> case do
+      nil ->
+        conn
+        |> put_status(:internal_server_error)
+        |> render(ErrorView, "404.html")
+      slug -> redirect(conn, to: dataset_path(conn, :details, slug))
+    end
+  end
 end
