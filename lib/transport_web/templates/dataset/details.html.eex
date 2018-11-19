@@ -54,8 +54,7 @@
             <%= dgettext("page-dataset-details", "Begin a new conversation") %>
           </a>
           <div id="new_discussion" class="discussion-modal">
-            <%= form_for @conn, discussion_path(@conn, :post_discussion), fn f -> %>
-              <%= hidden_input(f, :id_, value: @dataset.id) %>
+            <%= form_for @conn, discussion_path(@conn, :post_discussion, @dataset.id), fn f -> %>
               <%= hidden_input(f, :dataset_slug, value: @dataset.slug) %>
               <%= text_input(f, :title, placeholder: dgettext("page-dataset-details", "Title") )%>
               <%= textarea(f, :comment) %>
