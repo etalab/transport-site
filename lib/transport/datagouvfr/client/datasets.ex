@@ -169,26 +169,30 @@ defmodule Transport.Datagouvfr.Client.Datasets do
   @doc """
   Is current_user subscribed to this dataset?
   """
-  @spec get_followers(%Plug.Conn{}, String.t) :: {atom, map}
+  @spec current_user_subscribed?(%Plug.Conn{}, String.t) :: {atom, map}
   def current_user_subscribed?(%Plug.Conn{assigns: %{current_user: %{"id" => user_id}}} = conn, dataset_id) do
     conn
     |> get_followers(dataset_id)
-    |> current_user_subscribed?(user_id, conn)
+    |> is_user_in_followers?(user_id, conn)
   end
   def current_user_subscribed?(_, _), do: false
-  def current_user_subscribed?({:ok, %{"data" => data} = page}, user_id, conn) when is_list(data) do
-    Enum.any?(data,
-      &(&1["follower"]["id"] == user_id)
-    ) or current_user_subscribed?(page['next_page'], user_id, conn)
-  end
-  def current_user_subscribed?(page, user_id, conn) when is_binary(page) do
-    conn
-    |> get_request(page)
-    |> current_user_subscribed?(user_id, conn)
-  end
-  def current_user_subscribed?(_, _, _), do: false
 
   #private functions
+
+  """
+  Check if user_id is in followers, if it's not, check in next page if there's one
+  """
+  defp is_user_in_followers?({:ok, %{"data" => followers} = page}, user_id, conn) when is_list(followers) do
+    Enum.any?(followers,
+      &(&1["follower"]["id"] == user_id)
+    ) or is_user_in_followers?(page['next_page'], user_id, conn)
+  end
+  defp is_user_in_followers?(page_url, user_id, conn) when is_binary(page_url) do
+    conn
+    |> get_request(page_url)
+    |> is_user_in_followers?(user_id, conn)
+  end
+  defp is_user_in_followers?(_, _, _), do: false
 
   @spec add_tag(map, String.t) :: map
   defp add_tag(dataset, tag) when is_map(dataset) do

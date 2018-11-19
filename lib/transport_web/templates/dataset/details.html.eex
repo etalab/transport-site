@@ -6,7 +6,7 @@
       </div>
       <div class="dataset-details__followers">
       <%= if @current_user do %>
-      <%= form_for @conn, follower_path(@conn, :create, @dataset.id),  fn f -> %>
+      <%= form_for @conn, follower_path(@conn, :subscribe_or_unsubscribe, @dataset.id),  fn f -> %>
         <%= hidden_input f, :is_subscribed, value: @is_subscribed %>
         <%= if @is_subscribed do %>
           <%= submit dgettext("page-dataset-details", "Unsubscribe to dataset"), class: "button secondary" %>

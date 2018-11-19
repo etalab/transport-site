@@ -60,7 +60,7 @@ defmodule TransportWeb.Router do
 
       scope "/:dataset_id/followers/" do
         pipe_through [:authenticated]
-        post "/", FollowerController, :create
+        post "/", FollowerController, :subscribe_or_unsubscribe
       end
     end
 

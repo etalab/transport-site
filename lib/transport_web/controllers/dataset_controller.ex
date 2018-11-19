@@ -27,16 +27,7 @@ defmodule TransportWeb.DatasetController do
     slug_or_id
     |> ReusableData.get_dataset
     |> case do
-      nil ->
-        slug_or_id
-        |> ReusableData.get_dataset_slug
-        |> case do
-          nil ->
-            conn
-            |> put_status(:internal_server_error)
-            |> render(ErrorView, "500.html")
-          slug -> redirect(conn, to: dataset_path(conn, :details, slug))
-        end
+      nil -> redirect_to_slug_or_404(conn, slug_or_id)
       dataset ->
         conn
         |> assign(:dataset, dataset)
@@ -49,4 +40,16 @@ defmodule TransportWeb.DatasetController do
   def by_aom(%Plug.Conn{} = conn, %{"commune" => commune}), do: list_datasets(conn, %{commune_principale: commune})
   def by_region(%Plug.Conn{} = conn, %{"region" => region}), do: list_datasets(conn, %{region: region})
   def by_type(%Plug.Conn{} = conn, %{"type" => type}), do: list_datasets(conn, %{type: type})
+
+  defp redirect_to_slug_or_404(conn, slug_or_id) do
+    slug_or_id
+    |> ReusableData.get_dataset_slug
+    |> case do
+      nil ->
+        conn
+        |> put_status(:internal_server_error)
+        |> render(ErrorView, "404.html")
+      slug -> redirect(conn, to: dataset_path(conn, :details, slug))
+    end
+  end
 end
