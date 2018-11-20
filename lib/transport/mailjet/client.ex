@@ -8,20 +8,20 @@ defmodule Transport.Mailjet.Client do
   @key Application.get_env(:transport, __MODULE__)[:mailjet_key]
   @url Application.get_env(:transport, __MODULE__)[:mailjet_url]
 
-  def payload!(sender, body) do
+  def payload!(sender, topic, body) do
     Poison.encode!(%{"Messages": [%{
         "From": %{"Name": "PAN, Formulaire Contact", "Email": "contact@transport.beta.gouv.fr"},
         "To": [%{"Email": "tristram.grabener@beta.gouv.fr"}],
-        "Subject": "Question sur transport.data.gouv.fr",
+        "Subject": topic,
         "TextPart": body,
         "ReplyTo": %{"Email": sender}
       }]
     })
   end
 
-  def send_mail(sender, body) do
+  def send_mail(sender, topic, body) do
     @url
-    |> post(payload!(sender, body))
+    |> post(payload!(sender, topic, body))
     |> case do
       {:ok, %{status_code: 200, body: body}} -> {:ok, body}
       {:ok, %{status_code: _, body: body}}   -> {:error, body}
