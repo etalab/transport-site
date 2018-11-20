@@ -1,0 +1,24 @@
+<section class="single-page section section-grey">
+    <div class="container">
+        <h1><%= dgettext("backoffice", "Add a partner") %></h1>
+
+        <%= if get_flash(@conn, :info) do %>
+        FLASH INFO : <%= get_flash(@conn, :info) %>
+        <% end %>
+
+        <%= if get_flash(@conn, :error) do %>
+        FLASH ERROR : <%= get_flash(@conn, :error) %>
+        <% end %>
+
+        <%= form_for @conn, backoffice_path(@conn, :new_partner), fn f -> %>
+            <%= text_input f, :partner_url, label: dgettext("backoffice", "Partner's url") %>
+            <%= submit dgettext("backoffice", "Add")%>
+        <% end %>
+
+        <ul>
+        <%= for partner <- @partners.entries do %>
+            <li><%= partner.url %></li>
+        <% end %>
+        </ul>
+    </div>
+</section>

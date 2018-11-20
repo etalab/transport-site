@@ -18,7 +18,7 @@ defmodule TransportWeb.InputHelpers do
         select: 3, select: 4,
         search_input: 3,
         submit: 1, submit: 2,
-        text_input: 3, text_input: 3,,
+        text_input: 3, text_input: 3,
         textarea: 2, textarea: 3
       ]
     end
@@ -74,14 +74,14 @@ defmodule TransportWeb.InputHelpers do
   def text_input(form, field, opts \\ []) do
     label = Keyword.get(opts, :label)
     opts = Keyword.drop(opts, [:label])
-    cond do
-      label != nil ->
-        form_group do [
-          Form.label(form, field, label),
-          Form.text_input(form, field, opts)
-        ]
-        end
-      true -> form_group(Form.text_input(form, field, opts))
+    if label != nil do
+      form_group do [
+        Form.label(form, field, label),
+        Form.text_input(form, field, opts)
+      ]
+      end
+    else
+      form_group(Form.text_input(form, field, opts))
     end
   end
 

@@ -1,6 +1,7 @@
 defmodule TransportWeb.BackofficeController do
   use TransportWeb, :controller
   alias Transport.{ImportDataService, ReusableData}
+  alias Transport.Partners.Partner
   require Logger
 
   @dataset_types [
@@ -87,4 +88,30 @@ defmodule TransportWeb.BackofficeController do
     |> index(%{})
   end
 
+  def partners(%Plug.Conn{} = conn, params) do
+    config = make_pagination_config(params)
+    partners = Partner.list |> Scrivener.paginate(config)
+
+    conn
+    |> assign(:partners, partners)
+    |> render("partners.html")
+  end
+
+  def new_partner(%Plug.Conn{} = conn, %{"partner_url" => partner_url} = _params) do
+    with partner <- %Partner{url: partner_url},
+         true <- Partner.valid?(partner),
+         {:ok, _} <- Partner.insert(partner) do
+      conn
+      |> put_flash(:info, dgettext("backoffice", "Partner added"))
+    else
+      false ->
+        conn
+        |> put_flash(:error, dgettext("backoffice", "This has to be an organization or a user"))
+      {:error, error} ->
+        Logger.error(error)
+        conn
+        |> put_flash(:error, dgettext("backoffice", "Unable to insert partner in database"))
+    end
+    |> redirect(to: backoffice_path(conn, :partners))
+  end
 end
