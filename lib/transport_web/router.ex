@@ -11,6 +11,7 @@ defmodule TransportWeb.Router do
     plug :assign_current_user
     plug :assign_contact_email
     plug :assign_token
+    plug :assign_mix_env
   end
 
   pipeline :json_api do
@@ -108,6 +109,10 @@ defmodule TransportWeb.Router do
         TransportWeb.Gettext |> Gettext.put_locale(locale)
         conn |> put_session(:locale, locale)
     end
+  end
+
+  defp assign_mix_env(conn, _) do
+    assign(conn, :mix_env, Mix.env)
   end
 
   defp assign_current_user(conn, _) do
