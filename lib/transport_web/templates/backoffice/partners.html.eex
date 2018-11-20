@@ -17,7 +17,7 @@
 
         <ul>
         <%= for partner <- @partners.entries do %>
-            <li><%= partner.url %></li>
+            <li><%= partner.name %></li>
         <% end %>
         </ul>
     </div>

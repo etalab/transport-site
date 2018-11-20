@@ -98,8 +98,8 @@ defmodule TransportWeb.BackofficeController do
   end
 
   def new_partner(%Plug.Conn{} = conn, %{"partner_url" => partner_url} = _params) do
-    with partner <- %Partner{url: partner_url},
-         true <- Partner.valid?(partner),
+    with true <- Partner.is_datagouv_partner_url?(partner_url),
+         {:ok, partner} <- Partner.from_url(partner_url),
          {:ok, _} <- Partner.insert(partner) do
       conn
       |> put_flash(:info, dgettext("backoffice", "Partner added"))
