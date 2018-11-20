@@ -45,3 +45,7 @@ msgstr "Demander de l'aide"
 
 msgid "Legal Information"
 msgstr "Mentions légales"
+
+#, elixir-format
+msgid "Question about transport.data.gouv.fr"
+msgstr "Question au sujet de transport.data.gouv.fr"

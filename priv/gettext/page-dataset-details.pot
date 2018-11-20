@@ -111,3 +111,7 @@ msgstr ""
 
 msgid "Unable to start a new discussion"
 msgstr ""
+
+#, elixir-format
+msgid "Start a new discussion"
+msgstr ""

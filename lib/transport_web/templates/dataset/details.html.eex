@@ -56,7 +56,7 @@
               <%= hidden_input(f, :dataset_slug, value: @dataset.slug) %>
               <%= text_input(f, :title, placeholder: dgettext("page-dataset-details", "Title") )%>
               <%= textarea(f, :comment) %>
-              <%= submit dgettext("page-dataset-details", "Respond") %>
+              <%= submit dgettext("page-dataset-details", "Start a new discussion") %>
             <% end %>
           </div>
         <% else %>

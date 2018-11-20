@@ -16,6 +16,7 @@
 
             <%= form_for @conn, contact_path(@conn, :send_mail), fn f -> %>
               <%= email_input(f, :email, placeholder: gettext("Email address")) %>
+              <%= text_input(f, :topic, value: gettext("Question about transport.data.gouv.fr")) %>
               <%= textarea(f, :demande, placeholder: gettext("Ask for help")) %>
               <%= submit gettext("Send email") %>
             <% end %>
