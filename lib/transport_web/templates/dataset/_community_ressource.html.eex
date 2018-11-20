@@ -1,0 +1,20 @@
+<div class="documentation">
+    <div class="side-pan community-resources__side-pan">
+    <%= if @resource["organization"] do %>
+        <div>
+            <div class="community-resources__logo">
+                <img src="<%= @resource["organization"]["logo_thumbnail"] %>">
+            </div>
+            <div class="community-resources__organization-name">
+                <h3><%= @resource["organization"]["name"] %></h3>
+            </div>
+        </div>
+    <% end %>
+    </div>
+    <div class="main-pan">
+        <h4><%= @resource["title"] %></h4>
+        <p><%= @resource["description"] %></p>
+        <i class="icon icon--download" aria-hidden="true"></i>
+        <a href="<%= @resource["url"] %>"><%= dgettext("page-shortlist", "Download") %></a>
+    </div>
+</div>
