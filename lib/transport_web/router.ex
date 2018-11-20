@@ -58,9 +58,11 @@ defmodule TransportWeb.Router do
       get "/region/:region", DatasetController, :by_region
       get "/type/:type", DatasetController, :by_type
 
-      scope "/:dataset_id/followers/" do
+      scope "/:dataset_id" do
         pipe_through [:authenticated]
-        post "/", FollowerController, :subscribe_or_unsubscribe
+        post "/followers", FollowerController, :subscribe_or_unsubscribe
+        post "/discussions", DiscussionController, :post_discussion
+        post "/discussions/:id_", DiscussionController, :post_answer
       end
     end
 
@@ -87,12 +89,6 @@ defmodule TransportWeb.Router do
   end
 
   scope "/api", TransportWeb do
-
-    scope "/discussions" do
-      pipe_through :api_authenticated
-      post "/", API.DiscussionController, :post_discussion
-      post "/:id_", API.DiscussionController, :post_answer
-    end
 
     scope "/stats" do
       pipe_through :accept_json

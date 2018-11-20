@@ -1,4 +1,4 @@
-defmodule TransportWeb.API.DiscussionController do
+defmodule TransportWeb.DiscussionController do
   use TransportWeb, :controller
   require Logger
 
