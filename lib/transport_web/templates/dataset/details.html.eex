@@ -33,14 +33,12 @@
         </p>
       </div>
       <div class="dataset-details__community-resources">
-        <communityresources
-          datasetid="<%= @dataset.id %>"
-          download="<%= dgettext("page-shortlist", "Download") %>"
-          no_community_resources="<%= dgettext("page-dataset-details", "There is no linked dataset yet") %>"
-          site="<%= @site %>"
-          id="<%= @dataset.id %>"
-          title="<%= dgettext("page-dataset-details", "Modified datasets") %>">
-        </communityresources>
+      <%= if !Enum.empty?(@community_ressources) do %>
+      <div id="communityresources">
+        <h2><%= dgettext("page-dataset-details", "Modified datasets") %></h2>
+        <%= render_many @community_ressources, TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
+      </div>
+      <% end %>
       </div>
 
       <%= TransportWeb.DatasetView.render_description_from_type(@dataset) %>

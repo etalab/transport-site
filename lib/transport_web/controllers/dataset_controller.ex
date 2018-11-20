@@ -33,6 +33,7 @@ defmodule TransportWeb.DatasetController do
         conn
         |> assign(:dataset, dataset)
         |> assign(:discussions, Client.get_discussions(conn, dataset.id))
+        |> assign(:community_ressources, Client.get_community_ressources(conn, dataset.id))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.id))
         |> render("details.html")

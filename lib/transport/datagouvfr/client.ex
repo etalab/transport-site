@@ -88,6 +88,17 @@ defmodule Transport.Datagouvfr.Client do
     end
   end
 
+  def get_community_ressources(conn, id) do
+    conn
+    |> get_request("/datasets/community_resources/?dataset=#{id}", [])
+    |> case do
+      {:ok, %{"data" => data}} -> data
+      error ->
+        Logger.error("When getting community_ressources for id #{id}: #{error}")
+        []
+    end
+  end
+
   def process_url(path) do
     @base_url
     |> Path.join(path)
