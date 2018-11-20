@@ -45,3 +45,7 @@ msgstr ""
 
 msgid "Legal Information"
 msgstr ""
+
+#, elixir-format
+msgid "Question about transport.data.gouv.fr"
+msgstr ""
