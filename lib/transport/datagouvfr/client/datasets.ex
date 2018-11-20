@@ -4,9 +4,7 @@ defmodule Transport.Datagouvfr.Client.Datasets do
   """
 
   import TransportWeb.Gettext
-  import Transport.Datagouvfr.Client, only: [get_request: 2, put_request: 3,
-                                             post_request: 3, post_request: 4,
-                                             post_request: 2, delete_request: 2]
+  import Transport.Datagouvfr.Client, only: [get_request: 2, post_request: 2, delete_request: 2]
   require Logger
 
   use Vex.Struct
@@ -82,58 +80,6 @@ defmodule Transport.Datagouvfr.Client.Datasets do
   end
 
   @doc """
-  Call to PUT /api/1/datasets/:id/
-  You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/datasets/put_dataset
-  """
-  @spec put(%Plug.Conn{}, String.t, map) :: {atom, map}
-  def put(%Plug.Conn{} = conn, id, dataset) when is_map(dataset) do
-    conn
-    |> put_request(Path.join(@endpoint, id), dataset)
-  end
-
-  @doc """
-  Add a tag to a dataset
-  """
-  @spec put(%Plug.Conn{}, String.t, {:atom, String.t}) :: {atom, map}
-  def put(%Plug.Conn{} = conn, id, {:add_tag, tag}) do
-    conn
-    |> get(id)
-    |> case do
-      {:ok, dataset} -> put(conn, id, add_tag(dataset, tag))
-      {:error, error} -> {:error, error}
-    end
-  end
-
-  @doc """
-  Post a dataset
-  """
-  @spec post(%Plug.Conn{}, map)
-    :: {atom, %Datasets{}} | {:error, atom} | {:validation_error, [String.t]}
-  def post(%Plug.Conn{} = conn, %{} = params)
-  do
-    params
-    |> Datasets.new()
-    |> Vex.validate()
-    |> case do
-      {:ok, dataset}   -> post_request(conn, @endpoint, dataset)
-      {:error, errors} -> {:validation_error, errors}
-    end
-  end
-
-  @doc """
-  upload a resource to a dataset
-  """
-  @spec upload_resource(%Plug.Conn{}, String.t, %Plug.Upload{}) :: {atom, map}
-  def upload_resource(%Plug.Conn{} = conn, dataset_id, file) do
-    post_request(
-      conn,
-      Path.join([@endpoint, dataset_id, "upload"]),
-      {"file", file},
-      [{"content-type", "multipart/form-data"}]
-    )
-  end
-
-  @doc """
   Make a user follow a dataset
   """
   @spec post_followers(%Plug.Conn{}, String.t) :: {atom, map}
@@ -193,11 +139,6 @@ defmodule Transport.Datagouvfr.Client.Datasets do
     |> is_user_in_followers?(user_id, conn)
   end
   defp is_user_in_followers?(_, _, _), do: false
-
-  @spec add_tag(map, String.t) :: map
-  defp add_tag(dataset, tag) when is_map(dataset) do
-    Map.put(dataset, "tags", [tag | dataset["tags"]])
-  end
 
   def accumulator_atomizer({key, value}, m) do
     Map.put(m, String.to_existing_atom(key), value)
