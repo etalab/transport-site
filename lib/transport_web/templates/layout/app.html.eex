@@ -10,6 +10,7 @@
 
     <title><%= gettext "transport.data.gouv.fr" %></title>
     <link rel="stylesheet" media="all" href="<%= static_path(@conn, "/css/app.css") %>">
+    <%= if @mix_env == "prod" do %>
     <!-- Piwik -->
     <script type="text/javascript">
       var _paq = _paq || [];
@@ -26,6 +27,7 @@
     </script>
     <noscript><p><img src="//stats.data.gouv.fr/piwik.php?idsite=58" style="border:0;" alt="" /></p></noscript>
     <!-- End Piwik Code -->
+    <% end %>
   </head>
 
   <body>
