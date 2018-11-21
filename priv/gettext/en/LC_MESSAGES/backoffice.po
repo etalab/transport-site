@@ -55,3 +55,23 @@ msgstr ""
 #, elixir-format
 msgid "carsharing areas"
 msgstr ""
+
+#, elixir-format
+msgid "Add a partner"
+msgstr ""
+
+#, elixir-format
+msgid "Partner's url"
+msgstr ""
+
+#, elixir-format
+msgid "This has to be an organization or a user"
+msgstr ""
+
+#, elixir-format
+msgid "Partner added"
+msgstr ""
+
+#, elixir-format
+msgid "Unable to insert partner in database"
+msgstr ""

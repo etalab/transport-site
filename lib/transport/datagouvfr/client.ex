@@ -99,6 +99,7 @@ defmodule Transport.Datagouvfr.Client do
     end
   end
 
+  def process_url(path) when is_list(path), do: path |> Path.join |> process_url
   def process_url(path) do
     @base_url
     |> Path.join(path)
