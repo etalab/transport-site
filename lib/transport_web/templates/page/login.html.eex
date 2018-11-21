@@ -1,13 +1,5 @@
 <section id="login" class="section">
   <div class="container">
-    <%= if get_flash(@conn, :info) do %>
-      <p class="notification"><%= get_flash(@conn, :info) %></p>
-    <% end %>
-
-    <%= if get_flash(@conn, :error) do %>
-      <p class="notification error"><%= get_flash(@conn, :error) %></p>
-    <% end %>
-
     <div class="panel">
       <h1><%= dgettext("page-login", "Sign In with data.gouv.fr") %></h1>
 

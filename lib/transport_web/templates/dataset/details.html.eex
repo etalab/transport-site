@@ -18,9 +18,6 @@
       </div>
     </div>
     <div class="main-pane dataset-details__main-pane" id="description">
-      <%= if get_flash(@conn, :info) do %>
-        <p class="message message--info"><%= get_flash(@conn, :info) %></p>
-      <% end %>
       <h1><%= @dataset.title %></h1>
       <%= raw Earmark.as_html!(@dataset.description) %>
       <div class="dataset__use-terms">
