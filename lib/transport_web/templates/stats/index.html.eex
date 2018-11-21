@@ -1,4 +1,4 @@
-<map></map>
+<div id="map"></div>
 
 <section class="section section-white">
 <div class="container">
@@ -45,3 +45,4 @@
 <%= render("_other.html", conn: @conn) %>
 </div>
 </section>
+<script src="<%= static_path(@conn, "/js/app.js") %>"></script>

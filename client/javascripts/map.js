@@ -17,7 +17,7 @@ const Mapbox = {
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
-export const addMap = (id, aomsUrl, regionsUrl, opts) => {
+export default function (id, aomsUrl, regionsUrl) {
     const map = Leaflet.map(id).setView([46.370, 2.087], 5)
     map.createPane('aoms')
     map.getPane('aoms').style.zIndex = 650
