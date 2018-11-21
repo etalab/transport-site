@@ -4,8 +4,6 @@ defmodule Transport.ImportDataServiceTest do
 
   @moduletag :external
 
-  doctest ImportDataService
-
   describe "import_from_udata" do
     test "import dataset with a zip" do
       url = "http://hstan.g-ny.org/grandnancy/data/public/gtfs_stan.zip"

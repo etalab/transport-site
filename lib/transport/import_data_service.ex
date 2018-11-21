@@ -141,14 +141,18 @@ defmodule Transport.ImportDataService do
       iex> ImportDataService.is_gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
       true
 
+      iex> ImportDataService.is_gtfs?(%{"format" => "neptune"})
+      false
+
   """
-  def is_gtfs?(%{"format" => format, "description" => description, "url" => url}) do
-    is_gtfs?(format) or is_gtfs?(description) or
-     (is_gtfs?(url) and !is_json?(url) and !is_csv?(url))
+  def is_gtfs?(%{} = params) do
+    url = params["url"]
+    is_gtfs?(params["format"]) or is_gtfs?(params["description"]) or
+     (is_gtfs?(url) and !is_format?(url, "json") and !is_format?(url, "csv"))
   end
-  def is_gtfs?(format), do: format |> String.downcase |> String.contains?("gtfs")
-  def is_json?(url), do: url |> String.downcase |> String.contains?("json")
-  def is_csv?(url), do: url |> String.downcase |> String.contains?("csv")
+  def is_gtfs?(str), do: is_format?(str, "gtfs")
+  def is_format?(nil, _), do: false
+  def is_format?(str, expected), do: str |> String.downcase |> String.contains?(expected)
 
   @doc """
   Is the ressource a zip file?
@@ -169,7 +173,7 @@ defmodule Transport.ImportDataService do
   def is_zip?(%{"mime" => nil, "format" => format}), do: is_zip?(format)
   def is_zip?(%{"mime" => mime, "format" => nil}), do: is_zip?(mime)
   def is_zip?(%{"mime" => mime, "format" => format}), do: is_zip?(mime) || is_zip?(format)
-  def is_zip?(str), do: str |> String.downcase |> String.contains?("zip")
+  def is_zip?(str), do: is_format?(str, "zip")
 
   @doc """
   filter dataset with csv resources
