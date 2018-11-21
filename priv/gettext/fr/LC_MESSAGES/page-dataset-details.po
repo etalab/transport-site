@@ -111,3 +111,7 @@ msgstr "Impossible de publier la réponse"
 
 msgid "Unable to start a new discussion"
 msgstr "Impossible de commencer une nouvelle discussion"
+
+#, elixir-format
+msgid "Start a new discussion"
+msgstr "Initier une nouvelle discussion"

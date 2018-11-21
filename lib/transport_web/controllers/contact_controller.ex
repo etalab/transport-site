@@ -1,9 +1,10 @@
 defmodule TransportWeb.ContactController do
   use TransportWeb, :controller
   alias Transport.Mailjet.Client
+  require Logger
 
-  def send_mail(conn, params) do
-    case Client.send_mail(params["email"], params["demande"]) do
+  def send_mail(conn, %{"email" => email, "topic" => topic, "demande" => demande} = params) do
+    case Client.send_mail(email, topic, demande) do
       {:ok, _} ->
         conn
         |> put_flash(:info, gettext("Your email has been sent, we will contact you soon"))
@@ -12,7 +13,9 @@ defmodule TransportWeb.ContactController do
         conn
         |> put_flash(:error, gettext("There has been an error, try again later"))
         |> redirect(to: params["redirect_path"] || page_path(conn, :index))
-    end
+      end
   end
+
+  def send_mail(_, params), do: Logger.error("Bad parameters for sending email #{params}")
 
 end
