@@ -1,4 +1,3 @@
-import riot from 'riot'
-import './components/**/*.tag'
+import addMap from './map'
 
-riot.mount('*')
+addMap('map', '/api/stats/', '/api/stats/regions')

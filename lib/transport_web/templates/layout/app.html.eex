@@ -38,6 +38,5 @@
     </main>
 
     <%= render(LayoutView, "_footer.html", assigns) %>
-    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>
