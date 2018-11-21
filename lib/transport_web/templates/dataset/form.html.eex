@@ -1,9 +1,4 @@
 <section>
-  <%= if get_flash(@conn, :errors) do %>
-    <%= for error <- get_flash(@conn, :errors) do %>
-      <p class="message message--error"><%= error %></p>
-    <% end %>
-  <% end %>
   <form action="<%= dataset_path(@conn, @form_action_function, @organization["id"]) %>"
         method="POST"
         enctype='multipart/form-data'>

@@ -34,6 +34,18 @@
     <%= render(LayoutView, "_header.html", assigns) %>
 
     <main class="layout-main" role="main">
+      <%= if get_flash(@conn, :info) do %>
+        <p class="notification"><%= get_flash(@conn, :info) %></p>
+      <% end %>
+      <%= if get_flash(@conn, :errors) do %>
+        <%= for error <- get_flash(@conn, :errors) do %>
+          <p class="message message--error"><%= error %></p>
+        <% end %>
+      <% end %>
+      <%= if get_flash(@conn, :error) do %>
+          <p class="message message--error"><%= get_flash(@conn, :error) %></p>
+      <% end %>
+
       <%= render(@view_module, @view_template, assigns) %>
     </main>
 
