@@ -44,23 +44,6 @@ module.exports = {
                 enforce: 'pre',
                 loader: 'import-glob-loader'
             }, {
-                test: /\.tag$/,
-                exclude: /node_modules/,
-                enforce: 'pre',
-                loader: 'riot-tag-loader',
-                query: {
-                    type: 'es6'
-                }
-            }, {
-                test: /\.tag$/,
-                exclude: [/node_modules/],
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['es2015-riot']
-                    }
-                }
-            }, {
                 test: /\.js$/,
                 exclude: [/node_modules/],
                 use: {

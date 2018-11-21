@@ -21,7 +21,6 @@ In order to validate datasets:
   * Run the external tests with `mix test --only external`
   * Run the elixir linter with `mix credo --strict`
   * Run the javascript linter with `mix npm "run linter:ecma"`
-  * Run the riot linter with `mix npm "run linter:riot"`
   * Run the sass linter with `mix npm "run linter:sass"`
 
 Now you can visit [`127.0.0.1:5000`](http://127.0.0.1:5000) from your browser.

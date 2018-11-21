@@ -1,6 +1,5 @@
 {
   "extends": ["eslint:recommended", "standard"],
-  "plugins": ["riot"],
   "rules": {
     "indent": ["error", 4],
     "no-multi-spaces": "off"
