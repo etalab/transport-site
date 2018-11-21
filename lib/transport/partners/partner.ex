@@ -35,14 +35,17 @@ defmodule Transport.Partners.Partner do
   defp get_name(%{"name" => name}), do: name
   defp get_name(%{"first_name" => f_n, "last_name" => l_n}), do: f_n <> " " <> l_n
 
-  defp get_api_response(url) do
-    [slug_or_id | [type | _]] =
+  defp get_type_and_slug(url) do
      url
      |> String.split("/")
      |> Enum.reverse()
      |> Enum.filter(&(String.length(&1) != 0))
+     |> Enum.take(-2)
+  end
 
-    with url_api <- Client.process_url([type, slug_or_id]),
+  defp get_api_response(url) do
+    with [type, slug_or_id] <- get_type_and_slug(url),
+         url_api <- Client.process_url([type, slug_or_id]),
          {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(url_api),
          {:ok, json} <- Poison.decode(body),
          json_with_name <- Map.put(json, :name, get_name(json)) do
