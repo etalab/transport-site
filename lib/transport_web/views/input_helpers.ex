@@ -18,7 +18,7 @@ defmodule TransportWeb.InputHelpers do
         select: 3, select: 4,
         search_input: 3,
         submit: 1, submit: 2,
-        text_input: 3,
+        text_input: 3, text_input: 3,
         textarea: 2, textarea: 3
       ]
     end
@@ -35,9 +35,11 @@ defmodule TransportWeb.InputHelpers do
     end
   end
 
-  def form_group(field) do
-    content_tag(:div, field, class: "form__group")
+  def form_group(do: block) do
+    content_tag(:div, block, class: "form__group")
   end
+
+  def form_group(field), do: content_tag(:div, field, class: "form__group")
 
   def select(form, field, options, opts \\ []) do
     form_group(Form.select(form, field, options, opts))
@@ -70,7 +72,17 @@ defmodule TransportWeb.InputHelpers do
   end
 
   def text_input(form, field, opts \\ []) do
-    form_group(Form.text_input(form, field, opts))
+    label = Keyword.get(opts, :label)
+    opts = Keyword.drop(opts, [:label])
+    if label != nil do
+      form_group do [
+        Form.label(form, field, label),
+        Form.text_input(form, field, opts)
+      ]
+      end
+    else
+      form_group(Form.text_input(form, field, opts))
+    end
   end
 
   def email_input(form, field, opts \\ []) do

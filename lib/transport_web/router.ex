@@ -11,6 +11,7 @@ defmodule TransportWeb.Router do
     plug :assign_current_user
     plug :assign_contact_email
     plug :assign_token
+    plug :assign_mix_env
   end
 
   pipeline :json_api do
@@ -69,9 +70,17 @@ defmodule TransportWeb.Router do
     scope "/backoffice" do
       pipe_through [:admin_rights]
       get "/", BackofficeController, :index
-      post "/", BackofficeController, :new_dataset
-      post "/datasets/:id/_import", BackofficeController, :import_from_data_gouv_fr
-      post "/datasets/:id/_delete", BackofficeController, :delete
+
+      scope "/datasets" do
+        post "/", BackofficeController, :new_dataset
+        post "/:id/_import", BackofficeController, :import_from_data_gouv_fr
+        post "/:id/_delete", BackofficeController, :delete
+      end
+
+      scope "/partners" do
+        get "/", BackofficeController, :partners
+        post "/", BackofficeController, :new_partner
+      end
     end
 
     # Authentication
@@ -108,6 +117,10 @@ defmodule TransportWeb.Router do
         TransportWeb.Gettext |> Gettext.put_locale(locale)
         conn |> put_session(:locale, locale)
     end
+  end
+
+  defp assign_mix_env(conn, _) do
+    assign(conn, :mix_env, Mix.env)
   end
 
   defp assign_current_user(conn, _) do
