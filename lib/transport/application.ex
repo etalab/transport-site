@@ -5,8 +5,8 @@ defmodule Transport.Application do
   """
 
   use Application
-  alias TransportWeb.Endpoint
   alias Transport.Repo
+  alias TransportWeb.Endpoint
 
   def start(_type, _args) do
     import Supervisor.Spec
