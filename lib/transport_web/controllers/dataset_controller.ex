@@ -3,7 +3,9 @@ defmodule TransportWeb.DatasetController do
   alias Transport.Datagouvfr.Authentication
   alias Transport.Datagouvfr.Client.Datasets
   alias Transport.Datagouvfr.{Authentication, Client}
-  alias Transport.ReusableData
+  alias Transport.Dataset
+  alias Transport.Repo
+  import Ecto.Query
   require Logger
 
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params)
@@ -25,9 +27,7 @@ defmodule TransportWeb.DatasetController do
   end
 
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
-    slug_or_id
-    |> ReusableData.get_dataset
-    |> case do
+    case Repo.get_by(Dataset, [slug: slug_or_id]) do
       nil -> redirect_to_slug_or_404(conn, slug_or_id)
       dataset ->
         conn
@@ -45,9 +45,7 @@ defmodule TransportWeb.DatasetController do
   def by_type(%Plug.Conn{} = conn, %{"type" => type}), do: list_datasets(conn, %{type: type})
 
   defp redirect_to_slug_or_404(conn, slug_or_id) do
-    slug_or_id
-    |> ReusableData.get_dataset_slug
-    |> case do
+    case Repo.get_by(Dataset, [datagouv_id: slug_or_id]) do
       nil ->
         conn
         |> put_status(:internal_server_error)

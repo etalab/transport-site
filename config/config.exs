@@ -5,6 +5,11 @@
 # is restricted to this project.
 use Mix.Config
 
+config :transport, Transport.Repo,
+  url: System.get_env("PG_URL") || "ecto://postgres:postgres@localhost/transport_repo"
+
+config :transport, ecto_repos: [Transport.Repo]
+
 # Configures the endpoint
 config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],
@@ -49,7 +54,6 @@ config :scrivener_html,
 import_config "datagouvfr.exs"
 import_config "gtfs_validator.exs"
 import_config "mailjet.exs"
-import_config "mongodb.exs"
 import_config "mailchimp.exs"
 import_config "#{Mix.env}.exs"
 

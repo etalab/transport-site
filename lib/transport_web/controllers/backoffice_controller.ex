@@ -10,10 +10,10 @@ defmodule TransportWeb.BackofficeController do
   ]
 
   defp region_names do
-    :mongo
-    |> Mongo.find("regions", %{}, pool:  DBConnection.Poolboy)
-    |> Enum.map(fn r -> r["properties"]["NOM_REG"] end)
-    |> Enum.concat(["National"])
+    #:mongo
+    #|> Mongo.find("regions", %{}, pool:  DBConnection.Poolboy)
+    #|> Enum.map(fn r -> r["properties"]["NOM_REG"] end)
+    #|> Enum.concat(["National"])
   end
 
   def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do
@@ -40,12 +40,12 @@ defmodule TransportWeb.BackofficeController do
   end
 
   defp insert_into_mongo(%{"id" => id} = dataset) do
-    case Mongo.insert_one(:mongo, "datasets", dataset, pool: DBConnection.Poolboy) do
-      {:ok, %Mongo.InsertOneResult{inserted_id: mongo_id}} ->
-        {:ok, %{"_id" => mongo_id, "id" => id, "type" => dataset["type"]}}
-      error ->
-        error
-    end
+    #case Mongo.insert_one(:mongo, "datasets", dataset, pool: DBConnection.Poolboy) do
+    #  {:ok, %Mongo.InsertOneResult{inserted_id: mongo_id}} ->
+    #    {:ok, %{"_id" => mongo_id, "id" => id, "type" => dataset["type"]}}
+    #  error ->
+    #    error
+    #end
   end
 
   defp import_data({:ok, ids}) do

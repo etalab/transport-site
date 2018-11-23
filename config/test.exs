@@ -17,9 +17,6 @@ config :logger, level: :warn
 config :oauth2, Authentication,
   site: "https://next.data.gouv.fr"
 
-# MongoDB configuration.
-config :mongodb, url: "mongodb://localhost/transport_test"
-
 # Validator configuration
 config :transport, gtfs_validator_url: System.get_env("GTFS_VALIDATOR_URL") || "http://127.0.0.1:7878"
 

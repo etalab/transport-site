@@ -4,11 +4,14 @@ defmodule Transport.Partners.Partner do
   """
   alias Transport.Datagouvfr.Client
   require Logger
-
-  defstruct page: nil, api_uri: nil, name: nil
-  use ExConstructor
+  use Ecto.Schema
 
   @pool DBConnection.Poolboy
+  schema "partners" do
+    field :page, :string
+    field :api_uri, :string
+    field :name, :string
+  end
 
   def is_datagouv_partner_url?(url), do: Regex.match?(partner_regex(), url)
 

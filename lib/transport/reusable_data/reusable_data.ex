@@ -5,10 +5,10 @@ defmodule Transport.ReusableData do
 
   import TransportWeb.Gettext
   alias Transport.ImportDataService
-  alias Transport.ReusableData.Dataset
+  alias Transport.Repo
+  alias Transport.Dataset
   require Logger
 
-  @pool DBConnection.Poolboy
   @endpoint Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
   @client HTTPoison
   @res HTTPoison.Response
@@ -50,41 +50,6 @@ defmodule Transport.ReusableData do
     |> Map.take([:commune_principale, :region, :type, :"$text"])
     |> Map.merge(%{download_url: %{"$ne" => nil}})
     |> query_datasets(projection)
-  end
-
-  @doc """
-  Return one dataset by slug
-
-  ## Examples
-
-      iex> "leningrad-metro-dataset"
-      ...> |> ReusableData.get_dataset
-      ...> |> Map.get(:title)
-      "Leningrad metro dataset"
-
-      iex> ReusableData.get_dataset("")
-      nil
-
-  """
-  @spec get_dataset(String.t) :: %Dataset{}
-  def get_dataset(slug) do
-    query = %{slug: slug}
-
-    :mongo
-    |> Mongo.find_one("datasets", query, pool: @pool)
-    |> case do
-      nil -> nil
-      dataset -> Dataset.new(dataset)
-    end
-  end
-
-  def get_dataset_slug(id) do
-    :mongo
-    |> Mongo.find_one("datasets", %{id: id}, pool: @pool)
-    |> case do
-      nil -> nil
-      dataset -> dataset["slug"]
-    end
   end
 
   @doc """

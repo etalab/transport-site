@@ -33,7 +33,7 @@ defmodule Transport.ReusableData.Dataset do
   use ExConstructor
 
   @type t :: %__MODULE__{
-          _id: %BSON.ObjectId{},
+          #_id: %BSON.ObjectId{},
           title: String.t(),
           description: String.t(),
           logo: String.t(),
