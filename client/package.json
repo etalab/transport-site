@@ -9,7 +9,6 @@
     "deploy": "webpack -p",
     "errors": "webpack --display-error-details",
     "linter:ecma": "eslint -c ../.eslintrc --ext .js .",
-    "linter:riot": "eslint -c ../.eslintrc --ext .tag .",
     "linter:sass": "sass-lint -c ../.sass-lint.yml  -v -q"
   },
   "dependencies": {
@@ -17,8 +16,6 @@
     "babel-core": "^7.0.0-beta.1",
     "babel-loader": "^7.1.2",
     "babel-preset-es2015": "^7.0.0-beta.1",
-    "babel-preset-es2015-riot": "^1.1.0",
-    "bourbon": "^5.0.0-beta.8",
     "copy-webpack-plugin": "^4.2.1",
     "css-loader": "^0.28.7",
     "exports-loader": "^0.6.4",
@@ -28,8 +25,6 @@
     "imports-loader": "^0.7.1",
     "leaflet": "^1.2.0",
     "node-sass": "^4.9.3",
-    "riot": "^3.7.4",
-    "riot-tag-loader": "^1.0.0",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.23.0",
     "template.data.gouv.fr": "^1.1.6",
@@ -42,7 +37,6 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
-    "eslint-plugin-riot": "^0.1.7",
     "eslint-plugin-standard": "^3.0.1",
     "sass-lint": "^1.12.1"
   }
