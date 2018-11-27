@@ -125,7 +125,7 @@ defmodule Transport.Datagouvfr.Client.Datasets do
 
   #private functions
 
-  """
+  @doc """
   Check if user_id is in followers, if it's not, check in next page if there's one
   """
   defp is_user_in_followers?({:ok, %{"data" => followers} = page}, user_id, conn) when is_list(followers) do
