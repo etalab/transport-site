@@ -5,20 +5,20 @@ defmodule TransportWeb.DatasetController do
   alias Transport.Datagouvfr.{Authentication, Client}
   alias Transport.Dataset
   alias Transport.Repo
-  import Ecto.Query
   require Logger
 
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params)
 
   def list_datasets(%Plug.Conn{} = conn, %{} = params) do
     config = make_pagination_config(params)
+    select = [:id, :download_url, :format, :licence, :logo, :spatial, :title]
     datasets =
         params
         |> case do
-          %{"q" => q} -> ReusableData.search_datasets(q, %{:validations => 0})
-          _ -> ReusableData.list_datasets(params, %{:validations => 0})
+          %{"q" => q} -> Dataset.search_datasets(q, select)
+          _ -> Dataset.list_datasets(params, select)
         end
-        |> Scrivener.paginate(config)
+        |> Repo.paginate(page: config.page_number)
 
     conn
     |> assign(:datasets, datasets)
@@ -32,10 +32,10 @@ defmodule TransportWeb.DatasetController do
       dataset ->
         conn
         |> assign(:dataset, dataset)
-        |> assign(:discussions, Client.get_discussions(conn, dataset.id))
-        |> assign(:community_ressources, Client.get_community_ressources(conn, dataset.id))
+        |> assign(:discussions, Client.get_discussions(conn, dataset.datagouv_id))
+        |> assign(:community_ressources, Client.get_community_ressources(conn, dataset.datagouv_id))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
-        |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.id))
+        |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
         |> render("details.html")
     end
   end

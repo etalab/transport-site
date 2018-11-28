@@ -1,10 +1,12 @@
 defmodule Transport.Dataset do
-  use Ecto.Schema
-  import Ecto.Changeset
-  import Ecto.Query
+  @moduledoc """
+  Dataset schema
+  """
+  alias Transport.{AOM, Region, Repo}
+  import Ecto.{Changeset, Query}
   import TransportWeb.Gettext
-  alias Transport.{Region, AOM, Repo}
   require Logger
+  use Ecto.Schema
 
   @endpoint Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
   @client HTTPoison
@@ -55,9 +57,9 @@ defmodule Transport.Dataset do
     )
   end
   def search_datasets(search_string, []), do: search_datasets(search_string)
-  def search_datasets(search_string, s), do: search_datasets(search_string) |> select(^s)
+  def search_datasets(search_string, s), do: search_string |> search_datasets() |> select(^s)
 
-  def list_datasets(), do: from d in __MODULE__
+  def list_datasets, do: from d in __MODULE__
   def list_datasets(%{} = params) do
     filters =
       params
@@ -69,7 +71,7 @@ defmodule Transport.Dataset do
      |> where([d], ^filters)
   end
   def list_datasets(s) when is_list(s), do: list_datasets() |> select(^s)
-  def list_datasets(filters, s) when is_list(s), do: list_datasets(filters) |> select(^s)
+  def list_datasets(filters, s) when is_list(s), do: filters |> list_datasets() |> select(^s)
 
   def changeset(dataset, params) do
     dataset

@@ -11,19 +11,19 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
   And that I can be reassured that I'm not wasting my time.
   """
 
+  use TransportWeb.DatabaseCase, cleanup: [:datasets]
   use TransportWeb.ConnCase, async: false
-  use TransportWeb.DatabaseCase, cleanup: ["datasets"]
   use TransportWeb.UserFacingCase
-  alias Transport.ReusableData
+  alias Transport.{Dataset, Repo}
 
-  setup_all do
-    %_{} = ReusableData.create_dataset %{
+  setup do
+    {:ok, _ } = %Dataset{
       download_url: "https://link.to/angers.zip",
-      license: "odc-odbl",
+      licence: "odc-odbl",
       title: "Horaires et arrêts du réseau IRIGO - format GTFS",
-      id: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
-      validations: []
-    }
+      slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
+      validations: %{}
+    } |> Repo.insert()
 
     :ok
   end
