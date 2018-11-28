@@ -20,6 +20,6 @@ RUN cd client && yarn install && npm run deploy
 
 EXPOSE 8080
 
-RUN ["mix" "ecto.migrate"]
+RUN mix ecto.migrate
 
 ENTRYPOINT ["mix", "phx.server"]
