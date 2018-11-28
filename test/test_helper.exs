@@ -9,3 +9,5 @@ ExUnit.start()
 
 # Define VCR's path.
 ExVCR.Config.cassette_library_dir("test/fixture/cassettes")
+
+Ecto.Adapters.SQL.Sandbox.mode(Transport.Repo, :manual)

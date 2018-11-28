@@ -4,7 +4,7 @@ default_docker: &default_docker
   image: betagouv/transport:0.2.0
   environment:
     MIX_ENV: test
-    MONGODB_URL: mongodb://localhost/transport_test
+    PG_URL_TEST: ecto://root@127.0.0.1/transport_test
     DATAGOUVFR_SITE: https://www.data.gouv.fr
     MAILCHIMP_NEWSLETTER_URL: //gouv.us13.list-manage.com/subscribe/post?u=5ee8bfe0f1b073b49de06a063&amp;id=13db2e9a94
     GTFS_VALIDATOR_URL: https://transport-validator.cleverapps.io
@@ -14,19 +14,25 @@ defaults: &defaults
   docker:
     - *default_docker
 
-defaults_with_mongo: &defaults_with_mongo
+defaults_with_postgres: &defaults_with_postgres
   <<: *defaults
   docker:
     - *default_docker
-    - image: circleci/mongo:3.6-jessie
+    - image: circleci/postgres:9.6.2-alpine
+      environment:
+        POSTGRES_USER: root
+        POSTGRES_DB: transport_test
 
-defaults_with_mongo_and_phantom: &defaults_with_mongo_and_phantom
+defaults_with_postgres_and_phantom: &defaults_with_postgres_and_phantom
     <<: *defaults
     docker:
       - *default_docker
       - image: wernight/phantomjs
         command: phantomjs --webdriver=8910
-      - image: circleci/mongo:3.6-jessie
+      - image: circleci/postgres:9.6.2-alpine
+        environment:
+          POSTGRES_USER: root
+          POSTGRES_DB: transport_test
 
 jobs:
   build:
@@ -82,7 +88,7 @@ jobs:
             mix npm "run linter:sass"
 
   test_unit:
-    <<: *defaults_with_mongo
+    <<: *defaults_with_postgres
     steps:
       - attach_workspace:
           at: ~/transport
@@ -94,7 +100,7 @@ jobs:
             mix test
 
   test_integration:
-    <<: *defaults_with_mongo_and_phantom
+    <<: *defaults_with_postgres_and_phantom
 
     steps:
       - attach_workspace:
@@ -107,7 +113,7 @@ jobs:
             mix test --only integration
 
   test_solution:
-    <<: *defaults_with_mongo_and_phantom
+    <<: *defaults_with_postgres_and_phantom
 
     steps:
       - attach_workspace:
@@ -120,7 +126,7 @@ jobs:
             mix test --only solution
 
   test_external:
-    <<: *defaults_with_mongo
+    <<: *defaults_with_postgres
 
     steps:
       - attach_workspace:

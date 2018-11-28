@@ -1,6 +1,6 @@
 defmodule TransportWeb.API.StatsController do
   use TransportWeb, :controller
-  alias Transport.{AOM, Repo, Region}
+  alias Transport.{AOM, Region, Repo}
   import Ecto.Query
 
   def geojson(features) do

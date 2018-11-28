@@ -23,22 +23,22 @@ export default function (id, aomsUrl, regionsUrl) {
     map.getPane('aoms').style.zIndex = 650
 
     function onEachAomFeature (feature, layer) {
-        const name = feature.properties['liste_aom_Nom de l’AOM']
-        const type = feature.properties['liste_aom_Forme juridique 2017']
-        const count = feature.properties['dataset_count']
+        const name = feature.properties.nom
+        const type = feature.properties.forme_juridique
+        const count = feature.properties.dataset_count
         const text = count === 0 ? 'Aucun jeu de données'
             : count === 1 ? 'Un jeu de données'
                 : `${count} jeux de données`
-        const extra = feature.properties['liste_aom_Nouvelles régions'] === 'Bretagne'
+        const extra = feature.properties.nom === 'Bretagne'
             ? '<br>Données incluses dans le <a href="/datasets/base-de-donnees-multimodale-transports-publics-en-bretagne-mobibreizh/">jeu de données Bretagne</a>'
             : ''
-        const commune = feature.properties['liste_aom_Code INSEE Commune Principale']
+        const commune = feature.properties.id
         layer.bindPopup(`<strong>${name}</strong><br/>${type}<br/><a href="/datasets/aom/${commune}">${text}</a>${extra}`)
     }
 
     function onEachRegionFeature (feature, layer) {
-        const name = feature.properties.NOM_REG
-        const count = feature.properties['dataset_count']
+        const name = feature.properties.nom
+        const count = feature.properties.dataset_count
         const text = count === 0 ? 'Aucun jeu de données'
             : count === 1 ? 'Un jeu de données'
                 : `${count} jeux de données`
@@ -66,7 +66,7 @@ export default function (id, aomsUrl, regionsUrl) {
     const style = feature => {
         if (feature.properties.dataset_count > 0) {
             return styles.available
-        } else if (feature.properties['liste_aom_Nouvelles régions'] === 'Bretagne') {
+        } else if (feature.properties.nom === 'Bretagne') {
             return styles.availableElsewhere
         } else {
             return styles.unavailable

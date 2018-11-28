@@ -14,7 +14,8 @@ defmodule Transport.Mixfile do
       ],
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases()
     ]
   end
 
@@ -76,6 +77,12 @@ defmodule Transport.Mixfile do
       {:ecto, "~> 3.0"},
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
+    ]
+  end
+
+  defp aliases do
+    [
+     "test": ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end
 end
