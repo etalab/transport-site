@@ -1,7 +1,8 @@
 defmodule TransportWeb.BackofficeController do
   use TransportWeb, :controller
-  alias Transport.{ImportDataService, ReusableData}
+  alias Transport.{Dataset, ImportDataService, Region, Repo}
   alias Transport.Partners.Partner
+  import Ecto.Query
   require Logger
 
   @dataset_types [
@@ -10,15 +11,19 @@ defmodule TransportWeb.BackofficeController do
   ]
 
   defp region_names do
-    #:mongo
-    #|> Mongo.find("regions", %{}, pool:  DBConnection.Poolboy)
-    #|> Enum.map(fn r -> r["properties"]["NOM_REG"] end)
-    #|> Enum.concat(["National"])
+    Region
+    |> Repo.all()
+    |> Enum.map(fn r -> r.nom end)
+    |> Enum.concat(["National"])
   end
 
   def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do
     config = make_pagination_config(params)
-    datasets = q |> ReusableData.search_datasets |> Scrivener.paginate(config)
+    datasets =
+    q
+    |> Dataset.search_datasets
+    |> preload([:region, :aom])
+    |> Repo.paginate(page: config.page_number)
 
     conn
     |> assign(:regions, region_names())
@@ -30,7 +35,7 @@ defmodule TransportWeb.BackofficeController do
 
   def index(%Plug.Conn{} = conn, params) do
     config = make_pagination_config(params)
-    datasets = ReusableData.list_datasets |> Scrivener.paginate(config)
+    datasets = Repo.paginate(from(d in Dataset, preload: [:region, :aom]), page: config.page_number)
 
     conn
     |> assign(:regions, region_names())
@@ -39,18 +44,15 @@ defmodule TransportWeb.BackofficeController do
     |> render("index.html")
   end
 
-  defp insert_into_mongo(%{"id" => id} = dataset) do
-    #case Mongo.insert_one(:mongo, "datasets", dataset, pool: DBConnection.Poolboy) do
-    #  {:ok, %Mongo.InsertOneResult{inserted_id: mongo_id}} ->
-    #    {:ok, %{"_id" => mongo_id, "id" => id, "type" => dataset["type"]}}
-    #  error ->
-    #    error
-    #end
+  defp insert_into_db(dataset) do
+    dataset
+    |> Dataset.new()
+    |> Repo.insert()
   end
 
-  defp import_data({:ok, ids}) do
-    ImportDataService.call(ids)
-  end
+  defp import_data(%Dataset{} = dataset), do: import_data({:ok, dataset})
+  defp import_data(nil), do: {:error, dgettext("backoffice", "Unable to find dataset")}
+  defp import_data({:ok, dataset}), do: ImportDataService.call(dataset)
   defp import_data(error), do: error
 
   defp flash({:ok, _message}, conn, ok_message, _err_message) do
@@ -63,34 +65,35 @@ defmodule TransportWeb.BackofficeController do
 
   def new_dataset(%Plug.Conn{} = conn, params) do
     params
-    |> Map.take(["spatial", "id", "commune_principale", "region", "type"])
-    |> insert_into_mongo
+    |> insert_into_db
     |> import_data
-    |> flash(conn, dgettext("backoffice", "Dataset added with success"), dgettext("backoffice", "Could not add dataset"))
+    |> flash(conn, dgettext("backoffice", "Dataset added with success"),
+       dgettext("backoffice", "Could not add dataset"))
     |> index(%{})
   end
 
   def import_from_data_gouv_fr(%Plug.Conn{} = conn, %{"id" => id}) do
-    :mongo
-    |> Mongo.find("datasets", %{"id" => id}, pool:  DBConnection.Poolboy)
-    |> Enum.map(fn dataset -> import_data({:ok, dataset}) end)
-    |> Enum.reduce(conn, fn(result, c) -> flash(result, c,
+    Dataset
+    |> Repo.get(id)
+    |> import_data
+    |> flash(conn,
             dgettext("backoffice", "Dataset imported with success"),
-            dgettext("backoffice", "Dataset not imported"))
-      end)
+            dgettext("backoffice", "Dataset not imported")
+      )
     |> index(%{})
   end
 
   def delete(%Plug.Conn{} = conn, %{"id" => id}) do
-    :mongo
-    |> Mongo.delete_one("datasets", %{"id" => id}, pool:  DBConnection.Poolboy)
+    Dataset
+    |> Repo.get(id)
+    |> Repo.delete
     |> flash(conn, dgettext("backoffice", "Dataset deleted"), dgettext("backoffice", "Could not delete dataset"))
     |> index(%{})
   end
 
   def partners(%Plug.Conn{} = conn, params) do
     config = make_pagination_config(params)
-    partners = Partner.list |> Scrivener.paginate(config)
+    partners = Repo.paginate(Partner, page: config.page_number)
 
     conn
     |> assign(:partners, partners)
@@ -100,7 +103,7 @@ defmodule TransportWeb.BackofficeController do
   def new_partner(%Plug.Conn{} = conn, %{"partner_url" => partner_url} = _params) do
     with true <- Partner.is_datagouv_partner_url?(partner_url),
          {:ok, partner} <- Partner.from_url(partner_url),
-         {:ok, _} <- Partner.insert(partner) do
+         {:ok, _} <- Repo.insert(partner) do
       conn
       |> put_flash(:info, dgettext("backoffice", "Partner added"))
     else

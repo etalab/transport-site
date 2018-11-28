@@ -75,3 +75,7 @@ msgstr "Partenaire ajouté"
 #, elixir-format
 msgid "Unable to insert partner in database"
 msgstr "Impossible d'ajouter le partenaire à la base de données"
+
+#, elixir-format
+msgid "Unable to find dataset"
+msgstr ""
