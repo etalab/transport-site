@@ -24,6 +24,16 @@ config :transport, Transport.Scheduler,
     {"0 7 * * *", {Transport.ReusableData, :import, []}} # Every day at 7am
   ]
 
+
+config :transport, Transport.Repo,
+  database: System.get_env("POSTGRESQL_ADDON_DB"),
+  hostname: System.get_env("POSTGRESQL_ADDON_HOST"),
+  password: System.get_env("POSTGRESQL_ADDON_PASSWORD"),
+  username: System.get_env("POSTGRESQL_ADDON_USER"),
+  pool_size: 4,
+  pool_timeout: 15_000,
+  timeout: 15_000
+
 # Do not print debug messages in production
 config :logger, level: :info
 
