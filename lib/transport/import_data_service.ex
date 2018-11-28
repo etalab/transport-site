@@ -1,21 +1,20 @@
 defmodule Transport.ImportDataService do
   @moduledoc """
-  Service use to import data from datagouv to mongodb
+  Service use to import data from datagouv to psql
   """
 
+  alias Transport.{Dataset, Repo}
   require Logger
 
   @separators [?;, ?,]
   @csv_headers ["Download", "file", "Fichier"]
 
-  def call(%{"_id" => mongo_id, "id" => id, "type" => type}) do
-    case import_from_udata(id, type) do
-      {:ok, new_data} ->
-        Mongo.find_one_and_update(:mongo,
-                                  "datasets",
-                                  %{"_id" => mongo_id},
-                                  %{"$set" => new_data},
-                                  pool: DBConnection.Poolboy)
+  def call(%Dataset{id: id, datagouv_id: datagouv_id, type: type}) do
+    with {:ok, new_data} <- import_from_udata(datagouv_id, type),
+         dataset <- Repo.get(Dataset, id),
+         changeset <- Dataset.changeset(dataset, new_data) do
+      Repo.update(changeset)
+    else
       {:error, error} ->
         {:error, error}
     end
