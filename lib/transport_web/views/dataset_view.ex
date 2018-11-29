@@ -1,6 +1,5 @@
 defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
-  alias Transport.ReusableData
   import Scrivener.HTML
 
   def render_sidebar_from_type(dataset), do: render_panel_from_type(dataset, "sidebar")
