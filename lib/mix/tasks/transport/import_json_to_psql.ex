@@ -80,7 +80,8 @@ defmodule Mix.Tasks.Transport.ImportJson do
       },
       validation_date: props["validation_date"],
       aom: Repo.get_by(AOM, insee_commune_principale: props["commune_principale"]),
-      region: get_region_name(props)
+      region: get_region_name(props),
+      type: props["type"]
     }
   end
   def new_dataset(_), do: nil
