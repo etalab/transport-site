@@ -24,7 +24,7 @@
                 <%= if dataset.licence do %>
                   <div class="shortlist__notice">
                     <div class="shortlist__label"><%= dgettext("page-shortlist", "Licence") %></div>
-                    <span class="label label-notice"><%= ReusableData.localise_licence(dataset) %></span>
+                    <span class="label label-notice"><%= Transport.Dataset.localise_licence(dataset) %></span>
                   </div>
                 <% end %>
 

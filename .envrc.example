@@ -1,7 +1,8 @@
 export SECRET_KEY_BASE=asdf1234
-export MONGODB_URL=mongodb://localhost/transport
 export DATAGOUVFR_SITE=https://www.data.gouv.fr
 export DATAGOUVFR_CLIENT_ID=asdf1234
 export DATAGOUVFR_CLIENT_SECRET= asdf1234
 export DATAGOUVFR_REDIRECT_URI=http://127.0.0.1:5000/auth/callback
 export GTFS_VALIDATOR_URL=http://127.0.0.1:7878
+export PG_URL=ecto://user:password@host/db_name
+export PG_URL_TEST=ecto://user:password@host/db_name_test

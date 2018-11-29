@@ -1,6 +1,7 @@
 defmodule TransportWeb.DatasetControllerTest do
   use TransportWeb.ConnCase, async: false
   use TransportWeb.ExternalCase
+  use TransportWeb.DatabaseCase, cleanup: [:datasets]
 
   doctest TransportWeb.DatasetController
 

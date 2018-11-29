@@ -17,12 +17,13 @@ config :logger, level: :warn
 config :oauth2, Authentication,
   site: "https://next.data.gouv.fr"
 
-# MongoDB configuration.
-config :mongodb, url: "mongodb://localhost/transport_test"
-
 # Validator configuration
 config :transport, gtfs_validator_url: System.get_env("GTFS_VALIDATOR_URL") || "http://127.0.0.1:7878"
 
 config :exvcr, [
   vcr_cassette_library_dir: "test/fixture/cassettes"
 ]
+
+config :transport, Transport.Repo,
+  url: System.get_env("PG_URL_TEST") || System.get_env("PG_URL") || "ecto://postgres:postgres@localhost/transport_test",
+  pool: Ecto.Adapters.SQL.Sandbox

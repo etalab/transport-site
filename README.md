@@ -25,14 +25,6 @@ In order to validate datasets:
 
 Now you can visit [`127.0.0.1:5000`](http://127.0.0.1:5000) from your browser.
 
-### Managing the data
-
-To populate the mongo database
-
-  * Download the latest dump from the production
-  * Run `mongorestore --gzip --archive=downloaded_dump.archive.gz`
-  * To validate the datasets, run `mix transport.simple_validation`
-
 ### Docker
 
   The Dockerfile needed to run the continuous integration is in the project:

@@ -44,15 +44,15 @@ config :logger, :console,
 config :scrivener_html,
   routes_helper: TransportWeb.Router.Helpers
 
-# Import environment specific config. This must remain at the bottom
-# of this file so it overrides the configuration defined above.
-import_config "datagouvfr.exs"
-import_config "gtfs_validator.exs"
-import_config "mailjet.exs"
-import_config "mongodb.exs"
-import_config "mailchimp.exs"
-import_config "#{Mix.env}.exs"
-
 # Allow to have Markdown templates
 config :phoenix, :template_engines,
   md: PhoenixMarkdown.Engine
+
+# Import environment specific config. This must remain at the bottom
+# of this file so it overrides the configuration defined above.
+import_config "datagouvfr.exs"
+import_config "database.exs"
+import_config "gtfs_validator.exs"
+import_config "mailjet.exs"
+import_config "mailchimp.exs"
+import_config "#{Mix.env}.exs"

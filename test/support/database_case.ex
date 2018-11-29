@@ -8,37 +8,34 @@ defmodule TransportWeb.DatabaseCase do
 
   using(options) do
     quote do
+      alias Transport.{Dataset, Repo}
+
+      import Ecto
+      import Ecto.Query
+
       defp cleanup do
         collections() |> Enum.each(&(cleanup(&1)))
       end
 
-      defp cleanup(collection) do
-        Mongo.delete_many(:mongo, collection, %{}, pool: DBConnection.Poolboy)
-      end
+      defp cleanup(:datasets), do: Repo.delete_all(Dataset)
 
       defp collections do
         unquote(options)[:cleanup]
       end
 
-      defp fulltext_index(coll) do
-        query = %{
-          createIndexes: coll,
-          indexes: [%{
-            key: %{"$**" => "text"},
-            name: "fulltext" <> coll
-            }]
-        }
-        Mongo.command(:mongo, query, pool: DBConnection.Poolboy)
-      end
+      setup context do
+        :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
+        unless context[:async] do
+          Ecto.Adapters.SQL.Sandbox.mode(Transport.Repo, {:shared, self()})
+        end
 
-      setup_all do
         cleanup()
 
-        collections() |> Enum.each(&(fulltext_index(&1)))
-
         on_exit fn ->
+          :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
           cleanup()
         end
+        :ok
       end
     end
   end

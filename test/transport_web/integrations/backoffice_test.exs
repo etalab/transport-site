@@ -1,5 +1,6 @@
 defmodule TransportWeb.Integration.BackofficeTest do
   use TransportWeb.ConnCase, async: false
+  use TransportWeb.DatabaseCase, cleanup: [:datasets], async: false
   use TransportWeb.UserFacingCase
   import Plug.Test
 

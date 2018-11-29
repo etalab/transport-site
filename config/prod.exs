@@ -24,6 +24,13 @@ config :transport, Transport.Scheduler,
     {"0 7 * * *", {Transport.ReusableData, :import, []}} # Every day at 7am
   ]
 
+
+config :transport, Transport.Repo,
+  url: System.get_env("POSTGRESQL_ADDON_URI") || "" |> String.replace_prefix("postgresql", "ecto"),
+  pool_size: 2,
+  pool_timeout: 15_000,
+  timeout: 15_000
+
 # Do not print debug messages in production
 config :logger, level: :info
 

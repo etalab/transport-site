@@ -51,6 +51,3 @@ config :logger, :console, format: "[$level] $message\n"
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
-
-# MongoDB configuration.
-config :mongodb, url: System.get_env() |> Map.get("MONGODB_URL", "mongodb://localhost/transport")

@@ -8,7 +8,7 @@
       <td>
           <i class="icon icon--link" aria-hidden="true"></i>
           <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
-                  to: "https://www.data.gouv.fr/datasets/#{@dataset.id}/",
+                  to: "https://www.data.gouv.fr/datasets/#{@dataset.datagouv_id}/",
                   role: "link") %>
       </td>
       <td>
@@ -29,6 +29,6 @@
           <%= submit "Supprimer", [class: "button", nodiv: true] %>
         <% end %>
       </td>
-      <td><%= @dataset.region %></td>
-      <td><%= @dataset.commune_principale %></td>
+      <td><%= if @dataset.region do @dataset.region.nom else "" end %></td>
+      <td><%= if @dataset.aom do @dataset.aom.insee_commune_principale else "" end %></td>
     </tr>

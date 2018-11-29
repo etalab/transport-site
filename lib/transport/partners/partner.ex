@@ -2,32 +2,29 @@ defmodule Transport.Partners.Partner do
   @moduledoc """
   Partner model
   """
+  use Ecto.Schema
+
+  schema "partner" do
+    field :page, :string
+    field :api_uri, :string
+    field :name, :string
+  end
+
   alias Transport.Datagouvfr.Client
   require Logger
-
-  defstruct page: nil, api_uri: nil, name: nil
-  use ExConstructor
-
-  @pool DBConnection.Poolboy
 
   def is_datagouv_partner_url?(url), do: Regex.match?(partner_regex(), url)
 
   def from_url(partner_url) when is_binary(partner_url) do
     case get_api_response(partner_url) do
       {:ok, api_response} ->
-        {:ok, __MODULE__.new(api_response)}
+        {:ok, %__MODULE__{
+          page: api_response[:page],
+          api_uri: api_response[:api_uri],
+          name: api_response[:name]
+        }}
       _ -> {:error, nil}
     end
-  end
-
-  def insert(%__MODULE__{} = partner) do
-    Mongo.insert_one(:mongo, "partners", partner, pool: @pool)
-  end
-
-  def list do
-    :mongo
-    |> Mongo.find("partners", %{}, pool: @pool)
-    |> Enum.map(&__MODULE__.new/1)
   end
 
   # private functions
@@ -38,7 +35,6 @@ defmodule Transport.Partners.Partner do
   defp get_type_and_slug(url) do
      url
      |> String.split("/")
-     |> Enum.reverse()
      |> Enum.filter(&(String.length(&1) != 0))
      |> Enum.take(-2)
   end
