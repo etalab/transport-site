@@ -1,14 +1,14 @@
-FROM betagouv/transport:0.1.1
+FROM betagouv/transport:0.3.0
 
 RUN mkdir phoenixapp
-WORKDIR phoenixapp
+WORKDIR /phoenixapp
 
 COPY ./mix.exs /phoenixapp/mix.exs
 COPY ./mix.lock /phoenixapp/mix.lock
 
 RUN mix local.hex --force
 RUN mix local.rebar --force
-RUN mix do deps.get
+RUN mix do deps.get --only prod
 
 COPY ./ /phoenixapp
 
