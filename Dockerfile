@@ -2,15 +2,9 @@ FROM betagouv/transport:0.3.0
 
 RUN mkdir phoenixapp
 WORKDIR /phoenixapp
-
-COPY ./mix.exs /phoenixapp/mix.exs
-COPY ./mix.lock /phoenixapp/mix.lock
-
-RUN mix local.hex --force
-RUN mix local.rebar --force
-RUN mix do deps.get --only prod
-
 COPY ./ /phoenixapp
+
+RUN mix do deps.get --only prod
 
 ENV PORT 8080
 ENV MIX_ENV prod
