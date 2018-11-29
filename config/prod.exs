@@ -27,7 +27,7 @@ config :transport, Transport.Scheduler,
 
 config :transport, Transport.Repo,
   url: System.get_env("POSTGRESQL_ADDON_URI") || "" |> String.replace_prefix("postgresql", "ecto"),
-  pool_size: 4,
+  pool_size: 2,
   pool_timeout: 15_000,
   timeout: 15_000
 
