@@ -26,10 +26,7 @@ config :transport, Transport.Scheduler,
 
 
 config :transport, Transport.Repo,
-  database: System.get_env("POSTGRESQL_ADDON_DB"),
-  hostname: System.get_env("POSTGRESQL_ADDON_HOST"),
-  password: System.get_env("POSTGRESQL_ADDON_PASSWORD"),
-  username: System.get_env("POSTGRESQL_ADDON_USER"),
+  url: System.get_env("POSTGRESQL_ADDON_URI") || "" |> String.replace_prefix("postgresql", "ecto"),
   pool_size: 4,
   pool_timeout: 15_000,
   timeout: 15_000
