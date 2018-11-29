@@ -18,10 +18,14 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
 
   setup do
     {:ok, _ } = %Dataset{
+      description: "Un jeu de données",
       download_url: "https://link.to/angers.zip",
       licence: "odc-odbl",
       title: "Horaires et arrêts du réseau IRIGO - format GTFS",
       slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
+      datagouv_id: "5b4cd3a0b59508054dd496cd",
+      frequency: "yearly",
+      tags: [],
       validations: %{}
     } |> Repo.insert()
 

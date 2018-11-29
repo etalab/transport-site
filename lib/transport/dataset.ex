@@ -182,6 +182,6 @@ defmodule Transport.Dataset do
       "other-open" -> dgettext("reusable_data", "other-open")
       _ -> dgettext("reusable_data", "notspecified")
     end
-end
+  end
 
 end

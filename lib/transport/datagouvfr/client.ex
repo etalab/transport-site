@@ -13,8 +13,7 @@ defmodule Transport.Datagouvfr.Client do
   @spec get_request(%Plug.Conn{}, binary, OAuth2Client.headers, Keyword.t)
                     :: {:ok, OAuth2.Response.t} | {:error, Error.t}
   def get_request(%Plug.Conn{} = conn, url, headers \\ [], opts \\ []) do
-   :get
-    |> Transport.Datagouvfr.Client.request(conn, url, nil, headers, opts)
+    Transport.Datagouvfr.Client.request(:get, conn, url, nil, headers, opts)
   end
 
   @spec put_request(%Plug.Conn{}, binary, OAuth2Client.body,
