@@ -46,7 +46,6 @@ defmodule Transport.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:cowboy, "~> 1.0"},
       {:csv, "~> 2.0.0"},
       {:earmark, "~> 1.2"},
       {:exconstructor, "~> 1.1"},
@@ -60,6 +59,7 @@ defmodule Transport.Mixfile do
       {:phoenix_html, "~> 2.10"},
       {:phoenix_markdown, "~> 1.0"},
       {:phoenix_pubsub, "~> 1.0"},
+      {:plug_cowboy, "~> 1.0"},
       {:poolboy, "~> 1.5"},
       {:recon, "~> 2.3"},
       {:uuid, "~> 1.1"},
@@ -77,6 +77,7 @@ defmodule Transport.Mixfile do
       {:ecto, "~> 3.0"},
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
+      {:jason, "~> 1.1"}
     ]
   end
 
