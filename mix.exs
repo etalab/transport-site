@@ -82,7 +82,8 @@ defmodule Transport.Mixfile do
 
   defp aliases do
     [
-     "test": ["ecto.create --quiet", "ecto.migrate", "test"]
+     "test": ["ecto.create --quiet", "ecto.migrate", "test"],
+     "phx.migrate_phx.server": ["ecto.migrate", "phx.server"]
     ]
   end
 end
