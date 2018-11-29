@@ -5,13 +5,6 @@
 # is restricted to this project.
 use Mix.Config
 
-config :transport, Transport.Repo,
-  url: System.get_env("PG_URL") || "ecto://postgres:postgres@localhost/transport_repo",
-  pool_size: (System.get_env("PG_POOL_SIZE") || "10") |> String.to_integer,
-  types: Transport.PostgresTypes
-
-config :transport, ecto_repos: [Transport.Repo]
-
 # Configures the endpoint
 config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],
@@ -51,18 +44,15 @@ config :logger, :console,
 config :scrivener_html,
   routes_helper: TransportWeb.Router.Helpers
 
-# Import environment specific config. This must remain at the bottom
-# of this file so it overrides the configuration defined above.
-import_config "datagouvfr.exs"
-import_config "gtfs_validator.exs"
-import_config "mailjet.exs"
-import_config "mailchimp.exs"
-import_config "#{Mix.env}.exs"
-
 # Allow to have Markdown templates
 config :phoenix, :template_engines,
   md: PhoenixMarkdown.Engine
 
-config :ecto_sql, postgres_map_type: "json"
-
-config :transport, Transport.Repo, types: Transport.PostgrexTypes
+# Import environment specific config. This must remain at the bottom
+# of this file so it overrides the configuration defined above.
+import_config "datagouvfr.exs"
+import_config "database.exs"
+import_config "gtfs_validator.exs"
+import_config "mailjet.exs"
+import_config "mailchimp.exs"
+import_config "#{Mix.env}.exs"
