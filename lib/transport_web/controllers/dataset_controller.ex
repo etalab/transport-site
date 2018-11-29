@@ -11,7 +11,8 @@ defmodule TransportWeb.DatasetController do
 
   def list_datasets(%Plug.Conn{} = conn, %{} = params) do
     config = make_pagination_config(params)
-    select = [:id, :download_url, :format, :licence, :logo, :spatial, :title]
+    select = [:id, :download_url, :format, :licence, :logo,
+     :spatial, :title, :slug, :description]
     datasets =
         params
         |> case do
