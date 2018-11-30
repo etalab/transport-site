@@ -46,23 +46,36 @@ defmodule Transport.Dataset do
   defp select_or_not(res, s), do: select(res, ^s)
 
   def search_datasets(search_string, s \\ []) do
-    q = "%#{search_string}%"
-
-    __MODULE__
+    document_q = __MODULE__
     |> join(:left, [d], aom in AOM, on: d.aom_id == aom.id)
     |> join(:left, [d], region in Region, on: d.region_id == region.id)
-    |> where([d, a, r],
-      ilike(a.insee_commune_principale, ^q)
-      or ilike(r.nom, ^q)
-      or ilike(d.description, ^q)
-      or ilike(d.title, ^q)
-      or ilike(d.spatial, ^q)
-    )
+    |> select([d, a, r], %{
+      id: d.id,
+      document: fragment(
+        """
+        setweight(to_tsvector('french', coalesce(?, '')), 'A') ||
+        setweight(to_tsvector('french', coalesce(?, '')), 'A') ||
+        setweight(to_tsvector('french', coalesce(?, '')), 'B') ||
+        setweight(to_tsvector('french', coalesce(?, '')), 'B') ||
+        setweight(to_tsvector('french', array_to_string(?, ',')), 'B') ||
+        setweight(to_tsvector('french', coalesce(?, '')), 'D')
+        """, a.insee_commune_principale, d.spatial, a.nom, r.nom, d.tags, d.description
+      )
+    })
+
+    sub =
+       document_q
+    |> subquery()
+    |> where([d], fragment("? @@ plainto_tsquery('french', ?)", d.document, ^search_string))
+    |> order_by([d], fragment("ts_rank(?, plainto_tsquery('french', ?)) DESC", d.document, ^search_string))
+
+    __MODULE__
+    |> join(:inner, [d], doc in subquery(sub), on: doc.id == d.id)
     |> select_or_not(s)
   end
 
   def list_datasets, do: from d in __MODULE__
-  def list_datasets(s) when is_list(s), do: list_datasets() |> select(^s)
+  def list_datasets(s) when is_list(s), do: list_datasets() |> select_or_not(s)
 
   def list_datasets(filters, s \\ [])
   def list_datasets(%{"q" => q}, s), do: search_datasets(q, s)
