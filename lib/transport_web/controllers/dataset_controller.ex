@@ -10,19 +10,19 @@ defmodule TransportWeb.DatasetController do
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params)
 
   def list_datasets(%Plug.Conn{} = conn, %{} = params) do
-    config = make_pagination_config(params)
-    select = [:id, :description, :download_url, :format,
-     :licence, :logo, :spatial, :title, :slug]
-    datasets =
-        params
-        |> case do
-          %{"q" => q} -> Dataset.search_datasets(q, select)
-          _ -> Dataset.list_datasets(params, select)
-        end
-        |> Repo.paginate(page: config.page_number)
+    conn
+    |> assign(:datasets, get_datasets(params))
+    |> render_or_redirect(params)
+  end
+
+  defp render_or_redirect(%Plug.Conn{assigns: %{datasets: %{total_entries: 1}}} = conn, _params) do
+    entries = conn.assigns[:datasets].entries
 
     conn
-    |> assign(:datasets, datasets)
+    |> redirect(to: dataset_path(conn, :details, List.first(entries).slug))
+  end
+  defp render_or_redirect(conn, params) do
+    conn
     |> assign(:q, Map.get(params, "q"))
     |> render("index.html")
   end
@@ -41,9 +41,20 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  def by_aom(%Plug.Conn{} = conn, %{"commune" => commune}), do: list_datasets(conn, %{commune_principale: commune})
-  def by_region(%Plug.Conn{} = conn, %{"region" => region}), do: list_datasets(conn, %{region: region})
-  def by_type(%Plug.Conn{} = conn, %{"type" => type}), do: list_datasets(conn, %{type: type})
+  def by_aom(%Plug.Conn{} = conn, %{"commune" => commune}), do: list_datasets(conn, %{"commune" => commune})
+  def by_region(%Plug.Conn{} = conn, %{"region" => region}), do: list_datasets(conn, %{"region" => region})
+  def by_type(%Plug.Conn{} = conn, %{"type" => type}), do: list_datasets(conn, %{"type" => type})
+
+  defp get_datasets(params) do
+    config = make_pagination_config(params)
+    select = [:id, :description, :download_url, :format,
+     :licence, :logo, :spatial, :title, :slug]
+
+    datasets =
+       params
+    |> Dataset.list_datasets(select)
+    |> Repo.paginate(page: config.page_number)
+  end
 
   defp redirect_to_slug_or_404(conn, slug_or_id) do
     case Repo.get_by(Dataset, [datagouv_id: slug_or_id]) do

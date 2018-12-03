@@ -42,7 +42,10 @@ defmodule Transport.Dataset do
   end
   use ExConstructor
 
-  def search_datasets(search_string) do
+  defp select_or_not(res, []), do: res
+  defp select_or_not(res, s), do: select(res, ^s)
+
+  def search_datasets(search_string, s \\ []) do
     q = "%#{search_string}%"
 
     __MODULE__
@@ -55,23 +58,30 @@ defmodule Transport.Dataset do
       or ilike(d.title, ^q)
       or ilike(d.spatial, ^q)
     )
+    |> select_or_not(s)
   end
-  def search_datasets(search_string, []), do: search_datasets(search_string)
-  def search_datasets(search_string, s), do: search_string |> search_datasets() |> select(^s)
 
   def list_datasets, do: from d in __MODULE__
-  def list_datasets(%{} = params) do
+  def list_datasets(s) when is_list(s), do: list_datasets() |> select(^s)
+
+  def list_datasets(filters, s \\ [])
+  def list_datasets(%{"q" => q}, s), do: search_datasets(q, s)
+  def list_datasets(%{} = params, s) do
     filters =
       params
-      |> Map.take([:insee_commune_principale, :region, :type])
+      |> Map.take(["commune", "region", "type"])
       |> Map.to_list
+      |> Enum.map(fn
+        {"commune", v} -> {:aom_id, v}
+        {"region", v} -> {:region_id, v}
+        {"type", type} -> {:type, type}
+      end)
       |> Keyword.new
 
      list_datasets()
      |> where([d], ^filters)
+     |> select_or_not(s)
   end
-  def list_datasets(s) when is_list(s), do: list_datasets() |> select(^s)
-  def list_datasets(filters, s) when is_list(s), do: filters |> list_datasets() |> select(^s)
 
   def changeset(dataset, params) do
     dataset

@@ -17,13 +17,25 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
   alias Transport.{Dataset, Repo}
 
   setup do
-    {:ok, _ } = %Dataset{
+    {:ok, _} = %Dataset{
       description: "Un jeu de données",
       download_url: "https://link.to/angers.zip",
       licence: "odc-odbl",
       title: "Horaires et arrêts du réseau IRIGO - format GTFS",
       slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
       datagouv_id: "5b4cd3a0b59508054dd496cd",
+      frequency: "yearly",
+      tags: [],
+      validations: %{}
+    } |> Repo.insert()
+
+    {:ok, _} = %Dataset{
+      description: "Un autre jeu de données",
+      download_url: "https://link.to/angers.zip",
+      licence: "odc-odbl",
+      title: "offre de transport du réseau de LAVAL Agglomération (GTFS)",
+      slug: "offre-de-transport-du-reseau-de-laval-agglomeration-gtfs",
+      datagouv_id: "5bc493d08b4c416c84a69500",
       frequency: "yearly",
       tags: [],
       validations: %{}
