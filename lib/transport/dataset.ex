@@ -97,9 +97,8 @@ defmodule Transport.Dataset do
   end
 
   def changeset(dataset, params) do
-    dataset
-    |> cast(params, [:insee_commune_principale, :coordinates, :datagouv_id, :region,
-      :spatial, :created_at, :description, :download_url, :format, :frequency, :last_update,
+    cast(dataset, params, [:coordinates, :datagouv_id, :spatial,
+     :created_at, :description, :download_url, :format, :frequency, :last_update,
       :last_import, :licence, :logo, :full_logo, :slug, :tags, :task_id, :title, :type,
       :metadata, :validations, :validation_date])
   end

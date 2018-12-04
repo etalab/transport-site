@@ -1,7 +1,6 @@
 defmodule TransportWeb.BackofficeController do
   use TransportWeb, :controller
-  alias Transport.{Dataset, ImportDataService, Region, Repo}
-  alias Transport.Partners.Partner
+  alias Transport.{AOM, Dataset, ImportDataService, Partner, Region, Repo}
   import Ecto.Query
   require Logger
 
@@ -46,6 +45,8 @@ defmodule TransportWeb.BackofficeController do
 
   defp insert_into_db(dataset) do
     dataset
+    |> Map.put("region", Repo.get_by(Region, nom: dataset["region"]))
+    |> Map.put("aom", Repo.get_by(AOM, insee_commune_principale: dataset["insee_commune_principale"]))
     |> Dataset.new()
     |> Repo.insert()
   end
@@ -57,6 +58,12 @@ defmodule TransportWeb.BackofficeController do
 
   defp flash({:ok, _message}, conn, ok_message, _err_message) do
     put_flash(conn, :info, ok_message)
+  end
+
+  defp flash({:error, %{errors: errors}}, conn, _ok_message, err_message) do
+    Enum.reduce(errors, conn,
+     fn {k, {error, _}}, conn -> put_flash(conn, :error, "#{err_message} #{k}: #{error}") end
+    )
   end
 
   defp flash({:error, message}, conn, _ok_message, err_message) do
