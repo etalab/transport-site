@@ -5,7 +5,7 @@ defmodule Transport.Repo.Migrations.AddIncludedInDatasetToDatasets do
 
   def up do
     alter table(:aom) do
-      add :global_dataset_id, references ("dataset")
+      add :parent_dataset_id, references ("dataset")
     end
 
     flush()

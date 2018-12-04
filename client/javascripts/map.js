@@ -29,8 +29,8 @@ export default function (id, aomsUrl, regionsUrl) {
         const text = count === 0 ? 'Aucun jeu de données'
             : count === 1 ? 'Un jeu de données'
                 : `${count} jeux de données`
-        const extra = feature.properties.global_dataset_slug !== null
-            ? `<br>Données incluses dans le jeu de données <a href="/datasets/${feature.properties.global_dataset_slug}/">${feature.properties.global_dataset_name}</a>`
+        const extra = feature.properties.parent_dataset_slug !== null
+            ? `<br>Données incluses dans le jeu de données <a href="/datasets/${feature.properties.parent_dataset_slug}/">${feature.properties.parent_dataset_name}</a>`
             : ''
         const commune = feature.properties.id
         layer.bindPopup(`<strong>${name}</strong><br/>${type}<br/><a href="/datasets/aom/${commune}">${text}</a>${extra}`)

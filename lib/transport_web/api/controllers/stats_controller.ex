@@ -23,8 +23,8 @@ defmodule TransportWeb.API.StatsController do
         "nom" => Map.get(aom, :nom, ""),
         "id" => aom.id,
         "forme_juridique" => Map.get(aom, :forme_juridique, ""),
-        "global_dataset_slug" => Map.get(aom, :global_dataset_slug, ""),
-        "global_dataset_name" => Map.get(aom, :global_dataset_name, "")
+        "parent_dataset_slug" => Map.get(aom, :parent_dataset_slug, ""),
+        "parent_dataset_name" => Map.get(aom, :parent_dataset_name, "")
       }
     } end)
     |> Enum.to_list
@@ -36,15 +36,15 @@ defmodule TransportWeb.API.StatsController do
         data: geojson(features(
           from a in AOM,
             left_join: d in Dataset,
-            on: d.id == a.global_dataset_id,
+            on: d.id == a.parent_dataset_id,
             select: %{
               geometry: a.geometry,
               id: a.id,
               nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=?", a.id),
               nom: a.nom,
               forme_juridique: a.forme_juridique,
-              global_dataset_slug: d.slug,
-              global_dataset_name: d.title
+              parent_dataset_slug: d.slug,
+              parent_dataset_name: d.title
             }
             ))
         })

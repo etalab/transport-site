@@ -10,10 +10,10 @@ defmodule TransportWeb.StatsController do
         population: a.population_totale_2014,
         region_id: a.region_id,
         nb_datasets: fragment("SELECT count(*) FROM dataset where aom_id = ?", a.id),
-        global_dataset_id: a.global_dataset_id,
+        parent_dataset_id: a.parent_dataset_id,
       }
     )
-    aoms_with_datasets = aoms |> Enum.filter(&(&1.nb_datasets > 0 || !is_nil(&1.global_dataset_id)))
+    aoms_with_datasets = aoms |> Enum.filter(&(&1.nb_datasets > 0 || !is_nil(&1.parent_dataset_id)))
 
     regions = Repo.all(from r in Region)
 
