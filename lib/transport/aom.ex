@@ -21,5 +21,6 @@ defmodule Transport.AOM do
 
       belongs_to :region, Region
       has_many :datasets, Dataset
+      belongs_to :global_dataset, Dataset
   end
 end
