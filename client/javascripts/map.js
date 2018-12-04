@@ -38,11 +38,12 @@ export default function (id, aomsUrl, regionsUrl) {
 
     function onEachRegionFeature (feature, layer) {
         const name = feature.properties.nom
+        const id = feature.properties.id
         const count = feature.properties.dataset_count
         const text = count === 0 ? 'Aucun jeu de données'
             : count === 1 ? 'Un jeu de données'
                 : `${count} jeux de données`
-        layer.bindPopup(`<strong>${name}</strong><br/><a href="/datasets/region/${name}">${text}</a>`)
+        layer.bindPopup(`<strong>${name}</strong><br/><a href="/datasets/region/${id}">${text}</a>`)
     }
 
     const styles = {
