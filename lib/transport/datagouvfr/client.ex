@@ -16,15 +16,6 @@ defmodule Transport.Datagouvfr.Client do
     Transport.Datagouvfr.Client.request(:get, conn, url, nil, headers, opts)
   end
 
-  @spec put_request(%Plug.Conn{}, binary, OAuth2Client.body,
-                    OAuth2Client.headers, Keyword.t)
-                    :: {:ok, Response.t} | {:error, Error.t}
-  def put_request(%Plug.Conn{} = conn, url, body \\ "", headers \\ [], opts \\ []) do
-    headers = default_content_type(headers)
-    :put
-    |> Transport.Datagouvfr.Client.request(conn, url, body, headers, opts)
-  end
-
   @spec post_request(%Plug.Conn{}, binary, OAuth2Client.body,
                     OAuth2Client.headers, Keyword.t)
                     :: {:ok, Response.t} | {:error, Error.t}
