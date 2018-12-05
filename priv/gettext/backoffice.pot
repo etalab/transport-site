@@ -91,3 +91,7 @@ msgstr ""
 #, elixir-format
 msgid "Unable to delete"
 msgstr ""
+
+#, elixir-format
+msgid "stops referential"
+msgstr ""

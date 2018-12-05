@@ -91,3 +91,7 @@ msgstr "Partenaire supprimé"
 #, elixir-format
 msgid "Unable to delete"
 msgstr "Impossible de supprimer le partenaire"
+
+#, elixir-format
+msgid "stops referential"
+msgstr "Référentiel points d'arrêts"
