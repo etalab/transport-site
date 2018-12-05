@@ -84,10 +84,14 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Partner deleted"
 msgstr ""
 
 #, elixir-format
 msgid "Unable to delete"
+msgstr ""
+
+#, elixir-format
+msgid "stops referential"
 msgstr ""
