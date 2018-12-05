@@ -8,8 +8,7 @@ use Mix.Config
 # with brunch.io to recompile .js and .css sources.
 config :transport, TransportWeb.Endpoint,
   http: [port: 5000],
-  debug_errors: false,
-  catch_errors: true,
+  debug_errors: true,
   code_reloader: true,
   check_origin: false,
   watchers: [
