@@ -107,20 +107,33 @@ defmodule TransportWeb.BackofficeController do
     |> render("partners.html")
   end
 
-  def new_partner(%Plug.Conn{} = conn, %{"partner_url" => partner_url} = _params) do
-    with true <- Partner.is_datagouv_partner_url?(partner_url),
-         {:ok, partner} <- Partner.from_url(partner_url),
-         {:ok, _} <- Repo.insert(partner) do
-      conn
-      |> put_flash(:info, dgettext("backoffice", "Partner added"))
-    else
-      false ->
+  def post_partner(%Plug.Conn{} = conn, %{"id" => partner_id, "action" => "delete"}) do
+    partner = Repo.get(Partner, partner_id)
+
+    case Repo.delete(partner) do
+      {:ok, _} ->
         conn
-        |> put_flash(:error, dgettext("backoffice", "This has to be an organization or a user"))
+        |> put_flash(:info, dgettext("backoffice", "Partner deleted"))
+        |> redirect(to: backoffice_path(conn, :partners))
       {:error, error} ->
         Logger.error(error)
         conn
-        |> put_flash(:error, dgettext("backoffice", "Unable to insert partner in database"))
+        |> put_flash(:error, dgettext("backoffice", "Unable to delete"))
+        |> redirect(to: backoffice_path(conn, :partners))
+    end
+  end
+
+  def post_partner(%Plug.Conn{} = conn, %{"partner_url" => partner_url}) do
+    with true <- Partner.is_datagouv_partner_url?(partner_url),
+         {:ok, partner} <- Partner.from_url(partner_url),
+         {:ok, _} <- Repo.insert(partner) do
+      put_flash(conn, :info, dgettext("backoffice", "Partner added"))
+    else
+      false ->
+        put_flash(conn, :error, dgettext("backoffice", "This has to be an organization or a user"))
+      {:error, error} ->
+        Logger.error(error)
+        put_flash(conn, :error, dgettext("backoffice", "Unable to insert partner in database"))
     end
     |> redirect(to: backoffice_path(conn, :partners))
   end

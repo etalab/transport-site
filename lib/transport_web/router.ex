@@ -73,7 +73,7 @@ defmodule TransportWeb.Router do
 
       scope "/partners" do
         get "/", BackofficeController, :partners
-        post "/", BackofficeController, :new_partner
+        post "/", BackofficeController, :post_partner
       end
     end
 

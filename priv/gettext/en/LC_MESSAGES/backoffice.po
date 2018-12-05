@@ -79,3 +79,15 @@ msgstr ""
 #, elixir-format
 msgid "Unable to find dataset"
 msgstr ""
+
+#, elixir-format
+msgid "Delete"
+msgstr ""
+
+#, elixir-format, fuzzy
+msgid "Partner deleted"
+msgstr ""
+
+#, elixir-format
+msgid "Unable to delete"
+msgstr ""

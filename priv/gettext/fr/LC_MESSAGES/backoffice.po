@@ -79,3 +79,15 @@ msgstr "Impossible d'ajouter le partenaire à la base de données"
 #, elixir-format
 msgid "Unable to find dataset"
 msgstr ""
+
+#, elixir-format
+msgid "Delete"
+msgstr ""
+
+#, elixir-format
+msgid "Partner deleted"
+msgstr "Partenaire supprimé"
+
+#, elixir-format
+msgid "Unable to delete"
+msgstr "Impossible de supprimer le partenaire"
