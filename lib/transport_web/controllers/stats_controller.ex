@@ -5,15 +5,15 @@ defmodule TransportWeb.StatsController do
   use TransportWeb, :controller
 
   def index(conn, _params) do
-    bretagne = Repo.get_by!(Region, nom: "Bretagne")
     aoms = Repo.all(from a in AOM,
       select: %{
         population: a.population_totale_2014,
         region_id: a.region_id,
-        nb_datasets: fragment("SELECT count(*) FROM dataset where aom_id = ?", a.id)
+        nb_datasets: fragment("SELECT count(*) FROM dataset where aom_id = ?", a.id),
+        parent_dataset_id: a.parent_dataset_id,
       }
     )
-    aoms_with_datasets = aoms |> Enum.filter(&(&1.nb_datasets > 0 || &1.region_id == bretagne.id))
+    aoms_with_datasets = aoms |> Enum.filter(&(&1.nb_datasets > 0 || !is_nil(&1.parent_dataset_id)))
 
     regions = Repo.all(from r in Region)
 

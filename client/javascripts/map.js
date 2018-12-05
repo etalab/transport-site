@@ -29,8 +29,8 @@ export default function (id, aomsUrl, regionsUrl) {
         const text = count === 0 ? 'Aucun jeu de données'
             : count === 1 ? 'Un jeu de données'
                 : `${count} jeux de données`
-        const extra = feature.properties.nom === 'Bretagne'
-            ? '<br>Données incluses dans le <a href="/datasets/base-de-donnees-multimodale-transports-publics-en-bretagne-mobibreizh/">jeu de données Bretagne</a>'
+        const extra = feature.properties.parent_dataset_slug !== null
+            ? `<br>Données incluses dans le jeu de données <a href="/datasets/${feature.properties.parent_dataset_slug}/">${feature.properties.parent_dataset_name}</a>`
             : ''
         const commune = feature.properties.id
         layer.bindPopup(`<strong>${name}</strong><br/>${type}<br/><a href="/datasets/aom/${commune}">${text}</a>${extra}`)
@@ -128,7 +128,7 @@ export default function (id, aomsUrl, regionsUrl) {
             map.addLayer(geoJSON)
         })
 
-    const legend = Leaflet.control({position: 'bottomright'})
+    const legend = Leaflet.control({ position: 'bottomright' })
     legend.onAdd = function (map) {
         const div = Leaflet.DomUtil.create('div', 'info legend')
         const colors = ['green', 'orange', 'grey']

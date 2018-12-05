@@ -1,6 +1,6 @@
 defmodule TransportWeb.API.StatsController do
   use TransportWeb, :controller
-  alias Transport.{AOM, Region, Repo}
+  alias Transport.{AOM, Dataset, Region, Repo}
   import Ecto.Query
 
   def geojson(features) do
@@ -22,7 +22,9 @@ defmodule TransportWeb.API.StatsController do
         "completed" => Map.get(aom, :is_completed, false),
         "nom" => Map.get(aom, :nom, ""),
         "id" => aom.id,
-        "forme_juridique" => Map.get(aom, :forme_juridique, "")
+        "forme_juridique" => Map.get(aom, :forme_juridique, ""),
+        "parent_dataset_slug" => Map.get(aom, :parent_dataset_slug, ""),
+        "parent_dataset_name" => Map.get(aom, :parent_dataset_name, "")
       }
     } end)
     |> Enum.to_list
@@ -31,13 +33,21 @@ defmodule TransportWeb.API.StatsController do
   def index(%Plug.Conn{} = conn, _params) do
     render(conn,
       %{
-        data: geojson(features(from a in AOM, select: %{
+        data: geojson(features(
+          from a in AOM,
+            left_join: d in Dataset,
+            on: d.id == a.parent_dataset_id,
+            select: %{
               geometry: a.geometry,
               id: a.id,
               nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=?", a.id),
               nom: a.nom,
-              forme_juridique: a.forme_juridique
-            }))})
+              forme_juridique: a.forme_juridique,
+              parent_dataset_slug: d.slug,
+              parent_dataset_name: d.title
+            }
+            ))
+        })
   end
 
   def regions(%Plug.Conn{} = conn, _params) do
