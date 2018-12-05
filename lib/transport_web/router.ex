@@ -92,9 +92,13 @@ defmodule TransportWeb.Router do
   end
 
   scope "/api", TransportWeb do
+    pipe_through :accept_json
+
+    scope "/aoms" do
+      get "/", API.AomController, :by_coordinates
+    end
 
     scope "/stats" do
-      pipe_through :accept_json
       get "/", API.StatsController, :index
       get "/regions", API.StatsController, :regions
     end
