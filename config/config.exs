@@ -12,7 +12,7 @@ config :transport, TransportWeb.Endpoint,
   render_errors: [
     view: TransportWeb.ErrorView,
     layout: {TransportWeb.LayoutView, "app.html"},
-    accepts: ~w(html json jsonapi)
+    accepts: ~w(html json)
   ],
   pubsub: [name: Transport.PubSub,
            adapter: Phoenix.PubSub.PG2]
@@ -20,13 +20,7 @@ config :transport, TransportWeb.Endpoint,
 # Configures format encoders
 config :phoenix, :format_encoders,
   html: Phoenix.Template.HTML,
-  json: Poison,
-  jsonapi: Poison
-
-# Configures MIME types
-config :mime, :types, %{
-  "application/vnd.api+json" => ["jsonapi"]
-}
+  json: Poison
 
 # Configures Elixir's Logger
 config :logger,

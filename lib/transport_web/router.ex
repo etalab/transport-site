@@ -14,12 +14,6 @@ defmodule TransportWeb.Router do
     plug :assign_mix_env
   end
 
-  pipeline :json_api do
-    plug :accepts, ["jsonapi"]
-    plug JaSerializer.ContentTypeNegotiation
-    plug JaSerializer.Deserializer
-  end
-
   pipeline :accept_json do
     plug :accepts, ["json"]
   end
@@ -33,7 +27,7 @@ defmodule TransportWeb.Router do
   end
 
   pipeline :api_authenticated do
-    plug :accepts, ["json"]
+    plug :accept_json
     plug :authenticated
   end
 
