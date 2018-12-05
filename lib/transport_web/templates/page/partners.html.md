@@ -48,6 +48,13 @@ Les réutilisateurs suivants déploient leurs services de mobilité sur les terr
     <td>MobiGIS se positionne comme éditeur de logiciels et société de services spécialisée dans les Systèmes d’Information Géographique (SIG) intervenant dans les domaines du transport et de la mobilité des personnes.</td>
     <td>Information non communiquée</td>
   </tr>
+<%= for partner <- @conn.assigns.partners do %>
+  <tr>
+    <td><%= partner.name %></td>
+    <td><%= partner.description %></td>
+    <td><%= partner.count_reuses %> réseaux urbains</td>
+  </tr>
+<% end %>
 </table>
 
 
