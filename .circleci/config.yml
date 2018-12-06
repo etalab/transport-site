@@ -18,7 +18,7 @@ defaults_with_postgres: &defaults_with_postgres
   <<: *defaults
   docker:
     - *default_docker
-    - image: circleci/postgres:9.6.2-alpine
+    - image: mdillon/postgis:11-alpine
       environment:
         POSTGRES_USER: root
         POSTGRES_DB: transport_test
@@ -29,7 +29,7 @@ defaults_with_postgres_and_phantom: &defaults_with_postgres_and_phantom
       - *default_docker
       - image: wernight/phantomjs
         command: phantomjs --webdriver=8910
-      - image: circleci/postgres:9.6.2-alpine
+      - image: mdillon/postgis:11-alpine
         environment:
           POSTGRES_USER: root
           POSTGRES_DB: transport_test

@@ -1,15 +1,15 @@
       <div>
         <%= img_tag(@dataset.logo, alt: @dataset.title) %>
-        <%= if @dataset.download_url do %>
+        <%= if Dataset.download_url(@dataset) do %>
           <div class="shortlist__link shortlist__link--download">
-            <%= link to: @dataset.download_url, class: "button button--fullwidth", role: "link" do %>
+            <%= link to: Dataset.download_url(@dataset), class: "button button--fullwidth", role: "link" do %>
               <i class="icon icon--download fa-lg" aria-hidden="true"></i>
               <%= dgettext("page-shortlist", "Download") %>
             <% end %>
           </div>
         <% end %>
 
-        <%= if @dataset.download_url do %>
+        <%= if @dataset.slug do %>
           <div class="shortlist__link shortlist__link--external-link">
             <%= link to: "https://www.data.gouv.fr/datasets/#{@dataset.slug}/", class: "button button--fullwidth", role: "link" do %>
               <i class="icon icon--link" aria-hidden="true"></i>
