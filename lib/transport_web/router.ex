@@ -26,11 +26,6 @@ defmodule TransportWeb.Router do
     plug :authentication_required
   end
 
-  pipeline :api_authenticated do
-    plug :accept_json
-    plug :authenticated
-  end
-
   pipeline :admin_rights do
     plug :fetch_session
     plug :fetch_flash
@@ -92,9 +87,13 @@ defmodule TransportWeb.Router do
   end
 
   scope "/api", TransportWeb do
+    pipe_through :accept_json
+
+    scope "/aoms" do
+      get "/", API.AomController, :by_coordinates
+    end
 
     scope "/stats" do
-      pipe_through :accept_json
       get "/", API.StatsController, :index
       get "/regions", API.StatsController, :regions
     end

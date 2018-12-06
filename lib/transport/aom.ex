@@ -18,6 +18,7 @@ defmodule Transport.AOM do
       field :surface, :string
       field :commentaire, :string
       field :geometry, :map
+      field :geom, Geo.PostGIS.Geometry
 
       belongs_to :region, Region
       has_many :datasets, Dataset

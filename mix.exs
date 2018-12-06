@@ -74,7 +74,8 @@ defmodule Transport.Mixfile do
       {:ecto, "~> 3.0"},
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
-      {:jason, "~> 1.1"}
+      {:jason, "~> 1.1"},
+      {:geo_postgis, "~> 2.0"}
     ]
   end
 
