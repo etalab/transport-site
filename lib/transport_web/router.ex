@@ -26,11 +26,6 @@ defmodule TransportWeb.Router do
     plug :authentication_required
   end
 
-  pipeline :api_authenticated do
-    plug :accept_json
-    plug :authenticated
-  end
-
   pipeline :admin_rights do
     plug :fetch_session
     plug :fetch_flash
