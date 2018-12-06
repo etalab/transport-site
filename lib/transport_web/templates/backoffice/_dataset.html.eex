@@ -1,5 +1,7 @@
     <tr>
-      <td><%= @dataset.spatial %></td>
+    <td><%= link(@dataset.spatial,
+            to: dataset_path(@conn, :details, @dataset.slug),
+            role: "link") %></td>
       <td>
         <%= if @dataset.metadata do %>
           <%= @dataset.metadata["end_date"] %>
@@ -12,10 +14,10 @@
                   role: "link") %>
       </td>
       <td>
-        <%= if @dataset.download_url do %>
+        <%= if @dataset.resources do %>
             <i class="icon icon--download" aria-hidden="true"></i>
             <%= link(dgettext("page-shortlist", "Download"),
-                    to: @dataset.download_url,
+                    to: Dataset.download_url(@dataset),
                     role: "link") %>
         <% end %>
       </td>

@@ -20,10 +20,10 @@ defmodule TransportWeb.BackofficeController do
   def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do
     config = make_pagination_config(params)
     datasets =
-    q
-    |> Dataset.search_datasets
-    |> preload([:region, :aom])
-    |> Repo.paginate(page: config.page_number)
+      q
+      |> Dataset.search_datasets
+      |> preload([:region, :aom, :resources])
+      |> Repo.paginate(page: config.page_number)
 
     conn
     |> assign(:regions, region_names())
@@ -35,7 +35,10 @@ defmodule TransportWeb.BackofficeController do
 
   def index(%Plug.Conn{} = conn, params) do
     config = make_pagination_config(params)
-    datasets = Repo.paginate(from(d in Dataset, preload: [:region, :aom]), page: config.page_number)
+    datasets =
+      Dataset
+      |> preload([:region, :aom, :resources])
+      |> Repo.paginate(page: config.page_number)
 
     conn
     |> assign(:regions, region_names())
