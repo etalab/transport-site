@@ -43,7 +43,7 @@
                 </div>
               <% end %>
               <div class="shortlist__links">
-                <%= if dataset.download_url do %>
+                <%= if Dataset.download_url(dataset) do %>
                   <div class="shortlist__link shortlist__link--external-link">
                     <i class="icon icon--link" aria-hidden="true"></i>
                     <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
@@ -52,11 +52,11 @@
                   </div>
                 <% end %>
 
-                <%= if dataset.download_url do %>
+                <%= if Dataset.download_url(dataset) do %>
                   <div class="shortlist__link shortlist__link--download">
                     <i class="icon icon--download" aria-hidden="true"></i>
                     <%= link(dgettext("page-shortlist", "Download"),
-                            to: dataset.download_url,
+                            to: Dataset.download_url(dataset),
                             role: "link") %>
                   </div>
                 <% end %>
