@@ -2,17 +2,11 @@ defmodule Transport.Dataset do
   @moduledoc """
   Dataset schema
   """
-  alias Transport.{AOM, Region, Repo}
+  alias Transport.{AOM, Region, Resource}
   import Ecto.{Changeset, Query}
   import TransportWeb.Gettext
   require Logger
   use Ecto.Schema
-
-  @endpoint Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
-  @client HTTPoison
-  @res HTTPoison.Response
-  @err HTTPoison.Error
-  @timeout 60_000
 
   schema "dataset" do
     field :coordinates, {:array, :float}
@@ -20,7 +14,6 @@ defmodule Transport.Dataset do
     field :spatial, :string
     field :created_at, :string
     field :description, :string
-    field :download_url, :string
     field :format, :string
     field :frequency, :string
     field :last_update, :string
@@ -34,11 +27,11 @@ defmodule Transport.Dataset do
     field :title, :string
     field :type, :string
     field :metadata, :map
-    field :validations, :map
-    field :validation_date, :string
 
     belongs_to :region, Region
     belongs_to :aom, AOM
+
+    has_many :resources, Resource
   end
   use ExConstructor
 
@@ -72,10 +65,12 @@ defmodule Transport.Dataset do
     __MODULE__
     |> join(:inner, [d], doc in subquery(sub), on: doc.id == d.id)
     |> select_or_not(s)
+    |> preload([:resources])
   end
 
-  def list_datasets, do: from d in __MODULE__
-  def list_datasets(s) when is_list(s), do: list_datasets() |> select_or_not(s)
+  def list_datasets, do: from d in __MODULE__, preload: [:resources]
+  def list_datasets([]), do: list_datasets()
+  def list_datasets(s) when is_list(s), do: from d in __MODULE__, select: ^s, preload: [:resources]
 
   def list_datasets(filters, s \\ [])
   def list_datasets(%{"q" => q}, s), do: search_datasets(q, s)
@@ -91,9 +86,9 @@ defmodule Transport.Dataset do
       end)
       |> Keyword.new
 
-     list_datasets()
-     |> where([d], ^filters)
-     |> select_or_not(s)
+    s
+    |> list_datasets()
+    |> where([d], ^filters)
   end
 
   def changeset(dataset, params) do
@@ -103,88 +98,8 @@ defmodule Transport.Dataset do
       :metadata, :validations, :validation_date])
   end
 
-  @doc """
-  A validation is needed if the last update from the data is newer than the last validation.
-  ## Examples
-      iex> Dataset.needs_validation(%Dataset{last_update: "2018-01-30", validation_date: "2018-01-01"})
-      true
-      iex> Dataset.needs_validation(%Dataset{last_update: "2018-01-01", validation_date: "2018-01-30"})
-      false
-      iex> Dataset.needs_validation(%Dataset{last_update: "2018-01-30"})
-      true
-  """
-  def needs_validation(%__MODULE__{last_update: last_update, validation_date: validation_date}) do
-    last_update > validation_date
-  end
-  def nedds_validation(_dataset), do: true
-
-  def validate_and_save(%__MODULE__{} = dataset) do
-    Logger.info("Validating " <> dataset.download_url)
-    dataset
-    |> validate
-    |> group_validations
-    |> add_metadata
-    |> save_validations
-    |> case do
-      {:ok, _} -> Logger.info("Ok!")
-      {:error, error} -> Logger.warn("Error: " <> error)
-      _ -> Logger.warn("Unknown error")
-    end
-  end
-
-  def validate(%__MODULE__{download_url: url}) do
-    with {:ok, %@res{status_code: 200, body: body}} <-
-           @client.get(@endpoint <> "?url=#{url}", [], timeout: @timeout, recv_timeout: @timeout),
-         {:ok, validations} <- Poison.decode(body) do
-      {:ok, %{url: url, validations: validations}}
-    else
-      {:ok, %@res{body: body}} -> {:error, body}
-      {:error, %@err{reason: error}} -> {:error, error}
-      {:error, error} -> {:error, error}
-      _ -> {:error, "Unknown error"}
-    end
-  end
-
-  @doc """
-  A validation is needed if the last update from the data is newer than the last validation.
-  ## Examples
-      iex> Dataset.group_validations(nil)
-      nil
-      iex> Dataset.group_validations({:error, "moo"})
-      {:error, "moo"}
-      iex> v = %{"validations" => [%{"issue_type" => "Error"}]}
-      iex> Dataset.group_validations({:ok, %{url: "http", validations: v}})
-      {:ok, %{url: "http", validations: %{"Error" => %{count: 1, issues: [%{"issue_type" => "Error"}]}}}}
-  """
-  def group_validations({:ok, %{url: url, validations: validations}}) do
-    grouped_validations =
-    validations
-    |> Map.get("validations", [])
-    |> Enum.group_by(fn validation -> validation["issue_type"] end)
-    |> Map.new(fn {type, issues} -> {type, %{issues: issues, count: Enum.count issues}} end)
-
-    {:ok, %{url: url, validations: grouped_validations}}
-  end
-  def group_validations(error), do: error
-
-  def add_metadata({:ok, %{url: url, validations: validations}}) do
-    {:ok,
-    %{
-      url: url,
-      validations: Map.put(validations, "validation_date", DateTime.utc_now |> DateTime.to_string)
-      }
-    }
-  end
-  def add_metadata(error), do: error
-
-  def save_validations({:ok, %{url: url, validations: validations}}) do
-    Dataset
-    |> Repo.get_by(:download_url, url)
-    |> change(validations: validations)
-    |> Repo.update
-  end
-  def save_validations({:error, error}), do: {:error, error}
-  def save_validations(error), do: {:error, error}
+  def resource(%__MODULE__{resources: [resource|_]}), do: resource
+  def download_url(%__MODULE__{} = d), do: resource(d).url
 
   @doc """
   Builds a licence.

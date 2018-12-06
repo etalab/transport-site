@@ -3,8 +3,8 @@ defmodule TransportWeb.DatasetController do
   alias Transport.Datagouvfr.Authentication
   alias Transport.Datagouvfr.Client.Datasets
   alias Transport.Datagouvfr.{Authentication, Client}
-  alias Transport.Dataset
-  alias Transport.Repo
+  alias Transport.{Dataset, Repo}
+  import Ecto.Query
   require Logger
 
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params)
@@ -28,7 +28,11 @@ defmodule TransportWeb.DatasetController do
   end
 
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
-    case Repo.get_by(Dataset, [slug: slug_or_id]) do
+    Dataset
+    |> where([slug: ^slug_or_id])
+    |> preload([:resources])
+    |> Repo.one()
+    |> case do
       nil -> redirect_to_slug_or_404(conn, slug_or_id)
       dataset ->
         conn
@@ -47,8 +51,7 @@ defmodule TransportWeb.DatasetController do
 
   defp get_datasets(params) do
     config = make_pagination_config(params)
-    select = [:id, :description, :download_url, :format,
-     :licence, :logo, :spatial, :title, :slug]
+    select = [:id, :description, :format, :licence, :logo, :spatial, :title, :slug]
 
     params
     |> Dataset.list_datasets(select)

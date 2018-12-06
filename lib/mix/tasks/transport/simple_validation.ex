@@ -4,14 +4,14 @@ defmodule Mix.Tasks.Transport.SimpleValidation do
   """
 
   use Mix.Task
-  alias Transport.{Dataset, Repo}
+  alias Transport.{Repo, Resource}
 
   def run(_) do
     Mix.Task.run("app.start", [])
 
-    Dataset
+    Resource
     |> Repo.all()
-    |> Enum.filter(&Dataset.needs_validation/1)
-    |> Enum.each(&Dataset.validate_and_save/1)
+    |> Enum.filter(&Resource.needs_validation/1)
+    |> Enum.each(&Resource.validate_and_save/1)
   end
 end
