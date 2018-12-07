@@ -95,3 +95,7 @@ msgstr "Impossible de supprimer le partenaire"
 #, elixir-format
 msgid "stops referential"
 msgstr "Référentiel points d'arrêts"
+
+#, elixir-format
+msgid "Dataset's url"
+msgstr "Adresse du dataset"

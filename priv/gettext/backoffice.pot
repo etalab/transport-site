@@ -95,3 +95,7 @@ msgstr ""
 #, elixir-format
 msgid "stops referential"
 msgstr ""
+
+#, elixir-format
+msgid "Dataset's url"
+msgstr ""

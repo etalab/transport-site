@@ -1,6 +1,7 @@
 defmodule TransportWeb.BackofficeController do
   use TransportWeb, :controller
   alias Transport.{AOM, Dataset, ImportDataService, Partner, Region, Repo}
+  alias Transport.Datagouvfr.Client.Datasets
   import Ecto.Query
   require Logger
 
@@ -47,10 +48,12 @@ defmodule TransportWeb.BackofficeController do
     |> render("index.html")
   end
 
-  defp insert_into_db(dataset) do
+  defp insert_into_db(dataset, conn) do
     dataset
     |> Map.put("region", Repo.get_by(Region, nom: dataset["region"]))
     |> Map.put("aom", Repo.get_by(AOM, insee_commune_principale: dataset["insee_commune_principale"]))
+    |> Map.put("datagouv_id", Datasets.get_id_from_url(conn, dataset["url"]))
+    |> IO.inspect
     |> Dataset.new()
     |> Repo.insert()
   end
@@ -76,7 +79,7 @@ defmodule TransportWeb.BackofficeController do
 
   def new_dataset(%Plug.Conn{} = conn, params) do
     params
-    |> insert_into_db
+    |> insert_into_db(conn)
     |> import_data
     |> flash(conn, dgettext("backoffice", "Dataset added with success"),
        dgettext("backoffice", "Could not add dataset"))
