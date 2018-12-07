@@ -53,7 +53,6 @@ defmodule TransportWeb.BackofficeController do
     |> Map.put("region", Repo.get_by(Region, nom: dataset["region"]))
     |> Map.put("aom", Repo.get_by(AOM, insee_commune_principale: dataset["insee_commune_principale"]))
     |> Map.put("datagouv_id", Datasets.get_id_from_url(conn, dataset["url"]))
-    |> IO.inspect
     |> Dataset.new()
     |> Repo.insert()
   end

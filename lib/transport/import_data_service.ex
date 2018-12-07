@@ -3,7 +3,7 @@ defmodule Transport.ImportDataService do
   Service use to import data from datagouv to psql
   """
 
-  alias Transport.{Dataset, Repo}
+  alias Transport.{Dataset, Repo, Resource}
   require Logger
 
   @separators [?;, ?,]
@@ -50,20 +50,34 @@ defmodule Transport.ImportDataService do
       |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
       |> Map.put("full_logo", dataset["organization"]["logo"])
       |> Map.put("task_id", Map.get(dataset, "task_id"))
-      |> Map.put("download_url", get_download_url(dataset, type))
       |> Map.put("format", formated_format(dataset["resources"]))
       |> Map.put("created_at", parse_date(dataset["created_at"]))
       |> Map.put("last_update", parse_date(dataset["last_update"]))
       |> Map.put("last_import", DateTime.utc_now |> DateTime.to_string)
       |> Map.put("type", type)
+      |> Map.put("resources", get_resources(dataset, type))
 
-    case Map.get(dataset, "download_url") do
+    case Map.get(dataset, "resources") do
       nil -> {:error, "No download uri found"}
       _ -> {:ok, dataset}
     end
   end
 
   def get_dataset(_), do: {:error, "Dataset needs to be a map"}
+
+  def get_resources(dataset, type) do
+    url = get_download_url(dataset, type)
+    unless url == nil do
+      [
+        case Repo.get_by(Resource, url: url) do
+          nil -> %{url: url}
+          r -> %{"url" => r.url, "validations" => r.validations, "validation_date" => r.validation_date, "id" => r.id}
+        end
+      ]
+    else
+      nil
+    end
+  end
 
   def get_download_url(%{"resources" => resources}, "aires-covoiturage") do
     get_url(resources)

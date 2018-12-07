@@ -94,4 +94,8 @@ defmodule Transport.Resource do
   end
   def save_validations({:error, error}), do: {:error, error}
   def save_validations(error), do: {:error, error}
+
+  def changeset(resource, params) do
+    cast(resource, params, [:url, :validations, :validation_date])
+  end
 end
