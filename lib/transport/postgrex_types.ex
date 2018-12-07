@@ -1,1 +1,1 @@
-Postgrex.Types.define(Transport.PostgrexTypes, [Postgrex.Extensions.JSON], [])
+Postgrex.Types.define(Transport.PostgrexTypes, [Postgrex.Extensions.JSON, Geo.PostGIS.Extension], [])
