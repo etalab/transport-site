@@ -2,7 +2,7 @@ defmodule Transport.Dataset do
   @moduledoc """
   Dataset schema
   """
-  alias Transport.{AOM, Region, Resource}
+  alias Transport.{AOM, Region, Repo, Resource}
   import Ecto.{Changeset, Query}
   import TransportWeb.Gettext
   require Logger
@@ -31,7 +31,7 @@ defmodule Transport.Dataset do
     belongs_to :region, Region
     belongs_to :aom, AOM
 
-    has_many :resources, Resource
+    has_many :resources, Resource, on_replace: :delete
   end
   use ExConstructor
 
@@ -92,10 +92,20 @@ defmodule Transport.Dataset do
   end
 
   def changeset(dataset, params) do
-    cast(dataset, params, [:coordinates, :datagouv_id, :spatial,
-     :created_at, :description, :download_url, :format, :frequency, :last_update,
+    dataset
+    |> Repo.preload(:resources)
+    |> cast(params, [:coordinates, :datagouv_id, :spatial,
+     :created_at, :description, :format, :frequency, :last_update,
       :last_import, :licence, :logo, :full_logo, :slug, :tags, :task_id, :title, :type,
-      :metadata, :validations, :validation_date])
+      :metadata, :region_id, :aom_id])
+    |> cast_assoc(:resources)
+    |> validate_required([:region_id, :aom_id, :slug])
+    |> case do
+      %{valid?: false, changes: changes} = changeset when changes == %{} ->
+        %{changeset | action: :ignore}
+      changeset ->
+        changeset
+    end
   end
 
   def resource(%__MODULE__{resources: [resource|_]}), do: resource

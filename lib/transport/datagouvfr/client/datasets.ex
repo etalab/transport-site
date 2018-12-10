@@ -70,6 +70,23 @@ defmodule Transport.Datagouvfr.Client.Datasets do
   end
 
   @doc """
+  Call to url
+  """
+  @spec get(%Plug.Conn{}, keyword) :: {atom, [map]}
+  def get(%Plug.Conn{} = conn, [url: url]) do
+    [slug| _] = url |> String.split("/") |> Enum.reject(&(&1 == "")) |> Enum.reverse
+    conn
+    |> get(slug)
+    |> case do #We need that for backward compatibility
+      {:ok, %{"data" => data}} -> {:ok, data}
+      {:ok, data} -> {:ok, data}
+      {:error, error} ->
+        Logger.error(error)
+        {:error, error}
+    end
+  end
+
+  @doc """
   Call to GET /api/1/datasets/:id/
   You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/datasets/put_dataset
   """
@@ -77,6 +94,16 @@ defmodule Transport.Datagouvfr.Client.Datasets do
   def get(%Plug.Conn{} = conn, id) do
     conn
     |> get_request(Path.join(@endpoint, id))
+  end
+
+  @spec get_id_from_url(%Plug.Conn{}, String.t) :: String.t
+  def get_id_from_url(%Plug.Conn{} = conn, url) do
+    case get(conn, url: url) do
+      {:ok, dataset} -> dataset["id"]
+      {:error, error} ->
+        Logger.error(error)
+        nil
+    end
   end
 
   @doc """
