@@ -63,13 +63,13 @@ defmodule Transport.ImportDataService do
   def get_dataset(_), do: {:error, "Dataset needs to be a map"}
 
   def get_resources(dataset, type) do
-    url = get_download_url(dataset, type)
-    unless url == nil do
-      [
-        case Repo.get_by(Resource, url: url) do
+    dataset
+    |> get_valid_resources(type)
+    |> Enum.map(fn resource ->
+        case Repo.get_by(Resource, url: resource["url"]) do
           nil -> %{
-            "url" => url,
-            "format" => formated_format(dataset["resources"]),
+            "url" => resource["url"],
+            "format" => Map.get(resource, "url", formated_format(resource)),
             "last_import" => DateTime.utc_now |> DateTime.to_string,
           }
           r -> %{
@@ -81,75 +81,21 @@ defmodule Transport.ImportDataService do
             "id" => r.id
           }
         end
-      ]
-    else
-      nil
-    end
+      end)
   end
 
-  def get_download_url(%{"resources" => resources}, "aires-covoiturage") do
-    get_url(resources)
-  end
-
-  def get_download_url(%{"resources" => resources}, _) do
+  def get_valid_resources(%{"resources" => resources}, "transport-statique") do
     cond do
-      (l = get_url(resources, &is_gtfs?/1)) != nil -> l
-      (l = get_url(resources, &is_zip?/1)) != nil -> l
-      (csv_list = filter_csv(resources)) != [] ->
-        with {:ok, bodys} <- download_csv_list(csv_list),
-             {:ok, urls} <- get_url_from_csv(bodys) do
-          List.first(urls)
-        else
-          {:error, error} ->
-            Logger.warn(" <message>  #{inspect error}")
-
-            Enum.each(resources, fn resource ->
-              Logger.warn(" <resource> #{resource["url"]}")
-            end)
-
-            nil
-        end
-      true ->
-        nil
+      !Enum.empty?(l = Enum.filter(resources, &is_gtfs?/1)) -> l
+      !Enum.empty?(l = Enum.filter(resources, &is_zip?/1)) -> l
+      !Enum.empty?(l = get_csv_resources(resources)) -> l
+      true -> []
     end
   end
 
-  @doc """
-  Get the latest resource with a given filter
-
-  """
-  def get_last_resource(resources, filter \\ fn _ -> true end) do
+  def get_valid_resources(%{"resources" => resources}, _) do
     resources
-    |> Enum.filter(&(Map.has_key?(&1, "url") && Map.has_key?(&1, "last_modified")))
-    |> Enum.filter(filter)
-    |> case do
-      [] -> %{}
-      list  -> list
-            |> Enum.sort_by(&(&1["last_modified"]))
-            |> List.last
-    end
   end
-
-  @doc """
-  Get latest resource url from a set of resources filtered by filter
-
-  ## Examples
-      iex> [%{"last_modified" => "2017-11-29T23:54:05", "url" => "http"}]
-      ...> |> ImportDataService.get_url(&(&1))
-      "http"
-
-      iex> [%{"last_modified" => "2017-11-29T23:54:05", "url" => "http1"}, %{"last_modified" => "2017-12-29T23:54:05", "url" => "http2"}]
-      ...> |> ImportDataService.get_url(&(&1))
-      "http2"
-
-      iex> [%{"last_modified" => "2017-11-29T23:54:05", "url" => "http1"}, %{"last_modified" => "2017-12-29T23:54:05"}]
-      ...> |> ImportDataService.get_url(&(&1))
-      "http1"
-
-  """
-  def get_url(resources, filter), do: resources |> get_last_resource(filter) |> Map.get("url")
-
-  def get_url(ressources), do: get_url(ressources, fn _ -> true end)
 
   @doc """
   Is it a gtfs file?
@@ -195,6 +141,23 @@ defmodule Transport.ImportDataService do
   def is_zip?(%{"mime" => mime, "format" => nil}), do: is_zip?(mime)
   def is_zip?(%{"mime" => mime, "format" => format}), do: is_zip?(mime) || is_zip?(format)
   def is_zip?(str), do: is_format?(str, "zip")
+
+  def get_csv_resources(resources) do
+    csv_resources = filter_csv(resources)
+
+    with {:ok, bodys} <- download_csv_list(csv_resources),
+         {:ok, urls} <- get_url_from_csv(bodys) do
+      Enum.map(urls, &(%{"url" => &1, "format" => "csv"}))
+    else
+      {:error, error} ->
+        Logger.warn(" <message>  #{inspect error}")
+        Enum.each(resources, fn resource ->
+          Logger.warn(" <resource> #{resource["url"]}")
+        end)
+
+        []
+    end
+  end
 
   @doc """
   filter dataset with csv resources
@@ -410,17 +373,16 @@ defmodule Transport.ImportDataService do
 
   ## Examples
 
-      iex> [%{"last_modified" => "2017-11-29T23:54:05", "url" => "http1", "format" => "gtfs.zip", "mime" => "foo"}]
+      iex> %{"last_modified" => "2017-11-29T23:54:05", "url" => "http1", "format" => "gtfs.zip", "mime" => "foo"}
       ...> |> ImportDataService.formated_format
       "GTFS"
 
-      iex> [%{"last_modified" => "2017-11-29T23:54:05", "url" => "http1", "format" => "xls", "mime" => "foo"}]
+      iex> %{"last_modified" => "2017-11-29T23:54:05", "url" => "http1", "format" => "xls", "mime" => "foo"}
       ...> |> ImportDataService.formated_format
       "xls"
   """
-  def formated_format(resources) do
-    format = resources
-    |> get_last_resource
+  def formated_format(resource) do
+    format = resource
     |> Map.get("format", "")
 
     if is_gtfs?(format), do: "GTFS", else: format
