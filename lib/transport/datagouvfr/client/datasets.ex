@@ -74,7 +74,8 @@ defmodule Transport.Datagouvfr.Client.Datasets do
   """
   @spec get(%Plug.Conn{}, keyword) :: {atom, [map]}
   def get(%Plug.Conn{} = conn, [url: url]) do
-    [slug| _] = url |> String.split("/") |> Enum.reject(&(&1 == "")) |> Enum.reverse
+    slug = extract_slug(url)
+
     conn
     |> get(slug)
     |> case do #We need that for backward compatibility
@@ -84,6 +85,15 @@ defmodule Transport.Datagouvfr.Client.Datasets do
         Logger.error(error)
         {:error, error}
     end
+  end
+
+  defp extract_slug(url) do
+      url
+      |> URI.parse()
+      |> Map.get(:path)
+      |> String.trim_trailing("/")
+      |> String.split("/")
+      |> List.last()
   end
 
   @doc """
