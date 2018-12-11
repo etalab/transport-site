@@ -27,7 +27,7 @@ defmodule Transport.Dataset do
     belongs_to :region, Region
     belongs_to :aom, AOM
 
-    has_many :resources, Resource, on_replace: :delete
+    has_many :resources, Resource, on_replace: :delete, on_delete: :delete_all
   end
   use ExConstructor
 
