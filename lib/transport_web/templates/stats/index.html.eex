@@ -35,9 +35,6 @@
           <h1><%= @population_couverte %>M</h1>
           <h4> sur <%= @population_totale %>M</h4>
         </div>
-        <div class="card__footer">
-        Seule la population couverte par une AOM est comptée
-        </div>
       </div>
     </div>
   </div>
