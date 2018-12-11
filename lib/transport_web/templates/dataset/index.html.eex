@@ -28,10 +28,10 @@
                   </div>
                 <% end %>
 
-                <%= if dataset.format do %>
+                <%= if not Enum.empty?(dataset.resources) and List.first(dataset.resources).format do %>
                   <div class="shortlist__notice">
                     <div class="shortlist__label"><%= dgettext("page-shortlist", "Format") %></div>
-                    <span class="label label-notice"><%= dataset.format %></span>
+                    <span class="label label-notice"><%= List.first(dataset.resources).format %></span>
                   </div>
                 <% end %>
 

@@ -9,21 +9,17 @@ defmodule Transport.Dataset do
   use Ecto.Schema
 
   schema "dataset" do
-    field :coordinates, {:array, :float}
     field :datagouv_id, :string
     field :spatial, :string
     field :created_at, :string
     field :description, :string
-    field :format, :string
     field :frequency, :string
     field :last_update, :string
-    field :last_import, :string
     field :licence, :string
     field :logo, :string
     field :full_logo, :string
     field :slug, :string
     field :tags, {:array, :string}
-    field :task_id, :string
     field :title, :string
     field :type, :string
     field :metadata, :map
@@ -94,9 +90,8 @@ defmodule Transport.Dataset do
   def changeset(dataset, params) do
     dataset
     |> Repo.preload(:resources)
-    |> cast(params, [:coordinates, :datagouv_id, :spatial,
-     :created_at, :description, :format, :frequency, :last_update,
-      :last_import, :licence, :logo, :full_logo, :slug, :tags, :task_id, :title, :type,
+    |> cast(params, [:datagouv_id, :spatial, :created_at, :description, :frequency,
+     :last_update, :licence, :logo, :full_logo, :slug, :tags, :title, :type,
       :metadata, :region_id, :aom_id])
     |> cast_assoc(:resources)
     |> validate_required([:region_id, :aom_id, :slug])

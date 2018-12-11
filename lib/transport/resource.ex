@@ -18,6 +18,8 @@ defmodule Transport.Resource do
     field :validation_date, :string
     field :is_active, :boolean
     field :url, :string
+    field :format, :string
+    field :last_import, :string
 
     belongs_to :dataset, Dataset
   end
