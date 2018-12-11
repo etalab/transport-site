@@ -46,7 +46,7 @@ Il est essentiel que pour chaque jeu de données publié, un point de contact so
 
 ## Étape 4 : Référencer le jeu de données sur le Point d’Accès National
 
-Le référencement du jeu de données au format GTFS sur le Point d’Accès National est possible dès lors qu’une fiche a été publiée par le producteur de données sur la plateforme nationale data.gouv.fr.
+Le référencement du jeu de données au format GTFS sur le Point d’Accès National est possible dès lors qu’une fiche a été publiée par le producteur de données sur la plateforme nationale data.gouv.fr. (Le Point d'Accès National référence par ailleurs l'ensemble des jeux de données au format GTFS ouverts en licence ouverte (Etalab) ; si l'autorité organisatrice ou l'exploitant créent un compte sur data.gouv.fr pour publier le fichier en son nom, le Point d'Accès National retirera cette fiche.)
 
 Pour une explication pas à pas de l’utilisation de la plateforme data.gouv.fr, se référer au [guide détaillé](http://www.opendatalab.fr/images/doc/Tuto_chargement_donnees_Opendata_v2.pdf) publié par le SGAR Occitanie.
 
