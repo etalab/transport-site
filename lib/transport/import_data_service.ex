@@ -49,11 +49,8 @@ defmodule Transport.ImportDataService do
       |> Map.put("datagouv_id", dataset["id"])
       |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
       |> Map.put("full_logo", dataset["organization"]["logo"])
-      |> Map.put("task_id", Map.get(dataset, "task_id"))
-      |> Map.put("format", formated_format(dataset["resources"]))
       |> Map.put("created_at", parse_date(dataset["created_at"]))
       |> Map.put("last_update", parse_date(dataset["last_update"]))
-      |> Map.put("last_import", DateTime.utc_now |> DateTime.to_string)
       |> Map.put("type", type)
       |> Map.put("resources", get_resources(dataset, type))
 
@@ -70,8 +67,19 @@ defmodule Transport.ImportDataService do
     unless url == nil do
       [
         case Repo.get_by(Resource, url: url) do
-          nil -> %{url: url}
-          r -> %{"url" => r.url, "validations" => r.validations, "validation_date" => r.validation_date, "id" => r.id}
+          nil -> %{
+            "url" => url,
+            "format" => formated_format(dataset["resources"]),
+            "last_import" => DateTime.utc_now |> DateTime.to_string,
+          }
+          r -> %{
+            "url" => r.url,
+            "validations" => r.validations,
+            "validation_date" => r.validation_date,
+            "format" => r.format,
+            "last_import" => r.last_import,
+            "id" => r.id
+          }
         end
       ]
     else

@@ -51,7 +51,7 @@ defmodule TransportWeb.DatasetController do
 
   defp get_datasets(params) do
     config = make_pagination_config(params)
-    select = [:id, :description, :format, :licence, :logo, :spatial, :title, :slug]
+    select = [:id, :description, :licence, :logo, :spatial, :title, :slug]
 
     params
     |> Dataset.list_datasets(select)
