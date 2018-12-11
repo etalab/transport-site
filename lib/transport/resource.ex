@@ -20,6 +20,7 @@ defmodule Transport.Resource do
     field :url, :string
     field :format, :string
     field :last_import, :string
+    field :title, :string
 
     belongs_to :dataset, Dataset
   end

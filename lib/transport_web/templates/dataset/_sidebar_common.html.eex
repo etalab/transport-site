@@ -1,13 +1,7 @@
       <div>
         <%= img_tag(@dataset.logo, alt: @dataset.title) %>
-        <%= if Dataset.download_url(@dataset) do %>
-          <div class="shortlist__link shortlist__link--download">
-            <%= link to: Dataset.download_url(@dataset), class: "button button--fullwidth", role: "link" do %>
-              <i class="icon icon--download fa-lg" aria-hidden="true"></i>
-              <%= dgettext("page-shortlist", "Download") %>
-            <% end %>
-          </div>
-        <% end %>
+
+        <%= render "_download_link.html", dataset: @dataset %>
 
         <%= if @dataset.slug do %>
           <div class="shortlist__link shortlist__link--external-link">
