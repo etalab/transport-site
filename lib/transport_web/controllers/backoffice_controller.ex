@@ -99,7 +99,7 @@ defmodule TransportWeb.BackofficeController do
   def delete(%Plug.Conn{} = conn, %{"id" => id}) do
     Dataset
     |> Repo.get(id)
-    |> Repo.delete
+    |> Repo.delete()
     |> flash(conn, dgettext("backoffice", "Dataset deleted"), dgettext("backoffice", "Could not delete dataset"))
     |> index(%{})
   end
