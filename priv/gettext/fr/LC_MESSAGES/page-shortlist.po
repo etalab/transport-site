@@ -168,7 +168,3 @@ msgstr "Funiculaire"
 
 msgid "No dataset found"
 msgstr "Aucun jeu de données trouvé"
-
-#, elixir-format
-msgid "No resource"
-msgstr ""

@@ -15,10 +15,7 @@
       </td>
       <td>
         <%= if @dataset.resources do %>
-            <i class="icon icon--download" aria-hidden="true"></i>
-            <%= link(dgettext("page-shortlist", "Download"),
-                    to: Dataset.download_url(@dataset),
-                    role: "link") %>
+        <%= render TransportWeb.SharedView, "_download_link.html", dataset: @dataset %>
         <% end %>
       </td>
       <td>

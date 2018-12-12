@@ -168,7 +168,3 @@ msgstr "Funicular"
 
 msgid "No dataset found"
 msgstr ""
-
-#, elixir-format
-msgid "No resource"
-msgstr ""
