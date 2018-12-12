@@ -1,0 +1,36 @@
+<%= cond do %>
+<% length(@dataset.resources) == 1 -> %>
+  <div class="shortlist__link shortlist__link--download">
+        <i class="icon icon--download" aria-hidden="true"></i>
+        <%= link(dgettext("download-link", "Download"),
+                to: Dataset.download_url(@dataset),
+                role: "link") %>
+  </div>
+<% length(@dataset.resources) > 1 -> %>
+  <div class="shortlist__link shortlist__link--download">
+        <i class="icon icon--download" aria-hidden="true"></i>
+        <%= link(dgettext("download-link", "Download"),
+                to: "#download_modal_#{@dataset.id}",
+                role: "link") %>
+  </div>
+  <div id="download_modal_<%= @dataset.id %>" class="modal__backdrop">
+    <div class="modal">
+        <a class="footer__contact--close" href="#">
+            <i class="fas icon--times-circle"></i>
+        </a>
+        <br>
+        <ul>
+            <%= for resource <- @dataset.resources do %>
+            <li>
+                <i class="icon icon--download" aria-hidden="true"></i>
+                <%= link(resource.title,
+                        to: resource.url,
+                        role: "link") %>
+            </li>
+            <% end %>
+        </ul>
+    </div>
+  </div>
+<% true -> %>
+<%= dgettext("download-link", "No resource") %>
+<% end %>

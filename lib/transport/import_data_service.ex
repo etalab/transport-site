@@ -67,16 +67,20 @@ defmodule Transport.ImportDataService do
     |> get_valid_resources(type)
     |> Enum.map(fn resource ->
         case Repo.get_by(Resource, url: resource["url"]) do
-          nil -> %{
+          nil ->
+            %{
             "url" => resource["url"],
-            "format" => Map.get(resource, "url", formated_format(resource)),
+            "format" => formated_format(resource),
+            "title" => resource["title"],
             "last_import" => DateTime.utc_now |> DateTime.to_string,
           }
-          r -> %{
+          r ->
+            %{
             "url" => r.url,
             "validations" => r.validations,
             "validation_date" => r.validation_date,
-            "format" => r.format,
+            "format" => formated_format(resource),
+            "title" => resource["title"],
             "last_import" => r.last_import,
             "id" => r.id
           }
@@ -147,7 +151,7 @@ defmodule Transport.ImportDataService do
 
     with {:ok, bodys} <- download_csv_list(csv_resources),
          {:ok, urls} <- get_url_from_csv(bodys) do
-      Enum.map(urls, &(%{"url" => &1, "format" => "csv"}))
+      Enum.map(urls, &(%{"url" => &1, "format" => "csv", "title" => &1}))
     else
       {:error, error} ->
         Logger.warn(" <message>  #{inspect error}")

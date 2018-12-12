@@ -43,7 +43,7 @@
                 </div>
               <% end %>
               <div class="shortlist__links">
-                <%= if Dataset.download_url(dataset) do %>
+                <%= if dataset.slug do %>
                   <div class="shortlist__link shortlist__link--external-link">
                     <i class="icon icon--link" aria-hidden="true"></i>
                     <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
@@ -52,14 +52,7 @@
                   </div>
                 <% end %>
 
-                <%= if Dataset.download_url(dataset) do %>
-                  <div class="shortlist__link shortlist__link--download">
-                    <i class="icon icon--download" aria-hidden="true"></i>
-                    <%= link(dgettext("page-shortlist", "Download"),
-                            to: Dataset.download_url(dataset),
-                            role: "link") %>
-                  </div>
-                <% end %>
+                <%= render TransportWeb.SharedView, "_download_link.html", dataset: dataset %>
               </div>
             </div>
             <%= if dataset.description do %>

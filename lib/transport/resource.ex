@@ -20,6 +20,7 @@ defmodule Transport.Resource do
     field :url, :string
     field :format, :string
     field :last_import, :string
+    field :title, :string
 
     belongs_to :dataset, Dataset
   end
@@ -98,6 +99,8 @@ defmodule Transport.Resource do
   def save_validations(error), do: {:error, error}
 
   def changeset(resource, params) do
-    cast(resource, params, [:url, :validations, :validation_date])
+    cast(resource, params, [:validations, :validation_date, :is_active,
+     :url, :format, :last_import, :title])
   end
+
 end
