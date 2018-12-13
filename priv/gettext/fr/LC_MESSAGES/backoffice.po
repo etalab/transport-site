@@ -41,7 +41,7 @@ msgid "Dataset imported with success"
 msgstr "Jeux de données ajouté avec succès"
 
 msgid "Dataset not imported"
-msgstr "Échec à l’ajout du jeu de données"
+msgstr "Échec à l’import du jeu de données"
 
 msgid "Could not delete dataset"
 msgstr "Impossible de supprimer le jeu de données"
