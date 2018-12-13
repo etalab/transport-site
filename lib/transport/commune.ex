@@ -11,5 +11,7 @@ defmodule Transport.Commune do
       field :wikipedia, :string
       field :surf_ha, :float
       field :geom, Geo.PostGIS.Geometry
+
+      belongs_to :aom_res, AOM, references: :composition_res_id
   end
 end
