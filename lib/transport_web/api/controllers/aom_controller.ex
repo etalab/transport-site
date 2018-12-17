@@ -31,7 +31,7 @@ defmodule TransportWeb.API.AomController do
       [aom, _] -> aom
     end
 
-    if Map.has_key?(data, "error"), do: conn = Conn.put_status(conn, :not_found)
+    conn = if Map.has_key?(data, "error"), do: Conn.put_status(conn, :not_found)
     render(conn, data: data)
   end
 

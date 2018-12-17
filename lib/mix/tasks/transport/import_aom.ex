@@ -39,8 +39,11 @@ defmodule Mix.Tasks.Transport.ImportAom do
   defp normalize_region(region), do: region
 
   def run(params) do
-    unless params[:no_start], do: Mix.Task.run("app.start", [])
-
+    if params[:no_start] do
+      HTTPoison.start
+    else
+      Mix.Task.run("app.start", [])
+    end
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get("https://www.data.gouv.fr/fr/datasets/r/42625320-bc2d-4368-8c00-3e28dbf7f51a", [], hackney: [follow_redirect: true]),
          {:ok, stream} <- StringIO.open(body) do
       stream
