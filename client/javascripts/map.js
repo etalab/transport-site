@@ -67,7 +67,7 @@ export default function (id, aomsUrl, regionsUrl) {
     const style = feature => {
         if (feature.properties.dataset_count > 0) {
             return styles.available
-        } else if (feature.properties.nom === 'Bretagne') {
+        } else if (feature.properties.parent_dataset_slug) {
             return styles.availableElsewhere
         } else {
             return styles.unavailable
