@@ -8,7 +8,11 @@ defmodule Mix.Tasks.Transport.ImportInseeAom do
   alias Transport.{Commune, Repo}
 
   def run(params) do
-    unless params[:no_start], do: Mix.Task.run("app.start", [])
+    if params[:no_start] do
+      HTTPoison.start
+    else
+      Mix.Task.run("app.start", [])
+    end
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get("https://www.data.gouv.fr/fr/datasets/r/55762099-50a4-4c25-8bf1-15e3a4f3308f", [], hackney: [follow_redirect: true]),
          {:ok, stream} <- StringIO.open(body) do
