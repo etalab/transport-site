@@ -91,6 +91,7 @@ defmodule TransportWeb.Router do
 
     scope "/aoms" do
       get "/", API.AomController, :by_coordinates
+      get "/:insee", API.AomController, :by_insee
     end
 
     scope "/stats" do

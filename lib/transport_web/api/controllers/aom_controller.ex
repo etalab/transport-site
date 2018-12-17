@@ -1,26 +1,43 @@
 defmodule TransportWeb.API.AomController do
   use TransportWeb, :controller
-  alias Transport.{AOM, Repo}
+  alias Plug.Conn
+  alias Transport.{AOM, Commune, Repo}
   import Ecto.Query
+
+  @aom_fields [:nom, :insee_commune_principale, :departement, :forme_juridique, :siren]
 
   def by_coordinates(conn, %{"lon" => lon, "lat" => lat}) do
     with {longitude, _} <- Float.parse(lon),
          {latitude, _} <- Float.parse(lat)
     do
-      query(conn, longitude, latitude)
+      query_by_coordinates(conn, longitude, latitude)
     else
       _ -> invalid_parameters(conn)
     end
   end
   def by_coordinates(conn, _), do: invalid_parameters(conn)
 
-  def query(conn, lon, lat) do
+  def by_insee(conn, %{"insee" => insee}) do
+    query = from c in Commune,
+              left_join: a in assoc(c, :aom_res),
+              select: [map(a, @aom_fields), c],
+              where: c.insee == ^insee
+
+    data = query
+    |> Repo.one
+    |> case do
+       nil -> %{"error" => "Commune not found"}
+      [nil, _] -> %{"error" => "No corresponding AOM found"}
+      [aom, _] -> aom
+    end
+
+    if Map.has_key?(data, "error"), do: conn = Conn.put_status(conn, :not_found)
+    render(conn, data: data)
+  end
+
+  def query_by_coordinates(conn, lon, lat) do
     query = from a in AOM,
-              select: map(a, [:nom,
-                              :insee_commune_principale,
-                              :departement,
-                              :forme_juridique,
-                              :siren]),
+              select: map(a, @aom_fields),
               where: fragment("st_contains(geom, st_point(?, ?))", ^lon, ^lat)
 
     render(conn, data: Repo.one(query))
