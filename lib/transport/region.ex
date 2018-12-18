@@ -8,8 +8,8 @@ defmodule Transport.Region do
   schema "region" do
     field :nom, :string
     field :insee, :string
-    field :geometry, :map
     field :is_completed, :boolean
+    field :geom, Geo.PostGIS.Geometry
 
     has_many :aoms, AOM
     has_one :datasets, Dataset
