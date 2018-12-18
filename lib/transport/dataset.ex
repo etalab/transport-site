@@ -93,7 +93,7 @@ defmodule Transport.Dataset do
     |> cast(params, [:datagouv_id, :spatial, :created_at, :description, :frequency,
     :last_update, :licence, :logo, :full_logo, :slug, :tags, :title, :type, :metadata])
     |> cast_assoc(:resources, required: true)
-    |> validate_required([:region_id, :aom_id, :slug])
+    |> validate_required([:region_id, :slug])
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
         %{changeset | action: :ignore}
