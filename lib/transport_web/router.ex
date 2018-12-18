@@ -56,6 +56,10 @@ defmodule TransportWeb.Router do
       end
     end
 
+    scope "/resources" do
+      get "/:id", ResourceController, :details
+    end
+
     scope "/backoffice" do
       pipe_through [:admin_rights]
       get "/", BackofficeController, :index

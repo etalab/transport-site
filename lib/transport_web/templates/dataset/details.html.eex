@@ -1,8 +1,21 @@
 <section>
   <div class="documentation dataset-details">
     <div class="dataset-details__side-pane side-pane">
+      <%= img_tag(@dataset.logo, alt: @dataset.title) %>
+      <%= render TransportWeb.SharedView, "_download_link.html", dataset: @dataset %>
+      <div>
+        <%= if @dataset.slug do %>
+          <div class="shortlist__link shortlist__link--external-link">
+            <i class="icon icon--link" aria-hidden="true"></i>
+            <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
+                    to: "https://www.data.gouv.fr/datasets/#{@dataset.datagouv_id}/",
+                    role: "link") %>
+          </div>
+        <% end %>
+      </div>
+
+      <%= TransportWeb.DatasetView.render_sidebar_from_type(@conn, @dataset) %>
       <%= render "_sidebar_common.html", dataset: @dataset, conn: @conn %>
-      <%= TransportWeb.DatasetView.render_sidebar_from_type(@dataset) %>
       </div>
       <div class="dataset-details__followers">
       <%= if @current_user do %>
@@ -38,7 +51,7 @@
       <% end %>
       </div>
 
-      <%= TransportWeb.DatasetView.render_description_from_type(@dataset) %>
+      <%= TransportWeb.DatasetView.render_description_from_type(@conn, @dataset) %>
 
       <div class="dataset-details__discussions">
         <h2>Discussions</h2>

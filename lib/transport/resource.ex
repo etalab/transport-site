@@ -12,6 +12,8 @@ defmodule Transport.Resource do
   @res HTTPoison.Response
   @err HTTPoison.Error
   @timeout 60_000
+  @issue_types ["UnusedStop", "Slow", "ExcessiveSpeed", "NegativeTravelTime",
+  "CloseStops", "NullDuration", "InvalidReference", "InvalidArchive"]
 
   schema "resource" do
     field :validations, :map
@@ -102,5 +104,7 @@ defmodule Transport.Resource do
     cast(resource, params, [:validations, :validation_date, :is_active,
      :url, :format, :last_import, :title])
   end
+
+  def issue_types, do: @issue_types
 
 end

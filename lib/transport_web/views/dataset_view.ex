@@ -3,14 +3,15 @@ defmodule TransportWeb.DatasetView do
   import TransportWeb.PaginationHelpers
   alias Transport.Dataset
 
-  def render_sidebar_from_type(dataset), do: render_panel_from_type(dataset, "sidebar")
-  def render_description_from_type(dataset), do: render_panel_from_type(dataset, "description")
+  def render_sidebar_from_type(conn, dataset), do: render_panel_from_type(conn, dataset, "sidebar")
+  def render_description_from_type(conn, dataset), do: render_panel_from_type(conn, dataset, "description")
 
-  def render_panel_from_type(dataset, panel_type) do
+  def render_panel_from_type(conn, dataset, panel_type) do
     render_existing(
       TransportWeb.DatasetView,
       "_#{panel_type}_#{dataset.type}.html",
-      dataset: dataset
+      dataset: dataset,
+      conn: conn
     )
   end
 

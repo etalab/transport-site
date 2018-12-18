@@ -1,0 +1,81 @@
+<section>
+    <div class="documentation dataset-details">
+                <nav class="side-pane" role="navigation">
+                    <ul class="side-pane__menu">
+                        <li class="side-pane__title">
+                            <h2>Ressources</h2>
+                        </li>
+                        <li class="side-pane__dropdown unfolded active">
+                            <a class="side-pane__link"><%= @resource.title %></a>
+                            <%= unless @resource.validations do %>
+                            Pas de validation disponible
+                            <% else %>
+                            <ul class="side-pane__submenu">
+                            <%= for {issue_type, issue_count} <- @issue_types do %>
+                            <%= cond do %>
+                            <%= issue_type == @issue_type -> %>
+                            <li class="active">
+                                <a class="side-pane__sublink">
+                                    <%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue_type) %>
+                                    (<%= issue_count %>)
+                                </a>
+                            </li>
+
+                            <% issue_count > 0 -> %>
+                            <li>
+                            <%= link(
+                                Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue_type) <> "(#{issue_count})",
+                                to: resource_path(@conn, :details, @resource.id, %{"issue_type" => issue_type}),
+                                class: "side-pane__sublink"
+                            ) %>
+                            </li>
+
+                            <% true -> %>
+                            <li>
+                                <a class="side-pane__sublink">
+                                    <%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue_type) %>
+                                    (<%= issue_count %>)
+                                </a>
+                            </li>
+                            <% end %>
+                            <% end %>
+                            </ul>
+                        </li>
+                        <% end %>
+                         <%= for resource <- @other_resources do %>
+                        <li class="side-pane__dropdown unfolded">
+                            <%= link(resource.title,
+                            to: resource_path(@conn, :details, resource.id),
+                            class: "side-pane__link"
+                            )%>
+                        <% end %>
+                    </ul>
+                </nav>
+                <div class="main-pane">
+                    <h1><%= link(@dataset.title, to: dataset_path(@conn, :details, @dataset.slug) )%></h1>
+                    <%= unless @resource.validations do %>
+                        Pas de validation disponible
+                    <% else %>
+                    <%= pagination_links @conn, @issues, [@resource.id], issue_type: @issue_type,
+                    path: &resource_path/4, action: :details %>
+                    <table class="table">
+                        <tr>
+                        <th><%= dgettext("page-dataset-details", "Object ID") %></th>
+                        <th><%= dgettext("page-dataset-details", "Object name") %></th>
+                        <th><%= dgettext("page-dataset-details", "Related object ID") %></th>
+                        <th><%= dgettext("page-dataset-details", "Severity") %></th>
+                        </tr>
+
+                        <%= for issue <- @issues || [] do %>
+                        <tr>
+                            <td><%= issue["object_id"] %></td>
+                            <td><%= issue["object_name"] %></td>
+                            <td><%= issue["related_object_id"] %></td>
+                            <td><%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue["severity"]) %></td>
+                        </tr>
+                        <% end %>
+                    </table>
+                    <% end %>
+        </div>
+    </div>
+</section>
