@@ -9,7 +9,7 @@ defmodule Transport.Repo.Migrations.AomPostgisGeometry do
     end
     create index("aom", [:geom], using: :gist)
 
-    execute "UPDATE aom SET geom=st_geomFromGeoJson(geometry::text)"
+    # execute "UPDATE aom SET geom=st_geomFromGeoJson(geometry::text)"
   end
 
   def down do

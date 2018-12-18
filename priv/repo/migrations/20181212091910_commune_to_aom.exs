@@ -8,9 +8,9 @@ defmodule Transport.Repo.Migrations.CommuneToAom do
       add :aom_res_id, references(:aom, column: :composition_res_id)
     end
 
-    flush()
-    Mix.Task.run("transport.import_aom", [no_start: true])
-    Mix.Task.run("transport.import_insee_aom", [no_start: true])
+    # flush()
+    # Mix.Task.run("transport.import_aom", [no_start: true])
+    # Mix.Task.run("transport.import_insee_aom", [no_start: true])
   end
 
   def down do
