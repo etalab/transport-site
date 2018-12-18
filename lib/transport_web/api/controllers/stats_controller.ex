@@ -2,6 +2,7 @@ defmodule TransportWeb.API.StatsController do
   use TransportWeb, :controller
   alias Transport.{AOM, Dataset, Region, Repo}
   import Ecto.Query
+  alias Geo.JSON
 
   def geojson(features) do
     %{
@@ -14,8 +15,9 @@ defmodule TransportWeb.API.StatsController do
   def features(q) do
     q
     |> Repo.all
+    |> Enum.filter(fn aom -> !is_nil(aom.geometry) end)
     |> Enum.map(fn aom -> %{
-      "geometry" => aom.geometry,
+      "geometry" => aom.geometry |> JSON.encode!,
       "type" => "Feature",
       "properties" => %{
         "dataset_count" => Map.get(aom, :nb_datasets, 0),
@@ -38,7 +40,7 @@ defmodule TransportWeb.API.StatsController do
             left_join: d in Dataset,
             on: d.id == a.parent_dataset_id,
             select: %{
-              geometry: a.geometry,
+              geometry: a.geom,
               id: a.id,
               nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=?", a.id),
               nom: a.nom,
@@ -52,7 +54,7 @@ defmodule TransportWeb.API.StatsController do
 
   def regions(%Plug.Conn{} = conn, _params) do
     render(conn, %{data: geojson(features(from r in Region, select: %{
-      geometry: r.geometry,
+      geometry: r.geom,
       id: r.id,
       nom: r.nom,
       is_completed: r.is_completed,
