@@ -3,6 +3,7 @@ defmodule TransportWeb.API.AomController do
   alias Plug.Conn
   alias Transport.{AOM, Commune, Repo}
   import Ecto.Query
+  alias Geo.JSON
 
   @aom_fields [:nom, :insee_commune_principale, :departement, :forme_juridique, :siren]
 
@@ -52,4 +53,19 @@ defmodule TransportWeb.API.AomController do
     render(conn, data: %{"error" => "The parameters lon and lat are mandatory and must be floats"})
   end
 
+  def geojson(conn, _params) do
+    query = from a in AOM, select: [map(a, @aom_fields), a.geom]
+
+    json = query
+    |> Repo.all
+    |> Enum.reject(fn [_, geom] -> is_nil(geom) end)
+    |> Enum.map(fn [properties, geom] -> %{
+        "type" => "Feature",
+        "properties" => properties,
+        "geometry" => geom |> JSON.encode!
+      }end)
+    |> Enum.to_list
+
+    render(conn, features: json)
+  end
 end
