@@ -66,6 +66,7 @@ defmodule Transport.Mixfile do
       {:scrivener, "~> 2.0"},
       {:scrivener_ecto, "~> 2.0"},
       {:scrivener_html, "~> 1.7"},
+      {:scrivener_list, git: "https://github.com/diyZX/scrivener_list"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:exvcr, "~> 0.10.3", only: :test},
       {:hound, "~> 1.0", only: :test},
