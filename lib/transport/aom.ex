@@ -17,7 +17,6 @@ defmodule Transport.AOM do
       field :population_totale_2014, :integer
       field :surface, :string
       field :commentaire, :string
-      field :geometry, :map
       field :geom, Geo.PostGIS.Geometry
 
       belongs_to :region, Region

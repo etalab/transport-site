@@ -14,11 +14,11 @@ defmodule Transport.Repo.Migrations.MigrateValidations do
   end
 
   def change do
-    sql = "SELECT id, validations, validation_date, download_url FROM dataset"
-    {:ok, %{rows: rows}} = SQL.query(Repo, sql)
-    resources = Enum.map(rows, &convert/1)
-
-    Repo.insert_all(Resource, resources)
+    #sql = "SELECT id, validations, validation_date, download_url FROM dataset"
+    #{:ok, %{rows: rows}} = SQL.query(Repo, sql)
+    #resources = Enum.map(rows, &convert/1)
+    #
+    #Repo.insert_all(Resource, resources)
 
     alter table(:dataset) do
       remove :validations
