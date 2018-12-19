@@ -18,4 +18,5 @@ defmodule TransportWeb.PaginationHelpers do
   def pagination_links(conn, paginator), do: HTML.pagination_links(conn, paginator)
   def pagination_links(_, %{total_pages: 1}, _), do: ""
   def pagination_links(conn, paginator, args), do: HTML.pagination_links(conn, paginator, args)
+  def pagination_links(conn, paginator, args, opts), do: HTML.pagination_links(conn, paginator, args, opts)
 end

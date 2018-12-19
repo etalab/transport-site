@@ -1,17 +1,3 @@
-      <div>
-        <%= img_tag(@dataset.logo, alt: @dataset.title) %>
-
-        <%= render TransportWeb.SharedView, "_download_link.html", dataset: @dataset %>
-
-        <%= if @dataset.slug do %>
-          <div class="shortlist__link shortlist__link--external-link">
-            <i class="icon icon--link" aria-hidden="true"></i>
-            <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
-                    to: "https://www.data.gouv.fr/datasets/#{@dataset.datagouv_id}/",
-                    role: "link") %>
-          </div>
-        <% end %>
-      </div>
       <div class="shortlist-details">
         <%= if !is_nil(@dataset.spatial) do %>
             <div class="shortlist__notice">

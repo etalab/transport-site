@@ -1,3 +1,4 @@
+        <a href="<%= resource_path(@conn, :details, Dataset.resource(@dataset).id) %>">Validations GTFS</a>
         <%= if @dataset.metadata do %>
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Timetable begin") %></div>
