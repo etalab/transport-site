@@ -24,6 +24,11 @@
         <% end %>
       </td>
       <td>
+        <%= form_for @conn, backoffice_path(@conn, :validation, @dataset.id), [nodiv: true], fn _ -> %>
+          <%= submit "Valider", [class: "button", nodiv: true] %>
+        <% end %>
+      </td>
+      <td>
         <%= form_for @conn, backoffice_path(@conn, :delete, @dataset.id), [nodiv: true], fn _ -> %>
           <%= submit "Supprimer", [class: "button", nodiv: true] %>
         <% end %>

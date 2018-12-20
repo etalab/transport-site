@@ -99,3 +99,11 @@ msgstr "Référentiel points d'arrêts"
 #, elixir-format
 msgid "Dataset's url"
 msgstr "Adresse du dataset"
+
+#, elixir-format
+msgid "Could not validate dataset"
+msgstr "Impossible de valider le jeu de données"
+
+#, elixir-format
+msgid "Dataset validated"
+msgstr "Jeu de données validé"

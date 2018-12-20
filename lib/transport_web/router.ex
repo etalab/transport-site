@@ -68,6 +68,7 @@ defmodule TransportWeb.Router do
         post "/", BackofficeController, :new_dataset
         post "/:id/_import", BackofficeController, :import_from_data_gouv_fr
         post "/:id/_delete", BackofficeController, :delete
+        post "/:id/_validate", BackofficeController, :validation
       end
 
       scope "/partners" do
