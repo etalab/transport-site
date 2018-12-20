@@ -1,9 +1,9 @@
-defmodule Transport.Datagouvfr.Client.Discussions do
+defmodule Datagouvfr.Client.Discussions do
   @moduledoc """
   An API client for data.gouv.fr discussions
   """
 
-  import Transport.Datagouvfr.Client, only: [post_request: 3]
+  import Datagouvfr.Client, only: [post_request: 3]
 
   @endpoint "discussions"
 

@@ -1,6 +1,6 @@
 defmodule TransportWeb.ContactController do
   use TransportWeb, :controller
-  alias Transport.Mailjet.Client
+  alias Mailjet.Client
   require Logger
 
   def send_mail(conn, %{"email" => email, "topic" => topic, "demande" => demande} = params) do

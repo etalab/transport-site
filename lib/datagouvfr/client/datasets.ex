@@ -1,10 +1,10 @@
-defmodule Transport.Datagouvfr.Client.Datasets do
+defmodule Datagouvfr.Client.Datasets do
   @moduledoc """
   A client to manipulate https://www.data.gouv.fr/api/1/datasets endpoints
   """
 
   import TransportWeb.Gettext
-  import Transport.Datagouvfr.Client, only: [get_request: 2, post_request: 2, delete_request: 2]
+  import Datagouvfr.Client, only: [get_request: 2, post_request: 2, delete_request: 2]
   require Logger
 
   use Vex.Struct

@@ -1,17 +1,17 @@
-defmodule Transport.Mailjet.Client do
+defmodule Mailjet.Client do
   @moduledoc """
     Helper to send mail via mailjet
   """
   use HTTPoison.Base
 
-  @user Application.get_env(:transport, __MODULE__)[:mailjet_user]
-  @key Application.get_env(:transport, __MODULE__)[:mailjet_key]
-  @url Application.get_env(:transport, __MODULE__)[:mailjet_url]
+  @user Application.get_env(:mailjet, __MODULE__)[:user]
+  @key Application.get_env(:mailjet, __MODULE__)[:key]
+  @url Application.get_env(:mailjet, __MODULE__)[:url]
 
   def payload!(sender, topic, body) do
     Poison.encode!(%{"Messages": [%{
         "From": %{"Name": "PAN, Formulaire Contact", "Email": "contact@transport.beta.gouv.fr"},
-        "To": [%{"Email": "tristram.grabener@beta.gouv.fr"}],
+        "To": [%{"Email": "contact@transport.beta.gouv.fr"}],
         "Subject": topic,
         "TextPart": body,
         "ReplyTo": %{"Email": sender}

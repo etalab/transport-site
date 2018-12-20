@@ -1,8 +1,8 @@
-defmodule Transport.Datagouvfr.Client.DiscussionTest do
+defmodule Datagouvfr.Client.DiscussionTest do
   use TransportWeb.ConnCase, async: false # smell
   use TransportWeb.ExternalCase # smell
   alias OAuth2.AccessToken
-  alias Transport.Datagouvfr.Client
+  alias Datagouvfr.Client
 
   setup do
     conn = build_conn()

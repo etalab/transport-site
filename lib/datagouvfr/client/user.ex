@@ -1,9 +1,9 @@
-defmodule Transport.Datagouvfr.Client.User do
+defmodule Datagouvfr.Client.User do
   @moduledoc """
   An Client to retrieve User information of data.gouv.fr
   """
 
-  import Transport.Datagouvfr.Client, only: [get_request: 3]
+  import Datagouvfr.Client, only: [get_request: 3]
 
   @me_fields ~w(avatar avatar_thumbnail first_name id last_name
                 organizations page id uri apikey email)

@@ -11,7 +11,7 @@ defmodule Transport.Partner do
     field :name, :string
   end
 
-  alias Transport.Datagouvfr.Client
+  alias Datagouvfr.Client
   require Logger
 
   def is_datagouv_partner_url?(url), do: Regex.match?(partner_regex(), url)
@@ -64,8 +64,8 @@ defmodule Transport.Partner do
   defp get_type(url), do: url |> split_url() |> Enum.at(-2)
 
   defp partner_regex do
-    :transport
-    |> Application.get_env(:datagouvfr_site)
+    :datagouvfr
+    |> Application.get_env(:site)
     |> Regex.escape()
     |> Kernel.<>(".*\/(organizations|users)\/(.*)\/$")
     |> Regex.compile!()

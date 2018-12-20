@@ -1,7 +1,8 @@
 defmodule TransportWeb.BackofficeController do
   use TransportWeb, :controller
-  alias Transport.{AOM, Dataset, ImportDataService, Partner, Region, Repo, Resource}
-  alias Transport.Datagouvfr.Client.Datasets
+
+  alias Datagouvfr.Client.Datasets
+  alias Transport.{AOM, Dataset, ImportDataService, Partner, Region, Repo}
   import Ecto.Query
   require Logger
 
