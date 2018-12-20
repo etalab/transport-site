@@ -1,6 +1,6 @@
 defmodule TransportWeb.FollowerController do
   use TransportWeb, :controller
-  alias Transport.Datagouvfr.Client.Datasets
+  alias Datagouvfr.Client.Datasets
 
   def subscribe_or_unsubscribe(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id, "is_subscribed" => "false"}) do
     conn

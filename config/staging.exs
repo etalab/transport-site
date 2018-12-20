@@ -1,5 +1,5 @@
 use Mix.Config
-alias Transport.Datagouvfr.Authentication
+alias Datagouvfr.Authentication
 
 config :transport, TransportWeb.Endpoint,
   http: [port: {:system, "PORT"}],

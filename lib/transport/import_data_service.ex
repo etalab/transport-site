@@ -21,7 +21,7 @@ defmodule Transport.ImportDataService do
   end
 
   def import_from_udata(id, type) do
-    base_url = Application.get_env(:transport, :datagouvfr_site)
+    base_url = Application.get_env(:datagouvfr, :site)
     url      = "#{base_url}/api/1/datasets/#{id}/"
 
     Logger.info(" <message>  Importing dataset")

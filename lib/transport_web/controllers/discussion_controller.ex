@@ -2,7 +2,7 @@ defmodule TransportWeb.DiscussionController do
   use TransportWeb, :controller
   require Logger
 
-  alias Transport.Datagouvfr.Client.Discussions
+  alias Datagouvfr.Client.Discussions
 
   def post_discussion(conn, %{"comment" => comment,
                               "id_" => id_,

@@ -1,8 +1,7 @@
 defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
-  alias Transport.Datagouvfr.Authentication
-  alias Transport.Datagouvfr.Client.Datasets
-  alias Transport.Datagouvfr.{Authentication, Client}
+  alias Datagouvfr.{Authentication, Client}
+  alias Datagouvfr.Client.Datasets
   alias Transport.{Dataset, Repo}
   import Ecto.Query
   require Logger
@@ -58,13 +57,22 @@ defmodule TransportWeb.DatasetController do
     |> Repo.paginate(page: config.page_number)
   end
 
-  defp redirect_to_slug_or_404(conn, slug_or_id) do
-    case Repo.get_by(Dataset, [datagouv_id: slug_or_id]) do
-      nil ->
-        conn
-        |> put_status(:internal_server_error)
-        |> render(ErrorView, "404.html")
-      slug -> redirect(conn, to: dataset_path(conn, :details, slug))
-    end
+  defp redirect_to_slug_or_404(conn, %Dataset{} = dataset) do
+    redirect(conn, to: dataset_path(conn, :details, dataset.slug))
   end
+
+  defp redirect_to_slug_or_404(conn, nil) do
+    conn
+    |> put_status(:internal_server_error)
+    |> render(ErrorView, "404.html")
+  end
+
+  defp redirect_to_slug_or_404(conn, slug_or_id) when is_integer(slug_or_id) do
+    redirect_to_slug_or_404(conn, Repo.get_by(Dataset, [id: slug_or_id]))
+  end
+
+  defp redirect_to_slug_or_404(conn, slug_or_id) do
+    redirect_to_slug_or_404(conn, Repo.get_by(Dataset, [datagouv_id: slug_or_id]))
+  end
+
 end

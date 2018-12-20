@@ -4,7 +4,7 @@ defmodule TransportWeb.SessionController do
   """
 
   use TransportWeb, :controller
-  alias Transport.Datagouvfr.{Authentication, Client.User}
+  alias Datagouvfr.{Authentication, Client.User}
   require Logger
 
   def new(conn, _) do

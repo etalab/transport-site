@@ -1,4 +1,4 @@
-defmodule Transport.Datagouvfr.Authentication do
+defmodule Datagouvfr.Authentication do
   @moduledoc """
   An OAuth2 strategy for data.gouv.fr.
   """

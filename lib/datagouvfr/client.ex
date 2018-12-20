@@ -1,11 +1,11 @@
-defmodule Transport.Datagouvfr.Client do
+defmodule Datagouvfr.Client do
   @moduledoc """
   An API client for data.gouv.fr
   """
 
+  alias Datagouvfr.Authentication
   alias OAuth2.Client, as: OAuth2Client
   alias OAuth2.{Error, Request, Response}
-  alias Transport.Datagouvfr.Authentication
   require Logger
 
   @base_url Application.get_env(:oauth2, Authentication)[:site] |> Path.join("/api/1/")
@@ -13,7 +13,7 @@ defmodule Transport.Datagouvfr.Client do
   @spec get_request(%Plug.Conn{}, binary, OAuth2Client.headers, Keyword.t)
                     :: {:ok, OAuth2.Response.t} | {:error, Error.t}
   def get_request(%Plug.Conn{} = conn, url, headers \\ [], opts \\ []) do
-    Transport.Datagouvfr.Client.request(:get, conn, url, nil, headers, opts)
+    Datagouvfr.Client.request(:get, conn, url, nil, headers, opts)
   end
 
   @spec post_request(%Plug.Conn{}, binary, OAuth2Client.body,
