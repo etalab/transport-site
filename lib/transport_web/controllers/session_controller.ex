@@ -42,7 +42,13 @@ defmodule TransportWeb.SessionController do
   #private functions
 
   defp user_params(%{} = user) do
-    Map.take(user, ["id", "apikey", "email", "first_name", "last_name", "avatar_thumbnail", "organizations"])
+    params =  Map.take(
+      user,
+      ["id", "apikey", "email", "first_name", "last_name", "avatar_thumbnail", "organizations"]
+    )
+    filtered_organizations = Enum.filter(Map.get(params, "organizations", []),
+        fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end)
+    Map.put(params, "organizations", filtered_organizations)
   end
 
   defp get_redirect_path(conn) do
