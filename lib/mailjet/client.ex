@@ -4,9 +4,9 @@ defmodule Mailjet.Client do
   """
   use HTTPoison.Base
 
-  @user Application.get_env(:mailjet, __MODULE__)[:user]
-  @key Application.get_env(:mailjet, __MODULE__)[:key]
-  @url Application.get_env(:mailjet, __MODULE__)[:url]
+  @user Application.get_env(:transport, __MODULE__)[:mailjet_user]
+  @key Application.get_env(:transport, __MODULE__)[:mailjet_key]
+  @url Application.get_env(:transport, __MODULE__)[:mailjet_url]
 
   def payload!(sender, topic, body) do
     Poison.encode!(%{"Messages": [%{

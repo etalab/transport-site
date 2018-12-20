@@ -3,7 +3,7 @@ use Mix.Config
 alias Datagouvfr.Authentication
 
 # Configure data.gouv.fr
-config :datagouvfr, site: System.get_env("DATAGOUVFR_SITE")
+config :transport, datagouvfr_site: System.get_env("DATAGOUVFR_SITE")
 
 # Configure data.gouv.fr authentication
 config :oauth2, Authentication,

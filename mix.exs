@@ -32,7 +32,7 @@ defmodule Transport.Mixfile do
         :oauth2,
         :poolboy,
         :scrivener,
-        :scrivener_html
+        :scrivener_html,
       ]
     ]
   end
