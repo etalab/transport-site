@@ -23,6 +23,7 @@ defmodule Transport.Resource do
     field :format, :string
     field :last_import, :string
     field :title, :string
+    field :metadata, :map
 
     belongs_to :dataset, Dataset
   end
@@ -44,13 +45,12 @@ defmodule Transport.Resource do
 
   def validate_and_save(%__MODULE__{} = resource) do
     Logger.info("Validating " <> resource.url)
-    resource
-    |> validate
-    |> group_validations
-    |> save_validations
-    |> case do
-      {:ok, _} -> Logger.info("Ok!")
-      {:error, error} -> Logger.warn("Error: " <> error)
+    with {:ok, validations} <- validate(resource),
+      {:ok, grouped_validations} <- group_validations(validations),
+      {:ok, _} <- save(grouped_validations) do
+        Logger.info("Ok!")
+    else
+      {:error, error} -> Logger.warn("Error: #{error}")
       _ -> Logger.warn("Unknown error")
     end
   end
@@ -79,30 +79,28 @@ defmodule Transport.Resource do
       iex> Resource.group_validations({:ok, %{url: "http", validations: v}})
       {:ok, %{url: "http", validations: %{"Error" => %{count: 1, issues: [%{"issue_type" => "Error"}]}}}}
   """
-  def group_validations({:ok, %{url: url, validations: validations}}) do
+  def group_validations(%{url: url, validations: validations}) do
     grouped_validations =
     validations
     |> Map.get("validations", [])
     |> Enum.group_by(fn validation -> validation["issue_type"] end)
     |> Map.new(fn {type, issues} -> {type, %{issues: issues, count: Enum.count issues}} end)
 
-    {:ok, %{url: url, validations: grouped_validations}}
+    {:ok, %{url: url, validations: grouped_validations, metadata: validations["metadata"]}}
   end
-  def group_validations(error), do: error
 
-  def save_validations({:ok, %{url: url, validations: validations}}) do
-    Resource
-    |> Repo.get_by(:url, url)
+  def save(%{url: url, validations: validations, metadata: metadata}) do
+    __MODULE__
+    |> Repo.get_by(url: url)
     |> change(validation_date: DateTime.utc_now |> DateTime.to_string)
     |> change(validations: validations)
+    |> change(metadata: metadata)
     |> Repo.update
   end
-  def save_validations({:error, error}), do: {:error, error}
-  def save_validations(error), do: {:error, error}
 
   def changeset(resource, params) do
     cast(resource, params, [:validations, :validation_date, :is_active,
-     :url, :format, :last_import, :title])
+     :url, :format, :last_import, :title, :metadata])
   end
 
   def issue_types, do: @issue_types

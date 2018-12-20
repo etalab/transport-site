@@ -99,3 +99,11 @@ msgstr ""
 #, elixir-format
 msgid "Dataset's url"
 msgstr ""
+
+#, elixir-format, fuzzy
+msgid "Could not validate dataset"
+msgstr ""
+
+#, elixir-format, fuzzy
+msgid "Dataset validated"
+msgstr ""

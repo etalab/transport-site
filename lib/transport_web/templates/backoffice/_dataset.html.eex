@@ -3,8 +3,8 @@
             to: dataset_path(@conn, :details, @dataset.slug),
             role: "link") %></td>
       <td>
-        <%= if @dataset.metadata do %>
-          <%= @dataset.metadata["end_date"] %>
+        <%= if Dataset.metadata(@dataset) do %>
+          <%= Dataset.metadata(@dataset)["end_date"] %>
         <% end %>
       </td>
       <td>
@@ -21,6 +21,11 @@
       <td>
         <%= form_for @conn, backoffice_path(@conn, :import_from_data_gouv_fr, @dataset.id), [nodiv: true], fn _ -> %>
           <%= submit "Importer", [class: "button", nodiv: true] %>
+        <% end %>
+      </td>
+      <td>
+        <%= form_for @conn, backoffice_path(@conn, :validation, @dataset.id), [nodiv: true], fn _ -> %>
+          <%= submit "Valider", [class: "button", nodiv: true] %>
         <% end %>
       </td>
       <td>

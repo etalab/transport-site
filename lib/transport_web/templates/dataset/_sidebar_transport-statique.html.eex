@@ -1,40 +1,40 @@
         <a href="<%= resource_path(@conn, :details, Dataset.resource(@dataset).id) %>">Validations GTFS</a>
-        <%= if @dataset.metadata do %>
+        <%= if Dataset.metadata(@dataset) do %>
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Timetable begin") %></div>
-            <div class="label label-notice"><%=  @dataset.metadata["start_date"] %></div>
+            <div class="label label-notice"><%=  Dataset.metadata(@dataset)["start_date"] %></div>
           </div>
 
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Timetable end") %></div>
-            <div class="label label-notice"><%=  @dataset.metadata["end_date"] %></div>
+            <div class="label label-notice"><%=  Dataset.metadata(@dataset)["end_date"] %></div>
           </div>
 
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Number of lines") %></div>
-            <div class="label label-notice"><%=  @dataset.metadata["lines_count"] %></div>
+            <div class="label label-notice"><%=  Dataset.metadata(@dataset)["lines_count"] %></div>
           </div>
 
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Number of stop areas") %></div>
-            <div class="label label-notice"><%=  @dataset.metadata["stop_areas_count"] %></div>
+            <div class="label label-notice"><%=  Dataset.metadata(@dataset)["stop_areas_count"] %></div>
           </div>
 
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Number of stop points") %></div>
-            <div class="label label-notice"><%=  @dataset.metadata["stop_points_count"] %></div>
+            <div class="label label-notice"><%=  Dataset.metadata(@dataset)["stop_points_count"] %></div>
           </div>
 
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Networks") %></div>
-            <div class="label label-notice"><%=  Enum.join(@dataset.metadata["networks"], ", ") %></div>
+            <div class="label label-notice"><%=  Enum.join(Dataset.metadata(@dataset)["networks"], ", ") %></div>
           </div>
 
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Modes") %></div>
             <div class="label label-notice">
               <%=
-                @dataset.metadata["modes"]
+                Dataset.metadata(@dataset)["modes"]
                 |> Enum.map(fn m -> Gettext.dgettext(TransportWeb.Gettext, "page-shortlist", m) end)
                 |> Enum.join(", ")
               %>

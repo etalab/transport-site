@@ -22,7 +22,6 @@ defmodule Transport.Dataset do
     field :tags, {:array, :string}
     field :title, :string
     field :type, :string
-    field :metadata, :map
 
     belongs_to :region, Region
     belongs_to :aom, AOM
@@ -91,7 +90,7 @@ defmodule Transport.Dataset do
     dataset
     |> Repo.preload(:resources)
     |> cast(params, [:datagouv_id, :spatial, :created_at, :description, :frequency,
-    :last_update, :licence, :logo, :full_logo, :slug, :tags, :title, :type, :metadata])
+    :last_update, :licence, :logo, :full_logo, :slug, :tags, :title, :type])
     |> cast_assoc(:resources, required: true)
     |> validate_required([:region_id, :slug])
     |> case do
@@ -104,6 +103,8 @@ defmodule Transport.Dataset do
 
   def resource(%__MODULE__{resources: [resource|_]}), do: resource
   def download_url(%__MODULE__{} = d), do: resource(d).url
+
+  def metadata(%__MODULE__{} = d), do: resource(d).metadata
 
   @doc """
   Builds a licence.

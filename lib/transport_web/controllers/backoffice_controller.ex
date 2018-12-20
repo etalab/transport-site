@@ -1,5 +1,6 @@
 defmodule TransportWeb.BackofficeController do
   use TransportWeb, :controller
+
   alias Datagouvfr.Client.Datasets
   alias Transport.{AOM, Dataset, ImportDataService, Partner, Region, Repo}
   import Ecto.Query
@@ -62,7 +63,8 @@ defmodule TransportWeb.BackofficeController do
   defp import_data({:ok, dataset}), do: ImportDataService.call(dataset)
   defp import_data(error), do: error
 
-  defp flash({:ok, _message}, conn, ok_message, _err_message) do
+  defp flash({:ok, _message}, conn, ok_message, err_message), do: flash(:ok, conn, ok_message, err_message)
+  defp flash(:ok,  conn, ok_message, _err_message) do
     put_flash(conn, :info, ok_message)
   end
 
@@ -82,7 +84,7 @@ defmodule TransportWeb.BackofficeController do
     |> import_data
     |> flash(conn, dgettext("backoffice", "Dataset added with success"),
        dgettext("backoffice", "Could not add dataset"))
-    |> index(%{})
+    |> redirect(to: backoffice_path(conn, :index))
   end
 
   def import_from_data_gouv_fr(%Plug.Conn{} = conn, %{"id" => id}) do
@@ -93,7 +95,7 @@ defmodule TransportWeb.BackofficeController do
             dgettext("backoffice", "Dataset imported with success"),
             dgettext("backoffice", "Dataset not imported")
       )
-    |> index(%{})
+    |> redirect(to: backoffice_path(conn, :index))
   end
 
   def delete(%Plug.Conn{} = conn, %{"id" => id}) do
@@ -101,7 +103,23 @@ defmodule TransportWeb.BackofficeController do
     |> Repo.get(id)
     |> Repo.delete()
     |> flash(conn, dgettext("backoffice", "Dataset deleted"), dgettext("backoffice", "Could not delete dataset"))
-    |> index(%{})
+    |> redirect(to: backoffice_path(conn, :index))
+  end
+
+  def validation(%Plug.Conn{} = conn, %{"id" => id}) do
+    Resource
+    |> where([r], r.dataset_id ==  ^id)
+    |> Repo.all()
+    |> Enum.reduce(conn,
+      fn r, conn -> r
+        |> Resource.validate_and_save()
+        |> flash(conn,
+          dgettext("backoffice", "Dataset validated"),
+          dgettext("backoffice", "Could not validate dataset")
+        )
+      end
+    )
+    |> redirect(to: backoffice_path(conn, :index))
   end
 
   def partners(%Plug.Conn{} = conn, params) do
