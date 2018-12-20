@@ -1,5 +1,7 @@
 FROM betagouv/transport:0.3.0
 
+RUN apk add git
+
 RUN mkdir phoenixapp
 WORKDIR /phoenixapp
 COPY ./ /phoenixapp
