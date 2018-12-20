@@ -105,4 +105,6 @@ defmodule Transport.Resource do
 
   def issue_types, do: @issue_types
 
+  def valid?(%__MODULE__{} = r), do: r.metadata != nil
+
 end

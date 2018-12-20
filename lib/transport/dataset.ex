@@ -101,9 +101,16 @@ defmodule Transport.Dataset do
     end
   end
 
-  def resource(%__MODULE__{resources: [resource|_]}), do: resource
-  def download_url(%__MODULE__{} = d), do: resource(d).url
+  def valid_resources(%__MODULE__{resources: nil}), do: []
+  def valid_resources(%__MODULE__{resources: r}), do: Enum.filter(r, &Resource.valid?/1)
 
+  def resource(%__MODULE__{} = dataset) do
+    dataset
+    |> __MODULE__.valid_resources()
+    |> List.first()
+  end
+
+  def download_url(%__MODULE__{} = d), do: resource(d).url
   def metadata(%__MODULE__{} = d), do: resource(d).metadata
 
   @doc """
