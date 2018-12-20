@@ -1,8 +1,7 @@
 defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
-  alias Transport.Datagouvfr.Authentication
-  alias Transport.Datagouvfr.Client.Datasets
-  alias Transport.Datagouvfr.{Authentication, Client}
+  alias Datagouvfr.{Authentication, Client}
+  alias Datagouvfr.Client.Datasets
   alias Transport.{Dataset, Repo}
   import Ecto.Query
   require Logger
