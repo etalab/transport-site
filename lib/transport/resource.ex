@@ -91,8 +91,8 @@ defmodule Transport.Resource do
   def group_validations(error), do: error
 
   def save_validations({:ok, %{url: url, validations: validations}}) do
-    Resource
-    |> Repo.get_by(:url, url)
+    __MODULE__
+    |> Repo.get_by(url: url)
     |> change(validation_date: DateTime.utc_now |> DateTime.to_string)
     |> change(validations: validations)
     |> Repo.update
