@@ -82,7 +82,7 @@ defmodule TransportWeb.BackofficeController do
     |> import_data
     |> flash(conn, dgettext("backoffice", "Dataset added with success"),
        dgettext("backoffice", "Could not add dataset"))
-    |> index(%{})
+    |> redirect(to: backoffice_path(conn, :index))
   end
 
   def import_from_data_gouv_fr(%Plug.Conn{} = conn, %{"id" => id}) do
@@ -93,7 +93,7 @@ defmodule TransportWeb.BackofficeController do
             dgettext("backoffice", "Dataset imported with success"),
             dgettext("backoffice", "Dataset not imported")
       )
-    |> index(%{})
+    |> redirect(to: backoffice_path(conn, :index))
   end
 
   def delete(%Plug.Conn{} = conn, %{"id" => id}) do
@@ -101,7 +101,7 @@ defmodule TransportWeb.BackofficeController do
     |> Repo.get(id)
     |> Repo.delete()
     |> flash(conn, dgettext("backoffice", "Dataset deleted"), dgettext("backoffice", "Could not delete dataset"))
-    |> index(%{})
+    |> redirect(to: backoffice_path(conn, :index))
   end
 
   def partners(%Plug.Conn{} = conn, params) do
