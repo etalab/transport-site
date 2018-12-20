@@ -3,8 +3,8 @@
             to: dataset_path(@conn, :details, @dataset.slug),
             role: "link") %></td>
       <td>
-        <%= if @dataset.metadata do %>
-          <%= @dataset.metadata["end_date"] %>
+        <%= if Dataset.metadata(@dataset) do %>
+          <%= Dataset.metadata(@dataset)["end_date"] %>
         <% end %>
       </td>
       <td>
