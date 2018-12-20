@@ -1,5 +1,5 @@
 .documentation {
-    display: flex;
+  display: flex;
 }
 
 .side-pane {
@@ -29,26 +29,26 @@
   font-size: 0.9rem;
   text-transform: uppercase;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--theme-border);
+  border-bottom: 1px solid $border;
 }
 
 .side-pane .side-pane__link {
   padding: 0.5rem 1rem;
   display: block;
   width: 100%;
-  border-radius: var(--theme-border-radius);
+  border-radius: $border-radius;
   margin-bottom: 0.5rem;
-  color: var(--theme-dark-text);
+  color: $dark-text;
   text-decoration: none;
 }
 
 .side-pane li:hover .side-pane__link {
-  background: var(--light-grey);
+  background: $light-grey;
 }
 
 .side-pane li.active .side-pane__link {
-  background: var(--theme-primary);
-  color: var(--white);
+  background: $primary;
+  color: $white;
 }
 
 .side-pane li.side-pane__dropdown .side-pane__link {
@@ -58,19 +58,19 @@
 }
 
 .side-pane li.side-pane__dropdown:hover .side-pane__link {
-  background: var(--light-grey) url("../images/icons/arrow-right.svg") no-repeat;
+  background: $light-grey url("../images/icons/arrow-right.svg") no-repeat;
   background-position: center right 1em;
   background-size: 15px 15px;
 }
 
 .side-pane li.unfolded.side-pane__dropdown .side-pane__link,
 .side-pane li.unfolded.side-pane__dropdown:hover .side-pane__link {
-  background-image: url("../images/icons/arrow-down.svg");
+  background-image: url("../images/icons/arrow-down-white.svg");
   background-color: transparent;
 }
 
 .side-pane li.unfolded.active.side-pane__dropdown .side-pane__link {
-  background-color: var(--theme-primary);
+  background-color: $primary;
 }
 
 .side-pane__dropdown.unfolded .side-pane__submenu {
@@ -87,8 +87,8 @@
 .side-pane__sublink:visited {
   padding: 0.5rem;
   list-style-type: none;
-  color: var(--darker-grey);
-  border-radius: var(--theme-border-radius);
+  color: $darker-grey;
+  border-radius: $border-radius;
   text-decoration: none;
   display: inline-block;
 }
@@ -99,23 +99,23 @@
 }
 
 .side-pane__submenu .side-pane__sublink:hover {
-  color: var(--theme-dark-text);
-  background: var(--light-grey);
+  color: $dark-text;
+  background: $light-grey;
 }
 
 .side-pane__submenu li.active {
   list-style-type: disc;
-  color: var(--theme-primary);
+  color: $primary;
 }
 
 .side-pane__submenu li.active .side-pane__sublink {
   font-weight: 700;
-  color: var(--theme-dark-text);
+  color: $dark-text;
 }
 
 .main-pane {
   padding: 3rem;
-  background: var(--white);
+  background: $white;
   flex: 1;
 }
 
@@ -130,7 +130,7 @@
 
   .side-pane {
     border-right: none;
-    border-bottom: 1px solid var(--theme-border-lighter);
+    border-bottom: 1px solid $border-lighter;
     flex: auto;
   }
 

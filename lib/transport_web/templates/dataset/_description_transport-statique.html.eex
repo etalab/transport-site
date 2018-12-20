@@ -1,1 +1,0 @@
-    <a href="<%= resource_path(@conn, :details, Dataset.resource(@dataset).id) %>">Validations GTFS</a>
