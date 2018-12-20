@@ -64,8 +64,8 @@ defmodule Transport.Partner do
   defp get_type(url), do: url |> split_url() |> Enum.at(-2)
 
   defp partner_regex do
-    :datagouvfr
-    |> Application.get_env(:site)
+    :transport
+    |> Application.get_env(:datagouvfr_site)
     |> Regex.escape()
     |> Kernel.<>(".*\/(organizations|users)\/(.*)\/$")
     |> Regex.compile!()
