@@ -111,8 +111,8 @@ defmodule Transport.Dataset do
     |> List.first()
   end
 
-  def download_url(%__MODULE__{} = d), do: resource(d).url
-  def metadata(%__MODULE__{} = d), do: resource(d).metadata
+  def download_url(%__MODULE__{} = d), do: if resource(d), do: resource(d).url
+  def metadata(%__MODULE__{} = d), do: if resource(d), do: resource(d).metadata
 
   @doc """
   Builds a licence.
