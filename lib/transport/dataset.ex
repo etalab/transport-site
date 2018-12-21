@@ -102,7 +102,8 @@ defmodule Transport.Dataset do
   end
 
   def valid_resources(%__MODULE__{resources: nil}), do: []
-  def valid_resources(%__MODULE__{resources: r}), do: Enum.filter(r, &Resource.valid?/1)
+  def valid_resources(%__MODULE__{resources: r, type: "transport-statique"}), do: Enum.filter(r, &Resource.valid?/1)
+  def valid_resources(%__MODULE__{resources: r}), do: r
 
   def resource(%__MODULE__{} = dataset) do
     dataset
