@@ -27,8 +27,10 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
       tags: [],
       resources: [%Resource{
         url: "https://link.to/angers.zip",
-        validations: %{}
-      }]
+        validations: %{},
+        metadata: %{}
+      }
+    ]
     } |> Repo.insert()
 
     {:ok, _} = %Dataset{
@@ -41,7 +43,8 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
       tags: [],
       resources: [%Resource{
         url: "https://link.to/angers.zip",
-        validations: %{}
+        validations: %{},
+        metadata: %{}
       }]
     } |> Repo.insert()
 

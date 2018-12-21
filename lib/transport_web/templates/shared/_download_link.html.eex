@@ -1,12 +1,12 @@
 <%= cond do %>
-<% length(@dataset.resources) == 1 -> %>
+<% length(Dataset.valid_resources(@dataset)) == 1 -> %>
   <div class="shortlist__link shortlist__link--download">
         <i class="icon icon--download" aria-hidden="true"></i>
         <%= link(dgettext("download-link", "Download"),
                 to: Dataset.download_url(@dataset),
                 role: "link") %>
   </div>
-<% length(@dataset.resources) > 1 -> %>
+<% length(Dataset.valid_resources(@dataset)) > 1 -> %>
   <div class="shortlist__link shortlist__link--download">
         <i class="icon icon--download" aria-hidden="true"></i>
         <%= link(dgettext("download-link", "Download"),
@@ -20,7 +20,7 @@
         </a>
         <br>
         <ul>
-            <%= for resource <- @dataset.resources do %>
+            <%= for resource <- Dataset.valid_resources(@dataset) do %>
             <li>
                 <i class="icon icon--download" aria-hidden="true"></i>
                 <%= link(resource.title,

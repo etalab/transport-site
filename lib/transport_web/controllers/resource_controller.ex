@@ -11,7 +11,11 @@ defmodule TransportWeb.ResourceController do
       resource ->
         resource_with_dataset = resource |> Repo.preload([:dataset])
         dataset = resource_with_dataset.dataset |> Repo.preload([:resources])
-        other_resources = dataset.resources |> Enum.reject(&(&1.id |> Integer.to_string == id))
+        other_resources =
+          dataset.resources
+          |> Stream.reject(&(Integer.to_string(&1.id) == id))
+          |> Stream.filter(&Resource.valid?/1)
+          |> Enum.to_list()
 
         issue_type = get_issue_type(params, resource)
         issues = get_issues(resource, issue_type, config)
@@ -34,7 +38,7 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp get_issue_type(%{"issue_type" => issue_type}, _), do: issue_type
-  defp get_issue_type(_, %{validations: validations}) when validations != nil do
+  defp get_issue_type(_, %{validations: validations}) when validations != nil and validations != %{} do
     {issue_type, _issues} = validations |> Map.to_list() |> List.first()
     issue_type
   end
