@@ -7,7 +7,7 @@
     <%= search_input f, :q, [{"value", assigns[:q] || ""}, {"placeholder", dgettext("page-index", "Find dataset")}] %>
   <% end %>
 
-  <%= pagination_links @conn, @datasets, path: &backoffice_path/3 %>
+  <%= pagination_links @conn, @datasets, path: &backoffice_path/3, q: assigns[:q] || "" %>
 
   <table>
   <tr>
@@ -23,5 +23,5 @@
   </tr>
   <%= render_many(@datasets, TransportWeb.BackofficeView, "_dataset.html", as: :dataset, conn: @conn)%>
   </table>
-  <%= pagination_links @conn, @datasets, path: &backoffice_path/3 %>
+  <%= pagination_links @conn, @datasets, path: &backoffice_path/3, q: assigns[:q] || "" %>
 </section>

@@ -7,7 +7,7 @@
     <%= if Enum.empty? @datasets do %>
       <%= dgettext("page-shortlist", "No dataset found") %>
     <% else %>
-      <%= pagination_links @conn, @datasets %>
+      <%= pagination_links @conn, @datasets, q: assigns[:q] || "" %>
       <%= for dataset <- @datasets do %>
         <div class="shortlist panel">
           <div class="panel__header">
@@ -65,7 +65,7 @@
           </div>
         </div>
       <% end %>
-      <%= pagination_links @conn, @datasets %>
+      <%= pagination_links @conn, @datasets, q: assigns[:q] || "" %>
     <% end %>
   </div>
 </section>
