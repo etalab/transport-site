@@ -9,7 +9,8 @@ defmodule TransportWeb.BackofficeController do
   @dataset_types [
     {dgettext("backoffice", "transport static"), "transport-statique"},
     {dgettext("backoffice", "carsharing areas"), "aires-covoiturage"},
-    {dgettext("backoffice", "stops referential"), "stops-ref"}
+    {dgettext("backoffice", "stops referential"), "stops-ref"},
+    {dgettext("backoffice", "charging stations"), "bornes-recharge"}
   ]
 
   defp region_names do
