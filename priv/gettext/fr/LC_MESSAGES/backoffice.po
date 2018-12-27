@@ -107,3 +107,7 @@ msgstr "Impossible de valider le jeu de données"
 #, elixir-format
 msgid "Dataset validated"
 msgstr "Jeu de données validé"
+
+#, elixir-format
+msgid "charging stations"
+msgstr "Bornes de recharge"

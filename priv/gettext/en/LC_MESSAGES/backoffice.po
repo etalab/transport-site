@@ -100,10 +100,14 @@ msgstr ""
 msgid "Dataset's url"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Could not validate dataset"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Dataset validated"
+msgstr ""
+
+#, elixir-format
+msgid "charging stations"
 msgstr ""
