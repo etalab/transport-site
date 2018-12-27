@@ -107,3 +107,7 @@ msgstr ""
 #, elixir-format
 msgid "Dataset validated"
 msgstr ""
+
+#, elixir-format
+msgid "charging stations"
+msgstr ""
