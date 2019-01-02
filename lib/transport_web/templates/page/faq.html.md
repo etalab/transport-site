@@ -160,7 +160,7 @@ S’il s’avère impossible d’intégrer les mentions requises en raison de li
 
 Comme le recommande OpenData France, la source pourra être mentionnée de la façon suivante :
 
-« [Nom de la base de données], [Producteur de la base de données], [date], sous licence ODbL. »
+« [Nom de la base de données], [Producteur de la base de données], sous licence ODbL. »
 
 *Exemple : « GTFS du réseau de transport TBM (Offre de service bus et tram) — Bordeaux Métropole, sous licence ODbL »*
 
