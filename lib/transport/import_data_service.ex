@@ -36,6 +36,7 @@ defmodule Transport.ImportDataService do
       {:error, error} ->
         Logger.error("<message>  #{inspect error}")
         Logger.error("<id>       #{id}")
+        Logger.error("<url>      #{url}")
         {:error, error}
     end
   end
