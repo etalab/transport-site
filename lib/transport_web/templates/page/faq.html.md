@@ -100,9 +100,11 @@ Les référents identifiés sur chaque jeu de données sont des êtres humains :
 
 Les données disponibles sur le Point d’Accès National transport.data.gouv.fr sont soumises à la licence ODbL que les réutilisateurs s’engagent à respecter dès lors qu’ils téléchargent un jeu de données. Seul le [texte complet](https://spdx.org/licenses/ODbL-1.0.html#licenseText) de la licence fait foi. Une [traduction non officielle en français](https://vvlibri.org/fr/licence/odbl-10/legalcode/unofficial) peut être obtenue pour faciliter sa compréhension.
 
-Il est précisé que la clause de partage à l’identique figurant à l’article 4.4 concerne les informations de même nature, de même granularité, de même conditions temporelles et de même emprise géographique.
+Une condition particulière d'utilisation a été ajoutée après un travail d'analyse et de consultation auprès des producteurs et réutilisateurs de données : 
 
-Par extension, seule est exigée le repartage aux bases de données dérivées (paragraphe 4.6 de la licence ODbL) pour les bases de données dérivées répondant à ces conditions.
+> Il est précisé que la clause de partage à l’identique figurant à l’article 4.4 concerne les informations de même nature, de même granularité, de même conditions temporelles et de même emprise géographique.
+
+Par extension, seul est exigé le repartage aux bases de données dérivées (paragraphe 4.6 de la licence ODbL) pour les bases de données dérivées répondant à ces conditions.
 
 L’exemple ci-dessous illustre ce qui est attendu des réutilisateurs.
 
@@ -160,7 +162,7 @@ S’il s’avère impossible d’intégrer les mentions requises en raison de li
 
 Comme le recommande OpenData France, la source pourra être mentionnée de la façon suivante :
 
-« [Nom de la base de données], [Producteur de la base de données], [date], sous licence ODbL. »
+« [Nom de la base de données], [Producteur de la base de données], sous licence ODbL. »
 
 *Exemple : « GTFS du réseau de transport TBM (Offre de service bus et tram) — Bordeaux Métropole, sous licence ODbL »*
 
