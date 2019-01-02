@@ -2,7 +2,7 @@
     <div class="hero__container">
         <div class="container">
             <h1>Le Point d'Accès National</h1>
-            <h3>De l’information voyageur pour tous, partout en France, grâce à l’ouverture des données.</h3>
+            <h3>Améliorer l'information voyageur partout en France grâce à l’ouverture des données.</h3>
             <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
                 <%= search_input f, :q, [{"placeholder", dgettext("page-index", "Find dataset")}] %>
                 <p class="text-center"><a href="#about">➞ Plus d'informations</a></p>
@@ -16,7 +16,7 @@
         <div class="row">
             <div class="column">
                 <h2>Qu'est-ce que le Point d'Accès National ?</h2>
-                <p> La plateforme transport.data.gouv.fr est le Point d'Accès National français. Elle s'adresse aux producteurs et aux réutilisateurs de données transport. Elle vise à accélérer l'ouverture de ces données et à favoriser leur réutilisation pour diffuser l'information voyageur la plus complète possible sur tous les supports numériques. Suivez l'évolution de l'ouverture des données transport sur la <a href="/stats" class="inverted_color">page dédiée au déploiement</a>. </p>
+                <p> Le Point d'Accès National est une plateforme numérique qui référence l'ensemble des données de transport relatives à l'information des voyageurs. Il s'adresse aux producteurs et aux réutilisateurs de ces données transport et vise à garantir la disponibilité d'information voyageur fiable et complète partout en France, sur tous les supports numériques. Suivez l'évolution de l'ouverture des données transport sur la <a href="/stats" class="inverted_color">page dédiée au déploiement</a>. </p>
             </div>
             <div class="column cta">
                 <div>
