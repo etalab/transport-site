@@ -6,7 +6,7 @@ defmodule TransportWeb.Integration.LoginTest do
   @tag :integration
   test "adds a redirect path to login link with current path" do
     @endpoint
-    |> backoffice_url(:index)
+    |> backoffice_page_url(:index)
     |> navigate_to
 
     assert "redirect_path=%2Fbackoffice" == URI.parse(current_url()).query

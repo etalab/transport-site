@@ -60,20 +60,20 @@ defmodule TransportWeb.Router do
       get "/:id", ResourceController, :details
     end
 
-    scope "/backoffice" do
+    scope "/backoffice", Backoffice do
       pipe_through [:admin_rights]
-      get "/", BackofficeController, :index
+      get "/", BackofficePageController, :index
 
       scope "/datasets" do
-        post "/", BackofficeController, :new_dataset
-        post "/:id/_import", BackofficeController, :import_from_data_gouv_fr
-        post "/:id/_delete", BackofficeController, :delete
-        post "/:id/_validate", BackofficeController, :validation
+        post "/", DatasetController, :new_dataset
+        post "/:id/_import", DatasetController, :import_from_data_gouv_fr
+        post "/:id/_delete", DatasetController, :delete
+        post "/:id/_validate", DatasetController, :validation
       end
 
       scope "/partners" do
-        get "/", BackofficeController, :partners
-        post "/", BackofficeController, :post_partner
+        get "/", PartnerController, :partners
+        post "/", PartnerController, :post_partner
       end
     end
 

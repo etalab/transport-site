@@ -77,10 +77,6 @@ msgid "Unable to insert partner in database"
 msgstr ""
 
 #, elixir-format
-msgid "Unable to find dataset"
-msgstr ""
-
-#, elixir-format
 msgid "Delete"
 msgstr ""
 
@@ -97,19 +93,11 @@ msgid "stops referential"
 msgstr ""
 
 #, elixir-format
-msgid "Dataset's url"
-msgstr ""
-
-#, elixir-format
-msgid "Could not validate dataset"
-msgstr ""
-
-#, elixir-format
-msgid "Dataset validated"
-msgstr ""
-
-#, elixir-format
 msgid "charging stations"
+msgstr ""
+
+#, elixir-format
+msgid "Dataset's url"
 msgstr ""
 
 #, elixir-format
