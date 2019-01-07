@@ -72,9 +72,9 @@ defmodule Datagouvfr.Client do
     |> get_request("/discussions?for=#{id}", [], follow_redirect: true)
     |> case do
       {:ok, %{"data" => data}} -> data
-      error ->
-        Logger.error("When fetching discussions for id #{id}: #{error}")
-        []
+      {:error, error} ->
+        Logger.error("When fetching discussions for id #{id}: #{error.reason}")
+        nil
     end
   end
 
@@ -83,8 +83,8 @@ defmodule Datagouvfr.Client do
     |> get_request("/datasets/community_resources/?dataset=#{id}", [])
     |> case do
       {:ok, %{"data" => data}} -> data
-      error ->
-        Logger.error("When getting community_ressources for id #{id}: #{error}")
+      {:error, error} ->
+        Logger.error("When getting community_ressources for id #{id}: #{error.reason}")
         []
     end
   end

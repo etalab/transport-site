@@ -115,3 +115,7 @@ msgstr ""
 #, elixir-format
 msgid "Start a new discussion"
 msgstr ""
+
+#, elixir-format
+msgid "Unable to retrieve discussions from data.gouv.fr"
+msgstr ""

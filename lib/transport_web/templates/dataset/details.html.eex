@@ -55,7 +55,11 @@
 
       <div class="dataset-details__discussions">
         <h2>Discussions</h2>
+        <%= unless @discussions == nil do %>
         <%= render_many @discussions, TransportWeb.DatasetView, "_discussion.html", as: :discussion, current_user: @current_user, conn: @conn, dataset: @dataset %>
+        <% else %>
+        <%= dgettext("page-dataset-details", "Unable to retrieve discussions from data.gouv.fr") %>
+        <% end %>
 
         <%= if @current_user do %>
           <a href="#new_discussion">

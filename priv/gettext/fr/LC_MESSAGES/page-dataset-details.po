@@ -115,3 +115,7 @@ msgstr "Impossible de commencer une nouvelle discussion"
 #, elixir-format
 msgid "Start a new discussion"
 msgstr "Initier une nouvelle discussion"
+
+#, elixir-format
+msgid "Unable to retrieve discussions from data.gouv.fr"
+msgstr "Impossible de récupérer les discussions depuis data.gouv.fr, veuillez recharger la page"
