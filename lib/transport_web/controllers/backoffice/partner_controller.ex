@@ -1,9 +1,7 @@
 defmodule TransportWeb.Backoffice.PartnerController do
   use TransportWeb, :controller
-
-  alias Transport.{Repo, Partner}
+  alias Transport.{Partner, Repo}
   require Logger
-
 
   def partners(%Plug.Conn{} = conn, params) do
     config = make_pagination_config(params)
