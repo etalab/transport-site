@@ -14,5 +14,4 @@ defmodule Transport.Region do
     has_many :aoms, AOM
     has_one :datasets, Dataset
   end
-  use ExConstructor
 end
