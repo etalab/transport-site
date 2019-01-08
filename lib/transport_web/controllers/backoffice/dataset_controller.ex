@@ -5,7 +5,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
   import Ecto.Query
 
   def new_dataset(%Plug.Conn{} = conn, params) do
-    with datagouv_id <- Datasets.get_id_from_url(conn, params["url"]),
+    with datagouv_id when not is_nil(datagouv_id)  <- Datasets.get_id_from_url(conn, params["url"]),
          {:ok, aom_id} <- get_aom_id(params),
          {:ok, datagouv_dataset} <- ImportDataService.import_from_udata(datagouv_id, params["type"]),
          params <- Map.put(params, "aom_id", aom_id),
