@@ -97,9 +97,9 @@ Pour l’instant, **la plateforme transport.data.gouv.fr accepte des fichiers a
 
 * **Pour les infrastructures de recharge pour véhicules électriques (IRVE):**
 
-Depuis septembre 2018, les données sont consolidées de manière automatique par Etalab.
+Etalab consolide un fichier des données relatives à la localisation et aux caractéristiques des IRVE en France.
 
-Les fichiers sources (csv) doivent être publiés sur data.gouv.fr et respecter le format attendu défini [ici](https://www.data.gouv.fr/fr/datasets/fichier-exemple-stations-de-recharge-de-vehicules-electriques/) par [l’arrêté du 12 janvier 2017](https://www.legifrance.gouv.fr/affichTexte.do?cidTexte=JORFTEXT000033860733&categorieLien=id) pour apparaître dans [la version consolidée du fichier national](https://www.data.gouv.fr/fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/), notamment sur les colonnes id_pdc et date_maj qui servent de pivot. L’intégration au fichier national se fera automatiquement si les fichiers sources correspondent au format attendu et sont publiés sur data.gouv.fr.
+Les fichiers sources (csv) doivent être publiés sur data.gouv.fr et respecter le format attendu défini [ici](https://www.data.gouv.fr/fr/datasets/fichier-exemple-stations-de-recharge-de-vehicules-electriques/) par [l’arrêté du 12 janvier 2017](https://www.legifrance.gouv.fr/affichTexte.do?cidTexte=JORFTEXT000033860733&categorieLien=id) pour apparaître dans [la version consolidée du fichier national](https://www.data.gouv.fr/fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/), notamment sur les colonnes id_pdc et date_maj qui servent de pivot. L’intégration au fichier national a lieu si les fichiers sources correspondent au format attendu et sont publiés sur data.gouv.fr.
 
 * **Pour les aires de covoiturage :** 
 
