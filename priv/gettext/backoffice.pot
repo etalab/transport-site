@@ -111,3 +111,7 @@ msgstr ""
 #, elixir-format
 msgid "charging stations"
 msgstr ""
+
+#, elixir-format
+msgid "bike sharing"
+msgstr ""

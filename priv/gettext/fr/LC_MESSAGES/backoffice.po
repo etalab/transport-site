@@ -111,3 +111,7 @@ msgstr "Jeu de données validé"
 #, elixir-format
 msgid "charging stations"
 msgstr "Bornes de recharge"
+
+#, elixir-format
+msgid "bike sharing"
+msgstr "Vélo en libre service"
