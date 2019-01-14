@@ -23,16 +23,25 @@
     height: 600px;
     width: 50%;
 }
+.displayer {
+    transform: rotate(45deg);
+    margin: 70px 30px;
+}
 .mapLabel {
     background: white;
-    border: 1px solid #888;
-    border-radius: 30px;
+    border-radius: 50% 50% 50% 0%;
+    border-style: solid;
+    border-color: #888;
+
+    transform: rotate(-45deg);
 
     position: relative;
 
     display: inline-block;
     white-space: nowrap;
     font-size: 20px;
+    width: 300px;
+    height: 300px;
 }
 
 .bus { text-align: center; }
@@ -96,23 +105,20 @@ const loadRT = async function(service_url, map, sp, collisionLayer) {
     v = `${v}${l}</ul>`
     var marker = L.marker([sp.Location.latitude, sp.Location.longitude], {
         icon: L.divIcon({
-            className: 'mapLabel',
-            iconSize: [300, 150],
-            iconAnchor: [150, 220],
-            html: `<p class="bus"><i class="fas fa-bus"></i></p> ${v}<p>&nbsp;</p>`,
+            iconSize: [0, 0],
+            iconAnchor: [155, 370],
+            html: `<div class="mapLabel"><div class="displayer"><p class="bus"><i class="fas fa-bus"></i></p> ${v}<p>&nbsp;</p></div></div>`,
 
         })
         ,interactive: false	// Post-0.7.3
         ,clickable:   false	//      0.7.3
     });
     collisionLayer.addLayer(marker);
-    var m = L.marker([sp.Location.latitude, sp.Location.longitude])
-    collisionLayer.addLayer(m);
     return true;
 }
 
 var load = function() {
-    var mymap = L.map('map').setView([45.19508, 5.7112]  , 17);
+    var mymap = L.map('map').setView([45.19708, 5.7112]  , 17);
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
         maxZoom: 18,
