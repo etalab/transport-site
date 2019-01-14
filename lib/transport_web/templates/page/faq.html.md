@@ -78,7 +78,36 @@ Les équipes de transport.data.gouv.fr fournissent un accompagnement complet à 
 
 Toute publication de données se fait via la plateforme [data.gouv.fr](https://data.gouv.fr). Les données sont ensuite référencées par transport.data.gouv.fr lorsque cela est pertinent.
 
-En ce qui concerne la publication des fichiers GTFS décrivant les lignes régulières de transport, [un guide est à votre disposition](https://transport.data.gouv.fr/guide).
+* **Pour les données statiques (théoriques) de lignes régulières** (transports en commun, autocars de longue distance, ferroviaire, …) :
+
+Pour l’instant, **la plateforme transport.data.gouv.fr accepte des fichiers au format GTFS** : c’est le format qui permettra aux usagers bénéficier de services de mobilité innovants au plus vite. À moyen-terme, la plateforme transport.data.gouv.fr proposera des outils de conversion de fichiers GTFS vers la norme NeTEx afin de vous aider à vous conformer à la réglementation.
+
+**[Un guide de publication est à votre disposition](https://transport.data.gouv.fr/guide)**. En amont, vous pouvez utiliser [conversion-validation-donnees-tc.org](http://www.conversion-validation-donnees-tc.org), un outil développé par l’AFIMB pour valider votre fichier GTFS ou convertir un fichier NEPTUNE en GTFS. Les spécifications du format GTFS sont disponibles sur [cette page](https://developers.google.com/transit/gtfs/reference/).
+
+* **Pour les données dynamiques (temps réel) de lignes régulières** (transports en commun, autocars de longue distance, ferroviaire, …) :
+
+Trois cas de figures se présentent, selon que vous êtes producteur de données :
+1. [Au format GTFS RT](https://developers.google.com/transit/gtfs-realtime/?hl=fr) : référencez dès maintenant votre flux GTFS RT sur transport.data.gouv.fr qui peut le convertir en API SIRI Lite afin de vous aider à vous conformer aux normes européennes.
+2. [Au format SIRI](http://www.normes-donnees-tc.org/category/donnees-temps-reel/) : référencez dès maintenant votre API sur transport.data.gouv.fr.
+3. A un format propriétaire : contactez directement [contact@transport.beta.gouv.fr](mailto:contact@transport.beta.gouv.fr).
+
+* **Pour les données statiques et dynamiques des vélos en libre-service (VLS) et de services en free-floating :**
+
+Pour l’instant, **la plateforme transport.data.gouv.fr accepte des fichiers au format GBFS**. Le GBFS est [le standard ouvert](https://github.com/NABSA/gbfs) pour les VLS et des services en free-floating, qui a été développé par des opérateurs publics et privés, des développeurs d’applications et des fournisseurs de solutions technologiques.
+
+* **Pour les infrastructures de recharge pour véhicules électriques (IRVE):**
+
+Etalab consolide un fichier des données relatives à la localisation et aux caractéristiques des IRVE en France.
+
+Les fichiers sources (csv) doivent être publiés sur data.gouv.fr et respecter le format attendu défini [ici](https://www.data.gouv.fr/fr/datasets/fichier-exemple-stations-de-recharge-de-vehicules-electriques/) par [l’arrêté du 12 janvier 2017](https://www.legifrance.gouv.fr/affichTexte.do?cidTexte=JORFTEXT000033860733&categorieLien=id) pour apparaître dans [la version consolidée du fichier national](https://www.data.gouv.fr/fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/), notamment sur les colonnes id_pdc et date_maj qui servent de pivot. L’intégration au fichier national a lieu si les fichiers sources correspondent au format attendu et sont publiés sur data.gouv.fr.
+
+* **Pour les aires de covoiturage :** 
+
+[Un fichier national décrivant les aires de covoiturage de 70 départements](https://www.data.gouv.fr/fr/datasets/aires-de-covoiturage-en-france) a été consolidé par BlaBlaCar.
+Les fichiers sources (csv) peuvent être déposés sur [ce lien](https://docs.google.com/forms/d/e/1FAIpQLSeJ_BLOUkedenhMjQFkqpKG6OpLShoPrVJs7SOMLN7pQmUpVQ/viewform) s’ils respectent le format attendu défini [ici](https://docs.google.com/spreadsheets/d/1gGhkStBP9XL0WuHxfx-sQzRFX26K_67j9HrJcX-p8eU/edit#gid=0).
+
+La Fabrique des Mobilités a également ouvert un fichier relatif à des lieux de rdv de covoiturage (grande variété de points, fichier non consolidé), disponible [ici](https://www.data.gouv.fr/fr/datasets/base-de-donnees-commune-des-lieux-et-aires-de-covoiturage/).
+
 
 ### En tant que réutilisateur de données…
 
