@@ -51,28 +51,22 @@
         </pre>
         <div id="map"></div>
         <script>
-var loadDiscovery = function(map, collisionLayer, service_url) {
+var loadDiscovery = async function(map, collisionLayer, service_url) {
         var bounds = map.getBounds();
         params=`BoundingBoxStructure.UpperLeft.Longitude=${bounds.getNorthWest().lng}`
         params = `${params}&BoundingBoxStructure.UpperLeft.Latitude=${bounds.getNorthWest().lat}`
         params = `${params}&BoundingBoxStructure.LowerRight.Longitude=${bounds.getSouthEast().lng}`
         params = `${params}&BoundingBoxStructure.LowerRight.Latitude=${bounds.getSouthEast().lat}`
         var url = `${service_url}/stoppoints_discovery.json?${params}`
-        fetch(url, {params: params})
-            .then(
-                response => {
-                    response.json()
-                    .then(function(json) {
-                        for(var i=0; i<json.Siri.StopPointsDelivery.AnnotatedStopPoint.length; i++) {
-                            var sp = json.Siri.StopPointsDelivery.AnnotatedStopPoint[i];
-                            if (loadRT(service_url, map, sp, collisionLayer)) {
-                                break;
-                            }
-                            console.log("no break")
-                        }
-                    })
-                }
-            ).catch(function(a) {console.log(a)})
+        var response = await fetch(url, {params: params});
+        var json = await response.json();
+        for(var i=0; i<json.Siri.StopPointsDelivery.AnnotatedStopPoint.length; i++) {
+            var sp = json.Siri.StopPointsDelivery.AnnotatedStopPoint[i];
+            var rt = await loadRT(service_url, map, sp, collisionLayer)
+            if (rt) {
+                break;
+            }
+        }
 }
 
 var checkVisit = visit => {
@@ -80,12 +74,7 @@ var checkVisit = visit => {
 }
 
 const loadRT = async function(service_url, map, sp, collisionLayer) {
-    var startTime = new Date();
-    var hour = startTime.getHours()
-    startTime.setHours(hour + 1);
-    var startTimeSTR = startTime.toISOString().split(".");
-    var startTimeSTR = startTimeSTR[0];
-    var url = `${service_url}/stop_monitoring.json?MonitoringRef=${sp.StopPointRef}&StartTime=${startTimeSTR}&DataFreshness=RealTime`
+    var url = `${service_url}/stop_monitoring.json?MonitoringRef=${sp.StopPointRef}`
 
     var response = await fetch(url);
     if (!response.ok) return false;
@@ -99,7 +88,9 @@ const loadRT = async function(service_url, map, sp, collisionLayer) {
         }).join("\n")
     }).join("\n")
 
-    if (l == "") return false;
+    if (l === "") {
+        return false;
+    }
     document.getElementById("json").innerHTML = JSON.stringify(json, null, '  ');
 
     v = `${v}${l}</ul>`
@@ -139,10 +130,10 @@ var load = function() {
 
     window.timeOuts = []
 
-    var loader = function(e) { 
+    var loader = function(e) {
         window.timeOuts.forEach(window.clearTimeout)
         removeMarkers()
-        loadDiscovery(mymap, collisionLayer, "http://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io")
+        loadDiscovery(mymap, collisionLayer, "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io")
         window.timeOuts.push(setTimeout(loader, 30000))
     }
     loader(null)
