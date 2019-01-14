@@ -1,11 +1,12 @@
 ## Transport collectif, temps réel
 
-Une réunion de lancement des travaux a eu lieu le 20 septembre 2018.
-Le compte-rendu est disponible [ici](https://drive.google.com/file/d/1nSyGaIdx13fzf_LudkxQGJLeHQEEXtuR/view?usp=sharing).
+Une réunion de lancement des travaux a eu lieu le 20 septembre 2018. Le compte-rendu est disponible [ici](https://drive.google.com/file/d/1nSyGaIdx13fzf_LudkxQGJLeHQEEXtuR/view?usp=sharing).
 
 ## Aires de covoiturage
 
-La Fabrique des Mobilités a récemment ouvert un fichier relatif à des lieux de rdv de covoiturage (grande variété de points, fichier non consolidé), [disponible sur data.gouv.fr](https://www.data.gouv.fr/fr/datasets/base-de-donnees-commune-des-lieux-et-aires-de-covoiturage/").
+[Un fichier national](https://www.data.gouv.fr/fr/datasets/aires-de-covoiturage-en-france) décrivant les aires de covoiturage de 70 départements a été consolidé par BlaBlaCar.
+
+La Fabrique des Mobilités a récemment ouvert un fichier relatif à des lieux de rdv de covoiturage (grande variété de points, fichier non consolidé), disponible sur [ici](https://www.data.gouv.fr/fr/datasets/base-de-donnees-commune-des-lieux-et-aires-de-covoiturage/).
 
 ## Infrastructures de recharge pour véhicules électriques (IRVE)
 
@@ -15,7 +16,7 @@ Les fichiers sources doivent être au format csv et respecter le format défini 
 
 ## Vélos en libre service
 
-Réunion ouverte de lancement : 16 octobre 2018
+Une réunion de de lancement a eu lieu le 16 octobre 2018. Le compte-rendu est disponible [ici](https://drive.google.com/file/d/18toKsbNJ5X-r-ZLRklrRjroM4B_GIEEp/view?usp=sharing).
 
 ## Données routières
 
