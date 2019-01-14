@@ -1,0 +1,31 @@
+[
+  {
+    "request": {
+      "body": "null",
+      "headers": {
+        "accept": "application/json",
+        "authorization": "Bearer secret"
+      },
+      "method": "get",
+      "options": {
+        "follow_redirect": "true",
+        "timeout": 15000
+      },
+      "request_body": "",
+      "url": "https://next.data.gouv.fr/api/1/datasets/donnees-de-transport-theoriques-du-reseau-twisto/"
+    },
+    "response": {
+      "binary": false,
+      "body": "{\"message\": \"The requested URL was not found on the server.  If you entered the URL manually please check your spelling and try again.\"}",
+      "headers": {
+        "Server": "nginx",
+        "Date": "Tue, 22 Jan 2019 16:35:23 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "136",
+        "Connection": "keep-alive"
+      },
+      "status_code": 404,
+      "type": "ok"
+    }
+  }
+]

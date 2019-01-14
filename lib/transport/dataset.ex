@@ -90,6 +90,8 @@ defmodule Transport.Dataset do
     |> cast_assoc(:resources)
     |> validate_required([:slug])
     |> validate_mutual_exclusion([:region_id, :aom_id], dgettext("dataset", "You need to fill either aom or region"))
+    |> cast_assoc(:region)
+    |> cast_assoc(:aom)
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
         %{changeset | action: :ignore}

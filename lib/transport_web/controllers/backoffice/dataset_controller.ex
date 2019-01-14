@@ -1,20 +1,26 @@
 defmodule TransportWeb.Backoffice.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Client.Datasets
+
   alias Transport.{AOM, Dataset, ImportDataService, Repo, Resource}
   import Ecto.Query
 
   def new_dataset(%Plug.Conn{} = conn, params) do
-    with datagouv_id when not is_nil(datagouv_id)  <- Datasets.get_id_from_url(conn, params["url"]),
+    with datagouv_id when not is_nil(datagouv_id) <- Datasets.get_id_from_url(conn, params["url"]),
+         {:ok, dataset} <- ImportDataService.import_from_udata(datagouv_id, params["type"]),
          {:ok, aom_id} <- get_aom_id(params),
-         {:ok, datagouv_dataset} <- ImportDataService.import_from_udata(datagouv_id, params["type"]),
-         params <- Map.put(params, "aom_id", aom_id),
-         params <- Map.merge(params, datagouv_dataset),
-         changeset <- Dataset.changeset(%Dataset{}, params),
-         {:ok, _dataset} <- Repo.insert(changeset)
+         params <- Map.merge(params, dataset),
+         params <- Map.put(params, "aom_id", aom_id)
     do
-      conn
-      |> put_flash(:info, dgettext("backoffice_dataset", "Dataset added with success"))
+      datagouv_id
+      |> get_or_new_dataset()
+      |> Dataset.changeset(params)
+      |> Repo.insert_or_update()
+      |> flash(
+        conn,
+        dgettext("backoffice_dataset", "Dataset added with success"),
+        dgettext("backoffice_dataset", "Could not add dataset")
+      )
     else
       {:error, error} ->
         conn
@@ -29,8 +35,8 @@ defmodule TransportWeb.Backoffice.DatasetController do
     |> Repo.get(id)
     |> import_data
     |> flash(conn,
-            dgettext("backoffice", "Dataset imported with success"),
-            dgettext("backoffice", "Dataset not imported")
+            dgettext("backoffice_dataset", "Dataset imported with success"),
+            dgettext("backoffice_dataset", "Dataset not imported")
       )
     |> redirect(to: backoffice_page_path(conn, :index))
   end
@@ -74,8 +80,16 @@ defmodule TransportWeb.Backoffice.DatasetController do
     end
   end
 
+
   defp import_data(%Dataset{} = dataset), do: import_data({:ok, dataset})
   defp import_data(nil), do: {:error, dgettext("backoffice", "Unable to find dataset")}
   defp import_data({:ok, dataset}), do: ImportDataService.call(dataset)
   defp import_data(error), do: error
+
+  defp get_or_new_dataset(datagouv_id) do
+    case Repo.get_by(Dataset, datagouv_id: datagouv_id) do
+      nil -> %Dataset{}
+      dataset -> dataset
+    end
+  end
 end

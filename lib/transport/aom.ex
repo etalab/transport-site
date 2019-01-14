@@ -3,7 +3,7 @@ defmodule Transport.AOM do
   AOM schema
   """
   use Ecto.Schema
-  alias Transport.{Dataset, Region}
+  alias Transport.{Dataset, Region, Repo}
 
   schema "aom" do
       field :composition_res_id, :integer
@@ -23,4 +23,7 @@ defmodule Transport.AOM do
       has_many :datasets, Dataset
       belongs_to :parent_dataset, Dataset
   end
+
+  def get(insee_commune_principale: nil), do: nil
+  def get(insee_commune_principale: insee), do: Repo.get_by(AOM, insee_commune_principale: insee)
 end

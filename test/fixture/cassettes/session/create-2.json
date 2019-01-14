@@ -40,7 +40,7 @@
       "url": "https://next.data.gouv.fr/api/1/me/"
     },
     "response": {
-      "body": "{\"apikey\": \"secret\", \"avatar\": null, \"avatar_thumbnail\": null, \"email\": \"example@example.com\", \"first_name\": \"Jean\", \"id\": \"1\", \"last_name\": \"Serien\", \"page\": \"https://www.data.gouv.fr/fr/users/jean-serien-1/\", \"slug\": \"jean-serien-1\", \"uri\": \"https://www.data.gouv.fr/api/1/users/jean-serien-1/\"}",
+      "body": "{\"apikey\": \"secret\", \"avatar\": null, \"avatar_thumbnail\": null, \"email\": \"example@example.com\", \"first_name\": \"Jean\", \"id\": \"1\", \"last_name\": \"Serien\", \"page\": \"https://www.data.gouv.fr/fr/users/jean-serien-1/\", \"slug\": \"jean-serien-1\", \"uri\": \"https://www.data.gouv.fr/api/1/users/jean-serien-1/\", \"organizations\": [{\"slug\": \"equipe-transport-data-gouv-fr\"}]}",
       "headers": {
         "Server": "nginx/1.10.3 (Ubuntu)",
         "Date": "Thu, 05 Oct 2017 19:22:59 GMT",

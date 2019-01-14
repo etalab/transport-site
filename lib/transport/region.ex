@@ -3,7 +3,7 @@ defmodule Transport.Region do
   Region schema
   """
   use Ecto.Schema
-  alias Transport.{AOM, Dataset}
+  alias Transport.{AOM, Dataset, Repo}
 
   schema "region" do
     field :nom, :string
