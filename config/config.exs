@@ -42,6 +42,8 @@ config :scrivener_html,
 config :phoenix, :template_engines,
   md: PhoenixMarkdown.Engine
 
+config :phoenix_markdown, :server_tags, :all
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "datagouvfr.exs"
