@@ -4,7 +4,6 @@ defmodule TransportWeb.DatasetView do
   alias Transport.Dataset
 
   def render_sidebar_from_type(conn, dataset), do: render_panel_from_type(conn, dataset, "sidebar")
-  def render_description_from_type(conn, dataset), do: render_panel_from_type(conn, dataset, "description")
 
   def render_panel_from_type(conn, dataset, panel_type) do
     render_existing(
@@ -23,4 +22,10 @@ defmodule TransportWeb.DatasetView do
 
   def get_name(%{"organization" => organization}), do: organization["name"]
   def get_name(%{"owner" => owner}), do: owner["first_name"] <> " " <> owner["last_name"]
+
+  def first_gtfs(dataset) do
+    dataset
+    |> Dataset.valid_gtfs()
+    |> List.first()
+  end
 end

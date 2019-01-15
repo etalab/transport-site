@@ -121,5 +121,9 @@ msgid "Unable to retrieve discussions from data.gouv.fr"
 msgstr ""
 
 #, elixir-format
-msgid "Associated datasets"
+msgid "Resources"
+msgstr ""
+
+#, elixir-format
+msgid "Associated resources"
 msgstr ""
