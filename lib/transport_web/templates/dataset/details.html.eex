@@ -44,10 +44,10 @@
       </div>
       <div class="dataset-details__community-resources">
       <%= if !Enum.empty?(@community_ressources) do %>
-      <div id="communityresources">
-        <h2><%= dgettext("page-dataset-details", "Modified datasets") %></h2>
+      <section class="section">
+        <h2><%= dgettext("page-dataset-details", "Associated datasets") %></h2>
         <%= render_many @community_ressources, TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
-      </div>
+      </section>
       <% end %>
       </div>
 
