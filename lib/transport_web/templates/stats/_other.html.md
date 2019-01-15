@@ -1,6 +1,6 @@
 ## Transport collectif, temps réel
 
-Une réunion de lancement des travaux a eu lieu le 20 septembre 2018. Le compte-rendu est disponible [ici](<%= @cr_tr %>).
+Une réunion de lancement des travaux a eu lieu le 20 septembre 2018. Le compte-rendu est disponible [ici](https://drive.google.com/file/d/1nSyGaIdx13fzf_LudkxQGJLeHQEEXtuR/view?usp=sharing).
 
 ## Aires de covoiturage
 
@@ -16,7 +16,7 @@ Les fichiers sources doivent être au format csv et respecter le format défini 
 
 ## Vélos en libre service
 
-Une réunion de lancement a eu lieu le 16 octobre 2018. Le compte-rendu est disponible [ici](<%= @cr_vls %>).
+Une réunion de lancement a eu lieu le 16 octobre 2018. Le compte-rendu est disponible [ici](https://drive.google.com/file/d/18toKsbNJ5X-r-ZLRklrRjroM4B_GIEEp/view?usp=sharing).
 
 ## Données routières
 
