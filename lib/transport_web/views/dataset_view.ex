@@ -20,4 +20,7 @@ defmodule TransportWeb.DatasetView do
     |> Timex.parse!("{ISO:Extended}")
     |> Timex.format!("{0D}/{0M}/{YYYY} à {h24}h{0m}")
   end
+
+  def get_name(%{"organization" => organization}), do: organization["name"]
+  def get_name(%{"owner" => owner}), do: owner["first_name"] <> " " <> owner["last_name"]
 end

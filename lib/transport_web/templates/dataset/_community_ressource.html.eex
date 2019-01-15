@@ -1,20 +1,13 @@
-<div class="documentation">
-    <div class="side-pan community-resources__side-pan">
-    <%= if @resource["organization"] do %>
-        <div>
-            <div class="community-resources__logo">
-                <img src="<%= @resource["organization"]["logo_thumbnail"] %>">
-            </div>
-            <div class="community-resources__organization-name">
-                <h3><%= @resource["organization"]["name"] %></h3>
-            </div>
-        </div>
-    <% end %>
-    </div>
-    <div class="main-pan">
+<div class="container">
+    <div class="panel">
         <h4><%= @resource["title"] %></h4>
+        <h6><%= dgettext("community_resource", "by") %> <%= get_name(@resource) %></h6>
         <p><%= @resource["description"] %></p>
-        <i class="icon icon--download" aria-hidden="true"></i>
-        <a href="<%= @resource["url"] %>"><%= dgettext("page-shortlist", "Download") %></a>
+        <div class="shortlist__link shortlist__link--download">
+                <i class="icon icon--download" aria-hidden="true"></i>
+                <%= link(dgettext("download-link", "Download"),
+                        to: @resource["url"],
+                        role: "link") %>
+        </div>
     </div>
 </div>
