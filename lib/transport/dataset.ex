@@ -28,7 +28,6 @@ defmodule Transport.Dataset do
 
     has_many :resources, Resource, on_replace: :delete, on_delete: :delete_all
   end
-  use ExConstructor
 
   defp select_or_not(res, []), do: res
   defp select_or_not(res, s), do: select(res, ^s)
@@ -90,7 +89,7 @@ defmodule Transport.Dataset do
     dataset
     |> Repo.preload(:resources)
     |> cast(params, [:datagouv_id, :spatial, :created_at, :description, :frequency,
-    :last_update, :licence, :logo, :full_logo, :slug, :tags, :title, :type])
+    :last_update, :licence, :logo, :full_logo, :slug, :tags, :title, :type, :region_id, :aom_id])
     |> cast_assoc(:resources, required: true)
     |> validate_required([:slug])
     |> case do
