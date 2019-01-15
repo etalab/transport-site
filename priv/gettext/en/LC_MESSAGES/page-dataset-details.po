@@ -119,3 +119,7 @@ msgstr ""
 #, elixir-format
 msgid "Unable to retrieve discussions from data.gouv.fr"
 msgstr ""
+
+#, elixir-format
+msgid "Associated datasets"
+msgstr ""
