@@ -51,8 +51,6 @@
                             role: "link") %>
                   </div>
                 <% end %>
-
-                <%= render TransportWeb.SharedView, "_download_link.html", dataset: dataset %>
               </div>
             </div>
             <%= if dataset.description do %>
