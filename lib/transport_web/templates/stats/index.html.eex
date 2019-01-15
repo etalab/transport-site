@@ -39,7 +39,7 @@
     </div>
   </div>
 </div>
-<%= render("_other.html", conn: @conn) %>
+<%= render("_other.html", cr_tr: static_path(@conn, "/documents/cr_temps_reel.pdf"), cr_vls: static_path(@conn, "/priv/static/documents/cr_vls_autopartage_ff.pdf")) %>
 </div>
 </section>
 <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
