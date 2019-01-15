@@ -1,0 +1,11 @@
+<div class="container">
+    <div class="panel">
+        <h4><%= @resource.title %></h4>
+        <div class="shortlist__link shortlist__link--download">
+                <i class="icon icon--download" aria-hidden="true"></i>
+                <%= link(dgettext("download-link", "Download"),
+                        to: @resource.url,
+                        role: "link") %>
+        </div>
+    </div>
+</div>

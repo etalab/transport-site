@@ -38,7 +38,7 @@ msgid "Publish a modified version dataset"
 msgstr "Publier une version modifiée du jeu de données"
 
 msgid "Modified datasets"
-msgstr ""
+msgstr "Jeux de données modifiés"
 
 msgid "There is no linked dataset yet"
 msgstr "Il n'y a pas encore de jeu de données lié"
@@ -121,5 +121,9 @@ msgid "Unable to retrieve discussions from data.gouv.fr"
 msgstr "Impossible de récupérer les discussions depuis data.gouv.fr, veuillez recharger la page"
 
 #, elixir-format
-msgid "Associated datasets"
-msgstr "Jeux de données associés"
+msgid "Resources"
+msgstr ""
+
+#, elixir-format
+msgid "Associated resources"
+msgstr ""

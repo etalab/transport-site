@@ -2,7 +2,6 @@
   <div class="documentation dataset-details">
     <div class="dataset-details__side-pane side-pane">
       <%= img_tag(@dataset.logo, alt: @dataset.title) %>
-      <%= render TransportWeb.SharedView, "_download_link.html", dataset: @dataset %>
       <div>
         <%= if @dataset.slug do %>
           <div class="shortlist__link shortlist__link--external-link">
@@ -32,7 +31,6 @@
     </div>
     <div class="main-pane dataset-details__main-pane" id="description">
       <h1><%= @dataset.title %></h1>
-      <%= raw Earmark.as_html!(@dataset.description) %>
       <div class="dataset__use-terms">
         <h2>Conditions d'utilisation</h2>
         <p>
@@ -42,16 +40,21 @@
           Il est précisé que la clause de partage à l’identique figurant à l’article 4.4 concerne les informations de même nature, de même granularité, de même conditions temporelles et de même emprise géographique.
         </p>
       </div>
-      <div class="dataset-details__community-resources">
+      <div class="dataset-details__resources">
+      <%= if @dataset.resources do %>
+      <div id="resources">
+        <h2><%= dgettext("page-dataset-details", "Resources") %></h2>
+        <%= render_many @dataset.resources, TransportWeb.DatasetView, "_resource.html", as: :resource %>
+      </div>
+      <% end %>
       <%= if !Enum.empty?(@community_ressources) do %>
-      <section class="section">
-        <h2><%= dgettext("page-dataset-details", "Associated datasets") %></h2>
-        <%= render_many @community_ressources, TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
-      </section>
+      <h3><%= dgettext("page-dataset-details", "Associated resources") %></h3>
+      <%= render_many @community_ressources, TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
       <% end %>
       </div>
 
-      <%= TransportWeb.DatasetView.render_description_from_type(@conn, @dataset) %>
+      <h2>Description</h2>
+      <%= raw Earmark.as_html!(@dataset.description) %>
 
       <div class="dataset-details__discussions">
         <h2>Discussions</h2>

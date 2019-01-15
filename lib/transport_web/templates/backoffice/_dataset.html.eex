@@ -3,8 +3,8 @@
             to: dataset_path(@conn, :details, @dataset.slug),
             role: "link") %></td>
       <td>
-        <%= if Dataset.metadata(@dataset) do %>
-          <%= Dataset.metadata(@dataset)["end_date"] %>
+        <%= if Dataset.first_gtfs(@dataset) && Dataset.first_gtfs(@dataset).metadata do %>
+          <%= Dataset.first_gtfs(@dataset).metadata["end_date"] %>
         <% end %>
       </td>
       <td>
@@ -12,11 +12,6 @@
           <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
                   to: "https://www.data.gouv.fr/datasets/#{@dataset.datagouv_id}/",
                   role: "link") %>
-      </td>
-      <td>
-        <%= if @dataset.resources do %>
-        <%= render TransportWeb.SharedView, "_download_link.html", dataset: @dataset %>
-        <% end %>
       </td>
       <td>
         <%= form_for @conn, backoffice_path(@conn, :import_from_data_gouv_fr, @dataset.id), [nodiv: true], fn _ -> %>
