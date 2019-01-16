@@ -39,12 +39,31 @@
         </style>
     </head>
     <body>
+        <select id="aom" onchange="reload()" >
+            <option value="grenoble">Grenoble</option>
+            <option value="poitiers">Poitiers</option>
+        </select>
         <div id="debug"></div>
         <pre>
         <code class="json hljs" id="json"></code>
         </pre>
         <div id="map"></div>
         <script>
+const data = {
+    grenoble: {
+        name: 'Grenoble',
+        service_url: 'https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io',
+        center: [45.19708, 5.7112],
+        zoom: 17
+    },
+    poitiers: {
+        name: 'Grand Poitiers',
+        service_url: 'https://app-b34650f3-f3a7-4fc4-af5b-d7ba4f52c002.cleverapps.io',
+        center: [46.58390, 0.33565],
+        zoom: 17
+    }
+}
+
 var makeUrl = (service_url, sp) => `${service_url}/stop_monitoring.json?MonitoringRef=${sp.StopPointRef}`;
 var fetchRT = service_url => sp => fetch(makeUrl(service_url, sp)).then(r => [sp, r], e => console.log(e))
 var fetchJSONRT = sp_r => sp_r[1].json().then(json => makeMarker(json, sp_r[0]))
@@ -62,13 +81,13 @@ var loadDiscovery = function(map, markersLayer, service_url) {
             return;
         }
         response.json().then(json => {
-            const stop_points = json.Siri.StopPointsDelivery.AnnotatedStopPoint;
+            const stop_points = json.Siri.StopPointsDelivery.AnnotatedStopPoint.slice(0, 100);
             Promise.all(stop_points.map(fetchRT(service_url)))
                 .then(responses =>
                     Promise.all(responses.map(fetchJSONRT)).then(responses => {
                         var popupOpen = null;
                         markersLayer.eachLayer(
-                            function(l) { 
+                            function(l) {
                                 if(l.isPopupOpen()) {
                                     popupOpen = l.options.title
                                 }
@@ -112,8 +131,20 @@ var makeMarker = function(json, sp) {
     )
 }
 
-var load = function() {
-    var mymap = L.map('map').setView([45.19708, 5.7112]  , 17);
+var mymap
+var markersLayer
+
+function loader(e) {
+    const params = data[document.getElementById("aom").value]
+    window.timeOuts.forEach(window.clearTimeout)
+    loadDiscovery(mymap, markersLayer, params.service_url)
+    window.timeOuts.push(setTimeout(loader, 30000))
+}
+
+
+function init() {
+    const params = data[document.getElementById("aom").value]
+    mymap = L.map('map').setView(params.center, params.zoom)
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
         maxZoom: 18,
@@ -121,22 +152,23 @@ var load = function() {
         accessToken: 'pk.eyJ1IjoibC12aW5jZW50LWwiLCJhIjoiaDJfM05UMCJ9.l9oR075SSzJY9hXEqaRvoQ'
     }).addTo(mymap)
 
-    var markersLayer = L.layerGroup()
+    markersLayer = L.layerGroup()
 
     markersLayer.addTo(mymap)
 
     window.timeOuts = []
 
-    var loader = function(e) {
-        window.timeOuts.forEach(window.clearTimeout)
-        loadDiscovery(mymap, markersLayer, "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io")
-        window.timeOuts.push(setTimeout(loader, 30000))
-    }
-    loader(null)
     mymap.on('moveend', loader)
     mymap.on('zoomend', loader)
+    loader()
 }
-window.onload = load;
+
+function reload() {
+    const params = data[document.getElementById("aom").value]
+    mymap.setView(params.center, params.zoom)
+}
+
+window.onload = init;
         </script>
     </body>
 </html>
