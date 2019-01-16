@@ -2,7 +2,7 @@
     <div class="hero__container">
         <div class="container">
             <h1>Le Point d'Accès National</h1>
-            <h3>De l'information voyageur partout en France, grâce à l’ouverture des données.</h3>
+            <h3>Améliorer l'information voyageur partout en France, grâce à l’ouverture des données.</h3>
             <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
                 <%= search_input f, :q, [{"placeholder", dgettext("page-index", "Find dataset")}] %>
                 <p class="text-center"><a href="#about">➞ Plus d'informations</a></p>
