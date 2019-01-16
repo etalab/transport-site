@@ -81,7 +81,7 @@ var loadDiscovery = function(map, markersLayer, service_url) {
             return;
         }
         response.json().then(json => {
-            const stop_points = json.Siri.StopPointsDelivery.AnnotatedStopPoint;
+            const stop_points = json.Siri.StopPointsDelivery.AnnotatedStopPoint.slice(0, 100);
             Promise.all(stop_points.map(fetchRT(service_url)))
                 .then(responses =>
                     Promise.all(responses.map(fetchJSONRT)).then(responses => {
