@@ -51,10 +51,11 @@ var fetchJSONRT = sp_r => sp_r[1].json().then(json => makeMarker(json, sp_r[0]))
 
 var loadDiscovery = function(map, markersLayer, service_url) {
     const bounds = map.getBounds();
-    const params = `BoundingBoxStructure.UpperLeft.Longitude=${bounds.getNorthWest().lng}\
-            &BoundingBoxStructure.UpperLeft.Latitude=${bounds.getNorthWest().lat}\
-            &BoundingBoxStructure.LowerRight.Longitude=${bounds.getSouthEast().lng}\
-            &BoundingBoxStructure.LowerRight.Latitude=${bounds.getSouthEast().lat}`
+    const params=`BoundingBoxStructure.UpperLeft.Longitude=${bounds.getNorthWest().lng}\
+&BoundingBoxStructure.UpperLeft.Latitude=${bounds.getNorthWest().lat}\
+&BoundingBoxStructure.LowerRight.Longitude=${bounds.getSouthEast().lng}\
+&BoundingBoxStructure.LowerRight.Latitude=${bounds.getSouthEast().lat}`
+
     const url = `${service_url}/stoppoints_discovery.json?${params}`
     fetch(url, {params: params}).then(response => {
         if (!response.ok) {
