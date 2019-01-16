@@ -14,7 +14,3 @@ msgstr ""
 #, elixir-format
 msgid "Download"
 msgstr ""
-
-#, elixir-format
-msgid "No resource"
-msgstr ""

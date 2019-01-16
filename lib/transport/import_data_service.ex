@@ -77,12 +77,9 @@ defmodule Transport.ImportDataService do
           }
           r ->
             %{
-            "url" => r.url,
-            "validations" => r.validations,
-            "validation_date" => r.validation_date,
             "format" => formated_format(resource),
             "title" => resource["title"],
-            "last_import" => r.last_import,
+            "last_import" => DateTime.utc_now |> DateTime.to_string,
             "id" => r.id
           }
         end

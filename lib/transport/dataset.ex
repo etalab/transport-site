@@ -28,7 +28,6 @@ defmodule Transport.Dataset do
 
     has_many :resources, Resource, on_replace: :delete, on_delete: :delete_all
   end
-  use ExConstructor
 
   defp select_or_not(res, []), do: res
   defp select_or_not(res, s), do: select(res, ^s)
@@ -90,7 +89,7 @@ defmodule Transport.Dataset do
     dataset
     |> Repo.preload(:resources)
     |> cast(params, [:datagouv_id, :spatial, :created_at, :description, :frequency,
-    :last_update, :licence, :logo, :full_logo, :slug, :tags, :title, :type])
+    :last_update, :licence, :logo, :full_logo, :slug, :tags, :title, :type, :region_id, :aom_id])
     |> cast_assoc(:resources, required: true)
     |> validate_required([:slug])
     |> case do
@@ -101,18 +100,9 @@ defmodule Transport.Dataset do
     end
   end
 
-  def valid_resources(%__MODULE__{resources: nil}), do: []
-  def valid_resources(%__MODULE__{resources: r, type: "transport-statique"}), do: Enum.filter(r, &Resource.valid?/1)
-  def valid_resources(%__MODULE__{resources: r}), do: r
-
-  def resource(%__MODULE__{} = dataset) do
-    dataset
-    |> __MODULE__.valid_resources()
-    |> List.first()
-  end
-
-  def download_url(%__MODULE__{} = d), do: if resource(d), do: resource(d).url
-  def metadata(%__MODULE__{} = d), do: if resource(d), do: resource(d).metadata
+  def valid_gtfs(%__MODULE__{resources: nil}), do: []
+  def valid_gtfs(%__MODULE__{resources: r, type: "transport-statique"}), do: Enum.filter(r, &Resource.valid?/1)
+  def valid_gtfs(%__MODULE__{resources: r}), do: r
 
   @doc """
   Builds a licence.

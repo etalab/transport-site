@@ -14,13 +14,6 @@ defmodule TransportWeb.BackofficeController do
     {dgettext("backoffice", "bike sharing"), "bike-sharing"}
   ]
 
-  defp region_names do
-    Region
-    |> Repo.all()
-    |> Enum.map(fn r -> r.nom end)
-    |> Enum.concat(["National"])
-  end
-
   def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do
     config = make_pagination_config(params)
     datasets =
@@ -51,41 +44,23 @@ defmodule TransportWeb.BackofficeController do
     |> render("index.html")
   end
 
-  defp insert_into_db(dataset, conn) do
-    dataset
-    |> Map.put("region", Repo.get_by(Region, nom: dataset["region"]))
-    |> Map.put("aom", Repo.get_by(AOM, insee_commune_principale: dataset["insee_commune_principale"]))
-    |> Map.put("datagouv_id", Datasets.get_id_from_url(conn, dataset["url"]))
-    |> Dataset.new()
-    |> Repo.insert()
-  end
-
-  defp import_data(%Dataset{} = dataset), do: import_data({:ok, dataset})
-  defp import_data(nil), do: {:error, dgettext("backoffice", "Unable to find dataset")}
-  defp import_data({:ok, dataset}), do: ImportDataService.call(dataset)
-  defp import_data(error), do: error
-
-  defp flash({:ok, _message}, conn, ok_message, err_message), do: flash(:ok, conn, ok_message, err_message)
-  defp flash(:ok,  conn, ok_message, _err_message) do
-    put_flash(conn, :info, ok_message)
-  end
-
-  defp flash({:error, %{errors: errors}}, conn, _ok_message, err_message) do
-    Enum.reduce(errors, conn,
-     fn {k, {error, _}}, conn -> put_flash(conn, :error, "#{err_message} #{k}: #{error}") end
-    )
-  end
-
-  defp flash({:error, message}, conn, _ok_message, err_message) do
-    put_flash(conn, :error, "#{err_message} (#{message})")
-  end
-
   def new_dataset(%Plug.Conn{} = conn, params) do
-    params
-    |> insert_into_db(conn)
-    |> import_data
-    |> flash(conn, dgettext("backoffice", "Dataset added with success"),
-       dgettext("backoffice", "Could not add dataset"))
+    with datagouv_id <- Datasets.get_id_from_url(conn, params["url"]),
+         {:ok, aom_id} <- get_aom_id(params),
+         {:ok, datagouv_dataset} <- ImportDataService.import_from_udata(datagouv_id, params["type"]),
+         params <- Map.put(params, "aom_id", aom_id),
+         params <- Map.merge(params, datagouv_dataset),
+         changeset <- Dataset.changeset(%Dataset{}, params),
+         {:ok, _dataset} <- Repo.insert(changeset)
+    do
+      conn
+      |> put_flash(:info, dgettext("backoffice", "Dataset added with success"))
+    else
+      {:error, error} ->
+        conn
+        |> put_flash(:error, dgettext("backoffice", "Could not add dataset"))
+        |> put_flash(:error, error)
+    end
     |> redirect(to: backoffice_path(conn, :index))
   end
 
@@ -162,5 +137,43 @@ defmodule TransportWeb.BackofficeController do
         put_flash(conn, :error, dgettext("backoffice", "Unable to insert partner in database"))
     end
     |> redirect(to: backoffice_path(conn, :partners))
+  end
+
+  ## private
+
+  defp region_names do
+    Region
+    |> Repo.all()
+    |> Enum.map(fn r -> {r.nom, r.id} end)
+    |> Enum.concat([{"National", nil}])
+  end
+
+  defp import_data(%Dataset{} = dataset), do: import_data({:ok, dataset})
+  defp import_data(nil), do: {:error, dgettext("backoffice", "Unable to find dataset")}
+  defp import_data({:ok, dataset}), do: ImportDataService.call(dataset)
+  defp import_data(error), do: error
+
+  defp flash({:ok, _message}, conn, ok_message, err_message), do: flash(:ok, conn, ok_message, err_message)
+  defp flash(:ok,  conn, ok_message, _err_message) do
+    put_flash(conn, :info, ok_message)
+  end
+
+  defp flash({:error, %{errors: errors}}, conn, _ok_message, err_message) do
+    Enum.reduce(errors, conn,
+     fn {k, {error, _}}, conn -> put_flash(conn, :error, "#{err_message} #{k}: #{error}") end
+    )
+  end
+
+  defp flash({:error, message}, conn, _ok_message, err_message) do
+    put_flash(conn, :error, "#{err_message} (#{message})")
+  end
+
+  defp get_aom_id(%{"insee_commune_principale" => nil}), do: {:ok, nil}
+  defp get_aom_id(%{"insee_commune_principale" => ""}), do: {:ok, nil}
+  defp get_aom_id(%{"insee_commune_principale" => insee}) do
+    case Repo.get_by(AOM, insee_commune_principale: insee) do
+      nil -> {:error, dgettext("backoffice", "Unable to find INSEE")}
+      aom -> {:ok, aom.id}
+    end
   end
 end
