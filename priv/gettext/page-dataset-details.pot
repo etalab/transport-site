@@ -125,5 +125,5 @@ msgid "Resources"
 msgstr ""
 
 #, elixir-format
-msgid "Associated resources"
+msgid "Community resources"
 msgstr ""
