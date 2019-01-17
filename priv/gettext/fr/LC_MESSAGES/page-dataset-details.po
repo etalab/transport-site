@@ -122,8 +122,8 @@ msgstr "Impossible de récupérer les discussions depuis data.gouv.fr, veuillez 
 
 #, elixir-format
 msgid "Resources"
-msgstr ""
+msgstr "Ressources"
 
 #, elixir-format
-msgid "Associated resources"
-msgstr ""
+msgid "Community resources"
+msgstr "Ressources communautaires"
