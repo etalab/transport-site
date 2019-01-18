@@ -1,5 +1,5 @@
 defmodule TransportWeb.BackofficeView do
   use TransportWeb, :view
   import TransportWeb.PaginationHelpers
-  alias Transport.Dataset
+  import TransportWeb.DatasetView, only: [first_gtfs: 1]
 end
