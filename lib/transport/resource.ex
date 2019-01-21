@@ -31,11 +31,11 @@ defmodule Transport.Resource do
   @doc """
   A validation is needed if the last update from the data is newer than the last validation.
   ## Examples
-      iex> Resource.needs_validation(%Dataset{last_update: "2018-01-30", validation_date: "2018-01-01"})
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30"}, validation_date: "2018-01-01"})
       true
-      iex> Resource.needs_validation(%Dataset{last_update: "2018-01-01", validation_date: "2018-01-30"})
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-01"}, validation_date: "2018-01-30"})
       false
-      iex> Resource.needs_validation(%Dataset{last_update: "2018-01-30"})
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30"}})
       true
   """
   def needs_validation(%__MODULE__{dataset: dataset, validation_date: validation_date}) do
@@ -71,13 +71,9 @@ defmodule Transport.Resource do
   @doc """
   A validation is needed if the last update from the data is newer than the last validation.
   ## Examples
-      iex> Resource.group_validations(nil)
-      nil
-      iex> Resource.group_validations({:error, "moo"})
-      {:error, "moo"}
       iex> v = %{"validations" => [%{"issue_type" => "Error"}]}
-      iex> Resource.group_validations({:ok, %{url: "http", validations: v}})
-      {:ok, %{url: "http", validations: %{"Error" => %{count: 1, issues: [%{"issue_type" => "Error"}]}}}}
+      iex> Resource.group_validations(%{url: "http", validations: v})
+      {:ok, %{url: "http", metadata: nil, validations: %{"Error" => %{count: 1, issues: [%{"issue_type" => "Error"}]}}}}
   """
   def group_validations(%{url: url, validations: validations}) do
     grouped_validations =
