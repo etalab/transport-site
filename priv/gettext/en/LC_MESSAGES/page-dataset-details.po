@@ -97,6 +97,21 @@ msgstr "Reference to an unknown object"
 msgid "InvalidArchive"
 msgstr "Could not open the GTFS archive"
 
+msgid "MissingRouteName"
+msgstr "Missing route name"
+
+msgid "MissingId"
+msgstr "Missing id"
+
+msgid "MissingCoordinates"
+msgstr "Missing coordinates"
+
+msgid "InvalidCoordinates"
+msgstr "Invalid coordinates"
+
+msgid "InvalidRouteType"
+msgstr "Invalid route type"
+
 msgid "You need to be connected to start a discussion"
 msgstr ""
 

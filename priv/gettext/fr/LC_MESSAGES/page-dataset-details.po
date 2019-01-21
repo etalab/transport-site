@@ -97,6 +97,21 @@ msgstr "Référence vers un objet inexistant"
 msgid "InvalidArchive"
 msgstr "Impossible d’ouvrir l’archive GTFS"
 
+msgid "MissingRouteName"
+msgstr "Nom de route manquant"
+
+msgid "MissingId"
+msgstr "Identifiant manquant"
+
+msgid "MissingCoordinates"
+msgstr "Coordonnées manquantes"
+
+msgid "InvalidCoordinates"
+msgstr "Coordonnées manquantes"
+
+msgid "InvalidRouteType"
+msgstr "Type de route invalide"
+
 msgid "You need to be connected to start a discussion"
 msgstr "Vous devez être identifié pour commencer une discussion."
 

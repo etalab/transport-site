@@ -13,7 +13,8 @@ defmodule Transport.Resource do
   @err HTTPoison.Error
   @timeout 60_000
   @issue_types ["UnusedStop", "Slow", "ExcessiveSpeed", "NegativeTravelTime",
-  "CloseStops", "NullDuration", "InvalidReference", "InvalidArchive"]
+  "CloseStops", "NullDuration", "InvalidReference", "InvalidArchive", "MissingRouteName",
+  "MissingId", "MissingCoordinates", "InvalidCoordinates", "InvalidRouteType"]
 
   schema "resource" do
     field :validations, :map
