@@ -3,8 +3,8 @@
             to: dataset_path(@conn, :details, @dataset.slug),
             role: "link") %></td>
       <td>
-        <%= if Dataset.first_gtfs(@dataset) && Dataset.first_gtfs(@dataset).metadata do %>
-          <%= Dataset.first_gtfs(@dataset).metadata["end_date"] %>
+        <%= if first_gtfs(@dataset) && first_gtfs(@dataset).metadata do %>
+          <%= first_gtfs(@dataset).metadata["end_date"] %>
         <% end %>
       </td>
       <td>
