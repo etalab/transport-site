@@ -97,6 +97,22 @@ msgstr ""
 msgid "InvalidArchive"
 msgstr ""
 
+msgid "MissingRouteName"
+msgstr ""
+
+msgid "MissingId"
+msgstr ""
+
+msgid "MissingCoordinates"
+msgstr ""
+
+msgid "InvalidCoordinates"
+msgstr ""
+
+msgid "InvalidRouteType"
+msgstr ""
+
+
 msgid "You need to be connected to start a discussion"
 msgstr ""
 
