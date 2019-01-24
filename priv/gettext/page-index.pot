@@ -40,3 +40,7 @@ msgstr ""
 #, elixir-format
 msgid "Follow us on twitter"
 msgstr ""
+
+#, elixir-format
+msgid "Deployment status"
+msgstr ""

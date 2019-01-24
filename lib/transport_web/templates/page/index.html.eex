@@ -24,6 +24,10 @@
                     <a class="button button--fullwidth" href="<%= static_path(@conn, "/documents/TransportDataGouv.pdf") %>" role="link">
                     <i class="icon icon--file" aria-hidden="true"></i>
                     <%= dgettext("page-index", "Download presentation") %>
+
+                    <a class="button button--fullwidth" href="<%= static_path(@conn, "/stats") %>" role="link">
+                    <i class="icon icon--chart-line" aria-hidden="true"></i>
+                    <%= dgettext("page-index", "Deployment status") %>
                     </a>
                 </div>
             </div>

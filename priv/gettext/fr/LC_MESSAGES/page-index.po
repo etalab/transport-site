@@ -40,3 +40,7 @@ msgstr "Trouvez un jeu de données"
 #, elixir-format
 msgid "Follow us on twitter"
 msgstr "Suivez-nous sur twitter"
+
+#, elixir-format
+msgid "Deployment status"
+msgstr "État du déploimeent"
