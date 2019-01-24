@@ -67,9 +67,14 @@ defmodule TransportWeb.Backoffice.DatasetController do
 
   ## Private functions
 
-  defp flash({:error, message}, conn, _ok, err), do: put_flash(conn, :error, "#{err} (#{message})")
   defp flash({:ok, _message}, conn, ok_message, err_message), do: flash(:ok, conn, ok_message, err_message)
   defp flash(:ok,  conn, ok_message, _err_message), do: put_flash(conn, :info, ok_message)
+  defp flash({:error, %{errors: errors}},  conn, _ok, err_message) do
+    errors_messages = for {_, {m, _}} <- errors, do: m
+    messages = errors_messages ++ [err_message] |> Enum.uniq()
+    put_flash(conn, :error, Enum.join(messages, ", "))
+  end
+  defp flash({:error, message}, conn, _ok, err), do: put_flash(conn, :error, "#{err} (#{message})")
 
   defp get_aom_id(%{"insee_commune_principale" => ""}), do: {:ok, nil}
   defp get_aom_id(%{"insee_commune_principale" => nil}), do: {:ok, nil}
@@ -79,7 +84,6 @@ defmodule TransportWeb.Backoffice.DatasetController do
       aom -> {:ok, aom.id}
     end
   end
-
 
   defp import_data(%Dataset{} = dataset), do: import_data({:ok, dataset})
   defp import_data(nil), do: {:error, dgettext("backoffice", "Unable to find dataset")}
