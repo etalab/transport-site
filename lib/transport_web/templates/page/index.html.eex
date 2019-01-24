@@ -101,7 +101,7 @@
                      </a>
                      <a href="https://join.slack.com/transportdatagouvfr/shared_invite/MjA2ODkzODQyOTk4LTE0OTg4MDUyNTktNmM2OWJmOGQwOA">
                          <%= dgettext("page-index", "Join us on Slack") %>
-                         <img src="<%= static_path(@conn, "/images/slack.png") %>" alt="Slack" />
+                         <img src="<%= static_path(@conn, "/images/Slack_Mark.svg") %>" alt="Slack" />
                      </a>
                 </strong>
            </div>
