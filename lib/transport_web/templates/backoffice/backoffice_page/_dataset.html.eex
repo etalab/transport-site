@@ -14,11 +14,6 @@
                   role: "link") %>
       </td>
       <td>
-        <%= if @dataset.resources do %>
-        <%= render TransportWeb.SharedView, "_download_link.html", dataset: @dataset %>
-        <% end %>
-      </td>
-      <td>
         <%= form_for @conn, dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id), [nodiv: true], fn _ -> %>
           <%= submit "Importer", [class: "button", nodiv: true] %>
         <% end %>
