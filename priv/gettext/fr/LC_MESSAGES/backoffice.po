@@ -116,6 +116,6 @@ msgstr "Bornes de recharge"
 msgid "bike sharing"
 msgstr "Vélo en libre service"
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Unable to find INSEE"
 msgstr "Impossible de trouver l’INSEE"
