@@ -50,6 +50,6 @@ defmodule TransportWeb.Backoffice.BackofficePageController do
     Region
     |> Repo.all()
     |> Enum.map(fn r -> {r.nom, r.id} end)
-    |> Enum.concat([{"National", nil}])
+    |> Enum.concat([{"Pas de region", nil}])
   end
 end
