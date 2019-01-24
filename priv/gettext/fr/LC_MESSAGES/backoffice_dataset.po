@@ -13,28 +13,28 @@ msgstr ""
 
 #, elixir-format
 msgid "Could not validate dataset"
-msgstr ""
+msgstr "Impossible de valider le jeu de données"
 
 #, elixir-format
 msgid "Dataset deleted"
-msgstr ""
+msgstr "Jeu de données supprimé"
 
 #, elixir-format
 msgid "Dataset imported with success"
-msgstr ""
+msgstr "Jeu de données importé"
 
 #, elixir-format
 msgid "Dataset not imported"
-msgstr ""
+msgstr "Impossible d'importer le jeu de données"
 
 #, elixir-format
 msgid "Dataset validated"
-msgstr ""
+msgstr "Jeu de données validé"
 
-#, elixir-format
-msgid "Unable to find dataset"
-msgstr ""
+#, elixir-format, fuzzy
+msgid "Could not add dataset"
+msgstr "Impossible d'ajouter le jeu de données"
 
-#, elixir-format
-msgid "Unable to match url"
-msgstr ""
+#, elixir-format, fuzzy
+msgid "Dataset added with success"
+msgstr "Dataset ajouté"

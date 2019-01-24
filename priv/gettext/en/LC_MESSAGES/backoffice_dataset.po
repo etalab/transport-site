@@ -31,10 +31,10 @@ msgstr ""
 msgid "Dataset validated"
 msgstr ""
 
-#, elixir-format
-msgid "Unable to find dataset"
+#, elixir-format, fuzzy
+msgid "Could not add dataset"
 msgstr ""
 
-#, elixir-format
-msgid "Unable to match url"
+#, elixir-format, fuzzy
+msgid "Dataset added with success"
 msgstr ""
