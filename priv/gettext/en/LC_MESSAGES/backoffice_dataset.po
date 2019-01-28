@@ -9,38 +9,32 @@
 msgid ""
 msgstr ""
 "Language: en\n"
+"Plural-Forms: nplurals=2\n"
 
-msgid "Publish my data"
-msgstr ""
-
-msgid "Reuse data"
-msgstr ""
-
-msgid "Email address"
-msgstr ""
-
-msgid "Subscribe to our email newsletter to receive update"
-msgstr ""
-
-msgid "SUBSCRIBE"
-msgstr ""
-
-msgid "Join us on Slack"
-msgstr ""
-
-msgid "Download presentation"
-msgstr ""
-
-msgid "Publication guide"
-msgstr ""
-
-msgid "Find dataset"
+#, elixir-format
+msgid "Could not validate dataset"
 msgstr ""
 
 #, elixir-format
-msgid "Follow us on twitter"
+msgid "Dataset deleted"
 msgstr ""
 
 #, elixir-format
-msgid "Deployment status"
+msgid "Dataset imported with success"
+msgstr ""
+
+#, elixir-format
+msgid "Dataset not imported"
+msgstr ""
+
+#, elixir-format
+msgid "Dataset validated"
+msgstr ""
+
+#, elixir-format, fuzzy
+msgid "Could not add dataset"
+msgstr ""
+
+#, elixir-format, fuzzy
+msgid "Dataset added with success"
 msgstr ""

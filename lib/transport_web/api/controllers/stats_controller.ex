@@ -58,7 +58,7 @@ defmodule TransportWeb.API.StatsController do
       id: r.id,
       nom: r.nom,
       is_completed: r.is_completed,
-      nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE region_id=?", r.id)
+      nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE region_id=? OR aom_id IN (SELECT id from aom WHERE region_id=?)", r.id, r.id)
     }))})
   end
 end

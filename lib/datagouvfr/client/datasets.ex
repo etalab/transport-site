@@ -87,15 +87,6 @@ defmodule Datagouvfr.Client.Datasets do
     end
   end
 
-  defp extract_slug(url) do
-      url
-      |> URI.parse()
-      |> Map.get(:path)
-      |> String.trim_trailing("/")
-      |> String.split("/")
-      |> List.last()
-  end
-
   @doc """
   Call to GET /api/1/datasets/:id/
   You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/datasets/put_dataset
@@ -184,5 +175,14 @@ defmodule Datagouvfr.Client.Datasets do
     |> Map.from_struct
     |> Map.keys
     |> Enum.map(&Atom.to_string/1)
+  end
+
+  defp extract_slug(url) do
+      url
+      |> URI.parse()
+      |> Map.get(:path)
+      |> String.trim_trailing("/")
+      |> String.split("/")
+      |> List.last()
   end
 end
