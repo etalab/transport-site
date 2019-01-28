@@ -65,14 +65,19 @@ defmodule Transport.Dataset do
 
   def list_datasets(filters, s \\ [])
   def list_datasets(%{"q" => q}, s), do: search_datasets(q, s)
+  def list_datasets(%{"region" => region_id}, s) do
+    sub = from a in AOM, where: a.region_id == ^region_id
+    s
+    |> list_datasets()
+    |> join(:inner, [d], aom in subquery(sub), on: aom.id == d.aom_id)
+  end
   def list_datasets(%{} = params, s) do
     filters =
       params
-      |> Map.take(["commune", "region", "type"])
+      |> Map.take(["commune", "type"])
       |> Map.to_list
       |> Enum.map(fn
         {"commune", v} -> {:aom_id, v}
-        {"region", v} -> {:region_id, v}
         {"type", type} -> {:type, type}
       end)
       |> Keyword.new
