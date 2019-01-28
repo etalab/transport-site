@@ -116,6 +116,6 @@ msgstr ""
 msgid "bike sharing"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Unable to find INSEE"
 msgstr ""
