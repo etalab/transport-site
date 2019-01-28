@@ -53,7 +53,6 @@ defmodule TransportWeb.DatasetController do
     select = [:id, :description, :licence, :logo, :spatial, :title, :slug]
 
     params
-    |> IO.inspect
     |> Dataset.list_datasets(select)
     |> Repo.paginate(page: config.page_number)
   end
