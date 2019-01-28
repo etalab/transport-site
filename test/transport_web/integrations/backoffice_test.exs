@@ -8,7 +8,7 @@ defmodule TransportWeb.Integration.BackofficeTest do
   test "deny acces to backoffice if not logged" do
 
     @endpoint
-    |> backoffice_url(:index)
+    |> backoffice_page_url(:index)
     |> navigate_to
 
     :class

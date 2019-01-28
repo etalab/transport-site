@@ -8,7 +8,8 @@ defmodule Transport.DatasetTest do
   @valid_changeset %{
         datagouv_id: "5bc493d08b4c416c84a69500",
         slug: "offre-de-transport-du-reseau-de-laval-agglomeration-gtfs",
-        resources: [%{validation: %{}}]
+        resources: [%{validation: %{}}],
+        aom_id: 1
   }
 
   test "Region can be blank" do

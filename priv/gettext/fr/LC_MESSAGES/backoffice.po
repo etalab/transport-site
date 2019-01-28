@@ -77,10 +77,6 @@ msgid "Unable to insert partner in database"
 msgstr "Impossible d'ajouter le partenaire à la base de données"
 
 #, elixir-format
-msgid "Unable to find dataset"
-msgstr ""
-
-#, elixir-format
 msgid "Delete"
 msgstr ""
 
@@ -97,20 +93,12 @@ msgid "stops referential"
 msgstr "Référentiel points d'arrêts"
 
 #, elixir-format
-msgid "Dataset's url"
-msgstr "Adresse du dataset"
-
-#, elixir-format
-msgid "Could not validate dataset"
-msgstr "Impossible de valider le jeu de données"
-
-#, elixir-format
-msgid "Dataset validated"
-msgstr "Jeu de données validé"
-
-#, elixir-format
 msgid "charging stations"
 msgstr "Bornes de recharge"
+
+#, elixir-format
+msgid "Dataset's url"
+msgstr "Adresse du dataset"
 
 #, elixir-format
 msgid "bike sharing"
@@ -119,3 +107,7 @@ msgstr "Vélo en libre service"
 #, elixir-format
 msgid "Unable to find INSEE"
 msgstr "Impossible de trouver l’INSEE"
+
+#, elixir-format
+msgid "Unable to find dataset"
+msgstr "Impossible de trouver le jeu de données"

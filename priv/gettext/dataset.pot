@@ -60,3 +60,7 @@ msgstr ""
 
 msgid "Your modified version of this dataset has beed added"
 msgstr ""
+
+#, elixir-format
+msgid "You need to fill either aom or region"
+msgstr ""

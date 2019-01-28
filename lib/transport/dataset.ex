@@ -29,9 +29,6 @@ defmodule Transport.Dataset do
     has_many :resources, Resource, on_replace: :delete, on_delete: :delete_all
   end
 
-  defp select_or_not(res, []), do: res
-  defp select_or_not(res, s), do: select(res, ^s)
-
   def search_datasets(search_string, s \\ []) do
     document_q = __MODULE__
     |> join(:left, [d], aom in AOM, on: d.aom_id == aom.id)
@@ -68,14 +65,19 @@ defmodule Transport.Dataset do
 
   def list_datasets(filters, s \\ [])
   def list_datasets(%{"q" => q}, s), do: search_datasets(q, s)
+  def list_datasets(%{"region" => region_id}, s) do
+    sub = from a in AOM, where: a.region_id == ^region_id
+    s
+    |> list_datasets()
+    |> join(:inner, [d], aom in subquery(sub), on: aom.id == d.aom_id)
+  end
   def list_datasets(%{} = params, s) do
     filters =
       params
-      |> Map.take(["commune", "region", "type"])
+      |> Map.take(["commune", "type"])
       |> Map.to_list
       |> Enum.map(fn
         {"commune", v} -> {:aom_id, v}
-        {"region", v} -> {:region_id, v}
         {"type", type} -> {:type, type}
       end)
       |> Keyword.new
@@ -90,8 +92,11 @@ defmodule Transport.Dataset do
     |> Repo.preload(:resources)
     |> cast(params, [:datagouv_id, :spatial, :created_at, :description, :frequency,
     :last_update, :licence, :logo, :full_logo, :slug, :tags, :title, :type, :region_id, :aom_id])
-    |> cast_assoc(:resources, required: true)
+    |> cast_assoc(:resources)
     |> validate_required([:slug])
+    |> validate_mutual_exclusion([:region_id, :aom_id], dgettext("dataset", "You need to fill either aom or region"))
+    |> cast_assoc(:region)
+    |> cast_assoc(:aom)
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
         %{changeset | action: :ignore}
@@ -124,4 +129,22 @@ defmodule Transport.Dataset do
     end
   end
 
+  ## Private functions
+
+  defp validate_mutual_exclusion(changeset, fields, error) do
+    fields
+    |> Enum.count(& not get_field(changeset, &1) in ["", nil])
+    |> case do
+      1 -> changeset
+      _ ->
+        Enum.reduce(
+          fields,
+          changeset,
+          fn field, changeset -> add_error(changeset, field, error) end
+        )
+    end
+  end
+
+  defp select_or_not(res, []), do: res
+  defp select_or_not(res, s), do: select(res, ^s)
 end

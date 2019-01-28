@@ -60,3 +60,7 @@ msgstr "L’identificateur du jeu de données n’est pas valide"
 
 msgid "Your modified version of this dataset has beed added"
 msgstr "Votre version a été ajoutée"
+
+#, elixir-format
+msgid "You need to fill either aom or region"
+msgstr "Vous devez remplir soit une région soit une AOM"
