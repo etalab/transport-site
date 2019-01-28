@@ -8,7 +8,7 @@ defmodule TransportWeb.DatabaseCase do
 
   using(options) do
     quote do
-      alias Transport.{AOM, Region, Repo}
+      alias Transport.{AOM, Dataset, Region, Repo}
 
       import Ecto
       import Ecto.Query
@@ -33,6 +33,11 @@ defmodule TransportWeb.DatabaseCase do
         Repo.insert(%AOM{
           insee_commune_principale: "53130",
           nom: "Laval",
+          region: Repo.get_by(Region, nom: "Pays de la Loire")}
+        )
+        Repo.insert(%AOM{
+          insee_commune_principale: "85191",
+          nom: "La Roche sur Yon",
           region: Repo.get_by(Region, nom: "Pays de la Loire")}
         )
 
