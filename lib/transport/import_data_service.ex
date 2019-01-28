@@ -9,6 +9,8 @@ defmodule Transport.ImportDataService do
   @separators [?;, ?,]
   @csv_headers ["Download", "file", "Fichier"]
 
+  def all, do: Dataset |> Repo.all() |> Enum.map(&call/1)
+
   def call(%Dataset{id: id, datagouv_id: datagouv_id, type: type}) do
     with {:ok, new_data} <- import_from_udata(datagouv_id, type),
          dataset <- Repo.get(Dataset, id),
