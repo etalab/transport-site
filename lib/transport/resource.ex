@@ -42,13 +42,12 @@ defmodule Transport.Resource do
   def needs_validation(%__MODULE__{dataset: dataset, validation_date: validation_date}) do
     dataset.last_update > validation_date
   end
-  def nedds_validation(_dataset), do: true
+  def needs_validation(_dataset), do: true
 
   def validate_and_save(%__MODULE__{} = resource) do
-    Logger.info("Validating " <> resource.url)
+    Logger.info("Validating #{resource.url}")
     with {:ok, validations} <- validate(resource),
-      {:ok, grouped_validations} <- group_validations(validations),
-      {:ok, _} <- save(grouped_validations) do
+      {:ok, _} <- save(resource, validations) do
         Logger.info("Ok!")
     else
       {:error, error} -> Logger.warn("Error: #{error}")
@@ -57,36 +56,15 @@ defmodule Transport.Resource do
   end
 
   def validate(%__MODULE__{url: url}) do
-    with {:ok, %@res{status_code: 200, body: body}} <-
-           @client.get(@endpoint <> "?url=#{url}", [], timeout: @timeout, recv_timeout: @timeout),
-         {:ok, validations} <- Poison.decode(body) do
-      {:ok, %{url: url, validations: validations}}
-    else
+    case @client.get("#{@endpoint}?url=#{url}", [], recv_timeout: @timeout) do
+      {:ok, %@res{status_code: 200, body: body}} -> Poison.decode(body)
       {:ok, %@res{body: body}} -> {:error, body}
       {:error, %@err{reason: error}} -> {:error, error}
-      {:error, error} -> {:error, error}
       _ -> {:error, "Unknown error"}
     end
   end
 
-  @doc """
-  A validation is needed if the last update from the data is newer than the last validation.
-  ## Examples
-      iex> v = %{"validations" => [%{"issue_type" => "Error"}]}
-      iex> Resource.group_validations(%{url: "http", validations: v})
-      {:ok, %{url: "http", metadata: nil, validations: %{"Error" => %{count: 1, issues: [%{"issue_type" => "Error"}]}}}}
-  """
-  def group_validations(%{url: url, validations: validations}) do
-    grouped_validations =
-    validations
-    |> Map.get("validations", [])
-    |> Enum.group_by(fn validation -> validation["issue_type"] end)
-    |> Map.new(fn {type, issues} -> {type, %{issues: issues, count: Enum.count issues}} end)
-
-    {:ok, %{url: url, validations: grouped_validations, metadata: validations["metadata"]}}
-  end
-
-  def save(%{url: url, validations: validations, metadata: metadata}) do
+  def save(%{url: url}, %{"validations" => validations, "metadata" => metadata}) do
     __MODULE__
     |> Repo.get_by(url: url)
     |> change(validation_date: DateTime.utc_now |> DateTime.to_string)
