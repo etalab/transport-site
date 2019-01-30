@@ -5,13 +5,7 @@ defmodule TransportWeb.Backoffice.BackofficePageController do
   import Ecto.Query
   require Logger
 
-  @dataset_types [
-    {dgettext("backoffice", "public-transit"), "public-transit"},
-    {dgettext("backoffice", "carsharing-areas"), "carsharing-areas"},
-    {dgettext("backoffice", "stops-ref"), "stops-ref"},
-    {dgettext("backoffice", "charging-stations"), "charging-stations"},
-    {dgettext("backoffice", "micro-mobility"), "micro-mobility"}
-  ]
+  @dataset_types ["public-transit", "carsharing-areas", "stops-ref", "charging-stations", "micro-mobility"]
 
   ## Controller functions
 
@@ -27,7 +21,7 @@ defmodule TransportWeb.Backoffice.BackofficePageController do
     |> assign(:regions, region_names())
     |> assign(:datasets, datasets)
     |> assign(:q, q)
-    |> assign(:dataset_types, @dataset_types)
+    |> assign(:dataset_types, dataset_types())
     |> render("index.html")
   end
 
@@ -41,7 +35,7 @@ defmodule TransportWeb.Backoffice.BackofficePageController do
     conn
     |> assign(:regions, region_names())
     |> assign(:datasets, datasets)
-    |> assign(:dataset_types, @dataset_types)
+    |> assign(:dataset_types, dataset_types())
     |> render("index.html")
   end
 
@@ -51,5 +45,11 @@ defmodule TransportWeb.Backoffice.BackofficePageController do
     |> Repo.all()
     |> Enum.map(fn r -> {r.nom, r.id} end)
     |> Enum.concat([{"Pas de region", nil}])
+  end
+
+  defp dataset_types do
+    @dataset_types
+    |> Enum.map(fn t -> {Gettext.dgettext(TransportWeb.Gettext, "backoffice", t), t} end)
+    |> Enum.to_list
   end
 end
