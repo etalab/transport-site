@@ -27,7 +27,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
         |> put_flash(:error, dgettext("backoffice_dataset", "Could not add dataset"))
         |> put_flash(:error, error)
     end
-    |> redirect(to: backoffice_page_path(conn, :index))
+    |> redirect_to_index()
   end
 
   def import_from_data_gouv_fr(%Plug.Conn{} = conn, %{"id" => id}) do
@@ -38,7 +38,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
             dgettext("backoffice_dataset", "Dataset imported with success"),
             dgettext("backoffice_dataset", "Dataset not imported")
       )
-    |> redirect(to: backoffice_page_path(conn, :index))
+    |> redirect_to_index()
   end
 
   def delete(%Plug.Conn{} = conn, %{"id" => id}) do
@@ -46,7 +46,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
     |> Repo.get(id)
     |> Repo.delete()
     |> flash(conn, dgettext("backoffice_dataset", "Dataset deleted"), dgettext("backoffice", "Could not delete dataset"))
-    |> redirect(to: backoffice_page_path(conn, :index))
+    |> redirect_to_index()
   end
 
   def validation(%Plug.Conn{} = conn, %{"id" => id}) do
@@ -62,7 +62,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
         )
       end
     )
-    |> redirect(to: backoffice_page_path(conn, :index))
+    |> redirect_to_index()
   end
 
   ## Private functions
@@ -96,4 +96,6 @@ defmodule TransportWeb.Backoffice.DatasetController do
       dataset -> dataset
     end
   end
+
+  defp redirect_to_index(conn), do: redirect(conn, to: backoffice_page_path(conn, :index, conn.params |> Map.take(["q"])))
 end
