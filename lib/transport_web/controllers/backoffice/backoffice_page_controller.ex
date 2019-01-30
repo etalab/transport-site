@@ -6,11 +6,11 @@ defmodule TransportWeb.Backoffice.BackofficePageController do
   require Logger
 
   @dataset_types [
-    {dgettext("backoffice", "transport static"), "transport-statique"},
-    {dgettext("backoffice", "carsharing areas"), "aires-covoiturage"},
-    {dgettext("backoffice", "stops referential"), "stops-ref"},
-    {dgettext("backoffice", "charging stations"), "bornes-recharge"},
-    {dgettext("backoffice", "bike sharing"), "bike-sharing"}
+    {dgettext("backoffice", "public-transit"), "public-transit"},
+    {dgettext("backoffice", "carsharing-areas"), "carsharing-areas"},
+    {dgettext("backoffice", "stops-ref"), "stops-ref"},
+    {dgettext("backoffice", "charging-stations"), "charging-stations"},
+    {dgettext("backoffice", "micro-mobility"), "micro-mobility"}
   ]
 
   ## Controller functions

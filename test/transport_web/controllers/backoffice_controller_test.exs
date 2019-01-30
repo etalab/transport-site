@@ -18,7 +18,7 @@ defmodule TransportWeb.BackofficeControllerTest do
       "spatial" => "La Roche sur Yon",
       "region_id" => 1,
       "insee_commune_principale" => "85191",
-      "type" => "transport-statique"
+      "type" => "public-transit"
     }
     conn = use_cassette "dataset/impulsyon.json-1" do
       post(conn, dataset_path(conn, :new_dataset), dataset)
@@ -44,7 +44,7 @@ defmodule TransportWeb.BackofficeControllerTest do
       "spatial" => "La Roche sur Yon",
       "region_id" => nil,
       "insee_commune_principale" => nil,
-      "type" => "transport-statique"
+      "type" => "public-transit"
     }
     conn = use_cassette "dataset/impulsyon.json-1" do
       post(conn, dataset_path(conn, :new_dataset), dataset)
@@ -70,7 +70,7 @@ defmodule TransportWeb.BackofficeControllerTest do
       "spatial" => "La Roche sur Yon",
       "region_id" => Repo.get_by(Region, nom: "Pays de la Loire").id,
       "insee_commune_principale" => nil,
-      "type" => "transport-statique"
+      "type" => "public-transit"
     }
     conn = use_cassette "dataset/impulsyon.json-1" do
       post(conn, dataset_path(conn, :new_dataset), dataset)
@@ -94,7 +94,7 @@ defmodule TransportWeb.BackofficeControllerTest do
       "spatial" => "La Roche sur Yon",
       "region_id" => Repo.get_by(Region, nom: "Pays de la Loire").id,
       "insee_commune_principale" => nil,
-      "type" => "transport-statique"
+      "type" => "public-transit"
     }
     conn = use_cassette "dataset/impulsyon.json-1" do
       post(conn, dataset_path(conn, :new_dataset), dataset)
@@ -119,7 +119,7 @@ defmodule TransportWeb.BackofficeControllerTest do
       "spatial" => "La Roche sur Yon",
       "region_id" => nil,
       "insee_commune_principale" => "85191",
-      "type" => "transport-statique"
+      "type" => "public-transit"
     }
 
     use_cassette "dataset/impulsyon.json-1" do

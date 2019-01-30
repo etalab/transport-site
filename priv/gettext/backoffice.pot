@@ -34,7 +34,7 @@ msgstr ""
 msgid "Dataset not added"
 msgstr ""
 
-msgid "transport static"
+msgid "public-transit"
 msgstr ""
 
 msgid "Dataset imported with success"
@@ -53,7 +53,7 @@ msgid "Could not add dataset"
 msgstr ""
 
 #, elixir-format
-msgid "carsharing areas"
+msgid "carsharing-areas"
 msgstr ""
 
 #, elixir-format
@@ -89,11 +89,11 @@ msgid "Unable to delete"
 msgstr ""
 
 #, elixir-format
-msgid "stops referential"
+msgid "stops-ref"
 msgstr ""
 
 #, elixir-format
-msgid "charging stations"
+msgid "charging-stations"
 msgstr ""
 
 #, elixir-format
@@ -101,7 +101,7 @@ msgid "Dataset's url"
 msgstr ""
 
 #, elixir-format
-msgid "bike sharing"
+msgid "micro-mobility"
 msgstr ""
 
 #, elixir-format

@@ -34,8 +34,8 @@ msgstr ""
 msgid "Dataset not added"
 msgstr ""
 
-msgid "transport static"
-msgstr ""
+msgid "public-transit"
+msgstr "Public transit"
 
 msgid "Dataset imported with success"
 msgstr ""
@@ -53,8 +53,8 @@ msgid "Could not add dataset"
 msgstr ""
 
 #, elixir-format
-msgid "carsharing areas"
-msgstr ""
+msgid "carsharing-areas"
+msgstr "Car sharing areas"
 
 #, elixir-format
 msgid "Add a partner"
@@ -89,20 +89,20 @@ msgid "Unable to delete"
 msgstr ""
 
 #, elixir-format
-msgid "stops referential"
-msgstr ""
+msgid "stops-ref"
+msgstr "Stops referential"
 
 #, elixir-format
-msgid "charging stations"
-msgstr ""
+msgid "charging-stations"
+msgstr "Charging stations"
 
 #, elixir-format
 msgid "Dataset's url"
 msgstr ""
 
 #, elixir-format
-msgid "bike sharing"
-msgstr ""
+msgid "micro-mobility"
+msgstr "Bike sharing and micro mobility"
 
 #, elixir-format
 msgid "Unable to find INSEE"
