@@ -88,7 +88,7 @@ defmodule Transport.ImportDataService do
       end)
   end
 
-  def get_valid_resources(%{"resources" => resources}, "transport-statique") do
+  def get_valid_resources(%{"resources" => resources}, "public-transit") do
     cond do
       !Enum.empty?(l = Enum.filter(resources, &is_gtfs?/1)) -> l
       !Enum.empty?(l = Enum.filter(resources, &is_zip?/1)) -> l
