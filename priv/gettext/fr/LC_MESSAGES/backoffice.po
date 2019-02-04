@@ -34,8 +34,8 @@ msgstr "Jeux de données ajouté avec succès"
 msgid "Dataset not added"
 msgstr "Échec à l’ajout du jeu de données"
 
-msgid "transport static"
-msgstr "transport statique"
+msgid "public-transit"
+msgstr "Transport en communs"
 
 msgid "Dataset imported with success"
 msgstr "Jeux de données ajouté avec succès"
@@ -53,7 +53,7 @@ msgid "Could not add dataset"
 msgstr "Impossible d’ajouter le jeu de données"
 
 #, elixir-format
-msgid "carsharing areas"
+msgid "carsharing-areas"
 msgstr "Aires de covoiturage"
 
 #, elixir-format
@@ -89,11 +89,11 @@ msgid "Unable to delete"
 msgstr "Impossible de supprimer le partenaire"
 
 #, elixir-format
-msgid "stops referential"
-msgstr "Référentiel points d'arrêts"
+msgid "stops-ref"
+msgstr "Référentiel points d’arrêts"
 
 #, elixir-format
-msgid "charging stations"
+msgid "charging-stations"
 msgstr "Bornes de recharge"
 
 #, elixir-format
@@ -101,7 +101,7 @@ msgid "Dataset's url"
 msgstr "Adresse du dataset"
 
 #, elixir-format
-msgid "bike sharing"
+msgid "micro-mobility"
 msgstr "Vélo en libre service"
 
 #, elixir-format

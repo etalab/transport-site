@@ -106,7 +106,7 @@ defmodule Transport.Dataset do
   end
 
   def valid_gtfs(%__MODULE__{resources: nil}), do: []
-  def valid_gtfs(%__MODULE__{resources: r, type: "transport-statique"}), do: Enum.filter(r, &Resource.valid?/1)
+  def valid_gtfs(%__MODULE__{resources: r, type: "public-transit"}), do: Enum.filter(r, &Resource.valid?/1)
   def valid_gtfs(%__MODULE__{resources: r}), do: r
 
   @doc """

@@ -5,6 +5,6 @@
     <%= text_input f, :spatial, [{"placeholder", dgettext("backoffice", "name")}] %>
     <%= select f, :region_id, @regions %>
     <%= text_input f, :insee_commune_principale, [{"placeholder", dgettext("backoffice", "INSEE Code")}] %>
-    <%= select f, :type, [{dgettext("backoffice", "transport static"), @dataset_types}]%>
+    <%= select f, :type, @dataset_types %>
     <%= submit dgettext("backoffice", "Add") %>
   <% end %>

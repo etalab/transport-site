@@ -32,19 +32,19 @@ defmodule Transport.Resource do
   @doc """
   A validation is needed if the last update from the data is newer than the last validation.
   ## Examples
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "transport-statique"}, validation_date: "2018-01-01"})
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}, validation_date: "2018-01-01"})
       true
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-01", type: "transport-statique"}, validation_date: "2018-01-30"})
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-01", type: "public-transit"}, validation_date: "2018-01-30"})
       false
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "transport-statique"}})
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}})
       true
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "bike sharing"}})
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "micro-mobility"}})
       false
   """
   def needs_validation(%__MODULE__{dataset: dataset, validation_date: validation_date}) do
     case [dataset.type, validation_date] do
-      ["transport-statique", nil] -> true
-      ["transport-statique", validation_date] -> dataset.last_update > validation_date
+      ["public-transit", nil] -> true
+      ["public-transit", validation_date] -> dataset.last_update > validation_date
       _ -> false
     end
   end
