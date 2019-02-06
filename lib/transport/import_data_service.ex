@@ -68,6 +68,7 @@ defmodule Transport.ImportDataService do
   def get_resources(dataset, type) do
     dataset
     |> get_valid_resources(type)
+    |> Enum.dedup_by(fn resource -> resource["url"] end)
     |> Enum.map(fn resource ->
         case Repo.get_by(Resource, url: resource["url"]) do
           nil ->

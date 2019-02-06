@@ -37,6 +37,18 @@ msgstr "Échec à l’ajout du jeu de données"
 msgid "public-transit"
 msgstr "Transport en communs"
 
+msgid "carsharing-areas"
+msgstr "Aires de covoiturage"
+
+msgid "stops-ref"
+msgstr "Référentiel points d’arrêts"
+
+msgid "micro-mobility"
+msgstr "Vélo en libre service"
+
+msgid "charging-stations"
+msgstr "Bornes de recharge"
+
 msgid "Dataset imported with success"
 msgstr "Jeux de données ajouté avec succès"
 
@@ -52,11 +64,6 @@ msgstr "Jeu de données supprimé"
 msgid "Could not add dataset"
 msgstr "Impossible d’ajouter le jeu de données"
 
-#, elixir-format
-msgid "carsharing-areas"
-msgstr "Aires de covoiturage"
-
-#, elixir-format
 msgid "Add a partner"
 msgstr "Ajout d'un partenaire"
 
@@ -89,20 +96,8 @@ msgid "Unable to delete"
 msgstr "Impossible de supprimer le partenaire"
 
 #, elixir-format
-msgid "stops-ref"
-msgstr "Référentiel points d’arrêts"
-
-#, elixir-format
-msgid "charging-stations"
-msgstr "Bornes de recharge"
-
-#, elixir-format
 msgid "Dataset's url"
 msgstr "Adresse du dataset"
-
-#, elixir-format
-msgid "micro-mobility"
-msgstr "Vélo en libre service"
 
 #, elixir-format
 msgid "Unable to find INSEE"
