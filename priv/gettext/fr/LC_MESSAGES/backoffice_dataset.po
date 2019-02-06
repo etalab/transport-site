@@ -31,10 +31,10 @@ msgstr "Impossible d'importer le jeu de données"
 msgid "Dataset validated"
 msgstr "Jeu de données validé"
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Could not add dataset"
 msgstr "Impossible d'ajouter le jeu de données"
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Dataset added with success"
 msgstr "Dataset ajouté"
