@@ -43,4 +43,4 @@ msgstr "Suivez-nous sur twitter"
 
 #, elixir-format
 msgid "Deployment status"
-msgstr "État du déploimeent"
+msgstr "État du déploiement"
