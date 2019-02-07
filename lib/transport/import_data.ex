@@ -11,6 +11,11 @@ defmodule Transport.ImportData do
 
   def all, do: Dataset |> Repo.all() |> Enum.map(&call/1)
 
+  def import_validate_all do
+    all()
+    Resource.validate_and_save_all()
+  end
+
   def call(%Dataset{id: id, datagouv_id: datagouv_id, type: type}) do
     with {:ok, new_data} <- import_from_udata(datagouv_id, type),
          dataset <- Repo.get(Dataset, id),
@@ -70,22 +75,12 @@ defmodule Transport.ImportData do
     |> get_valid_resources(type)
     |> Enum.dedup_by(fn resource -> resource["url"] end)
     |> Enum.map(fn resource ->
-        case Repo.get_by(Resource, url: resource["url"]) do
-          nil ->
             %{
             "url" => resource["url"],
             "format" => formated_format(resource),
             "title" => resource["title"],
             "last_import" => DateTime.utc_now |> DateTime.to_string,
           }
-          r ->
-            %{
-            "format" => formated_format(resource),
-            "title" => resource["title"],
-            "last_import" => DateTime.utc_now |> DateTime.to_string,
-            "id" => r.id
-          }
-        end
       end)
   end
 

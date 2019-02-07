@@ -9,7 +9,7 @@ config :transport, TransportWeb.Endpoint,
 
 config :transport, Transport.Scheduler,
   jobs: [
-    {"0 7 * * *", {Transport.ImportData, :all, []}}, # Every day at 7am
+    {"0 7 * * *", {Transport.ImportData, :import_validate_all, []}}, # Every day at 7am
   ]
 
 config :transport, Transport.Repo,
