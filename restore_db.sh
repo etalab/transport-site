@@ -1,17 +1,13 @@
 #!/bin/bash
 
-#Usage ./migrage_db.sh db_name user_name remote_db_name remove_user absolute_path_to_backup
+#Usage ./restore_db.sh db_name user_name absolute_path_to_backup
 #Use it as a postgres user
 
 psql -c "DROP DATABASE $1"
 
-psql -c "CREATE DATABASE $3"
+psql -c "CREATE DATABASE $1"
 
-psql -c "CREATE ROLE $4"
-
-pg_restore -d $3 --format=c $5
-
-psql -c "ALTER DATABASE $3 RENAME TO $1"
+pg_restore -d $1 --format=c --no-owner $3
 
 psql -c "ALTER DATABASE $1 OWNER TO $2"
 
