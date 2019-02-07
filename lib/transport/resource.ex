@@ -80,8 +80,13 @@ defmodule Transport.Resource do
   end
 
   def changeset(resource, params) do
-    cast(resource, params, [:validations, :validation_date, :is_active,
-     :url, :format, :last_import, :title, :metadata, :id])
+    resource
+    |> cast(
+      params,
+      [:validations, :validation_date, :is_active, :url,
+       :format, :last_import, :title, :metadata, :id
+      ])
+    |> validate_required([:url])
   end
 
   def issue_types, do: @issue_types
