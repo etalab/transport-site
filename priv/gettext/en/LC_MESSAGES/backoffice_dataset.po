@@ -31,10 +31,10 @@ msgstr ""
 msgid "Dataset validated"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Could not add dataset"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Dataset added with success"
 msgstr ""

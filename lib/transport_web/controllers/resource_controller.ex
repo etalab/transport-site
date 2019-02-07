@@ -46,16 +46,15 @@ defmodule TransportWeb.ResourceController do
 
   defp get_issues(%{validations: validations}, issue_type, config) when validations != nil do
     validations
-    |> Map.get(issue_type, %{"issues" => []})
-    |> Map.get("issues")
+    |> Map.get(issue_type,  [])
     |> Scrivener.paginate(config)
   end
   defp get_issues(_, _, _), do: []
 
-  defp count_issues(%{validations: validations}, issue_type) when validations != nil do
+  defp count_issues(%{validations: validations} = resource, issue_type) when validations != nil do
     validations
-    |> Map.get(issue_type, %{"count" => 0})
-    |> Map.get("count")
+    |> Map.get(issue_type, [])
+    |> Enum.count
   end
   defp count_issues(_, _), do: 0
 end

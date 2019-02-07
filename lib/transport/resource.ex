@@ -4,7 +4,7 @@ defmodule Transport.Resource do
   """
   use Ecto.Schema
   alias Transport.{Dataset, Repo}
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   require Logger
 
   @endpoint Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
@@ -60,6 +60,7 @@ defmodule Transport.Resource do
     end
   end
 
+  def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
   def validate(%__MODULE__{url: url}) do
     case @client.get("#{@endpoint}?url=#{url}", [], recv_timeout: @timeout) do
       {:ok, %@res{status_code: 200, body: body}} -> Poison.decode(body)
@@ -80,11 +81,20 @@ defmodule Transport.Resource do
 
   def changeset(resource, params) do
     cast(resource, params, [:validations, :validation_date, :is_active,
-     :url, :format, :last_import, :title, :metadata])
+     :url, :format, :last_import, :title, :metadata, :id])
   end
 
   def issue_types, do: @issue_types
 
   def valid?(%__MODULE__{} = r), do: r.metadata != nil
+
+  def validate_and_save_all(args \\ ["--all"]) do
+    __MODULE__
+    |> preload(:dataset)
+    |> Repo.all()
+    |> Enum.filter(fn r -> r.dataset.type == "public_transit" or r.dataset.type == "transport-statique" end)
+    |> Enum.filter(&(List.first(args) == "--all" or Resource.needs_validation(&1)))
+    |> Enum.each(&Resource.validate_and_save/1)
+  end
 
 end
