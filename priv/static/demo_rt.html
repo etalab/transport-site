@@ -64,7 +64,7 @@ const data = {
     }
 }
 
-var makeUrl = (service_url, sp) => `${service_url}/siri-lite/stop_monitoring.json?MonitoringRef=${sp.StopPointRef}`;
+var makeUrl = (service_url, sp) => `${service_url}/siri/2.0/stop-monitoring.json?MonitoringRef=${sp.StopPointRef}`;
 var fetchRT = service_url => sp => fetch(makeUrl(service_url, sp)).then(r => [sp, r], e => console.log(e))
 var fetchJSONRT = sp_r => sp_r[1].json().then(json => makeMarker(json, sp_r[0]))
 
@@ -75,7 +75,7 @@ var loadDiscovery = function(map, markersLayer, service_url) {
 &BoundingBoxStructure.LowerRight.Longitude=${bounds.getSouthEast().lng}\
 &BoundingBoxStructure.LowerRight.Latitude=${bounds.getSouthEast().lat}`
 
-    const url = `${service_url}/siri-lite/stoppoints_discovery.json?${params}`
+    const url = `${service_url}/siri/2.0/stoppoints-discovery.json?${params}`
     fetch(url, {params: params}).then(response => {
         if (!response.ok) {
             return;
