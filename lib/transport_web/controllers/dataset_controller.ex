@@ -29,7 +29,7 @@ defmodule TransportWeb.DatasetController do
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
     Dataset
     |> where([slug: ^slug_or_id])
-    |> preload([:resources])
+    |> Dataset.preload_without_validations
     |> Repo.one()
     |> case do
       nil -> redirect_to_slug_or_404(conn, slug_or_id)
