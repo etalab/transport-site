@@ -1,4 +1,4 @@
-defmodule Transport.ImportDataService do
+defmodule Transport.ImportData do
   @moduledoc """
   Service use to import data from datagouv to psql
   """
@@ -10,6 +10,11 @@ defmodule Transport.ImportDataService do
   @csv_headers ["Download", "file", "Fichier"]
 
   def all, do: Dataset |> Repo.all() |> Enum.map(&call/1)
+
+  def import_validate_all do
+    all()
+    Resource.validate_and_save_all()
+  end
 
   def call(%Dataset{id: id, datagouv_id: datagouv_id, type: type}) do
     with {:ok, new_data} <- import_from_udata(datagouv_id, type),
@@ -70,22 +75,12 @@ defmodule Transport.ImportDataService do
     |> get_valid_resources(type)
     |> Enum.dedup_by(fn resource -> resource["url"] end)
     |> Enum.map(fn resource ->
-        case Repo.get_by(Resource, url: resource["url"]) do
-          nil ->
             %{
             "url" => resource["url"],
             "format" => formated_format(resource),
             "title" => resource["title"],
             "last_import" => DateTime.utc_now |> DateTime.to_string,
           }
-          r ->
-            %{
-            "format" => formated_format(resource),
-            "title" => resource["title"],
-            "last_import" => DateTime.utc_now |> DateTime.to_string,
-            "id" => r.id
-          }
-        end
       end)
   end
 
@@ -107,13 +102,13 @@ defmodule Transport.ImportDataService do
 
   ## Examples
 
-      iex> ImportDataService.is_gtfs?("netex")
+      iex> ImportData.is_gtfs?("netex")
       false
 
-      iex> ImportDataService.is_gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
+      iex> ImportData.is_gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
       true
 
-      iex> ImportDataService.is_gtfs?(%{"format" => "neptune"})
+      iex> ImportData.is_gtfs?(%{"format" => "neptune"})
       false
 
   """
@@ -131,16 +126,16 @@ defmodule Transport.ImportDataService do
   Is the ressource a zip file?
 
   ## Examples
-      iex> ImportDataService.is_zip?(%{"mime" => "application/zip", "format" => nil})
+      iex> ImportData.is_zip?(%{"mime" => "application/zip", "format" => nil})
       true
 
-      iex> ImportDataService.is_zip?(%{"mime" => nil, "format" => "zip"})
+      iex> ImportData.is_zip?(%{"mime" => nil, "format" => "zip"})
       true
 
-      iex> ImportDataService.is_zip?(%{"mime" => nil, "format" => "ZIP"})
+      iex> ImportData.is_zip?(%{"mime" => nil, "format" => "ZIP"})
       true
 
-      iex> ImportDataService.is_zip?(%{"mime" => "application/exe", "format" => nil})
+      iex> ImportData.is_zip?(%{"mime" => "application/exe", "format" => nil})
       false
   """
   def is_zip?(%{"mime" => nil, "format" => format}), do: is_zip?(format)
@@ -170,23 +165,23 @@ defmodule Transport.ImportDataService do
 
   ## Examples
       iex> [%{"mime" => "text/csv", "format" => nil}]
-      ...> |> ImportDataService.filter_csv
+      ...> |> ImportData.filter_csv
       [%{"mime" => "text/csv", "format" => "csv"}]
 
       iex> [%{"mime" => nil, "format" => "csv"}]
-      ...> |> ImportDataService.filter_csv
+      ...> |> ImportData.filter_csv
       [%{"mime" => "text/csv", "format" => "csv"}]
 
       iex> [%{"mime" => nil, "format" => "CSV"}]
-      ...> |> ImportDataService.filter_csv
+      ...> |> ImportData.filter_csv
       [%{"mime" => "text/csv", "format" => "csv"}]
 
       iex> [%{"mime" => "text/cv", "format" => nil}]
-      ...> |> ImportDataService.filter_csv
+      ...> |> ImportData.filter_csv
       []
 
       iex> [%{"mime" => "text/csv", "format" => nil}, %{"mime" => "application/neptune", "format" => nil}]
-      ...> |> ImportDataService.filter_csv
+      ...> |> ImportData.filter_csv
       [%{"mime" => "text/csv", "format" => "csv"}]
 
   """
@@ -201,15 +196,15 @@ defmodule Transport.ImportDataService do
 
   ## Examples
       iex> {:ok, %{headers: [{"Content-Type", "text/csv"}]}}
-      ...> |> ImportDataService.has_csv?
+      ...> |> ImportData.has_csv?
       true
 
       iex> {:ok, %{headers: [{"Content-Type", "application/zip"}]}}
-      ...> |> ImportDataService.has_csv?
+      ...> |> ImportData.has_csv?
       false
 
       iex> {:error, "pouet"}
-      ...> |> ImportDataService.has_csv?
+      ...> |> ImportData.has_csv?
       false
 
   """
@@ -247,10 +242,10 @@ defmodule Transport.ImportDataService do
 
   ## Examples
       iex> ["name,file\\ntoulouse,http", "stop,lon,lat\\n1,48.8,2.3"]
-      ...> |> ImportDataService.get_url_from_csv()
+      ...> |> ImportData.get_url_from_csv()
       "http"
 
-      iex> |> ImportDataService.get_url_from_csv()
+      iex> |> ImportData.get_url_from_csv()
       {:error, "No column file"}
 
   """
@@ -269,15 +264,15 @@ defmodule Transport.ImportDataService do
 
   ## Examples
       iex> "name,file\\ntoulouse,http"
-      ...> |> ImportDataService.get_url_from_csv()
+      ...> |> ImportData.get_url_from_csv()
       {:ok, "http"}
 
       iex> "stop,lon,lat\\n1,48.8,2.3"
-      ...> |> ImportDataService.get_url_from_csv()
+      ...> |> ImportData.get_url_from_csv()
       {:error, "No column file"}
 
       iex> "Donnees;format;Download\\r\\nHoraires des lignes TER;GTFS;https\\r\\n"
-      ...> |> ImportDataService.get_url_from_csv()
+      ...> |> ImportData.get_url_from_csv()
       {:ok, "https"}
 
   """
@@ -327,13 +322,13 @@ defmodule Transport.ImportDataService do
 
   ## Examples
 
-      iex> ImportDataService.check_license(%{"license" => "bliblablou"})
+      iex> ImportData.check_license(%{"license" => "bliblablou"})
       false
 
-      iex> ImportDataService.check_license(%{"license" => "odc-odbl"})
+      iex> ImportData.check_license(%{"license" => "odc-odbl"})
       true
 
-      iex> ImportDataService.check_license(%{"license" => "fr-lo"})
+      iex> ImportData.check_license(%{"license" => "fr-lo"})
       true
 
   """
@@ -346,10 +341,10 @@ defmodule Transport.ImportDataService do
 
   ## Examples
 
-      iex> ImportDataService.check_download_url(%{"download_url" => nil})
+      iex> ImportData.check_download_url(%{"download_url" => nil})
       false
 
-      iex> ImportDataService.check_download_url(%{"download_url" => "http"})
+      iex> ImportData.check_download_url(%{"download_url" => "http"})
       true
 
   """
@@ -361,7 +356,7 @@ defmodule Transport.ImportDataService do
 
   ## Examples
 
-      iex> ImportDataService.parse_date("2018-09-28T13:37:00")
+      iex> ImportData.parse_date("2018-09-28T13:37:00")
       "2018-09-28"
   """
   def parse_date(date) when is_binary(date) do
@@ -380,11 +375,11 @@ defmodule Transport.ImportDataService do
   ## Examples
 
       iex> %{"last_modified" => "2017-11-29T23:54:05", "url" => "http1", "format" => "gtfs.zip", "mime" => "foo"}
-      ...> |> ImportDataService.formated_format
+      ...> |> ImportData.formated_format
       "GTFS"
 
       iex> %{"last_modified" => "2017-11-29T23:54:05", "url" => "http1", "format" => "xls", "mime" => "foo"}
-      ...> |> ImportDataService.formated_format
+      ...> |> ImportData.formated_format
       "xls"
   """
   def formated_format(resource) do

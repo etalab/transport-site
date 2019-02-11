@@ -2,12 +2,12 @@ defmodule TransportWeb.Backoffice.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Client.Datasets
 
-  alias Transport.{AOM, Dataset, ImportDataService, Repo, Resource}
+  alias Transport.{AOM, Dataset, ImportData, Repo, Resource}
   import Ecto.Query
 
   def new_dataset(%Plug.Conn{} = conn, params) do
     with datagouv_id when not is_nil(datagouv_id) <- Datasets.get_id_from_url(conn, params["url"]),
-         {:ok, dataset} <- ImportDataService.import_from_udata(datagouv_id, params["type"]),
+         {:ok, dataset} <- ImportData.import_from_udata(datagouv_id, params["type"]),
          {:ok, aom_id} <- get_aom_id(params),
          params <- Map.merge(params, dataset),
          params <- Map.put(params, "aom_id", aom_id)
@@ -87,7 +87,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
 
   defp import_data(%Dataset{} = dataset), do: import_data({:ok, dataset})
   defp import_data(nil), do: {:error, dgettext("backoffice", "Unable to find dataset")}
-  defp import_data({:ok, dataset}), do: ImportDataService.call(dataset)
+  defp import_data({:ok, dataset}), do: ImportData.call(dataset)
   defp import_data(error), do: error
 
   defp get_or_new_dataset(datagouv_id) do

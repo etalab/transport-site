@@ -80,8 +80,13 @@ defmodule Transport.Resource do
   end
 
   def changeset(resource, params) do
-    cast(resource, params, [:validations, :validation_date, :is_active,
-     :url, :format, :last_import, :title, :metadata, :id])
+    resource
+    |> cast(
+      params,
+      [:validations, :validation_date, :is_active, :url,
+       :format, :last_import, :title, :metadata, :id
+      ])
+    |> validate_required([:url])
   end
 
   def issue_types, do: @issue_types
@@ -92,9 +97,9 @@ defmodule Transport.Resource do
     __MODULE__
     |> preload(:dataset)
     |> Repo.all()
-    |> Enum.filter(fn r -> r.dataset.type == "public_transit" or r.dataset.type == "transport-statique" end)
-    |> Enum.filter(&(List.first(args) == "--all" or Resource.needs_validation(&1)))
-    |> Enum.each(&Resource.validate_and_save/1)
+    |> Enum.filter(fn r -> r.dataset.type == "public-transit" or r.dataset.type == "transport-statique" end)
+    |> Enum.filter(&(List.first(args) == "--all" or needs_validation(&1)))
+    |> Enum.each(&validate_and_save/1)
   end
 
 end
