@@ -92,7 +92,6 @@ defmodule Transport.Resource do
   def issue_types, do: @issue_types
 
   def valid?(%__MODULE__{} = r), do: r.metadata != nil
-  def valid?(%{} = r), do: Map.has_key?(r, :metadata) && r.metadata != nil
 
   def validate_and_save_all(args \\ ["--all"]) do
     __MODULE__
