@@ -29,9 +29,21 @@ defmodule Transport.Dataset do
     has_many :resources, Resource, on_replace: :delete, on_delete: :delete_all
   end
 
-  @format_query from r in Resource, select: %{format: r.format, title: r.title, url: r.url}
+  defp no_validations_query do
+    from r in Resource,
+      select: %Resource{
+        format: r.format,
+        title: r.title,
+        url: r.url,
+        metadata: r.metadata,
+        id: r.id
+      }
+  end
 
-  def preload_without_validations(q), do: q |> preload([resources: ^@format_query])
+  def preload_without_validations(q) do
+    s = no_validations_query()
+    preload(q, [resources: ^s])
+  end
 
   def search_datasets(search_string, s \\ []) do
     document_q = __MODULE__
@@ -57,7 +69,7 @@ defmodule Transport.Dataset do
     |> where([d], fragment("? @@ plainto_tsquery('french', ?)", d.document, ^search_string))
     |> order_by([d], fragment("ts_rank(?, plainto_tsquery('french', ?)) DESC", d.document, ^search_string))
 
-    resource_query = from r in "resource", select: r.format
+    resource_query = no_validations_query()
 
     __MODULE__
     |> join(:inner, [d], doc in subquery(sub), on: doc.id == d.id)
@@ -67,7 +79,10 @@ defmodule Transport.Dataset do
 
   def list_datasets, do: __MODULE__ |> preload_without_validations
   def list_datasets([]), do: list_datasets()
-  def list_datasets(s) when is_list(s), do: from d in __MODULE__, select: ^s, preload: [resources: ^@format_query]
+  def list_datasets(s) when is_list(s) do
+    sub_resources = no_validations_query()
+    from d in __MODULE__, select: ^s, preload: [resources: ^sub_resources]
+  end
 
   def list_datasets(filters, s \\ [])
   def list_datasets(%{"q" => q}, s), do: search_datasets(q, s)
