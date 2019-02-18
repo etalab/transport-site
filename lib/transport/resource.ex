@@ -55,7 +55,9 @@ defmodule Transport.Resource do
       {:ok, _} <- save(resource, validations) do
         Logger.info("Ok!")
     else
-      {:error, error} -> Logger.warn("Error: #{error}")
+      {:error, error} ->
+         Logger.warn("Error when calling the validator: #{error}")
+         Sentry.capture_message("unable_to_call_validator", extra: %{url: resource.url, error: error})
       _ -> Logger.warn("Unknown error")
     end
   end
@@ -71,12 +73,24 @@ defmodule Transport.Resource do
   end
 
   def save(%{url: url}, %{"validations" => validations, "metadata" => metadata}) do
+    # When the validator is unable to open the archive, it will return a fatal issue
+    # And the metadata will be nil (as it couldn’t read the them)
+    if is_nil(metadata) do
+      Logger.warn("Unable to validate: #{url}")
+      Sentry.capture_message("validation_failed", extra: %{url: url, validations: validations})
+    end
+
     __MODULE__
     |> Repo.get_by(url: url)
     |> change(validation_date: DateTime.utc_now |> DateTime.to_string)
     |> change(validations: validations)
     |> change(metadata: metadata)
     |> Repo.update
+  end
+
+  def save(url, _) do
+    Logger.warn("Unknown error when saving the validation")
+    Sentry.capture_message("validation_save_failed", extra: url)
   end
 
   def changeset(resource, params) do
