@@ -25,6 +25,7 @@
 
   <div class="container">
     <div class="footer__logo">
+      <%= link(img_tag("/images/logo-ministere-horizontal.png", alt: "Ministère chargé des transports"), to: "https://www.ecologique-solidaire.gouv.fr/")%>
       <%= link(img_tag("/images/logo-footer.svg", alt: "transport.data.gouv.fr"), to: "/") %>
     </div>
 
