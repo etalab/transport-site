@@ -106,3 +106,7 @@ msgstr ""
 #, elixir-format
 msgid "Unable to find dataset"
 msgstr ""
+
+#, elixir-format
+msgid "Import and validate all"
+msgstr ""

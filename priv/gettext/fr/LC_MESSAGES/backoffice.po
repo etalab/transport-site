@@ -106,3 +106,7 @@ msgstr "Impossible de trouver l’INSEE"
 #, elixir-format
 msgid "Unable to find dataset"
 msgstr "Impossible de trouver le jeu de données"
+
+#, elixir-format
+msgid "Import and validate all"
+msgstr "Importer et valider tous les jeux de donées"

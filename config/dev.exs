@@ -12,8 +12,8 @@ config :transport, TransportWeb.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: [
-    "mix": ["guard"],
-    "npm": ["run", "--prefix", "client", "watch"]
+    mix: ["guard"],
+    npm: ["run", "--prefix", "client", "watch"]
   ]
 
 # ## SSL Support

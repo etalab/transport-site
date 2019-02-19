@@ -70,6 +70,7 @@ defmodule TransportWeb.Router do
         post "/", DatasetController, :new_dataset
         post "/:id/_import", DatasetController, :import_from_data_gouv_fr
         post "/:id/_delete", DatasetController, :delete
+        post "/_all_/_validate", DatasetController, :validate_all
         post "/:id/_validate", DatasetController, :validation
       end
 
