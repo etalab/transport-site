@@ -4,7 +4,6 @@ defmodule Transport.Helpers do
   Helper functions that are used accross the whole project
   """
 
-
   @doc """
   Gets the filename part of an url
 
