@@ -5,6 +5,9 @@
     <nav>
       <ul class="nav__links">
         <%= if assigns[:current_user] do %>
+          <%= if assigns[:current_user] |> Map.get("organizations", []) |> Enum.any?(fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end) do %>
+            <%= link("Administration", to: "/backoffice") %>
+          <%= end %>
           <%= if assigns[:current_user]["avatar_thumbnail"] do %>
             <img src="<%= assigns[:current_user]["avatar_thumbnail"] %>" alt="Avatar" class="nav__avatar"> </img>
           <% end %>
