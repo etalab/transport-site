@@ -150,6 +150,17 @@ defmodule Transport.Dataset do
     end
   end
 
+  def count_validations(%__MODULE__{id: dataset_id}) do
+    query = "SELECT sum(json_data.value::int) FROM resource, json_each_text(metadata->'issues_count') AS json_data WHERE dataset_id = $1"
+    case Repo.query(query, [dataset_id]) do
+      {:ok, result} -> result.rows |> List.first |> List.first
+      {:error, error} ->
+        Logger.warn("Unable to get validation count")
+        Logger.warn(error)
+        nil
+    end
+  end
+
   ## Private functions
 
   defp validate_mutual_exclusion(changeset, fields, error) do

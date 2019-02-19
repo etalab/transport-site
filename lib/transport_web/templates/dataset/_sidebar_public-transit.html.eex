@@ -1,5 +1,6 @@
         <%= if first_gtfs(@dataset) do %>
           <a href="<%= resource_path(@conn, :details, first_gtfs(@dataset).id) %>">Validations GTFS</a>
+          <%= if @conn.assigns[:count_validations] do %> (<%= @conn.assigns[:count_validations] %>) <% end %>
         <%= if first_gtfs(@dataset).metadata do %>
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Timetable begin") %></div>
