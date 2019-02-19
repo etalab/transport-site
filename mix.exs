@@ -32,6 +32,7 @@ defmodule Transport.Mixfile do
         :poolboy,
         :scrivener,
         :scrivener_html,
+        :sentry,
       ]
     ]
   end
@@ -60,6 +61,7 @@ defmodule Transport.Mixfile do
       {:vex, "~> 0.8"},
       {:quantum, "~> 2.3"},
       {:timex, "~> 3.0"},
+      {:sentry, "~> 6.0"},
       {:scrivener, "~> 2.0"},
       {:scrivener_ecto, "~> 2.0"},
       {:scrivener_html, "~> 1.7"},
