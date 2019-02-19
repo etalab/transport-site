@@ -6,6 +6,7 @@ defmodule Datagouvfr.Client.Datasets do
   import TransportWeb.Gettext
   import Datagouvfr.Client, only: [get_request: 2, post_request: 2, delete_request: 2]
   require Logger
+  alias Transport.Helpers
 
   use Vex.Struct
   alias __MODULE__
@@ -74,7 +75,7 @@ defmodule Datagouvfr.Client.Datasets do
   """
   @spec get(%Plug.Conn{}, keyword) :: {atom, [map]}
   def get(%Plug.Conn{} = conn, [url: url]) do
-    slug = extract_slug(url)
+    slug = Helpers.filename_from_url(url)
 
     conn
     |> get(slug)
@@ -175,14 +176,5 @@ defmodule Datagouvfr.Client.Datasets do
     |> Map.from_struct
     |> Map.keys
     |> Enum.map(&Atom.to_string/1)
-  end
-
-  defp extract_slug(url) do
-      url
-      |> URI.parse()
-      |> Map.get(:path)
-      |> String.trim_trailing("/")
-      |> String.split("/")
-      |> List.last()
   end
 end

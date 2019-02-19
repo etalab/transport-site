@@ -3,7 +3,7 @@ defmodule Transport.ImportData do
   Service use to import data from datagouv to psql
   """
 
-  alias Transport.{Dataset, Repo, Resource}
+  alias Transport.{Dataset, Helpers, Repo, Resource}
   require Logger
 
   @separators [?;, ?,]
@@ -78,7 +78,7 @@ defmodule Transport.ImportData do
             %{
             "url" => resource["url"],
             "format" => formated_format(resource),
-            "title" => resource["title"],
+            "title" => get_title(resource),
             "last_import" => DateTime.utc_now |> DateTime.to_string,
           }
       end)
@@ -388,4 +388,21 @@ defmodule Transport.ImportData do
 
     if is_gtfs?(format), do: "GTFS", else: format
   end
+
+  @doc """
+  Gets the title of a resource or returns its filename if it doesn’t exist
+
+  ## Examples
+
+      iex> ImportData.get_title(%{"title" => "Timetables", "url" => "https://example.com/bus.gtfs.zip"})
+      "Timetables"
+
+      iex> ImportData.get_title(%{"title" => nil, "url" => "https://example.com/bus.gtfs.zip"})
+      "bus.gtfs.zip"
+
+      iex> ImportData.get_title(%{"url" => "https://example.com/bus.gtfs.zip"})
+      "bus.gtfs.zip"
+  """
+  def get_title(%{"title" => title}) when not is_nil(title), do: title
+  def get_title(%{"url" => url}), do: Helpers.filename_from_url(url)
 end
