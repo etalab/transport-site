@@ -5,15 +5,16 @@ defmodule Transport.Application do
   """
 
   use Application
-  alias Transport.Repo
+  alias Transport.{ImportDataWorker, Repo}
   alias TransportWeb.Endpoint
+  import Supervisor.Spec, only: [supervisor: 2]
 
   def start(_type, _args) do
-    import Supervisor.Spec, only: [supervisor: 2]
 
     children = [
       supervisor(TransportWeb.Endpoint, []),
-      Repo
+      Repo,
+      supervisor(ImportDataWorker, [])
     ]
     |> add_scheduler()
 

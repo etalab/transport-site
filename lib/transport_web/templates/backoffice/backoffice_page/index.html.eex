@@ -7,6 +7,10 @@
     <%= search_input f, :q, [{"value", assigns[:q] || ""}, {"placeholder", dgettext("page-index", "Find dataset")}] %>
   <% end %>
 
+  <%= form_for @conn, dataset_path(@conn, :validate_all), [method: "post"], fn f -> %>
+    <%= submit dgettext("backoffice", "Import and validate all") %>
+  <% end %>
+
   <%= pagination_links @conn, @datasets, path: &backoffice_page_path/3, q: assigns[:q] || "" %>
 
   <table>

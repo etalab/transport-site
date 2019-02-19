@@ -2,7 +2,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Client.Datasets
 
-  alias Transport.{AOM, Dataset, ImportData, Repo, Resource}
+  alias Transport.{AOM, Dataset, ImportData, ImportDataWorker, Repo, Resource}
   import Ecto.Query
 
   def new_dataset(%Plug.Conn{} = conn, params) do
@@ -62,6 +62,14 @@ defmodule TransportWeb.Backoffice.DatasetController do
         )
       end
     )
+    |> redirect_to_index()
+  end
+
+  def validate_all(%Plug.Conn{} = conn, _args) do
+    ImportDataWorker.all
+
+    conn
+    |> put_flash(:info, dgettext("backoffice_dataset", "Import and validation of all datasets have been launch"))
     |> redirect_to_index()
   end
 

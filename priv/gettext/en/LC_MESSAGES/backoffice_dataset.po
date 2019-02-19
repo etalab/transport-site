@@ -38,3 +38,7 @@ msgstr ""
 #, elixir-format
 msgid "Dataset added with success"
 msgstr ""
+
+#, elixir-format
+msgid "Import and validation of all datasets have been launch"
+msgstr ""
