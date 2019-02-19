@@ -72,16 +72,16 @@ defmodule Transport.Resource do
     end
   end
 
-  def save(%{url: url}, %{"validations" => validations, "metadata" => metadata}) do
+  def save(%{id: id}, %{"validations" => validations, "metadata" => metadata}) do
     # When the validator is unable to open the archive, it will return a fatal issue
     # And the metadata will be nil (as it couldn’t read the them)
     if is_nil(metadata) do
-      Logger.warn("Unable to validate: #{url}")
-      Sentry.capture_message("validation_failed", extra: %{url: url, validations: validations})
+      Logger.warn("Unable to validate: #{id}")
+      Sentry.capture_message("validation_failed", extra: %{id: id, validations: validations})
     end
 
     __MODULE__
-    |> Repo.get_by(url: url)
+    |> Repo.get(id)
     |> change(validation_date: DateTime.utc_now |> DateTime.to_string)
     |> change(validations: validations)
     |> change(metadata: metadata)
