@@ -1,4 +1,4 @@
-defmodule TransportWeb.Backoffice.BackofficePageController do
+defmodule TransportWeb.Backoffice.PageController do
   use TransportWeb, :controller
 
   alias Transport.{Dataset, Region, Repo}

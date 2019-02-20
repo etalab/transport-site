@@ -1,6 +1,6 @@
   <h1><%= dgettext("backoffice", "Add a dataset") %></h2>
 
-  <%= form_for @conn, dataset_path(@conn, :new_dataset), fn f -> %>
+  <%= form_for @conn, backoffice_dataset_path(@conn, :new_dataset), fn f -> %>
     <%= text_input f, :url, [{"placeholder", dgettext("backoffice", "Dataset's url")}] %>
     <%= text_input f, :spatial, [{"placeholder", dgettext("backoffice", "name")}] %>
     <%= select f, :region_id, @regions %>
