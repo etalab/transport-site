@@ -36,6 +36,7 @@ defmodule TransportWeb.DatasetController do
       dataset ->
         conn
         |> assign(:dataset, dataset)
+        |> assign(:count_validations, Dataset.count_validations(dataset))
         |> assign(:discussions, Client.get_discussions(conn, dataset.datagouv_id))
         |> assign(:community_ressources, Client.get_community_ressources(conn, dataset.datagouv_id))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
