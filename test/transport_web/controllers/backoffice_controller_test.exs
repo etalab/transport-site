@@ -21,7 +21,7 @@ defmodule TransportWeb.BackofficeControllerTest do
       "type" => "public-transit"
     }
     conn = use_cassette "dataset/impulsyon.json-1" do
-      post(conn, dataset_path(conn, :new_dataset), dataset)
+      post(conn, backoffice_dataset_path(conn, :new_dataset), dataset)
     end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
@@ -47,7 +47,7 @@ defmodule TransportWeb.BackofficeControllerTest do
       "type" => "public-transit"
     }
     conn = use_cassette "dataset/impulsyon.json-1" do
-      post(conn, dataset_path(conn, :new_dataset), dataset)
+      post(conn, backoffice_dataset_path(conn, :new_dataset), dataset)
     end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
@@ -73,7 +73,7 @@ defmodule TransportWeb.BackofficeControllerTest do
       "type" => "public-transit"
     }
     conn = use_cassette "dataset/impulsyon.json-1" do
-      post(conn, dataset_path(conn, :new_dataset), dataset)
+      post(conn, backoffice_dataset_path(conn, :new_dataset), dataset)
     end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
@@ -97,7 +97,7 @@ defmodule TransportWeb.BackofficeControllerTest do
       "type" => "public-transit"
     }
     conn = use_cassette "dataset/impulsyon.json-1" do
-      post(conn, dataset_path(conn, :new_dataset), dataset)
+      post(conn, backoffice_dataset_path(conn, :new_dataset), dataset)
     end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
@@ -123,11 +123,11 @@ defmodule TransportWeb.BackofficeControllerTest do
     }
 
     use_cassette "dataset/impulsyon.json-1" do
-      conn = post(conn, dataset_path(conn, :new_dataset), dataset)
+      conn = post(conn, backoffice_dataset_path(conn, :new_dataset), dataset)
       assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
       assert from(r in Resource, where: r.url == ^resource_url) |> Repo.all() |> length() == 1
 
-      conn = post(conn, dataset_path(conn, :new_dataset), dataset)
+      conn = post(conn, backoffice_dataset_path(conn, :new_dataset), dataset)
       assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
       assert from(r in Resource, where: r.url == ^resource_url) |> Repo.all() |> length() == 1
     end
