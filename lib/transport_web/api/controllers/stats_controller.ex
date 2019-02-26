@@ -14,7 +14,7 @@ defmodule TransportWeb.API.StatsController do
     %Operation{
       tags: ["regions"],
       summary: "Show regions",
-      description: "Show covered regions",
+      description: "Show covered french administrative regions",
       operationId: "API.StatsController.regions",
       parameters: [],
       responses: %{
@@ -28,7 +28,7 @@ defmodule TransportWeb.API.StatsController do
     %Operation{
       tags: ["index"],
       summary: "Show regions",
-      description: "Show covered regions",
+      description: "Show covered french administrative regions",
       operationId: "API.StatsController.index",
       parameters: [],
       responses: %{
