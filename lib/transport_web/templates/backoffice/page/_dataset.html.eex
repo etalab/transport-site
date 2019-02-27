@@ -14,17 +14,17 @@
                   role: "link") %>
       </td>
       <td>
-        <%= form_for @conn, dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
+        <%= form_for @conn, backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
           <%= submit "Importer", [class: "button", nodiv: true] %>
         <% end %>
       </td>
       <td>
-        <%= form_for @conn, dataset_path(@conn, :validation, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
+        <%= form_for @conn, backoffice_dataset_path(@conn, :validation, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
           <%= submit "Valider", [class: "button", nodiv: true] %>
         <% end %>
       </td>
       <td>
-        <%= form_for @conn, dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
+        <%= form_for @conn, backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
           <%= submit "Supprimer", [class: "button", nodiv: true] %>
         <% end %>
       </td>
