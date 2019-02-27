@@ -1,9 +1,9 @@
 const { resolve } = require('path')
 const webpack = require('webpack')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const extractImages = new CopyWebpackPlugin([{ from: 'images', to: '../images' }])
-const extractSass = new ExtractTextPlugin({ filename: '../css/app.css', allChunks: true })
+const extractSass = new MiniCssExtractPlugin({ filename: '../css/app.css', allChunks: true })
 const fetchPolyfill = new webpack.ProvidePlugin({ fetch: 'exports-loader?self.fetch!whatwg-fetch/dist/fetch.umd' })
 const promisePolyfill = new webpack.ProvidePlugin({ Promise: 'core-js/es6/promise' })
 const processEnv = new webpack.DefinePlugin({ 'process.env': { 'DATAGOUVFR_SITE': JSON.stringify(process.env.DATAGOUVFR_SITE) } })
@@ -49,26 +49,27 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['es2015']
+                        presets: ['@babel/preset-env']
                     }
                 }
             }, {
                 test: /\.scss$/,
                 exclude: [/node_modules/],
-                use: extractSass.extract({
-                    use: [{
-                        loader: 'css-loader',
-                        options: {
-                            sourceMap: true
+                use:
+                    [
+                        {
+                            loader: 'css-loader',
+                            options: {
+                                sourceMap: true
+                            }
+                        }, {
+                            loader: 'sass-loader',
+                            options: {
+                                sourceMap: true,
+                                outputStyle: 'compact'
+                            }
                         }
-                    }, {
-                        loader: 'sass-loader',
-                        options: {
-                            sourceMap: true,
-                            outputStyle: 'compact'
-                        }
-                    }]
-                })
+                    ]
             }, {
                 test: /\.(jpe?g|png|gif|svg)$/,
                 exclude: [/font-awesome/],
