@@ -4,7 +4,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const extractImages = new CopyWebpackPlugin([{ from: 'images', to: '../images' }])
 const extractSass = new ExtractTextPlugin({ filename: '../css/app.css', allChunks: true })
-const fetchPolyfill = new webpack.ProvidePlugin({ fetch: 'imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch' })
+const fetchPolyfill = new webpack.ProvidePlugin({ fetch: 'exports-loader?self.fetch!whatwg-fetch/dist/fetch.umd' })
 const promisePolyfill = new webpack.ProvidePlugin({ Promise: 'core-js/es6/promise' })
 const processEnv = new webpack.DefinePlugin({ 'process.env': { 'DATAGOUVFR_SITE': JSON.stringify(process.env.DATAGOUVFR_SITE) } })
 
