@@ -1,4 +1,5 @@
 const { resolve } = require('path')
+const devMode = process.env.NODE_ENV !== 'production'
 const webpack = require('webpack')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
@@ -9,6 +10,7 @@ const promisePolyfill = new webpack.ProvidePlugin({ Promise: 'core-js/es6/promis
 const processEnv = new webpack.DefinePlugin({ 'process.env': { 'DATAGOUVFR_SITE': JSON.stringify(process.env.DATAGOUVFR_SITE) } })
 
 module.exports = {
+    mode: devMode ? 'development' : 'production',
     entry: [
         './javascripts/app.js',
         './stylesheets/app.scss'
@@ -57,6 +59,7 @@ module.exports = {
                 exclude: [/node_modules/],
                 use:
                     [
+                        MiniCssExtractPlugin.loader,
                         {
                             loader: 'css-loader',
                             options: {
