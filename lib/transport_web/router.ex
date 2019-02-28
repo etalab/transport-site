@@ -3,6 +3,10 @@ defmodule TransportWeb.Router do
   use Plug.ErrorHandler
   use Sentry.Plug
 
+  defimpl Plug.Exception, for: Phoenix.Template.UndefinedError do
+    def status(_exception), do: 404
+  end
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
