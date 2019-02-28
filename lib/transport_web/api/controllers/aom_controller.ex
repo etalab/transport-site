@@ -19,8 +19,8 @@ defmodule TransportWeb.API.AomController do
       description: "Show covered regions",
       operationId: "API.AOMController.by_coordinates",
       parameters: [
-        Operation.parameter(:lon, :query, :float, "Longitude"),
-        Operation.parameter(:lat, :query, :float, "Latitude")
+        Operation.parameter(:lon, :query, :number, "Longitude"),
+        Operation.parameter(:lat, :query, :number, "Latitude")
       ],
       responses: %{
         200 => Operation.response("AOM", "application/json", AOMResponse)
