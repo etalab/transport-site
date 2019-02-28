@@ -3,6 +3,39 @@ defmodule TransportWeb.API.StatsController do
   alias Transport.{AOM, Dataset, Region, Repo}
   import Ecto.Query
   alias Geo.JSON
+  alias OpenApiSpex.Operation
+  alias TransportWeb.API.Schemas.GeoJSONResponse
+
+  @spec open_api_operation(any) :: Operation.t
+  def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
+
+  @spec regions_operation() :: Operation.t
+  def regions_operation do
+    %Operation{
+      tags: ["regions"],
+      summary: "Show regions",
+      description: "Show covered french administrative regions",
+      operationId: "API.StatsController.regions",
+      parameters: [],
+      responses: %{
+        200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
+      }
+    }
+  end
+
+  @spec index_operation() :: Operation.t
+  def index_operation do
+    %Operation{
+      tags: ["index"],
+      summary: "Show regions",
+      description: "Show covered french administrative regions",
+      operationId: "API.StatsController.index",
+      parameters: [],
+      responses: %{
+        200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
+      }
+    }
+  end
 
   def geojson(features) do
     %{

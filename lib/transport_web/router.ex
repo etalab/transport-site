@@ -94,20 +94,7 @@ defmodule TransportWeb.Router do
     get "/:page", PageController, :single_page
   end
 
-  scope "/api", TransportWeb do
-    pipe_through :accept_json
-
-    scope "/aoms" do
-      get "/", API.AomController, :by_coordinates
-      get "/geojson", API.AomController, :geojson
-      get "/:insee", API.AomController, :by_insee
-    end
-
-    scope "/stats" do
-      get "/", API.StatsController, :index
-      get "/regions", API.StatsController, :regions
-    end
-  end
+  forward "/api", TransportWeb.API.Router
 
   # private
 
