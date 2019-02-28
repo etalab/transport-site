@@ -45,6 +45,7 @@ defmodule TransportWeb.Router do
 
     get "/", PageController, :index
     get "/stats", StatsController, :index
+    get "/atom.xml", AtomController, :index
     post "/send_mail", ContactController, :send_mail
 
     scope "/datasets" do
