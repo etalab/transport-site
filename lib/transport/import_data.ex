@@ -60,6 +60,7 @@ defmodule Transport.ImportData do
       |> Map.put("created_at", parse_date(dataset["created_at"]))
       |> Map.put("last_update", parse_date(dataset["last_update"]))
       |> Map.put("type", type)
+      |> Map.put("organization", dataset["organization"]["name"])
       |> Map.put("resources", get_resources(dataset, type))
 
     case Map.get(dataset, "resources") do
@@ -80,6 +81,8 @@ defmodule Transport.ImportData do
             "format" => formated_format(resource),
             "title" => get_title(resource),
             "last_import" => DateTime.utc_now |> DateTime.to_string,
+            "last_update" => resource["last_modified"],
+            "latest_url" => resource["latest"],
           }
       end)
   end
