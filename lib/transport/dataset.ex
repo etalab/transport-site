@@ -22,6 +22,7 @@ defmodule Transport.Dataset do
     field :tags, {:array, :string}
     field :title, :string
     field :type, :string
+    field :organization, :string
 
     belongs_to :region, Region
     belongs_to :aom, AOM
@@ -111,7 +112,7 @@ defmodule Transport.Dataset do
   def changeset(dataset, params) do
     dataset
     |> Repo.preload(:resources)
-    |> cast(params, [:datagouv_id, :spatial, :created_at, :description, :frequency,
+    |> cast(params, [:datagouv_id, :spatial, :created_at, :description, :frequency, :organization,
     :last_update, :licence, :logo, :full_logo, :slug, :tags, :title, :type, :region_id, :aom_id])
     |> cast_assoc(:resources)
     |> validate_required([:slug])
