@@ -15,3 +15,7 @@ msgstr ""
 
 msgid "Try to refresh the page in a few seconds, or contact us."
 msgstr ""
+
+#, elixir-format
+msgid "404: Page not available"
+msgstr ""
