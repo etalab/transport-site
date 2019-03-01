@@ -7,7 +7,7 @@
     <%= search_input f, :q, [{"value", assigns[:q] || ""}, {"placeholder", dgettext("page-index", "Find dataset")}] %>
   <% end %>
 
-  <%= form_for @conn, backoffice_dataset_path(@conn, :validate_all), [method: "post"], fn f -> %>
+  <%= form_for @conn, backoffice_dataset_path(@conn, :validate_all), [method: "post"], fn _f -> %>
     <%= submit dgettext("backoffice", "Import and validate all") %>
   <% end %>
 
