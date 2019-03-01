@@ -51,7 +51,7 @@ defmodule TransportWeb.ResourceController do
   end
   defp get_issues(_, _, _), do: []
 
-  defp count_issues(%{validations: validations} = resource, issue_type) when validations != nil do
+  defp count_issues(%{validations: validations}, issue_type) when validations != nil do
     validations
     |> Map.get(issue_type, [])
     |> Enum.count

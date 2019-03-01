@@ -1,6 +1,6 @@
 defmodule TransportWeb.AtomController do
   use TransportWeb, :controller
-  alias Transport.{Dataset, Repo, Resource}
+  alias Transport.{Repo, Resource}
   import Ecto.Query
 
   def index(conn, _params) do
