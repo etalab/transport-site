@@ -7,7 +7,12 @@
     <%= if Enum.empty? @datasets do %>
       <%= dgettext("page-shortlist", "No dataset found") %>
     <% else %>
-      <%= pagination_links @conn, @datasets, q: assigns[:q] || "" %>
+    <div style="float: right;">
+      <%= dgettext("page-shortlist", "Order by") %>
+      <%= order_link(@conn, "alpha") %>,
+      <%= order_link(@conn, "most_recent") %> 
+    </div>
+      <%= pagination_links @conn, @datasets %>
       <%= for dataset <- @datasets do %>
         <div class="shortlist panel">
           <div class="panel__header">
@@ -61,7 +66,7 @@
           </div>
         </div>
       <% end %>
-      <%= pagination_links @conn, @datasets, q: assigns[:q] || "" %>
+      <%= pagination_links @conn, @datasets %>
     <% end %>
   </div>
 </section>

@@ -87,12 +87,13 @@ defmodule Transport.Dataset do
   end
 
   def list_datasets(filters, s \\ [])
-  def list_datasets(%{"q" => q}, s), do: search_datasets(q, s)
-  def list_datasets(%{"region" => region_id}, s) do
+  def list_datasets(%{"q" => q} = params, s), do: q |> search_datasets(s) |> order_datasets(params)
+  def list_datasets(%{"region" => region_id} = params, s) do
     sub = from a in AOM, where: a.region_id == ^region_id
     s
     |> list_datasets()
     |> join(:inner, [d], aom in subquery(sub), on: aom.id == d.aom_id)
+    |> order_datasets(params)
   end
   def list_datasets(%{} = params, s) do
     filters =
@@ -108,7 +109,12 @@ defmodule Transport.Dataset do
     s
     |> list_datasets()
     |> where([d], ^filters)
+    |> order_datasets(params)
   end
+
+  def order_datasets(datasets, %{"order_by" => "alpha"}), do: order_by(datasets, asc: :title)
+  def order_datasets(datasets, %{"order_by" => "most_recent"}), do: order_by(datasets, desc: :created_at)
+  def order_datasets(datasets, _params), do: datasets
 
   def changeset(dataset, params) do
     dataset

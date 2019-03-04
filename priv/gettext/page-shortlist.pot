@@ -168,3 +168,15 @@ msgstr ""
 
 msgid "No dataset found"
 msgstr ""
+
+#, elixir-format
+msgid "Alphabetical"
+msgstr ""
+
+#, elixir-format
+msgid "Most recent"
+msgstr ""
+
+#, elixir-format
+msgid "Order by"
+msgstr ""
