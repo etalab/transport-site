@@ -9,9 +9,7 @@
       </td>
       <td>
           <i class="icon icon--link" aria-hidden="true"></i>
-          <%= link(dgettext("page-shortlist", "See on data.gouv.fr"),
-                  to: "https://www.data.gouv.fr/datasets/#{@dataset.datagouv_id}/",
-                  role: "link") %>
+          <%= Dataset.link_to_datagouv(@dataset) %>
       </td>
       <td>
         <%= form_for @conn, backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
