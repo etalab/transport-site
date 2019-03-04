@@ -2,6 +2,7 @@ defmodule Transport.Dataset do
   @moduledoc """
   Dataset schema
   """
+  alias Phoenix.HTML.Link
   alias Transport.{AOM, Region, Repo, Resource}
   import Ecto.{Changeset, Query}
   import TransportWeb.Gettext
@@ -160,6 +161,14 @@ defmodule Transport.Dataset do
         Logger.warn(error)
         nil
     end
+  end
+
+  def link_to_datagouv(%__MODULE__{slug: slug}) do
+    Link.link(
+      dgettext("page-shortlist", "See on data.gouv.fr"),
+      to: Path.join([System.get_env("DATAGOUVFR_SITE"), "datasets", slug]),
+      role: "link"
+    )
   end
 
   ## Private functions
