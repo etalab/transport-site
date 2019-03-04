@@ -5,7 +5,7 @@ defmodule TransportWeb.DiscussionController do
   alias Datagouvfr.Client.Discussions
 
   def post_discussion(conn, %{"comment" => comment,
-                              "id_" => id_,
+                              "dataset_id" => id_,
                               "title" => title,
                               "dataset_slug" => dataset_slug}) do
     conn
@@ -13,6 +13,10 @@ defmodule TransportWeb.DiscussionController do
     |> case do
       {:ok, _} -> conn
       |> put_flash(:info, dgettext("page-dataset-details", "New discussion started"))
+    {:error, %{body: %{"message" => message}}} ->
+      Logger.error("When starting a new discussion: #{message}")
+      conn
+      |> put_flash(:error, dgettext("page-dataset-details", "Unable to start a new discussion"))
     {:error, error} ->
       Logger.error("When starting a new discussion: #{error}")
       conn
