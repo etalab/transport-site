@@ -168,3 +168,15 @@ msgstr "Funiculaire"
 
 msgid "No dataset found"
 msgstr "Aucun jeu de données trouvé"
+
+#, elixir-format
+msgid "Alphabetical"
+msgstr "ordre alphabetique"
+
+#, elixir-format
+msgid "Order by"
+msgstr "Tri par"
+
+#, elixir-format
+msgid "Most recent"
+msgstr "plus récent"

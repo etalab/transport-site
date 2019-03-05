@@ -15,25 +15,30 @@ defmodule TransportWeb.PaginationHelpers do
   def make_pagination_config(_), do: %Scrivener.Config{page_number: 1, page_size: 10}
 
   def pagination_links(_, %{total_pages: 1}, _), do: ""
-  def pagination_links(conn, paginator, args) do
-    args
+  def pagination_links(conn, paginator) do
+    conn.params
     |> remove_empty_q()
     |> case do
       [] -> HTML.pagination_links(conn, paginator)
-      _ -> HTML.pagination_links(conn, paginator, args)
+      args -> HTML.pagination_links(conn, paginator, args)
     end
   end
 
   def pagination_links(conn, paginator, args, opts) do
-    args
+    opts
     |> remove_empty_q()
     |> case do
       [] -> HTML.pagination_links(conn, paginator, opts)
-      _ -> HTML.pagination_links(conn, paginator, args, opts)
+      opts -> HTML.pagination_links(conn, paginator, args, opts)
     end
   end
 
+  defp remove_empty_q(args) when is_map(args) do
+    remove_empty_q(for {key, value} <- args, do: {String.to_atom(key), value})
+  end
   defp remove_empty_q(args) do
+    args = Keyword.delete(args, :page)
+
     case Keyword.get(args, :q) do
       "" -> Keyword.delete(args, :q)
       _ -> args
