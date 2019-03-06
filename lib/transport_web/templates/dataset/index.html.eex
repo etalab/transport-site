@@ -32,6 +32,13 @@
                 <%= for region <- @regions do %>
                   <li><%= region_link(@conn, region) %></li>
                 <% end%>
+                <%= if display_all_regions_links?(@conn) do %>
+                  <li><%= link(
+                    dgettext("page-shortlist", "All regions"),
+                    to: dataset_path(@conn, :index)
+                  )
+                  %></li>
+                <% end %>
               </ul>
             </li>
           </ul>

@@ -71,10 +71,13 @@ defmodule TransportWeb.DatasetView do
     region_id = Integer.to_string(region.id)
 
     case conn.params do
-      %{"region" => ^region_id} -> region.nom
+      %{"region" => ^region_id} -> ~E"<span class=\"activefilter\"><%= region.nom %></span>"
       _ -> link(region.nom, to: dataset_path(conn, :by_region, region.id))
     end
   end
+
+  def display_all_regions_links?(%{params: %{"region" => region}}) when not is_nil(region), do: true
+  def display_all_regions_links?(_), do: false
 
   defp add_order_by(kwargs, %{"order_by" => order}), do: Keyword.put(kwargs, :order_by, order)
   defp add_order_by(kwargs, _), do: kwargs

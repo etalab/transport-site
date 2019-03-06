@@ -188,3 +188,7 @@ msgstr ""
 #, elixir-format
 msgid "Regions"
 msgstr ""
+
+#, elixir-format
+msgid "All regions"
+msgstr ""
