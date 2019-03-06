@@ -8,7 +8,6 @@
 }
 
 .shortlist .panel__header .shortlist-image {
-  flex-basis: 200px;
   flex-shrink: 0;
 }
 
@@ -22,7 +21,6 @@
 }
 
 .shortlist .panel__side {
-  padding-top: 1em;
   flex-basis: 200px;
   flex-shrink: 0;
 }
@@ -37,4 +35,47 @@
 
 .shortlist__link {
   line-height: 2em;
+}
+
+.shortlist__notices {
+  display: flex;
+  flex-direction: row;
+}
+
+.shortlist__notice {
+  padding-right: 1.5em;
+  flex-shrink: 0;
+}
+
+.shortlist__pagination {
+  padding-top: 2em;
+  display: flex;
+  justify-content: end;
+}
+
+.activefilter {
+  font-weight: bold;
+  padding: $space-xs;
+}
+
+.main-pane {
+  padding: 1em 0 0 2em;
+}
+
+.side-pane {
+  padding: 1em 0 0em;
+}
+
+.side-pane h4 {
+  font-weight: normal;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.shortlist-title {
+  padding: 1em 0;
+}
+
+.shortlist-form {
+  padding-bottom: 1em;
 }
