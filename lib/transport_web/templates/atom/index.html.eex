@@ -2,8 +2,8 @@
 
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title>Jeux de données GTFS transport.data.gouv.fr</title>
-  <subtitle>A subtitle.</subtitle>
+  <title>transport.data.gouv.fr</title>
+  <subtitle>Jeux de données GTFS</subtitle>
   <link href="<%= atom_url(@conn, :index) %>" rel="self" />
   <id>tag:transport.data.gouv.fr,2019-02-27:/20190227161047181</id>
   <updated><%= updated(@resources) %></updated>
@@ -17,7 +17,7 @@
     <summary>Cette resource fait partie du jeux de données <%= resource.dataset.spatial %></summary>
     <content type="html">
       <![CDATA[
-      <%= Earmark.as_html!(resource.dataset.description) %>
+      <%= raw Earmark.as_html!(resource.dataset.description) %>
       ]]>
     </content>
     <author>
