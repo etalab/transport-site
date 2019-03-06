@@ -67,6 +67,15 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
+  def region_link(conn, region) do
+    region_id = Integer.to_string(region.id)
+
+    case conn.params do
+      %{"region" => ^region_id} -> region.nom
+      _ -> link(region.nom, to: dataset_path(conn, :by_region, region.id))
+    end
+  end
+
   defp add_order_by(kwargs, %{"order_by" => order}), do: Keyword.put(kwargs, :order_by, order)
   defp add_order_by(kwargs, _), do: kwargs
 end

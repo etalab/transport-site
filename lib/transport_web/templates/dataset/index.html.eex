@@ -1,72 +1,91 @@
-<section class="dataset-container section section-grey">
+<div class="documentation section-grey">
   <div class="container">
-    <h1 class="text-center"><%= dgettext("page-shortlist", "Valid datasets available") %></h1>
-      <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
+    <h1 class="text-center shortlist-title"><%= dgettext("page-shortlist", "Valid datasets available") %></h1>
+      <%= form_for @conn, dataset_path(@conn, :index), [method: "get", class: "shortlist-form"], fn f -> %>
         <%= search_input f, :q, [{"value", assigns[:q] || ""}, {"placeholder", dgettext("page-index", "Find dataset")}] %>
       <% end %>
     <%= if Enum.empty? @datasets do %>
       <%= dgettext("page-shortlist", "No dataset found") %>
     <% else %>
-    <div style="float: right;">
-      <%= dgettext("page-shortlist", "Order by") %>
-      <%= order_link(@conn, "alpha") %>,
-      <%= order_link(@conn, "most_recent") %> 
-    </div>
+    <div class="shortlist__pagination">
+      <div style="float: right;">
+      </div>
       <%= pagination_links @conn, @datasets %>
-      <%= for dataset <- @datasets do %>
-        <div class="shortlist panel">
-          <div class="panel__header">
-            <div class="shortlist-image">
-              <%= img_tag(dataset.logo, alt: dataset.title) %>
-            </div>
-            <a href="/datasets/<%= dataset.slug %>/">
-              <h2><%= dataset.title %></h2>
-            </a>
-          </div>
-          <div class="panel__content">
-            <div class="panel__side">
-              <div class="shortlist__notices">
-                <%= if dataset.licence do %>
-                  <div class="shortlist__notice">
-                    <div class="shortlist__label"><%= dgettext("page-shortlist", "Licence") %></div>
-                    <span class="label label-notice"><%= Transport.Dataset.localise_licence(dataset) %></span>
-                  </div>
-                <% end %>
-
-                <%= if not Enum.empty?(dataset.resources) and List.first(dataset.resources).format do %>
-                  <div class="shortlist__notice">
-                    <div class="shortlist__label"><%= dgettext("page-shortlist", "Format") %></div>
-                    <span class="label label-notice"><%= List.first(dataset.resources).format %></span>
-                  </div>
-                <% end %>
-
-              </div>
-              <%= if !is_nil(dataset.spatial) do %>
-                <div class="shortlist__notice">
-                  <div class="shortlist__label"><%= dgettext("page-shortlist", "Territory") %></div>
-                  <span class="label label-notice"><%= dataset.spatial %></span>
+    </div>
+      <div class="documentation shortlist-documentation">
+        <nav class="side-pane" role="navigation">
+          <ul class="side-pane__menu">
+            <li class="side-pane__title">
+              <h3><%= dgettext("page-shortlist", "Order by") %></h3>
+            <li class="side-pane__dropdown unfolded">
+              <ul class="side-pane__submenu">
+                <li><%= order_link(@conn, "alpha") %></li>
+                <li><%= order_link(@conn, "most_recent") %> </li>
+              </ul>
+            </li>
+            <li class="side-pane__title">
+              <h3><%= dgettext("page-shortlist", "Filters") %></h3>
+            </li>
+            <li class="side-pane__dropdown unfolded">
+              <h4><%= dgettext("page-shortlist", "Regions") %></h4>
+              <ul class="side-pane__submenu">
+                <%= for region <- @regions do %>
+                  <li><%= region_link(@conn, region) %></li>
+                <% end%>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+        <div class="main-pane transparent">
+          <%= for dataset <- @datasets do %>
+            <div class="shortlist panel">
+              <div class="panel__header">
+                <div class="shortlist-image">
+                  <%= img_tag(dataset.logo, alt: dataset.title) %>
                 </div>
-              <% end %>
-              <div class="shortlist__links">
-                <%= if dataset.slug do %>
-                  <div class="shortlist__link shortlist__link--external-link">
-                    <i class="icon icon--link" aria-hidden="true"></i>
-                    <%= Dataset.link_to_datagouv(dataset) %>
+                <a href="/datasets/<%= dataset.slug %>/">
+                  <h3><%= dataset.title %></h3>
+                </a>
+              </div>
+              <div class="panel__content">
+                <div class="panel__side">
+                  <div class="shortlist__notices">
+                    <%= if dataset.licence do %>
+                      <div class="shortlist__notice">
+                        <div class="shortlist__label"><%= dgettext("page-shortlist", "Licence") %></div>
+                        <span class="label label-notice"><%= Transport.Dataset.localise_licence(dataset) %></span>
+                      </div>
+                    <% end %>
+
+                    <%= if not Enum.empty?(dataset.resources) and List.first(dataset.resources).format do %>
+                      <div class="shortlist__notice">
+                        <div class="shortlist__label"><%= dgettext("page-shortlist", "Format") %></div>
+                        <span class="label label-notice"><%= List.first(dataset.resources).format %></span>
+                      </div>
+                    <% end %>
+
+                  <%= if !is_nil(dataset.spatial) do %>
+                    <div class="shortlist__notice">
+                      <div class="shortlist__label"><%= dgettext("page-shortlist", "Territory") %></div>
+                      <span class="label label-notice"><%= dataset.spatial %></span>
+                    </div>
+                  <% end %>
                   </div>
-                <% end %>
+                  <div class="shortlist__links">
+                    <%= if dataset.slug do %>
+                      <div class="shortlist__link shortlist__link--external-link">
+                        <i class="icon icon--link" aria-hidden="true"></i>
+                        <%= Dataset.link_to_datagouv(dataset) %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
               </div>
             </div>
-            <%= if dataset.description do %>
-            <div class="shortlist-content">
-              <div class="shortlist-description">
-                <%= raw Earmark.as_html!(dataset.description) %>
-              </div>
-            </div>
-            <% end %>
-          </div>
+          <% end %>
         </div>
-      <% end %>
+      </div>
       <%= pagination_links @conn, @datasets %>
     <% end %>
   </div>
-</section>
+</div>

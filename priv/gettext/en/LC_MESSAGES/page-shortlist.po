@@ -174,9 +174,17 @@ msgid "Alphabetical"
 msgstr ""
 
 #, elixir-format
+msgid "Most recent"
+msgstr ""
+
+#, elixir-format
 msgid "Order by"
 msgstr ""
 
 #, elixir-format
-msgid "Most recent"
+msgid "Filters"
+msgstr ""
+
+#, elixir-format
+msgid "Regions"
 msgstr ""
