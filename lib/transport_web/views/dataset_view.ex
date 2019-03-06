@@ -61,8 +61,8 @@ defmodule TransportWeb.DatasetView do
       "most_recent" => dgettext("page-shortlist", "Most recent")
     }[order_by]
 
-    case conn.params do
-      %{"order_by" => ^order_by} -> msg
+    case conn.assigns do
+      %{order_by: ^order_by} -> ~E"<span class=\"activefilter\"><%= msg %></span>"
       _ -> link(msg, to: current_url(conn, Map.put(conn.params, "order_by", order_by)))
     end
   end
