@@ -24,6 +24,15 @@ defmodule TransportWeb.PaginationHelpers do
     end
   end
 
+  def pagination_links(conn, paginator, opts) do
+    opts
+    |> remove_empty_q
+    |> case do
+      [] -> HTML.pagination_links(conn, paginator, opts)
+      opts -> HTML.pagination_links(conn, paginator, opts)
+    end
+  end
+
   def pagination_links(conn, paginator, args, opts) do
     opts
     |> remove_empty_q()
