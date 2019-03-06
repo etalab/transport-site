@@ -192,3 +192,35 @@ msgstr ""
 #, elixir-format
 msgid "All regions"
 msgstr ""
+
+#, elixir-format
+msgid "Carsharing areas"
+msgstr ""
+
+#, elixir-format
+msgid "Charging stations"
+msgstr ""
+
+#, elixir-format
+msgid "Micro mobility"
+msgstr ""
+
+#, elixir-format
+msgid "Stops referential"
+msgstr ""
+
+#, elixir-format
+msgid "Data types"
+msgstr ""
+
+#, elixir-format
+msgid "Public transit"
+msgstr ""
+
+#, elixir-format
+msgid "All types"
+msgstr ""
+
+#, elixir-format
+msgid "Vélo partage"
+msgstr ""

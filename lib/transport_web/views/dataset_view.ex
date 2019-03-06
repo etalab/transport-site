@@ -76,8 +76,18 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
+  def type_link(conn, %{type: type, msg: msg}) do
+    case conn.params do
+      %{"type" => ^type} -> ~E"<span class=\"activefilter\"><%= msg %></span>"
+      _ -> link(msg, to: dataset_path(conn, :by_type, type))
+    end
+  end
+
   def display_all_regions_links?(%{params: %{"region" => region}}) when not is_nil(region), do: true
   def display_all_regions_links?(_), do: false
+
+  def display_all_types_links?(%{params: %{"type" => type}}) when not is_nil(type), do: true
+  def display_all_types_links?(_), do: false
 
   defp add_order_by(kwargs, %{"order_by" => order}), do: Keyword.put(kwargs, :order_by, order)
   defp add_order_by(kwargs, _), do: kwargs

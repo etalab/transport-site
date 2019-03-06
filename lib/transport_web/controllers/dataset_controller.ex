@@ -14,6 +14,7 @@ defmodule TransportWeb.DatasetController do
     conn
     |> assign(:datasets, get_datasets(params))
     |> assign(:regions, get_regions(params))
+    |> assign(:types, get_types(params))
     |> assign(:order_by, params["order_by"])
     |> render_or_redirect(params)
   end
@@ -62,11 +63,10 @@ defmodule TransportWeb.DatasetController do
     |> Repo.paginate(page: config.page_number)
   end
 
+  defp clean_datasets_query(params), do: params |> Dataset.list_datasets([]) |> exclude(:preload)
   defp get_regions(params) do
     sub = params
-    |> Dataset.list_datasets([])
-    |> exclude(:preload)
-    |> exclude(:select)
+    |> clean_datasets_query()
     |> select([d], %{region_id: d.region_id, aom_id: d.aom_id})
 
     aoms_sub = AOM
@@ -79,6 +79,17 @@ defmodule TransportWeb.DatasetController do
     |> select([r], %Region{nom: r.nom, id: r.id})
     |> distinct(true)
     |> Repo.all()
+  end
+
+  defp get_types(params) do
+    params
+    |> clean_datasets_query()
+    |> exclude(:order_by)
+    |> select([d], d.type)
+    |> distinct(true)
+    |> Repo.all()
+    |> Enum.reject(&is_nil/1)
+    |> Enum.map(fn type -> %{type: type, msg: Dataset.type_to_str(type)} end)
   end
 
   defp redirect_to_slug_or_404(conn, %Dataset{} = dataset) do
