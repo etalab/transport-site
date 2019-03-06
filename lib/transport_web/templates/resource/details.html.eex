@@ -1,12 +1,12 @@
 <section>
-    <div class="documentation dataset-details">
+        <div class="documentation dataset-details">
                 <nav class="side-pane" role="navigation">
                     <ul class="side-pane__menu">
                         <li class="side-pane__title">
                             <h2><%= Gettext.dgettext(TransportWeb.Gettext, "resource", "Resources") %></h2>
                         </li>
                         <li class="side-pane__dropdown unfolded active">
-                            <a class="side-pane__link"><%= @resource.title %></a>
+                            <a><%= @resource.title %></a>
                             <%= unless @resource.validations do %>
                                 <%= Gettext.dgettext(TransportWeb.Gettext, "resource", "No validation available") %>
                             <% else %>
@@ -45,8 +45,7 @@
                          <%= for resource <- @other_resources do %>
                         <li class="side-pane__dropdown unfolded">
                             <%= link(resource.title,
-                            to: resource_path(@conn, :details, resource.id),
-                            class: "side-pane__link"
+                            to: resource_path(@conn, :details, resource.id)
                             )%>
                         <% end %>
                     </ul>
@@ -76,6 +75,6 @@
                         <% end %>
                     </table>
                     <% end %>
-        </div>
+            </div>
     </div>
 </section>

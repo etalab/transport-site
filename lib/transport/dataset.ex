@@ -89,10 +89,15 @@ defmodule Transport.Dataset do
   def list_datasets(filters, s \\ [])
   def list_datasets(%{"q" => q} = params, s), do: q |> search_datasets(s) |> order_datasets(params)
   def list_datasets(%{"region" => region_id} = params, s) do
-    sub = from a in AOM, where: a.region_id == ^region_id
+    sub = AOM
+    |> where([a], a.region_id == ^region_id)
+    |> select([a], a.id)
+    |> Repo.all()
+
     s
     |> list_datasets()
-    |> join(:inner, [d], aom in subquery(sub), on: aom.id == d.aom_id)
+    |> where([d], d.aom_id in ^sub)
+    |> or_where([r], r.region_id == ^region_id)
     |> order_datasets(params)
   end
   def list_datasets(%{} = params, s) do

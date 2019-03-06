@@ -2,15 +2,19 @@ defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.{Authentication, Client}
   alias Datagouvfr.Client.Datasets
-  alias Transport.{Dataset, Repo}
+  alias Transport.{AOM, Dataset, Region, Repo}
   import Ecto.Query
   require Logger
 
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params)
 
   def list_datasets(%Plug.Conn{} = conn, %{} = params) do
+    params = Map.put_new(params, "order_by", "most_recent")
+
     conn
     |> assign(:datasets, get_datasets(params))
+    |> assign(:regions, get_regions(params))
+    |> assign(:order_by, params["order_by"])
     |> render_or_redirect(params)
   end
 
@@ -56,6 +60,25 @@ defmodule TransportWeb.DatasetController do
     params
     |> Dataset.list_datasets(select)
     |> Repo.paginate(page: config.page_number)
+  end
+
+  defp get_regions(params) do
+    sub = params
+    |> Dataset.list_datasets([])
+    |> exclude(:preload)
+    |> exclude(:select)
+    |> select([d], %{region_id: d.region_id, aom_id: d.aom_id})
+
+    aoms_sub = AOM
+    |> join(:inner, [a], d in subquery(sub), on: d.aom_id == a.id)
+    |> select([a], %{region_id: a.region_id})
+
+    Region
+    |> join(:inner, [r], d in subquery(sub), on: d.region_id == r.id)
+    |> join(:inner, [r], d in subquery(aoms_sub), on: d.region_id == r.id)
+    |> select([r], %Region{nom: r.nom, id: r.id})
+    |> distinct(true)
+    |> Repo.all()
   end
 
   defp redirect_to_slug_or_404(conn, %Dataset{} = dataset) do

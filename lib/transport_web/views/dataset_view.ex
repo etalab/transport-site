@@ -61,11 +61,23 @@ defmodule TransportWeb.DatasetView do
       "most_recent" => dgettext("page-shortlist", "Most recent")
     }[order_by]
 
-    case conn.params do
-      %{"order_by" => ^order_by} -> msg
+    case conn.assigns do
+      %{order_by: ^order_by} -> ~E"<span class=\"activefilter\"><%= msg %></span>"
       _ -> link(msg, to: current_url(conn, Map.put(conn.params, "order_by", order_by)))
     end
   end
+
+  def region_link(conn, region) do
+    region_id = Integer.to_string(region.id)
+
+    case conn.params do
+      %{"region" => ^region_id} -> ~E"<span class=\"activefilter\"><%= region.nom %></span>"
+      _ -> link(region.nom, to: dataset_path(conn, :by_region, region.id))
+    end
+  end
+
+  def display_all_regions_links?(%{params: %{"region" => region}}) when not is_nil(region), do: true
+  def display_all_regions_links?(_), do: false
 
   defp add_order_by(kwargs, %{"order_by" => order}), do: Keyword.put(kwargs, :order_by, order)
   defp add_order_by(kwargs, _), do: kwargs
