@@ -13,7 +13,7 @@
       <%= pagination_links @conn, @datasets %>
     </div>
       <div class="documentation shortlist-documentation">
-        <nav class="side-pane" role="navigation">
+        <nav class="side-pane shortlist " role="navigation">
           <ul class="side-pane__menu">
             <li class="side-pane__title">
               <h3><%= dgettext("page-shortlist", "Order by") %></h3>
