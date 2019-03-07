@@ -1,7 +1,7 @@
 defmodule TransportWeb.Backoffice.PageController do
   use TransportWeb, :controller
 
-  alias Transport.{Dataset, Region, Repo}
+  alias Transport.{Dataset, Region, Repo, Resource}
   import Ecto.Query
   require Logger
 
@@ -9,21 +9,23 @@ defmodule TransportWeb.Backoffice.PageController do
 
   def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do
     conn = assign(conn, :q, q)
-    config = make_pagination_config(params)
+
     q
     |> Dataset.search_datasets
-    |> preload([:region, :aom, :resources])
-    |> Repo.paginate(page: config.page_number)
-    |> render_index(conn)
+    |> render_index(conn, params)
   end
 
-  def index(%Plug.Conn{} = conn, params) do
-    config = make_pagination_config(params)
+  def index(%Plug.Conn{} = conn, %{"filter" => "outdated"} = params) do
+    dt = DateTime.utc_now() |> DateTime.to_string()
+    sub = Resource
+    |> where([_q], fragment("metadata->>'end_date' <= ?", ^dt))
+
     Dataset
-    |> preload([:region, :aom, :resources])
-    |> Repo.paginate(page: config.page_number)
-    |> render_index(conn)
+    |> join(:inner, [d], r in subquery(sub), on: d.id == r.dataset_id)
+    |> render_index(conn, params)
   end
+
+  def index(%Plug.Conn{} = conn, params), do: render_index(Dataset, conn, params)
 
   ## Private functions
   defp region_names do
@@ -33,7 +35,13 @@ defmodule TransportWeb.Backoffice.PageController do
     |> Enum.concat([{"Pas de region", nil}])
   end
 
-  defp render_index(datasets, conn) do
+  defp render_index(datasets, conn, params) do
+    config = make_pagination_config(params)
+
+    datasets = datasets
+    |> preload([:region, :aom, :resources])
+    |> Repo.paginate(page: config.page_number)
+
     conn
     |> assign(:regions, region_names())
     |> assign(:datasets, datasets)
