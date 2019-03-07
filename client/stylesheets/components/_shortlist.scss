@@ -1,7 +1,6 @@
 .shortlist .panel__header {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
 }
 
 .shortlist .panel__header::after {
@@ -22,10 +21,9 @@
   flex-direction: row;
 }
 
-.shortlist .panel__side {
+nav.side-pane.shortlist {
   padding-top: 1em;
-  flex-basis: 200px;
-  flex-shrink: 0;
+  flex: 0 0 10vw;
 }
 
 .shortlist-content {
@@ -91,5 +89,8 @@
   }
   h3 {
     font-size: 1em;
+  }
+  .shortlist .panel__header {
+    flex-wrap: wrap
   }
 }
