@@ -1,6 +1,7 @@
 .shortlist .panel__header {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .shortlist .panel__header::after {
@@ -8,6 +9,7 @@
 }
 
 .shortlist .panel__header .shortlist-image {
+  flex-basis: 200px;
   flex-shrink: 0;
 }
 
@@ -21,6 +23,7 @@
 }
 
 .shortlist .panel__side {
+  padding-top: 1em;
   flex-basis: 200px;
   flex-shrink: 0;
 }
@@ -44,7 +47,9 @@
 
 .shortlist__notice {
   padding-right: 1.5em;
+  flex-flow: column wrap;
   flex-shrink: 0;
+  max-width: 100%;
 }
 
 .shortlist__pagination {
@@ -78,4 +83,13 @@
 
 .shortlist-form {
   padding-bottom: 1em;
+}
+
+@include mobile {
+  .shortlist .panel__header .shortlist-image + a {
+    margin-left: 0em;
+  }
+  h3 {
+    font-size: 1em;
+  }
 }
