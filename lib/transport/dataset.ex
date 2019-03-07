@@ -31,18 +31,18 @@ defmodule Transport.Dataset do
     has_many :resources, Resource, on_replace: :delete, on_delete: :delete_all
   end
 
-  @type_to_str %{
-    "public-transit" => dgettext("page-shortlist", "Public transit"),
-    "carsharing-areas" => dgettext("page-shortlist", "Carsharing areas"),
-    "stops-ref" => dgettext("page-shortlist", "Stops referential"),
-    "charging-stations" => dgettext("page-shortlist", "Charging stations"),
-    "micro-mobility" => dgettext("page-shortlist", "Micro mobility"),
-    "bike-sharing" => dgettext("page-shortlist", "Vélo partage")
+  def type_to_str, do: %{
+    "public-transit" => dgettext("dataset", "Public transit"),
+    "carsharing-areas" => dgettext("dataset", "Carsharing areas"),
+    "stops-ref" => dgettext("dataset", "Stops referential"),
+    "charging-stations" => dgettext("dataset", "Charging stations"),
+    "micro-mobility" => dgettext("dataset", "Micro mobility"),
+    "bike-sharing" => dgettext("dataset", "Bike sharing")
   }
 
-  def type_to_str(type), do: @type_to_str[type]
+  def type_to_str(type), do: type_to_str()[type]
 
-  def dataset_types, do: Map.keys(@type_to_str)
+  def dataset_types, do: Map.keys(type_to_str())
 
   defp no_validations_query do
     from r in Resource,

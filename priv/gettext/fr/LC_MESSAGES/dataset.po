@@ -64,3 +64,27 @@ msgstr "Votre version a été ajoutée"
 #, elixir-format
 msgid "You need to fill either aom or region"
 msgstr "Vous devez remplir soit une région soit une AOM"
+
+#, elixir-format
+msgid "Bike sharing"
+msgstr "Vélo partage"
+
+#, elixir-format
+msgid "Carsharing areas"
+msgstr "Aires de covoiturage"
+
+#, elixir-format
+msgid "Charging stations"
+msgstr "Stations de recharge"
+
+#, elixir-format
+msgid "Micro mobility"
+msgstr "Micro mobilité"
+
+#, elixir-format
+msgid "Public transit"
+msgstr "Transport public"
+
+#, elixir-format
+msgid "Stops referential"
+msgstr "Référentiel d'arrêts"
