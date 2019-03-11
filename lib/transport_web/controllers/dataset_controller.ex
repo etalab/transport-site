@@ -90,6 +90,7 @@ defmodule TransportWeb.DatasetController do
     |> Repo.all()
     |> Enum.reject(&is_nil/1)
     |> Enum.map(fn type -> %{type: type, msg: Dataset.type_to_str(type)} end)
+    |> Enum.reject(fn t -> is_nil(t.msg) end)
   end
 
   defp redirect_to_slug_or_404(conn, %Dataset{} = dataset) do

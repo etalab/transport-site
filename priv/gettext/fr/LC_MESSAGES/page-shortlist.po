@@ -194,33 +194,9 @@ msgid "All regions"
 msgstr "Toutes les régions"
 
 #, elixir-format
-msgid "Carsharing areas"
-msgstr "Arrêts de covoiturage"
-
-#, elixir-format
-msgid "Charging stations"
-msgstr "Stations de recharge"
-
-#, elixir-format
-msgid "Micro mobility"
-msgstr "Micro-mobilité"
-
-#, elixir-format
-msgid "Stops referential"
-msgstr "Réferentiel d'arrêts"
-
-#, elixir-format
 msgid "Data types"
 msgstr "Types de données"
 
 #, elixir-format
-msgid "Public transit"
-msgstr "Transport public"
-
-#, elixir-format
 msgid "All types"
 msgstr "Tous les types"
-
-#, elixir-format
-msgid "Vélo partage"
-msgstr ""
