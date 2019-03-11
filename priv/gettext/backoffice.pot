@@ -111,3 +111,11 @@ msgstr ""
 #, elixir-format
 msgid "Import and validate all"
 msgstr ""
+
+#, elixir-format
+msgid "Show outdated datasets only"
+msgstr ""
+
+#, elixir-format
+msgid "Show all datasets"
+msgstr ""

@@ -110,3 +110,11 @@ msgstr "Impossible de trouver le jeu de données"
 #, elixir-format
 msgid "Import and validate all"
 msgstr "Importer et valider tous les jeux de donées"
+
+#, elixir-format
+msgid "Show outdated datasets only"
+msgstr "Montrer seulement les jeux de données périmés"
+
+#, elixir-format
+msgid "Show all datasets"
+msgstr "Montrer tous les jeux de données"

@@ -11,7 +11,7 @@
     <%= submit dgettext("backoffice", "Import and validate all") %>
   <% end %>
 
-  <%= pagination_links @conn, @datasets, path: &backoffice_page_path/3, q: assigns[:q] || "" %>
+  <%= pagination_links @conn, @datasets %>
 
   <table>
   <tr>
@@ -25,5 +25,11 @@
   </tr>
   <%= render_many(@datasets, TransportWeb.Backoffice.PageView, "_dataset.html", as: :dataset, conn: @conn)%>
   </table>
-  <%= pagination_links @conn, @datasets, path: &backoffice_page_path/3, q: assigns[:q] || "" %>
+  <%= pagination_links @conn, @datasets %>
+  <br>
+  <%= unless @conn.params["filter"] == "outdated" do %>
+    <%= link(dgettext("backoffice", "Show outdated datasets only"), to: backoffice_page_path(@conn, :index, %{"filter" => "outdated"}))%>
+  <% else %>
+    <%= link(dgettext("backoffice", "Show all datasets"), to: backoffice_page_path(@conn, :index))%>
+  <% end %>
 </section>
