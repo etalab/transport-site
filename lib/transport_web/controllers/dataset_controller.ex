@@ -19,12 +19,8 @@ defmodule TransportWeb.DatasetController do
     |> render_or_redirect(params)
   end
 
-  defp render_or_redirect(%Plug.Conn{assigns: %{datasets: %{total_entries: 1}}} = conn, _params) do
-    entries = conn.assigns[:datasets].entries
-
-    conn
-    |> redirect(to: dataset_path(conn, :details, List.first(entries).slug))
-  end
+  defp render_or_redirect(%Plug.Conn{assigns: %{datasets: %{entries: [dataset]}}} = conn, _params),
+   do: redirect(conn, to: dataset_path(conn, :details, dataset.slug))
   defp render_or_redirect(conn, params) do
     conn
     |> assign(:q, Map.get(params, "q"))

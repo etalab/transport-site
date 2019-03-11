@@ -100,6 +100,7 @@ defmodule Transport.Dataset do
   end
 
   def list_datasets(filters, s \\ [])
+  def list_datasets(%{"q" => ""} = params, s), do: s |> list_datasets() |> order_datasets(params)
   def list_datasets(%{"q" => q} = params, s), do: q |> search_datasets(s) |> order_datasets(params)
   def list_datasets(%{"region" => region_id} = params, s) do
     sub = AOM
