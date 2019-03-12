@@ -51,7 +51,9 @@ defmodule Transport.Dataset do
         title: r.title,
         url: r.url,
         metadata: r.metadata,
-        id: r.id
+        id: r.id,
+        last_update: r.last_update,
+        latest_url: r.latest_url
       }
   end
 

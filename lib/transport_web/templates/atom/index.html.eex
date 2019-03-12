@@ -6,7 +6,7 @@
   <subtitle>Jeux de données GTFS</subtitle>
   <link href="<%= atom_url(@conn, :index) %>" rel="self" />
   <id>tag:transport.data.gouv.fr,2019-02-27:/20190227161047181</id>
-  <updated><%= updated(@resources) %></updated>
+  <updated><%= last_updated(@resources) %></updated>
 
   <%= for resource <- @resources do %>
   <entry>
