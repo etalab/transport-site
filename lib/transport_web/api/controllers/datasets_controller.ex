@@ -1,6 +1,25 @@
 defmodule TransportWeb.API.DatasetController do
   use TransportWeb, :controller
+  alias OpenApiSpex.Operation
   alias Transport.{Dataset, Helpers, Repo}
+  alias TransportWeb.API.Schemas.DatasetsResponse
+
+  @spec open_api_operation(any) :: Operation.t
+  def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
+
+  @spec datasets_operation() :: Operation.t
+  def datasets_operation do
+    %Operation{
+      tags: ["datasets"],
+      summary: "Show datasets and its resources",
+      description: "For every dataset, show its associated resources, url and validity date",
+      operationId: "API.DatasetController.datasets",
+      parameters: [],
+      responses: %{
+        200 => Operation.response("Dataset", "application/json", DatasetsResponse)
+      }
+    }
+  end
 
   def datasets(%Plug.Conn{} = conn, _params) do
     data =
