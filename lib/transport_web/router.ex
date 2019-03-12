@@ -40,6 +40,8 @@ defmodule TransportWeb.Router do
     plug :transport_data_gouv_member
   end
 
+  get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+
   scope "/", TransportWeb do
     pipe_through :browser
 
