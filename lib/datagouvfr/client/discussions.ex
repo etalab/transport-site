@@ -23,9 +23,14 @@ defmodule Datagouvfr.Client.Discussions do
   """
   @spec post(%Plug.Conn{}, String.t, String.t, String.t, map) :: {atom, [map]}
   def post(%Plug.Conn{} = conn, id_, title, comment, extras \\ nil) do
-    conn
-    |> post_request(@endpoint,
-                    %{comment: comment, title: title, extras: extras,
-                      subject: %{class: "Dataset", id: id_}})
+    payload = %{
+      comment: comment,
+      title: title,
+      subject: %{class: "Dataset", id: id_},
+    }
+
+    payload = if is_nil(extras) do payload else Map.put(payload, :extras, extras) end
+
+    post_request(conn, @endpoint, payload)
   end
 end
