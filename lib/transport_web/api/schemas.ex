@@ -232,4 +232,35 @@ defmodule TransportWeb.API.Schemas do
     }
   end
 
+  defmodule DatasetsResponse do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema %{
+      title: "Dataset",
+      description: "A dataset is a composed of at least one GTFS resource",
+      type: :object,
+      properties: %{
+        updated: %Schema{type: :string, description: "The last update of any resource of that dataset"},
+        name: %Schema{type: :string},
+        created_at: %Schema{type: :string, description: "Date of creation of the dataset"},
+        aom: %Schema{type: :string, description: "Transit authority responsible of this authority"},
+        resources: %Schema{
+          type: :array,
+          description: "All the files associated with the dataset",
+          items: %Schema{
+            type: :object,
+            description: "A single GTFS file",
+            properties: %{
+              url: %Schema{type: :string, description: "Stable URL of the GTFS file"},
+              title: %Schema{type: :string, description: "Title of the resource"},
+              updated: %Schema{type: :string, description: "Last update date-time"},
+              end_calendar_validity: %Schema{type: :string, description: "The last day in the GTFS calendar. null if the file couldn’t be read"}
+            }
+          }
+        }
+      }
+    }
+  end
+
 end

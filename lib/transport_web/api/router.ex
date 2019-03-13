@@ -25,6 +25,8 @@ defmodule TransportWeb.API.Router do
     end
 
     get "/openapi", OpenApiSpex.Plug.RenderSpec, :show
+
+    get "/datasets", TransportWeb.API.DatasetController, :datasets
   end
 
   def swagger_info do
