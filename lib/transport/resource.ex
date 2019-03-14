@@ -66,7 +66,7 @@ defmodule Transport.Resource do
 
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
   def validate(%__MODULE__{url: url}) do
-    case @client.get("#{@endpoint}?url=#{url}", [], recv_timeout: @timeout) do
+    case @client.get("#{@endpoint}?url=#{URI.encode_www_form(url)}", [], recv_timeout: @timeout) do
       {:ok, %@res{status_code: 200, body: body}} -> Poison.decode(body)
       {:ok, %@res{body: body}} -> {:error, body}
       {:error, %@err{reason: error}} -> {:error, error}
