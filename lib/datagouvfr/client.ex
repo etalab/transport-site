@@ -4,6 +4,7 @@ defmodule Datagouvfr.Client do
   """
 
   alias Datagouvfr.Authentication
+  alias Datagouvfr.Client.Reuses
   alias OAuth2.Client, as: OAuth2Client
   alias OAuth2.{Error, Request, Response}
   require Logger
@@ -86,6 +87,13 @@ defmodule Datagouvfr.Client do
       {:error, error} ->
         Logger.error("When getting community_ressources for id #{id}: #{error.reason}")
         []
+    end
+  end
+
+  def get_reuses(conn, params) do
+    case Reuses.get(conn, params) do
+      {:ok, data} -> data
+      _ -> nil
     end
   end
 
