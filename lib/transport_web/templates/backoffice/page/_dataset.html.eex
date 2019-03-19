@@ -3,9 +3,7 @@
             to: dataset_path(@conn, :details, @dataset.slug),
             role: "link") %></td>
       <td>
-        <%= if first_gtfs(@dataset) && first_gtfs(@dataset).metadata do %>
-          <%= first_gtfs(@dataset).metadata["end_date"] %>
-        <% end %>
+        <%= end_date(@dataset) %>
       </td>
       <td>
           <i class="icon icon--link" aria-hidden="true"></i>
