@@ -42,6 +42,7 @@ defmodule TransportWeb.DatasetController do
         |> assign(:community_ressources, Client.get_community_ressources(conn, dataset.datagouv_id))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
+        |> assign(:reuses, Client.get_reuses(conn, %{"dataset_id" => dataset.datagouv_id}))
         |> render("details.html")
     end
   end

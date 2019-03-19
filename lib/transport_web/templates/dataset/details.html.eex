@@ -55,6 +55,36 @@
         <h2>Description</h2>
         <%= raw Earmark.as_html!(@dataset.description) %>
 
+        <%= if @reuses do %>
+        <h2><%= dgettext("page-dataset-details", "Reuses") %></h2>
+        <section class="cards">
+          <div class="container">
+            <div class="row">
+            <%= for reuse <- @reuses do %>
+              <div class="card">
+                <div class="card__cover">
+                  <img src="<%= reuse["image"] %>">
+                </div>
+                <div class="card__content">
+                  <a href="<%= reuse["url"] %>"><h3><%= reuse["title"] %></h3></a>
+                  <div class="card__meta">
+                    <span><%= dgettext("page-dataset-details", "By") %> <%= reuse["owner"]["name"]%></span>
+                    <p><%= reuse["description"] %></p>
+                  </div>
+                </div>
+                <div class="card__extra">
+                  <a href="<%= reuse["uri"] %>">
+                  <i class="icon icon--link" aria-hidden="true"></i>
+                  <%= dgettext("page-dataset-details", "See on data.gouv.fr") %>
+                  </a>
+                </div>
+              </div>
+            <% end %>
+            </div>
+          </div>
+        </section>
+        <% end %>
+
         <div class="dataset-details__discussions">
           <h2>Discussions</h2>
           <%= unless @discussions == nil do %>

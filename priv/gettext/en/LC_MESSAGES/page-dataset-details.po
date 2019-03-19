@@ -142,3 +142,15 @@ msgstr ""
 #, elixir-format
 msgid "Community resources"
 msgstr ""
+
+#, elixir-format
+msgid "Reuses"
+msgstr ""
+
+#, elixir-format
+msgid "By"
+msgstr ""
+
+#, elixir-format
+msgid "See on data.gouv.fr"
+msgstr ""
