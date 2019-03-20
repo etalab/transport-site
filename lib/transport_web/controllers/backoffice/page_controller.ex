@@ -16,9 +16,12 @@ defmodule TransportWeb.Backoffice.PageController do
   end
 
   def index(%Plug.Conn{} = conn, %{"filter" => "outdated"} = params) do
-    dt = DateTime.utc_now() |> DateTime.to_string()
+    dt = Date.utc_today() |> Date.to_iso8601()
+
     sub = Resource
-    |> where([_q], fragment("metadata->>'end_date' <= ?", ^dt))
+    |> group_by([r], r.dataset_id)
+    |> having([_q], fragment("max(metadata->>'end_date') <= ?", ^dt))
+    |> select([r], %Resource{dataset_id: r.dataset_id})
 
     Dataset
     |> join(:inner, [d], r in subquery(sub), on: d.id == r.dataset_id)

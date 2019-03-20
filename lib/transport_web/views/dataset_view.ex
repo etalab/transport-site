@@ -31,6 +31,19 @@ defmodule TransportWeb.DatasetView do
     |> List.first()
   end
 
+  def end_date(dataset) do
+    dataset
+    |> Dataset.valid_gtfs()
+    |> Enum.max_by(&get_end_date/1, fn -> nil end)
+    |> case do
+      nil -> ""
+      resource -> resource.metadata["end_date"]
+    end
+  end
+
+  defp get_end_date(%{metadata: %{"end_date" => end_date}}), do: end_date
+  defp get_end_date(_), do: ""
+
   def pagination_links(%{path_info: ["datasets", "region", region]} = conn, datasets) do
     kwargs = [path: &Helpers.dataset_path/4, action: :by_region] |> add_order_by(conn.params)
 
