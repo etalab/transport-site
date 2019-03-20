@@ -88,6 +88,16 @@ defmodule Transport.ImportData do
   end
 
   def get_valid_resources(%{"resources" => resources}, "public-transit") do
+    resources
+    |> get_valid_gtfs_resources()
+    |> Enum.concat(get_valid_netex_resources(resources))
+  end
+
+  def get_valid_resources(%{"resources" => resources}, _) do
+    resources
+  end
+
+  def get_valid_gtfs_resources(resources) when is_list(resources) do
     cond do
       !Enum.empty?(l = Enum.filter(resources, &is_gtfs?/1)) -> l
       !Enum.empty?(l = Enum.filter(resources, &is_zip?/1)) -> l
@@ -96,8 +106,8 @@ defmodule Transport.ImportData do
     end
   end
 
-  def get_valid_resources(%{"resources" => resources}, _) do
-    resources
+  def get_valid_netex_resources(resources) when is_list(resources) do
+    Enum.filter(resources, &is_netex?/1)
   end
 
   @doc """
@@ -145,6 +155,8 @@ defmodule Transport.ImportData do
   def is_zip?(%{"mime" => mime, "format" => nil}), do: is_zip?(mime)
   def is_zip?(%{"mime" => mime, "format" => format}), do: is_zip?(mime) || is_zip?(format)
   def is_zip?(str), do: is_format?(str, "zip")
+
+  def is_netex?(r), do: is_format?(r, "netex")
 
   def get_csv_resources(resources) do
     csv_resources = filter_csv(resources)
