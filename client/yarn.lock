@@ -5445,10 +5445,10 @@ tar@^4:
     safe-buffer "^5.1.2"
     yallist "^3.0.2"
 
-template.data.gouv.fr@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/template.data.gouv.fr/-/template.data.gouv.fr-1.2.0.tgz#292b4367746e86a42d5cd4da907ede25a25a8e1e"
-  integrity sha512-tq8Zgzf2tyEIB2T2Hh0G/VMN5EUmrobF+DHYe4Q+zsYcahO+39AzVmEBx0MVZZBxEk4mAjbtcd9iCTeeiKVrLQ==
+template.data.gouv.fr@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/template.data.gouv.fr/-/template.data.gouv.fr-1.2.1.tgz#e5a7acfb9de287d571258733ccffb7292ff1decd"
+  integrity sha512-GD+KgjKmEXf3md749u5AB78raZ3OWPuizQ09Bj0aLF+j1YhlU+5aIKECQ/OyrxxuTesuVwoLxhWAPdF481atTg==
 
 terser-webpack-plugin@^1.1.0:
   version "1.2.3"
