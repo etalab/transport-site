@@ -2,7 +2,7 @@
   <div class="container">
     <div class="documentation">
       <nav class="side-pane" role="navigation">
-        <%= img_tag(@dataset.logo, alt: @dataset.title) %>
+        <%= img_tag(@dataset.full_logo, alt: @dataset.title) %>
         <div>
           <%= if @dataset.slug do %>
             <div class="shortlist__link shortlist__link--external-link">
