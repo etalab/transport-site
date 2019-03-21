@@ -5,6 +5,7 @@ defmodule Transport.ImportData do
 
   alias Transport.{Dataset, Helpers, Repo, Resource}
   require Logger
+  import Ecto.Query
 
   @separators [?;, ?,]
   @csv_headers ["Download", "file", "Fichier"]
@@ -83,6 +84,7 @@ defmodule Transport.ImportData do
             "last_import" => DateTime.utc_now |> DateTime.to_string,
             "last_update" => resource["last_modified"],
             "latest_url" => resource["latest"],
+            "id" => get_resource_id(resource)
           }
       end)
   end
@@ -420,4 +422,8 @@ defmodule Transport.ImportData do
   """
   def get_title(%{"title" => title}) when not is_nil(title), do: title
   def get_title(%{"url" => url}), do: Helpers.filename_from_url(url)
+
+  defp get_resource_id(%{"url" => url}) do
+    Resource |> where([r], r.url == ^url) |> select([r], r.id) |> Repo.one()
+  end
 end
