@@ -1,9 +1,11 @@
-.hero__container {
-  background: $white;
-  color: $dark-text;
-  padding: 5em 0;
+.hero {
   background: #d7edff url("/images/transport.svg") center bottom no-repeat;
   background-size: cover;
+}
+
+.hero__container {
+  color: $dark-text;
+  padding: 5em 0;
   height: 45em;
   flex-direction: row;
   align-items: start;

@@ -46,13 +46,13 @@ defmodule TransportWeb.InputHelpers do
     button = content_tag(
       :button,
       content_tag(:i, "", class: "fas icon--magnifier"),
-       [{:class, "overlay-button"}, {"aria-label", "Recherche"}]
+       [{:class, "button"}, {"aria-label", "Recherche"}]
     )
     form_group(
       content_tag(
       :div,
        [Form.text_input(form, field, opts), button],
-      class: "search__group"
+      class: "input__group"
       )
     )
   end
