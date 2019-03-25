@@ -65,42 +65,11 @@
                 <div class="shortlist-image">
                   <%= img_tag(dataset.logo, alt: dataset.title) %>
                 </div>
-                <a href="/datasets/<%= dataset.slug %>/">
-                  <h3><%= dataset.title %></h3>
-                </a>
-              </div>
-              <div class="panel__content">
-                <div class="panel__side">
-                  <div class="shortlist__notices">
-                    <%= if dataset.licence do %>
-                      <div class="shortlist__notice">
-                        <div class="shortlist__label"><%= dgettext("page-shortlist", "Licence") %></div>
-                        <span class="label label-notice"><%= Transport.Dataset.localise_licence(dataset) %></span>
-                      </div>
-                    <% end %>
-
-                    <%= if not Enum.empty?(dataset.resources) and List.first(dataset.resources).format do %>
-                      <div class="shortlist__notice">
-                        <div class="shortlist__label"><%= dgettext("page-shortlist", "Format") %></div>
-                        <span class="label label-notice"><%= List.first(dataset.resources).format %></span>
-                      </div>
-                    <% end %>
-
-                  <%= if !is_nil(dataset.spatial) do %>
-                    <div class="shortlist__notice">
-                      <div class="shortlist__label"><%= dgettext("page-shortlist", "Territory") %></div>
-                      <span class="label label-notice"><%= dataset.spatial %></span>
-                    </div>
-                  <% end %>
-                  </div>
-                  <div class="shortlist__links">
-                    <%= if dataset.slug do %>
-                      <div class="shortlist__link shortlist__link--external-link">
-                        <i class="icon icon--link" aria-hidden="true"></i>
-                        <%= Dataset.link_to_datagouv(dataset) %>
-                      </div>
-                    <% end %>
-                  </div>
+                <div>
+                  <a href="/datasets/<%= dataset.slug %>/">
+                    <h3><%= dataset.spatial %></h3>
+                  </a>
+                  <h4><%= Dataset.type_to_str(dataset.type) %></h4>
                 </div>
               </div>
             </div>

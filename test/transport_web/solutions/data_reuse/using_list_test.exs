@@ -25,6 +25,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
       datagouv_id: "5b4cd3a0b59508054dd496cd",
       frequency: "yearly",
       tags: [],
+      spatial: "Réseau IRIGO",
       resources: [%Resource{
         url: "https://link.to/angers.zip",
         validations: %{},
@@ -64,7 +65,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
     assert visible_page_text() =~ "Jeux de données valides disponibles"
 
     # I can click on a dataset and see its details
-    click({:link_text, "Horaires et arrêts du réseau IRIGO - format GTFS"})
+    click({:link_text, "Réseau IRIGO"})
     assert visible_page_text() =~ "IRIGO"
 
     # I can download the dataset
