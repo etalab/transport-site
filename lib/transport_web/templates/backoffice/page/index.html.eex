@@ -1,5 +1,5 @@
 <section class="dataset-container">
-  <%= render("_form_dataset.html", conn: @conn, regions: @regions, dataset_types: @dataset_types) %>
+  <%= render("_form_dataset.html", conn: @conn, regions: @regions, dataset_types: @dataset_types, dataset: @conn.assigns[:dataset]) %>
 
   <h1><%= dgettext("backoffice", "Valid datasets available") %></h1>
 
@@ -17,6 +17,7 @@
   <tr>
     <th>Territoire</th>
     <th>Fin de validité</th>
+    <th></th>
     <th></th>
     <th></th>
     <th></th>

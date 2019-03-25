@@ -28,6 +28,19 @@ defmodule TransportWeb.Backoffice.PageController do
     |> render_index(conn, params)
   end
 
+
+  def index(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id} = params) do
+    conn = Dataset
+    |> preload(:aom)
+    |> Repo.get(dataset_id)
+    |> case do
+      nil -> put_flash(conn, :error, dgettext("backoffice", "Unable to find dataset"))
+      dataset -> assign(conn, :dataset, dataset)
+    end
+
+    render_index(Dataset, conn, params)
+  end
+
   def index(%Plug.Conn{} = conn, params), do: render_index(Dataset, conn, params)
 
   ## Private functions
