@@ -190,12 +190,16 @@ defmodule Transport.Dataset do
     end
   end
 
-  def link_to_datagouv(%__MODULE__{slug: slug}) do
+  def link_to_datagouv(%__MODULE__{} = dataset) do
     Link.link(
       dgettext("page-shortlist", "See on data.gouv.fr"),
-      to: Path.join([System.get_env("DATAGOUVFR_SITE"), "datasets", slug]),
+      to: datagouv_url(dataset),
       role: "link"
     )
+  end
+
+  def datagouv_url(%__MODULE__{slug: slug}) do
+    Path.join([System.get_env("DATAGOUVFR_SITE"), "datasets", slug])
   end
 
   ## Private functions
