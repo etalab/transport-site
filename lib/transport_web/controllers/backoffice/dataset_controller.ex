@@ -5,7 +5,18 @@ defmodule TransportWeb.Backoffice.DatasetController do
   alias Transport.{Dataset, ImportData, ImportDataWorker, Repo, Resource}
   import Ecto.Query
 
-  def new_dataset(%Plug.Conn{} = conn, params) do
+  def post(%Plug.Conn{} = conn, params) do
+    msgs = %{
+      success: %{
+        "edit" => dgettext("backoffice_dataset", "Dataset edited with success"),
+        "new" => dgettext("backoffice_dataset", "Dataset added with success"),
+      },
+      error: %{
+        "edit" => dgettext("backoffice_dataset", "Could not edit dataset"),
+        "new" => dgettext("backoffice_dataset", "Could not add dataset"),
+      }
+    }
+
     with datagouv_id when not is_nil(datagouv_id) <- Datasets.get_id_from_url(conn, params["url"]),
          {:ok, dataset} <- ImportData.import_from_udata(datagouv_id, params["type"]),
          params <- Map.merge(params, dataset)
@@ -13,15 +24,11 @@ defmodule TransportWeb.Backoffice.DatasetController do
       %Dataset{}
       |> Dataset.changeset(params)
       |> Repo.insert_or_update()
-      |> flash(
-        conn,
-        dgettext("backoffice_dataset", "Dataset added with success"),
-        dgettext("backoffice_dataset", "Could not add dataset")
-      )
+      |> flash(conn, msgs.success[params["action"]], msgs.error[params["action"]])
     else
       {:error, error} ->
         conn
-        |> put_flash(:error, dgettext("backoffice_dataset", "Could not add dataset"))
+        |> put_flash(:error, msgs.error[params["action"]])
         |> put_flash(:error, error)
     end
     |> redirect_to_index()

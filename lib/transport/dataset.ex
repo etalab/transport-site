@@ -138,11 +138,12 @@ defmodule Transport.Dataset do
   def order_datasets(datasets, _params), do: datasets
 
   def changeset(_dataset, params) do
-    IO.inspect params
-    case Repo.get_by(__MODULE__, datagouv_id: params["datagouv_id"]) do
+    dataset = case Repo.get_by(__MODULE__, datagouv_id: params["datagouv_id"]) do
       nil -> %__MODULE__{}
       dataset -> dataset
     end
+
+    dataset
     |> Repo.preload(:resources)
     |> cast(params, [:datagouv_id, :spatial, :created_at, :description, :frequency, :organization,
     :last_update, :licence, :logo, :full_logo, :slug, :tags, :title, :type, :region_id])
@@ -225,7 +226,6 @@ defmodule Transport.Dataset do
 
   defp select_or_not(res, []), do: res
   defp select_or_not(res, s), do: select(res, ^s)
-
 
   defp cast_aom(changeset, %{"insee_commune_principale" => ""}), do: changeset
   defp cast_aom(changeset, %{"insee_commune_principale" => nil}), do: changeset

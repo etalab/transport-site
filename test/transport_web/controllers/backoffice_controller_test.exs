@@ -18,10 +18,11 @@ defmodule TransportWeb.BackofficeControllerTest do
       "spatial" => "La Roche sur Yon",
       "region_id" => 1,
       "insee_commune_principale" => "85191",
-      "type" => "public-transit"
+      "type" => "public-transit",
+      "action" => "new"
     }
     conn = use_cassette "dataset/impulsyon.json-1" do
-      post(conn, backoffice_dataset_path(conn, :new_dataset), dataset)
+      post(conn, backoffice_dataset_path(conn, :post), dataset)
     end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
@@ -44,10 +45,11 @@ defmodule TransportWeb.BackofficeControllerTest do
       "spatial" => "La Roche sur Yon",
       "region_id" => nil,
       "insee_commune_principale" => nil,
-      "type" => "public-transit"
+      "type" => "public-transit",
+      "action" => "new"
     }
     conn = use_cassette "dataset/impulsyon.json-1" do
-      post(conn, backoffice_dataset_path(conn, :new_dataset), dataset)
+      post(conn, backoffice_dataset_path(conn, :post), dataset)
     end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
@@ -70,10 +72,11 @@ defmodule TransportWeb.BackofficeControllerTest do
       "spatial" => "La Roche sur Yon",
       "region_id" => Repo.get_by(Region, nom: "Pays de la Loire").id,
       "insee_commune_principale" => nil,
-      "type" => "public-transit"
+      "type" => "public-transit",
+      "action" => "new"
     }
     conn = use_cassette "dataset/impulsyon.json-1" do
-      post(conn, backoffice_dataset_path(conn, :new_dataset), dataset)
+      post(conn, backoffice_dataset_path(conn, :post), dataset)
     end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
@@ -94,10 +97,11 @@ defmodule TransportWeb.BackofficeControllerTest do
       "spatial" => "La Roche sur Yon",
       "region_id" => Repo.get_by(Region, nom: "Pays de la Loire").id,
       "insee_commune_principale" => nil,
-      "type" => "public-transit"
+      "type" => "public-transit",
+      "action" => "new"
     }
     conn = use_cassette "dataset/impulsyon.json-1" do
-      post(conn, backoffice_dataset_path(conn, :new_dataset), dataset)
+      post(conn, backoffice_dataset_path(conn, :post), dataset)
     end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
@@ -119,15 +123,16 @@ defmodule TransportWeb.BackofficeControllerTest do
       "spatial" => "La Roche sur Yon",
       "region_id" => nil,
       "insee_commune_principale" => "85191",
-      "type" => "public-transit"
+      "type" => "public-transit",
+      "action" => "new"
     }
 
     use_cassette "dataset/impulsyon.json-1" do
-      conn = post(conn, backoffice_dataset_path(conn, :new_dataset), dataset)
+      conn = post(conn, backoffice_dataset_path(conn, :post), dataset)
       assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
       assert from(r in Resource, where: r.url == ^resource_url) |> Repo.all() |> length() == 1
 
-      conn = post(conn, backoffice_dataset_path(conn, :new_dataset), dataset)
+      conn = post(conn, backoffice_dataset_path(conn, :post), dataset)
       assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
       assert from(r in Resource, where: r.url == ^resource_url) |> Repo.all() |> length() == 1
     end

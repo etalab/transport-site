@@ -1,10 +1,36 @@
-  <h1><%= dgettext("backoffice", "Add a dataset") %></h2>
+  <h1>
+  <%= if is_nil(@dataset) do %>
+  <%= dgettext("backoffice", "Add a dataset") %>
+  <% else %>
+  <%= dgettext("backoffice", "Edit a dataset") %>
+  <% end %>
+  </h1>
 
-  <%= form_for @conn, backoffice_dataset_path(@conn, :new_dataset), fn f -> %>
-    <%= text_input f, :url, [{"placeholder", dgettext("backoffice", "Dataset's url")}] %>
-    <%= text_input f, :spatial, [{"placeholder", dgettext("backoffice", "name")}] %>
-    <%= select f, :region_id, @regions %>
-    <%= text_input f, :insee_commune_principale, [{"placeholder", dgettext("backoffice", "INSEE Code")}] %>
-    <%= select f, :type, @dataset_types %>
+  <%= form_for @conn, backoffice_dataset_path(@conn, :post), fn f -> %>
+    <%= text_input f, :url, [
+      placeholder: dgettext("backoffice", "Dataset's url"), 
+      value: if not is_nil(@dataset) do Dataset.datagouv_url(@dataset) else "" end
+    ] %>
+    <%= text_input f, :spatial, [
+      placeholder: dgettext("backoffice", "name"),
+      value: if not is_nil(@dataset) do @dataset.spatial else "" end
+    ] %>
+    <%= select f, :region_id, Enum.map(@regions, &{&1.nom, &1.id}), [
+      selected: if not is_nil(@dataset) do @dataset.region_id else "" end,
+      prompt: "Pas de région"
+      ]
+     %>
+    <%= text_input f, :insee_commune_principale, [
+      placeholder: dgettext("backoffice", "INSEE Code"),
+      value: if not is_nil(@dataset) and not is_nil(@dataset.aom) do @dataset.aom.insee_commune_principale else "" end
+      ] %>
+    <%= select f, :type, @dataset_types, [
+      selected: if not is_nil(@dataset) do @dataset.type else "" end ]%>
+    <%= if is_nil(@dataset) do %>
+    <%= hidden_input f, :action, [value: "new"] %>
     <%= submit dgettext("backoffice", "Add") %>
+    <% else %>
+    <%= hidden_input f, :action, [value: "edit"] %>
+    <%= submit dgettext("backoffice", "Edit") %>
+    <% end %>
   <% end %>

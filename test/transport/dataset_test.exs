@@ -6,10 +6,10 @@ defmodule Transport.DatasetTest do
   doctest Dataset
 
   @valid_changeset %{
-        datagouv_id: "5bc493d08b4c416c84a69500",
-        slug: "offre-de-transport-du-reseau-de-laval-agglomeration-gtfs",
-        resources: [%{validation: %{}, url: "https://tul-laval.com/gtfs.zip"}],
-        aom_id: 1
+    "datagouv_id" => "5bc493d08b4c416c84a69500",
+    "slug" => "offre-de-transport-du-reseau-de-laval-agglomeration-gtfs",
+    "resources" => [%{validation: %{}, url: "https://tul-laval.com/gtfs.zip"}],
+    "insee_commune_principale" => "53130"
   }
 
   test "Region can be blank" do
