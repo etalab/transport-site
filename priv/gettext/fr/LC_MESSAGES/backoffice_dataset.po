@@ -42,3 +42,11 @@ msgstr "Dataset ajouté"
 #, elixir-format
 msgid "Import and validation of all datasets have been launch"
 msgstr "L'import et la validation de tous les jeux de données a été lancé."
+
+#, elixir-format
+msgid "Could not edit dataset"
+msgstr "Impossible d'éditer le jeu de données"
+
+#, elixir-format
+msgid "Dataset edited with success"
+msgstr "Jeu de données édité"

@@ -88,3 +88,7 @@ msgstr "Transport public"
 #, elixir-format
 msgid "Stops referential"
 msgstr "Référentiel d'arrêts"
+
+#, elixir-format
+msgid "Unable to find INSEE code"
+msgstr "Impossible de trouver le code INSEE"

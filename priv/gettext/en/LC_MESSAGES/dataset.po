@@ -88,3 +88,7 @@ msgstr ""
 #, elixir-format
 msgid "Stops referential"
 msgstr ""
+
+#, elixir-format
+msgid "Unable to find INSEE code"
+msgstr ""
