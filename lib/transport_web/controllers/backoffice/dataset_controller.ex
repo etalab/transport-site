@@ -2,18 +2,15 @@ defmodule TransportWeb.Backoffice.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Client.Datasets
 
-  alias Transport.{AOM, Dataset, ImportData, ImportDataWorker, Repo, Resource}
+  alias Transport.{Dataset, ImportData, ImportDataWorker, Repo, Resource}
   import Ecto.Query
 
   def new_dataset(%Plug.Conn{} = conn, params) do
     with datagouv_id when not is_nil(datagouv_id) <- Datasets.get_id_from_url(conn, params["url"]),
          {:ok, dataset} <- ImportData.import_from_udata(datagouv_id, params["type"]),
-         {:ok, aom_id} <- get_aom_id(params),
-         params <- Map.merge(params, dataset),
-         params <- Map.put(params, "aom_id", aom_id)
+         params <- Map.merge(params, dataset)
     do
-      datagouv_id
-      |> get_or_new_dataset()
+      %Dataset{}
       |> Dataset.changeset(params)
       |> Repo.insert_or_update()
       |> flash(
@@ -84,26 +81,10 @@ defmodule TransportWeb.Backoffice.DatasetController do
   end
   defp flash({:error, message}, conn, _ok, err), do: put_flash(conn, :error, "#{err} (#{message})")
 
-  defp get_aom_id(%{"insee_commune_principale" => ""}), do: {:ok, nil}
-  defp get_aom_id(%{"insee_commune_principale" => nil}), do: {:ok, nil}
-  defp get_aom_id(%{"insee_commune_principale" => insee}) do
-    case Repo.get_by(AOM, insee_commune_principale: insee) do
-      nil -> {:error, dgettext("backoffice", "Unable to find INSEE")}
-      aom -> {:ok, aom.id}
-    end
-  end
-
   defp import_data(%Dataset{} = dataset), do: import_data({:ok, dataset})
   defp import_data(nil), do: {:error, dgettext("backoffice", "Unable to find dataset")}
   defp import_data({:ok, dataset}), do: ImportData.call(dataset)
   defp import_data(error), do: error
-
-  defp get_or_new_dataset(datagouv_id) do
-    case Repo.get_by(Dataset, datagouv_id: datagouv_id) do
-      nil -> %Dataset{}
-      dataset -> dataset
-    end
-  end
 
   defp redirect_to_index(conn), do: redirect(conn, to: backoffice_page_path(conn, :index, conn.params |> Map.take(["q"])))
 end
