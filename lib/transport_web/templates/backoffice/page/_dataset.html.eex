@@ -20,6 +20,12 @@
         <% end %>
       </td>
       <td>
+        <%= form_for @conn, backoffice_page_path(@conn, :index), [nodiv: true, method: "get"], fn f -> %>
+          <%= hidden_input f, :dataset_id, [value: @dataset.id] %>
+          <%= submit "Editer", [class: "button", nodiv: true] %>
+        <% end %>
+      </td>
+      <td>
         <%= form_for @conn, backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
           <%= submit "Supprimer", [class: "button", nodiv: true] %>
         <% end %>

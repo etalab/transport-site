@@ -100,10 +100,6 @@ msgid "Dataset's url"
 msgstr "Adresse du dataset"
 
 #, elixir-format
-msgid "Unable to find INSEE"
-msgstr "Impossible de trouver l’INSEE"
-
-#, elixir-format
 msgid "Unable to find dataset"
 msgstr "Impossible de trouver le jeu de données"
 
@@ -118,3 +114,11 @@ msgstr "Montrer seulement les jeux de données périmés"
 #, elixir-format
 msgid "Show all datasets"
 msgstr "Montrer tous les jeux de données"
+
+#, elixir-format
+msgid "Edit"
+msgstr "Éditer"
+
+#, elixir-format
+msgid "Edit a dataset"
+msgstr "Édition d'un jeu de données"
