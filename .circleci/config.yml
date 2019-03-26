@@ -1,7 +1,7 @@
 version: 2
 
 default_docker: &default_docker
-  image: betagouv/transport:0.2.0
+  image: betagouv/transport:0.4.0
   environment:
     MIX_ENV: test
     PG_URL_TEST: ecto://root@127.0.0.1/transport_test

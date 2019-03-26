@@ -202,7 +202,7 @@ defmodule Transport.Dataset do
 
   defp validate_mutual_exclusion(changeset, fields, error) do
     fields
-    |> Enum.count(& not get_field(changeset, &1) in ["", nil])
+    |> Enum.count(& get_field(changeset, &1) not in ["", nil])
     |> case do
       1 -> changeset
       _ ->

@@ -1,4 +1,4 @@
-FROM betagouv/transport:0.3.1
+FROM betagouv/transport:0.4.0
 
 RUN apk add git
 
