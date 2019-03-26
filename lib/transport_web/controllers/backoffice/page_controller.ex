@@ -28,16 +28,21 @@ defmodule TransportWeb.Backoffice.PageController do
     |> render_index(conn, params)
   end
 
+  def index(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id} = params) do
+    conn = Dataset
+    |> preload(:aom)
+    |> Repo.get(dataset_id)
+    |> case do
+      nil -> put_flash(conn, :error, dgettext("backoffice", "Unable to find dataset"))
+      dataset -> assign(conn, :dataset, dataset)
+    end
+
+    render_index(Dataset, conn, params)
+  end
+
   def index(%Plug.Conn{} = conn, params), do: render_index(Dataset, conn, params)
 
   ## Private functions
-  defp region_names do
-    Region
-    |> Repo.all()
-    |> Enum.map(fn r -> {r.nom, r.id} end)
-    |> Enum.concat([{"Pas de region", nil}])
-  end
-
   defp render_index(datasets, conn, params) do
     config = make_pagination_config(params)
 
@@ -46,7 +51,7 @@ defmodule TransportWeb.Backoffice.PageController do
     |> Repo.paginate(page: config.page_number)
 
     conn
-    |> assign(:regions, region_names())
+    |> assign(:regions, Repo.all(Region))
     |> assign(:datasets, datasets)
     |> assign(:dataset_types, Dataset.dataset_types())
     |> render("index.html")

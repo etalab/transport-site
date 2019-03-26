@@ -101,10 +101,6 @@ msgid "Dataset's url"
 msgstr ""
 
 #, elixir-format
-msgid "Unable to find INSEE"
-msgstr ""
-
-#, elixir-format
 msgid "Unable to find dataset"
 msgstr ""
 
@@ -118,4 +114,12 @@ msgstr ""
 
 #, elixir-format
 msgid "Show all datasets"
+msgstr ""
+
+#, elixir-format
+msgid "Edit"
+msgstr ""
+
+#, elixir-format
+msgid "Edit a dataset"
 msgstr ""

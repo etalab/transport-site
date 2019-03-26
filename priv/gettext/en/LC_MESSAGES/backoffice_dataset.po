@@ -42,3 +42,11 @@ msgstr ""
 #, elixir-format
 msgid "Import and validation of all datasets have been launch"
 msgstr ""
+
+#, elixir-format, fuzzy
+msgid "Could not edit dataset"
+msgstr ""
+
+#, elixir-format, fuzzy
+msgid "Dataset edited with success"
+msgstr ""
