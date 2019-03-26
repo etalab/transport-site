@@ -160,7 +160,3 @@ workflows:
           requires:
             - build
 
-      - test_external:
-          requires:
-            - build
-
