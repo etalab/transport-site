@@ -1,24 +1,9 @@
-.mailing-list__container {
-    max-width: 40em;
-    margin: auto;
-}
-
-.mailing-list__button {
-    max-width: 40em;
-    margin: auto;
-    margin-top: 1em;
-
-    button {
-        width: 100%;
-    }
-}
-
 .mailing-list__social-container {
     margin: 1em 0;
-    text-align: center;
-
+    
     img {
-        height: 25px;
-        min-width: 25px;
+        height: 2em;
+        min-width: 2em;
+        vertical-align: middle;
     }
 }

@@ -1,5 +1,5 @@
 <footer class="footer" role="contentinfo" id="footer">
-    <a href="#mail_form" class="mail__button">
+    <a href="#mail_form" class="mail__button" aria-label="<%= dgettext("page-index", "Ask for help") %>">
         <i class="fas icon--envelope"></i>
         <span><%= dgettext("page-index", "Ask for help") %></span>
     </a>
