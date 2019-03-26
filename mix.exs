@@ -77,7 +77,6 @@ defmodule Transport.Mixfile do
       {:exvcr, "~> 0.10", only: :test},
       {:hound, "~> 1.0", only: :test},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
-      {:ex_guard, "~> 1.3", only: :dev},
     ]
   end
 
