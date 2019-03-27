@@ -18,7 +18,7 @@ defmodule TransportWeb.InputHelpers do
         select: 3, select: 4,
         search_input: 3,
         submit: 1, submit: 2,
-        text_input: 3, text_input: 3,
+        text_input: 3,
         textarea: 2, textarea: 3
       ]
     end

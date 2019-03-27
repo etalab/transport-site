@@ -5,7 +5,7 @@ defmodule Transport.Mixfile do
     [
       app: :transport,
       version: "0.0.1",
-      elixir: "~> 1.6.1",
+      elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env),
       gettext: [{:write_reference_comments, false}],
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
@@ -77,13 +77,12 @@ defmodule Transport.Mixfile do
       {:exvcr, "~> 0.10", only: :test},
       {:hound, "~> 1.0", only: :test},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
-      {:ex_guard, "~> 1.3", only: :dev},
     ]
   end
 
   defp aliases do
     [
-     "test": ["ecto.create --quiet", "ecto.migrate", "test"],
+     test: ["ecto.create --quiet", "ecto.migrate", "test"],
      "phx.migrate_phx.server": ["ecto.migrate", "phx.server"]
     ]
   end
