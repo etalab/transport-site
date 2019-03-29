@@ -1,0 +1,7 @@
+FROM betagouv/transport:0.4.0
+
+RUN apk add inotify-tools
+RUN apk add postgresql-client>=11
+
+RUN mkdir /app/
+WORKDIR /app/
