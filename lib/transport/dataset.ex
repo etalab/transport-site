@@ -44,7 +44,7 @@ defmodule Transport.Dataset do
 
   def type_to_str(type), do: type_to_str()[type]
 
-  def dataset_types, do: Map.keys(type_to_str())
+  def types, do: Map.keys(type_to_str())
 
   defp no_validations_query do
     from r in Resource,
