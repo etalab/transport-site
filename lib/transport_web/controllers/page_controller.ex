@@ -40,21 +40,24 @@ defmodule TransportWeb.PageController do
     |> render("single_page.html")
   end
 
-  defp aoms_with_dataset() do
+  defp aoms_with_dataset do
     from a in AOM,
       join: d in Dataset,
       on: a.id == d.aom_id or not is_nil(a.parent_dataset_id),
       distinct: a.id
   end
 
-  defp count_aoms_with_dataset(), do: Repo.aggregate(aoms_with_dataset(), :count, :id)
+  defp count_aoms_with_dataset, do: Repo.aggregate(aoms_with_dataset(), :count, :id)
 
-  defp population_with_dataset(), do: Repo.aggregate(aoms_with_dataset(), :sum, :population_totale_2014)
+  defp population_with_dataset, do: Repo.aggregate(aoms_with_dataset(), :sum, :population_totale_2014)
 
-  defp population_totale(), do: Repo.aggregate(AOM, :sum, :population_totale_2014)
+  defp population_totale, do: Repo.aggregate(AOM, :sum, :population_totale_2014)
 
-  defp percent_population(), do: (population_with_dataset() / population_totale())*100 |> Float.round(1)
+  defp percent_population, do: percent(population_with_dataset(), population_totale())
 
+  defp percent(_a, 0), do: 0
+  defp percent(_a, nil), do: 0
+  defp percent(a, b), do: Float.round((a / b) * 100, 1)
 
   defp count_regions_completed do
     Region

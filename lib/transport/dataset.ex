@@ -217,7 +217,7 @@ defmodule Transport.Dataset do
     Repo.aggregate(query, :count, :id)
   end
 
-  def count_by_type(), do: for type <- __MODULE__.types(), into: %{}, do: {type, count_by_type(type)}
+  def count_by_type, do: for type <- __MODULE__.types(), into: %{}, do: {type, count_by_type(type)}
 
   ## Private functions
 
