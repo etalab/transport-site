@@ -18,7 +18,7 @@
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus.svg") %>" alt="" />
                     <h3 class="text-center">Horaires transports en commun</h3>
-                    <p>105 jeux de données</p>
+                    <p><%= @count_by_type["public-transit"] %> jeux de données</p>
                 </div>
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus-stop.svg") %>" alt="" />
@@ -28,17 +28,17 @@
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle.svg") %>" alt="" />
                     <h3 class="text-center">Vélos en libre-service</h3>
-                    <p>2 jeux de données</p>
+                    <p><%= @count_by_type["bike-sharing"] %> jeux de données</p>
                 </div>
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/car.svg") %>" alt="" />
                     <h3 class="text-center">Aires de covoiturage</h3>
-                    <p>1 jeu de données</p>
+                    <p><%= @count_by_type["carsharing-areas"] %> jeu de données</p>
                 </div>
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/charge-station.svg") %>" alt="" />
                     <h3 class="text-center">Bornes de recharges de véhicules électriques</h3>
-                    <p>2 jeux de données</p>
+                    <p><%= @count_by_type["charging-stations"] %> jeux de données</p>
                 </div>
             </div>
         </div>
@@ -92,15 +92,15 @@
                 <p>Pour les horaires théoriques des transports en commun :</p>
                 <div class="row key-numbers">
                     <div class="key-number__item">
-                        <strong>105</strong>
+                        <strong><%= @count_aoms_with_dataset %></strong>
                         <div>AOMs couvertes<br /> sur 330</div>
                     </div>
                     <div class="key-number__item">
-                        <strong>3</strong>
+                        <strong><%= @count_regions_completed %></strong>
                         <div>régions couvertes<br /> sur 14</div>
                     </div>
                     <div class="key-number__item">
-                        <strong>45.3%</strong>
+                        <strong><%= @percent_population %></strong>
                         <div>de la population<br /> couverte</div>
                     </div>
                 </div>

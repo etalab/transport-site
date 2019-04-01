@@ -211,6 +211,14 @@ defmodule Transport.Dataset do
     Path.join([System.get_env("DATAGOUVFR_SITE"), "datasets", slug])
   end
 
+  def count_by_type(type) do
+    query = from d in __MODULE__, where: d.type == ^type
+
+    Repo.aggregate(query, :count, :id)
+  end
+
+  def count_by_type(), do: for type <- __MODULE__.types(), into: %{}, do: {type, count_by_type(type)}
+
   ## Private functions
 
   defp validate_mutual_exclusion(changeset, fields, error) do

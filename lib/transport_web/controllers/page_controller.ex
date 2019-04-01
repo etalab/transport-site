@@ -1,15 +1,16 @@
 defmodule TransportWeb.PageController do
   use TransportWeb, :controller
-  alias Transport.{Partner, Repo}
+  alias Transport.{AOM, Dataset, Partner, Region, Repo}
+  import Ecto.Query
 
   def index(conn, _params) do
-    render(
-      conn,
-      "index.html",
-      %{:mailchimp_newsletter_url => :transport
-                                     |> Application.get_all_env()
-                                     |> Keyword.get(:mailchimp_newsletter_url)}
-    )
+    conn
+    |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
+    |> assign(:count_by_type, Dataset.count_by_type())
+    |> assign(:count_aoms_with_dataset, count_aoms_with_dataset())
+    |> assign(:count_regions_completed, count_regions_completed())
+    |> assign(:percent_population, percent_population())
+    |> render("index.html")
   end
 
   def login(conn, %{"redirect_path" => redirect_path}) do
@@ -37,5 +38,27 @@ defmodule TransportWeb.PageController do
     conn
     |> assign(:page, page <> ".html")
     |> render("single_page.html")
+  end
+
+  defp aoms_with_dataset() do
+    from a in AOM,
+      join: d in Dataset,
+      on: a.id == d.aom_id or not is_nil(a.parent_dataset_id),
+      distinct: a.id
+  end
+
+  defp count_aoms_with_dataset(), do: Repo.aggregate(aoms_with_dataset(), :count, :id)
+
+  defp population_with_dataset(), do: Repo.aggregate(aoms_with_dataset(), :sum, :population_totale_2014)
+
+  defp population_totale(), do: Repo.aggregate(AOM, :sum, :population_totale_2014)
+
+  defp percent_population(), do: (population_with_dataset() / population_totale())*100 |> Float.round(1)
+
+
+  defp count_regions_completed do
+    Region
+    |> where([r], r.is_completed == true)
+    |> Repo.aggregate(:count, :id)
   end
 end
