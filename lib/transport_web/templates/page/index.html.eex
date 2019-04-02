@@ -100,7 +100,7 @@
                         <div>régions couvertes<br /> sur 14</div>
                     </div>
                     <div class="key-number__item">
-                        <strong><%= @percent_population %></strong>
+                        <strong><%= @percent_population %>%</strong>
                         <div>de la population<br /> couverte</div>
                     </div>
                 </div>
@@ -170,10 +170,8 @@
                 </div>
            </form>
            <div class="mailing-list__social-container">
-                <a href="https://twitter.com/transportdatafr"><img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" /></a>
-                <%= dgettext("page-index", "Follow us on twitter") %>
-                <a href="https://join.slack.com/transportdatagouvfr/shared_invite/MjA2ODkzODQyOTk4LTE0OTg4MDUyNTktNmM2OWJmOGQwOA"><img src="<%= static_path(@conn, "/images/Slack_Mark.svg") %>" alt="Slack" /></a>
-                <%= dgettext("page-index", "Join us on Slack") %>
+                <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" /><a href="https://twitter.com/transportdatafr"><%= dgettext("page-index", "Follow us on twitter") %></a>
+                <img src="<%= static_path(@conn, "/images/Slack_Mark.svg") %>" alt="Slack" /><a href="https://join.slack.com/transportdatagouvfr/shared_invite/MjA2ODkzODQyOTk4LTE0OTg4MDUyNTktNmM2OWJmOGQwOA"><%= dgettext("page-index", "Join us on Slack") %></a>
             </div>
         </div>
     </div>
