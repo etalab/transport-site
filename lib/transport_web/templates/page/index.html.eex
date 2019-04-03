@@ -109,11 +109,11 @@
                         <div>de la population<br /> couverte</div>
                     </div>
                 </div>
-                <div class="row">
-                    <a href="<%= static_path(@conn, "/stats") %>" class="button" role="link">Voir plus de statistiques et de cartes</a>
-                </div>
             </div>
-            <img class="illustration" src="<%= static_path(@conn, "/images/france.svg") %>" alt="" />
+            <div class="deployment-map">
+                <img class="illustration" src="<%= static_path(@conn, "/images/france.svg") %>" alt="" />
+                <a href="<%= static_path(@conn, "/stats") %>" class="button" role="link">Voir plus de statistiques et de cartes</a>
+            </div>
         </div>
     </div>
 </section>

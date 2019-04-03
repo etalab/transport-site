@@ -91,6 +91,13 @@
   margin-bottom: 2em;
 }
 
+.deployment-map {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 1;
+  justify-content: center;
+}
+
 .reusers__logos {
   display: flex;
   flex-direction: row;
