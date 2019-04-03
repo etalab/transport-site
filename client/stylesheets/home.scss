@@ -91,6 +91,18 @@
   margin-bottom: 2em;
 }
 
+.reusers__logos {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.reusers img {
+  margin: 2em;
+  height: 48px;
+}
+
 @media (max-width: 899px) {
   .row {
     flex-direction: column;
