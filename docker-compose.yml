@@ -1,0 +1,24 @@
+version: "3"
+services:
+  database:
+    image: mdillon/postgis:11-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: example
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app/
+    command: mix phx.server
+    ports:
+      - 5000:5000
+    env_file:
+        - .env
+    depends_on:
+        - database
+volumes:
+  pgdata:
+  .:

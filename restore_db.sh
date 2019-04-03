@@ -3,16 +3,33 @@
 #Usage ./restore_db.sh db_name user_name absolute_path_to_backup
 #Use it as a postgres user
 
-psql -c "DROP DATABASE $1"
+if test "$#" -eq 1; then
+    DB_NAME="transport_repo"
+    USER_NAME="postgres"
+    BACKUP_PATH=$1
+    OPTIONS="-h database -U postgres -d postgres"
+    export PGPASSWORD="example"
+elif test "$#" -eq 3; then
+    DB_NAME=$1
+    USER_NAME=$2
+    BACKUP_PATH=$3
+    OPTIONS=""
+else
+    echo "Usage : Usage ./restore_db.sh db_name user_name absolute_path_to_backup local_user"
+    exit 1
+fi
 
-psql -c "CREATE DATABASE $1"
 
-pg_restore -d $1 --format=c --no-owner $3
+psql $OPTIONS -c "DROP DATABASE IF EXISTS $DB_NAME"
 
-psql -c "ALTER DATABASE $1 OWNER TO $2"
+psql $OPTIONS -c "CREATE DATABASE $DB_NAME"
 
-for tbl in `psql -qAt -c "select tablename from pg_tables where schemaname = 'public';" $1` ; do  psql -c "alter table \"$tbl\" owner to $2" $1 ; done
+pg_restore $OPTIONS -d $DB_NAME --format=c --no-owner $BACKUP_PATH
 
-for tbl in `psql -qAt -c "select sequence_name from information_schema.sequences where sequence_schema = 'public';" $1` ; do  psql -c "alter sequence \"$tbl\" owner to $2" $1 ; done
+psql $OPTIONS -c "ALTER DATABASE $DB_NAME OWNER TO $USER_NAME"
 
-for tbl in `psql -qAt -c "select table_name from information_schema.views where table_schema = 'public';" $1` ; do  psql -c "alter view \"$tbl\" owner to $2" $1 ; done
+for tbl in `psql $OPTIONS -qAt -c "select tablename from pg_tables where schemaname = 'public';" -d $DB_NAME` ; do  psql $OPTIONS -c "alter table \"$tbl\" owner to $USER_NAME" -d $DB_NAME ; done
+
+for tbl in `psql $OPTIONS -qAt -c "select sequence_name from information_schema.sequences where sequence_schema = 'public';" -d $DB_NAME` ; do  psql $OPTIONS -c "alter sequence \"$tbl\" owner to $USER_NAME" -d $DB_NAME ; done
+
+for tbl in `psql $OPTIONS -qAt -c "select table_name from information_schema.views where table_schema = 'public';" -d $DB_NAME` ; do  psql $OPTIONS -c "alter view \"$tbl\" owner to $USER_NAME" -d $DB_NAME ; done
