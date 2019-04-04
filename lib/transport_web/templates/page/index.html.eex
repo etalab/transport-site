@@ -28,7 +28,7 @@
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus.svg") %>" alt="" />
                     <h3 class="text-center">Bus longue distance</h3>
-                    <p>3 jeux de données</p>
+                    <p><%= @count_by_type["long-distance-coach"] %> jeux de données</p>
                 </div>
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle.svg") %>" alt="" />
