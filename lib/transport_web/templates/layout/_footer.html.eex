@@ -1,20 +1,17 @@
 <footer class="footer" role="contentinfo" id="footer">
-
-      <div class="mail__button">
-        <a href="#mail_form" >
-          <div class="footer--on"><i class="fas icon--envelope"></i></div>
-        </a>
-      </div>
+    <a href="#mail_form" class="mail__button">
+        <i class="fas icon--envelope"></i>
+        <span><%= dgettext("page-index", "Ask for help") %></span>
+    </a>
 
       <div class="modal__backdrop" id="mail_form">
         <div class="footer__contact">
-            <a class="footer__contact--close" href="#">
+            <a class="footer__contact--close" href="#" aria-label="<%= dgettext("page-index", "Close the form") %>">
               <i class="fas icon--times-circle"></i>
             </a>
 
-            <h3>Contact</h3>
-
             <%= form_for @conn, contact_path(@conn, :send_mail), fn f -> %>
+                <h3>Contact</h3>
               <%= email_input(f, :email, placeholder: gettext("Email address")) %>
               <%= text_input(f, :topic, value: gettext("Question about transport.data.gouv.fr")) %>
               <%= textarea(f, :demande, placeholder: gettext("Ask for help")) %>
