@@ -15,36 +15,48 @@
     <div class="container">
         <div class="existing">
             <div class="grid">
-                <div class="tile">
-                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus.svg") %>" alt="" />
-                    <h3 class="text-center">Horaires transports en commun</h3>
-                    <p><%= @count_by_type["public-transit"] %> jeux de données</p>
-                </div>
-                <div class="tile">
-                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus-stop.svg") %>" alt="" />
-                    <h3 class="text-center">Temps réel transports en commun</h3>
-                    <p><%= @count_has_realtime %> jeux de données</p>
-                </div>
-                <div class="tile">
-                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus.svg") %>" alt="" />
-                    <h3 class="text-center">Bus longue distance</h3>
-                    <p><%= @count_by_type["long-distance-coach"] %> jeux de données</p>
-                </div>
-                <div class="tile">
-                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle.svg") %>" alt="" />
-                    <h3 class="text-center">Vélos en libre-service</h3>
-                    <p><%= @count_by_type["bike-sharing"] %> jeux de données</p>
-                </div>
-                <div class="tile">
-                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/car.svg") %>" alt="" />
-                    <h3 class="text-center">Aires de covoiturage</h3>
-                    <p><%= @count_by_type["carsharing-areas"] %> jeu de données</p>
-                </div>
-                <div class="tile">
-                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/charge-station.svg") %>" alt="" />
-                    <h3 class="text-center">Bornes de recharges de véhicules électriques</h3>
-                    <p><%= @count_by_type["charging-stations"] %> jeux de données</p>
-                </div>
+                <a href="<%= dataset_path(@conn, :index, type: "public-transit") %>">
+                    <div class="tile">
+                        <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus.svg") %>" alt="" />
+                        <h3 class="text-center">Horaires transports en commun</h3>
+                        <p><%= @count_by_type["public-transit"] %> jeux de données</p>
+                    </div>
+                </a>
+                <a href="<%= dataset_path(@conn, :index, filter: "has_realtime") %>">
+                    <div class="tile">
+                        <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus-stop.svg") %>" alt="" />
+                        <h3 class="text-center">Temps réel transports en commun</h3>
+                        <p><%= @count_has_realtime %> jeux de données</p>
+                    </div>
+                </a>
+                <a href="<%= dataset_path(@conn, :index, type: "long-distance-coach") %>">
+                    <div class="tile">
+                        <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus.svg") %>" alt="" />
+                        <h3 class="text-center">Bus longue distance</h3>
+                        <p><%= @count_by_type["long-distance-coach"] %> jeux de données</p>
+                    </div>
+                </a>
+                <a href="<%= dataset_path(@conn, :index, type: "bike-sharing") %>">
+                    <div class="tile">
+                        <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle.svg") %>" alt="" />
+                        <h3 class="text-center">Vélos en libre-service</h3>
+                        <p><%= @count_by_type["bike-sharing"] %> jeux de données</p>
+                    </div>
+                </a>
+                <a href="<%= dataset_path(@conn, :index, type: "carsharing-areas") %>">
+                    <div class="tile">
+                        <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/car.svg") %>" alt="" />
+                        <h3 class="text-center">Aires de covoiturage</h3>
+                        <p><%= @count_by_type["carsharing-areas"] %> jeu de données</p>
+                    </div>
+                </a>
+                <a href="<%= dataset_path(@conn, :index, type: "charging-stations") %>">
+                    <div class="tile">
+                        <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/charge-station.svg") %>" alt="" />
+                        <h3 class="text-center">Bornes de recharges de véhicules électriques</h3>
+                        <p><%= @count_by_type["charging-stations"] %> jeux de données</p>
+                    </div>
+                </a>
             </div>
         </div>
         <div class="upcoming">

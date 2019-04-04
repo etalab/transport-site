@@ -200,3 +200,7 @@ msgstr ""
 #, elixir-format
 msgid "All types"
 msgstr ""
+
+#, elixir-format
+msgid "Has realtime"
+msgstr ""

@@ -118,6 +118,12 @@ defmodule Transport.Dataset do
     |> or_where([r], r.region_id == ^region_id)
     |> order_datasets(params)
   end
+  def list_datasets(%{"filter" => "has_realtime"} = params, s) do
+    s
+    |> list_datasets()
+    |> where([d], d.has_realtime == true)
+    |> order_datasets(params)
+  end
   def list_datasets(%{} = params, s) do
     filters =
       params
