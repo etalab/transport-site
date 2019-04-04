@@ -21,7 +21,8 @@ config :oauth2, Authentication,
 config :transport, gtfs_validator_url: System.get_env("GTFS_VALIDATOR_URL") || "http://127.0.0.1:7878"
 
 config :exvcr, [
-  vcr_cassette_library_dir: "test/fixture/cassettes"
+  vcr_cassette_library_dir: "test/fixture/cassettes",
+  filter_request_headers: ["authorization"]
 ]
 
 config :transport, Transport.Repo,

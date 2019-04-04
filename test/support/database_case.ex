@@ -30,15 +30,16 @@ defmodule TransportWeb.DatabaseCase do
         end
 
         Repo.insert(%Region{nom: "Pays de la Loire"})
+        Repo.insert(%Region{nom: "Auvergne-Rhône-Alpes"})
         Repo.insert(%AOM{
           insee_commune_principale: "53130",
           nom: "Laval",
           region: Repo.get_by(Region, nom: "Pays de la Loire")}
         )
         Repo.insert(%AOM{
-          insee_commune_principale: "85191",
-          nom: "La Roche sur Yon",
-          region: Repo.get_by(Region, nom: "Pays de la Loire")}
+          insee_commune_principale: "38185",
+          nom: "Grenoble",
+          region: Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes")}
         )
 
         cleanup()

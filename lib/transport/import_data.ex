@@ -3,6 +3,7 @@ defmodule Transport.ImportData do
   Service use to import data from datagouv to psql
   """
 
+  alias Datagouvfr.Client
   alias Transport.{Dataset, Helpers, Repo, Resource}
   require Logger
   import Ecto.Query
@@ -63,6 +64,11 @@ defmodule Transport.ImportData do
       |> Map.put("type", type)
       |> Map.put("organization", dataset["organization"]["name"])
       |> Map.put("resources", get_resources(dataset, type))
+    dataset =
+      case has_realtime?(dataset, type) do
+        {:ok, result} -> Map.put(dataset, "has_realtime", result)
+        _ -> dataset
+      end
 
     case Map.get(dataset, "resources") do
       nil -> {:error, "No download uri found"}
@@ -426,4 +432,21 @@ defmodule Transport.ImportData do
   defp get_resource_id(%{"url" => url}) do
     Resource |> where([r], r.url == ^url) |> select([r], r.id) |> Repo.one()
   end
+
+  def has_realtime?(dataset, "public-transit") do
+    case Client.get_community_resources(%Plug.Conn{}, dataset["id"]) do
+      {:ok, resources} -> {:ok, Enum.any?(resources, &is_realtime?/1)}
+      {:error, _error} -> {:error, false}
+    end
+  end
+  def has_realtime?(_, _), do: {:ok, false}
+
+  def is_owned_by_transport?(resource) do
+    match?(%{"slug" => "equipe-transport-data-gouv-fr"}, resource["organization"])
+  end
+
+  def is_realtime?(resource) do
+    is_owned_by_transport?(resource) and resource["format"] == "gtfs-rt"
+  end
+
 end

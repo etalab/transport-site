@@ -35,11 +35,12 @@ defmodule TransportWeb.DatasetController do
     |> case do
       nil -> redirect_to_slug_or_404(conn, slug_or_id)
       dataset ->
+        {_, community_ressources} = Client.get_community_resources(conn, dataset.datagouv_id)
         conn
         |> assign(:dataset, dataset)
         |> assign(:count_validations, Dataset.count_validations(dataset))
         |> assign(:discussions, Client.get_discussions(conn, dataset.datagouv_id))
-        |> assign(:community_ressources, Client.get_community_ressources(conn, dataset.datagouv_id))
+        |> assign(:community_ressources, community_ressources)
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
         |> assign(:reuses, Client.get_reuses(conn, %{"dataset_id" => dataset.datagouv_id}))
