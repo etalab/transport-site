@@ -79,14 +79,14 @@ defmodule Datagouvfr.Client do
     end
   end
 
-  def get_community_ressources(conn, id) do
+  def get_community_resources(conn, id) do
     conn
     |> get_request("/datasets/community_resources/?dataset=#{id}", [])
     |> case do
-      {:ok, %{"data" => data}} -> data
+      {:ok, %{"data" => data}} -> {:ok, data}
       {:error, error} ->
         Logger.error("When getting community_ressources for id #{id}: #{error.reason}")
-        []
+        {:error, []}
     end
   end
 

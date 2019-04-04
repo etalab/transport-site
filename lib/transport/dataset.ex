@@ -24,6 +24,7 @@ defmodule Transport.Dataset do
     field :title, :string
     field :type, :string
     field :organization, :string
+    field :has_realtime, :boolean
 
     belongs_to :region, Region
     belongs_to :aom, AOM
@@ -147,7 +148,8 @@ defmodule Transport.Dataset do
     dataset
     |> Repo.preload(:resources)
     |> cast(params, [:datagouv_id, :spatial, :created_at, :description, :frequency, :organization,
-    :last_update, :licence, :logo, :full_logo, :slug, :tags, :title, :type, :region_id])
+    :last_update, :licence, :logo, :full_logo, :slug, :tags, :title, :type, :region_id,
+     :has_realtime])
     |> cast_aom(params)
     |> cast_assoc(:resources)
     |> validate_required([:slug])

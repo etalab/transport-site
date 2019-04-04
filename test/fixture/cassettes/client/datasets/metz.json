@@ -8,20 +8,59 @@
         "follow_redirect": "true"
       },
       "request_body": "",
-      "url": "https://www.data.gouv.fr/api/1/datasets/transport-donnees-gtfs/"
+      "url": "https://next.data.gouv.fr/api/1/datasets/transport-donnees-gtfs/"
     },
     "response": {
       "binary": false,
-      "body": "{\"acronym\": null, \"badges\": [], \"created_at\": \"2014-11-14T14:55:13.264000\", \"deleted\": null, \"description\": \"Donn\\u00e9es GTFS\", \"extras\": {}, \"frequency\": \"semiannual\", \"frequency_date\": null, \"id\": \"546609c1c751df1a6f6c8d07\", \"last_modified\": \"2018-10-10T13:57:49.993000\", \"last_update\": \"2018-09-18T00:00:00\", \"license\": \"fr-lo\", \"metrics\": {\"discussions\": 7, \"followers\": 8, \"issues\": 0, \"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"reuses\": 1, \"views\": 77}, \"organization\": {\"acronym\": \"MM\", \"class\": \"Organization\", \"id\": \"53fd1263a3a729390ba568a4\", \"logo\": \"https://static.data.gouv.fr/avatars/e2/4c0d8652d6455aaae8bc6b24662ac8-original.png\", \"logo_thumbnail\": \"https://static.data.gouv.fr/avatars/e2/4c0d8652d6455aaae8bc6b24662ac8-100.png\", \"name\": \"Metz M\\u00e9tropole\", \"page\": \"https://www.data.gouv.fr/fr/organizations/metz-metropole/\", \"slug\": \"metz-metropole\", \"uri\": \"https://www.data.gouv.fr/api/1/organizations/metz-metropole/\"}, \"owner\": null, \"page\": \"https://www.data.gouv.fr/fr/datasets/transport-donnees-gtfs/\", \"private\": false, \"resources\": [{\"checksum\": null, \"created_at\": \"2015-06-25T10:36:55.107000\", \"description\": \"Fichier ZIP\", \"extras\": {\"check:available\": true, \"check:count-availability\": 38, \"check:date\": \"2018-12-27T22:55:12.403000\", \"check:status\": 200, \"check:url\": \"https://si.metzmetropole.fr/fiches/opendata/gtfs_current.zip\"}, \"filesize\": 549932, \"filetype\": \"remote\", \"format\": \"gtfs\", \"id\": \"9bff120f-d1ba-4753-83cb-6d598ebe2e60\", \"last_modified\": \"2018-10-10T13:57:49.993000\", \"latest\": \"https://www.data.gouv.fr/fr/datasets/r/9bff120f-d1ba-4753-83cb-6d598ebe2e60\", \"metrics\": {\"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"views\": 180}, \"mime\": \"application/zip\", \"preview_url\": null, \"published\": \"2018-09-18T00:00:00\", \"title\": \"Transport - Donn\\u00e9es GTFS\", \"type\": \"main\", \"url\": \"https://si.metzmetropole.fr/fiches/opendata/gtfs_current.zip\"}], \"slug\": \"transport-donnees-gtfs\", \"spatial\": {\"geom\": null, \"granularity\": \"other\", \"zones\": [\"fr:epci:200039865@2014-01-01\"]}, \"tags\": [\"gtfs\", \"le-met\", \"metz-metropole\", \"tamm\", \"territoires-et-transport\", \"urbain\"], \"temporal_coverage\": null, \"title\": \"Transport - Donn\\u00e9es GTFS\", \"uri\": \"https://www.data.gouv.fr/api/1/datasets/transport-donnees-gtfs/\"}",
+      "body": "{\"acronym\": null, \"badges\": [], \"created_at\": \"2014-11-14T14:55:13.264000\", \"deleted\": null, \"description\": \"Donn\\u00e9es GTFS\", \"extras\": {}, \"frequency\": \"semiannual\", \"frequency_date\": null, \"id\": \"546609c1c751df1a6f6c8d07\", \"last_modified\": \"2018-10-10T13:57:49.993000\", \"last_update\": \"2018-09-18T00:00:00\", \"license\": \"fr-lo\", \"metrics\": {\"discussions\": 8, \"followers\": 8, \"issues\": 0, \"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"reuses\": 1, \"views\": 77}, \"organization\": {\"acronym\": \"MM\", \"class\": \"Organization\", \"id\": \"53fd1263a3a729390ba568a4\", \"logo\": \"https://next-static.data.gouv.fr/avatars/e2/4c0d8652d6455aaae8bc6b24662ac8-original.png\", \"logo_thumbnail\": \"https://next-static.data.gouv.fr/avatars/e2/4c0d8652d6455aaae8bc6b24662ac8-100.png\", \"name\": \"Metz M\\u00e9tropole\", \"page\": \"https://next.data.gouv.fr/fr/organizations/metz-metropole/\", \"slug\": \"metz-metropole\", \"uri\": \"https://next.data.gouv.fr/api/1/organizations/metz-metropole/\"}, \"owner\": null, \"page\": \"https://next.data.gouv.fr/fr/datasets/transport-donnees-gtfs/\", \"private\": false, \"resources\": [{\"checksum\": null, \"created_at\": \"2015-06-25T10:36:55.107000\", \"description\": \"Fichier ZIP\", \"extras\": {\"check:available\": true, \"check:count-availability\": 29, \"check:date\": \"2019-03-12T07:19:42.260000\", \"check:status\": 200, \"check:url\": \"https://si.metzmetropole.fr/fiches/opendata/gtfs_current.zip\"}, \"filesize\": 549932, \"filetype\": \"remote\", \"format\": \"gtfs\", \"id\": \"9bff120f-d1ba-4753-83cb-6d598ebe2e60\", \"last_modified\": \"2018-10-10T13:57:49.993000\", \"latest\": \"https://next.data.gouv.fr/fr/datasets/r/9bff120f-d1ba-4753-83cb-6d598ebe2e60\", \"metrics\": {\"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"views\": 180}, \"mime\": \"application/zip\", \"preview_url\": null, \"published\": \"2018-09-18T00:00:00\", \"title\": \"Transport - Donn\\u00e9es GTFS\", \"type\": \"main\", \"url\": \"https://si.metzmetropole.fr/fiches/opendata/gtfs_current.zip\"}], \"slug\": \"transport-donnees-gtfs\", \"spatial\": {\"geom\": null, \"granularity\": \"other\", \"zones\": [\"fr:epci:200039865@2014-01-01\"]}, \"tags\": [\"gtfs\", \"le-met\", \"metz-metropole\", \"tamm\", \"territoires-et-transport\", \"urbain\"], \"temporal_coverage\": null, \"title\": \"Transport - Donn\\u00e9es GTFS\", \"uri\": \"https://next.data.gouv.fr/api/1/datasets/transport-donnees-gtfs/\"}",
       "headers": {
         "Server": "nginx",
-        "Date": "Wed, 02 Jan 2019 11:23:44 GMT",
+        "Date": "Thu, 04 Apr 2019 08:26:28 GMT",
         "Content-Type": "application/json",
-        "Content-Length": "2278",
+        "Content-Length": "2293",
         "Connection": "keep-alive",
         "Vary": "Accept-Encoding",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "PUT, HEAD, GET, OPTIONS, DELETE",
+        "Access-Control-Max-Age": "21600",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
+        "Pragma": "public",
+        "Cache-Control": "public",
+        "Strict-Transport-Security": "max-age=31536000",
+        "Content-Security-Policy": "frame-ancestors *.data.gouv.fr;",
+        "X-Content-Type-Options": "nosniff",
+        "X-XSS-Protection": "1; mode=block"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  },
+  {
+    "request": {
+      "body": "null",
+      "headers": {
+        "accept": "application/json"
+      },
+      "method": "get",
+      "options": {
+        "follow_redirect": "true",
+        "timeout": 15000
+      },
+      "request_body": "",
+      "url": "https://next.data.gouv.fr/api/1/datasets/community_resources/?dataset=546609c1c751df1a6f6c8d07"
+    },
+    "response": {
+      "binary": false,
+      "body": "{\"data\": [], \"facets\": null, \"next_page\": null, \"page\": 1, \"page_size\": 20, \"previous_page\": null, \"total\": 0}",
+      "headers": {
+        "Server": "nginx",
+        "Date": "Thu, 04 Apr 2019 08:26:28 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "110",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "HEAD, GET, PUT, POST, OPTIONS, DELETE",
         "Access-Control-Max-Age": "21600",
         "Access-Control-Allow-Credentials": "true",
         "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
