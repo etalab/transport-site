@@ -21,6 +21,15 @@
   margin-top: 2em;
 }
 
+a.tile {
+  color: $almost-black;
+  text-decoration: none;
+}
+
+a.tile:hover {
+  background: $white;
+}
+
 .tile h3 {
   line-height: 1.25em;
   margin-top: 0.5em;
