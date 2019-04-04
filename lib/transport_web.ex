@@ -52,7 +52,7 @@ defmodule TransportWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
-      import TransportWeb.Gettext, only: [dgettext: 2]
+      import TransportWeb.Gettext, only: [dgettext: 2, dngettext: 4]
       alias TransportWeb.Router.Helpers
     end
   end

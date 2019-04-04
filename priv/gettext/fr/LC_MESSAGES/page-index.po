@@ -42,6 +42,160 @@ msgid "Follow us on twitter"
 msgstr "Suivez-nous sur twitter"
 
 #, elixir-format
+msgid "title"
+msgstr "Le Point d'Accès National aux données de transport"
+
+#, elixir-format
+msgid "subtitle"
+msgstr "Rassembler les données de toute l’offre de mobilité à travers la France"
+
+#, elixir-format
+msgid "Bike sharing"
+msgstr "Vélos en libre-service"
+
+#, elixir-format
+msgid "Car-sharing areas"
+msgstr "Aires de covoiturage"
+
+#, elixir-format
+msgid "Electric vehicles charging stations"
+msgstr "Bornes de recharges de véhicules électriques"
+
+#, elixir-format
+msgid "Long distance coach"
+msgstr "Bus longue distance"
+
+#, elixir-format
+msgid "Public transit schedules"
+msgstr "Horaires transports en commun"
+
+#, elixir-format
+msgid "Realtime public transit"
+msgstr "Temps réel transports en commun"
+
+#, elixir-format
+msgid "dataset"
+msgid_plural "datasets"
+msgstr[0] "%{count} jeu de données"
+msgstr[1] "%{count} jeux de données"
+
+#, elixir-format
+msgid "See newly added datasets"
+msgstr "Voir les derniers jeux de données ajoutés"
+
+#, elixir-format
+msgid "Air data"
+msgstr ""
+
+#, elixir-format
+msgid "Bike parking"
+msgstr "Vélos en libre-service"
+
+#, elixir-format
+msgid "Coming soon"
+msgstr "À venir dans les prochains mois"
+
+#, elixir-format
+msgid "Freefloating vehicles"
+msgstr "Véhicules en free-floating"
+
+#, elixir-format
+msgid "I'd like to be informed"
+msgstr "Je souhaite être tenu·e au courant"
+
+#, elixir-format
+msgid "Private parking"
+msgstr "Stationnement en parc privé"
+
+#, elixir-format
+msgid "Railroad data"
+msgstr "Données ferroviaires"
+
+#, elixir-format
+msgid "Road networks"
+msgstr "Réseaux routiers"
+
+#, elixir-format
+msgid "Sea transport"
+msgstr "Transport maritime"
+
+#, elixir-format
+msgid "Learn more"
+msgstr "En savoir plus"
+
+#, elixir-format
+msgid "Regions covered"
+msgstr "régions couvertes"
+
+#, elixir-format
+msgid "Scheduled public transit"
+msgstr "Pour les horaires théoriques des transports en commun :"
+
+#, elixir-format
+msgid "See more statistics"
+msgstr "Voir plus de statistiques et de cartes"
+
+#, elixir-format
+msgid "Territories covered"
+msgstr "AOMs couvertes"
+
+#, elixir-format
+msgid "Territory coverage"
+msgstr "Couverture du territoire"
+
+#, elixir-format
+msgid "covered"
+msgstr "couvertes"
+
+#, elixir-format
+msgid "on"
+msgstr "sur"
+
+#, elixir-format
+msgid "one platform description"
+msgstr "Les données sont proposées dans une licence et un format homogènes, afin de réduire les barrières à leur exploitation. Pour chaque jeu de données, un interlocuteur en charge de la publication est identifié."
+
+#, elixir-format
+msgid "one platform title"
+msgstr "1 plate-forme, 1 licence, 1 format, 1 interlocuteur identifié"
+
+#, elixir-format
+msgid "of the population"
+msgstr "de la population"
+
+#, elixir-format
+msgid "I'm producing transport data"
+msgstr "Je produis des données de transport"
+
+#, elixir-format
+msgid "I'm using transport data"
+msgstr "J’utilise des données de transport"
+
+#, elixir-format
+msgid "Learn more about ODbL"
+msgstr "En savoir plus"
+
+#, elixir-format
+msgid "See tools for reusers"
+msgstr ""
+
+#, elixir-format
+msgid "Who's is reusing data from"
+msgstr ""
+
+#, elixir-format
+msgid "producer description"
+msgstr "AOMs, opérateurs de transport… : vous êtes tenus de publier vos données de relatives à l’information voyageur sur le Point d’Accès National. L’équipe de transport.data.gouv.fr vous accompagne dans leur mise en qualité, mise en conformité et publication."
+
+#, elixir-format
+msgid "user description"
+msgstr "Éditeurs d’applications, développeurs… : vous pouvez utiliser librement et gratuitement les données du Point d’accès National. Elles sont soumises à la licence ODbL."
+
+#, elixir-format
+msgid "reusers list description"
+msgstr "Les réutilisateurs listés ici sont ceux ayant déclaré une réutilisation sur la plate-forme. En savoir plus."
+
+#, elixir-format
 msgid "Deployment status"
 msgstr "État du déploiement"
 

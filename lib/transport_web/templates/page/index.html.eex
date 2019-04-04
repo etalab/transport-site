@@ -1,11 +1,11 @@
 <div class="hero">
     <div class="hero__container">
         <div class="container text-center">
-            <h1>Le Point d'Accès National aux données de transport</h1>
-            <h2>Rassembler les données de toute l’offre de mobilité à travers la France</h2>
+            <h1><%= dgettext("page-index", "title") %></h1>
+            <h2><%= dgettext("page-index", "subtitle") %></h2>
             <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
                 <%= search_input f, :q, [{"placeholder", dgettext("page-index", "Find dataset")}, {"aria-label", dgettext("page-index", "Find dataset")}] %>
-                <p><a href=<%= dataset_path @conn, :index %>>Voir les derniers jeux de données ajoutés</a></p>
+                <p><a href=<%= dataset_path @conn, :index %>><%= dgettext("page-index", "See newly added datasets") %></a></p>
             <% end %>
         </div>
     </div>
@@ -18,113 +18,122 @@
                 <a href="<%= dataset_path(@conn, :index, type: "public-transit") %>">
                     <div class="tile">
                         <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus.svg") %>" alt="" />
-                        <h3 class="text-center">Horaires transports en commun</h3>
-                        <p><%= @count_by_type["public-transit"] %> jeux de données</p>
+                        <h3 class="text-center"><%= dgettext("page-index", "Public transit schedules") %></h3>
+                        <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["public-transit"]) %></p>
                     </div>
                 </a>
                 <a href="<%= dataset_path(@conn, :index, filter: "has_realtime") %>">
                     <div class="tile">
                         <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus-stop.svg") %>" alt="" />
-                        <h3 class="text-center">Temps réel transports en commun</h3>
-                        <p><%= @count_has_realtime %> jeux de données</p>
+                        <h3 class="text-center"><%= dgettext("page-index", "Realtime public transit") %></h3>
+                        <p><%= dngettext("page-index", "dataset", "datasets", @count_has_realtime) %></p>
                     </div>
                 </a>
                 <a href="<%= dataset_path(@conn, :index, type: "long-distance-coach") %>">
                     <div class="tile">
                         <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus.svg") %>" alt="" />
-                        <h3 class="text-center">Bus longue distance</h3>
-                        <p><%= @count_by_type["long-distance-coach"] %> jeux de données</p>
+                        <h3 class="text-center"><%= dgettext("page-index", "Long distance coach") %></h3>
+                        <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["long-distance-coach"]) %></p>
                     </div>
                 </a>
                 <a href="<%= dataset_path(@conn, :index, type: "bike-sharing") %>">
                     <div class="tile">
                         <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle.svg") %>" alt="" />
-                        <h3 class="text-center">Vélos en libre-service</h3>
-                        <p><%= @count_by_type["bike-sharing"] %> jeux de données</p>
+                        <h3 class="text-center"><%= dgettext("page-index", "Bike sharing") %></h3>
+                        <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["bike-sharing"]) %></p>
                     </div>
                 </a>
                 <a href="<%= dataset_path(@conn, :index, type: "carsharing-areas") %>">
                     <div class="tile">
                         <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/car.svg") %>" alt="" />
-                        <h3 class="text-center">Aires de covoiturage</h3>
-                        <p><%= @count_by_type["carsharing-areas"] %> jeu de données</p>
+                        <h3 class="text-center"><%= dgettext("page-index", "Car-sharing areas") %></h3>
+                        <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["carsharing-areas"]) %></p>
                     </div>
                 </a>
                 <a href="<%= dataset_path(@conn, :index, type: "charging-stations") %>">
                     <div class="tile">
                         <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/charge-station.svg") %>" alt="" />
-                        <h3 class="text-center">Bornes de recharges de véhicules électriques</h3>
-                        <p><%= @count_by_type["charging-stations"] %> jeux de données</p>
+                        <h3 class="text-center"><%= dgettext("page-index", "Electric vehicles charging stations") %></h3>
+                        <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["charging-stations"]) %></p>
                     </div>
                 </a>
             </div>
         </div>
         <div class="upcoming">
-            <h2>À venir dans les prochains mois</h2>
+            <h2><%= dgettext("page-index", "Coming soon") %></h2>
             <div class="grid">
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/parking-grey.svg") %>" alt="" />
-                    <h3 class="text-center">Stationnement en parc privé</h3>
+                    <h3 class="text-center"><%= dgettext("page-index", "Private parking") %></h3>
                 </div>
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/plane-grey.svg") %>" alt="" />
-                    <h3 class="text-center">Données aériennes</h3>
+                    <h3 class="text-center"><%= dgettext("page-index", "Air data") %></h3>
                 </div>
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle-grey.svg") %>" alt="" />
-                    <h3 class="text-center">Stationnement vélo</h3>
+                    <h3 class="text-center"><%= dgettext("page-index", "Bike parking") %></h3>
                 </div>
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/scooter-grey.svg") %>" alt="" />
-                    <h3 class="text-center">Véhicules en free-floating</h3>
+                    <h3 class="text-center"><%= dgettext("page-index", "Freefloating vehicles") %></h3>
                 </div>
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/map-grey.svg") %>" alt="" />
-                    <h3 class="text-center">Réseaux routiers</h3>
+                    <h3 class="text-center"><%= dgettext("page-index", "Road networks") %></h3>
                 </div>
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/boat-grey.svg") %>" alt="" />
-                    <h3 class="text-center">Transport maritime</h3>
+                    <h3 class="text-center"><%= dgettext("page-index", "Sea transport") %></h3>
                 </div>
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/train-grey.svg") %>" alt="" />
-                    <h3 class="text-center">Données ferroviaires</h3>
+                    <h3 class="text-center"><%= dgettext("page-index", "Railroad data") %></h3>
                 </div>
             </div>
-            <a href="#mailing-list">Je souhaite être tenu·e au courant</a>
+            <a href="#mailing-list"><%= dgettext("page-index", "I'd like to be informed") %></a>
         </div>
     </div>
 </section>
 <section class="section">
     <div class="container container-small">
-        <h2 class="text-center">1 plate-forme, 1 licence, 1 format, 1 interlocuteur identifié</h2>
-        <p>Les données sont proposées dans une licence et un format homogènes, afin de réduire les barrières à leur exploitation. Pour chaque jeu de données, un interlocuteur en charge de la publication est identifié. <a href="">En savoir plus</a>.</p>
+        <h2 class="text-center"><%= dgettext("page-index", "one platform title") %></h2>
+        <p><%= dgettext("page-index", "one platform description") %><a href=""><%= dgettext("page-index","Learn more") %></a>.</p>
     </div>
 </section>
 <section class="section section-grey" id="territory">
     <div class="container">
         <div class="row">
             <div class="section__description">
-                <h2>Couverture du territoire</h2>
-                <p>Pour les horaires théoriques des transports en commun :</p>
+                <h2><%= dgettext("page-index", "Territory coverage") %></h2>
+                <p><%= dgettext("page-index", "Scheduled public transit") %></p>
                 <div class="row key-numbers">
                     <div class="key-number__item">
                         <strong><%= @count_aoms_with_dataset %></strong>
-                        <div>AOMs couvertes<br /> sur 330</div>
+                        <div>
+                            <%= dgettext("page-index", "Territories covered")%>
+                            <br /> 
+                            <%= dgettext("page-index", "on") %> 330
+                        </div>
                     </div>
                     <div class="key-number__item">
                         <strong><%= @count_regions_completed %></strong>
-                        <div>régions couvertes<br /> sur 14</div>
+                        <div>
+                        <%= dgettext("page-index", "Regions covered") %><br />
+                        <%= dgettext("page-index", "on") %> 14
+                        </div>
                     </div>
                     <div class="key-number__item">
                         <strong><%= @percent_population %>%</strong>
-                        <div>de la population<br /> couverte</div>
+                        <div>
+                        <%= dgettext("page-index", "of the population") %>
+                        <br /> <%= dgettext("page-index", "covered") %></div>
                     </div>
                 </div>
             </div>
             <div class="deployment-map">
                 <img class="illustration" src="<%= static_path(@conn, "/images/france.svg") %>" alt="" />
-                <a href="<%= static_path(@conn, "/stats") %>" class="button" role="link">Voir plus de statistiques et de cartes</a>
+                <a href="<%= static_path(@conn, "/stats") %>" class="button" role="link"><%= dgettext("page-index", "See more statistics") %></a>
             </div>
         </div>
     </div>
@@ -134,11 +143,11 @@
         <div class="row">
             <img class="illustration" src="<%= static_path(@conn, "/images/user.svg") %>" alt="" />
             <div class="section__description">
-                <h2>J’utilise des données de transport</h2>
-                <p>Éditeurs d’applications, développeurs… : vous pouvez utiliser librement et gratuitement les données du Point d’accès National. Elles sont soumises à la licence ODbL.</p>
+                <h2><%= dgettext("page-index", "I'm using transport data") %></h2>
+                <p><%= dgettext("page-index", "user description") %></p>
                 <div class="row">
-                    <a class="button" href="<%= static_path(@conn, "/stats") %>" role="link">Voir les outils pour les réutilisateurs</a>
-                    <a>En savoir plus sur la licence ODbL</a>
+                    <a class="button" href="<%= static_path(@conn, "/stats") %>" role="link"><%= dgettext("page-index", "See tools for reusers") %></a>
+                    <a><%= dgettext("page-index", "Learn more about ODbL") %></a>
                 </div>
             </div>
         </div>
@@ -148,8 +157,8 @@
     <div class="container">
         <div class="row">
             <div class="section__description">
-                <h2>Je produis des données de transport</h2>
-                <p>AOMs, opérateurs de transport… : vous êtes tenus de publier vos données de relatives à l’information voyageur sur le Point d’Accès National. L’équipe de transport.data.gouv.fr vous accompagne dans leur mise en qualité, mise en conformité et publication.</p>
+                <h2><%= dgettext("page-index", "I'm producing transport data") %></h2>
+                <p><%= dgettext("page-index", "producer description") %></p>
                 <div class="row">
                     <a class="button" href="https://www.data.gouv.fr/fr/admin/dataset/new/"><%= dgettext("page-index", "Publish my data") %></a>
                     <a href="<%= page_path @conn, :single_page, "guide" %>"><%= dgettext("page-index", "Publication guide") %></a>
@@ -161,7 +170,7 @@
 </section>
 <section class="section reusers">
     <div class="container">
-        <h2 class="text-center">Qui réutilise les données de transport.data.gouv.fr ?</h2>
+        <h2 class="text-center"><%= dgettext("page-index", "Who's is reusing data from") %> transport.data.gouv.fr ?</h2>
         <div class="reusers__logos">
             <img src="<%= static_path(@conn, "/images/logos/blablacar-logo.svg") %>" alt="Blablacar"/>
             <img src="<%= static_path(@conn, "/images/logos/handisco-logo.png") %>" alt="Handisco"/>
@@ -176,7 +185,7 @@
             <img src="<%= static_path(@conn, "/images/logos/transit-logo.png") %>" alt="Transit"/>
             <img src="<%= static_path(@conn, "/images/logos/urban-pulse-logo.png") %>" alt="Urban Pulse"/>
         </div>
-        <p class="text-center">Les réutilisateurs listés ici sont ceux ayant déclaré une réutilisation sur la plate-forme. <a href="">En savoir plus</a>.</p>
+        <p class="text-center"><%= dgettext("page-index", "reusers list description") %> <a href=""><%= dgettext("page-index", "Learn more") %></a>.</p>
     </div>
 </section>
 <section class="section section-grey mailing-list" id="mailing-list">
