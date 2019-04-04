@@ -33,6 +33,7 @@ defmodule TransportWeb.API.DatasetController do
 
   defp transform_dataset(dataset) do
     %{
+      "datagouv_id" => dataset.datagouv_id,
       "title" => dataset.spatial,
       "created_at" => dataset.created_at,
       "updated" => Helpers.last_updated(dataset.resources),
