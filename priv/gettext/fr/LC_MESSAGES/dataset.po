@@ -92,3 +92,7 @@ msgstr "Référentiel d'arrêts"
 #, elixir-format
 msgid "Unable to find INSEE code"
 msgstr "Impossible de trouver le code INSEE"
+
+#, elixir-format
+msgid "Long distance coach"
+msgstr "Car longue distance"

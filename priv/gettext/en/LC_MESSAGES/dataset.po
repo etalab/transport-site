@@ -92,3 +92,7 @@ msgstr ""
 #, elixir-format
 msgid "Unable to find INSEE code"
 msgstr ""
+
+#, elixir-format
+msgid "Long distance coach"
+msgstr ""

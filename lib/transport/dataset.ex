@@ -38,7 +38,8 @@ defmodule Transport.Dataset do
     "stops-ref" => dgettext("dataset", "Stops referential"),
     "charging-stations" => dgettext("dataset", "Charging stations"),
     "micro-mobility" => dgettext("dataset", "Micro mobility"),
-    "bike-sharing" => dgettext("dataset", "Bike sharing")
+    "bike-sharing" => dgettext("dataset", "Bike sharing"),
+    "long-distance-coach" => dgettext("dataset", "Long distance coach")
   }
 
   def type_to_str(type), do: type_to_str()[type]
