@@ -9,6 +9,7 @@ defmodule TransportWeb.PageController do
     |> assign(:count_by_type, Dataset.count_by_type())
     |> assign(:count_aoms_with_dataset, count_aoms_with_dataset())
     |> assign(:count_regions_completed, count_regions_completed())
+    |> assign(:count_has_realtime, Dataset.count_has_realtime())
     |> assign(:percent_population, percent_population())
     |> render("index.html")
   end

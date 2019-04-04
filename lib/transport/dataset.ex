@@ -219,6 +219,9 @@ defmodule Transport.Dataset do
 
   def count_by_type, do: for type <- __MODULE__.types(), into: %{}, do: {type, count_by_type(type)}
 
+  def filter_has_realtime, do: from d in __MODULE__, where: d.has_realtime == true
+  def count_has_realtime, do: Repo.aggregate(filter_has_realtime(), :count, :id)
+
   ## Private functions
 
   defp validate_mutual_exclusion(changeset, fields, error) do
