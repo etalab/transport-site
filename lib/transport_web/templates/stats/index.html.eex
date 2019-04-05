@@ -1,45 +1,32 @@
-<div id="map"></div>
 
-<section class="section section-white">
-<div class="container">
-<h1>État du déploiement</h1>
-<h2>Transport collectif théorique</h2>
-<div class="section cards">
+<section class="section deployment">
   <div class="container">
-    <div class="row">
-      <div class="card">
-        <div class="card__content">
-          <h3>Jeux ouverts</h3>
-          <h1><%= @nb_datasets %></h1>
+    <h1>État du déploiement</h1>
+    <div id="map"></div>
+    <h2>Transport collectif théorique</h2>
+    <div class="stats">
+      <div class="grid">
+        <div class="tile">
+          <strong><%= @nb_datasets %></strong>
+          <div>jeux ouverts</div>
         </div>
-      </div>
-      <div class="card">
-        <div class="card__content">
-          <h3>AOMS couvertes</h3>
-          <h1><%= @nb_aoms_with_data %></h1>
-          <h4>sur <%= @nb_aoms %></h4>
+        <div class="tile">
+          <strong><%= @nb_aoms_with_data %></strong>
+          <div>AOMS couvertes sur <%= @nb_aoms %></div>
         </div>
-      </div>
-      <div class="card">
-        <div class="card__content">
-          <h3>Régions couvertes</h3>
-          <h1><%= @nb_regions_completed %></h1>
-          <h4>sur <%= @nb_regions %></h4>
+        <div class="tile">
+          <strong><%= @nb_regions_completed %></strong>
+          <div>régions couvertes sur <%= @nb_regions %></div>
         </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="card">
-        <div class="card__content">
-          <h3>Population couverte</h3>
-          <h1><%= @population_couverte %>M</h1>
-          <h4> sur <%= @population_totale %>M</h4>
+        <div class="tile">
+          <strong><%= @population_couverte %>M</strong>
+          <div>de la population couverte
+            sur <%= @population_totale %>M
+          </div>
         </div>
       </div>
     </div>
+    <%= render("_other.html", cr_tr: static_path(@conn, "/documents/cr_temps_reel.pdf"), cr_vls: static_path(@conn, "/priv/static/documents/cr_vls_autopartage_ff.pdf")) %>
   </div>
-</div>
-<%= render("_other.html", cr_tr: static_path(@conn, "/documents/cr_temps_reel.pdf"), cr_vls: static_path(@conn, "/priv/static/documents/cr_vls_autopartage_ff.pdf")) %>
-</div>
 </section>
 <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
