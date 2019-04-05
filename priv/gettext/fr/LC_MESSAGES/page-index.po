@@ -177,7 +177,7 @@ msgstr "En savoir plus"
 
 #, elixir-format
 msgid "See tools for reusers"
-msgstr ""
+msgstr "Voir les outils pour les réutilisateurs"
 
 #, elixir-format
 msgid "Who's is reusing data from"
