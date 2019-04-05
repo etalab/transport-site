@@ -44,3 +44,11 @@ msgstr "Suivez-nous sur twitter"
 #, elixir-format
 msgid "Deployment status"
 msgstr "État du déploiement"
+
+#, elixir-format
+msgid "Ask for help"
+msgstr "Demander de l’aide"
+
+#, elixir-format
+msgid "Close the form"
+msgstr "Fermer le formulaire"

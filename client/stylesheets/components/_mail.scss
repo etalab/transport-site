@@ -1,28 +1,40 @@
-.footer--on {
+a.mail__button {
   background-color: $blue;
   border-radius: 50px;
   bottom: 1em;
   color: $white;
-  font-size: 1.3em;
+  font-size: 1.5em;
   position: fixed;
   right: 1em;
   text-align: center;
   z-index: 9;
-  padding: 0.5em;
+  padding: 1em;
   width: 50px;
   height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: "Source Sans Pro";
+  text-decoration: none;
 }
 
-.mail__button:hover a div {
+a.mail__button:hover {
   width: auto;
+  background-color: $blue;
 }
 
-.mail__button:hover a div i {
+.mail__button span {
   display: none;
 }
 
-.mail__button:hover a div:after {
-  content: 'Demandez de l\'aide';
+.mail__button:hover span {
+  display: inline;
+  font-size: 0.875em;
+}
+
+.mail__button:hover i {
+  display: none;
 }
 
 .footer__contact {
@@ -30,7 +42,7 @@
   background-color: $background-grey;
   border: 1px solid $border-active;
   bottom: 1em;
-  padding: 1em;
+  padding: 2em;
   position: fixed;
   right: 1em;
   z-index: 10000;
@@ -41,10 +53,6 @@
 
   form {
     width: 100%;
-  }
-
-  h3 {
-    margin: 10px;
   }
 }
 
@@ -57,16 +65,17 @@
   }
 }
 
+.footer__contact .button {
+  float: right;
+}
+
 @include media-desktop-up {
     .footer__contact {
        width: 30em;
+       bottom: 1em;
     }
 
     .footer__alwayson {
-       bottom: 2.5em;
-    }
-
-    .footer__contact {
        bottom: 2.5em;
     }
 }

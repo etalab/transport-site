@@ -44,3 +44,7 @@ msgstr ""
 #, elixir-format
 msgid "Deployment status"
 msgstr ""
+
+#, elixir-format
+msgid "Ask for help"
+msgstr ""

@@ -28,10 +28,7 @@ defmodule TransportWeb.InputHelpers do
     if Keyword.get(options, :nodiv) do
       Form.form_for(form_data, action, options, fun)
     else
-      content_tag(:div,
-        Form.form_for(form_data, action, options, fun),
-      class: "container"
-      )
+      Form.form_for(form_data, action, options, fun)
     end
   end
 
