@@ -9,7 +9,7 @@ defmodule TransportWeb.Integration.ContactTest do
     |> navigate_to
 
     :class
-    |> find_element("footer--on")
+    |> find_element("mail__button")
     |> find_within_element(:class, "icon--envelope")
     |> assert
   end
