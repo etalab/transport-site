@@ -16,13 +16,6 @@ defmodule TransportWeb.DatasetController do
     |> assign(:regions, get_regions(params))
     |> assign(:types, get_types(params))
     |> assign(:order_by, params["order_by"])
-    |> render_or_redirect(params)
-  end
-
-  defp render_or_redirect(%Plug.Conn{assigns: %{datasets: %{entries: [dataset]}}} = conn, _params),
-   do: redirect(conn, to: dataset_path(conn, :details, dataset.slug))
-  defp render_or_redirect(conn, params) do
-    conn
     |> assign(:q, Map.get(params, "q"))
     |> render("index.html")
   end
