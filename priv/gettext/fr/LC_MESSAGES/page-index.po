@@ -63,7 +63,7 @@ msgstr "Bornes de recharges de véhicules électriques"
 
 #, elixir-format
 msgid "Long distance coach"
-msgstr "Bus longue distance"
+msgstr "Autocars longue distance"
 
 #, elixir-format
 msgid "Public transit schedules"
