@@ -27,7 +27,8 @@ a.tile {
 }
 
 a.tile:hover {
-  background: $white;
+  background: $lighter-blue;
+  border-radius: 0;
 }
 
 .tile h3 {

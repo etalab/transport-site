@@ -20,7 +20,7 @@ msgid "Email address"
 msgstr "Adresse email"
 
 msgid "Subscribe to our email newsletter to receive update"
-msgstr "Pour être informé des nouveautés, inscrivez-vous à notre newsletter :"
+msgstr "Pour être informé·e des nouveautés, inscrivez-vous à notre newsletter :"
 
 msgid "SUBSCRIBE"
 msgstr "INSCRIPTION"
@@ -85,7 +85,7 @@ msgstr "Voir les derniers jeux de données ajoutés"
 
 #, elixir-format
 msgid "Air data"
-msgstr ""
+msgstr "Données aériennes"
 
 #, elixir-format
 msgid "Bike parking"
@@ -145,7 +145,7 @@ msgstr "Couverture du territoire"
 
 #, elixir-format
 msgid "covered"
-msgstr "couvertes"
+msgstr "couverte"
 
 #, elixir-format
 msgid "on"
@@ -173,7 +173,7 @@ msgstr "J’utilise des données de transport"
 
 #, elixir-format
 msgid "Learn more about ODbL"
-msgstr "En savoir plus"
+msgstr "En savoir plus sur la licence ODbL"
 
 #, elixir-format
 msgid "See tools for reusers"
@@ -181,7 +181,7 @@ msgstr "Voir les outils pour les réutilisateurs"
 
 #, elixir-format
 msgid "Who's is reusing data from"
-msgstr ""
+msgstr "Qui réutilise des données de transport.data.gouv.fr ?"
 
 #, elixir-format
 msgid "producer description"
@@ -193,7 +193,7 @@ msgstr "Éditeurs d’applications, développeurs… : vous pouvez utiliser libr
 
 #, elixir-format
 msgid "reusers list description"
-msgstr "Les réutilisateurs listés ici sont ceux ayant déclaré une réutilisation sur la plate-forme. En savoir plus."
+msgstr "Les réutilisateurs listés ici sont ceux ayant déclaré une réutilisation sur la plate-forme."
 
 #, elixir-format
 msgid "Deployment status"
@@ -206,3 +206,7 @@ msgstr "Demander de l’aide"
 #, elixir-format
 msgid "Close the form"
 msgstr "Fermer le formulaire"
+
+#, elixir-format
+msgid "I wish to follow the development of transport.data.gouv.fr"
+msgstr "Je souhaite suivre l’évolution de transport.data.gouv.fr"

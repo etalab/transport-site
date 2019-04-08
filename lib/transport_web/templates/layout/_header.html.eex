@@ -4,13 +4,18 @@
 
     <nav role="navigation">
       <ul class="nav__links">
+        <li class="nav__item">
+          <a href="https://www.data.gouv.fr/fr/admin/dataset/new/">
+            <%= gettext "Publish a dataset" %>
+          </a>
+        </li>
         <%= if assigns[:current_user] do %>
           <%= if assigns[:current_user] |> Map.get("organizations", []) |> Enum.any?(fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end) do %>
             <li>
                 <%= link("Administration", to: "/backoffice") %>
             </li>
           <% end %>
-        <li>
+        <li class="nav__item">
           <%= if assigns[:current_user]["avatar_thumbnail"] do %>
                 <img src="<%= assigns[:current_user]["avatar_thumbnail"] %>" alt="Avatar" class="nav__avatar"> </img>
           <% end %>
@@ -18,14 +23,14 @@
             <%= assigns[:current_user]["first_name"] %> <%= assigns[:current_user]["last_name"] %>
           </span>
         </li>
-        <li>
+        <li class="nav__item">
             <a class="navigation__link nagivation__link--logout" href="<%= session_path @conn, :delete %>" role="link">
                 <i class="icon icon--logout" aria-hidden="true"></i>
                 <span><%= gettext "Sign Out" %></span>
             </a>
           </li>
         <% else %>
-        <li>
+        <li class="nav__item">
             <a class="navigation__link navigation__link--login" href="<%= page_path @conn, :login, redirect_path: current_path(@conn) %>" role="link">
             <i class="icon icon--login" aria-hidden="true"></i>
             <span><%= gettext "Sign In" %></span>

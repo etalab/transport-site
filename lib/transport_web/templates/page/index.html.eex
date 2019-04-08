@@ -86,7 +86,7 @@
 <section class="section">
     <div class="container container-small">
         <h2 class="text-center"><%= dgettext("page-index", "one platform title") %></h2>
-        <p><%= dgettext("page-index", "one platform description") %><a href=""><%= dgettext("page-index","Learn more") %></a>.</p>
+        <p><%= dgettext("page-index", "one platform description") %>&nbsp;<a href=""><%= dgettext("page-index","Learn more") %></a>.</p>
     </div>
 </section>
 <section class="section section-grey" id="territory">
@@ -120,8 +120,10 @@
                 </div>
             </div>
             <div class="deployment-map">
-                <img class="illustration" src="<%= static_path(@conn, "/images/france.svg") %>" alt="" />
-                <a href="<%= static_path(@conn, "/stats") %>" class="button" role="link"><%= dgettext("page-index", "See more statistics") %></a>
+                <a href="<%= static_path(@conn, "/stats") %>" class="text-center" role="link">
+                    <img class="illustration" src="<%= static_path(@conn, "/images/france.svg") %>" alt="" />
+                    <div><%= dgettext("page-index", "See more statistics") %></div>
+                </a>
             </div>
         </div>
     </div>
@@ -134,8 +136,8 @@
                 <h2><%= dgettext("page-index", "I'm using transport data") %></h2>
                 <p><%= dgettext("page-index", "user description") %></p>
                 <div class="row">
-                    <a class="button" href="<%= static_path(@conn, "/stats") %>" role="link"><%= dgettext("page-index", "See tools for reusers") %></a>
-                    <a><%= dgettext("page-index", "Learn more about ODbL") %></a>
+                    <a class="button" href="https://transport-data-gouv-fr.gitbook.io/doc/reutilisateurs/outils-pour-les-reutilisateurs"><%= dgettext("page-index", "See tools for reusers") %></a>
+                    <a href="https://transport-data-gouv-fr.gitbook.io/doc/reutilisateurs/licence-odbl-et-conditions-de-reutilisation"><%= dgettext("page-index", "Learn more about ODbL") %></a>
                 </div>
             </div>
         </div>
@@ -178,27 +180,26 @@
 </section>
 <section class="section section-grey mailing-list" id="mailing-list">
     <div class="container container-small">
-        <div class="form__container">
-            <form action="<%= @mailchimp_newsletter_url %>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
-                <div id="mc_embed_signup_scroll">
-                  <label for="mce-EMAIL"><%= dgettext("page-index", "Subscribe to our email newsletter to receive update") %></label>
-                  <div class="input__group">
-                      <input type="email" value="" name="EMAIL" id="mce-EMAIL" placeholder="<%= dgettext("page-index", "Email address") %>">
-                      <div id="mce-responses" class="clear">
-                          <div class="response" id="mce-error-response" style="display:none"></div>
-                          <div class="response" id="mce-success-response" style="display:none"></div>
-                      </div>
-                      <div>
-                          <input type="hidden" name="b_5ee8bfe0f1b073b49de06a063_13db2e9a94" tabindex="-1" value="">
-                      </div>
-                        <button class="button" type="submit" name="subscribe" id="mc-embedded-subscribe"><%= dgettext("page-index", "SUBSCRIBE") %></button>
+        <h2 class="text-center"><%= dgettext("page-index", "I wish to follow the development of transport.data.gouv.fr")%></h2>
+        <form action="<%= @mailchimp_newsletter_url %>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+            <div id="mc_embed_signup_scroll">
+              <label for="mce-EMAIL"><%= dgettext("page-index", "Subscribe to our email newsletter to receive update") %></label>
+              <div class="input__group">
+                  <input type="email" value="" name="EMAIL" id="mce-EMAIL" placeholder="<%= dgettext("page-index", "Email address") %>">
+                  <div id="mce-responses" class="clear">
+                      <div class="response" id="mce-error-response" style="display:none"></div>
+                      <div class="response" id="mce-success-response" style="display:none"></div>
                   </div>
-                </div>
-           </form>
-           <div class="mailing-list__social-container">
-                <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" /><a href="https://twitter.com/transportdatafr"><%= dgettext("page-index", "Follow us on twitter") %></a>
-                <img src="<%= static_path(@conn, "/images/Slack_Mark.svg") %>" alt="Slack" /><a href="https://join.slack.com/transportdatagouvfr/shared_invite/MjA2ODkzODQyOTk4LTE0OTg4MDUyNTktNmM2OWJmOGQwOA"><%= dgettext("page-index", "Join us on Slack") %></a>
+                  <div>
+                      <input type="hidden" name="b_5ee8bfe0f1b073b49de06a063_13db2e9a94" tabindex="-1" value="">
+                  </div>
+                    <button class="button" type="submit" name="subscribe" id="mc-embedded-subscribe"><%= dgettext("page-index", "SUBSCRIBE") %></button>
+              </div>
             </div>
+       </form>
+       <div class="mailing-list__social-container">
+            <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" /><a href="https://twitter.com/transportdatafr"><%= dgettext("page-index", "Follow us on twitter") %></a>
+            <img src="<%= static_path(@conn, "/images/Slack_Mark.svg") %>" alt="Slack" /><a href="https://join.slack.com/transportdatagouvfr/shared_invite/MjA2ODkzODQyOTk4LTE0OTg4MDUyNTktNmM2OWJmOGQwOA"><%= dgettext("page-index", "Join us on Slack") %></a>
         </div>
     </div>
 </section>

@@ -49,3 +49,6 @@ msgstr "Mentions légales"
 #, elixir-format
 msgid "Question about transport.data.gouv.fr"
 msgstr "Question au sujet de transport.data.gouv.fr"
+
+msgid "Publish a dataset"
+msgstr "Publier un jeu de données"
