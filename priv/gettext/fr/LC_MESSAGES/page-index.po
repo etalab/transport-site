@@ -181,7 +181,7 @@ msgstr "Voir les outils pour les réutilisateurs"
 
 #, elixir-format
 msgid "Who's is reusing data from"
-msgstr "Qui réutilise des données de transport.data.gouv.fr ?"
+msgstr "Qui réutilise des données de"
 
 #, elixir-format
 msgid "producer description"
