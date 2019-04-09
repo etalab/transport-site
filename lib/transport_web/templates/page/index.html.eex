@@ -1,4 +1,4 @@
-<div class="hero">
+<div class="hero home-hero">
     <div class="hero__container">
         <div class="container text-center">
             <h1><%= dgettext("page-index", "title") %></h1>

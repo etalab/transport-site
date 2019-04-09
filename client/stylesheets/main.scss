@@ -6,6 +6,17 @@ main {
   min-height: calc(100% - 96px - 73px);
 }
 
+.hero {
+  background: $white;
+}
+
+.hero__container {
+  color: $dark-text;
+  padding: 5em 0;
+  flex-direction: row;
+  align-items: center;
+}
+
 .hero h2 {
   font-family: 'Source Sans Pro';
   font-weight: 400;

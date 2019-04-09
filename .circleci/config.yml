@@ -27,7 +27,7 @@ defaults_with_postgres_and_phantom: &defaults_with_postgres_and_phantom
     <<: *defaults
     docker:
       - *default_docker
-      - image: wernight/phantomjs
+      - image: wernight/phantomjs/latest
         command: phantomjs --webdriver=8910
       - image: mdillon/postgis:11-alpine
         environment:
