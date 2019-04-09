@@ -25,3 +25,21 @@
     }
   }
 }
+
+.stats {
+  .tile {
+    background-color: $lighter-grey;
+    display: flex;
+    flex-direction: row;
+    padding: 2em;
+
+    strong {
+      font-size: 3em;
+      margin-right: 0.25em;
+    }
+  }
+}
+
+.deployment h2 {
+  margin-top: 3em;
+}
