@@ -53,6 +53,12 @@
                   to: dataset_path(@conn, :index)
                   )
                 %></li>
+                <% else %>
+                  <li><%= link(
+                    dgettext("page-shortlist", "Has realtime"),
+                    to: dataset_path(@conn, :index, filter: "has_realtime")
+                  )
+                  %></li>
                 <% end %>
               </ul>
             </li>

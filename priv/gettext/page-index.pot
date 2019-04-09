@@ -42,6 +42,160 @@ msgid "Follow us on twitter"
 msgstr ""
 
 #, elixir-format
+msgid "title"
+msgstr ""
+
+#, elixir-format
+msgid "subtitle"
+msgstr ""
+
+#, elixir-format
+msgid "Bike sharing"
+msgstr ""
+
+#, elixir-format
+msgid "Car-sharing areas"
+msgstr ""
+
+#, elixir-format
+msgid "Electric vehicles charging stations"
+msgstr ""
+
+#, elixir-format
+msgid "Long distance coach"
+msgstr ""
+
+#, elixir-format
+msgid "Public transit schedules"
+msgstr ""
+
+#, elixir-format
+msgid "Realtime public transit"
+msgstr ""
+
+#, elixir-format
+msgid "dataset"
+msgid_plural "datasets"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-format
+msgid "See newly added datasets"
+msgstr ""
+
+#, elixir-format
+msgid "Air data"
+msgstr ""
+
+#, elixir-format
+msgid "Bike parking"
+msgstr ""
+
+#, elixir-format
+msgid "Coming soon"
+msgstr ""
+
+#, elixir-format
+msgid "Freefloating vehicles"
+msgstr ""
+
+#, elixir-format
+msgid "I'd like to be informed"
+msgstr ""
+
+#, elixir-format
+msgid "Private parking"
+msgstr ""
+
+#, elixir-format
+msgid "Railroad data"
+msgstr ""
+
+#, elixir-format
+msgid "Road networks"
+msgstr ""
+
+#, elixir-format
+msgid "Sea transport"
+msgstr ""
+
+#, elixir-format
+msgid "Learn more"
+msgstr ""
+
+#, elixir-format
+msgid "Regions covered"
+msgstr ""
+
+#, elixir-format
+msgid "Scheduled public transit"
+msgstr ""
+
+#, elixir-format
+msgid "See more statistics"
+msgstr ""
+
+#, elixir-format
+msgid "Territories covered"
+msgstr ""
+
+#, elixir-format
+msgid "Territory coverage"
+msgstr ""
+
+#, elixir-format
+msgid "covered"
+msgstr ""
+
+#, elixir-format
+msgid "on"
+msgstr ""
+
+#, elixir-format
+msgid "one platform description"
+msgstr ""
+
+#, elixir-format
+msgid "one platform title"
+msgstr ""
+
+#, elixir-format
+msgid "of the population"
+msgstr ""
+
+#, elixir-format
+msgid "I'm producing transport data"
+msgstr ""
+
+#, elixir-format
+msgid "I'm using transport data"
+msgstr ""
+
+#, elixir-format
+msgid "Learn more about ODbL"
+msgstr ""
+
+#, elixir-format
+msgid "See tools for reusers"
+msgstr ""
+
+#, elixir-format
+msgid "Who's is reusing data from"
+msgstr ""
+
+#, elixir-format
+msgid "producer description"
+msgstr ""
+
+#, elixir-format
+msgid "user description"
+msgstr ""
+
+#, elixir-format
+msgid "reusers list description"
+msgstr ""
+
+#, elixir-format
 msgid "Deployment status"
 msgstr ""
 

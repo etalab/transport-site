@@ -6,6 +6,16 @@ main {
   min-height: calc(100% - 96px - 73px);
 }
 
+.hero h2 {
+  font-family: 'Source Sans Pro';
+  font-weight: 400;
+  font-size: 1.25em;
+}
+
+.navbar {
+  border: 0;
+}
+
 .icon {
   margin-right: 0.5em;
 }
@@ -28,4 +38,8 @@ main {
 
 .nav__username {
   margin-right: 1em;
+}
+
+.button {
+  text-align: center;
 }

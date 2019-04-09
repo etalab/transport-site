@@ -1,10 +1,12 @@
+.hero {
+  background: #fff url("/images/transport.svg") center bottom no-repeat;
+  background-size: cover;
+}
+
 .hero__container {
-  background: $white;
   color: $dark-text;
   padding: 5em 0;
-  background: #d7edff url("/images/transport.svg") center bottom no-repeat;
-  background-size: cover;
-  height: 45em;
+  height: 44em;
   flex-direction: row;
   align-items: start;
 }
@@ -19,38 +21,144 @@
   margin-top: 2em;
 }
 
-.tools .row {
-  direction: rtl;
+a.tile {
+  color: $almost-black;
+  text-decoration: none;
 }
 
-.tools .column {
-  direction: ltr;
-  align-self: center;
+a.tile:hover {
+  background: $lighter-blue;
+  border-radius: 0;
 }
 
-.tools .button + .button {
+.tile h3 {
+  line-height: 1.25em;
   margin-top: 0.5em;
-} 
+}
 
-.cta {
-  display: flex;
+.tile__icon {
+  height: 4em;
+}
+
+.upcoming {
+  margin-top: 5em;
+
+  .grid {
+    color: $grey;
+
+    .tile {
+      flex-direction: row;
+      transform: none;
+
+      h3 {
+        font-size: 1.25em;
+        margin: 0 0 0 1em;
+      }
+
+      .tile__icon {
+        height: 3em;
+      }
+    }
+  }
+
+  a {
+    margin-top: 2em;
+    display: inline-block;
+  }
+}
+
+.section__description .row {
+  justify-content: start;
   align-items: center;
-  min-width: 25%;
+}
+
+.section__description .key-numbers {
+  margin: 2em 2em 2em 0;
+  justify-content: space-between;
+}
+
+.key-numbers strong {
+  font-size: 3em;
+  font-family: Evolventa;
+  margin-right: 0.2em;
+}
+
+.key-number__item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.illustration {
+  height: 13em;
+}
+
+.section__description {
+  flex-grow: 1;
+}
+
+.section__description p {
+  margin-bottom: 2em;
+}
+
+.deployment-map {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 1;
   justify-content: center;
 }
 
-.button--fullwidth {
-  text-align: center;
-  width: 100%;
-  margin: 0;
+.reusers__logos {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.button--fullwidth + .button--fullwidth {
-  margin-left: 0;
+.reusers img {
+  margin: 2em;
+  height: 48px;
 }
 
 @media (max-width: 899px) {
   .row {
     flex-direction: column;
+  }
+
+  .row * + * {
+    margin-left: 0;
+    margin-top: 1em;
+  }
+
+  h2 {
+    text-align: center;
+  }
+
+  .key-numbers.row {
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-right: 0;
+  }
+
+  .key-number__item + .key-number__item {
+    margin-top: 2em;
+  }
+
+  .key-number__item > * {
+    margin: 0;
+  }
+
+  .section__description {
+    order: 2;
+  }
+
+  .section__description p {
+    text-align: center;
+  }
+
+  .illustration {
+    order: 1;
+    margin: 0 0 2em;
   }
 }

@@ -1,5 +1,6 @@
 defmodule TransportWeb.PageControllerTest do
   use TransportWeb.ConnCase, async: true
+  use TransportWeb.DatabaseCase, cleanup: []
 
   doctest TransportWeb.PageController
 
