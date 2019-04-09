@@ -23,7 +23,7 @@ defmodule TransportWeb.Endpoint do
   plug Plug.Logger
 
   plug Plug.Parsers,
-    parsers: [:urlencoded, :json],
+    parsers: [:urlencoded, :json, :multipart],
     pass: ["*/*"],
     json_decoder: Poison
 

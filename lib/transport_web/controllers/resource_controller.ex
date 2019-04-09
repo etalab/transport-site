@@ -1,6 +1,7 @@
 defmodule TransportWeb.ResourceController do
   use TransportWeb, :controller
-  alias Transport.{Repo, Resource, Validation}
+  alias Datagouvfr.Client.{Datasets, Resources, User}
+  alias Transport.{Dataset, Repo, Resource, Validation}
 
   def details(conn, params) do
     config = make_pagination_config(params)
@@ -34,6 +35,59 @@ defmodule TransportWeb.ResourceController do
            issue_type: issue_type,
            issues: issues}
         )
+    end
+  end
+
+  @spec datasets_list(Plug.Conn.t(), any()) :: Plug.Conn.t()
+  def datasets_list(conn, _params) do
+    filter = fn d -> Repo.get_by(Dataset, datagouv_id: d["id"]) end
+
+    conn = conn
+    |> assign_or_flash(&User.datasets/1, :datasets, "Unable to get resources, please retry.")
+    |> assign_or_flash(&User.org_datasets/1, :org_datasets, "Unable to get resources, please retry.")
+
+    conn
+    |> assign(:datasets, Enum.filter(conn.assigns.datasets, filter))
+    |> assign(:org_datasets, Enum.filter(conn.assigns.org_datasets, filter))
+    |> render("list.html")
+  end
+
+  @spec resources_list(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def resources_list(conn, %{"dataset_id" => dataset_id}) do
+    conn
+    |> assign_or_flash(fn conn -> Datasets.get(conn, dataset_id) end, :dataset, "Unable to get resources, please retry.")
+    |> render("resources_list.html")
+  end
+
+  @spec choose_file(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def choose_file(conn, %{"dataset_id" => dataset_id, "resource_id" => resource_id}) do
+    conn
+    |> assign_or_flash(fn conn -> Datasets.get(conn, dataset_id) end, :dataset, "Unable to get resources, please retry.")
+    |> assign(:action_path, resource_path(conn, :post_file, dataset_id, resource_id))
+    |> render("choose_file.html")
+  end
+
+  def post_file(conn, params) do
+    case Resources.upload(conn, params["dataset_id"], params["resource_id"], params["resource_file"]) do
+      {:ok, _} ->
+        conn
+        |> put_flash(:info, dgettext("resource", "File uploaded!"))
+        |> redirect(to: dataset_path(conn, :details, params["dataset_id"]))
+      {:error, _error} ->
+        conn
+        |> put_flash(:error, dgettext("resource", "Unable to upload file"))
+        |> assign(:action_path, resource_path(conn, :post_file, params["dataset_id"], params["resource_id"]))
+        |> render("choose_file.html")
+    end
+  end
+
+  defp assign_or_flash(conn, getter, kw, error) do
+    case getter.(conn) do
+      {:ok, value} -> assign(conn, kw, value)
+      {:error, _error} ->
+         conn
+         |> assign(kw, [])
+         |> put_flash(:error, Gettext.dgettext(TransportWeb.Gettext, "resource", error))
     end
   end
 

@@ -66,6 +66,16 @@ defmodule TransportWeb.Router do
 
     scope "/resources" do
       get "/:id", ResourceController, :details
+
+      scope "/update" do
+        pipe_through [:authenticated]
+        get "/datasets", ResourceController, :datasets_list
+        scope "/datasets/:dataset_id/resources" do
+          get "/", ResourceController, :resources_list
+          get "/:resource_id/", ResourceController, :choose_file
+          post "/:resource_id/", ResourceController, :post_file
+        end
+      end
     end
 
     scope "/backoffice", Backoffice, as: :backoffice do
