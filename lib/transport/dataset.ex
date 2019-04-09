@@ -44,7 +44,7 @@ defmodule Transport.Dataset do
 
   def type_to_str(type), do: type_to_str()[type]
 
-  def dataset_types, do: Map.keys(type_to_str())
+  def types, do: Map.keys(type_to_str())
 
   defp no_validations_query do
     from r in Resource,
@@ -116,6 +116,12 @@ defmodule Transport.Dataset do
     |> list_datasets()
     |> where([d], d.aom_id in ^sub)
     |> or_where([r], r.region_id == ^region_id)
+    |> order_datasets(params)
+  end
+  def list_datasets(%{"filter" => "has_realtime"} = params, s) do
+    s
+    |> list_datasets()
+    |> where([d], d.has_realtime == true)
     |> order_datasets(params)
   end
   def list_datasets(%{} = params, s) do
@@ -210,6 +216,17 @@ defmodule Transport.Dataset do
   def datagouv_url(%__MODULE__{slug: slug}) do
     Path.join([System.get_env("DATAGOUVFR_SITE"), "datasets", slug])
   end
+
+  def count_by_type(type) do
+    query = from d in __MODULE__, where: d.type == ^type
+
+    Repo.aggregate(query, :count, :id)
+  end
+
+  def count_by_type, do: for type <- __MODULE__.types(), into: %{}, do: {type, count_by_type(type)}
+
+  def filter_has_realtime, do: from d in __MODULE__, where: d.has_realtime == true
+  def count_has_realtime, do: Repo.aggregate(filter_has_realtime(), :count, :id)
 
   ## Private functions
 

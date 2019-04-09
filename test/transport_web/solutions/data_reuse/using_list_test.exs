@@ -58,7 +58,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
     |> navigate_to
 
     # I can click to the a list of available datasets
-    click({:link_text, "Réutiliser des données"})
+    click({:link_text, "Voir les derniers jeux de données ajoutés"})
 
     # I can see or read somewhere that the datasets are valid
     assert visible_page_text() =~ "Jeux de données valides disponibles"

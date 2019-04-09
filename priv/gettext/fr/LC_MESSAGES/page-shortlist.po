@@ -200,3 +200,7 @@ msgstr "Types de données"
 #, elixir-format
 msgid "All types"
 msgstr "Tous les types"
+
+#, elixir-format
+msgid "Has realtime"
+msgstr "Temps réel"

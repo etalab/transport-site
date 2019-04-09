@@ -53,7 +53,7 @@ defmodule TransportWeb.Backoffice.PageController do
     conn
     |> assign(:regions, Repo.all(Region))
     |> assign(:datasets, datasets)
-    |> assign(:dataset_types, Dataset.dataset_types())
+    |> assign(:dataset_types, Dataset.types())
     |> render("index.html")
   end
 end

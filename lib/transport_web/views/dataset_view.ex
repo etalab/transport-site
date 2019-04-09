@@ -92,7 +92,7 @@ defmodule TransportWeb.DatasetView do
   def type_link(conn, %{type: type, msg: msg}) do
     case conn.params do
       %{"type" => ^type} -> ~E"<span class=\"activefilter\"><%= msg %></span>"
-      _ -> link(msg, to: dataset_path(conn, :by_type, type))
+      _ -> link(msg, to: dataset_path(conn, :index, type: type))
     end
   end
 

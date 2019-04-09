@@ -1,5 +1,6 @@
 defmodule TransportWeb.Integration.ContactTest do
-  use TransportWeb.ConnCase, async: true
+  use TransportWeb.ConnCase, async: false
+  use TransportWeb.DatabaseCase, cleanup: [], async: false
   use TransportWeb.UserFacingCase
 
   @tag :integration

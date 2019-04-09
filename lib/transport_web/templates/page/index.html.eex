@@ -1,89 +1,190 @@
-<div class="hero" role="banner">
+<div class="hero">
     <div class="hero__container">
-        <div class="container">
-            <h1>Le Point d'Accès National</h1>
-            <h3>Améliorer l'information voyageur partout en France, grâce à l’ouverture des données.</h3>
+        <div class="container text-center">
+            <h1><%= dgettext("page-index", "title") %></h1>
+            <h2><%= dgettext("page-index", "subtitle") %></h2>
             <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
-                <%= search_input f, :q, [{"placeholder", dgettext("page-index", "Find dataset")}] %>
-                <p class="text-center"><a href="#about">➞ Plus d'informations</a></p>
+                <%= search_input f, :q, [{"placeholder", dgettext("page-index", "Find dataset")}, {"aria-label", dgettext("page-index", "Find dataset")}] %>
+                <p><a href=<%= dataset_path @conn, :index %>><%= dgettext("page-index", "See newly added datasets") %></a></p>
             <% end %>
         </div>
     </div>
 </div>
 
-<section class="section section-white aom" id="about">
+<section class="section section-grey">
+    <div class="container">
+        <div class="existing">
+            <div class="grid">
+                <a class="tile" href="<%= dataset_path(@conn, :index, type: "public-transit") %>">
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus.svg") %>" alt="" />
+                    <h3 class="text-center"><%= dgettext("page-index", "Public transit schedules") %></h3>
+                    <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["public-transit"]) %></p>
+                </a>
+                <a class="tile" href="<%= dataset_path(@conn, :index, filter: "has_realtime") %>">
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus-stop.svg") %>" alt="" />
+                    <h3 class="text-center"><%= dgettext("page-index", "Realtime public transit") %></h3>
+                    <p><%= dngettext("page-index", "dataset", "datasets", @count_has_realtime) %></p>
+                </a>
+                <a class="tile" href="<%= dataset_path(@conn, :index, type: "long-distance-coach") %>">
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus.svg") %>" alt="" />
+                    <h3 class="text-center"><%= dgettext("page-index", "Long distance coach") %></h3>
+                    <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["long-distance-coach"]) %></p>
+                </a>
+                <a class="tile" href="<%= dataset_path(@conn, :index, type: "bike-sharing") %>">
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle.svg") %>" alt="" />
+                    <h3 class="text-center"><%= dgettext("page-index", "Bike sharing") %></h3>
+                    <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["bike-sharing"]) %></p>
+                </a>
+                <a class="tile" href="<%= dataset_path(@conn, :index, type: "carsharing-areas") %>">
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/car.svg") %>" alt="" />
+                    <h3 class="text-center"><%= dgettext("page-index", "Car-sharing areas") %></h3>
+                    <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["carsharing-areas"]) %></p>
+                </a>
+                <a class="tile" href="<%= dataset_path(@conn, :index, type: "charging-stations") %>">
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/charge-station.svg") %>" alt="" />
+                    <h3 class="text-center"><%= dgettext("page-index", "Electric vehicles charging stations") %></h3>
+                    <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["charging-stations"]) %></p>
+                </a>
+            </div>
+        </div>
+        <div class="upcoming">
+            <h2><%= dgettext("page-index", "Coming soon") %></h2>
+            <div class="grid">
+                <div class="tile">
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/parking-grey.svg") %>" alt="" />
+                    <h3 class="text-center"><%= dgettext("page-index", "Private parking") %></h3>
+                </div>
+                <div class="tile">
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/plane-grey.svg") %>" alt="" />
+                    <h3 class="text-center"><%= dgettext("page-index", "Air data") %></h3>
+                </div>
+                <div class="tile">
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle-grey.svg") %>" alt="" />
+                    <h3 class="text-center"><%= dgettext("page-index", "Bike parking") %></h3>
+                </div>
+                <div class="tile">
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/scooter-grey.svg") %>" alt="" />
+                    <h3 class="text-center"><%= dgettext("page-index", "Freefloating vehicles") %></h3>
+                </div>
+                <div class="tile">
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/map-grey.svg") %>" alt="" />
+                    <h3 class="text-center"><%= dgettext("page-index", "Road networks") %></h3>
+                </div>
+                <div class="tile">
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/boat-grey.svg") %>" alt="" />
+                    <h3 class="text-center"><%= dgettext("page-index", "Sea transport") %></h3>
+                </div>
+                <div class="tile">
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/train-grey.svg") %>" alt="" />
+                    <h3 class="text-center"><%= dgettext("page-index", "Railroad data") %></h3>
+                </div>
+            </div>
+            <a href="#mailing-list"><%= dgettext("page-index", "I'd like to be informed") %></a>
+        </div>
+    </div>
+</section>
+<section class="section">
+    <div class="container container-small">
+        <h2 class="text-center"><%= dgettext("page-index", "one platform title") %></h2>
+        <p><%= dgettext("page-index", "one platform description") %>&nbsp;<a href=""><%= dgettext("page-index","Learn more") %></a>.</p>
+    </div>
+</section>
+<section class="section section-grey" id="territory">
     <div class="container">
         <div class="row">
-            <div class="column">
-                <h2>Qu'est-ce que le Point d'Accès National ?</h2>
-                <p> Le Point d'Accès National est une plateforme numérique qui référence l'ensemble des données de transport relatives à l'information des voyageurs. Il s'adresse aux producteurs et aux réutilisateurs de ces données transport et vise à garantir la disponibilité d'information voyageur fiable et complète partout en France, sur tous les supports numériques. Suivez l'évolution de l'ouverture des données transport sur la <a href="/stats" class="inverted_color">page dédiée au déploiement</a>. </p>
+            <div class="section__description">
+                <h2><%= dgettext("page-index", "Territory coverage") %></h2>
+                <p><%= dgettext("page-index", "Scheduled public transit") %></p>
+                <div class="row key-numbers">
+                    <div class="key-number__item">
+                        <strong><%= @count_aoms_with_dataset %></strong>
+                        <div>
+                            <%= dgettext("page-index", "Territories covered")%>
+                            <br /> 
+                            <%= dgettext("page-index", "on") %> 330
+                        </div>
+                    </div>
+                    <div class="key-number__item">
+                        <strong><%= @count_regions_completed %></strong>
+                        <div>
+                        <%= dgettext("page-index", "Regions covered") %><br />
+                        <%= dgettext("page-index", "on") %> 14
+                        </div>
+                    </div>
+                    <div class="key-number__item">
+                        <strong><%= @percent_population %>%</strong>
+                        <div>
+                        <%= dgettext("page-index", "of the population") %>
+                        <br /> <%= dgettext("page-index", "covered") %></div>
+                    </div>
+                </div>
             </div>
-            <div class="column cta">
-                <div>
-                    <img src="<%= static_path(@conn, "/images/bus.svg") %>" alt="" />
-                    <a class="button button--fullwidth" href="<%= static_path(@conn, "/documents/TransportDataGouv.pdf") %>" role="link">
-                    <i class="icon icon--file" aria-hidden="true"></i>
-                    <%= dgettext("page-index", "Download presentation") %>
-
-                    <a class="button button--fullwidth" href="<%= static_path(@conn, "/stats") %>" role="link">
-                    <i class="icon icon--chart-line" aria-hidden="true"></i>
-                    <%= dgettext("page-index", "Deployment status") %>
-                    </a>
+            <div class="deployment-map">
+                <a href="<%= static_path(@conn, "/stats") %>" class="text-center" role="link">
+                    <img class="illustration" src="<%= static_path(@conn, "/images/france.svg") %>" alt="" />
+                    <div><%= dgettext("page-index", "See more statistics") %></div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <img class="illustration" src="<%= static_path(@conn, "/images/user.svg") %>" alt="" />
+            <div class="section__description">
+                <h2><%= dgettext("page-index", "I'm using transport data") %></h2>
+                <p><%= dgettext("page-index", "user description") %></p>
+                <div class="row">
+                    <a class="button" href="https://transport-data-gouv-fr.gitbook.io/doc/reutilisateurs/outils-pour-les-reutilisateurs"><%= dgettext("page-index", "See tools for reusers") %></a>
+                    <a href="https://transport-data-gouv-fr.gitbook.io/doc/reutilisateurs/licence-odbl-et-conditions-de-reutilisation"><%= dgettext("page-index", "Learn more about ODbL") %></a>
                 </div>
             </div>
         </div>
     </div>
 </section>
-<section class="tools section section-grey">
+<section class="section section-grey">
     <div class="container">
         <div class="row">
-            <div class="column">
-                <h2>Producteurs de données transport</h2>
-                <h3>Ouvrez et publiez vos données en quelques clics</h3>
-                <p>Les producteurs de données transport (autorités organisatrices de la mobilité, opérateurs de transport, etc.) sont tenus de rendre leurs données relatives à l'information voyageur accessibles sur le Point d'Accès National. Les données peuvent être au choix hébergées ou simplement référencées par le <em>moissonnage</em> d'une plateforme locale. Les outils de la plateforme transport.data.gouv.fr accompagnent les producteurs dans la mise en qualité et la mise en conformité de leurs données.</p>
-            </div>
-            <div class="column cta">
-                <div>
-                    <img src="<%= static_path(@conn, "/images/click.svg") %>" alt="" />
-                    <a class="button button--fullwidth hero__link--open" href="https://www.data.gouv.fr/fr/admin/dataset/new/" role="link">
-                        <i class="icon icon--open" aria-hidden="true"></i>
-                        <%= dgettext("page-index", "Publish my data") %>
-                    </a>
-                    <a class="button button--fullwidth hero__link--book" href="<%= page_path @conn, :single_page, "guide" %>" role="link">
-                        <i class="icon icon--book" aria-hidden="true"></i>
-                        <%= dgettext("page-index", "Publication guide") %>
-                    </a>
+            <div class="section__description">
+                <h2><%= dgettext("page-index", "I'm producing transport data") %></h2>
+                <p><%= dgettext("page-index", "producer description") %></p>
+                <div class="row">
+                    <a class="button" href="https://www.data.gouv.fr/fr/admin/dataset/new/"><%= dgettext("page-index", "Publish my data") %></a>
+                    <a href="<%= page_path @conn, :single_page, "guide" %>"><%= dgettext("page-index", "Publication guide") %></a>
                 </div>
             </div>
+            <img class="illustration" src="<%= static_path(@conn, "/images/bus.svg") %>" alt="" />
         </div>
     </div>
 </section>
-<section class="users section section-white">
+<section class="section reusers">
     <div class="container">
-        <div class="row">
-            <div class="column">
-                <h2>Réutilisateurs de données</h2>
-                <h3>1 plateforme 1 licence, 1 format, 1 interlocuteur identifié</h3>
-                <p>Le Point d'Accès National fournit aux réutilisateurs (éditeurs d'applications, développeurs, etc.) un catalogue des données transport mises à disposition en France et téléchargeables sans besoin de s'identifier. Les données sont proposées dans une licence et un format homogènes, réduisant ainsi les barrières à leur exploitation. Pour chaque jeu de données, un interlocuteur est identifié pour faciliter la communication entre producteurs et réutilisateurs. Grâce au Point d'Accès National, les services de mobilité innovants peuvent s'alimenter facilement en données, et déployer leurs services sur de nouveaux territoires en France, au bénéfice des usagers.</p>
-            </div>
-            <div class="column cta">
-                <div>
-                    <img src="<%= static_path(@conn, "/images/user.svg") %>" alt="" />
-                    <a class="button button--fullwidth hero__link--reuse" href="<%= dataset_path @conn, :index %>" role="link">
-                        <i class="icon icon--reuse" aria-hidden="true"></i>
-                        <%= dgettext("page-index", "Reuse data") %>
-                    </a>
-                </div>
-            </div>
+        <h2 class="text-center"><%= dgettext("page-index", "Who's is reusing data from") %> transport.data.gouv.fr ?</h2>
+        <div class="reusers__logos">
+            <img src="<%= static_path(@conn, "/images/logos/blablacar-logo.svg") %>" alt="Blablacar"/>
+            <img src="<%= static_path(@conn, "/images/logos/handisco-logo.png") %>" alt="Handisco"/>
+            <img src="<%= static_path(@conn, "/images/logos/google-maps-logo.png") %>" alt="Google Maps"/>
+            <img src="<%= static_path(@conn, "/images/logos/here-technologies-logo.png") %>" alt="Here Technologies"/>
+            <img src="<%= static_path(@conn, "/images/logos/kisio-digital-logo.png") %>" alt="Kisio Digital"/>
+            <img src="<%= static_path(@conn, "/images/logos/lumiplan-logo.png") %>" alt="Lumiplan"/>
+            <img src="<%= static_path(@conn, "/images/logos/mappy-logo.png") %>" alt="Mappy"/>
+            <img src="<%= static_path(@conn, "/images/logos/mobigis-logo.png") %>" alt="Mobigis"/>
+            <img src="<%= static_path(@conn, "/images/logos/mybus-logo.svg") %>" alt="My Bus"/>
+            <img src="<%= static_path(@conn, "/images/logos/rome2rio-logo.png") %>" alt="Rome2Rio"/>
+            <img src="<%= static_path(@conn, "/images/logos/transit-logo.png") %>" alt="Transit"/>
+            <img src="<%= static_path(@conn, "/images/logos/urban-pulse-logo.png") %>" alt="Urban Pulse"/>
         </div>
+        <p class="text-center"><%= dgettext("page-index", "reusers list description") %> <a href=""><%= dgettext("page-index", "Learn more") %></a>.</p>
     </div>
 </section>
-<section class="section section-grey mailing-list">
-    <div class="container mailing-list__container">
-        <div class="form__container">
-            <form action="<%= @mailchimp_newsletter_url %>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
-                <div id="mc_embed_signup_scroll">
-                  <label for="mce-EMAIL"><%= dgettext("page-index", "Subscribe to our email newsletter to receive update") %></label>
+<section class="section section-grey mailing-list" id="mailing-list">
+    <div class="container container-small">
+        <h2 class="text-center"><%= dgettext("page-index", "I wish to follow the development of transport.data.gouv.fr")%></h2>
+        <form action="<%= @mailchimp_newsletter_url %>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+            <div id="mc_embed_signup_scroll">
+              <label for="mce-EMAIL"><%= dgettext("page-index", "Subscribe to our email newsletter to receive update") %></label>
+              <div class="input__group">
                   <input type="email" value="" name="EMAIL" id="mce-EMAIL" placeholder="<%= dgettext("page-index", "Email address") %>">
                   <div id="mce-responses" class="clear">
                       <div class="response" id="mce-error-response" style="display:none"></div>
@@ -92,23 +193,13 @@
                   <div>
                       <input type="hidden" name="b_5ee8bfe0f1b073b49de06a063_13db2e9a94" tabindex="-1" value="">
                   </div>
-                  <div class="mailing-list__button">
-                      <button class="button" type="submit" name="subscribe" id="mc-embedded-subscribe"><%= dgettext("page-index", "SUBSCRIBE") %></button>
-                  </div>
-                </div>
-           </form>
-           <div class="mailing-list__social-container">
-                <strong>
-                     <a href="https://twitter.com/transportdatafr">
-                         <%= dgettext("page-index", "Follow us on twitter") %>
-                         <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" />
-                     </a>
-                     <a href="https://join.slack.com/transportdatagouvfr/shared_invite/MjA2ODkzODQyOTk4LTE0OTg4MDUyNTktNmM2OWJmOGQwOA">
-                         <%= dgettext("page-index", "Join us on Slack") %>
-                         <img src="<%= static_path(@conn, "/images/Slack_Mark.svg") %>" alt="Slack" />
-                     </a>
-                </strong>
-           </div>
+                    <button class="button" type="submit" name="subscribe" id="mc-embedded-subscribe"><%= dgettext("page-index", "SUBSCRIBE") %></button>
+              </div>
+            </div>
+       </form>
+       <div class="mailing-list__social-container">
+            <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" /><a href="https://twitter.com/transportdatafr"><%= dgettext("page-index", "Follow us on twitter") %></a>
+            <img src="<%= static_path(@conn, "/images/Slack_Mark.svg") %>" alt="Slack" /><a href="https://join.slack.com/transportdatagouvfr/shared_invite/MjA2ODkzODQyOTk4LTE0OTg4MDUyNTktNmM2OWJmOGQwOA"><%= dgettext("page-index", "Join us on Slack") %></a>
         </div>
     </div>
 </section>

@@ -9,7 +9,8 @@ defmodule TransportWeb.Solution.LoginTest do
   and that I wont be left to my fate.
   """
 
-  use TransportWeb.ConnCase, async: true
+  use TransportWeb.ConnCase, async: false
+  use TransportWeb.DatabaseCase, cleanup: [], async: false
   use TransportWeb.UserFacingCase
 
   @tag :solution

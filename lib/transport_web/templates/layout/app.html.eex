@@ -12,6 +12,13 @@
     <link rel="stylesheet" media="all" href="<%= static_path(@conn, "/css/app.css") %>">
     <link rel="alternate" type="application/atom+xml"  href="<%= atom_url(@conn, :index) %>" title="Resources feed" >
     <%= if @mix_env == :prod do %>
+    <!-- Polyfill for css grid-->
+    <script type="text/javascript">
+    if(/MSIE \d|Trident.*rv:/.test(navigator.userAgent)) {
+      document.write('<script src="https://unpkg.com/@babel/polyfill@7.0.0/dist/polyfill.js"><\/script>');
+      document.write('<script src="https://unpkg.com/url-polyfill@1.0.14/url-polyfill.js"><\/script>');
+    }
+    </script>
     <!-- Piwik -->
     <script type="text/javascript">
       var _paq = _paq || [];

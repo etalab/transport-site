@@ -1,5 +1,6 @@
 defmodule TransportWeb.LayoutViewTest do
   use TransportWeb.ConnCase, async: true
+  use TransportWeb.DatabaseCase, cleanup: []
   import Plug.Test
 
   @moduletag :view
