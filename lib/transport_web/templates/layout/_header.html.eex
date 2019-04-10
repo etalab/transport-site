@@ -5,13 +5,11 @@
     <nav role="navigation">
       <ul class="nav__links">
         <li class="nav__item">
-          <a href="https://www.data.gouv.fr/fr/admin/dataset/new/">
-            <%= gettext "Publish a dataset" %>
-          </a>
+          <%= link(gettext("Publish or update a dataset"), to: resource_path(@conn, :choose_action)) %>
         </li>
         <%= if assigns[:current_user] do %>
           <%= if assigns[:current_user] |> Map.get("organizations", []) |> Enum.any?(fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end) do %>
-            <li>
+            <li class="nav__item">
                 <%= link("Administration", to: "/backoffice") %>
             </li>
           <% end %>

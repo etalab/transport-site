@@ -38,6 +38,8 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
+  def choose_action(conn, _), do: render conn, "choose_action.html"
+
   @spec datasets_list(Plug.Conn.t(), any()) :: Plug.Conn.t()
   def datasets_list(conn, _params) do
     filter = fn d -> Repo.get_by(Dataset, datagouv_id: d["id"]) end

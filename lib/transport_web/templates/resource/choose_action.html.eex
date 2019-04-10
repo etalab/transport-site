@@ -1,0 +1,14 @@
+<section class="section">
+    <div class="container">
+        <div class="existing">
+            <div class="row">
+                <%= link to: "https://www.data.gouv.fr/fr/admin/dataset/new/", class: "tile section-grey" do %>
+                <h3><%= dgettext("resource", "Publish a new dataset") %></h3>
+                <% end %>
+                <%= link to: resource_path(@conn, :datasets_list), class: "tile section-grey" do %>
+                <h3><%= dgettext("resource", "Update an existing dataset") %></h3>
+                <% end %>
+            </div>
+        </div>
+    </div>
+</section>

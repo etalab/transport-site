@@ -69,6 +69,7 @@ defmodule TransportWeb.Router do
 
       scope "/update" do
         pipe_through [:authenticated]
+        get "/_choose_action", ResourceController, :choose_action
         get "/datasets", ResourceController, :datasets_list
         scope "/datasets/:dataset_id/resources" do
           get "/", ResourceController, :resources_list

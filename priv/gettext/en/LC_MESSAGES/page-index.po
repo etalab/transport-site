@@ -196,13 +196,13 @@ msgid "reusers list description"
 msgstr "Reusers listed here are the ones who declared one reuse on the platform."
 
 #, elixir-format
-msgid "Deployment status"
-msgstr ""
-
-#, elixir-format
 msgid "Ask for help"
 msgstr ""
 
 #, elixir-format
 msgid "Close the form"
+msgstr ""
+
+#, elixir-format
+msgid "I wish to follow the development of transport.data.gouv.fr"
 msgstr ""

@@ -40,3 +40,11 @@ msgstr "Mettre à jour"
 #, elixir-format
 msgid "Upload this file"
 msgstr "Envoyer ce fichier"
+
+#, elixir-format
+msgid "Publish a new dataset"
+msgstr "Publier un nouveau jeu de données"
+
+#, elixir-format
+msgid "Update an existing dataset"
+msgstr "Mettre à jour un jeu de données existant"
