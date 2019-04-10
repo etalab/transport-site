@@ -99,8 +99,8 @@
                     <div class="key-number__item">
                         <strong><%= @count_aoms_with_dataset %></strong>
                         <div>
-                            <%= dgettext("page-index", "Territories covered")%>
-                            <br /> 
+                            <%= dgettext("page-index", "Territories covered") |> raw() %>
+                            <br />
                             <%= dgettext("page-index", "on") %> 330
                         </div>
                     </div>
@@ -148,7 +148,7 @@
         <div class="row">
             <div class="section__description">
                 <h2><%= dgettext("page-index", "I’m producing transport data") %></h2>
-                <p><%= dgettext("page-index", "producer description") %></p>
+                <p><%= dgettext("page-index", "producer description") |> raw() %></p>
                 <div class="row">
                     <a class="button" href="https://www.data.gouv.fr/fr/admin/dataset/new/"><%= dgettext("page-index", "Publish my data") %></a>
                     <a href="<%= page_path @conn, :single_page, "guide" %>"><%= dgettext("page-index", "Publication guide") %></a>

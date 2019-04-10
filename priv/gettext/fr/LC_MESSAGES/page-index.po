@@ -137,7 +137,7 @@ msgstr "Voir plus de statistiques et de cartes"
 
 #, elixir-format
 msgid "Territories covered"
-msgstr "AOMs couvertes"
+msgstr "<abbr title=\"Autorité organistatrice des mobilités\">AOMs</abbr> couvertes"
 
 #, elixir-format
 msgid "Territory coverage"
@@ -185,7 +185,7 @@ msgstr "Qui réutilise des données de"
 
 #, elixir-format
 msgid "producer description"
-msgstr "AOMs, opérateurs de transport… : vous êtes tenus de publier vos données relatives à l’information voyageur sur le Point d’Accès National. L’équipe de transport.data.gouv.fr vous accompagne dans leur mise en qualité, mise en conformité et publication."
+msgstr "<abbr title=\"Autorité organistatrice des mobilités\">AOMs</abbr>, opérateurs de transport… : vous êtes tenus de publier vos données relatives à l’information voyageur sur le Point d’Accès National. L’équipe de transport.data.gouv.fr vous accompagne dans leur mise en qualité, mise en conformité et publication."
 
 #, elixir-format
 msgid "user description"
