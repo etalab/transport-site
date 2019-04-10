@@ -43,7 +43,7 @@ msgstr "Suivez-nous sur twitter"
 
 #, elixir-format
 msgid "title"
-msgstr "Le Point d'Accès National aux données de transport"
+msgstr "Le Point d’Accès National aux données de transport"
 
 #, elixir-format
 msgid "subtitle"
@@ -100,7 +100,7 @@ msgid "Freefloating vehicles"
 msgstr "Véhicules en free-floating"
 
 #, elixir-format
-msgid "I'd like to be informed"
+msgid "I’d like to be informed"
 msgstr "Je souhaite être tenu·e au courant"
 
 #, elixir-format
@@ -164,11 +164,11 @@ msgid "of the population"
 msgstr "de la population"
 
 #, elixir-format
-msgid "I'm producing transport data"
+msgid "I’m producing transport data"
 msgstr "Je produis des données de transport"
 
 #, elixir-format
-msgid "I'm using transport data"
+msgid "I’m using transport data"
 msgstr "J’utilise des données de transport"
 
 #, elixir-format
@@ -180,7 +180,7 @@ msgid "See tools for reusers"
 msgstr "Voir les outils pour les réutilisateurs"
 
 #, elixir-format
-msgid "Who's is reusing data from"
+msgid "Who’s reusing data from"
 msgstr "Qui réutilise des données de"
 
 #, elixir-format
