@@ -180,7 +180,7 @@ msgid "See tools for reusers"
 msgstr ""
 
 #, elixir-format
-msgid "Who's is reusing data from"
+msgid "Who is reusing data from"
 msgstr ""
 
 #, elixir-format

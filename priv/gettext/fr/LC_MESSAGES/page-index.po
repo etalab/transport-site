@@ -1,7 +1,7 @@
 ## `msgid`s in this file come from POT (.pot) files.
 ##
 ## Do not add, change, or remove `msgid`s manually here as
-## they're tied to the ones in the corresponding POT file
+## they’re tied to the ones in the corresponding POT file
 ## (with the same domain).
 ##
 ## Use `mix gettext.extract --merge` or `mix gettext.merge`
@@ -180,7 +180,7 @@ msgid "See tools for reusers"
 msgstr "Voir les outils pour les réutilisateurs"
 
 #, elixir-format
-msgid "Who’s reusing data from"
+msgid "Who is reusing data from"
 msgstr "Qui réutilise des données de"
 
 #, elixir-format

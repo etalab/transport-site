@@ -133,7 +133,7 @@
         <div class="row">
             <img class="illustration" src="<%= static_path(@conn, "/images/user.svg") %>" alt="" />
             <div class="section__description">
-                <h2><%= dgettext("page-index", "I'm using transport data") %></h2>
+                <h2><%= dgettext("page-index", "I’m using transport data") %></h2>
                 <p><%= dgettext("page-index", "user description") %></p>
                 <div class="row">
                     <a class="button" href="https://transport-data-gouv-fr.gitbook.io/doc/reutilisateurs/outils-pour-les-reutilisateurs"><%= dgettext("page-index", "See tools for reusers") %></a>
@@ -147,7 +147,7 @@
     <div class="container">
         <div class="row">
             <div class="section__description">
-                <h2><%= dgettext("page-index", "I'm producing transport data") %></h2>
+                <h2><%= dgettext("page-index", "I’m producing transport data") %></h2>
                 <p><%= dgettext("page-index", "producer description") %></p>
                 <div class="row">
                     <a class="button" href="https://www.data.gouv.fr/fr/admin/dataset/new/"><%= dgettext("page-index", "Publish my data") %></a>
@@ -160,7 +160,7 @@
 </section>
 <section class="section reusers">
     <div class="container">
-        <h2 class="text-center"><%= dgettext("page-index", "Who's is reusing data from") %> transport.data.gouv.fr ?</h2>
+        <h2 class="text-center"><%= dgettext("page-index", "Who is reusing data from") %> transport.data.gouv.fr ?</h2>
         <div class="reusers__logos">
             <img src="<%= static_path(@conn, "/images/logos/blablacar-logo.svg") %>" alt="Blablacar"/>
             <img src="<%= static_path(@conn, "/images/logos/handisco-logo.png") %>" alt="Handisco"/>
