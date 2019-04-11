@@ -1,6 +1,6 @@
 defmodule Transport.ResourceTest do
   use ExUnit.Case, async: true
-  alias Transport.Resource
+  alias Transport.{Resource, Validation}
 
   doctest Resource
 
