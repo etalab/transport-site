@@ -123,13 +123,13 @@
             });
         }
 
-        var checkVisit = visit => visit.MonitoringVehicleJourney.MonitoredCall.ExpectedDepartureTime != undefined;
+        var checkVisit = visit => visit.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime != undefined;
 
         var makeMarker = function (json, sp) {
             var v = "<ul>"
             var l = json.Siri.ServiceDelivery.StopMonitoringDelivery.map(function (sp_visit) {
-                return sp_visit.MonitoredStopVisits.filter(checkVisit).map(visit => {
-                    var mvj = visit.MonitoringVehicleJourney
+                return sp_visit.MonitoredStopVisit.filter(checkVisit).map(visit => {
+                    var mvj = visit.MonitoredVehicleJourney
                     var call = mvj.MonitoredCall
                     return `<li>${mvj.LineRef}: <span class="aimed">${call.AimedDepartureTime.split("T")[1]}</span> <span class="expected">${call.ExpectedDepartureTime.split("T")[1]}</span></li>`
                 }).join("\n")
