@@ -204,3 +204,7 @@ msgstr "Tous les types"
 #, elixir-format
 msgid "Has realtime"
 msgstr "Temps réel"
+
+#, elixir-format
+msgid "Search results"
+msgstr "Résultats de recherche"

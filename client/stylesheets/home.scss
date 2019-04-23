@@ -1,13 +1,10 @@
-.hero {
+.hero.home-hero {
   background: #fff url("/images/transport.svg") center bottom no-repeat;
   background-size: cover;
 }
 
-.hero__container {
-  color: $dark-text;
-  padding: 5em 0;
+.home-hero .hero__container {
   height: 44em;
-  flex-direction: row;
   align-items: start;
 }
 
