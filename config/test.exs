@@ -8,7 +8,7 @@ config :transport, TransportWeb.Endpoint,
   server: true
 
 # Integration testing with Hound and PhantomJS
-config :hound, driver: "phantomjs"
+config :hound, driver: "selenium", browser: "chrome"
 
 # Print only warnings and errors during test
 config :logger, level: :warn
