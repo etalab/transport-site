@@ -1,0 +1,15 @@
+<section class="section">
+    <div class="container">
+        <b><%= dgettext("resource", "Dataset: ") %></b> <%= @dataset["title"] %> 
+        <h1><%= dgettext("resource", "Choose the resource you want to update") %></h1>
+        <%= for resource <- @dataset["resources"] do %>
+            <div class="panel">
+                <h2><%= resource["title"] %></h2>
+            <%= link(
+                    dgettext("resource", "Update this resource"),
+                    to: resource_path(@conn, :choose_file, @conn.params["dataset_id"], resource["id"])) 
+            %>
+            </div>
+        <% end %>
+    </div>
+</section>

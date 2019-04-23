@@ -1,0 +1,50 @@
+msgid "Unable to get resources, please retry."
+msgstr ""
+
+#, elixir-format
+msgid "Choose the resource you want to update"
+msgstr ""
+
+#, elixir-format
+msgid "Dataset: "
+msgstr ""
+
+#, elixir-format
+msgid "File uploaded!"
+msgstr ""
+
+#, elixir-format
+msgid "Resource: "
+msgstr ""
+
+#, elixir-format
+msgid "Select a resource"
+msgstr ""
+
+#, elixir-format
+msgid "To update a resource, select one of your dataset first."
+msgstr ""
+
+#, elixir-format
+msgid "Unable to upload file"
+msgstr ""
+
+#, elixir-format
+msgid "Update this resource"
+msgstr ""
+
+#, elixir-format
+msgid "Update with a file"
+msgstr ""
+
+#, elixir-format
+msgid "Upload this file"
+msgstr ""
+
+#, elixir-format
+msgid "Publish a new dataset"
+msgstr ""
+
+#, elixir-format
+msgid "Update an existing dataset"
+msgstr ""

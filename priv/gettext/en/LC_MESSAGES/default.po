@@ -49,3 +49,10 @@ msgstr ""
 #, elixir-format
 msgid "Question about transport.data.gouv.fr"
 msgstr ""
+
+msgid "Publish a dataset"
+msgstr ""
+
+#, elixir-format
+msgid "Publish or update a dataset"
+msgstr ""
