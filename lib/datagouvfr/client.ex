@@ -73,8 +73,11 @@ defmodule Datagouvfr.Client do
     |> get_request("/discussions?for=#{id}", [], follow_redirect: true)
     |> case do
       {:ok, %{"data" => data}} -> data
-      {:error, error} ->
-        Logger.error("When fetching discussions for id #{id}: #{error.reason}")
+      {:error, %{reason: reason}} ->
+        Logger.error("When fetching discussions for id #{id}: #{reason}")
+        nil
+      {:error, %{body: body}} ->
+        Logger.error("When fetching discussions for id #{id}: #{body}")
         nil
     end
   end
