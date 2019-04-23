@@ -2,7 +2,7 @@
 
 ## Installation
 
-  * Make sure you have **Elixir**, **Node**, **Yarn** and **PhantomJS** installed and up-to-date
+  * Make sure you have **Elixir**, **Node**, **Yarn** and **Docker** installed and up-to-date
   * Install Elixir dependencies with `mix deps.get`
   * Install Node.js dependencies with `mix yarn install`
 
@@ -14,7 +14,7 @@ In order to validate datasets:
 ## Usage
 
   * Run the server with `mix phx.server`
-  * Run the webdriver server with `phantomjs --wd`
+  * Run the webdriver server with `docker run -p 4444:4444 --network=host selenium/standalone-chrome`
   * Run the tests with `mix test`
   * Run the integration tests with `mix test --only integration`
   * Run the solution tests with `mix test --only solution`
