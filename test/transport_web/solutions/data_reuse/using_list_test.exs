@@ -62,7 +62,6 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
 
     # I can see or read somewhere that the datasets are valid
     assert visible_page_text() =~ "Jeux de données valides disponibles"
-
     # I can click on a dataset and see its details
     click({:link_text, "Horaires et arrêts du réseau IRIGO - format GTFS"})
     assert visible_page_text() =~ "IRIGO"

@@ -3,20 +3,22 @@ ul.pagination {
     margin: 0;
     padding: 0;
     overflow: hidden;
+    display: flex;
+    justify-content: end;
 
     li {
         float: left;
     }
 
     li.active a {
-        color: $blue;
-        background-color: $white;
-        border: 0.1em solid $blue;
+        color: $white;
+        background-color: $blue;
     }
 
     li a {
+        font-weight: 700;
         display: inline-block;
-        padding: 0.5em;
+        padding: 0.2em 0.5em;
         margin: 0.2em;
         color: $blue;
         background-color: $white;
@@ -28,8 +30,8 @@ ul.pagination {
         text-decoration: none;
 
         &:hover {
-            background-color: $light-blue;
-            color: $grey;
+            background-color: $lighter-blue;
+            color: $blue;
         }
     }
 }

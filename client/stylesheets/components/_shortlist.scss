@@ -1,96 +1,179 @@
-.shortlist .panel__header {
+.shortlist {
   display: flex;
-  flex-direction: row;
 }
 
-.shortlist .panel__header::after {
-  content: none;
-}
-
-.shortlist .panel__header .shortlist-image {
-  flex-basis: 200px;
-  flex-shrink: 0;
-}
-
-.shortlist .panel__header .shortlist-image + a {
-  margin-left: 2em;
-}
-
-.shortlist .panel__content {
-  display: flex;
-  flex-direction: row;
-}
-
-nav.side-pane.shortlist {
-  padding-top: 1em;
-  flex: 0 0 10vw;
-}
-
-.shortlist-content {
-  margin-left: 2em;
-}
-
-.shortlist__links {
-  margin-top: 2em;
-}
-
-.shortlist__link {
-  line-height: 2em;
-}
-
-.shortlist__notices {
-  display: flex;
-  flex-direction: row;
-}
-
-.shortlist__notice {
-  padding-right: 1.5em;
-  flex-flow: column wrap;
-  flex-shrink: 0;
-  max-width: 100%;
+.shortlist__title {
+  float:left;
 }
 
 .shortlist__pagination {
-  padding-top: 2em;
+  margin: 1em 0;
   display: flex;
   justify-content: end;
 }
 
-.activefilter {
-  font-weight: bold;
-  padding: $space-xs;
+.shortlist .side-pane {
+  padding: 0;
+  margin-right: 2em;
+  flex: 0 0 15em;
 }
 
-.main-pane {
-  padding: 1em 0 0 2em;
+.shortlist .main-pane {
+  padding: 0;
 }
 
-.side-pane {
-  padding: 1em 0 0em;
-}
-
-.side-pane h4 {
-  font-weight: normal;
-  text-decoration: none;
+.dataset__panel {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
   font-size: 14px;
+
+  .panel__content {
+    height: 5.5em;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+  }
+
+  .dataset__image {
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    flex: 0 0 5.5em;
+    border-right: 1px solid #eee;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 1em;
+    line-height: 1em;
+  }
+
+  .dataset__image img {
+    object-fit: contain;
+  }
+
+  .dataset__title a {
+    color: #1c1c1c;
+    text-decoration: none;
+  }
+
+  .dataset__title a:hover {
+    background: 0;
+  }
+
+  .dataset__title {
+    margin: 0;
+    padding: 1em;
+    font-size: 1.2em;
+    line-height: 1.25em;
+  }
+
+  .panel__extra {
+    display: flex;
+    flex-direction: row;
+    padding: 0.5em;
+    border-top: 1px solid #eee;
+  }
+
+  .dataset__info {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .shortlist__link {
+    flex-shrink: 0;
+  }
+
+  .shortlist__notices {
+    flex-wrap: wrap;
+  }
+
+  .shortlist__notices,
+  .shortlist__notice {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .shortlist__notice {
+    margin: 0;
+    margin-right: 2em;
+    flex-wrap: 0;
+  }
+
+  .dataset__icon {
+    height: 1em;
+  }
+
+  .shortlist__label {
+    margin-right: 0.5em;
+  }
 }
 
-.shortlist-title {
-  padding: 1em 0;
+.dataset__panel + .dataset__panel {
+  margin-top: 1em;
 }
 
-.shortlist-form {
-  padding-bottom: 1em;
+* + .side-pane__title {
+  margin-top: 3em;
+}
+
+.side-pane__submenu a {
+  padding: 0;
+}
+
+.side-pane__submenu .activefilter {
+  font-weight: 700;
+}
+
+.side-pane__dropdown {
+  margin-bottom: 2em;
+
+  h4 {
+    margin-bottom: 0.5em;
+    font-family: "Source Sans Pro";
+    font-size: 1em;
+  }
+}
+
+@include tablet {
+  .shortlist {
+    flex-direction: column;
+  }
+
+  .shortlist__title {
+    float: none;
+  }
+
+  .shortlist__pagination {
+    justify-content: center;
+  }
+
+  .shortlist .side-pane {
+    order: 2;
+    margin-right: 0;
+    margin-top: 2em;
+  }
+
+  .shortlist .main-pane {
+    order: 1;
+  }
 }
 
 @include mobile {
-  .shortlist .panel__header .shortlist-image + a {
-    margin-left: 0em;
-  }
-  h3 {
+  .dataset__panel .dataset__title h3 {
+    margin: 0;
     font-size: 1em;
   }
-  .shortlist .panel__header {
-    flex-wrap: wrap
+
+  .dataset__info {
+    flex-direction: column;
+  }
+
+  .shortlist__pagination .pagination {
+    justify-content: center;
   }
 }
