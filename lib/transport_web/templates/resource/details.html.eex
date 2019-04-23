@@ -7,7 +7,7 @@
                         </li>
                         <li class="side-pane__dropdown unfolded active">
                             <a><%= @resource.title %></a>
-                            <%= unless @resource.validations do %>
+                            <%= unless @resource.validation do %>
                                 <%= Gettext.dgettext(TransportWeb.Gettext, "resource", "No validation available") %>
                             <% else %>
                             <ul class="side-pane__submenu">
@@ -52,11 +52,12 @@
                 </nav>
                 <div class="main-pane">
                     <h1><%= link(@dataset.title, to: dataset_path(@conn, :details, @dataset.slug) )%></h1>
-                    <%= unless @resource.validations do %>
+                    <%= unless @resource.validation do %>
                         Pas de validation disponible
                     <% else %>
                     <%= pagination_links @conn, @issues, [@resource.id], issue_type: @issue_type,
                     path: &resource_path/4, action: :details %>
+
                     <table class="table">
                         <tr>
                         <th><%= dgettext("page-dataset-details", "Object ID") %></th>

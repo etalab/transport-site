@@ -1,175 +1,192 @@
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>Temps réel</title>
-        <link rel="stylesheet"
-              href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.13.1/build/styles/default.min.css">
-        <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.13.1/build/highlight.min.js"></script>
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
-                               integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
-                               crossorigin=""/>
-        <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
-                integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
-                crossorigin=""></script>
-        <script defer src="https://use.fontawesome.com/releases/v5.6.3/js/all.js" integrity="sha384-EIHISlAOj4zgYieurP0SdoiBYfGJKkgWedPHH4jCzpCXLmzVsw1ouK59MuUtP4a1" crossorigin="anonymous"></script>
-        <style>
-#json {
-    width: 30%;
-    float: left;
-    margin: 0.5em;
-}
-#map {
-    float: left;
-    height: 600px;
-    width: 50%;
-}
 
-.bus { text-align: center; font-size: 2em;}
-.aimed {text-decoration: line-through;}
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Temps réel</title>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.13.1/build/styles/default.min.css">
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.13.1/build/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+        integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+        crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+        integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+        crossorigin=""></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.6.3/js/all.js"
+        integrity="sha384-EIHISlAOj4zgYieurP0SdoiBYfGJKkgWedPHH4jCzpCXLmzVsw1ouK59MuUtP4a1"
+        crossorigin="anonymous"></script>
+    <style>
+        #json {
+            width: 30%;
+            float: left;
+            margin: 0.5em;
+        }
 
-#horaires {
-    font-size: 2em;
-}
+        #map {
+            float: left;
+            height: 600px;
+            width: 50%;
+        }
 
-#horaires > ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-        </style>
-    </head>
-    <body>
-        <select id="aom" onchange="reload()" >
-            <option value="grenoble">Grenoble</option>
-            <option value="poitiers">Poitiers</option>
-        </select>
-        <div id="debug"></div>
-        <pre>
+        .bus {
+            text-align: center;
+            font-size: 2em;
+        }
+
+        .aimed {
+            text-decoration: line-through;
+        }
+
+        #horaires {
+            font-size: 2em;
+        }
+
+        #horaires>ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <select id="aom" onchange="reload()">
+        <option value="grenoble">Grenoble</option>
+        <option value="poitiers">Poitiers</option>
+        <option value="saintes">Saintes</option>
+    </select>
+    <div id="debug"></div>
+    <pre>
         <code class="json hljs" id="json"></code>
         </pre>
-        <div id="map"></div>
-        <script>
-const data = {
-    grenoble: {
-        name: 'Grenoble',
-        service_url: 'https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite',
-        center: [45.19708, 5.7112],
-        zoom: 17
-    },
-    poitiers: {
-        name: 'Grand Poitiers',
-        service_url: 'https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/poitiers',
-        center: [46.58390, 0.33565],
-        zoom: 17
-    }
-}
+    <div id="map"></div>
+    <script>
+        const data = {
+            grenoble: {
+                name: 'Grenoble',
+                service_url: 'https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite',
+                center: [45.19708, 5.7112],
+                zoom: 17
+            },
+            poitiers: {
+                name: 'Grand Poitiers',
+                service_url: 'https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/poitiers',
+                center: [46.58390, 0.33565],
+                zoom: 17
+            },
+            saintes: {
+                name: 'Saintes',
+                service_url: 'https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/saintes',
+                center: [45.7429453, -0.6526088],
+                zoom: 16
+            }
+        }
 
-var makeUrl = (service_url, sp) => `${service_url}/siri/2.0/stop-monitoring.json?MonitoringRef=${sp.StopPointRef}`;
-var fetchRT = service_url => sp => fetch(makeUrl(service_url, sp)).then(r => [sp, r], e => console.log(e))
-var fetchJSONRT = sp_r => sp_r[1].json().then(json => makeMarker(json, sp_r[0]))
+        var makeUrl = (service_url, sp) => `${service_url}/siri/2.0/stop-monitoring.json?MonitoringRef=${sp.StopPointRef}`;
+        var fetchRT = service_url => sp => fetch(makeUrl(service_url, sp)).then(r => [sp, r], e => console.log(e))
+        var fetchJSONRT = sp_r => sp_r[1].json().then(json => makeMarker(json, sp_r[0]))
 
-var loadDiscovery = function(map, markersLayer, service_url) {
-    const bounds = map.getBounds();
-    const params=`BoundingBoxStructure.UpperLeft.Longitude=${bounds.getNorthWest().lng}\
+        var loadDiscovery = function (map, markersLayer, service_url) {
+            const bounds = map.getBounds();
+            const params = `BoundingBoxStructure.UpperLeft.Longitude=${bounds.getNorthWest().lng}\
 &BoundingBoxStructure.UpperLeft.Latitude=${bounds.getNorthWest().lat}\
 &BoundingBoxStructure.LowerRight.Longitude=${bounds.getSouthEast().lng}\
 &BoundingBoxStructure.LowerRight.Latitude=${bounds.getSouthEast().lat}`
 
-    const url = `${service_url}/siri/2.0/stoppoints-discovery.json?${params}`
-    fetch(url, {params: params}).then(response => {
-        if (!response.ok) {
-            return;
-        }
-        response.json().then(json => {
-            const stop_points = json.Siri.StopPointsDelivery.AnnotatedStopPoint.slice(0, 100);
-            Promise.all(stop_points.map(fetchRT(service_url)))
-                .then(responses =>
-                    Promise.all(responses.map(fetchJSONRT)).then(responses => {
-                        var popupOpen = null;
-                        markersLayer.eachLayer(
-                            function(l) {
-                                if(l.isPopupOpen()) {
-                                    popupOpen = l.options.title
-                                }
-                            }
+            const url = `${service_url}/siri/2.0/stoppoints-discovery.json?${params}`
+            fetch(url, { params: params }).then(response => {
+                if (!response.ok) {
+                    return;
+                }
+                response.json().then(json => {
+                    const stop_points = json.Siri.StopPointsDelivery.AnnotatedStopPoint.slice(0, 100);
+                    Promise.all(stop_points.map(fetchRT(service_url)))
+                        .then(responses =>
+                            Promise.all(responses.map(fetchJSONRT)).then(responses => {
+                                var popupOpen = null;
+                                markersLayer.eachLayer(
+                                    function (l) {
+                                        if (l.isPopupOpen()) {
+                                            popupOpen = l.options.title
+                                        }
+                                    }
+                                )
+                                markersLayer.clearLayers()
+                                responses.filter(m => m != null).forEach(m => m.addTo(markersLayer))
+                                markersLayer.eachLayer(function (l) {
+                                    if (l.options.title === popupOpen) {
+                                        l.openPopup()
+                                    }
+                                })
+                            })
                         )
-                        markersLayer.clearLayers()
-                        responses.filter(m => m != null).forEach(m => m.addTo(markersLayer))
-                        markersLayer.eachLayer(function(l) {
-                            if (l.options.title === popupOpen) {
-                                l.openPopup()
-                            }
-                        })
-                    })
+                })
+            });
+        }
+
+        var checkVisit = visit => visit.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime != undefined;
+
+        var makeMarker = function (json, sp) {
+            var v = "<ul>"
+            var l = json.Siri.ServiceDelivery.StopMonitoringDelivery.map(function (sp_visit) {
+                return sp_visit.MonitoredStopVisit.filter(checkVisit).map(visit => {
+                    var mvj = visit.MonitoredVehicleJourney
+                    var call = mvj.MonitoredCall
+                    return `<li>${mvj.LineRef}: <span class="aimed">${call.AimedDepartureTime.split("T")[1]}</span> <span class="expected">${call.ExpectedDepartureTime.split("T")[1]}</span></li>`
+                }).join("\n")
+            }).join("\n")
+            if (l === "") {
+                return null;
+            }
+            v = `${v}${l}</ul>`
+
+            document.getElementById("json").innerHTML = JSON.stringify(json, null, '  ')
+            return L.marker([sp.Location.latitude, sp.Location.longitude], {
+                popupAnchor: [155, 370],
+                title: sp.StopPointRef
+            }).bindPopup(
+                `<p class="bus"><i class="fas fa-bus"></i></p> <div id="horaires">${v}</div>`
             )
-        })
-    });
-}
+        }
 
-var checkVisit = visit => visit.MonitoringVehicleJourney.MonitoredCall.ExpectedDepartureTime != undefined;
+        var mymap
+        var markersLayer
 
-var makeMarker = function(json, sp) {
-    var v = "<ul>"
-    var l = json.Siri.ServiceDelivery.StopMonitoringDelivery.map(function(sp_visit) {
-        return sp_visit.MonitoredStopVisits.filter(checkVisit).map(visit => {
-            var mvj = visit.MonitoringVehicleJourney
-            var call = mvj.MonitoredCall
-            return `<li>${mvj.LineRef}: <span class="aimed">${call.AimedDepartureTime.split("T")[1]}</span> <span class="expected">${call.ExpectedDepartureTime.split("T")[1]}</span></li>`
-        }).join("\n")
-    }).join("\n")
-    if (l === "") {
-        return null;
-    }
-    v = `${v}${l}</ul>`
-
-    document.getElementById("json").innerHTML = JSON.stringify(json, null, '  ')
-    return L.marker([sp.Location.latitude, sp.Location.longitude], {
-        popupAnchor: [155, 370],
-        title: sp.StopPointRef
-    }).bindPopup(
-        `<p class="bus"><i class="fas fa-bus"></i></p> <div id="horaires">${v}</div>`
-    )
-}
-
-var mymap
-var markersLayer
-
-function loader(e) {
-    const params = data[document.getElementById("aom").value]
-    window.timeOuts.forEach(window.clearTimeout)
-    loadDiscovery(mymap, markersLayer, params.service_url)
-    window.timeOuts.push(setTimeout(loader, 30000))
-}
+        function loader(e) {
+            const params = data[document.getElementById("aom").value]
+            window.timeOuts.forEach(window.clearTimeout)
+            loadDiscovery(mymap, markersLayer, params.service_url)
+            window.timeOuts.push(setTimeout(loader, 30000))
+        }
 
 
-function init() {
-    const params = data[document.getElementById("aom").value]
-    mymap = L.map('map').setView(params.center, params.zoom)
-    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        maxZoom: 18,
-        id: 'mapbox.streets',
-        accessToken: 'pk.eyJ1IjoibC12aW5jZW50LWwiLCJhIjoiaDJfM05UMCJ9.l9oR075SSzJY9hXEqaRvoQ'
-    }).addTo(mymap)
+        function init() {
+            const params = data[document.getElementById("aom").value]
+            mymap = L.map('map').setView(params.center, params.zoom)
+            L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                maxZoom: 18,
+                id: 'mapbox.streets',
+                accessToken: 'pk.eyJ1IjoibC12aW5jZW50LWwiLCJhIjoiaDJfM05UMCJ9.l9oR075SSzJY9hXEqaRvoQ'
+            }).addTo(mymap)
 
-    markersLayer = L.layerGroup()
+            markersLayer = L.layerGroup()
 
-    markersLayer.addTo(mymap)
+            markersLayer.addTo(mymap)
 
-    window.timeOuts = []
+            window.timeOuts = []
 
-    mymap.on('moveend', loader)
-    mymap.on('zoomend', loader)
-    loader()
-}
+            mymap.on('moveend', loader)
+            mymap.on('zoomend', loader)
+            loader()
+        }
 
-function reload() {
-    const params = data[document.getElementById("aom").value]
-    mymap.setView(params.center, params.zoom)
-}
+        function reload() {
+            const params = data[document.getElementById("aom").value]
+            mymap.setView(params.center, params.zoom)
+        }
 
-window.onload = init;
-        </script>
-    </body>
+        window.onload = init;
+    </script>
+</body>
+
 </html>
-

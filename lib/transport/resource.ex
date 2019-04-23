@@ -3,7 +3,7 @@ defmodule Transport.Resource do
   Resource model
   """
   use Ecto.Schema
-  alias Transport.{Dataset, Repo}
+  alias Transport.{Dataset, Repo, Validation}
   import Ecto.{Changeset, Query}
   require Logger
 
@@ -17,8 +17,6 @@ defmodule Transport.Resource do
   "MissingId", "MissingCoordinates", "InvalidCoordinates", "InvalidRouteType"]
 
   schema "resource" do
-    field :validations, :map
-    field :validation_date, :string
     field :is_active, :boolean
     field :url, :string
     field :format, :string
@@ -29,21 +27,22 @@ defmodule Transport.Resource do
     field :latest_url, :string
 
     belongs_to :dataset, Dataset
+    has_one :validation, Validation
   end
 
   @doc """
   A validation is needed if the last update from the data is newer than the last validation.
   ## Examples
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}, validation_date: "2018-01-01"})
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}, validation: %Validation{date: "2018-01-01"}})
       true
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-01", type: "public-transit"}, validation_date: "2018-01-30"})
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-01", type: "public-transit"}, validation: %Validation{date: "2018-01-30"}})
       false
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}})
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}, validation: %Validation{}})
       true
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "micro-mobility"}})
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "micro-mobility"}, validation: %Validation{}})
       false
   """
-  def needs_validation(%__MODULE__{dataset: dataset, validation_date: validation_date}) do
+  def needs_validation(%__MODULE__{dataset: dataset, validation: %Validation{date: validation_date}}) do
     case [dataset.type, validation_date] do
       ["public-transit", nil] -> true
       ["public-transit", validation_date] -> dataset.last_update > validation_date
@@ -80,10 +79,15 @@ defmodule Transport.Resource do
     if is_nil(metadata), do: Logger.warn("Unable to validate: #{id}")
 
     __MODULE__
+    |> preload(:validation)
     |> Repo.get(id)
-    |> change(validation_date: DateTime.utc_now |> DateTime.to_string)
-    |> change(validations: validations)
-    |> change(metadata: metadata)
+    |> change(
+      metadata: metadata,
+      validation: %Validation{
+        date: DateTime.utc_now |> DateTime.to_string,
+        details: validations
+      }
+    )
     |> Repo.update
   end
 
@@ -96,9 +100,8 @@ defmodule Transport.Resource do
     resource
     |> cast(
       params,
-      [:validations, :validation_date, :is_active, :url,
-       :format, :last_import, :title, :metadata, :id, :last_update, :latest_url
-      ])
+      [:is_active, :url, :format, :last_import, :title, :metadata, :id, :last_update, :latest_url]
+    )
     |> validate_required([:url])
   end
 

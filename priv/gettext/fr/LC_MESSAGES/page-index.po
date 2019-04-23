@@ -1,7 +1,7 @@
 ## `msgid`s in this file come from POT (.pot) files.
 ##
 ## Do not add, change, or remove `msgid`s manually here as
-## they're tied to the ones in the corresponding POT file
+## they’re tied to the ones in the corresponding POT file
 ## (with the same domain).
 ##
 ## Use `mix gettext.extract --merge` or `mix gettext.merge`
@@ -137,7 +137,7 @@ msgstr "Voir plus de statistiques et de cartes"
 
 #, elixir-format
 msgid "Territories covered"
-msgstr "AOMs couvertes"
+msgstr "<abbr title=\"Autorité organistatrice des mobilités\">AOMs</abbr> couvertes"
 
 #, elixir-format
 msgid "Territory coverage"
@@ -180,12 +180,12 @@ msgid "See tools for reusers"
 msgstr "Voir les outils pour les réutilisateurs"
 
 #, elixir-format
-msgid "Who’s reusing data from"
+msgid "Who is reusing data from"
 msgstr "Qui réutilise des données de"
 
 #, elixir-format
 msgid "producer description"
-msgstr "AOMs, opérateurs de transport… : vous êtes tenus de publier vos données relatives à l’information voyageur sur le Point d’Accès National. L’équipe de transport.data.gouv.fr vous accompagne dans leur mise en qualité, mise en conformité et publication."
+msgstr "<abbr title=\"Autorité organistatrice des mobilités\">AOMs</abbr>, opérateurs de transport… : vous êtes tenus de publier vos données relatives à l’information voyageur sur le Point d’Accès National. L’équipe de transport.data.gouv.fr vous accompagne dans leur mise en qualité, mise en conformité et publication."
 
 #, elixir-format
 msgid "user description"

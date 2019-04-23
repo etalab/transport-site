@@ -14,7 +14,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   use TransportWeb.ConnCase, async: false
   use TransportWeb.UserFacingCase
-  alias Transport.{Dataset, Resource, Repo}
+  alias Transport.{Dataset, Resource, Repo, Validation}
 
   setup do
     {:ok, _} = %Dataset{
@@ -27,7 +27,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
       tags: [],
       resources: [%Resource{
         url: "https://link.to/angers.zip",
-        validations: %{},
+        validation: %Validation{},
         metadata: %{}
       }
     ]
@@ -43,7 +43,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
       tags: [],
       resources: [%Resource{
         url: "https://link.to/angers.zip",
-        validations: %{},
+        validation: %Validation{},
         metadata: %{}
       }]
     } |> Repo.insert()

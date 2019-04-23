@@ -1,8 +1,8 @@
 ## This file is a PO Template file.
 ##
 ## `msgid`s here are often extracted from source code.
-## Add new translations manually only if they're dynamic
-## translations that can't be statically extracted.
+## Add new translations manually only if they’re dynamic
+## translations that can’t be statically extracted.
 ##
 ## Run `mix gettext.extract` to bring this file up to
 ## date. Leave `msgstr`s empty as changing them here as no
@@ -100,7 +100,7 @@ msgid "Freefloating vehicles"
 msgstr ""
 
 #, elixir-format
-msgid "I'd like to be informed"
+msgid "I’d like to be informed"
 msgstr ""
 
 #, elixir-format
@@ -164,11 +164,11 @@ msgid "of the population"
 msgstr ""
 
 #, elixir-format
-msgid "I'm producing transport data"
+msgid "I’m producing transport data"
 msgstr ""
 
 #, elixir-format
-msgid "I'm using transport data"
+msgid "I’m using transport data"
 msgstr ""
 
 #, elixir-format
@@ -180,7 +180,7 @@ msgid "See tools for reusers"
 msgstr ""
 
 #, elixir-format
-msgid "Who's is reusing data from"
+msgid "Who is reusing data from"
 msgstr ""
 
 #, elixir-format

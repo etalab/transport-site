@@ -6,10 +6,6 @@ defmodule TransportWeb.AtomController do
   def index(conn, _params) do
     resources = Resource
     |> preload(:dataset)
-    |> select(
-      [r],
-      struct(r, [:id, :last_update, :title, :latest_url, :dataset_id,
-        dataset: [:spatial, :description, :organization]]))
     |> where([r], not is_nil(r.latest_url))
     |> Repo.all()
 

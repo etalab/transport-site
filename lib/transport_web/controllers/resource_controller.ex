@@ -1,6 +1,6 @@
 defmodule TransportWeb.ResourceController do
   use TransportWeb, :controller
-  alias Transport.{Repo, Resource}
+  alias Transport.{Repo, Resource, Validation}
 
   def details(conn, params) do
     config = make_pagination_config(params)
@@ -9,7 +9,7 @@ defmodule TransportWeb.ResourceController do
     case Repo.get(Resource, id) do
       nil -> render(conn, "404.html")
       resource ->
-        resource_with_dataset = resource |> Repo.preload([:dataset])
+        resource_with_dataset = resource |> Repo.preload([:dataset, :validation])
         dataset = resource_with_dataset.dataset |> Repo.preload([:resources])
         other_resources =
           dataset.resources
@@ -17,12 +17,12 @@ defmodule TransportWeb.ResourceController do
           |> Stream.filter(&Resource.valid?/1)
           |> Enum.to_list()
 
-        issue_type = get_issue_type(params, resource)
-        issues = get_issues(resource, issue_type, config)
+        issue_type = get_issue_type(params, resource_with_dataset.validation)
+        issues = get_issues(resource_with_dataset.validation, issue_type, config)
 
         issue_types = for it <- Resource.issue_types,
-         into: %{},
-         do: {it, count_issues(resource, it)}
+          into: %{},
+          do: {it, count_issues(resource_with_dataset.validation, it)}
 
         render(
           conn,
@@ -38,20 +38,20 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp get_issue_type(%{"issue_type" => issue_type}, _), do: issue_type
-  defp get_issue_type(_, %{validations: validations}) when validations != nil and validations != %{} do
+  defp get_issue_type(_, %Validation{details: validations}) when validations != nil and validations != %{} do
     {issue_type, _issues} = validations |> Map.to_list() |> List.first()
     issue_type
   end
   defp get_issue_type(_, _), do: nil
 
-  defp get_issues(%{validations: validations}, issue_type, config) when validations != nil do
+  defp get_issues(%{details: validations}, issue_type, config) when validations != nil do
     validations
     |> Map.get(issue_type,  [])
     |> Scrivener.paginate(config)
   end
   defp get_issues(_, _, _), do: []
 
-  defp count_issues(%{validations: validations}, issue_type) when validations != nil do
+  defp count_issues(%{details: validations}, issue_type) when validations != nil do
     validations
     |> Map.get(issue_type, [])
     |> Enum.count
