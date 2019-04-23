@@ -52,3 +52,7 @@ msgstr ""
 
 msgid "Publish a dataset"
 msgstr ""
+
+#, elixir-format
+msgid "Publish or update a dataset"
+msgstr ""

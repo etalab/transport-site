@@ -10,6 +10,9 @@ defmodule Datagouvfr.Client.Reuses do
   def get(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id}) do
     case get_request(conn, @endpoint, [], params: %{"dataset" => dataset_id}) do
       {:ok, %{"data" => data}} -> {:ok, Enum.map(data, &add_name/1)}
+      {:error, %{reason: reason}} ->
+        Logger.error("Unable to get reuses of dataset #{dataset_id} because of #{reason}")
+        {:error, reason}
       {:error, error} ->
         Logger.error(error)
         {:error, error}

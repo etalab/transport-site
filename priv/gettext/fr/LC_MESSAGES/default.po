@@ -51,4 +51,8 @@ msgid "Question about transport.data.gouv.fr"
 msgstr "Question au sujet de transport.data.gouv.fr"
 
 msgid "Publish a dataset"
-msgstr "Publier un jeu de données"
+msgstr "Publier ou mettre à jour des données"
+
+#, elixir-format
+msgid "Publish or update a dataset"
+msgstr "Publier ou mettre à jour des données"
