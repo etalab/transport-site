@@ -144,4 +144,11 @@ defmodule Transport.Resource do
     |> Enum.each(&validate_and_save/1)
   end
 
+  def get_expire_at(%Date{} = date), do: get_expire_at("#{date}")
+  def get_expire_at(date) do
+    __MODULE__
+    |> where([r], fragment("metadata->>'end_date' = ?", ^date))
+    |> preload([:dataset])
+    |> Repo.all()
+  end
 end
