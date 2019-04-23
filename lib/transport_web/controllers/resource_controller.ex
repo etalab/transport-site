@@ -21,9 +21,9 @@ defmodule TransportWeb.ResourceController do
         issue_type = get_issue_type(params, resource_with_dataset.validation)
         issues = get_issues(resource_with_dataset.validation, issue_type, config)
 
-        issue_types = for it <- Resource.issue_types,
+        issue_types = for {key, _} <- Resource.issues_short_translation,
           into: %{},
-          do: {it, count_issues(resource_with_dataset.validation, it)}
+          do: {key, count_issues(resource_with_dataset.validation, key)}
 
         render(
           conn,
@@ -33,6 +33,7 @@ defmodule TransportWeb.ResourceController do
            dataset: dataset,
            issue_types: issue_types,
            issue_type: issue_type,
+           issues_short_translation: Resource.issues_short_translation,
            issues: issues}
         )
     end

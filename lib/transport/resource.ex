@@ -5,6 +5,7 @@ defmodule Transport.Resource do
   use Ecto.Schema
   alias Transport.{Dataset, Repo, Validation}
   import Ecto.{Changeset, Query}
+  import TransportWeb.Gettext
   require Logger
 
   @endpoint Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
@@ -12,9 +13,6 @@ defmodule Transport.Resource do
   @res HTTPoison.Response
   @err HTTPoison.Error
   @timeout 60_000
-  @issue_types ["UnusedStop", "Slow", "ExcessiveSpeed", "NegativeTravelTime",
-  "CloseStops", "NullDuration", "InvalidReference", "InvalidArchive", "MissingRouteName",
-  "MissingId", "MissingCoordinates", "InvalidCoordinates", "InvalidRouteType"]
 
   schema "resource" do
     field :is_active, :boolean
@@ -105,7 +103,35 @@ defmodule Transport.Resource do
     |> validate_required([:url])
   end
 
-  def issue_types, do: @issue_types
+  def issues_short_translation, do: %{
+    "UnusedStop" => dgettext("validations", "Unused stops"),
+    "Slow" => dgettext("validations", "Slow"),
+    "ExcessiveSpeed" => dgettext("validations", "Excessive speed between two stops"),
+    "NegativeTravelTime" => dgettext("validations", "Negative travel time between two stops"),
+    "CloseStops" => dgettext("validations", "Close stops"),
+    "NullDuration" => dgettext("validations", "Null duration between two stops"),
+    "InvalidReference" => dgettext("validations", "Invalid reference"),
+    "InvalidArchive" => dgettext("validations", "Invalid archive"),
+    "MissingRouteName" => dgettext("validations", "Missing route name"),
+    "MissingId" => dgettext("validations", "Missing id"),
+    "MissingCoordinates" => dgettext("validations", "Missing coordinates"),
+    "InvalidCoordinates" => dgettext("validations", "Invalid coordinates"),
+    "InvalidRouteType" => dgettext("validations", "Invalid route type"),
+    "MissingUrl" => dgettext("validations", "Missing url"),
+    "InvalidUrl" => dgettext("validations", "Invalid url"),
+    "InvalidTimezone" => dgettext("validations", "Invalid timezone"),
+    "DuplicateStops" => dgettext("validations", "Duplicate stops"),
+    "MissingPrice" => dgettext("validations", "Missing price"),
+    "InvalidCurrency" => dgettext("validations", "Invalid currency"),
+    "InvalidTransfers" => dgettext("validations", "Invalid transfers"),
+    "InvalidTransferDuration" => dgettext("validations", "Invalid transfer duration"),
+    "MissingLanguage" => dgettext("validations", "Missing language"),
+    "InvalidLanguage" => dgettext("validations", "Invalid language"),
+    "DupplicateObjectId" => dgettext("validations", "Dupplicate object id"),
+    "UnloadableModel" => dgettext("validations", "Unloadable model"),
+    "MissingMandatoryFile" => dgettext("validations", "Missing mandatory file"),
+    "ExtraFile" => dgettext("validations", "Extra file")
+}
 
   def valid?(%__MODULE__{} = r), do: r.metadata != nil
 
