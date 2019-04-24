@@ -117,3 +117,39 @@ msgstr "Impossible de charger le modèle"
 #, elixir-format
 msgid "Unused stops"
 msgstr "Arrêt inutilisé"
+
+#, elixir-format
+msgid "Errors"
+msgstr "Erreurs"
+
+#, elixir-format
+msgid "Fatal failures"
+msgstr "Échecs irrecupérables"
+
+#, elixir-format
+msgid "Informations"
+msgstr "Informations"
+
+#, elixir-format
+msgid "Warnings"
+msgstr "Avertissements"
+
+#, elixir-format
+msgid "Passed validations"
+msgstr "Validations passées"
+
+#, elixir-format
+msgid "Validated file"
+msgstr "Fichier validé"
+
+#, elixir-format
+msgid "No validation available"
+msgstr "Pas de validation disponibles"
+
+#, elixir-format
+msgid "Validations issues"
+msgstr "Problèmes de validation"
+
+#, elixir-format
+msgid "Other resources"
+msgstr "Autres ressources"

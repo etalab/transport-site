@@ -1,6 +1,6 @@
 defmodule TransportWeb.ResourceController do
   use TransportWeb, :controller
-  alias Datagouvfr.Client.{Datasets, Resources, User}
+  alias Datagouvfr.Client.{Datasets, Resources, User, Validation}
   alias Transport.{Dataset, Repo, Resource, Validation}
   import Ecto.Query, only: [from: 2]
 
@@ -42,14 +42,17 @@ defmodule TransportWeb.ResourceController do
     existing_issues = issues
     |> Enum.map(fn {key, issues} -> {key, %{
       count: Enum.count(issues),
-      title: Resource.issues_short_translation()[key]
+      title: Resource.issues_short_translation()[key],
+      severity: issues |> List.first |> Map.get("severity")
     }} end)
     |> Map.new
 
     Resource.issues_short_translation
-    |> Enum.map(fn {key, title} -> {key, %{count: 0, title: title} }end)
+    |> Enum.map(fn {key, title} -> {key, %{count: 0, title: title, severity: "Irrelevant"} }end)
     |> Map.new
     |> Map.merge(existing_issues)
+    |> Enum.group_by(fn {_, issue} -> issue.severity end)
+    |> Enum.sort_by(fn {severity, _} -> Validation.severities(severity).level end)
   end
 
   def choose_action(conn, _), do: render conn, "choose_action.html"

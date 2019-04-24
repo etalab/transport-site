@@ -1,6 +1,7 @@
 defmodule TransportWeb.ResourceView do
   use TransportWeb, :view
   import TransportWeb.PaginationHelpers
+  import Transport.Validation
 
   def format_related_objects(nil), do: ""
   def format_related_objects(related_objects) do
