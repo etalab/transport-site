@@ -8,4 +8,7 @@ defmodule TransportWeb.ResourceView do
     |> Enum.map(fn %{"id" => id, "name" => name} -> "#{name} (#{id})" end)
     |> Enum.join(", ")
   end
+
+  def issue_type([]), do: nil
+  def issue_type([h|_]), do: h["issue_type"]
 end

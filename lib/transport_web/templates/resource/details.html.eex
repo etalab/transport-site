@@ -11,21 +11,21 @@
                                 <%= Gettext.dgettext(TransportWeb.Gettext, "resource", "No validation available") %>
                             <% else %>
                             <ul class="side-pane__submenu">
-                            <%= for {issue_type, issue_count} <- @issue_types do %>
+                            <%= for {key, issue} <- @validation_summary do %>
                             <%= cond do %>
-                            <%= issue_type == @issue_type -> %>
+                            <%= key == issue_type(@issues.entries) -> %>
                             <li class="active">
                                 <a class="side-pane__sublink">
-                                    <%= @issues_short_translation[issue_type] %>
-                                    (<%= issue_count %>)
+                                    <%= issue.title %>
+                                    (<%= issue.count %>)
                                 </a>
                             </li>
 
-                            <% issue_count > 0 -> %>
+                            <% issue.count > 0 -> %>
                             <li>
                             <%= link(
-                                @issues_short_translation[issue_type] <> "(#{issue_count})",
-                                to: resource_path(@conn, :details, @resource.id, %{"issue_type" => issue_type}),
+                                issue.title <> "(#{issue.count})",
+                                to: resource_path(@conn, :details, @resource.id, %{"issue_type" => key}),
                                 class: "side-pane__sublink"
                             ) %>
                             </li>
@@ -33,7 +33,7 @@
                             <% true -> %>
                             <li>
                                 <a class="side-pane__sublink">
-                                    <%= @issues_short_translation[issue_type] %> (0)
+                                    <%= issue.title %> (0)
                                 </a>
                             </li>
                             <% end %>
@@ -50,11 +50,11 @@
                     </ul>
                 </nav>
                 <div class="main-pane">
-                    <h1><%= link(@dataset.title, to: dataset_path(@conn, :details, @dataset.slug) )%></h1>
+                    <h1><%= link(@resource.dataset.title, to: dataset_path(@conn, :details, @resource.dataset.slug) )%></h1>
                     <%= unless @resource.validation do %>
                         Pas de validation disponible
                     <% else %>
-                    <%= pagination_links @conn, @issues, [@resource.id], issue_type: @issue_type,
+                    <%= pagination_links @conn, @issues, [@resource.id], issue_type: issue_type(@issues.entries),
                     path: &resource_path/4, action: :details %>
 
                     <table class="table">
