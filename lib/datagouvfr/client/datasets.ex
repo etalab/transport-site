@@ -4,7 +4,12 @@ defmodule Datagouvfr.Client.Datasets do
   """
 
   import TransportWeb.Gettext
-  import Datagouvfr.Client, only: [get_request: 2, post_request: 2, delete_request: 2]
+  import Datagouvfr.Client, only: [
+    get_request: 2,
+    post_request: 2,
+    delete_request: 2,
+    process_url: 1
+  ]
   require Logger
   alias Transport.Helpers
 
@@ -151,6 +156,16 @@ defmodule Datagouvfr.Client.Datasets do
     |> is_user_in_followers?(user_id, conn)
   end
   def current_user_subscribed?(_, _), do: false
+
+  def is_active?(dataset_id) do
+    path = Path.join([@endpoint, dataset_id])
+    response =
+      path
+      |> process_url()
+      |> HTTPoison.head()
+
+    not match?({:ok, %HTTPoison.Response{status_code: 404}}, response)
+  end
 
   #private functions
 
