@@ -25,6 +25,7 @@ defmodule Transport.Dataset do
     field :type, :string
     field :organization, :string
     field :has_realtime, :boolean
+    field :is_active, :boolean
 
     belongs_to :region, Region
     belongs_to :aom, AOM
@@ -64,6 +65,8 @@ defmodule Transport.Dataset do
     preload(q, [resources: ^s])
   end
 
+  def select_active(q), do: where(q, [d], d.is_active)
+
   def search_datasets(search_string, s \\ []) do
     document_q = __MODULE__
     |> join(:left, [d], aom in AOM, on: d.aom_id == aom.id)
@@ -91,12 +94,13 @@ defmodule Transport.Dataset do
     resource_query = no_validations_query()
 
     __MODULE__
+    |> select_active
     |> join(:inner, [d], doc in subquery(sub), on: doc.id == d.id)
     |> select_or_not(s)
     |> preload([resources: ^resource_query])
   end
 
-  def list_datasets, do: __MODULE__ |> preload_without_validations
+  def list_datasets, do: __MODULE__ |> select_active |> preload_without_validations
   def list_datasets([]), do: list_datasets()
   def list_datasets(s) when is_list(s) do
     sub_resources = no_validations_query()
@@ -155,7 +159,7 @@ defmodule Transport.Dataset do
     |> Repo.preload(:resources)
     |> cast(params, [:datagouv_id, :spatial, :created_at, :description, :frequency, :organization,
     :last_update, :licence, :logo, :full_logo, :slug, :tags, :title, :type, :region_id,
-     :has_realtime])
+     :has_realtime, :is_active])
     |> cast_aom(params)
     |> cast_assoc(:resources)
     |> validate_required([:slug])
