@@ -57,7 +57,8 @@ defmodule Transport.Dataset do
         id: r.id,
         last_update: r.last_update,
         latest_url: r.latest_url
-      }
+      },
+      where: r.is_available
   end
 
   def preload_without_validations(q) do

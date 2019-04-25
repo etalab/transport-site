@@ -23,6 +23,7 @@ defmodule Transport.Resource do
     field :metadata, :map
     field :last_update, :string
     field :latest_url, :string
+    field :is_available, :boolean, default: true
 
     belongs_to :dataset, Dataset
     has_one :validation, Validation
@@ -98,7 +99,8 @@ defmodule Transport.Resource do
     resource
     |> cast(
       params,
-      [:is_active, :url, :format, :last_import, :title, :metadata, :id, :last_update, :latest_url]
+      [:is_active, :url, :format, :last_import, :title,
+       :metadata, :id, :last_update, :latest_url, :is_available]
     )
     |> validate_required([:url])
   end
