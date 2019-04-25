@@ -2,9 +2,34 @@ defmodule Transport.DataChecker do
   @moduledoc """
   Use to check data, and act about it, like send email
   """
+  alias Datagouvfr.Client.Datasets
   alias Mailjet.Client
-  alias Transport.Resource
+  alias Transport.{Dataset, Repo, Resource}
   import TransportWeb.Router.Helpers
+  import Ecto.Query
+
+  def inactive_data do
+    inactive_ids =
+      Dataset
+      |> select([d], d.datagouv_id)
+      |> Repo.all()
+      |> Enum.reject(&Datasets.is_active?/1)
+
+    Dataset
+    |> where([d], d.datagouv_id in ^inactive_ids)
+    |> Repo.update_all(set: [is_active: false])
+
+    active_ids =
+      Dataset
+      |> select([d], d.datagouv_id)
+      |> where([d], d.is_active == false)
+      |> Repo.all()
+      |> Enum.filter(&Datasets.is_active?/1)
+
+    Dataset
+    |> where([d], d.datagouv_id in ^active_ids)
+    |> Repo.update_all(set: [is_active: true])
+  end
 
   def outdated_data(blank \\ False) do
     today = Date.utc_today
