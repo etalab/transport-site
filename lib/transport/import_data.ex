@@ -90,7 +90,8 @@ defmodule Transport.ImportData do
             "last_import" => DateTime.utc_now |> DateTime.to_string,
             "last_update" => resource["last_modified"],
             "latest_url" => resource["latest"],
-            "id" => get_resource_id(resource)
+            "id" => get_resource_id(resource),
+            "is_available" => resource["extras"]["check:available"]
           }
       end)
   end
