@@ -100,10 +100,6 @@ msgid "Freefloating vehicles"
 msgstr ""
 
 #, elixir-format
-msgid "I’d like to be informed"
-msgstr ""
-
-#, elixir-format
 msgid "Private parking"
 msgstr ""
 
@@ -205,4 +201,8 @@ msgstr ""
 
 #, elixir-format
 msgid "I wish to follow the development of transport.data.gouv.fr"
+msgstr ""
+
+#, elixir-format
+msgid "I'd like to be informed"
 msgstr ""

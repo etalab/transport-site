@@ -117,3 +117,39 @@ msgstr ""
 #, elixir-format
 msgid "Unused stops"
 msgstr ""
+
+#, elixir-format
+msgid "Errors"
+msgstr ""
+
+#, elixir-format
+msgid "Fatal failures"
+msgstr ""
+
+#, elixir-format
+msgid "Informations"
+msgstr ""
+
+#, elixir-format
+msgid "Warnings"
+msgstr ""
+
+#, elixir-format
+msgid "Passed validations"
+msgstr ""
+
+#, elixir-format
+msgid "Validated file"
+msgstr ""
+
+#, elixir-format
+msgid "No validation available"
+msgstr ""
+
+#, elixir-format
+msgid "Validations issues"
+msgstr ""
+
+#, elixir-format
+msgid "Other resources"
+msgstr ""

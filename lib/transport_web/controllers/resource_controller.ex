@@ -1,7 +1,8 @@
 defmodule TransportWeb.ResourceController do
   use TransportWeb, :controller
-  alias Datagouvfr.Client.{Datasets, Resources, User}
+  alias Datagouvfr.Client.{Datasets, Resources, User, Validation}
   alias Transport.{Dataset, Repo, Resource, Validation}
+  import Ecto.Query, only: [from: 2]
 
   def details(conn, params) do
     config = make_pagination_config(params)
@@ -11,32 +12,47 @@ defmodule TransportWeb.ResourceController do
       nil -> render(conn, "404.html")
       resource ->
         resource_with_dataset = resource |> Repo.preload([:dataset, :validation])
-        dataset = resource_with_dataset.dataset |> Repo.preload([:resources])
-        other_resources =
-          dataset.resources
-          |> Stream.reject(&(Integer.to_string(&1.id) == id))
-          |> Stream.filter(&Resource.valid?/1)
-          |> Enum.to_list()
 
-        issue_type = get_issue_type(params, resource_with_dataset.validation)
-        issues = get_issues(resource_with_dataset.validation, issue_type, config)
+        other_resources_query = from r in Resource,
+          where: r.dataset_id == ^resource.dataset_id and r.id != ^resource.id and not is_nil(r.metadata)
 
-        issue_types = for {key, _} <- Resource.issues_short_translation,
-          into: %{},
-          do: {key, count_issues(resource_with_dataset.validation, key)}
+        current_issues = get_issues(resource_with_dataset.validation, params)
 
         render(
           conn,
           "details.html",
           %{resource: resource_with_dataset,
-           other_resources: other_resources,
-           dataset: dataset,
-           issue_types: issue_types,
-           issue_type: issue_type,
-           issues_short_translation: Resource.issues_short_translation,
-           issues: issues}
+           other_resources: Repo.all(other_resources_query),
+           issues: Scrivener.paginate(current_issues, config),
+           validation_summary: validation_summary(resource_with_dataset.validation)
+          }
         )
     end
+  end
+
+  defp get_issues(%{details: nil}, _), do: []
+  defp get_issues(%{details: validations}, %{"issue_type" => issue_type}), do: Map.get(validations, issue_type,  [])
+  defp get_issues(%{details: validations}, _) do
+    validations
+    |> Map.values
+    |> List.first
+  end
+
+  defp validation_summary(%{details: issues}) do
+    existing_issues = issues
+    |> Enum.map(fn {key, issues} -> {key, %{
+      count: Enum.count(issues),
+      title: Resource.issues_short_translation()[key],
+      severity: issues |> List.first |> Map.get("severity")
+    }} end)
+    |> Map.new
+
+    Resource.issues_short_translation
+    |> Enum.map(fn {key, title} -> {key, %{count: 0, title: title, severity: "Irrelevant"} }end)
+    |> Map.new
+    |> Map.merge(existing_issues)
+    |> Enum.group_by(fn {_, issue} -> issue.severity end)
+    |> Enum.sort_by(fn {severity, _} -> Validation.severities(severity).level end)
   end
 
   def choose_action(conn, _), do: render conn, "choose_action.html"
@@ -94,24 +110,4 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  defp get_issue_type(%{"issue_type" => issue_type}, _), do: issue_type
-  defp get_issue_type(_, %Validation{details: validations}) when validations != nil and validations != %{} do
-    {issue_type, _issues} = validations |> Map.to_list() |> List.first()
-    issue_type
-  end
-  defp get_issue_type(_, _), do: nil
-
-  defp get_issues(%{details: validations}, issue_type, config) when validations != nil do
-    validations
-    |> Map.get(issue_type,  [])
-    |> Scrivener.paginate(config)
-  end
-  defp get_issues(_, _, _), do: []
-
-  defp count_issues(%{details: validations}, issue_type) when validations != nil do
-    validations
-    |> Map.get(issue_type, [])
-    |> Enum.count
-  end
-  defp count_issues(_, _), do: 0
 end

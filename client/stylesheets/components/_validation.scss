@@ -31,3 +31,19 @@
     display:table;
   }
 }
+
+nav.validation {
+  padding: 10px;
+  h4 {
+    margin-bottom: 0;
+  }
+  ul {
+    margin: 0;
+  }
+  a {
+    padding: 0;
+  }
+  a.active {
+    font-weight: bold;
+  }
+}

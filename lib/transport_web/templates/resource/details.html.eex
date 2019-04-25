@@ -1,80 +1,71 @@
 <section>
-        <div class="documentation dataset-details">
-                <nav class="side-pane" role="navigation">
-                    <ul class="side-pane__menu">
-                        <li class="side-pane__title">
-                            <h2><%= Gettext.dgettext(TransportWeb.Gettext, "resource", "Resources") %></h2>
-                        </li>
-                        <li class="side-pane__dropdown unfolded active">
-                            <a><%= @resource.title %></a>
-                            <%= unless @resource.validation do %>
-                                <%= Gettext.dgettext(TransportWeb.Gettext, "resource", "No validation available") %>
-                            <% else %>
-                            <ul class="side-pane__submenu">
-                            <%= for {issue_type, issue_count} <- @issue_types do %>
-                            <%= cond do %>
-                            <%= issue_type == @issue_type -> %>
-                            <li class="active">
-                                <a class="side-pane__sublink">
-                                    <%= @issues_short_translation[issue_type] %>
-                                    (<%= issue_count %>)
-                                </a>
-                            </li>
+    <div class="documentation dataset-details">
+        <nav class="side-pane validation" role="navigation">
+            <h3><%= TransportWeb.Gettext.dgettext("validations", "Validated file") %></h3>
+            <p><%= @resource.title %></p>
 
-                            <% issue_count > 0 -> %>
-                            <li>
-                            <%= link(
-                                @issues_short_translation[issue_type] <> "(#{issue_count})",
-                                to: resource_path(@conn, :details, @resource.id, %{"issue_type" => issue_type}),
-                                class: "side-pane__sublink"
-                            ) %>
-                            </li>
 
-                            <% true -> %>
-                            <li>
-                                <a class="side-pane__sublink">
-                                    <%= @issues_short_translation[issue_type] %> (0)
-                                </a>
-                            </li>
-                            <% end %>
-                            <% end %>
-                            </ul>
-                        </li>
-                        <% end %>
-                         <%= for resource <- @other_resources do %>
-                        <li class="side-pane__dropdown unfolded">
-                            <%= link(resource.title,
-                            to: resource_path(@conn, :details, resource.id)
-                            )%>
-                        <% end %>
-                    </ul>
-                </nav>
-                <div class="main-pane">
-                    <h1><%= link(@dataset.title, to: dataset_path(@conn, :details, @dataset.slug) )%></h1>
-                    <%= unless @resource.validation do %>
-                        Pas de validation disponible
+            <%= unless @resource.validation do %>
+                <%= TransportWeb.Gettext.dgettext("validations", "No validation available") %>
+            <% else %>
+            <h3><%= TransportWeb.Gettext.dgettext("validations", "Validations issues") %></h3>
+            <%= for {severity, issues} <- @validation_summary do %>
+                <h4><%= severities(severity).text %></h4>
+                <ul>
+                <%= for {key, issue} <- issues do %>
+                    <li>
+
+                    <%= if issue.count > 0 do %>
+                    <%= link(
+                        issue.title <> " (#{issue.count})",
+                        to: resource_path(@conn, :details, @resource.id, %{"issue_type" => key}),
+                        class: (if key == issue_type(@issues.entries), do: "active")
+                    ) %>
                     <% else %>
-                    <%= pagination_links @conn, @issues, [@resource.id], issue_type: @issue_type,
-                    path: &resource_path/4, action: :details %>
-
-                    <table class="table">
-                        <tr>
-                        <th><%= dgettext("page-dataset-details", "Object ID") %></th>
-                        <th><%= dgettext("page-dataset-details", "Object name") %></th>
-                        <th><%= dgettext("page-dataset-details", "Related object ID") %></th>
-                        <th><%= dgettext("page-dataset-details", "Severity") %></th>
-                        </tr>
-
-                        <%= for issue <- @issues || [] do %>
-                        <tr>
-                            <td><%= issue["object_id"] %></td>
-                            <td><%= issue["object_name"] %></td>
-                            <td><%= format_related_objects(issue["related_objects"]) %></td>
-                            <td><%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue["severity"]) %></td>
-                        </tr>
-                        <% end %>
-                    </table>
+                        <%= issue.title %>
                     <% end %>
-            </div>
+                    </li>
+                <% end %>
+                </ul>
+            <% end %>
+            <% end %>
+            <h3><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h3>
+            <ul>
+            <%= for resource <- @other_resources do %>
+                <li>
+                    <%= link(resource.title,
+                    to: resource_path(@conn, :details, resource.id)
+                   )%>
+                </li>
+            <% end %>
+            </ul>
+        </nav>
+        <div class="main-pane">
+            <h1><%= link(@resource.dataset.title, to: dataset_path(@conn, :details, @resource.dataset.slug) )%></h1>
+            <%= unless @resource.validation do %>
+                Pas de validation disponible
+            <% else %>
+            <%= pagination_links @conn, @issues, [@resource.id], issue_type: issue_type(@issues.entries),
+            path: &resource_path/4, action: :details %>
+
+            <table class="table">
+                <tr>
+                <th><%= dgettext("page-dataset-details", "Object ID") %></th>
+                <th><%= dgettext("page-dataset-details", "Object name") %></th>
+                <th><%= dgettext("page-dataset-details", "Related object ID") %></th>
+                <th><%= dgettext("page-dataset-details", "Severity") %></th>
+                </tr>
+
+                <%= for issue <- @issues || [] do %>
+                <tr>
+                    <td><%= issue["object_id"] %></td>
+                    <td><%= issue["object_name"] %></td>
+                    <td><%= format_related_objects(issue["related_objects"]) %></td>
+                    <td><%= Gettext.dgettext(TransportWeb.Gettext, "page-dataset-details", issue["severity"]) %></td>
+                </tr>
+                <% end %>
+            </table>
+            <% end %>
+        </div>
     </div>
 </section>
