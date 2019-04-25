@@ -204,3 +204,7 @@ msgstr ""
 #, elixir-format
 msgid "Has realtime"
 msgstr ""
+
+#, elixir-format
+msgid "Search results"
+msgstr ""
