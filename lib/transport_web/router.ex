@@ -107,6 +107,8 @@ defmodule TransportWeb.Router do
 
     get "/logout", SessionController, :delete
 
+    get "/blog/:page", BlogController, :page
+
     # If nothing else matches, it’s probably a dummy single page
     get "/:page", PageController, :single_page
   end

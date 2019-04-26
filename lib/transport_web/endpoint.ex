@@ -9,7 +9,7 @@ defmodule TransportWeb.Endpoint do
   # when deploying your static files in production.
   plug Plug.Static,
     at: "/", from: :transport, gzip: false,
-    only: ~w(js css fonts images data favicon.ico robots.txt documents BingSiteAuth.xml google5be4b09db1274976.html demo_rt.html)
+    only: ~w(js css fonts images data blog favicon.ico robots.txt documents BingSiteAuth.xml google5be4b09db1274976.html demo_rt.html)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
