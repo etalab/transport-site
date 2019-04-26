@@ -10,7 +10,7 @@ config :transport, TransportWeb.Endpoint,
 config :transport, Transport.Scheduler,
   jobs: [
     {"0 7 * * *", {Transport.ImportData, :import_validate_all, []}}, # Every day at 7am
-    {"@daily", {Transport.DataChecker, :outdated_data, []}} # Send email for outdated data
+    {"@daily", {Transport.DataChecker, :outdated_data, []}}, # Send email for outdated data
     {"@daily", {Transport.DataChecker, :inactive_data, []}} # Set inactive data
   ]
 
