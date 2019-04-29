@@ -48,21 +48,7 @@
             <%= pagination_links @conn, @issues, [@resource.id], issue_type: issue_type(@issues.entries),
             path: &resource_path/4, action: :details %>
 
-            <table class="table">
-                <tr>
-                <th><%= dgettext("page-dataset-details", "Object ID") %></th>
-                <th><%= dgettext("page-dataset-details", "Object name") %></th>
-                <th><%= dgettext("page-dataset-details", "Related object ID") %></th>
-                </tr>
-
-                <%= for issue <- @issues || [] do %>
-                <tr>
-                    <td><%= issue["object_id"] %></td>
-                    <td><%= issue["object_name"] %></td>
-                    <td><%= format_related_objects(issue["related_objects"]) %></td>
-                </tr>
-                <% end %>
-            </table>
+            <%= render "_generic_issue.html", issues: @issues || [] , conn: @conn %>
             <% end %>
         </div>
     </div>
