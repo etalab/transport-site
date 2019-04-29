@@ -38,3 +38,11 @@ msgstr "L’archive GTFS ne devrait contenir des fichiers de la spécification"
 #, elixir-format
 msgid "File name"
 msgstr "Nom de fichier"
+
+#, elixir-format
+msgid "Next stop and service"
+msgstr "Prochain arrêt et circulation"
+
+#, elixir-format
+msgid "SpeedIssue"
+msgstr "La vitesse entre deux arrêts consécutifs ne semble pas réaliste"

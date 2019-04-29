@@ -38,3 +38,11 @@ msgstr "The GTFS archive should not contain files that are not part of the speci
 #, elixir-format
 msgid "File name"
 msgstr ""
+
+#, elixir-format
+msgid "Next stop and service"
+msgstr ""
+
+#, elixir-format
+msgid "SpeedIssue"
+msgstr "The speed between two consecutive stops do not seem credible"

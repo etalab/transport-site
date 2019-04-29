@@ -37,3 +37,11 @@ msgstr ""
 #, elixir-format
 msgid "File name"
 msgstr ""
+
+#, elixir-format
+msgid "Next stop and service"
+msgstr ""
+
+#, elixir-format
+msgid "SpeedIssue"
+msgstr ""
