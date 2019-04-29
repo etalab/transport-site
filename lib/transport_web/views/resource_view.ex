@@ -16,6 +16,7 @@ defmodule TransportWeb.ResourceView do
   def template(issues) do
     case issue_type(issues.entries) do
       "DuplicateStops" -> "_duplicate_stops_issue.html"
+      "ExtraFile" -> "_extra_file_issue.html"
       _ -> "_generic_issue.html"
     end
   end

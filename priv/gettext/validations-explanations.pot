@@ -29,3 +29,11 @@ msgstr ""
 #, elixir-format
 msgid "Stop name"
 msgstr ""
+
+#, elixir-format
+msgid "ExtraFile"
+msgstr ""
+
+#, elixir-format
+msgid "File name"
+msgstr ""

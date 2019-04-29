@@ -1,5 +1,6 @@
 <p>
 <%= dgettext("validations-explanations", "Impacted file")%>: <tt>stops.txt</tt>
+</p>
 <p>
 <%= dgettext("validations-explanations", "DuplicateStops") %>
 </p>

@@ -30,3 +30,11 @@ msgstr "Identifiant de l’arrêt"
 #, elixir-format
 msgid "Stop name"
 msgstr "Nom de l’arrêt"
+
+#, elixir-format
+msgid "ExtraFile"
+msgstr "L’archive GTFS ne devrait contenir des fichiers de la spécification"
+
+#, elixir-format
+msgid "File name"
+msgstr "Nom de fichier"
