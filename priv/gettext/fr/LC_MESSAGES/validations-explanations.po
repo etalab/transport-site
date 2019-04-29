@@ -50,3 +50,7 @@ msgstr "La vitesse entre deux arrêts consécutifs ne semble pas réaliste"
 #, elixir-format
 msgid "MissingFile"
 msgstr "Certains fichiers obligatoires manquent dans l’archive GTFS"
+
+#, elixir-format
+msgid "UnusedStop"
+msgstr "Arrêt présent mais n’apparaissant dans aucune circulation"

@@ -50,3 +50,7 @@ msgstr "The speed between two consecutive stops do not seem credible"
 #, elixir-format
 msgid "MissingFile"
 msgstr "Some mandatory files are missing in the GTFS archive"
+
+#, elixir-format
+msgid "UnusedStop"
+msgstr "Existing stop that never occurs in any service"

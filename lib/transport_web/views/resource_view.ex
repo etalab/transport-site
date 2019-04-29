@@ -21,6 +21,7 @@ defmodule TransportWeb.ResourceView do
       "ExcessiveSpeed" -> "_speed_issue.html"
       "NegativeTravelTime" -> "_speed_issue.html"
       "Slow" -> "_speed_issue.html"
+      "UnusedStop" -> "_unused_stop_issue.html"
       _ -> "_generic_issue.html"
     end
   end

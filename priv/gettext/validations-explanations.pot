@@ -49,3 +49,7 @@ msgstr ""
 #, elixir-format
 msgid "MissingFile"
 msgstr ""
+
+#, elixir-format
+msgid "UnusedStop"
+msgstr ""
