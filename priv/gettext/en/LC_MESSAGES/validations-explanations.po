@@ -46,3 +46,7 @@ msgstr ""
 #, elixir-format
 msgid "SpeedIssue"
 msgstr "The speed between two consecutive stops do not seem credible"
+
+#, elixir-format
+msgid "MissingFile"
+msgstr "Some mandatory files are missing in the GTFS archive"

@@ -16,6 +16,7 @@ defmodule TransportWeb.ResourceView do
     case issue_type(issues.entries) do
       "DuplicateStops" -> "_duplicate_stops_issue.html"
       "ExtraFile" -> "_extra_file_issue.html"
+      "MissingFile" -> "_missing_file_issue.html"
       "NullDuration" -> "_speed_issue.html"
       "ExcessiveSpeed" -> "_speed_issue.html"
       "NegativeTravelTime" -> "_speed_issue.html"

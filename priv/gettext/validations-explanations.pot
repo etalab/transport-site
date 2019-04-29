@@ -45,3 +45,7 @@ msgstr ""
 #, elixir-format
 msgid "SpeedIssue"
 msgstr ""
+
+#, elixir-format
+msgid "MissingFile"
+msgstr ""
