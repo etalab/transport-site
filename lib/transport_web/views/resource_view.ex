@@ -6,8 +6,7 @@ defmodule TransportWeb.ResourceView do
   def format_related_objects(nil), do: ""
   def format_related_objects(related_objects) do
     related_objects
-    |> Enum.map(fn %{"id" => id, "name" => name} -> "#{name} (#{id})" end)
-    |> Enum.join(", ")
+    |> Enum.map(fn %{"id" => id, "name" => name} -> content_tag(:li, "#{name} (#{id})") end)
   end
 
   def issue_type([]), do: nil

@@ -10,7 +10,7 @@
     <tr>
         <td><%= issue["object_id"] %></td>
         <td><%= issue["object_name"] %></td>
-        <td><%= format_related_objects(issue["related_objects"]) %></td>
+        <td><ul><%= format_related_objects(issue["related_objects"]) %></ul></td>
         <td><%= issue["details"] %></td>
     </tr>
     <% end %>
