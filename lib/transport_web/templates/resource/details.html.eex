@@ -48,7 +48,7 @@
             <%= pagination_links @conn, @issues, [@resource.id], issue_type: issue_type(@issues.entries),
             path: &resource_path/4, action: :details %>
 
-            <%= render "_generic_issue.html", issues: @issues || [] , conn: @conn %>
+            <%=  render template(@issues), issues: @issues || [] , conn: @conn %>
             <% end %>
         </div>
     </div>

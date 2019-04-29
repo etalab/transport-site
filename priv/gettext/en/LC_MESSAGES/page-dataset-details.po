@@ -154,3 +154,7 @@ msgstr ""
 #, elixir-format
 msgid "See on data.gouv.fr"
 msgstr ""
+
+#, elixir-format
+msgid "Details"
+msgstr ""
