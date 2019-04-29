@@ -54,3 +54,7 @@ msgstr "Certains fichiers obligatoires manquent dans l’archive GTFS"
 #, elixir-format
 msgid "UnusedStop"
 msgstr "Arrêt présent mais n’apparaissant dans aucune circulation"
+
+#, elixir-format
+msgid "CoordinatesIssue"
+msgstr "Les coordonnées des arrêts sont obligatoires dans la spécification GTFS"

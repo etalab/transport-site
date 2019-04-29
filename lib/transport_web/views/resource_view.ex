@@ -22,6 +22,8 @@ defmodule TransportWeb.ResourceView do
       "NegativeTravelTime" -> "_speed_issue.html"
       "Slow" -> "_speed_issue.html"
       "UnusedStop" -> "_unused_stop_issue.html"
+      "InvalidCoordinates" -> "_coordinates_issue.html"
+      "MissingCoordinates" -> "_coordinates_issue.html"
       _ -> "_generic_issue.html"
     end
   end

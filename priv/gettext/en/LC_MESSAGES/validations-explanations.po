@@ -54,3 +54,7 @@ msgstr "Some mandatory files are missing in the GTFS archive"
 #, elixir-format
 msgid "UnusedStop"
 msgstr "Existing stop that never occurs in any service"
+
+#, elixir-format
+msgid "CoordinatesIssue"
+msgstr "Coordinates of stops are mandatory in the GTFS specification"

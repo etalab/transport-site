@@ -53,3 +53,7 @@ msgstr ""
 #, elixir-format
 msgid "UnusedStop"
 msgstr ""
+
+#, elixir-format
+msgid "CoordinatesIssue"
+msgstr ""
