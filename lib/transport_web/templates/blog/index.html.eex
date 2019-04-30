@@ -1,0 +1,23 @@
+<section class="section section-grey article__list">
+    <div class="container container-small">
+        <h1>Blog</h1>
+
+        <%= for article <- @articles do %> 
+        <article class="article article__preview panel">
+            <a class="article__link" href="<%= blog_path(@conn, :page, article.path) %>">
+                <h2 class="article__title"><%= raw Earmark.as_html!(article.title) %></h2>
+            </a>
+            <div class="article__meta">
+                Paru le <time><%= article.date %></time>
+            </div>
+            <div class="article__thumbnail">
+                <img src="<%= article.image%>">
+            </div>
+            <div class="richtext">
+            <%= raw Earmark.as_html!(article.header) %>
+            </div>
+            <a class="article__more" href="<%= blog_path(@conn, :page, article.path) %>">Lire la suite</a>
+        </article>
+        <% end %>
+    </div>
+</section>
