@@ -80,12 +80,13 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def region_link(conn, region) do
+  def region_link(conn, region, text \\ nil) do
     region_id = Integer.to_string(region.id)
+    text = if text == nil do region.nom else text end
 
     case conn.params do
-      %{"region" => ^region_id} -> ~E"<span class=\"activefilter\"><%= region.nom %></span>"
-      _ -> link(region.nom, to: dataset_path(conn, :by_region, region.id))
+      %{"region" => ^region_id} -> ~E"<span class=\"activefilter\"><%= text %></span>"
+      _ -> link(text, to: dataset_path(conn, :by_region, region.id))
     end
   end
 
