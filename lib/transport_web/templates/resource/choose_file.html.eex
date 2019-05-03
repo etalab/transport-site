@@ -1,5 +1,6 @@
 <section class="section">
     <div class="container">
+        <%= unless @dataset == [] do %>
         <%= form_for @conn, @action_path, [multipart: true], fn f -> %>
         <b><%= dgettext("resource", "Dataset: ") %></b> <%= @dataset["title"] %><br> 
         <%= for r <- Enum.filter(@dataset["resources"], &(&1["id"] == @conn.params["resource_id"])) do %>
@@ -8,6 +9,7 @@
         <h1><%= dgettext("resource", "Update with a file") %></h1>
         <%= file_input f, :resource_file %>
         <%= submit dgettext("resource", "Upload this file") %>
+        <% end %>
         <% end %>
     </div>
 </section>
