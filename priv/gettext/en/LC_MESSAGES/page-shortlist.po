@@ -208,3 +208,11 @@ msgstr ""
 #, elixir-format
 msgid "Search results"
 msgstr ""
+
+#, elixir-format
+msgid "All datasets of this region"
+msgstr ""
+
+#, elixir-format, fuzzy
+msgid "Region: "
+msgstr ""

@@ -10,13 +10,15 @@ defmodule TransportWeb.DatasetController do
 
   def list_datasets(%Plug.Conn{} = conn, %{} = params) do
     params = Map.put_new(params, "order_by", "most_recent")
+    q = Map.get(params, "q")
 
     conn
     |> assign(:datasets, get_datasets(params))
     |> assign(:regions, get_regions(params))
     |> assign(:types, get_types(params))
     |> assign(:order_by, params["order_by"])
-    |> assign(:q, Map.get(params, "q"))
+    |> assign(:q, q)
+    |> assign(:search_regions, search_regions(q))
     |> render("index.html")
   end
 
@@ -81,6 +83,10 @@ defmodule TransportWeb.DatasetController do
     |> Enum.reject(&is_nil/1)
     |> Enum.map(fn type -> %{type: type, msg: Dataset.type_to_str(type)} end)
     |> Enum.reject(fn t -> is_nil(t.msg) end)
+  end
+
+  defp search_regions(q) do
+    q |> Region.search() |> Repo.all()
   end
 
   defp redirect_to_slug_or_404(conn, %Dataset{} = dataset) do

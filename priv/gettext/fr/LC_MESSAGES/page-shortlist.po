@@ -208,3 +208,11 @@ msgstr "Temps réel"
 #, elixir-format
 msgid "Search results"
 msgstr "Résultats de recherche"
+
+#, elixir-format
+msgid "All datasets of this region"
+msgstr "Tous les jeux de données de cette région"
+
+#, elixir-format, fuzzy
+msgid "Region: "
+msgstr "Région : "

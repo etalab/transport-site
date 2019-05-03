@@ -74,6 +74,18 @@
           </ul>
         </nav>
         <div class="main-pane transparent">
+          <%= if @datasets.page_number == 1 do %>
+          <%= for region <- @search_regions do %>
+            <div class="panel dataset__panel">
+            <h3 class="dataset__title">
+              <%= region_link(@conn, region, dgettext("page-shortlist", "Region: ") <> region.nom) %>
+            </h3>
+            <div class="panel__extra">
+            <%= dgettext("page-shortlist", "All datasets of this region") %>
+            </div>
+            </div>
+          <% end %>
+          <% end %>
           <%= for dataset <- @datasets do %>
             <div class="panel dataset__panel">
               <div class="panel__content">
@@ -81,7 +93,7 @@
                   <%= img_tag(dataset.logo, alt: dataset.title) %>
                 </div>
                 <h3 class="dataset__title">
-                  <a href="/datasets/<%= dataset.slug %>/"><%= dataset.title %></a>
+                <%= link(dataset.title, to: dataset_path(@conn, :details, dataset.slug)) %>
                 </h3>
               </div>
               <div class="panel__extra">
