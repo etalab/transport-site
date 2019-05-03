@@ -1,0 +1,60 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+"Plural-Forms: nplurals=2\n"
+
+#, elixir-format
+msgid "DuplicateStops"
+msgstr "Some stops are very close. This could mean that they are a duplicate"
+
+#, elixir-format
+msgid "Impacted file"
+msgstr ""
+
+#, elixir-format
+msgid "Close stop"
+msgstr ""
+
+#, elixir-format
+msgid "Stop ID"
+msgstr ""
+
+#, elixir-format
+msgid "Stop name"
+msgstr ""
+
+#, elixir-format
+msgid "ExtraFile"
+msgstr "The GTFS archive should not contain files that are not part of the specification"
+
+#, elixir-format
+msgid "File name"
+msgstr ""
+
+#, elixir-format
+msgid "Next stop and service"
+msgstr ""
+
+#, elixir-format
+msgid "SpeedIssue"
+msgstr "The speed between two consecutive stops do not seem credible"
+
+#, elixir-format
+msgid "MissingFile"
+msgstr "Some mandatory files are missing in the GTFS archive"
+
+#, elixir-format
+msgid "UnusedStop"
+msgstr "Existing stop that never occurs in any service"
+
+#, elixir-format
+msgid "CoordinatesIssue"
+msgstr "Coordinates of stops are mandatory in the GTFS specification"
