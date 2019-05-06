@@ -1,0 +1,60 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2\n"
+
+#, elixir-format
+msgid "DuplicateStops"
+msgstr "Certains arrêts sont très proches. Cela pourrait indiquer une duplication du même arrêt."
+
+#, elixir-format
+msgid "Impacted file"
+msgstr "Fichier concerné"
+
+#, elixir-format
+msgid "Close stop"
+msgstr "Arrêt proche"
+
+#, elixir-format
+msgid "Stop ID"
+msgstr "Identifiant de l’arrêt"
+
+#, elixir-format
+msgid "Stop name"
+msgstr "Nom de l’arrêt"
+
+#, elixir-format
+msgid "ExtraFile"
+msgstr "L’archive GTFS ne devrait contenir des fichiers de la spécification"
+
+#, elixir-format
+msgid "File name"
+msgstr "Nom de fichier"
+
+#, elixir-format
+msgid "Next stop and service"
+msgstr "Prochain arrêt et circulation"
+
+#, elixir-format
+msgid "SpeedIssue"
+msgstr "La vitesse entre deux arrêts consécutifs ne semble pas réaliste"
+
+#, elixir-format
+msgid "MissingFile"
+msgstr "Certains fichiers obligatoires manquent dans l’archive GTFS"
+
+#, elixir-format
+msgid "UnusedStop"
+msgstr "Arrêt présent mais n’apparaissant dans aucune circulation"
+
+#, elixir-format
+msgid "CoordinatesIssue"
+msgstr "Les coordonnées des arrêts sont obligatoires dans la spécification GTFS"
