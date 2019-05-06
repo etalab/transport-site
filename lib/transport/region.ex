@@ -18,6 +18,6 @@ defmodule Transport.Region do
 
   def search(search_term) do
     from r in __MODULE__,
-     where: fragment("? @@ plainto_tsquery('french', ?)", r.nom, ^search_term)
+     where: fragment("? @@ plainto_tsquery(?)", r.nom, ^search_term)
   end
 end

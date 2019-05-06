@@ -76,12 +76,12 @@ defmodule Transport.Dataset do
       id: d.id,
       document: fragment(
         """
-        setweight(to_tsvector('french', coalesce(?, '')), 'A') ||
-        setweight(to_tsvector('french', coalesce(?, '')), 'A') ||
-        setweight(to_tsvector('french', coalesce(?, '')), 'B') ||
-        setweight(to_tsvector('french', coalesce(?, '')), 'B') ||
-        setweight(to_tsvector('french', array_to_string(?, ',')), 'B') ||
-        setweight(to_tsvector('french', coalesce(?, '')), 'D')
+        setweight(to_tsvector(coalesce(?, '')), 'A') ||
+        setweight(to_tsvector(coalesce(?, '')), 'A') ||
+        setweight(to_tsvector(coalesce(?, '')), 'B') ||
+        setweight(to_tsvector(coalesce(?, '')), 'B') ||
+        setweight(to_tsvector(array_to_string(?, ',')), 'B') ||
+        setweight(to_tsvector(coalesce(?, '')), 'D')
         """, a.insee_commune_principale, d.spatial, a.nom, r.nom, d.tags, d.description
       )
     })
@@ -89,8 +89,8 @@ defmodule Transport.Dataset do
     sub =
        document_q
     |> subquery()
-    |> where([d], fragment("? @@ plainto_tsquery('french', ?)", d.document, ^search_string))
-    |> order_by([d], fragment("ts_rank(?, plainto_tsquery('french', ?)) DESC", d.document, ^search_string))
+    |> where([d], fragment("? @@ plainto_tsquery(?)", d.document, ^search_string))
+    |> order_by([d], fragment("ts_rank(?, plainto_tsquery(?)) DESC", d.document, ^search_string))
 
     resource_query = no_validations_query()
 
