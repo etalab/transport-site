@@ -1,6 +1,9 @@
 defmodule Transport.AOM do
   @moduledoc """
   AOM schema
+
+  There's a trigger on postgres on updates, it force an update of dataset
+  in order to have an up-to-date search vector
   """
   use Ecto.Schema
   alias Transport.{Dataset, Region, Repo}

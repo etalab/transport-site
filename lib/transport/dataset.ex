@@ -1,6 +1,10 @@
 defmodule Transport.Dataset do
   @moduledoc """
   Dataset schema
+
+  There's a trigger on update on postgres to update the search vector.
+  There are also trigger on update on aom and region that will force an update on this model
+  so the search vector is up-to-date.
   """
   alias Phoenix.HTML.Link
   alias Transport.{AOM, Region, Repo, Resource}
