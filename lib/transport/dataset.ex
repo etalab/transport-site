@@ -26,6 +26,7 @@ defmodule Transport.Dataset do
     field :organization, :string
     field :has_realtime, :boolean
     field :is_active, :boolean
+    field :population, :integer
 
     belongs_to :region, Region
     belongs_to :aom, AOM
@@ -73,7 +74,7 @@ defmodule Transport.Dataset do
 
     __MODULE__
     |> where([d], fragment("search_vector @@ plainto_tsquery(?)", ^q))
-    |> order_by([l], [asc: fragment("ts_rank_cd(search_vector, plainto_tsquery(?), 32)", ^q)])
+    |> order_by([l], [desc: fragment("ts_rank_cd(search_vector, plainto_tsquery(?), 32) DESC, population", ^q)])
     |> select_active
     |> select_or_not(s)
     |> preload([resources: ^resource_query])
