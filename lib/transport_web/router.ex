@@ -25,18 +25,12 @@ defmodule TransportWeb.Router do
   end
 
   pipeline :authenticated do
-    plug :fetch_session
-    plug :fetch_flash
-    plug :assign_current_user
-    plug :assign_token
+    plug :browser
     plug :authentication_required
   end
 
   pipeline :admin_rights do
-    plug :fetch_session
-    plug :fetch_flash
-    plug :assign_current_user
-    plug :authentication_required
+    plug :authenticated
     plug :transport_data_gouv_member
   end
 
