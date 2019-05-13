@@ -91,10 +91,14 @@ defmodule Transport.ImportData do
             "last_update" => resource["last_modified"],
             "latest_url" => resource["latest"],
             "id" => get_resource_id(resource),
-            "is_available" => resource["extras"]["check:available"]
+            "is_available" => available?(resource)
           }
       end)
   end
+
+  def available?(%{"extras" => %{"check_available" => available}}), do: available
+  def available?(%{"url" => "https://static.data.gouv.fr/" <> _}), do: true
+  def available?(_), do: false
 
   def get_valid_resources(%{"resources" => resources}, "public-transit") do
     resources
