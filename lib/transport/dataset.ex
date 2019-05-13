@@ -1,6 +1,10 @@
 defmodule Transport.Dataset do
   @moduledoc """
   Dataset schema
+
+  There's a trigger on update on postgres to update the search vector.
+  There are also trigger on update on aom and region that will force an update on this model
+  so the search vector is up-to-date.
   """
   alias Phoenix.HTML.Link
   alias Transport.{AOM, Region, Repo, Resource}
@@ -26,6 +30,7 @@ defmodule Transport.Dataset do
     field :organization, :string
     field :has_realtime, :boolean
     field :is_active, :boolean
+    field :population, :integer
 
     belongs_to :region, Region
     belongs_to :aom, AOM
@@ -68,35 +73,13 @@ defmodule Transport.Dataset do
 
   def select_active(q), do: where(q, [d], d.is_active)
 
-  def search_datasets(search_string, s \\ []) do
-    document_q = __MODULE__
-    |> join(:left, [d], aom in AOM, on: d.aom_id == aom.id)
-    |> join(:left, [d], region in Region, on: d.region_id == region.id)
-    |> select([d, a, r], %{
-      id: d.id,
-      document: fragment(
-        """
-        setweight(to_tsvector('french', coalesce(?, '')), 'A') ||
-        setweight(to_tsvector('french', coalesce(?, '')), 'A') ||
-        setweight(to_tsvector('french', coalesce(?, '')), 'B') ||
-        setweight(to_tsvector('french', coalesce(?, '')), 'B') ||
-        setweight(to_tsvector('french', array_to_string(?, ',')), 'B') ||
-        setweight(to_tsvector('french', coalesce(?, '')), 'D')
-        """, a.insee_commune_principale, d.spatial, a.nom, r.nom, d.tags, d.description
-      )
-    })
-
-    sub =
-       document_q
-    |> subquery()
-    |> where([d], fragment("? @@ plainto_tsquery('french', ?)", d.document, ^search_string))
-    |> order_by([d], fragment("ts_rank(?, plainto_tsquery('french', ?)) DESC", d.document, ^search_string))
-
+  def search_datasets(q, s \\ []) do
     resource_query = no_validations_query()
 
     __MODULE__
+    |> where([d], fragment("search_vector @@ plainto_tsquery(?)", ^q))
+    |> order_by([l], [desc: fragment("ts_rank_cd(search_vector, plainto_tsquery(?), 32) DESC, population", ^q)])
     |> select_active
-    |> join(:inner, [d], doc in subquery(sub), on: doc.id == d.id)
     |> select_or_not(s)
     |> preload([resources: ^resource_query])
   end
