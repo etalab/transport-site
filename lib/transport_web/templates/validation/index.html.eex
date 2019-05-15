@@ -1,0 +1,4 @@
+<%= form_for @conn, validation_path(@conn, :validate), [as: "upload", multipart: :true], fn f -> %>
+  <%= file_input f, :file %>
+  <button class="btn btn-primary" type="submit">Upload</button>
+<% end %>

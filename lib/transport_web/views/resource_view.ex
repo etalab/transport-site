@@ -2,6 +2,7 @@ defmodule TransportWeb.ResourceView do
   use TransportWeb, :view
   import TransportWeb.PaginationHelpers
   import Transport.Validation
+  import Phoenix.Controller, only: [current_url: 2]
 
   def format_related_objects(nil), do: ""
   def format_related_objects(related_objects) do

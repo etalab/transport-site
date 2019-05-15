@@ -1,0 +1,12 @@
+<section>
+    <div class="documentation dataset-details">
+        <nav class="side-pane validation" role="navigation">
+          <%= render "_validation_summary.html", validation_summary: @validation_summary, conn: @conn, issues: @issues %>
+        </nav>
+        <div class="main-pane">
+          <%= pagination_links @conn, @issues,  [@validation_id], issue_type: issue_type(@issues.entries),
+            path: &validation_path/4, action: :show %>
+          <%= render template(@issues), issues: @issues || [] , conn: @conn %>
+        </div>
+    </div>
+</section>

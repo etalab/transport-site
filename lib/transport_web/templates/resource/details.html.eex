@@ -8,26 +8,7 @@
             <%= unless @resource.validation do %>
                 <%= TransportWeb.Gettext.dgettext("validations", "No validation available") %>
             <% else %>
-            <h3><%= TransportWeb.Gettext.dgettext("validations", "Validations issues") %></h3>
-            <%= for {severity, issues} <- @validation_summary do %>
-                <h4><%= severities(severity).text %></h4>
-                <ul>
-                <%= for {key, issue} <- issues do %>
-                    <li>
-
-                    <%= if issue.count > 0 do %>
-                    <%= link(
-                        issue.title <> " (#{issue.count})",
-                        to: resource_path(@conn, :details, @resource.id, %{"issue_type" => key}),
-                        class: (if key == issue_type(@issues.entries), do: "active")
-                    ) %>
-                    <% else %>
-                        <%= issue.title %>
-                    <% end %>
-                    </li>
-                <% end %>
-                </ul>
-            <% end %>
+                <%= render "_validation_summary.html", validation_summary: @validation_summary, conn: @conn %>
             <% end %>
             <h3><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h3>
             <ul>

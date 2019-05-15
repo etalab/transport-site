@@ -1,0 +1,20 @@
+<h3><%= TransportWeb.Gettext.dgettext("validations", "Validations issues") %></h3>
+<%= for {severity, issues} <- @validation_summary do %>
+    <h4><%= severities(severity).text %></h4>
+    <ul>
+    <%= for {key, issue} <- issues do %>
+        <li>
+
+        <%= if issue.count > 0 do %>
+        <%= link(
+            issue.title <> " (#{issue.count})",
+            to: current_url(@conn, %{"issue_type" => key}),
+            class: (if key == issue_type(@issues.entries), do: "active")
+        ) %>
+        <% else %>
+            <%= issue.title %>
+        <% end %>
+        </li>
+    <% end %>
+    </ul>
+<% end %>
