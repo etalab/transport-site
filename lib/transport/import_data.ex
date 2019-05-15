@@ -96,7 +96,7 @@ defmodule Transport.ImportData do
       end)
   end
 
-  def available?(%{"extras" => %{"check_available" => available}}), do: available
+  def available?(%{"extras" => %{"check:available" => available}}), do: available
   def available?(%{"url" => "https://static.data.gouv.fr/" <> _}), do: true
   def available?(_), do: false
 
