@@ -18,7 +18,7 @@ Qu'est ce qui fait la particularité du service offert par MyBus ? Dès le déb
 Monkey Factory qui développe et déploie MyBus est auvergnate. Le siège social et l’équipe tech sont basés au Puy-en-Velay, l’équipe commerciale est basée à Clermont-Ferrand, au sein l’accélérateur de start-up Le Bivouac. Les équipes regroupent au total 17 « monkeys ».
 
 
-### *A quoi vous servent les données mise à disposition en Open Data sur la plateforme transport.data.gouv.fr ?*
+### *A quoi vous servent les données mises à disposition en Open Data sur la plateforme transport.data.gouv.fr ?*
 
 Ces données ouvertes, respectant un format standardisé, nous permettent d'ajouter rapidement de nouveaux réseaux à notre application mobile et notre plateforme Web. Ensuite, la mise à jour peut-être automatisée pour ainsi garantir une information de qualité à nos utilisateurs, qui sont aussi les usagers de ces mêmes AOMs et collectivités. Cette ouverture a permis à MyBus de devenir la solution d’info voyageur qui couvre le plus grand nombre de réseaux de transport en France (+ de 150), et cela devant les acteurs internationaux du secteur. 
 
