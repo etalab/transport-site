@@ -26,7 +26,7 @@ defmodule Transport.Resource do
     field :is_available, :boolean, default: true
 
     belongs_to :dataset, Dataset
-    has_one :validation, Validation
+    has_one :validation, Validation, on_replace: :delete
   end
 
   @doc """
