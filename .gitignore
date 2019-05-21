@@ -15,11 +15,8 @@ erl_crash.dump
 
 # Since we are building assets from client,
 # we ignore priv/static.
-/priv/static/js
-/priv/static/css
-/priv/static/fonts
-/priv/static/images
-
+apps/transport/priv/static/*/*
+apps/transport/priv/static/*
 # Environment varabiables files
 /.env
 /.envrc

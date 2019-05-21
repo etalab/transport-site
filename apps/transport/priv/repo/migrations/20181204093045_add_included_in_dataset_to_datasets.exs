@@ -1,7 +1,7 @@
 defmodule Transport.Repo.Migrations.AddIncludedInDatasetToDatasets do
   use Ecto.Migration
   import Ecto.Query
-  alias Transport.{Repo, Region, AOM, Dataset}
+  alias Transport.{AOM, Dataset, Region, Repo}
 
   def up do
     alter table(:aom) do

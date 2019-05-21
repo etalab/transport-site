@@ -24,7 +24,10 @@ defmodule Transport.Repo.Migrations.InseeAomTable do
     # |> Enum.map(fn line -> String.replace(line, "'", "''") end)
     # |> Enum.map(fn line ->
     #   [insee, nom, wikipedia, surf_ha, geom] = String.split(line, "\t")
-    #   execute("INSERT INTO commune(insee, nom, wikipedia, surf_ha, geom) VALUES('#{insee}', '#{nom}', '#{wikipedia}', #{surf_ha}, '#{geom}')")
+    #   execute("""
+    #        INSERT INTO commune(insee, nom, wikipedia, surf_ha, geom)
+    #        VALUES('#{insee}', '#{nom}', '#{wikipedia}', #{surf_ha}, '#{geom}')
+    #   """)
     # end)
 
     create index("commune", [:insee])

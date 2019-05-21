@@ -8,6 +8,7 @@ defmodule TransportWeb.DatabaseCase do
 
   using(options) do
     quote do
+      alias Ecto.Adapters.SQL.Sandbox
       alias Transport.{AOM, Dataset, Region, Repo}
 
       import Ecto
@@ -24,9 +25,9 @@ defmodule TransportWeb.DatabaseCase do
       end
 
       setup context do
-        :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
+        :ok = Sandbox.checkout(Repo)
         unless context[:async] do
-          Ecto.Adapters.SQL.Sandbox.mode(Transport.Repo, {:shared, self()})
+          Sandbox.mode(Transport.Repo, {:shared, self()})
         end
 
         Repo.insert(%Region{nom: "Pays de la Loire"})
@@ -44,7 +45,7 @@ defmodule TransportWeb.DatabaseCase do
 
         cleanup()
         on_exit fn ->
-          :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
+          :ok = Sandbox.checkout(Repo)
           cleanup()
         end
         :ok

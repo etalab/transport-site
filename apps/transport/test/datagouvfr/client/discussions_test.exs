@@ -1,8 +1,8 @@
 defmodule Datagouvfr.Client.DiscussionTest do
   use TransportWeb.ConnCase, async: false # smell
   use TransportWeb.ExternalCase # smell
+  alias Datagouvfr.Client.Discussions
   alias OAuth2.AccessToken
-  alias Datagouvfr.Client
 
   setup do
     conn = build_conn()
@@ -17,7 +17,7 @@ defmodule Datagouvfr.Client.DiscussionTest do
       comment = "Test comment"
       extras = nil
 
-      assert {:ok, discussion} = Client.Discussions.post(conn, id_, title, comment, extras)
+      assert {:ok, discussion} = Discussions.post(conn, id_, title, comment, extras)
       assert Map.get(discussion, "title") == "Test title"
       assert Map.get(discussion, "extras") == %{}
       assert discussion
@@ -34,7 +34,7 @@ defmodule Datagouvfr.Client.DiscussionTest do
       comment = "Test comment"
       extras = %{"type" => "STOP_UNUSED"}
 
-      assert {:ok, discussion} = Client.Discussions.post(conn, id_, title, comment, extras)
+      assert {:ok, discussion} = Discussions.post(conn, id_, title, comment, extras)
       assert Map.get(discussion, "title") == "Test title"
       assert discussion
              |> Map.get("discussion")

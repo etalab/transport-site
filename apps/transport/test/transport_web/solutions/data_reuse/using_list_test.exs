@@ -14,7 +14,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   use TransportWeb.ConnCase, async: false
   use TransportWeb.UserFacingCase
-  alias Transport.{Dataset, Resource, Repo, Validation}
+  alias Transport.{Dataset, Repo, Resource, Validation}
 
   setup do
     {:ok, _} = %Dataset{

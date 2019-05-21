@@ -54,11 +54,11 @@ jobs:
 
       - run:
           name: Install yarn dependencies
-          command: cd ~/transport/client && yarn install
+          command: cd ~/transport/apps/transport/client && yarn install
 
       - run:
           name: Compile assets
-          command: cd ~/transport/client && npm run deploy
+          command: cd ~/transport/apps/transport/client && npm run deploy
 
       - persist_to_workspace:
           root: ~/transport

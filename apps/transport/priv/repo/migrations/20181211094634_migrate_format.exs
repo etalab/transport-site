@@ -1,7 +1,7 @@
 defmodule Transport.Repo.Migrations.MigrateFormat do
   use Ecto.Migration
-  alias Transport.Repo
   alias Ecto.Adapters.SQL
+  alias Transport.Repo
 
   def change do
     alter table(:resource) do

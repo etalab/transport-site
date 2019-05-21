@@ -8,8 +8,8 @@
     "build": "webpack",
     "deploy": "webpack -p",
     "errors": "webpack --display-error-details",
-    "linter:ecma": "eslint -c ../.eslintrc --ext .js .",
-    "linter:sass": "sass-lint -c ../.sass-lint.yml  -v -q"
+    "linter:ecma": "eslint -c ../../../.eslintrc --ext .js .",
+    "linter:sass": "sass-lint -c ../../../.sass-lint.yml  -v -q"
   },
   "dependencies": {
     "@babel/core": "^7.3.4",

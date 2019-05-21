@@ -1,9 +1,9 @@
-defmodule TransportWeb.ChannelCase do
+defmodule TransportWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
-  channel tests.
+  tests that require setting up a connection.
 
-  Such tests rely on `Phoenix.ChannelTest` and also
+  Such tests rely on `Phoenix.ConnTest` and also
   import other functionality to make it easier
   to build common datastructures and query the data layer.
 
@@ -14,20 +14,21 @@ defmodule TransportWeb.ChannelCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Phoenix.ConnTest
 
   using do
     quote do
-      # Import conveniences for testing with channels
-      use Phoenix.ChannelTest
+      # Import conveniences for testing with connections
+      use Phoenix.ConnTest
+      import TransportWeb.Router.Helpers
 
       # The default endpoint for testing
       @endpoint TransportWeb.Endpoint
     end
   end
 
-
   setup _tags do
-    :ok
+    {:ok, conn: ConnTest.build_conn()}
   end
 
 end
