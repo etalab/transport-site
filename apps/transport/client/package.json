@@ -1,0 +1,47 @@
+{
+  "version": "0.0.1",
+  "description": "Rendre disponible, valoriser et améliorer les données transports",
+  "license": "AGPL-3.0",
+  "repository": "https://github.com/etalab/transport-site.git",
+  "scripts": {
+    "watch": "webpack --stdin --progress --color",
+    "build": "webpack",
+    "deploy": "webpack -p",
+    "errors": "webpack --display-error-details",
+    "linter:ecma": "eslint -c ../../../.eslintrc --ext .js .",
+    "linter:sass": "sass-lint -c ../../../.sass-lint.yml  -v -q"
+  },
+  "dependencies": {
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@fortawesome/fontawesome-free": "^5.1.0",
+    "babel-loader": "^8.0.5",
+    "copy-webpack-plugin": "^5.0.0",
+    "core-js": "^2.6.5",
+    "css-loader": "^2.1.0",
+    "exports-loader": "^0.7.0",
+    "file-loader": "^3.0.1",
+    "import-glob-loader": "^1.1.0",
+    "imports-loader": "^0.8.0",
+    "leaflet": "^1.4.0",
+    "node-sass": "^4.11.0",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
+    "template.data.gouv.fr": "^1.2.1",
+    "webpack": "4.29.5",
+    "whatwg-fetch": "3.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "eslint": "^5.14.1",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "mini-css-extract-plugin": "^0.5.0",
+    "sass-lint": "^1.12.1",
+    "webpack-cli": "^3.2.3"
+  }
+}
