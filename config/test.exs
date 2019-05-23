@@ -1,4 +1,5 @@
 use Mix.Config
+
 alias Datagouvfr.Authentication
 
 # We don't run a server during test. If one is required,
