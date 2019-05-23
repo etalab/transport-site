@@ -116,8 +116,6 @@ defmodule TransportWeb.Router do
     get "/:page", PageController, :single_page
   end
 
-  forward "/api", TransportWeb.API.Router
-
   # private
 
   defp put_locale(conn, _) do
