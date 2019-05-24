@@ -8,7 +8,7 @@
             <%= unless @resource.validation do %>
                 <%= TransportWeb.Gettext.dgettext("validations", "No validation available") %>
             <% else %>
-                <%= render "_validation_summary.html", validation_summary: @validation_summary, conn: @conn %>
+                <%= render "_validation_summary.html", validation_summary: @validation_summary, issues: @issues, conn: @conn %>
             <% end %>
             <h3><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h3>
             <ul>
