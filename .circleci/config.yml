@@ -1,7 +1,7 @@
 version: 2
 
 default_docker: &default_docker
-  image: betagouv/transport:0.4.0
+  image: betagouv/transport:0.4.3
   environment:
     MIX_ENV: test
     PG_URL_TEST: ecto://root@127.0.0.1/transport_test
@@ -42,7 +42,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - elixir-v2-{{ checksum "mix.lock" }}
+            - elixir-v4-{{ checksum "mix.lock" }}
 
       - run:
           name: Install mix dependencies
@@ -66,7 +66,7 @@ jobs:
             - .
 
       - save_cache:
-          key: elixir-v2-{{ checksum "mix.lock" }}
+          key: elixir-v4-{{ checksum "mix.lock" }}
           paths:
             - ~/transport/_build
             - ~/transport/deps

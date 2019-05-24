@@ -30,7 +30,7 @@ defmodule GBFS.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.4"},
-      {:iconv, "~> 1.0"},
+      {:iconv, "~> 1.0.10"},
       {:sweet_xml, ">= 0.0.0"},
     ]
   end
