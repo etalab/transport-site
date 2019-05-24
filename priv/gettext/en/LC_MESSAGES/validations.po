@@ -153,3 +153,7 @@ msgstr ""
 #, elixir-format
 msgid "Other resources"
 msgstr ""
+
+#, elixir-format
+msgid "Unable to validate file"
+msgstr ""

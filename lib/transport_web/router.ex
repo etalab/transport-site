@@ -106,6 +106,12 @@ defmodule TransportWeb.Router do
       get "/:page", BlogController, :page
     end
 
+    scope "/validation" do
+      get "/", ValidationController, :index
+      post "/", ValidationController, :validate
+      get "/:id", ValidationController, :show
+    end
+
     # If nothing else matches, it’s probably a dummy single page
     get "/:page", PageController, :single_page
   end

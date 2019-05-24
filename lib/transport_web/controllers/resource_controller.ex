@@ -30,15 +30,15 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  defp get_issues(%{details: nil}, _), do: []
-  defp get_issues(%{details: validations}, %{"issue_type" => issue_type}), do: Map.get(validations, issue_type,  [])
-  defp get_issues(%{details: validations}, _) do
+  def get_issues(%{details: nil}, _), do: []
+  def get_issues(%{details: validations}, %{"issue_type" => issue_type}), do: Map.get(validations, issue_type,  [])
+  def get_issues(%{details: validations}, _) do
     validations
     |> Map.values
     |> List.first
   end
 
-  defp validation_summary(%{details: issues}) do
+  def validation_summary(%{details: issues}) do
     existing_issues = issues
     |> Enum.map(fn {key, issues} -> {key, %{
       count: Enum.count(issues),
