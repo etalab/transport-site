@@ -28,7 +28,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-    assert from(r in Resource) |> Repo.all() |> length() == 0
+    assert Resource |> Repo.all() |> length() == 0
     assert get_flash(conn, :error) =~ "Impossible"
     assert get_flash(conn, :error) =~ "région"
     assert get_flash(conn, :error) =~ "AOM"
@@ -48,7 +48,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-    assert from(r in Resource) |> Repo.all() |> length() == 0
+    assert Resource |> Repo.all() |> length() == 0
     assert get_flash(conn, :error) =~ "Impossible"
     assert get_flash(conn, :error) =~ "région"
     assert get_flash(conn, :error) =~ "AOM"
@@ -71,7 +71,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-    assert from(r in Resource) |> Repo.all() |> length() == 1
+    assert Resource |> Repo.all() |> length() == 1
     assert get_flash(conn, :info) =~ "ajouté"
   end
 
@@ -90,7 +90,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-    assert from(r in Resource) |> Repo.all() |> length() == 1
+    assert Resource |> Repo.all() |> length() == 1
     assert get_flash(conn, :info) =~ "ajouté"
   end
 
@@ -107,12 +107,14 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     use_cassette "dataset/tag.json-1" do
       conn = post(conn, backoffice_dataset_path(conn, :post), dataset)
+      query = from(r in Resource, where: r.url == ^resource_url)
       assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-      assert from(r in Resource, where: r.url == ^resource_url) |> Repo.all() |> length() == 1
+      assert query |> Repo.all() |> length() == 1
 
       conn = post(conn, backoffice_dataset_path(conn, :post), dataset)
+      query = from(r in Resource, where: r.url == ^resource_url)
       assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-      assert from(r in Resource, where: r.url == ^resource_url) |> Repo.all() |> length() == 1
+      assert  query |> Repo.all() |> length() == 1
     end
   end
 end

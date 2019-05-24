@@ -12,7 +12,7 @@ config :transport, TransportWeb.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: [
-    npm: ["run", "--prefix", "client", "watch"]
+    npm: ["run", "--prefix", "apps/transport/client", "watch"]
   ]
 
 # ## SSL Support

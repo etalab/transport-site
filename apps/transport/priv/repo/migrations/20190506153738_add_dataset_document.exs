@@ -111,7 +111,6 @@ defmodule Transport.Repo.Migrations.AddDatasetDocument do
     """,
     "DROP FUNCTION IF EXISTS region_update;")
 
-
     execute("""
     CREATE TRIGGER region_update_trigger
     AFTER INSERT OR UPDATE ON region

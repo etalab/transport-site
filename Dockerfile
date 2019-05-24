@@ -12,7 +12,7 @@ ENV PORT 8080
 ENV MIX_ENV prod
 RUN mix deps.compile
 RUN mix phx.digest
-RUN cd client && yarn install && npm run deploy
+RUN cd apps/transport/client && yarn install && npm run deploy
 
 EXPOSE 8080
 
