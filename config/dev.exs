@@ -1,19 +1,5 @@
 use Mix.Config
 
-config :gbfs, GBFS.Endpoint,
-  http: [port: 4000],
-  debug_errors: true,
-  code_reloader: true,
-  check_origin: false,
-  live_reload: [
-    patterns: [
-      ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
-      ~r"priv/gettext/.*(po)$",
-      ~r"lib/gbfs/{live,views}/.*(ex)$",
-      ~r"lib/gbfs/templates/.*(eex)$"
-    ]
-  ]
-
 config :transport, TransportWeb.Endpoint,
   http: [port: 5000],
   debug_errors: true,
