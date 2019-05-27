@@ -14,5 +14,12 @@ defmodule GBFS.Router do
       get "/station_information.json", VelomaggController, :station_information
       get "/station_status.json", VelomaggController, :station_status
     end
+
+    scope "/toulouse" do
+      get "/gbfs.json", ToulouseController, :index
+      get "/system_information.json", ToulouseController, :system_information
+      get "/station_information.json", ToulouseController, :station_information
+      get "/station_status.json", ToulouseController, :station_status
+    end
   end
 end
