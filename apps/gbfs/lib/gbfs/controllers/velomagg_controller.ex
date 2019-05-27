@@ -11,10 +11,12 @@ defmodule GBFS.VelomaggController do
     conn
     |> assign(:data,
       %{
-        "fr" =>
+        "fr" => %{
+          "feeds" =>
           Enum.map([:system_information, :station_information, :station_status],
             fn a -> %{"name" => Atom.to_string(a), "url" => Routes.velomagg_url(conn, a)} end
           )
+        }
       }
     )
     |> render("gbfs.json")
@@ -54,6 +56,7 @@ defmodule GBFS.VelomaggController do
       )
       |> Enum.map(& Map.put(&1, :is_installed, 1))
       |> Enum.map(& Map.put(&1, :is_returning, 1))
+      |> Enum.map(& Map.put(&1, :last_reported, DateTime.utc_now() |> DateTime.to_unix()))
       |> Enum.map(& Map.put(&1, :is_renting, if Map.has_key?(&1, :credit_card) do 1 else 0 end))
       |> Enum.map(& Map.delete(&1, :credit_card))
     }
