@@ -4,6 +4,12 @@
           <%= render "_validation_summary.html", validation_summary: @validation_summary, conn: @conn, issues: @issues %>
         </nav>
         <div class="main-pane">
+          <h2><%= dgettext("validations", "Validations result")%></h2>
+          <p>
+            <%= dgettext("validations", "explanations") %>
+            <%= link(dgettext("validations", "permanent link to this validation"), to: current_url(@conn) )%>
+          </p>
+
           <%= pagination_links @conn, @issues,  [@validation_id], issue_type: issue_type(@issues.entries),
             path: &validation_path/4, action: :show %>
           <%= render template(@issues), issues: @issues || [] , conn: @conn %>
