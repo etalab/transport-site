@@ -158,6 +158,10 @@ msgstr ""
 msgid "Unable to validate file"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Validate a GTFS file"
+msgstr ""
+
+#, elixir-format
+msgid "Upload"
 msgstr ""

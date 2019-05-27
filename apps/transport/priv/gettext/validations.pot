@@ -161,3 +161,7 @@ msgstr ""
 #, elixir-format
 msgid "Validate a GTFS file"
 msgstr ""
+
+#, elixir-format
+msgid "Upload"
+msgstr ""
