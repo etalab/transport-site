@@ -9,7 +9,7 @@ defmodule Datagouvfr.Client do
   alias OAuth2.{Error, Request, Response}
   require Logger
 
-  @base_url Application.get_env(:oauth2, Authentication)[:site] |> Path.join("/api/1/")
+  def base_url, do: Application.get_env(:oauth2, Authentication)[:site] |> Path.join("/api/1/")
 
   @spec get_request(%Plug.Conn{}, binary, OAuth2Client.headers, Keyword.t)
                     :: {:ok, OAuth2.Response.t} | {:error, Error.t}
@@ -102,7 +102,7 @@ defmodule Datagouvfr.Client do
 
   def process_url(path) when is_list(path), do: path |> Path.join |> process_url
   def process_url(path) do
-    @base_url
+    base_url()
     |> Path.join(path)
     |> URI.parse
     |> add_trailing_slash
