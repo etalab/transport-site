@@ -8,7 +8,6 @@ defmodule Transport.Resource do
   import TransportWeb.Gettext
   require Logger
 
-  @endpoint Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
   @client HTTPoison
   @res HTTPoison.Response
   @err HTTPoison.Error
@@ -28,6 +27,8 @@ defmodule Transport.Resource do
     belongs_to :dataset, Dataset
     has_one :validation, Validation, on_replace: :delete
   end
+
+  def endpoint, do: Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
 
   @doc """
   A validation is needed if the last update from the data is newer than the last validation.
@@ -64,7 +65,7 @@ defmodule Transport.Resource do
 
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
   def validate(%__MODULE__{url: url}) do
-    case @client.get("#{@endpoint}?url=#{URI.encode_www_form(url)}", [], recv_timeout: @timeout) do
+    case @client.get("#{endpoint()}?url=#{URI.encode_www_form(url)}", [], recv_timeout: @timeout) do
       {:ok, %@res{status_code: 200, body: body}} -> Poison.decode(body)
       {:ok, %@res{body: body}} -> {:error, body}
       {:error, %@err{reason: error}} -> {:error, error}
