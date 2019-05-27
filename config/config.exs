@@ -5,6 +5,16 @@
 # is restricted to this project.
 use Mix.Config
 
+config :gbfs,
+  generators: [context_app: false]
+
+# Configures the endpoint
+config :gbfs, GBFS.Endpoint,
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
+  render_errors: [view: GBFS.ErrorView, accepts: ~w(json)],
+  pubsub: [name: GBFS.PubSub, adapter: Phoenix.PubSub.PG2],
+  server: false
+
 # Configures the endpoint
 config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],

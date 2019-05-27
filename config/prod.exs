@@ -7,6 +7,9 @@ config :transport, TransportWeb.Endpoint,
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
   force_ssl: [rewrite_on: [:x_forwarded_proto]]
 
+config :gbfs, GBFSWeb.Endpoint,
+  secret_key_base: System.get_env("SECRET_KEY_BASE")
+
 config :transport, Transport.Scheduler,
   jobs: [
     {"0 7 * * *", {Transport.ImportData, :import_validate_all, []}}, # Every day at 7am

@@ -10,7 +10,7 @@ defmodule TransportWeb.API.Router do
     plug OpenApiSpex.Plug.PutApiSpec, module: TransportWeb.API.Spec
   end
 
-  scope "/" do
+  scope "/api/" do
     pipe_through [:accept_json, :api]
 
     scope "/aoms" do

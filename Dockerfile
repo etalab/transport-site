@@ -1,5 +1,6 @@
-FROM betagouv/transport:0.4.0
+FROM betagouv/transport:0.4.3
 
+RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ gnu-libiconv-dev
 RUN apk add git
 
 RUN mkdir phoenixapp

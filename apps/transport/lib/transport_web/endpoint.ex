@@ -39,7 +39,7 @@ defmodule TransportWeb.Endpoint do
     key: "_transport_key",
     signing_salt: "wqoqbzqj"
 
-  plug TransportWeb.Router
+  plug TransportWeb.Plugs.Router
 
   @doc """
   Callback invoked for dynamically configuring the endpoint.

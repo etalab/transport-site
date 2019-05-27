@@ -10,15 +10,21 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    volumes:
-      - .:/app/
     command: mix phx.server
     ports:
       - 5000:5000
+    volumes:
+      - build:/app/_build
+      - deps:/app/deps
+      - ./apps:/app/apps/
     env_file:
         - .env
     depends_on:
         - database
 volumes:
   pgdata:
+  .:
+  build:
+  .:
+  deps:
   .:
