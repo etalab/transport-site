@@ -1,22 +1,25 @@
-defmodule GBFS.ToulouseController do
+defmodule GBFS.JCDecauxController do
   use GBFS, :controller
-  require Logger
 
   plug :put_view, GBFS.FeedView
 
-  @contract_name "toulouse"
+  defp rt_url(contract_name) do
+    api_key = Application.get_env(:gbfs, :jcdecaux_apikey)
+    "https://api.jcdecaux.com/vls/v1/stations?contract=#{contract_name}&apiKey=#{api_key}"
+  end
 
-  defp api_key, do: Application.get_env(:gbfs, :jcdecaux_apikey)
-  defp rt_url, do: "https://api.jcdecaux.com/vls/v1/stations?contract=#{@contract_name}&apiKey=#{api_key()}"
-
-  def index(conn, _params) do
+  def index(%{assigns: %{contract_id: contract}} = conn, _) do
     conn
     |> assign(:data,
       %{
         "fr" => %{
           "feeds" =>
-          Enum.map([:system_information, :station_information, :station_status],
-            fn a -> %{"name" => Atom.to_string(a), "url" => Routes.toulouse_url(conn, a)} end
+            Enum.map([:system_information, :station_information, :station_status],
+              fn a ->
+                %{
+                  "name" => Atom.to_string(a),
+                  "url" => apply(Routes, String.to_atom(contract <> "_url"), [conn, a])
+                } end
           )
         }
       }
@@ -24,21 +27,21 @@ defmodule GBFS.ToulouseController do
     |> render("gbfs.json")
   end
 
-  def system_information(conn, _params) do
+  def system_information(%{assigns: %{contract_id: id, contract_name: name}} = conn, _params) do
     conn
     |> assign(:data,
       %{
-        "system_id" => "toulouse",
+        "system_id" => id,
         "language" => "fr",
-        "name" => "Toulouse",
+        "name" => name,
         "timezone" => "Europe/Paris"
       }
     )
     |> render("gbfs.json")
   end
 
-  def station_information(conn, _params) do
-    with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(rt_url()),
+  def station_information(%{assigns: %{contract_id: contract}} = conn, _params) do
+    with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(rt_url(contract)),
         {:ok, json} <- Jason.decode(body) do
         conn
         |> assign(:data,
@@ -46,8 +49,8 @@ defmodule GBFS.ToulouseController do
             stations: Enum.map(json, fn s -> %{
               station_id: s["number"],
               name: s["name"],
-              lat: s["latitude"],
-              lon: s["longitude"],
+              lat: s["position"]["lat"],
+              lon: s["position"]["lng"],
               address: s["address"]
             } end)
           }
@@ -58,8 +61,8 @@ defmodule GBFS.ToulouseController do
     end
   end
 
-  def station_status(conn, _params) do
-    with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(rt_url()),
+  def station_status(%{assigns: %{contract_id: contract}} = conn, _params) do
+    with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(rt_url(contract)),
         {:ok, json} <- Jason.decode(body) do
         conn
         |> assign(:data,
