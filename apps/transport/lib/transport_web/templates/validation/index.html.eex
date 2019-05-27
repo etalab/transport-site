@@ -1,6 +1,7 @@
 <section class="single-page section section-grey">
   <div class="container">
     <article class="panel">
+    <h1><%= TransportWeb.Gettext.dgettext("validations", "Validate a GTFS file") %></h1>
       <%= form_for @conn, validation_path(@conn, :validate), [as: "upload", multipart: :true], fn f -> %>
         <%= file_input f, :file %>
         <button class="btn btn-primary" type="submit">Upload</button>

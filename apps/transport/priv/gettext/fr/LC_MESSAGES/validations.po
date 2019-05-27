@@ -157,3 +157,7 @@ msgstr "Autres ressources"
 #, elixir-format
 msgid "Unable to validate file"
 msgstr "Impossible de valider le fichier"
+
+#, elixir-format
+msgid "Validate a GTFS file"
+msgstr "Valider un fichier GTFS"
