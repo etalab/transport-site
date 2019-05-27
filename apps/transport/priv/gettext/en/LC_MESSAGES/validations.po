@@ -165,3 +165,17 @@ msgstr ""
 #, elixir-format
 msgid "Upload"
 msgstr ""
+
+#, elixir-format
+msgid "Validations result"
+msgstr ""
+
+#, elixir-format
+msgid "explanations"
+msgstr "This is the automated evalation of the GTFS datafile. "
+"This validation only considers the datastructure and does not give any information about completeness nor exactitude of the timetables. "
+"This report can be shared through: "
+
+#, elixir-format
+msgid "permanent link to this validation"
+msgstr ""
