@@ -15,7 +15,6 @@ defmodule Transport.Mixfile do
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       deps: deps(),
-      aliases: aliases()
     ]
   end
 
@@ -77,13 +76,6 @@ defmodule Transport.Mixfile do
       {:exvcr, "~> 0.10", only: :test},
       {:hound, "~> 1.0", only: :test},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
-    ]
-  end
-
-  defp aliases do
-    [
-     test: ["ecto.create --quiet", "ecto.migrate", "test"],
-     "phx.migrate_phx.server": ["ecto.migrate", "phx.server"]
     ]
   end
 end

@@ -7,7 +7,8 @@ defmodule TransportWeb.ValidationController do
   @res HTTPoison.Response
   @err HTTPoison.Error
   @timeout 60_000
-  @endpoint Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
+
+  defp endpoint, do: Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
 
   def index(%Plug.Conn{} = conn, _) do
     render conn, "index.html"
@@ -15,7 +16,7 @@ defmodule TransportWeb.ValidationController do
 
   def validate(%Plug.Conn{} = conn, %{"upload" => upload_params}) do
     with {:ok, gtfs} <- File.read(upload_params["file"].path),
-      {:ok, %@res{status_code: 200, body: body}} <- @client.post(@endpoint, gtfs, recv_timeout: @timeout),
+      {:ok, %@res{status_code: 200, body: body}} <- @client.post(endpoint(), gtfs, recv_timeout: @timeout),
       {:ok, %{"validations" => validations}} <- Poison.decode(body) do
         %Validation{
           date: DateTime.utc_now |> DateTime.to_string,
