@@ -8,6 +8,8 @@ use Mix.Config
 config :gbfs,
   generators: [context_app: false]
 
+config :gbfs, jcdecaux_apikey: System.get_env("JCDECAUX_APIKEY")
+
 # Configures the endpoint
 config :gbfs, GBFS.Endpoint,
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
