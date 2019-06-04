@@ -142,7 +142,7 @@ defmodule Transport.Resource do
     __MODULE__
     |> preload(:dataset)
     |> Repo.all()
-    |> Enum.filter(fn r -> r.dataset.type == "public-transit" or r.dataset.type == "transport-statique" end)
+    |> Enum.filter(fn r -> r.dataset.type == "public-transit" or r.dataset.type == "long-distance-coach" end)
     |> Enum.filter(&(List.first(args) == "--all" or needs_validation(&1)))
     |> Enum.each(&validate_and_save/1)
   end
