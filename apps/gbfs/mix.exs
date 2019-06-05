@@ -29,6 +29,7 @@ defmodule GBFS.MixProject do
 
   defp deps do
     [
+      {:exshape, "~> 2.2.6"},
       {:phoenix, "~> 1.4"},
       {:iconv, "~> 1.0.10"},
       {:sweet_xml, ">= 0.0.0"},
