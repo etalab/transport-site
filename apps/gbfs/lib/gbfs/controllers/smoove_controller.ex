@@ -1,20 +1,23 @@
-defmodule GBFS.VelomaggController do
+defmodule GBFS.SmooveController do
   use GBFS, :controller
   import SweetXml
   require Logger
 
   plug :put_view, GBFS.FeedView
 
-  @url "https://data.montpellier3m.fr/sites/default/files/ressources/TAM_MMM_VELOMAG.xml"
-
   def index(conn, _params) do
+    contract_id = conn.assigns.smoove_params.contract_id
+
     conn
     |> assign(:data,
       %{
         "fr" => %{
           "feeds" =>
           Enum.map([:system_information, :station_information, :station_status],
-            fn a -> %{"name" => Atom.to_string(a), "url" => Routes.velomagg_url(conn, a)} end
+            fn a -> %{
+              "name" => Atom.to_string(a),
+              "url" => apply(Routes, String.to_atom("#{contract_id}_url"), [conn, a])
+            } end
           )
         }
       }
@@ -23,12 +26,14 @@ defmodule GBFS.VelomaggController do
   end
 
   def system_information(conn, _params) do
+    smoove_params = conn.assigns.smoove_params
+
     conn
     |> assign(:data,
       %{
-        "system_id" => "velomagg",
+        "system_id" => smoove_params.contract_id,
         "language" => "fr",
-        "name" => "Velomagg",
+        "name" => smoove_params.nom,
         "timezone" => "Europe/Paris"
       }
     )
@@ -36,20 +41,25 @@ defmodule GBFS.VelomaggController do
   end
 
   def station_information(conn, _params) do
+    url = conn.assigns.smoove_params.url
+
     conn
-    |> assign(:data, get_station_information())
+    |> assign(:data, get_station_information(url))
     |> render("gbfs.json")
   end
 
   def station_status(conn, _params) do
+    url = conn.assigns.smoove_params.url
+
     conn
-    |> assign(:data, get_station_status())
+    |> assign(:data, get_station_status(url))
     |> render("gbfs.json")
   end
 
-  defp get_station_status do
+  defp get_station_status(url) do
     %{"stations" =>
-      get_stations()
+      url
+      |> get_stations()
       |> Enum.map(
         & Map.take(&1, [:station_id, :capacity, :num_bikes_available,
          :num_docks_available, :credit_card])
@@ -62,9 +72,10 @@ defmodule GBFS.VelomaggController do
     }
   end
 
-  defp get_station_information do
+  defp get_station_information(url) do
     %{"stations" =>
-      get_stations()
+      url
+      |> get_stations()
       |> Enum.map(
         & Map.take(&1, [:name, :station_id, :lat, :lon, :capacity, :credit_card])
       )
@@ -78,8 +89,8 @@ defmodule GBFS.VelomaggController do
   end
   defp set_rental_method(station), do: station
 
-  defp get_stations do
-    with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(@url),
+  defp get_stations(url) do
+    with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(url),
       body when not is_nil(body) <- :iconv.convert("iso8859-1", "latin1", body) do
         body
         |> xpath(~x"//si"l,
