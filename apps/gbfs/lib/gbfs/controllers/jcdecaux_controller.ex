@@ -47,7 +47,7 @@ defmodule GBFS.JCDecauxController do
         |> assign(:data,
           %{
             stations: Enum.map(json, fn s -> %{
-              station_id: s["number"],
+              station_id: s["number"] |> Integer.to_string(),
               name: s["name"],
               lat: s["position"]["lat"],
               lon: s["position"]["lng"],
@@ -68,7 +68,7 @@ defmodule GBFS.JCDecauxController do
         |> assign(:data,
           %{
             stations: Enum.map(json, fn s -> %{
-              station_id: s["number"],
+              station_id: s["number"] |> Integer.to_string(),
               num_bikes_available: s["available_bikes"],
               num_docks_available: s["available_bike_stands"],
               is_installed: if s["status"] == "OPEN" do 1 else 0 end,
