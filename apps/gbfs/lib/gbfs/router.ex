@@ -56,6 +56,13 @@ defmodule GBFS.Router do
       end
     )
 
+    scope "/vcub" do
+      get "/gbfs.json", VCubController, :index
+      get "/system_information.json", VCubController, :system_information
+      get "/station_information.json", VCubController, :station_information
+      get "/station_status.json", VCubController, :station_status
+    end
+
     @reseaux_jcdecaux
     |> Map.keys()
     |> Enum.map(
