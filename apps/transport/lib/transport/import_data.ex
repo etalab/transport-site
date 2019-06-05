@@ -101,14 +101,14 @@ defmodule Transport.ImportData do
   def available?(%{"format" => "csv"}), do: true
   def available?(_), do: false
 
-  def get_valid_resources(%{"resources" => resources}, "public-transit") do
-    resources
-    |> get_valid_gtfs_resources()
-    |> Enum.concat(get_valid_netex_resources(resources))
-  end
-
-  def get_valid_resources(%{"resources" => resources}, _) do
-    resources
+  def get_valid_resources(%{"resources" => resources}, type) do
+    if Resource.is_transit_file?(type) do
+      resources
+      |> get_valid_gtfs_resources()
+      |> Enum.concat(get_valid_netex_resources(resources))
+    else
+      resources
+    end
   end
 
   def get_valid_gtfs_resources(resources) when is_list(resources) do
