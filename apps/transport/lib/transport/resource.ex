@@ -31,6 +31,19 @@ defmodule Transport.Resource do
   def endpoint, do: Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
 
   @doc """
+  Is the dataset type corresponding to a public transit file
+  ## Examples
+      iex> Resource.is_transit_file?("rail")
+      true
+      iex> Resource.is_transit_file?("micro-mobility")
+      false
+  """
+  def is_transit_file?(type) do
+    ["public-transit", "long-distance-coach", "rail"]
+    |> Enum.member?(type)
+  end
+
+  @doc """
   A validation is needed if the last update from the data is newer than the last validation.
   ## Examples
       iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}, validation: %Validation{date: "2018-01-01"}})
@@ -39,13 +52,15 @@ defmodule Transport.Resource do
       false
       iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}, validation: %Validation{}})
       true
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "rail"}, validation: %Validation{}})
+      true
       iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "micro-mobility"}, validation: %Validation{}})
       false
   """
   def needs_validation(%__MODULE__{dataset: dataset, validation: %Validation{date: validation_date}}) do
-    case [dataset.type, validation_date] do
-      ["public-transit", nil] -> true
-      ["public-transit", validation_date] -> dataset.last_update > validation_date
+    case [is_transit_file?(dataset.type), validation_date] do
+      [true, nil] -> true
+      [true, validation_date] -> dataset.last_update > validation_date
       _ -> false
     end
   end
@@ -142,7 +157,7 @@ defmodule Transport.Resource do
     __MODULE__
     |> preload(:dataset)
     |> Repo.all()
-    |> Enum.filter(fn r -> r.dataset.type == "public-transit" or r.dataset.type == "long-distance-coach" end)
+    |> Enum.filter(fn r -> is_transit_file?(r.dataset.type) end)
     |> Enum.filter(&(List.first(args) == "--all" or needs_validation(&1)))
     |> Enum.each(&validate_and_save/1)
   end
