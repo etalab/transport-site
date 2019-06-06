@@ -1,6 +1,6 @@
 defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
-  alias Transport.Dataset
+  alias Transport.{Dataset, Resource}
   alias TransportWeb.PaginationHelpers
   alias TransportWeb.Router.Helpers
   import Phoenix.Controller, only: [current_url: 2]
@@ -8,9 +8,14 @@ defmodule TransportWeb.DatasetView do
   def render_sidebar_from_type(conn, dataset), do: render_panel_from_type(conn, dataset, "sidebar")
 
   def render_panel_from_type(conn, dataset, panel_type) do
+    type = if Resource.is_transit_file?(dataset.type) do
+      "public-transit"
+    else
+      dataset.type
+    end
     render_existing(
       TransportWeb.DatasetView,
-      "_#{panel_type}_#{dataset.type}.html",
+      "_#{panel_type}_#{type}.html",
       dataset: dataset,
       conn: conn
     )
