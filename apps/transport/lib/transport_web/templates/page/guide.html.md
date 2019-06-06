@@ -15,6 +15,8 @@ Pour l’instant, **la plateforme transport.data.gouv.fr accepte des fichiers au
 
 Dans la plupart des cas, **le fichier GTFS décrivant votre réseau de transport public existe déjà** : c’est en effet le standard classique utilisé par les services d’information voyageur (Système d’Information Multimodal (SIM), applications de mobilité, projet de recherche, etc.). Ce fichier GTFS est généralement généré par l’exploitant transport, à l’aide d’un Système d’aide à l’exploitation et à l’information voyageur (SAEIV). En cas de difficulté pour générer un fichier GTFS, n’hésitez pas à contacter [contact@transport.beta.gouv.fr](mailto:contact@transport.beta.gouv.fr).
 
+Nous mettons à disposition un [validateur](https://transport.data.gouv.fr/validation)
+afin de tester votre fichier GTFS avant la publication.
 
 À moyen-terme, **la plateforme transport.data.gouv.fr proposera des outils de conversion de fichiers GTFS vers la norme NeTEx** afin de vous aider à vous conformer à la réglementation.
 
