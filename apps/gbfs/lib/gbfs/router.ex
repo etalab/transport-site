@@ -6,7 +6,11 @@ defmodule GBFS.Router do
   end
 
   pipeline :jcdecaux do
-    plug :assign_contract_name
+    plug :assign_jcdecaux
+  end
+
+  pipeline :smoove do
+    plug :assign_smoove
   end
 
   @reseaux_jcdecaux %{
@@ -22,15 +26,35 @@ defmodule GBFS.Router do
     "toulouse" => "Vélô",
   }
 
+  @reseaux_smoove [
+    %{
+      contract_id: "montpellier",
+      nom: "Velomagg",
+      url: "https://data.montpellier3m.fr/sites/default/files/ressources/TAM_MMM_VELOMAG.xml"
+    },
+    %{
+      contract_id: "strasbourg",
+      nom: "velhop",
+      url: "http://velhop.strasbourg.eu/tvcstations.xml"
+    }
+  ]
+
   scope "/gbfs", GBFS do
     pipe_through :api
 
-    scope "/velomagg" do
-      get "/gbfs.json", VelomaggController, :index
-      get "/system_information.json", VelomaggController, :system_information
-      get "/station_information.json", VelomaggController, :station_information
-      get "/station_status.json", VelomaggController, :station_status
-    end
+    @reseaux_smoove
+    |> Enum.map(
+      fn %{contract_id: contract_id} ->
+        scope "/" <> contract_id do
+          pipe_through :smoove
+
+          get "/gbfs.json", SmooveController, :index, as: contract_id
+          get "/system_information.json", SmooveController, :system_information, as: contract_id
+          get "/station_information.json", SmooveController, :station_information, as: contract_id
+          get "/station_status.json", SmooveController, :station_status, as: contract_id
+        end
+      end
+    )
 
     scope "/vcub" do
       get "/gbfs.json", VCubController, :index
@@ -55,11 +79,18 @@ defmodule GBFS.Router do
     )
   end
 
-  defp assign_contract_name(conn, _) do
+  defp assign_jcdecaux(conn, _) do
     [_, contract_id, _] = conn.path_info
 
     conn
     |> assign(:contract_id, contract_id)
     |> assign(:contract_name, @reseaux_jcdecaux[contract_id])
+  end
+
+  defp assign_smoove(conn, _) do
+    [_, contract_id, _] = conn.path_info
+
+    conn
+    |> assign(:smoove_params, Enum.find(@reseaux_smoove, & &1.contract_id == contract_id))
   end
 end
