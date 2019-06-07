@@ -56,3 +56,7 @@ msgstr "Publier ou mettre à jour des données"
 #, elixir-format
 msgid "Publish or update a dataset"
 msgstr "Publier ou mettre à jour des données"
+
+#, elixir-format
+msgid "Validate a GTFS file"
+msgstr "Valider un fichier GTFS"
