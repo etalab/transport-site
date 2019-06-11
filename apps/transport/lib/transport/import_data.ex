@@ -447,12 +447,6 @@ defmodule Transport.ImportData do
   end
   def has_realtime?(_, _), do: {:ok, false}
 
-  def is_owned_by_transport?(resource) do
-    match?(%{"slug" => "equipe-transport-data-gouv-fr"}, resource["organization"])
-  end
-
-  def is_realtime?(resource) do
-    is_owned_by_transport?(resource) and resource["format"] == "gtfs-rt"
-  end
+  def is_realtime?(resource), do: resource["format"] == "gtfs-rt"
 
 end
