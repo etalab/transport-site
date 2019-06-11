@@ -182,17 +182,6 @@ defmodule Transport.Dataset do
     end
   end
 
-  def count_validations(%__MODULE__{id: dataset_id}) do
-    query = "SELECT sum(json_data.value::int) FROM resource, json_each_text(metadata->'issues_count') AS json_data WHERE dataset_id = $1"
-    case Repo.query(query, [dataset_id]) do
-      {:ok, result} -> result.rows |> List.first |> List.first
-      {:error, error} ->
-        Logger.warn("Unable to get validation count")
-        Logger.warn(error)
-        nil
-    end
-  end
-
   def link_to_datagouv(%__MODULE__{} = dataset) do
     Link.link(
       dgettext("page-shortlist", "See on data.gouv.fr"),
@@ -215,6 +204,21 @@ defmodule Transport.Dataset do
 
   def filter_has_realtime, do: from d in __MODULE__, where: d.has_realtime == true
   def count_has_realtime, do: Repo.aggregate(filter_has_realtime(), :count, :id)
+
+  def get_by(slug: slug) do
+    __MODULE__
+    |> where(slug: ^slug)
+    |> preload_without_validations()
+    |> Repo.one()
+  end
+
+  def get_same_aom(%__MODULE__{id: id, aom_id: aom_id}) do
+    query = from d in __MODULE__,
+      where: d.aom_id == ^aom_id and d.id != ^id
+
+    Repo.all(query)
+  end
+  def get_same_aom(_), do: nil
 
   ## Private functions
 

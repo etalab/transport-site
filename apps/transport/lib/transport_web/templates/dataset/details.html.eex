@@ -1,117 +1,49 @@
-<div class="documentation">
-  <div class="container">
-    <div class="documentation">
-      <nav class="side-pane" role="navigation">
-        <%= img_tag(@dataset.full_logo, alt: @dataset.title) %>
-        <div>
-          <%= if @dataset.slug do %>
-            <div class="shortlist__link shortlist__link--external-link">
-              <i class="icon icon--link" aria-hidden="true"></i>
-              <%= Dataset.link_to_datagouv(@dataset) %>
-            </div>
-          <% end %>
-        </div>
-
-        <%= TransportWeb.DatasetView.render_sidebar_from_type(@conn, @dataset) %>
-        <%= render "_sidebar_common.html", dataset: @dataset, conn: @conn %>
-        </div>
-        <div class="dataset-details__followers">
-        <%= if @current_user do %>
-        <%= form_for @conn, follower_path(@conn, :subscribe_or_unsubscribe, @dataset.datagouv_id),  fn f -> %>
-          <%= hidden_input f, :is_subscribed, value: @is_subscribed %>
-          <%= if @is_subscribed do %>
-            <%= submit dgettext("page-dataset-details", "Unsubscribe to dataset"), class: "button secondary" %>
-          <% else %>
-            <%= submit dgettext("page-dataset-details", "Subscribe to dataset") %>
-          <% end %>
-        <% end %>
-        <% end %>
-        </div>
-      </nav>
-      <div class="main-pane" id="description">
-        <h1><%= @dataset.title %></h1>
-        <div class="dataset__use-terms">
-          <h2>Conditions d'utilisation</h2>
-          <p>
-            La réutilisation des informations disponibles sur transport.data.gouv.fr est soumise à la licence ODbL.
-          </p>
-          <p>
-            Il est précisé que la clause de partage à l’identique figurant à l’article 4.4 concerne les informations de même nature, de même granularité, de même conditions temporelles et de même emprise géographique.
-          </p>
-        </div>
-        <div class="dataset-details__resources">
-        <%= if @dataset.resources do %>
-        <div id="resources">
-          <h2><%= dgettext("page-dataset-details", "Resources") %></h2>
-          <%= render_many @dataset.resources, TransportWeb.DatasetView, "_resource.html", as: :resource %>
-        </div>
-        <% end %>
-        <%= if !Enum.empty?(@community_ressources) do %>
-        <h3><%= dgettext("page-dataset-details", "Community resources") %></h3>
-        <%= render_many @community_ressources, TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
-        <% end %>
-        </div>
-
-        <h2>Description</h2>
+<div class="container">
+  <section class="section white">
+    <div class="dataset__header">
+      <div class="dataset__logo">
+        <%= img_tag(@dataset.logo, alt: @dataset.title) %>
+      </div>
+      <div class="dataset__title">
+        <h1><%= @dataset.title%></h1>
         <%= raw Earmark.as_html!(@dataset.description) %>
-
-        <%= if @reuses do %>
-        <h2><%= dgettext("page-dataset-details", "Reuses") %></h2>
-        <section class="cards">
-          <div class="container">
-            <div class="row">
-            <%= for reuse <- @reuses do %>
-              <div class="card">
-                <div class="card__cover">
-                  <img src="<%= reuse["image"] %>">
-                </div>
-                <div class="card__content">
-                  <a href="<%= reuse["url"] %>"><h3><%= reuse["title"] %></h3></a>
-                  <div class="card__meta">
-                    <span><%= dgettext("page-dataset-details", "By") %> <%= reuse["owner"]["name"]%></span>
-                    <p><%= reuse["description"] %></p>
-                  </div>
-                </div>
-                <div class="card__extra">
-                  <a href="<%= reuse["uri"] %>">
-                  <i class="icon icon--link" aria-hidden="true"></i>
-                  <%= dgettext("page-dataset-details", "See on data.gouv.fr") %>
-                  </a>
-                </div>
-              </div>
-            <% end %>
-            </div>
-          </div>
-        </section>
-        <% end %>
-
-        <div class="dataset-details__discussions">
-          <h2>Discussions</h2>
-          <%= unless @discussions == nil do %>
-          <%= render_many @discussions, TransportWeb.DatasetView, "_discussion.html", as: :discussion, current_user: @current_user, conn: @conn, dataset: @dataset %>
-          <% else %>
-          <%= dgettext("page-dataset-details", "Unable to retrieve discussions from data.gouv.fr") %>
-          <% end %>
-
-          <%= if @current_user do %>
-            <a href="#new_discussion">
-              <%= dgettext("page-dataset-details", "Begin a new conversation") %>
-            </a>
-            <div id="new_discussion" class="discussion-modal">
-              <%= form_for @conn, discussion_path(@conn, :post_discussion, @dataset.datagouv_id), fn f -> %>
-                <%= hidden_input(f, :dataset_slug, value: @dataset.slug) %>
-                <%= text_input(f, :title, placeholder: dgettext("page-dataset-details", "Title") )%>
-                <%= textarea(f, :comment) %>
-                <%= submit dgettext("page-dataset-details", "Start a new discussion") %>
-              <% end %>
-            </div>
-          <% else %>
-            <span class="discussion-commment__connection-needed">
-              <%= dgettext("page-dataset-details", "You need to be connected to start a discussion")%>
-            </span>
-          <% end %>
-        </div>
       </div>
     </div>
-  </div>
+  </section>
+
+  <%= if @dataset.resources do %>
+  <section class="section white">
+    <div class="panel">
+      <div class="panel__header">
+        <h1><%= dgettext("datasets", "Ressources" )%></h1>
+      </div>
+      <%= render_many @dataset.resources, TransportWeb.DatasetView, "_resource.html", as: :resource %>
+    </div>
+  </section>
+  <% end %>
+  <p>
+    <i class="fas fa-info-circle"></i>
+    <%= dgettext("dataset", "You're using this dataset?") %>
+    <a href="#mail_form"><%= dgettext("dataset", "Send an email!") %></a>
+    <%= dgettext("dataset", "So we can communicate together") %>
+  </p>
+
+  <%= if @other_datasets != nil do %>
+  <section class="section white">
+  <h2><%= dgettext("dataset", "Other datasets of ") %> <%= String.capitalize(@aom.nom) %> </h2>
+  <ul>
+  <%= for dataset <- @other_datasets do %>
+    <li><%= link(
+      dataset.title,
+      to: dataset_path(@conn, :details, dataset.slug)
+    ) %></li>
+  <% end %>
+  </ul>
+  </section>
+  <% end %>
+
+  <%= if @community_ressources do %>
+    <%= render_many @community_ressources, TransportWeb.DatasetView, "_resource.html", as: :resource %>
+  <% end %>
+
 </div>

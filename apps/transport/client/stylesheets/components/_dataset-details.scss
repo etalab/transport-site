@@ -1,37 +1,93 @@
-div.dataset-details__side-pane {
-  background: $background-white;
-  border: 0;
+.dataset__header {
+  display: flex;
+  flex-direction: row;
+}
 
-  .shortlist-details {
-    margin-top: 2em;
-  }
+.dataset__logo {
+  width: 10vw;
+  margin-right: 4vw;
+}
 
-  .side-pane__title {
-    margin-top: 3em;
-  }
+.dataset--download i {
+  font-size: 3em;
+}
 
-  img {
-    padding-bottom: 2em;
-  }
+.resource {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4vw;
+}
 
-  .shortlist-publish {
-    margin-top: 2em;
+.resource__details {
+  display: flex;
+  flex-direction: row;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    padding-left: 5%;
+    text-align: center;
   }
 }
 
-.dataset-details {
-  h2:first-child {
-    margin-top: 2em;
-  }
-
-  .shortlist__notice + .shortlist__notice {
-    margin-top: 1em;
-  }
+.resource--valid {
+  background: var(--theme-success-bg);
+  border: 1px solid var(--theme-success-border);
+  padding-left: var(--space-xl);
+  padding-right: var(--space-xl);
 }
 
-.discussion-modal {
-  display: none;
-  &:target {
-    display: inline;
+.resource--notvalid {
+  background: var(--theme-background-grey);
+  border: 1px solid var(--theme-border-lighter);
+  padding-left: var(--space-xl);
+  padding-right: var(--space-xl);
+}
+.resource__header {
+  padding-bottom: 1em;
+  width: 60%;
+}
+
+.resource__details {
+  width: 40%;
+}
+
+.resource__summary--Fatal {
+  background: var(--theme-error-bg);
+  border: 1px solid var(--theme-error-border);
+}
+.resource__summary--Error {
+  background: var(--theme-error-bg);
+  border: 1px solid var(--theme-error-border);
+}
+.resource__summary--Warning {
+  background: var(--theme-warning-bg);
+  border: 1px solid var(--theme-warning-border);
+}
+.resource__summary--Information {
+  background: var(--theme-information-bg);
+  border: 1px solid var(--theme-information-border);
+}
+.resource__summary--Irrelevant {
+  background: var(--theme-background-success);
+  border: 1px solid var(--theme-success-border);
+}
+.resource__summary--Success {
+  background: var(--theme-background-success);
+  border: 1px solid var(--theme-success-border);
+}
+
+@media (max-width: 749px) {
+  .dataset__header {
+    flex-direction: column;
+  }
+  .resource {
+    flex-direction: column;
+    margin-bottom: 10vw;
+  }
+
+  .resource__header, .resource__details {
+    width: 100%
   }
 }

@@ -1,11 +1,30 @@
-<div class="container">
-    <div class="panel">
-        <h4><%= @resource.title %></h4>
-        <div class="shortlist__link shortlist__link--download">
+<div class="resource">
+    <div class="resource__header">
+        <a href="<%= @resource.url %>">
+            <div class="dataset--download">
                 <i class="icon icon--download" aria-hidden="true"></i>
-                <%= link(dgettext("download-link", "Download"),
-                        to: @resource.url,
-                        role: "link") %>
+                <span><%= @resource.title %></span>
+            </div>
+        </a>
+    </div>
+    <div class="resource__details">
+        <div>
+            <span class="resource--<%= if Resource.is_outdated?(@resource) do "not" end %>valid">
+            <%= if Resource.is_outdated?(@resource) do %>
+                <%= dgettext("resource", "Outdated") %>
+            <% else %>
+                <%= dgettext("resource", "Valid") %>
+            <% end %>
+            </span>
+            <%= if Resource.valid?(@resource) do %>
+            <span><%= dgettext("resource", "from") %> <%= @resource.metadata["start_date"] %></span>
+            <span><%= dgettext("resource", "until") %> <%= @resource.metadata["end_date"] %></span>
+            <% end %>
+        </div>
+        <div>
+            <% r = Resource.get_max_severity_validation_number(@resource) %>
+            <span class="<%= summary_class(r) %>"><%= "#{r.count_errors} #{Validation.severities(r.severity)[:text]}" %></span>
+            <a href="#">Rapport de validation GTFS</a>
         </div>
     </div>
 </div>

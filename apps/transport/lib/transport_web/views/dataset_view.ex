@@ -1,6 +1,6 @@
 defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
-  alias Transport.{Dataset, Resource}
+  alias Transport.Dataset
   alias TransportWeb.PaginationHelpers
   alias TransportWeb.Router.Helpers
   import Phoenix.Controller, only: [current_url: 2]
@@ -39,15 +39,15 @@ defmodule TransportWeb.DatasetView do
   def end_date(dataset) do
     dataset
     |> Dataset.valid_gtfs()
-    |> Enum.max_by(&get_end_date/1, fn -> nil end)
+    |> Enum.max_by(& get_in(&1, [:metadata, "end_date"]),
+      fn -> nil end
+    )
     |> case do
       nil -> ""
       resource -> resource.metadata["end_date"]
     end
   end
 
-  defp get_end_date(%{metadata: %{"end_date" => end_date}}), do: end_date
-  defp get_end_date(_), do: ""
 
   def pagination_links(%{path_info: ["datasets", "region", region]} = conn, datasets) do
     kwargs = [path: &Helpers.dataset_path/4, action: :by_region] |> add_order_by(conn.params)
@@ -109,4 +109,7 @@ defmodule TransportWeb.DatasetView do
 
   defp add_order_by(kwargs, %{"order_by" => order}), do: Keyword.put(kwargs, :order_by, order)
   defp add_order_by(kwargs, _), do: kwargs
+
+  def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
+  def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
 end

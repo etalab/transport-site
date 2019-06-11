@@ -21,23 +21,23 @@ defmodule TransportWeb.DatasetController do
   end
 
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
-    Dataset
-    |> where([slug: ^slug_or_id])
-    |> Dataset.preload_without_validations
-    |> Repo.one()
-    |> case do
-      nil -> redirect_to_slug_or_404(conn, slug_or_id)
-      dataset ->
-        {_, community_ressources} = Client.get_community_resources(conn, dataset.datagouv_id)
+    with dataset <- Dataset.get_by(slug: slug_or_id),
+        aom <- Repo.get(AOM, dataset.aom_id),
+        {_, community_ressources} <- Client.get_community_resources(conn, dataset.datagouv_id),
+        other_datasets <- Dataset.get_same_aom(dataset) do
         conn
         |> assign(:dataset, dataset)
-        |> assign(:count_validations, Dataset.count_validations(dataset))
         |> assign(:discussions, Client.get_discussions(conn, dataset.datagouv_id))
         |> assign(:community_ressources, community_ressources)
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
         |> assign(:reuses, Client.get_reuses(conn, %{"dataset_id" => dataset.datagouv_id}))
+        |> assign(:aom, aom)
+        |> assign(:other_datasets, other_datasets)
         |> render("details.html")
+    else
+      nil ->
+        redirect_to_slug_or_404(conn, slug_or_id)
     end
   end
 
