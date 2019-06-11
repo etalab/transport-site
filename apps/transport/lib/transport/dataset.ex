@@ -220,6 +220,18 @@ defmodule Transport.Dataset do
   end
   def get_same_aom(_), do: nil
 
+  def get_cities_names(%__MODULE__{aom_id: aom_id}) do
+    "select string_agg(nom, ', ' ORDER BY nom) from commune group by aom_res_id having aom_res_id = (select composition_res_id from aom where id = $1)"
+    |> Repo.query([aom_id])
+    |> case do
+      {:ok, %{rows: [names | _]}} ->
+        names
+      {:error, error} ->
+        Logger.error error
+        nil
+    end
+  end
+
   ## Private functions
 
   defp validate_mutual_exclusion(changeset, fields, error) do

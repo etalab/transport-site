@@ -28,7 +28,7 @@
     <%= dgettext("dataset", "So we can communicate together") %>
   </p>
 
-  <%= if @other_datasets != nil do %>
+  <%= if not is_nil(@other_datasets) and @other_datasets != [] do %>
   <section class="section white">
   <h2><%= dgettext("dataset", "Other datasets of ") %> <%= String.capitalize(@aom.nom) %> </h2>
   <ul>
@@ -42,8 +42,16 @@
   </section>
   <% end %>
 
-  <%= if @community_ressources do %>
+  <%= if not is_nil(@community_ressources) and @community_ressources != [] do %>
     <%= render_many @community_ressources, TransportWeb.DatasetView, "_resource.html", as: :resource %>
   <% end %>
 
+  <p>
+    <b><%= dgettext("dataset", "tags: ") %></b>
+    <%= Enum.join(@dataset.tags, ", ") %>
+  </p>
+  <p>
+    <b><%= dgettext("dataset", "Covered cities") %></b>
+    <%= Dataset.get_cities_names(@dataset) %>
+  </p>
 </div>
