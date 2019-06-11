@@ -78,6 +78,28 @@
   border: 1px solid var(--theme-success-border);
 }
 
+.reuse {
+  display: flex;
+  flex-direction: row;
+  &:not(:last-child) {
+    padding-bottom: 7em;
+  }
+
+  img {
+    height: 10vw;
+    padding-right: 3em;
+  }
+
+  div > div {
+    display: flex;
+    flex-direction: row;
+  }
+
+  div > a {
+    margin-right: 5em;
+  }
+}
+
 @media (max-width: 749px) {
   .dataset__header {
     flex-direction: column;
@@ -89,5 +111,22 @@
 
   .resource__header, .resource__details {
     width: 100%
+  }
+
+  .reuse {
+    flex-direction: column;
+
+    div > div {
+      flex-direction: column;
+    }
+
+    div:first-of-type {
+      text-align: center;
+    }
+
+    img {
+      height: unset;
+      width: 50vw;
+    }
   }
 }

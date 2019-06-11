@@ -42,10 +42,6 @@
   </section>
   <% end %>
 
-  <%= if not is_nil(@community_ressources) and @community_ressources != [] do %>
-    <%= render_many @community_ressources, TransportWeb.DatasetView, "_resource.html", as: :resource %>
-  <% end %>
-
   <p>
     <b><%= dgettext("dataset", "tags: ") %></b>
     <%= Enum.join(@dataset.tags, ", ") %>
@@ -54,4 +50,47 @@
     <b><%= dgettext("dataset", "Covered cities") %></b>
     <%= Dataset.get_cities_names(@dataset) %>
   </p>
+
+  <%= if not is_nil(@community_ressources) and @community_ressources != [] do %>
+  <section class="section white">
+    <div class="panel">
+      <div class="panel__header">
+        <h1><%= dgettext("datasets", "Community ressources" )%></h1>
+      </div>
+      <%= render_many @community_ressources, TransportWeb.DatasetView, "_resource.html", as: :resource %>
+    </div>
+  </section>
+  <% end %>
+
+  <%= if not is_nil(@reuses) and @reuses != [] do %>
+  <section class="section white">
+    <div class="panel">
+      <div class="panel__header">
+        <h1><%= dgettext("datasets", "Reuses" )%></h1>
+      </div>
+      <%= for reuse <- @reuses do %>
+      <div class="reuse">
+        <div>
+          <img src="<%= reuse["image"] %>">
+        </div>
+        <div>
+         <h2><%= reuse["title"] %></h2>
+         <p><%= raw Earmark.as_html!(reuse["description"]) %> </p>
+
+         <div>
+            <%= link(
+              dgettext("page-dataset-details", "Website"),
+              to: reuse["url"]) %>
+          
+            <%= link(
+                dgettext("page-dataset-details", "See on data.gouv.fr"),
+                to: reuse["uri"]
+            ) %>
+         </div>
+        </div>
+      </div>
+      <% end %>
+    </div>
+  </section>
+  <% end %>
 </div>
