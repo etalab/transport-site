@@ -441,9 +441,13 @@ defmodule Transport.ImportData do
   end
 
   def has_realtime?(dataset, "public-transit") do
-    case Client.get_community_resources(%Plug.Conn{}, dataset["id"]) do
-      {:ok, resources} -> {:ok, Enum.any?(resources, &is_realtime?/1)}
-      {:error, _error} -> {:error, false}
+    if Enum.any?(dataset["resources"], &is_realtime?/1) do
+      {:ok, true}
+    else
+      case Client.get_community_resources(%Plug.Conn{}, dataset["id"]) do
+        {:ok, resources} -> {:ok, Enum.any?(resources, &is_realtime?/1)}
+        {:error, _error} -> {:error, false}
+      end
     end
   end
   def has_realtime?(_, _), do: {:ok, false}
