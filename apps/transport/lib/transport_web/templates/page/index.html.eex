@@ -136,8 +136,8 @@
                 <h2><%= dgettext("page-index", "I’m using transport data") %></h2>
                 <p><%= dgettext("page-index", "user description") %></p>
                 <div class="row">
-                    <a class="button" href="https://transport-data-gouv-fr.gitbook.io/doc/reutilisateurs/outils-pour-les-reutilisateurs"><%= dgettext("page-index", "See tools for reusers") %></a>
-                    <a href="https://transport-data-gouv-fr.gitbook.io/doc/reutilisateurs/licence-odbl-et-conditions-de-reutilisation"><%= dgettext("page-index", "Learn more about ODbL") %></a>
+                    <a class="button" href="https://doc.transport.data.gouv.fr/reutilisateurs/outils-pour-les-reutilisateurs"><%= dgettext("page-index", "See tools for reusers") %></a>
+                    <a href="https://doc.transport.data.gouv.fr/reutilisateurs/licence-odbl-et-conditions-de-reutilisation"><%= dgettext("page-index", "Learn more about ODbL") %></a>
                 </div>
             </div>
         </div>
