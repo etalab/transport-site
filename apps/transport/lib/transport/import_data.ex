@@ -99,6 +99,7 @@ defmodule Transport.ImportData do
   def available?(%{"extras" => %{"check:available" => available}}), do: available
   def available?(%{"url" => "https://static.data.gouv.fr/" <> _}), do: true
   def available?(%{"format" => "csv"}), do: true
+  def available?(%{"type" => "api"}), do: true
   def available?(_), do: false
 
   def get_valid_resources(%{"resources" => resources}, type) do
