@@ -6,17 +6,9 @@
 
 .dataset__header {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-}
-
-.dataset__logo {
-  flex: 0 0 20%;
-}
-
-.dataset__title {
-  width: 100%;
-  flex: 0 0 80%;
+  justify-content: center;
 }
 
 .resource--download {
@@ -54,15 +46,11 @@
 .resource--valid {
   background: var(--theme-success-bg);
   border: 1px solid var(--theme-success-border);
-  padding-left: var(--space-xl);
-  padding-right: var(--space-xl);
 }
 
 .resource--notvalid {
   background: var(--theme-background-grey);
   border: 1px solid var(--theme-border-lighter);
-  padding-left: var(--space-xl);
-  padding-right: var(--space-xl);
 }
 
 .resource__header {
@@ -122,9 +110,6 @@
 }
 
 @media (max-width: 749px) {
-  .dataset__header {
-    flex-direction: column;
-  }
   .resource {
     flex-direction: column;
     margin-bottom: 10vw;
@@ -148,6 +133,37 @@
     img {
       height: unset;
       width: 50vw;
+    }
+  }
+
+  .resource__details {
+    flex-direction: column;
+    justify-content: center;
+
+    div {
+      width: 100%;
+    }
+  }
+
+  .resource--valid, .resource--notvalid {
+    width: 100%;
+  }
+
+  .resource--download {
+    flex-direction: column;
+    justify-content: center;
+    div {
+      text-align: center;
+    }
+  }
+
+  .dataset {
+    .section {
+      padding: 1em 0 1em 0;
+    }
+
+    .section-grey {
+      padding: 3em 0 3em 0;
     }
   }
 }

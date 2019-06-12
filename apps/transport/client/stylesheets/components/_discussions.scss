@@ -1,9 +1,16 @@
 .discussion {
-
   .discussion-comment {
-    border-left: 5px solid #c9d3df;
-    background-color: #ebeff3;
-    padding: 1em;
+    padding: 1vw;
+    display: flex;
+    flex-direction: row;
+
+    @media (max-width: 749px) {
+      flex-direction: column;
+    }
+
+    div:first-child {
+      padding-right: 1vw;
+    }
   }
 
   .discussion-comment + .discussion-comment {
@@ -20,5 +27,16 @@
 
   .discussion__post {
     padding-top: 2em;
+  }
+
+  .discussion-form {
+    padding-bottom: 5vh;
+  }
+}
+
+.discussion-modal {
+  display: none;
+  &:target {
+    display: block;
   }
 }

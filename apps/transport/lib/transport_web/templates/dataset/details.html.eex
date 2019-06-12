@@ -97,6 +97,38 @@
       </p>
     </div>
   </section>
+  <section class="section">
+    <div class="container">
+      <div class="dataset-details__discussions panel">
+        <div class="panel__header">
+        <h3>Discussions</h3>
+        </div>
+        <%= unless @discussions == nil do %>
+        <%= render_many @discussions, TransportWeb.DatasetView, "_discussion.html", as: :discussion, current_user: @current_user, conn: @conn, dataset: @dataset %>
+        <% else %>
+        <%= dgettext("page-dataset-details", "Unable to retrieve discussions from data.gouv.fr") %>
+        <% end %>
+
+        <%= if @current_user do %>
+          <a href="#new_discussion">
+            <%= dgettext("page-dataset-details", "Begin a new conversation") %>
+          </a>
+          <div id="new_discussion" class="discussion-modal">
+            <%= form_for @conn, discussion_path(@conn, :post_discussion, @dataset.datagouv_id), fn f -> %>
+              <%= hidden_input(f, :dataset_slug, value: @dataset.slug) %>
+              <%= text_input(f, :title, placeholder: dgettext("page-dataset-details", "Title") )%>
+              <%= textarea(f, :comment) %>
+              <%= submit dgettext("page-dataset-details", "Start a new discussion") %>
+            <% end %>
+          </div>
+        <% else %>
+          <span class="discussion-commment__connection-needed">
+            <%= dgettext("page-dataset-details", "You need to be connected to start a discussion")%>
+          </span>
+        <% end %>
+      </div>
+    </div>
+  </section>
   <section class="section section-grey">
     <div class="container">
       <p>
