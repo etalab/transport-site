@@ -1,9 +1,13 @@
 <div class="resource">
     <div class="resource__header">
         <a href="<%= @resource.url %>">
-            <div class="dataset--download">
-                <i class="icon icon--download" aria-hidden="true"></i>
-                <span><%= @resource.title %></span>
+            <div class="resource--download">
+                <div>
+                    <i class="icon icon--download" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <span><%= @resource.title %></span>
+                </div>
             </div>
         </a>
     </div>

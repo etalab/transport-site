@@ -1,15 +1,35 @@
+.dataset {
+  .section {
+    padding: 3em;
+  }
+}
+
 .dataset__header {
   display: flex;
   flex-direction: row;
+  align-items: center;
 }
 
 .dataset__logo {
-  width: 10vw;
-  margin-right: 4vw;
+  flex: 0 0 20%;
 }
 
-.dataset--download i {
-  font-size: 3em;
+.dataset__title {
+  width: 100%;
+  flex: 0 0 80%;
+}
+
+.resource--download {
+  display: flex;
+
+  i {
+    font-size: 3em;
+  }
+
+  div > h6 {
+    color: var(--black);
+    text-decoration: none;
+  }
 }
 
 .resource {
@@ -44,6 +64,7 @@
   padding-left: var(--space-xl);
   padding-right: var(--space-xl);
 }
+
 .resource__header {
   padding-bottom: 1em;
   width: 60%;
