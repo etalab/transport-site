@@ -4,6 +4,17 @@
   }
 }
 
+.display-more {
+  padding-top: 4vh;
+  display: none;
+}
+
+.description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .dataset__header {
   display: flex;
   flex-direction: column;

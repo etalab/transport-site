@@ -21,19 +21,18 @@ defmodule TransportWeb.DatasetController do
   end
 
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
-    with dataset <- Dataset.get_by(slug: slug_or_id),
-        aom <- Repo.get(AOM, dataset.aom_id),
-        {_, community_ressources} <- Client.get_community_resources(conn, dataset.datagouv_id),
-        other_datasets <- Dataset.get_same_aom(dataset) do
+    with dataset when not is_nil(dataset) <- Dataset.get_by(slug: slug_or_id),
+        organization when not is_nil(organization) <- Dataset.get_organization(dataset),
+        {_, community_ressources} <- Client.get_community_resources(conn, dataset.datagouv_id) do
         conn
         |> assign(:dataset, dataset)
-        |> assign(:discussions, Client.get_discussions(conn, dataset.datagouv_id))
         |> assign(:community_ressources, community_ressources)
+        |> assign(:organization, organization)
+        |> assign(:discussions, Client.get_discussions(conn, dataset.datagouv_id))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
         |> assign(:reuses, Client.get_reuses(conn, %{"dataset_id" => dataset.datagouv_id}))
-        |> assign(:aom, aom)
-        |> assign(:other_datasets, other_datasets)
+        |> assign(:other_datasets, Dataset.get_other_datasets(dataset, organization))
         |> render("details.html")
     else
       nil ->
@@ -100,5 +99,4 @@ defmodule TransportWeb.DatasetController do
   defp redirect_to_slug_or_404(conn, slug_or_id) do
     redirect_to_slug_or_404(conn, Repo.get_by(Dataset, [datagouv_id: slug_or_id]))
   end
-
 end

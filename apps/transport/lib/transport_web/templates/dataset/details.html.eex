@@ -12,7 +12,12 @@
 
   <section class="section section-grey">
     <div class="container">
-      <%= raw Earmark.as_html!(@dataset.description) %>
+      <div class="description">
+        <%= raw Earmark.as_html!(@dataset.description) %>
+      </div>
+      <div class="display-more">
+        <a href="javascript:displayMore()">Display more</a>
+      </div>
     </div>
   </section>
 
@@ -25,28 +30,19 @@
         </div>
         <%= render_many @dataset.resources, TransportWeb.DatasetView, "_resource.html", as: :resource %>
       </div>
-    </div>
-  </section>
-  <% end %>
-
-  <%= if not is_nil(@other_datasets) and @other_datasets != [] do %>
-  <section class="section white">
-    <div class="container">
-      <h3><%= dgettext("dataset", "Other datasets of ") %> <%= String.capitalize(@aom.nom) %> </h3>
-      <ul>
-      <%= for dataset <- @other_datasets do %>
-        <li><%= link(
-          dataset.title,
-          to: dataset_path(@conn, :details, dataset.slug)
-        ) %></li>
-      <% end %>
-      </ul>
+      <p>
+        <i class="fas fa-info-circle"></i>
+        <%= dgettext("dataset", "You're using this dataset?") %>
+        <a href="#mail_form"><%= dgettext("dataset", "Send an email!") %></a>
+        <%= dgettext("dataset", "So we can communicate together") %>
+      </p>
     </div>
   </section>
   <% end %>
 
 
-  <%= if not is_nil(@community_ressources) and @community_ressources != [] do %>
+
+  <%= unless not is_nil(@community_ressources) or @community_ressources != [] do %>
   <section class="section white">
     <div class="container">
       <div class="panel">
@@ -59,7 +55,7 @@
   </section>
   <% end %>
 
-  <%= if not is_nil(@reuses) and @reuses != [] do %>
+  <%= unless not is_nil(@reuses) or @reuses != [] do %>
   <section class="section white">
     <div class="container">
       <div class="panel">
@@ -89,14 +85,10 @@
         </div>
         <% end %>
       </div>
-      <p>
-        <i class="fas fa-info-circle"></i>
-        <%= dgettext("dataset", "You're using this dataset?") %>
-        <a href="#mail_form"><%= dgettext("dataset", "Send an email!") %></a>
-        <%= dgettext("dataset", "So we can communicate together") %>
-      </p>
     </div>
   </section>
+  <% end %>
+
   <section class="section">
     <div class="container">
       <div class="dataset-details__discussions panel">
@@ -131,15 +123,39 @@
   </section>
   <section class="section section-grey">
     <div class="container">
+      <%= unless is_nil(@other_datasets) or @other_datasets != [] do %>
+      <h4><%= dgettext("dataset", "Other datasets of ") %> <%= String.capitalize(@organization.nom) %></h4>
+      <ul>
+      <%= for dataset <- @other_datasets do %>
+        <li><%= link(
+          dataset.title,
+          to: dataset_path(@conn, :details, dataset.slug)
+        ) %></li>
+      <% end %>
+      </ul>
+      <% end %>
       <p>
         <b><%= dgettext("dataset", "tags: ") %></b>
         <%= Enum.join(@dataset.tags, ", ") %>
       </p>
       <p>
-        <b><%= dgettext("dataset", "Covered cities") %></b>
-        <%= Dataset.get_cities_names(@dataset) %>
+        <b><%= dgettext("dataset", "Covered areas") %></b>
+        <%= Dataset.get_covered_area_names(@dataset) %>
       </p>
     </div>
   </section>
-  <% end %>
 </div>
+
+<script>
+var description = document.querySelector(".description")
+description.style.maxHeight = '20vh';
+
+if (description.scrollHeight > description.clientHeight) {
+  document.querySelector(".display-more").style.display = "block";
+}
+
+var displayMore = function() {
+  document.querySelector(".display-more").style.display = "none";
+  description.style.maxHeight = '100%';
+}
+</script>

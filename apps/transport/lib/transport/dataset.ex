@@ -212,17 +212,40 @@ defmodule Transport.Dataset do
     |> Repo.one()
   end
 
-  def get_same_aom(%__MODULE__{id: id, aom_id: aom_id}) do
-    query = from d in __MODULE__,
-      where: d.aom_id == ^aom_id and d.id != ^id
-
-    Repo.all(query)
+  def get_other_datasets(%__MODULE__{} = dataset, organization) do
+    organization
+    |> Ecto.assoc(:datasets)
+    |> where([d], d.id != ^dataset.id)
+    |> Repo.all()
   end
-  def get_same_aom(_), do: nil
 
-  def get_cities_names(%__MODULE__{aom_id: aom_id}) do
-    "select string_agg(nom, ', ' ORDER BY nom) from commune group by aom_res_id having aom_res_id = (select composition_res_id from aom where id = $1)"
-    |> Repo.query([aom_id])
+  def get_organization(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
+    Repo.get(AOM, aom_id)
+  end
+
+  def get_organization(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
+    Repo.get(Region, region_id)
+  end
+
+  def get_organization(_), do: nil
+
+  def get_covered_area_names(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
+    get_covered_area_names(
+      "select string_agg(nom, ', ' ORDER BY nom) from commune group by aom_res_id having aom_res_id = (select composition_res_id from aom where id = $1)",
+      aom_id
+    )
+  end
+  def get_covered_area_names(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
+    get_covered_area_names(
+    "select string_agg(distinct(departement), ', ') from aom where region_id = $1",
+    region_id
+  )
+  end
+  def get_covered_area_names(_), do: ""
+  @spec get_covered_area_names(binary, any) :: nil | binary | [any]
+  def get_covered_area_names(query, id) do
+    query
+    |> Repo.query([id])
     |> case do
       {:ok, %{rows: [names | _]}} ->
         names
