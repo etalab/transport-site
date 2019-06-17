@@ -10,7 +10,3 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 "Plural-Forms: nplurals=2\n"
-
-#, elixir-format
-msgid "Download"
-msgstr "Télécharger"

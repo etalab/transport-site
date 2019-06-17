@@ -12,7 +12,7 @@
 
   <section class="section section-grey">
     <div class="container">
-      <div class="description">
+      <div class="description"ommu>
         <%= raw Earmark.as_html!(@dataset.description) %>
       </div>
       <div class="display-more">
@@ -47,7 +47,7 @@
     <div class="container">
       <div class="panel">
         <div class="panel__header">
-          <h3><%= dgettext("datasets", "Community ressources" )%></h3>
+          <h3><%= dgettext("page-dataset-details", "Community ressources" )%></h3>
         </div>
         <%= render_many @community_ressources, TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
       </div>
@@ -60,7 +60,7 @@
     <div class="container">
       <div class="panel">
         <div class="panel__header">
-          <h3><%= dgettext("datasets", "Reuses" )%></h3>
+          <h3><%= dgettext("page-dataset-details", "Reuses" )%></h3>
         </div>
         <%= for reuse <- @reuses do %>
         <div class="reuse">

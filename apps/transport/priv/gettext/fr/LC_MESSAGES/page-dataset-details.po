@@ -136,25 +136,85 @@ msgid "Unable to retrieve discussions from data.gouv.fr"
 msgstr "Impossible de récupérer les discussions depuis data.gouv.fr, veuillez recharger la page"
 
 #, elixir-format
-msgid "Resources"
-msgstr "Ressources"
-
-#, elixir-format
-msgid "Community resources"
-msgstr "Ressources communautaires"
-
-#, elixir-format
-msgid "Reuses"
-msgstr "Réutilisations"
-
-#, elixir-format
-msgid "By"
-msgstr "Par"
-
-#, elixir-format
 msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
 
 #, elixir-format
 msgid "Details"
+msgstr "Détails"
+
+#, elixir-format
+msgid "Covered areas"
+msgstr "Territoires couverts"
+
+#, elixir-format
+msgid "Other datasets of "
+msgstr "Autres jeux de données de "
+
+#, elixir-format
+msgid "Send an email!"
+msgstr "Envoyer un mail !"
+
+#, elixir-format
+msgid "So we can communicate together"
+msgstr "Pour qu'on communique ensemble"
+
+#, elixir-format
+msgid "Subscribe"
+msgstr "S'abonner à ce jeu de données"
+
+#, elixir-format
+msgid "Unsubscribe"
+msgstr "Se désabonner de ce jeu de données"
+
+#, elixir-format
+msgid "Website"
+msgstr "Site internet"
+
+#, elixir-format
+msgid "You're using this dataset?"
+msgstr "Vous utilisez ce jeu de données ?"
+
+#, elixir-format
+msgid "tags: "
+msgstr "Mots-clef"
+
+#, elixir-format
+msgid "Outdated"
+msgstr "Périmé"
+
+#, elixir-format
+msgid "Valid"
+msgstr "Valide"
+
+#, elixir-format
+msgid "from"
+msgstr "Du"
+
+#, elixir-format
+msgid "until"
+msgstr "Au"
+
+#, elixir-format
+msgid "Community ressources"
+msgstr ""
+
+#, elixir-format
+msgid "GBFS resources"
+msgstr ""
+
+#, elixir-format
+msgid "GTFS resources"
+msgstr ""
+
+#, elixir-format
+msgid "NETeX resources"
+msgstr ""
+
+#, elixir-format
+msgid "Other resources"
+msgstr ""
+
+#, elixir-format
+msgid "Reuses"
 msgstr ""

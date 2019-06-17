@@ -9,7 +9,3 @@
 ## effect: edit them in PO (`.po`) files instead.
 msgid ""
 msgstr ""
-
-#, elixir-format
-msgid "Download"
-msgstr ""
