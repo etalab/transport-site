@@ -1,6 +1,14 @@
 .dataset {
   .section {
-    padding: 3em;
+    padding: 5vh;
+  }
+
+  .dataset__resources {
+    padding-top: 5vh;
+  }
+
+  .dataset__resources ~ .dataset__resources {
+    padding-top: 1vh;
   }
 }
 
@@ -117,6 +125,19 @@
 
   div > a {
     margin-right: 5em;
+  }
+}
+
+.dataset-details__discussions {
+  .panel__header {
+    div {
+      display: flex;
+      justify-content: space-between;
+
+      .form {
+        margin: 0;
+      }
+    }
   }
 }
 

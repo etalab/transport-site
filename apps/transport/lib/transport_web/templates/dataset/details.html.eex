@@ -21,28 +21,12 @@
     </div>
   </section>
 
-  <%= if @dataset.resources do %>
-  <section class="section white">
-    <div class="container">
-      <div class="panel">
-        <div class="panel__header">
-          <h3><%= dgettext("datasets", "Resources" )%></h3>
-        </div>
-        <%= render_many @dataset.resources, TransportWeb.DatasetView, "_resource.html", as: :resource %>
-      </div>
-      <p>
-        <i class="fas fa-info-circle"></i>
-        <%= dgettext("dataset", "You're using this dataset?") %>
-        <a href="#mail_form"><%= dgettext("dataset", "Send an email!") %></a>
-        <%= dgettext("dataset", "So we can communicate together") %>
-      </p>
-    </div>
-  </section>
-  <% end %>
+  <%= render TransportWeb.DatasetView, "_resources_container.html", resources: gtfs_resources(@dataset), title: dgettext("page-dataset-details", "GTFS resources") %>
+  <%= render TransportWeb.DatasetView, "_resources_container.html", resources: gbfs_resources(@dataset), title: dgettext("page-dataset-details", "GBFS resources") %>
+  <%= render TransportWeb.DatasetView, "_resources_container.html", resources: netex_resources(@dataset), title: dgettext("page-dataset-details", "NETeX resources") %>
+  <%= render TransportWeb.DatasetView, "_resources_container.html", resources: other_resources(@dataset), title: dgettext("page-dataset-details", "Other resources") %>
 
-
-
-  <%= unless not is_nil(@community_ressources) or @community_ressources != [] do %>
+  <%= unless not is_nil(@community_ressources) or @community_ressources == [] do %>
   <section class="section white">
     <div class="container">
       <div class="panel">
@@ -55,7 +39,7 @@
   </section>
   <% end %>
 
-  <%= unless not is_nil(@reuses) or @reuses != [] do %>
+  <%= unless not is_nil(@reuses) or @reuses == [] do %>
   <section class="section white">
     <div class="container">
       <div class="panel">
@@ -134,8 +118,8 @@
   </section>
   <section class="section section-grey">
     <div class="container">
-      <%= unless is_nil(@other_datasets) or @other_datasets != [] do %>
-      <h4><%= dgettext("dataset", "Other datasets of ") %> <%= String.capitalize(@organization.nom) %></h4>
+      <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
+      <h4><%= dgettext("page-dataset-details", "Other datasets of ") %> <%= String.capitalize(@organization.nom) %></h4>
       <ul>
       <%= for dataset <- @other_datasets do %>
         <li><%= link(
@@ -146,11 +130,11 @@
       </ul>
       <% end %>
       <p>
-        <b><%= dgettext("dataset", "tags: ") %></b>
+        <b><%= dgettext("page-dataset-details", "tags: ") %></b>
         <%= Enum.join(@dataset.tags, ", ") %>
       </p>
       <p>
-        <b><%= dgettext("dataset", "Covered areas") %></b>
+        <b><%= dgettext("page-dataset-details", "Covered areas") %></b>
         <%= Dataset.get_covered_area_names(@dataset) %>
       </p>
     </div>

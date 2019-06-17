@@ -12,23 +12,23 @@
         </a>
     </div>
     <div class="resource__details">
+        <%= if Resource.valid?(@resource) and @resource.format == "GTFS" do %>
         <div>
             <span class="resource--<%= if Resource.is_outdated?(@resource) do "not" end %>valid">
             <%= if Resource.is_outdated?(@resource) do %>
-                <%= dgettext("resource", "Outdated") %>
+                <%= dgettext("page-dataset-details", "Outdated") %>
             <% else %>
-                <%= dgettext("resource", "Valid") %>
+                <%= dgettext("page-dataset-details", "Valid") %>
             <% end %>
             </span>
-            <%= if Resource.valid?(@resource) do %>
-            <span><%= dgettext("resource", "from") %> <%= @resource.metadata["start_date"] %></span>
-            <span><%= dgettext("resource", "until") %> <%= @resource.metadata["end_date"] %></span>
-            <% end %>
+            <span><%= dgettext("page-dataset-details", "from") %> <%= @resource.metadata["start_date"] %></span>
+            <span><%= dgettext("page-dataset-details", "until") %> <%= @resource.metadata["end_date"] %></span>
         </div>
         <div>
             <% r = Resource.get_max_severity_validation_number(@resource) %>
             <span class="<%= summary_class(r) %>"><%= "#{r.count_errors} #{Validation.severities(r.severity)[:text]}" %></span>
             <a href="#">Rapport de validation GTFS</a>
         </div>
+        <% end %>
     </div>
 </div>
