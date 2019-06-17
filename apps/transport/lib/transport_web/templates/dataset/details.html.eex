@@ -93,7 +93,18 @@
     <div class="container">
       <div class="dataset-details__discussions panel">
         <div class="panel__header">
-        <h3>Discussions</h3>
+          <div>
+            <h3>Discussions</h3>
+            <%= form_for @conn, follower_path(@conn, :toggle, @dataset.datagouv_id), [class: "form"], fn _f -> %>
+              <button class="button">
+              <%= if @is_subscribed do %>
+                <%= dgettext("page-dataset-details", "Subscribe") %>
+              <% else %>
+                <%= dgettext("page-dataset-details", "Unsubscribe") %>
+              <% end %>
+              </button>
+            <% end %>
+          </div>
         </div>
         <%= unless @discussions == nil do %>
         <%= render_many @discussions, TransportWeb.DatasetView, "_discussion.html", as: :discussion, current_user: @current_user, conn: @conn, dataset: @dataset %>
