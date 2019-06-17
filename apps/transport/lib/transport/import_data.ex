@@ -138,16 +138,22 @@ defmodule Transport.ImportData do
       iex> ImportData.is_gtfs?(%{"format" => "neptune"})
       false
 
+      iex> ImportData.is_gtfs?(sncf.tgv.GtFs-rt.proto)
+      false
+
   """
   def is_gtfs?(%{} = params) do
     url = params["url"]
     is_gtfs?(params["format"]) or is_gtfs?(params["description"]) or
      (is_gtfs?(url) and !is_format?(url, "json") and !is_format?(url, "csv") and !is_format?(params, "shp"))
   end
-  def is_gtfs?(str), do: is_format?(str, "gtfs")
+  def is_gtfs?(str), do: not is_gtfs_rt(str) and is_format?(str, "gtfs")
   def is_format?(nil, _), do: false
   def is_format?(%{"format" => format}, expected), do: is_format?(format, expected)
   def is_format?(str, expected), do: str |> String.downcase |> String.contains?(expected)
+
+  def is_gtfs_rt?(%{} = params), do: is_gtfs_rt?(params["format"]) or is_gtfs_rt?(params["description"])
+  def is_gtfs_rt?(str), do: is_format?(str, "gtfs-rt")
 
   @doc """
   Is the ressource a zip file?
