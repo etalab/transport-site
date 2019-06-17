@@ -7,6 +7,10 @@ defmodule Transport.Mixfile do
       version: "0.0.1",
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env),
+      build_path: "../../_build",
+      config_path: "../../config/config.exs",
+      deps_path: "../../deps",
+      lockfile: "../../mix.lock",
       gettext: [{:write_reference_comments, false}],
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       preferred_cli_env: [
