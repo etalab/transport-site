@@ -152,14 +152,6 @@ msgid "Other datasets of "
 msgstr "Autres jeux de données de "
 
 #, elixir-format
-msgid "Send an email!"
-msgstr "Envoyer un mail !"
-
-#, elixir-format
-msgid "So we can communicate together"
-msgstr "Pour qu'on communique ensemble"
-
-#, elixir-format
 msgid "Subscribe"
 msgstr "S'abonner à ce jeu de données"
 
@@ -170,10 +162,6 @@ msgstr "Se désabonner de ce jeu de données"
 #, elixir-format
 msgid "Website"
 msgstr "Site internet"
-
-#, elixir-format
-msgid "You're using this dataset?"
-msgstr "Vous utilisez ce jeu de données ?"
 
 #, elixir-format
 msgid "tags: "
@@ -238,3 +226,11 @@ msgstr "En cours de validité"
 #, elixir-format
 msgid "and "
 msgstr "et "
+
+#, elixir-format
+msgid "Published on "
+msgstr "Publié le "
+
+#, elixir-format, fuzzy
+msgid "You're using this dataset? %{a_start}Send an email!%{a_end}"
+msgstr "%{a_start}Envoyez-nous un message%{a_end} afin que l’on puisse en discuter et mettre en avant votre réutilisation"

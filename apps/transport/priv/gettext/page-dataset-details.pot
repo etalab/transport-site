@@ -152,14 +152,6 @@ msgid "Other datasets of "
 msgstr ""
 
 #, elixir-format
-msgid "Send an email!"
-msgstr ""
-
-#, elixir-format
-msgid "So we can communicate together"
-msgstr ""
-
-#, elixir-format
 msgid "Subscribe"
 msgstr ""
 
@@ -169,10 +161,6 @@ msgstr ""
 
 #, elixir-format
 msgid "Website"
-msgstr ""
-
-#, elixir-format
-msgid "You're using this dataset?"
 msgstr ""
 
 #, elixir-format
@@ -237,4 +225,12 @@ msgstr ""
 
 #, elixir-format
 msgid "and "
+msgstr ""
+
+#, elixir-format
+msgid "Published on "
+msgstr ""
+
+#, elixir-format
+msgid "You're using this dataset? %{a_start}Send an email!%{a_end}"
 msgstr ""

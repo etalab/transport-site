@@ -9,9 +9,14 @@
     </div>
     <p>
         <i class="fas fa-info-circle"></i>
-        <%= dgettext("page-dataset-details", "You're using this dataset?") %>
-        <a href="#mail_form"><%= dgettext("page-dataset-details", "Send an email!") %></a>
-        <%= dgettext("page-dataset-details", "So we can communicate together") %>
+        <%= dgettext(
+            "page-dataset-details",
+            "You're using this dataset? %{a_start}Send an email!%{a_end}",
+            a_start: "<a href=\"#mail_form\">",
+            a_end: "</a>"
+            )
+            |> raw()
+        %>
     </p>
 </div>
 </section>
