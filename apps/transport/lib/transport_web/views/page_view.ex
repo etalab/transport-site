@@ -6,4 +6,7 @@ defmodule TransportWeb.PageView do
 
   def thumb("y"), do: "👍"
   def thumb(_), do: "👎"
+
+  def make_link(""), do: "—"
+  def make_link(o), do: link "Lien", to: o
 end
