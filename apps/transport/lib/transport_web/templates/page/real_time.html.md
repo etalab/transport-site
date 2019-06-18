@@ -35,9 +35,9 @@ D’autres réseaux disposent de données temps. Même si elles ne répondent pa
 <td><%= thumb(p["bulk"]) %></td>
 <td><%= thumb(p["acces_ouvert"]) %>
 <td><%= p["licence"] %></td>
-<td><%= link "Lien", to: p["prochains_passages"] %></td>
-<td><%= link "Lien", to: p["position_vehicules"] %></td>
-<td><%= link "Lien", to: p["alertes"] %></td>
+<td><%= make_link(p["prochains_passages"]) %></td>
+<td><%= make_link(p["position_vehicules"]) %></td>
+<td><%= make_link(p["alertes"]) %></td>
 </tr>
 <% end %>
 </table>
