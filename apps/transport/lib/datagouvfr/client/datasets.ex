@@ -157,8 +157,8 @@ defmodule Datagouvfr.Client.Datasets do
   end
   def current_user_subscribed?(_, _), do: false
 
-  def is_active?(dataset_id) do
-    path = Path.join([@endpoint, dataset_id])
+  def is_active?(%{datagouv_id: id}) do
+    path = Path.join([@endpoint, id])
     response =
       path
       |> process_url()
