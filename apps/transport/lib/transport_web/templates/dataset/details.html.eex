@@ -26,7 +26,7 @@
   <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: netex_resources(@dataset), title: dgettext("page-dataset-details", "NETeX resources") %>
   <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: other_resources(@dataset), title: dgettext("page-dataset-details", "Other resources") %>
 
-  <%= unless not is_nil(@community_ressources) or @community_ressources == [] do %>
+  <%= unless is_nil(@community_ressources) or @community_ressources == [] do %>
   <section class="section white">
     <div class="container">
       <div class="panel">
@@ -39,7 +39,7 @@
   </section>
   <% end %>
 
-  <%= unless not is_nil(@reuses) or @reuses == [] do %>
+  <%= unless is_nil(@reuses) or @reuses == [] do %>
   <section class="section white">
     <div class="container">
       <div class="panel">
