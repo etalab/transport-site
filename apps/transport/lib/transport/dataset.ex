@@ -241,17 +241,16 @@ defmodule Transport.Dataset do
     region_id
   )
   end
-  def get_covered_area_names(_), do: ""
-  @spec get_covered_area_names(binary, any) :: nil | binary | [any]
+  def get_covered_area_names(_), do: "National"
   def get_covered_area_names(query, id) do
     query
     |> Repo.query([id])
     |> case do
       {:ok, %{rows: [names | _]}} ->
-        names
+        Enum.reject(names, & &1 == nil)
       {:error, error} ->
         Logger.error error
-        nil
+        ""
     end
   end
 
