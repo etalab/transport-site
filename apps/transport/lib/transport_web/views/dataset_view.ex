@@ -21,6 +21,7 @@ defmodule TransportWeb.DatasetView do
     )
   end
 
+  def format_date(nil), do: ""
   def format_date(date) do
     date
     |> Timex.parse!("{ISO:Extended}")
