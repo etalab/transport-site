@@ -21,10 +21,10 @@
     </div>
   </section>
 
-  <%= render TransportWeb.DatasetView, "_resources_container.html", resources: gtfs_resources(@dataset), title: dgettext("page-dataset-details", "GTFS resources") %>
-  <%= render TransportWeb.DatasetView, "_resources_container.html", resources: gbfs_resources(@dataset), title: dgettext("page-dataset-details", "GBFS resources") %>
-  <%= render TransportWeb.DatasetView, "_resources_container.html", resources: netex_resources(@dataset), title: dgettext("page-dataset-details", "NETeX resources") %>
-  <%= render TransportWeb.DatasetView, "_resources_container.html", resources: other_resources(@dataset), title: dgettext("page-dataset-details", "Other resources") %>
+  <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gtfs_resources(@dataset), title: dgettext("page-dataset-details", "GTFS resources") %>
+  <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gbfs_resources(@dataset), title: dgettext("page-dataset-details", "GBFS resources") %>
+  <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: netex_resources(@dataset), title: dgettext("page-dataset-details", "NETeX resources") %>
+  <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: other_resources(@dataset), title: dgettext("page-dataset-details", "Other resources") %>
 
   <%= unless not is_nil(@community_ressources) or @community_ressources == [] do %>
   <section class="section white">
@@ -79,6 +79,7 @@
         <div class="panel__header">
           <div>
             <h3>Discussions</h3>
+            <%= if @current_user do %>
             <%= form_for @conn, follower_path(@conn, :toggle, @dataset.datagouv_id), [class: "form"], fn _f -> %>
               <button class="button">
               <%= if @is_subscribed do %>
@@ -87,6 +88,13 @@
                 <%= dgettext("page-dataset-details", "Unsubscribe") %>
               <% end %>
               </button>
+            <% end %>
+            <% else %>
+            <%= link(
+              dgettext("page-dataset-details", "Log in to subscribe to this dataset."),
+              to: page_path(@conn, :login, [redirect_path: current_path(@conn)])
+            )
+            %>
             <% end %>
           </div>
         </div>
@@ -110,7 +118,11 @@
           </div>
         <% else %>
           <span class="discussion-commment__connection-needed">
-            <%= dgettext("page-dataset-details", "You need to be connected to start a discussion")%>
+            <%= link(
+              dgettext("page-dataset-details", "You need to be connected to start a discussion"),
+              to: page_path(@conn, :login, [redirect_path: current_path(@conn)])
+            )
+            %>
           </span>
         <% end %>
       </div>
@@ -118,6 +130,20 @@
   </section>
   <section class="section section-grey">
     <div class="container">
+      <div class="shortlist__link shortlist__link--external-link">
+        <i class="icon icon--link" aria-hidden="true"></i>
+        <%= Dataset.link_to_datagouv(@dataset) %>
+      </div>
+      <p>
+        <b><%= dgettext("page-dataset-details", "License") %></b>
+        <%= link("ODbL", to: "https://opendatacommons.org/licenses/odbl/1.0/") %>
+        <%= dgettext("page-dataset-details", "and ") %>
+        <%= link(
+          dgettext("page-dataset-details", "Specific usage conditions"),
+          to: page_path(@conn, :single_page, "conditions")
+        )
+        %>
+      </p>
       <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
       <h4><%= dgettext("page-dataset-details", "Other datasets of ") %> <%= String.capitalize(@organization.nom) %></h4>
       <ul>
