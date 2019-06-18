@@ -44,6 +44,7 @@ defmodule TransportWeb do
       import TransportWeb.ErrorHelpers
       import TransportWeb.InputHelpers
       import TransportWeb.Gettext
+      import Transport.Helpers
     end
   end
 

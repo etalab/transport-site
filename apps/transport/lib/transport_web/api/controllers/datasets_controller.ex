@@ -45,7 +45,7 @@ defmodule TransportWeb.API.DatasetController do
   defp transform_resource(resource) do
     %{
       "title" => resource.title,
-      "updated" => Helpers.format_date(resource.last_update),
+      "updated" => Helpers.format_datetime(resource.last_update),
       "url" => resource.latest_url,
       "end_calendar_validity" => resource.metadata["end_date"]
     }

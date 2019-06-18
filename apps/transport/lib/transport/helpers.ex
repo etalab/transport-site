@@ -28,8 +28,8 @@ defmodule Transport.Helpers do
     |> List.last()
   end
 
-  def format_date(nil), do: ""
-  def format_date(date) do
+  def format_datetime(nil), do: ""
+  def format_datetime(date) do
     with {:ok, parsed_date} <- Timex.parse(date, "{ISO:Extended}"),
           converted_date <- Timezone.convert(parsed_date, "Europe/Paris"),
           {:ok, formatted_date} <- Formatter.format(converted_date, "{RFC3339}") do
@@ -49,6 +49,6 @@ defmodule Transport.Helpers do
       [] -> nil
       dates -> Enum.max(dates)
     end
-    |> format_date
+    |> format_datetime()
   end
 end

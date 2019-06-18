@@ -24,7 +24,7 @@ defmodule TransportWeb.DatasetView do
   def format_date(date) do
     date
     |> Timex.parse!("{ISO:Extended}")
-    |> Timex.format!("{0D}/{0M}/{YYYY} à {h24}h{0m}")
+    |> Timex.format!("{0D}/{0M}/{YYYY}")
   end
 
   def get_name(%{"organization" => organization}), do: organization["name"]
