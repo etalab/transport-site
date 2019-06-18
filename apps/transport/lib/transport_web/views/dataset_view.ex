@@ -3,7 +3,7 @@ defmodule TransportWeb.DatasetView do
   alias Transport.Dataset
   alias TransportWeb.PaginationHelpers
   alias TransportWeb.Router.Helpers
-  import Phoenix.Controller, only: [current_url: 2]
+  import Phoenix.Controller, only: [current_path: 1, current_url: 2]
 
   def render_sidebar_from_type(conn, dataset), do: render_panel_from_type(conn, dataset, "sidebar")
 
@@ -39,7 +39,11 @@ defmodule TransportWeb.DatasetView do
   def end_date(dataset) do
     dataset
     |> Dataset.valid_gtfs()
-    |> Enum.max_by(& get_in(&1, [:metadata, "end_date"]),
+    |> Enum.max_by(
+      fn %{metadata: nil} -> ""
+         %{metadata: metadata} -> metadata["end_date"]
+         _ -> ""
+      end,
       fn -> nil end
     )
     |> case do
