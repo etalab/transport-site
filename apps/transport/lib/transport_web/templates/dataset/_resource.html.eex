@@ -1,15 +1,21 @@
 <div class="resource">
     <div class="resource__header">
-        <a href="<%= @resource.url %>">
             <div class="resource--download">
+                <a href="<%= @resource.url %>">
+                    <div>
+                        <i class="icon icon--download" aria-hidden="true"></i>
+                    </div>
+                </a>
                 <div>
-                    <i class="icon icon--download" aria-hidden="true"></i>
-                </div>
-                <div>
-                    <span><%= @resource.title %></span>
+                    <a href="<%= @resource.url %>">
+                        <span><%= @resource.title %></span>
+                    </a>
+                    <span class="publication-date">
+                        <%= dgettext("page-dataset-details", "Published on ") %>
+                        <%= @resource.last_update |> format_date() %>
+                    </span>
                 </div>
             </div>
-        </a>
     </div>
     <div class="resource__details">
         <%= if Resource.valid?(@resource) and @resource.format == "GTFS" do %>

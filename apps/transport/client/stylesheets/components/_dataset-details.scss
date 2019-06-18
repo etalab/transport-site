@@ -43,6 +43,11 @@
   }
 }
 
+.resource--download > div:last-child {
+    display: flex;
+    flex-direction: column;
+}
+
 .resource {
   display: flex;
   justify-content: space-between;
@@ -187,6 +192,10 @@
     div {
       text-align: center;
     }
+
+    .icon {
+      margin-right: 0;
+    }
   }
 
   .dataset {
@@ -196,6 +205,15 @@
 
     .section-grey {
       padding: 3em 0 3em 0;
+    }
+  }
+
+  .panel__header {
+    text-align: center;
+
+    div {
+      flex-direction: column;
+      text-align: center;
     }
   }
 }
