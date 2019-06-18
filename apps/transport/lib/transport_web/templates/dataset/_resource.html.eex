@@ -32,6 +32,7 @@
         </div>
         <div>
             <% r = Resource.get_max_severity_validation_number(@resource) %>
+            <%= unless is_nil(r) do %>
             <span class="<%= summary_class(r) %>">
                 <%= "#{r.count_errors} #{Validation.severities(r.severity)[:text]}" %>
             </span>
@@ -39,6 +40,7 @@
                 dgettext("page-dataset-details", "GTFS Validation report"),
                 to: resource_path(@conn, :details, @resource.id)
             )%>
+            <% end %>
         </div>
         <% end %>
     </div>

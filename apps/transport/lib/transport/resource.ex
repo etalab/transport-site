@@ -182,11 +182,11 @@ defmodule Transport.Resource do
     """
     |> Repo.query([id])
     |> case do
-      {:ok, %{rows: rows}} ->
-        [max_severity, _] =
+      {:ok, %{rows: rows}} when length(rows) > 0 ->
+        [max_severity | _] =
           Enum.min_by(
             rows,
-            fn [severity, _] -> Validation.severities(severity)[:level] end,
+            fn [severity | _] -> Validation.severities(severity)[:level] end,
             fn -> nil end
           )
 
@@ -196,6 +196,9 @@ defmodule Transport.Resource do
           |> Enum.reduce(0, fn [_, nb], acc -> acc + nb end)
 
         %{severity: max_severity, count_errors: count_errors}
+      {:ok, _} ->
+        Logger.error "Unable to get validation of resource #{id}"
+        nil
       {:error, error} ->
         Logger.error error
         nil
