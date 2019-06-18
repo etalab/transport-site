@@ -99,6 +99,7 @@ defmodule Transport.ImportData do
   def available?(%{"extras" => %{"check:available" => available}}), do: available
   def available?(%{"url" => "https://static.data.gouv.fr/" <> _}), do: true
   def available?(%{"format" => "csv"}), do: true
+  def available?(%{"type" => "api"}), do: true
   def available?(_), do: false
 
   def get_valid_resources(%{"resources" => resources}, type) do
@@ -138,13 +139,18 @@ defmodule Transport.ImportData do
       iex> ImportData.is_gtfs?(%{"format" => "neptune"})
       false
 
+      iex> ImportData.is_gtfs?(%{"format" => "gtfs-rt"})
+      false
+
   """
   def is_gtfs?(%{} = params) do
     url = params["url"]
     is_gtfs?(params["format"]) or is_gtfs?(params["description"]) or
      (is_gtfs?(url) and !is_format?(url, "json") and !is_format?(url, "csv") and !is_format?(params, "shp"))
   end
+  def is_gtfs?("gtfs-rt"), do: false
   def is_gtfs?(str), do: is_format?(str, "gtfs")
+
   def is_format?(nil, _), do: false
   def is_format?(%{"format" => format}, expected), do: is_format?(format, expected)
   def is_format?(str, expected), do: str |> String.downcase |> String.contains?(expected)
@@ -440,19 +446,17 @@ defmodule Transport.ImportData do
   end
 
   def has_realtime?(dataset, "public-transit") do
-    case Client.get_community_resources(%Plug.Conn{}, dataset["id"]) do
-      {:ok, resources} -> {:ok, Enum.any?(resources, &is_realtime?/1)}
-      {:error, _error} -> {:error, false}
+    if Enum.any?(dataset["resources"], &is_realtime?/1) do
+      {:ok, true}
+    else
+      case Client.get_community_resources(%Plug.Conn{}, dataset["id"]) do
+        {:ok, resources} -> {:ok, Enum.any?(resources, &is_realtime?/1)}
+        {:error, _error} -> {:error, false}
+      end
     end
   end
   def has_realtime?(_, _), do: {:ok, false}
 
-  def is_owned_by_transport?(resource) do
-    match?(%{"slug" => "equipe-transport-data-gouv-fr"}, resource["organization"])
-  end
-
-  def is_realtime?(resource) do
-    is_owned_by_transport?(resource) and resource["format"] == "gtfs-rt"
-  end
+  def is_realtime?(resource), do: resource["format"] == "gtfs-rt"
 
 end

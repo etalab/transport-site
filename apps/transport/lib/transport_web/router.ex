@@ -40,6 +40,7 @@ defmodule TransportWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/real_time", PageController, :real_time
     get "/stats", StatsController, :index
     get "/atom.xml", AtomController, :index
     post "/send_mail", ContactController, :send_mail

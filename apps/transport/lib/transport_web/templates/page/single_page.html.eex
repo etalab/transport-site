@@ -1,7 +1,7 @@
 <section class="single-page section section-grey">
 <div class="container">
 <article class="panel">
-  <%= render(@page, conn: @conn) %>
+  <%= render(@page, assigns) %>
 </article>
 </div>
 </section>
