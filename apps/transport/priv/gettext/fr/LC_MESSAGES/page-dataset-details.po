@@ -184,10 +184,6 @@ msgid "Outdated"
 msgstr "Périmé"
 
 #, elixir-format
-msgid "Valid"
-msgstr "Valide"
-
-#, elixir-format
 msgid "from"
 msgstr "Du"
 
@@ -197,24 +193,48 @@ msgstr "Au"
 
 #, elixir-format
 msgid "Community ressources"
-msgstr ""
+msgstr "Ressources communautaires"
 
 #, elixir-format
 msgid "GBFS resources"
-msgstr ""
+msgstr "Ressources GBFS"
 
 #, elixir-format
 msgid "GTFS resources"
-msgstr ""
+msgstr "Ressources GTFS"
 
 #, elixir-format
 msgid "NETeX resources"
-msgstr ""
+msgstr "Ressources NETeX"
 
 #, elixir-format
 msgid "Other resources"
-msgstr ""
+msgstr "Autres ressources"
 
 #, elixir-format
 msgid "Reuses"
-msgstr ""
+msgstr "Réutilisations"
+
+#, elixir-format
+msgid "GTFS Validation report"
+msgstr "Validations GTFS"
+
+#, elixir-format
+msgid "License"
+msgstr "Licence"
+
+#, elixir-format
+msgid "Log in to subscribe to this dataset."
+msgstr "Identifiez vous pour vous abonner au jeu de données."
+
+#, elixir-format
+msgid "Specific usage conditions"
+msgstr "Conditions Particulières d'utilisation"
+
+#, elixir-format
+msgid "Current dataset"
+msgstr "En cours de validité"
+
+#, elixir-format
+msgid "and "
+msgstr "et "

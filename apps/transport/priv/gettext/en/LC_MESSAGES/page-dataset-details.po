@@ -184,10 +184,6 @@ msgid "Outdated"
 msgstr ""
 
 #, elixir-format
-msgid "Valid"
-msgstr ""
-
-#, elixir-format
 msgid "from"
 msgstr ""
 
@@ -217,4 +213,28 @@ msgstr ""
 
 #, elixir-format
 msgid "Reuses"
+msgstr ""
+
+#, elixir-format
+msgid "GTFS Validation report"
+msgstr ""
+
+#, elixir-format
+msgid "License"
+msgstr ""
+
+#, elixir-format
+msgid "Log in to subscribe to this dataset."
+msgstr ""
+
+#, elixir-format
+msgid "Specific usage conditions"
+msgstr ""
+
+#, elixir-format
+msgid "Current dataset"
+msgstr ""
+
+#, elixir-format
+msgid "and "
 msgstr ""
