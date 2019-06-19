@@ -248,6 +248,7 @@ defmodule Transport.Dataset do
     |> case do
       {:ok, %{rows: [names | _]}} ->
         Enum.reject(names, & &1 == nil)
+      {:ok, %{rows: []}} -> ""
       {:error, error} ->
         Logger.error error
         ""
