@@ -16,7 +16,9 @@
         <%= raw Earmark.as_html!(@dataset.description) %>
       </div>
       <div class="display-more">
-        <a href="javascript:displayMore()">Display more</a>
+        <a href="javascript:displayMore()">
+          <%= dgettext("page-dataset-details", "Display more") %>
+        </a>
       </div>
     </div>
   </section>

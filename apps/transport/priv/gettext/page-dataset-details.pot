@@ -234,3 +234,7 @@ msgstr ""
 #, elixir-format
 msgid "You're using this dataset? %{a_start}Send an email!%{a_end}"
 msgstr ""
+
+#, elixir-format
+msgid "Display more"
+msgstr ""

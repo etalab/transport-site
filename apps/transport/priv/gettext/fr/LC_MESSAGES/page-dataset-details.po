@@ -231,6 +231,10 @@ msgstr "et "
 msgid "Published on "
 msgstr "Publié le "
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "You're using this dataset? %{a_start}Send an email!%{a_end}"
 msgstr "Vous réutilisez ce jeu de données ? %{a_start}Envoyez-nous un message%{a_end} afin que l’on puisse en discuter et mettre en avant votre réutilisation"
+
+#, elixir-format
+msgid "Display more"
+msgstr "Voir plus"
