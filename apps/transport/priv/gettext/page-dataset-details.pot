@@ -204,10 +204,6 @@ msgid "Reuses"
 msgstr ""
 
 #, elixir-format
-msgid "GTFS Validation report"
-msgstr ""
-
-#, elixir-format
 msgid "License"
 msgstr ""
 
@@ -237,4 +233,8 @@ msgstr ""
 
 #, elixir-format
 msgid "Display more"
+msgstr ""
+
+#, elixir-format
+msgid "See GTFS Validation report"
 msgstr ""

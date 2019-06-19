@@ -37,7 +37,7 @@
                 <%= "#{r.count_errors} #{Validation.severities(r.severity)[:text]}" %>
             </span>
             <%= link(
-                dgettext("page-dataset-details", "GTFS Validation report"),
+                dgettext("page-dataset-details", "See GTFS Validation report"),
                 to: resource_path(@conn, :details, @resource.id)
             )%>
             <% end %>
