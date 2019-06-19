@@ -16,7 +16,7 @@
         <%= raw Earmark.as_html!(@dataset.description) %>
       </div>
       <div class="display-more">
-        <a href="javascript:displayMore()">
+        <a>
           <%= dgettext("page-dataset-details", "Display more") %>
         </a>
       </div>
@@ -52,21 +52,27 @@
         <div class="reuse">
           <div>
             <img src="<%= reuse["image"] %>">
-          </div>
-          <div>
-          <h3><%= reuse["title"] %></h3>
-          <p><%= raw Earmark.as_html!(reuse["description"]) %> </p>
+            <div class="reuse__links">
+                <%= link(
+                  dgettext("page-dataset-details", "Website"),
+                  to: reuse["url"]) %>
 
-          <div>
-              <%= link(
-                dgettext("page-dataset-details", "Website"),
-                to: reuse["url"]) %>
-            
-              <%= link(
-                  dgettext("page-dataset-details", "See on data.gouv.fr"),
-                  to: reuse["uri"]
-              ) %>
+                <%= link(
+                    dgettext("page-dataset-details", "See on data.gouv.fr"),
+                    to: reuse["uri"]
+                ) %>
+            </div>
           </div>
+          <div>
+            <div class="reuse__details">
+              <h3><%= reuse["title"] %></h3>
+              <p><%= raw Earmark.as_html!(reuse["description"]) %> </p>
+            </div>
+            <div class="display-more">
+              <a>
+                <%= dgettext("page-dataset-details", "Display more") %>
+              </a>
+            </div>
           </div>
         </div>
         <% end %>
@@ -170,15 +176,26 @@
 </div>
 
 <script>
-var description = document.querySelector(".description")
-description.style.maxHeight = '20vh';
-
-if (description.scrollHeight > description.clientHeight) {
-  document.querySelector(".display-more").style.display = "block";
+var hide_too_long_div = function(maxHeight, querySelector) {
+  document.querySelectorAll(querySelector).forEach(
+    function(div){
+      div.style.maxHeight = maxHeight
+      div.style.overflow = "hidden"
+      if (div.scrollHeight > div.clientHeight) {
+        var displayMore = div.parentElement.querySelector(".display-more")
+        displayMore.style.display = "block";
+        displayMore.addEventListener("click",
+          function() {
+            displayMore.style.display = "none"
+            div.style.maxHeight = "100%";
+          }
+        )
+      }
+    }
+  )
 }
 
-var displayMore = function() {
-  document.querySelector(".display-more").style.display = "none";
-  description.style.maxHeight = '100%';
-}
+hide_too_long_div("20vh", ".description")
+hide_too_long_div("calc(8vw)", ".reuse__details")
+
 </script>

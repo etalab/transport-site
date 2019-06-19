@@ -118,17 +118,19 @@
   }
 
   img {
-    height: 10vw;
+    max-width: 10vw;
+    min-width: 100px;
     padding-right: 3em;
   }
 
-  div > div {
+  .reuse__links {
     display: flex;
-    flex-direction: row;
-  }
+    flex-direction: column;
 
-  div > a {
-    margin-right: 5em;
+    a {
+      line-height: 1.1em;
+      padding-top: 1em;
+    }
   }
 }
 
@@ -168,7 +170,19 @@
 
     img {
       height: unset;
+      max-width: 50vw;
       width: 50vw;
+      padding: 0;
+    }
+
+    .reuse__links {
+      flex-direction: column;
+      width: 100%;
+
+      a {
+        width: 100%;
+        margin: 0;
+      }
     }
   }
 
