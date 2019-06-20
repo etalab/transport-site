@@ -53,6 +53,8 @@
         <option value="grenoble">Grenoble</option>
         <option value="poitiers">Poitiers</option>
         <option value="saintes">Saintes</option>
+        <option value="auxerre">Auxerre</option>
+        <option value="mayenne">Mayenne</option>
     </select>
     <div id="debug"></div>
     <pre>
@@ -63,20 +65,32 @@
         const data = {
             grenoble: {
                 name: 'Grenoble',
-                service_url: 'https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite',
+                service_url: 'https://tr.transport.data.gouv.fr/metromobilite',
                 center: [45.19708, 5.7112],
                 zoom: 17
             },
             poitiers: {
                 name: 'Grand Poitiers',
-                service_url: 'https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/poitiers',
+                service_url: 'https://tr.transport.data.gouv.fr/poitiers',
                 center: [46.58390, 0.33565],
                 zoom: 17
             },
             saintes: {
                 name: 'Saintes',
-                service_url: 'https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/saintes',
+                service_url: 'https://tr.transport.data.gouv.fr/saintes',
                 center: [45.7429453, -0.6526088],
+                zoom: 16
+            },
+            auxerre: {
+                name: 'Auxerre',
+                service_url: 'https://tr.transport.data.gouv.fr/auxerre',
+                center: [47.7962, 3.5719],
+                zoom: 16
+            },
+            mayenne: {
+                name: 'Mayenne',
+                service_url: 'https://tr.transport.data.gouv.fr/mayenne',
+                center: [48.3037, -0.6151],
                 zoom: 16
             }
         }
