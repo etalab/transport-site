@@ -58,5 +58,5 @@ msgid "Publish or update a dataset"
 msgstr ""
 
 #, elixir-format
-msgid "Validate a GTFS file"
+msgid "Check a GTFS file's quality"
 msgstr ""

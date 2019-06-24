@@ -4,7 +4,7 @@
           <%= render "_validation_summary.html", validation_summary: @validation_summary, conn: @conn, issues: @issues %>
         </nav>
         <div class="main-pane">
-          <h2><%= dgettext("validations", "Validations result")%></h2>
+          <h2><%= dgettext("validations", "GTFS review report")%></h2>
           <p>
             <%= dgettext("validations", "explanations") %>
             <%= link(dgettext("validations", "permanent link to this validation"), to: current_url(@conn) )%>
