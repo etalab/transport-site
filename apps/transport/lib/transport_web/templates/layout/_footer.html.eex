@@ -36,7 +36,7 @@
       <% end %>
 
       <li>
-        <a class="footer__link footer__link--tos" href="/validation" role="link"><%= gettext("Validate a GTFS file") %></a>
+        <a class="footer__link footer__link--tos" href="/validation" role="link"><%= gettext("Check a GTFS file's quality") %></a>
       </li>
 
       <li>
