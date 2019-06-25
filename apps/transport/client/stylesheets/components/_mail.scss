@@ -70,12 +70,12 @@ a.mail__button:hover {
 }
 
 @include media-desktop-up {
-    .footer__contact {
-       width: 30em;
-       bottom: 1em;
-    }
+  .footer__contact {
+    width: 30em;
+    bottom: 1em;
+  }
 
-    .footer__alwayson {
-       bottom: 2.5em;
-    }
+  .footer__alwayson {
+    bottom: 2.5em;
+  }
 }

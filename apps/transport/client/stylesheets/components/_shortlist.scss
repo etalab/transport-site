@@ -43,8 +43,6 @@
     flex: 0 0 5.5em;
     border-right: 1px solid #eee;
     position: relative;
-    display: flex;
-    justify-content: center;
     align-items: center;
     text-align: center;
     padding: 1em;
@@ -53,6 +51,10 @@
 
   .dataset__image img {
     object-fit: contain;
+  }
+
+  .side-pane__submenu a {
+    padding: 0;
   }
 
   .dataset__title a {
@@ -119,10 +121,6 @@
 
 * + .side-pane__title {
   margin-top: 3em;
-}
-
-.side-pane__submenu a {
-  padding: 0;
 }
 
 .side-pane__submenu .activefilter {
