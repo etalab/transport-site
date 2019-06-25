@@ -39,7 +39,7 @@ $secondary-dark:              $dark-blue !default;
 $border:                      $grey !default;
 $border-lighter:              $light-grey !default;
 $border-active:               $light-blue !default;
-$border-radius:               3px;
+$border-radius:               3px !default;
 
 $background-white:            $white !default;
 $background-grey:             $lighter-grey !default;
@@ -74,7 +74,7 @@ $background-message-info:     $lighter-blue !default;
 
 // # Typography
 
-$font-size:                   calc(.75em + .25vw);
+$font-size:                   calc(.75em + .25vw) !default;
 $font-family-primary:         'Source Sans Pro', Arial, sans-serif !default;
 $font-family-secondary:       'Evolventa', 'Trebuchet MS', sans-serif !default;
 
@@ -87,5 +87,5 @@ $breakpoint-desktop:          53.75em !default;
 
 $fa-font-path:                '~@fortawesome/fontawesome-free/webfonts' !default;
 
-$space-l: 2em;
-$space-xs: 0.5em;
+$space-l: 2em !default;
+$space-xs: 0.5em !default;
