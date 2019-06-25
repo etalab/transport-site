@@ -28,8 +28,9 @@
   </table>
   <%= pagination_links @conn, @datasets %>
   <br>
-  <%= unless @conn.params["filter"] == "outdated" do %>
+  <%= if is_nil(@conn.params["filter"]) or @conn.params["filter"] == "" do %>
     <%= link(dgettext("backoffice", "Show outdated datasets only"), to: backoffice_page_path(@conn, :index, %{"filter" => "outdated"}))%>
+    <%= link(dgettext("backoffice", "Show datasets with unidentified resources"), to: backoffice_page_path(@conn, :index, %{"filter" => "other_resources"}))%>
   <% else %>
     <%= link(dgettext("backoffice", "Show all datasets"), to: backoffice_page_path(@conn, :index))%>
   <% end %>
