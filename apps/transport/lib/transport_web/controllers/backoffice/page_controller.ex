@@ -21,10 +21,23 @@ defmodule TransportWeb.Backoffice.PageController do
     sub = Resource
     |> group_by([r], r.dataset_id)
     |> having([_q], fragment("max(metadata->>'end_date') <= ?", ^dt))
+    |> distinct([r], r.dataset_id)
     |> select([r], %Resource{dataset_id: r.dataset_id})
 
     Dataset
-    |> join(:inner, [d], r in subquery(sub), on: d.id == r.dataset_id)
+    |> join(:left, [d], r in subquery(sub), on: d.id == r.dataset_id)
+    |> render_index(conn, params)
+  end
+
+  def index(%Plug.Conn{} = conn, %{"filter" => "other_resources"} = params) do
+    resources =
+      Resource
+      |> where([r], r.format != "GTFS" and r.format != "gbfs" and r.format != "netex")
+      |> distinct([r], r.dataset_id)
+      |> select([r], %Resource{dataset_id: r.dataset_id})
+
+    Dataset
+    |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
     |> render_index(conn, params)
   end
 

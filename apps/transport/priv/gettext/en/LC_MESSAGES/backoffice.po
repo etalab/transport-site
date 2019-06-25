@@ -122,3 +122,7 @@ msgstr ""
 #, elixir-format
 msgid "Edit a dataset"
 msgstr ""
+
+#, elixir-format
+msgid "Show datasets with unidentified resources"
+msgstr ""

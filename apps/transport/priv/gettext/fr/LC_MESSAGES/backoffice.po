@@ -122,3 +122,7 @@ msgstr "Éditer"
 #, elixir-format
 msgid "Edit a dataset"
 msgstr "Édition d'un jeu de données"
+
+#, elixir-format
+msgid "Show datasets with unidentified resources"
+msgstr "Montrer seulement les jeux de données avec ressources autres"

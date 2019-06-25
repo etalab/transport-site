@@ -159,21 +159,21 @@ msgid "Unable to validate file"
 msgstr "Impossible de valider le fichier"
 
 #, elixir-format
-msgid "Validate a GTFS file"
-msgstr "Valider un fichier GTFS"
+msgid "Check a GTFS file's quality"
+msgstr "Analyser la qualité d’un fichier GTFS"
 
 #, elixir-format
 msgid "Upload"
-msgstr "Téléverser"
+msgstr "Envoyer"
 
 #, elixir-format
-msgid "Validations result"
-msgstr "Résults de la validation"
+msgid "GTFS review report"
+msgstr "Rapport de l’analyse de fichier GTFS"
 
 #, elixir-format
 msgid "explanations"
 msgstr "Voici le bilan automatisé sur la qualité du fichier GTFS. "
-"Cette validation concerne que la structure des données et pas la complétude ni l’exactitude des horaires. "
+"Cette validation ne concerne que la structure des données et pas la complétude ni l’exactitude des horaires. "
 "Ce bilan peut être partagé avec :"
 
 #, elixir-format
