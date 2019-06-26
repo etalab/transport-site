@@ -15,11 +15,6 @@
       <div class="description"ommu>
         <%= raw Earmark.as_html!(@dataset.description) %>
       </div>
-      <div class="display-more">
-        <a>
-          <%= dgettext("page-dataset-details", "Display more") %>
-        </a>
-      </div>
     </div>
   </section>
 
@@ -67,11 +62,6 @@
             <div class="reuse__details">
               <h3><%= reuse["title"] %></h3>
               <p><%= raw Earmark.as_html!(reuse["description"]) %> </p>
-            </div>
-            <div class="display-more">
-              <a>
-                <%= dgettext("page-dataset-details", "Display more") %>
-              </a>
             </div>
           </div>
         </div>
@@ -182,12 +172,22 @@ var hide_too_long_div = function(maxHeight, querySelector) {
       div.style.maxHeight = maxHeight
       div.style.overflow = "hidden"
       if (div.scrollHeight > div.clientHeight) {
-        var displayMore = div.parentElement.querySelector(".display-more")
-        displayMore.style.display = "block";
+        var parent = div.parentElement
+        var displayMore = document.createElement("div")
+        parent.appendChild(displayMore)
+        displayMore.className = ".displayMore"
+        var link_displayMore = document.createElement("a")
+        displayMore.appendChild(link_displayMore)
+        link_displayMore.innerHTML = "<%= dgettext("page-dataset-details", "Display more") %>"
         displayMore.addEventListener("click",
           function() {
-            displayMore.style.display = "none"
-            div.style.maxHeight = "100%";
+            if (div.style.maxHeight != "100%") {
+              div.style.maxHeight = "100%";
+              link_displayMore.innerHTML = "<%= dgettext("page-dataset-details", "Display less") %>"
+            } else {
+              div.style.maxHeight = maxHeight
+              link_displayMore.innerHTML = "<%= dgettext("page-dataset-details", "Display more") %>"
+            }
           }
         )
       }

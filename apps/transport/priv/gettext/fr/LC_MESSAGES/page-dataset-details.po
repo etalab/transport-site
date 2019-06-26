@@ -235,6 +235,10 @@ msgstr "Vous réutilisez ce jeu de données ? %{a_start}Envoyez-nous un message%
 msgid "Display more"
 msgstr "Voir plus"
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "See GTFS Validation report"
 msgstr "Voir le rapport de validations GTFS"
+
+#, elixir-format
+msgid "Display less"
+msgstr "Voir moins"

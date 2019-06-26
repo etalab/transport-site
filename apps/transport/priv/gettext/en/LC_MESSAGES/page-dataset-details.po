@@ -235,6 +235,10 @@ msgstr ""
 msgid "Display more"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "See GTFS Validation report"
+msgstr ""
+
+#, elixir-format, fuzzy
+msgid "Display less"
 msgstr ""

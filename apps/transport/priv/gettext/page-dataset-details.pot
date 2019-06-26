@@ -238,3 +238,7 @@ msgstr ""
 #, elixir-format
 msgid "See GTFS Validation report"
 msgstr ""
+
+#, elixir-format
+msgid "Display less"
+msgstr ""
