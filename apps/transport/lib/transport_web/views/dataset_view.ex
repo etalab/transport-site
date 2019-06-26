@@ -1,6 +1,6 @@
 defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
-  alias Transport.Dataset
+  alias Transport.{Dataset, Resource, Validation}
   alias TransportWeb.PaginationHelpers
   alias TransportWeb.Router.Helpers
   import Phoenix.Controller, only: [current_path: 1, current_url: 2]
@@ -52,7 +52,6 @@ defmodule TransportWeb.DatasetView do
       resource -> resource.metadata["end_date"]
     end
   end
-
 
   def pagination_links(%{path_info: ["datasets", "region", region]} = conn, datasets) do
     kwargs = [path: &Helpers.dataset_path/4, action: :by_region] |> add_order_by(conn.params)

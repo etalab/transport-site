@@ -42,20 +42,10 @@
   }
 }
 
-.resource--download > div:last-child {
-    display: flex;
-    flex-direction: column;
-}
-
-.resource {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 4vw;
-}
-
 .resource__details {
   display: flex;
   flex-direction: row;
+  width: 40%;
 
   div {
     display: flex;
@@ -64,6 +54,17 @@
     padding-left: 5%;
     text-align: center;
   }
+}
+
+.resource--download > div:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.resource {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4vw;
 }
 
 .resource--valid {
@@ -79,10 +80,6 @@
 .resource__header {
   padding-bottom: 1em;
   width: 60%;
-}
-
-.resource__details {
-  width: 40%;
 }
 
 .resource__summary--Fatal {
@@ -157,6 +154,37 @@
     width: 100%
   }
 
+  .panel__header {
+    text-align: center;
+
+    div {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+
+  .resource--download {
+    flex-direction: column;
+    justify-content: center;
+
+    div {
+      text-align: center;
+    }
+
+    .icon {
+      margin-right: 0;
+    }
+  }
+
+  .resource__details {
+    flex-direction: column;
+    justify-content: center;
+
+    div {
+      width: 100%;
+    }
+  }
+
   .reuse {
     flex-direction: column;
 
@@ -186,29 +214,8 @@
     }
   }
 
-  .resource__details {
-    flex-direction: column;
-    justify-content: center;
-
-    div {
-      width: 100%;
-    }
-  }
-
   .resource--valid, .resource--notvalid {
     width: 100%;
-  }
-
-  .resource--download {
-    flex-direction: column;
-    justify-content: center;
-    div {
-      text-align: center;
-    }
-
-    .icon {
-      margin-right: 0;
-    }
   }
 
   .dataset {
@@ -218,15 +225,6 @@
 
     .section-grey {
       padding: 3em 0 3em 0;
-    }
-  }
-
-  .panel__header {
-    text-align: center;
-
-    div {
-      flex-direction: column;
-      text-align: center;
     }
   }
 }
