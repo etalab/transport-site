@@ -197,5 +197,4 @@ var hide_too_long_div = function(maxHeight, querySelector) {
 
 hide_too_long_div("20vh", ".description")
 hide_too_long_div("calc(8vw)", ".reuse__details")
-
 </script>
