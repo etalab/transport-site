@@ -48,6 +48,7 @@ defmodule TransportWeb.DatasetController do
     select = [:id, :description, :licence, :logo, :spatial, :title, :slug]
 
     params
+
     |> Dataset.list_datasets(select)
     |> Repo.paginate(page: config.page_number)
   end
@@ -89,7 +90,8 @@ defmodule TransportWeb.DatasetController do
   defp redirect_to_slug_or_404(conn, nil) do
     conn
     |> put_status(:internal_server_error)
-    |> render(ErrorView, "404.html")
+    |> put_view(ErrorView)
+    |> render("404.html")
   end
 
   defp redirect_to_slug_or_404(conn, slug_or_id) when is_integer(slug_or_id) do

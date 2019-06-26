@@ -182,7 +182,7 @@ defmodule Transport.Resource do
     """
     |> Repo.query([id])
     |> case do
-      {:ok, %{rows: rows}} when length(rows) > 0 ->
+      {:ok, %{rows: rows}} when rows != [] ->
         [max_severity | _] =
           Enum.min_by(
             rows,
