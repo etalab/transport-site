@@ -179,3 +179,7 @@ msgstr "This is the automated evalation of the GTFS datafile. "
 #, elixir-format
 msgid "permanent link to this validation"
 msgstr ""
+
+#, elixir-format
+msgid "Nice work, there are no issues !"
+msgstr ""

@@ -30,4 +30,5 @@ defmodule TransportWeb.ResourceView do
       "_generic_issue.html"
     )
   end
+
 end

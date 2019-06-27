@@ -32,6 +32,7 @@ defmodule TransportWeb.ResourceController do
 
   def get_issues(%{details: nil}, _), do: []
   def get_issues(%{details: validations}, %{"issue_type" => issue_type}), do: Map.get(validations, issue_type,  [])
+  def get_issues(%{details: validations}, _) when validations == %{}, do: []
   def get_issues(%{details: validations}, _) do
     validations
     |> Map.values

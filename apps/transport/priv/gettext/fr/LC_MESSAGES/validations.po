@@ -179,3 +179,7 @@ msgstr "Voici le bilan automatisé sur la qualité du fichier GTFS. "
 #, elixir-format
 msgid "permanent link to this validation"
 msgstr "lien permanent vers ce bilan"
+
+#, elixir-format
+msgid "Nice work, there are no issues!"
+msgstr "Félicitation, aucune erreur n'a été trouvée !"
