@@ -6,7 +6,6 @@
         <li>
 
         <%= if issue.count > 0 do %>
-        <% IO.inspect issue %>
         <%= link(
             "#{issue.title} (#{issue.count})",
             to: current_url(@conn, %{"issue_type" => key}),

@@ -14,7 +14,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   use TransportWeb.ConnCase, async: false
   use TransportWeb.UserFacingCase
-  alias Transport.{Dataset, Repo, Resource, Validation}
+  alias Transport.{AOM, Dataset, Repo, Resource, Validation}
 
   setup do
     {:ok, _} = %Dataset{
@@ -28,9 +28,10 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
       resources: [%Resource{
         url: "https://link.to/angers.zip",
         validation: %Validation{},
-        metadata: %{}
-      }
-    ]
+        metadata: %{},
+        title: "angers.zip"
+      }],
+      aom: %AOM{nom: "Angers Métropôle"}
     } |> Repo.insert()
 
     {:ok, _} = %Dataset{
@@ -44,7 +45,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
       resources: [%Resource{
         url: "https://link.to/angers.zip",
         validation: %Validation{},
-        metadata: %{}
+        metadata: %{},
       }]
     } |> Repo.insert()
 
@@ -61,17 +62,16 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
     click({:link_text, "Voir les derniers jeux de données ajoutés"})
 
     # I can see or read somewhere that the datasets are valid
-    assert visible_page_text() =~ "Jeux de données valides disponibles"
+    assert visible_in_page?(~r/Jeux de données valides disponibles/)
     # I can click on a dataset and see its details
     click({:link_text, "Horaires et arrêts du réseau IRIGO - format GTFS"})
-    assert visible_page_text() =~ "IRIGO"
+    assert visible_in_page?(~r/IRIGO/)
 
     # I can download the dataset
-    :class
-    |> find_element("shortlist__link--download")
-    |> find_within_element(:link_text, "Télécharger")
+    :link_text
+    |> find_element("angers.zip")
     |> attribute_value("href")
-    |> Kernel.=~("zip")
+    |> String.ends_with?(".zip")
     |> assert
   end
 end

@@ -53,7 +53,7 @@ defmodule TransportWeb.Router do
 
       scope "/:dataset_id" do
         pipe_through [:authenticated]
-        post "/followers", FollowerController, :subscribe_or_unsubscribe
+        post "/followers", FollowerController, :toggle
         post "/discussions", DiscussionController, :post_discussion
         post "/discussions/:id_", DiscussionController, :post_answer
       end

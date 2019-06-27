@@ -1,9 +1,9 @@
 defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
-  alias Transport.{Dataset, Resource}
+  alias Transport.{Dataset, Resource, Validation}
   alias TransportWeb.PaginationHelpers
   alias TransportWeb.Router.Helpers
-  import Phoenix.Controller, only: [current_url: 2]
+  import Phoenix.Controller, only: [current_path: 1, current_url: 2]
 
   def render_sidebar_from_type(conn, dataset), do: render_panel_from_type(conn, dataset, "sidebar")
 
@@ -21,10 +21,11 @@ defmodule TransportWeb.DatasetView do
     )
   end
 
+  def format_date(nil), do: ""
   def format_date(date) do
     date
     |> Timex.parse!("{ISO:Extended}")
-    |> Timex.format!("{0D}/{0M}/{YYYY} à {h24}h{0m}")
+    |> Timex.format!("{0D}/{0M}/{YYYY}")
   end
 
   def get_name(%{"organization" => organization}), do: organization["name"]
@@ -39,15 +40,18 @@ defmodule TransportWeb.DatasetView do
   def end_date(dataset) do
     dataset
     |> Dataset.valid_gtfs()
-    |> Enum.max_by(&get_end_date/1, fn -> nil end)
+    |> Enum.max_by(
+      fn %{metadata: nil} -> ""
+         %{metadata: metadata} -> metadata["end_date"]
+         _ -> ""
+      end,
+      fn -> nil end
+    )
     |> case do
       nil -> ""
       resource -> resource.metadata["end_date"]
     end
   end
-
-  defp get_end_date(%{metadata: %{"end_date" => end_date}}), do: end_date
-  defp get_end_date(_), do: ""
 
   def pagination_links(%{path_info: ["datasets", "region", region]} = conn, datasets) do
     kwargs = [path: &Helpers.dataset_path/4, action: :by_region] |> add_order_by(conn.params)
@@ -109,4 +113,23 @@ defmodule TransportWeb.DatasetView do
 
   defp add_order_by(kwargs, %{"order_by" => order}), do: Keyword.put(kwargs, :order_by, order)
   defp add_order_by(kwargs, _), do: kwargs
+
+  def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
+  def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
+
+  defp is_gtfs(resource), do: resource.format == "GTFS"
+  defp is_gbfs(resource), do: resource.format == "gbfs"
+  defp is_netex(resource), do: resource.format == "netex"
+
+  def gtfs_resources(%{resources: resources}), do: Enum.filter(resources, &is_gtfs/1)
+  def gbfs_resources(%{resources: resources}), do: Enum.filter(resources, &is_gbfs/1)
+  def netex_resources(%{resources: resources}), do: Enum.filter(resources, &is_netex/1)
+
+  def other_resources(%{resources: resources}) do
+    resources
+    |> Stream.reject(&is_gtfs/1)
+    |> Stream.reject(&is_gbfs/1)
+    |> Stream.reject(&is_netex/1)
+    |> Enum.to_list()
+  end
 end

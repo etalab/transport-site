@@ -1,0 +1,23 @@
+<%= unless is_nil(@resources) or @resources == [] do %>
+<section class="dataset__resources section white">
+<div class="container">
+    <div class="panel">
+    <div class="panel__header">
+        <h3><%= @title %></h3>
+    </div>
+    <%= render_many @resources, TransportWeb.DatasetView, "_resource.html", as: :resource, conn: @conn %>
+    </div>
+    <p>
+        <i class="fas fa-info-circle"></i>
+        <%= dgettext(
+            "page-dataset-details",
+            "You're using this dataset? %{a_start}Send an email!%{a_end}",
+            a_start: "<a href=\"#mail_form\">",
+            a_end: "</a>"
+            )
+            |> raw()
+        %>
+    </p>
+</div>
+</section>
+<% end %>

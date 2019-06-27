@@ -19,7 +19,7 @@ defmodule Transport.Validation do
     "Warning" => %{level: 2, text: dgettext("validations", "Warnings")},
     "Information" => %{level: 3, text: dgettext("validations", "Informations")},
     "Irrelevant" => %{level: 4, text: dgettext("validations", "Passed validations")},
-    }
+  }
 
   def severities(key), do: severities()[key]
 end

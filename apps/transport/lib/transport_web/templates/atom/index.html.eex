@@ -13,7 +13,7 @@
     <title><%= resource.dataset.spatial %> — <%= resource.title %></title>
     <link href="<%= resource.latest_url %>" />
     <id><%= resource_url(@conn, :details, resource.id) %></id>
-    <updated><%= format_date(resource.last_update) %></updated>
+    <updated><%= format_datetime(resource.last_update) %></updated>
     <summary>Cette resource fait partie du jeux de données <%= resource.dataset.spatial %></summary>
     <content type="html">
       <![CDATA[

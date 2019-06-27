@@ -41,7 +41,7 @@ defmodule TransportWeb.PageController do
     |> render("single_page.html")
   end
 
-  def real_time(conn, params) do
+  def real_time(conn, _params) do
     conn
     |> assign(:providers, RealTimeProviders.value())
     |> single_page(%{"page" => "real_time"})

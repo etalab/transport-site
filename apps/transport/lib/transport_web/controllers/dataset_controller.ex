@@ -21,23 +21,22 @@ defmodule TransportWeb.DatasetController do
   end
 
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
-    Dataset
-    |> where([slug: ^slug_or_id])
-    |> Dataset.preload_without_validations
-    |> Repo.one()
-    |> case do
-      nil -> redirect_to_slug_or_404(conn, slug_or_id)
-      dataset ->
-        {_, community_ressources} = Client.get_community_resources(conn, dataset.datagouv_id)
+    with dataset when not is_nil(dataset) <- Dataset.get_by(slug: slug_or_id),
+        organization when not is_nil(organization) <- Dataset.get_organization(dataset),
+        {_, community_ressources} <- Client.get_community_resources(conn, dataset.datagouv_id) do
         conn
         |> assign(:dataset, dataset)
-        |> assign(:count_validations, Dataset.count_validations(dataset))
-        |> assign(:discussions, Client.get_discussions(conn, dataset.datagouv_id))
         |> assign(:community_ressources, community_ressources)
+        |> assign(:organization, organization)
+        |> assign(:discussions, Client.get_discussions(conn, dataset.datagouv_id))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
         |> assign(:reuses, Client.get_reuses(conn, %{"dataset_id" => dataset.datagouv_id}))
+        |> assign(:other_datasets, Dataset.get_other_datasets(dataset, organization))
         |> render("details.html")
+    else
+      nil ->
+        redirect_to_slug_or_404(conn, slug_or_id)
     end
   end
 
@@ -49,6 +48,7 @@ defmodule TransportWeb.DatasetController do
     select = [:id, :description, :licence, :logo, :spatial, :title, :slug]
 
     params
+
     |> Dataset.list_datasets(select)
     |> Repo.paginate(page: config.page_number)
   end
@@ -90,7 +90,8 @@ defmodule TransportWeb.DatasetController do
   defp redirect_to_slug_or_404(conn, nil) do
     conn
     |> put_status(:internal_server_error)
-    |> render(ErrorView, "404.html")
+    |> put_view(ErrorView)
+    |> render("404.html")
   end
 
   defp redirect_to_slug_or_404(conn, slug_or_id) when is_integer(slug_or_id) do
@@ -100,5 +101,4 @@ defmodule TransportWeb.DatasetController do
   defp redirect_to_slug_or_404(conn, slug_or_id) do
     redirect_to_slug_or_404(conn, Repo.get_by(Dataset, [datagouv_id: slug_or_id]))
   end
-
 end

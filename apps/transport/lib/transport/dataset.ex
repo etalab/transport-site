@@ -182,17 +182,6 @@ defmodule Transport.Dataset do
     end
   end
 
-  def count_validations(%__MODULE__{id: dataset_id}) do
-    query = "SELECT sum(json_data.value::int) FROM resource, json_each_text(metadata->'issues_count') AS json_data WHERE dataset_id = $1"
-    case Repo.query(query, [dataset_id]) do
-      {:ok, result} -> result.rows |> List.first |> List.first
-      {:error, error} ->
-        Logger.warn("Unable to get validation count")
-        Logger.warn(error)
-        nil
-    end
-  end
-
   def link_to_datagouv(%__MODULE__{} = dataset) do
     Link.link(
       dgettext("page-shortlist", "See on data.gouv.fr"),
@@ -215,6 +204,56 @@ defmodule Transport.Dataset do
 
   def filter_has_realtime, do: from d in __MODULE__, where: d.has_realtime == true
   def count_has_realtime, do: Repo.aggregate(filter_has_realtime(), :count, :id)
+
+  def get_by(slug: slug) do
+    __MODULE__
+    |> where(slug: ^slug)
+    |> preload_without_validations()
+    |> Repo.one()
+  end
+
+  def get_other_datasets(%__MODULE__{} = dataset, organization) do
+    organization
+    |> Ecto.assoc(:datasets)
+    |> where([d], d.id != ^dataset.id)
+    |> Repo.all()
+  end
+
+  def get_organization(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
+    Repo.get(AOM, aom_id)
+  end
+
+  def get_organization(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
+    Repo.get(Region, region_id)
+  end
+
+  def get_organization(_), do: nil
+
+  def get_covered_area_names(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
+    get_covered_area_names(
+      "select string_agg(nom, ', ' ORDER BY nom) from commune group by aom_res_id having aom_res_id = (select composition_res_id from aom where id = $1)",
+      aom_id
+    )
+  end
+  def get_covered_area_names(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
+    get_covered_area_names(
+    "select string_agg(distinct(departement), ', ') from aom where region_id = $1",
+    region_id
+  )
+  end
+  def get_covered_area_names(_), do: "National"
+  def get_covered_area_names(query, id) do
+    query
+    |> Repo.query([id])
+    |> case do
+      {:ok, %{rows: [names | _]}} ->
+        Enum.reject(names, & &1 == nil)
+      {:ok, %{rows: []}} -> ""
+      {:error, error} ->
+        Logger.error error
+        ""
+    end
+  end
 
   ## Private functions
 

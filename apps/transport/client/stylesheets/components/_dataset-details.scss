@@ -1,37 +1,230 @@
-div.dataset-details__side-pane {
-  background: $background-white;
-  border: 0;
-
-  .shortlist-details {
-    margin-top: 2em;
+.dataset {
+  .section {
+    padding: 8vh;
   }
 
-  .side-pane__title {
-    margin-top: 3em;
+  .dataset__resources {
+    padding-top: 8vh;
+  }
+
+  .dataset__resources ~ .dataset__resources {
+    padding-top: 1vh;
+  }
+}
+
+.display-more {
+  padding-top: 4vh;
+  display: block;
+}
+
+.description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dataset__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.resource--download {
+  display: flex;
+
+  i {
+    font-size: 3em;
+  }
+
+  div > h6 {
+    color: var(--black);
+    text-decoration: none;
+  }
+}
+
+.resource__details {
+  display: flex;
+  flex-direction: row;
+  width: 40%;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    padding-left: 5%;
+    text-align: center;
+  }
+}
+
+.resource--download > div:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.resource {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4vw;
+}
+
+.resource--valid {
+  background: var(--theme-success-bg);
+  border: 1px solid var(--theme-success-border);
+}
+
+.resource--notvalid {
+  background: var(--theme-background-grey);
+  border: 1px solid var(--theme-border-lighter);
+}
+
+.resource__header {
+  padding-bottom: 1em;
+  width: 60%;
+}
+
+.resource__summary--Fatal {
+  background: var(--theme-error-bg);
+  border: 1px solid var(--theme-error-border);
+}
+.resource__summary--Error {
+  background: var(--theme-error-bg);
+  border: 1px solid var(--theme-error-border);
+}
+.resource__summary--Warning {
+  background: var(--theme-warning-bg);
+  border: 1px solid var(--theme-warning-border);
+}
+.resource__summary--Information {
+  background: var(--theme-information-bg);
+  border: 1px solid var(--theme-information-border);
+}
+.resource__summary--Irrelevant {
+  background: var(--theme-background-success);
+  border: 1px solid var(--theme-success-border);
+}
+.resource__summary--Success {
+  background: var(--theme-background-success);
+  border: 1px solid var(--theme-success-border);
+}
+
+.reuse {
+  display: flex;
+  flex-direction: row;
+  &:not(:last-child) {
+    padding-bottom: 7em;
   }
 
   img {
-    padding-bottom: 2em;
+    max-width: 10vw;
+    min-width: 100px;
+    padding-right: 3em;
   }
 
-  .shortlist-publish {
-    margin-top: 2em;
-  }
-}
+  .reuse__links {
+    display: flex;
+    flex-direction: column;
 
-.dataset-details {
-  h2:first-child {
-    margin-top: 2em;
-  }
-
-  .shortlist__notice + .shortlist__notice {
-    margin-top: 1em;
+    a {
+      line-height: 1.1em;
+      padding-top: 1em;
+    }
   }
 }
 
-.discussion-modal {
-  display: none;
-  &:target {
-    display: inline;
+.dataset-details__discussions {
+  .panel__header {
+    div {
+      display: flex;
+      justify-content: space-between;
+
+      .form {
+        margin: 0;
+      }
+    }
+  }
+}
+
+@media (max-width: 749px) {
+  .resource {
+    flex-direction: column;
+    margin-bottom: 10vw;
+  }
+
+  .resource__header, .resource__details {
+    width: 100%
+  }
+
+  .panel__header {
+    text-align: center;
+
+    div {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+
+  .resource--download {
+    flex-direction: column;
+    justify-content: center;
+
+    div {
+      text-align: center;
+    }
+
+    .icon {
+      margin-right: 0;
+    }
+  }
+
+  .resource__details {
+    flex-direction: column;
+    justify-content: center;
+
+    div {
+      width: 100%;
+    }
+  }
+
+  .reuse {
+    flex-direction: column;
+
+    div > div {
+      flex-direction: column;
+    }
+
+    div:first-of-type {
+      text-align: center;
+    }
+
+    img {
+      height: unset;
+      max-width: 50vw;
+      width: 50vw;
+      padding: 0;
+    }
+
+    .reuse__links {
+      flex-direction: column;
+      width: 100%;
+
+      a {
+        width: 100%;
+        margin: 0;
+      }
+    }
+  }
+
+  .resource--valid, .resource--notvalid {
+    width: 100%;
+  }
+
+  .dataset {
+    .section {
+      padding: 1em 0 1em 0;
+    }
+
+    .section-grey {
+      padding: 3em 0 3em 0;
+    }
   }
 }

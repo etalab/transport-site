@@ -136,11 +136,59 @@ msgid "Unable to retrieve discussions from data.gouv.fr"
 msgstr ""
 
 #, elixir-format
-msgid "Resources"
+msgid "See on data.gouv.fr"
 msgstr ""
 
 #, elixir-format
-msgid "Community resources"
+msgid "Details"
+msgstr ""
+
+#, elixir-format
+msgid "Covered areas"
+msgstr ""
+
+#, elixir-format
+msgid "Other datasets of "
+msgstr ""
+
+#, elixir-format
+msgid "Website"
+msgstr ""
+
+#, elixir-format
+msgid "tags: "
+msgstr ""
+
+#, elixir-format
+msgid "Outdated"
+msgstr ""
+
+#, elixir-format
+msgid "from"
+msgstr ""
+
+#, elixir-format
+msgid "until"
+msgstr ""
+
+#, elixir-format
+msgid "Community ressources"
+msgstr ""
+
+#, elixir-format
+msgid "GBFS resources"
+msgstr ""
+
+#, elixir-format
+msgid "GTFS resources"
+msgstr ""
+
+#, elixir-format
+msgid "NETeX resources"
+msgstr ""
+
+#, elixir-format
+msgid "Other resources"
 msgstr ""
 
 #, elixir-format
@@ -148,13 +196,49 @@ msgid "Reuses"
 msgstr ""
 
 #, elixir-format
-msgid "By"
+msgid "License"
 msgstr ""
 
 #, elixir-format
-msgid "See on data.gouv.fr"
+msgid "Specific usage conditions"
 msgstr ""
 
 #, elixir-format
-msgid "Details"
+msgid "Current dataset"
+msgstr ""
+
+#, elixir-format
+msgid "and "
+msgstr ""
+
+#, elixir-format
+msgid "Published on "
+msgstr ""
+
+#, elixir-format
+msgid "You're using this dataset? %{a_start}Send an email!%{a_end}"
+msgstr ""
+
+#, elixir-format
+msgid "Display more"
+msgstr ""
+
+#, elixir-format
+msgid "See GTFS Validation report"
+msgstr ""
+
+#, elixir-format
+msgid "Display less"
+msgstr ""
+
+#, elixir-format
+msgid "Subscribe to comments"
+msgstr ""
+
+#, elixir-format
+msgid "Unsubscribe to comments"
+msgstr ""
+
+#, elixir-format
+msgid "Log in to subscribe to comments of this dataset."
 msgstr ""

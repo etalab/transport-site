@@ -1,117 +1,200 @@
-<div class="documentation">
-  <div class="container">
-    <div class="documentation">
-      <nav class="side-pane" role="navigation">
-        <%= img_tag(@dataset.full_logo, alt: @dataset.title) %>
-        <div>
-          <%= if @dataset.slug do %>
-            <div class="shortlist__link shortlist__link--external-link">
-              <i class="icon icon--link" aria-hidden="true"></i>
-              <%= Dataset.link_to_datagouv(@dataset) %>
-            </div>
-          <% end %>
-        </div>
-
-        <%= TransportWeb.DatasetView.render_sidebar_from_type(@conn, @dataset) %>
-        <%= render "_sidebar_common.html", dataset: @dataset, conn: @conn %>
-        </div>
-        <div class="dataset-details__followers">
-        <%= if @current_user do %>
-        <%= form_for @conn, follower_path(@conn, :subscribe_or_unsubscribe, @dataset.datagouv_id),  fn f -> %>
-          <%= hidden_input f, :is_subscribed, value: @is_subscribed %>
-          <%= if @is_subscribed do %>
-            <%= submit dgettext("page-dataset-details", "Unsubscribe to dataset"), class: "button secondary" %>
-          <% else %>
-            <%= submit dgettext("page-dataset-details", "Subscribe to dataset") %>
-          <% end %>
-        <% end %>
-        <% end %>
-        </div>
-      </nav>
-      <div class="main-pane" id="description">
-        <h1><%= @dataset.title %></h1>
-        <div class="dataset__use-terms">
-          <h2>Conditions d'utilisation</h2>
-          <p>
-            La réutilisation des informations disponibles sur transport.data.gouv.fr est soumise à la licence ODbL.
-          </p>
-          <p>
-            Il est précisé que la clause de partage à l’identique figurant à l’article 4.4 concerne les informations de même nature, de même granularité, de même conditions temporelles et de même emprise géographique.
-          </p>
-        </div>
-        <div class="dataset-details__resources">
-        <%= if @dataset.resources do %>
-        <div id="resources">
-          <h2><%= dgettext("page-dataset-details", "Resources") %></h2>
-          <%= render_many @dataset.resources, TransportWeb.DatasetView, "_resource.html", as: :resource %>
-        </div>
-        <% end %>
-        <%= if !Enum.empty?(@community_ressources) do %>
-        <h3><%= dgettext("page-dataset-details", "Community resources") %></h3>
-        <%= render_many @community_ressources, TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
-        <% end %>
-        </div>
-
-        <h2>Description</h2>
-        <%= raw Earmark.as_html!(@dataset.description) %>
-
-        <%= if @reuses do %>
-        <h2><%= dgettext("page-dataset-details", "Reuses") %></h2>
-        <section class="cards">
-          <div class="container">
-            <div class="row">
-            <%= for reuse <- @reuses do %>
-              <div class="card">
-                <div class="card__cover">
-                  <img src="<%= reuse["image"] %>">
-                </div>
-                <div class="card__content">
-                  <a href="<%= reuse["url"] %>"><h3><%= reuse["title"] %></h3></a>
-                  <div class="card__meta">
-                    <span><%= dgettext("page-dataset-details", "By") %> <%= reuse["owner"]["name"]%></span>
-                    <p><%= reuse["description"] %></p>
-                  </div>
-                </div>
-                <div class="card__extra">
-                  <a href="<%= reuse["uri"] %>">
-                  <i class="icon icon--link" aria-hidden="true"></i>
-                  <%= dgettext("page-dataset-details", "See on data.gouv.fr") %>
-                  </a>
-                </div>
-              </div>
-            <% end %>
-            </div>
-          </div>
-        </section>
-        <% end %>
-
-        <div class="dataset-details__discussions">
-          <h2>Discussions</h2>
-          <%= unless @discussions == nil do %>
-          <%= render_many @discussions, TransportWeb.DatasetView, "_discussion.html", as: :discussion, current_user: @current_user, conn: @conn, dataset: @dataset %>
-          <% else %>
-          <%= dgettext("page-dataset-details", "Unable to retrieve discussions from data.gouv.fr") %>
-          <% end %>
-
-          <%= if @current_user do %>
-            <a href="#new_discussion">
-              <%= dgettext("page-dataset-details", "Begin a new conversation") %>
-            </a>
-            <div id="new_discussion" class="discussion-modal">
-              <%= form_for @conn, discussion_path(@conn, :post_discussion, @dataset.datagouv_id), fn f -> %>
-                <%= hidden_input(f, :dataset_slug, value: @dataset.slug) %>
-                <%= text_input(f, :title, placeholder: dgettext("page-dataset-details", "Title") )%>
-                <%= textarea(f, :comment) %>
-                <%= submit dgettext("page-dataset-details", "Start a new discussion") %>
-              <% end %>
-            </div>
-          <% else %>
-            <span class="discussion-commment__connection-needed">
-              <%= dgettext("page-dataset-details", "You need to be connected to start a discussion")%>
-            </span>
-          <% end %>
-        </div>
+<div class="dataset">
+  <section class="section">
+    <div class="container dataset__header">
+      <div class="dataset__logo">
+        <%= img_tag(@dataset.logo, alt: @dataset.title) %>
+      </div>
+      <div class="dataset__title">
+        <h1><%= @dataset.title%></h1>
       </div>
     </div>
-  </div>
+  </section>
+
+  <section class="section section-grey">
+    <div class="container">
+      <div class="description"ommu>
+        <%= raw Earmark.as_html!(@dataset.description) %>
+      </div>
+    </div>
+  </section>
+
+  <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gtfs_resources(@dataset), title: dgettext("page-dataset-details", "GTFS resources") %>
+  <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gbfs_resources(@dataset), title: dgettext("page-dataset-details", "GBFS resources") %>
+  <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: netex_resources(@dataset), title: dgettext("page-dataset-details", "NETeX resources") %>
+  <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: other_resources(@dataset), title: dgettext("page-dataset-details", "Other resources") %>
+
+  <%= unless is_nil(@community_ressources) or @community_ressources == [] do %>
+  <section class="section white">
+    <div class="container">
+      <div class="panel">
+        <div class="panel__header">
+          <h3><%= dgettext("page-dataset-details", "Community ressources" )%></h3>
+        </div>
+        <%= render_many @community_ressources, TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
+      </div>
+    </div>
+  </section>
+  <% end %>
+
+  <%= unless is_nil(@reuses) or @reuses == [] do %>
+  <section class="section white">
+    <div class="container">
+      <div class="panel">
+        <div class="panel__header">
+          <h3><%= dgettext("page-dataset-details", "Reuses" )%></h3>
+        </div>
+        <%= for reuse <- @reuses do %>
+        <div class="reuse">
+          <div>
+            <img src="<%= reuse["image"] %>">
+            <div class="reuse__links">
+                <%= link(
+                  dgettext("page-dataset-details", "Website"),
+                  to: reuse["url"]) %>
+
+                <%= link(
+                    dgettext("page-dataset-details", "See on data.gouv.fr"),
+                    to: reuse["uri"]
+                ) %>
+            </div>
+          </div>
+          <div>
+            <div class="reuse__details">
+              <h3><%= reuse["title"] %></h3>
+              <p><%= raw Earmark.as_html!(reuse["description"]) %> </p>
+            </div>
+          </div>
+        </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+  <% end %>
+
+  <section class="section">
+    <div class="container">
+      <div class="dataset-details__discussions panel">
+        <div class="panel__header">
+          <div>
+            <h3>Discussions</h3>
+            <%= if @current_user do %>
+            <%= form_for @conn, follower_path(@conn, :toggle, @dataset.datagouv_id), [class: "form"], fn _f -> %>
+              <button class="button">
+              <%= if @is_subscribed do %>
+                <%= dgettext("page-dataset-details", "Subscribe to comments") %>
+              <% else %>
+                <%= dgettext("page-dataset-details", "Unsubscribe to comments") %>
+              <% end %>
+              </button>
+            <% end %>
+            <% else %>
+            <%= link(
+              dgettext("page-dataset-details", "Log in to subscribe to comments of this dataset."),
+              to: page_path(@conn, :login, [redirect_path: current_path(@conn)])
+            )
+            %>
+            <% end %>
+          </div>
+        </div>
+        <%= unless @discussions == nil do %>
+        <%= render_many @discussions, TransportWeb.DatasetView, "_discussion.html", as: :discussion, current_user: @current_user, conn: @conn, dataset: @dataset %>
+        <% else %>
+        <%= dgettext("page-dataset-details", "Unable to retrieve discussions from data.gouv.fr") %>
+        <% end %>
+
+        <%= if @current_user do %>
+          <a href="#new_discussion">
+            <%= dgettext("page-dataset-details", "Begin a new conversation") %>
+          </a>
+          <div id="new_discussion" class="discussion-modal">
+            <%= form_for @conn, discussion_path(@conn, :post_discussion, @dataset.datagouv_id), fn f -> %>
+              <%= hidden_input(f, :dataset_slug, value: @dataset.slug) %>
+              <%= text_input(f, :title, placeholder: dgettext("page-dataset-details", "Title") )%>
+              <%= textarea(f, :comment) %>
+              <%= submit dgettext("page-dataset-details", "Start a new discussion") %>
+            <% end %>
+          </div>
+        <% else %>
+          <span class="discussion-commment__connection-needed">
+            <%= link(
+              dgettext("page-dataset-details", "You need to be connected to start a discussion"),
+              to: page_path(@conn, :login, [redirect_path: current_path(@conn)])
+            )
+            %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+  </section>
+  <section class="section section-grey">
+    <div class="container">
+      <div class="shortlist__link shortlist__link--external-link">
+        <i class="icon icon--link" aria-hidden="true"></i>
+        <%= Dataset.link_to_datagouv(@dataset) %>
+      </div>
+      <p>
+        <b><%= dgettext("page-dataset-details", "License") %></b>
+        <%= link("ODbL", to: "https://opendatacommons.org/licenses/odbl/1.0/") %>
+        <%= dgettext("page-dataset-details", "and ") %>
+        <%= link(
+          dgettext("page-dataset-details", "Specific usage conditions"),
+          to: page_path(@conn, :single_page, "conditions")
+        )
+        %>
+      </p>
+      <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
+      <h4><%= dgettext("page-dataset-details", "Other datasets of ") %> <%= String.capitalize(@organization.nom) %></h4>
+      <ul>
+      <%= for dataset <- @other_datasets do %>
+        <li><%= link(
+          dataset.title,
+          to: dataset_path(@conn, :details, dataset.slug)
+        ) %></li>
+      <% end %>
+      </ul>
+      <% end %>
+      <p>
+        <b><%= dgettext("page-dataset-details", "tags: ") %></b>
+        <%= Enum.join(@dataset.tags, ", ") %>
+      </p>
+      <p>
+        <b><%= dgettext("page-dataset-details", "Covered areas") %></b>
+        <%= Dataset.get_covered_area_names(@dataset) %>
+      </p>
+    </div>
+  </section>
 </div>
+
+<script>
+var hide_too_long_div = function(maxHeight, querySelector) {
+  document.querySelectorAll(querySelector).forEach(
+    function(div){
+      div.style.maxHeight = maxHeight
+      div.style.overflow = "hidden"
+      if (div.scrollHeight > div.clientHeight) {
+        var parent = div.parentElement
+        var displayMore = document.createElement("div")
+        parent.appendChild(displayMore)
+        displayMore.className = ".displayMore"
+        var link_displayMore = document.createElement("a")
+        displayMore.appendChild(link_displayMore)
+        link_displayMore.innerHTML = "<%= dgettext("page-dataset-details", "Display more") %>"
+        displayMore.addEventListener("click",
+          function() {
+            if (div.style.maxHeight != "100%") {
+              div.style.maxHeight = "100%";
+              link_displayMore.innerHTML = "<%= dgettext("page-dataset-details", "Display less") %>"
+            } else {
+              div.style.maxHeight = maxHeight
+              link_displayMore.innerHTML = "<%= dgettext("page-dataset-details", "Display more") %>"
+            }
+          }
+        )
+      }
+    }
+  )
+}
+
+hide_too_long_div("20vh", ".description")
+hide_too_long_div("calc(8vw)", ".reuse__details")
+</script>

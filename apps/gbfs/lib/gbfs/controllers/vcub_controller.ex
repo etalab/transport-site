@@ -1,8 +1,7 @@
 defmodule GBFS.VCubController do
   use GBFS, :controller
-  import SweetXml
   require Logger
-  alias ExShape.{Dbf, Shp}
+  alias Exshape.{Dbf, Shp}
 
   plug :put_view, GBFS.FeedView
 

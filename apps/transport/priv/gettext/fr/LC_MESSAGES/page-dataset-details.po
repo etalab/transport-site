@@ -136,25 +136,109 @@ msgid "Unable to retrieve discussions from data.gouv.fr"
 msgstr "Impossible de récupérer les discussions depuis data.gouv.fr, veuillez recharger la page"
 
 #, elixir-format
-msgid "Resources"
-msgstr "Ressources"
+msgid "See on data.gouv.fr"
+msgstr "Voir sur data.gouv.fr"
 
 #, elixir-format
-msgid "Community resources"
+msgid "Details"
+msgstr "Détails"
+
+#, elixir-format
+msgid "Covered areas"
+msgstr "Territoires couverts"
+
+#, elixir-format
+msgid "Other datasets of "
+msgstr "Autres jeux de données de "
+
+#, elixir-format
+msgid "Website"
+msgstr "Site internet"
+
+#, elixir-format
+msgid "tags: "
+msgstr "Mots-clef"
+
+#, elixir-format
+msgid "Outdated"
+msgstr "Périmé"
+
+#, elixir-format
+msgid "from"
+msgstr "Du"
+
+#, elixir-format
+msgid "until"
+msgstr "Au"
+
+#, elixir-format
+msgid "Community ressources"
 msgstr "Ressources communautaires"
+
+#, elixir-format
+msgid "GBFS resources"
+msgstr "Ressources GBFS"
+
+#, elixir-format
+msgid "GTFS resources"
+msgstr "Ressources GTFS"
+
+#, elixir-format
+msgid "NETeX resources"
+msgstr "Ressources NETeX"
+
+#, elixir-format
+msgid "Other resources"
+msgstr "Autres ressources"
 
 #, elixir-format
 msgid "Reuses"
 msgstr "Réutilisations"
 
 #, elixir-format
-msgid "By"
-msgstr "Par"
+msgid "License"
+msgstr "Licence"
 
 #, elixir-format
-msgid "See on data.gouv.fr"
-msgstr "Voir sur data.gouv.fr"
+msgid "Specific usage conditions"
+msgstr "Conditions Particulières d'utilisation"
 
 #, elixir-format
-msgid "Details"
-msgstr ""
+msgid "Current dataset"
+msgstr "En cours de validité"
+
+#, elixir-format
+msgid "and "
+msgstr "et "
+
+#, elixir-format
+msgid "Published on "
+msgstr "Publié le "
+
+#, elixir-format
+msgid "You're using this dataset? %{a_start}Send an email!%{a_end}"
+msgstr "Vous réutilisez ce jeu de données ? %{a_start}Envoyez-nous un message%{a_end} afin que l’on puisse en discuter et mettre en avant votre réutilisation."
+
+#, elixir-format
+msgid "Display more"
+msgstr "Voir plus"
+
+#, elixir-format
+msgid "See GTFS Validation report"
+msgstr "Voir le rapport de validations GTFS"
+
+#, elixir-format
+msgid "Display less"
+msgstr "Voir moins"
+
+#, elixir-format
+msgid "Subscribe to comments"
+msgstr "S'abonner aux discussions ce jeu de données"
+
+#, elixir-format
+msgid "Unsubscribe to comments"
+msgstr "Se désabonner des discussions ce jeu de données"
+
+#, elixir-format
+msgid "Log in to subscribe to comments of this dataset."
+msgstr "Identifiez vous pour vous abonner aux discussions de ce jeu de données."

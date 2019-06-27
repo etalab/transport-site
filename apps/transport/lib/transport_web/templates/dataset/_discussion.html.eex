@@ -1,21 +1,27 @@
 <div class="discussion" id="discussion-<%= @discussion["id"] %>">
-  <h3><i class="fas fa-comments"></i> <%= @discussion["title"] %> </h3>
+  <h4><i class="fas fa-comments"></i> <%= @discussion["title"] %> </h4>
 
   <%= for comment <- @discussion["discussion"] do %>
-  <div class="discussion-comment panel" >
-      <div class="discussion-comment__header">
-        <a href="<%= comment["posted_by"]["page"] %>" >
-          <%= comment["posted_by"]["first_name"] %> <%= comment["posted_by"]["last_name"] %>
-        </a>
-        <span><%= dgettext("page-dataset-details", "Posted on") %></span>
-        <span> <%= format_date comment["posted_on"] %></span>
+  <div class="discussion-comment" >
+      <div>
+        <img src="<%= comment["posted_by"]["avatar_thumbnail"] || "https://www.data.gouv.fr/api/1/avatars/#{comment["posted_by"]["id"]}/52" %>">
       </div>
-      <div class="discussion-comment__content">
-        <%= raw Earmark.as_html!(comment["content"]) %>
+      <div>
+        <div class="discussion-comment__header">
+          <a href="<%= comment["posted_by"]["page"] %>" >
+            <%= comment["posted_by"]["first_name"] %> <%= comment["posted_by"]["last_name"] %>
+          </a>
+          <span><%= dgettext("page-dataset-details", "Posted on") %></span>
+          <span> <%= format_datetime comment["posted_on"] %></span>
+        </div>
+        <div class="discussion-comment__content">
+          <%= raw Earmark.as_html!(comment["content"]) %>
+        </div>
       </div>
   </div>
   <% end %>
 
+  <div class="discussion-form">
   <%= if @current_user do %>
     <a href="#reply-<%= @discussion["id"] %>">
       <%= dgettext("page-dataset-details", "Respond") %>
@@ -27,9 +33,6 @@
         <%= submit dgettext("page-dataset-details", "Respond") %>
       <% end %>
     </div>
-  <% else %>
-    <span>
-      <%= dgettext("page-dataset-details", "You need to be connected to post comments")%>
-    </span>
   <% end %>
+  </div>
 </div>
