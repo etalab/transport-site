@@ -18,7 +18,7 @@
             </div>
     </div>
     <div class="resource__details">
-        <%= if Resource.valid?(@resource) and @resource.format == "GTFS" do %>
+        <%= if Resource.valid?(@resource) and Resource.is_gtfs?(@resource) do %>
         <div>
             <span class="resource--<%= if Resource.is_outdated?(@resource) do "not" end %>valid">
             <%= if Resource.is_outdated?(@resource) do %>
