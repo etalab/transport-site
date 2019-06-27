@@ -33,10 +33,6 @@
         <%= submit dgettext("page-dataset-details", "Respond") %>
       <% end %>
     </div>
-  <% else %>
-    <span>
-      <%= dgettext("page-dataset-details", "You need to be connected to post comments")%>
-    </span>
   <% end %>
   </div>
 </div>

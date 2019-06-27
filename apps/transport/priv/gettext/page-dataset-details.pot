@@ -152,14 +152,6 @@ msgid "Other datasets of "
 msgstr ""
 
 #, elixir-format
-msgid "Subscribe"
-msgstr ""
-
-#, elixir-format
-msgid "Unsubscribe"
-msgstr ""
-
-#, elixir-format
 msgid "Website"
 msgstr ""
 
@@ -208,10 +200,6 @@ msgid "License"
 msgstr ""
 
 #, elixir-format
-msgid "Log in to subscribe to this dataset."
-msgstr ""
-
-#, elixir-format
 msgid "Specific usage conditions"
 msgstr ""
 
@@ -241,4 +229,16 @@ msgstr ""
 
 #, elixir-format
 msgid "Display less"
+msgstr ""
+
+#, elixir-format
+msgid "Subscribe to comments"
+msgstr ""
+
+#, elixir-format
+msgid "Unsubscribe to comments"
+msgstr ""
+
+#, elixir-format
+msgid "Log in to subscribe to comments of this dataset."
 msgstr ""

@@ -81,15 +81,15 @@
             <%= form_for @conn, follower_path(@conn, :toggle, @dataset.datagouv_id), [class: "form"], fn _f -> %>
               <button class="button">
               <%= if @is_subscribed do %>
-                <%= dgettext("page-dataset-details", "Subscribe") %>
+                <%= dgettext("page-dataset-details", "Subscribe to comments") %>
               <% else %>
-                <%= dgettext("page-dataset-details", "Unsubscribe") %>
+                <%= dgettext("page-dataset-details", "Unsubscribe to comments") %>
               <% end %>
               </button>
             <% end %>
             <% else %>
             <%= link(
-              dgettext("page-dataset-details", "Log in to subscribe to this dataset."),
+              dgettext("page-dataset-details", "Log in to subscribe to comments of this dataset."),
               to: page_path(@conn, :login, [redirect_path: current_path(@conn)])
             )
             %>

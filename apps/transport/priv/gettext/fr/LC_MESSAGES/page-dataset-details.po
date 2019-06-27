@@ -152,14 +152,6 @@ msgid "Other datasets of "
 msgstr "Autres jeux de données de "
 
 #, elixir-format
-msgid "Subscribe"
-msgstr "S'abonner à ce jeu de données"
-
-#, elixir-format
-msgid "Unsubscribe"
-msgstr "Se désabonner de ce jeu de données"
-
-#, elixir-format
 msgid "Website"
 msgstr "Site internet"
 
@@ -208,10 +200,6 @@ msgid "License"
 msgstr "Licence"
 
 #, elixir-format
-msgid "Log in to subscribe to this dataset."
-msgstr "Identifiez vous pour vous abonner au jeu de données."
-
-#, elixir-format
 msgid "Specific usage conditions"
 msgstr "Conditions Particulières d'utilisation"
 
@@ -242,3 +230,15 @@ msgstr "Voir le rapport de validations GTFS"
 #, elixir-format
 msgid "Display less"
 msgstr "Voir moins"
+
+#, elixir-format
+msgid "Subscribe to comments"
+msgstr "S'abonner aux discussions ce jeu de données"
+
+#, elixir-format
+msgid "Unsubscribe to comments"
+msgstr "Se désabonner des discussions ce jeu de données"
+
+#, elixir-format
+msgid "Log in to subscribe to comments of this dataset."
+msgstr "Identifiez vous pour vous abonner aux discussions de ce jeu de données."
