@@ -117,19 +117,15 @@ defmodule TransportWeb.DatasetView do
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
   def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
 
-  defp is_gtfs(resource), do: resource.format == "GTFS"
-  defp is_gbfs(resource), do: resource.format == "gbfs"
-  defp is_netex(resource), do: resource.format == "netex"
-
-  def gtfs_resources(%{resources: resources}), do: Enum.filter(resources, &is_gtfs/1)
-  def gbfs_resources(%{resources: resources}), do: Enum.filter(resources, &is_gbfs/1)
-  def netex_resources(%{resources: resources}), do: Enum.filter(resources, &is_netex/1)
+  def gtfs_resources(%{resources: resources}), do: Enum.filter(resources, &Resource.is_gtfs?/1)
+  def gbfs_resources(%{resources: resources}), do: Enum.filter(resources, &Resource.is_gbfs?/1)
+  def netex_resources(%{resources: resources}), do: Enum.filter(resources, &Resource.is_netex?/1)
 
   def other_resources(%{resources: resources}) do
     resources
-    |> Stream.reject(&is_gtfs/1)
-    |> Stream.reject(&is_gbfs/1)
-    |> Stream.reject(&is_netex/1)
+    |> Stream.reject(&Resource.is_gtfs?/1)
+    |> Stream.reject(&Resource.is_gbfs?/1)
+    |> Stream.reject(&Resource.is_netex?/1)
     |> Enum.to_list()
   end
 end
