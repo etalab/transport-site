@@ -3,8 +3,11 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Temps réel</title>
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.13.1/build/styles/default.min.css">
-    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.13.1/build/highlight.min.js"></script>
+    <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.8/build/styles/default.min.css">
+    <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.8/build/styles/solarized-light.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.13.1/build/highlight.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
         integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
         crossorigin="" />
@@ -15,16 +18,28 @@
         integrity="sha384-EIHISlAOj4zgYieurP0SdoiBYfGJKkgWedPHH4jCzpCXLmzVsw1ouK59MuUtP4a1"
         crossorigin="anonymous"></script>
     <style>
-        #json {
+        body {
+            margin: 0;
+        }
+
+        p, h2 {
+            font-family: sans-serif;
+        }
+
+        #left {
             width: 30%;
             float: left;
-            margin: 0.5em;
+            padding: 0.5em;
+        }
+
+        #json {
+            width: 100%;
         }
 
         #map {
-            float: left;
-            height: 600px;
-            width: 50%;
+            float: right;
+            height: 100vh;
+            width: 68%;
         }
 
         .bus {
@@ -36,58 +51,89 @@
             text-decoration: line-through;
         }
 
-        #horaires {
+        .horaires {
             font-size: 2em;
         }
 
-        #horaires>ul {
+        .horaires>ul {
             list-style: none;
             margin: 0;
             padding: 0;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            margin: 0;
         }
     </style>
 </head>
 
 <body>
-    <pre>
-        <code class="json hljs" id="json"></code>
-    </pre>
+    <div id="left">
+        <h2>Exemple d’appel à l’api temps réel</h2>
+        <p id="explanation"></p>
+        <h2>Requête</h2>
+        <pre id="request"></pre>
+        <h2>Réponse</h2>
+        <pre>
+            <code class="json" id="json"></code>
+        </pre>
+    </div>
     <div id="map"></div>
     <script>
         var mymap
         var markersLayer
         var data
 
-        async function fetchStops(dataset_url, bounds) {
+        function fetchStopRequest(dataset_url, bounds) {
             const params = `BoundingBoxStructure.UpperLeft.Longitude=${bounds.getNorthWest().lng}\
 &BoundingBoxStructure.UpperLeft.Latitude=${bounds.getNorthWest().lat}\
 &BoundingBoxStructure.LowerRight.Longitude=${bounds.getSouthEast().lng}\
 &BoundingBoxStructure.LowerRight.Latitude=${bounds.getSouthEast().lat}`
 
-            const url = `${dataset_url}siri/2.0/stoppoints-discovery.json?${params}`
+            return `${dataset_url}siri/2.0/stoppoints-discovery.json?${params}`
+        }
+
+        function displayRequest(explanation, request, response) {
+            document.getElementById("explanation").innerHTML = explanation
+            document.getElementById("request").innerHTML = `<a href="${request}">${request}</a>`
+            const doc = document.getElementById("json");
+            doc.innerHTML = JSON.stringify(response, null, '  ')
+            hljs.highlightBlock(doc)
+        }
+
+        async function fetchStops(dataset_url, bounds) {
+            const url = fetchStopRequest(dataset_url, bounds)
             const response = await fetch(url)
             const json = await response.json()
+
+            displayRequest("Obtenir tous les arrêts d’une zone délimitée par les coordonnées des coins",
+                           url,
+                           json)
+
             return json.Siri.StopPointsDelivery.AnnotatedStopPoint.slice(0, 20);
         }
 
         function fetchAllStops(datasets, bounds) {
             const dataset_urls = datasets.map(d => d._links.self.href)
-            return dataset_urls.map(url => [fetchStops(url, bounds), url])
+            const stops = dataset_urls.map(url => [fetchStops(url, bounds), url])
+
+            return stops
         }
 
-        async function fetchNextDepartures(stop, dataset_url) {
-            const url = `${dataset_url}siri/2.0/stop-monitoring.json?MonitoringRef=${stop.StopPointRef}`
+        async function fetchNextDepartures(stop, url) {
             const response = await fetch(url)
             const json = await response.json()
 
             const checkVisit = visit => visit.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime != undefined;
-            return json.Siri.ServiceDelivery.StopMonitoringDelivery.flatMap(sp_visit =>
-                sp_visit.MonitoredStopVisit.filter(checkVisit).map(visit => visit.MonitoredVehicleJourney))
+            return [json, json.Siri.ServiceDelivery.StopMonitoringDelivery.flatMap(sp_visit =>
+                sp_visit.MonitoredStopVisit.filter(checkVisit).map(visit => visit.MonitoredVehicleJourney))]
         }
 
-        async function makeMarkers(stop, url) {
+        async function makeMarkers(stop, dataset_url) {
+            const url = `${dataset_url}siri/2.0/stop-monitoring.json?MonitoringRef=${stop.StopPointRef}`
             const next_departures = await fetchNextDepartures(stop, url)
-            return makeMarker(stop, next_departures)
+            return makeMarker(stop, next_departures, url)
         }
 
         async function loader(e) {
@@ -106,7 +152,7 @@
             }))
         }
 
-        function makeMarker(sp, monitoredVehicleJourneys) {
+        function makeMarker(sp, [json, monitoredVehicleJourneys], url) {
             const l = monitoredVehicleJourneys.map(mvj => {
                     const call = mvj.MonitoredCall
                     const aimed_time = call.AimedDepartureTime.split("T")[1]
@@ -117,12 +163,15 @@
                 return null;
             }
 
-            return L.marker([sp.Location.latitude, sp.Location.longitude], {
+            const m = L.marker([sp.Location.latitude, sp.Location.longitude], {
                 popupAnchor: [155, 370],
-                title: sp.StopPointRef
+                title: sp.StopPointRef,
+                url
             }).bindPopup(
-                `<p class="bus"><i class="fas fa-bus"></i></p> <div id="horaires"><ul>${l}</ul></div>`
-            )
+                `<p class="bus"><i class="fas fa-bus"></i></p> <div data-url="moo" class="horaires"><ul>${l}</ul></div>`
+            ).on('click', e => displayRequest("Obtenir les prochains passages en temps réel", url, json))
+            console.log(m.options.url)
+            return m
         }
 
         async function datasets() {
@@ -132,6 +181,7 @@
         }
 
         async function init() {
+            hljs.initHighlightingOnLoad();
             data = await datasets()
 
             mymap = L.map('map').setView([47,2], 6)
