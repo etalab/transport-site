@@ -4,6 +4,8 @@ defmodule TransportWeb.DatasetController do
   alias Datagouvfr.Client.Datasets
   alias Transport.{AOM, Dataset, Region, Repo}
   import Ecto.Query
+  import Phoenix.HTML
+  import Phoenix.HTML.Link
   require Logger
 
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params)
@@ -17,6 +19,7 @@ defmodule TransportWeb.DatasetController do
     |> assign(:types, get_types(params))
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
+    |> put_special_message(params)
     |> render("index.html")
   end
 
@@ -101,4 +104,23 @@ defmodule TransportWeb.DatasetController do
   defp redirect_to_slug_or_404(conn, slug_or_id) do
     redirect_to_slug_or_404(conn, Repo.get_by(Dataset, [datagouv_id: slug_or_id]))
   end
+
+  defp put_special_message(conn, %{"filter" => "has_realtime", "page" => page})
+    when page != 1, do: conn
+  defp put_special_message(conn, %{"filter" => "has_realtime"}) do
+    realtime_link =
+      "page-shortlist"
+      |> dgettext("here")
+      |> link(to: page_path(conn, :single_page, "real_time"))
+      |> safe_to_string()
+
+    message = dgettext(
+      "page-shortlist",
+      "More information about realtime %{realtime_link}",
+      realtime_link: realtime_link
+    )
+
+    assign(conn, :special_message, raw(message))
+  end
+  defp put_special_message(conn, _params), do: conn
 end
