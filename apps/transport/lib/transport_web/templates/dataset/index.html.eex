@@ -10,6 +10,13 @@
     </div>
   </div>
 </div>
+  <%= if @conn.assigns[:special_message] do %>
+    <div class="container">
+      <div class="notification">
+        <%= @special_message %>
+      </div>
+    </div>
+  <% end %>
 <section class="section section-grey datasets">
   <div class="container">
     <h2 class="shortlist__title"><%= dgettext("page-shortlist", "Search results") %></h2>
