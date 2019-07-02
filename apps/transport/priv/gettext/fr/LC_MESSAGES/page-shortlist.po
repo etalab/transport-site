@@ -208,3 +208,11 @@ msgstr "Temps réel"
 #, elixir-format
 msgid "Search results"
 msgstr "Résultats de recherche"
+
+#, elixir-format
+msgid "More information about realtime %{realtime_link}"
+msgstr "Plus d'informations et d'autres jeux de données temps réel %{realtime_link}"
+
+#, elixir-format
+msgid "here"
+msgstr "ici"

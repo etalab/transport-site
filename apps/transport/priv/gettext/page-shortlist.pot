@@ -208,3 +208,11 @@ msgstr ""
 #, elixir-format
 msgid "Search results"
 msgstr ""
+
+#, elixir-format
+msgid "More information about realtime %{realtime_link}"
+msgstr ""
+
+#, elixir-format
+msgid "here"
+msgstr ""

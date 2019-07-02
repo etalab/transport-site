@@ -44,6 +44,12 @@
       </li>
 
       <li>
+        <a class="footer__link footer__link--tos" href="/real_time" role="link">
+          <%= gettext "Real time datasets" %>
+        </a>
+      </li>
+
+      <li>
         <a class="footer__link footer__link--tos" href="/legal" role="link">
           <%= gettext "Legal Information" %>
         </a>
