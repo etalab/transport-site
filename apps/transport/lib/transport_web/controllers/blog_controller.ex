@@ -3,16 +3,23 @@ defmodule TransportWeb.BlogController do
 
   def index(conn, _params) do
     articles =
-    "lib/transport_web/templates/blog/????_??_??_*.md"
-    |> Path.wildcard()
-    |> Enum.map(&read_file/1)
+      "????_??_??_*"
+      |> make_path()
+      |> Path.wildcard()
+      |> Enum.map(&read_file/1)
 
     render conn, "index.html", articles: articles
   end
 
-  def page(conn, %{"page" => page}), do: render conn, "article.html", page: page <> ".html"
+  def page(conn, %{"page" => page}) do
+    filename = make_path(page)
 
-  def read_file(path) do
+    conn
+    |> assign(:markdown, File.read!(filename))
+    |> render("article.html")
+  end
+
+  defp read_file(path) do
     {header, title, image, _} =
       path
       |> File.stream!
@@ -43,11 +50,12 @@ defmodule TransportWeb.BlogController do
     }
   end
 
-  def get_header_title_image(l, {nil, nil, nil, _}), do: {[l], nil, nil, false}
-  def get_header_title_image("# " <> title, {h, nil, _, _}), do: {h, title, nil, false}
-  def get_header_title_image("![" <> image, {h, t, nil, _}), do: {h, t, image, false}
-  def get_header_title_image(l, {h, nil, nil, _}), do: {h ++ [l], nil, nil, false}
-  def get_header_title_image(_l, {h, t, i, _}) when not is_nil(i) and not is_nil(t), do: {h, t, i, true}
-  def get_header_title_image(_l, {h, t, i, _}) , do: {h, t, i, false}
+  defp get_header_title_image(l, {nil, nil, nil, _}), do: {[l], nil, nil, false}
+  defp get_header_title_image("# " <> title, {h, nil, _, _}), do: {h, title, nil, false}
+  defp get_header_title_image("![" <> image, {h, t, nil, _}), do: {h, t, image, false}
+  defp get_header_title_image(l, {h, nil, nil, _}), do: {h ++ [l], nil, nil, false}
+  defp get_header_title_image(_l, {h, t, i, _}) when not is_nil(i) and not is_nil(t), do: {h, t, i, true}
+  defp get_header_title_image(_l, {h, t, i, _}) , do: {h, t, i, false}
 
+  defp make_path(filename), do: Path.join([:code.priv_dir(:transport), "blog", filename <> ".md"])
 end
