@@ -3,8 +3,11 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Temps réel</title>
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.13.1/build/styles/default.min.css">
-    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.13.1/build/highlight.min.js"></script>
+    <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.8/build/styles/default.min.css">
+    <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.8/build/styles/solarized-light.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.13.1/build/highlight.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
         integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
         crossorigin="" />
@@ -15,16 +18,28 @@
         integrity="sha384-EIHISlAOj4zgYieurP0SdoiBYfGJKkgWedPHH4jCzpCXLmzVsw1ouK59MuUtP4a1"
         crossorigin="anonymous"></script>
     <style>
-        #json {
+        body {
+            margin: 0;
+        }
+
+        p, h2 {
+            font-family: sans-serif;
+        }
+
+        #left {
             width: 30%;
             float: left;
-            margin: 0.5em;
+            padding: 0.5em;
+        }
+
+        #json {
+            width: 100%;
         }
 
         #map {
-            float: left;
-            height: 600px;
-            width: 50%;
+            float: right;
+            height: 100vh;
+            width: 68%;
         }
 
         .bus {
@@ -36,146 +51,140 @@
             text-decoration: line-through;
         }
 
-        #horaires {
+        .horaires {
             font-size: 2em;
         }
 
-        #horaires>ul {
+        .horaires>ul {
             list-style: none;
             margin: 0;
             padding: 0;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            margin: 0;
         }
     </style>
 </head>
 
 <body>
-    <select id="aom" onchange="reload()">
-        <option value="grenoble">Grenoble</option>
-        <option value="poitiers">Poitiers</option>
-        <option value="saintes">Saintes</option>
-        <option value="auxerre">Auxerre</option>
-        <option value="mayenne">Mayenne</option>
-    </select>
-    <div id="debug"></div>
-    <pre>
-        <code class="json hljs" id="json"></code>
+    <div id="left">
+        <h2>Exemple d’appel à l’api temps réel</h2>
+        <p id="explanation"></p>
+        <h2>Requête</h2>
+        <pre id="request"></pre>
+        <h2>Réponse</h2>
+        <pre>
+            <code class="json" id="json"></code>
         </pre>
+    </div>
     <div id="map"></div>
     <script>
-        const data = {
-            grenoble: {
-                name: 'Grenoble',
-                service_url: 'https://tr.transport.data.gouv.fr/metromobilite',
-                center: [45.19708, 5.7112],
-                zoom: 17
-            },
-            poitiers: {
-                name: 'Grand Poitiers',
-                service_url: 'https://tr.transport.data.gouv.fr/poitiers',
-                center: [46.58390, 0.33565],
-                zoom: 17
-            },
-            saintes: {
-                name: 'Saintes',
-                service_url: 'https://tr.transport.data.gouv.fr/saintes',
-                center: [45.7429453, -0.6526088],
-                zoom: 16
-            },
-            auxerre: {
-                name: 'Auxerre',
-                service_url: 'https://tr.transport.data.gouv.fr/auxerre',
-                center: [47.7962, 3.5719],
-                zoom: 16
-            },
-            mayenne: {
-                name: 'Mayenne',
-                service_url: 'https://tr.transport.data.gouv.fr/mayenne',
-                center: [48.3037, -0.6151],
-                zoom: 16
-            }
-        }
+        var mymap
+        var markersLayer
+        var data
 
-        var makeUrl = (service_url, sp) => `${service_url}/siri/2.0/stop-monitoring.json?MonitoringRef=${sp.StopPointRef}`;
-        var fetchRT = service_url => sp => fetch(makeUrl(service_url, sp)).then(r => [sp, r], e => console.log(e))
-        var fetchJSONRT = sp_r => sp_r[1].json().then(json => makeMarker(json, sp_r[0]))
-
-        var loadDiscovery = function (map, markersLayer, service_url) {
-            const bounds = map.getBounds();
+        function fetchStopRequest(dataset_url, bounds) {
             const params = `BoundingBoxStructure.UpperLeft.Longitude=${bounds.getNorthWest().lng}\
 &BoundingBoxStructure.UpperLeft.Latitude=${bounds.getNorthWest().lat}\
 &BoundingBoxStructure.LowerRight.Longitude=${bounds.getSouthEast().lng}\
 &BoundingBoxStructure.LowerRight.Latitude=${bounds.getSouthEast().lat}`
 
-            const url = `${service_url}/siri/2.0/stoppoints-discovery.json?${params}`
-            fetch(url, { params: params }).then(response => {
-                if (!response.ok) {
-                    return;
-                }
-                response.json().then(json => {
-                    const stop_points = json.Siri.StopPointsDelivery.AnnotatedStopPoint.slice(0, 100);
-                    Promise.all(stop_points.map(fetchRT(service_url)))
-                        .then(responses =>
-                            Promise.all(responses.map(fetchJSONRT)).then(responses => {
-                                var popupOpen = null;
-                                markersLayer.eachLayer(
-                                    function (l) {
-                                        if (l.isPopupOpen()) {
-                                            popupOpen = l.options.title
-                                        }
-                                    }
-                                )
-                                markersLayer.clearLayers()
-                                responses.filter(m => m != null).forEach(m => m.addTo(markersLayer))
-                                markersLayer.eachLayer(function (l) {
-                                    if (l.options.title === popupOpen) {
-                                        l.openPopup()
-                                    }
-                                })
-                            })
-                        )
-                })
-            });
+            return `${dataset_url}siri/2.0/stoppoints-discovery.json?${params}`
         }
 
-        var checkVisit = visit => visit.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime != undefined;
+        function displayRequest(explanation, request, response) {
+            document.getElementById("explanation").innerHTML = explanation
+            document.getElementById("request").innerHTML = `<a href="${request}">${request}</a>`
+            const doc = document.getElementById("json");
+            doc.innerHTML = JSON.stringify(response, null, '  ')
+            hljs.highlightBlock(doc)
+        }
 
-        var makeMarker = function (json, sp) {
-            var v = "<ul>"
-            var l = json.Siri.ServiceDelivery.StopMonitoringDelivery.map(function (sp_visit) {
-                return sp_visit.MonitoredStopVisit.filter(checkVisit).map(visit => {
-                    var mvj = visit.MonitoredVehicleJourney
-                    var call = mvj.MonitoredCall
-                    return `<li>${mvj.LineRef}: <span class="aimed">${call.AimedDepartureTime.split("T")[1]}</span> <span class="expected">${call.ExpectedDepartureTime.split("T")[1]}</span></li>`
+        async function fetchStops(dataset_url, bounds) {
+            const url = fetchStopRequest(dataset_url, bounds)
+            const response = await fetch(url)
+            const json = await response.json()
+
+            displayRequest("Obtenir tous les arrêts d’une zone délimitée par les coordonnées des coins",
+                           url,
+                           json)
+
+            return json.Siri.StopPointsDelivery.AnnotatedStopPoint.slice(0, 20);
+        }
+
+        function fetchAllStops(datasets, bounds) {
+            const dataset_urls = datasets.map(d => d._links.self.href)
+            const stops = dataset_urls.map(url => [fetchStops(url, bounds), url])
+
+            return stops
+        }
+
+        async function fetchNextDepartures(stop, url) {
+            const response = await fetch(url)
+            const json = await response.json()
+
+            const checkVisit = visit => visit.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime != undefined;
+            return [json, json.Siri.ServiceDelivery.StopMonitoringDelivery.flatMap(sp_visit =>
+                sp_visit.MonitoredStopVisit.filter(checkVisit).map(visit => visit.MonitoredVehicleJourney))]
+        }
+
+        async function makeMarkers(stop, dataset_url) {
+            const url = `${dataset_url}siri/2.0/stop-monitoring.json?MonitoringRef=${stop.StopPointRef}`
+            const next_departures = await fetchNextDepartures(stop, url)
+            return makeMarker(stop, next_departures, url)
+        }
+
+        async function loader(e) {
+            let cleared = false;
+            let stops_by_dataset = fetchAllStops(data, mymap.getBounds());
+            let next_departures = await Promise.all(stops_by_dataset.map(([stops_promise, url]) =>
+                stops_promise.then(stops => stops.map(stop => makeMarkers(stop, url)))))
+            next_departures.flat().forEach(m_promise => m_promise.then(marker => {
+                if(marker !== null) {
+                    if(!cleared) {
+                        markersLayer.clearLayers()
+                        cleared = true
+                    }
+                    marker.addTo(markersLayer)
+                }
+            }))
+        }
+
+        function makeMarker(sp, [json, monitoredVehicleJourneys], url) {
+            const l = monitoredVehicleJourneys.map(mvj => {
+                    const call = mvj.MonitoredCall
+                    const aimed_time = call.AimedDepartureTime.split("T")[1]
+                    const expected_time = call.ExpectedDepartureTime.split("T")[1]
+                    return `<li>${mvj.LineRef}: <span class="aimed">${aimed_time}</span> <span class="expected">${expected_time}</span></li>`
                 }).join("\n")
-            }).join("\n")
             if (l === "") {
                 return null;
             }
-            v = `${v}${l}</ul>`
 
-            document.getElementById("json").innerHTML = JSON.stringify(json, null, '  ')
-            return L.marker([sp.Location.latitude, sp.Location.longitude], {
+            const m = L.marker([sp.Location.latitude, sp.Location.longitude], {
                 popupAnchor: [155, 370],
-                title: sp.StopPointRef
+                title: sp.StopPointRef,
+                url
             }).bindPopup(
-                `<p class="bus"><i class="fas fa-bus"></i></p> <div id="horaires">${v}</div>`
-            )
+                `<p class="bus"><i class="fas fa-bus"></i></p> <div data-url="moo" class="horaires"><ul>${l}</ul></div>`
+            ).on('click', e => displayRequest("Obtenir les prochains passages en temps réel", url, json))
+            console.log(m.options.url)
+            return m
         }
 
-        var mymap
-        var markersLayer
-
-        function loader(e) {
-            const params = data[document.getElementById("aom").value]
-            window.timeOuts.forEach(window.clearTimeout)
-            loadDiscovery(mymap, markersLayer, params.service_url)
-            window.timeOuts.push(setTimeout(loader, 30000))
+        async function datasets() {
+            const data = await fetch("https://tr.transport.data.gouv.fr")
+            const json = await data.json()
+            return json.datasets
         }
 
+        async function init() {
+            hljs.initHighlightingOnLoad();
+            data = await datasets()
 
-        function init() {
-            const params = data[document.getElementById("aom").value]
-            mymap = L.map('map').setView(params.center, params.zoom)
+            mymap = L.map('map').setView([47,2], 6)
             L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
                 attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
                 maxZoom: 18,
@@ -187,16 +196,9 @@
 
             markersLayer.addTo(mymap)
 
-            window.timeOuts = []
-
             mymap.on('moveend', loader)
             mymap.on('zoomend', loader)
             loader()
-        }
-
-        function reload() {
-            const params = data[document.getElementById("aom").value]
-            mymap.setView(params.center, params.zoom)
         }
 
         window.onload = init;
