@@ -107,6 +107,7 @@ defmodule Transport.ImportData do
       resources
       |> get_valid_gtfs_resources()
       |> Enum.concat(get_valid_netex_resources(resources))
+      |> Enum.concat(get_valid_gtfs_rt_resources(resources))
     else
       resources
     end
@@ -123,6 +124,10 @@ defmodule Transport.ImportData do
 
   def get_valid_netex_resources(resources) when is_list(resources) do
     Enum.filter(resources, &is_netex?/1)
+  end
+
+  def get_valid_gtfs_rt_resources(resources) when is_list(resources) do
+    Enum.filter(resources, &is_gtfs_rt?/1)
   end
 
   @doc """
@@ -144,12 +149,17 @@ defmodule Transport.ImportData do
 
   """
   def is_gtfs?(%{} = params) do
-    url = params["url"]
-    is_gtfs?(params["format"]) or is_gtfs?(params["description"]) or
-     (is_gtfs?(url) and !is_format?(url, "json") and !is_format?(url, "csv") and !is_format?(params, "shp"))
+    if is_gtfs_rt?(params["format"]) do
+      false
+    else
+      url = params["url"]
+      is_gtfs?(params["format"]) or is_gtfs?(params["description"]) or
+      (is_gtfs?(url) and !is_format?(url, "json") and !is_format?(url, "csv") and !is_format?(params, "shp"))
+    end
   end
-  def is_gtfs?("gtfs-rt"), do: false
   def is_gtfs?(str), do: is_format?(str, "gtfs")
+
+  def is_gtfs_rt?(str), do: is_format?(str, "gtfs-rt") or is_format?(str, "gtfsrt")
 
   def is_format?(nil, _), do: false
   def is_format?(%{"format" => format}, expected), do: is_format?(format, expected)
@@ -418,10 +428,13 @@ defmodule Transport.ImportData do
       "xls"
   """
   def formated_format(resource) do
-    format = resource
-    |> Map.get("format", "")
+    format = Map.get(resource, "format", "")
 
-    if is_gtfs?(format), do: "GTFS", else: format
+    cond do
+      is_gtfs_rt?(format) -> "gtfs-rt"
+      is_gtfs?(format) -> "GTFS"
+      true -> format
+    end
   end
 
   @doc """
@@ -457,6 +470,7 @@ defmodule Transport.ImportData do
   end
   def has_realtime?(_, _), do: {:ok, false}
 
-  def is_realtime?(resource), do: resource["format"] == "gtfs-rt"
+  def is_realtime?(%{"format" => "gtfs-rt"}), do: true
+  def is_realtime?(_), do: false
 
 end
