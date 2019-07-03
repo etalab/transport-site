@@ -4,6 +4,8 @@ L’objectif du point d’accès national des données transport est de fournir 
 
 Une explication détaillée des variantes est disponible [sur notre page d’aide](https://doc.transport.data.gouv.fr/producteurs/temps-reel-des-transports-en-commun).
 
+Le point d’accès `Siri Lite` et `GTFS-RT` pour tous les jeux de données est (tr.transport.data.gouv.fr)[https://tr.transport.data.gouv.fr].
+
 Les [jeux de données disponibles](<%= dataset_url(@conn, :index, filter: :has_realtime) %>) sur transport.data.gouv.fr respectent ainsi toutes les conditions suivantes :
 
 * Horaires théoriques disponibles,
