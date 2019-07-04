@@ -60,17 +60,15 @@ defmodule TransportWeb.DatasetController do
   defp get_regions(params) do
     sub = params
     |> clean_datasets_query()
-    |> select([d], %{region_id: d.region_id, aom_id: d.aom_id})
-
-    aoms_sub = AOM
-    |> join(:inner, [a], d in subquery(sub), on: d.aom_id == a.id)
-    |> select([a], %{region_id: a.region_id})
+    |> exclude(:order_by)
+    |> join(:left, [d], a in AOM, on: d.aom_id == a.id)
+    |> select([d, a], %{id: d.id, region_id: coalesce(d.region_id, a.region_id)})
 
     Region
-    |> join(:inner, [r], d in subquery(sub), on: d.region_id == r.id)
-    |> join(:inner, [r], d in subquery(aoms_sub), on: d.region_id == r.id)
-    |> select([r], %Region{nom: r.nom, id: r.id})
-    |> distinct(true)
+    |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
+    |> group_by([r], [r.id, r.nom])
+    |> select([r, d], %{nom: r.nom, id: r.id, count: count(d.id)})
+    |> order_by([r], r.nom)
     |> Repo.all()
   end
 
