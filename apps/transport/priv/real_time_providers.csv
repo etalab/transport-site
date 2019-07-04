@@ -1,3 +1,4 @@
 aom;format;bulk;acces_ouvert;licence;prochains_passages;position_vehicules;alertes
 Rennes Star;Spécifique;y;y;ODbL;https://data.rennesmetropole.fr/explore/dataset/prochains-passages-des-lignes-de-metro-du-reseau-star-en-temps-reel/table/;https://data.explore.star.fr/explore/dataset/tco-bus-vehicules-position-tr/;https://data.rennesmetropole.fr/explore/dataset/alertes-trafic-en-temps-reel-sur-les-lignes-du-reseau-star/information/
 Montpellier Tam;Spécifique;y;y;ODbL;http://data.montpellier3m.fr/dataset/offre-de-transport-tam-en-temps-reel;;
+Nantes TAN;Spécifique;n;y;ODbL;https://data.nantesmetropole.fr/explore/dataset/244400404_api-temps-reel-tan/information/;;https://data.nantesmetropole.fr/explore/dataset/244400404_info-trafic-tan-temps-reel/table/
