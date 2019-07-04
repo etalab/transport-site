@@ -38,31 +38,29 @@ defmodule Transport.DataChecker do
   end
 
   def outdated_data(blank \\ False) do
-    today = Date.utc_today
-
     for delay <- [0, 7, 14],
-        date = Date.add(today, delay) do
-          make_str(date)
+        date = Date.add(Date.utc_today, delay) do
+          {delay, Resource.get_expire_at(date)}
         end
-    |> Enum.reject(&is_nil/1)
-    |> Enum.join("\n---------------------\n")
+    |> Enum.reject(fn {_, d} -> d == [] end)
     |> send_outdated_data_mail(blank)
   end
 
-  defp make_str(%Date{} = date), do: date |> Resource.get_expire_at() |> make_str(date)
-  defp make_str([], _date), do: nil
-  defp make_str(resources, date) do
+  defp make_str({delay, resources}) do
     r_str = resources
     |> Enum.map(& &1.dataset)
     |> Enum.map(&link_and_name/1)
     |> Enum.join("\n")
 
     """
-    Jeux de données expirant le #{date}:
+    Jeux de données expirant #{delay_str(delay)}:
 
     #{r_str}
     """
   end
+
+  defp delay_str(0), do: "demain"
+  defp delay_str(d), do: "dans #{d} jours"
 
   defp link_and_name(dataset) do
     link = dataset_url(TransportWeb.Endpoint, :details, dataset.slug)
@@ -76,23 +74,25 @@ defmodule Transport.DataChecker do
     Bonjour,
     Voici un résumé des jeux de données arrivant à expiration
 
-    #{datasets}
+    #{datasets |> Enum.map(&make_str/1) |> Enum.join("\n---------------------\n")}
 
     À vous de jouer !
     """
   end
 
-  defp send_outdated_data_mail("", _), do: nil
-  defp send_outdated_data_mail(datasets, False) do
+  defp send_outdated_data_mail([], _), do: []
+  defp send_outdated_data_mail(datasets, is_blank) do
     Client.send_mail(
       "transport.data.gouv.fr",
       "contact@transport.beta.gouv.fr",
       "contact@transport.beta.gouv.fr",
       "Jeux de données arrivant à expiration",
-      make_outdated_data_body(datasets)
+      make_outdated_data_body(datasets),
+      is_blank
     )
+
+    datasets
   end
-  defp send_outdated_data_mail(datasets, True), do: make_outdated_data_body(datasets)
 
   defp fmt_inactive_dataset([]), do: ""
   defp fmt_inactive_dataset(inactive_datasets) do

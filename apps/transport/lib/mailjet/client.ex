@@ -3,6 +3,7 @@ defmodule Mailjet.Client do
     Helper to send mail via mailjet
   """
   use HTTPoison.Base
+  require Logger
 
   @user Application.get_env(:transport, __MODULE__)[:mailjet_user]
   @key Application.get_env(:transport, __MODULE__)[:mailjet_key]
@@ -19,7 +20,11 @@ defmodule Mailjet.Client do
     })
   end
 
-  def send_mail(from_name, from_email, reply_to, topic, body) do
+  def send_mail(from_name, from_email, reply_to, topic, body, _blank_mail \\ False)
+  def send_mail(from_name, from_email, reply_to, topic, body, True) do
+    Logger.debug("payload: #{payload!(from_name, from_email, reply_to, topic, body)}")
+  end
+  def send_mail(from_name, from_email, reply_to, topic, body, False) do
     @url
     |> post(payload!(from_name, from_email, reply_to, topic, body))
     |> case do
