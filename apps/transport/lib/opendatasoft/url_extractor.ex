@@ -116,7 +116,7 @@ defmodule Opendatasoft.UrlExtractor do
    |> Enum.map(&(get_url_from_csv(&1, body)))
    |> Enum.filter(&(&1 != nil))
    |> case do
-     [url | _] -> {:ok, url}
+     [url | _] -> {:ok, get_filename(url)}
      _ -> {:error, "No column file"}
    end
  end
@@ -179,6 +179,16 @@ defmodule Opendatasoft.UrlExtractor do
   def filter_csv(resources) do
     for resource <- resources, "#{resource["mime"]}#{resource["format"]}" =~ ~r/csv/i do
       %{resource | "mime" => "text/csv", "format" => "csv"}
+    end
+  end
+
+  defp get_filename(url) do
+    with {:ok, %HTTPoison.Response{headers: headers}} <- HTTPoison.head(url),
+         {_, content} <- Enum.find(headers, fn {h, _} -> h == "Content-Disposition" end),
+         %{"filename" => filename} <- Regex.named_captures(~r/filename="(?<filename>.*)"/, content) do
+      filename
+    else
+      _ -> url
     end
   end
 
