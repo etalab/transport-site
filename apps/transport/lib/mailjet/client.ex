@@ -22,7 +22,7 @@ defmodule Mailjet.Client do
 
   def send_mail(from_name, from_email, reply_to, topic, body, _blank_mail \\ False)
   def send_mail(from_name, from_email, reply_to, topic, body, True) do
-    Logger.debug("payload: #{payload!(from_name, from_email, reply_to, topic, body)}")
+    Logger.debug fn -> "payload: #{payload!(from_name, from_email, reply_to, topic, body)}" end
   end
   def send_mail(from_name, from_email, reply_to, topic, body, False) do
     @url

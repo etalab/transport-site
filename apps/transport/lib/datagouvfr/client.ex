@@ -4,7 +4,6 @@ defmodule Datagouvfr.Client do
   """
 
   alias Datagouvfr.Authentication
-  alias Datagouvfr.Client.Reuses
   alias OAuth2.Client, as: OAuth2Client
   alias OAuth2.{Error, Request, Response}
   require Logger
@@ -61,42 +60,10 @@ defmodule Datagouvfr.Client do
 
   def post_process_request(response) do
     case response do
-      {:ok, %OAuth2.Response{status_code: 200, body: body}} -> {:ok, body}
-      {:ok, %OAuth2.Response{status_code: 201, body: body}} -> {:ok, body}
-      {:ok, %OAuth2.Response{status_code: _, body: body}} -> {:error, body}
+      {:ok, %{status_code: 200, body: body}} -> {:ok, body}
+      {:ok, %{status_code: 201, body: body}} -> {:ok, body}
+      {:ok, %{status_code: _, body: body}} -> {:error, body}
       {:error, error} -> {:error, error}
-    end
-  end
-
-  def get_discussions(conn, id) do
-    conn
-    |> get_request("/discussions?for=#{id}", [], follow_redirect: true)
-    |> case do
-      {:ok, %{"data" => data}} -> data
-      {:error, %{reason: reason}} ->
-        Logger.error("When fetching discussions for id #{id}: #{reason}")
-        nil
-      {:error, %{body: body}} ->
-        Logger.error("When fetching discussions for id #{id}: #{body}")
-        nil
-    end
-  end
-
-  def get_community_resources(conn, id) do
-    conn
-    |> get_request("/datasets/community_resources/?dataset=#{id}", [])
-    |> case do
-      {:ok, %{"data" => data}} -> {:ok, data}
-      {:error, error} ->
-        Logger.error("When getting community_ressources for id #{id}: #{error.reason}")
-        {:error, []}
-    end
-  end
-
-  def get_reuses(conn, params) do
-    case Reuses.get(conn, params) do
-      {:ok, data} -> data
-      _ -> nil
     end
   end
 

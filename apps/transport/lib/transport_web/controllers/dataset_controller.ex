@@ -1,7 +1,7 @@
 defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
-  alias Datagouvfr.{Authentication, Client}
-  alias Datagouvfr.Client.Datasets
+  alias Datagouvfr.Authentication
+  alias Datagouvfr.Client.{CommunityResources, Datasets, Discussions, Reuses}
   alias Transport.{AOM, Dataset, Region, Repo}
   import Ecto.Query
   import Phoenix.HTML
@@ -26,15 +26,16 @@ defmodule TransportWeb.DatasetController do
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
     with dataset when not is_nil(dataset) <- Dataset.get_by(slug: slug_or_id),
         organization when not is_nil(organization) <- Dataset.get_organization(dataset),
-        {_, community_ressources} <- Client.get_community_resources(conn, dataset.datagouv_id) do
+        {_, community_ressources} <- CommunityResources.get(conn, dataset.datagouv_id),
+        {_, reuses} <- Reuses.get(conn, dataset) do
         conn
         |> assign(:dataset, dataset)
         |> assign(:community_ressources, community_ressources)
         |> assign(:organization, organization)
-        |> assign(:discussions, Client.get_discussions(conn, dataset.datagouv_id))
+        |> assign(:discussions, Discussions.get(conn, dataset.datagouv_id))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
-        |> assign(:reuses, Client.get_reuses(conn, %{"dataset_id" => dataset.datagouv_id}))
+        |> assign(:reuses, reuses)
         |> assign(:other_datasets, Dataset.get_other_datasets(dataset, organization))
         |> render("details.html")
     else

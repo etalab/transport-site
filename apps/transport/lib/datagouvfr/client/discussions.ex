@@ -3,7 +3,8 @@ defmodule Datagouvfr.Client.Discussions do
   An API client for data.gouv.fr discussions
   """
 
-  import Datagouvfr.Client, only: [post_request: 3]
+  import Datagouvfr.Client, only: [get_request: 4, post_request: 3]
+  require Logger
 
   @endpoint "discussions"
 
@@ -32,5 +33,23 @@ defmodule Datagouvfr.Client.Discussions do
     payload = if is_nil(extras) do payload else Map.put(payload, :extras, extras) end
 
     post_request(conn, @endpoint, payload)
+  end
+
+  @doc """
+  Call to GET /api/1/discussions/
+  """
+  @spec get(%Plug.Conn{}, String.t) :: {:atom, [map]}
+  def get(conn, id) do
+    conn
+    |> get_request("/#{@endpoint}?for=#{id}", [], follow_redirect: true)
+    |> case do
+      {:ok, %{"data" => data}} -> data
+      {:error, %{reason: reason}} ->
+        Logger.error("When fetching discussions for id #{id}: #{reason}")
+        nil
+      {:error, %{body: body}} ->
+        Logger.error("When fetching discussions for id #{id}: #{body}")
+        nil
+    end
   end
 end
