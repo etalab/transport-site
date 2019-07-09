@@ -3,11 +3,14 @@ defmodule Transport.ImportData do
   Service use to import data from datagouv to psql
   """
 
-  alias Datagouvfr.Client
+  alias Datagouvfr.Client.CommunityResources
   alias Opendatasoft.UrlExtractor
   alias Transport.{Dataset, Helpers, Repo, Resource}
   require Logger
   import Ecto.Query
+
+  @separators [?;, ?,]
+  @csv_headers ["Download", "file", "Fichier"]
 
   def all, do: Dataset |> Repo.all() |> Enum.map(&call/1)
 
@@ -287,7 +290,7 @@ defmodule Transport.ImportData do
     if Enum.any?(dataset["resources"], &is_realtime?/1) do
       {:ok, true}
     else
-      case Client.get_community_resources(%Plug.Conn{}, dataset["id"]) do
+      case CommunityResources.get(dataset["id"]) do
         {:ok, resources} -> {:ok, Enum.any?(resources, &is_realtime?/1)}
         {:error, _error} -> {:error, false}
       end

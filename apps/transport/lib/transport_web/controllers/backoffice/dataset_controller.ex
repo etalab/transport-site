@@ -17,7 +17,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
       }
     }
 
-    with datagouv_id when not is_nil(datagouv_id) <- Datasets.get_id_from_url(conn, params["url"]),
+    with datagouv_id when not is_nil(datagouv_id) <- Datasets.get_id_from_url(params["url"]),
          {:ok, dataset} <- ImportData.import_from_udata(datagouv_id, params["type"]),
          params <- Map.merge(params, dataset)
     do

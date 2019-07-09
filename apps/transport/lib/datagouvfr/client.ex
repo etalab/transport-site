@@ -4,31 +4,32 @@ defmodule Datagouvfr.Client do
   """
 
   alias Datagouvfr.Authentication
-  alias Datagouvfr.Client.Reuses
   alias OAuth2.Client, as: OAuth2Client
   alias OAuth2.{Error, Request, Response}
   require Logger
 
   def base_url, do: Application.get_env(:oauth2, Authentication)[:site] |> Path.join("/api/1/")
 
-  @spec get_request(%Plug.Conn{}, binary, OAuth2Client.headers, Keyword.t)
-                    :: {:ok, OAuth2.Response.t} | {:error, Error.t}
-  def get_request(%Plug.Conn{} = conn, url, headers \\ [], opts \\ []) do
-    Datagouvfr.Client.request(:get, conn, url, nil, headers, opts)
+  @spec get(%Plug.Conn{}, binary, OAuth2Client.headers, Keyword.t)
+                    :: {:ok, any} | {:error, Error.t}
+  def get(%Plug.Conn{} = conn, url, headers \\ [], opts \\ []) do
+    request(:get, conn, url, nil, headers, opts)
   end
 
-  @spec post_request(%Plug.Conn{}, binary, OAuth2Client.body,
+  def get(path), do: request(:get, path)
+
+  @spec post(%Plug.Conn{}, binary, OAuth2Client.body,
                     OAuth2Client.headers, Keyword.t)
-                    :: {:ok, Response.t} | {:error, Error.t}
-  def post_request(%Plug.Conn{} = conn, url, body \\ "", headers \\ [], opts \\ []) do
+                    :: {:ok, any} | {:error, Error.t}
+  def post(%Plug.Conn{} = conn, url, body \\ "", headers \\ [], opts \\ []) do
     headers = default_content_type(headers)
     :post
     |> request(conn, url, body, headers, opts)
   end
 
-  @spec delete_request(%Plug.Conn{}, binary, OAuth2Client.headers, Keyword.t)
-                    :: {:ok, Response.t} | {:error, Error.t}
-  def delete_request(%Plug.Conn{} = conn, url, headers \\ [], opts \\ []) do
+  @spec delete(%Plug.Conn{}, binary, OAuth2Client.headers, Keyword.t)
+                    :: {:ok, any} | {:error, Error.t}
+  def delete(%Plug.Conn{} = conn, url, headers \\ [], opts \\ []) do
     headers = default_content_type(headers)
     :delete
     |> request(conn, url, nil, headers, opts)
@@ -50,7 +51,15 @@ defmodule Datagouvfr.Client do
     opts = Keyword.put_new(opts, :follow_redirect, true)
     method
     |> Request.request(client, url, body, headers, opts)
-    |> post_process_request()
+    |> post_process()
+  end
+
+  def request(method, path) do
+    url = process_url(path)
+
+    method
+    |> HTTPoison.request(url)
+    |> post_process()
   end
 
   def get_client(conn) do
@@ -59,44 +68,21 @@ defmodule Datagouvfr.Client do
     |> Authentication.client()
   end
 
-  def post_process_request(response) do
+  def post_process({:ok, %HTTPoison.Response{body: body} = response}) when is_binary(body) do
+    case Jason.decode(body) do
+      {:ok, body} -> post_process({:ok, %{response | body: body}})
+      {:error, error} -> post_process({:error, error})
+    end
+  end
+
+  @spec post_process({:error, any} | {:ok, %{body: any, status_code: any}}) ::
+          {:error, any} | {:ok, any}
+  def post_process(response) do
     case response do
-      {:ok, %OAuth2.Response{status_code: 200, body: body}} -> {:ok, body}
-      {:ok, %OAuth2.Response{status_code: 201, body: body}} -> {:ok, body}
-      {:ok, %OAuth2.Response{status_code: _, body: body}} -> {:error, body}
+      {:ok, %{status_code: 200, body: body}} -> {:ok, body}
+      {:ok, %{status_code: 201, body: body}} -> {:ok, body}
+      {:ok, %{status_code: _, body: body}} -> {:error, body}
       {:error, error} -> {:error, error}
-    end
-  end
-
-  def get_discussions(conn, id) do
-    conn
-    |> get_request("/discussions?for=#{id}", [], follow_redirect: true)
-    |> case do
-      {:ok, %{"data" => data}} -> data
-      {:error, %{reason: reason}} ->
-        Logger.error("When fetching discussions for id #{id}: #{reason}")
-        nil
-      {:error, %{body: body}} ->
-        Logger.error("When fetching discussions for id #{id}: #{body}")
-        nil
-    end
-  end
-
-  def get_community_resources(conn, id) do
-    conn
-    |> get_request("/datasets/community_resources/?dataset=#{id}", [])
-    |> case do
-      {:ok, %{"data" => data}} -> {:ok, data}
-      {:error, error} ->
-        Logger.error("When getting community_ressources for id #{id}: #{error.reason}")
-        {:error, []}
-    end
-  end
-
-  def get_reuses(conn, params) do
-    case Reuses.get(conn, params) do
-      {:ok, data} -> data
-      _ -> nil
     end
   end
 
