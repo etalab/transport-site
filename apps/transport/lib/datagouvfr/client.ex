@@ -25,8 +25,8 @@ defmodule Datagouvfr.Client do
   @spec post(%Plug.Conn{}, binary, Client.body, Client.headers, Keyword.t) :: oauth2_response
   def post(%Plug.Conn{} = conn, url, body \\ "", headers \\ [], opts \\ []) do
     headers = default_content_type(headers)
-    :post
-    |> request(conn, url, body, headers, opts)
+
+    request(:post, conn, url, body, headers, opts)
   end
 
   @spec delete(%Plug.Conn{}, binary, Client.headers, Keyword.t) :: oauth2_response
@@ -54,11 +54,11 @@ defmodule Datagouvfr.Client do
   end
 
   @spec request(atom, binary | [binary, ...]) :: response
-  def request(method, path) do
+    def request(method, path, body \\ "", headers \\ [], options \\ []) do
     url = process_url(path)
 
     method
-    |> HTTPoison.request(url, "", [], follow_redirect: true)
+    |> HTTPoison.request(url, body, headers, options)
     |> post_process()
   end
 
