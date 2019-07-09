@@ -2,11 +2,12 @@ defmodule Transport.DataChecker do
   @moduledoc """
   Use to check data, and act about it, like send email
   """
-  alias Datagouvfr.Client.Datasets
+  alias Datagouvfr.Client.{Datasets, Discussions}
   alias Mailjet.Client
   alias Transport.{Dataset, Repo, Resource}
   import TransportWeb.Router.Helpers
   import Ecto.Query
+  require Logger
 
   def inactive_data do
     # we first check if some inactive datasets have reapeared
@@ -44,6 +45,28 @@ defmodule Transport.DataChecker do
         end
     |> Enum.reject(fn {_, d} -> d == [] end)
     |> send_outdated_data_mail(blank)
+    |> post_outdated_data_comments(blank)
+  end
+
+  def post_outdated_data_comments(delays_resources, blank) do
+    case Enum.find(delays_resources, fn {delay, _} -> delay == 7 end) do
+      nil ->
+        Logger.info "No datasets need a comment about outdated resources"
+      {_, resources} ->
+        Enum.map(resources, fn r -> post_outdated_data_comment(r, blank) end)
+    end
+  end
+
+  def post_outdated_data_comment(resource, blank) do
+    Discussions.post(
+      resource.dataset.datagouv_id,
+      "Jeu de données arrivant à expiration",
+"""
+Bonjour,
+Ce jeu de données arrive à expiration dans 7 jours.
+Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour prochainement.
+L’équipe transport.data.gouv.fr
+""", blank)
   end
 
   defp make_str({delay, resources}) do
