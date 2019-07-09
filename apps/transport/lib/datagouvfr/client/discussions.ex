@@ -21,16 +21,18 @@ defmodule Datagouvfr.Client.Discussions do
   Call to post /api/1/discussions/
   You can see documentation here: https://www.data.gouv.fr/fr/apidoc/#!/discussions/create_discussion
   """
+  def post(id_, title, comment, blank)
+  def post(id_, title, comment, True) when is_binary(id_) do
+    Logger.debug fn -> "Post discussion: #{payload_post(id_, title, comment)}" end
+  end
+  def post(id_, title, comment, False) when is_binary(id_) do
+    headers = [
+      {"X-API-KEY", Application.get_env(:transport, :datagouvfr_apikey)}
+    ]
+    Client.post(@endpoint, payload_post(id_, title, comment), headers)
+  end
   def post(%Plug.Conn{} = conn, id_, title, comment, extras \\ nil) do
-    payload = %{
-      comment: comment,
-      title: title,
-      subject: %{class: "Dataset", id: id_},
-    }
-
-    payload = if is_nil(extras) do payload else Map.put(payload, :extras, extras) end
-
-    Client.post(conn, @endpoint, payload)
+    Client.post(conn, @endpoint, payload_post(id_, title, comment, extras))
   end
 
   @doc """
@@ -48,5 +50,15 @@ defmodule Datagouvfr.Client.Discussions do
         Logger.error("When fetching discussions for id #{id}: #{reason}")
         nil
     end
+  end
+
+  defp payload_post(id_, title, comment, extras \\ nil) do
+    payload = %{
+      comment: comment,
+      title: title,
+      subject: %{class: "Dataset", id: id_},
+    }
+
+    if is_nil(extras) do payload else Map.put(payload, :extras, extras) end
   end
 end
