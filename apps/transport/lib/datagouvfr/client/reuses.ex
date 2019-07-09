@@ -2,13 +2,14 @@ defmodule Datagouvfr.Client.Reuses do
   @moduledoc """
   A client to manipulate https://www.data.gouv.fr/api/1/reuses endpoints
   """
-  import Datagouvfr.Client, only: [get_request: 4]
+  alias Datagouvfr.Client
   require Logger
 
   @endpoint "reuses"
 
+  @spec get(Plug.Conn.t(), %{datagouv_id: any}) :: {:error, nil}
   def get(%Plug.Conn{} = conn, %{datagouv_id: dataset_id}) do
-    case get_request(conn, @endpoint, [], params: %{"dataset" => dataset_id}) do
+    case Client.get(conn, @endpoint, [], params: %{"dataset" => dataset_id}) do
       {:ok, %{"data" => data}} -> {:ok, Enum.map(data, &add_name/1)}
       {:error, %{reason: reason}} ->
         Logger.error("Unable to get reuses of dataset #{dataset_id} because of #{reason}")

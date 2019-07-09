@@ -10,24 +10,24 @@ defmodule Datagouvfr.Client do
 
   def base_url, do: Application.get_env(:oauth2, Authentication)[:site] |> Path.join("/api/1/")
 
-  @spec get_request(%Plug.Conn{}, binary, OAuth2Client.headers, Keyword.t)
-                    :: {:ok, OAuth2.Response.t} | {:error, Error.t}
-  def get_request(%Plug.Conn{} = conn, url, headers \\ [], opts \\ []) do
-    Datagouvfr.Client.request(:get, conn, url, nil, headers, opts)
+  @spec get(%Plug.Conn{}, binary, OAuth2Client.headers, Keyword.t)
+                    :: {:ok, any} | {:error, Error.t}
+  def get(%Plug.Conn{} = conn, url, headers \\ [], opts \\ []) do
+    request(:get, conn, url, nil, headers, opts)
   end
 
-  @spec post_request(%Plug.Conn{}, binary, OAuth2Client.body,
+  @spec post(%Plug.Conn{}, binary, OAuth2Client.body,
                     OAuth2Client.headers, Keyword.t)
-                    :: {:ok, Response.t} | {:error, Error.t}
-  def post_request(%Plug.Conn{} = conn, url, body \\ "", headers \\ [], opts \\ []) do
+                    :: {:ok, any} | {:error, Error.t}
+  def post(%Plug.Conn{} = conn, url, body \\ "", headers \\ [], opts \\ []) do
     headers = default_content_type(headers)
     :post
     |> request(conn, url, body, headers, opts)
   end
 
-  @spec delete_request(%Plug.Conn{}, binary, OAuth2Client.headers, Keyword.t)
-                    :: {:ok, Response.t} | {:error, Error.t}
-  def delete_request(%Plug.Conn{} = conn, url, headers \\ [], opts \\ []) do
+  @spec delete(%Plug.Conn{}, binary, OAuth2Client.headers, Keyword.t)
+                    :: {:ok, any} | {:error, Error.t}
+  def delete(%Plug.Conn{} = conn, url, headers \\ [], opts \\ []) do
     headers = default_content_type(headers)
     :delete
     |> request(conn, url, nil, headers, opts)
@@ -49,7 +49,7 @@ defmodule Datagouvfr.Client do
     opts = Keyword.put_new(opts, :follow_redirect, true)
     method
     |> Request.request(client, url, body, headers, opts)
-    |> post_process_request()
+    |> post_process()
   end
 
   def get_client(conn) do
@@ -58,7 +58,9 @@ defmodule Datagouvfr.Client do
     |> Authentication.client()
   end
 
-  def post_process_request(response) do
+  @spec post_process({:error, any} | {:ok, %{body: any, status_code: any}}) ::
+          {:error, any} | {:ok, any}
+  def post_process(response) do
     case response do
       {:ok, %{status_code: 200, body: body}} -> {:ok, body}
       {:ok, %{status_code: 201, body: body}} -> {:ok, body}

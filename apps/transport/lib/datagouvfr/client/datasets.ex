@@ -4,12 +4,7 @@ defmodule Datagouvfr.Client.Datasets do
   """
 
   import TransportWeb.Gettext
-  import Datagouvfr.Client, only: [
-    get_request: 2,
-    post_request: 2,
-    delete_request: 2,
-    process_url: 1
-  ]
+  alias Datagouvfr.Client
   require Logger
   alias Transport.Helpers
 
@@ -65,7 +60,7 @@ defmodule Datagouvfr.Client.Datasets do
   @spec get(%Plug.Conn{}, map) :: {atom, [map]}
   def get(%Plug.Conn{} = conn, %{:organization => id}) do
     conn
-    |> get_request(Path.join(["organizations", id, @endpoint]))
+    |> Client.get(Path.join(["organizations", id, @endpoint]))
     |> case do #We need that for backward compatibility
       {:ok, %{"data" => data}} -> {:ok, data}
       {:ok, data} -> {:ok, data}
@@ -83,7 +78,7 @@ defmodule Datagouvfr.Client.Datasets do
     slug = Helpers.filename_from_url(url)
 
     conn
-    |> get(slug)
+    |> Client.get(slug)
     |> case do #We need that for backward compatibility
       {:ok, %{"data" => data}} -> {:ok, data}
       {:ok, data} -> {:ok, data}
@@ -100,12 +95,12 @@ defmodule Datagouvfr.Client.Datasets do
   @spec get(%Plug.Conn{}, String.t) :: {atom, [map]}
   def get(%Plug.Conn{} = conn, id) do
     conn
-    |> get_request(Path.join(@endpoint, id))
+    |> Client.get(Path.join(@endpoint, id))
   end
 
   @spec get_id_from_url(%Plug.Conn{}, String.t) :: String.t
   def get_id_from_url(%Plug.Conn{} = conn, url) do
-    case get(conn, url: url) do
+    case Client.get(conn, url: url) do
       {:ok, dataset} -> dataset["id"]
       {:error, error} ->
         Logger.error(error)
@@ -118,7 +113,7 @@ defmodule Datagouvfr.Client.Datasets do
   """
   @spec post_followers(%Plug.Conn{}, String.t) :: {atom, map}
   def post_followers(%Plug.Conn{} = conn, dataset_id) do
-    post_request(
+    Client.post(
       conn,
       Path.join([@endpoint, dataset_id, "followers"])
     )
@@ -129,7 +124,7 @@ defmodule Datagouvfr.Client.Datasets do
   """
   @spec delete_followers(%Plug.Conn{}, String.t) :: {atom, map}
   def delete_followers(%Plug.Conn{} = conn, dataset_id) do
-    delete_request(
+    Client.delete(
       conn,
       Path.join([@endpoint, dataset_id, "followers"])
     )
@@ -140,7 +135,7 @@ defmodule Datagouvfr.Client.Datasets do
   """
   @spec get_followers(%Plug.Conn{}, String.t) :: {atom, map}
   def get_followers(%Plug.Conn{} = conn, dataset_id) do
-    get_request(
+    Client.get(
       conn,
       Path.join([@endpoint, dataset_id, "followers"])
     )
@@ -161,7 +156,7 @@ defmodule Datagouvfr.Client.Datasets do
     path = Path.join([@endpoint, id])
     response =
       path
-      |> process_url()
+      |> Client.process_url()
       |> HTTPoison.head()
 
     not match?({:ok, %HTTPoison.Response{status_code: 404}}, response)
@@ -177,7 +172,7 @@ defmodule Datagouvfr.Client.Datasets do
   end
   defp is_user_in_followers?(page_url, user_id, conn) when is_binary(page_url) do
     conn
-    |> get_request(page_url)
+    |> Client.get(page_url)
     |> is_user_in_followers?(user_id, conn)
   end
   defp is_user_in_followers?(_, _, _), do: false
