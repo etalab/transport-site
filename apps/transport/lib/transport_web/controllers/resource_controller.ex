@@ -75,14 +75,14 @@ defmodule TransportWeb.ResourceController do
   @spec resources_list(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def resources_list(conn, %{"dataset_id" => dataset_id}) do
     conn
-    |> assign_or_flash(fn conn -> Datasets.get(conn, dataset_id) end, :dataset, "Unable to get resources, please retry.")
+    |> assign_or_flash(fn -> Datasets.get(dataset_id) end, :dataset, "Unable to get resources, please retry.")
     |> render("resources_list.html")
   end
 
   @spec choose_file(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def choose_file(conn, %{"dataset_id" => dataset_id, "resource_id" => resource_id}) do
     conn
-    |> assign_or_flash(fn conn -> Datasets.get(conn, dataset_id) end, :dataset, "Unable to get resources, please retry.")
+    |> assign_or_flash(fn -> Datasets.get(dataset_id) end, :dataset, "Unable to get resources, please retry.")
     |> assign(:action_path, resource_path(conn, :post_file, dataset_id, resource_id))
     |> render("choose_file.html")
   end
@@ -102,7 +102,7 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp assign_or_flash(conn, getter, kw, error) do
-    case getter.(conn) do
+    case getter.() do
       {:ok, value} -> assign(conn, kw, value)
       {:error, _error} ->
          conn

@@ -290,7 +290,7 @@ defmodule Transport.ImportData do
     if Enum.any?(dataset["resources"], &is_realtime?/1) do
       {:ok, true}
     else
-      case CommunityResources.get(%Plug.Conn{}, dataset["id"]) do
+      case CommunityResources.get(dataset["id"]) do
         {:ok, resources} -> {:ok, Enum.any?(resources, &is_realtime?/1)}
         {:error, _error} -> {:error, false}
       end

@@ -16,6 +16,8 @@ defmodule Datagouvfr.Client do
     request(:get, conn, url, nil, headers, opts)
   end
 
+  def get(path), do: request(:get, path)
+
   @spec post(%Plug.Conn{}, binary, OAuth2Client.body,
                     OAuth2Client.headers, Keyword.t)
                     :: {:ok, any} | {:error, Error.t}
@@ -52,10 +54,25 @@ defmodule Datagouvfr.Client do
     |> post_process()
   end
 
+  def request(method, path) do
+    url = process_url(path)
+
+    method
+    |> HTTPoison.request(url)
+    |> post_process()
+  end
+
   def get_client(conn) do
     conn.assigns
     |> Map.get(:token, nil)
     |> Authentication.client()
+  end
+
+  def post_process({:ok, %HTTPoison.Response{body: body} = response}) when is_binary(body) do
+    case Jason.decode(body) do
+      {:ok, body} -> post_process({:ok, %{response | body: body}})
+      {:error, error} -> post_process({:error, error})
+    end
   end
 
   @spec post_process({:error, any} | {:ok, %{body: any, status_code: any}}) ::

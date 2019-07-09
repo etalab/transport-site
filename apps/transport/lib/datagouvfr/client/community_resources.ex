@@ -5,9 +5,11 @@ defmodule Datagouvfr.Client.CommunityResources do
   alias Datagouvfr.Client
   require Logger
 
-  def get(conn, id) do
-    conn
-    |> Client.get("/datasets/community_resources/?dataset=#{id}")
+  @endpoint "/datasets/community_resources/"
+
+  def get(id) do
+    "#{@endpoint}?dataset=#{id}"
+    |> Client.get()
     |> case do
       {:ok, %{"data" => data}} -> {:ok, data}
       {:error, error} ->
