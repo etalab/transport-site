@@ -33,6 +33,10 @@
     overflow: hidden;
     display: flex;
     flex-direction: row;
+
+    div:last-child {
+      padding: 1em;
+    }
   }
 
   .dataset__image {
@@ -68,7 +72,6 @@
 
   .dataset__title {
     margin: 0;
-    padding: 1em;
     font-size: 1.2em;
     line-height: 1.25em;
   }
@@ -91,11 +94,15 @@
   }
 
   .shortlist__notices {
+    display: flex;
     flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
   }
 
   .shortlist__notices,
   .shortlist__notice {
+    align-items: center;
     display: flex;
     flex-direction: row;
   }

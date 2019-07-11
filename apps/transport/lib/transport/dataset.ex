@@ -89,8 +89,9 @@ defmodule Transport.Dataset do
   def list_datasets, do: __MODULE__ |> select_active |> preload_without_validations
   def list_datasets([]), do: list_datasets()
   def list_datasets(s) when is_list(s) do
-    sub_resources = no_validations_query()
-    from d in __MODULE__, select: ^s, preload: [resources: ^sub_resources]
+    from d in __MODULE__,
+     select: ^s,
+     preload: [:resources, :region, :aom]
   end
 
   def list_datasets(filters, s \\ [])
@@ -216,10 +217,10 @@ defmodule Transport.Dataset do
   end
 
   @spec get_other_datasets(Transport.Dataset.t(), any) :: [Transport.Dataset.t]
-  def get_other_datasets(%__MODULE__{} = dataset, organization) do
+  def get_other_datasets(%__MODULE__{id: id} = dataset, organization) do
     organization
     |> Ecto.assoc(:datasets)
-    |> where([d], d.id != ^dataset.id)
+    |> where([d], d.id != ^id)
     |> Repo.all()
   end
 
@@ -258,6 +259,20 @@ defmodule Transport.Dataset do
         ""
     end
   end
+
+  @spec nom(Transport.Dataset.t()) :: binary
+  def nom(%__MODULE__{aom: %{nom: nom}}), do: String.capitalize(nom)
+  def nom(%__MODULE__{region: %{nom: nom}}), do: String.capitalize(nom)
+  def nom(_), do: ""
+
+  @spec formats(Transport.Dataset.t()) :: [binary]
+  def formats(%__MODULE__{resources: resources}) when is_list(resources) do
+    resources
+    |> Enum.map(fn r -> r.format end )
+    |> Enum.sort()
+    |> Enum.dedup()
+  end
+  def formats(_), do: []
 
   ## Private functions
 
