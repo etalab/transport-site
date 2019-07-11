@@ -87,34 +87,33 @@
                 <div class="dataset__image" data-provider="<%= dataset.title%>">
                   <%= img_tag(dataset.logo, alt: dataset.title) %>
                 </div>
+                <div>
                 <h3 class="dataset__title">
-                  <a href="/datasets/<%= dataset.slug %>/"><%= dataset.title %></a>
+                  <a href="/datasets/<%= dataset.slug %>/">
+                  <%= Dataset.nom(dataset) %> - 
+                  <%= Dataset.type_to_str(dataset.type) %>
+                  </a>
                 </h3>
+                  <dl class="shortlist__notice">
+                    <dt class="shortlist__label"><%= dgettext("page-shortlist", "Territory") %></dt>
+                    <dd><%= dataset.spatial %></dd>
+                  </dl>
+                </div>
               </div>
               <div class="panel__extra">
                 <div class="dataset__info">
                   <div class="shortlist__notices">
-                    <%= if dataset.licence do %>
                       <dl class="shortlist__notice">
-                        <dt class="shortlist__label">
-                          <%= dgettext("page-shortlist", "Licence") %></dt>
-                        <dd><%= Transport.Dataset.localise_licence(dataset) %></dd>
+                        <dd><%= dataset.title %></dd>
                       </dl>
-                    <% end %>
-
-                    <%= if not Enum.empty?(dataset.resources) and List.first(dataset.resources).format do %>
                       <dl class="shortlist__notice">
+                        <%= unless Dataset.formats(dataset) == [] do %>
                         <dt class="shortlist__label"><%= dgettext("page-shortlist", "Format") %></dt>
-                        <dd><%= List.first(dataset.resources).format %></dd>
+                        <%= for format <- Dataset.formats(dataset) do %>
+                        <dd class="label"><%= format %></dd>
+                        <% end %>
+                        <% end %>
                       </dl>
-                    <% end %>
-
-                    <%= if !is_nil(dataset.spatial) do %>
-                      <dl class="shortlist__notice">
-                        <dt class="shortlist__label"><%= dgettext("page-shortlist", "Territory") %></dt>
-                        <dd><%= dataset.spatial %></dd>
-                      </dl>
-                    <% end %>
                   </div>
                 </div>
               </div>
