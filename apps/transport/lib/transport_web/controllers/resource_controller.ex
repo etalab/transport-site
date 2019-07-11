@@ -63,8 +63,8 @@ defmodule TransportWeb.ResourceController do
     filter = fn d -> Repo.get_by(Dataset, datagouv_id: d["id"]) end
 
     conn = conn
-    |> assign_or_flash(&User.datasets/1, :datasets, "Unable to get resources, please retry.")
-    |> assign_or_flash(&User.org_datasets/1, :org_datasets, "Unable to get resources, please retry.")
+    |> assign_or_flash(fn -> User.datasets(conn) end, :datasets, "Unable to get resources, please retry.")
+    |> assign_or_flash(fn -> User.org_datasets(conn) end, :org_datasets, "Unable to get resources, please retry.")
 
     conn
     |> assign(:datasets, Enum.filter(conn.assigns.datasets, filter))
