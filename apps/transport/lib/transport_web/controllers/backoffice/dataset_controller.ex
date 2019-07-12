@@ -4,6 +4,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
 
   alias Transport.{Dataset, ImportData, ImportDataWorker, Repo, Resource}
   import Ecto.Query
+  require Logger
 
   def post(%Plug.Conn{} = conn, params) do
     msgs = %{
@@ -30,6 +31,11 @@ defmodule TransportWeb.Backoffice.DatasetController do
         conn
         |> put_flash(:error, msgs.error[params["action"]])
         |> put_flash(:error, error)
+      error ->
+        Logger.error(error)
+        conn
+        |> put_flash(:error, msgs.error[params["action"]])
+        |> put_flash(:error, "Unable to get datagouv id")
     end
     |> redirect_to_index()
   end
