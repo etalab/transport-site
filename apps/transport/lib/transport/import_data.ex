@@ -9,9 +9,6 @@ defmodule Transport.ImportData do
   require Logger
   import Ecto.Query
 
-  @separators [?;, ?,]
-  @csv_headers ["Download", "file", "Fichier"]
-
   def all, do: Dataset |> Repo.all() |> Enum.map(&call/1)
 
   def import_validate_all do
