@@ -3,12 +3,13 @@ defmodule Datagouvfr.Client.Reuses do
   A client to manipulate https://www.data.gouv.fr/api/1/reuses endpoints
   """
   alias Datagouvfr.Client
+  alias Transport.Dataset
   require Logger
 
   @endpoint "reuses"
 
-  @spec get(Plug.Conn.t(), %{datagouv_id: any}) :: nil | {:ok, [any]}
-  def get(%Plug.Conn{} = conn, %{datagouv_id: dataset_id}) do
+  @spec get(Plug.Conn.t(), Dataset.t()) :: nil | {:ok, [any]}
+  def get(%Plug.Conn{} = conn, %Dataset{datagouv_id: dataset_id}) do
     case Client.get(conn, @endpoint, [], params: %{"dataset" => dataset_id}) do
       {:ok, %{"data" => data}} -> {:ok, Enum.map(data, &add_name/1)}
       {:error, %OAuth2.Response{body: body}} ->
