@@ -4,31 +4,31 @@ defmodule Datagouvfr.Client do
   """
 
   alias Datagouvfr.Authentication
-  alias OAuth2.Client, as: OAuth2Client
-  alias OAuth2.{Error, Request, Response}
+  alias OAuth2.{Client, Error, Request, Response}
   require Logger
 
+  @type oauth2_response :: {:ok, any} | {:error, Error.t} | {:error, Response.t}
+  @type response :: {:ok, any} | {:error, any}
+
+  @spec base_url :: binary
   def base_url, do: Application.get_env(:oauth2, Authentication)[:site] |> Path.join("/api/1/")
 
-  @spec get(%Plug.Conn{}, binary, OAuth2Client.headers, Keyword.t)
-                    :: {:ok, any} | {:error, Error.t}
+  @spec get(%Plug.Conn{}, binary, Client.headers, Keyword.t) :: oauth2_response
   def get(%Plug.Conn{} = conn, url, headers \\ [], opts \\ []) do
     request(:get, conn, url, nil, headers, opts)
   end
 
-  def get(path), do: request(:get, path)
+  @spec get(binary) :: response
+  def get(path) when is_binary(path), do: request(:get, path)
 
-  @spec post(%Plug.Conn{}, binary, OAuth2Client.body,
-                    OAuth2Client.headers, Keyword.t)
-                    :: {:ok, any} | {:error, Error.t}
+  @spec post(%Plug.Conn{}, binary, Client.body, Client.headers, Keyword.t) :: oauth2_response
   def post(%Plug.Conn{} = conn, url, body \\ "", headers \\ [], opts \\ []) do
     headers = default_content_type(headers)
     :post
     |> request(conn, url, body, headers, opts)
   end
 
-  @spec delete(%Plug.Conn{}, binary, OAuth2Client.headers, Keyword.t)
-                    :: {:ok, any} | {:error, Error.t}
+  @spec delete(%Plug.Conn{}, binary, Client.headers, Keyword.t) :: oauth2_response
   def delete(%Plug.Conn{} = conn, url, headers \\ [], opts \\ []) do
     headers = default_content_type(headers)
     :delete
@@ -41,9 +41,7 @@ defmodule Datagouvfr.Client do
   TODO: add a Transport.Request module to lower the arity and make this
   module clearer
   """
-  @spec request(atom, %Plug.Conn{}, binary, OAuth2Client.body,
-                OAuth2Client.headers, Keyword.t)
-                :: {:ok, Response.t} | {:error, Response.t} | {:error, Error.t}
+  @spec request(atom, %Plug.Conn{}, binary, Client.body, Client.headers, Keyword.t) :: oauth2_response
   def request(method, %Plug.Conn{} = conn, url, body, headers, opts) do
     client = get_client(conn)
     url = process_url(url)
@@ -54,6 +52,7 @@ defmodule Datagouvfr.Client do
     |> post_process()
   end
 
+  @spec request(atom, binary | [binary, ...]) :: response
   def request(method, path) do
     url = process_url(path)
 
@@ -70,12 +69,12 @@ defmodule Datagouvfr.Client do
 
   def post_process({:ok, %HTTPoison.Response{body: body} = response}) when is_binary(body) do
     case Jason.decode(body) do
-      {:ok, body} -> post_process({:ok, %{response | body: body}})
-      {:error, error} -> post_process({:error, error})
+      {:ok, body} -> post_process({:ok, %{body: body, status_code: response.status_code}})
+      error -> post_process(error)
     end
   end
 
-  @spec post_process({:error, any} | {:ok, %{body: any, status_code: any}}) ::
+  @spec post_process({:error, any} | {:ok, %{body: any, status_code: integer}}) ::
           {:error, any} | {:ok, any}
   def post_process(response) do
     case response do
@@ -86,8 +85,9 @@ defmodule Datagouvfr.Client do
     end
   end
 
+  @spec process_url(binary | [binary]) :: any
   def process_url(path) when is_list(path), do: path |> Path.join |> process_url
-  def process_url(path) do
+  def process_url(path) when is_binary(path) do
     base_url()
     |> Path.join(path)
     |> URI.parse

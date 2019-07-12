@@ -144,7 +144,7 @@ defmodule Datagouvfr.Client.Datasets do
   @doc """
   Is current_user subscribed to this dataset?
   """
-  @spec current_user_subscribed?(%Plug.Conn{}, String.t) :: {atom, map}
+  @spec current_user_subscribed?(%Plug.Conn{}, String.t) :: boolean
   def current_user_subscribed?(%Plug.Conn{assigns: %{current_user: %{"id" => user_id}}} = conn, dataset_id) do
     dataset_id
     |> get_followers()

@@ -41,11 +41,11 @@ defmodule Datagouvfr.Client.Discussions do
     |> Client.get("/#{@endpoint}?for=#{id}", [], follow_redirect: true)
     |> case do
       {:ok, %{"data" => data}} -> data
-      {:error, %{reason: reason}} ->
-        Logger.error("When fetching discussions for id #{id}: #{reason}")
-        nil
-      {:error, %{body: body}} ->
+      {:error, %OAuth2.Response{body: body}} ->
         Logger.error("When fetching discussions for id #{id}: #{body}")
+        nil
+      {:error, %OAuth2.Error{reason: reason}} ->
+        Logger.error("When fetching discussions for id #{id}: #{reason}")
         nil
     end
   end

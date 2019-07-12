@@ -8,7 +8,7 @@ defmodule TransportWeb.SessionController do
   require Logger
 
   def new(conn, _) do
-    redirect(conn, external: Authentication.authorize_url!)
+    redirect(conn, external: Authentication.authorize_url)
   end
 
   def create(conn, %{"code" => code}) do
