@@ -13,8 +13,9 @@ defmodule TransportWeb.DiscussionController do
     |> case do
       {:ok, _} -> conn
       |> put_flash(:info, dgettext("page-dataset-details", "New discussion started"))
-    {:error, %{body: %{"message" => message}}} ->
-      Logger.error("When starting a new discussion: #{message}")
+    {:error, %{body: body}} ->
+      Logger.error("Error when starting a new discussion:")
+      Logger.error(body)
       conn
       |> put_flash(:error, dgettext("page-dataset-details", "Unable to start a new discussion"))
     {:error, error} ->
