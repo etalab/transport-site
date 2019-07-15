@@ -7,16 +7,16 @@ defmodule Datagouvfr.Client.Reuses do
 
   @endpoint "reuses"
 
-  @spec get(Plug.Conn.t(), %{datagouv_id: any}) :: {:error, any}
+  @spec get(Plug.Conn.t(), %{datagouv_id: any}) :: nil | {:ok, [any]}
   def get(%Plug.Conn{} = conn, %{datagouv_id: dataset_id}) do
     case Client.get(conn, @endpoint, [], params: %{"dataset" => dataset_id}) do
       {:ok, %{"data" => data}} -> {:ok, Enum.map(data, &add_name/1)}
-      {:error, %{reason: reason}} ->
+      {:error, %OAuth2.Response{body: body}} ->
+        Logger.error("Unable to get reuses of dataset #{dataset_id} because of #{body}")
+        nil
+      {:error, %OAuth2.Error{reason: reason}} ->
         Logger.error("Unable to get reuses of dataset #{dataset_id} because of #{reason}")
-        {:error, reason}
-      {:error, error} ->
-        Logger.error(error)
-        {:error, error}
+        nil
     end
   end
 
