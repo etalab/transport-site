@@ -205,6 +205,7 @@ defmodule Transport.Dataset do
   def filter_has_realtime, do: from d in __MODULE__, where: d.has_realtime == true
   def count_has_realtime, do: Repo.aggregate(filter_has_realtime(), :count, :id)
 
+  @spec get_by([{:slug, any}, ...]) :: Transport.Dataset.t | nil
   def get_by(slug: slug) do
     __MODULE__
     |> where(slug: ^slug)
@@ -212,6 +213,7 @@ defmodule Transport.Dataset do
     |> Repo.one()
   end
 
+  @spec get_other_datasets(Transport.Dataset.t(), any) :: [Transport.Dataset.t]
   def get_other_datasets(%__MODULE__{} = dataset, organization) do
     organization
     |> Ecto.assoc(:datasets)

@@ -135,9 +135,6 @@ defmodule Opendatasoft.UrlExtractor do
            nil
          _ -> nil
        end
-     {:error, error} ->
-       Logger.error(error)
-       nil
    end
  end
 
