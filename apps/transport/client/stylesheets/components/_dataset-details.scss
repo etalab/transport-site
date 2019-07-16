@@ -12,6 +12,18 @@
   }
 }
 
+.dataset__logo {
+  max-height: 10vh;
+  max-width: 20vw;
+  display: flex;
+  justify-content: center;
+
+  img {
+    max-height: 100%;
+    max-width: 100%;
+  }
+}
+
 .display-more {
   padding-top: 4vh;
   display: block;
@@ -219,6 +231,10 @@
   }
 
   .dataset {
+    .dataset__logo {
+      max-width: 80vw;
+    }
+
     .section {
       padding: 1em 0 1em 0;
     }
