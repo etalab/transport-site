@@ -2,7 +2,7 @@
   <section class="section">
     <div class="container dataset__header">
       <div class="dataset__logo">
-        <%= img_tag(@dataset.logo, alt: @dataset.title) %>
+        <%= img_tag(@dataset.full_logo, alt: @dataset.title) %>
       </div>
       <div class="dataset__title">
         <h1><%= @dataset.title%></h1>
