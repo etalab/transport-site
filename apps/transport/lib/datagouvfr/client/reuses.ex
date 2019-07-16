@@ -2,7 +2,7 @@ defmodule Datagouvfr.Client.Reuses do
   @moduledoc """
   A client to manipulate https://www.data.gouv.fr/api/1/reuses endpoints
   """
-  alias Datagouvfr.Client
+  alias Datagouvfr.Client.OAuth, as: Client
   alias Transport.Dataset
   require Logger
 

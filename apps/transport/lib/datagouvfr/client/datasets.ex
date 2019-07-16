@@ -4,7 +4,8 @@ defmodule Datagouvfr.Client.Datasets do
   """
 
   import TransportWeb.Gettext
-  alias Datagouvfr.Client
+  alias Datagouvfr.Client.HTTPoison, as: Client
+  alias Datagouvfr.Client.OAuth, as: OAuthClient
   require Logger
   alias Transport.Helpers
 
@@ -70,7 +71,7 @@ defmodule Datagouvfr.Client.Datasets do
   """
   @spec post_followers(%Plug.Conn{}, String.t) :: {atom, map}
   def post_followers(%Plug.Conn{} = conn, dataset_id) do
-    Client.post(
+    OAuthClient.post(
       conn,
       Path.join([@endpoint, dataset_id, "followers"])
     )
@@ -81,7 +82,7 @@ defmodule Datagouvfr.Client.Datasets do
   """
   @spec delete_followers(%Plug.Conn{}, String.t) :: {atom, map}
   def delete_followers(%Plug.Conn{} = conn, dataset_id) do
-    Client.delete(
+    OAuthClient.delete(
       conn,
       Path.join([@endpoint, dataset_id, "followers"])
     )
@@ -128,7 +129,7 @@ defmodule Datagouvfr.Client.Datasets do
   end
   defp is_user_in_followers?(page_url, user_id, conn) when is_binary(page_url) do
     conn
-    |> Client.get(page_url)
+    |> OAuthClient.get(page_url)
     |> is_user_in_followers?(user_id, conn)
   end
   defp is_user_in_followers?(_, _, _), do: false

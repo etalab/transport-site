@@ -11,7 +11,7 @@ defmodule Transport.Partner do
     field :name, :string
   end
 
-  alias Datagouvfr.Client
+  alias Datagouvfr.Client.HTTPoison, as: Client
   require Logger
 
   def is_datagouv_partner_url?(url), do: Regex.match?(partner_regex(), url)
@@ -71,19 +71,11 @@ defmodule Transport.Partner do
     |> Regex.compile!()
   end
 
+  @spec get_api_response(Client.path(), fun(), any) :: any
   def get_api_response(url, process_response \\ &(&1), headers \\ [] ) do
-    url_api = Client.process_url(url)
-
-    with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(url_api, headers),
-         {:ok, json} <- Poison.decode(body) do
-      process_response.(json)
-    else
-      {:ok, %{status_code: status_code, body: body}} ->
-        Logger.error("Got status code #{status_code} when reaching #{url_api}")
-        Logger.error(body)
-        nil
+    case Client.get(url, headers) do
+      {:ok, json} -> process_response.(json)
       {:error, error} ->
-        Logger.error("Error while reaching #{url_api}")
         Logger.error(error)
         nil
     end
