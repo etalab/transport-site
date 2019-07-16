@@ -53,55 +53,11 @@ defmodule Datagouvfr.Client.Datasets do
     |> Enum.reduce(%Datasets{}, &accumulator_atomizer/2)
   end
 
-  @doc """
-  Call to GET /api/1/organizations/:id/datasets/
-  You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/organizations/list_organization_datasets
-  """
-  @spec get(map) :: {atom, [map]}
-  def get(%{:organization => id}) do
-    ["organizations", id, @endpoint]
-    |> Path.join()
-    |> Client.get()
-    |> case do #We need that for backward compatibility
-      {:ok, %{"data" => data}} -> {:ok, data}
-      {:ok, data} -> {:ok, data}
-      {:error, error} ->
-        Logger.error(error)
-        {:error, error}
-    end
-  end
-
-  @doc """
-  Call to url
-  """
-  @spec get(keyword) :: {atom, [map]}
-  def get([url: url]) do
-    url
-    |> Helpers.filename_from_url()
-    |> Client.get()
-    |> case do #We need that for backward compatibility
-      {:ok, %{"data" => data}} -> {:ok, data}
-      {:ok, data} -> {:ok, data}
-      {:error, error} ->
-        Logger.error(error)
-        {:error, error}
-    end
-  end
-
-  @doc """
-  Call to GET /api/1/datasets/:id/
-  You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/datasets/put_dataset
-  """
-  @spec get(String.t) :: {atom, [map]}
-  def get(id) do
-    @endpoint
-    |> Path.join(id)
-    |> Client.get()
-  end
-
   @spec get_id_from_url(String.t) :: String.t
   def get_id_from_url(url) do
-    case Client.get(url) do
+    [@endpoint, Helpers.filename_from_url(url)]
+    |> Client.get()
+    |> case do
       {:ok, dataset} -> dataset["id"]
       {:error, error} ->
         Logger.error(error)
