@@ -57,7 +57,7 @@ defmodule Datagouvfr.Client do
     url = process_url(path)
 
     method
-    |> HTTPoison.request(url)
+    |> HTTPoison.request(url, "", [], follow_redirect: true)
     |> post_process()
   end
 
