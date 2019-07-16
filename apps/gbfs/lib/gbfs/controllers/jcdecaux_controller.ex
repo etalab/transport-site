@@ -51,7 +51,8 @@ defmodule GBFS.JCDecauxController do
               name: s["name"],
               lat: s["position"]["lat"],
               lon: s["position"]["lng"],
-              address: s["address"]
+              address: s["address"],
+              capacity: s["bike_stands"],
             } end)
           }
         )
