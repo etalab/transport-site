@@ -83,7 +83,7 @@ defmodule Transport.ImportData do
     |> Enum.map(fn resource ->
             %{
             "url" => resource["url"],
-            "format" => formated_format(resource),
+            "format" => formated_format(resource, type),
             "title" => get_title(resource),
             "last_import" => DateTime.utc_now |> DateTime.to_string,
             "last_update" => resource["last_modified"],
@@ -147,12 +147,15 @@ defmodule Transport.ImportData do
 
   """
   def is_gtfs?(%{} = params) do
-    if is_gtfs_rt?(params["format"]) do
-      false
-    else
-      url = params["url"]
-      is_gtfs?(params["format"]) or is_gtfs?(params["description"]) or
-      (is_gtfs?(url) and !is_format?(url, "json") and !is_format?(url, "csv") and !is_format?(params, "shp"))
+    url = params["url"]
+    cond do
+      is_gtfs_rt?(params["format"]) -> false
+      is_gtfs?(params["format"]) -> true
+      is_format?(url, "json") -> false
+      is_format?(url, "csv") -> false
+      is_format?(url, "shp") -> false
+      is_gtfs?(params["description"]) -> true
+      true -> false
     end
   end
   def is_gtfs?(str), do: is_format?(str, "gtfs")
@@ -245,19 +248,25 @@ defmodule Transport.ImportData do
   ## Examples
 
       iex> %{"last_modified" => "2017-11-29T23:54:05", "url" => "http1", "format" => "gtfs.zip", "mime" => "foo"}
-      ...> |> ImportData.formated_format
+      ...> |> ImportData.formated_format("")
       "GTFS"
 
       iex> %{"last_modified" => "2017-11-29T23:54:05", "url" => "http1", "format" => "xls", "mime" => "foo"}
-      ...> |> ImportData.formated_format
+      ...> |> ImportData.formated_format("")
       "xls"
+
+      iex> %{"format" => "csv"}
+      ...> |> ImportData.formated_format("public-transit")
+      "GTFS"
   """
-  def formated_format(resource) do
+  def formated_format(resource, type) do
     format = Map.get(resource, "format", "")
 
     cond do
       is_gtfs_rt?(format) -> "gtfs-rt"
+      is_netex?(format) -> "netex"
       is_gtfs?(format) -> "GTFS"
+      type == "public-transit" -> "GTFS"
       true -> format
     end
   end

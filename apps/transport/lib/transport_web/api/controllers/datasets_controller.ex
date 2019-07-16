@@ -38,7 +38,8 @@ defmodule TransportWeb.API.DatasetController do
       "created_at" => dataset.created_at,
       "updated" => Helpers.last_updated(dataset.resources),
       "resources" => Enum.map(dataset.resources, &transform_resource/1),
-      "aom" => transform_aom(dataset.aom)
+      "aom" => transform_aom(dataset.aom),
+      "type" => dataset.type,
     }
   end
 
@@ -47,7 +48,9 @@ defmodule TransportWeb.API.DatasetController do
       "title" => resource.title,
       "updated" => Helpers.format_datetime(resource.last_update),
       "url" => resource.latest_url,
-      "end_calendar_validity" => resource.metadata["end_date"]
+      "end_calendar_validity" => resource.metadata["end_date"],
+      "start_calendar_validity" => resource.metadata["start_date"],
+      "format" => resource.format,
     }
   end
 
