@@ -242,3 +242,7 @@ msgstr "Se désabonner des discussions ce jeu de données"
 #, elixir-format
 msgid "Log in to subscribe to comments of this dataset."
 msgstr "Identifiez vous pour vous abonner aux discussions de ce jeu de données."
+
+#, elixir-format
+msgid "No error detected"
+msgstr "Pas d'erreur"

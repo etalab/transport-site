@@ -34,7 +34,11 @@
             <% r = Resource.get_max_severity_validation_number(@resource) %>
             <%= unless is_nil(r) do %>
             <span class="<%= summary_class(r) %>">
+                <%= if r.severity == "Irrevelant" do %>
+                <%= dgettext("page-dataset-details", "No error detected") %>
+                <% else %>
                 <%= "#{r.count_errors} #{Validation.severities(r.severity)[:text]}" %>
+                <% end %>
             </span>
             <%= link(
                 dgettext("page-dataset-details", "See GTFS Validation report"),
