@@ -96,3 +96,7 @@ msgstr ""
 #, elixir-format
 msgid "Long distance coach"
 msgstr ""
+
+#, elixir-format
+msgid "Aerial"
+msgstr ""

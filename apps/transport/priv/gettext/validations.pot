@@ -179,5 +179,5 @@ msgid "permanent link to this validation"
 msgstr ""
 
 #, elixir-format
-msgid "Nice work, there are no issues !"
+msgid "Nice work, there are no issues!"
 msgstr ""
