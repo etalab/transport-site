@@ -13,6 +13,10 @@ defmodule GBFS.Router do
     plug :assign_smoove
   end
 
+  pipeline :index_pipeline do
+    plug :assign_index
+  end
+
   @reseaux_jcdecaux %{
     "amiens" => "Velam",
     "cergy-pontoise" => "Velo2",
@@ -41,6 +45,11 @@ defmodule GBFS.Router do
 
   scope "/gbfs", GBFS do
     pipe_through :api
+
+    scope "/" do
+      pipe_through :index_pipeline
+      get "/", IndexController, :index
+    end
 
     @reseaux_smoove
     |> Enum.map(
@@ -93,4 +102,10 @@ defmodule GBFS.Router do
     conn
     |> assign(:smoove_params, Enum.find(@reseaux_smoove, & &1.contract_id == contract_id))
   end
+
+  defp assign_index(conn, _) do
+    conn
+    |> assign(:networks, ["vcub"] ++ (@reseaux_jcdecaux |> Map.keys) ++ (@reseaux_smoove |> Enum.map(& &1.contract_id)))
+  end
+
 end
