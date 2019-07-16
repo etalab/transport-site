@@ -96,3 +96,7 @@ msgstr "Impossible de trouver le code INSEE"
 #, elixir-format
 msgid "Long distance coach"
 msgstr "Car longue distance"
+
+#, elixir-format
+msgid "Aerial"
+msgstr "Aérien"
