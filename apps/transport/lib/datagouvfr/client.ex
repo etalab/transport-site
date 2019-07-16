@@ -18,8 +18,9 @@ defmodule Datagouvfr.Client do
     request(:get, conn, url, nil, headers, opts)
   end
 
-  @spec get(binary) :: response
+  @spec get(binary | [binary]) :: response
   def get(path) when is_binary(path), do: request(:get, path)
+  def get(path) when is_list(path), do: request(:get, path)
 
   @spec post(%Plug.Conn{}, binary, Client.body, Client.headers, Keyword.t) :: oauth2_response
   def post(%Plug.Conn{} = conn, url, body \\ "", headers \\ [], opts \\ []) do
