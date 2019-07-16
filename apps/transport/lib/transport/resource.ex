@@ -197,8 +197,12 @@ defmodule Transport.Resource do
 
         %{severity: max_severity, count_errors: count_errors}
       {:ok, _} ->
-        Logger.error "Unable to get validation of resource #{id}"
-        nil
+        if Repo.get_by(Validation, resource_id: id).details == %{} do
+          %{severity: "Irrevelant", count_errors: 0}
+        else
+          Logger.error "Unable to get validation of resource #{id}"
+          nil
+        end
       {:error, error} ->
         Logger.error error
         nil

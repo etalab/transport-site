@@ -242,3 +242,7 @@ msgstr ""
 #, elixir-format
 msgid "Log in to subscribe to comments of this dataset."
 msgstr ""
+
+#, elixir-format
+msgid "No error detected"
+msgstr ""
