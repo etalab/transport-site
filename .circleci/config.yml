@@ -5,7 +5,7 @@ default_docker: &default_docker
   environment:
     MIX_ENV: test
     PG_URL_TEST: ecto://root@127.0.0.1/transport_test
-    DATAGOUVFR_SITE: https://www.data.gouv.fr
+    DATAGOUVFR_SITE: https://next.data.gouv.fr
     MAILCHIMP_NEWSLETTER_URL: //gouv.us13.list-manage.com/subscribe/post?u=5ee8bfe0f1b073b49de06a063&amp;id=13db2e9a94
     GTFS_VALIDATOR_URL: https://transport-validator.cleverapps.io
 
