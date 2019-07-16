@@ -9,6 +9,10 @@ defmodule GBFS.FeedView do
     }
   end
 
+  def render(_conn, %{data: data}) do
+    data
+  end
+
   defp default_last_updated, do: DateTime.utc_now() |> DateTime.to_unix()
 
 end
