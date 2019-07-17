@@ -92,11 +92,12 @@ defmodule GBFS.VCubController do
           |> Stream.reject(fn {s, _} -> match?(%Exshape.Shp.Header{}, s) end)
           |> Stream.map(
             fn {s, d} ->
-              [id, _, _, _, addr, city, _, _, _, name | _] = d
+              [id, _, _, _, addr, city, _, _, nb_suppor, name | _] = d
               Map.merge(%{
                 station_id: Integer.to_string(id),
                 address: "#{String.trim(addr)} #{String.trim(city)}",
-                name: String.trim(name)
+                name: String.trim(name),
+                capacity: String.to_integer(String.trim(nb_suppor)),
               },
               to_wgs84(s)
               )
