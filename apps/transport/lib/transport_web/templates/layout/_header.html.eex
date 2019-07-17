@@ -5,6 +5,9 @@
     <nav role="navigation">
       <ul class="nav__links">
         <li class="nav__item">
+          <%= link(gettext("About"), to: "https://doc.transport.data.gouv.fr") %>
+        </li>
+        <li class="nav__item">
           <%= link(gettext("Publish or update a dataset"), to: resource_path(@conn, :choose_action)) %>
         </li>
         <%= if assigns[:current_user] do %>
