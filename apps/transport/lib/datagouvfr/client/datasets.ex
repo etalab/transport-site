@@ -4,7 +4,8 @@ defmodule Datagouvfr.Client.Datasets do
   """
 
   import TransportWeb.Gettext
-  alias Datagouvfr.Client
+  alias Datagouvfr.Client.API
+  alias Datagouvfr.Client.OAuth, as: OAuthClient
   require Logger
   alias Transport.Helpers
 
@@ -56,7 +57,7 @@ defmodule Datagouvfr.Client.Datasets do
   @spec get_id_from_url(String.t) :: String.t
   def get_id_from_url(url) do
     [@endpoint, Helpers.filename_from_url(url)]
-    |> Client.get()
+    |> API.get()
     |> case do
       {:ok, dataset} -> dataset["id"]
       {:error, error} ->
@@ -70,7 +71,7 @@ defmodule Datagouvfr.Client.Datasets do
   """
   @spec post_followers(%Plug.Conn{}, String.t) :: {atom, map}
   def post_followers(%Plug.Conn{} = conn, dataset_id) do
-    Client.post(
+    OAuthClient.post(
       conn,
       Path.join([@endpoint, dataset_id, "followers"])
     )
@@ -81,7 +82,7 @@ defmodule Datagouvfr.Client.Datasets do
   """
   @spec delete_followers(%Plug.Conn{}, String.t) :: {atom, map}
   def delete_followers(%Plug.Conn{} = conn, dataset_id) do
-    Client.delete(
+    OAuthClient.delete(
       conn,
       Path.join([@endpoint, dataset_id, "followers"])
     )
@@ -94,7 +95,7 @@ defmodule Datagouvfr.Client.Datasets do
   def get_followers(dataset_id) do
     [@endpoint, dataset_id, "followers"]
     |> Path.join()
-    |> Client.get()
+    |> API.get()
   end
 
   @doc """
@@ -112,7 +113,7 @@ defmodule Datagouvfr.Client.Datasets do
     path = Path.join([@endpoint, id])
     response =
       path
-      |> Client.process_url()
+      |> API.process_url()
       |> HTTPoison.head()
 
     not match?({:ok, %HTTPoison.Response{status_code: 404}}, response)
@@ -128,7 +129,7 @@ defmodule Datagouvfr.Client.Datasets do
   end
   defp is_user_in_followers?(page_url, user_id, conn) when is_binary(page_url) do
     conn
-    |> Client.get(page_url)
+    |> OAuthClient.get(page_url)
     |> is_user_in_followers?(user_id, conn)
   end
   defp is_user_in_followers?(_, _, _), do: false

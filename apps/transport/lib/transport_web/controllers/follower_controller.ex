@@ -6,7 +6,7 @@ defmodule TransportWeb.FollowerController do
     current_user_subscribed = Datasets.current_user_subscribed?(conn, dataset_id)
     method = if current_user_subscribed do :delete_followers else :post_followers end
 
-    Dataset
+    Datasets
     |> apply(method, [conn, dataset_id])
     |> case do
       {:error, error} ->

@@ -3,7 +3,7 @@ defmodule Datagouvfr.Client.User do
   An Client to retrieve User information of data.gouv.fr
   """
 
-  alias Datagouvfr.Client
+  alias Datagouvfr.Client.OAuth, as: Client
 
   @me_fields ~w(avatar avatar_thumbnail first_name id last_name
                 organizations page id uri apikey email)

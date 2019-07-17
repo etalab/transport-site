@@ -4,12 +4,12 @@ defmodule TransportWeb.DiscussionController do
 
   alias Datagouvfr.Client.Discussions
 
-  def post_discussion(conn, %{"comment" => comment,
+  def post_discussion(%Plug.Conn{} = conn, %{"comment" => comment,
                               "dataset_id" => id_,
                               "title" => title,
                               "dataset_slug" => dataset_slug}) do
     conn
-    |> Discussions.post(id_, title, comment)
+    |> Discussions.post(id_, title, comment, [])
     |> case do
       {:ok, _} -> conn
       |> put_flash(:info, dgettext("page-dataset-details", "New discussion started"))

@@ -2,7 +2,7 @@ defmodule Datagouvfr.Client.Resources do
   @moduledoc """
   Abstraction of data.gouv.fr resource
   """
-  alias Datagouvfr.Client
+  alias Datagouvfr.Client.OAuth, as: Client
 
   def upload(conn, dataset_id, id, file) do
     Client.post(
