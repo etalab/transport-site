@@ -212,7 +212,9 @@ defmodule Transport.Resource do
   def get_max_severity_validation_number(_), do: nil
 
   def is_gtfs?(%__MODULE__{format: "GTFS"}), do: true
-  def is_gtfs?(%__MODULE__{metadata: m}) when not is_nil(m), do: true
+  def is_gtfs?(%__MODULE__{metadata: m} = r) when not is_nil(m) do
+    not is_netex?(r)
+  end
   def is_gtfs?(_), do: false
   def is_gbfs?(%__MODULE__{format: "gbfs"}), do: true
   def is_gbfs?(_), do: false
