@@ -180,6 +180,6 @@ msgstr "This is the automated evalation of the GTFS datafile. "
 msgid "permanent link to this validation"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Nice work, there are no issues!"
 msgstr ""

@@ -40,7 +40,7 @@
       </li>
 
       <li>
-        <a class="footer__link footer__link--tos" href="/faq" role="link">FAQ</a>
+        <a class="footer__link footer__link--tos" href="https://doc.transport.data.gouv.fr/foire-aux-questions" role="link">FAQ</a>
       </li>
 
       <li>

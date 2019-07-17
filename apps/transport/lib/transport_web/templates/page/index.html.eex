@@ -86,7 +86,7 @@
 <section class="section">
     <div class="container container-small">
         <h2 class="text-center"><%= dgettext("page-index", "one platform title") %></h2>
-        <p><%= dgettext("page-index", "one platform description") %>&nbsp;<a href=""><%= dgettext("page-index","Learn more") %></a>.</p>
+        <p><%= dgettext("page-index", "one platform description") %>.</p>
     </div>
 </section>
 <section class="section section-grey" id="territory">
@@ -177,7 +177,7 @@
             <img src="<%= static_path(@conn, "/images/logos/tictactrip-logo.png") %>" alt="Tric Tac Trip"/>
             <img src="<%= static_path(@conn, "/images/logos/localisateur-logo.png") %>" alt="Le Localisateur"/>
         </div>
-        <p class="text-center"><%= dgettext("page-index", "reusers list description") %> <a href=""><%= dgettext("page-index", "Learn more") %></a>.</p>
+        <p class="text-center"><%= dgettext("page-index", "reusers list description") %> <a href=""><%= link(dgettext("page-index", "Learn more"), to: "https://doc.transport.data.gouv.fr/reutilisateurs/outils-pour-les-reutilisateurs") %></a>.</p>
     </div>
 </section>
 <section class="section section-grey mailing-list" id="mailing-list">
