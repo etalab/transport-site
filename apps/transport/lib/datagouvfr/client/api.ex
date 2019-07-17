@@ -1,6 +1,6 @@
-defmodule Datagouvfr.Client.HTTPoison do
+defmodule Datagouvfr.Client.API do
   @moduledoc """
-  Request Datagouv API with HTTPoison
+  Request Datagouv API
   """
   require Logger
 
@@ -31,7 +31,6 @@ defmodule Datagouvfr.Client.HTTPoison do
   end
   def post(path, body, headers, blank) when is_binary(path) or is_list(path) do
     headers = default_content_type(headers)
-    IO.puts "blank: #{blank}"
 
     if blank do
       Logger.debug fn -> "Post body: #{inspect body}" end

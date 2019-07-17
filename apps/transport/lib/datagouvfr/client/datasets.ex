@@ -4,7 +4,7 @@ defmodule Datagouvfr.Client.Datasets do
   """
 
   import TransportWeb.Gettext
-  alias Datagouvfr.Client.HTTPoison, as: Client
+  alias Datagouvfr.Client.API
   alias Datagouvfr.Client.OAuth, as: OAuthClient
   require Logger
   alias Transport.Helpers
@@ -57,7 +57,7 @@ defmodule Datagouvfr.Client.Datasets do
   @spec get_id_from_url(String.t) :: String.t
   def get_id_from_url(url) do
     [@endpoint, Helpers.filename_from_url(url)]
-    |> Client.get()
+    |> API.get()
     |> case do
       {:ok, dataset} -> dataset["id"]
       {:error, error} ->
@@ -95,7 +95,7 @@ defmodule Datagouvfr.Client.Datasets do
   def get_followers(dataset_id) do
     [@endpoint, dataset_id, "followers"]
     |> Path.join()
-    |> Client.get()
+    |> API.get()
   end
 
   @doc """
@@ -113,7 +113,7 @@ defmodule Datagouvfr.Client.Datasets do
     path = Path.join([@endpoint, id])
     response =
       path
-      |> Client.process_url()
+      |> API.process_url()
       |> HTTPoison.head()
 
     not match?({:ok, %HTTPoison.Response{status_code: 404}}, response)

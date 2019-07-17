@@ -3,7 +3,7 @@ defmodule Datagouvfr.Client.Discussions do
   An API client for data.gouv.fr discussions
   """
 
-  alias Datagouvfr.Client.HTTPoison, as: HTTPoisonClient
+  alias Datagouvfr.Client.API
   alias Datagouvfr.Client.OAuth, as: Client
   require Logger
 
@@ -27,7 +27,7 @@ defmodule Datagouvfr.Client.Discussions do
     headers = [
       {"X-API-KEY", Application.get_env(:transport, :datagouvfr_apikey)}
     ]
-    HTTPoisonClient.post(@endpoint, payload_post(id_, title, comment), headers, blank)
+    API.post(@endpoint, payload_post(id_, title, comment), headers, blank)
   end
   @spec post(%Plug.Conn{}, binary, binary, binary, nil | any) :: Client.oauth_response
   def post(%Plug.Conn{} = conn, id_, title, comment, extras \\ nil) do

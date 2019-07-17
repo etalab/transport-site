@@ -11,7 +11,7 @@ defmodule Transport.Partner do
     field :name, :string
   end
 
-  alias Datagouvfr.Client.HTTPoison, as: Client
+  alias Datagouvfr.Client.API
   require Logger
 
   def is_datagouv_partner_url?(url), do: Regex.match?(partner_regex(), url)
@@ -71,9 +71,9 @@ defmodule Transport.Partner do
     |> Regex.compile!()
   end
 
-  @spec get_api_response(Client.path(), fun(), any) :: any
+  @spec get_api_response(API.path(), fun(), any) :: any
   def get_api_response(url, process_response \\ &(&1), headers \\ [] ) do
-    case Client.get(url, headers) do
+    case API.get(url, headers) do
       {:ok, json} -> process_response.(json)
       {:error, error} ->
         Logger.error(error)
