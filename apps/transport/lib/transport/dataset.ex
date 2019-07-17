@@ -45,6 +45,7 @@ defmodule Transport.Dataset do
     "charging-stations" => dgettext("dataset", "Charging stations"),
     "micro-mobility" => dgettext("dataset", "Micro mobility"),
     "air-transport" => dgettext("dataset", "Aerial"),
+    "train" => dgettext("dataset", "Train"),
     "bike-sharing" => dgettext("dataset", "Bike sharing"),
     "long-distance-coach" => dgettext("dataset", "Long distance coach")
   }
