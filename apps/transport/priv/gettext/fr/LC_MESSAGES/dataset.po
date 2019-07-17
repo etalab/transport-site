@@ -100,3 +100,7 @@ msgstr "Car longue distance"
 #, elixir-format
 msgid "Aerial"
 msgstr "Aérien"
+
+#, elixir-format
+msgid "Train"
+msgstr "Train"
