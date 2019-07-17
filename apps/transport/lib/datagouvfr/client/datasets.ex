@@ -61,7 +61,7 @@ defmodule Datagouvfr.Client.Datasets do
     |> case do
       {:ok, dataset} -> dataset["id"]
       {:error, error} ->
-        Logger.error(error)
+        Logger.error(inspect(error))
         nil
     end
   end
