@@ -90,12 +90,11 @@
                 <div>
                 <h3 class="dataset__title">
                   <a href="/datasets/<%= dataset.slug %>/">
-                  <%= Dataset.nom(dataset) %> - 
+                  <%= Dataset.nom(dataset) %> -
                   <%= Dataset.type_to_str(dataset.type) %>
                   </a>
                 </h3>
                   <dl class="shortlist__notice">
-                    <dt class="shortlist__label"><%= dgettext("page-shortlist", "Territory") %></dt>
                     <dd><%= dataset.spatial %></dd>
                   </dl>
                 </div>
