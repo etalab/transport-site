@@ -208,11 +208,20 @@ defmodule Transport.Dataset do
   def filter_has_realtime, do: from d in __MODULE__, where: d.has_realtime == true
   def count_has_realtime, do: Repo.aggregate(filter_has_realtime(), :count, :id)
 
-  @spec get_by([{:slug, any}, ...]) :: Transport.Dataset.t | nil
-  def get_by(slug: slug) do
-    __MODULE__
-    |> where(slug: ^slug)
-    |> preload_without_validations()
+  @spec get_by(keyword) :: Dataset.t()
+  def get_by(options) do
+    slug = Keyword.get(options, :slug)
+
+    query =
+      __MODULE__
+      |> where(slug: ^slug)
+      |> preload_without_validations()
+
+    if Keyword.get(options, :preload, false) do
+      query |> preload([:region, :aom])
+    else
+      query
+    end
     |> Repo.one()
   end
 
