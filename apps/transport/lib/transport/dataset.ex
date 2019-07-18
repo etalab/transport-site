@@ -216,13 +216,20 @@ defmodule Transport.Dataset do
     |> Repo.one()
   end
 
-  @spec get_other_datasets(Transport.Dataset.t(), any) :: [Transport.Dataset.t]
-  def get_other_datasets(%__MODULE__{id: id} = dataset, organization) do
-    organization
-    |> Ecto.assoc(:datasets)
+  @spec get_other_datasets(Transport.Dataset.t()) :: [Transport.Dataset.t()]
+  def get_other_datasets(%__MODULE__{id: id, aom_id: aom_id}) when not is_nil(aom_id) do
+    __MODULE__
     |> where([d], d.id != ^id)
+    |> where([d], d.aom_id == ^aom_id)
     |> Repo.all()
   end
+  def get_other_datasets(%__MODULE__{id: id, region_id: region_id}) when not is_nil(region_id) do
+    __MODULE__
+    |> where([d], d.id != ^id)
+    |> where([d], d.region_id == ^region_id)
+    |> Repo.all()
+  end
+  def get_other_dataset(_), do: []
 
   def get_organization(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
     Repo.get(AOM, aom_id)
