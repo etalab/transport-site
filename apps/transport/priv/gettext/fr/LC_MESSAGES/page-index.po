@@ -89,7 +89,7 @@ msgstr "Données aériennes"
 
 #, elixir-format
 msgid "Bike parking"
-msgstr "Vélos en libre-service"
+msgstr "Stationnement vélo"
 
 #, elixir-format
 msgid "Coming soon"
