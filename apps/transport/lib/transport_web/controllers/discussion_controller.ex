@@ -4,6 +4,7 @@ defmodule TransportWeb.DiscussionController do
 
   alias Datagouvfr.Client.Discussions
 
+  @spec post_discussion(Plug.Conn.t(), map) :: Plug.Conn.t()
   def post_discussion(%Plug.Conn{} = conn, %{"comment" => comment,
                               "dataset_id" => id_,
                               "title" => title,
@@ -11,21 +12,16 @@ defmodule TransportWeb.DiscussionController do
     conn
     |> Discussions.post(id_, title, comment, [])
     |> case do
-      {:ok, _} -> conn
-      |> put_flash(:info, dgettext("page-dataset-details", "New discussion started"))
-    {:error, %{body: body}} ->
-      Logger.error("Error when starting a new discussion:")
-      Logger.error(body)
-      conn
-      |> put_flash(:error, dgettext("page-dataset-details", "Unable to start a new discussion"))
-    {:error, error} ->
-      Logger.error("When starting a new discussion: #{error}")
-      conn
-      |> put_flash(:error, dgettext("page-dataset-details", "Unable to start a new discussion"))
+      {:ok, _} ->
+        put_flash(conn, :info, dgettext("page-dataset-details", "New discussion started"))
+      {:error, error} ->
+        Logger.error("When starting a new discussion: #{inspect(error)}")
+        put_flash(conn, :error, dgettext("page-dataset-details", "Unable to start a new discussion"))
     end
     |> redirect(to: dataset_path(conn, :details, dataset_slug))
   end
 
+  @spec post_answer(Plug.Conn.t(), map) :: Plug.Conn.t()
   def post_answer(conn, %{"id_" => id_, "comment" => comment, "dataset_slug" => dataset_slug}) do
     conn
     |> Discussions.post(id_, comment)
