@@ -48,3 +48,31 @@ msgstr ""
 #, elixir-format
 msgid "Update an existing dataset"
 msgstr ""
+
+#, elixir-format
+msgid "Resource updated with URL!"
+msgstr ""
+
+#, elixir-format
+msgid "Resource's URL"
+msgstr ""
+
+#, elixir-format
+msgid "Update with a URL"
+msgstr ""
+
+#, elixir-format
+msgid "Update with this URL"
+msgstr ""
+
+#, elixir-format
+msgid "Choose a file"
+msgstr ""
+
+#, elixir-format
+msgid "or"
+msgstr ""
+
+#, elixir-format
+msgid "I'm not sure. Learn more."
+msgstr ""

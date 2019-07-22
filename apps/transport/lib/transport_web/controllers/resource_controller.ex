@@ -3,6 +3,7 @@ defmodule TransportWeb.ResourceController do
   alias Datagouvfr.Client.{Datasets, Resources, User, Validation}
   alias Transport.{Dataset, Repo, Resource, Validation}
   import Ecto.Query, only: [from: 2]
+  require Logger
 
   def details(conn, params) do
     config = make_pagination_config(params)
@@ -88,12 +89,20 @@ defmodule TransportWeb.ResourceController do
   end
 
   def post_file(conn, params) do
-    case Resources.upload(conn, params["dataset_id"], params["resource_id"], params["resource_file"]) do
+    success_message =
+      if Map.has_key?(params, "file") do
+        dgettext("resource", "File uploaded!")
+      else
+        dgettext("resource", "Resource updated with URL!")
+      end
+
+    case Resources.update(conn, params["dataset_id"], params["resource_id"], params) do
       {:ok, _} ->
         conn
-        |> put_flash(:info, dgettext("resource", "File uploaded!"))
+        |> put_flash(:info, success_message)
         |> redirect(to: dataset_path(conn, :details, params["dataset_id"]))
-      {:error, _error} ->
+      {:error, error} ->
+        Logger.error("Unable to update resource #{params["resource_id"]} of dataset #{params["dataset_id"]}, error: #{inspect(error)}")
         conn
         |> put_flash(:error, dgettext("resource", "Unable to upload file"))
         |> assign(:action_path, resource_path(conn, :post_file, params["dataset_id"], params["resource_id"]))

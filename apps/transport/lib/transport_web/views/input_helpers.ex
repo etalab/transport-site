@@ -92,6 +92,16 @@ defmodule TransportWeb.InputHelpers do
   end
 
   def file_input(form, field, opts \\ []) do
-    form_group(Form.file_input(form, field, opts))
+    label = Keyword.get(opts, :label)
+    opts = Keyword.drop(opts, [:label])
+    if label != nil do
+      form_group do [
+        Form.label(form, field, label),
+        Form.file_input(form, field, opts)
+      ]
+      end
+    else
+      form_group(Form.file_input(form, field, opts))
+    end
   end
 end
