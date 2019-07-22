@@ -21,6 +21,13 @@ defmodule Datagouvfr.Client.OAuth do
     request(:post, conn, path, body, headers, opts)
   end
 
+  @spec put(%Plug.Conn{}, path, Client.body, Client.headers, Keyword.t) :: oauth2_response
+  def put(%Plug.Conn{} = conn, path, body \\ "", headers \\ [], opts \\ []) do
+    headers = default_content_type(headers)
+
+    request(:put, conn, path, body, headers, opts)
+  end
+
   @spec delete(%Plug.Conn{}, path, Client.headers, Keyword.t) :: oauth2_response
   def delete(%Plug.Conn{} = conn, path, headers \\ [], opts \\ []) do
     headers = default_content_type(headers)
