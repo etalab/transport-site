@@ -27,7 +27,7 @@ defmodule TransportWeb.DatasetController do
     with dataset when not is_nil(dataset) <- Dataset.get_by(slug: slug_or_id),
         organization when not is_nil(organization) <- Dataset.get_organization(dataset),
         {_, community_ressources} <- CommunityResources.get(dataset.datagouv_id),
-        {_, reuses} <- Reuses.get(conn, dataset) do
+        {_, reuses} <- Reuses.get(dataset) do
         conn
         |> assign(:dataset, dataset)
         |> assign(:community_ressources, community_ressources)
