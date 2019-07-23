@@ -32,7 +32,7 @@ defmodule TransportWeb.DatasetController do
         |> assign(:dataset, dataset)
         |> assign(:community_ressources, community_ressources)
         |> assign(:organization, organization)
-        |> assign(:discussions, Discussions.get(conn, dataset.datagouv_id))
+        |> assign(:discussions, Discussions.get(dataset.datagouv_id))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
         |> assign(:reuses, reuses)

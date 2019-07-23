@@ -37,16 +37,13 @@ defmodule Datagouvfr.Client.Discussions do
   @doc """
   Call to GET /api/1/discussions/
   """
-  def get(conn, id) do
-    conn
-    |> Client.get("/#{@endpoint}?for=#{id}", [], follow_redirect: true)
+  def get(id) do
+    @endpoint
+    |> API.get([], follow_redirect: true, params: %{for: id})
     |> case do
       {:ok, %{"data" => data}} -> data
-      {:error, %OAuth2.Response{body: body}} ->
-        Logger.error("When fetching discussions for id #{id}: #{body}")
-        nil
-      {:error, %OAuth2.Error{reason: reason}} ->
-        Logger.error("When fetching discussions for id #{id}: #{reason}")
+      {:error, error} ->
+        Logger.error("When fetching discussions for id #{id}: #{inspect(error)}")
         nil
     end
   end
