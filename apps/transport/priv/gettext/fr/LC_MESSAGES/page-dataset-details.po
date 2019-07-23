@@ -246,3 +246,7 @@ msgstr "Identifiez vous pour vous abonner aux discussions de ce jeu de données.
 #, elixir-format
 msgid "No error detected"
 msgstr "Pas d'erreur"
+
+#, elixir-format
+msgid "This dataset has been removed from data.gouv.fr"
+msgstr "Ce jeu de données a été supprimé de data.gouv.fr"
