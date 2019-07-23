@@ -1,3 +1,9 @@
+<%= unless @dataset.is_active do %>
+<div class="notification error full-width">
+  <%= dgettext("page-dataset-details", "This dataset has been removed from data.gouv.fr") %>
+</div>
+<% end %>
+
 <div class="dataset">
   <section class="section">
     <div class="container dataset__header">
@@ -71,6 +77,7 @@
   </section>
   <% end %>
 
+  <%= if @dataset.is_active do %>
   <section class="section">
     <div class="container">
       <div class="dataset-details__discussions panel">
@@ -126,6 +133,7 @@
       </div>
     </div>
   </section>
+  <% end %>
   <section class="section section-grey">
     <div class="container">
       <div class="shortlist__link shortlist__link--external-link">

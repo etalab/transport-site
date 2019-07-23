@@ -37,6 +37,7 @@ defmodule TransportWeb.DatasetController do
         |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
         |> assign(:reuses, reuses)
         |> assign(:other_datasets, Dataset.get_other_datasets(dataset, organization))
+        |> put_status(if dataset.is_active do :ok else :not_found end)
         |> render("details.html")
     else
       nil ->
