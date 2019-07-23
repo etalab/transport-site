@@ -54,7 +54,7 @@
 
                 <%= link(
                     dgettext("page-dataset-details", "See on data.gouv.fr"),
-                    to: reuse["uri"]
+                    to: reuse["page"]
                 ) %>
             </div>
           </div>
