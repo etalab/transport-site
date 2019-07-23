@@ -15,8 +15,10 @@ defmodule Datagouvfr.Client.API do
 
   use Datagouvfr.Client
 
-  @spec get(path, any()) :: response
-  def get(path, headers \\ []) when is_binary(path) or is_list(path), do: request(:get, path, headers)
+  @spec get(path, any(), any()) :: response
+  def get(path, headers \\ [], options \\ []) when is_binary(path) or is_list(path) do
+    request(:get, path, "", headers, options)
+  end
 
   @spec post(path(), map() | any(), any(), boolean()) :: response
   def post(path, body, headers, blank \\ false)
