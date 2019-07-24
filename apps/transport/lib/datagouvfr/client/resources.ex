@@ -5,7 +5,7 @@ defmodule Datagouvfr.Client.Resources do
   alias Datagouvfr.Client.OAuth, as: Client
 
   @spec update(Plug.Conn.t(), binary, binary, map) :: Client.oauth2_response
-  def update(conn, dataset_id, id, %{"file" => file}) do
+  def update(conn, dataset_id, id, %{"resource_file" => file}) do
     Client.post(
       conn,
       Path.join(["datasets", dataset_id, "resources", id, "upload"]),
