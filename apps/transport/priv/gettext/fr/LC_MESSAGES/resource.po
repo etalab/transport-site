@@ -35,7 +35,7 @@ msgstr "Mettre à jour cette ressource"
 
 #, elixir-format
 msgid "Update with a file"
-msgstr "Mettre à jour"
+msgstr "Mettre à jour avec un fichier"
 
 #, elixir-format
 msgid "Upload this file"
@@ -48,3 +48,31 @@ msgstr "Publier un nouveau jeu de données"
 #, elixir-format
 msgid "Update an existing dataset"
 msgstr "Mettre à jour un jeu de données existant"
+
+#, elixir-format
+msgid "Resource updated with URL!"
+msgstr "Ressource mise à jour avec une URL !"
+
+#, elixir-format
+msgid "Resource's URL"
+msgstr "URL de la ressource"
+
+#, elixir-format
+msgid "Update with a URL"
+msgstr "Mettre à jour avec une URL"
+
+#, elixir-format
+msgid "Update with this URL"
+msgstr "Mettre à jour avec une URL"
+
+#, elixir-format
+msgid "Choose a file"
+msgstr "Choisissez un fichier"
+
+#, elixir-format
+msgid "or"
+msgstr "ou"
+
+#, elixir-format
+msgid "I'm not sure. Learn more."
+msgstr "Je ne suis pas sûr·e. En savoir plus."

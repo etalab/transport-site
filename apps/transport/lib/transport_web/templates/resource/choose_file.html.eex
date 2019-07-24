@@ -1,15 +1,43 @@
-<section class="section">
-    <div class="container">
-        <%= unless @dataset == [] do %>
+<section class="section choose-file">
+    <%= unless @dataset == [] do %>
+    <div class="container description">
+        <div>
+            <p>
+                <b><%= dgettext("resource", "Dataset: ") %></b> <%= @dataset["title"] %>
+            </p>
+            <p>
+            <%= for r <- Enum.filter(@dataset["resources"], &(&1["id"] == @conn.params["resource_id"])) do %>
+                <b><%= dgettext("resource", "Resource: ") %></b> <%= r["title"] %>
+            <% end %>
+            </p>
+            <p>
+            </p>
+        </div>
+    </div>
+    <div class="container forms">
         <%= form_for @conn, @action_path, [multipart: true], fn f -> %>
-        <b><%= dgettext("resource", "Dataset: ") %></b> <%= @dataset["title"] %><br> 
-        <%= for r <- Enum.filter(@dataset["resources"], &(&1["id"] == @conn.params["resource_id"])) do %>
-            <b><%= dgettext("resource", "Resource: ") %></b> <%= r["title"] %>
-        <% end %>
         <h1><%= dgettext("resource", "Update with a file") %></h1>
-        <%= file_input f, :resource_file %>
+        <%= file_input f, :resource_file, label: dgettext("resource", "Choose a file") %>
         <%= submit dgettext("resource", "Upload this file") %>
         <% end %>
+        <div>
+            <p>
+                - <%= dgettext("resource", "or") %> -
+            </p>
+        </div>
+        <%= form_for @conn, @action_path, fn f -> %>
+        <h1><%= dgettext("resource", "Update with a URL") %></h1>
+        <%= text_input f, :url, label: dgettext("resource", "Resource's URL"), placeholder: "https://data.ville.fr/gtfs.zip" %>
+        <%= submit dgettext("resource", "Update with this URL") %>
         <% end %>
     </div>
+    <div class="container help">
+        <p>
+            <%= link(
+                dgettext("resource", "I'm not sure. Learn more."),
+                to: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
+            )%>
+        </p>
+    </div>
+    <% end %>
 </section>
