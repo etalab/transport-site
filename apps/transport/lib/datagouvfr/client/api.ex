@@ -52,7 +52,7 @@ defmodule Datagouvfr.Client.API do
         ) :: response
   def request(method, path, body \\ "", headers \\ [], options \\ []) do
     url = process_url(path)
-
+    options = Keyword.put_new(options, :follow_redirect, true)
     method
     |> HTTPoison.request(url, body, headers, options)
     |> post_process()
