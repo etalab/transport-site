@@ -276,10 +276,18 @@ defmodule Transport.Dataset do
     end
   end
 
-  @spec nom(Transport.Dataset.t()) :: binary
-  def nom(%__MODULE__{aom: %{nom: nom}}), do: String.capitalize(nom)
-  def nom(%__MODULE__{region: %{nom: nom}}), do: String.capitalize(nom)
-  def nom(_), do: ""
+  @doc """
+  long_title of the dataset, used in the dataset list and dataset detail as the 'main' title of the dataset
+  """
+  def long_title(%__MODULE__{} = dataset) do
+    localization = localization(dataset)
+
+    if localization do
+      localization <> " - " <> type_to_str(dataset.type)
+    else
+      type_to_str(dataset.type)
+    end
+  end
 
   @spec formats(Transport.Dataset.t()) :: [binary]
   def formats(%__MODULE__{resources: resources}) when is_list(resources) do
@@ -291,6 +299,10 @@ defmodule Transport.Dataset do
   def formats(_), do: []
 
   ## Private functions
+  @spec localization(Transport.Dataset.t()) :: binary | nil
+  defp localization(%__MODULE__{aom: %{nom: nom}}), do: nom
+  defp localization(%__MODULE__{region: %{nom: nom}}), do: nom
+  defp localization(_), do: nil
 
   defp validate_mutual_exclusion(changeset, fields, error) do
     fields

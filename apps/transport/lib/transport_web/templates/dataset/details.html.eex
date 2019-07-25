@@ -12,8 +12,7 @@
       </div>
       <div class="dataset__title">
         <h1>
-          <%= Dataset.nom(@dataset) %> - 
-          <%= Dataset.type_to_str(@dataset.type) %>
+          <%= Dataset.long_title(@dataset) %>
         </h1>
       </div>
     </div>

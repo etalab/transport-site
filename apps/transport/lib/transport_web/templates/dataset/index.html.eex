@@ -90,8 +90,7 @@
                 <div>
                 <h3 class="dataset__title">
                   <a href="/datasets/<%= dataset.slug %>/">
-                  <%= Dataset.nom(dataset) %> -
-                  <%= Dataset.type_to_str(dataset.type) %>
+                  <%= Dataset.long_title(dataset) %>
                   </a>
                 </h3>
                   <dl class="shortlist__notice">
