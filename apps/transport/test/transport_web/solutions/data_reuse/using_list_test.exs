@@ -21,6 +21,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
       description: "Un jeu de données",
       licence: "odc-odbl",
       title: "Horaires et arrêts du réseau IRIGO - format GTFS",
+      type: "public-transit",
       slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
       datagouv_id: "5b4cd3a0b59508054dd496cd",
       frequency: "yearly",
@@ -39,6 +40,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
       licence: "odc-odbl",
       title: "offre de transport du réseau de LAVAL Agglomération (GTFS)",
       slug: "offre-de-transport-du-reseau-de-laval-agglomeration-gtfs",
+      type: "public-transit",
       datagouv_id: "5bc493d08b4c416c84a69500",
       frequency: "yearly",
       tags: [],
@@ -64,8 +66,11 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
     # I can see or read somewhere that the datasets are valid
     assert visible_in_page?(~r/Jeux de données valides disponibles/)
     # I can click on a dataset and see its details
-    click({:link_text, "Horaires et arrêts du réseau IRIGO - format GTFS"})
-    assert visible_in_page?(~r/IRIGO/)
+    click({:link_text, "Angers Métropôle - Transport public"})
+    assert visible_in_page?(~r/Angers Métropôle - Transport public/)
+
+    # the description should also be displayed
+    assert visible_in_page?(~r/Un jeu de données/)
 
     # I can download the dataset
     :link_text
