@@ -33,13 +33,13 @@ defmodule Transport.Resource do
   @doc """
   Is the dataset type corresponding to a public transit file
   ## Examples
-      iex> Resource.is_transit_file?("rail")
+      iex> Resource.is_transit_file?("train")
       true
       iex> Resource.is_transit_file?("micro-mobility")
       false
   """
   def is_transit_file?(type) do
-    ["public-transit", "long-distance-coach", "rail"]
+    ["public-transit", "long-distance-coach", "train"]
     |> Enum.member?(type)
   end
 
@@ -52,7 +52,7 @@ defmodule Transport.Resource do
       false
       iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}, validation: %Validation{}})
       true
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "rail"}, validation: %Validation{}})
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "train"}, validation: %Validation{}})
       true
       iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "micro-mobility"}, validation: %Validation{}})
       false

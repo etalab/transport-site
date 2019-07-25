@@ -267,6 +267,7 @@ defmodule Transport.ImportData do
       is_netex?(format) -> "netex"
       is_gtfs?(format) -> "GTFS"
       type == "public-transit" -> "GTFS"
+      type == "train" -> "GTFS"
       true -> format
     end
   end
