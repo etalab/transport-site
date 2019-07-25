@@ -14,7 +14,7 @@ defmodule Opendatasoft.UrlExtractor do
 
     with {:ok, bodys} <- download_csv_list(csv_resources),
          {:ok, urls} <- get_url_from_csv(bodys) do
-      Enum.map(urls, &(%{"url" => &1, "format" => "csv", "title" => &1}))
+      Enum.map(urls, fn u -> %{"url" => u.url, "format" => "csv", "title" => u.title} end)
     else
       {:error, error} ->
         Logger.warn(" <message>  #{inspect error}")
@@ -100,7 +100,7 @@ defmodule Opendatasoft.UrlExtractor do
  ## Examples
      iex> "name,file\\ntoulouse,http"
      ...> |> ImportData.get_url_from_csv()
-     {:ok, "http"}
+     {:ok, {url: "http", title: "http"}}
 
      iex> "stop,lon,lat\\n1,48.8,2.3"
      ...> |> ImportData.get_url_from_csv()
@@ -108,7 +108,7 @@ defmodule Opendatasoft.UrlExtractor do
 
      iex> "Donnees;format;Download\\r\\nHoraires des lignes TER;GTFS;https\\r\\n"
      ...> |> ImportData.get_url_from_csv()
-     {:ok, "https"}
+     {:ok, {url: "https", title: "https"}}
 
  """
  def get_url_from_csv(body) do
@@ -116,7 +116,7 @@ defmodule Opendatasoft.UrlExtractor do
    |> Enum.map(&(get_url_from_csv(&1, body)))
    |> Enum.filter(&(&1 != nil))
    |> case do
-     [url | _] -> {:ok, get_filename(url)}
+     [url | _] -> {:ok, %{url: url, title: get_filename(url)}}
      _ -> {:error, "No column file"}
    end
  end
