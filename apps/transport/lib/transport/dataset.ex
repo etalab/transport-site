@@ -217,11 +217,14 @@ defmodule Transport.Dataset do
       |> where(slug: ^slug)
       |> preload_without_validations()
 
-    if Keyword.get(options, :preload, false) do
-      query |> preload([:region, :aom])
-    else
-      query
-    end
+    query =
+      if Keyword.get(options, :preload, false) do
+        query |> preload([:region, :aom])
+      else
+        query
+      end
+
+    query
     |> Repo.one()
   end
 
