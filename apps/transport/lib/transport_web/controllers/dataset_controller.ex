@@ -24,7 +24,7 @@ defmodule TransportWeb.DatasetController do
   end
 
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
-    with dataset when not is_nil(dataset) <- Dataset.get_by(slug: slug_or_id),
+    with dataset when not is_nil(dataset) <- Dataset.get_by(slug: slug_or_id, preload: true),
         organization when not is_nil(organization) <- Dataset.get_organization(dataset),
         {_, community_ressources} <- CommunityResources.get(dataset.datagouv_id),
         {_, reuses} <- Reuses.get(dataset) do
@@ -36,7 +36,7 @@ defmodule TransportWeb.DatasetController do
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
         |> assign(:reuses, reuses)
-        |> assign(:other_datasets, Dataset.get_other_datasets(dataset, organization))
+        |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
         |> put_status(if dataset.is_active do :ok else :not_found end)
         |> render("details.html")
     else
@@ -50,11 +50,14 @@ defmodule TransportWeb.DatasetController do
 
   defp get_datasets(params) do
     config = make_pagination_config(params)
-    select = [:id, :description, :licence, :logo, :spatial, :title, :slug]
+    select = [
+      :id, :description, :licence, :logo, :spatial,
+      :title, :slug, :aom_id, :region_id, :type
+    ]
 
     params
-
     |> Dataset.list_datasets(select)
+    |> preload([:aom, :region])
     |> Repo.paginate(page: config.page_number)
   end
 

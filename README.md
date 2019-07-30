@@ -14,7 +14,7 @@ In order to validate datasets:
 ## Usage
 
   * Run the server with `mix phx.server`
-  * Run the webdriver server with `docker run -p 4444:4444 --network=host selenium/standalone-chrome`
+  * Run the webdriver server with `docker run -p 4444:4444 --network=host selenium/standalone-chrome:3.141.59-oxygen`
   * Run the tests with `mix test`
   * Run the integration tests with `mix test --only integration`
   * Run the solution tests with `mix test --only solution`

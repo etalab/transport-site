@@ -89,8 +89,9 @@ defmodule Transport.Dataset do
   def list_datasets, do: __MODULE__ |> select_active |> preload_without_validations
   def list_datasets([]), do: list_datasets()
   def list_datasets(s) when is_list(s) do
-    sub_resources = no_validations_query()
-    from d in __MODULE__, select: ^s, preload: [resources: ^sub_resources]
+    from d in __MODULE__,
+     select: ^s,
+     preload: [:resources, :region, :aom]
   end
 
   def list_datasets(filters, s \\ [])
@@ -207,21 +208,40 @@ defmodule Transport.Dataset do
   def filter_has_realtime, do: from d in __MODULE__, where: d.has_realtime == true
   def count_has_realtime, do: Repo.aggregate(filter_has_realtime(), :count, :id)
 
-  @spec get_by([{:slug, any}, ...]) :: Transport.Dataset.t | nil
-  def get_by(slug: slug) do
-    __MODULE__
-    |> where(slug: ^slug)
-    |> preload_without_validations()
+  @spec get_by(keyword) :: Dataset.t()
+  def get_by(options) do
+    slug = Keyword.get(options, :slug)
+
+    query =
+      __MODULE__
+      |> where(slug: ^slug)
+      |> preload_without_validations()
+
+    query =
+      if Keyword.get(options, :preload, false) do
+        query |> preload([:region, :aom])
+      else
+        query
+      end
+
+    query
     |> Repo.one()
   end
 
-  @spec get_other_datasets(Transport.Dataset.t(), any) :: [Transport.Dataset.t]
-  def get_other_datasets(%__MODULE__{} = dataset, organization) do
-    organization
-    |> Ecto.assoc(:datasets)
-    |> where([d], d.id != ^dataset.id)
+  @spec get_other_datasets(Transport.Dataset.t()) :: [Transport.Dataset.t()]
+  def get_other_datasets(%__MODULE__{id: id, aom_id: aom_id}) when not is_nil(aom_id) do
+    __MODULE__
+    |> where([d], d.id != ^id)
+    |> where([d], d.aom_id == ^aom_id)
     |> Repo.all()
   end
+  def get_other_datasets(%__MODULE__{id: id, region_id: region_id}) when not is_nil(region_id) do
+    __MODULE__
+    |> where([d], d.id != ^id)
+    |> where([d], d.region_id == ^region_id)
+    |> Repo.all()
+  end
+  def get_other_dataset(_), do: []
 
   def get_organization(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
     Repo.get(AOM, aom_id)
@@ -259,7 +279,33 @@ defmodule Transport.Dataset do
     end
   end
 
+  @doc """
+  long_title of the dataset, used in the dataset list and dataset detail as the 'main' title of the dataset
+  """
+  def long_title(%__MODULE__{} = dataset) do
+    localization = localization(dataset)
+
+    if localization do
+      localization <> " - " <> type_to_str(dataset.type)
+    else
+      type_to_str(dataset.type)
+    end
+  end
+
+  @spec formats(Transport.Dataset.t()) :: [binary]
+  def formats(%__MODULE__{resources: resources}) when is_list(resources) do
+    resources
+    |> Enum.map(fn r -> r.format end )
+    |> Enum.sort()
+    |> Enum.dedup()
+  end
+  def formats(_), do: []
+
   ## Private functions
+  @spec localization(Transport.Dataset.t()) :: binary | nil
+  defp localization(%__MODULE__{aom: %{nom: nom}}), do: nom
+  defp localization(%__MODULE__{region: %{nom: nom}}), do: nom
+  defp localization(_), do: nil
 
   defp validate_mutual_exclusion(changeset, fields, error) do
     fields
