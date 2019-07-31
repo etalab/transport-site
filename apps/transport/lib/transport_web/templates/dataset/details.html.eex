@@ -15,6 +15,11 @@
           <%= Dataset.long_title(@dataset) %>
         </h1>
       </div>
+      <div class="dataset__subtitle">
+        <h2>
+          <%= @dataset.spatial %>
+        </h2>
+      </div>
     </div>
   </section>
 
