@@ -6,6 +6,7 @@ defmodule Transport.Dataset do
   There are also trigger on update on aom and region that will force an update on this model
   so the search vector is up-to-date.
   """
+  alias ExAws.S3
   alias Phoenix.HTML.Link
   alias Transport.{AOM, Region, Repo, Resource}
   import Ecto.{Changeset, Query}
@@ -313,7 +314,72 @@ defmodule Transport.Dataset do
     |> if do {:error, "Unable to validate dataset #{id}"} else {:ok, nil} end
   end
 
+  def history_resources(%__MODULE__{} = dataset) do
+    if Application.get_env(:ex_aws, :access_key_id) == nil
+      || Application.get_env(:ex_aws, :secret_access_key) == nil do
+      # if the cellar credential are missing, we skip the whole history
+      []
+    else
+      try do
+        bucket = "dataset_" <> dataset.datagouv_id
+        bucket
+        |> S3.list_objects
+        |> ExAws.stream!
+        |> Enum.to_list
+        |> Enum.map(fn f -> %{
+          name: f.key,
+          creation_date: f.last_modified,
+          href: history_resource_path(bucket, f.key),
+          metadata: fetch_metadata(bucket, f.key),
+          } end)
+        rescue
+          e in ExAws.Error -> Logger.error("error while accessing the S3 bucket: #{inspect e}")
+          []
+        end
+    end
+  end
+
   ## Private functions
+  @cellar_host ".cellar-c2.services.clever-cloud.com/"
+
+  defp history_resource_path(bucket, name) do
+    "http://" <> bucket <> @cellar_host <> name
+  end
+
+  defp fetch_metadata(bucket, obj_key) do
+    r = bucket
+    |> S3.head_object(obj_key)
+    |> ExAws.request!
+
+    r.headers
+    |> Enum.into(%{})
+    |> get_metadata_from_header
+  end
+
+  defp get_metadata_from_header(%{
+    "x-amz-meta-format" => format,
+    "x-amz-meta-title" => title,
+    "x-amz-meta-start" => validity_start,
+    "x-amz-meta-end" => validity_end,
+    }) do
+      %{
+        "format" => format,
+        "title" => title,
+        "start" => validity_start,
+        "end" => validity_end,
+      }
+  end
+  defp get_metadata_from_header(%{
+    "x-amz-meta-format" => format,
+    "x-amz-meta-title" => title,
+    }) do
+      %{
+        "format" => format,
+        "title" => title,
+      }
+  end
+  defp get_metadata_from_header(_), do: %{}
+
   @spec localization(Transport.Dataset.t()) :: binary | nil
   defp localization(%__MODULE__{aom: %{nom: nom}}), do: nom
   defp localization(%__MODULE__{region: %{nom: nom}}), do: nom

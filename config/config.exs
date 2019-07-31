@@ -77,8 +77,8 @@ import_config "mailchimp.exs"
 import_config "#{Mix.env}.exs"
 
 config :ex_aws,
-  access_key_id: [{:system, "CELLAR_ACCESS_KEY_ID"}, :instance_role],
-  secret_access_key: [{:system, "CELLAR_SECRET_ACCESS_KEY"}, :instance_role],
+  access_key_id: System.get_env("CELLAR_ACCESS_KEY_ID"),
+  secret_access_key: System.get_env("CELLAR_SECRET_ACCESS_KEY"),
   s3: [
     scheme: "https://",
     host: "cellar-c2.services.clever-cloud.com",
