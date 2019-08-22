@@ -55,8 +55,8 @@ defmodule Transport.ImportData do
       dataset
       |> Map.take(["title", "description", "license", "id", "slug", "frequency", "tags"])
       |> Map.put("datagouv_id", dataset["id"])
-      |> Map.put("logo", dataset["organization"]["logo_thumbnail"])
-      |> Map.put("full_logo", dataset["organization"]["logo"])
+      |> Map.put("logo", get_logo_thumbnail(dataset))
+      |> Map.put("full_logo", get_logo(dataset))
       |> Map.put("created_at", parse_date(dataset["created_at"]))
       |> Map.put("last_update", parse_date(dataset["last_update"]))
       |> Map.put("type", type)
@@ -73,6 +73,38 @@ defmodule Transport.ImportData do
       _ -> {:ok, dataset}
     end
   end
+
+  @doc """
+  Get logo from datagouv dataset
+
+  ## Examples
+
+      iex> ImportData.get_logo(%{"organization" => %{"logo" => "logo"}})
+      "logo"
+
+      iex> ImportData.get_logo(%{"organization" => nil, "owner" => %{"avatar" => "logo"}})
+      "logo"
+
+  """
+  def get_logo(%{"organization" => %{"logo" => logo}}), do: logo
+  def get_logo(%{"owner" => %{"avatar" => logo}}), do: logo
+  def get_logo(_), do: nil
+
+  @doc """
+  Get thumbnail from datagouv dataset
+
+  ## Examples
+
+      iex> ImportData.get_logo_thumbnail(%{"organization" => %{"logo_thumbnail" => "logo"}})
+      "logo"
+
+      iex> ImportData.get_logo_thumbnail(%{"organization" => nil, "owner" => %{"avatar_thumbnail" => "logo"}})
+      "logo"
+
+  """
+  def get_logo_thumbnail(%{"organization" => %{"logo_thumbnail" => logo}}), do: logo
+  def get_logo_thumbnail(%{"owner" => %{"avatar_thumbnail" => logo}}), do: logo
+  def get_logo_thumbnail(_), do: nil
 
   def get_dataset(_), do: {:error, "Dataset needs to be a map"}
 
