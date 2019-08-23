@@ -18,10 +18,7 @@ defmodule Datagouvfr.Client.Resources do
     Client.put(
       conn,
       Path.join(["datasets", dataset_id, "resources", id]),
-      %{
-        "url" => url,
-        "filetype" => "remote"
-      }
+      %{"url" => url, "filetype" => "remote"}
     )
   end
 end
