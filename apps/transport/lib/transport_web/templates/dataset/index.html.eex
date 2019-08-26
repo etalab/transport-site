@@ -123,5 +123,11 @@
         <%= pagination_links @conn, @datasets %>
       </div>
     <% end %>
+    <%= link(
+      dgettext("page-shortlist", "Get dataset list via an API"),
+      to: "#{swagger_ui_path(@conn, [path: "/api/openapi"])}#/datasets/API.DatasetController.datasets"
+    )
+    %>
+     - 
   </div>
 </section>

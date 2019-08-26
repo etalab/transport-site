@@ -216,3 +216,7 @@ msgstr "Plus d'informations et d'autres jeux de données temps réel %{realtime_
 #, elixir-format
 msgid "here"
 msgstr "ici"
+
+#, elixir-format
+msgid "Get dataset list via an API"
+msgstr "Récupérer la liste des jeux de données via l'API"
