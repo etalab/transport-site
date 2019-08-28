@@ -170,6 +170,8 @@ defmodule Transport.Resource do
     |> Repo.all()
   end
 
+  @spec is_outdated?(any) :: boolean
+  def is_outdated?(%__MODULE__{metadata: %{"end_date" => nil}}), do: false
   def is_outdated?(%__MODULE__{metadata: %{"end_date" => end_date}}), do:
     end_date <= (Date.utc_today() |> Date.to_iso8601())
   def is_outdated?(_), do: true
