@@ -218,4 +218,13 @@ defmodule DB.Resource do
   def is_gbfs?(_), do: false
   def is_netex?(%__MODULE__{format: "netex"}), do: true
   def is_netex?(_), do: false
+
+  @spec other_resources_query(Transport.Resource.t()) :: Ecto.Query.t()
+  def other_resources_query(%__MODULE__{} = resource), do:
+    from r in __MODULE__,
+      where: r.dataset_id == ^resource.dataset_id and r.id != ^resource.id and not is_nil(r.metadata)
+
+  def other_resources(%__MODULE__{} = r), do:
+    r |> other_resources_query() |> Repo.all()
+
 end

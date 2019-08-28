@@ -6,73 +6,32 @@ defmodule TransportWeb.ResourceController do
   import Ecto.Query, only: [from: 2]
   require Logger
 
-  def details(conn, params) do
+  def details(conn, %{"id" => id} = params) do
     config = make_pagination_config(params)
-    id = params["id"]
 
-    case Repo.get(Resource, id) do
+    Resource
+    |> Repo.get(id)
+    |> Repo.preload([:dataset, :validation])
+    |> case do
       nil -> render(conn, "404.html")
       resource ->
-        resource_with_dataset = resource |> Repo.preload([:dataset, :validation])
-
-        other_resources_query = from r in Resource,
-          where: r.dataset_id == ^resource.dataset_id and r.id != ^resource.id and not is_nil(r.metadata)
-
-        current_issues = get_issues(resource_with_dataset.validation, params)
-
-        render(
-          conn,
-          "details.html",
-          %{resource: resource_with_dataset,
-           other_resources: Repo.all(other_resources_query),
-           issues: Scrivener.paginate(current_issues, config),
-           validation_summary: validation_summary(resource_with_dataset.validation)
-          }
-        )
+        conn
+        |> assign(:resource, resource)
+        |> assign(:other_resources, Resource.other_resources(resource))
+        |> assign(:issues, resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config))
+        |> assign(:validation_summary, Validation.summary(resource.validation))
+        |> render("details.html")
     end
   end
 
-  def get_issues(nil, _), do: []
-  def get_issues(%{details: nil}, _), do: []
-  def get_issues(%{details: validations}, %{"issue_type" => issue_type}), do: Map.get(validations, issue_type,  [])
-  def get_issues(%{details: validations}, _) when validations == %{}, do: []
-  def get_issues(%{details: validations}, _) do
-    validations
-    |> Map.values
-    |> List.first
-  end
-
-  def validation_summary(nil), do: []
-  def validation_summary(%{details: issues}) do
-    existing_issues = issues
-    |> Enum.map(fn {key, issues} -> {key, %{
-      count: Enum.count(issues),
-      title: Resource.issues_short_translation()[key],
-      severity: issues |> List.first |> Map.get("severity")
-    }} end)
-    |> Map.new
-
-    Resource.issues_short_translation
-    |> Enum.map(fn {key, title} -> {key, %{count: 0, title: title, severity: "Irrelevant"} }end)
-    |> Map.new
-    |> Map.merge(existing_issues)
-    |> Enum.group_by(fn {_, issue} -> issue.severity end)
-    |> Enum.sort_by(fn {severity, _} -> Validation.severities(severity).level end)
-  end
 
   def choose_action(conn, _), do: render conn, "choose_action.html"
 
   @spec datasets_list(Plug.Conn.t(), any()) :: Plug.Conn.t()
   def datasets_list(conn, _params) do
-    filter = fn d -> Repo.get_by(Dataset, datagouv_id: d["id"]) end
-
-    conn = conn
-    |> assign_or_flash(fn -> User.datasets(conn) end, :datasets, "Unable to get resources, please retry.")
-    |> assign_or_flash(fn -> User.org_datasets(conn) end, :org_datasets, "Unable to get resources, please retry.")
-
     conn
-    |> assign(:datasets, Enum.filter(conn.assigns.datasets, filter))
-    |> assign(:org_datasets, Enum.filter(conn.assigns.org_datasets, filter))
+    |> assign_or_flash(fn -> Dataset.user_datasets(conn) end, :datasets, "Unable to get resources, please retry.")
+    |> assign_or_flash(fn -> Dataset.user_org_datasets(conn) end, :org_datasets, "Unable to get resources, please retry.")
     |> render("list.html")
   end
 
