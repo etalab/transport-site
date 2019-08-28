@@ -117,6 +117,18 @@ defmodule DB.Dataset do
     |> where([d], d.has_realtime == true)
     |> order_datasets(params)
   end
+  def list_datasets(%{"filter" => "intercities"} = params, s) do
+    s
+    |> list_datasets()
+    |> where([d], not is_nil(d.region_id))
+    |> order_datasets(params)
+  end
+  def list_datasets(%{"filter" => "city"} = params, s) do
+    s
+    |> list_datasets()
+    |> where([d], not is_nil(d.aom_id))
+    |> order_datasets(params)
+  end
   def list_datasets(%{} = params, s) do
     filters =
       params

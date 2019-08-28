@@ -220,3 +220,15 @@ msgstr ""
 #, elixir-format
 msgid "Get dataset list via an API"
 msgstr ""
+
+#, elixir-format
+msgid "Area type"
+msgstr ""
+
+#, elixir-format
+msgid "City"
+msgstr ""
+
+#, elixir-format
+msgid "Intercities"
+msgstr ""
