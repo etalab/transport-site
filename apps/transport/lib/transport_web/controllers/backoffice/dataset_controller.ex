@@ -2,8 +2,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Client.Datasets
 
-  alias Transport.{Dataset, ImportData, ImportDataWorker, Repo, Resource}
-  import Ecto.Query
+  alias Transport.{Dataset, ImportData, ImportDataWorker, Repo}
   require Logger
 
   def post(%Plug.Conn{} = conn, params) do
@@ -19,12 +18,13 @@ defmodule TransportWeb.Backoffice.DatasetController do
     }
 
     with datagouv_id when not is_nil(datagouv_id) <- Datasets.get_id_from_url(params["url"]),
-         {:ok, dataset} <- ImportData.import_from_udata(datagouv_id, params["type"]),
-         params <- Map.merge(params, dataset)
+         {:ok, dg_dataset} <- ImportData.import_from_udata(datagouv_id, params["type"]),
+         params <- Map.merge(params, dg_dataset),
+         changeset <- Dataset.changeset(%Dataset{}, params),
+         {:ok, dataset} <- Repo.insert_or_update(changeset)
     do
-      %Dataset{}
-      |> Dataset.changeset(params)
-      |> Repo.insert_or_update()
+      dataset
+      |> Dataset.validate()
       |> flash(conn, msgs.success[params["action"]], msgs.error[params["action"]])
     else
       {:error, error} ->
@@ -60,17 +60,11 @@ defmodule TransportWeb.Backoffice.DatasetController do
   end
 
   def validation(%Plug.Conn{} = conn, %{"id" => id}) do
-    Resource
-    |> where([r], r.dataset_id ==  ^id)
-    |> Repo.all()
-    |> Enum.reduce(conn,
-      fn r, conn -> r
-        |> Resource.validate_and_save()
-        |> flash(conn,
-          dgettext("backoffice_dataset", "Dataset validated"),
-          dgettext("backoffice_dataset", "Could not validate dataset")
-        )
-      end
+    id
+    |> Dataset.validate()
+    |> flash(conn,
+      dgettext("backoffice_dataset", "Dataset validated"),
+      dgettext("backoffice_dataset", "Could not validate dataset")
     )
     |> redirect_to_index()
   end
