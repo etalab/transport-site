@@ -5,6 +5,8 @@ defmodule Datagouvfr.Client do
 
   defmacro __using__([]) do
     quote do
+      require Logger
+
       @type path :: list(binary()) | binary
 
       @spec base_url :: binary
@@ -22,6 +24,7 @@ defmodule Datagouvfr.Client do
       @spec post_process({:error, any} | {:ok, %{body: any, status_code: any}}) ::
               {:error, any} | {:ok, any}
       def post_process(response) do
+        Logger.debug fn -> "response: #{inspect(response)}" end
         case response do
           {:ok, %{status_code: 200, body: body}} -> {:ok, body}
           {:ok, %{status_code: 201, body: body}} -> {:ok, body}
