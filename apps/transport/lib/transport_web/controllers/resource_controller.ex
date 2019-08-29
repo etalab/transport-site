@@ -1,7 +1,7 @@
 defmodule TransportWeb.ResourceController do
   use TransportWeb, :controller
   alias Datagouvfr.Client.{Datasets, Resources, User, Validation}
-  alias Transport.{Dataset, Repo, Resource, Validation}
+  alias Transport.{Dataset, ImportData, Repo, Resource, Validation}
   import Ecto.Query, only: [from: 2]
   require Logger
 
@@ -96,13 +96,21 @@ defmodule TransportWeb.ResourceController do
         dgettext("resource", "Resource updated with URL!")
       end
 
-    case Resources.update(conn, params["dataset_id"], params["resource_id"], params) do
-      {:ok, _} ->
+    with {:ok, _} <- Resources.update(conn, params["dataset_id"], params["resource_id"], params),
+         dataset when not is_nil(dataset) <- Repo.get_by(Dataset, datagouv_id: params["dataset_id"]),
+         {:ok, _} <- ImportData.call(dataset) do
         conn
         |> put_flash(:info, success_message)
         |> redirect(to: dataset_path(conn, :details, params["dataset_id"]))
+    else
       {:error, error} ->
         Logger.error("Unable to update resource #{params["resource_id"]} of dataset #{params["dataset_id"]}, error: #{inspect(error)}")
+        conn
+        |> put_flash(:error, dgettext("resource", "Unable to upload file"))
+        |> assign(:action_path, resource_path(conn, :post_file, params["dataset_id"], params["resource_id"]))
+        |> render("choose_file.html")
+      nil ->
+        Logger.error("Unable to get dataset with datagouv_id: #{params["dataset_id"]}")
         conn
         |> put_flash(:error, dgettext("resource", "Unable to upload file"))
         |> assign(:action_path, resource_path(conn, :post_file, params["dataset_id"], params["resource_id"]))
