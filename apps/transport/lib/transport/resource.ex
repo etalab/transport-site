@@ -65,19 +65,21 @@ defmodule Transport.Resource do
     end
   end
 
+  @spec validate_and_save(Transport.Resource.t()) :: {:error, any} | {:ok, nil}
   def validate_and_save(%__MODULE__{} = resource) do
     Logger.info("Validating #{resource.url}")
     with {:ok, validations} <- validate(resource),
       {:ok, _} <- save(resource, validations) do
-        Logger.info("Ok!")
+        {:ok, nil}
     else
       {:error, error} ->
          Logger.warn("Error when calling the validator: #{error}")
          Sentry.capture_message("unable_to_call_validator", extra: %{url: resource.url, error: error})
-      _ -> Logger.warn("Unknown error")
+         {:error, error}
     end
   end
 
+  @spec validate(Transport.Resource.t()) :: {:error, any} | {:ok, any}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
   def validate(%__MODULE__{url: url}) do
     case @client.get("#{endpoint()}?url=#{URI.encode_www_form(url)}", [], recv_timeout: @timeout) do

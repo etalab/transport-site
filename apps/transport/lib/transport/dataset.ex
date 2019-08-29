@@ -301,6 +301,18 @@ defmodule Transport.Dataset do
   end
   def formats(_), do: []
 
+  @spec validate(binary | integer | Transport.Dataset.t()) :: {:error, String.t()} | {:ok, nil}
+  def validate(%__MODULE__{id: id}), do: validate(id)
+  def validate(id) when is_binary(id), do: id |> String.to_integer() |> validate()
+  def validate(id) when is_integer(id) do
+    Resource
+    |> where([r], r.dataset_id ==  ^id)
+    |> Repo.all()
+    |> Enum.map(&Resource.validate_and_save/1)
+    |> Enum.any?(fn r -> match?({:error, _}, r) end)
+    |> if do {:error, "Unable to validate dataset #{id}"} else {:ok, nil} end
+  end
+
   ## Private functions
   @spec localization(Transport.Dataset.t()) :: binary | nil
   defp localization(%__MODULE__{aom: %{nom: nom}}), do: nom
