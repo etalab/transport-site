@@ -7,6 +7,8 @@ defmodule Datagouvfr.Client.OAuth do
   alias Datagouvfr.Authentication
   alias OAuth2.{Client, Error, Request, Response}
 
+  require Logger
+
   @type oauth2_response :: {:ok, any} | {:error, Error.t} | {:error, Response.t}
 
   @spec get(%Plug.Conn{}, path, Client.headers, Keyword.t) :: oauth2_response
@@ -47,6 +49,10 @@ defmodule Datagouvfr.Client.OAuth do
     url = process_url(path)
     opts = Keyword.put_new(opts, :timeout, 15_000)
     opts = Keyword.put_new(opts, :follow_redirect, true)
+    Logger.debug fn -> "Request to: #{path}" end
+    Logger.debug fn -> "Body: #{inspect(body)}" end
+    Logger.debug fn -> "Headers: #{inspect(headers)}" end
+    Logger.debug fn -> "Options: #{inspect(opts)}" end
     method
     |> Request.request(client, url, body, headers, opts)
     |> post_process()
