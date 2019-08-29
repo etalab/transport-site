@@ -19,13 +19,14 @@ defmodule TransportWeb.Backoffice.PageController do
     dt = Date.utc_today() |> Date.to_iso8601()
 
     sub = Resource
+    |> where([r], fragment("metadata->>'end_date' IS NOT NULL"))
     |> group_by([r], r.dataset_id)
     |> having([_q], fragment("max(metadata->>'end_date') <= ?", ^dt))
     |> distinct([r], r.dataset_id)
     |> select([r], %Resource{dataset_id: r.dataset_id})
 
     Dataset
-    |> join(:left, [d], r in subquery(sub), on: d.id == r.dataset_id)
+    |> join(:right, [d], r in subquery(sub), on: d.id == r.dataset_id)
     |> render_index(conn, params)
   end
 
