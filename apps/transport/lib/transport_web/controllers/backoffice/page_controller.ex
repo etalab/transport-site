@@ -10,8 +10,8 @@ defmodule TransportWeb.Backoffice.PageController do
   def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do
     conn = assign(conn, :q, q)
 
-    q
-    |> Dataset.search_datasets
+    params
+    |> Dataset.list_datasets
     |> render_index(conn, params)
   end
 
