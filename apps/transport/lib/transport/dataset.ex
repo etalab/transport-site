@@ -321,7 +321,7 @@ defmodule Transport.Dataset do
       []
     else
       try do
-        bucket = "dataset_" <> dataset.datagouv_id
+        bucket = "dataset_#{dataset.datagouv_id}"
         bucket
         |> S3.list_objects
         |> ExAws.stream!
@@ -336,49 +336,22 @@ defmodule Transport.Dataset do
           e in ExAws.Error -> Logger.error("error while accessing the S3 bucket: #{inspect e}")
           []
         end
+      end
     end
-  end
 
-  ## Private functions
-  @cellar_host ".cellar-c2.services.clever-cloud.com/"
+    ## Private functions
+    @cellar_host ".cellar-c2.services.clever-cloud.com/"
 
-  defp history_resource_path(bucket, name) do
-    "http://" <> bucket <> @cellar_host <> name
-  end
+  defp history_resource_path(bucket, name), do: Path.join(["http://", bucket, @cellar_host, name])
 
   defp fetch_metadata(bucket, obj_key) do
-    r = bucket
-    |> S3.head_object(obj_key)
-    |> ExAws.request!
-
-    r.headers
-    |> Enum.into(%{})
-    |> get_metadata_from_header
+    bucket
+      |> S3.head_object(obj_key)
+      |> ExAws.request!
+      |> Map.get(:headers)
+      |> Enum.into(%{}, fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
+      |> Map.take(["format", "title", "start", "end"])
   end
-
-  defp get_metadata_from_header(%{
-    "x-amz-meta-format" => format,
-    "x-amz-meta-title" => title,
-    "x-amz-meta-start" => validity_start,
-    "x-amz-meta-end" => validity_end,
-    }) do
-      %{
-        "format" => format,
-        "title" => title,
-        "start" => validity_start,
-        "end" => validity_end,
-      }
-  end
-  defp get_metadata_from_header(%{
-    "x-amz-meta-format" => format,
-    "x-amz-meta-title" => title,
-    }) do
-      %{
-        "format" => format,
-        "title" => title,
-      }
-  end
-  defp get_metadata_from_header(_), do: %{}
 
   @spec localization(Transport.Dataset.t()) :: binary | nil
   defp localization(%__MODULE__{aom: %{nom: nom}}), do: nom

@@ -47,20 +47,18 @@ defmodule TransportWeb.API.DatasetController do
 
   def by_id(%Plug.Conn{} = conn, %{"id" => id}) do
     Dataset
-      |> Repo.get_by(datagouv_id: id)
-      |> render_dataset(conn)
-  end
-
-  defp render_dataset(nil, %Plug.Conn{} = conn) do
-    conn
-      |> put_status(404)
-      |> render(%{errors: "dataset not found"})
-  end
-  defp render_dataset(dataset, %Plug.Conn{} = conn) do
-    data = dataset
-      |> Repo.preload([:resources, :aom])
-      |> transform_dataset_with_detail
-    render(conn, %{data: data})
+    |> Repo.get_by(datagouv_id: id)
+    |> Repo.preload([:resources, :aom])
+    |> case do
+      %Dataset{} = dataset ->
+        conn
+        |> assign(:data, transform_dataset_with_detail(dataset))
+        |> render()
+      nil ->
+        conn
+        |> put_status(404)
+        |> render(%{errors: "dataset not found"})
+    end
   end
 
   defp transform_dataset(dataset) do
