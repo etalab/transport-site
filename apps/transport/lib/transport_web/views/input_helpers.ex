@@ -74,7 +74,7 @@ defmodule TransportWeb.InputHelpers do
     opts = Keyword.drop(opts, [:label])
     if label != nil do
       form_group do [
-        Form.label(form, field, label),
+        if match?({:safe, [_, "label" | _]}, label) do label else Form.label(form, field, label) end,
         Form.text_input(form, field, opts)
       ]
       end
