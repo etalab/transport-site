@@ -31,9 +31,42 @@ defmodule TransportWeb.API.DatasetController do
     render(conn, %{data: data})
   end
 
+  @spec datasets_operation() :: Operation.t
+  def by_id_operation do
+    %Operation{
+      tags: ["datasets"],
+      summary: "Show given dataset and its resources",
+      description: "For one dataset, show its associated resources, url and validity date",
+      operationId: "API.DatasetController.datasets",
+      parameters: [Operation.parameter(:id, :query, :string, "id")],
+      responses: %{
+        200 => Operation.response("Dataset", "application/json", DatasetsResponse)
+      }
+    }
+  end
+
+  def by_id(%Plug.Conn{} = conn, %{"id" => id}) do
+    Dataset
+    |> Repo.get_by(datagouv_id: id)
+    |> Repo.preload([:resources, :aom])
+    |> case do
+      %Dataset{} = dataset ->
+        conn
+        |> assign(:data, transform_dataset_with_detail(dataset))
+        |> render()
+      nil ->
+        conn
+        |> put_status(404)
+        |> render(%{errors: "dataset not found"})
+    end
+  end
+
   defp transform_dataset(dataset) do
     %{
       "datagouv_id" => dataset.datagouv_id,
+      # to help discoverability, we explicitly add the datagouv_id as the id
+      # (since it's used in /dataset/:id)
+      "id" => dataset.datagouv_id,
       "title" => dataset.spatial,
       "created_at" => dataset.created_at,
       "updated" => Helpers.last_updated(dataset.resources),
@@ -41,6 +74,12 @@ defmodule TransportWeb.API.DatasetController do
       "aom" => transform_aom(dataset.aom),
       "type" => dataset.type,
     }
+  end
+
+  defp transform_dataset_with_detail(dataset) do
+    dataset
+    |> transform_dataset
+    |> Map.put("history", Dataset.history_resources(dataset))
   end
 
   defp transform_resource(resource) do
