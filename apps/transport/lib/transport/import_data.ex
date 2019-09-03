@@ -21,9 +21,12 @@ defmodule Transport.ImportData do
     with {:ok, new_data} <- import_from_udata(datagouv_id, type),
          dataset <- Repo.get(Dataset, id),
          changeset <- Dataset.changeset(dataset, new_data) do
+      Logger.debug "new_data: #{inspect(new_data)}"
+      Logger.debug "changeset: #{inspect(changeset)}"
       Repo.update(changeset)
     else
       {:error, error} ->
+        Logger.error "Unable to import data of dataset #{datagouv_id}: #{inspect error}"
         {:error, error}
     end
   end
@@ -125,9 +128,15 @@ defmodule Transport.ImportData do
 
   def available?(%{"extras" => %{"check:available" => available}}), do: available
   def available?(%{"url" => "https://static.data.gouv.fr/" <> _}), do: true
+  def available?(%{"url" => "https://next.data.gouv.fr/" <> _}), do: true
   def available?(%{"format" => "csv"}), do: true
   def available?(%{"type" => "api"}), do: true
-  def available?(_), do: false
+  def available?(%{"url" => url}) do
+    case HTTPoison.head(url) do
+      {:ok, %HTTPoison.Response{status_code: 200}} -> true
+      _ -> false
+    end
+  end
 
   def get_valid_resources(%{"resources" => resources}, type) do
     if Resource.is_transit_file?(type) do
