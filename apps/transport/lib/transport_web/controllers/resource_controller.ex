@@ -42,14 +42,14 @@ defmodule TransportWeb.ResourceController do
     |> render("resources_list.html")
   end
 
-  @spec choose_file(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def choose_file(conn, %{"dataset_id" => dataset_id, "resource_id" => resource_id}) do
+  @spec form(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def form(conn, %{"dataset_id" => dataset_id}) do
     conn
     |> assign_or_flash(fn -> Datasets.get(dataset_id) end, :dataset, "Unable to get resources, please retry.")
-    |> assign(:action_path, resource_path(conn, :post_file, dataset_id, resource_id))
-    |> render("choose_file.html")
+    |> render("form.html")
   end
 
+  @spec post_file(Plug.Conn.t(), map) :: Plug.Conn.t()
   def post_file(conn, params) do
     success_message =
       if Map.has_key?(params, "file") do
@@ -58,9 +58,10 @@ defmodule TransportWeb.ResourceController do
         dgettext("resource", "Resource updated with URL!")
       end
 
-    with {:ok, _} <- Resources.update(conn, params["dataset_id"], params["resource_id"], params),
+    with {:ok, _} <- Resources.update(conn, params),
          dataset when not is_nil(dataset) <- Repo.get_by(Dataset, datagouv_id: params["dataset_id"]),
-         {:ok, _} <- ImportData.call(dataset) do
+         {:ok, _} <- ImportData.call(dataset),
+         {:ok, _} <- Dataset.validate(dataset) do
         conn
         |> put_flash(:info, success_message)
         |> redirect(to: dataset_path(conn, :details, params["dataset_id"]))
@@ -69,14 +70,12 @@ defmodule TransportWeb.ResourceController do
         Logger.error("Unable to update resource #{params["resource_id"]} of dataset #{params["dataset_id"]}, error: #{inspect(error)}")
         conn
         |> put_flash(:error, dgettext("resource", "Unable to upload file"))
-        |> assign(:action_path, resource_path(conn, :post_file, params["dataset_id"], params["resource_id"]))
-        |> render("choose_file.html")
+        |> form(params)
       nil ->
         Logger.error("Unable to get dataset with datagouv_id: #{params["dataset_id"]}")
         conn
         |> put_flash(:error, dgettext("resource", "Unable to upload file"))
-        |> assign(:action_path, resource_path(conn, :post_file, params["dataset_id"], params["resource_id"]))
-        |> render("choose_file.html")
+        |> form(params)
     end
   end
 

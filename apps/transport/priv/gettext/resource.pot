@@ -18,23 +18,11 @@ msgid "Resource: "
 msgstr ""
 
 #, elixir-format
-msgid "Select a resource"
-msgstr ""
-
-#, elixir-format
-msgid "To update a resource, select one of your dataset first."
-msgstr ""
-
-#, elixir-format
 msgid "Unable to upload file"
 msgstr ""
 
 #, elixir-format
 msgid "Update this resource"
-msgstr ""
-
-#, elixir-format
-msgid "Update with a file"
 msgstr ""
 
 #, elixir-format
@@ -58,10 +46,6 @@ msgid "Resource's URL"
 msgstr ""
 
 #, elixir-format
-msgid "Update with a URL"
-msgstr ""
-
-#, elixir-format
 msgid "Update with this URL"
 msgstr ""
 
@@ -75,4 +59,36 @@ msgstr ""
 
 #, elixir-format
 msgid "I'm not sure. Learn more."
+msgstr ""
+
+#, elixir-format
+msgid "Select a dataset to update it."
+msgstr ""
+
+#, elixir-format
+msgid "Select this dataset"
+msgstr ""
+
+#, elixir-format
+msgid " with a URL"
+msgstr ""
+
+#, elixir-format
+msgid "Add a new resource"
+msgstr ""
+
+#, elixir-format
+msgid "Current file: %{current_file}"
+msgstr ""
+
+#, elixir-format
+msgid "Upload a file"
+msgstr ""
+
+#, elixir-format
+msgid "format"
+msgstr ""
+
+#, elixir-format
+msgid "title"
 msgstr ""

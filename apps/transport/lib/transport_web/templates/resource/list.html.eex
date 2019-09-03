@@ -1,13 +1,13 @@
 <section class="section section-grey">
     <div class="container">
         <div class="existing">
-            <h1><%= dgettext("resource", "To update a resource, select one of your dataset first.") %></h1>
+            <h1><%= dgettext("resource", "Select a dataset to update it.") %></h1>
             <%= for dataset <- @datasets ++ @org_datasets do %>
             <div class="panel">
-                <h2><%= dataset["title"] %></h2>
+                <h2><%= dataset.title %></h2>
                 <%= link(
-                    dgettext("resource", "Select a resource"),
-                    to: resource_path(@conn, :resources_list, dataset["id"])) %>
+                    dgettext("resource", "Select this dataset"),
+                    to: resource_path(@conn, :resources_list, dataset.datagouv_id)) %>
             </div>
             <% end %>
         </div>

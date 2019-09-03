@@ -31,4 +31,15 @@ defmodule TransportWeb.ResourceView do
     )
   end
 
+  @spec action_path(Plug.Conn.t()) :: any
+  def action_path(%Plug.Conn{params: %{"resource_id" => r_id} = params} = conn), do:
+    resource_path(conn, :post_file, params["dataset_id"], r_id)
+  def action_path(%Plug.Conn{params: params} = conn), do:
+    resource_path(conn, :post_file, params["dataset_id"])
+
+  def title(%Plug.Conn{params: %{"resource_id" => _}}), do: "Modify a resource" #dgettext("resource", "Modifiy resource")
+  def title(_), do: "Add a resource" #dgettext("resource", "Add a resource")
+
+  def remote?(%{"filetype" => "remote"}), do: true
+  def remote?(_), do: false
 end
