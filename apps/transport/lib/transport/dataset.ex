@@ -321,7 +321,7 @@ defmodule Transport.Dataset do
       []
     else
       try do
-        bucket = "dataset_#{dataset.datagouv_id}"
+        bucket = "dataset-#{dataset.datagouv_id}"
         bucket
         |> S3.list_objects
         |> ExAws.stream!
