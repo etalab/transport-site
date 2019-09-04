@@ -1,4 +1,4 @@
-defmodule DB.Dataset do
+defmodule Transport.Dataset do
   @moduledoc """
   Dataset schema
 
@@ -343,7 +343,8 @@ defmodule DB.Dataset do
     end
   end
 
-  @spec user_org_datasets(Plug.Conn.t()) :: {:error, OAuth2.Error.t()} | {:ok, [Transport.Dataset.t()]}
+  @spec user_org_datasets(Plug.Conn.t()) ::
+   {:error, OAuth2.Error.t()} | {:ok, [DB.Dataset.t()]}
   def user_org_datasets(%Plug.Conn{} = conn) do
     case User.org_datasets(conn) do
       {:ok, datasets} ->
@@ -416,6 +417,12 @@ defmodule DB.Dataset do
         |> Map.take(["format", "title", "start", "end", "updated-at", "content-hash"])
     end
 
+
+    ## Private functions
+    @cellar_host ".cellar-c2.services.clever-cloud.com/"
+
+  defp history_resource_path(bucket, name), do: Path.join(["http://", bucket, @cellar_host, name])
+
   defp fetch_metadata(bucket, obj_key) do
     bucket
       |> S3.head_object(obj_key)
@@ -425,7 +432,6 @@ defmodule DB.Dataset do
       |> Map.take(["format", "title", "start", "end"])
   end
 
-  defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> @cellar_host, name])
 
   @spec localization(DB.Dataset.t()) :: binary | nil
   defp localization(%__MODULE__{aom: %{nom: nom}}), do: nom

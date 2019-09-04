@@ -15,10 +15,11 @@ defmodule TransportWeb.ResourceController do
     |> case do
       nil -> render(conn, "404.html")
       resource ->
+        issues = resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config)
         conn
         |> assign(:resource, resource)
         |> assign(:other_resources, Resource.other_resources(resource))
-        |> assign(:issues, resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config))
+        |> assign(:issues, issues)
         |> assign(:validation_summary, Validation.summary(resource.validation))
         |> render("details.html")
     end

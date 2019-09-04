@@ -21,8 +21,6 @@ defmodule Transport.ImportData do
     with {:ok, new_data} <- import_from_udata(datagouv_id, type),
          dataset <- Repo.get(Dataset, id),
          changeset <- Dataset.changeset(dataset, new_data) do
-      Logger.debug "new_data: #{inspect(new_data)}"
-      Logger.debug "changeset: #{inspect(changeset)}"
       Repo.update(changeset)
     else
       {:error, error} ->

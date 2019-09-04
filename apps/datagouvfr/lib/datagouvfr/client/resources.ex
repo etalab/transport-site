@@ -2,8 +2,8 @@ defmodule Datagouvfr.Client.Resources do
   @moduledoc """
   Abstraction of data.gouv.fr resource
   """
-  alias Datagouvfr.Client.OAuth, as: Client
   alias Datagouvfr.Client.API
+  alias Datagouvfr.Client.OAuth, as: Client
   @format_to_mime %{
     "GTFS" => "application/zip",
     "NeTeX" => "application/zip"
@@ -26,13 +26,14 @@ defmodule Datagouvfr.Client.Resources do
   end
 
   @spec update(Plug.Conn.t(), map, Client.oauth2_response | nil) :: Client.oauth2_response | nil
-  def update(conn, params, prev_resp\\nil) do
+  def update(conn, params, prev_resp \\ nil) do
     params
     |> Map.take(@fields)
     |> Enum.filter(fn {_k, v} -> v != "" end)
     |> Map.new()
     |> case  do
-      params when map_size(params) == 0 -> prev_resp # We have nothing to upload, so we return the previous response
+      params when map_size(params) == 0 ->
+         prev_resp # We have nothing to upload, so we return the previous response
       filtered_params ->
         payload =
           params
@@ -72,7 +73,7 @@ defmodule Datagouvfr.Client.Resources do
       [{"content-type", "multipart/form-data"}]
     )
 
-  defp make_path(params, suffix\\[])
+  defp make_path(params, suffix \\ [])
   defp make_path(%{"dataset_id" => d_id, "resource_id" => r_id}, suffix), do:
     Path.join(["datasets", d_id, "resources", r_id] ++ suffix)
   defp make_path(%{"dataset_id" => d_id}, suffix), do:
