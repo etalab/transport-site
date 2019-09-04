@@ -349,7 +349,7 @@ defmodule Transport.Dataset do
       |> S3.head_object(obj_key)
       |> ExAws.request!
       |> Map.get(:headers)
-      |> Enum.into(%{}, fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
+      |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
       |> Map.take(["format", "title", "start", "end"])
   end
 
