@@ -40,6 +40,14 @@ main {
   align-items: center;
 }
 
+nav.navigation input {
+  display: none;
+}
+
+.nav__hamburger {
+  display: none;
+}
+
 .nav__avatar {
   height: 35px;
   width: 35px;
@@ -54,4 +62,81 @@ main {
 
 .button {
   text-align: center;
+}
+
+#menu>a {
+  display: none;
+}
+
+@media (max-width: $breakpoint-tablet) {
+  .navbar__container {
+    align-items: center;
+    flex-direction: row-reverse;
+
+    nav {
+      flex: 1;
+    }
+
+    .nav__hamburger {
+      display: block;
+      width: 7vw;
+      height: 100%;
+      z-index: 1;
+
+      div {
+        background-color: $black;
+        border-radius: 3px;
+        height: 4px;
+        margin-bottom: .5vh;
+        width: 100%;
+      }
+    }
+
+    .navbar__home {
+      max-width: 85%;
+    }
+
+    nav div.nav__hamburger {
+      vertical-align: text-top;
+    }
+
+    #menu {
+      display: none;
+    }
+
+    #menu:target {
+      background: $white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      z-index: 10;
+
+      &>a {
+        display: flex;
+        margin-left: 20px;
+        margin-top: 20px;
+        font-size: 2em;
+        width: 1em;
+      }
+
+      ul {
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+        li {
+          line-height: 3em;
+        }
+      }
+    }
+  }
+
+  .hero__container {
+    padding: .5em 0;
+  }
 }

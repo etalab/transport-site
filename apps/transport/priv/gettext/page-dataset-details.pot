@@ -250,3 +250,11 @@ msgstr ""
 #, elixir-format
 msgid "This dataset has been removed from data.gouv.fr"
 msgstr ""
+
+#, elixir-format
+msgid "History"
+msgstr ""
+
+#, elixir-format
+msgid "valid from %{start} to %{end}"
+msgstr ""
