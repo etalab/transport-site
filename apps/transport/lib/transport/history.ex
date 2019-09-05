@@ -7,20 +7,23 @@ defmodule Transport.History do
   import Ecto.{Query}
   require Logger
 
-  def backup_resources() do
+  def backup_resources do
     if Application.get_env(:ex_aws, :access_key_id) == nil
       || Application.get_env(:ex_aws, :secret_access_key) == nil do
-      # if the cellar credential are missing, we skip the whole history backup
-        Logger.warn("no cellar credential set, we skip to resource backup")
+        Logger.warn("no cellar credential set, we skip resource backup")
     else
       resources_to_backup = Resource
-      |> where([r], not is_nil(r.url) and not is_nil(r.title) and (ilike(r.format, "GTFS") or ilike(r.format, "netex")))
+      |> where([r], not is_nil(r.url) and not is_nil(r.title)
+                    and (r.format == "GTFS" or r.format == "netex"))
       |> preload([:dataset])
       |> Repo.all()
 
       for r <- resources_to_backup do
         Logger.info("creating bucket #{bucket_id(r)}")
-        S3.put_bucket(bucket_id(r), "", %{acl: "public-read"}) |> ExAws.request!
+        r
+        |> bucket_id()
+        |> S3.put_bucket("", %{acl: "public-read"})
+        |> ExAws.request!
         if needs_to_be_updated(r) do
           Logger.info("backuping #{r.dataset.title} - #{r.title}")
           backup(r)
@@ -28,6 +31,7 @@ defmodule Transport.History do
           Logger.info("resource already backuped: #{r.dataset.title} - #{r.title}")
         end
       end
+    end
   end
 
   defp needs_to_be_updated(resource) do
