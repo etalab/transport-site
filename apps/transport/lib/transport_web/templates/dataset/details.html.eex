@@ -149,23 +149,25 @@
         <div class="panel__header">
           <h3><%= dgettext("page-dataset-details", "History" )%></h3>
         </div>
+        <table class=dataset-history>
         <%= for resource_history <- @history_resources do %>
-        <div class="history">
-          <div>
-                <%= link(resource_history.metadata["title"], to: resource_history.href) %>
 
-                <%= resource_history.creation_date |> String.split("T") |> List.first() %>
-                <span class="label"><%= resource_history.metadata["format"] %></span>
-                <%= unless resource_history.metadata["start"] == nil do %>
-                <span><%= dgettext("page-dataset-details", "valid from %{start} to %{end}",
+          <tr>
+            <td><%= link(resource_history.metadata["title"], to: resource_history.href) %></td>
+            <td>publié le <%= resource_history.creation_date |> String.split("T") |> List.first() %></td>
+            <td>
+              <%= unless resource_history.metadata["start"] == nil do %>
+                <dl class="history-entry-cell">
+                  <dd><%= dgettext("page-dataset-details", "valid from %{start} to %{end}",
                 start: resource_history.metadata["start"],
                 end: resource_history.metadata["end"],
                 ) %>
                 <% end %>
-          </div>
-        </div>
+                </td>
+            <td><span class="label"><%= resource_history.metadata["format"] %></span></td>
+          </tr>
         <% end %>
-      </div>
+        </table>
     </div>
   </section>
   <% end %>
