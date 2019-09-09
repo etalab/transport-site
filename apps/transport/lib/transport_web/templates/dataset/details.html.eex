@@ -25,7 +25,7 @@
 
   <section class="section section-grey">
     <div class="container">
-      <div class="description"ommu>
+      <div class="description">
         <%= raw Earmark.as_html!(@dataset.description) %>
       </div>
     </div>
@@ -146,28 +146,36 @@
   <section class="section white">
     <div class="container">
       <div class="panel">
-        <div class="panel__header">
-          <h3><%= dgettext("page-dataset-details", "History" )%></h3>
-        </div>
-        <table class=dataset-history>
-        <%= for resource_history <- @history_resources do %>
-
-          <tr>
-            <td><%= link(resource_history.metadata["title"], to: resource_history.href) %></td>
-            <td>publié le <%= resource_history.creation_date |> String.split("T") |> List.first() %></td>
-            <td>
-              <%= unless resource_history.metadata["start"] == nil do %>
-                <dl class="history-entry-cell">
-                  <dd><%= dgettext("page-dataset-details", "valid from %{start} to %{end}",
-                start: resource_history.metadata["start"],
-                end: resource_history.metadata["end"],
-                ) %>
-                <% end %>
+        <h3><%= dgettext("page-dataset-details", "History")%></h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th><%= dgettext("page-dataset-details", "File") %></th>
+              <th><%= dgettext("page-dataset-details", "Publication date") %></th>
+              <th><%= dgettext("page-dataset-details", "Validity period") %></th>
+              <th><%= dgettext("page-dataset-details", "Format") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for resource_history <- @history_resources do %>
+              <tr>
+                <td><%= link(resource_history.metadata["title"], to: resource_history.href) %></td>
+                <td><%= resource_history.creation_date |> String.split("T") |> List.first() %></td>
+                <td>
+                  <%= unless resource_history.metadata["start"] == nil do %>
+                    <%= dgettext("page-dataset-details", "%{start} to %{end}",
+                          start: resource_history.metadata["start"],
+                          end: resource_history.metadata["end"],
+                        )
+                    %>
+                    <% end %>
                 </td>
-            <td><span class="label"><%= resource_history.metadata["format"] %></span></td>
-          </tr>
-        <% end %>
+                <td><span class="label"><%= resource_history.metadata["format"] %></span></td>
+              </tr>
+            <% end %>
+          </tbody>
         </table>
+      </div>
     </div>
   </section>
   <% end %>
