@@ -160,7 +160,7 @@
             <%= for resource_history <- @history_resources do %>
               <tr>
                 <td><%= link(resource_history.metadata["title"], to: resource_history.href) %></td>
-                <td><%= resource_history.creation_date |> String.split("T") |> List.first() %></td>
+                <td><%= resource_history.metadata["updated-at"] |> String.split("T") |> List.first() %></td>
                 <td>
                   <%= unless resource_history.metadata["start"] == nil do %>
                     <%= dgettext("page-dataset-details", "%{start} to %{end}",

@@ -3,47 +3,59 @@ defmodule Transport.History do
   backup all ressources into s3 to have an history
   """
   alias ExAws.S3
-  alias Transport.{Repo, Resource}
+  alias Transport.{Dataset, Repo, Resource}
   import Ecto.{Query}
   require Logger
 
   def backup_resources do
-    if Application.get_env(:ex_aws, :access_key_id) == nil
-      || Application.get_env(:ex_aws, :secret_access_key) == nil do
-        Logger.warn("no cellar credential set, we skip resource backup")
+    if Application.get_env(:ex_aws, :access_key_id) == nil ||
+         Application.get_env(:ex_aws, :secret_access_key) == nil do
+      Logger.warn("no cellar credential set, we skip resource backup")
     else
-      resources_to_backup = Resource
-      |> where([r], not is_nil(r.url) and not is_nil(r.title)
-                    and (r.format == "GTFS" or r.format == "netex"))
+      Resource
+      |> where(
+        [r],
+        not is_nil(r.url) and not is_nil(r.title) and
+          (r.format == "GTFS" or r.format == "netex")
+      )
       |> preload([:dataset])
       |> Repo.all()
+      |> Stream.map(fn r ->
+        Logger.debug(fn -> "creating bucket #{bucket_id(r)}" end)
 
-      for r <- resources_to_backup do
-        Logger.info("creating bucket #{bucket_id(r)}")
         r
         |> bucket_id()
         |> S3.put_bucket("", %{acl: "public-read"})
-        |> ExAws.request!
-        if needs_to_be_updated(r) do
-          Logger.info("backuping #{r.dataset.title} - #{r.title}")
-          backup(r)
-        else
-          Logger.info("resource already backuped: #{r.dataset.title} - #{r.title}")
-        end
-      end
+        |> ExAws.request!()
+
+        r
+      end)
+      |> Stream.filter(&needs_to_be_updated/1)
+      |> Stream.each(&backup/1)
+      |> Stream.run()
     end
+  end
+
+  defp modification_date(resource) do
+    resource.last_update || resource.last_import
   end
 
   defp needs_to_be_updated(resource) do
     backuped_resources = get_already_backuped_resources(resource)
 
-    case backuped_resources do
-      [] ->
+    max_last_modified =
+      backuped_resources
+      |> Enum.map(fn r ->
+        r.updated_at
+      end)
+      |> Enum.max(fn -> nil end)
+
+    case max_last_modified do
+      nil ->
         true
-      _ ->
-        max_last_modified = backuped_resources |> Enum.max_by(fn r -> r.last_modified end)
-        date = resource.last_update || resource.last_import
-        modification_date = NaiveDateTime.from_iso8601(date)
+
+      max_last_modified ->
+        modification_date = modification_date(resource)
         max_last_modified < modification_date
     end
   end
@@ -54,8 +66,15 @@ defmodule Transport.History do
     resource
     |> bucket_id()
     |> S3.list_objects(prefix: resource_title(resource))
-    |> ExAws.stream!
-    |> Enum.to_list
+    |> ExAws.stream!()
+    |> Enum.map(fn o ->
+      metadata = Dataset.fetch_history_metadata(bucket_id(resource), o.key)
+
+      %{
+        key: o.key,
+        updated_at: metadata["updated-at"]
+      }
+    end)
   end
 
   defp resource_title(resource) do
@@ -64,7 +83,7 @@ defmodule Transport.History do
     |> String.replace("/", "_")
     |> String.replace("'", "_")
     # we use only ascii character for the title as cellar can be a tad strict
-    |> Unidecode.decode
+    |> Unidecode.decode()
     |> to_string
   end
 
@@ -72,11 +91,15 @@ defmodule Transport.History do
   defp maybe_put(map, key, value), do: Map.put(map, key, value)
 
   defp backup(resource) do
+    Logger.info("backuping #{resource.dataset.title} - #{resource.title}")
     now = DateTime.utc_now() |> Timex.format!("%Y%m%dT%H%M%S", :strftime)
-    meta = %{
-      url: resource.url,
-      title: resource_title(resource),
-      format: resource.format,
+
+    meta =
+      %{
+        url: resource.url,
+        title: resource_title(resource),
+        format: resource.format,
+        updated_at: modification_date(resource)
       }
       |> maybe_put(:start, resource.metadata["start_date"])
       |> maybe_put(:end, resource.metadata["end_date"])
@@ -86,14 +109,18 @@ defmodule Transport.History do
         resource
         |> bucket_id()
         |> S3.put_object(
-            "#{resource_title(resource)}_#{now}",
-            body,
-            acl: "public-read",
-            meta: meta)
-        |> ExAws.request!
-      {:ok, response} -> Logger.error(inspect(response))
-      {:error, error} -> Logger.error(inspect(error))
+          "#{resource_title(resource)}_#{now}",
+          body,
+          acl: "public-read",
+          meta: meta
+        )
+        |> ExAws.request!()
+
+      {:ok, response} ->
+        Logger.error(inspect(response))
+
+      {:error, error} ->
+        Logger.error(inspect(error))
     end
   end
-
 end
