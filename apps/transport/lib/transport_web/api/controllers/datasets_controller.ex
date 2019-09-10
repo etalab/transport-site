@@ -96,7 +96,8 @@ defmodule TransportWeb.API.DatasetController do
   defp transform_aom(nil), do: %{"name" => nil}
   defp transform_aom(aom) do
     %{
-      "name" => aom.nom
+      "name" => aom.nom,
+      "siren" => aom.siren,
     }
   end
 end

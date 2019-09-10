@@ -12,7 +12,7 @@ defmodule Transport.AOM do
       field :composition_res_id, :integer
       field :insee_commune_principale, :string
       field :departement, :string
-      field :siren, :integer
+      field :siren, :string
       field :nom, :string
       field :forme_juridique, :string
       field :nombre_communes, :integer
