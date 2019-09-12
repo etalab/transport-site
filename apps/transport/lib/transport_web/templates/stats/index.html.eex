@@ -3,7 +3,7 @@
   <div class="container">
     <h1>État du déploiement</h1>
     <div id="map"></div>
-    <h2>Transport collectif théorique</h2>
+    <h2>Horaires théoriques – transports en commun</h2>
     <div class="stats">
       <div class="grid">
         <div class="tile">
@@ -12,11 +12,11 @@
         </div>
         <div class="tile">
           <strong><%= @nb_aoms_with_data %></strong>
-          <div>AOMS couvertes sur <%= @nb_aoms %></div>
+          <div>autorités organisatrices de la mobilité couvertes (sur <%= @nb_aoms %>)</div>
         </div>
         <div class="tile">
           <strong><%= @nb_regions_completed %></strong>
-          <div>régions couvertes sur <%= @nb_regions %></div>
+          <div>régions couvertes (sur <%= @nb_regions %>)</div>
         </div>
         <div class="tile">
           <strong><%= @population_couverte %>M</strong>
