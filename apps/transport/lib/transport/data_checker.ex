@@ -11,31 +11,36 @@ defmodule Transport.DataChecker do
 
   def inactive_data do
     # we first check if some inactive datasets have reapeared
-    reactivated_datasets =
-    Dataset
-      |> where([d], d.is_active == false)
-      |> Repo.all()
-      |> Enum.filter(&Datasets.is_active?/1)
-
-    reactivated_ids = reactivated_datasets |> Enum.map(& &1.datagouv_id)
+    to_reactivate_datasets = get_to_reactivate_datasets()
+    reactivated_ids = Enum.map(to_reactivate_datasets, & &1.datagouv_id)
 
     Dataset
     |> where([d], d.datagouv_id in ^reactivated_ids)
     |> Repo.update_all(set: [is_active: true])
 
     # then we disable the unreachable datasets
-    inactive_datasets =
-    Dataset
-    |> where([d], d.is_active == true)
-    |> Repo.all()
-    |> Enum.reject(&Datasets.is_active?/1)
-    inactive_ids = inactive_datasets |> Enum.map(& &1.datagouv_id)
+    inactive_datasets = get_inactive_datasets()
+    inactive_ids = Enum.map(inactive_datasets, & &1.datagouv_id)
 
     Dataset
     |> where([d], d.datagouv_id in ^inactive_ids)
     |> Repo.update_all(set: [is_active: false])
 
-    send_inactive_dataset_mail(reactivated_datasets, inactive_datasets)
+    send_inactive_dataset_mail(to_reactivate_datasets, inactive_datasets)
+  end
+
+  def get_inactive_datasets do
+    Dataset
+    |> where([d], d.is_active == true)
+    |> Repo.all()
+    |> Enum.reject(&Datasets.is_active?/1)
+  end
+
+  def get_to_reactivate_datasets do
+    Dataset
+      |> where([d], d.is_active == false)
+      |> Repo.all()
+      |> Enum.filter(&Datasets.is_active?/1)
   end
 
   def outdated_data(blank \\ False) do
