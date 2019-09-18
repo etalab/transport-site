@@ -332,12 +332,22 @@ defmodule Transport.Dataset do
           href: history_resource_path(bucket, f.key),
           metadata: fetch_metadata(bucket, f.key),
           } end)
-        rescue
-          e in ExAws.Error -> Logger.error("error while accessing the S3 bucket: #{inspect e}")
-          []
-        end
+      rescue
+        e in ExAws.Error -> Logger.error("error while accessing the S3 bucket: #{inspect e}")
+        []
       end
     end
+  end
+
+  def get_expire_at(%Date{} = date), do: get_expire_at("#{date}")
+  def get_expire_at(date) do
+    __MODULE__
+    |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
+    |> group_by([d, r], d.id)
+    |> having([d, r], fragment("max(?->>'end_date') = ?", r.metadata, ^date))
+    |> preload([:resources])
+    |> Repo.all()
+  end
 
     ## Private functions
     @cellar_host ".cellar-c2.services.clever-cloud.com/"

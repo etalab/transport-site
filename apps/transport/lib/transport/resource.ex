@@ -166,14 +166,6 @@ defmodule Transport.Resource do
     |> Enum.each(&validate_and_save/1)
   end
 
-  def get_expire_at(%Date{} = date), do: get_expire_at("#{date}")
-  def get_expire_at(date) do
-    __MODULE__
-    |> where([r], fragment("metadata->>'end_date' = ?", ^date))
-    |> preload([:dataset])
-    |> Repo.all()
-  end
-
   @spec is_outdated?(any) :: boolean
   def is_outdated?(%__MODULE__{metadata: %{"end_date" => nil}}), do: false
   def is_outdated?(%__MODULE__{metadata: %{"end_date" => end_date}}), do:
