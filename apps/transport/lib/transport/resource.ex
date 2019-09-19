@@ -23,6 +23,7 @@ defmodule Transport.Resource do
     field :last_update, :string
     field :latest_url, :string
     field :is_available, :boolean, default: true
+    field :content_hash, :string
 
     belongs_to :dataset, Dataset
     has_one :validation, Validation, on_replace: :delete
@@ -90,7 +91,7 @@ defmodule Transport.Resource do
     end
   end
 
-  def save(%{id: id}, %{"validations" => validations, "metadata" => metadata}) do
+  def save(%{id: id, url: url}, %{"validations" => validations, "metadata" => metadata}) do
     # When the validator is unable to open the archive, it will return a fatal issue
     # And the metadata will be nil (as it couldn’t read the them)
     if is_nil(metadata), do: Logger.warn("Unable to validate: #{id}")
@@ -102,8 +103,9 @@ defmodule Transport.Resource do
       metadata: metadata,
       validation: %Validation{
         date: DateTime.utc_now |> DateTime.to_string,
-        details: validations
-      }
+        details: validations,
+      },
+      content_hash: Hasher.get_content_hash(url)
     )
     |> Repo.update
   end
@@ -162,14 +164,6 @@ defmodule Transport.Resource do
     |> Enum.filter(fn r -> is_transit_file?(r.dataset.type) end)
     |> Enum.filter(&(List.first(args) == "--all" or needs_validation(&1)))
     |> Enum.each(&validate_and_save/1)
-  end
-
-  def get_expire_at(%Date{} = date), do: get_expire_at("#{date}")
-  def get_expire_at(date) do
-    __MODULE__
-    |> where([r], fragment("metadata->>'end_date' = ?", ^date))
-    |> preload([:dataset])
-    |> Repo.all()
   end
 
   @spec is_outdated?(any) :: boolean

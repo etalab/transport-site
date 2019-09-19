@@ -4,76 +4,81 @@ defmodule Transport.DataChecker do
   """
   alias Datagouvfr.Client.{Datasets, Discussions}
   alias Mailjet.Client
-  alias Transport.{Dataset, Repo, Resource}
+  alias Transport.{Dataset, Repo}
   import TransportWeb.Router.Helpers
   import Ecto.Query
   require Logger
 
   def inactive_data do
     # we first check if some inactive datasets have reapeared
-    reactivated_datasets =
-    Dataset
-      |> where([d], d.is_active == false)
-      |> Repo.all()
-      |> Enum.filter(&Datasets.is_active?/1)
-
-    reactivated_ids = reactivated_datasets |> Enum.map(& &1.datagouv_id)
+    to_reactivate_datasets = get_to_reactivate_datasets()
+    reactivated_ids = Enum.map(to_reactivate_datasets, & &1.datagouv_id)
 
     Dataset
     |> where([d], d.datagouv_id in ^reactivated_ids)
     |> Repo.update_all(set: [is_active: true])
 
     # then we disable the unreachable datasets
-    inactive_datasets =
-    Dataset
-    |> where([d], d.is_active == true)
-    |> Repo.all()
-    |> Enum.reject(&Datasets.is_active?/1)
-    inactive_ids = inactive_datasets |> Enum.map(& &1.datagouv_id)
+    inactive_datasets = get_inactive_datasets()
+    inactive_ids = Enum.map(inactive_datasets, & &1.datagouv_id)
 
     Dataset
     |> where([d], d.datagouv_id in ^inactive_ids)
     |> Repo.update_all(set: [is_active: false])
 
-    send_inactive_dataset_mail(reactivated_datasets, inactive_datasets)
+    send_inactive_dataset_mail(to_reactivate_datasets, inactive_datasets)
   end
 
-  def outdated_data(blank \\ False) do
+  def get_inactive_datasets do
+    Dataset
+    |> where([d], d.is_active == true)
+    |> Repo.all()
+    |> Enum.reject(&Datasets.is_active?/1)
+  end
+
+  def get_to_reactivate_datasets do
+    Dataset
+      |> where([d], d.is_active == false)
+      |> Repo.all()
+      |> Enum.filter(&Datasets.is_active?/1)
+  end
+
+  def outdated_data(blank \\ false) do
     for delay <- [0, 7, 14],
         date = Date.add(Date.utc_today, delay) do
-          {delay, Resource.get_expire_at(date)}
+          {delay, Dataset.get_expire_at(date)}
         end
     |> Enum.reject(fn {_, d} -> d == [] end)
     |> send_outdated_data_mail(blank)
     |> post_outdated_data_comments(blank)
   end
 
-  def post_outdated_data_comments(delays_resources, blank) do
-    case Enum.find(delays_resources, fn {delay, _} -> delay == 7 end) do
+  def post_outdated_data_comments(delays_datasets, blank) do
+    case Enum.find(delays_datasets, fn {delay, _} -> delay == 7 end) do
       nil ->
         Logger.info "No datasets need a comment about outdated resources"
-      {_, resources} ->
-        Enum.map(resources, fn r -> post_outdated_data_comment(r, blank) end)
+      {delay, datasets} ->
+        Enum.map(datasets, fn r -> post_outdated_data_comment(r, delay, blank) end)
     end
   end
 
-  def post_outdated_data_comment(resource, blank) do
+  def post_outdated_data_comment(dataset, delay, blank) do
     Discussions.post(
-      resource.dataset.datagouv_id,
+      dataset.datagouv_id,
       "Jeu de données arrivant à expiration",
 """
 Bonjour,
-Ce jeu de données arrive à expiration dans 7 jours.
+Ce jeu de données arrive à expiration dans #{delay} jour#{if delay != 1 do "s" end}.
 Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour prochainement.
 L’équipe transport.data.gouv.fr
 """, blank)
   end
 
-  defp make_str({delay, resources}) do
-    r_str = resources
-    |> Enum.map(& &1.dataset)
-    |> Enum.map(&link_and_name/1)
-    |> Enum.join("\n")
+  defp make_str({delay, datasets}) do
+    r_str =
+      datasets
+      |> Enum.map(&link_and_name/1)
+      |> Enum.join("\n")
 
     """
     Jeux de données expirant #{delay_str(delay)}:
