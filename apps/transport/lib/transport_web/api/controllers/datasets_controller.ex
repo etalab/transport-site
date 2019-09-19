@@ -31,7 +31,7 @@ defmodule TransportWeb.API.DatasetController do
     render(conn, %{data: data})
   end
 
-  @spec datasets_operation() :: Operation.t
+  @spec by_id_operation() :: Operation.t
   def by_id_operation do
     %Operation{
       tags: ["datasets"],

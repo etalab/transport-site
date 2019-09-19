@@ -256,5 +256,21 @@ msgid "History"
 msgstr "Historique"
 
 #, elixir-format
-msgid "valid from %{start} to %{end}"
-msgstr "valable du %{start} au %{end}"
+msgid "%{start} to %{end}"
+msgstr "%{start} au %{end}"
+
+#, elixir-format
+msgid "Format"
+msgstr "Format"
+
+#, elixir-format
+msgid "Publication date"
+msgstr "Date de publication"
+
+#, elixir-format
+msgid "Validity period"
+msgstr "Période de validité"
+
+#, elixir-format
+msgid "File"
+msgstr "Fichier"

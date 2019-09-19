@@ -321,16 +321,15 @@ defmodule Transport.Dataset do
       []
     else
       try do
-        bucket = "dataset_#{dataset.datagouv_id}"
+        bucket = "dataset-#{dataset.datagouv_id}"
         bucket
         |> S3.list_objects
         |> ExAws.stream!
         |> Enum.to_list
         |> Enum.map(fn f -> %{
           name: f.key,
-          creation_date: f.last_modified,
           href: history_resource_path(bucket, f.key),
-          metadata: fetch_metadata(bucket, f.key),
+          metadata: fetch_history_metadata(bucket, f.key),
           } end)
       rescue
         e in ExAws.Error -> Logger.error("error while accessing the S3 bucket: #{inspect e}")
@@ -349,19 +348,19 @@ defmodule Transport.Dataset do
     |> Repo.all()
   end
 
-    ## Private functions
-    @cellar_host ".cellar-c2.services.clever-cloud.com/"
+    def fetch_history_metadata(bucket, obj_key) do
+      bucket
+        |> S3.head_object(obj_key)
+        |> ExAws.request!
+        |> Map.get(:headers)
+        |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
+        |> Map.take(["format", "title", "start", "end", "updated-at"])
+    end
 
-  defp history_resource_path(bucket, name), do: Path.join(["http://", bucket, @cellar_host, name])
+  ## Private functions
+  @cellar_host ".cellar-c2.services.clever-cloud.com/"
 
-  defp fetch_metadata(bucket, obj_key) do
-    bucket
-      |> S3.head_object(obj_key)
-      |> ExAws.request!
-      |> Map.get(:headers)
-      |> Enum.into(%{}, fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
-      |> Map.take(["format", "title", "start", "end"])
-  end
+  defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> @cellar_host, name])
 
   @spec localization(Transport.Dataset.t()) :: binary | nil
   defp localization(%__MODULE__{aom: %{nom: nom}}), do: nom
