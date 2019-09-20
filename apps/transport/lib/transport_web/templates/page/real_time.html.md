@@ -2,7 +2,7 @@
 
 L’objectif du point d’accès national des données transport est de fournir un accès homogène aux données pour faciliter l’intégration.
 
-Une explication détaillée des variantes est disponible [sur notre page d’aide](https://doc.transport.data.gouv.fr/producteurs/temps-reel-des-transports-en-commun).
+Une explication détaillée des variantes est disponible [sur notre page d’aide](https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/temps-reel-des-transports-en-commun).
 
 Le point d’accès `Siri Lite` et `GTFS-RT` pour tous les jeux de données est (tr.transport.data.gouv.fr)[https://tr.transport.data.gouv.fr].
 
