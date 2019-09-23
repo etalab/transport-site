@@ -2,9 +2,9 @@
 
 Une réunion de lancement des travaux a eu lieu le 20 septembre 2018. Le compte-rendu est disponible [ici](<%= @cr_tr %>).
 
-## Aires de covoiturage
+## Lieux de covoiturage
 
-[Un fichier national](https://www.data.gouv.fr/fr/datasets/aires-de-covoiturage-en-france) décrivant les aires de covoiturage de 70 départements a été consolidé par BlaBlaCar.
+[Un fichier national](https://www.data.gouv.fr/fr/datasets/aires-de-covoiturage-en-france) décrivant les lieux de covoiturage de 70 départements a été consolidé par BlaBlaCar.
 
 La Fabrique des Mobilités a récemment ouvert un fichier relatif à des lieux de rendez-vous de covoiturage (grande variété de points, fichier non consolidé), disponible sur [ici](https://www.data.gouv.fr/fr/datasets/base-de-donnees-commune-des-lieux-et-aires-de-covoiturage/).
 

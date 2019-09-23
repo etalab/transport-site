@@ -38,7 +38,7 @@ msgid "public-transit"
 msgstr "Transport en communs"
 
 msgid "carsharing-areas"
-msgstr "Aires de covoiturage"
+msgstr "Lieux de covoiturage"
 
 msgid "stops-ref"
 msgstr "Référentiel points d’arrêts"

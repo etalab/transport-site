@@ -71,7 +71,7 @@ Les partenaires suivants ont contribué à l’ouverture des données transport.
   <tr>
     <td>Blablacar</td>
     <td>BlaBlaCar, premier réseau de covoiturage, met en relation des voyageurs pour leur permettre d'aller partout. Plus besoin d'aller en ville pour quitter la ville.</td>
-    <td>Consolidation d’un fichier national des aires de covoiturage</td>
+    <td>Consolidation d’un fichier national des lieux de covoiturage</td>
   </tr>
   <tr>
     <td>La Fabrique des Mobilités</td>
