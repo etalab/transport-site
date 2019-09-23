@@ -74,6 +74,7 @@ defmodule TransportWeb.API.DatasetController do
       "resources" => Enum.map(dataset.resources, &transform_resource/1),
       "aom" => transform_aom(dataset.aom),
       "type" => dataset.type,
+      "publisher" => %{"organization" => dataset.organization},
     }
   end
 
