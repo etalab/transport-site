@@ -101,9 +101,9 @@ Etalab consolide un fichier des données relatives à la localisation et aux car
 
 Les fichiers sources (csv) doivent être publiés sur data.gouv.fr et respecter le format attendu défini [ici](https://www.data.gouv.fr/fr/datasets/fichier-exemple-stations-de-recharge-de-vehicules-electriques/) par [l’arrêté du 12 janvier 2017](https://www.legifrance.gouv.fr/affichTexte.do?cidTexte=JORFTEXT000033860733&categorieLien=id) pour apparaître dans [la version consolidée du fichier national](https://www.data.gouv.fr/fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/), notamment sur les colonnes id_pdc et date_maj qui servent de pivot. L’intégration au fichier national a lieu si les fichiers sources correspondent au format attendu et sont publiés sur data.gouv.fr.
 
-* **Pour les aires de covoiturage :** 
+* **Pour les lieux de covoiturage :**
 
-[Un fichier national décrivant les aires de covoiturage de 70 départements](https://www.data.gouv.fr/fr/datasets/aires-de-covoiturage-en-france) a été consolidé par BlaBlaCar.
+[Un fichier national décrivant les lieux de covoiturage de 70 départements](https://www.data.gouv.fr/fr/datasets/aires-de-covoiturage-en-france) a été consolidé par BlaBlaCar.
 Les fichiers sources (csv) peuvent être déposés sur [ce lien](https://docs.google.com/forms/d/e/1FAIpQLSeJ_BLOUkedenhMjQFkqpKG6OpLShoPrVJs7SOMLN7pQmUpVQ/viewform) s’ils respectent le format attendu défini [ici](https://docs.google.com/spreadsheets/d/1gGhkStBP9XL0WuHxfx-sQzRFX26K_67j9HrJcX-p8eU/edit#gid=0).
 
 La Fabrique des Mobilités a également ouvert un fichier relatif à des lieux de rdv de covoiturage (grande variété de points, fichier non consolidé), disponible [ici](https://www.data.gouv.fr/fr/datasets/base-de-donnees-commune-des-lieux-et-aires-de-covoiturage/).
