@@ -25,9 +25,17 @@ defmodule TransportWeb.DatasetController do
 
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
     with dataset when not is_nil(dataset) <- Dataset.get_by(slug: slug_or_id, preload: true),
-        organization when not is_nil(organization) <- Dataset.get_organization(dataset),
-        {_, community_ressources} <- CommunityResources.get(dataset.datagouv_id),
-        {_, reuses} <- Reuses.get(dataset) do
+        organization when not is_nil(organization) <- Dataset.get_organization(dataset) do
+
+        community_ressources = case CommunityResources.get(dataset.datagouv_id) do
+          {_, community_ressources} -> community_ressources
+          _ -> nil
+        end
+        reuses = case Reuses.get(dataset) do
+          {_, reuses} -> reuses
+          _ -> nil
+        end
+
         conn
         |> assign(:dataset, dataset)
         |> assign(:community_ressources, community_ressources)
