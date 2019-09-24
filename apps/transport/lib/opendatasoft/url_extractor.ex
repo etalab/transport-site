@@ -7,7 +7,7 @@ defmodule Opendatasoft.UrlExtractor do
   require Logger
 
   @separators [?;, ?,]
-  @csv_headers ["Download", "file", "Fichier", "fichier à télécharger"]
+  @csv_headers ["Download", "file", "Fichier", "fichier à télécharger", "url"]
 
   def get_csv_resources(resources) do
     csv_resources = filter_csv(resources)
@@ -62,7 +62,7 @@ defmodule Opendatasoft.UrlExtractor do
  end
 
  defp download_csv(%{"url" => url}) do
-   case HTTPoison.get(url) do
+   case HTTPoison.get(url, [], hackney: [follow_redirect: true]) do
      {:ok, response = %{status_code: 200}} ->
        {:ok, response}
      {:ok, response} ->
