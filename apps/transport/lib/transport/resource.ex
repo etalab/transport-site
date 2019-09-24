@@ -11,7 +11,7 @@ defmodule Transport.Resource do
   @client HTTPoison
   @res HTTPoison.Response
   @err HTTPoison.Error
-  @timeout 60_000
+  @timeout 180_000
 
   schema "resource" do
     field :is_active, :boolean
