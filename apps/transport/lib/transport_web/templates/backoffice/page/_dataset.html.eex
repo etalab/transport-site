@@ -15,9 +15,7 @@
         <% end %>
       </td>
       <td>
-        <%= form_for @conn, backoffice_dataset_path(@conn, :validation, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
-          <%= submit "Valider", [class: "button", nodiv: true] %>
-        <% end %>
+        <%= live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{dataset_id: @dataset.id, locale: get_session(@conn, :locale)}) %>
       </td>
       <td>
         <%= form_for @conn, backoffice_page_path(@conn, :index), [nodiv: true, method: "get"], fn f -> %>

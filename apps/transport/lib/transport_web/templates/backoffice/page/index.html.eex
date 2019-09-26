@@ -36,3 +36,4 @@
     <%= link(dgettext("backoffice", "Show all datasets"), to: backoffice_page_path(@conn, :index))%>
   <% end %>
 </section>
+<script src="js/app.js"></script>

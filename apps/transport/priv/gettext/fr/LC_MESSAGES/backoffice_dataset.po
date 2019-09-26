@@ -50,3 +50,19 @@ msgstr "Impossible d'éditer le jeu de données"
 #, elixir-format
 msgid "Dataset edited with success"
 msgstr "Jeu de données édité"
+
+#, elixir-format
+msgid "Error"
+msgstr "Erreur"
+
+#, elixir-format
+msgid "Validate"
+msgstr "Valider"
+
+#, elixir-format
+msgid "Validated"
+msgstr "Validé"
+
+#, elixir-format
+msgid "Validating"
+msgstr "En cours"

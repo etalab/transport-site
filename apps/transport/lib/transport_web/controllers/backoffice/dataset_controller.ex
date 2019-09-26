@@ -59,16 +59,6 @@ defmodule TransportWeb.Backoffice.DatasetController do
     |> redirect_to_index()
   end
 
-  def validation(%Plug.Conn{} = conn, %{"id" => id}) do
-    id
-    |> Dataset.validate()
-    |> flash(conn,
-      dgettext("backoffice_dataset", "Dataset validated"),
-      dgettext("backoffice_dataset", "Could not validate dataset")
-    )
-    |> redirect_to_index()
-  end
-
   def validate_all(%Plug.Conn{} = conn, _args) do
     ImportDataWorker.all
 
