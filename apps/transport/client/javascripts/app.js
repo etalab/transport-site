@@ -1,3 +1,5 @@
-import addMap from './map'
+import { Socket } from 'phoenix'
+import LiveSocket from 'phoenix_live_view'
 
-addMap('map', '/api/stats/', '/api/stats/regions')
+let liveSocket = new LiveSocket('/live', Socket)
+liveSocket.connect()
