@@ -41,6 +41,7 @@ defmodule TransportWeb.ResourceController do
     |> List.first
   end
 
+  def validation_summary(nil), do: []
   def validation_summary(%{details: issues}) do
     existing_issues = issues
     |> Enum.map(fn {key, issues} -> {key, %{
