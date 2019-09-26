@@ -31,12 +31,7 @@ defmodule Transport.Mixfile do
       extra_applications: [
         :logger,
         :mime,
-        :oauth2,
-        :poolboy,
-        :scrivener,
-        :scrivener_html,
-        :sentry,
-        :unidecode,
+        :unidecode
       ]
     ]
   end
@@ -60,7 +55,6 @@ defmodule Transport.Mixfile do
       {:phoenix_html, "~> 2.13"},
       {:phoenix_markdown, "~> 1.0"},
       {:plug_cowboy, "~> 1.0"},
-      {:poolboy, "~> 1.5"},
       {:recon, "~> 2.4"},
       {:vex, "~> 0.8"},
       {:quantum, "~> 2.3"},
