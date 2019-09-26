@@ -9,7 +9,6 @@ defmodule TransportWeb.API.AomController do
 
   @aom_fields [:nom, :insee_commune_principale, :departement, :forme_juridique, :siren]
 
-  @spec open_api_operation(any) :: Operation.t
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
   def by_coordinates_operation do

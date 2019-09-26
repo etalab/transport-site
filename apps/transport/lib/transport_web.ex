@@ -25,6 +25,7 @@ defmodule TransportWeb do
       import TransportWeb.Gettext
       import TransportWeb.PaginationHelpers
       alias TransportWeb.ErrorView
+      import Phoenix.LiveView.Controller
     end
   end
 
@@ -45,6 +46,8 @@ defmodule TransportWeb do
       import TransportWeb.InputHelpers
       import TransportWeb.Gettext
       import Transport.Helpers
+      import Phoenix.LiveView,
+        only: [live_render: 2, live_render: 3, live_link: 1, live_link: 2]
     end
   end
 
@@ -55,6 +58,7 @@ defmodule TransportWeb do
       import Phoenix.Controller
       import TransportWeb.Gettext, only: [dgettext: 2, dngettext: 4]
       alias TransportWeb.Router.Helpers
+      import Phoenix.LiveView.Router
     end
   end
 

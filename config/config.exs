@@ -27,7 +27,10 @@ config :transport, TransportWeb.Endpoint,
     accepts: ~w(html json)
   ],
   pubsub: [name: Transport.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+           adapter: Phoenix.PubSub.PG2],
+  live_view: [
+    signing_salt: System.get_env("SECRET_KEY_BASE")
+  ]
 
 # Configures format encoders
 config :phoenix, :format_encoders,
@@ -52,7 +55,10 @@ config :scrivener_html,
 
 # Allow to have Markdown templates
 config :phoenix, :template_engines,
-  md: PhoenixMarkdown.Engine
+  [
+    md: PhoenixMarkdown.Engine,
+    leex: Phoenix.LiveView.Engine
+  ]
 
 config :phoenix_markdown, :server_tags, :all
 

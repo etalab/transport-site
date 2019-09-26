@@ -3,7 +3,7 @@ defmodule TransportWeb.API.Schemas do
     OpenAPI schema defintions
   """
   require OpenApiSpex
-  alias OpenApiSpex.{Discriminator, ExternalDocumentation, Schema}
+  alias OpenApiSpex.{Discriminator, ExternalDocumentation, Operation, Schema}
 
   defmodule GeometryBase do
     @moduledoc false
@@ -20,10 +20,16 @@ defmodule TransportWeb.API.Schemas do
           type: :string,
           enum: ["Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon"]
         }
-      },
-      discriminator: %Discriminator{
-        propertyName: "type"
       }
+    }
+  end
+
+  defmodule NumberItems do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema %{
+      type: :number
     }
   end
 
@@ -37,9 +43,7 @@ defmodule TransportWeb.API.Schemas do
       externalDocs: %ExternalDocumentation{url: "http://geojson.org/geojson-spec.html#id2"},
       minItems: 2,
       maxItems: 2,
-      items: %Schema{
-        type: :number
-      }
+      items: NumberItems
     }
   end
 
