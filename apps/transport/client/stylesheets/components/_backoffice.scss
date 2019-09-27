@@ -1,0 +1,14 @@
+.backoffice-datasets {
+  td {
+    div {
+      display: flex;
+      justify-content: center;
+      .success {
+        background-color: var(--green);
+      }
+      button {
+        flex-shrink: 2;
+      }
+    }
+  }
+}
