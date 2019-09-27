@@ -7,7 +7,6 @@ defmodule Datagouvfr.Client.Reuses do
 
   @endpoint "reuses"
 
-  #@spec get(Dataset.t()) :: Client.response
   def get(%{datagouv_id: dataset_id}) do
     case Client.get(@endpoint, [], params: %{dataset: dataset_id}) do
       {:ok, %{"data" => data}} -> {:ok, Enum.map(data, &add_name/1)}
