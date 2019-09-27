@@ -50,7 +50,6 @@ defmodule Transport.Mixfile do
       {:exconstructor, "~> 1.1"},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 1.5"},
-      {:oauth2, "~> 0.9"},
       {:phoenix, "~> 1.4.10"},
       {:phoenix_html, "~> 2.13"},
       {:phoenix_markdown, "~> 1.0"},
