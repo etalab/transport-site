@@ -64,7 +64,8 @@ defmodule Transport.Dataset do
         metadata: r.metadata,
         id: r.id,
         last_update: r.last_update,
-        latest_url: r.latest_url
+        latest_url: r.latest_url,
+        content_hash: r.content_hash,
       },
       where: r.is_available
   end
@@ -326,11 +327,22 @@ defmodule Transport.Dataset do
         |> S3.list_objects
         |> ExAws.stream!
         |> Enum.to_list
-        |> Enum.map(fn f -> %{
-          name: f.key,
-          href: history_resource_path(bucket, f.key),
-          metadata: fetch_history_metadata(bucket, f.key),
-          } end)
+        |> Enum.map(fn f ->
+          metadata = fetch_history_metadata(bucket, f.key)
+
+          is_current = dataset.resources
+          |> Enum.map(fn r -> r.content_hash end)
+          |> Enum.any?(fn hash -> ! is_nil(hash) && metadata["content-hash"] == hash end)
+
+          %{
+            name: f.key,
+            href: history_resource_path(bucket, f.key),
+            metadata: fetch_history_metadata(bucket, f.key),
+            is_current: is_current,
+            last_modified: f.last_modified
+            }
+          end)
+        |> Enum.sort_by(fn f -> f.last_modified end, &Kernel.>=/2)
       rescue
         e in ExAws.Error -> Logger.error("error while accessing the S3 bucket: #{inspect e}")
         []
@@ -354,7 +366,7 @@ defmodule Transport.Dataset do
         |> ExAws.request!
         |> Map.get(:headers)
         |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
-        |> Map.take(["format", "title", "start", "end", "updated-at"])
+        |> Map.take(["format", "title", "start", "end", "updated-at", "content-hash"])
     end
 
   ## Private functions

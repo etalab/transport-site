@@ -7,11 +7,12 @@ defmodule Transport.History do
   import Ecto.{Query}
   require Logger
 
-  def backup_resources do
+  def backup_resources(force_update \\ false) do
     if Application.get_env(:ex_aws, :access_key_id) == nil ||
          Application.get_env(:ex_aws, :secret_access_key) == nil do
       Logger.warn("no cellar credential set, we skip resource backup")
     else
+      Logger.info("backuping the resources")
       Resource
       |> where(
         [r],
@@ -30,7 +31,7 @@ defmodule Transport.History do
 
         r
       end)
-      |> Stream.filter(&needs_to_be_updated/1)
+      |> Stream.filter(fn r -> force_update || needs_to_be_updated(r) end)
       |> Stream.each(&backup/1)
       |> Stream.run()
     end
@@ -103,6 +104,7 @@ defmodule Transport.History do
       }
       |> maybe_put(:start, resource.metadata["start_date"])
       |> maybe_put(:end, resource.metadata["end_date"])
+      |> maybe_put(:content_hash, resource.content_hash)
 
     case HTTPoison.get(resource.url) do
       {:ok, %{status_code: 200, body: body}} ->

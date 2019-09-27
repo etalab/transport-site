@@ -260,6 +260,10 @@ msgid "%{start} to %{end}"
 msgstr ""
 
 #, elixir-format
+msgid "current"
+msgstr ""
+
+#, elixir-format
 msgid "Format"
 msgstr ""
 
