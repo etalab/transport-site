@@ -43,15 +43,6 @@ msgstr "Hebdomadaire"
 msgid "Dataset file"
 msgstr "Fichier"
 
-msgid "A description is needed"
-msgstr "Vous devez fournir une description"
-
-msgid "A title is needed"
-msgstr "Vous devez fournir un titre"
-
-msgid "An organization is needed"
-msgstr "Une organisation est requise"
-
 msgid "A dataset file is needed"
 msgstr "Un fichier contenant un jeu de données est requis"
 
