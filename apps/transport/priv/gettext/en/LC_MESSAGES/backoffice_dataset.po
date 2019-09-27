@@ -12,10 +12,6 @@ msgstr ""
 "Plural-Forms: nplurals=2\n"
 
 #, elixir-format
-msgid "Could not validate dataset"
-msgstr ""
-
-#, elixir-format
 msgid "Dataset deleted"
 msgstr ""
 
@@ -25,10 +21,6 @@ msgstr ""
 
 #, elixir-format
 msgid "Dataset not imported"
-msgstr ""
-
-#, elixir-format
-msgid "Dataset validated"
 msgstr ""
 
 #, elixir-format

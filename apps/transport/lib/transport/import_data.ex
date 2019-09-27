@@ -4,8 +4,9 @@ defmodule Transport.ImportData do
   """
 
   alias Datagouvfr.Client.CommunityResources
+  alias Helpers
   alias Opendatasoft.UrlExtractor
-  alias Transport.{Dataset, Helpers, Repo, Resource}
+  alias Transport.{Dataset, Repo, Resource}
   require Logger
   import Ecto.Query
 

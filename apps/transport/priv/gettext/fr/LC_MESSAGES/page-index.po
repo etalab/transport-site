@@ -207,6 +207,6 @@ msgstr "Je souhaite suivre l’évolution de transport.data.gouv.fr"
 msgid "I'd like to be informed"
 msgstr "Je souhaite être tenu·e au courant"
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Close the menu"
 msgstr "Fermer le formulaire"
