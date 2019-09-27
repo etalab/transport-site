@@ -3,11 +3,11 @@ defmodule Datagouvfr.Client.Datasets do
   A client to manipulate https://www.data.gouv.fr/api/1/datasets endpoints
   """
 
-  import TransportWeb.Gettext
+  import Datagouvfr.Gettext
   alias Datagouvfr.Client.API
   alias Datagouvfr.Client.OAuth, as: OAuthClient
   require Logger
-  alias Transport.Helpers
+  alias Helpers
 
   use Vex.Struct
   alias __MODULE__

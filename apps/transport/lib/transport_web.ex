@@ -45,7 +45,7 @@ defmodule TransportWeb do
       import TransportWeb.ErrorHelpers
       import TransportWeb.InputHelpers
       import TransportWeb.Gettext
-      import Transport.Helpers
+      import Helpers
       import Phoenix.LiveView,
         only: [live_render: 2, live_render: 3, live_link: 1, live_link: 2]
 

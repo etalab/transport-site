@@ -1,5 +1,4 @@
-
-defmodule Transport.Helpers do
+defmodule  Helpers do
   @moduledoc """
   Helper functions that are used accross the whole project
   """
