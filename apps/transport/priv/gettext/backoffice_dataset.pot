@@ -49,3 +49,19 @@ msgstr ""
 #, elixir-format
 msgid "Dataset edited with success"
 msgstr ""
+
+#, elixir-format
+msgid "Error"
+msgstr ""
+
+#, elixir-format
+msgid "Validate"
+msgstr ""
+
+#, elixir-format
+msgid "Validated"
+msgstr ""
+
+#, elixir-format
+msgid "Validating"
+msgstr ""

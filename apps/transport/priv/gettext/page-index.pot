@@ -206,3 +206,7 @@ msgstr ""
 #, elixir-format
 msgid "I'd like to be informed"
 msgstr ""
+
+#, elixir-format
+msgid "Close the menu"
+msgstr ""

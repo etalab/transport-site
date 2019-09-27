@@ -11,13 +11,14 @@ const processEnv = new webpack.DefinePlugin({ 'process.env': { 'DATAGOUVFR_SITE'
 
 module.exports = {
     mode: devMode ? 'development' : 'production',
-    entry: [
-        './javascripts/app.js',
-        './stylesheets/app.scss'
-    ],
+    entry: {
+        'app': './javascripts/app.js',
+        'map': './javascripts/map.js',
+        'scss': './stylesheets/app.scss'
+    },
     output: {
         path: resolve('../priv/static/js'),
-        filename: 'app.js'
+        filename: '[name].js'
     },
     resolve: {
         modules: [resolve('./node_modules')],
