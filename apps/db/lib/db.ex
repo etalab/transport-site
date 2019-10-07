@@ -1,18 +1,5 @@
 defmodule Db do
   @moduledoc """
-  Documentation for Db.
+  All database relative modules are here
   """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Db.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
 end
