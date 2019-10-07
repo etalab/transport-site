@@ -61,7 +61,7 @@ defmodule Transport.History do
     end
   end
 
-  defp bucket_id(r), do: "dataset-#{r.dataset.datagouv_id}"
+  defp bucket_id(r), do: "#{System.get_env("CELLAR_NAMESPACE") || ""}dataset-#{r.dataset.datagouv_id}"
 
   defp get_already_backuped_resources(resource) do
     resource

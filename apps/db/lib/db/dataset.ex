@@ -322,7 +322,7 @@ defmodule DB.Dataset do
       []
     else
       try do
-        bucket = "dataset-#{dataset.datagouv_id}"
+        bucket = "#{System.get_env("CELLAR_NAMESPACE") || ""}dataset-#{dataset.datagouv_id}"
         bucket
         |> S3.list_objects
         |> ExAws.stream!
