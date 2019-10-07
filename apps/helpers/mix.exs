@@ -9,7 +9,7 @@ defmodule Helpers.MixProject do
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.9",
+      elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -27,6 +27,8 @@ defmodule Helpers.MixProject do
 
   defp deps do
     [
+      {:timex, ">= 0.0.0"},
+      {:httpoison, ">= 0.0.0"},
     ]
   end
 end

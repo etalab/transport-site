@@ -9,7 +9,7 @@ defmodule Datagouvfr.MixProject do
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.9",
+      elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       gettext: [{:write_reference_comments, false}],
@@ -26,7 +26,11 @@ defmodule Datagouvfr.MixProject do
   defp deps do
     [
       {:gettext, ">= 0.0.0"},
-      {:oauth2, "~> 0.9"}
+      {:oauth2, "~> 0.9"},
+      {:httpoison, ">= 0.0.0"},
+      {:plug, ">= 0.0.0"},
+
+      {:helpers, in_umbrella: true}
     ]
   end
 end
