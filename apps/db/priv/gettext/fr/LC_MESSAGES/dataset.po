@@ -54,3 +54,23 @@ msgstr "Impossible de trouver le code INSEE"
 #, elixir-format
 msgid "You need to fill either aom or region"
 msgstr "Vous devez remplir soit une région soit une AOM"
+
+#, elixir-format
+msgid "fr-lo"
+msgstr "License ouverte"
+
+#, elixir-format
+msgid "notspecified"
+msgstr "Non spécifiée"
+
+#, elixir-format
+msgid "odc-odbl"
+msgstr "ODbL"
+
+#, elixir-format
+msgid "other-open"
+msgstr "Autre ouverte"
+
+#, elixir-format
+msgid "See on data.gouv.fr"
+msgstr "Voir sur data.gouv.fr"

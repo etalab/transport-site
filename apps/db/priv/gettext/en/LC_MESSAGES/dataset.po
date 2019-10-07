@@ -54,3 +54,23 @@ msgstr ""
 #, elixir-format
 msgid "You need to fill either aom or region"
 msgstr ""
+
+#, elixir-format
+msgid "fr-lo"
+msgstr "Open Licence"
+
+#, elixir-format
+msgid "notspecified"
+msgstr "Not specified"
+
+#, elixir-format
+msgid "odc-odbl"
+msgstr "ODbL"
+
+#, elixir-format
+msgid "other-open"
+msgstr "Other open"
+
+#, elixir-format
+msgid "See on data.gouv.fr"
+msgstr ""
