@@ -104,7 +104,7 @@ defmodule TransportWeb.DatasetController do
 
   defp redirect_to_slug_or_404(conn, nil) do
     conn
-    |> put_status(:internal_server_error)
+    |> put_status(:not_found)
     |> put_view(ErrorView)
     |> render("404.html")
   end

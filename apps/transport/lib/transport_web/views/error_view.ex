@@ -9,7 +9,7 @@ defmodule TransportWeb.ErrorView do
     render(__MODULE__, "internal_server_error.html", assigns)
   end
 
-  def render("404.html", _assigns) do
-    render(__MODULE__, "internal_server_error.html", %{reason: dgettext("errors", "404: Page not available")})
+  def render("404.html", assigns) do
+    render(__MODULE__, "not_found_error.html", assigns)
   end
 end
