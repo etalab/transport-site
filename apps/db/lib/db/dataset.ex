@@ -322,7 +322,7 @@ defmodule DB.Dataset do
       []
     else
       try do
-        bucket = "#{System.get_env("CELLAR_NAMESPACE") || ""}dataset-#{dataset.datagouv_id}"
+        bucket = history_bucket_id(dataset)
         bucket
         |> S3.list_objects
         |> ExAws.stream!
@@ -348,6 +348,10 @@ defmodule DB.Dataset do
         []
       end
     end
+  end
+
+  def history_bucket_id(%__MODULE__{} = dataset) do
+    "#{System.get_env("CELLAR_NAMESPACE") || ""}dataset-#{dataset.datagouv_id}"
   end
 
   def get_expire_at(%Date{} = date), do: get_expire_at("#{date}")
