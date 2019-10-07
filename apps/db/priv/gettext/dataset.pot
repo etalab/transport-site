@@ -1,0 +1,55 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
+#, elixir-format
+msgid "Aerial"
+msgstr ""
+
+#, elixir-format
+msgid "Bike sharing"
+msgstr ""
+
+#, elixir-format
+msgid "Carsharing areas"
+msgstr ""
+
+#, elixir-format
+msgid "Charging stations"
+msgstr ""
+
+#, elixir-format
+msgid "Long distance coach"
+msgstr ""
+
+#, elixir-format
+msgid "Micro mobility"
+msgstr ""
+
+#, elixir-format
+msgid "Public transit"
+msgstr ""
+
+#, elixir-format
+msgid "Stops referential"
+msgstr ""
+
+#, elixir-format
+msgid "Train"
+msgstr ""
+
+#, elixir-format
+msgid "Unable to find INSEE code"
+msgstr ""
+
+#, elixir-format
+msgid "You need to fill either aom or region"
+msgstr ""

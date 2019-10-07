@@ -1,7 +1,7 @@
 defmodule Transport.DatasetTest do
   use ExUnit.Case, async: true
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
-  alias Transport.Dataset
+  alias DB.Dataset
 
   doctest Dataset
 

@@ -3,7 +3,7 @@ defmodule Transport.History do
   backup all ressources into s3 to have an history
   """
   alias ExAws.S3
-  alias Transport.{Dataset, Repo, Resource}
+  alias DB.{Dataset, Repo, Resource}
   import Ecto.{Query}
   require Logger
 

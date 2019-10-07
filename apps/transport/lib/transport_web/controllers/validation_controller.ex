@@ -1,6 +1,6 @@
 defmodule TransportWeb.ValidationController do
   use TransportWeb, :controller
-  alias Transport.{Repo, Validation}
+  alias DB.{Repo, Validation}
   alias TransportWeb.ResourceController
 
   @client HTTPoison

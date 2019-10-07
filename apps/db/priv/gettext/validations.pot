@@ -1,0 +1,139 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
+#, elixir-format
+msgid "Close stops"
+msgstr ""
+
+#, elixir-format
+msgid "Duplicate stops"
+msgstr ""
+
+#, elixir-format
+msgid "Dupplicate object id"
+msgstr ""
+
+#, elixir-format
+msgid "Errors"
+msgstr ""
+
+#, elixir-format
+msgid "Excessive speed between two stops"
+msgstr ""
+
+#, elixir-format
+msgid "Extra file"
+msgstr ""
+
+#, elixir-format
+msgid "Fatal failures"
+msgstr ""
+
+#, elixir-format
+msgid "Informations"
+msgstr ""
+
+#, elixir-format
+msgid "Invalid archive"
+msgstr ""
+
+#, elixir-format
+msgid "Invalid coordinates"
+msgstr ""
+
+#, elixir-format
+msgid "Invalid currency"
+msgstr ""
+
+#, elixir-format
+msgid "Invalid language"
+msgstr ""
+
+#, elixir-format
+msgid "Invalid reference"
+msgstr ""
+
+#, elixir-format
+msgid "Invalid route type"
+msgstr ""
+
+#, elixir-format
+msgid "Invalid timezone"
+msgstr ""
+
+#, elixir-format
+msgid "Invalid transfer duration"
+msgstr ""
+
+#, elixir-format
+msgid "Invalid transfers"
+msgstr ""
+
+#, elixir-format
+msgid "Invalid url"
+msgstr ""
+
+#, elixir-format
+msgid "Missing coordinates"
+msgstr ""
+
+#, elixir-format
+msgid "Missing id"
+msgstr ""
+
+#, elixir-format
+msgid "Missing language"
+msgstr ""
+
+#, elixir-format
+msgid "Missing mandatory file"
+msgstr ""
+
+#, elixir-format
+msgid "Missing price"
+msgstr ""
+
+#, elixir-format
+msgid "Missing route name"
+msgstr ""
+
+#, elixir-format
+msgid "Missing url"
+msgstr ""
+
+#, elixir-format
+msgid "Negative travel time between two stops"
+msgstr ""
+
+#, elixir-format
+msgid "Null duration between two stops"
+msgstr ""
+
+#, elixir-format
+msgid "Passed validations"
+msgstr ""
+
+#, elixir-format
+msgid "Slow"
+msgstr ""
+
+#, elixir-format
+msgid "Unloadable model"
+msgstr ""
+
+#, elixir-format
+msgid "Unused stops"
+msgstr ""
+
+#, elixir-format
+msgid "Warnings"
+msgstr ""

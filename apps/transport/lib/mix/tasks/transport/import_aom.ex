@@ -5,7 +5,7 @@ defmodule Mix.Tasks.Transport.ImportAom do
 
   use Mix.Task
   alias Ecto.Changeset
-  alias Transport.{AOM, Region, Repo}
+  alias DB.{AOM, Region, Repo}
 
   def to_int(str) do
     str

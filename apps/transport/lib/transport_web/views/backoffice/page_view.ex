@@ -2,7 +2,7 @@ defmodule TransportWeb.Backoffice.PageView do
   use TransportWeb, :view
   alias TransportWeb.PaginationHelpers
   import TransportWeb.DatasetView, only: [end_date: 1]
-  alias Transport.Dataset
+  alias DB.Dataset
 
   def pagination_links(conn, datasets) do
     kwargs = [path: &backoffice_page_path/3] |> add_filter(conn)

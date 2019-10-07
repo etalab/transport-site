@@ -1,6 +1,6 @@
 defmodule TransportWeb.Live.ValidateDatasetView do
     use Phoenix.LiveView
-    alias Transport.Dataset
+    alias DB.Dataset
     import TransportWeb.Gettext, only: [dgettext: 2]
     require Logger
 

@@ -2,7 +2,7 @@ defmodule TransportWeb.BackofficeControllerTest do
   use TransportWeb.ConnCase, async: false
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
-  alias Transport.{Repo, Resource}
+  alias DB.{Repo, Resource}
   import Ecto.Repo
 
   @dataset_url "https://next.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-de-transport-tag-1/"

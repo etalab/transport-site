@@ -1,7 +1,8 @@
 defmodule TransportWeb.ResourceController do
   use TransportWeb, :controller
   alias Datagouvfr.Client.{Datasets, Resources, User, Validation}
-  alias Transport.{Dataset, ImportData, Repo, Resource, Validation}
+  alias DB.{Dataset, Repo, Resource, Validation}
+  alias Transport.ImportData
   import Ecto.Query, only: [from: 2]
   require Logger
 

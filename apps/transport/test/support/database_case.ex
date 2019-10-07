@@ -9,7 +9,7 @@ defmodule TransportWeb.DatabaseCase do
   using(options) do
     quote do
       alias Ecto.Adapters.SQL.Sandbox
-      alias Transport.{AOM, Dataset, Region, Repo}
+      alias DB.{AOM, Dataset, Region, Repo}
 
       import Ecto
       import Ecto.Query

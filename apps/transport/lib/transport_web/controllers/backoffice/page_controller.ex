@@ -1,7 +1,7 @@
 defmodule TransportWeb.Backoffice.PageController do
   use TransportWeb, :controller
 
-  alias Transport.{Dataset, Region, Repo, Resource}
+  alias DB.{Dataset, Region, Repo, Resource}
   import Ecto.Query
   require Logger
 

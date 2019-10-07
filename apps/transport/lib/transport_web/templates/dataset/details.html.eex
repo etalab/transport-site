@@ -169,7 +169,7 @@
                   <%= unless resource_history.metadata["start"] == nil do %>
                     <%= dgettext("page-dataset-details", "%{start} to %{end}",
                           start: resource_history.metadata["start"],
-                          end: resource_history.metadata["end"],
+                          end: resource_history.metadata["end"]
                         )
                     %>
                     <% end %>
