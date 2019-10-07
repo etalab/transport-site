@@ -10,12 +10,16 @@ defmodule Db.MixProject do
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       elixir: "~> 1.9",
+      elixirc_paths: elixirc_paths(Mix.env),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       gettext: [{:write_reference_comments, false}],
       compilers: [:gettext] ++ Mix.compilers,
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_),     do: ["lib"]
 
   def application do
     [

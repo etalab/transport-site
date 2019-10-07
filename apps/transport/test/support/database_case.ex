@@ -27,7 +27,7 @@ defmodule TransportWeb.DatabaseCase do
       setup context do
         :ok = Sandbox.checkout(Repo)
         unless context[:async] do
-          Sandbox.mode(Transport.Repo, {:shared, self()})
+          Sandbox.mode(Repo, {:shared, self()})
         end
 
         Repo.insert(%Region{nom: "Pays de la Loire"})

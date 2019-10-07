@@ -6,7 +6,6 @@ config :db, DB.Repo,
   types: DB.PostgrexTypes
 
 config :db, ecto_repos: [DB.Repo]
+config :transport, ecto_repos: [DB.Repo]
 
 config :ecto_sql, postgres_map_type: "json"
-
-config :transport, DB.Repo, types: DB.PostgrexTypes

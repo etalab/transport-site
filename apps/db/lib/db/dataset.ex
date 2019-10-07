@@ -180,16 +180,16 @@ defmodule DB.Dataset do
   @spec localise_licence(%__MODULE__{}) :: String.t
   def localise_licence(%__MODULE__{licence: licence}) do
     case licence do
-      "fr-lo" -> dgettext("reusable_data", "fr-lo")
-      "odc-odbl" -> dgettext("reusable_data", "odc-odbl")
-      "other-open" -> dgettext("reusable_data", "other-open")
-      _ -> dgettext("reusable_data", "notspecified")
+      "fr-lo" -> dgettext("dataset", "fr-lo")
+      "odc-odbl" -> dgettext("dataset", "odc-odbl")
+      "other-open" -> dgettext("dataset", "other-open")
+      _ -> dgettext("dataset", "notspecified")
     end
   end
 
   def link_to_datagouv(%__MODULE__{} = dataset) do
     Link.link(
-      dgettext("page-shortlist", "See on data.gouv.fr"),
+      dgettext("dataset", "See on data.gouv.fr"),
       to: datagouv_url(dataset),
       role: "link"
     )
