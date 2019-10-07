@@ -26,6 +26,6 @@ config :exvcr, [
   filter_request_headers: ["authorization"]
 ]
 
-config :transport, Transport.Repo,
+config :db, DB.Repo,
   url: System.get_env("PG_URL_TEST") || System.get_env("PG_URL") || "ecto://postgres:postgres@localhost/transport_test",
   pool: Ecto.Adapters.SQL.Sandbox

@@ -1,5 +1,5 @@
 defmodule TransportWeb.StatsController do
-  alias Transport.{AOM, Dataset, Region, Repo}
+  alias DB.{AOM, Dataset, Region, Repo}
   import Ecto.Query
   require Logger
   use TransportWeb, :controller

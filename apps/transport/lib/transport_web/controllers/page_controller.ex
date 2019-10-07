@@ -1,6 +1,7 @@
 defmodule TransportWeb.PageController do
   use TransportWeb, :controller
-  alias Transport.{AOM, Dataset, Partner, RealTimeProviders, Region, Repo}
+  alias DB.{AOM, Dataset, Partner, Region, Repo}
+  alias Transport.RealTimeProviders
   import Ecto.Query
 
   def index(conn, _params) do

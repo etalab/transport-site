@@ -22,9 +22,6 @@ defmodule Transport.Mixfile do
     ]
   end
 
-  # Configuration for the OTP application.
-  #
-  # Type `mix help compile.app` for more information.
   def application do
     [
       mod: {Transport.Application, []},
@@ -36,13 +33,9 @@ defmodule Transport.Mixfile do
     ]
   end
 
-  # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_),     do: ["lib"]
 
-  # Specifies your project dependencies.
-  #
-  # Type `mix help deps` for examples and options.
   defp deps do
     [
       {:csv, "~> 2.1"},
@@ -62,18 +55,14 @@ defmodule Transport.Mixfile do
       {:timex, "~> 3.5"},
       {:sentry, "~> 7.1"},
       {:scrivener, "~> 2.5"},
-      {:scrivener_ecto, "~> 2.0"},
       {:scrivener_html, "~> 1.8"},
       {:scrivener_list, "~>2.0"},
-      {:ecto, "~> 3.1"},
-      {:ecto_sql, "~> 3.1"},
-      {:postgrex, ">= 0.0.0"},
       {:jason, "~> 1.1"},
-      {:geo_postgis, "~> 2.0"},
       {:open_api_spex, "~> 3.4"},
       {:gbfs, in_umbrella: true},
       {:datagouvfr, in_umbrella: true},
       {:helpers, in_umbrella: true},
+      {:db, in_umbrella: true},
       {:castore, "~> 0.1.0"},
       {:mint, "~> 0.2.0"},
 

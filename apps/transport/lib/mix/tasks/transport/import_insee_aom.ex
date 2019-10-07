@@ -5,7 +5,7 @@ defmodule Mix.Tasks.Transport.ImportInseeAom do
 
   use Mix.Task
   import Ecto.Query
-  alias Transport.{Commune, Repo}
+  alias DB.{Commune, Repo}
 
   def run(params) do
     if params[:no_start] do

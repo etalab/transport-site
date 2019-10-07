@@ -18,7 +18,7 @@ config :transport, Transport.Scheduler,
     {"@daily", {Transport.History, :backup_resources, []}} # backup all resources
   ]
 
-config :transport, Transport.Repo,
+config :db, DB.Repo,
   url: System.get_env("POSTGRESQL_ADDON_URI") || "" |> String.replace_prefix("postgresql", "ecto"),
   pool_size: 2,
   pool_timeout: 15_000,

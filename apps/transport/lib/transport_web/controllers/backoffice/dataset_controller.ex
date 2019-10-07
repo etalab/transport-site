@@ -2,7 +2,8 @@ defmodule TransportWeb.Backoffice.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Client.Datasets
 
-  alias Transport.{Dataset, ImportData, ImportDataWorker, Repo}
+  alias DB.{Dataset, ImportDataWorker, Repo}
+  alias Transport.{ImportData, ImportDataWorker}
   require Logger
 
   def post(%Plug.Conn{} = conn, params) do

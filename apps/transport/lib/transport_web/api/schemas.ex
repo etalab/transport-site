@@ -3,7 +3,7 @@ defmodule TransportWeb.API.Schemas do
     OpenAPI schema defintions
   """
   require OpenApiSpex
-  alias OpenApiSpex.{Discriminator, ExternalDocumentation, Operation, Schema}
+  alias OpenApiSpex.{ExternalDocumentation, Schema}
 
   defmodule GeometryBase do
     @moduledoc false

@@ -9,7 +9,7 @@
         <%= if @dataset.licence do %>
           <div class="shortlist__notice">
             <div><%= dgettext("page-shortlist", "Licence") %></div>
-            <div class="label label-notice"><%= Transport.Dataset.localise_licence(@dataset) %></div>
+            <div class="label label-notice"><%= DB.Dataset.localise_licence(@dataset) %></div>
           </div>
         <% end %>
 

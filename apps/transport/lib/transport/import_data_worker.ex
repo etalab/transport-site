@@ -4,7 +4,8 @@ defmodule Transport.ImportDataWorker do
   """
   use GenServer
 
-  alias Transport.{Dataset, ImportData, Repo, Resource}
+  alias DB.{Dataset, Repo, Resource}
+  alias Transport.ImportData
 
   ## API ##
 

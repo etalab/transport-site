@@ -4,7 +4,7 @@ defmodule Mix.Tasks.Transport.SimpleValidation do
   """
 
   use Mix.Task
-  alias Transport.Resource
+  alias DB.Resource
 
   def run(args) do
     Mix.Task.run("app.start", [])

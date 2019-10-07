@@ -2,7 +2,7 @@ defmodule TransportWeb.API.DatasetController do
   use TransportWeb, :controller
   alias Helpers
   alias OpenApiSpex.Operation
-  alias Transport.{Dataset, Repo}
+  alias DB.{Dataset, Repo}
   alias TransportWeb.API.Schemas.DatasetsResponse
 
   @spec open_api_operation(any) :: Operation.t

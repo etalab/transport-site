@@ -4,7 +4,7 @@ defmodule Transport.DataChecker do
   """
   alias Datagouvfr.Client.{Datasets, Discussions}
   alias Mailjet.Client
-  alias Transport.{Dataset, Repo}
+  alias DB.{Dataset, Repo}
   import TransportWeb.Router.Helpers
   import Ecto.Query
   require Logger
