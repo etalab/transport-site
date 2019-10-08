@@ -351,7 +351,7 @@ defmodule DB.Dataset do
   end
 
   def history_bucket_id(%__MODULE__{} = dataset) do
-    "#{System.get_env("CELLAR_NAMESPACE") || ""}dataset-#{dataset.datagouv_id}"
+    "#{System.get_env("CELLAR_NAMESPACE")}dataset-#{dataset.datagouv_id}"
   end
 
   def get_expire_at(%Date{} = date), do: get_expire_at("#{date}")
