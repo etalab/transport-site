@@ -5,7 +5,7 @@ defmodule Transport.Application do
   """
 
   use Application
-  alias Transport.{ImportDataWorker, RealTimeProviders}
+  alias Transport.{ImportDataWorker, RealTimeProviders, SearchCommunes}
   alias TransportWeb.Endpoint
   import Supervisor.Spec, only: [supervisor: 2]
 
@@ -14,7 +14,8 @@ defmodule Transport.Application do
     children = [
       supervisor(TransportWeb.Endpoint, []),
       supervisor(ImportDataWorker, []),
-      RealTimeProviders
+      RealTimeProviders,
+      SearchCommunes
     ]
     |> add_scheduler()
 
