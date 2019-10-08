@@ -59,8 +59,19 @@ defmodule Transport.SearchCommunes do
     "22"
     iex> Transport.SearchCommunes.get_num("Paris 75116")
     "75116"
+    iex> Transport.SearchCommunes.get_num("Ajaccio 2A")
+    "2A"
+    iex> Transport.SearchCommunes.get_num("Ajaccio 2A004")
+    "2A004"
+    iex> Transport.SearchCommunes.get_num("Ajaccio 2C004")
+    "2"
     """
-    def get_num(term), do: String.replace(term, ~r/[^1-8]/u, "")
+    def get_num(term) do
+        case Regex.run(~r/\d([A,B])?\d*/, term) do
+            nil -> ""
+            [a | _] -> a
+        end
+    end
 
     @doc """
     Search for insee code if term is not empty
