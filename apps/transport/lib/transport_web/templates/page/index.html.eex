@@ -178,6 +178,9 @@
             <img src="<%= static_path(@conn, "/images/logos/urban-pulse-logo.png") %>" alt="Urban Pulse"/>
             <img src="<%= static_path(@conn, "/images/logos/tictactrip-logo.png") %>" alt="Tric Tac Trip"/>
             <img src="<%= static_path(@conn, "/images/logos/localisateur-logo.png") %>" alt="Le Localisateur"/>
+            <img src="<%= static_path(@conn, "/images/logos/kombo-logo.png") %>" alt="Kombo"/>
+            <img src="<%= static_path(@conn, "/images/logos/viatransit-logo.png") %>" alt="viaTransit"/>
+            <img src="<%= static_path(@conn, "/images/logos/vivanoda-logo.png") %>" alt="vivanoda"/>
         </div>
         <p class="text-center"><%= dgettext("page-index", "reusers list description") %> <a href=""><%= link(dgettext("page-index", "Learn more"), to: "https://doc.transport.data.gouv.fr/reutilisateurs/outils-pour-les-reutilisateurs") %></a>.</p>
     </div>
