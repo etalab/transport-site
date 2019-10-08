@@ -20,10 +20,8 @@
       prompt: "Pas de région"
       ]
      %>
-    <%= text_input f, :insee_commune_principale, [
-      placeholder: dgettext("backoffice", "INSEE Code"),
-      value: if not is_nil(@dataset) and not is_nil(@dataset.aom) do @dataset.aom.insee_commune_principale else "" end
-      ] %>
+
+    <%= live_render(@conn, TransportWeb.Live.CommuneField) %>
     <%= select f, :type, @dataset_types, [
       selected: if not is_nil(@dataset) do @dataset.type else "" end ]%>
     <%= if is_nil(@dataset) do %>
