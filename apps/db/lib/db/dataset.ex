@@ -1,4 +1,4 @@
-defmodule Transport.Dataset do
+defmodule DB.Dataset do
   @moduledoc """
   Dataset schema
 
@@ -6,9 +6,10 @@ defmodule Transport.Dataset do
   There are also trigger on update on aom and region that will force an update on this model
   so the search vector is up-to-date.
   """
+  alias Datagouvfr.Client.User
+  alias DB.{AOM, Commune, Region, Repo, Resource}
   alias ExAws.S3
   alias Phoenix.HTML.Link
-  alias DB.{AOM, Commune, Region, Repo, Resource}
   import Ecto.{Changeset, Query}
   import DB.Gettext
   require Logger
@@ -393,6 +394,7 @@ defmodule Transport.Dataset do
         []
       end
     end
+  end
 
   def history_bucket_id(%__MODULE__{} = dataset) do
     "#{System.get_env("CELLAR_NAMESPACE")}dataset-#{dataset.datagouv_id}"
@@ -408,30 +410,19 @@ defmodule Transport.Dataset do
     |> Repo.all()
   end
 
-    def fetch_history_metadata(bucket, obj_key) do
-      bucket
-        |> S3.head_object(obj_key)
-        |> ExAws.request!
-        |> Map.get(:headers)
-        |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
-        |> Map.take(["format", "title", "start", "end", "updated-at", "content-hash"])
-    end
-
-
-    ## Private functions
-    @cellar_host ".cellar-c2.services.clever-cloud.com/"
-
-  defp history_resource_path(bucket, name), do: Path.join(["http://", bucket, @cellar_host, name])
-
-  defp fetch_metadata(bucket, obj_key) do
+  def fetch_history_metadata(bucket, obj_key) do
     bucket
       |> S3.head_object(obj_key)
       |> ExAws.request!
       |> Map.get(:headers)
-      |> Enum.into(%{}, fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
-      |> Map.take(["format", "title", "start", "end"])
+      |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
+      |> Map.take(["format", "title", "start", "end", "updated-at", "content-hash"])
   end
 
+  ## Private functions
+  @cellar_host ".cellar-c2.services.clever-cloud.com/"
+
+  defp history_resource_path(bucket, name), do: Path.join(["http://", bucket, @cellar_host, name])
 
   @spec localization(DB.Dataset.t()) :: binary | nil
   defp localization(%__MODULE__{aom: %{nom: nom}}), do: nom

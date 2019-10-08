@@ -1,6 +1,6 @@
 defmodule TransportWeb.ResourceController do
   use TransportWeb, :controller
-  alias Datagouvfr.Client.{Datasets, Resources, User, Validation}
+  alias Datagouvfr.Client.{Datasets, Resources, Validation}
   alias DB.{Dataset, Repo, Resource, Validation}
   alias Transport.ImportData
   import Ecto.Query, only: [from: 2]
@@ -24,7 +24,6 @@ defmodule TransportWeb.ResourceController do
         |> render("details.html")
     end
   end
-
 
   def choose_action(conn, _), do: render conn, "choose_action.html"
 
