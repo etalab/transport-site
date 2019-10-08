@@ -47,21 +47,23 @@ defmodule Transport.History do
     max_last_modified =
       backuped_resources
       |> Enum.map(fn r ->
-        r.updated_at
+        {r.updated_at, r.content_hash}
       end)
-      |> Enum.max(fn -> nil end)
+      |> Enum.max_by(fn {date, _hash} -> date end, fn -> nil end)
 
     case max_last_modified do
       nil ->
         true
 
-      max_last_modified ->
+      {max_last_modified, content_hash} ->
         modification_date = modification_date(resource)
-        max_last_modified < modification_date
+        max_last_modified < modification_date && content_hash != resource.content_hash
     end
   end
 
-  defp bucket_id(r), do: "dataset-#{r.dataset.datagouv_id}"
+  def bucket_id(resource) do
+    Dataset.history_bucket_id(resource.dataset)
+  end
 
   defp get_already_backuped_resources(resource) do
     resource
@@ -73,7 +75,8 @@ defmodule Transport.History do
 
       %{
         key: o.key,
-        updated_at: metadata["updated-at"]
+        updated_at: metadata["updated-at"],
+        content_hash: metadata["content-hash"],
       }
     end)
   end
