@@ -26,7 +26,7 @@ msgid "data.gouv.fr id"
 msgstr "id data.gouv.fr"
 
 msgid "name"
-msgstr "nom"
+msgstr "Nom du réseau"
 
 msgid "Dataset added with success"
 msgstr "Jeux de données ajouté avec succès"
@@ -97,7 +97,7 @@ msgstr "Impossible de supprimer le partenaire"
 
 #, elixir-format
 msgid "Dataset's url"
-msgstr "Adresse du dataset"
+msgstr "URL du dataset sur data.gouv.fr"
 
 #, elixir-format
 msgid "Unable to find dataset"
