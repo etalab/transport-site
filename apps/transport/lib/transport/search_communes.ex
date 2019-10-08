@@ -18,19 +18,28 @@ defmodule Transport.SearchCommunes do
     @doc """
     Filter list of communes by a search term
     ## Examples
-    iex> l = [%{nom: "paris", insee: "75116"}, %{nom: "parisot", insee: "82137"}]
-    [%{nom: "paris", insee: "75116"}, %{nom: "parisot", insee: "82137"}]
+    iex> l = [%{nom: "Paris", insee: "75116"}, %{nom: "Paris-l'Hôpital", insee: "71343"}]
+    ...> |> Enum.map(&Transport.SearchCommunes.make_search_struct/1)
+    [
+      %{insee: "75116", nom: "Paris", normalized_nom: "paris"},
+      %{insee: "71343", nom: "Paris-l'Hôpital", normalized_nom: "parislhopital"}
+    ]
     iex> Transport.SearchCommunes.filter(l, "paris")
-    [%{nom: "paris", insee: "75116"}, %{nom: "parisot", insee: "82137"}]
-    iex> Transport.SearchCommunes.filter(l, "paris 7")
-    [%{nom: "paris", insee: "75116"}]
+    [
+      %{insee: "75116", nom: "Paris", normalized_nom: "paris"},
+      %{insee: "71343", nom: "Paris-l'Hôpital", normalized_nom: "parislhopital"}
+    ]
+    iex> Transport.SearchCommunes.filter(l, "paris 75")
+    [
+      %{insee: "75116", nom: "Paris", normalized_nom: "paris"},
+    ]
     """
     def filter(communes, term) do
         alpha_term = normalize_alpha(term)
         num_term = get_num(term)
 
         communes
-        |> Stream.filter(fn c -> String.starts_with?(c.nom, alpha_term) end)
+        |> Stream.filter(fn c -> String.starts_with?(c.normalized_nom, alpha_term) end)
         |> Stream.filter(fn c -> search_insee(c, num_term) end)
         |> Enum.to_list
     end
@@ -88,10 +97,13 @@ defmodule Transport.SearchCommunes do
         String.starts_with?(insee, n)
     end
 
+    def make_search_struct(%{nom: nom} = s), do: Map.put(s, :normalized_nom, normalize_alpha(nom))
+
     defp load_communes do
         Commune
         |> select([:nom, :insee])
         |> Repo.all()
-        |> Enum.map(fn c -> %{c | nom: normalize_alpha(c.nom)} end)
+        |> Enum.map(&make_search_struct/1)
+        |> Enum.sort_by(fn c -> byte_size(c.nom) end)
     end
 end

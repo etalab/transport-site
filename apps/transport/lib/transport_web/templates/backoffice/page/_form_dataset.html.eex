@@ -17,13 +17,11 @@
     ] %>
     <%= select f, :region_id, Enum.map(@regions, &{&1.nom, &1.id}), [
       selected: if not is_nil(@dataset) do @dataset.region_id else "" end,
-      prompt: "Pas de région"
+      prompt: "Pas un jeu de données régional"
       ]
      %>
-    <%= text_input f, :insee_commune_principale, [
-      placeholder: dgettext("backoffice", "INSEE Code"),
-      value: if not is_nil(@dataset) and not is_nil(@dataset.aom) do @dataset.aom.insee_commune_principale else "" end
-      ] %>
+
+    <%= live_render(@conn, TransportWeb.Live.CommuneField) %>
     <%= select f, :type, @dataset_types, [
       selected: if not is_nil(@dataset) do @dataset.type else "" end ]%>
     <%= if is_nil(@dataset) do %>

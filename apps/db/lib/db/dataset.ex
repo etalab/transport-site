@@ -8,7 +8,7 @@ defmodule DB.Dataset do
   """
   alias ExAws.S3
   alias Phoenix.HTML.Link
-  alias DB.{AOM, Region, Repo, Resource}
+  alias DB.{AOM, Commune, Region, Repo, Resource}
   import Ecto.{Changeset, Query}
   import DB.Gettext
   require Logger
@@ -396,12 +396,15 @@ defmodule DB.Dataset do
   defp select_or_not(res, []), do: res
   defp select_or_not(res, s), do: select(res, ^s)
 
-  defp cast_aom(changeset, %{"insee_commune_principale" => ""}), do: changeset
-  defp cast_aom(changeset, %{"insee_commune_principale" => nil}), do: changeset
-  defp cast_aom(changeset, %{"insee_commune_principale" => insee}) do
-    case Repo.get_by(AOM, insee_commune_principale: insee) do
+  defp cast_aom(changeset, %{"insee" => ""}), do: changeset
+  defp cast_aom(changeset, %{"insee" => nil}), do: changeset
+  defp cast_aom(changeset, %{"insee" => insee}) do
+    Commune
+    |> preload([:aom_res])
+    |> Repo.get_by(insee: insee)
+    |> case do
       nil -> add_error(changeset, :aom_id, dgettext("dataset", "Unable to find INSEE code"))
-      aom -> change(changeset, [aom_id: aom.id])
+      commune -> change(changeset, [aom_id: commune.aom_res.id])
     end
   end
   defp cast_aom(changeset, _), do: changeset
