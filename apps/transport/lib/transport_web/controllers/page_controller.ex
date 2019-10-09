@@ -1,7 +1,7 @@
 defmodule TransportWeb.PageController do
   use TransportWeb, :controller
   alias DB.{AOM, Dataset, Partner, Region, Repo}
-  alias Transport.RealTimeProviders
+  alias Transport.CSVDocuments
   import Ecto.Query
 
   def index(conn, _params) do
@@ -44,7 +44,7 @@ defmodule TransportWeb.PageController do
 
   def real_time(conn, _params) do
     conn
-    |> assign(:providers, RealTimeProviders.value())
+    |> assign(:providers, CSVDocuments.real_time_providers())
     |> single_page(%{"page" => "real_time"})
   end
 
