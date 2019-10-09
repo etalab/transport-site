@@ -164,23 +164,13 @@
     <div class="container">
         <h2 class="text-center"><%= dgettext("page-index", "Who is reusing data from") %> transport.data.gouv.fr ?</h2>
         <div class="reusers__logos">
-            <img src="<%= static_path(@conn, "/images/logos/blablacar-logo.svg") %>" alt="Blablacar"/>
-            <img src="<%= static_path(@conn, "/images/logos/handisco-logo.png") %>" alt="Handisco"/>
-            <img src="<%= static_path(@conn, "/images/logos/google-maps-logo.png") %>" alt="Google Maps"/>
-            <img src="<%= static_path(@conn, "/images/logos/here-technologies-logo.png") %>" alt="Here Technologies"/>
-            <img src="<%= static_path(@conn, "/images/logos/kisio-digital-logo.png") %>" alt="Kisio Digital"/>
-            <img src="<%= static_path(@conn, "/images/logos/lumiplan-logo.png") %>" alt="Lumiplan"/>
-            <img src="<%= static_path(@conn, "/images/logos/mappy-logo.png") %>" alt="Mappy"/>
-            <img src="<%= static_path(@conn, "/images/logos/mobigis-logo.png") %>" alt="Mobigis"/>
-            <img src="<%= static_path(@conn, "/images/logos/mybus-logo.svg") %>" alt="My Bus"/>
-            <img src="<%= static_path(@conn, "/images/logos/rome2rio-logo.png") %>" alt="Rome2Rio"/>
-            <img src="<%= static_path(@conn, "/images/logos/transit-logo.png") %>" alt="Transit"/>
-            <img src="<%= static_path(@conn, "/images/logos/urban-pulse-logo.png") %>" alt="Urban Pulse"/>
-            <img src="<%= static_path(@conn, "/images/logos/tictactrip-logo.png") %>" alt="Tric Tac Trip"/>
-            <img src="<%= static_path(@conn, "/images/logos/localisateur-logo.png") %>" alt="Le Localisateur"/>
-            <img src="<%= static_path(@conn, "/images/logos/kombo-logo.png") %>" alt="Kombo"/>
-            <img src="<%= static_path(@conn, "/images/logos/viatransit-logo.png") %>" alt="viaTransit"/>
-            <img src="<%= static_path(@conn, "/images/logos/vivanoda-logo.png") %>" alt="vivanoda"/>
+        <%= for reuser <- @reusers do %>
+            <%= link(
+                img_tag(static_path(@conn, "/images/logos/#{reuser["image"]}"), alt: reuser["name"]),
+                to: reuser["website"]
+            )
+            %>
+        <% end %>
         </div>
         <p class="text-center"><%= dgettext("page-index", "reusers list description") %> <a href=""><%= link(dgettext("page-index", "Learn more"), to: "https://doc.transport.data.gouv.fr/reutilisateurs/outils-pour-les-reutilisateurs") %></a>.</p>
     </div>

@@ -12,6 +12,7 @@ defmodule TransportWeb.PageController do
     |> assign(:count_regions_completed, count_regions_completed())
     |> assign(:count_has_realtime, Dataset.count_has_realtime())
     |> assign(:percent_population, percent_population())
+    |> assign(:reusers, CSVDocuments.reusers())
     |> render("index.html")
   end
 
