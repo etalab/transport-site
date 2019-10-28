@@ -1,24 +1,10 @@
-# Données temps réel
+# Données temps-réel non standardisées
 
-L’objectif du point d’accès national des données transport est de fournir un accès homogène aux données pour faciliter l’intégration.
+Le Point d'Accès National aux données de transport (PAN) fournit un accès **homogène** à ces données pour en faciliter l’intégration et la réutilisation.
 
-Une explication détaillée des variantes est disponible [sur notre page d’aide](https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/temps-reel-des-transports-en-commun).
+Les exigences pour publication homogène de données temps-réel de lignes régulières (bus etc.) sont détaillées [sur cette page](https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/temps-reel-des-transports-en-commun). 
 
-Le point d’accès `Siri Lite` et `GTFS-RT` pour tous les jeux de données est (tr.transport.data.gouv.fr)[https://tr.transport.data.gouv.fr].
-
-Les [jeux de données disponibles](<%= dataset_url(@conn, :index, filter: :has_realtime) %>) sur transport.data.gouv.fr respectent ainsi toutes les conditions suivantes :
-
-* Horaires théoriques disponibles,
-* Horaires en temps réel (avance/retard des véhicules),
-* Au format GTFS-RT (au moins _trip updates_),
-* API Siri-lite (au moins _stop monitoring_ et _stop discovery_),
-* Données utilisables au moins selon les conditions de la licence _ODbL_,
-* Pas d’authentification,
-* Pas de restriction de requêtage (nous nous réservons de couper les accès dépassant 1 requête par seconde).
-
-## Autres sources de temps réel
-
-D’autres réseaux disposent de données temps. Même si elles ne répondent pas à tous les critères du point d’accès national, elles peuvent intéresser certains ré-utilisateurs. Nous les référençons ici :
+Cependant, certains réseaux de transport disposent de données temps-réel non standardisées. Celles-ci n'ont pas vocation à être référencées sur le PAN en l'état, mais elles sont listées ci-dessous pour référence.
 
 
 <table class="table">
@@ -43,3 +29,5 @@ D’autres réseaux disposent de données temps. Même si elles ne répondent pa
 </tr>
 <% end %>
 </table>
+  
+Vous pouvez signaler à l'équipe du PAN un jeu de données à ajouter ci-dessus en écrivant à contact@transport.beta.gouv.fr.
