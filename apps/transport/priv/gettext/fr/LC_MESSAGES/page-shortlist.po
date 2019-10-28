@@ -226,10 +226,10 @@ msgid "Area type"
 msgstr "Type de réseau"
 
 #, elixir-format
-msgid "City"
-msgstr "Urbain"
+msgid "Urban public transport"
+msgstr "Transport en commun urbain"
 
 #, elixir-format
-msgid "Intercities"
-msgstr "Interurbain"
+msgid "Intercities public transport"
+msgstr "Transport en commun régional"
 

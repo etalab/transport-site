@@ -101,6 +101,17 @@ defmodule TransportWeb.DatasetView do
         )
     end
   end
+  def area_type_link(conn, zone_type) do
+    msg = %{
+      "urban_public_transport" => dgettext("page-shortlist", "Urban public transport"),
+      "intercities_public_transport" => dgettext("page-shortlist", "Intercities public transport")
+    }[zone_type]
+
+    case conn.params do
+      %{"filter" => ^zone_type} -> ~E"<span class=\"activefilter\"><%= msg %></span>"
+      _ -> link(msg, to: dataset_path(conn, :index, filter: zone_type))
+    end
+  end
 
   def type_link(conn, %{type: type, msg: msg}) do
     case conn.params do
