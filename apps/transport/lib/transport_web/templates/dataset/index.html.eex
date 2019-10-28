@@ -43,6 +43,13 @@
               <h3><%= dgettext("page-shortlist", "Filters") %></h3>
             </li>
             <li class="side-pane__dropdown unfolded">
+              <h4><%= dgettext("page-shortlist", "Area type") %></h4>
+              <ul class="side-pane__submenu">
+                <li><%= area_type_link(@conn, "urban_public_transport") %></li>
+                <li><%= area_type_link(@conn, "intercities_public_transport") %></li>
+              </ul>
+          </li>
+            <li class="side-pane__dropdown unfolded">
               <h4><%= dgettext("page-shortlist", "Regions") %></h4>
               <ul class="side-pane__submenu">
                 <%= for region <- @regions do %>
