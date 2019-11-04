@@ -1,6 +1,6 @@
 Afin d’améliorer l’information voyageur et la fréquentation des transports en commun en France, notamment au travers des technologies du numérique, transport.data.gouv.fr vise à documenter les bonnes pratiques autour de l’ouverture des données de transport. Des données ouvertes sont des données mises à disposition de tous, pour une réutilisation libre, en ayant pour but l’émergence de services numériques innovants d’accompagnement à la mobilité.
 
-# Interview Guéret
+# Création d'un fichier GTFS: Interview avec le Grand Guéret
 
 La plateforme transport.data.gouv.fr privilégie le référencement de données au format GTFS (General Transit Feed Specifications). Il s’agit d’un format de fichier très utilisé pour décrire les horaires de transports en commun. Le fichier GTFS combine des informations géographiques ainsi que des données horaires, décrivant les trajets effectués, les arrêts géolocalisés, et les horaires de passage aux différents arrêts.
 Aujourd’hui, la majorité des logiciels de gestion de flotte de bus ou de SAEIV (Système d'Aide à l'Exploitation et l'Information Voyageur) permettent de créer automatiquement un export du fichier GTFS. Lorsqu’une gestionnaire de réseau ne dispose pas de ce type d’outil, il est possible de produire un fichier GTFS manuellement, comme en témoigne le retour d’expérience de la Communauté d’Agglomération du Grand Guéret (23).
