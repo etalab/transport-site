@@ -7,6 +7,7 @@ defmodule TransportWeb.BlogController do
       |> make_path()
       |> Path.wildcard()
       |> Enum.map(&read_file/1)
+      |> Enum.sort_by(& &1.date)
 
     render conn, "index.html", articles: articles
   end
