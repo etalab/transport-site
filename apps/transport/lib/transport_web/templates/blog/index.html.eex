@@ -10,9 +10,11 @@
             <div class="article__meta">
                 Paru le <time><%= article.date %></time>
             </div>
+            <%= if not is_nil(article.image) do %>
             <div class="article__thumbnail">
                 <img src="<%= article.image%>">
             </div>
+            <% end %>
             <div class="richtext">
             <%= raw Earmark.as_html!(article.header) %>
             </div>

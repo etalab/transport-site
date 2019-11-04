@@ -20,7 +20,7 @@ defmodule TransportWeb.BlogController do
   end
 
   defp read_file(path) do
-    {header, title, image, _} =
+    {header, title, image_path, _} =
       path
       |> File.stream!
       |> Stream.reject(fn l -> l == "\n" end)
@@ -34,7 +34,7 @@ defmodule TransportWeb.BlogController do
       |> Path.basename
       |> String.split("_")
 
-    image = ~r/\((?<path>.*)\)/ |> Regex.run(image, capture: :all_names) |> List.first()
+    image = compute_image_path(image_path)
     article_path =
       path
       |> Path.basename()
@@ -49,6 +49,9 @@ defmodule TransportWeb.BlogController do
       path: article_path
     }
   end
+
+  def compute_image_path(path) when is_nil(path), do: nil
+  def compute_image_path(path), do: ~r/\((?<path>.*)\)/ |> Regex.run(path, capture: :all_names) |> List.first()
 
   defp get_header_title_image(l, {nil, nil, nil, _}), do: {[l], nil, nil, false}
   defp get_header_title_image("# " <> title, {h, nil, _, _}), do: {h, title, nil, false}
