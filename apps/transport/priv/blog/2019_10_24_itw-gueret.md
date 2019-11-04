@@ -21,7 +21,7 @@ Avant, il n’existait que trois canaux d’accès à l’information : soit en 
 
 Une grande partie des utilisateurs du réseau de bus sont des collégiens et des lycéens. Internet ne pose aucune difficulté pour eux. Rendre les informations disponibles par internet et les différents canaux numériques nous semble intéressant.
 
-Quant au choix de l’opendata, il est plus simple pour nous d’ouvrir nos données en opendata que d’effectuer une démarche pour chaque opérateur. Les données ouvertes pourront directement être reprises par différents services (MyBus, Google Maps, Mappy, TransportR, Navitiat etc.). De plus, cela garantit le libre accès de tous les opérateurs à ces données. A priori, la LOM se dirige de plus vers une ouverture obligatoire des données de transport.
+Quant au choix de l’opendata, il est plus simple pour nous d’ouvrir nos données en opendata que d’effectuer une démarche pour chaque opérateur. Les données ouvertes pourront directement être reprises par différents services (MyBus, Google Maps, Mappy, TransportR, Navitia etc.). De plus, cela garantit le libre accès de tous les opérateurs à ces données. A priori, la LOM se dirige de plus vers une ouverture obligatoire des données de transport.
 
 ### Vous avez construit vous-même le fichier GTFS pour le Grand Guéret à partir de rien. Pouvez-vous nous expliquer les étapes que vous avez suivies pour réaliser ce travail?
 
