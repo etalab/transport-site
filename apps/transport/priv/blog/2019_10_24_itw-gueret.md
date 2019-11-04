@@ -2,7 +2,7 @@ Afin d’améliorer l’information voyageur et la fréquentation des transports
 
 # Interview Guéret
 
-La plateforme transport.data.gouv.fr privilégie le référencement de données au format GTFS (General Transit Feed Specifications). Il s’agit d’un format de fichier commun pour les horaires de transports en commun. Le fichier GTFS combine des informations géographiques ainsi que des données horaires, décrivant les trajets effectués, les arrêts géolocalisés, et les horaires de passage aux différents arrêts.
+La plateforme transport.data.gouv.fr privilégie le référencement de données au format GTFS (General Transit Feed Specifications). Il s’agit d’un format de fichier très utilisé pour décrire les horaires de transports en commun. Le fichier GTFS combine des informations géographiques ainsi que des données horaires, décrivant les trajets effectués, les arrêts géolocalisés, et les horaires de passage aux différents arrêts.
 Aujourd’hui, la majorité des logiciels de gestion de flotte de bus ou de SAEIV (Système d'Aide à l'Exploitation et l'Information Voyageur) permettent de créer automatiquement un export du fichier GTFS. Lorsqu’une gestionnaire de réseau ne dispose pas de ce type d’outil, il est possible de produire un fichier GTFS manuellement, comme en témoigne le retour d’expérience de la Communauté d’Agglomération du Grand Guéret (23).
 
 ## Comment créer un fichier GTFS à partir de rien?
