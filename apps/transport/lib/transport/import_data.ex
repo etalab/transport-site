@@ -188,6 +188,7 @@ defmodule Transport.ImportData do
       is_format?(url, "csv") -> false
       is_format?(url, "shp") -> false
       is_gtfs?(params["description"]) -> true
+      is_gtfs?(params["title"]) -> true
       true -> false
     end
   end
