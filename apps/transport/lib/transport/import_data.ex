@@ -32,9 +32,7 @@ defmodule Transport.ImportData do
     base_url = Application.get_env(:transport, :datagouvfr_site)
     url      = "#{base_url}/api/1/datasets/#{id}/"
 
-    Logger.info(" <message>  Importing dataset")
-    Logger.info(" <id>       #{id}")
-    Logger.info(" <url>      #{url}")
+    Logger.info("Importing dataset #{id} (url = #{url})")
 
     with {:ok, response}  <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
          {:ok, json} <- Poison.decode(response.body),
@@ -42,9 +40,7 @@ defmodule Transport.ImportData do
       {:ok, dataset}
     else
       {:error, error} ->
-        Logger.error("<message>  #{inspect error}")
-        Logger.error("<id>       #{id}")
-        Logger.error("<url>      #{url}")
+        Logger.error("Error while importing dataset #{id} (url = #{url}) : #{inspect error}")
         {:error, error}
     end
   end
@@ -188,6 +184,7 @@ defmodule Transport.ImportData do
       is_format?(url, "csv") -> false
       is_format?(url, "shp") -> false
       is_gtfs?(params["description"]) -> true
+      is_gtfs?(params["title"]) -> true
       true -> false
     end
   end
