@@ -3,7 +3,9 @@ defmodule TransportWeb.StatsController do
   import Ecto.Query
   require Logger
   use TransportWeb, :controller
+  alias Transport.CSVDocuments
 
+  @spec index(any, any) :: none
   def index(conn, _params) do
     aoms = Repo.all(from a in AOM,
       select: %{
@@ -24,7 +26,9 @@ defmodule TransportWeb.StatsController do
       nb_regions: Enum.count(regions),
       nb_regions_completed: regions |> Enum.count(fn r -> r.is_completed end),
       population_totale: get_population(aoms),
-      population_couverte: get_population(aoms_with_datasets)
+      population_couverte: get_population(aoms_with_datasets),
+      nb_officical_realtime: nb_officical_realtime(),
+      nb_unofficical_realtime: nb_unofficical_realtime()
     )
   end
 
@@ -34,4 +38,15 @@ defmodule TransportWeb.StatsController do
       |> Kernel./(1_000_000)
       |> Float.round(2)
   end
+
+  defp nb_officical_realtime do
+    rt_datasets = from d in Dataset,
+        where: d.has_realtime
+    Repo.aggregate(rt_datasets, :count, :id)
+  end
+
+  defp nb_unofficical_realtime do
+    Enum.count(CSVDocuments.real_time_providers())
+  end
+
 end

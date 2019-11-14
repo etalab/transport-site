@@ -17,7 +17,7 @@ const Mapbox = {
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
-function addMap (id, aomsUrl, regionsUrl) {
+function addStaticPTMap (id, aomsUrl, regionsUrl) {
     const map = Leaflet.map(id).setView([46.370, 2.087], 5)
     map.createPane('aoms')
     map.getPane('aoms').style.zIndex = 650
@@ -147,4 +147,120 @@ function addMap (id, aomsUrl, regionsUrl) {
 
     return map
 }
-addMap('map', '/api/stats/', '/api/stats/regions')
+
+
+/**
+ * Initialises a map.
+ * @param  {String} id Dom element id, where the map is to be bound.
+ * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
+ */
+function addRealTimePTMap (id, aomsUrl) {
+    const map = Leaflet.map(id).setView([46.370, 2.087], 5)
+    map.createPane('aoms')
+    map.getPane('aoms').style.zIndex = 650
+
+    function onEachAomFeature (feature, layer) {
+        const name = feature.properties.nom
+        const type = feature.properties.forme_juridique
+        
+        let count_official = feature.properties.different_formats.gtfs_rt
+        let count_non_standard_rt = feature.properties.different_formats.non_standard_rt
+        if (count_official === undefined && count_non_standard_rt ===0) {
+            return null
+        }
+        
+        let bind = "<strong>${name}</strong><br/>${type}"
+        if (count_official) {
+            const text = count_official === 1 ? 'Un jeu de données standardisé' : `${count_official} jeux de données standardisés`
+            const commune = feature.properties.id
+            bind += `<br/><a href="/datasets/aom/${commune}">${text}</a>`
+        }
+        
+        if (count_non_standard_rt) {
+            const text = "jeu de données non standard"
+            bind += `<br/><a href="/real_time">${text}</a>`
+        }
+        layer.bindPopup(bind)
+    }
+    
+    const styles = {
+        unavailable: {
+            weight: 1,
+            fillOpacity: 0.0,
+            color: 'grey'
+        },
+        std_rt: {
+            weight: 1,
+            color: 'green',
+            fillOpacity: 0.5
+        },
+        non_std_rt: {
+            weight: 1,
+            color: 'orange',
+            fillOpacity: 0.3,
+        }
+    }
+    
+    const style = feature => {
+        console.log("style")
+        const gtfs_rt = feature.properties.different_formats.gtfs_rt
+        const has_gtfs_rt = gtfs_rt != undefined && gtfs_rt != 0
+        const has_non_std_rt = feature.properties.different_formats.non_standard_rt += 0
+        
+        if (has_gtfs_rt) {
+            return styles.std_rt
+        } else if (has_non_std_rt) {
+            return styles.non_std_rt
+        } else {
+            return styles.unavailable
+        }
+    }
+
+    const filter = feature => {
+        const formats = feature.properties.different_formats
+        return formats.gtfs_rt != undefined || formats.non_standard_rt != 0
+    }
+
+    Leaflet.tileLayer(Mapbox.url, {
+        accessToken: Mapbox.accessToken,
+        attribution: Mapbox.attribution,
+        maxZoom: Mapbox.maxZoom,
+        id: Mapbox.id
+    }).addTo(map)
+
+
+    fetch(aomsUrl)
+        .then(response => { return response.json() })
+        .then(response => {
+            const geoJSON = Leaflet.geoJSON(response, {
+                onEachFeature: onEachAomFeature,
+                style: style,
+                filter: filter,
+                pane: 'aoms'
+            })
+            map.addLayer(geoJSON)
+        })
+
+    const legend = Leaflet.control({ position: 'bottomright' })
+    legend.onAdd = function (map) {
+        const div = Leaflet.DomUtil.create('div', 'info legend')
+        const colors = ['green', 'orange']
+        const labels = ['Données disponible', 'Données disponible non standard']
+
+        div.innerHTML += '<h4>Disponibilité des horaires temps réel</h4>'
+        // loop through our density intervals and generate a label with a colored square for each interval
+        for (var i = 0; i < colors.length; i++) {
+            div.innerHTML += `<i style="background:${colors[i]}"></i>${labels[i]}<br/>`
+        }
+
+        return div
+    }
+
+    legend.addTo(map)
+
+    return map
+}
+
+addStaticPTMap('map', '/api/stats/', '/api/stats/regions')
+
+addRealTimePTMap('rt_map', '/api/stats/')

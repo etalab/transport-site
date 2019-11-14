@@ -2,31 +2,48 @@
 <section class="section deployment">
   <div class="container">
     <h1>État du déploiement</h1>
-    <h2>Horaires théoriques – transports en commun</h2>
     <div class="stats">
-    <div class="domain-stats">
-      <div id="map" class="map"></div>
-      <div class="panel">
-        <div class="tile">
-          <h3><%= @nb_datasets %></h3>
-          <div>jeux ouverts</div>
-        </div>
-        <div class="tile">
-          <h3><%= @nb_aoms_with_data %></h3>
-          <div>autorités organisatrices de la mobilité couvertes (sur <%= @nb_aoms %>)</div>
-        </div>
-        <div class="tile">
-          <h3><%= @nb_regions_completed %></h3>
-          <div>régions couvertes (sur <%= @nb_regions %>)</div>
-        </div>
-        <div class="tile">
-          <h3><%= @population_couverte %>M</h3>
-          <div>de la population couverte
-            sur <%= @population_totale %>M
+      <h2>Transports en commun - horaires théoriques</h2>
+      <div class="domain-stats">
+        <div id="map" class="map"></div>
+        <div class="panel">
+          <div class="tile">
+            <h3><%= @nb_datasets %></h3>
+            <div>jeux de données ouverts</div>
+          </div>
+          <div class="tile">
+            <h3><%= @nb_aoms_with_data %></h3>
+            <div>autorités organisatrices de la mobilité couvertes (sur <%= @nb_aoms %>)</div>
+          </div>
+          <div class="tile">
+            <h3><%= @nb_regions_completed %></h3>
+            <div>régions couvertes (sur <%= @nb_regions %>)</div>
+          </div>
+          <div class="tile">
+            <h3><%= @population_couverte %>M</h3>
+            <div>de la population couverte
+              sur <%= @population_totale %>M
+            </div>
           </div>
         </div>
+      </div>
+
+      <h2>Transports en commun - temps réel</h2>
+      <div class="domain-stats">
+        <div id="rt_map" class="map"></div>
+
+        <div class="panel">
+          <div class="tile">
+            <h3><%= @nb_officical_realtime %></h3>
+            <div>Jeux de données standardisés</div>
+          </div>
+          <div class="tile">
+            <h3><%= @nb_unofficical_realtime %></h3>
+            <div> <a href="/real_time">Jeux données non standardisés</a></div>
+          </div>
         </div>
       </div>
+
     </div>
     <%= render("_other.html", cr_tr: static_path(@conn, "/documents/cr_temps_reel.pdf"), cr_vls: static_path(@conn, "/priv/static/documents/cr_vls_autopartage_ff.pdf")) %>
   </div>

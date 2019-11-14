@@ -1,7 +1,3 @@
-## Transport collectif, temps réel
-
-Une réunion de lancement des travaux a eu lieu le 20 septembre 2018. Le compte-rendu est disponible [ici](<%= @cr_tr %>).
-
 ## Lieux de covoiturage
 
 [Un fichier national](https://www.data.gouv.fr/fr/datasets/aires-de-covoiturage-en-france) décrivant les lieux de covoiturage de 70 départements a été consolidé par BlaBlaCar.
