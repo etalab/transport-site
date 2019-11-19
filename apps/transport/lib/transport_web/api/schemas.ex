@@ -259,7 +259,10 @@ defmodule TransportWeb.API.Schemas do
               url: %Schema{type: :string, description: "Stable URL of the GTFS file"},
               title: %Schema{type: :string, description: "Title of the resource"},
               updated: %Schema{type: :string, description: "Last update date-time"},
-              end_calendar_validity: %Schema{type: :string, description: "The last day in the GTFS calendar. null if the file couldn’t be read"}
+              end_calendar_validity: %Schema{type: :string, description: "The last day in the GTFS calendar. null if the file couldn’t be read"},
+              start_calendar_validity: %Schema{type: :string, description: "The first day in the GTFS calendar. null if the file couldn’t be read"},
+              format: %Schema{type: :string, description: "The format of the resource (GTFS, NeTex, ...)"},
+              content_hash: %Schema{type: :string, description: "A hash on the content of the file. Can be either a sha256 or an etag. Can be stored and used to check if the resource has changed."},
             }
           }
         }
