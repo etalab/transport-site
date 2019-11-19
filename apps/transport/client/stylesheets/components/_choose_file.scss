@@ -1,5 +1,17 @@
 .choose-file {
+  form {
+    max-width: 80%;
+    width: 80%;
+  }
+  .form__group {
+    max-width: 35em;
+
+    .filler {
+      margin-left: 1em;
+    }
+  }
   .forms {
+    display: flex;
     align-items: center;
     margin-top: 10vh;
     justify-content: space-between;

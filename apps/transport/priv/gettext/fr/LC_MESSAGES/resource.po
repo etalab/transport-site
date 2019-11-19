@@ -3,7 +3,7 @@ msgstr "Impossible d'accéder à la resource, réessayez"
 
 #, elixir-format
 msgid "Choose the resource you want to update"
-msgstr "Choisisseez la ressource à mettre à jour"
+msgstr "Choisissez la ressource à mettre à jour"
 
 #, elixir-format
 msgid "Dataset: "
@@ -18,24 +18,12 @@ msgid "Resource: "
 msgstr "Ressource"
 
 #, elixir-format
-msgid "Select a resource"
-msgstr "Selectionnez une ressource"
-
-#, elixir-format
-msgid "To update a resource, select one of your dataset first."
-msgstr "Pour mettre à jour une ressource, selectionnez un jeu de données"
-
-#, elixir-format
 msgid "Unable to upload file"
 msgstr "Impossible de mettre à jour le fichier"
 
 #, elixir-format
 msgid "Update this resource"
 msgstr "Mettre à jour cette ressource"
-
-#, elixir-format
-msgid "Update with a file"
-msgstr "Mettre à jour avec un fichier"
 
 #, elixir-format
 msgid "Upload this file"
@@ -58,10 +46,6 @@ msgid "Resource's URL"
 msgstr "URL de la ressource"
 
 #, elixir-format
-msgid "Update with a URL"
-msgstr "Mettre à jour avec une URL"
-
-#, elixir-format
 msgid "Update with this URL"
 msgstr "Mettre à jour avec une URL"
 
@@ -76,3 +60,35 @@ msgstr "ou"
 #, elixir-format
 msgid "I'm not sure. Learn more."
 msgstr "Je ne suis pas sûr·e. En savoir plus."
+
+#, elixir-format
+msgid "Select a dataset to update it."
+msgstr "Sélectionnez un jeu de données pour le mettre à jour."
+
+#, elixir-format
+msgid "Select this dataset"
+msgstr "Selectionner ce jeu de données."
+
+#, elixir-format, fuzzy
+msgid " with a URL"
+msgstr "Mettre à jour avec une URL"
+
+#, elixir-format
+msgid "Add a new resource"
+msgstr "Ajouter une nouvelle ressource"
+
+#, elixir-format
+msgid "Current file: %{current_file}"
+msgstr "Fichier actuel : %{current_file}"
+
+#, elixir-format, fuzzy
+msgid "Upload a file"
+msgstr "Envoyer ce fichier"
+
+#, elixir-format
+msgid "format"
+msgstr "Format"
+
+#, elixir-format
+msgid "title"
+msgstr "Titre"

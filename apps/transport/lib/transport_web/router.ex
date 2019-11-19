@@ -69,7 +69,9 @@ defmodule TransportWeb.Router do
         get "/datasets", ResourceController, :datasets_list
         scope "/datasets/:dataset_id/resources" do
           get "/", ResourceController, :resources_list
-          get "/:resource_id/", ResourceController, :choose_file
+          post "/", ResourceController, :post_file
+          get "/_new_resource/", ResourceController, :form
+          get "/:resource_id/", ResourceController, :form
           post "/:resource_id/", ResourceController, :post_file
         end
       end

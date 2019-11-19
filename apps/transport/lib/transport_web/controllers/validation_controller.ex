@@ -1,7 +1,6 @@
 defmodule TransportWeb.ValidationController do
   use TransportWeb, :controller
   alias DB.{Repo, Validation}
-  alias TransportWeb.ResourceController
 
   @client HTTPoison
   @res HTTPoison.Response
@@ -39,13 +38,13 @@ defmodule TransportWeb.ValidationController do
     config = make_pagination_config(params)
     validation = Repo.get(Validation, params["id"])
 
-    current_issues = ResourceController.get_issues(validation, params)
+    current_issues = Validation.get_issues(validation, params)
 
-    render(conn, "show.html",
-    %{validation_id: params["id"],
-    other_resources: [],
-    issues: Scrivener.paginate(current_issues, config),
-    validation_summary: ResourceController.validation_summary(validation)
- })
+    conn
+    |> assign(:validation_id, params["id"])
+    |> assign(:other_resources, [])
+    |> assign(:issues, Scrivener.paginate(current_issues, config))
+    |> assign(:validation_summary, Validation.summary(validation))
+    |> render("show.html")
   end
 end

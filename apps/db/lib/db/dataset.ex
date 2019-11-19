@@ -6,9 +6,10 @@ defmodule DB.Dataset do
   There are also trigger on update on aom and region that will force an update on this model
   so the search vector is up-to-date.
   """
+  alias Datagouvfr.Client.User
+  alias DB.{AOM, Commune, Region, Repo, Resource}
   alias ExAws.S3
   alias Phoenix.HTML.Link
-  alias DB.{AOM, Commune, Region, Repo, Resource}
   import Ecto.{Changeset, Query}
   import DB.Gettext
   require Logger
@@ -327,6 +328,39 @@ defmodule DB.Dataset do
     |> if do {:error, "Unable to validate dataset #{id}"} else {:ok, nil} end
   end
 
+ @spec user_datasets(Plug.Conn.t()) :: {:error, OAuth2.Error.t()} | {:ok, [Transport.Dataset.t()]}
+  def user_datasets(%Plug.Conn{} = conn) do
+    case User.datasets(conn) do
+      {:ok, datasets} ->
+        datagouv_ids = Enum.map(datasets, fn d -> d["id"] end)
+
+        {:ok,
+          __MODULE__
+          |> where([d], d.datagouv_id in ^datagouv_ids)
+          |> Repo.all()
+        }
+      error ->
+        error
+    end
+  end
+
+  @spec user_org_datasets(Plug.Conn.t()) ::
+   {:error, OAuth2.Error.t()} | {:ok, [DB.Dataset.t()]}
+  def user_org_datasets(%Plug.Conn{} = conn) do
+    case User.org_datasets(conn) do
+      {:ok, datasets} ->
+        datagouv_ids = Enum.map(datasets, fn d -> d["id"] end)
+
+        {:ok,
+          __MODULE__
+          |> where([d], d.datagouv_id in ^datagouv_ids)
+          |> Repo.all()
+        }
+      error ->
+        error
+    end
+  end
+
   def history_resources(%__MODULE__{} = dataset) do
     if Application.get_env(:ex_aws, :access_key_id) == nil
       || Application.get_env(:ex_aws, :secret_access_key) == nil do
@@ -376,14 +410,14 @@ defmodule DB.Dataset do
     |> Repo.all()
   end
 
-    def fetch_history_metadata(bucket, obj_key) do
-      bucket
-        |> S3.head_object(obj_key)
-        |> ExAws.request!
-        |> Map.get(:headers)
-        |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
-        |> Map.take(["format", "title", "start", "end", "updated-at", "content-hash"])
-    end
+  def fetch_history_metadata(bucket, obj_key) do
+    bucket
+      |> S3.head_object(obj_key)
+      |> ExAws.request!
+      |> Map.get(:headers)
+      |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
+      |> Map.take(["format", "title", "start", "end", "updated-at", "content-hash"])
+  end
 
   ## Private functions
   @cellar_host ".cellar-c2.services.clever-cloud.com/"
