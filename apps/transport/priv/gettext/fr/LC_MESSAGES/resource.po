@@ -3,7 +3,7 @@ msgstr "Impossible d'accéder à la resource, réessayez"
 
 #, elixir-format
 msgid "Choose the resource you want to update"
-msgstr "Choisisseez la ressource à mettre à jour"
+msgstr "Choisissez la ressource à mettre à jour"
 
 #, elixir-format
 msgid "Dataset: "

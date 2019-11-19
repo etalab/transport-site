@@ -422,7 +422,7 @@ defmodule DB.Dataset do
   ## Private functions
   @cellar_host ".cellar-c2.services.clever-cloud.com/"
 
-  defp history_resource_path(bucket, name), do: Path.join(["http://", bucket, @cellar_host, name])
+  defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> @cellar_host, name])
 
   @spec localization(DB.Dataset.t()) :: binary | nil
   defp localization(%__MODULE__{aom: %{nom: nom}}), do: nom
