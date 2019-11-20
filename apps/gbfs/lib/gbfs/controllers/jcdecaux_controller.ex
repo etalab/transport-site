@@ -75,7 +75,7 @@ defmodule GBFS.JCDecauxController do
               is_installed: if s["status"] == "OPEN" do 1 else 0 end,
               is_renting: if s["status"] == "OPEN" do 1 else 0 end,
               is_returning: if s["status"] == "OPEN" do 1 else 0 end,
-              last_reported: s["last_update"]
+              last_reported: s["last_update"] / 1000
             } end)
           }
         )
