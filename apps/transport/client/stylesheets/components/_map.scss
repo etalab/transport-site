@@ -1,6 +1,6 @@
-#map {
-  height: 40em;
-  width: 100%;
+.map {
+  min-height: 40em;
+  width: 50%;
 
   .info {
     padding: 6px 8px;
@@ -26,15 +26,30 @@
 }
 
 .stats {
+  .domain-stats {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .domain-stats>* {
+    flex: 1 1 500px;
+  }
+
+  .panel {
+    display: grid;
+    grid-template-rows: repeat(auto-fill, 120px);
+    grid-gap: 1em;
+    grid-template-columns: repeat(auto-fill, minmax(200px, auto));
+    width: 50%;
+  }
+
   .tile {
     background-color: $lighter-grey;
-    display: flex;
-    flex-direction: row;
     padding: 2em;
 
-    strong {
+    h3 {
       font-size: 3em;
-      margin-right: 0.25em;
+      margin: 0;
     }
   }
 }
