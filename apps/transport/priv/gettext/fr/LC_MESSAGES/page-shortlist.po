@@ -232,3 +232,7 @@ msgstr "Transport en commun urbain"
 #, elixir-format
 msgid "Intercities public transport"
 msgstr "Transport en commun régional"
+
+#, elixir-format
+msgid "Available datasets"
+msgstr "Jeux de données disponibles"

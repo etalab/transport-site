@@ -232,3 +232,7 @@ msgstr ""
 #, elixir-format
 msgid "Intercities public transport"
 msgstr ""
+
+#, elixir-format
+msgid "Available datasets"
+msgstr "Jeux de données disponibles"

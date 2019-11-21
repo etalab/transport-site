@@ -7,6 +7,6 @@ defmodule TransportWeb.DatasetControllerTest do
 
   test "GET /", %{conn: conn} do
     conn = conn |> get(dataset_path(conn, :index))
-    assert html_response(conn, 200) =~ "Jeux de données valides disponibles"
+    assert html_response(conn, 200) =~ "Jeux de données disponibles"
   end
 end

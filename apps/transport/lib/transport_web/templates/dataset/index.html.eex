@@ -1,7 +1,7 @@
 <div class="hero">
   <div class="hero__container">
     <div class="container">
-      <h1 class="text-center shortlist-title"><%= dgettext("page-shortlist", "Valid datasets available") %></h1>
+      <h1 class="text-center shortlist-title"><%= dgettext("page-shortlist", "Available datasets") %></h1>
       <div class="form__group">
         <%= form_for @conn, dataset_path(@conn, :index), [method: "get", class: "shortlist-form"], fn f -> %>
           <%= search_input f, :q, [{"value", assigns[:q] || ""}, {"placeholder", dgettext("page-index", "Find dataset")}, {"aria-label", dgettext("page-index", "Find dataset")}] %>
@@ -135,6 +135,6 @@
       to: "#{swagger_ui_path(@conn, [path: "/api/openapi"])}#/datasets/API.DatasetController.datasets"
     )
     %>
-     - 
+     -
   </div>
 </section>
