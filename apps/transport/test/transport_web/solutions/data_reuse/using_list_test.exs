@@ -66,8 +66,8 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
     # I can see or read somewhere that the datasets are valid
     assert visible_in_page?(~r/Jeux de données disponibles/)
     # I can click on a dataset and see its details
-    click({:link_text, "Angers Métropôle - Transport public"})
-    assert visible_in_page?(~r/Angers Métropôle - Transport public/)
+    click({:link_text, "Angers Métropôle - Horaires théoriques de transport public"})
+    assert visible_in_page?(~r/Angers Métropôle - Horaires théoriques de transport public/)
 
     # the description should also be displayed
     assert visible_in_page?(~r/Un jeu de données/)

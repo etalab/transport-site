@@ -187,7 +187,7 @@ msgstr "Filtres"
 
 #, elixir-format
 msgid "Regions"
-msgstr ""
+msgstr "Régions"
 
 #, elixir-format
 msgid "All regions"
@@ -200,10 +200,6 @@ msgstr "Types de données"
 #, elixir-format
 msgid "All types"
 msgstr "Tous les types"
-
-#, elixir-format
-msgid "Has realtime"
-msgstr "Temps réel"
 
 #, elixir-format
 msgid "Search results"
@@ -236,3 +232,7 @@ msgstr "Transport en commun régional"
 #, elixir-format
 msgid "Available datasets"
 msgstr "Jeux de données disponibles"
+
+#, elixir-format
+msgid "Realtime timetables"
+msgstr "Horaires en temps réel de transport publics"

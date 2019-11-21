@@ -78,7 +78,7 @@
                 %></li>
                 <% else %>
                   <li><%= link(
-                    dgettext("page-shortlist", "Has realtime"),
+                    dgettext("page-shortlist", "Realtime timetables"),
                     to: dataset_path(@conn, :index, filter: "has_realtime")
                   )
                   %></li>

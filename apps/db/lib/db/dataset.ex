@@ -41,13 +41,13 @@ defmodule DB.Dataset do
   end
 
   def type_to_str, do: %{
-    "public-transit" => dgettext("dataset", "Public transit"),
+    "public-transit" => dgettext("dataset", "Public transit timetable"),
     "carsharing-areas" => dgettext("dataset", "Carsharing areas"),
     "stops-ref" => dgettext("dataset", "Stops referential"),
     "charging-stations" => dgettext("dataset", "Charging stations"),
     "micro-mobility" => dgettext("dataset", "Micro mobility"),
     "air-transport" => dgettext("dataset", "Aerial"),
-    "train" => dgettext("dataset", "Train"),
+    "train" => dgettext("dataset", "Train timetable"),
     "bike-sharing" => dgettext("dataset", "Bike sharing"),
     "long-distance-coach" => dgettext("dataset", "Long distance coach")
   }
