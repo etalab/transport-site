@@ -3,7 +3,6 @@ defmodule TransportWeb.ResourceController do
   alias Datagouvfr.Client.{Datasets, Resources, Validation}
   alias DB.{Dataset, Repo, Resource, Validation}
   alias Transport.ImportData
-  import Ecto.Query, only: [from: 2]
   require Logger
 
   def details(conn, %{"id" => id} = params) do
