@@ -4,7 +4,7 @@
             <h1><%= dgettext("page-index", "title") %></h1>
             <h2><%= dgettext("page-index", "subtitle") %></h2>
             <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
-                <%= search_input f, :q, [{"placeholder", dgettext("page-index", "Find dataset")}, {"aria-label", dgettext("page-index", "Find dataset")}] %>
+                <%= search_input f, :q, [{"placeholder", dgettext("page-index", "Search data for a region, a city, a network…")}, {"aria-label", dgettext("page-index", "Find dataset")}] %>
                 <p><a href=<%= dataset_path @conn, :index %>><%= dgettext("page-index", "See newly added datasets") %></a></p>
             <% end %>
         </div>

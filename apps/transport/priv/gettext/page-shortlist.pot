@@ -232,4 +232,3 @@ msgstr ""
 #, elixir-format
 msgid "Intercities public transport"
 msgstr ""
-

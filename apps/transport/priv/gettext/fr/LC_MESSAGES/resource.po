@@ -69,7 +69,7 @@ msgstr "Sélectionnez un jeu de données pour le mettre à jour."
 msgid "Select this dataset"
 msgstr "Selectionner ce jeu de données."
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid " with a URL"
 msgstr "Mettre à jour avec une URL"
 
@@ -81,7 +81,7 @@ msgstr "Ajouter une nouvelle ressource"
 msgid "Current file: %{current_file}"
 msgstr "Fichier actuel : %{current_file}"
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Upload a file"
 msgstr "Envoyer ce fichier"
 
