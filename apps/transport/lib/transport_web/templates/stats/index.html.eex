@@ -2,27 +2,29 @@
 <section class="section deployment">
   <div class="container">
     <h1>État du déploiement</h1>
-    <div id="map"></div>
     <h2>Horaires théoriques – transports en commun</h2>
     <div class="stats">
-      <div class="grid">
+    <div class="domain-stats">
+      <div id="map" class="map"></div>
+      <div class="panel">
         <div class="tile">
-          <strong><%= @nb_datasets %></strong>
+          <h3><%= @nb_datasets %></h3>
           <div>jeux ouverts</div>
         </div>
         <div class="tile">
-          <strong><%= @nb_aoms_with_data %></strong>
+          <h3><%= @nb_aoms_with_data %></h3>
           <div>autorités organisatrices de la mobilité couvertes (sur <%= @nb_aoms %>)</div>
         </div>
         <div class="tile">
-          <strong><%= @nb_regions_completed %></strong>
+          <h3><%= @nb_regions_completed %></h3>
           <div>régions couvertes (sur <%= @nb_regions %>)</div>
         </div>
         <div class="tile">
-          <strong><%= @population_couverte %>M</strong>
+          <h3><%= @population_couverte %>M</h3>
           <div>de la population couverte
             sur <%= @population_totale %>M
           </div>
+        </div>
         </div>
       </div>
     </div>
