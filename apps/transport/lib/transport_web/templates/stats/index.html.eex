@@ -3,12 +3,31 @@
   <div class="container">
     <h1>État du déploiement</h1>
     <div class="stats">
+      <h2>Général</h2>
+      Ce site est le Point d’Accès National aux données de transport (PAN).<br>
+      Voici l'état d'avancement du référencement des données de transport en France.
+      <div class="domain-stats">
+        <div class="panel">
+          <div class="tile">
+            <h3><%= @nb_dataset_types %></h3>
+            <div>Types de jeux de données</div>
+          </div>
+          <div class="tile">
+            <h3><%= @nb_datasets %></h3>
+            <div>Jeux de données ouverts</div>
+          </div>
+          <div class="tile">
+            <h3><%= @nb_reusers %></h3>
+            <div>Réutilisateurs</div>
+          </div>
+        </div>
+      </div>
       <h2>Transports en commun - horaires théoriques</h2>
       <div class="domain-stats">
         <div id="map" class="map"></div>
         <div class="panel">
           <div class="tile">
-            <h3><%= @nb_datasets %></h3>
+            <h3><%= @nb_pt_datasets %></h3>
             <div>jeux de données ouverts</div>
           </div>
           <div class="tile">
@@ -28,7 +47,29 @@
         </div>
       </div>
 
+      <h3>Zoom sur les formats de données</h3>
+      Les données de transport en commun sont disponibles sur le site dans 2 formats,
+      <a href="https://gtfs.org/">GTFS</a> et <a href="http://netex-cen.eu/">NeTEx</a>.
+      <div class="domain-stats">
+        <div id="pt_format_map" class="map"></div>
+        <div class="panel">
+          <div class="tile">
+            <h3><%= @nb_gtfs %></h3>
+            <div>jeux de données en GTFS</div>
+          </div>
+          <div class="tile">
+            <h3><%= @nb_netex %></h3>
+            <div>jeux de données en NeTEx</div>
+          </div>
+        </div>
+      </div>
+
       <h2>Transports en commun - temps réel</h2>
+      Le site recense des données temps réel pour les transports en commun.<br>
+      Pour être référencée sur le PAN, les données doivent être accessibles sans authentification
+      et dans le format GTFS-RT, Siri ou Siri Lite.<br>
+      Les données temps réel qui ne respectent pas ces conditions sont référencées sur <a href="/real_time">une page à part</a>.<br>
+      Plus d'information sur le temps réel sont disponible dans <a href="https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/temps-reel-des-transports-en-commun">la documentation</a>.
       <div class="domain-stats">
         <div id="rt_map" class="map"></div>
 
@@ -44,6 +85,17 @@
         </div>
       </div>
 
+      <h2>Vélos en libre service</h2>
+      <div class="domain-stats">
+        <div id="bss_map" class="map"></div>
+
+        <div class="panel">
+          <div class="tile">
+            <h3><%= @nb_bss_datasets %></h3>
+            <div>Jeux de données</div>
+          </div>
+        </div>
+      </div>
     </div>
     <%= render("_other.html", cr_tr: static_path(@conn, "/documents/cr_temps_reel.pdf"), cr_vls: static_path(@conn, "/priv/static/documents/cr_vls_autopartage_ff.pdf")) %>
   </div>

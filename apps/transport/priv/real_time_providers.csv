@@ -1,8 +1,8 @@
 aom;aom_insee_principal;format;bulk;acces_ouvert;licence;prochains_passages;position_vehicules;alertes
 Rennes Star;35238;Spécifique;y;y;ODbL;https://data.rennesmetropole.fr/explore/dataset/prochains-passages-des-lignes-de-metro-du-reseau-star-en-temps-reel/table/;https://data.explore.star.fr/explore/dataset/tco-bus-vehicules-position-tr/;https://data.rennesmetropole.fr/explore/dataset/alertes-trafic-en-temps-reel-sur-les-lignes-du-reseau-star/information/
 Montpellier Tam;34172;Spécifique;y;y;ODbL;http://data.montpellier3m.fr/dataset/offre-de-transport-tam-en-temps-reel;;
-Nantes TAN;Spécifique;44109;n;y;ODbL;https://data.nantesmetropole.fr/explore/dataset/244400404_api-temps-reel-tan/information/;;https://data.nantesmetropole.fr/explore/dataset/244400404_info-trafic-tan-temps-reel/table/
-Strasbourg;Siri-lite;67482;y;n;Inconnue;https://api.cts-strasbourg.eu/index.html;;
+Nantes TAN;44109;Spécifique;n;y;ODbL;https://data.nantesmetropole.fr/explore/dataset/244400404_api-temps-reel-tan/information/;;https://data.nantesmetropole.fr/explore/dataset/244400404_info-trafic-tan-temps-reel/table/
+Strasbourg;67482;Siri-lite;y;n;Inconnue;https://api.cts-strasbourg.eu/index.html;;
 Saint-Pierre;;Spécifique;n;y;Inconnue;;;https://www.carjaune.re/fr/rss/Disruptions
 Lyon;69123;Spécifique;n;n;Associée;https://data.beta.grandlyon.com/fr/datasets/prochains-passages-temps-reel-reseau-transports-commun-lyonnais/info;;
 Lille;59350;Spécifique;n;y;LO;https://opendata.lillemetropole.fr/explore/dataset/ilevia-prochainspassages/api/;;https://opendata.lillemetropole.fr/explore/dataset/ilevia-perturbations/information/

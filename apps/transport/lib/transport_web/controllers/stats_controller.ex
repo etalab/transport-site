@@ -1,9 +1,9 @@
 defmodule TransportWeb.StatsController do
-  alias DB.{AOM, Dataset, Region, Repo}
+  alias DB.{AOM, Dataset, Region, Repo, Resource}
+  alias Transport.CSVDocuments
   import Ecto.Query
   require Logger
   use TransportWeb, :controller
-  alias Transport.CSVDocuments
 
   @spec index(any, any) :: none
   def index(conn, _params) do
@@ -21,6 +21,7 @@ defmodule TransportWeb.StatsController do
 
     render(conn, "index.html",
       nb_datasets: Repo.aggregate(Dataset, :count, :id),
+      nb_pt_datasets: Dataset.count_by_type("public-transit"),
       nb_aoms: Enum.count(aoms),
       nb_aoms_with_data: Enum.count(aoms_with_datasets),
       nb_regions: Enum.count(regions),
@@ -28,7 +29,12 @@ defmodule TransportWeb.StatsController do
       population_totale: get_population(aoms),
       population_couverte: get_population(aoms_with_datasets),
       nb_officical_realtime: nb_officical_realtime(),
-      nb_unofficical_realtime: nb_unofficical_realtime()
+      nb_unofficical_realtime: nb_unofficical_realtime(),
+      nb_reusers: nb_reusers(),
+      nb_dataset_types: nb_dataset_types(),
+      nb_gtfs: count_dataset_with_format("GTFS"),
+      nb_netex: count_dataset_with_format("netex"),
+      nb_bss_datasets: count_dataset_with_format("gbfs")
     )
   end
 
@@ -49,4 +55,20 @@ defmodule TransportWeb.StatsController do
     Enum.count(CSVDocuments.real_time_providers())
   end
 
+  defp nb_dataset_types do
+    Dataset
+    |> select([d], count(d.type, :distinct))
+    |> Repo.one()
+  end
+
+  defp nb_reusers do
+    Enum.count(CSVDocuments.reusers())
+  end
+
+  defp count_dataset_with_format(format) do
+    Resource
+      |> select([r], count(r.dataset_id, :distinct))
+      |> where([r], r.format == ^format)
+      |> Repo.one()
+  end
 end
