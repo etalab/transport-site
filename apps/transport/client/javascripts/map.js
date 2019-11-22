@@ -12,15 +12,83 @@ const Mapbox = {
     id: 'mapbox.streets'
 }
 
+const regionsUrl = '/api/stats/regions'
+const aomsUrl = '/api/stats/'
+
+const makeMapOnFrance = (id) => {
+    const map = Leaflet.map(id).setView([46.370, 2.087], 5)
+    map.createPane('aoms')
+    map.getPane('aoms').style.zIndex = 650
+
+    Leaflet.tileLayer(Mapbox.url, {
+        accessToken: Mapbox.accessToken,
+        attribution: Mapbox.attribution,
+        maxZoom: Mapbox.maxZoom,
+        id: Mapbox.id
+    }).addTo(map)
+
+    return map
+}
+
+// helper function to add legends
+const addLegend = (map, title, colors, labels) => {
+    const legend = Leaflet.control({ position: 'bottomright' })
+    legend.onAdd = (_map) => {
+        const div = Leaflet.DomUtil.create('div', 'info legend')
+        div.innerHTML += title
+        // loop through our density intervals and generate a label with a colored square for each interval
+        for (var i = 0; i < colors.length; i++) {
+            div.innerHTML += `<i style="background:${colors[i]}"></i>${labels[i]}<br/>`
+        }
+        return div
+    }
+
+    legend.addTo(map)
+}
+
+// simple cache on stats
+var aomStats = null
+var regionStats = null
+
+function displayAoms (map, featureFunction, style, filter = null) {
+    if (aomStats == null) {
+        aomStats = fetch(aomsUrl)
+            .then(response => { return response.json() })
+    }
+    aomStats
+        .then(response => {
+            const geoJSON = Leaflet.geoJSON(response, {
+                onEachFeature: featureFunction,
+                style: style,
+                filter: filter,
+                pane: 'aoms'
+            })
+            map.addLayer(geoJSON)
+        })
+}
+
+function displayRegions (map, featureFunction, style) {
+    if (regionStats == null) {
+        regionStats = fetch(regionsUrl)
+            .then(response => { return response.json() })
+    }
+    regionStats
+        .then(response => {
+            const geoJSON = Leaflet.geoJSON(response, {
+                onEachFeature: featureFunction,
+                style: style
+            })
+            map.addLayer(geoJSON)
+        })
+}
+
 /**
  * Initialises a map.
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
-function addStaticPTMap (id, aomsUrl, regionsUrl) {
-    const map = Leaflet.map(id).setView([46.370, 2.087], 5)
-    map.createPane('aoms')
-    map.getPane('aoms').style.zIndex = 650
+function addStaticPTMap (id) {
+    const map = makeMapOnFrance(id)
 
     function onEachAomFeature (feature, layer) {
         const name = feature.properties.nom
@@ -100,167 +168,215 @@ function addStaticPTMap (id, aomsUrl, regionsUrl) {
         }
     }
 
-    Leaflet.tileLayer(Mapbox.url, {
-        accessToken: Mapbox.accessToken,
-        attribution: Mapbox.attribution,
-        maxZoom: Mapbox.maxZoom,
-        id: Mapbox.id
-    }).addTo(map)
+    displayRegions(map, onEachRegionFeature, styleRegion)
+    displayAoms(map, onEachAomFeature, style)
 
-    fetch(regionsUrl)
-        .then(response => { return response.json() })
-        .then(response => {
-            const geoJSON = Leaflet.geoJSON(response, {
-                onEachFeature: onEachRegionFeature,
-                style: styleRegion
-            })
-            map.addLayer(geoJSON)
-        })
-
-    fetch(aomsUrl)
-        .then(response => { return response.json() })
-        .then(response => {
-            const geoJSON = Leaflet.geoJSON(response, {
-                onEachFeature: onEachAomFeature,
-                style: style,
-                pane: 'aoms'
-            })
-            map.addLayer(geoJSON)
-        })
-
-    const legend = Leaflet.control({ position: 'bottomright' })
-    legend.onAdd = function (map) {
-        const div = Leaflet.DomUtil.create('div', 'info legend')
-        const colors = ['green', 'orange', 'grey']
-        const labels = ['Données disponible', 'Données partiellement disponible', 'Aucune donnée disponible']
-
-        div.innerHTML += '<h4>Disponibilité des horaires théoriques</h4>'
-        // loop through our density intervals and generate a label with a colored square for each interval
-        for (var i = 0; i < colors.length; i++) {
-            div.innerHTML += `<i style="background:${colors[i]}"></i>${labels[i]}<br/>`
-        }
-
-        return div
-    }
-
-    legend.addTo(map)
+    addLegend(map,
+        '<h4>Disponibilité des horaires théoriques</h4>',
+        ['green', 'orange', 'grey'],
+        ['Données disponibles', 'Données partiellement disponibles', 'Aucune donnée disponible']
+    )
 
     return map
 }
 
-
 /**
- * Initialises a map.
+ * Initialises a map with the realtime covergae.
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
-function addRealTimePTMap (id, aomsUrl) {
-    const map = Leaflet.map(id).setView([46.370, 2.087], 5)
-    map.createPane('aoms')
-    map.getPane('aoms').style.zIndex = 650
+function addRealTimePTMap (id) {
+    const map = makeMapOnFrance(id)
 
     function onEachAomFeature (feature, layer) {
         const name = feature.properties.nom
         const type = feature.properties.forme_juridique
-        
-        let count_official = feature.properties.different_formats.gtfs_rt
-        let count_non_standard_rt = feature.properties.different_formats.non_standard_rt
-        if (count_official === undefined && count_non_standard_rt ===0) {
+
+        let countOfficial = feature.properties.dataset_formats.gtfsRT
+        let countNonStandardRT = feature.properties.dataset_formats.non_standard_rt
+        if (countOfficial === undefined && countNonStandardRT === 0) {
             return null
         }
-        
-        let bind = "<strong>${name}</strong><br/>${type}"
-        if (count_official) {
-            const text = count_official === 1 ? 'Un jeu de données standardisé' : `${count_official} jeux de données standardisés`
+
+        let bind = `<strong>${name}</strong><br/>${type}`
+        if (countOfficial) {
+            const text = countOfficial === 1 ? 'Un jeu de données standardisé' : `${countOfficial} jeux de données standardisés`
             const commune = feature.properties.id
             bind += `<br/><a href="/datasets/aom/${commune}">${text}</a>`
         }
-        
-        if (count_non_standard_rt) {
-            const text = "jeu de données non standard"
+
+        if (countNonStandardRT) {
+            const text = 'jeu de données non officiellement référencé'
             bind += `<br/><a href="/real_time">${text}</a>`
         }
         layer.bindPopup(bind)
     }
-    
+
     const styles = {
-        unavailable: {
-            weight: 1,
-            fillOpacity: 0.0,
-            color: 'grey'
-        },
-        std_rt: {
+        stdRT: {
             weight: 1,
             color: 'green',
             fillOpacity: 0.5
         },
-        non_std_rt: {
+        nonStdRT: {
+            weight: 1,
+            color: 'red',
+            fillOpacity: 0.3
+        },
+        both: {
             weight: 1,
             color: 'orange',
-            fillOpacity: 0.3,
+            fillOpacity: 0.5
         }
     }
-    
+
     const style = feature => {
-        console.log("style")
-        const gtfs_rt = feature.properties.different_formats.gtfs_rt
-        const has_gtfs_rt = gtfs_rt != undefined && gtfs_rt != 0
-        const has_non_std_rt = feature.properties.different_formats.non_standard_rt += 0
-        
-        if (has_gtfs_rt) {
-            return styles.std_rt
-        } else if (has_non_std_rt) {
-            return styles.non_std_rt
-        } else {
-            return styles.unavailable
+        const gtfsRT = feature.properties.dataset_formats.gtfsRT
+        const hasStdRT = gtfsRT !== undefined && gtfsRT !== 0
+        const hasNonStdRT = feature.properties.dataset_formats.non_standard_rt += 0
+
+        if (hasStdRT && !hasNonStdRT) {
+            return styles.stdRT
         }
+        if (hasNonStdRT && !hasStdRT) {
+            return styles.nonStdRT
+        }
+        return styles.both
     }
 
     const filter = feature => {
-        const formats = feature.properties.different_formats
-        return formats.gtfs_rt != undefined || formats.non_standard_rt != 0
+        const formats = feature.properties.dataset_formats
+        return formats.gtfsRT !== undefined || formats.non_standard_rt !== 0
     }
 
-    Leaflet.tileLayer(Mapbox.url, {
-        accessToken: Mapbox.accessToken,
-        attribution: Mapbox.attribution,
-        maxZoom: Mapbox.maxZoom,
-        id: Mapbox.id
-    }).addTo(map)
+    displayAoms(map, onEachAomFeature, style, filter)
 
-
-    fetch(aomsUrl)
-        .then(response => { return response.json() })
-        .then(response => {
-            const geoJSON = Leaflet.geoJSON(response, {
-                onEachFeature: onEachAomFeature,
-                style: style,
-                filter: filter,
-                pane: 'aoms'
-            })
-            map.addLayer(geoJSON)
-        })
-
-    const legend = Leaflet.control({ position: 'bottomright' })
-    legend.onAdd = function (map) {
-        const div = Leaflet.DomUtil.create('div', 'info legend')
-        const colors = ['green', 'orange']
-        const labels = ['Données disponible', 'Données disponible non standard']
-
-        div.innerHTML += '<h4>Disponibilité des horaires temps réel</h4>'
-        // loop through our density intervals and generate a label with a colored square for each interval
-        for (var i = 0; i < colors.length; i++) {
-            div.innerHTML += `<i style="background:${colors[i]}"></i>${labels[i]}<br/>`
-        }
-
-        return div
-    }
-
-    legend.addTo(map)
+    addLegend(map,
+        '<h4>Disponibilité des horaires temps réel</h4>',
+        ['green', 'red', 'orange'],
+        ['Données disponibles', 'Données disponibles non standard ou non ouvertes', 'Données mixtes']
+    )
 
     return map
 }
 
-addStaticPTMap('map', '/api/stats/', '/api/stats/regions')
+/**
+ * Initialises a map with the realtime covergae.
+ * @param  {String} id Dom element id, where the map is to be bound.
+ * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
+ */
+function addPtFormatMap (id) {
+    const map = makeMapOnFrance(id)
 
-addRealTimePTMap('rt_map', '/api/stats/')
+    const styles = {
+        gtfs: {
+            weight: 1,
+            fillOpacity: 0.5,
+            color: 'green'
+        },
+        netex: {
+            weight: 1,
+            color: 'red',
+            fillOpacity: 0.3
+        },
+        both: {
+            weight: 1,
+            color: 'orange',
+            fillOpacity: 0.5
+        },
+        unavailable: {
+            weight: 1,
+            fillOpacity: 0.0,
+            color: 'grey'
+        }
+    }
+
+    const style = feature => {
+        const gtfs = feature.properties.dataset_formats.gtfs
+        const hasGTFS = gtfs !== undefined
+        const netex = feature.properties.dataset_formats.netex
+        const hasNeTex = netex !== undefined
+
+        if (hasGTFS && hasNeTex) {
+            return styles.both
+        }
+        if (hasNeTex) {
+            return styles.netex
+        }
+        if (hasGTFS) {
+            return styles.gtfs
+        }
+    }
+
+    const filter = feature => {
+        const formats = feature.properties.dataset_formats
+        return formats.gtfs !== undefined || formats.netex !== undefined
+    }
+
+    displayAoms(map,
+        (feature, layer) => {
+            const name = feature.properties.nom
+            const commune = feature.properties.id
+
+            const bind = `<a href="/datasets/aom/${commune}">${name}<br/></a>`
+            layer.bindPopup(bind)
+        },
+        style,
+        filter
+    )
+
+    addLegend(map,
+        '<h4>Format de données</h4>',
+        ['green', 'red', 'orange'],
+        ['GTFS', 'NeTEx', 'GTFS & NeTEx']
+    )
+
+    return map
+}
+
+/**
+ * Initialises a map with the bss covergae.
+ * @param  {String} id Dom element id, where the map is to be bound.
+ * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
+ */
+function addBssMap (id) {
+    const map = makeMapOnFrance(id)
+
+    function onEachAomFeature (feature, layer) {
+        const name = feature.properties.nom
+        const commune = feature.properties.id
+
+        const bind = `<a href="/datasets/aom/${commune}">${name}<br/></a>`
+        layer.bindPopup(bind)
+    }
+
+    const style = feature => {
+        return {
+            weight: 1,
+            color: 'green',
+            fillOpacity: 0.5
+        }
+    }
+
+    const filter = feature => {
+        const types = feature.properties.dataset_types
+        return types.bike_sharing !== undefined
+    }
+
+    displayAoms(map, onEachAomFeature, style, filter)
+    addLegend(map,
+        '<h4>Disponibilité des données de vélos en libre service</h4>',
+        ['green'],
+        ['Données disponibles']
+    )
+
+    return map
+}
+
+addStaticPTMap('map')
+
+addPtFormatMap('pt_format_map')
+
+addRealTimePTMap('rt_map')
+
+addBssMap('bss_map')

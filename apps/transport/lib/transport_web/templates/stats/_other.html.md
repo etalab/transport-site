@@ -10,10 +10,6 @@ Depuis septembre 2018, les données sont consolidées de manière automatique pa
 
 Les fichiers sources doivent être au format csv et respecter le format défini par [l’arrêté du 12 janvier 2017](https://www.legifrance.gouv.fr/affichTexte.do?cidTexte=JORFTEXT000033860733&categorieLien=id) pour apparaitre dans la version consolidée, notamment sur les colonnes id_pdc et date_maj qui servent de pivot. Plus d'informations sur le format attendu sont disponibles [ici](https://www.data.gouv.fr/fr/datasets/fichier-exemple-stations-de-recharge-de-vehicules-electriques/).
 
-## Vélos en libre service
-
-Une réunion de lancement a eu lieu le 16 octobre 2018. Le compte-rendu est disponible [ici](<%= @cr_vls %>).
-
 ## Données routières
 
 Elles seront abordées courant 2019.

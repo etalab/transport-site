@@ -4,8 +4,8 @@ defmodule TransportWeb.API.StatsController do
   import Ecto.Query
   alias Geo.JSON
   alias OpenApiSpex.Operation
-  alias TransportWeb.API.Schemas.GeoJSONResponse
   alias Transport.CSVDocuments
+  alias TransportWeb.API.Schemas.GeoJSONResponse
 
   @spec open_api_operation(any) :: Operation.t
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
@@ -68,17 +68,30 @@ defmodule TransportWeb.API.StatsController do
         "forme_juridique" => Map.get(aom, :forme_juridique, ""),
         "parent_dataset_slug" => Map.get(aom, :parent_dataset_slug, ""),
         "parent_dataset_name" => Map.get(aom, :parent_dataset_name, ""),
-        "different_formats" => Map.get(aom, :different_formats, [])
-        |> Enum.filter(fn {_, v} -> v != nil end)
-        |> Enum.into(%{})
-        |> Map.put("non_standard_rt", nb_non_standard_rt(Map.get(aom, :insee_commune_principale)))
-
+        "dataset_formats" => aom
+            |> Map.get(:dataset_formats, [])
+            |> Enum.filter(fn {_, v} -> v != nil end)
+            |> Enum.into(%{})
+            |> Map.put("non_standard_rt", nb_non_standard_rt(Map.get(aom, :insee_commune_principale))),
+        "dataset_types" => aom
+            |> Map.get(:dataset_types, [])
+            |> Enum.filter(fn {_, v} -> v != nil end)
+            |> Enum.into(%{})
       }
     } end)
     |> Enum.to_list
   end
 
+  defmacro count_format(aom, format) do
+    quote do
+      fragment("SELECT COUNT(format) FROM resource \
+      WHERE dataset_id in \
+      (SELECT id FROM dataset WHERE aom_id=?) \
+      AND format = ? GROUP BY format", unquote(aom), unquote(format))
+    end
+  end
   def index(%Plug.Conn{} = conn, _params) do
+
     render(conn,
       %{
         data: geojson(features(
@@ -90,17 +103,18 @@ defmodule TransportWeb.API.StatsController do
               id: a.id,
               insee_commune_principale: a.insee_commune_principale,
               nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=?", a.id),
-              # different_formats: from(r in Region, select: %{
-              #   id: r.id
-              # } ),
-              different_formats: %{
-                gtfs: fragment("SELECT COUNT(format) FROM resource WHERE dataset_id in (SELECT id FROM dataset WHERE aom_id=?) AND format = 'GTFS' GROUP BY format", a.id),
-                netex: fragment("SELECT COUNT(format) FROM resource WHERE dataset_id in (SELECT id FROM dataset WHERE aom_id=?) AND format = 'netex' GROUP BY format", a.id),
-                gtfs_rt: fragment("SELECT COUNT(format) FROM resource WHERE dataset_id in (SELECT id FROM dataset WHERE aom_id=?) AND format = 'gtfs-rt' GROUP BY format", a.id),
+              dataset_formats: %{
+                gtfs: count_format(a.id, "GTFS"),
+                netex: count_format(a.id, "netex"),
+                gtfs_rt: count_format(a.id, "gtfs-rt"),
+                gbfs: count_format(a.id, "gbfs"),
               },
-              # different_formats: fragment("SELECT format, COUNT(format) FROM resource WHERE dataset_id in (SELECT id FROM dataset WHERE aom_id=?) GROUP BY format", a.id),
               nom: a.nom,
               forme_juridique: a.forme_juridique,
+              dataset_types: %{
+                pt: fragment("SELECT COUNT(type) FROM dataset WHERE aom_id=? AND type = 'public-transit' GROUP BY type", a.id),
+                bike_sharing: fragment("SELECT COUNT(type) FROM dataset WHERE aom_id=? AND type = 'bike-sharing' GROUP BY type", a.id),
+              },
               parent_dataset_slug: d.slug,
               parent_dataset_name: d.title
             }
