@@ -210,3 +210,7 @@ msgstr "Je souhaite être tenu·e au courant"
 #, elixir-format
 msgid "Close the menu"
 msgstr "Fermer le formulaire"
+
+#, elixir-format
+msgid "Search data for a region, a city, a network…"
+msgstr "Cherchez les données d’une région, d’une ville, d’un réseau…"

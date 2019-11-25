@@ -202,10 +202,6 @@ msgid "All types"
 msgstr ""
 
 #, elixir-format
-msgid "Has realtime"
-msgstr ""
-
-#, elixir-format
 msgid "Search results"
 msgstr ""
 
@@ -231,4 +227,12 @@ msgstr ""
 
 #, elixir-format
 msgid "Intercities public transport"
+msgstr ""
+
+#, elixir-format
+msgid "Available datasets"
+msgstr "Jeux de données disponibles"
+
+#, elixir-format
+msgid "Realtime timetables"
 msgstr ""

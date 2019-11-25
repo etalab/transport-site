@@ -69,7 +69,7 @@ msgstr ""
 msgid "Select this dataset"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid " with a URL"
 msgstr ""
 
@@ -81,7 +81,7 @@ msgstr ""
 msgid "Current file: %{current_file}"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Upload a file"
 msgstr ""
 
