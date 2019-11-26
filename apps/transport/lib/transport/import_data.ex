@@ -187,9 +187,7 @@ defmodule Transport.ImportData do
     cond do
       is_gtfs_rt?(params["format"]) -> false
       is_gtfs?(params["format"]) -> true
-      is_format?(url, "json") -> false
-      is_format?(url, "csv") -> false
-      is_format?(url, "shp") -> false
+      is_format?(url, ["json", "csv", "shp", "pdf"]) -> false
       is_gtfs?(params["description"]) -> true
       is_gtfs?(params["title"]) -> true
       true -> false
@@ -199,8 +197,20 @@ defmodule Transport.ImportData do
 
   def is_gtfs_rt?(str), do: is_format?(str, "gtfs-rt") or is_format?(str, "gtfsrt")
 
+  @doc """
+  check the format
+      iex> ImportData.is_format?("netex", ["GTFS", "netex"])
+      true
+
+      iex> ImportData.is_format?("pouet", ["GTFS", "netex"])
+      false
+
+      iex> ImportData.is_format?(%{"format" => "netex"}, "netex")
+      true
+  """
   def is_format?(nil, _), do: false
   def is_format?(%{"format" => format}, expected), do: is_format?(format, expected)
+  def is_format?(value, [head | tail]), do: is_format?(value, head) || is_format?(value, tail)
   def is_format?(str, expected), do: str |> String.downcase |> String.contains?(expected)
 
   @doc """
