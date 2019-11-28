@@ -1,0 +1,48 @@
+<h2>Autorités organisatrices de mobilité</h2>
+
+<table class="table">
+<tr>
+  <th>Nom</th>
+  <th>Département</th>
+  <th>Région</th>
+  <th>Publié en propre</th>
+  <th>Publié dans un aggrégat</th>
+  <th>À jour</th>
+  <th>Population</th>
+  <th>Code insee commune principale</th>
+  <th>Nombre de communes</th>
+  <th>Temps réel</th>
+</tr>
+<%= for aom <- @aoms do %>
+<tr>
+  <td><%= aom.nom %></td>
+  <td><%= aom.departement %></td>
+  <td><%= aom.region %></td>
+  <td><%= format_count aom.self_published %></td>
+  <td><%= format_bool aom.in_aggregate %></td>
+  <td><%= format_bool aom.up_to_date %></td>
+  <td><%= aom.population_muni_2014 %></td>
+  <td><%= aom.insee_commune_principale %></td>
+  <td><%= aom.nombre_communes %></td>
+  <td><%= format_bool aom.has_realtime %><td>
+</tr>
+<%= end %>
+
+</table>
+<script>
+const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
+
+const comparer = (idx, asc) => (a, b) => ((v1, v2) =>
+    v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+    )(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+
+// do the work...
+document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
+    const table = th.closest('table');
+    const header_index = Array.from(th.parentNode.children).indexOf(th);
+
+    Array.from(table.querySelectorAll('tr:nth-child(n+2)'))
+        .sort(comparer(header_index, this.asc = !this.asc))
+        .forEach(tr => table.appendChild(tr) );
+})));
+</script>
