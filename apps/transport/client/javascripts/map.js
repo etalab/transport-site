@@ -191,9 +191,13 @@ function addRealTimePTMap (id) {
     function onEachAomFeature (feature, layer) {
         const name = feature.properties.nom
         const type = feature.properties.forme_juridique
+        const format = feature.properties.dataset_formats
+        const gtfsRT = (format.gtfs_rt !== undefined ? format.gtfs_rt : 0)
+        const siri = (format.siri !== undefined ? format.siri : 0)
+        const siriLite = (format.siri_lite !== undefined ? format.siri_lite : 0)
+        const countOfficial = gtfsRT + siri + siriLite
 
-        let countOfficial = feature.properties.dataset_formats.gtfsRT
-        let countNonStandardRT = feature.properties.dataset_formats.non_standard_rt
+        let countNonStandardRT = format.non_standard_rt
         if (countOfficial === undefined && countNonStandardRT === 0) {
             return null
         }
@@ -231,9 +235,11 @@ function addRealTimePTMap (id) {
     }
 
     const style = feature => {
-        const gtfsRT = feature.properties.dataset_formats.gtfsRT
-        const hasStdRT = gtfsRT !== undefined && gtfsRT !== 0
-        const hasNonStdRT = feature.properties.dataset_formats.non_standard_rt += 0
+        const format = feature.properties.dataset_formats
+        const hasStdRT = format.gtfs_rt !== undefined ||
+            format.siri !== undefined ||
+            format.siri_lite !== undefined
+        const hasNonStdRT = format.non_standard_rt += 0
 
         if (hasStdRT && !hasNonStdRT) {
             return styles.stdRT
@@ -246,7 +252,10 @@ function addRealTimePTMap (id) {
 
     const filter = feature => {
         const formats = feature.properties.dataset_formats
-        return formats.gtfsRT !== undefined || formats.non_standard_rt !== 0
+        return formats.gtfs_rt !== undefined ||
+            formats.non_standard_rt !== 0 ||
+            formats.siri !== undefined ||
+            formats.siri_lite !== undefined
     }
 
     displayAoms(map, onEachAomFeature, style, filter)
