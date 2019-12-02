@@ -5,7 +5,7 @@ defmodule TransportWeb.ValidationController do
   @client HTTPoison
   @res HTTPoison.Response
   @err HTTPoison.Error
-  @timeout 60_000
+  @timeout 180_000
 
   defp endpoint, do: Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
 
