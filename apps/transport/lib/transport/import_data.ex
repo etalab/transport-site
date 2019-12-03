@@ -234,7 +234,17 @@ defmodule Transport.ImportData do
   def is_zip?(%{"mime" => mime, "format" => format}), do: is_zip?(mime) || is_zip?(format)
   def is_zip?(str), do: is_format?(str, "zip")
 
-  def is_netex?(r), do: is_format?(r, "netex")
+  def is_netex?(%{} = params) do
+    cond do
+      is_format?(params["format"], "netex") -> true
+      is_format?(params["description"], "netex") -> true
+      true -> false
+    end
+  end
+
+  def is_netex?(s) do
+    is_format?(s, "netex")
+  end
 
   @doc """
   Check for licence, returns ["bad_license"] if the licence is not "odc-odbl"
