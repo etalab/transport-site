@@ -32,6 +32,14 @@ defmodule TransportWeb.SessionController do
     end
   end
 
+  def create(conn, %{"error" => error, "error_description" => description}) do
+    Logger.error("error while creating the session: #{error} - #{description}")
+    conn
+    |> put_flash(:error, dgettext("alert", "An error occured, please try again"))
+    |> redirect(to: session_path(conn, :new))
+    |> halt()
+  end
+
   def delete(conn, _) do
     conn
     |> configure_session(drop: true)
