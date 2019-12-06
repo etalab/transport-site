@@ -26,7 +26,7 @@
   <td><%= aom.nombre_communes %></td>
   <td><%= format_bool aom.has_realtime %><td>
 </tr>
-<%= end %>
+<% end %>
 
 </table>
 <script>
