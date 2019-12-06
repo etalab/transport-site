@@ -68,3 +68,7 @@ msgstr ""
 #, elixir-format
 msgid "About"
 msgstr ""
+
+#, elixir-format
+msgid "Blog"
+msgstr ""
