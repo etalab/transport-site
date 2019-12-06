@@ -15,7 +15,7 @@ defmodule TransportWeb.StatsController do
     )
     aoms_with_datasets = aoms |> Enum.filter(&(&1.nb_datasets > 0 || !is_nil(&1.parent_dataset_id)))
 
-    regions = Repo.all(from r in Region)
+    regions = Repo.all(from r in Region, where: r.nom != "National")
 
     render(conn, "index.html",
       nb_datasets: Repo.aggregate(Dataset, :count, :id),
