@@ -68,3 +68,7 @@ msgstr "Jeux de données temps réel"
 #, elixir-format
 msgid "About"
 msgstr "À propos"
+
+#, elixir-format
+msgid "Blog"
+msgstr "Blog"
