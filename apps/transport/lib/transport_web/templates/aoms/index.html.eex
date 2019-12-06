@@ -5,7 +5,7 @@
   <th>Nom</th>
   <th>Département</th>
   <th>Région</th>
-  <th>Publié en propre</th>
+  <th>Publié</th>
   <th>Publié dans un aggrégat</th>
   <th>À jour</th>
   <th>Population</th>
@@ -18,7 +18,7 @@
   <td><%= aom.nom %></td>
   <td><%= aom.departement %></td>
   <td><%= aom.region %></td>
-  <td><%= format_count aom.self_published %></td>
+  <td><%= format_bool aom.published %></td>
   <td><%= format_bool aom.in_aggregate %></td>
   <td><%= format_bool aom.up_to_date %></td>
   <td><%= aom.population_muni_2014 %></td>

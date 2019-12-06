@@ -19,7 +19,7 @@ defmodule TransportWeb.AOMSController do
       nom: aom.nom,
       departement: aom.departement,
       region: (if aom.region, do: aom.region.nom, else: ""),
-      self_published: nb_self_published(aom),
+      published: self_published(aom) || !is_nil(aom.parent_dataset),
       in_aggregate: !is_nil(aom.parent_dataset),
       up_to_date: Enum.any?(aom.datasets, &valid_dataset?/1),
       population_muni_2014: aom.population_muni_2014,
@@ -29,10 +29,10 @@ defmodule TransportWeb.AOMSController do
     }
   end
 
-  defp nb_self_published(aom) do
-    aom.datasets
+  defp self_published(aom) do
+    !(aom.datasets
     |> Enum.filter(fn d -> d.type == "public-transit" end)
-    |> Enum.count
+    |> Enum.empty?)
   end
 
   defp valid_dataset?(dataset), do: Enum.any?(dataset.resources, fn r -> !Resource.is_outdated?(r) end)
