@@ -139,6 +139,17 @@
         <% end %>
       </div>
     </div>
+
+    <div class="container">
+      <p>
+        <i class="fas fa-cogs"></i>
+          <%= dgettext("page-dataset-details", "Get details about this dataset via an %{start_link}API call%{end_link}",
+          start_link: "<a href=\"/api/datasets/#{@dataset.datagouv_id}\">",
+          end_link: "</a>") |> raw()
+          %>
+      </p>
+    </div>
+
   </section>
   <% end %>
 
