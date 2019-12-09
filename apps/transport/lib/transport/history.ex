@@ -44,20 +44,20 @@ defmodule Transport.History do
   defp needs_to_be_updated(resource) do
     backuped_resources = get_already_backuped_resources(resource)
 
-    max_last_modified =
-      backuped_resources
-      |> Enum.map(fn r ->
-        {r.updated_at, r.content_hash}
-      end)
-      |> Enum.max_by(fn {date, _hash} -> date end, fn -> nil end)
+    if Enum.empty?(backuped_resources) do
+      true
+    else
+      already_there = Enum.find(backuped_resources, fn r -> r.content_hash == resource.content_hash end)
 
-    case max_last_modified do
-      nil ->
-        true
-
-      {max_last_modified, content_hash} ->
-        modification_date = modification_date(resource)
-        max_last_modified < modification_date && content_hash != resource.content_hash
+      if already_there != nil do
+        false
+      else
+        max_last_modified =
+          backuped_resources
+          |> Enum.map(fn r -> r.updated_at end)
+          |> Enum.max()
+        max_last_modified < modification_date(resource)
+        end
     end
   end
 
@@ -79,6 +79,7 @@ defmodule Transport.History do
         content_hash: metadata["content-hash"],
       }
     end)
+    |> Enum.to_list()
   end
 
   defp resource_title(resource) do
