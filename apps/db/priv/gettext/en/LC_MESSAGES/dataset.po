@@ -36,15 +36,7 @@ msgid "Micro mobility"
 msgstr ""
 
 #, elixir-format
-msgid "Public transit"
-msgstr ""
-
-#, elixir-format
 msgid "Stops referential"
-msgstr ""
-
-#, elixir-format
-msgid "Train"
 msgstr ""
 
 #, elixir-format
@@ -73,4 +65,16 @@ msgstr "Other open"
 
 #, elixir-format
 msgid "See on data.gouv.fr"
+msgstr ""
+
+#, elixir-format, fuzzy
+msgid "Public transit timetable"
+msgstr ""
+
+#, elixir-format
+msgid "Train timetable"
+msgstr ""
+
+#, elixir-format
+msgid "Road networks"
 msgstr ""

@@ -55,6 +55,11 @@
                     <h3 class="text-center"><%= dgettext("page-index", "Railroad data") %></h3>
                     <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["train"]) %></p>
                 </a>
+                <a class="tile" href="<%= dataset_path(@conn, :index, type: "road-network") %>">
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/map.svg") %>" alt="" />
+                    <h3 class="text-center"><%= dgettext("page-index", "Road networks") %></h3>
+                    <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["road-network"]) %></p>
+                </a>
             </div>
         </div>
         <div class="upcoming">
@@ -71,10 +76,6 @@
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/scooter-grey.svg") %>" alt="" />
                     <h3 class="text-center"><%= dgettext("page-index", "Freefloating vehicles") %></h3>
-                </div>
-                <div class="tile">
-                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/map-grey.svg") %>" alt="" />
-                    <h3 class="text-center"><%= dgettext("page-index", "Road networks") %></h3>
                 </div>
                 <div class="tile">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/boat-grey.svg") %>" alt="" />
