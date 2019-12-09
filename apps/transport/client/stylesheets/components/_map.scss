@@ -1,3 +1,11 @@
+.deployment .hero__container {
+  min-height: 15em;
+}
+
+.deployment h2 {
+  margin-top: 3em;
+}
+
 .map {
   min-height: 40em;
   width: 50%;
@@ -26,9 +34,13 @@
 }
 
 .stats {
+  .domain + .domain {
+    margin-top: 5em;
+  }
+
   .domain-stats {
     display: flex;
-    flex-wrap: wrap;
+    width: 100%;
   }
 
   .domain-stats>* {
@@ -36,24 +48,139 @@
   }
 
   .panel {
-    display: grid;
-    grid-template-rows: repeat(auto-fill, 120px);
-    grid-gap: 1em;
-    grid-template-columns: repeat(auto-fill, minmax(200px, auto));
-    width: 50%;
+    border: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 0;
+    background-color: transparent;
+    padding-top: 0;
+    padding-bottom: 0;
+    justify-content: space-between;
   }
 
-  .tile {
-    background-color: $lighter-grey;
+  .description {
     padding: 2em;
+    background-color: $white;
+    flex-grow: 1;
 
-    h3 {
-      font-size: 3em;
+    p {
       margin: 0;
     }
   }
-}
 
-.deployment h2 {
-  margin-top: 3em;
+  .tile {
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    flex-grow: 1;
+
+    &:hover {
+      transform: none;
+    }
+
+    h3 {
+      font-size: 2.5em;
+      margin: 0;
+    }
+
+    div {
+      margin-left: 0.75em;
+    }
+  }
+
+  .tile-numbers {
+    display: flex;
+    flex-direction: row;
+    margin-top: 1em;
+    background-color: $white;
+    flex-wrap: wrap;
+
+    .tile {
+      width: 50%;
+    }
+  }
+
+  .free-floating {
+    .tile-numbers {
+      width: 100%;
+    }
+
+    .tile {
+      justify-content: center;
+    }
+  }
+
+  .general .tile {
+    justify-content: center
+  }
+
+  .general .tile + .tile {
+    margin-left: 1em;
+  }
+
+  .theorical .panel {
+
+    .tile {
+      padding: 1em 2em;
+    }
+
+    .tile + .tile {
+      margin-top: 1em;
+    }
+  }
+
+  .format-viz {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 2em;
+    padding-top: 0;
+    margin: 0 auto;
+
+    .item {
+      height: 1.5em;
+      background-color: $blue;
+      flex-grow: 1;
+
+      &.netex {
+        background-color: $grey;
+      }
+    }
+  }
+
+  .rt-viz {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(1em, 1fr));
+    grid-gap: 0.5em;
+    padding: 2em;
+    padding-top: 0;
+    margin: 0 auto;
+    width: 100%;
+
+    .item {
+      height: 1.25em;
+      width: 1.25em;
+      background-color: $blue;
+
+      &.non-standard {
+        background-color: $grey;
+      }
+    }
+  }
+
+  .tile.bike-list {
+    flex-grow: 0;
+    flex-shrink: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(2em, 1fr));
+    grid-template-rows: auto;
+    grid-gap: 0;
+  }
+
+  .bike-list .tile__icon {
+    margin: auto;
+    width: 2em;
+    height: 2em;
+  }
 }
