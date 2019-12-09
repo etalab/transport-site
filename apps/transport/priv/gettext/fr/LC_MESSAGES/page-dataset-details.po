@@ -278,3 +278,7 @@ msgstr "Période de validité"
 #, elixir-format
 msgid "File"
 msgstr "Fichier"
+
+#, elixir-format
+msgid "Get details about this dataset via an %{start_link}API call%{end_link}"
+msgstr "Récupérer des détails sur ce jeu de données via un %{start_link}appel à l'API%{end_link}"
