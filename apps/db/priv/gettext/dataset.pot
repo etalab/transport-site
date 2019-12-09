@@ -73,3 +73,7 @@ msgstr ""
 #, elixir-format
 msgid "Train timetable"
 msgstr ""
+
+#, elixir-format
+msgid "Road networks"
+msgstr ""
