@@ -36,16 +36,8 @@ msgid "Micro mobility"
 msgstr "Micro mobilité"
 
 #, elixir-format
-msgid "Public transit timetable"
-msgstr "Horaires théoriques de transport public"
-
-#, elixir-format
 msgid "Stops referential"
 msgstr "Référentiel d'arrêts"
-
-#, elixir-format
-msgid "Train timetables"
-msgstr "Horaires ferroviaire"
 
 #, elixir-format
 msgid "Unable to find INSEE code"
@@ -74,3 +66,15 @@ msgstr "Autre ouverte"
 #, elixir-format
 msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
+
+#, elixir-format
+msgid "Public transit timetable"
+msgstr "Horaires théoriques de transport public"
+
+#, elixir-format, fuzzy
+msgid "Train timetable"
+msgstr "Horaires ferroviaire"
+
+#, elixir-format
+msgid "Road networks"
+msgstr "Réseaux routiers"

@@ -49,6 +49,7 @@ defmodule DB.Dataset do
     "air-transport" => dgettext("dataset", "Aerial"),
     "train" => dgettext("dataset", "Train timetable"),
     "bike-sharing" => dgettext("dataset", "Bike sharing"),
+    "road-network" => dgettext("dataset", "Road networks"),
     "long-distance-coach" => dgettext("dataset", "Long distance coach")
   }
 
