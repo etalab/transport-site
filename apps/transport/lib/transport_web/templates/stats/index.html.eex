@@ -1,28 +1,27 @@
 
 <div class="hero deployment">
   <div class="hero__container">
-    <h1>État du déploiement</h1>
+    <h1>Quelles données sont disponibles sur la plateforme ?</h1>
   </div>
 </div>
 <section class="section section-grey stats">
   <div class="container">
     <div class="domain">
-      <h2>Général</h2>
+      <h2>Etat de l'ouverture des données en France</h2>
       <p>Ce site est le Point d’Accès National aux données de transport (PAN).</p>
       <p>
-      Voici l'état d'avancement du référencement des données de transport en France.</p>
+        Retrouvez l'état de l'ouverture des données de transport (nombre de jeux de données ouverts et carte des territoires à avoir référencé des données en open data),
+        par mode de transport, et par la nature des données mises à disposition (statiques ou dynamiques, et par format).
+        Les informations transmises par ces cartes sont mises à jour en temps réel, en fonction des données référencées sur la plateforme transport.data.gouv.fr.
+      </p>
       <div class="domain-stats general">
-        <div class="tile">
-          <h3><%= @nb_dataset_types %></h3>
-          <div>Types de jeux de données</div>
-        </div>
         <div class="tile">
           <h3><%= @nb_datasets %></h3>
           <div>Jeux de données ouverts</div>
         </div>
         <div class="tile">
           <h3><%= @nb_reusers %></h3>
-          <div>Réutilisateurs</div>
+          <div>Réutilisateurs déclarés</div>
         </div>
       </div>
     </div>
