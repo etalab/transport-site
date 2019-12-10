@@ -289,7 +289,7 @@ function addPtFormatMap (id) {
         },
         netex: {
             weight: 1,
-            color: 'red',
+            color: 'blue',
             fillOpacity: 0.3
         },
         both: {
@@ -340,7 +340,7 @@ function addPtFormatMap (id) {
 
     addLegend(map,
         '<h4>Format de données</h4>',
-        ['green', 'red', 'orange'],
+        ['green', 'blue', 'orange'],
         ['GTFS', 'NeTEx', 'GTFS & NeTEx']
     )
 
