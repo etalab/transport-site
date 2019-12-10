@@ -114,28 +114,6 @@
         </div>
       </div>
     </div>
-    <div class="domain free-floating">
-      <h2>Vélos en libre service</h2>
-      <div class="domain-stats">
-        <div id="bss_map" class="map"></div>
-        <div class="panel">
-          <div class="description">
-            <p>Ecrire un paragraphe sur les jeux de données en libre service.</p>
-          </div>
-          <div class="tile-numbers">
-            <div class="tile">
-              <h3><%= @nb_bss_datasets %></h3>
-              <div>Jeux de données</div>
-            </div>
-            <div class="tile bike-list">
-              <%= for i <- 1..@nb_bss_datasets do %>
-                <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle.svg") %>" alt="" />
-              <% end %>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
     <div class="domain carpooling">
       <h2>Lieux de covoiturage</h2>
       <p><a href="http://localhost:5000/datasets/base-nationale-consolidee-des-lieux-de-covoiturage/">Un fichier national</a> décrivant les lieux de covoiturage de 78 départements a été consolidé par le point d'accès national aprés un travail initial de BlaBlaCar.</p>
