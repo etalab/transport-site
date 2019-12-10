@@ -263,7 +263,11 @@ function addRealTimePTMap (id) {
     addLegend(map,
         '<h4>Disponibilité des horaires temps réel</h4>',
         ['green', 'red', 'orange'],
-        ['Données disponibles', 'Données disponibles non standard ou non ouvertes', 'Données mixtes']
+        [
+            'Données disponibles sur transport.data.gouv.fr',
+            'Données existantes',
+            'Certaines données disponibles'
+        ]
     )
 
     return map
