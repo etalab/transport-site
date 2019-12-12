@@ -16,11 +16,10 @@ const regionsUrl = '/api/stats/regions'
 const aomsUrl = '/api/stats/'
 
 const makeMapOnView = (id, view) => {
-    const map_params = {
+    const map = Leaflet.map(id, {
         attributionControl: view.display_legend,
-        zoomControl: view.display_legend,
-    }
-    const map = Leaflet.map(id, map_params).setView(view.center, view.zoom)
+        zoomControl: view.display_legend
+    }).setView(view.center, view.zoom)
 
     map.createPane('aoms')
     map.getPane('aoms').style.zIndex = 650
@@ -176,7 +175,7 @@ function addStaticPTMap (id, view) {
     displayRegions(map, onEachRegionFeature, styleRegion)
     displayAoms(map, onEachAomFeature, style)
 
-    if(view.display_legend) {
+    if (view.display_legend) {
         addLegend(map,
             '<h4>Disponibilité des horaires théoriques</h4>',
             ['green', 'orange', 'grey'],
@@ -265,7 +264,7 @@ function addRealTimePTMap (id, view) {
 
     displayAoms(map, onEachAomFeature, style, filter)
 
-    if(view.display_legend) {
+    if (view.display_legend) {
         addLegend(map,
             '<h4>Disponibilité des horaires temps réel</h4>',
             ['green', 'red', 'orange'],
@@ -343,51 +342,11 @@ function addPtFormatMap (id, view) {
         filter
     )
 
-    if(view.display_legend) {
+    if (view.display_legend) {
         addLegend(map,
             '<h4>Format de données</h4>',
             ['green', 'blue', 'orange'],
             ['GTFS', 'NeTEx', 'GTFS & NeTEx']
-        )
-    }
-}
-
-/**
- * Initialises a map with the bss covergae.
- * @param  {String} id Dom element id, where the map is to be bound.
- * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
- */
-function addBssMap (id, view) {
-    const map = makeMapOnView(id, view)
-
-    function onEachAomFeature (feature, layer) {
-        const name = feature.properties.nom
-        const commune = feature.properties.id
-
-        const bind = `<a href="/datasets/aom/${commune}">${name}<br/></a>`
-        layer.bindPopup(bind)
-    }
-
-    const style = feature => {
-        return {
-            weight: 1,
-            color: 'green',
-            fillOpacity: 0.5
-        }
-    }
-
-    const filter = feature => {
-        const types = feature.properties.dataset_types
-        return types.bike_sharing !== undefined
-    }
-
-    displayAoms(map, onEachAomFeature, style, filter)
-
-    if(view.display_legend) {
-        addLegend(map,
-            '<h4>Disponibilité des données de vélos en libre service</h4>',
-            ['green'],
-            ['Données disponibles']
         )
     }
 }
@@ -408,19 +367,18 @@ const droms = {
     metropole: {
         center: [44.670, 2.087],
         zoom: 5,
-        display_legend: true,
+        display_legend: true
     },
     reunion: {
         center: [-21.0883, 55.5155],
         zoom: 8
-    },
+    }
 }
 addStaticPTMap('map', droms.metropole)
 addStaticPTMap('map_reunion', droms.reunion)
 addStaticPTMap('map_mayotte', droms.mayotte)
 addStaticPTMap('map_guyane', droms.guyane)
 addStaticPTMap('map_antilles', droms.antilles)
-
 
 addPtFormatMap('pt_format_map', droms.metropole)
 addPtFormatMap('pt_format_map_reunion', droms.reunion)
@@ -433,5 +391,3 @@ addRealTimePTMap('rt_map_reunion', droms.reunion)
 addRealTimePTMap('rt_map_mayotte', droms.mayotte)
 addRealTimePTMap('rt_map_guyane', droms.guyane)
 addRealTimePTMap('rt_map_antilles', droms.antilles)
-
-//addBssMap('bss_map')
