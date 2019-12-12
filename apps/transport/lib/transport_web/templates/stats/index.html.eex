@@ -28,6 +28,12 @@
     <div class="domain theorical">
       <h2>Transports en commun - horaires théoriques</h2>
       <div class="domain-stats">
+        <div class="drom_maps">
+          <div id="map_reunion" class="drom_map"></div>
+          <div id="map_antilles" class="drom_map"></div>
+          <div id="map_guyane" class="drom_map"></div>
+          <div id="map_mayotte" class="drom_map"></div>
+        </div>
         <div id="map" class="map"></div>
         <div class="panel">
           <div class="tile">
@@ -53,6 +59,12 @@
     </div>
     <div class="domain">
       <div class="domain-stats">
+        <div class="drom_maps">
+          <div id="pt_format_map_reunion" class="drom_map"></div>
+          <div id="pt_format_map_antilles" class="drom_map"></div>
+          <div id="pt_format_map_guyane" class="drom_map"></div>
+          <div id="pt_format_map_mayotte" class="drom_map"></div>
+        </div>
         <div id="pt_format_map" class="map"></div>
         <div class="panel">
           <div class="description">
@@ -84,6 +96,12 @@
     <div class="domain rt">
       <h2>Transports en commun - temps réel</h2>
       <div class="domain-stats">
+        <div class="drom_maps">
+          <div id="rt_map_reunion" class="drom_map"></div>
+          <div id="rt_map_antilles" class="drom_map"></div>
+          <div id="rt_map_guyane" class="drom_map"></div>
+          <div id="rt_map_mayotte" class="drom_map"></div>
+        </div>
         <div id="rt_map" class="map"></div>
         <div class="panel">
           <div class="description">
