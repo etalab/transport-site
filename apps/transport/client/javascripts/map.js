@@ -15,8 +15,13 @@ const Mapbox = {
 const regionsUrl = '/api/stats/regions'
 const aomsUrl = '/api/stats/'
 
-const makeMapOnFrance = (id) => {
-    const map = Leaflet.map(id).setView([46.370, 2.087], 5)
+const makeMapOnView = (id, view) => {
+    const map_params = {
+        attributionControl: view.display_legend,
+        zoomControl: view.display_legend,
+    }
+    const map = Leaflet.map(id, map_params).setView(view.center, view.zoom)
+
     map.createPane('aoms')
     map.getPane('aoms').style.zIndex = 650
 
@@ -87,8 +92,8 @@ function displayRegions (map, featureFunction, style) {
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
-function addStaticPTMap (id) {
-    const map = makeMapOnFrance(id)
+function addStaticPTMap (id, view) {
+    const map = makeMapOnView(id, view)
 
     function onEachAomFeature (feature, layer) {
         const name = feature.properties.nom
@@ -171,13 +176,13 @@ function addStaticPTMap (id) {
     displayRegions(map, onEachRegionFeature, styleRegion)
     displayAoms(map, onEachAomFeature, style)
 
-    addLegend(map,
-        '<h4>Disponibilité des horaires théoriques</h4>',
-        ['green', 'orange', 'grey'],
-        ['Données disponibles', 'Données partiellement disponibles', 'Aucune donnée disponible']
-    )
-
-    return map
+    if(view.display_legend) {
+        addLegend(map,
+            '<h4>Disponibilité des horaires théoriques</h4>',
+            ['green', 'orange', 'grey'],
+            ['Données disponibles', 'Données partiellement disponibles', 'Aucune donnée disponible']
+        )
+    }
 }
 
 /**
@@ -185,8 +190,8 @@ function addStaticPTMap (id) {
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
-function addRealTimePTMap (id) {
-    const map = makeMapOnFrance(id)
+function addRealTimePTMap (id, view) {
+    const map = makeMapOnView(id, view)
 
     function onEachAomFeature (feature, layer) {
         const name = feature.properties.nom
@@ -260,17 +265,17 @@ function addRealTimePTMap (id) {
 
     displayAoms(map, onEachAomFeature, style, filter)
 
-    addLegend(map,
-        '<h4>Disponibilité des horaires temps réel</h4>',
-        ['green', 'red', 'orange'],
-        [
-            'Données disponibles sur transport.data.gouv.fr',
-            'Données existantes',
-            'Certaines données disponibles'
-        ]
-    )
-
-    return map
+    if(view.display_legend) {
+        addLegend(map,
+            '<h4>Disponibilité des horaires temps réel</h4>',
+            ['green', 'red', 'orange'],
+            [
+                'Données disponibles sur transport.data.gouv.fr',
+                'Données existantes',
+                'Certaines données disponibles'
+            ]
+        )
+    }
 }
 
 /**
@@ -278,8 +283,8 @@ function addRealTimePTMap (id) {
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
-function addPtFormatMap (id) {
-    const map = makeMapOnFrance(id)
+function addPtFormatMap (id, view) {
+    const map = makeMapOnView(id, view)
 
     const styles = {
         gtfs: {
@@ -338,13 +343,13 @@ function addPtFormatMap (id) {
         filter
     )
 
-    addLegend(map,
-        '<h4>Format de données</h4>',
-        ['green', 'blue', 'orange'],
-        ['GTFS', 'NeTEx', 'GTFS & NeTEx']
-    )
-
-    return map
+    if(view.display_legend) {
+        addLegend(map,
+            '<h4>Format de données</h4>',
+            ['green', 'blue', 'orange'],
+            ['GTFS', 'NeTEx', 'GTFS & NeTEx']
+        )
+    }
 }
 
 /**
@@ -352,8 +357,8 @@ function addPtFormatMap (id) {
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
-function addBssMap (id) {
-    const map = makeMapOnFrance(id)
+function addBssMap (id, view) {
+    const map = makeMapOnView(id, view)
 
     function onEachAomFeature (feature, layer) {
         const name = feature.properties.nom
@@ -377,19 +382,56 @@ function addBssMap (id) {
     }
 
     displayAoms(map, onEachAomFeature, style, filter)
-    addLegend(map,
-        '<h4>Disponibilité des données de vélos en libre service</h4>',
-        ['green'],
-        ['Données disponibles']
-    )
 
-    return map
+    if(view.display_legend) {
+        addLegend(map,
+            '<h4>Disponibilité des données de vélos en libre service</h4>',
+            ['green'],
+            ['Données disponibles']
+        )
+    }
 }
 
-addStaticPTMap('map')
+const droms = {
+    antilles: {
+        center: [15.372, -61.3367],
+        zoom: 7
+    },
+    guyane: {
+        center: [3.830, -53.097],
+        zoom: 6
+    },
+    mayotte: {
+        center: [-12.8503, 45.1670],
+        zoom: 9
+    },
+    metropole: {
+        center: [44.670, 2.087],
+        zoom: 5,
+        display_legend: true,
+    },
+    reunion: {
+        center: [-21.0883, 55.5155],
+        zoom: 8
+    },
+}
+addStaticPTMap('map', droms.metropole)
+addStaticPTMap('map_reunion', droms.reunion)
+addStaticPTMap('map_mayotte', droms.mayotte)
+addStaticPTMap('map_guyane', droms.guyane)
+addStaticPTMap('map_antilles', droms.antilles)
 
-addPtFormatMap('pt_format_map')
 
-addRealTimePTMap('rt_map')
+addPtFormatMap('pt_format_map', droms.metropole)
+addPtFormatMap('pt_format_map_reunion', droms.reunion)
+addPtFormatMap('pt_format_map_mayotte', droms.mayotte)
+addPtFormatMap('pt_format_map_guyane', droms.guyane)
+addPtFormatMap('pt_format_map_antilles', droms.antilles)
 
-addBssMap('bss_map')
+addRealTimePTMap('rt_map', droms.metropole)
+addRealTimePTMap('rt_map_reunion', droms.reunion)
+addRealTimePTMap('rt_map_mayotte', droms.mayotte)
+addRealTimePTMap('rt_map_guyane', droms.guyane)
+addRealTimePTMap('rt_map_antilles', droms.antilles)
+
+//addBssMap('bss_map')

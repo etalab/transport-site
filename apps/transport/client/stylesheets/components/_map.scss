@@ -8,7 +8,7 @@
 
 .map {
   min-height: 40em;
-  width: 50%;
+  min-width: 35%;
 
   .info {
     padding: 6px 8px;
@@ -33,6 +33,16 @@
   }
 }
 
+.drom_maps {
+  display: flex;
+  flex-flow: column wrap;
+
+  .drom_map {
+    height: 50%;
+    width: 50%;
+  }
+}
+
 .stats {
   .domain + .domain {
     margin-top: 5em;
@@ -49,6 +59,7 @@
 
   .panel {
     border: 0;
+    min-width: 40%;
     display: flex;
     flex-direction: column;
     align-items: center;
