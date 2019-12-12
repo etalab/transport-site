@@ -15,13 +15,13 @@ defmodule DB.Resource do
 
   schema "resource" do
     field :is_active, :boolean
-    field :url, :string
+    field :url, :string # real url
     field :format, :string
     field :last_import, :string
     field :title, :string
     field :metadata, :map
     field :last_update, :string
-    field :latest_url, :string
+    field :latest_url, :string # stable data.gouv.fr url if exists, else (for ODS gtfs as csv) it's the real url
     field :is_available, :boolean, default: true
     field :content_hash, :string
 
