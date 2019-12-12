@@ -117,7 +117,9 @@ defmodule Transport.ImportData do
             "title" => get_title(resource),
             "last_import" => DateTime.utc_now |> DateTime.to_string,
             "last_update" => resource["last_modified"],
-            "latest_url" => resource["latest"],
+            # For ODS gtfs as csv we do not have a 'latest' field
+            # (the 'latest' field is the stable data.gouv.fr url)
+            "latest_url" => resource["latest"] || resource["url"],
             "id" => get_resource_id(resource),
             "is_available" => available?(resource)
           }
