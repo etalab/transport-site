@@ -70,10 +70,10 @@
               <div>jeux de données en NeTEx</div>
             </div>
             <div class="format-viz">
-              <%= for i <- 1..@nb_gtfs do %>
+              <%= for _i <- 1..@nb_gtfs do %>
                 <div class="item gtfs"></div>
               <% end %>
-              <%= for i <- 1..@nb_netex do %>
+              <%= for _i <- 1..@nb_netex do %>
                 <div class="item netex"></div>
               <% end %>
             </div>
@@ -103,10 +103,10 @@
               <div> <a href="/real_time">Jeux données non standardisés</a></div>
             </div>
             <div class="rt-viz">
-              <%= for i <- 1..@nb_officical_realtime do %>
+              <%= for _i <- 1..@nb_officical_realtime do %>
                 <div class="item standard"></div>
               <% end %>
-              <%= for i <- 1..@nb_unofficical_realtime do %>
+              <%= for _i <- 1..@nb_unofficical_realtime do %>
                 <div class="item non-standard"></div>
               <% end %>
             </div>
