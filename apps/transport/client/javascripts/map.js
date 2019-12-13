@@ -374,20 +374,9 @@ const droms = {
         zoom: 8
     }
 }
-addStaticPTMap('map', droms.metropole)
-addStaticPTMap('map_reunion', droms.reunion)
-addStaticPTMap('map_mayotte', droms.mayotte)
-addStaticPTMap('map_guyane', droms.guyane)
-addStaticPTMap('map_antilles', droms.antilles)
 
-addPtFormatMap('pt_format_map', droms.metropole)
-addPtFormatMap('pt_format_map_reunion', droms.reunion)
-addPtFormatMap('pt_format_map_mayotte', droms.mayotte)
-addPtFormatMap('pt_format_map_guyane', droms.guyane)
-addPtFormatMap('pt_format_map_antilles', droms.antilles)
-
-addRealTimePTMap('rt_map', droms.metropole)
-addRealTimePTMap('rt_map_reunion', droms.reunion)
-addRealTimePTMap('rt_map_mayotte', droms.mayotte)
-addRealTimePTMap('rt_map_guyane', droms.guyane)
-addRealTimePTMap('rt_map_antilles', droms.antilles)
+for (let [drom, view] of Object.entries(droms)) {
+    addStaticPTMap(`map_${drom}`, view)
+    addPtFormatMap(`pt_format_map_${drom}`, view)
+    addRealTimePTMap(`rt_map_${drom}`, view)
+}
