@@ -7,10 +7,10 @@
 <section class="section section-grey stats">
   <div class="container">
     <div class="domain">
-      <h2>Etat de l'ouverture des données en France</h2>
+      <h2>État de l’ouverture des données en France</h2>
       <p>Ce site est le Point d’Accès National aux données de transport (PAN).</p>
       <p>
-        Retrouvez l'état de l'ouverture des données de transport (nombre de jeux de données ouverts et carte des territoires à avoir référencé des données en open data),
+        Retrouvez l’état de l’ouverture des données de transport (nombre de jeux de données ouverts et carte des territoires à avoir référencé des données en open data),
         par mode de transport, et par la nature des données mises à disposition (statiques ou dynamiques, et par format).
         Les informations transmises par ces cartes sont mises à jour en temps réel, en fonction des données référencées sur la plateforme transport.data.gouv.fr.
       </p>
@@ -91,7 +91,7 @@
             Pour être référencée sur le PAN, les données doivent être accessibles sans authentification
             et dans le format GTFS-RT, Siri ou Siri Lite.<br>
             Les données temps réel qui ne respectent pas ces conditions sont référencées sur <a href="/real_time">une page à part</a>.<br>
-            Plus d'information sur le temps réel sont disponible dans <a href="https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/temps-reel-des-transports-en-commun">la documentation</a>.</p>
+            Plus d’information sur le temps réel sont disponible dans <a href="https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/temps-reel-des-transports-en-commun">la documentation</a>.</p>
           </div>
           <div class="tile-numbers">
             <div class="tile">
@@ -116,7 +116,7 @@
     </div>
     <div class="domain carpooling">
       <h2>Lieux de covoiturage</h2>
-      <p><a href="http://localhost:5000/datasets/base-nationale-consolidee-des-lieux-de-covoiturage/">Un fichier national</a> décrivant les lieux de covoiturage de 78 départements a été consolidé par le point d'accès national aprés un travail initial de BlaBlaCar.</p>
+      <p><a href="http://localhost:5000/datasets/base-nationale-consolidee-des-lieux-de-covoiturage/">Un fichier national</a> décrivant les lieux de covoiturage de 78 départements a été consolidé par le point d’accès national aprés un travail initial de BlaBlaCar.</p>
       <p>La Fabrique des Mobilités a récemment ouvert un fichier relatif à des lieux de rendez-vous de covoiturage (grande variété de points, fichier non consolidé), disponible sur <a href="http://localhost:5000/datasets/aires-de-covoiturage-base-de-donnees-commune-des-lieux-et/">ici</a>.
       </p>
     </div>
@@ -127,7 +127,7 @@
       <a class="button" href="https://www.data.gouv.fr/fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/">Voir le fichier</a>
       <a class="button" href="https://github.com/etalab/schema.data.gouv.fr/blob/master/irve/aggregration/irve.ipynb">Voir le code source</a>
       <p>
-      Les fichiers sources doivent être au format csv et respecter le format défini par <a href="https://www.legifrance.gouv.fr/affichTexte.do?cidTexte=JORFTEXT000033860733&categorieLien=id">l’arrêté du 12 janvier 2017</a> pour apparaitre dans la version consolidée, notamment sur les colonnes id_pdc et date_maj qui servent de pivot. Plus d'informations sur le format attendu sont disponibles <a href="https://www.data.gouv.fr/fr/datasets/fichier-exemple-stations-de-recharge-de-vehicules-electriques/">ici</a>.</p>
+      Les fichiers sources doivent être au format csv et respecter le format défini par <a href="https://www.legifrance.gouv.fr/affichTexte.do?cidTexte=JORFTEXT000033860733&categorieLien=id">l’arrêté du 12 janvier 2017</a> pour apparaitre dans la version consolidée, notamment sur les colonnes id_pdc et date_maj qui servent de pivot. Plus d’informations sur le format attendu sont disponibles <a href="https://www.data.gouv.fr/fr/datasets/fichier-exemple-stations-de-recharge-de-vehicules-electriques/">ici</a>.</p>
     </div>
     <div class="domain road">
       <h2>Données routières</h2>
