@@ -24,6 +24,8 @@ defmodule DB.Resource do
     field :latest_url, :string # stable data.gouv.fr url if exists, else (for ODS gtfs as csv) it's the real url
     field :is_available, :boolean, default: true
     field :content_hash, :string
+    field :auto_tags, {:array, :string}, default: [] # automatically discovered tags
+    field :manual_tags, {:array, :string},  default: [] # manually added tags
 
     belongs_to :dataset, Dataset
     has_one :validation, Validation, on_replace: :delete
@@ -91,9 +93,9 @@ defmodule DB.Resource do
     end
   end
 
-  def save(%{id: id, url: url}, %{"validations" => validations, "metadata" => metadata}) do
+  def save(%{id: id, url: url} = r, %{"validations" => validations, "metadata" => metadata}) do
     # When the validator is unable to open the archive, it will return a fatal issue
-    # And the metadata will be nil (as it couldn’t read the them)
+    # And the metadata will be nil (as it couldn’t read them)
     if is_nil(metadata), do: Logger.warn("Unable to validate: #{id}")
 
     __MODULE__
@@ -105,6 +107,7 @@ defmodule DB.Resource do
         date: DateTime.utc_now |> DateTime.to_string,
         details: validations,
       },
+      auto_tags: find_tags(r, metadata),
       content_hash: Hasher.get_content_hash(url)
     )
     |> Repo.update
@@ -113,6 +116,15 @@ defmodule DB.Resource do
   def save(url, _) do
     Logger.warn("Unknown error when saving the validation")
     Sentry.capture_message("validation_save_failed", extra: url)
+  end
+
+  # for the moment the tag detection is very simple, we only add the modes
+  def find_tags(%__MODULE__{} = _r, %{"modes" => modes}) do
+    modes
+  end
+
+  def find_tags(%__MODULE__{} = _r, _) do
+    []
   end
 
   def changeset(resource, params) do
@@ -208,6 +220,10 @@ defmodule DB.Resource do
   end
 
   def get_max_severity_validation_number(_), do: nil
+
+  def tags(%__MODULE__{auto_tags: auto_tags, manual_tags: manual_tags}) do
+    auto_tags ++ manual_tags
+  end
 
   def is_gtfs?(%__MODULE__{format: "GTFS"}), do: true
   def is_gtfs?(%__MODULE__{metadata: m} = r) when not is_nil(m) do
