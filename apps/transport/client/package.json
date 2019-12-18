@@ -17,7 +17,7 @@
     "@fortawesome/fontawesome-free": "^5.1.0",
     "babel-loader": "^8.0.5",
     "copy-webpack-plugin": "^5.0.0",
-    "core-js": "^2.6.5",
+    "core-js": "3",
     "css-loader": "^2.1.0",
     "exports-loader": "^0.7.0",
     "file-loader": "^3.0.1",
