@@ -1,6 +1,6 @@
 <h2>Situation des AOM pour l’ouverture des données transport en commun</h2>
-
-<table class="table">
+<p><%= link "Télécharger en CSV", to: aoms_path(@conn, :csv) %></p>
+<table class="table aom_table">
 <tr>
   <th>Nom</th>
   <th>Département</th>
