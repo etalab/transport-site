@@ -111,7 +111,7 @@
                         <strong><%= @count_regions_completed %></strong>
                         <div>
                         <%= dgettext("page-index", "Regions covered") %><br />
-                        <%= dgettext("page-index", "on") %> 14
+                        <%= dgettext("page-index", "on") %> 18
                         </div>
                     </div>
                     <div class="key-number__item">
