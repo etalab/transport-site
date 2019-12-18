@@ -96,11 +96,11 @@
           <div class="tile-numbers">
             <div class="tile">
               <h3><%= @nb_officical_realtime %></h3>
-              <div>Jeux de données standardisés</div>
+              <div> <a href="/datasets?filter=has_realtime">Jeux de données standardisés et librement accessibles</a></div>
             </div>
             <div class="tile">
               <h3><%= @nb_unofficical_realtime %></h3>
-              <div> <a href="/real_time">Jeux données non standardisés</a></div>
+              <div> <a href="/real_time">Jeux de données non officiellement référencés</a></div>
             </div>
             <div class="rt-viz">
               <%= for i <- 1..@nb_officical_realtime do %>
