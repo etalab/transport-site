@@ -23,7 +23,7 @@ defmodule TransportWeb.AOMSController do
       region: (if aom.region, do: aom.region.nom, else: ""),
       published: self_published(aom) || !is_nil(aom.parent_dataset),
       in_aggregate: !is_nil(aom.parent_dataset),
-      up_to_date: Enum.any?(aom.datasets, &valid_dataset?/1),
+      up_to_date: up_to_date?(aom.datasets),
       population_muni_2014: aom.population_muni_2014,
       nom_commune: nom_commune,
       insee_commune_principale: aom.insee_commune_principale,
@@ -39,5 +39,8 @@ defmodule TransportWeb.AOMSController do
   end
 
   defp valid_dataset?(dataset), do: Enum.any?(dataset.resources, fn r -> !Resource.is_outdated?(r) end)
+
+  defp up_to_date?([]), do: nil
+  defp up_to_date?(datasets), do: Enum.any?(datasets, &valid_dataset?/1)
 
 end
