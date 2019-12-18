@@ -201,7 +201,7 @@ function addRealTimePTMap (id, view) {
         const siriLite = (format.siri_lite !== undefined ? format.siri_lite : 0)
         const countOfficial = gtfsRT + siri + siriLite
 
-        let countNonStandardRT = format.non_standard_rt
+        const countNonStandardRT = format.non_standard_rt
         if (countOfficial === undefined && countNonStandardRT === 0) {
             return null
         }
@@ -375,7 +375,7 @@ const droms = {
     }
 }
 
-for (let [drom, view] of Object.entries(droms)) {
+for (const [drom, view] of Object.entries(droms)) {
     addStaticPTMap(`map_${drom}`, view)
     addPtFormatMap(`pt_format_map_${drom}`, view)
     addRealTimePTMap(`rt_map_${drom}`, view)
