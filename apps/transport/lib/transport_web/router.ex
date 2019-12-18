@@ -46,6 +46,7 @@ defmodule TransportWeb.Router do
     get "/atom.xml", AtomController, :index
     post "/send_mail", ContactController, :send_mail
     get "/aoms", AOMSController, :index
+    get "/aoms.csv", AOMSController, :csv
 
     scope "/datasets" do
       get "/", DatasetController, :index
