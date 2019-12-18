@@ -1,5 +1,5 @@
 {
-  "extends": ["eslint:recommended", "standard"],
+  "extends": ["eslint:recommended", "./apps/transport/client/node_modules/eslint-config-standard/eslintrc.json"],
   "rules": {
     "indent": ["error", 4],
     "no-multi-spaces": "off"
