@@ -82,12 +82,22 @@ defmodule TransportWeb.API.StatsController do
     |> Enum.to_list
   end
 
-  defmacro count_format(aom, format) do
+  defmacro count_aom_format(aom, format) do
     quote do
       fragment("SELECT COUNT(format) FROM resource \
       WHERE dataset_id in \
       (SELECT id FROM dataset WHERE aom_id=?) \
       AND format = ? GROUP BY format", unquote(aom), unquote(format))
+    end
+  end
+
+  defmacro count_region_format(region, format) do
+    quote do
+      fragment("SELECT COUNT(format) FROM resource \
+      WHERE dataset_id in \
+      (SELECT id FROM dataset WHERE region_id=? OR aom_id IN (SELECT id from aom WHERE region_id=?)) \
+      AND format = ? GROUP BY format",
+      unquote(region), unquote(region), unquote(format))
     end
   end
   def index(%Plug.Conn{} = conn, _params) do
@@ -104,16 +114,16 @@ defmodule TransportWeb.API.StatsController do
               insee_commune_principale: a.insee_commune_principale,
               nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=?", a.id),
               dataset_formats: %{
-                gtfs: count_format(a.id, "GTFS"),
-                netex: count_format(a.id, "netex"),
-                gtfs_rt: count_format(a.id, "gtfs-rt"),
-                gbfs: count_format(a.id, "gbfs"),
+                gtfs: count_aom_format(a.id, "GTFS"),
+                netex: count_aom_format(a.id, "netex"),
+                gtfs_rt: count_aom_format(a.id, "gtfs-rt"),
+                gbfs: count_aom_format(a.id, "gbfs"),
               },
               nom: a.nom,
               forme_juridique: a.forme_juridique,
               dataset_types: %{
-                pt: fragment("SELECT COUNT(type) FROM dataset WHERE aom_id=? AND type = 'public-transit' GROUP BY type", a.id),
-                bike_sharing: fragment("SELECT COUNT(type) FROM dataset WHERE aom_id=? AND type = 'bike-sharing' GROUP BY type", a.id),
+                pt: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit'", a.id),
+                bike_sharing: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-sharing'", a.id),
               },
               parent_dataset_slug: d.slug,
               parent_dataset_name: d.title
@@ -128,7 +138,17 @@ defmodule TransportWeb.API.StatsController do
       id: r.id,
       nom: r.nom,
       is_completed: r.is_completed,
-      nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE region_id=? OR aom_id IN (SELECT id from aom WHERE region_id=?)", r.id, r.id)
+      nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE region_id=? OR aom_id IN (SELECT id from aom WHERE region_id=?)", r.id, r.id),
+      dataset_formats: %{
+        gtfs: count_region_format(r.id, "GTFS"),
+        netex: count_region_format(r.id, "netex"),
+        gtfs_rt: count_region_format(r.id, "gtfs-rt"),
+        gbfs: count_region_format(r.id, "gbfs"),
+      },
+      dataset_types: %{
+        pt: fragment("SELECT COUNT(*) FROM dataset WHERE region_id=? OR aom_id IN (SELECT id from aom WHERE region_id=?) AND type = 'public-transit'", r.id, r.id),
+        bike_sharing: fragment("SELECT COUNT(*) FROM dataset WHERE region_id=? OR aom_id IN (SELECT id from aom WHERE region_id=?) AND type = 'bike-sharing'", r.id, r.id),
+      },
     }))})
   end
 end
