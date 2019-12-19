@@ -94,10 +94,12 @@ function displayRegions (map, featureFunction, style) {
 function addStaticPTMap (id, view) {
     const map = makeMapOnView(id, view)
 
+    const nbBaseSchedule = (feature) => feature.properties.dataset_types.pt
+
     function onEachAomFeature (feature, layer) {
         const name = feature.properties.nom
         const type = feature.properties.forme_juridique
-        const count = feature.properties.dataset_count
+        const count = nbBaseSchedule(feature)
         const text = count === 0 ? 'Aucun jeu de données'
             : count === 1 ? 'Un jeu de données'
                 : `${count} jeux de données`
@@ -111,7 +113,7 @@ function addStaticPTMap (id, view) {
     function onEachRegionFeature (feature, layer) {
         const name = feature.properties.nom
         const id = feature.properties.id
-        const count = feature.properties.dataset_count
+        const count = nbBaseSchedule(feature)
         const text = count === 0 ? 'Aucun jeu de données'
             : count === 1 ? 'Un jeu de données'
                 : `${count} jeux de données`
@@ -137,7 +139,8 @@ function addStaticPTMap (id, view) {
     }
 
     const style = feature => {
-        if (feature.properties.dataset_count > 0) {
+        const count = nbBaseSchedule(feature)
+        if (count > 0) {
             return styles.available
         } else if (feature.properties.parent_dataset_slug) {
             return styles.availableElsewhere
@@ -165,7 +168,8 @@ function addStaticPTMap (id, view) {
         if (feature.properties.completed) {
             return regionStyles.completed
         }
-        if (feature.properties.dataset_count === 0) {
+        const count = nbBaseSchedule(feature)
+        if (count === 0) {
             return regionStyles.unavailable
         } else {
             return regionStyles.partial
@@ -191,7 +195,6 @@ function addStaticPTMap (id, view) {
  */
 function addRealTimePTMap (id, view) {
     const map = makeMapOnView(id, view)
-
     function onEachAomFeature (feature, layer) {
         const name = feature.properties.nom
         const type = feature.properties.forme_juridique
