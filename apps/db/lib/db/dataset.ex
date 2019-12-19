@@ -131,6 +131,18 @@ defmodule DB.Dataset do
     |> where([d], not is_nil(d.aom_id) and d.type == "public-transit")
     |> order_datasets(params)
   end
+  def list_datasets(%{"tags" => tags} = params, s) do
+    resources =
+      Resource
+      |> where([r], fragment("? @> ?::varchar[]", r.auto_tags, ^tags))
+      |> distinct([r], r.dataset_id)
+      |> select([r], %Resource{dataset_id: r.dataset_id})
+
+    s
+    |> list_datasets()
+    |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
+    |> order_datasets(params)
+  end
   def list_datasets(%{} = params, s) do
     filters =
       params
