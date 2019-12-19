@@ -25,7 +25,6 @@ defmodule DB.Resource do
     field :is_available, :boolean, default: true
     field :content_hash, :string
     field :auto_tags, {:array, :string}, default: [] # automatically discovered tags
-    field :manual_tags, {:array, :string},  default: [] # manually added tags
 
     belongs_to :dataset, Dataset
     has_one :validation, Validation, on_replace: :delete
@@ -220,10 +219,6 @@ defmodule DB.Resource do
   end
 
   def get_max_severity_validation_number(_), do: nil
-
-  def tags(%__MODULE__{auto_tags: auto_tags, manual_tags: manual_tags}) do
-    auto_tags ++ manual_tags
-  end
 
   def is_gtfs?(%__MODULE__{format: "GTFS"}), do: true
   def is_gtfs?(%__MODULE__{metadata: m} = r) when not is_nil(m) do
