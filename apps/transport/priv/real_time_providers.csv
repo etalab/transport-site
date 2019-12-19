@@ -13,4 +13,4 @@ Brest;29019;Spécifique;;n;LO;https://geo.pays-de-brest.fr/donnees/Pages/TempsRe
 Nice;06088;Spécifique;n;n;LO;http://opendata.nicecotedazur.org/site/developers;;
 Besancon;25056;Spécifique;n;n;LO;https://api.ginko.voyage/#tr;;https://api.ginko.voyage/#tr
 Saint-Etienne;42218;Spécifique;y;n;Inconnue;https://data.saint-etienne-metropole.fr/;;
-Bordeaux;33063;Spécifique;y;n;CC by-nc-sa;http://data.bordeaux-metropole.fr/wps?key=<your_key>&SERVICE=WPS&VERSION=1.0.0&REQUEST=EXECUTE&IDENTIFIER=SV_HORAI_A&DATAINPUTS=maxfeatures=1000;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_vehic_p/information/;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_messa_a/information/
+Bordeaux;33063;Spécifique;y;n;LO;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_horai_a/information/;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_vehic_p/information/;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_messa_a/information/
