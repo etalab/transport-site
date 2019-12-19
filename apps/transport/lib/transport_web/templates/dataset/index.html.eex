@@ -64,6 +64,7 @@
                 <% end %>
               </ul>
             </li>
+
             <li class="side-pane__dropdown unfolded">
               <h4><%= dgettext("page-shortlist", "Data types") %></h4>
               <ul class="side-pane__submenu">
@@ -131,12 +132,14 @@
       </div>
     <% end %>
 
-    <i class="fas fa-cogs"></i>
-    <%= link(
-      dgettext("page-shortlist", "Get dataset list via an API"),
-      to: "#{swagger_ui_path(@conn, [path: "/api/openapi"])}#/datasets/API.DatasetController.datasets"
-    )
-    %>
-     -
+    <div>
+      <i class="fas fa-cogs"></i>
+      <%= link(
+        dgettext("page-shortlist", "Get dataset list via an API"),
+        to: "#{swagger_ui_path(@conn, [path: "/api/openapi"])}#/datasets/API.DatasetController.datasets"
+      )
+      %>
+      -
+    </div>
   </div>
 </section>
