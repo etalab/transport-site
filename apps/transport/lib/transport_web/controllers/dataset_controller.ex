@@ -71,6 +71,20 @@ defmodule TransportWeb.DatasetController do
   end
 
   defp clean_datasets_query(params), do: params |> Dataset.list_datasets([]) |> exclude(:preload)
+  defp get_regions(%{"tags" => tags} = params) do
+    sub = %{} # for tags, we do not filter the datasets since it causes a non valid sql query
+    |> clean_datasets_query()
+    |> exclude(:order_by)
+    |> join(:left, [d], a in AOM, on: d.aom_id == a.id)
+    |> select([d, a], %{id: d.id, region_id: coalesce(d.region_id, a.region_id)})
+
+    Region
+    |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
+    |> group_by([r], [r.id, r.nom])
+    |> select([r, d], %{nom: r.nom, id: r.id, count: count(d.id)})
+    |> order_by([r], r.nom)
+    |> Repo.all()
+  end
   defp get_regions(params) do
     sub = params
     |> clean_datasets_query()
