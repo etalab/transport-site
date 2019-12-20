@@ -1,6 +1,11 @@
 <h2>Situation des AOM pour l’ouverture des données transport en commun</h2>
-
-<table class="table">
+<div class="is-centered">
+  <a class="button" href="<%= aoms_path(@conn, :csv) %>" role="link">
+      <i class="icon icon--download" aria-hidden="true"></i>
+      Télécharger en CSV
+  </a>
+</div>
+<table class="table aom_table">
 <tr>
   <th>Nom</th>
   <th>Département</th>
@@ -8,10 +13,10 @@
   <th>Publié</th>
   <th>Publié dans un aggrégat</th>
   <th>À jour</th>
+  <th>Temps réel</th>
   <th>Population</th>
   <th>Commune principale</th>
   <th>Nombre de communes</th>
-  <th>Temps réel</th>
 </tr>
 <%= for aom <- @aoms do %>
 <tr>
@@ -21,10 +26,10 @@
   <td><%= format_bool aom.published %></td>
   <td><%= format_bool aom.in_aggregate %></td>
   <td><%= format_bool aom.up_to_date %></td>
+  <td><%= format_bool aom.has_realtime %><td>
   <td><%= aom.population_muni_2014 %></td>
   <td><%= aom.nom_commune %> (<%= aom.insee_commune_principale %>)</td>
   <td><%= aom.nombre_communes %></td>
-  <td><%= format_bool aom.has_realtime %><td>
 </tr>
 <% end %>
 
