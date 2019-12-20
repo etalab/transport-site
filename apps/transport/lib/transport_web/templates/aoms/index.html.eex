@@ -1,5 +1,10 @@
 <h2>Situation des AOM pour l’ouverture des données transport en commun</h2>
-<p><%= link "Télécharger en CSV", to: aoms_path(@conn, :csv) %></p>
+<div class="is-centered">
+  <a class="button" href="<%= aoms_path(@conn, :csv) %>" role="link">
+      <i class="icon icon--download" aria-hidden="true"></i>
+      Télécharger en CSV
+  </a>
+</div>
 <table class="table aom_table">
 <tr>
   <th>Nom</th>
