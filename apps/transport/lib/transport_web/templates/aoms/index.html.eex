@@ -26,7 +26,7 @@
   <td><%= format_bool aom.published %></td>
   <td><%= format_bool aom.in_aggregate %></td>
   <td><%= format_bool aom.up_to_date %></td>
-  <td><%= format_bool aom.has_realtime %><td>
+  <td><%= format_bool aom.has_realtime %></td>
   <td><%= aom.population_muni_2014 %></td>
   <td><%= aom.nom_commune %> (<%= aom.insee_commune_principale %>)</td>
   <td><%= aom.nombre_communes %></td>
