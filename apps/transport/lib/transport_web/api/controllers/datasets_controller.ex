@@ -5,10 +5,10 @@ defmodule TransportWeb.API.DatasetController do
   alias DB.{Dataset, Repo}
   alias TransportWeb.API.Schemas.DatasetsResponse
 
-  @spec open_api_operation(any) :: Operation.t
+  @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
-  @spec datasets_operation() :: Operation.t
+  @spec datasets_operation() :: Operation.t()
   def datasets_operation do
     %Operation{
       tags: ["datasets"],
@@ -26,13 +26,14 @@ defmodule TransportWeb.API.DatasetController do
     data =
       %{"type" => "public-transit"}
       |> Dataset.list_datasets()
-      |> Repo.all
+      |> Repo.all()
       |> Repo.preload([:resources, :aom])
       |> Enum.map(&transform_dataset/1)
+
     render(conn, %{data: data})
   end
 
-  @spec by_id_operation() :: Operation.t
+  @spec by_id_operation() :: Operation.t()
   def by_id_operation do
     %Operation{
       tags: ["datasets"],
@@ -55,6 +56,7 @@ defmodule TransportWeb.API.DatasetController do
         conn
         |> assign(:data, transform_dataset_with_detail(dataset))
         |> render()
+
       nil ->
         conn
         |> put_status(404)
@@ -74,7 +76,7 @@ defmodule TransportWeb.API.DatasetController do
       "resources" => Enum.map(dataset.resources, &transform_resource/1),
       "aom" => transform_aom(dataset.aom),
       "type" => dataset.type,
-      "publisher" => get_publisher(dataset),
+      "publisher" => get_publisher(dataset)
     }
   end
 
@@ -99,15 +101,16 @@ defmodule TransportWeb.API.DatasetController do
       "end_calendar_validity" => resource.metadata["end_date"],
       "start_calendar_validity" => resource.metadata["start_date"],
       "format" => resource.format,
-      "content_hash" => resource.content_hash,
+      "content_hash" => resource.content_hash
     }
   end
 
   defp transform_aom(nil), do: %{"name" => nil}
+
   defp transform_aom(aom) do
     %{
       "name" => aom.nom,
-      "siren" => aom.siren,
+      "siren" => aom.siren
     }
   end
 end

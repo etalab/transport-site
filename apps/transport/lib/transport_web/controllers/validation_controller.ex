@@ -10,28 +10,31 @@ defmodule TransportWeb.ValidationController do
   defp endpoint, do: Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
 
   def index(%Plug.Conn{} = conn, _) do
-    render conn, "index.html"
+    render(conn, "index.html")
   end
 
   def validate(%Plug.Conn{} = conn, %{"upload" => upload_params}) do
     with {:ok, gtfs} <- File.read(upload_params["file"].path),
-      {:ok, %@res{status_code: 200, body: body}} <- @client.post(endpoint(), gtfs, [], recv_timeout: @timeout),
-      {:ok, %{"validations" => validations}} <- Poison.decode(body) do
-        %Validation{
-          date: DateTime.utc_now |> DateTime.to_string,
-          details: validations
-        }
-        |> Repo.insert
-      else
-        {:error, %@err{reason: error}} -> {:error, error}
-        _ -> {:error, "Unknown error"}
-      end
-      |> case do
-        {:ok, %Validation{id: id}} -> redirect(conn, to: validation_path(conn, :show, id))
-        _ -> conn
-             |> put_flash(:error, dgettext("validations", "Unable to validate file"))
-             |> redirect(to: validation_path(conn, :index))
-      end
+         {:ok, %@res{status_code: 200, body: body}} <- @client.post(endpoint(), gtfs, [], recv_timeout: @timeout),
+         {:ok, %{"validations" => validations}} <- Poison.decode(body) do
+      %Validation{
+        date: DateTime.utc_now() |> DateTime.to_string(),
+        details: validations
+      }
+      |> Repo.insert()
+    else
+      {:error, %@err{reason: error}} -> {:error, error}
+      _ -> {:error, "Unknown error"}
+    end
+    |> case do
+      {:ok, %Validation{id: id}} ->
+        redirect(conn, to: validation_path(conn, :show, id))
+
+      _ ->
+        conn
+        |> put_flash(:error, dgettext("validations", "Unable to validate file"))
+        |> redirect(to: validation_path(conn, :index))
+    end
   end
 
   def show(%Plug.Conn{} = conn, %{} = params) do

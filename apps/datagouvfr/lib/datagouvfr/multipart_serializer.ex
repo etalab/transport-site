@@ -8,15 +8,15 @@ defmodule Transport.Datagouvfr.MultipartSerializer do
       [
         {
           :file,
-           file.path,
-           {
-              "form-data",
-              [
-                {"name", "\"#{name}\""},
-                {"filename", "\"#{file.filename}\""}
-              ]
-           },
-           []
+          file.path,
+          {
+            "form-data",
+            [
+              {"name", "\"#{name}\""},
+              {"filename", "\"#{file.filename}\""}
+            ]
+          },
+          []
         }
       ]
     }

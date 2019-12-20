@@ -5,10 +5,10 @@ defmodule DB.Partner do
   use Ecto.Schema
 
   schema "partner" do
-    field :page, :string
-    field :datagouv_id, :string
-    field :type, :string
-    field :name, :string
+    field(:page, :string)
+    field(:datagouv_id, :string)
+    field(:type, :string)
+    field(:name, :string)
   end
 
   alias Datagouvfr.Client.API
@@ -21,14 +21,17 @@ defmodule DB.Partner do
     |> get_type_and_slug()
     |> get_api_response()
     |> case do
-      nil -> {:error, nil}
+      nil ->
+        {:error, nil}
+
       api_response ->
-        {:ok, %__MODULE__{
-          page: api_response["page"],
-          datagouv_id: api_response["id"],
-          type: get_type(partner_url),
-          name: get_name(api_response)
-        }}
+        {:ok,
+         %__MODULE__{
+           page: api_response["page"],
+           datagouv_id: api_response["id"],
+           type: get_type(partner_url),
+           name: get_name(api_response)
+         }}
     end
   end
 
@@ -54,9 +57,9 @@ defmodule DB.Partner do
   defp get_name(%{"first_name" => f_n, "last_name" => l_n}), do: f_n <> " " <> l_n
 
   defp split_url(url) do
-     url
-     |> String.split("/")
-     |> Enum.filter(&(String.length(&1) != 0))
+    url
+    |> String.split("/")
+    |> Enum.filter(&(String.length(&1) != 0))
   end
 
   defp get_type_and_slug(url), do: url |> split_url() |> Enum.take(-2)
@@ -72,9 +75,11 @@ defmodule DB.Partner do
   end
 
   @spec get_api_response(API.path(), fun(), any) :: any
-  def get_api_response(url, process_response \\ &(&1), headers \\ [] ) do
+  def get_api_response(url, process_response \\ & &1, headers \\ []) do
     case API.get(url, headers) do
-      {:ok, json} -> process_response.(json)
+      {:ok, json} ->
+        process_response.(json)
+
       {:error, error} ->
         Logger.error(error)
         nil

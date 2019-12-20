@@ -24,24 +24,24 @@ defmodule Transport.ImportData do
       Repo.update(changeset)
     else
       {:error, error} ->
-        Logger.error "Unable to import data of dataset #{datagouv_id}: #{inspect error}"
+        Logger.error("Unable to import data of dataset #{datagouv_id}: #{inspect(error)}")
         {:error, error}
     end
   end
 
   def import_from_udata(id, type) do
     base_url = Application.get_env(:transport, :datagouvfr_site)
-    url      = "#{base_url}/api/1/datasets/#{id}/"
+    url = "#{base_url}/api/1/datasets/#{id}/"
 
     Logger.info("Importing dataset #{id} (url = #{url})")
 
-    with {:ok, response}  <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
+    with {:ok, response} <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
          {:ok, json} <- Poison.decode(response.body),
          {:ok, dataset} <- get_dataset(json, type) do
       {:ok, dataset}
     else
       {:error, error} ->
-        Logger.error("Error while importing dataset #{id} (url = #{url}) : #{inspect error}")
+        Logger.error("Error while importing dataset #{id} (url = #{url}) : #{inspect(error)}")
         {:error, error}
     end
   end
@@ -60,6 +60,7 @@ defmodule Transport.ImportData do
       |> Map.put("type", type)
       |> Map.put("organization", dataset["organization"]["name"])
       |> Map.put("resources", get_resources(dataset, type))
+
     dataset =
       case has_realtime?(dataset, type) do
         {:ok, result} -> Map.put(dataset, "has_realtime", result)
@@ -111,19 +112,19 @@ defmodule Transport.ImportData do
     |> get_valid_resources(type)
     |> Enum.dedup_by(fn resource -> resource["url"] end)
     |> Enum.map(fn resource ->
-            %{
-            "url" => resource["url"],
-            "format" => formated_format(resource, type),
-            "title" => get_title(resource),
-            "last_import" => DateTime.utc_now |> DateTime.to_string,
-            "last_update" => resource["last_modified"],
-            # For ODS gtfs as csv we do not have a 'latest' field
-            # (the 'latest' field is the stable data.gouv.fr url)
-            "latest_url" => resource["latest"] || resource["url"],
-            "id" => get_resource_id(resource),
-            "is_available" => available?(resource)
-          }
-      end)
+      %{
+        "url" => resource["url"],
+        "format" => formated_format(resource, type),
+        "title" => get_title(resource),
+        "last_import" => DateTime.utc_now() |> DateTime.to_string(),
+        "last_update" => resource["last_modified"],
+        # For ODS gtfs as csv we do not have a 'latest' field
+        # (the 'latest' field is the stable data.gouv.fr url)
+        "latest_url" => resource["latest"] || resource["url"],
+        "id" => get_resource_id(resource),
+        "is_available" => available?(resource)
+      }
+    end)
   end
 
   def available?(%{"extras" => %{"check:available" => available}}), do: available
@@ -131,6 +132,7 @@ defmodule Transport.ImportData do
   def available?(%{"url" => "https://next.data.gouv.fr/" <> _}), do: true
   def available?(%{"format" => "csv"}), do: true
   def available?(%{"type" => "api"}), do: true
+
   def available?(%{"url" => url}) do
     case HTTPoison.head(url) do
       {:ok, %HTTPoison.Response{status_code: 200}} -> true
@@ -186,6 +188,7 @@ defmodule Transport.ImportData do
   """
   def is_gtfs?(%{} = params) do
     url = params["url"]
+
     cond do
       is_gtfs_rt?(params["format"]) -> false
       is_gtfs?(params["format"]) -> true
@@ -195,6 +198,7 @@ defmodule Transport.ImportData do
       true -> false
     end
   end
+
   def is_gtfs?(str), do: is_format?(str, "gtfs")
 
   def is_gtfs_rt?(str), do: is_format?(str, "gtfs-rt") or is_format?(str, "gtfsrt")
@@ -213,7 +217,7 @@ defmodule Transport.ImportData do
   def is_format?(nil, _), do: false
   def is_format?(%{"format" => format}, expected), do: is_format?(format, expected)
   def is_format?(value, [head | tail]), do: is_format?(value, head) || is_format?(value, tail)
-  def is_format?(str, expected), do: str |> String.downcase |> String.contains?(expected)
+  def is_format?(str, expected), do: str |> String.downcase() |> String.contains?(expected)
 
   @doc """
   Is the ressource a zip file?
@@ -294,8 +298,8 @@ defmodule Transport.ImportData do
   def parse_date(date) when is_binary(date) do
     with {:ok, date} <- NaiveDateTime.from_iso8601(date) do
       date
-      |> NaiveDateTime.to_date
-      |> Date.to_string
+      |> NaiveDateTime.to_date()
+      |> Date.to_string()
     end
   end
 
@@ -362,9 +366,9 @@ defmodule Transport.ImportData do
       end
     end
   end
+
   def has_realtime?(_, _), do: {:ok, false}
 
   def is_realtime?(%{"format" => "gtfs-rt"}), do: true
   def is_realtime?(_), do: false
-
 end

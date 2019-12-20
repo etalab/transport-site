@@ -5,13 +5,15 @@ defmodule TransportWeb.PaginationHelpers do
   alias Scrivener.HTML
 
   def make_pagination_config(%{"page" => page_number}) do
-    page_number = case Integer.parse(page_number) do
-      :error -> 1
-      {int, _} -> int
-    end
+    page_number =
+      case Integer.parse(page_number) do
+        :error -> 1
+        {int, _} -> int
+      end
 
     %Scrivener.Config{page_number: page_number, page_size: 10}
   end
+
   def make_pagination_config(_), do: %Scrivener.Config{page_number: 1, page_size: 10}
 
   def pagination_links(conn, paginator) do
@@ -24,6 +26,7 @@ defmodule TransportWeb.PaginationHelpers do
   end
 
   def pagination_links(_, %{total_pages: 1}, _), do: ""
+
   def pagination_links(conn, paginator, opts) do
     opts
     |> remove_empty_q
@@ -45,6 +48,7 @@ defmodule TransportWeb.PaginationHelpers do
   defp remove_empty_q(args) when is_map(args) do
     remove_empty_q(for {key, value} <- args, do: {String.to_atom(key), value})
   end
+
   defp remove_empty_q(args) do
     args = Keyword.delete(args, :page)
 

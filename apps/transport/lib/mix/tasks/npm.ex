@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Npm do
 
   def run([cmd | _tail]) do
     "npm --prefix apps/transport/client #{cmd}"
-    |> Mix.shell.cmd(stderr_to_stdout: true)
+    |> Mix.shell().cmd(stderr_to_stdout: true)
     |> case do
       0 -> :ok
       a -> raise "npm command failure exit code: #{a}"

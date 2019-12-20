@@ -22,21 +22,24 @@ defmodule Datagouvfr.Client.API do
 
   @spec post(path(), map() | any(), any(), boolean()) :: response
   def post(path, body, headers, blank \\ false)
+
   def post(path, body, headers, blank) when is_map(body) do
     case Jason.encode(body) do
       {:ok, body} ->
         post(path, body, headers, blank)
+
       {:error, error} ->
-        Logger.error "Unable to parse JSON: #{error}"
+        Logger.error("Unable to parse JSON: #{error}")
         {:error, error}
     end
   end
+
   def post(path, body, headers, blank) when is_binary(path) or is_list(path) do
     headers = default_content_type(headers)
 
     if blank do
-      Logger.debug fn -> "Post body: #{inspect body}" end
-      Logger.debug fn -> "Post headers: #{inspect headers}" end
+      Logger.debug(fn -> "Post body: #{inspect(body)}" end)
+      Logger.debug(fn -> "Post headers: #{inspect(headers)}" end)
       {:ok, body}
     else
       request(:post, path, body, headers, [])
@@ -53,6 +56,7 @@ defmodule Datagouvfr.Client.API do
   def request(method, path, body \\ "", headers \\ [], options \\ []) do
     url = process_url(path)
     options = Keyword.put_new(options, :follow_redirect, true)
+
     method
     |> HTTPoison.request(url, body, headers, options)
     |> post_process()

@@ -50,10 +50,11 @@ defmodule TransportWeb.PageController do
   end
 
   defp aoms_with_dataset do
-    from a in AOM,
+    from(a in AOM,
       join: d in Dataset,
       on: a.id == d.aom_id or not is_nil(a.parent_dataset_id),
       distinct: a.id
+    )
   end
 
   defp count_aoms_with_dataset, do: Repo.aggregate(aoms_with_dataset(), :count, :id)
@@ -66,7 +67,7 @@ defmodule TransportWeb.PageController do
 
   defp percent(_a, 0), do: 0
   defp percent(_a, nil), do: 0
-  defp percent(a, b), do: Float.round((a / b) * 100, 1)
+  defp percent(a, b), do: Float.round(a / b * 100, 1)
 
   defp count_regions_completed do
     Region

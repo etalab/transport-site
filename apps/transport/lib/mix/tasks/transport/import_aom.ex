@@ -12,7 +12,7 @@ defmodule Mix.Tasks.Transport.ImportAom do
     |> String.replace(",", "")
     |> String.replace(".", "")
     |> String.replace(" ", "")
-    |> String.to_integer
+    |> String.to_integer()
   end
 
   def changeset(aom, line) do
@@ -40,11 +40,15 @@ defmodule Mix.Tasks.Transport.ImportAom do
 
   def run(params) do
     if params[:no_start] do
-      HTTPoison.start
+      HTTPoison.start()
     else
       Mix.Task.run("app.start", [])
     end
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get("https://www.data.gouv.fr/fr/datasets/r/42625320-bc2d-4368-8c00-3e28dbf7f51a", [], hackney: [follow_redirect: true]),
+
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
+           HTTPoison.get("https://www.data.gouv.fr/fr/datasets/r/42625320-bc2d-4368-8c00-3e28dbf7f51a", [],
+             hackney: [follow_redirect: true]
+           ),
          {:ok, stream} <- StringIO.open(body) do
       stream
       |> IO.binstream(:line)
@@ -54,12 +58,15 @@ defmodule Mix.Tasks.Transport.ImportAom do
         AOM
         |> Repo.get_by(composition_res_id: to_int(line["Id réseau"]))
         |> case do
-          nil -> %AOM{}
-          aom -> aom
-          |> Repo.preload(:region)
+          nil ->
+            %AOM{}
+
+          aom ->
+            aom
+            |> Repo.preload(:region)
         end
         |> changeset(line)
-        |> Repo.insert_or_update
+        |> Repo.insert_or_update()
       end)
     end
   end

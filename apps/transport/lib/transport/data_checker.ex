@@ -38,16 +38,16 @@ defmodule Transport.DataChecker do
 
   def get_to_reactivate_datasets do
     Dataset
-      |> where([d], d.is_active == false)
-      |> Repo.all()
-      |> Enum.filter(&Datasets.is_active?/1)
+    |> where([d], d.is_active == false)
+    |> Repo.all()
+    |> Enum.filter(&Datasets.is_active?/1)
   end
 
   def outdated_data(blank \\ false) do
     for delay <- [0, 7, 14],
-        date = Date.add(Date.utc_today, delay) do
-          {delay, Dataset.get_expire_at(date)}
-        end
+        date = Date.add(Date.utc_today(), delay) do
+      {delay, Dataset.get_expire_at(date)}
+    end
     |> Enum.reject(fn {_, d} -> d == [] end)
     |> send_outdated_data_mail(blank)
     |> post_outdated_data_comments(blank)
@@ -56,7 +56,8 @@ defmodule Transport.DataChecker do
   def post_outdated_data_comments(delays_datasets, blank) do
     case Enum.find(delays_datasets, fn {delay, _} -> delay == 7 end) do
       nil ->
-        Logger.info "No datasets need a comment about outdated resources"
+        Logger.info("No datasets need a comment about outdated resources")
+
       {delay, datasets} ->
         Enum.map(datasets, fn r -> post_outdated_data_comment(r, delay, blank) end)
     end
@@ -66,12 +67,18 @@ defmodule Transport.DataChecker do
     Discussions.post(
       dataset.datagouv_id,
       "Jeu de données arrivant à expiration",
-"""
-Bonjour,
-Ce jeu de données arrive à expiration dans #{delay} jour#{if delay != 1 do "s" end}.
-Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour prochainement.
-L’équipe transport.data.gouv.fr
-""", blank)
+      """
+      Bonjour,
+      Ce jeu de données arrive à expiration dans #{delay} jour#{
+        if delay != 1 do
+          "s"
+        end
+      }.
+      Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour prochainement.
+      L’équipe transport.data.gouv.fr
+      """,
+      blank
+    )
   end
 
   defp make_str({delay, datasets}) do
@@ -109,6 +116,7 @@ L’équipe transport.data.gouv.fr
   end
 
   defp send_outdated_data_mail([], _), do: []
+
   defp send_outdated_data_mail(datasets, is_blank) do
     Client.send_mail(
       "transport.data.gouv.fr",
@@ -123,10 +131,13 @@ L’équipe transport.data.gouv.fr
   end
 
   defp fmt_inactive_dataset([]), do: ""
+
   defp fmt_inactive_dataset(inactive_datasets) do
-    datasets_str = inactive_datasets
-    |> Enum.map(&link_and_name/1)
-    |> Enum.join("\n")
+    datasets_str =
+      inactive_datasets
+      |> Enum.map(&link_and_name/1)
+      |> Enum.join("\n")
+
     """
     Certains jeux de données ont disparus de data.gouv.fr :
     #{datasets_str}
@@ -134,19 +145,23 @@ L’équipe transport.data.gouv.fr
   end
 
   defp fmt_reactivated_dataset([]), do: ""
+
   defp fmt_reactivated_dataset(reactivated_datasets) do
-    datasets_str = reactivated_datasets
-    |> Enum.map(&link_and_name/1)
-    |> Enum.join("\n")
+    datasets_str =
+      reactivated_datasets
+      |> Enum.map(&link_and_name/1)
+      |> Enum.join("\n")
+
     """
     Certains jeux de données disparus sont réapparus sur data.gouv.fr :
     #{datasets_str}
     """
   end
 
-    defp make_inactive_dataset_body(reactivated_datasets, inactive_datasets) do
-      reactivated_datasets_str = fmt_reactivated_dataset(reactivated_datasets)
-      inactive_datasets_str = fmt_inactive_dataset(inactive_datasets)
+  defp make_inactive_dataset_body(reactivated_datasets, inactive_datasets) do
+    reactivated_datasets_str = fmt_reactivated_dataset(reactivated_datasets)
+    inactive_datasets_str = fmt_inactive_dataset(inactive_datasets)
+
     """
     Bonjour,
     #{inactive_datasets_str}
@@ -157,6 +172,7 @@ L’équipe transport.data.gouv.fr
   end
 
   defp send_inactive_dataset_mail([], []), do: nil
+
   defp send_inactive_dataset_mail(reactivated_datasets, inactive_datasets) do
     Client.send_mail(
       "transport.data.gouv.fr",
@@ -166,5 +182,4 @@ L’équipe transport.data.gouv.fr
       make_inactive_dataset_body(reactivated_datasets, inactive_datasets)
     )
   end
-
 end

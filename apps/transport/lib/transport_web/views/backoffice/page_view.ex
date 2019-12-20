@@ -15,10 +15,12 @@ defmodule TransportWeb.Backoffice.PageView do
     |> Keyword.put(:filter, filter)
     |> add_filter(Map.drop(p, ["filter"]))
   end
+
   defp add_filter(kwargs, %{params: %{"q" => q} = p}) do
     kwargs
     |> Keyword.put(:q, q)
     |> add_filter(Map.drop(p, ["q"]))
   end
+
   defp add_filter(kwargs, _), do: kwargs
 end

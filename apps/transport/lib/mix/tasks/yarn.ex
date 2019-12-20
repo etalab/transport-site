@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Yarn do
   use Mix.Task
 
   def run([cmd | _tail]) do
-    case Mix.shell.cmd("cd apps/transport/client && yarn #{cmd}", stderr_to_stdout: true) do
+    case Mix.shell().cmd("cd apps/transport/client && yarn #{cmd}", stderr_to_stdout: true) do
       0 -> :ok
       a -> raise "yarn command failure exit code: #{a}"
     end

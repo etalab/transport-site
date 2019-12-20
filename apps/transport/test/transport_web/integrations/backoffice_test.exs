@@ -6,7 +6,6 @@ defmodule TransportWeb.Integration.BackofficeTest do
 
   @tag :integration
   test "deny acces to backoffice if not logged" do
-
     @endpoint
     |> backoffice_page_url(:index)
     |> navigate_to
@@ -31,9 +30,10 @@ defmodule TransportWeb.Integration.BackofficeTest do
   @tag :integration
   test "show add new dataset form", %{conn: conn} do
     conn
-    |> init_test_session(%{current_user: %{"organizations" => [%{"slug" => "blurp"}, %{"slug" => "equipe-transport-data-gouv-fr"}]}})
+    |> init_test_session(%{
+      current_user: %{"organizations" => [%{"slug" => "blurp"}, %{"slug" => "equipe-transport-data-gouv-fr"}]}
+    })
     |> get("/backoffice")
     |> html_response(200)
   end
-
 end

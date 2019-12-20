@@ -7,16 +7,23 @@ defmodule Datagouvfr.Client.CommunityResources do
 
   @endpoint "/datasets/community_resources/"
 
-  @spec get(binary) :: Client.response
+  @spec get(binary) :: Client.response()
   def get(id) when is_binary(id) do
     case API.get("#{@endpoint}?dataset=#{id}") do
-      {:ok, %{"data" => data}} -> {:ok, data}
+      {:ok, %{"data" => data}} ->
+        {:ok, data}
+
       {:ok, data} ->
-        Logger.error("When getting community_ressources for id #{id}: request was ok but the response didn't contain data #{data}")
+        Logger.error(
+          "When getting community_ressources for id #{id}: request was ok but the response didn't contain data #{data}"
+        )
+
         {:error, []}
+
       {:error, %{reason: reason}} ->
         Logger.error("When getting community_ressources for id #{id}: #{reason}")
         {:error, []}
+
       {:error, error} ->
         Logger.error("When getting community_ressources for id #{id}: #{error}")
         {:error, []}

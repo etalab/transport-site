@@ -8,16 +8,16 @@ defmodule TransportWeb.SessionController do
   require Logger
 
   def new(conn, _) do
-    redirect(conn, external: Authentication.authorize_url)
+    redirect(conn, external: Authentication.authorize_url())
   end
 
   def create(conn, %{"code" => code}) do
     with %{token: token} <- Authentication.get_token!(code: code),
-         conn <- conn
-                 |> put_session(:token, token)
-                 |> assign(:token, token),
-         {:ok, user} <- User.me(conn)
-    do
+         conn <-
+           conn
+           |> put_session(:token, token)
+           |> assign(:token, token),
+         {:ok, user} <- User.me(conn) do
       conn
       |> put_session(:current_user, user_params(user))
       |> redirect(to: get_redirect_path(conn))
@@ -25,6 +25,7 @@ defmodule TransportWeb.SessionController do
     else
       {:error, error} ->
         Logger.error(error)
+
         conn
         |> put_flash(:error, dgettext("alert", "An error occured, please try again"))
         |> redirect(to: session_path(conn, :new))
@@ -34,6 +35,7 @@ defmodule TransportWeb.SessionController do
 
   def create(conn, %{"error" => error, "error_description" => description}) do
     Logger.error("error while creating the session: #{error} - #{description}")
+
     conn
     |> put_flash(:error, dgettext("alert", "An error occured, please try again"))
     |> redirect(to: session_path(conn, :new))
@@ -47,15 +49,21 @@ defmodule TransportWeb.SessionController do
     |> halt()
   end
 
-  #private functions
+  # private functions
 
   defp user_params(%{} = user) do
-    params =  Map.take(
-      user,
-      ["id", "apikey", "email", "first_name", "last_name", "avatar_thumbnail", "organizations"]
-    )
-    filtered_organizations = Enum.filter(Map.get(params, "organizations", []),
-        fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end)
+    params =
+      Map.take(
+        user,
+        ["id", "apikey", "email", "first_name", "last_name", "avatar_thumbnail", "organizations"]
+      )
+
+    filtered_organizations =
+      Enum.filter(
+        Map.get(params, "organizations", []),
+        fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end
+      )
+
     Map.put(params, "organizations", filtered_organizations)
   end
 

@@ -7,17 +7,21 @@ defmodule TransportWeb.StatsController do
 
   @spec index(any, any) :: none
   def index(conn, _params) do
-    aoms = Repo.all(from a in AOM,
-      select: %{
-        population: a.population_totale_2014,
-        region_id: a.region_id,
-        nb_datasets: fragment("SELECT count(*) FROM dataset where aom_id = ?", a.id),
-        parent_dataset_id: a.parent_dataset_id,
-      }
-    )
+    aoms =
+      Repo.all(
+        from(a in AOM,
+          select: %{
+            population: a.population_totale_2014,
+            region_id: a.region_id,
+            nb_datasets: fragment("SELECT count(*) FROM dataset where aom_id = ?", a.id),
+            parent_dataset_id: a.parent_dataset_id
+          }
+        )
+      )
+
     aoms_with_datasets = aoms |> Enum.filter(&(&1.nb_datasets > 0 || !is_nil(&1.parent_dataset_id)))
 
-    regions = Repo.all(from r in Region, where: r.nom != "National")
+    regions = Repo.all(from(r in Region, where: r.nom != "National"))
 
     render(conn, "index.html",
       nb_datasets: Repo.aggregate(Dataset, :count, :id),
@@ -40,15 +44,18 @@ defmodule TransportWeb.StatsController do
   end
 
   defp get_population(datasets) do
-      datasets
-      |> Enum.reduce(0, &(&1.population + &2))
-      |> Kernel./(1_000_000)
-      |> Float.round(2)
+    datasets
+    |> Enum.reduce(0, &(&1.population + &2))
+    |> Kernel./(1_000_000)
+    |> Float.round(2)
   end
 
   defp nb_officical_realtime do
-    rt_datasets = from d in Dataset,
+    rt_datasets =
+      from(d in Dataset,
         where: d.has_realtime
+      )
+
     Repo.aggregate(rt_datasets, :count, :id)
   end
 
@@ -68,8 +75,8 @@ defmodule TransportWeb.StatsController do
 
   defp count_dataset_with_format(format) do
     Resource
-      |> select([r], count(r.dataset_id, :distinct))
-      |> where([r], r.format == ^format)
-      |> Repo.one()
+    |> select([r], count(r.dataset_id, :distinct))
+    |> where([r], r.format == ^format)
+    |> Repo.one()
   end
 end

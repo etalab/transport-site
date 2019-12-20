@@ -9,25 +9,29 @@ defmodule HTTPStream do
     Stream.resource(
       fn -> request(url) end,
       &handle_async_resp/1,
-      fn nil -> []
+      fn
+        nil ->
+          []
+
         conn ->
-        HTTP.close(conn)
+          HTTP.close(conn)
       end
     )
   end
 
   def request(url) do
     uri = URI.parse(url)
+
     with {:ok, conn} <- HTTP.connect(String.to_atom(uri.scheme), uri.host, uri.port),
          {:ok, conn, _ref} <- HTTP.request(conn, "GET", merge_path(uri), []) do
-
-        conn
+      conn
     else
       {:error, conn, reason} ->
-        Logger.error fn -> inspect reason end
+        Logger.error(fn -> inspect(reason) end)
         conn
+
       {:error, error} ->
-        Logger.error fn -> inspect error end
+        Logger.error(fn -> inspect(error) end)
         nil
     end
   end
@@ -37,13 +41,15 @@ defmodule HTTPStream do
 
   defp handle_async_resp({:end, conn}), do: {:halt, conn}
   defp handle_async_resp(nil), do: {:halt, nil}
+
   defp handle_async_resp(conn) do
     receive do
       message ->
         case HTTP.stream(conn, message) do
           :unknown ->
-            Logger.error "Unknown error"
+            Logger.error("Unknown error")
             {:halt, conn}
+
           {:ok, conn, responses} ->
             responses
             |> Enum.map(&handle_response/1)
@@ -53,11 +59,11 @@ defmodule HTTPStream do
               [:done | r] -> {Enum.reverse(r), {:end, conn}}
               r -> {Enum.reverse(r), conn}
             end
-          end
-      after
-        2000 ->
-          Logger.error "Timeout"
-          {:halt, nil}
+        end
+    after
+      2000 ->
+        Logger.error("Timeout")
+        {:halt, nil}
     end
   end
 

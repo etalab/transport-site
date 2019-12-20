@@ -12,16 +12,23 @@ defmodule TransportWeb.InputHelpers do
       import Phoenix.HTML.Link
       import Phoenix.HTML.Tag
       import Phoenix.HTML.Format
-      import Phoenix.HTML.Form, except: [
-        email_input: 3,
-        form_for: 3, form_for: 4,
-        file_input: 2, file_input: 3,
-        select: 3, select: 4,
-        search_input: 3,
-        submit: 1, submit: 2,
-        text_input: 3,
-        textarea: 2, textarea: 3
-      ]
+
+      import Phoenix.HTML.Form,
+        except: [
+          email_input: 3,
+          form_for: 3,
+          form_for: 4,
+          file_input: 2,
+          file_input: 3,
+          select: 3,
+          select: 4,
+          search_input: 3,
+          submit: 1,
+          submit: 2,
+          text_input: 3,
+          textarea: 2,
+          textarea: 3
+        ]
     end
   end
 
@@ -44,39 +51,54 @@ defmodule TransportWeb.InputHelpers do
   end
 
   def search_input(form, field, opts \\ []) do
-    button = content_tag(
-      :button,
-      content_tag(:i, "", class: "fas icon--magnifier"),
-       [{:class, "button"}, {"aria-label", "Recherche"}]
-    )
+    button =
+      content_tag(
+        :button,
+        content_tag(:i, "", class: "fas icon--magnifier"),
+        [{:class, "button"}, {"aria-label", "Recherche"}]
+      )
+
     form_group(
       content_tag(
-      :div,
-       [Form.text_input(form, field, opts), button],
-      class: "input__group"
+        :div,
+        [Form.text_input(form, field, opts), button],
+        class: "input__group"
       )
     )
   end
 
   def submit([do: _] = block_option), do: submit([], block_option)
   def submit(_, opts \\ [])
+
   def submit(value, opts) do
     nodiv = Keyword.get(opts, :nodiv)
-    opts = opts
-    |> Keyword.put_new(:class, "button")
-    |> Keyword.drop([:nodiv])
 
-    if nodiv do Form.submit(value, opts) else form_group(Form.submit(value, opts)) end
+    opts =
+      opts
+      |> Keyword.put_new(:class, "button")
+      |> Keyword.drop([:nodiv])
+
+    if nodiv do
+      Form.submit(value, opts)
+    else
+      form_group(Form.submit(value, opts))
+    end
   end
 
   def text_input(form, field, opts \\ []) do
     label = Keyword.get(opts, :label)
     opts = Keyword.drop(opts, [:label])
+
     if label != nil do
-      form_group do [
-        if match?({:safe, [_, "label" | _]}, label) do label else Form.label(form, field, label) end,
-        Form.text_input(form, field, opts)
-      ]
+      form_group do
+        [
+          if match?({:safe, [_, "label" | _]}, label) do
+            label
+          else
+            Form.label(form, field, label)
+          end,
+          Form.text_input(form, field, opts)
+        ]
       end
     else
       form_group(Form.text_input(form, field, opts))
@@ -94,11 +116,13 @@ defmodule TransportWeb.InputHelpers do
   def file_input(form, field, opts \\ []) do
     label = Keyword.get(opts, :label)
     opts = Keyword.drop(opts, [:label])
+
     if label != nil do
-      form_group do [
-        Form.label(form, field, label),
-        Form.file_input(form, field, opts)
-      ]
+      form_group do
+        [
+          Form.label(form, field, label),
+          Form.file_input(form, field, opts)
+        ]
       end
     else
       form_group(Form.file_input(form, field, opts))
