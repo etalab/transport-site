@@ -131,7 +131,7 @@ defmodule DB.Resource do
     |> cast(
       params,
       [:is_active, :url, :format, :last_import, :title,
-       :metadata, :id, :last_update, :latest_url, :is_available]
+       :metadata, :id, :last_update, :latest_url, :is_available, :auto_tags]
     )
     |> validate_required([:url])
   end

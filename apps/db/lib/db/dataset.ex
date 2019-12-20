@@ -68,6 +68,7 @@ defmodule DB.Dataset do
         last_update: r.last_update,
         latest_url: r.latest_url,
         content_hash: r.content_hash,
+        auto_tags: r.auto_tags
       },
       where: r.is_available
   end
