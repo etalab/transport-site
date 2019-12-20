@@ -17,7 +17,8 @@ defmodule Opendatasoft.UrlExtractor do
       Enum.map(urls, fn u -> %{"url" => u.url, "format" => "csv", "title" => u.title} end)
     else
       {:error, error} ->
-        Logger.warn(" <message>  #{inspect error}")
+        Logger.warn(" <message>  #{inspect(error)}")
+
         Enum.each(resources, fn resource ->
           Logger.warn(" <resource> #{resource["url"]}")
         end)
@@ -47,106 +48,112 @@ defmodule Opendatasoft.UrlExtractor do
     Enum.any?(headers, fn {k, v} ->
       k == "Content-Type" && String.contains?(v, "csv")
     end)
- end
+  end
 
- def has_csv?(_), do: false
+  def has_csv?(_), do: false
 
- defp download_csv_list(resources) when is_list(resources) do
-   resources
-   |> Enum.map(&download_csv/1)
-   |> Enum.filter(&has_csv?/1)
-   |> case do
-     bodys = [_ | _] -> {:ok, Enum.map(bodys, fn {_, v} -> v.body end)}
-     [] -> {:error, "No csv found"}
-   end
- end
+  defp download_csv_list(resources) when is_list(resources) do
+    resources
+    |> Enum.map(&download_csv/1)
+    |> Enum.filter(&has_csv?/1)
+    |> case do
+      bodys = [_ | _] -> {:ok, Enum.map(bodys, fn {_, v} -> v.body end)}
+      [] -> {:error, "No csv found"}
+    end
+  end
 
- defp download_csv(%{"url" => url}) do
-   case HTTPoison.get(url, [], hackney: [follow_redirect: true]) do
-     {:ok, response = %{status_code: 200}} ->
-       {:ok, response}
-     {:ok, response} ->
-       {:error, "Bad status code, needs 200, wants #{response.status_code}"}
-     {:error, error} ->
-       {:error, error}
-   end
- end
+  defp download_csv(%{"url" => url}) do
+    case HTTPoison.get(url, [], hackney: [follow_redirect: true]) do
+      {:ok, response = %{status_code: 200}} ->
+        {:ok, response}
 
- @doc """
- Get a download from a CSVs if it exists
+      {:ok, response} ->
+        {:error, "Bad status code, needs 200, wants #{response.status_code}"}
 
- ## Examples
-     iex> ["name,file\\ntoulouse,http", "stop,lon,lat\\n1,48.8,2.3"]
-     ...> |> ImportData.get_url_from_csv()
-     "http"
+      {:error, error} ->
+        {:error, error}
+    end
+  end
 
-     iex> |> ImportData.get_url_from_csv()
-     {:error, "No column file"}
+  @doc """
+  Get a download from a CSVs if it exists
 
- """
- def get_url_from_csv(bodies) when is_list(bodies) do
-   bodies
-   |> Enum.map(&get_url_from_csv/1)
-   |> Enum.filter(fn {status, _} -> status == :ok end)
-   |> case do
-     urls = [_ | _] -> {:ok, Enum.map(urls, fn {_, v} -> v end)}
-     [] -> {:error, "No url found"}
-   end
- end
+  ## Examples
+      iex> ["name,file\\ntoulouse,http", "stop,lon,lat\\n1,48.8,2.3"]
+      ...> |> ImportData.get_url_from_csv()
+      "http"
 
- @doc """
- Get a download from a CSV if it exists
+      iex> |> ImportData.get_url_from_csv()
+      {:error, "No column file"}
 
- ## Examples
-     iex> "name,file\\ntoulouse,http"
-     ...> |> ImportData.get_url_from_csv()
-     {:ok, {url: "http", title: "http"}}
+  """
+  def get_url_from_csv(bodies) when is_list(bodies) do
+    bodies
+    |> Enum.map(&get_url_from_csv/1)
+    |> Enum.filter(fn {status, _} -> status == :ok end)
+    |> case do
+      urls = [_ | _] -> {:ok, Enum.map(urls, fn {_, v} -> v end)}
+      [] -> {:error, "No url found"}
+    end
+  end
 
-     iex> "stop,lon,lat\\n1,48.8,2.3"
-     ...> |> ImportData.get_url_from_csv()
-     {:error, "No column file"}
+  @doc """
+  Get a download from a CSV if it exists
 
-     iex> "Donnees;format;Download\\r\\nHoraires des lignes TER;GTFS;https\\r\\n"
-     ...> |> ImportData.get_url_from_csv()
-     {:ok, {url: "https", title: "https"}}
+  ## Examples
+      iex> "name,file\\ntoulouse,http"
+      ...> |> ImportData.get_url_from_csv()
+      {:ok, {url: "http", title: "http"}}
 
- """
- def get_url_from_csv(body) do
-   @separators
-   |> Enum.map(&(get_url_from_csv(&1, body)))
-   |> Enum.filter(&(&1 != nil))
-   |> case do
-     [url | _] -> {:ok, %{url: url, title: get_filename(url)}}
-     _ -> {:error, "No column file"}
-   end
- end
+      iex> "stop,lon,lat\\n1,48.8,2.3"
+      ...> |> ImportData.get_url_from_csv()
+      {:error, "No column file"}
 
- def get_url_from_csv(separator, body) do
-   case StringIO.open(body) do
-     {:ok, out} ->
-       out
-       |> IO.binstream(:line)
-       |> CSV.decode(headers: true, separator: separator)
-       |> Enum.take(1)
-       |> case do
-         [ok: line] -> get_url_from_csv_line(line)
-         [error: error] ->
-           Logger.error(error)
-           nil
-         _ -> nil
-       end
-   end
- end
+      iex> "Donnees;format;Download\\r\\nHoraires des lignes TER;GTFS;https\\r\\n"
+      ...> |> ImportData.get_url_from_csv()
+      {:ok, {url: "https", title: "https"}}
 
- defp get_url_from_csv_line(line) do
-   @csv_headers
-   |> Enum.map(&(Map.get(line, &1)))
-   |> Enum.filter(&(&1 != nil))
-   |> case do
-     [] -> nil
-     [head | _] -> head
-   end
- end
+  """
+  def get_url_from_csv(body) do
+    @separators
+    |> Enum.map(&get_url_from_csv(&1, body))
+    |> Enum.filter(&(&1 != nil))
+    |> case do
+      [url | _] -> {:ok, %{url: url, title: get_filename(url)}}
+      _ -> {:error, "No column file"}
+    end
+  end
+
+  def get_url_from_csv(separator, body) do
+    case StringIO.open(body) do
+      {:ok, out} ->
+        out
+        |> IO.binstream(:line)
+        |> CSV.decode(headers: true, separator: separator)
+        |> Enum.take(1)
+        |> case do
+          [ok: line] ->
+            get_url_from_csv_line(line)
+
+          [error: error] ->
+            Logger.error(error)
+            nil
+
+          _ ->
+            nil
+        end
+    end
+  end
+
+  defp get_url_from_csv_line(line) do
+    @csv_headers
+    |> Enum.map(&Map.get(line, &1))
+    |> Enum.filter(&(&1 != nil))
+    |> case do
+      [] -> nil
+      [head | _] -> head
+    end
+  end
 
   @doc """
   filter dataset with csv resources
@@ -188,5 +195,4 @@ defmodule Opendatasoft.UrlExtractor do
       _ -> url
     end
   end
-
 end

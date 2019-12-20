@@ -25,29 +25,37 @@ defmodule TransportWeb.DatasetController do
 
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
     with dataset when not is_nil(dataset) <- Dataset.get_by(slug: slug_or_id, preload: true),
-        organization when not is_nil(organization) <- Dataset.get_organization(dataset) do
-
-        community_ressources = case CommunityResources.get(dataset.datagouv_id) do
+         organization when not is_nil(organization) <- Dataset.get_organization(dataset) do
+      community_ressources =
+        case CommunityResources.get(dataset.datagouv_id) do
           {_, community_ressources} -> community_ressources
           _ -> nil
         end
-        reuses = case Reuses.get(dataset) do
+
+      reuses =
+        case Reuses.get(dataset) do
           {_, reuses} -> reuses
           _ -> nil
         end
 
-        conn
-        |> assign(:dataset, dataset)
-        |> assign(:community_ressources, community_ressources)
-        |> assign(:organization, organization)
-        |> assign(:discussions, Discussions.get(dataset.datagouv_id))
-        |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
-        |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
-        |> assign(:reuses, reuses)
-        |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
-        |> assign(:history_resources, Dataset.history_resources(dataset))
-        |> put_status(if dataset.is_active do :ok else :not_found end)
-        |> render("details.html")
+      conn
+      |> assign(:dataset, dataset)
+      |> assign(:community_ressources, community_ressources)
+      |> assign(:organization, organization)
+      |> assign(:discussions, Discussions.get(dataset.datagouv_id))
+      |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
+      |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
+      |> assign(:reuses, reuses)
+      |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
+      |> assign(:history_resources, Dataset.history_resources(dataset))
+      |> put_status(
+        if dataset.is_active do
+          :ok
+        else
+          :not_found
+        end
+      )
+      |> render("details.html")
     else
       nil ->
         redirect_to_slug_or_404(conn, slug_or_id)
@@ -59,9 +67,18 @@ defmodule TransportWeb.DatasetController do
 
   defp get_datasets(params) do
     config = make_pagination_config(params)
+
     select = [
-      :id, :description, :licence, :logo, :spatial,
-      :title, :slug, :aom_id, :region_id, :type
+      :id,
+      :description,
+      :licence,
+      :logo,
+      :spatial,
+      :title,
+      :slug,
+      :aom_id,
+      :region_id,
+      :type
     ]
 
     params
@@ -71,12 +88,15 @@ defmodule TransportWeb.DatasetController do
   end
 
   defp clean_datasets_query(params), do: params |> Dataset.list_datasets([]) |> exclude(:preload)
+
   defp get_regions(%{"tags" => tags} = params) do
-    sub = %{} # for tags, we do not filter the datasets since it causes a non valid sql query
-    |> clean_datasets_query()
-    |> exclude(:order_by)
-    |> join(:left, [d], a in AOM, on: d.aom_id == a.id)
-    |> select([d, a], %{id: d.id, region_id: coalesce(d.region_id, a.region_id)})
+    # for tags, we do not filter the datasets since it causes a non valid sql query
+    sub =
+      %{}
+      |> clean_datasets_query()
+      |> exclude(:order_by)
+      |> join(:left, [d], a in AOM, on: d.aom_id == a.id)
+      |> select([d, a], %{id: d.id, region_id: coalesce(d.region_id, a.region_id)})
 
     Region
     |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
@@ -85,12 +105,14 @@ defmodule TransportWeb.DatasetController do
     |> order_by([r], r.nom)
     |> Repo.all()
   end
+
   defp get_regions(params) do
-    sub = params
-    |> clean_datasets_query()
-    |> exclude(:order_by)
-    |> join(:left, [d], a in AOM, on: d.aom_id == a.id)
-    |> select([d, a], %{id: d.id, region_id: coalesce(d.region_id, a.region_id)})
+    sub =
+      params
+      |> clean_datasets_query()
+      |> exclude(:order_by)
+      |> join(:left, [d], a in AOM, on: d.aom_id == a.id)
+      |> select([d, a], %{id: d.id, region_id: coalesce(d.region_id, a.region_id)})
 
     Region
     |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
@@ -124,15 +146,17 @@ defmodule TransportWeb.DatasetController do
   end
 
   defp redirect_to_slug_or_404(conn, slug_or_id) when is_integer(slug_or_id) do
-    redirect_to_slug_or_404(conn, Repo.get_by(Dataset, [id: slug_or_id]))
+    redirect_to_slug_or_404(conn, Repo.get_by(Dataset, id: slug_or_id))
   end
 
   defp redirect_to_slug_or_404(conn, slug_or_id) do
-    redirect_to_slug_or_404(conn, Repo.get_by(Dataset, [datagouv_id: slug_or_id]))
+    redirect_to_slug_or_404(conn, Repo.get_by(Dataset, datagouv_id: slug_or_id))
   end
 
   defp put_special_message(conn, %{"filter" => "has_realtime", "page" => page})
-    when page != 1, do: conn
+       when page != 1,
+       do: conn
+
   defp put_special_message(conn, %{"filter" => "has_realtime"}) do
     realtime_link =
       "page-shortlist"
@@ -140,13 +164,15 @@ defmodule TransportWeb.DatasetController do
       |> link(to: page_path(conn, :single_page, "real_time"))
       |> safe_to_string()
 
-    message = dgettext(
-      "page-shortlist",
-      "More information about realtime %{realtime_link}",
-      realtime_link: realtime_link
-    )
+    message =
+      dgettext(
+        "page-shortlist",
+        "More information about realtime %{realtime_link}",
+        realtime_link: realtime_link
+      )
 
     assign(conn, :special_message, raw(message))
   end
+
   defp put_special_message(conn, _params), do: conn
 end

@@ -12,19 +12,21 @@ defmodule Datagouvfr.Client do
       @spec base_url :: binary
       def base_url, do: :transport |> Application.get_env(:datagouvfr_site) |> Path.join("/api/1/")
 
-      @spec process_url(path) :: String.t
+      @spec process_url(path) :: String.t()
       def process_url(path) when is_list(path), do: path |> Path.join() |> process_url()
+
       def process_url(path) when is_binary(path) do
         base_url()
         |> Path.join(path)
-        |> URI.parse
+        |> URI.parse()
         |> add_trailing_slash
       end
 
       @spec post_process({:error, any} | {:ok, %{body: any, status_code: any}}) ::
               {:error, any} | {:ok, any}
       def post_process(response) do
-        Logger.debug fn -> "response: #{inspect(response)}" end
+        Logger.debug(fn -> "response: #{inspect(response)}" end)
+
         case response do
           {:ok, %{status_code: 200, body: body}} -> {:ok, body}
           {:ok, %{status_code: 201, body: body}} -> {:ok, body}
@@ -57,7 +59,7 @@ defmodule Datagouvfr.Client do
       defp content_type?(header) do
         header
         |> elem(0)
-        |> String.downcase
+        |> String.downcase()
         |> Kernel.==("content-type")
       end
     end

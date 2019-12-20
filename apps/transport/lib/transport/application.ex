@@ -10,21 +10,21 @@ defmodule Transport.Application do
   import Supervisor.Spec, only: [supervisor: 2]
 
   def start(_type, _args) do
-
-    children = [
-      supervisor(TransportWeb.Endpoint, []),
-      supervisor(ImportDataWorker, []),
-      CSVDocuments,
-      SearchCommunes
-    ]
-    |> add_scheduler()
+    children =
+      [
+        supervisor(TransportWeb.Endpoint, []),
+        supervisor(ImportDataWorker, []),
+        CSVDocuments,
+        SearchCommunes
+      ]
+      |> add_scheduler()
 
     opts = [strategy: :one_for_one, name: Transport.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
   defp add_scheduler(children) do
-    if Mix.env != :test do
+    if Mix.env() != :test do
       import Supervisor.Spec, only: [worker: 2]
       [worker(Transport.Scheduler, []) | children]
     else

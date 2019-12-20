@@ -17,13 +17,14 @@ defmodule TransportWeb.Solution.DataReuse.UsingMapTest do
   alias Transport.ReusableData
 
   setup_all do
-    %_{} = ReusableData.create_dataset %{
-      download_url: "https://link.to/angers.zip",
-      license: "odc-odbl",
-      title: "Horaires et arrêts du réseau IRIGO - format GTFS",
-      slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
-      validations: []
-    }
+    %_{} =
+      ReusableData.create_dataset(%{
+        download_url: "https://link.to/angers.zip",
+        license: "odc-odbl",
+        title: "Horaires et arrêts du réseau IRIGO - format GTFS",
+        slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
+        validations: []
+      })
 
     :ok
   end

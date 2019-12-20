@@ -12,9 +12,12 @@ defmodule TransportWeb.ResourceController do
     |> Repo.get(id)
     |> Repo.preload([:dataset, :validation])
     |> case do
-      nil -> render(conn, "404.html")
+      nil ->
+        render(conn, "404.html")
+
       resource ->
         issues = resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config)
+
         conn
         |> assign(:resource, resource)
         |> assign(:other_resources, Resource.other_resources(resource))
@@ -24,13 +27,17 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  def choose_action(conn, _), do: render conn, "choose_action.html"
+  def choose_action(conn, _), do: render(conn, "choose_action.html")
 
   @spec datasets_list(Plug.Conn.t(), any()) :: Plug.Conn.t()
   def datasets_list(conn, _params) do
     conn
     |> assign_or_flash(fn -> Dataset.user_datasets(conn) end, :datasets, "Unable to get resources, please retry.")
-    |> assign_or_flash(fn -> Dataset.user_org_datasets(conn) end, :org_datasets, "Unable to get resources, please retry.")
+    |> assign_or_flash(
+      fn -> Dataset.user_org_datasets(conn) end,
+      :org_datasets,
+      "Unable to get resources, please retry."
+    )
     |> render("list.html")
   end
 
@@ -61,17 +68,24 @@ defmodule TransportWeb.ResourceController do
          dataset when not is_nil(dataset) <- Repo.get_by(Dataset, datagouv_id: params["dataset_id"]),
          {:ok, _} <- ImportData.call(dataset),
          {:ok, _} <- Dataset.validate(dataset) do
-        conn
-        |> put_flash(:info, success_message)
-        |> redirect(to: dataset_path(conn, :details, params["dataset_id"]))
+      conn
+      |> put_flash(:info, success_message)
+      |> redirect(to: dataset_path(conn, :details, params["dataset_id"]))
     else
       {:error, error} ->
-        Logger.error("Unable to update resource #{params["resource_id"]} of dataset #{params["dataset_id"]}, error: #{inspect(error)}")
+        Logger.error(
+          "Unable to update resource #{params["resource_id"]} of dataset #{params["dataset_id"]}, error: #{
+            inspect(error)
+          }"
+        )
+
         conn
         |> put_flash(:error, dgettext("resource", "Unable to upload file"))
         |> form(params)
+
       nil ->
         Logger.error("Unable to get dataset with datagouv_id: #{params["dataset_id"]}")
+
         conn
         |> put_flash(:error, dgettext("resource", "Unable to upload file"))
         |> form(params)
@@ -80,12 +94,13 @@ defmodule TransportWeb.ResourceController do
 
   defp assign_or_flash(conn, getter, kw, error) do
     case getter.() do
-      {:ok, value} -> assign(conn, kw, value)
+      {:ok, value} ->
+        assign(conn, kw, value)
+
       {:error, _error} ->
-         conn
-         |> assign(kw, [])
-         |> put_flash(:error, Gettext.dgettext(TransportWeb.Gettext, "resource", error))
+        conn
+        |> assign(kw, [])
+        |> put_flash(:error, Gettext.dgettext(TransportWeb.Gettext, "resource", error))
     end
   end
-
 end

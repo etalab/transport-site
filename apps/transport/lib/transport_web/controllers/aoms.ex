@@ -15,7 +15,7 @@ defmodule TransportWeb.AOMSController do
     :population_muni_2014,
     :nom_commune,
     :insee_commune_principale,
-    :nombre_communes,
+    :nombre_communes
   ]
 
   def index(conn, _params), do: render(conn, "index.html", aoms: aoms())
@@ -24,7 +24,7 @@ defmodule TransportWeb.AOMSController do
     %{
       nom: aom.nom,
       departement: aom.departement,
-      region: (if aom.region, do: aom.region.nom, else: ""),
+      region: if(aom.region, do: aom.region.nom, else: ""),
       published: self_published(aom) || !is_nil(aom.parent_dataset),
       in_aggregate: !is_nil(aom.parent_dataset),
       up_to_date: up_to_date?(aom.datasets),
@@ -32,7 +32,7 @@ defmodule TransportWeb.AOMSController do
       nom_commune: nom_commune,
       insee_commune_principale: aom.insee_commune_principale,
       nombre_communes: aom.nombre_communes,
-      has_realtime: Enum.any?(aom.datasets, fn d -> d.has_realtime end),
+      has_realtime: Enum.any?(aom.datasets, fn d -> d.has_realtime end)
     }
   end
 
@@ -46,7 +46,7 @@ defmodule TransportWeb.AOMSController do
   defp aoms do
     AOM
     |> preload([:datasets, :region, :parent_dataset])
-    |> preload([datasets: :resources])
+    |> preload(datasets: :resources)
     |> join(:left, [aom], c in Commune, on: aom.insee_commune_principale == c.insee)
     |> select([aom, commune], [aom, commune.nom])
     |> Repo.all()
@@ -55,8 +55,8 @@ defmodule TransportWeb.AOMSController do
 
   defp self_published(aom) do
     !(aom.datasets
-    |> Enum.filter(fn d -> d.type == "public-transit" end)
-    |> Enum.empty?)
+      |> Enum.filter(fn d -> d.type == "public-transit" end)
+      |> Enum.empty?())
   end
 
   defp valid_dataset?(dataset), do: Enum.any?(dataset.resources, fn r -> !Resource.is_outdated?(r) end)
@@ -67,8 +67,7 @@ defmodule TransportWeb.AOMSController do
   defp csv_content do
     aoms()
     |> CSV.encode(headers: @csvheaders)
-    |> Enum.to_list
+    |> Enum.to_list()
     |> to_string
   end
-
 end

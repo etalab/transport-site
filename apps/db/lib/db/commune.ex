@@ -6,12 +6,12 @@ defmodule DB.Commune do
   alias DB.AOM
 
   schema "commune" do
-      field :insee, :string
-      field :nom, :string
-      field :wikipedia, :string
-      field :surf_ha, :float
-      field :geom, Geo.PostGIS.Geometry
+    field(:insee, :string)
+    field(:nom, :string)
+    field(:wikipedia, :string)
+    field(:surf_ha, :float)
+    field(:geom, Geo.PostGIS.Geometry)
 
-      belongs_to :aom_res, AOM, references: :composition_res_id
+    belongs_to(:aom_res, AOM, references: :composition_res_id)
   end
 end

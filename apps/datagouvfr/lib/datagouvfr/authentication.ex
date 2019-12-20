@@ -18,7 +18,7 @@ defmodule Datagouvfr.Authentication do
 
   @spec authorize_url :: binary
   def authorize_url do
-    {_, url} = Client.authorize_url(client(), [scope: "default"])
+    {_, url} = Client.authorize_url(client(), scope: "default")
     url
   end
 

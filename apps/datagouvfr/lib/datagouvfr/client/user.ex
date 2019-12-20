@@ -26,12 +26,11 @@ defmodule Datagouvfr.Client.User do
     Client.get(conn, Path.join(["me", "org_datasets"]))
   end
 
-  #private functions
+  # private functions
 
   defp xfields(exclude_fields) do
     @me_fields
-    |> Enum.filter(&Enum.member?(exclude_fields, &1) == false)
+    |> Enum.filter(&(Enum.member?(exclude_fields, &1) == false))
     |> Enum.join(",")
   end
-
 end

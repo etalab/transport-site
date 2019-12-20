@@ -11,19 +11,20 @@ defmodule TransportWeb.Backoffice.PageController do
     conn = assign(conn, :q, q)
 
     params
-    |> Dataset.list_datasets
+    |> Dataset.list_datasets()
     |> render_index(conn, params)
   end
 
   def index(%Plug.Conn{} = conn, %{"filter" => "outdated"} = params) do
     dt = Date.utc_today() |> Date.to_iso8601()
 
-    sub = Resource
-    |> where([r], fragment("metadata->>'end_date' IS NOT NULL"))
-    |> group_by([r], r.dataset_id)
-    |> having([_q], fragment("max(metadata->>'end_date') <= ?", ^dt))
-    |> distinct([r], r.dataset_id)
-    |> select([r], %Resource{dataset_id: r.dataset_id})
+    sub =
+      Resource
+      |> where([r], fragment("metadata->>'end_date' IS NOT NULL"))
+      |> group_by([r], r.dataset_id)
+      |> having([_q], fragment("max(metadata->>'end_date') <= ?", ^dt))
+      |> distinct([r], r.dataset_id)
+      |> select([r], %Resource{dataset_id: r.dataset_id})
 
     Dataset
     |> join(:right, [d], r in subquery(sub), on: d.id == r.dataset_id)
@@ -43,13 +44,14 @@ defmodule TransportWeb.Backoffice.PageController do
   end
 
   def index(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id} = params) do
-    conn = Dataset
-    |> preload(:aom)
-    |> Repo.get(dataset_id)
-    |> case do
-      nil -> put_flash(conn, :error, dgettext("backoffice", "Unable to find dataset"))
-      dataset -> assign(conn, :dataset, dataset)
-    end
+    conn =
+      Dataset
+      |> preload(:aom)
+      |> Repo.get(dataset_id)
+      |> case do
+        nil -> put_flash(conn, :error, dgettext("backoffice", "Unable to find dataset"))
+        dataset -> assign(conn, :dataset, dataset)
+      end
 
     render_index(Dataset, conn, params)
   end
@@ -60,9 +62,10 @@ defmodule TransportWeb.Backoffice.PageController do
   defp render_index(datasets, conn, params) do
     config = make_pagination_config(params)
 
-    datasets = datasets
-    |> preload([:region, :aom, :resources])
-    |> Repo.paginate(page: config.page_number)
+    datasets =
+      datasets
+      |> preload([:region, :aom, :resources])
+      |> Repo.paginate(page: config.page_number)
 
     conn
     |> assign(:regions, Repo.all(Region))

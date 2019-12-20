@@ -14,5 +14,4 @@ defmodule GBFS.FeedView do
   end
 
   defp default_last_updated, do: DateTime.utc_now() |> DateTime.to_unix()
-
 end

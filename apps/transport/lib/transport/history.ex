@@ -13,6 +13,7 @@ defmodule Transport.History do
       Logger.warn("no cellar credential set, we skip resource backup")
     else
       Logger.info("backuping the resources")
+
       Resource
       |> where(
         [r],
@@ -56,8 +57,9 @@ defmodule Transport.History do
           backuped_resources
           |> Enum.map(fn r -> r.updated_at end)
           |> Enum.max()
+
         max_last_modified < modification_date(resource)
-        end
+      end
     end
   end
 
@@ -76,7 +78,7 @@ defmodule Transport.History do
       %{
         key: o.key,
         updated_at: metadata["updated-at"],
-        content_hash: metadata["content-hash"],
+        content_hash: metadata["content-hash"]
       }
     end)
     |> Enum.to_list()

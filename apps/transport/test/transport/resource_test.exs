@@ -3,5 +3,4 @@ defmodule Transport.ResourceTest do
   alias DB.{Resource, Validation}
 
   doctest Resource
-
 end

@@ -8,11 +8,13 @@ defmodule TransportWeb.DatasetView do
   def render_sidebar_from_type(conn, dataset), do: render_panel_from_type(conn, dataset, "sidebar")
 
   def render_panel_from_type(conn, dataset, panel_type) do
-    type = if Resource.is_transit_file?(dataset.type) do
-      "public-transit"
-    else
-      dataset.type
-    end
+    type =
+      if Resource.is_transit_file?(dataset.type) do
+        "public-transit"
+      else
+        dataset.type
+      end
+
     render_existing(
       TransportWeb.DatasetView,
       "_#{panel_type}_#{type}.html",
@@ -22,6 +24,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def format_date(nil), do: ""
+
   def format_date(date) do
     date
     |> Timex.parse!("{ISO:Extended}")
@@ -41,9 +44,10 @@ defmodule TransportWeb.DatasetView do
     dataset
     |> Dataset.valid_gtfs()
     |> Enum.max_by(
-      fn %{metadata: nil} -> ""
-         %{metadata: metadata} -> metadata["end_date"]
-         _ -> ""
+      fn
+        %{metadata: nil} -> ""
+        %{metadata: metadata} -> metadata["end_date"]
+        _ -> ""
       end,
       fn -> nil end
     )
@@ -63,6 +67,7 @@ defmodule TransportWeb.DatasetView do
       kwargs
     )
   end
+
   def pagination_links(%{path_info: ["datasets", "aom", aom]} = conn, datasets) do
     kwargs = [path: &Helpers.dataset_path/4, action: :by_aom] |> add_order_by(conn.params)
 
@@ -73,15 +78,17 @@ defmodule TransportWeb.DatasetView do
       kwargs
     )
   end
+
   def pagination_links(conn, paginator) do
     PaginationHelpers.pagination_links(conn, paginator)
   end
 
   def order_link(conn, order_by) do
-    msg = %{
-      "alpha" => dgettext("page-shortlist", "Alphabetical"),
-      "most_recent" => dgettext("page-shortlist", "Most recent")
-    }[order_by]
+    msg =
+      %{
+        "alpha" => dgettext("page-shortlist", "Alphabetical"),
+        "most_recent" => dgettext("page-shortlist", "Most recent")
+      }[order_by]
 
     case conn.assigns do
       %{order_by: ^order_by} -> ~E"<span class=\"activefilter\"><%= msg %></span>"
@@ -93,7 +100,9 @@ defmodule TransportWeb.DatasetView do
     region_id = Integer.to_string(region.id)
 
     case conn.params do
-      %{"region" => ^region_id} -> ~E"<span class=\"activefilter\"><%= region.nom %> (<%= region.count %>)</span>"
+      %{"region" => ^region_id} ->
+        ~E"<span class=\"activefilter\"><%= region.nom %> (<%= region.count %>)</span>"
+
       _ ->
         link(
           "#{region.nom} (#{region.count})",
@@ -101,11 +110,13 @@ defmodule TransportWeb.DatasetView do
         )
     end
   end
+
   def area_type_link(conn, zone_type) do
-    msg = %{
-      "urban_public_transport" => dgettext("page-shortlist", "Urban public transport"),
-      "intercities_public_transport" => dgettext("page-shortlist", "Intercities public transport")
-    }[zone_type]
+    msg =
+      %{
+        "urban_public_transport" => dgettext("page-shortlist", "Urban public transport"),
+        "intercities_public_transport" => dgettext("page-shortlist", "Intercities public transport")
+      }[zone_type]
 
     case conn.params do
       %{"filter" => ^zone_type} -> ~E"<span class=\"activefilter\"><%= msg %></span>"

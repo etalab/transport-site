@@ -1,46 +1,52 @@
 defmodule TransportWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :transport
 
-  socket "/socket", TransportWeb.UserSocket
-  socket "/live", Phoenix.LiveView.Socket
+  socket("/socket", TransportWeb.UserSocket)
+  socket("/live", Phoenix.LiveView.Socket)
 
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phoenix.digest
   # when deploying your static files in production.
-  plug Plug.Static,
-    at: "/", from: :transport, gzip: false,
-    only: ~w(js css fonts images data blog favicon.ico robots.txt documents BingSiteAuth.xml google5be4b09db1274976.html demo_rt.html)
+  plug(Plug.Static,
+    at: "/",
+    from: :transport,
+    gzip: false,
+    only:
+      ~w(js css fonts images data blog favicon.ico robots.txt documents BingSiteAuth.xml google5be4b09db1274976.html demo_rt.html)
+  )
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
-    socket "/", Phoenix.LiveReloader.Socket
-    plug Phoenix.LiveReloader
-    plug Phoenix.CodeReloader
+    socket("/", Phoenix.LiveReloader.Socket)
+    plug(Phoenix.LiveReloader)
+    plug(Phoenix.CodeReloader)
   end
 
-  plug Plug.RequestId
-  plug Plug.Logger
+  plug(Plug.RequestId)
+  plug(Plug.Logger)
 
-  plug Plug.Parsers,
+  plug(Plug.Parsers,
     parsers: [:urlencoded, :json, :multipart],
     pass: ["*/*"],
     json_decoder: Poison,
     length: 100_000_000
+  )
 
-  plug Plug.MethodOverride
-  plug Plug.Head
+  plug(Plug.MethodOverride)
+  plug(Plug.Head)
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
-  plug Plug.Session,
+  plug(Plug.Session,
     store: :cookie,
     key: "_transport_key",
     signing_salt: "wqoqbzqj"
+  )
 
-  plug TransportWeb.Plugs.Router
+  plug(TransportWeb.Plugs.Router)
 
   @doc """
   Callback invoked for dynamically configuring the endpoint.

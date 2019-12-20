@@ -20,8 +20,10 @@ defmodule TransportWeb.Backoffice.PartnerController do
         conn
         |> put_flash(:info, dgettext("backoffice", "Partner deleted"))
         |> redirect(to: backoffice_partner_path(conn, :partners))
+
       {:error, error} ->
         Logger.error(error)
+
         conn
         |> put_flash(:error, dgettext("backoffice", "Unable to delete"))
         |> redirect(to: backoffice_partner_path(conn, :partners))
@@ -36,11 +38,11 @@ defmodule TransportWeb.Backoffice.PartnerController do
     else
       false ->
         put_flash(conn, :error, dgettext("backoffice", "This has to be an organization or a user"))
+
       {:error, error} ->
         Logger.error(error)
         put_flash(conn, :error, dgettext("backoffice", "Unable to insert partner in database"))
     end
     |> redirect(to: backoffice_partner_path(conn, :partners))
   end
-
 end

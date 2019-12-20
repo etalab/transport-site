@@ -15,7 +15,7 @@ defmodule TransportWeb.DatabaseCase do
       import Ecto.Query
 
       defp cleanup do
-        collections() |> Enum.each(&(cleanup(&1)))
+        collections() |> Enum.each(&cleanup(&1))
       end
 
       defp cleanup(:datasets), do: Repo.delete_all(Dataset)
@@ -26,28 +26,33 @@ defmodule TransportWeb.DatabaseCase do
 
       setup context do
         :ok = Sandbox.checkout(Repo)
+
         unless context[:async] do
           Sandbox.mode(Repo, {:shared, self()})
         end
 
         Repo.insert(%Region{nom: "Pays de la Loire"})
         Repo.insert(%Region{nom: "Auvergne-Rhône-Alpes"})
+
         Repo.insert(%AOM{
           insee_commune_principale: "53130",
           nom: "Laval",
-          region: Repo.get_by(Region, nom: "Pays de la Loire")}
-        )
+          region: Repo.get_by(Region, nom: "Pays de la Loire")
+        })
+
         Repo.insert(%AOM{
           insee_commune_principale: "38185",
           nom: "Grenoble",
-          region: Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes")}
-        )
+          region: Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes")
+        })
 
         cleanup()
-        on_exit fn ->
+
+        on_exit(fn ->
           :ok = Sandbox.checkout(Repo)
           cleanup()
-        end
+        end)
+
         :ok
       end
     end

@@ -2,19 +2,19 @@ defmodule GBFS.Router do
   use GBFS, :router
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug(:accepts, ["json"])
   end
 
   pipeline :jcdecaux do
-    plug :assign_jcdecaux
+    plug(:assign_jcdecaux)
   end
 
   pipeline :smoove do
-    plug :assign_smoove
+    plug(:assign_smoove)
   end
 
   pipeline :index_pipeline do
-    plug :assign_index
+    plug(:assign_index)
   end
 
   @reseaux_jcdecaux %{
@@ -27,7 +27,7 @@ defmodule GBFS.Router do
     "nancy" => "vélOstan'lib",
     "nantes" => "Bicloo",
     "rouen" => "cy'clic",
-    "toulouse" => "Vélô",
+    "toulouse" => "Vélô"
   }
 
   @reseaux_smoove [
@@ -44,48 +44,44 @@ defmodule GBFS.Router do
   ]
 
   scope "/gbfs", GBFS do
-    pipe_through :api
+    pipe_through(:api)
 
     scope "/" do
-      pipe_through :index_pipeline
-      get "/", IndexController, :index
+      pipe_through(:index_pipeline)
+      get("/", IndexController, :index)
     end
 
     @reseaux_smoove
-    |> Enum.map(
-      fn %{contract_id: contract_id} ->
-        scope "/" <> contract_id do
-          pipe_through :smoove
+    |> Enum.map(fn %{contract_id: contract_id} ->
+      scope "/" <> contract_id do
+        pipe_through(:smoove)
 
-          get "/gbfs.json", SmooveController, :index, as: contract_id
-          get "/system_information.json", SmooveController, :system_information, as: contract_id
-          get "/station_information.json", SmooveController, :station_information, as: contract_id
-          get "/station_status.json", SmooveController, :station_status, as: contract_id
-        end
+        get("/gbfs.json", SmooveController, :index, as: contract_id)
+        get("/system_information.json", SmooveController, :system_information, as: contract_id)
+        get("/station_information.json", SmooveController, :station_information, as: contract_id)
+        get("/station_status.json", SmooveController, :station_status, as: contract_id)
       end
-    )
+    end)
 
     scope "/vcub" do
-      get "/gbfs.json", VCubController, :index
-      get "/system_information.json", VCubController, :system_information
-      get "/station_information.json", VCubController, :station_information
-      get "/station_status.json", VCubController, :station_status
+      get("/gbfs.json", VCubController, :index)
+      get("/system_information.json", VCubController, :system_information)
+      get("/station_information.json", VCubController, :station_information)
+      get("/station_status.json", VCubController, :station_status)
     end
 
     @reseaux_jcdecaux
     |> Map.keys()
-    |> Enum.map(
-      fn contract ->
-        scope "/"<> contract do
-          pipe_through :jcdecaux
+    |> Enum.map(fn contract ->
+      scope "/" <> contract do
+        pipe_through(:jcdecaux)
 
-          get "/gbfs.json", JCDecauxController, :index, as: contract
-          get "/system_information.json", JCDecauxController, :system_information, as: contract
-          get "/station_information.json", JCDecauxController, :station_information, as: contract
-          get "/station_status.json", JCDecauxController, :station_status, as: contract
-        end
+        get("/gbfs.json", JCDecauxController, :index, as: contract)
+        get("/system_information.json", JCDecauxController, :system_information, as: contract)
+        get("/station_information.json", JCDecauxController, :station_information, as: contract)
+        get("/station_status.json", JCDecauxController, :station_status, as: contract)
       end
-    )
+    end)
   end
 
   defp assign_jcdecaux(conn, _) do
@@ -100,12 +96,14 @@ defmodule GBFS.Router do
     [_, contract_id, _] = conn.path_info
 
     conn
-    |> assign(:smoove_params, Enum.find(@reseaux_smoove, & &1.contract_id == contract_id))
+    |> assign(:smoove_params, Enum.find(@reseaux_smoove, &(&1.contract_id == contract_id)))
   end
 
   defp assign_index(conn, _) do
     conn
-    |> assign(:networks, ["vcub"] ++ (@reseaux_jcdecaux |> Map.keys) ++ (@reseaux_smoove |> Enum.map(& &1.contract_id)))
+    |> assign(
+      :networks,
+      ["vcub"] ++ (@reseaux_jcdecaux |> Map.keys()) ++ (@reseaux_smoove |> Enum.map(& &1.contract_id))
+    )
   end
-
 end

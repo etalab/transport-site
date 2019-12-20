@@ -28,5 +28,4 @@ defmodule TransportWeb.ChannelCase do
   setup _tags do
     :ok
   end
-
 end

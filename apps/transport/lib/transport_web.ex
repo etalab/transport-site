@@ -31,12 +31,12 @@ defmodule TransportWeb do
 
   def view do
     quote do
-      use Phoenix.View, root: "lib/transport_web/templates",
-                        namespace: TransportWeb
+      use Phoenix.View,
+        root: "lib/transport_web/templates",
+        namespace: TransportWeb
 
       # Import convenience functions from controllers
-      import Phoenix.Controller, only: [get_flash: 2, view_module: 1,
-                                        get_csrf_token: 0]
+      import Phoenix.Controller, only: [get_flash: 2, view_module: 1, get_csrf_token: 0]
 
       # Use all HTML functionality (forms, tags, etc)
       use TransportWeb.InputHelpers
@@ -46,6 +46,7 @@ defmodule TransportWeb do
       import TransportWeb.InputHelpers
       import TransportWeb.Gettext
       import Helpers
+
       import Phoenix.LiveView,
         only: [live_render: 2, live_render: 3, live_link: 1, live_link: 2]
 

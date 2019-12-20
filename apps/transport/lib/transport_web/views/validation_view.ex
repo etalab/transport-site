@@ -12,6 +12,6 @@ defmodule TransportWeb.ValidationView do
     errors
     |> Enum.reject(fn error -> match?({"Irrelevant", _}, error) end)
     |> Enum.empty?()
-    |> Kernel.not
+    |> Kernel.not()
   end
 end

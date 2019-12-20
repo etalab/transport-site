@@ -3,32 +3,32 @@ defmodule TransportWeb.API.Router do
   use Plug.ErrorHandler
 
   pipeline :accept_json do
-    plug :accepts, ["json"]
+    plug(:accepts, ["json"])
   end
 
   pipeline :api do
-    plug OpenApiSpex.Plug.PutApiSpec, module: TransportWeb.API.Spec
+    plug(OpenApiSpex.Plug.PutApiSpec, module: TransportWeb.API.Spec)
   end
 
   scope "/api/" do
-    pipe_through [:accept_json, :api]
+    pipe_through([:accept_json, :api])
 
     scope "/aoms" do
-      get "/", TransportWeb.API.AomController, :by_coordinates
-      get "/geojson", TransportWeb.API.AomController, :geojson
-      get "/:insee", TransportWeb.API.AomController, :by_insee
+      get("/", TransportWeb.API.AomController, :by_coordinates)
+      get("/geojson", TransportWeb.API.AomController, :geojson)
+      get("/:insee", TransportWeb.API.AomController, :by_insee)
     end
 
     scope "/stats" do
-      get "/", TransportWeb.API.StatsController, :index
-      get "/regions", TransportWeb.API.StatsController, :regions
+      get("/", TransportWeb.API.StatsController, :index)
+      get("/regions", TransportWeb.API.StatsController, :regions)
     end
 
-    get "/openapi", OpenApiSpex.Plug.RenderSpec, :show
+    get("/openapi", OpenApiSpex.Plug.RenderSpec, :show)
 
     scope "/datasets" do
-      get "/", TransportWeb.API.DatasetController, :datasets
-      get "/:id", TransportWeb.API.DatasetController, :by_id
+      get("/", TransportWeb.API.DatasetController, :datasets)
+      get("/:id", TransportWeb.API.DatasetController, :by_id)
     end
   end
 

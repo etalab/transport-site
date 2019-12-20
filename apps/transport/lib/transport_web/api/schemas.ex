@@ -9,7 +9,7 @@ defmodule TransportWeb.API.Schemas do
     @moduledoc false
     require OpenApiSpex
 
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "GeometryBase",
       type: :object,
       description: "GeoJSon geometry",
@@ -21,22 +21,23 @@ defmodule TransportWeb.API.Schemas do
           enum: ["Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon"]
         }
       }
-    }
+    })
   end
 
   defmodule NumberItems do
     @moduledoc false
     require OpenApiSpex
 
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       type: :number
-    }
+    })
   end
 
   defmodule Point2D do
     @moduledoc false
     require OpenApiSpex
-    OpenApiSpex.schema %{
+
+    OpenApiSpex.schema(%{
       title: "Point2D",
       type: :array,
       description: "Point in 2D space",
@@ -44,59 +45,20 @@ defmodule TransportWeb.API.Schemas do
       minItems: 2,
       maxItems: 2,
       items: NumberItems
-    }
+    })
   end
 
   defmodule LineString do
     @moduledoc false
     require OpenApiSpex
-    OpenApiSpex.schema %{
+
+    OpenApiSpex.schema(%{
       title: "LineString",
       type: :object,
       description: "GeoJSon geometry",
       externalDocs: %ExternalDocumentation{url: "http://geojson.org/geojson-spec.html#id3"},
       allOf: [
-          GeometryBase.schema,
-          %Schema{
-            type: :object,
-            properties: %{
-              coordinates: %Schema{type: :array, items: Point2D}
-            }
-          }
-      ]
-    }
-  end
-
-  defmodule Polygon do
-    @moduledoc false
-    require OpenApiSpex
-    OpenApiSpex.schema %{
-      type: :object,
-      title: "Polygon",
-      description: "GeoJSon geometry",
-      externalDocs: %ExternalDocumentation{url: "http://geojson.org/geojson-spec.html#id4"},
-      allOf: [
-        GeometryBase.schema,
-        %Schema{
-          type: :object,
-          properties: %{
-            coordinates: %Schema{type: :array, items: %Schema{type: :array, items: Point2D}}
-          }
-        }
-      ]
-    }
-  end
-
-  defmodule MultiPoint do
-    @moduledoc false
-    require OpenApiSpex
-    OpenApiSpex.schema %{
-      type: :object,
-      title: "MultiPoint",
-      description: "GeoJSon geometry",
-      externalDocs: %ExternalDocumentation{url: "http://geojson.org/geojson-spec.html#id5"},
-      allOf: [
-        GeometryBase.schema,
+        GeometryBase.schema(),
         %Schema{
           type: :object,
           properties: %{
@@ -104,19 +66,20 @@ defmodule TransportWeb.API.Schemas do
           }
         }
       ]
-    }
+    })
   end
 
-  defmodule MultiLineString do
+  defmodule Polygon do
     @moduledoc false
     require OpenApiSpex
-    OpenApiSpex.schema %{
+
+    OpenApiSpex.schema(%{
       type: :object,
-      title: "MultiLineString",
+      title: "Polygon",
       description: "GeoJSon geometry",
       externalDocs: %ExternalDocumentation{url: "http://geojson.org/geojson-spec.html#id4"},
       allOf: [
-        GeometryBase.schema,
+        GeometryBase.schema(),
         %Schema{
           type: :object,
           properties: %{
@@ -124,55 +87,98 @@ defmodule TransportWeb.API.Schemas do
           }
         }
       ]
-    }
+    })
+  end
+
+  defmodule MultiPoint do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      type: :object,
+      title: "MultiPoint",
+      description: "GeoJSon geometry",
+      externalDocs: %ExternalDocumentation{url: "http://geojson.org/geojson-spec.html#id5"},
+      allOf: [
+        GeometryBase.schema(),
+        %Schema{
+          type: :object,
+          properties: %{
+            coordinates: %Schema{type: :array, items: Point2D}
+          }
+        }
+      ]
+    })
+  end
+
+  defmodule MultiLineString do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      type: :object,
+      title: "MultiLineString",
+      description: "GeoJSon geometry",
+      externalDocs: %ExternalDocumentation{url: "http://geojson.org/geojson-spec.html#id4"},
+      allOf: [
+        GeometryBase.schema(),
+        %Schema{
+          type: :object,
+          properties: %{
+            coordinates: %Schema{type: :array, items: %Schema{type: :array, items: Point2D}}
+          }
+        }
+      ]
+    })
   end
 
   defmodule MultiPolygon do
     @moduledoc false
     require OpenApiSpex
-    OpenApiSpex.schema %{
+
+    OpenApiSpex.schema(%{
       type: :object,
       title: "MultiPolygon",
       description: "GeoJSon geometry",
       externalDocs: %ExternalDocumentation{url: "http://geojson.org/geojson-spec.html#id6"},
       allOf: [
-        GeometryBase.schema,
+        GeometryBase.schema(),
         %Schema{
           type: :object,
           properties: %{
-            coordinates: %Schema{type: :array, items: %Schema{
+            coordinates: %Schema{
               type: :array,
-              items: %Schema{type: :array, items: Point2D}}
+              items: %Schema{type: :array, items: %Schema{type: :array, items: Point2D}}
             }
           }
         }
       ]
-    }
+    })
   end
 
   defmodule Geometry do
     @moduledoc false
     require OpenApiSpex
 
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "Geometry",
       description: "Geometry object",
       type: :object,
       oneOf: [
-        LineString.schema,
-        Polygon.schema,
-        MultiPoint.schema,
-        MultiLineString.schema,
-        MultiPolygon.schema
+        LineString.schema(),
+        Polygon.schema(),
+        MultiPoint.schema(),
+        MultiLineString.schema(),
+        MultiPolygon.schema()
       ]
-    }
+    })
   end
 
   defmodule Feature do
     @moduledoc false
     require OpenApiSpex
 
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       type: :object,
       title: "Feature",
       description: "Feature object",
@@ -185,28 +191,28 @@ defmodule TransportWeb.API.Schemas do
           oneOf: [%Schema{type: :string}, %Schema{type: :number}]
         }
       }
-    }
+    })
   end
 
   defmodule FeatureCollection do
     @moduledoc false
     require OpenApiSpex
 
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       type: :object,
       title: "FeatureCollection",
       description: "FeatureCollection object",
       properties: %{
-        features: %Schema{type: :array, items: Feature},
+        features: %Schema{type: :array, items: Feature}
       }
-    }
+    })
   end
 
   defmodule AOMResponse do
     @moduledoc false
     require OpenApiSpex
 
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "AOM",
       description: "AOM object",
       type: :object,
@@ -217,30 +223,30 @@ defmodule TransportWeb.API.Schemas do
         forme_juridique: %Schema{type: :string},
         departement: %Schema{type: :string}
       }
-    }
+    })
   end
 
   defmodule GeoJSONResponse do
     @moduledoc false
     require OpenApiSpex
 
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "GeoJSONResponse",
       description: "Response in GeoJSON",
       type: :object,
       oneOf: [
-        Geometry.schema,
-        Feature.schema,
-        FeatureCollection.schema
+        Geometry.schema(),
+        Feature.schema(),
+        FeatureCollection.schema()
       ]
-    }
+    })
   end
 
   defmodule DatasetsResponse do
     @moduledoc false
     require OpenApiSpex
 
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "Dataset",
       description: "A dataset is a composed of at least one GTFS resource",
       type: :object,
@@ -259,15 +265,24 @@ defmodule TransportWeb.API.Schemas do
               url: %Schema{type: :string, description: "Stable URL of the GTFS file"},
               title: %Schema{type: :string, description: "Title of the resource"},
               updated: %Schema{type: :string, description: "Last update date-time"},
-              end_calendar_validity: %Schema{type: :string, description: "The last day in the GTFS calendar. null if the file couldn’t be read"},
-              start_calendar_validity: %Schema{type: :string, description: "The first day in the GTFS calendar. null if the file couldn’t be read"},
+              end_calendar_validity: %Schema{
+                type: :string,
+                description: "The last day in the GTFS calendar. null if the file couldn’t be read"
+              },
+              start_calendar_validity: %Schema{
+                type: :string,
+                description: "The first day in the GTFS calendar. null if the file couldn’t be read"
+              },
               format: %Schema{type: :string, description: "The format of the resource (GTFS, NeTex, ...)"},
-              content_hash: %Schema{type: :string, description: "A hash on the content of the file. Can be either a sha256 or an etag. Can be stored and used to check if the resource has changed."},
+              content_hash: %Schema{
+                type: :string,
+                description:
+                  "A hash on the content of the file. Can be either a sha256 or an etag. Can be stored and used to check if the resource has changed."
+              }
             }
           }
         }
       }
-    }
+    })
   end
-
 end

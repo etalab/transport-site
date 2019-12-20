@@ -30,5 +30,4 @@ defmodule TransportWeb.ConnCase do
   setup _tags do
     {:ok, conn: ConnTest.build_conn()}
   end
-
 end

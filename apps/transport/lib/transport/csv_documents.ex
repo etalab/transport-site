@@ -1,7 +1,7 @@
 defmodule Transport.CSVDocuments do
-@moduledoc """
-Reads the CSV file of all Real Time Providers and caches it
-"""
+  @moduledoc """
+  Reads the CSV file of all Real Time Providers and caches it
+  """
   use Agent
 
   def start_link(_params) do
@@ -24,13 +24,13 @@ Reads the CSV file of all Real Time Providers and caches it
   end
 
   defp read_csv(filename) do
-    Application.app_dir(:transport, "priv") <> "/#{filename}"
-    |> File.stream!
+    (Application.app_dir(:transport, "priv") <> "/#{filename}")
+    |> File.stream!()
     |> CSV.decode(separator: ?;, headers: true)
-    |> Enum.filter(fn {:ok, _} -> true
-    _ -> false
+    |> Enum.filter(fn
+      {:ok, _} -> true
+      _ -> false
     end)
     |> Enum.map(fn {_, array} -> array end)
   end
-
 end
