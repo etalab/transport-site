@@ -11,11 +11,11 @@ defmodule TransportWeb.AOMSController do
     :published,
     :in_aggregate,
     :up_to_date,
+    :has_realtime,
     :population_muni_2014,
     :nom_commune,
     :insee_commune_principale,
     :nombre_communes,
-    :has_realtime,
   ]
 
   def index(conn, _params), do: render(conn, "index.html", aoms: aoms())
