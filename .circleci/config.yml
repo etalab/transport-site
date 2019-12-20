@@ -86,6 +86,17 @@ jobs:
             mix npm "run linter:ecma"
             mix npm "run linter:sass"
 
+  test_format:
+    <<: *defaults
+
+    steps:
+      - attach_workspace:
+          at: ~/transport
+
+      - run:
+          name: Run formatter
+          command: mix format --check-formatted --dry-run
+
   test_unit:
     <<: *defaults_with_postgres
     steps:
@@ -144,6 +155,10 @@ workflows:
       - build
 
       - test_lint:
+          requires:
+            - build
+
+      - test_format:
           requires:
             - build
 
