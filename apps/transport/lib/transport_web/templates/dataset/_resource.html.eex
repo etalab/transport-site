@@ -16,6 +16,11 @@
                     </span>
                 </div>
             </div>
+            <div>
+                <%= for tag <- @resource.auto_tags do %>
+                    <span class="label"><%= tag %></span>
+                <% end %>
+            </div>
     </div>
     <div class="resource__details">
         <%= if Resource.valid?(@resource) and Resource.is_gtfs?(@resource) do %>
