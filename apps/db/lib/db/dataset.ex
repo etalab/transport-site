@@ -369,7 +369,10 @@ defmodule DB.Dataset do
   def formats(_), do: []
 
   @spec validate(binary | integer | DB.Dataset.t()) :: {:error, String.t()} | {:ok, nil}
-  def validate(%__MODULE__{id: id}), do: validate(id)
+  def validate(%__MODULE__{id: id, type: type}) do
+    if Resource.is_transit_file?(type), do: validate(id), else: {:ok, nil}
+  end
+
   def validate(id) when is_binary(id), do: id |> String.to_integer() |> validate()
 
   def validate(id) when is_integer(id) do
