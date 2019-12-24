@@ -35,6 +35,7 @@ defmodule TransportWeb.StatsController do
       nb_officical_realtime: nb_officical_realtime(),
       nb_unofficical_realtime: nb_unofficical_realtime(),
       nb_reusers: nb_reusers(),
+      nb_reuses: nb_reuses(),
       nb_dataset_types: nb_dataset_types(),
       nb_gtfs: count_dataset_with_format("GTFS"),
       nb_netex: count_dataset_with_format("netex"),
@@ -71,6 +72,10 @@ defmodule TransportWeb.StatsController do
 
   defp nb_reusers do
     Enum.count(CSVDocuments.reusers())
+  end
+
+  defp nb_reuses do
+    Repo.aggregate(Dataset, :sum, :nb_reuses)
   end
 
   defp count_dataset_with_format(format) do
