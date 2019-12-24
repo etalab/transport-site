@@ -33,6 +33,7 @@ defmodule DB.Dataset do
     field(:has_realtime, :boolean)
     field(:is_active, :boolean)
     field(:population, :integer)
+    field(:nb_reuses, :integer)
 
     belongs_to(:region, Region)
     belongs_to(:aom, AOM)
@@ -202,6 +203,7 @@ defmodule DB.Dataset do
       :type,
       :region_id,
       :has_realtime,
+      :nb_reuses,
       :is_active
     ])
     |> cast_aom(params)
