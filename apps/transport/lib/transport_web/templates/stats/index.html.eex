@@ -23,6 +23,10 @@
           <h3><%= @nb_reusers %></h3>
           <div>Réutilisateurs déclarés</div>
         </div>
+        <div class="tile">
+          <h3><%= @nb_reuses %></h3>
+          <div>Réutilisations déclarées</div>
+        </div>
       </div>
     </div>
     <div class="domain theorical">
