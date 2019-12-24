@@ -60,6 +60,7 @@ defmodule Transport.ImportData do
       |> Map.put("type", type)
       |> Map.put("organization", dataset["organization"]["name"])
       |> Map.put("resources", get_resources(dataset, type))
+      |> Map.put("nb_reuses", get_nb_reuses(dataset))
 
     dataset =
       case has_realtime?(dataset, type) do
@@ -104,6 +105,9 @@ defmodule Transport.ImportData do
   def get_logo_thumbnail(%{"organization" => %{"logo_thumbnail" => logo}}), do: logo
   def get_logo_thumbnail(%{"owner" => %{"avatar_thumbnail" => logo}}), do: logo
   def get_logo_thumbnail(_), do: nil
+
+  def get_nb_reuses(%{"metrics" => %{"reuses" => reuses}}), do: reuses
+  def get_nb_reuses(_), do: 0
 
   def get_dataset(_), do: {:error, "Dataset needs to be a map"}
 
