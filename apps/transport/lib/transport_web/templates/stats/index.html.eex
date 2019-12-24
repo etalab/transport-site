@@ -1,4 +1,3 @@
-
 <div class="hero deployment">
   <div class="hero__container">
     <h1>Quelles données sont disponibles sur la plateforme ?</h1>
@@ -62,7 +61,7 @@
           <div class="description">
             <h3>Zoom sur les formats de données</h3>
             <p>Les données de transport en commun sont disponibles sur le site dans 2 formats,
-            <a href="https://gtfs.org/">GTFS</a> et <a href="http://netex-cen.eu/">NeTEx</a>.</p>
+              <a href="https://gtfs.org/">GTFS</a> et <a href="http://netex-cen.eu/">NeTEx</a>.</p>
           </div>
           <div class="tile-numbers">
             <div class="tile">
@@ -92,10 +91,10 @@
         <div class="panel">
           <div class="description">
             <p>Le site recense des données temps réel pour les transports en commun.<br>
-            Pour être référencée sur le PAN, les données doivent être accessibles sans authentification
-            et dans le format GTFS-RT, Siri ou Siri Lite.<br>
-            Les données temps réel qui ne respectent pas ces conditions sont référencées sur <a href="/real_time">une page à part</a>.<br>
-            Plus d’information sur le temps réel sont disponible dans <a href="https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/temps-reel-des-transports-en-commun">la documentation</a>.</p>
+              Pour être référencée sur le PAN, les données doivent être accessibles sans authentification
+              et dans le format GTFS-RT, Siri ou Siri Lite.<br>
+              Les données temps réel qui ne respectent pas ces conditions sont référencées sur <a href="/real_time">une page à part</a>.<br>
+              Plus d’information sur le temps réel sont disponible dans <a href="https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/temps-reel-des-transports-en-commun">la documentation</a>.</p>
           </div>
           <div class="tile-numbers">
             <div class="tile">
@@ -127,11 +126,11 @@
     <div class="domain irve">
       <h2>Infrastructures de recharge pour véhicules électriques (IRVE)</h2>
       <p>
-      Depuis septembre 2018, les données sont consolidées de manière automatique par Etalab.</p>
+        Depuis septembre 2018, les données sont consolidées de manière automatique par Etalab.</p>
       <a class="button" href="https://www.data.gouv.fr/fr/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/">Voir le fichier</a>
       <a class="button" href="https://github.com/etalab/schema.data.gouv.fr/blob/master/irve/aggregration/irve.ipynb">Voir le code source</a>
       <p>
-      Les fichiers sources doivent être au format csv et respecter le format défini par <a href="https://www.legifrance.gouv.fr/affichTexte.do?cidTexte=JORFTEXT000033860733&categorieLien=id">l’arrêté du 12 janvier 2017</a> pour apparaitre dans la version consolidée, notamment sur les colonnes id_pdc et date_maj qui servent de pivot. Plus d’informations sur le format attendu sont disponibles <a href="https://www.data.gouv.fr/fr/datasets/fichier-exemple-stations-de-recharge-de-vehicules-electriques/">ici</a>.</p>
+        Les fichiers sources doivent être au format csv et respecter le format défini par <a href="https://www.legifrance.gouv.fr/affichTexte.do?cidTexte=JORFTEXT000033860733&categorieLien=id">l’arrêté du 12 janvier 2017</a> pour apparaitre dans la version consolidée, notamment sur les colonnes id_pdc et date_maj qui servent de pivot. Plus d’informations sur le format attendu sont disponibles <a href="https://www.data.gouv.fr/fr/datasets/fichier-exemple-stations-de-recharge-de-vehicules-electriques/">ici</a>.</p>
     </div>
     <div class="domain road">
       <h2>Données routières</h2>
