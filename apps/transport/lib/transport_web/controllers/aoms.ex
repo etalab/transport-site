@@ -2,7 +2,6 @@ defmodule TransportWeb.AOMSController do
   use TransportWeb, :controller
   alias DB.{AOM, Commune, Repo, Resource}
   import Ecto.Query
-  import CSV
 
   @csvheaders [
     :nom,
