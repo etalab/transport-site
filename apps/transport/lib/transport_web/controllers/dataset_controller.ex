@@ -89,7 +89,7 @@ defmodule TransportWeb.DatasetController do
 
   defp clean_datasets_query(params), do: params |> Dataset.list_datasets([]) |> exclude(:preload)
 
-  defp get_regions(%{"tags" => tags} = params) do
+  defp get_regions(%{"tags" => _tags}) do
     # for tags, we do not filter the datasets since it causes a non valid sql query
     sub =
       %{}
