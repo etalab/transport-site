@@ -21,7 +21,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
     with datagouv_id when not is_nil(datagouv_id) <- Datasets.get_id_from_url(params["url"]),
          {:ok, dg_dataset} <- ImportData.import_from_udata(datagouv_id, params["type"]),
          params <- Map.merge(params, dg_dataset),
-         changeset <- Dataset.changeset(%Dataset{}, params),
+         {:ok, changeset} <- Dataset.changeset(%Dataset{}, params),
          {:ok, dataset} <- Repo.insert_or_update(changeset) do
       dataset
       |> Dataset.validate()

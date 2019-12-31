@@ -212,12 +212,22 @@ defmodule DB.Dataset do
     |> cast_assoc(:aom)
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
-        %{changeset | action: :ignore}
+        {:ok, %{changeset | action: :ignore}}
 
-      changeset ->
-        changeset
+      %{valid?: true} = changeset ->
+        {:ok, changeset}
+
+      %{valid?: false, errors: errors} ->
+        {:error, format_error(errors)}
+
+      _ ->
+        {:error, "unknown"}
     end
   end
+
+  defp format_error([]), do: ""
+  defp format_error([{_key, {msg, _extra}}]), do: "#{msg}"
+  defp format_error([{_key, {msg, _extra}} | errors]), do: "#{msg}, #{format_error(errors)}"
 
   def valid_gtfs(%__MODULE__{resources: nil}), do: []
   def valid_gtfs(%__MODULE__{resources: r, type: "public-transit"}), do: Enum.filter(r, &Resource.valid?/1)
