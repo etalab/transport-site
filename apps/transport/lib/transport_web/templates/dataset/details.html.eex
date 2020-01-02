@@ -202,7 +202,7 @@
         <%= Dataset.link_to_datagouv(@dataset) %>
       </div>
       <p>
-        <%= render "_licence.html", conn: @conn %>
+        <%= render "_licence.html", conn: @conn, dataset: @dataset %>
       </p>
       <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
       <h4><%= dgettext("page-dataset-details", "Other datasets of ") %> <%= String.capitalize(@organization.nom) %></h4>

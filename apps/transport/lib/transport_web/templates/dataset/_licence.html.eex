@@ -1,8 +1,10 @@
 <b><%= dgettext("page-dataset-details", "License") %></b>
 <%= link("ODbL", to: "https://opendatacommons.org/licenses/odbl/1.0/") %>
+<%= if is_transit_file?(@dataset) do %>
 <%= dgettext("page-dataset-details", "and ") %>
 <%= link(
         dgettext("page-dataset-details", "Specific usage conditions"),
         to: page_path(@conn, :single_page, "conditions")
       )
 %>
+<% end %>

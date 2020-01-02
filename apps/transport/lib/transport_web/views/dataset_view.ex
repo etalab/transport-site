@@ -167,4 +167,6 @@ defmodule TransportWeb.DatasetView do
     |> Stream.reject(&Resource.is_netex?/1)
     |> Enum.to_list()
   end
+
+  def is_transit_file?(%Dataset{type: type}), do: Resource.is_transit_file?(type)
 end
