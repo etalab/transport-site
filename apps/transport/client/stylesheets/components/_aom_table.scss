@@ -1,0 +1,27 @@
+.aom_table {
+  th {
+    padding-right: 20px;
+    position: relative;
+
+    &:after {
+      content: '';
+      height: 30px;
+      width: 15px;
+      position: absolute;
+      top: calc(50% - 15px);
+      right: 0;
+      background: url('/images/icons/unsorted.svg');
+      background-size: cover;
+    }
+
+    &.asc:after {
+      background: url('/images/icons/sorted_asc.svg');
+      background-size: cover;
+    }
+
+    &.desc:after {
+      background: url('/images/icons/sorted_desc.svg');
+      background-size: cover;
+    }
+  }
+}
