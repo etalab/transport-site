@@ -2,6 +2,11 @@
   th {
     padding-right: 20px;
     position: relative;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $lighter-grey;
+    }
 
     &:after {
       content: '';
