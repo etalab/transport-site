@@ -5,7 +5,7 @@
       Télécharger en CSV
   </a>
 </div>
-<table class="table aom_table">
+<table class="table aom_table unsorted">
 <tr>
   <th>Nom</th>
   <th>Département</th>
@@ -44,6 +44,8 @@ const comparer = (idx, asc) => (a, b) => ((v1, v2) =>
 // do the work...
 document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
     const table = th.closest('table');
+    table.querySelectorAll('th').forEach(th => th.className = '')
+    th.className = !this.asc ? 'asc' : 'desc'
     const header_index = Array.from(th.parentNode.children).indexOf(th);
 
     Array.from(table.querySelectorAll('tr:nth-child(n+2)'))
