@@ -4,19 +4,19 @@
       <h1 class="text-center shortlist-title"><%= dgettext("page-shortlist", "Available datasets") %></h1>
       <div class="form__group">
         <%= form_for @conn, dataset_path(@conn, :index), [method: "get", class: "shortlist-form"], fn f -> %>
-          <%= search_input f, :q, [{"value", assigns[:q] || ""}, {"placeholder", dgettext("page-index", "Find dataset")}, {"aria-label", dgettext("page-index", "Find dataset")}] %>
-        <% end %>
-      </div>
+        <%= search_input f, :q, [{"value", assigns[:q] || ""}, {"placeholder", dgettext("page-index", "Find dataset")}, {"aria-label", dgettext("page-index", "Find dataset")}] %>
+      <% end %>
     </div>
   </div>
 </div>
-  <%= if @conn.assigns[:special_message] do %>
-    <div class="container">
-      <div class="notification">
-        <%= @special_message %>
-      </div>
+</div>
+<%= if @conn.assigns[:special_message] do %>
+  <div class="container">
+    <div class="notification">
+      <%= @special_message %>
     </div>
-  <% end %>
+  </div>
+<% end %>
 <section class="section section-grey datasets">
   <div class="container">
     <h2 class="shortlist__title"><%= dgettext("page-shortlist", "Search results") %></h2>
@@ -33,118 +33,118 @@
           <ul class="side-pane__menu">
             <li class="side-pane__title">
               <h3><%= dgettext("page-shortlist", "Order by") %></h3>
-            <li class="side-pane__dropdown unfolded">
-              <ul class="side-pane__submenu">
-                <li><%= order_link(@conn, "alpha") %></li>
-                <li><%= order_link(@conn, "most_recent") %> </li>
-              </ul>
-            </li>
-            <li class="side-pane__title">
-              <h3><%= dgettext("page-shortlist", "Filters") %></h3>
-            </li>
-            <li class="side-pane__dropdown unfolded">
-              <h4><%= dgettext("page-shortlist", "Area type") %></h4>
-              <ul class="side-pane__submenu">
-                <li><%= area_type_link(@conn, "urban_public_transport") %></li>
-                <li><%= area_type_link(@conn, "intercities_public_transport") %></li>
-              </ul>
-          </li>
-            <li class="side-pane__dropdown unfolded">
-              <h4><%= dgettext("page-shortlist", "Regions") %></h4>
-              <ul class="side-pane__submenu">
-                <%= for region <- @regions do %>
-                  <li><%= region_link(@conn, region) %></li>
-                <% end%>
-                <%= if display_all_regions_links?(@conn) do %>
-                  <li><%= link(
+              <li class="side-pane__dropdown unfolded">
+                <ul class="side-pane__submenu">
+                  <li><%= order_link(@conn, "alpha") %></li>
+                  <li><%= order_link(@conn, "most_recent") %> </li>
+                </ul>
+              </li>
+              <li class="side-pane__title">
+                <h3><%= dgettext("page-shortlist", "Filters") %></h3>
+              </li>
+              <li class="side-pane__dropdown unfolded">
+                <h4><%= dgettext("page-shortlist", "Area type") %></h4>
+                <ul class="side-pane__submenu">
+                  <li><%= area_type_link(@conn, "urban_public_transport") %></li>
+                  <li><%= area_type_link(@conn, "intercities_public_transport") %></li>
+                </ul>
+              </li>
+              <li class="side-pane__dropdown unfolded">
+                <h4><%= dgettext("page-shortlist", "Regions") %></h4>
+                <ul class="side-pane__submenu">
+                  <%= for region <- @regions do %>
+                    <li><%= region_link(@conn, region) %></li>
+                  <% end%>
+                  <%= if display_all_regions_links?(@conn) do %>
+                    <li><%= link(
                     dgettext("page-shortlist", "All regions"),
                     to: dataset_path(@conn, :index)
                   )
                   %></li>
-                <% end %>
-              </ul>
-            </li>
-
-            <li class="side-pane__dropdown unfolded">
-              <h4><%= dgettext("page-shortlist", "Data types") %></h4>
-              <ul class="side-pane__submenu">
-                <%= for type <- @types do %>
-                  <li><%= type_link(@conn, type) %></li>
-                <% end %>
-                <%= if display_all_types_links?(@conn) do %>
-                <li><%= link(
+                  <% end %>
+                </ul>
+              </li>
+              <li class="side-pane__dropdown unfolded">
+                <h4><%= dgettext("page-shortlist", "Data types") %></h4>
+                <ul class="side-pane__submenu">
+                  <%= for type <- @types do %>
+                    <li><%= type_link(@conn, type) %></li>
+                  <% end %>
+                  <%= if display_all_types_links?(@conn) do %>
+                    <li><%= link(
                   dgettext("page-shortlist", "All types"),
                   to: dataset_path(@conn, :index)
                   )
                 %></li>
-                <% else %>
-                  <li><%= link(
+                  <% else %>
+                    <li><%= link(
                     dgettext("page-shortlist", "Realtime timetables"),
                     to: dataset_path(@conn, :index, filter: "has_realtime")
                   )
                   %></li>
-                <% end %>
-              </ul>
-            </li>
-          </ul>
-        </nav>
-        <div class="main-pane transparent">
-          <%= for dataset <- @datasets do %>
-            <div class="panel dataset__panel">
-              <div class="panel__content">
-                <div class="dataset__image" data-provider="<%= dataset.title%>">
-                  <%= img_tag(dataset.logo, alt: dataset.title) %>
+                  <% end %>
+                </ul>
+              </li>
+            </ul>
+          </nav>
+          <div class="main-pane transparent">
+            <%= for dataset <- @datasets do %>
+              <div class="panel dataset__panel">
+                <div class="panel__content">
+                  <div class="dataset__description" >
+                    <div class="dataset__image" data-provider="<%= dataset.title%>">
+                      <%= img_tag(dataset.logo, alt: dataset.title) %>
+                    </div>
+                    <div>
+                      <h3 class="dataset__title">
+                        <a href="/datasets/<%= dataset.slug %>/">
+                          <%= Dataset.long_title(dataset) %>
+                        </a>
+                      </h3>
+                      <dl class="shortlist__notice">
+                        <dd><%= dataset.spatial %></dd>
+                      </dl>
+                    </div>
+                  </div>
                   <%= unless is_nil(icon_type_path(dataset)) do %>
                     <div class="dataset__type">
                       <%= img_tag(icon_type_path(dataset), alt: dataset.type) %>
                     </div>
                   <% end %>
                 </div>
-                <div>
-                <h3 class="dataset__title">
-                  <a href="/datasets/<%= dataset.slug %>/">
-                  <%= Dataset.long_title(dataset) %>
-                  </a>
-                </h3>
-                  <dl class="shortlist__notice">
-                    <dd><%= dataset.spatial %></dd>
-                  </dl>
-                </div>
-              </div>
-              <div class="panel__extra">
-                <div class="dataset__info">
-                  <div class="shortlist__notices">
+                <div class="panel__extra">
+                  <div class="dataset__info">
+                    <div class="shortlist__notices">
                       <dl class="shortlist__notice">
                         <dd><%= dataset.title %></dd>
                       </dl>
                       <dl class="shortlist__notice">
                         <%= unless Dataset.formats(dataset) == [] do %>
-                        <dt class="shortlist__label"><%= dgettext("page-shortlist", "Format") %></dt>
-                        <%= for format <- Dataset.formats(dataset) do %>
-                        <dd class="label"><%= format %></dd>
-                        <% end %>
+                          <dt class="shortlist__label"><%= dgettext("page-shortlist", "Format") %></dt>
+                          <%= for format <- Dataset.formats(dataset) do %>
+                            <dd class="label"><%= format %></dd>
+                          <% end %>
                         <% end %>
                       </dl>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          <% end %>
+            <% end %>
+          </div>
         </div>
-      </div>
-      <div class="shortlist__pagination">
-        <%= pagination_links @conn, @datasets %>
-      </div>
-    <% end %>
-
-    <div>
-      <i class="fas fa-cogs"></i>
-      <%= link(
+        <div class="shortlist__pagination">
+          <%= pagination_links @conn, @datasets %>
+        </div>
+      <% end %>
+      <div>
+        <i class="fas fa-cogs"></i>
+        <%= link(
         dgettext("page-shortlist", "Get dataset list via an API"),
         to: "#{swagger_ui_path(@conn, [path: "/api/openapi"])}#/datasets/API.DatasetController.datasets"
       )
       %>
-      -
+        -
+      </div>
     </div>
-  </div>
-</section>
+  </section>
