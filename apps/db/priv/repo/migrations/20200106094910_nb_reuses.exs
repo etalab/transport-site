@@ -1,5 +1,6 @@
-defmodule DB.Repo.Migrations.AddResourceTags do
+defmodule DB.Repo.Migrations.NbReuses do
   use Ecto.Migration
+  require Logger
 
   def change do
     alter table(:dataset) do
