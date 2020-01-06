@@ -33,6 +33,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
 
     div:last-child {
       padding: 1em;
@@ -52,11 +53,11 @@
     padding: 1em;
     line-height: 1em;
   }
-
+  
   .dataset__image img {
     object-fit: contain;
   }
-
+  
   .side-pane__submenu a {
     padding: 0;
   }
@@ -65,17 +66,17 @@
     color: #1c1c1c;
     text-decoration: none;
   }
-
+  
   .dataset__title a:hover {
     background: 0;
   }
-
+  
   .dataset__title {
     margin: 0;
     font-size: 1.1em;
     line-height: 1.25em;
   }
-
+  
   .dataset__subtitle {
     margin: 0;
     font-size: 1.1em;
@@ -83,6 +84,25 @@
     text-align: center;
   }
 
+  .dataset__description {
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  .dataset__type {
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    flex: 0 0 4.5em;
+    position: relative;
+    align-items: flex-end;
+    text-align: center;
+    padding: 1em;
+    line-height: 1em;
+    margin-right: 1em;
+  }
+  
   .panel__extra {
     display: flex;
     flex-direction: row;
@@ -116,7 +136,7 @@
 
   .shortlist__notice {
     margin: 0;
-    margin-right: 2em;
+    margin-right: 1em;
     flex-wrap: 0;
   }
 
