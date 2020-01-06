@@ -169,4 +169,12 @@ defmodule TransportWeb.DatasetView do
   end
 
   def is_transit_file?(%Dataset{type: type}), do: Resource.is_transit_file?(type)
+
+  def licence(dataset) do
+    Dataset.localise_licence(dataset)
+  end
+
+  def licence_url("fr-lo"), do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
+  def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
+  def licence_url(_), do: nil
 end

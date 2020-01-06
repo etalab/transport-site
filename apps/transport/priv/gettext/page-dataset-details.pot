@@ -282,3 +282,7 @@ msgstr ""
 #, elixir-format
 msgid "Get details about this dataset via an %{start_link}API call%{end_link}"
 msgstr ""
+
+#, elixir-format
+msgid "compatible with"
+msgstr ""
