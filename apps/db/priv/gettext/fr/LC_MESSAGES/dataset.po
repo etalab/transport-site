@@ -49,7 +49,7 @@ msgstr "Vous devez remplir soit une région soit une AOM"
 
 #, elixir-format
 msgid "fr-lo"
-msgstr "License ouverte"
+msgstr "Licence ouverte"
 
 #, elixir-format
 msgid "notspecified"
