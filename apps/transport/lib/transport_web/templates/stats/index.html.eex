@@ -12,6 +12,7 @@
         Retrouvez l’état de l’ouverture des données de transport (nombre de jeux de données ouverts et carte des territoires à avoir référencé des données en open data),
         par mode de transport, et par la nature des données mises à disposition (statiques ou dynamiques, et par format).
         Les informations transmises par ces cartes sont mises à jour en temps réel, en fonction des données référencées sur la plateforme transport.data.gouv.fr.
+        <p>Nous publions également des informations sur le nombre de réutilisations faites des données mises à disposition sur la plateforme, ainsi que le nombre de réutilisateurs uniques (pouvant être auteurs de multiples réutilisations).</p>
       </p>
       <div class="domain-stats general">
         <div class="tile">
