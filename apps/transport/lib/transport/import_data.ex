@@ -51,7 +51,7 @@ defmodule Transport.ImportData do
   def get_dataset(%{} = dataset, type) do
     dataset =
       dataset
-      |> Map.take(["title", "description", "license", "id", "slug", "frequency", "tags"])
+      |> Map.take(["title", "description", "id", "slug", "frequency", "tags"])
       |> Map.put("datagouv_id", dataset["id"])
       |> Map.put("logo", get_logo_thumbnail(dataset))
       |> Map.put("full_logo", get_logo(dataset))
@@ -61,6 +61,7 @@ defmodule Transport.ImportData do
       |> Map.put("organization", dataset["organization"]["name"])
       |> Map.put("resources", get_resources(dataset, type))
       |> Map.put("nb_reuses", get_nb_reuses(dataset))
+      |> Map.put("licence", dataset["license"])
 
     dataset =
       case has_realtime?(dataset, type) do
