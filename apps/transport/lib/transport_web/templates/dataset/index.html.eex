@@ -94,6 +94,11 @@
               <div class="panel__content">
                 <div class="dataset__image" data-provider="<%= dataset.title%>">
                   <%= img_tag(dataset.logo, alt: dataset.title) %>
+                  <%= unless is_nil(icon_type_path(dataset)) do %>
+                    <div class="dataset__type">
+                      <%= img_tag(icon_type_path(dataset), alt: dataset.type) %>
+                    </div>
+                  <% end %>
                 </div>
                 <div>
                 <h3 class="dataset__title">

@@ -131,6 +131,19 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
+  def icon_type_path(%{type: type}) do
+    case type do
+      "public-transit" -> "/images/icons/bus.svg"
+      "long-distance-coach" -> "/images/icons/bus.svg"
+      "bike-sharing" -> "/images/icons/bicycle.svg"
+      "carsharing-areas" -> "/images/icons/car.svg"
+      "charging-stations" -> "/images/icons/charge-station.svg"
+      "air-transport" -> "/images/icons/plane.svg"
+      "road-network" -> "/images/icons/map.svg"
+      _ -> nil
+    end
+  end
+
   def display_all_regions_links?(%{params: %{"region" => region}}) when not is_nil(region), do: true
   def display_all_regions_links?(_), do: false
 
