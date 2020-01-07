@@ -31,15 +31,11 @@
       </li>
     <% end %>
     <li>
-      <a class="footer__link footer__link--tos" href="/validation" role="link"><%= gettext("Check a GTFS file's quality") %></a>
     </li>
     <li>
       <a class="footer__link footer__link--tos" href="https://doc.transport.data.gouv.fr/foire-aux-questions" role="link">FAQ</a>
     </li>
     <li>
-      <a class="footer__link footer__link--tos" href="/real_time" role="link">
-        <%= gettext "Real time datasets" %>
-      </a>
     </li>
     <li>
       <a class="footer__link footer__link--tos" href="/legal" role="link">
