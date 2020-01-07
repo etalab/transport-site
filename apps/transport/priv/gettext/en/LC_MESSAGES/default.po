@@ -62,13 +62,13 @@ msgid "Check a GTFS file's quality"
 msgstr ""
 
 #, elixir-format
-msgid "Real time datasets"
-msgstr ""
-
-#, elixir-format
 msgid "About"
 msgstr ""
 
 #, elixir-format
 msgid "Blog"
+msgstr ""
+
+#, elixir-format
+msgid "Source code"
 msgstr ""
