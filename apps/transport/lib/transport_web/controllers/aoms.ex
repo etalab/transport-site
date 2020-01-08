@@ -61,7 +61,15 @@ defmodule TransportWeb.AOMSController do
   defp valid_dataset?(dataset), do: Enum.any?(dataset.resources, fn r -> !Resource.is_outdated?(r) end)
 
   defp up_to_date?([]), do: nil
-  defp up_to_date?(datasets), do: Enum.any?(datasets, &valid_dataset?/1)
+
+  defp up_to_date?(datasets) do
+    datasets
+    |> Enum.filter(fn d -> Resource.is_transit_file?(d.type) end)
+    |> case do
+      [] -> nil
+      transit_datasets -> Enum.any?(transit_datasets, &valid_dataset?/1)
+    end
+  end
 
   defp csv_content do
     aoms()
