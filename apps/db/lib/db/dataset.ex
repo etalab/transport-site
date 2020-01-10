@@ -87,7 +87,7 @@ defmodule DB.Dataset do
     resource_query = no_validations_query()
 
     __MODULE__
-    |> where([d], fragment("search_vector @@ plainto_tsquery('simple', ?) or title = ?", ^q, ^q))
+    |> where([d], fragment("search_vector @@ plainto_tsquery('simple', ?) or unaccent(title) = unaccent(?)", ^q, ^q))
     |> order_by([l], desc: fragment("ts_rank_cd(search_vector, plainto_tsquery('simple', ?), 32) DESC, population", ^q))
     |> select_active
     |> select_or_not(s)
