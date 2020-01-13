@@ -1,16 +1,16 @@
 version: "3"
 services:
   database:
-    image: mdillon/postgis:11-alpine
+    image: transport_db
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
-      POSTGRES_PASSWORD: example
+      POSTGRES_DB: transport_repo
+      POSTGRES_PASSWORD: postgres # obviously do not use this in production
   web:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    command: mix phx.server
     ports:
       - 5000:5000
     volumes:
@@ -19,6 +19,9 @@ services:
       - ./apps:/app/apps/
     env_file:
         - .env
+    environment:
+        PG_URL: ecto://postgres:postgres@database/transport_repo
+        PG_URL_TEST: ecto://postgres:postgres@database/transport_test
     depends_on:
         - database
 volumes:
