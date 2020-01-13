@@ -1,7 +1,7 @@
 version: "3"
 services:
   database:
-    image: transport_db
+    image: antoinede/transport_data_gouv_dev_database
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
