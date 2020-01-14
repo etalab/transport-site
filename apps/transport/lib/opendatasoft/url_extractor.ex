@@ -90,6 +90,7 @@ defmodule Opendatasoft.UrlExtractor do
   def get_url_from_csv(bodies) when is_list(bodies) do
     bodies
     |> Enum.map(&get_url_from_csv/1)
+    |> List.flatten()
     |> Enum.filter(fn {status, _} -> status == :ok end)
     |> case do
       urls = [_ | _] -> {:ok, Enum.map(urls, fn {_, v} -> v end)}
@@ -117,11 +118,8 @@ defmodule Opendatasoft.UrlExtractor do
   def get_url_from_csv(body) do
     @separators
     |> Enum.map(&get_url_from_csv(&1, body))
-    |> Enum.filter(&(&1 != nil))
-    |> case do
-      [url | _] -> {:ok, %{url: url, title: get_filename(url)}}
-      _ -> {:error, "No column file"}
-    end
+    |> List.flatten()
+    |> Enum.map(fn url -> {:ok, %{url: url, title: get_filename(url)}} end)
   end
 
   def get_url_from_csv(separator, body) do
@@ -130,20 +128,14 @@ defmodule Opendatasoft.UrlExtractor do
         out
         |> IO.binstream(:line)
         |> CSV.decode(headers: true, separator: separator)
-        |> Enum.take(1)
-        |> case do
-          [ok: line] ->
-            get_url_from_csv_line(line)
-
-          [error: error] ->
-            Logger.error(error)
-            nil
-
-          _ ->
-            nil
-        end
+        |> Enum.map(&get_url_from_row/1)
+        |> Enum.filter(&(&1 != nil))
     end
   end
+
+  defp get_url_from_row({:ok, line}), do: get_url_from_csv_line(line)
+  defp get_url_from_row({:error, error}), do: Logger.error(error)
+  defp get_url_from_row(error), do: Logger.error(error)
 
   defp get_url_from_csv_line(line) do
     @csv_headers
