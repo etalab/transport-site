@@ -2,7 +2,7 @@ defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
   alias Datagouvfr.Client.{CommunityResources, Datasets, Discussions, Reuses}
-  alias DB.{AOM, Dataset, Region, Repo}
+  alias DB.{AOM, Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
   import Phoenix.HTML
   import Phoenix.HTML.Link
@@ -95,8 +95,8 @@ defmodule TransportWeb.DatasetController do
       %{}
       |> clean_datasets_query()
       |> exclude(:order_by)
-      |> join(:left, [d], a in AOM, on: d.aom_id == a.id)
-      |> select([d, a], %{id: d.id, region_id: coalesce(d.region_id, a.region_id)})
+      |> join(:left, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
+      |> select([d, d_geo], %{id: d.id, region_id: d_geo.region_id})
 
     Region
     |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
@@ -111,8 +111,8 @@ defmodule TransportWeb.DatasetController do
       params
       |> clean_datasets_query()
       |> exclude(:order_by)
-      |> join(:left, [d], a in AOM, on: d.aom_id == a.id)
-      |> select([d, a], %{id: d.id, region_id: coalesce(d.region_id, a.region_id)})
+      |> join(:left, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
+      |> select([d, d_geo], %{id: d.id, region_id: d_geo.region_id})
 
     Region
     |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
