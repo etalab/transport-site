@@ -100,11 +100,11 @@ Then you only need to run:
 
 And access it at http://localhost:5000
 
-You can do code changes in the repository, those changes will be applied with hot reload.
+You can make changes in the repository and those will be applied with hot reload.
 
 You can run any `mix` command with:
 
-`docker-compose run -e MIX_ENV=test web mix test`
+`docker-compose run web mix <cmd>`
 
 For the tests you also need to add an environment variable:
 
