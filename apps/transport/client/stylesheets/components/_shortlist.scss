@@ -56,6 +56,7 @@
   
   .dataset__image img {
     object-fit: contain;
+    height: 100%;
   }
   
   .side-pane__submenu a {
@@ -103,6 +104,10 @@
     margin-right: 1em;
   }
   
+  .dataset__type img {
+    height: 100%;
+  }
+
   .panel__extra {
     display: flex;
     flex-direction: row;
