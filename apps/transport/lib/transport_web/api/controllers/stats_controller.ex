@@ -97,10 +97,16 @@ defmodule TransportWeb.API.StatsController do
 
   defmacro count_region_format(region, format) do
     quote do
-      fragment("SELECT COUNT(format) FROM resource \
-      WHERE dataset_id in \
-      (SELECT id FROM dataset WHERE region_id=? OR aom_id IN (SELECT id from aom WHERE region_id=?)) \
-      AND format = ? GROUP BY format", unquote(region), unquote(region), unquote(format))
+      fragment(
+        """
+        SELECT COUNT(format) FROM resource
+        JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = resource.dataset_id
+        WHERE d_geo.region_id = ?
+        AND format = ? GROUP BY format
+        """,
+        unquote(region),
+        unquote(format)
+      )
     end
   end
 
@@ -155,8 +161,11 @@ defmodule TransportWeb.API.StatsController do
                 is_completed: r.is_completed,
                 nb_datasets:
                   fragment(
-                    "SELECT COUNT(*) FROM dataset WHERE region_id=? OR aom_id IN (SELECT id from aom WHERE region_id=?)",
-                    r.id,
+                    """
+                    SELECT COUNT(*) FROM dataset
+                    JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
+                    WHERE d_geo.region_id = ?
+                    """,
                     r.id
                   ),
                 dataset_formats: %{
@@ -168,14 +177,22 @@ defmodule TransportWeb.API.StatsController do
                 dataset_types: %{
                   pt:
                     fragment(
-                      "SELECT COUNT(*) FROM dataset WHERE region_id=? OR aom_id IN (SELECT id from aom WHERE region_id=?) AND type = 'public-transit'",
-                      r.id,
+                      """
+                      SELECT COUNT(*) FROM dataset
+                      JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
+                      WHERE d_geo.region_id = ?
+                      AND type = 'public-transit'
+                      """,
                       r.id
                     ),
                   bike_sharing:
                     fragment(
-                      "SELECT COUNT(*) FROM dataset WHERE region_id=? OR aom_id IN (SELECT id from aom WHERE region_id=?) AND type = 'bike-sharing'",
-                      r.id,
+                      """
+                      SELECT COUNT(*) FROM dataset
+                      JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
+                      WHERE d_geo.region_id = ?
+                      AND type = 'bike-sharing'
+                      """,
                       r.id
                     )
                 }
