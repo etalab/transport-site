@@ -3,18 +3,5 @@ defmodule DB.Repo.Migrations.Unaccent do
 
   def change do
     execute("CREATE EXTENSION IF NOT EXISTS unaccent")
-
-    execute(
-      """
-      ALTER TEXT SEARCH CONFIGURATION simple
-      ALTER MAPPING FOR hword, hword_part, hword_asciipart, word
-      WITH unaccent, simple;
-      """,
-      """
-      ALTER TEXT SEARCH CONFIGURATION simple
-      ALTER MAPPING FOR hword, hword_part, hword_asciipart, word
-      WITH simple;
-      """
-    )
   end
 end
