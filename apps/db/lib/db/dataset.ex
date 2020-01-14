@@ -272,6 +272,15 @@ defmodule DB.Dataset do
     Path.join([System.get_env("DATAGOUVFR_SITE"), "datasets", slug])
   end
 
+  def count_by_resource_tag(tag) do
+    __MODULE__
+    |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
+    |> where([_d, r], ^tag in r.auto_tags)
+    |> Repo.aggregate(:count, :id)
+  end
+
+  def count_by_type("train"), do: count_by_resource_tag("rail")
+
   def count_by_type(type) do
     query = from(d in __MODULE__, where: d.type == ^type)
 

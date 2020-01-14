@@ -50,7 +50,7 @@
                     <h3 class="text-center"><%= dgettext("page-index", "Air data") %></h3>
                     <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["air-transport"]) %></p>
                 </a>
-                <a class="tile" href="<%= dataset_path(@conn, :index, type: "train") %>">
+                <a class="tile" href="<%= dataset_path(@conn, :index, "tags[]": "rail") %>">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/train.svg") %>" alt="" />
                     <h3 class="text-center"><%= dgettext("page-index", "Railroad data") %></h3>
                     <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["train"]) %></p>
