@@ -21,4 +21,4 @@ else
     exit 1
 fi
 
-pg_restore -h $HOST -U $USER_NAME -d $DB_NAME --format=c --no-owner --clean $BACKUP_PATH
+pg_restore -h $HOST -U $USER_NAME -d $DB_NAME --format=c --no-owner --clean --no-acl $BACKUP_PATH
