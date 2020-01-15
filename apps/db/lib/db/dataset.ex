@@ -148,9 +148,8 @@ defmodule DB.Dataset do
   defp filter_by_type(query, %{"type" => type}), do: where(query, [d], d.type == ^type)
   defp filter_by_type(query, _), do: query
 
-  defp filter_by_commune(query, %{"commune" => commune}), do: where(query, [d], d.aom_id == ^commune)
-
-  defp filter_by_commune(query, _), do: query
+  defp filter_by_aom(query, %{"aom" => aom_id}), do: where(query, [d], d.aom_id == ^aom_id)
+  defp filter_by_aom(query, _), do: query
 
   def list_datasets(%{} = params, query) do
     query
@@ -159,7 +158,7 @@ defmodule DB.Dataset do
     |> filter_by_category(params)
     |> filter_by_type(params)
     |> filter_by_region(params)
-    |> filter_by_commune(params)
+    |> filter_by_aom(params)
     |> order_datasets(params)
   end
 
