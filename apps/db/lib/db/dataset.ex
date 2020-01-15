@@ -113,15 +113,15 @@ defmodule DB.Dataset do
   def list_datasets(%{"q" => ""} = params, s), do: s |> list_datasets() |> order_datasets(params)
   def list_datasets(%{"q" => q} = params, s), do: q |> search_datasets(s) |> order_datasets(params)
 
-  def list_datasets(%{"region" => region_id} = params, s) do
-    s
-    |> list_datasets()
+  defp filter_by_region(query, %{"region" => region_id} = params) do
+    query
     |> join(:right, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
     |> where([d, d_geo], d_geo.region_id == ^region_id)
-    |> order_datasets(params)
   end
 
-  defp filter_dataset(query, filter_key) do
+  defp filter_by_region(query, _), do: query
+
+  defp filter_by_category(query, %{"filter" => filter_key}) do
     case filter_key do
       "has_realtime" -> where(query, [d], d.has_realtime == true)
       "intercities_public_transport" -> where(query, [d], not is_nil(d.region_id) and d.type == "public-transit")
@@ -130,40 +130,36 @@ defmodule DB.Dataset do
     end
   end
 
-  def list_datasets(%{"filter" => filter} = params, s) do
-    s
-    |> list_datasets()
-    |> filter_dataset(filter)
-    |> order_datasets(params)
-  end
+  defp filter_by_category(query, _), do: query
 
-  def list_datasets(%{"tags" => tags} = params, s) do
+  defp filter_by_tags(query, %{"tags" => tags}) do
     resources =
       Resource
       |> where([r], fragment("? @> ?::varchar[]", r.auto_tags, ^tags))
       |> distinct([r], r.dataset_id)
       |> select([r], %Resource{dataset_id: r.dataset_id})
 
-    s
-    |> list_datasets()
+    query
     |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
-    |> order_datasets(params)
   end
 
-  def list_datasets(%{} = params, s) do
-    filters =
-      params
-      |> Map.take(["commune", "type"])
-      |> Map.to_list()
-      |> Enum.map(fn
-        {"commune", v} -> {:aom_id, v}
-        {"type", type} -> {:type, type}
-      end)
-      |> Keyword.new()
+  defp filter_by_tags(query, _), do: query
 
-    s
+  defp filter_by_type(query, %{"type" => type}), do: where(query, [d], d.type == ^type)
+  defp filter_by_type(query, _), do: query
+
+  defp filter_by_commune(query, %{"commune" => commune}), do: where(query, [d], d.aom_id == ^commune)
+
+  defp filter_by_commune(query, _), do: query
+
+  def list_datasets(%{} = params, query) do
+    query
     |> list_datasets()
-    |> where([d], ^filters)
+    |> filter_by_tags(params)
+    |> filter_by_category(params)
+    |> filter_by_type(params)
+    |> filter_by_region(params)
+    |> filter_by_commune(params)
     |> order_datasets(params)
   end
 
