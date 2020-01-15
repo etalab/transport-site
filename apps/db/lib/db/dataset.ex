@@ -355,19 +355,6 @@ defmodule DB.Dataset do
     end
   end
 
-  @doc """
-  long_title of the dataset, used in the dataset list and dataset detail as the 'main' title of the dataset
-  """
-  def long_title(%__MODULE__{} = dataset) do
-    localization = localization(dataset)
-
-    if localization do
-      localization <> " - " <> type_to_str(dataset.type)
-    else
-      type_to_str(dataset.type)
-    end
-  end
-
   @spec formats(DB.Dataset.t()) :: [binary]
   def formats(%__MODULE__{resources: resources}) when is_list(resources) do
     resources
@@ -497,11 +484,6 @@ defmodule DB.Dataset do
   @cellar_host ".cellar-c2.services.clever-cloud.com/"
 
   defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> @cellar_host, name])
-
-  @spec localization(DB.Dataset.t()) :: binary | nil
-  defp localization(%__MODULE__{aom: %{nom: nom}}), do: nom
-  defp localization(%__MODULE__{region: %{nom: nom}}), do: nom
-  defp localization(_), do: nil
 
   defp validate_mutual_exclusion(changeset, fields, error) do
     fields

@@ -98,7 +98,7 @@
                     <div>
                       <h3 class="dataset__title">
                         <a href="/datasets/<%= dataset.slug %>/">
-                          <%= Dataset.long_title(dataset) %>
+                          <%= long_title(dataset) %>
                         </a>
                       </h3>
                       <dl class="shortlist__notice">
