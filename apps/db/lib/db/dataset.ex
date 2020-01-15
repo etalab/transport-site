@@ -154,10 +154,10 @@ defmodule DB.Dataset do
   def list_datasets(%{} = params, query) do
     query
     |> list_datasets()
+    |> filter_by_region(params)
     |> filter_by_tags(params)
     |> filter_by_category(params)
     |> filter_by_type(params)
-    |> filter_by_region(params)
     |> filter_by_aom(params)
     |> order_datasets(params)
   end
