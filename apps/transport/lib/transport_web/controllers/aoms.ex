@@ -64,7 +64,7 @@ defmodule TransportWeb.AOMSController do
 
   defp up_to_date?(datasets) do
     datasets
-    |> Enum.filter(fn d -> Resource.is_transit_file?(d.type) end)
+    |> Enum.filter(fn d -> d.type == "public-transit" end)
     |> case do
       [] -> nil
       transit_datasets -> Enum.any?(transit_datasets, &valid_dataset?/1)

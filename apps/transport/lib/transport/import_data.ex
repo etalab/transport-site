@@ -146,7 +146,7 @@ defmodule Transport.ImportData do
   end
 
   def get_valid_resources(%{"resources" => resources}, type) do
-    if Resource.is_transit_file?(type) do
+    if type == "public-transit" do
       resources
       |> get_valid_gtfs_resources()
       |> Enum.concat(get_valid_netex_resources(resources))
@@ -335,7 +335,6 @@ defmodule Transport.ImportData do
       is_netex?(format) -> "netex"
       is_gtfs?(format) -> "GTFS"
       type == "public-transit" -> "GTFS"
-      type == "train" -> "GTFS"
       true -> format
     end
   end

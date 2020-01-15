@@ -36,19 +36,6 @@ defmodule DB.Resource do
   def endpoint, do: Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
 
   @doc """
-  Is the dataset type corresponding to a public transit file
-  ## Examples
-      iex> Resource.is_transit_file?("train")
-      true
-      iex> Resource.is_transit_file?("micro-mobility")
-      false
-  """
-  def is_transit_file?(type) do
-    ["public-transit", "long-distance-coach", "train"]
-    |> Enum.member?(type)
-  end
-
-  @doc """
   A validation is needed if the last update from the data is newer than the last validation.
   ## Examples
       iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}, validation: %Validation{date: "2018-01-01"}})
@@ -57,13 +44,11 @@ defmodule DB.Resource do
       false
       iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}, validation: %Validation{}})
       true
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "train"}, validation: %Validation{}})
-      true
       iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "micro-mobility"}, validation: %Validation{}})
       false
   """
   def needs_validation(%__MODULE__{dataset: dataset, validation: %Validation{date: validation_date}}) do
-    case [is_transit_file?(dataset.type), validation_date] do
+    case [dataset.type == "public-transit", validation_date] do
       [true, nil] -> true
       [true, validation_date] -> dataset.last_update > validation_date
       _ -> false
@@ -189,7 +174,7 @@ defmodule DB.Resource do
     __MODULE__
     |> preload(:dataset)
     |> Repo.all()
-    |> Enum.filter(fn r -> is_transit_file?(r.dataset.type) end)
+    |> Enum.filter(fn r -> r.dataset.type == "public-transit" end)
     |> Enum.filter(&(List.first(args) == "--all" or needs_validation(&1)))
     |> Enum.each(&validate_and_save/1)
   end

@@ -8,6 +8,8 @@ defmodule TransportWeb.PageController do
     conn
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
     |> assign(:count_by_type, Dataset.count_by_type())
+    |> assign(:count_train, Dataset.count_by_resource_tag("rail"))
+    |> assign(:count_coach, Dataset.count_coach())
     |> assign(:count_aoms_with_dataset, count_aoms_with_dataset())
     |> assign(:count_regions_completed, count_regions_completed())
     |> assign(:count_has_realtime, Dataset.count_has_realtime())

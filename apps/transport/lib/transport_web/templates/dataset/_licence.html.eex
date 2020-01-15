@@ -6,7 +6,7 @@
   <%= licence(@dataset) %>
 <% end %>
 
-<%= if is_transit_file?(@dataset) && @dataset.licence == "odc-odbl" do %>
+<%= if @dataset.type == "public-transit" && @dataset.licence == "odc-odbl" do %>
 <%= dgettext("page-dataset-details", "and ") %>
 <%= link(
         dgettext("page-dataset-details", "Specific usage conditions"),

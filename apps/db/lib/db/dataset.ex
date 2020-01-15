@@ -49,10 +49,8 @@ defmodule DB.Dataset do
       "charging-stations" => dgettext("dataset", "Charging stations"),
       "micro-mobility" => dgettext("dataset", "Micro mobility"),
       "air-transport" => dgettext("dataset", "Aerial"),
-      "train" => dgettext("dataset", "Train timetable"),
       "bike-sharing" => dgettext("dataset", "Bike sharing"),
-      "road-network" => dgettext("dataset", "Road networks"),
-      "long-distance-coach" => dgettext("dataset", "Long distance coach")
+      "road-network" => dgettext("dataset", "Road networks")
     }
 
   def type_to_str(type), do: type_to_str()[type]
@@ -124,7 +122,6 @@ defmodule DB.Dataset do
   defp filter_by_category(query, %{"filter" => filter_key}) do
     case filter_key do
       "has_realtime" -> where(query, [d], d.has_realtime == true)
-      "intercities_public_transport" -> where(query, [d], not is_nil(d.region_id) and d.type == "public-transit")
       "urban_public_transport" -> where(query, [d], not is_nil(d.aom_id) and d.type == "public-transit")
       _ -> query
     end
@@ -243,7 +240,13 @@ defmodule DB.Dataset do
     |> Repo.aggregate(:count, :id)
   end
 
-  def count_by_type("train"), do: count_by_resource_tag("rail")
+  def count_coach do
+    __MODULE__
+    |> join(:right, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
+    # 14 is the national "region". It means that it is not bound to a region or local territory
+    |> where([d, d_geo], d.type == "public-transit" and d_geo.region_id == 14)
+    |> Repo.aggregate(:count, :id)
+  end
 
   def count_by_type(type) do
     query = from(d in __MODULE__, where: d.type == ^type)
@@ -252,9 +255,9 @@ defmodule DB.Dataset do
   end
 
   def count_by_type, do: for(type <- __MODULE__.types(), into: %{}, do: {type, count_by_type(type)})
+  def count_has_realtime, do: Repo.aggregate(filter_has_realtime(), :count, :id)
 
   def filter_has_realtime, do: from(d in __MODULE__, where: d.has_realtime == true)
-  def count_has_realtime, do: Repo.aggregate(filter_has_realtime(), :count, :id)
 
   @spec get_by(keyword) :: Dataset.t()
   def get_by(options) do
@@ -346,10 +349,8 @@ defmodule DB.Dataset do
   def formats(_), do: []
 
   @spec validate(binary | integer | DB.Dataset.t()) :: {:error, String.t()} | {:ok, nil}
-  def validate(%__MODULE__{id: id, type: type}) do
-    if Resource.is_transit_file?(type), do: validate(id), else: {:ok, nil}
-  end
-
+  def validate(%__MODULE__{id: id, type: "public-transit"}), do: validate(id)
+  def validate(%__MODULE__{}), do: {:ok, nil}
   def validate(id) when is_binary(id), do: id |> String.to_integer() |> validate()
 
   def validate(id) when is_integer(id) do
