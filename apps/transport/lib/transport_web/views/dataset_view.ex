@@ -8,16 +8,9 @@ defmodule TransportWeb.DatasetView do
   def render_sidebar_from_type(conn, dataset), do: render_panel_from_type(conn, dataset, "sidebar")
 
   def render_panel_from_type(conn, dataset, panel_type) do
-    type =
-      if Resource.is_transit_file?(dataset.type) do
-        "public-transit"
-      else
-        dataset.type
-      end
-
     render_existing(
       TransportWeb.DatasetView,
-      "_#{panel_type}_#{type}.html",
+      "_#{panel_type}_#{dataset.type}.html",
       dataset: dataset,
       conn: conn
     )
@@ -134,7 +127,6 @@ defmodule TransportWeb.DatasetView do
   def icon_type_path(%{type: type}) do
     case type do
       "public-transit" -> "/images/icons/bus.svg"
-      "long-distance-coach" -> "/images/icons/bus.svg"
       "bike-sharing" -> "/images/icons/bicycle.svg"
       "carsharing-areas" -> "/images/icons/car.svg"
       "charging-stations" -> "/images/icons/charge-station.svg"
@@ -167,8 +159,6 @@ defmodule TransportWeb.DatasetView do
     |> Stream.reject(&Resource.is_netex?/1)
     |> Enum.to_list()
   end
-
-  def is_transit_file?(%Dataset{type: type}), do: Resource.is_transit_file?(type)
 
   def licence_url("fr-lo"), do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
