@@ -170,10 +170,6 @@ defmodule TransportWeb.DatasetView do
 
   def is_transit_file?(%Dataset{type: type}), do: Resource.is_transit_file?(type)
 
-  def licence(dataset) do
-    Dataset.localise_licence(dataset)
-  end
-
   def licence_url("fr-lo"), do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
   def licence_url(_), do: nil
@@ -193,6 +189,26 @@ defmodule TransportWeb.DatasetView do
       localization <> " - " <> Dataset.type_to_str(dataset.type)
     else
       Dataset.type_to_str(dataset.type)
+    end
+  end
+
+  @doc """
+  Builds a licence.
+  ## Examples
+      iex> %Dataset{licence: "fr-lo"}
+      ...> |> Dataset.licence
+      "Open Licence"
+      iex> %Dataset{licence: "Libertarian"}
+      ...> |> Dataset.licence
+      "Not specified"
+  """
+  @spec licence(%Dataset{}) :: String.t()
+  def licence(%Dataset{licence: licence}) do
+    case licence do
+      "fr-lo" -> dgettext("dataset", "fr-lo")
+      "odc-odbl" -> dgettext("dataset", "odc-odbl")
+      "other-open" -> dgettext("dataset", "other-open")
+      _ -> dgettext("dataset", "notspecified")
     end
   end
 end

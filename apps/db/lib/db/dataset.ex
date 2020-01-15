@@ -224,26 +224,6 @@ defmodule DB.Dataset do
   def valid_gtfs(%__MODULE__{resources: r, type: "public-transit"}), do: Enum.filter(r, &Resource.valid?/1)
   def valid_gtfs(%__MODULE__{resources: r}), do: r
 
-  @doc """
-  Builds a licence.
-  ## Examples
-      iex> %Dataset{licence: "fr-lo"}
-      ...> |> Dataset.localise_licence
-      "Open Licence"
-      iex> %Dataset{licence: "Libertarian"}
-      ...> |> Dataset.localise_licence
-      "Not specified"
-  """
-  @spec localise_licence(%__MODULE__{}) :: String.t()
-  def localise_licence(%__MODULE__{licence: licence}) do
-    case licence do
-      "fr-lo" -> dgettext("dataset", "fr-lo")
-      "odc-odbl" -> dgettext("dataset", "odc-odbl")
-      "other-open" -> dgettext("dataset", "other-open")
-      _ -> dgettext("dataset", "notspecified")
-    end
-  end
-
   def link_to_datagouv(%__MODULE__{} = dataset) do
     Link.link(
       dgettext("dataset", "See on data.gouv.fr"),
