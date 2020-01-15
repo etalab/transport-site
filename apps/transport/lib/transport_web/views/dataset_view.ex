@@ -177,4 +177,22 @@ defmodule TransportWeb.DatasetView do
   def licence_url("fr-lo"), do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
   def licence_url(_), do: nil
+
+  @spec localization(DB.Dataset.t()) :: binary | nil
+  defp localization(%Dataset{aom: %{nom: nom}}), do: nom
+  defp localization(%Dataset{region: %{nom: nom}}), do: nom
+  defp localization(_), do: nil
+
+  @doc """
+  long_title of the dataset, used in the dataset list and dataset detail as the 'main' title of the dataset
+  """
+  def long_title(%Dataset{} = dataset) do
+    localization = localization(dataset)
+
+    if localization do
+      localization <> " - " <> Dataset.type_to_str(dataset.type)
+    else
+      Dataset.type_to_str(dataset.type)
+    end
+  end
 end
