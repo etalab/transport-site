@@ -51,7 +51,7 @@ defmodule TransportWeb.Router do
     scope "/datasets" do
       get("/", DatasetController, :index)
       get("/:slug/", DatasetController, :details)
-      get("/aom/:commune", DatasetController, :by_aom)
+      get("/aom/:aom", DatasetController, :by_aom)
       get("/region/:region", DatasetController, :by_region)
 
       scope "/:dataset_id" do

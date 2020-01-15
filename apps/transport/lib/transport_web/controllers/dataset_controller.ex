@@ -62,7 +62,7 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  def by_aom(%Plug.Conn{} = conn, %{"commune" => _} = params), do: list_datasets(conn, params)
+  def by_aom(%Plug.Conn{} = conn, %{"aom" => _} = params), do: list_datasets(conn, params)
   def by_region(%Plug.Conn{} = conn, %{"region" => _} = params), do: list_datasets(conn, params)
 
   defp get_datasets(params) do
