@@ -7,7 +7,7 @@ defmodule DB.Dataset do
   so the search vector is up-to-date.
   """
   alias Datagouvfr.Client.User
-  alias DB.{AOM, Commune, Region, Repo, Resource}
+  alias DB.{AOM, Commune, DatasetGeographicView, Region, Repo, Resource}
   alias ExAws.S3
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
@@ -114,16 +114,10 @@ defmodule DB.Dataset do
   def list_datasets(%{"q" => q} = params, s), do: q |> search_datasets(s) |> order_datasets(params)
 
   def list_datasets(%{"region" => region_id} = params, s) do
-    sub =
-      AOM
-      |> where([a], a.region_id == ^region_id)
-      |> select([a], a.id)
-      |> Repo.all()
-
     s
     |> list_datasets()
-    |> where([d], d.aom_id in ^sub)
-    |> or_where([r], r.region_id == ^region_id)
+    |> join(:right, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
+    |> where([d, d_geo], d_geo.region_id == ^region_id)
     |> order_datasets(params)
   end
 
