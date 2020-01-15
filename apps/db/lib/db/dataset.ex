@@ -127,24 +127,19 @@ defmodule DB.Dataset do
     |> order_datasets(params)
   end
 
-  def list_datasets(%{"filter" => "has_realtime"} = params, s) do
-    s
-    |> list_datasets()
-    |> where([d], d.has_realtime == true)
-    |> order_datasets(params)
+  defp filter_dataset(query, filter_key) do
+    case filter_key do
+      "has_realtime" -> where(query, [d], d.has_realtime == true)
+      "intercities_public_transport" -> where(query, [d], not is_nil(d.region_id) and d.type == "public-transit")
+      "urban_public_transport" -> where(query, [d], not is_nil(d.aom_id) and d.type == "public-transit")
+      _ -> query
+    end
   end
 
-  def list_datasets(%{"filter" => "intercities_public_transport"} = params, s) do
+  def list_datasets(%{"filter" => filter} = params, s) do
     s
     |> list_datasets()
-    |> where([d], not is_nil(d.region_id) and d.type == "public-transit")
-    |> order_datasets(params)
-  end
-
-  def list_datasets(%{"filter" => "urban_public_transport"} = params, s) do
-    s
-    |> list_datasets()
-    |> where([d], not is_nil(d.aom_id) and d.type == "public-transit")
+    |> filter_dataset(filter)
     |> order_datasets(params)
   end
 
