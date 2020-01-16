@@ -1,34 +1,32 @@
-  <h1>
+<h1>
   <%= if is_nil(@dataset) do %>
-  <%= dgettext("backoffice", "Add a dataset") %>
+    <%= dgettext("backoffice", "Add a dataset") %>
   <% else %>
-  <%= dgettext("backoffice", "Edit a dataset") %>
+    <%= dgettext("backoffice", "Edit a dataset") %>
   <% end %>
-  </h1>
-
-  <%= form_for @conn, backoffice_dataset_path(@conn, :post), fn f -> %>
-    <%= text_input f, :url, [
+</h1>
+<%= form_for @conn, backoffice_dataset_path(@conn, :post), fn f -> %>
+<%= text_input f, :url, [
       placeholder: dgettext("backoffice", "Dataset's url"), 
       value: if not is_nil(@dataset) do Dataset.datagouv_url(@dataset) else "" end
     ] %>
-    <%= text_input f, :spatial, [
+<%= text_input f, :spatial, [
       placeholder: dgettext("backoffice", "name"),
       value: if not is_nil(@dataset) do @dataset.spatial else "" end
     ] %>
-    <%= select f, :region_id, Enum.map(@regions, &{&1.nom, &1.id}), [
+<%= select f, :region_id, Enum.map(@regions, &{&1.nom, &1.id}), [
       selected: if not is_nil(@dataset) do @dataset.region_id else "" end,
       prompt: "Pas un jeu de données régional"
       ]
      %>
-
-    <%= live_render(@conn, TransportWeb.Live.CommuneField) %>
-    <%= select f, :type, @dataset_types, [
+<%= live_render(@conn, TransportWeb.Live.CommuneField) %>
+<%= select f, :type, @dataset_types, [
       selected: if not is_nil(@dataset) do @dataset.type else "" end ]%>
-    <%= if is_nil(@dataset) do %>
-    <%= hidden_input f, :action, [value: "new"] %>
-    <%= submit dgettext("backoffice", "Add") %>
-    <% else %>
-    <%= hidden_input f, :action, [value: "edit"] %>
-    <%= submit dgettext("backoffice", "Edit") %>
-    <% end %>
-  <% end %>
+<%= if is_nil(@dataset) do %>
+  <%= hidden_input f, :action, [value: "new"] %>
+  <%= submit dgettext("backoffice", "Add") %>
+<% else %>
+  <%= hidden_input f, :action, [value: "edit"] %>
+  <%= submit dgettext("backoffice", "Edit") %>
+<% end %>
+<% end %>
