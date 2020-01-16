@@ -257,23 +257,12 @@ defmodule DB.Dataset do
 
   def filter_has_realtime, do: from(d in __MODULE__, where: d.has_realtime == true)
 
-  @spec get_by(keyword) :: Dataset.t()
-  def get_by(options) do
-    slug = Keyword.get(options, :slug)
-
-    query =
-      __MODULE__
-      |> where(slug: ^slug)
-      |> preload_without_validations()
-
-    query =
-      if Keyword.get(options, :preload, false) do
-        query |> preload([:region, :aom])
-      else
-        query
-      end
-
-    query
+  @spec get_by_slug(binary) :: Dataset.t()
+  def get_by_slug(slug) do
+    __MODULE__
+    |> where(slug: ^slug)
+    |> preload_without_validations()
+    |> preload([:region, :aom])
     |> Repo.one()
   end
 
