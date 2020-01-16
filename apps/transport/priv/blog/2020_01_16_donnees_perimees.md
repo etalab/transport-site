@@ -1,3 +1,5 @@
+Pouet
+
 # Données périmées, données inutilisées !
 
 
@@ -39,18 +41,18 @@ Ceci nécessite dans le cas de modification du réseau, la création d'un jeu de
 Avec le changement d'année 2019-2020, un certain nombre de fichiers sont arrivés à leur date d'expiration. L'occasion de disposer de quelques statistiques sur les manques de mise à jour.
 
 
-| Données périmées depuis              | Nombre total d'AOMs où les données ne sont pas à jour  | Renouvellement du réseau et/ou du contrat en cours | Difficulté technique constatée |
-|:------------------------------------ |:------------------------------------------------------:|:--------------------------------------------------:|:------------------------------:|
-| Moins de 2 jours                     |                           4                            |                                                    |                                |
-| Plus de 2 jours, moins de 2 semaines |                           12                           |                                                    |                                |
-| Plus de 2 semaines, moins de 6 mois  |                           2                            |                         2                          |                                |
-| Plus de 6 mois, moins de 1 an        |                           3                            |                                                    |               1                |
-| Plus de 1 an                         |                           3                            |                                                    |               1                |
+| Données périmées depuis              | Nombre total d'AOMs où les données ne sont pas à jour | Renouvellement du réseau et/ou du contrat en cours | Difficulté technique constatée |
+| :----------------------------------- | :---------------------------------------------------: | :------------------------------------------------: | :----------------------------: |
+| Moins de 2 jours                     |                           4                           |                                                    |                                |
+| Plus de 2 jours, moins de 2 semaines |                          12                           |                                                    |                                |
+| Plus de 2 semaines, moins de 6 mois  |                           2                           |                         2                          |                                |
+| Plus de 6 mois, moins de 1 an        |                           3                           |                                                    |               1                |
+| Plus de 1 an                         |                           3                           |                                                    |               1                |
 
 Cependant, si l'on prend en compte le nombre d'AOMs pour revenir en proportions, on constate que 82% des AOMs qui ont publié individuellement ont aujourd'hui des données à jour, et **seulement 6% ont des données périmées depuis plus de 2 semaines.**
 
 
-![](/blog/MAJ-article-maj-de.png)
+![Proportion des données à jour](/blog/donnees_perimees/MAJ-article-maj-de.png)
 
 
 ### Peu de données sont à jour en réelle continuité
@@ -76,7 +78,7 @@ D'autre part, avec deux inscrits, si l'un des deux quitte son poste, l'autre est
 ### Réduire le nombre de personnes nécessaires
 Sur un certain nombre de territoires, l'actualisation passe par un fichier qui transite par plusieurs boîtes mail avant d'être finalement publié en open data. Si l'un des correspondant tarde, le nouveau fichier n'arrive pas avant la fin de la validité du prédédent.
 
-![](/blog/maj-datagouv.png)
+![Membres de l'organisation sur data.gouv.fr](/blog/maj-datagouv.png)
 
 *Le schéma de l'état actuel est relativement simple sur cette image, dans certains cas, le fichier peut passer par 4 personnes avant publication.*
 
@@ -98,7 +100,7 @@ Une mauvaise pratique assez répandue rend les mises à jour parfois difficiles 
 
 Il y a donc 4 exemplaires du côté de la collectivité, plus celui stocké dans les bases du délégataire. Toute mise à jour se transforme en 5 mises à jour, avec de fortes chances que tôt ou tard, l'une ou l'autre soit oubliée.
 
-![](/blog/maj-publi.png)
+![Schema](/blog/maj-publi.png)
 
 > **Déposer le fichier sur un seul emplacement où il est maintenu à jour par le producteur, et y faire référence grâce à son url**
 
