@@ -78,7 +78,7 @@ D'autre part, avec deux inscrits, si l'un des deux quitte son poste, l'autre est
 ### Réduire le nombre de personnes nécessaires
 Sur un certain nombre de territoires, l'actualisation passe par un fichier qui transite par plusieurs boîtes mail avant d'être finalement publié en open data. Si l'un des correspondant tarde, le nouveau fichier n'arrive pas avant la fin de la validité du prédédent.
 
-![Membres de l'organisation sur data.gouv.fr](/blog/maj-datagouv.png)
+![Membres de l'organisation sur data.gouv.fr](/blog/donnees_perimees/maj-datagouv.png)
 
 *Le schéma de l'état actuel est relativement simple sur cette image, dans certains cas, le fichier peut passer par 4 personnes avant publication.*
 
@@ -100,7 +100,7 @@ Une mauvaise pratique assez répandue rend les mises à jour parfois difficiles 
 
 Il y a donc 4 exemplaires du côté de la collectivité, plus celui stocké dans les bases du délégataire. Toute mise à jour se transforme en 5 mises à jour, avec de fortes chances que tôt ou tard, l'une ou l'autre soit oubliée.
 
-![Schema](/blog/maj-publi.png)
+![Schema](/blog/donnees_perimees/maj-publi.png)
 
 > **Déposer le fichier sur un seul emplacement où il est maintenu à jour par le producteur, et y faire référence grâce à son url**
 
