@@ -96,7 +96,7 @@ defmodule DB.Dataset do
     |> preload(resources: ^resource_query)
   end
 
-  def list_datasets([]), do:  __MODULE__ |> select_active |> preload_without_validations
+  def list_datasets([]), do: __MODULE__ |> select_active |> preload_without_validations
 
   def list_datasets(s) when is_list(s) do
     from(d in __MODULE__,
