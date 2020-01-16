@@ -43,9 +43,9 @@ defmodule TransportWeb.API.AomController do
       tags: ["insee"],
       summary: "Show AOM by INSEE",
       description: "Show covered regions",
-      operationId: "API.AOMController.by_coordinates",
+      operationId: "API.AOMController.by_insee_operation",
       parameters: [
-        Operation.parameter(:insee, :query, :string, "INSEE")
+        Operation.parameter(:insee, :path, :string, "INSEE")
       ],
       responses: %{
         200 => Operation.response("AOM", "application/json", AOMResponse)
@@ -99,7 +99,7 @@ defmodule TransportWeb.API.AomController do
       tags: ["geojson"],
       summary: "Show geojson of AOM",
       description: "Show covered regions",
-      operationId: "API.AOMController.by_coordinates",
+      operationId: "API.AOMController.geojson_operation",
       parameters: [],
       responses: %{
         200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)

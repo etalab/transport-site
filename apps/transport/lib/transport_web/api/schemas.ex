@@ -29,6 +29,7 @@ defmodule TransportWeb.API.Schemas do
     require OpenApiSpex
 
     OpenApiSpex.schema(%{
+      title: "NumberItems",
       type: :number
     })
   end
