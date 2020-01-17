@@ -93,12 +93,10 @@ defmodule DB.Dataset do
       desc: fragment("ts_rank_cd(search_vector, plainto_tsquery('custom_french', ?), 32) DESC, population", ^q)
     )
     |> select_active
-    |> select_or_not(s)
     |> preload(resources: ^resource_query)
   end
 
-  def list_datasets, do: __MODULE__ |> select_active |> preload_without_validations
-  def list_datasets([]), do: list_datasets()
+  def list_datasets([]), do: __MODULE__ |> select_active |> preload_without_validations
 
   def list_datasets(s) when is_list(s) do
     from(d in __MODULE__,
@@ -259,23 +257,12 @@ defmodule DB.Dataset do
 
   def filter_has_realtime, do: from(d in __MODULE__, where: d.has_realtime == true)
 
-  @spec get_by(keyword) :: Dataset.t()
-  def get_by(options) do
-    slug = Keyword.get(options, :slug)
-
-    query =
-      __MODULE__
-      |> where(slug: ^slug)
-      |> preload_without_validations()
-
-    query =
-      if Keyword.get(options, :preload, false) do
-        query |> preload([:region, :aom])
-      else
-        query
-      end
-
-    query
+  @spec get_by_slug(binary) :: Dataset.t()
+  def get_by_slug(slug) do
+    __MODULE__
+    |> where(slug: ^slug)
+    |> preload_without_validations()
+    |> preload([:region, :aom])
     |> Repo.one()
   end
 
@@ -481,9 +468,6 @@ defmodule DB.Dataset do
         )
     end
   end
-
-  defp select_or_not(res, []), do: res
-  defp select_or_not(res, s), do: select(res, ^s)
 
   defp cast_aom(changeset, %{"insee" => ""}), do: changeset
   defp cast_aom(changeset, %{"insee" => nil}), do: changeset
