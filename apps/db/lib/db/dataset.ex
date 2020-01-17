@@ -35,8 +35,13 @@ defmodule DB.Dataset do
     field(:population, :integer)
     field(:nb_reuses, :integer)
 
+    # A Dataset can be linked to *either*:
+    # - a Region (and there is a special Region 'national' that represents the national datasets);
+    # - an AOM;
+    # - or a list of cities.
     belongs_to(:region, Region)
     belongs_to(:aom, AOM)
+    many_to_many(:communes, Commune, join_through: "dataset_communes")
 
     has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
   end
@@ -161,7 +166,7 @@ defmodule DB.Dataset do
       end
 
     dataset
-    |> Repo.preload(:resources)
+    |> Repo.preload([:resources, :communes])
     |> cast(params, [
       :datagouv_id,
       :spatial,
@@ -183,9 +188,13 @@ defmodule DB.Dataset do
       :is_active
     ])
     |> cast_aom(params)
+    |> cast_datagouv_zone(params)
     |> cast_assoc(:resources)
     |> validate_required([:slug])
-    |> validate_mutual_exclusion([:region_id, :aom_id], dgettext("dataset", "You need to fill either aom or region"))
+    |> validate_mutual_exclusion(
+      [:region_id, :aom_id, :communes],
+      dgettext("dataset", "You need to fill either aom, region or use datagouv's zone")
+    )
     |> cast_assoc(:region)
     |> cast_assoc(:aom)
     |> case do
@@ -447,7 +456,7 @@ defmodule DB.Dataset do
 
   defp validate_mutual_exclusion(changeset, fields, error) do
     fields
-    |> Enum.count(&(get_field(changeset, &1) not in ["", nil]))
+    |> Enum.count(&(get_field(changeset, &1) not in ["", nil, []]))
     |> case do
       1 ->
         changeset
@@ -469,10 +478,34 @@ defmodule DB.Dataset do
     |> preload([:aom_res])
     |> Repo.get_by(insee: insee)
     |> case do
-      nil -> add_error(changeset, :aom_id, dgettext("dataset", "Unable to find INSEE code"))
+      nil -> add_error(changeset, :aom_id, dgettext("dataset", "Unable to find INSEE code '%{insee}'", insee: insee))
       commune -> change(changeset, aom_id: commune.aom_res.id)
     end
   end
 
   defp cast_aom(changeset, _), do: changeset
+
+  defp cast_datagouv_zone(changeset, %{"zones" => zones_insee, "use_datagouv_zones" => "true"}) do
+    communes =
+      zones_insee
+      |> Enum.map(fn zone_insee ->
+        Commune
+        |> Repo.get_by(insee: zone_insee)
+        |> case do
+          nil ->
+            Logger.warn("Unable to find zone with INSEE #{zone_insee}")
+            nil
+
+          commune ->
+            commune
+        end
+      end)
+      |> Enum.filter(fn z -> not is_nil(z) end)
+
+    changeset
+    |> change
+    |> put_assoc(:communes, communes)
+  end
+
+  defp cast_datagouv_zone(changeset, _), do: changeset
 end

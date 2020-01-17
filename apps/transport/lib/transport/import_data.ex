@@ -62,6 +62,7 @@ defmodule Transport.ImportData do
       |> Map.put("resources", get_resources(dataset, type))
       |> Map.put("nb_reuses", get_nb_reuses(dataset))
       |> Map.put("licence", dataset["license"])
+      |> Map.put("zones", get_associated_zones_insee(dataset))
 
     dataset =
       case has_realtime?(dataset, type) do
@@ -109,6 +110,54 @@ defmodule Transport.ImportData do
 
   def get_nb_reuses(%{"metrics" => %{"reuses" => reuses}}), do: reuses
   def get_nb_reuses(_), do: 0
+
+  defp get_associated_zones_insee(%{"spatial" => %{"zones" => zones}}) do
+    base_url = Application.get_env(:transport, :datagouvfr_site)
+
+    zones
+    |> Enum.map(fn zone ->
+      url = "#{base_url}/api/1/spatial/zones/#{zone}"
+      Logger.info("getting zone (url = #{url})")
+
+      with {:ok, response} <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
+           {:ok, json} <- Poison.decode(response.body),
+           insee <- read_datagouv_zone(json) do
+        insee
+      else
+        {:error, error} ->
+          Logger.error("Error while reading zone #{zone} (url = #{url}) : #{inspect(error)}")
+          []
+      end
+    end)
+  end
+
+  defp get_associated_zones_insee(_), do: nil
+
+  defp read_datagouv_zone(%{
+         "features" => [
+           %{
+             "properties" => %{
+               "level" => "fr:commune",
+               "keys" => %{
+                 "insee" => insee
+               }
+             }
+           }
+           | _
+         ]
+       }) do
+    insee
+  end
+
+  defp read_datagouv_zone(%{"id" => id}) do
+    Logger.info("For the moment we can only handle cities, we cannot handle the zone #{id}")
+    []
+  end
+
+  defp read_datagouv_zone(z) do
+    Logger.info("invalid format we cannot handle the zone #{inspect(z)}")
+    []
+  end
 
   def get_dataset(_), do: {:error, "Dataset needs to be a map"}
 
