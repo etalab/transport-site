@@ -63,7 +63,7 @@
                 </a>
                 <a class="tile" href="<%= dataset_path(@conn, :index, "tags[]": "ferry") %>">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/boat.svg") %>" alt="" />
-                    <h3 class="text-center"><%= dgettext("page-index", "Sea transport") %></h3>
+                    <h3 class="text-center"><%= dgettext("page-index", "Sea and river transport") %></h3>
                     <p><%= dngettext("page-index", "dataset", "datasets", @count_boat) %></p>
                 </a>
             </div>
