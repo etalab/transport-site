@@ -112,8 +112,8 @@ msgid "Road networks"
 msgstr "Réseaux routiers"
 
 #, elixir-format
-msgid "Sea transport"
-msgstr "Transport maritime"
+msgid "Sea and river transport"
+msgstr "Transport maritime et fluvial"
 
 #, elixir-format
 msgid "Learn more"

@@ -112,7 +112,7 @@ msgid "Road networks"
 msgstr ""
 
 #, elixir-format
-msgid "Sea transport"
+msgid "Sea and river transport"
 msgstr ""
 
 #, elixir-format
