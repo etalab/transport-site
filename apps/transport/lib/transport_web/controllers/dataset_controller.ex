@@ -11,8 +11,6 @@ defmodule TransportWeb.DatasetController do
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params)
 
   def list_datasets(%Plug.Conn{} = conn, %{} = params) do
-    params = Map.put_new(params, "order_by", "most_recent")
-
     conn
     |> assign(:datasets, get_datasets(params))
     |> assign(:regions, get_regions(params))

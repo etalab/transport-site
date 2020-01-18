@@ -80,6 +80,7 @@ defmodule DB.Dataset do
   end
 
   defp filter_by_fulltext(query, %{"q" => ""}), do: query
+
   defp filter_by_fulltext(query, %{"q" => q}) do
     where(
       query,
@@ -87,6 +88,7 @@ defmodule DB.Dataset do
       fragment("search_vector @@ plainto_tsquery('custom_french', ?) or unaccent(title) = unaccent(?)", ^q, ^q)
     )
   end
+
   defp filter_by_fulltext(query, _), do: query
 
   defp filter_by_region(query, %{"region" => region_id} = params) do
@@ -141,8 +143,13 @@ defmodule DB.Dataset do
 
   def order_datasets(datasets, %{"order_by" => "alpha"}), do: order_by(datasets, asc: :title)
   def order_datasets(datasets, %{"order_by" => "most_recent"}), do: order_by(datasets, desc: :created_at)
-  def order_datasets(datasets, %{"q" => q}), do: order_by(datasets,
-    desc: fragment("ts_rank_cd(search_vector, plainto_tsquery('custom_french', ?), 32) DESC, population", ^q))
+
+  def order_datasets(datasets, %{"q" => q}),
+    do:
+      order_by(datasets,
+        desc: fragment("ts_rank_cd(search_vector, plainto_tsquery('custom_french', ?), 32) DESC, population", ^q)
+      )
+
   def order_datasets(datasets, _params), do: datasets
 
   def changeset(_dataset, params) do
