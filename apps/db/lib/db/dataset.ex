@@ -91,7 +91,7 @@ defmodule DB.Dataset do
 
   defp filter_by_fulltext(query, _), do: query
 
-  defp filter_by_region(query, %{"region" => region_id} = params) do
+  defp filter_by_region(query, %{"region" => region_id}) do
     query
     |> join(:right, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
     |> where([d, d_geo], d_geo.region_id == ^region_id)
