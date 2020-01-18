@@ -74,7 +74,7 @@ defmodule TransportWeb.DatasetController do
     |> Repo.paginate(page: config.page_number)
   end
 
-  defp clean_datasets_query(params), do: params |> Dataset.list_datasets([]) |> exclude(:preload)
+  defp clean_datasets_query(params), do: params |> Dataset.list_datasets() |> exclude(:preload)
 
   defp get_regions(%{"tags" => _tags}) do
     # for tags, we do not filter the datasets since it causes a non valid sql query

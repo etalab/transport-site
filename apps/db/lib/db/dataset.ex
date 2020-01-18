@@ -79,35 +79,15 @@ defmodule DB.Dataset do
     preload(q, resources: ^s)
   end
 
-  def select_active(q), do: where(q, [d], d.is_active)
-
-  def search_datasets(q, s \\ []) do
-    resource_query = no_validations_query()
-
-    __MODULE__
-    |> where(
+  defp filter_by_fulltext(query, %{"q" => ""}), do: query
+  defp filter_by_fulltext(query, %{"q" => q}) do
+    where(
+      query,
       [d],
       fragment("search_vector @@ plainto_tsquery('custom_french', ?) or unaccent(title) = unaccent(?)", ^q, ^q)
     )
-    |> order_by([l],
-      desc: fragment("ts_rank_cd(search_vector, plainto_tsquery('custom_french', ?), 32) DESC, population", ^q)
-    )
-    |> select_active
-    |> preload(resources: ^resource_query)
   end
-
-  def list_datasets([]), do: __MODULE__ |> select_active |> preload_without_validations
-
-  def list_datasets(s) when is_list(s) do
-    from(d in __MODULE__,
-      select: ^s,
-      preload: [:resources, :region, :aom]
-    )
-  end
-
-  def list_datasets(filters, s \\ [])
-  def list_datasets(%{"q" => ""} = params, s), do: s |> list_datasets() |> order_datasets(params)
-  def list_datasets(%{"q" => q} = params, s), do: q |> search_datasets(s) |> order_datasets(params)
+  defp filter_by_fulltext(query, _), do: query
 
   defp filter_by_region(query, %{"region" => region_id} = params) do
     query
@@ -146,19 +126,23 @@ defmodule DB.Dataset do
   defp filter_by_aom(query, %{"aom" => aom_id}), do: where(query, [d], d.aom_id == ^aom_id)
   defp filter_by_aom(query, _), do: query
 
-  def list_datasets(%{} = params, query) do
-    query
-    |> list_datasets()
+  def list_datasets(%{} = params) do
+    __MODULE__
+    |> preload_without_validations
+    |> where([d], d.is_active)
     |> filter_by_region(params)
     |> filter_by_tags(params)
     |> filter_by_category(params)
     |> filter_by_type(params)
     |> filter_by_aom(params)
+    |> filter_by_fulltext(params)
     |> order_datasets(params)
   end
 
   def order_datasets(datasets, %{"order_by" => "alpha"}), do: order_by(datasets, asc: :title)
   def order_datasets(datasets, %{"order_by" => "most_recent"}), do: order_by(datasets, desc: :created_at)
+  def order_datasets(datasets, %{"q" => q}), do: order_by(datasets,
+    desc: fragment("ts_rank_cd(search_vector, plainto_tsquery('custom_french', ?), 32) DESC, population", ^q))
   def order_datasets(datasets, _params), do: datasets
 
   def changeset(_dataset, params) do
