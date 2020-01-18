@@ -3,7 +3,7 @@ defmodule DB.DatasetGeographicView do
   View to ease the geographic metadata of a Dataset
   """
   use Ecto.Schema
-  alias DB.Dataset
+  alias DB.{Dataset, Region}
 
   @primary_key false
   schema "dataset_geographic_view" do
