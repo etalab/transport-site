@@ -50,7 +50,8 @@ defmodule DB.Dataset do
       "micro-mobility" => dgettext("dataset", "Micro mobility"),
       "air-transport" => dgettext("dataset", "Aerial"),
       "bike-sharing" => dgettext("dataset", "Bike sharing"),
-      "road-network" => dgettext("dataset", "Road networks")
+      "road-network" => dgettext("dataset", "Road networks"),
+      "addresses" => dgettext("dataset", "Addresses")
     }
 
   def type_to_str(type), do: type_to_str()[type]

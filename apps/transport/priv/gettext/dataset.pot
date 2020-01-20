@@ -51,3 +51,19 @@ msgstr ""
 
 msgid "Your modified version of this dataset has beed added"
 msgstr ""
+
+#, elixir-format
+msgid "fr-lo"
+msgstr ""
+
+#, elixir-format
+msgid "notspecified"
+msgstr ""
+
+#, elixir-format
+msgid "odc-odbl"
+msgstr ""
+
+#, elixir-format
+msgid "other-open"
+msgstr ""
