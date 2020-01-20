@@ -28,10 +28,6 @@ msgid "Charging stations"
 msgstr "Stations de recharge"
 
 #, elixir-format
-msgid "Long distance coach"
-msgstr "Car longue distance"
-
-#, elixir-format
 msgid "Micro mobility"
 msgstr "Micro mobilité"
 
@@ -48,22 +44,6 @@ msgid "You need to fill either aom or region"
 msgstr "Vous devez remplir soit une région soit une AOM"
 
 #, elixir-format
-msgid "fr-lo"
-msgstr "Licence ouverte"
-
-#, elixir-format
-msgid "notspecified"
-msgstr "Non spécifiée"
-
-#, elixir-format
-msgid "odc-odbl"
-msgstr "ODbL"
-
-#, elixir-format
-msgid "other-open"
-msgstr "Autre ouverte"
-
-#, elixir-format
 msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
 
@@ -71,10 +51,10 @@ msgstr "Voir sur data.gouv.fr"
 msgid "Public transit timetable"
 msgstr "Horaires théoriques de transport public"
 
-#, elixir-format, fuzzy
-msgid "Train timetable"
-msgstr "Horaires ferroviaire"
-
 #, elixir-format
 msgid "Road networks"
 msgstr "Réseaux routiers"
+
+#, elixir-format
+msgid "Addresses"
+msgstr "Adresses"

@@ -51,3 +51,19 @@ msgstr "L’identificateur du jeu de données n’est pas valide"
 
 msgid "Your modified version of this dataset has beed added"
 msgstr "Votre version a été ajoutée"
+
+#, elixir-format
+msgid "fr-lo"
+msgstr "Licence ouverte"
+
+#, elixir-format
+msgid "notspecified"
+msgstr "Non spécifiée"
+
+#, elixir-format
+msgid "odc-odbl"
+msgstr "ODbL"
+
+#, elixir-format
+msgid "other-open"
+msgstr "Autre ouverte"

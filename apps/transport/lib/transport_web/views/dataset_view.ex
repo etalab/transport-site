@@ -132,6 +132,7 @@ defmodule TransportWeb.DatasetView do
       "charging-stations" -> "/images/icons/charge-station.svg"
       "air-transport" -> "/images/icons/plane.svg"
       "road-network" -> "/images/icons/map.svg"
+      "addresses" -> "/images/icons/addresses.svg"
       _ -> nil
     end
   end
