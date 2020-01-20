@@ -263,7 +263,7 @@ defmodule DB.Dataset do
     __MODULE__
     |> where(slug: ^slug)
     |> preload_without_validations()
-    |> preload([:region, :aom])
+    |> preload([:region, :aom, :communes])
     |> Repo.one()
   end
 
@@ -282,17 +282,27 @@ defmodule DB.Dataset do
     |> Repo.all()
   end
 
+  def get_other_datasets(%__MODULE__{id: id, communes: communes }) when length(communes) != 0 do
+    [] # TODO, not implemented for the moment
+  end
+
   def get_other_dataset(_), do: []
 
-  def get_organization(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
-    Repo.get(AOM, aom_id)
+  def get_territory(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
+    aom = Repo.get(AOM, aom_id)
+    aom.nom
   end
 
-  def get_organization(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
-    Repo.get(Region, region_id)
+  def get_territory(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
+    region = Repo.get(Region, region_id)
+    region.nom
   end
 
-  def get_organization(_), do: nil
+  def get_territory(%__MODULE__{associated_territory_name: associated_territory_name}) do
+    associated_territory_name
+  end
+
+  def get_territory(_), do: nil
 
   def get_covered_area_names(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
     get_covered_area_names(
@@ -306,6 +316,12 @@ defmodule DB.Dataset do
       "select string_agg(distinct(departement), ', ') from aom where region_id = $1",
       region_id
     )
+  end
+
+  def get_covered_area_names(%__MODULE__{communes: communes}) when length(communes) != 0 do
+    communes
+    |> Enum.map(fn c -> c.nom end)
+    |> Enum.join(", ")
   end
 
   def get_covered_area_names(_), do: "National"

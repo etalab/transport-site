@@ -193,7 +193,7 @@
       <%= render "_licence.html", conn: @conn, dataset: @dataset %>
     </p>
     <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
-      <h4><%= dgettext("page-dataset-details", "Other datasets of ") %> <%= String.capitalize(@organization.nom) %></h4>
+      <h4><%= dgettext("page-dataset-details", "Other datasets of ") %> <%= String.capitalize(@territory) %></h4>
       <ul>
         <%= for dataset <- @other_datasets do %>
           <li><%= link(
