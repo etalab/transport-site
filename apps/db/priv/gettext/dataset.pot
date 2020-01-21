@@ -39,7 +39,7 @@ msgid "Unable to find INSEE code"
 msgstr ""
 
 #, elixir-format
-msgid "You need to fill either aom or region"
+msgid "You need to fill either aom, region or use datagouv's zone"
 msgstr ""
 
 #, elixir-format
