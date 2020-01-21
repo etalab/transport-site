@@ -21,6 +21,10 @@
      %>
 <%= live_render(@conn, TransportWeb.Live.CommuneField) %>
 <%=checkbox f, :use_datagouv_zones %><%= dgettext("backoffice", "Use data.gouv.fr's zones") %>
+<%= text_input f, :associated_territory_name, [
+      placeholder: dgettext("backoffice", "Name of the geographic association"),
+      value: if not is_nil(@dataset) do @dataset.associated_territory_name else "" end
+    ] %>
 <%= select f, :type, @dataset_types, [
       selected: if not is_nil(@dataset) do @dataset.type else "" end ]%>
 <%= if is_nil(@dataset) do %>

@@ -35,6 +35,11 @@ defmodule DB.Dataset do
     field(:population, :integer)
     field(:nb_reuses, :integer)
 
+    # When the dataset is linked to some cities
+    # we ask in the backoffice for a name to display
+    # (used in the long title of a dataset and to find the associated datasets)
+    field(:associated_territory_name, :string)
+
     # A Dataset can be linked to *either*:
     # - a Region (and there is a special Region 'national' that represents the national datasets);
     # - an AOM;
@@ -185,16 +190,14 @@ defmodule DB.Dataset do
       :region_id,
       :has_realtime,
       :nb_reuses,
-      :is_active
+      :is_active,
+      :associated_territory_name
     ])
     |> cast_aom(params)
     |> cast_datagouv_zone(params)
     |> cast_assoc(:resources)
     |> validate_required([:slug])
-    |> validate_mutual_exclusion(
-      [:region_id, :aom_id, :communes],
-      dgettext("dataset", "You need to fill either aom, region or use datagouv's zone")
-    )
+    |> validate_territory_mutual_exclusion()
     |> cast_assoc(:region)
     |> cast_assoc(:aom)
     |> case do
@@ -282,8 +285,15 @@ defmodule DB.Dataset do
     |> Repo.all()
   end
 
-  def get_other_datasets(%__MODULE__{id: id, communes: communes }) when length(communes) != 0 do
-    [] # TODO, not implemented for the moment
+  # for the datasets linked to multiple cities we use the
+  # backoffice filled field 'associated_territory_name'
+  # to get the other_datasets
+  # This way we can control which datasets to link to
+  def get_other_datasets(%__MODULE__{id: id, associated_territory_name: associated_territory_name}) do
+    __MODULE__
+    |> where([d], d.id != ^id)
+    |> where([d], d.associated_territory_name == ^associated_territory_name)
+    |> Repo.all()
   end
 
   def get_other_dataset(_), do: []
@@ -470,18 +480,41 @@ defmodule DB.Dataset do
 
   defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> @cellar_host, name])
 
-  defp validate_mutual_exclusion(changeset, fields, error) do
-    fields
-    |> Enum.count(&(get_field(changeset, &1) not in ["", nil, []]))
+  defp validate_territory_mutual_exclusion(changeset) do
+    [:region_id, :aom_id]
+    |> Enum.map(fn f -> get_field(changeset, f) end)
+    |> Enum.count(fn f -> f not in ["", nil] end)
     |> case do
       1 ->
+        :ok
+
+      0 ->
+        # if there is neither aom nor region we check that there is at least one associated zone
         changeset
+        |> get_field(:communes)
+        |> case do
+          0 -> :error
+          _ -> :ok
+        end
 
       _ ->
+        :error
+    end
+    |> case do
+      :ok ->
+        changeset
+
+      :error ->
         Enum.reduce(
-          fields,
+          [:region_id, :aom_id, :communes],
           changeset,
-          fn field, changeset -> add_error(changeset, field, error) end
+          fn field, changeset ->
+            add_error(
+              changeset,
+              field,
+              dgettext("dataset", "You need to fill either aom, region or use datagouv's zone")
+            )
+          end
         )
     end
   end
