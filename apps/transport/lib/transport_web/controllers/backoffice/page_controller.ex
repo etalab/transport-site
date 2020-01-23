@@ -68,7 +68,7 @@ defmodule TransportWeb.Backoffice.PageController do
       |> Repo.paginate(page: config.page_number)
 
     conn
-    |> assign(:regions, Repo.all(Region))
+    |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
     |> assign(:datasets, datasets)
     |> assign(:dataset_types, Dataset.types())
     |> render("index.html")

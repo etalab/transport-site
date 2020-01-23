@@ -17,10 +17,9 @@ defmodule Transport.ImportData do
     Resource.validate_and_save_all()
   end
 
-  def call(%Dataset{id: id, datagouv_id: datagouv_id, type: type}) do
+  def call(%Dataset{datagouv_id: datagouv_id, type: type}) do
     with {:ok, new_data} <- import_from_udata(datagouv_id, type),
-         dataset <- Repo.get(Dataset, id),
-         {:ok, changeset} <- Dataset.changeset(dataset, new_data) do
+         {:ok, changeset} <- Dataset.changeset(new_data) do
       Repo.update(changeset)
     else
       {:error, error} ->
