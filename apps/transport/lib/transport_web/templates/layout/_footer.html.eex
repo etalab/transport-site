@@ -31,7 +31,7 @@
       </li>
     <% end %>
     <li>
-      <a class="footer__link footer__link--tos" href="https://transport.data.gouv.fr/swaggerui#/datasets/API.DatasetController.datasets" role="link">API</a>
+      <a class="footer__link footer__link--tos" href="https://doc.transport.data.gouv.fr/reutilisateurs/apis/" role="link">API</a>
     </li>
     <li>
       <a class="footer__link footer__link--tos" href="https://doc.transport.data.gouv.fr/foire-aux-questions" role="link">FAQ</a>
