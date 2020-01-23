@@ -163,7 +163,7 @@ defmodule DB.Dataset do
 
   def order_datasets(datasets, _params), do: datasets
 
-  def changeset(_dataset, params) do
+  def changeset(params) do
     dataset =
       case Repo.get_by(__MODULE__, datagouv_id: params["datagouv_id"]) do
         nil -> %__MODULE__{}
@@ -171,7 +171,7 @@ defmodule DB.Dataset do
       end
 
     dataset
-    |> Repo.preload([:resources, :communes])
+    |> Repo.preload([:resources, :communes, :region])
     |> cast(params, [
       :datagouv_id,
       :spatial,
@@ -195,11 +195,12 @@ defmodule DB.Dataset do
     ])
     |> cast_aom(params)
     |> cast_datagouv_zone(params)
+    |> cast_nation_dataset(params)
     |> cast_assoc(:resources)
     |> validate_required([:slug])
-    |> validate_territory_mutual_exclusion()
     |> cast_assoc(:region)
     |> cast_assoc(:aom)
+    |> validate_territory_mutual_exclusion()
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
         {:ok, %{changeset | action: :ignore}}
@@ -481,20 +482,23 @@ defmodule DB.Dataset do
   defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> @cellar_host, name])
 
   defp validate_territory_mutual_exclusion(changeset) do
+    has_cities = get_field(changeset, :communes) != 0
+
     [:region_id, :aom_id]
     |> Enum.map(fn f -> get_field(changeset, f) end)
     |> Enum.count(fn f -> f not in ["", nil] end)
     |> case do
       1 ->
-        :ok
+        case has_cities do
+          true -> :error
+          false -> :ok
+        end
 
       0 ->
         # if there is neither aom nor region we check that there is at least one associated zone
-        changeset
-        |> get_field(:communes)
-        |> case do
-          0 -> :error
-          _ -> :ok
+        case has_cities do
+          true -> :ok
+          false -> :error
         end
 
       _ ->
@@ -505,16 +509,10 @@ defmodule DB.Dataset do
         changeset
 
       :error ->
-        Enum.reduce(
-          [:region_id, :aom_id, :communes],
+        add_error(
           changeset,
-          fn field, changeset ->
-            add_error(
-              changeset,
-              field,
-              dgettext("dataset", "You need to fill either aom, region or use datagouv's zone")
-            )
-          end
+          :region,
+          dgettext("dataset", "You need to fill either aom, region or use datagouv's zone")
         )
     end
   end
@@ -533,6 +531,21 @@ defmodule DB.Dataset do
   end
 
   defp cast_aom(changeset, _), do: changeset
+
+  defp cast_nation_dataset(changeset, %{"national_dataset" => "true"}) do
+    if is_nil(get_field(changeset, :region_id)) do
+      national =
+        Region
+        |> where([r], r.nom == "National")
+        |> Repo.one!()
+
+      change(changeset, region: national, region_id: national.id)
+    else
+      add_error(changeset, :region, dgettext("dataset", "A dataset cannot be national and regional"))
+    end
+  end
+
+  defp cast_nation_dataset(changeset, _), do: changeset
 
   defp cast_datagouv_zone(changeset, %{"zones" => zones_insee, "use_datagouv_zones" => "true"}) do
     communes =
