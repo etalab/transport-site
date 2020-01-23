@@ -21,7 +21,7 @@ You can install this 2 different ways:
 
 You also need an up to date postgresql with postgis installed.
 
-Postgresql server must accept connections on 5432 port. To check if this is the case, you can type `pg_isready --port 5432` on a terminal and should get a response along the lines of
+Postgresql server must accept connections on 5432 port. To check if this is the case, you can type `pg_isready --port 5432` on a terminal. You should get a response along the lines of
 `/var/run/postgresql:5432 - accepting connections`
 
 ## Configuration
