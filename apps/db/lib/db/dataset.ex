@@ -482,33 +482,20 @@ defmodule DB.Dataset do
   defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> @cellar_host, name])
 
   defp validate_territory_mutual_exclusion(changeset) do
-    has_cities = get_field(changeset, :communes) != 0
+    has_cities = Kernel.min(get_field(changeset, :communes), 1)
 
-    [:region_id, :aom_id]
-    |> Enum.map(fn f -> get_field(changeset, f) end)
-    |> Enum.count(fn f -> f not in ["", nil] end)
-    |> case do
+    other_fields =
+      [:region_id, :aom_id]
+      |> Enum.map(fn f -> get_field(changeset, f) end)
+      |> Enum.count(fn f -> f not in ["", nil] end)
+
+    fields = other_fields + has_cities
+
+    case fields do
       1 ->
-        case has_cities do
-          true -> :error
-          false -> :ok
-        end
-
-      0 ->
-        # if there is neither aom nor region we check that there is at least one associated zone
-        case has_cities do
-          true -> :ok
-          false -> :error
-        end
-
-      _ ->
-        :error
-    end
-    |> case do
-      :ok ->
         changeset
 
-      :error ->
+      _ ->
         add_error(
           changeset,
           :region,
