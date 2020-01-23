@@ -33,7 +33,7 @@ msgstr ""
 
 #, elixir-format
 msgid "ExtraFile"
-msgstr "The GTFS archive should not contain files that are not part of the specification"
+msgstr "The GTFS archive should only contain files that are part of the specification"
 
 #, elixir-format
 msgid "File name"
