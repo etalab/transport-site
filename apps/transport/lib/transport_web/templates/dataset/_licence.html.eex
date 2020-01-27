@@ -1,21 +1,18 @@
 <b><%= dgettext("page-dataset-details", "License") %></b>
-
 <%= if licence_url(@dataset.licence) do %>
   <%= link(licence(@dataset), to: licence_url(@dataset.licence)) %>
 <% else %>
   <%= licence(@dataset) %>
 <% end %>
-
 <%= if @dataset.type == "public-transit" && @dataset.licence == "odc-odbl" do %>
-<%= dgettext("page-dataset-details", "and ") %>
-<%= link(
+  <%= dgettext("page-dataset-details", "and ") %>
+  <%= link(
         dgettext("page-dataset-details", "Specific usage conditions"),
-        to: page_path(@conn, :single_page, "conditions")
+        to: page_path(@conn, :conditions)
       )
 %>
 <% end %>
-
 <%= if @dataset.licence == "fr-lo" do %>
-(<%= dgettext("page-dataset-details", "compatible with") %>
-<%= link(licence(%Dataset{licence: "odc-odbl"}), to: licence_url("odc-odbl")) %>)
+  (<%= dgettext("page-dataset-details", "compatible with") %>
+  <%= link(licence(%Dataset{licence: "odc-odbl"}), to: licence_url("odc-odbl")) %>)
 <% end %>

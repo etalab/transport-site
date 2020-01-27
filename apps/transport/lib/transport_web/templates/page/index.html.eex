@@ -164,7 +164,7 @@
                 <p><%= dgettext("page-index", "producer description") |> raw() %></p>
                 <div class="row">
                     <a class="button" href="https://www.data.gouv.fr/fr/admin/dataset/new/"><%= dgettext("page-index", "Publish my data") %></a>
-                    <a href="<%= page_path @conn, :single_page, "guide" %>"><%= dgettext("page-index", "Publication guide") %></a>
+                    <a href="https://doc.transport.data.gouv.fr/producteurs/comment-et-pourquoi-les-producteurs-de-donnees-utilisent-ils-le-pan"><%= dgettext("page-index", "Publication guide") %></a>
                 </div>
             </div>
             <img class="illustration" src="<%= static_path(@conn, "/images/bus.svg") %>" alt="" />
