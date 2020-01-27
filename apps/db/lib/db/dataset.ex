@@ -485,7 +485,11 @@ defmodule DB.Dataset do
   defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> @cellar_host, name])
 
   defp validate_territory_mutual_exclusion(changeset) do
-    has_cities = Kernel.min(get_field(changeset, :communes), 1)
+    has_cities =
+      changeset
+      |> get_field(:communes)
+      |> length
+      |> Kernel.min(1)
 
     other_fields =
       [:region_id, :aom_id]

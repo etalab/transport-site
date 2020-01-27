@@ -9,7 +9,7 @@ defmodule TransportWeb.DatabaseCase do
   using(options) do
     quote do
       alias Ecto.Adapters.SQL.Sandbox
-      alias DB.{AOM, Dataset, Region, Repo}
+      alias DB.{AOM, Commune, Dataset, Region, Repo}
 
       import Ecto
       import Ecto.Query
@@ -44,6 +44,20 @@ defmodule TransportWeb.DatabaseCase do
           insee_commune_principale: "38185",
           nom: "Grenoble",
           region: Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes")
+        })
+
+        Repo.insert(%Commune{
+          insee: "36044",
+          nom: "Châteauroux",
+          wikipedia: "fr:Châteauroux",
+          surf_ha: 2554.0
+        })
+
+        Repo.insert(%Commune{
+          insee: "36063",
+          nom: "Déols",
+          wikipedia: "fr:Déols",
+          surf_ha: 3177.0
         })
 
         cleanup()
