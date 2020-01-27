@@ -23,7 +23,7 @@ defmodule TransportWeb.DatasetController do
 
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
     with dataset when not is_nil(dataset) <- Dataset.get_by_slug(slug_or_id),
-         organization when not is_nil(organization) <- Dataset.get_organization(dataset) do
+         territory when not is_nil(territory) <- Dataset.get_territory(dataset) do
       community_ressources =
         case CommunityResources.get(dataset.datagouv_id) do
           {_, community_ressources} -> community_ressources
@@ -39,7 +39,7 @@ defmodule TransportWeb.DatasetController do
       conn
       |> assign(:dataset, dataset)
       |> assign(:community_ressources, community_ressources)
-      |> assign(:organization, organization)
+      |> assign(:territory, territory)
       |> assign(:discussions, Discussions.get(dataset.datagouv_id))
       |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
       |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))

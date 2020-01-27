@@ -35,8 +35,18 @@ defmodule DB.Dataset do
     field(:population, :integer)
     field(:nb_reuses, :integer)
 
+    # When the dataset is linked to some cities
+    # we ask in the backoffice for a name to display
+    # (used in the long title of a dataset and to find the associated datasets)
+    field(:associated_territory_name, :string)
+
+    # A Dataset can be linked to *either*:
+    # - a Region (and there is a special Region 'national' that represents the national datasets);
+    # - an AOM;
+    # - or a list of cities.
     belongs_to(:region, Region)
     belongs_to(:aom, AOM)
+    many_to_many(:communes, Commune, join_through: "dataset_communes")
 
     has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
   end
@@ -156,7 +166,7 @@ defmodule DB.Dataset do
 
   def order_datasets(datasets, _params), do: datasets
 
-  def changeset(_dataset, params) do
+  def changeset(params) do
     dataset =
       case Repo.get_by(__MODULE__, datagouv_id: params["datagouv_id"]) do
         nil -> %__MODULE__{}
@@ -164,7 +174,7 @@ defmodule DB.Dataset do
       end
 
     dataset
-    |> Repo.preload(:resources)
+    |> Repo.preload([:resources, :communes, :region])
     |> cast(params, [
       :datagouv_id,
       :spatial,
@@ -183,14 +193,17 @@ defmodule DB.Dataset do
       :region_id,
       :has_realtime,
       :nb_reuses,
-      :is_active
+      :is_active,
+      :associated_territory_name
     ])
     |> cast_aom(params)
+    |> cast_datagouv_zone(params)
+    |> cast_nation_dataset(params)
     |> cast_assoc(:resources)
     |> validate_required([:slug])
-    |> validate_mutual_exclusion([:region_id, :aom_id], dgettext("dataset", "You need to fill either aom or region"))
     |> cast_assoc(:region)
     |> cast_assoc(:aom)
+    |> validate_territory_mutual_exclusion()
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
         {:ok, %{changeset | action: :ignore}}
@@ -257,7 +270,7 @@ defmodule DB.Dataset do
     __MODULE__
     |> where(slug: ^slug)
     |> preload_without_validations()
-    |> preload([:region, :aom])
+    |> preload([:region, :aom, :communes])
     |> Repo.one()
   end
 
@@ -276,17 +289,34 @@ defmodule DB.Dataset do
     |> Repo.all()
   end
 
+  # for the datasets linked to multiple cities we use the
+  # backoffice filled field 'associated_territory_name'
+  # to get the other_datasets
+  # This way we can control which datasets to link to
+  def get_other_datasets(%__MODULE__{id: id, associated_territory_name: associated_territory_name}) do
+    __MODULE__
+    |> where([d], d.id != ^id)
+    |> where([d], d.associated_territory_name == ^associated_territory_name)
+    |> Repo.all()
+  end
+
   def get_other_dataset(_), do: []
 
-  def get_organization(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
-    Repo.get(AOM, aom_id)
+  def get_territory(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
+    aom = Repo.get(AOM, aom_id)
+    aom.nom
   end
 
-  def get_organization(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
-    Repo.get(Region, region_id)
+  def get_territory(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
+    region = Repo.get(Region, region_id)
+    region.nom
   end
 
-  def get_organization(_), do: nil
+  def get_territory(%__MODULE__{associated_territory_name: associated_territory_name}) do
+    associated_territory_name
+  end
+
+  def get_territory(_), do: nil
 
   def get_covered_area_names(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
     get_covered_area_names(
@@ -300,6 +330,12 @@ defmodule DB.Dataset do
       "select string_agg(distinct(departement), ', ') from aom where region_id = $1",
       region_id
     )
+  end
+
+  def get_covered_area_names(%__MODULE__{communes: communes}) when length(communes) != 0 do
+    communes
+    |> Enum.map(fn c -> c.nom end)
+    |> Enum.join(", ")
   end
 
   def get_covered_area_names(_), do: "National"
@@ -448,18 +484,25 @@ defmodule DB.Dataset do
 
   defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> @cellar_host, name])
 
-  defp validate_mutual_exclusion(changeset, fields, error) do
-    fields
-    |> Enum.count(&(get_field(changeset, &1) not in ["", nil]))
-    |> case do
+  defp validate_territory_mutual_exclusion(changeset) do
+    has_cities = Kernel.min(get_field(changeset, :communes), 1)
+
+    other_fields =
+      [:region_id, :aom_id]
+      |> Enum.map(fn f -> get_field(changeset, f) end)
+      |> Enum.count(fn f -> f not in ["", nil] end)
+
+    fields = other_fields + has_cities
+
+    case fields do
       1 ->
         changeset
 
       _ ->
-        Enum.reduce(
-          fields,
+        add_error(
           changeset,
-          fn field, changeset -> add_error(changeset, field, error) end
+          :region,
+          dgettext("dataset", "You need to fill either aom, region or use datagouv's zone")
         )
     end
   end
@@ -472,10 +515,51 @@ defmodule DB.Dataset do
     |> preload([:aom_res])
     |> Repo.get_by(insee: insee)
     |> case do
-      nil -> add_error(changeset, :aom_id, dgettext("dataset", "Unable to find INSEE code"))
+      nil -> add_error(changeset, :aom_id, dgettext("dataset", "Unable to find INSEE code '%{insee}'", insee: insee))
       commune -> change(changeset, aom_id: commune.aom_res.id)
     end
   end
 
   defp cast_aom(changeset, _), do: changeset
+
+  defp cast_nation_dataset(changeset, %{"national_dataset" => "true"}) do
+    if is_nil(get_field(changeset, :region_id)) do
+      national =
+        Region
+        |> where([r], r.nom == "National")
+        |> Repo.one!()
+
+      change(changeset, region: national, region_id: national.id)
+    else
+      add_error(changeset, :region, dgettext("dataset", "A dataset cannot be national and regional"))
+    end
+  end
+
+  defp cast_nation_dataset(changeset, _), do: changeset
+
+  defp get_commune_by_insee(insee) do
+    Commune
+    |> Repo.get_by(insee: insee)
+    |> case do
+      nil ->
+        Logger.warn("Unable to find zone with INSEE #{insee}")
+        nil
+
+      commune ->
+        commune
+    end
+  end
+
+  defp cast_datagouv_zone(changeset, %{"zones" => zones_insee, "use_datagouv_zones" => "true"}) do
+    communes =
+      zones_insee
+      |> Enum.map(&get_commune_by_insee/1)
+      |> Enum.filter(fn z -> not is_nil(z) end)
+
+    changeset
+    |> change
+    |> put_assoc(:communes, communes)
+  end
+
+  defp cast_datagouv_zone(changeset, _), do: changeset
 end

@@ -126,3 +126,35 @@ msgstr "Édition d'un jeu de données"
 #, elixir-format
 msgid "Show datasets with unidentified resources"
 msgstr "Montrer seulement les jeux de données avec ressources autres"
+
+#, elixir-format
+msgid "Associated territory"
+msgstr "Territoire associé"
+
+#, elixir-format
+msgid "Choose one"
+msgstr "Choisissez l'une des options"
+
+#, elixir-format
+msgid "Dataset linked to a list of cities in data.gouv.fr"
+msgstr "Jeu de données rattaché à des communes sur data.gouv.fr"
+
+#, elixir-format
+msgid "Dataset linked to a region"
+msgstr "Jeu de données rattaché à une région"
+
+#, elixir-format
+msgid "Dataset linked to an AOM"
+msgstr "Jeu de données rattaché à une AOM"
+
+#, elixir-format
+msgid "Name of the associtated territory (used in the title of the dataset)"
+msgstr "Nom du territoire associé (utilisé dans le titre du jeu de données)"
+
+#, elixir-format
+msgid "National dataset"
+msgstr "Jeu de données national"
+
+#, elixir-format
+msgid "Use data.gouv.fr's zones"
+msgstr "Utiliser les zones de data.gouv.fr"
