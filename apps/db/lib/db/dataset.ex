@@ -534,21 +534,23 @@ defmodule DB.Dataset do
 
   defp cast_nation_dataset(changeset, _), do: changeset
 
+  defp get_commune_by_insee(insee) do
+    Commune
+    |> Repo.get_by(insee: insee)
+    |> case do
+      nil ->
+        Logger.warn("Unable to find zone with INSEE #{insee}")
+        nil
+
+      commune ->
+        commune
+    end
+  end
+
   defp cast_datagouv_zone(changeset, %{"zones" => zones_insee, "use_datagouv_zones" => "true"}) do
     communes =
       zones_insee
-      |> Enum.map(fn zone_insee ->
-        Commune
-        |> Repo.get_by(insee: zone_insee)
-        |> case do
-          nil ->
-            Logger.warn("Unable to find zone with INSEE #{zone_insee}")
-            nil
-
-          commune ->
-            commune
-        end
-      end)
+      |> Enum.map(&get_commune_by_insee/1)
       |> Enum.filter(fn z -> not is_nil(z) end)
 
     changeset

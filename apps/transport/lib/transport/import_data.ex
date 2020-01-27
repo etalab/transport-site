@@ -111,26 +111,27 @@ defmodule Transport.ImportData do
   def get_nb_reuses(_), do: 0
 
   defp get_associated_zones_insee(%{"spatial" => %{"zones" => zones}}) do
-    base_url = Application.get_env(:transport, :datagouvfr_site)
-
     zones
-    |> Enum.map(fn zone ->
-      url = "#{base_url}/api/1/spatial/zones/#{zone}"
-      Logger.info("getting zone (url = #{url})")
-
-      with {:ok, response} <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
-           {:ok, json} <- Poison.decode(response.body),
-           insee <- read_datagouv_zone(json) do
-        insee
-      else
-        {:error, error} ->
-          Logger.error("Error while reading zone #{zone} (url = #{url}) : #{inspect(error)}")
-          []
-      end
-    end)
+    |> Enum.map(&fetch_data_gouv_zone_insee/1)
   end
 
   defp get_associated_zones_insee(_), do: nil
+
+  defp fetch_data_gouv_zone_insee(zone) do
+    base_url = Application.get_env(:transport, :datagouvfr_site)
+    url = "#{base_url}/api/1/spatial/zones/#{zone}"
+    Logger.info("getting zone (url = #{url})")
+
+    with {:ok, response} <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
+         {:ok, json} <- Poison.decode(response.body),
+         insee <- read_datagouv_zone(json) do
+      insee
+    else
+      {:error, error} ->
+        Logger.error("Error while reading zone #{zone} (url = #{url}) : #{inspect(error)}")
+        []
+    end
+  end
 
   defp read_datagouv_zone(%{
          "features" => [
