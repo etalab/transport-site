@@ -129,10 +129,13 @@ defmodule DB.Dataset do
   defp filter_by_aom(query, %{"aom" => aom_id}), do: where(query, [d], d.aom_id == ^aom_id)
   defp filter_by_aom(query, _), do: query
 
+  defp filter_by_active(query, %{"list_inactive" => true}), do: query
+  defp filter_by_active(query, _), do: where(query, [d], d.is_active)
+
   def list_datasets(%{} = params) do
     __MODULE__
     |> preload_without_validations
-    |> where([d], d.is_active)
+    |> filter_by_active(params)
     |> filter_by_region(params)
     |> filter_by_tags(params)
     |> filter_by_category(params)

@@ -11,6 +11,7 @@ defmodule TransportWeb.Backoffice.PageController do
     conn = assign(conn, :q, q)
 
     params
+    |> Map.put("list_inactive", true)
     |> Dataset.list_datasets()
     |> render_index(conn, params)
   end
