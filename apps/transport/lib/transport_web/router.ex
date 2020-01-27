@@ -42,6 +42,9 @@ defmodule TransportWeb.Router do
 
     get("/", PageController, :index)
     get("/real_time", PageController, :real_time)
+    get("/partners", PageController, :partners)
+    get("/conditions", PageController, :conditions)
+
     get("/stats", StatsController, :index)
     get("/atom.xml", AtomController, :index)
     post("/send_mail", ContactController, :send_mail)
@@ -119,8 +122,17 @@ defmodule TransportWeb.Router do
       get("/:id", ValidationController, :show)
     end
 
-    # If nothing else matches, it’s probably a dummy single page
-    get("/:page", PageController, :single_page)
+    # old static pages that have been moved to doc.transport
+    get("/faq", Redirect, external: "https://doc.transport.data.gouv.fr/foire-aux-questions")
+
+    get("/guide", Redirect,
+      external:
+        "https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/publier-des-horaires-theoriques-de-transport-regulier"
+    )
+
+    get("/legal", Redirect,
+      external: "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/cadre-juridique-harmonise"
+    )
   end
 
   # private

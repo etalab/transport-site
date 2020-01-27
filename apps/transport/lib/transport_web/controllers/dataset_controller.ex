@@ -146,7 +146,7 @@ defmodule TransportWeb.DatasetController do
     realtime_link =
       "page-shortlist"
       |> dgettext("here")
-      |> link(to: page_path(conn, :single_page, "real_time"))
+      |> link(to: page_path(conn, :real_time))
       |> safe_to_string()
 
     message =
