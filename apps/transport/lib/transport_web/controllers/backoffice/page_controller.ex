@@ -11,6 +11,7 @@ defmodule TransportWeb.Backoffice.PageController do
     conn = assign(conn, :q, q)
 
     params
+    |> Map.put("list_inactive", true)
     |> Dataset.list_datasets()
     |> render_index(conn, params)
   end
@@ -68,7 +69,7 @@ defmodule TransportWeb.Backoffice.PageController do
       |> Repo.paginate(page: config.page_number)
 
     conn
-    |> assign(:regions, Repo.all(Region))
+    |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
     |> assign(:datasets, datasets)
     |> assign(:dataset_types, Dataset.types())
     |> render("index.html")

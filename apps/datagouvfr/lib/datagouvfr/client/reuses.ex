@@ -7,18 +7,17 @@ defmodule Datagouvfr.Client.Reuses do
 
   @endpoint "reuses"
 
+  @spec get(map()) :: {:ok, any} | {:error, binary()}
   def get(%{datagouv_id: dataset_id}) do
     case Client.get(@endpoint, [], params: %{dataset: dataset_id}) do
       {:ok, %{"data" => data}} ->
         {:ok, Enum.map(data, &add_name/1)}
 
       {:error, %{body: body}} ->
-        Logger.error("Unable to get reuses of dataset #{dataset_id} because of #{body}")
-        nil
+        {:error, "Unable to get reuses of dataset #{dataset_id} because of #{body}"}
 
       {:error, %{reason: reason}} ->
-        Logger.error("Unable to get reuses of dataset #{dataset_id} because of #{reason}")
-        nil
+        {:error, "Unable to get reuses of dataset #{dataset_id} because of #{reason}"}
     end
   end
 

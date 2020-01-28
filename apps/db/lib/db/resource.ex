@@ -55,7 +55,7 @@ defmodule DB.Resource do
     end
   end
 
-  @spec validate_and_save(DB.Resource.t()) :: {:error, any} | {:ok, nil}
+  @spec validate_and_save(__MODULE__.t()) :: {:error, any} | {:ok, nil}
   def validate_and_save(%__MODULE__{} = resource) do
     Logger.info("Validating #{resource.url}")
 
@@ -70,7 +70,7 @@ defmodule DB.Resource do
     end
   end
 
-  @spec validate(DB.Resource.t()) :: {:error, any} | {:ok, any}
+  @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, any}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
   def validate(%__MODULE__{url: url}) do
@@ -238,7 +238,7 @@ defmodule DB.Resource do
   def is_netex?(%__MODULE__{format: "netex"}), do: true
   def is_netex?(_), do: false
 
-  @spec other_resources_query(Transport.Resource.t()) :: Ecto.Query.t()
+  @spec other_resources_query(__MODULE__.t()) :: Ecto.Query.t()
   def other_resources_query(%__MODULE__{} = resource),
     do:
       from(r in __MODULE__,

@@ -17,10 +17,9 @@ defmodule Transport.ImportData do
     Resource.validate_and_save_all()
   end
 
-  def call(%Dataset{id: id, datagouv_id: datagouv_id, type: type}) do
+  def call(%Dataset{datagouv_id: datagouv_id, type: type}) do
     with {:ok, new_data} <- import_from_udata(datagouv_id, type),
-         dataset <- Repo.get(Dataset, id),
-         {:ok, changeset} <- Dataset.changeset(dataset, new_data) do
+         {:ok, changeset} <- Dataset.changeset(new_data) do
       Repo.update(changeset)
     else
       {:error, error} ->
@@ -62,6 +61,7 @@ defmodule Transport.ImportData do
       |> Map.put("resources", get_resources(dataset, type))
       |> Map.put("nb_reuses", get_nb_reuses(dataset))
       |> Map.put("licence", dataset["license"])
+      |> Map.put("zones", get_associated_zones_insee(dataset))
 
     dataset =
       case has_realtime?(dataset, type) do
@@ -110,6 +110,55 @@ defmodule Transport.ImportData do
   def get_nb_reuses(%{"metrics" => %{"reuses" => reuses}}), do: reuses
   def get_nb_reuses(_), do: 0
 
+  defp get_associated_zones_insee(%{"spatial" => %{"zones" => zones}}) do
+    zones
+    |> Enum.map(&fetch_data_gouv_zone_insee/1)
+  end
+
+  defp get_associated_zones_insee(_), do: nil
+
+  defp fetch_data_gouv_zone_insee(zone) do
+    base_url = Application.get_env(:transport, :datagouvfr_site)
+    url = "#{base_url}/api/1/spatial/zones/#{zone}"
+    Logger.info("getting zone (url = #{url})")
+
+    with {:ok, response} <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
+         {:ok, json} <- Poison.decode(response.body),
+         insee <- read_datagouv_zone(json) do
+      insee
+    else
+      {:error, error} ->
+        Logger.error("Error while reading zone #{zone} (url = #{url}) : #{inspect(error)}")
+        []
+    end
+  end
+
+  defp read_datagouv_zone(%{
+         "features" => [
+           %{
+             "properties" => %{
+               "level" => "fr:commune",
+               "keys" => %{
+                 "insee" => insee
+               }
+             }
+           }
+           | _
+         ]
+       }) do
+    insee
+  end
+
+  defp read_datagouv_zone(%{"id" => id}) do
+    Logger.info("For the moment we can only handle cities, we cannot handle the zone #{id}")
+    []
+  end
+
+  defp read_datagouv_zone(z) do
+    Logger.info("invalid format we cannot handle the zone #{inspect(z)}")
+    []
+  end
+
   def get_dataset(_), do: {:error, "Dataset needs to be a map"}
 
   def get_resources(dataset, type) do
@@ -126,7 +175,7 @@ defmodule Transport.ImportData do
         # For ODS gtfs as csv we do not have a 'latest' field
         # (the 'latest' field is the stable data.gouv.fr url)
         "latest_url" => resource["latest"] || resource["url"],
-        "id" => get_resource_id(resource),
+        "id" => get_resource_id(resource, dataset["id"]),
         "is_available" => available?(resource)
       }
     end)
@@ -356,8 +405,13 @@ defmodule Transport.ImportData do
   def get_title(%{"title" => title}) when not is_nil(title), do: title
   def get_title(%{"url" => url}), do: Helpers.filename_from_url(url)
 
-  defp get_resource_id(%{"url" => url}) do
-    Resource |> where([r], r.url == ^url) |> select([r], r.id) |> Repo.one()
+  defp get_resource_id(%{"url" => url}, dataset_id) do
+    Resource
+    |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
+    |> where([r, _d], r.url == ^url)
+    |> where([_r, d], d.datagouv_id == ^dataset_id)
+    |> select([r], r.id)
+    |> Repo.one()
   end
 
   def has_realtime?(dataset, "public-transit") do

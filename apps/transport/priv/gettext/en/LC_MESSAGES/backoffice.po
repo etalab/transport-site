@@ -126,3 +126,35 @@ msgstr ""
 #, elixir-format
 msgid "Show datasets with unidentified resources"
 msgstr ""
+
+#, elixir-format
+msgid "Associated territory"
+msgstr ""
+
+#, elixir-format
+msgid "Choose one"
+msgstr ""
+
+#, elixir-format
+msgid "Dataset linked to a list of cities in data.gouv.fr"
+msgstr ""
+
+#, elixir-format
+msgid "Dataset linked to a region"
+msgstr ""
+
+#, elixir-format
+msgid "Dataset linked to an AOM"
+msgstr ""
+
+#, elixir-format
+msgid "Name of the associtated territory (used in the title of the dataset)"
+msgstr ""
+
+#, elixir-format
+msgid "National dataset"
+msgstr ""
+
+#, elixir-format
+msgid "Use data.gouv.fr's zones"
+msgstr ""

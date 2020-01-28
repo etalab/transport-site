@@ -5,7 +5,7 @@ defmodule TransportWeb.StatsController do
   require Logger
   use TransportWeb, :controller
 
-  @spec index(any, any) :: none
+  @spec index(Plug.Conn.t(), any) :: Plug.Conn.t()
   def index(conn, _params) do
     aoms =
       Repo.all(

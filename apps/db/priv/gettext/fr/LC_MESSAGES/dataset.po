@@ -36,20 +36,12 @@ msgid "Stops referential"
 msgstr "Référentiel d'arrêts"
 
 #, elixir-format
-msgid "Unable to find INSEE code"
-msgstr "Impossible de trouver le code INSEE"
-
-#, elixir-format
-msgid "You need to fill either aom or region"
-msgstr "Vous devez remplir soit une région soit une AOM"
+msgid "You need to fill either aom, region or use datagouv's zone"
+msgstr "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
 
 #, elixir-format
 msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
-
-#, elixir-format
-msgid "Public transit timetable"
-msgstr "Horaires théoriques de transport public"
 
 #, elixir-format
 msgid "Road networks"
@@ -58,3 +50,15 @@ msgstr "Réseaux routiers"
 #, elixir-format
 msgid "Addresses"
 msgstr "Adresses"
+
+#, elixir-format
+msgid "A dataset cannot be national and regional"
+msgstr "Un jeu de données ne pas pas être à la fois régional et national"
+
+#, elixir-format
+msgid "Public transit timetable"
+msgstr "Horaires théoriques de transport public"
+
+#, elixir-format
+msgid "Unable to find INSEE code '%{insee}'"
+msgstr "Impossible de trouver le code INSEE '%{insee}'"

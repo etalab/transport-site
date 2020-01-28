@@ -25,7 +25,7 @@ defmodule TransportWeb.PageController do
     |> render("login.html")
   end
 
-  def single_page(conn, %{"page" => "partners"}) do
+  def partners(conn) do
     partners =
       Partner
       |> Repo.all()
@@ -40,7 +40,7 @@ defmodule TransportWeb.PageController do
     |> render("single_page.html")
   end
 
-  def single_page(conn, %{"page" => page}) do
+  defp single_page(conn, %{"page" => page}) do
     conn
     |> assign(:page, page <> ".html")
     |> render("single_page.html")
@@ -50,6 +50,10 @@ defmodule TransportWeb.PageController do
     conn
     |> assign(:providers, CSVDocuments.real_time_providers())
     |> single_page(%{"page" => "real_time"})
+  end
+
+  def conditions(conn, _params) do
+    single_page(conn, %{"page" => "conditions"})
   end
 
   defp aoms_with_dataset do

@@ -1,34 +1,68 @@
-  <h1>
+<%= form_for @conn, backoffice_dataset_path(@conn, :post), fn f -> %>
+<h1>
   <%= if is_nil(@dataset) do %>
-  <%= dgettext("backoffice", "Add a dataset") %>
+    <%= dgettext("backoffice", "Add a dataset") %>
   <% else %>
-  <%= dgettext("backoffice", "Edit a dataset") %>
+    <%= dgettext("backoffice", "Edit a dataset") %>
   <% end %>
-  </h1>
-
-  <%= form_for @conn, backoffice_dataset_path(@conn, :post), fn f -> %>
-    <%= text_input f, :url, [
+</h1>
+<%= text_input f, :url, [
       placeholder: dgettext("backoffice", "Dataset's url"), 
       value: if not is_nil(@dataset) do Dataset.datagouv_url(@dataset) else "" end
     ] %>
-    <%= text_input f, :spatial, [
+<%= text_input f, :spatial, [
       placeholder: dgettext("backoffice", "name"),
       value: if not is_nil(@dataset) do @dataset.spatial else "" end
     ] %>
+<%= select f, :type, @dataset_types, [
+      selected: if not is_nil(@dataset) do @dataset.type else "public-transit" end ]%>
+<div class="panel">
+  <div class="panel__header">
+    <h4>
+      <%= dgettext("backoffice", "Associated territory") %>
+    </h4>
+    <%= dgettext("backoffice", "Choose one") %>
+  </div>
+  <div class="panel__content">
+    <%= checkbox f, :national_dataset %><%= dgettext("backoffice", "National dataset") %>
+  </div>
+  <p class="separator">
+    - <%= dgettext("resource", "or") %> -
+  </p>
+  <div class="panel__content">
+    <%= dgettext("backoffice", "Dataset linked to a region") %>
     <%= select f, :region_id, Enum.map(@regions, &{&1.nom, &1.id}), [
       selected: if not is_nil(@dataset) do @dataset.region_id else "" end,
       prompt: "Pas un jeu de données régional"
       ]
      %>
-
+  </div>
+  <p class="separator">
+    - <%= dgettext("resource", "or") %> -
+  </p>
+  <%= dgettext("backoffice", "Dataset linked to an AOM") %>
+  <div class="panel__content">
     <%= live_render(@conn, TransportWeb.Live.CommuneField) %>
-    <%= select f, :type, @dataset_types, [
-      selected: if not is_nil(@dataset) do @dataset.type else "" end ]%>
-    <%= if is_nil(@dataset) do %>
-    <%= hidden_input f, :action, [value: "new"] %>
-    <%= submit dgettext("backoffice", "Add") %>
-    <% else %>
-    <%= hidden_input f, :action, [value: "edit"] %>
-    <%= submit dgettext("backoffice", "Edit") %>
-    <% end %>
-  <% end %>
+  </div>
+  <p class="separator">
+    - <%= dgettext("resource", "or") %> -
+  </p>
+  <div class="panel__content">
+    <%= dgettext("backoffice", "Dataset linked to a list of cities in data.gouv.fr") %>
+    <div>
+      <%= checkbox f, :use_datagouv_zones %><%= dgettext("backoffice", "Use data.gouv.fr's zones") %>
+      <%= text_input f, :associated_territory_name, [
+      placeholder: dgettext("backoffice", "Name of the associtated territory (used in the title of the dataset)"),
+      value: if not is_nil(@dataset) do @dataset.associated_territory_name else "" end
+    ] %>
+    </div>
+  </div>
+</div>
+<%= if is_nil(@dataset) do %>
+  <%= hidden_input f, :action, [value: "new"] %>
+  <%= submit dgettext("backoffice", "Add") %>
+<% else %>
+  <%= hidden_input f, :action, [value: "edit"] %>
+  <%= submit dgettext("backoffice", "Edit") %>
+<% end %>
+<% end %>

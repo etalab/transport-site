@@ -168,6 +168,10 @@ defmodule TransportWeb.DatasetView do
   @spec localization(DB.Dataset.t()) :: binary | nil
   defp localization(%Dataset{aom: %{nom: nom}}), do: nom
   defp localization(%Dataset{region: %{nom: nom}}), do: nom
+
+  defp localization(%Dataset{associated_territory_name: associated_territory_name}),
+    do: associated_territory_name
+
   defp localization(_), do: nil
 
   @doc """
