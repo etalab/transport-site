@@ -6,9 +6,10 @@ defmodule DB.AOM do
   in order to have an up-to-date search vector
   """
   use Ecto.Schema
+  use TypedEctoSchema
   alias DB.{Dataset, Region, Repo}
 
-  schema "aom" do
+  typed_schema "aom" do
     field(:composition_res_id, :integer)
     field(:insee_commune_principale, :string)
     field(:departement, :string)
