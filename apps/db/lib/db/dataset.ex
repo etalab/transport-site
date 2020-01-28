@@ -214,9 +214,6 @@ defmodule DB.Dataset do
 
       %{valid?: false, errors: errors} ->
         {:error, format_error(errors)}
-
-      _ ->
-        {:error, "unknown"}
     end
   end
 
