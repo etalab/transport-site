@@ -6,12 +6,14 @@ defmodule Transport.MixProject do
       apps_path: "apps",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      aliases: aliases()
+      aliases: aliases(),
+      dialyzer: [plt_add_deps: :transitive]
     ]
   end
 
   defp deps do
-    []
+    [{:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}
+  ]
   end
 
   defp aliases do
