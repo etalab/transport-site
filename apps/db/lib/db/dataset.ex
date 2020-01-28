@@ -266,13 +266,17 @@ defmodule DB.Dataset do
 
   def filter_has_realtime, do: from(d in __MODULE__, where: d.has_realtime == true)
 
-  @spec get_by_slug(binary) :: __MODULE__.t()
+  @spec get_by_slug(binary) :: {:ok, __MODULE__.t()} | {:error, binary()}
   def get_by_slug(slug) do
     __MODULE__
     |> where(slug: ^slug)
     |> preload_without_validations()
     |> preload([:region, :aom, :communes])
     |> Repo.one()
+    |> case do
+      nil -> {:error, "Dataset with slug #{slug} not found"}
+      dataset -> {:ok, dataset}
+    end
   end
 
   @spec get_other_datasets(__MODULE__.t()) :: [__MODULE__.t()]
@@ -303,21 +307,25 @@ defmodule DB.Dataset do
 
   def get_other_dataset(_), do: []
 
+  @spec get_territory(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
   def get_territory(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
-    aom = Repo.get(AOM, aom_id)
-    aom.nom
+    case Repo.get(AOM, aom_id) do
+      nil -> {:error, "Could not find territory of AOM with id #{aom_id}"}
+      aom -> {:ok, aom.nom}
+    end
   end
 
   def get_territory(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
-    region = Repo.get(Region, region_id)
-    region.nom
+    case Repo.get(Region, region_id) do
+      nil -> {:error, "Could not find territory of Region with id #{region_id}"}
+      region -> {:ok, region.nom}
+    end
   end
 
-  def get_territory(%__MODULE__{associated_territory_name: associated_territory_name}) do
-    associated_territory_name
-  end
+  def get_territory(%__MODULE__{associated_territory_name: associated_territory_name}),
+    do: {:ok, associated_territory_name}
 
-  def get_territory(_), do: nil
+  def get_territory(_), do: {:error, "Trying to find the territory of an unkown entity"}
 
   def get_covered_area_names(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
     get_covered_area_names(
