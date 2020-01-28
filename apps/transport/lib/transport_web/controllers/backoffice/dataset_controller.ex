@@ -22,7 +22,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
          {:ok, dg_dataset} <- ImportData.import_from_udata(datagouv_id, params["type"]),
          params <- Map.merge(params, dg_dataset),
          {:ok, changeset} <- Dataset.changeset(params),
-         {:ok, dataset} <- Repo.insert_or_update(changeset) do
+         {:ok, dataset} <- insert_dataset(changeset) do
       dataset
       |> Dataset.validate()
       |> flash(conn, msgs.success[params["action"]], msgs.error[params["action"]])
@@ -40,6 +40,16 @@ defmodule TransportWeb.Backoffice.DatasetController do
         |> put_flash(:error, "Unable to get datagouv id")
     end
     |> redirect_to_index()
+  end
+
+  defp insert_dataset(changeset) do
+    Repo.insert_or_update(changeset)
+  rescue
+    exception in Ecto.ConstraintError ->
+      Logger.error("Constraint violation while inserting dataset: #{inspect(exception)}")
+
+      {:error, "Problem while inserting the dataset in the database,
+       a constraint has not been respected : '#{exception.constraint}'"}
   end
 
   def import_from_data_gouv_fr(%Plug.Conn{} = conn, %{"id" => id}) do
