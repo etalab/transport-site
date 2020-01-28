@@ -115,7 +115,7 @@ defmodule Transport.ImportData do
     |> Enum.map(&fetch_data_gouv_zone_insee/1)
   end
 
-  defp get_associated_zones_insee(_), do: nil
+  defp get_associated_zones_insee(_), do: []
 
   defp fetch_data_gouv_zone_insee(zone) do
     base_url = Application.get_env(:transport, :datagouvfr_site)
