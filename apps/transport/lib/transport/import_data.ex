@@ -175,7 +175,7 @@ defmodule Transport.ImportData do
         # For ODS gtfs as csv we do not have a 'latest' field
         # (the 'latest' field is the stable data.gouv.fr url)
         "latest_url" => resource["latest"] || resource["url"],
-        "id" => get_resource_id(resource),
+        "id" => get_resource_id(resource, dataset["id"]),
         "is_available" => available?(resource)
       }
     end)
@@ -405,8 +405,13 @@ defmodule Transport.ImportData do
   def get_title(%{"title" => title}) when not is_nil(title), do: title
   def get_title(%{"url" => url}), do: Helpers.filename_from_url(url)
 
-  defp get_resource_id(%{"url" => url}) do
-    Resource |> where([r], r.url == ^url) |> select([r], r.id) |> Repo.one()
+  defp get_resource_id(%{"url" => url}, dataset_id) do
+    Resource
+    |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
+    |> where([r, _d], r.url == ^url)
+    |> where([_r, d], d.datagouv_id == ^dataset_id)
+    |> select([r], r.id)
+    |> Repo.one()
   end
 
   def has_realtime?(dataset, "public-transit") do
