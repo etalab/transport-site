@@ -14,8 +14,9 @@ defmodule DB.Dataset do
   import DB.Gettext
   require Logger
   use Ecto.Schema
+  use TypedEctoSchema
 
-  schema "dataset" do
+  typed_schema "dataset" do
     field(:datagouv_id, :string)
     field(:spatial, :string)
     field(:created_at, :string)
