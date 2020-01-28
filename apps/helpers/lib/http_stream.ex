@@ -27,11 +27,11 @@ defmodule HTTPStream do
       conn
     else
       {:error, conn, reason} ->
-        Logger.error(fn -> inspect(reason) end)
+        Logger.error("Error in http request of #{url} : #{inspect(reason)}")
         conn
 
       {:error, error} ->
-        Logger.error(fn -> inspect(error) end)
+        Logger.error("Error in http request of #{url} : #{inspect(error)}")
         nil
     end
   end
