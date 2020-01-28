@@ -21,21 +21,12 @@ defmodule TransportWeb.DatasetController do
     |> render("index.html")
   end
 
+  @spec details(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
-    with dataset when not is_nil(dataset) <- Dataset.get_by_slug(slug_or_id),
-         territory when not is_nil(territory) <- Dataset.get_territory(dataset) do
-      community_ressources =
-        case CommunityResources.get(dataset.datagouv_id) do
-          {:ok, community_ressources} -> community_ressources
-          _ -> nil
-        end
-
-      reuses =
-        case Reuses.get(dataset) do
-          {_, reuses} -> reuses
-          _ -> nil
-        end
-
+    with {:ok, dataset} <- Dataset.get_by_slug(slug_or_id),
+         {:ok, territory} <- Dataset.get_territory(dataset),
+         {:ok, community_ressources} <- CommunityResources.get(dataset.datagouv_id),
+         {:ok, reuses} <- Reuses.get(dataset) do
       conn
       |> assign(:dataset, dataset)
       |> assign(:community_ressources, community_ressources)
@@ -46,15 +37,13 @@ defmodule TransportWeb.DatasetController do
       |> assign(:reuses, reuses)
       |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
       |> assign(:history_resources, Dataset.history_resources(dataset))
-      |> put_status(
-        if dataset.is_active do
-          :ok
-        else
-          :not_found
-        end
-      )
+      |> put_status(if dataset.is_active, do: :ok, else: :not_found)
       |> render("details.html")
     else
+      {:error, msg} ->
+        Logger.error("Could not fetch dataset details: #{msg}")
+        redirect_to_slug_or_404(conn, slug_or_id)
+
       nil ->
         redirect_to_slug_or_404(conn, slug_or_id)
     end
