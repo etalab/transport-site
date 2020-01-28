@@ -7,7 +7,7 @@ defmodule Datagouvfr.Client.CommunityResources do
 
   @endpoint "/datasets/community_resources/"
 
-  @spec get(binary) :: Client.response()
+  @spec get(binary) :: API.response()
   def get(id) when is_binary(id) do
     case API.get("#{@endpoint}?dataset=#{id}") do
       {:ok, %{"data" => data}} ->

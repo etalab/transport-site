@@ -266,7 +266,7 @@ defmodule DB.Dataset do
 
   def filter_has_realtime, do: from(d in __MODULE__, where: d.has_realtime == true)
 
-  @spec get_by_slug(binary) :: Dataset.t()
+  @spec get_by_slug(binary) :: __MODULE__.t()
   def get_by_slug(slug) do
     __MODULE__
     |> where(slug: ^slug)
@@ -275,7 +275,7 @@ defmodule DB.Dataset do
     |> Repo.one()
   end
 
-  @spec get_other_datasets(DB.Dataset.t()) :: [DB.Dataset.t()]
+  @spec get_other_datasets(__MODULE__.t()) :: [__MODULE__.t()]
   def get_other_datasets(%__MODULE__{id: id, aom_id: aom_id}) when not is_nil(aom_id) do
     __MODULE__
     |> where([d], d.id != ^id)
@@ -357,7 +357,7 @@ defmodule DB.Dataset do
     end
   end
 
-  @spec formats(DB.Dataset.t()) :: [binary]
+  @spec formats(__MODULE__.t()) :: [binary]
   def formats(%__MODULE__{resources: resources}) when is_list(resources) do
     resources
     |> Enum.map(fn r -> r.format end)
@@ -367,7 +367,7 @@ defmodule DB.Dataset do
 
   def formats(_), do: []
 
-  @spec validate(binary | integer | DB.Dataset.t()) :: {:error, String.t()} | {:ok, nil}
+  @spec validate(binary | integer | __MODULE__.t()) :: {:error, String.t()} | {:ok, nil}
   def validate(%__MODULE__{id: id, type: "public-transit"}), do: validate(id)
   def validate(%__MODULE__{}), do: {:ok, nil}
   def validate(id) when is_binary(id), do: id |> String.to_integer() |> validate()
@@ -385,7 +385,7 @@ defmodule DB.Dataset do
     end
   end
 
-  @spec user_datasets(Plug.Conn.t()) :: {:error, OAuth2.Error.t()} | {:ok, [Transport.Dataset.t()]}
+  @spec user_datasets(Plug.Conn.t()) :: {:error, OAuth2.Error.t()} | {:ok, [__MODULE__.t()]}
   def user_datasets(%Plug.Conn{} = conn) do
     case User.datasets(conn) do
       {:ok, datasets} ->
@@ -402,7 +402,7 @@ defmodule DB.Dataset do
   end
 
   @spec user_org_datasets(Plug.Conn.t()) ::
-          {:error, OAuth2.Error.t()} | {:ok, [DB.Dataset.t()]}
+          {:error, OAuth2.Error.t()} | {:ok, [__MODULE__.t()]}
   def user_org_datasets(%Plug.Conn{} = conn) do
     case User.org_datasets(conn) do
       {:ok, datasets} ->
