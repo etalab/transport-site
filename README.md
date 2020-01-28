@@ -21,16 +21,16 @@ You can install this 2 different ways:
 
 You also need an up to date postgresql with postgis installed.
 
-Postgresql server must accept connections on 5432 port. To check if this is the case, you can type `pg_isready --port 5432` on a terminal. You should get a response along the lines of
-`/var/run/postgresql:5432 - accepting connections`
-
 ## Configuration
 
 For easier configuration handling you can use [direnv](https://direnv.net/).
 
 * copy the example file `cp .envrc.example .envrc`;
 * in the terminal, generate a phoenix secret key with the command `mix phx.gen.secret` and paste the result in the .envrc file at the line `export SECRET_KEY_BASE=<secret_key>`
-* you must know the password of the postgres user, and update the PG_URL environment variable accordingly `export PG_URL=ecto://postgres:<postgres_user_password>@localhost/transport_repo`
+* you must know the password of the postgres user, and update the `PG_URL` environment variable accordingly : `export PG_URL=ecto://postgres:<postgres_user_password>@localhost/transport_repo`
+* by default, connections to postgresql will be made on the 5432 port. If your postgresql installation uses a different port, or if you have several postgresql installed, update the `PG_URL` environment variable accordingly :
+`export PG_URL=ecto://postgres:postgres@localhost:<port>/transport_repo`
+
 * allow direnv to export those variables `direnv allow .`
 
 
