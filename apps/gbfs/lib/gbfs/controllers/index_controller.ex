@@ -1,6 +1,5 @@
 defmodule GBFS.IndexController do
   use GBFS, :controller
-  use Phoenix.Controller
 
   plug(:put_view, GBFS.FeedView)
 
