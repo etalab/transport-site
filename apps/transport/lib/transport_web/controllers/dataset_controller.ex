@@ -26,7 +26,7 @@ defmodule TransportWeb.DatasetController do
          territory when not is_nil(territory) <- Dataset.get_territory(dataset) do
       community_ressources =
         case CommunityResources.get(dataset.datagouv_id) do
-          {_, community_ressources} -> community_ressources
+          {:ok, community_ressources} -> community_ressources
           _ -> nil
         end
 
