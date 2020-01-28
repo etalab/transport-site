@@ -50,6 +50,7 @@ defmodule TransportWeb.InputHelpers do
     form_group(Form.select(form, field, options, opts))
   end
 
+  @spec search_input(Phoenix.HTML.Form.t(), atom() | binary(), Keyword.t()) :: any
   def search_input(form, field, opts \\ []) do
     button =
       content_tag(
