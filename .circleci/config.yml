@@ -97,6 +97,17 @@ jobs:
           name: Run formatter
           command: mix format --check-formatted --dry-run
 
+  test_dialyzer:
+    <<: *defaults
+
+    steps:
+      - attach_workspace:
+          at: ~/transport
+
+      - run:
+          name: Run dialyzer (static analysis)
+          command: MIX_ENV=dev mix dialyzer
+
   test_unit:
     <<: *defaults_with_postgres
     steps:

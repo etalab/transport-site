@@ -8,6 +8,7 @@ defmodule DB.AOM do
   use Ecto.Schema
   use TypedEctoSchema
   alias DB.{Dataset, Region, Repo}
+  alias Geo.MultiPolygon
 
   typed_schema "aom" do
     field(:composition_res_id, :integer)
@@ -21,7 +22,7 @@ defmodule DB.AOM do
     field(:population_totale_2014, :integer)
     field(:surface, :string)
     field(:commentaire, :string)
-    field(:geom, Geo.PostGIS.Geometry)
+    field(:geom, Geo.PostGIS.Geometry) :: MultiPolygon.t()
 
     belongs_to(:region, Region)
     has_many(:datasets, Dataset)

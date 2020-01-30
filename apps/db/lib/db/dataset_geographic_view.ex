@@ -5,11 +5,12 @@ defmodule DB.DatasetGeographicView do
   use Ecto.Schema
   use TypedEctoSchema
   alias DB.{Dataset, Region}
+  alias Geo.MultiPolygon
 
   @primary_key false
   typed_schema "dataset_geographic_view" do
     belongs_to(:dataset, Dataset)
     belongs_to(:region, Region)
-    field(:geom, Geo.PostGIS.Geometry)
+    field(:geom, Geo.PostGIS.Geometry) :: MultiPolygon.t()
   end
 end
