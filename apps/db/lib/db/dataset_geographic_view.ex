@@ -3,10 +3,11 @@ defmodule DB.DatasetGeographicView do
   View to ease the geographic metadata of a Dataset
   """
   use Ecto.Schema
+  use TypedEctoSchema
   alias DB.{Dataset, Region}
 
   @primary_key false
-  schema "dataset_geographic_view" do
+  typed_schema "dataset_geographic_view" do
     belongs_to(:dataset, Dataset)
     belongs_to(:region, Region)
     field(:geom, Geo.PostGIS.Geometry)

@@ -3,8 +3,9 @@ defmodule DB.Partner do
   Partner model
   """
   use Ecto.Schema
+  use TypedEctoSchema
 
-  schema "partner" do
+  typed_schema "partner" do
     field(:page, :string)
     field(:datagouv_id, :string)
     field(:type, :string)

@@ -3,6 +3,7 @@ defmodule DB.Resource do
   Resource model
   """
   use Ecto.Schema
+  use TypedEctoSchema
   alias DB.{Dataset, Repo, Validation}
   import Ecto.{Changeset, Query}
   import DB.Gettext
@@ -13,7 +14,7 @@ defmodule DB.Resource do
   @err HTTPoison.Error
   @timeout 180_000
 
-  schema "resource" do
+  typed_schema "resource" do
     field(:is_active, :boolean)
     # real url
     field(:url, :string)
