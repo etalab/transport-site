@@ -7,7 +7,7 @@ defmodule Transport.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
-      dialyzer: [plt_add_deps: :transitive, plt_add_apps: [:mix], ignore_warnings: ".dialyzer_ignore.exs"]
+      dialyzer: [plt_add_deps: :transitive, plt_add_apps: [:mix]]
     ]
   end
 
