@@ -12,7 +12,7 @@ defmodule Transport.MixProject do
   end
 
   defp deps do
-    [{:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}]
+    [{:dialyxir, "~> 1.0.0-rc.7", runtime: false}]
   end
 
   defp aliases do
