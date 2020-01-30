@@ -3,10 +3,11 @@ defmodule DB.Validation do
   Validation model
   """
   use Ecto.Schema
+  use TypedEctoSchema
   alias DB.Resource
   import DB.Gettext, only: [dgettext: 2]
 
-  schema "validations" do
+  typed_schema "validations" do
     field(:details, :map)
     field(:date, :string)
 
