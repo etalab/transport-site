@@ -13,6 +13,12 @@
         </div>
     </div>
 </div>
+<div id="chevron-hint">
+  <span class="fa-stack fa-2x">
+    <i class="fas fa-circle fa-stack-2x"></i>
+    <i class="fas fa-chevron-down fa-stack-1x fa-inverse"></i>
+  </span>
+</div>
 
 <section class="section section-grey">
     <div class="container">

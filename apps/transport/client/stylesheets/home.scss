@@ -18,6 +18,48 @@
   margin-top: 2em;
 }
 
+#chevron-hint {
+  display: none;
+  text-align: center;
+  @media only screen and (max-height: 910px) and (min-height: 470px) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    opacity: 0;
+    animation: bouncing 5s 1 ease-in-out;
+  }
+  .fa-circle {
+    opacity: 0.85;
+  }
+}
+
+@keyframes bouncing {
+  0% {
+    bottom: 0;
+    opacity: 1;
+  }
+  20% {
+    bottom: 20px;
+  }
+  40% {
+    bottom: 0;
+  }
+  60% {
+    bottom: 20px;
+  }
+  80% {
+    bottom: 0;
+    opacity: 1;
+  }
+  100% {
+    bottom: 20px;
+    opacity: 0;
+  }
+}
+
 a.tile {
   color: $almost-black;
   text-decoration: none;
