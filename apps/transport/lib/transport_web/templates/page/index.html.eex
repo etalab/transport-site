@@ -14,15 +14,17 @@
     </div>
 </div>
 <div id="chevron-hint">
-  <span class="fa-stack fa-2x">
-    <i class="fas fa-circle fa-stack-2x"></i>
-    <i class="fas fa-chevron-down fa-stack-1x fa-inverse"></i>
-  </span>
+  <a href="#datasets">
+    <span class="fa-stack fa-2x">
+      <i class="fas fa-circle fa-stack-2x"></i>
+      <i class="fas fa-chevron-down fa-stack-1x fa-inverse"></i>
+    </span>
+  </a>
 </div>
 
 <section class="section section-grey">
     <div class="container">
-        <div class="existing">
+        <div class="existing" id="datasets">
             <div class="grid">
                 <a class="tile" href="<%= dataset_path(@conn, :index, type: "public-transit") %>">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus.svg") %>" alt="" />
