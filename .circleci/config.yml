@@ -185,3 +185,7 @@ workflows:
           requires:
             - build
 
+      - test_dialyzer:
+          requires:
+            - build
+
