@@ -21,29 +21,37 @@ You can install this 2 different ways:
 
 You also need an up to date postgresql with postgis installed.
 
-#### Creating a database
-
-With the permission to create a database (on Debian based system, you need to be logged as `postgres`)
-
-`createdb transport_repo` (or you can use `mix ecto.create`).
-
-#### Applying the migrations
-
-To have an up to date database schema run `mix ecto.migrate` (with an up to date configuration).
-
-#### Restoring the production database
-
-The production database does not contains any sensitive data, you can retreive it for dev purpose.
-* You can retreive the [latest clever-cloud backup](https://console.clever-cloud.com/organisations/orga_f33ebcbc-4403-4e4c-82f5-12305e0ecb1b/addons/addon_beebaa5e-c3a4-4c57-b124-cf9d1473450a) (you need some permissions to access it, if you don't have them, you can ask someone on the team to give you the database)
-* restore this backup on you database: `./restore_db.sh <path_to_the_backup>`
-
 ## Configuration
 
 For easier configuration handling you can use [direnv](https://direnv.net/).
 
 * copy the example file `cp .envrc.example .envrc`;
-* put the right values in it;
+* in the terminal, generate a phoenix secret key with the command `mix phx.gen.secret` and paste the result in the .envrc file at the line `export SECRET_KEY_BASE=<secret_key>`
+* you must know the password of the postgres user, and update the `PG_URL` environment variable accordingly : `export PG_URL=ecto://postgres:<postgres_user_password>@localhost/transport_repo`
+* by default, connections to postgresql will be made on the 5432 port. If your postgresql installation uses a different port, or if you have several postgresql installed, update the `PG_URL` environment variable accordingly :
+`export PG_URL=ecto://postgres:postgres@localhost:<port>/transport_repo`
+
 * allow direnv to export those variables `direnv allow .`
+
+
+#### Creating a database
+
+Create the database with the command `mix ecto.create`.
+
+Alternatively, you can create it manually. With the permission to create a database (on Debian based system, you need to be logged as `postgres`), type
+`createdb transport_repo`.
+
+#### Applying the migrations
+
+To have an up to date database schema run `mix ecto.migrate`.
+
+#### Restoring the production database
+
+The production database does not contains any sensitive data, you can retreive it for dev purpose.
+* You can retreive the [latest clever-cloud backup](https://console.clever-cloud.com/organisations/orga_f33ebcbc-4403-4e4c-82f5-12305e0ecb1b/addons/addon_beebaa5e-c3a4-4c57-b124-cf9d1473450a) (you need some permissions to access it, if you don't have them, you can ask someone on the team to give you the database)
+* On the clever-cloud website, under transport-site-postgresql, there is a Backups section with download links.
+* restore the downloaded backup on you database: `./restore_db.sh <path_to_the_backup>`
+
 
 ## Usage
 

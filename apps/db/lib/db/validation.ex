@@ -31,6 +31,7 @@ defmodule DB.Validation do
   def get_issues(%{details: validations}, _) do
     validations
     |> Map.values()
+    |> Enum.sort_by(fn [%{"severity" => severity} | _] -> severities(severity).level end)
     |> List.first()
   end
 

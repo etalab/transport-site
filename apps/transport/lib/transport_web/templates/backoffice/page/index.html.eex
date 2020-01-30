@@ -4,7 +4,7 @@
   <h1><%= dgettext("backoffice", "Valid datasets available") %></h1>
 
   <%= form_for @conn, backoffice_page_path(@conn, :index), [method: "get"], fn f -> %>
-    <%= search_input f, :q, [{"value", assigns[:q] || ""}, {"placeholder", dgettext("page-index", "Find dataset")}] %>
+    <%= search_input f, :q, [value: assigns[:q] || "", placeholder: dgettext("page-index", "Find dataset")] %>
   <% end %>
 
   <%= form_for @conn, backoffice_dataset_path(@conn, :validate_all), [method: "post"], fn _f -> %>
