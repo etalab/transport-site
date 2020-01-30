@@ -6,10 +6,13 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
   use Mix.Task
   alias Ecto.Changeset
   alias DB.{EPCI, Repo}
+  require Logger
 
   @epci_file "https://unpkg.com/@etalab/decoupage-administratif@0.7.0/data/epci.json"
 
   def run(params) do
+    Logger.info("importing epci")
+
     if params[:no_start] do
       HTTPoison.start()
     else
@@ -20,6 +23,14 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
          {:ok, json} <- Jason.decode(body) do
       json
       |> Enum.each(&insert_epci/1)
+
+      nb_epci = Repo.aggregate(EPCI, :count, :id)
+      Logger.info("#{nb_epci} are now in database")
+      :ok
+    else
+      e ->
+        Logger.warn("impossible to fetch epci file, error #{inspect(e)}")
+        :error
     end
   end
 
@@ -43,7 +54,6 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
       nom: nom,
       communes_insee: get_insees(m)
     })
-    |> IO.inspect()
     |> Repo.insert_or_update()
   end
 
