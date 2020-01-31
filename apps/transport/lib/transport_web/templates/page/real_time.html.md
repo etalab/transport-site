@@ -1,4 +1,4 @@
-# Données temps-réel non standardisées
+# Données temps-réel de transport en commun, non standardisées
 
 Le Point d'Accès National aux données de transport (PAN) fournit un accès **homogène** à ces données pour en faciliter l’intégration et la réutilisation.
 
@@ -35,3 +35,13 @@ Cependant, certains réseaux de transport disposent de données temps-réel non 
 </table>
 
 Vous pouvez signaler à l'équipe du PAN un jeu de données à ajouter ci-dessus en écrivant à contact@transport.beta.gouv.fr.
+
+# Autre données temps-réel
+
+## Velo en libre service
+
+Plusieurs jeux de données de données temps-réel de vélo en libre service sont [disponibles sur la plateforme](https://transport.data.gouv.fr//datasets?type=bike-sharing). Ces données sont standardisées en [BGFS](https://github.com/NABSA/gbfs/blob/master/gbfs.md).
+
+## Aérien
+
+Air France propose une [API](https://developer.airfranceklm.com/) non standardisée avec des données temps-réel.
