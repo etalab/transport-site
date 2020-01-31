@@ -17,10 +17,11 @@ Cependant, certains réseaux de transport disposent de données temps-réel non 
 <th>Prochains passages</th>
 <th>Position véhicules</th>
 <th>Messages d’alerte</th>
+<th>Documentation générale</th>
 </tr>
 <%= for p <- @providers do %>
 <tr>
-<td><%= p["aom"] %></td>
+<td><%= p["nom"] %></td>
 <td><%= p["format"] %></td>
 <td><%= thumb(p["bulk"]) %></td>
 <td><%= thumb(p["acces_ouvert"]) %></td>
@@ -28,6 +29,7 @@ Cependant, certains réseaux de transport disposent de données temps-réel non 
 <td><%= make_link(p["prochains_passages"]) %></td>
 <td><%= make_link(p["position_vehicules"]) %></td>
 <td><%= make_link(p["alertes"]) %></td>
+<td><%= make_link(p["doc_generale"]) %></td>
 </tr>
 <% end %>
 </table>

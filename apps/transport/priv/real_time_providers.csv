@@ -1,16 +1,17 @@
-aom;aom_insee_principal;format;bulk;acces_ouvert;licence;prochains_passages;position_vehicules;alertes
-Rennes Star;35238;Spécifique;y;y;ODbL;https://data.rennesmetropole.fr/explore/dataset/prochains-passages-des-lignes-de-metro-du-reseau-star-en-temps-reel/table/;https://data.explore.star.fr/explore/dataset/tco-bus-vehicules-position-tr/;https://data.rennesmetropole.fr/explore/dataset/alertes-trafic-en-temps-reel-sur-les-lignes-du-reseau-star/information/
-Montpellier Tam;34172;Spécifique;y;y;ODbL;http://data.montpellier3m.fr/dataset/offre-de-transport-tam-en-temps-reel;;
-Nantes TAN;44109;Spécifique;n;y;ODbL;https://data.nantesmetropole.fr/explore/dataset/244400404_api-temps-reel-tan/information/;;https://data.nantesmetropole.fr/explore/dataset/244400404_info-trafic-tan-temps-reel/table/
-Strasbourg;67482;Siri-lite;y;n;Inconnue;https://api.cts-strasbourg.eu/index.html;;
-Saint-Pierre;;Spécifique;n;y;Inconnue;;;https://www.carjaune.re/fr/rss/Disruptions
-Lyon;69123;Spécifique;n;n;Associée;https://data.beta.grandlyon.com/fr/datasets/prochains-passages-temps-reel-reseau-transports-commun-lyonnais/info;;
-Lille;59350;Spécifique;n;y;LO;https://opendata.lillemetropole.fr/explore/dataset/ilevia-prochainspassages/api/;;https://opendata.lillemetropole.fr/explore/dataset/ilevia-perturbations/information/
-Angers;49007;Spécifique;n;y;ODbL;https://data.angers.fr/explore/dataset/bus-tram-circulation-passages/api/;https://data.angers.fr/explore/dataset/bus-tram-position-tr/api/;
-Toulouse;31555;Spécifique;n;n;ODbL;https://data.toulouse-metropole.fr/explore/dataset/api-temps-reel-tisseo/information/;;
-Île-de-France mobilités;75056;Siri-lite;y;n;ODbL;https://opendata.stif.info/pages/api-stif/;;
-Brest;29019;Spécifique;;n;LO;https://geo.pays-de-brest.fr/donnees/Pages/TempsReel.aspx;;https://geo.pays-de-brest.fr/donnees/Pages/TempsReel.aspx
-Nice;06088;Spécifique;n;n;LO;http://opendata.nicecotedazur.org/site/developers;;
-Besancon;25056;Spécifique;n;n;LO;https://api.ginko.voyage/#tr;;https://api.ginko.voyage/#tr
-Saint-Etienne;42218;Spécifique;y;n;Inconnue;https://data.saint-etienne-metropole.fr/;;
-Bordeaux;33063;Spécifique;y;n;LO;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_horai_a/information/;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_vehic_p/information/;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_messa_a/information/
+nom;aom_insee_principal;format;bulk;acces_ouvert;licence;doc_generale;prochains_passages;position_vehicules;alertes
+Rennes Star;35238;Spécifique;y;y;ODbL;;https://data.rennesmetropole.fr/explore/dataset/prochains-passages-des-lignes-de-metro-du-reseau-star-en-temps-reel/table/;https://data.explore.star.fr/explore/dataset/tco-bus-vehicules-position-tr/;https://data.rennesmetropole.fr/explore/dataset/alertes-trafic-en-temps-reel-sur-les-lignes-du-reseau-star/information/
+Montpellier Tam;34172;Spécifique;y;y;ODbL;;http://data.montpellier3m.fr/dataset/offre-de-transport-tam-en-temps-reel;;
+Nantes TAN;44109;Spécifique;n;y;ODbL;;https://data.nantesmetropole.fr/explore/dataset/244400404_api-temps-reel-tan/information/;;https://data.nantesmetropole.fr/explore/dataset/244400404_info-trafic-tan-temps-reel/table/
+Strasbourg;67482;Siri-lite;y;n;Inconnue;;https://api.cts-strasbourg.eu/index.html;;
+Saint-Pierre;;Spécifique;n;y;Inconnue;;;;https://www.carjaune.re/fr/rss/Disruptions
+Lyon;69123;Spécifique;n;n;Associée;;https://data.beta.grandlyon.com/fr/datasets/prochains-passages-temps-reel-reseau-transports-commun-lyonnais/info;;
+Lille;59350;Spécifique;n;y;LO;;https://opendata.lillemetropole.fr/explore/dataset/ilevia-prochainspassages/api/;;https://opendata.lillemetropole.fr/explore/dataset/ilevia-perturbations/information/
+Angers;49007;Spécifique;n;y;ODbL;;https://data.angers.fr/explore/dataset/bus-tram-circulation-passages/api/;https://data.angers.fr/explore/dataset/bus-tram-position-tr/api/;
+Toulouse;31555;Spécifique;n;n;ODbL;;https://data.toulouse-metropole.fr/explore/dataset/api-temps-reel-tisseo/information/;;
+Île-de-France mobilités;75056;Siri-lite;y;n;ODbL;;https://opendata.stif.info/pages/api-stif/;;
+Brest;29019;Spécifique;;n;LO;;https://geo.pays-de-brest.fr/donnees/Pages/TempsReel.aspx;;https://geo.pays-de-brest.fr/donnees/Pages/TempsReel.aspx
+Nice;06088;Spécifique;n;n;LO;;http://opendata.nicecotedazur.org/site/developers;;
+Besancon;25056;Spécifique;n;n;LO;;https://api.ginko.voyage/#tr;;https://api.ginko.voyage/#tr
+Saint-Etienne;42218;Spécifique;y;n;Inconnue;;https://data.saint-etienne-metropole.fr/;;
+Bordeaux;33063;Spécifique;y;n;LO;;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_horai_a/information/;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_vehic_p/information/;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_messa_a/information/
+SNCF;;Spécifique;n;n;LO;https://www.digital.sncf.com/startup/api;http://doc.navitia.io/#next-departures-and-arrivals;;http://doc.navitia.io/#traffic-reports
