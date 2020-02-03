@@ -34,7 +34,7 @@ defmodule TransportWeb.Live.ValidateDatasetView do
   def handle_info({:validate, dataset_id}, socket) do
     new_socket =
       case Dataset.validate(dataset_id) do
-        {:ok, _} ->
+        :ok ->
           assign_step(socket, :validated)
 
         {:error, error} ->

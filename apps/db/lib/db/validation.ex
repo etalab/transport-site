@@ -14,7 +14,8 @@ defmodule DB.Validation do
     belongs_to(:resource, Resource)
   end
 
-  def severities,
+  @spec severities_map() :: map()
+  def severities_map,
     do: %{
       "Fatal" => %{level: 0, text: dgettext("validations", "Fatal failures")},
       "Error" => %{level: 1, text: dgettext("validations", "Errors")},
@@ -23,8 +24,10 @@ defmodule DB.Validation do
       "Irrelevant" => %{level: 4, text: dgettext("validations", "Passed validations")}
     }
 
-  def severities(key), do: severities()[key]
+  @spec severities(binary()) :: %{level: integer(), text: binary()}
+  def severities(key), do: severities_map()[key]
 
+  @spec get_issues(%{details: any()}, map()) :: [any()]
   def get_issues(%{details: nil}, _), do: []
   def get_issues(%{details: validations}, %{"issue_type" => issue_type}), do: Map.get(validations, issue_type, [])
   def get_issues(%{details: validations}, _) when validations == %{}, do: []
@@ -36,6 +39,7 @@ defmodule DB.Validation do
     |> List.first()
   end
 
+  @spec summary(map()) :: keyword()
   def summary(%{details: issues}) do
     existing_issues =
       issues

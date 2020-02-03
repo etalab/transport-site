@@ -52,7 +52,8 @@ defmodule DB.Dataset do
     has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
   end
 
-  def type_to_str,
+  @spec type_to_str_map() :: %{binary() => binary()}
+  def type_to_str_map,
     do: %{
       "public-transit" => dgettext("dataset", "Public transit timetable"),
       "carsharing-areas" => dgettext("dataset", "Carsharing areas"),
@@ -65,10 +66,13 @@ defmodule DB.Dataset do
       "addresses" => dgettext("dataset", "Addresses")
     }
 
-  def type_to_str(type), do: type_to_str()[type]
+  @spec type_to_str(binary()) :: binary()
+  def type_to_str(type), do: type_to_str_map()[type]
 
-  def types, do: Map.keys(type_to_str())
+  @spec types() :: [binary()]
+  def types, do: Map.keys(type_to_str_map())
 
+  @spec no_validations_query() :: Ecto.Query.t()
   defp no_validations_query do
     from(r in Resource,
       select: %Resource{
@@ -86,11 +90,13 @@ defmodule DB.Dataset do
     )
   end
 
-  def preload_without_validations(q) do
+  @spec preload_without_validations() :: Ecto.Query.t()
+  defp preload_without_validations do
     s = no_validations_query()
-    preload(q, resources: ^s)
+    preload(__MODULE__, resources: ^s)
   end
 
+  @spec filter_by_fulltext(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_fulltext(query, %{"q" => ""}), do: query
 
   defp filter_by_fulltext(query, %{"q" => q}) do
@@ -103,6 +109,7 @@ defmodule DB.Dataset do
 
   defp filter_by_fulltext(query, _), do: query
 
+  @spec filter_by_region(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_region(query, %{"region" => region_id}) do
     query
     |> join(:right, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
@@ -111,6 +118,7 @@ defmodule DB.Dataset do
 
   defp filter_by_region(query, _), do: query
 
+  @spec filter_by_category(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_category(query, %{"filter" => filter_key}) do
     case filter_key do
       "has_realtime" -> where(query, [d], d.has_realtime == true)
@@ -121,6 +129,7 @@ defmodule DB.Dataset do
 
   defp filter_by_category(query, _), do: query
 
+  @spec filter_by_tags(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_tags(query, %{"tags" => tags}) do
     resources =
       Resource
@@ -134,18 +143,21 @@ defmodule DB.Dataset do
 
   defp filter_by_tags(query, _), do: query
 
+  @spec filter_by_type(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_type(query, %{"type" => type}), do: where(query, [d], d.type == ^type)
   defp filter_by_type(query, _), do: query
 
+  @spec filter_by_aom(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_aom(query, %{"aom" => aom_id}), do: where(query, [d], d.aom_id == ^aom_id)
   defp filter_by_aom(query, _), do: query
 
+  @spec filter_by_active(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_active(query, %{"list_inactive" => true}), do: query
   defp filter_by_active(query, _), do: where(query, [d], d.is_active)
 
+  @spec list_datasets(map()) :: Ecto.Query.t()
   def list_datasets(%{} = params) do
-    __MODULE__
-    |> preload_without_validations
+    preload_without_validations()
     |> filter_by_active(params)
     |> filter_by_region(params)
     |> filter_by_tags(params)
@@ -156,6 +168,7 @@ defmodule DB.Dataset do
     |> order_datasets(params)
   end
 
+  @spec order_datasets(Ecto.Query.t(), map()) :: Ecto.Query.t()
   def order_datasets(datasets, %{"order_by" => "alpha"}), do: order_by(datasets, asc: :title)
   def order_datasets(datasets, %{"order_by" => "most_recent"}), do: order_by(datasets, desc: :created_at)
 
@@ -167,6 +180,7 @@ defmodule DB.Dataset do
 
   def order_datasets(datasets, _params), do: datasets
 
+  @spec changeset(map()) :: {:error, binary()} | {:ok, Ecto.Changeset.t()}
   def changeset(params) do
     dataset =
       case Repo.get_by(__MODULE__, datagouv_id: params["datagouv_id"]) do
@@ -217,14 +231,17 @@ defmodule DB.Dataset do
     end
   end
 
+  @spec format_error(keyword()) :: binary()
   defp format_error([]), do: ""
   defp format_error([{_key, {msg, _extra}}]), do: "#{msg}"
   defp format_error([{_key, {msg, _extra}} | errors]), do: "#{msg}, #{format_error(errors)}"
 
+  @spec valid_gtfs(DB.Dataset.t()) :: [Resource.t()]
   def valid_gtfs(%__MODULE__{resources: nil}), do: []
   def valid_gtfs(%__MODULE__{resources: r, type: "public-transit"}), do: Enum.filter(r, &Resource.valid?/1)
   def valid_gtfs(%__MODULE__{resources: r}), do: r
 
+  @spec link_to_datagouv(DB.Dataset.t()) :: any()
   def link_to_datagouv(%__MODULE__{} = dataset) do
     Link.link(
       dgettext("dataset", "See on data.gouv.fr"),
@@ -233,10 +250,12 @@ defmodule DB.Dataset do
     )
   end
 
+  @spec datagouv_url(DB.Dataset.t()) :: binary()
   def datagouv_url(%__MODULE__{slug: slug}) do
     Path.join([System.get_env("DATAGOUVFR_SITE"), "datasets", slug])
   end
 
+  @spec count_by_resource_tag(binary()) :: number()
   def count_by_resource_tag(tag) do
     __MODULE__
     |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
@@ -244,6 +263,7 @@ defmodule DB.Dataset do
     |> Repo.aggregate(:count, :id)
   end
 
+  @spec count_coach() :: number()
   def count_coach do
     __MODULE__
     |> join(:right, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
@@ -252,6 +272,7 @@ defmodule DB.Dataset do
     |> Repo.aggregate(:count, :id)
   end
 
+  @spec count_by_type(binary()) :: any()
   def count_by_type(type) do
     query = from(d in __MODULE__, where: d.type == ^type)
 
@@ -261,13 +282,13 @@ defmodule DB.Dataset do
   def count_by_type, do: for(type <- __MODULE__.types(), into: %{}, do: {type, count_by_type(type)})
   def count_has_realtime, do: Repo.aggregate(filter_has_realtime(), :count, :id)
 
-  def filter_has_realtime, do: from(d in __MODULE__, where: d.has_realtime == true)
+  @spec filter_has_realtime() :: Ecto.Query.t()
+  defp filter_has_realtime, do: from(d in __MODULE__, where: d.has_realtime == true)
 
   @spec get_by_slug(binary) :: {:ok, __MODULE__.t()} | {:error, binary()}
   def get_by_slug(slug) do
-    __MODULE__
+    preload_without_validations()
     |> where(slug: ^slug)
-    |> preload_without_validations()
     |> preload([:region, :aom, :communes])
     |> Repo.one()
     |> case do
@@ -324,6 +345,7 @@ defmodule DB.Dataset do
 
   def get_territory(_), do: {:error, "Trying to find the territory of an unkown entity"}
 
+  @spec get_covered_area_names(__MODULE__.t()) :: binary | [any]
   def get_covered_area_names(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
     get_covered_area_names(
       "select string_agg(nom, ', ' ORDER BY nom) from commune group by aom_res_id having aom_res_id = (select composition_res_id from aom where id = $1)",
@@ -346,6 +368,7 @@ defmodule DB.Dataset do
 
   def get_covered_area_names(_), do: "National"
 
+  @spec get_covered_area_names(binary, binary()) :: [binary()]
   def get_covered_area_names(query, id) do
     query
     |> Repo.query([id])
@@ -372,9 +395,9 @@ defmodule DB.Dataset do
 
   def formats(_), do: []
 
-  @spec validate(binary | integer | __MODULE__.t()) :: {:error, String.t()} | {:ok, nil}
+  @spec validate(binary | integer | __MODULE__.t()) :: {:error, String.t()} | :ok
   def validate(%__MODULE__{id: id, type: "public-transit"}), do: validate(id)
-  def validate(%__MODULE__{}), do: {:ok, nil}
+  def validate(%__MODULE__{}), do: :ok
   def validate(id) when is_binary(id), do: id |> String.to_integer() |> validate()
 
   def validate(id) when is_integer(id) do
@@ -386,7 +409,7 @@ defmodule DB.Dataset do
     |> if do
       {:error, "Unable to validate dataset #{id}"}
     else
-      {:ok, nil}
+      :ok
     end
   end
 
@@ -423,6 +446,7 @@ defmodule DB.Dataset do
     end
   end
 
+  @spec history_resources(DB.Dataset.t()) :: [map()]
   def history_resources(%__MODULE__{} = dataset) do
     if Application.get_env(:ex_aws, :access_key_id) == nil ||
          Application.get_env(:ex_aws, :secret_access_key) == nil do
@@ -461,10 +485,12 @@ defmodule DB.Dataset do
     end
   end
 
+  @spec history_bucket_id(__MODULE__.t()) :: binary()
   def history_bucket_id(%__MODULE__{} = dataset) do
     "#{System.get_env("CELLAR_NAMESPACE")}dataset-#{dataset.datagouv_id}"
   end
 
+  @spec get_expire_at(Date.t() | binary()) :: binary()
   def get_expire_at(%Date{} = date), do: get_expire_at("#{date}")
 
   def get_expire_at(date) do
@@ -476,6 +502,7 @@ defmodule DB.Dataset do
     |> Repo.all()
   end
 
+  @spec fetch_history_metadata(binary(), binary()) :: map()
   def fetch_history_metadata(bucket, obj_key) do
     bucket
     |> S3.head_object(obj_key)
@@ -488,8 +515,10 @@ defmodule DB.Dataset do
   ## Private functions
   @cellar_host ".cellar-c2.services.clever-cloud.com/"
 
+  @spec history_resource_path(binary(), binary()) :: binary()
   defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> @cellar_host, name])
 
+  @spec validate_territory_mutual_exclusion(Ecto.Changeset.t()) :: Ecto.Changeset.t()
   defp validate_territory_mutual_exclusion(changeset) do
     has_cities =
       changeset
@@ -517,6 +546,7 @@ defmodule DB.Dataset do
     end
   end
 
+  @spec cast_aom(Ecto.Changeset.t(), map()) :: Ecto.Changeset.t()
   defp cast_aom(changeset, %{"insee" => ""}), do: changeset
   defp cast_aom(changeset, %{"insee" => nil}), do: changeset
 
@@ -532,6 +562,7 @@ defmodule DB.Dataset do
 
   defp cast_aom(changeset, _), do: changeset
 
+  @spec cast_nation_dataset(Ecto.Changeset.t(), map()) :: Ecto.Changeset.t()
   defp cast_nation_dataset(changeset, %{"national_dataset" => "true"}) do
     if is_nil(get_field(changeset, :region_id)) do
       national =
@@ -547,6 +578,7 @@ defmodule DB.Dataset do
 
   defp cast_nation_dataset(changeset, _), do: changeset
 
+  @spec get_commune_by_insee(binary()) :: Commune.t() | nil
   defp get_commune_by_insee(insee) do
     Commune
     |> Repo.get_by(insee: insee)
@@ -560,6 +592,7 @@ defmodule DB.Dataset do
     end
   end
 
+  @spec cast_datagouv_zone(Ecto.Changeset.t(), map()) :: Ecto.Changeset.t()
   defp cast_datagouv_zone(changeset, %{"zones" => zones_insee, "use_datagouv_zones" => "true"}) do
     communes =
       zones_insee

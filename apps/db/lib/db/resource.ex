@@ -34,6 +34,7 @@ defmodule DB.Resource do
     has_one(:validation, Validation, on_replace: :delete)
   end
 
+  @spec endpoint() :: binary()
   def endpoint, do: Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
 
   @doc """
@@ -48,6 +49,7 @@ defmodule DB.Resource do
       iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "micro-mobility"}, validation: %Validation{}})
       false
   """
+  @spec needs_validation(__MODULE__.t()) :: boolean()
   def needs_validation(%__MODULE__{dataset: dataset, validation: %Validation{date: validation_date}}) do
     case [dataset.type == "public-transit", validation_date] do
       [true, nil] -> true
@@ -71,7 +73,7 @@ defmodule DB.Resource do
     end
   end
 
-  @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, any}
+  @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
   def validate(%__MODULE__{url: url}) do
@@ -83,7 +85,8 @@ defmodule DB.Resource do
     end
   end
 
-  def save(%{id: id, url: url} = r, %{"validations" => validations, "metadata" => metadata}) do
+  @spec save(__MODULE__.t(), map()) :: {:ok, any()} | {:error, any()}
+  def save(%__MODULE__{id: id, url: url} = r, %{"validations" => validations, "metadata" => metadata}) do
     # When the validator is unable to open the archive, it will return a fatal issue
     # And the metadata will be nil (as it couldn’t read them)
     if is_nil(metadata), do: Logger.warn("Unable to validate: #{id}")
@@ -109,6 +112,7 @@ defmodule DB.Resource do
   end
 
   # for the moment the tag detection is very simple, we only add the modes
+  @spec find_tags(__MODULE__.t(), map()) :: [binary()]
   def find_tags(%__MODULE__{} = _r, %{"modes" => modes}) do
     modes
   end
@@ -138,6 +142,7 @@ defmodule DB.Resource do
     |> validate_required([:url])
   end
 
+  @spec issues_short_translation() :: %{binary() => binary()}
   def issues_short_translation,
     do: %{
       "UnusedStop" => dgettext("validations", "Unused stops"),
@@ -169,8 +174,10 @@ defmodule DB.Resource do
       "ExtraFile" => dgettext("validations", "Extra file")
     }
 
+  @spec valid?(__MODULE__.t()) :: boolean()
   def valid?(%__MODULE__{} = r), do: r.metadata != nil
 
+  @spec validate_and_save_all([binary()]) :: :ok
   def validate_and_save_all(args \\ ["--all"]) do
     __MODULE__
     |> preload(:dataset)
@@ -180,7 +187,7 @@ defmodule DB.Resource do
     |> Enum.each(&validate_and_save/1)
   end
 
-  @spec is_outdated?(any) :: boolean
+  @spec is_outdated?(__MODULE__) :: boolean
   def is_outdated?(%__MODULE__{metadata: %{"end_date" => nil}}), do: false
 
   def is_outdated?(%__MODULE__{metadata: %{"end_date" => end_date}}),
@@ -188,6 +195,7 @@ defmodule DB.Resource do
 
   def is_outdated?(_), do: true
 
+  @spec get_max_severity_validation_number(__MODULE__) :: map() | nil
   def get_max_severity_validation_number(%__MODULE__{id: id}) do
     """
       SELECT json_data.value#>'{0,severity}', json_array_length(json_data.value)
@@ -227,15 +235,16 @@ defmodule DB.Resource do
 
   def get_max_severity_validation_number(_), do: nil
 
+  @spec is_gtfs?(__MODULE__.t()) :: boolean()
   def is_gtfs?(%__MODULE__{format: "GTFS"}), do: true
-
-  def is_gtfs?(%__MODULE__{metadata: m} = r) when not is_nil(m) do
-    not is_netex?(r)
-  end
-
+  def is_gtfs?(%__MODULE__{metadata: m} = r) when not is_nil(m), do: not is_netex?(r)
   def is_gtfs?(_), do: false
+
+  @spec is_gbfs?(__MODULE__.t()) :: boolean
   def is_gbfs?(%__MODULE__{format: "gbfs"}), do: true
   def is_gbfs?(_), do: false
+
+  @spec is_netex?(__MODULE__.t()) :: boolean
   def is_netex?(%__MODULE__{format: "netex"}), do: true
   def is_netex?(_), do: false
 
@@ -246,5 +255,6 @@ defmodule DB.Resource do
         where: r.dataset_id == ^resource.dataset_id and r.id != ^resource.id and not is_nil(r.metadata)
       )
 
+  @spec other_resources(__MODULE__.t()) :: [__MODULE__.t()]
   def other_resources(%__MODULE__{} = r), do: r |> other_resources_query() |> Repo.all()
 end
