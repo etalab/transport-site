@@ -29,6 +29,7 @@ defmodule DB.AOM do
     belongs_to(:parent_dataset, Dataset)
   end
 
+  @spec get(insee_commune_principale: binary()) :: __MODULE__ | nil
   def get(insee_commune_principale: nil), do: nil
   def get(insee_commune_principale: insee), do: Repo.get_by(AOM, insee_commune_principale: insee)
 end

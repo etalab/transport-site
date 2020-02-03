@@ -15,8 +15,10 @@ defmodule DB.Partner do
   alias Datagouvfr.Client.API
   require Logger
 
+  @spec is_datagouv_partner_url?(binary()) :: boolean
   def is_datagouv_partner_url?(url), do: Regex.match?(partner_regex(), url)
 
+  @spec from_url(binary) :: {:error, nil} | {:ok, __MODULE__.t()}
   def from_url(partner_url) when is_binary(partner_url) do
     partner_url
     |> get_type_and_slug()
@@ -36,6 +38,7 @@ defmodule DB.Partner do
     end
   end
 
+  @spec count_reuses(__MODULE__.t()) :: number()
   def count_reuses(%__MODULE__{type: type, id: id}) do
     get_api_response(
       ["reuses", "?#{type}=#{id}"],
@@ -44,6 +47,7 @@ defmodule DB.Partner do
     )
   end
 
+  @spec description(__MODULE__.t()) :: binary()
   def description(%__MODULE__{type: type, id: id}) do
     get_api_response(
       ["reuses", "?#{type}=#{id}"],
@@ -54,19 +58,24 @@ defmodule DB.Partner do
 
   # private functions
 
+  @spec get_name(map()) :: binary()
   defp get_name(%{"name" => name}), do: name
-  defp get_name(%{"first_name" => f_n, "last_name" => l_n}), do: f_n <> " " <> l_n
+  defp get_name(%{"first_name" => f_n, "last_name" => l_n}), do: "#{f_n} #{l_n}"
 
+  @spec split_url(binary()) :: [binary()]
   defp split_url(url) do
     url
     |> String.split("/")
     |> Enum.filter(&(String.length(&1) != 0))
   end
 
+  @spec get_type_and_slug(binary()) :: [binary()]
   defp get_type_and_slug(url), do: url |> split_url() |> Enum.take(-2)
 
+  @spec get_type(binary()) :: binary()
   defp get_type(url), do: url |> split_url() |> Enum.at(-2)
 
+  @spec partner_regex() :: Regex.t()
   defp partner_regex do
     :transport
     |> Application.get_env(:datagouvfr_site)
