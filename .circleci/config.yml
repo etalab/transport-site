@@ -42,7 +42,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - elixir-v4-{{ checksum "mix.lock" }}
+            - elixir-v5-{{ checksum "mix.lock" }}
 
       - run:
           name: Install mix dependencies
@@ -60,13 +60,17 @@ jobs:
           name: Compile assets
           command: cd ~/transport/apps/transport/client && npm run deploy
 
+      - run:
+          name: Build PLT
+          command: mix dialyzer --plt
+
       - persist_to_workspace:
           root: ~/transport
           paths:
             - .
 
       - save_cache:
-          key: elixir-v4-{{ checksum "mix.lock" }}
+          key: elixir-v5-{{ checksum "mix.lock" }}
           paths:
             - ~/transport/_build
             - ~/transport/deps
