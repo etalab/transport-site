@@ -3,11 +3,13 @@ defmodule GBFS.JCDecauxController do
 
   plug(:put_view, GBFS.FeedView)
 
+  @spec rt_url(binary()) :: binary()
   defp rt_url(contract_name) do
     api_key = Application.get_env(:gbfs, :jcdecaux_apikey)
     "https://api.jcdecaux.com/vls/v1/stations?contract=#{contract_name}&apiKey=#{api_key}"
   end
 
+  @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%{assigns: %{contract_id: contract}} = conn, _) do
     conn
     |> assign(
@@ -30,6 +32,7 @@ defmodule GBFS.JCDecauxController do
     |> render("gbfs.json")
   end
 
+  @spec system_information(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def system_information(%{assigns: %{contract_id: id, contract_name: name}} = conn, _params) do
     conn
     |> assign(
@@ -44,6 +47,7 @@ defmodule GBFS.JCDecauxController do
     |> render("gbfs.json")
   end
 
+  @spec station_information(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def station_information(%{assigns: %{contract_id: contract}} = conn, _params) do
     with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(rt_url(contract)),
          {:ok, json} <- Jason.decode(body) do
@@ -70,6 +74,7 @@ defmodule GBFS.JCDecauxController do
     end
   end
 
+  @spec station_status(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def station_status(%{assigns: %{contract_id: contract}} = conn, _params) do
     with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(rt_url(contract)),
          {:ok, json} <- Jason.decode(body) do
@@ -83,24 +88,9 @@ defmodule GBFS.JCDecauxController do
                 station_id: s["number"] |> Integer.to_string(),
                 num_bikes_available: s["available_bikes"],
                 num_docks_available: s["available_bike_stands"],
-                is_installed:
-                  if s["status"] == "OPEN" do
-                    1
-                  else
-                    0
-                  end,
-                is_renting:
-                  if s["status"] == "OPEN" do
-                    1
-                  else
-                    0
-                  end,
-                is_returning:
-                  if s["status"] == "OPEN" do
-                    1
-                  else
-                    0
-                  end,
+                is_installed: if(s["status"] == "OPEN", do: 1, else: 0),
+                is_renting: if(s["status"] == "OPEN", do: 1, else: 0),
+                is_returning: if(s["status"] == "OPEN", do: 1, else: 0),
                 last_reported: s["last_update"] / 1000
               }
             end)

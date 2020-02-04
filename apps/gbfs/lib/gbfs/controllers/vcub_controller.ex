@@ -8,6 +8,7 @@ defmodule GBFS.VCubController do
   @static_url "https://data.bordeaux-metropole.fr/files.php?gid=43&format=2"
   @rt_url "https://data.bordeaux-metropole.fr/files.php?gid=105&format=2"
 
+  @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params) do
     conn
     |> assign(
@@ -25,6 +26,7 @@ defmodule GBFS.VCubController do
     |> render("gbfs.json")
   end
 
+  @spec system_information(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def system_information(conn, _params) do
     conn
     |> assign(
@@ -39,18 +41,21 @@ defmodule GBFS.VCubController do
     |> render("gbfs.json")
   end
 
+  @spec station_information(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def station_information(conn, _params) do
     conn
     |> assign(:data, get_station_information())
     |> render("gbfs.json")
   end
 
+  @spec station_status(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def station_status(conn, _params) do
     conn
     |> assign(:data, get_station_status())
     |> render("gbfs.json")
   end
 
+  @spec get_station_status() :: %{stations: [map()]}
   defp get_station_status do
     with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(@rt_url),
          {:ok, z} <- :zip.zip_open(body, [:memory]),
@@ -69,18 +74,8 @@ defmodule GBFS.VCubController do
               num_bikes_available: num_bikes_available,
               num_docks_available: num_docks_available,
               is_installed: 1,
-              is_renting:
-                if etat == "CONNECTEE" do
-                  1
-                else
-                  0
-                end,
-              is_returning:
-                if etat == "CONNECTEE" do
-                  1
-                else
-                  0
-                end,
+              is_renting: if(etat == "CONNECTEE", do: 1, else: 0),
+              is_returning: if(etat == "CONNECTEE", do: 1, else: 0),
               last_reported: DateTime.utc_now() |> DateTime.to_unix()
             }
           end)
@@ -89,6 +84,7 @@ defmodule GBFS.VCubController do
     end
   end
 
+  @spec get_station_information() :: %{stations: [map()]}
   defp get_station_information do
     with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(@static_url),
          {:ok, z} <- :zip.zip_open(body, [:memory]),
@@ -121,6 +117,7 @@ defmodule GBFS.VCubController do
   end
 
   # conversion from lambert93 to wgs84
+  @spec to_wgs84(%Exshape.Shp.PointZ{x: float(), y: float()}) :: %{lon: float(), lat: float()}
   defp to_wgs84(%Exshape.Shp.PointZ{x: x, y: y}) do
     # constante de la projection
     c = 11_754_255.426096

@@ -5,6 +5,7 @@ defmodule GBFS.SmooveController do
 
   plug(:put_view, GBFS.FeedView)
 
+  @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params) do
     contract_id = conn.assigns.smoove_params.contract_id
 
@@ -29,6 +30,7 @@ defmodule GBFS.SmooveController do
     |> render("gbfs.json")
   end
 
+  @spec system_information(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def system_information(conn, _params) do
     smoove_params = conn.assigns.smoove_params
 
@@ -45,6 +47,7 @@ defmodule GBFS.SmooveController do
     |> render("gbfs.json")
   end
 
+  @spec station_information(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def station_information(conn, _params) do
     url = conn.assigns.smoove_params.url
 
@@ -53,6 +56,7 @@ defmodule GBFS.SmooveController do
     |> render("gbfs.json")
   end
 
+  @spec station_status(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def station_status(conn, _params) do
     url = conn.assigns.smoove_params.url
 
@@ -61,6 +65,7 @@ defmodule GBFS.SmooveController do
     |> render("gbfs.json")
   end
 
+  @spec get_station_status(binary()) :: map()
   defp get_station_status(url) do
     %{
       "stations" =>
@@ -74,17 +79,14 @@ defmodule GBFS.SmooveController do
           &Map.put(
             &1,
             :is_renting,
-            if Map.has_key?(&1, :credit_card) do
-              1
-            else
-              0
-            end
+            if(Map.has_key?(&1, :credit_card), do: 1, else: 0)
           )
         )
         |> Enum.map(&Map.delete(&1, :credit_card))
     }
   end
 
+  @spec get_station_information(binary()) :: map()
   defp get_station_information(url) do
     %{
       "stations" =>
@@ -96,12 +98,11 @@ defmodule GBFS.SmooveController do
     }
   end
 
-  defp set_rental_method(%{credit_card: 1} = station) do
-    Map.put(station, :rental_method, "CREDIT_CARD")
-  end
-
+  @spec set_rental_method(map()) :: map()
+  defp set_rental_method(%{credit_card: 1} = station), do: Map.put(station, :rental_method, "CREDIT_CARD")
   defp set_rental_method(station), do: station
 
+  @spec get_stations(binary()) :: map()
   defp get_stations(url) do
     with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(url),
          body when not is_nil(body) <- :iconv.convert("iso8859-1", "latin1", body) do
