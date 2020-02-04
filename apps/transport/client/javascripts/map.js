@@ -189,7 +189,7 @@ function addStaticPTMap (id, view) {
 }
 
 /**
- * Initialises a map with the realtime covergae.
+ * Initialises a map with the realtime coverage.
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
@@ -281,7 +281,7 @@ function addRealTimePTMap (id, view) {
 }
 
 /**
- * Initialises a map with the realtime covergae.
+ * Initialises a map with the realtime coverage.
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
