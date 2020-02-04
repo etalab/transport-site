@@ -1,6 +1,6 @@
 defmodule TransportWeb.API.StatsController do
   use TransportWeb, :controller
-  alias DB.{AOM, Dataset, Region, Repo}
+  alias DB.{AOM, Dataset, Region, Repo, DatasetGeographicView}
   import Ecto.Query
   alias Geo.JSON
   alias OpenApiSpex.Operation
@@ -197,6 +197,27 @@ defmodule TransportWeb.API.StatsController do
                     )
                 }
               }
+            )
+          )
+        )
+    })
+  end
+
+  def bikes(%Plug.Conn{} = conn, _params) do
+    render(conn, %{
+      data:
+        geojson(
+          features(
+            from(gv in DatasetGeographicView,
+              left_join: d in Dataset,
+              on: d.id == gv.dataset_id,
+              select: %{
+                geometry: gv.geom,
+                id: gv.dataset_id,
+                nom: d.spatial,
+                parent_dataset_slug: d.slug
+              },
+              where: d.type == "bike-sharing"
             )
           )
         )

@@ -14,6 +14,7 @@ const Mapbox = {
 
 const regionsUrl = '/api/stats/regions'
 const aomsUrl = '/api/stats/'
+const bikesUrl = '/api/stats/bikes'
 
 const makeMapOnView = (id, view) => {
     const map = Leaflet.map(id, {
@@ -53,6 +54,7 @@ const addLegend = (map, title, colors, labels) => {
 // simple cache on stats
 var aomStats = null
 var regionStats = null
+var bikeStats = null
 
 function displayAoms (map, featureFunction, style, filter = null) {
     if (aomStats == null) {
@@ -84,6 +86,21 @@ function displayRegions (map, featureFunction, style) {
             })
             map.addLayer(geoJSON)
         })
+}
+
+function displayBikes (map, featureFunction, style) {
+    if (bikeStats == null) {
+        bikeStats = fetch(bikesUrl).then(response => {
+            return response.json()
+        })
+    }
+    bikeStats.then(response => {
+        const geoJSON = Leaflet.geoJSON(response, {
+            onEachFeature: featureFunction,
+            style: style
+        })
+        map.addLayer(geoJSON)
+    })
 }
 
 /**
@@ -354,6 +371,24 @@ function addPtFormatMap (id, view) {
     }
 }
 
+function addBikesMap (id, view) {
+    const map = makeMapOnView(id, view)
+
+    displayBikes(map, (feature, layer) => {
+        const name = feature.properties.nom
+        const slug = feature.properties.parent_dataset_slug
+
+        const bind = `<a href="/datasets/${slug}" target="_blank">${name}<br/></a>`
+        layer.bindPopup(bind)
+    }, _ => {
+        return {
+            weight: 1,
+            fillOpacity: 0.5,
+            color: 'green'
+        }
+    })
+}
+
 const droms = {
     antilles: {
         center: [15.372, -61.3367],
@@ -382,4 +417,5 @@ for (const [drom, view] of Object.entries(droms)) {
     addStaticPTMap(`map_${drom}`, view)
     addPtFormatMap(`pt_format_map_${drom}`, view)
     addRealTimePTMap(`rt_map_${drom}`, view)
+    addBikesMap(`bikes_map_${drom}`, view)
 }
