@@ -5,6 +5,7 @@ defmodule HTTPStream do
   require Logger
   alias Mint.HTTP
 
+  @spec get(binary()) :: ({:cont, any()} | {:halt, any()} | {:suspend, any()}, any() -> any())
   def get(url) do
     Stream.resource(
       fn -> request(url) end,
@@ -19,6 +20,7 @@ defmodule HTTPStream do
     )
   end
 
+  @spec request(binary() | URI.t()) :: nil | Mint.HTTP.t()
   def request(url) do
     uri = URI.parse(url)
 
@@ -36,9 +38,11 @@ defmodule HTTPStream do
     end
   end
 
-  def merge_path(%URI{path: path, query: query}) when is_nil(query), do: path
-  def merge_path(%URI{path: path, query: query}), do: path <> "?" <> query
+  @spec merge_path(URI.t()) :: binary()
+  def merge_path(%URI{path: path, query: nil}), do: path
+  def merge_path(%URI{path: path, query: query}), do: "#{path}?#{query}"
 
+  @spec handle_async_resp(any()) :: any()
   defp handle_async_resp({:end, conn}), do: {:halt, conn}
   defp handle_async_resp(nil), do: {:halt, nil}
 
@@ -67,6 +71,7 @@ defmodule HTTPStream do
     end
   end
 
+  @spec handle_response(keyword()) :: any()
   def handle_response({:data, _ref, data}), do: data
   def handle_response({:done, _ref}), do: :done
   def handle_response(_), do: nil

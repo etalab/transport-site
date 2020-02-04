@@ -18,6 +18,7 @@ defmodule Helpers do
   iex> Helpers.filename_from_url("https://example.com/foo/bar/baz/bobette/")
   "bobette"
   """
+  @spec filename_from_url(binary()) :: binary()
   def filename_from_url(url) do
     url
     |> URI.parse()
@@ -27,6 +28,7 @@ defmodule Helpers do
     |> List.last()
   end
 
+  @spec format_datetime(binary()) :: binary()
   def format_datetime(nil), do: ""
 
   def format_datetime(date) do
@@ -41,6 +43,7 @@ defmodule Helpers do
     end
   end
 
+  @spec last_updated([DB.Resource.t()]) :: binary()
   def last_updated(resources) do
     resources
     |> Enum.map(fn r -> r.last_update end)
