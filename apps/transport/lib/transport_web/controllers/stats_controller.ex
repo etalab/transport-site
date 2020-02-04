@@ -40,6 +40,7 @@ defmodule TransportWeb.StatsController do
       nb_gtfs: count_dataset_with_format("GTFS"),
       nb_netex: count_dataset_with_format("netex"),
       nb_bss_datasets: count_dataset_with_format("gbfs"),
+      nb_bikes_datasets: nb_bikes(),
       droms: ["antilles", "guyane", "mayotte", "reunion"]
     )
   end
@@ -58,6 +59,15 @@ defmodule TransportWeb.StatsController do
       )
 
     Repo.aggregate(rt_datasets, :count, :id)
+  end
+
+  defp nb_bikes do
+    bikes_datasets =
+      from(d in Dataset,
+        where: d.type == "bike-sharing"
+      )
+
+    Repo.aggregate(bikes_datasets, :count, :id)
   end
 
   defp nb_unofficical_realtime do

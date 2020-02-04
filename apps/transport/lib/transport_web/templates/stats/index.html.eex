@@ -118,6 +118,32 @@
         </div>
       </div>
     </div>
+
+    <div class="domain bikes">
+      <h2>Vélos libre service</h2>
+      <div class="domain-stats">
+        <%= render("_maps.html", droms: @droms, prefix: "bikes_map") %>
+        <div class="panel">
+          <div class="description">
+            <p> La carte des données disponibles de vélos en libre service.
+            </p>
+          </div>
+          <div class="tile-numbers">
+            <div class="tile">
+              <h3><%= @nb_bikes_datasets %></h3>
+              <div> <a href="/datasets?filter=has_realtime">Jeux de données disponibles</a></div>
+            </div>
+            <div class="rt-viz">
+              <%= for _i <- 1..@nb_bikes_datasets do %>
+                <div class="item standard"></div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
     <div class="domain carpooling">
       <h2>Lieux de covoiturage</h2>
       <p><a href="http://localhost:5000/datasets/base-nationale-consolidee-des-lieux-de-covoiturage/">Un fichier national</a> décrivant les lieux de covoiturage de 78 départements a été consolidé par le point d’accès national aprés un travail initial de BlaBlaCar.</p>
