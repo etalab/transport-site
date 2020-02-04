@@ -38,11 +38,11 @@ defmodule Hasher do
     end
   end
 
+  @spec update_hash(binary(), binary() | :error) :: binary() | :error
   defp update_hash(_, :error), do: :error
-  defp update_hash(:error, _), do: :error
-  defp update_hash(chunk, hash) when is_binary(chunk), do: :crypto.hash_update(hash, chunk)
-  defp update_hash(_, _), do: :error
+  defp update_hash(chunk, hash), do: :crypto.hash_update(hash, chunk)
 
+  @spec find_etag(keyword()) :: binary()
   defp find_etag({"Etag", v}), do: v
   defp find_etag(_), do: nil
 end
