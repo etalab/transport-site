@@ -1,6 +1,6 @@
 defmodule TransportWeb.API.StatsController do
   use TransportWeb, :controller
-  alias DB.{AOM, Dataset, Region, Repo, DatasetGeographicView}
+  alias DB.{AOM, Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
   alias Geo.JSON
   alias OpenApiSpex.Operation
