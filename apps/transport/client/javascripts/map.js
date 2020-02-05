@@ -14,7 +14,7 @@ const Mapbox = {
 
 const regionsUrl = '/api/stats/regions'
 const aomsUrl = '/api/stats/'
-const bikesUrl = '/api/stats/bikes'
+const bikesUrl = '/api/stats/bike-sharing'
 
 const makeMapOnView = (id, view) => {
     const map = Leaflet.map(id, {

@@ -22,7 +22,7 @@ defmodule TransportWeb.API.Router do
     scope "/stats" do
       get("/", TransportWeb.API.StatsController, :index)
       get("/regions", TransportWeb.API.StatsController, :regions)
-      get("/bikes", TransportWeb.API.StatsController, :bikes)
+      get("/bike-sharing", TransportWeb.API.StatsController, :bikes)
     end
 
     get("/openapi", OpenApiSpex.Plug.RenderSpec, :show)
