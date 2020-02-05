@@ -11,6 +11,7 @@
 .map {
   min-height: 40em;
   min-width: 35%;
+  border-right: 2px solid var(--theme-background-grey);
 
   .info {
     padding: 6px 8px;
@@ -120,6 +121,7 @@
     margin-top: 1em;
     background-color: $white;
     flex-wrap: wrap;
+    width: 100%;
 
     .tile {
       width: 50%;
