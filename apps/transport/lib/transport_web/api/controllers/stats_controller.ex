@@ -203,6 +203,7 @@ defmodule TransportWeb.API.StatsController do
     })
   end
 
+  @spec bikes(Plug.Conn.t(), any) :: Plug.Conn.t()
   def bikes(%Plug.Conn{} = conn, _params) do
     render(conn, %{
       data:
