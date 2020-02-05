@@ -61,6 +61,7 @@ defmodule TransportWeb.StatsController do
     Repo.aggregate(rt_datasets, :count, :id)
   end
 
+  @spec nb_bikes() :: integer
   defp nb_bikes do
     bikes_datasets =
       from(d in Dataset,
