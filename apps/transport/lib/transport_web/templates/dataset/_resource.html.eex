@@ -46,7 +46,7 @@
                 <% end %>
             </span>
             <%= link(
-                dgettext("page-dataset-details", "See GTFS Validation report"),
+                dgettext("page-dataset-details", "See more details on the GTFS resource and its validation"),
                 to: resource_path(@conn, :details, @resource.id)
             )%>
             <% end %>

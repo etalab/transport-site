@@ -1,37 +1,3 @@
-.dataset-details__validation {
-  h1 {
-    background-color: $light-grey;
-  }
-
-  table {
-    width: 80%;
-    margin: auto;
-  }
-
-  td, th {
-    padding: 8px;
-    font-size: 90%;
-  }
-
-  tbody {
-    width: 100%;
-  }
-
-  .collapse{
-    cursor: pointer;
-    display: block;
-  }
-  .collapse + input{
-    display: none; /* hide the checkboxes */
-  }
-  .collapse + input + table {
-    display:none;
-  }
-  .collapse + input:checked + table {
-    display:table;
-  }
-}
-
 nav.validation {
   padding: 10px;
   h4 {
@@ -45,5 +11,45 @@ nav.validation {
   }
   a.active {
     font-weight: bold;
+  }
+}
+
+.issues_list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.validation_issue {
+  // background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  a {
+    width: 100%;
+    color: var(--theme-label-text);
+    text-decoration: none;
+  }
+  a.active {
+    color: var(--theme-dark-text);
+  }
+  @media (max-width: $breakpoint-tablet) {
+    padding: 10px;
+  }
+}
+
+.mt-96 {
+  margin-top: 96px;
+}
+
+.mt-48 {
+  margin-top: 48px;
+}
+
+.validation-section {
+  background-color: var(--theme-background-grey);
+  padding: 60px 40px;
+  border-radius: 10px;
+  @media (max-width: $breakpoint-tablet) {
+    padding: 10px;
   }
 }
