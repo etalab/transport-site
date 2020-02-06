@@ -11,15 +11,7 @@ msgid ""
 msgstr ""
 
 #, elixir-format
-msgid "Validated file"
-msgstr ""
-
-#, elixir-format
 msgid "No validation available"
-msgstr ""
-
-#, elixir-format
-msgid "Validations issues"
 msgstr ""
 
 #, elixir-format
@@ -52,4 +44,48 @@ msgstr ""
 
 #, elixir-format
 msgid "Nice work, there are no issues!"
+msgstr ""
+
+#, elixir-format
+msgid "network"
+msgid_plural "networks"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-format
+msgid "transport mode"
+msgid_plural "transport modes"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-format
+msgid "File name"
+msgstr ""
+
+#, elixir-format
+msgid "It is valid from"
+msgstr ""
+
+#, elixir-format
+msgid "Resource details"
+msgstr ""
+
+#, elixir-format
+msgid "This resource file is part of the dataset"
+msgstr ""
+
+#, elixir-format
+msgid "Validation report"
+msgstr ""
+
+#, elixir-format
+msgid "number of stop areas"
+msgstr ""
+
+#, elixir-format
+msgid "number of stop points"
+msgstr ""
+
+#, elixir-format
+msgid "to"
 msgstr ""
