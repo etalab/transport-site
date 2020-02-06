@@ -60,4 +60,14 @@ defmodule DB.Validation do
     |> Enum.group_by(fn {_, issue} -> issue.severity end)
     |> Enum.sort_by(fn {severity, _} -> severities(severity).level end)
   end
+
+  @doc """
+  Returns the number of issues by severity level
+  """
+  @spec count_by_severity(%{details: any}) :: map()
+  def count_by_severity(%{details: issues}) do
+    issues
+    |> Enum.flat_map(fn {_, v} -> v end)
+    |> Enum.reduce(%{}, fn v, acc -> Map.update(acc, v["severity"], 1, &(&1 + 1)) end)
+  end
 end
