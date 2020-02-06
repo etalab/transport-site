@@ -103,6 +103,9 @@ msgstr "Nom de route manquant"
 msgid "MissingId"
 msgstr "Identifiant manquant"
 
+msgid "MissingName"
+msgstr "Nom manquant"
+
 msgid "MissingCoordinates"
 msgstr "Coordonnées manquantes"
 
@@ -224,8 +227,8 @@ msgid "Display more"
 msgstr "Voir plus"
 
 #, elixir-format
-msgid "See GTFS Validation report"
-msgstr "Voir le rapport de validations GTFS"
+msgid "See more details on the GTFS resource and its validation"
+msgstr "Voir plus de détail sur la ressource GTFS et sa validation"
 
 #, elixir-format
 msgid "Display less"

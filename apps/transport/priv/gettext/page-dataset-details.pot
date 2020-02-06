@@ -106,6 +106,9 @@ msgstr ""
 msgid "MissingCoordinates"
 msgstr ""
 
+msgid "MissingName"
+msgstr ""
+
 msgid "InvalidCoordinates"
 msgstr ""
 
@@ -224,7 +227,7 @@ msgid "Display more"
 msgstr ""
 
 #, elixir-format
-msgid "See GTFS Validation report"
+msgid "See more details on the GTFS resource and its validation"
 msgstr ""
 
 #, elixir-format
