@@ -156,6 +156,7 @@ defmodule DB.Resource do
       "MissingRouteName" => dgettext("validations", "Missing route name"),
       "MissingId" => dgettext("validations", "Missing id"),
       "MissingCoordinates" => dgettext("validations", "Missing coordinates"),
+      "MissingName" => dgettext("validations", "Missing name"),
       "InvalidCoordinates" => dgettext("validations", "Invalid coordinates"),
       "InvalidRouteType" => dgettext("validations", "Invalid route type"),
       "MissingUrl" => dgettext("validations", "Missing url"),

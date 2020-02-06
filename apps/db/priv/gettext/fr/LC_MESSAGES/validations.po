@@ -88,6 +88,10 @@ msgid "Missing coordinates"
 msgstr "Coordonnées manquantes"
 
 #, elixir-format
+msgid "Missing name"
+msgstr "Nom manquant"
+
+#, elixir-format
 msgid "Missing id"
 msgstr "Identifiant manquant"
 
