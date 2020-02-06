@@ -17,8 +17,6 @@ defmodule TransportWeb.ResourceController do
 
       resource ->
         issues = resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config)
-        require IEx
-        IEx.pry()
 
         conn
         |> assign(:resource, resource)
