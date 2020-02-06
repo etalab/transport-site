@@ -17,12 +17,15 @@ defmodule TransportWeb.ResourceController do
 
       resource ->
         issues = resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config)
+        require IEx
+        IEx.pry()
 
         conn
         |> assign(:resource, resource)
         |> assign(:other_resources, Resource.other_resources(resource))
         |> assign(:issues, issues)
         |> assign(:validation_summary, Validation.summary(resource.validation))
+        |> assign(:severities_count, Validation.count_by_severity(resource.validation))
         |> render("details.html")
     end
   end
