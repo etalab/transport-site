@@ -12,19 +12,19 @@
     },
     "response": {
       "binary": false,
-      "body": "{\"acronym\": null, \"badges\": [], \"created_at\": \"2018-03-14T17:00:20.913000\", \"deleted\": null, \"description\": \"Liste des arr\\u00eats, horaires et parcours de tous les bus et tramways du r\\u00e9seau [STAN](http://www.reseau-stan.com/) circulant sur le territoire de la [M\\u00e9tropole du Grand-Nancy](http://www.grandnancy.eu/).\\nLes Transports \\u00e0 la Demande (TAD) ne sont pas inclus.\", \"extras\": {}, \"frequency\": \"irregular\", \"frequency_date\": \"2018-05-02T18:04:08\", \"id\": \"5aa94714c751df666fefc80f\", \"last_modified\": \"2018-05-02T18:04:26.465000\", \"last_update\": \"2018-02-15T00:00:00\", \"license\": \"fr-lo\", \"metrics\": {\"discussions\": 0, \"followers\": 0, \"issues\": 0, \"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"reuses\": 1, \"views\": 2}, \"organization\": {\"acronym\": null, \"class\": \"Organization\", \"id\": \"534fff65a3a7292c64a77d73\", \"logo\": \"https://next-static.data.gouv.fr/avatars/da/6117acb4584e3d8d073eb849883298-original.jpg\", \"logo_thumbnail\": \"https://next-static.data.gouv.fr/avatars/da/6117acb4584e3d8d073eb849883298-100.jpg\", \"name\": \"M\\u00e9tropole du Grand Nancy\", \"page\": \"https://next.data.gouv.fr/fr/organizations/communaute-urbaine-du-grand-nancy/\", \"slug\": \"communaute-urbaine-du-grand-nancy\", \"uri\": \"https://next.data.gouv.fr/api/1/organizations/communaute-urbaine-du-grand-nancy/\"}, \"owner\": null, \"page\": \"https://next.data.gouv.fr/fr/datasets/arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs/\", \"private\": false, \"resources\": [{\"checksum\": null, \"created_at\": \"2018-03-14T17:13:01.298000\", \"description\": \"Donn\\u00e9es descriptives de l'offre th\\u00e9orique de transport des bus et tramways du r\\u00e9seau STAN (Service de Transport de l'Agglom\\u00e9ration Nanc\\u00e9ienne) au format GTFS.\\nL'offre de transport \\u00e0 la demande n'est pas incluse.\", \"extras\": {\"check:available\": true, \"check:count-availability\": 38, \"check:date\": \"2019-03-10T00:30:28.721000\", \"check:status\": 200, \"check:url\": \"http://hstan.g-ny.org/grandnancy/data/public/gtfs_stan.zip\"}, \"filesize\": null, \"filetype\": \"remote\", \"format\": \"gtfs\", \"id\": \"e7e78cd7-e186-4923-a272-9713fbc28b45\", \"last_modified\": \"2018-03-14T17:13:01.298000\", \"latest\": \"https://next.data.gouv.fr/fr/datasets/r/e7e78cd7-e186-4923-a272-9713fbc28b45\", \"metrics\": {\"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"views\": 3}, \"mime\": \"application/zip\", \"preview_url\": null, \"published\": \"2018-02-15T00:00:00\", \"title\": \"Arr\\u00eats, horaires et parcours au format GTFS\", \"type\": \"main\", \"url\": \"http://hstan.g-ny.org/grandnancy/data/public/gtfs_stan.zip\"}], \"slug\": \"arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs\", \"spatial\": {\"geom\": null, \"granularity\": \"fr:epci\", \"zones\": []}, \"tags\": [\"grand-nancy\", \"gtfs\", \"metropole\", \"nancy\", \"stan\", \"transport\"], \"temporal_coverage\": null, \"title\": \"Arr\\u00eats, horaires et parcours th\\u00e9oriques du r\\u00e9seau STAN | GTFS\", \"uri\": \"https://next.data.gouv.fr/api/1/datasets/arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs/\"}",
+      "body": "{\"acronym\": null, \"archived\": null, \"badges\": [], \"created_at\": \"2018-03-14T17:00:20.913000\", \"deleted\": null, \"description\": \"Liste des arr\\u00eats, horaires et parcours de tous les bus et tramways du r\\u00e9seau [STAN](http://www.reseau-stan.com/) circulant sur le territoire de la [M\\u00e9tropole du Grand-Nancy](http://www.grandnancy.eu/).\\nLes Transports \\u00e0 la Demande (TAD) ne sont pas inclus.\", \"extras\": {}, \"frequency\": \"irregular\", \"frequency_date\": \"2018-05-02T18:04:08\", \"id\": \"5aa94714c751df666fefc80f\", \"last_modified\": \"2018-05-02T18:04:26.465000\", \"last_update\": \"2018-02-15T00:00:00\", \"license\": \"fr-lo\", \"metrics\": {\"discussions\": 0, \"followers\": 0, \"issues\": 0, \"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"reuses\": 1, \"views\": 2}, \"organization\": {\"acronym\": null, \"class\": \"Organization\", \"id\": \"534fff65a3a7292c64a77d73\", \"logo\": \"https://next-static.data.gouv.fr/avatars/da/6117acb4584e3d8d073eb849883298-original.jpg\", \"logo_thumbnail\": \"https://next-static.data.gouv.fr/avatars/da/6117acb4584e3d8d073eb849883298-100.jpg\", \"name\": \"M\\u00e9tropole du Grand Nancy\", \"page\": \"https://next.data.gouv.fr/fr/organizations/communaute-urbaine-du-grand-nancy/\", \"slug\": \"communaute-urbaine-du-grand-nancy\", \"uri\": \"https://next.data.gouv.fr/api/1/organizations/communaute-urbaine-du-grand-nancy/\"}, \"owner\": null, \"page\": \"https://next.data.gouv.fr/fr/datasets/arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs/\", \"private\": false, \"resources\": [{\"checksum\": null, \"created_at\": \"2018-03-14T17:13:01.298000\", \"description\": \"Donn\\u00e9es descriptives de l'offre th\\u00e9orique de transport des bus et tramways du r\\u00e9seau STAN (Service de Transport de l'Agglom\\u00e9ration Nanc\\u00e9ienne) au format GTFS.\\nL'offre de transport \\u00e0 la demande n'est pas incluse.\", \"extras\": {\"check:available\": true, \"check:count-availability\": 46, \"check:date\": \"2019-08-09T23:31:39.338000\", \"check:status\": 200, \"check:url\": \"http://hstan.g-ny.org/grandnancy/data/public/gtfs_stan.zip\"}, \"filesize\": null, \"filetype\": \"remote\", \"format\": \"gtfs\", \"id\": \"e7e78cd7-e186-4923-a272-9713fbc28b45\", \"last_modified\": \"2018-03-14T17:13:01.298000\", \"latest\": \"https://next.data.gouv.fr/fr/datasets/r/e7e78cd7-e186-4923-a272-9713fbc28b45\", \"metrics\": {\"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"views\": 3}, \"mime\": \"application/zip\", \"preview_url\": null, \"published\": \"2018-02-15T00:00:00\", \"title\": \"Arr\\u00eats, horaires et parcours au format GTFS\", \"type\": \"main\", \"url\": \"http://hstan.g-ny.org/grandnancy/data/public/gtfs_stan.zip\"}], \"slug\": \"arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs\", \"spatial\": {\"geom\": null, \"granularity\": \"fr:epci\", \"zones\": []}, \"tags\": [\"grand-nancy\", \"gtfs\", \"metropole\", \"nancy\", \"stan\", \"transport\"], \"temporal_coverage\": null, \"title\": \"Arr\\u00eats, horaires et parcours th\\u00e9oriques du r\\u00e9seau STAN | GTFS\", \"uri\": \"https://next.data.gouv.fr/api/1/datasets/arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs/\"}",
       "headers": {
         "Server": "nginx",
-        "Date": "Thu, 04 Apr 2019 08:26:29 GMT",
+        "Date": "Fri, 07 Feb 2020 16:31:34 GMT",
         "Content-Type": "application/json",
-        "Content-Length": "2987",
+        "Content-Length": "3005",
         "Connection": "keep-alive",
         "Vary": "Accept-Encoding",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "PUT, HEAD, GET, OPTIONS, DELETE",
         "Access-Control-Max-Age": "21600",
         "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
+        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, AUTHORIZATION, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
         "Pragma": "public",
         "Cache-Control": "public",
         "Strict-Transport-Security": "max-age=31536000",
@@ -38,14 +38,11 @@
   },
   {
     "request": {
-      "body": "null",
-      "headers": {
-        "accept": "application/json"
-      },
+      "body": "",
+      "headers": [],
       "method": "get",
       "options": {
-        "follow_redirect": "true",
-        "timeout": 15000
+        "follow_redirect": "true"
       },
       "request_body": "",
       "url": "https://next.data.gouv.fr/api/1/datasets/community_resources/?dataset=5aa94714c751df666fefc80f"
@@ -55,7 +52,7 @@
       "body": "{\"data\": [], \"facets\": null, \"next_page\": null, \"page\": 1, \"page_size\": 20, \"previous_page\": null, \"total\": 0}",
       "headers": {
         "Server": "nginx",
-        "Date": "Thu, 04 Apr 2019 08:26:29 GMT",
+        "Date": "Fri, 07 Feb 2020 16:31:34 GMT",
         "Content-Type": "application/json",
         "Content-Length": "110",
         "Connection": "keep-alive",
@@ -63,7 +60,7 @@
         "Access-Control-Allow-Methods": "HEAD, GET, PUT, POST, OPTIONS, DELETE",
         "Access-Control-Max-Age": "21600",
         "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
+        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, AUTHORIZATION, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
         "Pragma": "public",
         "Cache-Control": "public",
         "Strict-Transport-Security": "max-age=31536000",
