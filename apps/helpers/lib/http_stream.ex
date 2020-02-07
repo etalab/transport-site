@@ -47,7 +47,7 @@ defmodule HTTPStream do
       message ->
         case HTTP.stream(conn, message) do
           :unknown ->
-            Logger.error("Unknown error")
+            Logger.error("Unknown error in stream")
             {:halt, conn}
 
           {:ok, conn, responses} ->
