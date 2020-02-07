@@ -8,9 +8,13 @@ nav.validation {
   }
   a {
     padding: 0;
+    width: 100%;
+    color: var(--theme-label-text);
+    text-decoration: none;
   }
   a.active {
     font-weight: bold;
+    color: var(--theme-dark-text);
   }
 }
 
@@ -21,17 +25,8 @@ nav.validation {
 }
 
 .validation_issue {
-  // background-color: white;
   padding: 30px;
   border-radius: 10px;
-  a {
-    width: 100%;
-    color: var(--theme-label-text);
-    text-decoration: none;
-  }
-  a.active {
-    color: var(--theme-dark-text);
-  }
   @media (max-width: $breakpoint-tablet) {
     padding: 10px;
   }
