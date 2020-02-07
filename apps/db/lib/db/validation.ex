@@ -64,10 +64,16 @@ defmodule DB.Validation do
   @doc """
   Returns the number of issues by severity level
   """
-  @spec count_by_severity(%{details: any}) :: map()
-  def count_by_severity(%{details: issues}) do
-    issues
-    |> Enum.flat_map(fn {_, v} -> v end)
-    |> Enum.reduce(%{}, fn v, acc -> Map.update(acc, v["severity"], 1, &(&1 + 1)) end)
+  @spec count_by_severity(map()) :: map()
+  def count_by_severity(validation) do
+    case validation do
+      %{details: issues} ->
+        issues
+        |> Enum.flat_map(fn {_, v} -> v end)
+        |> Enum.reduce(%{}, fn v, acc -> Map.update(acc, v["severity"], 1, &(&1 + 1)) end)
+
+      _ ->
+        %{}
+    end
   end
 end
