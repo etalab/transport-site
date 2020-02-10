@@ -52,3 +52,25 @@ nav.validation {
   padding-top: 48px;
   padding-bottom: 48px;
 }
+
+.validation-details {
+  div {
+    margin-top: 12px;
+  }
+
+  .file-table {
+    display: flex;
+    overflow: auto;
+  }
+
+  .raw-values {
+    background-color: var(--theme-background-grey);
+  }
+}
+
+.error-details {
+  margin-top: 6px;
+  display: block;
+  background-color: var(--theme-background-grey);
+  padding: 4px 0 4px 25px;
+}

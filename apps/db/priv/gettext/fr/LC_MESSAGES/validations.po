@@ -132,13 +132,13 @@ msgid "Slow"
 msgstr "Vitesse entre deux arrêts très faible"
 
 #, elixir-format
-msgid "Unloadable model"
-msgstr "Impossible de charger le modèle"
-
-#, elixir-format
 msgid "Unused stops"
 msgstr "Arrêt inutilisé"
 
 #, elixir-format
 msgid "Warnings"
 msgstr "Avertissements"
+
+#, elixir-format
+msgid "Not compliant to the GTFS specification"
+msgstr "Spécifications GTFS non respectées"

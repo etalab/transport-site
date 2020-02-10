@@ -132,13 +132,13 @@ msgid "Slow"
 msgstr ""
 
 #, elixir-format
-msgid "Unloadable model"
-msgstr ""
-
-#, elixir-format
 msgid "Unused stops"
 msgstr ""
 
 #, elixir-format
 msgid "Warnings"
+msgstr ""
+
+#, elixir-format
+msgid "Not compliant to the GTFS specification"
 msgstr ""

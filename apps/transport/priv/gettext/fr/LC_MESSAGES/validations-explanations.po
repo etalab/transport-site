@@ -58,3 +58,23 @@ msgstr "Arrêt présent mais n’apparaissant dans aucune circulation"
 #, elixir-format
 msgid "CoordinatesIssue"
 msgstr "Les coordonnées des arrêts sont obligatoires dans la spécification GTFS"
+
+#, elixir-format
+msgid "Error detail:"
+msgstr "Détails de l'erreur :"
+
+#, elixir-format
+msgid "at line"
+msgstr "à la ligne"
+
+#, elixir-format
+msgid "The file does not comply with the GTFS specification, the tool cannot perform all the checks."
+msgstr "Le fichier ne respecte pas les spécifications GTFS, le validateur ne peut effectuer toutes les vérifications."
+
+#, elixir-format
+msgid "Glimpse of the file"
+msgstr "Aperçu du fichier"
+
+#, elixir-format
+msgid "Error on file"
+msgstr "Erreur sur le fichier"

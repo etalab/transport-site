@@ -41,7 +41,7 @@ msgstr "This is the automated evalation of the GTFS datafile. "
 "This report can be shared with"
 
 #, elixir-format
-msgid "this permanent link"
+msgid "permanent link to this validation"
 msgstr ""
 
 #, elixir-format
