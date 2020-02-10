@@ -185,6 +185,10 @@ workflows:
           requires:
             - build
 
+      - test_external:
+          requires:
+            - build
+
       - test_solution:
           requires:
             - build
