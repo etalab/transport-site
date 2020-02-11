@@ -74,7 +74,7 @@ msgstr "Détails de la ressource"
 
 #, elixir-format
 msgid "This resource file is part of the dataset"
-msgstr "Cette ressource fait partie du dataset"
+msgstr "Cette ressource fait partie du jeu de données"
 
 #, elixir-format
 msgid "Validation report"
