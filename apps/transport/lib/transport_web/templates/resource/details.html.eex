@@ -27,8 +27,8 @@
         </ul>
         </div>
 
-        <div class="mt-96 validation-section">
-          <h1 id="validation-report"><%= dgettext("validations", "Validation report")%></h1>
+        <div class="mt-96 validation-section" id="issues">
+          <h1><%= dgettext("validations", "Validation report")%></h1>
           <nav class="issues_list validation" role="navigation">
               <%= unless @resource.validation do %>
                   <%= dgettext("validations", "No validation available") %>

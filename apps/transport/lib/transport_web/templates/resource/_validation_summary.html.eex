@@ -9,7 +9,7 @@
         <%= if issue.count > 0 do %>
         <%= link(
             "#{issue.title} (#{issue.count})",
-            to: current_url(@conn, %{"issue_type" => key}),
+            to: "#{current_url(@conn, %{"issue_type" => "#{key}"})}#issues",
             class: (if key == issue_type(@issues.entries), do: "active")
         ) %>
         <% end %>
