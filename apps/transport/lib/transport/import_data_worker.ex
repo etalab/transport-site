@@ -40,6 +40,11 @@ defmodule Transport.ImportDataWorker do
     {:noreply, state}
   end
 
+  @impl true
+  def handle_info(_msg, state) do
+    {:noreply, state}
+  end
+
   ## Private
 
   defp queue_validations(dataset) do
