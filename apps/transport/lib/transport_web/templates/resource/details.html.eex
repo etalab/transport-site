@@ -1,5 +1,5 @@
 <section>
-    <div class="grey-background pt-48">
+    <div class="grey-background">
     <div class="container">
         <div class="validation-section">
         <h1><%= dgettext("validations", "Resource details")%></h1>
@@ -50,7 +50,6 @@
               <% end %>
               <%=  render template(@issues), issues: @issues || [] , conn: @conn %>
           </div>
-
         </div>
 
         <%= if length(@other_resources) > 0 do %>
@@ -67,7 +66,6 @@
               </ul>
           </div>
         <% end %>
-        <div class="pt-48"></div>
     </div>
 </section>
 </div>
