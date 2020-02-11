@@ -1,6 +1,7 @@
 <section>
+    <div class="grey-background pt-48">
     <div class="container">
-        <div class="mt-96 validation-section">
+        <div class="validation-section">
         <h1><%= dgettext("validations", "Resource details")%></h1>
         <p><%= dgettext("validations", "File name")%> : <strong><%= @resource.title %></strong></p>
         <p><%= dgettext("validations", "This resource file is part of the dataset")%> <%= link(@resource.dataset.title, to: dataset_path(@conn, :details, @resource.dataset.slug) )%>.</p>
@@ -27,7 +28,7 @@
         </ul>
         </div>
 
-        <div class="mt-96 validation-section" id="issues">
+        <div class="mt-48 validation-section" id="issues">
           <h1><%= dgettext("validations", "Validation report")%></h1>
           <nav class="issues_list validation" role="navigation">
               <%= unless @resource.validation do %>
@@ -49,7 +50,7 @@
         </div>
 
         <%= if length(@other_resources) > 0 do %>
-          <div class="mt-96 validation-section">
+          <div class="mt-48 validation-section">
             <h1><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h1>
               <ul>
               <%= for resource <- @other_resources do %>
@@ -65,6 +66,7 @@
         <div class="mt-48"></div>
     </div>
 </section>
+</div>
 <script src="<%= static_path(@conn, "/js/utils.js") %>"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function() {

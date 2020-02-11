@@ -32,19 +32,25 @@ nav.validation {
   }
 }
 
-.mt-96 {
-  margin-top: 96px;
-}
-
 .mt-48 {
   margin-top: 48px;
 }
 
+.pt-48 {
+  padding-top: 48px;
+}
+
 .validation-section {
-  background-color: var(--theme-background-grey);
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   padding: 60px 40px;
   border-radius: 10px;
   @media (max-width: $breakpoint-tablet) {
     padding: 10px;
   }
+}
+
+.grey-background {
+  width: 100vw;
+  background-color: var(--theme-background-grey);
 }
