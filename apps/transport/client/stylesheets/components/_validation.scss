@@ -36,10 +36,6 @@ nav.validation {
   margin-top: 48px;
 }
 
-.pt-48 {
-  padding-top: 48px;
-}
-
 .validation-section {
   background-color: white;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
@@ -53,4 +49,6 @@ nav.validation {
 .grey-background {
   width: 100vw;
   background-color: var(--theme-background-grey);
+  padding-top: 48px;
+  padding-bottom: 48px;
 }
