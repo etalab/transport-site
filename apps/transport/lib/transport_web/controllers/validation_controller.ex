@@ -48,6 +48,7 @@ defmodule TransportWeb.ValidationController do
     |> assign(:other_resources, [])
     |> assign(:issues, Scrivener.paginate(current_issues, config))
     |> assign(:validation_summary, Validation.summary(validation))
+    |> assign(:severities_count, Validation.count_by_severity(validation))
     |> render("show.html")
   end
 end
