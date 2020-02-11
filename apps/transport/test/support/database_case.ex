@@ -37,27 +37,46 @@ defmodule TransportWeb.DatabaseCase do
         Repo.insert(%AOM{
           insee_commune_principale: "53130",
           nom: "Laval",
-          region: Repo.get_by(Region, nom: "Pays de la Loire")
+          region: Repo.get_by(Region, nom: "Pays de la Loire"),
+          composition_res_id: 1
         })
 
         Repo.insert(%AOM{
           insee_commune_principale: "38185",
           nom: "Grenoble",
-          region: Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes")
+          region: Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes"),
+          composition_res_id: 2
+        })
+
+        Repo.insert(%AOM{
+          insee_commune_principale: "36044",
+          nom: "Châteauroux",
+          region: Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes"),
+          composition_res_id: 3
+        })
+
+        Repo.insert(%Commune{
+          insee: "38185",
+          nom: "Grenoble",
+          wikipedia: "fr:Grenoble",
+          surf_ha: 200_554.0,
+          aom_res_id: 2
         })
 
         Repo.insert(%Commune{
           insee: "36044",
           nom: "Châteauroux",
           wikipedia: "fr:Châteauroux",
-          surf_ha: 2554.0
+          surf_ha: 2554.0,
+          aom_res_id: 3
         })
 
         Repo.insert(%Commune{
           insee: "36063",
           nom: "Déols",
           wikipedia: "fr:Déols",
-          surf_ha: 3177.0
+          surf_ha: 3177.0,
+          aom_res_id: 3
         })
 
         cleanup()

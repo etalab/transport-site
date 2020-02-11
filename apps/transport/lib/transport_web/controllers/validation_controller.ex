@@ -24,7 +24,7 @@ defmodule TransportWeb.ValidationController do
       |> Repo.insert()
     else
       {:error, %@err{reason: error}} -> {:error, error}
-      _ -> {:error, "Unknown error"}
+      _ -> {:error, "Unknown error in validate"}
     end
     |> case do
       {:ok, %Validation{id: id}} ->

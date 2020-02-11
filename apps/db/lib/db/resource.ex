@@ -81,7 +81,7 @@ defmodule DB.Resource do
       {:ok, %@res{status_code: 200, body: body}} -> Poison.decode(body)
       {:ok, %@res{body: body}} -> {:error, body}
       {:error, %@err{reason: error}} -> {:error, error}
-      _ -> {:error, "Unknown error"}
+      _ -> {:error, "Unknown error in validation"}
     end
   end
 

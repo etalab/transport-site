@@ -10,7 +10,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     "url" => @dataset_url,
     "spatial" => "Grenoble",
     "region_id" => 1,
-    "insee_commune_principale" => "38185",
+    "insee" => "38185",
     "type" => "public-transit",
     "action" => "new"
   }
@@ -33,15 +33,15 @@ defmodule TransportWeb.BackofficeControllerTest do
       end
 
     conn =
-      use_cassette "dataset/tag.json-1" do
+      use_cassette "dataset/dataset-region-ao.json" do
         post(conn, backoffice_dataset_path(conn, :post), @dataset)
       end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 0
-    assert get_flash(conn, :error) =~ "Impossible"
-    assert get_flash(conn, :error) =~ "région"
-    assert get_flash(conn, :error) =~ "AOM"
+
+    assert get_flash(conn, :error) ==
+             "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
   end
 
   @tag :external
@@ -53,22 +53,22 @@ defmodule TransportWeb.BackofficeControllerTest do
         |> get(session_path(conn, :create, %{"code" => "secret"}))
       end
 
-    dataset = @dataset |> Map.put("region_id", nil) |> Map.put("insee_commune_principale", nil)
+    dataset = @dataset |> Map.put("region_id", nil) |> Map.put("insee", nil)
 
     conn =
-      use_cassette "dataset/tag.json-1" do
+      use_cassette "dataset/dataset-no-region-nor-ao.json" do
         post(conn, backoffice_dataset_path(conn, :post), dataset)
       end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 0
-    assert get_flash(conn, :error) =~ "Impossible"
-    assert get_flash(conn, :error) =~ "région"
-    assert get_flash(conn, :error) =~ "AOM"
+
+    assert get_flash(conn, :error) ==
+             "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
   end
 
   @tag :external
-  test "Add a dataset without a region and no aom", %{conn: conn} do
+  test "Add a dataset linked to a region", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
         conn
@@ -79,10 +79,10 @@ defmodule TransportWeb.BackofficeControllerTest do
     dataset =
       @dataset
       |> Map.put("region_id", Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes").id)
-      |> Map.put("insee_commune_principale", nil)
+      |> Map.put("insee", nil)
 
     conn =
-      use_cassette "dataset/tag.json-1" do
+      use_cassette "dataset/dataset-region.json" do
         post(conn, backoffice_dataset_path(conn, :post), dataset)
       end
 
@@ -92,7 +92,7 @@ defmodule TransportWeb.BackofficeControllerTest do
   end
 
   @tag :external
-  test "Add a dataset without no region and a aom", %{conn: conn} do
+  test "Add a dataset linked to aom", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
         conn
@@ -103,11 +103,12 @@ defmodule TransportWeb.BackofficeControllerTest do
     dataset = %{@dataset | "region_id" => nil}
 
     conn =
-      use_cassette "dataset/tag.json-1" do
+      use_cassette "dataset/dataset-aom.json" do
         post(conn, backoffice_dataset_path(conn, :post), dataset)
       end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
+
     assert Resource |> Repo.all() |> length() == 1
     assert get_flash(conn, :info) =~ "ajouté"
   end
@@ -122,9 +123,9 @@ defmodule TransportWeb.BackofficeControllerTest do
       end
 
     dataset =
-      @dataset_with_zones_url
+      @dataset_with_zones
       |> Map.put("region_id", nil)
-      |> Map.put("insee_commune_principale", nil)
+      |> Map.put("insee", nil)
       |> Map.put("associated_territory_name", "pouet")
       |> Map.put("use_datagouv_zones", "true")
 
@@ -138,6 +139,35 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert get_flash(conn, :info) =~ "ajouté"
   end
 
+  @tag :external
+  test "Add a dataset linked to cities without name", %{conn: conn} do
+    conn =
+      use_cassette "session/create-2" do
+        conn
+        |> init_test_session(redirect_path: "/datasets")
+        |> get(session_path(conn, :create, %{"code" => "secret"}))
+      end
+
+    dataset =
+      @dataset_with_zones
+      |> Map.put("region_id", nil)
+      |> Map.put("insee", nil)
+      |> Map.put("use_datagouv_zones", "true")
+
+    # we do not put an associated_territory_name, there should be an error
+
+    conn =
+      use_cassette "dataset/dataset-with-multiple-cities-no-name.json" do
+        post(conn, backoffice_dataset_path(conn, :post), dataset)
+      end
+
+    assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
+    assert Resource |> Repo.all() |> length() == 0
+    flash = get_flash(conn, :error)
+    assert flash =~ "Si les zones de data.gouv.fr sont utilisées, vous devez donner le nom du territoire"
+  end
+
+  @tag :external
   test "Add a dataset linked to cities and to the country", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -149,13 +179,13 @@ defmodule TransportWeb.BackofficeControllerTest do
     dataset =
       @dataset_with_zones
       |> Map.put("region_id", nil)
-      |> Map.put("insee_commune_principale", nil)
+      |> Map.put("insee", nil)
       |> Map.put("associated_territory_name", "pouet")
       |> Map.put("use_datagouv_zones", "true")
       |> Map.put("national_dataset", "true")
 
     conn =
-      use_cassette "dataset/dataset-with-multiple-cities.json" do
+      use_cassette "dataset/dataset-with-multiple-cities-and-country.json" do
         post(conn, backoffice_dataset_path(conn, :post), dataset)
       end
 
@@ -169,6 +199,7 @@ defmodule TransportWeb.BackofficeControllerTest do
              "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
   end
 
+  @tag :external
   test "Add a dataset linked to a region and to the country", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -180,11 +211,11 @@ defmodule TransportWeb.BackofficeControllerTest do
     dataset =
       @dataset
       |> Map.put("region_id", 1)
-      |> Map.put("insee_commune_principale", nil)
+      |> Map.put("insee", nil)
       |> Map.put("national_dataset", "true")
 
     conn =
-      use_cassette "dataset/tag.json-1" do
+      use_cassette "dataset/dataset-region-and-country.json" do
         post(conn, backoffice_dataset_path(conn, :post), dataset)
       end
 
@@ -207,7 +238,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     resource_url = "http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip"
     dataset = %{@dataset | "region_id" => nil}
 
-    use_cassette "dataset/tag.json-1" do
+    use_cassette "dataset/dataset_twice" do
       conn = post(conn, backoffice_dataset_path(conn, :post), dataset)
       query = from(r in Resource, where: r.url == ^resource_url)
       assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
