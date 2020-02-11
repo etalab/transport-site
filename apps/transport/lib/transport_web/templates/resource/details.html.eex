@@ -12,7 +12,11 @@
           <li><%= dngettext("validations", "transport mode", "transport modes", length(@resource.metadata["networks"])) %> : <strong><%= Enum.join(@resource.metadata["modes"], ", ") %></strong> </li>
         <% end %>
         <%= if @resource.metadata["networks"] != [] do %>
+        <div>
+        <div class="networks-list">
           <li><%= dngettext("validations", "network", "networks", length(@resource.metadata["networks"])) %> : <strong><%= Enum.join(@resource.metadata["networks"], ", ")%></strong></li>
+        </div>
+        </div>
         <% end %>
         <%= if @resource.metadata["stop_points"] != nil do %>
           <li><%= dgettext("validations", "number of stop points")%> : <strong><%= @resource.metadata["stop_points"]%></strong></li>
@@ -61,3 +65,13 @@
         <div class="mt-48"></div>
     </div>
 </section>
+<script src="<%= static_path(@conn, "/js/utils.js") %>"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    addSeeMore("3em",
+      ".networks-list",
+      "<%= dgettext("page-dataset-details", "Display more") %>",
+      "<%= dgettext("page-dataset-details", "Display less") %>"
+    )
+  })
+</script>

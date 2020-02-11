@@ -214,36 +214,13 @@
   </div>
 </section>
 </div>
+<script src="<%= static_path(@conn, "/js/utils.js") %>"></script>
 <script>
-  var hide_too_long_div = function(maxHeight, querySelector) {
-    document.querySelectorAll(querySelector).forEach(
-      function(div){
-        div.style.maxHeight = maxHeight
-        div.style.overflow = "hidden"
-        if (div.scrollHeight > div.clientHeight) {
-          var parent = div.parentElement
-          var displayMore = document.createElement("div")
-          parent.appendChild(displayMore)
-          displayMore.className = ".displayMore"
-          var link_displayMore = document.createElement("a")
-          displayMore.appendChild(link_displayMore)
-          link_displayMore.innerHTML = "<%= dgettext("page-dataset-details", "Display more") %>"
-          displayMore.addEventListener("click",
-            function() {
-              if (div.style.maxHeight != "100%") {
-                div.style.maxHeight = "100%";
-                link_displayMore.innerHTML = "<%= dgettext("page-dataset-details", "Display less") %>"
-              } else {
-                div.style.maxHeight = maxHeight
-                link_displayMore.innerHTML = "<%= dgettext("page-dataset-details", "Display more") %>"
-              }
-            }
-          )
-        }
-      }
-    )
-  }
-  
-  hide_too_long_div("20vh", ".description")
-  hide_too_long_div("calc(8vw)", ".reuse__details")
+  const seeMore = "<%= dgettext("page-dataset-details", "Display more") %>"
+  const seeLess = "<%= dgettext("page-dataset-details", "Display less") %>"
+
+  document.addEventListener("DOMContentLoaded", function() {
+    addSeeMore("20vh", ".description", seeMore, seeLess)
+    addSeeMore("calc(8vw)", ".reuse__details", seeMore, seeLess)
+  })
 </script>
