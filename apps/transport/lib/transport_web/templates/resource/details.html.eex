@@ -67,7 +67,7 @@
               </ul>
           </div>
         <% end %>
-        <div class="mt-48"></div>
+        <div class="pt-48"></div>
     </div>
 </section>
 </div>
