@@ -38,6 +38,20 @@ defmodule TransportWeb.API.StatsController do
     }
   end
 
+  @spec bike_sharing_operation() :: Operation.t()
+  def bike_sharing_operation do
+    %Operation{
+      tags: ["bike-sharing"],
+      summary: "Show bike sharing stats",
+      description: "Show bike sharing stats",
+      operationId: "API.StatsController.bike_sharing",
+      parameters: [],
+      responses: %{
+        200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
+      }
+    }
+  end
+
   def geojson(features) do
     %{
       "type" => "FeatureCollection",
@@ -203,8 +217,8 @@ defmodule TransportWeb.API.StatsController do
     })
   end
 
-  @spec bikes(Plug.Conn.t(), any) :: Plug.Conn.t()
-  def bikes(%Plug.Conn{} = conn, _params) do
+  @spec bike_sharing(Plug.Conn.t(), any) :: Plug.Conn.t()
+  def bike_sharing(%Plug.Conn{} = conn, _params) do
     render(conn, %{
       data:
         geojson(

@@ -1,36 +1,83 @@
 <section>
-    <div class="documentation dataset-details">
-        <nav class="side-pane validation" role="navigation">
-            <h3><%= TransportWeb.Gettext.dgettext("validations", "Validated file") %></h3>
-            <p><%= @resource.title %></p>
-
-
-            <%= unless @resource.validation do %>
-                <%= TransportWeb.Gettext.dgettext("validations", "No validation available") %>
-            <% else %>
-                <%= render "_validation_summary.html", validation_summary: @validation_summary, issues: @issues, conn: @conn %>
-            <% end %>
-            <h3><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h3>
-            <ul>
-            <%= for resource <- @other_resources do %>
-                <li>
-                    <%= link(resource.title,
-                    to: resource_path(@conn, :details, resource.id)
-                   )%>
-                </li>
-            <% end %>
-            </ul>
-        </nav>
-        <div class="main-pane">
-            <h1><%= link(@resource.dataset.title, to: dataset_path(@conn, :details, @resource.dataset.slug) )%></h1>
-            <%= unless @resource.validation do %>
-                Pas de validation disponible
-            <% else %>
-            <%= pagination_links @conn, @issues, [@resource.id], issue_type: issue_type(@issues.entries),
-            path: &resource_path/4, action: :details %>
-
-            <%=  render template(@issues), issues: @issues || [] , conn: @conn %>
-            <% end %>
+    <div class="grey-background">
+    <div class="container">
+        <div class="validation-section">
+        <h1><%= dgettext("validations", "Resource details")%></h1>
+        <p><%= dgettext("validations", "File name")%> :
+          <a href="<%= @resource.url %>">
+            <strong><%= @resource.title %></strong>
+          </a>
+        </p>
+        <p><%= dgettext("validations", "This resource file is part of the dataset")%> <%= link(@resource.dataset.title, to: dataset_path(@conn, :details, @resource.dataset.slug) )%>.</p>
+        <%= if @resource.metadata["start_date"] != nil and @resource.metadata["end_date"] != nil do %>
+          <p><%= dgettext("validations", "It is valid from")%> <strong><%= @resource.metadata["start_date"] %></strong> <%= dgettext("validations", "to")%> <strong><%= @resource.metadata["end_date"] %></strong>.</p>
+        <% end %>
+        <ul>
+        <%= if @resource.metadata["modes"] != [] do %>
+          <li><%= dngettext("validations", "transport mode", "transport modes", length(@resource.metadata["networks"])) %> : <strong><%= Enum.join(@resource.metadata["modes"], ", ") %></strong> </li>
+        <% end %>
+        <%= if @resource.metadata["networks"] != [] do %>
+          <li>
+            <div>
+              <div class="networks-list">
+                <%= dngettext("validations", "network", "networks", length(@resource.metadata["networks"])) %> : <strong><%= Enum.join(@resource.metadata["networks"], ", ")%></strong>
+              </div>
+            </div>
+          </li>
+        <% end %>
+        <%= if @resource.metadata["stop_points"] != nil do %>
+          <li><%= dgettext("validations", "number of stop points")%> : <strong><%= @resource.metadata["stop_points"]%></strong></li>
+        <% end %>
+        <%= if @resource.metadata["stop_areas_count"] != nil do %>
+          <li><%= dgettext("validations", "number of stop areas")%> : <strong><%= @resource.metadata["stop_areas_count"]%></strong></li>
+        <% end %>
+        </ul>
         </div>
+
+        <div class="mt-48 validation-section" id="issues">
+          <h1><%= dgettext("validations", "Validation report")%></h1>
+          <nav class="issues_list validation" role="navigation">
+              <%= unless @resource.validation do %>
+                  <%= dgettext("validations", "No validation available") %>
+              <% else %>
+                  <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, issues: @issues, conn: @conn %>
+              <% end %>
+          </nav>
+          <div class="main-pane">
+              <%= unless @resource.validation do %>
+                  <%= dgettext("validations", "No validation available") %>
+              <% else %>
+              <%= pagination_links @conn, @issues, [@resource.id], issue_type: issue_type(@issues.entries),
+              path: &resource_path/4, action: :details %>
+              <% end %>
+              <%=  render template(@issues), issues: @issues || [] , conn: @conn %>
+          </div>
+        </div>
+
+        <%= if length(@other_resources) > 0 do %>
+          <div class="mt-48 validation-section">
+            <h1><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h1>
+              <ul>
+              <%= for resource <- @other_resources do %>
+                  <li>
+                      <%= link(resource.title,
+                      to: resource_path(@conn, :details, resource.id)
+                    )%>
+                  </li>
+              <% end %>
+              </ul>
+          </div>
+        <% end %>
     </div>
 </section>
+</div>
+<script src="<%= static_path(@conn, "/js/utils.js") %>"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    addSeeMore("3em",
+      ".networks-list",
+      "<%= dgettext("page-dataset-details", "Display more") %>",
+      "<%= dgettext("page-dataset-details", "Display less") %>"
+    )
+  })
+</script>

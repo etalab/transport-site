@@ -118,7 +118,6 @@
         </div>
       </div>
     </div>
-
     <div class="domain bikes">
       <h2>Vélos libre service</h2>
       <div class="domain-stats">
@@ -132,7 +131,6 @@
                 <li>La liste des stations du réseau (géolocalisation, nom, adresse, identifiant)</li>
                 <li>L'état des stations (nombre de vélos disponibles et emplacements libres)</li>
               </ul>
-
               Plus d’informations sur les données temps réel de vélos en libre service sont disponibles dans la <a href="https://doc.transport.data.gouv.fr/producteurs/velos-en-libre-service">documentation</a>.
             </p>
           </div>
@@ -150,12 +148,10 @@
         </div>
       </div>
     </div>
-
-
     <div class="domain carpooling">
       <h2>Lieux de covoiturage</h2>
-      <p><a href="http://localhost:5000/datasets/base-nationale-consolidee-des-lieux-de-covoiturage/">Un fichier national</a> décrivant les lieux de covoiturage de 78 départements a été consolidé par le point d’accès national aprés un travail initial de BlaBlaCar.</p>
-      <p>La Fabrique des Mobilités a récemment ouvert un fichier relatif à des lieux de rendez-vous de covoiturage (grande variété de points, fichier non consolidé), disponible sur <a href="http://localhost:5000/datasets/aires-de-covoiturage-base-de-donnees-commune-des-lieux-et/">ici</a>.
+      <p><a href="/datasets/base-nationale-consolidee-des-lieux-de-covoiturage/">Un fichier national</a> décrivant les lieux de covoiturage de 78 départements a été consolidé par le point d’accès national aprés un travail initial de BlaBlaCar.</p>
+      <p>La Fabrique des Mobilités a récemment ouvert un fichier relatif à des lieux de rendez-vous de covoiturage (grande variété de points, fichier non consolidé), disponible sur <a href="/datasets/aires-de-covoiturage-base-de-donnees-commune-des-lieux-et/">ici</a>.
       </p>
     </div>
     <div class="domain irve">

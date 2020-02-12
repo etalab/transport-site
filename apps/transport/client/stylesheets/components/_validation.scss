@@ -1,37 +1,3 @@
-.dataset-details__validation {
-  h1 {
-    background-color: $light-grey;
-  }
-
-  table {
-    width: 80%;
-    margin: auto;
-  }
-
-  td, th {
-    padding: 8px;
-    font-size: 90%;
-  }
-
-  tbody {
-    width: 100%;
-  }
-
-  .collapse{
-    cursor: pointer;
-    display: block;
-  }
-  .collapse + input{
-    display: none; /* hide the checkboxes */
-  }
-  .collapse + input + table {
-    display:none;
-  }
-  .collapse + input:checked + table {
-    display:table;
-  }
-}
-
 nav.validation {
   padding: 10px;
   h4 {
@@ -42,8 +8,47 @@ nav.validation {
   }
   a {
     padding: 0;
+    width: 100%;
+    color: var(--theme-label-text);
+    text-decoration: none;
   }
   a.active {
     font-weight: bold;
+    color: var(--theme-dark-text);
   }
+}
+
+.issues_list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.validation_issue {
+  padding: 30px;
+  border-radius: 10px;
+  @media (max-width: $breakpoint-tablet) {
+    padding: 10px;
+  }
+}
+
+.mt-48 {
+  margin-top: 48px;
+}
+
+.validation-section {
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  padding: 60px 40px;
+  border-radius: 10px;
+  @media (max-width: $breakpoint-tablet) {
+    padding: 10px;
+  }
+}
+
+.grey-background {
+  width: 100vw;
+  background-color: var(--theme-background-grey);
+  padding-top: 48px;
+  padding-bottom: 48px;
 }

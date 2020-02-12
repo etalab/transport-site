@@ -23,6 +23,7 @@ defmodule TransportWeb.ResourceController do
         |> assign(:other_resources, Resource.other_resources(resource))
         |> assign(:issues, issues)
         |> assign(:validation_summary, Validation.summary(resource.validation))
+        |> assign(:severities_count, Validation.count_by_severity(resource.validation))
         |> render("details.html")
     end
   end

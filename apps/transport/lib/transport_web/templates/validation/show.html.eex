@@ -1,13 +1,14 @@
 <section>
     <div class="documentation dataset-details">
         <nav class="side-pane validation" role="navigation">
-          <%= render "_validation_summary.html", validation_summary: @validation_summary, conn: @conn, issues: @issues %>
+        <div class="pt-48"></div>
+          <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, conn: @conn, issues: @issues %>
         </nav>
         <div class="main-pane">
           <h2><%= dgettext("validations", "GTFS review report")%></h2>
-          <p>
+          <p class="pb-48">
             <%= dgettext("validations", "explanations") %>
-            <%= link(dgettext("validations", "permanent link to this validation"), to: current_url(@conn) )%>
+            <%= link(dgettext("validations", "permanent link to this validation"), to: current_url(@conn) )%>.
           </p>
 
           <%= pagination_links @conn, @issues,  [@validation_id], issue_type: issue_type(@issues.entries),

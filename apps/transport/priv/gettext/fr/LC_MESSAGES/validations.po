@@ -11,16 +11,8 @@ msgstr ""
 "Language: fr\n"
 
 #, elixir-format
-msgid "Validated file"
-msgstr "Fichier validé"
-
-#, elixir-format
 msgid "No validation available"
 msgstr "Pas de validation disponibles"
-
-#, elixir-format
-msgid "Validations issues"
-msgstr "Problèmes de validation"
 
 #, elixir-format
 msgid "Other resources"
@@ -46,12 +38,56 @@ msgstr "Rapport de l’analyse de fichier GTFS"
 msgid "explanations"
 msgstr "Voici le bilan automatisé sur la qualité du fichier GTFS. "
 "Cette validation ne concerne que la structure des données et pas la complétude ni l’exactitude des horaires. "
-"Ce bilan peut être partagé avec :"
+"Ce bilan peut être partagé via"
 
 #, elixir-format
 msgid "permanent link to this validation"
-msgstr "lien permanent vers ce bilan"
+msgstr "ce lien permanent"
 
 #, elixir-format
 msgid "Nice work, there are no issues!"
 msgstr "Félicitation, aucune erreur n'a été trouvée !"
+
+#, elixir-format
+msgid "network"
+msgid_plural "networks"
+msgstr[0] "réseau"
+msgstr[1] "réseaux"
+
+#, elixir-format
+msgid "transport mode"
+msgid_plural "transport modes"
+msgstr[0] "mode de transport"
+msgstr[1] "modes de transport"
+
+#, elixir-format
+msgid "File name"
+msgstr "Nom du fichier"
+
+#, elixir-format
+msgid "It is valid from"
+msgstr "Elle est valide du"
+
+#, elixir-format
+msgid "Resource details"
+msgstr "Détails de la ressource"
+
+#, elixir-format
+msgid "This resource file is part of the dataset"
+msgstr "Cette ressource fait partie du jeu de données"
+
+#, elixir-format
+msgid "Validation report"
+msgstr "Rapport de validation"
+
+#, elixir-format
+msgid "number of stop areas"
+msgstr "nombre de zones d'arrêts (stop areas)"
+
+#, elixir-format
+msgid "number of stop points"
+msgstr "nombre de stops (stop points)"
+
+#, elixir-format
+msgid "to"
+msgstr "au"
