@@ -14,18 +14,20 @@
         <div>
           <div>
             <%= dgettext("validations-explanations", "Glimpse of the file")%>
-            <table class="table file-table">
-              <tr>
-                <%= for header <- issue["related_file"]["line"]["headers"] do %>
-                  <th><%= header %></th>
-                <% end %>
-              </tr>
-              <tr>
-                <%= for value <- issue["related_file"]["line"]["values"] do %>
-                  <td><span class="raw-values"><%= value %></span></td>
-                <% end %>
-              </tr>
-            </table>
+            <div class="scrolable-table">
+              <table class="table file-table">
+                <tr>
+                  <%= for header <- issue["related_file"]["line"]["headers"] do %>
+                    <th><%= header %></th>
+                  <% end %>
+                </tr>
+                <tr>
+                  <%= for value <- issue["related_file"]["line"]["values"] do %>
+                    <td><span class="raw-values"><%= value %></span></td>
+                  <% end %>
+                </tr>
+              </table>
+            </div>
           </div>
         </div>
       <% end %>

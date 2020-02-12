@@ -35,11 +35,11 @@ msgid "GTFS review report"
 msgstr ""
 
 #, elixir-format
-msgid "explanations"
+msgid "This report can be shared with"
 msgstr ""
 
 #, elixir-format
-msgid "permanent link to this validation"
+msgid "this permanent link"
 msgstr ""
 
 #, elixir-format

@@ -32,6 +32,12 @@ nav.validation {
   }
 }
 
+.validation-pane {
+  min-width: 0;
+  max-width: 1200px;
+  padding: 10px;
+}
+
 .mt-48 {
   margin-top: 48px;
 }
@@ -53,6 +59,10 @@ nav.validation {
   padding-bottom: 48px;
 }
 
+.scrolable-table {
+  overflow: auto;
+}
+
 .validation-details {
   div {
     margin-top: 12px;
@@ -60,7 +70,6 @@ nav.validation {
 
   .file-table {
     display: flex;
-    overflow: auto;
   }
 
   .raw-values {

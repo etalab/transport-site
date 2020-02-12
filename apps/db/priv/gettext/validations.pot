@@ -139,5 +139,5 @@ msgid "Warnings"
 msgstr ""
 
 #, elixir-format
-msgid "Not compliant to the GTFS specification"
+msgid "Not compliant with the GTFS specification"
 msgstr ""

@@ -38,10 +38,13 @@ msgstr ""
 msgid "explanations"
 msgstr "This is the automated evalation of the GTFS datafile. "
 "This validation only considers the datastructure and does not give any information about completeness nor exactitude of the timetables. "
-"This report can be shared with"
 
 #, elixir-format
-msgid "permanent link to this validation"
+msgid "This report can be shared with"
+msgstr ""
+
+#, elixir-format
+msgid "this permanent link"
 msgstr ""
 
 #, elixir-format

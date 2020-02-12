@@ -38,10 +38,14 @@ msgstr "Rapport de l’analyse de fichier GTFS"
 msgid "explanations"
 msgstr "Voici le bilan automatisé sur la qualité du fichier GTFS. "
 "Cette validation ne concerne que la structure des données et pas la complétude ni l’exactitude des horaires. "
-"Ce bilan peut être partagé via"
+
 
 #, elixir-format
-msgid "permanent link to this validation"
+msgid "This report can be shared with"
+msgstr "Ce bilan peut être partagé via"
+
+#, elixir-format
+msgid "this permanent link"
 msgstr "ce lien permanent"
 
 #, elixir-format
