@@ -134,7 +134,7 @@ defmodule Opendatasoft.UrlExtractor do
     end
   end
 
-  @spec get_url_from_row({:ok, map} | :error | {:error, any}) :: binary | nil
+  @spec get_url_from_row({:ok, map} | any | {:error, any}) :: binary | nil
   defp get_url_from_row({:ok, line}), do: get_url_from_csv_line(line)
 
   defp get_url_from_row({:error, error}) do
