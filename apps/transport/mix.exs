@@ -6,19 +6,22 @@ defmodule Transport.Mixfile do
       app: :transport,
       version: "0.0.1",
       elixir: "~> 1.8",
-      elixirc_paths: elixirc_paths(Mix.env),
+      elixirc_paths: elixirc_paths(Mix.env()),
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       gettext: [{:write_reference_comments, false}],
-      compilers: [:phoenix, :gettext] ++ Mix.compilers,
+      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       preferred_cli_env: [
-        vcr: :test, "vcr.delete": :test, "vcr.check": :test, "vcr.show": :test
+        vcr: :test,
+        "vcr.delete": :test,
+        "vcr.check": :test,
+        "vcr.show": :test
       ],
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
-      deps: deps(),
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps()
     ]
   end
 
@@ -34,7 +37,7 @@ defmodule Transport.Mixfile do
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
     [
@@ -47,6 +50,7 @@ defmodule Transport.Mixfile do
       {:phoenix_html, "~> 2.13"},
       {:phoenix_markdown, "~> 1.0"},
       {:phoenix_live_view, "~> 0.3.1"},
+      {:phoenix_html_sanitizer, "~> 1.0.0"},
       {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 1.0"},
       {:recon, "~> 2.4"},
@@ -65,14 +69,13 @@ defmodule Transport.Mixfile do
       {:db, in_umbrella: true},
       {:castore, "~> 0.1.0"},
       {:mint, "~> 0.2.0"},
-
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:exvcr, "~> 0.10", only: :test},
       {:hound, "~> 1.0", only: :test},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
-      {:unidecode, "~> 0.0.2"},
+      {:unidecode, "~> 0.0.2"}
     ]
   end
 end

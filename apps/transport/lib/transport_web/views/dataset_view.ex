@@ -1,5 +1,6 @@
 defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
+  use PhoenixHtmlSanitizer, :strip_tags
   alias DB.{Dataset, Resource, Validation}
   alias TransportWeb.PaginationHelpers
   alias TransportWeb.Router.Helpers
@@ -185,6 +186,14 @@ defmodule TransportWeb.DatasetView do
     else
       Dataset.type_to_str(dataset.type)
     end
+  end
+
+  def description(%Dataset{} = dataset) do
+    {:safe, sanitized_md} = sanitize(dataset.description)
+
+    sanitized_md
+    |> Earmark.as_html!()
+    |> raw()
   end
 
   @doc """
