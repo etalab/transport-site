@@ -289,3 +289,7 @@ msgstr ""
 #, elixir-format
 msgid "compatible with"
 msgstr ""
+
+#, elixir-format
+msgid "Visualization of the most recent resource"
+msgstr ""
