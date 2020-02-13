@@ -30,7 +30,7 @@
     <%= if @dataset.type == "carsharing-areas" and other_resources(@dataset) != [] and List.first(other_resources(@dataset)).format == "csv" do %>
       <div class="container">
         <div id='map' class='mapcsv'></div>
-        <div class="is-centered"><%= dgettext("page-dataset-details", "Visualisation of the most recent resource")%> <%= List.first(other_resources(@dataset)).title %>.</div>
+        <div class="is-centered"><%= dgettext("page-dataset-details", "Visualization of the most recent resource")%> <%= List.first(other_resources(@dataset)).title %>.</div>
       </div>
       <script src="<%= static_path(@conn, "/js/mapcsv.js") %>"></script>
       <script>
