@@ -64,6 +64,7 @@ defmodule Datagouvfr.Client.Resources do
 
   def get(_), do: %{}
 
+  @spec put_mime(map(), map()) :: map()
   defp put_mime(payload, params) do
     if Map.has_key?(@format_to_mime, params["format"]) do
       Map.put(payload, "mime", @format_to_mime[params["format"]])
@@ -72,6 +73,7 @@ defmodule Datagouvfr.Client.Resources do
     end
   end
 
+  @spec upload_query(Plug.Conn.t(), map()) :: Client.oauth2_response()
   defp upload_query(conn, params),
     do:
       Client.post(
@@ -81,6 +83,7 @@ defmodule Datagouvfr.Client.Resources do
         [{"content-type", "multipart/form-data"}]
       )
 
+  @spec make_path(map(), [binary()]) :: binary()
   defp make_path(params, suffix \\ [])
 
   defp make_path(%{"dataset_id" => d_id, "resource_id" => r_id}, suffix),

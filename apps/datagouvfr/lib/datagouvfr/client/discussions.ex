@@ -39,6 +39,7 @@ defmodule Datagouvfr.Client.Discussions do
   @doc """
   Call to GET /api/1/discussions/
   """
+  @spec get(binary()) :: map() | nil
   def get(id) do
     @endpoint
     |> API.get([], follow_redirect: true, params: %{for: id})
@@ -52,6 +53,7 @@ defmodule Datagouvfr.Client.Discussions do
     end
   end
 
+  @spec payload_post(binary(), binary(), binary(), [] | nil) :: map()
   defp payload_post(id_, title, comment, extras \\ nil) do
     payload = %{
       comment: comment,
@@ -59,10 +61,6 @@ defmodule Datagouvfr.Client.Discussions do
       subject: %{class: "Dataset", id: id_}
     }
 
-    if is_nil(extras) do
-      payload
-    else
-      Map.put(payload, :extras, extras)
-    end
+    if is_nil(extras), do: payload, else: Map.put(payload, :extras, extras)
   end
 end

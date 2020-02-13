@@ -21,9 +21,11 @@ defmodule Datagouvfr.Client.Reuses do
     end
   end
 
+  @spec add_name(map()) :: map()
   defp add_name(%{"owner" => nil} = reuse), do: reuse |> Map.put("owner", %{}) |> add_name
   defp add_name(reuse), do: put_in(reuse, ["owner", "name"], get_name(reuse))
 
+  @spec get_name(map()) :: binary()
   defp get_name(%{"owner" => %{"name" => name}}), do: name
   defp get_name(%{"organization" => %{"name" => name}}), do: name
   defp get_name(%{"owner" => %{"first_name" => f_n, "last_name" => l_n}}), do: f_n <> " " <> l_n

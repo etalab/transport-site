@@ -37,6 +37,7 @@ defmodule Datagouvfr.Client do
 
       # private
 
+      @spec add_trailing_slash(map() | path) :: binary()
       defp add_trailing_slash(uri) when is_map(uri) do
         %URI{uri | path: add_trailing_slash(uri.path)}
         |> to_string
@@ -49,6 +50,7 @@ defmodule Datagouvfr.Client do
         end
       end
 
+      @spec default_content_type([{binary(), binary()}]) :: [{binary(), binary()}]
       defp default_content_type(headers) do
         case Enum.any?(headers, &content_type?(&1)) do
           true -> headers
@@ -56,6 +58,7 @@ defmodule Datagouvfr.Client do
         end
       end
 
+      @spec content_type?({binary(), binary()}) :: boolean
       defp content_type?(header) do
         header
         |> elem(0)
