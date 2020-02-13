@@ -6,21 +6,22 @@ defmodule Datagouvfr.Client.API do
 
   @type response :: {:ok, any} | {:error, any}
 
+  @spec post_process({:ok, %HTTPoison.Response{body: binary()}}) :: {:ok, map()} | {:error, any()}
   def post_process({:ok, %HTTPoison.Response{body: body} = response}) when is_binary(body) do
     case Jason.decode(body) do
       {:ok, body} -> post_process({:ok, %{body: body, status_code: response.status_code}})
-      error -> post_process(error)
+      {:error, error} -> post_process({:error, error})
     end
   end
 
   use Datagouvfr.Client
 
-  @spec get(path, any(), any()) :: response
+  @spec get(path, [{binary(), binary()}], keyword()) :: response
   def get(path, headers \\ [], options \\ []) when is_binary(path) or is_list(path) do
     request(:get, path, "", headers, options)
   end
 
-  @spec post(path(), map() | any(), any(), boolean()) :: response
+  @spec post(path(), any(), [{binary(), binary()}], boolean()) :: response
   def post(path, body, headers, blank \\ false)
 
   def post(path, body, headers, blank) when is_map(body) do
@@ -50,7 +51,7 @@ defmodule Datagouvfr.Client.API do
           :delete | :get | :head | :options | :patch | :post | :put,
           path(),
           any(),
-          any(),
+          [{binary(), binary()}],
           keyword
         ) :: response
   def request(method, path, body \\ "", headers \\ [], options \\ []) do

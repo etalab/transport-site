@@ -136,6 +136,7 @@ defmodule Datagouvfr.Client.Datasets do
 
   def current_user_subscribed?(_, _), do: false
 
+  @spec is_active?(%{datagouv_id: binary()}) :: boolean
   def is_active?(%{datagouv_id: id}) do
     path = Path.join([@endpoint, id])
 
@@ -161,6 +162,7 @@ defmodule Datagouvfr.Client.Datasets do
   # private functions
 
   # Check if user_id is in followers, if it's not, check in next page if there's one
+  @spec is_user_in_followers?({:ok, map()} | binary(), binary(), Plug.Conn.t()) :: boolean()
   defp is_user_in_followers?({:ok, %{"data" => followers} = page}, user_id, conn) when is_list(followers) do
     Enum.any?(
       followers,
@@ -176,10 +178,12 @@ defmodule Datagouvfr.Client.Datasets do
 
   defp is_user_in_followers?(_, _, _), do: false
 
+  @spec accumulator_atomizer({any(), any()}, map()) :: map()
   def accumulator_atomizer({key, value}, m) do
     Map.put(m, String.to_existing_atom(key), value)
   end
 
+  @spec keys :: [binary()]
   defp keys do
     %Datasets{}
     |> Map.from_struct()
