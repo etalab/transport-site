@@ -103,11 +103,11 @@ msgstr "Nom de route manquant"
 msgid "MissingId"
 msgstr "Identifiant manquant"
 
-msgid "MissingName"
-msgstr "Nom manquant"
-
 msgid "MissingCoordinates"
 msgstr "Coordonnées manquantes"
+
+msgid "MissingName"
+msgstr "Nom manquant"
 
 msgid "InvalidCoordinates"
 msgstr "Coordonnées manquantes"

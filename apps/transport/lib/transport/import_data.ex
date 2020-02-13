@@ -17,6 +17,7 @@ defmodule Transport.ImportData do
     Resource.validate_and_save_all()
   end
 
+  @spec call(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
   def call(%Dataset{datagouv_id: datagouv_id, type: type}) do
     with {:ok, new_data} <- import_from_udata(datagouv_id, type),
          {:ok, changeset} <- Dataset.changeset(new_data) do
@@ -28,6 +29,7 @@ defmodule Transport.ImportData do
     end
   end
 
+  @spec import_from_udata(binary, binary) :: {:error, any} | {:ok, map}
   def import_from_udata(id, type) do
     base_url = Application.get_env(:transport, :datagouvfr_site)
     url = "#{base_url}/api/1/datasets/#{id}/"
@@ -45,6 +47,7 @@ defmodule Transport.ImportData do
     end
   end
 
+  @spec get_dataset(map, binary) :: {:error, any} | {:ok, map}
   def get_dataset(%{"message" => error}, _), do: {:error, error}
 
   def get_dataset(%{} = dataset, type) do
@@ -438,6 +441,7 @@ defmodule Transport.ImportData do
     |> Repo.one()
   end
 
+  @spec has_realtime?(map, binary) :: {:error, false} | {:ok, boolean}
   def has_realtime?(dataset, "public-transit") do
     if Enum.any?(dataset["resources"], &is_realtime?/1) do
       {:ok, true}

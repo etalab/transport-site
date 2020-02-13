@@ -122,6 +122,7 @@ defmodule Opendatasoft.UrlExtractor do
     |> Enum.map(fn url -> {:ok, %{url: url, title: get_filename(url)}} end)
   end
 
+  @spec get_url_from_csv(any, binary) :: [binary]
   def get_url_from_csv(separator, body) do
     case StringIO.open(body) do
       {:ok, out} ->
@@ -133,11 +134,21 @@ defmodule Opendatasoft.UrlExtractor do
     end
   end
 
+  @spec get_url_from_row({:ok, map} | any | {:error, any}) :: binary | nil
   defp get_url_from_row({:ok, line}), do: get_url_from_csv_line(line)
-  defp get_url_from_row({:error, error}), do: Logger.error(error)
-  defp get_url_from_row(error), do: Logger.error(error)
 
-  defp get_url_from_csv_line(line) do
+  defp get_url_from_row({:error, error}) do
+    Logger.error("error while parsing urlfrom row: #{inspect(error)}")
+    nil
+  end
+
+  defp get_url_from_row(error) do
+    Logger.error("unknown error while parsing urlfrom row: #{inspect(error)}")
+    nil
+  end
+
+  @spec get_url_from_csv_line(map) :: binary
+  def get_url_from_csv_line(line) do
     @csv_headers
     |> Enum.map(&Map.get(line, &1))
     |> Enum.filter(&(&1 != nil))
