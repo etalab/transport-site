@@ -289,3 +289,7 @@ msgstr "Récupérer des détails sur ce jeu de données via un %{start_link}appe
 #, elixir-format
 msgid "compatible with"
 msgstr "compatible avec"
+
+#, elixir-format
+msgid "Visualization of the most recent resource"
+msgstr "Visualisation de la ressource la plus récente"

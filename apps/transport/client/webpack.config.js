@@ -14,6 +14,7 @@ module.exports = {
     entry: {
         app: './javascripts/app.js',
         map: './javascripts/map.js',
+        mapcsv: './javascripts/map-csv.js',
         utils: './javascripts/utils.js',
         scss: './stylesheets/app.scss'
     },
