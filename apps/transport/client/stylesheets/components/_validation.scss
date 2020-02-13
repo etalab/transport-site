@@ -32,6 +32,12 @@ nav.validation {
   }
 }
 
+.validation-pane {
+  min-width: 0;
+  max-width: 1200px;
+  padding: 10px;
+}
+
 .mt-48 {
   margin-top: 48px;
 }
@@ -51,4 +57,29 @@ nav.validation {
   background-color: var(--theme-background-grey);
   padding-top: 48px;
   padding-bottom: 48px;
+}
+
+.scrolable-table {
+  overflow: auto;
+}
+
+.validation-details {
+  div {
+    margin-top: 12px;
+  }
+
+  .file-table {
+    display: flex;
+  }
+
+  .raw-values {
+    background-color: var(--theme-background-grey);
+  }
+}
+
+.error-details {
+  margin-top: 6px;
+  display: block;
+  background-color: var(--theme-background-grey);
+  padding: 4px 0 4px 25px;
 }

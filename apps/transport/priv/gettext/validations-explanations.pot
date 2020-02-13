@@ -57,3 +57,23 @@ msgstr ""
 #, elixir-format
 msgid "CoordinatesIssue"
 msgstr ""
+
+#, elixir-format
+msgid "Error detail:"
+msgstr ""
+
+#, elixir-format
+msgid "at line"
+msgstr ""
+
+#, elixir-format
+msgid "The file does not comply with the GTFS specification, the tool cannot perform all the checks."
+msgstr ""
+
+#, elixir-format
+msgid "Glimpse of the file"
+msgstr ""
+
+#, elixir-format
+msgid "Error on file"
+msgstr ""

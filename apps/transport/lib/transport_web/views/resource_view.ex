@@ -16,6 +16,7 @@ defmodule TransportWeb.ResourceView do
   def template(issues) do
     Map.get(
       %{
+        "UnloadableModel" => "_unloadable_model_issue.html",
         "DuplicateStops" => "_duplicate_stops_issue.html",
         "ExtraFile" => "_extra_file_issue.html",
         "MissingFile" => "_missing_file_issue.html",
