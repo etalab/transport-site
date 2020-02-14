@@ -56,6 +56,7 @@ defmodule TransportWeb.Router do
       get("/:slug/", DatasetController, :details)
       get("/aom/:aom", DatasetController, :by_aom)
       get("/region/:region", DatasetController, :by_region)
+      get("/commune/:insee_commune", DatasetController, :by_commune_insee)
 
       scope "/:dataset_id" do
         pipe_through([:authenticated])

@@ -51,6 +51,7 @@ defmodule TransportWeb.DatasetController do
 
   def by_aom(%Plug.Conn{} = conn, %{"aom" => _} = params), do: list_datasets(conn, params)
   def by_region(%Plug.Conn{} = conn, %{"region" => _} = params), do: list_datasets(conn, params)
+  def by_commune_insee(%Plug.Conn{} = conn, %{"insee_commune" => _} = params), do: list_datasets(conn, params)
 
   defp get_datasets(params) do
     config = make_pagination_config(params)
