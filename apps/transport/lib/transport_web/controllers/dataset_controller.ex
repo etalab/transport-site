@@ -2,7 +2,7 @@ defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
   alias Datagouvfr.Client.{CommunityResources, Datasets, Discussions, Reuses}
-  alias DB.{Dataset, DatasetGeographicView, Region, Repo}
+  alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
   import Phoenix.HTML
   import Phoenix.HTML.Link
@@ -49,9 +49,62 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  def by_aom(%Plug.Conn{} = conn, %{"aom" => _} = params), do: list_datasets(conn, params)
-  def by_region(%Plug.Conn{} = conn, %{"region" => _} = params), do: list_datasets(conn, params)
-  def by_commune_insee(%Plug.Conn{} = conn, %{"insee_commune" => _} = params), do: list_datasets(conn, params)
+  def by_aom(%Plug.Conn{} = conn, %{"aom" => id} = params) do
+    AOM
+    |> where([a], a.id == ^id)
+    |> Repo.exists?()
+    |> case do
+      false ->
+        message = dgettext("errors", "AOM %{id} does not exist", id: id)
+        error_page(conn, message)
+
+      true ->
+        list_datasets(conn, params)
+    end
+  end
+
+  def by_region(%Plug.Conn{} = conn, %{"region" => id} = params) do
+    Region
+    |> where([r], r.id == ^id)
+    |> Repo.exists?()
+    |> case do
+      false ->
+        message = dgettext("errors", "Region %{id} does not exist", id: id)
+
+        error_page(conn, message)
+
+      true ->
+        list_datasets(conn, params)
+    end
+  end
+
+  def by_commune_insee(%Plug.Conn{} = conn, %{"insee_commune" => insee} = params) do
+    Commune
+    |> where([c], c.insee == ^insee)
+    |> Repo.exists?()
+    |> case do
+      false ->
+        message =
+          dgettext(
+            "errors",
+            "Impossible to find a city with the insee code %{insee}",
+            insee: insee
+          )
+
+        error_page(conn, message)
+
+      true ->
+        list_datasets(conn, params)
+    end
+  end
+
+  defp error_page(conn, msg) do
+    conn
+    |> put_status(:not_found)
+    |> put_view(ErrorView)
+    |> assign(:reason, raw(msg))
+    |> render("404.html")
+  end
 
   defp get_datasets(params) do
     config = make_pagination_config(params)
