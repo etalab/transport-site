@@ -202,5 +202,50 @@ defmodule TransportWeb.DatasetController do
     assign(conn, :special_message, raw(message))
   end
 
+  defp put_special_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
+         "aom" => id
+       }) do
+    name =
+      case Repo.get(AOM, id) do
+        nil -> id
+        a -> a.nom
+      end
+
+    message = dgettext("page-shortlist", "AOM %{name} has not yet published any datasets", name: name)
+
+    conn
+    |> assign(:special_message, raw(message))
+  end
+
+  defp put_special_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
+         "region" => id
+       }) do
+    name =
+      case Repo.get(Region, id) do
+        nil -> id
+        a -> a.nom
+      end
+
+    message = dgettext("page-shortlist", "There is no data for region %{name}", name: name)
+
+    conn
+    |> assign(:special_message, raw(message))
+  end
+
+  defp put_special_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
+         "insee_commune" => insee
+       }) do
+    name =
+      case Repo.get_by(Commune, insee: insee) do
+        nil -> insee
+        a -> a.nom
+      end
+
+    message = dgettext("page-shortlist", "There is no data for city %{name}", name: name)
+
+    conn
+    |> assign(:special_message, raw(message))
+  end
+
   defp put_special_message(conn, _params), do: conn
 end

@@ -236,3 +236,15 @@ msgstr "Jeux de données disponibles"
 #, elixir-format
 msgid "Realtime timetables"
 msgstr "Horaires en temps réel de transport publics"
+
+#, elixir-format
+msgid "AOM %{name} has not yet published any datasets"
+msgstr "L'AOM %{name} n'a pas encore publié de données"
+
+#, elixir-format
+msgid "There is no data for city %{name}"
+msgstr "Il n'y a pas de données disponibles pour la ville %{name}"
+
+#, elixir-format
+msgid "There is no data for region %{name}"
+msgstr "Il n'y a pas de données disponibles pour la région %{name}"

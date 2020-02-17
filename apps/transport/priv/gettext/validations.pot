@@ -89,3 +89,7 @@ msgstr ""
 #, elixir-format
 msgid "to"
 msgstr ""
+
+#, elixir-format
+msgid "explanations"
+msgstr ""
