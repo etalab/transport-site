@@ -18,8 +18,8 @@
   </div>
 <% end %>
 <section class="section section-grey datasets">
-  <div class="container">
-    <h2 class="shortlist__title"><%= dgettext("page-shortlist", "Search results") %></h2>
+  <div class="container search-title">
+    <h2><%= dgettext("page-shortlist", "Search results") %></h2>
     <div class="shortlist__pagination">
       <%= pagination_links @conn, @datasets %>
     </div>
