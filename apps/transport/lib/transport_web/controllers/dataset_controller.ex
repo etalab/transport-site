@@ -18,6 +18,7 @@ defmodule TransportWeb.DatasetController do
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
     |> put_special_message(params)
+    |> put_empty_message(params)
     |> render("index.html")
   end
 
@@ -202,7 +203,9 @@ defmodule TransportWeb.DatasetController do
     assign(conn, :special_message, raw(message))
   end
 
-  defp put_special_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
+  defp put_special_message(conn, _params), do: conn
+
+  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
          "aom" => id
        }) do
     name =
@@ -214,10 +217,10 @@ defmodule TransportWeb.DatasetController do
     message = dgettext("page-shortlist", "AOM %{name} has not yet published any datasets", name: name)
 
     conn
-    |> assign(:special_message, raw(message))
+    |> assign(:empty_message, raw(message))
   end
 
-  defp put_special_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
+  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
          "region" => id
        }) do
     name =
@@ -229,10 +232,10 @@ defmodule TransportWeb.DatasetController do
     message = dgettext("page-shortlist", "There is no data for region %{name}", name: name)
 
     conn
-    |> assign(:special_message, raw(message))
+    |> assign(:empty_message, raw(message))
   end
 
-  defp put_special_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
+  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
          "insee_commune" => insee
        }) do
     name =
@@ -244,8 +247,15 @@ defmodule TransportWeb.DatasetController do
     message = dgettext("page-shortlist", "There is no data for city %{name}", name: name)
 
     conn
-    |> assign(:special_message, raw(message))
+    |> assign(:empty_message, raw(message))
   end
 
-  defp put_special_message(conn, _params), do: conn
+  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, _params) do
+    message = dgettext("page-shortlist", "No dataset found")
+
+    conn
+    |> assign(:empty_message, raw(message))
+  end
+
+  defp put_empty_message(conn, _params), do: conn
 end
