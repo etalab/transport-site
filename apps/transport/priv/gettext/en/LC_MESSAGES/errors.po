@@ -24,10 +24,10 @@ msgstr ""
 msgid "Impossible to find a city with the insee code %{insee}"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "AOM %{id} does not exist"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Region %{id} does not exist"
 msgstr ""
