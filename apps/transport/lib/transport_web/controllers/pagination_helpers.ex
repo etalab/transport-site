@@ -16,6 +16,8 @@ defmodule TransportWeb.PaginationHelpers do
 
   def make_pagination_config(_), do: %Scrivener.Config{page_number: 1, page_size: 10}
 
+  def pagination_links(_, %{total_pages: 1}), do: ""
+
   def pagination_links(conn, paginator) do
     conn.params
     |> remove_empty_q()
