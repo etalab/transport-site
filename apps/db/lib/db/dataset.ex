@@ -162,32 +162,32 @@ defmodule DB.Dataset do
         """
         (
           ? IN (
-              SELECT DISTINCT dc.dataset_id FROM dataset_communes AS dc
-              JOIN commune ON commune.id = dc.commune_id
-              WHERE commune.insee = ?
-            )
-          OR
-          ? IN (
-              SELECT dataset.id FROM dataset
-              JOIN aom ON aom.id = dataset.aom_id
-              JOIN commune ON commune.aom_res_id = aom.composition_res_id
-              WHERE commune.insee = ?
-            )
-          OR
-          ? IN (
-              SELECT dataset.id FROM dataset
-              JOIN region ON region.id = dataset.region_id
-              JOIN aom ON aom.region_id = region.id
-              JOIN commune ON commune.aom_res_id = aom.composition_res_id
-              WHERE commune.insee = ?
+              (
+                SELECT DISTINCT dc.dataset_id FROM dataset_communes AS dc
+                JOIN commune ON commune.id = dc.commune_id
+                WHERE commune.insee = ?
+              )
+              UNION
+              (
+                SELECT dataset.id FROM dataset
+                JOIN aom ON aom.id = dataset.aom_id
+                JOIN commune ON commune.aom_res_id = aom.composition_res_id
+                WHERE commune.insee = ?
+              )
+              UNION
+              (
+                SELECT dataset.id FROM dataset
+                JOIN region ON region.id = dataset.region_id
+                JOIN aom ON aom.region_id = region.id
+                JOIN commune ON commune.aom_res_id = aom.composition_res_id
+                WHERE commune.insee = ?
+              )
             )
         )
         """,
         d.id,
         ^commune_insee,
-        d.id,
         ^commune_insee,
-        d.id,
         ^commune_insee
       )
     )
