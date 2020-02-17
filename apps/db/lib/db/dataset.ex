@@ -178,8 +178,7 @@ defmodule DB.Dataset do
               (
                 SELECT dataset.id FROM dataset
                 JOIN region ON region.id = dataset.region_id
-                JOIN aom ON aom.region_id = region.id
-                JOIN commune ON commune.aom_res_id = aom.composition_res_id
+                JOIN commune ON commune.region_id = region.id
                 WHERE commune.insee = ?
               )
             )
