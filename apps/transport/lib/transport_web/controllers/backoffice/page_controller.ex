@@ -44,6 +44,18 @@ defmodule TransportWeb.Backoffice.PageController do
     |> render_index(conn, params)
   end
 
+  def index(%Plug.Conn{} = conn, %{"filter" => "not_compliant"} = params) do
+    resources =
+      Resource
+      |> where([r], fragment("metadata->'issues_count'->>'UnloadableModel' IS NOT NULL"))
+      |> distinct([r], r.dataset_id)
+      |> select([r], %Resource{dataset_id: r.dataset_id})
+
+    Dataset
+    |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
+    |> render_index(conn, params)
+  end
+
   def index(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id} = params) do
     conn =
       Dataset
