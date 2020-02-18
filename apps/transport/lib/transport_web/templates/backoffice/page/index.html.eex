@@ -13,7 +13,7 @@
 <%= pagination_links @conn, @datasets %>
 <table class="backoffice-datasets">
   <tr>
-    <th>Territoire</th>
+    <th>Dataset</th>
     <th>Fin de validité</th>
     <th></th>
     <th></th>
