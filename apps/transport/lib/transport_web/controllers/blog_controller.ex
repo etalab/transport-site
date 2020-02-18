@@ -7,7 +7,7 @@ defmodule TransportWeb.BlogController do
       |> make_path()
       |> Path.wildcard()
       |> Enum.map(&read_file/1)
-      |> Enum.sort_by(& &1.date)
+      |> Enum.sort_by(& &1.cmp_date, &>=/2)
 
     render(conn, "index.html", articles: articles)
   end
@@ -48,18 +48,25 @@ defmodule TransportWeb.BlogController do
       title: title,
       image: image,
       date: day <> "/" <> month <> "/" <> year,
+      # we use a date to display and a comparaison friendly date
+      cmp_date: year <> month <> day,
       path: article_path
     }
   end
 
   def compute_image_path(path) when is_nil(path), do: nil
-  def compute_image_path(path), do: ~r/\((?<path>.*)\)/ |> Regex.run(path, capture: :all_names) |> List.first()
+
+  def compute_image_path(path),
+    do: ~r/\((?<path>.*)\)/ |> Regex.run(path, capture: :all_names) |> List.first()
 
   defp get_header_title_image(l, {nil, nil, nil, _}), do: {[l], nil, nil, false}
   defp get_header_title_image("# " <> title, {h, nil, _, _}), do: {h, title, nil, false}
   defp get_header_title_image("![" <> image, {h, t, nil, _}), do: {h, t, image, false}
   defp get_header_title_image(l, {h, nil, nil, _}), do: {h ++ [l], nil, nil, false}
-  defp get_header_title_image(_l, {h, t, i, _}) when not is_nil(i) and not is_nil(t), do: {h, t, i, true}
+
+  defp get_header_title_image(_l, {h, t, i, _}) when not is_nil(i) and not is_nil(t),
+    do: {h, t, i, true}
+
   defp get_header_title_image(_l, {h, t, i, _}), do: {h, t, i, false}
 
   defp make_path(filename), do: Path.join([:code.priv_dir(:transport), "blog", filename <> ".md"])
