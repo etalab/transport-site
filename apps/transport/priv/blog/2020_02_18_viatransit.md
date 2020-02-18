@@ -1,8 +1,8 @@
-*La mobilité de demain est entre vos mains*
 
-*bla bla pour introduire l'article*
+Entretien avec Darius MARTIN, co-fondateur de viaTransit : l’application qui a simplifié l’usage des transports en commun à Montpellier et ses environs grâce aux informations en temps réel.
+![logo viaTransit](/blog/viatransit/logo.jpg)
 
-# Présentation du réutilisateur de données viaTransit <img src="/blog/viatransit/logo.png" alt="drawing" width="200"/> 
+# Présentation du réutilisateur de données viaTransit
 <!-- Note, en rajoutant un espace avant la photo elle n'est pas prise en compte comme photo de page de garde -->
  ![équipe viaTransit](/blog/viatransit/equipe.jpg)
 Camille MONJO et Darius MARTIN, deux étudiants en ingénierie informatique à EPITECH Montpellier, ont développé  viaTransit : une plateforme multi-modale simplifiant l'information voyageur et les déplacements dans les transports en commun.
