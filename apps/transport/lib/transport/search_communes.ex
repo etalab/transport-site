@@ -105,7 +105,7 @@ defmodule Transport.SearchCommunes do
   @spec make_search_struct(%{nom: binary()}) :: %{nom: binary(), normalized_nom: binary()}
   def make_search_struct(%{nom: nom} = s), do: Map.put(s, :normalized_nom, normalize_alpha(nom))
 
-  @spec load_communes :: [Commune.t]
+  @spec load_communes :: [Commune.t()]
   defp load_communes do
     Commune
     |> select([:nom, :insee])

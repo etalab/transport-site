@@ -11,8 +11,8 @@ defmodule TransportWeb.API.StatsController do
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
   @spec regions_operation() :: Operation.t()
-  def regions_operation do
-    %Operation{
+  def regions_operation,
+    do: %Operation{
       tags: ["regions"],
       summary: "Show regions",
       description: "Show covered french administrative regions",
@@ -22,11 +22,10 @@ defmodule TransportWeb.API.StatsController do
         200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
       }
     }
-  end
 
   @spec index_operation() :: Operation.t()
-  def index_operation do
-    %Operation{
+  def index_operation,
+    do: %Operation{
       tags: ["index"],
       summary: "Show regions",
       description: "Show covered french administrative regions",
@@ -36,11 +35,10 @@ defmodule TransportWeb.API.StatsController do
         200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
       }
     }
-  end
 
   @spec bike_sharing_operation() :: Operation.t()
-  def bike_sharing_operation do
-    %Operation{
+  def bike_sharing_operation,
+    do: %Operation{
       tags: ["bike-sharing"],
       summary: "Show bike sharing stats",
       description: "Show bike sharing stats",
@@ -50,15 +48,14 @@ defmodule TransportWeb.API.StatsController do
         200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
       }
     }
-  end
 
-  def geojson(features) do
-    %{
+  @spec geojson([map()]) :: map()
+  def geojson(features),
+    do: %{
       "type" => "FeatureCollection",
       "name" => "Autorités organisatrices de Mobiltés",
       "features" => features
     }
-  end
 
   def nb_non_standard_rt(insee_commune_principale) do
     CSVDocuments.real_time_providers()
