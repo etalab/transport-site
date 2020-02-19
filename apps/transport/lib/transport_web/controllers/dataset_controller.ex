@@ -2,7 +2,7 @@ defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
   alias Datagouvfr.Client.{CommunityResources, Datasets, Discussions, Reuses}
-  alias DB.{Dataset, DatasetGeographicView, Region, Repo}
+  alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
   import Phoenix.HTML
   import Phoenix.HTML.Link
@@ -18,6 +18,7 @@ defmodule TransportWeb.DatasetController do
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
     |> put_special_message(params)
+    |> put_empty_message(params)
     |> render("index.html")
   end
 
@@ -49,8 +50,62 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  def by_aom(%Plug.Conn{} = conn, %{"aom" => _} = params), do: list_datasets(conn, params)
-  def by_region(%Plug.Conn{} = conn, %{"region" => _} = params), do: list_datasets(conn, params)
+  def by_aom(%Plug.Conn{} = conn, %{"aom" => id} = params) do
+    AOM
+    |> where([a], a.id == ^id)
+    |> Repo.exists?()
+    |> case do
+      false ->
+        message = dgettext("errors", "AOM %{id} does not exist", id: id)
+        error_page(conn, message)
+
+      true ->
+        list_datasets(conn, params)
+    end
+  end
+
+  def by_region(%Plug.Conn{} = conn, %{"region" => id} = params) do
+    Region
+    |> where([r], r.id == ^id)
+    |> Repo.exists?()
+    |> case do
+      false ->
+        message = dgettext("errors", "Region %{id} does not exist", id: id)
+
+        error_page(conn, message)
+
+      true ->
+        list_datasets(conn, params)
+    end
+  end
+
+  def by_commune_insee(%Plug.Conn{} = conn, %{"insee_commune" => insee} = params) do
+    Commune
+    |> where([c], c.insee == ^insee)
+    |> Repo.exists?()
+    |> case do
+      false ->
+        message =
+          dgettext(
+            "errors",
+            "Impossible to find a city with the insee code %{insee}",
+            insee: insee
+          )
+
+        error_page(conn, message)
+
+      true ->
+        list_datasets(conn, params)
+    end
+  end
+
+  defp error_page(conn, msg) do
+    conn
+    |> put_status(:not_found)
+    |> put_view(ErrorView)
+    |> assign(:reason, raw(msg))
+    |> render("404.html")
+  end
 
   defp get_datasets(params) do
     config = make_pagination_config(params)
@@ -149,4 +204,58 @@ defmodule TransportWeb.DatasetController do
   end
 
   defp put_special_message(conn, _params), do: conn
+
+  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
+         "aom" => id
+       }) do
+    name =
+      case Repo.get(AOM, id) do
+        nil -> id
+        a -> a.nom
+      end
+
+    message = dgettext("page-shortlist", "AOM %{name} has not yet published any datasets", name: name)
+
+    conn
+    |> assign(:empty_message, raw(message))
+  end
+
+  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
+         "region" => id
+       }) do
+    name =
+      case Repo.get(Region, id) do
+        nil -> id
+        a -> a.nom
+      end
+
+    message = dgettext("page-shortlist", "There is no data for region %{name}", name: name)
+
+    conn
+    |> assign(:empty_message, raw(message))
+  end
+
+  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
+         "insee_commune" => insee
+       }) do
+    name =
+      case Repo.get_by(Commune, insee: insee) do
+        nil -> insee
+        a -> a.nom
+      end
+
+    message = dgettext("page-shortlist", "There is no data for city %{name}", name: name)
+
+    conn
+    |> assign(:empty_message, raw(message))
+  end
+
+  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, _params) do
+    message = dgettext("page-shortlist", "No dataset found")
+
+    conn
+    |> assign(:empty_message, raw(message))
+  end
+
+  defp put_empty_message(conn, _params), do: conn
 end

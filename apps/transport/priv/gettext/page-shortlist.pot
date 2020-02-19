@@ -236,3 +236,15 @@ msgstr ""
 #, elixir-format
 msgid "Realtime timetables"
 msgstr ""
+
+#, elixir-format
+msgid "AOM %{name} has not yet published any datasets"
+msgstr ""
+
+#, elixir-format
+msgid "There is no data for city %{name}"
+msgstr ""
+
+#, elixir-format
+msgid "There is no data for region %{name}"
+msgstr ""

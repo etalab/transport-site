@@ -151,6 +151,49 @@ defmodule DB.Dataset do
   defp filter_by_aom(query, %{"aom" => aom_id}), do: where(query, [d], d.aom_id == ^aom_id)
   defp filter_by_aom(query, _), do: query
 
+  @spec filter_by_commune(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_commune(query, %{"insee_commune" => commune_insee}) do
+    # return the datasets available for a city.
+    # This dataset can either be linked to a city or to an AOM/region covering this city
+    query
+    |> where(
+      [d],
+      fragment(
+        """
+        (
+          ? IN (
+              (
+                SELECT DISTINCT dc.dataset_id FROM dataset_communes AS dc
+                JOIN commune ON commune.id = dc.commune_id
+                WHERE commune.insee = ?
+              )
+              UNION
+              (
+                SELECT dataset.id FROM dataset
+                JOIN aom ON aom.id = dataset.aom_id
+                JOIN commune ON commune.aom_res_id = aom.composition_res_id
+                WHERE commune.insee = ?
+              )
+              UNION
+              (
+                SELECT dataset.id FROM dataset
+                JOIN region ON region.id = dataset.region_id
+                JOIN commune ON commune.region_id = region.id
+                WHERE commune.insee = ?
+              )
+            )
+        )
+        """,
+        d.id,
+        ^commune_insee,
+        ^commune_insee,
+        ^commune_insee
+      )
+    )
+  end
+
+  defp filter_by_commune(query, _), do: query
+
   @spec filter_by_active(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_active(query, %{"list_inactive" => true}), do: query
   defp filter_by_active(query, _), do: where(query, [d], d.is_active)
@@ -164,6 +207,7 @@ defmodule DB.Dataset do
     |> filter_by_category(params)
     |> filter_by_type(params)
     |> filter_by_aom(params)
+    |> filter_by_commune(params)
     |> filter_by_fulltext(params)
     |> order_datasets(params)
   end

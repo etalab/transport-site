@@ -19,3 +19,15 @@ msgstr ""
 #, elixir-format
 msgid "404: Page not available"
 msgstr ""
+
+#, elixir-format
+msgid "Impossible to find a city with the insee code %{insee}"
+msgstr ""
+
+#, elixir-format
+msgid "AOM %{id} does not exist"
+msgstr ""
+
+#, elixir-format
+msgid "Region %{id} does not exist"
+msgstr ""
