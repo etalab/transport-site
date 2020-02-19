@@ -276,11 +276,11 @@ defmodule Transport.ImportData do
 
   """
   @spec is_gtfs?(map()) :: boolean()
-  def is_gtfs?(%{"url" => url} = params) do
+  def is_gtfs?(%{} = params) do
     cond do
       is_gtfs_rt?(params["format"]) -> false
       is_gtfs?(params["format"]) -> true
-      is_format?(url, ["json", "csv", "shp", "pdf"]) -> false
+      is_format?(params["url"], ["json", "csv", "shp", "pdf"]) -> false
       is_gtfs?(params["description"]) -> true
       is_gtfs?(params["title"]) -> true
       true -> false
