@@ -20,7 +20,6 @@ msgstr "Essayez de recharger la page ou contactez-nous."
 msgid "404: Page not available"
 msgstr "404: Page non disponible"
 
-
 #, elixir-format
 msgid "Impossible to find a city with the insee code %{insee}"
 msgstr "Impossible de trouver la commune avec le code insee %{insee}"

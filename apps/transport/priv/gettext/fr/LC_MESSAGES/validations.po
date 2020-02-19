@@ -35,12 +35,6 @@ msgid "GTFS review report"
 msgstr "Rapport de l’analyse de fichier GTFS"
 
 #, elixir-format
-msgid "explanations"
-msgstr "Voici le bilan automatisé sur la qualité du fichier GTFS. "
-"Cette validation ne concerne que la structure des données et pas la complétude ni l’exactitude des horaires. "
-
-
-#, elixir-format
 msgid "This report can be shared with"
 msgstr "Ce bilan peut être partagé via"
 
@@ -95,3 +89,8 @@ msgstr "nombre de stops (stop points)"
 #, elixir-format
 msgid "to"
 msgstr "au"
+
+#, elixir-format
+msgid "explanations"
+msgstr "Voici le bilan automatisé sur la qualité du fichier GTFS. "
+"Cette validation ne concerne que la structure des données et pas la complétude ni l’exactitude des horaires. "

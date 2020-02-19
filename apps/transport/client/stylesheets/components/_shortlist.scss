@@ -2,10 +2,6 @@
   display: flex;
 }
 
-.shortlist__title {
-  float:left;
-}
-
 .shortlist__pagination {
   margin: 1em 0;
   display: flex;
@@ -179,10 +175,6 @@
 @include tablet {
   .shortlist {
     flex-direction: column;
-  }
-
-  .shortlist__title {
-    float: none;
   }
 
   .shortlist__pagination {

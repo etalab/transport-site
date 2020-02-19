@@ -18,6 +18,7 @@ defmodule TransportWeb.DatasetController do
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
     |> put_special_message(params)
+    |> put_empty_message(params)
     |> render("index.html")
   end
 
@@ -203,4 +204,58 @@ defmodule TransportWeb.DatasetController do
   end
 
   defp put_special_message(conn, _params), do: conn
+
+  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
+         "aom" => id
+       }) do
+    name =
+      case Repo.get(AOM, id) do
+        nil -> id
+        a -> a.nom
+      end
+
+    message = dgettext("page-shortlist", "AOM %{name} has not yet published any datasets", name: name)
+
+    conn
+    |> assign(:empty_message, raw(message))
+  end
+
+  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
+         "region" => id
+       }) do
+    name =
+      case Repo.get(Region, id) do
+        nil -> id
+        a -> a.nom
+      end
+
+    message = dgettext("page-shortlist", "There is no data for region %{name}", name: name)
+
+    conn
+    |> assign(:empty_message, raw(message))
+  end
+
+  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
+         "insee_commune" => insee
+       }) do
+    name =
+      case Repo.get_by(Commune, insee: insee) do
+        nil -> insee
+        a -> a.nom
+      end
+
+    message = dgettext("page-shortlist", "There is no data for city %{name}", name: name)
+
+    conn
+    |> assign(:empty_message, raw(message))
+  end
+
+  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, _params) do
+    message = dgettext("page-shortlist", "No dataset found")
+
+    conn
+    |> assign(:empty_message, raw(message))
+  end
+
+  defp put_empty_message(conn, _params), do: conn
 end
