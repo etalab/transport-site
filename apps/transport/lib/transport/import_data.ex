@@ -194,7 +194,6 @@ defmodule Transport.ImportData do
     []
   end
 
-
   @spec get_resources(map(), binary()) :: [map()]
   def get_resources(dataset, type) do
     dataset

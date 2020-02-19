@@ -54,7 +54,7 @@ defmodule Opendatasoft.UrlExtractor do
 
   def has_csv?(_), do: false
 
-  @spec download_csv_list([any]) :: {:ok,  [binary()]} | {:error, binary()}
+  @spec download_csv_list([any]) :: {:ok, [binary()]} | {:error, binary()}
   defp download_csv_list(resources) when is_list(resources) do
     resources
     |> Enum.map(&download_csv/1)
