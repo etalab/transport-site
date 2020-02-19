@@ -34,6 +34,7 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
     end
   end
 
+  @spec get_or_create_epci(binary()) :: EPCI.t()
   defp get_or_create_epci(code) do
     EPCI
     |> Repo.get_by(code: code)
@@ -46,6 +47,7 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
     end
   end
 
+  @spec insert_epci(map()) :: any()
   defp insert_epci(%{"code" => code, "nom" => nom, "membres" => m}) do
     code
     |> get_or_create_epci()
@@ -57,6 +59,7 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
     |> Repo.insert_or_update()
   end
 
+  @spec get_insees([map()]) :: [binary()]
   defp get_insees(members) do
     members
     |> Enum.map(fn m -> m["code"] end)

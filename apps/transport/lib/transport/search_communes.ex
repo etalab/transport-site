@@ -34,6 +34,7 @@ defmodule Transport.SearchCommunes do
     %{insee: "75116", nom: "Paris", normalized_nom: "paris"},
   ]
   """
+  @spec filter([map()], binary()) :: [map()]
   def filter(communes, term) do
     alpha_term = normalize_alpha(term)
     num_term = get_num(term)
@@ -54,6 +55,7 @@ defmodule Transport.SearchCommunes do
   iex> Transport.SearchCommunes.normalize_alpha("Châteauroux")
   "chateauroux"
   """
+  @spec normalize_alpha(binary()) :: binary()
   def normalize_alpha(s) do
     s
     |> String.normalize(:nfd)
@@ -75,6 +77,7 @@ defmodule Transport.SearchCommunes do
   iex> Transport.SearchCommunes.get_num("Ajaccio 2C004")
   "2"
   """
+  @spec get_num(binary()) :: binary()
   def get_num(term) do
     case Regex.run(~r/\d([A,B])?\d*/, term) do
       nil -> ""
@@ -92,14 +95,17 @@ defmodule Transport.SearchCommunes do
   iex> Transport.SearchCommunes.search_insee(%{nom: "paris", insee: "75116"}, "85")
   false
   """
+  @spec search_insee(map(), binary) :: boolean
   def search_insee(_, ""), do: true
 
   def search_insee(%{insee: insee}, n) do
     String.starts_with?(insee, n)
   end
 
+  @spec make_search_struct(%{nom: binary()}) :: %{nom: binary(), normalized_nom: binary()}
   def make_search_struct(%{nom: nom} = s), do: Map.put(s, :normalized_nom, normalize_alpha(nom))
 
+  @spec load_communes :: [Commune.t]
   defp load_communes do
     Commune
     |> select([:nom, :insee])

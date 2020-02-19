@@ -7,6 +7,7 @@ defmodule Mix.Tasks.Transport.ImportAom do
   alias Ecto.Changeset
   alias DB.{AOM, Region, Repo}
 
+  @spec to_int(binary()) :: number()
   def to_int(str) do
     str
     |> String.replace(",", "")
@@ -15,6 +16,7 @@ defmodule Mix.Tasks.Transport.ImportAom do
     |> String.to_integer()
   end
 
+  @spec changeset(AOM.t(), map()) :: Changeset.t()
   def changeset(aom, line) do
     Changeset.change(aom, %{
       composition_res_id: to_int(line["Id réseau"]),
@@ -32,6 +34,7 @@ defmodule Mix.Tasks.Transport.ImportAom do
     })
   end
 
+  @spec normalize_region(binary()) :: binary()
   defp normalize_region("Grand-Est"), do: "Grand Est"
   defp normalize_region("Provence-Alpes-Côte-d'Azur"), do: "Région Sud — Provence-Alpes-Côte d’Azur"
   defp normalize_region("Nouvelle Aquitaine"), do: "Nouvelle-Aquitaine"
