@@ -27,6 +27,8 @@ defmodule TransportWeb.API.Router do
 
     get("/openapi", OpenApiSpex.Plug.RenderSpec, :show)
 
+    get("/places", TransportWeb.API.PlacesController, :autocomplete)
+
     scope "/datasets" do
       get("/", TransportWeb.API.DatasetController, :datasets)
       get("/:id", TransportWeb.API.DatasetController, :by_id)
