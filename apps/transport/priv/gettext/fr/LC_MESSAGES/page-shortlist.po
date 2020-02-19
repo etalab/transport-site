@@ -206,10 +206,6 @@ msgid "Search results"
 msgstr "Résultats de recherche"
 
 #, elixir-format
-msgid "More information about realtime %{realtime_link}"
-msgstr "Plus d'informations et d'autres jeux de données temps réel %{realtime_link}"
-
-#, elixir-format
 msgid "here"
 msgstr "ici"
 
@@ -248,3 +244,43 @@ msgstr "Il n'y a pas de données disponibles pour la ville %{name}"
 #, elixir-format
 msgid "There is no data for region %{name}"
 msgstr "Il n'y a pas de données disponibles pour la région %{name}"
+
+#, elixir-format
+msgid " created by OpenStreetMap France when the BAN was not fully open data."
+msgstr " crée par OpenStreetMap France quand la BAN n'était pas encore complétement ouverte"
+
+#, elixir-format
+msgid ": the 'official' one, produced by the Institut géographique national (IGN), La Poste, Etalab and various administrations"
+msgstr ": le jeu de données officiel, produit par l'Institut géographique national (IGN), La Poste, Etalab et diverses administrations"
+
+#, elixir-format
+msgid "Here are the datasets for the aom %{aom} located in %{region}"
+msgstr ""
+
+#, elixir-format
+msgid "Here are the datasets for the city of "
+msgstr ""
+
+#, elixir-format
+msgid "More information about realtime"
+msgstr "Plus d'informations et d'autres jeux de données temps réel"
+
+#, elixir-format
+msgid "There are 2 open data datasets for addresses:"
+msgstr "Il y a 2 jeux de données open data pour les adresses :"
+
+#, elixir-format, fuzzy
+msgid "Datasets for the aom %{aom}, located in %{region}"
+msgstr "Jeux de données de l'AOM %{aom} de la région %{region}"
+
+#, elixir-format
+msgid "Datasets for the city %{name}"
+msgstr "Jeux de données de la commune de %{name}"
+
+#, elixir-format
+msgid "Datasets for the region "
+msgstr "Jeux de données de la région "
+
+#, elixir-format
+msgid "Datasets for the region %{region}"
+msgstr "Jeux de données de la région %{region}"

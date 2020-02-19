@@ -19,8 +19,9 @@ defmodule TransportWeb.DatasetController do
     |> assign(:types, get_types(params))
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
-    |> put_special_message(params)
     |> put_empty_message(params)
+    |> put_custom_context(params)
+    |> put_page_title(params)
     |> render("index.html")
   end
 
@@ -77,10 +78,16 @@ defmodule TransportWeb.DatasetController do
   end
 
   defp by_territory(conn, territory, params, error_msg) do
-    if Repo.exists?(territory) do
-      list_datasets(conn, params)
-    else
-      error_page(conn, error_msg)
+    territory
+    |> Repo.one()
+    |> case do
+      nil ->
+        error_page(conn, error_msg)
+
+      territory ->
+        conn
+        |> assign(:territory, territory)
+        |> list_datasets(params)
     end
   rescue
     Ecto.Query.CastError -> error_page(conn, error_msg)
@@ -172,30 +179,6 @@ defmodule TransportWeb.DatasetController do
     redirect_to_slug_or_404(conn, Repo.get_by(Dataset, datagouv_id: slug_or_id))
   end
 
-  @spec put_special_message(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  defp put_special_message(conn, %{"filter" => "has_realtime", "page" => page})
-       when page != 1,
-       do: conn
-
-  defp put_special_message(conn, %{"filter" => "has_realtime"}) do
-    realtime_link =
-      "page-shortlist"
-      |> dgettext("here")
-      |> link(to: page_path(conn, :real_time))
-      |> safe_to_string()
-
-    message =
-      dgettext(
-        "page-shortlist",
-        "More information about realtime %{realtime_link}",
-        realtime_link: realtime_link
-      )
-
-    assign(conn, :special_message, raw(message))
-  end
-
-  defp put_special_message(conn, _params), do: conn
-
   @spec get_name(Ecto.Queryable.t(), binary()) :: binary()
   defp get_name(territory, id) do
     territory
@@ -234,4 +217,42 @@ defmodule TransportWeb.DatasetController do
   end
 
   defp put_empty_message(conn, _params), do: conn
+
+  @spec put_custom_context(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  defp put_custom_context(conn, %{"filter" => "has_realtime"}), do: assign(conn, :custom_context, "_realtime.html")
+  defp put_custom_context(conn, %{"type" => "addresses"}), do: assign(conn, :custom_context, "_addresses.html")
+  defp put_custom_context(conn, _), do: conn
+
+  defp put_page_title(conn, %{"region" => id}),
+    do:
+      assign(
+        conn,
+        :page_title,
+        dgettext("page-shortlist", "Datasets for the region %{region}", region: get_name(Region, id))
+      )
+
+  defp put_page_title(conn, %{"insee_commune" => insee}) do
+    name = Repo.get_by!(Commune, insee: insee).nom
+
+    assign(
+      conn,
+      :page_title,
+      dgettext("page-shortlist", "Datasets for the city %{name}", name: name)
+    )
+  end
+
+  defp put_page_title(conn, %{"aom" => id}) do
+    aom = AOM |> preload(:region) |> Repo.get!(id)
+
+    assign(
+      conn,
+      :page_title,
+      dgettext("page-shortlist", "Datasets for the aom %{aom}, located in %{region}",
+        aom: aom.nom,
+        region: aom.region.nom
+      )
+    )
+  end
+
+  defp put_page_title(conn, _), do: conn
 end
