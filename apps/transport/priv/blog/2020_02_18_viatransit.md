@@ -13,5 +13,7 @@ Pionnier de l'information voyageur en temps réel à Montpellier, leur applicati
 
 Cette application locale et interactive propose aux utilisateurs de voter pour les nouvelles villes à intégrer.
 C'est cepandant par la publication de nouveaux jeux de données théorique et temps réel sur transport.data.gouv.fr que la plateforme peut élargir sa couverture et diversifier son offre.
+Les utilisateurs font également des demandes sur les types de données à inclure dans l'application : vélo en libre service, aires de co-voiturage etc. Des données qui sont accessibles sur la plateforme dans un format qui peut être directement exploité dans des calculateurs d'itinéraires.
 
-➡ A venir : intégration des perturbations sur les réseaux et déploiement à Paris.
+
+➡ A venir : intégration des perturbations sur les réseaux, déploiement à Paris, disponibilité en temps réel des vélos
