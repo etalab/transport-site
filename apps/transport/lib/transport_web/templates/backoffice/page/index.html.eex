@@ -1,21 +1,19 @@
 <section class="dataset-container">
   <%= render("_form_dataset.html", conn: @conn, regions: @regions, dataset_types: @dataset_types, dataset: @conn.assigns[:dataset]) %>
-
-  <h1><%= dgettext("backoffice", "Valid datasets available") %></h1>
-
+  <h1>
+    <a name="list_datasets" href="#list_datasets" class="anchor"></a>
+    <%= dgettext("backoffice", "Valid datasets available") %>
+  </h1>
   <%= form_for @conn, backoffice_page_path(@conn, :index), [method: "get"], fn f -> %>
-    <%= search_input f, :q, [value: assigns[:q] || "", placeholder: dgettext("page-index", "Find dataset")] %>
-  <% end %>
-
-  <%= form_for @conn, backoffice_dataset_path(@conn, :validate_all), [method: "post"], fn _f -> %>
-    <%= submit dgettext("backoffice", "Import and validate all") %>
-  <% end %>
-
-  <%= pagination_links @conn, @datasets %>
-
-  <table class="backoffice-datasets">
+  <%= search_input f, :q, [value: assigns[:q] || "", placeholder: dgettext("page-index", "Find dataset")] %>
+<% end %>
+<%= form_for @conn, backoffice_dataset_path(@conn, :validate_all), [method: "post"], fn _f -> %>
+<%= submit dgettext("backoffice", "Import and validate all") %>
+<% end %>
+<%= pagination_links @conn, @datasets %>
+<table class="backoffice-datasets">
   <tr>
-    <th>Territoire</th>
+    <th>Dataset</th>
     <th>Fin de validité</th>
     <th></th>
     <th></th>
@@ -26,14 +24,23 @@
     <th>Commune principale</th>
   </tr>
   <%= render_many(@datasets, TransportWeb.Backoffice.PageView, "_dataset.html", as: :dataset, conn: @conn)%>
-  </table>
-  <%= pagination_links @conn, @datasets %>
-  <br>
-  <%= if is_nil(@conn.params["filter"]) or @conn.params["filter"] == "" do %>
-    <%= link(dgettext("backoffice", "Show outdated datasets only"), to: backoffice_page_path(@conn, :index, %{"filter" => "outdated"}))%>
-    <%= link(dgettext("backoffice", "Show datasets with unidentified resources"), to: backoffice_page_path(@conn, :index, %{"filter" => "other_resources"}))%>
-  <% else %>
-    <%= link(dgettext("backoffice", "Show all datasets"), to: backoffice_page_path(@conn, :index))%>
-  <% end %>
+</table>
+<%= pagination_links @conn, @datasets %>
+<br>
+<%= if is_nil(@conn.params["filter"]) or @conn.params["filter"] == "" do %>
+  <a class="button" href="<%= backoffice_page_path(@conn, :index, %{"filter" => "outdated"}) %>#list_datasets">
+    <%= dgettext("backoffice", "Show outdated datasets only") %>
+  </a>
+  <a class="button" href="<%= backoffice_page_path(@conn, :index, %{"filter" => "other_resources"}) %>#list_datasets">
+    <%= dgettext("backoffice", "Show datasets with unidentified resources") %>
+  </a>
+  <a class="button" href="<%= backoffice_page_path(@conn, :index, %{"filter" => "not_compliant"}) %>#list_datasets">
+    <%= dgettext("backoffice", "Show datasets not compliant to spec") %>
+  </a>
+<% else %>
+  <a class="button" href="<%= backoffice_page_path(@conn, :index) %>#list_datasets">
+    <%= dgettext("backoffice", "Show all datasets") %>
+  </a>
+<% end %>
 </section>
 <script src="js/app.js"></script>
