@@ -27,6 +27,7 @@ defmodule Mailjet.Client do
   @spec send_mail(binary, binary, binary, binary, binary, boolean) :: {:error, any} | {:ok, any}
   def send_mail(from_name, from_email, reply_to, topic, body, true) do
     Logger.debug(fn -> "payload: #{payload!(from_name, from_email, reply_to, topic, body)}" end)
+    {:ok, body}
   end
 
   def send_mail(from_name, from_email, reply_to, topic, body, false) do
