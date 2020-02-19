@@ -179,7 +179,8 @@ defmodule Transport.DataChecker do
       "contact@transport.beta.gouv.fr",
       "contact@transport.beta.gouv.fr",
       "Jeux de données qui disparaissent",
-      make_inactive_dataset_body(reactivated_datasets, inactive_datasets)
+      make_inactive_dataset_body(reactivated_datasets, inactive_datasets),
+      false
     )
   end
 end

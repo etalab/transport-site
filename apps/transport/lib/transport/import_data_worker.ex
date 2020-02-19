@@ -9,6 +9,7 @@ defmodule Transport.ImportDataWorker do
 
   ## API ##
 
+  @spec all :: :ok
   def all do
     Dataset
     |> Repo.all()
@@ -47,6 +48,7 @@ defmodule Transport.ImportDataWorker do
 
   ## Private
 
+  @spec queue_validations(Dataset.t()) :: :ok
   defp queue_validations(dataset) do
     dataset
     |> Repo.preload(:resources)

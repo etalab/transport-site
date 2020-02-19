@@ -8,14 +8,17 @@ defmodule Transport.CSVDocuments do
     Agent.start_link(fn -> load_documents() end, name: __MODULE__)
   end
 
+  @spec real_time_providers :: [binary()]
   def real_time_providers do
     Agent.get(__MODULE__, & &1.real_time_providers)
   end
 
+  @spec reusers :: [binary()]
   def reusers do
     Agent.get(__MODULE__, & &1.reusers)
   end
 
+  @spec load_documents :: map()
   defp load_documents do
     %{
       real_time_providers: read_csv("real_time_providers.csv"),
@@ -23,6 +26,7 @@ defmodule Transport.CSVDocuments do
     }
   end
 
+  @spec read_csv(binary()) :: [[binary()]]
   defp read_csv(filename) do
     (Application.app_dir(:transport, "priv") <> "/#{filename}")
     |> File.stream!()

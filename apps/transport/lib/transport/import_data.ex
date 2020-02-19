@@ -10,8 +10,10 @@ defmodule Transport.ImportData do
   require Logger
   import Ecto.Query
 
+  @spec all :: [{:ok, Ecto.Schema.t()} | {:error, any}]
   def all, do: Dataset |> Repo.all() |> Enum.map(&call/1)
 
+  @spec import_validate_all :: :ok
   def import_validate_all do
     all()
     Resource.validate_and_save_all()
@@ -90,6 +92,7 @@ defmodule Transport.ImportData do
       "logo"
 
   """
+  @spec get_logo(map()) :: binary()
   def get_logo(%{"organization" => %{"logo" => logo}}), do: logo
   def get_logo(%{"owner" => %{"avatar" => logo}}), do: logo
   def get_logo(_), do: nil
@@ -106,13 +109,16 @@ defmodule Transport.ImportData do
       "logo"
 
   """
+  @spec get_logo_thumbnail(map()) :: binary()
   def get_logo_thumbnail(%{"organization" => %{"logo_thumbnail" => logo}}), do: logo
   def get_logo_thumbnail(%{"owner" => %{"avatar_thumbnail" => logo}}), do: logo
   def get_logo_thumbnail(_), do: nil
 
+  @spec get_nb_reuses(map()) :: number()
   def get_nb_reuses(%{"metrics" => %{"reuses" => reuses}}), do: reuses
   def get_nb_reuses(_), do: 0
 
+  @spec get_associated_zones_insee(map()) :: [binary()]
   defp get_associated_zones_insee(%{"spatial" => %{"zones" => zones}}) do
     zones
     |> Enum.flat_map(&fetch_data_gouv_zone_insee/1)
@@ -120,6 +126,7 @@ defmodule Transport.ImportData do
 
   defp get_associated_zones_insee(_), do: []
 
+  @spec fetch_data_gouv_zone_insee(binary()) :: [binary()]
   defp fetch_data_gouv_zone_insee(zone) do
     base_url = Application.get_env(:transport, :datagouvfr_site)
     url = "#{base_url}/api/1/spatial/zones/#{zone}"
@@ -136,6 +143,7 @@ defmodule Transport.ImportData do
     end
   end
 
+  @spec read_datagouv_zone(map()) :: [binary()]
   defp read_datagouv_zone(%{
          "features" => [
            %{
@@ -186,8 +194,8 @@ defmodule Transport.ImportData do
     []
   end
 
-  def get_dataset(_), do: {:error, "Dataset needs to be a map"}
 
+  @spec get_resources(map(), binary()) :: [map()]
   def get_resources(dataset, type) do
     dataset
     |> get_valid_resources(type)
@@ -208,6 +216,7 @@ defmodule Transport.ImportData do
     end)
   end
 
+  @spec available?(map()) :: boolean
   def available?(%{"extras" => %{"check:available" => available}}), do: available
   def available?(%{"url" => "https://static.data.gouv.fr/" <> _}), do: true
   def available?(%{"url" => "https://next.data.gouv.fr/" <> _}), do: true
@@ -221,6 +230,7 @@ defmodule Transport.ImportData do
     end
   end
 
+  @spec get_valid_resources(map(), binary()) :: [map()]
   def get_valid_resources(%{"resources" => resources}, type) do
     if type == "public-transit" do
       resources
@@ -232,7 +242,8 @@ defmodule Transport.ImportData do
     end
   end
 
-  def get_valid_gtfs_resources(resources) when is_list(resources) do
+  @spec get_valid_gtfs_resources([map()]) :: [map()]
+  def get_valid_gtfs_resources(resources) do
     cond do
       !Enum.empty?(l = Enum.filter(resources, &is_gtfs?/1)) -> l
       !Enum.empty?(l = Enum.filter(resources, &is_zip?/1)) -> l
@@ -241,13 +252,11 @@ defmodule Transport.ImportData do
     end
   end
 
-  def get_valid_netex_resources(resources) when is_list(resources) do
-    Enum.filter(resources, &is_netex?/1)
-  end
+  @spec get_valid_netex_resources([map()]) :: [map()]
+  def get_valid_netex_resources(resources), do: Enum.filter(resources, &is_netex?/1)
 
-  def get_valid_gtfs_rt_resources(resources) when is_list(resources) do
-    Enum.filter(resources, &is_gtfs_rt?/1)
-  end
+  @spec get_valid_gtfs_rt_resources([map()]) :: [map()]
+  def get_valid_gtfs_rt_resources(resources), do: Enum.filter(resources, &is_gtfs_rt?/1)
 
   @doc """
   Is it a gtfs file?
@@ -267,9 +276,8 @@ defmodule Transport.ImportData do
       false
 
   """
-  def is_gtfs?(%{} = params) do
-    url = params["url"]
-
+  @spec is_gtfs?(map()) :: boolean()
+  def is_gtfs?(%{"url" => url} = params) do
     cond do
       is_gtfs_rt?(params["format"]) -> false
       is_gtfs?(params["format"]) -> true
@@ -282,6 +290,7 @@ defmodule Transport.ImportData do
 
   def is_gtfs?(str), do: is_format?(str, "gtfs")
 
+  @spec is_gtfs_rt?(binary() | map()) :: boolean()
   def is_gtfs_rt?(str), do: is_format?(str, "gtfs-rt") or is_format?(str, "gtfsrt")
 
   @doc """
@@ -295,6 +304,7 @@ defmodule Transport.ImportData do
       iex> ImportData.is_format?(%{"format" => "netex"}, "netex")
       true
   """
+  @spec is_format?(binary() | map(), binary() | [binary()]) :: boolean
   def is_format?(nil, _), do: false
   def is_format?(%{"format" => format}, expected), do: is_format?(format, expected)
   def is_format?(value, [head | tail]), do: is_format?(value, head) || is_format?(value, tail)
@@ -316,11 +326,13 @@ defmodule Transport.ImportData do
       iex> ImportData.is_zip?(%{"mime" => "application/exe", "format" => nil})
       false
   """
+  @spec is_zip?(binary() | map()) :: boolean()
   def is_zip?(%{"mime" => nil, "format" => format}), do: is_zip?(format)
   def is_zip?(%{"mime" => mime, "format" => nil}), do: is_zip?(mime)
   def is_zip?(%{"mime" => mime, "format" => format}), do: is_zip?(mime) || is_zip?(format)
   def is_zip?(str), do: is_format?(str, "zip")
 
+  @spec is_netex?(binary() | map()) :: boolean()
   def is_netex?(%{} = params) do
     cond do
       is_format?(params["format"], "netex") -> true
@@ -329,9 +341,7 @@ defmodule Transport.ImportData do
     end
   end
 
-  def is_netex?(s) do
-    is_format?(s, "netex")
-  end
+  def is_netex?(s), do: is_format?(s, "netex")
 
   @doc """
   Check for licence, returns ["bad_license"] if the licence is not "odc-odbl"
@@ -349,6 +359,7 @@ defmodule Transport.ImportData do
       true
 
   """
+  @spec check_license(map()) :: boolean()
   def check_license(%{"license" => "odc-odbl"}), do: true
   def check_license(%{"license" => "fr-lo"}), do: true
   def check_license(_), do: false
@@ -365,6 +376,7 @@ defmodule Transport.ImportData do
       true
 
   """
+  @spec check_download_url(map()) :: boolean()
   def check_download_url(%{"download_url" => nil}), do: false
   def check_download_url(%{"download_url" => _}), do: true
 
@@ -376,6 +388,7 @@ defmodule Transport.ImportData do
       iex> ImportData.parse_date("2018-09-28T13:37:00")
       "2018-09-28"
   """
+  @spec parse_date(binary()) :: binary()
   def parse_date(date) when is_binary(date) do
     with {:ok, date} <- NaiveDateTime.from_iso8601(date) do
       date
@@ -403,6 +416,7 @@ defmodule Transport.ImportData do
       ...> |> ImportData.formated_format("public-transit")
       "GTFS"
   """
+  @spec formated_format(map(), binary()) :: binary()
   def formated_format(resource, type) do
     format = Map.get(resource, "format", "")
 
@@ -429,9 +443,11 @@ defmodule Transport.ImportData do
       iex> ImportData.get_title(%{"url" => "https://example.com/bus.gtfs.zip"})
       "bus.gtfs.zip"
   """
+  @spec get_title(map()) :: binary()
   def get_title(%{"title" => title}) when not is_nil(title), do: title
   def get_title(%{"url" => url}), do: Helpers.filename_from_url(url)
 
+  @spec get_resource_id(map(), binary()) :: Resource.t()
   defp get_resource_id(%{"url" => url}, dataset_id) do
     Resource
     |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
@@ -455,6 +471,7 @@ defmodule Transport.ImportData do
 
   def has_realtime?(_, _), do: {:ok, false}
 
+  @spec is_realtime?(map()) :: boolean
   def is_realtime?(%{"format" => "gtfs-rt"}), do: true
   def is_realtime?(_), do: false
 end
