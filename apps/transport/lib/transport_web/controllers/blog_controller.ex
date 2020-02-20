@@ -1,6 +1,7 @@
 defmodule TransportWeb.BlogController do
   use TransportWeb, :controller
 
+  @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params) do
     articles =
       "????_??_??_*"
@@ -12,6 +13,7 @@ defmodule TransportWeb.BlogController do
     render(conn, "index.html", articles: articles)
   end
 
+  @spec page(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def page(conn, %{"page" => page}) do
     filename = make_path(page)
 
@@ -20,6 +22,7 @@ defmodule TransportWeb.BlogController do
     |> render("article.html")
   end
 
+  @spec read_file(binary()) :: map()
   defp read_file(path) do
     {header, title, image_path, _} =
       path
@@ -52,9 +55,11 @@ defmodule TransportWeb.BlogController do
     }
   end
 
-  def compute_image_path(path) when is_nil(path), do: nil
-  def compute_image_path(path), do: ~r/\((?<path>.*)\)/ |> Regex.run(path, capture: :all_names) |> List.first()
+  @spec compute_image_path(binary()) :: binary()
+  defp compute_image_path(path) when is_nil(path), do: nil
+  defp compute_image_path(path), do: ~r/\((?<path>.*)\)/ |> Regex.run(path, capture: :all_names) |> List.first()
 
+  @spec get_header_title_image(binary(), tuple()) :: tuple()
   defp get_header_title_image(l, {nil, nil, nil, _}), do: {[l], nil, nil, false}
   defp get_header_title_image("# " <> title, {h, nil, _, _}), do: {h, title, nil, false}
   defp get_header_title_image("![" <> image, {h, t, nil, _}), do: {h, t, image, false}
@@ -62,5 +67,6 @@ defmodule TransportWeb.BlogController do
   defp get_header_title_image(_l, {h, t, i, _}) when not is_nil(i) and not is_nil(t), do: {h, t, i, true}
   defp get_header_title_image(_l, {h, t, i, _}), do: {h, t, i, false}
 
+  @spec make_path(binary()) :: binary()
   defp make_path(filename), do: Path.join([:code.priv_dir(:transport), "blog", filename <> ".md"])
 end

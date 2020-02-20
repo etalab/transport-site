@@ -3,6 +3,7 @@ defmodule TransportWeb.AtomController do
   alias DB.{Repo, Resource}
   import Ecto.Query
 
+  @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params) do
     resources =
       Resource

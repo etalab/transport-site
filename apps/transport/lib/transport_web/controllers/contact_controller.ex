@@ -3,6 +3,7 @@ defmodule TransportWeb.ContactController do
   alias Mailjet.Client
   require Logger
 
+  @spec send_mail(Plug.Conn.t(), map()) :: {:error, any} | Plug.Conn.t()
   def send_mail(conn, %{"email" => email, "topic" => topic, "demande" => demande} = params) do
     case Client.send_mail("PAN, Formulaire Contact", "contact@transport.beta.gouv.fr", email, topic, demande, false) do
       {:ok, _} ->
@@ -17,5 +18,11 @@ defmodule TransportWeb.ContactController do
     end
   end
 
-  def send_mail(_, params), do: Logger.error("Bad parameters for sending email #{params}")
+  def send_mail(conn, params) do
+    Logger.error("Bad parameters for sending email #{params}")
+
+    conn
+    |> put_flash(:error, gettext("There has been an error, try again later"))
+    |> redirect(to: params["redirect_path"] || page_path(conn, :index))
+  end
 end

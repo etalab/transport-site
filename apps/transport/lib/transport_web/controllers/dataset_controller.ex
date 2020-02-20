@@ -8,8 +8,10 @@ defmodule TransportWeb.DatasetController do
   import Phoenix.HTML.Link
   require Logger
 
+  @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params)
 
+  @spec list_datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def list_datasets(%Plug.Conn{} = conn, %{} = params) do
     conn
     |> assign(:datasets, get_datasets(params))
@@ -50,64 +52,41 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
+  @spec by_aom(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def by_aom(%Plug.Conn{} = conn, %{"aom" => id} = params) do
     error_msg = dgettext("errors", "AOM %{id} does not exist", id: id)
-
-    try do
-      AOM
-      |> where([a], a.id == ^id)
-      |> Repo.exists?()
-      |> case do
-        false ->
-          error_page(conn, error_msg)
-
-        true ->
-          list_datasets(conn, params)
-      end
-    rescue
-      Ecto.Query.CastError -> error_page(conn, error_msg)
-    end
+    by_territory(conn, AOM |> where([a], a.id == ^id), params, error_msg)
   end
 
+  @spec by_region(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def by_region(%Plug.Conn{} = conn, %{"region" => id} = params) do
     error_msg = dgettext("errors", "Region %{id} does not exist", id: id)
-
-    try do
-      Region
-      |> where([r], r.id == ^id)
-      |> Repo.exists?()
-      |> case do
-        false ->
-          error_page(conn, error_msg)
-
-        true ->
-          list_datasets(conn, params)
-      end
-    rescue
-      Ecto.Query.CastError -> error_page(conn, error_msg)
-    end
+    by_territory(conn, Region |> where([r], r.id == ^id), params, error_msg)
   end
 
+  @spec by_commune_insee(Plug.Conn.t(), map) :: Plug.Conn.t()
   def by_commune_insee(%Plug.Conn{} = conn, %{"insee_commune" => insee} = params) do
-    Commune
-    |> where([c], c.insee == ^insee)
-    |> Repo.exists?()
-    |> case do
-      false ->
-        message =
-          dgettext(
-            "errors",
-            "Impossible to find a city with the insee code %{insee}",
-            insee: insee
-          )
+    error_msg =
+      dgettext(
+        "errors",
+        "Impossible to find a city with the insee code %{insee}",
+        insee: insee
+      )
 
-        error_page(conn, message)
-
-      true ->
-        list_datasets(conn, params)
-    end
+    by_territory(conn, Commune |> where([c], c.insee == ^insee), params, error_msg)
   end
 
+  defp by_territory(conn, territory, params, error_msg) do
+    if Repo.exists?(territory) do
+      error_page(conn, error_msg)
+    else
+      list_datasets(conn, params)
+    end
+  rescue
+    Ecto.Query.CastError -> error_page(conn, error_msg)
+  end
+
+  @spec error_page(Plug.Conn.t(), binary()) :: Plug.Conn.t()
   defp error_page(conn, msg) do
     conn
     |> put_status(:not_found)
@@ -116,6 +95,7 @@ defmodule TransportWeb.DatasetController do
     |> render("404.html")
   end
 
+  @spec get_datasets(map()) :: Scrivener.Page.t()
   defp get_datasets(params) do
     config = make_pagination_config(params)
 
@@ -125,8 +105,10 @@ defmodule TransportWeb.DatasetController do
     |> Repo.paginate(page: config.page_number)
   end
 
+  @spec clean_datasets_query(map()) :: Ecto.Query.t()
   defp clean_datasets_query(params), do: params |> Dataset.list_datasets() |> exclude(:preload)
 
+  @spec get_regions(map()) :: [Region.t()]
   defp get_regions(%{"tags" => _tags}) do
     # for tags, we do not filter the datasets since it causes a non valid sql query
     sub =
@@ -160,6 +142,7 @@ defmodule TransportWeb.DatasetController do
     |> Repo.all()
   end
 
+  @spec get_types(map()) :: [%{type: binary(), msg: binary()}]
   defp get_types(params) do
     params
     |> clean_datasets_query()
@@ -172,9 +155,7 @@ defmodule TransportWeb.DatasetController do
     |> Enum.reject(fn t -> is_nil(t.msg) end)
   end
 
-  defp redirect_to_slug_or_404(conn, %Dataset{} = dataset) do
-    redirect(conn, to: dataset_path(conn, :details, dataset.slug))
-  end
+  @spec redirect_to_slug_or_404(Plug.Conn.t(), number() | binary()) :: Plug.Conn.t()
 
   defp redirect_to_slug_or_404(conn, nil) do
     conn
@@ -191,6 +172,7 @@ defmodule TransportWeb.DatasetController do
     redirect_to_slug_or_404(conn, Repo.get_by(Dataset, datagouv_id: slug_or_id))
   end
 
+  @spec put_special_message(Plug.Conn.t(), map()) :: Plug.Conn.t()
   defp put_special_message(conn, %{"filter" => "has_realtime", "page" => page})
        when page != 1,
        do: conn
@@ -214,56 +196,41 @@ defmodule TransportWeb.DatasetController do
 
   defp put_special_message(conn, _params), do: conn
 
-  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
-         "aom" => id
-       }) do
-    name =
-      case Repo.get(AOM, id) do
-        nil -> id
-        a -> a.nom
-      end
-
-    message = dgettext("page-shortlist", "AOM %{name} has not yet published any datasets", name: name)
-
-    conn
-    |> assign(:empty_message, raw(message))
+  @spec get_name(Ecto.Queryable.t(), binary()) :: binary()
+  defp get_name(territory, id) do
+    territory
+    |> Repo.get(id)
+    |> case do
+      nil -> id
+      t -> t.nom
+    end
   end
 
-  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
-         "region" => id
-       }) do
-    name =
-      case Repo.get(Region, id) do
-        nil -> id
-        a -> a.nom
-      end
-
-    message = dgettext("page-shortlist", "There is no data for region %{name}", name: name)
-
-    conn
-    |> assign(:empty_message, raw(message))
+  @spec empty_message_by_territory(map()) :: binary()
+  defp empty_message_by_territory(%{"aom" => id}) do
+    dgettext("page-shortlist", "AOM %{name} has not yet published any datasets", name: get_name(AOM, id))
   end
 
-  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, %{
-         "insee_commune" => insee
-       }) do
+  defp empty_message_by_territory(%{"region" => id}) do
+    dgettext("page-shortlist", "There is no data for region %{name}", name: get_name(Region, id))
+  end
+
+  defp empty_message_by_territory(%{"insee_commune" => insee}) do
     name =
       case Repo.get_by(Commune, insee: insee) do
         nil -> insee
         a -> a.nom
       end
 
-    message = dgettext("page-shortlist", "There is no data for city %{name}", name: name)
-
-    conn
-    |> assign(:empty_message, raw(message))
+    dgettext("page-shortlist", "There is no data for city %{name}", name: name)
   end
 
-  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, _params) do
-    message = dgettext("page-shortlist", "No dataset found")
+  defp empty_message_by_territory(_params), do: dgettext("page-shortlist", "No dataset found")
 
-    conn
-    |> assign(:empty_message, raw(message))
+  @spec put_empty_message(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, params) do
+    message = empty_message_by_territory(params)
+    assign(conn, :empty_message, raw(message))
   end
 
   defp put_empty_message(conn, _params), do: conn
