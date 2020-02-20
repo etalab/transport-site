@@ -33,12 +33,12 @@ defmodule TransportWeb.API.Router do
     end
   end
 
-  def swagger_info do
-    %{
+  @spec swagger_info :: %{info: %{title: binary(), version: binary()}}
+  def swagger_info,
+    do: %{
       info: %{
         version: "1.0",
         title: "Transport.data.gouv.fr API"
       }
     }
-  end
 end
