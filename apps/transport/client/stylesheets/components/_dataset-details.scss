@@ -259,9 +259,11 @@
 }
 
 .mapcsv {
-  width: 50%;
+  width: 90%;
+  max-width: 700px;
   height: 400px;
   margin: 0 auto;
   margin-top: 48px;
   margin-bottom: 12px;
+  z-index:0;
 }

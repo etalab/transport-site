@@ -3,6 +3,7 @@ defmodule TransportWeb.Backoffice.PartnerController do
   alias DB.{Partner, Repo}
   require Logger
 
+  @spec partners(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def partners(%Plug.Conn{} = conn, params) do
     config = make_pagination_config(params)
     partners = Repo.paginate(Partner, page: config.page_number)
@@ -12,10 +13,12 @@ defmodule TransportWeb.Backoffice.PartnerController do
     |> render("partners.html")
   end
 
+  @spec post_partner(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def post_partner(%Plug.Conn{} = conn, %{"id" => partner_id, "action" => "delete"}) do
-    partner = Repo.get(Partner, partner_id)
-
-    case Repo.delete(partner) do
+    Partner
+    |> Repo.get(partner_id)
+    |> Repo.delete()
+    |> case do
       {:ok, _} ->
         conn
         |> put_flash(:info, dgettext("backoffice", "Partner deleted"))

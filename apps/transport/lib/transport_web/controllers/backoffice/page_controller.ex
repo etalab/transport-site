@@ -7,6 +7,7 @@ defmodule TransportWeb.Backoffice.PageController do
 
   ## Controller functions
 
+  @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do
     conn = assign(conn, :q, q)
 
@@ -72,6 +73,7 @@ defmodule TransportWeb.Backoffice.PageController do
   def index(%Plug.Conn{} = conn, params), do: render_index(Dataset, conn, params)
 
   ## Private functions
+  @spec render_index(Ecto.Queryable.t(), Plug.Conn.t(), map()) :: Plug.Conn.t()
   defp render_index(datasets, conn, params) do
     config = make_pagination_config(params)
 
