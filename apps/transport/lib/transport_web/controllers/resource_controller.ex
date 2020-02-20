@@ -68,7 +68,7 @@ defmodule TransportWeb.ResourceController do
     with {:ok, _} <- Resources.update(conn, params),
          dataset when not is_nil(dataset) <- Repo.get_by(Dataset, datagouv_id: params["dataset_id"]),
          {:ok, _} <- ImportData.call(dataset),
-         :ok <- Dataset.validate(dataset) do
+         {:ok, _} <- Dataset.validate(dataset) do
       conn
       |> put_flash(:info, success_message)
       |> redirect(to: dataset_path(conn, :details, params["dataset_id"]))

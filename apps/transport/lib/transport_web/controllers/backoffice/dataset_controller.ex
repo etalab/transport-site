@@ -6,6 +6,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
   alias Transport.{ImportData, ImportDataWorker}
   require Logger
 
+  @spec post(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def post(%Plug.Conn{} = conn, params) do
     msgs = %{
       success: %{
@@ -42,6 +43,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
     |> redirect_to_index()
   end
 
+  @spec insert_dataset(Ecto.Changeset.t()) :: {:ok, binary} | {:error, binary}
   defp insert_dataset(changeset) do
     Repo.insert_or_update(changeset)
   rescue
@@ -52,6 +54,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
        a constraint has not been respected : '#{exception.constraint}'"}
   end
 
+  @spec import_from_data_gouv_fr(Plug.Conn.t(), map) :: Plug.Conn.t()
   def import_from_data_gouv_fr(%Plug.Conn{} = conn, %{"id" => id}) do
     Dataset
     |> Repo.get(id)
@@ -64,6 +67,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
     |> redirect_to_index()
   end
 
+  @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(%Plug.Conn{} = conn, %{"id" => id}) do
     Dataset
     |> Repo.get(id)
@@ -76,6 +80,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
     |> redirect_to_index()
   end
 
+  @spec validate_all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def validate_all(%Plug.Conn{} = conn, _args) do
     ImportDataWorker.all()
 
@@ -86,6 +91,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
 
   ## Private functions
 
+  @spec flash(:ok | {:ok, any} | {:error, any}, Plug.Conn.t(), binary, binary) :: Plug.Conn.t()
   defp flash({:ok, _message}, conn, ok_message, err_message), do: flash(:ok, conn, ok_message, err_message)
   defp flash(:ok, conn, ok_message, _err_message), do: put_flash(conn, :info, ok_message)
 
@@ -97,10 +103,9 @@ defmodule TransportWeb.Backoffice.DatasetController do
 
   defp flash({:error, message}, conn, _ok, err), do: put_flash(conn, :error, "#{err} (#{message})")
 
-  defp import_data(%Dataset{} = dataset), do: import_data({:ok, dataset})
+  @spec import_data(Dataset.t() | nil) :: any()
+  defp import_data(%Dataset{} = dataset), do: ImportData.call(dataset)
   defp import_data(nil), do: {:error, dgettext("backoffice", "Unable to find dataset")}
-  defp import_data({:ok, dataset}), do: ImportData.call(dataset)
-  defp import_data(error), do: error
 
   defp redirect_to_index(conn),
     do: redirect(conn, to: backoffice_page_path(conn, :index, conn.params |> Map.take(["q"])))
