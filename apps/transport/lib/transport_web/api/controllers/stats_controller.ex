@@ -121,6 +121,21 @@ defmodule TransportWeb.API.StatsController do
     end
   end
 
+  defmacro count_type_by_region(region_id, type) do
+    quote do
+      fragment(
+        """
+        SELECT COUNT(*) FROM dataset
+        JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
+        WHERE d_geo.region_id = ?
+        AND type = '?'
+        """,
+        unquote(region_id),
+        unquote(type)
+      )
+    end
+  end
+
   @spec aom_features :: Ecto.Query.t()
   defp aom_features do
     AOM
@@ -148,65 +163,41 @@ defmodule TransportWeb.API.StatsController do
   end
 
   def index(%Plug.Conn{} = conn, _params) do
-    render(
-      conn,
-      %{data: aom_features() |> features() |> geojson()}
-    )
+    render(conn, %{data: aom_features() |> features() |> geojson()})
+  end
+
+  @spec region_features :: Ecto.Query.t()
+  defp region_features do
+    Region
+    |> select([r], %{
+      geometry: r.geom,
+      id: r.id,
+      nom: r.nom,
+      is_completed: r.is_completed,
+      nb_datasets:
+        fragment(
+          """
+          SELECT COUNT(*) FROM dataset
+          JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
+          WHERE d_geo.region_id = ?
+          """,
+          r.id
+        ),
+      dataset_formats: %{
+        gtfs: count_region_format(r.id, "GTFS"),
+        netex: count_region_format(r.id, "netex"),
+        gtfs_rt: count_region_format(r.id, "gtfs-rt"),
+        gbfs: count_region_format(r.id, "gbfs")
+      },
+      dataset_types: %{
+        pt: count_type_by_region(r.id, "public-transit"),
+        bike_sharing: count_type_by_region(r.id, "bike-sharing")
+      }
+    })
   end
 
   def regions(%Plug.Conn{} = conn, _params) do
-    render(conn, %{
-      data:
-        geojson(
-          features(
-            from(r in Region,
-              select: %{
-                geometry: r.geom,
-                id: r.id,
-                nom: r.nom,
-                is_completed: r.is_completed,
-                nb_datasets:
-                  fragment(
-                    """
-                    SELECT COUNT(*) FROM dataset
-                    JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
-                    WHERE d_geo.region_id = ?
-                    """,
-                    r.id
-                  ),
-                dataset_formats: %{
-                  gtfs: count_region_format(r.id, "GTFS"),
-                  netex: count_region_format(r.id, "netex"),
-                  gtfs_rt: count_region_format(r.id, "gtfs-rt"),
-                  gbfs: count_region_format(r.id, "gbfs")
-                },
-                dataset_types: %{
-                  pt:
-                    fragment(
-                      """
-                      SELECT COUNT(*) FROM dataset
-                      JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
-                      WHERE d_geo.region_id = ?
-                      AND type = 'public-transit'
-                      """,
-                      r.id
-                    ),
-                  bike_sharing:
-                    fragment(
-                      """
-                      SELECT COUNT(*) FROM dataset
-                      JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
-                      WHERE d_geo.region_id = ?
-                      AND type = 'bike-sharing'
-                      """,
-                      r.id
-                    )
-                }
-              }
-            )
-          )
-        )
-    })
+    render(conn, %{data: region_features() |> features() |> geojson()})
   end
 
   @spec bike_sharing(Plug.Conn.t(), any) :: Plug.Conn.t()
