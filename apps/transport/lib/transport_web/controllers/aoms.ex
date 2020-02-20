@@ -17,9 +17,11 @@ defmodule TransportWeb.AOMSController do
     :nombre_communes
   ]
 
+  @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params), do: render(conn, "index.html", aoms: aoms())
 
-  defp prepare_aom([aom, nom_commune]) do
+  @spec prepare_aom({AOM.t(), binary()}) :: map()
+  defp prepare_aom({aom, nom_commune}) do
     %{
       nom: aom.nom,
       departement: aom.departement,
@@ -47,7 +49,7 @@ defmodule TransportWeb.AOMSController do
     |> preload([:datasets, :region, :parent_dataset])
     |> preload(datasets: :resources)
     |> join(:left, [aom], c in Commune, on: aom.insee_commune_principale == c.insee)
-    |> select([aom, commune], [aom, commune.nom])
+    |> select([aom, commune], {aom, commune.nom})
     |> Repo.all()
     |> Enum.map(&prepare_aom/1)
   end
