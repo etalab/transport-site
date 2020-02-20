@@ -57,6 +57,7 @@ defmodule TransportWeb.API.StatsController do
       "features" => features
     }
 
+  @spec nb_non_standard_rt(binary()) :: non_neg_integer()
   def nb_non_standard_rt(insee_commune_principale) do
     CSVDocuments.real_time_providers()
     |> Enum.filter(fn p -> p["aom_insee_principal"] == insee_commune_principale end)
@@ -64,6 +65,7 @@ defmodule TransportWeb.API.StatsController do
     |> length
   end
 
+  @spec features(Ecto.Query.t()) :: [map()]
   def features(q) do
     q
     |> Repo.all()
@@ -136,6 +138,18 @@ defmodule TransportWeb.API.StatsController do
     end
   end
 
+  @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def index(%Plug.Conn{} = conn, _params), do: render_features(conn, aom_features())
+
+  @spec regions(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, region_features())
+
+  @spec bike_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def bike_sharing(%Plug.Conn{} = conn, _params), do: render_features(conn, bike_sharing_features())
+
+  @spec render_features(Plug.Conn.t(), Ecto.Query.t()) :: Plug.Conn.t()
+  defp render_features(conn, query), do: render(conn, %{data: query |> features() |> geojson()})
+
   @spec aom_features :: Ecto.Query.t()
   defp aom_features do
     AOM
@@ -160,10 +174,6 @@ defmodule TransportWeb.API.StatsController do
       parent_dataset_slug: dataset.slug,
       parent_dataset_name: dataset.title
     })
-  end
-
-  def index(%Plug.Conn{} = conn, _params) do
-    render(conn, %{data: aom_features() |> features() |> geojson()})
   end
 
   @spec region_features :: Ecto.Query.t()
@@ -196,29 +206,16 @@ defmodule TransportWeb.API.StatsController do
     })
   end
 
-  def regions(%Plug.Conn{} = conn, _params) do
-    render(conn, %{data: region_features() |> features() |> geojson()})
-  end
-
-  @spec bike_sharing(Plug.Conn.t(), any) :: Plug.Conn.t()
-  def bike_sharing(%Plug.Conn{} = conn, _params) do
-    render(conn, %{
-      data:
-        geojson(
-          features(
-            from(gv in DatasetGeographicView,
-              left_join: d in Dataset,
-              on: d.id == gv.dataset_id,
-              select: %{
-                geometry: gv.geom,
-                id: gv.dataset_id,
-                nom: d.spatial,
-                parent_dataset_slug: d.slug
-              },
-              where: d.type == "bike-sharing"
-            )
-          )
-        )
+  @spec bike_sharing_features :: Ecto.Query.t()
+  defp bike_sharing_features do
+    DatasetGeographicView
+    |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
+    |> select([gv, dataset], %{
+      geometry: gv.geom,
+      id: gv.dataset_id,
+      nom: dataset.spatial,
+      parent_dataset_slug: dataset.slug
     })
+    |> where([_gv, dataset], dataset.type == "bike-sharing")
   end
 end
