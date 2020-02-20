@@ -9,10 +9,12 @@ defmodule TransportWeb.API.AomController do
 
   @aom_fields [:nom, :insee_commune_principale, :departement, :forme_juridique, :siren]
 
+  @spec open_api_operation(binary()) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
-  def by_coordinates_operation do
-    %Operation{
+  @spec by_coordinates_operation :: OpenApiSpex.Operation.t()
+  def by_coordinates_operation,
+    do: %Operation{
       tags: ["aom"],
       summary: "Show AOM by coordinates",
       description: "Show covered regions",
@@ -25,8 +27,8 @@ defmodule TransportWeb.API.AomController do
         200 => Operation.response("AOM", "application/json", AOMResponse)
       }
     }
-  end
 
+  @spec by_coordinates(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def by_coordinates(conn, %{"lon" => lon, "lat" => lat}) do
     with {longitude, _} <- Float.parse(lon),
          {latitude, _} <- Float.parse(lat) do
@@ -38,8 +40,9 @@ defmodule TransportWeb.API.AomController do
 
   def by_coordinates(conn, _), do: invalid_parameters(conn)
 
-  def by_insee_operation do
-    %Operation{
+  @spec by_insee_operation :: OpenApiSpex.Operation.t()
+  def by_insee_operation,
+    do: %Operation{
       tags: ["insee"],
       summary: "Show AOM by INSEE",
       description: "Show covered regions",
@@ -51,18 +54,14 @@ defmodule TransportWeb.API.AomController do
         200 => Operation.response("AOM", "application/json", AOMResponse)
       }
     }
-  end
 
+  @spec by_insee(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def by_insee(conn, %{"insee" => insee}) do
-    query =
-      from(c in Commune,
-        left_join: a in assoc(c, :aom_res),
-        select: [map(a, @aom_fields), c],
-        where: c.insee == ^insee
-      )
-
     data =
-      query
+      Commune
+      |> join(:left, [c], a in assoc(c, :aom_res))
+      |> select([c, a], [map(a, @aom_fields), c])
+      |> where([c, a], c.insee == ^insee)
       |> Repo.one()
       |> case do
         nil -> %{"error" => "Commune not found"}
@@ -70,32 +69,29 @@ defmodule TransportWeb.API.AomController do
         [aom, _] -> aom
       end
 
-    conn =
-      if Map.has_key?(data, "error") do
-        Conn.put_status(conn, :not_found)
-      else
-        conn
-      end
+    conn = if Map.has_key?(data, "error"), do: Conn.put_status(conn, :not_found), else: conn
 
     render(conn, data: data)
   end
 
+  @spec query_by_coordinates(Plug.Conn.t(), number(), number()) :: Plug.Conn.t()
   def query_by_coordinates(conn, lon, lat) do
-    query =
-      from(a in AOM,
-        select: map(a, @aom_fields),
-        where: fragment("st_contains(geom, st_setsrid(st_point(?, ?), 4326))", ^lon, ^lat)
-      )
+    aom =
+      AOM
+      |> select([a], map(a, @aom_fields))
+      |> where([a], fragment("st_contains(geom, st_setsrid(st_point(?, ?), 4326))", ^lon, ^lat))
+      |> Repo.one()
 
-    render(conn, data: Repo.one(query))
+    render(conn, data: aom)
   end
 
-  def invalid_parameters(conn) do
-    render(conn, data: %{"error" => "The parameters lon and lat are mandatory and must be floats"})
-  end
+  @spec invalid_parameters(Plug.Conn.t()) :: Plug.Conn.t()
+  def invalid_parameters(conn),
+    do: render(conn, data: %{"error" => "The parameters lon and lat are mandatory and must be floats"})
 
-  def geojson_operation do
-    %Operation{
+  @spec geojson_operation :: OpenApiSpex.Operation.t()
+  def geojson_operation,
+    do: %Operation{
       tags: ["geojson"],
       summary: "Show geojson of AOM",
       description: "Show covered regions",
@@ -105,23 +101,21 @@ defmodule TransportWeb.API.AomController do
         200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
       }
     }
-  end
 
+  @spec geojson(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def geojson(conn, _params) do
-    query = from(a in AOM, select: [map(a, @aom_fields), a.geom])
-
     json =
-      query
+      AOM
+      |> select([a], [map(a, @aom_fields), a.geom])
       |> Repo.all()
       |> Enum.reject(fn [_, geom] -> is_nil(geom) end)
       |> Enum.map(fn [properties, geom] ->
         %{
           "type" => "Feature",
           "properties" => properties,
-          "geometry" => geom |> JSON.encode!()
+          "geometry" => JSON.encode!(geom)
         }
       end)
-      |> Enum.to_list()
 
     render(conn, features: json)
   end

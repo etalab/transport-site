@@ -7,6 +7,7 @@ defmodule Transport.History do
   import Ecto.{Query}
   require Logger
 
+  @spec backup_resources(boolean()) :: any()
   def backup_resources(force_update \\ false) do
     if Application.get_env(:ex_aws, :access_key_id) == nil ||
          Application.get_env(:ex_aws, :secret_access_key) == nil do
@@ -38,10 +39,10 @@ defmodule Transport.History do
     end
   end
 
-  defp modification_date(resource) do
-    resource.last_update || resource.last_import
-  end
+  @spec modification_date(Resource.t()) :: binary()
+  defp modification_date(resource), do: resource.last_update || resource.last_import
 
+  @spec needs_to_be_updated(Resource.t()) :: boolean()
   defp needs_to_be_updated(resource) do
     backuped_resources = get_already_backuped_resources(resource)
 
@@ -63,10 +64,10 @@ defmodule Transport.History do
     end
   end
 
-  def bucket_id(resource) do
-    Dataset.history_bucket_id(resource.dataset)
-  end
+  @spec bucket_id(Resource.t()) :: binary()
+  def bucket_id(resource), do: Dataset.history_bucket_id(resource.dataset)
 
+  @spec get_already_backuped_resources(Resource.t()) :: [map()]
   defp get_already_backuped_resources(resource) do
     resource
     |> bucket_id()
@@ -84,6 +85,7 @@ defmodule Transport.History do
     |> Enum.to_list()
   end
 
+  @spec resource_title(Resource.t()) :: binary()
   defp resource_title(resource) do
     resource.title
     |> String.replace(" ", "_")
@@ -94,9 +96,11 @@ defmodule Transport.History do
     |> to_string
   end
 
+  @spec maybe_put(map(), atom(), binary()) :: map()
   defp maybe_put(map, _key, nil), do: map
   defp maybe_put(map, key, value), do: Map.put(map, key, value)
 
+  @spec backup(Resource.t()) :: :ok
   defp backup(resource) do
     Logger.info("backuping #{resource.dataset.title} - #{resource.title}")
     now = DateTime.utc_now() |> Timex.format!("%Y%m%dT%H%M%S", :strftime)

@@ -9,6 +9,7 @@ defmodule Mailjet.Client do
   @key Application.get_env(:transport, __MODULE__)[:mailjet_key]
   @url Application.get_env(:transport, __MODULE__)[:mailjet_url]
 
+  @spec payload!(binary(), binary(), binary(), binary(), binary()) :: any()
   def payload!(from_name, from_email, reply_to, topic, body) do
     Poison.encode!(%{
       Messages: [
@@ -23,13 +24,13 @@ defmodule Mailjet.Client do
     })
   end
 
-  def send_mail(from_name, from_email, reply_to, topic, body, _blank_mail \\ False)
-
-  def send_mail(from_name, from_email, reply_to, topic, body, True) do
+  @spec send_mail(binary, binary, binary, binary, binary, boolean) :: {:error, any} | {:ok, any}
+  def send_mail(from_name, from_email, reply_to, topic, body, true) do
     Logger.debug(fn -> "payload: #{payload!(from_name, from_email, reply_to, topic, body)}" end)
+    {:ok, body}
   end
 
-  def send_mail(from_name, from_email, reply_to, topic, body, False) do
+  def send_mail(from_name, from_email, reply_to, topic, body, false) do
     @url
     |> post(payload!(from_name, from_email, reply_to, topic, body))
     |> case do

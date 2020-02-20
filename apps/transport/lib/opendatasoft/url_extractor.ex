@@ -9,6 +9,7 @@ defmodule Opendatasoft.UrlExtractor do
   @separators [?;, ?,]
   @csv_headers ["Download", "file", "Fichier", "fichier à télécharger", "url"]
 
+  @spec get_csv_resources([any]) :: [any]
   def get_csv_resources(resources) do
     csv_resources = filter_csv(resources)
 
@@ -44,6 +45,7 @@ defmodule Opendatasoft.UrlExtractor do
       false
 
   """
+  @spec has_csv?(any()) :: boolean()
   def has_csv?({:ok, %{headers: headers}}) do
     Enum.any?(headers, fn {k, v} ->
       k == "Content-Type" && String.contains?(v, "csv")
@@ -52,6 +54,7 @@ defmodule Opendatasoft.UrlExtractor do
 
   def has_csv?(_), do: false
 
+  @spec download_csv_list([any]) :: {:ok, [binary()]} | {:error, binary()}
   defp download_csv_list(resources) when is_list(resources) do
     resources
     |> Enum.map(&download_csv/1)
@@ -62,6 +65,7 @@ defmodule Opendatasoft.UrlExtractor do
     end
   end
 
+  @spec download_csv(map()) :: {:ok, binary()} | {:error, binary()}
   defp download_csv(%{"url" => url}) do
     case HTTPoison.get(url, [], hackney: [follow_redirect: true]) do
       {:ok, response = %{status_code: 200}} ->
@@ -87,6 +91,7 @@ defmodule Opendatasoft.UrlExtractor do
       {:error, "No column file"}
 
   """
+  @spec get_url_from_csv([binary()]) :: {:ok, [binary()]} | {:error, binary()}
   def get_url_from_csv(bodies) when is_list(bodies) do
     bodies
     |> Enum.map(&get_url_from_csv/1)
@@ -122,7 +127,7 @@ defmodule Opendatasoft.UrlExtractor do
     |> Enum.map(fn url -> {:ok, %{url: url, title: get_filename(url)}} end)
   end
 
-  @spec get_url_from_csv(any, binary) :: [binary]
+  @spec get_url_from_csv(binary(), binary()) :: [binary()]
   def get_url_from_csv(separator, body) do
     case StringIO.open(body) do
       {:ok, out} ->
@@ -183,12 +188,14 @@ defmodule Opendatasoft.UrlExtractor do
       [%{"mime" => "text/csv", "format" => "csv"}]
 
   """
+  @spec filter_csv([map()]) :: [map()]
   def filter_csv(resources) do
     for resource <- resources, "#{resource["mime"]}#{resource["format"]}" =~ ~r/csv/i do
       %{resource | "mime" => "text/csv", "format" => "csv"}
     end
   end
 
+  @spec get_filename(binary()) :: binary()
   defp get_filename(url) do
     with {:ok, %HTTPoison.Response{headers: headers}} <- HTTPoison.head(url),
          {_, content} <- Enum.find(headers, fn {h, _} -> h == "Content-Disposition" end),
