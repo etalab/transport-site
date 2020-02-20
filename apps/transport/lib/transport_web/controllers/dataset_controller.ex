@@ -51,7 +51,7 @@ defmodule TransportWeb.DatasetController do
   end
 
   def by_aom(%Plug.Conn{} = conn, %{"aom" => id} = params) do
-    error_aom = error_page(conn, dgettext("errors", "AOM %{id} does not exist", id: id))
+    error_msg = dgettext("errors", "AOM %{id} does not exist", id: id)
 
     try do
       AOM
@@ -59,18 +59,18 @@ defmodule TransportWeb.DatasetController do
       |> Repo.exists?()
       |> case do
         false ->
-          error_aom
+          error_page(conn, error_msg)
 
         true ->
           list_datasets(conn, params)
       end
     rescue
-      Ecto.Query.CastError -> error_aom
+      Ecto.Query.CastError -> error_page(conn, error_msg)
     end
   end
 
   def by_region(%Plug.Conn{} = conn, %{"region" => id} = params) do
-    error_region = error_page(conn, dgettext("errors", "Region %{id} does not exist", id: id))
+    error_msg = dgettext("errors", "Region %{id} does not exist", id: id)
 
     try do
       Region
@@ -78,14 +78,13 @@ defmodule TransportWeb.DatasetController do
       |> Repo.exists?()
       |> case do
         false ->
-          message = dgettext("errors", "Region %{id} does not exist", id: id)
-          error_page(conn, message)
+          error_page(conn, error_msg)
 
         true ->
           list_datasets(conn, params)
       end
     rescue
-      Ecto.Query.CastError -> error_region
+      Ecto.Query.CastError -> error_page(conn, error_msg)
     end
   end
 
