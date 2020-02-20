@@ -9,17 +9,12 @@ defmodule TransportWeb.API.PlacesController do
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
-  defp get_result_url(conn, %{"id" => id, "type" => "commune"}) do
-    dataset_path(conn, :by_commune_insee, id)
-  end
+  @spec get_result_url(Plug.Conn.t(), %{binary() => binary()}) :: binary()
+  def get_result_url(conn, %{"id" => id, "type" => "commune"}), do: dataset_path(conn, :by_commune_insee, id)
 
-  defp get_result_url(conn, %{"id" => id, "type" => "region"}) do
-    dataset_path(conn, :by_region, id)
-  end
+  def get_result_url(conn, %{"id" => id, "type" => "region"}), do: dataset_path(conn, :by_region, id)
 
-  defp get_result_url(conn, %{"id" => id, "type" => "aom"}) do
-    dataset_path(conn, :by_aom, id)
-  end
+  def get_result_url(conn, %{"id" => id, "type" => "aom"}), do: dataset_path(conn, :by_aom, id)
 
   @spec autocomplete(Plug.Conn.t(), map) :: Plug.Conn.t()
   def autocomplete(%Plug.Conn{} = conn, %{"q" => query}) do
