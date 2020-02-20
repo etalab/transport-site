@@ -34,7 +34,7 @@ defmodule TransportWeb.Live.ValidateDatasetView do
   def handle_info({:validate, dataset_id}, socket) do
     new_socket =
       case Dataset.validate(dataset_id) do
-        :ok ->
+        {:ok, _} ->
           assign_step(socket, :validated)
 
         {:error, error} ->
@@ -55,12 +55,7 @@ defmodule TransportWeb.Live.ValidateDatasetView do
       socket,
       button_text: button_texts(step),
       button_class: button_classes(step),
-      button_disabled:
-        if step in @button_disabled do
-          "disabled"
-        else
-          ""
-        end
+      button_disabled: if(step in @button_disabled, do: "disabled", else: "")
     )
   end
 

@@ -4,6 +4,7 @@ defmodule TransportWeb.API.Spec do
   """
   alias OpenApiSpex.{Info, OpenApi, Paths}
 
+  @spec spec :: OpenApiSpex.OpenApi.t()
   def spec do
     %OpenApi{
       info: %Info{

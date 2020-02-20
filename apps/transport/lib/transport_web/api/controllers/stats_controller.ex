@@ -57,6 +57,7 @@ defmodule TransportWeb.API.StatsController do
       "features" => features
     }
 
+  @spec nb_non_standard_rt(binary()) :: non_neg_integer()
   def nb_non_standard_rt(insee_commune_principale) do
     CSVDocuments.real_time_providers()
     |> Enum.filter(fn p -> p["aom_insee_principal"] == insee_commune_principale end)
@@ -64,6 +65,7 @@ defmodule TransportWeb.API.StatsController do
     |> length
   end
 
+  @spec features(Ecto.Query.t()) :: [map()]
   def features(q) do
     q
     |> Repo.all()
@@ -121,118 +123,99 @@ defmodule TransportWeb.API.StatsController do
     end
   end
 
-  def index(%Plug.Conn{} = conn, _params) do
-    render(
-      conn,
-      %{
-        data:
-          geojson(
-            features(
-              from(a in AOM,
-                left_join: d in Dataset,
-                on: d.id == a.parent_dataset_id,
-                select: %{
-                  geometry: a.geom,
-                  id: a.id,
-                  insee_commune_principale: a.insee_commune_principale,
-                  nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=?", a.id),
-                  dataset_formats: %{
-                    gtfs: count_aom_format(a.id, "GTFS"),
-                    netex: count_aom_format(a.id, "netex"),
-                    gtfs_rt: count_aom_format(a.id, "gtfs-rt"),
-                    gbfs: count_aom_format(a.id, "gbfs")
-                  },
-                  nom: a.nom,
-                  forme_juridique: a.forme_juridique,
-                  dataset_types: %{
-                    pt: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit'", a.id),
-                    bike_sharing:
-                      fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-sharing'", a.id)
-                  },
-                  parent_dataset_slug: d.slug,
-                  parent_dataset_name: d.title
-                }
-              )
-            )
-          )
+  defmacro count_type_by_region(region_id, type) do
+    quote do
+      fragment(
+        """
+        SELECT COUNT(*) FROM dataset
+        JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
+        WHERE d_geo.region_id = ?
+        AND type = '?'
+        """,
+        unquote(region_id),
+        unquote(type)
+      )
+    end
+  end
+
+  @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def index(%Plug.Conn{} = conn, _params), do: render_features(conn, aom_features())
+
+  @spec regions(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, region_features())
+
+  @spec bike_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def bike_sharing(%Plug.Conn{} = conn, _params), do: render_features(conn, bike_sharing_features())
+
+  @spec render_features(Plug.Conn.t(), Ecto.Query.t()) :: Plug.Conn.t()
+  defp render_features(conn, query), do: render(conn, %{data: query |> features() |> geojson()})
+
+  @spec aom_features :: Ecto.Query.t()
+  defp aom_features do
+    AOM
+    |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id)
+    |> select([aom, dataset], %{
+      geometry: aom.geom,
+      id: aom.id,
+      insee_commune_principale: aom.insee_commune_principale,
+      nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=?", aom.id),
+      dataset_formats: %{
+        gtfs: count_aom_format(aom.id, "GTFS"),
+        netex: count_aom_format(aom.id, "netex"),
+        gtfs_rt: count_aom_format(aom.id, "gtfs-rt"),
+        gbfs: count_aom_format(aom.id, "gbfs")
+      },
+      nom: aom.nom,
+      forme_juridique: aom.forme_juridique,
+      dataset_types: %{
+        pt: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit'", aom.id),
+        bike_sharing: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-sharing'", aom.id)
+      },
+      parent_dataset_slug: dataset.slug,
+      parent_dataset_name: dataset.title
+    })
+  end
+
+  @spec region_features :: Ecto.Query.t()
+  defp region_features do
+    Region
+    |> select([r], %{
+      geometry: r.geom,
+      id: r.id,
+      nom: r.nom,
+      is_completed: r.is_completed,
+      nb_datasets:
+        fragment(
+          """
+          SELECT COUNT(*) FROM dataset
+          JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
+          WHERE d_geo.region_id = ?
+          """,
+          r.id
+        ),
+      dataset_formats: %{
+        gtfs: count_region_format(r.id, "GTFS"),
+        netex: count_region_format(r.id, "netex"),
+        gtfs_rt: count_region_format(r.id, "gtfs-rt"),
+        gbfs: count_region_format(r.id, "gbfs")
+      },
+      dataset_types: %{
+        pt: count_type_by_region(r.id, "public-transit"),
+        bike_sharing: count_type_by_region(r.id, "bike-sharing")
       }
-    )
-  end
-
-  def regions(%Plug.Conn{} = conn, _params) do
-    render(conn, %{
-      data:
-        geojson(
-          features(
-            from(r in Region,
-              select: %{
-                geometry: r.geom,
-                id: r.id,
-                nom: r.nom,
-                is_completed: r.is_completed,
-                nb_datasets:
-                  fragment(
-                    """
-                    SELECT COUNT(*) FROM dataset
-                    JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
-                    WHERE d_geo.region_id = ?
-                    """,
-                    r.id
-                  ),
-                dataset_formats: %{
-                  gtfs: count_region_format(r.id, "GTFS"),
-                  netex: count_region_format(r.id, "netex"),
-                  gtfs_rt: count_region_format(r.id, "gtfs-rt"),
-                  gbfs: count_region_format(r.id, "gbfs")
-                },
-                dataset_types: %{
-                  pt:
-                    fragment(
-                      """
-                      SELECT COUNT(*) FROM dataset
-                      JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
-                      WHERE d_geo.region_id = ?
-                      AND type = 'public-transit'
-                      """,
-                      r.id
-                    ),
-                  bike_sharing:
-                    fragment(
-                      """
-                      SELECT COUNT(*) FROM dataset
-                      JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
-                      WHERE d_geo.region_id = ?
-                      AND type = 'bike-sharing'
-                      """,
-                      r.id
-                    )
-                }
-              }
-            )
-          )
-        )
     })
   end
 
-  @spec bike_sharing(Plug.Conn.t(), any) :: Plug.Conn.t()
-  def bike_sharing(%Plug.Conn{} = conn, _params) do
-    render(conn, %{
-      data:
-        geojson(
-          features(
-            from(gv in DatasetGeographicView,
-              left_join: d in Dataset,
-              on: d.id == gv.dataset_id,
-              select: %{
-                geometry: gv.geom,
-                id: gv.dataset_id,
-                nom: d.spatial,
-                parent_dataset_slug: d.slug
-              },
-              where: d.type == "bike-sharing"
-            )
-          )
-        )
+  @spec bike_sharing_features :: Ecto.Query.t()
+  defp bike_sharing_features do
+    DatasetGeographicView
+    |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
+    |> select([gv, dataset], %{
+      geometry: gv.geom,
+      id: gv.dataset_id,
+      nom: dataset.spatial,
+      parent_dataset_slug: dataset.slug
     })
+    |> where([_gv, dataset], dataset.type == "bike-sharing")
   end
 end
