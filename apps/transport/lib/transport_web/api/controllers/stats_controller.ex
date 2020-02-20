@@ -121,41 +121,36 @@ defmodule TransportWeb.API.StatsController do
     end
   end
 
+  @spec aom_features :: Ecto.Query.t()
+  defp aom_features do
+    AOM
+    |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id)
+    |> select([aom, dataset], %{
+      geometry: aom.geom,
+      id: aom.id,
+      insee_commune_principale: aom.insee_commune_principale,
+      nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=?", aom.id),
+      dataset_formats: %{
+        gtfs: count_aom_format(aom.id, "GTFS"),
+        netex: count_aom_format(aom.id, "netex"),
+        gtfs_rt: count_aom_format(aom.id, "gtfs-rt"),
+        gbfs: count_aom_format(aom.id, "gbfs")
+      },
+      nom: aom.nom,
+      forme_juridique: aom.forme_juridique,
+      dataset_types: %{
+        pt: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit'", aom.id),
+        bike_sharing: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-sharing'", aom.id)
+      },
+      parent_dataset_slug: dataset.slug,
+      parent_dataset_name: dataset.title
+    })
+  end
+
   def index(%Plug.Conn{} = conn, _params) do
     render(
       conn,
-      %{
-        data:
-          geojson(
-            features(
-              from(a in AOM,
-                left_join: d in Dataset,
-                on: d.id == a.parent_dataset_id,
-                select: %{
-                  geometry: a.geom,
-                  id: a.id,
-                  insee_commune_principale: a.insee_commune_principale,
-                  nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=?", a.id),
-                  dataset_formats: %{
-                    gtfs: count_aom_format(a.id, "GTFS"),
-                    netex: count_aom_format(a.id, "netex"),
-                    gtfs_rt: count_aom_format(a.id, "gtfs-rt"),
-                    gbfs: count_aom_format(a.id, "gbfs")
-                  },
-                  nom: a.nom,
-                  forme_juridique: a.forme_juridique,
-                  dataset_types: %{
-                    pt: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit'", a.id),
-                    bike_sharing:
-                      fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-sharing'", a.id)
-                  },
-                  parent_dataset_slug: d.slug,
-                  parent_dataset_name: d.title
-                }
-              )
-            )
-          )
-      }
+      %{data: aom_features() |> features() |> geojson()}
     )
   end
 
