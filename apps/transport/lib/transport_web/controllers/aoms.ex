@@ -1,6 +1,6 @@
 defmodule TransportWeb.AOMSController do
   use TransportWeb, :controller
-  alias DB.{AOM, Commune, Repo, Resource}
+  alias DB.{AOM, Commune, Dataset, Repo, Resource}
   import Ecto.Query
 
   @csvheaders [
@@ -37,6 +37,7 @@ defmodule TransportWeb.AOMSController do
     }
   end
 
+  @spec csv(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def csv(conn, _params) do
     conn
     |> put_resp_content_type("text/csv")
@@ -44,6 +45,7 @@ defmodule TransportWeb.AOMSController do
     |> send_resp(200, csv_content())
   end
 
+  @spec aoms :: [map()]
   defp aoms do
     AOM
     |> preload([:datasets, :region, :parent_dataset])
@@ -54,25 +56,29 @@ defmodule TransportWeb.AOMSController do
     |> Enum.map(&prepare_aom/1)
   end
 
+  @spec self_published(AOM.t()) :: boolean
   defp self_published(aom) do
     !(aom.datasets
       |> Enum.filter(fn d -> d.type == "public-transit" end)
       |> Enum.empty?())
   end
 
+  @spec valid_dataset?(Dataset.t()) :: boolean()
   defp valid_dataset?(dataset), do: Enum.any?(dataset.resources, fn r -> !Resource.is_outdated?(r) end)
 
-  defp up_to_date?([]), do: nil
+  @spec up_to_date?([Dataset.t()]) :: boolean()
+  defp up_to_date?([]), do: false
 
   defp up_to_date?(datasets) do
     datasets
     |> Enum.filter(fn d -> d.type == "public-transit" end)
     |> case do
-      [] -> nil
+      [] -> false
       transit_datasets -> Enum.any?(transit_datasets, &valid_dataset?/1)
     end
   end
 
+  @spec csv_content() :: binary()
   defp csv_content do
     aoms()
     |> CSV.encode(headers: @csvheaders)
