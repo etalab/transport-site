@@ -72,6 +72,14 @@ defmodule TransportWeb.DatabaseCase do
         })
 
         Repo.insert(%Commune{
+          insee: "63096",
+          nom: "Chas",
+          wikipedia: "fr:Chas",
+          surf_ha: 254.0,
+          aom_res_id: 3
+        })
+
+        Repo.insert(%Commune{
           insee: "36063",
           nom: "Déols",
           wikipedia: "fr:Déols",
