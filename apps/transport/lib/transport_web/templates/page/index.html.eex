@@ -4,8 +4,11 @@
             <h1><%= dgettext("page-index", "title") %></h1>
             <h2><%= dgettext("page-index", "subtitle") %></h2>
             <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
-                <%= search_input f, :q, [placeholder: dgettext("page-index", "Search data for a region, a city, a network…"), "aria-label": dgettext("page-index", "Find dataset")] %>
+                  <%= search_input f, :q, [id: "autoComplete", tabindex: 1, autocomplete: "off", placeholder: dgettext("page-index", "Search data for a region, a city, a network…"), "aria-label": dgettext("page-index", "Find dataset")] %>
+                <div id="autoCompleteResults">
+                </div>
             <% end %>
+
                 <p><a href=<%= dataset_path @conn, :index, order_by: "most_recent" %>>
                         <%= dgettext("page-index", "See newly added datasets") %>
                     </a>
@@ -219,3 +222,61 @@
         </div>
     </div>
 </section>
+<%# <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@7.2.0/dist/css/autoComplete.min.css"> %>
+<script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@7.2.0/dist/js/autoComplete.min.js"></script>
+<script>
+
+document.querySelector("#autoComplete").addEventListener("autoComplete", event => {
+	console.log('event:', event)
+});
+
+const autoCompletejs = new autoComplete({
+	data: {
+		src: async () => {
+      const query = document.querySelector("#autoComplete").value;
+			const source = await fetch(
+				`/api/places?q=${query}`
+			);
+			let data = await source.json();
+      data = [{name:`Rechercher ${query} sur tout le site`, url:`/datasets?q=${query}`}, ...data]
+      console.log('data:', data)
+			return data;
+		},
+		key: ["name"],
+		cache: false
+	},
+	selector: "#autoComplete",
+	threshold: 2,
+	debounce: 300,
+	searchEngine: "strict",
+	highlight: true,
+	maxResults: 7,
+	resultsList: {
+		render: true,
+		container: source => {
+      source.setAttribute("id", "autoComplete_list");
+		},
+		destination: document.querySelector("#autoCompleteResults"),
+		position: "beforeend",
+		element: "ul"
+	},
+	resultItem: {
+		content: (data, source) => {
+      source.innerHTML = data.match;
+		},
+		element: "li"
+	},
+	noResults: () => {
+		const result = document.createElement("li");
+		result.setAttribute("class", "no_result");
+		result.setAttribute("tabindex", "1");
+		result.innerHTML = "Pas de lieu correspondant...";
+		document.querySelector("#autoComplete_list").appendChild(result);
+	},
+	onSelection: feedback => {
+    console.log('feedback:', feedback)
+    feedback.event.preventDefault()
+    window.location = feedback.selection.value.url
+	}
+});
+</script>

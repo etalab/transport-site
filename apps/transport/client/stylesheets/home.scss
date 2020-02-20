@@ -198,3 +198,51 @@ a.tile:hover {
     margin: 0 0 2em;
   }
 }
+
+#autoCompleteResults {
+  background-color: white;
+  width: calc(35em - 112px);
+  position: relative;
+  top: 12px;
+  text-align: left;
+}
+
+#autoComplete_list {
+  border: 1px solid var(--theme-border);
+  border-radius: var(--theme-border-radius);
+  padding: 0;
+  margin: 0;
+  li {
+    list-style: none;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    padding-left: 12px;
+    cursor: pointer;
+    &:hover {
+      background-color: lightsteelblue;
+    }
+    &:nth-of-type(1) {
+      border-bottom: 1px;
+      padding-top: 12px;
+      padding-bottom: 6px;
+    }
+    &:nth-of-type(2)::before {
+      content: "Ou rechercher par lieu :";
+      display: block;
+      color: grey;
+    }
+  }
+}
+
+#autoComplete_list:empty {
+  display: none;
+}
+
+.autoComplete_highlighted {
+  font-weight: bold;
+  color: var(--theme-primary);
+}
+
+.autoComplete_selected {
+  background-color: lightsteelblue;
+}
