@@ -130,7 +130,7 @@ defmodule TransportWeb.API.StatsController do
         SELECT COUNT(*) FROM dataset
         JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
         WHERE d_geo.region_id = ?
-        AND type = '?'
+        AND type = ?
         """,
         unquote(region_id),
         unquote(type)
