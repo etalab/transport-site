@@ -33,6 +33,7 @@ defmodule TransportWeb.DatabaseCase do
 
         Repo.insert(%Region{nom: "Pays de la Loire"})
         Repo.insert(%Region{nom: "Auvergne-Rhône-Alpes"})
+        Repo.insert(%Region{nom: "Île-de-France"})
 
         Repo.insert(%AOM{
           insee_commune_principale: "53130",
@@ -77,6 +78,13 @@ defmodule TransportWeb.DatabaseCase do
           wikipedia: "fr:Chas",
           surf_ha: 254.0,
           aom_res_id: 3
+        })
+
+        Repo.insert(%AOM{
+          insee_commune_principale: "75056",
+          nom: "Île-de-France Mobilités",
+          region: Repo.get_by(Region, nom: "Île-de-France"),
+          composition_res_id: 4
         })
 
         Repo.insert(%Commune{
