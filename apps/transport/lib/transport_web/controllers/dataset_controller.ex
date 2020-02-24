@@ -78,9 +78,9 @@ defmodule TransportWeb.DatasetController do
 
   defp by_territory(conn, territory, params, error_msg) do
     if Repo.exists?(territory) do
-      error_page(conn, error_msg)
-    else
       list_datasets(conn, params)
+    else
+      error_page(conn, error_msg)
     end
   rescue
     Ecto.Query.CastError -> error_page(conn, error_msg)
