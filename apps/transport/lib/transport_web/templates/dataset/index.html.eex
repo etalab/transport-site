@@ -5,7 +5,9 @@
       <div class="form__group">
         <%= form_for @conn, dataset_path(@conn, :index), [method: "get", class: "shortlist-form"], fn f -> %>
         <%= search_input f, :q, [id: "autoComplete", autocomplete: "off", value: assigns[:q] || "", placeholder: dgettext("page-index", "Find dataset"), "aria-label": dgettext("page-index", "Find dataset")] %>
-        <div id="autoCompleteResults">
+        <div class="autoCompleteResultsField">
+          <div id="autoCompleteResults">
+          </div>
         </div>
       <% end %>
     </div>

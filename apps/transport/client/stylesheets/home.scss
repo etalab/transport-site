@@ -199,12 +199,17 @@ a.tile:hover {
   }
 }
 
+.autoCompleteResultsField {
+  padding-top: 5px;
+  position: relative;
+}
+
 #autoCompleteResults {
   background-color: white;
   width: calc(35em - 112px);
-  position: relative;
-  top: 12px;
+  position: absolute;
   text-align: left;
+  z-index: 1;
 }
 
 #autoComplete_list {
