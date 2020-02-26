@@ -29,7 +29,7 @@ defmodule TransportWeb.API.PlacesController do
 
     places =
       Place
-      |> where([p], ilike(p.indexed_name, ^query))
+      |> where([p], fragment("indexed_name ilike unaccent(?)", ^query))
       |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
       |> limit(10)
       |> Repo.all()
