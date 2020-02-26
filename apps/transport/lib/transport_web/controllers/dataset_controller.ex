@@ -241,18 +241,13 @@ defmodule TransportWeb.DatasetController do
     )
   end
 
-  defp put_page_title(conn, %{"aom" => id}) do
-    aom = AOM |> preload(:region) |> Repo.get!(id)
-
-    assign(
-      conn,
-      :page_title,
-      dgettext("page-shortlist", "Datasets for the aom %{aom}, located in %{region}",
-        aom: aom.nom,
-        region: aom.region.nom
+  defp put_page_title(conn, %{"aom" => id}),
+    do:
+      assign(
+        conn,
+        :page_title,
+        dgettext("page-shortlist", "Datasets for the aom %{aom}", aom: get_name(AOM, id))
       )
-    )
-  end
 
   defp put_page_title(conn, _), do: conn
 end

@@ -270,7 +270,7 @@ msgid "There are 2 open data datasets for addresses:"
 msgstr ""
 
 #, elixir-format
-msgid "Datasets for the aom %{aom}, located in %{region}"
+msgid "Datasets for the aom %{aom}"
 msgstr ""
 
 #, elixir-format

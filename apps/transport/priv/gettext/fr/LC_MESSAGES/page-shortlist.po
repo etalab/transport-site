@@ -270,8 +270,8 @@ msgid "There are 2 open data datasets for addresses:"
 msgstr "Il y a 2 jeux de données open data pour les adresses :"
 
 #, elixir-format, fuzzy
-msgid "Datasets for the aom %{aom}, located in %{region}"
-msgstr "Jeux de données de l'AOM %{aom} de la région %{region}"
+msgid "Datasets for the aom %{aom}"
+msgstr "Jeux de données de l'AOM %{aom}"
 
 #, elixir-format
 msgid "Datasets for the city %{name}"
