@@ -95,9 +95,15 @@ function displayBikes (map, featureFunction, style) {
         })
     }
     bikeStats.then(response => {
+        const options = {
+            fillColor: '#0066db',
+            radius: 5,
+            stroke: false,
+            fillOpacity: 0.9
+        }
         const geoJSON = Leaflet.geoJSON(response, {
             onEachFeature: featureFunction,
-            style: style
+            pointToLayer: (_, latlng) => Leaflet.circleMarker(latlng, options)
         })
         map.addLayer(geoJSON)
     })
@@ -380,12 +386,6 @@ function addBikesMap (id, view) {
 
         const bind = `<a href="/datasets/${slug}" target="_blank">${name}<br/></a>`
         layer.bindPopup(bind)
-    }, _ => {
-        return {
-            weight: 1,
-            fillOpacity: 0.5,
-            color: 'green'
-        }
     })
 }
 
