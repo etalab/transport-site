@@ -22,9 +22,24 @@ const autoCompletejs = new autoComplete({
     },
     selector: "#autoComplete",
     threshold: 1,
-    debounce: 300,
-    searchEngine: "strict",
+    debounce: 200,
     highlight: true,
+    searchEngine: (query, record) => {
+        // inspired by the 'loose' searchEngine, but that always matches
+        query = query.replace(/ /g, "");
+        var recordLowerCase = record.toLowerCase();
+        var match = [];
+        var searchPosition = 0;
+        for (var number = 0; number < recordLowerCase.length; number++) {
+            var recordChar = record[number];
+            if (searchPosition < query.length && recordLowerCase[number] === query[searchPosition]) {
+                recordChar = `<span class="autoComplete_highlighted">${recordChar}</span>`;
+                searchPosition++;
+            }
+            match.push(recordChar);
+        }
+        return match.join("");
+    },
     maxResults: 7,
     resultsList: {
         render: true,
