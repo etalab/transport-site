@@ -211,7 +211,7 @@ defmodule TransportWeb.API.StatsController do
     DatasetGeographicView
     |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
     |> select([gv, dataset], %{
-      geometry: gv.geom,
+      geometry: fragment("ST_Centroid(geom)"),
       id: gv.dataset_id,
       nom: dataset.spatial,
       parent_dataset_slug: dataset.slug
