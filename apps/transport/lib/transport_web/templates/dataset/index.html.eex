@@ -10,16 +10,16 @@
   </div>
 </div>
 </div>
-<%= if @conn.assigns[:special_message] do %>
-  <div class="container">
-    <div class="notification">
-      <%= @special_message %>
-    </div>
-  </div>
+<%= if @conn.assigns[:custom_context] do %>
+  <%= render TransportWeb.DatasetView, @custom_context, conn: @conn %>
 <% end %>
 <section class="section section-grey datasets">
   <div class="container search-title">
-    <h2><%= dgettext("page-shortlist", "Search results") %></h2>
+    <%= if @conn.assigns[:page_title] do %>
+      <h2> <%= @page_title %> </h2>
+    <% else %>
+      <h2><%= dgettext("page-shortlist", "Search results") %></h2>
+    <% end %>
     <div class="shortlist__pagination">
       <%= pagination_links @conn, @datasets %>
     </div>
