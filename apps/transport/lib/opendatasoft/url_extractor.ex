@@ -7,7 +7,7 @@ defmodule Opendatasoft.UrlExtractor do
   require Logger
 
   @separators [?;, ?,]
-  @csv_headers ["Download", "file", "Fichier", "fichier à télécharger", "url"]
+  @csv_headers ["Download", "file", "Fichier", "fichier à télécharger", "url", "fichier"]
 
   @spec get_csv_resources([any]) :: [any]
   def get_csv_resources(resources) do
