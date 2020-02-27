@@ -246,30 +246,10 @@ msgid "There is no data for region %{name}"
 msgstr ""
 
 #, elixir-format
-msgid " created by OpenStreetMap France when the BAN was not fully open data."
-msgstr ""
-
-#, elixir-format
-msgid ": the 'official' one, produced by the Institut géographique national (IGN), La Poste, Etalab and various administrations"
-msgstr ""
-
-#, elixir-format
-msgid "Here are the datasets for the aom %{aom} located in %{region}"
-msgstr ""
-
-#, elixir-format
-msgid "Here are the datasets for the city of "
-msgstr ""
-
-#, elixir-format
 msgid "More information about realtime"
 msgstr ""
 
 #, elixir-format
-msgid "There are 2 open data datasets for addresses:"
-msgstr ""
-
-#, elixir-format, fuzzy
 msgid "Datasets for the aom %{aom}"
 msgstr ""
 
@@ -278,9 +258,9 @@ msgid "Datasets for the city %{name}"
 msgstr ""
 
 #, elixir-format
-msgid "Datasets for the region "
+msgid "Datasets for the region %{region}"
 msgstr ""
 
 #, elixir-format
-msgid "Datasets for the region %{region}"
+msgid "The french addresses are available in the %{start_link}BAN%{end_link}, a dataset produced by the Institut géographique national (IGN), La Poste, Etalab and various administrations"
 msgstr ""
