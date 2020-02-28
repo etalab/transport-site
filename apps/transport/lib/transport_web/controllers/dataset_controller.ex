@@ -98,7 +98,7 @@ defmodule TransportWeb.DatasetController do
     conn
     |> put_status(:not_found)
     |> put_view(ErrorView)
-    |> assign(:reason, raw(msg))
+    |> assign(:reason, msg)
     |> render("404.html")
   end
 
