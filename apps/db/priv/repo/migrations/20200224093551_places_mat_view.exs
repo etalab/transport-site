@@ -3,7 +3,8 @@ defmodule DB.Repo.Migrations.TestPlaces do
 
   def up do
     # we use pg_trgm extension for trigram match
-    execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
+    # This is commented as it requires superuser rights and will fail even if the extension is installed
+    # execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
 
     execute("""
     CREATE MATERIALIZED VIEW places AS
