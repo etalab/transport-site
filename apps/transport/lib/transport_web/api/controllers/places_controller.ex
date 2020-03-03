@@ -25,27 +25,27 @@ defmodule TransportWeb.API.PlacesController do
         SELECT nom, id, type FROM
         (
           (
-            SELECT c.nom AS nom, c.insee AS id, 'commune' AS type
-            FROM commune c WHERE unaccent(nom) ilike '%' || unaccent($1) || '%'
-            ORDER BY levenshtein(unaccent(c.nom), unaccent($1))
-            limit 10
-          )
-          UNION
-          (
-            SELECT r.nom AS nom, CAST(r.id AS varchar) AS id, 'region' AS type
+            SELECT r.nom AS nom, CAST(r.id AS varchar) AS id, 'region' AS type, 'a' AS result_order
             FROM region r WHERE unaccent(r.nom) ilike '%' || unaccent($1) || '%'
             ORDER BY levenshtein(unaccent(r.nom), unaccent($1))
             limit 3
           )
           UNION
           (
-            SELECT a.nom AS nom, CAST(a.id AS varchar) AS id, 'aom' AS type
+            SELECT a.nom AS nom, CAST(a.id AS varchar) AS id, 'aom' AS type, 'b' AS result_order
             FROM aom a WHERE unaccent(a.nom) ilike '%' || unaccent($1) || '%'
             ORDER BY levenshtein(unaccent(a.nom), unaccent($1))
             limit 5
           )
+          UNION
+          (
+            SELECT c.nom AS nom, c.insee AS id, 'commune' AS type, 'c' AS result_order
+            FROM commune c WHERE unaccent(nom) ilike '%' || unaccent($1) || '%'
+            ORDER BY levenshtein(unaccent(c.nom), unaccent($1))
+            limit 2
+          )
         ) AS results
-        ORDER BY levenshtein(unaccent(nom), unaccent($1))
+        ORDER BY result_order, levenshtein(unaccent(nom), unaccent($1))
         LIMIT 10
         ",
         [query]
