@@ -206,10 +206,28 @@ a.tile:hover {
 
 #autoCompleteResults {
   background-color: white;
-  width: calc(35em - 112px);
+  width: 100%;
   position: absolute;
   text-align: left;
   z-index: 1;
+}
+
+.searchBar {
+  max-width: 30em;
+  margin: 0 auto;
+}
+
+#magnifier {
+  color: var(--theme-primary);
+  position: absolute;
+  left: 7px;
+  top: 13px;
+  z-index: 1;
+}
+
+#autoComplete {
+  width: 100%;
+  padding-left: 30px;
 }
 
 #autoComplete_list {
@@ -222,7 +240,13 @@ a.tile:hover {
     padding-bottom: 3px;
     padding-top: 3px;
     padding-left: 12px;
+    padding-right: 12px;
     cursor: pointer;
+    div {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
     &:hover {
       background-color: lightsteelblue;
     }
@@ -231,9 +255,33 @@ a.tile:hover {
       padding-top: 12px;
       padding-bottom: 6px;
     }
+    &:nth-of-type(2) {
+      padding: 0;
+      margin-top: 3px;
+      background-color: white;
+      div {
+        padding-right: 12px;
+        .autocomplete_name {
+          padding-top: 3px;
+          padding-bottom: 0;
+          padding-left: 12px;
+        }
+        &:hover {
+          background-color: lightsteelblue;
+        }
+      }
+    }
     &:nth-of-type(2)::before {
       content: "Ou rechercher par lieu :";
-      display: block;
+      flex: 0 0 90%;
+      color: grey;
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+    &:last-of-type {
+      padding-bottom: 12px;
+    }
+    .autocomplete_type {
       color: grey;
     }
   }
@@ -250,4 +298,7 @@ a.tile:hover {
 
 .autoComplete_selected {
   background-color: lightsteelblue;
+  div {
+    background-color: lightsteelblue;
+  }
 }

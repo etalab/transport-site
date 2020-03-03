@@ -3,13 +3,15 @@
         <div class="container text-center">
             <h1><%= dgettext("page-index", "title") %></h1>
             <h2><%= dgettext("page-index", "subtitle") %></h2>
-            <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
-                  <%= search_input f, :q, [id: "autoComplete", tabindex: 1, autocomplete: "off", placeholder: dgettext("page-index", "Search data for a region, a city, a network…"), "aria-label": dgettext("page-index", "Find dataset")] %>
-                <div class="autoCompleteResultsField">
-                    <div id="autoCompleteResults">
-                    </div>
-                </div>
-            <% end %>
+            <div class="searchBar">
+              <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
+                    <%= search_input f, :q, [id: "autoComplete", tabindex: 1, autocomplete: "off", placeholder: dgettext("page-index", "Search data for a region, a city, a network…"), "aria-label": dgettext("page-index", "Find dataset")] %>
+                  <div class="autoCompleteResultsField">
+                      <div id="autoCompleteResults">
+                      </div>
+                  </div>
+              <% end %>
+            </div>
 
                 <p><a href=<%= dataset_path @conn, :index, order_by: "most_recent" %>>
                         <%= dgettext("page-index", "See newly added datasets") %>

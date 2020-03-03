@@ -4,12 +4,14 @@
       <h1 class="text-center shortlist-title"><%= dgettext("page-shortlist", "Available datasets") %></h1>
       <div class="form__group">
         <%= form_for @conn, dataset_path(@conn, :index), [method: "get", class: "shortlist-form"], fn f -> %>
-        <%= search_input f, :q, [id: "autoComplete", autocomplete: "off", value: assigns[:q] || "", placeholder: dgettext("page-index", "Find dataset"), "aria-label": dgettext("page-index", "Find dataset")] %>
-        <div class="autoCompleteResultsField">
-          <div id="autoCompleteResults">
-          </div>
-        </div>
-      <% end %>
+          <div class="searchBar">
+            <%= search_input f, :q, [id: "autoComplete", autocomplete: "off", value: assigns[:q] || "", placeholder: dgettext("page-index", "Find dataset"), "aria-label": dgettext("page-index", "Find dataset")] %>
+            <div class="autoCompleteResultsField">
+              <div id="autoCompleteResults">
+              </div>
+            </div>
+        <% end %>
+      </div>
     </div>
   </div>
 </div>

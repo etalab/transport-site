@@ -1,71 +1,79 @@
 // https://github.com/babel/babel/issues/9849
-const regeneratorRuntime = require("regenerator-runtime");
+require('regenerator-runtime')
 
-document.querySelector("#autoComplete").addEventListener("autoComplete", event => {
-    console.log('event:', event)
-});
+const labels = {
+    region: 'région',
+    aom: 'AOM',
+    commune: 'commune'
+}
+
+document.onkeydown = function (evt) {
+    evt = evt || window.event
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+        document.querySelector('#autoComplete').value = ''
+        document.querySelector('#autoComplete_list').innerHTML = ''
+    }
+}
 
 const autoCompletejs = new autoComplete({
     data: {
         src: async () => {
-            const query = document.querySelector("#autoComplete").value;
-            const source = await fetch(
-                `/api/places?q=${query}`
-            );
-            let data = await source.json();
-            data = [{ name: `Rechercher ${query} sur tout le site`, url: `/datasets?q=${query}` }, ...data]
-            console.log('data:', data)
-            return data;
+            const query = document.querySelector('#autoComplete').value
+            const source = await fetch(`/api/places?q=${query}`)
+            let data = await source.json()
+            data = [
+                {
+                    name: `Rechercher ${query} dans les descriptions des jeux de données`,
+                    url: `/datasets?q=${query}`
+                },
+                ...data
+            ]
+            return data
         },
-        key: ["name"],
+        key: ['name'],
         cache: false
     },
-    selector: "#autoComplete",
+    selector: '#autoComplete',
     threshold: 1,
     debounce: 200,
     highlight: true,
     searchEngine: (query, record) => {
         // inspired by the 'loose' searchEngine, but that always matches
-        query = query.replace(/ /g, "");
-        var recordLowerCase = record.toLowerCase();
-        var match = [];
-        var searchPosition = 0;
-        for (var number = 0; number < recordLowerCase.length; number++) {
-            var recordChar = record[number];
-            if (searchPosition < query.length && recordLowerCase[number] === query[searchPosition]) {
-                recordChar = `<span class="autoComplete_highlighted">${recordChar}</span>`;
-                searchPosition++;
+        query = query.replace(/ /g, '')
+        const recordLowerCase = record.toLowerCase()
+        const match = []
+        let searchPosition = 0
+        for (let number = 0; number < recordLowerCase.length; number++) {
+            let recordChar = record[number]
+            if (
+                searchPosition < query.length &&
+                recordLowerCase[number] === query[searchPosition]
+            ) {
+                recordChar = `<span class="autoComplete_highlighted">${recordChar}</span>`
+                searchPosition++
             }
-            match.push(recordChar);
+            match.push(recordChar)
         }
-        return match.join("");
+        return match.join('')
     },
     maxResults: 7,
     resultsList: {
         render: true,
         container: source => {
-            source.setAttribute("id", "autoComplete_list");
+            source.setAttribute('id', 'autoComplete_list')
         },
-        destination: document.querySelector("#autoCompleteResults"),
-        position: "beforeend",
-        element: "ul"
+        destination: document.querySelector('#autoCompleteResults'),
+        position: 'beforeend',
+        element: 'ul'
     },
     resultItem: {
         content: (data, source) => {
-            source.innerHTML = data.match;
+            source.innerHTML = `<div><span class="autocomplete_name">${data.match}</span><span class="autocomplete_type">${labels[data.value.type] || ''}</span></div>`
         },
-        element: "li"
-    },
-    noResults: () => {
-        const result = document.createElement("li");
-        result.setAttribute("class", "no_result");
-        result.setAttribute("tabindex", "1");
-        result.innerHTML = "Pas de lieu correspondant...";
-        document.querySelector("#autoComplete_list").appendChild(result);
+        element: 'li'
     },
     onSelection: feedback => {
-        console.log('feedback:', feedback)
         feedback.event.preventDefault()
         window.location = feedback.selection.value.url
     }
-});
+})
