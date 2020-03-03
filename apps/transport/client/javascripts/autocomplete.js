@@ -1,6 +1,7 @@
+/* eslint no-unused-vars: [2, {"args": "after-used", "varsIgnorePattern": "autoCompletejs"}] */
 // https://github.com/babel/babel/issues/9849
 require('regenerator-runtime')
-const autoComplete = require('@tarekraafat/autocomplete.js/dist/js/autoComplete')
+const AutoComplete = require('@tarekraafat/autocomplete.js/dist/js/autoComplete')
 
 const labels = {
     region: 'région',
@@ -16,7 +17,7 @@ document.onkeydown = function (evt) {
     }
 }
 
-const autoCompletejs = new autoComplete({
+const autoCompletejs = new AutoComplete({
     data: {
         src: async () => {
             const query = document.querySelector('#autoComplete').value
