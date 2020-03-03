@@ -29,6 +29,13 @@
   padding-left: 30px;
 }
 
+.autoComplete_selected {
+  background-color: lightsteelblue;
+  div {
+    background-color: lightsteelblue;
+  }
+}
+
 #autoComplete_list {
   border: 1px solid var(--theme-border);
   border-radius: var(--theme-border-radius);
@@ -93,11 +100,4 @@
 .autoComplete_highlighted {
   font-weight: bold;
   color: var(--theme-primary);
-}
-
-.autoComplete_selected {
-  background-color: lightsteelblue;
-  div {
-    background-color: lightsteelblue;
-  }
 }
