@@ -1,5 +1,6 @@
 // https://github.com/babel/babel/issues/9849
 require('regenerator-runtime')
+const autoComplete = require('@tarekraafat/autocomplete.js/dist/js/autoComplete')
 
 const labels = {
     region: 'région',

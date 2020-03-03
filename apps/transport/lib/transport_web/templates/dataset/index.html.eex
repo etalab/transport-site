@@ -158,6 +158,4 @@
       </div>
     </div>
   </section>
-  <%# <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@7.2.0/dist/css/autoComplete.min.css"> %>
-  <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@7.2.0/dist/js/autoComplete.min.js"></script>
   <script src="<%= static_path(@conn, "/js/autocomplete.js") %>"></script>
