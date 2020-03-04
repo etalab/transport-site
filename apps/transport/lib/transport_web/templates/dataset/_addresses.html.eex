@@ -1,15 +1,6 @@
 <div class="container">
   <div class="notification">
-    <%= dgettext("page-shortlist", "There are 2 open data datasets for addresses:")%>
-    <ul>
-      <li>
-        <%= link("Base Adresse Nationale (BAN)", to: "/datasets/base-adresse-nationale/") %>
-        <%= dgettext("page-shortlist", ": the 'official' one, produced by the Institut géographique national (IGN), La Poste, Etalab and various administrations") %>
-      </li>
-      <li>
-        <%= link("Base d'Adresses Nationale Ouverte (BANO)", to: "/datasets/base-d-adresses-nationale-ouverte-bano") %>
-        <%= dgettext("page-shortlist", " created by OpenStreetMap France when the BAN was not fully open data.") %>
-      </li>
-    </ul>
+    <%= dgettext("page-shortlist", "The french addresses are available in the %{start_link}BAN%{end_link}, a dataset produced by the Institut géographique national (IGN), La Poste, Etalab and various administrations", 
+    start_link: "<a href='/datasets/base-adresse-nationale/'>", end_link: "</a>") |> raw() %>
   </div>
 </div>
