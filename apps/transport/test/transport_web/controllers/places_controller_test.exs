@@ -67,6 +67,28 @@ defmodule TransportWeb.API.PlacesControllerTest do
   end
 
   @tag :external
+  test "Search a place with multiple word", %{conn: conn} do
+    r =
+      conn
+      |> get(Helpers.places_path(conn, :autocomplete, q: "ile de fr"))
+      |> json_response(200)
+
+    assert sort_and_clean(r) ==
+             Enum.sort([
+               %{
+                 "name" => "Île-de-France Mobilités",
+                 "type" => "aom",
+                 "url" => "/datasets/aom/:id"
+               },
+               %{
+                 "name" => "Île-de-France",
+                 "type" => "region",
+                 "url" => "/datasets/region/:id"
+               }
+             ])
+  end
+
+  @tag :external
   test "Search a unknown place", %{conn: conn} do
     r =
       conn
