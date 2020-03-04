@@ -16,6 +16,7 @@ module.exports = {
         map: './javascripts/map.js',
         mapcsv: './javascripts/map-csv.js',
         utils: './javascripts/utils.js',
+        autocomplete: './javascripts/autocomplete.js',
         scss: './stylesheets/app.scss'
     },
     output: {

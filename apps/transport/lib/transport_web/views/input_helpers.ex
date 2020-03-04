@@ -52,18 +52,13 @@ defmodule TransportWeb.InputHelpers do
 
   @spec search_input(Phoenix.HTML.Form.t(), atom() | binary(), Keyword.t()) :: any
   def search_input(form, field, opts \\ []) do
-    button =
-      content_tag(
-        :button,
-        content_tag(:i, "", class: "fas icon--magnifier"),
-        [{:class, "button"}, {"aria-label", "Recherche"}]
-      )
+    icon = content_tag(:i, "", class: "fas icon--magnifier", id: "magnifier")
 
     form_group(
       content_tag(
         :div,
-        [Form.text_input(form, field, opts), button],
-        class: "input__group"
+        [icon, Form.text_input(form, field, opts)],
+        class: ""
       )
     )
   end

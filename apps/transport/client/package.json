@@ -15,6 +15,7 @@
     "@babel/core": "^7.3.4",
     "@babel/preset-env": "^7.3.4",
     "@fortawesome/fontawesome-free": "^5.1.0",
+    "@tarekraafat/autocomplete.js": "^7.2.0",
     "babel-loader": "^8.0.5",
     "copy-webpack-plugin": "^5.0.0",
     "core-js": "3",
