@@ -16,7 +16,6 @@ defmodule TransportWeb.API.PlacesController do
 
   @spec autocomplete(Plug.Conn.t(), map) :: Plug.Conn.t()
   def autocomplete(%Plug.Conn{} = conn, %{"q" => query}) do
-
     query =
       query
       # we replace '-' to ' ' because we also did this transformation for indexed_name
