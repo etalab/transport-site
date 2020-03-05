@@ -42,52 +42,6 @@
                 <li><%= order_link(@conn, "most_recent") %> </li>
               </ul>
             </li>
-            <li class="side-pane__title">
-              <h3><%= dgettext("page-shortlist", "Filters") %></h3>
-            </li>
-            <li class="side-pane__dropdown unfolded">
-              <h4><%= dgettext("page-shortlist", "Area type") %></h4>
-              <ul class="side-pane__submenu">
-                <li><%= area_type_link(@conn, "urban_public_transport") %></li>
-                <li><%= area_type_link(@conn, "intercities_public_transport") %></li>
-              </ul>
-            </li>
-            <li class="side-pane__dropdown unfolded">
-              <h4><%= dgettext("page-shortlist", "Regions") %></h4>
-              <ul class="side-pane__submenu">
-                <%= for region <- @regions do %>
-                  <li><%= region_link(@conn, region) %></li>
-                <% end%>
-                <%= if display_all_regions_links?(@conn) do %>
-                  <li><%= link(
-                    dgettext("page-shortlist", "All regions"),
-                    to: dataset_path(@conn, :index)
-                  )
-                  %></li>
-                <% end %>
-              </ul>
-            </li>
-            <li class="side-pane__dropdown unfolded">
-              <h4><%= dgettext("page-shortlist", "Data types") %></h4>
-              <ul class="side-pane__submenu">
-                <%= for type <- @types do %>
-                  <li><%= type_link(@conn, type) %></li>
-                <% end %>
-                <%= if display_all_types_links?(@conn) do %>
-                  <li><%= link(
-                  dgettext("page-shortlist", "All types"),
-                  to: dataset_path(@conn, :index)
-                  )
-                %></li>
-                <% else %>
-                  <li><%= link(
-                    dgettext("page-shortlist", "Realtime timetables"),
-                    to: dataset_path(@conn, :index, filter: "has_realtime")
-                  )
-                  %></li>
-                <% end %>
-              </ul>
-            </li>
           </ul>
         </nav>
         <div class="main-pane transparent">

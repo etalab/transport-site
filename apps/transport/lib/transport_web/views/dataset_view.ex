@@ -90,34 +90,6 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def region_link(conn, region) do
-    region_id = Integer.to_string(region.id)
-
-    case conn.params do
-      %{"region" => ^region_id} ->
-        ~E"<span class=\"activefilter\"><%= region.nom %> (<%= region.count %>)</span>"
-
-      _ ->
-        link(
-          "#{region.nom} (#{region.count})",
-          to: dataset_path(conn, :by_region, region.id)
-        )
-    end
-  end
-
-  def area_type_link(conn, zone_type) do
-    msg =
-      %{
-        "urban_public_transport" => dgettext("page-shortlist", "Urban public transport"),
-        "intercities_public_transport" => dgettext("page-shortlist", "Intercities public transport")
-      }[zone_type]
-
-    case conn.params do
-      %{"filter" => ^zone_type} -> ~E"<span class=\"activefilter\"><%= msg %></span>"
-      _ -> link(msg, to: dataset_path(conn, :index, filter: zone_type))
-    end
-  end
-
   def type_link(conn, %{type: type, msg: msg}) do
     case conn.params do
       %{"type" => ^type} -> ~E"<span class=\"activefilter\"><%= msg %></span>"
@@ -137,9 +109,6 @@ defmodule TransportWeb.DatasetView do
       _ -> nil
     end
   end
-
-  def display_all_regions_links?(%{params: %{"region" => region}}) when not is_nil(region), do: true
-  def display_all_regions_links?(_), do: false
 
   def display_all_types_links?(%{params: %{"type" => type}}) when not is_nil(type), do: true
   def display_all_types_links?(_), do: false

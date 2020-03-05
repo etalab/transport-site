@@ -182,26 +182,6 @@ msgid "Order by"
 msgstr ""
 
 #, elixir-format
-msgid "Filters"
-msgstr ""
-
-#, elixir-format
-msgid "Regions"
-msgstr ""
-
-#, elixir-format
-msgid "All regions"
-msgstr ""
-
-#, elixir-format
-msgid "Data types"
-msgstr ""
-
-#, elixir-format
-msgid "All types"
-msgstr ""
-
-#, elixir-format
 msgid "Search results"
 msgstr ""
 
@@ -214,23 +194,7 @@ msgid "Get dataset list via an API"
 msgstr ""
 
 #, elixir-format
-msgid "Area type"
-msgstr ""
-
-#, elixir-format
-msgid "Urban public transport"
-msgstr ""
-
-#, elixir-format
-msgid "Intercities public transport"
-msgstr ""
-
-#, elixir-format
 msgid "Available datasets"
-msgstr ""
-
-#, elixir-format
-msgid "Realtime timetables"
 msgstr ""
 
 #, elixir-format
