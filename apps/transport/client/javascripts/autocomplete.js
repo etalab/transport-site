@@ -41,22 +41,28 @@ const autoCompletejs = new AutoComplete({
     highlight: true,
     searchEngine: (query, record) => {
         // inspired by the 'loose' searchEngine, but that always matches
-        query = query.replace(/ /g, '')
-        const recordLowerCase = record.toLowerCase()
-        const match = []
-        let searchPosition = 0
-        for (let number = 0; number < recordLowerCase.length; number++) {
-            let recordChar = record[number]
-            if (
-                searchPosition < query.length &&
-                recordLowerCase[number] === query[searchPosition]
-            ) {
-                recordChar = `<span class="autoComplete_highlighted">${recordChar}</span>`
-                searchPosition++
+        query = query.replace(/ /g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        const recordLowerCase = record.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        const fullMatchPos = recordLowerCase.indexOf(query)
+        if (fullMatchPos >= 0) {
+            // full query match has priority
+            return `${record.slice(0, fullMatchPos)}<span class="autoComplete_highlighted">${record.slice(fullMatchPos, fullMatchPos + query.length)}</span>${record.slice(fullMatchPos + query.length)}`
+        } else {
+            const match = []
+            let searchPosition = 0
+            for (let number = 0; number < recordLowerCase.length; number++) {
+                let recordChar = record[number]
+                if (
+                    searchPosition < query.length &&
+                    recordLowerCase[number] === query[searchPosition]
+                ) {
+                    recordChar = `<span class="autoComplete_highlighted">${recordChar}</span>`
+                    searchPosition++
+                }
+                match.push(recordChar)
             }
-            match.push(recordChar)
+            return match.join('')
         }
-        return match.join('')
     },
     maxResults: 7,
     resultsList: {
