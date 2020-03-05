@@ -5,7 +5,6 @@ defmodule TransportWeb.DatasetController do
   alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
   import Phoenix.HTML
-  import Phoenix.HTML.Link
   require Logger
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()

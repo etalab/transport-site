@@ -28,7 +28,7 @@ defmodule TransportWeb.AOMSController do
       region: if(aom.region, do: aom.region.nom, else: ""),
       published: self_published(aom) || !is_nil(aom.parent_dataset),
       in_aggregate: !is_nil(aom.parent_dataset),
-      up_to_date: up_to_date?(aom.datasets),
+      up_to_date: up_to_date?(aom.datasets, aom.parent_dataset),
       population_muni_2014: aom.population_muni_2014,
       nom_commune: nom_commune,
       insee_commune_principale: aom.insee_commune_principale,
@@ -50,6 +50,7 @@ defmodule TransportWeb.AOMSController do
     AOM
     |> preload([:datasets, :region, :parent_dataset])
     |> preload(datasets: :resources)
+    |> preload(parent_dataset: :resources)
     |> join(:left, [aom], c in Commune, on: aom.insee_commune_principale == c.insee)
     |> select([aom, commune], {aom, commune.nom})
     |> Repo.all()
@@ -66,10 +67,11 @@ defmodule TransportWeb.AOMSController do
   @spec valid_dataset?(Dataset.t()) :: boolean()
   defp valid_dataset?(dataset), do: Enum.any?(dataset.resources, fn r -> !Resource.is_outdated?(r) end)
 
-  @spec up_to_date?([Dataset.t()]) :: boolean()
-  defp up_to_date?([]), do: false
+  @spec up_to_date?([Dataset.t()], Dataset.t() | nil) :: boolean()
+  defp up_to_date?([], nil), do: false
+  defp up_to_date?([], parent), do: up_to_date?([parent], nil)
 
-  defp up_to_date?(datasets) do
+  defp up_to_date?(datasets, _parent) do
     datasets
     |> Enum.filter(fn d -> d.type == "public-transit" end)
     |> case do
