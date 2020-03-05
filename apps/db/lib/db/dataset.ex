@@ -148,8 +148,20 @@ defmodule DB.Dataset do
   defp filter_by_type(query, _), do: query
 
   @spec filter_by_aom(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_aom(query, %{"aom" => aom_id}), do: where(query, [d], d.aom_id == ^aom_id)
+  defp filter_by_aom(query, %{"aom" => aom_id}),
+    do: where(query, [d], d.aom_id == ^aom_id or d.id == ^parent_dataset(aom_id))
+
   defp filter_by_aom(query, _), do: query
+
+  @spec parent_dataset(binary()) :: binary()
+  defp parent_dataset(aom_id) do
+    aom =
+      AOM
+      |> where([a], a.id == ^aom_id)
+      |> Repo.one()
+
+    aom.parent_dataset_id
+  end
 
   @spec filter_by_commune(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_commune(query, %{"insee_commune" => commune_insee}) do
