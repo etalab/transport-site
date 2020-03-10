@@ -218,3 +218,7 @@ msgstr ""
 #, elixir-format
 msgid "Addresses"
 msgstr ""
+
+#, elixir-format
+msgid "Informations"
+msgstr ""
