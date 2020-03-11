@@ -1,14 +1,32 @@
 .backoffice-datasets {
+  width: 100%;
+  border-collapse: collapse;
+  border: 0px solid black;
+  th {
+    text-align: left;
+    border: 0px solid black;
+  }
   td {
-    div {
-      display: flex;
-      justify-content: center;
-      .success {
-        background-color: var(--green);
-      }
-      button {
-        flex-shrink: 2;
-      }
+    border: 0px solid black;
+    padding: 6px;
+  }
+  tr {
+    padding: 6px;
+    height: 50px;
+  }
+  tr:hover {
+    background-color: #ebebeb;
+  }
+}
+
+.bo_dataset_button {
+  form > button,
+  div > button {
+    padding: 6px;
+    margin: 3px;
+    &:hover {
+      padding: 6px;
+      margin: 3px;
     }
   }
 }
@@ -19,4 +37,35 @@
 
 .panel__content * {
   margin-top: 0.5em;
+}
+
+.import-all > form {
+  margin: 0;
+}
+
+.backoffice_dataset_submit_buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  div {
+    padding: 0 12px 0 12px;
+  }
+}
+
+#backoffice_search {
+  padding-left: 30px;
+  width: 400px;
+  display: inline-block;
+}
+
+#backoffice_search_container {
+  margin: 0;
+  .form__group {
+    display: inline-block;
+  }
+}
+
+.backoffice_search_button {
+  display: inline-block;
+  margin-left: 16px !important;
 }

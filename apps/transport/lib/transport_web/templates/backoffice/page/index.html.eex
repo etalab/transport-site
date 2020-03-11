@@ -1,46 +1,59 @@
-<section class="dataset-container">
-  <%= render("_form_dataset.html", conn: @conn, regions: @regions, dataset_types: @dataset_types, dataset: @conn.assigns[:dataset]) %>
-  <h1>
+<section class="container pt-48 pb-48">
+  <h1>Backoffice</h1>
+    <a class="button" href="<%= backoffice_page_path(@conn, :new) %>">
+      <i class="fas fa-plus"></i> <%= dgettext("backoffice", "Add a dataset") %>
+    </a>
+    <div class="import-all">
+      <%= form_for @conn, backoffice_dataset_path(@conn, :validate_all), [method: "post"], fn _f -> %>
+        <%= submit dgettext("backoffice", "Import and validate all") %>
+      <% end %>
+    </div>
+  <h1 class="pt-48">
     <a name="list_datasets" href="#list_datasets" class="anchor"></a>
     <%= dgettext("backoffice", "Valid datasets available") %>
   </h1>
-  <%= form_for @conn, backoffice_page_path(@conn, :index), [method: "get"], fn f -> %>
-  <%= search_input f, :q, [value: assigns[:q] || "", placeholder: dgettext("page-index", "Find dataset")] %>
+  <%= form_for @conn, backoffice_page_path(@conn, :index), [id: "backoffice_search_container", method: "get"], fn f -> %>
+  <%= search_input f, :q, [id: "backoffice_search", value: assigns[:q] || "", placeholder: dgettext("page-index", "Find dataset")] %>
+  <button type="submit" class="button backoffice_search_button"> <i class="fa fa-search"></i></button>
 <% end %>
-<%= form_for @conn, backoffice_dataset_path(@conn, :validate_all), [method: "post"], fn _f -> %>
-<%= submit dgettext("backoffice", "Import and validate all") %>
-<% end %>
-<%= pagination_links @conn, @datasets %>
+
+<div class="pt-24">
+  <%= if is_nil(@conn.params["filter"]) or @conn.params["filter"] == "" do %>
+    -- ou --
+    <div>
+      <%= link(dgettext("backoffice", "Show outdated datasets only"), to: backoffice_page_path(@conn, :index, %{"filter" => "outdated"}) <> "#list_datasets") %>
+    </div>
+    <div>
+      <%= link(dgettext("backoffice", "Show datasets with unidentified resources"), to: backoffice_page_path(@conn, :index, %{"filter" => "other_resources"}) <> "#list_datasets") %>
+    </div>
+    <div>
+    <%= link(dgettext("backoffice", "Show datasets not compliant to spec"), to: backoffice_page_path(@conn, :index, %{"filter" => "not_compliant"}) <> "#list_datasets") %>
+    </div>
+  <% else %>
+    <%= link(dgettext("backoffice", "Show all datasets"), to: backoffice_page_path(@conn, :index) <> "#list_datasets") %>
+  <% end %>
+</div>
+
+<div class="pt-48">
+  <%= pagination_links @conn, @datasets %>
+</div>
 <table class="backoffice-datasets">
   <tr>
     <th>Dataset</th>
-    <th>Fin de validité</th>
-    <th></th>
-    <th></th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <th>transport</th>
+    <th>data.gouv.fr</th>
     <th>Region</th>
     <th>Commune principale</th>
+    <th>Fin de validité</th>
+    <th class="bo_dataset_button"></th>
+    <th class="bo_dataset_button"></th>
+    <th class="bo_dataset_button"></th>
+    <th class="bo_dataset_button"></th>
   </tr>
   <%= render_many(@datasets, TransportWeb.Backoffice.PageView, "_dataset.html", as: :dataset, conn: @conn)%>
 </table>
-<%= pagination_links @conn, @datasets %>
-<br>
-<%= if is_nil(@conn.params["filter"]) or @conn.params["filter"] == "" do %>
-  <a class="button" href="<%= backoffice_page_path(@conn, :index, %{"filter" => "outdated"}) %>#list_datasets">
-    <%= dgettext("backoffice", "Show outdated datasets only") %>
-  </a>
-  <a class="button" href="<%= backoffice_page_path(@conn, :index, %{"filter" => "other_resources"}) %>#list_datasets">
-    <%= dgettext("backoffice", "Show datasets with unidentified resources") %>
-  </a>
-  <a class="button" href="<%= backoffice_page_path(@conn, :index, %{"filter" => "not_compliant"}) %>#list_datasets">
-    <%= dgettext("backoffice", "Show datasets not compliant to spec") %>
-  </a>
-<% else %>
-  <a class="button" href="<%= backoffice_page_path(@conn, :index) %>#list_datasets">
-    <%= dgettext("backoffice", "Show all datasets") %>
-  </a>
-<% end %>
+<div class="pt-48">
+  <%= pagination_links @conn, @datasets %>
+</div>
 </section>
 <script src="js/app.js"></script>
