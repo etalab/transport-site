@@ -47,7 +47,7 @@ defmodule DB.Dataset do
     # - or a list of cities.
     belongs_to(:region, Region)
     belongs_to(:aom, AOM)
-    many_to_many(:communes, Commune, join_through: "dataset_communes")
+    many_to_many(:communes, Commune, join_through: "dataset_communes", on_replace: :delete)
 
     has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
   end
@@ -670,5 +670,9 @@ defmodule DB.Dataset do
     |> put_assoc(:communes, communes)
   end
 
-  defp cast_datagouv_zone(changeset, _), do: changeset
+  defp cast_datagouv_zone(changeset, _) do
+    changeset
+    |> change
+    |> put_assoc(:communes, [])
+  end
 end
