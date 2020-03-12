@@ -72,6 +72,30 @@ defmodule TransportWeb.Backoffice.PageController do
 
   def index(%Plug.Conn{} = conn, params), do: render_index(Dataset, conn, params)
 
+  def new(%Plug.Conn{} = conn, _) do
+    conn
+    |> assign(:dataset, nil)
+    |> assign(:dataset_types, Dataset.types())
+    |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
+    |> render("form_dataset.html")
+  end
+
+  def edit(%Plug.Conn{} = conn, %{"id" => dataset_id}) do
+    conn =
+      Dataset
+      |> preload(:aom)
+      |> Repo.get(dataset_id)
+      |> case do
+        nil -> put_flash(conn, :error, dgettext("backoffice", "Unable to find dataset"))
+        dataset -> assign(conn, :dataset, dataset)
+      end
+
+    conn
+    |> assign(:dataset_types, Dataset.types())
+    |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
+    |> render("form_dataset.html")
+  end
+
   ## Private functions
   @spec render_index(Ecto.Queryable.t(), Plug.Conn.t(), map()) :: Plug.Conn.t()
   defp render_index(datasets, conn, params) do

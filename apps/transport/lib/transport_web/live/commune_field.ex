@@ -8,7 +8,7 @@ defmodule TransportWeb.Live.CommuneField do
   def render(assigns) do
     ~L"""
     <div class="form__group">
-        <input type="text" phx-keyup="suggest" list="matches" name="insee"
+        <input type="text" phx-keyup="suggest" list="matches" name="insee" value="<%= @insee %>"
          autocomplete="off" id="communes_q" placeholder="Code INSEE (vous pouvez aussi chercher par nom)">
         <datalist id="matches">
         <%= for match <- @matches do %>
@@ -19,7 +19,14 @@ defmodule TransportWeb.Live.CommuneField do
     """
   end
 
-  def mount(_session, socket), do: {:ok, assign(socket, matches: [])}
+  def mount(session, socket) do
+    assigns =
+      socket
+      |> assign(matches: [])
+      |> assign(insee: session.insee)
+
+    {:ok, assigns}
+  end
 
   def handle_event("suggest", %{"value" => query}, socket) when byte_size(query) <= 100 do
     matches =

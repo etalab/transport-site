@@ -633,8 +633,21 @@ defmodule DB.Dataset do
     |> preload([:aom_res])
     |> Repo.get_by(insee: insee)
     |> case do
-      nil -> add_error(changeset, :aom_id, dgettext("dataset", "Unable to find INSEE code '%{insee}'", insee: insee))
-      commune -> change(changeset, aom_id: commune.aom_res.id)
+      nil ->
+        add_error(changeset, :aom_id, dgettext("dataset", "Unable to find INSEE code '%{insee}'", insee: insee))
+
+      commune ->
+        case commune.aom_res do
+          nil ->
+            add_error(
+              changeset,
+              :aom_id,
+              dgettext("dataset", "INSEE code '%{insee}' not associated with an AOM", insee: insee)
+            )
+
+          aom_res ->
+            change(changeset, aom_id: aom_res.id)
+        end
     end
   end
 

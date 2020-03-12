@@ -167,8 +167,9 @@
     margin-bottom: 10vw;
   }
 
-  .resource__header, .resource__details {
-    width: 100%
+  .resource__header,
+  .resource__details {
+    width: 100%;
   }
 
   .panel__header {
@@ -231,7 +232,8 @@
     }
   }
 
-  .resource--valid, .resource--notvalid {
+  .resource--valid,
+  .resource--notvalid {
     width: 100%;
   }
 
@@ -258,6 +260,10 @@
   padding-top: 48px;
 }
 
+.pt-24 {
+  padding-top: 24px;
+}
+
 .mapcsv {
   width: 90%;
   max-width: 700px;
@@ -265,5 +271,5 @@
   margin: 0 auto;
   margin-top: 48px;
   margin-bottom: 12px;
-  z-index:0;
+  z-index: 0;
 }
