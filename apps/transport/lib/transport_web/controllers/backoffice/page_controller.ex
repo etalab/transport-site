@@ -77,7 +77,7 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:dataset, nil)
     |> assign(:dataset_types, Dataset.types())
     |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
-    |> render("_form_dataset.html")
+    |> render("form_dataset.html")
   end
 
   def edit(%Plug.Conn{} = conn, %{"id" => dataset_id}) do
@@ -93,7 +93,7 @@ defmodule TransportWeb.Backoffice.PageController do
     conn
     |> assign(:dataset_types, Dataset.types())
     |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
-    |> render("_form_dataset.html")
+    |> render("form_dataset.html")
   end
 
   ## Private functions

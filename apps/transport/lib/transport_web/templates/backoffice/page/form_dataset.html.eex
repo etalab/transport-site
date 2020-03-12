@@ -43,7 +43,11 @@
     </p>
     <%= dgettext("backoffice", "Dataset linked to an AOM") %>
     <div class="panel__content">
-      <%= live_render(@conn, TransportWeb.Live.CommuneField) %>
+    <%= if is_nil(@dataset) || is_nil(@dataset.aom) || is_nil(@dataset.aom.insee_commune_principale) do %>
+      <%= live_render(@conn, TransportWeb.Live.CommuneField, session: %{insee: ""}) %>
+    <% else %>
+      <%= live_render(@conn, TransportWeb.Live.CommuneField, session: %{insee: @dataset.aom.insee_commune_principale}) %>
+    <% end %>
     </div>
     <p class="separator">
       - <%= dgettext("resource", "or") %> -
@@ -75,3 +79,4 @@
     </div>
   </div>
 </div>
+<script src="/js/app.js"></script>
