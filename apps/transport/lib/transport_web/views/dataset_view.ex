@@ -182,13 +182,13 @@ defmodule TransportWeb.DatasetView do
   def licence_url(_), do: nil
 
   @spec localization(DB.Dataset.t()) :: binary | nil
-  defp localization(%Dataset{aom: %{nom: nom}}), do: nom
-  defp localization(%Dataset{region: %{nom: nom}}), do: nom
+  def localization(%Dataset{aom: %{nom: nom}}), do: nom
+  def localization(%Dataset{region: %{nom: nom}}), do: nom
 
-  defp localization(%Dataset{associated_territory_name: associated_territory_name}),
+  def localization(%Dataset{associated_territory_name: associated_territory_name}),
     do: associated_territory_name
 
-  defp localization(_), do: nil
+  def localization(_), do: nil
 
   @doc """
   long_title of the dataset, used in the dataset list and dataset detail as the 'main' title of the dataset
