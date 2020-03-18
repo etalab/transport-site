@@ -19,7 +19,7 @@
 <%= if @conn.assigns[:custom_context] do %>
   <%= render TransportWeb.DatasetView, @custom_context, conn: @conn %>
 <% end %>
-<section class="section section-grey datasets">
+<section id="datasets-results" class="section section-grey datasets">
   <div class="container search-title">
     <%= if @conn.assigns[:page_title] do %>
       <h2> <%= @page_title %> </h2>
