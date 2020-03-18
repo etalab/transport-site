@@ -9,15 +9,18 @@
       <div class="dataset__logo">
         <%= img_tag(@dataset.full_logo, alt: @dataset.title) %>
       </div>
-      <div class="dataset__title">
+      <div class="dataset__title pt-24">
         <h1>
-          <%= long_title(@dataset) %>
+          <%= @dataset.spatial %>
         </h1>
       </div>
-      <div class="dataset__subtitle">
-        <h2>
-          <%= @dataset.spatial %>
-        </h2>
+      <div class="dataset__subtitle is-centered">
+        <div>
+          <i class="fa fa-map-marker-alt"></i> <%= localization(@dataset) %> <i>
+        </div>
+        <div>
+          <%= Dataset.type_to_str(@dataset.type) %>
+        </div>
       </div>
     </div>
   </section>

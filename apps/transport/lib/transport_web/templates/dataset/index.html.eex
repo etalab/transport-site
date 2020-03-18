@@ -86,12 +86,12 @@
                     <div>
                       <h3 class="dataset__title">
                         <a href="/datasets/<%= dataset.slug %>/">
-                          <%= long_title(dataset) %>
+                          <%= dataset.spatial %>
                         </a>
                       </h3>
-                      <dl class="shortlist__notice">
-                        <dd><%= dataset.spatial %></dd>
-                      </dl>
+                      <div class="dataset-localization">
+                        <i class="fa fa-map-marker-alt"></i> <%= localization(dataset) %></<i>
+                      </div>
                     </div>
                   </div>
                   <%= unless is_nil(icon_type_path(dataset)) do %>
@@ -103,10 +103,10 @@
                 <div class="panel__extra">
                   <div class="dataset__info">
                     <div class="shortlist__notices">
-                      <dl class="shortlist__notice">
-                        <dd><%= dataset.title %></dd>
-                      </dl>
-                      <dl class="shortlist__notice">
+                      <div class="dataset-udpate-date ml-1em">
+                        Mis à jour le <%= dataset.last_update %>
+                      </div>
+                      <dl class="dataset-format shortlist__notice">
                         <%= unless Dataset.formats(dataset) == [] do %>
                           <dt class="shortlist__label"><%= dgettext("page-shortlist", "Format") %></dt>
                           <%= for format <- Dataset.formats(dataset) do %>
@@ -114,6 +114,9 @@
                           <% end %>
                         <% end %>
                       </dl>
+                      <div class="dataset-type-text">
+                        <%= Dataset.type_to_str(dataset.type) %>
+                      </div>
                     </div>
                   </div>
                 </div>
