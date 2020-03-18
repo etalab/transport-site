@@ -86,14 +86,58 @@ defmodule TransportWeb.DatasetView do
 
     case conn.assigns do
       %{order_by: ^order_by} -> ~E"<span class=\"activefilter\"><%= msg %></span>"
-      _ -> link(msg, to: current_url(conn, Map.put(conn.params, "order_by", order_by)))
+      _ -> link(msg, to: current_url(conn, Map.put(conn.query_params, "order_by", order_by)))
     end
   end
 
-  def type_link(conn, %{type: type, msg: msg}) do
+  def type_link(conn, %{type: type, msg: msg, count: count}) do
+    params =
+      case type do
+        nil -> conn.query_params |> Map.delete("type")
+        type -> conn.query_params |> Map.put("type", type)
+      end
+
+    full_url =
+      conn.request_path
+      |> URI.parse()
+      |> Map.put(:query, URI.encode_query(params))
+      |> URI.to_string()
+
+    link_text = "#{msg} (#{count})"
+    active_filter_text = ~E"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>"
+
     case conn.params do
-      %{"type" => ^type} -> ~E"<span class=\"activefilter\"><%= msg %></span>"
-      _ -> link(msg, to: dataset_path(conn, :index, type: type))
+      %{"type" => ^type} ->
+        active_filter_text
+
+      %{"type" => _} ->
+        link(link_text, to: full_url)
+
+      _ ->
+        case type do
+          nil -> active_filter_text
+          _ -> link(link_text, to: full_url)
+        end
+    end
+  end
+
+  def real_time_link(conn, %{only_realtime: only_rt, msg: msg, count: count}) do
+    params =
+      case only_rt do
+        false -> conn.query_params |> Map.delete("filter")
+        true -> conn.query_params |> Map.put(:filter, "has_realtime")
+      end
+
+    full_url =
+      conn.request_path
+      |> URI.parse()
+      |> Map.put(:query, URI.encode_query(params))
+      |> URI.to_string()
+
+    case {only_rt, Map.get(conn.query_params, "filter")} do
+      {false, "has_realtime"} -> link("#{msg} (#{count})", to: full_url)
+      {true, nil} -> link("#{msg} (#{count})", to: full_url)
+      _ -> ~E"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>"
     end
   end
 

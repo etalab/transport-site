@@ -65,3 +65,7 @@ msgstr ""
 #, elixir-format
 msgid "If the data.gouv's zones are used, you should fill the associated territory name"
 msgstr ""
+
+#, elixir-format
+msgid "INSEE code '%{insee}' not associated with an AOM"
+msgstr ""

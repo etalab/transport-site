@@ -162,3 +162,7 @@ msgstr "Utiliser les zones de data.gouv.fr"
 #, elixir-format
 msgid "Show datasets not compliant to spec"
 msgstr "Montrer les jeux de données ne respectant pas les spec"
+
+#, elixir-format
+msgid "Cancel"
+msgstr "Annuler"
