@@ -190,19 +190,6 @@ defmodule TransportWeb.DatasetView do
 
   def localization(_), do: nil
 
-  @doc """
-  long_title of the dataset, used in the dataset list and dataset detail as the 'main' title of the dataset
-  """
-  def long_title(%Dataset{} = dataset) do
-    localization = localization(dataset)
-
-    if localization do
-      localization <> " - " <> Dataset.type_to_str(dataset.type)
-    else
-      Dataset.type_to_str(dataset.type)
-    end
-  end
-
   def description(%Dataset{} = dataset) do
     {:safe, sanitized_md} = sanitize(dataset.description)
 
