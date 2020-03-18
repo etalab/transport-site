@@ -136,7 +136,7 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  @spec get_realtime_count(map()) :: integer
+  @spec get_realtime_count(map()) :: %{all: integer, true: integer}
   defp get_realtime_count(params) do
     result =
       params
@@ -147,6 +147,7 @@ defmodule TransportWeb.DatasetController do
       |> Repo.all()
       |> Enum.reduce(%{}, fn r, acc -> Map.put(acc, r.has_realtime, r.count) end)
 
+    # return the total number of datasets (all) and the number of real time datasets (true)
     %{all: Map.get(result, true, 0) + Map.get(result, false, 0), true: Map.get(result, true, 0)}
   end
 
