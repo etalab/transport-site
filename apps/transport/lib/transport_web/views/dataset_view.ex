@@ -81,7 +81,7 @@ defmodule TransportWeb.DatasetView do
     msg =
       %{
         "alpha" => dgettext("page-shortlist", "Alphabetical"),
-        "most_recent" => dgettext("page-shortlist", "Most recent")
+        "most_recent" => dgettext("page-shortlist", "Most recently added")
       }[order_by]
 
     case conn.assigns do

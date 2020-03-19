@@ -104,7 +104,7 @@
                   <div class="dataset__info">
                     <div class="shortlist__notices">
                       <div class="dataset-udpate-date ml-1em">
-                        Mis à jour le <%= dataset.last_update %>
+                        <%= dgettext("page-shortlist", "added on") %> <%= dataset.created_at %>
                       </div>
                       <dl class="dataset-format shortlist__notice">
                         <%= unless Dataset.formats(dataset) == [] do %>
