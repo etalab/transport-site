@@ -162,3 +162,7 @@ msgstr ""
 #, elixir-format
 msgid "Show datasets not compliant to spec"
 msgstr ""
+
+#, elixir-format
+msgid "Cancel"
+msgstr ""

@@ -220,5 +220,5 @@ msgid "Addresses"
 msgstr "Adresses"
 
 #, elixir-format
-msgid "Informations"
-msgstr ""
+msgid "Other informations"
+msgstr "Autres informations"
