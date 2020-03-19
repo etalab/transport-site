@@ -24,7 +24,7 @@
     <%= if @conn.assigns[:page_title] do %>
       <h2> <%= @page_title %> </h2>
     <% else %>
-      <h2><%= dgettext("page-shortlist", "Search results") %></h2>
+        <h2><%= @datasets.total_entries %> <%= dngettext("page-shortlist", "search result", "search results", @datasets.total_entries) %> </h2>
     <% end %>
     <div class="shortlist__pagination">
       <%= pagination_links @conn, @datasets %>

@@ -249,6 +249,12 @@ msgstr ""
 msgid "Any"
 msgstr ""
 
+#, elixir-format, fuzzy
+msgid "search result"
+msgid_plural "search results"
+msgstr[0] ""
+msgstr[1] ""
+
 #, elixir-format
 msgid "No results"
 msgstr ""

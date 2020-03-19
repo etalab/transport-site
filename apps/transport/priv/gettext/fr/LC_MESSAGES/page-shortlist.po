@@ -250,5 +250,11 @@ msgid "Any"
 msgstr "Peu importe"
 
 #, elixir-format
+msgid "search result"
+msgid_plural "search results"
+msgstr[0] "résultat de recherche"
+msgstr[1] "résultats de recherche"
+
+#, elixir-format
 msgid "No results"
 msgstr "Pas de résultats"
