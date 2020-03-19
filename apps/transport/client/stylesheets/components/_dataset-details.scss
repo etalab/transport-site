@@ -14,7 +14,7 @@
 
 .dataset__logo {
   max-height: 10vh;
-  max-width: 20vw;
+  max-width: 250px;
   display: flex;
   justify-content: center;
 
@@ -238,10 +238,6 @@
   }
 
   .dataset {
-    .dataset__logo {
-      max-width: 80vw;
-    }
-
     .section {
       padding: 1em 0 1em 0;
     }

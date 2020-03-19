@@ -33,10 +33,9 @@
 
 .separator {
   text-align: center;
-}
-
-.panel__content * {
-  margin-top: 0.5em;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  font-weight: bold;
 }
 
 .import-all > form {
@@ -68,4 +67,8 @@
 .backoffice_search_button {
   display: inline-block;
   margin-left: 16px !important;
+}
+
+.pt-12 {
+  padding-top: 12px;
 }

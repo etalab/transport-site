@@ -226,7 +226,7 @@ defmodule DB.Dataset do
   end
 
   @spec order_datasets(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  def order_datasets(datasets, %{"order_by" => "alpha"}), do: order_by(datasets, asc: :title)
+  def order_datasets(datasets, %{"order_by" => "alpha"}), do: order_by(datasets, asc: :spatial)
   def order_datasets(datasets, %{"order_by" => "most_recent"}), do: order_by(datasets, desc: :created_at)
 
   def order_datasets(datasets, %{"q" => q}),

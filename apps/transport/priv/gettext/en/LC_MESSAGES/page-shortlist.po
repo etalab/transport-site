@@ -174,15 +174,11 @@ msgid "Alphabetical"
 msgstr ""
 
 #, elixir-format
-msgid "Most recent"
+msgid "Most recently added"
 msgstr ""
 
 #, elixir-format
 msgid "Order by"
-msgstr ""
-
-#, elixir-format
-msgid "Search results"
 msgstr ""
 
 #, elixir-format
@@ -247,4 +243,18 @@ msgstr ""
 
 #, elixir-format
 msgid "Any"
+msgstr ""
+
+#, elixir-format
+msgid "search result"
+msgid_plural "search results"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-format
+msgid "No results"
+msgstr ""
+
+#, elixir-format
+msgid "added on"
 msgstr ""

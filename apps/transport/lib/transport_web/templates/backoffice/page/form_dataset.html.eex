@@ -55,11 +55,15 @@
     <div class="panel__content">
       <%= dgettext("backoffice", "Dataset linked to a list of cities in data.gouv.fr") %>
       <div>
+      <div class="pt-12">
         <%= checkbox f, :use_datagouv_zones, value: not is_nil(@dataset) && not is_nil(@dataset.associated_territory_name) %><%= dgettext("backoffice", "Use data.gouv.fr's zones") %>
+      </div>
+      <div class="pt-12">
         <%= text_input f, :associated_territory_name, [
         placeholder: dgettext("backoffice", "Name of the associtated territory (used in the title of the dataset)"),
         value: if not is_nil(@dataset) do @dataset.associated_territory_name else "" end
       ] %>
+      </div>
       </div>
     </div>
   </div>

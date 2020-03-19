@@ -174,16 +174,12 @@ msgid "Alphabetical"
 msgstr "Ordre alphabetique"
 
 #, elixir-format
-msgid "Most recent"
-msgstr "Plus récent"
+msgid "Most recently added"
+msgstr "Récemment ajouté"
 
 #, elixir-format
 msgid "Order by"
 msgstr "Tri par"
-
-#, elixir-format
-msgid "Search results"
-msgstr "Résultats de recherche"
 
 #, elixir-format
 msgid "here"
@@ -248,3 +244,17 @@ msgstr "Avec temps réel"
 #, elixir-format
 msgid "Any"
 msgstr "Peu importe"
+
+#, elixir-format
+msgid "search result"
+msgid_plural "search results"
+msgstr[0] "résultat de recherche"
+msgstr[1] "résultats de recherche"
+
+#, elixir-format
+msgid "No results"
+msgstr "Pas de résultats"
+
+#, elixir-format
+msgid "added on"
+msgstr "ajouté le"
