@@ -70,3 +70,7 @@ msgstr "Si les zones de data.gouv.fr sont utilisées, vous devez donner le nom d
 #, elixir-format
 msgid "INSEE code '%{insee}' not associated with an AOM"
 msgstr "Le code INSEE '%{insee}' n'est pas associé à une AOM"
+
+#, elixir-format
+msgid "Other informations"
+msgstr "Autres informations"
