@@ -1,6 +1,5 @@
 <div class="container">
   <div class="notification">
-    <%= dgettext("page-shortlist", "More information about realtime") %>
-    <%= link(dgettext("page-shortlist", "here"), to: page_path(@conn, :real_time)) %>
+    <%= dgettext("page-shortlist", "More information about realtime") %> <%= link(dgettext("page-shortlist", "here"), to: page_path(@conn, :real_time)) %>
   </div>
 </div>
