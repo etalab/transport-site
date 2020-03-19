@@ -70,3 +70,7 @@ msgstr ""
 #, elixir-format
 msgid "INSEE code '%{insee}' not associated with an AOM"
 msgstr ""
+
+#, elixir-format
+msgid "Other informations"
+msgstr ""
