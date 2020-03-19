@@ -201,8 +201,14 @@ defmodule TransportWeb.DatasetController do
 
   @spec put_empty_message(Plug.Conn.t(), map()) :: Plug.Conn.t()
   defp put_empty_message(%Plug.Conn{:assigns => %{:datasets => %{:entries => []}}} = conn, params) do
-    message = empty_message_by_territory(params)
-    assign(conn, :empty_message, raw(message))
+    case map_size(conn.query_params) do
+      0 ->
+        message = empty_message_by_territory(params)
+        assign(conn, :empty_message, raw(message))
+
+      _ ->
+        assign(conn, :empty_message, raw(dgettext("page-shortlist", "No results")))
+    end
   end
 
   defp put_empty_message(conn, _params), do: conn

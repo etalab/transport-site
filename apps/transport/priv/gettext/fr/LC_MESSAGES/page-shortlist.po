@@ -248,3 +248,7 @@ msgstr "Avec temps réel"
 #, elixir-format
 msgid "Any"
 msgstr "Peu importe"
+
+#, elixir-format
+msgid "No results"
+msgstr "Pas de résultats"

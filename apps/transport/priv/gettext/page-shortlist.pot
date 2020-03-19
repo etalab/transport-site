@@ -248,3 +248,7 @@ msgstr ""
 #, elixir-format
 msgid "Any"
 msgstr ""
+
+#, elixir-format
+msgid "No results"
+msgstr ""
