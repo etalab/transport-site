@@ -22,6 +22,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
         description: "Un jeu de données",
         licence: "odc-odbl",
         title: "Horaires et arrêts du réseau IRIGO - format GTFS",
+        spatial: "Horaires Angers"
         type: "public-transit",
         slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
         datagouv_id: "5b4cd3a0b59508054dd496cd",
@@ -74,8 +75,8 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
     # I can see or read somewhere that the datasets are valid
     assert visible_in_page?(~r/Jeux de données disponibles/)
     # I can click on a dataset and see its details
-    click({:link_text, "Angers Métropôle - Horaires théoriques de transport public"})
-    assert visible_in_page?(~r/Angers Métropôle - Horaires théoriques de transport public/)
+    click({:link_text, "Angers horaires"})
+    assert visible_in_page?(~r/Angers horaires/)
 
     # the description should also be displayed
     assert visible_in_page?(~r/Un jeu de données/)
