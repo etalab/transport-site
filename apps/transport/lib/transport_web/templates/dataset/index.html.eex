@@ -19,7 +19,7 @@
 <%= if @conn.assigns[:custom_context] do %>
   <%= render TransportWeb.DatasetView, @custom_context, conn: @conn %>
 <% end %>
-<section class="section section-grey datasets">
+<section id="datasets-results" class="section section-grey datasets">
   <div class="container search-title">
     <%= if @conn.assigns[:page_title] do %>
       <h2> <%= @page_title %> </h2>
@@ -42,8 +42,32 @@
                 <li><%= order_link(@conn, "most_recent") %> </li>
               </ul>
             </li>
-          </ul>
-        </nav>
+          </li>
+
+          <li class="side-pane__title">
+            <h3><%= dgettext("page-shortlist", "Data type") %></h3>
+            <li class="side-pane__dropdown unfolded">
+              <ul class="side-pane__submenu">
+                <li><%= type_link(@conn, %{msg: dgettext("page-shortlist", "All"), type: nil, count: @types |> Enum.map(&(&1.count)) |> Enum.sum}) %></li>
+                <%= for type <- @types do %>
+                  <li><%= type_link(@conn, type) %></li>
+                <% end %>
+              </ul>
+            </li>
+          </li>
+
+          <li class="side-pane__title">
+            <h3><%= dgettext("page-shortlist", "Real Time") %></h3>
+            <li class="side-pane__dropdown unfolded">
+              <ul class="side-pane__submenu">
+                <li><%= real_time_link(@conn, %{only_realtime: false, msg: dgettext("page-shortlist", "Any"), count: @number_realtime_datasets.all}) %></li>
+                <li><%= real_time_link(@conn, %{only_realtime: true, msg: dgettext("page-shortlist", "with real time"), count: @number_realtime_datasets.true}) %></li>
+              </ul>
+            </li>
+          </li>
+
+        </ul>
+      </nav>
         <div class="main-pane transparent">
           <%= if @conn.assigns[:empty_message] do %>
             <div class="container">

@@ -2,7 +2,7 @@ defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
   alias Datagouvfr.Client.{CommunityResources, Datasets, Discussions, Reuses}
-  alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
+  alias DB.{AOM, Commune, Dataset, Region, Repo}
   import Ecto.Query
   import Phoenix.HTML
   require Logger
@@ -14,8 +14,8 @@ defmodule TransportWeb.DatasetController do
   def list_datasets(%Plug.Conn{} = conn, %{} = params) do
     conn
     |> assign(:datasets, get_datasets(params))
-    |> assign(:regions, get_regions(params))
     |> assign(:types, get_types(params))
+    |> assign(:number_realtime_datasets, get_realtime_count(params))
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
     |> put_empty_message(params)
@@ -111,54 +111,44 @@ defmodule TransportWeb.DatasetController do
     |> Repo.paginate(page: config.page_number)
   end
 
-  @spec clean_datasets_query(map()) :: Ecto.Query.t()
-  defp clean_datasets_query(params), do: params |> Dataset.list_datasets() |> exclude(:preload)
+  @spec clean_datasets_query(map(), String.t()) :: Ecto.Query.t()
+  defp clean_datasets_query(params, key_to_delete),
+    do: params |> Map.delete(key_to_delete) |> Dataset.list_datasets() |> exclude(:preload)
 
-  @spec get_regions(map()) :: [Region.t()]
-  defp get_regions(%{"tags" => _tags}) do
-    # for tags, we do not filter the datasets since it causes a non valid sql query
-    sub =
-      %{}
-      |> clean_datasets_query()
-      |> exclude(:order_by)
-      |> join(:left, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
-      |> select([d, d_geo], %{id: d.id, region_id: d_geo.region_id})
-
-    Region
-    |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
-    |> group_by([r], [r.id, r.nom])
-    |> select([r, d], %{nom: r.nom, id: r.id, count: count(d.id)})
-    |> order_by([r], r.nom)
-    |> Repo.all()
-  end
-
-  defp get_regions(params) do
-    sub =
-      params
-      |> clean_datasets_query()
-      |> exclude(:order_by)
-      |> join(:left, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
-      |> select([d, d_geo], %{id: d.id, region_id: d_geo.region_id})
-
-    Region
-    |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
-    |> group_by([r], [r.id, r.nom])
-    |> select([r, d], %{nom: r.nom, id: r.id, count: count(d.id)})
-    |> order_by([r], r.nom)
-    |> Repo.all()
-  end
-
-  @spec get_types(map()) :: [%{type: binary(), msg: binary()}]
+  @spec get_types(map()) :: [%{type: binary(), msg: binary(), count: integer}]
   defp get_types(params) do
     params
-    |> clean_datasets_query()
+    |> clean_datasets_query("type")
     |> exclude(:order_by)
-    |> select([d], d.type)
-    |> distinct(true)
+    |> group_by([d], [d.type])
+    |> select([d], %{type: d.type, count: count(d.type)})
     |> Repo.all()
     |> Enum.reject(&is_nil/1)
-    |> Enum.map(fn type -> %{type: type, msg: Dataset.type_to_str(type)} end)
+    |> Enum.map(fn res -> %{type: res.type, count: res.count, msg: Dataset.type_to_str(res.type)} end)
+    |> add_current_type(params["type"])
     |> Enum.reject(fn t -> is_nil(t.msg) end)
+  end
+
+  defp add_current_type(results, type) do
+    case Enum.any?(results, &(&1.type == type)) do
+      true -> results
+      false -> results ++ [%{type: type, count: 0, msg: Dataset.type_to_str(type)}]
+    end
+  end
+
+  @spec get_realtime_count(map()) :: %{all: integer, true: integer}
+  defp get_realtime_count(params) do
+    result =
+      params
+      |> clean_datasets_query("filter")
+      |> exclude(:order_by)
+      |> group_by([d], d.has_realtime)
+      |> select([d], %{has_realtime: d.has_realtime, count: count()})
+      |> Repo.all()
+      |> Enum.reduce(%{}, fn r, acc -> Map.put(acc, r.has_realtime, r.count) end)
+
+    # return the total number of datasets (all) and the number of real time datasets (true)
+    %{all: Map.get(result, true, 0) + Map.get(result, false, 0), true: Map.get(result, true, 0)}
   end
 
   @spec redirect_to_slug_or_404(Plug.Conn.t(), number() | binary()) :: Plug.Conn.t()
@@ -218,8 +208,12 @@ defmodule TransportWeb.DatasetController do
   defp put_empty_message(conn, _params), do: conn
 
   @spec put_custom_context(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  defp put_custom_context(conn, %{"filter" => "has_realtime"}), do: assign(conn, :custom_context, "_realtime.html")
-  defp put_custom_context(conn, %{"type" => "addresses"}), do: assign(conn, :custom_context, "_addresses.html")
+  defp put_custom_context(conn, %{"filter" => "has_realtime"}),
+    do: assign(conn, :custom_context, "_realtime.html")
+
+  defp put_custom_context(conn, %{"type" => "addresses"}),
+    do: assign(conn, :custom_context, "_addresses.html")
+
   defp put_custom_context(conn, _), do: conn
 
   defp put_page_title(conn, %{"region" => id}),

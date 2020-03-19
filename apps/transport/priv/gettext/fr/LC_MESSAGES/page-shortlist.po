@@ -171,11 +171,11 @@ msgstr "Aucun jeu de données trouvé"
 
 #, elixir-format
 msgid "Alphabetical"
-msgstr "ordre alphabetique"
+msgstr "Ordre alphabetique"
 
 #, elixir-format
 msgid "Most recent"
-msgstr "plus récent"
+msgstr "Plus récent"
 
 #, elixir-format
 msgid "Order by"
@@ -228,3 +228,23 @@ msgstr "Jeux de données de la région %{region}"
 #, elixir-format
 msgid "The french addresses are available in the %{start_link}BAN%{end_link}, a dataset produced by the Institut géographique national (IGN), La Poste, Etalab and various administrations"
 msgstr "Les données d’adresses françaises sont disponibles dans le jeu de données de la %{start_link}BAN%{end_link}, produit par l’Institut géographique national (IGN), La Poste, Etalab et diverses administrations"
+
+#, elixir-format
+msgid "Data type"
+msgstr "Type de données"
+
+#, elixir-format
+msgid "All"
+msgstr "Tous"
+
+#, elixir-format
+msgid "Real Time"
+msgstr "Temps réel"
+
+#, elixir-format
+msgid "with real time"
+msgstr "Avec temps réel"
+
+#, elixir-format
+msgid "Any"
+msgstr "Peu importe"

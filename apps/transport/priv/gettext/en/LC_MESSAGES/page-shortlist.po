@@ -228,3 +228,23 @@ msgstr ""
 #, elixir-format
 msgid "The french addresses are available in the %{start_link}BAN%{end_link}, a dataset produced by the Institut géographique national (IGN), La Poste, Etalab and various administrations"
 msgstr ""
+
+#, elixir-format
+msgid "Data type"
+msgstr ""
+
+#, elixir-format
+msgid "All"
+msgstr ""
+
+#, elixir-format
+msgid "Real Time"
+msgstr ""
+
+#, elixir-format
+msgid "with real time"
+msgstr ""
+
+#, elixir-format
+msgid "Any"
+msgstr ""
