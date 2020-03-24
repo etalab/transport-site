@@ -88,6 +88,12 @@
                         <a href="/datasets/<%= dataset.slug %>/">
                           <%= dataset.spatial %>
                         </a>
+                        <%= if admin?(assigns[:current_user]) do %>
+                          <span class="dataset-backoffice-link">
+                            <i class="fa fa-external-link-alt"></i>
+                            <%= link("backoffice", to: backoffice_page_path(@conn, :edit, dataset.id)) %>
+                           </span>
+                        <% end %>
                       </h3>
                       <div class="dataset-localization">
                         <i class="fa fa-map-marker-alt"></i> <%= localization(dataset) %></<i>
