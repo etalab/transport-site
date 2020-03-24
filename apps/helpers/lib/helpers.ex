@@ -55,10 +55,12 @@ defmodule Helpers do
     |> format_datetime()
   end
 
-  @spec admin?(map) :: boolean
-  def admin?(user) do
+  @spec admin?(map | nil) :: boolean
+  def admin?(%{} = user) do
     user
     |> Map.get("organizations", [])
     |> Enum.any?(fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end)
   end
+
+  def admin?(nil), do: false
 end
