@@ -21,7 +21,8 @@ defmodule TransportWeb.ResourceController do
             conn |> put_view(ErrorView) |> render("404.html")
 
           true ->
-            issues = resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config)
+            issues =
+              resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config)
 
             conn
             |> assign(:resource, resource)
@@ -39,7 +40,11 @@ defmodule TransportWeb.ResourceController do
   @spec datasets_list(Plug.Conn.t(), any()) :: Plug.Conn.t()
   def datasets_list(conn, _params) do
     conn
-    |> assign_or_flash(fn -> Dataset.user_datasets(conn) end, :datasets, "Unable to get resources, please retry.")
+    |> assign_or_flash(
+      fn -> Dataset.user_datasets(conn) end,
+      :datasets,
+      "Unable to get resources, please retry."
+    )
     |> assign_or_flash(
       fn -> Dataset.user_org_datasets(conn) end,
       :org_datasets,
@@ -51,14 +56,22 @@ defmodule TransportWeb.ResourceController do
   @spec resources_list(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def resources_list(conn, %{"dataset_id" => dataset_id}) do
     conn
-    |> assign_or_flash(fn -> Datasets.get(dataset_id) end, :dataset, "Unable to get resources, please retry.")
+    |> assign_or_flash(
+      fn -> Datasets.get(dataset_id) end,
+      :dataset,
+      "Unable to get resources, please retry."
+    )
     |> render("resources_list.html")
   end
 
   @spec form(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def form(conn, %{"dataset_id" => dataset_id}) do
     conn
-    |> assign_or_flash(fn -> Datasets.get(dataset_id) end, :dataset, "Unable to get resources, please retry.")
+    |> assign_or_flash(
+      fn -> Datasets.get(dataset_id) end,
+      :dataset,
+      "Unable to get resources, please retry."
+    )
     |> render("form.html")
   end
 
@@ -72,7 +85,8 @@ defmodule TransportWeb.ResourceController do
       end
 
     with {:ok, _} <- Resources.update(conn, params),
-         dataset when not is_nil(dataset) <- Repo.get_by(Dataset, datagouv_id: params["dataset_id"]),
+         dataset when not is_nil(dataset) <-
+           Repo.get_by(Dataset, datagouv_id: params["dataset_id"]),
          {:ok, _} <- ImportData.call(dataset),
          {:ok, _} <- Dataset.validate(dataset) do
       conn
