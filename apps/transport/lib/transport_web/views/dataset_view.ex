@@ -100,7 +100,7 @@ defmodule TransportWeb.DatasetView do
     full_url =
       conn.request_path
       |> URI.parse()
-      |> Map.put(:query, URI.encode_query(params))
+      |> Map.put(:query, Plug.Conn.Query.encode(params))
       |> URI.to_string()
       |> Kernel.<>("#datasets-results")
 
@@ -132,7 +132,7 @@ defmodule TransportWeb.DatasetView do
     full_url =
       conn.request_path
       |> URI.parse()
-      |> Map.put(:query, URI.encode_query(params))
+      |> Map.put(:query, Plug.Conn.Query.encode(params))
       |> URI.to_string()
       |> Kernel.<>("#datasets-results")
 
