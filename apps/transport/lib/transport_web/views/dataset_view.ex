@@ -2,6 +2,7 @@ defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
   use PhoenixHtmlSanitizer, :strip_tags
   alias DB.{Dataset, Resource, Validation}
+  alias Plug.Conn.Query
   alias TransportWeb.PaginationHelpers
   alias TransportWeb.Router.Helpers
   import Phoenix.Controller, only: [current_path: 1, current_url: 2]
@@ -100,7 +101,7 @@ defmodule TransportWeb.DatasetView do
     full_url =
       conn.request_path
       |> URI.parse()
-      |> Map.put(:query, Plug.Conn.Query.encode(params))
+      |> Map.put(:query, Query.encode(params))
       |> URI.to_string()
       |> Kernel.<>("#datasets-results")
 
@@ -132,7 +133,7 @@ defmodule TransportWeb.DatasetView do
     full_url =
       conn.request_path
       |> URI.parse()
-      |> Map.put(:query, Plug.Conn.Query.encode(params))
+      |> Map.put(:query, Query.encode(params))
       |> URI.to_string()
       |> Kernel.<>("#datasets-results")
 
