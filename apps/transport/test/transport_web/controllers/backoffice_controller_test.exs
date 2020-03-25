@@ -5,7 +5,7 @@ defmodule TransportWeb.BackofficeControllerTest do
   alias DB.{Repo, Resource}
   import Ecto.Repo
 
-  @dataset_url "https://next.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-de-transport-tag-1/"
+  @dataset_url "https://demo.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-de-transport-tag-1/"
   @dataset %{
     "url" => @dataset_url,
     "spatial" => "Grenoble",
@@ -15,7 +15,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     "action" => "new"
   }
 
-  @dataset_with_zones_url "https://next.data.gouv.fr/fr/datasets/test-jeux-de-donnees-associe-a-plusieurs-villes/"
+  @dataset_with_zones_url "https://demo.data.gouv.fr/fr/datasets/test-jeux-de-donnees-associe-a-plusieurs-villes/"
   @dataset_with_zones %{
     "url" => @dataset_with_zones_url,
     "spatial" => "Grenoble",

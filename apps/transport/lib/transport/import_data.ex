@@ -218,7 +218,7 @@ defmodule Transport.ImportData do
   @spec available?(map()) :: boolean
   def available?(%{"extras" => %{"check:available" => available}}), do: available
   def available?(%{"url" => "https://static.data.gouv.fr/" <> _}), do: true
-  def available?(%{"url" => "https://next.data.gouv.fr/" <> _}), do: true
+  def available?(%{"url" => "https://demo.data.gouv.fr/" <> _}), do: true
   def available?(%{"format" => "csv"}), do: true
   def available?(%{"type" => "api"}), do: true
 
