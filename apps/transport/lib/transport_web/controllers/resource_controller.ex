@@ -16,15 +16,21 @@ defmodule TransportWeb.ResourceController do
         conn |> put_view(ErrorView) |> render("404.html")
 
       resource ->
-        issues = resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config)
+        case Resource.valid?(resource) do
+          false ->
+            conn |> put_view(ErrorView) |> render("404.html")
 
-        conn
-        |> assign(:resource, resource)
-        |> assign(:other_resources, Resource.other_resources(resource))
-        |> assign(:issues, issues)
-        |> assign(:validation_summary, Validation.summary(resource.validation))
-        |> assign(:severities_count, Validation.count_by_severity(resource.validation))
-        |> render("details.html")
+          true ->
+            issues = resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config)
+
+            conn
+            |> assign(:resource, resource)
+            |> assign(:other_resources, Resource.other_resources(resource))
+            |> assign(:issues, issues)
+            |> assign(:validation_summary, Validation.summary(resource.validation))
+            |> assign(:severities_count, Validation.count_by_severity(resource.validation))
+            |> render("details.html")
+        end
     end
   end
 
