@@ -251,3 +251,21 @@
     margin-top: 6px;
   }
 }
+
+.dataset-backoffice-link {
+  display: none;
+}
+
+.dataset__panel:hover {
+  .dataset-backoffice-link {
+    display: inline;
+    color: var(--grey);
+    font-size: 12px;
+    font-weight: 400;
+    padding-left: 6px;
+    vertical-align: top;
+    a {
+      color: var(--grey);
+    }
+  }
+}

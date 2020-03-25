@@ -10,7 +10,7 @@
       "method": "get",
       "options": [],
       "request_body": "",
-      "url": "https://next.data.gouv.fr/api/1/me/"
+      "url": "https://demo.data.gouv.fr/api/1/me/"
     },
     "response": {
       "body": "{\"apikey\": null, \"avatar\": null, \"email\": \"monaot@macommune.com\", \"first_name\": \"Mon AOT\", \"id\": \"59d787800b5b3901fd5497b0\", \"last_name\": \"Ma commune\", \"organizations\": [], \"page\": \"http://udata.transport/fr/users/mon-aot-ma-commune/\", \"slug\": \"mon-aot-ma-commune\", \"uri\": \"http://udata.transport/api/1/users/mon-aot-ma-commune/\"}",

@@ -27,7 +27,7 @@
             <%= link(gettext("Publish or update a dataset"), to: resource_path(@conn, :choose_action)) %>
           </li>
           <%= if assigns[:current_user] do %>
-            <%= if assigns[:current_user] |> Map.get("organizations", []) |> Enum.any?(fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end) do %>
+            <%= if admin?(assigns[:current_user]) do %>
               <li class="nav__item">
                 <%= link("Administration", to: "/backoffice") %>
               </li>
