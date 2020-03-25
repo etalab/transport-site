@@ -10,7 +10,7 @@
       "method": "post",
       "options": [],
       "request_body": "",
-      "url": "https://next.data.gouv.fr/api/1/organizations/"
+      "url": "https://demo.data.gouv.fr/api/1/organizations/"
     },
     "response": {
       "body": "{\"acronym\": null, \"badges\": [], \"created_at\": \"2017-11-14T09:25:42.903308\", \"deleted\": null, \"description\": \"description\", \"id\": \"5a0ab6960b5b39318835f0a2\", \"last_modified\": \"2017-11-14T09:25:42.906349\", \"logo\": null, \"logo_thumbnail\": null, \"members\": [{\"role\": \"admin\", \"user\": {\"avatar\": null, \"avatar_thumbnail\": null, \"class\": \"User\", \"first_name\": \"Empty\", \"id\": \"5a099f850b5b393238280692\", \"last_name\": \"User\", \"page\": \"http://udata.transport/fr/users/empty-user/\", \"slug\": \"empty-user\", \"uri\": \"http://udata.transport/api/1/users/empty-user/\"}}], \"metrics\": {\"datasets\": 0, \"followers\": 0, \"members\": 0, \"permitted_reuses\": 0, \"reuses\": 0}, \"name\": \"name\", \"page\": \"http://udata.transport/fr/organizations/name/\", \"slug\": \"name\", \"uri\": \"http://udata.transport/api/1/organizations/name/\", \"url\": null}",
