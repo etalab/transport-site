@@ -2,7 +2,7 @@
 export MIX_ENV=dev
 
 # Configuration for the data.gouv.fr connection
-export DATAGOUVFR_SITE=https://www.next.data.gouv.fr # This is data.gouv.fr test environment
+export DATAGOUVFR_SITE=https://www.demo.data.gouv.fr # This is data.gouv.fr test environment
 export DATAGOUVFR_CLIENT_ID=asdf1234
 export DATAGOUVFR_CLIENT_SECRET= asdf1234
 export DATAGOUVFR_REDIRECT_URI=http://localhost:5000/login/callback

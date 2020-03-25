@@ -10,4 +10,4 @@ config :transport, TransportWeb.Endpoint,
 config :logger, level: :warn
 
 config :oauth2, Authentication,
-  site: "https://next.data.gouv.fr"
+  site: "https://demo.data.gouv.fr"

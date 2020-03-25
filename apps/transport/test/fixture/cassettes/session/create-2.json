@@ -9,7 +9,7 @@
       "method": "post",
       "options": [],
       "request_body": "",
-      "url": "https://next.data.gouv.fr/oauth/token"
+      "url": "https://demo.data.gouv.fr/oauth/token"
     },
     "response": {
       "body": "{\"access_token\": \"secret\", \"token_type\": \"Bearer\", \"refresh_token\": \"secret\", \"scope\": \"default\"}",
@@ -37,7 +37,7 @@
       "method": "get",
       "options": [],
       "request_body": "",
-      "url": "https://next.data.gouv.fr/api/1/me/"
+      "url": "https://demo.data.gouv.fr/api/1/me/"
     },
     "response": {
       "body": "{\"apikey\": \"secret\", \"avatar\": null, \"avatar_thumbnail\": null, \"email\": \"example@example.com\", \"first_name\": \"Jean\", \"id\": \"1\", \"last_name\": \"Serien\", \"page\": \"https://www.data.gouv.fr/fr/users/jean-serien-1/\", \"slug\": \"jean-serien-1\", \"uri\": \"https://www.data.gouv.fr/api/1/users/jean-serien-1/\", \"organizations\": [{\"slug\": \"equipe-transport-data-gouv-fr\"}]}",
