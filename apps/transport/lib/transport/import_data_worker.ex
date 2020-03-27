@@ -9,11 +9,18 @@ defmodule Transport.ImportDataWorker do
 
   ## API ##
 
-  @spec all :: :ok
-  def all do
+  @spec import_validate_all :: :ok
+  def import_validate_all do
     Dataset
     |> Repo.all()
     |> Enum.each(fn dataset -> GenServer.cast(__MODULE__, {:import_and_validation, dataset}) end)
+  end
+
+  @spec validate_all :: :ok
+  def validate_all do
+    Dataset
+    |> Repo.all()
+    |> Enum.each(fn dataset -> GenServer.cast(__MODULE__, {:validate_all, dataset}) end)
   end
 
   def start_link do
@@ -37,6 +44,13 @@ defmodule Transport.ImportDataWorker do
   @impl true
   def handle_cast({:validate, resource}, state) do
     Resource.validate_and_save(resource)
+
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_cast({:validate_all, dataset}, state) do
+    queue_validations(dataset)
 
     {:noreply, state}
   end

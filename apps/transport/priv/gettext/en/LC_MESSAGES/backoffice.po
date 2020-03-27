@@ -166,3 +166,7 @@ msgstr ""
 #, elixir-format
 msgid "Cancel"
 msgstr ""
+
+#, elixir-format
+msgid "validate all"
+msgstr ""
