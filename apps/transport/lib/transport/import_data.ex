@@ -11,7 +11,12 @@ defmodule Transport.ImportData do
   import Ecto.Query
 
   @spec all :: [{:ok, Ecto.Schema.t()} | {:error, any}]
-  def all, do: Dataset |> Repo.all() |> Enum.map(&call/1)
+  def all do
+    Logger.info("reimporting all datasets")
+    res = Dataset |> Repo.all() |> Enum.map(&call/1)
+    Logger.info("all datasets have been reimported")
+    res
+  end
 
   @spec import_validate_all :: :ok
   def import_validate_all do
