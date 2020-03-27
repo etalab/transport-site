@@ -21,8 +21,7 @@ defmodule TransportWeb.ResourceController do
             conn |> put_view(ErrorView) |> render("404.html")
 
           true ->
-            issues =
-              resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config)
+            issues = resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config)
 
             conn
             |> assign(:resource, resource)
