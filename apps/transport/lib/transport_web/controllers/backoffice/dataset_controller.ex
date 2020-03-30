@@ -2,7 +2,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Client.Datasets
 
-  alias DB.{Dataset, ImportDataWorker, Repo}
+  alias DB.{Dataset, ImportDataWorker, Repo, Resource}
   alias Transport.{ImportData, ImportDataWorker}
   require Logger
 
@@ -80,12 +80,21 @@ defmodule TransportWeb.Backoffice.DatasetController do
     |> redirect_to_index()
   end
 
-  @spec validate_all(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def validate_all(%Plug.Conn{} = conn, _args) do
-    ImportDataWorker.all()
+  @spec import_validate_all(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def import_validate_all(%Plug.Conn{} = conn, _args) do
+    ImportDataWorker.import_validate_all()
 
     conn
     |> put_flash(:info, dgettext("backoffice_dataset", "Import and validation of all datasets have been launch"))
+    |> redirect_to_index()
+  end
+
+  @spec validate_all(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def validate_all(%Plug.Conn{} = conn, _args) do
+    ImportDataWorker.validate_all()
+
+    conn
+    |> put_flash(:info, dgettext("backoffice_dataset", "validation of all datasets has been launch"))
     |> redirect_to_index()
   end
 
