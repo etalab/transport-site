@@ -151,21 +151,26 @@ defmodule TransportWeb.DatasetController do
     %{all: Map.get(result, true, 0) + Map.get(result, false, 0), true: Map.get(result, true, 0)}
   end
 
-  @spec redirect_to_slug_or_404(Plug.Conn.t(), number() | binary()) :: Plug.Conn.t()
 
-  defp redirect_to_slug_or_404(conn, nil) do
+  @spec redirect_to_slug_or_404(Plug.Conn.t(), number() | binary()) :: Plug.Conn.t()
+  defp redirect_to_slug_or_404(conn, slug_or_id) when is_integer(slug_or_id) do
+    redirect_to_dataset(conn, Repo.get_by(Dataset, id: slug_or_id))
+  end
+
+  defp redirect_to_slug_or_404(conn, slug_or_id) do
+    redirect_to_dataset(conn, Repo.get_by(Dataset, datagouv_id: slug_or_id))
+  end
+
+  @spec redirect_to_dataset(Plug.Conn.t(), %Dataset{} | nil) :: Plug.Conn.t()
+  defp redirect_to_dataset(conn, nil) do
     conn
     |> put_status(:not_found)
     |> put_view(ErrorView)
     |> render("404.html")
   end
 
-  defp redirect_to_slug_or_404(conn, slug_or_id) when is_integer(slug_or_id) do
-    redirect_to_slug_or_404(conn, Repo.get_by(Dataset, id: slug_or_id))
-  end
-
-  defp redirect_to_slug_or_404(conn, slug_or_id) do
-    redirect_to_slug_or_404(conn, Repo.get_by(Dataset, datagouv_id: slug_or_id))
+  defp redirect_to_dataset(conn, %Dataset{} = dataset) do
+    redirect(conn, to: dataset_path(conn, :details, dataset.slug))
   end
 
   @spec get_name(Ecto.Queryable.t(), binary()) :: binary()
