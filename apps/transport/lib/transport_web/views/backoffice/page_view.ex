@@ -1,7 +1,7 @@
 defmodule TransportWeb.Backoffice.PageView do
   use TransportWeb, :view
-  alias TransportWeb.PaginationHelpers
   alias Plug.Conn.Query
+  alias TransportWeb.PaginationHelpers
   import TransportWeb.DatasetView, only: [end_date: 1]
   alias DB.Dataset
 
@@ -20,7 +20,8 @@ defmodule TransportWeb.Backoffice.PageView do
     |> Enum.concat(kwargs)
   end
 
-  @spec backoffice_sort_link(Plug.Conn.t(), String.t(), atom, %{field: atom, direction: atom}) :: any
+  @spec backoffice_sort_link(Plug.Conn.t(), String.t(), atom, %{field: atom, direction: atom}) ::
+          any
   def backoffice_sort_link(conn, text, order_by, current_order) do
     dir =
       case current_order.field == order_by do
