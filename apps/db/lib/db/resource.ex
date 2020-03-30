@@ -86,10 +86,10 @@ defmodule DB.Resource do
   end
 
   @spec save(__MODULE__.t(), map()) :: {:ok, any()} | {:error, any()}
-  def save(%__MODULE__{id: id, url: url} = r, %{"validations" => validations, "metadata" => metadata}) do
+  def save(%__MODULE__{id: id, url: url, format: format} = r, %{"validations" => validations, "metadata" => metadata}) do
     # When the validator is unable to open the archive, it will return a fatal issue
     # And the metadata will be nil (as it couldn’t read them)
-    if is_nil(metadata), do: Logger.warn("Unable to validate: #{id}")
+    if is_nil(metadata) and format == "GTFS", do: Logger.warn("Unable to validate: #{id}")
 
     __MODULE__
     |> preload(:validation)
