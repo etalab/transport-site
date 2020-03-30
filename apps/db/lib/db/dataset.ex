@@ -245,6 +245,8 @@ defmodule DB.Dataset do
         dataset -> dataset
       end
 
+    territory_name = dataset.associated_territory_name
+
     dataset
     |> Repo.preload([:resources, :communes, :region])
     |> cast(params, [
@@ -269,14 +271,13 @@ defmodule DB.Dataset do
       :associated_territory_name
     ])
     |> cast_aom(params)
-    |> cast_datagouv_zone(params)
+    |> cast_datagouv_zone(params, territory_name)
     |> cast_nation_dataset(params)
     |> cast_assoc(:resources)
     |> validate_required([:slug])
     |> cast_assoc(:region)
     |> cast_assoc(:aom)
     |> validate_territory_mutual_exclusion()
-    |> validate_territory_name(params)
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
         {:ok, %{changeset | action: :ignore}}
@@ -576,27 +577,6 @@ defmodule DB.Dataset do
   @spec history_resource_path(binary(), binary()) :: binary()
   defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> @cellar_host, name])
 
-  @spec validate_territory_name(Ecto.Changeset.t(), map()) :: Ecto.Changeset.t()
-  defp validate_territory_name(changeset, %{
-         "use_datagouv_zones" => "true",
-         "associated_territory_name" => n
-       })
-       when n != "" do
-    changeset
-  end
-
-  defp validate_territory_name(changeset, %{"use_datagouv_zones" => "true"}) do
-    add_error(
-      changeset,
-      :region,
-      dgettext("dataset", "If the data.gouv's zones are used, you should fill the associated territory name")
-    )
-  end
-
-  defp validate_territory_name(changeset, _) do
-    changeset
-  end
-
   @spec validate_territory_mutual_exclusion(Ecto.Changeset.t()) :: Ecto.Changeset.t()
   defp validate_territory_mutual_exclusion(changeset) do
     has_cities =
@@ -684,8 +664,14 @@ defmodule DB.Dataset do
     end
   end
 
-  @spec cast_datagouv_zone(Ecto.Changeset.t(), map()) :: Ecto.Changeset.t()
-  defp cast_datagouv_zone(changeset, %{"zones" => zones_insee, "use_datagouv_zones" => "true"}) do
+  @spec cast_datagouv_zone(Ecto.Changeset.t(), map(), binary()) :: Ecto.Changeset.t()
+  defp cast_datagouv_zone(changeset, _, nil) do
+    changeset
+    |> change
+    |> put_assoc(:communes, [])
+  end
+
+  defp cast_datagouv_zone(changeset, %{"zones" => zones_insee}, _associated_territory_name) do
     communes =
       zones_insee
       |> Enum.map(&get_commune_by_insee/1)
@@ -694,11 +680,5 @@ defmodule DB.Dataset do
     changeset
     |> change
     |> put_assoc(:communes, communes)
-  end
-
-  defp cast_datagouv_zone(changeset, _) do
-    changeset
-    |> change
-    |> put_assoc(:communes, [])
   end
 end
