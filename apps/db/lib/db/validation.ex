@@ -27,7 +27,8 @@ defmodule DB.Validation do
   @spec severities(binary()) :: %{level: integer(), text: binary()}
   def severities(key), do: severities_map()[key]
 
-  @spec get_issues(%{details: any()}, map()) :: [any()]
+  @spec get_issues(%{details: any()} | nil, map()) :: [any()]
+  def get_issues(nil, _), do: []
   def get_issues(%{details: nil}, _), do: []
   def get_issues(%{details: validations}, %{"issue_type" => issue_type}), do: Map.get(validations, issue_type, [])
   def get_issues(%{details: validations}, _) when validations == %{}, do: []
