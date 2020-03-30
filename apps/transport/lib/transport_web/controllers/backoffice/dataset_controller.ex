@@ -2,7 +2,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Client.Datasets
 
-  alias DB.{Dataset, ImportDataWorker, Repo, Resource}
+  alias DB.{Dataset, ImportDataWorker, Repo}
   alias Transport.{ImportData, ImportDataWorker}
   require Logger
 
