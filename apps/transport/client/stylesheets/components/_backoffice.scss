@@ -72,3 +72,8 @@
 .pt-12 {
   padding-top: 12px;
 }
+
+.sortable > a {
+  text-decoration: none;
+  color: var(--theme-dark-text);
+}
