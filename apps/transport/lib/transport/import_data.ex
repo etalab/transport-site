@@ -32,7 +32,7 @@ defmodule Transport.ImportData do
     else
       {:error, error} ->
         Logger.error("Unable to import data of dataset #{datagouv_id}: #{inspect(error)}")
-        {:error, error}
+        {:error, "impossible to import because of: #{inspect(error)}"}
     end
   end
 
