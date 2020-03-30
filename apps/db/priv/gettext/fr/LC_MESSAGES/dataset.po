@@ -64,10 +64,6 @@ msgid "Unable to find INSEE code '%{insee}'"
 msgstr "Impossible de trouver le code INSEE '%{insee}'"
 
 #, elixir-format
-msgid "If the data.gouv's zones are used, you should fill the associated territory name"
-msgstr "Si les zones de data.gouv.fr sont utilisées, vous devez donner le nom du territoire"
-
-#, elixir-format
 msgid "INSEE code '%{insee}' not associated with an AOM"
 msgstr "Le code INSEE '%{insee}' n'est pas associé à une AOM"
 
