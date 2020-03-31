@@ -245,7 +245,7 @@ defmodule DB.Dataset do
         dataset -> dataset
       end
 
-    territory_name = dataset.associated_territory_name
+    territory_name = Map.get(params, "associated_territory_name") || dataset.associated_territory_name
 
     dataset
     |> Repo.preload([:resources, :communes, :region])
