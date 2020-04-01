@@ -8,7 +8,7 @@
   }
   td {
     border: 0px solid black;
-    padding: 6px;
+    padding: 2px;
   }
   tr {
     padding: 6px;
@@ -17,16 +17,19 @@
   tr:hover {
     background-color: #ebebeb;
   }
+  tr:first-of-type > th:first-of-type {
+    width: 250px;
+  }
 }
 
 .bo_dataset_button {
   form > button,
   div > button {
-    padding: 6px;
-    margin: 3px;
+    padding: 2px;
+    margin: 0px;
     &:hover {
-      padding: 6px;
-      margin: 3px;
+      padding: 2px;
+      margin: 0px;
     }
   }
 }
@@ -71,4 +74,14 @@
 
 .pt-12 {
   padding-top: 12px;
+}
+
+.sortable > a {
+  text-decoration: none;
+  color: var(--theme-dark-text);
+}
+
+.sort-icon {
+  color: var(--grey);
+  padding-left: 3px;
 }

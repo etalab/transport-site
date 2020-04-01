@@ -37,17 +37,19 @@
   <% end %>
 </div>
 
-<div class="pt-48">
+<div class="pt-48" id="backoffice-datasets-table">
   <%= pagination_links @conn, @datasets %>
 </div>
 <table class="backoffice-datasets">
   <tr>
-    <th>Dataset</th>
+    <th class="sortable"><%= backoffice_sort_link(@conn, "Dataset", :spatial, @order_by) %>
+    </th>
     <th>transport</th>
     <th>data.gouv.fr</th>
     <th>Region</th>
     <th>Commune principale</th>
-    <th>Fin de validité</th>
+    <th class=sortable><%= backoffice_sort_link(@conn, "Fin de validité", :end_date, @order_by) %>
+    </th>
     <th class="bo_dataset_button"></th>
     <th class="bo_dataset_button"></th>
     <th class="bo_dataset_button"></th>

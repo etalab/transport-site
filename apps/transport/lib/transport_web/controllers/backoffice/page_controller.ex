@@ -14,6 +14,7 @@ defmodule TransportWeb.Backoffice.PageController do
     params
     |> Map.put("list_inactive", true)
     |> Dataset.list_datasets()
+    |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
 
@@ -26,34 +27,40 @@ defmodule TransportWeb.Backoffice.PageController do
       |> group_by([r], r.dataset_id)
       |> having([_q], fragment("max(metadata->>'end_date') <= ?", ^dt))
       |> distinct([r], r.dataset_id)
-      |> select([r], %Resource{dataset_id: r.dataset_id})
+      |> select([r], %{dataset_id: r.dataset_id, end_date: fragment("max(metadata->>'end_date')")})
 
     Dataset
     |> join(:right, [d], r in subquery(sub), on: d.id == r.dataset_id)
+    |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
 
   def index(%Plug.Conn{} = conn, %{"filter" => "other_resources"} = params) do
     resources =
       Resource
-      |> where([r], r.format != "GTFS" and r.format != "gbfs" and r.format != "netex")
-      |> distinct([r], r.dataset_id)
-      |> select([r], %Resource{dataset_id: r.dataset_id})
+      |> having(
+        [r],
+        fragment("SUM(CASE WHEN format='GTFS' or format='gbfs' or format='netex' THEN 1 ELSE 0 END) > 0")
+      )
+      |> group_by([r], r.dataset_id)
+      |> select([r], %{dataset_id: r.dataset_id, end_date: fragment("max(metadata->>'end_date')")})
 
     Dataset
     |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
+    |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
 
   def index(%Plug.Conn{} = conn, %{"filter" => "not_compliant"} = params) do
     resources =
       Resource
-      |> where([r], fragment("metadata->'issues_count'->>'UnloadableModel' IS NOT NULL"))
-      |> distinct([r], r.dataset_id)
-      |> select([r], %Resource{dataset_id: r.dataset_id})
+      |> having([r], fragment("MAX(CAST(metadata->'issues_count'->>'UnloadableModel' as INT)) > 0"))
+      |> group_by([r], r.dataset_id)
+      |> select([r], %{dataset_id: r.dataset_id, end_date: fragment("max(metadata->>'end_date')")})
 
     Dataset
     |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
+    |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
 
@@ -70,7 +77,17 @@ defmodule TransportWeb.Backoffice.PageController do
     render_index(Dataset, conn, params)
   end
 
-  def index(%Plug.Conn{} = conn, params), do: render_index(Dataset, conn, params)
+  def index(%Plug.Conn{} = conn, params) do
+    resources =
+      Resource
+      |> group_by([r], r.dataset_id)
+      |> select([r], %{dataset_id: r.dataset_id, end_date: fragment("max(metadata->>'end_date')")})
+
+    Dataset
+    |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
+    |> query_order_by_from_params(params)
+    |> render_index(conn, params)
+  end
 
   def new(%Plug.Conn{} = conn, _) do
     conn
@@ -110,6 +127,36 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
     |> assign(:datasets, datasets)
     |> assign(:dataset_types, Dataset.types())
+    |> assign(:order_by, get_order_by_from_params(params))
     |> render("index.html")
+  end
+
+  @spec get_order_by_from_params(map) :: %{direction: atom, field: atom}
+  defp get_order_by_from_params(params) do
+    dir =
+      case params do
+        %{"dir" => "desc"} -> :desc
+        _ -> :asc
+      end
+
+    order_by =
+      case params do
+        %{"order_by" => "end_date"} -> :end_date
+        %{"order_by" => "spatial"} -> :spatial
+        _ -> nil
+      end
+
+    %{direction: dir, field: order_by}
+  end
+
+  @spec query_order_by_from_params(any, map) :: any
+  defp query_order_by_from_params(query, params) do
+    %{direction: dir, field: field} = get_order_by_from_params(params)
+
+    case field do
+      :end_date -> order_by(query, [d, r], {^dir, field(r, :end_date)})
+      :spatial -> order_by(query, [d, r], {^dir, field(d, :spatial)})
+      _ -> query
+    end
   end
 end

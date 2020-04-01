@@ -1,19 +1,15 @@
 <tr>
   <td>
     <strong>
-      <%= if @dataset.spatial != "" do %>
-        <%= @dataset.spatial %>
-      <% else %>
-        <%= @dataset.title %>
-      <% end %>
+      <%= @dataset.spatial %>
     </strong>
   </td>
-  <td>
+  <td class="is-centered">
     <a href="<%= dataset_path(@conn, :details, @dataset.slug) %>">
       <i class="fa fa-link"></i>
     </a>
   </td>
-  <td>
+  <td class="is-centered">
     <a href="<%= Dataset.datagouv_url(@dataset) %>">
       <i class="fa fa-link"></i>
     </a>
