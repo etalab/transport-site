@@ -40,14 +40,12 @@
 <table class="backoffice-datasets">
   <tr>
     <th class="sortable"><%= backoffice_sort_link(@conn, "Dataset", :spatial, @order_by) %>
-    <%= get_arrow(@order_by.field == :spatial, @order_by.direction) %>
     </th>
     <th>transport</th>
     <th>data.gouv.fr</th>
     <th>Region</th>
     <th>Commune principale</th>
     <th class=sortable><%= backoffice_sort_link(@conn, "Fin de validité", :end_date, @order_by) %>
-    <%= get_arrow(@order_by.field == :end_date, @order_by.direction) %>
     </th>
     <th class="bo_dataset_button"></th>
     <th class="bo_dataset_button"></th>

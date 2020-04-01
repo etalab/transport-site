@@ -47,20 +47,21 @@ defmodule TransportWeb.Backoffice.PageView do
       |> URI.to_string()
       |> Kernel.<>("#backoffice-datasets-table")
 
-    link(text, to: full_url)
+    sort_arrow = get_arrow(current_order.field == order_by, current_order.direction)
+    link(raw("#{text} #{sort_arrow}"), to: full_url)
   end
 
-  @spec get_arrow(boolean, atom) :: String.t()
-  def get_arrow(show, direction) do
-    case {show, direction} do
+  @spec get_arrow(boolean, atom) :: <<_::64, _::_*8>>
+  defp get_arrow(column_is_sorted, direction) do
+    case {column_is_sorted, direction} do
       {false, _} ->
-        ""
+        "<i class=\"sort-icon fa fa-sort\"></i>"
 
       {true, :asc} ->
-        ~E"<i class=\"fa fa-long-arrow-alt-down\"></i>"
+        "<i class=\"sort-icon fa fa-sort-up\"></i>"
 
       {true, :desc} ->
-        ~E"<i class=\"fa fa-long-arrow-alt-up\"></i>"
+        "<i class=\"sort-icon fa fa-sort-down\"></i>"
     end
   end
 end
