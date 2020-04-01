@@ -58,10 +58,10 @@ defmodule TransportWeb.Backoffice.PageView do
         "<i class=\"sort-icon fa fa-sort\"></i>"
 
       {true, :asc} ->
-        "<i class=\"sort-icon fa fa-sort-up\"></i>"
+        "<i class=\"sort-icon fa fa-sort-down\"></i>"
 
       {true, :desc} ->
-        "<i class=\"sort-icon fa fa-sort-down\"></i>"
+        "<i class=\"sort-icon fa fa-sort-up\"></i>"
     end
   end
 end

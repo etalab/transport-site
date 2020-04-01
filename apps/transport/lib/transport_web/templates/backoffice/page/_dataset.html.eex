@@ -1,11 +1,7 @@
 <tr>
   <td>
     <strong>
-      <%= if @dataset.spatial != "" do %>
-        <%= @dataset.spatial %>
-      <% else %>
-        <%= @dataset.title %>
-      <% end %>
+      <%= @dataset.spatial %>
     </strong>
   </td>
   <td class="is-centered">
