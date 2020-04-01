@@ -31,7 +31,7 @@
     </div>
     <div class="domain theorical">
       <h2>Transports en commun - horaires théoriques</h2>
-      <div class="domain-stats">
+      <div class="domain-stats staticPTdata">
         <%= render("_maps.html", droms: @droms, prefix: "map") %>
         <div class="panel">
           <div class="tile">

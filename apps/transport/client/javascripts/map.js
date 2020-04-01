@@ -36,7 +36,7 @@ const makeMapOnView = (id, view) => {
 }
 
 // helper function to add legends
-const addLegend = (map, title, colors, labels) => {
+const getLegend = (title, colors, labels) => {
     const legend = Leaflet.control({ position: 'bottomright' })
     legend.onAdd = (_map) => {
         const div = Leaflet.DomUtil.create('div', 'info legend')
@@ -48,7 +48,7 @@ const addLegend = (map, title, colors, labels) => {
         return div
     }
 
-    legend.addTo(map)
+    return legend
 }
 
 // simple cache on stats
@@ -56,7 +56,9 @@ var aomStats = null
 var regionStats = null
 var bikeStats = null
 
-function displayAoms (map, featureFunction, style, filter = null) {
+function getAomsFG (map, featureFunction, style, filter = null) {
+    const aomsFeatureGroup = Leaflet.featureGroup()
+
     if (aomStats == null) {
         aomStats = fetch(aomsUrl)
             .then(response => { return response.json() })
@@ -69,11 +71,13 @@ function displayAoms (map, featureFunction, style, filter = null) {
                 filter: filter,
                 pane: 'aoms'
             })
-            map.addLayer(geoJSON)
+            aomsFeatureGroup.addLayer(geoJSON)
         })
+    return aomsFeatureGroup
 }
 
-function displayRegions (map, featureFunction, style) {
+function getRegionsFG (map, featureFunction, style) {
+    const regionsFeatureGroup = Leaflet.featureGroup()
     if (regionStats == null) {
         regionStats = fetch(regionsUrl)
             .then(response => { return response.json() })
@@ -84,8 +88,9 @@ function displayRegions (map, featureFunction, style) {
                 onEachFeature: featureFunction,
                 style: style
             })
-            map.addLayer(geoJSON)
+            regionsFeatureGroup.addLayer(geoJSON)
         })
+    return regionsFeatureGroup
 }
 
 function displayBikes (map, featureFunction, style) {
@@ -145,19 +150,19 @@ function addStaticPTMap (id, view) {
 
     const styles = {
         unavailable: {
-            weight: 1,
-            color: 'grey'
+            weight: 0,
+            color: 'red',
+            fillOpacity: 0.6
         },
         available: {
-            weight: 1,
+            weight: 0,
             color: 'green',
-            fillOpacity: 0.5
+            fillOpacity: 0.6
         },
         availableElsewhere: {
-            weight: 1,
-            color: 'green',
-            fillOpacity: 0.1,
-            dashArray: '4 1'
+            weight: 0,
+            color: 'blue',
+            fillOpacity: 0.6
         }
     }
 
@@ -199,15 +204,48 @@ function addStaticPTMap (id, view) {
         }
     }
 
-    displayRegions(map, onEachRegionFeature, styleRegion)
-    displayAoms(map, onEachAomFeature, style)
+    const regionsFG = getRegionsFG(map, onEachRegionFeature, styleRegion)
+    const aomsFG = getAomsFG(map, onEachAomFeature, style)
+    aomsFG.addTo(map)
+    const dataFG = { AOM: aomsFG, Régions: regionsFG }
 
     if (view.display_legend) {
-        addLegend(map,
+        Leaflet.control.layers(dataFG, {}, { collapsed: false }).addTo(map)
+        map.AOMLegend = getLegend(
             '<h4>Disponibilité des horaires théoriques</h4>',
-            ['green', 'orange', 'grey'],
-            ['Données disponibles', 'Données partiellement disponibles', 'Aucune donnée disponible']
+            ['green', 'blue', 'red'],
+            ['Données publiées par l\'AOM', 'Données publiées par la région', 'Aucune donnée disponible']
         )
+        map.currentLegend = map.AOMLegend
+        map.AOMLegend.addTo(map)
+        map.RegionLegend = getLegend(
+            '<h4>Disponibilité des horaires théoriques</h4>',
+            ['green', 'orange'],
+            ['Données publiées par la région', 'Données partiellement publiées par la région']
+        )
+        map.on('baselayerchange', (e) => {
+            // update legend
+            if (map.currentLegend) {
+                map.removeControl(map.currentLegend)
+            }
+            map.currentLegend = e.name === 'AOM' ? map.AOMLegend : map.RegionLegend
+            map.currentLegend.addTo(map)
+
+            // update dom maps
+            for (const domMap of staticPTMaps) {
+                if (e.name === 'AOM') {
+                    domMap.removeLayer(domMap.dataFG.Régions)
+                    domMap.addLayer(domMap.dataFG.AOM)
+                } else {
+                    domMap.removeLayer(domMap.dataFG.AOM)
+                    domMap.addLayer(domMap.dataFG.Régions)
+                }
+            }
+        })
+    } else {
+        // dom maps
+        map.dataFG = dataFG
+        staticPTMaps.push(map)
     }
 }
 
@@ -288,10 +326,11 @@ function addRealTimePTMap (id, view) {
             formats.siri_lite !== undefined
     }
 
-    displayAoms(map, onEachAomFeature, style, filter)
+    const aomsFG = getAomsFG(map, onEachAomFeature, style, filter)
+    aomsFG.addTo(map)
 
     if (view.display_legend) {
-        addLegend(map,
+        const legend = getLegend(
             '<h4>Disponibilité des horaires temps réel</h4>',
             ['green', 'red', 'orange'],
             [
@@ -300,6 +339,7 @@ function addRealTimePTMap (id, view) {
                 'Certaines données disponibles'
             ]
         )
+        legend.addTo(map)
     }
 }
 
@@ -356,7 +396,7 @@ function addPtFormatMap (id, view) {
         return formats.gtfs !== undefined || formats.netex !== undefined
     }
 
-    displayAoms(map,
+    const aomsFG = getAomsFG(map,
         (feature, layer) => {
             const name = feature.properties.nom
             const commune = feature.properties.id
@@ -367,13 +407,15 @@ function addPtFormatMap (id, view) {
         style,
         filter
     )
+    aomsFG.addTo(map)
 
     if (view.display_legend) {
-        addLegend(map,
+        const legend = getLegend(
             '<h4>Format de données</h4>',
             ['green', 'blue', 'orange'],
             ['GTFS', 'NeTEx', 'GTFS & NeTEx']
         )
+        legend.addTo(map)
     }
 }
 
@@ -412,6 +454,8 @@ const droms = {
         zoom: 8
     }
 }
+
+const staticPTMaps = []
 
 for (const [drom, view] of Object.entries(droms)) {
     addStaticPTMap(`map_${drom}`, view)
