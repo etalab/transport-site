@@ -32,15 +32,15 @@
     <div class="domain theorical">
       <h2>Transports en commun - horaires théoriques</h2>
       <div class="domain-stats staticPTdata">
-        <%= render("_maps.html", droms: @droms, prefix: "map") %>
+        <%= render("_maps.html", droms: @droms, prefix: "map_regions") %>
         <div class="panel">
+          <div class="description">
+            <h3>Données publiées par les régions</h3>
+            <p>Petit texte qui explique que les régions doivent publier leurs données et tout et tout.</p>
+          </div>
           <div class="tile">
             <h3><%= @nb_pt_datasets %></h3>
             <div>jeux de données ouverts</div>
-          </div>
-          <div class="tile">
-            <h3><%= @nb_aoms_with_data %></h3>
-            <div>autorités organisatrices de la mobilité couvertes (sur <%= @nb_aoms %>)</div>
           </div>
           <div class="tile">
             <h3><%= @nb_regions_completed %></h3>
@@ -51,6 +51,21 @@
             <div>de la population couverte
               sur <%= @population_totale %>M
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="domain theorical">
+      <div class="domain-stats staticPTdata">
+        <%= render("_maps.html", droms: @droms, prefix: "map_aoms") %>
+        <div class="panel">
+          <div class="description">
+            <h3>Données publiées par les AOMS</h3>
+            <p>Une AOM est une autorité organistrice de mobilité. <br> <br>Petit texte qui explique que les AOMS aussi publient des données. Et que les données relatives à une AOM sont parfois publiées par elle, parfois par la région.</p>
+          </div>
+          <div class="tile">
+            <h3><%= @nb_aoms_with_data %></h3>
+            <div>autorités organisatrices de la mobilité couvertes (sur <%= @nb_aoms %>)</div>
           </div>
         </div>
       </div>

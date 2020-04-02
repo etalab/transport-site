@@ -25,6 +25,7 @@
     "import-glob-loader": "^1.1.0",
     "imports-loader": "^0.8.0",
     "leaflet": "^1.4.0",
+    "leaflet.pattern": "^0.1.0",
     "node-sass": "^4.12.0",
     "papaparse": "^5.1.1",
     "phoenix": "file:../../../deps/phoenix",

@@ -1,4 +1,5 @@
 import Leaflet from 'leaflet'
+import 'leaflet.pattern'
 
 /**
  * Represents a Mapbox object.
@@ -119,24 +120,10 @@ function displayBikes (map, featureFunction, style) {
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
-function addStaticPTMap (id, view) {
+function addStaticPTMapRegions (id, view) {
     const map = makeMapOnView(id, view)
 
     const nbBaseSchedule = (feature) => feature.properties.dataset_types.pt
-
-    function onEachAomFeature (feature, layer) {
-        const name = feature.properties.nom
-        const type = feature.properties.forme_juridique
-        const count = nbBaseSchedule(feature)
-        const text = count === 0 ? 'Aucun jeu de données'
-            : count === 1 ? 'Un jeu de données'
-                : `${count} jeux de données`
-        const extra = feature.properties.parent_dataset_slug !== null
-            ? `<br>Données incluses dans le jeu de données <a href="/datasets/${feature.properties.parent_dataset_slug}/">${feature.properties.parent_dataset_name}</a>`
-            : ''
-        const commune = feature.properties.id
-        layer.bindPopup(`<strong>${name}</strong><br/>${type}<br/><a href="/datasets/aom/${commune}">${text}</a>${extra}`)
-    }
 
     function onEachRegionFeature (feature, layer) {
         const name = feature.properties.nom
@@ -146,35 +133,6 @@ function addStaticPTMap (id, view) {
             : count === 1 ? 'Un jeu de données'
                 : `${count} jeux de données`
         layer.bindPopup(`<strong>${name}</strong><br/><a href="/datasets/region/${id}">${text}</a>`)
-    }
-
-    const styles = {
-        unavailable: {
-            weight: 0,
-            color: 'red',
-            fillOpacity: 0.6
-        },
-        available: {
-            weight: 0,
-            color: 'green',
-            fillOpacity: 0.6
-        },
-        availableElsewhere: {
-            weight: 0,
-            color: 'blue',
-            fillOpacity: 0.6
-        }
-    }
-
-    const style = feature => {
-        const count = nbBaseSchedule(feature)
-        if (count > 0) {
-            return styles.available
-        } else if (feature.properties.parent_dataset_slug) {
-            return styles.availableElsewhere
-        } else {
-            return styles.unavailable
-        }
     }
 
     const regionStyles = {
@@ -205,47 +163,103 @@ function addStaticPTMap (id, view) {
     }
 
     const regionsFG = getRegionsFG(map, onEachRegionFeature, styleRegion)
-    const aomsFG = getAomsFG(map, onEachAomFeature, style)
-    aomsFG.addTo(map)
-    const dataFG = { AOM: aomsFG, Régions: regionsFG }
+    regionsFG.addTo(map)
+    // const dataFG = { AOM: aomsFG, Régions: regionsFG }
 
     if (view.display_legend) {
-        Leaflet.control.layers(dataFG, {}, { collapsed: false }).addTo(map)
-        map.AOMLegend = getLegend(
+        // Leaflet.control.layers(dataFG, {}, { collapsed: false }).addTo(map)
+        // map.AOMLegend = getLegend(
+        //     '<h4>Disponibilité des horaires théoriques</h4>',
+        //     ['green', 'blue', 'red'],
+        //     ['Données publiées par l\'AOM', 'Données publiées par la région', 'Aucune donnée disponible']
+        // )
+        // map.currentLegend = map.AOMLegend
+        // map.AOMLegend.addTo(map)
+        getLegend(
             '<h4>Disponibilité des horaires théoriques</h4>',
-            ['green', 'blue', 'red'],
+            ['green', 'orange'],
+            ['Données publiées', 'Données partiellement publiées']
+        ).addTo(map)
+    }
+}
+
+function addStaticPTMapAOMS (id, view) {
+    const map = makeMapOnView(id, view)
+
+    const nbBaseSchedule = (feature) => feature.properties.dataset_types.pt
+
+    function onEachAomFeature (feature, layer) {
+        const name = feature.properties.nom
+        const type = feature.properties.forme_juridique
+        const count = nbBaseSchedule(feature)
+        const text = count === 0 ? 'Aucun jeu de données'
+            : count === 1 ? 'Un jeu de données'
+                : `${count} jeux de données`
+        const extra = feature.properties.parent_dataset_slug !== null
+            ? `<br>Données incluses dans le jeu de données <a href="/datasets/${feature.properties.parent_dataset_slug}/">${feature.properties.parent_dataset_name}</a>`
+            : ''
+        const commune = feature.properties.id
+        layer.bindPopup(`<strong>${name}</strong><br/>${type}<br/><a href="/datasets/aom/${commune}">${text}</a>${extra}`)
+    }
+
+    const stripes = new Leaflet.StripePattern({angle: -45, color: 'green', spaceColor: '#BCE954', spaceOpacity: 1, weight: 2, spaceWeight: 2, height: 4});
+    stripes.addTo(map);
+
+    const styles = {
+        unavailable: {
+            weight: 1,
+            color: 'grey',
+            fillOpacity: 0.6,
+        },
+        availableEverywhere: {
+            weight: 1,
+            color: 'green',
+            fillOpacity: 0.6,
+            fillPattern: stripes
+        },
+        available: {
+            weight: 1,
+            color: 'green',
+            fillOpacity: 0.6
+        },
+        availableElsewhere: {
+            weight: 1,
+            color: '#BCE954',
+            fillOpacity: 0.6
+        }
+    }
+
+    const style = feature => {
+        const count = nbBaseSchedule(feature)
+        if (count > 0 && feature.properties.parent_dataset_slug) {
+            return styles.availableEverywhere
+        }
+        else if (count > 0) {
+            return styles.available
+        } else if (feature.properties.parent_dataset_slug) {
+            return styles.availableElsewhere
+        } else {
+            return styles.unavailable
+        }
+    }
+
+    // const regionsFG = getRegionsFG(map, onEachRegionFeature, styleRegion)
+    const aomsFG = getAomsFG(map, onEachAomFeature, style)
+    aomsFG.addTo(map)
+    // const dataFG = { AOM: aomsFG, Régions: regionsFG }
+
+    if (view.display_legend) {
+        // Leaflet.control.layers(dataFG, {}, { collapsed: false }).addTo(map)
+        getLegend(
+            '<h4>Disponibilité des horaires théoriques</h4>',
+            ['green', '#BCE954', 'grey'],
             ['Données publiées par l\'AOM', 'Données publiées par la région', 'Aucune donnée disponible']
-        )
-        map.currentLegend = map.AOMLegend
-        map.AOMLegend.addTo(map)
+        ).addTo(map)
         map.RegionLegend = getLegend(
             '<h4>Disponibilité des horaires théoriques</h4>',
             ['green', 'orange'],
             ['Données publiées par la région', 'Données partiellement publiées par la région']
         )
-        map.on('baselayerchange', (e) => {
-            // update legend
-            if (map.currentLegend) {
-                map.removeControl(map.currentLegend)
-            }
-            map.currentLegend = e.name === 'AOM' ? map.AOMLegend : map.RegionLegend
-            map.currentLegend.addTo(map)
-
-            // update dom maps
-            for (const domMap of staticPTMaps) {
-                if (e.name === 'AOM') {
-                    domMap.removeLayer(domMap.dataFG.Régions)
-                    domMap.addLayer(domMap.dataFG.AOM)
-                } else {
-                    domMap.removeLayer(domMap.dataFG.AOM)
-                    domMap.addLayer(domMap.dataFG.Régions)
-                }
-            }
-        })
-    } else {
-        // dom maps
-        map.dataFG = dataFG
-        staticPTMaps.push(map)
     }
 }
 
@@ -458,7 +472,8 @@ const droms = {
 const staticPTMaps = []
 
 for (const [drom, view] of Object.entries(droms)) {
-    addStaticPTMap(`map_${drom}`, view)
+    addStaticPTMapRegions(`map_regions_${drom}`, view)
+    addStaticPTMapAOMS(`map_aoms_${drom}`, view)
     addPtFormatMap(`pt_format_map_${drom}`, view)
     addRealTimePTMap(`rt_map_${drom}`, view)
     addBikesMap(`bikes_map_${drom}`, view)
