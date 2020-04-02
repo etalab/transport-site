@@ -48,26 +48,36 @@ defmodule HTTPStream do
 
   defp handle_async_resp(conn) do
     receive do
-      message ->
-        case HTTP.stream(conn, message) do
-          :unknown ->
-            Logger.error("Unknown error in stream")
-            {:halt, conn}
+      # we consider only the http message not to handle messages not meant to this stream
+      # (like messages from a GenServer controlling this stream)
+      {tag, _, _} = msg when tag in [:tcp, :ssl, :tcp_error, :ssl_error] ->
+        process_stream(conn, msg)
 
-          {:ok, conn, responses} ->
-            responses
-            |> Enum.map(&handle_response/1)
-            |> Enum.reject(&is_nil/1)
-            |> Enum.reverse()
-            |> case do
-              [:done | r] -> {Enum.reverse(r), {:end, conn}}
-              r -> {Enum.reverse(r), conn}
-            end
-        end
+      {tag, _} = msg when tag in [:tcp_closed, :ssl_closed] ->
+        process_stream(conn, msg)
     after
       2000 ->
-        Logger.error("Timeout")
+        Logger.error("Timeout in http stream")
         {:halt, nil}
+    end
+  end
+
+  @spec process_stream(Mint.HTTP.t(), any()) :: {[any()], Mint.HTTP.t()} | {:halt, Mint.HTTP.t()}
+  def process_stream(conn, message) do
+    case HTTP.stream(conn, message) do
+      :unknown ->
+        Logger.error("Unknown error in stream = #{inspect(message)}")
+        {:halt, conn}
+
+      {:ok, conn, responses} ->
+        responses
+        |> Enum.map(&handle_response/1)
+        |> Enum.reject(&is_nil/1)
+        |> Enum.reverse()
+        |> case do
+          [:done | r] -> {Enum.reverse(r), {:end, conn}}
+          r -> {Enum.reverse(r), conn}
+        end
     end
   end
 
