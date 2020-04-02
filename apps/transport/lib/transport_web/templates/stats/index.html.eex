@@ -35,8 +35,8 @@
         <%= render("_maps.html", droms: @droms, prefix: "map_regions") %>
         <div class="panel">
           <div class="description">
-            <h3>Données publiées par les régions</h3>
-            <p>Petit texte qui explique que les régions doivent publier leurs données et tout et tout.</p>
+            <h3>Offre de transport interurbain</h3>
+            <p>Les horaires théoriques de transport en commun interurbain sont publiés par les régions.</p>
           </div>
           <div class="tile">
             <h3><%= @nb_pt_datasets %></h3>
@@ -60,8 +60,9 @@
         <%= render("_maps.html", droms: @droms, prefix: "map_aoms") %>
         <div class="panel">
           <div class="description">
-            <h3>Données publiées par les AOMS</h3>
-            <p>Une AOM est une autorité organistrice de mobilité. <br> <br>Petit texte qui explique que les AOMS aussi publient des données. Et que les données relatives à une AOM sont parfois publiées par elle, parfois par la région.</p>
+            <h3>Offre de transport urbain</h3>
+            <p>Les horaires théoriques de transport en commun urbain peuvent être publiés par une AOM ou par une région.</p><br>
+            <p>Une AOM est une autorité organistrice de mobilité.</p>
           </div>
           <div class="tile">
             <h3><%= @nb_aoms_with_data %></h3>
