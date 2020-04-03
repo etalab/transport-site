@@ -132,7 +132,7 @@ function addStaticPTMapRegions (id, view) {
         const text = count === 0 ? 'Aucun jeu de données'
             : count === 1 ? 'Un jeu de données'
                 : `${count} jeux de données`
-        layer.bindPopup(`<strong>${name}</strong><br/><a href="/datasets/region/${id}">${text}</a>`)
+        layer.bindPopup(`<strong>${name}</strong><br/><a href="/datasets/region/${id}?type=public-transit#datasets-results">${text}</a>`)
     }
 
     const regionStyles = {
