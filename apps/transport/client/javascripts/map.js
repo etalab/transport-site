@@ -192,30 +192,40 @@ function addStaticPTMapAOMS (id, view) {
         const name = feature.properties.nom
         const type = feature.properties.forme_juridique
         const count = nbBaseSchedule(feature)
-        const text = count === 0 ? 'Aucun jeu de données'
-            : count === 1 ? 'Un jeu de données'
-                : `${count} jeux de données`
+        const text = count === 0 ? ['Aucun jeu de données', 'publié']
+            : count === 1 ? ['Un jeu de données', 'publié']
+                : [`${count} jeux de données`, 'publiés']
         const extra = feature.properties.parent_dataset_slug !== null
-            ? `<br>Données incluses dans le jeu de données <a href="/datasets/${feature.properties.parent_dataset_slug}/">${feature.properties.parent_dataset_name}</a>`
+            ? `<br>Des <a href="/datasets/${feature.properties.parent_dataset_slug}/">données</a> sont publiées par la région.`
             : ''
         const commune = feature.properties.id
-        layer.bindPopup(`<strong>${name}</strong><br/>${type}<br/><a href="/datasets/aom/${commune}">${text}</a>${extra}`)
+        layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/><a href="/datasets/aom/${commune}">${text[0]}</a> ${text[1]} par l'AOM ${extra}`)
     }
 
-    const stripes = new Leaflet.StripePattern({angle: -45, color: 'green', spaceColor: '#BCE954', spaceOpacity: 1, weight: 2, spaceWeight: 2, height: 4});
-    stripes.addTo(map);
+    const smallStripes = new Leaflet.StripePattern({ angle: -45, color: 'green', spaceColor: '#BCE954', spaceOpacity: 1, weight: 1, spaceWeight: 1, height: 2 })
+    const bigStripes = new Leaflet.StripePattern({ angle: -45, color: 'green', spaceColor: '#BCE954', spaceOpacity: 1, weight: 4, spaceWeight: 4, height: 8 })
+    smallStripes.addTo(map)
+    bigStripes.addTo(map)
 
     const styles = {
         unavailable: {
             weight: 1,
             color: 'grey',
-            fillOpacity: 0.6,
+            fillOpacity: 0.6
         },
         availableEverywhere: {
-            weight: 1,
-            color: 'green',
-            fillOpacity: 0.6,
-            fillPattern: stripes
+            smallStripes: {
+                weight: 1,
+                color: 'green',
+                fillOpacity: 0.6,
+                fillPattern: smallStripes
+            },
+            bigStripes: {
+                weight: 1,
+                color: 'green',
+                fillOpacity: 0.6,
+                fillPattern: bigStripes
+            }
         },
         available: {
             weight: 1,
@@ -229,12 +239,11 @@ function addStaticPTMapAOMS (id, view) {
         }
     }
 
-    const style = feature => {
+    const style = zoom => feature => {
         const count = nbBaseSchedule(feature)
         if (count > 0 && feature.properties.parent_dataset_slug) {
-            return styles.availableEverywhere
-        }
-        else if (count > 0) {
+            return zoom > 6 ? styles.availableEverywhere.bigStripes : styles.availableEverywhere.smallStripes
+        } else if (count > 0) {
             return styles.available
         } else if (feature.properties.parent_dataset_slug) {
             return styles.availableElsewhere
@@ -243,13 +252,13 @@ function addStaticPTMapAOMS (id, view) {
         }
     }
 
-    // const regionsFG = getRegionsFG(map, onEachRegionFeature, styleRegion)
-    const aomsFG = getAomsFG(map, onEachAomFeature, style)
+    const aomsFG = getAomsFG(map, onEachAomFeature, style(map.getZoom()))
     aomsFG.addTo(map)
-    // const dataFG = { AOM: aomsFG, Régions: regionsFG }
+    map.on('zoomend', () => {
+        aomsFG.setStyle(style(map.getZoom()))
+    })
 
     if (view.display_legend) {
-        // Leaflet.control.layers(dataFG, {}, { collapsed: false }).addTo(map)
         getLegend(
             '<h4>Disponibilité des horaires théoriques</h4>',
             ['green', '#BCE954', 'grey'],
