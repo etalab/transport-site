@@ -142,7 +142,7 @@ function addStaticPTMapRegions (id, view) {
         },
         partial: {
             weight: 1,
-            color: 'orange'
+            color: '#BCE954'
         },
         unavailable: {
             weight: 2,
@@ -177,8 +177,8 @@ function addStaticPTMapRegions (id, view) {
         // map.AOMLegend.addTo(map)
         getLegend(
             '<h4>Disponibilité des horaires théoriques</h4>',
-            ['green', 'orange', 'grey'],
-            ['Données publiées', 'Données partiellement publiées', 'Aucune donnée publiée']
+            ['green', '#BCE954', 'grey'],
+            ['Données publiées et région partenaire', 'Données publiées', 'Aucune donnée publiée']
         ).addTo(map)
     }
 }
