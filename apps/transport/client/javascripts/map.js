@@ -132,7 +132,11 @@ function addStaticPTMapRegions (id, view) {
         const text = count === 0 ? 'Aucun jeu de données'
             : count === 1 ? 'Un jeu de données'
                 : `${count} jeux de données`
-        layer.bindPopup(`<strong>${name}</strong><br/><a href="/datasets/region/${id}?type=public-transit#datasets-results">${text}</a>`)
+        let popupContent = `<strong>${name}</strong><br/><a href="/datasets/region/${id}?type=public-transit#datasets-results">${text}</a>`
+        if (id === 2) {
+            popupContent += '<br>Dans cette région seul le département de l\'Isère est partenaire du <acronym title="Point d\'accès national">PAN</acronym>.'
+        }
+        layer.bindPopup(popupContent)
     }
 
     const regionStyles = {
