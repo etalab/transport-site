@@ -12,7 +12,7 @@ defmodule Hasher do
       content_hash
     else
       {:error, error} ->
-        Logger.error(fn -> inspect(error) end)
+        Logger.error(fn -> "error while computing content_hash #{inspect(error)}" end)
         nil
 
       nil ->
