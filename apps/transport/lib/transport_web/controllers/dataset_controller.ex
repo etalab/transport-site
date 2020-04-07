@@ -154,7 +154,7 @@ defmodule TransportWeb.DatasetController do
   @spec redirect_to_slug_or_404(Plug.Conn.t(), binary()) :: Plug.Conn.t()
   defp redirect_to_slug_or_404(conn, slug_or_id) do
     case Integer.parse(slug_or_id) do
-      {id, ""} ->
+      {_id, ""} ->
         redirect_to_dataset(conn, Repo.get_by(Dataset, id: slug_or_id))
 
       _ ->
