@@ -178,20 +178,6 @@ defmodule DB.Resource do
   @spec valid?(__MODULE__.t()) :: boolean()
   def valid?(%__MODULE__{} = r), do: r.metadata != nil
 
-  @spec validate_and_save_all([binary()]) :: :ok
-  def validate_and_save_all(args \\ ["--all"]) do
-    Logger.info("Validating all resources")
-
-    __MODULE__
-    |> preload(:dataset)
-    |> Repo.all()
-    |> Enum.filter(fn r -> r.dataset.type == "public-transit" end)
-    |> Enum.filter(&(List.first(args) == "--all" or needs_validation(&1)))
-    |> Enum.each(&validate_and_save/1)
-
-    Logger.info("All resources have been validated")
-  end
-
   @spec is_outdated?(__MODULE__) :: boolean
   def is_outdated?(%__MODULE__{metadata: %{"end_date" => nil}}), do: false
 

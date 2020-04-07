@@ -37,7 +37,7 @@ defmodule Transport.ImportDataWorker do
 
   @impl true
   def handle_cast({:import_and_validation, %Dataset{id: id} = dataset}, state) do
-    ImportData.call(dataset)
+    ImportData.import_dataset(dataset)
     queue_validations(dataset)
     {:noreply, state}
   rescue

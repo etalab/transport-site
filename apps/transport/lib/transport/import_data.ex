@@ -14,7 +14,8 @@ defmodule Transport.ImportData do
   defp import_all_datasets do
     Logger.info("reimporting all datasets")
 
-    Task.Supervisor.async_stream_nolink(ImportTaskSupervisor, Dataset |> limit(10) |> Repo.all(), &call/1,
+    datasets = Repo.all(Dataset)
+    Task.Supervisor.async_stream_nolink(ImportTaskSupervisor, datasets, &import_dataset/1,
       max_concurrency: 5,
       timeout: 180_000
     )
@@ -23,36 +24,33 @@ defmodule Transport.ImportData do
     Logger.info("all datasets have been reimported")
   end
 
-  @spec validate_all_resources([binary()]) :: :ok
-  def validate_all_resources(args \\ ["--all"]) do
+  @spec validate_all_resources() :: :ok
+  def validate_all_resources() do
     Logger.info("Validating all resources")
 
     resources =
       Resource
       |> preload(:dataset)
       |> where([r], r.format == "GTFS")
-      |> limit(10)
       |> Repo.all()
-      |> Enum.filter(&(List.first(args) == "--all" or Resource.needs_validation(&1)))
+      |> Enum.filter(&Resource.needs_validation/1)
 
-    validation_results =
-      Task.Supervisor.async_stream_nolink(
-        ImportTaskSupervisor,
-        resources,
-        &Resource.validate_and_save/1,
-        max_concurrency: 5,
-        timeout: 180_000
-      )
-      |> Enum.to_list()
+    validation_results = Task.Supervisor.async_stream_nolink(
+      ImportTaskSupervisor,
+      resources,
+      &Resource.validate_and_save/1,
+      max_concurrency: 5,
+      timeout: 180_000
+    )
+    |> Enum.to_list()
 
-    nb_failed =
-      validation_results
-      |> Enum.count(fn r ->
-        case r do
-          {:error, _} -> true
-          _ -> false
-        end
-      end)
+    nb_failed = validation_results
+    |> Enum.count(fn r -> case r do
+        {:error, _} -> true
+        _ -> false
+      end
+    end
+    )
 
     Logger.info("All resources validated (#{nb_failed} failed / #{validation_results |> Enum.count()}}")
   end
@@ -63,15 +61,15 @@ defmodule Transport.ImportData do
     validate_all_resources()
   end
 
-  @spec call(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
-  def call(%Dataset{datagouv_id: datagouv_id, type: type}) do
+  @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
+  def import_dataset(%Dataset{datagouv_id: datagouv_id, type: type}) do
     with {:ok, new_data} <- import_from_udata(datagouv_id, type),
          {:ok, changeset} <- Dataset.changeset(new_data) do
       Repo.update(changeset)
     else
       {:error, error} ->
         Logger.error("Unable to import data of dataset #{datagouv_id}: #{inspect(error)}")
-        {:error, "impossible to import because of: #{inspect(error)}"}
+        {:error, error}
     end
   end
 
@@ -228,7 +226,7 @@ defmodule Transport.ImportData do
     end
   end
 
-  defp read_datagouv_zone(%{"features" => [%{"id" => id} | _]}) do
+  defp read_datagouv_zone(%{"id" => id}) do
     Logger.info("For the moment we can only handle cities, we cannot handle the zone #{id}")
     []
   end
