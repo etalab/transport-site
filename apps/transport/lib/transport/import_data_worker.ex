@@ -3,8 +3,6 @@ defmodule Transport.ImportDataWorker do
   ImportDataworker to launch importation and validation tasks
   """
   use GenServer
-
-  alias DB.{Dataset, Repo, Resource}
   alias Transport.ImportData
   require Logger
 
@@ -12,16 +10,12 @@ defmodule Transport.ImportDataWorker do
 
   @spec import_validate_all :: :ok
   def import_validate_all do
-    Dataset
-    |> Repo.all()
-    |> Enum.each(fn dataset -> GenServer.cast(__MODULE__, {:import_and_validation, dataset}) end)
+    GenServer.cast(__MODULE__, {:import_and_validation})
   end
 
   @spec validate_all :: :ok
   def validate_all do
-    Dataset
-    |> Repo.all()
-    |> Enum.each(fn dataset -> GenServer.cast(__MODULE__, {:validate_all, dataset}) end)
+    GenServer.cast(__MODULE__, {:validate_all})
   end
 
   def start_link do
@@ -36,42 +30,23 @@ defmodule Transport.ImportDataWorker do
   end
 
   @impl true
-  def handle_cast({:import_and_validation, %Dataset{id: id} = dataset}, state) do
-    ImportData.import_dataset(dataset)
-    queue_validations(dataset)
+  def handle_cast({:import_and_validation}, state) do
+    ImportData.import_validate_all()
     {:noreply, state}
   rescue
-    e -> Logger.error("error in the import data worker for dataset #{id}: #{inspect(e)}")
+    e -> Logger.error("error in the import data worker : #{inspect(e)}")
   end
 
   @impl true
-  def handle_cast({:validate, %Resource{id: id} = resource}, state) do
-    Resource.validate_and_save(resource)
-
+  def handle_cast({:validate_all}, state) do
+    ImportData.validate_all_resources()
     {:noreply, state}
   rescue
-    e -> Logger.error("error in the import data worker validation for resource #{id}: #{inspect(e)}")
-  end
-
-  @impl true
-  def handle_cast({:validate_all, dataset}, state) do
-    queue_validations(dataset)
-
-    {:noreply, state}
+    e -> Logger.error("error in the validation data worker : #{inspect(e)}")
   end
 
   @impl true
   def handle_info(_msg, state) do
     {:noreply, state}
-  end
-
-  ## Private
-
-  @spec queue_validations(Dataset.t()) :: :ok
-  defp queue_validations(dataset) do
-    dataset
-    |> Repo.preload(:resources)
-    |> Map.get(:resources)
-    |> Enum.each(fn resource -> GenServer.cast(__MODULE__, {:validate, resource}) end)
   end
 end

@@ -48,6 +48,8 @@ defmodule DB.Resource do
       true
       iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "micro-mobility"}, validation: %Validation{}})
       false
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}})
+      true
   """
   @spec needs_validation(__MODULE__.t()) :: boolean()
   def needs_validation(%__MODULE__{dataset: dataset, validation: %Validation{date: validation_date}}) do
@@ -56,6 +58,9 @@ defmodule DB.Resource do
       [true, validation_date] -> dataset.last_update > validation_date
       _ -> false
     end
+  end
+  def needs_validation(r) do
+    true
   end
 
   @spec validate_and_save(__MODULE__.t()) :: {:error, any} | {:ok, nil}

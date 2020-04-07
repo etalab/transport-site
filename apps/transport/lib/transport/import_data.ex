@@ -30,10 +30,12 @@ defmodule Transport.ImportData do
 
     resources =
       Resource
-      |> preload(:dataset)
+      |> preload([:dataset, :validation])
       |> where([r], r.format == "GTFS")
       |> Repo.all()
       |> Enum.filter(&Resource.needs_validation/1)
+
+    Logger.info("launching #{Enum.count(resources)} validations")
 
     validation_results = Task.Supervisor.async_stream_nolink(
       ImportTaskSupervisor,
