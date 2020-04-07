@@ -10,18 +10,57 @@ defmodule Transport.ImportData do
   require Logger
   import Ecto.Query
 
-  @spec all :: [{:ok, Ecto.Schema.t()} | {:error, any}]
-  def all do
+  @spec import_all_datasets :: :ok
+  defp import_all_datasets do
     Logger.info("reimporting all datasets")
-    res = Dataset |> Repo.all() |> Enum.map(&call/1)
+
+    Task.Supervisor.async_stream_nolink(ImportTaskSupervisor, Dataset |> limit(10) |> Repo.all(), &call/1,
+      max_concurrency: 5,
+      timeout: 180_000
+    )
+    |> Enum.to_list()
+
     Logger.info("all datasets have been reimported")
-    res
+  end
+
+  @spec validate_all_resources([binary()]) :: :ok
+  def validate_all_resources(args \\ ["--all"]) do
+    Logger.info("Validating all resources")
+
+    resources =
+      Resource
+      |> preload(:dataset)
+      |> where([r], r.format == "GTFS")
+      |> limit(10)
+      |> Repo.all()
+      |> Enum.filter(&(List.first(args) == "--all" or Resource.needs_validation(&1)))
+
+    validation_results =
+      Task.Supervisor.async_stream_nolink(
+        ImportTaskSupervisor,
+        resources,
+        &Resource.validate_and_save/1,
+        max_concurrency: 5,
+        timeout: 180_000
+      )
+      |> Enum.to_list()
+
+    nb_failed =
+      validation_results
+      |> Enum.count(fn r ->
+        case r do
+          {:error, _} -> true
+          _ -> false
+        end
+      end)
+
+    Logger.info("All resources validated (#{nb_failed} failed / #{validation_results |> Enum.count()}}")
   end
 
   @spec import_validate_all :: :ok
   def import_validate_all do
-    all()
-    Resource.validate_and_save_all()
+    import_all_datasets()
+    validate_all_resources()
   end
 
   @spec call(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
