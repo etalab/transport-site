@@ -10,22 +10,31 @@ defmodule Transport.ImportData do
   require Logger
   import Ecto.Query
 
+  @max_concurrent_jobs Application.get_env(:transport, :max_concurrent_jobs)
+
   @spec import_all_datasets :: :ok
   defp import_all_datasets do
     Logger.info("reimporting all datasets")
 
     datasets = Repo.all(Dataset)
-    Task.Supervisor.async_stream_nolink(ImportTaskSupervisor, datasets, &import_dataset/1,
-      max_concurrency: 5,
-      timeout: 180_000
-    )
-    |> Enum.to_list()
 
-    Logger.info("all datasets have been reimported")
+    results =
+      ImportTaskSupervisor
+      |> Task.Supervisor.async_stream_nolink(datasets, &import_dataset/1,
+        max_concurrency: @max_concurrent_jobs,
+        timeout: 180_000
+      )
+      |> Enum.to_list()
+
+    nb_failed =
+      results
+      |> Enum.count(&invalid_result?/1)
+
+    Logger.info("all datasets have been reimported (#{nb_failed} failures / #{Enum.count(results)})")
   end
 
   @spec validate_all_resources() :: :ok
-  def validate_all_resources() do
+  def validate_all_resources do
     Logger.info("Validating all resources")
 
     resources =
@@ -37,24 +46,21 @@ defmodule Transport.ImportData do
 
     Logger.info("launching #{Enum.count(resources)} validations")
 
-    validation_results = Task.Supervisor.async_stream_nolink(
-      ImportTaskSupervisor,
-      resources,
-      &Resource.validate_and_save/1,
-      max_concurrency: 5,
-      timeout: 180_000
-    )
-    |> Enum.to_list()
+    validation_results =
+      ImportTaskSupervisor
+      |> Task.Supervisor.async_stream_nolink(
+        resources,
+        &Resource.validate_and_save/1,
+        max_concurrency: @max_concurrent_jobs,
+        timeout: 180_000
+      )
+      |> Enum.to_list()
 
-    nb_failed = validation_results
-    |> Enum.count(fn r -> case r do
-        {:error, _} -> true
-        _ -> false
-      end
-    end
-    )
+    nb_failed =
+      validation_results
+      |> Enum.count(&invalid_result?/1)
 
-    Logger.info("All resources validated (#{nb_failed} failed / #{validation_results |> Enum.count()}}")
+    Logger.info("All resources validated (#{nb_failed} failures / #{validation_results |> Enum.count()}}")
   end
 
   @spec import_validate_all :: :ok
@@ -517,4 +523,9 @@ defmodule Transport.ImportData do
   @spec is_realtime?(map()) :: boolean
   def is_realtime?(%{"format" => "gtfs-rt"}), do: true
   def is_realtime?(_), do: false
+
+  @spec invalid_result?({:atom, any()}) :: boolean
+  defp invalid_result?({:ok, {:error, _}}), do: true
+  defp invalid_result?({:ok, _}), do: false
+  defp invalid_result?({:exit, _}), do: true
 end

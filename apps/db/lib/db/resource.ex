@@ -59,6 +59,7 @@ defmodule DB.Resource do
       _ -> false
     end
   end
+
   def needs_validation(r) do
     true
   end
