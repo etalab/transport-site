@@ -60,7 +60,7 @@ defmodule DB.Resource do
     end
   end
 
-  def needs_validation(r) do
+  def needs_validation(%__MODULE__{} = _r) do
     true
   end
 

@@ -524,7 +524,7 @@ defmodule Transport.ImportData do
   def is_realtime?(%{"format" => "gtfs-rt"}), do: true
   def is_realtime?(_), do: false
 
-  @spec invalid_result?({:atom, any()}) :: boolean
+  @spec invalid_result?({:exit, any} | {:ok, any}) :: boolean
   defp invalid_result?({:ok, {:error, _}}), do: true
   defp invalid_result?({:ok, _}), do: false
   defp invalid_result?({:exit, _}), do: true
