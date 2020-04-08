@@ -55,17 +55,17 @@
         <div class="panel">
           <div class="description">
             <h3>Par <acronym title="autorité organistrice de mobilité">AOM</acronym></h3>
-            <p>L'offre de transport en commun urbain, regroupée par <acronym title="autorité organistrice de mobilité">AOM</acronym>.</p><br>
-            <p>Ces données peuvent être publiées par l'<acronym title="autorité organistrice de mobilité">AOM</acronym> elle-même, ou par la région dont elle fait partie.</p>
+            <p>L'offre de transport en commun urbain, disponible par <acronym title="autorité organistrice de mobilité">AOM</acronym>.</p><br>
+            <p>Ces données peuvent être disponibles pour l'<acronym title="autorité organistrice de mobilité">AOM</acronym> spécifiquement, ou au sein d'un jeu de données plus large.</p>
           </div>
           <div class="tile">
             <h3><%= @nb_aoms_with_data %></h3>
             <div>autorités organisatrices de la mobilité couvertes (sur <%= @nb_aoms %>)</div>
           </div>
           <div class="tile">
-            <h3><%= @population_couverte %>M</h3>
+            <h3><%= @population_couverte %> </h3>millions
             <div>de personnes peuvent en bénéficier
-              sur <%= @population_totale %>M de Français·e·s vivant dans une AOM
+              sur les <%= @population_totale %> millions de Français·e·s vivant dans une AOM
             </div>
           </div>
         </div>

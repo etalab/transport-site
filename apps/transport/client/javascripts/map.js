@@ -196,14 +196,14 @@ function addStaticPTMapAOMS (id, view) {
         const name = feature.properties.nom
         const type = feature.properties.forme_juridique
         const count = nbBaseSchedule(feature)
-        const text = count === 0 ? ['Aucun jeu de données', 'publié']
-            : count === 1 ? ['Un jeu de données', 'publié']
-                : [`${count} jeux de données`, 'publiés']
+        const text = count === 0 ? 'Aucun jeu de données'
+            : count === 1 ? 'Un jeu de données'
+                : `${count} jeux de données`
         const extra = feature.properties.parent_dataset_slug !== null
-            ? `<br>Des <a href="/datasets/${feature.properties.parent_dataset_slug}/">données</a> sont publiées par la région.`
+            ? `<br>Des données sont disponibles au sein <a href="/datasets/${feature.properties.parent_dataset_slug}/">d'un jeu agrégé</a>.`
             : ''
         const commune = feature.properties.id
-        layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/><a href="/datasets/aom/${commune}">${text[0]}</a> ${text[1]} par l'AOM ${extra}`)
+        layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/><a href="/datasets/aom/${commune}">${text}</a> propre à l'AOM. ${extra}`)
     }
 
     const smallStripes = new Leaflet.StripePattern({ angle: -45, color: 'green', spaceColor: '#BCE954', spaceOpacity: 1, weight: 1, spaceWeight: 1, height: 2 })
@@ -264,9 +264,9 @@ function addStaticPTMapAOMS (id, view) {
 
     if (view.display_legend) {
         getLegend(
-            '<h4>Disponibilité des horaires théoriques</h4>',
-            ['green', '#BCE954', 'grey'],
-            ['Données publiées par l\'AOM', 'Données publiées par la région', 'Aucune donnée disponible']
+            '<h4>Disponibilité des horaires théoriques :</h4>',
+            ['green', '#BCE954', 'repeating-linear-gradient(-45deg,green,green 3px,#BCE954 3px,#BCE954 6px)', 'grey'],
+            ['Pour l\'AOM spécifiquement', 'Dans un jeu de données agrégé', 'Pour l\'AOM <strong>et</strong> dans un jeu de données agrégé', 'Aucune donnée disponible']
         ).addTo(map)
         map.RegionLegend = getLegend(
             '<h4>Disponibilité des horaires théoriques</h4>',

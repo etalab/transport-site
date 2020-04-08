@@ -49,7 +49,7 @@ defmodule TransportWeb.StatsController do
     datasets
     |> Enum.reduce(0, &(&1.population + &2))
     |> Kernel./(1_000_000)
-    |> Float.round(2)
+    |> Kernel.round()
   end
 
   defp nb_officical_realtime do
