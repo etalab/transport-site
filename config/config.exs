@@ -90,12 +90,5 @@ config :ex_aws,
     host: "cellar-c2.services.clever-cloud.com",
   ]
 
-defmodule Utils do
-  def parse_int!(i) do
-    {v, ""} = Integer.parse(i)
-    v
-  end
-end
-
 config :transport,
-  max_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> Utils.parse_int!()
+  max_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer()

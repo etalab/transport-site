@@ -10,7 +10,7 @@ defmodule Transport.ImportData do
   require Logger
   import Ecto.Query
 
-  @max_concurrent_jobs Application.get_env(:transport, :max_concurrent_jobs)
+  @max_import_concurrent_jobs Application.get_env(:transport, :max_import_concurrent_jobs)
 
   @spec import_all_datasets :: :ok
   defp import_all_datasets do
@@ -21,7 +21,7 @@ defmodule Transport.ImportData do
     results =
       ImportTaskSupervisor
       |> Task.Supervisor.async_stream_nolink(datasets, &import_dataset/1,
-        max_concurrency: @max_concurrent_jobs,
+        max_concurrency: @max_import_concurrent_jobs,
         timeout: 180_000
       )
       |> Enum.to_list()
@@ -51,7 +51,7 @@ defmodule Transport.ImportData do
       |> Task.Supervisor.async_stream_nolink(
         resources,
         &Resource.validate_and_save/1,
-        max_concurrency: @max_concurrent_jobs,
+        max_concurrency: @max_import_concurrent_jobs,
         timeout: 180_000
       )
       |> Enum.to_list()
