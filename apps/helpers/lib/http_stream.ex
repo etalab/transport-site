@@ -66,7 +66,7 @@ defmodule HTTPStream do
         end
     after
       2000 ->
-        Logger.error("Timeout")
+        Logger.error("Timeout in http stream")
         {:halt, nil}
     end
   end
