@@ -17,6 +17,8 @@ const regionsUrl = '/api/stats/regions'
 const aomsUrl = '/api/stats/'
 const bikesUrl = '/api/stats/bike-sharing'
 
+const lightGreen = '#BCE954'
+
 const makeMapOnView = (id, view) => {
     const map = Leaflet.map(id, {
         attributionControl: view.display_legend,
@@ -146,7 +148,7 @@ function addStaticPTMapRegions (id, view) {
         },
         partial: {
             weight: 1,
-            color: '#BCE954'
+            color: lightGreen
         },
         unavailable: {
             weight: 2,
@@ -168,20 +170,11 @@ function addStaticPTMapRegions (id, view) {
 
     const regionsFG = getRegionsFG(map, onEachRegionFeature, styleRegion)
     regionsFG.addTo(map)
-    // const dataFG = { AOM: aomsFG, Régions: regionsFG }
 
     if (view.display_legend) {
-        // Leaflet.control.layers(dataFG, {}, { collapsed: false }).addTo(map)
-        // map.AOMLegend = getLegend(
-        //     '<h4>Disponibilité des horaires théoriques</h4>',
-        //     ['green', 'blue', 'red'],
-        //     ['Données publiées par l\'AOM', 'Données publiées par la région', 'Aucune donnée disponible']
-        // )
-        // map.currentLegend = map.AOMLegend
-        // map.AOMLegend.addTo(map)
         getLegend(
             '<h4>Disponibilité des horaires théoriques</h4>',
-            ['green', '#BCE954', 'grey'],
+            ['green', lightGreen, 'grey'],
             ['Données publiées et région partenaire', 'Données publiées', 'Aucune donnée publiée']
         ).addTo(map)
     }
@@ -206,8 +199,8 @@ function addStaticPTMapAOMS (id, view) {
         layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/><a href="/datasets/aom/${commune}">${text}</a> propre à l'AOM. ${extra}`)
     }
 
-    const smallStripes = new Leaflet.StripePattern({ angle: -45, color: 'green', spaceColor: '#BCE954', spaceOpacity: 1, weight: 1, spaceWeight: 1, height: 2 })
-    const bigStripes = new Leaflet.StripePattern({ angle: -45, color: 'green', spaceColor: '#BCE954', spaceOpacity: 1, weight: 4, spaceWeight: 4, height: 8 })
+    const smallStripes = new Leaflet.StripePattern({ angle: -45, color: 'green', spaceColor: lightGreen, spaceOpacity: 1, weight: 1, spaceWeight: 1, height: 2 })
+    const bigStripes = new Leaflet.StripePattern({ angle: -45, color: 'green', spaceColor: lightGreen, spaceOpacity: 1, weight: 4, spaceWeight: 4, height: 8 })
     smallStripes.addTo(map)
     bigStripes.addTo(map)
 
@@ -238,7 +231,7 @@ function addStaticPTMapAOMS (id, view) {
         },
         availableElsewhere: {
             weight: 1,
-            color: '#BCE954',
+            color: lightGreen,
             fillOpacity: 0.6
         }
     }
@@ -259,20 +252,16 @@ function addStaticPTMapAOMS (id, view) {
     const aomsFG = getAomsFG(map, onEachAomFeature, style(map.getZoom()))
     aomsFG.addTo(map)
     map.on('zoomend', () => {
+        // change stripes width depending on the zoom level
         aomsFG.setStyle(style(map.getZoom()))
     })
 
     if (view.display_legend) {
         getLegend(
             '<h4>Disponibilité des horaires théoriques :</h4>',
-            ['green', '#BCE954', 'repeating-linear-gradient(-45deg,green,green 3px,#BCE954 3px,#BCE954 6px)', 'grey'],
+            ['green', lightGreen, `repeating-linear-gradient(-45deg,green,green 3px,${lightGreen} 3px,${lightGreen} 6px)`, 'grey'],
             ['Pour l\'AOM spécifiquement', 'Dans un jeu de données agrégé', 'Pour l\'AOM <strong>et</strong> dans un jeu de données agrégé', 'Aucune donnée disponible']
         ).addTo(map)
-        map.RegionLegend = getLegend(
-            '<h4>Disponibilité des horaires théoriques</h4>',
-            ['green', 'orange'],
-            ['Données publiées par la région', 'Données partiellement publiées par la région']
-        )
     }
 }
 
@@ -481,8 +470,6 @@ const droms = {
         zoom: 8
     }
 }
-
-const staticPTMaps = []
 
 for (const [drom, view] of Object.entries(droms)) {
     addStaticPTMapRegions(`map_regions_${drom}`, view)
