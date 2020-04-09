@@ -6,6 +6,7 @@ defmodule Transport.ImportDataWorker do
 
   alias DB.{Dataset, Repo, Resource}
   alias Transport.ImportData
+  require Logger
 
   ## API ##
 
@@ -35,17 +36,21 @@ defmodule Transport.ImportDataWorker do
   end
 
   @impl true
-  def handle_cast({:import_and_validation, dataset}, state) do
+  def handle_cast({:import_and_validation, %Dataset{id: id} = dataset}, state) do
     ImportData.call(dataset)
     queue_validations(dataset)
     {:noreply, state}
+  rescue
+    e -> Logger.error("error in the import data worker for dataset #{id}: #{inspect(e)}")
   end
 
   @impl true
-  def handle_cast({:validate, resource}, state) do
+  def handle_cast({:validate, %Resource{id: id} = resource}, state) do
     Resource.validate_and_save(resource)
 
     {:noreply, state}
+  rescue
+    e -> Logger.error("error in the import data worker validation for resource #{id}: #{inspect(e)}")
   end
 
   @impl true

@@ -28,7 +28,7 @@
     <%= live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{dataset_id: @dataset.id, locale: get_session(@conn, :locale)}) %>
   </td>
   <td class="bo_dataset_button">
-    <%= form_for @conn, backoffice_page_path(@conn, :edit, @dataset.id), [nodiv: true, method: "get"], fn f -> %>
+    <%= form_for @conn, backoffice_page_path(@conn, :edit, @dataset.id), [nodiv: true, method: "get"], fn _ -> %>
     <%= submit "Editer", [class: "button", nodiv: true] %>
   <% end %>
   </td>
