@@ -91,4 +91,4 @@ config :ex_aws,
   ]
 
 config :transport,
-  max_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer()
+  max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer()
