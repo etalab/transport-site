@@ -5,6 +5,7 @@ defmodule Transport.Application do
   """
 
   use Application
+  use Task
   alias Transport.{CSVDocuments, ImportDataWorker, SearchCommunes}
   alias TransportWeb.Endpoint
   import Supervisor.Spec, only: [supervisor: 2]
@@ -18,6 +19,8 @@ defmodule Transport.Application do
         SearchCommunes
       ]
       |> add_scheduler()
+      ## manually add a children supervisor that is not scheduled
+      |> Kernel.++([{Task.Supervisor, name: ImportTaskSupervisor}])
 
     opts = [strategy: :one_for_one, name: Transport.Supervisor]
     Supervisor.start_link(children, opts)
