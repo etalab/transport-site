@@ -49,5 +49,9 @@
     "stylelint": "^13.3.1",
     "stylelint-scss": "^3.16.1",
     "webpack-cli": "^3.2.3"
+  },
+  "resolutions": {
+    "kind-of": "^6.0.3",
+    "acorn": "^7.1.1"
   }
 }
