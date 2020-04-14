@@ -89,3 +89,6 @@ config :ex_aws,
     scheme: "https://",
     host: "cellar-c2.services.clever-cloud.com",
   ]
+
+config :transport,
+  max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer()

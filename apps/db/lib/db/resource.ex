@@ -48,6 +48,8 @@ defmodule DB.Resource do
       true
       iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "micro-mobility"}, validation: %Validation{}})
       false
+      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}})
+      true
   """
   @spec needs_validation(__MODULE__.t()) :: boolean()
   def needs_validation(%__MODULE__{dataset: dataset, validation: %Validation{date: validation_date}}) do
@@ -56,6 +58,10 @@ defmodule DB.Resource do
       [true, validation_date] -> dataset.last_update > validation_date
       _ -> false
     end
+  end
+
+  def needs_validation(%__MODULE__{} = _r) do
+    true
   end
 
   @spec validate_and_save(__MODULE__.t()) :: {:error, any} | {:ok, nil}
@@ -89,7 +95,7 @@ defmodule DB.Resource do
   def save(%__MODULE__{id: id, url: url, format: format} = r, %{"validations" => validations, "metadata" => metadata}) do
     # When the validator is unable to open the archive, it will return a fatal issue
     # And the metadata will be nil (as it couldn’t read them)
-    if is_nil(metadata) and format == "GTFS", do: Logger.warn("Unable to validate: #{id}")
+    if is_nil(metadata) and format == "GTFS", do: Logger.warn("Unable to validate resource (id = #{id})")
 
     __MODULE__
     |> preload(:validation)
@@ -177,20 +183,6 @@ defmodule DB.Resource do
 
   @spec valid?(__MODULE__.t()) :: boolean()
   def valid?(%__MODULE__{} = r), do: r.metadata != nil
-
-  @spec validate_and_save_all([binary()]) :: :ok
-  def validate_and_save_all(args \\ ["--all"]) do
-    Logger.info("Validating all resources")
-
-    __MODULE__
-    |> preload(:dataset)
-    |> Repo.all()
-    |> Enum.filter(fn r -> r.dataset.type == "public-transit" end)
-    |> Enum.filter(&(List.first(args) == "--all" or needs_validation(&1)))
-    |> Enum.each(&validate_and_save/1)
-
-    Logger.info("All resources have been validated")
-  end
 
   @spec is_outdated?(__MODULE__) :: boolean
   def is_outdated?(%__MODULE__{metadata: %{"end_date" => nil}}), do: false
