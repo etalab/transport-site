@@ -31,25 +31,41 @@
     </div>
     <div class="domain theorical">
       <h2>Transports en commun - horaires théoriques</h2>
-      <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "map") %>
+      <div class="domain-stats staticPTdata">
+        <%= render("_maps.html", droms: @droms, prefix: "map_regions") %>
         <div class="panel">
+          <div class="description">
+            <h3>Par région</h3>
+            <p>L'offre de transport en commun urbain et interurbain, regroupée par région.</p>
+          </div>
           <div class="tile">
             <h3><%= @nb_pt_datasets %></h3>
             <div>jeux de données ouverts</div>
+          </div>
+          <div class="tile">
+            <h3><%= @nb_regions_completed %></h3>
+            <div>régions couvertes (sur <%= @nb_regions %>)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="domain theorical">
+      <div class="domain-stats staticPTdata">
+        <%= render("_maps.html", droms: @droms, prefix: "map_aoms") %>
+        <div class="panel">
+          <div class="description">
+            <h3>Par <acronym title="autorité organistrice de mobilité">AOM</acronym></h3>
+            <p>L'offre de transport en commun urbain, disponible par <acronym title="autorité organistrice de mobilité">AOM</acronym>.</p><br>
+            <p>Ces données peuvent être disponibles pour l'<acronym title="autorité organistrice de mobilité">AOM</acronym> spécifiquement, ou au sein d'un jeu de données plus large.</p>
           </div>
           <div class="tile">
             <h3><%= @nb_aoms_with_data %></h3>
             <div>autorités organisatrices de la mobilité couvertes (sur <%= @nb_aoms %>)</div>
           </div>
           <div class="tile">
-            <h3><%= @nb_regions_completed %></h3>
-            <div>régions couvertes (sur <%= @nb_regions %>)</div>
-          </div>
-          <div class="tile">
-            <h3><%= @population_couverte %>M</h3>
-            <div>de la population couverte
-              sur <%= @population_totale %>M
+            <h3><%= @population_couverte %> </h3>millions
+            <div>de personnes peuvent en bénéficier
+              sur les <%= @population_totale %> millions de Français·e·s vivant dans une AOM
             </div>
           </div>
         </div>
