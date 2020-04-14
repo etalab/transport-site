@@ -234,7 +234,7 @@ defmodule Transport.ImportData do
     end
   end
 
-  defp read_datagouv_zone(%{"id" => id}) do
+  defp read_datagouv_zone(%{"features" => [%{"id" => id} | _]}) do
     Logger.info("For the moment we can only handle cities, we cannot handle the zone #{id}")
     []
   end
