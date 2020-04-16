@@ -65,6 +65,12 @@ defmodule TransportWeb.API.StatsController do
     |> length
   end
 
+  @spec filter_neg(nil | integer()) :: nil | non_neg_integer()
+  defp filter_neg(nil), do: nil
+
+  defp filter_neg(val) when val < 0, do: nil
+  defp filter_neg(val) when val >= 0, do: val
+
   @spec features(Ecto.Query.t()) :: [map()]
   def features(q) do
     q
@@ -82,6 +88,11 @@ defmodule TransportWeb.API.StatsController do
           "forme_juridique" => Map.get(aom, :forme_juridique, ""),
           "parent_dataset_slug" => Map.get(aom, :parent_dataset_slug, ""),
           "parent_dataset_name" => Map.get(aom, :parent_dataset_name, ""),
+          "quality" => %{
+            # negative values are up to date datasets, we filter them
+            "expired_from" => aom |> Map.get(:quality, %{}) |> Map.get(:expired_from) |> filter_neg,
+            "error_level" => aom |> Map.get(:quality, %{}) |> Map.get(:error_level)
+          },
           "dataset_formats" =>
             aom
             |> Map.get(:dataset_formats, [])
@@ -152,6 +163,8 @@ defmodule TransportWeb.API.StatsController do
 
   @spec aom_features :: Ecto.Query.t()
   defp aom_features do
+    dt = Date.utc_today() |> Date.to_iso8601()
+
     AOM
     |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id)
     |> select([aom, dataset], %{
@@ -170,6 +183,53 @@ defmodule TransportWeb.API.StatsController do
       dataset_types: %{
         pt: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit'", aom.id),
         bike_sharing: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-sharing'", aom.id)
+      },
+      quality: %{
+        # we get the number of day since the latest resource is expired
+        expired_from:
+          fragment(
+            """
+            SELECT
+            TO_DATE(?, 'YYYY-MM-DD') - TO_DATE(max(metadata->>'end_date'), 'YYYY-MM-DD')
+            FROM resource
+            WHERE
+            metadata->>'end_date' IS NOT NULL
+            AND dataset_id in
+              (SELECT id FROM dataset WHERE aom_id=?)
+            """,
+            ^dt,
+            aom.id
+          ),
+        # we get the most serious error of the valid resources
+        error_level:
+          fragment(
+            """
+            SELECT severity from (
+              SELECT distinct(json_data.value#>>'{0,severity}') as severity
+              FROM validations
+              JOIN resource ON resource.id = validations.resource_id
+              join dataset ON dataset.id = resource.dataset_id,
+              json_each(validations.details) json_data
+              WHERE
+              dataset.aom_id = ?
+              -- we only consider valid resources
+              AND resource.metadata->>'end_date' IS NOT NULL
+              AND resource.metadata->>'end_date' > ?
+            ) as severities
+            ORDER BY (
+              CASE severity::text
+                WHEN 'Fatal' THEN 1
+                WHEN 'Error' THEN 2
+                WHEN 'Warning' THEN 3
+                WHEN 'Information' THEN 4
+                WHEN 'Irrelevant' THEN 5
+                END
+            ) ASC
+            LIMIT 1
+            """,
+            aom.id,
+            ^dt
+          )
       },
       parent_dataset_slug: dataset.slug,
       parent_dataset_name: dataset.title
