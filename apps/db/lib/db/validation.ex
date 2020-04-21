@@ -10,6 +10,8 @@ defmodule DB.Validation do
   typed_schema "validations" do
     field(:details, :map)
     field(:date, :string)
+    # the maximum level of error in this validation
+    field(:max_error, :string)
 
     belongs_to(:resource, Resource)
   end
@@ -30,7 +32,10 @@ defmodule DB.Validation do
   @spec get_issues(%{details: any()} | nil, map()) :: [any()]
   def get_issues(nil, _), do: []
   def get_issues(%{details: nil}, _), do: []
-  def get_issues(%{details: validations}, %{"issue_type" => issue_type}), do: Map.get(validations, issue_type, [])
+
+  def get_issues(%{details: validations}, %{"issue_type" => issue_type}),
+    do: Map.get(validations, issue_type, [])
+
   def get_issues(%{details: validations}, _) when validations == %{}, do: []
 
   def get_issues(%{details: validations}, _) do

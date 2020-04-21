@@ -77,6 +77,12 @@ defmodule TransportWeb.API.StatsController do
     |> Repo.all()
     |> Enum.filter(fn aom -> !is_nil(aom.geometry) end)
     |> Enum.map(fn aom ->
+      dataset_types =
+        aom
+        |> Map.get(:dataset_types, [])
+        |> Enum.filter(fn {_, v} -> v != nil end)
+        |> Enum.into(%{})
+
       %{
         "geometry" => aom.geometry |> JSON.encode!(),
         "type" => "Feature",
@@ -89,8 +95,26 @@ defmodule TransportWeb.API.StatsController do
           "parent_dataset_slug" => Map.get(aom, :parent_dataset_slug, ""),
           "parent_dataset_name" => Map.get(aom, :parent_dataset_name, ""),
           "quality" => %{
-            # negative values are up to date datasets, we filter them
-            "expired_from" => aom |> Map.get(:quality, %{}) |> Map.get(:expired_from) |> filter_neg,
+            "expired_from" => %{
+              # negative values are up to date datasets, we filter them
+              "nb_days" => aom |> Map.get(:quality, %{}) |> Map.get(:expired_from) |> filter_neg,
+              "status" =>
+                case aom |> Map.get(:quality, %{}) |> Map.get(:expired_from) do
+                  # if no validity period has been found, it's either that there was no data
+                  # or that we were not able to read them
+                  nil ->
+                    case dataset_types[:pt] do
+                      0 -> "no_data"
+                      _ -> "unreadable"
+                    end
+
+                  i when i > 0 ->
+                    "outdated"
+
+                  _ ->
+                    "up_to_date"
+                end
+            },
             "error_level" => aom |> Map.get(:quality, %{}) |> Map.get(:error_level)
           },
           "dataset_formats" =>
@@ -99,11 +123,7 @@ defmodule TransportWeb.API.StatsController do
             |> Enum.filter(fn {_, v} -> v != nil end)
             |> Enum.into(%{})
             |> Map.put("non_standard_rt", nb_non_standard_rt(Map.get(aom, :insee_commune_principale))),
-          "dataset_types" =>
-            aom
-            |> Map.get(:dataset_types, [])
-            |> Enum.filter(fn {_, v} -> v != nil end)
-            |> Enum.into(%{})
+          "dataset_types" => dataset_types
         }
       }
     end)
@@ -167,7 +187,7 @@ defmodule TransportWeb.API.StatsController do
 
     AOM
     |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id)
-    |> select([aom, dataset], %{
+    |> select([aom, parent_dataset], %{
       geometry: aom.geom,
       id: aom.id,
       insee_commune_principale: aom.insee_commune_principale,
@@ -190,49 +210,48 @@ defmodule TransportWeb.API.StatsController do
           fragment(
             """
             SELECT
-            TO_DATE(?, 'YYYY-MM-DD') - TO_DATE(max(metadata->>'end_date'), 'YYYY-MM-DD')
+            TO_DATE(?, 'YYYY-MM-DD') - max(end_date)
             FROM resource
             WHERE
-            metadata->>'end_date' IS NOT NULL
-            AND dataset_id in
-              (SELECT id FROM dataset WHERE aom_id=?)
+            end_date IS NOT NULL
+            AND (
+              dataset_id in (SELECT id FROM dataset WHERE aom_id=?)
+              OR dataset_id = ?
+              )
             """,
             ^dt,
-            aom.id
+            aom.id,
+            parent_dataset.id
           ),
         # we get the most serious error of the valid resources
+        # TODO gérer les cas parfait
         error_level:
           fragment(
             """
-            SELECT severity from (
-              SELECT distinct(json_data.value#>>'{0,severity}') as severity
-              FROM validations
-              JOIN resource ON resource.id = validations.resource_id
-              join dataset ON dataset.id = resource.dataset_id,
-              json_each(validations.details) json_data
-              WHERE
-              dataset.aom_id = ?
-              -- we only consider valid resources
-              AND resource.metadata->>'end_date' IS NOT NULL
-              AND resource.metadata->>'end_date' > ?
-            ) as severities
+            SELECT max_error
+            FROM validations
+            JOIN resource ON resource.id = validations.resource_id
+            JOIN dataset ON dataset.id = resource.dataset_id
+            WHERE
+            (dataset.aom_id = ? OR dataset.id = ?)
             ORDER BY (
-              CASE severity::text
+              CASE max_error::text
                 WHEN 'Fatal' THEN 1
                 WHEN 'Error' THEN 2
                 WHEN 'Warning' THEN 3
                 WHEN 'Information' THEN 4
                 WHEN 'Irrelevant' THEN 5
-                END
+                WHEN 'NoError' THEN 6
+              END
             ) ASC
             LIMIT 1
             """,
             aom.id,
-            ^dt
+            parent_dataset.id
           )
       },
-      parent_dataset_slug: dataset.slug,
-      parent_dataset_name: dataset.title
+      parent_dataset_slug: parent_dataset.slug,
+      parent_dataset_name: parent_dataset.title
     })
   end
 
