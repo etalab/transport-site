@@ -98,6 +98,15 @@ defmodule TransportWeb.Backoffice.DatasetController do
     |> redirect_to_index()
   end
 
+  @spec validate_all(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def force_validate_all(%Plug.Conn{} = conn, _args) do
+    ImportDataWorker.force_validate_all()
+
+    conn
+    |> put_flash(:info, dgettext("backoffice_dataset", "validation of all datasets has been launch"))
+    |> redirect_to_index()
+  end
+
   ## Private functions
 
   @spec flash(:ok | {:ok, any} | {:error, any}, Plug.Conn.t(), binary, binary) :: Plug.Conn.t()
