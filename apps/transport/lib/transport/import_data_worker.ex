@@ -18,6 +18,11 @@ defmodule Transport.ImportDataWorker do
     GenServer.cast(__MODULE__, {:validate_all})
   end
 
+  @spec validate_all :: :ok
+  def force_validate_all do
+    GenServer.cast(__MODULE__, {:force_validate_all})
+  end
+
   def start_link do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
@@ -40,6 +45,14 @@ defmodule Transport.ImportDataWorker do
   @impl true
   def handle_cast({:validate_all}, state) do
     ImportData.validate_all_resources()
+    {:noreply, state}
+  rescue
+    e -> Logger.error("error in the validation data worker : #{inspect(e)}")
+  end
+
+  @impl true
+  def handle_cast({:force_validate_all}, state) do
+    ImportData.validate_all_resources(true)
     {:noreply, state}
   rescue
     e -> Logger.error("error in the validation data worker : #{inspect(e)}")
