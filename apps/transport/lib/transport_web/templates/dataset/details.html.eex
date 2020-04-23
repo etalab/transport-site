@@ -28,8 +28,11 @@
 </div>
 </div>
 <div class="dataset-infos">
-  <section class="dataset-description panel">
-    <%= description(@dataset) %>
+  <section class="dataset-description">
+    <div class="panel">
+      <h2>Description</h2>
+      <%= description(@dataset) %>
+    </div>
   </section>
 
 
