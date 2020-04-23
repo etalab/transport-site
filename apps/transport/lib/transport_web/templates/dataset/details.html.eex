@@ -158,7 +158,7 @@
 <% end %>
 
 <%= unless @history_resources == [] do %>
-  <section class="white" id="dataset-historic">
+  <section class="white pt-48" id="dataset-historic">
     <h3><%= dgettext("page-dataset-details", "History")%></h3>
     <div class="">
       <div class="panel">
