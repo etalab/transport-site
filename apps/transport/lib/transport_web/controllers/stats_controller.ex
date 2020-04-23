@@ -24,7 +24,7 @@ defmodule TransportWeb.StatsController do
     regions = Repo.all(from(r in Region, where: r.nom != "National"))
 
     aoms_max_severity = compute_aom_max_severity()
-    total_aom_with_data = 1
+    total_aom_with_gtfs = nb_aom_with_gtfs()
 
     render(conn, "index.html",
       nb_datasets: Repo.aggregate(Dataset, :count, :id),
@@ -35,8 +35,8 @@ defmodule TransportWeb.StatsController do
       nb_regions_completed: regions |> Enum.count(fn r -> r.is_completed end),
       population_totale: get_population(aoms),
       population_couverte: get_population(aoms_with_datasets),
-      ratio_aom_with_at_most_warnings: ratio_aom_with_at_most_warnings(aoms_max_severity, total_aom_with_data),
-      ratio_aom_good_quality: ratio_aom_good_quality(aoms_max_severity, total_aom_with_data),
+      ratio_aom_with_at_most_warnings: ratio_aom_with_at_most_warnings(aoms_max_severity, total_aom_with_gtfs),
+      ratio_aom_good_quality: ratio_aom_good_quality(aoms_max_severity, total_aom_with_gtfs),
       aom_with_errors: Map.get(aoms_max_severity, "Error", 0),
       aom_with_fatal: Map.get(aoms_max_severity, "Fatal", 0),
       nb_officical_realtime: nb_officical_realtime(),
@@ -105,28 +105,63 @@ defmodule TransportWeb.StatsController do
 
   @spec compute_aom_max_severity() :: %{binary() => integer()}
   defp compute_aom_max_severity do
-    %{}
+    dt = Date.utc_today()
+
+    AOM
+    |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id or dataset.aom_id == aom.id)
+    |> join(:left, [_, dataset], _r in assoc(dataset, :resources))
+    |> join(:left, [_, _, resource], _v in assoc(resource, :validation))
+    |> where([_a, _d, r, _v], r.format == "GTFS")
+    |> group_by([_a, _d, _r, v], v.max_error)
+    |> where([_a, _d, r, _v], r.end_date >= ^dt)
+    |> select([a, d, r, v], %{
+      count: count(v.max_error),
+      error: v.max_error
+    })
+    |> Repo.all()
+    |> Enum.map(fn %{count: count, error: error} -> {error, count} end)
+    |> Map.new()
   end
 
-  @spec ratio_aom_with_at_most_warnings(integer(), integer()) :: float()
+  @spec ratio_aom_with_at_most_warnings(integer(), integer()) :: integer()
   defp ratio_aom_with_at_most_warnings(aom_max_severity, 0) do
     0
   end
+
   defp ratio_aom_with_at_most_warnings(aom_max_severity, nb_aom_with_data) do
-    Map.get(aom_max_severity, "Warning", 0)
-    + Map.get(aom_max_severity, "Information", 0)
-    + Map.get(aom_max_severity, "Irrelevant", 0)
-    / nb_aom_with_data
+    sum =
+      Map.get(aom_max_severity, "Warning", 0) +
+        Map.get(aom_max_severity, "Information", 0) +
+        Map.get(aom_max_severity, "Irrelevant", 0) +
+        Map.get(aom_max_severity, "NoError", 0)
+    (sum / nb_aom_with_data *
+       100)
+    |> round
   end
 
-  @spec ratio_aom_good_quality(integer(), integer()) :: float()
+  @spec ratio_aom_good_quality(integer(), integer()) :: integer()
   defp ratio_aom_good_quality(aom_max_severity, 0) do
     0
   end
+
   defp ratio_aom_good_quality(aom_max_severity, nb_aom_with_data) do
-    Map.get(aom_max_severity, "Information", 0)
-    + Map.get(aom_max_severity, "Irrelevant", 0)
-    / nb_aom_with_data
+    sum =
+      Map.get(aom_max_severity, "Information", 0) +
+        Map.get(aom_max_severity, "Irrelevant", 0) +
+        Map.get(aom_max_severity, "NoError", 0)
+
+    (sum *
+       100 /
+       nb_aom_with_data)
+    |> round
   end
 
+  @spec nb_aom_with_gtfs() :: integer()
+  defp nb_aom_with_gtfs() do
+    AOM
+    |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id or dataset.aom_id == aom.id)
+    |> join(:left, [_, dataset], _r in assoc(dataset, :resources))
+    |> where([_a, _d, r], r.format == "GTFS")
+    |> Repo.aggregate(:count, :id)
+  end
 end
