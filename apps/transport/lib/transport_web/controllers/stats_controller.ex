@@ -23,6 +23,9 @@ defmodule TransportWeb.StatsController do
 
     regions = Repo.all(from(r in Region, where: r.nom != "National"))
 
+    aoms_max_severity = compute_aom_max_severity()
+    total_aom_with_data = 1
+
     render(conn, "index.html",
       nb_datasets: Repo.aggregate(Dataset, :count, :id),
       nb_pt_datasets: Dataset.count_by_type("public-transit"),
@@ -32,6 +35,10 @@ defmodule TransportWeb.StatsController do
       nb_regions_completed: regions |> Enum.count(fn r -> r.is_completed end),
       population_totale: get_population(aoms),
       population_couverte: get_population(aoms_with_datasets),
+      ratio_aom_with_at_most_warnings: ratio_aom_with_at_most_warnings(aoms_max_severity, total_aom_with_data),
+      ratio_aom_good_quality: ratio_aom_good_quality(aoms_max_severity, total_aom_with_data),
+      aom_with_errors: Map.get(aoms_max_severity, "Error", 0),
+      aom_with_fatal: Map.get(aoms_max_severity, "Fatal", 0),
       nb_officical_realtime: nb_officical_realtime(),
       nb_unofficical_realtime: nb_unofficical_realtime(),
       nb_reusers: nb_reusers(),
@@ -95,4 +102,31 @@ defmodule TransportWeb.StatsController do
     |> where([r], r.format == ^format)
     |> Repo.one()
   end
+
+  @spec compute_aom_max_severity() :: %{binary() => integer()}
+  defp compute_aom_max_severity do
+    %{}
+  end
+
+  @spec ratio_aom_with_at_most_warnings(integer(), integer()) :: float()
+  defp ratio_aom_with_at_most_warnings(aom_max_severity, 0) do
+    0
+  end
+  defp ratio_aom_with_at_most_warnings(aom_max_severity, nb_aom_with_data) do
+    Map.get(aom_max_severity, "Warning", 0)
+    + Map.get(aom_max_severity, "Information", 0)
+    + Map.get(aom_max_severity, "Irrelevant", 0)
+    / nb_aom_with_data
+  end
+
+  @spec ratio_aom_good_quality(integer(), integer()) :: float()
+  defp ratio_aom_good_quality(aom_max_severity, 0) do
+    0
+  end
+  defp ratio_aom_good_quality(aom_max_severity, nb_aom_with_data) do
+    Map.get(aom_max_severity, "Information", 0)
+    + Map.get(aom_max_severity, "Irrelevant", 0)
+    / nb_aom_with_data
+  end
+
 end

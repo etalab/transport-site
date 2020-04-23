@@ -265,6 +265,159 @@ function addStaticPTMapAOMS (id, view) {
     }
 }
 
+function addStaticPTUpToDate (id, view) {
+    const map = makeMapOnView(id, view)
+
+    function onEachAomFeature (feature, layer) {
+        const name = feature.properties.nom
+        const type = feature.properties.forme_juridique
+        const expired_from = feature.properties.quality.expired_from
+        let text = ""
+        if (expired_from.status === "outdated") {
+            text = `Les données ne sont plus à jour depuis ${expired_from.nb_days} jour`
+            if (expired_from.nb_days > 1) {
+                text += "s"
+            }
+        } else {
+            if (expired_from.status === "no_data") {
+                text = "Aucune données pour l'AOM"
+            } else if (expired_from.status === "unreadable") {
+                text = "données illisibles"
+            } else {
+                text = "Les données sont à jour"
+            }
+        }
+        const id = feature.properties.id
+        layer.bindPopup(`<a href="/datasets/aom/${id}">${name}</a><br>(${type})<br/>${text}`)
+    }
+    
+    const styles = {
+        outdated: {
+            weight: 1,
+            color: 'orange',
+            fillOpacity: 0.6
+        },
+        up_to_date: {
+            weight: 1,
+            color: 'green',
+            fillOpacity: 0.6
+        },
+        unreadable: {
+            weight: 1,
+            color: 'red',
+            fillOpacity: 0.6
+        },
+        no_data: {
+            weight: 1,
+            color: 'grey',
+            fillOpacity: 0.6
+        },
+    }
+
+    const style = feature => {
+        const expired_from = feature.properties.quality.expired_from
+        if (expired_from.status === "up_to_date") {
+            return styles.up_to_date
+        } else if (expired_from.status === "outdated") {
+            return styles.outdated
+        } else if (expired_from.status === "unreadable") {
+            return styles.unreadable
+        } else {
+            return styles.no_data
+        }
+    }
+    const aomsFG = getAomsFG(map, onEachAomFeature, style)
+
+    aomsFG.addTo(map)
+
+    if (view.display_legend) {
+        getLegend(
+            '<h4>Fraicheur des données</h4>',
+            ['green', 'orange', 'red', 'grey'],
+            ['à jour', 'pas à jour', 'inconnue', 'pas de données']
+        ).addTo(map)
+    }
+}
+
+function addStaticPTQuality (id, view) {
+    const lighterGreen = "#1daf25"
+    const map = makeMapOnView(id, view)
+
+    function onEachAomFeature (feature, layer) {
+        const name = feature.properties.nom
+        const type = feature.properties.forme_juridique
+        const error_level = feature.properties.quality.error_level
+        let text = ""
+        if (error_level === "Error") {
+            text = `Les données contiennent des erreurs.`
+        } else if (error_level === "Warning") {
+            text = `Les données contiennent des avertissements.`
+        } else if (error_level === "Fatal") {
+            text = `Les données sont illisibles.`
+        } else if (error_level === 'Information' || error_level == 'NoError') {
+            text = "Les données sont de bonne qualité."
+        } else {
+            text = `Pas de données.`
+        }
+        const id = feature.properties.id
+        layer.bindPopup(`<a href="/datasets/aom/${id}">${name}</a><br>(${type})<br/>${text}`)
+    }
+    
+    const styles = {
+        fatal: {
+            weight: 1,
+            color: 'red',
+            fillOpacity: 0.6
+        },
+        error: {
+            weight: 1,
+            color: 'orange',
+            fillOpacity: 0.6
+        },
+        warning: {
+            color: 'green',
+            weight: 1,
+            fillOpacity: 0.6
+        },
+        good: {
+            weight: 1,
+            color: 'blue',
+            fillOpacity: 0.6
+        },
+        unavailable: {
+            weight: 1,
+            color: 'grey',
+            fillOpacity: 0.6
+        },
+    }
+
+    const style = feature => {
+        const quality = feature.properties.quality.error_level
+        if (quality === 'Fatal') {
+            return styles.fatal
+        } else if (quality === 'Error') {
+            return styles.error
+        } else if (quality === 'Warning') {
+            return styles.warning
+        } else if (quality === 'Information' || quality == 'NoError') {
+            return styles.good
+        } else {
+            return styles.unavailable
+        }
+    }
+    const aomsFG = getAomsFG(map, onEachAomFeature, style)
+
+    aomsFG.addTo(map)
+
+    if (view.display_legend) {
+        getLegend(
+            '<h4>Qualité des données</h4>',
+            ['red', 'orange', 'green', 'blue', 'grey'],
+            ['Illisible', 'Erreur', 'Bonne mais améliorable', 'Bonne', 'Pas à jour']
+        ).addTo(map)
+    }
+}
+
 /**
  * Initialises a map with the realtime coverage.
  * @param  {String} id Dom element id, where the map is to be bound.
@@ -473,7 +626,9 @@ const droms = {
 
 for (const [drom, view] of Object.entries(droms)) {
     addStaticPTMapRegions(`map_regions_${drom}`, view)
+    addStaticPTUpToDate(`pt_up_to_date_${drom}`, view)
     addStaticPTMapAOMS(`map_aoms_${drom}`, view)
+    addStaticPTQuality(`pt_quality_${drom}`, view)
     addPtFormatMap(`pt_format_map_${drom}`, view)
     addRealTimePTMap(`rt_map_${drom}`, view)
     addBikesMap(`bikes_map_${drom}`, view)
