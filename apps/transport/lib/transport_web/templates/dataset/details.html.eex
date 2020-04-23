@@ -22,6 +22,10 @@
       <div class="menu-item"><a href="#dataset-reuses">Réutilisations</a></div>
     <% end %>
     <div class="menu-item"><a href="#dataset-discussions">Discussions</a></div>
+
+    <%= unless @history_resources == [] do %>
+      <div class="menu-item"><a href="#dataset-historic">Historique</a></div>
+    <% end %>
     <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
       <div class="menu-item"><a href="#dataset-other-datasets">Autres jeux de données</a></div>
     <% end %>
@@ -154,10 +158,10 @@
 <% end %>
 
 <%= unless @history_resources == [] do %>
-  <section class="section white">
-    <div class="container">
+  <section class="white" id="dataset-historic">
+    <h3><%= dgettext("page-dataset-details", "History")%></h3>
+    <div class="">
       <div class="panel">
-        <h3><%= dgettext("page-dataset-details", "History")%></h3>
         <table class="table">
           <thead>
             <tr>
