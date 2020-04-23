@@ -243,7 +243,11 @@ msgid "Unsubscribe to comments"
 msgstr ""
 
 #, elixir-format
-msgid "Log in to subscribe to comments of this dataset."
+msgid "Log in"
+msgstr ""
+
+#, elixir-format
+msgid "to subscribe to comments of this dataset."
 msgstr ""
 
 #, elixir-format

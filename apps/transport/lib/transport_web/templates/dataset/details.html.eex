@@ -3,35 +3,40 @@
     <%= dgettext("page-dataset-details", "This dataset has been removed from data.gouv.fr") %>
   </div>
 <% end %>
-<div class="dataset">
-  <section class="section">
-    <div class="container dataset__header">
-      <div class="dataset__logo">
-        <%= img_tag(@dataset.full_logo, alt: @dataset.title) %>
-      </div>
-      <div class="dataset__title pt-24">
-        <h1>
-          <%= @dataset.spatial %>
-        </h1>
-      </div>
-      <div class="dataset__subtitle is-centered">
-        <div>
-          <i class="fa fa-map-marker-alt"></i> <%= localization(@dataset) %> <i>
-        </div>
-        <div>
-          <%= Dataset.type_to_str(@dataset.type) %>
-        </div>
-      </div>
-    </div>
-  </section>
-  <section class="section section-grey">
-    <div class="container">
-      <div class="description">
-        <%= description(@dataset) %>
-      </div>
-    </div>
+<div class="dataset-title-div" id="dataset-top-element">
+  jeu de données
+  <h1>
+    <%= @dataset.spatial %>
+  </h1>
+</div>
+<div class="dataset-page">
+<div class="menu">
+<div>
+    <div class="menu-item"><a href="#dataset-top-element">Description</a></div>
     <%= if @dataset.type == "carsharing-areas" and other_resources(@dataset) != [] and List.first(other_resources(@dataset)).format == "csv" do %>
-      <div class="container">
+      <div class="menu-item"><a href="#dataset-visualisation">Visualisation</a></div>
+    <% end %>
+
+    <div class="menu-item"><a href="#dataset-resources">Ressources</a></div>
+    <%= unless is_nil(@reuses) or @reuses == [] do %>
+      <div class="menu-item"><a href="#dataset-reuses">Réutilisations</a></div>
+    <% end %>
+    <div class="menu-item"><a href="#dataset-discussions">Discussions</a></div>
+    <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
+      <div class="menu-item"><a href="#dataset-other-datasets">Autres jeux de données</a></div>
+    <% end %>
+</div>
+</div>
+<div class="dataset-infos">
+  <section class="dataset-description panel">
+    <%= description(@dataset) %>
+  </section>
+
+
+  <%= if @dataset.type == "carsharing-areas" and other_resources(@dataset) != [] and List.first(other_resources(@dataset)).format == "csv" do %>
+    <section class="pt-48" id="dataset-visualisation">
+      <h2>Visualisation</h2>
+      <div class="panel">
         <div id='map' class='mapcsv'></div>
         <div class="is-centered"><%= dgettext("page-dataset-details", "Visualization of the most recent resource")%> <%= List.first(other_resources(@dataset)).title %>.</div>
       </div>
@@ -41,34 +46,34 @@
           createMap('map', "<%= List.first(other_resources(@dataset)).url %>")
         })
       </script>
-    <% end %>
-
-  </section>
-  <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gtfs_resources(@dataset), title: dgettext("page-dataset-details", "GTFS resources") %>
-  <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gbfs_resources(@dataset), title: dgettext("page-dataset-details", "GBFS resources") %>
-  <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: netex_resources(@dataset), title: dgettext("page-dataset-details", "NETeX resources") %>
-  <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: other_resources(@dataset), title: dgettext("page-dataset-details", "Other resources") %>
-  <%= unless is_nil(@community_ressources) or @community_ressources == [] do %>
-    <section class="section white">
-      <div class="container">
-        <div class="panel">
-          <div class="panel__header">
-            <h3><%= dgettext("page-dataset-details", "Community ressources" )%></h3>
-          </div>
-          <%= render_many @community_ressources, TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
-        </div>
-      </div>
     </section>
   <% end %>
-  <%= unless is_nil(@reuses) or @reuses == [] do %>
-    <section class="section white">
-      <div class="container">
-        <div class="panel">
-          <div class="panel__header">
-            <h3><%= dgettext("page-dataset-details", "Reuses" )%></h3>
+
+  <section id="dataset-resources" class="pt-48">
+  <h2>Ressources</h2>
+    <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gtfs_resources(@dataset), title: dgettext("page-dataset-details", "GTFS resources") %>
+    <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gbfs_resources(@dataset), title: dgettext("page-dataset-details", "GBFS resources") %>
+    <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: netex_resources(@dataset), title: dgettext("page-dataset-details", "NETeX resources") %>
+    <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: other_resources(@dataset), title: dgettext("page-dataset-details", "Other resources") %>
+    <%= unless is_nil(@community_ressources) or @community_ressources == [] do %>
+      <section class="dataset__resources white">
+          <div class="panel">
+            <div class="panel__header">
+              <h3><%= dgettext("page-dataset-details", "Community ressources" )%></h3>
+            </div>
+            <%= render_many @community_ressources, TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
           </div>
+      </section>
+    <% end %>
+  </section>
+
+
+  <%= unless is_nil(@reuses) or @reuses == [] do %>
+    <section class="white pt-48" id="dataset-reuses">
+      <h2><%= dgettext("page-dataset-details", "Reuses" )%></h2>
+        <div class="reuses">
           <%= for reuse <- @reuses do %>
-            <div class="reuse">
+            <div class="panel reuse">
               <div>
                 <img src="<%= reuse["image"] %>">
                 <div class="reuse__links">
@@ -81,8 +86,8 @@
                 ) %>
                 </div>
               </div>
-              <div>
-                <div class="reuse__details">
+              <div class="reuse__details">
+                <div>
                   <h3><%= reuse["title"] %></h3>
                   <p><%= raw Earmark.as_html!(reuse["description"]) %> </p>
                 </div>
@@ -90,34 +95,31 @@
             </div>
           <% end %>
         </div>
-      </div>
     </section>
   <% end %>
+
   <%= if @dataset.is_active do %>
-    <section class="section">
-      <div class="container">
+    <section class="pt-48" id="dataset-discussions">
+        <h2>Discussions</h2>
         <div class="dataset-details__discussions panel">
-          <div class="panel__header">
-            <div>
-              <h3>Discussions</h3>
-              <%= if @current_user do %>
-                <%= form_for @conn, follower_path(@conn, :toggle, @dataset.datagouv_id), [class: "form"], fn _f -> %>
-                <button class="button">
-                  <%= if @is_subscribed do %>
-                    <%= dgettext("page-dataset-details", "Subscribe to comments") %>
-                  <% else %>
-                    <%= dgettext("page-dataset-details", "Unsubscribe to comments") %>
-                  <% end %>
-                </button>
+        <div class="pb-48">
+          <%= if @current_user do %>
+            <%= form_for @conn, follower_path(@conn, :toggle, @dataset.datagouv_id), [class: "form"], fn _f -> %>
+            <button class="button">
+              <%= if @is_subscribed do %>
+                <%= dgettext("page-dataset-details", "Subscribe to comments") %>
+              <% else %>
+                <%= dgettext("page-dataset-details", "Unsubscribe to comments") %>
               <% end %>
-            <% else %>
-              <%= link(
-              dgettext("page-dataset-details", "Log in to subscribe to comments of this dataset."),
-              to: page_path(@conn, :login, [redirect_path: current_path(@conn)])
+            </button>
+          <% end %>
+          <% else %>
+            <%= link(
+            dgettext("page-dataset-details", "Log in"),
+            to: page_path(@conn, :login, [redirect_path: current_path(@conn)])
             )
-            %>
-            <% end %>
-          </div>
+            %> <%= dgettext("page-dataset-details", "to subscribe to comments of this dataset.") %>
+          <% end %>
         </div>
         <%= unless @discussions == nil do %>
           <%= render_many @discussions, TransportWeb.DatasetView, "_discussion.html", as: :discussion, current_user: @current_user, conn: @conn, dataset: @dataset %>
@@ -146,18 +148,9 @@
         </span>
       <% end %>
     </div>
-  </div>
-  <div class="container">
-    <p>
-      <i class="fas fa-cogs"></i>
-      <%= dgettext("page-dataset-details", "Get details about this dataset via an %{start_link}API call%{end_link}",
-          start_link: "<a href=\"/api/datasets/#{@dataset.datagouv_id}\">",
-          end_link: "</a>") |> raw()
-          %>
-    </p>
-  </div>
 </section>
 <% end %>
+
 <%= unless @history_resources == [] do %>
   <section class="section white">
     <div class="container">
@@ -199,17 +192,11 @@
     </div>
   </section>
 <% end %>
-<section class="section section-grey">
-  <div class="container">
-    <div class="shortlist__link shortlist__link--external-link">
-      <i class="icon icon--link" aria-hidden="true"></i>
-      <%= Dataset.link_to_datagouv(@dataset) %>
-    </div>
-    <p>
-      <%= render "_licence.html", conn: @conn, dataset: @dataset %>
-    </p>
-    <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
-      <h4><%= dgettext("page-dataset-details", "Other datasets of ") %> <%= String.capitalize(@territory) %></h4>
+
+<%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
+  <section class="pt-48" id="dataset-other-datasets">
+    <h2><%= dgettext("page-dataset-details", "Other datasets of ") %> <%= String.capitalize(@territory) %></h2>
+    <div class="panel">
       <ul>
         <%= for dataset <- @other_datasets do %>
           <li><%= link(
@@ -218,25 +205,56 @@
         ) %></li>
         <% end %>
       </ul>
-    <% end %>
-    <p>
-      <b><%= dgettext("page-dataset-details", "tags: ") %></b>
-      <%= Enum.join(@dataset.tags, ", ") %>
-    </p>
-    <p>
-      <b><%= dgettext("page-dataset-details", "Covered areas") %></b>
-      <%= Dataset.get_covered_area_names(@dataset) %>
-    </p>
-  </div>
-</section>
-</div>
-<script src="<%= static_path(@conn, "/js/utils.js") %>"></script>
-<script>
-  const seeMore = "<%= dgettext("page-dataset-details", "Display more") %>"
-  const seeLess = "<%= dgettext("page-dataset-details", "Display less") %>"
+    </div>
+  </section>
+<% end %>
 
-  document.addEventListener("DOMContentLoaded", function() {
-    addSeeMore("20vh", ".description", seeMore, seeLess)
-    addSeeMore("calc(8vw)", ".reuse__details", seeMore, seeLess)
-  })
-</script>
+</div>
+
+
+<div class="dataset-metas">
+    <div class="panel">
+      <div class="dataset__logo">
+        <%= img_tag(@dataset.full_logo, alt: @dataset.title) %>
+      </div>
+      <div>
+        <i class="fa fa-map-marker-alt"></i> <%= localization(@dataset) %>
+      </div>
+      <div class="pt-12">
+        <span class="dataset-metas-info-title">type de données</span> <br>
+        <b><%= Dataset.type_to_str(@dataset.type) %></b>
+      </div>
+
+      <div class="pt-12">
+        <%= render "_licence.html", conn: @conn, dataset: @dataset %>
+      </div>
+
+      <div class="pt-12">
+        <i class="fas fa-cogs"></i>
+        <%= dgettext("page-dataset-details", "Get details about this dataset via an %{start_link}API call%{end_link}",
+            start_link: "<a href=\"/api/datasets/#{@dataset.datagouv_id}\">",
+            end_link: "</a>") |> raw()
+            %>
+      </div>
+
+      <div class="pt-12 shortlist__link shortlist__link--external-link">
+        <i class="icon icon--link" aria-hidden="true"></i>
+        <%= Dataset.link_to_datagouv(@dataset) %>
+      </div>
+      <div class="pt-12">
+        <span class="dataset-metas-info-title">
+          <%= dgettext("page-dataset-details", "tags: ") %>
+        </span><br>
+        <div class="dataset-tags">
+          <%= for tag <- @dataset.tags do %>
+            <span class="label"> <%= tag %> </span>
+          <% end %>
+        </div>
+
+      </div>
+    </div>
+</div>
+</div>
+
+
+
