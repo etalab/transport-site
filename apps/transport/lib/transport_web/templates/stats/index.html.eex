@@ -118,19 +118,19 @@
           <div class="tile-numbers">
             <div class="tile">
               <h3> <%= @ratio_aom_with_at_most_warnings %>%</h3>
-              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> avec des jeux de données de qualité satisfaisante</div>
+              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> urbaines avec des jeux de données de qualité satisfaisante</div>
             </div>
             <div class="tile">
               <h3> <%= @ratio_aom_good_quality %>%</h3>
-              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> avec des jeux de données de bonne qualité</div>
+              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> urbaines avec des jeux de données de bonne qualité</div>
             </div>
             <div class="tile">
               <h3> <%= @aom_with_errors %> </h3>
-              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> avec des jeux de données en erreur</div>
+              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> urbaines avec des jeux de données en erreur</div>
             </div>
             <div class="tile">
               <h3> <%= @aom_with_fatal %> </h3>
-              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> avec des jeux de données ne respectant pas les spécifications GTFS</div>
+              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> urbaines avec des jeux de données ne respectant pas les spécifications GTFS</div>
             </div>
           </div>
         </div>
@@ -148,22 +148,8 @@
             qui correspond à la période de circulation des différents services du jeu de donnés.
 </p>
 <p>
-            Note: on ne peut calculer une période de validité uniquement pour les jeux de donnée respectant les spécifications GTFS.
+            Note: on ne peut calculer une période de validité que pour les jeux de données respectants les spécifications GTFS.
             </p>
-          </div>
-          <div class="tile-numbers">
-            <div class="tile">
-              <h3> <%= @ratio_aom_with_at_most_warnings %>%</h3>
-              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> avec des données à jour</div>
-            </div>
-            <div class="tile">
-              <h3> <%= @ratio_aom_with_at_most_warnings %>%</h3>
-              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> avec des données périmées</div>
-            </div>
-            <div class="tile">
-              <h3> <%= @ratio_aom_with_at_most_warnings %>%</h3>
-              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> avec des données illisbles</div>
-            </div>
           </div>
         </div>
       </div>

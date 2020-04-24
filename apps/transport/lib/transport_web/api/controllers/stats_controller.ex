@@ -233,7 +233,9 @@ defmodule TransportWeb.API.StatsController do
             JOIN resource ON resource.id = validations.resource_id
             JOIN dataset ON dataset.id = resource.dataset_id
             WHERE
-            (dataset.aom_id = ? OR dataset.id = ?)
+              (dataset.aom_id = ? OR dataset.id = ?)
+              AND
+              resource.end_date >= TO_DATE(?, 'YYYY-MM-DD')
             ORDER BY (
               CASE max_error::text
                 WHEN 'Fatal' THEN 1
@@ -247,7 +249,8 @@ defmodule TransportWeb.API.StatsController do
             LIMIT 1
             """,
             aom.id,
-            parent_dataset.id
+            parent_dataset.id,
+            ^dt
           )
       },
       parent_dataset_slug: parent_dataset.slug,
