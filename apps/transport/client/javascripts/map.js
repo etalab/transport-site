@@ -271,26 +271,26 @@ function addStaticPTUpToDate (id, view) {
     function onEachAomFeature (feature, layer) {
         const name = feature.properties.nom
         const type = feature.properties.forme_juridique
-        const expired_from = feature.properties.quality.expired_from
-        let text = ""
-        if (expired_from.status === "outdated") {
-            text = `Les données ne sont plus à jour depuis ${expired_from.nb_days} jour`
-            if (expired_from.nb_days > 1) {
-                text += "s"
+        const expiredFrom = feature.properties.quality.expired_from
+        let text = ''
+        if (expiredFrom.status === 'outdated') {
+            text = `Les données ne sont plus à jour depuis ${expiredFrom.nb_days} jour`
+            if (expiredFrom.nb_days > 1) {
+                text += 's'
             }
         } else {
-            if (expired_from.status === "no_data") {
+            if (expiredFrom.status === 'no_data') {
                 text = "Aucune données pour l'AOM"
-            } else if (expired_from.status === "unreadable") {
-                text = "données illisibles"
+            } else if (expiredFrom.status === 'unreadable') {
+                text = 'données illisibles'
             } else {
-                text = "Les données sont à jour"
+                text = 'Les données sont à jour'
             }
         }
         const id = feature.properties.id
         layer.bindPopup(`<a href="/datasets/aom/${id}">${name}</a><br>(${type})<br/>${text}`)
     }
-    
+
     const styles = {
         outdated: {
             weight: 1,
@@ -311,16 +311,16 @@ function addStaticPTUpToDate (id, view) {
             weight: 1,
             color: 'grey',
             fillOpacity: 0.6
-        },
+        }
     }
 
     const style = feature => {
-        const expired_from = feature.properties.quality.expired_from
-        if (expired_from.status === "up_to_date") {
+        const expiredFrom = feature.properties.quality.expired_from
+        if (expiredFrom.status === 'up_to_date') {
             return styles.up_to_date
-        } else if (expired_from.status === "outdated") {
+        } else if (expiredFrom.status === 'outdated') {
             return styles.outdated
-        } else if (expired_from.status === "unreadable") {
+        } else if (expiredFrom.status === 'unreadable') {
             return styles.unreadable
         } else {
             return styles.no_data
@@ -334,35 +334,33 @@ function addStaticPTUpToDate (id, view) {
         getLegend(
             '<h4>Fraicheur des données</h4>',
             ['green', 'orange', 'red', 'grey'],
-            ['à jour', 'pas à jour', 'inconnue', 'pas de données']
+            ['Données à jour', 'Données pas à jour', 'Données illisibles', 'Pas de données']
         ).addTo(map)
     }
 }
 
 function addStaticPTQuality (id, view) {
-    const lighterGreen = "#1daf25"
     const map = makeMapOnView(id, view)
 
     function onEachAomFeature (feature, layer) {
         const name = feature.properties.nom
         const type = feature.properties.forme_juridique
-        const error_level = feature.properties.quality.error_level
-        let text = ""
-        if (error_level === "Error") {
-            text = `Les données contiennent des erreurs.`
-        } else if (error_level === "Warning") {
-            text = `Les données contiennent des avertissements.`
-        } else if (error_level === "Fatal") {
-            text = `Les données sont illisibles.`
-        } else if (error_level === 'Information' || error_level == 'NoError') {
-            text = "Les données sont de bonne qualité."
+        const errorLevel = feature.properties.quality.error_level
+        let text = ''
+        if (errorLevel === 'Error') {
+            text = 'Les données contiennent des erreurs.'
+        } else if (errorLevel === 'Warning') {
+            text = 'Les données contiennent des avertissements.'
+        } else if (errorLevel === 'Fatal') {
+            text = 'Les données ne respectent pas les spécifications.'
+        } else if (errorLevel === 'Information' || errorLevel === 'NoError') {
+            text = 'Les données sont de bonne qualité.'
         } else {
-            text = `Pas de données.`
+            text = 'Pas de données valides disponible.'
         }
         const id = feature.properties.id
         layer.bindPopup(`<a href="/datasets/aom/${id}">${name}</a><br>(${type})<br/>${text}`)
     }
-    
     const styles = {
         fatal: {
             weight: 1,
@@ -388,7 +386,7 @@ function addStaticPTQuality (id, view) {
             weight: 1,
             color: 'grey',
             fillOpacity: 0.6
-        },
+        }
     }
 
     const style = feature => {
@@ -399,7 +397,7 @@ function addStaticPTQuality (id, view) {
             return styles.error
         } else if (quality === 'Warning') {
             return styles.warning
-        } else if (quality === 'Information' || quality == 'NoError') {
+        } else if (quality === 'Information' || quality === 'NoError') {
             return styles.good
         } else {
             return styles.unavailable
@@ -411,9 +409,9 @@ function addStaticPTQuality (id, view) {
 
     if (view.display_legend) {
         getLegend(
-            '<h4>Qualité des données</h4>',
+            '<h4>Qualité des données courantes</h4>',
             ['red', 'orange', 'green', 'blue', 'grey'],
-            ['Illisible', 'Erreur', 'Bonne mais améliorable', 'Bonne', 'Pas à jour']
+            ['Non conforme', 'Erreur', 'Satisfaisante', 'Bonne', 'Pas à jour']
         ).addTo(map)
     }
 }

@@ -18,7 +18,7 @@ defmodule Transport.ImportDataWorker do
     GenServer.cast(__MODULE__, {:validate_all})
   end
 
-  @spec validate_all :: :ok
+  @spec force_validate_all :: :ok
   def force_validate_all do
     GenServer.cast(__MODULE__, {:force_validate_all})
   end
