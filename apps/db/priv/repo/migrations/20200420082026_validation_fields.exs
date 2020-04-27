@@ -41,7 +41,6 @@ defmodule DB.Repo.Migrations.ValidationFields do
     );
     """)
 
-
     execute("""
     UPDATE resource SET
     start_date = TO_DATE(metadata->>'start_date', 'YYYY-MM-DD'),

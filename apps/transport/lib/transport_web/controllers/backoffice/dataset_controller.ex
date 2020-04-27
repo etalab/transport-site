@@ -98,7 +98,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
     |> redirect_to_index()
   end
 
-  @spec validate_all(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  @spec force_validate_all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def force_validate_all(%Plug.Conn{} = conn, _args) do
     ImportDataWorker.force_validate_all()
 

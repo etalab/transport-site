@@ -274,7 +274,6 @@ defmodule DB.Resource do
       end,
       fn -> "NoError" end
     )
-    |> IO.inspect()
   end
 
   defp get_max_severity_error(_), do: nil
