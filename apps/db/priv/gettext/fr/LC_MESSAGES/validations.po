@@ -37,7 +37,7 @@ msgstr "Fichier superflus"
 
 #, elixir-format
 msgid "Fatal failures"
-msgstr "Échecs irrecupérables"
+msgstr "Échecs irrécupérables"
 
 #, elixir-format
 msgid "Informations"
