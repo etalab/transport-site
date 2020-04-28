@@ -134,8 +134,8 @@ defmodule DB.Resource do
       },
       auto_tags: find_tags(r, metadata),
       content_hash: Hasher.get_content_hash(url),
-      start_date: get_start_date(metadata),
-      end_date: get_end_date(metadata)
+      start_date: str_to_date(metadata["start_date"]),
+      end_date: str_to_date(metadata["end_date"])
     )
     |> Repo.update()
   end
@@ -264,51 +264,11 @@ defmodule DB.Resource do
   defp get_max_severity_error(%{} = validations) do
     validations
     |> Map.values()
-    |> Enum.map(fn v ->
-      hd(v)["severity"]
-    end)
-    |> Enum.min_by(
-      fn sev ->
-        %{level: lvl} = Validation.severities(sev)
-        lvl
-      end,
-      fn -> "NoError" end
-    )
+    |> Enum.map(fn v -> hd(v)["severity"] end)
+    |> Enum.min_by(fn sev -> Validation.severities(sev).level end, fn -> "NoError" end)
   end
 
   defp get_max_severity_error(_), do: nil
-
-  @spec get_start_date(any) :: Date.t() | nil
-  defp get_start_date(%{"start_date" => date}) when not is_nil(date) do
-    date
-    |> Date.from_iso8601()
-    |> case do
-      {:ok, v} ->
-        v
-
-      {:error, e} ->
-        Logger.error("date '#{date}' not valid: #{inspect(e)}")
-        nil
-    end
-  end
-
-  defp get_start_date(_), do: nil
-
-  @spec get_end_date(any) :: Date.t() | nil
-  defp get_end_date(%{"end_date" => date}) when not is_nil(date) do
-    date
-    |> Date.from_iso8601()
-    |> case do
-      {:ok, v} ->
-        v
-
-      {:error, e} ->
-        Logger.error("date '#{date}' not valid: #{inspect(e)}")
-        nil
-    end
-  end
-
-  defp get_end_date(_), do: nil
 
   @spec is_gtfs?(__MODULE__.t()) :: boolean()
   def is_gtfs?(%__MODULE__{format: "GTFS"}), do: true
@@ -332,4 +292,20 @@ defmodule DB.Resource do
 
   @spec other_resources(__MODULE__.t()) :: [__MODULE__.t()]
   def other_resources(%__MODULE__{} = r), do: r |> other_resources_query() |> Repo.all()
+
+  @spec str_to_date(binary()) :: Date.t() | nil
+  defp str_to_date(date) when not is_nil(date) do
+    date
+    |> Date.from_iso8601()
+    |> case do
+      {:ok, v} ->
+        v
+
+      {:error, e} ->
+        Logger.error("date '#{date}' not valid: #{inspect(e)}")
+        nil
+    end
+  end
+
+  defp str_to_date(_), do: nil
 end
