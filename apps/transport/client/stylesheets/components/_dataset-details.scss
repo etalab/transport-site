@@ -4,6 +4,7 @@
   align-items: stretch;
   justify-content: center;
   background-color: var(--theme-background-grey);
+  padding-top: 48px;
 }
 
 .dataset-page .menu{
@@ -11,7 +12,6 @@
   flex-basis: 250px;
   flex-shrink: 1;
   flex-grow: 1;
-  // padding-top: 58px;
   @media  (max-width: 950px) {
     display: none;
   }
@@ -61,7 +61,7 @@
 }
 
 .dataset-title-div {
-  background-color: var(--theme-background-grey);
+  background-color: white;
   margin: 0 auto;
   padding: 96px 0 96px 0;
   text-align: center;
@@ -322,10 +322,7 @@
 
 .mapcsv {
   width: 100%;
-  // max-width: 700px;
   height: 400px;
   margin: 0 auto;
-  // margin-top: 48px;
-  // margin-bottom: 12px;
   z-index: 0;
 }
