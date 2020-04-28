@@ -1,4 +1,4 @@
-<div class="resource">
+<div class="resource community">
     <div class="resource__header">
             <div class="resource--download">
                 <div>
@@ -10,11 +10,15 @@
                     <a href="<%= @resource["url"] %>">
                         <span><%= @resource["title"] %></span>
                     </a>
-                    <h6><%= dgettext("community_resource", "by") %> <%= get_name(@resource) %></h6>
                 </div>
             </div>
     </div>
     <div class="resource__details">
-        <p><%= @resource["description"] %></p>
+        <div class="community-resource-detail">
+          <%= if get_name(@resource) do %>
+            <h6><%= dgettext("community_resource", "by") %> <%= get_name(@resource) %></h6>
+          <% end %>
+          <p><%= @resource["description"] %></p>
+        </div>
     </div>
 </div>
