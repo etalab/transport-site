@@ -16,7 +16,7 @@
     <div class="resource__details">
         <div class="community-resource-detail">
           <%= if get_name(@resource) do %>
-            <h6><%= dgettext("community_resource", "by") %> <%= get_name(@resource) %></h6>
+            <h6 class="community-resource-source"><%= dgettext("community_resource", "by") %> <%= get_name(@resource) %></h6>
           <% end %>
           <p><%= @resource["description"] %></p>
         </div>

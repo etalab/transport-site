@@ -10,27 +10,27 @@
   </h1>
 </div>
 <div class="dataset-page">
-<div class="menu">
-<div>
-    <div class="menu-item"><a href="#dataset-top">Description</a></div>
-    <%= if @dataset.type == "carsharing-areas" and other_resources(@dataset) != [] and List.first(other_resources(@dataset)).format == "csv" do %>
-      <div class="menu-item"><a href="#dataset-visualisation">Visualisation</a></div>
-    <% end %>
+  <div class="dataset-menu-container">
+    <div class="dataset-menu">
+        <div class="menu-item"><a href="#dataset-top">Description</a></div>
+        <%= if @dataset.type == "carsharing-areas" and other_resources(@dataset) != [] and List.first(other_resources(@dataset)).format == "csv" do %>
+          <div class="menu-item"><a href="#dataset-visualisation">Visualisation</a></div>
+        <% end %>
 
-    <div class="menu-item"><a href="#dataset-resources">Ressources</a></div>
-    <%= unless is_nil(@reuses) or @reuses == [] do %>
-      <div class="menu-item"><a href="#dataset-reuses">Réutilisations</a></div>
-    <% end %>
-    <div class="menu-item"><a href="#dataset-discussions">Discussions</a></div>
+        <div class="menu-item"><a href="#dataset-resources">Ressources</a></div>
+        <%= unless is_nil(@reuses) or @reuses == [] do %>
+          <div class="menu-item"><a href="#dataset-reuses">Réutilisations</a></div>
+        <% end %>
+        <div class="menu-item"><a href="#dataset-discussions">Discussions</a></div>
 
-    <%= unless @history_resources == [] do %>
-      <div class="menu-item"><a href="#dataset-historic">Historique</a></div>
-    <% end %>
-    <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
-      <div class="menu-item"><a href="#dataset-other-datasets">Autres jeux de données</a></div>
-    <% end %>
-</div>
-</div>
+        <%= unless @history_resources == [] do %>
+          <div class="menu-item"><a href="#dataset-historic">Historique</a></div>
+        <% end %>
+        <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
+          <div class="menu-item"><a href="#dataset-other-datasets">Autres jeux de données</a></div>
+        <% end %>
+    </div>
+  </div>
 <div class="dataset-infos">
   <section class="dataset-description">
     <div class="panel">
