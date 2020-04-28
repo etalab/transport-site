@@ -3,7 +3,7 @@
     <%= dgettext("page-dataset-details", "This dataset has been removed from data.gouv.fr") %>
   </div>
 <% end %>
-<div class="dataset-title-div" id="dataset-top-element">
+<div class="dataset-title-div" id="dataset-top">
   jeu de données
   <h1>
     <%= @dataset.spatial %>
@@ -12,7 +12,7 @@
 <div class="dataset-page">
 <div class="menu">
 <div>
-    <div class="menu-item"><a href="#dataset-top-element">Description</a></div>
+    <div class="menu-item"><a href="#dataset-top">Description</a></div>
     <%= if @dataset.type == "carsharing-areas" and other_resources(@dataset) != [] and List.first(other_resources(@dataset)).format == "csv" do %>
       <div class="menu-item"><a href="#dataset-visualisation">Visualisation</a></div>
     <% end %>
