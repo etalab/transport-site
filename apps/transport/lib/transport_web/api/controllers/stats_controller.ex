@@ -80,7 +80,7 @@ defmodule TransportWeb.API.StatsController do
       dataset_types =
         aom
         |> Map.get(:dataset_types, [])
-        |> Enum.filter(fn {_, v} -> v != nil end)
+        |> Enum.filter(fn {_, v} -> !is_nil(v) end)
         |> Enum.into(%{})
 
       %{
