@@ -80,17 +80,15 @@
         <div class="reuses">
           <%= for reuse <- @reuses do %>
             <div class="panel reuse">
-              <div>
-                <img src="<%= reuse["image"] %>">
-                <div class="reuse__links">
-                  <%= link(
-                  dgettext("page-dataset-details", "Website"),
-                  to: reuse["url"]) %>
-                  <%= link(
-                    dgettext("page-dataset-details", "See on data.gouv.fr"),
-                    to: reuse["page"]
-                ) %>
-                </div>
+              <img src="<%= reuse["image"] %>" alt="<%= reuse["title"] %>">
+              <div class="reuse__links">
+                <%= link(
+                dgettext("page-dataset-details", "Website"),
+                to: reuse["url"]) %>
+                <%= link(
+                  dgettext("page-dataset-details", "See on data.gouv.fr"),
+                  to: reuse["page"]
+              ) %>
               </div>
               <div class="reuse__details">
                 <div>
