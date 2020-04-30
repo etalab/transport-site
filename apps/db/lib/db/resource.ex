@@ -29,6 +29,7 @@ defmodule DB.Resource do
     field(:content_hash, :string)
     # automatically discovered tags
     field(:auto_tags, {:array, :string}, default: [])
+    field(:netex_conversion_latest_content_hash, :string)
 
     belongs_to(:dataset, Dataset)
     has_one(:validation, Validation, on_replace: :delete)
