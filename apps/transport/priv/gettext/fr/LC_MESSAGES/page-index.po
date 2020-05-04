@@ -101,7 +101,7 @@ msgstr "Véhicules en free-floating"
 
 #, elixir-format
 msgid "Private parking"
-msgstr "Stationnement en parc privé"
+msgstr "Stationnement hors voirie"
 
 #, elixir-format
 msgid "Railroad data"
