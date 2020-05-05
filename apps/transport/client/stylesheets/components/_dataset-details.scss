@@ -41,6 +41,7 @@
   flex-grow: 4;
   flex-basis: 700px;
   padding: 0 12px 48px 12px;
+  min-width: 0px;
 }
 
 .dataset-metas {
@@ -186,7 +187,7 @@
 .reuse {
   margin: 12px;
   flex-basis: 450px;
-  min-width: 450px;
+  // min-width: 450px;
   flex-grow: 1;
   min-height: 300px;
   max-height: 400px;

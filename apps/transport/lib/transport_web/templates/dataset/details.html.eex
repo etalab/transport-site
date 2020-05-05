@@ -32,7 +32,7 @@
     </div>
   </div>
   <div class="dataset-infos">
-    <section class="dataset-description">
+    <section>
       <div class="panel">
         <%= description(@dataset) %>
       </div>
