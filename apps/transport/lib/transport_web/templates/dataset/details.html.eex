@@ -241,24 +241,20 @@
             %>
       </div>
 
-      <div class="pt-12 shortlist__link shortlist__link--external-link">
-        <i class="icon icon--link" aria-hidden="true"></i>
-        <%= Dataset.link_to_datagouv(@dataset) %>
-      </div>
-      <div class="pt-12">
-        <span class="dataset-metas-info-title">
-          <%= dgettext("page-dataset-details", "tags: ") %>
-        </span><br>
-        <div class="dataset-tags">
-          <%= for tag <- @dataset.tags do %>
-            <span class="label"> <%= tag %> </span>
-          <% end %>
+        <div class="pt-12 shortlist__link shortlist__link--external-link">
+          <i class="icon icon--link" aria-hidden="true"></i>
+          <%= Dataset.link_to_datagouv(@dataset) %>
         </div>
-
-      </div>
-    </div>
-</div>
-</div>
+        <div class="pt-12">
+          <span class="dataset-metas-info-title">
+            <%= dgettext("page-dataset-details", "tags: ") %>
+          </span><br>
+          <div class="dataset-tags">
+            <%= for tag <- @dataset.tags do %>
+              <span class="label"> <%= tag %> </span>
+            <% end %>
+          </div>
+        </div>
 
 
 
