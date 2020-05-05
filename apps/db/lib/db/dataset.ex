@@ -671,6 +671,12 @@ defmodule DB.Dataset do
     |> put_assoc(:communes, [])
   end
 
+  defp cast_datagouv_zone(changeset, _, "") do
+    changeset
+    |> change
+    |> put_assoc(:communes, [])
+  end
+
   defp cast_datagouv_zone(changeset, %{"zones" => zones_insee}, _associated_territory_name) do
     communes =
       zones_insee
