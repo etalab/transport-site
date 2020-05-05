@@ -24,6 +24,7 @@ defmodule TransportWeb.API.Router do
       get("/", TransportWeb.API.StatsController, :index)
       get("/regions", TransportWeb.API.StatsController, :regions)
       get("/bike-sharing", TransportWeb.API.StatsController, :bike_sharing)
+      get("/quality", TransportWeb.API.StatsController, :quality)
     end
 
     get("/openapi", OpenApiSpex.Plug.RenderSpec, :show)

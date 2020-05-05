@@ -16,6 +16,7 @@ const Mapbox = {
 const regionsUrl = '/api/stats/regions'
 const aomsUrl = '/api/stats/'
 const bikesUrl = '/api/stats/bike-sharing'
+const qualityUrl = '/api/stats/quality'
 
 const lightGreen = '#BCE954'
 
@@ -58,8 +59,9 @@ const getLegend = (title, colors, labels) => {
 var aomStats = null
 var regionStats = null
 var bikeStats = null
+var qualityStats = null
 
-function getAomsFG (map, featureFunction, style, filter = null) {
+function getAomsFG (featureFunction, style, filter = null) {
     const aomsFeatureGroup = Leaflet.featureGroup()
 
     if (aomStats == null) {
@@ -79,7 +81,7 @@ function getAomsFG (map, featureFunction, style, filter = null) {
     return aomsFeatureGroup
 }
 
-function getRegionsFG (map, featureFunction, style) {
+function getRegionsFG (featureFunction, style) {
     const regionsFeatureGroup = Leaflet.featureGroup()
     if (regionStats == null) {
         regionStats = fetch(regionsUrl)
@@ -96,7 +98,7 @@ function getRegionsFG (map, featureFunction, style) {
     return regionsFeatureGroup
 }
 
-function displayBikes (map, featureFunction, style) {
+function displayBikes (map, featureFunction) {
     if (bikeStats == null) {
         bikeStats = fetch(bikesUrl).then(response => {
             return response.json()
@@ -115,6 +117,24 @@ function displayBikes (map, featureFunction, style) {
         })
         map.addLayer(geoJSON)
     })
+}
+
+function displayQuality (featureFunction, style) {
+    const qualityFeatureGroup = Leaflet.featureGroup()
+
+    if (qualityStats == null) {
+        qualityStats = fetch(qualityUrl)
+            .then(response => { return response.json() })
+    }
+    qualityStats
+        .then(response => {
+            const geoJSON = Leaflet.geoJSON(response, {
+                onEachFeature: featureFunction,
+                style: style
+            })
+            qualityFeatureGroup.addLayer(geoJSON)
+        })
+    return qualityFeatureGroup
 }
 
 /**
@@ -168,7 +188,7 @@ function addStaticPTMapRegions (id, view) {
         }
     }
 
-    const regionsFG = getRegionsFG(map, onEachRegionFeature, styleRegion)
+    const regionsFG = getRegionsFG(onEachRegionFeature, styleRegion)
     regionsFG.addTo(map)
 
     if (view.display_legend) {
@@ -249,7 +269,7 @@ function addStaticPTMapAOMS (id, view) {
         }
     }
 
-    const aomsFG = getAomsFG(map, onEachAomFeature, style(map.getZoom()))
+    const aomsFG = getAomsFG(onEachAomFeature, style(map.getZoom()))
     aomsFG.addTo(map)
     map.on('zoomend', () => {
         // change stripes width depending on the zoom level
@@ -326,9 +346,9 @@ function addStaticPTUpToDate (id, view) {
             return styles.no_data
         }
     }
-    const aomsFG = getAomsFG(map, onEachAomFeature, style)
+    const qualityFG = displayQuality(onEachAomFeature, style)
 
-    aomsFG.addTo(map)
+    qualityFG.addTo(map)
 
     if (view.display_legend) {
         getLegend(
@@ -403,9 +423,9 @@ function addStaticPTQuality (id, view) {
             return styles.unavailable
         }
     }
-    const aomsFG = getAomsFG(map, onEachAomFeature, style)
+    const qualityFG = displayQuality(onEachAomFeature, style)
 
-    aomsFG.addTo(map)
+    qualityFG.addTo(map)
 
     if (view.display_legend) {
         getLegend(
@@ -493,7 +513,7 @@ function addRealTimePTMap (id, view) {
             formats.siri_lite !== undefined
     }
 
-    const aomsFG = getAomsFG(map, onEachAomFeature, style, filter)
+    const aomsFG = getAomsFG(onEachAomFeature, style, filter)
     aomsFG.addTo(map)
 
     if (view.display_legend) {
@@ -563,7 +583,7 @@ function addPtFormatMap (id, view) {
         return formats.gtfs !== undefined || formats.netex !== undefined
     }
 
-    const aomsFG = getAomsFG(map,
+    const aomsFG = getAomsFG(
         (feature, layer) => {
             const name = feature.properties.nom
             const commune = feature.properties.id
