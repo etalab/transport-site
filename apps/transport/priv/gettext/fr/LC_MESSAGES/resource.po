@@ -7,11 +7,11 @@ msgstr "Choisissez la ressource à mettre à jour"
 
 #, elixir-format
 msgid "Dataset: "
-msgstr "Jeu de données"
+msgstr "Jeu de données :"
 
 #, elixir-format
 msgid "File uploaded!"
-msgstr "Fichier mise à jour !"
+msgstr "Fichier mis à jour !"
 
 #, elixir-format
 msgid "Resource: "

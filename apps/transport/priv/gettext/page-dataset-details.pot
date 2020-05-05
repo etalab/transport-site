@@ -147,10 +147,6 @@ msgid "Details"
 msgstr ""
 
 #, elixir-format
-msgid "Covered areas"
-msgstr ""
-
-#, elixir-format
 msgid "Other datasets of "
 msgstr ""
 
@@ -296,4 +292,8 @@ msgstr ""
 
 #, elixir-format
 msgid "Visualization of the most recent resource"
+msgstr ""
+
+#, elixir-format
+msgid "dataset"
 msgstr ""

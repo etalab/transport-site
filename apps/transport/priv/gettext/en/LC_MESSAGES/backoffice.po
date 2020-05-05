@@ -156,10 +156,6 @@ msgid "National dataset"
 msgstr ""
 
 #, elixir-format
-msgid "Use data.gouv.fr's zones"
-msgstr ""
-
-#, elixir-format
 msgid "Show datasets not compliant to spec"
 msgstr ""
 
