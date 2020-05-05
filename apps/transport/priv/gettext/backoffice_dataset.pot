@@ -59,5 +59,5 @@ msgid "Validating"
 msgstr ""
 
 #, elixir-format
-msgid "validation of all datasets has been launch"
+msgid "validation of all datasets has been launched"
 msgstr ""

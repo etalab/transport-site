@@ -1,7 +1,7 @@
 <section>
     <div class="grey-background">
     <div class="container">
-        <div class="validation-section">
+        <div class="panel">
         <h1><%= dgettext("validations", "Resource details")%></h1>
         <p><%= dgettext("validations", "File name")%> :
           <a href="<%= @resource.url %>">
@@ -34,7 +34,7 @@
         </ul>
         </div>
 
-        <div class="mt-48 validation-section" id="issues">
+        <div class="mt-48 panel" id="issues">
           <h1><%= dgettext("validations", "Validation report")%></h1>
           <nav class="issues_list validation" role="navigation">
               <%= unless @resource.validation do %>

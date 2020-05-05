@@ -147,10 +147,6 @@ msgid "Details"
 msgstr "Détails"
 
 #, elixir-format
-msgid "Covered areas"
-msgstr "Territoires couverts"
-
-#, elixir-format
 msgid "Other datasets of "
 msgstr "Autres jeux de données de "
 
@@ -243,8 +239,12 @@ msgid "Unsubscribe to comments"
 msgstr "Se désabonner des discussions ce jeu de données"
 
 #, elixir-format
-msgid "Log in to subscribe to comments of this dataset."
-msgstr "Identifiez vous pour vous abonner aux discussions de ce jeu de données."
+msgid "Log in"
+msgstr "Identifiez-vous"
+
+#, elixir-format
+msgid "to subscribe to comments of this dataset."
+msgstr "pour vous abonner aux discussions de ce jeu de données."
 
 #, elixir-format
 msgid "No error detected"
@@ -293,3 +293,23 @@ msgstr "compatible avec"
 #, elixir-format
 msgid "Visualization of the most recent resource"
 msgstr "Visualisation de la ressource la plus récente"
+
+#, elixir-format
+msgid "dataset"
+msgstr "jeu de données"
+
+#, elixir-format
+msgid "Other datasets"
+msgstr "Autres jeux de données"
+
+#, elixir-format
+msgid "Resources"
+msgstr "Ressources"
+
+#, elixir-format
+msgid "Visualization"
+msgstr "Visualisation"
+
+#, elixir-format
+msgid "data type"
+msgstr "type de données"

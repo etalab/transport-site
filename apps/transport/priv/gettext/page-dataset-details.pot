@@ -147,10 +147,6 @@ msgid "Details"
 msgstr ""
 
 #, elixir-format
-msgid "Covered areas"
-msgstr ""
-
-#, elixir-format
 msgid "Other datasets of "
 msgstr ""
 
@@ -243,7 +239,11 @@ msgid "Unsubscribe to comments"
 msgstr ""
 
 #, elixir-format
-msgid "Log in to subscribe to comments of this dataset."
+msgid "Log in"
+msgstr ""
+
+#, elixir-format
+msgid "to subscribe to comments of this dataset."
 msgstr ""
 
 #, elixir-format
@@ -292,4 +292,24 @@ msgstr ""
 
 #, elixir-format
 msgid "Visualization of the most recent resource"
+msgstr ""
+
+#, elixir-format
+msgid "dataset"
+msgstr ""
+
+#, elixir-format
+msgid "Other datasets"
+msgstr ""
+
+#, elixir-format
+msgid "Resources"
+msgstr ""
+
+#, elixir-format
+msgid "Visualization"
+msgstr ""
+
+#, elixir-format
+msgid "data type"
 msgstr ""

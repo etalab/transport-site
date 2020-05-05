@@ -1,6 +1,6 @@
 .discussion {
   .discussion-comment {
-    padding: 1vw;
+    padding-left: 1vw;
     display: flex;
     flex-direction: row;
 
@@ -19,7 +19,7 @@
   }
 
   .discussion-comment + .discussion-comment {
-    margin-top: 1em;
+    padding: 1vw 0 1vw 0;
   }
 
   .discussion-comment__content p:last-child {
