@@ -297,3 +297,19 @@ msgstr "Visualisation de la ressource la plus récente"
 #, elixir-format
 msgid "dataset"
 msgstr "jeu de données"
+
+#, elixir-format
+msgid "Other datasets"
+msgstr "Autres jeux de données"
+
+#, elixir-format
+msgid "Resources"
+msgstr "Ressources"
+
+#, elixir-format
+msgid "Visualization"
+msgstr "Visualisation"
+
+#, elixir-format
+msgid "data type"
+msgstr "type de données"

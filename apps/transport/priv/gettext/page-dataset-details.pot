@@ -297,3 +297,19 @@ msgstr ""
 #, elixir-format
 msgid "dataset"
 msgstr ""
+
+#, elixir-format
+msgid "Other datasets"
+msgstr ""
+
+#, elixir-format
+msgid "Resources"
+msgstr ""
+
+#, elixir-format
+msgid "Visualization"
+msgstr ""
+
+#, elixir-format
+msgid "data type"
+msgstr ""

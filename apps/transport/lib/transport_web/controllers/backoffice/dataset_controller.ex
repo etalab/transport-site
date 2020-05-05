@@ -94,7 +94,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
     ImportDataWorker.validate_all()
 
     conn
-    |> put_flash(:info, dgettext("backoffice_dataset", "validation of all datasets has been launch"))
+    |> put_flash(:info, dgettext("backoffice_dataset", "validation of all datasets has been launched"))
     |> redirect_to_index()
   end
 
