@@ -313,3 +313,7 @@ msgstr ""
 #, elixir-format
 msgid "data type"
 msgstr ""
+
+#, elixir-format
+msgid "Covered area"
+msgstr ""

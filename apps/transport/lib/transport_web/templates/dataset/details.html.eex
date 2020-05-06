@@ -258,7 +258,20 @@
             <% end %>
           </div>
         </div>
+
+
+        <div class="pt-12">
+          <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Covered area")%></span>
+          <div id="dataset-covered-area-map"></div>
+
+        </div>
       </div>
   </div>
-
 </div>
+
+<script src="<%= static_path(@conn, "/js/datasetmap.js") %>"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    createDatasetMap('dataset-covered-area-map', "<%= @dataset.datagouv_id %>")
+  })
+</script>
