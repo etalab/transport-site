@@ -261,8 +261,9 @@
 
 
         <div class="pt-12">
+          <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Covered area")%></span>
           <div id="dataset-covered-area-map"></div>
-          <div class="is-centered"><%= dgettext("page-dataset-details", "Covered area")%></div>
+
         </div>
       </div>
   </div>
