@@ -2,16 +2,21 @@ defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
   alias Datagouvfr.Client.{CommunityResources, Datasets, Discussions, Reuses}
-  alias DB.{AOM, Commune, Dataset, Region, Repo}
+  alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
   import Phoenix.HTML
   require Logger
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params)
+  def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params, true)
 
-  @spec list_datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def list_datasets(%Plug.Conn{} = conn, %{} = params) do
+  @spec list_datasets(Plug.Conn.t(), map(), boolean) :: Plug.Conn.t()
+  def list_datasets(%Plug.Conn{} = conn, %{} = params, count_by_region \\ false) do
+    conn = case count_by_region do
+      true -> assign(conn, :regions, get_regions(params))
+      false -> conn
+    end
+
     conn
     |> assign(:datasets, get_datasets(params))
     |> assign(:types, get_types(params))
@@ -61,7 +66,7 @@ defmodule TransportWeb.DatasetController do
   @spec by_region(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def by_region(%Plug.Conn{} = conn, %{"region" => id} = params) do
     error_msg = dgettext("errors", "Region %{id} does not exist", id: id)
-    by_territory(conn, Region |> where([r], r.id == ^id), params, error_msg)
+    by_territory(conn, Region |> where([r], r.id == ^id), params, error_msg, true)
   end
 
   @spec by_commune_insee(Plug.Conn.t(), map) :: Plug.Conn.t()
@@ -76,7 +81,7 @@ defmodule TransportWeb.DatasetController do
     by_territory(conn, Commune |> where([c], c.insee == ^insee), params, error_msg)
   end
 
-  defp by_territory(conn, territory, params, error_msg) do
+  defp by_territory(conn, territory, params, error_msg, count_by_region \\ false) do
     territory
     |> Repo.one()
     |> case do
@@ -86,7 +91,7 @@ defmodule TransportWeb.DatasetController do
       territory ->
         conn
         |> assign(:territory, territory)
-        |> list_datasets(params)
+        |> list_datasets(params, count_by_region)
     end
   rescue
     Ecto.Query.CastError -> error_page(conn, error_msg)
@@ -114,6 +119,24 @@ defmodule TransportWeb.DatasetController do
   @spec clean_datasets_query(map(), String.t()) :: Ecto.Query.t()
   defp clean_datasets_query(params, key_to_delete),
     do: params |> Map.delete(key_to_delete) |> Dataset.list_datasets() |> exclude(:preload)
+
+  @spec get_regions(map()) :: [Region.t()]
+  defp get_regions(params) do
+    IO.inspect(params)
+    sub =
+      params
+      |> clean_datasets_query("region")
+      |> exclude(:order_by)
+      |> join(:left, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
+      |> select([d, d_geo], %{id: d.id, region_id: d_geo.region_id})
+
+    Region
+    |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
+    |> group_by([r], [r.id, r.nom])
+    |> select([r, d], %{nom: r.nom, id: r.id, count: count(d.id)})
+    |> order_by([r], r.nom)
+    |> Repo.all()
+  end
 
   @spec get_types(map()) :: [%{type: binary(), msg: binary(), count: integer}]
   defp get_types(params) do
