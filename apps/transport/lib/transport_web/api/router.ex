@@ -33,6 +33,7 @@ defmodule TransportWeb.API.Router do
     scope "/datasets" do
       get("/", TransportWeb.API.DatasetController, :datasets)
       get("/:id", TransportWeb.API.DatasetController, :by_id)
+      get("/:id/geojson", TransportWeb.API.DatasetController, :geojson_by_id)
     end
   end
 
