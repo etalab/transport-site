@@ -3,7 +3,8 @@ defmodule TransportWeb.API.DatasetController do
   alias Helpers
   alias OpenApiSpex.Operation
   alias DB.{AOM, Dataset, Repo, Resource}
-  alias TransportWeb.API.Schemas.DatasetsResponse
+  alias TransportWeb.API.Schemas.{DatasetsResponse, GeoJSONResponse}
+  alias Geo.{JSON, MultiPolygon}
 
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
@@ -46,6 +47,19 @@ defmodule TransportWeb.API.DatasetController do
       }
     }
 
+  @spec geojson_by_id_operation() :: Operation.t()
+  def geojson_by_id_operation,
+    do: %Operation{
+      tags: ["datasets"],
+      summary: "Show given dataset geojson",
+      description: "For one dataset, show its associated geojson",
+      operationId: "API.DatasetController.datasets_geojson_by_id",
+      parameters: [Operation.parameter(:id, :path, :string, "id")],
+      responses: %{
+        200 => Operation.response("Dataset", "application/json", GeoJSONResponse)
+      }
+    }
+
   @spec by_id(Plug.Conn.t(), map) :: Plug.Conn.t()
   def by_id(%Plug.Conn{} = conn, %{"id" => id}) do
     Dataset
@@ -63,6 +77,51 @@ defmodule TransportWeb.API.DatasetController do
         |> render(%{errors: "dataset not found"})
     end
   end
+
+  @spec geojson_by_id(Plug.Conn.t(), map) :: Plug.Conn.t()
+  def geojson_by_id(%Plug.Conn{} = conn, %{"id" => id}) do
+    Dataset
+    |> Repo.get_by(datagouv_id: id)
+    |> Repo.preload([:aom, :region, :communes])
+    |> case do
+      %Dataset{} = dataset ->
+        data =
+          case {dataset.aom, dataset.region, dataset.communes} do
+            {aom, _, _} when not is_nil(aom) -> [to_feature(aom.geom, aom.nom)]
+            {_, region, _} when not is_nil(region) -> [to_feature(region.geom, region.nom)]
+            {_, _, communes} when not is_nil(communes) -> communes |> Enum.map(fn c -> to_feature(c.geom, c.nom) end)
+            _ -> []
+          end
+
+        conn
+        |> assign(:data, to_geojson(dataset, data))
+        |> render()
+
+      nil ->
+        conn
+        |> put_status(404)
+        |> render(%{errors: "dataset not found"})
+    end
+  end
+
+  @spec to_feature(MultiPolygon.t(), binary) :: map()
+  defp to_feature(geom, name) do
+    %{
+      "geometry" => geom |> JSON.encode!(),
+      "type" => "Feature",
+      "properties" => %{
+        "name" => name
+      }
+    }
+  end
+
+  @spec to_geojson(Dataset.t(), [map()]) :: map()
+  defp to_geojson(dataset, features),
+    do: %{
+      "type" => "FeatureCollection",
+      "name" => "Dataset #{dataset.slug}",
+      "features" => features
+    }
 
   @spec transform_dataset(Dataset.t()) :: map()
   defp transform_dataset(dataset),
