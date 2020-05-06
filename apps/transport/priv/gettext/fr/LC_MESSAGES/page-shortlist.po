@@ -179,7 +179,7 @@ msgstr "Récemment ajouté"
 
 #, elixir-format
 msgid "Order by"
-msgstr "Tri par"
+msgstr "Trier par"
 
 #, elixir-format
 msgid "here"
