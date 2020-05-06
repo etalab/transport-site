@@ -30,7 +30,8 @@ function createDatasetMap (divId, datasetDatagouvId) {
     fetch(`/api/datasets/${datasetDatagouvId}/geojson`)
         .then(data => data.json())
         .then(geojson => {
-            L.geoJSON(geojson).addTo(fg)
+            const gs = L.geoJSON(geojson).addTo(fg)
+            gs.bindPopup(layer => { return layer.feature.properties.name })
             map.fitBounds(fg.getBounds())
         })
 }
