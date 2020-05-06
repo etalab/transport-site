@@ -158,7 +158,7 @@
   margin-top: 3em;
 }
 
-.side-pane__submenu .activefilter {
+.activefilter {
   font-weight: 700;
 }
 
@@ -267,5 +267,23 @@
     a {
       color: var(--grey);
     }
+  }
+}
+
+.order-by {
+  padding-bottom: 12px;
+  display: flex;
+  justify-content: center;
+  .order-by__title {
+    padding-right: 6px;
+    color: var(--darker-grey);
+  }
+}
+
+.order-by-option {
+  padding-left: 12px;
+  a {
+    text-decoration: none;
+    color: var(--darker-grey);
   }
 }
