@@ -256,7 +256,7 @@ defmodule TransportWeb.DatasetController do
       assign(
         conn,
         :page_title,
-        dgettext("page-shortlist", "Datasets for the region %{region}", region: get_name(Region, id))
+        %{type: dgettext("page-shortlist", "region"), name: get_name(Region, id)}
       )
 
   defp put_page_title(conn, %{"insee_commune" => insee}) do

@@ -3832,10 +3832,22 @@ lcid@^2.0.0:
   dependencies:
     invert-kv "^2.0.0"
 
+leaflet.pattern@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/leaflet.pattern/-/leaflet.pattern-0.1.0.tgz#c127ac80915b7aa3f450f97fe08c06e7215eb8a7"
+  integrity sha512-E4sxvvK0XHi1EhE1yUTG1bzafXZoXUPqWPjHz5fSpv/pOcT4CtS0qR1lhFSRtSUYios8OwlZmUGB9n91zQEgcw==
+  dependencies:
+    leaflet "~0.7.1"
+
 leaflet@^1.4.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-1.6.0.tgz#aecbb044b949ec29469eeb31c77a88e2f448f308"
   integrity sha512-CPkhyqWUKZKFJ6K8umN5/D2wrJ2+/8UIpXppY7QDnUZW5bZL5+SEI2J7GBpwh4LIupOKqbNSQXgqmrEJopHVNQ==
+
+leaflet@~0.7.1:
+  version "0.7.7"
+  resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-0.7.7.tgz#1e352ba54e63d076451fa363c900890cb2cf75ee"
+  integrity sha1-HjUrpU5j0HZFH6NjyQCJDLLPde4=
 
 leven@^3.1.0:
   version "3.1.0"

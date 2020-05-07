@@ -1,31 +1,31 @@
-<div class="hero">
-  <div class="hero__container">
-    <div class="container">
-      <h1 class="text-center shortlist-title"><%= dgettext("page-shortlist", "Available datasets") %></h1>
-      <div class="form__group">
-        <%= form_for @conn, dataset_path(@conn, :index), [method: "get", class: "shortlist-form"], fn f -> %>
-          <div class="searchBar">
-            <%= search_input f, :q, [id: "autoComplete", autocomplete: "off", value: assigns[:q] || "", placeholder: dgettext("page-index", "Find dataset"), "aria-label": dgettext("page-index", "Find dataset")] %>
-            <div class="autoCompleteResultsField">
-              <div id="autoCompleteResults">
-              </div>
-            </div>
-        <% end %>
-      </div>
+<div class="container dataset-page-top">
+  <div class="form__group">
+    <%= form_for @conn, dataset_path(@conn, :index), [method: "get", class: "shortlist-form"], fn f -> %>
+      <div class="searchBar">
+        <%= search_input f, :q, [id: "autoComplete", autocomplete: "off", value: assigns[:q] || "", placeholder: dgettext("page-index", "Find dataset"), "aria-label": dgettext("page-index", "Find dataset")] %>
+        <div class="autoCompleteResultsField">
+          <div id="autoCompleteResults">
+          </div>
+        </div>
+    <% end %>
+    </div>
+    <div class="dataset-page-title">
+      <%= if @conn.assigns[:page_title] do %>
+        <%= @page_title.type %>
+        <h1> <%= @page_title.name %> </h1>
+      <% else %>
+        <h1><%= @datasets.total_entries %> <%= dngettext("page-shortlist", "search result", "search results", @datasets.total_entries) %> </h1>
+      <% end %>
     </div>
   </div>
 </div>
-</div>
+
+
 <%= if @conn.assigns[:custom_context] do %>
   <%= render TransportWeb.DatasetView, @custom_context, conn: @conn %>
 <% end %>
-<section id="datasets-results" class="section section-grey datasets">
+<section id="datasets-results" class="section-grey">
   <div class="container search-title">
-    <%= if @conn.assigns[:page_title] do %>
-      <h2> <%= @page_title %> </h2>
-    <% else %>
-        <h2><%= @datasets.total_entries %> <%= dngettext("page-shortlist", "search result", "search results", @datasets.total_entries) %> </h2>
-    <% end %>
     <div class="shortlist__pagination">
       <%= pagination_links @conn, @datasets %>
     </div>
