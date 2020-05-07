@@ -219,6 +219,20 @@
     width: 2em;
     height: 2em;
   }
+
+  .quality .panel {
+    .tile {
+      padding: 1em 2em;
+    }
+
+    .tile + .tile {
+      margin-top: 1em;
+    }
+    .description + .tile {
+      margin-top: 1em;
+    }
+  }
+
 }
 
 .staticPTdata .leaflet-control-layers-selector {
