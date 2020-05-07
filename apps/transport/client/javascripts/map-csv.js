@@ -16,7 +16,7 @@ const Mapbox = {
 // possible field names in csv files
 const latLabels = ['Lat', 'Ylat']
 const lonLabels = ['Lng', 'Xlong']
-const namesLabel = ['Nom', 'nom_lieu']
+const namesLabel = ['Nom', 'nom_lieu', 'nom']
 
 function getLabel (obj, labelsList) {
     for (const label of labelsList) {
