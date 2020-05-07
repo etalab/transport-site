@@ -118,7 +118,7 @@
         </div>
       </div>
     </div>
-    <div class="domain">
+    <div class="domain quality">
       <div class="domain-stats">
         <%= render("_maps.html", droms: @droms, prefix: "pt_quality") %>
         <div class="panel">
@@ -134,7 +134,6 @@
             Retrouvez plus d'informations sur ces outils dans la <a href="https://doc.transport.data.gouv.fr/reutilisateurs/qualite-de-donnee#validateur-de-fichiers-gtfs">documentation</a>.
             </p>
           </div>
-          <div class="tile-numbers">
             <div class="tile">
               <h3> <%= @ratio_aom_with_at_most_warnings %>%</h3>
               <div><acronym title="autorité organistrice de mobilité">AOM</acronym> urbaines avec des jeux de données de
@@ -153,7 +152,6 @@
               <h3> <%= @aom_with_fatal %> </h3>
               <div><acronym title="autorité organistrice de mobilité">AOM</acronym> urbaines avec des jeux de données ne respectant pas les spécifications GTFS</div>
             </div>
-          </div>
         </div>
       </div>
     </div>
