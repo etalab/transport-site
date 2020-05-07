@@ -393,13 +393,13 @@ function addStaticPTQuality (id, view) {
             fillOpacity: 0.6
         },
         warning: {
-            color: 'green',
+            color: lightGreen,
             weight: 1,
             fillOpacity: 0.6
         },
         good: {
             weight: 1,
-            color: 'blue',
+            color: 'green',
             fillOpacity: 0.6
         },
         unavailable: {
@@ -430,8 +430,8 @@ function addStaticPTQuality (id, view) {
     if (view.display_legend) {
         getLegend(
             '<h4>Qualité des données courantes</h4>',
-            ['red', 'orange', 'green', 'blue', 'grey'],
-            ['Non conforme', 'Erreur', 'Satisfaisante', 'Bonne', 'Pas à jour']
+            ['red', 'orange', lightGreen, 'green', 'grey'],
+            ['Non conforme', 'Erreur', 'Satisfaisante', 'Bonne', 'Pas de données à jour']
         ).addTo(map)
     }
 }
