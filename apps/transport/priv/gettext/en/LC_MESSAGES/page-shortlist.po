@@ -190,10 +190,6 @@ msgid "Get dataset list via an API"
 msgstr ""
 
 #, elixir-format
-msgid "Available datasets"
-msgstr "Jeux de données disponibles"
-
-#, elixir-format
 msgid "AOM %{name} has not yet published any datasets"
 msgstr ""
 
@@ -207,18 +203,6 @@ msgstr ""
 
 #, elixir-format
 msgid "More information about realtime"
-msgstr ""
-
-#, elixir-format
-msgid "Datasets for the aom %{aom}"
-msgstr ""
-
-#, elixir-format
-msgid "Datasets for the city %{name}"
-msgstr ""
-
-#, elixir-format
-msgid "Datasets for the region %{region}"
 msgstr ""
 
 #, elixir-format
@@ -246,15 +230,23 @@ msgid "Any"
 msgstr ""
 
 #, elixir-format
-msgid "search result"
-msgid_plural "search results"
+msgid "added on"
+msgstr ""
+
+#, elixir-format
+msgid "region"
+msgstr ""
+
+#, elixir-format
+msgid "result"
+msgid_plural "results"
 msgstr[0] ""
 msgstr[1] ""
 
 #, elixir-format
-msgid "No results"
+msgid "city"
 msgstr ""
 
 #, elixir-format
-msgid "added on"
+msgid "Regions"
 msgstr ""

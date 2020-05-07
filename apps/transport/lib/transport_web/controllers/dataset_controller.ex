@@ -12,10 +12,11 @@ defmodule TransportWeb.DatasetController do
 
   @spec list_datasets(Plug.Conn.t(), map(), boolean) :: Plug.Conn.t()
   def list_datasets(%Plug.Conn{} = conn, %{} = params, count_by_region \\ false) do
-    conn = case count_by_region do
-      true -> assign(conn, :regions, get_regions(params))
-      false -> conn
-    end
+    conn =
+      case count_by_region do
+        true -> assign(conn, :regions, get_regions(params))
+        false -> conn
+      end
 
     conn
     |> assign(:datasets, get_datasets(params))
@@ -122,7 +123,6 @@ defmodule TransportWeb.DatasetController do
 
   @spec get_regions(map()) :: [Region.t()]
   defp get_regions(params) do
-    IO.inspect(params)
     sub =
       params
       |> clean_datasets_query("region")
@@ -236,7 +236,7 @@ defmodule TransportWeb.DatasetController do
         assign(conn, :empty_message, raw(message))
 
       _ ->
-        assign(conn, :empty_message, raw(dgettext("page-shortlist", "No results")))
+        conn
     end
   end
 
@@ -265,7 +265,7 @@ defmodule TransportWeb.DatasetController do
     assign(
       conn,
       :page_title,
-      dgettext("page-shortlist", "Datasets for the city %{name}", name: name)
+      %{type: dgettext("page-shortlist", "city"), name: name}
     )
   end
 
@@ -274,7 +274,7 @@ defmodule TransportWeb.DatasetController do
       assign(
         conn,
         :page_title,
-        dgettext("page-shortlist", "Datasets for the aom %{aom}", aom: get_name(AOM, id))
+        %{type: "AOM", name: get_name(AOM, id)}
       )
 
   defp put_page_title(conn, _), do: conn

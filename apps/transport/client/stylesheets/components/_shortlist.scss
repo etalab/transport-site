@@ -271,7 +271,7 @@
 }
 
 .order-by {
-  padding-bottom: 12px;
+  padding-bottom: 24px;
   display: flex;
   justify-content: flex-end;
   .order-by__title {
@@ -285,11 +285,12 @@
   a {
     text-decoration: none;
     color: var(--darker-grey);
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 
-.pt-36 {
-  padding-top: 36px;
 .dataset-page-title {
   padding-top: 4em;
   padding-bottom: 12px;
@@ -301,4 +302,9 @@
 
 .dataset-page-top {
   padding-top: 1em;
+}
+
+#datasets-results {
+  padding-top: 3em;
+  padding-bottom: 6em;
 }

@@ -222,3 +222,7 @@ msgstr "Adresses"
 #, elixir-format
 msgid "Other informations"
 msgstr "Autres informations"
+
+#, elixir-format
+msgid "Datasets"
+msgstr "Jeux de données"
