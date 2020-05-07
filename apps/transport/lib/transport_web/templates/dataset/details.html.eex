@@ -13,7 +13,7 @@
   <div class="dataset-menu-container">
     <div class="dataset-menu">
         <div class="menu-item"><a href="#dataset-top">Description</a></div>
-        <%= if @dataset.type == "carsharing-areas" and other_resources(@dataset) != [] and List.first(other_resources(@dataset)).format == "csv" do %>
+        <%= if show_data_viz(@dataset) do %>
           <div class="menu-item"><a href="#dataset-visualisation"><%= dgettext("page-dataset-details", "Visualization")%></a></div>
         <% end %>
 
@@ -38,7 +38,7 @@
       </div>
     </section>
 
-    <%= if @dataset.type == "carsharing-areas" and other_resources(@dataset) != [] and List.first(other_resources(@dataset)).format == "csv" do %>
+    <%= if show_data_viz(@dataset) do %>
       <section class="pt-48" id="dataset-visualisation">
         <h2><%= dgettext("page-dataset-details", "Visualization")%></h2>
         <div class="panel">

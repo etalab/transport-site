@@ -218,4 +218,11 @@ defmodule TransportWeb.DatasetView do
       _ -> dgettext("dataset", "notspecified")
     end
   end
+
+  @spec show_data_viz(map) :: boolean
+  def show_data_viz(%{type: type} = dataset) when type == "carsharing-areas" or type == "private-parking" do
+    other_resources(dataset) != [] and List.first(other_resources(dataset)).format == "csv"
+  end
+
+  def show_data_viz(%{}), do: false
 end
