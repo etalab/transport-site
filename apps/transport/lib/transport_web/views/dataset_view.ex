@@ -5,7 +5,7 @@ defmodule TransportWeb.DatasetView do
   alias Plug.Conn.Query
   alias TransportWeb.PaginationHelpers
   alias TransportWeb.Router.Helpers
-  import Phoenix.Controller, only: [current_path: 1, current_url: 2]
+  import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
 
   def render_sidebar_from_type(conn, dataset), do: render_panel_from_type(conn, dataset, "sidebar")
 
@@ -101,7 +101,7 @@ defmodule TransportWeb.DatasetView do
     params = conn.query_params
     full_url = url <> "?" <> Query.encode(params) <> "#datasets-results"
 
-    case Phoenix.Controller.current_path(conn, %{}) do
+    case current_path(conn, %{}) do
       ^url -> ~E"<span class=\"activefilter\"><%= nom %> (<%= count %>)</span>"
       _ -> link("#{nom} (#{count})", to: full_url)
     end
