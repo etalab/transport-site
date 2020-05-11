@@ -160,7 +160,7 @@ defmodule TransportWeb.StatsController do
   end
 
   @spec ratio_aom_with_at_most_warnings(%{binary() => integer()}, integer()) :: integer()
-  defp ratio_aom_with_at_most_warnings(aom_max_severity, 0) do
+  defp ratio_aom_with_at_most_warnings(_aom_max_severity, 0) do
     0
   end
 
@@ -175,7 +175,7 @@ defmodule TransportWeb.StatsController do
   end
 
   @spec ratio_aom_good_quality(%{binary() => integer()}, integer()) :: integer()
-  defp ratio_aom_good_quality(aom_max_severity, 0) do
+  defp ratio_aom_good_quality(_aom_max_severity, 0) do
     0
   end
 
