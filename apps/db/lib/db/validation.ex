@@ -12,6 +12,9 @@ defmodule DB.Validation do
     field(:date, :string)
     # the maximum level of error in this validation
     field(:max_error, :string)
+    # content_hash of the validated resource
+    # This makes it possible to check if we need to revalidate the resource
+    field(:validation_latest_content_hash, :string)
 
     belongs_to(:resource, Resource)
   end

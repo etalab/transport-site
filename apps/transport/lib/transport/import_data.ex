@@ -39,10 +39,9 @@ defmodule Transport.ImportData do
 
     resources =
       Resource
-      |> preload([:dataset, :validation])
-      |> where([r], r.format == "GTFS")
+      |> preload(:validation)
       |> Repo.all()
-      |> Enum.filter(fn r -> force || Resource.needs_validation(r) end)
+      |> Enum.filter(fn r -> Resource.needs_validation(r, force) end)
 
     Logger.info("launching #{Enum.count(resources)} validations")
 

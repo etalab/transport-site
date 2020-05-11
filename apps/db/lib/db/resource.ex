@@ -45,30 +45,52 @@ defmodule DB.Resource do
   @doc """
   A validation is needed if the last update from the data is newer than the last validation.
   ## Examples
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}, validation: %Validation{date: "2018-01-01"}})
-      true
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-01", type: "public-transit"}, validation: %Validation{date: "2018-01-30"}})
-      false
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}, validation: %Validation{}})
-      true
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "micro-mobility"}, validation: %Validation{}})
-      false
-      iex> Resource.needs_validation(%Resource{dataset: %{last_update: "2018-01-30", type: "public-transit"}})
-      true
+
+    iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
+    ...> validation: %Validation{validation_latest_content_hash: "a_sha"}}, false)
+    false
+    iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
+    ...> validation: %Validation{validation_latest_content_hash: "a_sha"}}, true)
+    true
+    iex> Resource.needs_validation(%Resource{format: "gbfs", content_hash: "a_sha",
+    ...> validation: %Validation{validation_latest_content_hash: "a_sha"}}, false)
+    false
+    iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha"}, false)
+    true
+    iex> Resource.needs_validation(%Resource{format: "gtfs-rt", content_hash: "a_sha"}, true)
+    false
+    iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
+    ...> validation: %Validation{validation_latest_content_hash: "another_sha"}}, false)
+    true
   """
-  @spec needs_validation(__MODULE__.t()) :: boolean()
-  def needs_validation(%__MODULE__{
-        dataset: dataset,
-        validation: %Validation{date: validation_date}
-      }) do
-    case [dataset.type == "public-transit", validation_date] do
-      [true, nil] -> true
-      [true, validation_date] -> dataset.last_update > validation_date
-      _ -> false
+  @spec needs_validation(__MODULE__.t(), boolean()) :: boolean()
+  def needs_validation(%__MODULE__{format: format}, _force_validation) when format != "GTFS" do
+    # we only want to validate GTFS
+    false
+  end
+
+  def needs_validation(%__MODULE__{}, true = _force_validation) do
+    true
+  end
+
+  def needs_validation(
+        %__MODULE__{
+          content_hash: content_hash,
+          validation: %Validation{validation_latest_content_hash: validation_latest_content_hash}
+        } = r,
+        _force_validation
+      ) do
+    # if there is already a validation, we revalidate only if there the file has changed
+    if content_hash != validation_latest_content_hash do
+      Logger.info("the files for resource #{r.id} have been modified since last validation, we need to revalidate them")
+      true
+    else
+      false
     end
   end
 
-  def needs_validation(%__MODULE__{} = _r) do
+  def needs_validation(%__MODULE__{}, _force_validation) do
+    # if there is no validation, we want to validate
     true
   end
 
@@ -130,7 +152,8 @@ defmodule DB.Resource do
       validation: %Validation{
         date: DateTime.utc_now() |> DateTime.to_string(),
         details: validations,
-        max_error: get_max_severity_error(validations)
+        max_error: get_max_severity_error(validations),
+        validation_latest_content_hash: r.content_hash
       },
       auto_tags: find_tags(r, metadata),
       content_hash: Hasher.get_content_hash(url),
