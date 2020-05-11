@@ -319,31 +319,37 @@ defmodule DB.Dataset do
   def count_by_resource_tag(tag) do
     __MODULE__
     |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
-    |> where([_d, r], ^tag in r.auto_tags)
+    |> where([d, r], d.is_active and ^tag in r.auto_tags)
+    |> distinct([d], d.id)
     |> Repo.aggregate(:count, :id)
   end
 
   @spec count_coach() :: number()
   def count_coach do
     __MODULE__
-    |> join(:right, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
-    # 14 is the national "region". It means that it is not bound to a region or local territory
-    |> where([d, d_geo], d.type == "public-transit" and d_geo.region_id == 14)
+    |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
+    |> join(:inner, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
+    |> distinct([d], d.id)
+    |> where([d, r, d_geo], d.is_active and "bus" in r.auto_tags and d_geo.region_id == 14)
     |> Repo.aggregate(:count, :id)
   end
 
   @spec count_by_type(binary()) :: any()
   def count_by_type(type) do
-    query = from(d in __MODULE__, where: d.type == ^type)
-
-    Repo.aggregate(query, :count, :id)
+    __MODULE__
+    |> where([d], d.type == ^type and d.is_active)
+    |> Repo.aggregate(:count, :id)
   end
 
+  @spec count_by_type :: map
   def count_by_type, do: for(type <- __MODULE__.types(), into: %{}, do: {type, count_by_type(type)})
-  def count_has_realtime, do: Repo.aggregate(filter_has_realtime(), :count, :id)
 
-  @spec filter_has_realtime() :: Ecto.Query.t()
-  defp filter_has_realtime, do: from(d in __MODULE__, where: d.has_realtime == true)
+  @spec count_has_realtime :: number()
+  def count_has_realtime do
+    __MODULE__
+    |> where([d], d.has_realtime and d.is_active)
+    |> Repo.aggregate(:count, :id)
+  end
 
   @spec get_by_slug(binary) :: {:ok, __MODULE__.t()} | {:error, binary()}
   def get_by_slug(slug) do
