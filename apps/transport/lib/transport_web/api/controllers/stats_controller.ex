@@ -199,8 +199,6 @@ defmodule TransportWeb.API.StatsController do
 
   @spec aom_features :: Ecto.Query.t()
   defp aom_features do
-    dt = Date.utc_today() |> Date.to_iso8601()
-
     AOM
     |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id)
     |> select([aom, parent_dataset], %{
