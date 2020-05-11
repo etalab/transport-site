@@ -331,6 +331,7 @@ defmodule DB.Dataset do
     |> join(:inner, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
     |> distinct([d], d.id)
     |> where([d, r, d_geo], d.is_active and "bus" in r.auto_tags and d_geo.region_id == 14)
+    # 14 is the national "region". It means that it is not bound to a region or local territory
     |> Repo.aggregate(:count, :id)
   end
 
