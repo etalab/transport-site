@@ -12,10 +12,11 @@ defmodule TransportWeb.DatasetController do
 
   @spec list_datasets(Plug.Conn.t(), map(), boolean) :: Plug.Conn.t()
   def list_datasets(%Plug.Conn{} = conn, %{} = params, count_by_region \\ false) do
-    conn = case count_by_region do
-      true -> assign(conn, :regions, get_regions(params))
-      false -> conn
-    end
+    conn =
+      case count_by_region do
+        true -> assign(conn, :regions, get_regions(params))
+        false -> conn
+      end
 
     conn
     |> assign(:datasets, get_datasets(params))
@@ -122,13 +123,12 @@ defmodule TransportWeb.DatasetController do
 
   @spec get_regions(map()) :: [Region.t()]
   defp get_regions(params) do
-    IO.inspect(params)
     sub =
       params
       |> clean_datasets_query("region")
       |> exclude(:order_by)
       |> join(:left, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
-      |> select([d, d_geo], %{id: d.id, region_id: d_geo.region_id})
+      |> get_regions_select(params)
 
     Region
     |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
@@ -136,6 +136,15 @@ defmodule TransportWeb.DatasetController do
     |> select([r, d], %{nom: r.nom, id: r.id, count: count(d.id)})
     |> order_by([r], r.nom)
     |> Repo.all()
+  end
+
+  defp get_regions_select(query, %{"tags" => _tags}) do
+    # when there are some tags filters, the DatasetGeographicView is the third join, not the second.
+    query |> select([d, r, d_geo], %{id: d.id, region_id: d_geo.region_id})
+  end
+
+  defp get_regions_select(query, %{}) do
+    query |> select([d, d_geo], %{id: d.id, region_id: d_geo.region_id})
   end
 
   @spec get_types(map()) :: [%{type: binary(), msg: binary(), count: integer}]
