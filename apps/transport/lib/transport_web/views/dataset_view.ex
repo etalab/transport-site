@@ -5,7 +5,7 @@ defmodule TransportWeb.DatasetView do
   alias Plug.Conn.Query
   alias TransportWeb.PaginationHelpers
   alias TransportWeb.Router.Helpers
-  import Phoenix.Controller, only: [current_path: 1, current_url: 2]
+  import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
 
   def render_sidebar_from_type(conn, dataset), do: render_panel_from_type(conn, dataset, "sidebar")
 
@@ -102,6 +102,22 @@ defmodule TransportWeb.DatasetView do
     full_url = "#{url}?#{Query.encode(params)}"
 
     case Phoenix.Controller.current_path(conn, %{}) do
+      ^url -> ~E"<span class=\"activefilter\"><%= nom %> (<%= count %>)</span>"
+      _ -> link("#{nom} (#{count})", to: full_url)
+    end
+  end
+
+  def region_link(conn, %{nom: nom, count: count, id: id}) do
+    url =
+      case id do
+        nil -> dataset_path(conn, :index)
+        _ -> dataset_path(conn, :by_region, id)
+      end
+
+    params = conn.query_params
+    full_url = url <> "?" <> Query.encode(params) <> "#datasets-results"
+
+    case current_path(conn, %{}) do
       ^url -> ~E"<span class=\"activefilter\"><%= nom %> (<%= count %>)</span>"
       _ -> link("#{nom} (#{count})", to: full_url)
     end
@@ -233,4 +249,11 @@ defmodule TransportWeb.DatasetView do
       _ -> dgettext("dataset", "notspecified")
     end
   end
+
+  @spec show_data_viz(map) :: boolean
+  def show_data_viz(%{type: type} = dataset) when type == "carsharing-areas" or type == "private-parking" do
+    List.first(other_resources(dataset)).format == "csv"
+  end
+
+  def show_data_viz(%{}), do: false
 end

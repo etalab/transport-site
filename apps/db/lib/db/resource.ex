@@ -31,6 +31,10 @@ defmodule DB.Resource do
     field(:auto_tags, {:array, :string}, default: [])
     field(:netex_conversion_latest_content_hash, :string)
 
+    # we add 2 fields, that are already in the metadata json, in order to be able to add some indices
+    field(:start_date, :date)
+    field(:end_date, :date)
+
     belongs_to(:dataset, Dataset)
     has_one(:validation, Validation, on_replace: :delete)
   end
@@ -53,7 +57,10 @@ defmodule DB.Resource do
       true
   """
   @spec needs_validation(__MODULE__.t()) :: boolean()
-  def needs_validation(%__MODULE__{dataset: dataset, validation: %Validation{date: validation_date}}) do
+  def needs_validation(%__MODULE__{
+        dataset: dataset,
+        validation: %Validation{date: validation_date}
+      }) do
     case [dataset.type == "public-transit", validation_date] do
       [true, nil] -> true
       [true, validation_date] -> dataset.last_update > validation_date
@@ -75,15 +82,23 @@ defmodule DB.Resource do
     else
       {:error, error} ->
         Logger.warn("Error when calling the validator: #{error}")
-        Sentry.capture_message("unable_to_call_validator", extra: %{url: resource.url, error: error})
+
+        Sentry.capture_message("unable_to_call_validator",
+          extra: %{url: resource.url, error: error}
+        )
+
         {:error, error}
     end
+  rescue
+    e ->
+      Logger.error("error while validating resource #{resource.id}: #{inspect(e)}")
+      {:error, e}
   end
 
   @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
-  def validate(%__MODULE__{url: url}) do
+  def validate(%__MODULE__{url: url, format: "GTFS"}) do
     case @client.get("#{endpoint()}?url=#{URI.encode_www_form(url)}", [], recv_timeout: @timeout) do
       {:ok, %@res{status_code: 200, body: body}} -> Poison.decode(body)
       {:ok, %@res{body: body}} -> {:error, body}
@@ -92,11 +107,20 @@ defmodule DB.Resource do
     end
   end
 
+  def validate(%__MODULE__{format: f, id: id}) do
+    Logger.info("cannot validate resource id=#{id} because we don't know how to validate the #{f} format")
+    {:ok, %{"validations" => nil, "metadata" => nil}}
+  end
+
   @spec save(__MODULE__.t(), map()) :: {:ok, any()} | {:error, any()}
-  def save(%__MODULE__{id: id, url: url, format: format} = r, %{"validations" => validations, "metadata" => metadata}) do
+  def save(%__MODULE__{id: id, url: url, format: format} = r, %{
+        "validations" => validations,
+        "metadata" => metadata
+      }) do
     # When the validator is unable to open the archive, it will return a fatal issue
     # And the metadata will be nil (as it couldn’t read them)
-    if is_nil(metadata) and format == "GTFS", do: Logger.warn("Unable to validate resource (id = #{id})")
+    if is_nil(metadata) and format == "GTFS",
+      do: Logger.warn("Unable to validate resource (id = #{id})")
 
     __MODULE__
     |> preload(:validation)
@@ -105,10 +129,13 @@ defmodule DB.Resource do
       metadata: metadata,
       validation: %Validation{
         date: DateTime.utc_now() |> DateTime.to_string(),
-        details: validations
+        details: validations,
+        max_error: get_max_severity_error(validations)
       },
       auto_tags: find_tags(r, metadata),
-      content_hash: Hasher.get_content_hash(url)
+      content_hash: Hasher.get_content_hash(url),
+      start_date: str_to_date(metadata["start_date"]),
+      end_date: str_to_date(metadata["end_date"])
     )
     |> Repo.update()
   end
@@ -233,6 +260,16 @@ defmodule DB.Resource do
 
   def get_max_severity_validation_number(_), do: nil
 
+  @spec get_max_severity_error(any) :: binary()
+  defp get_max_severity_error(%{} = validations) do
+    validations
+    |> Map.values()
+    |> Enum.map(fn v -> hd(v)["severity"] end)
+    |> Enum.min_by(fn sev -> Validation.severities(sev).level end, fn -> "NoError" end)
+  end
+
+  defp get_max_severity_error(_), do: nil
+
   @spec is_gtfs?(__MODULE__.t()) :: boolean()
   def is_gtfs?(%__MODULE__{format: "GTFS"}), do: true
   def is_gtfs?(%__MODULE__{metadata: m} = r) when not is_nil(m), do: not is_netex?(r)
@@ -255,4 +292,20 @@ defmodule DB.Resource do
 
   @spec other_resources(__MODULE__.t()) :: [__MODULE__.t()]
   def other_resources(%__MODULE__{} = r), do: r |> other_resources_query() |> Repo.all()
+
+  @spec str_to_date(binary()) :: Date.t() | nil
+  defp str_to_date(date) when not is_nil(date) do
+    date
+    |> Date.from_iso8601()
+    |> case do
+      {:ok, v} ->
+        v
+
+      {:error, e} ->
+        Logger.error("date '#{date}' not valid: #{inspect(e)}")
+        nil
+    end
+  end
+
+  defp str_to_date(_), do: nil
 end

@@ -24,6 +24,7 @@ defmodule TransportWeb.API.Router do
       get("/", TransportWeb.API.StatsController, :index)
       get("/regions", TransportWeb.API.StatsController, :regions)
       get("/bike-sharing", TransportWeb.API.StatsController, :bike_sharing)
+      get("/quality", TransportWeb.API.StatsController, :quality)
     end
 
     get("/openapi", OpenApiSpex.Plug.RenderSpec, :show)
@@ -33,6 +34,7 @@ defmodule TransportWeb.API.Router do
     scope "/datasets" do
       get("/", TransportWeb.API.DatasetController, :datasets)
       get("/:id", TransportWeb.API.DatasetController, :by_id)
+      get("/:id/geojson", TransportWeb.API.DatasetController, :geojson_by_id)
     end
   end
 

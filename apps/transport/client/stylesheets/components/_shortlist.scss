@@ -228,13 +228,13 @@
   margin-left: 1em !important;
 }
 
-@media(max-width: 1400px) {
+@media (max-width: 1400px) {
   .dataset-udpate-date {
     flex-basis: 250px;
   }
 }
 
-@media(max-width: 1200px) {
+@media (max-width: 1200px) {
   .dataset-format {
     order: 3;
     width: 100%;
@@ -246,7 +246,7 @@
   padding: 0 !important;
 }
 
-@media(min-width: 1200px) {
+@media (min-width: 1200px) {
   .dataset-localization {
     margin-top: 6px;
   }

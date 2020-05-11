@@ -101,6 +101,60 @@
         </div>
       </div>
     </div>
+    <div class="domain">
+      <div class="domain-stats">
+        <%= render("_maps.html", droms: @droms, prefix: "pt_up_to_date") %>
+        <div class="panel">
+          <div class="description">
+            <h3>Zoom sur la fraicheur des données</h3>
+            <p>
+            Les données GTFS de la plateforme sont analysées pour connaitre leur periode de validité,
+            qui correspond à la période de circulation des différents services du jeu de donnés.
+            </p>
+            <p>
+            Note : on ne peut calculer une période de validité que pour les jeux de données respectants les spécifications GTFS.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="domain quality">
+      <div class="domain-stats">
+        <%= render("_maps.html", droms: @droms, prefix: "pt_quality") %>
+        <div class="panel">
+          <div class="description">
+            <h3>Zoom sur la qualité des données</h3>
+            <p>
+            Cette carte représente la qualité des données GTFS actuellement valides.
+            </p>
+            <p>
+            Pour contrôler la qualité des jeux de données de transport, la plateforme transport.data.gouv.fr utilise des outils de validation.          .
+            </p>
+            <p>
+            Retrouvez plus d'informations sur ces outils dans la <a href="https://doc.transport.data.gouv.fr/reutilisateurs/qualite-de-donnee#validateur-de-fichiers-gtfs">documentation</a>.
+            </p>
+          </div>
+            <div class="tile">
+              <h3> <%= @ratio_aom_with_at_most_warnings %>%</h3>
+              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> urbaines avec des jeux de données de
+              qualité satisfaisante (sans aucune erreur)</div>
+            </div>
+            <div class="tile">
+              <h3> <%= @ratio_aom_good_quality %>%</h3>
+              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> urbaines avec des jeux de données de bonne qualité
+              (sans erreurs ni avertissements)</div>
+            </div>
+            <div class="tile">
+              <h3> <%= @aom_with_errors %> </h3>
+              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> urbaines avec des jeux de données en erreur</div>
+            </div>
+            <div class="tile">
+              <h3> <%= @aom_with_fatal %> </h3>
+              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> urbaines avec des jeux de données ne respectant pas les spécifications GTFS</div>
+            </div>
+        </div>
+      </div>
+    </div>
     <div class="domain rt">
       <h2>Transports en commun - temps réel</h2>
       <div class="domain-stats">
