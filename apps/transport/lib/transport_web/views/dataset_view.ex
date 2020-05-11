@@ -101,22 +101,6 @@ defmodule TransportWeb.DatasetView do
     params = conn.query_params
     full_url = "#{url}?#{Query.encode(params)}"
 
-    case Phoenix.Controller.current_path(conn, %{}) do
-      ^url -> ~E"<span class=\"activefilter\"><%= nom %> (<%= count %>)</span>"
-      _ -> link("#{nom} (#{count})", to: full_url)
-    end
-  end
-
-  def region_link(conn, %{nom: nom, count: count, id: id}) do
-    url =
-      case id do
-        nil -> dataset_path(conn, :index)
-        _ -> dataset_path(conn, :by_region, id)
-      end
-
-    params = conn.query_params
-    full_url = url <> "?" <> Query.encode(params) <> "#datasets-results"
-
     case current_path(conn, %{}) do
       ^url -> ~E"<span class=\"activefilter\"><%= nom %> (<%= count %>)</span>"
       _ -> link("#{nom} (#{count})", to: full_url)
