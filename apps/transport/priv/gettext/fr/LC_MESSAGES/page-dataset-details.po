@@ -313,3 +313,7 @@ msgstr "Visualisation"
 #, elixir-format
 msgid "data type"
 msgstr "type de données"
+
+#, elixir-format
+msgid "Covered area"
+msgstr "Couverture spatiale"

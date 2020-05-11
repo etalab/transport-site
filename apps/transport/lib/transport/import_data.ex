@@ -34,7 +34,7 @@ defmodule Transport.ImportData do
   end
 
   @spec validate_all_resources() :: :ok
-  def validate_all_resources do
+  def validate_all_resources(force \\ false) do
     Logger.info("Validating all resources")
 
     resources =
@@ -42,7 +42,7 @@ defmodule Transport.ImportData do
       |> preload([:dataset, :validation])
       |> where([r], r.format == "GTFS")
       |> Repo.all()
-      |> Enum.filter(&Resource.needs_validation/1)
+      |> Enum.filter(fn r -> force || Resource.needs_validation(r) end)
 
     Logger.info("launching #{Enum.count(resources)} validations")
 

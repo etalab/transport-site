@@ -70,3 +70,7 @@ msgstr "Le code INSEE '%{insee}' n'est pas associé à une AOM"
 #, elixir-format
 msgid "Other informations"
 msgstr "Autres informations"
+
+#, elixir-format
+msgid "Private parking"
+msgstr "Stationnement hors voirie"

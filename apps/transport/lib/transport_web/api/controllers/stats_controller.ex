@@ -49,6 +49,19 @@ defmodule TransportWeb.API.StatsController do
       }
     }
 
+  @spec quality_operation() :: Operation.t()
+  def quality_operation,
+    do: %Operation{
+      tags: ["quality"],
+      summary: "Show data quality stats",
+      description: "Show data quality stats",
+      operationId: "API.StatsController.quality",
+      parameters: [],
+      responses: %{
+        200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
+      }
+    }
+
   @spec geojson([map()]) :: map()
   def geojson(features),
     do: %{
@@ -65,12 +78,24 @@ defmodule TransportWeb.API.StatsController do
     |> length
   end
 
+  @spec filter_neg(nil | integer()) :: nil | non_neg_integer()
+  defp filter_neg(nil), do: nil
+
+  defp filter_neg(val) when val < 0, do: nil
+  defp filter_neg(val) when val >= 0, do: val
+
   @spec features(Ecto.Query.t()) :: [map()]
   def features(q) do
     q
     |> Repo.all()
     |> Enum.filter(fn aom -> !is_nil(aom.geometry) end)
     |> Enum.map(fn aom ->
+      dataset_types =
+        aom
+        |> Map.get(:dataset_types, [])
+        |> Enum.filter(fn {_, v} -> !is_nil(v) end)
+        |> Enum.into(%{})
+
       %{
         "geometry" => aom.geometry |> JSON.encode!(),
         "type" => "Feature",
@@ -82,17 +107,36 @@ defmodule TransportWeb.API.StatsController do
           "forme_juridique" => Map.get(aom, :forme_juridique, ""),
           "parent_dataset_slug" => Map.get(aom, :parent_dataset_slug, ""),
           "parent_dataset_name" => Map.get(aom, :parent_dataset_name, ""),
+          "quality" => %{
+            "expired_from" => %{
+              # negative values are up to date datasets, we filter them
+              "nb_days" => aom |> Map.get(:quality, %{}) |> Map.get(:expired_from) |> filter_neg,
+              "status" =>
+                case aom |> Map.get(:quality, %{}) |> Map.get(:expired_from) do
+                  # if no validity period has been found, it's either that there was no data
+                  # or that we were not able to read them
+                  nil ->
+                    case dataset_types[:pt] do
+                      0 -> "no_data"
+                      _ -> "unreadable"
+                    end
+
+                  i when i > 0 ->
+                    "outdated"
+
+                  _ ->
+                    "up_to_date"
+                end
+            },
+            "error_level" => aom |> Map.get(:quality, %{}) |> Map.get(:error_level)
+          },
           "dataset_formats" =>
             aom
             |> Map.get(:dataset_formats, [])
             |> Enum.filter(fn {_, v} -> v != nil end)
             |> Enum.into(%{})
             |> Map.put("non_standard_rt", nb_non_standard_rt(Map.get(aom, :insee_commune_principale))),
-          "dataset_types" =>
-            aom
-            |> Map.get(:dataset_types, [])
-            |> Enum.filter(fn {_, v} -> v != nil end)
-            |> Enum.into(%{})
+          "dataset_types" => dataset_types
         }
       }
     end)
@@ -147,14 +191,19 @@ defmodule TransportWeb.API.StatsController do
   @spec bike_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def bike_sharing(%Plug.Conn{} = conn, _params), do: render_features(conn, bike_sharing_features())
 
+  @spec quality(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features())
+
   @spec render_features(Plug.Conn.t(), Ecto.Query.t()) :: Plug.Conn.t()
   defp render_features(conn, query), do: render(conn, %{data: query |> features() |> geojson()})
 
   @spec aom_features :: Ecto.Query.t()
   defp aom_features do
+    dt = Date.utc_today() |> Date.to_iso8601()
+
     AOM
     |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id)
-    |> select([aom, dataset], %{
+    |> select([aom, parent_dataset], %{
       geometry: aom.geom,
       id: aom.id,
       insee_commune_principale: aom.insee_commune_principale,
@@ -171,8 +220,8 @@ defmodule TransportWeb.API.StatsController do
         pt: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit'", aom.id),
         bike_sharing: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-sharing'", aom.id)
       },
-      parent_dataset_slug: dataset.slug,
-      parent_dataset_name: dataset.title
+      parent_dataset_slug: parent_dataset.slug,
+      parent_dataset_name: parent_dataset.title
     })
   end
 
@@ -217,5 +266,74 @@ defmodule TransportWeb.API.StatsController do
       parent_dataset_slug: dataset.slug
     })
     |> where([_gv, dataset], dataset.type == "bike-sharing")
+  end
+
+  @spec quality_features :: Ecto.Query.t()
+  defp quality_features do
+    # Note: this query is not done in the meantime as aoms_features because this query is quite long to execute
+    # and we don't want to slow down the main aom_features to much
+    dt = Date.utc_today() |> Date.to_iso8601()
+
+    AOM
+    |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id)
+    |> select([aom, parent_dataset], %{
+      geometry: aom.geom,
+      id: aom.id,
+      insee_commune_principale: aom.insee_commune_principale,
+      nom: aom.nom,
+      forme_juridique: aom.forme_juridique,
+      dataset_types: %{
+        pt: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit'", aom.id),
+        bike_sharing: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-sharing'", aom.id)
+      },
+      quality: %{
+        # we get the number of day since the latest resource is expired
+        expired_from:
+          fragment(
+            """
+            SELECT
+            TO_DATE(?, 'YYYY-MM-DD') - max(end_date)
+            FROM resource
+            WHERE
+            end_date IS NOT NULL
+            AND (
+              dataset_id in (SELECT id FROM dataset WHERE aom_id=?)
+              OR dataset_id = ?
+              )
+            """,
+            ^dt,
+            aom.id,
+            parent_dataset.id
+          ),
+        # we get the most serious error of the valid resources
+        error_level:
+          fragment(
+            """
+            SELECT max_error
+            FROM validations
+            JOIN resource ON resource.id = validations.resource_id
+            JOIN dataset ON dataset.id = resource.dataset_id
+            WHERE
+              (dataset.aom_id = ? OR dataset.id = ?)
+              AND
+              resource.end_date >= TO_DATE(?, 'YYYY-MM-DD')
+            ORDER BY (
+              CASE max_error::text
+                WHEN 'Fatal' THEN 6
+                WHEN 'Error' THEN 5
+                WHEN 'Warning' THEN 4
+                WHEN 'Information' THEN 3
+                WHEN 'Irrelevant' THEN 2
+                WHEN 'NoError' THEN 1
+              END
+            ) DESC
+            LIMIT 1
+            """,
+            aom.id,
+            parent_dataset.id,
+            ^dt
+          )
+      }
+    })
   end
 end

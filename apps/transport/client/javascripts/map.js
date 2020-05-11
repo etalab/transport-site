@@ -16,6 +16,7 @@ const Mapbox = {
 const regionsUrl = '/api/stats/regions'
 const aomsUrl = '/api/stats/'
 const bikesUrl = '/api/stats/bike-sharing'
+const qualityUrl = '/api/stats/quality'
 
 const lightGreen = '#BCE954'
 
@@ -58,8 +59,9 @@ const getLegend = (title, colors, labels) => {
 var aomStats = null
 var regionStats = null
 var bikeStats = null
+var qualityStats = null
 
-function getAomsFG (map, featureFunction, style, filter = null) {
+function getAomsFG (featureFunction, style, filter = null) {
     const aomsFeatureGroup = Leaflet.featureGroup()
 
     if (aomStats == null) {
@@ -79,7 +81,7 @@ function getAomsFG (map, featureFunction, style, filter = null) {
     return aomsFeatureGroup
 }
 
-function getRegionsFG (map, featureFunction, style) {
+function getRegionsFG (featureFunction, style) {
     const regionsFeatureGroup = Leaflet.featureGroup()
     if (regionStats == null) {
         regionStats = fetch(regionsUrl)
@@ -96,7 +98,7 @@ function getRegionsFG (map, featureFunction, style) {
     return regionsFeatureGroup
 }
 
-function displayBikes (map, featureFunction, style) {
+function displayBikes (map, featureFunction) {
     if (bikeStats == null) {
         bikeStats = fetch(bikesUrl).then(response => {
             return response.json()
@@ -115,6 +117,24 @@ function displayBikes (map, featureFunction, style) {
         })
         map.addLayer(geoJSON)
     })
+}
+
+function displayQuality (featureFunction, style) {
+    const qualityFeatureGroup = Leaflet.featureGroup()
+
+    if (qualityStats == null) {
+        qualityStats = fetch(qualityUrl)
+            .then(response => { return response.json() })
+    }
+    qualityStats
+        .then(response => {
+            const geoJSON = Leaflet.geoJSON(response, {
+                onEachFeature: featureFunction,
+                style: style
+            })
+            qualityFeatureGroup.addLayer(geoJSON)
+        })
+    return qualityFeatureGroup
 }
 
 /**
@@ -168,7 +188,7 @@ function addStaticPTMapRegions (id, view) {
         }
     }
 
-    const regionsFG = getRegionsFG(map, onEachRegionFeature, styleRegion)
+    const regionsFG = getRegionsFG(onEachRegionFeature, styleRegion)
     regionsFG.addTo(map)
 
     if (view.display_legend) {
@@ -249,7 +269,7 @@ function addStaticPTMapAOMS (id, view) {
         }
     }
 
-    const aomsFG = getAomsFG(map, onEachAomFeature, style(map.getZoom()))
+    const aomsFG = getAomsFG(onEachAomFeature, style(map.getZoom()))
     aomsFG.addTo(map)
     map.on('zoomend', () => {
         // change stripes width depending on the zoom level
@@ -261,6 +281,157 @@ function addStaticPTMapAOMS (id, view) {
             '<h4>Disponibilité des horaires théoriques :</h4>',
             ['green', lightGreen, `repeating-linear-gradient(-45deg,green,green 3px,${lightGreen} 3px,${lightGreen} 6px)`, 'grey'],
             ['Pour l\'AOM spécifiquement', 'Dans un jeu de données agrégé', 'Pour l\'AOM <strong>et</strong> dans un jeu de données agrégé', 'Aucune donnée disponible']
+        ).addTo(map)
+    }
+}
+
+function addStaticPTUpToDate (id, view) {
+    const map = makeMapOnView(id, view)
+
+    function onEachAomFeature (feature, layer) {
+        const name = feature.properties.nom
+        const type = feature.properties.forme_juridique
+        const expiredFrom = feature.properties.quality.expired_from
+        let text = ''
+        if (expiredFrom.status === 'outdated') {
+            text = `Les données ne sont plus à jour depuis ${expiredFrom.nb_days} jour`
+            if (expiredFrom.nb_days > 1) {
+                text += 's'
+            }
+        } else {
+            if (expiredFrom.status === 'no_data') {
+                text = "Aucune données pour l'AOM"
+            } else if (expiredFrom.status === 'unreadable') {
+                text = 'données illisibles'
+            } else {
+                text = 'Les données sont à jour'
+            }
+        }
+        const id = feature.properties.id
+        layer.bindPopup(`<a href="/datasets/aom/${id}">${name}</a><br>(${type})<br/>${text}`)
+    }
+
+    const styles = {
+        outdated: {
+            weight: 1,
+            color: 'orange',
+            fillOpacity: 0.6
+        },
+        up_to_date: {
+            weight: 1,
+            color: 'green',
+            fillOpacity: 0.6
+        },
+        unreadable: {
+            weight: 1,
+            color: 'red',
+            fillOpacity: 0.6
+        },
+        no_data: {
+            weight: 1,
+            color: 'grey',
+            fillOpacity: 0.6
+        }
+    }
+
+    const style = feature => {
+        const expiredFrom = feature.properties.quality.expired_from
+        if (expiredFrom.status === 'up_to_date') {
+            return styles.up_to_date
+        } else if (expiredFrom.status === 'outdated') {
+            return styles.outdated
+        } else if (expiredFrom.status === 'unreadable') {
+            return styles.unreadable
+        } else {
+            return styles.no_data
+        }
+    }
+    const qualityFG = displayQuality(onEachAomFeature, style)
+
+    qualityFG.addTo(map)
+
+    if (view.display_legend) {
+        getLegend(
+            '<h4>Fraicheur des données</h4>',
+            ['green', 'orange', 'red', 'grey'],
+            ['Données à jour', 'Données pas à jour', 'Données illisibles', 'Pas de données']
+        ).addTo(map)
+    }
+}
+
+function addStaticPTQuality (id, view) {
+    const map = makeMapOnView(id, view)
+
+    function onEachAomFeature (feature, layer) {
+        const name = feature.properties.nom
+        const type = feature.properties.forme_juridique
+        const errorLevel = feature.properties.quality.error_level
+        let text = ''
+        if (errorLevel === 'Error') {
+            text = 'Les données contiennent des erreurs.'
+        } else if (errorLevel === 'Warning') {
+            text = 'Les données contiennent des avertissements.'
+        } else if (errorLevel === 'Fatal') {
+            text = 'Les données ne respectent pas les spécifications.'
+        } else if (errorLevel === 'Information' || errorLevel === 'NoError') {
+            text = 'Les données sont de bonne qualité.'
+        } else {
+            text = 'Pas de données valides disponible.'
+        }
+        const id = feature.properties.id
+        layer.bindPopup(`<a href="/datasets/aom/${id}">${name}</a><br>(${type})<br/>${text}`)
+    }
+    const styles = {
+        fatal: {
+            weight: 1,
+            color: 'red',
+            fillOpacity: 0.6
+        },
+        error: {
+            weight: 1,
+            color: 'orange',
+            fillOpacity: 0.6
+        },
+        warning: {
+            color: lightGreen,
+            weight: 1,
+            fillOpacity: 0.6
+        },
+        good: {
+            weight: 1,
+            color: 'green',
+            fillOpacity: 0.6
+        },
+        unavailable: {
+            weight: 1,
+            color: 'grey',
+            fillOpacity: 0.6
+        }
+    }
+
+    const style = feature => {
+        const quality = feature.properties.quality.error_level
+        if (quality === 'Fatal') {
+            return styles.fatal
+        } else if (quality === 'Error') {
+            return styles.error
+        } else if (quality === 'Warning') {
+            return styles.warning
+        } else if (quality === 'Information' || quality === 'NoError') {
+            return styles.good
+        } else {
+            return styles.unavailable
+        }
+    }
+    const qualityFG = displayQuality(onEachAomFeature, style)
+
+    qualityFG.addTo(map)
+
+    if (view.display_legend) {
+        getLegend(
+            '<h4>Qualité des données courantes</h4>',
+            ['red', 'orange', lightGreen, 'green', 'grey'],
+            ['Non conforme', 'Erreur', 'Satisfaisante', 'Bonne', 'Pas de données à jour']
         ).addTo(map)
     }
 }
@@ -342,7 +513,7 @@ function addRealTimePTMap (id, view) {
             formats.siri_lite !== undefined
     }
 
-    const aomsFG = getAomsFG(map, onEachAomFeature, style, filter)
+    const aomsFG = getAomsFG(onEachAomFeature, style, filter)
     aomsFG.addTo(map)
 
     if (view.display_legend) {
@@ -412,7 +583,7 @@ function addPtFormatMap (id, view) {
         return formats.gtfs !== undefined || formats.netex !== undefined
     }
 
-    const aomsFG = getAomsFG(map,
+    const aomsFG = getAomsFG(
         (feature, layer) => {
             const name = feature.properties.nom
             const commune = feature.properties.id
@@ -473,7 +644,9 @@ const droms = {
 
 for (const [drom, view] of Object.entries(droms)) {
     addStaticPTMapRegions(`map_regions_${drom}`, view)
+    addStaticPTUpToDate(`pt_up_to_date_${drom}`, view)
     addStaticPTMapAOMS(`map_aoms_${drom}`, view)
+    addStaticPTQuality(`pt_quality_${drom}`, view)
     addPtFormatMap(`pt_format_map_${drom}`, view)
     addRealTimePTMap(`rt_map_${drom}`, view)
     addBikesMap(`bikes_map_${drom}`, view)
