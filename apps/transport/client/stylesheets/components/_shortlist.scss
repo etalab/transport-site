@@ -18,6 +18,27 @@
   padding: 0;
 }
 
+.order-by {
+  padding-bottom: 24px;
+  display: flex;
+  justify-content: flex-end;
+  .order-by__title {
+    padding-right: 6px;
+    color: var(--darker-grey);
+  }
+}
+
+.order-by-option {
+  padding-left: 12px;
+  a {
+    text-decoration: none;
+    color: var(--darker-grey);
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 .dataset__panel {
   padding: 0;
   display: flex;
@@ -266,27 +287,6 @@
     vertical-align: top;
     a {
       color: var(--grey);
-    }
-  }
-}
-
-.order-by {
-  padding-bottom: 24px;
-  display: flex;
-  justify-content: flex-end;
-  .order-by__title {
-    padding-right: 6px;
-    color: var(--darker-grey);
-  }
-}
-
-.order-by-option {
-  padding-left: 12px;
-  a {
-    text-decoration: none;
-    color: var(--darker-grey);
-    &:hover {
-      text-decoration: underline;
     }
   }
 }
