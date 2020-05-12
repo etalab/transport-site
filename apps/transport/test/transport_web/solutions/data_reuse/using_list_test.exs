@@ -73,7 +73,7 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
     click({:link_text, "Voir les derniers jeux de données ajoutés"})
 
     # I can see or read somewhere that the datasets are valid
-    assert visible_in_page?(~r/Jeux de données disponibles/)
+    assert visible_in_page?(~r/Jeux de données/)
     # I can click on a dataset and see its details
     click({:link_text, "Horaires Angers"})
     assert visible_in_page?(~r/Horaires Angers/)
