@@ -272,7 +272,6 @@ defmodule DB.Resource do
 
   @spec is_gtfs?(__MODULE__.t()) :: boolean()
   def is_gtfs?(%__MODULE__{format: "GTFS"}), do: true
-  def is_gtfs?(%__MODULE__{metadata: m} = r) when not is_nil(m), do: not is_netex?(r)
   def is_gtfs?(_), do: false
 
   @spec is_gbfs?(__MODULE__.t()) :: boolean
