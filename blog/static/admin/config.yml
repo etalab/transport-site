@@ -1,17 +1,17 @@
 backend:
   name: github
-  repo:  fchabouis/hugo-medium-test
+  repo:  etalab/transport-site
   open_authoring: false
 
 publish_mode: editorial_workflow
 
-media_folder: "static/images" # Folder where user uploaded files should go
-public_folder: "/images"
+media_folder: "blog/static/images" # Folder where user uploaded files should go
+public_folder: "blog/images"
 
 collections: # A list of collections the CMS should be able to edit
   - name: "post" # Used in routes, ie.: /admin/collections/:slug/edit
     label: "Post" # Used in the UI, ie.: "New Post"
-    folder: "content/billets" # The path to the folder where the documents are stored
+    folder: "blog/content/billets" # The path to the folder where the documents are stored
     create: true # Allow users to create new documents in this collection
     fields: # The fields each document in this collection have
       - {label: "Title", name: "title", widget: "string"}

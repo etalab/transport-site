@@ -19,11 +19,11 @@
       return h('div', {},
         h('h1', {"className": "posttitle"}, entry.getIn(['data', 'title'])),
         h('div', {"className": "article-description"}, entry.getIn(['data', 'description'])),
-        h('span', {"className": "author-description"}, 
+        h('span', {"className": "author-description"},
             h('span', {}, entry.getIn(['data', 'date']).toLocaleDateString("fr-fr"))
         ),
         h('div', {"className": "pt-48"},
-          h('img', {src: bg.toString()})
+          h('img', {"className": "featured-image img-fluid", "src": bg.toString()})
         ),
         h('div', {"className": "article-post pt-48"}, this.props.widgetFor('body'))
       )
