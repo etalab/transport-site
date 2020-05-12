@@ -1,0 +1,26 @@
+{{ define "header"}}
+    {{- partial "_shared/navbar.html" . -}}
+{{ end }}
+
+{{ define "main" }}
+<div class="main-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10 error">
+                <div class="mainheading">
+                    <h1 class="posttitle">{{ .Title }}</h1> 
+                </div>
+                <div class="article-post">
+                    Oops! This is obviously not what you are looking for.<br>
+                    Click <a href="/">here</a> to start all over again.                
+                </div>
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+    </div>
+</div>
+{{ end }}
+
+{{ define "footer"}}
+{{ end }}

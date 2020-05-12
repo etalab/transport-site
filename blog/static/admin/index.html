@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content Manager</title>
+</head>
+<body>
+  <!-- Include the script that builds the page and powers Netlify CMS -->
+  <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
+</body>
+<script>
+  CMS.registerPreviewStyle("/css/medium.css");
+  var PostPreview = createClass({
+    render: function() {
+      var entry = this.props.entry;
+      var image = entry.getIn(['data', 'image']);
+      var bg = this.props.getAsset(image);
+      return h('div', {},
+        h('h1', {"className": "posttitle"}, entry.getIn(['data', 'title'])),
+        h('div', {"className": "article-description"}, entry.getIn(['data', 'description'])),
+        h('span', {"className": "author-description"}, 
+            h('span', {}, entry.getIn(['data', 'date']).toLocaleDateString("fr-fr"))
+        ),
+        h('div', {"className": "pt-48"},
+          h('img', {src: bg.toString()})
+        ),
+        h('div', {"className": "article-post pt-48"}, this.props.widgetFor('body'))
+      )
+    }
+  });
+
+  CMS.registerPreviewTemplate("post", PostPreview);
+</script>
+</html>

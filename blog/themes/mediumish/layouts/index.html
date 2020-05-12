@@ -1,0 +1,33 @@
+{{ define "header"}}
+    {{- partial "_shared/navbar.html" . -}}
+{{ end }}
+
+
+{{ define "main" }}
+    {{- partial "_shared/title.html" . -}}
+    
+    <span class="tags-list-beginning">Tags</span>
+    {{- partial "_shared/tags-list.html" . -}}
+
+    <div class="main-content">
+        <!-- Posts Index
+        ================================================== -->
+        <section class="recent-posts pt-48">
+            <h2>
+                Articles
+            </h2>
+            <div class="row listrecent">
+                {{ range where .Pages "Section" "billets"}}
+                    {{ range .Pages}}
+                        {{- partial "list-partials/postbox.html" . -}}
+                    {{ end }}
+                {{end}}
+            </div>
+        </section>
+    </div>
+    {{- partial "_shared/alertbar.html" . -}}
+{{ end }}
+
+{{ define "footer"}}
+    {{- partial "_shared/footer.html" . -}}
+{{ end }}
