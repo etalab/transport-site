@@ -54,34 +54,33 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     :ok
   end
 
-  test "GET /datasets", %{conn: conn} do
+  test "GET /datasets title", %{conn: conn} do
     conn = conn |> get(dataset_path(conn, :index))
-    assert html_response(conn, 200) =~ "2 résultats de recherche"
+    # titre de la page
+    assert html_response(conn, 200) =~ "Jeux de données"
   end
 
-  test "GET /datasets?type=unknown_type", %{conn: conn} do
-    conn = conn |> get(dataset_path(conn, :index), %{type: "soucoupe-volante"})
-    assert html_response(conn, 200) =~ "0 résultat de recherche"
-  end
-
-  test "GET /datasets?type=public-transit", %{conn: conn} do
-    conn = conn |> get(dataset_path(conn, :index), %{type: "public-transit"})
-    assert html_response(conn, 200) =~ "2 résultats de recherche"
-  end
-
-  test "GET /datasets?tags[]=unknown", %{conn: conn} do
-    conn = conn |> get(dataset_path(conn, :index), %{tags: ["unknown"]})
-    assert html_response(conn, 200) =~ "0 résultat de recherche"
+  test "GET /datasets filter", %{conn: conn} do
+    conn = conn |> get(dataset_path(conn, :index))
+    # info dans les filtres à gauche des datasets
+    assert html_response(conn, 200) =~ "Horaires théoriques de transport public (2)"
   end
 
   test "GET /datasets?tags[]=ferry", %{conn: conn} do
     conn = conn |> get(dataset_path(conn, :index), %{tags: ["ferry"]})
-    assert html_response(conn, 200) =~ "1 résultat de recherche"
+    # info dans les filtres à gauche des datasets
+    assert html_response(conn, 200) =~ "Horaires théoriques de transport public (1)"
+  end
+
+  test "GET /datasets?type=public-transit", %{conn: conn} do
+    conn = conn |> get(dataset_path(conn, :index), %{type: "public-transit"})
+    assert html_response(conn, 200) =~ "Jeux de données"
   end
 
   test "GET /datasets/aom/4242", %{conn: conn} do
     conn = conn |> get(dataset_path(conn, :by_aom, 4242))
-    assert html_response(conn, 200) =~ "Jeux de données de l&#39;AOM Angers Métropôle"
+    assert html_response(conn, 200) =~ "AOM"
+    assert html_response(conn, 200) =~ "Angers Métropôle"
   end
 
   test "GET /datasets/aom/999999", %{conn: conn} do

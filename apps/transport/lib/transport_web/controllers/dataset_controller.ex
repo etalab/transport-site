@@ -245,7 +245,7 @@ defmodule TransportWeb.DatasetController do
         assign(conn, :empty_message, raw(message))
 
       _ ->
-        assign(conn, :empty_message, raw(dgettext("page-shortlist", "No results")))
+        conn
     end
   end
 
@@ -265,7 +265,7 @@ defmodule TransportWeb.DatasetController do
       assign(
         conn,
         :page_title,
-        dgettext("page-shortlist", "Datasets for the region %{region}", region: get_name(Region, id))
+        %{type: dgettext("page-shortlist", "region"), name: get_name(Region, id)}
       )
 
   defp put_page_title(conn, %{"insee_commune" => insee}) do
@@ -274,7 +274,7 @@ defmodule TransportWeb.DatasetController do
     assign(
       conn,
       :page_title,
-      dgettext("page-shortlist", "Datasets for the city %{name}", name: name)
+      %{type: dgettext("page-shortlist", "city"), name: name}
     )
   end
 
@@ -283,7 +283,7 @@ defmodule TransportWeb.DatasetController do
       assign(
         conn,
         :page_title,
-        dgettext("page-shortlist", "Datasets for the aom %{aom}", aom: get_name(AOM, id))
+        %{type: "AOM", name: get_name(AOM, id)}
       )
 
   defp put_page_title(conn, _), do: conn

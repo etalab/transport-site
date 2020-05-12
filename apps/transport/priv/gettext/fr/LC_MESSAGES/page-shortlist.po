@@ -190,10 +190,6 @@ msgid "Get dataset list via an API"
 msgstr "Récupérer la liste des jeux de données via l'API"
 
 #, elixir-format
-msgid "Available datasets"
-msgstr "Jeux de données disponibles"
-
-#, elixir-format
 msgid "AOM %{name} has not yet published any datasets"
 msgstr "L'AOM %{name} n'a pas encore publié de données"
 
@@ -208,18 +204,6 @@ msgstr "Il n'y a pas de données disponibles pour la région %{name}"
 #, elixir-format
 msgid "More information about realtime"
 msgstr "Plus d'informations et d'autres jeux de données temps réel"
-
-#, elixir-format
-msgid "Datasets for the aom %{aom}"
-msgstr "Jeux de données de l'AOM %{aom}"
-
-#, elixir-format
-msgid "Datasets for the city %{name}"
-msgstr "Jeux de données de la commune de %{name}"
-
-#, elixir-format
-msgid "Datasets for the region %{region}"
-msgstr "Jeux de données de la région %{region}"
 
 #, elixir-format
 msgid "The french addresses are available in the %{start_link}BAN%{end_link}, a dataset produced by the Institut géographique national (IGN), La Poste, Etalab and various administrations"
@@ -246,15 +230,23 @@ msgid "Any"
 msgstr "Peu importe"
 
 #, elixir-format
-msgid "search result"
-msgid_plural "search results"
-msgstr[0] "résultat de recherche"
-msgstr[1] "résultats de recherche"
-
-#, elixir-format
-msgid "No results"
-msgstr "Pas de résultats"
-
-#, elixir-format
 msgid "added on"
 msgstr "ajouté le"
+
+#, elixir-format
+msgid "region"
+msgstr "région"
+
+#, elixir-format
+msgid "result"
+msgid_plural "results"
+msgstr[0] "résultat"
+msgstr[1] "résultats"
+
+#, elixir-format
+msgid "city"
+msgstr "commune"
+
+#, elixir-format
+msgid "Regions"
+msgstr "Régions"
