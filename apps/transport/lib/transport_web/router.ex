@@ -85,7 +85,7 @@ defmodule TransportWeb.Router do
     end
 
     scope "/backoffice", Backoffice, as: :backoffice do
-      # pipe_through([:admin_rights])
+      pipe_through([:admin_rights])
       get("/", PageController, :index)
 
       scope "/datasets" do
