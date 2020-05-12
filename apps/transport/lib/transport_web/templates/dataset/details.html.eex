@@ -13,7 +13,7 @@
   <div class="dataset-menu-container">
     <div class="dataset-menu">
         <div class="menu-item"><a href="#dataset-top">Description</a></div>
-        <%= if show_data_viz(@dataset) do %>
+        <%= if not is_nil(get_resource_to_display(@dataset)) do %>
           <div class="menu-item"><a href="#dataset-visualisation"><%= dgettext("page-dataset-details", "Visualization")%></a></div>
         <% end %>
 
@@ -38,7 +38,7 @@
       </div>
     </section>
 
-    <%= if show_data_viz(@dataset) do %>
+    <%= if not is_nil(get_resource_to_display(@dataset)) do %>
       <section class="pt-48" id="dataset-visualisation">
         <h2><%= dgettext("page-dataset-details", "Visualization")%></h2>
         <div class="panel">
@@ -48,7 +48,7 @@
         <script src="<%= static_path(@conn, "/js/mapcsv.js") %>"></script>
         <script>
           document.addEventListener("DOMContentLoaded", function() {
-            createMap('map', "<%= List.first(other_resources(@dataset)).url %>")
+            createMap('map', "<%= get_resource_to_display(@dataset).url %>")
           })
         </script>
       </section>
