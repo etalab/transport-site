@@ -1,0 +1,37 @@
+{{ define "header"}}
+    {{- partial "_shared/navbar.html" . -}}
+{{ end }}
+
+{{ define "main" }}
+    <div class="main-content pt-48 mh-80">
+        <!-- Posts Index
+        ================================================== -->        
+        <section class="recent-posts">            
+            <div class="section-title">                
+                <h2><span>Tous les billets de la catégorie {{ .Title }}</span></h2>
+            </div>
+            {{ if (eq .Title "réutilisations")}}
+            <div class="article-description pb-48">
+                {{ .Site.Params.reutilisateurs.msg }}
+            </div>
+        {{ end }}
+            <div class="row listrecent">
+                <!-- {{ $post_paginator := .Paginate (.Pages) 6 }} -->
+                {{ range .Pages }}
+                    {{- partial "list-partials/postbox.html" . -}}
+                {{end}}
+            </div>
+        </section>
+        <!-- {{- partial "list-partials/pagination.html" $post_paginator -}} -->
+    </div>
+    <!-- {{- partial "_shared/alertbar.html" . -}} -->
+{{ end }}
+
+{{ define "footer"}}
+    <div class="container">
+        <span class="tags-list-beginning">Tous les tags</span>{{- partial "_shared/tags-list.html" . -}}
+    </div>
+    <div class="pt-48">
+        {{- partial "_shared/footer.html" . -}}
+    </div>
+{{ end }}

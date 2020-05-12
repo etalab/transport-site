@@ -1,0 +1,96 @@
+{{ define "header"}}
+    {{- partial "_shared/navbar.html" . -}}
+{{ end }}
+
+{{ define "main" }}
+
+    <div class="main-content">
+        <!-- Begin Article
+        ================================================== -->
+        <div class="container">
+            <div class="row">
+                <!-- Post Share -->
+                <div class="col-md-2 pl-0">      
+                    {{- partial "single-partials/share.html" . -}}
+                </div>
+                <!-- Post -->                
+                <div class="col-md-9 flex-first flex-md-unordered">
+                    <h1 class="posttitle pt-48">{{ .Title }}</h1>
+                    <div class="article-description">
+                        {{ .Params.description }}
+                    </div>
+
+                    <!-- <div>
+                        {{if isset .Site.Params.author "name"}}
+                            par {{ .Site.Params.author.name }}
+                        {{end}}
+                    </div> -->
+
+                    <span class="author-description">
+                        <span>
+                            <i class="far fa-star"></i>
+                            {{ dateFormat "2.1.2006" .PublishDate }}
+                        </span>
+                        <span>
+                            <i class="far fa-clock clock"></i>
+                            {{ .ReadingTime }} min de lecture
+                        </span>
+                    </span>	
+
+                    <!-- Post Categories -->
+                    <div class="pt-24">
+                        <ul class="tags">
+                            <span><i class="fas fa-tags"></i></span>
+                        {{ range .Params.tags }}
+                        <li>
+                        <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}">{{.}}</a>
+                        </li>
+                        {{ end }}
+                        </ul>
+                    </div>
+                    <!-- End Categories -->
+
+                    {{ if in .Params.tags "réutilisations"}}
+                        <blockquote>
+                            {{ .Site.Params.reutilisateurs.msg }}
+                        </blockquote>
+                    {{ end }}
+
+                    <!-- Post Featured Image -->
+                    <div class="pt-48">
+                        <img class="featured-image img-fluid" src="{{ .Params.image }}" alt="">
+                    </div>
+                    <!-- End Featured Image -->
+
+                    <!-- Post Content -->
+                    <div class="article-post pt-48">
+                        {{ .Content}}
+                    </div>
+                    
+                    <!-- Next and PrevPage inside current section -->
+                    <!-- <div class="row PageNavigation d-flex justify-content-between font-weight-bold">
+                        {{with .NextInSection}}
+                            <a class="d-block col-md-6" href="{{.Permalink}}"> &laquo; {{.Title}}</a>
+                        {{end}}
+                        {{with .PrevInSection}}
+                            <a class="d-block col-md-6 text-lg-right" href="{{.Permalink}}">{{.Title}} &raquo;</a>
+                        {{end}}
+                        <div class="clearfix"></div>
+                    </div> -->
+                    <!-- End Next and PrevPage -->
+                </div>
+                <!-- End Post -->
+            </div>
+        </div>
+        <!-- End Article
+        ================================================== -->
+        {{ if .Params.comments }}
+            {{- partial "single-partials/comments.html" . -}}
+        {{ end }}
+    </div>
+    {{- partial "_shared/alertbar.html" . -}}
+{{ end }}
+
+{{ define "footer"}}
+    {{- partial "_shared/footer.html" . -}}
+{{ end }}
