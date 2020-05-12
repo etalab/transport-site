@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo:  fchabouis/hugo-medium-test
+  repo:  etalab/transport-site
   open_authoring: false
 
 publish_mode: editorial_workflow
