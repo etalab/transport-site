@@ -80,7 +80,7 @@ defmodule DB.Resource do
         } = r,
         _force_validation
       ) do
-    # if there is already a validation, we revalidate only if there the file has changed
+    # if there is already a validation, we revalidate only if the file has changed
     if content_hash != validation_latest_content_hash do
       Logger.info("the files for resource #{r.id} have been modified since last validation, we need to revalidate them")
       true
