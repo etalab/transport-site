@@ -124,3 +124,12 @@ For the tests you also need to add an environment variable:
   https://github.com/etalab/transport-ops
 
   Update it if needed (e.g. updating Elixir’s version) and then update `.circleci/config.yml`.
+  
+# Blog
+The project [blog](https://blog.transport.data.gouv.fr/) code and articles are hosted in the [blog](https://github.com/etalab/transport-site/tree/master/blog) folder.
+
+It is a hugo static website, enhanced with [netlifyCMS](https://www.netlifycms.org/) that is automatically deployed using Netlify. NetlifyCMS allows github users who have write access to this repo to write and edit articles, without the need to use git or github.
+
+To write or edit an article, visit https://blog.transport.data.gouv.fr/admin/.
+
+For developement purposes, you can run the blog locally. Install [hugo](https://gohugo.io/getting-started/installing/), open a terminal, go the blog folder of the project and run `hugo serve`.
