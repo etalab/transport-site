@@ -476,7 +476,7 @@ defmodule DB.Dataset do
     |> if do
       {:error, "Unable to validate dataset #{id}"}
     else
-      :ok
+      {:ok, nil}
     end
   end
 

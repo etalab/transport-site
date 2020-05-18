@@ -6,59 +6,42 @@
                 <h1><%= title(@conn) %></h1>
                 <b><%= dgettext("resource", "Dataset: ") %>  <%= @dataset["title"] %></b>
             </p>
-            <p>
             <% resource = Enum.find(@dataset["resources"], &(&1["id"] == @conn.params["resource_id"])) %>
-            <%= unless is_nil(resource) do %>
-                <b><%= dgettext("resource", "Resource: ") %></b> <%= resource["title"] %>
-            <% end %>
-            </p>
-            <p>
-            </p>
+            <% new_resource = is_nil(resource) %>
         </div>
     </div>
     <div class="container">
-        <%= form_for @conn, action_path(@conn), [multipart: true, name: :dataset], fn f -> %>
-            <%= text_input f, :title, label: dgettext("resource", "title"), placeholder: "Horaires au format GTFS", value: resource["title"] %>
+        <%= form_for @conn, action_path(@conn), [multipart: true], fn f -> %>
+            <%= text_input f, :title, label: dgettext("resource", "title"), placeholder: "Horaires au format GTFS", value: resource["title"]%>
             <%= text_input(
-                    f,
-                    :format,
-                    label: label f, :format do [
-                        dgettext("resource", "format"),
-                        content_tag(:a, "GTFS", class: "filler", onclick: "fill(this);"),
-                        content_tag(:a, "NeTeX", class: "filler", onclick: "fill(this);"),
-                    ]
-                    end,
-                    placeholder: "GTFS, NeTeX, …",
-                    value: resource["format"]
-                )
+                f,
+                :format,
+                label: label f, :format do [
+                    dgettext("resource", "format"),
+                    content_tag(:a, "GTFS", class: "filler", onclick: "fill(this);"),
+                    content_tag(:a, "netex", class: "filler", onclick: "fill(this);"),
+                ]
+                end,
+                placeholder: "GTFS, netex, …",
+                value: resource["format"]
+            )
             %>
             <div class="forms">
-                <div>
-                    <h2><%= dgettext("resource", "Upload a file") %></h2>
-                    <%= unless remote?(resource) or is_nil(resource["url"]) do %>
-                    <p>
-                        <%= dgettext("resource", "Current file: %{current_file}", current_file: Path.basename(resource["url"])) %>
-                    </p>
+                <%= if new_resource do %>
+                    <%= render "_upload_file.html", resource: resource, f: f, conn: @conn %>
+                    <div>
+                        <p>
+                            - <%= dgettext("resource", "or") %> -
+                        </p>
+                    </div>
+                    <%= render "_specify_url.html", resource: resource, f: f, conn: @conn %>
+                <% else %>
+                    <%= if remote?(resource) do %>
+                        <%= render "_specify_url.html", resource: resource, f: f, conn: @conn %>
+                    <% else %>
+                        <%= render "_upload_file.html", resource: resource, f: f, conn: @conn %>
                     <% end %>
-                    <%= file_input f, :resource_file, label: dgettext("resource", "Choose a file") %>
-                    <%= submit dgettext("resource", "Upload this file") %>
-                </div>
-                <div>
-                    <p>
-                        - <%= dgettext("resource", "or") %> -
-                    </p>
-                </div>
-                <div>
-                    <h2><%= dgettext("resource", " with a URL") %></h2>
-                    <%= text_input(
-                        f,
-                        :url,
-                        label: dgettext("resource", "Resource's URL"),
-                        placeholder: "https://data.ville.fr/gtfs.zip",
-                        value: if remote?(resource) do resource["url"] else nil end
-                     ) %>
-                    <%= submit dgettext("resource", "Update with this URL") %>
-                </div>
+                <% end %>
             </div>
         <% end %>
     </div>

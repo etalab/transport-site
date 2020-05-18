@@ -39,11 +39,21 @@ defmodule TransportWeb.ResourceView do
 
   def action_path(%Plug.Conn{params: params} = conn), do: resource_path(conn, :post_file, params["dataset_id"])
 
-  # dgettext("resource", "Modifiy resource")
-  def title(%Plug.Conn{params: %{"resource_id" => _}}), do: "Modify a resource"
-  # dgettext("resource", "Add a resource")
-  def title(_), do: "Add a resource"
+  def title(%Plug.Conn{params: %{"resource_id" => _}}), do: dgettext("resource", "Modifiy resource")
+  def title(_), do: dgettext("resource", "Add a resource")
 
   def remote?(%{"filetype" => "remote"}), do: true
   def remote?(_), do: false
+
+  def link_to_datagouv_resource_edit(dataset_id, resource_id),
+    do:
+      :transport
+      |> Application.get_env(:datagouvfr_site)
+      |> Path.join("/fr/admin/dataset/#{dataset_id}/resource/#{resource_id}")
+
+  def link_to_datagouv_resource_creation(dataset_id),
+    do:
+      :transport |> Application.get_env(:datagouvfr_site) |> Path.join("/fr/admin/dataset/#{dataset_id}?new_resource=")
+
+  def dataset_creation(), do: :transport |> Application.get_env(:datagouvfr_site) |> Path.join("/fr/admin/dataset/new/")
 end
