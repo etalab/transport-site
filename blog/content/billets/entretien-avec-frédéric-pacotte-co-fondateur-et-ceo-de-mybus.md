@@ -2,7 +2,7 @@
 title: Entretien avec Frédéric Pacotte, Co-Fondateur et CEO de MyBus
 date: 2019-04-26T14:14:46.404Z
 tags:
-  - réutilisations
+  - réutilisation
 description: MyBus est une application mobile complète à destination des usagers
   des transports en commun.
 image: /images/photo-equipe-tech.jpg
