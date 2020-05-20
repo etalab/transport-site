@@ -1,5 +1,5 @@
 ---
-title: "Paroles de réutilisateur : Le Localisateur "
+title: "Paroles de réutilisateur : Le Localisateur !"
 date: 2020-05-12T16:06:30.216Z
 tags:
   - données
