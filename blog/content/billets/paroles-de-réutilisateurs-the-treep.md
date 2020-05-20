@@ -1,11 +1,11 @@
 ---
-title: "Paroles de réutilisateurs : the Treep !"
+title: "Paroles de réutilisateurs : the Treep"
 date: 2020-05-12T16:06:56.893Z
 tags:
   - réutilisations
 description: the Treep permet aux voyageurs d'affaires de réserver facilement un
   ​déplacement professionnel multimodal et de devenir progressivement neutre en
-  carbone
+  carbone. test
 image: /images/logo-the-treep-vert-et-texte-noir.png
 ---
 Hébergée au Campus de la Fondation Good Planet, la société the Treep permet à ses clients comparer les itinéraires et réaliser les réservations directement dans un outil à destination des voyageurs professionnels. Leur algorithme combine différents moyens de transport pour comparer et réserver facilement des trajets porte-à-porte. L’utilisateur est invité à réduire son empreinte carbone en comparant le Green Score de chaque solution et en neutralisant cette dernière en plantant le nombre exact d’arbres nécessaires.
