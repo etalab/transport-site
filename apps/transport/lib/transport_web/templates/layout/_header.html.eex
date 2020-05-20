@@ -18,7 +18,7 @@
             <%= link(gettext("About"), to: "https://doc.transport.data.gouv.fr") %>
           </li>
           <li class="nav__item">
-            <%= link(gettext("Blog"), to: "/blog") %>
+            <%= link(gettext("Blog"), to: "https://blog.transport.data.gouv.fr") %>
           </li>
           <li class="nav__item">
             <%= link(gettext("Check a GTFS file's quality"), to: "/validation") %>
