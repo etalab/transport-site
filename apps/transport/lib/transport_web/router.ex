@@ -117,11 +117,6 @@ defmodule TransportWeb.Router do
 
     get("/logout", SessionController, :delete)
 
-    scope "/blog" do
-      get("/", BlogController, :index)
-      get("/:page", BlogController, :page)
-    end
-
     scope "/validation" do
       get("/", ValidationController, :index)
       post("/", ValidationController, :validate)
