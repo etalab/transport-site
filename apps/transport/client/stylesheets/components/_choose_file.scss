@@ -1,6 +1,7 @@
 .choose-file {
   max-width: 50em;
   margin: auto;
+
   .panel {
 
     background-color: var(--theme-background-grey);
@@ -8,57 +9,62 @@
     align-items: center;
     flex-direction: column;
     margin-top: 1em;
+
     h1 {
       font-size: 1.5em;
     }
+
     h2 {
       font-size: 1em;
     }
 
-  .form__group {
-    .filler {
-      margin-left: 1em;
-    }
-  }
-  .forms {
-    display: flex;
-    align-items: center;
-    margin-top: 5vh;
-    justify-content: space-between;
-    @media (max-width: $breakpoint-tablet) {
-      margin-top: 2vh;
+    .form__group {
+      .filler {
+        margin-left: 1em;
+      }
     }
 
-    form {
-      margin: 0;
-    }
-  }
+    .forms {
+      display: flex;
+      align-items: center;
+      margin-top: 5vh;
+      justify-content: space-between;
 
-  .description {
-    justify-content: space-around;
-    div {
+      @media (max-width: $breakpoint-tablet) {
+        margin-top: 2vh;
+      }
+
+      form {
+        margin: 0;
+      }
+    }
+
+    .description {
+      justify-content: space-around;
+
+      div {
+        display: flex;
+        flex-direction: column;
+
+        p {
+          margin: 0;
+          box-sizing: initial;
+        }
+      }
+    }
+
+    .container {
       display: flex;
       flex-direction: column;
-      p {
-        margin: 0;
-        box-sizing: initial;
+
+      @media (max-width: $breakpoint-tablet) {
+        flex-direction: column;
       }
     }
   }
 
-  .container {
-    display: flex;
-    flex-direction: column;
-
-    @media (max-width: $breakpoint-tablet) {
-      flex-direction: column;
-    }
+  .help {
+    margin-top: 10vh;
+    justify-content: center;
   }
-}
-
-.help {
-  margin-top: 10vh;
-  justify-content: center;
-}
-
 }
