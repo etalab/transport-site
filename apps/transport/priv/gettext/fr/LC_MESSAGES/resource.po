@@ -14,10 +14,6 @@ msgid "File uploaded!"
 msgstr "Fichier mis à jour !"
 
 #, elixir-format
-msgid "Resource: "
-msgstr "Ressource"
-
-#, elixir-format
 msgid "Unable to upload file"
 msgstr "Impossible de mettre à jour le fichier"
 
@@ -92,3 +88,27 @@ msgstr "Format"
 #, elixir-format
 msgid "title"
 msgstr "Titre"
+
+#, elixir-format
+msgid "Create it directly on data.gouv.fr"
+msgstr "Créer directement la ressource sur data.gouv.fr"
+
+#, elixir-format
+msgid "Edit directly on data.gouv.fr"
+msgstr "Éditer directement la ressource sur data.gouv.fr"
+
+#, elixir-format
+msgid "Option 1: Directly update the resource"
+msgstr "Option 1 : mettre à jour la ressource simplement"
+
+#, elixir-format
+msgid "Option 2: For more options during modification, edit it on data.gouv.fr"
+msgstr "Option 2 : Pour plus d'options, éditer la ressource sur data.gouv.fr"
+
+#, elixir-format
+msgid "Add a resource for dataset "
+msgstr "Ajouter une nouvelle ressource "
+
+#, elixir-format, fuzzy
+msgid "Modify resource for dataset "
+msgstr "Modifier la ressource pour le jeu de données "

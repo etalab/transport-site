@@ -14,10 +14,6 @@ msgid "File uploaded!"
 msgstr ""
 
 #, elixir-format
-msgid "Resource: "
-msgstr ""
-
-#, elixir-format
 msgid "Unable to upload file"
 msgstr ""
 
@@ -91,4 +87,28 @@ msgstr ""
 
 #, elixir-format
 msgid "title"
+msgstr ""
+
+#, elixir-format
+msgid "Create it directly on data.gouv.fr"
+msgstr ""
+
+#, elixir-format
+msgid "Edit directly on data.gouv.fr"
+msgstr ""
+
+#, elixir-format
+msgid "Option 1: Directly update the resource"
+msgstr ""
+
+#, elixir-format
+msgid "Option 2: For more options during modification, edit it on data.gouv.fr"
+msgstr ""
+
+#, elixir-format
+msgid "Add a resource for dataset "
+msgstr ""
+
+#, elixir-format
+msgid "Modify resource for dataset "
 msgstr ""

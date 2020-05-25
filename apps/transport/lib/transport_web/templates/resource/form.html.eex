@@ -1,62 +1,86 @@
 <section class="section choose-file">
-    <%= unless @dataset == [] do %>
+  <%= unless @dataset == [] do %>
     <div class="container description">
-        <div>
-            <p>
-                <h1><%= title(@conn) %></h1>
-                <b><%= dgettext("resource", "Dataset: ") %>  <%= @dataset["title"] %></b>
-            </p>
-            <% resource = Enum.find(@dataset["resources"], &(&1["id"] == @conn.params["resource_id"])) %>
-            <% new_resource = is_nil(resource) %>
-        </div>
-    </div>
-    <div class="container">
-        <%= form_for @conn, action_path(@conn), [multipart: true], fn f -> %>
-            <%= text_input f, :title, label: dgettext("resource", "title"), placeholder: "Horaires au format GTFS", value: resource["title"]%>
-            <%= text_input(
-                f,
-                :format,
-                label: label f, :format do [
-                    dgettext("resource", "format"),
-                    content_tag(:a, "GTFS", class: "filler", onclick: "fill(this);"),
-                    content_tag(:a, "netex", class: "filler", onclick: "fill(this);"),
-                ]
-                end,
-                placeholder: "GTFS, netex, …",
-                value: resource["format"]
-            )
-            %>
-            <div class="forms">
-                <%= if new_resource do %>
-                    <%= render "_upload_file.html", resource: resource, f: f, conn: @conn %>
-                    <div>
-                        <p>
-                            - <%= dgettext("resource", "or") %> -
-                        </p>
-                    </div>
-                    <%= render "_specify_url.html", resource: resource, f: f, conn: @conn %>
-                <% else %>
-                    <%= if remote?(resource) do %>
-                        <%= render "_specify_url.html", resource: resource, f: f, conn: @conn %>
-                    <% else %>
-                        <%= render "_upload_file.html", resource: resource, f: f, conn: @conn %>
-                    <% end %>
-                <% end %>
-            </div>
-        <% end %>
-    </div>
-    <div class="container help">
+      <div>
         <p>
-            <%= link(
+          <h2><%= title(@conn) %> <%= link(@dataset["title"], to: "/datasets/#{@dataset["id"]}") %> </h2>
+        </p>
+        <% resource = Enum.find(@dataset["resources"], &(&1["id"] == @conn.params["resource_id"])) %>
+        <% new_resource = is_nil(resource) %>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="container">
+        <div>
+          <h1> <%= dgettext("resource", "Option 1: Directly update the resource") %> </h1>
+        </div>
+        <div>
+          <%= form_for @conn, action_path(@conn), [multipart: true], fn f -> %>
+          <%= text_input f, :title, label: dgettext("resource", "title"), placeholder: "Horaires au format GTFS", value: resource["title"]%>
+          <%= text_input(
+                    f,
+                    :format,
+                    label: label f, :format do [
+                        dgettext("resource", "format"),
+                        content_tag(:a, "GTFS", class: "filler", onclick: "fill(this);"),
+                        content_tag(:a, "netex", class: "filler", onclick: "fill(this);"),
+                    ]
+                    end,
+                    placeholder: "GTFS, netex, …",
+                    value: resource["format"]
+                )
+                %>
+          <div class="forms">
+            <%= if new_resource do %>
+              <%= render "_upload_file.html", resource: resource, f: f, conn: @conn %>
+              <div>
+                <p>
+                  - <%= dgettext("resource", "or") %> -
+                </p>
+              </div>
+              <%= render "_specify_url.html", resource: resource, f: f, conn: @conn %>
+            <% else %>
+              <%= if remote?(resource) do %>
+                <%= render "_specify_url.html", resource: resource, f: f, conn: @conn %>
+              <% else %>
+                <%= render "_upload_file.html", resource: resource, f: f, conn: @conn %>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+      <div class="container">
+        <h1><%= dgettext("resource", "Option 2: For more options during modification, edit it on data.gouv.fr") %></h1>
+      </div>
+      <div>
+        <%= if new_resource do %>
+          <a class="button" href="<%= link_to_datagouv_resource_creation(@dataset["id"]) %>" role="link" target="_blank">
+            <i class="icon icon--link" aria-hidden="true"></i>
+            <%=dgettext("resource", "Create it directly on data.gouv.fr")%>
+          </a>
+        <% else %>
+          <a class="button" href="<%= link_to_datagouv_resource_edit(@dataset["id"], @conn.params["resource_id"]) %>" role="link" target="_blank">
+            <i class="icon icon--link" aria-hidden="true"></i>
+            <%= dgettext("resource", "Edit directly on data.gouv.fr") %>
+          </a>
+        <% end %>
+      </div>
+  </div>
+  <div class="container help">
+    <p>
+      <%= link(
                 dgettext("resource", "I'm not sure. Learn more."),
                 to: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
             )%>
-        </p>
-    </div>
-    <% end %>
+    </p>
+  </div>
+<% end %>
 </section>
 <script>
-function fill(id) {
-    id.parentNode.control.value = id.innerHTML
-}
+  function fill(id) {
+      id.parentNode.control.value = id.innerHTML
+  }
 </script>

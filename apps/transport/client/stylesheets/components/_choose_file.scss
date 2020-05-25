@@ -1,11 +1,21 @@
 .choose-file {
-  form {
-    max-width: 80%;
-    width: 80%;
-  }
-  .form__group {
-    max-width: 35em;
+  max-width: 50em;
+  margin: auto;
+  .panel {
 
+    background-color: var(--theme-background-grey);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 1em;
+    h1 {
+      font-size: 1.5em;
+    }
+    h2 {
+      font-size: 1em;
+    }
+
+  .form__group {
     .filler {
       margin-left: 1em;
     }
@@ -13,7 +23,7 @@
   .forms {
     display: flex;
     align-items: center;
-    margin-top: 10vh;
+    margin-top: 5vh;
     justify-content: space-between;
     @media (max-width: $breakpoint-tablet) {
       margin-top: 2vh;
@@ -36,16 +46,19 @@
     }
   }
 
-  .help {
-    margin-top: 10vh;
-    justify-content: center;
-  }
-
   .container {
     display: flex;
+    flex-direction: column;
 
     @media (max-width: $breakpoint-tablet) {
       flex-direction: column;
     }
   }
+}
+
+.help {
+  margin-top: 10vh;
+  justify-content: center;
+}
+
 }

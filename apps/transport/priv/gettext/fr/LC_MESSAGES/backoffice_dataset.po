@@ -62,3 +62,7 @@ msgstr "En cours"
 #, elixir-format
 msgid "validation of all datasets has been launched"
 msgstr "La validation de tous les jeux de données a été lancée."
+
+#, elixir-format
+msgid "validation of all datasets has been launch"
+msgstr "La validation de tous les jeux de données a été lancée."
