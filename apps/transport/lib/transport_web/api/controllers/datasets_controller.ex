@@ -105,6 +105,8 @@ defmodule TransportWeb.API.DatasetController do
   end
 
   @spec to_feature(MultiPolygon.t(), binary) :: map()
+  defp to_feature(nil, name), do: %{}
+
   defp to_feature(geom, name) do
     %{
       "geometry" => geom |> JSON.encode!(),
