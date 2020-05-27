@@ -43,7 +43,7 @@
         <h2><%= dgettext("page-dataset-details", "Visualization")%></h2>
         <div class="panel">
           <div id='map' class='mapcsv'></div>
-          <div class="is-centered"><%= dgettext("page-dataset-details", "Visualization of the most recent resource")%> <%= List.first(other_resources(@dataset)).title %>.</div>
+          <div class="is-centered"><%= dgettext("page-dataset-details", "Visualization of the most recent resource")%> : "<%= List.first(other_resources(@dataset)).title %>".</div>
         </div>
         <script src="<%= static_path(@conn, "/js/mapcsv.js") %>"></script>
         <script>
