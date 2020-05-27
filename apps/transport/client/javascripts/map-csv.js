@@ -14,9 +14,9 @@ const Mapbox = {
 }
 
 // possible field names in csv files
-const latLabels = ['Lat', 'Ylat']
-const lonLabels = ['Lng', 'Xlong']
-const namesLabel = ['Nom', 'nom_lieu', 'nom']
+const latLabels = ['Lat', 'Ylat', 'Ylatitude']
+const lonLabels = ['Lng', 'Xlong', 'Xlongitude']
+const namesLabel = ['Nom', 'nom_lieu', 'nom', 'n_station']
 
 function getLabel (obj, labelsList) {
     for (const label of labelsList) {
@@ -49,9 +49,13 @@ function displayData (data, fg, { latField, lonField, nameField }) {
     }
     for (const m of data) {
         if (m[latField] && m[lonField]) {
-            L.circleMarker([m[latField], m[lonField]], markerOptions)
-                .bindPopup(m[nameField])
-                .addTo(fg)
+            try {
+                L.circleMarker([m[latField], m[lonField]], markerOptions)
+                    .bindPopup(m[nameField])
+                    .addTo(fg)
+            } catch (error) {
+                console.log('There is some invalid lat/lon data in the file')
+            }
         }
     }
 }
