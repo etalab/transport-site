@@ -247,6 +247,7 @@ defmodule Transport.ImportData do
   def get_resources(dataset, type) do
     dataset
     |> get_valid_resources(type)
+    |> Enum.concat(get_community_resources(dataset))
     |> Enum.dedup_by(fn resource -> resource["url"] end)
     |> Enum.map(fn resource ->
       %{
@@ -259,7 +260,9 @@ defmodule Transport.ImportData do
         # (the 'latest' field is the stable data.gouv.fr url)
         "latest_url" => resource["latest"] || resource["url"],
         "id" => get_resource_id(resource, dataset["id"]),
-        "is_available" => available?(resource)
+        "is_available" => available?(resource),
+        "is_community_resource" => resource["is_community_resource"] == true,
+        "description" => resource["description"]
       }
     end)
   end
@@ -305,6 +308,19 @@ defmodule Transport.ImportData do
 
   @spec get_valid_gtfs_rt_resources([map()]) :: [map()]
   def get_valid_gtfs_rt_resources(resources), do: Enum.filter(resources, &is_gtfs_rt?/1)
+
+  @spec get_community_resources(map()) :: [map()]
+  def get_community_resources(%{"id" => id}) do
+    case CommunityResources.get(id) do
+      {:ok, resources} ->
+        resources
+        |> Enum.map(fn r -> Map.put(r, "is_community_resource", true) end)
+
+      {:error, error} ->
+        Logging.warn("impossible to get community ressource for dataset #{id} => #{inspect(error)}")
+        []
+    end
+  end
 
   @doc """
   Is it a gtfs file?
