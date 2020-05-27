@@ -31,6 +31,9 @@ defmodule DB.Resource do
     field(:auto_tags, {:array, :string}, default: [])
     field(:netex_conversion_latest_content_hash, :string)
 
+    field(:is_community_resource, :boolean)
+    field(:description, :string)
+
     # we add 2 fields, that are already in the metadata json, in order to be able to add some indices
     field(:start_date, :date)
     field(:end_date, :date)
@@ -193,7 +196,9 @@ defmodule DB.Resource do
         :last_update,
         :latest_url,
         :is_available,
-        :auto_tags
+        :auto_tags,
+        :is_community_resource,
+        :description
       ]
     )
     |> validate_required([:url])
