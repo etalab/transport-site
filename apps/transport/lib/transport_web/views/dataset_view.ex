@@ -245,7 +245,7 @@ defmodule TransportWeb.DatasetView do
 
   @spec get_resource_to_display(%Dataset{}) :: Resource.t() | nil
   def get_resource_to_display(%Dataset{type: type, resources: resources})
-      when type == "carsharing-areas" or type == "private-parking" do
+      when type == "carsharing-areas" or type == "private-parking" or type == "charging-stations" do
     resources |> Enum.find(fn r -> r.format == "csv" end)
   end
 
