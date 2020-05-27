@@ -87,10 +87,17 @@ defmodule TransportWeb.API.DatasetController do
       %Dataset{} = dataset ->
         data =
           case {dataset.aom, dataset.region, dataset.communes} do
-            {aom, _, _} when not is_nil(aom) -> [to_feature(aom.geom, aom.nom)]
-            {_, region, _} when not is_nil(region) -> [to_feature(region.geom, region.nom)]
-            {_, _, communes} when not is_nil(communes) -> communes |> Enum.map(fn c -> to_feature(c.geom, c.nom) end)
-            _ -> []
+            {aom, _, _} when not is_nil(aom) ->
+              [to_feature(aom.geom, aom.nom)] |> keep_valid_features()
+
+            {_, region, _} when not is_nil(region) ->
+              [to_feature(region.geom, region.nom)] |> keep_valid_features()
+
+            {_, _, communes} when not is_nil(communes) ->
+              communes |> Enum.map(fn c -> to_feature(c.geom, c.nom) end) |> keep_valid_features()
+
+            _ ->
+              []
           end
 
         conn
@@ -104,15 +111,24 @@ defmodule TransportWeb.API.DatasetController do
     end
   end
 
-  @spec to_feature(MultiPolygon.t(), binary) :: map()
+  @spec keep_valid_features([{:ok, %{}} | :error]) :: [%{}]
+  defp keep_valid_features(list) do
+    list
+    |> Enum.filter(fn f ->
+      case f do
+        {:ok, _g} -> true
+        _ -> false
+      end
+    end)
+    |> Enum.map(fn {:ok, g} -> g end)
+  end
+
+  @spec to_feature(MultiPolygon.t(), binary) :: {:ok, %{}} | :error
   defp to_feature(geom, name) do
-    %{
-      "geometry" => geom |> JSON.encode!(),
-      "type" => "Feature",
-      "properties" => %{
-        "name" => name
-      }
-    }
+    case JSON.encode(geom) do
+      {:ok, g} -> %{"geometry" => g, "type" => "Feature", "properties" => %{"name" => name}}
+      _ -> :error
+    end
   end
 
   @spec to_geojson(Dataset.t(), [map()]) :: map()
