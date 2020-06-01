@@ -116,12 +116,7 @@ defmodule Transport.ImportData do
       |> Map.put("nb_reuses", get_nb_reuses(dataset))
       |> Map.put("licence", dataset["license"])
       |> Map.put("zones", get_associated_zones_insee(dataset))
-
-    dataset =
-      case has_realtime?(dataset, type) do
-        {:ok, result} -> Map.put(dataset, "has_realtime", result)
-        _ -> dataset
-      end
+      |> Map.put("has_realtime", has_realtime?(dataset, type))
 
     case Map.get(dataset, "resources") do
       nil -> {:error, "No download uri found"}
@@ -250,9 +245,11 @@ defmodule Transport.ImportData do
     |> Enum.concat(get_community_resources(dataset))
     |> Enum.dedup_by(fn resource -> resource["url"] end)
     |> Enum.map(fn resource ->
+      is_community_resource = resource["is_community_resource"] == true
+
       %{
         "url" => resource["url"],
-        "format" => formated_format(resource, type),
+        "format" => formated_format(resource, type, is_community_resource),
         "title" => get_title(resource),
         "last_import" => DateTime.utc_now() |> DateTime.to_string(),
         "last_update" => resource["last_modified"],
@@ -261,7 +258,8 @@ defmodule Transport.ImportData do
         "latest_url" => resource["latest"] || resource["url"],
         "id" => get_resource_id(resource, dataset["id"]),
         "is_available" => available?(resource),
-        "is_community_resource" => resource["is_community_resource"] == true,
+        "is_community_resource" => is_community_resource,
+        "publisher" => get_publisher(resource),
         "description" => resource["description"]
       }
     end)
@@ -317,7 +315,7 @@ defmodule Transport.ImportData do
         |> Enum.map(fn r -> Map.put(r, "is_community_resource", true) end)
 
       {:error, error} ->
-        Logging.warn("impossible to get community ressource for dataset #{id} => #{inspect(error)}")
+        Logger.warn("impossible to get community ressource for dataset #{id} => #{inspect(error)}")
         []
     end
   end
@@ -469,26 +467,26 @@ defmodule Transport.ImportData do
   ## Examples
 
       iex> %{"last_modified" => "2017-11-29T23:54:05", "url" => "http1", "format" => "gtfs.zip", "mime" => "foo"}
-      ...> |> ImportData.formated_format("")
+      ...> |> ImportData.formated_format("", false)
       "GTFS"
 
       iex> %{"last_modified" => "2017-11-29T23:54:05", "url" => "http1", "format" => "xls", "mime" => "foo"}
-      ...> |> ImportData.formated_format("")
+      ...> |> ImportData.formated_format("", false)
       "xls"
 
       iex> %{"format" => "csv"}
-      ...> |> ImportData.formated_format("public-transit")
+      ...> |> ImportData.formated_format("public-transit", false)
       "GTFS"
   """
-  @spec formated_format(map(), binary()) :: binary()
-  def formated_format(resource, type) do
+  @spec formated_format(map(), binary(), bool()) :: binary()
+  def formated_format(resource, type, is_community_resource) do
     format = Map.get(resource, "format", "")
 
     cond do
       is_gtfs_rt?(format) -> "gtfs-rt"
       is_netex?(format) -> "netex"
       is_gtfs?(format) -> "GTFS"
-      type == "public-transit" -> "GTFS"
+      type == "public-transit" and not is_community_resource -> "GTFS"
       true -> format
     end
   end
@@ -523,14 +521,7 @@ defmodule Transport.ImportData do
 
   @spec has_realtime?(map, binary) :: {:error, false} | {:ok, boolean}
   def has_realtime?(dataset, "public-transit") do
-    if Enum.any?(dataset["resources"], &is_realtime?/1) do
-      {:ok, true}
-    else
-      case CommunityResources.get(dataset["id"]) do
-        {:ok, resources} -> {:ok, Enum.any?(resources, &is_realtime?/1)}
-        {:error, _error} -> {:error, false}
-      end
-    end
+    Enum.any?(dataset["resources"], &is_realtime?/1)
   end
 
   def has_realtime?(_, _), do: {:ok, false}
@@ -543,4 +534,8 @@ defmodule Transport.ImportData do
   defp invalid_result?({:ok, {:error, _}}), do: true
   defp invalid_result?({:ok, _}), do: false
   defp invalid_result?({:exit, _}), do: true
+
+  defp get_publisher(%{"organization" => organization}), do: organization["name"]
+  defp get_publisher(%{"owner" => owner}), do: owner["first_name"] <> " " <> owner["last_name"]
+  defp get_publisher(_), do: nil
 end

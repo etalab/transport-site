@@ -86,6 +86,9 @@ defmodule DB.Dataset do
         last_update: r.last_update,
         latest_url: r.latest_url,
         content_hash: r.content_hash,
+        is_community_resource: r.is_community_resource,
+        description: r.description,
+        publisher: r.publisher,
         auto_tags: r.auto_tags
       },
       where: r.is_available
@@ -451,6 +454,18 @@ defmodule DB.Dataset do
         ""
     end
   end
+
+  @spec official_resources(__MODULE__.t()) :: list(Resource.t())
+  def official_resources(%__MODULE__{resources: resources}),
+    do: resources |> Stream.reject(fn r -> r.is_community_resource end) |> Enum.to_list()
+
+  def official_resources(%__MODULE__{}), do: []
+
+  @spec community_resources(__MODULE__.t()) :: list(Resource.t())
+  def community_resources(%__MODULE__{resources: resources}),
+    do: resources |> Stream.filter(fn r -> r.is_community_resource end) |> Enum.to_list()
+
+  def community_resources(%__MODULE__{}), do: []
 
   @spec formats(__MODULE__.t()) :: [binary]
   def formats(%__MODULE__{resources: resources}) when is_list(resources) do

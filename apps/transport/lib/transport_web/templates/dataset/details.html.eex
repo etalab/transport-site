@@ -64,13 +64,14 @@
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gbfs_resources(@dataset), title: dgettext("page-dataset-details", "GBFS resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: netex_resources(@dataset), title: dgettext("page-dataset-details", "NETeX resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: other_resources(@dataset), title: dgettext("page-dataset-details", "Other resources") %>
-      <%= unless is_nil(@community_ressources) or @community_ressources == [] do %>
+      <% community_resources = community_resources(@dataset) %>
+      <%= unless community_resources == [] do %>
         <section class="dataset__resources white">
             <div class="panel">
               <div class="panel__header">
                 <h3><%= dgettext("page-dataset-details", "Community ressources" )%></h3>
               </div>
-              <%= render_many @community_ressources, TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
+              <%= render_many community_resources, TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
             </div>
         </section>
       <% end %>
