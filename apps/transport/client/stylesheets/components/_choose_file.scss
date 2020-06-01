@@ -3,7 +3,6 @@
   margin: auto;
 
   .panel {
-
     background-color: var(--theme-background-grey);
     display: flex;
     align-items: center;
@@ -26,9 +25,10 @@
 
     .forms {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       margin-top: 5vh;
-      justify-content: space-between;
+      justify-content: center;
+      flex-wrap: wrap;
 
       @media (max-width: $breakpoint-tablet) {
         margin-top: 2vh;
@@ -36,6 +36,18 @@
 
       form {
         margin: 0;
+      }
+      .choose-option {
+        flex-basis: 40%;
+        flex-grow: 1;
+      }
+      .choose-or {
+        flex: 0 0 10%;
+      }
+      .choose-submit {
+        flex-basis: 61%;
+        text-align: center;
+        padding-top: 24px;
       }
     }
 
@@ -61,10 +73,5 @@
         flex-direction: column;
       }
     }
-  }
-
-  .help {
-    margin-top: 10vh;
-    justify-content: center;
   }
 }

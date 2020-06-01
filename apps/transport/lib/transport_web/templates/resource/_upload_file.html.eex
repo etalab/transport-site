@@ -1,10 +1,9 @@
-<div>
+<div class="choose-option">
     <h2><%= dgettext("resource", "Upload a file") %></h2>
     <%= unless is_nil(@resource["url"]) do %>
     <p>
         <%= dgettext("resource", "Current file: %{current_file}", current_file: Path.basename(@resource["url"])) %>
     </p>
     <% end %>
-    <%= file_input @f, :resource_file, label: dgettext("resource", "Choose a file") %>
-    <%= submit dgettext("resource", "Upload this file") %>
+    <%= file_input @f, :resource_file %>
 </div>

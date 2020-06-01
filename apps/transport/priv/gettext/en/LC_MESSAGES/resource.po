@@ -22,10 +22,6 @@ msgid "Update this resource"
 msgstr ""
 
 #, elixir-format
-msgid "Upload this file"
-msgstr ""
-
-#, elixir-format
 msgid "Publish a new dataset"
 msgstr ""
 
@@ -38,15 +34,11 @@ msgid "Resource updated with URL!"
 msgstr ""
 
 #, elixir-format
-msgid "Resource's URL"
+msgid "Update the resource"
 msgstr ""
 
 #, elixir-format
-msgid "Update with this URL"
-msgstr ""
-
-#, elixir-format
-msgid "Choose a file"
+msgid "Add the resource"
 msgstr ""
 
 #, elixir-format
@@ -63,10 +55,6 @@ msgstr ""
 
 #, elixir-format
 msgid "Select this dataset"
-msgstr ""
-
-#, elixir-format
-msgid " with a URL"
 msgstr ""
 
 #, elixir-format
@@ -102,13 +90,25 @@ msgid "Option 1: Directly update the resource"
 msgstr ""
 
 #, elixir-format
-msgid "Option 2: For more options during modification, edit it on data.gouv.fr"
+msgid "Option 2: for more options, create the resource on data.gouv.fr"
+msgstr ""
+
+#, elixir-format
+msgid "Option 2: for more options, edit the resource on data.gouv.fr"
 msgstr ""
 
 #, elixir-format
 msgid "Add a resource for dataset "
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Modify resource for dataset "
+msgstr ""
+
+#, elixir-format
+msgid "Give a link for the resource"
+msgstr ""
+
+#, elixir-format
+msgid "This option allows you to update the resource on data.gouv.fr, directly from here."
 msgstr ""

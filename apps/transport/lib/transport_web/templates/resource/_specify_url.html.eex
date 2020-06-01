@@ -1,11 +1,9 @@
-<div>
-    <h2><%= dgettext("resource", " with a URL") %></h2>
+<div class="choose-option">
+    <h2><%= dgettext("resource", "Give a link for the resource") %></h2>
     <%= text_input(
         @f,
         :url,
-        label: dgettext("resource", "Resource's URL"),
         placeholder: "https://data.ville.fr/gtfs.zip",
         value: @resource["url"]
     ) %>
-    <%= submit dgettext("resource", "Update with this URL") %>
 </div>
