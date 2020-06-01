@@ -112,3 +112,11 @@ msgstr ""
 #, elixir-format
 msgid "This option allows you to update the resource on data.gouv.fr, directly from here."
 msgstr ""
+
+#, elixir-format
+msgid "Option 1: Directly add the resource"
+msgstr ""
+
+#, elixir-format
+msgid "This option allows you to add the resource on data.gouv.fr, directly from here."
+msgstr ""

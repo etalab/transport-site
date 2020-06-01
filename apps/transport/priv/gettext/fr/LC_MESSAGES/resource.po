@@ -112,3 +112,11 @@ msgstr "Donner un lien vers la ressource"
 #, elixir-format
 msgid "This option allows you to update the resource on data.gouv.fr, directly from here."
 msgstr "Cette option vous permet de mettre à jour la ressource sur data.gouv.fr depuis ici, sans avoir à vous y rendre."
+
+#, elixir-format, fuzzy
+msgid "Option 1: Directly add the resource"
+msgstr "Option 1 : ajouter la ressource simplement"
+
+#, elixir-format, fuzzy
+msgid "This option allows you to add the resource on data.gouv.fr, directly from here."
+msgstr "Cette option vous permet d'ajouter la ressource sur data.gouv.fr depuis ici, sans avoir à vous y rendre."

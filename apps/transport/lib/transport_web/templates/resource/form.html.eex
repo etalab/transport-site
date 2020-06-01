@@ -12,10 +12,17 @@
     <div class="panel mt-48">
       <div class="container">
         <div>
+          <%= if new_resource do %>
+          <h1> <%= dgettext("resource", "Option 1: Directly add the resource") %> </h1>
+          <p>
+            <%= dgettext("resource", "This option allows you to add the resource on data.gouv.fr, directly from here.") %>
+          </p>
+        <% else %>
           <h1> <%= dgettext("resource", "Option 1: Directly update the resource") %> </h1>
           <p>
             <%= dgettext("resource", "This option allows you to update the resource on data.gouv.fr, directly from here.") %>
           </p>
+        <% end %>
         </div>
         <div>
           <%= form_for @conn, action_path(@conn), [multipart: true], fn f -> %>
