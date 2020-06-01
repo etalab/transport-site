@@ -1,7 +1,7 @@
 defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
-  alias Datagouvfr.Client.{CommunityResources, Datasets, Discussions, Reuses}
+  alias Datagouvfr.Client.{Datasets, Discussions, Reuses}
   alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
   import Phoenix.HTML
