@@ -10,10 +10,10 @@
         <div class="container">
             <div class="row">
                 <!-- Post Share -->
-                <div class="col-md-2 pl-0">      
+                <div class="col-md-2 pl-0">
                     {{- partial "single-partials/share.html" . -}}
                 </div>
-                <!-- Post -->                
+                <!-- Post -->
                 <div class="col-md-9 flex-first flex-md-unordered">
                     <h1 class="posttitle pt-48">{{ .Title }}</h1>
                     <div class="article-description">
@@ -35,7 +35,7 @@
                             <i class="far fa-clock clock"></i>
                             {{ .ReadingTime }} min de lecture
                         </span>
-                    </span>	
+                    </span>
 
                     <!-- Post Categories -->
                     <div class="pt-24">
@@ -50,7 +50,7 @@
                     </div>
                     <!-- End Categories -->
 
-                    {{ if in .Params.tags "réutilisations"}}
+                    {{ if in .Params.tags "réutilisation"}}
                         <blockquote>
                             {{ .Site.Params.reutilisateurs.msg }}
                         </blockquote>
@@ -66,7 +66,7 @@
                     <div class="article-post pt-48">
                         {{ .Content}}
                     </div>
-                    
+
                     <!-- Next and PrevPage inside current section -->
                     <!-- <div class="row PageNavigation d-flex justify-content-between font-weight-bold">
                         {{with .NextInSection}}

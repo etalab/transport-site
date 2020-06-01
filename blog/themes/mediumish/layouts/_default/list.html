@@ -5,12 +5,12 @@
 {{ define "main" }}
     <div class="main-content pt-48 mh-80">
         <!-- Posts Index
-        ================================================== -->        
-        <section class="recent-posts">            
-            <div class="section-title">                
+        ================================================== -->
+        <section class="recent-posts">
+            <div class="section-title">
                 <h2><span>Tous les billets de la catégorie {{ .Title }}</span></h2>
             </div>
-            {{ if (eq .Title "réutilisations")}}
+            {{ if (eq .Title "réutilisation")}}
             <div class="article-description pb-48">
                 {{ .Site.Params.reutilisateurs.msg }}
             </div>
