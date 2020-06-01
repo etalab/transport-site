@@ -66,9 +66,6 @@
   </div>
   <div class="backoffice_dataset_submit_buttons">
     <div>
-      <%= link(dgettext("backoffice", "Cancel"), to: backoffice_page_path(@conn, :index)) %>
-    </div>
-    <div>
     <%= if is_nil(@dataset) do %>
       <%= hidden_input f, :action, [value: "new"] %>
       <%= submit dgettext("backoffice", "Add") %>
@@ -78,6 +75,29 @@
     <% end %>
     <% end %>
     </div>
+    <div>
+      <%= link(dgettext("backoffice", "Cancel"), to: backoffice_page_path(@conn, :index)) %>
+    </div>
   </div>
+    <div class="is-centered mt-48">
+      <%= dgettext("backoffice", "Other actions on the dataset") %>
+    </div>
+    <div class="backoffice_dataset_actions_buttons">
+      <div>
+        <%= form_for @conn, backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, Map.put(@conn.params, "stay_on_page", true)), [nodiv: true], fn _ -> %>
+          <%= submit "Importer", [class: "button", nodiv: true] %>
+        <% end %>
+      </div>
+
+      <div>
+        <%= live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{dataset_id: @dataset.id, locale: get_session(@conn, :locale)}) %>
+      </div>
+
+      <div>
+        <%= form_for @conn, backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
+          <%= submit "Supprimer", [class: "button", nodiv: true] %>
+        <% end %>
+      </div>
+    </div>
 </div>
 <script src="/js/app.js"></script>

@@ -166,3 +166,7 @@ msgstr "Annuler"
 #, elixir-format
 msgid "validate all"
 msgstr "Valider tous les jeux de données"
+
+#, elixir-format
+msgid "Other actions on the dataset"
+msgstr "Autres actions associées au dataset"
