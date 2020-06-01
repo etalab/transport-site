@@ -149,7 +149,8 @@ defmodule TransportWeb.API.DatasetController do
       "title" => dataset.spatial,
       "created_at" => dataset.created_at,
       "updated" => Helpers.last_updated(dataset.resources),
-      "resources" => Enum.map(dataset.resources, &transform_resource/1),
+      "resources" => Enum.map(Dataset.official_resources(dataset), &transform_resource/1),
+      "community_resources" => Enum.map(Dataset.community_resources(dataset), &transform_resource/1),
       # DEPRECATED, only there for retrocompatibility, use covered_area instead
       "aom" => transform_aom(dataset.aom),
       "covered_area" => covered_area(dataset),
@@ -173,16 +174,20 @@ defmodule TransportWeb.API.DatasetController do
 
   @spec transform_resource(Resource.t()) :: map()
   defp transform_resource(resource),
-    do: %{
-      "title" => resource.title,
-      "updated" => Helpers.format_datetime(resource.last_update),
-      "url" => resource.latest_url,
-      "end_calendar_validity" => resource.metadata["end_date"],
-      "start_calendar_validity" => resource.metadata["start_date"],
-      "format" => resource.format,
-      "content_hash" => resource.content_hash,
-      "metadata" => resource.metadata
-    }
+    do:
+      %{
+        "title" => resource.title,
+        "updated" => Helpers.format_datetime(resource.last_update),
+        "url" => resource.latest_url,
+        "end_calendar_validity" => resource.metadata["end_date"],
+        "start_calendar_validity" => resource.metadata["start_date"],
+        "format" => resource.format,
+        "content_hash" => resource.content_hash,
+        "publisher" => resource.publisher,
+        "metadata" => resource.metadata
+      }
+      |> Enum.filter(fn {_, v} -> !is_nil(v) end)
+      |> Enum.into(%{})
 
   @spec transform_aom(AOM.t() | nil) :: map()
   defp transform_aom(nil), do: %{"name" => nil}

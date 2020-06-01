@@ -34,11 +34,9 @@ defmodule TransportWeb.DatasetController do
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
     with {:ok, dataset} <- Dataset.get_by_slug(slug_or_id),
          {:ok, territory} <- Dataset.get_territory(dataset),
-         {:ok, community_ressources} <- CommunityResources.get(dataset.datagouv_id),
          {:ok, reuses} <- Reuses.get(dataset) do
       conn
       |> assign(:dataset, dataset)
-      |> assign(:community_ressources, community_ressources)
       |> assign(:territory, territory)
       |> assign(:discussions, Discussions.get(dataset.datagouv_id))
       |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
