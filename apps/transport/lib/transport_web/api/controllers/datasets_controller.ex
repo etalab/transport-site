@@ -203,7 +203,7 @@ defmodule TransportWeb.API.DatasetController do
   defp covered_area(%Dataset{region: %{nom: nom}}),
     do: %{"type" => "region", "name" => nom, "region" => %{"name" => nom}}
 
-  defp covered_area(%Dataset{communes: c, associated_territory_name: nom}),
+  defp covered_area(%Dataset{communes: [_ | _] = c, associated_territory_name: nom}),
     do: %{"type" => "cities", "name" => nom, "cities" => transform_cities(c)}
 
   defp covered_area(_) do
