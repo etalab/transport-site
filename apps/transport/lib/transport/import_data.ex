@@ -116,6 +116,10 @@ defmodule Transport.ImportData do
       |> Map.put("nb_reuses", get_nb_reuses(dataset))
       |> Map.put("licence", dataset["license"])
       |> Map.put("zones", get_associated_zones_insee(dataset))
+
+    # Note: we also check if there are some realtime resources
+    dataset =
+      dataset
       |> Map.put("has_realtime", has_realtime?(dataset, type))
 
     case Map.get(dataset, "resources") do
@@ -519,12 +523,12 @@ defmodule Transport.ImportData do
     |> Repo.one()
   end
 
-  @spec has_realtime?(map, binary) :: {:error, false} | {:ok, boolean}
+  @spec has_realtime?(map, binary) :: {:error, false} | boolean
   def has_realtime?(dataset, "public-transit") do
     Enum.any?(dataset["resources"], &is_realtime?/1)
   end
 
-  def has_realtime?(_, _), do: {:ok, false}
+  def has_realtime?(_, _), do: false
 
   @spec is_realtime?(map()) :: boolean
   def is_realtime?(%{"format" => "gtfs-rt"}), do: true
