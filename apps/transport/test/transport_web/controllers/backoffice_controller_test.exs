@@ -87,7 +87,8 @@ defmodule TransportWeb.BackofficeControllerTest do
       end
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-    assert Resource |> Repo.all() |> length() == 1
+    assert Resource |> where([r], not r.is_community_resource) |> Repo.all() |> length() == 1
+    assert Resource |> where([r], r.is_community_resource) |> Repo.all() |> length() == 2
     assert get_flash(conn, :info) =~ "ajouté"
   end
 
@@ -109,7 +110,8 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
 
-    assert Resource |> Repo.all() |> length() == 1
+    assert Resource |> where([r], not r.is_community_resource) |> Repo.all() |> length() == 1
+    assert Resource |> where([r], r.is_community_resource) |> Repo.all() |> length() == 2
     assert get_flash(conn, :info) =~ "ajouté"
   end
 
