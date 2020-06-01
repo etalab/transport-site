@@ -30,3 +30,6 @@ apps/transport/priv/static/js/*
 # secrets file as long as you replace its contents by environment
 # variables.
 /config/prod.secret.exs
+
+# the blog build folder
+/blog/public
