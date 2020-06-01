@@ -8,6 +8,10 @@
   <h1>
     <%= @dataset.spatial %>
   </h1>
+  <%= if admin?(assigns[:current_user]) do %>
+    <i class="fa fa-external-link-alt"></i>
+    <%= link("backoffice", to: backoffice_page_path(@conn, :edit, @dataset.id)) %>
+  <% end %>
 </div>
 <div class="dataset-page">
   <div class="dataset-menu-container">
