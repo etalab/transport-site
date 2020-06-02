@@ -274,7 +274,7 @@ defmodule TransportWeb.API.Schemas do
                 type: :string,
                 description: "The first day in the GTFS calendar. null if the file couldn’t be read"
               },
-              format: %Schema{type: :string, description: "The format of the resource (GTFS, NeTex, ...)"},
+              format: %Schema{type: :string, description: "The format of the resource (GTFS, NeTEx, ...)"},
               content_hash: %Schema{
                 type: :string,
                 description:
