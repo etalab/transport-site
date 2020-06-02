@@ -77,3 +77,7 @@ msgstr ""
 #, elixir-format
 msgid "Error on file"
 msgstr ""
+
+#, elixir-format
+msgid "details"
+msgstr ""
