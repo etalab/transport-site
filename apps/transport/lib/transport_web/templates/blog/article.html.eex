@@ -1,7 +1,0 @@
-<section class="single-page section section-grey">
-<div class="container">
-<article class="panel">
-  <%= @markdown |> Earmark.as_html!() |> raw()  %>
-</article>
-</div>
-</section>

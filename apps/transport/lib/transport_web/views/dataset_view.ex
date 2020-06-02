@@ -191,6 +191,15 @@ defmodule TransportWeb.DatasetView do
     |> Stream.reject(&Resource.is_gbfs?/1)
     |> Stream.reject(&Resource.is_netex?/1)
     |> Enum.to_list()
+    |> Enum.sort(fn r1, r2 ->
+      nd1 = NaiveDateTime.from_iso8601(Map.get(r1, :last_update, ""))
+      nd2 = NaiveDateTime.from_iso8601(Map.get(r2, :last_update, ""))
+
+      case {nd1, nd2} do
+        {{:ok, nd1}, {:ok, nd2}} -> NaiveDateTime.compare(nd1, nd2) == :gt
+        _ -> true
+      end
+    end)
   end
 
   def licence_url("fr-lo"), do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
@@ -236,7 +245,7 @@ defmodule TransportWeb.DatasetView do
 
   @spec get_resource_to_display(%Dataset{}) :: Resource.t() | nil
   def get_resource_to_display(%Dataset{type: type, resources: resources})
-      when type == "carsharing-areas" or type == "private-parking" do
+      when type == "carsharing-areas" or type == "private-parking" or type == "charging-stations" do
     resources |> Enum.find(fn r -> r.format == "csv" end)
   end
 

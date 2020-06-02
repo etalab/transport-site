@@ -167,3 +167,7 @@ msgstr ""
 #, elixir-format
 msgid "validate all"
 msgstr ""
+
+#, elixir-format
+msgid "Other actions on the dataset"
+msgstr ""

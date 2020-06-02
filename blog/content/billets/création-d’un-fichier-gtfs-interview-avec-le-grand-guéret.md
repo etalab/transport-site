@@ -2,9 +2,8 @@
 title: "Création d’un fichier GTFS: Interview avec le Grand Guéret"
 date: 2019-10-24T13:49:27.133Z
 tags:
-  - format de données
-  - réutilisations
-  - GTFS
+  - retour d'expérience
+  - tutoriel
 description: Une communauté d'agglomération revient sur la création d'un fichier
   GTFS à partir de zéro.
 image: /images/agglo-bus_1_-c-_collection_grand_guçret.jpg

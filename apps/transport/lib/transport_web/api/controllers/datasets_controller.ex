@@ -25,10 +25,10 @@ defmodule TransportWeb.API.DatasetController do
   @spec datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def datasets(%Plug.Conn{} = conn, _params) do
     data =
-      %{"type" => "public-transit"}
+      %{}
       |> Dataset.list_datasets()
       |> Repo.all()
-      |> Repo.preload([:resources, :aom])
+      |> Repo.preload([:resources, :aom, :region, :communes])
       |> Enum.map(&transform_dataset/1)
 
     render(conn, %{data: data})
@@ -64,7 +64,7 @@ defmodule TransportWeb.API.DatasetController do
   def by_id(%Plug.Conn{} = conn, %{"id" => id}) do
     Dataset
     |> Repo.get_by(datagouv_id: id)
-    |> Repo.preload([:resources, :aom])
+    |> Repo.preload([:resources, :aom, :region, :communes])
     |> case do
       %Dataset{} = dataset ->
         conn
@@ -87,10 +87,17 @@ defmodule TransportWeb.API.DatasetController do
       %Dataset{} = dataset ->
         data =
           case {dataset.aom, dataset.region, dataset.communes} do
-            {aom, _, _} when not is_nil(aom) -> [to_feature(aom.geom, aom.nom)]
-            {_, region, _} when not is_nil(region) -> [to_feature(region.geom, region.nom)]
-            {_, _, communes} when not is_nil(communes) -> communes |> Enum.map(fn c -> to_feature(c.geom, c.nom) end)
-            _ -> []
+            {aom, _, _} when not is_nil(aom) ->
+              [to_feature(aom.geom, aom.nom)] |> keep_valid_features()
+
+            {_, region, _} when not is_nil(region) ->
+              [to_feature(region.geom, region.nom)] |> keep_valid_features()
+
+            {_, _, communes} when not is_nil(communes) ->
+              communes |> Enum.map(fn c -> to_feature(c.geom, c.nom) end) |> keep_valid_features()
+
+            _ ->
+              []
           end
 
         conn
@@ -104,17 +111,24 @@ defmodule TransportWeb.API.DatasetController do
     end
   end
 
-  @spec to_feature(MultiPolygon.t(), binary) :: map()
-  defp to_feature(nil, name), do: %{}
+  @spec keep_valid_features([{:ok, %{}} | :error]) :: [%{}]
+  defp keep_valid_features(list) do
+    list
+    |> Enum.filter(fn f ->
+      case f do
+        {:ok, _g} -> true
+        _ -> false
+      end
+    end)
+    |> Enum.map(fn {:ok, g} -> g end)
+  end
 
+  @spec to_feature(MultiPolygon.t(), binary) :: {:ok, %{}} | :error
   defp to_feature(geom, name) do
-    %{
-      "geometry" => geom |> JSON.encode!(),
-      "type" => "Feature",
-      "properties" => %{
-        "name" => name
-      }
-    }
+    case JSON.encode(geom) do
+      {:ok, g} -> %{"geometry" => g, "type" => "Feature", "properties" => %{"name" => name}}
+      _ -> :error
+    end
   end
 
   @spec to_geojson(Dataset.t(), [map()]) :: map()
@@ -136,7 +150,9 @@ defmodule TransportWeb.API.DatasetController do
       "created_at" => dataset.created_at,
       "updated" => Helpers.last_updated(dataset.resources),
       "resources" => Enum.map(dataset.resources, &transform_resource/1),
+      # DEPRECATED, only there for retrocompatibility, use covered_area instead
       "aom" => transform_aom(dataset.aom),
+      "covered_area" => covered_area(dataset),
       "type" => dataset.type,
       "publisher" => get_publisher(dataset)
     }
@@ -164,10 +180,33 @@ defmodule TransportWeb.API.DatasetController do
       "end_calendar_validity" => resource.metadata["end_date"],
       "start_calendar_validity" => resource.metadata["start_date"],
       "format" => resource.format,
-      "content_hash" => resource.content_hash
+      "content_hash" => resource.content_hash,
+      "metadata" => resource.metadata
     }
 
   @spec transform_aom(AOM.t() | nil) :: map()
   defp transform_aom(nil), do: %{"name" => nil}
   defp transform_aom(aom), do: %{"name" => aom.nom, "siren" => aom.siren}
+
+  @spec covered_area(Dataset.t()) :: map()
+  defp covered_area(%Dataset{aom: aom}) when not is_nil(aom),
+    do: %{"type" => "aom", "name" => aom.nom, "aom" => %{"name" => aom.nom, "siren" => aom.siren}}
+
+  defp covered_area(%Dataset{region: %{id: 14}}),
+    do: %{"type" => "country", "name" => "France", "country" => %{"name" => "France"}}
+
+  defp covered_area(%Dataset{region: %{nom: nom}}),
+    do: %{"type" => "region", "name" => nom, "region" => %{"name" => nom}}
+
+  defp covered_area(%Dataset{communes: c, associated_territory_name: nom}),
+    do: %{"type" => "cities", "name" => nom, "cities" => transform_cities(c)}
+
+  defp covered_area(_) do
+    %{}
+  end
+
+  defp transform_cities(cities) do
+    cities
+    |> Enum.map(fn c -> %{"name" => c.nom, "insee" => c.insee} end)
+  end
 end

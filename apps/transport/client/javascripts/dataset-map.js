@@ -32,8 +32,12 @@ function createDatasetMap (divId, datasetDatagouvId) {
         .then(geojson => {
             const gs = L.geoJSON(geojson).addTo(fg)
             gs.bindPopup(layer => { return layer.feature.properties.name })
-            map.fitBounds(fg.getBounds())
+            const bounds = fg.getBounds()
+            if (bounds.isValid()) {
+                map.fitBounds(fg.getBounds())
+            }
         })
+        .catch(_ => console.log('invalid geojson'))
 }
 
 window.createDatasetMap = createDatasetMap
