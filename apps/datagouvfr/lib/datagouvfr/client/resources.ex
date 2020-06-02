@@ -7,7 +7,7 @@ defmodule Datagouvfr.Client.Resources do
 
   @format_to_mime %{
     "GTFS" => "application/zip",
-    "NeTeX" => "application/zip"
+    "netex" => "application/zip"
   }
   @fields ["url", "format", "title", "filetype"]
 

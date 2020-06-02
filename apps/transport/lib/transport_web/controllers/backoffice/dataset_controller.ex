@@ -55,7 +55,14 @@ defmodule TransportWeb.Backoffice.DatasetController do
   end
 
   @spec import_from_data_gouv_fr(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def import_from_data_gouv_fr(%Plug.Conn{} = conn, %{"id" => id}) do
+  def import_from_data_gouv_fr(%Plug.Conn{} = conn, %{"id" => id, "stay_on_page" => "true"}),
+    do: redirect(import_from_data_gouv_fr_aux(conn, id), to: backoffice_page_path(conn, :edit, id))
+
+  def import_from_data_gouv_fr(%Plug.Conn{} = conn, %{"id" => id}),
+    do: redirect_to_index(import_from_data_gouv_fr_aux(conn, id))
+
+  @spec import_from_data_gouv_fr_aux(Plug.Conn.t(), integer()) :: Plug.Conn.t()
+  defp import_from_data_gouv_fr_aux(conn, id) do
     Dataset
     |> Repo.get(id)
     |> import_data
@@ -64,7 +71,6 @@ defmodule TransportWeb.Backoffice.DatasetController do
       dgettext("backoffice_dataset", "Dataset imported with success"),
       dgettext("backoffice_dataset", "Dataset not imported")
     )
-    |> redirect_to_index()
   end
 
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()

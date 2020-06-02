@@ -1,0 +1,9 @@
+<div class="choose-option">
+    <h2><%= dgettext("resource", "Give a link for the resource") %></h2>
+    <%= text_input(
+        @f,
+        :url,
+        placeholder: "https://data.ville.fr/gtfs.zip",
+        value: @resource["url"]
+    ) %>
+</div>

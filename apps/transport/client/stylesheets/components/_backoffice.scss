@@ -48,10 +48,15 @@
 .backoffice_dataset_submit_buttons {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
   div {
     padding: 0 12px 0 12px;
   }
+}
+
+.backoffice_dataset_actions_buttons {
+  display: flex;
+  justify-content: center;
 }
 
 #backoffice_search {

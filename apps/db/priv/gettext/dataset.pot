@@ -72,4 +72,4 @@ msgstr ""
 
 #, elixir-format
 msgid "Private parking"
-msgstr "Stationnement hors voirie"
+msgstr ""
