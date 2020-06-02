@@ -1,15 +1,14 @@
 ---
-title: City way !
+title: "Paroles de réutilisateur : Cityway"
 date: 2020-05-12T16:05:55.126Z
 tags:
-  - réutilisations
-  - données
+  - réutilisation
 description: "Nous réalisons une série d’entretiens avec différents
   réutilisateurs des données mises à disposition sur le Point d’Accès National,
   afin de valoriser l’usage qui est fait de la donnée de transport et illustrer
-  des différents cas d’usage qu’elle peut avoir : Interview avec Nely Escoffier,
-  Coordinatrice des responsables d'exploitation SIM et Baptiste Delloye,
-  directeur d'exploitation "
+  des différents cas d’usage qu’elle peut avoir : Interview avec Nelly
+  Escoffier, Coordinatrice des responsables d'exploitation SIM et Baptiste
+  Delloye, directeur d'exploitation."
 image: /images/cityway.png
 ---
 > ### City way : Mobility as a service
