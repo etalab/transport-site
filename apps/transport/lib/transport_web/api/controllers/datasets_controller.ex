@@ -148,7 +148,7 @@ defmodule TransportWeb.API.DatasetController do
       "id" => dataset.datagouv_id,
       "title" => dataset.spatial,
       "created_at" => dataset.created_at,
-      "updated" => Helpers.last_updated(dataset.resources),
+      "updated" => Helpers.last_updated(Dataset.official_resources(dataset)),
       "resources" => Enum.map(Dataset.official_resources(dataset), &transform_resource/1),
       "community_resources" => Enum.map(Dataset.community_resources(dataset), &transform_resource/1),
       # DEPRECATED, only there for retrocompatibility, use covered_area instead
@@ -183,7 +183,7 @@ defmodule TransportWeb.API.DatasetController do
         "start_calendar_validity" => resource.metadata["start_date"],
         "format" => resource.format,
         "content_hash" => resource.content_hash,
-        "publisher" => resource.publisher,
+        "community_resource_publisher" => resource.community_resource_publisher,
         "metadata" => resource.metadata
       }
       |> Enum.filter(fn {_, v} -> !is_nil(v) end)

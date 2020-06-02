@@ -88,7 +88,7 @@ defmodule DB.Dataset do
         content_hash: r.content_hash,
         is_community_resource: r.is_community_resource,
         description: r.description,
-        publisher: r.publisher,
+        community_resource_publisher: r.community_resource_publisher,
         auto_tags: r.auto_tags
       },
       where: r.is_available

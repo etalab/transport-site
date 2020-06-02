@@ -65,7 +65,8 @@ defmodule TransportWeb.AOMSController do
   end
 
   @spec valid_dataset?(Dataset.t()) :: boolean()
-  defp valid_dataset?(dataset), do: Enum.any?(dataset.resources, fn r -> !Resource.is_outdated?(r) end)
+  defp valid_dataset?(dataset),
+    do: Enum.any?(Dataset.official_resources(dataset), fn r -> !Resource.is_outdated?(r) end)
 
   @spec up_to_date?([Dataset.t()], Dataset.t() | nil) :: boolean()
   defp up_to_date?([], nil), do: false

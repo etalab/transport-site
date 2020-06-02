@@ -263,7 +263,7 @@ defmodule Transport.ImportData do
         "id" => get_resource_id(resource, dataset["id"]),
         "is_available" => available?(resource),
         "is_community_resource" => is_community_resource,
-        "publisher" => get_publisher(resource),
+        "community_resource_publisher" => get_publisher(resource),
         "description" => resource["description"]
       }
     end)
@@ -523,7 +523,7 @@ defmodule Transport.ImportData do
     |> Repo.one()
   end
 
-  @spec has_realtime?(map, binary) :: {:error, false} | boolean
+  @spec has_realtime?(map, binary) :: boolean
   def has_realtime?(dataset, "public-transit") do
     Enum.any?(dataset["resources"], &is_realtime?/1)
   end
@@ -539,7 +539,10 @@ defmodule Transport.ImportData do
   defp invalid_result?({:ok, _}), do: false
   defp invalid_result?({:exit, _}), do: true
 
-  defp get_publisher(%{"organization" => organization}), do: organization["name"]
-  defp get_publisher(%{"owner" => owner}), do: owner["first_name"] <> " " <> owner["last_name"]
+  defp get_publisher(%{"organization" => %{"name" => name}}), do: name
+
+  defp get_publisher(%{"owner" => %{"first_name" => first_name, "last_name" => last_name}}),
+    do: first_name <> " " <> last_name
+
   defp get_publisher(_), do: nil
 end
