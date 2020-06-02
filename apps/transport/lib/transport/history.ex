@@ -19,8 +19,8 @@ defmodule Transport.History do
       |> where(
         [r],
         not is_nil(r.url) and not is_nil(r.title) and
-          (r.format == "GTFS" or r.format == "netex")
-          and not r.is_community_resource
+          (r.format == "GTFS" or r.format == "netex") and
+          not r.is_community_resource
       )
       |> preload([:dataset])
       |> Repo.all()

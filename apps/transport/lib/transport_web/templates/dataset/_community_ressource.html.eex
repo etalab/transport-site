@@ -15,8 +15,8 @@
     </div>
     <div class="resource__details">
         <div class="community-resource-detail">
-          <%= if @resource.publisher do %>
-            <h6 class="community-resource-source"><%= dgettext("community_resource", "by") %> <%= @resource.publisher %></h6>
+          <%= if @resource.community_resource_publisher do %>
+            <h6 class="community-resource-source"><%= dgettext("community_resource", "by") %> <%= @resource.community_resource_publisher %></h6>
           <% end %>
           <p><%= @resource.description %></p>
         </div>

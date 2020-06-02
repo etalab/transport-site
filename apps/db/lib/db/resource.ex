@@ -33,7 +33,7 @@ defmodule DB.Resource do
 
     field(:is_community_resource, :boolean)
     # only relevant for community resources, name of the owner or the organization that published the resource
-    field(:publisher, :string)
+    field(:community_resource_publisher, :string)
     field(:description, :string)
 
     # we add 2 fields, that are already in the metadata json, in order to be able to add some indices
@@ -200,7 +200,7 @@ defmodule DB.Resource do
         :is_available,
         :auto_tags,
         :is_community_resource,
-        :publisher,
+        :community_resource_publisher,
         :description
       ]
     )
