@@ -142,3 +142,7 @@ msgstr "Avertissements"
 #, elixir-format
 msgid "Not compliant with the GTFS specification"
 msgstr "Spécifications GTFS non respectées"
+
+#, elixir-format
+msgid "Impossible to interpolate stop times"
+msgstr "Interpolation de l'horaire impossible"
