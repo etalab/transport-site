@@ -9,6 +9,9 @@ defmodule DB.Validation do
 
   typed_schema "validations" do
     field(:details, :map)
+    # metadatas are stored for performance reasons in the associated resource
+    # for on the fly validation, there is no resource, so we store it here
+    field(:on_the_fly_validation_metadata, :map)
     field(:date, :string)
     # the maximum level of error in this validation
     field(:max_error, :string)
