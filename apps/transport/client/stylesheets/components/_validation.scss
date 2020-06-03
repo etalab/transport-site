@@ -18,14 +18,14 @@ nav.validation {
   }
 }
 
-.issues_list {
+.issues-list {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
 }
 
-.validation_issue {
-  padding: 30px;
+.validation-issue {
+  padding: 12px 48px 12px 48px;
   border-radius: 10px;
   @media (max-width: $breakpoint-tablet) {
     padding: 10px;

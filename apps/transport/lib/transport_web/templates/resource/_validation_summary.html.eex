@@ -1,6 +1,6 @@
 <%= for {severity, issues} <- @validation_summary do %>
 <%= if Map.get(@severities_count, severity, 0) > 0 do %>
-    <div class="validation_issue">
+    <div class="validation-issue">
     <h4><%= @severities_count[severity] %> <%= severities(severity).text %></h4>
     <ul>
     <%= for {key, issue} <- issues do %>
