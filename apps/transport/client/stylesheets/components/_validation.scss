@@ -32,10 +32,27 @@ nav.validation {
   }
 }
 
-.validation-pane {
-  min-width: 0;
-  max-width: 1200px;
-  padding: 10px;
+.validation-title {
+  padding-top: 48px;
+}
+
+.validation-content {
+  background-color: var(--theme-background-grey);
+  padding-top: 24px;
+  padding-bottom: 48px;
+  margin-top: 48px;
+  .validation-metadata {
+    display: inline-block;
+  }
+  .validation-content-details {
+    table {
+      table-layout: fixed;
+      width: 100%;
+    }
+    td {
+      word-wrap: break-word;
+    }
+  }
 }
 
 .mt-48 {
