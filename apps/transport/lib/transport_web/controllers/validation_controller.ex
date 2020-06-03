@@ -16,10 +16,11 @@ defmodule TransportWeb.ValidationController do
   def validate(%Plug.Conn{} = conn, %{"upload" => upload_params}) do
     with {:ok, gtfs} <- File.read(upload_params["file"].path),
          {:ok, %@res{status_code: 200, body: body}} <- @client.post(endpoint(), gtfs, [], recv_timeout: @timeout),
-         {:ok, %{"validations" => validations}} <- Poison.decode(body) do
+         {:ok, %{"validations" => validations, "metadata" => metadata}} <- Poison.decode(body) do
       %Validation{
         date: DateTime.utc_now() |> DateTime.to_string(),
-        details: validations
+        details: validations,
+        on_the_fly_validation_metadata: metadata
       }
       |> Repo.insert()
     else
@@ -49,6 +50,7 @@ defmodule TransportWeb.ValidationController do
     |> assign(:issues, Scrivener.paginate(current_issues, config))
     |> assign(:validation_summary, Validation.summary(validation))
     |> assign(:severities_count, Validation.count_by_severity(validation))
+    |> assign(:metadata, validation.on_the_fly_validation_metadata)
     |> render("show.html")
   end
 end
