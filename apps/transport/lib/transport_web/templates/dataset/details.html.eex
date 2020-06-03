@@ -47,7 +47,7 @@
         <h2><%= dgettext("page-dataset-details", "Visualization")%></h2>
         <div class="panel">
           <div id='map' class='mapcsv'></div>
-          <div class="is-centered"><%= dgettext("page-dataset-details", "Visualization of the most recent resource")%> : "<%= List.first(other_resources(@dataset)).title %>".</div>
+          <div class="is-centered"><%= dgettext("page-dataset-details", "Visualization of the most recent resource")%> : "<%= List.first(other_official_resources(@dataset)).title %>".</div>
         </div>
         <script src="<%= static_path(@conn, "/js/mapcsv.js") %>"></script>
         <script>
@@ -60,10 +60,10 @@
 
     <section id="dataset-resources" class="pt-48">
     <h2><%= dgettext("page-dataset-details", "Resources")%></h2>
-      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gtfs_resources(@dataset), title: dgettext("page-dataset-details", "GTFS resources") %>
-      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gbfs_resources(@dataset), title: dgettext("page-dataset-details", "GBFS resources") %>
-      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: netex_resources(@dataset), title: dgettext("page-dataset-details", "NETeX resources") %>
-      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: other_resources(@dataset), title: dgettext("page-dataset-details", "Other resources") %>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gtfs_official_resources(@dataset), title: dgettext("page-dataset-details", "GTFS resources") %>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gbfs_official_resources(@dataset), title: dgettext("page-dataset-details", "GBFS resources") %>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: netex_official_resources(@dataset), title: dgettext("page-dataset-details", "NETeX resources") %>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: other_official_resources(@dataset), title: dgettext("page-dataset-details", "Other resources") %>
       <% community_resources = community_resources(@dataset) %>
       <%= unless community_resources == [] do %>
         <section class="dataset__resources white">

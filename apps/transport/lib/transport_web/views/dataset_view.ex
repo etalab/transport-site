@@ -178,25 +178,25 @@ defmodule TransportWeb.DatasetView do
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
   def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
 
-  def gtfs_resources(dataset),
+  def gtfs_official_resources(dataset),
     do:
       dataset
       |> Dataset.official_resources()
       |> Enum.filter(&Resource.is_gtfs?/1)
 
-  def gbfs_resources(dataset),
+  def gbfs_official_resources(dataset),
     do:
       dataset
       |> Dataset.official_resources()
       |> Enum.filter(&Resource.is_gbfs?/1)
 
-  def netex_resources(dataset),
+  def netex_official_resources(dataset),
     do:
       dataset
       |> Dataset.official_resources()
       |> Enum.filter(&Resource.is_netex?/1)
 
-  def other_resources(dataset) do
+  def other_official_resources(dataset) do
     dataset
     |> Dataset.official_resources()
     |> Stream.reject(&Resource.is_gtfs?/1)
@@ -214,7 +214,7 @@ defmodule TransportWeb.DatasetView do
     end)
   end
 
-  def community_resources(%{resources: resources}), do: resources |> Enum.filter(fn r -> r.is_community_resource end)
+  def community_resources(dataset), do: Dataset.community_resources(dataset)
 
   def licence_url("fr-lo"), do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
