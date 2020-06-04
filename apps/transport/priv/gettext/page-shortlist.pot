@@ -250,3 +250,15 @@ msgstr ""
 #, elixir-format
 msgid "Regions"
 msgstr ""
+
+#, elixir-format
+msgid "Data for private car-parks in France are produced by different local authorities or parking operators. These data, when published in a normalized format described here, are aggregated into a national dataset called %{start_link}“Base Nationale des Lieux de Stationnement” (BNLS)%{end_link}."
+msgstr ""
+
+#, elixir-format
+msgid "This category aims to describe the location of car-parks across France, and provide general traveller information (such as access information or an estimate of parking fees for each car-park)."
+msgstr ""
+
+#, elixir-format
+msgid "This dataset only describes parking spaces accessible to the general public, with barrier entrance. Other datasets referenced here can have a broader definition and might include freely accessible car-parks, (ie. with no entrance barrier), in addition to the parking spaces with barrier entrance included in the “Base Nationale des Lieux de Stationnement” (BNLS)."
+msgstr ""
