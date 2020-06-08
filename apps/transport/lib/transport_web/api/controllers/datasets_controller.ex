@@ -126,7 +126,7 @@ defmodule TransportWeb.API.DatasetController do
   @spec to_feature(MultiPolygon.t(), binary) :: {:ok, %{}} | :error
   defp to_feature(geom, name) do
     case JSON.encode(geom) do
-      {:ok, g} -> %{"geometry" => g, "type" => "Feature", "properties" => %{"name" => name}}
+      {:ok, g} -> {:ok, %{"geometry" => g, "type" => "Feature", "properties" => %{"name" => name}}}
       _ -> :error
     end
   end
