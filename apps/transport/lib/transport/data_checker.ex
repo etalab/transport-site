@@ -50,7 +50,8 @@ defmodule Transport.DataChecker do
     end
     |> Enum.reject(fn {_, d} -> d == [] end)
     |> send_outdated_data_mail(blank)
-    |> post_outdated_data_comments(blank)
+
+    # |> post_outdated_data_comments(blank)
   end
 
   def post_outdated_data_comments(delays_datasets, blank) do
