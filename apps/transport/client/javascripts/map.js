@@ -565,12 +565,12 @@ function addPtFormatMap (id, view) {
         const gtfs = feature.properties.dataset_formats.gtfs
         const hasGTFS = gtfs !== undefined
         const netex = feature.properties.dataset_formats.netex
-        const hasNeTex = netex !== undefined
+        const hasNeTEx = netex !== undefined
 
-        if (hasGTFS && hasNeTex) {
+        if (hasGTFS && hasNeTEx) {
             return styles.both
         }
-        if (hasNeTex) {
+        if (hasNeTEx) {
             return styles.netex
         }
         if (hasGTFS) {

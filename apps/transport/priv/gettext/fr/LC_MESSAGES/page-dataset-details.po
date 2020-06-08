@@ -183,8 +183,8 @@ msgid "GTFS resources"
 msgstr "Ressources GTFS"
 
 #, elixir-format
-msgid "NETeX resources"
-msgstr "Ressources NETeX"
+msgid "NeTEx resources"
+msgstr "Ressources NeTEx"
 
 #, elixir-format
 msgid "Other resources"

@@ -329,7 +329,7 @@ defmodule Transport.ImportData do
 
   ## Examples
 
-      iex> ImportData.is_gtfs?("netex")
+      iex> ImportData.is_gtfs?("NeTEx")
       false
 
       iex> ImportData.is_gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
@@ -361,13 +361,13 @@ defmodule Transport.ImportData do
 
   @doc """
   check the format
-      iex> ImportData.is_format?("netex", ["GTFS", "netex"])
+      iex> ImportData.is_format?("NeTEx", ["GTFS", "NeTEx"])
       true
 
-      iex> ImportData.is_format?("pouet", ["GTFS", "netex"])
+      iex> ImportData.is_format?("pouet", ["GTFS", "NeTEx"])
       false
 
-      iex> ImportData.is_format?(%{"format" => "netex"}, "netex")
+      iex> ImportData.is_format?(%{"format" => "NeTEx"}, "NeTEx")
       true
   """
   @spec is_format?(binary() | map(), binary() | [binary()]) :: boolean
@@ -401,13 +401,13 @@ defmodule Transport.ImportData do
   @spec is_netex?(binary() | map()) :: boolean()
   def is_netex?(%{} = params) do
     cond do
-      is_format?(params["format"], "netex") -> true
-      is_format?(params["description"], "netex") -> true
+      is_format?(params["format"], "NeTEx") -> true
+      is_format?(params["description"], "NeTEx") -> true
       true -> false
     end
   end
 
-  def is_netex?(s), do: is_format?(s, "netex")
+  def is_netex?(s), do: is_format?(s, "NeTEx")
 
   @doc """
   Check for licence, returns ["bad_license"] if the licence is not "odc-odbl"
@@ -488,7 +488,7 @@ defmodule Transport.ImportData do
 
     cond do
       is_gtfs_rt?(format) -> "gtfs-rt"
-      is_netex?(format) -> "netex"
+      is_netex?(format) -> "NeTEx"
       is_gtfs?(format) -> "GTFS"
       type == "public-transit" and not is_community_resource -> "GTFS"
       true -> format

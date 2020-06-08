@@ -311,7 +311,7 @@ defmodule DB.Resource do
   def is_gbfs?(_), do: false
 
   @spec is_netex?(__MODULE__.t()) :: boolean
-  def is_netex?(%__MODULE__{format: "netex"}), do: true
+  def is_netex?(%__MODULE__{format: "NeTEx"}), do: true
   def is_netex?(_), do: false
 
   @spec other_resources_query(__MODULE__.t()) :: Ecto.Query.t()

@@ -62,7 +62,7 @@
     <h2><%= dgettext("page-dataset-details", "Resources")%></h2>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gtfs_official_resources(@dataset), title: dgettext("page-dataset-details", "GTFS resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gbfs_official_resources(@dataset), title: dgettext("page-dataset-details", "GBFS resources") %>
-      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: netex_official_resources(@dataset), title: dgettext("page-dataset-details", "NETeX resources") %>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: netex_official_resources(@dataset), title: dgettext("page-dataset-details", "NeTEx resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: other_official_resources(@dataset), title: dgettext("page-dataset-details", "Other resources") %>
       <% community_resources = community_resources(@dataset) %>
       <%= unless community_resources == [] do %>
