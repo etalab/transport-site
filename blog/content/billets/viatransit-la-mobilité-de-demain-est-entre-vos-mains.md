@@ -8,7 +8,7 @@ description: "Nous réalisons une série d’entretiens avec différents
   afin de valoriser l’usage qui est fait de la donnée de transport et illustrer
   des différents cas d’usage qu’elle peut avoir : Interview avec Camille MONJO
   et Darius MARTIN, fondateurs de viaTransit."
-image: /images/viatransit.png
+image: blog/images/opengraph_viatransit_main_v2.png
 ---
 Camille MONJO et Darius MARTIN, deux étudiants en ingénierie informatique à EPITECH Montpellier, ont développé viaTransit : une plateforme multi-modale simplifiant l'information voyageur et les déplacements dans les transports en commun.
 
@@ -16,12 +16,14 @@ Camille MONJO et Darius MARTIN, deux étudiants en ingénierie informatique à E
 
 <!--StartFragment-->
 
-Pionnier de l'information voyageur en temps réel à Montpellier, leur application facilite également l'utilisation des transports en commun à Saint Quentin, Dijon, Grand Avignon, Narbonne, Béziers, Albi et Agde.
+Pionnier de l'information voyageur en temps réel à Montpellier, leur application facilite également l'utilisation des transports en commun à Saint Quentin, Dijon, Grand Avignon, Narbonne, Béziers, Albi, Agde ainsi que les déplacements par voie ferrée en Île-de-France.
 
-Une application locale et interactive à travers laquelle les utilisateurs votent pour les nouvelles villes à intégrer.
+Cette application interactive permet aux utilisateurs de voter pour les nouvelles villes à intégrer. 
+
+![](blog/images/viatransitapp.png)
 
 En fonction de la disponibilité des données sur transport.data.gouv.fr, l'équipe peut étendre leur couverture sur d'autres villes.
 
 <!--EndFragment-->
 
-![](/images/viatransitapp.png)
+![]()
