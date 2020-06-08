@@ -1,27 +1,39 @@
 <section>
-  <div class="documentation dataset-details">
-    <nav class="side-pane validation" role="navigation">
-      <div class="pt-48"></div>
-      <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, conn: @conn, issues: @issues %>
-    </nav>
-    <div class="main-pane validation-pane">
+  <div class="container">
+    <div class="validation-title">
       <h2><%= dgettext("validations", "GTFS review report")%></h2>
-      <p class="pb-48">
-        <div>
-          <%= dgettext("validations", "explanations") %>
-        </div>
-        <div>
-          <%= dgettext("validations", "This report can be shared with") %>
-          <%= link(dgettext("validations", "this permanent link"), to: current_url(@conn) )%>.
-        </div>
+      <p>
+        <%= dgettext("validations", "explanations") %>
       </p>
-      <%= pagination_links @conn, @issues,  [@validation_id], issue_type: issue_type(@issues.entries),
-            path: &validation_path/4, action: :show %>
-      <%= if has_errors?(@validation_summary) do %>
-        <%= render template(@issues), issues: @issues || [] , conn: @conn %>
-      <% else %>
-        <h2><%= dgettext("validations", "Nice work, there are no issues!")%></h2>
-      <% end %>
+      <p>
+        <%= dgettext("validations", "This report can be shared with") %>
+        <%= link(dgettext("validations", "this permanent link"), to: current_url(@conn) )%>.
+      </p>
+    </div>
+  </div>
+
+  <div class="validation-content">
+    <div class="container">
+      <div class="panel validation-metadata">
+          <%= render "_resources_details.html", metadata: @metadata %>
+      </div>
+      <div class="validation-navigation">
+        <nav class="issues-list validation" role="navigation">
+          <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, conn: @conn, issues: @issues %>
+        </nav>
+      </div>
+
+      <div class="validation-content-details">
+        <div class="panel" style="overflow-x:auto;">
+          <%= if has_errors?(@validation_summary) do %>
+            <%= pagination_links @conn, @issues,  [@validation_id], issue_type: issue_type(@issues.entries),
+                path: &validation_path/4, action: :show %>
+            <%= render template(@issues), issues: @issues || [] , conn: @conn %>
+          <% else %>
+            <h2><%= dgettext("validations", "Nice work, there are no issues!")%></h2>
+          <% end %>
+        </div>
+      </div>
     </div>
   </div>
 </section>

@@ -141,3 +141,7 @@ msgstr ""
 #, elixir-format
 msgid "Not compliant with the GTFS specification"
 msgstr ""
+
+#, elixir-format
+msgid "Impossible to interpolate stop times"
+msgstr ""

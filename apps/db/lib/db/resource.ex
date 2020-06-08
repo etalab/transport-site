@@ -237,7 +237,8 @@ defmodule DB.Resource do
       "DupplicateObjectId" => dgettext("validations", "Dupplicate object id"),
       "UnloadableModel" => dgettext("validations", "Not compliant with the GTFS specification"),
       "MissingMandatoryFile" => dgettext("validations", "Missing mandatory file"),
-      "ExtraFile" => dgettext("validations", "Extra file")
+      "ExtraFile" => dgettext("validations", "Extra file"),
+      "ImpossibleToInterpolateStopTimes" => dgettext("validations", "Impossible to interpolate stop times")
     }
 
   @spec valid?(__MODULE__.t()) :: boolean()

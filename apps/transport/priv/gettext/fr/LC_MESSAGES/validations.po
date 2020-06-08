@@ -44,7 +44,7 @@ msgstr "ce lien permanent"
 
 #, elixir-format
 msgid "Nice work, there are no issues!"
-msgstr "Félicitation, aucune erreur n'a été trouvée !"
+msgstr "Félicitations, aucune erreur n'a été trouvée !"
 
 #, elixir-format
 msgid "network"
@@ -64,7 +64,7 @@ msgstr "Nom du fichier"
 
 #, elixir-format
 msgid "It is valid from"
-msgstr "Elle est valide du"
+msgstr "Le fichier couvre la période du "
 
 #, elixir-format
 msgid "Resource details"

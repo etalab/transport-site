@@ -9,6 +9,9 @@ defmodule DB.Validation do
 
   typed_schema "validations" do
     field(:details, :map)
+    # metadatas are stored for performance reasons in the associated resource
+    # for on the fly validation, there is no resource, so we store it here
+    field(:on_the_fly_validation_metadata, :map)
     field(:date, :string)
     # the maximum level of error in this validation
     field(:max_error, :string)
@@ -32,7 +35,7 @@ defmodule DB.Validation do
   @spec severities(binary()) :: %{level: integer(), text: binary()}
   def severities(key), do: severities_map()[key]
 
-  @spec get_issues(%{details: any()} | nil, map()) :: [any()]
+  @spec get_issues(%{required(:details) => any(), optional(any) => any} | nil, map()) :: [any()]
   def get_issues(nil, _), do: []
   def get_issues(%{details: nil}, _), do: []
 

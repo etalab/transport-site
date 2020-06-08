@@ -18,24 +18,41 @@ nav.validation {
   }
 }
 
-.issues_list {
+.issues-list {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
 }
 
-.validation_issue {
-  padding: 30px;
+.validation-issue {
+  padding: 12px 48px 12px 48px;
   border-radius: 10px;
   @media (max-width: $breakpoint-tablet) {
     padding: 10px;
   }
 }
 
-.validation-pane {
-  min-width: 0;
-  max-width: 1200px;
-  padding: 10px;
+.validation-title {
+  padding-top: 48px;
+}
+
+.validation-content {
+  background-color: var(--theme-background-grey);
+  padding-top: 24px;
+  padding-bottom: 48px;
+  margin-top: 48px;
+  .validation-metadata {
+    display: inline-block;
+  }
+  .validation-content-details {
+    table {
+      table-layout: fixed;
+      width: 100%;
+    }
+    td {
+      word-wrap: break-word;
+    }
+  }
 }
 
 .mt-48 {
