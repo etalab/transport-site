@@ -40,7 +40,7 @@ defmodule TransportWeb.Backoffice.PageController do
       Resource
       |> having(
         [r],
-        fragment("SUM(CASE WHEN format='GTFS' or format='gbfs' or format='netex' THEN 1 ELSE 0 END) > 0")
+        fragment("SUM(CASE WHEN format='GTFS' or format='gbfs' or format='NeTEx' THEN 1 ELSE 0 END) > 0")
       )
       |> group_by([r], r.dataset_id)
       |> select([r], %{dataset_id: r.dataset_id, end_date: fragment("max(metadata->>'end_date')")})

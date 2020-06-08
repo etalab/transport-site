@@ -208,7 +208,7 @@ defmodule TransportWeb.API.StatsController do
       nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=?", aom.id),
       dataset_formats: %{
         gtfs: count_aom_format(aom.id, "GTFS"),
-        netex: count_aom_format(aom.id, "netex"),
+        netex: count_aom_format(aom.id, "NeTEx"),
         gtfs_rt: count_aom_format(aom.id, "gtfs-rt"),
         gbfs: count_aom_format(aom.id, "gbfs")
       },
@@ -242,7 +242,7 @@ defmodule TransportWeb.API.StatsController do
         ),
       dataset_formats: %{
         gtfs: count_region_format(r.id, "GTFS"),
-        netex: count_region_format(r.id, "netex"),
+        netex: count_region_format(r.id, "NeTEx"),
         gtfs_rt: count_region_format(r.id, "gtfs-rt"),
         gbfs: count_region_format(r.id, "gbfs")
       },

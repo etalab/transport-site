@@ -13,12 +13,12 @@ defmodule Transport.Gtfs2Netexfr do
 
   @spec convert_all(boolean()) :: any()
   def convert_all(force_update \\ false) do
-    Logger.info("generating netex for all GTFS")
+    Logger.info("generating NeTEx for all GTFS")
 
     Resource
     |> where([r], not is_nil(r.url) and not is_nil(r.title) and r.format == "GTFS")
     # we don't want to generate a netex if there is already one
-    |> where([r], fragment("? NOT IN (SELECT distinct(dataset_id) FROM resource WHERE format = 'netex')", r.dataset_id))
+    |> where([r], fragment("? NOT IN (SELECT distinct(dataset_id) FROM resource WHERE format = 'NeTEx')", r.dataset_id))
     |> preload([:dataset])
     |> Repo.all()
     |> Stream.filter(fn r -> force_update || update_needed?(r) end)
@@ -43,7 +43,7 @@ defmodule Transport.Gtfs2Netexfr do
 
   @spec generate_netex(Resource.t()) :: :ok
   defp generate_netex(resource) do
-    Logger.info("generating netex for #{resource.dataset.title} - #{resource.title}")
+    Logger.info("generating NeTEx for #{resource.dataset.title} - #{resource.title}")
 
     url = "#{@base_url}/gtfs2netexfr?url=#{resource.url}&datagouv_id=#{resource.dataset.datagouv_id}"
 
@@ -51,17 +51,17 @@ defmodule Transport.Gtfs2Netexfr do
 
     case HTTPoison.get(url) do
       {:ok, %{status_code: 200}} ->
-        # Note: we only send a request to convert the GTFS to a netex file, the generation is done asynchronously
+        # Note: we only send a request to convert the GTFS to a NeTEx file, the generation is done asynchronously
         # the API server will post a communautary resource when available
         Logger.info("conversion ok for #{resource.id}")
 
         mark_as_converted(resource)
 
       {:ok, response} ->
-        Logger.error("impossible to convert gtfs to netex for resource #{resource.id}: #{inspect(response)}")
+        Logger.error("impossible to convert gtfs to NeTEx for resource #{resource.id}: #{inspect(response)}")
 
       {:error, error} ->
-        Logger.error("impossible to convert gtfs to netex for resource #{resource.id}: #{inspect(error)}")
+        Logger.error("impossible to convert gtfs to NeTEx for resource #{resource.id}: #{inspect(error)}")
     end
   end
 
