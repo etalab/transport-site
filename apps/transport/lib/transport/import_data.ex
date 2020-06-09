@@ -374,7 +374,8 @@ defmodule Transport.ImportData do
   def is_format?(nil, _), do: false
   def is_format?(%{"format" => format}, expected), do: is_format?(format, expected)
   def is_format?(value, [head | tail]), do: is_format?(value, head) || is_format?(value, tail)
-  def is_format?(str, expected), do: str |> String.downcase() |> String.contains?(expected)
+  def is_format?(_, []), do: false
+  def is_format?(str, expected), do: str |> String.downcase() |> String.contains?(String.downcase(expected))
 
   @doc """
   Is the ressource a zip file?
