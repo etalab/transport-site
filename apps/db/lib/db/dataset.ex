@@ -289,15 +289,14 @@ defmodule DB.Dataset do
       %{valid?: true} = changeset ->
         {:ok, changeset}
 
-      %{valid?: false, errors: errors} ->
+      %{valid?: false} = errors ->
+        Logger.warn("error while importing dataset: #{format_error(errors)}")
         {:error, format_error(errors)}
     end
   end
 
-  @spec format_error(keyword()) :: binary()
-  defp format_error([]), do: ""
-  defp format_error([{_key, {msg, _extra}}]), do: "#{msg}"
-  defp format_error([{_key, {msg, _extra}} | errors]), do: "#{msg}, #{format_error(errors)}"
+  @spec format_error(any()) :: binary()
+  defp format_error(changeset), do: "#{inspect(Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end))}"
 
   @spec valid_gtfs(DB.Dataset.t()) :: [Resource.t()]
   def valid_gtfs(%__MODULE__{resources: nil}), do: []
