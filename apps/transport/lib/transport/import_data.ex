@@ -247,7 +247,7 @@ defmodule Transport.ImportData do
     dataset
     |> get_valid_resources(type)
     |> Enum.concat(get_community_resources(dataset))
-    |> Enum.dedup_by(fn resource -> resource["url"] end)
+    |> Enum.uniq_by(fn resource -> resource["url"] end)
     |> Enum.map(fn resource ->
       is_community_resource = resource["is_community_resource"] == true
 
