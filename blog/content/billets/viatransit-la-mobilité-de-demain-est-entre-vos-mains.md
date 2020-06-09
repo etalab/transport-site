@@ -18,7 +18,7 @@ Camille Monjo et Darius Martin, deux étudiants en ingénierie informatique à E
 
 Pionnière de l'information voyageur en temps réel à Montpellier, leur application facilite également l'utilisation des transports en commun à Saint Quentin, Dijon, Grand Avignon, Narbonne, Béziers, Albi, Agde ainsi que les déplacements par voie ferrée en Île-de-France.
 
-![](blog/images/viatransitapp.png)
+![](/images/viatransitapp.png)
 
 Cette application interactive permet aux utilisateurs de voter pour prioriser les nouvelles villes à intégrer. En fonction de la disponibilité des données sur transport.data.gouv.fr, l'équipe peut étendre la couverture de leur application sur d'autres villes où un besoin est identifié.
 
