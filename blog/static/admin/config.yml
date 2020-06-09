@@ -2,6 +2,7 @@ backend:
   name: github
   repo: etalab/transport-site
   open_authoring: false
+  branch: blog
 
 publish_mode: editorial_workflow
 
