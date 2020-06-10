@@ -10,7 +10,7 @@ defmodule TransportWeb.ResourceController do
 
     Resource
     |> Repo.get(id)
-    |> Repo.preload([:dataset, :validation])
+    |> Repo.preload([:validation, dataset: [:resources]])
     |> case do
       nil ->
         conn |> put_view(ErrorView) |> render("404.html")
