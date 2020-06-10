@@ -69,7 +69,7 @@ defmodule Transport.ImportData do
   end
 
   @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
-  def import_dataset(%Dataset{datagouv_id: datagouv_id, type: type, title: title, slug: slug}) do
+  def import_dataset(%Dataset{datagouv_id: datagouv_id, type: type, title: title, slug: slug, is_active: is_active}) do
     with {:ok, new_data} <- import_from_udata(datagouv_id, type),
          {:ok, changeset} <- Dataset.changeset(new_data) do
       Repo.update(changeset)
@@ -77,7 +77,11 @@ defmodule Transport.ImportData do
       {:error, error} ->
         Logger.error("Unable to import data of dataset #{datagouv_id}: #{inspect(error)}")
 
+        # if the dataset is already inactive, we don't want to raise an error
+        error_level = if is_active, do: "error", else: "info"
+
         Sentry.capture_message("unable_to_import_dataset",
+          level: error_level,
           extra: %{datagouv_id: datagouv_id, type: type, title: title, slug: slug, error: error}
         )
 
