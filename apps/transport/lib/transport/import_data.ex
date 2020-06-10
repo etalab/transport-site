@@ -69,13 +69,18 @@ defmodule Transport.ImportData do
   end
 
   @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
-  def import_dataset(%Dataset{datagouv_id: datagouv_id, type: type}) do
+  def import_dataset(%Dataset{datagouv_id: datagouv_id, type: type, title: title, slug: slug}) do
     with {:ok, new_data} <- import_from_udata(datagouv_id, type),
          {:ok, changeset} <- Dataset.changeset(new_data) do
       Repo.update(changeset)
     else
       {:error, error} ->
         Logger.error("Unable to import data of dataset #{datagouv_id}: #{inspect(error)}")
+
+        Sentry.capture_message("unable_to_import_dataset",
+          extra: %{datagouv_id: datagouv_id, type: type, title: title, slug: slug, error: error}
+        )
+
         {:error, error}
     end
   end
