@@ -29,7 +29,7 @@ defmodule DB.Resource do
     field(:content_hash, :string)
     # automatically discovered tags
     field(:auto_tags, {:array, :string}, default: [])
-    field(:netex_conversion_latest_content_hash, :string)
+    field(:conversion_latest_content_hash, :string)
 
     field(:is_community_resource, :boolean)
     # only relevant for community resources, name of the owner or the organization that published the resource
