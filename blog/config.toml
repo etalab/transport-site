@@ -9,7 +9,7 @@ publishDir = "public"
 
 [params]
   logo = "/images/logo-header.svg"
-  description ="Le blog de transport.gouv.fr"
+  description ="Le blog de transport.data.gouv.fr"
   #mailchimp = "you can provide a mailchimp-link here"
 
 [params.author]
