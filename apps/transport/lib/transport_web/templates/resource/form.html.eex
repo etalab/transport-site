@@ -33,10 +33,10 @@
                     label: label f, :format do [
                         dgettext("resource", "format"),
                         content_tag(:a, "GTFS", class: "filler", onclick: "fill(this);"),
-                        content_tag(:a, "netex", class: "filler", onclick: "fill(this);"),
+                        content_tag(:a, "NeTEx", class: "filler", onclick: "fill(this);"),
                     ]
                     end,
-                    placeholder: "GTFS, netex, …",
+                    placeholder: "GTFS, NeTEx, …",
                     value: resource["format"]
                 )
                 %>

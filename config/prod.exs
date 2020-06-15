@@ -16,7 +16,7 @@ config :transport, Transport.Scheduler,
     {"@daily", {Transport.DataChecker, :outdated_data, []}}, # Send email for outdated data
     {"@daily", {Transport.DataChecker, :inactive_data, []}}, # Set inactive data
     {"@daily", {Transport.History, :backup_resources, []}}, # backup all resources
-    {"@daily", {Transport.Gtfs2Netexfr, :convert_all, []}} # genrate a netex file for all GTFS
+    {"@daily", {Transport.Gtfs2Netexfr, :convert_all, []}} # genrate a NeTEx file for all GTFS
   ]
 
 config :db, DB.Repo,

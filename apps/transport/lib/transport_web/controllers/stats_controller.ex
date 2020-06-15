@@ -50,7 +50,7 @@ defmodule TransportWeb.StatsController do
       nb_reuses: nb_reuses(),
       nb_dataset_types: nb_dataset_types(),
       nb_gtfs: count_dataset_with_format("GTFS"),
-      nb_netex: count_dataset_with_format("netex"),
+      nb_netex: count_dataset_with_format("NeTEx"),
       nb_bss_datasets: count_dataset_with_format("gbfs"),
       nb_bikes_datasets: nb_bikes(),
       droms: ["antilles", "guyane", "mayotte", "reunion"]

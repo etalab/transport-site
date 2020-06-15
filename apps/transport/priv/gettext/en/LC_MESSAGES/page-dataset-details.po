@@ -183,7 +183,7 @@ msgid "GTFS resources"
 msgstr ""
 
 #, elixir-format
-msgid "NETeX resources"
+msgid "NeTEx resources"
 msgstr ""
 
 #, elixir-format

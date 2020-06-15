@@ -69,13 +69,22 @@ defmodule Transport.ImportData do
   end
 
   @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
-  def import_dataset(%Dataset{datagouv_id: datagouv_id, type: type}) do
+  def import_dataset(%Dataset{datagouv_id: datagouv_id, type: type, title: title, slug: slug, is_active: is_active}) do
     with {:ok, new_data} <- import_from_udata(datagouv_id, type),
          {:ok, changeset} <- Dataset.changeset(new_data) do
       Repo.update(changeset)
     else
       {:error, error} ->
         Logger.error("Unable to import data of dataset #{datagouv_id}: #{inspect(error)}")
+
+        # if the dataset is already inactive, we don't want to raise an error
+        error_level = if is_active, do: "error", else: "info"
+
+        Sentry.capture_message("unable_to_import_dataset",
+          level: error_level,
+          extra: %{datagouv_id: datagouv_id, type: type, title: title, slug: slug, error: error}
+        )
+
         {:error, error}
     end
   end
@@ -247,7 +256,7 @@ defmodule Transport.ImportData do
     dataset
     |> get_valid_resources(type)
     |> Enum.concat(get_community_resources(dataset))
-    |> Enum.dedup_by(fn resource -> resource["url"] end)
+    |> Enum.uniq_by(fn resource -> resource["url"] end)
     |> Enum.map(fn resource ->
       is_community_resource = resource["is_community_resource"] == true
 
@@ -329,7 +338,7 @@ defmodule Transport.ImportData do
 
   ## Examples
 
-      iex> ImportData.is_gtfs?("netex")
+      iex> ImportData.is_gtfs?("NeTEx")
       false
 
       iex> ImportData.is_gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
@@ -361,20 +370,21 @@ defmodule Transport.ImportData do
 
   @doc """
   check the format
-      iex> ImportData.is_format?("netex", ["GTFS", "netex"])
+      iex> ImportData.is_format?("NeTEx", ["GTFS", "NeTEx"])
       true
 
-      iex> ImportData.is_format?("pouet", ["GTFS", "netex"])
+      iex> ImportData.is_format?("pouet", ["GTFS", "NeTEx"])
       false
 
-      iex> ImportData.is_format?(%{"format" => "netex"}, "netex")
+      iex> ImportData.is_format?(%{"format" => "NeTEx"}, "NeTEx")
       true
   """
   @spec is_format?(binary() | map(), binary() | [binary()]) :: boolean
   def is_format?(nil, _), do: false
   def is_format?(%{"format" => format}, expected), do: is_format?(format, expected)
   def is_format?(value, [head | tail]), do: is_format?(value, head) || is_format?(value, tail)
-  def is_format?(str, expected), do: str |> String.downcase() |> String.contains?(expected)
+  def is_format?(_, []), do: false
+  def is_format?(str, expected), do: str |> String.downcase() |> String.contains?(String.downcase(expected))
 
   @doc """
   Is the ressource a zip file?
@@ -401,13 +411,13 @@ defmodule Transport.ImportData do
   @spec is_netex?(binary() | map()) :: boolean()
   def is_netex?(%{} = params) do
     cond do
-      is_format?(params["format"], "netex") -> true
-      is_format?(params["description"], "netex") -> true
+      is_format?(params["format"], "NeTEx") -> true
+      is_format?(params["description"], "NeTEx") -> true
       true -> false
     end
   end
 
-  def is_netex?(s), do: is_format?(s, "netex")
+  def is_netex?(s), do: is_format?(s, "NeTEx")
 
   @doc """
   Check for licence, returns ["bad_license"] if the licence is not "odc-odbl"
@@ -488,7 +498,7 @@ defmodule Transport.ImportData do
 
     cond do
       is_gtfs_rt?(format) -> "gtfs-rt"
-      is_netex?(format) -> "netex"
+      is_netex?(format) -> "NeTEx"
       is_gtfs?(format) -> "GTFS"
       type == "public-transit" and not is_community_resource -> "GTFS"
       true -> format

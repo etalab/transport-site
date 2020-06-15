@@ -41,7 +41,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert Resource |> Repo.all() |> length() == 0
 
     assert get_flash(conn, :error) ==
-             "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
+             "%{region: [\"Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv\"]}"
   end
 
   @tag :external
@@ -64,7 +64,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert Resource |> Repo.all() |> length() == 0
 
     assert get_flash(conn, :error) ==
-             "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
+             "%{region: [\"Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv\"]}"
   end
 
   @tag :external
