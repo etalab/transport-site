@@ -34,8 +34,12 @@
       <div class="domain-stats staticPTdata">
         <%= render("_maps.html", droms: @droms, prefix: "map_regions") %>
         <div class="panel">
-          <div class="description">
+          <div class="description" id="public-transport-by-region">
             <h3>Par région</h3>
+            <span class="stat-link">
+              <a href="#public-transport-by-region"><i class="fa fa-link fa-small"></i></a>
+            </span>
+
             <p>L'offre de transport en commun urbain et interurbain, regroupée par région.</p>
           </div>
           <div class="tile">
@@ -53,8 +57,11 @@
       <div class="domain-stats staticPTdata">
         <%= render("_maps.html", droms: @droms, prefix: "map_aoms") %>
         <div class="panel">
-          <div class="description">
+          <div class="description" id="public-transport-by-aom">
             <h3>Par <acronym title="autorité organistrice de mobilité">AOM</acronym></h3>
+            <span class="stat-link">
+              <a href="#public-transport-by-aom"><i class="fa fa-link fa-small"></i></a>
+            </span>
             <p>L'offre de transport en commun urbain, disponible par <acronym title="autorité organistrice de mobilité">AOM</acronym>.</p><br>
             <p>Ces données peuvent être disponibles pour l'<acronym title="autorité organistrice de mobilité">AOM</acronym> spécifiquement, ou au sein d'un jeu de données plus large.</p>
           </div>
@@ -75,8 +82,11 @@
       <div class="domain-stats">
         <%= render("_maps.html", droms: @droms, prefix: "pt_format_map") %>
         <div class="panel">
-          <div class="description">
+          <div class="description" id="public-transport-format">
             <h3>Zoom sur les formats de données</h3>
+            <span class="stat-link" id="public-transport-format">
+              <a href="#public-transport-format"><i class="fa fa-link fa-small"></i></a>
+            </span>
             <p>Les données de transport en commun sont disponibles sur le site dans 2 formats,
               <a href="https://gtfs.org/">GTFS</a> et <a href="http://netex-cen.eu/">NeTEx</a>.</p>
           </div>
@@ -105,8 +115,11 @@
       <div class="domain-stats">
         <%= render("_maps.html", droms: @droms, prefix: "pt_up_to_date") %>
         <div class="panel">
-          <div class="description">
+          <div class="description" id="public-transport-freshness">
             <h3>Zoom sur la fraicheur des données</h3>
+            <span class="stat-link">
+              <a href="#public-transport-freshness"><i class="fa fa-link fa-small"></i></a>
+            </span>
             <p>
             Les données GTFS de la plateforme sont analysées pour connaitre leur periode de validité,
             qui correspond à la période de circulation des différents services du jeu de donnés.
@@ -122,8 +135,11 @@
       <div class="domain-stats">
         <%= render("_maps.html", droms: @droms, prefix: "pt_quality") %>
         <div class="panel">
-          <div class="description">
+          <div class="description" id="public-transport-quality">
             <h3>Zoom sur la qualité des données</h3>
+            <span class="stat-link">
+              <a href="#public-transport-quality"><i class="fa fa-link fa-small"></i></a>
+            </span>
             <p>
             Cette carte représente la qualité des données GTFS actuellement valides.
             </p>
@@ -155,12 +171,15 @@
         </div>
       </div>
     </div>
-    <div class="domain rt">
+    <div class="domain rt" id="public-transport-real-time">
       <h2>Transports en commun - temps réel</h2>
       <div class="domain-stats">
         <%= render("_maps.html", droms: @droms, prefix: "rt_map") %>
         <div class="panel">
           <div class="description">
+            <span class="stat-link">
+              <a href="#public-transport-real-time"><i class="fa fa-link fa-small"></i></a>
+            </span>
             <p>Le site recense des données temps réel pour les transports en commun.<br>
               Pour être référencée sur le PAN, les données doivent être accessibles sans authentification
               et dans le format GTFS-RT, Siri ou Siri Lite.<br>
@@ -188,12 +207,15 @@
         </div>
       </div>
     </div>
-    <div class="domain bikes">
+    <div class="domain bikes" id="real-time-bikes">
       <h2>Vélos libre service</h2>
       <div class="domain-stats">
         <%= render("_maps.html", droms: @droms, prefix: "bikes_map") %>
         <div class="panel">
           <div class="description">
+            <span class="stat-link">
+              <a href="#real-time-bikes"><i class="fa fa-link fa-small"></i></a>
+            </span>
             <p>
               La plateforme transport.data.gouv.fr référence des données de disponibilité en temps réel de vélos en libre service (VLS) au format <a href="https://github.com/NABSA/gbfs">GBFS</a>. Le GBFS est le standard ouvert pour les VLS et des services en free-floating.
               Les données, rafraîchies toutes les minutes, permettent de connaître :
