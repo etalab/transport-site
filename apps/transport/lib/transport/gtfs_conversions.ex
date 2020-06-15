@@ -16,7 +16,7 @@ defmodule Transport.GtfsConversions do
     Logger.info("generating NeTEx and geojson for all GTFS")
 
     Resource
-    |> where([r], not is_nil(r.url) and not is_nil(r.title) and r.format == "GTFS")
+    |> where([r], not is_nil(r.url) and not is_nil(r.title) and r.format == "GTFS" and r.is_community_resource == true)
     |> preload(dataset: [:resources])
     |> Repo.all()
     |> Stream.filter(fn r -> force_update || update_needed?(r) end)
@@ -35,11 +35,11 @@ defmodule Transport.GtfsConversions do
          conversion_latest_content_hash: conversion_latest_content_hash,
          content_hash: content_hash
        }) do
-    # the resource needs to be converted is the netex have been generated with a content hash different
+    # the resource needs to be converted if the netex have been generated with a different content hash
     conversion_latest_content_hash != content_hash
   end
 
-  @spec convert_resource(Resource.t()) :: :ok
+  @spec convert_resource(Resource.t()) :: {:ok, Ecto.Schema.t()} | {:error, any()}
   defp convert_resource(resource) do
     resource.dataset.resources
     |> Enum.find(fn r -> r.format == "NeTEx" and r.is_community_resource == false end)
@@ -53,13 +53,13 @@ defmodule Transport.GtfsConversions do
     end
   end
 
-  @spec generate_netex_and_geojson(Resource.t()) :: :ok
+  @spec generate_netex_and_geojson(Resource.t()) :: {:ok, Ecto.Schema.t()} | {:error, any()}
   defp generate_netex_and_geojson(resource), do: call_conversion_api(resource, "convert_to_netex_and_geojson")
 
-  @spec generate_geojson(Resource.t()) :: :ok
+  @spec generate_geojson(Resource.t()) :: {:ok, Ecto.Schema.t()} | {:error, any()}
   defp generate_geojson(resource), do: call_conversion_api(resource, "gtfs2geojson")
 
-  @spec call_conversion_api(Resource.t(), binary()) :: :ok
+  @spec call_conversion_api(Resource.t(), binary()) :: {:ok, Ecto.Schema.t()} | {:error, any()}
   defp call_conversion_api(resource, endpoint) do
     Logger.info("calling #{endpoint} for #{resource.dataset.title} - #{resource.title} (#{resource.id})")
 
@@ -74,13 +74,15 @@ defmodule Transport.GtfsConversions do
 
       {:ok, response} ->
         Logger.error("error in call to #{endpoint} for resource #{resource.id}: #{inspect(response)}")
+        {:error, response}
 
       {:error, error} ->
         Logger.error("impossible to call #{endpoint} for resource #{resource.id}: #{inspect(error)}")
+        {:error, error}
     end
   end
 
-  @spec mark_as_converted(Resource.t()) :: :ok
+  @spec mark_as_converted(Resource.t()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   defp mark_as_converted(resource) do
     # we set the conversion_latest_content_hash to the current resource content hash
     resource
