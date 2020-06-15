@@ -1,5 +1,0 @@
-<div class="fortags">
-	{{ range $name, $taxonomy := .Site.Taxonomies.tags }}
-		<a class="mt-1 mb-1" href="{{ "/tags/" | relLangURL }}{{ $name | urlize }}">{{ $taxonomy.Page.Title }}<span class="tag-count">{{ .Count }}</span></a>
-	{{ end }}
-</div>
