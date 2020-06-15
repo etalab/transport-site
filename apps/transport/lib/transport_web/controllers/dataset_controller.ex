@@ -256,6 +256,9 @@ defmodule TransportWeb.DatasetController do
   defp put_custom_context(conn, %{"type" => "addresses"}),
     do: assign(conn, :custom_context, "_addresses.html")
 
+  defp put_custom_context(conn, %{"type" => "private-parking"}),
+    do: assign(conn, :custom_context, "_parkings.html")
+
   defp put_custom_context(conn, _), do: conn
 
   defp put_page_title(conn, %{"region" => id}),
