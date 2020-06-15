@@ -12,6 +12,20 @@
         <%= render "_resources_details.html", metadata: @resource.metadata %>
         </div>
 
+        <% associated_geojson = get_associated_geojson(@resource) %>
+        <%= unless is_nil(associated_geojson) do %>
+          <div class="mt-48 panel">
+          <div id="resource-geojson" style="height: 400px;"></div>
+
+          <script src="<%= static_path(@conn, "/js/mapgeojson.js") %>"></script>
+          <script>
+            document.addEventListener("DOMContentLoaded", function() {
+              createResourceGeojson('resource-geojson', "<%= associated_geojson.url %>")
+            })
+          </script>
+          </div>
+        <% end %>
+
         <div class="mt-48 panel" id="issues">
           <h1><%= dgettext("validations", "Validation report")%></h1>
           <nav class="issues-list validation" role="navigation">

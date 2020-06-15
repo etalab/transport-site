@@ -39,7 +39,9 @@ defmodule Transport.ImportDataWorker do
     ImportData.import_validate_all()
     {:noreply, state}
   rescue
-    e -> Logger.error("error in the import data worker : #{inspect(e)}")
+    e ->
+      Logger.error("error in the import data worker : #{inspect(e)}")
+      Sentry.capture_exception(e)
   end
 
   @impl true
@@ -47,7 +49,9 @@ defmodule Transport.ImportDataWorker do
     ImportData.validate_all_resources()
     {:noreply, state}
   rescue
-    e -> Logger.error("error in the validation data worker : #{inspect(e)}")
+    e ->
+      Logger.error("error in the validation data worker : #{inspect(e)}")
+      Sentry.capture_exception(e)
   end
 
   @impl true
@@ -55,7 +59,9 @@ defmodule Transport.ImportDataWorker do
     ImportData.validate_all_resources(true)
     {:noreply, state}
   rescue
-    e -> Logger.error("error in the validation data worker : #{inspect(e)}")
+    e ->
+      Logger.error("error in the validation data worker : #{inspect(e)}")
+      Sentry.capture_exception(e)
   end
 
   @impl true
