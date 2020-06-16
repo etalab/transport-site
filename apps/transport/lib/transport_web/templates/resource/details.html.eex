@@ -1,8 +1,8 @@
 <section>
     <div class="grey-background">
     <div class="container">
+        <h2 class="mt-48"><%= dgettext("validations", "Resource details")%></h2>
         <div class="panel">
-        <h1><%= dgettext("validations", "Resource details")%></h1>
         <p><%= dgettext("validations", "File name")%> :
           <a href="<%= @resource.url %>">
             <strong><%= @resource.title %></strong>
@@ -14,20 +14,29 @@
 
         <% associated_geojson = get_associated_geojson(@resource) %>
         <%= unless is_nil(associated_geojson) do %>
-          <div class="mt-48 panel">
-          <div id="resource-geojson" style="height: 400px;"></div>
+          <h2 class="mt-48"><%= dgettext("validations", "Aperçu des arrêts et lignes de la ressource GTFS")%></h2>
+          <div class="panel no-padding">
+            <div id="resource-geojson-info"></div>
+            <div id="resource-geojson"></div>
 
-          <script src="<%= static_path(@conn, "/js/mapgeojson.js") %>"></script>
-          <script>
-            document.addEventListener("DOMContentLoaded", function() {
-              createResourceGeojson('resource-geojson', "<%= associated_geojson.url %>")
-            })
-          </script>
+            <script src="<%= static_path(@conn, "/js/mapgeojson.js") %>"></script>
+            <script>
+              document.addEventListener("DOMContentLoaded", function() {
+                createResourceGeojson(
+                  'resource-geojson',
+                  'resource-geojson-info',
+                  "<%= associated_geojson.url %>",
+                  "<%= associated_geojson.filesize %>",
+                  "<%= dgettext("validations", "Stops visualization is quite big") %>",
+                  "<%= dgettext("validations", "Show anyway") %>"
+                )
+              })
+            </script>
           </div>
         <% end %>
 
-        <div class="mt-48 panel" id="issues">
-          <h1><%= dgettext("validations", "Validation report")%></h1>
+        <h2 class="mt-48"><%= dgettext("validations", "Validation report")%></h2>
+        <div class="panel" id="issues">
           <nav class="issues-list validation" role="navigation">
               <%= unless @resource.validation do %>
                   <%= dgettext("validations", "No validation available") %>
