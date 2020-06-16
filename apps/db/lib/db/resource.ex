@@ -244,10 +244,16 @@ defmodule DB.Resource do
       "ImpossibleToInterpolateStopTimes" => dgettext("validations", "Impossible to interpolate stop times")
     }
 
-  @spec valid?(__MODULE__.t()) :: boolean()
-  def valid?(%__MODULE__{} = r), do: r.metadata != nil
+  @spec has_metadata?(__MODULE__.t()) :: boolean()
+  def has_metadata?(%__MODULE__{} = r), do: r.metadata != nil
 
-  @spec is_outdated?(__MODULE__) :: boolean
+  @spec valid?(__MODULE__.t()) :: boolean()
+  def valid?(%__MODULE__{metadata: %{"start_date" => s, "end_date" => e}}) when not is_nil(s) and not is_nil(e),
+    do: true
+
+  def valid?(%__MODULE__{}), do: false
+
+  @spec is_outdated?(__MODULE__.t()) :: boolean
   def is_outdated?(%__MODULE__{metadata: %{"end_date" => nil}}), do: false
 
   def is_outdated?(%__MODULE__{metadata: %{"end_date" => end_date}}),

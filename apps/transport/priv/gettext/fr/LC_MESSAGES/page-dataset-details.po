@@ -317,3 +317,7 @@ msgstr "type de données"
 #, elixir-format
 msgid "Covered area"
 msgstr "Couverture spatiale"
+
+#, elixir-format
+msgid "Impossible to read"
+msgstr "Données illisibles"
