@@ -94,3 +94,11 @@ msgstr "au"
 msgid "explanations"
 msgstr "Voici le bilan automatisé sur la qualité du fichier GTFS. "
 "Cette validation ne concerne que la structure des données et pas la complétude ni l’exactitude des horaires. "
+
+#, elixir-format
+msgid "Show anyway"
+msgstr "Afficher quand même"
+
+#, elixir-format
+msgid "Stops visualization is quite big"
+msgstr "La visualisation des arrêts est volumineuse"

@@ -93,3 +93,11 @@ msgstr ""
 #, elixir-format
 msgid "explanations"
 msgstr ""
+
+#, elixir-format
+msgid "Show anyway"
+msgstr ""
+
+#, elixir-format
+msgid "Stops visualization is quite big"
+msgstr ""
