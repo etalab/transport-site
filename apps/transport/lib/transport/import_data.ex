@@ -273,7 +273,8 @@ defmodule Transport.ImportData do
         "is_available" => available?(resource),
         "is_community_resource" => is_community_resource,
         "community_resource_publisher" => get_publisher(resource),
-        "description" => resource["description"]
+        "description" => resource["description"],
+        "filesize" => resource["filesize"]
       }
     end)
   end
