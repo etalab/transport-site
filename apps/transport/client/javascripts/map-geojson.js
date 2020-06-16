@@ -12,7 +12,7 @@ const Mapbox = {
     id: 'mapbox.light'
 }
 
-function initilizeMap(id) {
+function initilizeMap (id) {
     const map = L.map(id, { renderer: L.canvas() }).setView([46.505, 2], 5)
     L.tileLayer(Mapbox.url, {
         accessToken: Mapbox.accessToken,
@@ -26,7 +26,7 @@ function initilizeMap(id) {
     return { map, markersfg, linesfg }
 }
 
-function setLinesStyle(feature) {
+function setLinesStyle (feature) {
     if (feature.geometry.type !== 'Point') {
         return { color: feature.properties.route_color, weight: 5 }
     } else {
@@ -34,11 +34,11 @@ function setLinesStyle(feature) {
     }
 }
 
-function createStopsMarkers(geoJsonPoint, latlng) {
+function createStopsMarkers (geoJsonPoint, latlng) {
     return L.circleMarker(latlng, { fillColor: 'white', color: 'black', fillOpacity: 1, weight: 3, radius: 5 })
 }
 
-function setZoomEvents(map, fg) {
+function setZoomEvents (map, fg) {
     map.on('zoomend', () => {
         if (map.getZoom() >= 14) {
             fg.setStyle({ fillColor: 'white', color: 'black', fillOpacity: 1, weight: 3, radius: 5 })
@@ -48,7 +48,7 @@ function setZoomEvents(map, fg) {
     })
 }
 
-function createResourceGeojson(mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
+function createResourceGeojson (mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
     const sizeMB = filesize / 1024 / 1024
     const infoDiv = document.getElementById(infoDivId)
     const mapDiv = document.getElementById(mapDivId)
