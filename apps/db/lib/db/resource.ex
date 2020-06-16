@@ -40,6 +40,8 @@ defmodule DB.Resource do
     field(:start_date, :date)
     field(:end_date, :date)
 
+    field(:filesize, :integer)
+
     belongs_to(:dataset, Dataset)
     has_one(:validation, Validation, on_replace: :delete)
   end
@@ -201,7 +203,8 @@ defmodule DB.Resource do
         :auto_tags,
         :is_community_resource,
         :community_resource_publisher,
-        :description
+        :description,
+        :filesize
       ]
     )
     |> validate_required([:url])
