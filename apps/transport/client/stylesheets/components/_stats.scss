@@ -88,9 +88,26 @@
     padding: 2em;
     background-color: $white;
     flex-grow: 1;
+    position: relative;
 
     p {
       margin: 0;
+    }
+    .stat-link {
+      display: none;
+      position: absolute;
+      top: 0;
+      right: 3px;
+      font-size: 14px;
+      a {
+        color: var(--grey);
+        background-color: white;
+      }
+    }
+    &:hover {
+      .stat-link {
+        display: inline;
+      }
     }
   }
 
