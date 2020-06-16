@@ -46,14 +46,12 @@
   font-size: 14px;
 
   .panel__content {
-    height: 5.5em;
-    overflow: hidden;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 
-    div:last-child {
-      padding: 1em;
+    .dataset__infos {
+       padding: 12px 6px 0px 12px;
     }
   }
 
@@ -67,7 +65,7 @@
     position: relative;
     align-items: center;
     text-align: center;
-    padding: 1em;
+    padding: 6px;
     line-height: 1em;
   }
 
@@ -119,6 +117,7 @@
     padding: 1em;
     line-height: 1em;
     margin-right: 1em;
+    padding: 1em;
   }
 
   .dataset__type img {

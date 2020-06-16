@@ -99,7 +99,7 @@
                       <div class="dataset__image" data-provider="<%= dataset.title%>">
                         <%= img_tag(dataset.logo, alt: dataset.title) %>
                       </div>
-                      <div>
+                      <div class="dataset__infos">
                         <h3 class="dataset__title">
                           <a href="/datasets/<%= dataset.slug %>/">
                             <%= dataset.spatial %>
