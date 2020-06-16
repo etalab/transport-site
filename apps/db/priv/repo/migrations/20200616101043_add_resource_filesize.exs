@@ -3,10 +3,7 @@ defmodule DB.Repo.Migrations.AddResourceFilesize do
 
   def change do
     alter table(:resource) do
-      add :filesize, :integer
+      add(:filesize, :integer)
     end
   end
 end
-
-
-
