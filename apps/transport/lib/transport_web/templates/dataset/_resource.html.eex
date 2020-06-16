@@ -23,17 +23,23 @@
             </div>
     </div>
     <div class="resource__details">
-        <%= if Resource.valid?(@resource) and Resource.is_gtfs?(@resource) do %>
+        <%= if Resource.is_gtfs?(@resource) do %>
         <div>
-            <span class="resource--<%= if Resource.is_outdated?(@resource) do "not" end %>valid">
-            <%= if Resource.is_outdated?(@resource) do %>
-                <%= dgettext("page-dataset-details", "Outdated") %>
-            <% else %>
-                <%= dgettext("page-dataset-details", "Current dataset") %>
-            <% end %>
+            <span class="<%= resource_class(@resource) %>">
+                <%= unless Resource.valid?(@resource) do %>
+                    <%= dgettext("page-dataset-details", "Impossible to read") %>
+                <% else %>
+                    <%= if Resource.is_outdated?(@resource) do %>
+                        <%= dgettext("page-dataset-details", "Outdated") %>
+                    <% else %>
+                        <%= dgettext("page-dataset-details", "Current dataset") %>
+                    <% end %>
+                <% end %>
             </span>
-            <span><%= dgettext("page-dataset-details", "from") %> <%= @resource.metadata["start_date"] %></span>
-            <span><%= dgettext("page-dataset-details", "until") %> <%= @resource.metadata["end_date"] %></span>
+            <%= if Resource.valid?(@resource) do %>
+                <span><%= dgettext("page-dataset-details", "from") %> <%= @resource.metadata["start_date"] %></span>
+                <span><%= dgettext("page-dataset-details", "until") %> <%= @resource.metadata["end_date"] %></span>
+            <% end %>
         </div>
         <div>
             <% r = Resource.get_max_severity_validation_number(@resource) %>

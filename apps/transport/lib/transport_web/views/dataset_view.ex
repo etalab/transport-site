@@ -266,4 +266,17 @@ defmodule TransportWeb.DatasetView do
   end
 
   def get_resource_to_display(%Dataset{}), do: nil
+
+  def resource_class(%DB.Resource{} = r) do
+    case DB.Resource.valid?(r) do
+      false ->
+        "resource--notvalid"
+
+      _ ->
+        case DB.Resource.is_outdated?(r) do
+          true -> "resource--outdated"
+          false -> "resource--valid"
+        end
+    end
+  end
 end

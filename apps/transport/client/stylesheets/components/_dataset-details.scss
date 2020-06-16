@@ -141,6 +141,11 @@
   border: 1px solid var(--theme-success-border);
 }
 
+.resource--outdated {
+  background: var(--theme-background-grey);
+  border: 1px solid var(--theme-border-lighter);
+}
+
 .resource--notvalid {
   background: var(--theme-background-grey);
   border: 1px solid var(--theme-border-lighter);

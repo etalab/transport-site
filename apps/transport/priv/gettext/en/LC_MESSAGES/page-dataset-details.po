@@ -317,3 +317,7 @@ msgstr ""
 #, elixir-format
 msgid "Covered area"
 msgstr ""
+
+#, elixir-format
+msgid "Impossible to read"
+msgstr ""
