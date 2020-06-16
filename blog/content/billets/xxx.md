@@ -5,7 +5,7 @@ tags:
   - réutilisation
 description: Interview avec Manuel Pereira, du pôle accessibilité numérique à
   l’association Valentin HAÜY et LEON ingénieur, développeur du Localisateur
-image: /images/capture.png
+image: /images/le-localisateur.png
 ---
 ### Le Localisateur : Le web en clair pour tous
 
