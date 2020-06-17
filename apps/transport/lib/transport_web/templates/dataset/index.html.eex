@@ -99,7 +99,7 @@
                       <div class="dataset__image" data-provider="<%= dataset.title%>">
                         <%= img_tag(dataset.logo, alt: dataset.title) %>
                       </div>
-                      <div>
+                      <div class="dataset__infos">
                         <h3 class="dataset__title">
                           <a href="/datasets/<%= dataset.slug %>/">
                             <%= dataset.spatial %>
@@ -150,7 +150,7 @@
         <div class="shortlist__pagination">
           <%= pagination_links @conn, @datasets %>
         </div>
-        <div>
+        <div class="api-link">
           <i class="fas fa-cogs"></i>
           <%= link(
           dgettext("page-shortlist", "Get dataset list via an API"),

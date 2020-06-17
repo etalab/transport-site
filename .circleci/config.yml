@@ -24,14 +24,14 @@ defaults_with_postgres: &defaults_with_postgres
         POSTGRES_DB: transport_test
 
 defaults_with_postgres_and_phantom: &defaults_with_postgres_and_phantom
-    <<: *defaults
-    docker:
-      - *default_docker
-      - image: selenium/standalone-chrome:3.141.59-oxygen
-      - image: mdillon/postgis:11-alpine
-        environment:
-          POSTGRES_USER: root
-          POSTGRES_DB: transport_test
+  <<: *defaults
+  docker:
+    - *default_docker
+    - image: selenium/standalone-chrome:3.141.59-oxygen
+    - image: mdillon/postgis:11-alpine
+      environment:
+        POSTGRES_USER: root
+        POSTGRES_DB: transport_test
 
 jobs:
   build:
@@ -42,14 +42,22 @@ jobs:
 
       - restore_cache:
           keys:
-            - elixir-v5-{{ checksum "mix.lock" }}
+            - elixir-v7-{{ checksum "mix.lock" }}
 
       - run:
-          name: Install mix dependencies
+          name: Install mix dependencies for MIX_ENV=dev
+          command: MIX_ENV=dev mix deps.get
+
+      - run:
+          name: Compile mix dependencies for MIX_ENV=dev
+          command: MIX_ENV=dev mix deps.compile
+
+      - run:
+          name: Install mix dependencies for MIX_ENV=test
           command: mix deps.get
 
       - run:
-          name: Compile mix dependencies
+          name: Compile mix dependencies for MIX_ENV=test
           command: mix deps.compile
 
       - run:
@@ -62,7 +70,7 @@ jobs:
 
       - run:
           name: Build PLT
-          command: mix dialyzer --plt
+          command: MIX_ENV=dev mix dialyzer --plt
 
       - persist_to_workspace:
           root: ~/transport
@@ -70,7 +78,7 @@ jobs:
             - .
 
       - save_cache:
-          key: elixir-v5-{{ checksum "mix.lock" }}
+          key: elixir-v7-{{ checksum "mix.lock" }}
           paths:
             - ~/transport/_build
             - ~/transport/deps
@@ -196,4 +204,3 @@ workflows:
       - test_dialyzer:
           requires:
             - build
-
