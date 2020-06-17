@@ -150,7 +150,7 @@
         <div class="shortlist__pagination">
           <%= pagination_links @conn, @datasets %>
         </div>
-        <div>
+        <div class="api-link">
           <i class="fas fa-cogs"></i>
           <%= link(
           dgettext("page-shortlist", "Get dataset list via an API"),

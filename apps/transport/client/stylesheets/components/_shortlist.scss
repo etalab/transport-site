@@ -5,7 +5,7 @@
 .shortlist__pagination {
   margin: 1em 0;
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
 }
 
 .shortlist .side-pane {
@@ -72,6 +72,7 @@
   .dataset__image img {
     object-fit: contain;
     height: 100%;
+    max-height: 4.5em;
   }
 
   .side-pane__submenu a {
@@ -103,24 +104,19 @@
   .dataset__description {
     display: flex;
     justify-content: flex-start;
+    flex: 1 1 100px;
   }
 
   .dataset__type {
-    overflow: hidden;
     display: flex;
-    justify-content: center;
-    flex: 0 0 4.5em;
-    position: relative;
-    align-items: flex-end;
-    text-align: center;
-    padding: 1em;
-    line-height: 1em;
-    margin-right: 1em;
+    flex: 0 0 5em;
+    align-items: center;
     padding: 1em;
   }
 
   .dataset__type img {
-    height: 100%;
+    width: 100%;
+    max-height: 100%;
   }
 
   .panel__extra {
@@ -304,5 +300,10 @@
 
 #datasets-results {
   padding-top: 3em;
-  padding-bottom: 6em;
+  padding-bottom: 3em;
+}
+
+.api-link {
+  text-align: center;
+  padding-top: 48px;
 }
