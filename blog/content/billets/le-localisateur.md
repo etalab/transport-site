@@ -3,12 +3,7 @@ title: "Paroles de réutilisateur : Le Localisateur !"
 date: 2020-06-09T15:25:05.610Z
 tags:
   - réutilisation
-description: "Nous réalisons une série d’entretiens avec différents
-  réutilisateurs des données mises à disposition sur le Point d’Accès National,
-  afin de valoriser l’usage qui est fait de la donnée de transport et illustrer
-  des différents cas d’usage qu’elle peut avoir : Interview avec Manuel Pereira,
-  du pôle accessibilité numérique à l’association Valentin HAÜY et LEON
-  ingénieur, développeur du Localisateur"
+description: "   "
 image: /images/le-localisateur.png
 ---
 ### Le Localisateur : Le web en clair pour tous
