@@ -157,16 +157,18 @@ defmodule TransportWeb.DatasetView do
   end
 
   def icon_type_path(%{type: type}) do
-    case type do
-      "public-transit" -> "/images/icons/bus.svg"
-      "bike-sharing" -> "/images/icons/bicycle.svg"
-      "carsharing-areas" -> "/images/icons/car.svg"
-      "charging-stations" -> "/images/icons/charge-station.svg"
-      "air-transport" -> "/images/icons/plane.svg"
-      "road-network" -> "/images/icons/map.svg"
-      "addresses" -> "/images/icons/addresses.svg"
-      _ -> nil
-    end
+    icons = %{
+      "public-transit" => "/images/icons/bus.svg",
+      "bike-sharing" => "/images/icons/bicycle.svg",
+      "carsharing-areas" => "/images/icons/car.svg",
+      "charging-stations" => "/images/icons/charge-station.svg",
+      "air-transport" => "/images/icons/plane.svg",
+      "road-network" => "/images/icons/map.svg",
+      "addresses" => "/images/icons/addresses.svg",
+      "private-parking" => "/images/icons/parking.svg"
+    }
+
+    Map.get(icons, type)
   end
 
   def display_all_types_links?(%{params: %{"type" => type}}) when not is_nil(type), do: true
