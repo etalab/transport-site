@@ -42,15 +42,23 @@ jobs:
 
       - restore_cache:
           keys:
-            - elixir-v6-{{ checksum "mix.lock" }}
+            - elixir-v7-{{ checksum "mix.lock" }}
 
       - run:
-          name: Install mix dependencies
+          name: Install mix dependencies for MIX_ENV=dev
           command: MIX_ENV=dev mix deps.get
 
       - run:
-          name: Compile mix dependencies
+          name: Compile mix dependencies for MIX_ENV=dev
           command: MIX_ENV=dev mix deps.compile
+
+      - run:
+          name: Install mix dependencies for MIX_ENV=test
+          command: mix deps.get
+
+      - run:
+          name: Compile mix dependencies for MIX_ENV=test
+          command: mix deps.compile
 
       - run:
           name: Install yarn dependencies
@@ -70,7 +78,7 @@ jobs:
             - .
 
       - save_cache:
-          key: elixir-v6-{{ checksum "mix.lock" }}
+          key: elixir-v7-{{ checksum "mix.lock" }}
           paths:
             - ~/transport/_build
             - ~/transport/deps
