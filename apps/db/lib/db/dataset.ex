@@ -395,12 +395,16 @@ defmodule DB.Dataset do
   def get_other_dataset(_), do: []
 
   @spec get_territory(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
+  def get_territory(%__MODULE__{aom: %{nom: nom}}), do: {:ok, nom}
+
   def get_territory(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
     case Repo.get(AOM, aom_id) do
       nil -> {:error, "Could not find territory of AOM with id #{aom_id}"}
       aom -> {:ok, aom.nom}
     end
   end
+
+  def get_territory(%__MODULE__{region: %{nom: nom}}), do: {:ok, nom}
 
   def get_territory(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
     case Repo.get(Region, region_id) do
@@ -413,6 +417,14 @@ defmodule DB.Dataset do
     do: {:ok, associated_territory_name}
 
   def get_territory(_), do: {:error, "Trying to find the territory of an unkown entity"}
+
+  @spec get_territory_or_nil(__MODULE__.t()) :: binary()
+  def get_territory_or_nil(%__MODULE__{} = d) do
+    case get_territory(d) do
+      {:ok, t} -> t
+      _ -> nil
+    end
+  end
 
   @spec get_covered_area_names(__MODULE__.t()) :: binary | [any]
   def get_covered_area_names(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do

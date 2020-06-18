@@ -222,15 +222,6 @@ defmodule TransportWeb.DatasetView do
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
   def licence_url(_), do: nil
 
-  @spec localization(DB.Dataset.t()) :: binary | nil
-  def localization(%Dataset{aom: %{nom: nom}}), do: nom
-  def localization(%Dataset{region: %{nom: nom}}), do: nom
-
-  def localization(%Dataset{associated_territory_name: associated_territory_name}),
-    do: associated_territory_name
-
-  def localization(_), do: nil
-
   def description(%Dataset{} = dataset) do
     {:safe, sanitized_md} = sanitize(dataset.description)
 

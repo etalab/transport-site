@@ -45,6 +45,7 @@ defmodule TransportWeb do
       import TransportWeb.ErrorHelpers
       import TransportWeb.InputHelpers
       import TransportWeb.Gettext
+      import TransportWeb.SeoMetadata
       import Helpers
 
       import Phoenix.LiveView,

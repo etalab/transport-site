@@ -223,7 +223,7 @@
           <%= img_tag(@dataset.full_logo, alt: @dataset.title) %>
         </div>
         <div>
-          <i class="fa fa-map-marker-alt"></i> <%= localization(@dataset) %>
+          <i class="fa fa-map-marker-alt"></i> <%= Dataset.get_territory_or_nil(@dataset) %>
         </div>
         <div class="pt-12">
           <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "data type")%></span>
