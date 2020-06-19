@@ -67,7 +67,8 @@ defmodule TransportWeb.SeoMetadataTest do
   end
 
   test "GET /datasets/region/12 ", %{conn: conn} do
-    title = conn |> get("/datasets/region/12") |> html_response(200) |> title
+    region = Repo.get_by(Region, nom: "Pays de la Loire")
+    title = conn |> get("/datasets/region/#{region.id}") |> html_response(200) |> title
     assert title =~ "Jeux de données ouverts de la région Pays de la Loire"
   end
 
@@ -105,5 +106,4 @@ defmodule TransportWeb.SeoMetadataTest do
     title = conn |> get("/validation") |> html_response(200) |> title
     assert title =~ "Évaluation de la qualité d’un jeu de données GTFS"
   end
-
 end
