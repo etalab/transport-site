@@ -112,7 +112,7 @@
                           <% end %>
                         </h3>
                         <div class="dataset-localization">
-                          <i class="fa fa-map-marker-alt"></i> <%= localization(dataset) %></<i>
+                          <i class="fa fa-map-marker-alt"></i> <%= Dataset.get_territory_or_nil(dataset) %></<i>
                         </div>
                       </div>
                     </div>

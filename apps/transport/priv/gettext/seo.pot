@@ -1,0 +1,59 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
+#, elixir-format
+msgid "%{format} Transport open dataset - %{title} for %{spatial} - %{territory}"
+msgstr ""
+
+#, elixir-format
+msgid "Publish, improve and reuse French public transport data"
+msgstr ""
+
+#, elixir-format
+msgid "Transport open datasets for %{type} %{name}"
+msgstr ""
+
+#, elixir-format
+msgid "Transport open datasets for AOM %{name}"
+msgstr ""
+
+#, elixir-format
+msgid "Transport open datasets for search %{q}"
+msgstr ""
+
+#, elixir-format
+msgid "Transport open datasets on %{type} for %{spatial} - %{territory}%{formats}"
+msgstr ""
+
+#, elixir-format
+msgid "National Access Point for transport open data"
+msgstr ""
+
+#, elixir-format
+msgid "Transport open datasets for city %{name}"
+msgstr ""
+
+#, elixir-format
+msgid "GTFS data quality evaluation"
+msgstr ""
+
+#, elixir-format
+msgid "Non standard real time transport open data"
+msgstr ""
+
+#, elixir-format
+msgid "State of transport open data for french AOMs"
+msgstr ""
+
+#, elixir-format
+msgid "State of transport open data in France"
+msgstr ""

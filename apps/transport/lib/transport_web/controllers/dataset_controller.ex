@@ -287,5 +287,13 @@ defmodule TransportWeb.DatasetController do
         %{type: "AOM", name: get_name(AOM, id)}
       )
 
+  defp put_page_title(conn, %{"type" => t} = f) when map_size(f) == 1,
+    do:
+      assign(
+        conn,
+        :page_title,
+        %{type: dgettext("page-shortlist", "category"), name: Dataset.type_to_str(t)}
+      )
+
   defp put_page_title(conn, _), do: conn
 end

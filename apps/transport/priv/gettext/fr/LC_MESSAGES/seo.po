@@ -1,0 +1,60 @@
+## "msgid"s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove "msgid"s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use "mix gettext.extract --merge" or "mix gettext.merge"
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2\n"
+
+#, elixir-format
+msgid "%{format} Transport open dataset - %{title} for %{spatial} - %{territory}"
+msgstr "Jeu de données ouvert %{format} - %{title} pour %{spatial} - %{territory}"
+
+#, elixir-format
+msgid "Publish, improve and reuse French public transport data"
+msgstr "Rendre disponible, valoriser et améliorer les données transports"
+
+#, elixir-format
+msgid "Transport open datasets for %{type} %{name}"
+msgstr "Jeux de données ouverts de la %{type} %{name}"
+
+#, elixir-format
+msgid "Transport open datasets for AOM %{name}"
+msgstr "Jeux de données ouverts de l'AOM %{name}"
+
+#, elixir-format
+msgid "Transport open datasets for search %{q}"
+msgstr "Jeux de données ouverts pour la recherche %{q}"
+
+#, elixir-format
+msgid "Transport open datasets on %{type} for %{spatial} - %{territory}%{formats}"
+msgstr "Jeux de données ouverts de %{spatial} - %{territory}%{formats}"
+
+#, elixir-format
+msgid "National Access Point for transport open data"
+msgstr "Le Point d’Accès National aux données ouvertes de transport"
+
+#, elixir-format
+msgid "Transport open datasets for city %{name}"
+msgstr "Jeux de données ouverts de la commune de %{name}"
+
+#, elixir-format
+msgid "GTFS data quality evaluation"
+msgstr "Évaluation de la qualité d’un jeu de données GTFS"
+
+#, elixir-format
+msgid "Non standard real time transport open data"
+msgstr "Liste des données temps-réel de transport en commun, non standardisées"
+
+#, elixir-format
+msgid "State of transport open data for french AOMs"
+msgstr "État de l’ouverture des données de transport en commun pour les AOMs françaises"
+
+#, elixir-format
+msgid "State of transport open data in France"
+msgstr "État de l’ouverture des données de transport en France"
