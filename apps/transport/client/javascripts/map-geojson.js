@@ -53,7 +53,7 @@ function createResourceGeojson (mapDivId, infoDivId, geojsonUrl, filesize = 0, m
     const infoDiv = document.getElementById(infoDivId)
     const mapDiv = document.getElementById(mapDivId)
 
-    if (sizeMB > 0.5) {
+    if (sizeMB > 2) {
         // for large files, user has to click to download and see the file
         infoDiv.innerHTML = `<div>${msg1} (${Math.round(sizeMB)} Mo).</div>
             <button class="button" onclick="createResourceGeojson('${mapDivId}', '${infoDivId}', '${geojsonUrl}')">

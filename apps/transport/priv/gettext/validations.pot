@@ -101,3 +101,7 @@ msgstr ""
 #, elixir-format
 msgid "Stops visualization is quite big"
 msgstr ""
+
+#, elixir-format
+msgid "Stops and routes visualization of the GTFS file"
+msgstr ""
