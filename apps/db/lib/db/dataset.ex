@@ -7,7 +7,7 @@ defmodule DB.Dataset do
   so the search vector is up-to-date.
   """
   alias Datagouvfr.Client.User
-  alias DB.{AOM, Commune, DatasetGeographicView, Region, Repo, Resource}
+  alias DB.{AOM, Commune, DatasetGeographicView, LogsImport, Region, Repo, Resource}
   alias ExAws.S3
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
