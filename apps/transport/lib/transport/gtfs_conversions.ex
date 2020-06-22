@@ -16,7 +16,7 @@ defmodule Transport.GtfsConversions do
     Logger.info("generating NeTEx and geojson for all GTFS")
 
     Resource
-    |> where([r], not is_nil(r.url) and not is_nil(r.title) and r.format == "GTFS" and r.is_community_resource == true)
+    |> where([r], not is_nil(r.url) and not is_nil(r.title) and r.format == "GTFS" and r.is_community_resource == false)
     |> preload(dataset: [:resources])
     |> Repo.all()
     |> Stream.filter(fn r -> force_update || update_needed?(r) end)

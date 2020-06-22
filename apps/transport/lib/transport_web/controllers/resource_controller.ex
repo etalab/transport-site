@@ -16,7 +16,7 @@ defmodule TransportWeb.ResourceController do
         conn |> put_view(ErrorView) |> render("404.html")
 
       resource ->
-        case Resource.valid?(resource) do
+        case Resource.has_metadata?(resource) do
           false ->
             conn |> put_view(ErrorView) |> render("404.html")
 
