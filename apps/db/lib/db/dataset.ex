@@ -50,6 +50,7 @@ defmodule DB.Dataset do
     many_to_many(:communes, Commune, join_through: "dataset_communes", on_replace: :delete)
 
     has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
+    has_many(:logs_import, LogsImport, on_replace: :delete, on_delete: :delete_all)
   end
 
   @spec type_to_str_map() :: %{binary() => binary()}
