@@ -102,3 +102,7 @@ msgstr "Afficher quand même"
 #, elixir-format
 msgid "Stops visualization is quite big"
 msgstr "La visualisation des arrêts est volumineuse"
+
+#, elixir-format
+msgid "Stops and routes visualization of the GTFS file"
+msgstr "Aperçu des arrêts et lignes de la ressource GTFS"

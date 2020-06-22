@@ -14,7 +14,7 @@
 
         <% associated_geojson = get_associated_geojson(@resource) %>
         <%= unless is_nil(associated_geojson) do %>
-          <h2 class="mt-48"><%= dgettext("validations", "Aperçu des arrêts et lignes de la ressource GTFS")%></h2>
+          <h2 class="mt-48"><%= dgettext("validations", "Stops and routes visualization of the GTFS file")%></h2>
           <div class="panel no-padding">
             <div id="resource-geojson-info" class="p-24"></div>
             <div id="resource-geojson"></div>
