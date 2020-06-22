@@ -3,7 +3,9 @@ title: "Paroles de réutilisateur : Le Localisateur !"
 date: 2020-06-09T15:25:05.610Z
 tags:
   - réutilisation
-description: "   "
+description: Interview avec Manuel Pereira, du pôle accessibilité numérique à
+  l’association et avec Valentin HAÜY et LEON ingénieur et développeur du
+  Localisateur
 image: /images/le-localisateur.png
 ---
 ### Le Localisateur : Le web en clair pour tous
