@@ -7,7 +7,7 @@ defmodule DB.Dataset do
   so the search vector is up-to-date.
   """
   alias Datagouvfr.Client.User
-  alias DB.{AOM, Commune, DatasetGeographicView, Region, Repo, Resource}
+  alias DB.{AOM, Commune, DatasetGeographicView, LogsImport, Region, Repo, Resource}
   alias ExAws.S3
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
@@ -50,6 +50,7 @@ defmodule DB.Dataset do
     many_to_many(:communes, Commune, join_through: "dataset_communes", on_replace: :delete)
 
     has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
+    has_many(:logs_import, LogsImport, on_replace: :delete, on_delete: :delete_all)
   end
 
   @spec type_to_str_map() :: %{binary() => binary()}

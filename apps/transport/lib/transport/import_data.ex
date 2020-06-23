@@ -6,14 +6,14 @@ defmodule Transport.ImportData do
   alias Datagouvfr.Client.CommunityResources
   alias Helpers
   alias Opendatasoft.UrlExtractor
-  alias DB.{Dataset, EPCI, Repo, Resource}
+  alias DB.{Dataset, EPCI, LogsImport, Repo, Resource}
   require Logger
   import Ecto.Query
 
   @max_import_concurrent_jobs Application.get_env(:transport, :max_import_concurrent_jobs)
 
   @spec import_all_datasets :: :ok
-  defp import_all_datasets do
+  def import_all_datasets do
     Logger.info("reimporting all datasets")
 
     datasets = Repo.all(Dataset)
@@ -69,9 +69,26 @@ defmodule Transport.ImportData do
   end
 
   @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
-  def import_dataset(%Dataset{datagouv_id: datagouv_id, type: type, title: title, slug: slug, is_active: is_active}) do
+  def import_dataset(%Dataset{
+        id: dataset_id,
+        datagouv_id: datagouv_id,
+        type: type,
+        title: title,
+        slug: slug,
+        is_active: is_active
+      }) do
+    now = DateTime.truncate(DateTime.utc_now(), :second)
+
     with {:ok, new_data} <- import_from_udata(datagouv_id, type),
          {:ok, changeset} <- Dataset.changeset(new_data) do
+      # log the import success
+      Repo.insert(%LogsImport{
+        datagouv_id: datagouv_id,
+        timestamp: now,
+        is_success: true,
+        dataset_id: dataset_id
+      })
+
       Repo.update(changeset)
     else
       {:error, error} ->
@@ -84,6 +101,15 @@ defmodule Transport.ImportData do
           level: error_level,
           extra: %{datagouv_id: datagouv_id, type: type, title: title, slug: slug, error: error}
         )
+
+        # log the import failure
+        Repo.insert(%LogsImport{
+          datagouv_id: datagouv_id,
+          timestamp: now,
+          is_success: false,
+          dataset_id: dataset_id,
+          error_msg: error
+        })
 
         {:error, error}
     end
