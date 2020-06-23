@@ -5,9 +5,9 @@ tags:
   - réutilisation
 description: Interview avec Jean-Christophe Becquet, ingénieur conseil en
   informatique libre.
-image: /images/logo-apitux.jpg
+image: /images/image-9-.png
 ---
-![](/images/apitux_image.png "Apitux : Le choix du logiciel libre ")
+![](/images/apitux_image.png)
 
 <!--StartFragment-->
 
