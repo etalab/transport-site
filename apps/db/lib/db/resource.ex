@@ -4,7 +4,7 @@ defmodule DB.Resource do
   """
   use Ecto.Schema
   use TypedEctoSchema
-  alias DB.{Dataset, Repo, Validation}
+  alias DB.{Dataset, LogsValidation, Repo, Validation}
   import Ecto.{Changeset, Query}
   import DB.Gettext
   require Logger
@@ -102,11 +102,18 @@ defmodule DB.Resource do
   end
 
   @spec validate_and_save(__MODULE__.t()) :: {:error, any} | {:ok, nil}
-  def validate_and_save(%__MODULE__{} = resource) do
+  def validate_and_save(%__MODULE__{id: resource_id} = resource) do
     Logger.info("Validating #{resource.url}")
 
     with {:ok, validations} <- validate(resource),
          {:ok, _} <- save(resource, validations) do
+      # log the validation success
+      Repo.insert(%LogsValidation{
+        resource_id: resource_id,
+        timestamp: DateTime.truncate(DateTime.utc_now(), :second),
+        is_success: true
+      })
+
       {:ok, nil}
     else
       {:error, error} ->
@@ -115,6 +122,14 @@ defmodule DB.Resource do
         Sentry.capture_message("unable_to_call_validator",
           extra: %{url: resource.url, error: error}
         )
+
+        # log the validation error
+        Repo.insert(%LogsValidation{
+          resource_id: resource_id,
+          timestamp: DateTime.truncate(DateTime.utc_now(), :second),
+          is_success: false,
+          error_msg: error
+        })
 
         {:error, error}
     end
