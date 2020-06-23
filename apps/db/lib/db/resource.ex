@@ -55,29 +55,29 @@ defmodule DB.Resource do
 
     iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
     ...> validation: %Validation{validation_latest_content_hash: "a_sha"}}, false)
-    false
+    {false, "content hash has not changed"}
     iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
     ...> validation: %Validation{validation_latest_content_hash: "a_sha"}}, true)
-    true
+    {true, "forced validation"}
     iex> Resource.needs_validation(%Resource{format: "gbfs", content_hash: "a_sha",
     ...> validation: %Validation{validation_latest_content_hash: "a_sha"}}, false)
-    false
+    {false, "we validate only the GTFS"}
     iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha"}, false)
-    true
+    {true, "no previous validation"}
     iex> Resource.needs_validation(%Resource{format: "gtfs-rt", content_hash: "a_sha"}, true)
-    false
+    {false, "we validate only the GTFS"}
     iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
     ...> validation: %Validation{validation_latest_content_hash: "another_sha"}}, false)
-    true
+    {true, "content hash has changed"}
   """
-  @spec needs_validation(__MODULE__.t(), boolean()) :: boolean()
+  @spec needs_validation(__MODULE__.t(), boolean()) :: {boolean(), binary()}
   def needs_validation(%__MODULE__{format: format}, _force_validation) when format != "GTFS" do
     # we only want to validate GTFS
-    false
+    {false, "we validate only the GTFS"}
   end
 
   def needs_validation(%__MODULE__{}, true = _force_validation) do
-    true
+    {true, "forced validation"}
   end
 
   def needs_validation(
@@ -90,22 +90,23 @@ defmodule DB.Resource do
     # if there is already a validation, we revalidate only if the file has changed
     if content_hash != validation_latest_content_hash do
       Logger.info("the files for resource #{r.id} have been modified since last validation, we need to revalidate them")
-      true
+      {true, "content hash has changed"}
     else
-      false
+      {false, "content hash has not changed"}
     end
   end
 
   def needs_validation(%__MODULE__{}, _force_validation) do
     # if there is no validation, we want to validate
-    true
+    {true, "no previous validation"}
   end
 
-  @spec validate_and_save(__MODULE__.t()) :: {:error, any} | {:ok, nil}
-  def validate_and_save(%__MODULE__{id: resource_id} = resource) do
+  @spec validate_and_save(__MODULE__.t(), boolean()) :: {:error, any} | {:ok, nil}
+  def validate_and_save(%__MODULE__{id: resource_id} = resource, force_validation) do
     Logger.info("Validating #{resource.url}")
 
-    with {:ok, validations} <- validate(resource),
+    with {true, _} <- __MODULE__.needs_validation(resource, force_validation),
+         {:ok, validations} <- validate(resource),
          {:ok, _} <- save(resource, validations) do
       # log the validation success
       Repo.insert(%LogsValidation{
@@ -116,6 +117,18 @@ defmodule DB.Resource do
 
       {:ok, nil}
     else
+      {false, skiped_reason} ->
+        # the ressource does not need to be validated again, we have nothing to do
+        Repo.insert(%LogsValidation{
+          resource_id: resource_id,
+          timestamp: DateTime.truncate(DateTime.utc_now(), :second),
+          is_success: true,
+          skiped: true,
+          skiped_reason: skiped_reason
+        })
+
+        {:ok, nil}
+
       {:error, error} ->
         Logger.warn("Error when calling the validator: #{error}")
 
@@ -157,14 +170,14 @@ defmodule DB.Resource do
   end
 
   @spec save(__MODULE__.t(), map()) :: {:ok, any()} | {:error, any()}
-  def save(%__MODULE__{id: id, url: url, format: format} = r, %{
+  def save(%__MODULE__{id: id, format: format} = r, %{
         "validations" => validations,
         "metadata" => metadata
       }) do
     # When the validator is unable to open the archive, it will return a fatal issue
     # And the metadata will be nil (as it couldn’t read them)
     if is_nil(metadata) and format == "GTFS",
-      do: Logger.warn("Unable to validate resource (id = #{id})")
+      do: Logger.warn("Unable to validate resource ##{id}: #{inspect(validations)}")
 
     __MODULE__
     |> preload(:validation)
@@ -178,7 +191,6 @@ defmodule DB.Resource do
         validation_latest_content_hash: r.content_hash
       },
       auto_tags: find_tags(r, metadata),
-      content_hash: Hasher.get_content_hash(url),
       start_date: str_to_date(metadata["start_date"]),
       end_date: str_to_date(metadata["end_date"])
     )
