@@ -102,7 +102,7 @@ defmodule DB.Resource do
   end
 
   @spec validate_and_save(__MODULE__.t()) :: {:error, any} | {:ok, nil}
-  def validate_and_save(%__MODULE__{id: resource_id, dataset_id: dataset_id} = resource) do
+  def validate_and_save(%__MODULE__{id: resource_id} = resource) do
     Logger.info("Validating #{resource.url}")
 
     with {:ok, validations} <- validate(resource),
@@ -110,7 +110,6 @@ defmodule DB.Resource do
       # log the validation success
       Repo.insert(%LogsValidation{
         resource_id: resource_id,
-        dataset_id: dataset_id,
         timestamp: DateTime.truncate(DateTime.utc_now(), :second),
         is_success: true
       })
@@ -127,7 +126,6 @@ defmodule DB.Resource do
         # log the validation error
         Repo.insert(%LogsValidation{
           resource_id: resource_id,
-          dataset_id: dataset_id,
           timestamp: DateTime.truncate(DateTime.utc_now(), :second),
           is_success: false,
           error_msg: error
