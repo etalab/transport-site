@@ -11,7 +11,7 @@ defmodule DB.LogsValidation do
     field(:timestamp, :utc_datetime)
     field(:is_success, :boolean)
     field(:error_msg, :string)
-    field(:skiped, :boolean, default: false)
-    field(:skiped_reason, :string)
+    field(:skipped, :boolean, default: false)
+    field(:skipped_reason, :string)
   end
 end

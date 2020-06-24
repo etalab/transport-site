@@ -117,14 +117,14 @@ defmodule DB.Resource do
 
       {:ok, nil}
     else
-      {false, skiped_reason} ->
+      {false, skipped_reason} ->
         # the ressource does not need to be validated again, we have nothing to do
         Repo.insert(%LogsValidation{
           resource_id: resource_id,
           timestamp: DateTime.truncate(DateTime.utc_now(), :second),
           is_success: true,
-          skiped: true,
-          skiped_reason: skiped_reason
+          skipped: true,
+          skipped_reason: skipped_reason
         })
 
         {:ok, nil}
@@ -149,6 +149,14 @@ defmodule DB.Resource do
   rescue
     e ->
       Logger.error("error while validating resource #{resource.id}: #{inspect(e)}")
+
+      Repo.insert(%LogsValidation{
+        resource_id: resource_id,
+        timestamp: DateTime.truncate(DateTime.utc_now(), :second),
+        is_success: false,
+        error_msg: "#{inspect(e)}"
+      })
+
       {:error, e}
   end
 
