@@ -134,6 +134,22 @@ defmodule TransportWeb.Router do
     get("/legal", Redirect,
       external: "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/cadre-juridique-harmonise"
     )
+
+    # old static pages that have been moved to blog.transport
+    get("/blog/2019_04_26_interview_my_bus", Redirect,
+      external:
+        "https://blog.transport.data.gouv.fr/billets/entretien-avec-fr%C3%A9d%C3%A9ric-pacotte-co-fondateur-et-ceo-de-mybus/"
+    )
+
+    get("/blog/2019_10_24_itw-gueret", Redirect,
+      external:
+        "https://blog.transport.data.gouv.fr/billets/cr%C3%A9ation-dun-fichier-gtfs-interview-avec-le-grand-gu%C3%A9ret/"
+    )
+
+    get("/blog/2020_01_16_donnees_perimees.md", Redirect,
+      external:
+        "https://blog.transport.data.gouv.fr/billets/donn%C3%A9es-p%C3%A9rim%C3%A9es-donn%C3%A9es-inutilis%C3%A9es/"
+    )
   end
 
   # private
