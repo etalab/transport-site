@@ -496,6 +496,7 @@ defmodule DB.Dataset do
 
   def validate(id) when is_integer(id) do
     Resource
+    |> preload(:validation)
     |> where([r], r.dataset_id == ^id)
     |> Repo.all()
     |> Enum.map(fn r -> Resource.validate_and_save(r, false) end)
