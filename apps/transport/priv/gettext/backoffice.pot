@@ -171,3 +171,35 @@ msgstr ""
 #, elixir-format
 msgid "Other actions on the dataset"
 msgstr ""
+
+#, elixir-format
+msgid "Imports history"
+msgstr ""
+
+#, elixir-format
+msgid "Validations history"
+msgstr ""
+
+#, elixir-format
+msgid "date / time"
+msgstr ""
+
+#, elixir-format
+msgid "error message"
+msgstr ""
+
+#, elixir-format
+msgid "explanation"
+msgstr ""
+
+#, elixir-format
+msgid "resource id"
+msgstr ""
+
+#, elixir-format
+msgid "success"
+msgstr ""
+
+#, elixir-format
+msgid "validation needed"
+msgstr ""

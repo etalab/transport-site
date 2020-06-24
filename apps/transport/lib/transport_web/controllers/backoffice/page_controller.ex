@@ -1,7 +1,7 @@
 defmodule TransportWeb.Backoffice.PageController do
   use TransportWeb, :controller
 
-  alias DB.{Dataset, Region, Repo, Resource}
+  alias DB.{Dataset, LogsImport, LogsValidation, Region, Repo, Resource}
   import Ecto.Query
   require Logger
 
@@ -67,11 +67,14 @@ defmodule TransportWeb.Backoffice.PageController do
   def index(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id} = params) do
     conn =
       Dataset
-      |> preload(:aom)
+      |> preload([:aom, :logs_import])
       |> Repo.get(dataset_id)
       |> case do
-        nil -> put_flash(conn, :error, dgettext("backoffice", "Unable to find dataset"))
-        dataset -> assign(conn, :dataset, dataset)
+        nil ->
+          put_flash(conn, :error, dgettext("backoffice", "Unable to find dataset"))
+
+        dataset ->
+          assign(conn, :dataset, dataset)
       end
 
     render_index(Dataset, conn, params)
@@ -110,6 +113,14 @@ defmodule TransportWeb.Backoffice.PageController do
     conn
     |> assign(:dataset_types, Dataset.types())
     |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
+    |> assign(:import_logs, LogsImport |> where([r], r.dataset_id == ^dataset_id) |> Repo.all())
+    |> assign(
+      :validation_logs,
+      LogsValidation
+      |> join(:left, [v, r], r in Resource, on: r.id == v.resource_id)
+      |> where([_v, r], r.dataset_id == ^dataset_id)
+      |> Repo.all()
+    )
     |> render("form_dataset.html")
   end
 

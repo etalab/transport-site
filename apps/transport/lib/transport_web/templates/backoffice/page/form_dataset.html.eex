@@ -100,6 +100,46 @@
           <% end %>
         </div>
       </div>
+      <div class="dataset_import_validations_logs">
+        <h3><%= dgettext("backoffice", "Imports history") %></h3>
+        <table>
+          <tr>
+            <th><%= dgettext("backoffice", "date / time") %></th>
+            <th><%= dgettext("backoffice", "success") %></th>
+            <th><%= dgettext("backoffice", "error message") %></th>
+          </tr>
+          <%= for row <- @import_logs do %>
+            <tr>
+              <td><%= row.timestamp %></td>
+              <td><%= if row.is_success, do: "✔", else: "" %></td>
+              <td><%= row.error_msg %></td>
+            </tr>
+          <% end %>
+        </table>
+      </div>
+      <div class="dataset_import_validations_logs">
+        <h3><%= dgettext("backoffice", "Validations history") %></h3>
+        <table>
+          <tr>
+            <th><%= dgettext("backoffice", "date / time") %></th>
+            <th><%= dgettext("backoffice", "resource id") %></th>
+            <th><%= dgettext("backoffice", "success") %></th>
+            <th><%= dgettext("backoffice", "error message") %></th>
+            <th><%= dgettext("backoffice", "validation needed") %></th>
+            <th><%= dgettext("backoffice", "explanation") %></th>
+          </tr>
+          <%= for row <- @validation_logs do %>
+            <tr>
+              <td><%= row.timestamp %></td>
+              <td><%= row.resource_id %></td>
+              <td><%= if row.is_success, do: "✔", else: "" %></td>
+              <td><%= row.error_msg %></td>
+              <td><%=  if !row.skipped, do: "✔", else: "" %></td>
+              <td><%= row.skipped_reason %></td>
+            </tr>
+          <% end %>
+        </table>
+      </div>
     <% end %>
 </div>
 <script src="/js/app.js"></script>
