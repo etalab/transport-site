@@ -1,3 +1,20 @@
+.dataset_import_validations_logs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 48px;
+  th,
+  td {
+    padding: 0 3px 0 3px;
+  }
+  table,
+  th,
+  td {
+    border: 1px solid var(--light-grey);
+    border-collapse: collapse;
+  }
+}
+
 .backoffice-datasets {
   width: 100%;
   border-collapse: collapse;
@@ -89,21 +106,4 @@
 .sort-icon {
   color: var(--grey);
   padding-left: 3px;
-}
-
-.dataset_import_validations_logs {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 48px;
-  table,
-  th,
-  td {
-    border: 1px solid var(--light-grey);
-    border-collapse: collapse;
-  }
-  th,
-  td {
-    padding: 0 3px 0 3px;
-  }
 }
