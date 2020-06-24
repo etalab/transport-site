@@ -122,6 +122,8 @@
         <table>
           <tr>
             <th><%= dgettext("backoffice", "date / time") %></th>
+            <th><%= dgettext("backoffice", "resource title") %></th>
+            <th><%= dgettext("backoffice", "resource page") %></th>
             <th><%= dgettext("backoffice", "resource id") %></th>
             <th><%= dgettext("backoffice", "success") %></th>
             <th><%= dgettext("backoffice", "error message") %></th>
@@ -131,6 +133,12 @@
           <%= for row <- @validation_logs do %>
             <tr>
               <td><%= row.timestamp %></td>
+              <td><%= row.resource.title %></td>
+              <td>
+                <%= if row.resource.format == "GTFS" do %>
+                  <a href=<%= resource_path(@conn, :details, row.resource.id) %>><i class="fa fa-link"></i></a>
+                <% end %>
+              </td>
               <td><%= row.resource_id %></td>
               <td><%= if row.is_success, do: "✔", else: "" %></td>
               <td><%= row.error_msg %></td>
