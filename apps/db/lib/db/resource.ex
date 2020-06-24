@@ -105,14 +105,15 @@ defmodule DB.Resource do
   def validate_and_save(%__MODULE__{id: resource_id} = resource, force_validation) do
     Logger.info("Validating #{resource.url}")
 
-    with {true, _} <- __MODULE__.needs_validation(resource, force_validation),
+    with {true, msg} <- __MODULE__.needs_validation(resource, force_validation),
          {:ok, validations} <- validate(resource),
          {:ok, _} <- save(resource, validations) do
       # log the validation success
       Repo.insert(%LogsValidation{
         resource_id: resource_id,
         timestamp: DateTime.truncate(DateTime.utc_now(), :second),
-        is_success: true
+        is_success: true,
+        skipped_reason: msg
       })
 
       {:ok, nil}
