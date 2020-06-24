@@ -189,5 +189,80 @@
       "status_code": 200,
       "type": "ok"
     }
+  },
+  {
+    "request": {
+      "body": "",
+      "headers": [],
+      "method": "head",
+      "options": [],
+      "request_body": "",
+      "url": "http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip"
+    },
+    "response": {
+      "binary": false,
+      "body": null,
+      "headers": {
+        "Server": "nginx/1.2.1",
+        "Date": "Wed, 24 Jun 2020 07:05:57 GMT",
+        "Content-Type": "text/html",
+        "Content-Length": "160",
+        "Etag": "some_etag",
+        "Connection": "keep-alive",
+        "Location": "https://www.mobilites-m.fr/data/Horaires/SEM-GTFS.zip",
+        "Strict-Transport-Security": "max-age=31536000; includeSubdomains;"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  },
+  {
+    "request": {
+      "body": "",
+      "headers": [],
+      "method": "head",
+      "options": [],
+      "request_body": "",
+      "url": "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json"
+    },
+    "response": {
+      "binary": false,
+      "body": null,
+      "headers": {
+        "Server": "nginx/1.2.1",
+        "Date": "Wed, 24 Jun 2020 07:05:57 GMT",
+        "Content-Type": "text/html",
+        "Content-Length": "160",
+        "Etag": "some_other_etag",
+        "Connection": "keep-alive",
+        "Location": "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  },
+  {
+    "request": {
+      "body": "",
+      "headers": [],
+      "method": "head",
+      "options": [],
+      "request_body": "",
+      "url": "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt"
+    },
+    "response": {
+      "binary": false,
+      "body": null,
+      "headers": {
+        "Date": "Wed, 24 Jun 2020 07:05:57 GMT",
+        "Content-Type": "text/html",
+        "Content-Length": "160",
+        "Etag": "some_other_etag_gtfs_rt",
+        "Connection": "keep-alive",
+        "Location": "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
   }
 ]

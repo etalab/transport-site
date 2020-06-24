@@ -72,5 +72,49 @@
       "status_code": 200,
       "type": "ok"
     }
+  },
+  {
+    "request": {
+      "body": "",
+      "headers": [],
+      "method": "head",
+      "options": [],
+      "request_body": "",
+      "url": "https://si.metzmetropole.fr/fiches/opendata/gtfs_current.zip"
+    },
+    "response": {
+      "binary": false,
+      "body": null,
+      "headers": {
+        "Date": "Wed, 24 Jun 2020 07:05:57 GMT",
+        "Content-Type": "text/html",
+        "Content-Length": "160",
+        "Etag": "metz_etag"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  },
+  {
+    "request": {
+      "body": "",
+      "headers": [],
+      "method": "head",
+      "options": [],
+      "request_body": "",
+      "url": "https://static.data.gouv.fr/resources/transport-donnees-gtfs/20190412-161340/mybus-metz-12-04-2019.zip"
+    },
+    "response": {
+      "binary": false,
+      "body": null,
+      "headers": {
+        "Date": "Wed, 24 Jun 2020 07:05:57 GMT",
+        "Content-Type": "text/html",
+        "Content-Length": "160",
+        "Etag": "metz_mybus_etag"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
   }
 ]
