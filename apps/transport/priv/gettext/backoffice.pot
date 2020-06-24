@@ -203,3 +203,11 @@ msgstr ""
 #, elixir-format
 msgid "validation needed"
 msgstr ""
+
+#, elixir-format
+msgid "resource page"
+msgstr ""
+
+#, elixir-format
+msgid "resource title"
+msgstr ""

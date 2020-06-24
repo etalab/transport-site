@@ -193,7 +193,7 @@ msgstr "raison"
 
 #, elixir-format
 msgid "resource id"
-msgstr "ressource id"
+msgstr "id ressource"
 
 #, elixir-format
 msgid "success"
@@ -202,3 +202,11 @@ msgstr "succès"
 #, elixir-format
 msgid "validation needed"
 msgstr "validation nécessaire"
+
+#, elixir-format
+msgid "resource page"
+msgstr "page ressource"
+
+#, elixir-format
+msgid "resource title"
+msgstr "titre ressource"

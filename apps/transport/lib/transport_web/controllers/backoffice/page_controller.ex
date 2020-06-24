@@ -117,6 +117,7 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(
       :validation_logs,
       LogsValidation
+      |> preload(:resource)
       |> join(:left, [v, r], r in Resource, on: r.id == v.resource_id)
       |> where([_v, r], r.dataset_id == ^dataset_id)
       |> Repo.all()
