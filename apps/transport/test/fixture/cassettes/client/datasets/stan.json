@@ -71,5 +71,27 @@
       "status_code": 200,
       "type": "ok"
     }
+  },
+  {
+    "request": {
+      "body": "",
+      "headers": [],
+      "method": "head",
+      "options": [],
+      "request_body": "",
+      "url": "http://hstan.g-ny.org/grandnancy/data/public/gtfs_stan.zip"
+    },
+    "response": {
+      "binary": false,
+      "body": null,
+      "headers": {
+        "Date": "Wed, 24 Jun 2020 07:05:57 GMT",
+        "Content-Type": "text/html",
+        "Content-Length": "160",
+        "Etag": "stan_etag"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
   }
 ]

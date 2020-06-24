@@ -41,7 +41,6 @@ defmodule Transport.ImportData do
       Resource
       |> preload(:validation)
       |> Repo.all()
-      |> Enum.filter(fn r -> Resource.needs_validation(r, force) end)
 
     Logger.info("launching #{Enum.count(resources)} validations")
 
@@ -49,7 +48,7 @@ defmodule Transport.ImportData do
       ImportTaskSupervisor
       |> Task.Supervisor.async_stream_nolink(
         resources,
-        &Resource.validate_and_save/1,
+        fn r -> Resource.validate_and_save(r, force) end,
         max_concurrency: @max_import_concurrent_jobs,
         timeout: 180_000
       )
@@ -300,7 +299,8 @@ defmodule Transport.ImportData do
         "is_community_resource" => is_community_resource,
         "community_resource_publisher" => get_publisher(resource),
         "description" => resource["description"],
-        "filesize" => resource["filesize"]
+        "filesize" => resource["filesize"],
+        "content_hash" => Hasher.get_content_hash(resource["url"])
       }
     end)
   end
