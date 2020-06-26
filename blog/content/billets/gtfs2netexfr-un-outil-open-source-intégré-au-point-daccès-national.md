@@ -7,9 +7,11 @@ description: Retrouvez désormais pour l'ensemble des fichiers GTFS référencé
   sur transport.data.gouv.fr le fichier NeTEx (profil France) associé.
 image: /images/gtfs2netexfr.png
 ---
+**Pourquoi un convertisseur ?**
+
 La plateforme transport.data.gouv.fr doit correspondre aux exigences attendues d’un point d’accès national aux données transports, tel que défini par le règlement européen. Une des missions prévues des Point d’Accès Nationaux est l’harmonisation des données de transport sur le territoire - en vue de permettre une meilleure interopérabilité au niveau européen. 
 
-Lors de la réunion de lancement de transport.data.gouv.fr en Juillet 2017, plusieurs producteurs de données ont partagé leurs difficultés à produire des données aux formats standards comme le NeTEx. En revanche, elles peuvent mettre à disposition des données dont elles disposent, dans des formats autres. 
+Lors de la réunion de lancement de transport.data.gouv.fr en Juillet 2017, plusieurs producteurs de données ont partagé leurs difficultés à produire des données aux formats standards comme le NeTEx. D'autres formats comme le GTFS étaient utilisés et pouvaient alors être ouverts.
 
 > Pour rappel, le NeTEx est le standard européen qui a été développé pour les données transports afin d'en garantir l'interopérabilité. Des profils adaptés par pays sont également définis. Les opérateurs de transport et les autorités organisatrices de mobilité sont tenues de mettre à disposition des données suivant la norme NeTEx. 
 >
@@ -17,11 +19,19 @@ Lors de la réunion de lancement de transport.data.gouv.fr en Juillet 2017, plus
 
 L’équipe transport.data.gouv.fr fait alors le choix d’accepter de référencer les données d’horaires théoriques pour les transports en commun dans 2 formats : au format GTFS et au format NeTEx. Le premier car il est un standard largement développé dans l'industrie à la fois du côté des réutilisateurs que du côté des producteurs ; obliger certains producteurs à produire des fichiers NeTEx supposait des opérations coûteuses. Le second car il est le seul garant de l'interopérabilité des données à l'échelle européenne.
 
-Laisser le choix du format imposait que le Point d'Accès National, et permettre la publication de GTFS, a imposé la nécessité d'un convertisseur qui puisse générer les fichier NeTEx conformément au règlement européen. Ce convertisseur pourra soulager les producteurs de données tout en garantissant la standardisation des données. Son coûtest mutualisé au niveau national et est disponible en open source. 
+Laisser le choix du format et permettre la publication de GTFS a imposé la nécessité d'un convertisseur qui puisse générer les fichier NeTEx conformément au règlement européen. Le Ministère des Transports a confié à [Kisio Digital](https://wiki.lafabriquedesmobilites.fr/wiki/Kisio) la mission de développer l'outil de conversion des données GTFS en données NeTEX profil France.
+
+**A quoi sert-il aujourd'hui ?**
+
+L’outil est désormais disponible en open source ici : <https://github.com/CanalTP/transit_model/tree/master/gtfs2netexfr>
+Si vous souhaitez en savoir plus, vous pouvez consulter l’excellent article qu’y a consacré Bertrand Billoud (Kisio Digital) ici : 
+<http://lafabriquedesmobilites.fr/articles/innovation/gtfs2netexfr-nouvel-outil-open-source-pour-faciliter-la-production-de-donnees-transport-au-format-netex/>
+
+Cet outil est déjà utilisé par la plateforme transport.data.gouv.fr pour produire pour chaque GTFS référencé son équivalent GTFS on le retrouve dans les ressources communautaires (sur data.gouv
+
+pourra soulager les producteurs de données tout en garantissant la standardisation des données. Son coûtest mutualisé au niveau national et est disponible en open source. 
 
 et propose de développer à terme un convertisseur GTFS vers NeTEx. 
-
-
 
 La volonté de l’équipe est de soulager les producteurs de données du coût supplémentaire induit par la normalisation des données. 
 Si on demande aux producteurs uniquement d’ouvrir des données au format NETEX, on n'aura aucunes données. 
