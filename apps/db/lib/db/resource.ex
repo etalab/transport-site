@@ -44,6 +44,7 @@ defmodule DB.Resource do
 
     belongs_to(:dataset, Dataset)
     has_one(:validation, Validation, on_replace: :delete)
+    has_many(:logs_validation, LogsValidation, on_replace: :delete, on_delete: :delete_all)
   end
 
   @spec endpoint() :: binary()
