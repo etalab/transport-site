@@ -1,6 +1,6 @@
 ---
 title: Gtfs2NetexFr, un outil open source intégré au Point d'Accès National !
-date: 2020-06-25T15:49:10.984Z
+date: 2020-06-30T06:59:45.241Z
 tags:
   - qualité des données
 description: Retrouvez désormais pour l'ensemble des fichiers GTFS référencés
@@ -25,11 +25,10 @@ L’équipe transport.data.gouv.fr fait alors le choix d’accepter de référen
 
 L’outil est désormais disponible en open source ici : <https://github.com/CanalTP/transit_model/tree/master/gtfs2netexfr>
 
-
 > Si vous souhaitez en savoir plus sur son fonctionnement, vous pouvez consulter l’excellent article qu’y a consacré Bertrand Billoud (Kisio Digital) ici : 
 > <http://lafabriquedesmobilites.fr/articles/innovation/gtfs2netexfr-nouvel-outil-open-source-pour-faciliter-la-production-de-donnees-transport-au-format-netex/>
 
-Cet outil est déjà utilisé par la plateforme transport.data.gouv.fr pour **produire**, **pour chaque fichier GTFS** référencé, **son équivalent NeTEx**. Ce fichier NeTEx peut être retrouvé dans les **ressources communautaires** de chaque dataset (sur transport.data.gouv.fr comme sur data.gouv.fr).
+Cet outil est déjà utilisé par la plateforme transport.data.gouv.fr pour **produire**, **pour chaque fichier GTFS** référencé, **son équivalent NeTEx**. Ce fichier NeTEx peut être retrouvé dans les **ressources communautaires** de chaque jeu de données (sur transport.data.gouv.fr comme sur data.gouv.fr).
 
 ![](/images/capture-d’écran-2020-06-26-à-19.45.10.png "Résultat de la conversion du dernier GTFS publié pour le réseau TC de Lyon.")
 
