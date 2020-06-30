@@ -90,6 +90,7 @@ defmodule DB.Dataset do
         is_community_resource: r.is_community_resource,
         description: r.description,
         community_resource_publisher: r.community_resource_publisher,
+        original_resource_url: r.original_resource_url,
         auto_tags: r.auto_tags
       },
       where: r.is_available

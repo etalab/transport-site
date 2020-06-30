@@ -300,7 +300,8 @@ defmodule Transport.ImportData do
         "community_resource_publisher" => get_publisher(resource),
         "description" => resource["description"],
         "filesize" => resource["filesize"],
-        "content_hash" => Hasher.get_content_hash(resource["url"])
+        "content_hash" => Hasher.get_content_hash(resource["url"]),
+        "original_resource_url" => get_original_resource_url(resource)
       }
     end)
   end
@@ -559,6 +560,10 @@ defmodule Transport.ImportData do
     |> select([r], r.id)
     |> Repo.one()
   end
+
+  @spec get_original_resource_url(map()) :: binary() | nil
+  def get_original_resource_url(%{"extras" => %{"transport:original_resource_url" => url}}), do: url
+  def get_original_resource_url(_), do: nil
 
   @spec has_realtime?(map, binary) :: boolean
   def has_realtime?(dataset, "public-transit") do

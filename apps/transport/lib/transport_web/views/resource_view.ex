@@ -63,14 +63,25 @@ defmodule TransportWeb.ResourceView do
   def dataset_creation,
     do: :transport |> Application.get_env(:datagouvfr_site) |> Path.join("/fr/admin/dataset/new/")
 
-  def get_associated_geojson(%DB.Resource{title: title, dataset: %{resources: resources}}) do
-    resources
-    |> Enum.find(fn r ->
-      title
-      |> String.downcase()
-      |> String.replace("_", "-")
-      |> Kernel.<>(".geojson") ==
-        r.title
-    end)
+  def get_associated_geojson(%DB.Resource{title: title, url: url, dataset: %{resources: resources}}) do
+    assoc =
+      resources
+      |> Enum.find(fn r -> r.original_resource_url == url end)
+
+    case assoc do
+      nil ->
+        # old way to match associated resource, we can remove this after a while
+        resources
+        |> Enum.find(fn r ->
+          title
+          |> String.downcase()
+          |> String.replace("_", "-")
+          |> Kernel.<>(".geojson") ==
+            r.title
+        end)
+
+      a ->
+        a
+    end
   end
 end

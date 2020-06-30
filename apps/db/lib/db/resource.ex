@@ -32,9 +32,13 @@ defmodule DB.Resource do
     field(:conversion_latest_content_hash, :string)
 
     field(:is_community_resource, :boolean)
+
     # only relevant for community resources, name of the owner or the organization that published the resource
     field(:community_resource_publisher, :string)
     field(:description, :string)
+
+    # some community resources have been generated from another dataset (like the generated NeTEx / GeoJson)
+    field(:original_resource_url, :string)
 
     # we add 2 fields, that are already in the metadata json, in order to be able to add some indices
     field(:start_date, :date)
@@ -240,6 +244,7 @@ defmodule DB.Resource do
         :auto_tags,
         :is_community_resource,
         :community_resource_publisher,
+        :original_resource_url,
         :description,
         :filesize
       ]
