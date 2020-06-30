@@ -18,8 +18,8 @@ defmodule Transport.GtfsConversions do
     Resource
     |> where(
       [r],
-      not is_nil(r.url) and not is_nil(r.title) and r.format == "GTFS" and r.is_community_resource == false
-      and r.is_available
+      not is_nil(r.url) and not is_nil(r.title) and r.format == "GTFS" and r.is_community_resource == false and
+        r.is_available
     )
     |> preload(dataset: [:resources])
     |> Repo.all()
