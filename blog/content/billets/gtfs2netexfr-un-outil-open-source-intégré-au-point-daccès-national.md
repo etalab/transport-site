@@ -1,6 +1,6 @@
 ---
 title: Gtfs2NetexFr, un outil open source intégré au Point d'Accès National !
-date: 2020-06-25T15:49:10.984Z
+date: 2020-06-30T06:59:45.241Z
 tags:
   - qualité des données
 description: Retrouvez désormais pour l'ensemble des fichiers GTFS référencés
