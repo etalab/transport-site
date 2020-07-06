@@ -113,14 +113,22 @@ defmodule TransportWeb.Backoffice.PageController do
     conn
     |> assign(:dataset_types, Dataset.types())
     |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
-    |> assign(:import_logs, LogsImport |> where([r], r.dataset_id == ^dataset_id) |> Repo.all())
+    |> assign(
+      :import_logs,
+      LogsImport
+      |> where([v], v.dataset_id == ^dataset_id)
+      |> order_by([v], desc: v.timestamp)
+      |> Repo.all()
+    )
     |> assign(
       :validation_logs,
       LogsValidation
       |> preload(:resource)
       |> join(:left, [v, r], r in Resource, on: r.id == v.resource_id)
       |> where([_v, r], r.dataset_id == ^dataset_id)
+      |> order_by([v, _r], desc: v.timestamp)
       |> Repo.all()
+      |> Enum.group_by(fn v -> v.resource end)
     )
     |> render("form_dataset.html")
   end
