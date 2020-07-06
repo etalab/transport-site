@@ -223,13 +223,32 @@ defmodule DB.Resource do
 
   # for the moment the tag detection is very simple, we only add the modes
   @spec find_tags(__MODULE__.t(), map()) :: [binary()]
-  def find_tags(%__MODULE__{} = _r, %{"modes" => modes}) do
-    modes
+  def find_tags(%__MODULE__{} = r, metadata) do
+    r
+    |> base_tag()
+    |> Enum.concat(find_modes_tags(metadata))
+    |> Enum.concat(has_fares_tag(metadata))
+    |> Enum.concat(has_shapes_tag(metadata))
+    |> Enum.uniq()
   end
 
-  def find_tags(%__MODULE__{} = _r, _) do
-    []
-  end
+  @spec find_modes_tags(map()) :: [binary()]
+  def find_modes_tags(%{"modes" => modes}), do: modes
+  def find_modes_tags(_), do: []
+
+  # These tags are not translated because we'll need to be able to search for those tags
+  @spec has_fares_tag(map()) :: [binary()]
+  def has_fares_tag(%{"has_fares" => true}), do: ["tarifs"]
+  def has_fares_tag(_), do: []
+
+  @spec has_shapes_tag(map()) :: [binary()]
+  def has_shapes_tag(%{"has_shapes" => true}), do: ["tracés de lignes"]
+  def has_shapes_tag(_), do: []
+
+  @spec base_tag(__MODULE__.t()) :: [binary()]
+  def base_tag(%__MODULE__{format: "GTFS"}), do: ["position des stations", "horaires théorique", "topologie du réseau"]
+  def base_tag(%__MODULE__{format: "NeTEx"}), do: ["position des stations", "horaires théorique", "topologie du réseau"]
+  def base_tag(_), do: []
 
   def changeset(resource, params) do
     resource
