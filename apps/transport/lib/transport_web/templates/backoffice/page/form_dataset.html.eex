@@ -119,34 +119,31 @@
       </div>
       <div class="dataset_import_validations_logs">
         <h3><%= dgettext("backoffice", "Validations history") %></h3>
-        <table>
-          <tr>
-            <th><%= dgettext("backoffice", "date / time") %></th>
-            <th><%= dgettext("backoffice", "resource title") %></th>
-            <th><%= dgettext("backoffice", "resource page") %></th>
-            <th><%= dgettext("backoffice", "resource id") %></th>
-            <th><%= dgettext("backoffice", "success") %></th>
-            <th><%= dgettext("backoffice", "error message") %></th>
-            <th><%= dgettext("backoffice", "validation needed") %></th>
-            <th><%= dgettext("backoffice", "explanation") %></th>
-          </tr>
-          <%= for row <- @validation_logs do %>
-            <tr>
-              <td><%= row.timestamp %></td>
-              <td><%= row.resource.title %></td>
-              <td>
-                <%= if row.resource.format == "GTFS" do %>
-                  <a href=<%= resource_path(@conn, :details, row.resource.id) %>><i class="fa fa-link"></i></a>
-                <% end %>
-              </td>
-              <td><%= row.resource_id %></td>
-              <td><%= if row.is_success, do: "✔", else: "" %></td>
-              <td><%= row.error_msg %></td>
-              <td><%=  if !row.skipped, do: "✔", else: "" %></td>
-              <td><%= row.skipped_reason %></td>
-            </tr>
+        <%= for {resource, validations} <- @validation_logs do %>
+          <%= if resource.format == "GTFS" do %>
+            <h2><a href=<%= resource_path(@conn, :details, resource.id) %>><%= resource.title %></a> (#<%= resource.id %>)</h2>
+          <%= else %>
+            <h2><%= resource.title %> (#<%= resource.id %>)</h2>
           <% end %>
-        </table>
+          <table>
+            <tr>
+              <th><%= dgettext("backoffice", "date / time") %></th>
+              <th><%= dgettext("backoffice", "success") %></th>
+              <th><%= dgettext("backoffice", "error message") %></th>
+              <th><%= dgettext("backoffice", "validation needed") %></th>
+              <th><%= dgettext("backoffice", "explanation") %></th>
+            </tr>
+            <%= for row <- validations do %>
+              <tr>
+                <td><%= row.timestamp %></td>
+                <td><%= if row.is_success, do: "✔", else: "" %></td>
+                <td><%= row.error_msg %></td>
+                <td><%=  if !row.skipped, do: "✔", else: "" %></td>
+                <td><%= row.skipped_reason %></td>
+              </tr>
+            <% end %>
+          </table>
+        <% end %>
       </div>
     <% end %>
 </div>
