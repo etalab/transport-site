@@ -6,7 +6,8 @@ const AutoComplete = require('@tarekraafat/autocomplete.js/dist/js/autoComplete'
 const labels = {
     region: 'région',
     aom: 'AOM',
-    commune: 'commune'
+    commune: 'commune',
+    tag: 'tag'
 }
 
 document.onkeydown = function (evt) {
