@@ -122,7 +122,7 @@
         <%= for {resource, validations} <- @validation_logs do %>
           <%= if resource.format == "GTFS" do %>
             <h2><a href=<%= resource_path(@conn, :details, resource.id) %>><%= resource.title %></a> (#<%= resource.id %>)</h2>
-          <%= else %>
+          <% else %>
             <h2><%= resource.title %> (#<%= resource.id %>)</h2>
           <% end %>
           <table>
