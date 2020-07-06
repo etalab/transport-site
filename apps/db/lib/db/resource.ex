@@ -152,7 +152,7 @@ defmodule DB.Resource do
           resource_id: resource_id,
           timestamp: DateTime.truncate(DateTime.utc_now(), :second),
           is_success: false,
-          error_msg: error
+          error_msg: "error while calling the validator: #{inspect(error)}"
         })
 
         {:error, error}
