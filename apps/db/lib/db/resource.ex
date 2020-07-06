@@ -245,6 +245,7 @@ defmodule DB.Resource do
         :is_community_resource,
         :community_resource_publisher,
         :original_resource_url,
+        :content_hash,
         :description,
         :filesize
       ]
