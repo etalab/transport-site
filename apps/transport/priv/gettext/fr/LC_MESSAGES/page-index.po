@@ -226,3 +226,11 @@ msgstr "Autres informations"
 #, elixir-format
 msgid "Datasets"
 msgstr "Jeux de données"
+
+#, elixir-format
+msgid "Bicycle paths"
+msgstr "Aménagements cyclables"
+
+#, elixir-format, fuzzy
+msgid "Road works"
+msgstr "Travaux sur voirie"
