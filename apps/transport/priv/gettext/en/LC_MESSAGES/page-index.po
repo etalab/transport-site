@@ -226,3 +226,11 @@ msgstr ""
 #, elixir-format
 msgid "Datasets"
 msgstr ""
+
+#, elixir-format
+msgid "Bicycle paths"
+msgstr ""
+
+#, elixir-format, fuzzy
+msgid "Road works"
+msgstr ""
