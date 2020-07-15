@@ -105,7 +105,7 @@
             <h2><%= dgettext("page-index", "Coming soon") %></h2>
             <div class="grid">
                 <div class="tile">
-                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle-grey.svg") %>" alt="" />
+                    <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle-parking.svg") %>" alt="" />
                     <h3 class="text-center"><%= dgettext("page-index", "Bike parking") %></h3>
                 </div>
                 <div class="tile">
