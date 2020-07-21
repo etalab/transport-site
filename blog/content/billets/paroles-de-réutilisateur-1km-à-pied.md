@@ -18,4 +18,12 @@ L'équipe commence par **analyser quantitativement les trajets des salariés** :
 
 1km à pied utilise les données de transport.data.gouv.fr à travers **Navitia** pour calculer les trajets possibles en transports publics (durée, fréquence, temps de marche, nombre de correspondances…). Ils sont ensuite comparés aux trajets en voiture, vélo… pour ainsi trouver le mode de transport idéal - pour l’utilisateur comme pour l’environnement ! 
 
+### A venir
+
+<!--StartFragment-->
+
+Un projet de **Big Data pour les collectivités** : quand des diagnostics mobilité seront menés pour plusieurs employeurs d’un même territoire, la collectivité pourra obtenir des analyses anonymisées (cumul du nombre de voitures, cumul du CO2 émis, parts modales, distance et durée médianes, villes d'origine des salariés du territoire, coût médian, nombre de trajet à distance cyclable) ainsi que la cartographie clusterisée.
+
+<!--EndFragment-->
+
 <!--EndFragment-->
