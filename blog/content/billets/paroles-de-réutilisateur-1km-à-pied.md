@@ -1,0 +1,22 @@
+---
+title: "Paroles de réutilisateur : 1km à pied !"
+date: 2020-07-21T09:21:23.361Z
+tags:
+  - réutilisation
+description: "Interview avec Laure Wagner, fondatrice de 1km à pied. "
+---
+<!--StartFragment-->
+
+Face au constat de trajets domicile-travail de plus en plus longs et effectués en grande majorité en voiture, la startup “1km à pied” facilite la démarche des Plans de mobilité. L’objectif : permettre aux salariés de travailler plus proche de chez eux, réduisant ainsi l’impact carbone de millions de trajets dans un contexte de crise écologique majeure.
+
+1km à pied commence par analyser quantitativement les trajets des salariés : distance parcourue, modes de déplacement alternatifs, impact carbone… Cette analyse sert ensuite à établir puis à mettre en oeuvre un Plan de mobilité adapté selon les priorités de l’entreprise. L’étape finale consiste à rapprocher les salariés de leur lieu de travail en favorisant les échanges de poste au sein des groupes ayant plusieurs établissements sur un même territoire.
+
+1km à pied utilise les données de transport.data.gouv.fr à travers Navitia pour calculer les trajets possibles en transports publics (durée, fréquence, temps de marche, nombre de correspondances…). Ils sont ensuite comparés aux trajets en voiture, vélo… pour ainsi trouver le mode de transport idéal - pour l’utilisateur comme pour l’environnement !
+
+<https://www.1kmapied.com/>
+
+#### À venir
+
+**...**
+
+<!--EndFragment-->
