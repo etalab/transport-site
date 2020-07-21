@@ -4,7 +4,7 @@ date: 2020-07-21T09:21:23.361Z
 tags:
   - réutilisation
 description: "Interview avec Laure Wagner, fondatrice de 1km à pied. "
-image: /images/1km-à-pied.gif
+image: /images/capture-d’écran-14-.png
 ---
 <!--StartFragment-->
 
