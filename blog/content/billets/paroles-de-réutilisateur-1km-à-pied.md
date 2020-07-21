@@ -16,7 +16,7 @@ L'équipe commence par **analyser quantitativement les trajets des salariés** :
 
 ![Les trois étapes de l'action d'1km à pied : diagnostic des trajets, construction d'un plan de mobilité puis rapprochement domicile-travail](/images/3-etapes-1km-a-pied.png "Les trois étapes d'action de la startup ")
 
-1km à pied utilise les données de transport.data.gouv.fr à travers **Navitia** pour calculer les trajets possibles en transports publics (durée, fréquence, temps de marche, nombre de correspondances…). Ils sont ensuite comparés aux trajets en voiture, vélo… pour ainsi trouver le mode de transport idéal - pour l’utilisateur comme pour l’environnement ! 
+1km à pied utilise les données de [transport.data.gouv.fr](https://transport.data.gouv.fr/) à travers **Navitia** pour calculer les trajets possibles en transports publics (durée, fréquence, temps de marche, nombre de correspondances…). Ils sont ensuite comparés aux trajets en voiture, vélo… pour ainsi trouver le mode de transport idéal - pour l’utilisateur comme pour l’environnement ! 
 
 ### A venir
 
