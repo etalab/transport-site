@@ -14,7 +14,7 @@
   var PostPreview = createClass({
     render: function() {
       var entry = this.props.entry;
-      var image = entry.getIn(['data', 'image']);
+      var image = entry.getIn(['data', 'images'])[0];
       var bg = this.props.getAsset(image);
       return h('div', {},
         h('h1', {"className": "posttitle"}, entry.getIn(['data', 'title'])),
