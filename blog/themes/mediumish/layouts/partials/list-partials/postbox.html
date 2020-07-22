@@ -3,7 +3,7 @@
     <div class="card h-100">
         <div class="maxthumb">
             <a href="{{ .Permalink }}">
-                <img class="img-fluid" src="{{ index .Params.images 0 }}" alt="">
+                <img class="img-fluid" src="{{ with .Params.images }}{{ index . 0 }}{{ end }}" alt="">
             </a>
         </div>
         <div class="card-body">
