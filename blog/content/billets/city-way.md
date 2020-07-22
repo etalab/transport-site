@@ -9,7 +9,7 @@ description: "Nous réalisons une série d’entretiens avec différents
   des différents cas d’usage qu’elle peut avoir : Interview avec Nelly
   Escoffier, Coordinatrice des responsables d'exploitation SIM et Baptiste
   Delloye, directeur d'exploitation."
-image: /images/cityway.png
+image: /images/cityway-cover.png
 ---
 > ### City way : Mobility as a service
 
