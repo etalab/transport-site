@@ -6,7 +6,8 @@ tags:
 description: Interview avec Manuel Pereira, du pôle accessibilité numérique à
   l’association et avec Valentin HAÜY et LEON ingénieur et développeur du
   Localisateur
-image: /images/le-localisateur.png
+images:
+  - /images/le-localisateur.png
 ---
 ### Le Localisateur : Le web en clair pour tous
 

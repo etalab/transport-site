@@ -5,7 +5,8 @@ tags:
   - qualité des données
 description: Retrouvez désormais pour l'ensemble des fichiers GTFS référencés
   sur transport.data.gouv.fr le fichier NeTEx (profil France) associé.
-image: /images/gtfs2netexfr.png
+images:
+  - /images/gtfs2netexfr.png
 ---
 ### **Pourquoi un convertisseur ?**
 

@@ -5,7 +5,8 @@ tags:
   - réutilisation
 description: Interview avec Jean-Christophe Becquet, ingénieur conseil en
   informatique libre.
-image: /images/image-9-.png
+images:
+  - /images/image-9-.png
 ---
 ![](/images/apitux_image.png)
 

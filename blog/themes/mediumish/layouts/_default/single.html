@@ -58,7 +58,7 @@
 
                     <!-- Post Featured Image -->
                     <div class="pt-48">
-                        <img class="featured-image img-fluid" src="{{ .Params.image }}" alt="">
+                        <img class="featured-image img-fluid" src="{{ index .Params.images 0 }}" alt="">
                     </div>
                     <!-- End Featured Image -->
 
