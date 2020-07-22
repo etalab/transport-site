@@ -94,9 +94,3 @@
 {{ define "footer"}}
     {{- partial "_shared/footer.html" . -}}
 {{ end }}
-
-<meta property="og:title" content="{{ .Title }}">
-<meta property="og:description" content="{{ .Params.description }}">
-<meta property="og:image" content="{{ .Params.image }}">
-<meta property="og:url" content="{{ .Permalink }}">
-<meta name="twitter:card" content="summary_large_image">
