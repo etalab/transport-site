@@ -9,17 +9,11 @@ description: Interview avec Manuel Pereira, du pôle accessibilité numérique �
 images:
   - /images/le-localisateur.png
 ---
-### Le Localisateur : Le web en clair pour tous
-
 ![](/images/hauy.png "L’association Valentin Haüy")
 
 Le Localisateur est un logiciel agrégateur d’information, qui rend accessible aux personnes malvoyantes et aveugles le contenu disponible sur internet. Soutenue par la Fondation Valentin Haüy, cette application gratuite aide les handicapés visuels à sortir de leur isolement. Ce service est accessible depuis les navigateurs web et sur mobile.
 
-
-### Réutilisations des données de transport.data.gouv.fr
-
 ![](/images/le-loc.png "Le site web ")
-
 
 L'application propose des podcasts, un annuaire, des notices de médicaments... ainsi qu'un système d'auto-guidage, conçu comme aide à la mobilité. Ce système réutilise les données de passage de bus, métro ou tram en temps-réel et la localisation des arrêts, disponibles sur transport.data.gouv.fr, pour proposer une aide en fonction du mode de déplacement : piétons, voiture ou transport en commun. Le Localisateur compte aujourd'hui plus de 2000 utilisateurs. 
 
