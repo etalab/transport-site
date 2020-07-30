@@ -34,6 +34,6 @@ La filiale produit également des données publiées sur transport.data.gouv.fr
 
 <!--StartFragment-->
 
-Intégration des données accessibilité pour les personnes à mobilité réduite 
+Intégration des données accessibilité pour les personnes à mobilité réduite.
 
 <!--EndFragment-->
