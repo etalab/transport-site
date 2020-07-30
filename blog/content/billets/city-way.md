@@ -22,9 +22,7 @@ Elle conçoit les SIM des deux tiers des régions françaises.
 
 ![](/images/unnamed-3-.png)
 
-Tourné vers l’open data, Cityway enrichit son calculateur d’itinéraire, déjà alimenté par les données remontées par ses partenaires régionaux, avec des données disponibles sur transport.data.gouv.fr. Ceci permet à l'entreprise d'acquérir des données décrivant une diversité de modes de transport à partir de tous les services disponibles : ferrés, maritimes, aériens, auto-p
-
-artage, co-voiturage, marche à pied, transports à la demande etc.
+Tourné vers l’open data, Cityway enrichit son calculateur d’itinéraire, déjà alimenté par les données remontées par ses partenaires régionaux, avec des données disponibles sur transport.data.gouv.fr. Ceci permet à l'entreprise d'acquérir des données décrivant une diversité de modes de transport à partir de tous les services disponibles : ferrés, maritimes, aériens, auto-partage, co-voiturage, marche à pied, transports à la demande etc.
 
 Cela rend ainsi  visible la diversité de l’offre de transport d’un territoire, et de favoriser l’intermodalité.
 
