@@ -5,7 +5,8 @@ tags:
   - réutilisation
 description: MyBus est une application mobile complète à destination des usagers
   des transports en commun.
-image: /images/photo-equipe-tech.jpg
+images:
+  - /images/photo-equipe-tech.jpg
 ---
 MyBus est une application mobile complète à destination des usagers des transports en commun : guide horaire, temps réel, calcul d’itinéraire, partages communautaires et m-Ticket (titre de transport dématérialisé compatible avec 100% des smartphones).
 

@@ -32,5 +32,10 @@ collections: # A list of collections the CMS should be able to edit
             ],
         }
       - { label: "Intro Blurb", name: "description", widget: "text" }
-      - { label: "Image", name: "image", widget: "image", required: false }
+      - {
+          label: "Image",
+          name: "images",
+          widget: "list",
+          field: { name: image, widget: image },
+        }
       - { label: "Body", name: "body", widget: "markdown" }

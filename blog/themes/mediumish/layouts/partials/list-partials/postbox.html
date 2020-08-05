@@ -3,12 +3,12 @@
     <div class="card h-100">
         <div class="maxthumb">
             <a href="{{ .Permalink }}">
-                <img class="img-fluid" src="{{ $.Param "image" }}" alt="">
+                <img class="img-fluid" src="{{ with .Params.images }}{{ index . 0 }}{{ end }}" alt="">
             </a>
         </div>
         <div class="card-body">
             <h2 class="card-title"><a class="text-dark" href="{{ .Permalink }}">{{ .Title }}</a></h2>
-            <h4 class="card-text">{{ .Params.description }}</h4>            
+            <h4 class="card-text">{{ .Params.description }}</h4>
         </div>
         <div class="card-footer bg-white">
             <div class="wrapfooter">
@@ -16,7 +16,7 @@
                 {{if isset .Site.Params "author_thumb"}}
                     <span class="meta-footer-thumb">
                         <img class="author-thumb" src="{{ .Site.Params.author_thumb | urlize | relURL  }}" alt="{{ .Site.Params.author }}">
-                    </span>                
+                    </span>
                     <span class="post-name">{{ .Site.Params.author }}</a></span><br/>
                 {{end}}
                 {{end}}

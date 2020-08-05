@@ -44,6 +44,10 @@ pre {
   min-height: 300px;
 }
 
+.main-content i {
+  padding-right: 4px;
+}
+
 .site-content {
   min-height: 90vh;
   padding-top: 1.5rem;
@@ -369,7 +373,7 @@ blockquote {
 }
 
 .article-post blockquote {
-  margin: 29px 0 29px 0; 
+  margin: 29px 0 29px 0;
 }
 
 .article-post p {
@@ -442,7 +446,7 @@ hr:after {
 }
 
 .article-post table {
-  margin: 29px 0 29px 0; 
+  margin: 29px 0 29px 0;
 }
 
 .featured-image {
