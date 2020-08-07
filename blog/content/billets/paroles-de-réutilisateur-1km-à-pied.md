@@ -6,7 +6,7 @@ tags:
 description: Interview avec Laure Wagner, fondatrice de 1km à pied.
 image: /images/capture-d’écran-14-.png
 images:
-  - /images/1km-à-pied.gif
+  - /images/1km_a_pied_logo_vecto.png
 ---
 <!--StartFragment-->
 
