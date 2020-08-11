@@ -53,6 +53,22 @@ defmodule Transport.GtfsConversions do
     end
   end
 
+  def convert_resources_of_dataset(dataset_id) do
+    Resource
+    |> preload(dataset: [:resources])
+    |> where([r], r.dataset_id == ^dataset_id)
+    |> filter_convertible_resources()
+    |> Repo.all()
+    |> case do
+      nil ->
+        {:error, "no convertible resource"}
+
+      resources ->
+        Enum.each(resources, &convert_resource/1)
+        {:ok, ""}
+    end
+  end
+
   @spec generate_netex_and_geojson(Resource.t()) :: {:ok, Ecto.Schema.t()} | {:error, any()}
   defp generate_netex_and_geojson(resource), do: call_conversion_api(resource, "convert_to_netex_and_geojson")
 
