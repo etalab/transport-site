@@ -165,7 +165,9 @@ defmodule TransportWeb.DatasetView do
       "air-transport" => "/images/icons/plane.svg",
       "road-network" => "/images/icons/map.svg",
       "addresses" => "/images/icons/addresses.svg",
-      "private-parking" => "/images/icons/parking.svg"
+      "private-parking" => "/images/icons/parking.svg",
+      "stops-ref" => "/images/icons/addresses.svg",
+      "informations" => "/images/icons/infos.svg"
     }
 
     Map.get(icons, type)
