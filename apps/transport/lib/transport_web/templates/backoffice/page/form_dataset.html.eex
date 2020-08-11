@@ -100,6 +100,11 @@
           <% end %>
         </div>
       </div>
+      <div class="backoffice_dataset_actions_buttons">
+        <%= form_for @conn, backoffice_dataset_path(@conn, :generate_geojson, @dataset.id), [nodiv: true], fn _ -> %>
+          <%= submit dgettext("backoffice", "Generate community resources (GeoJSON and NeTEx)"), [class: "button"] %>
+        <% end %>
+      </div>
       <div class="dataset_import_validations_logs">
         <h3><%= dgettext("backoffice", "Imports history") %></h3>
         <table>

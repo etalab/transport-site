@@ -231,6 +231,6 @@ msgstr "Jeux de données"
 msgid "Bicycle paths"
 msgstr "Aménagements cyclables"
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Road works"
 msgstr "Travaux sur voirie"

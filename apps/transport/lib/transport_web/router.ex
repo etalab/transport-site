@@ -99,6 +99,7 @@ defmodule TransportWeb.Router do
         post("/_all_/_force_validate", DatasetController, :force_validate_all)
         post("/:id/_import_validate", DatasetController, :import_validate_all)
         post("/:id/_validate", DatasetController, :validation)
+        post("/:id/_launch_resource_conversion", DatasetController, :launch_resources_conversions)
       end
 
       scope "/partners" do
