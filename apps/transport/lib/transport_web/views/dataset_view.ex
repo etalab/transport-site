@@ -168,7 +168,6 @@ defmodule TransportWeb.DatasetView do
       "private-parking" => "/images/icons/parking.svg",
       "stops-ref" => "/images/icons/addresses.svg",
       "informations" => "/images/icons/infos.svg"
-
     }
 
     Map.get(icons, type)
