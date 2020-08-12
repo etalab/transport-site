@@ -188,6 +188,12 @@ defmodule TransportWeb.DatasetView do
       |> Dataset.official_resources()
       |> Enum.filter(&Resource.is_gtfs?/1)
 
+  def gtfs_rt_official_resources(dataset),
+    do:
+      dataset
+      |> Dataset.official_resources()
+      |> Enum.filter(&Resource.is_gtfs_rt?/1)
+
   def gbfs_official_resources(dataset),
     do:
       dataset
@@ -204,6 +210,7 @@ defmodule TransportWeb.DatasetView do
     dataset
     |> Dataset.official_resources()
     |> Stream.reject(&Resource.is_gtfs?/1)
+    |> Stream.reject(&Resource.is_gtfs_rt?/1)
     |> Stream.reject(&Resource.is_gbfs?/1)
     |> Stream.reject(&Resource.is_netex?/1)
     |> Enum.to_list()

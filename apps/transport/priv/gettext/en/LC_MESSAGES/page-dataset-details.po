@@ -321,3 +321,7 @@ msgstr ""
 #, elixir-format
 msgid "Impossible to read"
 msgstr ""
+
+#, elixir-format
+msgid "GTFS real time resources"
+msgstr ""
