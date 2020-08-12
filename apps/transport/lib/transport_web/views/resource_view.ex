@@ -63,7 +63,7 @@ defmodule TransportWeb.ResourceView do
   def dataset_creation,
     do: :transport |> Application.get_env(:datagouvfr_site) |> Path.join("/fr/admin/dataset/new/")
 
-  def get_associated_geojson(%DB.Resource{title: title, url: url, dataset: %{resources: resources}}) do
+  def get_associated_geojson(%DB.Resource{title: _title, url: url, dataset: %{resources: resources}}) do
     resources
     |> Enum.find(fn r ->
       r.original_resource_url == url and

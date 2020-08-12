@@ -75,6 +75,10 @@
   padding-top: 1vh;
 }
 
+.dataset__resources .reuser-message {
+  color: var(--theme-label-text);
+}
+
 .dataset__logo {
   img {
     max-height: 100px;

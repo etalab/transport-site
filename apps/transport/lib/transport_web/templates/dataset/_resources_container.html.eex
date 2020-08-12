@@ -5,7 +5,7 @@
       <h3><%= @title %></h3>
   </div>
   <%= render_many @resources, TransportWeb.DatasetView, "_resource.html", as: :resource, conn: @conn %>
-  <p>
+  <p class="reuser-message">
       <i class="fas fa-info-circle"></i>
       <%= dgettext(
           "page-dataset-details",

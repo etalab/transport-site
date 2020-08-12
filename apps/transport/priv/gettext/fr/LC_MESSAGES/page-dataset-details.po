@@ -321,3 +321,7 @@ msgstr "Couverture spatiale"
 #, elixir-format
 msgid "Impossible to read"
 msgstr "Données illisibles"
+
+#, elixir-format
+msgid "GTFS real time resources"
+msgstr "Ressources GTFS temps réel"
