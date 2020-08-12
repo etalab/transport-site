@@ -125,7 +125,9 @@ defmodule TransportWeb.Backoffice.DatasetController do
   @spec launch_resources_conversions(Plug.Conn.t(), map) :: Plug.Conn.t()
   def launch_resources_conversions(%Plug.Conn{} = conn, %{"id" => dataset_id}) do
     # force the conversion of GTFS resources to GeoJSON and NeTEx format
-    GtfsConversions.convert_resources_of_dataset(dataset_id)
+    res = GtfsConversions.convert_resources_of_dataset(dataset_id)
+
+    res
     |> flash(
       conn,
       dgettext("backoffice_dataset", "resources conversion launched"),
