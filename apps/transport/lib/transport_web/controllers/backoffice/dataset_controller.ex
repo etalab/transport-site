@@ -91,7 +91,10 @@ defmodule TransportWeb.Backoffice.DatasetController do
     ImportDataWorker.import_validate_all()
 
     conn
-    |> put_flash(:info, dgettext("backoffice_dataset", "Import and validation of all datasets have been launch"))
+    |> put_flash(
+      :info,
+      dgettext("backoffice_dataset", "Import and validation of all datasets have been launch")
+    )
     |> redirect_to_index()
   end
 
@@ -100,7 +103,10 @@ defmodule TransportWeb.Backoffice.DatasetController do
     ImportDataWorker.validate_all()
 
     conn
-    |> put_flash(:info, dgettext("backoffice_dataset", "validation of all datasets has been launched"))
+    |> put_flash(
+      :info,
+      dgettext("backoffice_dataset", "validation of all datasets has been launched")
+    )
     |> redirect_to_index()
   end
 
@@ -109,7 +115,10 @@ defmodule TransportWeb.Backoffice.DatasetController do
     ImportDataWorker.force_validate_all()
 
     conn
-    |> put_flash(:info, dgettext("backoffice_dataset", "validation of all datasets has been launch"))
+    |> put_flash(
+      :info,
+      dgettext("backoffice_dataset", "validation of all datasets has been launch")
+    )
     |> redirect_to_index()
   end
 
@@ -128,7 +137,9 @@ defmodule TransportWeb.Backoffice.DatasetController do
   ## Private functions
 
   @spec flash(:ok | {:ok, any} | {:error, any}, Plug.Conn.t(), binary, binary) :: Plug.Conn.t()
-  defp flash({:ok, _message}, conn, ok_message, err_message), do: flash(:ok, conn, ok_message, err_message)
+  defp flash({:ok, _message}, conn, ok_message, err_message),
+    do: flash(:ok, conn, ok_message, err_message)
+
   defp flash(:ok, conn, ok_message, _err_message), do: put_flash(conn, :info, ok_message)
 
   defp flash({:error, %{errors: errors}}, conn, _ok, err_message) do
@@ -137,7 +148,8 @@ defmodule TransportWeb.Backoffice.DatasetController do
     put_flash(conn, :error, Enum.join(messages, ", "))
   end
 
-  defp flash({:error, message}, conn, _ok, err), do: put_flash(conn, :error, "#{err} (#{message})")
+  defp flash({:error, message}, conn, _ok, err),
+    do: put_flash(conn, :error, "#{err} (#{message})")
 
   @spec import_data(Dataset.t() | nil) :: any()
   defp import_data(%Dataset{} = dataset), do: ImportData.import_dataset(dataset)

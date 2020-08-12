@@ -60,8 +60,8 @@ defmodule Transport.GtfsConversions do
     |> filter_convertible_resources()
     |> Repo.all()
     |> case do
-      nil ->
-        {:error, "no convertible resource"}
+      [] ->
+        {:error, "no eligible resource"}
 
       resources ->
         Enum.each(resources, &convert_resource/1)
