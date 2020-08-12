@@ -79,7 +79,8 @@ defmodule Transport.GtfsConversions do
   defp call_conversion_api(resource, endpoint) do
     Logger.info("calling #{endpoint} for #{resource.dataset.title} - #{resource.title} (#{resource.id})")
 
-    url = "#{@base_url}/#{endpoint}?url=#{resource.url}&datagouv_id=#{resource.dataset.datagouv_id}"
+    params = %{"url" => resource.url, "datagouv_id" => resource.dataset.datagouv_id}
+    url = "#{@base_url}/#{endpoint}?#{URI.encode_query(params)}"
 
     case HTTPoison.get(url) do
       {:ok, %{status_code: 200}} ->
