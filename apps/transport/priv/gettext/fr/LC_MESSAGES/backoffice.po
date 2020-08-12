@@ -192,10 +192,6 @@ msgid "explanation"
 msgstr "raison"
 
 #, elixir-format
-msgid "resource id"
-msgstr "id ressource"
-
-#, elixir-format
 msgid "success"
 msgstr "succès"
 
@@ -204,9 +200,5 @@ msgid "validation needed"
 msgstr "validation nécessaire"
 
 #, elixir-format
-msgid "resource page"
-msgstr "page ressource"
-
-#, elixir-format
-msgid "resource title"
-msgstr "titre ressource"
+msgid "Generate community resources (GeoJSON and NeTEx)"
+msgstr "Générer les ressources communautaires (GeoJSON et NeTEx)"

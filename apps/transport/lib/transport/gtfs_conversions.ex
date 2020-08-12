@@ -16,11 +16,7 @@ defmodule Transport.GtfsConversions do
     Logger.info("generating NeTEx and geojson for all GTFS")
 
     Resource
-    |> where(
-      [r],
-      not is_nil(r.url) and not is_nil(r.title) and r.format == "GTFS" and r.is_community_resource == false and
-        r.is_available
-    )
+    |> filter_convertible_resources()
     |> preload(dataset: [:resources])
     |> Repo.all()
     |> Stream.filter(fn r -> force_update || update_needed?(r) end)
@@ -54,6 +50,22 @@ defmodule Transport.GtfsConversions do
       _ ->
         # we don't want to generate a netex if there is already one
         generate_geojson(resource)
+    end
+  end
+
+  def convert_resources_of_dataset(dataset_id) do
+    Resource
+    |> preload(dataset: [:resources])
+    |> where([r], r.dataset_id == ^dataset_id)
+    |> filter_convertible_resources()
+    |> Repo.all()
+    |> case do
+      [] ->
+        {:error, "no eligible resource"}
+
+      resources ->
+        Enum.each(resources, &convert_resource/1)
+        {:ok, ""}
     end
   end
 
@@ -92,5 +104,14 @@ defmodule Transport.GtfsConversions do
     resource
     |> change(conversion_latest_content_hash: resource.content_hash)
     |> Repo.update()
+  end
+
+  defp filter_convertible_resources(query) do
+    query
+    |> where(
+      [r],
+      not is_nil(r.url) and not is_nil(r.title) and r.format == "GTFS" and r.is_community_resource == false and
+        r.is_available
+    )
   end
 end

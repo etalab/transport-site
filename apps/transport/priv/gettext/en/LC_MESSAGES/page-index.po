@@ -231,6 +231,6 @@ msgstr ""
 msgid "Bicycle paths"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Road works"
 msgstr ""
