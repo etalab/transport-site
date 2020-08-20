@@ -18,6 +18,7 @@ defmodule DB.Validation do
     # content_hash of the validated resource
     # This makes it possible to check if we need to revalidate the resource
     field(:validation_latest_content_hash, :string)
+    field(:data_vis, :map)
 
     belongs_to(:resource, Resource)
   end
