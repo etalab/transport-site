@@ -17,6 +17,7 @@ module.exports = {
         mapcsv: './javascripts/map-csv.js',
         mapgeojson: './javascripts/map-geojson.js',
         datasetmap: './javascripts/dataset-map.js',
+        validationmap: './javascripts/validation-map.js',
         utils: './javascripts/utils.js',
         autocomplete: './javascripts/autocomplete.js',
         scss: './stylesheets/app.scss'
