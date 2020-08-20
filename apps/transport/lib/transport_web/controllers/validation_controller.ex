@@ -9,7 +9,7 @@ defmodule TransportWeb.ValidationController do
   @err HTTPoison.Error
   @timeout 180_000
 
-  @geojson_converter_url "http://localhost:8080/gtfs2geojson_sync"
+  @geojson_converter_url "https://convertisseur.transport.data.gouv.fr/gtfs2geojson_sync"
 
   defp endpoint, do: Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
 
