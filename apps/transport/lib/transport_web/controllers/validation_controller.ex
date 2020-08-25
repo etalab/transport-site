@@ -126,32 +126,38 @@ defmodule TransportWeb.ValidationController do
   def features_from_issue(issue, id, features_map) do
     # features contains a list of stops, related_stops and Linestrings
     # Linestrings are used to link a stop and its related stop
-    feature = features_map[id]
-    properties = Map.put(feature["properties"], "details", Map.get(issue, "details"))
-    stop = Map.put(feature, "properties", properties)
 
-    case issue["related_objects"] do
-      %{"id" => id, "name" => _name} ->
-        related_stop = features_map[id]
+    case features_map[id] do
+      nil ->
+        []
 
-        stops_link = %{
-          "type" => "Feature",
-          "properties" => %{
-            "details" => Map.get(issue, "details")
-          },
-          "geometry" => %{
-            "type" => "LineString",
-            "coordinates" => [
-              stop["geometry"]["coordinates"],
-              related_stop["geometry"]["coordinates"]
-            ]
-          }
-        }
+      feature ->
+        properties = Map.put(feature["properties"] || %{}, "details", Map.get(issue, "details"))
+        stop = Map.put(feature, "properties", properties)
 
-        [stop, related_stop, stops_link]
+        case issue["related_objects"] do
+          %{"id" => id, "name" => _name} ->
+            related_stop = features_map[id]
 
-      _ ->
-        [stop]
+            stops_link = %{
+              "type" => "Feature",
+              "properties" => %{
+                "details" => Map.get(issue, "details")
+              },
+              "geometry" => %{
+                "type" => "LineString",
+                "coordinates" => [
+                  stop["geometry"]["coordinates"],
+                  related_stop["geometry"]["coordinates"]
+                ]
+              }
+            }
+
+            [stop, related_stop, stops_link]
+
+          _ ->
+            [stop]
+        end
     end
   end
 
