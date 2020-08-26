@@ -181,10 +181,13 @@ defmodule TransportWeb.ValidationController do
             issue_type -> issue_type
           end
 
+        data_vis = validation.data_vis[issue_type]
+        has_features = not (data_vis["geojson"]["features"] == [])
+
         encoded_data_vis =
-          case Jason.encode(validation.data_vis[issue_type]) do
-            {:ok, "null"} -> nil
-            {:ok, data_vis} -> data_vis
+          case {has_features, Jason.encode(data_vis)} do
+            {false, _} -> nil
+            {true, {:ok, encoded_data_vis}} -> encoded_data_vis
             _ -> nil
           end
 
