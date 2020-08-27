@@ -356,6 +356,17 @@ defmodule DB.Resource do
   defp get_max_severity_error(_), do: nil
 
   @spec is_gtfs?(__MODULE__.t()) :: boolean()
+  @doc """
+  Is the resource a GTFS file ?
+
+  ## Examples
+      iex> Resource.is_gtfs?(%Resource{format: "NeTEx"})
+      false
+      iex> Resource.is_gtfs?(%Resource{format: "GTFS"})
+      true
+      iex> Resource.is_gtfs?(%Resource{})
+      false
+  """
   def is_gtfs?(%__MODULE__{format: "GTFS"}), do: true
   def is_gtfs?(_), do: false
 
