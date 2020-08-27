@@ -9,10 +9,8 @@ defmodule DB.Resource do
   import DB.Gettext
   require Logger
 
-  @client HTTPoison
   @res HTTPoison.Response
   @err HTTPoison.Error
-  @timeout 180_000
 
   typed_schema "resource" do
     field(:is_active, :boolean)
@@ -50,9 +48,6 @@ defmodule DB.Resource do
     has_one(:validation, Validation, on_replace: :delete)
     has_many(:logs_validation, LogsValidation, on_replace: :delete, on_delete: :delete_all)
   end
-
-  @spec endpoint() :: binary()
-  def endpoint, do: Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
 
   @doc """
   A validation is needed if the last update from the data is newer than the last validation.
@@ -166,11 +161,11 @@ defmodule DB.Resource do
       {:error, e}
   end
 
-  @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
-  def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
+  @spec validate(__MODULE__.t(), module) :: {:error, any} | {:ok, map()}
+  def validate(resource, validator \\ Validator.HTTPClient)
 
-  def validate(%__MODULE__{url: url, format: "GTFS"}) do
-    case @client.get("#{endpoint()}?url=#{URI.encode_www_form(url)}", [], recv_timeout: @timeout) do
+  def validate(%__MODULE__{url: url, format: "GTFS"}, validator) do
+    case validator.validate(url) do
       {:ok, %@res{status_code: 200, body: body}} -> Poison.decode(body)
       {:ok, %@res{body: body}} -> {:error, body}
       {:error, %@err{reason: error}} -> {:error, error}
@@ -178,7 +173,9 @@ defmodule DB.Resource do
     end
   end
 
-  def validate(%__MODULE__{format: f, id: id}) do
+  def validate(%__MODULE__{url: nil}, _), do: {:error, "No url"}
+
+  def validate(%__MODULE__{format: f, id: id}, _) do
     Logger.info("cannot validate resource id=#{id} because we don't know how to validate the #{f} format")
     {:ok, %{"validations" => nil, "metadata" => nil}}
   end
@@ -408,4 +405,37 @@ defmodule DB.Resource do
   end
 
   defp str_to_date(_), do: nil
+
+  defmodule Validator do
+    defmodule HTTPClient do
+      @client HTTPoison
+      @timeout 180_000
+
+      @spec endpoint() :: binary()
+      def endpoint, do: Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
+
+      def validate(resource_url) do
+        url =
+          endpoint()
+          |> URI.parse()
+          |> Map.put(:query, URI.encode_query(%{"url" => resource_url}))
+          |> URI.to_string()
+
+        @client.get(url, [], recv_timeout: @timeout)
+      end
+    end
+
+    defmodule Mock do
+      @moduledoc """
+        Mock validator for testing purpose
+      """
+      def validate("200_url") do
+        {:ok, %HTTPoison.Response{status_code: 200, body: "{\"details\": \"this is the validation\"}"}}
+      end
+
+      def validate(_incorrect_url) do
+        {:ok, %HTTPoison.Response{status_code: 404, body: "error"}}
+      end
+    end
+  end
 end
