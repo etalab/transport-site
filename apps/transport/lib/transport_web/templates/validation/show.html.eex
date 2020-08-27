@@ -14,14 +14,33 @@
 
   <div class="validation-content">
     <div class="container">
-      <div class="panel validation-metadata">
+
+      <%= unless is_nil(@metadata) do %>
+        <div class="panel validation-metadata">
           <%= render "_resources_details.html", metadata: @metadata %>
-      </div>
-      <div class="validation-navigation">
-        <nav class="issues-list validation" role="navigation">
-          <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, conn: @conn, issues: @issues %>
-        </nav>
-      </div>
+        </div>
+      <% end %>
+
+      <%= if has_errors?(@validation_summary) do %>
+        <div id="issues" class="validation-navigation">
+          <nav class="issues-list validation" role="navigation">
+            <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, conn: @conn, issues: @issues %>
+          </nav>
+        </div>
+
+        <%= unless is_nil(@data_vis) do %>
+          <div class="panel p-6">
+            <div id='map' class='mapcsv'></div>
+            <script src="<%= static_path(@conn, "/js/validationmap.js") %>"></script>
+            <script>
+              document.addEventListener("DOMContentLoaded", function() {
+              createValidationMap('map', <%= raw(@data_vis) %>)
+              })
+            </script>
+          </div>
+        <% end %>
+      <% end %>
+
 
       <div class="validation-content-details">
         <div class="panel" style="overflow-x:auto;">
@@ -29,6 +48,10 @@
             <%= pagination_links @conn, @issues,  [@validation_id], issue_type: issue_type(@issues.entries),
                 path: &validation_path/4, action: :show %>
             <%= render template(@issues), issues: @issues || [] , conn: @conn %>
+            <div class="pt-24">
+              <%= pagination_links @conn, @issues,  [@validation_id], issue_type: issue_type(@issues.entries),
+                path: &validation_path/4, action: :show %>
+            </div>
           <% else %>
             <h2><%= dgettext("validations", "Nice work, there are no issues!")%></h2>
           <% end %>
