@@ -408,6 +408,9 @@ defmodule DB.Resource do
 
   defmodule Validator do
     defmodule HTTPClient do
+      @moduledoc """
+        Module for validating a resource
+      """
       @client HTTPoison
       @timeout 180_000
 
