@@ -162,7 +162,7 @@ defmodule DB.Resource do
   end
 
   @spec validate(__MODULE__.t(), module) :: {:error, any} | {:ok, map()}
-  def validate(resource, validator \\ Validator.HTTPClient)
+  def validate(resource, validator \\ __MODULE__.Validator.HTTPClient)
 
   def validate(%__MODULE__{url: url, format: "GTFS"}, validator) do
     case validator.validate(url) do
