@@ -5,33 +5,33 @@ defmodule TransportWeb.ResourceController do
   alias Transport.ImportData
   require Logger
 
-  def details(conn, %{"id" => id} = params) do
+  def details(conn, %{"id" => id} = params) when is_integer(id) do
     config = make_pagination_config(params)
 
-    Resource
-    |> Repo.get(id)
-    |> Repo.preload([:validation, dataset: [:resources]])
-    |> case do
-      nil ->
+    resource =
+      Resource
+      |> Repo.get!(id)
+      |> Repo.preload([:validation, dataset: [:resources]])
+
+    case Resource.has_metadata?(resource) do
+      false ->
         conn |> put_view(ErrorView) |> render("404.html")
 
-      resource ->
-        case Resource.has_metadata?(resource) do
-          false ->
-            conn |> put_view(ErrorView) |> render("404.html")
+      true ->
+        issues = resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config)
 
-          true ->
-            issues = resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config)
-
-            conn
-            |> assign(:resource, resource)
-            |> assign(:other_resources, Resource.other_resources(resource))
-            |> assign(:issues, issues)
-            |> assign(:validation_summary, Validation.summary(resource.validation))
-            |> assign(:severities_count, Validation.count_by_severity(resource.validation))
-            |> render("details.html")
-        end
+        conn
+        |> assign(:resource, resource)
+        |> assign(:other_resources, Resource.other_resources(resource))
+        |> assign(:issues, issues)
+        |> assign(:validation_summary, Validation.summary(resource.validation))
+        |> assign(:severities_count, Validation.count_by_severity(resource.validation))
+        |> render("details.html")
     end
+  end
+
+  def details(conn, _params) do
+    conn |> put_view(ErrorView) |> render("404.html")
   end
 
   def choose_action(conn, _), do: render(conn, "choose_action.html")

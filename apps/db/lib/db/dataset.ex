@@ -358,14 +358,13 @@ defmodule DB.Dataset do
 
   @spec get_by_slug(binary) :: {:ok, __MODULE__.t()} | {:error, binary()}
   def get_by_slug(slug) do
-    preload_without_validations()
-    |> where(slug: ^slug)
-    |> preload([:region, :aom, :communes])
-    |> Repo.one()
-    |> case do
-      nil -> {:error, "Dataset with slug #{slug} not found"}
-      dataset -> {:ok, dataset}
-    end
+    dataset =
+      preload_without_validations()
+      |> where(slug: ^slug)
+      |> preload([:region, :aom, :communes])
+      |> Repo.one!()
+
+    {:ok, dataset}
   end
 
   @spec get_other_datasets(__MODULE__.t()) :: [__MODULE__.t()]
@@ -400,19 +399,15 @@ defmodule DB.Dataset do
   def get_territory(%__MODULE__{aom: %{nom: nom}}), do: {:ok, nom}
 
   def get_territory(%__MODULE__{aom_id: aom_id}) when not is_nil(aom_id) do
-    case Repo.get(AOM, aom_id) do
-      nil -> {:error, "Could not find territory of AOM with id #{aom_id}"}
-      aom -> {:ok, aom.nom}
-    end
+    aom = Repo.get!(AOM, aom_id)
+    {:ok, aom.nom}
   end
 
   def get_territory(%__MODULE__{region: %{nom: nom}}), do: {:ok, nom}
 
   def get_territory(%__MODULE__{region_id: region_id}) when not is_nil(region_id) do
-    case Repo.get(Region, region_id) do
-      nil -> {:error, "Could not find territory of Region with id #{region_id}"}
-      region -> {:ok, region.nom}
-    end
+    region = Repo.get!(Region, region_id)
+    {:ok, region.nom}
   end
 
   def get_territory(%__MODULE__{associated_territory_name: associated_territory_name}),

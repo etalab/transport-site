@@ -32,28 +32,26 @@ defmodule TransportWeb.DatasetController do
 
   @spec details(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
-    with {:ok, dataset} <- Dataset.get_by_slug(slug_or_id),
-         {:ok, territory} <- Dataset.get_territory(dataset),
-         {:ok, reuses} <- Reuses.get(dataset) do
-      conn
-      |> assign(:dataset, dataset)
-      |> assign(:territory, territory)
-      |> assign(:discussions, Discussions.get(dataset.datagouv_id))
-      |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
-      |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
-      |> assign(:reuses, reuses)
-      |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
-      |> assign(:history_resources, Dataset.history_resources(dataset))
-      |> put_status(if dataset.is_active, do: :ok, else: :not_found)
-      |> render("details.html")
-    else
-      {:error, msg} ->
-        Logger.error("Could not fetch dataset details: #{msg}")
-        redirect_to_slug_or_404(conn, slug_or_id)
+    {:ok, dataset} = Dataset.get_by_slug(slug_or_id)
+    {:ok, territory} = Dataset.get_territory(dataset)
 
-      nil ->
-        redirect_to_slug_or_404(conn, slug_or_id)
-    end
+    reuses =
+      case Reuses.get(dataset) do
+        {:ok, reuses} -> reuses
+        _ -> nil
+      end
+
+    conn
+    |> assign(:dataset, dataset)
+    |> assign(:territory, territory)
+    |> assign(:discussions, Discussions.get(dataset.datagouv_id))
+    |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
+    |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
+    |> assign(:reuses, reuses)
+    |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
+    |> assign(:history_resources, Dataset.history_resources(dataset))
+    |> put_status(if dataset.is_active, do: :ok, else: :not_found)
+    |> render("details.html")
   end
 
   @spec by_aom(Plug.Conn.t(), map()) :: Plug.Conn.t()
@@ -154,7 +152,9 @@ defmodule TransportWeb.DatasetController do
     |> select([d], %{type: d.type, count: count(d.type)})
     |> Repo.all()
     |> Enum.reject(&is_nil/1)
-    |> Enum.map(fn res -> %{type: res.type, count: res.count, msg: Dataset.type_to_str(res.type)} end)
+    |> Enum.map(fn res ->
+      %{type: res.type, count: res.count, msg: Dataset.type_to_str(res.type)}
+    end)
     |> add_current_type(params["type"])
     |> Enum.reject(fn t -> is_nil(t.msg) end)
   end
@@ -185,21 +185,14 @@ defmodule TransportWeb.DatasetController do
   defp redirect_to_slug_or_404(conn, slug_or_id) do
     case Integer.parse(slug_or_id) do
       {_id, ""} ->
-        redirect_to_dataset(conn, Repo.get_by(Dataset, id: slug_or_id))
+        redirect_to_dataset(conn, Repo.get_by!(Dataset, id: slug_or_id))
 
       _ ->
-        redirect_to_dataset(conn, Repo.get_by(Dataset, datagouv_id: slug_or_id))
+        redirect_to_dataset(conn, Repo.get_by!(Dataset, datagouv_id: slug_or_id))
     end
   end
 
-  @spec redirect_to_dataset(Plug.Conn.t(), %Dataset{} | nil) :: Plug.Conn.t()
-  defp redirect_to_dataset(conn, nil) do
-    conn
-    |> put_status(:not_found)
-    |> put_view(ErrorView)
-    |> render("404.html")
-  end
-
+  @spec redirect_to_dataset(Plug.Conn.t(), %Dataset{}) :: Plug.Conn.t()
   defp redirect_to_dataset(conn, %Dataset{} = dataset) do
     redirect(conn, to: dataset_path(conn, :details, dataset.slug))
   end
