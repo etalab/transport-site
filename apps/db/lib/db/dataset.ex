@@ -500,7 +500,7 @@ defmodule DB.Dataset do
     |> preload(:validation)
     |> where([r], r.dataset_id == ^id)
     |> Repo.all()
-    |> Enum.map(fn r -> Resource.validate_and_save(r, false) end)
+    |> Enum.map(fn r -> Resource.validate_and_save(r, true) end)
     |> Enum.any?(fn r -> match?({:error, _}, r) end)
     |> if do
       {:error, "Unable to validate dataset #{id}"}
