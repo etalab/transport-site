@@ -1,5 +1,5 @@
 ---
-title: "Paroles de réutilisateur : Apitux !"
+title: "Paroles de réutilisateur : Apitux "
 date: 2020-06-23T07:28:18.382Z
 tags:
   - réutilisation
