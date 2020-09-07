@@ -51,6 +51,8 @@ defmodule DB.Dataset do
 
     has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
     has_many(:logs_import, LogsImport, on_replace: :delete, on_delete: :delete_all)
+    # A dataset can be "parent dataset" of many AOMs
+    has_many(:child_aom, AOM, foreign_key: :parent_dataset_id)
   end
 
   @spec type_to_str_map() :: %{binary() => binary()}
