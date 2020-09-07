@@ -5,7 +5,7 @@ tags:
   - réutilisation
 description: Interview avec Manuel Pereira, du pôle accessibilité numérique à
   l’association et avec Valentin HAÜY et LEON ingénieur et développeur du
-  Localisateur
+  Localisateur.
 images:
   - /images/le-localisateur.png
 ---
