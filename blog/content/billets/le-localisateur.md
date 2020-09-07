@@ -1,5 +1,5 @@
 ---
-title: "Paroles de réutilisateur : Le Localisateur !"
+title: "Paroles de réutilisateur : Le Localisateur "
 date: 2020-06-09T15:25:05.610Z
 tags:
   - réutilisation
