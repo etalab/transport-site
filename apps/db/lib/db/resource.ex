@@ -40,6 +40,11 @@ defmodule DB.Resource do
     # some community resources have been generated from another dataset (like the generated NeTEx / GeoJson)
     field(:original_resource_url, :string)
 
+    # Id of the datagouv resource. Note that several resources can have the same datagouv_id
+    # because one datagouv resource can be a CSV linking to several transport.data.gouv's resources
+    # (this is done for OpenDataSoft)
+    field(:datagouv_id, :string)
+
     # we add 2 fields, that are already in the metadata json, in order to be able to add some indices
     field(:start_date, :date)
     field(:end_date, :date)
@@ -238,6 +243,7 @@ defmodule DB.Resource do
         :title,
         :metadata,
         :id,
+        :datagouv_id,
         :last_update,
         :latest_url,
         :is_available,

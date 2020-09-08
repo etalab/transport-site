@@ -176,9 +176,11 @@ defmodule TransportWeb.API.DatasetController do
   defp transform_resource(resource),
     do:
       %{
+        "datagouv_id" => resource.datagouv_id,
         "title" => resource.title,
         "updated" => Helpers.format_datetime(resource.last_update),
         "url" => resource.latest_url,
+        "original_url" => resource.url,
         "end_calendar_validity" => resource.metadata["end_date"],
         "start_calendar_validity" => resource.metadata["start_date"],
         "format" => resource.format,

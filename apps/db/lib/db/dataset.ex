@@ -86,6 +86,7 @@ defmodule DB.Dataset do
         url: r.url,
         metadata: r.metadata,
         id: r.id,
+        datagouv_id: r.datagouv_id,
         last_update: r.last_update,
         latest_url: r.latest_url,
         content_hash: r.content_hash,
