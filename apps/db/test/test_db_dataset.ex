@@ -13,7 +13,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert not is_nil(linked_aom.parent_dataset_id)
 
     # it should be possible to delete a dataset even if it is an AOM's parent dataset
-    assert {:ok, _} = Repo.delete(parent_dataset)
+    Repo.delete!(parent_dataset)
 
     # after parent deletion, the aom should have a nil parent_dataset
     linked_aom = Repo.get!(AOM, linked_aom.id)
