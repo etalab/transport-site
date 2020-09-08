@@ -295,6 +295,7 @@ defmodule Transport.ImportData do
         # (the 'latest' field is the stable data.gouv.fr url)
         "latest_url" => resource["latest"] || resource["url"],
         "id" => get_resource_id(resource, dataset["id"]),
+        "datagouv_id" => resource["id"],
         "is_available" => available?(resource),
         "is_community_resource" => is_community_resource,
         "community_resource_publisher" => get_publisher(resource),
