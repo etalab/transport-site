@@ -14,7 +14,7 @@ defmodule Opendatasoft.UrlExtractor do
     csv_resources = filter_csv(resources)
 
     with {:ok, bodys} <- download_csv_list(csv_resources),
-         {:ok, urls} <- get_url_from_csv(bodys) do
+         {:ok, urls} <- get_url_from_csvs(bodys) do
       Enum.map(urls, fn u -> %{"url" => u.url, "format" => "csv", "title" => u.title} end)
     else
       {:error, error} ->
@@ -33,15 +33,15 @@ defmodule Opendatasoft.UrlExtractor do
 
   ## Examples
       iex> {:ok, %{headers: [{"Content-Type", "text/csv"}]}}
-      ...> |> ImportData.has_csv?
+      ...> |> UrlExtractor.has_csv?
       true
 
       iex> {:ok, %{headers: [{"Content-Type", "application/zip"}]}}
-      ...> |> ImportData.has_csv?
+      ...> |> UrlExtractor.has_csv?
       false
 
       iex> {:error, "pouet"}
-      ...> |> ImportData.has_csv?
+      ...> |> UrlExtractor.has_csv?
       false
 
   """
@@ -84,21 +84,20 @@ defmodule Opendatasoft.UrlExtractor do
 
   ## Examples
       iex> ["name,file\\ntoulouse,http", "stop,lon,lat\\n1,48.8,2.3"]
-      ...> |> ImportData.get_url_from_csv()
-      "http"
+      ...> |> UrlExtractor.get_url_from_csvs()
+      {:ok, [%{url: "http", title: "http"}]}
 
-      iex> |> ImportData.get_url_from_csv()
-      {:error, "No column file"}
+    iex> UrlExtractor.get_url_from_csvs(["stop,lon,lat\\n1,48.8,2.3"])
+    {:error, "No url found"}
 
   """
-  @spec get_url_from_csv([binary()]) :: {:ok, [binary()]} | {:error, binary()}
-  def get_url_from_csv(bodies) when is_list(bodies) do
+  @spec get_url_from_csvs([binary()]) :: {:ok, [%{url: binary(), title: binary()}]} | {:error, binary()}
+  def get_url_from_csvs(bodies) when is_list(bodies) do
     bodies
     |> Enum.map(&get_url_from_csv/1)
     |> List.flatten()
-    |> Enum.filter(fn {status, _} -> status == :ok end)
     |> case do
-      urls = [_ | _] -> {:ok, Enum.map(urls, fn {_, v} -> v end)}
+      urls = [_ | _] -> {:ok, urls}
       [] -> {:error, "No url found"}
     end
   end
@@ -108,23 +107,24 @@ defmodule Opendatasoft.UrlExtractor do
 
   ## Examples
       iex> "name,file\\ntoulouse,http"
-      ...> |> ImportData.get_url_from_csv()
-      {:ok, {url: "http", title: "http"}}
+      ...> |> UrlExtractor.get_url_from_csv()
+      [%{url: "http", title: "http"}]
 
       iex> "stop,lon,lat\\n1,48.8,2.3"
-      ...> |> ImportData.get_url_from_csv()
-      {:error, "No column file"}
+      ...> |> UrlExtractor.get_url_from_csv()
+      []
 
       iex> "Donnees;format;Download\\r\\nHoraires des lignes TER;GTFS;https\\r\\n"
-      ...> |> ImportData.get_url_from_csv()
-      {:ok, {url: "https", title: "https"}}
+      ...> |> UrlExtractor.get_url_from_csv()
+      [%{url: "https", title: "https"}]
 
   """
+  @spec get_url_from_csv(binary()) :: [any()]
   def get_url_from_csv(body) do
     @separators
     |> Enum.map(&get_url_from_csv(&1, body))
     |> List.flatten()
-    |> Enum.map(fn url -> {:ok, %{url: url, title: get_filename(url)}} end)
+    |> Enum.map(fn url -> %{url: url, title: get_filename(url)} end)
   end
 
   @spec get_url_from_csv(binary(), binary()) :: [binary()]
@@ -168,23 +168,23 @@ defmodule Opendatasoft.UrlExtractor do
 
   ## Examples
       iex> [%{"mime" => "text/csv", "format" => nil}]
-      ...> |> ImportData.filter_csv
+      ...> |> UrlExtractor.filter_csv
       [%{"mime" => "text/csv", "format" => "csv"}]
 
       iex> [%{"mime" => nil, "format" => "csv"}]
-      ...> |> ImportData.filter_csv
+      ...> |> UrlExtractor.filter_csv
       [%{"mime" => "text/csv", "format" => "csv"}]
 
       iex> [%{"mime" => nil, "format" => "CSV"}]
-      ...> |> ImportData.filter_csv
+      ...> |> UrlExtractor.filter_csv
       [%{"mime" => "text/csv", "format" => "csv"}]
 
       iex> [%{"mime" => "text/cv", "format" => nil}]
-      ...> |> ImportData.filter_csv
+      ...> |> UrlExtractor.filter_csv
       []
 
       iex> [%{"mime" => "text/csv", "format" => nil}, %{"mime" => "application/neptune", "format" => nil}]
-      ...> |> ImportData.filter_csv
+      ...> |> UrlExtractor.filter_csv
       [%{"mime" => "text/csv", "format" => "csv"}]
 
   """
