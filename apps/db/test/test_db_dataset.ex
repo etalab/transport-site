@@ -1,4 +1,7 @@
 defmodule TransportWeb.BackofficeControllerTest do
+  @moduledoc """
+  Tests on the Dataset schema
+  """
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   alias DB.Repo
 
