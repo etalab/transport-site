@@ -13,9 +13,11 @@ defmodule Opendatasoft.UrlExtractor do
   def get_csv_resources(resources) do
     csv_resources = filter_csv(resources)
 
-    with {:ok, bodys} <- download_csv_list(csv_resources),
-         {:ok, urls} <- get_url_from_csvs(bodys) do
-      Enum.map(urls, fn u -> %{"url" => u.url, "format" => "csv", "title" => u.title} end)
+    with {:ok, bodys_and_ids} <- download_csv_list(csv_resources),
+         {:ok, urls} <- get_url_from_csvs(bodys_and_ids) do
+      Enum.map(urls, fn u ->
+        %{"url" => u.url, "format" => "csv", "title" => u.title, "id" => u.resource_datagouv_id}
+      end)
     else
       {:error, error} ->
         Logger.warn(" <message>  #{inspect(error)}")
@@ -54,10 +56,10 @@ defmodule Opendatasoft.UrlExtractor do
 
   def has_csv?(_), do: false
 
-  @spec download_csv_list([any]) :: {:ok, [binary()]} | {:error, binary()}
+  @spec download_csv_list([map()]) :: {:ok, [%{body: binary(), id: binary()}]} | {:error, binary()}
   defp download_csv_list(resources) when is_list(resources) do
     resources
-    |> Enum.map(&download_csv/1)
+    |> Enum.map(fn r -> %{body: download_csv(r), id: r["id"]} end)
     |> Enum.filter(&has_csv?/1)
     |> case do
       bodys = [_ | _] -> {:ok, Enum.map(bodys, fn {_, v} -> v.body end)}
@@ -83,18 +85,22 @@ defmodule Opendatasoft.UrlExtractor do
   Get a download from a CSVs if it exists
 
   ## Examples
-      iex> ["name,file\\ntoulouse,http", "stop,lon,lat\\n1,48.8,2.3"]
+      iex> [%{body: "name,file\\ntoulouse,http", id: "bob"}, %{body: "stop,lon,lat\\n1,48.8,2.3", id: "bobette"}]
       ...> |> UrlExtractor.get_url_from_csvs()
-      {:ok, [%{url: "http", title: "http"}]}
+      {:ok, [%{url: "http", title: "http", id: "bob"}]}
 
-    iex> UrlExtractor.get_url_from_csvs(["stop,lon,lat\\n1,48.8,2.3"])
+    iex> UrlExtractor.get_url_from_csvs([%{body: "stop,lon,lat\\n1,48.8,2.3", id: "bob"}])
     {:error, "No url found"}
 
   """
-  @spec get_url_from_csvs([binary()]) :: {:ok, [%{url: binary(), title: binary()}]} | {:error, binary()}
+  @spec get_url_from_csvs([%{body: binary(), id: binary()}]) ::
+          {:ok, [%{url: binary(), title: binary(), id: binary()}]} | {:error, binary()}
   def get_url_from_csvs(bodies) when is_list(bodies) do
     bodies
-    |> Enum.map(&get_url_from_csv/1)
+    |> Enum.map(fn %{body: body, id: id} ->
+      get_url_from_csv(body)
+      |> Enum.map(fn r -> r |> Map.put(:id, id) end)
+    end)
     |> List.flatten()
     |> case do
       urls = [_ | _] -> {:ok, urls}
