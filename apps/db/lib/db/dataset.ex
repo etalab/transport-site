@@ -246,9 +246,9 @@ defmodule DB.Dataset do
   def order_datasets(datasets, _params), do: datasets
 
   @spec changeset(map()) :: {:error, binary()} | {:ok, Ecto.Changeset.t()}
-  def changeset(params) do
+  def changeset(%{"datagouv_id" => datagouv_id} = params) when is_binary(datagouv_id) do
     dataset =
-      case Repo.get_by(__MODULE__, datagouv_id: params["datagouv_id"]) do
+      case Repo.get_by(__MODULE__, datagouv_id: datagouv_id) do
         nil -> %__MODULE__{}
         dataset -> dataset
       end
@@ -297,6 +297,10 @@ defmodule DB.Dataset do
         Logger.warn("error while importing dataset: #{format_error(errors)}")
         {:error, format_error(errors)}
     end
+  end
+
+  def changeset(_) do
+    {:error, "datagouv_id is a required field"}
   end
 
   @spec format_error(any()) :: binary()
