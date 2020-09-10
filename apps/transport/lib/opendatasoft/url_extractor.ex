@@ -16,7 +16,7 @@ defmodule Opendatasoft.UrlExtractor do
     with {:ok, bodys_and_ids} <- download_csv_list(csv_resources),
          {:ok, urls} <- get_url_from_csvs(bodys_and_ids) do
       Enum.map(urls, fn u ->
-        %{"url" => u.url, "format" => "csv", "title" => u.title, "id" => u.resource_datagouv_id}
+        %{"url" => u.url, "format" => "csv", "title" => u.title, "id" => u.id}
       end)
     else
       {:error, error} ->
@@ -34,11 +34,11 @@ defmodule Opendatasoft.UrlExtractor do
   filter csv http response
 
   ## Examples
-      iex> {:ok, %{headers: [{"Content-Type", "text/csv"}]}}
+      iex> %{body: {:ok, %{headers: [{"Content-Type", "text/csv"}]}}, id: "pouet"}
       ...> |> UrlExtractor.has_csv?
       true
 
-      iex> {:ok, %{headers: [{"Content-Type", "application/zip"}]}}
+      iex> %{body: {:ok, %{headers: [{"Content-Type", "application/zip"}]}}, id: "pouet"}
       ...> |> UrlExtractor.has_csv?
       false
 
@@ -48,7 +48,7 @@ defmodule Opendatasoft.UrlExtractor do
 
   """
   @spec has_csv?(any()) :: boolean()
-  def has_csv?({:ok, %{headers: headers}}) do
+  def has_csv?(%{body: {:ok, %{headers: headers}}}) do
     Enum.any?(headers, fn {k, v} ->
       k == "Content-Type" && String.contains?(v, "csv")
     end)
@@ -62,7 +62,7 @@ defmodule Opendatasoft.UrlExtractor do
     |> Enum.map(fn r -> %{body: download_csv(r), id: r["id"]} end)
     |> Enum.filter(&has_csv?/1)
     |> case do
-      bodys = [_ | _] -> {:ok, Enum.map(bodys, fn {_, v} -> v.body end)}
+      bodys = [_ | _] -> {:ok, Enum.map(bodys, fn %{body: {:ok, r}, id: id} -> %{body: r.body, id: id} end)}
       [] -> {:error, "No csv found"}
     end
   end
@@ -98,7 +98,8 @@ defmodule Opendatasoft.UrlExtractor do
   def get_url_from_csvs(bodies) when is_list(bodies) do
     bodies
     |> Enum.map(fn %{body: body, id: id} ->
-      get_url_from_csv(body)
+      body
+      |> get_url_from_csv()
       |> Enum.map(fn r -> r |> Map.put(:id, id) end)
     end)
     |> List.flatten()
