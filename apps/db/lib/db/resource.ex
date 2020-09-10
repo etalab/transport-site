@@ -256,7 +256,7 @@ defmodule DB.Resource do
         :filesize
       ]
     )
-    |> validate_required([:url])
+    |> validate_required([:url, :datagouv_id])
   end
 
   @spec issues_short_translation() :: %{binary() => binary()}
