@@ -13,11 +13,9 @@ defmodule Opendatasoft.UrlExtractor do
   def get_csv_resources(resources) do
     csv_resources = filter_csv(resources)
 
-    with {:ok, bodys_and_ids} <- download_csv_list(csv_resources),
-         {:ok, urls} <- get_url_from_csvs(bodys_and_ids) do
-      Enum.map(urls, fn u ->
-        %{"url" => u.url, "format" => "csv", "title" => u.title, "id" => u.id}
-      end)
+    with {:ok, bodys_and_resources} <- download_csv_list(csv_resources),
+         {:ok, resources} <- get_resources_with_url_from_csv(bodys_and_resources) do
+      resources
     else
       {:error, error} ->
         Logger.warn(" <message>  #{inspect(error)}")
@@ -31,14 +29,33 @@ defmodule Opendatasoft.UrlExtractor do
   end
 
   @doc """
+  filter only the GTFS from an ODS csv file
+  we filter pdf and netex files,
+  based only with the title (eg. filename) since we do not have anything else.
+  """
+  @spec get_gtfs_csv_resources([any]) :: [any]
+  def get_gtfs_csv_resources(resources) do
+    IO.puts("gtfs csv")
+
+    resources
+    |> get_csv_resources
+    |> Enum.reject(fn r -> r["title"] |> String.ends_with?(".pdf") end)
+    |> Enum.reject(fn r ->
+      r["title"]
+      |> String.downcase()
+      |> String.contains?("netex")
+    end)
+  end
+
+  @doc """
   filter csv http response
 
   ## Examples
-      iex> %{body: {:ok, %{headers: [{"Content-Type", "text/csv"}]}}, id: "pouet"}
+      iex> %{headers: [{"Content-Type", "text/csv"}]}
       ...> |> UrlExtractor.has_csv?
       true
 
-      iex> %{body: {:ok, %{headers: [{"Content-Type", "application/zip"}]}}, id: "pouet"}
+      iex> %{headers: [{"Content-Type", "application/zip"}]}
       ...> |> UrlExtractor.has_csv?
       false
 
@@ -48,7 +65,7 @@ defmodule Opendatasoft.UrlExtractor do
 
   """
   @spec has_csv?(any()) :: boolean()
-  def has_csv?(%{body: {:ok, %{headers: headers}}}) do
+  def has_csv?(%{headers: headers}) do
     Enum.any?(headers, fn {k, v} ->
       k == "Content-Type" && String.contains?(v, "csv")
     end)
@@ -56,28 +73,28 @@ defmodule Opendatasoft.UrlExtractor do
 
   def has_csv?(_), do: false
 
-  @spec download_csv_list([map()]) :: {:ok, [%{body: binary(), id: binary()}]} | {:error, binary()}
+  @spec download_csv_list([map()]) :: {:ok, [{binary(), map()}]} | {:error, binary()}
   defp download_csv_list(resources) when is_list(resources) do
     resources
-    |> Enum.map(fn r -> %{body: download_csv(r), id: r["id"]} end)
-    |> Enum.filter(&has_csv?/1)
+    |> Enum.map(fn r -> {download_csv(r), r} end)
+    |> Enum.filter(fn {http_response, _r} -> has_csv?(http_response) end)
     |> case do
-      bodys = [_ | _] -> {:ok, Enum.map(bodys, fn %{body: {:ok, r}, id: id} -> %{body: r.body, id: id} end)}
+      bodys = [_ | _] -> {:ok, Enum.map(bodys, fn {%{body: body}, r} -> {body, r} end)}
       [] -> {:error, "No csv found"}
     end
   end
 
-  @spec download_csv(map()) :: {:ok, binary()} | {:error, binary()}
+  @spec download_csv(map()) :: map() | {:error, binary()}
   defp download_csv(%{"url" => url}) do
     case HTTPoison.get(url, [], hackney: [follow_redirect: true]) do
       {:ok, response = %{status_code: 200}} ->
-        {:ok, response}
+        response
 
       {:ok, response} ->
         {:error, "Bad status code, needs 200, wants #{response.status_code}"}
 
       {:error, error} ->
-        {:error, error}
+        {:error, "impossible to download csv: #{inspect(error)}"}
     end
   end
 
@@ -85,22 +102,28 @@ defmodule Opendatasoft.UrlExtractor do
   Get a download from a CSVs if it exists
 
   ## Examples
-      iex> [%{body: "name,file\\ntoulouse,http", id: "bob"}, %{body: "stop,lon,lat\\n1,48.8,2.3", id: "bobette"}]
-      ...> |> UrlExtractor.get_url_from_csvs()
-      {:ok, [%{url: "http", title: "http", id: "bob"}]}
+      iex> [{"name,file\\ntoulouse,http", %{"id" => "bob"}}, {"stop,lon,lat\\n1,48.8,2.3", %{"id" => "bobette"}}]
+      ...> |> UrlExtractor.get_resources_with_url_from_csv()
+      {:ok, [%{"url" => "http", "title" => "http", "id" => "bob"}]}
 
-    iex> UrlExtractor.get_url_from_csvs([%{body: "stop,lon,lat\\n1,48.8,2.3", id: "bob"}])
+    iex> UrlExtractor.get_resources_with_url_from_csv([{"stop,lon,lat\\n1,48.8,2.3", %{"id" => "bob"}}])
     {:error, "No url found"}
 
   """
-  @spec get_url_from_csvs([%{body: binary(), id: binary()}]) ::
-          {:ok, [%{url: binary(), title: binary(), id: binary()}]} | {:error, binary()}
-  def get_url_from_csvs(bodies) when is_list(bodies) do
+  @spec get_resources_with_url_from_csv([{binary, map()}]) ::
+          {:ok, [map()]} | {:error, binary()}
+  def get_resources_with_url_from_csv(bodies) when is_list(bodies) do
     bodies
-    |> Enum.map(fn %{body: body, id: id} ->
+    |> Enum.map(fn {body, r} ->
       body
       |> get_url_from_csv()
-      |> Enum.map(fn r -> r |> Map.put(:id, id) end)
+      |> Enum.map(fn url ->
+        r
+        |> Map.merge(%{
+          "url" => url,
+          "title" => get_filename(url)
+        })
+      end)
     end)
     |> List.flatten()
     |> case do
@@ -115,7 +138,7 @@ defmodule Opendatasoft.UrlExtractor do
   ## Examples
       iex> "name,file\\ntoulouse,http"
       ...> |> UrlExtractor.get_url_from_csv()
-      [%{url: "http", title: "http"}]
+      ["http"]
 
       iex> "stop,lon,lat\\n1,48.8,2.3"
       ...> |> UrlExtractor.get_url_from_csv()
@@ -123,7 +146,7 @@ defmodule Opendatasoft.UrlExtractor do
 
       iex> "Donnees;format;Download\\r\\nHoraires des lignes TER;GTFS;https\\r\\n"
       ...> |> UrlExtractor.get_url_from_csv()
-      [%{url: "https", title: "https"}]
+      ["https"]
 
   """
   @spec get_url_from_csv(binary()) :: [any()]
@@ -131,7 +154,6 @@ defmodule Opendatasoft.UrlExtractor do
     @separators
     |> Enum.map(&get_url_from_csv(&1, body))
     |> List.flatten()
-    |> Enum.map(fn url -> %{url: url, title: get_filename(url)} end)
   end
 
   @spec get_url_from_csv(binary(), binary()) :: [binary()]
