@@ -322,15 +322,15 @@ defmodule Transport.ImportData do
   end
 
   @spec get_valid_resources(map(), binary()) :: [map()]
-  def get_valid_resources(%{"resources" => resources}, type) do
-    if type == "public-transit" do
-      resources
-      |> get_valid_gtfs_resources()
-      |> Enum.concat(get_valid_netex_resources(resources))
-      |> Enum.concat(get_valid_gtfs_rt_resources(resources))
-    else
-      resources
-    end
+  def get_valid_resources(%{"resources" => resources}, "public-transit") do
+    resources
+    |> get_valid_gtfs_resources()
+    |> Enum.concat(get_valid_netex_resources(resources))
+    |> Enum.concat(get_valid_gtfs_rt_resources(resources))
+  end
+
+  def get_valid_resources(%{"resources" => resources}, _type) do
+    resources
   end
 
   @spec get_valid_gtfs_resources([map()]) :: [map()]
@@ -338,7 +338,7 @@ defmodule Transport.ImportData do
     cond do
       !Enum.empty?(l = Enum.filter(resources, &is_gtfs?/1)) -> l
       !Enum.empty?(l = Enum.filter(resources, &is_zip?/1)) -> l
-      !Enum.empty?(l = UrlExtractor.get_csv_resources(resources)) -> l
+      !Enum.empty?(l = UrlExtractor.get_gtfs_csv_resources(resources)) -> l
       true -> []
     end
   end
