@@ -385,7 +385,8 @@ defmodule Transport.ImportData do
     cond do
       is_gtfs_rt?(params["format"]) -> false
       is_gtfs?(params["format"]) -> true
-      is_format?(params["url"], ["json", "csv", "shp", "pdf"]) -> false
+      is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
+      is_format?(params["title"], "NeTEx") -> false
       is_gtfs?(params["description"]) -> true
       is_gtfs?(params["title"]) -> true
       true -> false
