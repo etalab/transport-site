@@ -35,8 +35,6 @@ defmodule Opendatasoft.UrlExtractor do
   """
   @spec get_gtfs_csv_resources([any]) :: [any]
   def get_gtfs_csv_resources(resources) do
-    IO.puts("gtfs csv")
-
     resources
     |> get_csv_resources
     |> Enum.reject(fn r -> r["title"] |> String.ends_with?(".pdf") end)
