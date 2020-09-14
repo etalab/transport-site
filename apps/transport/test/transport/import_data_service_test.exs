@@ -36,7 +36,11 @@ defmodule Transport.ImportDataTest do
 
       use_cassette "client/datasets/sncf" do
         assert {:ok, dataset} = ImportData.import_from_udata("horaires-des-lignes-ter-sncf", "public-transit")
-        assert List.first(dataset["resources"])["url"] == url
+
+        assert length(dataset["resources"]) == 1
+        resource = List.first(dataset["resources"])
+        assert resource["url"] == url
+        assert resource["datagouv_id"] == "28a42d49-e9a8-4c6c-a999-b2b7ea8ce977"
       end
     end
 
