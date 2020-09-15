@@ -30,8 +30,8 @@ defmodule Opendatasoft.UrlExtractor do
 
   @doc """
   filter only the GTFS from an ODS csv file
-  we filter pdf and netex files,
-  based only with the title (eg. filename) since we do not have anything else.
+  we filter out pdf and netex files,
+  based only on with the title (eg. filename) since we do not have anything else.
   """
   @spec get_gtfs_csv_resources([any]) :: [any]
   def get_gtfs_csv_resources(resources) do
