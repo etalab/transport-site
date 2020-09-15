@@ -176,7 +176,7 @@ defmodule DB.Resource do
 
   def validate(%__MODULE__{url: url, format: "GTFS"}) do
     case @client.get("#{endpoint()}?url=#{URI.encode_www_form(url)}", [], recv_timeout: @timeout) do
-      {:ok, %@res{status_code: 200, body: body}} -> Poison.decode(body)
+      {:ok, %@res{status_code: 200, body: body}} -> Jason.decode(body)
       {:ok, %@res{body: body}} -> {:error, body}
       {:error, %@err{reason: error}} -> {:error, error}
       _ -> {:error, "Unknown error in validation"}

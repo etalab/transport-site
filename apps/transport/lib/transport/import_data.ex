@@ -122,7 +122,7 @@ defmodule Transport.ImportData do
     Logger.info("Importing dataset #{id} (url = #{url})")
 
     with {:ok, response} <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
-         {:ok, json} <- Poison.decode(response.body),
+         {:ok, json} <- Jason.decode(response.body),
          {:ok, dataset} <- get_dataset(json, type) do
       {:ok, dataset}
     else
@@ -215,7 +215,7 @@ defmodule Transport.ImportData do
     Logger.info("getting zone (url = #{url})")
 
     with {:ok, response} <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
-         {:ok, json} <- Poison.decode(response.body),
+         {:ok, json} <- Jason.decode(response.body),
          insee <- read_datagouv_zone(json) do
       insee
     else

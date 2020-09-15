@@ -62,7 +62,7 @@ defmodule Transport.Mixfile do
       {:scrivener_html, "~> 1.8"},
       {:scrivener_list, "~>2.0"},
       {:jason, "~> 1.1"},
-      {:open_api_spex, "~> 3.4"},
+      {:open_api_spex, "~> 3.8"},
       {:gbfs, in_umbrella: true},
       {:datagouvfr, in_umbrella: true},
       {:helpers, in_umbrella: true},

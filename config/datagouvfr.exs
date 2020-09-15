@@ -17,5 +17,5 @@ config :oauth2, Authentication,
 config :oauth2,
   serializers: %{
     "multipart/form-data" => Transport.Datagouvfr.MultipartSerializer,
-    "application/json"    => Poison
+    "application/json"    => Jason
   }

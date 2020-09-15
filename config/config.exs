@@ -32,10 +32,12 @@ config :transport, TransportWeb.Endpoint,
     signing_salt: System.get_env("SECRET_KEY_BASE")
   ]
 
+config :phoenix, :json_library, Jason
+
 # Configures format encoders
 config :phoenix, :format_encoders,
   html: Phoenix.Template.HTML,
-  json: Poison
+  json: Jason
 
 # Configures Elixir's Logger
 config :logger,
@@ -88,7 +90,8 @@ config :ex_aws,
   s3: [
     scheme: "https://",
     host: "cellar-c2.services.clever-cloud.com",
-  ]
+  ],
+  json_codec: Jason
 
 config :transport,
   max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer()

@@ -11,7 +11,7 @@ defmodule Mailjet.Client do
 
   @spec payload!(binary(), binary(), binary(), binary(), binary()) :: any()
   def payload!(from_name, from_email, reply_to, topic, body) do
-    Poison.encode!(%{
+    Jason.encode!(%{
       Messages: [
         %{
           From: %{Name: from_name, Email: from_email},
