@@ -204,7 +204,7 @@ msgstr "Conditions Particulières d'utilisation"
 
 #, elixir-format
 msgid "Current dataset"
-msgstr "En cours de validité"
+msgstr "À jour !"
 
 #, elixir-format
 msgid "and "
@@ -320,7 +320,7 @@ msgstr "Couverture spatiale"
 
 #, elixir-format
 msgid "Impossible to read"
-msgstr "Données illisibles"
+msgstr "Illisible"
 
 #, elixir-format
 msgid "GTFS real time resources"

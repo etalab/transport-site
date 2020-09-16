@@ -1,62 +1,63 @@
-<div class="resource">
-    <div class="resource__header">
-            <div class="resource--download">
-                <a href="<%= @resource.url %>">
-                    <div>
-                        <i class="icon icon--download" aria-hidden="true"></i>
-                    </div>
-                </a>
-                <div>
-                    <a href="<%= @resource.url %>">
-                        <span><%= @resource.title %></span>
-                    </a>
-                    <span class="publication-date">
-                        <%= dgettext("page-dataset-details", "Published on ") %>
-                        <%= @resource.last_update |> format_date() %>
-                    </span>
-                </div>
-            </div>
-            <div>
-                <%= for tag <- @resource.auto_tags do %>
-                    <span class="label"><%= tag %></span>
-                <% end %>
-            </div>
+<div class="panel resource">
+  <h4>
+    <%= @resource.title %>
+  </h4>
+  <%= if Resource.valid?(@resource) do %>
+    <div class="pb-24">
+      <i class="icon icon--calendar-alt" aria-hidden="true"></i>
+      <span><%= format_date(@resource.metadata["start_date"]) %></span>
+      <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
+      <span><%= format_date(@resource.metadata["end_date"]) %></span>
     </div>
-    <div class="resource__details">
-        <%= if Resource.is_gtfs?(@resource) do %>
-        <div>
-            <span class="<%= resource_class(@resource) %>">
-                <%= unless Resource.valid?(@resource) do %>
-                    <%= dgettext("page-dataset-details", "Impossible to read") %>
-                <% else %>
-                    <%= if Resource.is_outdated?(@resource) do %>
-                        <%= dgettext("page-dataset-details", "Outdated") %>
-                    <% else %>
-                        <%= dgettext("page-dataset-details", "Current dataset") %>
-                    <% end %>
-                <% end %>
-            </span>
-            <%= if Resource.valid?(@resource) do %>
-                <span><%= dgettext("page-dataset-details", "from") %> <%= @resource.metadata["start_date"] %></span>
-                <span><%= dgettext("page-dataset-details", "until") %> <%= @resource.metadata["end_date"] %></span>
-            <% end %>
-        </div>
-        <div>
-            <% r = Resource.get_max_severity_validation_number(@resource) %>
-            <%= unless is_nil(r) do %>
-            <span class="<%= summary_class(r) %>">
-                <%= if r.severity == "Irrevelant" do %>
-                <%= dgettext("page-dataset-details", "No error detected") %>
-                <% else %>
-                <%= "#{r.count_errors} #{Validation.severities(r.severity)[:text]}" %>
-                <% end %>
-            </span>
-            <%= link(
-                dgettext("page-dataset-details", "See more details on the GTFS resource and its validation"),
-                to: resource_path(@conn, :details, @resource.id)
-            )%>
-            <% end %>
-        </div>
+  <% end %>
+  <%= if Resource.is_gtfs?(@resource) do %>
+    <div class="resource-status-corner <%= resource_class(@resource) %>">
+      <span>
+        <%= unless Resource.valid?(@resource) do %>
+          <%= dgettext("page-dataset-details", "Impossible to read") %>
+        <% else %>
+          <%= if Resource.is_outdated?(@resource) do %>
+            <%= dgettext("page-dataset-details", "Outdated") %>
+          <% else %>
+            <%= dgettext("page-dataset-details", "Current dataset") %>
+          <% end %>
         <% end %>
+      </span>
     </div>
+    <div class="resource-validation-summary pb-24">
+      <div>
+        <span>Validé avec </span>
+        <% r = Resource.get_max_severity_validation_number(@resource) %>
+        <%= unless is_nil(r) do %>
+          <span class="<%= summary_class(r) %>">
+            <%= if r.severity == "Irrevelant" do %>
+              <%= dgettext("page-dataset-details", "No error detected") %>
+            <% else %>
+              <%= "#{r.count_errors} #{Validation.severities(r.severity)[:text]}" %>
+            <% end %>
+          </span>
+          <div class="light-grey">Visualisation des arrêts disponible !</div>
+        </div>
+        <div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+  <div class="resource-panel-bottom">
+    <div class="">
+      <%= for tag <- @resource.auto_tags do %>
+        <span class="label"><%= tag %></span>
+      <% end %>
+    </div>
+    <div>
+      <%= if Resource.is_gtfs?(@resource) do %>
+        <a href="<%= resource_path(@conn, :details, @resource.id) %>">
+          <button class="button-outline secondary small"><i class="icon icon--plus" aria-hidden="true"></i>détails</button>
+        </a>
+      <% end %>
+      <a href="<%= @resource.url %>">
+        <button class="button-outline primary small"><i class="icon icon--download" aria-hidden="true"></i>Télécharger</button>
+      </a>
+    </div>
+  </div>
 </div>

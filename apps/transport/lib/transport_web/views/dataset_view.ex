@@ -22,8 +22,8 @@ defmodule TransportWeb.DatasetView do
 
   def format_date(date) do
     date
-    |> Timex.parse!("{ISO:Extended}")
-    |> Timex.format!("{0D}/{0M}/{YYYY}")
+    |> Timex.parse!("{YYYY}-{0M}-{0D}")
+    |> Timex.format!("{0D}-{0M}-{YYYY}")
   end
 
   def first_gtfs(dataset) do
@@ -278,5 +278,12 @@ defmodule TransportWeb.DatasetView do
           false -> "resource--valid"
         end
     end
+  end
+
+  def order_resources_by_validity(resources) do
+    resources
+    |> Enum.sort(fn r1, _r2 ->
+      Resource.valid?(r1)
+    end)
   end
 end
