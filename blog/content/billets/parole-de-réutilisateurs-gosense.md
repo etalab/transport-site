@@ -7,11 +7,15 @@ description: "Interview avec François, co-fondateur et directeur technique chez
 images:
   - /images/2018-colorama-rango.jpg
 ---
+![](/images/gosense_entreautre_rango_wizigo-2-.png)
+
 <!--StartFragment-->
 
 GoSense est une start-up spécialisée dans le domaine de la réalité augmentée sonore. Ils développent des produits dans le but d'améliorer la sécurité et l'orientation des personnes ayant des déficiences visuelles : « Wizigo » qui est une application mobile GPS avec signalement sonore spatialisé et « Rango » un boîtier qui se fixe sur tout type de canne blanche.
 
 <!--EndFragment-->
+
+![](/images/mockup-wizigo-avec-headphone.jpg)
 
 <!--StartFragment-->
 
