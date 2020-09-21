@@ -5,7 +5,7 @@
       <div class="ressources-list">
         <%= render_many order_resources_by_validity(@resources), TransportWeb.DatasetView, "_resource.html", as: :resource, conn: @conn, dataset: assigns[:dataset] %>
       </div>
-      <p class="reuser-message">
+      <div class="reuser-message pb-48">
         <i class="fas fa-info-circle"></i>
         <%= dgettext(
           "page-dataset-details",
@@ -15,7 +15,7 @@
           )
           |> raw()
       %>
-      </p>
+      </div>
     </div>
   </section>
 <% end %>
