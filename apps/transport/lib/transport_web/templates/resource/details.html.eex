@@ -1,8 +1,10 @@
 <section>
-    <div class="grey-background">
+  <% associated_geojson = get_associated_geojson(@resource) %>
+  <% associated_netex = get_associated_netex(@resource) %>
+  <div class="grey-background">
     <div class="container">
-        <h2 class="mt-48"><%= dgettext("validations", "Resource details")%></h2>
-        <div class="panel">
+      <h2 class="mt-48"><%= dgettext("validations", "Resource details")%></h2>
+      <div class="panel">
         <p><%= dgettext("validations", "File name")%> :
           <a href="<%= @resource.url %>">
             <strong><%= @resource.title %></strong>
@@ -10,67 +12,81 @@
         </p>
         <p><%= dgettext("validations", "This resource file is part of the dataset")%> <%= link(@resource.dataset.title, to: dataset_path(@conn, :details, @resource.dataset.slug) )%>.</p>
         <%= render "_resources_details.html", metadata: @resource.metadata %>
-        </div>
-
-        <% associated_geojson = get_associated_geojson(@resource) %>
-        <%= unless is_nil(associated_geojson) do %>
-          <h2 class="mt-48"><%= dgettext("validations", "Stops and routes visualization of the GTFS file")%></h2>
-          <div class="panel no-padding">
-            <div id="resource-geojson-info" class="p-24"></div>
-            <div id="resource-geojson"></div>
-
-            <script src="<%= static_path(@conn, "/js/mapgeojson.js") %>"></script>
-            <script>
-              document.addEventListener("DOMContentLoaded", function() {
-                createResourceGeojson(
-                  'resource-geojson',
-                  'resource-geojson-info',
-                  "<%= associated_geojson.url %>",
-                  "<%= associated_geojson.filesize %>",
-                  "<%= dgettext("validations", "Stops visualization is quite big") %>",
-                  "<%= dgettext("validations", "Show anyway") %>"
-                )
-              })
-            </script>
+        <%= if !is_nil(associated_geojson) or !is_nil(associated_netex) do %>
+          <div id="other-formats">
+            Cette ressource est également disponible dans les formats suivants :
+            <ul>
+              <%= unless is_nil(associated_geojson) do %>
+                <li><a href="<%= associated_geojson.url %>">GeoJSON</a>*
+                  <br>
+                <% end %>
+                <%= unless is_nil(associated_netex) do %>
+                  <li><a href="<%= associated_netex.url %>">NeTEx</a></li>
+                <% end %>
+              </ul>
+              * Le format GeoJSON ne contient que les informations géographiques de la ressource
+              (position des arrêts, éventuellement tracé des lignes),
+              telles que vous les visualisez sur la carte ci-dessous.</li>
           </div>
         <% end %>
-
-        <h2 class="mt-48"><%= dgettext("validations", "Validation report")%></h2>
-        <div class="panel" id="issues">
-          <nav class="issues-list validation" role="navigation">
-              <%= unless @resource.validation do %>
-                  <%= dgettext("validations", "No validation available") %>
-              <% else %>
-                  <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, issues: @issues, conn: @conn %>
-              <% end %>
-          </nav>
-          <div class="main-pane">
-              <%= unless @resource.validation do %>
-                  <%= dgettext("validations", "No validation available") %>
-              <% else %>
-              <%= pagination_links @conn, @issues, [@resource.id], issue_type: issue_type(@issues.entries),
-              path: &resource_path/4, action: :details %>
-              <% end %>
-              <%=  render template(@issues), issues: @issues || [] , conn: @conn %>
-          </div>
+        <div>
         </div>
-
-        <%= if length(@other_resources) > 0 do %>
-          <div class="mt-48 validation-section">
-            <h1><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h1>
-              <ul>
-              <%= for resource <- @other_resources do %>
-                  <li>
-                      <%= link(resource.title,
+      </div>
+      <%= unless is_nil(associated_geojson) do %>
+        <h2 class="mt-48" id="visualization"><%= dgettext("validations", "Stops and routes visualization of the GTFS file")%></h2>
+        <div class="panel no-padding">
+          <div id="resource-geojson-info" class="p-24"></div>
+          <div id="resource-geojson"></div>
+          <script src="<%= static_path(@conn, "/js/mapgeojson.js") %>"></script>
+          <script>
+            document.addEventListener("DOMContentLoaded", function() {
+              createResourceGeojson(
+                'resource-geojson',
+                'resource-geojson-info',
+                "<%= associated_geojson.url %>",
+                "<%= associated_geojson.filesize %>",
+                "<%= dgettext("validations", "Stops visualization is quite big") %>",
+                "<%= dgettext("validations", "Show anyway") %>"
+              )
+            })
+          </script>
+        </div>
+      <% end %>
+      <h2 class="mt-48"><%= dgettext("validations", "Validation report")%></h2>
+      <div class="panel" id="issues">
+        <nav class="issues-list validation" role="navigation">
+          <%= unless @resource.validation do %>
+            <%= dgettext("validations", "No validation available") %>
+          <% else %>
+            <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, issues: @issues, conn: @conn %>
+          <% end %>
+        </nav>
+        <div class="main-pane">
+          <%= unless @resource.validation do %>
+            <%= dgettext("validations", "No validation available") %>
+          <% else %>
+            <%= pagination_links @conn, @issues, [@resource.id], issue_type: issue_type(@issues.entries),
+              path: &resource_path/4, action: :details %>
+          <% end %>
+          <%=  render template(@issues), issues: @issues || [] , conn: @conn %>
+        </div>
+      </div>
+      <%= if length(@other_resources) > 0 do %>
+        <div class="mt-48 validation-section">
+          <h1><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h1>
+          <ul>
+            <%= for resource <- @other_resources do %>
+              <li>
+                <%= link(resource.title,
                       to: resource_path(@conn, :details, resource.id)
                     )%>
-                  </li>
-              <% end %>
-              </ul>
-          </div>
-        <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
     </div>
-</section>
+  </section>
 </div>
 <script src="<%= static_path(@conn, "/js/utils.js") %>"></script>
 <script>

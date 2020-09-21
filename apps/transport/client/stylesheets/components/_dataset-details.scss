@@ -143,7 +143,8 @@
 
 .resource {
   flex-basis: 40%;
-  max-width: 50%;
+  max-width: 600px;
+  min-width: 400px;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
@@ -160,13 +161,12 @@
   .button {
     margin: 0;
   }
-  .resource-validation-summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .light-grey {
-    color: var(--theme-label-text);
+  a.light-grey-link {
+    color: var(--theme-label-text) !important;
+    &:hover {
+      background-color: white !important;
+      color: var(--theme-dark-text) !important;
+    }
   }
   a {
     text-decoration: none;
@@ -178,6 +178,21 @@
     border: none;
     background-color: white;
   }
+  .other-formats-link {
+    font-size: 12px;
+  }
+  .resource-format {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.light-grey {
+  color: var(--theme-label-text) !important;
+}
+
+.panel.invalid-resource-panel {
+  background-color: #f5f6f7;
 }
 
 .community-resource-download {
@@ -228,28 +243,22 @@
 }
 
 .resource__summary--Fatal {
-  color: var(--theme-error-border);
-  // border: 1px solid var(--theme-error-border);
+  color: var(--theme-error-border) !important;
 }
 .resource__summary--Error {
-  color: var(--theme-error-border);
-  // border: 1px solid var(--theme-error-border);
+  color: var(--theme-error-border) !important;
 }
 .resource__summary--Warning {
-  color: var(--theme-warning-border);
-  // border: 1px solid var(--theme-warning-border);
+  color: var(--theme-warning-border) !important;
 }
 .resource__summary--Information {
-  color: var(--theme-info-border);
-  // border: 1px solid var(--theme-info-border);
+  color: var(--theme-info-border) !important;
 }
 .resource__summary--Irrelevant {
-  color: var(--theme-success-border);
-  // border: 1px solid var(--theme-success-border);
+  color: var(--theme-success-border) !important;
 }
 .resource__summary--Success {
-  color: var(--theme-success-border);
-  // border: 1px solid var(--theme-success-border);
+  color: var(--theme-success-border) !important;
 }
 
 .reuses {
@@ -310,11 +319,6 @@
 }
 
 @media (max-width: 749px) {
-  .resource {
-    flex-direction: column;
-    margin-bottom: 10vw;
-  }
-
   .community-resource-detail {
     text-align: center !important;
   }
@@ -384,11 +388,6 @@
       min-height: 0;
       overflow: hidden;
     }
-  }
-
-  .resource--valid,
-  .resource--notvalid {
-    width: 100%;
   }
 
   .dataset {

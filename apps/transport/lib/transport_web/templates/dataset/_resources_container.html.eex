@@ -3,7 +3,7 @@
     <h2><%= @title %></h2>
     <div>
       <div class="ressources-list">
-        <%= render_many order_resources_by_validity(@resources), TransportWeb.DatasetView, "_resource.html", as: :resource, conn: @conn %>
+        <%= render_many order_resources_by_validity(@resources), TransportWeb.DatasetView, "_resource.html", as: :resource, conn: @conn, dataset: assigns[:dataset] %>
       </div>
       <p class="reuser-message">
         <i class="fas fa-info-circle"></i>

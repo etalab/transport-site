@@ -63,12 +63,59 @@ defmodule TransportWeb.ResourceView do
   def dataset_creation,
     do: :transport |> Application.get_env(:datagouvfr_site) |> Path.join("/fr/admin/dataset/new/")
 
-  def get_associated_geojson(%DB.Resource{title: _title, url: url, dataset: %{resources: resources}}) do
+  @doc """
+  Given a dataset, a ressource, and a format, get the community resources
+  associated to the given resource, with the specified format
+  """
+  def get_associated_resource(
+        %DB.Dataset{} = dataset,
+        %DB.Resource{title: _title, url: url},
+        format
+      ) do
+    dataset.resources
+    |> Enum.find(fn r ->
+      r.original_resource_url == url and
+        r.is_community_resource and
+        r.format == format
+    end)
+  end
+
+  def get_associated_resource(_dataset, _resource, _format), do: nil
+
+  @doc """
+  Similar to get_associated_resource\3, but when the resources list has been preloaded
+  (no dataset needed)
+  """
+  def get_associated_resource(%DB.Resource{title: _title, url: url, dataset: %{resources: resources}}, format) do
     resources
     |> Enum.find(fn r ->
       r.original_resource_url == url and
         r.is_community_resource and
-        r.format == "geojson"
+        r.format == format
     end)
+  end
+
+  def get_associated_resource(_resource, _format), do: nil
+
+  def has_associated_geojson(dataset, resource) do
+    case get_associated_resource(dataset, resource, "geojson") do
+      nil -> false
+      _ -> true
+    end
+  end
+
+  def has_associated_netex(dataset, resource) do
+    case get_associated_resource(dataset, resource, "NeTEx") do
+      nil -> false
+      _ -> true
+    end
+  end
+
+  def get_associated_geojson(resource) do
+    get_associated_resource(resource, "geojson")
+  end
+
+  def get_associated_netex(resource) do
+    get_associated_resource(resource, "NeTEx")
   end
 end

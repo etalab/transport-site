@@ -55,7 +55,7 @@
       </section>
     <% end %>
     <section id="dataset-resources" class="pt-48">
-      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gtfs_official_resources(@dataset), title: dgettext("page-dataset-details", "GTFS resources") %>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gtfs_official_resources(@dataset), dataset: @dataset, title: dgettext("page-dataset-details", "GTFS resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gtfs_rt_official_resources(@dataset), title: dgettext("page-dataset-details", "GTFS real time resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gbfs_official_resources(@dataset), title: dgettext("page-dataset-details", "GBFS resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: netex_official_resources(@dataset), title: dgettext("page-dataset-details", "NeTEx resources") %>

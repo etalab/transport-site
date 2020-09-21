@@ -1,15 +1,21 @@
-<div class="panel resource">
+<div class="panel resource <%= valid_panel_class(@resource) %>">
+  <% has_associated_geojson = ResourceView.has_associated_geojson(@dataset, @resource) %>
+  <% has_associated_netex = ResourceView.has_associated_netex(@dataset, @resource) %>
   <h4>
     <%= @resource.title %>
   </h4>
   <%= if Resource.valid?(@resource) do %>
-    <div class="pb-24">
+    <div title="période de validité">
       <i class="icon icon--calendar-alt" aria-hidden="true"></i>
       <span><%= format_date(@resource.metadata["start_date"]) %></span>
       <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
-      <span><%= format_date(@resource.metadata["end_date"]) %></span>
+      <span class="<%= outdated_class(@resource) %>"><%= format_date(@resource.metadata["end_date"]) %></span>
     </div>
   <% end %>
+  <div title="date de mise à jour" class="pb-24 light-gry">
+    <i class="icon icon--sync-alt" aria-hidden="true"></i>
+    <%= @resource.last_update |> format_datetime_to_date() %>
+  </div>
   <%= if Resource.is_gtfs?(@resource) do %>
     <div class="resource-status-corner <%= resource_class(@resource) %>">
       <span>
@@ -24,9 +30,9 @@
         <% end %>
       </span>
     </div>
-    <div class="resource-validation-summary pb-24">
-      <div>
-        <span>Validé avec </span>
+    <div class="pb-24">
+      <span>Analysé avec </span>
+      <a href="<%= resource_path(@conn, :details, @resource.id)<>"#issues" %>">
         <% r = Resource.get_max_severity_validation_number(@resource) %>
         <%= unless is_nil(r) do %>
           <span class="<%= summary_class(r) %>">
@@ -36,18 +42,32 @@
               <%= "#{r.count_errors} #{Validation.severities(r.severity)[:text]}" %>
             <% end %>
           </span>
-          <div class="light-grey">Visualisation des arrêts disponible !</div>
-        </div>
+        <% end %>
+      </a>
+      <%= if has_associated_geojson do %>
         <div>
+          <a class="light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#visualization" %>">
+            Visualisation des arrêts disponible !
+          </a>
         </div>
       <% end %>
     </div>
   <% end %>
   <div class="resource-panel-bottom">
-    <div class="">
-      <%= for tag <- @resource.auto_tags do %>
-        <span class="label"><%= tag %></span>
+    <div>
+      <%= if length(@resource.auto_tags) > 0 do %>
+        <div>
+          <%= for tag <- @resource.auto_tags do %>
+            <span class="label"><%= tag %></span>
+          <% end %>
+        </div>
       <% end %>
+      <div class="resource-format" title="format de la ressource">
+        <span class="label"><%= @resource.format %></span>
+        <%= if has_associated_geojson or has_associated_netex do %>
+          <a class="other-formats-link light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#other-formats" %>">Autres formats disponibles</a>
+        <% end %>
+      </div>
     </div>
     <div>
       <%= if Resource.is_gtfs?(@resource) do %>

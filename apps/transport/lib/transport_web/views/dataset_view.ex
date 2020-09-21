@@ -6,8 +6,10 @@ defmodule TransportWeb.DatasetView do
   alias TransportWeb.PaginationHelpers
   alias TransportWeb.Router.Helpers
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
+  alias TransportWeb.ResourceView
 
-  def render_sidebar_from_type(conn, dataset), do: render_panel_from_type(conn, dataset, "sidebar")
+  def render_sidebar_from_type(conn, dataset),
+    do: render_panel_from_type(conn, dataset, "sidebar")
 
   def render_panel_from_type(conn, dataset, panel_type) do
     render_existing(
@@ -16,6 +18,14 @@ defmodule TransportWeb.DatasetView do
       dataset: dataset,
       conn: conn
     )
+  end
+
+  def format_datetime_to_date(nil), do: ""
+
+  def format_datetime_to_date(datetime) do
+    datetime
+    |> Timex.parse!("{ISO:Extended}")
+    |> Timex.format!("{0D}-{0M}-{YYYY}")
   end
 
   def format_date(nil), do: ""
@@ -182,6 +192,21 @@ defmodule TransportWeb.DatasetView do
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
   def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
 
+  def outdated_class(resource) do
+    case Resource.is_outdated?(resource) do
+      true -> "resource__summary--Error"
+      false -> ""
+    end
+  end
+
+  def valid_panel_class(%Resource{} = r) do
+    case {Resource.is_gtfs?(r), Resource.valid?(r), Resource.is_outdated?(r)} do
+      {true, false, _} -> "invalid-resource-panel"
+      {true, _, true} -> "invalid-resource-panel"
+      _ -> ""
+    end
+  end
+
   def gtfs_official_resources(dataset),
     do:
       dataset
@@ -227,7 +252,9 @@ defmodule TransportWeb.DatasetView do
 
   def community_resources(dataset), do: Dataset.community_resources(dataset)
 
-  def licence_url("fr-lo"), do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
+  def licence_url("fr-lo"),
+    do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
+
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
   def licence_url(_), do: nil
 
