@@ -309,8 +309,7 @@ defmodule TransportWeb.DatasetView do
 
   def order_resources_by_validity(resources) do
     resources
-    |> Enum.sort(fn r1, _r2 ->
-      Resource.valid?(r1)
-    end)
+    |> Enum.sort_by(& &1.metadata["end_date"], &>=/2)
+    |> Enum.sort_by(&Resource.valid?(&1), &>=/2)
   end
 end
