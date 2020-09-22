@@ -3,7 +3,8 @@ title: "Parole de réutilisateurs : GoSense "
 date: 2020-09-17T19:24:16.056Z
 tags:
   - réutilisation
-description: "Interview avec François, co-fondateur et directeur technique chez GoSense. "
+description: "Interview avec François Birot, co-fondateur et directeur technique
+  chez GoSense. "
 images:
   - /images/2018-colorama-rango.jpg
 ---
