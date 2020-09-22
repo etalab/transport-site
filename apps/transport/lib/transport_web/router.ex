@@ -5,6 +5,7 @@ defmodule TransportWeb.Router do
 
   defimpl Plug.Exception, for: Phoenix.Template.UndefinedError do
     def status(_exception), do: 404
+    def actions(e), do: [%{label: "Not found", handler: {IO, :puts, ["Template not found: #{inspect(e)}"]}}]
   end
 
   pipeline :browser do

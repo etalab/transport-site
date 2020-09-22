@@ -39,7 +39,7 @@ defmodule Db.MixProject do
       {:gettext, "~> 0.11"},
       {:httpoison, ">= 0.0.0"},
       {:phoenix_html, ">= 0.0.0"},
-      {:poison, ">= 0.0.0"},
+      {:jason, ">= 0.0.0"},
       {:datagouvfr, in_umbrella: true},
       {:helpers, in_umbrella: true},
       {:ex_aws, ">= 0.0.0"},
