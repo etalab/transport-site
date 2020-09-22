@@ -7,7 +7,7 @@
   padding-top: 48px;
 }
 
-.dataset-page .dataset-menu-container {
+.dataset-menu-container {
   background-color: var(--theme-background-grey);
   flex-basis: 250px;
   flex-shrink: 1;
@@ -135,28 +135,38 @@
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
+  margin: 0 -12px;
 
   .panel {
-    margin: 0 2em 2em 0;
+    margin: 12px;
   }
 }
 
 .resource {
-  flex-basis: 40%;
-  max-width: 600px;
+  flex-basis: calc(45% - 24px);
   min-width: 400px;
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   h4 {
+    display: inline-block;
     margin-bottom: 0;
     font-size: 1em;
+    max-width: 80%;
   }
   .resource-panel-bottom {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
+    .resource-actions {
+      flex-shrink: 1;
+      display: flex;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .resource-tags {
+      flex-shrink: 3;
+    }
   }
   .button {
     margin: 0;
@@ -164,19 +174,22 @@
   a.light-grey-link {
     color: var(--theme-label-text) !important;
     &:hover {
-      background-color: white !important;
+      background-color: transparent !important;
       color: var(--theme-dark-text) !important;
     }
   }
   a {
     text-decoration: none;
+    &:hover {
+      background-color: transparent !important;
+    }
   }
-  .button-outline::hover {
-    background-color: white;
+  .button-outline:hover {
+    background-color: transparent;
   }
   .button-outline.secondary {
     border: none;
-    background-color: white;
+    background-color: transparent;
   }
   .other-formats-link {
     font-size: 12px;
@@ -184,6 +197,7 @@
   .resource-format {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
   }
 }
 
@@ -321,6 +335,10 @@
 @media (max-width: 749px) {
   .community-resource-detail {
     text-align: center !important;
+  }
+
+  .ressources-list {
+    justify-content: center;
   }
 
   .resource__header,
