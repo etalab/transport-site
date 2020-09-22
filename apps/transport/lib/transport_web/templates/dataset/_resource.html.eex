@@ -5,7 +5,7 @@
     <%= @resource.title %>
   </h4>
   <%= if Resource.valid?(@resource) do %>
-    <div title="période de validité">
+    <div title="<%= dgettext("page-dataset-details", "Validity period") %>">
       <i class="icon icon--calendar-alt" aria-hidden="true"></i>
       <span><%= format_date(@resource.metadata["start_date"]) %></span>
       <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
@@ -47,7 +47,7 @@
       <%= if has_associated_geojson do %>
         <div>
           <a class="light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#visualization" %>">
-            <%= dgettext("page-dataset-details", "Map of stops available !") %>
+            <%= dgettext("page-dataset-details", "Data visualisation available!") %>
           </a>
         </div>
       <% end %>

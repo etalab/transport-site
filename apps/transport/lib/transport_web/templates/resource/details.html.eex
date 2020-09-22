@@ -14,7 +14,7 @@
         <%= render "_resources_details.html", metadata: @resource.metadata %>
         <%= if !is_nil(associated_geojson) or !is_nil(associated_netex) do %>
           <div id="other-formats">
-            Cette ressource est également disponible dans les formats suivants :
+            <%= dgettext("validations", "This resource is also available in the following formats:")%>
             <ul>
               <%= unless is_nil(associated_geojson) do %>
                 <li><a href="<%= associated_geojson.url %>">GeoJSON</a>*
@@ -24,9 +24,9 @@
                   <li><a href="<%= associated_netex.url %>">NeTEx</a></li>
                 <% end %>
               </ul>
-              * Le format GeoJSON ne contient que les informations géographiques de la ressource
-              (position des arrêts, éventuellement tracé des lignes),
-              telles que vous les visualisez sur la carte ci-dessous.</li>
+              * <%= dgettext("validations", "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)
+              It corresponds to the data you can see on the map below.")%>
+            </li>
           </div>
         <% end %>
         <div>

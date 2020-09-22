@@ -312,11 +312,11 @@ msgstr "Ressources GTFS temps réel"
 
 #, elixir-format
 msgid "during validation"
-msgstr "de validation"
+msgstr "lors de la validation"
 
 #, elixir-format
-msgid "Map of stops available !"
-msgstr "Visualisation des arrêts disponible !"
+msgid "Data visualisation available!"
+msgstr "Visualisation des données disponible !"
 
 #, elixir-format
 msgid "Download"

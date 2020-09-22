@@ -315,7 +315,7 @@ msgid "during validation"
 msgstr ""
 
 #, elixir-format
-msgid "Map of stops available !"
+msgid "Data visualisation available!"
 msgstr ""
 
 #, elixir-format
