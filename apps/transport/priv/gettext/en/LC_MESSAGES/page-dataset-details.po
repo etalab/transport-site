@@ -163,14 +163,6 @@ msgid "Outdated"
 msgstr ""
 
 #, elixir-format
-msgid "from"
-msgstr ""
-
-#, elixir-format
-msgid "until"
-msgstr ""
-
-#, elixir-format
 msgid "Community ressources"
 msgstr ""
 
@@ -211,19 +203,11 @@ msgid "and "
 msgstr ""
 
 #, elixir-format
-msgid "Published on "
-msgstr ""
-
-#, elixir-format
 msgid "You're using this dataset? %{a_start}Send an email!%{a_end}"
 msgstr ""
 
 #, elixir-format
 msgid "Display more"
-msgstr ""
-
-#, elixir-format
-msgid "See more details on the GTFS resource and its validation"
 msgstr ""
 
 #, elixir-format
@@ -324,4 +308,32 @@ msgstr ""
 
 #, elixir-format
 msgid "GTFS real time resources"
+msgstr ""
+
+#, elixir-format
+msgid "during validation"
+msgstr ""
+
+#, elixir-format
+msgid "Map of stops available !"
+msgstr ""
+
+#, elixir-format
+msgid "Download"
+msgstr ""
+
+#, elixir-format, fuzzy
+msgid "details"
+msgstr ""
+
+#, elixir-format
+msgid "last update"
+msgstr ""
+
+#, elixir-format
+msgid "resource format"
+msgstr ""
+
+#, elixir-format
+msgid "see other formats"
 msgstr ""

@@ -12,7 +12,7 @@
       <span class="<%= outdated_class(@resource) %>"><%= format_date(@resource.metadata["end_date"]) %></span>
     </div>
   <% end %>
-  <div title="date de mise à jour" class="pb-24 light-gry">
+  <div title="<%= dgettext("page-dataset-details", "last update") %>" class="pb-24 light-gry">
     <i class="icon icon--sync-alt" aria-hidden="true"></i>
     <%= @resource.last_update |> format_datetime_to_date() %>
   </div>
@@ -31,7 +31,6 @@
       </span>
     </div>
     <div class="pb-24">
-      <span>Analysé avec </span>
       <a href="<%= resource_path(@conn, :details, @resource.id)<>"#issues" %>">
         <% r = Resource.get_max_severity_validation_number(@resource) %>
         <%= unless is_nil(r) do %>
@@ -44,17 +43,18 @@
           </span>
         <% end %>
       </a>
+      <span><%= dgettext("page-dataset-details", "during validation") %></span>
       <%= if has_associated_geojson do %>
         <div>
           <a class="light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#visualization" %>">
-            Visualisation des arrêts disponible !
+            <%= dgettext("page-dataset-details", "Map of stops available !") %>
           </a>
         </div>
       <% end %>
     </div>
   <% end %>
   <div class="resource-panel-bottom">
-    <div>
+    <div class="resource-tags">
       <%= if length(@resource.auto_tags) > 0 do %>
         <div>
           <%= for tag <- @resource.auto_tags do %>
@@ -62,21 +62,23 @@
           <% end %>
         </div>
       <% end %>
-      <div class="resource-format" title="format de la ressource">
+      <div class="resource-format" title="<%= dgettext("page-dataset-details", "resource format") %>">
         <span class="label"><%= @resource.format %></span>
         <%= if has_associated_geojson or has_associated_netex do %>
-          <a class="other-formats-link light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#other-formats" %>">Autres formats disponibles</a>
+          <div>
+            <a class="other-formats-link light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#other-formats" %>"><%= dgettext("page-dataset-details", "see other formats") %></a>
+          </div>
         <% end %>
       </div>
     </div>
-    <div>
+    <div class="resource-actions">
       <%= if Resource.is_gtfs?(@resource) do %>
         <a href="<%= resource_path(@conn, :details, @resource.id) %>">
-          <button class="button-outline secondary small"><i class="icon icon--plus" aria-hidden="true"></i>détails</button>
+          <button class="button-outline secondary small"><i class="icon icon--plus" aria-hidden="true"></i><%= dgettext("page-dataset-details", "details") %></button>
         </a>
       <% end %>
       <a href="<%= @resource.url %>">
-        <button class="button-outline primary small"><i class="icon icon--download" aria-hidden="true"></i>Télécharger</button>
+        <button class="button-outline primary small"><i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %></button>
       </a>
     </div>
   </div>
