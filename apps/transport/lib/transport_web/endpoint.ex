@@ -30,7 +30,7 @@ defmodule TransportWeb.Endpoint do
   plug(Plug.Parsers,
     parsers: [:urlencoded, :json, :multipart],
     pass: ["*/*"],
-    json_decoder: Poison,
+    json_decoder: Jason,
     length: 100_000_000
   )
 

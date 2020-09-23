@@ -5,8 +5,7 @@ defmodule Mix.Tasks.Transport.OpenApiSpec do
   alias TransportWeb.API.Spec
 
   def run([output_file]) do
-    json = Poison.encode!(Spec.spec(), pretty: true)
-
+    json = Jason.encode!(Spec.spec(), pretty: true)
     :ok = File.write!(output_file, json)
   end
 end
