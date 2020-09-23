@@ -82,8 +82,8 @@ defmodule TransportWeb.Solution.DataReuse.UsingListTest do
     assert visible_in_page?(~r/Un jeu de données/)
 
     # I can download the dataset
-    :link_text
-    |> find_element("angers.zip")
+    :class
+    |> find_element("download-button")
     |> attribute_value("href")
     |> String.ends_with?(".zip")
     |> assert

@@ -65,3 +65,19 @@
 .icon--chart-line {
   @extend .fa-chart-line;
 }
+
+.icon--right-arrow {
+  @extend .fa-long-arrow-alt-right;
+}
+
+.icon--calendar-alt {
+  @extend .fa-calendar-alt;
+}
+
+.icon--plus {
+  @extend .fa-plus;
+}
+
+.icon--sync-alt {
+  @extend .fa-sync-alt;
+}

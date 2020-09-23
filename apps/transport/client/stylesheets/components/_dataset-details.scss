@@ -7,7 +7,7 @@
   padding-top: 48px;
 }
 
-.dataset-page .dataset-menu-container {
+.dataset-menu-container {
   background-color: var(--theme-background-grey);
   flex-basis: 250px;
   flex-shrink: 1;
@@ -131,28 +131,124 @@
   flex-direction: column;
 }
 
-.resource {
+.ressources-list {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: stretch;
+  margin: 0 -12px;
+
+  .panel {
+    margin: 12px;
+  }
 }
 
-.resource.community {
-  padding-bottom: 24px;
+.resource {
+  flex-basis: calc(45% - 24px);
+  min-width: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  h4 {
+    display: inline-block;
+    margin-bottom: 0;
+    font-size: 1em;
+    max-width: 80%;
+  }
+  .resource-panel-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    .resource-actions {
+      flex-shrink: 1;
+      display: flex;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .resource-tags {
+      flex-shrink: 3;
+    }
+  }
+  .button {
+    margin: 0;
+  }
+  a.light-grey-link {
+    color: var(--theme-label-text) !important;
+    &:hover {
+      background-color: transparent !important;
+      color: var(--theme-dark-text) !important;
+    }
+  }
+  a {
+    text-decoration: none;
+    &:hover {
+      background-color: transparent !important;
+    }
+  }
+  .button-outline:hover {
+    background-color: transparent;
+  }
+  .button-outline.secondary {
+    border: none;
+    background-color: transparent;
+  }
+  .other-formats-link {
+    font-size: 12px;
+  }
+  .resource-format {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+}
+
+.light-grey {
+  color: var(--theme-label-text) !important;
+}
+
+.panel.invalid-resource-panel {
+  background-color: #f5f6f7;
+}
+
+.community-resource-download {
+  align-self: flex-end;
+}
+
+.resource-status-corner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-bottom: 75px solid transparent;
+  border-left: 75px solid transparent;
+
+  span {
+    position: absolute;
+    top: -60px;
+    width: 100px;
+    left: -75px;
+    text-align: center;
+    font-size: 12px;
+    font-family: arial;
+    transform: rotate(45deg);
+    display: block;
+  }
+}
+
+.ml-05-em {
+  margin-left: 0.5em;
 }
 
 .resource--valid {
-  background: var(--theme-success-bg);
-  border: 1px solid var(--theme-success-border);
+  border-top: 75px solid var(--theme-success-bg);
 }
 
 .resource--outdated {
-  background: var(--theme-background-grey);
-  border: 1px solid var(--theme-border-lighter);
+  border-top: 75px solid var(--theme-background-grey);
 }
 
 .resource--notvalid {
-  background: var(--theme-background-grey);
-  border: 1px solid var(--theme-border-lighter);
+  border-top: 75px solid var(--theme-error-bg);
 }
 
 .resource__header {
@@ -161,28 +257,22 @@
 }
 
 .resource__summary--Fatal {
-  background: var(--theme-error-bg);
-  border: 1px solid var(--theme-error-border);
+  color: var(--theme-error-border) !important;
 }
 .resource__summary--Error {
-  background: var(--theme-error-bg);
-  border: 1px solid var(--theme-error-border);
+  color: var(--theme-error-border) !important;
 }
 .resource__summary--Warning {
-  background: var(--theme-warning-bg);
-  border: 1px solid var(--theme-warning-border);
+  color: var(--theme-warning-border) !important;
 }
 .resource__summary--Information {
-  background: var(--theme-info-bg);
-  border: 1px solid var(--theme-info-border);
+  color: var(--theme-info-border) !important;
 }
 .resource__summary--Irrelevant {
-  background: var(--theme-background-success);
-  border: 1px solid var(--theme-success-border);
+  color: var(--theme-success-border) !important;
 }
 .resource__summary--Success {
-  background: var(--theme-success-bg);
-  border: 1px solid var(--theme-success-border);
+  color: var(--theme-success-border) !important;
 }
 
 .reuses {
@@ -243,13 +333,12 @@
 }
 
 @media (max-width: 749px) {
-  .resource {
-    flex-direction: column;
-    margin-bottom: 10vw;
-  }
-
   .community-resource-detail {
     text-align: center !important;
+  }
+
+  .ressources-list {
+    justify-content: center;
   }
 
   .resource__header,
@@ -319,11 +408,6 @@
     }
   }
 
-  .resource--valid,
-  .resource--notvalid {
-    width: 100%;
-  }
-
   .dataset {
     .section {
       padding: 1em 0 1em 0;
@@ -337,6 +421,10 @@
 
 .pb-48 {
   padding-bottom: 48px;
+}
+
+.pb-24 {
+  padding-bottom: 24px;
 }
 
 .pt-48 {

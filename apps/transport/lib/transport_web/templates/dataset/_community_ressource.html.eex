@@ -1,24 +1,16 @@
-<div class="resource community">
-    <div class="resource__header">
-            <div class="resource--download">
-                <div>
-                    <a href="<%= @resource.url %>">
-                        <i class="icon icon--download" aria-hidden="true"></i>
-                    </a>
-                </div>
-                <div>
-                    <a href="<%= @resource.url %>">
-                        <span><%= @resource.title %></span>
-                    </a>
-                </div>
-            </div>
-    </div>
-    <div class="resource__details">
-        <div class="community-resource-detail">
-          <%= if @resource.community_resource_publisher do %>
-            <h6 class="community-resource-source"><%= dgettext("community_resource", "by") %> <%= @resource.community_resource_publisher %></h6>
-          <% end %>
-          <p><%= @resource.description %></p>
-        </div>
-    </div>
+<div class="panel resource">
+  <h4 class="pb-24">
+    <%= @resource.title %>
+  </h4>
+  <div class="light-grey">
+    <%= if @resource.community_resource_publisher do %>
+      <%= dgettext("community_resource", "by") %> <strong class="community-resource-source"><%= @resource.community_resource_publisher %></strong>
+    <% end %>
+    <div class="pb-24"><%= @resource.description %></div>
+  </div>
+  <div class="community-resource-download">
+    <a href="<%= @resource.url %>">
+      <button class="button-outline primary small"><i class="icon icon--download" aria-hidden="true"></i>Télécharger</button>
+    </a>
+  </div>
 </div>
