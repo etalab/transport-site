@@ -1,12 +1,12 @@
 defmodule GBFS.VCubController do
   use GBFS, :controller
   require Logger
-  alias Exshape.{Dbf, Shp}
 
   plug(:put_view, GBFS.FeedView)
 
-  @static_url "https://data.bordeaux-metropole.fr/files.php?gid=43&format=2"
-  @rt_url "https://data.bordeaux-metropole.fr/files.php?gid=105&format=2"
+  @rt_url "https://opendata.bordeaux-metropole.fr/api/records/1.0/search/?dataset=ci_vcub_p&q=&rows=10000"
+  @gbfs_version "2.0"
+  @ttl 60
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params) do
@@ -23,6 +23,8 @@ defmodule GBFS.VCubController do
         }
       }
     )
+    |> assign(:version, @gbfs_version)
+    |> assign(:ttl, @ttl)
     |> render("gbfs.json")
   end
 
@@ -38,149 +40,95 @@ defmodule GBFS.VCubController do
         "timezone" => "Europe/Paris"
       }
     )
+    |> assign(:version, @gbfs_version)
+    |> assign(:ttl, @ttl)
     |> render("gbfs.json")
+  end
+
+  @spec station_aux(Plug.Conn.t(), (() -> {:ok, map()} | {:error, binary()})) :: Plug.Conn.t()
+  defp station_aux(conn, get_info_function) do
+    case get_info_function.() do
+      {:ok, data} ->
+        conn
+        |> assign(:data, data)
+        |> assign(:ttl, @ttl)
+        |> assign(:version, @gbfs_version)
+        |> render("gbfs.json")
+
+      {:error, msg} ->
+        conn
+        |> assign(:error, msg)
+        |> render(GBFS.ErrorView, "error.json")
+    end
   end
 
   @spec station_information(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def station_information(conn, _params) do
-    conn
-    |> assign(:data, get_station_information())
-    |> render("gbfs.json")
+    station_aux(conn, &get_station_information/0)
   end
 
   @spec station_status(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def station_status(conn, _params) do
-    conn
-    |> assign(:data, get_station_status())
-    |> render("gbfs.json")
+    station_aux(conn, &get_station_status/0)
   end
 
-  @spec get_station_status() :: %{stations: [map()]}
+  @spec get_station_status() :: {:ok, %{stations: [map()]}} | {:error, binary}
   defp get_station_status do
-    with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(@rt_url),
-         {:ok, z} <- :zip.zip_open(body, [:memory]),
-         {:ok, {_, dbf_bin}} <- :zip.zip_get('CI_VCUB_P.dbf', z),
-         dbf <- Dbf.read([dbf_bin]),
-         _ <- :zip.zip_close(z) do
-      %{
-        stations:
-          dbf
-          |> Stream.reject(fn d -> match?(%Exshape.Dbf.Header{}, d) end)
-          |> Stream.map(fn d ->
-            [id, _, _, _, etat, num_docks_available, num_bikes_available | _] = d
+    convert_station_status = fn records ->
+      stations =
+        Enum.map(records, fn r ->
+          %{
+            :station_id => r["fields"]["ident"],
+            :num_bikes_available => to_int(r["fields"]["nbvelos"]),
+            :num_docks_available => to_int(r["fields"]["nbplaces"]),
+            :is_renting => r["fields"]["etat"] == "CONNECTEE",
+            :is_returning => r["fields"]["etat"] == "CONNECTEE",
+            :last_reported => r["fields"]["mdate"]
+          }
+        end)
 
-            %{
-              station_id: Integer.to_string(id),
-              num_bikes_available: num_bikes_available,
-              num_docks_available: num_docks_available,
-              is_installed: 1,
-              is_renting: if(etat == "CONNECTEE", do: 1, else: 0),
-              is_returning: if(etat == "CONNECTEE", do: 1, else: 0),
-              last_reported: DateTime.utc_now() |> DateTime.to_unix()
-            }
-          end)
-          |> Enum.to_list()
-      }
+      %{stations: stations}
     end
+
+    get_information_aux(convert_station_status)
   end
 
-  @spec get_station_information() :: %{stations: [map()]}
+  @spec to_int(integer() | binary) :: integer()
+  defp to_int(i) when is_integer(i), do: i
+
+  defp to_int(s) when is_binary(s), do: String.to_integer(s)
+
+  @spec get_station_information() :: {:ok, %{stations: [map()]}} | {:error, binary}
   defp get_station_information do
-    with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(@static_url),
-         {:ok, z} <- :zip.zip_open(body, [:memory]),
-         {:ok, {_, shp_bin}} <- :zip.zip_get('TB_STVEL_P.shp', z),
-         {:ok, {_, dbf_bin}} <- :zip.zip_get('TB_STVEL_P.dbf', z),
-         shp <- Shp.read([shp_bin]),
-         dbf <- Dbf.read([dbf_bin]),
-         stream <- Stream.zip(shp, dbf),
-         _ <- :zip.zip_close(z) do
-      %{
-        stations:
-          stream
-          |> Stream.reject(fn {s, _} -> match?(%Exshape.Shp.Header{}, s) end)
-          |> Stream.map(fn {s, d} ->
-            [id, _, _, _, addr, city, _, _, nb_suppor, name | _] = d
+    convert_station_information = fn records ->
+      stations =
+        Enum.map(records, fn r ->
+          [lon, lat] = r["geometry"]["coordinates"]
 
-            Map.merge(
-              %{
-                station_id: Integer.to_string(id),
-                address: "#{String.trim(addr)} #{String.trim(city)}",
-                name: String.trim(name),
-                capacity: String.to_integer(String.trim(nb_suppor))
-              },
-              to_wgs84(s)
-            )
-          end)
-          |> Enum.to_list()
-      }
+          %{
+            :station_id => r["fields"]["ident"],
+            :name => r["fields"]["nom"],
+            :lat => lon,
+            :lon => lat,
+            :post_code => r["fields"]["code_commune"],
+            :capacity => to_int(r["fields"]["nbvelos"]) + to_int(r["fields"]["nbplaces"])
+          }
+        end)
+
+      %{stations: stations}
     end
+
+    get_information_aux(convert_station_information)
   end
 
-  # conversion from lambert93 to wgs84
-  @spec to_wgs84(%Exshape.Shp.PointZ{x: float(), y: float()}) :: %{lon: float(), lat: float()}
-  defp to_wgs84(%Exshape.Shp.PointZ{x: x, y: y}) do
-    # constante de la projection
-    c = 11_754_255.426096
-    # première exentricité de l'ellipsoïde@
-    e = 0.0818191910428158
-    # exposant de la projection@
-    n = 0.725607765053267
-    # coordonnées en projection du pole@
-    xs = 700_000
-    # coordonnées en projection du pole@
-    ys = 12_655_612.049876
-
-    # pre-calcul
-    a = :math.log(c / :math.sqrt(:math.pow(x - xs, 2) + :math.pow(y - ys, 2))) / n
-
-    %{
-      lon: (:math.atan(-(x - xs) / (y - ys)) / n + 3 / 180 * :math.pi()) / :math.pi() * 180,
-      lat:
-        :math.asin(
-          :math.tanh(
-            :math.log(c / :math.sqrt(:math.pow(x - xs, 2) + :math.pow(y - ys, 2))) / n +
-              e *
-                :math.atanh(
-                  e *
-                    :math.tanh(
-                      a +
-                        e *
-                          :math.atanh(
-                            e *
-                              :math.tanh(
-                                a +
-                                  e *
-                                    :math.atanh(
-                                      e *
-                                        :math.tanh(
-                                          a +
-                                            e *
-                                              :math.atanh(
-                                                e *
-                                                  :math.tanh(
-                                                    a +
-                                                      e *
-                                                        :math.atanh(
-                                                          e *
-                                                            :math.tanh(
-                                                              a +
-                                                                e *
-                                                                  :math.atanh(
-                                                                    e *
-                                                                      :math.tanh(a + e * :math.atanh(e * :math.sin(1)))
-                                                                  )
-                                                            )
-                                                        )
-                                                  )
-                                              )
-                                        )
-                                    )
-                              )
-                          )
-                    )
-                )
-          )
-        ) / :math.pi() * 180
-    }
+  @spec get_information_aux((map -> map)) :: {:ok, map()} | {:error, binary}
+  defp get_information_aux(convert_func) do
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(@rt_url),
+         {:ok, data} <- Jason.decode(body) do
+      res = convert_func.(data["records"])
+      {:ok, res}
+    else
+      _ -> {:error, "service unavailable"}
+    end
   end
 end
