@@ -71,12 +71,12 @@ defmodule GBFS.VLilleController do
           last_reported = DateTime.to_unix(dt)
 
           %{
-            :station_id => r["recordid"],
-            :num_bikes_available => r["fields"]["nbvelosdispo"],
-            :num_docks_available => r["fields"]["nbplacesdispo"],
-            :is_renting => r["fields"]["etat"] == "EN SERVICE",
-            :is_returning => r["fields"]["etat"] == "EN SERVICE",
-            :last_reported => last_reported
+            station_id: r["recordid"],
+            num_bikes_available: r["fields"]["nbvelosdispo"],
+            num_docks_available: r["fields"]["nbplacesdispo"],
+            is_renting: r["fields"]["etat"] == "EN SERVICE",
+            is_returning: r["fields"]["etat"] == "EN SERVICE",
+            last_reported: last_reported
           }
         end)
 
@@ -94,12 +94,12 @@ defmodule GBFS.VLilleController do
           [lon, lat] = r["geometry"]["coordinates"]
 
           %{
-            :station_id => r["recordid"],
-            :name => r["fields"]["nom"],
-            :lat => lon,
-            :lon => lat,
-            :address => r["fields"]["adresse"],
-            :capacity => r["fields"]["nbvelosdispo"] + r["fields"]["nbplacesdispo"]
+            station_id: r["recordid"],
+            name: r["fields"]["nom"],
+            lat: lon,
+            lon: lat,
+            address: r["fields"]["adresse"],
+            capacity: r["fields"]["nbvelosdispo"] + r["fields"]["nbplacesdispo"]
           }
         end)
 
