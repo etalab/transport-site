@@ -67,13 +67,16 @@ defmodule GBFS.VCubController do
     convert_station_status = fn records ->
       stations =
         Enum.map(records, fn r ->
+          {:ok, dt, _offset} = DateTime.from_iso8601(r["fields"]["mdate"])
+          last_reported = DateTime.to_unix(dt)
+
           %{
-            :station_id => r["fields"]["ident"],
-            :num_bikes_available => to_int(r["fields"]["nbvelos"]),
-            :num_docks_available => to_int(r["fields"]["nbplaces"]),
-            :is_renting => r["fields"]["etat"] == "CONNECTEE",
-            :is_returning => r["fields"]["etat"] == "CONNECTEE",
-            :last_reported => r["fields"]["mdate"]
+            station_id: r["fields"]["ident"],
+            num_bikes_available: to_int(r["fields"]["nbvelos"]),
+            num_docks_available: to_int(r["fields"]["nbplaces"]),
+            is_renting: r["fields"]["etat"] == "CONNECTEE",
+            is_returning: r["fields"]["etat"] == "CONNECTEE",
+            last_reported: last_reported
           }
         end)
 
@@ -96,12 +99,12 @@ defmodule GBFS.VCubController do
           [lon, lat] = r["geometry"]["coordinates"]
 
           %{
-            :station_id => r["fields"]["ident"],
-            :name => r["fields"]["nom"],
-            :lat => lon,
-            :lon => lat,
-            :post_code => r["fields"]["code_commune"],
-            :capacity => to_int(r["fields"]["nbvelos"]) + to_int(r["fields"]["nbplaces"])
+            station_id: r["fields"]["ident"],
+            name: r["fields"]["nom"],
+            lat: lon,
+            lon: lat,
+            post_code: r["fields"]["code_commune"],
+            capacity: to_int(r["fields"]["nbvelos"]) + to_int(r["fields"]["nbplaces"])
           }
         end)
 
