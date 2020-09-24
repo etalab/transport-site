@@ -77,14 +77,8 @@ defmodule GBFS.VLilleController do
     convert_station_status = fn records ->
       stations =
         Enum.map(records, fn r ->
-          last_reported =
-            case DateTime.from_iso8601(r["fields"]["datemiseajour"]) do
-              {:ok, dt, _offset} ->
-                DateTime.to_unix(dt)
-
-              {:error, _} ->
-                nil
-            end
+          {:ok, dt, _offset} = DateTime.from_iso8601(r["fields"]["datemiseajour"])
+          last_reported = DateTime.to_unix(dt)
 
           %{
             :station_id => r["recordid"],
