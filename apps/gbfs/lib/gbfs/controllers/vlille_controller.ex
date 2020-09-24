@@ -121,9 +121,8 @@ defmodule GBFS.VLilleController do
 
   @spec get_information_aux((map -> map)) :: {:ok, map()} | {:error, binary}
   defp get_information_aux(convert_func) do
-    IO.inspect(HTTPoison.get(@rt_url))
-
-    with {:ok, %HTTPoison.Response{status_code: status_code, body: body}} when status_code >= 200 and status_code < 400 <-
+    with {:ok, %HTTPoison.Response{status_code: status_code, body: body}}
+         when status_code >= 200 and status_code < 400 <-
            HTTPoison.get(@rt_url, [], hackney: [follow_redirect: true]),
          {:ok, data} <- Jason.decode(body) do
       res = convert_func.(data)
