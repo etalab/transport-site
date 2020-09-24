@@ -1,6 +1,7 @@
 defmodule GBFS.VLilleController do
   use GBFS, :controller
   require Logger
+  alias GBFS.ControllerHelpers
 
   plug(:put_view, GBFS.FeedView)
 
@@ -11,18 +12,7 @@ defmodule GBFS.VLilleController do
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params) do
     conn
-    |> assign(
-      :data,
-      %{
-        "fr" => %{
-          "feeds" =>
-            Enum.map(
-              [:system_information, :station_information, :station_status],
-              fn a -> %{"name" => Atom.to_string(a), "url" => Routes.v_lille_url(conn, a)} end
-            )
-        }
-      }
-    )
+    |> ControllerHelpers.assign_data_gbfs_json(&Routes.v_lille_url/2)
     |> assign(:version, @gbfs_version)
     |> assign(:ttl, @ttl)
     |> render("gbfs.json")
