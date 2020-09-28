@@ -7,24 +7,20 @@ defmodule GBFS.VCubControllerTest do
 
   describe "test VCub GBFS conversion" do
     test "test gbfs.json", %{conn: conn} do
-      use_cassette "vcub/gbfs" do
-        conn = conn |> get(Routes.v_cub_path(conn, :index))
-        body = json_response(conn, 200)
-        assert Enum.all?(["version", "ttl", "last_updated", "data"], fn e -> e in Map.keys(body) end)
-        assert Enum.count(body["data"]["fr"]["feeds"]) >= 3
-      end
+      conn = conn |> get(Routes.v_cub_path(conn, :index))
+      body = json_response(conn, 200)
+      assert Enum.all?(["version", "ttl", "last_updated", "data"], fn e -> e in Map.keys(body) end)
+      assert Enum.count(body["data"]["fr"]["feeds"]) >= 3
     end
 
     test "test system_information.json", %{conn: conn} do
-      use_cassette "vcub/system_information" do
-        conn = conn |> get(Routes.v_cub_path(conn, :system_information))
-        body = json_response(conn, 200)
-        assert Enum.all?(["version", "ttl", "last_updated", "data"], fn e -> e in Map.keys(body) end)
+      conn = conn |> get(Routes.v_cub_path(conn, :system_information))
+      body = json_response(conn, 200)
+      assert Enum.all?(["version", "ttl", "last_updated", "data"], fn e -> e in Map.keys(body) end)
 
-        assert Enum.all?(["language", "name", "system_id", "timezone"], fn e ->
-                 e in Map.keys(body["data"])
-               end)
-      end
+      assert Enum.all?(["language", "name", "system_id", "timezone"], fn e ->
+               e in Map.keys(body["data"])
+             end)
     end
 
     test "test station_information.json", %{conn: conn} do
