@@ -1,18 +1,18 @@
-defmodule GBFS.VCubController do
+defmodule GBFS.VLilleController do
   use GBFS, :controller
   require Logger
   alias GBFS.ControllerHelpers
 
   plug(:put_view, GBFS.FeedView)
 
-  @rt_url "https://opendata.bordeaux-metropole.fr/api/records/1.0/search/?dataset=ci_vcub_p&q=&rows=10000"
+  @rt_url "https://www.data.gouv.fr/fr/datasets/r/6d66af27-7a26-4263-b610-4ecf5fb34369"
   @gbfs_version "2.0"
   @ttl 60
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params) do
     conn
-    |> ControllerHelpers.assign_data_gbfs_json(&Routes.v_cub_url/2)
+    |> ControllerHelpers.assign_data_gbfs_json(&Routes.v_lille_url/2)
     |> assign(:version, @gbfs_version)
     |> assign(:ttl, @ttl)
     |> render("gbfs.json")
@@ -24,9 +24,9 @@ defmodule GBFS.VCubController do
     |> assign(
       :data,
       %{
-        "system_id" => "vcub",
+        "system_id" => "vlille",
         "language" => "fr",
-        "name" => "VCub",
+        "name" => "V'Lille",
         "timezone" => "Europe/Paris"
       }
     )
@@ -67,15 +67,15 @@ defmodule GBFS.VCubController do
     convert_station_status = fn records ->
       stations =
         Enum.map(records, fn r ->
-          {:ok, dt, _offset} = DateTime.from_iso8601(r["fields"]["mdate"])
+          {:ok, dt, _offset} = DateTime.from_iso8601(r["fields"]["datemiseajour"])
           last_reported = DateTime.to_unix(dt)
 
           %{
-            station_id: r["fields"]["ident"],
-            num_bikes_available: to_int(r["fields"]["nbvelos"]),
-            num_docks_available: to_int(r["fields"]["nbplaces"]),
-            is_renting: r["fields"]["etat"] == "CONNECTEE",
-            is_returning: r["fields"]["etat"] == "CONNECTEE",
+            station_id: r["recordid"],
+            num_bikes_available: r["fields"]["nbvelosdispo"],
+            num_docks_available: r["fields"]["nbplacesdispo"],
+            is_renting: r["fields"]["etat"] == "EN SERVICE",
+            is_returning: r["fields"]["etat"] == "EN SERVICE",
             last_reported: last_reported
           }
         end)
@@ -86,11 +86,6 @@ defmodule GBFS.VCubController do
     get_information_aux(convert_station_status)
   end
 
-  @spec to_int(integer() | binary) :: integer()
-  defp to_int(i) when is_integer(i), do: i
-
-  defp to_int(s) when is_binary(s), do: String.to_integer(s)
-
   @spec get_station_information() :: {:ok, %{stations: [map()]}} | {:error, binary}
   defp get_station_information do
     convert_station_information = fn records ->
@@ -99,12 +94,12 @@ defmodule GBFS.VCubController do
           [lon, lat] = r["geometry"]["coordinates"]
 
           %{
-            station_id: r["fields"]["ident"],
+            station_id: r["recordid"],
             name: r["fields"]["nom"],
             lat: lon,
             lon: lat,
-            post_code: r["fields"]["code_commune"],
-            capacity: to_int(r["fields"]["nbvelos"]) + to_int(r["fields"]["nbplaces"])
+            address: r["fields"]["adresse"],
+            capacity: r["fields"]["nbvelosdispo"] + r["fields"]["nbplacesdispo"]
           }
         end)
 
@@ -116,9 +111,11 @@ defmodule GBFS.VCubController do
 
   @spec get_information_aux((map -> map)) :: {:ok, map()} | {:error, binary}
   defp get_information_aux(convert_func) do
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(@rt_url),
+    with {:ok, %HTTPoison.Response{status_code: status_code, body: body}}
+         when status_code >= 200 and status_code < 400 <-
+           HTTPoison.get(@rt_url, [], hackney: [follow_redirect: true]),
          {:ok, data} <- Jason.decode(body) do
-      res = convert_func.(data["records"])
+      res = convert_func.(data)
       {:ok, res}
     else
       _ -> {:error, "service unavailable"}

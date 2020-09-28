@@ -70,6 +70,13 @@ defmodule GBFS.Router do
       get("/station_status.json", VCubController, :station_status)
     end
 
+    scope "/vlille" do
+      get("/gbfs.json", VLilleController, :index)
+      get("/system_information.json", VLilleController, :system_information)
+      get("/station_information.json", VLilleController, :station_information)
+      get("/station_status.json", VLilleController, :station_status)
+    end
+
     @reseaux_jcdecaux
     |> Map.keys()
     |> Enum.map(fn contract ->
@@ -103,7 +110,7 @@ defmodule GBFS.Router do
     conn
     |> assign(
       :networks,
-      ["vcub"] ++ (@reseaux_jcdecaux |> Map.keys()) ++ (@reseaux_smoove |> Enum.map(& &1.contract_id))
+      ["vcub", "vlille"] ++ (@reseaux_jcdecaux |> Map.keys()) ++ (@reseaux_smoove |> Enum.map(& &1.contract_id))
     )
   end
 end
