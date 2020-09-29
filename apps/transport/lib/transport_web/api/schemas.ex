@@ -296,7 +296,7 @@ defmodule TransportWeb.API.Schemas do
         Utils.get_resource_prop()
         |> Map.put(:community_resource_publisher, %Schema{
           type: :string,
-          description: "Name of the producteur of the community resource"
+          description: "Name of the producer of the community resource"
         })
         |> Map.put(:original_resource_url, %Schema{
           type: :string,
