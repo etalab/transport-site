@@ -243,6 +243,71 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
+  defmodule Utils do
+    @moduledoc false
+    def get_resource_prop,
+      do: %{
+        url: %Schema{type: :string, description: "Stable URL of the file"},
+        original_url: %Schema{type: :string, description: "Direct URL of the file"},
+        title: %Schema{type: :string, description: "Title of the resource"},
+        updated: %Schema{type: :string, description: "Last update date-time"},
+        end_calendar_validity: %Schema{
+          type: :string,
+          description:
+            "The last day of the validity period of the file (read from the calendars for the GTFS). null if the file couldn’t be read"
+        },
+        start_calendar_validity: %Schema{
+          type: :string,
+          description:
+            "The first day of the validity period of the file (read from the calendars for the GTFS). null if the file couldn’t be read"
+        },
+        format: %Schema{type: :string, description: "The format of the resource (GTFS, NeTEx, ...)"},
+        content_hash: %Schema{
+          type: :string,
+          description:
+            "A hash on the content of the file. Can be either a sha256 or an etag. Can be stored and used to check if the resource has changed."
+        },
+        metadata: %Schema{
+          type: :object,
+          description: "Some metadata about the resource"
+        }
+      }
+  end
+
+  defmodule Resource do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%Schema{
+      type: :object,
+      description: "A single resource",
+      properties: Utils.get_resource_prop()
+    })
+  end
+
+  defmodule CommunityResource do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%Schema{
+      type: :object,
+      description: "A single community resource",
+      properties:
+        Utils.get_resource_prop()
+        |> Map.put(:community_resource_publisher, %Schema{
+          type: :string,
+          description: "Name of the producer of the community resource"
+        })
+        |> Map.put(:original_resource_url, %Schema{
+          type: :string,
+          description: """
+          some community resources have been generated from another dataset (like the generated NeTEx / GeoJson). 
+          Those resources have a `original_resource_url` equals to the original resource's `original_url`
+          """
+        })
+    })
+  end
+
   defmodule DatasetsResponse do
     @moduledoc false
     require OpenApiSpex
@@ -258,30 +323,13 @@ defmodule TransportWeb.API.Schemas do
         aom: %Schema{type: :string, description: "Transit authority responsible of this authority"},
         resources: %Schema{
           type: :array,
-          description: "All the files associated with the dataset",
-          items: %Schema{
-            type: :object,
-            description: "A single GTFS file",
-            properties: %{
-              url: %Schema{type: :string, description: "Stable URL of the GTFS file"},
-              title: %Schema{type: :string, description: "Title of the resource"},
-              updated: %Schema{type: :string, description: "Last update date-time"},
-              end_calendar_validity: %Schema{
-                type: :string,
-                description: "The last day in the GTFS calendar. null if the file couldn’t be read"
-              },
-              start_calendar_validity: %Schema{
-                type: :string,
-                description: "The first day in the GTFS calendar. null if the file couldn’t be read"
-              },
-              format: %Schema{type: :string, description: "The format of the resource (GTFS, NeTEx, ...)"},
-              content_hash: %Schema{
-                type: :string,
-                description:
-                  "A hash on the content of the file. Can be either a sha256 or an etag. Can be stored and used to check if the resource has changed."
-              }
-            }
-          }
+          description: "All the resources (files) associated with the dataset",
+          items: Resource
+        },
+        community_resources: %Schema{
+          type: :array,
+          description: "All the community resources (files published by the community) associated with the dataset",
+          items: CommunityResource
         }
       }
     })
