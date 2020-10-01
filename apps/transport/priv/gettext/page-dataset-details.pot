@@ -345,3 +345,11 @@ msgstr ""
 #, elixir-format
 msgid "Visualization of the resource"
 msgstr ""
+
+#, elixir-format
+msgid "Dataset feature"
+msgstr ""
+
+#, elixir-format
+msgid "Dataset mode"
+msgstr ""

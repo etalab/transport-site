@@ -58,32 +58,43 @@
     </div>
   <% end %>
   <div class="resource-panel-bottom">
-    <div class="resource-tags">
+    <div class="resource-features">
       <%= if length(@resource.auto_tags) > 0 do %>
-        <div>
+        <div title="<%= dgettext("page-dataset-details", "Dataset feature") %>">
           <%= for tag <- @resource.auto_tags do %>
-            <span class="label"><%= tag %></span>
+            <span class="label feature"><%= tag %></span>
           <% end %>
         </div>
       <% end %>
-      <div class="resource-format" title="<%= dgettext("page-dataset-details", "resource format") %>">
-        <span class="label"><%= @resource.format %></span>
-        <%= if has_associated_geojson or has_associated_netex do %>
-          <div>
-            <a class="other-formats-link light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#other-formats" %>"><%= dgettext("page-dataset-details", "see other formats") %></a>
-          </div>
-        <% end %>
-      </div>
+      <%= if length(@resource.modes) > 0 do %>
+        <div title="<%= dgettext("page-dataset-details", "Dataset mode") %>">
+          <%= for mode <- @resource.modes do %>
+            <span class="label mode"><%= mode %></span>
+          <% end %>
+        </div>
+      <% end %>
     </div>
     <div class="resource-actions">
-      <%= if Resource.is_gtfs?(@resource) do %>
-        <a href="<%= resource_path(@conn, :details, @resource.id) %>">
-          <button class="button-outline secondary small"><i class="icon icon--plus" aria-hidden="true"></i><%= dgettext("page-dataset-details", "details") %></button>
+      <div>
+        <div class="resource-format" title="<%= dgettext("page-dataset-details", "resource format") %>">
+            <span class="label"><%= @resource.format %></span>
+            <%= if has_associated_geojson or has_associated_netex do %>
+              <div>
+                <a class="other-formats-link light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#other-formats" %>"><%= dgettext("page-dataset-details", "see other formats") %></a>
+              </div>
+            <% end %>
+        </div>
+      </div>
+      <div>
+        <%= if Resource.is_gtfs?(@resource) do %>
+          <a href="<%= resource_path(@conn, :details, @resource.id) %>">
+            <button class="button-outline secondary small"><i class="icon icon--plus" aria-hidden="true"></i><%= dgettext("page-dataset-details", "details") %></button>
+          </a>
+        <% end %>
+        <a class="download-button" href="<%= @resource.url %>">
+          <button class="button-outline primary small"><i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %></button>
         </a>
-      <% end %>
-      <a class="download-button" href="<%= @resource.url %>">
-        <button class="button-outline primary small"><i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %></button>
-      </a>
+      </div>
     </div>
   </div>
 </div>

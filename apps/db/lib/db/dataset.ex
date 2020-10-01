@@ -94,7 +94,8 @@ defmodule DB.Dataset do
         description: r.description,
         community_resource_publisher: r.community_resource_publisher,
         original_resource_url: r.original_resource_url,
-        auto_tags: r.auto_tags
+        auto_tags: r.auto_tags,
+        modes: r.modes
       },
       where: r.is_available
     )

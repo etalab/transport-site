@@ -345,3 +345,11 @@ msgstr "Visualisation temps-réel de "
 #, elixir-format
 msgid "Visualization of the resource"
 msgstr "Visualisation de la ressource"
+
+#, elixir-format
+msgid "Dataset feature"
+msgstr "Caractéristique du jeu de données"
+
+#, elixir-format
+msgid "Dataset mode"
+msgstr "Mode présent dans le jeu de données"

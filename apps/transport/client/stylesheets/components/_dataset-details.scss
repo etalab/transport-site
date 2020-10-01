@@ -157,15 +157,21 @@
   .resource-panel-bottom {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    flex-direction: column;
     .resource-actions {
       flex-shrink: 1;
       display: flex;
-      justify-content: flex-end;
       flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
     }
-    .resource-tags {
-      flex-shrink: 3;
+
+    .feature {
+      background-color: var(--lighter-blue);
+    }
+
+    .mode {
+      background-color: lightcoral;
     }
   }
   .button {

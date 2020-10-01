@@ -29,6 +29,9 @@ defmodule DB.Resource do
     field(:content_hash, :string)
     # automatically discovered tags
     field(:auto_tags, {:array, :string}, default: [])
+    # all the detected modes of the ressource
+    field(:modes, {:array, :string}, default: [])
+
     field(:conversion_latest_content_hash, :string)
 
     field(:is_community_resource, :boolean)
@@ -210,6 +213,7 @@ defmodule DB.Resource do
         validation_latest_content_hash: r.content_hash
       },
       auto_tags: find_tags(r, metadata),
+      modes: find_modes(metadata),
       start_date: str_to_date(metadata["start_date"]),
       end_date: str_to_date(metadata["end_date"])
     )
@@ -226,15 +230,14 @@ defmodule DB.Resource do
   def find_tags(%__MODULE__{} = r, metadata) do
     r
     |> base_tag()
-    |> Enum.concat(find_modes_tags(metadata))
     |> Enum.concat(has_fares_tag(metadata))
     |> Enum.concat(has_shapes_tag(metadata))
     |> Enum.uniq()
   end
 
-  @spec find_modes_tags(map()) :: [binary()]
-  def find_modes_tags(%{"modes" => modes}), do: modes
-  def find_modes_tags(_), do: []
+  @spec find_modes(map()) :: [binary()]
+  def find_modes(%{"modes" => modes}), do: modes
+  def find_modes(_), do: []
 
   # These tags are not translated because we'll need to be able to search for those tags
   @spec has_fares_tag(map()) :: [binary()]
@@ -246,8 +249,8 @@ defmodule DB.Resource do
   def has_shapes_tag(_), do: []
 
   @spec base_tag(__MODULE__.t()) :: [binary()]
-  def base_tag(%__MODULE__{format: "GTFS"}), do: ["position des stations", "horaires théorique", "topologie du réseau"]
-  def base_tag(%__MODULE__{format: "NeTEx"}), do: ["position des stations", "horaires théorique", "topologie du réseau"]
+  def base_tag(%__MODULE__{format: "GTFS"}), do: ["position des stations", "horaires théoriques", "topologie du réseau"]
+  def base_tag(%__MODULE__{format: "NeTEx"}), do: ["position des stations", "horaires théoriques", "topologie du réseau"]
   def base_tag(_), do: []
 
   def changeset(resource, params) do
@@ -267,6 +270,7 @@ defmodule DB.Resource do
         :latest_url,
         :is_available,
         :auto_tags,
+        :modes,
         :is_community_resource,
         :community_resource_publisher,
         :original_resource_url,
