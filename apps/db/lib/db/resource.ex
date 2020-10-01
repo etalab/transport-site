@@ -250,7 +250,10 @@ defmodule DB.Resource do
 
   @spec base_tag(__MODULE__.t()) :: [binary()]
   def base_tag(%__MODULE__{format: "GTFS"}), do: ["position des stations", "horaires théoriques", "topologie du réseau"]
-  def base_tag(%__MODULE__{format: "NeTEx"}), do: ["position des stations", "horaires théoriques", "topologie du réseau"]
+
+  def base_tag(%__MODULE__{format: "NeTEx"}),
+    do: ["position des stations", "horaires théoriques", "topologie du réseau"]
+
   def base_tag(_), do: []
 
   def changeset(resource, params) do
