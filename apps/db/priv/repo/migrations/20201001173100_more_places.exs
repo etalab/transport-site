@@ -41,13 +41,23 @@ defmodule DB.Repo.Migrations.MorePlaces do
         )
         UNION
         (
-          SELECT tag AS nom,
-          tag AS place_id,
-          'tag' AS type,
-          unaccent(replace(tag, ' ', '-')) AS indexed_name
+          SELECT features AS nom,
+          features AS place_id,
+          'features' AS type,
+          unaccent(replace(features, ' ', '-')) AS indexed_name
           FROM (
-          SELECT DISTINCT(UNNEST(auto_tags)) as tag FROM resource
-          ) as tag
+          SELECT DISTINCT(UNNEST(auto_tags)) as features FROM resource
+          ) as features
+        )
+        UNION
+        (
+          SELECT modes AS nom,
+          modes AS place_id,
+          'mode' AS type,
+          unaccent(replace(modes, ' ', '-')) AS indexed_name
+          FROM (
+          SELECT DISTINCT(UNNEST(modes)) as modes FROM resource
+          ) as modes
         )
     ) AS place
     WITH DATA
