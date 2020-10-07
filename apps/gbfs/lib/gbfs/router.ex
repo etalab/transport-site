@@ -3,6 +3,7 @@ defmodule GBFS.Router do
 
   pipeline :api do
     plug(:accepts, ["json"])
+    plug(CORSPlug, origin: "*")
   end
 
   pipeline :jcdecaux do
