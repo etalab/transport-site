@@ -274,7 +274,6 @@ defmodule DB.Dataset do
       :title,
       :type,
       :region_id,
-      :has_realtime,
       :nb_reuses,
       :is_active,
       :associated_territory_name
@@ -287,6 +286,7 @@ defmodule DB.Dataset do
     |> cast_assoc(:region)
     |> cast_assoc(:aom)
     |> validate_territory_mutual_exclusion()
+    |> has_real_time()
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
         {:ok, %{changeset | action: :ignore}}
@@ -730,5 +730,10 @@ defmodule DB.Dataset do
     changeset
     |> change
     |> put_assoc(:communes, communes)
+  end
+
+  defp has_real_time(changeset) do
+    has_realtime = changeset |> get_field(:resources) |> Enum.any?(&Resource.is_real_time?/1)
+    changeset |> change(has_realtime: has_realtime)
   end
 end

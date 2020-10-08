@@ -74,5 +74,32 @@ defmodule TransportWeb.DatasetDBTest do
                  "insee" => "38185"
                })
     end
+
+    test "has_real_time=true" do
+      changeset =
+        Dataset.changeset(%{
+          "datagouv_id" => "1",
+          "slug" => "ma_limace",
+          "insee" => "38185",
+          "resources" => [
+            %{"format" => "gbfs", "url" => "coucou", "datagouv_id" => "pouet"},
+            %{"format" => "gtfs", "url" => "coucou", "datagouv_id" => "pouet"}
+          ]
+        })
+
+      assert {:ok, %Ecto.Changeset{changes: %{has_realtime: true}}} = changeset
+    end
+
+    test "has_real_time=false" do
+      changeset =
+        Dataset.changeset(%{
+          "datagouv_id" => "1",
+          "slug" => "ma_limace",
+          "insee" => "38185",
+          "resources" => [%{"format" => "gtfs", "url" => "coucou", "datagouv_id" => "pouet"}]
+        })
+
+      assert {:ok, %Ecto.Changeset{changes: %{has_realtime: false}}} = changeset
+    end
   end
 end
