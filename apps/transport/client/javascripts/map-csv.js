@@ -72,7 +72,7 @@ function setZoomEvents (map, fg) {
     })
 }
 
-function createMap (id, resourceUrl) {
+function createCSVmap (id, resourceUrl) {
     Papa.parse(resourceUrl, {
         download: true,
         header: true,
@@ -88,6 +88,93 @@ function createMap (id, resourceUrl) {
             }
         }
     })
+}
+
+function setMarkerStyle (stations, station, field) {
+    let marker
+    if (field === 'num_bikes_available') {
+        marker = stations[station.station_id].bike
+    } else if (field === 'num_docks_available') {
+        marker = stations[station.station_id].spot
+    }
+    if (station.is_renting !== true) {
+        marker
+            .unbindTooltip()
+            .bindTooltip('HS', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
+            .setStyle({ fillColor: 'red' })
+    } else {
+        const bikesN = station[field]
+        let opacity = 0.8
+        if (bikesN === 0) {
+            opacity = 0.4
+        } else if (bikesN < 3) {
+            opacity = 0.6
+        }
+        marker
+            .unbindTooltip()
+            .bindTooltip(`${bikesN}`, { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
+            .setStyle({ fillOpacity: opacity })
+    }
+}
+
+function fillGBFSMap (resourceUrl, fg, availableDocks, map, fitBounds = false) {
+    resourceUrl = resourceUrl.replace('https://transport.data.gouv.fr/', 'http://0.0.0.0:5000/')
+    let stationStatusUrl
+    const stations = {}
+    fetch(resourceUrl)
+        .then(response => response.json())
+        .then(gbfs => {
+            const feeds = gbfs.data.fr.feeds
+            const stationInformation = feeds.filter(feed => feed.name === 'station_information')[0]
+            const stationInformationUrl = stationInformation.url
+            const stationStatus = feeds.filter(feed => feed.name === 'station_status')[0]
+            stationStatusUrl = stationStatus.url
+            return fetch(stationInformationUrl)
+        })
+        .then(data => data.json())
+        .then(stationInformation => {
+            fg.clearLayers()
+            availableDocks.clearLayers()
+            for (const station of stationInformation.data.stations) {
+                const markerBike = L.circleMarker([station.lon, station.lat], { stroke: false, color: '#0066db', fillOpacity: 0.8 })
+                    .bindTooltip('&#x21bb', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
+                    .addTo(fg)
+                const markerSpot = L.circleMarker([station.lon, station.lat], { stroke: false, color: '#009c34', fillOpacity: 0.8 })
+                    .bindTooltip('&#x21bb', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
+                    .addTo(availableDocks)
+                stations[station.station_id] = { bike: markerBike, spot: markerSpot }
+            }
+            if (fitBounds) {
+                map.fitBounds(fg.getBounds())
+            }
+        })
+        .then(() => fetch(stationStatusUrl))
+        .then(response => response.json())
+        .then(status => {
+            for (const station of status.data.stations) {
+                setMarkerStyle(stations, station, 'num_bikes_available')
+                setMarkerStyle(stations, station, 'num_docks_available')
+            }
+        })
+        .catch(_ => console.log('invalid geojson'))
+}
+
+function createGBFSmap (id, resourceUrl) {
+    const { map, fg } = initilizeMap(id)
+    const availableDocks = L.featureGroup()
+    L.control.layers({ 'vélos disponibles': fg, 'places disponibles': availableDocks }, {}).addTo(map)
+
+    fillGBFSMap(resourceUrl, fg, availableDocks, map, true)
+    setInterval(() => fillGBFSMap(resourceUrl, fg, availableDocks, map), 60000)
+}
+
+function createMap (id, resourceUrl) {
+    if (resourceUrl.endsWith('.csv')) {
+        createCSVmap(id, resourceUrl)
+    }
+    else if (resourceUrl.endsWith('gbfs.json')) {
+        createGBFSmap(id, resourceUrl)
+    }
 }
 
 window.createMap = createMap

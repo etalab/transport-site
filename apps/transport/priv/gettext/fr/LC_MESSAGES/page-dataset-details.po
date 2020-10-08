@@ -275,10 +275,6 @@ msgid "compatible with"
 msgstr "compatible avec"
 
 #, elixir-format
-msgid "Visualization of the most recent resource"
-msgstr "Visualisation de la ressource la plus récente"
-
-#, elixir-format
 msgid "dataset"
 msgstr "jeu de données"
 
@@ -337,3 +333,15 @@ msgstr "format de la ressource"
 #, elixir-format
 msgid "see other formats"
 msgstr "autres formats"
+
+#, elixir-format
+msgid "real-time"
+msgstr "temps réel"
+
+#, elixir-format
+msgid "Real-time visualization of "
+msgstr "Visualisation temps-réel de "
+
+#, elixir-format
+msgid "Visualization of the resource"
+msgstr "Visualisation de la ressource"
