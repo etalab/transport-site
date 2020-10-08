@@ -30,7 +30,7 @@
 
         <%= unless is_nil(@data_vis) do %>
           <div class="panel p-6">
-            <div id='map' class='mapcsv'></div>
+            <div id='map' class='leaflet-map'></div>
             <script src="<%= static_path(@conn, "/js/validationmap.js") %>"></script>
             <script>
               document.addEventListener("DOMContentLoaded", function() {
