@@ -118,7 +118,6 @@ function setMarkerStyle (stations, station, field) {
 }
 
 function fillGBFSMap (resourceUrl, fg, availableDocks, map, fitBounds = false) {
-    resourceUrl = resourceUrl.replace('https://transport.data.gouv.fr/', 'http://0.0.0.0:5000/')
     let stationStatusUrl
     const stations = {}
     fetch(resourceUrl)
