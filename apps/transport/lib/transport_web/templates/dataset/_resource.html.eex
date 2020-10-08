@@ -14,7 +14,7 @@
   <% end %>
   <div title="<%= dgettext("page-dataset-details", "last update") %>" class="pb-24 light-gry">
     <i class="icon icon--sync-alt" aria-hidden="true"></i>
-    <%= if @resource.format == "gbfs" do %>
+    <%= if Resource.is_real_time?(@resource) do %>
       <%= dgettext("page-dataset-details", "real-time") %>
     <% else %>
       <%= @resource.last_update |> format_datetime_to_date() %>

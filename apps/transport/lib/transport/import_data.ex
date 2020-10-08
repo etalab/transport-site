@@ -151,11 +151,6 @@ defmodule Transport.ImportData do
       |> Map.put("licence", dataset["license"])
       |> Map.put("zones", get_associated_zones_insee(dataset))
 
-    # Note: we also check if there are some realtime resources
-    dataset =
-      dataset
-      |> Map.put("has_realtime", has_realtime?(dataset, type))
-
     case Map.get(dataset, "resources") do
       nil -> {:error, "No download uri found"}
       _ -> {:ok, dataset}
@@ -358,6 +353,7 @@ defmodule Transport.ImportData do
 
       {:error, error} ->
         Logger.warn("impossible to get community ressource for dataset #{id} => #{inspect(error)}")
+
         []
     end
   end
@@ -414,7 +410,9 @@ defmodule Transport.ImportData do
   def is_format?(%{"format" => format}, expected), do: is_format?(format, expected)
   def is_format?(value, [head | tail]), do: is_format?(value, head) || is_format?(value, tail)
   def is_format?(_, []), do: false
-  def is_format?(str, expected), do: str |> String.downcase() |> String.contains?(String.downcase(expected))
+
+  def is_format?(str, expected),
+    do: str |> String.downcase() |> String.contains?(String.downcase(expected))
 
   @doc """
   Is the ressource a zip file?
@@ -564,19 +562,10 @@ defmodule Transport.ImportData do
   end
 
   @spec get_original_resource_url(map()) :: binary() | nil
-  def get_original_resource_url(%{"extras" => %{"transport:original_resource_url" => url}}), do: url
+  def get_original_resource_url(%{"extras" => %{"transport:original_resource_url" => url}}),
+    do: url
+
   def get_original_resource_url(_), do: nil
-
-  @spec has_realtime?(map, binary) :: boolean
-  def has_realtime?(dataset, "public-transit") do
-    Enum.any?(dataset["resources"], &is_realtime?/1)
-  end
-
-  def has_realtime?(_, _), do: false
-
-  @spec is_realtime?(map()) :: boolean
-  def is_realtime?(%{"format" => "gtfs-rt"}), do: true
-  def is_realtime?(_), do: false
 
   @spec invalid_result?({:exit, any} | {:ok, any}) :: boolean
   defp invalid_result?({:ok, {:error, _}}), do: true

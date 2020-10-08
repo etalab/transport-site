@@ -90,20 +90,20 @@ function createCSVmap (id, resourceUrl) {
     })
 }
 
-function setMarkerStyle (stations, station, field) {
+function setGBFSMarkerStyle (stations, stationStatus, field) {
     let marker
     if (field === 'num_bikes_available') {
-        marker = stations[station.station_id].bike
+        marker = stations[stationStatus.station_id].bike
     } else if (field === 'num_docks_available') {
-        marker = stations[station.station_id].spot
+        marker = stations[stationStatus.station_id].spot
     }
-    if (station.is_renting !== true) {
+    if (stationStatus.is_renting !== true && stationStatus.is_renting !== 1) {
         marker
             .unbindTooltip()
             .bindTooltip('HS', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
             .setStyle({ fillColor: 'red' })
     } else {
-        const bikesN = station[field]
+        const bikesN = stationStatus[field]
         let opacity = 0.8
         if (bikesN === 0) {
             opacity = 0.4
@@ -115,6 +115,7 @@ function setMarkerStyle (stations, station, field) {
             .bindTooltip(`${bikesN}`, { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
             .setStyle({ fillOpacity: opacity })
     }
+    marker.bindPopup(JSON.stringify(stationStatus, null, '<br>&ensp;&ensp;').replace('}', '<br>}'))
 }
 
 function fillGBFSMap (resourceUrl, fg, availableDocks, map, fitBounds = false) {
@@ -151,8 +152,8 @@ function fillGBFSMap (resourceUrl, fg, availableDocks, map, fitBounds = false) {
         .then(response => response.json())
         .then(status => {
             for (const station of status.data.stations) {
-                setMarkerStyle(stations, station, 'num_bikes_available')
-                setMarkerStyle(stations, station, 'num_docks_available')
+                setGBFSMarkerStyle(stations, station, 'num_bikes_available')
+                setGBFSMarkerStyle(stations, station, 'num_docks_available')
             }
         })
         .catch(_ => console.log('invalid geojson'))
@@ -161,7 +162,7 @@ function fillGBFSMap (resourceUrl, fg, availableDocks, map, fitBounds = false) {
 function createGBFSmap (id, resourceUrl) {
     const { map, fg } = initilizeMap(id)
     const availableDocks = L.featureGroup()
-    L.control.layers({ 'vélos disponibles': fg, 'places disponibles': availableDocks }, {}).addTo(map)
+    L.control.layers({ 'vélos disponibles': fg, 'places disponibles': availableDocks }, {}, { collapsed: false }).addTo(map)
 
     fillGBFSMap(resourceUrl, fg, availableDocks, map, true)
     setInterval(() => fillGBFSMap(resourceUrl, fg, availableDocks, map), 60000)
