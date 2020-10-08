@@ -171,8 +171,7 @@ function createGBFSmap (id, resourceUrl) {
 function createMap (id, resourceUrl) {
     if (resourceUrl.endsWith('.csv')) {
         createCSVmap(id, resourceUrl)
-    }
-    else if (resourceUrl.endsWith('gbfs.json')) {
+    } else if (resourceUrl.endsWith('gbfs.json')) {
         createGBFSmap(id, resourceUrl)
     }
 }
