@@ -14,7 +14,11 @@
   <% end %>
   <div title="<%= dgettext("page-dataset-details", "last update") %>" class="pb-24 light-gry">
     <i class="icon icon--sync-alt" aria-hidden="true"></i>
-    <%= @resource.last_update |> format_datetime_to_date() %>
+    <%= if @resource.format == "gbfs" do %>
+      <%= dgettext("page-dataset-details", "real-time") %>
+    <% else %>
+      <%= @resource.last_update |> format_datetime_to_date() %>
+    <% end %>
   </div>
   <%= if Resource.is_gtfs?(@resource) do %>
     <div class="resource-status-corner <%= resource_class(@resource) %>">
