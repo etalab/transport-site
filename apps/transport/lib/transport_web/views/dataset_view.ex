@@ -292,6 +292,10 @@ defmodule TransportWeb.DatasetView do
     resources |> Enum.find(fn r -> r.format == "csv" end)
   end
 
+  def get_resource_to_display(%Dataset{type: type, resources: resources}) when type == "bike-sharing" do
+    resources |> Enum.find(fn r -> String.ends_with?(r.url, "gbfs.json") end)
+  end
+
   def get_resource_to_display(%Dataset{}), do: nil
 
   def resource_class(%DB.Resource{} = r) do

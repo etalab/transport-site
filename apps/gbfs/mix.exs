@@ -33,7 +33,8 @@ defmodule GBFS.MixProject do
       {:phoenix, "~> 1.4"},
       {:iconv, "~> 1.0.10"},
       {:sweet_xml, ">= 0.0.0"},
-      {:jason, ">= 0.0.0"}
+      {:jason, ">= 0.0.0"},
+      {:cors_plug, "~> 2.0"}
     ]
   end
 end

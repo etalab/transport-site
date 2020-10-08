@@ -474,3 +474,11 @@
   height: 400px;
   z-index: 0;
 }
+
+.leaflet-tooltip-pane .leaflet-tooltip {
+  color: white;
+  font-weight: bold;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}

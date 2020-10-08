@@ -39,12 +39,17 @@
         <%= description(@dataset) %>
       </div>
     </section>
-    <%= if not is_nil(get_resource_to_display(@dataset)) do %>
+    <% displayResource = get_resource_to_display(@dataset) %>
+    <%= if not is_nil(displayResource) do %>
       <section class="pt-48" id="dataset-visualisation">
         <h2><%= dgettext("page-dataset-details", "Visualization")%></h2>
         <div class="panel">
           <div id='map' class='mapcsv'></div>
-          <div class="is-centered"><%= dgettext("page-dataset-details", "Visualization of the most recent resource")%> : "<%= List.first(other_official_resources(@dataset)).title %>".</div>
+          <%= if displayResource.format == "gbfs" do %>
+            <div class="is-centered"><%= dgettext("page-dataset-details", "Real-time visualization of ")%> "<%= get_resource_to_display(@dataset).title %>".</div>
+          <% else %>
+            <div class="is-centered"><%= dgettext("page-dataset-details", "Visualization of the resource")%> "<%= get_resource_to_display(@dataset).title %>".</div>
+          <% end %>
         </div>
         <script src="<%= static_path(@conn, "/js/mapcsv.js") %>"></script>
         <script>
