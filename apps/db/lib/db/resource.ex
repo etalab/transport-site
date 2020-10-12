@@ -384,7 +384,7 @@ defmodule DB.Resource do
 
   @spec is_real_time?(__MODULE__.t()) :: boolean
   def is_real_time?(resource) do
-      is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource)
+    is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource)
   end
 
   @spec other_resources_query(__MODULE__.t()) :: Ecto.Query.t()
