@@ -43,14 +43,5 @@ defmodule Transport.ImportDataTest do
         assert resource["datagouv_id"] == "28a42d49-e9a8-4c6c-a999-b2b7ea8ce977"
       end
     end
-
-    test "import dataset with realtime" do
-      use_cassette "dataset/tag.json-1" do
-        assert {:ok, dataset} =
-                 ImportData.import_from_udata("horaires-theoriques-du-reseau-de-transport-tag-1", "public-transit")
-
-        assert dataset["has_realtime"] == true
-      end
-    end
   end
 end
