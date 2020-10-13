@@ -136,10 +136,10 @@ function fillGBFSMap (resourceUrl, fg, availableDocks, map, fitBounds = false) {
             fg.clearLayers()
             availableDocks.clearLayers()
             for (const station of stationInformation.data.stations) {
-                const markerBike = L.circleMarker([station.lon, station.lat], { stroke: false, color: '#0066db', fillOpacity: 0.8 })
+                const markerBike = L.circleMarker([station.lat, station.lon], { stroke: false, color: '#0066db', fillOpacity: 0.8 })
                     .bindTooltip('&#x21bb', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
                     .addTo(fg)
-                const markerSpot = L.circleMarker([station.lon, station.lat], { stroke: false, color: '#009c34', fillOpacity: 0.8 })
+                const markerSpot = L.circleMarker([station.lat, station.lon], { stroke: false, color: '#009c34', fillOpacity: 0.8 })
                     .bindTooltip('&#x21bb', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
                     .addTo(availableDocks)
                 stations[station.station_id] = { bike: markerBike, spot: markerSpot }

@@ -96,7 +96,7 @@ defmodule GBFS.VCubController do
     convert_station_information = fn records ->
       stations =
         Enum.map(records, fn r ->
-          [lon, lat] = r["geometry"]["coordinates"]
+          [lat, lon] = r["geometry"]["coordinates"]
 
           %{
             station_id: r["fields"]["ident"],
