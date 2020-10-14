@@ -31,7 +31,7 @@ const makeMapOnView = (id, view) => {
     Leaflet.tileLayer(Mapbox.url, {
         accessToken: Mapbox.accessToken,
         attribution: Mapbox.attribution,
-        maxZoom: Mapbox.maxZoom,
+        maxZoom: Mapbox.maxZoom
     }).addTo(map)
 
     return map

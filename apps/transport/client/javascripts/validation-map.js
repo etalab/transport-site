@@ -16,7 +16,7 @@ function initilizeMap (id) {
     L.tileLayer(Mapbox.url, {
         accessToken: Mapbox.accessToken,
         attribution: Mapbox.attribution,
-        maxZoom: Mapbox.maxZoom,
+        maxZoom: Mapbox.maxZoom
     }).addTo(map)
 
     const fg = L.featureGroup().addTo(map)
