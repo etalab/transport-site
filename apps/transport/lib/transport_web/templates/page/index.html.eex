@@ -38,7 +38,7 @@
                     <h3 class="text-center"><%= dgettext("page-index", "Public transit schedules") %></h3>
                     <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["public-transit"] || 0) %></p>
                 </a>
-                <a class="tile" href="<%= dataset_path(@conn, :index, filter: "has_realtime") %>">
+                <a class="tile" href="<%= dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime") %>">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus-stop.svg") %>" alt="" />
                     <h3 class="text-center"><%= dgettext("page-index", "Realtime public transit") %></h3>
                     <p><%= dngettext("page-index", "dataset", "datasets", @count_has_realtime || 0) %></p>
