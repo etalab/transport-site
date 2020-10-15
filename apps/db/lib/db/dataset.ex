@@ -356,10 +356,10 @@ defmodule DB.Dataset do
   @spec count_by_type :: map
   def count_by_type, do: for(type <- __MODULE__.types(), into: %{}, do: {type, count_by_type(type)})
 
-  @spec count_has_realtime :: number()
-  def count_has_realtime do
+  @spec count_public_transport_has_realtime :: number()
+  def count_public_transport_has_realtime do
     __MODULE__
-    |> where([d], d.has_realtime and d.is_active)
+    |> where([d], d.has_realtime and d.is_active and d.type == "public-transit")
     |> Repo.aggregate(:count, :id)
   end
 
