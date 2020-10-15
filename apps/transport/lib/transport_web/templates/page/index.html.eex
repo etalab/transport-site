@@ -41,7 +41,7 @@
                 <a class="tile" href="<%= dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime") %>">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus-stop.svg") %>" alt="" />
                     <h3 class="text-center"><%= dgettext("page-index", "Realtime public transit") %></h3>
-                    <p><%= dngettext("page-index", "dataset", "datasets", @count_has_realtime || 0) %></p>
+                    <p><%= dngettext("page-index", "dataset", "datasets", @count_public_transport_has_realtime || 0) %></p>
                 </a>
                 <!-- 14 is the region « national » We defined coaches as buses not bound to a region or AOM -->
                 <a class="tile" href="<%= dataset_path(@conn, :by_region, 14, "tags[]": "bus") %>">
