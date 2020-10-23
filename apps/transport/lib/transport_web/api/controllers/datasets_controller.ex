@@ -29,7 +29,7 @@ defmodule TransportWeb.API.DatasetController do
       |> Dataset.list_datasets()
       |> Repo.all()
       |> Repo.preload([:resources, :aom, :region, :communes])
-      |> Enum.map(&transform_dataset/1)
+      |> Enum.map(fn d -> transform_dataset(conn, d) end)
 
     render(conn, %{data: data})
   end
@@ -68,7 +68,7 @@ defmodule TransportWeb.API.DatasetController do
     |> case do
       %Dataset{} = dataset ->
         conn
-        |> assign(:data, transform_dataset_with_detail(dataset))
+        |> assign(:data, transform_dataset_with_detail(conn, dataset))
         |> render()
 
       nil ->
@@ -139,8 +139,8 @@ defmodule TransportWeb.API.DatasetController do
       "features" => features
     }
 
-  @spec transform_dataset(Dataset.t()) :: map()
-  defp transform_dataset(dataset),
+  @spec transform_dataset(Plug.Conn.t(), Dataset.t()) :: map()
+  defp transform_dataset(%Plug.Conn{} = conn, dataset),
     do: %{
       "datagouv_id" => dataset.datagouv_id,
       # to help discoverability, we explicitly add the datagouv_id as the id
@@ -148,6 +148,8 @@ defmodule TransportWeb.API.DatasetController do
       "id" => dataset.datagouv_id,
       "title" => dataset.spatial,
       "created_at" => dataset.created_at,
+      "page_url" => TransportWeb.Router.Helpers.dataset_url(conn, :details, dataset.slug),
+      "slug" => dataset.slug,
       "updated" => Helpers.last_updated(Dataset.official_resources(dataset)),
       "resources" => Enum.map(Dataset.official_resources(dataset), &transform_resource/1),
       "community_resources" => Enum.map(Dataset.community_resources(dataset), &transform_resource/1),
@@ -165,10 +167,10 @@ defmodule TransportWeb.API.DatasetController do
       "type" => "organization"
     }
 
-  @spec transform_dataset_with_detail(Dataset.t()) :: map()
-  defp transform_dataset_with_detail(dataset) do
-    dataset
-    |> transform_dataset
+  @spec transform_dataset_with_detail(Plug.Conn.t(), Dataset.t()) :: map()
+  defp transform_dataset_with_detail(%Plug.Conn{} = conn, dataset) do
+    conn
+    |> transform_dataset(dataset)
     |> Map.put("history", Dataset.history_resources(dataset))
   end
 
