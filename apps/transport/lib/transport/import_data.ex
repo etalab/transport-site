@@ -303,7 +303,8 @@ defmodule Transport.ImportData do
   end
 
   @spec available?(map()) :: boolean
-  def available?(%{"extras" => %{"check:available" => available}}), do: available
+  # Temporarily disabled since data.gouv.fr has been blocked by ODS
+  # def available?(%{"extras" => %{"check:available" => available}}), do: available
   def available?(%{"url" => "https://static.data.gouv.fr/" <> _}), do: true
   def available?(%{"url" => "https://demo.data.gouv.fr/" <> _}), do: true
   def available?(%{"format" => "csv"}), do: true
