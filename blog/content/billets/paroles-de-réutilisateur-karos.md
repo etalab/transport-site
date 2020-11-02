@@ -17,12 +17,12 @@ L'application intègre les données des horaires théoriques des transports en c
 
 
 
+
+
+A venir
+
 <!--StartFragment-->
 
-\- L'intégration complète du Forfait Mobilité Durable : les entreprises peuvent très simplement le mettre en place et il est ensuite directement utilisable par les passagers pour payer leurs trajets, de manière sécurisée grâce à la preuve de covoiturage et notre technologie anti-fraude.
+Intégration complète du Forfait Mobilité Durable : les entreprises peuvent très simplement le mettre en place et il est ensuite directement utilisable par les passagers pour payer leurs trajets, de manière sécurisée grâce à la preuve de covoiturage et leur technologie anti-fraude.
 
-\- De nouveaux territoires partenaires de Karos : La Région Occitanie, Béthune et 5 autres territoires annoncés dans les prochaines semaines.
-
-<!--EndFragment-->
-
-<!--EndFragment-->
+Déploiement dans de nouveaux territoires partenaires : Région Occitanie, Béthune et 5 autres territoires annoncés dans les prochaines semaines.
