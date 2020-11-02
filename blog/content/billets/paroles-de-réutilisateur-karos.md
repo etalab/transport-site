@@ -13,16 +13,14 @@ Karos est une application mobile de covoiturage intermodale permettant de calcul
 
 ![](/images/hub2-1-1-.jpg)
 
-L'application intègre les données des horaires théoriques des transports en commun publiées sur le Point d'Accès National afin de proposer des itinéraires multimodaux aux covoitureurs. Leur équipe utilise les données publiées sur transport.data.gouv.fr afin d'avoir des données mises à jour régulièrement. Pour cela, une vérification des éventuelles mises à jour des données est effectuée tous les mois. Ces mises à jour sont ensuite intégrées dans leur base de donnes. 
+L'application intègre les données des horaires théoriques des transports en commun publiées sur le Point d'Accès National (PAN) pour proposer des itinéraires multimodaux aux covoitureurs. Leur équipe à choisir d'utiliser les données du PAN afin d'avoir des données mises à jour régulièrement. Pour cela, une vérification des éventuelles mises à jour des données est effectuée tous les mois. Ces mises à jour sont ensuite intégrées dans leur base de données. 
 
 
 
-
-
-A venir
+### A venir
 
 <!--StartFragment-->
 
-Intégration complète du Forfait Mobilité Durable : les entreprises peuvent très simplement le mettre en place et il est ensuite directement utilisable par les passagers pour payer leurs trajets, de manière sécurisée grâce à la preuve de covoiturage et leur technologie anti-fraude.
+Intégration complète du Forfait Mobilité Durable. 
 
 Déploiement dans de nouveaux territoires partenaires : Région Occitanie, Béthune et 5 autres territoires annoncés dans les prochaines semaines.
