@@ -9,7 +9,7 @@ images:
 ---
 ![](/images/founders-1-.png)
 
-Karos est une application mobile de covoiturage intermodale permettant de calculer des itinéraires. Elle a été fondée par Tristan Croiset et \[...]. Les déplacements proposés sont constitués d'un temps de trajet en covoiturage combiné à des transport en commun. Ce calculateur est spécialisé dans le covoiturage à courte distance pour les parcours domicile-travail. 
+Karos est une application mobile de covoiturage intermodale permettant de calculer des itinéraires. Elle a été fondée par Tristan Croiset et Olivier Binet. Les déplacements proposés sont constitués d'un temps de trajet en covoiturage combiné à des transport en commun. Ce calculateur est spécialisé dans le covoiturage à courte distance pour les parcours domicile-travail. 
 
 ![](/images/hub2-1-1-.jpg)
 
@@ -23,4 +23,4 @@ L'application intègre les données des horaires théoriques des transports en c
 
 Intégration complète du Forfait Mobilité Durable. 
 
-Déploiement dans de nouveaux territoires partenaires : Région Occitanie, Béthune et 5 autres territoires annoncés dans les prochaines semaines.
+Déploiement dans de nouveaux territoires partenaires : la région Occitanie, le département de l'Aube, le syndicat mixte des transports Artois-Gohelle (Bethune), l’établissement public de coopération intercommunale, Caux Vallée de Seine, Cholet Bus, le Syndicat Mixte des Mobilités de l'Aire Grenobloise (SMMAG).
