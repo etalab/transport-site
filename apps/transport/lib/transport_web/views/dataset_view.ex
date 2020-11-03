@@ -291,13 +291,13 @@ defmodule TransportWeb.DatasetView do
       when type == "carsharing-areas" or type == "private-parking" or type == "charging-stations" do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
-    |> Enum.max_by(fn r -> r.last_update end)
+    |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
   def get_resource_to_display(%Dataset{type: "bike-sharing", resources: resources}) do
     resources
     |> Enum.filter(fn r -> String.ends_with?(r.url, "gbfs.json") end)
-    |> Enum.max_by(fn r -> r.last_update end)
+    |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
   def get_resource_to_display(%Dataset{}), do: nil
