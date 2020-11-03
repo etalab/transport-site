@@ -1,0 +1,7 @@
+# NOTE: this file does _not_ define what is used in production
+# (see https://github.com/etalab/transport-site/issues/1336), but it
+# provides an easy way to ensure local development and test will rely on roughly
+# the same versions as in production, if one uses the "asdf" version manager.
+
+elixir 1.8.1
+erlang 21.3.8.1
