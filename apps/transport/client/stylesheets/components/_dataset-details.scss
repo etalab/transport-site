@@ -165,14 +165,6 @@
       align-items: flex-end;
       justify-content: space-between;
     }
-
-    .feature {
-      background-color: var(--lighter-blue);
-    }
-
-    .mode {
-      background-color: lightcoral;
-    }
   }
   .button {
     margin: 0;
@@ -280,6 +272,15 @@
 .resource__summary--Success {
   color: var(--theme-success-border) !important;
 }
+
+.feature {
+  background-color: var(--light-red);
+}
+
+.mode {
+  background-color: var(--lighter-blue);
+}
+
 
 .reuses {
   display: flex;

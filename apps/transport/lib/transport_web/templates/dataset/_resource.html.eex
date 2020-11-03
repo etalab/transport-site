@@ -59,15 +59,8 @@
   <% end %>
   <div class="resource-panel-bottom">
     <div class="resource-features">
-      <%= if length(@resource.auto_tags) > 0 do %>
-        <div title="<%= dgettext("page-dataset-details", "Dataset feature") %>">
-          <%= for tag <- @resource.auto_tags do %>
-            <span class="label feature"><%= tag %></span>
-          <% end %>
-        </div>
-      <% end %>
       <%= if length(@resource.modes) > 0 do %>
-        <div title="<%= dgettext("page-dataset-details", "Dataset mode") %>">
+        <div title="<%= dgettext("page-dataset-details", "Dataset modes") %>">
           <%= for mode <- @resource.modes do %>
             <span class="label mode"><%= mode %></span>
           <% end %>
