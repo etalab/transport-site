@@ -24,6 +24,10 @@ If you wish to use `asdf`, make sure to install the correct plugins:
 * `asdf plugin-add nodejs` (https://github.com/asdf-vm/asdf-nodejs)
 * Make sure to add the [OpenPGP keys](https://github.com/asdf-vm/asdf-nodejs#install) for the nodejs plugin
 
+Installation can then be done with:
+* `asdf install` (for Elixir & Erlang)
+* `asdf install nodejs $(cat .nvmrc)` (apparently, for NodeJS)
+
 ### Postgresql
 
 You also need an up to date postgresql with postgis installed.
