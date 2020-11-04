@@ -288,29 +288,6 @@ defmodule TransportWeb.DatasetView do
 
   @doc """
   Returns the resources that need to be displayed on a map
-  ## Examples
-      iex> %Dataset{type: "carsharing-areas", resources: [
-      ...>   %DB.Resource{id: 1, format: "csv", last_update: "20201103T102030Z"},
-      ...>   %DB.Resource{id: 2, format: "csv", last_update: "20201105T102030Z"},
-      ...> ]}
-      ...> |> TransportWeb.DatasetView.get_resource_to_display
-      %DB.Resource{id: 2, format: "csv", last_update: "20201105T102030Z"}
-      iex> %Dataset{type: "public-transit", resources: [
-      ...>   %DB.Resource{id: 1, format: "gtfs", last_update: "20201103T102030Z"},
-      ...>   %DB.Resource{id: 2, format: "gtfs", last_update: "20201105T102030Z"},
-      ...> ]}
-      ...> |> TransportWeb.DatasetView.get_resource_to_display
-      nil
-      iex> %Dataset{type: "bike-sharing", resources: [
-      ...>   %DB.Resource{id: 1, url: "http://pouet.com/gbfs.json", last_update: "20201103T102030Z"},
-      ...>   %DB.Resource{id: 2, url: "http://pouet.com/gbfs.json", last_update: "20201105T102030Z"},
-      ...>   %DB.Resource{id: 3, url: "http://pouet.com/other_url.json", last_update: "20201107T102030Z"},
-      ...> ]}
-      ...> |> TransportWeb.DatasetView.get_resource_to_display
-      %DB.Resource{id: 2, url: "http://pouet.com/gbfs.json", last_update: "20201105T102030Z"}
-      iex> %Dataset{type: "carsharing-areas", resources: []}
-      ...> |> TransportWeb.DatasetView.get_resource_to_display
-      nil
   """
   @spec get_resource_to_display(%Dataset{}) :: Resource.t() | nil
   def get_resource_to_display(%Dataset{type: type, resources: resources})
