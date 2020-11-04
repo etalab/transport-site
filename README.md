@@ -17,6 +17,16 @@ You can install this 2 different ways:
   * Install Elixir dependencies with `mix deps.get`
   * Install Node.js dependencies with `mix yarn install`
 
+If you wish to use `asdf` (recommended), make sure to install the correct plugins:
+
+* `asdf plugin-add erlang` (https://github.com/asdf-vm/asdf-erlang)
+* `asdf plugin-add elixir` (https://github.com/asdf-vm/asdf-elixir)
+* `asdf plugin-add nodejs` (https://github.com/asdf-vm/asdf-nodejs)
+* Make sure to add the [OpenPGP keys](https://github.com/asdf-vm/asdf-nodejs#install) for the nodejs plugin
+
+Installation can then be done with:
+* `asdf install`
+
 ### Postgresql
 
 You also need an up to date postgresql with postgis installed.
