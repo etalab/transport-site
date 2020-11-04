@@ -56,6 +56,12 @@ defmodule TransportWeb.PageController do
     single_page(conn, %{"page" => "conditions"})
   end
 
+  def producteurs(conn, _params) do
+    conn
+    |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
+    |> render("producteurs.html")
+  end
+
   defp aoms_with_dataset do
     from(a in AOM,
       join: d in Dataset,

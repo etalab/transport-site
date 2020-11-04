@@ -1,0 +1,115 @@
+<div class="section">
+  <div class="container producteurs-section">
+    <h1>Transport.data.gouv vous aide à publier vos données</h1>
+    <div class="producteurs-content pt-96">
+      <section>
+        <h2>Des guides et tutoriels pour vous accompagner</h2>
+        <div>
+          Garantissez la bonne découvrabilité de vos données en respectant des normes de publication.
+        </div>
+        <div class="pt-12">
+          <button class="button-outline primary">Guides de publication de données</button>
+        </div>
+      </section>
+      <section class="panel">
+        <h2>Accédez à votre espace producteur</h2>
+        <div>Pour vous identifier vous allez être redirigé vers la data.gouv.fr, la plateforme ouverte des données publiques françaises.</div>
+        <button class="button">S'identifier</button>
+      </section>
+      <section>
+        <h2>Des outils pour valider la qualité de vos données</h2>
+        <div>
+          Les données de bonnes qualités sont réutilisées. Validez vos données dans les formats GTFS ou respectant des schémas nationaux grâce à nos outils.
+        </div>
+        <div class="pt-12">
+          <a href="">Testez vos jeux de données</a>
+        </div>
+      </section>
+      <section>
+        <h2>Une équipe à votre disposition pour répondre à vos questions</h2>
+        <div>Contactez-nous à cette adresse : <a href="mailto: contact@transport.data.gouv.fr">contact@transport.data.gouv.fr</a></div>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="section section-grey">
+  <div class="container producteurs-section">
+    <h1>Pourquoi publier vos données ?</h1>
+    <div class="producteurs-content pt-24">
+      <section>
+        <h2>Vos obligations</h2>
+        <div>Que vous soyez Autorité Organisatrice des Mobilités, délégataire de service public ou collectivité territoriale,
+          vous pouvez être concerné par la Loi pour une république Numérique, la Loi Orientation des Mobilités et le Réglement européen.
+        </div>
+        <div class="pt-12">
+          Retrouvez <a href="">ici</a> une synthèse de ces obligations.
+        </div>
+      </section>
+      <section>
+        <h2>Pour les usagers</h2>
+        <div>
+          De très nombreuses administrations, entreprises associations utilisent le Point d'Accès National pour trouver des données sur la mobilité en France.
+        </div>
+        <div class="pt-12">
+          Nos réutilisateurs développent des applications permettant aux usagers des services de mobilités de se repérer dans toute l'offre disponible sur leur territoire.
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="section">
+  <div class="container">
+    <h1>Suivez et participez à l'actualité de la communauté transport.data.gouv !</h1>
+    <div class="producteurs-content pt-48">
+      <section>
+        <h2>La communauté Slack</h2>
+        <div>
+          Un espace d'échange pour les producteurs et les réutilisateurs de données de transport.
+        </div>
+        <div class="slack-logo">
+          <img src="<%= static_path(@conn, "/images/Slack_RGB.png") %>" alt="Slack" /><a href="https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA"><%= dgettext("page-index", "Join us on Slack") %></a>
+        </div>
+      </section>
+      <section>
+        <h2>La newsletter</h2>
+        <div>Tenez-vous à jour des dernières nouvelles du Point d'Accès National et de ses chantiers en cours en vous s'inscrivant à la Newsletter.</div>
+        <div class="pt-12">
+          <form action="<%= @mailchimp_newsletter_url %>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+            <div id="mc_embed_signup_scroll">
+              <div class="input__group">
+                <input type="email" value="" name="EMAIL" id="mce-EMAIL" placeholder="<%= dgettext("page-index", "Email address") %>">
+                <div id="mce-responses" class="clear">
+                  <div class="response" id="mce-error-response" style="display:none"></div>
+                  <div class="response" id="mce-success-response" style="display:none"></div>
+                </div>
+                <div>
+                  <input type="hidden" name="b_5ee8bfe0f1b073b49de06a063_13db2e9a94" tabindex="-1" value="">
+                </div>
+                <button class="button" type="submit" name="subscribe" id="mc-embedded-subscribe"><%= dgettext("page-index", "SUBSCRIBE") %></button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+      <section>
+        <h2>Le Blog</h2>
+        <div>
+          Notre journal où l'on trouve des tutoriels, des exemples de réutilisations, des retours d'expérience...
+        </div>
+        <div class="pt-12">
+          <a href="blog.transport.data.gouv.fr">Consultez le blog de transport.data.gouv.fr</a>
+        </div>
+      </section>
+      <section>
+        <h2>Le fil Twitter</h2>
+        <div class="twitter-logo">
+          <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" /><a href="https://twitter.com/transportdatafr"></a>
+        </div>
+        <div>
+          <%= dgettext("page-index", "Follow us on twitter") %>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+</div>
