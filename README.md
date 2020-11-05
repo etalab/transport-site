@@ -4,6 +4,8 @@ This is the repository of the [french National Access Point](https://transport.d
 
 This project brings a mobility focus on data hosted on [data.gouv.fr](https://www.data.gouv.fr), the french open data portal.
 
+You will find user documentation at [doc.transport.data.gouv.fr](https://doc.transport.data.gouv.fr).
+
 # Installation
 
 You can install this 2 different ways:
