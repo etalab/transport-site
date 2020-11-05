@@ -83,6 +83,8 @@ You can also:
   * Run the solution tests with `MIX_ENV=test mix test --only solution`
   * Run the external tests with `MIX_ENV=test mix test --only external`
 
+The application is an [umbrella app](https://elixir-lang.org/getting-started/mix-otp/dependencies-and-umbrella-projects.html). It means that it is split into several sub-projects (that you can see under `/apps`).
+
 ### Linting
 
   * Run the elixir linter with `mix credo --strict`
