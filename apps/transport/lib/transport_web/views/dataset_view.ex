@@ -271,11 +271,11 @@ defmodule TransportWeb.DatasetView do
   Builds a licence.
   ## Examples
       iex> %Dataset{licence: "fr-lo"}
-      ...> |> Dataset.licence
-      "Open Licence"
+      ...> |> TransportWeb.DatasetView.licence
+      "fr-lo"
       iex> %Dataset{licence: "Libertarian"}
-      ...> |> Dataset.licence
-      "Not specified"
+      ...> |> TransportWeb.DatasetView.licence
+      "notspecified"
   """
   @spec licence(%Dataset{}) :: String.t()
   def licence(%Dataset{licence: licence}) do
@@ -287,18 +287,21 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
+  @doc """
+  Returns the resources that need to be displayed on a map
+  """
   @spec get_resource_to_display(%Dataset{}) :: Resource.t() | nil
   def get_resource_to_display(%Dataset{type: type, resources: resources})
       when type == "carsharing-areas" or type == "private-parking" or type == "charging-stations" do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
-    |> Enum.max_by(fn r -> r.last_update end)
+    |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
   def get_resource_to_display(%Dataset{type: "bike-sharing", resources: resources}) do
     resources
     |> Enum.filter(fn r -> String.ends_with?(r.url, "gbfs.json") end)
-    |> Enum.max_by(fn r -> r.last_update end)
+    |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
   def get_resource_to_display(%Dataset{}), do: nil
