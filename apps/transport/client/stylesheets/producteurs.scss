@@ -1,12 +1,62 @@
 .producteurs-content {
   display: flex;
   align-items: flex-start;
+  justify-content: space-around;
   flex-wrap: wrap;
   margin: -48px;
   section {
     flex-basis: 50%;
     padding: 48px;
     margin: 0;
+  }
+  .producteurs-presentation {
+    display: flex;
+    flex-wrap: wrap;
+    section {
+      flex-basis: 33%;
+      flex-grow: 1;
+      max-width: 51%;
+    }
+  }
+}
+
+.why-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: stretch;
+  section {
+    flex-basis: 40%;
+    flex-grow: 0;
+    text-align: left;
+  }
+  .panel {
+    margin: 0;
+  }
+}
+
+.producteurs-section {
+  h1 {
+    font-size: 2.5em;
+  }
+  h2 {
+    font-size: 1.5em;
+  }
+  .producteurs-top {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+
+    .panel-producteurs {
+      background-color: #f2f2f9;
+      padding: 24px;
+      flex-basis: 250px;
+      flex-grow: 1;
+    }
+    .producteurs-title {
+      padding-right: 48px;
+      flex-basis: 50%;
+    }
   }
 }
 

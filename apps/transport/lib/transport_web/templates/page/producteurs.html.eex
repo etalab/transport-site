@@ -1,42 +1,50 @@
 <div class="section">
   <div class="container producteurs-section">
-    <h1>Transport.data.gouv vous aide à publier vos données</h1>
-    <div class="producteurs-content pt-96">
-      <section>
-        <h2>Des guides et tutoriels pour vous accompagner</h2>
-        <div>
-          Garantissez la bonne découvrabilité de vos données en respectant des normes de publication.
-        </div>
-        <div class="pt-12">
-          <button class="button-outline primary">Guides de publication de données</button>
-        </div>
-      </section>
-      <section class="panel">
+    <div class="producteurs-top">
+      <div class="producteurs-title">
+        <h1>Transport.data.gouv <br>
+           vous aide à publier <br>
+           vos données</h1>
+      </div>
+      <section class="panel-producteurs">
         <h2>Accédez à votre espace producteur</h2>
         <div>Pour vous identifier vous allez être redirigé vers la data.gouv.fr, la plateforme ouverte des données publiques françaises.</div>
         <button class="button">S'identifier</button>
       </section>
-      <section>
-        <h2>Des outils pour valider la qualité de vos données</h2>
-        <div>
-          Les données de bonnes qualités sont réutilisées. Validez vos données dans les formats GTFS ou respectant des schémas nationaux grâce à nos outils.
-        </div>
-        <div class="pt-12">
-          <a href="">Testez vos jeux de données</a>
-        </div>
-      </section>
-      <section>
-        <h2>Une équipe à votre disposition pour répondre à vos questions</h2>
-        <div>Contactez-nous à cette adresse : <a href="mailto: contact@transport.data.gouv.fr">contact@transport.data.gouv.fr</a></div>
-      </section>
+    </div>
+    <div class="producteurs-content pt-96">
+      <div class="producteurs-presentation">
+        <section>
+          <h2><i class="fa fa-lightbulb"></i> Des guides et tutoriels pour vous accompagner</h2>
+          <div>
+            Garantissez la bonne découvrabilité de vos données en respectant des normes de publication.
+          </div>
+          <div class="pt-12">
+            <button class="button-outline primary">Guides de publication de données</button>
+          </div>
+        </section>
+        <section>
+          <h2><i class="fa fa-tools"></i> Des outils pour valider la qualité de vos données</h2>
+          <div>
+            Les données de bonnes qualités sont réutilisées. Validez vos données dans les formats GTFS ou respectant des schémas nationaux grâce à nos outils.
+          </div>
+          <div class="pt-12">
+            <a href="">Testez vos jeux de données</a>
+          </div>
+        </section>
+        <section>
+          <h2><i class="fa fa-users"></i> Une équipe à votre disposition pour répondre à vos questions</h2>
+          <div>Contactez-nous à cette adresse : <a href="mailto: contact@transport.data.gouv.fr">contact@transport.data.gouv.fr</a></div>
+        </section>
+      </div>
     </div>
   </div>
 </div>
 <div class="section section-grey">
-  <div class="container producteurs-section">
+  <div class="container producteurs-section is-centered">
     <h1>Pourquoi publier vos données ?</h1>
-    <div class="producteurs-content pt-24">
-      <section>
+    <div class="why-section pt-24">
+      <section class="panel">
         <h2>Vos obligations</h2>
         <div>Que vous soyez Autorité Organisatrice des Mobilités, délégataire de service public ou collectivité territoriale,
           vous pouvez être concerné par la Loi pour une république Numérique, la Loi Orientation des Mobilités et le Réglement européen.
@@ -45,7 +53,7 @@
           Retrouvez <a href="">ici</a> une synthèse de ces obligations.
         </div>
       </section>
-      <section>
+      <section class="panel">
         <h2>Pour les usagers</h2>
         <div>
           De très nombreuses administrations, entreprises associations utilisent le Point d'Accès National pour trouver des données sur la mobilité en France.
@@ -58,7 +66,7 @@
   </div>
 </div>
 <div class="section">
-  <div class="container">
+  <div class="container producteurs-section">
     <h1>Suivez et participez à l'actualité de la communauté transport.data.gouv !</h1>
     <div class="producteurs-content pt-48">
       <section>
