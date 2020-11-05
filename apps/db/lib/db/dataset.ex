@@ -140,19 +140,27 @@ defmodule DB.Dataset do
 
   defp filter_by_category(query, _), do: query
 
-  @spec filter_by_tags(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_tags(query, %{"tags" => tags}) do
-    resources =
-      Resource
-      |> where([r], fragment("? @> ?::varchar[]", r.features, ^tags))
-      |> distinct([r], r.dataset_id)
-      |> select([r], %Resource{dataset_id: r.dataset_id})
-
+  @spec filter_by_feature(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_feature(query, %{"features" => feature}) do
     query
-    |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
+    |> where(
+      [d],
+      fragment("(? IN (SELECT DISTINCT(dataset_id) FROM resource r where r.features @> ?::varchar[]))", d.id, ^feature)
+    )
   end
 
-  defp filter_by_tags(query, _), do: query
+  defp filter_by_feature(query, _), do: query
+
+  @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_mode(query, %{"modes" => mode}) do
+    query
+    |> where(
+      [d],
+      fragment("(? IN (SELECT DISTINCT(dataset_id) FROM resource r where r.modes @> ?::varchar[]))", d.id, ^mode)
+    )
+  end
+
+  defp filter_by_mode(query, _), do: query
 
   @spec filter_by_type(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_type(query, %{"type" => type}), do: where(query, [d], d.type == ^type)
@@ -226,7 +234,8 @@ defmodule DB.Dataset do
     preload_without_validations()
     |> filter_by_active(params)
     |> filter_by_region(params)
-    |> filter_by_tags(params)
+    |> filter_by_feature(params)
+    |> filter_by_mode(params)
     |> filter_by_category(params)
     |> filter_by_type(params)
     |> filter_by_aom(params)

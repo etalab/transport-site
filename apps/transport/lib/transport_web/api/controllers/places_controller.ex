@@ -14,9 +14,6 @@ defmodule TransportWeb.API.PlacesController do
   defp get_result_url(conn, %Place{:place_id => id, :type => "region"}), do: dataset_path(conn, :by_region, id)
   defp get_result_url(conn, %Place{:place_id => id, :type => "aom"}), do: dataset_path(conn, :by_aom, id)
 
-  defp get_result_url(conn, %Place{:place_id => id, :type => "features"}),
-    do: dataset_path(conn, :index, "features[]": id)
-
   defp get_result_url(conn, %Place{:place_id => id, :type => "feature"}),
     do: dataset_path(conn, :index, "features[]": id)
 
