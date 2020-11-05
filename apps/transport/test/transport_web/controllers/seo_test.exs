@@ -30,7 +30,7 @@ defmodule TransportWeb.SeoMetadataTest do
             format: "GTFS",
             metadata: %{"networks" => [], "modes" => []},
             title: "angers.zip",
-            auto_tags: ["ferry"],
+            modes: ["ferry"],
             id: 1234
           }
         ],

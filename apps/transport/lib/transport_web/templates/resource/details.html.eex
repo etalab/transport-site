@@ -30,25 +30,25 @@
           </div>
         <% end %>
         <div>
-          <%= dgettext("page-dataset-details", "Features available in the resource:") %>
-          <%= if length(@resource.auto_tags) > 0 do %>
+          <%= if length(@resource.features) > 0 do %>
+            <%= dgettext("page-dataset-details", "Features available in the resource:") %>
             <div>
-              <%= for tag <- @resource.auto_tags do %>
+              <%= for tag <- @resource.features do %>
                 <span class="label feature"><%= tag %></span>
               <% end %>
             </div>
           <% end %>
 
-          <%= dgettext("page-dataset-details", "Modes available in the resource:") %>
-          <div class="resource-features">
-            <%= if length(@resource.modes) > 0 do %>
-              <div>
-                <%= for mode <- @resource.modes do %>
-                  <span class="label mode"><%= mode %></span>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
+          <%= if length(@resource.modes) > 0 do %>
+            <%= dgettext("page-dataset-details", "Modes available in the resource:") %>
+            <div class="resource-features">
+                <div>
+                  <%= for mode <- @resource.modes do %>
+                    <span class="label mode"><%= mode %></span>
+                  <% end %>
+                </div>
+            </div>
+          <% end %>
         </div>
       </div>
       <%= unless is_nil(associated_geojson) do %>

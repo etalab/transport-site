@@ -28,7 +28,7 @@ defmodule DB.Resource do
     field(:is_available, :boolean, default: true)
     field(:content_hash, :string)
     # automatically discovered tags
-    field(:auto_tags, {:array, :string}, default: [])
+    field(:features, {:array, :string}, default: [])
     # all the detected modes of the ressource
     field(:modes, {:array, :string}, default: [])
 
@@ -212,7 +212,7 @@ defmodule DB.Resource do
         max_error: get_max_severity_error(validations),
         validation_latest_content_hash: r.content_hash
       },
-      auto_tags: find_tags(r, metadata),
+      features: find_tags(r, metadata),
       modes: find_modes(metadata),
       start_date: str_to_date(metadata["start_date"]),
       end_date: str_to_date(metadata["end_date"])
@@ -272,7 +272,7 @@ defmodule DB.Resource do
         :last_update,
         :latest_url,
         :is_available,
-        :auto_tags,
+        :features,
         :modes,
         :is_community_resource,
         :community_resource_publisher,

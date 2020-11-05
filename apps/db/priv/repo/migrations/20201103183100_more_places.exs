@@ -43,10 +43,10 @@ defmodule DB.Repo.Migrations.MorePlaces do
         (
           SELECT features AS nom,
           features AS place_id,
-          'features' AS type,
+          'feature' AS type,
           unaccent(replace(features, ' ', '-')) AS indexed_name
           FROM (
-          SELECT DISTINCT(UNNEST(auto_tags)) as features FROM resource
+          SELECT DISTINCT(UNNEST(features)) as features FROM resource
           ) as features
         )
         UNION
