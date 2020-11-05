@@ -31,7 +31,7 @@ Installation can then be done with:
 
 ### Postgresql
 
-You also need an up to date postgresql with postgis installed.
+You also need an up to date postgresql with postgis installed. Version 12+ is recommended.
 
 ## Configuration
 
