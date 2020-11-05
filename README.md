@@ -15,7 +15,7 @@ You can install this 2 different ways:
 ## Manual installation <a name="manual_install"></a>
 
   * Make sure you have **Elixir**, **Node**, **Yarn** and **Docker** installed and up-to-date
-    * **Elixir** is often installed with [asdf](https://asdf-vm.com/) since it makes it easy to handle different **Elixir** versions accross projects. The project needx at least **Elixir** 1.8 and **Erlang** 21.0
+    * **Elixir** is often installed with [asdf](https://asdf-vm.com/) since it makes it easy to handle different **Elixir** versions accross projects. The project needs at least **Elixir** 1.8 and **Erlang** 21.0
   * Install Elixir dependencies with `mix deps.get`
   * Install Node.js dependencies with `mix yarn install`
 
