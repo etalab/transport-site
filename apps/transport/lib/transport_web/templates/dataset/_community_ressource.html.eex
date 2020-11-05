@@ -6,7 +6,7 @@
     <%= if @resource.community_resource_publisher do %>
       <%= dgettext("community_resource", "by") %> <strong class="community-resource-source"><%= @resource.community_resource_publisher %></strong>
     <% end %>
-    <div class="pb-24"><%= @resource.description %></div>
+    <div class="pb-24"><%= description(@resource) %></div>
   </div>
   <div class="community-resource-download">
     <a href="<%= @resource.url %>">

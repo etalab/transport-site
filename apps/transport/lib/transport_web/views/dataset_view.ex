@@ -258,8 +258,9 @@ defmodule TransportWeb.DatasetView do
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
   def licence_url(_), do: nil
 
-  def description(%Dataset{} = dataset) do
-    {:safe, sanitized_md} = sanitize(dataset.description)
+  @spec description(%Dataset{} | %Resource{}) :: any
+  def description(instance) do
+    {:safe, sanitized_md} = sanitize(instance.description)
 
     sanitized_md
     |> Earmark.as_html!()
