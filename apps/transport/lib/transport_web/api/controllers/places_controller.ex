@@ -13,7 +13,14 @@ defmodule TransportWeb.API.PlacesController do
   defp get_result_url(conn, %Place{:place_id => id, :type => "commune"}), do: dataset_path(conn, :by_commune_insee, id)
   defp get_result_url(conn, %Place{:place_id => id, :type => "region"}), do: dataset_path(conn, :by_region, id)
   defp get_result_url(conn, %Place{:place_id => id, :type => "aom"}), do: dataset_path(conn, :by_aom, id)
-  defp get_result_url(conn, %Place{:place_id => id, :type => "tag"}), do: dataset_path(conn, :index, "tags[]": id)
+
+  defp get_result_url(conn, %Place{:place_id => id, :type => "features"}),
+    do: dataset_path(conn, :index, "features[]": id)
+
+  defp get_result_url(conn, %Place{:place_id => id, :type => "feature"}),
+    do: dataset_path(conn, :index, "features[]": id)
+
+  defp get_result_url(conn, %Place{:place_id => id, :type => "mode"}), do: dataset_path(conn, :index, "modes[]": id)
 
   @spec autocomplete(Plug.Conn.t(), map) :: Plug.Conn.t()
   def autocomplete(%Plug.Conn{} = conn, %{"q" => query}) do
@@ -32,9 +39,10 @@ defmodule TransportWeb.API.PlacesController do
       Place
       |> where([p], fragment("indexed_name ilike unaccent(?)", ^query))
       |> order_by(asc: fragment("CASE type
-          when 'tag' then 1
-          when 'region' then 2
-          when 'aom' then 3
+          when 'feature' then 1
+          when 'mode' then 2
+          when 'region' then 3
+          when 'aom' then 4
           else 4 END"))
       |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
       |> limit(10)
