@@ -85,6 +85,18 @@ You can also:
 
 The application is an [umbrella app](https://elixir-lang.org/getting-started/mix-otp/dependencies-and-umbrella-projects.html). It means that it is split into several sub-projects (that you can see under `/apps`).
 
+To run tests for a specific app only(at least while we're on Elixir 1.8), use this:
+
+```
+mix cmd --app transport mix test --color
+
+# or, for a single file, or single test
+mix cmd --app transport mix test --color test/transport_web/integrations/backoffice_test.exs 
+mix cmd --app transport mix test --color test/transport_web/integrations/backoffice_test.exs:8
+```
+
+The filenames must be relative to the app folder. This [will be improved](https://dockyard.com/blog/2019/06/17/testing-in-umbrella-apps-improves-in-elixir-1-9) when we upgrade to a more modern Elixir version.
+
 ### Linting
 
   * Run the elixir linter with `mix credo --strict`
