@@ -24,7 +24,8 @@ defmodule TransportWeb.DatasetSearchControllerTest do
             validation: %Validation{},
             metadata: %{},
             title: "angers.zip",
-            modes: ["ferry"]
+            modes: ["ferry"],
+            features: ["tarifs"]
           }
         ],
         aom: %AOM{id: 4242, nom: "Angers Métropôle"}
@@ -66,9 +67,13 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     assert html_response(conn, 200) =~ "Horaires théoriques de transport public (2)"
   end
 
-  test "GET /datasets?tags[]=ferry", %{conn: conn} do
-    conn = conn |> get(dataset_path(conn, :index), %{tags: ["ferry"]})
-    # info dans les filtres à gauche des datasets
+  test "GET /datasets?modes[]=ferry", %{conn: conn} do
+    conn = conn |> get(dataset_path(conn, :index), %{modes: ["ferry"]})
+    assert html_response(conn, 200) =~ "Horaires théoriques de transport public (1)"
+  end
+
+  test "GET /datasets?features[]=tarifs", %{conn: conn} do
+    conn = conn |> get(dataset_path(conn, :index), %{features: ["tarifs"]})
     assert html_response(conn, 200) =~ "Horaires théoriques de transport public (1)"
   end
 
