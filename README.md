@@ -6,6 +6,8 @@ This project brings a mobility focus on data hosted on [data.gouv.fr](https://ww
 
 You will find user documentation at [doc.transport.data.gouv.fr](https://doc.transport.data.gouv.fr).
 
+A status dashboard is available at [https://status.transport.data.gouv.fr](https://status.transport.data.gouv.fr) for a part of the project.
+
 # Installation
 
 You can install this 2 different ways:
