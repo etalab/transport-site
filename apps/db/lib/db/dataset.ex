@@ -142,6 +142,7 @@ defmodule DB.Dataset do
 
   @spec filter_by_feature(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_feature(query, %{"features" => feature}) do
+    # Note: @> is the 'contains' operator
     query
     |> where(
       [d],
