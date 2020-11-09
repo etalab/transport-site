@@ -9,7 +9,7 @@ images:
 ---
 ![](/images/founders-1-.png)
 
-Karos est une application mobile de covoiturage intermodale permettant de calculer des itinéraires. Elle a été fondée par Tristan Croiset et Olivier Binet. Les déplacements proposés sont constitués d'un temps de trajet en covoiturage combiné aux transports en commun. Ce calculateur est spécialisé dans le covoiturage à courte distance pour les parcours domicile-travail. 
+Karos est une application mobile de covoiturage intermodale permettant de calculer des itinéraires. Elle a été fondée par Tristan Croiset et Olivier Binet. Les déplacements proposés sont constitués d'un temps de trajet en covoiturage combiné à des trajets en transports en commun. Ce calculateur est spécialisé dans le covoiturage à courte distance pour les parcours domicile-travail. 
 
 ![](/images/hub2-1-1-.jpg)
 
