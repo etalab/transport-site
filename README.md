@@ -10,7 +10,7 @@ A status dashboard is available at [https://status.transport.data.gouv.fr](https
 
 # Glossary
 
-A small glossary explaining the various terms can be found in this repo ([glossary.md]). Please feel free to add any term which appears initially foreign there.
+A small glossary explaining the various terms can be found in this repo ([glossary.md](glossary.md)). Please feel free to add any term which appears initially foreign there.
 
 # Installation
 
