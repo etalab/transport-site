@@ -8,6 +8,10 @@ You will find user documentation at [doc.transport.data.gouv.fr](https://doc.tra
 
 A status dashboard is available at [https://status.transport.data.gouv.fr](https://status.transport.data.gouv.fr) for a part of the project.
 
+# Glossary
+
+A small glossary explaining the various terms can be found in this repo ([glossary.md]). Please feel free to add any term which appears initially foreign there.
+
 # Installation
 
 You can install this 2 different ways:
