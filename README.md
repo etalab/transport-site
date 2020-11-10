@@ -104,6 +104,7 @@ You can also:
   * Run the integration tests with `MIX_ENV=test mix test --only integration`
   * Run the solution tests with `MIX_ENV=test mix test --only solution`
   * Run the external tests with `MIX_ENV=test mix test --only external`
+  * Run everything with `MIX_ENV=test RUN_ALL=1 mix test`
 
 The application is an [umbrella app](https://elixir-lang.org/getting-started/mix-otp/dependencies-and-umbrella-projects.html). It means that it is split into several sub-projects (that you can see under `/apps`).
 
