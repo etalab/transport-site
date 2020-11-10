@@ -13,6 +13,9 @@ erl_crash.dump
 /**/*/node_modules
 /**/*/npm-debug.*
 
+# Code coverage output
+/**/cover
+
 # Since we are building assets from client,
 # we ignore priv/static.
 apps/transport/priv/static/css/*
