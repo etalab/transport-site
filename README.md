@@ -91,10 +91,13 @@ You can also:
 
 The application is an [umbrella app](https://elixir-lang.org/getting-started/mix-otp/dependencies-and-umbrella-projects.html). It means that it is split into several sub-projects (that you can see under `/apps`).
 
-To run tests for a specific app only(at least while we're on Elixir 1.8), use this:
+To run tests for a specific app, for example the `transport` or `gbfs` app, use this command:
 
 ```
+# for apps/transport app
 mix cmd --app transport mix test --color
+# for apps/gbfs
+mix cmd --app gbfs mix test --color
 
 # or, for a single file, or single test
 mix cmd --app transport mix test --color test/transport_web/integrations/backoffice_test.exs 
