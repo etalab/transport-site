@@ -4,6 +4,14 @@ This is the repository of the [french National Access Point](https://transport.d
 
 This project brings a mobility focus on data hosted on [data.gouv.fr](https://www.data.gouv.fr), the french open data portal.
 
+You will find user documentation at [doc.transport.data.gouv.fr](https://doc.transport.data.gouv.fr).
+
+A status dashboard is available at [https://status.transport.data.gouv.fr](https://status.transport.data.gouv.fr) for a part of the project.
+
+# Glossary
+
+A small glossary explaining the various terms can be found in this repo ([glossary.md](glossary.md)). Please feel free to add any term which appears initially foreign there.
+
 # Installation
 
 You can install this 2 different ways:
@@ -13,7 +21,7 @@ You can install this 2 different ways:
 ## Manual installation <a name="manual_install"></a>
 
   * Make sure you have **Elixir**, **Node**, **Yarn** and **Docker** installed and up-to-date
-    * **Elixir** is often installed with [asdf](https://asdf-vm.com/) since it makes it easy to handle different **Elixir** versions accross projects. The project needx at least **Elixir** 1.8 and **Erlang** 21.0
+    * **Elixir** is often installed with [asdf](https://asdf-vm.com/) since it makes it easy to handle different **Elixir** versions accross projects. The project needs at least **Elixir** 1.8 and **Erlang** 21.0
   * Install Elixir dependencies with `mix deps.get`
   * Install Node.js dependencies with `mix yarn install`
 
@@ -29,7 +37,7 @@ Installation can then be done with:
 
 ### Postgresql
 
-You also need an up to date postgresql with postgis installed.
+You also need an up to date postgresql with postgis installed. Version 12+ is recommended.
 
 ## Configuration
 
@@ -96,6 +104,23 @@ You can also:
   * Run the integration tests with `MIX_ENV=test mix test --only integration`
   * Run the solution tests with `MIX_ENV=test mix test --only solution`
   * Run the external tests with `MIX_ENV=test mix test --only external`
+
+The application is an [umbrella app](https://elixir-lang.org/getting-started/mix-otp/dependencies-and-umbrella-projects.html). It means that it is split into several sub-projects (that you can see under `/apps`).
+
+To run tests for a specific app, for example the `transport` or `gbfs` app, use this command:
+
+```
+# for apps/transport app
+mix cmd --app transport mix test --color
+# for apps/gbfs
+mix cmd --app gbfs mix test --color
+
+# or, for a single file, or single test
+mix cmd --app transport mix test --color test/transport_web/integrations/backoffice_test.exs 
+mix cmd --app transport mix test --color test/transport_web/integrations/backoffice_test.exs:8
+```
+
+The filenames must be relative to the app folder. This [will be improved](https://dockyard.com/blog/2019/06/17/testing-in-umbrella-apps-improves-in-elixir-1-9) when we upgrade to a more modern Elixir version.
 
 ### Linting
 
