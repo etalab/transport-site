@@ -79,7 +79,23 @@ Run the server with `mix phx.server` and you can visit [`127.0.0.1:5000`](http:/
 
 ### Testing
 
-Before running the integration tests, you need to start a selenium web driver with `docker run -p 4444:4444 --network=host selenium/standalone-chrome:3.141.59-oxygen`
+#### Selenium web driver
+
+Before running the `integration` or `solution` tests, you need to start a selenium web driver.
+
+On Linux, you can do this with `docker run -p 4444:4444 --network=host selenium/standalone-chrome:3.141.59-oxygen`.
+
+On Mac, the situation is currently a bit more complicated. Docker network host won't currently work there, but you can instead install and start ChromeDriver like this:
+
+```
+# https://github.com/HashNuke/hound/wiki/Starting-a-webdriver-server#starting-a-chromedriver-server
+brew cask install chromedriver
+chromedriver --port=4444 --url-base=wd/hub
+```
+
+Expect different behaviour with this method, because the version of ChromeDriver won't be necessarily the same.
+
+#### Running the tests
 
 Run the tests with `MIX_ENV=test mix test`
 
