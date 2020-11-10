@@ -123,6 +123,26 @@ mix cmd --app transport mix test --color test/transport_web/integrations/backoff
 
 The filenames must be relative to the app folder. This [will be improved](https://dockyard.com/blog/2019/06/17/testing-in-umbrella-apps-improves-in-elixir-1-9) when we upgrade to a more modern Elixir version.
 
+#### Measuring test coverage
+
+We use [excoveralls](https://github.com/parroty/excoveralls) to measure which parts of the code are covered by testing (or not). This is useful to determine where we can improve the testing quality.
+
+The following commands will launch the test and generate coverage:
+
+```
+# Display overall (whole app) coverage for all tests in the console
+RUN_ALL=1 MIX_ENV=test mix coveralls --umbrella
+# Same with a HTML report
+RUN_ALL=1 MIX_ENV=test mix coveralls.html --umbrella
+
+# Display coverage for each umbrella component, rather
+MIX_ENV=test mix coveralls
+```
+
+The coverage is written on screen by default, or in the `cover` subfolders for HTML output.
+
+Running in `--umbrella` mode will generate coverage report at the top-level `cover` folder, while running without it will generate reports under each umbrella sub-app (e.g. `apps/db/cover`).
+
 ### Linting
 
   * Run the elixir linter with `mix credo --strict`
