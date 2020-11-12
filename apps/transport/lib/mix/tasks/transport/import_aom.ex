@@ -42,7 +42,7 @@ defmodule Mix.Tasks.Transport.ImportAom do
     |> String.to_integer()
   end
 
-  @spec changeset(AOM.t(), map()) :: Changeset.t()
+  @spec changeset(AOM.t(), map()) :: {integer(), Ecto.Changeset.t()}
   def changeset(aom, line) do
     # some names have been manually set, we want to keep them
     insee =
@@ -130,7 +130,7 @@ defmodule Mix.Tasks.Transport.ImportAom do
     )
   end
 
-  defp get_aom_to_import() do
+  defp get_aom_to_import do
     Logger.info("importing aoms")
 
     {:ok, %HTTPoison.Response{status_code: 200, body: body}} =
@@ -144,8 +144,6 @@ defmodule Mix.Tasks.Transport.ImportAom do
     |> Enum.reject(fn {:ok, line} -> is_nil(line["Id réseau"]) end)
     |> Enum.reject(fn {:ok, line} -> line["Id réseau"] == "" end)
     |> Enum.map(fn {:ok, line} ->
-      Logger.debug("AOM: #{line["Id réseau"]} -- #{line["Nom de l’AOM pour transport.data.gouv.fr"]}")
-
       AOM
       |> Repo.get_by(composition_res_id: to_int(line["Id réseau"]))
       |> case do
@@ -204,28 +202,30 @@ defmodule Mix.Tasks.Transport.ImportAom do
   defp compute_geom do
     Logger.info("computing aom geometries")
 
-    from(a in AOM,
-      update: [
-        set: [
-          geom:
-            fragment(
-              """
-                (
-                  SELECT
-                  ST_UNION(commune.geom)
-                  FROM commune
-                  WHERE commune.aom_res_id = ?
-                )
-              """,
-              a.composition_res_id
-            )
+    Repo.update_all(
+      from(a in AOM,
+        update: [
+          set: [
+            geom:
+              fragment(
+                """
+                  (
+                    SELECT
+                    ST_UNION(commune.geom)
+                    FROM commune
+                    WHERE commune.aom_res_id = ?
+                  )
+                """,
+                a.composition_res_id
+              )
+          ]
         ]
-      ]
+      ),
+      []
     )
-    |> Repo.update_all([])
   end
 
-  defp update_modified_ids() do
+  defp update_modified_ids do
     Logger.info("updating modified external ids")
     # The AOM redon has seen its id changed, so we update it before hand
     # (if that has not been already done)
