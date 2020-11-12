@@ -1,10 +1,10 @@
-<div class="section">
+<div class="section with-gradient">
   <div class="container producteurs-section">
     <div class="producteurs-top">
       <div class="producteurs-title">
         <h1>Transport.data.gouv <br>
-           vous aide à publier <br>
-           vos données</h1>
+          vous aide à publier <br>
+          vos données</h1>
       </div>
       <section class="panel-producteurs">
         <h2>Accédez à votre espace producteur</h2>
@@ -14,52 +14,82 @@
     </div>
     <div class="producteurs-content pt-96">
       <div class="producteurs-presentation">
-        <section>
-          <h2><i class="fa fa-lightbulb"></i> Des guides et tutoriels pour vous accompagner</h2>
-          <div>
-            Garantissez la bonne découvrabilité de vos données en respectant des normes de publication.
+        <section class="panel">
+          <div class="presentation-description">
+            <div class="presentation-icon">
+              <i class="fa fa-lightbulb"></i>
+            </div>
+            <h2>Des guides et tutoriels pour vous accompagner</h2>
+            <div>
+              Garantissez la bonne découvrabilité de vos données en respectant des normes de publication.
+            </div>
           </div>
-          <div class="pt-12">
+          <div class="presentation-action pt-24">
             <button class="button-outline primary">Guides de publication de données</button>
           </div>
         </section>
-        <section>
-          <h2><i class="fa fa-tools"></i> Des outils pour valider la qualité de vos données</h2>
-          <div>
-            Les données de bonnes qualités sont réutilisées. Validez vos données dans les formats GTFS ou respectant des schémas nationaux grâce à nos outils.
+        <section class="panel">
+          <div class="presentation-description">
+            <div class="presentation-icon">
+              <i class="fa fa-tools"></i>
+            </div>
+            <h2>Des outils pour valider la qualité de vos données</h2>
+            <div>
+              Les données de bonnes qualités sont réutilisées. Validez vos données dans les formats GTFS ou respectant des schémas nationaux grâce à nos outils.
+            </div>
           </div>
-          <div class="pt-12">
-            <a href="">Testez vos jeux de données</a>
+          <div class="presentation-action pt-24">
+            <button class="button-outline primary">Testez vos jeux de données</button>
           </div>
         </section>
-        <section>
-          <h2><i class="fa fa-users"></i> Une équipe à votre disposition pour répondre à vos questions</h2>
-          <div>Contactez-nous à cette adresse : <a href="mailto: contact@transport.data.gouv.fr">contact@transport.data.gouv.fr</a></div>
+        <section class="panel">
+          <div class="presentation-description">
+            <div class="presentation-icon">
+              <i class="fa fa-users"></i>
+            </div>
+            <h2> Une équipe à votre disposition pour répondre à vos questions</h2>
+          </div>
+          <div class="presentation-action">
+            Contactez-nous à cette adresse : <a href="mailto: contact@transport.data.gouv.fr">contact@transport.data.gouv.fr</a>
+          </div>
         </section>
       </div>
     </div>
   </div>
 </div>
-<div class="section section-grey">
+<div class="tgv">
+  <img src="<%= static_path(@conn, "/images/producteurs/tgv.svg") %>" alt="" />
+</div>
+<div class="section section-grey section-why">
   <div class="container producteurs-section is-centered">
     <h1>Pourquoi publier vos données ?</h1>
     <div class="why-section pt-24">
       <section class="panel">
-        <h2>Vos obligations</h2>
-        <div>Que vous soyez Autorité Organisatrice des Mobilités, délégataire de service public ou collectivité territoriale,
-          vous pouvez être concerné par la Loi pour une république Numérique, la Loi Orientation des Mobilités et le Réglement européen.
+        <div class="why-section-picto">
+          <img src="<%= static_path(@conn, "/images/producteurs/streamline-icon-judicial-document@140x140.png") %>" alt="balance de la loi">
         </div>
-        <div class="pt-12">
-          Retrouvez <a href="">ici</a> une synthèse de ces obligations.
+        <div class="why-section-text">
+          <h2>Vos obligations</h2>
+          <div>Que vous soyez Autorité Organisatrice des Mobilités, délégataire de service public ou collectivité territoriale,
+            vous pouvez être concerné par la Loi pour une république Numérique, la Loi Orientation des Mobilités et le Réglement européen.
+          </div>
+          <div class="pt-12">
+            <a href="">Retrouvez ici une synthèse de ces obligations</a>
+          </div>
         </div>
       </section>
       <section class="panel">
-        <h2>Pour les usagers</h2>
-        <div>
-          De très nombreuses administrations, entreprises associations utilisent le Point d'Accès National pour trouver des données sur la mobilité en France.
+        <div class="why-section-picto">
+          <img src="<%= static_path(@conn, "/images/producteurs/streamline-icon-people-in-love-3@140x140.png") %>" alt="balance de la loi">
         </div>
-        <div class="pt-12">
-          Nos réutilisateurs développent des applications permettant aux usagers des services de mobilités de se repérer dans toute l'offre disponible sur leur territoire.
+        <div class="why-section-text">
+          <h2>Pour les usagers</h2>
+          <div>
+            De très nombreuses administrations, entreprises associations utilisent le Point d'Accès National pour trouver des données sur la mobilité en France.
+          </div>
+          <div class="pt-12">
+            Nos réutilisateurs développent des applications permettant aux usagers des services de mobilités de se repérer dans toute l'offre disponible sur leur territoire.
+          </div>
         </div>
       </section>
     </div>

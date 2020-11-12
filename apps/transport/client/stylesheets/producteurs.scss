@@ -1,22 +1,46 @@
+.with-gradient {
+  background: rgb(215, 232, 255);
+  background: linear-gradient(
+    0deg,
+    rgba(215, 232, 255, 1) 0%,
+    rgba(255, 255, 255, 1) 50%
+  );
+}
+
+.tgv {
+  width: 50vw;
+  position: relative;
+  height: 0;
+  bottom: 17px;
+  margin: 0 0 0 auto;
+}
+
 .producteurs-content {
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
   flex-wrap: wrap;
-  margin: -48px;
-  section {
-    flex-basis: 50%;
-    padding: 48px;
-    margin: 0;
-  }
+
   .producteurs-presentation {
     display: flex;
     flex-wrap: wrap;
     section {
-      flex-basis: 33%;
+      flex-basis: 25%;
       flex-grow: 1;
       max-width: 51%;
+      padding: 24px;
+      margin: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
+    .presentation-action {
+      flex-grow: 0;
+    }
+  }
+  .presentation-icon {
+    text-align: center;
+    font-size: 3em;
   }
 }
 
@@ -29,10 +53,31 @@
     flex-basis: 40%;
     flex-grow: 0;
     text-align: left;
+    display: flex;
+    align-items: flex-start;
+    .why-section-picto {
+      flex-basis: 96px;
+      flex-grow: 0;
+      min-width: 96px;
+      img {
+        width: 100%;
+      }
+    }
+    .why-section-text {
+      padding-left: 24px;
+    }
   }
   .panel {
     margin: 0;
   }
+}
+
+.section-why {
+  background-image: url("/images/producteurs/chariot-donnees.svg");
+  background-repeat: no-repeat;
+  background-position: bottom 10px left 20px;
+  background-size: 15%;
+  padding-bottom: 96px;
 }
 
 .producteurs-section {
@@ -48,7 +93,7 @@
     flex-wrap: wrap;
 
     .panel-producteurs {
-      background-color: #f2f2f9;
+      border-left: 5px solid var(--theme-primary);
       padding: 24px;
       flex-basis: 250px;
       flex-grow: 1;
