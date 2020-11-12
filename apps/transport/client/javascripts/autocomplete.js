@@ -7,8 +7,8 @@ const labels = {
     region: 'région',
     aom: 'AOM',
     commune: 'commune',
-    feature: 'caractéristique',
-    mode: 'mode'
+    feature: 'données contenant…',
+    mode: 'mode de transport'
 }
 
 document.onkeydown = function (evt) {

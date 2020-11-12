@@ -348,7 +348,7 @@ msgstr "Visualisation de la ressource"
 
 #, elixir-format
 msgid "Dataset modes"
-msgstr "Modes présent dans le jeu de données"
+msgstr "Modes présents dans le jeu de données"
 
 #, elixir-format
 msgid "Features available in the resource:"
@@ -356,4 +356,4 @@ msgstr "Données présentes dans la ressource :"
 
 #, elixir-format
 msgid "Modes available in the resource:"
-msgstr "Modes disponibles dans la ressource :"
+msgstr "Modes de transport disponibles dans la ressource :"

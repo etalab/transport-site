@@ -29,7 +29,7 @@
             </li>
           </div>
         <% end %>
-        <div>
+        <div class="pt-12">
           <%= if length(@resource.features) > 0 do %>
             <%= dgettext("page-dataset-details", "Features available in the resource:") %>
             <div>
