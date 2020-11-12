@@ -35,6 +35,8 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Discovering the HTTP routes
 * Discovering the database structure
 * Clever Cloud deployment and operations (Sentry, UptimeRobot)
+* Deploy on "prochainement"
+* Investigate data quality from the stats map
 * Running and testing the validator (locally)
 * Running import jobs (locally)
 * Diving into import jobs (locally)
