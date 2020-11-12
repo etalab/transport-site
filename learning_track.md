@@ -40,5 +40,6 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Running and testing the validator (locally)
 * Running import jobs (locally)
 * Diving into import jobs (locally)
-* How GBFS works
+* What is GBFS (workshop, slides)
+* How GBFS is handled in this app
 * How to upgrade Elixir, Erlang and Node
