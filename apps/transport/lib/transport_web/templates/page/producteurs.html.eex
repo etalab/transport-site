@@ -2,8 +2,8 @@
   <div class="container producteurs-section">
     <div class="producteurs-top">
       <div class="producteurs-title">
-        <h1>Transport.data.gouv <br>
-          vous aide à publier <br>
+        <h1>Transport.data.gouv
+          vous aide à publier
           vos données</h1>
       </div>
       <section class="panel-producteurs">
@@ -64,7 +64,7 @@
   <div class="container producteurs-section is-centered">
     <h1>Pourquoi publier vos données ?</h1>
     <div class="why-section pt-24">
-      <section class="panel">
+      <section class="panel mb-24">
         <div class="why-section-picto">
           <img src="<%= static_path(@conn, "/images/producteurs/streamline-icon-judicial-document@140x140.png") %>" alt="balance de la loi">
         </div>
@@ -96,57 +96,70 @@
   </div>
 </div>
 <div class="section">
-  <div class="container producteurs-section">
+  <div class="container producteurs-section is-centered">
     <h1>Suivez et participez à l'actualité de la communauté transport.data.gouv !</h1>
-    <div class="producteurs-content pt-48">
-      <section>
-        <h2>La communauté Slack</h2>
-        <div>
-          Un espace d'échange pour les producteurs et les réutilisateurs de données de transport.
-        </div>
-        <div class="slack-logo">
-          <img src="<%= static_path(@conn, "/images/Slack_RGB.png") %>" alt="Slack" /><a href="https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA"><%= dgettext("page-index", "Join us on Slack") %></a>
-        </div>
-      </section>
-      <section>
-        <h2>La newsletter</h2>
-        <div>Tenez-vous à jour des dernières nouvelles du Point d'Accès National et de ses chantiers en cours en vous s'inscrivant à la Newsletter.</div>
-        <div class="pt-12">
-          <form action="<%= @mailchimp_newsletter_url %>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
-            <div id="mc_embed_signup_scroll">
-              <div class="input__group">
-                <input type="email" value="" name="EMAIL" id="mce-EMAIL" placeholder="<%= dgettext("page-index", "Email address") %>">
-                <div id="mce-responses" class="clear">
-                  <div class="response" id="mce-error-response" style="display:none"></div>
-                  <div class="response" id="mce-success-response" style="display:none"></div>
-                </div>
-                <div>
-                  <input type="hidden" name="b_5ee8bfe0f1b073b49de06a063_13db2e9a94" tabindex="-1" value="">
-                </div>
-                <button class="button" type="submit" name="subscribe" id="mc-embedded-subscribe"><%= dgettext("page-index", "SUBSCRIBE") %></button>
-              </div>
+    <div class="producteurs-content producteurs-community pt-48">
+      <div>
+        <section>
+          <h2>La communauté <span class="slack-logo">
+              <img src="<%= static_path(@conn, "/images/Slack_RGB.png") %>" alt="Slack" />
+            </span>
+          </h2>
+          <div>
+            Un espace d'échange pour les producteurs et les réutilisateurs de données de transport.
+            <div class="pt-24">
+              <a href="https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA">
+                <button class="button-outline primary"><%= dgettext("page-index", "Join us on Slack") %></button></a>
             </div>
-          </form>
-        </div>
-      </section>
-      <section>
-        <h2>Le Blog</h2>
-        <div>
-          Notre journal où l'on trouve des tutoriels, des exemples de réutilisations, des retours d'expérience...
-        </div>
-        <div class="pt-12">
-          <a href="blog.transport.data.gouv.fr">Consultez le blog de transport.data.gouv.fr</a>
-        </div>
-      </section>
-      <section>
-        <h2>Le fil Twitter</h2>
-        <div class="twitter-logo">
-          <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" /><a href="https://twitter.com/transportdatafr"></a>
-        </div>
-        <div>
-          <%= dgettext("page-index", "Follow us on twitter") %>
-        </div>
-      </section>
+          </div>
+        </section>
+        <section class="pt-48">
+          <h2>Le Blog</h2>
+          <div>
+            Notre journal où l'on trouve des tutoriels, des exemples de réutilisations, des retours d'expérience...
+          </div>
+          <div class="pt-12">
+            <a href="blog.transport.data.gouv.fr">
+              <button class="button-outline primary">
+                Consultez le blog de transport.data.gouv.fr
+              </button>
+            </a>
+          </div>
+        </section>
+        <section class="pt-48 pb-48">
+          <h2>Le fil Twitter <span class="twitter-logo">
+              <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" /><a href="https://twitter.com/transportdatafr"></a>
+            </span></h2>
+          <div>
+            <button class="button-outline primary">
+              <%= dgettext("page-index", "Follow us on twitter") %>
+            </button>
+          </div>
+        </section>
+      </div>
+      <div>
+        <section>
+          <h2>La newsletter</h2>
+          <div>Tenez-vous à jour des dernières nouvelles du Point d'Accès National et de ses chantiers en cours en vous s'inscrivant à la Newsletter.</div>
+          <div class="pt-12">
+            <form action="<%= @mailchimp_newsletter_url %>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+              <div id="mc_embed_signup_scroll">
+                <div class="input__group">
+                  <input type="email" value="" name="EMAIL" id="mce-EMAIL" placeholder="<%= dgettext("page-index", "Email address") %>">
+                  <div id="mce-responses" class="clear">
+                    <div class="response" id="mce-error-response" style="display:none"></div>
+                    <div class="response" id="mce-success-response" style="display:none"></div>
+                  </div>
+                  <div>
+                    <input type="hidden" name="b_5ee8bfe0f1b073b49de06a063_13db2e9a94" tabindex="-1" value="">
+                  </div>
+                  <button class="button" type="submit" name="subscribe" id="mc-embedded-subscribe"><%= dgettext("page-index", "SUBSCRIBE") %></button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </section>
+      </div>
     </div>
   </div>
 </div>

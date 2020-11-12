@@ -13,6 +13,9 @@
   height: 0;
   bottom: 17px;
   margin: 0 0 0 auto;
+  img {
+    width: 100%;
+  }
 }
 
 .producteurs-content {
@@ -25,9 +28,8 @@
     display: flex;
     flex-wrap: wrap;
     section {
-      flex-basis: 25%;
+      flex-basis: 300px;
       flex-grow: 1;
-      max-width: 51%;
       padding: 24px;
       margin: 24px;
       display: flex;
@@ -50,25 +52,30 @@
   justify-content: space-around;
   align-items: stretch;
   section {
-    flex-basis: 40%;
+    flex-basis: 90%;
+    max-width: 500px;
     flex-grow: 0;
     text-align: left;
     display: flex;
     align-items: flex-start;
+    flex-wrap: wrap;
     .why-section-picto {
       flex-basis: 96px;
-      flex-grow: 0;
-      min-width: 96px;
+      flex-grow: 1;
+      max-width: 96px;
       img {
         width: 100%;
       }
     }
     .why-section-text {
       padding-left: 24px;
+      flex-basis: 300px;
+      min-width: 250px;
+      flex-grow: 2;
     }
   }
   .panel {
-    margin: 0;
+    margin: 0 0 24px 0;
   }
 }
 
@@ -78,11 +85,22 @@
   background-position: bottom 10px left 20px;
   background-size: 15%;
   padding-bottom: 96px;
+  @media (max-width: $breakpoint-tablet) {
+    background-size: 50%;
+  }
+  @media (min-width: $breakpoint-tablet) and (max-width: $breakpoint-desktop) {
+    background-size: 30%;
+  }
 }
 
 .producteurs-section {
   h1 {
     font-size: 2.5em;
+  }
+  @media (max-width: $breakpoint-tablet) {
+    h1 {
+      font-size: 2em;
+    }
   }
   h2 {
     font-size: 1.5em;
@@ -97,23 +115,45 @@
       padding: 24px;
       flex-basis: 250px;
       flex-grow: 1;
+      h2 {
+        text-align: left;
+      }
     }
     .producteurs-title {
       padding-right: 48px;
       flex-basis: 50%;
     }
   }
+  .input__group {
+    flex-wrap: wrap;
+    input {
+      margin-right: 12px;
+    }
+  }
+}
+
+#mc-embedded-subscribe {
+  margin-left: 0 !important;
+}
+
+.producteurs-community {
+  div {
+    flex-basis: 35%;
+    text-align: left;
+  }
 }
 
 .slack-logo {
-  max-width: 200px;
+  display: inline-block;
+  max-width: 100px;
   img {
     width: 100%;
   }
 }
 
 .twitter-logo {
-  max-width: 100px;
+  display: inline-block;
+  width: 30px;
   img {
     width: 100%;
   }
