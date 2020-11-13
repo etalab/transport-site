@@ -17,7 +17,7 @@ Lorsqu’une gestionnaire de réseau ne dispose pas de ce type d’outil, il est
 
 ## **Témoignage du chargé de mission plan climat / mobilité à la Communauté d’Agglomération du Grand Guéret**
 
-### Pouvez-vous nouz présenter le réseau de transport du Grand Guéret ?
+### Pouvez-vous nous présenter le réseau de transport du Grand Guéret ?
 
 La Communauté d’Agglomération du Grand Guéret, dans le département de la Creuse, a une population de 30 000 habitants. Elle dispose d’un réseau de transport urbain âgé de 5 ans et opère 7 lignes urbaines dans Guéret (la ville centre,13 000 habitants). Ne disposant pas de données de transport au format GTFS, il a été nécessaire de créer ce fichier manuellement..
 
