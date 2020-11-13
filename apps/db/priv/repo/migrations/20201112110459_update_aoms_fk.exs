@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.UpdateAomsFk do
 
   def up do
     # Add an update cascade to the foreign key for an aom composition_res_id change to be propagated
-    # Note: it is not support by ecto
+    # Note: it is not supported by ecto
     execute("""
     ALTER TABLE commune
     DROP CONSTRAINT commune_aom_res_id_fkey,

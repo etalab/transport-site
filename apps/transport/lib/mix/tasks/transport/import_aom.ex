@@ -13,7 +13,7 @@ defmodule Mix.Tasks.Transport.ImportAom do
   This is a one shot import task, run when the aom have changed.
 
   To run this script:
-  connect on the server, then run it as a mix task:
+  connect to the server, then run it as a mix task:
   `mix Transport.ImportAom`
 
   or run it in iex:
@@ -30,7 +30,7 @@ defmodule Mix.Tasks.Transport.ImportAom do
   @aom_file "https://static.data.gouv.fr/resources/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/20201112-141547/base-aom-2020.csv"
   @aom_insee_file "https://static.data.gouv.fr/resources/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/20201112-142236/aom-insee.csv"
 
-  @spec to_int(binary()) :: number()
+  @spec to_int(binary()) :: number() | nil
   def to_int(""), do: nil
   def to_int("#N/D"), do: nil
 
