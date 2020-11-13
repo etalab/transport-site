@@ -13,7 +13,7 @@ defmodule TransportWeb.Endpoint do
     from: :transport,
     gzip: false,
     only:
-      ~w(js css fonts images data blog favicon.ico robots.txt documents BingSiteAuth.xml google5be4b09db1274976.html demo_rt.html)
+      ~w(js css fonts images data favicon.ico robots.txt documents BingSiteAuth.xml google5be4b09db1274976.html demo_rt.html)
   )
 
   # Code reloading can be explicitly enabled under the

@@ -14,7 +14,8 @@ defmodule Db.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       gettext: [{:write_reference_comments, false}],
-      compilers: [:gettext] ++ Mix.compilers()
+      compilers: [:gettext] ++ Mix.compilers(),
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 

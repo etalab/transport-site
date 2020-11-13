@@ -260,11 +260,17 @@ defmodule TransportWeb.DatasetView do
 
   @spec description(%Dataset{} | %Resource{}) :: any
   def description(instance) do
-    {:safe, sanitized_md} = sanitize(instance.description)
+    instance.description
+    |> sanitize()
+    |> case do
+      {:safe, sanitized_md} ->
+        sanitized_md
+        |> Earmark.as_html!()
+        |> raw()
 
-    sanitized_md
-    |> Earmark.as_html!()
-    |> raw()
+      _raw ->
+        instance.description
+    end
   end
 
   @doc """
