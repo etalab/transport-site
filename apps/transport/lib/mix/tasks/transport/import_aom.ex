@@ -167,9 +167,14 @@ defmodule Mix.Tasks.Transport.ImportAom do
   defp delete_old_aoms(aom_added, old_aoms) do
     Logger.info("deleting removed aom")
 
+    composition_res_id_added =
+      aom_added
+      |> Enum.map(fn {id, _changeset} -> id end)
+      |> MapSet.new()
+
     old_aoms
-    |> Enum.each(fn old_aom ->
-      if MapSet.member?(aom_added, old_aom) do
+    |> Enum.each(fn {composition_res_id, old_aom} ->
+      unless MapSet.member?(composition_res_id_added, composition_res_id) do
         Logger.info("trying to delete old aom: #{old_aom.id} - #{old_aom.nom}")
 
         # Note: if the delete is impossible, you need to find what still depend on this aom,

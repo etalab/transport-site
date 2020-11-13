@@ -10,7 +10,8 @@ defmodule DB.Repo.Migrations.UpdateAomsFk do
     ADD CONSTRAINT commune_aom_res_id_fkey
     FOREIGN KEY (aom_res_id)
     REFERENCES aom(composition_res_id)
-    ON UPDATE CASCADE;
+    ON UPDATE CASCADE
+    ON DELETE SET NULL;
     """)
   end
   def down do
