@@ -29,7 +29,26 @@
             </li>
           </div>
         <% end %>
-        <div>
+        <div class="pt-12">
+          <%= if length(@resource.features) > 0 do %>
+            <%= dgettext("page-dataset-details", "Features available in the resource:") %>
+            <div>
+              <%= for tag <- @resource.features do %>
+                <span class="label feature"><%= tag %></span>
+              <% end %>
+            </div>
+          <% end %>
+
+          <%= if length(@resource.modes) > 0 do %>
+            <%= dgettext("page-dataset-details", "Modes available in the resource:") %>
+            <div class="resource-features">
+                <div>
+                  <%= for mode <- @resource.modes do %>
+                    <span class="label mode"><%= mode %></span>
+                  <% end %>
+                </div>
+            </div>
+          <% end %>
         </div>
       </div>
       <%= unless is_nil(associated_geojson) do %>

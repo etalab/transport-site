@@ -94,7 +94,8 @@ defmodule DB.Dataset do
         description: r.description,
         community_resource_publisher: r.community_resource_publisher,
         original_resource_url: r.original_resource_url,
-        auto_tags: r.auto_tags
+        features: r.features,
+        modes: r.modes
       },
       where: r.is_available
     )
@@ -139,19 +140,28 @@ defmodule DB.Dataset do
 
   defp filter_by_category(query, _), do: query
 
-  @spec filter_by_tags(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_tags(query, %{"tags" => tags}) do
-    resources =
-      Resource
-      |> where([r], fragment("? @> ?::varchar[]", r.auto_tags, ^tags))
-      |> distinct([r], r.dataset_id)
-      |> select([r], %Resource{dataset_id: r.dataset_id})
-
+  @spec filter_by_feature(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_feature(query, %{"features" => feature}) do
+    # Note: @> is the 'contains' operator
     query
-    |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
+    |> where(
+      [d],
+      fragment("(? IN (SELECT DISTINCT(dataset_id) FROM resource r where r.features @> ?::varchar[]))", d.id, ^feature)
+    )
   end
 
-  defp filter_by_tags(query, _), do: query
+  defp filter_by_feature(query, _), do: query
+
+  @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_mode(query, %{"modes" => mode}) do
+    query
+    |> where(
+      [d],
+      fragment("(? IN (SELECT DISTINCT(dataset_id) FROM resource r where r.modes @> ?::varchar[]))", d.id, ^mode)
+    )
+  end
+
+  defp filter_by_mode(query, _), do: query
 
   @spec filter_by_type(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_type(query, %{"type" => type}), do: where(query, [d], d.type == ^type)
@@ -225,7 +235,8 @@ defmodule DB.Dataset do
     preload_without_validations()
     |> filter_by_active(params)
     |> filter_by_region(params)
-    |> filter_by_tags(params)
+    |> filter_by_feature(params)
+    |> filter_by_mode(params)
     |> filter_by_category(params)
     |> filter_by_type(params)
     |> filter_by_aom(params)
@@ -330,7 +341,7 @@ defmodule DB.Dataset do
   def count_by_resource_tag(tag) do
     __MODULE__
     |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
-    |> where([d, r], d.is_active and ^tag in r.auto_tags)
+    |> where([d, r], d.is_active and ^tag in r.features)
     |> distinct([d], d.id)
     |> Repo.aggregate(:count, :id)
   end
@@ -341,7 +352,7 @@ defmodule DB.Dataset do
     |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
     |> join(:inner, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
     |> distinct([d], d.id)
-    |> where([d, r, d_geo], d.is_active and "bus" in r.auto_tags and d_geo.region_id == 14)
+    |> where([d, r, d_geo], d.is_active and "bus" in r.features and d_geo.region_id == 14)
     # 14 is the national "region". It means that it is not bound to a region or local territory
     |> Repo.aggregate(:count, :id)
   end
