@@ -2,7 +2,7 @@ version: 2
 
 default_docker: &default_docker
   # NOTE: temporarily attempting to use stock elixir version
-  image: elixir:1.10.4-alpine
+  image: cimg/elixir:1.10.4
   # TODO: create new release of transport base image & put it back here
   # image: betagouv/transport:0.4.3
   environment:
