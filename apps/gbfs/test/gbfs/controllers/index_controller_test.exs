@@ -10,7 +10,9 @@ defmodule GBFS.IndexControllerTest do
         |> Enum.at(0)
         |> get_in(["gbfs", "_links", "gbfs.json", "href"])
 
-      port = Application.get_env(:transport, TransportWeb.Endpoint) |> Keyword.get(:http) |> Keyword.get(:port)
+      port = :transport
+        |> Application.get_env(TransportWeb.Endpoint)
+        |> get_in([:http, :port])
 
       # NOTE: the order of "networks" is deterministic & established via the code,
       # which means we can fix data for the test
