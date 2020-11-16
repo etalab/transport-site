@@ -50,6 +50,10 @@ jobs:
       - run:
           name: Install hex
           command: mix local.hex --force
+      
+      - run:
+          name: Install rebar
+          command: mix local.rebar --force
 
       - run:
           name: Install mix dependencies for MIX_ENV=dev
