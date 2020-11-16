@@ -165,6 +165,15 @@ The generated [ecto](https://hexdocs.pm/ecto/Ecto.html) migration file will be `
 To apply all migrations on you database:
 `mix ecto.migrate`
 
+#### One shot tasks
+
+Some custom one shot tasks are available.
+
+To run a custom task: `mix <custom task>`
+
+* `Transport.ImportAom`: import the aom data from the cerema
+* `Transport.ImportEPCI`: import the french EPCI from data.gouv
+* `Transport.OpenApiSpec`: generate an OpenAPI specification file
 
 ## Docker installation <a name="docker_install"></a>
 
