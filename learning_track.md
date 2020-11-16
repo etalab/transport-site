@@ -27,6 +27,22 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Learn how to run a single test (see readme), as this is very useful for debugging
 * :warning: All the tests should pass locally! If they don't, file an issue
 
+### Understand the "stats" page
+
+* Entry point for bizdev questions on data quality
+* `_maps.html.eex` and `map.js`
+
+### Run a manual GTFS validation (on the server)
+
+* Go to https://transport.data.gouv.fr
+* Click on "Analyser la qualité d'un fichier GTFS"
+* Find a small GTFS file
+* Check the result
+
+### Run the GTFS validator locally 
+
+
+
 ### IDEAS for the next steps
 
 * Overall architecture (diagram by Francis)
@@ -37,9 +53,9 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Clever Cloud deployment and operations (Sentry, UptimeRobot)
 * Deploy on "prochainement"
 * Investigate data quality from the stats map
-* Running and testing the validator (locally)
 * Running import jobs (locally)
 * Diving into import jobs (locally)
 * What is GBFS (workshop, slides)
 * How GBFS is handled in this app
 * How to upgrade Elixir, Erlang and Node
+* How to launch linters etc (like CI does)
