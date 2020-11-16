@@ -102,6 +102,15 @@ jobs:
       - attach_workspace:
           at: ~/transport
 
+      # TODO: find how to reuse "build" installation
+      - run:
+        name: Install hex
+        command: mix local.hex --force
+      
+    - run:
+        name: Install rebar
+        command: mix local.rebar --force
+
       - run:
           name: Run linters
           command: |
@@ -127,6 +136,15 @@ jobs:
       - attach_workspace:
           at: ~/transport
 
+      # TODO: find how to reuse "build" installation
+      - run:
+          name: Install hex
+          command: mix local.hex --force
+        
+      - run:
+          name: Install rebar
+          command: mix local.rebar --force
+  
       - run:
           name: Run dialyzer (static analysis)
           command: MIX_ENV=dev mix dialyzer
@@ -136,6 +154,15 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/transport
+
+      # TODO: find how to reuse "build" installation
+      - run:
+          name: Install hex
+          command: mix local.hex --force
+      
+      - run:
+          name: Install rebar
+          command: mix local.rebar --force
 
       - run:
           name: Run tests
@@ -149,7 +176,16 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/transport
-
+      
+      # TODO: find how to reuse "build" installation
+      - run:
+          name: Install hex
+          command: mix local.hex --force
+          
+      - run:
+          name: Install rebar
+          command: mix local.rebar --force
+  
       - run:
           name: Run tests
           command: |
@@ -162,6 +198,15 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/transport
+
+      # TODO: find how to reuse "build" installation
+      - run:
+          name: Install hex
+          command: mix local.hex --force
+      
+      - run:
+          name: Install rebar
+          command: mix local.rebar --force
 
       - run:
           name: Run tests
@@ -176,6 +221,15 @@ jobs:
       - attach_workspace:
           at: ~/transport
 
+      # TODO: find how to reuse "build" installation
+      - run:
+          name: Install hex
+          command: mix local.hex --force
+        
+      - run:
+          name: Install rebar
+          command: mix local.rebar --force
+  
       - run:
           name: Run tests
           command: |
