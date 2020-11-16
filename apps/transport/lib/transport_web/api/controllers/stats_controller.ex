@@ -315,6 +315,8 @@ defmodule TransportWeb.API.StatsController do
               (dataset.aom_id = ? OR dataset.id = ?)
               AND
               resource.end_date >= TO_DATE(?, 'YYYY-MM-DD')
+              AND
+              resource.is_available
             ORDER BY (
               CASE max_error::text
                 WHEN 'Fatal' THEN 6
