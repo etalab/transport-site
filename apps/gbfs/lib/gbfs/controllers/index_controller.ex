@@ -12,7 +12,8 @@ defmodule GBFS.IndexController do
 
   @spec create_gbfs_links(binary(), Plug.Conn.t()) :: %{gbfs: %{name: binary(), _links: map()}}
   defp create_gbfs_links(network, conn) do
-    url = conn
+    url =
+      conn
       |> current_url()
       |> Path.join(network)
       |> Path.join("gbfs.json")
