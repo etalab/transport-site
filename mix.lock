@@ -1,7 +1,7 @@
 %{
   "bson": {:hex, :bson, "0.4.4", "175ad645cc492349a4cefa0bdff612178a0db611adf38dabe2bbfad2aa25627a", [:mix], [], "hexpm"},
   "bunt": {:hex, :bunt, "0.2.0", "951c6e801e8b1d2cbe58ebbd3e616a869061ddadcc4863d0a2182541acae9a38", [:mix], [], "hexpm", "7af5c7e09fe1d40f76c8e4f9dd2be7cebd83909f31fee7cd0e9eadc567da8353"},
-  "castore": {:hex, :castore, "0.1.3", "61d720c168d8e3a7d96f188f73d50d7ec79aa619cdabf0acd3782b01ff3a9f10", [:mix], [], "hexpm", "b15cd5213b9ede8c93b45690d1d54670a25e578d13ff0d6136c127ed877cf65a"},
+  "castore": {:hex, :castore, "0.1.8", "1b61eaba71bb755b756ac42d4741f4122f8beddb92456a84126d6177ec0af1fc", [:mix], [], "hexpm", "23ab8305baadb057bc689adc0088309f808cb2247dc9a48b87849bb1d242bb6c"},
   "certifi": {:hex, :certifi, "2.5.1", "867ce347f7c7d78563450a18a6a28a8090331e77fa02380b4a21962a65d36ee5", [:rebar3], [{:parse_trans, "~>3.3", [hex: :parse_trans, repo: "hexpm", optional: false]}], "hexpm", "805abd97539caf89ec6d4732c91e62ba9da0cda51ac462380bbd28ee697a8c42"},
   "codepagex": {:hex, :codepagex, "0.1.4", "dae3bc57e9334c324914b32ed61c0a30929fac3e73dc71fc611ed7eeb2dcb867", [:mix], [], "hexpm"},
   "combine": {:hex, :combine, "0.10.0", "eff8224eeb56498a2af13011d142c5e7997a80c8f5b97c499f84c841032e429f", [:mix], [], "hexpm", "1b1dbc1790073076580d0d1d64e42eae2366583e7aecd455d1215b0d16f2451b"},
