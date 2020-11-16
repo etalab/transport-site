@@ -3,7 +3,8 @@ defmodule GBFS.IndexControllerTest do
 
   describe "GET /" do
     test "returns correct absolute urls", %{conn: conn} do
-      first_href = conn
+      first_href =
+        conn
         |> get("/gbfs")
         |> json_response(200)
         |> Enum.at(0)
