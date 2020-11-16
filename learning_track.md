@@ -30,7 +30,8 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 ### Understand the "stats" page
 
 * Entry point for bizdev questions on data quality
-* `_maps.html.eex` and `map.js`
+* Look at `_maps.html.eex` and `map.js`
+* Search the code responsible for `quality_features`
 
 ### Run a manual GTFS validation (on the server)
 
