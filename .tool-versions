@@ -3,6 +3,16 @@
 # provides an easy way to ensure local development and test will rely on roughly
 # the same versions as in production, if one uses the "asdf" version manager.
 
-elixir 1.8.1
-erlang 21.3.8.1
+# See:
+# - https://hexdocs.pm/elixir/compatibility-and-deprecations.html
+# - https://github.com/elixir-lang/elixir/releases
+# - `asdf list all elixir`
+elixir 1.9.4-otp-22
+
+# See:
+# - https://github.com/erlang/otp/releases
+# - https://github.com/erlang/otp/blob/master/otp_versions.table
+# - `asdf list all erlang`
+erlang 22.3.4.12
+
 nodejs 10.14.2
