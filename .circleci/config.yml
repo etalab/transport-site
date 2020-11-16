@@ -48,6 +48,10 @@ jobs:
             - elixir-v7-{{ checksum "mix.lock" }}
 
       - run:
+          name: Install hex
+          command: mix local.hex --force
+
+      - run:
           name: Install mix dependencies for MIX_ENV=dev
           command: MIX_ENV=dev mix deps.get --force
 
