@@ -40,9 +40,18 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Find a small GTFS file
 * Check the result
 
-### Run the GTFS validator locally 
+### Discover the HTTP routes served by the application
 
+* Run `mix phx.routes TransportWeb.Router` locally
+  * Examine the listed routes
+  * Check-out `apps/transport/lib/transport_web/router.ex` where they are defined
+* Check-out `apps/transport/lib/transport_web/plugs/router.ex` (`/api`, `/gbfs` & the rest)
+  * This top-level router is referred to in `apps/transport/lib/transport_web/endpoint.ex`
+* Run `mix phx.routes TransportWeb.API.Router` (this will list all the `/api` sub-routes)
+* Run `mix phx.routes GBFS.Router` (same for `/gbfs`)
+* **In short**: the "endpoint" includes a main router, which in turn includes 3 sub-routers
 
+### Run the GTFS validator locally
 
 ### IDEAS for the next steps
 
