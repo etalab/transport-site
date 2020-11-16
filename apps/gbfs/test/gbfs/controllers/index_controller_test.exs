@@ -10,7 +10,8 @@ defmodule GBFS.IndexControllerTest do
         |> Enum.at(0)
         |> get_in(["gbfs", "_links", "gbfs.json", "href"])
 
-      port = :transport
+      port =
+        :transport
         |> Application.get_env(TransportWeb.Endpoint)
         |> get_in([:http, :port])
 
