@@ -45,7 +45,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - elixir-v7-{{ checksum "mix.lock" }}
+            - elixir-v8-{{ checksum "mix.lock" }}
 
       - run:
           name: Install hex
@@ -89,7 +89,7 @@ jobs:
             - .
 
       - save_cache:
-          key: elixir-v7-{{ checksum "mix.lock" }}
+          key: elixir-v8-{{ checksum "mix.lock" }}
           paths:
             - ~/transport/_build
             - ~/transport/deps
