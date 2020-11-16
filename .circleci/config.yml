@@ -104,12 +104,12 @@ jobs:
 
       # TODO: find how to reuse "build" installation
       - run:
-        name: Install hex
-        command: mix local.hex --force
+          name: Install hex
+          command: mix local.hex --force
       
-    - run:
-        name: Install rebar
-        command: mix local.rebar --force
+      - run:
+          name: Install rebar
+          command: mix local.rebar --force
 
       - run:
           name: Run linters
