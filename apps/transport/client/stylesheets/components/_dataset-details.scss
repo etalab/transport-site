@@ -79,6 +79,14 @@
   color: var(--theme-label-text);
 }
 
+.dataset__resources .resources-message {
+  color: var(--theme-label-text);
+}
+
+.dataset__resources .warning-red {
+  color: var(--theme-error-border);
+}
+
 .dataset__logo {
   img {
     max-height: 100px;
@@ -246,6 +254,10 @@
 }
 
 .resource--notvalid {
+  border-top: 75px solid var(--theme-error-bg);
+}
+
+.resource--unavailable {
   border-top: 75px solid var(--theme-error-bg);
 }
 

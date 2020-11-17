@@ -91,13 +91,13 @@ defmodule DB.Dataset do
         latest_url: r.latest_url,
         content_hash: r.content_hash,
         is_community_resource: r.is_community_resource,
+        is_available: r.is_available,
         description: r.description,
         community_resource_publisher: r.community_resource_publisher,
         original_resource_url: r.original_resource_url,
         features: r.features,
         modes: r.modes
-      },
-      where: r.is_available
+      }
     )
   end
 

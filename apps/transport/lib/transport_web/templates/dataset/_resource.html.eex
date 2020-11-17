@@ -1,9 +1,10 @@
-<div class="panel resource <%= valid_panel_class(@resource) %>">
+<div class="panel resource <%= valid_panel_class(@resource) %>" title="<%= resource_title(@resource) %>">
   <% has_associated_geojson = ResourceView.has_associated_geojson(@dataset, @resource) %>
   <% has_associated_netex = ResourceView.has_associated_netex(@dataset, @resource) %>
   <h4>
     <%= @resource.title %>
   </h4>
+
   <%= if Resource.valid?(@resource) do %>
     <div title="<%= dgettext("page-dataset-details", "Validity period") %>">
       <i class="icon icon--calendar-alt" aria-hidden="true"></i>
@@ -20,16 +21,21 @@
       <%= @resource.last_update |> format_datetime_to_date() %>
     <% end %>
   </div>
+
   <%= if Resource.is_gtfs?(@resource) do %>
     <div class="resource-status-corner <%= resource_class(@resource) %>">
       <span>
-        <%= unless Resource.valid?(@resource) do %>
-          <%= dgettext("page-dataset-details", "Impossible to read") %>
+        <%= unless @resource.is_available do %>
+          <%= dgettext("page-dataset-details", "Unavailable") %>
         <% else %>
-          <%= if Resource.is_outdated?(@resource) do %>
-            <%= dgettext("page-dataset-details", "Outdated") %>
+          <%= unless Resource.valid?(@resource) do %>
+            <%= dgettext("page-dataset-details", "Impossible to read") %>
           <% else %>
-            <%= dgettext("page-dataset-details", "Current dataset") %>
+            <%= if Resource.is_outdated?(@resource) do %>
+              <%= dgettext("page-dataset-details", "Outdated") %>
+            <% else %>
+              <%= dgettext("page-dataset-details", "Current dataset") %>
+            <% end %>
           <% end %>
         <% end %>
       </span>

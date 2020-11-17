@@ -357,3 +357,15 @@ msgstr "Données présentes dans la ressource :"
 #, elixir-format
 msgid "Modes available in the resource:"
 msgstr "Modes de transport disponibles dans la ressource :"
+
+#, elixir-format
+msgid "Unavailable"
+msgstr "Non dispo."
+
+#, elixir-format
+msgid "unavailable GTFS resources"
+msgstr "Ressources GTFS non disponibles"
+
+#, elixir-format
+msgid "Those resources are listed by the provider but are unreachable for now"
+msgstr "Ces ressources sont référencées, mais ne semblent pas accessibles pour le moment"
