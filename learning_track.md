@@ -51,6 +51,18 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Run `mix phx.routes GBFS.Router` (same for `/gbfs`)
 * **In short**: the "endpoint" includes a main router, which in turn includes 3 sub-routers
 
+### Read the logs from the database
+
+* Install [`clever-tools`](https://github.com/CleverCloud/clever-tools)
+* `clever login`
+* `clever --help`
+* Go to your local `transport-site` git clone
+* `clever link $$REPLACE_BY_APP_ID$$` (pick `app_id` in the CleverCloud dashboard for `transport-site`)
+* `clever status`
+* `clever logs --help`
+* `clever logs` to stream the current logs
+* `clever logs --addon $$REPLACE_BY_PG_ADDON_ID$$` (pick addon_id in CC dashboard for `transport-site-postgresql`) - :warning: not working at the moment
+
 ### Run the GTFS validator locally
 
 ### IDEAS for the next steps
