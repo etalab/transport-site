@@ -1,10 +1,25 @@
 .with-gradient {
-  background: rgb(215, 232, 255);
   background: linear-gradient(
     0deg,
     rgba(215, 232, 255, 1) 0%,
     rgba(255, 255, 255, 1) 50%
   );
+}
+
+.slack-logo {
+  display: inline-block;
+  max-width: 100px;
+  img {
+    width: 100%;
+  }
+}
+
+.twitter-logo {
+  display: inline-block;
+  width: 30px;
+  img {
+    width: 100%;
+  }
 }
 
 .tgv {
@@ -18,64 +33,25 @@
   }
 }
 
-.producteurs-content {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-around;
-  flex-wrap: wrap;
-
-  .producteurs-presentation {
-    display: flex;
-    flex-wrap: wrap;
-    section {
-      flex-basis: 300px;
-      flex-grow: 1;
-      padding: 24px;
-      margin: 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .presentation-action {
-      flex-grow: 0;
-    }
-  }
-  .presentation-icon {
-    text-align: center;
-    font-size: 3em;
-  }
+.producteurs-content .presentation-icon {
+  text-align: center;
+  font-size: 3em;
 }
 
-.why-section {
+.producteurs-presentation {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
-  align-items: stretch;
-  section {
-    flex-basis: 90%;
-    max-width: 500px;
-    flex-grow: 0;
-    text-align: left;
+  > div {
+    flex-basis: 300px;
+    flex-grow: 1;
+    padding: 24px;
+    margin: 24px;
     display: flex;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    .why-section-picto {
-      flex-basis: 96px;
-      flex-grow: 1;
-      max-width: 96px;
-      img {
-        width: 100%;
-      }
-    }
-    .why-section-text {
-      padding-left: 24px;
-      flex-basis: 300px;
-      min-width: 250px;
-      flex-grow: 2;
-    }
+    flex-direction: column;
+    justify-content: space-between;
   }
-  .panel {
-    margin: 0 0 24px 0;
+  .presentation-action {
+    flex-grow: 0;
   }
 }
 
@@ -90,6 +66,38 @@
   }
   @media (min-width: $breakpoint-tablet) and (max-width: $breakpoint-desktop) {
     background-size: 30%;
+  }
+  .section-why-body {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: stretch;
+    > div {
+      flex-basis: 90%;
+      max-width: 500px;
+      flex-grow: 0;
+      text-align: left;
+      display: flex;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      .why-section-picto {
+        flex-basis: 96px;
+        flex-grow: 1;
+        max-width: 96px;
+        img {
+          width: 100%;
+        }
+      }
+      .why-section-text {
+        padding-left: 24px;
+        flex-basis: 300px;
+        min-width: 250px;
+        flex-grow: 2;
+      }
+    }
+    .panel {
+      margin: 0 0 24px 0;
+    }
   }
 }
 
@@ -130,31 +138,20 @@
       margin-right: 12px;
     }
   }
-}
-
-#mc-embedded-subscribe {
-  margin-left: 0 !important;
-}
-
-.producteurs-community {
-  div {
-    flex-basis: 35%;
-    text-align: left;
+  #mc-embedded-subscribe {
+    margin-left: 0 !important;
   }
 }
 
-.slack-logo {
-  display: inline-block;
-  max-width: 100px;
-  img {
-    width: 100%;
-  }
-}
-
-.twitter-logo {
-  display: inline-block;
-  width: 30px;
-  img {
-    width: 100%;
+.section {
+  .producteurs-community {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    div {
+      flex-basis: 35%;
+      text-align: left;
+    }
   }
 }
