@@ -61,7 +61,7 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * `clever status`
 * `clever logs --help`
 * `clever logs` to stream the current logs
-* `clever logs --addon $$REPLACE_BY_PG_ADDON_ID$$` (pick addon_id in CC dashboard for `transport-site-postgresql`) - :warning: not working at the moment
+* `clever logs --addon $$REPLACE_BY_PG_ADDON_ID$$` (pick addon_id at top-right of CC dashboard for `transport-site-postgresql` "Information" tab)
 
 ### Run the GTFS validator locally
 
