@@ -123,11 +123,11 @@ defmodule Mix.Tasks.Transport.ImportAom do
         # we load the join on cities
         import_insee_aom()
         # we can then compute the aom geometries (the union of each cities geometries)
-        compute_geom()
       end,
-      # computing the geometries can be a bit long, we set a big timeout
-      timeout: 600_000
+      timeout: 20_000
     )
+
+    compute_geom()
   end
 
   defp get_aom_to_import do
@@ -226,7 +226,8 @@ defmodule Mix.Tasks.Transport.ImportAom do
           ]
         ]
       ),
-      []
+      [],
+      timeout: 240_000
     )
   end
 
