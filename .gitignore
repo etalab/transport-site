@@ -36,3 +36,4 @@ apps/transport/priv/static/js/*
 
 # the blog build folder
 /blog/public
+.clever.json
