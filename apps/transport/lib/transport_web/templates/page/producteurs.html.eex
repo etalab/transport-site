@@ -119,7 +119,7 @@
                   Notre journal où l'on trouve des tutoriels, des exemples de réutilisations, des retours d'expérience...
                 </div>
                 <div class="pt-12">
-                  <a href="blog.transport.data.gouv.fr">
+                  <a href="https://blog.transport.data.gouv.fr">
                     <button class="button-outline primary">
                       Consultez le blog de transport.data.gouv.fr
                     </button>
@@ -128,12 +128,10 @@
               </div>
               <div class="pt-48 pb-48">
                 <h2>Le fil Twitter <span class="twitter-logo">
-                    <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" /><a href="https://twitter.com/transportdatafr"></a>
+                    <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" />
                   </span></h2>
                 <div>
-                  <button class="button-outline primary">
-                    <%= dgettext("page-index", "Follow us on twitter") %>
-                  </button>
+                  <a class="button-outline primary" href="https://twitter.com/transportdatafr"><%= dgettext("page-index", "Follow us on twitter") %></a>
                 </div>
               </div>
             </div>
