@@ -8,6 +8,7 @@ defmodule GBFS.Application do
 
   def start(_type, _args) do
     children = [
+      {Cachex, name: :gbfs},
       Endpoint
     ]
 
