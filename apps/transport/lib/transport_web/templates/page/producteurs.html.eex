@@ -8,9 +8,8 @@
       </div>
       <div class="panel-producteurs">
         <h2>Accédez à votre espace producteur</h2>
-        <div>Pour vous identifier vous allez être redirigé vers la data.gouv.fr, la plateforme ouverte des données publiques françaises.</div>
-        <button class="button">S'identifier</button>
-      </section>
+        <div>Pour vous identifier vous allez être redirigé vers data.gouv.fr, la plateforme ouverte des données publiques françaises.</div>
+        <a class="button" href="<%= page_path @conn, :login, redirect_path: current_path(@conn) %>"><%= dgettext("page-dataset-details", "Log in") %></a>
     </div>
   </section>
   <section class="section producteurs-content">
