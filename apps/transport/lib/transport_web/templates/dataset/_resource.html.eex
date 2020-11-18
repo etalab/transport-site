@@ -22,7 +22,7 @@
     <% end %>
   </div>
 
-  <%= if Resource.is_gtfs?(@resource) do %>
+  <%= if Resource.is_gtfs?(@resource) or not @resource.is_available do %>
     <div class="resource-status-corner <%= resource_class(@resource) %>">
       <span>
         <%= unless @resource.is_available do %>
@@ -40,6 +40,8 @@
         <% end %>
       </span>
     </div>
+  <% end %>
+  <%= if Resource.is_gtfs?(@resource) do %>
     <div class="pb-24">
       <a href="<%= resource_path(@conn, :details, @resource.id)<>"#issues" %>">
         <% r = Resource.get_max_severity_validation_number(@resource) %>

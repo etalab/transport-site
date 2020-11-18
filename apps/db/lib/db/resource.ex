@@ -323,8 +323,9 @@ defmodule DB.Resource do
   def has_metadata?(%__MODULE__{} = r), do: r.metadata != nil
 
   @spec valid?(__MODULE__.t()) :: boolean()
-  def valid?(%__MODULE__{is_available: available, metadata: %{"start_date" => s, "end_date" => e}}) when not is_nil(s) and not is_nil(e),
-    do: available
+  def valid?(%__MODULE__{is_available: available, metadata: %{"start_date" => s, "end_date" => e}})
+      when not is_nil(s) and not is_nil(e),
+      do: available
 
   def valid?(%__MODULE__{}), do: false
 

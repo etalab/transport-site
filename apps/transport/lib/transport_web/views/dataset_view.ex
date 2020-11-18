@@ -212,14 +212,14 @@ defmodule TransportWeb.DatasetView do
       dataset
       |> Dataset.official_resources()
       |> Enum.filter(&Resource.is_gtfs?/1)
-      |> Enum.filter(&Resource.is_available?/1)
+      |> Enum.filter(fn r -> r.is_available end)
 
   def gtfs_official_unavailable_resources(dataset),
     do:
       dataset
       |> Dataset.official_resources()
       |> Enum.filter(&Resource.is_gtfs?/1)
-      |> Enum.reject(&Resource.is_available?/1)
+      |> Enum.reject(fn r -> r.is_available end)
 
   def gtfs_rt_official_resources(dataset),
     do:
@@ -320,10 +320,13 @@ defmodule TransportWeb.DatasetView do
 
   def get_resource_to_display(%Dataset{}), do: nil
 
-  def resource_title(%DB.Resource{is_available: false}), do: dgettext("dataset", "The resource is not available (maybe temporarily)")
+  def resource_title(%DB.Resource{is_available: false}),
+    do: dgettext("dataset", "The resource is not available (maybe temporarily)")
+
   def resource_title(%DB.Resource{}), do: nil
 
   def resource_class(%DB.Resource{is_available: false}), do: "resource--unavailable"
+
   def resource_class(%DB.Resource{} = r) do
     case DB.Resource.valid?(r) do
       false ->
