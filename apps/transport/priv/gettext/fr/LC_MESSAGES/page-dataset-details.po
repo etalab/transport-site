@@ -363,8 +363,8 @@ msgid "Unavailable"
 msgstr "Non dispo."
 
 #, elixir-format
-msgid "unavailable GTFS resources"
-msgstr "Ressources GTFS non disponibles"
+msgid "unavailable resources"
+msgstr "Ressources non disponibles"
 
 #, elixir-format
 msgid "Those resources are listed by the provider but are unreachable for now"

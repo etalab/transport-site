@@ -207,41 +207,45 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
+  def official_available_resources(dataset),
+    do:
+      dataset
+      |> Dataset.official_resources()
+      |> Enum.filter(fn r -> r.is_available end)
+
   def gtfs_official_resources(dataset),
     do:
       dataset
-      |> Dataset.official_resources()
+      |> official_available_resources()
       |> Enum.filter(&Resource.is_gtfs?/1)
-      |> Enum.filter(fn r -> r.is_available end)
 
-  def gtfs_official_unavailable_resources(dataset),
+  def unavailable_resources(dataset),
     do:
       dataset
       |> Dataset.official_resources()
-      |> Enum.filter(&Resource.is_gtfs?/1)
       |> Enum.reject(fn r -> r.is_available end)
 
   def gtfs_rt_official_resources(dataset),
     do:
       dataset
-      |> Dataset.official_resources()
+      |> official_available_resources()
       |> Enum.filter(&Resource.is_gtfs_rt?/1)
 
   def gbfs_official_resources(dataset),
     do:
       dataset
-      |> Dataset.official_resources()
+      |> official_available_resources()
       |> Enum.filter(&Resource.is_gbfs?/1)
 
   def netex_official_resources(dataset),
     do:
       dataset
-      |> Dataset.official_resources()
+      |> official_available_resources()
       |> Enum.filter(&Resource.is_netex?/1)
 
   def other_official_resources(dataset) do
     dataset
-    |> Dataset.official_resources()
+    |> official_available_resources()
     |> Stream.reject(&Resource.is_gtfs?/1)
     |> Stream.reject(&Resource.is_gtfs_rt?/1)
     |> Stream.reject(&Resource.is_gbfs?/1)

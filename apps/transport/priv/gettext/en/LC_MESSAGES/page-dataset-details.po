@@ -363,7 +363,7 @@ msgid "Unavailable"
 msgstr ""
 
 #, elixir-format
-msgid "unavailable GTFS resources"
+msgid "unavailable resources"
 msgstr ""
 
 #, elixir-format
