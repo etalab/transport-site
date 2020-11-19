@@ -4,8 +4,12 @@ defmodule PageCache do
 
   def init(default), do: default
 
+  def build_cache_key(request_path) do
+    ["page", request_path] |> Enum.join(":")
+  end
+
   def call(conn, _default) do
-    page_cache_key = ["page", conn.request_path] |> Enum.join(":")
+    page_cache_key = build_cache_key(conn.request_path)
 
     Cachex.get(:gbfs, page_cache_key)
     |> case do
