@@ -67,6 +67,7 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 
 ### IDEAS for the next steps
 
+* Understanding the code behind https://github.com/etalab/transport-site/pull/1373
 * Overall architecture (diagram by Francis)
 * Structure of the Umbrella app (apps)
 * Measuring code coverage
