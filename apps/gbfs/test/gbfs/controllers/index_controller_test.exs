@@ -1,5 +1,5 @@
 defmodule GBFS.IndexControllerTest do
-  use TransportWeb.ConnCase, async: true
+  use GBFS.ConnCase, async: true
 
   describe "GET /" do
     test "returns correct absolute urls", %{conn: conn} do
