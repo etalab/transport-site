@@ -4,6 +4,10 @@ defmodule PageCache do
 
   def init(default), do: default
 
+  defmodule CacheEntry do
+    defstruct [:body, :content_type]
+  end
+
   def build_cache_key(request_path) do
     ["page", request_path] |> Enum.join(":")
   end
@@ -31,7 +35,8 @@ defmodule PageCache do
     Logger.info("Cache hit for key #{page_cache_key}")
 
     conn
-    |> send_resp(:ok, value)
+    |> put_resp_content_type(value.content_type)
+    |> send_resp(:ok, value.body)
     |> halt
   end
 
@@ -45,7 +50,13 @@ defmodule PageCache do
   def save_to_cache(conn) do
     page_cache_key = conn.assigns.page_cache_key
     Logger.info("Persisting cache key #{page_cache_key}")
-    Cachex.put(:gbfs, page_cache_key, conn.resp_body, ttl: :timer.seconds(10))
+
+    value = %CacheEntry{
+      body: conn.resp_body,
+      content_type: conn |> get_resp_header("content-type") |> Enum.at(0)
+    }
+
+    Cachex.put(:gbfs, page_cache_key, value, ttl: :timer.seconds(60))
     conn
   end
 end
