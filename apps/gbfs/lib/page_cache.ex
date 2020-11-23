@@ -30,7 +30,7 @@ defmodule PageCache do
     Logger.info("Cache miss for key #{page_cache_key}")
 
     conn
-    |> register_before_send(&save_to_cache/1)
+    |> register_before_send(&save_to_cache(&1, options))
     |> assign(:page_cache_key, page_cache_key)
   end
 
@@ -51,7 +51,7 @@ defmodule PageCache do
     conn
   end
 
-  def save_to_cache(conn) do
+  def save_to_cache(conn, options) do
     page_cache_key = conn.assigns.page_cache_key
     Logger.info("Persisting cache key #{page_cache_key}")
 
@@ -60,7 +60,7 @@ defmodule PageCache do
       content_type: conn |> get_resp_header("content-type") |> Enum.at(0)
     }
 
-    Cachex.put(:gbfs, page_cache_key, value, ttl: :timer.seconds(60))
+    Cachex.put(options[:cache_name], page_cache_key, value, ttl: options[:ttl])
     conn
   end
 end
