@@ -17,7 +17,6 @@ defmodule GBFS.PageCacheTest do
     assert response |> get_resp_header("content-type") == ["application/json; charset=utf-8"]
   end
 
-  @tag :focus
   test "caches HTTP 200 output", %{conn: conn} do
     # simulate a clean start, otherwise other tests will have filled the cache
     Cachex.clear(:gbfs)
