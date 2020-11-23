@@ -1,6 +1,6 @@
 defmodule GBFS.VCubControllerTest do
-  use TransportWeb.ConnCase, async: true
-  use TransportWeb.ExternalCase
+  use GBFS.ConnCase, async: true
+  use GBFS.ExternalCase
   alias GBFS.Router.Helpers, as: Routes
 
   @moduletag :external

@@ -30,12 +30,15 @@ defmodule GBFS.MixProject do
 
   defp deps do
     [
+      {:httpoison, "~> 1.5.0"},
       {:exshape, "~> 2.2.6"},
       {:phoenix, "~> 1.4"},
       {:iconv, "~> 1.0.10"},
       {:sweet_xml, ">= 0.0.0"},
       {:jason, ">= 0.0.0"},
-      {:cors_plug, "~> 2.0"}
+      {:cors_plug, "~> 2.0"},
+      {:sentry, "~> 7.1"},
+      {:exvcr, "~> 0.10", only: :test}
     ]
   end
 end
