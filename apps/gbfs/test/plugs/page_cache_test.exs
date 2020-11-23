@@ -62,20 +62,18 @@ defmodule GBFS.PageCachePlugTest do
   end
 
   test "handles cache failure gracefully to still honor the query" do
-    with_mock Sentry, capture_message: fn _, _ -> nil end do
-      logs =
-        capture_log(fn ->
-          conn = issue_uncached_query(cache_name: :this_cache_does_not_exist)
+    capture_log(fn ->
+      with_mock Sentry, capture_message: fn _, _ -> nil end do
+        conn = issue_uncached_query(cache_name: :this_cache_does_not_exist)
 
-          assert conn.state == :sent
-          assert conn.status == 200
-          assert conn.resp_body == "Hello world"
-          assert conn |> get_resp_header("content-type") == ["text/plain; charset=utf-8"]
-        end)
+        assert conn.state == :sent
+        assert conn.status == 200
+        assert conn.resp_body == "Hello world"
+        assert conn |> get_resp_header("content-type") == ["text/plain; charset=utf-8"]
 
-      assert logs =~ ~r{Cache failure no_cache}
-      # we want to be notified in that case, to investigate
-      assert_called_exactly(Sentry.capture_message(:_, :_), 1)
-    end
+        # we want to be notified in that case, to investigate
+        assert_called_exactly(Sentry.capture_message(:_, :_), 1)
+      end
+    end)
   end
 end
