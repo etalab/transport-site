@@ -1,4 +1,18 @@
 defmodule PageCache do
+  @moduledoc """
+  This module provides the ability to cache a HTTP response (in RAM, currently using Cachex).
+
+  It is implemented as a Plug, so that you can plug it in any given router.
+
+  In case of technical error (e.g. cache not available), the query should still be honored,
+  but without caching.
+
+  Improvements that would make sense:
+  - let the caller build the cache key
+  - let the caller decide when not to cache, or specify dynamic ttl
+  - let the caller handle errors
+  """
+
   import Plug.Conn
   require Logger
 
