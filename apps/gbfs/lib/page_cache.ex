@@ -21,6 +21,9 @@ defmodule PageCache do
     options |> Keyword.put(:ttl, :timer.seconds(ttl_seconds))
   end
 
+  @moduledoc """
+  The CacheEntry contains what is serialized in the cache currently.
+  """
   defmodule CacheEntry do
     defstruct [:body, :content_type]
   end
