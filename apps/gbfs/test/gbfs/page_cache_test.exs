@@ -35,7 +35,7 @@ defmodule GBFS.PageCacheTest do
     # a cache entry must have been created, with proper expiry time
     cache_key = PageCache.build_cache_key(url)
     assert Cachex.get!(:gbfs, cache_key) != nil
-    assert_in_delta Cachex.ttl!(:gbfs, cache_key), 60_000, 200
+    assert_in_delta Cachex.ttl!(:gbfs, cache_key), 30_000, 200
 
     # # second call must not result into call to third party
     with_mock HTTPoison, get: mock do
