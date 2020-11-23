@@ -79,9 +79,7 @@ defmodule PageCache do
       content_type: conn |> get_resp_header("content-type") |> Enum.at(0)
     }
 
-    Cachex.put(options |> Keyword.fetch!(:cache_name), page_cache_key, value,
-      ttl: options |> Keyword.fetch!(:ttl)
-    )
+    Cachex.put(options |> Keyword.fetch!(:cache_name), page_cache_key, value, ttl: options |> Keyword.fetch!(:ttl))
 
     conn
   end
