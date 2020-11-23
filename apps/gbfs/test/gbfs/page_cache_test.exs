@@ -45,7 +45,7 @@ defmodule GBFS.PageCacheTest do
     url = "/gbfs/vcub/station_status.json"
 
     use_cassette :stub, url: "~r/opendata.bordeaux-metropole.fr/", status_code: 500 do
-      logs =
+      _logs =
         capture_log(fn ->
           response =
             conn
