@@ -322,12 +322,12 @@ defmodule DB.Resource do
   @spec has_metadata?(__MODULE__.t()) :: boolean()
   def has_metadata?(%__MODULE__{} = r), do: r.metadata != nil
 
-  @spec valid?(__MODULE__.t()) :: boolean()
-  def valid?(%__MODULE__{is_available: available, metadata: %{"start_date" => s, "end_date" => e}})
+  @spec valid_and_available?(__MODULE__.t()) :: boolean()
+  def valid_and_available?(%__MODULE__{is_available: available, metadata: %{"start_date" => s, "end_date" => e}})
       when not is_nil(s) and not is_nil(e),
       do: available
 
-  def valid?(%__MODULE__{}), do: false
+  def valid_and_available?(%__MODULE__{}), do: false
 
   @spec is_outdated?(__MODULE__.t()) :: boolean
   def is_outdated?(%__MODULE__{metadata: %{"end_date" => nil}}), do: false

@@ -195,10 +195,6 @@ msgid "Specific usage conditions"
 msgstr ""
 
 #, elixir-format
-msgid "Current dataset"
-msgstr ""
-
-#, elixir-format
 msgid "and "
 msgstr ""
 
@@ -359,13 +355,21 @@ msgid "Modes available in the resource:"
 msgstr ""
 
 #, elixir-format
-msgid "Unavailable"
-msgstr ""
-
-#, elixir-format
 msgid "unavailable resources"
 msgstr ""
 
 #, elixir-format
 msgid "Those resources are listed by the provider but are unreachable for now"
+msgstr ""
+
+#, elixir-format
+msgid "Up to date"
+msgstr ""
+
+#, elixir-format, fuzzy
+msgid "Not"
+msgstr ""
+
+#, elixir-format, fuzzy
+msgid "available"
 msgstr ""

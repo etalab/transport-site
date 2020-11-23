@@ -200,7 +200,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def valid_panel_class(%Resource{} = r) do
-    case {Resource.is_gtfs?(r), Resource.valid?(r), Resource.is_outdated?(r)} do
+    case {Resource.is_gtfs?(r), Resource.valid_and_available?(r), Resource.is_outdated?(r)} do
       {true, false, _} -> "invalid-resource-panel"
       {true, _, true} -> "invalid-resource-panel"
       _ -> ""
@@ -324,15 +324,18 @@ defmodule TransportWeb.DatasetView do
 
   def get_resource_to_display(%Dataset{}), do: nil
 
-  def resource_title(%DB.Resource{is_available: false}),
+  def resource_tooltip_content(%DB.Resource{is_available: false}),
     do: dgettext("dataset", "The resource is not available (maybe temporarily)")
 
-  def resource_title(%DB.Resource{}), do: nil
+  def resource_tooltip_content(%DB.Resource{}), do: nil
+
+  def resource_span_class(%DB.Resource{is_available: false}), do: "span-unavailable"
+  def resource_span_class(%DB.Resource{}), do: nil
 
   def resource_class(%DB.Resource{is_available: false}), do: "resource--unavailable"
 
   def resource_class(%DB.Resource{} = r) do
-    case DB.Resource.valid?(r) do
+    case DB.Resource.valid_and_available?(r) do
       false ->
         "resource--notvalid"
 
@@ -347,6 +350,6 @@ defmodule TransportWeb.DatasetView do
   def order_resources_by_validity(resources) do
     resources
     |> Enum.sort_by(& &1.metadata["end_date"], &>=/2)
-    |> Enum.sort_by(&Resource.valid?(&1), &>=/2)
+    |> Enum.sort_by(&Resource.valid_and_available?(&1), &>=/2)
   end
 end

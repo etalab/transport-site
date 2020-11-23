@@ -320,7 +320,10 @@ defmodule DB.Dataset do
 
   @spec valid_gtfs(DB.Dataset.t()) :: [Resource.t()]
   def valid_gtfs(%__MODULE__{resources: nil}), do: []
-  def valid_gtfs(%__MODULE__{resources: r, type: "public-transit"}), do: Enum.filter(r, &Resource.valid?/1)
+
+  def valid_gtfs(%__MODULE__{resources: r, type: "public-transit"}),
+    do: Enum.filter(r, &Resource.valid_and_available?/1)
+
   def valid_gtfs(%__MODULE__{resources: r}), do: r
 
   @spec link_to_datagouv(DB.Dataset.t()) :: any()
