@@ -6,13 +6,23 @@
           <%= dgettext("page-producteurs", "Transport.data.gouv.fr help you publish your data") %>
         </h1>
       </div>
-      <div class="panel-producteurs">
-        <h2><%= dgettext("page-producteurs", "Access your producer section") %></h2>
-        <div>
-          <%= dgettext("page-producteurs", "To log in, you will be redirected to data.gouv.fr, the open platform for French public data") %>
+      <%= if assigns[:current_user] do %>
+        <div class="panel-producteurs signed-in">
+          <h2><%= dgettext("page-producteurs", "Welcome!") %></h2>
+          <a class="button" href="<%= page_path @conn, :producteurs %>"><%= dgettext("page-producteurs", "Access your producer section") %></a>
+          <div class="pt-24">
+            <%= dgettext("page-producteurs", "transport.data.gouv.fr is affiliated with data.gouv.fr, the open platform for French public data") %>
+          </div>
         </div>
-        <a class="button" href="<%= page_path @conn, :login, redirect_path: current_path(@conn) %>"><%= dgettext("page-dataset-details", "Log in") %></a>
-    </div>
+        <% else %>
+        <div class="panel-producteurs">
+          <h2><%= dgettext("page-producteurs", "Access your producer section") %></h2>
+          <div>
+            <%= dgettext("page-producteurs", "To log in, you will be redirected to data.gouv.fr, the open platform for French public data") %>
+          </div>
+          <a class="button" href="<%= page_path @conn, :login, redirect_path: current_path(@conn) %>"><%= dgettext("page-dataset-details", "Log in") %></a>
+        </div>
+      <% end %>
   </section>
   <section class="section producteurs-content">
     <div class="producteurs-presentation">
