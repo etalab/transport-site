@@ -75,6 +75,12 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Read the [restore_db.sh](https://github.com/etalab/transport-site/blob/master/restore_db.sh) script
 * Go to the CleverCloud dashboard for the **staging** Postgres database, and run `restore_db.sh` with proper parameters
 
+### How to connect via SSH
+
+* Make sure to link the correct app (production or staging) with `clever link $$REPLACE_BY_APP_ID$$` (as displayed in the staging/production app CC dashboards)
+* Verify the linking status with `clever applications`
+* Log with the app alias: `clever ssh --alias transport-prochainement`
+
 ### Run the GTFS validator locally
 
 ### IDEAS for the next steps
