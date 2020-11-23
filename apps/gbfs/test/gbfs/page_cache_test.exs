@@ -6,10 +6,14 @@ defmodule GBFS.PageCacheTest do
 
   def issue_verified_query_and_capture_logs(conn, url) do
     capture_log(fn ->
-      conn
-      |> get(url)
-      # note: this asserts that content-type is restored too
-      |> json_response(200)
+      response =
+        conn
+        |> get(url)
+
+      assert response.status == 200
+
+      # NOTE: not using json_response directly because it currently does not catch bogus duplicate "charset"
+      assert response |> get_resp_header("content-type") == ["application/json; charset=utf-8"]
     end)
   end
 
