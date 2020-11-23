@@ -1,6 +1,6 @@
 defmodule GBFS.PageCacheTest do
-  # NOTE: until we test in standalone mode (Plug Test), we want to make sure no other
-  # test-case runs at the same time, so that we can assert on the cache state.
+  # NOTE: this test will be polluted by other controller tests since it touches the same cache.
+  # We set async to false to avoid that.
   use GBFS.ConnCase, async: false
   use GBFS.ExternalCase
   import ExUnit.CaptureLog
