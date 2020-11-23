@@ -20,13 +20,13 @@ defmodule PageCache do
 
     Cachex.get(options[:cache_name], page_cache_key)
     |> case do
-      {:ok, nil} -> handle_miss(conn, page_cache_key)
+      {:ok, nil} -> handle_miss(conn, page_cache_key, options)
       {:ok, value} -> handle_hit(conn, page_cache_key, value)
       {:error, error} -> handle_error(conn, error)
     end
   end
 
-  def handle_miss(conn, page_cache_key) do
+  def handle_miss(conn, page_cache_key, options) do
     Logger.info("Cache miss for key #{page_cache_key}")
 
     conn
