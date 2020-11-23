@@ -15,10 +15,10 @@ defmodule PageCache do
     ["page", request_path] |> Enum.join(":")
   end
 
-  def call(conn, _default) do
+  def call(conn, options) do
     page_cache_key = build_cache_key(conn.request_path)
 
-    Cachex.get(:gbfs, page_cache_key)
+    Cachex.get(options[:cache_name], page_cache_key)
     |> case do
       {:ok, nil} -> handle_miss(conn, page_cache_key)
       {:ok, value} -> handle_hit(conn, page_cache_key, value)
