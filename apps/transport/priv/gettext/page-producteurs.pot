@@ -113,3 +113,11 @@ msgstr ""
 #, elixir-format
 msgid "Wether you are Autorité organisatrice de mobilité, délégataire de service public, or collectivité territoriale, you may be concerned by the laws loi pour une république numérique, la Loi Orientation des Mobilités and the european reglementation."
 msgstr ""
+
+#, elixir-format
+msgid "Welcome!"
+msgstr ""
+
+#, elixir-format
+msgid "transport.data.gouv.fr is affiliated with data.gouv.fr, the open platform for French public data"
+msgstr ""
