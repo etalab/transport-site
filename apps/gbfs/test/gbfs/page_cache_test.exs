@@ -1,5 +1,7 @@
 defmodule GBFS.PageCacheTest do
-  use GBFS.ConnCase, async: true
+  # NOTE: until we test in standalone mode (Plug Test), we want to make sure no other
+  # test-case runs at the same time, so that we can assert on the cache state.
+  use GBFS.ConnCase, async: false
   use GBFS.ExternalCase
   import ExUnit.CaptureLog
   require Logger
@@ -18,6 +20,9 @@ defmodule GBFS.PageCacheTest do
   end
 
   test "caches HTTP 200 output", %{conn: conn} do
+    # simulate a clean start, otherwise other tests will have filled the cache
+    Cachex.clear(:gbfs)
+
     url = "/gbfs"
     cache_key = PageCache.build_cache_key(url)
 
