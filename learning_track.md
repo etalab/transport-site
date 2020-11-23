@@ -65,8 +65,15 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 
 ### How to deploy the Elixir app on staging (aka "prochainement")
 
-* TODO: describe more how
-* `git push <remote> <branche>:prochainement -f`
+* Use a force push of your branch, e.g. `git push <remote> <branche>:prochainement -f` (so if your branch is `some-feature`, this will usually be: `git push origin some-feature:prochainement -f`)
+* This will trigger a redeploy
+* If you see errors in the CC app logs due to Ecto migrations (due to divergence of branches), you'll want to reset the staging database (see below)
+
+### How to reset the staging (aka "prochainement") database
+
+* Go to the CleverCloud dashboard for the production Postgres database and download it locally
+* Read the [restore_db.sh](https://github.com/etalab/transport-site/blob/master/restore_db.sh) script
+* Go to the CleverCloud dashboard for the **staging** Postgres database, and run `restore_db.sh` with proper parameters
 
 ### Run the GTFS validator locally
 
