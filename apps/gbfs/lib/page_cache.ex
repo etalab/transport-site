@@ -35,7 +35,8 @@ defmodule PageCache do
     Logger.info("Cache hit for key #{page_cache_key}")
 
     conn
-    |> put_resp_content_type(value.content_type)
+    # NOTE: not using put_resp_content_type because we would have to split on ";" for charset
+    |> put_resp_header("content-type", value.content_type)
     |> send_resp(:ok, value.body)
     |> halt
   end
