@@ -67,3 +67,7 @@ msgstr ""
 #, elixir-format
 msgid "other-open"
 msgstr ""
+
+#, elixir-format
+msgid "The resource is not available (maybe temporarily)"
+msgstr ""
