@@ -1,3 +1,6 @@
+# It would be ultimately better to write standalone tests for this plug (instead of
+# testing the whole app like currently done), but with the current coverage, an integration
+# test like the one below provides more value.
 defmodule GBFS.PageCacheTest do
   # NOTE: until we test in standalone mode (Plug Test), we want to make sure no other
   # test-case runs at the same time, so that we can assert on the cache state.
