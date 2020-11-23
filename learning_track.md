@@ -63,6 +63,11 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * `clever logs` to stream the current logs
 * `clever logs --addon $$REPLACE_BY_PG_ADDON_ID$$` (pick addon_id at top-right of CC dashboard for `transport-site-postgresql` "Information" tab)
 
+### How to deploy the Elixir app on staging (aka "prochainement")
+
+* TODO: describe more how
+* `git push <remote> <branche>:prochainement -f`
+
 ### Run the GTFS validator locally
 
 ### IDEAS for the next steps
