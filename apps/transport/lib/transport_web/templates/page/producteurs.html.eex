@@ -2,13 +2,15 @@
   <div class="container producteurs-section">
     <section class="section producteurs-top">
       <div class="producteurs-title">
-        <h1>Transport.data.gouv
-          vous aide à publier
-          vos données</h1>
+        <h1>
+          <%= dgettext("page-producteurs", "Transport.data.gouv.fr help you publish your data") %>
+        </h1>
       </div>
       <div class="panel-producteurs">
-        <h2>Accédez à votre espace producteur</h2>
-        <div>Pour vous identifier vous allez être redirigé vers data.gouv.fr, la plateforme ouverte des données publiques françaises.</div>
+        <h2><%= dgettext("page-producteurs", "Access your producer section") %></h2>
+        <div>
+          <%= dgettext("page-producteurs", "To log in, you will be redirected to data.gouv.fr, the open platform for French public data") %>
+        </div>
         <a class="button" href="<%= page_path @conn, :login, redirect_path: current_path(@conn) %>"><%= dgettext("page-dataset-details", "Log in") %></a>
     </div>
   </section>
@@ -19,13 +21,13 @@
           <div class="presentation-icon">
             <i class="fa fa-lightbulb"></i>
           </div>
-          <h2>Des guides et tutoriels pour vous accompagner</h2>
+          <h2><%= dgettext("page-producteurs", "Read our guidelines") %></h2>
           <div>
-            Garantissez la bonne découvrabilité de vos données en respectant des normes de publication.
+            <%= dgettext("page-producteurs", "Help users find and use your data by following our publications guidelines.") %>
           </div>
         </div>
         <div class="presentation-action pt-24">
-          <button class="button-outline primary">Guides de publication de données</button>
+          <button class="button-outline primary"><%= dgettext("page-producteurs", "Data publishing guidelines") %></button>
         </div>
       </div>
       <div class="panel">
@@ -33,13 +35,17 @@
           <div class="presentation-icon">
             <i class="fa fa-tools"></i>
           </div>
-          <h2>Des outils pour valider la qualité de vos données</h2>
+          <h2>
+            <%= dgettext("page-producteurs", "Online validation tools") %>
+          </h2>
           <div>
-            Les données de bonnes qualités sont réutilisées. Validez vos données dans les formats GTFS ou respectant des schémas nationaux grâce à nos outils.
+            <%= dgettext("page-producteurs", "Users want quality data. Validate online your GTFS files or your data following French national schemas.") %>
           </div>
         </div>
         <div class="presentation-action pt-24">
-          <button class="button-outline primary">Testez vos jeux de données</button>
+          <button class="button-outline primary">
+            <%= dgettext("page-producteurs", "Validate data online") %>
+          </button>
         </div>
       </div>
       <div class="panel">
@@ -47,10 +53,12 @@
           <div class="presentation-icon">
             <i class="fa fa-users"></i>
           </div>
-          <h2> Une équipe à votre disposition pour répondre à vos questions</h2>
+          <h2>
+            <%= dgettext("page-producteurs", "Contact our team for any question you might have") %>
+          </h2>
         </div>
         <div class="presentation-action">
-          Contactez-nous à cette adresse : <a href="mailto: contact@transport.data.gouv.fr">contact@transport.data.gouv.fr</a>
+          <%= dgettext("page-producteurs", "Contact address:") %><a href="mailto: contact@transport.data.gouv.fr">contact@transport.data.gouv.fr</a>
         </div>
       </div>
     </div>
@@ -69,12 +77,14 @@
                 <img src="<%= static_path(@conn, "/images/producteurs/streamline-icon-judicial-document@140x140.png") %>" alt="balance de la loi">
               </div>
               <div class="why-section-text">
-                <h2>Vos obligations</h2>
-                <div>Que vous soyez Autorité Organisatrice des Mobilités, délégataire de service public ou collectivité territoriale,
-                  vous pouvez être concerné par la Loi pour une république Numérique, la Loi Orientation des Mobilités et le Réglement européen.
+                <h2><%= dgettext("page-producteurs", "Regulatory obligations") %></h2>
+                <div>
+                  <%= dgettext("page-producteurs", "Wether you are Autorité organisatrice de mobilité, délégataire de service public, or collectivité territoriale, you may be concerned by the laws loi pour une république numérique, la Loi Orientation des Mobilités and the european reglementation.") %>
                 </div>
                 <div class="pt-12">
-                  <a href="">Retrouvez ici une synthèse de ces obligations</a>
+                  <a href="">
+                    <%= dgettext("page-producteurs", "Read here a summary of those obligations") %>
+                  </a>
                 </div>
               </div>
             </div>
@@ -83,12 +93,14 @@
                 <img src="<%= static_path(@conn, "/images/producteurs/streamline-icon-people-in-love-3@140x140.png") %>" alt="balance de la loi">
               </div>
               <div class="why-section-text">
-                <h2>Pour les usagers</h2>
+                <h2>
+                  <%= dgettext("page-producteurs", "For the users") %>
+                </h2>
                 <div>
-                  De très nombreuses administrations, entreprises associations utilisent le Point d'Accès National pour trouver des données sur la mobilité en France.
+                  <%= dgettext("page-producteurs", "A number of administrations, companies and assocations use the French National Access Point to find mobility open-data in France.") %>
                 </div>
                 <div class="pt-12">
-                  Nos réutilisateurs développent des applications permettant aux usagers des services de mobilités de se repérer dans toute l'offre disponible sur leur territoire.
+                  <%= dgettext("page-producteurs", "Our reusers create applications allowing people to better use the mobility resources available around them.") %>
                 </div>
               </div>
             </div>
@@ -97,16 +109,20 @@
       </section>
       <section class="section">
         <div class="container producteurs-section is-centered">
-          <h1>Suivez et participez à l'actualité de la communauté transport.data.gouv !</h1>
+          <h1>
+            <%= dgettext("page-producteurs", "Join the transport.data.gouv.fr community and stay informed !") %>
+          </h1>
           <div class="producteurs-content producteurs-community pt-48">
             <div>
               <div>
-                <h2>La communauté <span class="slack-logo">
+                <h2>
+                  <%= dgettext("page-producteurs", "Join us on") %>
+                  <span class="slack-logo">
                     <img src="<%= static_path(@conn, "/images/Slack_RGB.png") %>" alt="Slack" />
                   </span>
                 </h2>
                 <div>
-                  Un espace d'échange pour les producteurs et les réutilisateurs de données de transport.
+                  <%= dgettext("page-producteurs", "A place to chat, ask questions and get answers for data producers and reusers.") %>
                   <div class="pt-24">
                     <a href="https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA">
                       <button class="button-outline primary"><%= dgettext("page-index", "Join us on Slack") %></button></a>
@@ -114,20 +130,20 @@
                 </div>
               </div>
               <div class="pt-48">
-                <h2>Le Blog</h2>
+                <h2><%= dgettext("page-producteurs", "Our blog") %></h2>
                 <div>
-                  Notre journal où l'on trouve des tutoriels, des exemples de réutilisations, des retours d'expérience...
+                  <%= dgettext("page-producteurs", "Read tutorials and users testimonies") %>
                 </div>
                 <div class="pt-12">
                   <a href="https://blog.transport.data.gouv.fr">
                     <button class="button-outline primary">
-                      Consultez le blog de transport.data.gouv.fr
+                      <%= dgettext("page-producteurs", "Go to transport.data.gouv.fr blog") %>
                     </button>
                   </a>
                 </div>
               </div>
               <div class="pt-48 pb-48">
-                <h2>Le fil Twitter <span class="twitter-logo">
+                <h2> <%= dgettext("page-producteurs", "Our twitter account") %> <span class="twitter-logo">
                     <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" />
                   </span></h2>
                 <div>
@@ -137,8 +153,10 @@
             </div>
             <div>
               <div>
-                <h2>La newsletter</h2>
-                <div>Tenez-vous à jour des dernières nouvelles du Point d'Accès National et de ses chantiers en cours en vous s'inscrivant à la Newsletter.</div>
+                <h2><%= dgettext("page-producteurs", "The newsletter") %></h2>
+                <div>
+                  <%= dgettext("page-producteurs", "Stay informed of the National Access Point latest news and upcoming functionalities.") %>
+                </div>
                 <div class="pt-12">
                   <form action="<%= @mailchimp_newsletter_url %>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
                     <div id="mc_embed_signup_scroll">
