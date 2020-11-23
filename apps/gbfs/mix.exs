@@ -39,7 +39,8 @@ defmodule GBFS.MixProject do
       {:jason, ">= 0.0.0"},
       {:cors_plug, "~> 2.0"},
       {:sentry, "~> 7.1"},
-      {:exvcr, "~> 0.10", only: :test}
+      {:exvcr, "~> 0.10", only: :test},
+      {:mock, "~> 0.3.6", only: :test}
     ]
   end
 end
