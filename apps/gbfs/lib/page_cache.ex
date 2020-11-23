@@ -2,7 +2,10 @@ defmodule PageCache do
   import Plug.Conn
   require Logger
 
-  def init(default), do: default
+  def init(options) do
+    ttl_seconds = options |> Keyword.get(:ttl_seconds)
+    options |> Keyword.put(:ttl, :timer.seconds(ttl_seconds))
+  end
 
   defmodule CacheEntry do
     defstruct [:body, :content_type]

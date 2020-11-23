@@ -4,7 +4,7 @@ defmodule GBFS.Router do
   pipeline :api do
     plug(:accepts, ["json"])
     plug(CORSPlug, origin: "*")
-    plug(PageCache)
+    plug(PageCache, ttl_seconds: 60, cache_name: GBFS.Application.cache_name())
   end
 
   pipeline :jcdecaux do
