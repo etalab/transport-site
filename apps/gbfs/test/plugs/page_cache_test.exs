@@ -20,7 +20,7 @@ defmodule GBFS.PageCachePlugTest do
     PageCache.init(cache_name: @cache, ttl_seconds: 60)
   end
 
-  def cache_size() do
+  def cache_size do
     {:ok, size} = Cachex.count(@cache)
     size
   end
