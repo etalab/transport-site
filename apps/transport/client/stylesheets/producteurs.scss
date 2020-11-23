@@ -126,6 +126,12 @@
       h2 {
         text-align: left;
       }
+      &.signed-in {
+        border-left: 5px solid var(--green);
+        .button {
+          background-color: var(--green);
+        }
+      }
     }
     .producteurs-title {
       padding-right: 48px;
