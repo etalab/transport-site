@@ -35,7 +35,9 @@ defmodule PageCache do
   def call(conn, options) do
     page_cache_key = build_cache_key(conn.request_path)
 
-    Cachex.get(options |> Keyword.fetch!(:cache_name), page_cache_key)
+    options
+    |> Keyword.fetch!(:cache_name)
+    |> Cachex.get(page_cache_key)
     |> case do
       {:ok, nil} -> handle_miss(conn, page_cache_key, options)
       {:ok, value} -> handle_hit(conn, page_cache_key, value)
@@ -77,7 +79,9 @@ defmodule PageCache do
       content_type: conn |> get_resp_header("content-type") |> Enum.at(0)
     }
 
-    Cachex.put(options |> Keyword.fetch!(:cache_name), page_cache_key, value, ttl: options |> Keyword.fetch!(:ttl))
+    Cachex.put(options |> Keyword.fetch!(:cache_name), page_cache_key, value,
+      ttl: options |> Keyword.fetch!(:ttl)
+    )
 
     conn
   end

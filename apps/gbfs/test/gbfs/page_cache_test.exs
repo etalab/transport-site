@@ -11,7 +11,7 @@ defmodule GBFS.PageCacheTest do
       |> get(url)
 
     assert response.status == 200
-    assert Jason.decode!(response.resp_body) |> Map.has_key?("data")
+    assert response.resp_body |> Jason.decode!() |> Map.has_key?("data")
 
     # NOTE: not using json_response directly because it currently does not catch bogus duplicate "charset"
     assert response |> get_resp_header("content-type") == ["application/json; charset=utf-8"]

@@ -26,7 +26,8 @@ defmodule GBFS.PageCachePlugTest do
   end
 
   def issue_uncached_query(options \\ plug_options()) do
-    conn(:get, "/some")
+    :get
+    |> conn("/some")
     |> PageCache.call(options)
     # NOTE: this will raise if the plug has already sent a response
     |> put_resp_content_type("text/plain", "utf-8")
@@ -51,7 +52,8 @@ defmodule GBFS.PageCachePlugTest do
     assert cache_size() == 1
 
     conn =
-      conn(:get, "/some")
+      :get
+      |> conn("/some")
       |> PageCache.call(cache_name: @cache, ttl_seconds: 60)
 
     # NOTE: we are not sending anything ourselves, the plug should have done it itself
