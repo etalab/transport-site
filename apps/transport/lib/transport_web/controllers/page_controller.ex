@@ -62,6 +62,11 @@ defmodule TransportWeb.PageController do
     |> render("producteurs.html")
   end
 
+  def espace_producteur(conn, _params) do
+    conn
+    |> render("espace_producteur.html")
+  end
+
   defp aoms_with_dataset do
     from(a in AOM,
       join: d in Dataset,
