@@ -9,7 +9,7 @@ config :transport, TransportWeb.Endpoint,
   server: true
 
 # Page cache would make tests brittle, so disable it by default
-config :page_cache, disable: true
+config :gbfs, :disable_page_cache, true
 
 # Integration testing with Hound
 # See docs at:

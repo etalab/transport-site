@@ -23,7 +23,7 @@ defmodule GBFS.PageCacheTest do
     # in the current case though, we want to avoid that & make sure caching is in effect.
     # I can't put that in a "setup" trivially because nested setups are not supported &
     # the whole thing would need a bit more work.
-    change_app_config_temporarily(:page_cache, :disable, false)
+    change_app_config_temporarily(:gbfs, :disable_page_cache, false)
     # clear in case we have other tests doing the same dance
     Cachex.clear(:gbfs)
 

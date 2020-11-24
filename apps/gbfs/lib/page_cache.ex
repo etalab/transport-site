@@ -96,7 +96,7 @@ defmodule PageCache do
   """
   def ttl_seconds(options) do
     ttl_seconds = options |> Keyword.fetch!(:ttl_seconds)
-    disable_page_cache = Application.get_env(:page_cache, :disable, false)
+    disable_page_cache = Application.get_env(:gbfs, :disable_page_cache, false)
     if disable_page_cache, do: 0, else: ttl_seconds
   end
 end
