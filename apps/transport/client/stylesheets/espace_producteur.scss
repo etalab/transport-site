@@ -1,0 +1,19 @@
+:root {
+  --producer-background: #defff8;
+}
+
+.producer-actions {
+  background-color: var(--producer-background);
+}
+
+.producer-tools-content {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  margin: 0 -24px;
+  .panel {
+    margin: 0 24px;
+    flex-basis: 300px;
+    flex-grow: 1;
+  }
+}
