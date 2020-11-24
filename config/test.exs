@@ -14,11 +14,8 @@ config :transport, TransportWeb.Endpoint,
 # * https://github.com/HashNuke/hound/wiki/Starting-a-webdriver-server
 config :hound, driver: "selenium", browser: "chrome"
 
-# Print only warnings and errors during test on screen, but still allow to
-# capture info logs during tests
-# https://elixirforum.com/t/exunit-capturelog-assert-capture-log-2-not-capturing-level-info/8617/10?u=thbar
-config :logger, level: :info
-config :logger, :console, level: :warn
+# Print only warnings and errors during test
+config :logger, level: :warn
 
 # Configure data.gouv.fr authentication
 config :oauth2, Authentication,
