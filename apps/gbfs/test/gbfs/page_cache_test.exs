@@ -4,6 +4,7 @@ defmodule GBFS.PageCacheTest do
   use GBFS.ConnCase, async: false
   use GBFS.ExternalCase
   import Mock
+  import AppConfigHelper
 
   def run_query(conn, url) do
     response =
@@ -18,7 +19,12 @@ defmodule GBFS.PageCacheTest do
   end
 
   test "caches HTTP 200 output", %{conn: conn} do
-    # simulate a clean start, otherwise other tests will have filled the cache
+    # during most tests, cache is disabled at runtime to avoid polluting results.
+    # in the current case though, we want to avoid that & make sure caching is in effect.
+    # I can't put that in a "setup" trivially because nested setups are not supported &
+    # the whole thing would need a bit more work.
+    change_app_config_temporarily(:page_cache, :disable, false)
+    # clear in case we have other tests doing the same dance
     Cachex.clear(:gbfs)
 
     url = "/gbfs/vlille/station_information.json"

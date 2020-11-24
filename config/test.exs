@@ -8,6 +8,9 @@ config :transport, TransportWeb.Endpoint,
   http: [port: 5001],
   server: true
 
+# Page cache would make tests brittle, so disable it by default
+config :page_cache, disable: true
+
 # Integration testing with Hound
 # See docs at:
 # * https://github.com/HashNuke/hound/blob/master/notes/configuring-hound.md

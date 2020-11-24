@@ -80,8 +80,20 @@ defmodule PageCache do
       content_type: conn |> get_resp_header("content-type") |> Enum.at(0)
     }
 
-    Cachex.put(options |> Keyword.fetch!(:cache_name), page_cache_key, value, ttl: options |> Keyword.fetch!(:ttl))
+    Cachex.put(options |> Keyword.fetch!(:cache_name), page_cache_key, value, ttl: ttl(options))
 
     conn
+  end
+
+  @doc """
+  The purpose of this method is to help us set TTL to 0 during most tests, to disable cache for tests.
+
+  A better way (to be implemented in the future) will be to use behaviours and alternate implementations
+  (like explained in https://dashbit.co/blog/mocks-and-explicit-contracts), but that will do for now.
+  """
+  def ttl(options) do
+    ttl = options |> Keyword.fetch!(:ttl)
+    disable_page_cache = Application.get_env(:page_cache, :disable, false)
+    if disable_page_cache, do: 0, else: ttl
   end
 end

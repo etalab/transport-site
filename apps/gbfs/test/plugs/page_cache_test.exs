@@ -3,6 +3,7 @@ defmodule GBFS.PageCachePlugTest do
   use Plug.Test
   import ExUnit.CaptureLog
   import Mock
+  import AppConfigHelper
 
   @cache :page_cache_test
 
@@ -13,6 +14,9 @@ defmodule GBFS.PageCachePlugTest do
 
   setup do
     Cachex.clear!(@cache)
+    # during most tests, cache is disabled at runtime to avoid polluting results.
+    # in the current case though, we want to avoid that & make sure caching is in effect.
+    change_app_config_temporarily(:page_cache, :disable, false)
     :ok
   end
 
