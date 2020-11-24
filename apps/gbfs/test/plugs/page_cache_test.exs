@@ -44,6 +44,9 @@ defmodule GBFS.PageCachePlugTest do
     assert conn.resp_body == "Hello world"
     assert conn.status == 200
     assert conn |> get_resp_header("content-type") == ["text/plain; charset=utf-8"]
+    # we return the same value for max-age rather than a decreasing value, to simplify things for now
+    # default plug behaviour is "max-age=0, private, must-revalidate", we just tweak the max-age here
+    assert conn |> get_resp_header("cache-control") == ["max-age=60, private, must-revalidate"]
     assert cache_size() == 1
 
     assert_in_delta Cachex.ttl!(@cache, "page:/some"), 60_000, 200
@@ -65,6 +68,8 @@ defmodule GBFS.PageCachePlugTest do
     assert conn.status == 200
     assert conn.resp_body == "Hello world"
     assert conn |> get_resp_header("content-type") == ["text/plain; charset=utf-8"]
+    # we return the same value for max-age rather than a decreasing value, to simplify things for now
+    assert conn |> get_resp_header("cache-control") == ["max-age=60, private, must-revalidate"]
   end
 
   test "handles cache failure gracefully to still honor the query" do
@@ -76,6 +81,8 @@ defmodule GBFS.PageCachePlugTest do
         assert conn.status == 200
         assert conn.resp_body == "Hello world"
         assert conn |> get_resp_header("content-type") == ["text/plain; charset=utf-8"]
+        # We do not use the cache value in that case, so use max-age=0
+        assert conn |> get_resp_header("cache-control") == ["max-age=0, private, must-revalidate"]
 
         # we want to be notified in that case, to investigate
         assert_called_exactly(Sentry.capture_message(:_, :_), 1)

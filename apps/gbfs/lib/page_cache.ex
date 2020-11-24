@@ -16,10 +16,7 @@ defmodule PageCache do
   import Plug.Conn
   require Logger
 
-  def init(options) do
-    ttl_seconds = options |> Keyword.fetch!(:ttl_seconds)
-    options |> Keyword.put(:ttl, :timer.seconds(ttl_seconds))
-  end
+  def init(options), do: options
 
   defmodule CacheEntry do
     @moduledoc """
@@ -40,7 +37,7 @@ defmodule PageCache do
     |> Cachex.get(page_cache_key)
     |> case do
       {:ok, nil} -> handle_miss(conn, page_cache_key, options)
-      {:ok, value} -> handle_hit(conn, page_cache_key, value)
+      {:ok, value} -> handle_hit(conn, page_cache_key, options, value)
       {:error, error} -> handle_error(conn, error)
     end
   end
@@ -51,16 +48,22 @@ defmodule PageCache do
     conn
     |> register_before_send(&save_to_cache(&1, options))
     |> assign(:page_cache_key, page_cache_key)
+    |> set_cache_control(options)
   end
 
-  def handle_hit(conn, page_cache_key, value) do
+  def handle_hit(conn, page_cache_key, options, value) do
     Logger.info("Cache hit for key #{page_cache_key}")
 
     conn
     # NOTE: not using put_resp_content_type because we would have to split on ";" for charset
     |> put_resp_header("content-type", value.content_type)
+    |> set_cache_control(options)
     |> send_resp(:ok, value.body)
     |> halt
+  end
+
+  def set_cache_control(conn, options) do
+    conn |> put_resp_header("cache-control", "max-age=#{ttl_seconds(options)}, private, must-revalidate")
   end
 
   def handle_error(conn, error) do
@@ -80,7 +83,7 @@ defmodule PageCache do
       content_type: conn |> get_resp_header("content-type") |> Enum.at(0)
     }
 
-    Cachex.put(options |> Keyword.fetch!(:cache_name), page_cache_key, value, ttl: ttl(options))
+    Cachex.put(options |> Keyword.fetch!(:cache_name), page_cache_key, value, ttl: :timer.seconds(ttl_seconds(options)))
 
     conn
   end
@@ -91,9 +94,9 @@ defmodule PageCache do
   A better way (to be implemented in the future) will be to use behaviours and alternate implementations
   (like explained in https://dashbit.co/blog/mocks-and-explicit-contracts), but that will do for now.
   """
-  def ttl(options) do
-    ttl = options |> Keyword.fetch!(:ttl)
+  def ttl_seconds(options) do
+    ttl_seconds = options |> Keyword.fetch!(:ttl_seconds)
     disable_page_cache = Application.get_env(:page_cache, :disable, false)
-    if disable_page_cache, do: 0, else: ttl
+    if disable_page_cache, do: 0, else: ttl_seconds
   end
 end
