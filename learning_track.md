@@ -63,25 +63,33 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * `clever logs` to stream the current logs
 * `clever logs --addon $$REPLACE_BY_PG_ADDON_ID$$` (pick addon_id at top-right of CC dashboard for `transport-site-postgresql` "Information" tab)
 
-### How to deploy the Elixir app on staging (aka "prochainement")
+### Learn how to deploy the Elixir app on staging (aka "prochainement")
 
 * Use a force push of your branch, e.g. `git push <remote> <branche>:prochainement -f` (so if your branch is `some-feature`, this will usually be: `git push origin some-feature:prochainement -f`)
 * This will trigger a redeploy
 * If you see errors in the CC app logs due to Ecto migrations (due to divergence of branches), you'll want to reset the staging database (see below)
 
-### How to reset the staging (aka "prochainement") database
+### Learn how to reset the staging (aka "prochainement") database
 
 * Go to the CleverCloud dashboard for the production Postgres database and download it locally
 * Read the [restore_db.sh](https://github.com/etalab/transport-site/blob/master/restore_db.sh) script
 * Go to the CleverCloud dashboard for the **staging** Postgres database, and run `restore_db.sh` with proper parameters
 
-### How to connect via SSH
+### Learn how to connect via SSH
 
 * Make sure to link the correct app (production or staging) with `clever link $$REPLACE_BY_APP_ID$$` (as displayed in the staging/production app CC dashboards)
 * Verify the linking status with `clever applications`
 * Log with the app alias: `clever ssh --alias transport-prochainement`
 
 ### Run the GTFS validator locally
+
+* Clone the [transport-validator](https://github.com/etalab/transport-validator) project locally
+* TODO
+
+### Run the realtime API locally
+
+* Clone the [transpo-rt](https://github.com/etalab/transpo-rt) project locally
+* TODO
 
 ### IDEAS for the next steps
 
