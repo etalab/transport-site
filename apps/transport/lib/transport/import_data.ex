@@ -37,18 +37,18 @@ defmodule Transport.ImportData do
   def validate_all_resources(force \\ false) do
     Logger.info("Validating all resources")
 
-    resources =
+    resources_id =
       Resource
-      |> preload(:validation)
+      |> select([r], r.id)
       |> Repo.all()
 
-    Logger.info("launching #{Enum.count(resources)} validations")
+    Logger.info("launching #{Enum.count(resources_id)} validations")
 
     validation_results =
       ImportTaskSupervisor
       |> Task.Supervisor.async_stream_nolink(
-        resources,
-        fn r -> Resource.validate_and_save(r, force) end,
+        resources_id,
+        fn r_id -> Resource.validate_and_save(r_id, force) end,
         max_concurrency: @max_import_concurrent_jobs,
         timeout: 180_000
       )

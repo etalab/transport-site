@@ -114,7 +114,15 @@ defmodule DB.Resource do
     {true, "no previous validation"}
   end
 
-  @spec validate_and_save(__MODULE__.t(), boolean()) :: {:error, any} | {:ok, nil}
+  @spec validate_and_save(__MODULE__.t() | integer(), boolean()) :: {:error, any} | {:ok, nil}
+  def validate_and_save(resource_id, force_validation) when is_integer(resource_id),
+    do:
+      __MODULE__
+      |> where([r], r.id == ^resource_id)
+      |> preload(:validation)
+      |> Repo.one!()
+      |> validate_and_save(force_validation)
+
   def validate_and_save(%__MODULE__{id: resource_id} = resource, force_validation) do
     Logger.info("Validating #{resource.url}")
 
