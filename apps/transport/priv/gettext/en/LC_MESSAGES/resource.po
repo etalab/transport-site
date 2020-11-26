@@ -102,7 +102,7 @@ msgid "Add a resource for dataset "
 msgstr ""
 
 #, elixir-format
-msgid "Modify resource for dataset "
+msgid "Resource modification"
 msgstr ""
 
 #, elixir-format
