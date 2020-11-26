@@ -1,29 +1,96 @@
-<section class="section">
-  <div class="container">
-    Bienvenue dans votre espace
+<div class="producer-space">
+  <div class="pt-48">
+    <div class="container">
+      <h4 class="grey">
+        Bienvenue dans votre espace !
+      </h4>
+    </div>
   </div>
-</section>
-<section class="section producer-actions">
-  <div class="container">
-    <h2>Que souhaitez-vous faire ?</h2>
-  </div>
-</section>
-<section class="section">
-  <div class="container">
-    <h2>Des ressources pour vous aider</h2>
-    <div class="producer-tools-content">
-      <div class="panel">
-        <h3>Les bonnes pratiques de publication</h3>
-      </div>
-      <div class="panel">
-        <h3>Tester vos jeux de données</h3>
-        <div>
-          Utilisez nos validateurs de données pour vous assurer qu'ils sont bien conformes.
+  <section class="section producer-actions">
+    <div class="container">
+      <div class="producer-actions-flex">
+        <div class="panel">
+          <div class="update-header">
+            <img height=30 src="<%= static_path(@conn, "/images/producteurs/picto-maj.png") %>" alt="">
+            <div>
+              <h3 class="with-link">Mettre à jour un jeu de données</h3>
+              <a href="">Consultez le guide de mise à jour</a>
+            </div>
+          </div>
+          <div class="pt-24">
+            <%= for dataset <- @datasets do %>
+              <div class="pt-24 panel dataset-item">
+                <strong><%= dataset.title %></strong>
+                <div class="pt-12">
+                  <%= link("Modifier une ressource",to: resource_path(@conn, :resources_list, dataset.datagouv_id), class: "button-outline primary small") %>
+                  <%= link("Ajouter une ressource",to: resource_path(@conn, :form, dataset.datagouv_id), class: "button-outline secondary small") %>
+                </div>
+              </div>
+            <% end %>
+          </div>
         </div>
-        <div class="pt-24">
-          <a href="" class="button-outline primary">Analyser la qualité d'un fichier</a>
+        <div>
+          <div class="panel">
+            <div class="publish-header">
+              <img height=30 src="<%= static_path(@conn, "/images/producteurs/picto-publier.png") %>" alt="">
+              <div>
+                <h3 class="with-link">Publier un jeu de données</h3>
+                <a href="">Consultez le guide de publication</a>
+              </div>
+            </div>
+            <div class="pt-24">
+              Référencez vos données de mobilité sur le Point d'Accès National. Vous serez redirigé sur data.gouv.fr pour publier votre nouveau jeu de données.
+            </div>
+            <div class="pt-12">
+              <a href="<%= dataset_creation() %>" class="button primary">Publier un nouveau jeu de données</a>
+            </div>
+          </div>
+          <div class="contact-us is-centered pt-24">
+            <div>
+              <img height=70 src="<%= static_path(@conn, "/images/producteurs/streamline-icon-headphones-customer-support-human@140x140.png") %>" alt="contact">
+            </div>
+            <h3>Contacter l'équipe</h3>
+            <div>
+              Une question sur la meilleure manière de publier de données ou de les mettre à jour ? Si vous ne trouvez pas de réponses sur le site, contactez-nous à l'adresse :
+            </div>
+            <div class="pt-12">
+              <a href='mailto:<%= @contact_email %>'><%= @contact_email %></a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+  </section>
+  <div class="tramway">
+    <img src="<%= static_path(@conn, "/images/producteurs/tramway.svg") %>" alt="">
   </div>
-</section>
+  <section class="section">
+    <div class="container">
+      <h2>Des ressources pour vous aider</h2>
+      <div class="producer-tools-content">
+        <div class="panel">
+          <div class="checklist-header">
+            <img height=60 src="<%= static_path(@conn, "/images/producteurs/streamline-icon-employee-checklist.png") %>" alt="">
+            <div>
+              <h3>Les bonnes pratiques de publication</h3>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="test-header">
+            <img height=30 src="<%= static_path(@conn, "/images/producteurs/picto-check.png") %>" alt="">
+            <div>
+              <h3>Tester vos jeux de données</h3>
+            </div>
+          </div>
+          <div>
+            Utilisez nos validateurs de données pour vous assurer qu'ils sont bien conformes.
+          </div>
+          <div class="pt-24">
+            <a href="<%= validation_path(@conn, :index) %>" class="button-outline primary">Analyser la qualité d'un fichier</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

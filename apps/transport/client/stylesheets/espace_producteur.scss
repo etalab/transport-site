@@ -1,9 +1,57 @@
 :root {
-  --producer-background: #defff8;
+  --primary-color-producer: #00ac8cff;
+}
+
+.producer-space {
+  .button.primary {
+    background-color: var(--primary-color-producer);
+  }
+  .button-outline.primary {
+    color: var(--primary-color-producer);
+    border-color: var(--primary-color-producer);
+  }
 }
 
 .producer-actions {
-  background-color: var(--producer-background);
+  background-color: var(--theme-background-grey);
+  .producer-actions-flex {
+    display: flex;
+    align-items: stretch;
+    margin: 0 -24px;
+    > div {
+      margin: 0 24px;
+      flex-basis: 300px;
+      flex-grow: 1;
+    }
+    h3.with-link {
+      margin-bottom: 0;
+    }
+    .update-header,
+    .publish-header {
+      display: flex;
+      img {
+        padding-right: 12px;
+      }
+    }
+  }
+  .dataset-item {
+    a ~ a {
+      margin-left: 12px;
+    }
+  }
+}
+
+.tramway {
+  text-align: right;
+  width: 50vw;
+  position: relative;
+  height: 0;
+  bottom: 30px;
+  margin: 0 0 0 auto;
+  padding-right: 48px;
+  img {
+    max-height: 30px;
+  }
 }
 
 .producer-tools-content {
@@ -15,5 +63,34 @@
     margin: 0 24px;
     flex-basis: 300px;
     flex-grow: 1;
+  }
+  .test-header,
+  .checklist-header {
+    display: flex;
+    img {
+      padding-right: 12px;
+    }
+  }
+}
+
+.resource-update-section {
+  background-color: var(--theme-background-grey);
+  min-height: 80vh;
+  .resources-update-list {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -24px;
+    .panel {
+      margin: 0 24px;
+      display: flex;
+      align-items: center;
+      img {
+        padding-right: 12px;
+      }
+    }
+    a {
+      text-decoration: none;
+      color: initial;
+    }
   }
 }

@@ -127,9 +127,9 @@
         text-align: left;
       }
       &.signed-in {
-        border-left: 5px solid var(--green);
+        border-left: 5px solid var(--primary-color-producer);
         .button {
-          background-color: var(--green);
+          background-color: var(--primary-color-producer);
         }
       }
     }
