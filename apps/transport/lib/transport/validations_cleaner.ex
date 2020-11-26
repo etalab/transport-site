@@ -7,7 +7,7 @@ defmodule Transport.ValidationCleaner do
   require Logger
 
   def clean_old_validations do
-    nb_days_to_keep = Application.get_env(:transport, :nb_days_to_keep_validations)
+    nb_days_to_keep = Application.fetch_env!(:transport, :nb_days_to_keep_validations)
 
     limit =
       DateTime.utc_now()
