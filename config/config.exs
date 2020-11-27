@@ -94,4 +94,5 @@ config :ex_aws,
   json_codec: Jason
 
 config :transport,
-  max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer()
+  max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer(),
+  nb_days_to_keep_validations: 60
