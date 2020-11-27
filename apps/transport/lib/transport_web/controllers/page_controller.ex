@@ -63,14 +63,17 @@ defmodule TransportWeb.PageController do
   end
 
   def espace_producteur(conn, _params) do
-    user_datasets = case Dataset.user_datasets(conn) do
-      {:ok, datasets} -> datasets
-      _ -> []
-    end
-    user_org_datasets = case Dataset.user_org_datasets(conn) do
-      {:ok, datasets} -> datasets
-      _ -> []
-    end
+    user_datasets =
+      case Dataset.user_datasets(conn) do
+        {:ok, datasets} -> datasets
+        _ -> []
+      end
+
+    user_org_datasets =
+      case Dataset.user_org_datasets(conn) do
+        {:ok, datasets} -> datasets
+        _ -> []
+      end
 
     datasets = user_datasets ++ user_org_datasets
 
