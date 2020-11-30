@@ -1,4 +1,4 @@
-defmodule TransportWeb.DatabaseCase do
+defmodule DB.DatabaseCase do
   @moduledoc """
   This module defines the test case to be used by
   tests interacting with database.
