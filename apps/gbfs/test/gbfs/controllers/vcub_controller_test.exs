@@ -86,6 +86,7 @@ defmodule GBFS.VCubControllerTest do
       end)
 
       change_app_config_temporarily(:sentry, :dsn, "http://public:secret@localhost:#{bypass.port}/1")
+      change_app_config_temporarily(:sentry, :included_environments, [:test])
 
       with_mock HTTPoison, get: mock do
         conn = conn |> get(Routes.v_cub_path(conn, :station_status))
@@ -95,7 +96,7 @@ defmodule GBFS.VCubControllerTest do
         # we wait to be sure that the message is send.
         # in Sentry 0.8 we'll be able to do:
         # change_app_config_temporarily(:sentry, :send_result, :sync)
-        :timer.sleep(1000)
+        :timer.sleep(500)
 
         assert_called_exactly(HTTPoison.get(:_), 1)
       end
