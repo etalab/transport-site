@@ -31,7 +31,7 @@
   flex-wrap: wrap;
   margin: 0 -24px;
   .panel {
-    margin: 0 24px;
+    margin: 0 24px 24px 24px;
     flex-basis: 300px;
     flex-grow: 1;
   }
@@ -71,11 +71,13 @@
   .producer-actions-flex {
     display: flex;
     align-items: stretch;
+    flex-wrap: wrap;
     margin: 0 -24px;
     > div {
       margin: 0 24px;
-      flex-basis: 300px;
+      flex-basis: 350px;
       flex-grow: 1;
+      margin-bottom: 24px;
     }
     h3.with-link {
       margin-bottom: 0;
@@ -89,8 +91,8 @@
     }
   }
   .dataset-item {
-    a ~ a {
-      margin-left: 12px;
+    a:nth-child(1) {
+      margin-right: 12px;
     }
   }
 }
