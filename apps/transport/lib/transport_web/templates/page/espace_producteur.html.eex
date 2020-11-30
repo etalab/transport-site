@@ -35,7 +35,7 @@
               <img height=30 src="<%= static_path(@conn, "/images/producteurs/picto-publier.png") %>" alt="">
               <div>
                 <h3 class="with-link"><%= dgettext("espace-producteurs", "Publish a dataset") %></h3>
-                <a href=""><%= dgettext("espace-producteurs", "Adding a dataset guidelines") %></a>
+                <a href="https://doc.transport.data.gouv.fr/producteurs/comment-et-pourquoi-les-producteurs-de-donnees-utilisent-ils-le-pan"><%= dgettext("espace-producteurs", "Adding a dataset guidelines") %></a>
               </div>
             </div>
             <div class="pt-24">
