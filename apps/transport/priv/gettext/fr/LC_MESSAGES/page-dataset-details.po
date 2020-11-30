@@ -366,10 +366,10 @@ msgstr "Ces ressources sont référencées, mais ne semblent pas accessibles pou
 msgid "Up to date"
 msgstr "À jour"
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Not"
 msgstr "Non"
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "available"
 msgstr "disponible"

@@ -1,0 +1,75 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
+#, elixir-format
+msgid "Add a resource"
+msgstr ""
+
+#, elixir-format
+msgid "Adding a dataset guidelines"
+msgstr ""
+
+#, elixir-format
+msgid "Contact us"
+msgstr ""
+
+#, elixir-format
+msgid "Get your mobility data on the National Access Point. You will be redirected to data.gouv.fr to have your data published."
+msgstr ""
+
+#, elixir-format
+msgid "If you have any question on how to publish or update your data and you can't find an anwser on the website, do not hesitate, contact us:"
+msgstr ""
+
+#, elixir-format
+msgid "Publish a dataset"
+msgstr ""
+
+#, elixir-format
+msgid "Publish a new dataset"
+msgstr ""
+
+#, elixir-format
+msgid "Publishing best practices"
+msgstr ""
+
+#, elixir-format
+msgid "Test a file"
+msgstr ""
+
+#, elixir-format
+msgid "Update a dataset"
+msgstr ""
+
+#, elixir-format
+msgid "Update a resource"
+msgstr ""
+
+#, elixir-format
+msgid "Useful tools and content"
+msgstr ""
+
+#, elixir-format
+msgid "Validate your datasets"
+msgstr ""
+
+#, elixir-format
+msgid "Welcome to your producer space!"
+msgstr ""
+
+#, elixir-format
+msgid "You can test your data online and check its validity."
+msgstr ""
+
+#, elixir-format
+msgid "updating a dataset guidelines"
+msgstr ""

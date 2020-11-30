@@ -27,10 +27,6 @@ msgid "Access your producer section"
 msgstr ""
 
 #, elixir-format
-msgid "Contact address:"
-msgstr ""
-
-#, elixir-format
 msgid "Contact our team for any question you might have"
 msgstr ""
 

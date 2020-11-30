@@ -28,10 +28,6 @@ msgid "Access your producer section"
 msgstr "Accédez à votre espace producteur"
 
 #, elixir-format
-msgid "Contact address:"
-msgstr "Contactez-nous à cette adresse :"
-
-#, elixir-format
 msgid "Contact our team for any question you might have"
 msgstr "Une équipe à votre disposition pour répondre à vos questions"
 
@@ -122,4 +118,3 @@ msgstr "Bienvenue !"
 #, elixir-format
 msgid "transport.data.gouv.fr is affiliated with data.gouv.fr, the open platform for French public data"
 msgstr "transport.data.gouv.fr est affilié à data.gouv.fr : la plateforme ouverte des données publiques françaises"
-

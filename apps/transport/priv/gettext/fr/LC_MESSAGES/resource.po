@@ -6,20 +6,12 @@ msgid "Choose the resource you want to update"
 msgstr "Choisissez la ressource à mettre à modifier"
 
 #, elixir-format
-msgid "Dataset: "
-msgstr "Jeu de données :"
-
-#, elixir-format
 msgid "File uploaded!"
 msgstr "Fichier mis à jour !"
 
 #, elixir-format
 msgid "Unable to upload file"
 msgstr "Impossible de mettre à jour le fichier"
-
-#, elixir-format
-msgid "Update this resource"
-msgstr "Mettre à jour cette ressource"
 
 #, elixir-format
 msgid "Publish a new dataset"
@@ -96,10 +88,6 @@ msgstr "Option 2 : pour plus d'options, créer la ressource sur data.gouv.fr"
 #, elixir-format
 msgid "Option 2: for more options, edit the resource on data.gouv.fr"
 msgstr "Option 2 : pour plus d'options, éditer la ressource sur data.gouv.fr"
-
-#, elixir-format
-msgid "Add a resource for dataset "
-msgstr "Ajouter une nouvelle ressource pour le jeu de données "
 
 #, elixir-format
 msgid "Resource modification"
