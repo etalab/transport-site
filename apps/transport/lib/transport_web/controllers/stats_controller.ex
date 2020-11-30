@@ -67,7 +67,7 @@ defmodule TransportWeb.StatsController do
   defp nb_officical_realtime do
     rt_datasets =
       from(d in Dataset,
-        where: d.has_realtime
+        where: d.has_realtime and d.is_active and d.type == "public-transit"
       )
 
     Repo.aggregate(rt_datasets, :count, :id)
