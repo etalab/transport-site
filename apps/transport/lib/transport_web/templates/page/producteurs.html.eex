@@ -64,8 +64,11 @@
               <i class="fa fa-users"></i>
             </div>
             <h2>
-              <%= dgettext("page-producteurs", "Contact our team for any question you might have") %>
+              <%= dgettext("page-producteurs", "Contact us") %>
             </h2>
+            <div>
+              <%= dgettext("page-producteurs", "If you any question, send us an email and we'll be glad to help you!") %>
+            </div>
           </div>
           <div class="presentation-action">
             <a href="mailto: contact@transport.data.gouv.fr">contact@transport.data.gouv.fr</a>

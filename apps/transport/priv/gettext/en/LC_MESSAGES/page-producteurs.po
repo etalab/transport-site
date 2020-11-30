@@ -28,7 +28,7 @@ msgid "Access your producer section"
 msgstr ""
 
 #, elixir-format
-msgid "Contact our team for any question you might have"
+msgid "Contact us"
 msgstr ""
 
 #, elixir-format
@@ -117,4 +117,8 @@ msgstr ""
 
 #, elixir-format
 msgid "transport.data.gouv.fr is affiliated with data.gouv.fr, the open platform for French public data"
+msgstr ""
+
+#, elixir-format
+msgid "If you any question, send us an email and we'll be glad to help you!"
 msgstr ""
