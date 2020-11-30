@@ -95,7 +95,7 @@ defmodule GBFS.VCubControllerTest do
         # we wait to be sure that the message is send.
         # in Sentry 0.8 we'll be able to do:
         # change_app_config_temporarily(:sentry, :send_result, :sync)
-        :timer.sleep(500)
+        :timer.sleep(1000)
 
         assert_called_exactly(HTTPoison.get(:_), 1)
       end
