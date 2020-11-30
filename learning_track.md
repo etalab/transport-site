@@ -81,6 +81,13 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Verify the linking status with `clever applications`
 * Log with the app alias: `clever ssh --alias transport-prochainement`
 
+### Learn about the GTFS and GTFS-RT specifications
+
+* @thbar bought https://gumroad.com/l/gtfsbundle (available to the team on demand)
+* Download a tiny GTFS ([example](https://transport.data.gouv.fr/datasets/horaires-theoriques-et-temps-reel-des-navettes-de-la-station-de-tignes-gtfs-gtfs-rt/))
+* Read the GTFS guide
+* Read the GTFS-realtime guide
+
 ### Run the GTFS validator locally
 
 * Clone the [transport-validator](https://github.com/etalab/transport-validator) project locally
