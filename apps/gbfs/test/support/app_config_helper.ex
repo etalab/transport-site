@@ -6,7 +6,7 @@ defmodule AppConfigHelper do
   import ExUnit.Callbacks, only: [on_exit: 1]
 
   def change_app_config_temporarily(config_name, config_key, value) do
-    old_value = Application.get_env(config_name, config_key)
+    old_value = Application.fetch_env!(config_name, config_key)
     on_exit(fn -> Application.put_env(config_name, config_key, old_value) end)
     Application.put_env(config_name, config_key, value)
   end
