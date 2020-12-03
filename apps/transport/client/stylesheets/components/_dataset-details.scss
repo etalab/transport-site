@@ -79,6 +79,14 @@
   color: var(--theme-label-text);
 }
 
+.dataset__resources .resources-message {
+  color: var(--theme-label-text);
+}
+
+.dataset__resources .warning-red {
+  color: var(--theme-error-border);
+}
+
 .dataset__logo {
   img {
     max-height: 100px;
@@ -157,15 +165,13 @@
   .resource-panel-bottom {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    flex-direction: column;
     .resource-actions {
       flex-shrink: 1;
       display: flex;
-      justify-content: flex-end;
       flex-wrap: wrap;
-    }
-    .resource-tags {
-      flex-shrink: 3;
+      align-items: flex-end;
+      justify-content: space-between;
     }
   }
   .button {
@@ -235,6 +241,10 @@
   }
 }
 
+.span-unavailable {
+  line-height: 1em;
+}
+
 .ml-05-em {
   margin-left: 0.5em;
 }
@@ -248,6 +258,10 @@
 }
 
 .resource--notvalid {
+  border-top: 75px solid var(--theme-error-bg);
+}
+
+.resource--unavailable {
   border-top: 75px solid var(--theme-error-bg);
 }
 
@@ -273,6 +287,14 @@
 }
 .resource__summary--Success {
   color: var(--theme-success-border) !important;
+}
+
+.feature {
+  background-color: var(--light-red);
+}
+
+.mode {
+  background-color: var(--lighter-blue);
 }
 
 .reuses {

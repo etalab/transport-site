@@ -28,7 +28,10 @@ defmodule DB.Resource do
     field(:is_available, :boolean, default: true)
     field(:content_hash, :string)
     # automatically discovered tags
-    field(:auto_tags, {:array, :string}, default: [])
+    field(:features, {:array, :string}, default: [])
+    # all the detected modes of the ressource
+    field(:modes, {:array, :string}, default: [])
+
     field(:conversion_latest_content_hash, :string)
 
     field(:is_community_resource, :boolean)
@@ -111,7 +114,15 @@ defmodule DB.Resource do
     {true, "no previous validation"}
   end
 
-  @spec validate_and_save(__MODULE__.t(), boolean()) :: {:error, any} | {:ok, nil}
+  @spec validate_and_save(__MODULE__.t() | integer(), boolean()) :: {:error, any} | {:ok, nil}
+  def validate_and_save(resource_id, force_validation) when is_integer(resource_id),
+    do:
+      __MODULE__
+      |> where([r], r.id == ^resource_id)
+      |> preload(:validation)
+      |> Repo.one!()
+      |> validate_and_save(force_validation)
+
   def validate_and_save(%__MODULE__{id: resource_id} = resource, force_validation) do
     Logger.info("Validating #{resource.url}")
 
@@ -152,7 +163,7 @@ defmodule DB.Resource do
           resource_id: resource_id,
           timestamp: DateTime.truncate(DateTime.utc_now(), :second),
           is_success: false,
-          error_msg: error
+          error_msg: "error while calling the validator: #{inspect(error)}"
         })
 
         {:error, error}
@@ -209,7 +220,8 @@ defmodule DB.Resource do
         max_error: get_max_severity_error(validations),
         validation_latest_content_hash: r.content_hash
       },
-      auto_tags: find_tags(r, metadata),
+      features: find_tags(r, metadata),
+      modes: find_modes(metadata),
       start_date: str_to_date(metadata["start_date"]),
       end_date: str_to_date(metadata["end_date"])
     )
@@ -223,13 +235,34 @@ defmodule DB.Resource do
 
   # for the moment the tag detection is very simple, we only add the modes
   @spec find_tags(__MODULE__.t(), map()) :: [binary()]
-  def find_tags(%__MODULE__{} = _r, %{"modes" => modes}) do
-    modes
+  def find_tags(%__MODULE__{} = r, metadata) do
+    r
+    |> base_tag()
+    |> Enum.concat(has_fares_tag(metadata))
+    |> Enum.concat(has_shapes_tag(metadata))
+    |> Enum.uniq()
   end
 
-  def find_tags(%__MODULE__{} = _r, _) do
-    []
-  end
+  @spec find_modes(map()) :: [binary()]
+  def find_modes(%{"modes" => modes}), do: modes
+  def find_modes(_), do: []
+
+  # These tags are not translated because we'll need to be able to search for those tags
+  @spec has_fares_tag(map()) :: [binary()]
+  def has_fares_tag(%{"has_fares" => true}), do: ["tarifs"]
+  def has_fares_tag(_), do: []
+
+  @spec has_shapes_tag(map()) :: [binary()]
+  def has_shapes_tag(%{"has_shapes" => true}), do: ["tracés de lignes"]
+  def has_shapes_tag(_), do: []
+
+  @spec base_tag(__MODULE__.t()) :: [binary()]
+  def base_tag(%__MODULE__{format: "GTFS"}), do: ["position des stations", "horaires théoriques", "topologie du réseau"]
+
+  def base_tag(%__MODULE__{format: "NeTEx"}),
+    do: ["position des stations", "horaires théoriques", "topologie du réseau"]
+
+  def base_tag(_), do: []
 
   def changeset(resource, params) do
     resource
@@ -247,7 +280,8 @@ defmodule DB.Resource do
         :last_update,
         :latest_url,
         :is_available,
-        :auto_tags,
+        :features,
+        :modes,
         :is_community_resource,
         :community_resource_publisher,
         :original_resource_url,
@@ -296,11 +330,12 @@ defmodule DB.Resource do
   @spec has_metadata?(__MODULE__.t()) :: boolean()
   def has_metadata?(%__MODULE__{} = r), do: r.metadata != nil
 
-  @spec valid?(__MODULE__.t()) :: boolean()
-  def valid?(%__MODULE__{metadata: %{"start_date" => s, "end_date" => e}}) when not is_nil(s) and not is_nil(e),
-    do: true
+  @spec valid_and_available?(__MODULE__.t()) :: boolean()
+  def valid_and_available?(%__MODULE__{is_available: available, metadata: %{"start_date" => s, "end_date" => e}})
+      when not is_nil(s) and not is_nil(e),
+      do: available
 
-  def valid?(%__MODULE__{}), do: false
+  def valid_and_available?(%__MODULE__{}), do: false
 
   @spec is_outdated?(__MODULE__.t()) :: boolean
   def is_outdated?(%__MODULE__{metadata: %{"end_date" => nil}}), do: false

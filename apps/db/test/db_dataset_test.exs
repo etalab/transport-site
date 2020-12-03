@@ -1,8 +1,8 @@
-defmodule TransportWeb.DatasetDBTest do
+defmodule DB.DatasetDBTest do
   @moduledoc """
   Tests on the Dataset schema
   """
-  use TransportWeb.DatabaseCase, cleanup: [:datasets]
+  use DB.DatabaseCase, cleanup: [:datasets]
   alias DB.Repo
 
   test "delete_parent_dataset" do

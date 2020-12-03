@@ -58,12 +58,12 @@
         <%= render("_maps.html", droms: @droms, prefix: "map_aoms") %>
         <div class="panel">
           <div class="description" id="public-transport-by-aom">
-            <h3>Par <acronym title="autorité organistrice de mobilité">AOM</acronym></h3>
+            <h3>Par <acronym title="autorité organisatrice de mobilité">AOM</acronym></h3>
             <span class="stat-link">
               <a href="#public-transport-by-aom"><i class="fa fa-link fa-small"></i></a>
             </span>
-            <p>L'offre de transport en commun urbain, disponible par <acronym title="autorité organistrice de mobilité">AOM</acronym>.</p><br>
-            <p>Ces données peuvent être disponibles pour l'<acronym title="autorité organistrice de mobilité">AOM</acronym> spécifiquement, ou au sein d'un jeu de données plus large.</p>
+            <p>L'offre de transport en commun urbain, disponible par <acronym title="autorité organisatrice de mobilité">AOM</acronym>.</p><br>
+            <p>Ces données peuvent être disponibles pour l'<acronym title="autorité organisatrice de mobilité">AOM</acronym> spécifiquement, ou au sein d'un jeu de données plus large.</p>
           </div>
           <div class="tile">
             <h3><%= @nb_aoms_with_data %></h3>
@@ -152,21 +152,21 @@
           </div>
             <div class="tile">
               <h3> <%= @ratio_aom_with_at_most_warnings %>%</h3>
-              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> urbaines avec des jeux de données de
+              <div><acronym title="autorité organisatrice de mobilité">AOM</acronym> urbaines avec des jeux de données de
               qualité satisfaisante (sans aucune erreur)</div>
             </div>
             <div class="tile">
               <h3> <%= @ratio_aom_good_quality %>%</h3>
-              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> urbaines avec des jeux de données de bonne qualité
+              <div><acronym title="autorité organisatrice de mobilité">AOM</acronym> urbaines avec des jeux de données de bonne qualité
               (sans erreurs ni avertissements)</div>
             </div>
             <div class="tile">
               <h3> <%= @aom_with_errors %> </h3>
-              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> urbaines avec des jeux de données en erreur</div>
+              <div><acronym title="autorité organisatrice de mobilité">AOM</acronym> urbaines avec des jeux de données en erreur</div>
             </div>
             <div class="tile">
               <h3> <%= @aom_with_fatal %> </h3>
-              <div><acronym title="autorité organistrice de mobilité">AOM</acronym> urbaines avec des jeux de données ne respectant pas les spécifications GTFS</div>
+              <div><acronym title="autorité organisatrice de mobilité">AOM</acronym> urbaines avec des jeux de données ne respectant pas les spécifications GTFS</div>
             </div>
         </div>
       </div>

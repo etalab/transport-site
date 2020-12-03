@@ -44,7 +44,7 @@
                     <p><%= dngettext("page-index", "dataset", "datasets", @count_public_transport_has_realtime || 0) %></p>
                 </a>
                 <!-- 14 is the region « national » We defined coaches as buses not bound to a region or AOM -->
-                <a class="tile" href="<%= dataset_path(@conn, :by_region, 14, "tags[]": "bus") %>">
+                <a class="tile" href="<%= dataset_path(@conn, :by_region, 14, "modes[]": "bus") %>">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus.svg") %>" alt="" />
                     <h3 class="text-center"><%= dgettext("page-index", "Long distance coach") %></h3>
                     <p><%= dngettext("page-index", "dataset", "datasets", @count_coach || 0) %></p>
@@ -69,7 +69,7 @@
                     <h3 class="text-center"><%= dgettext("page-index", "Air data") %></h3>
                     <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["air-transport"] || 0) %></p>
                 </a>
-                <a class="tile" href="<%= dataset_path(@conn, :index, "tags[]": "rail") %>">
+                <a class="tile" href="<%= dataset_path(@conn, :index, "modes[]": "rail") %>">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/train.svg") %>" alt="" />
                     <h3 class="text-center"><%= dgettext("page-index", "Railroad data") %></h3>
                     <p><%= dngettext("page-index", "dataset", "datasets", @count_train || 0) %></p>
@@ -79,7 +79,7 @@
                     <h3 class="text-center"><%= dgettext("page-index", "Road networks") %></h3>
                     <p><%= dngettext("page-index", "dataset", "datasets", @count_by_type["road-network"] || 0) %></p>
                 </a>
-                <a class="tile" href="<%= dataset_path(@conn, :index, "tags[]": "ferry") %>">
+                <a class="tile" href="<%= dataset_path(@conn, :index, "modes[]": "ferry") %>">
                     <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/boat.svg") %>" alt="" />
                     <h3 class="text-center"><%= dgettext("page-index", "Sea and river transport") %></h3>
                     <p><%= dngettext("page-index", "dataset", "datasets", @count_boat || 0) %></p>
