@@ -24,7 +24,7 @@ defmodule Mix.Tasks.Transport.ImportAom do
 
   use Mix.Task
   import Ecto.{Query}
-  alias DB.{AOM, Region, Repo}
+  alias DB.{AOM, Commune, Region, Repo}
   require Logger
 
   @aom_file "https://static.data.gouv.fr/resources/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/20201112-141547/base-aom-2020.csv"
@@ -120,14 +120,15 @@ defmodule Mix.Tasks.Transport.ImportAom do
         import_aoms(aom_to_add)
 
         delete_old_aoms(aom_to_add, aoms)
+
         # we load the join on cities
         import_insee_aom()
-        # we can then compute the aom geometries (the union of each cities geometries)
-        compute_geom()
       end,
-      # computing the geometries can be a bit long, we set a big timeout
-      timeout: 600_000
+      timeout: 400_000
     )
+
+    # we can then compute the aom geometries (the union of each cities geometries)
+    compute_geom()
   end
 
   defp get_aom_to_import do
@@ -195,12 +196,25 @@ defmodule Mix.Tasks.Transport.ImportAom do
     stream
     |> IO.binstream(:line)
     |> CSV.decode(separator: ?,, headers: true)
-    |> Enum.reject(fn {:ok, line} -> {line["aom"], line["insee"]} end)
-    |> Enum.reject(fn {:ok, {aom, insee}} -> aom == "" || insee == "" end)
-    |> Enum.each(fn {:ok, {aom, insee}} ->
+    |> Enum.map(fn {:ok, line} -> {String.to_integer(line["Id réseau"]), line["N° INSEE"]} end)
+    |> Enum.reject(fn {aom, insee} -> aom == "" || insee == "" end)
+    |> Enum.flat_map(fn {aom, insee} ->
+      # To reduce the number of UPADTE in the DB, we first check which city needs to be updated
       Commune
-      |> where([c], c.insee == ^insee)
-      |> Repo.update_all(set: [aom_res_id: String.to_integer(aom)])
+      |> where([c], c.insee == ^insee and (c.aom_res_id != ^aom or is_nil(c.aom_res_id)))
+      |> select([c], c.id)
+      |> Repo.all()
+      |> Enum.map(fn c -> {aom, c} end)
+    end)
+    |> Enum.reduce(%{}, fn {aom, commune}, commune_by_aom ->
+      # Then we group those city by AO, to only do one UPDATE query for several cities
+      commune_by_aom
+      |> Map.update(aom, [commune], fn list_communes -> [commune | list_communes] end)
+    end)
+    |> Enum.map(fn {aom, list_communes} ->
+      Commune
+      |> where([c], c.id in ^list_communes)
+      |> Repo.update_all(set: [aom_res_id: aom])
     end)
   end
 
@@ -226,7 +240,8 @@ defmodule Mix.Tasks.Transport.ImportAom do
           ]
         ]
       ),
-      []
+      [],
+      timeout: 240_000
     )
   end
 

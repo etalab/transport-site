@@ -67,3 +67,7 @@ msgstr "ODbL"
 #, elixir-format
 msgid "other-open"
 msgstr "Autre ouverte"
+
+#, elixir-format
+msgid "The resource is not available (maybe temporarily)"
+msgstr "La ressource est indisponible (peut-être temporairement)"

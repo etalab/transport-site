@@ -12,11 +12,12 @@ config :gbfs, GBFSWeb.Endpoint,
 
 config :transport, Transport.Scheduler,
   jobs: [
-    {"0 7 * * *", {Transport.ImportData, :import_validate_all, []}}, # Every day at 7am
+    {"0 4 * * *", {Transport.ImportData, :import_validate_all, []}}, # Every day at 4am UTC
     {"@daily", {Transport.DataChecker, :outdated_data, []}}, # Send email for outdated data
     {"@daily", {Transport.DataChecker, :inactive_data, []}}, # Set inactive data
     {"@daily", {Transport.History, :backup_resources, []}}, # backup all resources
     {"0 3 * * *", {Transport.LogCleaner, :clean_old_logs, []}}, # clean old logs
+    {"0 2 * * *", {Transport.ValidationCleaner, :clean_old_validations, []}}, # clean old validations
     {"0 6 * * *", {Transport.GtfsConversions, :convert_all, []}} # generate NeTEx / geojson files for all GTFS
   ]
 
