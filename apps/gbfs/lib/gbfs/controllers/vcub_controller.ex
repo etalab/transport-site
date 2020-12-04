@@ -48,7 +48,10 @@ defmodule GBFS.VCubController do
       {:error, msg} ->
         conn
         |> assign(:error, msg)
-        |> render(GBFS.ErrorView, "error.json")
+        # for the moment we always return a BAD_GATEWAY in case of error
+        |> put_status(502)
+        |> put_view(GBFS.ErrorView)
+        |> render("error.json")
     end
   end
 
@@ -119,9 +122,12 @@ defmodule GBFS.VCubController do
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(@rt_url),
          {:ok, data} <- Jason.decode(body) do
       res = convert_func.(data["records"])
+
       {:ok, res}
     else
-      _ -> {:error, "service unavailable"}
+      e ->
+        Logger.error("impossible to query vcub: #{inspect(e)}")
+        {:error, "service vcub unavailable"}
     end
   end
 end
