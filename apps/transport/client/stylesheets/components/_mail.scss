@@ -53,6 +53,10 @@ a.mail__button:hover {
 
   form {
     width: 100%;
+    .form-special-field {
+      // hide field used as honey-pot
+      display: none;
+    }
   }
 }
 
