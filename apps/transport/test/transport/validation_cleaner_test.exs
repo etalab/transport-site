@@ -2,7 +2,6 @@ defmodule Transport.ValidationCleanerTest do
   use ExUnit.Case
   alias Ecto.Adapters.SQL.Sandbox
   alias DB.{Repo, Resource, Validation}
-  import Ecto.Query
 
   def date(prior_days),
     do:
