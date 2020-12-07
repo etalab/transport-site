@@ -40,7 +40,8 @@ defmodule GBFS.MixProject do
       {:cors_plug, "~> 2.0"},
       {:sentry, "~> 7.1"},
       {:exvcr, "~> 0.10", only: :test},
-      {:mock, "~> 0.3.6", only: :test}
+      {:mock, "~> 0.3.6", only: :test},
+      {:bypass, "~> 1.0", only: :test}
     ]
   end
 end

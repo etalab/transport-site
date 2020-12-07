@@ -7,6 +7,11 @@ defmodule GBFS.ErrorView do
   end
 
   def render("error.json", %{error: error}) do
+    Sentry.capture_message("GBFS error",
+      level: "error",
+      extra: %{details: error}
+    )
+
     %{error: error}
   end
 end
