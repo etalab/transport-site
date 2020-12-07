@@ -30,7 +30,10 @@ defmodule Datagouvfr.MixProject do
       {:oauth2, "~> 0.9"},
       {:httpoison, ">= 0.0.0"},
       {:plug, ">= 0.0.0"},
-
+      {:vex, "~> 0.8"},
+      {:jason, ">= 0.0.0"},
+      # required to run in standalone, due to main configuration
+      {:sentry, ">= 0.0.0"},
       {:helpers, in_umbrella: true}
     ]
   end
