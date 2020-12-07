@@ -1,8 +1,6 @@
 defmodule Datagouvfr.Client.DiscussionTest do
-  # smell
-  use TransportWeb.ConnCase, async: false
-  # smell
-  use TransportWeb.ExternalCase
+  use Datagouvfr.ConnCase, async: false
+  use Datagouvfr.ExternalCase
   alias Datagouvfr.Client.Discussions
   alias OAuth2.AccessToken
 
