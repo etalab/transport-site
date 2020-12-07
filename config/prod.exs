@@ -18,7 +18,10 @@ config :transport, Transport.Scheduler,
     {"@daily", {Transport.History, :backup_resources, []}}, # backup all resources
     {"0 3 * * *", {Transport.LogCleaner, :clean_old_logs, []}}, # clean old logs
     {"0 2 * * *", {Transport.ValidationCleaner, :clean_old_validations, []}}, # clean old validations
-    {"0 6 * * *", {Transport.GtfsConversions, :convert_all, []}} # generate NeTEx / geojson files for all GTFS
+    # generate NeTEx / geojson files for all GTFS.
+    # Note : this should be run before the import_validate_all for the NeTEx / geojson
+    # to be created when the import is run
+    {"0 1 * * *", {Transport.GtfsConversions, :convert_all, []}}
   ]
 
 config :db, DB.Repo,
