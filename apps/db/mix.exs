@@ -46,7 +46,8 @@ defmodule Db.MixProject do
       {:ex_aws, ">= 0.0.0"},
       {:ex_aws_s3, ">= 0.0.0"},
       {:sentry, ">= 0.0.0"},
-      {:typed_ecto_schema, ">= 0.1.1"}
+      {:typed_ecto_schema, ">= 0.1.1"},
+      {:vex, "~> 0.8"}
     ]
   end
 end

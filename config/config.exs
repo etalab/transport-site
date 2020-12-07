@@ -46,6 +46,10 @@ config :logger,
   translators: [
     {Support.Logger.Translator, :translate},
     {Logger.Translator, :translate}
+  ],
+  backends: [
+    :console,
+    Sentry.LoggerBackend # error logs are also send to sentry
   ]
 
 config :logger, :console,
