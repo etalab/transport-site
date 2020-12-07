@@ -41,6 +41,8 @@
 .producteurs-presentation {
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
+  margin: -24px;
   > div {
     flex-basis: 300px;
     flex-grow: 1;
@@ -52,6 +54,7 @@
   }
   .presentation-action {
     flex-grow: 0;
+    align-self: center;
   }
 }
 
@@ -117,6 +120,7 @@
     display: flex;
     align-items: flex-start;
     flex-wrap: wrap;
+    padding-bottom: 0;
 
     .panel-producteurs {
       border-left: 5px solid var(--theme-primary);

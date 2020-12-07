@@ -129,16 +129,16 @@
       <div>
         <div>
           <h2>
-            <%= dgettext("page-producteurs", "Join us on") %>
-            <span class="slack-logo">
-              <img src="<%= static_path(@conn, "/images/Slack_RGB.png") %>" alt="Slack" >
-            </span>
+            <%= dgettext("page-producteurs", "Our community") %>
           </h2>
           <div>
             <%= dgettext("page-producteurs", "A place to chat, ask questions and get answers for data producers and reusers.") %>
             <div class="pt-24">
-              <a href="https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA">
-                <button class="button-outline primary"><%= dgettext("page-index", "Join us on Slack") %></button></a>
+              <a class="button-outline primary" href="https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA">
+                <span class="slack-logo">
+                  <img src="<%= static_path(@conn, "/images/Slack_RGB.png") %>" alt="Slack" >
+                </span>
+              </a>
             </div>
           </div>
         </div>

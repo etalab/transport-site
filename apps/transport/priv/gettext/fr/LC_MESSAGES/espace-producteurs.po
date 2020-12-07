@@ -74,3 +74,7 @@ msgstr "Utilisez nos validateurs de données pour vous assurer qu'ils sont bien 
 #, elixir-format
 msgid "updating a dataset guidelines"
 msgstr "Consultez le guide de mise à jour"
+
+#, elixir-format
+msgid "What would you like to do?"
+msgstr "Que souhaitez-vous faire ?"

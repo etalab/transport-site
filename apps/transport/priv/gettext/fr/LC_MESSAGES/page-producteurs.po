@@ -33,7 +33,7 @@ msgstr "Une équipe disponible"
 
 #, elixir-format
 msgid "Data publishing guidelines"
-msgstr "Des guides et tutoriels pour vous accompagner"
+msgstr "Des guides pour vous accompagner"
 
 #, elixir-format
 msgid "For the users"
@@ -49,11 +49,11 @@ msgstr "Garantissez la bonne découvrabilité de vos données en respectant des 
 
 #, elixir-format
 msgid "Join the transport.data.gouv.fr community and stay informed !"
-msgstr "Tenez-vous à jour des dernières nouvelles du Point d'Accès National et de ses chantiers en cours en vous s'inscrivant à la Newsletter."
+msgstr "Suivez et participez à l'actualité de la communauté transport.data.gouv !"
 
 #, elixir-format
-msgid "Join us on"
-msgstr "Rejoignez nous sur "
+msgid "Our community"
+msgstr "Le slack de la communauté"
 
 #, elixir-format
 msgid "Online validation tools"
@@ -89,7 +89,7 @@ msgstr "Vos obligations"
 
 #, elixir-format
 msgid "Stay informed of the National Access Point latest news and upcoming functionalities."
-msgstr "Suivez et participez à l'actualité de la communauté transport.data.gouv !"
+msgstr "Inscrivez-vous à la newsletter et recevez les dernières nouvelles du Point d'Accès National ainsi que des chantiers en cours."
 
 #, elixir-format
 msgid "The newsletter"

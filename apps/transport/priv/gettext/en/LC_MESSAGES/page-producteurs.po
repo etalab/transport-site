@@ -52,7 +52,7 @@ msgid "Join the transport.data.gouv.fr community and stay informed !"
 msgstr ""
 
 #, elixir-format
-msgid "Join us on"
+msgid "Our community"
 msgstr ""
 
 #, elixir-format

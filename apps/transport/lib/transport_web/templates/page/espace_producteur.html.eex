@@ -1,23 +1,24 @@
 <div class="producer-space">
   <div class="pt-48">
     <div class="container">
-      <h4 class="grey">
+      <h4 class="is-grey">
         <%= dgettext("espace-producteurs", "Welcome to your producer space!") %>
       </h4>
     </div>
   </div>
   <section class="section producer-actions">
     <div class="container">
+      <h2><%= dgettext("espace-producteurs", "What would you like to do?") %></h2>
       <div class="producer-actions-flex">
         <div class="panel">
-          <div class="update-header">
-            <img height=30 src="<%= static_path(@conn, "/images/producteurs/picto-maj.png") %>" alt="">
+          <div class="update-header pb-24">
+            <img height=40 src="<%= static_path(@conn, "/images/producteurs/picto-maj.png") %>" alt="">
             <div>
-              <h3 class="with-link"><%= dgettext("espace-producteurs", "Update a dataset") %></h3>
+              <h4 class="with-link"><%= dgettext("espace-producteurs", "Update a dataset") %></h4>
               <a href="https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"><%= dgettext("espace-producteurs", "updating a dataset guidelines") %></a>
             </div>
           </div>
-          <div class="pt-24">
+          <div class="resource-list">
             <%= for dataset <- @datasets do %>
               <div class="pt-24 panel dataset-item">
                 <strong><%= dataset.title %></strong>
@@ -32,9 +33,9 @@
         <div>
           <div class="panel">
             <div class="publish-header">
-              <img height=30 src="<%= static_path(@conn, "/images/producteurs/picto-publier.png") %>" alt="">
+              <img height=40 src="<%= static_path(@conn, "/images/producteurs/picto-publier.png") %>" alt="">
               <div>
-                <h3 class="with-link"><%= dgettext("espace-producteurs", "Publish a dataset") %></h3>
+                <h4 class="with-link"><%= dgettext("espace-producteurs", "Publish a dataset") %></h4>
                 <a href="https://doc.transport.data.gouv.fr/producteurs/comment-et-pourquoi-les-producteurs-de-donnees-utilisent-ils-le-pan"><%= dgettext("espace-producteurs", "Adding a dataset guidelines") %></a>
               </div>
             </div>
@@ -72,15 +73,15 @@
           <div class="checklist-header">
             <img height=60 src="<%= static_path(@conn, "/images/producteurs/streamline-icon-employee-checklist.png") %>" alt="">
             <div>
-              <h3><%= dgettext("espace-producteurs", "Publishing best practices") %></h3>
+              <h4><%= dgettext("espace-producteurs", "Publishing best practices") %></h4>
             </div>
           </div>
         </div>
         <div class="panel">
           <div class="test-header">
-            <img height=30 src="<%= static_path(@conn, "/images/producteurs/picto-check.png") %>" alt="">
+            <img height=40 src="<%= static_path(@conn, "/images/producteurs/picto-check.png") %>" alt="">
             <div>
-              <h3><%= dgettext("espace-producteurs", "Validate your datasets") %></h3>
+              <h4><%= dgettext("espace-producteurs", "Validate your datasets") %></h4>
             </div>
           </div>
           <div>

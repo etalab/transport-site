@@ -73,3 +73,7 @@ msgstr ""
 #, elixir-format
 msgid "updating a dataset guidelines"
 msgstr ""
+
+#, elixir-format
+msgid "What would you like to do?"
+msgstr ""

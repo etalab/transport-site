@@ -2,6 +2,10 @@
   --primary-color-producer: #00ac8cff;
 }
 
+.is-grey {
+  color: var(--dark-grey);
+}
+
 .tramway {
   text-align: right;
   width: 50vw;
@@ -68,6 +72,7 @@
 
 .producer-actions {
   background-color: var(--theme-background-grey);
+  padding-top: 24px;
   .producer-actions-flex {
     display: flex;
     align-items: stretch;
@@ -88,6 +93,10 @@
       img {
         padding-right: 12px;
       }
+    }
+    .resource-list {
+      max-height: 60vh;
+      overflow: auto;
     }
   }
   .dataset-item {
