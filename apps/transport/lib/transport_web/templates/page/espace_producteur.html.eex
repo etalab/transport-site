@@ -19,6 +19,9 @@
             </div>
           </div>
           <div class="resource-list">
+            <%= if @datasets == [] do %>
+              <%= dgettext("espace-producteurs", "You have no resource to update for the moment") %>
+            <% end %>
             <%= for dataset <- @datasets do %>
               <div class="pt-24 panel dataset-item">
                 <strong><%= dataset.title %></strong>

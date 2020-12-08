@@ -63,22 +63,35 @@ defmodule TransportWeb.PageController do
   end
 
   def espace_producteur(conn, _params) do
-    user_datasets =
-      case Dataset.user_datasets(conn) do
-        {:ok, datasets} -> datasets
-        _ -> []
-      end
+    user_datasets = Dataset.user_datasets(conn)
+    user_org_datasets = Dataset.user_org_datasets(conn)
 
-    user_org_datasets =
-      case Dataset.user_org_datasets(conn) do
-        {:ok, datasets} -> datasets
-        _ -> []
-      end
+    case {user_datasets, user_org_datasets} do
+      {{:ok, d}, {:ok, od}} ->
+        {:ok, d ++ od}
 
-    datasets = user_datasets ++ user_org_datasets
+      {{:ok, d}, e} ->
+        Sentry.capture_exception(e)
+        {:error, d}
 
-    conn
-    |> assign(:datasets, datasets)
+      {e, {:ok, od}} ->
+        Sentry.capture_exception(e)
+        {:error, od}
+
+      {e1, e2} ->
+        Sentry.capture_exception(e1)
+        Sentry.capture_exception(e2)
+        {:error, []}
+    end
+    |> case do
+      {:error, d} ->
+        conn
+        |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
+        |> assign(:datasets, d)
+
+      {:ok, d} ->
+        conn |> assign(:datasets, d)
+    end
     |> render("espace_producteur.html")
   end
 
