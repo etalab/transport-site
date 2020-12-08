@@ -236,8 +236,8 @@
        </form>
        <div class="mailing-list__social-container">
             <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" /><a href="https://twitter.com/transportdatafr"><%= dgettext("page-index", "Follow us on twitter") %></a>
-            <img src="<%= static_path(@conn, "/images/Slack_Mark.svg") %>" alt="Slack" /><a href="https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA"><%= dgettext("page-index", "Join us on Slack") %></a>
-        </div>
-    </div>
+    <img src="<%= static_path(@conn, "/images/Slack_Mark.svg") %>" alt="Slack" /><a href="<%= Application.get_env(:transport, :join_our_slack_link) %>"><%= dgettext("page-index", "Join us on Slack") %></a>
+  </div>
+</div>
 </section>
 <script src="<%= static_path(@conn, "/js/autocomplete.js") %>"></script>

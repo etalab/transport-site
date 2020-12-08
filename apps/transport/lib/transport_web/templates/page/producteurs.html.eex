@@ -83,7 +83,7 @@
 </div>
 <section class="section section-grey section-why">
   <div class="container producteurs-section is-centered">
-    <h1>Pourquoi publier vos données ?</h1>
+    <h1><%= dgettext("page-producteurs", "Why should you publish your data?") %></h1>
     <div class="section-why-body pt-24">
       <div class="panel mb-24">
         <div class="why-section-picto">
@@ -92,7 +92,7 @@
         <div class="why-section-text">
           <h2><%= dgettext("page-producteurs", "Regulatory obligations") %></h2>
           <div>
-            <%= dgettext("page-producteurs", "Wether you are Autorité organisatrice de mobilité, délégataire de service public, or collectivité territoriale, you may be concerned by the laws loi pour une république numérique, la Loi Orientation des Mobilités and the european reglementation.") %>
+            <%= dgettext("page-producteurs", "Whether you are Autorité organisatrice de mobilité, délégataire de service public, or collectivité territoriale, you may be concerned by the laws loi pour une république numérique, la Loi Orientation des Mobilités and the european reglementation.") %>
           </div>
           <div class="pt-12">
             <a href="https://doc.transport.data.gouv.fr/producteurs/responsabilite-des-aom-et-des-delegataires">
@@ -123,7 +123,7 @@
 <section class="section">
   <div class="container producteurs-section is-centered">
     <h1>
-      <%= dgettext("page-producteurs", "Join the transport.data.gouv.fr community and stay informed !") %>
+      <%= dgettext("page-producteurs", "Join the transport.data.gouv.fr community and stay informed!") %>
     </h1>
     <div class="producteurs-content producteurs-community pt-48">
       <div>
@@ -134,7 +134,7 @@
           <div>
             <%= dgettext("page-producteurs", "A place to chat, ask questions and get answers for data producers and reusers.") %>
             <div class="pt-24">
-              <a class="button-outline primary" href="https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA">
+              <a class="button-outline primary" href="<%= Application.get_env(:transport, :join_our_slack_link) %>">
                 <span class="slack-logo">
                   <img src="<%= static_path(@conn, "/images/Slack_RGB.png") %>" alt="Slack" >
                 </span>

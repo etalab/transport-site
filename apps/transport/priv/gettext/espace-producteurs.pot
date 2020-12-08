@@ -77,3 +77,7 @@ msgstr ""
 #, elixir-format
 msgid "What would you like to do?"
 msgstr ""
+
+#, elixir-format
+msgid "You have no resource to update for the moment"
+msgstr ""

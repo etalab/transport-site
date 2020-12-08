@@ -78,3 +78,7 @@ msgstr "Consultez le guide de mise à jour"
 #, elixir-format
 msgid "What would you like to do?"
 msgstr "Que souhaitez-vous faire ?"
+
+#, elixir-format
+msgid "You have no resource to update for the moment"
+msgstr "Vous n'avez pas de ressource à mettre à jour pour le moment"

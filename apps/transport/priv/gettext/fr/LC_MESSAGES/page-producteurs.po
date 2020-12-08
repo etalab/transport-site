@@ -48,7 +48,7 @@ msgid "Help users find and use your data by following our publications guideline
 msgstr "Garantissez la bonne découvrabilité de vos données en respectant des normes de publication."
 
 #, elixir-format
-msgid "Join the transport.data.gouv.fr community and stay informed !"
+msgid "Join the transport.data.gouv.fr community and stay informed!"
 msgstr "Suivez et participez à l'actualité de la communauté transport.data.gouv !"
 
 #, elixir-format
@@ -108,7 +108,7 @@ msgid "Validate data online"
 msgstr "Testez vos jeux de données"
 
 #, elixir-format
-msgid "Wether you are Autorité organisatrice de mobilité, délégataire de service public, or collectivité territoriale, you may be concerned by the laws loi pour une république numérique, la Loi Orientation des Mobilités and the european reglementation."
+msgid "Whether you are Autorité organisatrice de mobilité, délégataire de service public, or collectivité territoriale, you may be concerned by the laws loi pour une république numérique, la Loi Orientation des Mobilités and the european reglementation."
 msgstr "Que vous soyez Autorité Organisatrice des Mobilités, délégataire de service public ou collectivité territoriale, vous pouvez être concerné par la Loi pour une république Numérique, la Loi Orientation des Mobilités et le Réglement européen."
 
 #, elixir-format
@@ -122,3 +122,7 @@ msgstr "transport.data.gouv.fr est affilié à data.gouv.fr : la plateforme ouve
 #, elixir-format
 msgid "If you any question, send us an email and we'll be glad to help you!"
 msgstr "Si vous avez des questions, contactez nous par email, nous serons heureux de vous aider !"
+
+#, elixir-format
+msgid "Why should you publish your data?"
+msgstr "Pourquoi publier vos données ?"
