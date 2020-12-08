@@ -1,6 +1,7 @@
 defmodule TransportWeb.API.Router do
   use TransportWeb, :router
   use Plug.ErrorHandler
+  use Sentry.Plug
 
   pipeline :accept_json do
     plug(:accepts, ["json"])
