@@ -45,12 +45,23 @@
   margin: -24px;
   > div {
     flex-basis: 300px;
+    max-width: calc(50% - 48px);
     flex-grow: 1;
     padding: 24px;
     margin: 24px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+  }
+  @include tablet {
+    flex-direction: column;
+    align-items: center;
+    margin: -12px;
+    > div {
+      margin: 12px;
+      padding: 12px;
+      max-width: 450px;
+    }
   }
   .presentation-action {
     flex-grow: 0;

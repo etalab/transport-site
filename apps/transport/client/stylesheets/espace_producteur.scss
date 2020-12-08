@@ -11,11 +11,14 @@
   width: 50vw;
   position: relative;
   height: 0;
-  bottom: 30px;
   margin: 0 0 0 auto;
   padding-right: 48px;
   img {
-    max-height: 30px;
+    position: absolute;
+    bottom: 0;
+    right: 20px;
+    max-height: 36px;
+    max-width: 100%;
   }
 }
 
