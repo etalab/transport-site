@@ -1,10 +1,7 @@
 version: 2
 
 default_docker: &default_docker
-  # NOTE: temporarily attempting to use stock elixir version
-  image: cimg/elixir:1.10.4-node
-  # TODO: create new release of transport base image & put it back here
-  # image: betagouv/transport:0.4.3
+  image: betagouv/transport:0.4.5
   environment:
     MIX_ENV: test
     PG_URL_TEST: ecto://root@127.0.0.1/transport_test
