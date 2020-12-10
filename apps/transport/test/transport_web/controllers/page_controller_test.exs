@@ -40,19 +40,31 @@ defmodule TransportWeb.PageControllerTest do
     end
 
     test "renders a degraded mode when data gouv returns error", %{conn: conn} do
-      with_mock Dataset, user_datasets: fn _ -> {"BAD"} end, user_org_datasets: fn _ -> {"SOMETHING"} end do
-        conn =
-          conn
-          |> init_test_session(current_user: %{})
-          |> get(page_path(conn, :espace_producteur))
+      with_mock Sentry, capture_exception: fn _ -> nil end do
+        with_mock Dataset,
+          user_datasets: fn _ -> {:error, "BAD"} end,
+          user_org_datasets: fn _ -> {:error, "SOMETHING"} end do
+          conn =
+            conn
+            |> init_test_session(current_user: %{})
+            |> get(page_path(conn, :espace_producteur))
 
-        body = html_response(conn, 200)
+          body = html_response(conn, 200)
 
-        {:ok, doc} = Floki.parse_document(body)
-        assert Floki.find(doc, ".dataset-item") |> length == 0
+          {:ok, doc} = Floki.parse_document(body)
+          assert Floki.find(doc, ".dataset-item") |> length == 0
 
-        assert Floki.find(doc, ".message--error") |> Floki.text() ==
-                 "Une erreur a eu lieu lors de la récupération de vos ressources"
+          assert Floki.find(doc, ".message--error") |> Floki.text() ==
+                   "Une erreur a eu lieu lors de la récupération de vos ressources"
+        end
+
+        history = call_history(Sentry) |> Enum.map(&elem(&1, 1))
+
+        # we want to be notified
+        assert history == [
+                 {Sentry, :capture_exception, [error: "BAD"]},
+                 {Sentry, :capture_exception, [error: "SOMETHING"]}
+               ]
       end
     end
   end

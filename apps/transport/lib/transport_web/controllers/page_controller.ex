@@ -62,36 +62,33 @@ defmodule TransportWeb.PageController do
     |> render("producteurs.html")
   end
 
+  @doc """
+    Retrieve the user datasets + corresponding org datasets.
+
+    Data Gouv is queried, and we support a degraded mode with an error reporting in case of connection issue.
+  """
   def espace_producteur(conn, _params) do
-    user_datasets = Dataset.user_datasets(conn)
-    user_org_datasets = Dataset.user_org_datasets(conn)
+    {datasets, errors} =
+      [
+        Dataset.user_datasets(conn),
+        Dataset.user_org_datasets(conn)
+      ]
+      |> Enum.split_with(&(elem(&1, 0) == :ok))
 
-    case {user_datasets, user_org_datasets} do
-      {{:ok, d}, {:ok, od}} ->
-        {:ok, d ++ od}
+    datasets =
+      datasets
+      |> Enum.map(&elem(&1, 1))
+      |> List.flatten()
 
-      {{:ok, d}, e} ->
-        Sentry.capture_exception(e)
-        {:error, d}
+    errors
+    |> Enum.each(&Sentry.capture_exception(&1))
 
-      {e, {:ok, od}} ->
-        Sentry.capture_exception(e)
-        {:error, od}
-
-      {e1, e2} ->
-        Sentry.capture_exception(e1)
-        Sentry.capture_exception(e2)
-        {:error, []}
+    if errors |> length > 0 do
+      conn |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
+    else
+      conn
     end
-    |> case do
-      {:error, d} ->
-        conn
-        |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
-        |> assign(:datasets, d)
-
-      {:ok, d} ->
-        conn |> assign(:datasets, d)
-    end
+    |> assign(:datasets, datasets)
     |> render("espace_producteur.html")
   end
 
