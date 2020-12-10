@@ -24,7 +24,12 @@ defmodule TransportWeb.PageControllerTest do
       ud = Repo.insert!(%Dataset{title: "User Dataset", datagouv_id: "123"})
       uod = Repo.insert!(%Dataset{title: "Org Dataset", datagouv_id: "456"})
 
-      # TODO: avoid stubbing at such a high level, instead we should use a low-level (oauth client) stub
+      # It would be ultimately better to have a mock implementation of `Datagouvfr.Client.OAuth` for the
+      # whole test suite, like Hex.pm does:
+      # https://github.com/hexpm/hexpm/blob/5b86630bccd308ecd394561225cf4ea78b008c8e/config/test.exs#L11
+      #
+      # There is a bit of work to get there, though, so for now we'll just call `with_mock` and revisit later,
+      # but it would also provide better insurance that the mock results here aren't out of phase with reality.
       with_mock Dataset, user_datasets: fn _ -> {:ok, [ud]} end, user_org_datasets: fn _ -> {:ok, [uod]} end do
         conn =
           conn
