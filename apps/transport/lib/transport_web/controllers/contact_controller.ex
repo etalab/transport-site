@@ -4,6 +4,16 @@ defmodule TransportWeb.ContactController do
   require Logger
 
   @spec send_mail(Plug.Conn.t(), map()) :: {:error, any} | Plug.Conn.t()
+  def send_mail(conn, %{"email" => email, "name" => name} = params) when name !== "" do
+    # someone filled the honeypot field ("name") => discard as spam
+    Logger.info("Mail coming from #{email} has been discarded because it filled the contact form honeypot")
+
+    conn
+    # spammer get a little fox emoji in their flash message, useful for testing purpose
+    |> put_flash(:info, "Your email has been sent, we will contact you soon 🦊")
+    |> redirect(to: params["redirect_path"] || page_path(conn, :index))
+  end
+
   def send_mail(conn, %{"email" => email, "topic" => topic, "demande" => demande} = params) do
     case Client.send_mail("PAN, Formulaire Contact", "contact@transport.beta.gouv.fr", email, topic, demande, false) do
       {:ok, _} ->

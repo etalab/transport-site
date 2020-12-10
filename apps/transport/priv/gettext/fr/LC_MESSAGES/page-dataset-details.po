@@ -179,10 +179,6 @@ msgid "NeTEx resources"
 msgstr "Ressources NeTEx"
 
 #, elixir-format
-msgid "Other resources"
-msgstr "Autres ressources"
-
-#, elixir-format
 msgid "Reuses"
 msgstr "Réutilisations"
 
