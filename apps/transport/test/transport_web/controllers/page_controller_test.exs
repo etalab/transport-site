@@ -43,8 +43,12 @@ defmodule TransportWeb.PageControllerTest do
           |> get(page_path(conn, :espace_producteur))
 
         body = html_response(conn, 200)
-        assert body =~ "message--error"
-        assert body =~ "Une erreur a eu lieu lors de la récupération de vos ressources"
+
+        {:ok, doc} = Floki.parse_document(body)
+        assert Floki.find(doc, ".dataset-item") |> length == 0
+
+        assert Floki.find(doc, ".message--error") |> Floki.text() ==
+                 "Une erreur a eu lieu lors de la récupération de vos ressources"
       end
     end
   end
