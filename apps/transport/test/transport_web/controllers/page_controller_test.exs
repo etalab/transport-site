@@ -40,7 +40,7 @@ defmodule TransportWeb.PageControllerTest do
 
         {:ok, doc} = Floki.parse_document(body)
         assert Floki.find(doc, ".message--error") == []
-        assert Floki.find(doc, ".dataset-item strong") |> Enum.map(&Floki.text(&1)) == ["User Dataset", "Org Dataset"]
+        assert doc |> Floki.find(".dataset-item strong") |> Enum.map(&Floki.text(&1)) == ["User Dataset", "Org Dataset"]
       end
     end
 
@@ -57,13 +57,13 @@ defmodule TransportWeb.PageControllerTest do
           body = html_response(conn, 200)
 
           {:ok, doc} = Floki.parse_document(body)
-          assert Floki.find(doc, ".dataset-item") |> length == 0
+          assert doc |> Floki.find(".dataset-item") |> length == 0
 
-          assert Floki.find(doc, ".message--error") |> Floki.text() ==
+          assert doc |> Floki.find(".message--error") |> Floki.text() ==
                    "Une erreur a eu lieu lors de la récupération de vos ressources"
         end
 
-        history = call_history(Sentry) |> Enum.map(&elem(&1, 1))
+        history = Sentry |> call_history |> Enum.map(&elem(&1, 1))
 
         # we want to be notified
         assert history == [
