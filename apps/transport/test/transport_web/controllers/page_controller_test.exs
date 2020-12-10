@@ -21,17 +21,21 @@ defmodule TransportWeb.PageControllerTest do
     end
 
     test "renders successfully when data gouv returns no error", %{conn: conn} do
-      # TODO: use real datasets, but I need a bit of stubbing?
-      with_mock Dataset, user_datasets: fn _ -> {:ok, []} end, user_org_datasets: fn _ -> {:ok, []} end do
+      ud = Repo.insert!(%Dataset{title: "User Dataset", datagouv_id: "123"})
+      uod = Repo.insert!(%Dataset{title: "Org Dataset", datagouv_id: "456"})
+
+      # TODO: avoid stubbing at such a high level, instead we should use a low-level (oauth client) stub
+      with_mock Dataset, user_datasets: fn _ -> {:ok, [ud]} end, user_org_datasets: fn _ -> {:ok, [uod]} end do
         conn =
           conn
           |> init_test_session(current_user: %{})
           |> get(page_path(conn, :espace_producteur))
 
         body = html_response(conn, 200)
-        assert body =~ "Mettre à jour un jeu de données"
-        assert body =~ "pas de ressource à mettre à jour pour le moment"
-        assert !(body =~ "message--error")
+
+        {:ok, doc} = Floki.parse_document(body)
+        assert Floki.find(doc, ".message--error") == []
+        assert Floki.find(doc, ".dataset-item strong") |> Enum.map(&Floki.text(&1)) == ["User Dataset", "Org Dataset"]
       end
     end
 
