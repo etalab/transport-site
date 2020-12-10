@@ -83,11 +83,15 @@ defmodule TransportWeb.PageController do
     errors
     |> Enum.each(&Sentry.capture_exception(&1))
 
-    if errors |> length > 0 do
-      conn |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
-    else
-      conn
-    end
+    # NOTE: this could be refactored in more functional style, but that will be good enough for today
+    conn =
+      if length(errors) != 0 do
+        conn |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
+      else
+        conn
+      end
+
+    conn
     |> assign(:datasets, datasets)
     |> render("espace_producteur.html")
   end
