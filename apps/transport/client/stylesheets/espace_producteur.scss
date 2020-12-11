@@ -22,6 +22,13 @@
   }
 }
 
+.espace-producer-panel {
+  display: flex;
+  img {
+    padding-right: 12px;
+  }
+}
+
 .producer-space {
   .button.primary {
     background-color: var(--primary-color-producer);
@@ -106,12 +113,5 @@
     a:nth-child(1) {
       margin-right: 12px;
     }
-  }
-}
-
-.espace-producer-panel {
-  display: flex;
-  img {
-    padding-right: 12px;
   }
 }
