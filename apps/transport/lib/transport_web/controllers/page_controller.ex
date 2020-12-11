@@ -56,6 +56,46 @@ defmodule TransportWeb.PageController do
     single_page(conn, %{"page" => "conditions"})
   end
 
+  def producteurs(conn, _params) do
+    conn
+    |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
+    |> render("producteurs.html")
+  end
+
+  @doc """
+    Retrieve the user datasets + corresponding org datasets.
+
+    Data Gouv is queried, and we support a degraded mode with an error reporting in case of connection issue.
+  """
+  def espace_producteur(conn, _params) do
+    {datasets, errors} =
+      [
+        Dataset.user_datasets(conn),
+        Dataset.user_org_datasets(conn)
+      ]
+      |> Enum.split_with(&(elem(&1, 0) == :ok))
+
+    datasets =
+      datasets
+      |> Enum.map(&elem(&1, 1))
+      |> List.flatten()
+
+    errors
+    |> Enum.each(&Sentry.capture_exception(&1))
+
+    # NOTE: this could be refactored in more functional style, but that will be good enough for today
+    conn =
+      if length(errors) != 0 do
+        conn |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
+      else
+        conn
+      end
+
+    conn
+    |> assign(:datasets, datasets)
+    |> render("espace_producteur.html")
+  end
+
   defp aoms_with_dataset do
     from(a in AOM,
       join: d in Dataset,

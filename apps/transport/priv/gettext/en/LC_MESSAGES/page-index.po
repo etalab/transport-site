@@ -25,7 +25,7 @@ msgstr ""
 msgid "SUBSCRIBE"
 msgstr ""
 
-msgid "Join us on Slack"
+msgid "Join us on"
 msgstr ""
 
 msgid "Download presentation"
@@ -233,4 +233,8 @@ msgstr ""
 
 #, elixir-format
 msgid "Road works"
+msgstr ""
+
+#, elixir-format
+msgid "Join us on Slack"
 msgstr ""

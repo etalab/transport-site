@@ -362,10 +362,10 @@ msgstr ""
 msgid "Up to date"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Not"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "available"
 msgstr ""

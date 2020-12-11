@@ -1,77 +1,28 @@
-.choose-file {
-  max-width: 50em;
-  margin: auto;
+.add-update-resource {
+  .small-bottom-margin {
+    margin-bottom: 6px;
+  }
 
-  .panel {
+  .choose-file {
     background-color: var(--theme-background-grey);
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    margin-top: 1em;
-
-    h1 {
-      font-size: 1.5em;
-    }
-
-    h2 {
-      font-size: 1em;
-    }
-
-    .form__group {
-      .filler {
-        margin-left: 1em;
-      }
-    }
-
-    .forms {
+    padding-bottom: 24px;
+    .option-1,
+    .option-2 {
       display: flex;
-      align-items: flex-start;
-      margin-top: 5vh;
-      justify-content: center;
-      flex-wrap: wrap;
-
-      @media (max-width: $breakpoint-tablet) {
-        margin-top: 2vh;
-      }
-
-      form {
-        margin: 0;
-      }
-      .choose-option {
-        flex-basis: 40%;
-        flex-grow: 1;
-      }
-      .choose-or {
-        flex: 0 0 10%;
-      }
-      .choose-submit {
-        flex-basis: 61%;
-        text-align: center;
-        padding-top: 24px;
+      .panel {
+        flex-basis: 40vw;
       }
     }
-
-    .description {
-      justify-content: space-around;
-
-      div {
-        display: flex;
-        flex-direction: column;
-
-        p {
-          margin: 0;
-          box-sizing: initial;
-        }
-      }
+    form {
+      margin: 0;
     }
+  }
 
-    .container {
-      display: flex;
-      flex-direction: column;
-
-      @media (max-width: $breakpoint-tablet) {
-        flex-direction: column;
-      }
-    }
+  .choose-or {
+    padding: 6px 0;
+    font-weight: bold;
+  }
+  .button.primary {
+    background-color: var(--primary-color-producer);
   }
 }
