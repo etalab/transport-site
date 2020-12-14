@@ -92,7 +92,17 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 ### Run the GTFS validator locally
 
 * Clone the [transport-validator](https://github.com/etalab/transport-validator) project locally
-* TODO
+* Install Rust
+* Install [Rust Analyzer](https://github.com/rust-analyzer/rust-analyzer) for VSCode completion
+* Run all the tests with `cargo run test`
+
+### Debug the GTFS validator locally
+
+* Make sure to have Rust Analyzer installed
+* Install the [CodeLLDB extension](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb) to help with debugging
+* Run "Debug unit tests in library 'validator'"
+* Add a breakpoint and verify that it is effective
+* Read [this article](https://khalid-salad.medium.com/plp-rust-agjks-395d1d870432) for more information
 
 ### Run the realtime API locally
 
