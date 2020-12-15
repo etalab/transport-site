@@ -1,8 +1,4 @@
 defmodule TransportWeb.StatsController do
-  alias DB.{AOM, Dataset, Region, Repo, Resource, Validation}
-  alias Transport.CSVDocuments
-  import Ecto.Query
-  require Logger
   use TransportWeb, :controller
 
   @spec index(Plug.Conn.t(), any) :: Plug.Conn.t()

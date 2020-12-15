@@ -1,14 +1,36 @@
 defmodule Transport.StatHandler do
   @moduledoc """
-  Compute stats
+  Compute statistics on the datasets
+  Also contains a function called periodicly to store the stats in the DB
   """
-  alias DB.{AOM, Dataset, Region, Repo, Resource, Validation}
+  alias DB.{AOM, Dataset, Region, Repo, Resource, StatsHistory, Validation}
   alias Transport.CSVDocuments
   import Ecto.Query
   require Logger
 
+  @doc """
+  Compute and store all stats as a snapshot of the database
+  """
+  @spec store_stats() :: any()
+  def store_stats do
+    timestamp = DateTime.truncate(DateTime.utc_now(), :second)
+
+    compute_stats()
+    |> Enum.each(fn {k, v} ->
+      %StatsHistory{
+        timestamp: timestamp,
+        metric: "#{k}",
+        value: v
+      }
+      |> Repo.insert!()
+    end)
+  end
+
+  @doc """
+  Compute all stats
+  """
   @spec compute_stats() :: any()
-  def compute_stats() do
+  def compute_stats do
     aoms =
       Repo.all(
         from(a in AOM,
