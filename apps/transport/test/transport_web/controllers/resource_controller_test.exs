@@ -35,6 +35,7 @@ defmodule TransportWeb.ResourceControllerTest do
   test "resource without metadata send back a 404", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "1")
     refute is_nil(resource)
-    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(404)
+    assert is_nil(resource.metadata)
+    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(404) |> assert =~ "404"
   end
 end
