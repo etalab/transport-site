@@ -13,10 +13,14 @@ defmodule GBFS.PageCachePlugTest do
   end
 
   setup do
-    Cachex.clear!(@cache)
     # during most tests, cache is disabled at runtime to avoid polluting results.
     # in the current case though, we want to avoid that & make sure caching is in effect.
-    change_app_config_temporarily(:gbfs, :disable_page_cache, false)
+    enable_cache()
+
+    on_exit(fn ->
+      Cachex.clear!(@cache)
+    end)
+
     :ok
   end
 
