@@ -58,10 +58,34 @@ defmodule GBFS.PageCacheTest do
     end
   end
 
-  # The proxy currently does not honor the remote HTTP code (#1379).
-  # To be fixed before we implement this test.
-  @tag :pending
-  test "mirrors non-200 status code"
+  test "mirrors non-200 status code", %{conn: conn} do
+    enable_cache()
+
+    url = "/gbfs/toulouse/station_information.json"
+
+    mock = fn _ -> {:ok, %HTTPoison.Response{body: "{}", status_code: 500}} end
+
+    # first call must result in call to third party
+    with_mock HTTPoison, get: mock do
+      r = conn |> get(url)
+      # an underlying 500 will result of a 502
+      assert r.status == 502
+      assert_called_exactly(HTTPoison.get(:_), 1)
+    end
+
+    # Even if it's an error, a cache entry must have been created, with proper expiry time
+    # The resoning behind this is that we don't want to flood the GBFS productor, even if the system is in error
+    cache_key = PageCache.build_cache_key(url)
+    assert Cachex.get!(:gbfs, cache_key) != nil
+    assert_in_delta Cachex.ttl!(:gbfs, cache_key), 30_000, 200
+
+    # # second call must not result into call to third party
+    with_mock HTTPoison, get: mock do
+      r = conn |> get(url)
+      assert r.status == 502
+      assert_not_called(HTTPoison.get(:_))
+    end
+  end
 
   # To be implemented later, but for now the error handling on that (Sentry etc)
   # is not clear (#1378)
