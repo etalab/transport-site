@@ -9,6 +9,10 @@ COPY ./ /phoenixapp
 
 RUN mix do deps.get --only prod
 
+RUN elixir --version
+RUN erl -noshell -eval 'erlang:display(erlang:system_info(system_version))' -eval 'init:stop()'
+RUN node --version
+
 ENV PORT 8080
 ENV MIX_ENV prod
 RUN mix deps.compile
