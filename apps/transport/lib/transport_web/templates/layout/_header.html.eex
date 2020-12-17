@@ -14,9 +14,6 @@
           <i class="fas icon--times-circle"></i>
         </a>
         <ul class="nav__links">
-          <%= if Application.get_env(:transport, :show_runtime_version) do %>
-            <li class="nav__item"><em><%= "Elixir #{System.version()} / Erlang #{System.otp_release()}" %></em></li>
-          <% end %>
           <li class="nav__item">
             <%= link(gettext("About"), to: "https://doc.transport.data.gouv.fr") %>
           </li>

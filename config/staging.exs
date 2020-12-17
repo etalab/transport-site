@@ -9,7 +9,5 @@ config :transport, TransportWeb.Endpoint,
 
 config :logger, level: :warn
 
-config :transport, show_runtime_version: true
-
 config :oauth2, Authentication,
   site: "https://demo.data.gouv.fr"
