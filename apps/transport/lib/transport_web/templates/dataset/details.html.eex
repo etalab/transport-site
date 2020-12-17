@@ -64,7 +64,7 @@
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gtfs_rt_official_resources(@dataset), title: dgettext("page-dataset-details", "GTFS real time resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: gbfs_official_resources(@dataset), title: dgettext("page-dataset-details", "GBFS resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: netex_official_resources(@dataset), title: dgettext("page-dataset-details", "NeTEx resources") %>
-      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: other_official_resources(@dataset), title: dgettext("page-dataset-details", "Other resources") %>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: other_official_resources(@dataset), title: dgettext("page-dataset-details", "Resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources: unavailable_resources(@dataset), dataset: @dataset, title: dgettext("page-dataset-details", "unavailable resources"), message: dgettext("page-dataset-details", "Those resources are listed by the provider but are unreachable for now")%>
       <% community_resources = community_resources(@dataset) %>
       <%= unless community_resources == [] do %>

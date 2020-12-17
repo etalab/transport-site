@@ -1,0 +1,84 @@
+## "msgid"s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove "msgid"s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use "mix gettext.extract --merge" or "mix gettext.merge"
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+"Plural-Forms: nplurals=2\n"
+
+#, elixir-format
+msgid "Add a resource"
+msgstr ""
+
+#, elixir-format
+msgid "Adding a dataset guidelines"
+msgstr ""
+
+#, elixir-format
+msgid "Contact us"
+msgstr ""
+
+#, elixir-format
+msgid "Get your mobility data on the National Access Point. You will be redirected to data.gouv.fr to have your data published."
+msgstr ""
+
+#, elixir-format
+msgid "If you have any question on how to publish or update your data and you can't find an anwser on the website, do not hesitate, contact us:"
+msgstr ""
+
+#, elixir-format
+msgid "Publish a dataset"
+msgstr ""
+
+#, elixir-format
+msgid "Publish a new dataset"
+msgstr ""
+
+#, elixir-format
+msgid "Publishing best practices"
+msgstr ""
+
+#, elixir-format
+msgid "Test a file"
+msgstr ""
+
+#, elixir-format
+msgid "Update a dataset"
+msgstr ""
+
+#, elixir-format
+msgid "Update a resource"
+msgstr ""
+
+#, elixir-format
+msgid "Useful tools and content"
+msgstr ""
+
+#, elixir-format
+msgid "Validate your datasets"
+msgstr ""
+
+#, elixir-format
+msgid "Welcome to your producer space!"
+msgstr ""
+
+#, elixir-format
+msgid "You can test your data online and check its validity."
+msgstr ""
+
+#, elixir-format
+msgid "updating a dataset guidelines"
+msgstr ""
+
+#, elixir-format
+msgid "What would you like to do?"
+msgstr ""
+
+#, elixir-format
+msgid "You have no resource to update for the moment"
+msgstr ""

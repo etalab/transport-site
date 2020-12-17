@@ -6,19 +6,11 @@ msgid "Choose the resource you want to update"
 msgstr ""
 
 #, elixir-format
-msgid "Dataset: "
-msgstr ""
-
-#, elixir-format
 msgid "File uploaded!"
 msgstr ""
 
 #, elixir-format
 msgid "Unable to upload file"
-msgstr ""
-
-#, elixir-format
-msgid "Update this resource"
 msgstr ""
 
 #, elixir-format
@@ -98,11 +90,7 @@ msgid "Option 2: for more options, edit the resource on data.gouv.fr"
 msgstr ""
 
 #, elixir-format
-msgid "Add a resource for dataset "
-msgstr ""
-
-#, elixir-format
-msgid "Modify resource for dataset "
+msgid "Resource modification"
 msgstr ""
 
 #, elixir-format
@@ -119,4 +107,8 @@ msgstr ""
 
 #, elixir-format
 msgid "This option allows you to add the resource on data.gouv.fr, directly from here."
+msgstr ""
+
+#, elixir-format
+msgid "example : Paris GTFS dataset"
 msgstr ""

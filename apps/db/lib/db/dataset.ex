@@ -530,12 +530,21 @@ defmodule DB.Dataset do
     end
   end
 
+  @doc """
+    Queries the Data Gouv API to determine the user datasets, then use each dataset id
+    to achieve a look-up on our internal database, and return all local `DB.Dataset` objects.
+
+    Any dataset available remotely (in Data Gouv) but not already synchronised locally
+    will be missing in the returned result.
+  """
   @spec user_datasets(Plug.Conn.t()) :: {:error, OAuth2.Error.t()} | {:ok, [__MODULE__.t()]}
   def user_datasets(%Plug.Conn{} = conn) do
     case User.datasets(conn) do
       {:ok, datasets} ->
         datagouv_ids = Enum.map(datasets, fn d -> d["id"] end)
 
+        # this code has a caveat: if a remote (data gouv) dataset has not yet been synchronised/imported
+        # to the local database for some reason, it won't appear in the result, despite existing remotely.
         {:ok,
          __MODULE__
          |> where([d], d.datagouv_id in ^datagouv_ids)
@@ -546,6 +555,9 @@ defmodule DB.Dataset do
     end
   end
 
+  @doc """
+    Same as `user_datasets/1` but for organization datasets.
+  """
   @spec user_org_datasets(Plug.Conn.t()) ::
           {:error, OAuth2.Error.t()} | {:ok, [__MODULE__.t()]}
   def user_org_datasets(%Plug.Conn{} = conn) do

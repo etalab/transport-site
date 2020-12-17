@@ -45,6 +45,12 @@ defmodule TransportWeb.Router do
     get("/real_time", PageController, :real_time)
     get("/partners", PageController, :partners)
     get("/conditions", PageController, :conditions)
+    get("/producteurs", PageController, :producteurs)
+
+    scope "/espace_producteur" do
+      pipe_through([:authenticated])
+      get("/", PageController, :espace_producteur)
+    end
 
     get("/stats", StatsController, :index)
     get("/atom.xml", AtomController, :index)

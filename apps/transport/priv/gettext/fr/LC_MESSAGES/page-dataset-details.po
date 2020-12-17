@@ -179,10 +179,6 @@ msgid "NeTEx resources"
 msgstr "Ressources NeTEx"
 
 #, elixir-format
-msgid "Other resources"
-msgstr "Autres ressources"
-
-#, elixir-format
 msgid "Reuses"
 msgstr "Réutilisations"
 
@@ -366,10 +362,10 @@ msgstr "Ces ressources sont référencées, mais ne semblent pas accessibles pou
 msgid "Up to date"
 msgstr "À jour"
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Not"
 msgstr "Non"
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "available"
 msgstr "disponible"
