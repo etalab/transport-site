@@ -1,0 +1,104 @@
+<div class="producer-space">
+  <div class="pt-48">
+    <div class="container">
+      <h4 class="is-grey">
+        <%= dgettext("espace-producteurs", "Welcome to your producer space!") %>
+      </h4>
+    </div>
+  </div>
+  <section class="section producer-actions">
+    <div class="container">
+      <h2><%= dgettext("espace-producteurs", "What would you like to do?") %></h2>
+      <div class="producer-actions-flex">
+        <div class="panel">
+          <div class="update-header pb-24">
+            <img height=40 src="<%= static_path(@conn, "/images/producteurs/picto-maj.png") %>" alt="">
+            <div>
+              <h4 class="with-link"><%= dgettext("espace-producteurs", "Update a dataset") %></h4>
+              <a href="https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"><%= dgettext("espace-producteurs", "updating a dataset guidelines") %></a>
+            </div>
+          </div>
+          <div class="resource-list">
+            <%= if @datasets == [] do %>
+              <%= dgettext("espace-producteurs", "You have no resource to update for the moment") %>
+            <% end %>
+            <%= for dataset <- @datasets do %>
+              <div class="pt-24 panel dataset-item">
+                <strong><%= dataset.title %></strong>
+                <div class="pt-12">
+                  <%= link(dgettext("espace-producteurs", "Update a resource"),to: resource_path(@conn, :resources_list, dataset.datagouv_id), class: "button-outline primary small") %>
+                  <%= link(dgettext("espace-producteurs", "Add a resource"),to: resource_path(@conn, :form, dataset.datagouv_id), class: "button-outline secondary small") %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <div>
+          <div class="panel espace-producer-panel">
+            <img height=40 src="<%= static_path(@conn, "/images/producteurs/picto-publier.png") %>" alt="">
+            <div>
+              <div class="publish-header">
+                <div>
+                  <h4 class="with-link"><%= dgettext("espace-producteurs", "Publish a dataset") %></h4>
+                  <a href="https://doc.transport.data.gouv.fr/producteurs/comment-et-pourquoi-les-producteurs-de-donnees-utilisent-ils-le-pan"><%= dgettext("espace-producteurs", "Adding a dataset guidelines") %></a>
+                </div>
+              </div>
+              <div class="pt-24">
+                <%= dgettext("espace-producteurs", "Get your mobility data on the National Access Point. You will be redirected to data.gouv.fr to have your data published.") %>
+              </div>
+              <div class="pt-12">
+                <a href="<%= dataset_creation() %>" class="button primary"><%= dgettext("espace-producteurs", "Publish a new dataset") %></a>
+              </div>
+            </div>
+          </div>
+          <div class="contact-us is-centered pt-24">
+            <div>
+              <img height=70 src="<%= static_path(@conn, "/images/producteurs/streamline-icon-headphones-customer-support-human@140x140.png") %>" alt="contact">
+            </div>
+            <h3><%= dgettext("espace-producteurs", "Contact us") %></h3>
+            <div>
+              <%= dgettext("espace-producteurs", "If you have any question on how to publish or update your data and you can't find an anwser on the website, do not hesitate, contact us:") %>
+            </div>
+            <div class="pt-12">
+              <a href='mailto:<%= @contact_email %>'><%= @contact_email %></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="tramway">
+    <img src="<%= static_path(@conn, "/images/producteurs/tramway.svg") %>" alt="">
+  </div>
+  <section class="section">
+    <div class="container">
+      <h2><%= dgettext("espace-producteurs", "Useful tools and content") %></h2>
+      <div class="producer-tools-content">
+        <div class="panel">
+          <div class="checklist-header">
+            <img height=60 src="<%= static_path(@conn, "/images/producteurs/streamline-icon-employee-checklist.png") %>" alt="">
+            <div>
+              <h4><%= dgettext("espace-producteurs", "Publishing best practices") %></h4>
+            </div>
+          </div>
+        </div>
+        <div class="panel espace-producer-panel">
+          <img height=40 src="<%= static_path(@conn, "/images/producteurs/picto-check.png") %>" alt="">
+          <div>
+            <div class="test-header">
+              <div>
+                <h4><%= dgettext("espace-producteurs", "Validate your datasets") %></h4>
+              </div>
+            </div>
+            <div>
+              <%= dgettext("espace-producteurs", "You can test your data online and check its validity.") %>
+            </div>
+            <div class="pt-24">
+              <a href="<%= validation_path(@conn, :index) %>" class="button-outline primary"><%= dgettext("espace-producteurs", "Test a file") %></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

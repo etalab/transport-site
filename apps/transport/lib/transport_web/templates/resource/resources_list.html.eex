@@ -1,19 +1,24 @@
-<section class="section">
-    <div class="container">
-        <b><%= dgettext("resource", "Dataset: ") %></b> <%= @dataset["title"] %> 
-        <h1><%= link(
-            dgettext("resource", "Add a new resource"),
-            to: resource_path(@conn, :form, @conn.params["dataset_id"])
-        ) %></h1>
-        <h1><%= dgettext("resource", "Choose the resource you want to update") %></h1>
-        <%= for resource <- @dataset["resources"] do %>
-            <div class="panel">
-                <h2><%= resource["title"] %></h2>
-            <%= link(
-                    dgettext("resource", "Update this resource"),
-                    to: resource_path(@conn, :form, @conn.params["dataset_id"], resource["id"]))
-            %>
-            </div>
-        <% end %>
+<section class="pt-48">
+  <div class="container">
+    <h3>
+      <%= @dataset["title"] %>
+    </h3>
+  </div>
+</section>
+<section class="resource-update-section">
+  <div class="container">
+    <div class="pt-48">
+      <%= dgettext("resource", "Choose the resource you want to update") %> :
     </div>
+    <div class="resources-update-list pt-24">
+      <%= for resource <- @dataset["resources"] do %>
+        <a href="<%= resource_path(@conn, :form, @conn.params["dataset_id"], resource["id"]) %>">
+          <div class="panel">
+            <img height=20 src="<%= static_path(@conn, "/images/producteurs/picto-maj.png") %>" alt="">
+            <strong><%= resource["title"] %></strong>
+          </div>
+        </a>
+      <% end %>
+    </div>
+  </div>
 </section>

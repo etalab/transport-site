@@ -41,9 +41,9 @@ defmodule TransportWeb.ResourceView do
     do: resource_path(conn, :post_file, params["dataset_id"])
 
   def title(%Plug.Conn{params: %{"resource_id" => _}}),
-    do: dgettext("resource", "Modify resource for dataset ")
+    do: dgettext("resource", "Resource modification")
 
-  def title(_), do: dgettext("resource", "Add a resource for dataset ")
+  def title(_), do: dgettext("resource", "Add a new resource")
 
   def remote?(%{"filetype" => "remote"}), do: true
   def remote?(_), do: false

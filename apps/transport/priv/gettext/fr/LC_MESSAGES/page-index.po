@@ -25,8 +25,8 @@ msgstr "Pour être informé·e des nouveautés, inscrivez-vous à notre newslett
 msgid "SUBSCRIBE"
 msgstr "INSCRIPTION"
 
-msgid "Join us on Slack"
-msgstr "Rejoignez-nous sur Slack"
+msgid "Join us on"
+msgstr "Rejoignez-nous sur"
 
 msgid "Download presentation"
 msgstr "Télécharger la présentation"
@@ -234,3 +234,7 @@ msgstr "Aménagements cyclables"
 #, elixir-format
 msgid "Road works"
 msgstr "Travaux sur voirie"
+
+#, elixir-format
+msgid "Join us on Slack"
+msgstr "Rejoignez-nous sur Slack"

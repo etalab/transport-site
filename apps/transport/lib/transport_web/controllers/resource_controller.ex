@@ -13,12 +13,12 @@ defmodule TransportWeb.ResourceController do
     |> Repo.preload([:validation, dataset: [:resources]])
     |> case do
       nil ->
-        conn |> put_view(ErrorView) |> render("404.html")
+        conn |> put_status(:not_found) |> put_view(ErrorView) |> render("404.html")
 
       resource ->
         case Resource.has_metadata?(resource) do
           false ->
-            conn |> put_view(ErrorView) |> render("404.html")
+            conn |> put_status(:not_found) |> put_view(ErrorView) |> render("404.html")
 
           true ->
             issues = resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config)
