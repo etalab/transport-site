@@ -21,6 +21,8 @@ config :transport, TransportWeb.Endpoint,
     ]
   ]
 
+config :transport, show_runtime_version: true
+
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 
