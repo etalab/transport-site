@@ -81,6 +81,13 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Verify the linking status with `clever applications`
 * Log with the app alias: `clever ssh --alias transport-prochainement`
 
+### Explore the GBFS conversion proxy
+
+* Check out the code under `apps/gbfs`
+* Run the app locally with `mix phx.server`
+* Discover the available converted feeds via `http://localhost:5000/gbfs`
+* Note that this does not contain all the GBFS feeds, only the ones we convert
+
 ### Learn about the GTFS and GTFS-RT specifications
 
 * @thbar bought https://gumroad.com/l/gtfsbundle (available to the team on demand)
@@ -89,12 +96,22 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Read the GTFS guide
 * Read the GTFS-realtime guide
 
-### Run the GTFS validator locally
+### Explore the GTFS validator locally
 
 * Clone the [transport-validator](https://github.com/etalab/transport-validator) project locally
 * Install Rust
 * Install [Rust Analyzer](https://github.com/rust-analyzer/rust-analyzer) for VSCode completion
 * Run all the tests with `cargo run test`
+
+### Run the GTFS validator via the Elixir app locally
+
+* Compile the validator project with `cargo build --release`
+* Run it as a server with `./target/release/main`
+* Use the displayed host & port (e.g. `http://127.0.0.1:7878`) to fill your `.envrc` configuration (`export GTFS_VALIDATOR_URL=http://127.0.0.1:7878`)
+* Run the site with `mix phx.server`
+* Go to `http://localhost:5000/validate`
+* Upload a GTFS file
+* Verify that it goes through the Elixir apps logs, then the validator logs
 
 ### Debug the GTFS validator locally
 
@@ -115,14 +132,10 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Overall architecture (diagram by Francis)
 * Structure of the Umbrella app (apps)
 * Measuring code coverage
-* Discovering the HTTP routes
 * Discovering the database structure
 * Clever Cloud deployment and operations (Sentry, UptimeRobot)
-* Deploy on "prochainement"
-* Investigate data quality from the stats map
 * Running import jobs (locally)
 * Diving into import jobs (locally)
 * What is GBFS (workshop, slides)
-* How GBFS is handled in this app
 * How to upgrade Elixir, Erlang and Node
 * How to launch linters etc (like CI does)
