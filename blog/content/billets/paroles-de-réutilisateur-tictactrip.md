@@ -9,7 +9,7 @@ images:
 ---
 ![](/images/photonico2.jpg)
 
-Tictactrip est un service d'information voyageur spécialisé dans les trajets intermodaux en Europe. Cette plateforme permet de comparer et combiner des trajets interurbains en train, bus et covoiturage. Ce comparateur propose exclusivement des trajets interurbains, dont des trajets permettant d'accéder à des stations de ski. 
+[Tictactrip](https://www.tictactrip.eu/) est un service d'information voyageur spécialisé dans les trajets intermodaux en Europe. Cette plateforme permet de comparer et combiner des trajets interurbains en train, bus et covoiturage. Ce comparateur propose exclusivement des trajets interurbains, dont des trajets permettant d'accéder à des stations de ski. 
 
 ![](/images/illustration-hiver.png)
 
