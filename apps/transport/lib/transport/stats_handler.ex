@@ -64,7 +64,8 @@ defmodule Transport.StatsHandler do
       nb_regions_completed: regions |> Enum.count(fn r -> r.is_completed end),
       population_totale: get_population(aoms),
       population_couverte: get_population(aoms_with_datasets),
-      ratio_aom_with_at_most_warnings: ratio_aom_with_at_most_warnings(aoms_max_gtfs_severity, total_aom_with_gtfs_datasets),
+      ratio_aom_with_at_most_warnings:
+        ratio_aom_with_at_most_warnings(aoms_max_gtfs_severity, total_aom_with_gtfs_datasets),
       ratio_aom_good_quality: ratio_aom_good_quality(aoms_max_gtfs_severity, total_aom_with_gtfs_datasets),
       aom_with_errors: Map.get(aoms_max_gtfs_severity, "Error", 0),
       aom_with_fatal: Map.get(aoms_max_gtfs_severity, "Fatal", 0),
