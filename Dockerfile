@@ -1,4 +1,4 @@
-FROM betagouv/transport:0.4.3
+FROM betagouv/transport:0.4.5
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ gnu-libiconv-dev
 RUN apk add git
@@ -8,6 +8,10 @@ WORKDIR /phoenixapp
 COPY ./ /phoenixapp
 
 RUN mix do deps.get --only prod
+
+RUN elixir --version
+RUN erl -noshell -eval 'erlang:display(erlang:system_info(system_version))' -eval 'init:stop()'
+RUN node --version
 
 ENV PORT 8080
 ENV MIX_ENV prod
