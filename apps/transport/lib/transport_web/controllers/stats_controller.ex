@@ -3,7 +3,7 @@ defmodule TransportWeb.StatsController do
 
   @spec index(Plug.Conn.t(), any) :: Plug.Conn.t()
   def index(conn, _params) do
-    stats = Transport.StatHandler.compute_stats()
+    stats = Transport.StatsHandler.compute_stats()
 
     conn
     |> assign(:nb_datasets, stats.nb_datasets)
@@ -18,8 +18,8 @@ defmodule TransportWeb.StatsController do
     |> assign(:ratio_aom_good_quality, stats.ratio_aom_good_quality)
     |> assign(:aom_with_errors, stats.aom_with_errors)
     |> assign(:aom_with_fatal, stats.aom_with_fatal)
-    |> assign(:nb_officical_realtime, stats.nb_officical_realtime)
-    |> assign(:nb_unofficical_realtime, stats.nb_unofficical_realtime)
+    |> assign(:nb_official_public_transit_realtime, stats.nb_official_public_transit_realtime)
+    |> assign(:nb_unofficial_public_transit_realtime, stats.nb_unofficial_public_transit_realtime)
     |> assign(:nb_reusers, stats.nb_reusers)
     |> assign(:nb_reuses, stats.nb_reuses)
     |> assign(:nb_dataset_types, stats.nb_dataset_types)

@@ -1,7 +1,7 @@
-defmodule Transport.StatHandler do
+defmodule Transport.StatsHandler do
   @moduledoc """
   Compute statistics on the datasets
-  Also contains a function called periodicly to store the stats in the DB
+  Also contains a function called periodically to store the stats in the DB
   """
   alias DB.{AOM, Dataset, Region, Repo, Resource, StatsHistory, Validation}
   alias Transport.CSVDocuments
@@ -47,10 +47,10 @@ defmodule Transport.StatHandler do
 
     regions = Repo.all(from(r in Region, where: r.nom != "National"))
 
-    aoms_max_severity = compute_aom_max_severity()
+    aoms_max_gtfs_severity = compute_aom_gtfs_max_severity()
 
-    total_aom_with_datasets =
-      aoms_max_severity
+    total_aom_with_gtfs_datasets =
+      aoms_max_gtfs_severity
       |> Map.values()
       |> Enum.filter(fn error -> not is_nil(error) end)
       |> Enum.sum()
@@ -64,12 +64,12 @@ defmodule Transport.StatHandler do
       nb_regions_completed: regions |> Enum.count(fn r -> r.is_completed end),
       population_totale: get_population(aoms),
       population_couverte: get_population(aoms_with_datasets),
-      ratio_aom_with_at_most_warnings: ratio_aom_with_at_most_warnings(aoms_max_severity, total_aom_with_datasets),
-      ratio_aom_good_quality: ratio_aom_good_quality(aoms_max_severity, total_aom_with_datasets),
-      aom_with_errors: Map.get(aoms_max_severity, "Error", 0),
-      aom_with_fatal: Map.get(aoms_max_severity, "Fatal", 0),
-      nb_officical_realtime: nb_officical_realtime(),
-      nb_unofficical_realtime: nb_unofficical_realtime(),
+      ratio_aom_with_at_most_warnings: ratio_aom_with_at_most_warnings(aoms_max_gtfs_severity, total_aom_with_gtfs_datasets),
+      ratio_aom_good_quality: ratio_aom_good_quality(aoms_max_gtfs_severity, total_aom_with_gtfs_datasets),
+      aom_with_errors: Map.get(aoms_max_gtfs_severity, "Error", 0),
+      aom_with_fatal: Map.get(aoms_max_gtfs_severity, "Fatal", 0),
+      nb_official_public_transit_realtime: nb_official_public_transit_realtime(),
+      nb_unofficial_public_transit_realtime: nb_unofficial_public_transit_realtime(),
       nb_reusers: nb_reusers(),
       nb_reuses: nb_reuses(),
       nb_dataset_types: nb_dataset_types(),
@@ -87,7 +87,7 @@ defmodule Transport.StatHandler do
     |> Kernel.round()
   end
 
-  defp nb_officical_realtime do
+  defp nb_official_public_transit_realtime do
     rt_datasets =
       from(d in Dataset,
         where: d.has_realtime and d.is_active and d.type == "public-transit"
@@ -106,7 +106,7 @@ defmodule Transport.StatHandler do
     Repo.aggregate(bikes_datasets, :count, :id)
   end
 
-  defp nb_unofficical_realtime do
+  defp nb_unofficial_public_transit_realtime do
     Enum.count(CSVDocuments.real_time_providers())
   end
 
@@ -131,9 +131,9 @@ defmodule Transport.StatHandler do
     |> Repo.one()
   end
 
-  @spec compute_aom_max_severity() :: %{binary() => integer()}
-  defp compute_aom_max_severity do
-    # consolidate the maximum error for the current dataset for each dataset
+  @spec compute_aom_gtfs_max_severity() :: %{binary() => integer()}
+  defp compute_aom_gtfs_max_severity do
+    # consolidate the maximum error for the current datasets of each AOMs
     # return, for each error, the number of AOM with this maximum error
     dt = Date.utc_today()
 
@@ -160,7 +160,7 @@ defmodule Transport.StatHandler do
     |> join(:left, [_, _, r], v in subquery(validations), on: v.resource_id == r.id)
     |> where([_a, _d, r, _v], r.format == "GTFS")
     |> where([_a, _d, r, _v], r.end_date >= ^dt)
-    |> group_by([_a, _d, _r, v], _a.id)
+    |> group_by([a, _d, _r, v], a.id)
     |> select([a, d, r, v], %{
       aom: a.id,
       max_error: max(v.max_error)
@@ -194,7 +194,7 @@ defmodule Transport.StatHandler do
         Map.get(aom_max_severity, "Irrelevant", 0) +
         Map.get(aom_max_severity, "NoError", 0)
 
-    round(sum / nb_aom_with_data * 100)
+    sum / nb_aom_with_data
   end
 
   @spec ratio_aom_good_quality(%{binary() => integer()}, integer()) :: integer()
@@ -208,6 +208,6 @@ defmodule Transport.StatHandler do
         Map.get(aom_max_severity, "Irrelevant", 0) +
         Map.get(aom_max_severity, "NoError", 0)
 
-    round(sum * 100 / nb_aom_with_data)
+    sum / nb_aom_with_data
   end
 end
