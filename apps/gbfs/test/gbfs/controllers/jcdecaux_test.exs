@@ -37,7 +37,6 @@ defmodule GBFS.JCDecauxControllerTest do
       end
     end
 
-    @tag :pouet
     test "on invalid jcdecaux response", %{conn: conn} do
       mock = fn url ->
         if String.match?(url, ~r|https://api.jcdecaux.com/vls/v1.*|) do
@@ -58,7 +57,7 @@ defmodule GBFS.JCDecauxControllerTest do
 
       with_mock HTTPoison, get: mock do
         conn = conn |> get(Routes.toulouse_path(conn, :station_status))
-        assert %{"error" => "service jcdecaux unavailable"} == json_response(conn, 502)
+        assert %{"error" => "jcdecaux service unavailable"} == json_response(conn, 502)
 
         # Sentry 0.7 does not have a sync mode, so the message is send asynchronously,
         # we wait to be sure that the message is send.

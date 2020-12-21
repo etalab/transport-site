@@ -78,8 +78,8 @@ defmodule GBFS.JCDecauxController do
       {:ok, json}
     else
       e ->
-        Logger.error("impossible to query vcub: #{inspect(e)}")
-        {:error, "service jcdecaux unavailable"}
+        Logger.error("impossible to query jcdecaux: #{inspect(e)}")
+        {:error, "jcdecaux service unavailable"}
     end
   end
 
