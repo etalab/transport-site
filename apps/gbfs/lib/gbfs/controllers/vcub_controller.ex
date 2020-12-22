@@ -127,6 +127,7 @@ defmodule GBFS.VCubController do
     else
       e ->
         Logger.error("impossible to query vcub: #{inspect(e)}")
+        Sentry.capture_message("impossible to query vcub", extra: %{error: e})
         {:error, "service vcub unavailable"}
     end
   end
