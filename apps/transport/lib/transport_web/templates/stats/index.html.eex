@@ -151,12 +151,12 @@
             </p>
           </div>
             <div class="tile">
-              <h3> <%= @ratio_aom_with_at_most_warnings %>%</h3>
+              <h3> <%= round(@ratio_aom_with_at_most_warnings * 100) %>%</h3>
               <div><acronym title="autorité organisatrice de mobilité">AOM</acronym> urbaines avec des jeux de données de
               qualité satisfaisante (sans aucune erreur)</div>
             </div>
             <div class="tile">
-              <h3> <%= @ratio_aom_good_quality %>%</h3>
+              <h3> <%= round(@ratio_aom_good_quality * 100) %>%</h3>
               <div><acronym title="autorité organisatrice de mobilité">AOM</acronym> urbaines avec des jeux de données de bonne qualité
               (sans erreurs ni avertissements)</div>
             </div>
@@ -188,18 +188,18 @@
           </div>
           <div class="tile-numbers">
             <div class="tile">
-              <h3><%= @nb_officical_realtime %></h3>
+              <h3><%= @nb_official_public_transit_realtime %></h3>
               <div> <a href="/datasets?filter=has_realtime">Jeux de données standardisés et librement accessibles</a></div>
             </div>
             <div class="tile">
-              <h3><%= @nb_unofficical_realtime %></h3>
+              <h3><%= @nb_unofficial_public_transit_realtime %></h3>
               <div> <a href="/real_time">Jeux de données non officiellement référencés</a></div>
             </div>
             <div class="rt-viz">
-              <%= for _i <- 1..@nb_officical_realtime do %>
+              <%= for _i <- 1..@nb_official_public_transit_realtime do %>
                 <div class="item standard"></div>
               <% end %>
-              <%= for _i <- 1..@nb_unofficical_realtime do %>
+              <%= for _i <- 1..@nb_unofficial_public_transit_realtime do %>
                 <div class="item non-standard"></div>
               <% end %>
             </div>
