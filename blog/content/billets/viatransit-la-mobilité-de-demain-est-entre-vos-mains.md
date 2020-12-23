@@ -7,7 +7,7 @@ description: Interview avec Camille Monjo et Darius Martin, fondateurs de viaTra
 images:
   - /images/opengraph_viatransit_main_v2.png
 ---
-Camille Monjo et Darius Martin, deux étudiants en ingénierie informatique à EPITECH Montpellier, ont développé viaTransit : une plateforme multi-modale simplifiant l'information voyageur et les déplacements dans les transports en commun.
+Camille Monjo et Darius Martin, deux étudiants en ingénierie informatique à EPITECH Montpellier, ont développé [viaTransit](https://viatransit.fr/) : une plateforme multi-modale simplifiant l'information voyageur et les déplacements dans les transports en commun.
 
 ![martin et monjo](/images/martin_et_monjo.jpg "Les deux fondateurs de ViaTransit")
 
