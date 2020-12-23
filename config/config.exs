@@ -20,7 +20,7 @@ config :gbfs, GBFS.Endpoint,
 # Configures the endpoint
 config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],
-  secret_key_base: System.get_env("SECRET_KEY_BASE"),
+  secret_key_base: System.fetch_env!("SECRET_KEY_BASE"),
   render_errors: [
     view: TransportWeb.ErrorView,
     layout: {TransportWeb.LayoutView, "app.html"},
@@ -29,7 +29,7 @@ config :transport, TransportWeb.Endpoint,
   pubsub: [name: Transport.PubSub,
            adapter: Phoenix.PubSub.PG2],
   live_view: [
-    signing_salt: System.get_env("SECRET_KEY_BASE")
+    signing_salt: System.fetch_env!("SECRET_KEY_BASE")
   ]
 
 config :phoenix, :json_library, Jason
