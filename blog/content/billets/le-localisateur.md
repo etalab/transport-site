@@ -11,7 +11,7 @@ images:
 ---
 ![](/images/hauy.png "L’association Valentin Haüy")
 
-Le Localisateur est un logiciel agrégateur d’information, qui rend accessible aux personnes malvoyantes et aveugles le contenu disponible sur internet. Soutenue par la Fondation Valentin Haüy, cette application gratuite aide les handicapés visuels à sortir de leur isolement. Ce service est accessible depuis les navigateurs web et sur mobile.
+[Le Localisateur](https://localisateur.org/) est un logiciel agrégateur d’information, qui rend accessible aux personnes malvoyantes et aveugles le contenu disponible sur internet. Soutenue par la Fondation Valentin Haüy, cette application gratuite aide les handicapés visuels à sortir de leur isolement. Ce service est accessible depuis les navigateurs web et sur mobile.
 
 ![](/images/le-loc.png "Le site web ")
 
