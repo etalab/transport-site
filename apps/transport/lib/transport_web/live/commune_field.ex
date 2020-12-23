@@ -23,7 +23,7 @@ defmodule TransportWeb.Live.CommuneField do
     assigns =
       socket
       |> assign(matches: [])
-      |> assign(insee: session.insee)
+      |> assign(insee: session["insee"])
 
     {:ok, assigns}
   end
