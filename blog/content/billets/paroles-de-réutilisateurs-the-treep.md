@@ -12,7 +12,7 @@ image: /images/logo-the-treep-vert-et-texte-noir.png
 images:
   - /images/logo-the-treep-vert-et-texte-noir.png
 ---
-Hébergée au Campus de la Fondation Good Planet, la société the Treep permet à ses clients comparer les itinéraires et réaliser les réservations directement dans un outil à destination des voyageurs professionnels. Leur algorithme combine différents moyens de transport pour comparer et réserver facilement des trajets porte-à-porte. L’utilisateur est invité à réduire son empreinte carbone en comparant le Green Score de chaque solution et en neutralisant cette dernière en plantant le nombre exact d’arbres nécessaires.
+Hébergée au Campus de la Fondation Good Planet, la société[ the Treep](https://www.thetreep.com/) permet à ses clients comparer les itinéraires et réaliser les réservations directement dans un outil à destination des voyageurs professionnels. Leur algorithme combine différents moyens de transport pour comparer et réserver facilement des trajets porte-à-porte. L’utilisateur est invité à réduire son empreinte carbone en comparant le Green Score de chaque solution et en neutralisant cette dernière en plantant le nombre exact d’arbres nécessaires.
 
 ![](https://www.thetreep.com/uploads/1/1/0/1/110164989/goodplanetandthetreep_orig.jpg)
 
