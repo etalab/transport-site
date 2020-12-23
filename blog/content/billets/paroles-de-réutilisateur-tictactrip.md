@@ -7,11 +7,11 @@ description: "Interview avec Nicolas Messager, Chargé de partenariats chez Tict
 images:
   - /images/logo-carre-couleur.png
 ---
-![](/images/photonico2.jpg)
+![](/images/kndljq.sd.png)
 
 [Tictactrip](https://www.tictactrip.eu/) est un service d'information voyageur spécialisé dans les trajets intermodaux en Europe. Cette plateforme permet de comparer et combiner des trajets interurbains en train, bus et covoiturage. Ce comparateur propose exclusivement des trajets interurbains, dont des trajets permettant d'accéder à des stations de ski. 
 
-![](/images/illustration-hiver.png)
+![](/images/oh.png)
 
 Les utilisateurs ont également la possibilité de faire des réservations à partir de leur interface. Ainsi, seules les données incluant des solutions billettiques sont intégrées à leurs bases de données. 
 
