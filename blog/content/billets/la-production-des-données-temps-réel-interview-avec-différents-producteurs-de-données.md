@@ -72,7 +72,7 @@ Certains flux proposent toutes ces informations dans un seul flux, comme [Zenbus
 Il doit être accompagné d'un fichier théorique au format GTFS pour pouvoir être utilisé. Ces données ne sont pas donc pas autoporteuses.\
 Par exemple pour les données de mise à jour des horaires (`TripUpdate`), pour un `Trip` donné on a la mise à jour de ses horaires pour la journée, mais pas d'informations concernant la `Route` de ce `Trip` ni la position des arrêts.
 
-* SIRI (Service Interface for Realtime Information)
+* **Le SIRI (Service Interface for Realtime Information)**
 
 Le SIRIest une normedéfinie par le Comité Européen de Normalisation et correspond à la norme Netex pour le temps réel. Elle caractérise des services temps réel dont les principaux sont : 
 
@@ -81,17 +81,17 @@ Le SIRIest une normedéfinie par le Comité Européen de Normalisation et corres
 * `General Message` qui génère des alertes de service
 * `Vehicle Monitoring` qui renseigne la position des véhicules
 
-
-
 Tout comme le Netex, un profil doit être défini. C'est un format autoporteur mais les données ne sont pas interopérables entre les profils car les services définis sont sélectionnées avec les profils.
 
-### [](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA#SIRI-Lite "SIRI-Lite")SIRI Lite
 
-SIRI Lite est un sous dérivé de SIRI pour le rendre plus accessible, c’est uniquement les parties :
 
-* `StopMonitoring` (prochains passages)
-* `StopPointsDiscovery` / `LineDiscovery` (avoir des infos sur le réseau)
-* `GeneralMessage` (alertes de service)
+* **Le SIRI Lite**
+
+Le SIRI Lite est un sous dérivé de SIRI qui ne contient que les informations suicantes afin de le rendre plus accessible : 
+
+* `StopMonitoring` qui affiche les prochains passages
+* `StopPointsDiscovery` / `LineDiscovery` qui fournit des informations sur le réseau
+* `GeneralMessage`  qui génère des alertes de service
 
 servi en `JSON` (au lieu de `XML`) par une API http classique (à la place de [SOAP](https://fr.wikipedia.org/wiki/SOAP)).
 
