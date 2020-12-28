@@ -42,98 +42,48 @@ transport.data.gouv.fr a pour objectif de rassembler l'ensemble des données ser
 Il existe trois niveaux de fraîcheur pour les données relatives aux transports : 
 
 * les horaires théoriques : horaires prévisionnels diffusés sous forme d'heure ou de fréquence de passage. 
-* les horaires adapté : les horaires théoriques peuvent être modifiés lorsqu'il y a des évènements modifiant les horaires et/ou itinéraires des véhicules. La RATP diffuse un plan de transport mise à jour en cas de grève par exemple, la SNCF livre un patch lorsqu'il y a des changements majeurs sur les horaires théoriques initialement transmis. Ces horaires ne peuvent toutefois pas être considérés comme étant en temps-réel. 
+* les horaires adapté : les horaires théoriques peuvent être modifiés lorsqu'il y a des évènements modifiant les horaires et/ou itinéraires des véhicules. Par exemple, la RATP diffuse un plan de transport mise à jour en cas de grève, la SNCF livre un patch lorsqu'il y a des changements majeurs sur les horaires théoriques initialement transmis. Ces horaires ne peuvent toutefois pas être considérés comme étant en temps-réel. 
+* les horaires temps réel : les horaires affichés correspondent à l'état du trafic à l'instant. 
 
-  les horaires temps-réel : horaires illustrant le trafic à l'instant. 
-
-<!--StartFragment-->
-
-Deux méthodes :
-
-* temps réel unitaire : typiquement pou les bus pour afficher le passage du prochain bus. Le problème c’est que tu pas relier ce bus à une donnée théorique. Pour les calculateurs d’itinéraires c’est très limité.
-* temps réel global : où tu récupères toutes les données de ton réseau où tu peux préciser quel bus passe. Le GTFS-RT par exemple ne fait que du global. Tu fais une requête qui t’envoies un fichier compressé qui permet de retrouver quel bus passe. Le GTFS RT doit être couplé avec des données théoriques.
+Cet article traitera exclusivement des horaires temps-réel. 
 
 
 
-<!--EndFragment-->
+Les données temps réel permettent de fournir une information voyageur qui reflète la réalité du terrain. Elles permettent ainsi à un usager d'être notifié si son bus a du retard par exemple, si il y a des déviations à certains arrêts pour des travaux etc. Pour ce faire, il existe trois formats harmonisés et supportés par le PAN afin de modéliser cette information : 
+
+* **Le GTFS-RT (General Transit Feed Specification - realtime)**
+
+C'est un standard conçu par Google mais qui est désormais maintenu par une communauté (à completer). 
+
+C'est un un format binaire compact (protobuf) qui utilise une méthode globale permettant de récupérer toutes les données d'un réseau en une requête. 
+
+ Ce flux temps réel peut contenir trois types d'information : 
+
+* `TripUpdate` qui correspond à la mise à jour des horaires de passage
+* `Alert`  qui genère des alertes de service
+* `VehiclePositions` qui renseigne la position des véhicules
+
+Certains flux proposent toutes ces informations dans un seul flux, comme [Zenbus](https://transport.data.gouv.fr/datasets?_utf8=%E2%9C%93&q=zenbus), mais certains producteurs préfèrent avoir un flux par type de données. C'est le cas pour la [Communauté de l’Auxerrois](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) qui a publié un flux pour `TripUpdate`et un autre pour `VehiclePositions`
 
 
 
+![](/images/capturemls.png)
+
+Il doit être accompagné d'un fichier théorique au format GTFS pour pouvoir être utilisé. Ces données ne sont pas donc pas autoporteuses.\
+Par exemple pour les données de mise à jour des horaires (`TripUpdate`), pour un `Trip` donné on a la mise à jour de ses horaires pour la journée, mais pas d'informations concernant la `Route` de ce `Trip` ni la position des arrêts.
+
+* SIRI (Service Interface for Realtime Information)
+
+Le SIRIest une normedéfinie par le Comité Européen de Normalisation et correspond à la norme Netex pour le temps réel. Elle caractérise des services temps réel dont les principaux sont : 
+
+* `Stop Monitoring` qui affiche les prochains passages
+* `Estimated Timetable` qui met à jour des horaires de passage)
+* `General Message` qui génère des alertes de service
+* `Vehicle Monitoring` qui renseigne la position des véhicules
 
 
-Les données temps réel sont les données permettant de fournir une information voyageur qui reflète le trafic à l'instant. Elles permettent ainsi à un usager d'être notifié si son bus a du retard par exemple, si il y a des déviations à certains arrêts pour des travaux etc. Pour ce faire, il existe trois formats harmonisés et supportés par le PAN afin de modéliser cette information : 
 
-### GTFS-RT
-
-General Transit Feed Specification – realtime
-
-**Standard** conçu par Google (au départ c’était Google Transit Feed Specification), puis lâché et maintenu maintenant par une communauté.
-
-Le GTFS-RT contient que des données, dans un format binaire compact (protobuf), sans préciser le protocole de transport de la donnée (qui est en général du http).
-
-Les données GTFS-RT ne sont pas autoporteuses, elles nécessitent les données GTFS pour pouvoir être utilisées.\
-Par exemple pour les données de mise à jour des horaires (`TripUpdate`), pour un `Trip` donné on a la mise à jour de ses horaires pour la journée, mais on n’a pas l’info concernant la `Route` de ce `Trip` ni la position des arrêts.
-
-Processus de modification clair et ouvert.
-
-Pull request sur le repo Github + annonce sur une mailing liste. 7 jours plus tard on peut demander un vote. On doit avoir 3 oui, dont 1 producteur de données et 1 réutilisateur et pas de véto. Si véto la proposition peut être modifiée et re proposée au vote.
-
-GTFS-RT peut contenir 3 types de données :
-
-* `TripUpdate` (mise à jour des horaires de passage)
-* `Alert` (alertes de service)
-* `VehiclePositions` (position des véhicules)
-
-Certains flux proposent toutes les infos dans le flux mais certains producteurs préfèrent avoir 1 flux par type de données.
-
-#### [](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA#Protocol-d%E2%80%99%C3%A9change "Protocol-d’échange")Protocol d’échange
-
-Le protocol d’échange pour distribuer les données n’est pas défini dans le standard, mais comme les données sont d’un bloc et dans un format très compact, c’est souvent distribué par un serveur http comme un simple fichier protobuf.
-
-### [](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA#SIRI "SIRI")SIRI
-
-Service Interface for Realtime Information
-
-**Norme** définie par le Comité Européen de Normalisation.
-
-C’est le pendant temps réel de la norme [NeTEx](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA).
-
-Basé sur [Transmodel](http://www.transmodel-cen.eu/), une modélisation des données différente de celle utilisée par GTFS (et plus complète).
-
-SIRI défini des **Services** temps réel (et non pas directement des données).
-
-Tout comme [NeTEx](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA) il faut définir un profil sur la norme. Ce profil correspond au sous-ensemble de la norme qui va être utilisé. Le problème de cette notion de profil c’est que ça rend les données non interopérables entre les profils.
-
-En faisant parti du [CEN](https://www.cen.eu/Pages/default.aspx) l est possible de participer à l’évolution de la norme, mais le processus d’évolution est beaucoup plus lent que celui de GTFS-RT.
-
-#### [](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA#Services "Services")Services
-
-Dans SIRI tout plein de services sont définis.\
-Les principaux sont :
-
-* `Stop Monitoring` (SM) (prochains passages)
-* `Estimated Timetable` (ET) (mise à jour des horaires de passage)
-* `General Message` (GM) (alertes de service)
-* `Vehicle Monitoring` (VM) (position des véhicules)
-
-Mais on en trouve plein d’autre :
-
-* `Production Timetable`
-* `Stop Timetable`
-* `Connexion Timetable`
-* `Connection Monitoring `
-* `Facility Monitoring`
-
-Les services défini sont sélectionnés avec les profils.\
-Le truc qui est un peu compliqué c’est que SIRI ne s’arrètent pas à l’information voyageur, ca peut aussi être utilisé pour des données d’exploitation (d’où le nombre de services différents).
-
-#### [](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA#Protocol-d%E2%80%99%C3%A9change1 "Protocol-d’échange1")Protocol d’échange
-
-Contrairement au GTFS-RT, le protocol d’échange pour distribué les données est défini dans la norme et c’est du [SOAP](https://fr.wikipedia.org/wiki/SOAP).
-
-Il peut être décliné en plusieurs versions (aussi définies par profil) avec accès sur demande ou sur abonnement, et tout plein de subtilités supplémentaires.
-
-<https://enturas.atlassian.net/wiki/spaces/PUBLIC/pages/637370373/General+information+SIRI>
+Tout comme le Netex, un profil doit être défini. C'est un format autoporteur mais les données ne sont pas interopérables entre les profils car les services définis sont sélectionnées avec les profils.
 
 ### [](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA#SIRI-Lite "SIRI-Lite")SIRI Lite
 
