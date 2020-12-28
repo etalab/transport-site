@@ -1,10 +1,31 @@
 ---
-title: "La production des données temps réel interview avec différents
-  producteurs de données "
+title: "La production des données temps réel "
 date: 2020-12-23T09:33:17.115Z
 tags:
   - retour d'expérience
-description: mmù
+description: >-
+  Interview avec différents producteurs de données afin de mieux comprendre les
+  enjeux autour de la production des données temps réel 
+
+
+  Zenbus : 
+
+  Kisio Digital : Betrand Billoud et Laetitia Paternoster 
+
+  Pysae : 
+
+  City Way : Nely Escoffier 
+
+  Mecatran : 
+
+  Ubitransport 
+
+
+  Nous nous sommes également entretenus avec des collectivités ayant publié leurs données sur le Point d'Accès National (PAN)
+
+  Grand Poitiers : Nicolas Madignier 
+
+  Communauté de l’agglomération de l'Auxerrois : François Meyer
 ---
 <!--StartFragment-->
 
