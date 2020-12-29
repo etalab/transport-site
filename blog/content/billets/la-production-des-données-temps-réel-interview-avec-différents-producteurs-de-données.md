@@ -111,9 +111,13 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 **La production et normalisation des données** 
 
+Zenbus produit des données temps réel en se basant sur le fichier théorique de leurs clients quand ils existent lorsque ces données sont au format GTFS-RT ou en produisant le fichier GTFS. La génération des flux sortants par le serveur Zenbus est quasi instantanée avec une actualisation des données toutes les 3 secondes pour des véhicules qui roulent avec un terminal Android muni de l'application Zenbus Driver
 
+<!--EndFragment-->
 
-Kisio Digital ne produit pas les données mais les normalisent et les améliore > <!--StartFragment-->Avance/retard, perturbations (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) et Interprétation pour proposer itinéraires de remplacement
+<!--EndFragment-->
+
+Kisio Digital ne produit pas de données mais les normalisent et les améliore. Cette solution fournit les informations "Avance/retard" et perturbations (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des interprétations pour proposer des itinéraires de remplacement
 
 **Les format de données fournis** 
 
