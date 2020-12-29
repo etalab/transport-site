@@ -24,8 +24,17 @@ Personnes interviewées :
 Services de géolocalisation temps réel à partir de smartphones et production de données temps réel dans des formations normalisés (GTFS-RT et SIRI)
 
 * Kisio Digital : Betrand Billoud et Laetitia Paternoster
+
+Service accompagnant tous les acteurs de la mobilité pour créer,\
+déployer et animer les services à la mobilité.
+
 *  Pysae : 
-* [City Way](https://www.data.gouv.fr/fr/organizations/cityway/) : Nely Escoffier > valorisation et normalisent des données 
+* [City Way](https://www.data.gouv.fr/fr/organizations/cityway/) : Nely Escoffier
+
+Entreprise spécialisée dans le traitement des systèmes d’informations multimodaux (SIM) et la mise en œuvre de solutions numériques depuis une vingtaine d’année
+
+<!--EndFragment-->
+
 * [Mecatran](https://www.data.gouv.fr/fr/organizations/mecatran/),  éditeur de logiciel travaillant avec les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles :
 
 \
