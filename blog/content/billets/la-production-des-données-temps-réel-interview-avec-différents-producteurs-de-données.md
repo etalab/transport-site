@@ -10,34 +10,32 @@ description: >-
 
 
 
-  Zenbus : 
 
-  Kisio Digital : Betrand Billoud et Laetitia Paternoster 
-
-  Pysae : 
-
-  City Way : Nely Escoffier > valorisation et normalisent des données 
-
-  Mecatran,  éditeur de logiciel travaillant avec les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles :  
-
-  Ubitransport 
-
-
-  Nous nous sommes également entretenus avec des collectivités ayant publié leurs données sur le Point d'Accès National (PAN)
+  Nous nous sommes également entretenus avec des collectivités ayant publié leurs données sur le Point d'Accès National (PAN) afin de mieux comprendre la relation avec les acteurs producteurs et services de normalisation des données. 
 
   Grand Poitiers : Nicolas Madignier 
 
-  Communauté de l’agglomération de l'Auxerrois : François Meyer
+  Communauté de l’agglomération de l'Auxerrois : François Meyer, chef du service mobilité
 ---
+Personnes interviewées :
+
+* [Zenbus](https://www.data.gouv.fr/fr/organizations/zenbus/), Olivier Deschasseaux co-fondateur en charge des partenariats, du marketing et de la communication
+
+Services de géolocalisation temps réel à partir de smartphones et production de données temps réel dans des formations normalisés (GTFS-RT et SIRI)
+
+* Kisio Digital : Betrand Billoud et Laetitia Paternoster
+*  Pysae : 
+* [City Way](https://www.data.gouv.fr/fr/organizations/cityway/) : Nely Escoffier > valorisation et normalisent des données 
+* [Mecatran](https://www.data.gouv.fr/fr/organizations/mecatran/),  éditeur de logiciel travaillant avec les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles :
+
+\
+Ubitransport 
+
 <!--StartFragment-->
-
-
 
 transport.data.gouv.fr a pour objectif de rassembler l'ensemble des données servant à l'information voyageur dans des formats harmonisés et sans obligation d'authentification pour les réutilisateurs. Cette ouverture des données vise à faciliter les déplacements des citoyens par l'intégration de ces données dans des services tiers. 
 
 \[Mettre capture d'écran des réutilisateurs]
-
-
 
 Il existe trois niveaux de fraîcheur pour les données relatives aux transports : 
 
@@ -63,8 +61,6 @@ C'est un un format binaire compact (protobuf) qui utilise une méthode globale p
 
 Certains flux proposent toutes ces informations dans un seul flux, comme [Zenbus](https://transport.data.gouv.fr/datasets?_utf8=%E2%9C%93&q=zenbus), mais certains producteurs préfèrent avoir un flux par type de données. C'est le cas pour la [Communauté de l’Auxerrois](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) qui a publié un flux pour `TripUpdate`et un autre pour `VehiclePositions`
 
-
-
 ![](/images/capturemls.png)
 
 Il doit être accompagné d'un fichier théorique au format GTFS pour pouvoir être utilisé. Ces données ne sont pas donc pas autoporteuses.\
@@ -83,8 +79,6 @@ Le SIRIest une normedéfinie par le Comité Européen de Normalisation et corres
 
 Tout comme le Netex, un profil doit être défini. C'est un format autoporteur mais les données ne sont pas interopérables entre les profils car les services définis sont sélectionnées avec les profils.
 
-
-
 * **Le SIRI Lite**
 
 Le SIRI Lite est un sous dérivé de SIRI qui ne contient que les informations suivantes afin de le rendre plus accessible : 
@@ -95,27 +89,19 @@ Le SIRI Lite est un sous dérivé de SIRI qui ne contient que les informations s
 
 Le flux est en `JSON` (au lieu de `XML`) et est accessible par une API http classique.
 
-
-
 **Les clients des producteurs de données temps réel** 
 
 Les producteurs de données temps-réel peuvent avoir différents types de clients : 
 
-* des collectivités qui veulent améliorer leur information voyageur et leur système d'exploitation comme Poitiers avec Mecatran qui normalise leur flux temps réel custom, le département de l'Isère avec Citiway ou le Centre-Val-de-Loire avec Kisio 
-
-<!---->
-
-* des opérateurs de transport comme Transdev, Keolis, Eole Mobilité etc. qui traitent avec Pysae pour la production de leurs données ou la SNCF pour normaliser et avoir un contrôle qualité de leurs donnée savec Kisio
-
-
+* des collectivités qui veulent améliorer leur information voyageur et leur système d'exploitation comme Poitiers avec Mecatran qui normalise leur flux temps réel custom afin d'homogénéiser les données des 40 communes, le département de l'Isère avec Citiway ou le Centre-Val-de-Loire avec Kisio 
+* des opérateurs de transport comme Transdev, Keolis, Eole Mobilité etc. qui traitent avec Pysae pour la production de leurs données ou la SNCF pour normaliser et avoir un contrôle qualité de leurs données avec Kisio
+* des stations de ski ou évènements ponctuels 
 
 <!--StartFragment-->
 
 pérateurs de transport de voyageurs et les collectivités (Autorité Organisatrice de la Mobilité ou AOM). PYSAE a pour client les grands groupes de transport de voyageurs : Keolis, Transdev et RATP et des opérateurs de transports locaux : [Avenir Atlantique](https://web.pysae.com/blog/saeiv-avenir-atlantique-nouvelle-aquitaine), Eole Mobilité, [SUMA](https://web.pysae.com/blog/transports-suma-cavalaire-sur-mer), etc.
 
 <!--EndFragment-->
-
-
 
 Important de bien inclure une clause sur l’ouverture des données dans vos contrats publics avec des transporteurs ou SAEIV.\
 Vous pouvez exiger l’ouverture des données, et préciser un format auquel ces données doivent être produits.\
@@ -125,8 +111,6 @@ L’équipe transport.data.gouv.fr a produit un convertisseur GTFS-RT vers SIRI-
 Le réutilisateur pourra choisir directement s’il préfère réutiliser le flux GTFS-RT ou SIRI-Lite. 
 
 Exemples: voir les clauses de DSP de Lille Métropole (MEL). 
-
-
 
 Kisio : ne produit pas les données mais les normalisent et les améliore > <!--StartFragment-->**Avance/retard, perturbations (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) et** Interprétation pour proposer itinéraires de remplacement
 
@@ -147,13 +131,9 @@ Qualité données : >Sur théorique : Un gros contrôle qualité > correspond au
 
 TR : via les sondes où ils vont regarder si tout est ok au niveau des latences mais ne peuvent pas être sur place pour s’assurer que le bus passe bien
 
-
-
 <!--EndFragment-->
 
 SDK peut aussi être mobile 
-
-
 
 <!--EndFragment-->
 
@@ -191,31 +171,21 @@ Techniquement : sous forme de flux brut (GTFS-RT avec les différentes variantes
 
 \> Contractuellement : Client qui possède la donnée. font selon demande des clients : s' ils veulent redistribuer 
 
-
-
 <!--EndFragment-->
 
-<!--EndFragment-->
+Grand Poitiers : 
 
+4 destinataires : 
 
+Mecatran va produire le TR grace au réel 
 
-<!--EndFragment-->
+Airweb : prestataire de solution numérique qui va gérer alimentation support numérique de Vitalis 
 
-<!--EndFragment-->
+Modalis : partenaire qui va se servir du GTFS pour l’intégrer dans le référentiel Grande Aquitaine 
 
+Grand Poitiers : sur sa plateforme locale 
 
-
-<!--EndFragment-->
-
-
-
-<!--EndFragment-->
-
-<!--EndFragment-->
-
-<!--EndFragment-->
-
-
+**But : avoir un SAE unifié**
 
 <!--EndFragment-->
 
@@ -225,7 +195,23 @@ Techniquement : sous forme de flux brut (GTFS-RT avec les différentes variantes
 
 <!--EndFragment-->
 
+<!--EndFragment-->
 
+<!--EndFragment-->
+
+<!--EndFragment-->
+
+<!--EndFragment-->
+
+<!--EndFragment-->
+
+<!--EndFragment-->
+
+<!--EndFragment-->
+
+<!--EndFragment-->
+
+<!--EndFragment-->
 
 Interface avec SAE et récupère données des partenaires (prestataires données transport) : alimente Navitia qu’ils vont communiquer aux voyageurs. Flux qu’ils vont recevoir et vont interroger pour récupérer données TR 
 
@@ -233,11 +219,49 @@ Format normalisé 
 
 Ont surtout sur GTFS-RT, SIRI de moins en moins. (Netex) 
 
+<!--EndFragment-->
+
+Communauté d'agglomération de l'Auxerrois :
+
+Produisent du GTFS-RT : système de billettique et d’IV avait besoin de fonctionner sous GTFS, sont partis sur GTFS-RT pour pouvoir faire de l’OpenData 
+
+Fait partenariat Transit (convention avec eux : contrat gratuit > ont des données anonymisés qui leur permettent de voir combien de personnes utilisent l’application et d’envoyer des alertes si besoin) et Google (GTFS format simple pour tester des fonctionnalités, on peut modifier facilement, format Européen très lourd/compliqué/permet pas itération/ pas capacité de le produire).
+
+* avance/retard, prochains passages, position des véhicules, message d'informations et d'alertes ;
+
+Implantés progressivement : pas un seul flux mais plusieur
+
+Positions véhicules/ MAJ des trajets (avance/retard, prochains passafes) mais pas message d’informations et d’alertes. Ont des difficultés sur ce flux (message d’info’)
+
+Transdev : produisent base GTFS à partir de Téo et leur envoie par mail > va sur G.Transit pour test qualité > publie sur le PAN 
+
+Transdev créé leurs données mais Communauté qui met les données chez Google : Communauté a un contrôle de la donnée 
+
+Flux automatisé : MAJ des trajets/positions des véhicules générés à partir du GPS d’un véhicule → Ubitransport se charge de transformer ce flux en GTFS-RT 
+
+Avec Ubitransport : tablette tactile qui est connectée à un valideur et les personnes badgent dessus. Tablette utilisée par conducteur pour sélectionner sa course et avance/retard/ Tablette a également un GPS et dans le frontal Ubitransport ils peuvent suivre en TR avance/retard. Conversion information > GTFS-RT : option qu’ils avaient dans le marché avec Ubitransport
+
+* Exprimer les éventuelles retombées positives de la production et publication des données. 
+
+Augmentation du trafic (utilisation sur TransitApp) : usage a augmenté et il pense qu’ils passeront un cap décisif quand ils auront alerte 
+
+Une fois qu’ils auront les alertes : cap décisif car voyageurs sauront que c’est du TR 
+
 
 
 <!--EndFragment-->
 
 
+
+<!--EndFragment-->
+
+
+
+<!--EndFragment-->
+
+
+
+<!--EndFragment-->
 
 <!--EndFragment-->
 
@@ -282,8 +306,6 @@ La solution [PYSAE ](https://web.pysae.com/)s’appuie sur une application And
 L’application d’aide à la conduite remonte également en permanence les données aux serveurs de [PYSAE ](https://web.pysae.com/)sur la circulation du véhicule. Les serveurs [SAEIV ](https://web.pysae.com/blog/saeiv)stockent et diffusent cette information aux services consommateurs adéquats.
 
 Les données temps réel produites par le [SAEIV ](https://web.pysae.com/blog/saeiv)de [PYSAE ](https://web.pysae.com/)sont le résultat de la comparaison entre l’offre théorique (plan de transport) et les données du terrain. Les utilisateurs de PYSAE peuvent importer leurs données d’offre théorique dans les formats suivants : [GTFS](<https://developers.google.com/transit/gtfs?hl=fr#:~:text=GTFS%20(General%20Transit%20Feed%20Specification,et%20les%20informations%20g%C3%A9ographiques%20associ%C3%A9es.>), Excel, Transdev-TEO, Keolis-Okapi et[ Gescar-GTFS](https://www.perinfo.eu/).  Ils peuvent également saisir ou modifier ces données directement dans PYSAE via les interfaces utilisateurs pour la configuration du plan de transport.
-
-
 
 <!--StartFragment-->
 
@@ -418,7 +440,7 @@ Mais on en trouve plein d’autre :
 * `Production Timetable`
 * `Stop Timetable`
 * `Connexion Timetable`
-* `Connection Monitoring `
+* `Connection Monitoring`
 * `Facility Monitoring`
 
 Les services défini sont sélectionnés avec les profils.\
@@ -447,8 +469,6 @@ servi en `JSON` (au lieu de `XML`) par une API http classique (à la place de
 Il y a en plus de tout cela une Miryad d’API différentes, souvent sous forme d’API Rest (mais pas que), listées par <https://transport.data.gouv.fr/real_time>.
 
 <!--EndFragment-->
-
-
 
 # **Distribution des données temps réel pour l’information des voyageurs**
 
