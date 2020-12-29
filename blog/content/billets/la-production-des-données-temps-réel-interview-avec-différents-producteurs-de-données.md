@@ -16,9 +16,9 @@ description: >-
 
   Pysae : 
 
-  City Way : Nely Escoffier 
+  City Way : Nely Escoffier > valorisation et normalisent des données 
 
-  Mecatran : 
+  Mecatran,  éditeur de logiciel travaillant avec les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles :  
 
   Ubitransport 
 
@@ -42,14 +42,12 @@ transport.data.gouv.fr a pour objectif de rassembler l'ensemble des données ser
 Il existe trois niveaux de fraîcheur pour les données relatives aux transports : 
 
 * les horaires théoriques : horaires prévisionnels diffusés sous forme d'heure ou de fréquence de passage. 
-* les horaires adapté : les horaires théoriques peuvent être modifiés lorsqu'il y a des évènements modifiant les horaires et/ou itinéraires des véhicules. Par exemple, la RATP diffuse un plan de transport mise à jour en cas de grève, la SNCF livre un patch lorsqu'il y a des changements majeurs sur les horaires théoriques initialement transmis. Ces horaires ne peuvent toutefois pas être considérés comme étant en temps-réel. 
+* les horaires adaptés : les horaires théoriques peuvent être modifiés lorsqu'il y a des évènements modifiant les horaires et/ou itinéraires des véhicules. Par exemple, la RATP diffuse un plan de transport mise à jour en cas de grève, la SNCF livre un patch lorsqu'il y a des changements majeurs sur les horaires théoriques initialement transmis. Ces horaires ne peuvent toutefois pas être considérés comme étant en temps-réel. 
 * les horaires temps réel : les horaires affichés correspondent à l'état du trafic à l'instant. 
 
 Cet article traitera exclusivement des horaires temps-réel. 
 
-
-
-Les données temps réel permettent de fournir une information voyageur qui reflète la réalité du terrain. Elles permettent ainsi à un usager d'être notifié si son bus a du retard par exemple, si il y a des déviations à certains arrêts pour des travaux etc. Pour ce faire, il existe trois formats harmonisés et supportés par le PAN afin de modéliser cette information : 
+Les données temps réel permettent de fournir une information voyageur qui reflète la réalité du terrain, ce qui permet aux usagers d'optimiser leur temps de trajet. Elles permettent ainsi à un usager d'être notifié si son bus a du retard par exemple, si il y a des déviations à certains arrêts pour des travaux etc. Pour ce faire, il existe trois formats harmonisés et supportés par le PAN afin de modéliser cette information : 
 
 * **Le GTFS-RT (General Transit Feed Specification - realtime)**
 
@@ -60,7 +58,7 @@ C'est un un format binaire compact (protobuf) qui utilise une méthode globale p
  Ce flux temps réel peut contenir trois types d'information : 
 
 * `TripUpdate` qui correspond à la mise à jour des horaires de passage
-* `Alert`  qui genère des alertes de service
+* `Alert`  qui génère des alertes de service
 * `VehiclePositions` qui renseigne la position des véhicules
 
 Certains flux proposent toutes ces informations dans un seul flux, comme [Zenbus](https://transport.data.gouv.fr/datasets?_utf8=%E2%9C%93&q=zenbus), mais certains producteurs préfèrent avoir un flux par type de données. C'est le cas pour la [Communauté de l’Auxerrois](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) qui a publié un flux pour `TripUpdate`et un autre pour `VehiclePositions`
@@ -70,7 +68,7 @@ Certains flux proposent toutes ces informations dans un seul flux, comme [Zenbus
 ![](/images/capturemls.png)
 
 Il doit être accompagné d'un fichier théorique au format GTFS pour pouvoir être utilisé. Ces données ne sont pas donc pas autoporteuses.\
-Par exemple pour les données de mise à jour des horaires (`TripUpdate`), pour un `Trip` donné on a la mise à jour de ses horaires pour la journée, mais pas d'informations concernant la `Route` de ce `Trip` ni la position des arrêts.
+Par exemple pour les données de mise à jour des horaires (`TripUpdate`), pour un `Trip` donné on a la mise à jour de ses horaires pour la journée, mais pas d'informations concernant la `Route` de ce `Trip` ni la position des arrêts. Ces informations sont fournis dans le GTFS. 
 
 * **Le SIRI (Service Interface for Realtime Information)**
 
@@ -81,21 +79,41 @@ Le SIRIest une normedéfinie par le Comité Européen de Normalisation et corres
 * `General Message` qui génère des alertes de service
 * `Vehicle Monitoring` qui renseigne la position des véhicules
 
+\[Mettre les non principaux]
+
 Tout comme le Netex, un profil doit être défini. C'est un format autoporteur mais les données ne sont pas interopérables entre les profils car les services définis sont sélectionnées avec les profils.
 
 
 
 * **Le SIRI Lite**
 
-Le SIRI Lite est un sous dérivé de SIRI qui ne contient que les informations suicantes afin de le rendre plus accessible : 
+Le SIRI Lite est un sous dérivé de SIRI qui ne contient que les informations suivantes afin de le rendre plus accessible : 
 
 * `StopMonitoring` qui affiche les prochains passages
 * `StopPointsDiscovery` / `LineDiscovery` qui fournit des informations sur le réseau
 * `GeneralMessage`  qui génère des alertes de service
 
-servi en `JSON` (au lieu de `XML`) par une API http classique (à la place de [SOAP](https://fr.wikipedia.org/wiki/SOAP)).
+Le flux est en `JSON` (au lieu de `XML`) et est accessible par une API http classique.
 
 
+
+**Les clients des producteurs de données temps réel** 
+
+Les producteurs de données temps-réel peuvent avoir différents types de clients : 
+
+* des collectivités qui veulent améliorer leur information voyageur et leur système d'exploitation comme Poitiers avec Mecatran qui normalise leur flux temps réel custom, le département de l'Isère avec Citiway ou le Centre-Val-de-Loire avec Kisio 
+
+<!---->
+
+* des opérateurs de transport comme Transdev, Keolis, Eole Mobilité etc. qui traitent avec Pysae pour la production de leurs données ou la SNCF pour normaliser et avoir un contrôle qualité de leurs donnée savec Kisio
+
+
+
+<!--StartFragment-->
+
+pérateurs de transport de voyageurs et les collectivités (Autorité Organisatrice de la Mobilité ou AOM). PYSAE a pour client les grands groupes de transport de voyageurs : Keolis, Transdev et RATP et des opérateurs de transports locaux : [Avenir Atlantique](https://web.pysae.com/blog/saeiv-avenir-atlantique-nouvelle-aquitaine), Eole Mobilité, [SUMA](https://web.pysae.com/blog/transports-suma-cavalaire-sur-mer), etc.
+
+<!--EndFragment-->
 
 
 
@@ -110,7 +128,120 @@ Exemples: voir les clauses de DSP de Lille Métropole (MEL). 
 
 
 
+Kisio : ne produit pas les données mais les normalisent et les améliore > <!--StartFragment-->**Avance/retard, perturbations (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) et** Interprétation pour proposer itinéraires de remplacement
 
+1/ Système d’aide à l’exploitation sont d’abord des outils d’exploitation : pas d' outils d’informations voyageur et souvent ils ne sont pas utilisés par personnes qui font de l’IV. 
+
+Qualité JDD : selon opérateur c’est +/- bien renseigné. Vont mettre que données dont ils ont besoin pour l'exploitation (pas couleur de la ligne par exemple). Pas un standard commun dans la qualité de renseignement des données dans le SAE
+
+D’abord pour exploitation puis IV : vont aider à réadapter ces données. 
+
+2/ Quand deux acteurs différents entre production TR et RT.\
+Codes d’arrêts pouvant être différents entre Kisio et SAE : quand données TR et RT ne sont pas produits par même éditeur/producteur de données donc code ligne ne seront pas normalisés de la même façon/ pas éditer de la même manière/ Vont devoir faire un fichier de mapping pour faire correspondance entre arrêts, lignes de bus/métro etc.  Quand remodélisation des réseaux : besoin de faire vérification de cet interfaçage. A chaque changement SAE doit prévenir. 
+
+3/ Problématique de la charge dans la qualité/temps de réponse qu’ils vont apporter. Ils sont sur ce qui est diffusé sur les écrans gare/téléphone : plus ils ont l’information rapidement et plus ils peuvent la diffuser rapidement. Reçoivent flux, mettent sonde pour vérifier qu’ils ont du TR (quand soucis : sonde le notifie). N’ont pas maîtrise de la chaîne de bout en bout. Peuvent avoir contrainte
+
+Redistribue soit directement sur front (écran : gare, application mobile, Navitia WebSolution avec Widget qui permet d'embarquer IV sur des sites, API, SDK Navitia etc.) 
+
+Qualité données : >Sur théorique : Un gros contrôle qualité > correspond aux normes
+
+TR : via les sondes où ils vont regarder si tout est ok au niveau des latences mais ne peuvent pas être sur place pour s’assurer que le bus passe bien
+
+
+
+<!--EndFragment-->
+
+SDK peut aussi être mobile 
+
+
+
+<!--EndFragment-->
+
+\
+Mecatran : Parfois font contact avec les réutilisateurs pour leur fournir une URL quand les collectivités ne veulent pas avoir le contrôle sur toute la distribution de la donnée : interface producteurs / rédutilisateurs 
+
+Format de sortie : GTFS/GTFS-RT, 
+
+Shapefile pour SIG
+
+Netex mais pas réutilisées
+
+peuvent générer du SIRI mais pas de demande 
+
+**GTFS-RT : 90% en sortie**
+
+**Fournissent toutes ces informations\
+Avance/retard+prochains passages : toujours combinés**
+
+Région avec différents opérateurs : ils les fusionnent pour avoir une seule API 
+
+Dépendent d’API, de SAE ou de données pré existantes 
+
+ont des logiciels qui peuvent créer de la donnée qui peuvent servir de SAE 
+
+**problématiques : liées à identification avec données statiques**
+
+Avantage/inconvénients GTFS-RT : couplage avec statique > pratique quand c’est bien fait car normalisé mais compliqué à mettre en oeuvre 
+
+SIRI : couplage plus faible > format censé être suffisant en lui-même mais plus difficile à exploiter. Normes SIRI :
+
+**Normes GTFS-RT : bien spécifié, bien indiqué quelles sont informations obligatoire, niveau d’informations attendues etc. hors SIRI : veut tout faire sans avoir vraiment de contours**
+
+Techniquement : sous forme de flux brut (GTFS-RT avec les différentes variantes) soit API type rest (Geojson) plus axé pour les développeurs. Permet aux clients d’avoir accès à une plateforme pour contrôler l’accessibilité à ces données avec des clés pour avoir des statistiques de la réutilisation. Gérer clés API : qui accède et à quelle fréquence, contrats avec les réutilisateurs etc. 
+
+\> Contractuellement : Client qui possède la donnée. font selon demande des clients : s' ils veulent redistribuer 
+
+
+
+<!--EndFragment-->
+
+<!--EndFragment-->
+
+
+
+<!--EndFragment-->
+
+<!--EndFragment-->
+
+
+
+<!--EndFragment-->
+
+
+
+<!--EndFragment-->
+
+<!--EndFragment-->
+
+<!--EndFragment-->
+
+
+
+<!--EndFragment-->
+
+
+
+<!--EndFragment-->
+
+<!--EndFragment-->
+
+
+
+Interface avec SAE et récupère données des partenaires (prestataires données transport) : alimente Navitia qu’ils vont communiquer aux voyageurs. Flux qu’ils vont recevoir et vont interroger pour récupérer données TR 
+
+Format normalisé 
+
+Ont surtout sur GTFS-RT, SIRI de moins en moins. (Netex) 
+
+
+
+<!--EndFragment-->
+
+
+
+<!--EndFragment-->
+
+<!--EndFragment-->
 
 <!--StartFragment-->
 
