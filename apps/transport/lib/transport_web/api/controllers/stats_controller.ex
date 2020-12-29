@@ -147,7 +147,7 @@ defmodule TransportWeb.API.StatsController do
     quote do
       fragment("SELECT COUNT(format) FROM resource \
       WHERE dataset_id in \
-      (SELECT id FROM dataset WHERE aom_id=?) \
+      (SELECT id FROM dataset WHERE aom_id=? and is_active=TRUE) \
       AND format = ? GROUP BY format", unquote(aom), unquote(format))
     end
   end
