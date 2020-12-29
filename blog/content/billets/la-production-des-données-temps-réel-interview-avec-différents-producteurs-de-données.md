@@ -45,7 +45,7 @@ Il existe trois niveaux de fraîcheur pour les données relatives aux transports
 
 Cet article traitera exclusivement des horaires temps-réel. 
 
-Les données temps réel permettent de fournir une information voyageur qui reflète la réalité du terrain, ce qui permet aux usagers d'optimiser leur temps de trajet. Elles permettent ainsi à un usager d'être notifié si son bus a du retard par exemple, si il y a des déviations à certains arrêts pour des travaux etc. Pour ce faire, il existe trois formats harmonisés et supportés par le PAN afin de modéliser cette information : 
+Les données temps réel permettent de fournir une information voyageur qui reflète la réalité du terrain. Ces données peuvent servir à la fois à la gestion de l’exploitation et à l’information des voyageurs. Cette information voyageur permet aux usagers d'optimiser leur temps de trajet. Seules les informations servant à l'informations voyageur sont publiques. Elles permettent à un usager d'être notifié si son bus a du retard par exemple, si il y a des déviations à certains arrêts pour des travaux etc. Pour ce faire, il existe trois formats harmonisés et supportés par le PAN afin de modéliser cette information : 
 
 * **Le GTFS-RT (General Transit Feed Specification - realtime)**
 
@@ -111,13 +111,13 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 **La production et normalisation des données** 
 
-Zenbus produit des données temps réel en se basant sur le fichier théorique de leurs clients quand ils existent lorsque ces données sont au format GTFS-RT ou en produisant le fichier GTFS. La génération des flux sortants par le serveur Zenbus est quasi instantanée avec une actualisation des données toutes les 3 secondes pour des véhicules qui roulent avec un terminal Android muni de l'application Zenbus Driver
+Zenbus produit des données temps réel en se basant sur le fichier théorique de leurs clients quand ils existent lorsque ces données sont au format GTFS-RT ou en produisant le fichier GTFS. La génération des flux sortants par le serveur Zenbus est quasi instantanée avec une actualisation des données toutes les 3 secondes pour des véhicules qui roulent avec un terminal Android muni de l'application Zenbus Driver. 
 
-<!--EndFragment-->
+Kisio Digital, Cityway et Mecatran ne produisent pas de données mais les normalisent et les améliore. Kisio Digital fournit, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des interprétations pour proposer des itinéraires de remplacement au format GTFS-RT ou SIRI tandis que Mecatran fournit toutes les informations pouvant être contenues dans un flux GTFS-RT. 
 
-<!--EndFragment-->
+Pysae génère des données sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Les données produites et fournies sont donc au format GTFS-RT
 
-Kisio Digital ne produit pas de données mais les normalisent et les améliore. Cette solution fournit les informations "Avance/retard" et perturbations (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des interprétations pour proposer des itinéraires de remplacement
+Les données d’exploitation sont confidentielles. Les données pour l’information des voyageurs peuvent être ouvertes au public.
 
 **Les format de données fournis** 
 
