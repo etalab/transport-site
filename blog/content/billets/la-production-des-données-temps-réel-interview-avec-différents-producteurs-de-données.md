@@ -75,7 +75,17 @@ Le SIRIest une normedéfinie par le Comité Européen de Normalisation et corres
 * `General Message` qui génère des alertes de service
 * `Vehicle Monitoring` qui renseigne la position des véhicules
 
-\[Mettre les non principaux]
+[Mettre les non principaux : 
+
+Mais on en trouve plein d’autre :
+
+* `Production Timetable`
+* `Stop Timetable`
+* `Connexion Timetable`
+* `Connection Monitoring`
+* `Facility Monitoring`
+
+]
 
 Tout comme le Netex, un profil doit être défini. C'est un format autoporteur mais les données ne sont pas interopérables entre les profils car les services définis sont sélectionnées avec les profils.
 
@@ -101,9 +111,15 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 **La production et normalisation des données** 
 
-Les producteurs de données fournissent majoritairement des données temps réel au format GTFS-RT à leurs clients. Ces derniers utilisent déjà le GTFS pour leurs horaires théoriques. La correspondance avec le GTFS-RT est donc plus simple. 
 
-Les données fournies par Mecatran sont à 90% en GTFS-RT. Leurs clients préfèrent ce format car il est spécifié et les informations obligatoires sont clairement définies contrairement au SIRI qui est certes autoporteur mais dont les contours ne sont pas définis. L'éditeur de logiciel peut produire du SIRI mais n'ont encore eu aucune demande. 
+
+Kisio Digital ne produit pas les données mais les normalisent et les améliore > <!--StartFragment-->Avance/retard, perturbations (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) et Interprétation pour proposer itinéraires de remplacement
+
+**Les format de données fournis** 
+
+Les producteurs de données interrogés fournissent majoritairement, voire exclusivement pour certains, des données temps réel au format GTFS-RT à leurs clients. Ces derniers utilisant déjà le GTFS pour leurs horaires théoriques, la correspondance avec le GTFS-RT est donc plus simple. 
+
+Les données fournies par Mecatran sont à 90% en GTFS-RT. Leurs clients préfèrent ce format car il est spécifié et les informations obligatoires sont clairement définies contrairement au SIRI qui est autoporteur mais dont les contours ne sont pas définis. Cet éditeur de logiciel peut produire du SIRI mais n'a encore eu aucune demande. 
 
 lmm
 
@@ -116,7 +132,7 @@ Le réutilisateur pourra choisir directement s’il préfère réutiliser le flu
 
 Exemples: voir les clauses de DSP de Lille Métropole (MEL). 
 
-Kisio : ne produit pas les données mais les normalisent et les améliore > <!--StartFragment-->**Avance/retard, perturbations (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) et** Interprétation pour proposer itinéraires de remplacement
+Kisio : 
 
 1/ Système d’aide à l’exploitation sont d’abord des outils d’exploitation : pas d' outils d’informations voyageur et souvent ils ne sont pas utilisés par personnes qui font de l’IV. 
 
@@ -279,20 +295,6 @@ Deux méthodes :
 
 *
 
-## [](https://pad.incubateur.net/KnNm3ZtDSgORWg3fw92XJg#Formats "Formats")Formats
-
-### [](https://pad.incubateur.net/KnNm3ZtDSgORWg3fw92XJg#GTFS-RT "GTFS-RT")GTFS-RT
-
-Requêtes globales. Les infos transitent par fichier binaire très compressé.
-
-### [](https://pad.incubateur.net/KnNm3ZtDSgORWg3fw92XJg#Siri "Siri")Siri
-
-Requêtes globales et/ou requêtes unitaires. API SOAP.
-
-### [](https://pad.incubateur.net/KnNm3ZtDSgORWg3fw92XJg#Siri-lite "Siri-lite")Siri lite
-
-Dérivé de SIRI. API REST. Plus simple à utiliser. Expose que les API unitaires du SIRI.
-
 ### [](https://pad.incubateur.net/KnNm3ZtDSgORWg3fw92XJg#Api-non-standards "Api-non-standards")Api non standards
 
 ## [](https://pad.incubateur.net/KnNm3ZtDSgORWg3fw92XJg#Services "Services")Services
@@ -337,50 +339,7 @@ Dans certains cas les messages peuvent être restreints à un sous-ensemble des 
 
 Le plus précis (mais pas forcément le plus simple à prendre en compte pour les calculateurs d’itinéraires), en temps réel la position de tous les bus du réseau, c’est vraiment super pour que les utilisateurs voient où sont les bus qu’ils attendent.
 
-## [](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA#Formats-de-donn%C3%A9es "Formats-de-données")Formats de données
-
-### [](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA#GTFS-RT "GTFS-RT")GTFS-RT
-
-General Transit Feed Specification – realtime
-
-**Standard** conçu par Google (au départ c’était Google Transit Feed Specification), puis lâché et maintenu maintenant par une communauté.
-
-Le GTFS-RT contient que des données, dans un format binaire compact (protobuf), sans préciser le protocole de transport de la donnée (qui est en général du http).
-
-Les données GTFS-RT ne sont pas autoporteuses, elles nécessitent les données GTFS pour pouvoir être utilisées.\
-Par exemple pour les données de mise à jour des horaires (`TripUpdate`), pour un `Trip` donné on a la mise à jour de ses horaires pour la journée, mais on n’a pas l’info concernant la `Route` de ce `Trip` ni la position des arrêts.
-
-Processus de modification clair et ouvert.
-
-Pull request sur le repo Github + annonce sur une mailing liste. 7 jours plus tard on peut demander un vote. On doit avoir 3 oui, dont 1 producteur de données et 1 réutilisateur et pas de véto. Si véto la proposition peut être modifiée et re proposée au vote.
-
-GTFS-RT peut contenir 3 types de données :
-
-* `TripUpdate` (mise à jour des horaires de passage)
-* `Alert` (alertes de service)
-* `VehiclePositions` (position des véhicules)
-
-Certains flux proposent toutes les infos dans le flux mais certains producteurs préfèrent avoir 1 flux par type de données.
-
-#### [](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA#Protocol-d%E2%80%99%C3%A9change "Protocol-d’échange")Protocol d’échange
-
-Le protocol d’échange pour distribuer les données n’est pas défini dans le standard, mais comme les données sont d’un bloc et dans un format très compact, c’est souvent distribué par un serveur http comme un simple fichier protobuf.
-
-### [](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA#SIRI "SIRI")SIRI
-
-Service Interface for Realtime Information
-
-**Norme** définie par le Comité Européen de Normalisation.
-
-C’est le pendant temps réel de la norme [NeTEx](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA).
-
-Basé sur [Transmodel](http://www.transmodel-cen.eu/), une modélisation des données différente de celle utilisée par GTFS (et plus complète).
-
-SIRI défini des **Services** temps réel (et non pas directement des données).
-
-Tout comme [NeTEx](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA) il faut définir un profil sur la norme. Ce profil correspond au sous-ensemble de la norme qui va être utilisé. Le problème de cette notion de profil c’est que ça rend les données non interopérables entre les profils.
-
-En faisant parti du [CEN](https://www.cen.eu/Pages/default.aspx) l est possible de participer à l’évolution de la norme, mais le processus d’évolution est beaucoup plus lent que celui de GTFS-RT.
+a
 
 #### [](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA#Services "Services")Services
 
