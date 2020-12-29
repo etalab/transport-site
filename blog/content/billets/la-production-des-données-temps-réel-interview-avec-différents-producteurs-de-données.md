@@ -94,14 +94,18 @@ Le flux est en `JSON` (au lieu de `XML`) et est accessible par une API http c
 Les producteurs de données temps-réel peuvent avoir différents types de clients : 
 
 * des collectivités qui veulent améliorer leur information voyageur et leur système d'exploitation comme Poitiers avec Mecatran qui normalise leur flux temps réel custom afin d'homogénéiser les données des 40 communes, le département de l'Isère avec Citiway ou le Centre-Val-de-Loire avec Kisio 
-* des opérateurs de transport comme Transdev, Keolis, Eole Mobilité etc. qui traitent avec Pysae pour la production de leurs données ou la SNCF pour normaliser et avoir un contrôle qualité de leurs données avec Kisio
-* des stations de ski ou évènements ponctuels 
-
-<!--StartFragment-->
-
-pérateurs de transport de voyageurs et les collectivités (Autorité Organisatrice de la Mobilité ou AOM). PYSAE a pour client les grands groupes de transport de voyageurs : Keolis, Transdev et RATP et des opérateurs de transports locaux : [Avenir Atlantique](https://web.pysae.com/blog/saeiv-avenir-atlantique-nouvelle-aquitaine), Eole Mobilité, [SUMA](https://web.pysae.com/blog/transports-suma-cavalaire-sur-mer), etc.
+* des opérateurs de transport comme Transdev, Keolis, Eole Mobilité etc. qui sous traitent traitent la production de leurs données à Pysae pour ou la SNCF qui passe par Kisio pour normaliser et avoir un contrôle qualité de leurs données 
+* des stations de ski ou évènements ponctuels qui veulent avoir une information voyageur temps réel sur une courte durée voir de manière éphémère comme la [station de ski de Tignes avec Zenbus](https://transport.data.gouv.fr/datasets/horaires-theoriques-et-temps-reel-des-navettes-de-la-station-de-tignes-gtfs-gtfs-rt/)
 
 <!--EndFragment-->
+
+**La production et normalisation des données** 
+
+Les producteurs de données fournissent majoritairement des données temps réel au format GTFS-RT à leurs clients. Ces derniers utilisent déjà le GTFS pour leurs horaires théoriques. La correspondance avec le GTFS-RT est donc plus simple. 
+
+Les données fournies par Mecatran sont à 90% en GTFS-RT. Leurs clients préfèrent ce format car il est spécifié et les informations obligatoires sont clairement définies contrairement au SIRI qui est certes autoporteur mais dont les contours ne sont pas définis. L'éditeur de logiciel peut produire du SIRI mais n'ont encore eu aucune demande. 
+
+lmm
 
 Important de bien inclure une clause sur l’ouverture des données dans vos contrats publics avec des transporteurs ou SAEIV.\
 Vous pouvez exiger l’ouverture des données, et préciser un format auquel ces données doivent être produits.\
@@ -133,20 +137,10 @@ TR : via les sondes où ils vont regarder si tout est ok au niveau des latences 
 
 <!--EndFragment-->
 
-SDK peut aussi être mobile 
 
-<!--EndFragment-->
 
 \
 Mecatran : Parfois font contact avec les réutilisateurs pour leur fournir une URL quand les collectivités ne veulent pas avoir le contrôle sur toute la distribution de la donnée : interface producteurs / rédutilisateurs 
-
-Format de sortie : GTFS/GTFS-RT, 
-
-Shapefile pour SIG
-
-Netex mais pas réutilisées
-
-peuvent générer du SIRI mais pas de demande 
 
 **GTFS-RT : 90% en sortie**
 
@@ -177,8 +171,6 @@ Grand Poitiers :
 
 4 destinataires : 
 
-Mecatran va produire le TR grace au réel 
-
 Airweb : prestataire de solution numérique qui va gérer alimentation support numérique de Vitalis 
 
 Modalis : partenaire qui va se servir du GTFS pour l’intégrer dans le référentiel Grande Aquitaine 
@@ -187,19 +179,7 @@ Grand Poitiers : sur sa plateforme locale 
 
 **But : avoir un SAE unifié**
 
-<!--EndFragment-->
 
-
-
-<!--EndFragment-->
-
-<!--EndFragment-->
-
-<!--EndFragment-->
-
-<!--EndFragment-->
-
-<!--EndFragment-->
 
 <!--EndFragment-->
 
@@ -253,22 +233,6 @@ Une fois qu’ils auront les alertes : cap décisif car voyageurs sauront que c�
 
 
 
-<!--EndFragment-->
-
-
-
-<!--EndFragment-->
-
-
-
-<!--EndFragment-->
-
-<!--EndFragment-->
-
-<!--EndFragment-->
-
-<!--StartFragment-->
-
 [La loi d’orientation des mobilités (LOM) du 24 décembre 2019](https://www.cerema.fr/fr/actualites/lom-quelle-organisation-competences-mobilite#:~:text=G%C3%A9n%C3%A9ralisation%20de%20la%20comp%C3%A9tence%20d,ces%20dispositions%20de%20la%20LOM) a fixé un cadre législatif pour l’ouverture des données temps réel dans le domaine du transport de voyageurs en France. L’ouverture des données des services de transport de voyageurs vise à faciliter la mobilité, notamment via le concept du [MaaS (Mobility as a Service)](https://15marches.fr/mobilites/le-maas-en-questions).
 
 # **La solution PYSAE**
@@ -313,14 +277,7 @@ Quel surcoût pour mettre en place le temps réel?
 
 Deux méthodes :
 
-* temps réel unitaire : typiquement pou les bus pour afficher le passage du prochain bus. Le problème c’est que tu pas relier ce bus à une donnée théorique. Pour les calculateurs d’itinéraires c’est très limité.
-* temps réel global : où tu récupères toutes les données de ton réseau où tu peux préciser quel bus passe. Le GTFS-RT par exemple ne fait que du global. Tu fais une requête qui t’envoies un fichier compressé qui permet de retrouver quel bus passe. Le GTFS RT doit être couplé avec des données théoriques.
-
-3 niveaux de fraîcheurs :
-
-* théorique
-* temps-réel
-* adapté : tous les matins la RATP redonne un nouveau plan de transport mis à jour en cas de besoin. Ca permet de gérer des grèves. Mais c’est pas du temps-réel. Les petits ont pas forcément les outil pour faire ça. La SNCF par exemple livre un patch. Toulouse par exemple diffuse un réseau tous les jours.
+*
 
 ## [](https://pad.incubateur.net/KnNm3ZtDSgORWg3fw92XJg#Formats "Formats")Formats
 
