@@ -153,72 +153,20 @@ La difficulté principale repose sur l'absence de standard commun dans la qualit
 
 **Distribution des données temps réel**
 
-Les données fournies par les producteurs de données normalisées appartiennent aux clients. Ils permettent à leurs clients de contrôler l’accessibilité à ces données grâce à des clés pour accéder à leur API. Cela leur permet notamment d'avoir des statistiques sur le nombre et la fréquence de réutilisation. Certains redistribuent ces données à travers des interfaces comme des écrans dans les gares, des applications mobiles etc. ou des API comme Kisio. D'autres, comme Mecatran, entrent également directement en contact avec les réutilisateurs des données de leurs clients pour leur fournir une URL lorsque les clients ne veulent pas avoir le contrôle sur toute la distribution de leurs données. Zenbus met également à disposition les données de leurs clients directement sur le PAN, ce qui permet aux réutilisateurs de récupérer le flux de différents réseaux sur une seule plateforme. La communauté de l'Auxerrois récupère les données de son fournisseur pour les redistribuer ensuite sur le PAN. La collectivité renvoie tous leurs services de mobilité comme la billettique, leur service d'information voyageur vers [transport.data.gouv.fr](transport.data.gouv.fr) pour récupérer leurs données. 
+Les données fournies par les producteurs de données normalisées appartiennent aux clients. Ils permettent à leurs clients de contrôler l’accessibilité à ces données grâce à des clés pour accéder à leur API. Cela leur permet notamment d'avoir des statistiques sur le nombre de réutilisateurs et la fréquence de réutilisation. Certains redistribuent ces données à travers des interfaces comme des écrans dans les gares, des applications mobiles etc. ou des API comme Kisio. D'autres, comme Mecatran, entrent aussi en contact avec les réutilisateurs des données de leurs clients pour leur fournir une URL lorsque les clients ne veulent pas avoir le contrôle sur toute la distribution de leurs données. Zenbus met également à disposition les données de leurs clients directement sur le PAN, ce qui permet aux réutilisateurs de récupérer le flux de différents réseaux sur une seule plateforme. La communauté de l'Auxerrois récupère les données de leur fournisseur pour les redistribuer ensuite sur le PAN. La communauté renvoie tous leurs services de mobilité comme la billettique, leur service d'information voyageur vers [transport.data.gouv.fr](transport.data.gouv.fr) pour récupérer leurs données. 
 
 
 
 **Contrôle qualité des données** 
 
-Le contrôle qualité a surtout lieu au niveau des données théoriques. Certains producteurs, comme Kisio, installent des sondes leur permettant de mesurer le niveau de latence. D'autres comme Zenbus suivent le principe du “Eat your own dog food”, à savoir être les premiers utilisateurs de leurs données. Cela leur permet d'être confrontés à la qualité des données produites en étant des auditeurs permanents. 
+Le contrôle qualité a surtout lieu au niveau des données théoriques. Certains producteurs, comme Kisio, installent des sondes qui leur permettent de mesurer le niveau de latence. D'autres comme Zenbus suivent le principe du “Eat your own dog food”, à savoir être les premiers utilisateurs de leurs données. Cela leur permet d'être confrontés à la qualité des données produites en étant des auditeurs permanents. 
 
 
 
-<!--EndFragment-->
 
 
-
-Grâce à la production des données temps réel, certaines collectivités comme la Communauté de l’Auxerrois ont constaté une augmentation de l'utilisation de leur application mobile, notamment grâce à un tableau de bord anonymisé leur permettant d'avoir des statistiques. 
+Grâce à la production des données temps réel, certaines collectivités comme la Communauté de l’Auxerrois ont constaté une augmentation de l'utilisation de leur application mobile.
 
 Cette production et diffusion des données temps réel sur des portails à accès libre permet également aux Autorités Organisatrices de la Mobilité (AOM), à savoir l'autorité en charge de l’organisation du réseau de transport [](https://fr.wikipedia.org/wiki/Transports_urbains "Transports urbains")sur son territoire, d'être conforme à la réglementation. En effet, [la Loi d'Orientation des Mobilités](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000039666574/2020-12-30/) (LOM) promulguée le 24 décembre 2019  a fixé un cadre législatif pour l’ouverture des données temps réel dans le domaine du transport de voyageurs en France. 
 
 ### [](https://pad.incubateur.net/KnNm3ZtDSgORWg3fw92XJg#Prochains-passages "Prochains-passages")
-
-### .
-
-a
-
-#### [](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA#Services "Services")Services
-
-
-
-
-
-### [](https://pad.incubateur.net/ZaYJvCIHQBGAr194xb_gXA#API-non-standard-de-temps-r%C3%A9el "API-non-standard-de-temps-réel")API non standard de temps réel
-
-Il y a en plus de tout cela une Miryad d’API différentes, souvent sous forme d’API Rest (mais pas que), listées par <https://transport.data.gouv.fr/real_time>.
-
-<!--EndFragment-->
-
-# **Distribution des données temps réel pour l’information des voyageurs**
-
-Chacun des clients de [PYSAE ](https://web.pysae.com/)dispose d’un flux [GTFS-RT](https://developers.google.com/transit/gtfs-realtime?hl=fr) avec les données temps réel de son exploitation.
-
-[PYSAE ](https://web.pysae.com/)propose à ses clients deux niveaux tarifaires:
-
-* Une formule « Standard » à 69€/mois/véhicule avec toute la solution SAEIV et un flux [GTFS-RT](https://developers.google.com/transit/gtfs-realtime?hl=fr) limité à 1 requête par minute
-* Une formule « Entreprise » à 99€/mois/véhicule avec les fonctionnalités de la formule « Standard » et des fonctionnalités avancées et notamment une utilisation jusqu’à 600 requêtes par minute pour le flux GTFS-RT.
-
-En complément l’offre de transport théorique (ou plan de transport) est accessible sur l’API de [PYSAE ](https://web.pysae.com/)au format [GTFS](<https://developers.google.com/transit/gtfs?hl=fr#:~:text=GTFS%20(General%20Transit%20Feed%20Specification,et%20les%20informations%20g%C3%A9ographiques%20associ%C3%A9es.>). Cette donnée est hébergée dans le [SAEIV ](https://web.pysae.com/blog/saeiv)et nécessaire à son fonctionnement. Elle peut être mise à jour depuis les interfaces utilisateurs de la solution [PYSAE ](https://web.pysae.com/)(configuration du plan de transport).
-
-Les données générées par le [SAEIV ](https://web.pysae.com/blog/saeiv)de [PYSAE ](https://web.pysae.com/)sont la propriété intégrale de nos clients. L’utilisation des données en [GTFS-RT](https://developers.google.com/transit/gtfs-realtime?hl=fr) par exemple est donc soumise à l’accord de nos clients.
-
-Le flux [GTFS-RT](https://developers.google.com/transit/gtfs-realtime?hl=fr) de [PYSAE ](https://web.pysae.com/)contient les informations suivantes:
-
-* Course et véhicule concernés avec mise à jour du temps de passage aux arrêts (TripUpdate) ;
-* Géolocalisation et statut du véhicule (VehiclePosition) ;
-* Message d’information des voyageurs avec élément concerné et période d’application (Alert).
-
-# **Bénéfices de la publication des données temps réel**
-
-La publication des données en temps réel devient une obligation légale avec la [LOM](https://www.cerema.fr/fr/actualites/lom-quelle-organisation-competences-mobilite#:~:text=G%C3%A9n%C3%A9ralisation%20de%20la%20comp%C3%A9tence%20d,ces%20dispositions%20de%20la%20LOM).
-
-L’ouverture de ces données doit permettre:
-
-* Une intégration plus facile avec les applications [MaaS ](https://15marches.fr/mobilites/le-maas-en-questions)que mettent en place les villes moyennes et les régions.
-* Une réutilisation des données par des services tiers.
-
-Globalement, les enquêtes que nous avons réalisées auprès de voyageurs sur des lignes équipées de [PYSAE ](https://web.pysae.com/)ont montré que l’information en temps réel est une source de satisfaction importante et qu’elle peut conduire à une hausse de la fréquentation. Par exemple à Tulle, 64% des personnes interrogées ont dit prendre davantage le bus depuis que l’information en temps réel avait été mise en place.
-
-<!--EndFragment-->
-
-<!--EndFragment-->
