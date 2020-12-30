@@ -108,6 +108,10 @@ Le SIRI Lite est un sous dérivé de SIRI qui ne contient que les informations s
 
 
 
+Cette production et diffusion des données temps réel sur des portails à accès libre permet aux Autorités Organisatrices de la Mobilité (AOM), à savoir l'autorité en charge de l’organisation du réseau de transport [](https://fr.wikipedia.org/wiki/Transports_urbains "Transports urbains")sur son territoire, d'être conforme à la réglementation. En effet, [la Loi d'Orientation des Mobilités](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000039666574/2020-12-30/) (LOM) promulguée le 24 décembre 2019  a fixé un cadre législatif pour l’ouverture des données temps servant à l'information voyageur. Ainsi, l'ouverture de données étant attendu au 1er décembre 2020. 
+
+
+
 **Les clients des producteurs de données temps réel** 
 
 Les producteurs de données temps-réel peuvent avoir différents types de clients : 
@@ -158,8 +162,6 @@ Les données fournies par les producteurs de données normalisées appartiennent
 Le contrôle qualité a surtout lieu au niveau des données théoriques. Certains producteurs, comme Kisio, installent des sondes qui leur permettent de mesurer le niveau de latence. D'autres comme Zenbus suivent le principe du “Eat your own dog food”, à savoir être les premiers utilisateurs de leurs données. Cela leur permet d'être confrontés à la qualité des données produites en étant des auditeurs permanents. 
 
 
-
-Cette production et diffusion des données temps réel sur des portails à accès libre permet aux Autorités Organisatrices de la Mobilité (AOM), à savoir l'autorité en charge de l’organisation du réseau de transport [](https://fr.wikipedia.org/wiki/Transports_urbains "Transports urbains")sur son territoire, d'être conforme à la réglementation. En effet, [la Loi d'Orientation des Mobilités](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000039666574/2020-12-30/) (LOM) promulguée le 24 décembre 2019  a fixé un cadre législatif pour l’ouverture des données temps servant à l'information voyageur. Ainsi, l'ouverture de données étant attendu au 1er décembre 2020. 
 
 
 
