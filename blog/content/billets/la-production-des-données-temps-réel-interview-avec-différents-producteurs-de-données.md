@@ -133,27 +133,25 @@ Les producteurs de données interrogés fournissent majoritairement, voire exclu
 
 Les données fournies par Mecatran sont à 90% en GTFS-RT. Leurs clients préfèrent ce format car il est spécifié et les informations obligatoires sont clairement définies contrairement au SIRI qui est autoporteur mais dont les contours ne sont pas définis. Cet éditeur de logiciel peut produire du SIRI mais n'a encore eu aucune demande. 
 
-lmm
 
-Important de bien inclure une clause sur l’ouverture des données dans vos contrats publics avec des transporteurs ou SAEIV.\
-Vous pouvez exiger l’ouverture des données, et préciser un format auquel ces données doivent être produits.\
-Dans une logique de maîtrise des coûts, nous recommandons de produire un flux au format GTFS-RT.\
-Produire et diffuser des données au format GTFS-RT est moins cher que produire et diffuser des données au format SIRI.\
-L’équipe transport.data.gouv.fr a produit un convertisseur GTFS-RT vers SIRI-Lite. On estime que si vous avez publié un flux au format GTFS-RT, la conversion vers le SIRI-Lite est assurée par nos outils, et vous êtes en conformité avec vos obligations réglementaires.\
-Le réutilisateur pourra choisir directement s’il préfère réutiliser le flux GTFS-RT ou SIRI-Lite. 
 
-Exemples: voir les clauses de DSP de Lille Métropole (MEL). 
+**Difficultés rencontrées lors de la production ou la normalisation des données** 
+
+Les services de normalisation dépendant des données que leur transmettent les opérateurs de transport. La précision du flux normalisé dépend de la complétude des données fournis par les transporteurs. Par exemple, certains transporteurs renseignent la couleur des lignes de transport tandis que d'autres ne le font pas. Mais encore, il peut arriver que les données temps réel et théoriques ne soient pas fournies par le même éditeur ou producteur de données. Certaines informations essentielles comme les codes d'arrêts ne sont pas normalisées pareillement. Ils doivent donc faire un fichier de mapping pour faire une correspondance entre les arrêts et lignes. 
+
+La difficulté principale repose donc sur l'absence de standard commun dans la qualité de renseignement des données dans le système d'aide à l'exploitation (SAE). De plus, les SAE sont d'abord des outils d'exploitation qui ne sont souvent pas utilisés par des personnes qui font de l'information voyageur. Les informations doivent donc être traitées, interprétées et réadaptées.
+
+**Distribution des données temps réel**
+
+
+
+
 
 Kisio : 
 
-1/ Système d’aide à l’exploitation sont d’abord des outils d’exploitation : pas d' outils d’informations voyageur et souvent ils ne sont pas utilisés par personnes qui font de l’IV. 
 
-Qualité JDD : selon opérateur c’est +/- bien renseigné. Vont mettre que données dont ils ont besoin pour l'exploitation (pas couleur de la ligne par exemple). Pas un standard commun dans la qualité de renseignement des données dans le SAE
 
-D’abord pour exploitation puis IV : vont aider à réadapter ces données. 
-
-2/ Quand deux acteurs différents entre production TR et RT.\
-Codes d’arrêts pouvant être différents entre Kisio et SAE : quand données TR et RT ne sont pas produits par même éditeur/producteur de données donc code ligne ne seront pas normalisés de la même façon/ pas éditer de la même manière/ Vont devoir faire un fichier de mapping pour faire correspondance entre arrêts, lignes de bus/métro etc.  Quand remodélisation des réseaux : besoin de faire vérification de cet interfaçage. A chaque changement SAE doit prévenir. 
+Quand remodélisation des réseaux : besoin de faire vérification de cet interfaçage. A chaque changement SAE doit prévenir. 
 
 3/ Problématique de la charge dans la qualité/temps de réponse qu’ils vont apporter. Ils sont sur ce qui est diffusé sur les écrans gare/téléphone : plus ils ont l’information rapidement et plus ils peuvent la diffuser rapidement. Reçoivent flux, mettent sonde pour vérifier qu’ils ont du TR (quand soucis : sonde le notifie). N’ont pas maîtrise de la chaîne de bout en bout. Peuvent avoir contrainte
 
