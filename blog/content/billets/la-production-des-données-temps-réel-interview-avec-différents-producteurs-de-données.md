@@ -110,21 +110,21 @@ Le SIRI Lite est un sous dérivé de SIRI qui ne contient que les informations s
 * `StopPointsDiscovery` / `LineDiscovery` qui fournit des informations sur le réseau
 * `GeneralMessage`  qui génère des alertes de service
 
-Le flux est en `JSON` (au lieu de `XML`) et est accessible par une API http classique.
+
 
 **Les clients des producteurs de données temps réel** 
 
 Les producteurs de données temps-réel peuvent avoir différents types de clients : 
 
-* des collectivités qui veulent améliorer leur information voyageur et leur système d'exploitation comme Poitiers avec Mecatran qui normalise leur flux temps réel custom afin d'homogénéiser les données des 40 communes, le département de l'Isère avec Citiway ou le Centre-Val-de-Loire avec Kisio 
-* des opérateurs de transport comme Transdev, Keolis, Eole Mobilité etc. qui sous traitent traitent la production de leurs données à Pysae pour ou la SNCF qui passe par Kisio pour normaliser et avoir un contrôle qualité de leurs données 
+* des collectivités qui veulent améliorer leur information voyageur et leur système d'exploitation comme le département de l'Isère avec Citiway, le Centre-Val-de-Loire avec Kisio ou le Grand Poitiers avec Mecatran. Ce dernier normalise leur flux temps réel custom afin d'homogénéiser les données des 40 communes
+* des opérateurs de transport comme Transdev, Keolis, Eole Mobilité etc. qui sous traitent traitent la production de leurs données à Pysae ou la SNCF qui passe par Kisio pour normaliser et avoir un contrôle qualité de leurs données 
 * des stations de ski ou évènements ponctuels qui veulent avoir une information voyageur temps réel sur une courte durée voir de manière éphémère comme la [station de ski de Tignes avec Zenbus](https://transport.data.gouv.fr/datasets/horaires-theoriques-et-temps-reel-des-navettes-de-la-station-de-tignes-gtfs-gtfs-rt/)
 
-<!--EndFragment-->
+
 
 **La production et normalisation des données temps réel**
 
-* Zenbus, Ubitransport et Pysae genère un flux sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Ces données servent à l'information voyageur et à la supervision des transports en commun pour les responsables d'exploitations. Elles sont produites grâce à des systèmes embarquées dans les véhicules.
+* Zenbus, Ubitransport et Pysae génèrent un flux sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Ces données servent à l'information voyageur et à la supervision des transports en commun pour les responsables d'exploitations. Elles sont produites grâce à des systèmes embarquées dans les véhicules.
 
 ![](https://assets.website-files.com/5ef534afcd35bac5a2a84fee/5ef60dc501e339c795e50c18_saeiv_schema.png "Production et diffusion des données temps réel par Pysae")
 
