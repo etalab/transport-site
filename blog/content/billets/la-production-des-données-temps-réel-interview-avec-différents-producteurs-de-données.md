@@ -14,8 +14,6 @@ description: >
 ---
 **Personnes interviewées :**
 
-Producteurs de données 
-
 ![](/images/ahahah.png)
 
 * [Zenbus](https://www.data.gouv.fr/fr/organizations/zenbus/), Olivier Deschasseaux co-fondateur en charge des partenariats, du marketing et de la communication
@@ -63,8 +61,8 @@ Editeur de logiciel pour les transporteurs publiques pour l'amélioration, la no
 Il existe trois niveaux de fraîcheur pour les données relatives aux transports : 
 
 * les horaires théoriques : horaires prévisionnels diffusés sous forme d'heure ou de fréquence de passage. 
-* les horaires adaptés : les horaires théoriques peuvent être modifiés lorsqu'il y a des évènements modifiant les horaires et/ou itinéraires des véhicules. Par exemple, la RATP diffuse un plan de transport mise à jour en cas de grève, la SNCF livre un patch lorsqu'il y a des changements majeurs sur les horaires théoriques initialement transmis. Ces horaires ne peuvent toutefois pas être considérés comme étant en temps-réel. 
-* les horaires temps réel : les horaires affichés correspondent à l'état du trafic à l'instant. 
+* les horaires adaptés : modifications des horaires théoriques lorsqu'il y a des évènements modifiant les horaires et/ou itinéraires des véhicules. Par exemple, la RATP diffuse un plan de transport mise à jour en cas de grève, la SNCF livre un patch lorsqu'il y a des changements majeurs sur les horaires théoriques initialement transmis. Ces horaires ne peuvent toutefois pas être considérés comme étant en temps-réel. 
+* les horaires temps réel : état du trafic à l'instant. 
 
 Cet article traitera exclusivement des données temps-réel pour les transports en commun. 
 
@@ -72,7 +70,7 @@ Cet article traitera exclusivement des données temps-réel pour les transports 
 
 ## Les données temps réel : de la production à la diffusion 
 
-Les données temps réel permettent de fournir une information voyageur qui reflète la réalité du terrain. Ces données peuvent servir à la fois à la gestion de l’exploitation et à l’information des voyageurs. Cette information voyageur permet aux usagers d'optimiser leur temps de trajet. Seules les informations servant à l'informations voyageur sont publiques. Elles permettent à un usager d'être notifié si son bus a du retard par exemple, si il y a des déviations à certains arrêts pour des travaux etc. Pour ce faire, il existe trois formats harmonisés et supportés par le PAN afin de modéliser cette information : 
+Les données temps réel permettent de fournir une information voyageur qui reflète la réalité du terrain. Ces données peuvent servir à la fois à la gestion de l’exploitation et à l’information des voyageurs. Cette information voyageur permet aux usagers d'optimiser leur temps de trajet. Seules les informations servant à l'informations voyageur sont publiques. Elles permettent à un usager d'être notifié si son bus a du retard, si il y a des déviations à certains arrêts pour cause de travaux etc. Pour ce faire, il existe trois formats harmonisés et supportés par le PAN afin de modéliser cette information : 
 
 * **Le GTFS-RT (General Transit Feed Specification - realtime)**
 
@@ -86,7 +84,7 @@ C'est un un format binaire compact (protobuf) qui utilise une méthode globale p
 * `Alert`  qui génère des alertes de service
 * `VehiclePositions` qui renseigne la position des véhicules
 
-Certains flux proposent toutes ces informations dans un seul flux, comme [Zenbus](https://transport.data.gouv.fr/datasets?_utf8=%E2%9C%93&q=zenbus), mais certains producteurs préfèrent avoir un flux par type de données. C'est le cas pour la [Communauté de l’Auxerrois](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) qui a publié un flux pour `TripUpdate`et un autre pour `VehiclePositions`
+Certains producteurs proposent toutes ces informations dans un seul flux, comme [Zenbus](https://transport.data.gouv.fr/datasets?_utf8=%E2%9C%93&q=zenbus), tandis que d'autres préfèrent avoir un flux par type de données. C'est le cas pour la [Communauté de l’Auxerrois](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) qui a publié un flux pour `TripUpdate`et un autre pour `VehiclePositions`
 
 ![](/images/capturemls.png)
 
