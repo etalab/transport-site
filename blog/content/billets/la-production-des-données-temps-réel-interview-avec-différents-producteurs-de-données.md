@@ -6,7 +6,7 @@ tags:
 description: >-
   Interview avec différents producteurs de données temps réel et services de
   traitement de ces données afin de mieux comprendre les enjeux autour de la
-  production des données temps réel 
+  production des données temps réel. 
 
 
 
@@ -33,11 +33,9 @@ déployer et animer les services à la mobilité.
 
 Entreprise spécialisée dans le traitement des systèmes d’informations multimodaux (SIM) et la mise en œuvre de solutions numériques depuis une vingtaine d’année
 
-<!--EndFragment-->
+* [Mecatran](https://www.data.gouv.fr/fr/organizations/mecatran/), Laurent Grégoire directeur technique et Nicolas Taillade directeur de la société
 
-* [Mecatran](https://www.data.gouv.fr/fr/organizations/mecatran/),  éditeur de logiciel travaillant avec les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles :
-
-\
+éditeur de logiciel travaillant avec les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles \
 Ubitransport 
 
 <!--StartFragment-->
