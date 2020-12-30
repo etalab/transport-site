@@ -4,13 +4,9 @@ date: 2020-12-23T09:33:17.115Z
 tags:
   - retour d'expérience
 description: >
-  Interview avec différents producteurs de données temps réel et services de
-  traitement de ces données afin de mieux comprendre les enjeux autour de la
-  production et la diffusion de ces données. 
-
-
-
-  Nous nous sommes également entretenus avec des collectivités ayant publié leurs données sur le Point d'Accès National (PAN) afin de mieux comprendre la relation avec les producteurs.
+  Interview avec différents producteurs et services de traitement de données
+  temps réel et collectivités afin de mieux comprendre les enjeux autour de la
+  production et la diffusion de ces données.
 ---
 **Personnes interviewées :**
 
