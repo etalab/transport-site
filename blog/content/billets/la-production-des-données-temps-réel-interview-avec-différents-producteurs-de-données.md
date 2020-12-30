@@ -59,13 +59,13 @@ Il existe trois niveaux de fraîcheur pour les données relatives aux transports
 * les horaires adaptés : les horaires théoriques peuvent être modifiés lorsqu'il y a des évènements modifiant les horaires et/ou itinéraires des véhicules. Par exemple, la RATP diffuse un plan de transport mise à jour en cas de grève, la SNCF livre un patch lorsqu'il y a des changements majeurs sur les horaires théoriques initialement transmis. Ces horaires ne peuvent toutefois pas être considérés comme étant en temps-réel. 
 * les horaires temps réel : les horaires affichés correspondent à l'état du trafic à l'instant. 
 
-Cet article traitera exclusivement des horaires temps-réel. 
+Cet article traitera exclusivement des données temps-réel pour les transports en commun. 
 
 Les données temps réel permettent de fournir une information voyageur qui reflète la réalité du terrain. Ces données peuvent servir à la fois à la gestion de l’exploitation et à l’information des voyageurs. Cette information voyageur permet aux usagers d'optimiser leur temps de trajet. Seules les informations servant à l'informations voyageur sont publiques. Elles permettent à un usager d'être notifié si son bus a du retard par exemple, si il y a des déviations à certains arrêts pour des travaux etc. Pour ce faire, il existe trois formats harmonisés et supportés par le PAN afin de modéliser cette information : 
 
 * **Le GTFS-RT (General Transit Feed Specification - realtime)**
 
-C'est un standard conçu par Google mais qui est désormais maintenu par une communauté (à completer). 
+C'est un standard conçu par Google mais qui est désormais maintenu par une communauté open data. 
 
 C'est un un format binaire compact (protobuf) qui utilise une méthode globale permettant de récupérer toutes les données d'un réseau en une requête. 
 
@@ -80,11 +80,11 @@ Certains flux proposent toutes ces informations dans un seul flux, comme [Zenbus
 ![](/images/capturemls.png)
 
 Il doit être accompagné d'un fichier théorique au format GTFS pour pouvoir être utilisé. Ces données ne sont pas donc pas autoporteuses.\
-Par exemple pour les données de mise à jour des horaires (`TripUpdate`), pour un `Trip` donné on a la mise à jour de ses horaires pour la journée, mais pas d'informations concernant la `Route` de ce `Trip` ni la position des arrêts. Ces informations sont fournis dans le GTFS. 
+Par exemple, pour les données de mise à jour des horaires (`TripUpdate`), pour un `Trip` donné on a la mise à jour de ses horaires pour la journée, mais pas d'informations concernant la `Route` de ce `Trip` ni la position des arrêts. Ces informations sont fournis dans le GTFS. 
 
 * **Le SIRI (Service Interface for Realtime Information)**
 
-Le SIRIest une normedéfinie par le Comité Européen de Normalisation et correspond à la norme Netex pour le temps réel. Elle caractérise des services temps réel dont les principaux sont : 
+Le SIRI est une norme définie par le Comité Européen de Normalisation et correspond à la norme [Netex](http://netex-cen.eu/) pour le temps réel. Elle caractérise des services temps réel dont les principaux sont : 
 
 * `Stop Monitoring` qui affiche les prochains passages
 * `Estimated Timetable` qui met à jour des horaires de passage)
@@ -125,11 +125,11 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 <!--EndFragment-->
 
-**La production et normalisation des données** 
+**La production et normalisation des données temps réel**
 
-* Zenbus produit des données temps réel en se basant sur le fichier théorique de leurs clients quand ils existent lorsque ces données sont au format GTFS-RT ou en produisant le fichier GTFS. La génération des flux sortants par le serveur Zenbus est quasi instantanée avec une actualisation des données toutes les 3 secondes pour des véhicules qui roulent avec un terminal Android muni de l'application Zenbus Driver. 
-* Kisio Digital, Cityway et Mecatran ne produisent pas de données mais les normalisent et les améliore. Kisio Digital fournit, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des interprétations pour proposer des itinéraires de remplacement au format GTFS-RT ou SIRI tandis que Mecatran fournit toutes les informations pouvant être contenues dans un flux GTFS-RT. 
-* Pysae génère des données sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Les données produites et fournies sont donc au format GTFS-RT
+* Zenbus et Pysae genère un flux sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Pysae ne produit que des données GTFS-RT tandis que Zenbus produit également des données au format SIRI et SIRI Lite. Ces deux services se basent sur le fichier théorique de leurs clients quand il existe lorsque ou produisent eux même le fichier GTFS. La génération des flux sortants par le serveur Zenbus est quasi instantanée avec une actualisation des données toutes les 3 secondes pour des véhicules qui roulent avec un terminal Android muni de l'application Zenbus Driver. 
+* Kisio Digital, Cityway et Mecatran ne produisent pas de données mais les normalisent et les améliore. Kisio Digital fournit, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des interprétations pour proposer des itinéraires de remplacement au format GTFS-RT ou SIRI tandis que Mecatran fournit toutes les informations pouvant être contenues dans un flux GTFS-RT à leurs clients. 
+* Pysae génère également des données . Les données produites et fournies sont donc au format GTFS-RT
 
 Les données d’exploitation sont confidentielles. Les données pour l’information des voyageurs peuvent être ouvertes au public.
 
