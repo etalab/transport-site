@@ -312,7 +312,7 @@ defmodule Transport.ImportData do
 
   def available?(%{"url" => url}) do
     case HTTPoison.head(url) do
-      {:ok, %HTTPoison.Response{status_code: 200}} -> true
+      {:ok, %HTTPoison.Response{status_code: code}} when code >= 200 and code < 400 -> true
       _ -> false
     end
   end
