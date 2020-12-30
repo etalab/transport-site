@@ -163,10 +163,12 @@ Le contrôle qualité a surtout lieu au niveau des données théoriques. Certain
 
 
 
+Cette production et diffusion des données temps réel sur des portails à accès libre permet aux Autorités Organisatrices de la Mobilité (AOM), à savoir l'autorité en charge de l’organisation du réseau de transport [](https://fr.wikipedia.org/wiki/Transports_urbains "Transports urbains")sur son territoire, d'être conforme à la réglementation. En effet, [la Loi d'Orientation des Mobilités](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000039666574/2020-12-30/) (LOM) promulguée le 24 décembre 2019  a fixé un cadre législatif pour l’ouverture des données temps servant à l'information voyageur. Ainsi, l'ouverture de données étant attendu au 1er décembre 2020. 
 
 
-Grâce à la production des données temps réel, certaines collectivités comme la Communauté de l’Auxerrois ont constaté une augmentation de l'utilisation de leur application mobile.
 
-Cette production et diffusion des données temps réel sur des portails à accès libre permet également aux Autorités Organisatrices de la Mobilité (AOM), à savoir l'autorité en charge de l’organisation du réseau de transport [](https://fr.wikipedia.org/wiki/Transports_urbains "Transports urbains")sur son territoire, d'être conforme à la réglementation. En effet, [la Loi d'Orientation des Mobilités](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000039666574/2020-12-30/) (LOM) promulguée le 24 décembre 2019  a fixé un cadre législatif pour l’ouverture des données temps réel dans le domaine du transport de voyageurs en France. 
+Grâce à la production des données temps réel, certaines collectivités comme la Communauté de l’Auxerrois ont constaté une augmentation de l'utilisation de leur application mobile. L'ouverture de ces données permet également aux producteurs d'améliorer la qualité de leurs services. Des réutilisateurs de données de Zenbus comme Cityway ou Mybus leur font des retours d'expérience leur permettant d'adapter les informations qu'ils fournissent à leurs besoins. 
+
+
 
 ### [](https://pad.incubateur.net/KnNm3ZtDSgORWg3fw92XJg#Prochains-passages "Prochains-passages")
