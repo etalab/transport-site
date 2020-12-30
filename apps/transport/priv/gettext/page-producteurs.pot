@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 
 #, elixir-format
-msgid "Transport.data.gouv.fr help you publish your data"
+msgid "transport.data.gouv.fr help you publish your data"
 msgstr ""
 
 #, elixir-format
