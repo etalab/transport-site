@@ -137,8 +137,6 @@ Les producteurs de données interrogés fournissent majoritairement, voire exclu
 
 Les données fournies par Mecatran sont à 90% en GTFS-RT. Leurs clients préfèrent ce format car il est spécifié et les informations obligatoires sont clairement définies contrairement au SIRI qui est autoporteur mais dont les contours ne sont pas définis. Cet éditeur de logiciel peut produire du SIRI mais n'a encore eu aucune demande. 
 
-
-
 **Difficultés rencontrées lors de la production ou la normalisation des données** 
 
 * Lorsque les données théoriques sont fournies par les clients, il peut y avoir des coordonnées géographiques qui ne sont pas valides. L'algorithme des producteurs étant sensible à la précision des données géographiques de référence, ils doivent mettre en place des outils permettant de les corriger. 
@@ -150,81 +148,13 @@ La difficulté principale repose donc sur l'absence de standard commun dans la q
 
 **Distribution des données temps réel**
 
-
-
-Kisio Redistribue soit directement sur front (écran : gare, application mobile, Navitia WebSolution avec Widget qui permet d'embarquer IV sur des sites, API, SDK Navitia etc.) 
-
-Zenbus : <!--StartFragment-->
-
-**Mise à disposition de flux standard de l’offre de transport, en particulier via GTFS / GTFS-RT Mise à disposition de statistiques d’exploitation, d’usages voyageurs et, dans certains cas de fréquentation et de taux d’occupation.**
-
-<!--EndFragment-->
-
-Mecatran : Parfois font contact avec les réutilisateurs pour leur fournir une URL quand les collectivités ne veulent pas avoir le contrôle sur toute la distribution de la donnée : interface producteurs / rédutilisateurs 
+Les données fournies par les producteurs de données normalisées appartiennent aux clients. Ils permettent à leurs clients de contrôler l’accessibilité à ces données grâce à des clés pour accéder à leur API. Cela leur permet notamment d'avoir des statistiques sur le nombre et la fréquence de réutilisation. Certains redistribuent ces données à travers des interfaces comme des écrans dans les gares, des applications mobiles etc. ou des API comme Kisio. D'autres, comme Mecatran, entrent également directement en contact avec les réutilisateurs des données de leurs clients pour leur fournir une URL lorsque les clients ne veulent pas avoir le contrôle sur toute la distribution de leurs données. Zenbus met également à disposition les données de leurs clients directement sur le PAN, ce qui permet aux réutilisateurs de récupérer le flux de différents réseaux sur une seule plateforme. La communauté de l'Auxerrois récupère les données de son fournisseur pour les redistribuer ensuite sur le PAN. La collectivité renvoie tous leurs services de mobilité comme la billettique, leur service d'information voyageur vers [transport.data.gouv.fr](transport.data.gouv.fr) pour récupérer leurs données. 
 
 
 
+**Contrôle qualité des données** 
 
-
-TR : via les sondes où ils vont regarder si tout est ok au niveau des latences mais ne peuvent pas être sur place pour s’assurer que le bus passe bien
-
-<!--EndFragment-->
-
-
-
-
-
-
-
-Région avec différents opérateurs : ils les fusionnent pour avoir une seule API 
-
- 
-
-**problématiques : liées à identification avec données statiques**
-
-
-
-Mecatran : Techniquement : sous forme de flux brut (GTFS-RT avec les différentes variantes) soit API type rest (Geojson) plus axé pour les développeurs. Permet aux clients d’avoir accès à une plateforme pour contrôler l’accessibilité à ces données avec des clés pour avoir des statistiques de la réutilisation. Gérer clés API : qui accède et à quelle fréquence, contrats avec les réutilisateurs etc. 
-
-\> Contractuellement : Client qui possède la donnée. font selon demande des clients : s' ils veulent redistribuer 
-
-<!--EndFragment-->
-
-
-
-
-
-Interface avec SAE et récupère données des partenaires (prestataires données transport) : alimente Navitia qu’ils vont communiquer aux voyageurs. Flux qu’ils vont recevoir et vont interroger pour récupérer données TR 
-
-Format normalisé 
-
-
-
-Communauté d'agglomération de l'Auxerrois :
-
-Produisent du GTFS-RT : système de billettique et d’IV avait besoin de fonctionner sous GTFS, sont partis sur GTFS-RT pour pouvoir faire de l’OpenData 
-
-Fait partenariat Transit (convention avec eux : contrat gratuit > ont des données anonymisés qui leur permettent de voir combien de personnes utilisent l’application et d’envoyer des alertes si besoin) et Google (GTFS format simple pour tester des fonctionnalités, on peut modifier facilement, format Européen très lourd/compliqué/permet pas itération/ pas capacité de le produire).
-
-* avance/retard, prochains passages, position des véhicules, message d'informations et d'alertes ;
-
-Implantés progressivement : pas un seul flux mais plusieur
-
-Positions véhicules/ MAJ des trajets (avance/retard, prochains passafes) mais pas message d’informations et d’alertes. Ont des difficultés sur ce flux (message d’info’)
-
-Transdev : produisent base GTFS à partir de Téo et leur envoie par mail > va sur G.Transit pour test qualité > publie sur le PAN 
-
-Transdev créé leurs données mais Communauté qui met les données chez Google : Communauté a un contrôle de la donnée 
-
-Flux automatisé : MAJ des trajets/positions des véhicules générés à partir du GPS d’un véhicule → Ubitransport se charge de transformer ce flux en GTFS-RT 
-
-Avec Ubitransport : tablette tactile qui est connectée à un valideur et les personnes badgent dessus. Tablette utilisée par conducteur pour sélectionner sa course et avance/retard/ Tablette a également un GPS et dans le frontal Ubitransport ils peuvent suivre en TR avance/retard. Conversion information > GTFS-RT : option qu’ils avaient dans le marché avec Ubitransport
-
-* Exprimer les éventuelles retombées positives de la production et publication des données. 
-
-Augmentation du trafic (utilisation sur TransitApp) : usage a augmenté et il pense qu’ils passeront un cap décisif quand ils auront alerte 
-
-Une fois qu’ils auront les alertes : cap décisif car voyageurs sauront que c’est du TR 
+Le contrôle qualité a surtout lieu au niveau des données théoriques. Certains producteurs, comme Kisio, installent des sondes leur permettant de mesurer le niveau de latence. D'autres comme Zenbus suivent le principe du “Eat your own dog food”, à savoir être les premiers utilisateurs de leurs données. Cela leur permet d'être confrontés à la qualité des données produites en étant des auditeurs permanents. 
 
 
 
@@ -232,7 +162,35 @@ Une fois qu’ils auront les alertes : cap décisif car voyageurs sauront que c�
 
 
 
-[La loi d’orientation des mobilités (LOM) du 24 décembre 2019](https://www.cerema.fr/fr/actualites/lom-quelle-organisation-competences-mobilite#:~:text=G%C3%A9n%C3%A9ralisation%20de%20la%20comp%C3%A9tence%20d,ces%20dispositions%20de%20la%20LOM) a fixé un cadre législatif pour l’ouverture des données temps réel dans le domaine du transport de voyageurs en France. L’ouverture des données des services de transport de voyageurs vise à faciliter la mobilité, notamment via le concept du [MaaS (Mobility as a Service)](https://15marches.fr/mobilites/le-maas-en-questions).
+Grâce à la production des données temps réel, certaines collectivités comme la Communauté de l’Auxerrois ont constaté une augmentation de l'utilisation de leur application mobile, notamment grâce à un tableau de bord anonymisé leur permettant d'avoir des statistiques. 
+
+Cette production et diffusion des données temps réel sur des portails à accès libre permet également aux Autorités Organisatrices de la Mobilité (AOM), à savoir l'autorité en charge de l’organisation du réseau de transport [](https://fr.wikipedia.org/wiki/Transports_urbains "Transports urbains")sur son territoire, d'être conforme à la réglementation. En effet, [la Loi d'Orientation des Mobilités](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000039666574/2020-12-30/) (LOM) promulguée le 24 décembre 2019  a fixé un cadre législatif pour l’ouverture des données temps réel dans le domaine du transport de voyageurs en France. L’ouverture des données des services de transport de voyageurs vise à faciliter la mobilité, notamment via le concept du [MaaS (Mobility as a Service)](https://15marches.fr/mobilites/le-maas-en-questions).
+
+<!--EndFragment-->
+
+
+
+
+
+ouverture des données temps réel sur des
+
+
+
+
+
+
+
+
+
+*
+
+
+
+<!--EndFragment-->
+
+
+
+[](https://www.cerema.fr/fr/actualites/lom-quelle-organisation-competences-mobilite#:~:text=G%C3%A9n%C3%A9ralisation%20de%20la%20comp%C3%A9tence%20d,ces%20dispositions%20de%20la%20LOM)
 
 
 
