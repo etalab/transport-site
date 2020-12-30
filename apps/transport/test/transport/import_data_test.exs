@@ -6,7 +6,7 @@ defmodule Transport.ImportDataTest do
   doctest ImportData
 
   test "the available? function with HTTP request", _ do
-    mock = fn(url) ->
+    mock = fn url ->
       case url do
         'url200' -> {:ok, %HTTPoison.Response{body: "{}", status_code: 200}}
         'url300' -> {:ok, %HTTPoison.Response{body: "{}", status_code: 300}}
