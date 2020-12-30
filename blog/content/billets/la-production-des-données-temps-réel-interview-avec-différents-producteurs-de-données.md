@@ -72,7 +72,7 @@ Les données temps réel permettent de fournir une information voyageur qui refl
 
 C'est un standard conçu par Google mais qui est désormais maintenu par une communauté open data. 
 
-C'est un un format binaire compact (protobuf) qui utilise une méthode globale permettant de récupérer toutes les données d'un réseau en une requête. 
+Ce format utilise une méthode globale permettant de récupérer toutes les données d'un réseau en une requête. 
 
  Ce flux temps réel peut contenir trois types d'information : 
 
