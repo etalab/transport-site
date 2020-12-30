@@ -3,21 +3,18 @@ title: "La production des données temps réel pour les transports en commun "
 date: 2020-12-23T09:33:17.115Z
 tags:
   - retour d'expérience
-description: >-
+description: >
   Interview avec différents producteurs de données temps réel et services de
   traitement de ces données afin de mieux comprendre les enjeux autour de la
   production des données temps réel. 
 
 
 
-
-  Nous nous sommes également entretenus avec des collectivités ayant publié leurs données sur le Point d'Accès National (PAN) afin de mieux comprendre la relation avec les acteurs producteurs et services de normalisation des données. 
-
-  Grand Poitiers : Nicolas Madignier 
-
-  Communauté de l’agglomération de l'Auxerrois : François Meyer, chef du service mobilité
+  Nous nous sommes également entretenus avec des collectivités ayant publié leurs données sur le Point d'Accès National (PAN) afin de mieux comprendre la relation avec les producteurs et services de normalisation des données.
 ---
-Personnes interviewées :
+**Personnes interviewées :**
+
+Producteurs de données 
 
 * [Zenbus](https://www.data.gouv.fr/fr/organizations/zenbus/), Olivier Deschasseaux co-fondateur en charge des partenariats, du marketing et de la communication
 
@@ -28,8 +25,11 @@ Services de géolocalisation temps réel à partir de smartphones et production 
 Service accompagnant tous les acteurs de la mobilité pour créer,\
 déployer et animer les services à la mobilité.
 
-*  Pysae : 
-* [City Way](https://www.data.gouv.fr/fr/organizations/cityway/) : Nely Escoffier
+*  Pysae : Maxime Cabanel Responsable grands comptes 
+
+Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV) clé en main pour les conducteurs de bus, les exploitants et les voyageurs. 
+
+* [City Way](https://www.data.gouv.fr/fr/organizations/cityway/), Nely Escoffier
 
 Entreprise spécialisée dans le traitement des systèmes d’informations multimodaux (SIM) et la mise en œuvre de solutions numériques depuis une vingtaine d’année
 
@@ -38,11 +38,20 @@ Entreprise spécialisée dans le traitement des systèmes d’informations mu
 éditeur de logiciel travaillant avec les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles \
 Ubitransport 
 
+
+
+Collectivités 
+
+* Grand Poitiers, Nicolas Madignier gestionnaire de la data Mobilité Transport et du développement numérique à la Direction Mobilités
+* Communauté de l’agglomération de l'Auxerrois, François Meyer chef du service mobilité
+
 <!--StartFragment-->
 
-transport.data.gouv.fr a pour objectif de rassembler l'ensemble des données servant à l'information voyageur dans des formats harmonisés et sans obligation d'authentification pour les réutilisateurs. Cette ouverture des données vise à faciliter les déplacements des citoyens par l'intégration de ces données dans des services tiers. 
+[transport.data.gouv.fr ](transport.data.gouv.fr)est le point d'accès national (PAN) aux données mobilité. Il a pour mission de rassembler l'ensemble des données servant à l'information voyageur dans des formats harmonisés et sans obligation d'authentification pour les réutilisateurs. Cette ouverture des données vise à faciliter les déplacements des citoyens par l'intégration de ces données dans des services tiers comme des calculateurs d'itinéraires, des cannes connectées etc. On retrouve cette diversité de service servant à l'information voyageur dans les réutilisateurs du PAN.
 
-\[Mettre capture d'écran des réutilisateurs]
+![](/images/capturmmme.png)
+
+ *\    Réutilisateurs 30.12.2020*
 
 Il existe trois niveaux de fraîcheur pour les données relatives aux transports : 
 
