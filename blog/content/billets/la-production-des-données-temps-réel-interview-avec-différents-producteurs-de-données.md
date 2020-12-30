@@ -84,7 +84,7 @@ Certains producteurs proposent toutes ces informations dans un seul flux, comme 
 
 ![](/images/capturemls.png)
 
-Il doit être accompagné d'un fichier théorique au format GTFS pour pouvoir être utilisé. Ces données ne sont pas donc pas autoporteuses.\
+Le GTFS-RT doit être accompagné d'un fichier théorique au format GTFS pour pouvoir être utilisé. Ces données ne sont pas donc pas autoporteuses.\
 Par exemple, pour les données de mise à jour des horaires (`TripUpdate`), pour un `Trip` donné on a la mise à jour de ses horaires pour la journée, mais pas d'informations concernant la `Route` de ce `Trip` ni la position des arrêts. Ces informations sont fournis dans le GTFS. 
 
 * **Le SIRI (Service Interface for Realtime Information)**
