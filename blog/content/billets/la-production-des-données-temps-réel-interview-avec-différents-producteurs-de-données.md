@@ -4,9 +4,9 @@ date: 2020-12-23T09:33:17.115Z
 tags:
   - retour d'expérience
 description: >
-  Interview avec différents producteurs et services de traitement de données
-  temps réel et collectivités afin de mieux comprendre les enjeux autour de la
-  production et la diffusion de ces données.
+  Interview avec des collectivités, différents producteurs et services de
+  traitement de données temps réel afin de mieux comprendre les enjeux autour de
+  la production et la diffusion de ces données.
 ---
 **Personnes interviewées :**
 
@@ -118,7 +118,7 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 
 
-**La production et normalisation des données temps réel**
+**Production et normalisation des données temps réel**
 
 * Zenbus, Ubitransport et Pysae génèrent un flux sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Ces données servent à l'information voyageur et à la supervision des transports en commun pour les responsables d'exploitations. Elles sont produites grâce à des systèmes embarquées dans les véhicules.
 
@@ -132,7 +132,7 @@ Pysae ne produit que des données GTFS-RT tandis que Zenbus et Ubitransport prod
 
 * Kisio Digital, Cityway et Mecatran ne produisent pas de données mais les normalise et les améliore à l'échelle locale comme régionale. Kisio Digital fournit, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des interprétations pour proposer des itinéraires de remplacement au format GTFS-RT ou SIRI tandis que Mecatran fournit toutes les informations pouvant être contenues dans un flux GTFS-RT à leurs clients. 
 
-**Les format de données fournis** 
+**Formats de données fournis** 
 
 Les producteurs de données interrogés fournissent majoritairement, voire exclusivement pour certains, des données temps réel au format GTFS-RT à leurs clients. Ces derniers utilisant déjà le GTFS pour leurs horaires théoriques, la correspondance avec le GTFS-RT est donc plus simple. 
 
