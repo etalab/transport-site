@@ -141,6 +141,10 @@ Les données fournies par Mecatran sont à 90% en GTFS-RT. Leurs clients préfè
 
 **Difficultés rencontrées lors de la production ou la normalisation des données** 
 
+
+
+
+
 Les services de normalisation dépendant des données que leur transmettent les opérateurs de transport. La précision du flux normalisé dépend de la complétude des données fournis par les transporteurs. Par exemple, certains transporteurs renseignent la couleur des lignes de transport tandis que d'autres ne le font pas. Mais encore, il peut arriver que les données temps réel et théoriques ne soient pas fournies par le même éditeur ou producteur de données. Certaines informations essentielles comme les codes d'arrêts ne sont pas normalisées pareillement. Ils doivent donc faire un fichier de mapping pour faire une correspondance entre les arrêts et lignes. 
 
 La difficulté principale repose donc sur l'absence de standard commun dans la qualité de renseignement des données dans le système d'aide à l'exploitation (SAE) et le fait qu'ils ne maitrisent pas la chaîne de bout en bout. De plus, les SAE sont d'abord des outils d'exploitation qui ne sont souvent pas utilisés par des personnes qui font de l'information voyageur. Les informations doivent donc être traitées, interprétées et réadaptées.
@@ -257,10 +261,6 @@ Une fois qu’ils auront les alertes : cap décisif car voyageurs sauront que c�
 
 [La loi d’orientation des mobilités (LOM) du 24 décembre 2019](https://www.cerema.fr/fr/actualites/lom-quelle-organisation-competences-mobilite#:~:text=G%C3%A9n%C3%A9ralisation%20de%20la%20comp%C3%A9tence%20d,ces%20dispositions%20de%20la%20LOM) a fixé un cadre législatif pour l’ouverture des données temps réel dans le domaine du transport de voyageurs en France. L’ouverture des données des services de transport de voyageurs vise à faciliter la mobilité, notamment via le concept du [MaaS (Mobility as a Service)](https://15marches.fr/mobilites/le-maas-en-questions).
 
-# **La solution PYSAE**
-
-[PYSAE ](https://web.pysae.com/)facilite le quotidien des conducteurs et des responsables d’exploitation et les aide à fournir un service de meilleure qualité aux voyageurs en développant une solution de [SAEIV ](https://web.pysae.com/blog/saeiv)(Système d’Aide à l’Exploitation et d’Information des Voyageurs) hébergée et facile à déployer (SaaS).
-
 ![](https://assets.website-files.com/5ef534afcd35bac5a2a84fee/5fb629cf1f7f1bace50df24e_Sch%C3%A9ma%20saeiv%20PYSAE.PNG)
 
 Schéma de la solution de SAEIV de PYSAE
@@ -269,35 +269,11 @@ Schéma de la solution de SAEIV de PYSAE
 
 Les clients de [PYSAE ](https://web.pysae.com/)sont les opérateurs de transport de voyageurs et les collectivités (Autorité Organisatrice de la Mobilité ou AOM). PYSAE a pour client les grands groupes de transport de voyageurs : Keolis, Transdev et RATP et des opérateurs de transports locaux : [Avenir Atlantique](https://web.pysae.com/blog/saeiv-avenir-atlantique-nouvelle-aquitaine), Eole Mobilité, [SUMA](https://web.pysae.com/blog/transports-suma-cavalaire-sur-mer), etc.
 
-# **Production de données**
-
-Comme tous les [SAEIV](https://web.pysae.com/blog/saeiv), [PYSAE ](https://web.pysae.com/)génère des données sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique (aussi appelée plan de transport). Les données générées peuvent servir à la gestion de l’exploitation et à l’information des voyageurs en temps réel.
-
-Les données temps réel pour l’information des voyageurs correspondent à:
-
-* La géolocalisation des véhicules circulant sur une course ;
-* Le temps d’arrivée prévu aux arrêts ;
-* Les messages d’information des voyageurs.
-
-Les données d’exploitation sont confidentielles. Les données pour l’information des voyageurs peuvent être ouvertes au public.
-
-# **Méthode de production des données**
-
 ![](https://assets.website-files.com/5ef534afcd35bac5a2a84fee/5ef60dc501e339c795e50c18_saeiv_schema.png)
 
 Schéma d'un SAEIV
 
-La solution [PYSAE ](https://web.pysae.com/)s’appuie sur une application Android sur smartphone ou tablette pour l’aide à la conduite à destination des conducteurs de bus et de cars. Sur cette application les conducteurs disposent des informations utiles pour réaliser leurs missions dans les meilleures conditions avec notamment le guidage GPS par rapport à l’itinéraire de la course et les informations d’avance-retard par rapport aux horaires. Avec son application le conducteur est également en contact permanent avec le poste central d’exploitation. L’application d’aide à la conduite peut être connectée à d’autres équipements embarqués dans le véhicule comme la girouette ou la billettique.
 
-L’application d’aide à la conduite remonte également en permanence les données aux serveurs de [PYSAE ](https://web.pysae.com/)sur la circulation du véhicule. Les serveurs [SAEIV ](https://web.pysae.com/blog/saeiv)stockent et diffusent cette information aux services consommateurs adéquats.
-
-Les données temps réel produites par le [SAEIV ](https://web.pysae.com/blog/saeiv)de [PYSAE ](https://web.pysae.com/)sont le résultat de la comparaison entre l’offre théorique (plan de transport) et les données du terrain. Les utilisateurs de PYSAE peuvent importer leurs données d’offre théorique dans les formats suivants : [GTFS](<https://developers.google.com/transit/gtfs?hl=fr#:~:text=GTFS%20(General%20Transit%20Feed%20Specification,et%20les%20informations%20g%C3%A9ographiques%20associ%C3%A9es.>), Excel, Transdev-TEO, Keolis-Okapi et[ Gescar-GTFS](https://www.perinfo.eu/).  Ils peuvent également saisir ou modifier ces données directement dans PYSAE via les interfaces utilisateurs pour la configuration du plan de transport.
-
-<!--StartFragment-->
-
-Quel surcoût pour mettre en place le temps réel?
-
-Deux méthodes :
 
 *
 
