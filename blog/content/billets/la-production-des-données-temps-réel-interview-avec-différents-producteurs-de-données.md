@@ -121,11 +121,11 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 * Zenbus, Ubitransport et Pysae genère un flux sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Ces données servent à l'information voyageur et à la supervision des transports en commun pour les responsables d'exploitations. Elles sont produites grâce à des systèmes embarquées dans les véhicules.
 
-  Production et diffusion des données temps réel par Pysae 
+![](https://assets.website-files.com/5ef534afcd35bac5a2a84fee/5ef60dc501e339c795e50c18_saeiv_schema.png "Production et diffusion des données temps réel par Pysae")
 
-  ![](/images/captulkùre.png)
+source : [article de Pysae sur le temps r](https://web.pysae.com/blog/lom-et-ouverture-des-donnees-pour-le-transport-de-voyageurs)éel
 
-  source : [article de Pysae sur le temps réel ](https://web.pysae.com/blog/lom-et-ouverture-des-donnees-pour-le-transport-de-voyageurs)
+
 
 Pysae ne produit que des données GTFS-RT tandis que Zenbus et Ubitransport produisent également des données au format SIRI et SIRI Lite. Ces deux services se basent sur le fichier théorique de leurs clients quand il existe ou produisent eux même le fichier GTFS. La génération des flux sortants par le serveur Zenbus est quasi instantanée avec une actualisation des données toutes les 3 secondes pour des véhicules qui roulent avec un terminal Android muni de l'application Zenbus Driver. 
 
@@ -164,47 +164,7 @@ Le contrôle qualité a surtout lieu au niveau des données théoriques. Certain
 
 Grâce à la production des données temps réel, certaines collectivités comme la Communauté de l’Auxerrois ont constaté une augmentation de l'utilisation de leur application mobile, notamment grâce à un tableau de bord anonymisé leur permettant d'avoir des statistiques. 
 
-Cette production et diffusion des données temps réel sur des portails à accès libre permet également aux Autorités Organisatrices de la Mobilité (AOM), à savoir l'autorité en charge de l’organisation du réseau de transport [](https://fr.wikipedia.org/wiki/Transports_urbains "Transports urbains")sur son territoire, d'être conforme à la réglementation. En effet, [la Loi d'Orientation des Mobilités](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000039666574/2020-12-30/) (LOM) promulguée le 24 décembre 2019  a fixé un cadre législatif pour l’ouverture des données temps réel dans le domaine du transport de voyageurs en France. L’ouverture des données des services de transport de voyageurs vise à faciliter la mobilité, notamment via le concept du [MaaS (Mobility as a Service)](https://15marches.fr/mobilites/le-maas-en-questions).
-
-<!--EndFragment-->
-
-
-
-
-
-ouverture des données temps réel sur des
-
-
-
-
-
-
-
-
-
-*
-
-
-
-<!--EndFragment-->
-
-
-
-[](https://www.cerema.fr/fr/actualites/lom-quelle-organisation-competences-mobilite#:~:text=G%C3%A9n%C3%A9ralisation%20de%20la%20comp%C3%A9tence%20d,ces%20dispositions%20de%20la%20LOM)
-
-
-
-# ‍**Les clients de PYSAE**
-
-Les clients de [PYSAE ](https://web.pysae.com/)sont les opérateurs de transport de voyageurs et les collectivités (Autorité Organisatrice de la Mobilité ou AOM). PYSAE a pour client les grands groupes de transport de voyageurs : Keolis, Transdev et RATP et des opérateurs de transports locaux : [Avenir Atlantique](https://web.pysae.com/blog/saeiv-avenir-atlantique-nouvelle-aquitaine), Eole Mobilité, [SUMA](https://web.pysae.com/blog/transports-suma-cavalaire-sur-mer), etc.
-
-![](https://assets.website-files.com/5ef534afcd35bac5a2a84fee/5ef60dc501e339c795e50c18_saeiv_schema.png)
-
-Schéma d'un SAEIV
-
-
-
-
+Cette production et diffusion des données temps réel sur des portails à accès libre permet également aux Autorités Organisatrices de la Mobilité (AOM), à savoir l'autorité en charge de l’organisation du réseau de transport [](https://fr.wikipedia.org/wiki/Transports_urbains "Transports urbains")sur son territoire, d'être conforme à la réglementation. En effet, [la Loi d'Orientation des Mobilités](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000039666574/2020-12-30/) (LOM) promulguée le 24 décembre 2019  a fixé un cadre législatif pour l’ouverture des données temps réel dans le domaine du transport de voyageurs en France. 
 
 ### [](https://pad.incubateur.net/KnNm3ZtDSgORWg3fw92XJg#Prochains-passages "Prochains-passages")
 
