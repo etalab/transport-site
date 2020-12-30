@@ -6,11 +6,13 @@ tags:
 description: >
   Interview avec des collectivités, différents producteurs et services de
   traitement de données temps réel afin de mieux comprendre les enjeux autour de
-  la production et la diffusion de ces données.
+  la production et la diffusion de ces données. 
+images:
+  - /images/ahahah.png
 ---
 **Personnes interviewées :**
 
-![](/images/ahahah.png)
+Producteurs 
 
 * [Zenbus](https://www.data.gouv.fr/fr/organizations/zenbus/), Olivier Deschasseaux co-fondateur en charge des partenariats, du marketing et de la communication
 
@@ -37,11 +39,7 @@ Entreprise spécialisée dans le traitement des systèmes d’informations mu
 
 Editeur de logiciel pour les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles 
 
-
-
-![](/images/captcillure.png)
-
-
+Collectivités 
 
 * Grand Poitiers, Nicolas Madignier gestionnaire de la data Mobilité Transport et du développement numérique à la Direction Mobilités
 * Communauté de l’agglomération de l'Auxerrois, François Meyer chef du service mobilité
