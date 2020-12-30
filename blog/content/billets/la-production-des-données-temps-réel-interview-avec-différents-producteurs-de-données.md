@@ -6,28 +6,34 @@ tags:
 description: >
   Interview avec différents producteurs de données temps réel et services de
   traitement de ces données afin de mieux comprendre les enjeux autour de la
-  production des données temps réel. 
+  production et la diffusion de ces données. 
 
 
 
-  Nous nous sommes également entretenus avec des collectivités ayant publié leurs données sur le Point d'Accès National (PAN) afin de mieux comprendre la relation avec les producteurs et services de normalisation des données.
+  Nous nous sommes également entretenus avec des collectivités ayant publié leurs données sur le Point d'Accès National (PAN) afin de mieux comprendre la relation avec les producteurs.
 ---
 **Personnes interviewées :**
 
 Producteurs de données 
 
+![](/images/ahahah.png)
+
 * [Zenbus](https://www.data.gouv.fr/fr/organizations/zenbus/), Olivier Deschasseaux co-fondateur en charge des partenariats, du marketing et de la communication
 
 Services de géolocalisation temps réel à partir de smartphones et production de données temps réel dans des formations normalisés (GTFS-RT et SIRI)
 
-* Kisio Digital : Betrand Billoud et Laetitia Paternoster
-
-Service accompagnant tous les acteurs de la mobilité pour créer,\
-déployer et animer les services à la mobilité.
-
-*  Pysae : Maxime Cabanel Responsable grands comptes 
+*  Pysae, Maxime Cabanel Responsable grands comptes 
 
 Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV) clé en main pour les conducteurs de bus, les exploitants et les voyageurs. 
+
+* Ubitransport, Alexandre Cabanis Direction Marketing
+
+Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV) 
+
+* Kisio Digital : Betrand Billoud et Laetitia Paternoster
+
+Service d'accompagnement des acteurs de la mobilité pour créer,\
+déployer et animer les services à la mobilité.
 
 * [City Way](https://www.data.gouv.fr/fr/organizations/cityway/), Nely Escoffier
 
@@ -35,12 +41,13 @@ Entreprise spécialisée dans le traitement des systèmes d’informations mu
 
 * [Mecatran](https://www.data.gouv.fr/fr/organizations/mecatran/), Laurent Grégoire directeur technique et Nicolas Taillade directeur de la société
 
-éditeur de logiciel travaillant avec les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles \
-Ubitransport 
+Editeur de logiciel pour les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles 
 
 
 
-Collectivités 
+![](/images/captcillure.png)
+
+
 
 * Grand Poitiers, Nicolas Madignier gestionnaire de la data Mobilité Transport et du développement numérique à la Direction Mobilités
 * Communauté de l’agglomération de l'Auxerrois, François Meyer chef du service mobilité
