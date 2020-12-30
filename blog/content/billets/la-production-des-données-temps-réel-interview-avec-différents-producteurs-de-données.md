@@ -127,11 +127,8 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 **La production et normalisation des données temps réel**
 
-* Zenbus et Pysae genère un flux sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Pysae ne produit que des données GTFS-RT tandis que Zenbus produit également des données au format SIRI et SIRI Lite. Ces deux services se basent sur le fichier théorique de leurs clients quand il existe lorsque ou produisent eux même le fichier GTFS. La génération des flux sortants par le serveur Zenbus est quasi instantanée avec une actualisation des données toutes les 3 secondes pour des véhicules qui roulent avec un terminal Android muni de l'application Zenbus Driver. 
+* Zenbus, Ubitransport et Pysae genère un flux sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Pysae ne produit que des données GTFS-RT tandis que Zenbus et Ubitransport produisent également des données au format SIRI et SIRI Lite. Ces deux services se basent sur le fichier théorique de leurs clients quand il existe ou produisent eux même le fichier GTFS. La génération des flux sortants par le serveur Zenbus est quasi instantanée avec une actualisation des données toutes les 3 secondes pour des véhicules qui roulent avec un terminal Android muni de l'application Zenbus Driver. 
 * Kisio Digital, Cityway et Mecatran ne produisent pas de données mais les normalisent et les améliore. Kisio Digital fournit, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des interprétations pour proposer des itinéraires de remplacement au format GTFS-RT ou SIRI tandis que Mecatran fournit toutes les informations pouvant être contenues dans un flux GTFS-RT à leurs clients. 
-* Pysae génère également des données . Les données produites et fournies sont donc au format GTFS-RT
-
-Les données d’exploitation sont confidentielles. Les données pour l’information des voyageurs peuvent être ouvertes au public.
 
 **Les format de données fournis** 
 
