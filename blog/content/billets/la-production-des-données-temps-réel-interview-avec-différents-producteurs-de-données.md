@@ -47,7 +47,7 @@ Collectivités
 
 <!--StartFragment-->
 
-[transport.data.gouv.fr ](transport.data.gouv.fr)est le point d'accès national (PAN) aux données mobilité. Il a pour mission de rassembler l'ensemble des données servant à l'information voyageur dans des formats harmonisés et sans obligation d'authentification pour les réutilisateurs. Cette ouverture des données vise à faciliter les déplacements des citoyens par l'intégration de ces données dans des services tiers comme des calculateurs d'itinéraires, des cannes connectées etc. On retrouve cette diversité de service servant à l'information voyageur dans les réutilisateurs du PAN.
+[transport.data.gouv.fr ](transport.data.gouv.fr)est le point d'accès national (PAN) aux données mobilité. Il a pour mission de rassembler l'ensemble des données servant à l'information voyageur dans des formats harmonisés et sans obligation d'authentification pour les réutilisateurs. Cette ouverture des données vise à faciliter les déplacements des citoyens par l'intégration de ces données dans des services tiers comme des calculateurs d'itinéraires, des cannes connectées, des bureaux d'aménagement du territoire etc. On retrouve cette diversité de service servant à l'information voyageur dans les réutilisateurs du PAN.
 
 ![](/images/capturmmme.png)
 
@@ -125,7 +125,7 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 Pysae ne produit que des données GTFS-RT tandis que Zenbus et Ubitransport produisent également des données au format SIRI et SIRI Lite. Ces deux services se basent sur le fichier théorique de leurs clients quand il existe ou produisent eux même le fichier GTFS. La génération des flux sortants par le serveur Zenbus est quasi instantanée avec une actualisation des données toutes les 3 secondes pour des véhicules qui roulent avec un terminal Android muni de l'application Zenbus Driver. 
 
-* Kisio Digital, Cityway et Mecatran ne produisent pas de données mais les normalisent et les améliore. Kisio Digital fournit, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des interprétations pour proposer des itinéraires de remplacement au format GTFS-RT ou SIRI tandis que Mecatran fournit toutes les informations pouvant être contenues dans un flux GTFS-RT à leurs clients. 
+* Kisio Digital, Cityway et Mecatran ne produisent pas de données mais les normalisent et les améliore à l'échelle locale comme régionale. Kisio Digital fournit, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des interprétations pour proposer des itinéraires de remplacement au format GTFS-RT ou SIRI tandis que Mecatran fournit toutes les informations pouvant être contenues dans un flux GTFS-RT à leurs clients. 
 
 **Les format de données fournis** 
 
@@ -139,25 +139,21 @@ Les données fournies par Mecatran sont à 90% en GTFS-RT. Leurs clients préfè
 
 Les services de normalisation dépendant des données que leur transmettent les opérateurs de transport. La précision du flux normalisé dépend de la complétude des données fournis par les transporteurs. Par exemple, certains transporteurs renseignent la couleur des lignes de transport tandis que d'autres ne le font pas. Mais encore, il peut arriver que les données temps réel et théoriques ne soient pas fournies par le même éditeur ou producteur de données. Certaines informations essentielles comme les codes d'arrêts ne sont pas normalisées pareillement. Ils doivent donc faire un fichier de mapping pour faire une correspondance entre les arrêts et lignes. 
 
-La difficulté principale repose donc sur l'absence de standard commun dans la qualité de renseignement des données dans le système d'aide à l'exploitation (SAE). De plus, les SAE sont d'abord des outils d'exploitation qui ne sont souvent pas utilisés par des personnes qui font de l'information voyageur. Les informations doivent donc être traitées, interprétées et réadaptées.
+La difficulté principale repose donc sur l'absence de standard commun dans la qualité de renseignement des données dans le système d'aide à l'exploitation (SAE) et le fait qu'ils ne maitrisent pas la chaîne de bout en bout. De plus, les SAE sont d'abord des outils d'exploitation qui ne sont souvent pas utilisés par des personnes qui font de l'information voyageur. Les informations doivent donc être traitées, interprétées et réadaptées.
 
 **Distribution des données temps réel**
 
 
 
-
-
-Kisio : 
+Kisio Redistribue soit directement sur front (écran : gare, application mobile, Navitia WebSolution avec Widget qui permet d'embarquer IV sur des sites, API, SDK Navitia etc.) 
 
 
 
-Quand remodélisation des réseaux : besoin de faire vérification de cet interfaçage. A chaque changement SAE doit prévenir. 
+Mecatran : Parfois font contact avec les réutilisateurs pour leur fournir une URL quand les collectivités ne veulent pas avoir le contrôle sur toute la distribution de la donnée : interface producteurs / rédutilisateurs 
 
-3/ Problématique de la charge dans la qualité/temps de réponse qu’ils vont apporter. Ils sont sur ce qui est diffusé sur les écrans gare/téléphone : plus ils ont l’information rapidement et plus ils peuvent la diffuser rapidement. Reçoivent flux, mettent sonde pour vérifier qu’ils ont du TR (quand soucis : sonde le notifie). N’ont pas maîtrise de la chaîne de bout en bout. Peuvent avoir contrainte
 
-Redistribue soit directement sur front (écran : gare, application mobile, Navitia WebSolution avec Widget qui permet d'embarquer IV sur des sites, API, SDK Navitia etc.) 
 
-Qualité données : >Sur théorique : Un gros contrôle qualité > correspond aux normes
+Kisio : Qualité données : >Sur théorique : Un gros contrôle qualité > correspond aux normes
 
 TR : via les sondes où ils vont regarder si tout est ok au niveau des latences mais ne peuvent pas être sur place pour s’assurer que le bus passe bien
 
@@ -165,13 +161,9 @@ TR : via les sondes où ils vont regarder si tout est ok au niveau des latences 
 
 
 
-\
-Mecatran : Parfois font contact avec les réutilisateurs pour leur fournir une URL quand les collectivités ne veulent pas avoir le contrôle sur toute la distribution de la donnée : interface producteurs / rédutilisateurs 
 
-**GTFS-RT : 90% en sortie**
 
-**Fournissent toutes ces informations\
-Avance/retard+prochains passages : toujours combinés**
+
 
 Région avec différents opérateurs : ils les fusionnent pour avoir une seule API 
 
