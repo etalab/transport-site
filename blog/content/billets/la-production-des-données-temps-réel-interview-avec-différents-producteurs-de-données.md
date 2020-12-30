@@ -61,6 +61,10 @@ Il existe trois niveaux de fraîcheur pour les données relatives aux transports
 
 Cet article traitera exclusivement des données temps-réel pour les transports en commun. 
 
+
+
+## Les données temps réel : de la production à la diffusion 
+
 Les données temps réel permettent de fournir une information voyageur qui reflète la réalité du terrain. Ces données peuvent servir à la fois à la gestion de l’exploitation et à l’information des voyageurs. Cette information voyageur permet aux usagers d'optimiser leur temps de trajet. Seules les informations servant à l'informations voyageur sont publiques. Elles permettent à un usager d'être notifié si son bus a du retard par exemple, si il y a des déviations à certains arrêts pour des travaux etc. Pour ce faire, il existe trois formats harmonisés et supportés par le PAN afin de modéliser cette information : 
 
 * **Le GTFS-RT (General Transit Feed Specification - realtime)**
