@@ -303,7 +303,7 @@ defmodule TransportWeb.API.StatsController do
             aom.id,
             parent_dataset.id
           ),
-        # we get the most serious error of the valid resources
+        # we get the least serious error of the valid resources
         error_level:
           fragment(
             """
@@ -319,12 +319,12 @@ defmodule TransportWeb.API.StatsController do
               resource.is_available
             ORDER BY (
               CASE max_error::text
-                WHEN 'Fatal' THEN 6
-                WHEN 'Error' THEN 5
-                WHEN 'Warning' THEN 4
-                WHEN 'Information' THEN 3
-                WHEN 'Irrelevant' THEN 2
-                WHEN 'NoError' THEN 1
+                WHEN 'Fatal' THEN 1
+                WHEN 'Error' THEN 2
+                WHEN 'Warning' THEN 3
+                WHEN 'Information' THEN 4
+                WHEN 'Irrelevant' THEN 5
+                WHEN 'NoError' THEN 6
               END
             ) DESC
             LIMIT 1
