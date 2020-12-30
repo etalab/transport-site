@@ -12,8 +12,8 @@ msgstr ""
 "Plural-Forms: nplurals=2\n"
 
 #, elixir-format
-msgid "Transport.data.gouv.fr help you publish your data"
-msgstr "Transport.data.gouv vous aide à publier vos données"
+msgid "transport.data.gouv.fr help you publish your data"
+msgstr "transport.data.gouv.fr vous aide à publier vos données"
 
 #, elixir-format
 msgid "A number of administrations, companies and assocations use the French National Access Point to find mobility open-data in France."
@@ -49,7 +49,7 @@ msgstr "Garantissez la bonne découvrabilité de vos données en respectant des 
 
 #, elixir-format
 msgid "Join the transport.data.gouv.fr community and stay informed!"
-msgstr "Suivez et participez à l'actualité de la communauté transport.data.gouv !"
+msgstr "Suivez et participez à l'actualité de la communauté transport.data.gouv.fr !"
 
 #, elixir-format
 msgid "Our community"
