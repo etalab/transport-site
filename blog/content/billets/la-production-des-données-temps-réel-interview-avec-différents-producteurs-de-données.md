@@ -10,7 +10,7 @@ description: >
 images:
   - /images/ahahah.png
 ---
-**Personnes interviewées :**
+**Personnes interviewées** 
 
 Producteurs 
 
@@ -41,8 +41,8 @@ Editeur de logiciel pour les transporteurs publiques pour l'amélioration, la no
 
 Collectivités 
 
-* Grand Poitiers, Nicolas Madignier gestionnaire de la data Mobilité Transport et du développement numérique à la Direction Mobilités
-* Communauté de l’agglomération de l'Auxerrois, François Meyer chef du service mobilité
+* [Grand Poitiers](https://transport.data.gouv.fr/datasets?_utf8=%E2%9C%93&q=grand+poitiers), Nicolas Madignier gestionnaire de la data Mobilité Transport et du développement numérique à la Direction Mobilités
+* [Communauté de l’agglomération de l'Auxerrois](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/), François Meyer chef du service mobilité
 
 <!--StartFragment-->
 
