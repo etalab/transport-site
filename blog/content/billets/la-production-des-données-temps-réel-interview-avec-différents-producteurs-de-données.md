@@ -16,15 +16,15 @@ description: >
 
 Services de géolocalisation temps réel à partir de smartphones et production de données temps réel dans des formations normalisés (GTFS-RT et SIRI)
 
-*  Pysae, Maxime Cabanel Responsable grands comptes 
+* [ Pysae](https://web.pysae.com/), Maxime Cabanel Responsable grands comptes 
 
 Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV) clé en main pour les conducteurs de bus, les exploitants et les voyageurs. 
 
-* Ubitransport, Alexandre Cabanis Direction Marketing
+* [Ubitransport](https://www.ubitransport.com/), Alexandre Cabanis Direction Marketing
 
 Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV) 
 
-* Kisio Digital : Betrand Billoud et Laetitia Paternoster
+* [Kisio](https://kisio.com/) : Betrand Billoud et Laetitia Paternoster
 
 Service d'accompagnement des acteurs de la mobilité pour créer,\
 déployer et animer les services à la mobilité.
