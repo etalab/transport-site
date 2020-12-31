@@ -3,9 +3,12 @@ title: "Les formats de données temps réel "
 date: 2020-12-31T11:14:04.766Z
 tags:
   - tutoriel
-description: Cet article résume les différents formats de données supportés par
+description: >-
+  Cet article fait le point sur les différents formats de données supportés par
   le Point d'Accès National concernant les horaires temps réel des transports en
-  commun
+  commun : 
+
+  GTFS-RT, SIRI, Siri-Lite
 images:
   - /images/ùla-sdde.png
 ---
