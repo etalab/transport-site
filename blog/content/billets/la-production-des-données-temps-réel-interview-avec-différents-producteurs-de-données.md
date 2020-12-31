@@ -31,7 +31,7 @@ Solution pour système d'aide à l'exploitation et à l'information voyageurs (S
 Service d'accompagnement des acteurs de la mobilité pour créer,\
 déployer et animer les services à la mobilité.
 
-* [City Way](https://www.data.gouv.fr/fr/organizations/cityway/), Nely Escoffier
+* [City Way](https://www.data.gouv.fr/fr/organizations/cityway/), Nely Escoffier Responsable centrale de mobilité *[Itin**isère**](https://www.itinisere.fr/)*
 
 Entreprise spécialisée dans le traitement des systèmes d’informations multimodaux (SIM) et la mise en œuvre de solutions numériques depuis une vingtaine d’année
 
