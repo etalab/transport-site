@@ -46,6 +46,10 @@ Certains producteurs proposent toutes ces informations dans un seul flux, comme 
 Le GTFS-RT doit être accompagné d'un fichier théorique au [format GTFS](https://gtfs.org/reference/static) pour pouvoir être utilisé. Ces données ne sont pas donc pas autoporteuses.\
 Par exemple, pour les données de mise à jour des horaires (`TripUpdate`), pour un `Trip` donné on a la mise à jour de ses horaires pour la journée, mais pas d'informations concernant la `Route` de ce `Trip` ni la position des arrêts. Ces informations sont fournis dans le GTFS. 
 
+
+
+Tous les jeux de données publiés actuellement sur le PAN sont sous ce format \[31/12/2020]
+
 \---
 
 * **Le SIRI (Service Interface for Realtime Information)**
@@ -61,8 +65,6 @@ Tout comme le Netex, un profil doit être défini. C'est un format autoporteur m
 
 \---
 
-
-
 * **Le SIRI Lite**
 
 Le SIRI Lite est un sous dérivé de SIRI qui ne contient que les informations suivantes afin de le rendre plus accessible : 
@@ -71,12 +73,8 @@ Le SIRI Lite est un sous dérivé de SIRI qui ne contient que les informations s
 * `StopPointsDiscovery` / `LineDiscovery` qui fournit des informations sur le réseau
 * `GeneralMessage`  qui génère des alertes de service
 
-
-
 \---
 
 \---
-
-
 
 La production et diffusion des données temps réel en SIRI, GTFS-RT et Siri Lite sur des portails à accès libre permettent aux Autorités Organisatrices de la Mobilité (AOM), à savoir l'autorité en charge de l’organisation du réseau de transport [](https://fr.wikipedia.org/wiki/Transports_urbains "Transports urbains")sur son territoire, d'être conforme à la réglementation. En effet, [la Loi d'Orientation des Mobilités](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000039666574/2020-12-30/) (LOM) promulguée le 24 décembre 2019  a fixé un cadre législatif pour l’ouverture des données temps servant à l'information voyageur. L'ouverture de données étant attendu au 1er décembre 2020.
