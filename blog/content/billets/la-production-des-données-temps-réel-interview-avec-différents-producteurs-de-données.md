@@ -121,7 +121,7 @@ La production et diffusion des données temps réel en GTFS-RT, SIRI et SIRI Lit
 Les producteurs de données temps-réel peuvent avoir différents types de clients : 
 
 * des collectivités qui veulent améliorer leur information voyageur et leur système d'exploitation comme le département de l'Isère avec Citiway, le Centre-Val-de-Loire avec Kisio ou le Grand Poitiers avec Mecatran. Ce dernier normalise leur flux temps réel custom afin d'homogénéiser les données des 40 communes
-* des opérateurs de transport comme Transdev, Keolis, Eole Mobilité etc. qui sous traitent traitent la production de leurs données à Pysae ou la SNCF qui passe par Kisio pour normaliser et avoir un contrôle qualité de leurs données 
+* des opérateurs de transport comme Transdev, Keolis, Eole Mobilité etc. qui sous traitent la production de leurs données à Pysae ou la SNCF qui passe par Kisio pour normaliser et avoir un contrôle qualité de leurs données 
 * des stations de ski ou évènements ponctuels qui veulent avoir une information voyageur temps réel sur une courte durée voir de manière éphémère comme la [station de ski de Tignes avec Zenbus](https://transport.data.gouv.fr/datasets/horaires-theoriques-et-temps-reel-des-navettes-de-la-station-de-tignes-gtfs-gtfs-rt/)
 
 \---
