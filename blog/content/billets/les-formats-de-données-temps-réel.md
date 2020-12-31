@@ -1,5 +1,6 @@
 ---
-title: "Les formats de données temps réel "
+title: Les formats de données temps réel pouvant être diffusés sur le Point
+  d'Accès National
 date: 2020-12-31T11:14:04.766Z
 tags:
   - tutoriel
