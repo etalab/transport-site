@@ -78,7 +78,7 @@ Le SIRI Lite est un sous dérivé de SIRI qui ne contient que les informations s
 
 
 
-La production et diffusion des données temps réel en SIRI, GTFS-RT et Siri Lite sur des portails à accès libre permettent aux Autorités Organisatrices de la Mobilité (AOM), à savoir l'autorité en charge de l’organisation du réseau de transport [](https://fr.wikipedia.org/wiki/Transports_urbains "Transports urbains")sur son territoire, d'être conforme à la réglementation. En effet, [la Loi d'Orientation des Mobilités](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000039666574/2020-12-30/) (LOM) promulguée le 24 décembre 2019  a fixé un cadre législatif pour l’ouverture des données temps servant à l'information voyageur. Ainsi, l'ouverture de données étant attendu au 1er décembre 2020.
+La production et diffusion des données temps réel en SIRI, GTFS-RT et Siri Lite sur des portails à accès libre permettent aux Autorités Organisatrices de la Mobilité (AOM), à savoir l'autorité en charge de l’organisation du réseau de transport [](https://fr.wikipedia.org/wiki/Transports_urbains "Transports urbains")sur son territoire, d'être conforme à la réglementation. En effet, [la Loi d'Orientation des Mobilités](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000039666574/2020-12-30/) (LOM) promulguée le 24 décembre 2019  a fixé un cadre législatif pour l’ouverture des données temps servant à l'information voyageur. L'ouverture de données étant attendu au 1er décembre 2020.
 
 
 
