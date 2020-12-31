@@ -8,7 +8,7 @@ description: >
   traitement de données temps réel afin de mieux comprendre les enjeux autour de
   la production et la diffusion de ces données. 
 images:
-  - /images/jzdm-.png
+  - /images/logo_zenbus_officiel.png
 ---
 **Personnes interviewées** 
 
