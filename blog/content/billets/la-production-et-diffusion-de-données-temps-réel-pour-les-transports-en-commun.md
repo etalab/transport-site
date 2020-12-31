@@ -7,6 +7,8 @@ tags:
 description: "Interview avec des collectivités, différents producteurs et
   services de traitement de données temps réel afin de mieux comprendre les
   enjeux autour de la production et la diffusion de ces données. "
+images:
+  - /images/logo_zenbus_officiel.png
 ---
 
 
@@ -48,7 +50,11 @@ Collectivités
 
 \---
 
+Les données temps réel permettent de fournir une information voyageur qui reflète la réalité du terrain. Ces données peuvent servir à la fois à la gestion de l’exploitation et à l’information des voyageurs. Cette information voyageur permet aux usagers d'optimiser leur temps de trajet. Seules les informations servant à l'informations voyageur sont publiques. Elles permettent à un usager d'être notifié si son bus a du retard, si il y a des déviations à certains arrêts pour cause de travaux etc.
 
+Nous avons échangé avec différents producteurs de données et collectivités diffusant des données temps réel dans des formats harmonisés et supportés par le transport.data.gouv.fr 
+
+Un article résumant les différents formats de données diffusés sur le PAN \[mettre lien] est également disponible sur le blog. 
 
 **Les clients des producteurs de données temps réel** 
 
