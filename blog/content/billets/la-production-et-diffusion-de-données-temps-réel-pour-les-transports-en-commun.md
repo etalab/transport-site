@@ -54,9 +54,15 @@ Les données temps réel permettent de fournir une information voyageur qui refl
 
 
 
-Nous avons échangé avec différents producteurs de données et collectivités diffusant des données temps réel dans des formats harmonisés et supportés par le transport.data.gouv.fr afin d'avoir leurs retours d'expériences. 
+Nous avons échangé avec différents producteurs et collectivités diffusant des données temps réel dans des formats harmonisés et supportés par le transport.data.gouv.fr afin de comprendre comment ils produisent et diffusent ces données, quels formats de données ils privilégient et quelles sont les difficultés qu'ils rencontrent. 
+
+\---
 
 Un article résumant les différents formats de données diffusés sur le PAN \[mettre lien] est également disponible sur le blog. 
+
+\---
+
+
 
 **Les clients des producteurs de données temps réel** 
 
