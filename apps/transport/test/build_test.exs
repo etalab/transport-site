@@ -32,4 +32,15 @@ defmodule TransportWeb.BuildTest do
     {output, 0} = System.cmd("node", ["--version"])
     assert output |> String.trim() == "v" <> asdf_nodejs_release()
   end
+
+  def get_from(file) do
+    file
+    |> File.read!()
+    |> String.split("\n")
+    |> List.first()
+  end
+
+  test "make sure Dockerfile.dev base image is up to date" do
+    assert get_from("../../Dockerfile.dev") == get_from("../../Dockerfile")
+  end
 end
