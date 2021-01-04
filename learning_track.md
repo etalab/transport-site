@@ -29,7 +29,7 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 
 ### Understand the "stats" page
 
-* Entry point for bizdev questions on data quality
+* Check out the [/stats](https://transport.data.gouv.fr/stats) page, entry point for bizdev questions on data quality
 * Look at `_maps.html.eex` and `map.js`
 * Search the code responsible for `quality_features`
 
