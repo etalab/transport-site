@@ -51,8 +51,9 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Run `mix phx.routes GBFS.Router` (same for `/gbfs`)
 * **In short**: the "endpoint" includes a main router, which in turn includes 3 sub-routers
 
-### Read the logs from the database
+### Read the logs from the production database
 
+* The site is deployed on [CleverCloud](https://www.clever-cloud.com/)
 * Install [`clever-tools`](https://github.com/CleverCloud/clever-tools)
 * `clever login`
 * `clever --help`
