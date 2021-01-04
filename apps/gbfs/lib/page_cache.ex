@@ -22,7 +22,7 @@ defmodule PageCache do
     @moduledoc """
     The CacheEntry contains what is serialized in the cache currently.
     """
-    defstruct [:body, :content_type]
+    defstruct [:body, :content_type, :status]
   end
 
   def build_cache_key(request_path) do
@@ -58,7 +58,7 @@ defmodule PageCache do
     # NOTE: not using put_resp_content_type because we would have to split on ";" for charset
     |> put_resp_header("content-type", value.content_type)
     |> set_cache_control(options)
-    |> send_resp(:ok, value.body)
+    |> send_resp(value.status, value.body)
     |> halt
   end
 
@@ -75,12 +75,13 @@ defmodule PageCache do
 
   def save_to_cache(conn, options) do
     page_cache_key = conn.assigns.page_cache_key
-    Logger.info("Persisting cache key #{page_cache_key}")
+    Logger.info("Persisting cache key #{page_cache_key} for status #{conn.status}")
 
     # We will likely want to store status code and more headers shortly.
     value = %CacheEntry{
       body: conn.resp_body,
-      content_type: conn |> get_resp_header("content-type") |> Enum.at(0)
+      content_type: conn |> get_resp_header("content-type") |> Enum.at(0),
+      status: conn.status
     }
 
     Cachex.put(options |> Keyword.fetch!(:cache_name), page_cache_key, value, ttl: :timer.seconds(ttl_seconds(options)))

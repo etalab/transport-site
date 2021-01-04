@@ -20,7 +20,7 @@ msgid "Duplicate stops"
 msgstr "Arrêts en double"
 
 #, elixir-format
-msgid "Dupplicate object id"
+msgid "Duplicate object id"
 msgstr "Identifiant d’objet en double"
 
 #, elixir-format

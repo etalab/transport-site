@@ -1,4 +1,4 @@
-defmodule GBFS.VCubControllerTest do
+defmodule GBFS.JCDecauxControllerTest do
   use GBFS.ConnCase, async: false
   use GBFS.ExternalCase
   alias GBFS.Router.Helpers, as: Routes
@@ -8,44 +8,40 @@ defmodule GBFS.VCubControllerTest do
 
   @moduletag :external
 
-  describe "test VCub GBFS conversion" do
-    test "test gbfs.json", %{conn: conn} do
-      conn = conn |> get(Routes.v_cub_path(conn, :index))
+  describe "JCDecaux GBFS conversion" do
+    test "on gbfs.json", %{conn: conn} do
+      conn = conn |> get(Routes.toulouse_path(conn, :index))
       body = json_response(conn, 200)
       check_entrypoint(body)
     end
 
-    test "test system_information.json", %{conn: conn} do
-      conn = conn |> get(Routes.v_cub_path(conn, :system_information))
+    test "on system_information.json", %{conn: conn} do
+      conn = conn |> get(Routes.toulouse_path(conn, :system_information))
       body = json_response(conn, 200)
       check_system_information(body)
     end
 
-    test "test station_information.json", %{conn: conn} do
-      use_cassette "vcub/station_information" do
-        conn = conn |> get(Routes.v_cub_path(conn, :station_information))
+    test "on station_information.json", %{conn: conn} do
+      use_cassette "jcdecaux/station_information" do
+        conn = conn |> get(Routes.toulouse_path(conn, :station_information))
         body = json_response(conn, 200)
         check_station_information(body)
-
-        stations = body["data"]["stations"]
-        assert Enum.count(stations) > 0
-
-        station = Enum.at(stations, 0)
-        assert station["post_code"] == "33063"
       end
     end
 
-    test "test station_status.json", %{conn: conn} do
-      use_cassette "vcub/station_status" do
-        conn = conn |> get(Routes.v_cub_path(conn, :station_status))
+    test "on station_status.json", %{conn: conn} do
+      use_cassette "jcdecaux/station_status" do
+        conn = conn |> get(Routes.toulouse_path(conn, :station_status))
         body = json_response(conn, 200)
         check_station_status(body)
       end
     end
 
-    test "test invalid vcub response", %{conn: conn} do
-      mock = fn "https://opendata.bordeaux-metropole.fr/api/records/1.0/search/?dataset=ci_vcub_p&q=&rows=10000" ->
-        {:ok, %HTTPoison.Response{body: "{}", status_code: 500}}
+    test "on invalid jcdecaux response", %{conn: conn} do
+      mock = fn url ->
+        if String.match?(url, ~r|https://api.jcdecaux.com/vls/v1.*|) do
+          {:ok, %HTTPoison.Response{body: "{}", status_code: 500}}
+        end
       end
 
       # we also mock Sentry, but using bypass since we don't want to mock sentry's internal
@@ -60,8 +56,8 @@ defmodule GBFS.VCubControllerTest do
       change_app_config_temporarily(:sentry, :included_environments, [:test])
 
       with_mock HTTPoison, get: mock do
-        conn = conn |> get(Routes.v_cub_path(conn, :station_status))
-        assert %{"error" => "service vcub unavailable"} == json_response(conn, 502)
+        conn = conn |> get(Routes.toulouse_path(conn, :station_status))
+        assert %{"error" => "jcdecaux service unavailable"} == json_response(conn, 502)
 
         # Sentry 0.7 does not have a sync mode, so the message is send asynchronously,
         # we wait to be sure that the message is send.
