@@ -19,4 +19,9 @@ ADD mix.exs mix.lock /app/
 ADD config /app/config/
 ADD apps /app/apps/
 
+# files required for build test (verification of versions)
+ADD .tool-versions /app
+ADD Dockerfile.dev /app
+ADD Dockerfile /app
+
 CMD [ "/docker_phoenix_startup.sh" ]

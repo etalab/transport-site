@@ -199,6 +199,11 @@ For the tests you also need to add an environment variable:
 
 `docker-compose run web mix test`
 
+If later you need to rebuild the containers (e.g. after pulling changes), you may need to run:
+`docker-compose up --build`
+
+See [`docker-compose up` documentation](https://docs.docker.com/compose/reference/up/) for more information.
+
 ### Production
 
   The Dockerfile needed to run the continuous integration is in the project:
