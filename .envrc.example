@@ -5,11 +5,6 @@
 # - GTFS_VALIDATOR_URL # for external?
 # - SECRET_KEY_BASE (to be generated)
 # 
-# MIX_ENV=dev can actually be removed, so that you don't have to type MIX_ENV=test
-# before each test run.
-
-# Set the mix_env to dev. Only for dev purpose.
-export MIX_ENV=dev
 
 # Configuration for the data.gouv.fr connection
 export DATAGOUVFR_SITE=https://www.demo.data.gouv.fr # This is data.gouv.fr test environment

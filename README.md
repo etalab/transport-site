@@ -97,14 +97,14 @@ Expect different behaviour with this method, because the version of ChromeDriver
 
 #### Running the tests
 
-Run the tests with `MIX_ENV=test mix test`
+Run the tests with `mix test`
 
 You can also:
 
-  * Run the integration tests with `MIX_ENV=test mix test --only integration`
-  * Run the solution tests with `MIX_ENV=test mix test --only solution`
-  * Run the external tests with `MIX_ENV=test mix test --only external`
-  * Run everything with `MIX_ENV=test RUN_ALL=1 mix test`
+  * Run the integration tests with `mix test --only integration`
+  * Run the solution tests with `mix test --only solution`
+  * Run the external tests with `mix test --only external`
+  * Run everything with `RUN_ALL=1 mix test`
 
 The application is an [umbrella app](https://elixir-lang.org/getting-started/mix-otp/dependencies-and-umbrella-projects.html). It means that it is split into several sub-projects (that you can see under `/apps`).
 
@@ -131,12 +131,12 @@ The following commands will launch the test and generate coverage:
 
 ```
 # Display overall (whole app) coverage for all tests in the console
-RUN_ALL=1 MIX_ENV=test mix coveralls --umbrella
+RUN_ALL=1 mix coveralls --umbrella
 # Same with a HTML report
-RUN_ALL=1 MIX_ENV=test mix coveralls.html --umbrella
+RUN_ALL=1 mix coveralls.html --umbrella
 
 # Display coverage for each umbrella component, rather
-MIX_ENV=test mix coveralls
+mix coveralls
 ```
 
 The coverage is written on screen by default, or in the `cover` subfolders for HTML output.
@@ -197,7 +197,7 @@ You can run any `mix` command with:
 
 For the tests you also need to add an environment variable:
 
-`docker-compose run -e MIX_ENV=test web mix test`
+`docker-compose run web mix test`
 
 ### Production
 
