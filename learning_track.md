@@ -20,7 +20,7 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 
 ### Run the test suite locally
 
-* Ask the team how to fill `.envrc` for minimal use (we'll remove the need for that in the future)
+* Double-check `.envrc` values (this requirement will go away later)
 * Make sure to run ChromeDriver in a way or another
 * Run the default `mix test` suite (which excludes tests with special needs)
 * Run the full suite with `RUN_ALL` (see readme, this includes tests with special needs e.g. ChromeDriver)
