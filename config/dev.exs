@@ -27,3 +27,7 @@ config :logger, :console, format: "[$level] $message\n"
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
+
+# Disabled by default to avoid differences between prod & dev, which could
+# be hard to understand. Uncomment temporarily on demand if you need this!
+# config :phoenix, :format_encoders, json: TransportWeb.PrettyJSONEncoder
