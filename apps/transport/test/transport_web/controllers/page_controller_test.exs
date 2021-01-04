@@ -73,4 +73,18 @@ defmodule TransportWeb.PageControllerTest do
       end
     end
   end
+
+  @tag :focus
+  test "GET /producteurs for non-authenticated users", %{conn: conn} do
+    conn = conn |> get(page_path(conn, :producteurs))
+    body = html_response(conn, 200)
+    assert body =~ "transport.data.gouv.fr vous aide à publier vos données"
+
+    {:ok, doc} = Floki.parse_document(body)
+    [item] = doc |> Floki.find(".panel-producteurs a.button")
+
+    # behavior expected for non-authenticated users
+    assert Floki.attribute(item, "href") == ["/login/explanation?redirect_path=%2Fproducteurs"]
+    assert item |> Floki.text() =~ "Identifiez-vous"
+  end
 end
