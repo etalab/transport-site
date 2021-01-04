@@ -1,4 +1,4 @@
-FROM betagouv/transport:0.4.3
+FROM betagouv/transport:0.4.5
 
 RUN apk add inotify-tools
 RUN apk add postgresql-client>=11
