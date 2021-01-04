@@ -74,7 +74,6 @@ defmodule TransportWeb.PageControllerTest do
     end
   end
 
-  @tag :focus
   test "GET /producteurs for non-authenticated users", %{conn: conn} do
     conn = conn |> get(page_path(conn, :producteurs))
     body = html_response(conn, 200)
