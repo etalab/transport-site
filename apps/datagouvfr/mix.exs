@@ -13,8 +13,14 @@ defmodule Datagouvfr.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       gettext: [{:write_reference_comments, false}],
-      compilers: [:gettext] ++ Mix.compilers,
-      test_coverage: [tool: ExCoveralls]
+      compilers: [:gettext] ++ Mix.compilers(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
