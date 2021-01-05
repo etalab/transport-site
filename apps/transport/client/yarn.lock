@@ -4830,10 +4830,10 @@ performance-now@^2.1.0:
   version "1.4.17"
 
 "phoenix_html@file:../../../deps/phoenix_html":
-  version "2.13.4"
+  version "2.14.3"
 
 "phoenix_live_view@file:../../../deps/phoenix_live_view":
-  version "0.6.0"
+  version "0.7.1"
 
 picomatch@^2.0.4, picomatch@^2.0.5, picomatch@^2.2.1:
   version "2.2.2"
