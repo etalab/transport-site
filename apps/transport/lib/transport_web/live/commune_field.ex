@@ -19,7 +19,7 @@ defmodule TransportWeb.Live.CommuneField do
     """
   end
 
-  def mount(session, socket) do
+  def mount(_params, session, socket) do
     assigns =
       socket
       |> assign(matches: [])
