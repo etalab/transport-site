@@ -320,7 +320,7 @@ defmodule DB.Resource do
       "InvalidTransferDuration" => dgettext("validations", "Invalid transfer duration"),
       "MissingLanguage" => dgettext("validations", "Missing language"),
       "InvalidLanguage" => dgettext("validations", "Invalid language"),
-      "DupplicateObjectId" => dgettext("validations", "Dupplicate object id"),
+      "DuplicateObjectId" => dgettext("validations", "Duplicate object id"),
       "UnloadableModel" => dgettext("validations", "Not compliant with the GTFS specification"),
       "MissingMandatoryFile" => dgettext("validations", "Missing mandatory file"),
       "ExtraFile" => dgettext("validations", "Extra file"),

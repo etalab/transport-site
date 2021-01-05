@@ -3,7 +3,7 @@
     <section class="section producteurs-top">
       <div class="producteurs-title">
         <h1>
-          <%= dgettext("page-producteurs", "Transport.data.gouv.fr help you publish your data") %>
+          <%= dgettext("page-producteurs", "transport.data.gouv.fr help you publish your data") %>
         </h1>
       </div>
       <%= if assigns[:current_user] do %>
