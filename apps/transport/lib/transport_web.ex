@@ -49,7 +49,7 @@ defmodule TransportWeb do
       import Helpers
 
       import Phoenix.LiveView.Helpers,
-        only: [live_render: 2, live_render: 3, live_link: 1, live_link: 2]
+        only: [live_render: 2, live_render: 3]
 
       import Plug.Conn, only: [get_session: 2]
     end
