@@ -32,4 +32,17 @@ defmodule TransportWeb.BuildTest do
     {output, 0} = System.cmd("node", ["--version"])
     assert output |> String.trim() == "v" <> asdf_nodejs_release()
   end
+
+  # figuring out you have forgotten to upgrade the assets can be tricky, so we add a little reminder here
+  test "make sure LiveView client assets are up to date" do
+    {output, 0} = System.cmd("yarn", ["list", "--pattern", "phoenix_live_view"], cd: "client")
+    [[_, version]] = Regex.scan(~r/@(\d+\.\d+\.\d+)/, output)
+
+    expected_version = Application.spec(:phoenix_live_view, :vsn) |> to_string()
+
+    assert(
+      version == expected_version,
+      "Your javascript package for phoenix_live_view is out of date.\nPlease update it with:\n\ncd apps/transport/client && yarn upgrade phoenix_live_view"
+    )
+  end
 end
