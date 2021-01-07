@@ -38,10 +38,10 @@ defmodule TransportWeb.BuildTest do
     {output, 0} = System.cmd("yarn", ["list", "--pattern", "phoenix_live_view"], cd: "client")
     [[_, version]] = Regex.scan(~r/@(\d+\.\d+\.\d+)/, output)
 
-    expected_version = Application.spec(:phoenix_live_view, :vsn) |> to_string()
+    expected_version = Application.spec(:phoenix_live_view, :vsn)
 
     assert(
-      version == expected_version,
+      version == expected_version |> to_string(),
       "Your javascript package for phoenix_live_view is out of date.\nPlease update it with:\n\ncd apps/transport/client && yarn upgrade phoenix_live_view"
     )
   end
