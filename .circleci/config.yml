@@ -8,7 +8,7 @@ default_docker: &default_docker
     DATAGOUVFR_SITE: https://demo.data.gouv.fr
     MAILCHIMP_NEWSLETTER_URL: //gouv.us13.list-manage.com/subscribe/post?u=5ee8bfe0f1b073b49de06a063&amp;id=13db2e9a94
     GTFS_VALIDATOR_URL: https://transport-validator.cleverapps.io
-    SECRET_KEY_BASE: "hJbD4eqmDrNX+/LjUGMLQWQDRMYSr2o+hlIEzECdmPrNHCWmZtXCO879MUU3YcEz"
+    SECRET_KEY_BASE: "SOME-SECRET-KEY-BASE-FOR-TESTING-SOME-SECRET-KEY-BASE-FOR-TESTING"
 
 defaults: &defaults
   working_directory: ~/transport
