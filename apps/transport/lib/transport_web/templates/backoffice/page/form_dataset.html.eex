@@ -44,9 +44,9 @@
     <%= dgettext("backoffice", "Dataset linked to an AOM") %>
     <div class="panel__content">
     <%= if is_nil(@dataset) || is_nil(@dataset.aom) || is_nil(@dataset.aom.insee_commune_principale) do %>
-      <%= live_render(@conn, TransportWeb.Live.CommuneField, session: %{insee: ""}) %>
+      <%= live_render(@conn, TransportWeb.Live.CommuneField, session: %{"insee" => ""}) %>
     <% else %>
-      <%= live_render(@conn, TransportWeb.Live.CommuneField, session: %{insee: @dataset.aom.insee_commune_principale}) %>
+      <%= live_render(@conn, TransportWeb.Live.CommuneField, session: %{"insee" => @dataset.aom.insee_commune_principale}) %>
     <% end %>
     </div>
     <p class="separator">
@@ -91,7 +91,7 @@
         </div>
 
         <div>
-          <%= live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{dataset_id: @dataset.id, locale: get_session(@conn, :locale)}) %>
+          <%= live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{"dataset_id" => @dataset.id, "locale" => get_session(@conn, :locale)}) %>
         </div>
 
         <div>
@@ -152,4 +152,5 @@
       </div>
     <% end %>
 </div>
+<%= csrf_meta_tag() %>
 <script src="/js/app.js"></script>

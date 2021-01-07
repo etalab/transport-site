@@ -66,7 +66,7 @@ To have an up to date database schema run `mix ecto.migrate`.
 #### Restoring the production database
 
 The production database does not contains any sensitive data, you can retreive it for dev purpose.
-* You can retreive the [latest clever-cloud backup](https://console.clever-cloud.com/organisations/orga_f33ebcbc-4403-4e4c-82f5-12305e0ecb1b/addons/addon_beebaa5e-c3a4-4c57-b124-cf9d1473450a) (you need some permissions to access it, if you don't have them, you can ask someone on the team to give you the database)
+* You can retrieve the [latest clever-cloud backup](https://console.clever-cloud.com/organisations/orga_f33ebcbc-4403-4e4c-82f5-12305e0ecb1b/addons/addon_beebaa5e-c3a4-4c57-b124-cf9d1473450a) (you need some permissions to access it, if you don't have them, you can ask someone on the team to give you the database)
 * On the clever-cloud website, under transport-site-postgresql, there is a Backups section with download links.
 * restore the downloaded backup on you database: `./restore_db.sh <path_to_the_backup>`
 

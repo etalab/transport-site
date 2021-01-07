@@ -14,7 +14,7 @@ defmodule TransportWeb.Live.ValidateDatasetView do
     """
   end
 
-  def mount(%{dataset_id: dataset_id, locale: locale}, socket) do
+  def mount(_params, %{"dataset_id" => dataset_id, "locale" => locale}, socket) do
     Gettext.put_locale(locale)
 
     new_socket =
