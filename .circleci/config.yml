@@ -89,6 +89,11 @@ jobs:
           root: ~/transport
           paths:
             - .
+      
+      - persist_to_workspace:
+          root: /usr/bin
+          paths: 
+            - git
 
       - save_cache:
           key: elixir-v8-{{ checksum "mix.lock" }}
@@ -96,7 +101,6 @@ jobs:
             - ~/transport/_build
             - ~/transport/deps
             - ~/.mix
-            - /usr/bin/git
 
   test_lint:
     <<: *defaults
