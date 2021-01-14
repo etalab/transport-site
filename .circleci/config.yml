@@ -45,9 +45,10 @@ jobs:
           keys:
             - elixir-v8-{{ checksum "mix.lock" }}
 
+      # TODO: remove this once https://github.com/etalab/transport-ops/issues/19 is solved
       - run:
           name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git && which git
+          command: apk add --update git
 
       - run:
           name: Install hex
@@ -90,11 +91,6 @@ jobs:
           paths:
             - .
       
-      - persist_to_workspace:
-          root: /usr/bin
-          paths: 
-            - git
-
       - save_cache:
           key: elixir-v8-{{ checksum "mix.lock" }}
           paths:
@@ -108,6 +104,10 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/transport
+
+      - run:
+          name: Install git (required if we use git-hosted hex packages)
+          command: apk add --update git
 
       - run:
           name: Run linters
@@ -135,6 +135,10 @@ jobs:
           at: ~/transport
 
       - run:
+          name: Install git (required if we use git-hosted hex packages)
+          command: apk add --update git
+
+      - run:
           name: Run dialyzer (static analysis)
           command: MIX_ENV=dev mix dialyzer
 
@@ -143,6 +147,10 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/transport
+
+      - run:
+          name: Install git (required if we use git-hosted hex packages)
+          command: apk add --update git
 
       - run:
           name: Run tests
@@ -158,6 +166,10 @@ jobs:
           at: ~/transport
 
       - run:
+          name: Install git (required if we use git-hosted hex packages)
+          command: apk add --update git
+
+      - run:
           name: Run tests
           command: |
             export SECRET_KEY_BASE=`mix phx.gen.secret`
@@ -171,6 +183,10 @@ jobs:
           at: ~/transport
 
       - run:
+          name: Install git (required if we use git-hosted hex packages)
+          command: apk add --update git
+
+      - run:
           name: Run tests
           command: |
             export SECRET_KEY_BASE=`mix phx.gen.secret`
@@ -182,6 +198,10 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/transport
+
+      - run:
+          name: Install git (required if we use git-hosted hex packages)
+          command: apk add --update git
 
       - run:
           name: Run tests
