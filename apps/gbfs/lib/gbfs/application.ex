@@ -13,6 +13,8 @@ defmodule GBFS.Application do
   def start(_type, _args) do
     children = [
       {Cachex, name: @cache_name},
+      # TODO: evaluate if we really need this - I believe we don't
+      {Phoenix.PubSub, [name: GBFS.PubSub, adapter: Phoenix.PubSub.PG2]},
       Endpoint
     ]
 
