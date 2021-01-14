@@ -20,7 +20,11 @@ defmodule TransportWeb.ConnCase do
     quote do
       # Import conveniences for testing with connections
       import Plug.Conn
-      import Phoenix.ConnTest
+      # NOTE: init_test_session delegates to Plug.Test as seen here,
+      # https://github.com/phoenixframework/phoenix/blob/v1.5.7/lib/phoenix/test/conn_test.ex#L253
+      # which is also imported, hence generating a compilation error.
+      # This is due to how we configured the various "cases" I believe, and we'll have to clean that up.
+      import Phoenix.ConnTest, except: [init_test_session: 2]
       import TransportWeb.Router.Helpers
 
       # The default endpoint for testing
