@@ -96,6 +96,7 @@ jobs:
             - ~/transport/_build
             - ~/transport/deps
             - ~/.mix
+            - /usr/bin/git
 
   test_lint:
     <<: *defaults
