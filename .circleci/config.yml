@@ -46,6 +46,10 @@ jobs:
             - elixir-v8-{{ checksum "mix.lock" }}
 
       - run:
+          name: Install git (required if we use git-hosted hex packages)
+          command: apt-get update && apt-get install -y git
+
+      - run:
           name: Install hex
           command: mix local.hex --force
       
