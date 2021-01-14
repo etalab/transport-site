@@ -47,7 +47,7 @@ jobs:
 
       - run:
           name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git
+          command: apk add --update openssh-client git 
 
       - run:
           name: Install hex
