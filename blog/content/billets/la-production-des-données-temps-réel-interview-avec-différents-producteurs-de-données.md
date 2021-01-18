@@ -61,7 +61,7 @@ Ce format utilise une méthode globale permettant de récupérer toutes les donn
  Ce flux temps réel peut contenir trois types d'information : 
 
 * `TripUpdate` qui correspond à la mise à jour des horaires de passage
-* `Alert`  qui génère des alertes de service
+* `Alert` qui génère des alertes de service
 * `VehiclePositions` qui renseigne la position des véhicules
 
 Certains producteurs proposent toutes ces informations dans un seul flux, comme [Zenbus](https://transport.data.gouv.fr/datasets?_utf8=%E2%9C%93&q=zenbus), tandis que d'autres préfèrent avoir un flux par type d'information. C'est le cas pour la [Communauté de l’Auxerrois](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) qui a publié un flux pour `TripUpdate`et un autre pour `VehiclePositions`.
@@ -76,19 +76,35 @@ Par exemple, pour les données de mise à jour des horaires (`TripUpdate`), pour
 Le SIRI est une norme définie par le Comité Européen de Normalisation et correspond à la norme [NeTEx](http://netex-cen.eu/) pour le temps réel. Elle caractérise des services temps réel dont les principaux sont : 
 
 * `Stop Monitoring` qui affiche les prochains passages
-* `Estimated Timetable` qui met à jour des horaires de passage)
+* `Estimated Timetable` qui met à jour des horaires de passage
 * `General Message` qui génère des alertes de service
 * `Vehicle Monitoring` qui renseigne la position des véhicules
 
+
+
+Les données sont transmises via le protocole [SOAP](https://fr.wikipedia.org/wiki/SOAP), à la demande (en mode `PULL`) ou sur abonnement (en mode `PUSH`)
+
+
+
 Tout comme le NeTEx, un profil doit être défini. C'est un **format autoporteur** mais les données ne sont **pas interopérables entre les profils** car les services définis sont sélectionnées avec les profils.
 
-* **Le SIRI Lite**
+* **Le SIRI Lite**https://web.pysae.com/blog/lom-et-ouverture-des-donnees-pour-le-transport-de-voyageurs<https://web.pysae.com/blog/lom-et-ouverture-des-donnees-pour-le-transport-de-voyageurs>
 
 Le SIRI Lite est un sous dérivé de SIRI qui ne contient que les informations suivantes afin de le rendre plus accessible : 
 
 * `StopMonitoring` qui affiche les prochains passages
 * `StopPointsDiscovery` / `LineDiscovery` qui fournit des informations sur le réseau
 * `GeneralMessage`  qui génère des alertes de service
+
+les données sont servies via une API http classique dans le format JSON
+
+<!--EndFragment-->
+
+
+
+
+
+- - -
 
 La production et diffusion des données temps réel en GTFS-RT, SIRI et SIRI Lite sur des portails à accès libre permettent aux Autorités Organisatrices de la Mobilité (AOM), à savoir l'autorité en charge de l’organisation du réseau de transport [](https://fr.wikipedia.org/wiki/Transports_urbains "Transports urbains")sur son territoire, d'être conforme à la réglementation. En effet, [la Loi d'Orientation des Mobilités](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000039666574/2020-12-30/) (LOM) promulguée le 24 décembre 2019  a fixé un cadre législatif pour l’ouverture des données temps servant à l'information voyageur. L'ouverture de données étant attendu au 1er décembre 2020. 
 
@@ -112,8 +128,10 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 source : [article de Pysae sur le temps r](https://web.pysae.com/blog/lom-et-ouverture-des-donnees-pour-le-transport-de-voyageurs)éel
 
-* **Pysae** ne produit que des données GTFS-RT tandis que **Zenbus et Ubitransport** produisent également des données au format SIRI et SIRI Lite. Ces deux services se basent sur le fichier théorique de leurs clients quand il existe ou produisent eux même le fichier GTFS. La génération des flux sortants par le serveur Zenbus est quasi instantanée avec une actualisation des données toutes les 3 secondes pour des véhicules qui roulent avec un terminal Android muni de l'application Zenbus Driver. 
-* **Kisio Digital, Cityway et Mecatran** ne produisent pas de données mais les normalise et les améliore à l'échelle locale comme régionale. Kisio Digital fournit, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des interprétations pour proposer des itinéraires de remplacement au format GTFS-RT ou SIRI tandis que Mecatran fournit toutes les informations pouvant être contenues dans un flux GTFS-RT à leurs clients. 
+* **Pysae** ne produit que des données GTFS-RT tandis que **Zenbus et Ubitransport** produisent également des données au format SIRI et SIRI Lite. Ces deux services se basent sur le fichier théorique de leurs clients quand il existe ou produisent eux même le fichier GTFS. 
+* **Kisio Digital, Cityway et Mecatran** ne produisent pas de données mais les normalisent et les améliorent à l'échelle locale comme régionale. Kisio Digital fournit, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des itinéraires de remplacement prenant en compte les informations temps réel tandis que Mecatran fournit toutes les informations pouvant être contenues dans un flux GTFS-RT à leurs clients
+
+  <!--EndFragment-->. 
 
 - - -
 
@@ -138,7 +156,7 @@ La difficulté principale repose sur l'absence de standard commun dans la qualit
 
 **Distribution des données temps réel**
 
-Les données fournies par les producteurs de données normalisées appartiennent aux clients. Ils permettent à leurs clients de contrôler l’accessibilité à ces données grâce à des clés pour accéder à leur API. Cela leur permet notamment d'avoir des statistiques sur le nombre de réutilisateurs et la fréquence de réutilisation. Certains redistribuent ces données à travers des interfaces comme des écrans dans les gares, des applications mobiles etc. ou des API comme Kisio. D'autres, comme Mecatran, entrent aussi en contact avec les réutilisateurs des données de leurs clients pour leur fournir une URL lorsque les clients ne veulent pas avoir le contrôle sur toute la distribution de leurs données. Zenbus met également à disposition les données de leurs clients directement sur le PAN, ce qui permet aux réutilisateurs de récupérer le flux de différents réseaux sur une seule plateforme. La communauté de l'Auxerrois récupère les données de leur fournisseur pour les redistribuer ensuite sur le PAN. La communauté renvoie tous leurs services de mobilité comme la billettique, leur service d'information voyageur vers [transport.data.gouv.fr](transport.data.gouv.fr) pour récupérer leurs données. 
+Les données fournies par les producteurs de données normalisées appartiennent aux clients. Ils permettent à leurs clients de contrôler l’accessibilité à ces données grâce à des clés pour accéder à leur API. Cela leur permet notamment d'avoir des statistiques sur le nombre de réutilisateurs et la fréquence de réutilisation. Certains redistribuent ces données à travers des interfaces comme des écrans dans les gares, des applications mobiles etc. ou des API comme Kisio. D'autres, comme Mecatran, entrent aussi en contact avec les réutilisateurs des données de leurs clients pour leur fournir une URL lorsque les clients ne veulent pas avoir le contrôle sur toute la distribution de leurs données. Zenbus met également à disposition les données de leurs clients directement sur le PAN, ce qui permet aux réutilisateurs de récupérer le flux de différents réseaux sur une seule plateforme. La communauté de l'Auxerrois récupère les données de leur fournisseur pour les redistribuer ensuite sur le PAN. La communauté renvoie tous leurs services de mobilité comme la billettique, leur service d'information voyageur vers[ leurs données publiées transport.data.gouv.fr](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) pour les récupérer. 
 
 - - -
 
