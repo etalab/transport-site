@@ -3,13 +3,17 @@ title: "La production des données temps réel pour les transports en commun "
 date: 2020-12-23T09:33:17.115Z
 tags:
   - retour d'expérience
-description: "\n\n\n"
+description: >+
+  Cet article a été réalisé à partir d'interviews effectuées auprès de
+  collectivités, producteurs et services de traitement de données temps réel
+  afin de mieux comprendre les enjeux de production et de diffusion de ces
+  données. 
+
+
 images:
   - /images/logo_zenbus_officiel.png
 ---
-Cet article a été réalisé à partir d'interviews effectuées auprès de collectivités, producteurs et services de traitement de données temps réel. 
-
-Il permet d'une part de connaître les différents formats de données supportés par le Point d'Accès National pour la diffusion de données temps-réel. 
+Cet article permet d'une part de connaître les différents formats de données supportés par le Point d'Accès National pour la diffusion de données temps-réel. 
 
 D'autre part, de mieux comprendre les enjeux autour de la production et la diffusion de ces données : 
 
@@ -33,10 +37,14 @@ D'autre part, de mieux comprendre les enjeux autour de la production et la diffu
 Il existe **trois niveaux de fraîcheur** pour les données relatives aux transports : 
 
 * **les horaires théoriques :** horaires prévisionnels diffusés sous forme d'heure ou de fréquence de passage. 
-* **les horaires adaptés :** modifications des horaires théoriques lorsqu'il y a des évènements modifiant les horaires et/ou itinéraires des véhicules. Par exemple, la RATP diffuse un plan de transport mise à jour en cas de grève, la SNCF livre un patch lorsqu'il y a des changements majeurs sur les horaires théoriques initialement transmis. Ces horaires ne peuvent toutefois pas être considérés comme étant en temps-réel. 
+* **les horaires adaptés :** modifications des horaires théoriques lorsqu'il y a des évènements modifiant les horaires et/ou itinéraires des véhicules. Certains producteurs produisent un plan de transport mise à jour en cas de grève ou de changements majeurs sur les horaires théoriques initialement transmis. Ces données peuvent prendre la forme d'un nouveau GTFS complet, simplement mis à jour, ou bien d'un "patch". Le patch correspond à un nouveau GTFS limité aux journées impactées. Ces horaires ne peuvent toutefois pas être considérés comme étant en temps-réel mais permettent d'avoir une meilleure information voyageur simplement
 * **les horaires temps réel :** état du trafic à l'instant. 
 
 Cet article traitera exclusivement des données temps-réel pour les transports en commun. 
+
+Ces données sont diffusés par le PAN dans la tuile "[Temps réel transport en commun](https://transport.data.gouv.fr/datasets?type=public-transit&filter=has_realtime)". 
+
+<!--EndFragment-->
 
 - - -
 
@@ -46,7 +54,7 @@ Les données temps réel permettent de fournir une information voyageur qui refl
 
 * **Le GTFS-RT (General Transit Feed Specification - realtime)**
 
-C'est un standard conçu par Google mais qui est désormais maintenu par une communauté open data. 
+C'est un standard conçu par Google mais qui est désormais maintenu de manière communautaire.
 
 Ce format utilise une méthode globale permettant de récupérer toutes les données d'un réseau en une requête. 
 
