@@ -54,7 +54,7 @@ Les données temps réel permettent de fournir une information voyageur qui refl
 
 * **Le GTFS-RT (General Transit Feed Specification - realtime)**
 
-C'est un standard conçu par Google mais qui est désormais maintenu de manière communautaire.
+C'est un standard conçu par Google mais qui est désormais maintenu de manière communautaire sous l'égide de MobilityData.
 
 Ce format utilise une méthode globale permettant de récupérer toutes les données d'un réseau en une requête. 
 
