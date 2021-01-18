@@ -86,7 +86,7 @@ Les données sont transmises via le protocole [SOAP](https://fr.wikipedia.org/w
 
 
 
-Tout comme le NeTEx, un profil doit être défini. C'est un **format autoporteur** mais les données ne sont **pas interopérables entre les profils** car les services définis sont sélectionnées avec les profils.
+Tout comme le NeTEx, un profil doit être défini. C'est un **format autoporteur** mais les données peuvent ne **pas interopérables entre les profils** lorsqu'ils ont des services définis différents. 
 
 * **Le SIRI Lite**https://web.pysae.com/blog/lom-et-ouverture-des-donnees-pour-le-transport-de-voyageurs<https://web.pysae.com/blog/lom-et-ouverture-des-donnees-pour-le-transport-de-voyageurs>
 
