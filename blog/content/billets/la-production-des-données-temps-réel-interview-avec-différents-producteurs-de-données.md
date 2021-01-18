@@ -3,35 +3,22 @@ title: "La production des données temps réel pour les transports en commun "
 date: 2020-12-23T09:33:17.115Z
 tags:
   - retour d'expérience
-description: >
-  Interview avec des collectivités, différents producteurs et services de
-  traitement de données temps réel afin de mieux comprendre les enjeux autour de
-  la production et la diffusion de ces données. 
+description: "\n\n\n"
 images:
   - /images/logo_zenbus_officiel.png
 ---
-**Personnes interviewées** 
+Cet article a été réalisé à partir d'interviews effectuées auprès de collectivités, producteurs et services de traitement de données temps réel. 
 
-*Producteurs* 
+Il permet d'une part de connaître les différents formats de données supportés par le Point d'Accès National pour la diffusion de données temps-réel. 
 
-* **[Zenbus](https://www.data.gouv.fr/fr/organizations/zenbus/), Olivier Deschasseaux co-fondateur en charge des partenariats, du marketing et de la communication.**\
-  Services de géolocalisation temps réel à partir de smartphones et production de données temps réel dans des formations normalisés (GTFS-RT et SIRI)
-* **[Pysae](https://web.pysae.com/), Maxime Cabanel Responsable grands comptes** \
-  Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV) clé en main pour les conducteurs de bus, les exploitants et les voyageurs. 
-* [Ubitransport](https://www.ubitransport.com/), Alexandre Cabanis Direction Marketing\
-  Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV) 
-* **[Kisio](https://kisio.com/) : Betrand Billoud et Laetitia Paternoster**\
-  Service d'accompagnement des acteurs de la mobilité pour créer,\
-  déployer et animer les services à la mobilité.
-* **[City Way](https://www.data.gouv.fr/fr/organizations/cityway/), Nely Escoffier Responsable centrale de mobilité *[Itinisère](https://www.itinisere.fr/)***\
-  Entreprise spécialisée dans le traitement des systèmes d’informations multimodaux (SIM) et la mise en œuvre de solutions numériques depuis une vingtaine d’année
-* **[Mecatran](https://www.data.gouv.fr/fr/organizations/mecatran/), Laurent Grégoire directeur technique et Nicolas Taillade directeur de la sociét**é\
-  Editeur de logiciel pour les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles 
+D'autre part, de mieux comprendre les enjeux autour de la production et la diffusion de ces données : 
 
-*Collectivités* 
-
-* **[Grand Poitiers](https://transport.data.gouv.fr/datasets?_utf8=%E2%9C%93&q=grand+poitiers), Nicolas Madignier gestionnaire de la data Mobilité Transport et du développement numérique à la Direction Mobilités**
-* **[Communauté de l’agglomération de l'Auxerrois](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/), François Meyer chef du service mobilité**
+* Pour qui sont produites ces données ;
+* Comment sont elles produites ;
+* Sous quels formats sont elles normalisées ;
+* Quelles sont les principales difficultés rencontrées lors de la production de ces données ; 
+* Comment sont-elles redistribuées aux clients ;
+* Comment les producteurs contrôlent la qualité des données. 
 
 - - -
 
@@ -69,7 +56,7 @@ Ce format utilise une méthode globale permettant de récupérer toutes les donn
 * `Alert`  qui génère des alertes de service
 * `VehiclePositions` qui renseigne la position des véhicules
 
-Certains producteurs proposent toutes ces informations dans un seul flux, comme [Zenbus](https://transport.data.gouv.fr/datasets?_utf8=%E2%9C%93&q=zenbus), tandis que d'autres préfèrent avoir un flux par type d'information. C'est le cas pour la [Communauté de l’Auxerrois](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) qui a publié un flux pour `TripUpdate `et un autre pour `VehiclePositions`.
+Certains producteurs proposent toutes ces informations dans un seul flux, comme [Zenbus](https://transport.data.gouv.fr/datasets?_utf8=%E2%9C%93&q=zenbus), tandis que d'autres préfèrent avoir un flux par type d'information. C'est le cas pour la [Communauté de l’Auxerrois](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) qui a publié un flux pour `TripUpdate`et un autre pour `VehiclePositions`.
 
 ![](/images/capturemls.png)
 
@@ -155,4 +142,37 @@ Le contrôle qualité a surtout lieu au niveau des données théoriques. Certain
 
 Grâce à la production des données temps réel, certaines collectivités comme la Communauté de l’Auxerrois ont constaté une augmentation de l'utilisation de leur application mobile. L'ouverture de ces données permet également aux producteurs d'améliorer la qualité de leurs services. Des réutilisateurs de données de Zenbus comme Cityway ou Mybus leur font des retours d'expérience leur permettant d'adapter les informations qu'ils fournissent à leurs besoins. 
 
+
+
 ### [](https://pad.incubateur.net/KnNm3ZtDSgORWg3fw92XJg#Prochains-passages "Prochains-passages")
+
+
+
+- - -
+
+
+
+- - -
+
+Cet article a été rédigé grâce aux retours d'expériences des collectivités, producteurs et services de traitement de données temps-réel suivants : 
+
+*Producteurs* 
+
+* **[Zenbus](https://www.data.gouv.fr/fr/organizations/zenbus/), Olivier Deschasseaux co-fondateur en charge des partenariats, du marketing et de la communication.**\
+  Services de géolocalisation temps réel à partir de smartphones et production de données temps réel dans des formations normalisés (GTFS-RT et SIRI)
+* **[Pysae](https://web.pysae.com/), Maxime Cabanel Responsable grands comptes** \
+  Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV) clé en main pour les conducteurs de bus, les exploitants et les voyageurs. 
+* [Ubitransport](https://www.ubitransport.com/), Alexandre Cabanis Direction Marketing\
+  Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV) 
+* **[Kisio](https://kisio.com/) : Betrand Billoud et Laetitia Paternoster**\
+  Service d'accompagnement des acteurs de la mobilité pour créer,\
+  déployer et animer les services à la mobilité.
+* **[City Way](https://www.data.gouv.fr/fr/organizations/cityway/), Nely Escoffier Responsable centrale de mobilité *[Itinisère](https://www.itinisere.fr/)***\
+  Entreprise spécialisée dans le traitement des systèmes d’informations multimodaux (SIM) et la mise en œuvre de solutions numériques depuis une vingtaine d’année
+* **[Mecatran](https://www.data.gouv.fr/fr/organizations/mecatran/), Laurent Grégoire directeur technique et Nicolas Taillade directeur de la sociét**é\
+  Editeur de logiciel pour les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles 
+
+*Collectivités* 
+
+* **[Grand Poitiers](https://transport.data.gouv.fr/datasets?_utf8=%E2%9C%93&q=grand+poitiers), Nicolas Madignier gestionnaire de la data Mobilité Transport et du développement numérique à la Direction Mobilités**
+* **[Communauté de l’agglomération de l'Auxerrois](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/), François Meyer chef du service mobilité**
