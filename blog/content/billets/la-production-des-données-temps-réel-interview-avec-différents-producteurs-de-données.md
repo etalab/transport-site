@@ -5,7 +5,7 @@ tags:
   - retour d'expérience
 description: >+
   Cet article a été réalisé à partir d'interviews effectuées auprès de
-  collectivités, producteurs et services de traitement de données temps réel
+  collectivités, producteurs et services de traitement de données temps-réel
   afin de mieux comprendre les enjeux de production et de diffusion de ces
   données. 
 
@@ -22,7 +22,7 @@ D'autre part, de mieux comprendre les enjeux autour de la production et la diffu
 * Sous quels formats sont elles normalisées ;
 * Quelles sont les principales difficultés rencontrées lors de la production de ces données ; 
 * Comment sont-elles redistribuées aux clients ;
-* Comment les producteurs contrôlent la qualité des données. 
+* Comment les producteurs évaluent la qualité de leurs données. 
 
 - - -
 
