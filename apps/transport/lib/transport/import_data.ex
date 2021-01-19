@@ -383,6 +383,7 @@ defmodule Transport.ImportData do
       is_gtfs_rt?(params["format"]) -> false
       is_gtfs?(params["format"]) -> true
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
+      is_format?(params["format"], ["NeTEx", "neptune"]) -> false
       is_format?(params["title"], "NeTEx") -> false
       is_gtfs?(params["description"]) -> true
       is_gtfs?(params["title"]) -> true
@@ -447,6 +448,9 @@ defmodule Transport.ImportData do
   end
 
   def is_netex?(s), do: is_format?(s, "NeTEx")
+
+  @spec is_neptune?(binary() | map()) :: boolean()
+  def is_neptune?(s), do: is_format?(s, "neptune")
 
   @doc """
   Check for licence, returns ["bad_license"] if the licence is not "odc-odbl"
@@ -528,6 +532,7 @@ defmodule Transport.ImportData do
     cond do
       is_gtfs_rt?(format) -> "gtfs-rt"
       is_netex?(format) -> "NeTEx"
+      is_neptune?(format) -> "Neptune"
       is_gtfs?(format) -> "GTFS"
       type == "public-transit" and not is_community_resource -> "GTFS"
       true -> format
