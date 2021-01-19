@@ -56,7 +56,7 @@ Les données temps réel permettent de fournir une information voyageur qui refl
 
 C'est un standard conçu par Google mais qui est désormais maintenu de manière communautaire sous l'égide de MobilityData.
 
-Ce format utilise une méthode globale permettant de récupérer toutes les données d'un réseau en une requête. 
+Ce format permet de récupérer toutes les données temps réel d'un réseau en une requête. 
 
  Ce flux temps réel peut contenir trois types d'information : 
 
