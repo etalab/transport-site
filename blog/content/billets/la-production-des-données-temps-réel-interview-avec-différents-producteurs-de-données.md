@@ -80,11 +80,7 @@ Le SIRI est une norme définie par le Comité Européen de Normalisation et corr
 * `General Message` qui génère des alertes de service
 * `Vehicle Monitoring` qui renseigne la position des véhicules
 
-
-
 Les données sont transmises via le protocole [SOAP](https://fr.wikipedia.org/wiki/SOAP), à la demande (en mode `PULL`) ou sur abonnement (en mode `PUSH`)
-
-
 
 Tout comme le NeTEx, un profil doit être défini. C'est un **format autoporteur** mais les données peuvent ne **pas interopérables entre les profils** lorsqu'ils ont des services définis différents. 
 
@@ -99,10 +95,6 @@ Le SIRI Lite est un sous dérivé de SIRI qui ne contient que les informations s
 les données sont servies via une API http classique dans le format JSON
 
 <!--EndFragment-->
-
-
-
-
 
 - - -
 
@@ -130,8 +122,6 @@ source : [article de Pysae sur le temps réel](https://web.pysae.com/blog/lom-et
 
 * **Pysae** ne produit que des données GTFS-RT tandis que **Zenbus et Ubitransport** produisent également des données au format SIRI et SIRI Lite. Ces deux services se basent sur le fichier théorique de leurs clients quand il existe ou produisent eux même le fichier GTFS. 
 * **Kisio Digital, Cityway et Mecatran** ne produisent pas de données mais les normalisent et les améliorent à l'échelle locale comme régionale. Kisio Digital fournit, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des itinéraires de remplacement prenant en compte les informations temps réel tandis que Mecatran fournit toutes les informations pouvant être contenues dans un flux GTFS-RT à leurs clients
-
-  <!--EndFragment-->. 
 
 - - -
 
@@ -168,15 +158,9 @@ Le contrôle qualité a surtout lieu au niveau des données théoriques. Certain
 
 Grâce à la production des données temps réel, certaines collectivités comme la Communauté de l’Auxerrois ont constaté une augmentation de l'utilisation de leur application mobile. L'ouverture de ces données permet également aux producteurs d'améliorer la qualité de leurs services. Des réutilisateurs de données de Zenbus comme Cityway ou Mybus leur font des retours d'expérience leur permettant d'adapter les informations qu'ils fournissent à leurs besoins. 
 
-
-
 ### [](https://pad.incubateur.net/KnNm3ZtDSgORWg3fw92XJg#Prochains-passages "Prochains-passages")
 
-
-
 - - -
-
-
 
 - - -
 
