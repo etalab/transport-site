@@ -24,6 +24,10 @@ html {
   max-width: none;
 }
 
+.dropdown-content {
+  min-width: 200px;
+}
+
 .home-top-content {
   display: flex;
   .home-title {
