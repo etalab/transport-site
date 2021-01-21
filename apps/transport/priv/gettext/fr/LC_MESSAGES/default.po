@@ -54,8 +54,8 @@ msgid "Publish a dataset"
 msgstr "Publier ou mettre à jour des données"
 
 #, elixir-format
-msgid "Publish or update a dataset"
-msgstr "Publier ou mettre à jour des données"
+msgid "Producer space"
+msgstr "Espace producteur"
 
 #, elixir-format
 msgid "Check a GTFS file's quality"

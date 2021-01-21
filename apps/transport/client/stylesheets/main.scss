@@ -27,7 +27,7 @@ main {
   border: 0;
 }
 
-// Note : to be removed when the new Design System is used
+// Note: to be removed when the new Design System is used
 .navbar__home {
   height: 70px;
 }
@@ -72,6 +72,23 @@ nav.navigation input {
 
 #menu > a {
   display: none;
+}
+
+// Note: to be removed when the new Design System is used
+#menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+// Note: to be removed when the new Design System is used
+.navbar__container {
+  nav {
+    flex-grow: 1;
+    .top-nav-links {
+      align-self: flex-end;
+    }
+  }
 }
 
 @media (max-width: $breakpoint-tablet) {

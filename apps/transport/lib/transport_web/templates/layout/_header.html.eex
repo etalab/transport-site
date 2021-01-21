@@ -13,7 +13,7 @@
         <a href="#" aria-label="<%= dgettext("page-index", "Close the menu") %>">
           <i class="fas icon--times-circle"></i>
         </a>
-        <ul class="nav__links">
+        <ul class="nav__links top-nav-links">
           <li class="nav__item">
             <%= link(gettext("Documentation"), to: "https://doc.transport.data.gouv.fr") %>
           </li>
@@ -41,8 +41,6 @@
                 </div>
             </div>
           </li>
-
-
         <% else %>
           <li class="nav__item">
             <a class="navigation__link navigation__link--login" href="<%= page_path @conn, :login, redirect_path: current_path(@conn) %>" role="link">
@@ -51,6 +49,17 @@
             </a>
           </li>
         <% end %>
+      </ul>
+      <ul class="nav__links pt-12">
+          <li class="nav__item">
+            <%= link(gettext("Check a GTFS file's quality"), to: "/validation") %>
+          </li>
+          <li class="nav__item">
+            <%= link(gettext("Producer space"), to: page_path(@conn, :producteurs)) %>
+          </li>
+          <li class="nav__item">
+            <%= link(gettext("Blog"), to: "https://blog.transport.data.gouv.fr") %>
+          </li>
       </ul>
     </div>
   </nav>
