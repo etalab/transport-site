@@ -17,35 +17,32 @@
           <li class="nav__item">
             <%= link(gettext("Documentation"), to: "https://doc.transport.data.gouv.fr") %>
           </li>
-          <li class="nav__item">
-            <%= link(gettext("Blog"), to: "https://blog.transport.data.gouv.fr") %>
-          </li>
-          <li class="nav__item">
-            <%= link(gettext("Check a GTFS file's quality"), to: "/validation") %>
-          </li>
-          <li class="nav__item">
-            <%= link(gettext("Publish or update a dataset"), to: resource_path(@conn, :choose_action)) %>
-          </li>
           <%= if assigns[:current_user] do %>
-            <%= if admin?(assigns[:current_user]) do %>
-              <li class="nav__item">
-                <%= link("Administration", to: "/backoffice") %>
-              </li>
-            <% end %>
             <li class="nav__item">
-              <%= if assigns[:current_user]["avatar_thumbnail"] do %>
-                <img src="<%= assigns[:current_user]["avatar_thumbnail"] %>" alt="Avatar" class="nav__avatar"> </img>
-            <% end %>
-            <span class="nav__username">
-              <%= assigns[:current_user]["first_name"] %> <%= assigns[:current_user]["last_name"] %>
-            </span>
+              <div class="dropdown">
+                <%= if assigns[:current_user]["avatar_thumbnail"] do %>
+                  <span class="nav__username">
+                    <%= assigns[:current_user]["first_name"] %> <%= assigns[:current_user]["last_name"] %>
+                  </span>
+                  <img src="<%= assigns[:current_user]["avatar_thumbnail"] %>" alt="" class="nav__avatar"> </img>
+                <% end %>
+                <div class="dropdown-content">
+
+
+                <%= if admin?(assigns[:current_user]) do %>
+                  <%= link("Administration", to: "/backoffice") %>
+                <% end %>
+
+                <a class="navigation__link nagivation__link--logout" href="<%= session_path @conn, :delete %>" role="link">
+                  <i class="icon icon--logout" aria-hidden="true"></i>
+                  <span><%= gettext "Sign Out" %></span>
+                </a>
+
+                </div>
+            </div>
           </li>
-          <li class="nav__item">
-            <a class="navigation__link nagivation__link--logout" href="<%= session_path @conn, :delete %>" role="link">
-              <i class="icon icon--logout" aria-hidden="true"></i>
-              <span><%= gettext "Sign Out" %></span>
-            </a>
-          </li>
+
+
         <% else %>
           <li class="nav__item">
             <a class="navigation__link navigation__link--login" href="<%= page_path @conn, :login, redirect_path: current_path(@conn) %>" role="link">
