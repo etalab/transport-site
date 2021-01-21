@@ -52,7 +52,24 @@
 
 <section class="section section-grey">
 <div class="container">
-  <div class="existing" id="datasets">
+
+<div id="pan-offer-descriptions">
+  <div class="pan-offer">Une plateforme GRATUITE et librement ACCESSIBLE</div>
+  <div class="pan-offer">
+    Un catalogue EXHAUSTIF de données ouvertes
+    <div class="pan-offer-subtitle pt-12">
+      Formats homogènes
+    </div>
+    <div class="pan-offer-subtitle">
+      Licences harmonisées
+    </div>
+  </div>
+    <div class="pan-offer">
+      Des outils pour faciliter leur réutilisation
+    </div>
+</div>
+
+  <div class="existing pt-48" id="datasets">
   <h1>Les données disponibles par thème</h1>
     <div class="grid">
       <a class="tile" href="<%= dataset_path(@conn, :index, type: "public-transit") %>">

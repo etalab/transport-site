@@ -97,6 +97,29 @@ html {
   }
 }
 
+#pan-offer-descriptions {
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch;
+  padding-bottom: 48px;
+  .pan-offer {
+    text-align: center;
+    padding: 1em;
+    margin: 1em;
+    font-size: 1.5em;
+    font-weight: bold;
+    background-color: white;
+    flex-basis: 150px;
+    flex-grow: 1;
+    border-radius: 5px;
+    box-shadow: 3px 3px 5px grey;
+    .pan-offer-subtitle {
+      font-size: 0.75em;
+      font-weight: normal;
+    }
+  }
+}
+
 a.tile {
   color: $almost-black;
   text-decoration: none;
