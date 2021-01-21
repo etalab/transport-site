@@ -46,10 +46,17 @@ html {
     .home-other-search-methods {
       display: flex;
       justify-content: space-between;
-      div {
-        flex-basis: 100px;
+      .search-method {
+        flex-basis: 200px;
         padding: 12px;
-        background-color: white;
+        a {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        img {
+          max-width: 75px;
+        }
       }
     }
   }

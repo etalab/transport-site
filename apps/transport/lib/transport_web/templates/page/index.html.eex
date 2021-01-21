@@ -19,14 +19,22 @@
       <div class="pt-48">
         <h4> Vous pouvez également </h4>
         <div class="home-other-search-methods">
-          <div class="panel">
-            Rechercher sur la carte
+          <div class="search-method">
+            <a href="<%= stats_path(@conn, :index)%>">
+              <img src="<%= static_path(@conn, "/images/icons/map.png") %>" alt="Cartes">
+              Rechercher sur la carte
+            </a>
           </div>
-          <div>
-            Utiliser notre API
+          <div class="search-method">
+            <a href="https://doc.transport.data.gouv.fr/reutilisateurs/apis/">
+              <img src="<%= static_path(@conn, "/images/icons/api.png") %>" alt="API">
+              Utiliser nos API
+            </a>
           </div>
-          <div>
-            <a href=<%= dataset_path @conn, :index, order_by: "most_recent" %>> <%= dgettext("page-index", "See newly added datasets") %> </a>
+          <div class="search-method">
+            <a href=<%= dataset_path @conn, :index, order_by: "most_recent" %>>
+              <img src="<%= static_path(@conn, "/images/icons/recently-added-datasets.png") %>" alt="API">
+              <%= dgettext("page-index", "See newly added datasets") %> </a>
       </div>
       </div></div>
       </div>
