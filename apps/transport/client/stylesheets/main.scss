@@ -18,13 +18,18 @@ main {
 }
 
 .hero h2 {
-  font-family: 'Source Sans Pro';
+  font-family: "Source Sans Pro";
   font-weight: 400;
   font-size: 1.25em;
 }
 
 .navbar {
   border: 0;
+}
+
+// Note : to be removed when the new Design System is used
+.navbar__home {
+  height: 70px;
 }
 
 .icon {
@@ -65,7 +70,7 @@ nav.navigation input {
   text-align: center;
 }
 
-#menu>a {
+#menu > a {
   display: none;
 }
 
@@ -88,7 +93,7 @@ nav.navigation input {
         background-color: $black;
         border-radius: 3px;
         height: 4px;
-        margin-bottom: .5vh;
+        margin-bottom: 0.5vh;
         width: 100%;
       }
     }
@@ -116,7 +121,7 @@ nav.navigation input {
       width: 100%;
       z-index: 10;
 
-      &>a {
+      & > a {
         display: flex;
         margin-left: 20px;
         margin-top: 20px;
@@ -138,7 +143,7 @@ nav.navigation input {
   }
 
   .hero__container {
-    padding: .5em 0;
+    padding: 0.5em 0;
   }
 }
 
