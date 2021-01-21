@@ -59,7 +59,7 @@ msgstr "Lieux de covoiturage"
 
 #, elixir-format
 msgid "Electric vehicles charging stations"
-msgstr "Bornes de recharges de véhicules électriques"
+msgstr "Bornes de recharges véhicules électriques"
 
 #, elixir-format
 msgid "Long distance coach"

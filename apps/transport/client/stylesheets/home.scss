@@ -100,6 +100,10 @@ html {
 a.tile {
   color: $almost-black;
   text-decoration: none;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 a.tile:hover {
@@ -109,11 +113,11 @@ a.tile:hover {
 
 .tile h3 {
   line-height: 1.25em;
-  margin-top: 0.5em;
 }
 
 .tile__icon {
   height: 4em;
+  margin-right: 2em;
 }
 
 .upcoming {
