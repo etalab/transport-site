@@ -15,7 +15,7 @@
         </a>
         <ul class="nav__links">
           <li class="nav__item">
-            <%= link(gettext("About"), to: "https://doc.transport.data.gouv.fr") %>
+            <%= link(gettext("Documentation"), to: "https://doc.transport.data.gouv.fr") %>
           </li>
           <li class="nav__item">
             <%= link(gettext("Blog"), to: "https://blog.transport.data.gouv.fr") %>

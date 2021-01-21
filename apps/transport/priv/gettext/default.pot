@@ -62,7 +62,7 @@ msgid "Check a GTFS file's quality"
 msgstr ""
 
 #, elixir-format
-msgid "About"
+msgid "Documentation"
 msgstr ""
 
 #, elixir-format
