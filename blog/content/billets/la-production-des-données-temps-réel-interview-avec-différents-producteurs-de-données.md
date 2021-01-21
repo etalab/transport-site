@@ -168,7 +168,7 @@ Cet article a été rédigé grâce aux retours d'expériences des collectivité
 
 *Producteurs* 
 
-* **[Zenbus](https://www.data.gouv.fr/fr/organizations/zenbus/), Olivier Deschasseaux co-fondateur en charge des partenariats, du marketing et de la communication.**\
+* **[Zenbus](https://www.data.gouv.fr/fr/organizations/zenbus/), Olivier Deschaseaux co-fondateur en charge des partenariats, du marketing et de la communication.**\
   Services de géolocalisation temps réel à partir de smartphones et production de données temps réel dans des formations normalisés (GTFS-RT et SIRI)
 * **[Pysae](https://web.pysae.com/), Maxime Cabanel Responsable grands comptes** \
   Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV) clé en main pour les conducteurs de bus, les exploitants et les voyageurs. 
