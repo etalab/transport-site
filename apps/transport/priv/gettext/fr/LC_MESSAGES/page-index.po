@@ -160,8 +160,8 @@ msgid "of the population"
 msgstr "de la population"
 
 #, elixir-format
-msgid "I’m producing transport data"
-msgstr "Je produis des données de transport"
+msgid "Are you producing transport data ?"
+msgstr "Vous produisez des données de transport ?"
 
 #, elixir-format
 msgid "I’m using transport data"

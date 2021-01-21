@@ -190,13 +190,7 @@
 </div>
 </div>
 </section>
-<section class="section">
-  <div class="container container-small">
-    <h2 class="text-center"><%= dgettext("page-index", "one platform title") %></h2>
-    <p><%= dgettext("page-index", "one platform description") %>.</p>
-  </div>
-</section>
-<section class="section section-grey" id="territory">
+<section class="section section" id="territory">
   <div class="container">
     <div class="row">
       <div class="section__description">
@@ -236,55 +230,39 @@
   </div>
 </div>
 </section>
-<section class="section">
-  <div class="container">
-    <div class="row">
-      <img class="illustration" src="<%= static_path(@conn, "/images/user.svg") %>" alt="" />
-      <div class="section__description">
-        <h2><%= dgettext("page-index", "I’m using transport data") %></h2>
-        <p><%= dgettext("page-index", "user description") %></p>
-        <div class="row">
-          <a class="button" href="https://doc.transport.data.gouv.fr/reutilisateurs/outils-pour-les-reutilisateurs"><%= dgettext("page-index", "See tools for reusers") %></a>
-          <a href="https://doc.transport.data.gouv.fr/reutilisateurs/licence-odbl-et-conditions-de-reutilisation"><%= dgettext("page-index", "Learn more about ODbL") %></a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 <section class="section section-grey">
   <div class="container">
     <div class="row">
       <div class="section__description">
-        <h2><%= dgettext("page-index", "I’m producing transport data") %></h2>
+        <h2><%= dgettext("page-index", "Are you producing transport data ?") %></h2>
         <p><%= dgettext("page-index", "producer description") |> raw() %></p>
         <div class="row">
-          <a class="button" href="https://www.data.gouv.fr/fr/admin/dataset/new/"><%= dgettext("page-index", "Publish my data") %></a>
-          <a href="https://doc.transport.data.gouv.fr/producteurs/comment-et-pourquoi-les-producteurs-de-donnees-utilisent-ils-le-pan"><%= dgettext("page-index", "Publication guide") %></a>
+          <a class="button" href="<%= page_path(@conn, :producteurs) %>" ><%= gettext("Producer space") %></a>
         </div>
       </div>
       <img class="illustration" src="<%= static_path(@conn, "/images/bus.svg") %>" alt="" />
-    </div>
-  </div>
-</section>
-<section class="section reusers">
-  <div class="container">
-    <h2 class="text-center"><%= dgettext("page-index", "Who is reusing data from") %> transport.data.gouv.fr ?</h2>
-    <div class="reusers__logos">
-      <%= for reuser <- @reusers do %>
-        <%= link(
+        </div>
+      </div>
+    </section>
+    <section class="section reusers">
+      <div class="container">
+        <h2 class="text-center"><%= dgettext("page-index", "Who is reusing data from") %> transport.data.gouv.fr ?</h2>
+        <div class="reusers__logos">
+          <%= for reuser <- @reusers do %>
+            <%= link(
                 img_tag(static_path(@conn, "/images/logos/#{reuser["image"]}"), alt: reuser["name"]),
                 to: reuser["website"]
             )
             %>
-      <% end %>
-    </div>
-    <p class="text-center"><%= dgettext("page-index", "reusers list description") %> <a href=""><%= link(dgettext("page-index", "Learn more"), to: "https://doc.transport.data.gouv.fr/reutilisateurs/outils-pour-les-reutilisateurs") %></a>.</p>
-  </div>
-</section>
-<section class="section section-grey mailing-list" id="mailing-list">
-  <div class="container container-small">
-    <h2 class="text-center"><%= dgettext("page-index", "I wish to follow the development of transport.data.gouv.fr")%></h2>
-    <form action="<%= @mailchimp_newsletter_url %>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+          <% end %>
+        </div>
+        <p class="text-center"><%= dgettext("page-index", "reusers list description") %> <a href=""><%= link(dgettext("page-index", "Learn more"), to: "https://doc.transport.data.gouv.fr/reutilisateurs/outils-pour-les-reutilisateurs") %></a>.</p>
+      </div>
+    </section>
+    <section class="section section-grey mailing-list" id="mailing-list">
+      <div class="container container-small">
+        <h2 class="text-center"><%= dgettext("page-index", "I wish to follow the development of transport.data.gouv.fr")%></h2>
+        <form action="<%= @mailchimp_newsletter_url %>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
             <div id="mc_embed_signup_scroll">
               <label for="mce-EMAIL"><%= dgettext("page-index", "Subscribe to our email newsletter to receive update") %></label>
               <div class="input__group">
@@ -302,8 +280,8 @@
        </form>
        <div class="mailing-list__social-container">
             <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" /><a href="https://twitter.com/transportdatafr"><%= dgettext("page-index", "Follow us on twitter") %></a>
-    <img src="<%= static_path(@conn, "/images/Slack_Mark.svg") %>" alt="Slack" /><a href="<%= Application.get_env(:transport, :join_our_slack_link) %>"><%= dgettext("page-index", "Join us on Slack") %></a>
-  </div>
-</div>
-</section>
-<script src="<%= static_path(@conn, "/js/autocomplete.js") %>"></script>
+        <img src="<%= static_path(@conn, "/images/Slack_Mark.svg") %>" alt="Slack" /><a href="<%= Application.get_env(:transport, :join_our_slack_link) %>"><%= dgettext("page-index", "Join us on Slack") %></a>
+      </div>
+    </div>
+  </section>
+  <script src="<%= static_path(@conn, "/js/autocomplete.js") %>"></script>
