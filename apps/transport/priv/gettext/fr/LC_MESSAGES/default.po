@@ -11,7 +11,7 @@ msgstr ""
 "Language: fr\n"
 
 msgid "Sign In"
-msgstr "S'identifier"
+msgstr "Se connecter"
 
 msgid "Sign Out"
 msgstr "Se déconnecter"
