@@ -21,9 +21,19 @@ defmodule Mix.Tasks.Clever.Logs do
       end_time |> DateTime.to_iso8601()
     ]
 
-    # Logger.info("Running clever #{cmd_args |> Enum.join(" ")}")
+    Logger.info("Running clever #{cmd_args |> Enum.join(" ")}")
     {output, _exit_code = 0} = System.cmd("clever", cmd_args)
-    output
+
+    logs = output |> String.split("\n")
+
+    # safety check to reduce the risk of missing logs
+    if Enum.count(logs) > 990 do
+      Mix.raise(
+        "Fetching near or more than 1000 lines of logs at once means you are going to miss some data (https://github.com/CleverCloud/clever-tools/issues/429).\n\nPlease reduce the span_size_in_seconds!"
+      )
+    end
+
+    logs
   end
 
   def run(_args) do
@@ -41,17 +51,9 @@ defmodule Mix.Tasks.Clever.Logs do
 
             false ->
               end_time = DateTime.add(state.start_time, span_size_in_seconds, :second)
-              logs = fetch_logs(app, state.start_time, end_time) |> String.split("\n")
+              logs = fetch_logs(app, state.start_time, end_time)
 
-              if Enum.count(logs) > 990 do
-                Mix.raise(
-                  "Fetching near or more than 1000 lines of logs at once means you are going to miss some data (https://github.com/CleverCloud/clever-tools/issues/429).\n\nPlease reduce the span_size_in_seconds!"
-                )
-              end
-
-              {seen, unseen} = logs |> Enum.split_with(&MapSet.member?(state.seen_lines, &1))
-
-              # Logger.info("#{seen |> Enum.count()} seen lines, #{unseen |> Enum.count()} unseen lines")
+              {_seen, unseen} = logs |> Enum.split_with(&MapSet.member?(state.seen_lines, &1))
 
               {
                 logs,
