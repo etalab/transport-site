@@ -1,10 +1,18 @@
 defmodule Mix.Tasks.Clever.Logs do
+  @shortdoc "Fetches logs from CleverCloud"
+
   @moduledoc """
   The CleverCloud logs command currently has strong limitations, including a maximum of
   1000 lines of logs per command invocation (https://github.com/CleverCloud/clever-tools/issues/429)
   and a lack of auto-pagination.
 
   This task provides a minimal ability to fetch logs from the platform.
+
+  How to use:
+
+  ```
+  mix clever.logs --since "2021-01-25T04:00:00Z" --before "2021-01-25T04:10:00Z" --alias "transport-site"
+  ```
   """
 
   require Logger
@@ -36,31 +44,60 @@ defmodule Mix.Tasks.Clever.Logs do
     logs
   end
 
-  def run(_args) do
-    start_time = DateTime.utc_now() |> DateTime.add((-1 * 60 * 60 * 24) |> round(), :second)
-    app = "transport-site"
+  def default_start_time,
+    do: DateTime.utc_now() |> DateTime.add((-1 * 60 * 60 * 24) |> round(), :second) |> DateTime.to_iso8601()
+
+  def default_end_time, do: DateTime.utc_now() |> DateTime.to_iso8601()
+
+  def prep_args(args) do
+    {options, _rest} = OptionParser.parse!(args, strict: [since: :string, before: :string, alias: :string])
+
+    options =
+      options
+      |> Keyword.put_new(
+        :since,
+        default_start_time()
+      )
+      |> Keyword.put_new(
+        :before,
+        default_end_time()
+      )
+
+    {:ok, start_time, 0} = options[:since] |> DateTime.from_iso8601()
+    {:ok, end_time, 0} = options[:before] |> DateTime.from_iso8601()
+
+    unless options[:alias] do
+      Mix.raise("Switch --alias is required")
+    end
+
+    {start_time, end_time, options |> Keyword.fetch!(:alias)}
+  end
+
+  def run(args) do
+    {start_time, end_time, app} = prep_args(args)
+
+    Logger.info("Fetching logs from #{start_time} to #{end_time}")
+
     span_size_in_seconds = 3 * 60
 
     logs =
       Stream.resource(
         fn -> %{start_time: start_time, seen_lines: MapSet.new()} end,
         fn state ->
-          case state.start_time > DateTime.utc_now() do
-            true ->
-              {:halt, nil}
+          if state.start_time > end_time do
+            {:halt, nil}
+          else
+            end_time = DateTime.add(state.start_time, span_size_in_seconds, :second)
+            logs = fetch_logs(app, state.start_time, end_time)
 
-            false ->
-              end_time = DateTime.add(state.start_time, span_size_in_seconds, :second)
-              logs = fetch_logs(app, state.start_time, end_time)
+            {_seen, unseen} = logs |> Enum.split_with(&MapSet.member?(state.seen_lines, &1))
 
-              {_seen, unseen} = logs |> Enum.split_with(&MapSet.member?(state.seen_lines, &1))
-
-              {
-                logs,
-                state
-                |> Map.put(:start_time, end_time)
-                |> Map.put(:seen_lines, state.seen_lines |> MapSet.union(MapSet.new(unseen)))
-              }
+            {
+              logs,
+              state
+              |> Map.put(:start_time, end_time)
+              |> Map.put(:seen_lines, state.seen_lines |> MapSet.union(MapSet.new(unseen)))
+            }
           end
         end,
         fn _ -> nil end
