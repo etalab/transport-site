@@ -35,7 +35,7 @@ defmodule Mix.Tasks.Clever.Logs do
     ]
 
     Logger.info("Running clever #{cmd_args |> Enum.join(" ")}")
-    {output, _exit_code = 0} = System.cmd("clever", cmd_args)
+    {output, _exit_code = 0} = System.cmd("clever", cmd_args, stderr_to_stdout: true)
 
     logs = output |> String.split("\n")
 
