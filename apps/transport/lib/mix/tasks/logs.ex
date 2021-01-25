@@ -49,8 +49,14 @@ defmodule Mix.Tasks.Clever.Logs do
     logs
   end
 
-  def default_start_time,
-    do: DateTime.utc_now() |> DateTime.add((-1 * 60 * 60 * 24) |> round(), :second) |> DateTime.to_iso8601()
+  def default_start_time do
+    now = DateTime.utc_now()
+    span = round(-1 * 60 * 60 * 24)
+
+    now
+    |> DateTime.add(span, :second)
+    |> DateTime.to_iso8601()
+  end
 
   def default_end_time, do: DateTime.utc_now() |> DateTime.to_iso8601()
 
