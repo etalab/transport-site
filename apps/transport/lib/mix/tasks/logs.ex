@@ -6,13 +6,18 @@ defmodule Mix.Tasks.Clever.Logs do
   1000 lines of logs per command invocation (https://github.com/CleverCloud/clever-tools/issues/429)
   and a lack of auto-pagination.
 
-  This task provides a minimal ability to fetch logs from the platform.
+  This mix task provides a minimal ability to fetch logs from the platform.
 
   How to use:
 
   ```
-  mix clever.logs --since "2021-01-25T04:00:00Z" --before "2021-01-25T04:10:00Z" --alias "transport-site"
+  mix clever.logs --since "2021-01-25T04:00:00Z" --before "2021-01-25T04:10:00Z" --alias "the-app"
   ```
+
+  The switches mimic the CleverCloud logs ones:
+  * `--since`: start time (ISO8601 Z). Defaults to "24 hours ago".
+  * `--before`: end time (ISO8601 Z). Defaults to "now".
+  * `--alias`: name of the CleverCloud app.
   """
 
   require Logger
