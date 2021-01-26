@@ -23,10 +23,10 @@ defmodule Mix.Tasks.Clever.Logs do
   require Logger
   use Mix.Task
 
-  def fetch_log_page(app, start_time) do
+  def fetch_log_page(app, end_time) do
     # must be tuned so that we get close to 1000 logs at each call to maximize throughput
     span_size_in_seconds = 10 * 60
-    end_time = DateTime.add(start_time, span_size_in_seconds, :second)
+    start_time = DateTime.add(end_time, -1 * span_size_in_seconds, :second)
 
     cmd_args = [
       "logs",
@@ -38,7 +38,7 @@ defmodule Mix.Tasks.Clever.Logs do
       end_time |> DateTime.to_iso8601()
     ]
 
-    Logger.info("Running clever #{cmd_args |> Enum.join(" ")}")
+    Logger.info("Extracting logs with clever #{cmd_args |> Enum.join(" ")}")
     {output, _exit_code = 0} = System.cmd("clever", cmd_args, stderr_to_stdout: true)
 
     logs =
@@ -46,6 +46,7 @@ defmodule Mix.Tasks.Clever.Logs do
       |> String.split("\n")
       |> Enum.map(&String.trim/1)
       |> Enum.filter(&(&1 != ""))
+      |> Enum.reject(&String.starts_with?(&1, "Waiting for application logs"))
 
     logs
   end
@@ -85,35 +86,37 @@ defmodule Mix.Tasks.Clever.Logs do
     {start_time, end_time, options |> Keyword.fetch!(:alias)}
   end
 
-  def build_next_start_time(logs) do
-    last_log = logs |> List.last()
-    last_timestamp = last_log |> String.split(" ") |> List.first() |> String.trim_trailing(":")
-    {:ok, last_timestamp, 0} = DateTime.from_iso8601(last_timestamp)
-    DateTime.add(last_timestamp, -1, :second)
+  def build_next_end_time(logs) do
+    timestamped_log = logs |> Enum.at(0)
+    timestamp = timestamped_log |> String.split(" ") |> List.first() |> String.trim_trailing(":")
+    {:ok, timestamp, 0} = DateTime.from_iso8601(timestamp)
+    DateTime.add(timestamp, +1, :second)
   end
 
   def extract_log_page_and_update_state(app, state) do
-    logs = fetch_log_page(app, state.start_time)
+    logs = fetch_log_page(app, state.end_time)
     {_seen, unseen} = logs |> Enum.split_with(&MapSet.member?(state.seen_lines, &1))
 
     {
-      logs,
+      logs |> Enum.reverse(),
       state
-      |> Map.put(:start_time, build_next_start_time(logs))
+      |> Map.put(:end_time, build_next_end_time(logs))
       |> Map.put(:seen_lines, state.seen_lines |> MapSet.union(MapSet.new(unseen)))
     }
   end
 
   def run(args) do
-    {start_time, end_time, app} = prep_args(args)
+    {original_start_time, original_end_time, app} = prep_args(args)
 
-    Logger.info("Fetching logs from #{start_time} to #{end_time}")
+    Logger.info("Fetching logs from #{original_start_time} to #{original_end_time}")
 
+    # extract the logs in backward fashion, because clever cloud CLI currently
+    # treats the --before as the starting point
     logs =
       Stream.resource(
-        fn -> %{start_time: start_time, seen_lines: MapSet.new()} end,
+        fn -> %{end_time: original_end_time, seen_lines: MapSet.new()} end,
         fn state ->
-          if state.start_time > end_time do
+          if state.end_time < original_start_time do
             {:halt, nil}
           else
             extract_log_page_and_update_state(app, state)
@@ -123,7 +126,7 @@ defmodule Mix.Tasks.Clever.Logs do
       )
 
     logs
-    |> Stream.each(&IO.puts(&1))
-    |> Stream.run()
+    |> Enum.reverse()
+    |> Enum.each(&IO.puts(&1))
   end
 end
