@@ -114,7 +114,7 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 **Production et normalisation des données temps réel**
 
-* **Ubitransport, Zenbus et Pysae** génèrent un flux sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Ces données servent à l'information voyageur et à la supervision des transports en commun pour les responsables d'exploitations. Elles sont produites grâce à des systèmes embarquées dans les véhicules.
+* **Ubitransport, Zenbus et Pysae génèrent un flux sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Ces données servent à l'information voyageur et à la supervision des transports en commun pour les responsables d'exploitations. Elles sont produites grâce à des systèmes embarquées dans les véhicules.**
 
 ![](https://assets.website-files.com/5ef534afcd35bac5a2a84fee/5ef60dc501e339c795e50c18_saeiv_schema.png "Production et diffusion des données temps réel par Pysae")
 
@@ -169,7 +169,7 @@ Cet article a été rédigé grâce aux retours d'expériences des collectivité
 *Producteurs* 
 
 * **[Zenbus](https://www.data.gouv.fr/fr/organizations/zenbus/), Olivier Deschaseaux co-fondateur en charge des partenariats, du marketing et de la communication.**\
-  Services de géolocalisation temps réel à partir de smartphones et production de données temps réel dans des formations normalisés (GTFS-RT et SIRI)
+  Services de géolocalisation temps réel à partir de smartphones et[ production de données temps réel dans des formats normalisés](https://zenbus.fr/LOM.pdf) (GTFS-RT et SIRI)
 * **[Ubitransport](https://www.ubitransport.com/)**, Alexandre Cabanis Direction Marketing\
   Solutions intelligentes pour optimiser les réseaux de transport public : billetique / monétique, SAEIV et data 
 * **[Kisio](https://kisio.com/) : Betrand Billoud et Laetitia Paternoster**\
