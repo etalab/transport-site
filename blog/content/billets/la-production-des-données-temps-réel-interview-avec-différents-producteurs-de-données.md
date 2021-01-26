@@ -116,9 +116,9 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 * **Ubitransport, Zenbus et Pysae génèrent un flux sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Ces données servent à l'information voyageur et à la supervision des transports en commun pour les responsables d'exploitations. Elles sont produites grâce à des systèmes embarquées dans les véhicules.**
 
-![](https://assets.website-files.com/5ef534afcd35bac5a2a84fee/5ef60dc501e339c795e50c18_saeiv_schema.png "Production et diffusion des données temps réel par Pysae")
+![](/images/schema-1-.png "Production et diffusion des données temps réel par Pysae")
 
-source : [article de Pysae sur le temps réel](https://web.pysae.com/blog/lom-et-ouverture-des-donnees-pour-le-transport-de-voyageurs)
+source : [](https://web.pysae.com/blog/lom-et-ouverture-des-donnees-pour-le-transport-de-voyageurs)Zenbus
 
 * **Pysae** ne produit que des données GTFS-RT tandis que **Zenbus et Ubitransport** produisent également des données au format SIRI et SIRI Lite. Ces deux services se basent sur le fichier théorique de leurs clients quand il existe ou produisent eux même le fichier GTFS. 
 * **Kisio Digital, Cityway et Mecatran** ne produisent pas de données mais les normalisent et les améliorent à l'échelle locale comme régionale. Kisio Digital fournit, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des itinéraires de remplacement prenant en compte les informations temps réel tandis que Mecatran fournit toutes les informations pouvant être contenues dans un flux GTFS-RT à leurs clients
