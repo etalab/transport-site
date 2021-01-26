@@ -114,7 +114,7 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 **Production et normalisation des données temps réel**
 
-* **Ubitransport, Zenbus et Pysae génèrent un flux sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Ces données servent à l'information voyageur et à la supervision des transports en commun pour les responsables d'exploitations. Elles sont produites grâce à des systèmes embarquées dans les véhicules.**
+* **Ubitransport, Zenbus et Pysae** génèrent un flux sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Ces données servent à l'information voyageur et à la supervision des transports en commun pour les responsables d'exploitations. Elles sont produites grâce à des systèmes embarquées dans les véhicules.
 
 ![](/images/schema-1-.png "Production et diffusion des données temps réel par Pysae")
 
