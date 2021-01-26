@@ -23,7 +23,11 @@ defmodule Mix.Tasks.Clever.Logs do
   require Logger
   use Mix.Task
 
-  def fetch_logs(app, start_time, end_time) do
+  def fetch_log_page(app, start_time) do
+    # must be tuned so that we get close to 1000 logs at each call to maximize throughput
+    span_size_in_seconds = 10 * 60
+    end_time = DateTime.add(start_time, span_size_in_seconds, :second)
+
     cmd_args = [
       "logs",
       "--alias",
@@ -37,14 +41,11 @@ defmodule Mix.Tasks.Clever.Logs do
     Logger.info("Running clever #{cmd_args |> Enum.join(" ")}")
     {output, _exit_code = 0} = System.cmd("clever", cmd_args, stderr_to_stdout: true)
 
-    logs = output |> String.split("\n")
-
-    # safety check to reduce the risk of missing logs
-    if Enum.count(logs) > 990 do
-      Mix.raise(
-        "Fetching near or more than 1000 lines of logs at once means you are going to miss some data (https://github.com/CleverCloud/clever-tools/issues/429).\n\nPlease reduce the span_size_in_seconds!"
-      )
-    end
+    logs =
+      output
+      |> String.split("\n")
+      |> Enum.map(&String.trim/1)
+      |> Enum.filter(&(&1 != ""))
 
     logs
   end
@@ -84,12 +85,29 @@ defmodule Mix.Tasks.Clever.Logs do
     {start_time, end_time, options |> Keyword.fetch!(:alias)}
   end
 
+  def build_next_start_time(logs) do
+    last_log = logs |> List.last()
+    last_timestamp = last_log |> String.split(" ") |> List.first() |> String.trim_trailing(":")
+    {:ok, last_timestamp, 0} = DateTime.from_iso8601(last_timestamp)
+    DateTime.add(last_timestamp, -1, :second)
+  end
+
+  def extract_log_page_and_update_state(app, state) do
+    logs = fetch_log_page(app, state.start_time)
+    {_seen, unseen} = logs |> Enum.split_with(&MapSet.member?(state.seen_lines, &1))
+
+    {
+      logs,
+      state
+      |> Map.put(:start_time, build_next_start_time(logs))
+      |> Map.put(:seen_lines, state.seen_lines |> MapSet.union(MapSet.new(unseen)))
+    }
+  end
+
   def run(args) do
     {start_time, end_time, app} = prep_args(args)
 
     Logger.info("Fetching logs from #{start_time} to #{end_time}")
-
-    span_size_in_seconds = 3 * 60
 
     logs =
       Stream.resource(
@@ -98,17 +116,7 @@ defmodule Mix.Tasks.Clever.Logs do
           if state.start_time > end_time do
             {:halt, nil}
           else
-            end_time = DateTime.add(state.start_time, span_size_in_seconds, :second)
-            logs = fetch_logs(app, state.start_time, end_time)
-
-            {_seen, unseen} = logs |> Enum.split_with(&MapSet.member?(state.seen_lines, &1))
-
-            {
-              logs,
-              state
-              |> Map.put(:start_time, end_time)
-              |> Map.put(:seen_lines, state.seen_lines |> MapSet.union(MapSet.new(unseen)))
-            }
+            extract_log_page_and_update_state(app, state)
           end
         end,
         fn _ -> nil end
