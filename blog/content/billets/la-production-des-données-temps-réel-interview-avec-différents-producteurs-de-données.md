@@ -180,7 +180,7 @@ Cet article a été rédigé grâce aux retours d'expériences des collectivité
 * **[Mecatran](https://www.data.gouv.fr/fr/organizations/mecatran/), Laurent Grégoire directeur technique et Nicolas Taillade directeur de la sociét**é\
   Editeur de logiciel pour les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles 
 * **[Pysae](https://web.pysae.com/), Maxime Cabanel Responsable grands comptes** \
-  Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV) clé en main pour les conducteurs de bus, les exploitants et les voyageurs. 
+  [Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV)](https://web.pysae.com/blog/lom-et-ouverture-des-donnees-pour-le-transport-de-voyageurs) clé en main pour les conducteurs de bus, les exploitants et les voyageurs. 
 
 *Collectivités* 
 
