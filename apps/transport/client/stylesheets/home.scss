@@ -6,6 +6,7 @@ html {
   background: #fff url("/images/transport.svg") center bottom no-repeat;
   background-size: cover;
   height: calc(100vh - 100px);
+  min-height: 800px;
 }
 
 .home-hero .hero__container {
@@ -20,8 +21,8 @@ html {
 }
 
 .hero form {
-  margin: 0;
-  max-width: none;
+  margin: 0 auto;
+  max-width: 400px;
 }
 
 .dropdown-content {
@@ -30,8 +31,10 @@ html {
 
 .home-top-content {
   display: flex;
+  flex-wrap: wrap;
   .home-title {
     flex-basis: 50%;
+    min-width: 350px;
     padding-right: 96px;
     h1 {
       font-size: 2.5em;
@@ -44,6 +47,7 @@ html {
   }
   .home-search {
     flex-basis: 50%;
+    min-width: 350px;
     padding-top: 24px;
     padding-left: 48px;
     border-left: 5px solid var(--theme-primary);
@@ -62,6 +66,26 @@ html {
           max-width: 75px;
         }
       }
+    }
+  }
+}
+
+@media (max-width: 1250px) {
+  .home-top-content {
+    flex-direction: column;
+    text-align: center;
+    .home-title {
+      padding-right: 0;
+      h2 {
+        margin-top: 1em;
+      }
+    }
+    .home-search {
+      border: none;
+      padding-left: 0px;
+    }
+    .search-method {
+      background-color: white;
     }
   }
 }

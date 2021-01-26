@@ -1,18 +1,20 @@
 <header class="navbar">
   <div class="navbar__container">
-    <%= link(img_tag("/images/logo-header.svg", alt: gettext("transport.data.gouv.fr"), class: "navbar__logo-mariane"), to: "/", class: "navbar__home") %>
-    <%= link(img_tag("/images/logo-black.svg", alt: gettext("transport.data.gouv.fr"), class: "navbar__logo-black"), to: "/", class: "navbar__home") %>
+    <a href="/" class="navbar__home">
+      <%= img_tag("/images/logo-header.svg", alt: gettext("transport.data.gouv.fr"), class: "navbar__logo-mariane") %>
+      <%= img_tag("/images/logo-black.svg", alt: gettext("transport.data.gouv.fr"), class: "navbar__logo-black") %>
+    </a>
     <nav role="navigation">
       <a href="#menu">
         <div class="nav__hamburger">
-          <div>&nbsp;</div>
-          <div>&nbsp;</div>
-          <div>&nbsp;</div>
+          <div></div>
+          <div></div>
+          <div></div>
         </div>
       </a>
       <div id="menu">
         <a href="#" aria-label="<%= dgettext("page-index", "Close the menu") %>">
-          <i class="fas icon--times-circle"></i>
+          <i class="fas icon--times-circle"></i>x
         </a>
         <ul class="nav__links top-nav-links">
           <li class="nav__item">

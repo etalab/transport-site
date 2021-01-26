@@ -65,6 +65,19 @@ nav.navigation input {
   margin-right: 1em;
 }
 
+.navbar__logo-mariane {
+  height: 100%;
+  margin-right: 1.5em;
+}
+
+.navbar__logo-black {
+  max-width: 300px;
+  height: 100%;
+  @media (max-width: $breakpoint-tablet) {
+    display: none;
+  }
+}
+
 .button {
   text-align: center;
 }
