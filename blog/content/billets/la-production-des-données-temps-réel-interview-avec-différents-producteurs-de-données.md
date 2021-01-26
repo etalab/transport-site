@@ -114,7 +114,7 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 **Production et normalisation des données temps réel**
 
-* **Zenbus, Ubitransport et Pysae** génèrent un flux sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Ces données servent à l'information voyageur et à la supervision des transports en commun pour les responsables d'exploitations. Elles sont produites grâce à des systèmes embarquées dans les véhicules.
+* **Ubitransport, Zenbus et Pysae** génèrent un flux sur le fonctionnement réel d’une exploitation de transport de voyageurs par rapport à une offre de transport théorique. Ces données servent à l'information voyageur et à la supervision des transports en commun pour les responsables d'exploitations. Elles sont produites grâce à des systèmes embarquées dans les véhicules.
 
 ![](https://assets.website-files.com/5ef534afcd35bac5a2a84fee/5ef60dc501e339c795e50c18_saeiv_schema.png "Production et diffusion des données temps réel par Pysae")
 
@@ -146,7 +146,7 @@ La difficulté principale repose sur l'absence de standard commun dans la qualit
 
 **Distribution des données temps réel**
 
-Les données fournies par les producteurs de données normalisées appartiennent aux clients. Ils permettent à leurs clients de contrôler l’accessibilité à ces données grâce à des clés pour accéder à leur API. Cela leur permet notamment d'avoir des statistiques sur le nombre de réutilisateurs et la fréquence de réutilisation. Certains redistribuent ces données à travers des interfaces comme des écrans dans les gares, des applications mobiles etc. ou des API comme Kisio. D'autres, comme Mecatran, entrent aussi en contact avec les réutilisateurs des données de leurs clients pour leur fournir une URL lorsque les clients ne veulent pas avoir le contrôle sur toute la distribution de leurs données. Zenbus met également à disposition les données de leurs clients directement sur le PAN, ce qui permet aux réutilisateurs de récupérer le flux de différents réseaux sur une seule plateforme. La communauté de l'Auxerrois récupère les données de leur fournisseur pour les redistribuer ensuite sur le PAN. La communauté de l'Auxerrois renvoie tous leurs services de mobilité comme la billettique, leur service d'information voyageur vers[ leurs données publiées transport.data.gouv.fr](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) pour les récupérer. 
+Les données fournies par les producteurs de données normalisées appartiennent aux clients. Ils permettent à leurs clients de contrôler l’accessibilité à ces données grâce à des clés pour accéder à leur API. Cela leur permet notamment d'avoir des statistiques sur le nombre de réutilisateurs et la fréquence de réutilisation. Certains redistribuent ces données à travers des interfaces comme des écrans dans les gares, des applications mobiles etc. ou des API comme Kisio. D'autres, comme Mecatran, entrent aussi en contact avec les réutilisateurs des données de leurs clients pour leur fournir une URL lorsque les clients ne veulent pas avoir le contrôle sur toute la distribution de leurs données. Zenbus met également à disposition les données de leurs clients directement sur le PAN, ce qui permet aux réutilisateurs de récupérer le flux de différents réseaux sur une seule plateforme. La communauté de l'Auxerrois récupère les données de leur fournisseur, Ubitransport, pour les redistribuer ensuite sur le PAN. La communauté de l'Auxerrois renvoie tous leurs services de mobilité comme la billettique, leur service d'information voyageur vers[ leurs données publiées transport.data.gouv.fr](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) pour les récupérer. 
 
 - - -
 
@@ -172,8 +172,8 @@ Cet article a été rédigé grâce aux retours d'expériences des collectivité
   Services de géolocalisation temps réel à partir de smartphones et production de données temps réel dans des formations normalisés (GTFS-RT et SIRI)
 * **[Pysae](https://web.pysae.com/), Maxime Cabanel Responsable grands comptes** \
   Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV) clé en main pour les conducteurs de bus, les exploitants et les voyageurs. 
-* [Ubitransport](https://www.ubitransport.com/), Alexandre Cabanis Direction Marketing\
-  Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV) 
+* **[Ubitransport](https://www.ubitransport.com/)**, Alexandre Cabanis Direction Marketing\
+  Solutions intelligentes pour optimiser les réseaux de transport public : billetique / monétique, SAEIV et data 
 * **[Kisio](https://kisio.com/) : Betrand Billoud et Laetitia Paternoster**\
   Service d'accompagnement des acteurs de la mobilité pour créer,\
   déployer et animer les services à la mobilité.
