@@ -67,7 +67,7 @@ defmodule Transport.ImportData do
     validate_all_resources()
   end
 
-  def refresh_places() do
+  def refresh_places do
     Logger.info("Refreshing places...")
     # NOTE: I could not find a way to call "refresh_places()" directly
     {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW places;")
