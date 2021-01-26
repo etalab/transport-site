@@ -23,6 +23,12 @@ defmodule Mix.Tasks.Clever.Logs do
   require Logger
   use Mix.Task
 
+  @doc """
+  Fetch one page of logs using the `clever`command, based on a given end time.
+
+  At time of writing, the `clever` command honors `--before` first, only using
+  `--since` to filter out extra stuff, so we have to go backward for the extraction.
+  """
   def fetch_log_page(app, end_time) do
     # must be tuned so that we get close to 1000 logs at each call to maximize throughput
     span_size_in_seconds = 10 * 60
@@ -39,6 +45,8 @@ defmodule Mix.Tasks.Clever.Logs do
     ]
 
     Logger.info("Extracting logs with clever #{cmd_args |> Enum.join(" ")}")
+    # NOTE: I'm not 100% sure but I believe some error logs are sent to stderr by "clever",
+    # so redirecting everything to stdout so we don't miss anything
     {output, _exit_code = 0} = System.cmd("clever", cmd_args, stderr_to_stdout: true)
 
     logs =
@@ -86,6 +94,11 @@ defmodule Mix.Tasks.Clever.Logs do
     {start_time, end_time, options |> Keyword.fetch!(:alias)}
   end
 
+  @doc """
+  Since the --before flag is the reference, once we have extracted a page of log,
+  we pick the first timestamped line, extract the timestamp, and add a bit of padding,
+  to be used as the next --before value.
+  """
   def build_next_end_time(logs) do
     timestamped_log = logs |> Enum.at(0)
     timestamp = timestamped_log |> String.split(" ") |> List.first() |> String.trim_trailing(":")
@@ -93,6 +106,11 @@ defmodule Mix.Tasks.Clever.Logs do
     DateTime.add(timestamp, +1, :second)
   end
 
+  @doc """
+  Logs are fetched based on --before value, then deduplicated (since we do not want to
+  show a given line twice, and this could happen), and finally reversed because we process
+  everything backward
+  """
   def extract_log_page_and_update_state(app, state) do
     logs = fetch_log_page(app, state.end_time)
     {_seen, unseen} = logs |> Enum.split_with(&MapSet.member?(state.seen_lines, &1))
