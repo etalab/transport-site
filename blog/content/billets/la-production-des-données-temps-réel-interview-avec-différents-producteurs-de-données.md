@@ -118,7 +118,7 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 ![](/images/schema-1-.png "Production et diffusion des données temps réel par Pysae")
 
-source : [](https://web.pysae.com/blog/lom-et-ouverture-des-donnees-pour-le-transport-de-voyageurs)Zenbus
+source : [zenbus.fr](zenbus.fr) 
 
 * **Pysae** ne produit que des données GTFS-RT tandis que **Zenbus et Ubitransport** produisent également des données au format SIRI et SIRI Lite. Ces deux services se basent sur le fichier théorique de leurs clients quand il existe ou produisent eux même le fichier GTFS. 
 * **Kisio Digital, Cityway et Mecatran** ne produisent pas de données mais les normalisent et les améliorent à l'échelle locale comme régionale. Kisio Digital fournit, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des itinéraires de remplacement prenant en compte les informations temps réel tandis que Mecatran fournit toutes les informations pouvant être contenues dans un flux GTFS-RT à leurs clients
@@ -146,7 +146,7 @@ La difficulté principale repose sur l'absence de standard commun dans la qualit
 
 **Distribution des données temps réel**
 
-Les données fournies par les producteurs de données normalisées appartiennent aux clients. Ils permettent à leurs clients de contrôler l’accessibilité à ces données grâce à des clés pour accéder à leur API. Cela leur permet notamment d'avoir des statistiques sur le nombre de réutilisateurs et la fréquence de réutilisation. Certains redistribuent ces données à travers des interfaces comme des écrans dans les gares, des applications mobiles, des sites internet de transport etc. ou des API (Application Programming Interface) et SDK (Software Development Kit) comme [www.navitia.io](http://www.navitia.io/) de Kisio Digital pour permettre à d’autres de développer des services numériques pour les citoyens et d’innover en utilisant ces mêmes données. 
+Les données fournies par les producteurs de données normalisées appartiennent aux clients. Ils permettent à leurs clients de contrôler l’accessibilité à ces données grâce à des clés pour accéder à leur API. Cela leur permet notamment d'avoir des statistiques sur le nombre de réutilisateurs et la fréquence de réutilisation. Certains redistribuent ces données à travers des interfaces comme des écrans dans les gares, [des applications mobiles](https://zenbus.fr/blog/2020/10/09/vous-avez-dit-maas/), des sites internet de transport etc. ou des API (Application Programming Interface) et SDK (Software Development Kit) comme [www.navitia.io](http://www.navitia.io/) de Kisio Digital pour permettre à d’autres de développer des services numériques pour les citoyens et d’innover en utilisant ces mêmes données. 
 
 ![](/images/visuel_opendatabar_navitia.io.png)
 
