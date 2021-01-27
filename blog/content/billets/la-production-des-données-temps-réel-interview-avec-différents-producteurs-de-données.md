@@ -178,7 +178,7 @@ Cet article a été rédigé grâce aux retours d'expériences des collectivité
   Services de géolocalisation temps réel à partir de smartphones et[ production de données temps réel dans des formats normalisés](https://zenbus.fr/LOM.pdf) (GTFS-RT et SIRI)
 * **[Ubitransport](https://www.ubitransport.com/)**, Alexandre Cabanis Direction Marketing\
   Solutions intelligentes pour optimiser les réseaux de transport public : billetique / monétique, SAEIV et data 
-* **[Kisio](https://kisio.com/) : Betrand Billoud et Laetitia Paternoster**\
+* **[Kisio Digital](https://kisio.com/) : Betrand Billoud et Laetitia Paternoster**\
   Service d'accompagnement des acteurs de la mobilité pour créer,\
   déployer et animer les services à la mobilité.
 * **[City Way](https://www.data.gouv.fr/fr/organizations/cityway/), Nely Escoffier Responsable centrale de mobilité *[Itinisère](https://www.itinisere.fr/)***\
