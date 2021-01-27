@@ -82,7 +82,7 @@ Le SIRI est une norme définie par le Comité Européen de Normalisation et corr
 
 Les données sont transmises via le protocole [SOAP](https://fr.wikipedia.org/wiki/SOAP), à la demande (en mode `PULL`) ou sur abonnement (en mode `PUSH`)
 
-Tout comme le NeTEx, un profil doit être défini. C'est un **format autoporteur** mais les données peuvent ne **pas interopérables entre les profils** lorsqu'ils ont des services définis différents. 
+Tout comme le NeTEx, un profil doit être défini. C'est un **format autoporteur** mais les données peuvent ne **pas être interopérables entre les profils** lorsqu'ils ont des services définis différents. 
 
 * **Le SIRI Lite**
 
@@ -98,7 +98,7 @@ les données sont servies via une API http classique dans le format JSON
 
 - - -
 
-La production et diffusion des données temps réel en GTFS-RT, SIRI et SIRI Lite sur des portails à accès libre permettent aux Autorités Organisatrices de la Mobilité (AOM) d'être conforme au cadre juridique défini notamment par l'article 25 de [la Loi d'Orientation des Mobilités](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000039666574/2020-12-30/) (LOM) promulguée le 24 décembre 2019. Cet article fixe un cadre législatif pour l’ouverture des données temps servant à l'information voyageur. L'ouverture de ces données étant attendu au 1er décembre 2020. 
+La production et diffusion des données temps réel en GTFS-RT, SIRI et SIRI Lite sur des portails à accès libre permettent aux Autorités Organisatrices de la Mobilité (AOM) d'être conforme au cadre juridique défini notamment par l'article 25 de [la Loi d'Orientation des Mobilités](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000039666574/2020-12-30/) (LOM) promulguée le 24 décembre 2019. Cet article fixe un cadre législatif pour l’ouverture des données temps réel servant à l'information voyageur. L'ouverture de ces données étant attendu au 1er décembre 2020. 
 
 - - -
 
