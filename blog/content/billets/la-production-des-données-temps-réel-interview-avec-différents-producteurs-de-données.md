@@ -106,7 +106,7 @@ La production et diffusion des données temps réel en GTFS-RT, SIRI et SIRI Lit
 
 Les producteurs de données temps-réel peuvent avoir différents types de clients : 
 
-* **des collectivités** qui veulent améliorer leur information voyageur et leur système d'exploitation comme le département de l'Isère avec Citiway, le Centre-Val-de-Loire avec Kisio ou le Grand Poitiers avec Mecatran. Ce dernier normalise leur flux temps réel custom afin d'homogénéiser à terme les données des 40 communes
+* **des collectivités** qui veulent améliorer leur information voyageur et leur système d'exploitation comme le département de l'Isère avec Citiway, le Centre-Val-de-Loire avec Kisio Digital ou le Grand Poitiers avec Mecatran. Ce dernier normalise leur flux temps réel custom afin d'homogénéiser à terme les données des 40 communes
 * **des opérateurs** de transport comme Transdev, Keolis, Eole Mobilité etc. qui sous traitent la production de leurs données à Pysae ou la SNCF qui passe par Kisio pour normaliser et avoir un contrôle qualité de leurs données 
 * **des stations de ski ou évènements ponctuels** qui veulent avoir une information voyageur temps réel sur une courte durée voir de manière éphémère comme la [station de ski de Tignes avec Zenbus](https://transport.data.gouv.fr/datasets/horaires-theoriques-et-temps-reel-des-navettes-de-la-station-de-tignes-gtfs-gtfs-rt/)
 
@@ -146,13 +146,17 @@ La difficulté principale repose sur l'absence de standard commun dans la qualit
 
 **Distribution des données temps réel**
 
-Les données fournies par les producteurs de données normalisées appartiennent aux clients. Ils permettent à leurs clients de contrôler l’accessibilité à ces données grâce à des clés pour accéder à leur API. Cela leur permet notamment d'avoir des statistiques sur le nombre de réutilisateurs et la fréquence de réutilisation. Certains redistribuent ces données à travers des interfaces comme des écrans dans les gares, des applications mobiles etc. ou des API comme Kisio. D'autres, comme Mecatran, entrent aussi en contact avec les réutilisateurs des données de leurs clients pour leur fournir une URL lorsque les clients ne veulent pas avoir le contrôle sur toute la distribution de leurs données. Zenbus met également à disposition les données de leurs clients directement sur le PAN, ce qui permet aux réutilisateurs de récupérer le flux de différents réseaux sur une seule plateforme. La communauté de l'Auxerrois récupère les données de leur fournisseur, Ubitransport, pour les redistribuer ensuite sur le PAN. La communauté de l'Auxerrois renvoie tous leurs services de mobilité comme la billettique, leur service d'information voyageur vers[ leurs données publiées transport.data.gouv.fr](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) pour les récupérer. 
+Les données fournies par les producteurs de données normalisées appartiennent aux clients. Ils permettent à leurs clients de contrôler l’accessibilité à ces données grâce à des clés pour accéder à leur API. Cela leur permet notamment d'avoir des statistiques sur le nombre de réutilisateurs et la fréquence de réutilisation. Certains redistribuent ces données à travers des interfaces comme des écrans dans les gares, des applications mobiles, des sites internet de transport etc. ou des API (Application Programming Interface) et SDK (Software Development Kit) comme [www.navitia.io](http://www.navitia.io/) de Kisio Digital pour permettre à d’autres de développer des services numériques pour les citoyens et d’innover en utilisant ces mêmes données. 
+
+
+
+D'autres, comme Mecatran, entrent aussi en contact avec les réutilisateurs des données de leurs clients pour leur fournir une URL lorsque les clients ne veulent pas avoir le contrôle sur toute la distribution de leurs données. Zenbus met également à disposition les données de leurs clients directement sur le PAN, ce qui permet aux réutilisateurs de récupérer le flux de différents réseaux sur une seule plateforme. La communauté de l'Auxerrois récupère les données de leur fournisseur, Ubitransport, pour les redistribuer ensuite sur le PAN. La communauté de l'Auxerrois renvoie tous leurs services de mobilité comme la billettique, leur service d'information voyageur vers[ leurs données publiées transport.data.gouv.fr](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) pour les récupérer. 
 
 - - -
 
 **Contrôle qualité des données** 
 
-Le contrôle qualité a surtout lieu au niveau des données théoriques. Certains producteurs, comme Kisio, installent des sondes qui leur permettent de mesurer le niveau de latence. D'autres comme Zenbus suivent le principe du “Eat your own dog food”, à savoir être les premiers utilisateurs de leurs données. Cela leur permet d'être confrontés à la qualité des données produites en étant des auditeurs permanents. 
+Le contrôle qualité a surtout lieu au niveau des données théoriques. Certains producteurs, comme Kisio Digital, installent des sondes qui leur permettent de mesurer le niveau de latence. D'autres comme Zenbus suivent le principe du “Eat your own dog food”, à savoir être les premiers utilisateurs de leurs données. Cela leur permet d'être confrontés à la qualité des données produites en étant des auditeurs permanents. 
 
 - - -
 
