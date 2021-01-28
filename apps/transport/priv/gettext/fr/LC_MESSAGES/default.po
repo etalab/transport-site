@@ -72,3 +72,7 @@ msgstr "Blog"
 #, elixir-format
 msgid "Source code"
 msgstr "Code source"
+
+#, elixir-format
+msgid "Producer informations"
+msgstr "Voir les infos producteurs"

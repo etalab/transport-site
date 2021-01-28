@@ -237,7 +237,7 @@
         <h2><%= dgettext("page-index", "Are you producing transport data ?") %></h2>
         <p><%= dgettext("page-index", "producer description") |> raw() %></p>
         <div class="row">
-          <a class="button" href="<%= page_path(@conn, :producteurs) %>" ><%= gettext("Producer space") %></a>
+          <a class="button" href="<%= page_path(@conn, :infos_producteurs) %>" ><%= gettext("Producer informations") %></a>
         </div>
       </div>
       <img class="illustration" src="<%= static_path(@conn, "/images/bus.svg") %>" alt="" />

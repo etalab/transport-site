@@ -60,7 +60,7 @@
           </div>
         </li>
         <li class="nav__item">
-          <%= link(gettext("Producer space"), to: page_path(@conn, :producteurs)) %>
+          <%= link(gettext("Producer space"), to: page_path(@conn, :infos_producteurs)) %>
         </li>
         <li class="nav__item">
           <%= link(gettext("Blog"), to: "https://blog.transport.data.gouv.fr") %>

@@ -75,7 +75,7 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "GET /producteurs for non-authenticated users", %{conn: conn} do
-    conn = conn |> get(page_path(conn, :producteurs))
+    conn = conn |> get(page_path(conn, :infos_producteurs))
     body = html_response(conn, 200)
     assert body =~ "transport.data.gouv.fr vous aide à publier vos données"
 
