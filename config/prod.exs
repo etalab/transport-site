@@ -22,7 +22,8 @@ config :transport, Transport.Scheduler,
     # generate NeTEx / geojson files for all GTFS.
     # Note : this should be run before the import_validate_all for the NeTEx / geojson
     # to be created when the import is run
-    {"0 1 * * *", {Transport.GtfsConversions, :convert_all, []}}
+    {"0 1 * * *", {Transport.GtfsConversions, :convert_all, []}},
+    {"0 * * * *", {Transport.ImportData, :refresh_places, []}}
   ]
 
 config :db, DB.Repo,

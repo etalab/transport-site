@@ -67,6 +67,12 @@ defmodule Transport.ImportData do
     validate_all_resources()
   end
 
+  def refresh_places do
+    Logger.info("Refreshing places...")
+    # NOTE: I could not find a way to call "refresh_places()" directly
+    {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW places;")
+  end
+
   @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
   def import_dataset(%Dataset{
         id: dataset_id,
@@ -88,7 +94,11 @@ defmodule Transport.ImportData do
         dataset_id: dataset_id
       })
 
-      Repo.update(changeset)
+      result = Repo.update(changeset)
+
+      refresh_places()
+
+      result
     else
       {:error, error} ->
         Logger.error("Unable to import data of dataset #{datagouv_id}: #{inspect(error)}")
