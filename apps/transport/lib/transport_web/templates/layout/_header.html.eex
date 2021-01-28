@@ -33,7 +33,7 @@
                 <%= if admin?(assigns[:current_user]) do %>
                   <%= link("Administration", to: "/backoffice") %>
                 <% end %>
-                <a class="navigation__link nagivation__link--logout" href="<%= session_path @conn, :delete %>" role="link">
+                <a class="navigation__link nagivation__link--logout" href="<%= session_path @conn, :delete, redirect_path: current_path(@conn) %>" role="link">
                   <i class="icon icon--logout" aria-hidden="true"></i>
                   <span><%= gettext "Sign Out" %></span>
                 </a>

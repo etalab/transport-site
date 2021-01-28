@@ -43,9 +43,18 @@ defmodule TransportWeb.SessionController do
   end
 
   def delete(conn, _) do
+    redirect_path =
+      case conn.params["redirect_path"] do
+        nil ->
+          page_path(conn, :index)
+
+        path ->
+          path
+      end
+
     conn
     |> configure_session(drop: true)
-    |> redirect(to: page_path(conn, :index))
+    |> redirect(to: redirect_path)
     |> halt()
   end
 
