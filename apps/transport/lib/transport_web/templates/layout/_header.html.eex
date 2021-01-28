@@ -55,7 +55,7 @@
             Outils
             <div class="dropdown-content">
               <%= link(gettext("Check a GTFS file's quality"), to: "/validation") %>
-              <%= link(gettext("Etat des services"), to: "https://status.transport.data.gouv.fr", target: "_blank") %>
+              <%= link(gettext("Service status"), to: "https://status.transport.data.gouv.fr", target: "_blank") %>
             </div>
           </div>
         </li>

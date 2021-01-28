@@ -74,5 +74,9 @@ msgid "Source code"
 msgstr ""
 
 #, elixir-format
+msgid "Service status"
+msgstr ""
+
+#, elixir-format
 msgid "Producer informations"
 msgstr ""
