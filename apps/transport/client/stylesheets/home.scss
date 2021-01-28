@@ -171,11 +171,23 @@ a.tile:hover {
   margin-right: 2em;
 }
 
+.grid.available-data {
+  grid-gap: 1.5em !important;
+  grid-auto-rows: 1fr;
+  .tile__text {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+}
+
 .upcoming {
   margin-top: 5em;
 
   .grid {
     color: $grey;
+    grid-gap: 1.5em !important;
 
     .tile {
       flex-direction: row;
