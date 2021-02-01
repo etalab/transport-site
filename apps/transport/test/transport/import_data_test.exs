@@ -5,6 +5,10 @@ defmodule Transport.ImportDataTest do
   import TransportWeb.Factory
   doctest ImportData
 
+  setup do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+  end
+
   test "the available? function with HTTP request", _ do
     mock = fn url ->
       case url do
