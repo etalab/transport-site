@@ -2,7 +2,7 @@ defmodule Transport.ImportDataTest do
   use ExUnit.Case, async: true
   alias Transport.ImportData
   import Mock
-
+  import TransportWeb.Factory
   doctest ImportData
 
   test "the available? function with HTTP request", _ do
