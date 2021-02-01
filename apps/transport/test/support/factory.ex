@@ -1,7 +1,9 @@
-# Very preliminary use of ExMachina to generate test records.
-# We should figure out how to use changeset validations here, but
-# so far various troubles have been met.
 defmodule TransportWeb.Factory do
+  @moduledoc """
+  Very preliminary use of ExMachina to generate test records.
+  We should figure out how to use changeset validations here, but
+  so far various troubles have been met.
+  """
   use ExMachina.Ecto, repo: DB.Repo
 
   # Ecto records
