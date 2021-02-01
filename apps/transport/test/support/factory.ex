@@ -30,4 +30,12 @@ defmodule TransportWeb.Factory do
       aom: build(:aom)
     }
   end
+
+  # Non-Ecto stuff, for now kept here for convenience
+
+  def datagouv_api_get_factory do
+    %{
+      "title" => "some title"
+    }
+  end
 end
