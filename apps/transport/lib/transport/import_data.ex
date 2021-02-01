@@ -20,7 +20,7 @@ defmodule Transport.ImportData do
 
     results =
       ImportTaskSupervisor
-      |> Task.Supervisor.async_stream_nolink(datasets, &import_dataset/1,
+      |> Task.Supervisor.async_stream_nolink(datasets, &import_dataset_logged/1,
         max_concurrency: @max_import_concurrent_jobs,
         timeout: 180_000
       )
@@ -71,6 +71,29 @@ defmodule Transport.ImportData do
     Logger.info("Refreshing places...")
     # NOTE: I could not find a way to call "refresh_places()" directly
     {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW places;")
+  end
+
+  @doc """
+  This is just a temporary wrapper until `import_dataset` gets fully tested & refactored.
+
+  It will increase the chances of being notified via Sentry.
+  """
+  @spec import_dataset_logged(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
+  def import_dataset_logged(dataset) do
+    import_dataset(dataset)
+  rescue
+    e ->
+      Sentry.capture_message("unmanaged_exception_during_import",
+        level: "error",
+        # minimal information to avoid recreating an exception here!
+        extra: %{dataset_id: dataset.id}
+      )
+
+      Logger.error("Unmanaged exception during import")
+      Logger.error(Exception.format(:error, e, __STACKTRACE__))
+
+      # mimic original behaviour to avoid impact on overall report code
+      reraise e, __STACKTRACE__
   end
 
   @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
