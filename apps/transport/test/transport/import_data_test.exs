@@ -24,6 +24,10 @@ defmodule Transport.ImportDataTest do
       {:ok, %HTTPoison.Response{body: payload, status_code: 200}}
     end
 
+    # first call must result in call to third party
+    with_mock HTTPoison, get: mock do
+      ImportData.import_all_datasets()
+    end
   end
 
   test "the available? function with HTTP request", _ do
