@@ -15,6 +15,15 @@ defmodule Transport.ImportDataTest do
     dataset = insert(:dataset, datagouv_id: "some-id")
     dataset = insert(:dataset, datagouv_id: "some-other-id")
     assert DB.Repo.aggregate(DB.Dataset, :count, :id) == 2
+
+    # For now, using mocking as an intermediate step to using a real separate mock udata implementation
+    # (but there's too much to refactor for now).
+    payload = build(:datagouv_api_get)
+
+    mock = fn _, _, _ ->
+      {:ok, %HTTPoison.Response{body: payload, status_code: 200}}
+    end
+
   end
 
   test "the available? function with HTTP request", _ do
