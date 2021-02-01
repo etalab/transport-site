@@ -9,6 +9,14 @@ defmodule Transport.ImportDataTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
+  test "end-to-end test" do
+    # NOTE: we should ultimately use "valid" datasets (which went through the changesets),
+    # because currently this is not the case
+    dataset = insert(:dataset, datagouv_id: "some-id")
+    dataset = insert(:dataset, datagouv_id: "some-other-id")
+    assert DB.Repo.aggregate(DB.Dataset, :count, :id) == 2
+  end
+
   test "the available? function with HTTP request", _ do
     mock = fn url ->
       case url do
