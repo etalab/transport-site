@@ -6,6 +6,8 @@ run_all = System.get_env("RUN_ALL") == "1"
 excludes = if run_all, do: [], else: [:integration, :solution, :external]
 ExUnit.configure(exclude: excludes ++ [:pending])
 
+{:ok, _} = Application.ensure_all_started(:ex_machina)
+
 # Start ExUnit.
 ExUnit.start()
 
