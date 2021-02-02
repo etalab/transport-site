@@ -83,7 +83,7 @@ defmodule TransportWeb.PageControllerTest do
     [item] = doc |> Floki.find(".panel-producteurs a.button")
 
     # behavior expected for non-authenticated users
-    assert Floki.attribute(item, "href") == ["/login/explanation?redirect_path=%2Fproducteurs"]
+    assert Floki.attribute(item, "href") == ["/login/explanation?redirect_path=%2Finfos_producteurs"]
     assert item |> Floki.text() =~ "Identifiez-vous"
   end
 end
