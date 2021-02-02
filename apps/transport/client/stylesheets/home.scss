@@ -21,7 +21,7 @@ html {
 }
 
 .hero form {
-  margin: 0 auto;
+  margin: 0;
   max-width: 400px;
 }
 
@@ -31,7 +31,7 @@ html {
 
 .home-top-content {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; //wrapping is done with media queries
   .home-title {
     flex-basis: 50%;
     min-width: 350px;
@@ -74,6 +74,7 @@ html {
   .home-top-content {
     flex-direction: column;
     text-align: center;
+    align-items: center;
     .home-title {
       padding-right: 0;
       h2 {
@@ -83,9 +84,21 @@ html {
     .home-search {
       border: none;
       padding-left: 0px;
+      text-align: center;
+      form {
+        margin: 0 auto;
+      }
     }
     .search-method {
-      background-color: white;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 5px;
+      margin: 0 12px;
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.9);
+      }
+      a {
+        background-color: initial;
+      }
     }
   }
 }
