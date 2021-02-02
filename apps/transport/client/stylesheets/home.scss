@@ -140,6 +140,7 @@ html {
 
 #pan-offer-descriptions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
   align-items: stretch;
   padding-bottom: 48px;
