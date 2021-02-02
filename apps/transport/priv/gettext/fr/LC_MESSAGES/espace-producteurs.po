@@ -64,8 +64,8 @@ msgid "Validate your datasets"
 msgstr "Tester vos jeux de données"
 
 #, elixir-format
-msgid "Welcome to your producer space!"
-msgstr "Bienvenue dans votre espace !"
+msgid "Your producer space"
+msgstr "Votre espace producteur"
 
 #, elixir-format
 msgid "You can test your data online and check its validity."
