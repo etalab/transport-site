@@ -72,6 +72,9 @@ html {
   padding-bottom: 48px;
   .pan-offer {
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     padding: 1em;
     margin: 1em;
     font-size: 1.5em;
