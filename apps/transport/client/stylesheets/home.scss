@@ -319,3 +319,16 @@ a.tile:hover {
     margin: 0 0 2em;
   }
 }
+
+.footer__logo {
+  width: initial;
+}
+
+.footer__logo .ministere-link {
+  text-decoration: none;
+  color: white;
+  font-size: 1.5em;
+  &:hover {
+    background: var(--darker-grey);
+  }
+}

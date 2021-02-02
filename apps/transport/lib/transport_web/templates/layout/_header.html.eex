@@ -13,7 +13,7 @@
         </div>
       </a>
       <div id="menu">
-        <a href="#" aria-label="<%= dgettext("page-index", "Close the menu") %>">
+        <a id="close-menu" href="#" aria-label="<%= dgettext("page-index", "Close the menu") %>">
           <i class="fas icon--times-circle"></i>x
         </a>
         <ul class="nav__links top-nav-links">
