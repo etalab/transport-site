@@ -28,9 +28,9 @@ D'autre part, de mieux comprendre les enjeux autour de la production et la diffu
 
 [transport.data.gouv.fr ](transport.data.gouv.fr)est le point d'accès national (PAN) aux données mobilité. La plateforme a pour mission de rassembler l'ensemble des données servant à l'information voyageur dans des formats harmonisés et sans obligation d'authentification pour les réutilisateurs. Cette ouverture des données vise à faciliter les déplacements des citoyens par l'intégration de ces données dans des services tiers comme des calculateurs d'itinéraires, des cannes connectées, des bureaux d'aménagement du territoire etc. On retrouve cette diversité de service servant à l'information voyageur dans les réutilisateurs du PAN.
 
-![](/images/capturmmme.png)
+![](/images/reu.png)
 
- *Réutilisateurs au 30.12.2020*
+ *Réutilisateurs au 02.02.2021*
 
 - - -
 
@@ -64,7 +64,7 @@ Ce format permet de récupérer toutes les données temps réel d'un réseau en 
 * `Alert` qui génère des alertes de service
 * `VehiclePositions` qui renseigne la position des véhicules
 
-Certains producteurs proposent toutes ces informations dans un seul flux, comme [Zenbus](https://transport.data.gouv.fr/datasets?_utf8=%E2%9C%93&q=zenbus), tandis que d'autres préfèrent avoir un flux par type d'information. C'est le cas pour la [Communauté de l’Auxerrois](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) qui a publié un flux pour `TripUpdate `et un autre pour `VehiclePositions`.
+Certains producteurs proposent toutes ces informations dans un seul flux, comme [Zenbus](https://transport.data.gouv.fr/datasets?_utf8=%E2%9C%93&q=zenbus), tandis que d'autres préfèrent avoir un flux par type d'information. C'est le cas pour la [Communauté de l’Auxerrois](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) qui a publié un flux pour `TripUpdate`et un autre pour `VehiclePositions`.
 
 ![](/images/capturemls.png)
 
@@ -174,8 +174,15 @@ Cet article a été rédigé grâce aux retours d'expériences des collectivité
 
 *Producteurs* 
 
-* **[Zenbus](https://www.data.gouv.fr/fr/organizations/zenbus/), Olivier Deschaseaux co-fondateur en charge des partenariats, du marketing et de la communication.**\
+* **[Zenbus](https://www.data.gouv.fr/fr/organizations/zenbus/), Olivier Deschaseaux co-fondateur en charge des partenariats, du marketing et de la communication.** \
+  Solution\
   Services de géolocalisation temps réel à partir de smartphones et[ production de données temps réel dans des formats normalisés](https://zenbus.fr/LOM.pdf) (GTFS-RT et SIRI)
+
+  <!--StartFragment-->
+
+  Zenbus est une solution full SaaS dédiée à la production et à la valorisation des données transport. Zenbus permet notamment de publier des données de transport dynamique à la volée, sous formats normalisés (GTFS-RT et SIRI) 
+
+  <!--EndFragment-->
 * **[Ubitransport](https://www.ubitransport.com/)**, Alexandre Cabanis Direction Marketing\
   Solutions intelligentes pour optimiser les réseaux de transport public : billetique / monétique, SAEIV et data 
 * **[Kisio Digital](https://kisio.com/) : Betrand Billoud et Laetitia Paternoster**\
