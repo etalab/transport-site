@@ -20,6 +20,21 @@
           <li class="nav__item">
             <%= link(gettext("Documentation"), to: "https://doc.transport.data.gouv.fr") %>
           </li>
+          <li class="nav__item">
+            <div class="dropdown">
+              Outils
+              <div class="dropdown-content">
+                <%= link(gettext("Check a GTFS file's quality"), to: "/validation") %>
+                <%= link(gettext("Service status"), to: "https://status.transport.data.gouv.fr", target: "_blank") %>
+              </div>
+            </div>
+          </li>
+          <li class="nav__item">
+            <%= link(gettext("Producer infos"), to: page_path(@conn, :infos_producteurs)) %>
+          </li>
+          <li class="nav__item">
+            <%= link(gettext("Blog"), to: "https://blog.transport.data.gouv.fr") %>
+          </li>
           <%= if assigns[:current_user] do %>
             <li class="nav__item">
               <div class="dropdown">
@@ -48,23 +63,6 @@
             </a>
           </li>
         <% end %>
-      </ul>
-      <ul class="nav__links pt-12">
-        <li class="nav__item">
-          <div class="dropdown">
-            Outils
-            <div class="dropdown-content">
-              <%= link(gettext("Check a GTFS file's quality"), to: "/validation") %>
-              <%= link(gettext("Service status"), to: "https://status.transport.data.gouv.fr", target: "_blank") %>
-            </div>
-          </div>
-        </li>
-        <li class="nav__item">
-          <%= link(gettext("Producer infos"), to: page_path(@conn, :infos_producteurs)) %>
-        </li>
-        <li class="nav__item">
-          <%= link(gettext("Blog"), to: "https://blog.transport.data.gouv.fr") %>
-        </li>
       </ul>
     </div>
   </nav>
