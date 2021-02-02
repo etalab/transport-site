@@ -80,3 +80,7 @@ msgstr ""
 #, elixir-format
 msgid "Producer informations"
 msgstr ""
+
+#, elixir-format
+msgid "Producer infos"
+msgstr ""
