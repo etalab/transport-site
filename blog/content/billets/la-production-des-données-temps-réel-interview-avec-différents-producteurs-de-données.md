@@ -11,7 +11,7 @@ description: >+
 
 
 images:
-  - /images/logo_zenbus_officiel.png
+  - /images/green-and-white-zero-waste-living-education-presentation.png
 ---
 Cet article permet d'une part de connaître les différents formats de données supportés par le Point d'Accès National pour la diffusion de données temps-réel. 
 
