@@ -82,7 +82,7 @@ nav.navigation input {
   text-align: center;
 }
 
-#menu > a {
+#close-menu {
   display: none;
 }
 
@@ -137,6 +137,10 @@ nav.navigation input {
 
     #menu {
       display: none;
+    }
+
+    #close-menu {
+      text-decoration: none;
     }
 
     #menu:target {
