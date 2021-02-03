@@ -14,7 +14,7 @@
       </a>
       <div id="menu">
         <a id="close-menu" href="#" aria-label="<%= dgettext("page-index", "Close the menu") %>">
-          <i class="fas icon--times-circle"></i>x
+          <i class="fas icon--times-circle"></i>&nbsp
         </a>
         <ul class="nav__links top-nav-links">
           <li class="nav__item">
