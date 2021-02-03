@@ -175,23 +175,16 @@ Cet article a été rédigé grâce aux retours d'expériences des collectivité
 *Producteurs* 
 
 * **[Zenbus](https://www.data.gouv.fr/fr/organizations/zenbus/), Olivier Deschaseaux co-fondateur en charge des partenariats, du marketing et de la communication.** \
-  Solution\
-  Services de géolocalisation temps réel à partir de smartphones et[ production de données temps réel dans des formats normalisés](https://zenbus.fr/LOM.pdf) (GTFS-RT et SIRI)
-
-  <!--StartFragment-->
-
-  Zenbus est une solution full SaaS dédiée à la production et à la valorisation des données transport. Zenbus permet notamment de publier des données de transport dynamique à la volée, sous formats normalisés (GTFS-RT et SIRI) 
-
-  <!--EndFragment-->
+  Solution full SaaS dédiée à la production et la valorisation des données de transport en permettant notamment de publier des données de transport dynamiques sous formats normalisés (GTFS-RT et SIRI).
 * **[Ubitransport](https://www.ubitransport.com/)**, Alexandre Cabanis Direction Marketing\
-  Solutions intelligentes pour optimiser les réseaux de transport public : billetique / monétique, SAEIV et data 
-* **[Kisio Digital](https://kisio.com/) : Betrand Billoud et Laetitia Paternoster**\
+  Solutions intelligentes pour optimiser les réseaux de transport public : billetique / monétique, SAEIV et data.
+* **[Kisio Digital](https://kisio.com/) : Bertrand Billoud et Laetitia Paternoster**\
   Service d'accompagnement des acteurs de la mobilité pour créer,\
   déployer et animer les services à la mobilité.
 * **[City Way](https://www.data.gouv.fr/fr/organizations/cityway/), Nely Escoffier Responsable centrale de mobilité *[Itinisère](https://www.itinisere.fr/)***\
-  Entreprise spécialisée dans le traitement des systèmes d’informations multimodaux (SIM) et la mise en œuvre de solutions numériques depuis une vingtaine d’année
+  Entreprise spécialisée dans le traitement des systèmes d’informations multimodaux (SIM) et la mise en œuvre de solutions numériques depuis une vingtaine d’année.
 * **[Mecatran](https://www.data.gouv.fr/fr/organizations/mecatran/), Laurent Grégoire Nicolas Taillade co-fondateurs de la société**\
-  Editeur de logiciel pour les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles 
+  Editeur de logiciel pour les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles.
 * **[Pysae](https://web.pysae.com/), Maxime Cabanel Responsable grands comptes** \
   [Solution pour système d'aide à l'exploitation et à l'information voyageurs (SAEIV)](https://web.pysae.com/blog/lom-et-ouverture-des-donnees-pour-le-transport-de-voyageurs) clé en main pour les conducteurs de bus, les exploitants et les voyageurs. 
 
