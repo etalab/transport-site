@@ -148,14 +148,6 @@ msgid "on"
 msgstr ""
 
 #, elixir-format
-msgid "one platform description"
-msgstr ""
-
-#, elixir-format
-msgid "one platform title"
-msgstr ""
-
-#, elixir-format
 msgid "of the population"
 msgstr ""
 
@@ -164,27 +156,11 @@ msgid "Are you producing transport data ?"
 msgstr ""
 
 #, elixir-format
-msgid "I’m using transport data"
-msgstr ""
-
-#, elixir-format
-msgid "Learn more about ODbL"
-msgstr ""
-
-#, elixir-format
-msgid "See tools for reusers"
-msgstr ""
-
-#, elixir-format
 msgid "Who is reusing data from"
 msgstr ""
 
 #, elixir-format
 msgid "producer description"
-msgstr ""
-
-#, elixir-format
-msgid "user description"
 msgstr ""
 
 #, elixir-format
@@ -197,10 +173,6 @@ msgstr ""
 
 #, elixir-format
 msgid "Close the form"
-msgstr ""
-
-#, elixir-format
-msgid "I wish to follow the development of transport.data.gouv.fr"
 msgstr ""
 
 #, elixir-format
@@ -236,5 +208,13 @@ msgid "Road works"
 msgstr ""
 
 #, elixir-format
-msgid "Join us on Slack"
+msgid "Use our APIs"
+msgstr ""
+
+#, elixir-format
+msgid "Use the map"
+msgstr ""
+
+#, elixir-format
+msgid "You can also"
 msgstr ""

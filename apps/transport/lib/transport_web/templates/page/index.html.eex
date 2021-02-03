@@ -19,18 +19,18 @@
         <% end %>
       </div>
       <div class="pt-48">
-        <h4> Vous pouvez également </h4>
+        <h4> <%= dgettext("page-index", "You can also") %> </h4>
         <div class="home-other-search-methods">
           <div class="search-method">
             <a href="<%= stats_path(@conn, :index)%>">
               <img src="<%= static_path(@conn, "/images/icons/map.png") %>" alt="Cartes">
-              Rechercher sur la carte
+              <%= dgettext("page-index", "Use the map") %>
             </a>
           </div>
           <div class="search-method">
             <a href="https://doc.transport.data.gouv.fr/reutilisateurs/apis/">
               <img src="<%= static_path(@conn, "/images/icons/api.png") %>" alt="API">
-              Utiliser nos API
+              <%= dgettext("page-index", "Use our APIs") %>
             </a>
           </div>
           <div class="search-method">

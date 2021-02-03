@@ -148,31 +148,11 @@ msgid "on"
 msgstr ""
 
 #, elixir-format
-msgid "one platform description"
-msgstr "In order to reduce the cost to have an easier access, data have an homegenous license and and one format. For each dataset there is one person to talk with."
-
-#, elixir-format
-msgid "one platform title"
-msgstr "1 platform, 1 license, 1 format, 1 people to talk with"
-
-#, elixir-format
 msgid "of the population"
 msgstr ""
 
 #, elixir-format
 msgid "Are you producing transport data ?"
-msgstr ""
-
-#, elixir-format
-msgid "I’m using transport data"
-msgstr ""
-
-#, elixir-format
-msgid "Learn more about ODbL"
-msgstr ""
-
-#, elixir-format
-msgid "See tools for reusers"
 msgstr ""
 
 #, elixir-format
@@ -184,10 +164,6 @@ msgid "producer description"
 msgstr "Territories, transport operators…: you have to publish data about traveler information on this website. The team is here to guide you to put your data into quality, into conformity and to publish it."
 
 #, elixir-format
-msgid "user description"
-msgstr "Application makers, developers…: you can freely reuse all datasets. They all are under ODbL license"
-
-#, elixir-format
 msgid "reusers list description"
 msgstr "Reusers listed here are the ones who declared one reuse on the platform."
 
@@ -197,10 +173,6 @@ msgstr ""
 
 #, elixir-format
 msgid "Close the form"
-msgstr ""
-
-#, elixir-format
-msgid "I wish to follow the development of transport.data.gouv.fr"
 msgstr ""
 
 #, elixir-format
@@ -236,5 +208,13 @@ msgid "Road works"
 msgstr ""
 
 #, elixir-format
-msgid "Join us on Slack"
+msgid "Use our APIs"
+msgstr ""
+
+#, elixir-format
+msgid "Use the map"
+msgstr ""
+
+#, elixir-format
+msgid "You can also"
 msgstr ""
