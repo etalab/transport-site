@@ -262,28 +262,6 @@
       </div>
     </section>
     <section class="section section-grey mailing-list" id="mailing-list">
-      <div class="container container-small">
-        <h2 class="text-center"><%= dgettext("page-index", "I wish to follow the development of transport.data.gouv.fr")%></h2>
-        <form action="<%= @mailchimp_newsletter_url %>" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
-            <div id="mc_embed_signup_scroll">
-              <label for="mce-EMAIL"><%= dgettext("page-index", "Subscribe to our email newsletter to receive update") %></label>
-              <div class="input__group">
-                  <input type="email" value="" name="EMAIL" id="mce-EMAIL" placeholder="<%= dgettext("page-index", "Email address") %>">
-                  <div id="mce-responses" class="clear">
-                      <div class="response" id="mce-error-response" style="display:none"></div>
-                      <div class="response" id="mce-success-response" style="display:none"></div>
-                  </div>
-                  <div>
-                      <input type="hidden" name="b_5ee8bfe0f1b073b49de06a063_13db2e9a94" tabindex="-1" value="">
-                  </div>
-                    <button class="button" type="submit" name="subscribe" id="mc-embedded-subscribe"><%= dgettext("page-index", "SUBSCRIBE") %></button>
-              </div>
-            </div>
-       </form>
-       <div class="mailing-list__social-container">
-            <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" /><a href="https://twitter.com/transportdatafr"><%= dgettext("page-index", "Follow us on twitter") %></a>
-        <img src="<%= static_path(@conn, "/images/Slack_Mark.svg") %>" alt="Slack" /><a href="<%= Application.get_env(:transport, :join_our_slack_link) %>"><%= dgettext("page-index", "Join us on Slack") %></a>
-      </div>
-    </div>
-  </section>
-  <script src="<%= static_path(@conn, "/js/autocomplete.js") %>"></script>
+      <%= render "join_the_community.html", conn: @conn, mailchimp_newsletter_url: @mailchimp_newsletter_url %>
+    </section>
+    <script src="<%= static_path(@conn, "/js/autocomplete.js") %>"></script>
