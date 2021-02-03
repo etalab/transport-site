@@ -121,7 +121,7 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 source : [zenbus.fr](zenbus.fr) 
 
 * **Pysae** ne produit que des données GTFS-RT tandis que **Zenbus et Ubitransport** produisent également des données au format SIRI et SIRI Lite. Ces deux services se basent sur le fichier théorique de leurs clients quand il existe ou produisent eux même le fichier GTFS. 
-* **Kisio Digital, Cityway et Mecatran** ne produisent pas de données mais les normalisent et les améliorent à l'échelle locale comme régionale. Kisio Digital fournit, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des itinéraires de remplacement prenant en compte les informations temps réel tandis que Mecatran intègre une ou plusieurs sources de données hétérogènes pour produire un flux normalisé au format GTFS-RT ou SIRI. 
+* **Kisio Digital, Cityway et Mecatran** ne produisent pas de données mais les normalisent et les améliorent à l'échelle locale comme régionale. Kisio Digital et Cityway fournissent, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des itinéraires de remplacement prenant en compte les informations temps réel. Mecatran et Cityway intègrent une ou plusieurs sources de données hétérogènes (GTFS-RT, SIRI, formats spécifiques) pour produire un flux normalisé au format GTFS-RT ou SIRI. 
 
 - - -
 
@@ -129,7 +129,7 @@ source : [zenbus.fr](zenbus.fr) 
 
 Les producteurs de données interrogés fournissent majoritairement, voire exclusivement pour certains, des données temps réel au format GTFS-RT à leurs clients. Ces derniers utilisant déjà le GTFS pour leurs horaires théoriques, la correspondance avec le GTFS-RT est donc plus simple. 
 
-Les données fournies par Mecatran sont à 90% en GTFS-RT. Leurs clients préfèrent ce format car il est spécifié et les informations obligatoires sont clairement définies contrairement au SIRI qui est autoporteur mais dont les contours ne sont pas définis. Cet éditeur de logiciel peut produire du SIRI mais n'a encore eu aucune demande. 
+Les données fournies par Mecatran sont à 90% en GTFS-RT. Leurs clients préfèrent ce format car il est spécifié et les informations obligatoires sont clairement définies contrairement au SIRI qui est autoporteur mais dont les contours ne sont pas définis. Cet éditeur de logiciel peut toutefois produire du SIRI. 
 
 - - -
 
@@ -146,7 +146,7 @@ La difficulté principale repose sur l'absence de standard commun dans la qualit
 
 **Distribution des données temps réel**
 
-Les données fournies par les producteurs de données normalisées appartiennent aux clients. Ils permettent à leurs clients de contrôler l’accès à ces données grâce à des clés pour accéder à leur API. Cela leur permet notamment d'avoir des statistiques sur le nombre de réutilisateurs et la fréquence de réutilisation. Certains redistribuent ces données à travers des interfaces comme des écrans dans les gares, [des applications mobiles](https://zenbus.fr/blog/2020/10/09/vous-avez-dit-maas/), des sites internet de transport etc. ou des API (Application Programming Interface) et SDK (Software Development Kit) comme [www.navitia.io](http://www.navitia.io/) de Kisio Digital pour permettre à d’autres de développer des services numériques pour les citoyens et d’innover en utilisant ces mêmes données. 
+Les données fournies par les producteurs de données normalisées appartiennent aux clients. Ils permettent à leurs clients de contrôler l’accès à ces données grâce à des clés pour accéder à leur API. Cela leur permet notamment d'avoir des statistiques sur le nombre de réutilisateurs et la fréquence de réutilisation. Certains redistribuent ces données à travers des interfaces comme des écrans dans les gares, [des applications mobiles](https://zenbus.fr/blog/2020/10/09/vous-avez-dit-maas/), [des sites internet de transport](https://www.mobibreizh.bzh/fr/horaires/23) etc. ou des [API (Application Programming Interface)](https://www.itinisere.fr/fr/api-open-services/185/OpenService/Index) et SDK (Software Development Kit) comme [www.navitia.io](http://www.navitia.io/) de Kisio Digital pour permettre à d’autres de développer des services numériques pour les citoyens et d’innover en utilisant ces mêmes données. 
 
 ![](/images/visuel_opendatabar_navitia.io.png)
 
@@ -158,7 +158,7 @@ D'autres, comme Mecatran, mettent à disposition de ses clients des clés d'API 
 
 **Contrôle qualité des données** 
 
-Le contrôle qualité a surtout lieu au niveau des données théoriques. Certains producteurs, comme Kisio Digital, installent des sondes qui leur permettent de mesurer le niveau de latence. D'autres comme Zenbus suivent le principe du “Eat your own dog food”, à savoir être les premiers utilisateurs de leurs données. Cela leur permet d'être confrontés à la qualité des données produites en étant des auditeurs permanents. 
+Le contrôle qualité a surtout lieu au niveau des données théoriques. Certains producteurs, comme Kisio Digital et Cityway, installent des sondes qui leur permettent de mesurer le niveau de latence. D'autres comme Zenbus suivent le principe du “Eat your own dog food”, à savoir être les premiers utilisateurs de leurs données. Cela leur permet d'être confrontés à la qualité des données produites en étant des auditeurs permanents. 
 
 - - -
 
@@ -181,7 +181,7 @@ Cet article a été rédigé grâce aux retours d'expériences des collectivité
 * **[Kisio Digital](https://kisio.com/) : Bertrand Billoud et Laetitia Paternoster**\
   Service d'accompagnement des acteurs de la mobilité pour créer,\
   déployer et animer les services à la mobilité.
-* **[City Way](https://www.data.gouv.fr/fr/organizations/cityway/), Nely Escoffier Responsable centrale de mobilité *[Itinisère](https://www.itinisere.fr/)***\
+* **[City Way](https://www.data.gouv.fr/fr/organizations/cityway/), Nely Escoffier Responsable centrale de mobilité *[Itinisère](https://www.itinisere.fr/) et Eric Fière Directeur produit et innovation*** \
   Entreprise spécialisée dans le traitement des systèmes d’informations multimodaux (SIM) et la mise en œuvre de solutions numériques depuis une vingtaine d’année.
 * **[Mecatran](https://www.data.gouv.fr/fr/organizations/mecatran/), Laurent Grégoire Nicolas Taillade co-fondateurs de la société**\
   Editeur de logiciel pour les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles.
