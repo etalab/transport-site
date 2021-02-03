@@ -182,7 +182,7 @@ Cet article a été rédigé grâce aux retours d'expériences des collectivité
 * **[Kisio Digital](https://kisio.com/) : Bertrand Billoud et Laetitia Paternoster**\
   Service d'accompagnement des acteurs de la mobilité pour créer,\
   déployer et animer les services à la mobilité.
-* **[City Way](https://www.data.gouv.fr/fr/organizations/cityway/), Nely Escoffier Responsable centrale de mobilité *[Itinisère](https://www.itinisere.fr/) et Eric Fière Directeur produit et innovation*** \
+* **[City Way](https://www.data.gouv.fr/fr/organizations/cityway/), Nelly Escoffier Responsable centrale de mobilité *[Itinisère](https://www.itinisere.fr/) et Eric Fière Directeur produit et innovation*** \
   Entreprise spécialisée dans le traitement des systèmes d’informations multimodaux (SIM) et la mise en œuvre de solutions numériques depuis une vingtaine d’année.
 * **[Mecatran](https://www.data.gouv.fr/fr/organizations/mecatran/), Laurent Grégoire et Nicolas Taillade co-fondateurs de la société**\
   Editeur de logiciel pour les transporteurs publiques pour l'amélioration, la normalisation et l'intégration de données statiques, temps réel et conjecturelles.
