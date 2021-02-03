@@ -1,5 +1,6 @@
 ---
-title: "La production des données temps réel pour les transports en commun "
+title: "La production et diffusion de données temps-réel pour les transports en
+  commun "
 date: 2020-12-23T09:33:17.115Z
 tags:
   - retour d'expérience
