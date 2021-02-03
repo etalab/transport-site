@@ -221,13 +221,14 @@ a.tile:hover {
       padding-right: 0;
       max-width: 100%;
       h2 {
-        margin-top: 1em;
+        margin-top: 0.5em;
       }
     }
     .home-search {
       max-width: 100%;
       border: none;
       padding-left: 0px;
+      padding-top: 48px;
       text-align: center;
       form {
         margin: 0 auto;
