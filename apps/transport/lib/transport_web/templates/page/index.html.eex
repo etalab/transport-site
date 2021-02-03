@@ -9,7 +9,9 @@
         <div class="searchBar">
           <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
           <h4> <%= dgettext("page-index", "Search data for a region, a city, a network…") %> </h4>
-          <%= search_input f, :q, [id: "autoComplete", tabindex: 1, autocomplete: "off", placeholder: "ex : Nouvelle-Aquitaine", "aria-label": dgettext("page-index", "Find dataset")] %>
+          <div class="pt-12">
+            <%= search_input f, :q, [id: "autoComplete", tabindex: 1, autocomplete: "off", placeholder: "ex : Nouvelle-Aquitaine", "aria-label": dgettext("page-index", "Find dataset")] %>
+          </div>
           <div class="autoCompleteResultsField">
             <div id="autoCompleteResults">
             </div>
@@ -42,7 +44,7 @@
     </div>
 </div>
 <div id="chevron-hint">
-  <a href="#datasets">
+  <a href="#pan-offer-descriptions">
     <span class="fa-stack fa-2x">
       <i class="fas fa-circle fa-stack-2x"></i>
       <i class="fas fa-chevron-down fa-stack-1x fa-inverse"></i>

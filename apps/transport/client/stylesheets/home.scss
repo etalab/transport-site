@@ -5,13 +5,14 @@ html {
 .hero.home-hero {
   background: #fff url("/images/transport.svg") center bottom no-repeat;
   background-size: cover;
-  height: calc(100vh - 100px);
-  min-height: 800px;
 }
 
 .home-hero .hero__container {
   height: 44em;
   align-items: start;
+  @media (max-width: 1250px) {
+    height: 60em;
+  }
 }
 
 .hero p,
@@ -22,7 +23,6 @@ html {
 
 .hero form {
   margin: 0;
-  max-width: 400px;
 }
 
 .dropdown-content {
@@ -177,7 +177,6 @@ a.tile:hover {
   .home-search {
     flex-basis: 50%;
     min-width: 350px;
-    padding-top: 24px;
     padding-left: 48px;
     border-left: 5px solid var(--theme-primary);
     .home-other-search-methods {
@@ -196,6 +195,9 @@ a.tile:hover {
         }
       }
     }
+    h4 {
+      margin-bottom: 0;
+    }
   }
 }
 
@@ -204,6 +206,8 @@ a.tile:hover {
     flex-direction: column;
     text-align: center;
     align-items: center;
+    padding: 0 24px;
+
     .home-title {
       padding-right: 0;
       h2 {
