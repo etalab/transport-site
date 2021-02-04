@@ -119,7 +119,7 @@ Les producteurs de données temps-réel peuvent avoir différents types de clien
 
 ![](/images/schema-1-.png "Production et diffusion des données temps réel par Pysae")
 
-source : [zenbus.fr](zenbus.fr) 
+source : [zenbus.fr ](https://zenbus.fr/)
 
 * **Pysae** ne produit que des données GTFS-RT tandis que **Zenbus et Ubitransport** produisent également des données au format SIRI et SIRI Lite. Ces deux services se basent sur le fichier théorique de leurs clients quand il existe ou produisent eux même le fichier GTFS. 
 * **Kisio Digital, Cityway et Mecatran** ne produisent pas de données mais les normalisent et les améliorent à l'échelle locale comme régionale. Kisio Digital et Cityway fournissent, par exemple, les informations "Avance/retard" et "Perturbations" (météo, travaux, manifestation, déviation, interruption sur un tronçon etc.) ainsi que des itinéraires de remplacement prenant en compte les informations temps réel. Mecatran et Cityway intègrent une ou plusieurs sources de données hétérogènes (GTFS-RT, SIRI, formats spécifiques) pour produire un flux normalisé au format GTFS-RT ou SIRI. 
@@ -176,7 +176,7 @@ Cet article a été rédigé grâce aux retours d'expériences des collectivité
 *Producteurs* 
 
 * **[Zenbus](https://www.data.gouv.fr/fr/organizations/zenbus/), Olivier Deschaseaux co-fondateur en charge des partenariats, du marketing et de la communication.** \
-  Solution full SaaS dédiée à la production et la valorisation des données de transport en permettant notamment de publier des données de transport dynamiques sous[ formats normalisés (GTFS-RT et SIRI)](https://zenbus.fr/LOM.pdf).
+  Solution full SaaS dédiée à la production et la valorisation des données de transport en permettant notamment de publier des données de transport dynamiques sous formats normalisé[](https://zenbus.fr/) (GTFS-RT et SIRI).
 * **[Ubitransport](https://www.ubitransport.com/)**, **Alexandre Cabanis Direction Marketing**\
   Solutions intelligentes pour optimiser les réseaux de transport public : billetique / monétique, SAEIV et data.
 * **[Kisio Digital](https://kisio.com/) : Bertrand Billoud et Laetitia Paternoster**\
