@@ -171,9 +171,21 @@
     align-items: flex-start;
     justify-content: space-around;
     flex-wrap: wrap;
-    div {
+    .producteurs-community-child {
       flex-basis: 35%;
       text-align: left;
+    }
+  }
+  @media (max-width: 1250px) {
+    .producteurs-community {
+      flex-direction: column;
+      align-items: center;
+      div {
+        text-align: center;
+      }
+      .input__group {
+        justify-content: center;
+      }
     }
   }
 }

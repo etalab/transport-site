@@ -10,6 +10,9 @@ html {
 .home-hero .hero__container {
   height: 44em;
   align-items: start;
+  @media (max-width: 1250px) {
+    height: 60em;
+  }
 }
 
 .hero p,
@@ -19,7 +22,20 @@ html {
 }
 
 .hero form {
-  margin-top: 2em;
+  margin: 0;
+}
+
+@media (max-width: $breakpoint-tablet) {
+  #close-menu {
+    margin: 20px 20px 0 0;
+  }
+  .dropdown-content {
+    top: 60px;
+  }
+}
+
+.dropdown-content {
+  min-width: 200px;
 }
 
 #chevron-hint {
@@ -33,10 +49,10 @@ html {
   bottom: 10px;
   animation: bouncing 2s 3 ease-in-out;
   @media only screen and (max-height: 870px) and (min-height: 470px) {
-    display: block;
+    display: none;
   }
   @media only screen and (min-height: 870px) and (max-height: 910px) and (min-height: 470px) {
-    display: block;
+    display: none;
     margin-bottom: 40px;
   }
   .fa-circle {
@@ -57,9 +73,40 @@ html {
   }
 }
 
+#pan-offer-descriptions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: stretch;
+  padding-bottom: 48px;
+  .pan-offer {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1em;
+    margin: 1em;
+    font-size: 1.5em;
+    font-weight: bold;
+    background-color: white;
+    flex-basis: 150px;
+    flex-grow: 1;
+    border-radius: 5px;
+    box-shadow: 3px 3px 5px grey;
+    .pan-offer-subtitle {
+      font-size: 0.75em;
+      font-weight: normal;
+    }
+  }
+}
+
 a.tile {
   color: $almost-black;
   text-decoration: none;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 a.tile:hover {
@@ -69,11 +116,22 @@ a.tile:hover {
 
 .tile h3 {
   line-height: 1.25em;
-  margin-top: 0.5em;
 }
 
 .tile__icon {
   height: 4em;
+  margin-right: 2em;
+}
+
+.grid.available-data {
+  grid-gap: 1.5em !important;
+  grid-auto-rows: 1fr;
+  .tile__text {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
 }
 
 .upcoming {
@@ -81,6 +139,7 @@ a.tile:hover {
 
   .grid {
     color: $grey;
+    grid-gap: 1.5em !important;
 
     .tile {
       flex-direction: row;
@@ -100,6 +159,102 @@ a.tile:hover {
   a {
     margin-top: 2em;
     display: inline-block;
+  }
+}
+
+.reusers img {
+  margin: 2em;
+  height: 48px;
+}
+
+.home-top-content {
+  display: flex;
+  flex-wrap: nowrap; //wrapping is done with media queries
+  .home-title {
+    flex-basis: 50%;
+    padding-right: 96px;
+    h1 {
+      font-size: 2.5em;
+    }
+    h2 {
+      margin-top: 2em;
+      font-size: 1.5em;
+      font-weight: normal;
+    }
+  }
+  .home-search {
+    flex-basis: 50%;
+    padding-left: 48px;
+    border-left: 5px solid var(--theme-primary);
+    .home-other-search-methods {
+      display: flex;
+      justify-content: space-between;
+      .search-method {
+        flex-basis: 200px;
+        padding: 12px;
+        a {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        img {
+          max-width: 75px;
+        }
+      }
+    }
+    h4 {
+      margin-bottom: 0;
+    }
+  }
+}
+
+@media (max-width: 1250px) {
+  .home-top-content {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    padding: 0 24px;
+    max-width: 100%;
+    overflow: hidden;
+
+    .home-title {
+      padding-right: 0;
+      max-width: 100%;
+      h2 {
+        margin-top: 0.5em;
+      }
+    }
+    .home-search {
+      max-width: 100%;
+      border: none;
+      padding-left: 0px;
+      padding-top: 48px;
+      text-align: center;
+      form {
+        margin: 0 auto;
+      }
+    }
+    .search-method {
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 5px;
+      margin: 0 12px;
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.9);
+      }
+      a {
+        background-color: initial;
+      }
+    }
+  }
+}
+
+@media (max-width: 500px) {
+  .home-top-content {
+    padding: 0 6px;
+    .search-method {
+      padding: 6px !important;
+      margin: 0 6px;
+    }
   }
 }
 
@@ -151,11 +306,6 @@ a.tile:hover {
   justify-content: center;
 }
 
-.reusers img {
-  margin: 2em;
-  height: 48px;
-}
-
 @media (max-width: 899px) {
   .row {
     flex-direction: column;
@@ -196,5 +346,19 @@ a.tile:hover {
   .illustration {
     order: 1;
     margin: 0 0 2em;
+  }
+}
+
+.footer__logo {
+  width: 400px;
+  max-width: 90%;
+}
+
+.footer__logo .ministere-link {
+  text-decoration: none;
+  color: white;
+  font-size: 1.5em;
+  &:hover {
+    background: var(--darker-grey);
   }
 }

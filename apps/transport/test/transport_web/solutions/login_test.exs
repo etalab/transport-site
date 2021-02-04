@@ -33,7 +33,7 @@ defmodule TransportWeb.Solution.LoginTest do
     assert visible_page_text() =~ "autoriser transport.data.gouv.fr à utiliser votre compte data.gouv.fr"
 
     # I can click somewhere to start the log in / sign up process
-    assert visible_page_text() =~ "S'identifier"
+    assert visible_page_text() =~ "Se connecter"
 
     # I can click somewhere to ask for help
     assert visible_page_text() =~ "Nous contacter"

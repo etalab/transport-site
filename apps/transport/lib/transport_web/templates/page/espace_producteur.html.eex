@@ -1,9 +1,7 @@
 <div class="producer-space">
   <div class="pt-48">
     <div class="container">
-      <h4 class="is-grey">
-        <%= dgettext("espace-producteurs", "Welcome to your producer space!") %>
-      </h4>
+      <%= render "_breadcrumbs.html" %>
     </div>
   </div>
   <section class="section producer-actions">
