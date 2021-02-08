@@ -51,7 +51,7 @@ defmodule Transport.Mixfile do
       {:phoenix_html, "~> 2.13"},
       {:phoenix_markdown, "~> 1.0"},
       {:phoenix_live_view, "~> 0.14.0"},
-      {:phoenix_html_sanitizer, "~> 1.0.0"},
+      {:phoenix_html_sanitizer, "~> 1.1.0"},
       {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 1.0"},
       {:recon, "~> 2.4"},
