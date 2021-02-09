@@ -33,11 +33,6 @@ config :transport, TransportWeb.Endpoint,
 
 config :phoenix, :json_library, Jason
 
-# Configures format encoders
-config :phoenix, :format_encoders,
-  html: Phoenix.Template.HTML,
-  json: Jason
-
 # Configures Elixir's Logger
 config :logger,
   handle_otp_reports: true,
