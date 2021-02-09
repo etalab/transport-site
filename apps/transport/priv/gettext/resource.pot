@@ -110,5 +110,5 @@ msgid "This option allows you to add the resource on data.gouv.fr, directly from
 msgstr ""
 
 #, elixir-format
-msgid "example : Paris GTFS dataset"
+msgid "Example : Paris GTFS dataset"
 msgstr ""

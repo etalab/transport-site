@@ -20,7 +20,7 @@ defmodule Transport.ImportData do
 
     results =
       ImportTaskSupervisor
-      |> Task.Supervisor.async_stream_nolink(datasets, &import_dataset/1,
+      |> Task.Supervisor.async_stream_nolink(datasets, &import_dataset_logged/1,
         max_concurrency: @max_import_concurrent_jobs,
         timeout: 180_000
       )
@@ -67,6 +67,35 @@ defmodule Transport.ImportData do
     validate_all_resources()
   end
 
+  def refresh_places do
+    Logger.info("Refreshing places...")
+    # NOTE: I could not find a way to call "refresh_places()" directly
+    {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW places;")
+  end
+
+  @doc """
+  This is just a temporary wrapper until `import_dataset` gets fully tested & refactored.
+
+  It will increase the chances of being notified via Sentry.
+  """
+  @spec import_dataset_logged(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
+  def import_dataset_logged(dataset) do
+    import_dataset(dataset)
+  rescue
+    e ->
+      Sentry.capture_message("unmanaged_exception_during_import",
+        level: "error",
+        # minimal information to avoid recreating an exception here!
+        extra: %{dataset_id: dataset.id}
+      )
+
+      Logger.error("Unmanaged exception during import")
+      Logger.error(Exception.format(:error, e, __STACKTRACE__))
+
+      # mimic original behaviour to avoid impact on overall report code
+      reraise e, __STACKTRACE__
+  end
+
   @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
   def import_dataset(%Dataset{
         id: dataset_id,
@@ -88,7 +117,11 @@ defmodule Transport.ImportData do
         dataset_id: dataset_id
       })
 
-      Repo.update(changeset)
+      result = Repo.update(changeset)
+
+      refresh_places()
+
+      result
     else
       {:error, error} ->
         Logger.error("Unable to import data of dataset #{datagouv_id}: #{inspect(error)}")
@@ -383,6 +416,7 @@ defmodule Transport.ImportData do
       is_gtfs_rt?(params["format"]) -> false
       is_gtfs?(params["format"]) -> true
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
+      is_format?(params["format"], ["NeTEx", "neptune"]) -> false
       is_format?(params["title"], "NeTEx") -> false
       is_gtfs?(params["description"]) -> true
       is_gtfs?(params["title"]) -> true
@@ -447,6 +481,9 @@ defmodule Transport.ImportData do
   end
 
   def is_netex?(s), do: is_format?(s, "NeTEx")
+
+  @spec is_neptune?(binary() | map()) :: boolean()
+  def is_neptune?(s), do: is_format?(s, "neptune")
 
   @doc """
   Check for licence, returns ["bad_license"] if the licence is not "odc-odbl"
@@ -528,6 +565,7 @@ defmodule Transport.ImportData do
     cond do
       is_gtfs_rt?(format) -> "gtfs-rt"
       is_netex?(format) -> "NeTEx"
+      is_neptune?(format) -> "Neptune"
       is_gtfs?(format) -> "GTFS"
       type == "public-transit" and not is_community_resource -> "GTFS"
       true -> format

@@ -63,7 +63,7 @@ msgid "Validate your datasets"
 msgstr ""
 
 #, elixir-format
-msgid "Welcome to your producer space!"
+msgid "Your producer space"
 msgstr ""
 
 #, elixir-format

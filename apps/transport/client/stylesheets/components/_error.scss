@@ -9,9 +9,11 @@
 }
 
 .error__background {
-  background: url('../images/error-background-1920.jpg') no-repeat center center fixed;
+  background: url("../images/error-background-1920.jpg") no-repeat center center
+    fixed;
   background-size: cover;
-  margin: 1em 3em;
+  width: 75vw;
+  margin: 1em auto;
   min-height: 90vw;
 }
 
@@ -25,4 +27,10 @@
   .error__background {
     min-height: 25vw;
   }
+}
+
+.error__background.internal_error {
+  background: url("../images/train_wreck_at_Montparnasse_1895.jpg") no-repeat
+    center bottom;
+  background-size: cover;
 }
