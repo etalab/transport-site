@@ -8,7 +8,10 @@ defmodule Transport.MixProject do
       deps: deps(),
       aliases: aliases(),
       test_coverage: [tool: ExCoveralls],
-      dialyzer: [plt_add_deps: :transitive, plt_add_apps: [:mix]]
+      dialyzer: [
+        plt_add_deps: :app_tree,
+        plt_add_apps: [:mix]
+      ]
     ]
   end
 
