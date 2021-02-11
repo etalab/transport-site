@@ -34,6 +34,14 @@ defaults_with_postgres_and_phantom: &defaults_with_postgres_and_phantom
         POSTGRES_USER: root
         POSTGRES_DB: transport_test
 
+save_cache: &save_cache
+  save_cache:
+    key: elixir-v8-{{ checksum "mix.lock" }}
+    paths:
+      - ~/transport/_build
+      - ~/transport/deps
+      - ~/.mix
+
 jobs:
   build:
     <<: *defaults
@@ -66,6 +74,8 @@ jobs:
           name: Compile mix dependencies for MIX_ENV=dev
           command: MIX_ENV=dev mix deps.compile
 
+      - <<: *save_cache
+
       - run:
           name: Install mix dependencies for MIX_ENV=test
           command: mix deps.get
@@ -73,6 +83,8 @@ jobs:
       - run:
           name: Compile mix dependencies for MIX_ENV=test
           command: mix deps.compile
+
+      - <<: *save_cache
 
       - run:
           name: Install yarn dependencies
@@ -91,12 +103,7 @@ jobs:
           paths:
             - .
       
-      - save_cache:
-          key: elixir-v8-{{ checksum "mix.lock" }}
-          paths:
-            - ~/transport/_build
-            - ~/transport/deps
-            - ~/.mix
+      - <<: *save_cache
 
   test_lint:
     <<: *defaults
