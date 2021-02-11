@@ -94,6 +94,9 @@ jobs:
           name: Compile assets
           command: cd ~/transport/apps/transport/client && npm run deploy
 
+      # NOTE: I think this should be moved to the dialyzer parallel section,
+      # but then we need to think about how the persistence/caching will be 
+      # handled, and think about concurrent access (?) with various jobs to the cache.
       - run:
           name: Build PLT
           command: MIX_ENV=dev mix dialyzer --plt
