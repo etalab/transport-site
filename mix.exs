@@ -9,7 +9,9 @@ defmodule Transport.MixProject do
       aliases: aliases(),
       test_coverage: [tool: ExCoveralls],
       dialyzer: [
-        plt_add_deps: :app_tree,
+        # NOTE: normally app_tree to get transitive dependencies,
+        # but our CircleCI setup is exploding due, so I tried to reduce time a bit.
+        plt_add_deps: :app_direct,
         plt_add_apps: [:mix]
       ]
     ]
