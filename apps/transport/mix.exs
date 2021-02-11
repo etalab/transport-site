@@ -5,7 +5,7 @@ defmodule Transport.Mixfile do
     [
       app: :transport,
       version: "0.0.1",
-      elixir: "~> 1.8",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_path: "../../_build",
       config_path: "../../config/config.exs",
