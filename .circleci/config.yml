@@ -28,7 +28,7 @@ defaults_with_postgres_and_phantom: &defaults_with_postgres_and_phantom
   <<: *defaults
   docker:
     - *default_docker
-    - image: selenium/standalone-chrome:3.141.59-oxygen
+    - image: selenium/standalone-chrome:88.0-chromedriver-88.0
     - image: mdillon/postgis:11-alpine
       environment:
         POSTGRES_USER: root
