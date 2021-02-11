@@ -14,7 +14,7 @@ defmodule Transport.MixProject do
 
   defp deps do
     [
-      {:dialyxir, "~> 1.0.0-rc.7", runtime: false},
+      {:dialyxir, "~> 1.0.0", only: :dev, runtime: false},
       {:excoveralls, "~> 0.10", only: :test}
     ]
   end
