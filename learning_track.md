@@ -127,6 +127,12 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Clone the [transpo-rt](https://github.com/etalab/transpo-rt) project locally
 * TODO
 
+### Install the GTFS to NETEX converter locally
+
+* Clone https://github.com/CanalTP/transit_model/tree/master/gtfs2netexfr
+* Compile it and launch the tests
+* Download one GTFS and convert it locally
+
 ### IDEAS for the next steps
 
 * Understanding the code behind https://github.com/etalab/transport-site/pull/1373
