@@ -43,6 +43,7 @@ jobs:
 
       - run: pwd
       - run: ls -la
+      - run: echo ~/transport
 
       # - restore_cache:
       #     keys:
