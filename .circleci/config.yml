@@ -62,7 +62,7 @@ jobs:
           command: MIX_ENV=dev mix deps.get --force
 
       - run: ls -la deps
-      - run: ls -la build
+      - run: ls -la _build
 
       # - run:
       #     name: Compile mix dependencies for MIX_ENV=dev
