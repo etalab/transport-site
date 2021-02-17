@@ -61,25 +61,25 @@ jobs:
           name: Compile mix dependencies for MIX_ENV=dev
           command: MIX_ENV=dev mix deps.compile
 
-      - run:
-          name: Install mix dependencies for MIX_ENV=test
-          command: mix deps.get
+      # - run:
+      #     name: Install mix dependencies for MIX_ENV=test
+      #     command: mix deps.get
 
-      - run:
-          name: Compile mix dependencies for MIX_ENV=test
-          command: mix deps.compile
+      # - run:
+      #     name: Compile mix dependencies for MIX_ENV=test
+      #     command: mix deps.compile
 
-      - run:
-          name: Install yarn dependencies
-          command: cd ~/transport/apps/transport/client && yarn install
+      # - run:
+      #     name: Install yarn dependencies
+      #     command: cd ~/transport/apps/transport/client && yarn install
 
-      - run:
-          name: Compile assets
-          command: cd ~/transport/apps/transport/client && npm run deploy
+      # - run:
+      #     name: Compile assets
+      #     command: cd ~/transport/apps/transport/client && npm run deploy
 
-      - run:
-          name: Build PLT
-          command: MIX_ENV=dev mix dialyzer --plt
+      # - run:
+      #     name: Build PLT
+      #     command: MIX_ENV=dev mix dialyzer --plt
 
       - persist_to_workspace:
           root: ~/transport
@@ -186,30 +186,30 @@ workflows:
     jobs:
       - build
 
-      - test_lint:
-          requires:
-            - build
+      # - test_lint:
+      #     requires:
+      #       - build
 
-      - test_format:
-          requires:
-            - build
+      # - test_format:
+      #     requires:
+      #       - build
 
-      - test_unit:
-          requires:
-            - build
+      # - test_unit:
+      #     requires:
+      #       - build
 
-      - test_integration:
-          requires:
-            - build
+      # - test_integration:
+      #     requires:
+      #       - build
 
-      - test_external:
-          requires:
-            - build
+      # - test_external:
+      #     requires:
+      #       - build
 
-      - test_solution:
-          requires:
-            - build
+      # - test_solution:
+      #     requires:
+      #       - build
 
-      - test_dialyzer:
-          requires:
-            - build
+      # - test_dialyzer:
+      #     requires:
+      #       - build
