@@ -48,6 +48,10 @@ jobs:
           name: Install git (required if we use git-hosted hex packages)
           command: apk add --update git
 
+      - restore_cache:
+          keys:
+            - elixir-v9-build-{{ checksum "mix.lock" }}
+  
       - run:
           name: Install hex
           command: mix local.hex --force
@@ -60,35 +64,24 @@ jobs:
           name: Install mix dependencies for MIX_ENV=dev
           command: MIX_ENV=dev mix deps.get --force
 
-      - restore_cache:
-          keys:
-            - elixir-v8-build-dev-{{ checksum "mix.lock" }}
-
       - run:
           name: Compile mix dependencies for MIX_ENV=dev
           command: MIX_ENV=dev mix deps.compile
 
-      - save_cache:
-          key: elixir-v8-build-dev-{{ checksum "mix.lock" }}
-          paths:
-            - ~/transport/_build/dev
-
       - run:
           name: Install mix dependencies for MIX_ENV=test
           command: mix deps.get
-
-      - restore_cache:
-          keys:
-            - elixir-v8-build-test-{{ checksum "mix.lock" }}
 
       - run:
           name: Compile mix dependencies for MIX_ENV=test
           command: mix deps.compile
 
       - save_cache:
-          key: elixir-v8-build-test-{{ checksum "mix.lock" }}
+          key: elixir-v9-build-{{ checksum "mix.lock" }}
           paths:
-            - ~/transport/_build/test
+            - ~/transport/_build
+            - ~/transport/deps
+            - ~/.mix
   
       - run:
           name: Install yarn dependencies
