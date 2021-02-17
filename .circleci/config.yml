@@ -41,25 +41,28 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache:
-          keys:
-            - elixir-v8-{{ checksum "mix.lock" }}
+      - run: pwd
+      - run: ls -la
 
-      - run:
-          name: Install hex
-          command: mix local.hex --force
+      # - restore_cache:
+      #     keys:
+      #       - elixir-v8-{{ checksum "mix.lock" }}
+
+      # - run:
+      #     name: Install hex
+      #     command: mix local.hex --force
       
-      - run:
-          name: Install rebar
-          command: mix local.rebar --force
+      # - run:
+      #     name: Install rebar
+      #     command: mix local.rebar --force
 
-      - run:
-          name: Install mix dependencies for MIX_ENV=dev
-          command: MIX_ENV=dev mix deps.get --force
+      # - run:
+      #     name: Install mix dependencies for MIX_ENV=dev
+      #     command: MIX_ENV=dev mix deps.get --force
 
-      - run:
-          name: Compile mix dependencies for MIX_ENV=dev
-          command: MIX_ENV=dev mix deps.compile
+      # - run:
+      #     name: Compile mix dependencies for MIX_ENV=dev
+      #     command: MIX_ENV=dev mix deps.compile
 
       # - run:
       #     name: Install mix dependencies for MIX_ENV=test
