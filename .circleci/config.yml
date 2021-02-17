@@ -109,6 +109,9 @@ jobs:
       - run:
           name: Build PLT
           command: MIX_ENV=dev mix dialyzer --plt
+          # PLT construction can stay up quite a bit without generating any output
+          # We add a bit of tolerance here
+          no_output_timeout: 20m
 
       - save_cache:
           key: elixir-v8-plt-{{ checksum "mix.lock" }}
