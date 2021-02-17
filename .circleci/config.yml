@@ -49,17 +49,20 @@ jobs:
       #     keys:
       #       - elixir-v8-{{ checksum "mix.lock" }}
 
-      # - run:
-      #     name: Install hex
-      #     command: mix local.hex --force
+      - run:
+          name: Install hex
+          command: mix local.hex --force
       
-      # - run:
-      #     name: Install rebar
-      #     command: mix local.rebar --force
+      - run:
+          name: Install rebar
+          command: mix local.rebar --force
 
-      # - run:
-      #     name: Install mix dependencies for MIX_ENV=dev
-      #     command: MIX_ENV=dev mix deps.get --force
+      - run:
+          name: Install mix dependencies for MIX_ENV=dev
+          command: MIX_ENV=dev mix deps.get --force
+
+      - run: ls -la deps
+      - run: ls -la build
 
       # - run:
       #     name: Compile mix dependencies for MIX_ENV=dev
