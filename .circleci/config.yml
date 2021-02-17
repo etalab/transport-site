@@ -1,5 +1,7 @@
 version: 2
 
+# useful information at https://circleci.com/docs/2.0/language-elixir/
+
 default_docker: &default_docker
   image: betagouv/transport:0.4.5
   environment:
