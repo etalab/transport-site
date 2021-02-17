@@ -36,24 +36,12 @@ defaults_with_postgres_and_phantom: &defaults_with_postgres_and_phantom
         POSTGRES_USER: root
         POSTGRES_DB: transport_test
 
-save_cache: &save_cache
-  save_cache:
-    key: elixir-v8-{{ checksum "mix.lock" }}
-    paths:
-      - ~/transport/_build
-      - ~/transport/deps
-      - ~/.mix
-
 jobs:
   build:
     <<: *defaults
 
     steps:
       - checkout
-
-      - restore_cache:
-          keys:
-            - elixir-v8-{{ checksum "mix.lock" }}
 
       # TODO: remove this once https://github.com/etalab/transport-ops/issues/19 is solved
       - run:
@@ -72,22 +60,36 @@ jobs:
           name: Install mix dependencies for MIX_ENV=dev
           command: MIX_ENV=dev mix deps.get --force
 
+      - restore_cache:
+          keys:
+            - elixir-v8-build-dev-{{ checksum "mix.lock" }}
+
       - run:
           name: Compile mix dependencies for MIX_ENV=dev
           command: MIX_ENV=dev mix deps.compile
 
-      - <<: *save_cache
+      - save_cache:
+          key: elixir-v8-build-dev-{{ checksum "mix.lock" }}
+          paths:
+            - ~/transport/_build/dev
 
       - run:
           name: Install mix dependencies for MIX_ENV=test
           command: mix deps.get
 
+      - restore_cache:
+          keys:
+            - elixir-v8-build-test-{{ checksum "mix.lock" }}
+
       - run:
           name: Compile mix dependencies for MIX_ENV=test
           command: mix deps.compile
 
-      - <<: *save_cache
-
+      - save_cache:
+          key: elixir-v8-build-test-{{ checksum "mix.lock" }}
+          paths:
+            - ~/transport/_build/test
+  
       - run:
           name: Install yarn dependencies
           command: cd ~/transport/apps/transport/client && yarn install
@@ -99,16 +101,24 @@ jobs:
       # NOTE: I think this should be moved to the dialyzer parallel section,
       # but then we need to think about how the persistence/caching will be
       # handled, and think about concurrent access (?) with various jobs to the cache.
+
+      - restore_cache:
+          keys:
+            - elixir-v8-plt-{{ checksum "mix.lock" }}
+
       - run:
           name: Build PLT
           command: MIX_ENV=dev mix dialyzer --plt
 
+      - save_cache:
+          key: elixir-v8-plt-{{ checksum "mix.lock" }}
+          paths:
+            - ~/transport/dialyzer-plt
+  
       - persist_to_workspace:
           root: ~/transport
           paths:
             - .
-
-      - <<: *save_cache
 
   test_lint:
     <<: *defaults
