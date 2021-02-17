@@ -28,7 +28,7 @@ defaults_with_postgres_and_phantom: &defaults_with_postgres_and_phantom
   <<: *defaults
   docker:
     - *default_docker
-    - image: selenium/standalone-chrome:88.0-chromedriver-88.0
+    - image: selenium/standalone-chrome:86.0
     - image: mdillon/postgis:11-alpine
       environment:
         POSTGRES_USER: root
@@ -61,7 +61,7 @@ jobs:
       - run:
           name: Install hex
           command: mix local.hex --force
-      
+
       - run:
           name: Install rebar
           command: mix local.rebar --force
@@ -95,7 +95,7 @@ jobs:
           command: cd ~/transport/apps/transport/client && npm run deploy
 
       # NOTE: I think this should be moved to the dialyzer parallel section,
-      # but then we need to think about how the persistence/caching will be 
+      # but then we need to think about how the persistence/caching will be
       # handled, and think about concurrent access (?) with various jobs to the cache.
       - run:
           name: Build PLT
@@ -105,7 +105,7 @@ jobs:
           root: ~/transport
           paths:
             - .
-      
+
       - <<: *save_cache
 
   test_lint:
