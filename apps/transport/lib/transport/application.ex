@@ -16,7 +16,8 @@ defmodule Transport.Application do
         supervisor(TransportWeb.Endpoint, []),
         supervisor(ImportDataWorker, []),
         CSVDocuments,
-        SearchCommunes
+        SearchCommunes,
+        {Phoenix.PubSub, [name: TransportWeb.PubSub, adapter: Phoenix.PubSub.PG2]}
       ]
       |> add_scheduler()
       ## manually add a children supervisor that is not scheduled

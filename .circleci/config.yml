@@ -1,5 +1,7 @@
 version: 2
 
+# useful information at https://circleci.com/docs/2.0/language-elixir/
+
 default_docker: &default_docker
   image: betagouv/transport:0.4.5
   environment:
@@ -28,7 +30,7 @@ defaults_with_postgres_and_phantom: &defaults_with_postgres_and_phantom
   <<: *defaults
   docker:
     - *default_docker
-    - image: selenium/standalone-chrome:3.141.59-oxygen
+    - image: selenium/standalone-chrome:86.0
     - image: mdillon/postgis:11-alpine
       environment:
         POSTGRES_USER: root
@@ -41,14 +43,19 @@ jobs:
     steps:
       - checkout
 
+      # TODO: remove this once https://github.com/etalab/transport-ops/issues/19 is solved
+      - run:
+          name: Install git (required if we use git-hosted hex packages)
+          command: apk add --update git
+
       - restore_cache:
           keys:
-            - elixir-v8-{{ checksum "mix.lock" }}
-
+            - elixir-v9-build-{{ checksum "mix.lock" }}
+  
       - run:
           name: Install hex
           command: mix local.hex --force
-      
+
       - run:
           name: Install rebar
           command: mix local.rebar --force
@@ -69,6 +76,13 @@ jobs:
           name: Compile mix dependencies for MIX_ENV=test
           command: mix deps.compile
 
+      - save_cache:
+          key: elixir-v9-build-{{ checksum "mix.lock" }}
+          paths:
+            - ~/transport/_build
+            - ~/transport/deps
+            - ~/.mix
+  
       - run:
           name: Install yarn dependencies
           command: cd ~/transport/apps/transport/client && yarn install
@@ -77,21 +91,30 @@ jobs:
           name: Compile assets
           command: cd ~/transport/apps/transport/client && npm run deploy
 
+      # NOTE: I think this should be moved to the dialyzer parallel section,
+      # but then we need to think about how the persistence/caching will be
+      # handled, and think about concurrent access (?) with various jobs to the cache.
+
+      - restore_cache:
+          keys:
+            - elixir-v8-plt-{{ checksum "mix.lock" }}
+
       - run:
           name: Build PLT
           command: MIX_ENV=dev mix dialyzer --plt
+          # PLT construction can stay up quite a bit without generating any output
+          # We add a bit of tolerance here
+          no_output_timeout: 20m
 
+      - save_cache:
+          key: elixir-v8-plt-{{ checksum "mix.lock" }}
+          paths:
+            - ~/transport/dialyzer-plt
+  
       - persist_to_workspace:
           root: ~/transport
           paths:
             - .
-
-      - save_cache:
-          key: elixir-v8-{{ checksum "mix.lock" }}
-          paths:
-            - ~/transport/_build
-            - ~/transport/deps
-            - ~/.mix
 
   test_lint:
     <<: *defaults
@@ -99,6 +122,10 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/transport
+
+      - run:
+          name: Install git (required if we use git-hosted hex packages)
+          command: apk add --update git
 
       - run:
           name: Run linters
@@ -126,6 +153,10 @@ jobs:
           at: ~/transport
 
       - run:
+          name: Install git (required if we use git-hosted hex packages)
+          command: apk add --update git
+
+      - run:
           name: Run dialyzer (static analysis)
           command: MIX_ENV=dev mix dialyzer
 
@@ -134,6 +165,10 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/transport
+
+      - run:
+          name: Install git (required if we use git-hosted hex packages)
+          command: apk add --update git
 
       - run:
           name: Run tests
@@ -149,6 +184,10 @@ jobs:
           at: ~/transport
 
       - run:
+          name: Install git (required if we use git-hosted hex packages)
+          command: apk add --update git
+
+      - run:
           name: Run tests
           command: |
             export SECRET_KEY_BASE=`mix phx.gen.secret`
@@ -162,6 +201,10 @@ jobs:
           at: ~/transport
 
       - run:
+          name: Install git (required if we use git-hosted hex packages)
+          command: apk add --update git
+
+      - run:
           name: Run tests
           command: |
             export SECRET_KEY_BASE=`mix phx.gen.secret`
@@ -173,6 +216,10 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/transport
+
+      - run:
+          name: Install git (required if we use git-hosted hex packages)
+          command: apk add --update git
 
       - run:
           name: Run tests
