@@ -13,7 +13,7 @@ defmodule Datagouvfr.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       gettext: [{:write_reference_comments, false}],
-      compilers: [:gettext] ++ Mix.compilers,
+      compilers: [:gettext] ++ Mix.compilers(),
       test_coverage: [tool: ExCoveralls]
     ]
   end
@@ -30,7 +30,6 @@ defmodule Datagouvfr.MixProject do
       {:oauth2, "~> 2.0.0"},
       {:httpoison, ">= 0.0.0"},
       {:plug, ">= 0.0.0"},
-
       {:helpers, in_umbrella: true}
     ]
   end
