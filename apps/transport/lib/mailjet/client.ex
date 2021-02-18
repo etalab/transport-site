@@ -5,9 +5,9 @@ defmodule Mailjet.Client do
   use HTTPoison.Base
   require Logger
 
-  @user Application.get_env(:transport, __MODULE__)[:mailjet_user]
-  @key Application.get_env(:transport, __MODULE__)[:mailjet_key]
-  @url Application.get_env(:transport, __MODULE__)[:mailjet_url]
+  def mailjet_user, do: Application.get_env(:transport, __MODULE__)[:mailjet_user]
+  def mailjet_key, do: Application.get_env(:transport, __MODULE__)[:mailjet_key]
+  def mailjet_url, do: Application.get_env(:transport, __MODULE__)[:mailjet_url]
 
   @spec payload!(binary(), binary(), binary(), binary(), binary()) :: any()
   def payload!(from_name, from_email, reply_to, topic, body) do
@@ -31,7 +31,7 @@ defmodule Mailjet.Client do
   end
 
   def send_mail(from_name, from_email, reply_to, topic, body, false) do
-    @url
+    mailjet_url()
     |> post(payload!(from_name, from_email, reply_to, topic, body))
     |> case do
       {:ok, %{status_code: 200, body: body}} -> {:ok, body}
@@ -41,7 +41,7 @@ defmodule Mailjet.Client do
   end
 
   def request(method, url, body \\ "", headers \\ [], options \\ []) do
-    options = options ++ [hackney: [basic_auth: {@user, @key}]]
+    options = options ++ [hackney: [basic_auth: {mailjet_user(), mailjet_key()}]]
     super(method, url, body, headers, options)
   end
 end

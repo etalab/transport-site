@@ -75,7 +75,7 @@ defmodule Transport.Mixfile do
       {:cors_plug, "~> 2.0"},
       {:exvcr, "~> 0.10", only: :test},
       {:hound, "~> 1.0", only: :test},
-      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
       {:unidecode, "~> 0.0.2"},
