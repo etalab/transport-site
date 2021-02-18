@@ -54,6 +54,7 @@ defmodule Transport.Mixfile do
       {:phoenix_html_sanitizer, "~> 1.1.0"},
       {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 2.1"},
+      {:recon, "~> 2.4"},
       {:vex, "~> 0.8"},
       {:quantum, "~> 2.3"},
       {:timex, "~> 3.5"},
