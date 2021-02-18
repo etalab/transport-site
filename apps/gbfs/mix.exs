@@ -41,7 +41,7 @@ defmodule GBFS.MixProject do
       {:sentry, "~> 7.1"},
       {:exvcr, "~> 0.10", only: :test},
       {:mock, "~> 0.3.6", only: :test},
-      {:bypass, "~> 1.0", only: :test}
+      {:bypass, "~> 2.0", only: :test}
     ]
   end
 end
