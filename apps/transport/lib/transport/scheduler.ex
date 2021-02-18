@@ -3,6 +3,5 @@ defmodule Transport.Scheduler do
   This made to launch schedule tasks
   """
 
-  use Quantum.Scheduler,
-    otp_app: :transport
+  use Quantum, otp_app: :transport
 end

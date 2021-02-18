@@ -29,8 +29,7 @@ defmodule Transport.Application do
 
   defp add_scheduler(children) do
     if Mix.env() != :test do
-      import Supervisor.Spec, only: [worker: 2]
-      [worker(Transport.Scheduler, []) | children]
+      [Transport.Scheduler | children]
     else
       children
     end

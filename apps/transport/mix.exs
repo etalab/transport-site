@@ -55,7 +55,7 @@ defmodule Transport.Mixfile do
       {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 2.1"},
       {:vex, "~> 0.8"},
-      {:quantum, "~> 2.3"},
+      {:quantum, "~> 3.3.0"},
       {:timex, "~> 3.5"},
       {:sentry, "~> 7.1"},
       {:scrivener, "~> 2.5"},
