@@ -73,12 +73,6 @@ defmodule TransportWeb do
     end
   end
 
-  def serializer do
-    quote do
-      use JaSerializer
-    end
-  end
-
   @doc """
   When used, dispatch to the appropriate controller/view/etc.
   """
