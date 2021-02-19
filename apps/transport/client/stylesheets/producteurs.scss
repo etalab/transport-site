@@ -189,3 +189,19 @@
     }
   }
 }
+
+.breadcrumbs {
+  display: flex;
+
+  .breadcrumbs-element {
+    list-style: none;
+    padding-right: 0.5em;
+  }
+  .breadcrumbs-element+.breadcrumbs-element {
+    &::before {
+      content: ">";
+      padding-right: 0.5em;
+    }
+  }
+
+}
