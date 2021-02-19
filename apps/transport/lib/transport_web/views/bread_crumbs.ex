@@ -1,11 +1,12 @@
 defmodule TransportWeb.BreadCrumbs do
+  @moduledoc """
+  A module for creating breadcrumbs
+  """
   use TransportWeb, :view
 
   def breadcrumbs(args) do
-    IO.inspect(Enum.count(args))
-    IO.inspect(Enum.at(args, 0))
-    IO.inspect(Enum.at(args, 1))
-    apply(__MODULE__, :crumbs, args)
+    __MODULE__
+    |> apply(:crumbs, args)
     |> render_crumbs
   end
 
