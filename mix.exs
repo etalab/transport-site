@@ -19,8 +19,7 @@ defmodule Transport.MixProject do
 
   defp deps do
     [
-      # NOTE: using master to be able to use `plt_local_path` option
-      {:dialyxir, "~> 1.1.0", only: :dev, runtime: false, git: "https://github.com/jeremyjh/dialyxir.git"},
+      {:dialyxir, "~> 1.1.0", only: :dev, runtime: false},
       {:excoveralls, "~> 0.10", only: :test}
     ]
   end
