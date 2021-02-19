@@ -1,6 +1,6 @@
 <section class="pt-48">
   <div class="container">
-      <%= breadcrumbs [@conn, :select_resource] %>
+      <%= breadcrumbs [@conn, :select_resource, @dataset["id"]] %>
     <h3>
       <%= @dataset["title"] %>
     </h3>
