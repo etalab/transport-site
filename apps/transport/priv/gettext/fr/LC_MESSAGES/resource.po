@@ -91,7 +91,7 @@ msgstr "Option 2 : pour plus d'options, éditer la ressource sur data.gouv.fr"
 
 #, elixir-format
 msgid "Resource modification"
-msgstr "Modification de la ressource"
+msgstr "Modification d'une ressource"
 
 #, elixir-format
 msgid "Give a link for the resource"
