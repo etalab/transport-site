@@ -196,6 +196,10 @@
   .breadcrumbs-element {
     list-style: none;
     padding-right: 0.5em;
+    color: var(--dark-grey);
+    a {
+      color: var(--dark-grey);
+    }
   }
   .breadcrumbs-element+.breadcrumbs-element {
     &::before {

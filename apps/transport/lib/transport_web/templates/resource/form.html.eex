@@ -8,14 +8,14 @@
       <% else %>
         <%= breadcrumbs [@conn, :update_resource, @dataset["id"]] %>
       <% end %>
-      <h4 class="small-bottom-margin"><%= @dataset["title"] %></h4>
-      <%= link("Voir la page du jeu de données", to: "/datasets/#{@dataset["id"]}") %>
     </div>
   </section>
   <section class="choose-file">
-    <div class="container pt-48">
-      <div class="description">
-        <h4><%= title(@conn) %></h4>
+
+    <div class="container pt-24">
+      <strong><%= @dataset["title"] %></strong>
+      <div class="pt-24">
+        <h2><%= title(@conn) %></h2>
       </div>
       <div class="option-1">
         <div class="panel">

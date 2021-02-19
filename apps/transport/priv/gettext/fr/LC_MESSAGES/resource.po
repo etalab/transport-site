@@ -112,3 +112,7 @@ msgstr "Cette option vous permet d'ajouter la ressource sur data.gouv.fr depuis 
 #, elixir-format
 msgid "Example : Paris GTFS dataset"
 msgstr "exemple : Horaires au format GTFS"
+
+#, elixir-format
+msgid "Visit the dataset page"
+msgstr ""Voir la page du jeu de données""
