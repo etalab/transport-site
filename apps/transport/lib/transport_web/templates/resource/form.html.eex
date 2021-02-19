@@ -3,6 +3,11 @@
 <div class="add-update-resource">
   <section class="pt-48 pb-24">
     <div class="container">
+      <%= if new_resource do %>
+        <%= breadcrumbs [@conn, :new_resource] %>
+      <% else %>
+        <%= breadcrumbs [@conn, :update_resource, @dataset["id"]] %>
+      <% end %>
       <h4 class="small-bottom-margin"><%= @dataset["title"] %></h4>
       <%= link("Voir la page du jeu de données", to: "/datasets/#{@dataset["id"]}") %>
     </div>
