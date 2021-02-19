@@ -16,17 +16,23 @@ defmodule TransportWeb.BreadCrumbs do
 
   def crumbs(conn, :new_resource) do
     crumbs(conn, :espace_producteur) ++
-    [{dgettext("espace-producteurs", "Nouvelle ressource"), page_path(conn, :espace_producteur)}]
+      [
+        {dgettext("espace-producteurs", "Nouvelle ressource"), page_path(conn, :espace_producteur)}
+      ]
   end
 
   def crumbs(conn, :select_resource, id) do
     crumbs(conn, :espace_producteur) ++
-    [{dgettext("espace-producteurs", "Sélectionner une resource"), resource_path(conn, :resources_list, id)}]
+      [
+        {dgettext("espace-producteurs", "Sélectionner une resource"), resource_path(conn, :resources_list, id)}
+      ]
   end
 
   def crumbs(conn, :update_resource, id) do
     crumbs(conn, :select_resource, id) ++
-    [{dgettext("espace-producteurs", "Mettre à jour une ressource"), page_path(conn, :espace_producteur)}]
+      [
+        {dgettext("espace-producteurs", "Mettre à jour une ressource"), page_path(conn, :espace_producteur)}
+      ]
   end
 
   def render_crumbs(crumbs_element) do
