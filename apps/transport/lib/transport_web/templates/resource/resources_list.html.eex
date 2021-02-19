@@ -10,7 +10,7 @@
         <%= @dataset["title"] %>
       </strong>
       <div>
-        <%= link("Voir la page du jeu de données", to: "/datasets/#{@dataset["id"]}") %>
+        <%= link(dgettext("resource", "Visit the dataset page"), to: "/datasets/#{@dataset["id"]}") %>
       </div>
       <div class="pt-24">
         <%= dgettext("resource", "Choose the resource you want to update") %> :

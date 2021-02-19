@@ -115,4 +115,4 @@ msgstr "exemple : Horaires au format GTFS"
 
 #, elixir-format
 msgid "Visit the dataset page"
-msgstr ""Voir la page du jeu de données""
+msgstr "Voir la page du jeu de données"
