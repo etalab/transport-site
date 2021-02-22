@@ -1,7 +1,7 @@
 <div class="producer-space">
   <div class="pt-48">
-    <div class="container">
-      <%= render "_breadcrumbs.html" %>
+    <div class="container pb-24">
+      <%= breadcrumbs [@conn, :espace_producteur] %>
     </div>
   </div>
   <section class="section producer-actions">
