@@ -7,16 +7,22 @@ defmodule TransportWeb.PageController do
   def index(conn, _params) do
     conn
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
-    |> assign(:count_by_type, Dataset.count_by_type())
-    |> assign(:count_train, Dataset.count_by_mode("rail"))
-    |> assign(:count_boat, Dataset.count_by_mode("ferry"))
-    |> assign(:count_coach, Dataset.count_coach())
-    |> assign(:count_aoms_with_dataset, count_aoms_with_dataset())
-    |> assign(:count_regions_completed, count_regions_completed())
-    |> assign(:count_public_transport_has_realtime, Dataset.count_public_transport_has_realtime())
-    |> assign(:percent_population, percent_population())
-    |> assign(:reusers, CSVDocuments.reusers())
+    |> merge_assigns(compute_costly_index_stuff())
     |> render("index.html")
+  end
+
+  defp compute_costly_index_stuff() do
+    [
+      count_by_type: Dataset.count_by_type(),
+      count_train: Dataset.count_by_mode("rail"),
+      count_boat: Dataset.count_by_mode("ferry"),
+      count_coach: Dataset.count_coach(),
+      count_aoms_with_dataset: count_aoms_with_dataset(),
+      count_regions_completed: count_regions_completed(),
+      count_public_transport_has_realtime: Dataset.count_public_transport_has_realtime(),
+      percent_population: percent_population(),
+      reusers: CSVDocuments.reusers()
+    ]
   end
 
   def login(conn, %{"redirect_path" => redirect_path}) do
