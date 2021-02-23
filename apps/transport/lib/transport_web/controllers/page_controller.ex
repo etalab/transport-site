@@ -12,7 +12,7 @@ defmodule TransportWeb.PageController do
     |> render("index.html")
   end
 
-  defp compute_costly_index_stuff() do
+  defp compute_costly_index_stuff do
     [
       count_by_type: Dataset.count_by_type(),
       count_train: Dataset.count_by_mode("rail"),
