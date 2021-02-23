@@ -36,7 +36,7 @@ config :db, DB.Repo,
   url:
     System.get_env("POSTGRESQL_ADDON_DIRECT_URI") || System.get_env("POSTGRESQL_ADDON_URI") ||
       "" |> String.replace_prefix("postgresql", "ecto"),
-  pool_size: (System.get_env("PG_POOL_SIZE") || "10") |> String.to_integer
+  pool_size: (System.get_env("PG_POOL_SIZE") || "10") |> String.to_integer,
   pool_timeout: 15_000,
   timeout: 15_000
 
