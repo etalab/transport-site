@@ -151,7 +151,7 @@ Les données fournies par les producteurs de données normalisées appartiennent
 
 ![](/images/visuel_opendatabar_navitia.io.png)
 
-*Image de l' [API open data bar de Kisio Digital]([www.navitia.io](http://www.navitia.io/))*
+*Image de l' [API open data bar de Kisio Digital](https://www.navitia.io/datasets)*
 
 D'autres, comme Mecatran, mettent à disposition de ses clients des clés d'API permettant d'accéder aux divers flux temps réel. Zenbus met également à disposition les données de leurs clients directement sur le PAN, ce qui permet aux réutilisateurs de récupérer le flux de différents réseaux sur une seule plateforme. La communauté de l'Auxerrois récupère les données de leur fournisseur, Ubitransport, pour les redistribuer ensuite sur le PAN. La communauté de l'Auxerrois renvoie tous leurs services de mobilité comme la billettique, leur service d'information voyageur vers[ leurs données publiées transport.data.gouv.fr](https://transport.data.gouv.fr/datasets/reseau-de-transports-en-commun-de-la-communaute-dagglomeration-de-lauxerrois/) pour les récupérer. 
 
