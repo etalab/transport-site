@@ -14,7 +14,7 @@ config :gbfs, jcdecaux_apikey: System.get_env("JCDECAUX_APIKEY")
 config :gbfs, GBFS.Endpoint,
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: GBFS.ErrorView, accepts: ~w(json)],
-  pubsub: [name: GBFS.PubSub, adapter: Phoenix.PubSub.PG2],
+  pubsub_server: GBFS.PubSub, # TODO: verify if this is truly needed? unsure.
   server: false
 
 # Configures the endpoint
@@ -26,18 +26,12 @@ config :transport, TransportWeb.Endpoint,
     layout: {TransportWeb.LayoutView, "app.html"},
     accepts: ~w(html json)
   ],
-  pubsub: [name: Transport.PubSub,
-           adapter: Phoenix.PubSub.PG2],
+  pubsub_server: TransportWeb.PubSub,
   live_view: [
     signing_salt: System.get_env("SECRET_KEY_BASE")
   ]
 
 config :phoenix, :json_library, Jason
-
-# Configures format encoders
-config :phoenix, :format_encoders,
-  html: Phoenix.Template.HTML,
-  json: Jason
 
 # Configures Elixir's Logger
 config :logger,

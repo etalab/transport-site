@@ -3,6 +3,7 @@ defmodule TransportWeb.ResourceView do
   import TransportWeb.PaginationHelpers
   import DB.Validation
   import Phoenix.Controller, only: [current_url: 2]
+  import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   def format_related_objects(nil), do: ""
 

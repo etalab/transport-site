@@ -1,14 +1,20 @@
 <section class="pt-48">
-  <div class="container">
-    <h3>
-      <%= @dataset["title"] %>
-    </h3>
+  <div class="container pb-24">
+    <%= breadcrumbs [@conn, :select_resource, @dataset["id"]] %>
   </div>
 </section>
 <section class="resource-update-section">
   <div class="container">
-    <div class="pt-48">
-      <%= dgettext("resource", "Choose the resource you want to update") %> :
+    <div class="pt-24">
+      <strong>
+        <%= @dataset["title"] %>
+      </strong>
+      <div>
+        <%= link(dgettext("resource", "Visit the dataset page"), to: "/datasets/#{@dataset["id"]}") %>
+      </div>
+      <div class="pt-24">
+        <%= dgettext("resource", "Choose the resource you want to update") %> :
+      </div>
     </div>
     <div class="resources-update-list pt-24">
       <%= for resource <- @dataset["resources"] do %>
