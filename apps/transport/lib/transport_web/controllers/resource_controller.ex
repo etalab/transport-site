@@ -9,7 +9,7 @@ defmodule TransportWeb.ResourceController do
     config = make_pagination_config(params)
 
     Resource
-    |> Repo.get(id)
+    |> Repo.get!(id)
     |> Repo.preload([:validation, dataset: [:resources]])
     |> case do
       nil ->
