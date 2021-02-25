@@ -192,7 +192,7 @@ defmodule TransportWeb.API.StatsController do
   def bike_sharing(%Plug.Conn{} = conn, _params), do: render_features(conn, bike_sharing_features())
 
   @spec quality(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features())
+  def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features(), "api-stats-quality")
 
   @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary() | nil) :: Plug.Conn.t()
   defp render_features(conn, query, cache_key \\ nil) do
