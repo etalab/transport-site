@@ -183,7 +183,7 @@ defmodule TransportWeb.API.StatsController do
   end
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def index(%Plug.Conn{} = conn, _params), do: render_features(conn, aom_features())
+  def index(%Plug.Conn{} = conn, _params), do: render_features(conn, aom_features(), "api-stats-aoms")
 
   @spec regions(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, region_features(), "api-stats-regions")
