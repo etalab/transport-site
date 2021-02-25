@@ -186,7 +186,7 @@ defmodule TransportWeb.API.StatsController do
   def index(%Plug.Conn{} = conn, _params), do: render_features(conn, aom_features())
 
   @spec regions(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, region_features())
+  def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, region_features(), "api-stats-regions")
 
   @spec bike_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def bike_sharing(%Plug.Conn{} = conn, _params), do: render_features(conn, bike_sharing_features())
