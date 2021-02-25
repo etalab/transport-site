@@ -10,10 +10,12 @@ defmodule TransportWeb.BinaryOptimizedJSONEncoder do
   and just pass it through.
 
   A caveat is that this assumes the app never sends back a single string of JSON,
-  something that must be double-checked!
+  something that must be double-checked! If this becomes a problem, then it will be
+  better to just use `send_resp` at specific places (see second link below).
 
-  Reference:
+  References:
   * https://hexdocs.pm/phoenix/1.5.8/Phoenix.Template.html#module-format-encoders
+  * https://github.com/phoenixframework/phoenix/blob/38b3702fd468fea7075cdf996c19c22350fe1eec/lib/phoenix/controller.ex#L271-L286
 
   Credit goes to Benjamin Milde on Elixir lang slack channel
   for his help on this.
