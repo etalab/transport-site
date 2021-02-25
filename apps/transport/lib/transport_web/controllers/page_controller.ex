@@ -3,12 +3,11 @@ defmodule TransportWeb.PageController do
   alias DB.{AOM, Dataset, Partner, Region, Repo}
   alias Transport.CSVDocuments
   import Ecto.Query
-  require Logger
 
   def index(conn, _params) do
     conn
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
-    |> merge_assigns(cached("home-index-stats", fn -> compute_costly_index_stuff() end))
+    |> merge_assigns(Transport.Cache.fetch("home-index-stats", fn -> compute_costly_index_stuff() end))
     |> render("index.html")
   end
 
@@ -30,34 +29,6 @@ defmodule TransportWeb.PageController do
     conn
     |> put_session(:redirect_path, redirect_path)
     |> render("login.html")
-  end
-
-  # NOTE: this function should be moved elsewhere - to be considered a prototype
-  defp cached(cache_key, value_fn) do
-    comp_fn = fn key ->
-      Logger.info("Generating cached value for key #{key}")
-      {:commit, value_fn.()}
-    end
-
-    cache_name = Transport.Application.cache_name()
-
-    {operation, result} = Cachex.fetch(cache_name, cache_key, comp_fn, ttl: :timer.seconds(60))
-
-    case operation do
-      :ok ->
-        Logger.info("Value for key #{cache_key} served from cache")
-        result
-
-      :commit ->
-        Logger.info("Value for key #{cache_key} regenerated")
-        result
-
-      :error ->
-        # should normally not occur, but as a safeguard we'll still try to evaluate the computation
-        Logger.error("Cache error while handling key #{cache_key} - attempting to evaluate without cache")
-        Sentry.capture_message("unable_to_reach_cache")
-        value_fn.()
-    end
   end
 
   def partners(conn) do
