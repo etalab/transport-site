@@ -7,11 +7,11 @@ defmodule TransportWeb.PageController do
   def index(conn, _params) do
     conn
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
-    |> merge_assigns(Transport.Cache.fetch("home-index-stats", fn -> compute_costly_index_stuff() end))
+    |> merge_assigns(Transport.Cache.fetch("home-index-stats", fn -> compute_home_index_stats() end))
     |> render("index.html")
   end
 
-  defp compute_costly_index_stuff do
+  defp compute_home_index_stats do
     [
       count_by_type: Dataset.count_by_type(),
       count_train: Dataset.count_by_mode("rail"),
