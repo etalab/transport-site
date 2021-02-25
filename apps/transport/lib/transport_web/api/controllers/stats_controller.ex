@@ -194,8 +194,19 @@ defmodule TransportWeb.API.StatsController do
   @spec quality(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features())
 
-  @spec render_features(Plug.Conn.t(), Ecto.Query.t()) :: Plug.Conn.t()
-  defp render_features(conn, query), do: render(conn, %{data: query |> features() |> geojson()})
+  @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary() | nil) :: Plug.Conn.t()
+  defp render_features(conn, query, cache_key \\ nil) do
+    comp_fn = fn -> %{data: query |> features() |> geojson()} end
+
+    data =
+      if cache_key do
+        Transport.Cache.fetch(cache_key, comp_fn)
+      else
+        comp_fn.()
+      end
+
+    render(conn, data)
+  end
 
   @spec aom_features :: Ecto.Query.t()
   defp aom_features do
