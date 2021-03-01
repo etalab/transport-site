@@ -1,4 +1,4 @@
-defmodule TransportWeb.BinaryOptimizedJSONEncoder do
+defmodule TransportWeb.ConditionalJSONEncoder do
   require Logger
 
   @moduledoc """

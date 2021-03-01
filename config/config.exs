@@ -34,7 +34,7 @@ config :transport, TransportWeb.Endpoint,
 config :phoenix, :json_library, Jason
 
 config :phoenix, :format_encoders,
-  json: TransportWeb.BinaryOptimizedJSONEncoder
+  json: TransportWeb.ConditionalJSONEncoder
 
 # Configures Elixir's Logger
 config :logger,
