@@ -1,4 +1,6 @@
 defmodule TransportWeb.BinaryOptimizedJSONEncoder do
+  require Logger
+
   @moduledoc """
   Some of the JSON payloads the app sends are costly to compute, so we're
   caching them. It is many times (x100) more efficient to store them as
@@ -22,6 +24,7 @@ defmodule TransportWeb.BinaryOptimizedJSONEncoder do
   """
 
   def encode_to_iodata!({:skip_json_encoding, data}) when is_binary(data) do
+    Logger.info("Skipping JSON encode step (payload is already JSON encoded)")
     data
   end
 
