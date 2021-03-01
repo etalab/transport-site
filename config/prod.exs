@@ -36,7 +36,7 @@ config :db, DB.Repo,
   url:
     System.get_env("POSTGRESQL_ADDON_DIRECT_URI") || System.get_env("POSTGRESQL_ADDON_URI") ||
       "" |> String.replace_prefix("postgresql", "ecto"),
-  pool_size: (System.get_env("PG_POOL_SIZE") || "10") |> String.to_integer,
+  pool_size: 10,
   # NOTE: pool_timeout is deprecated!
   # Must be replaced by https://hexdocs.pm/db_connection/DBConnection.html#start_link/2-queue-config
   pool_timeout: 15_000,
