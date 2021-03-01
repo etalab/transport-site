@@ -15,4 +15,3 @@ ExUnit.start()
 ExVCR.Config.cassette_library_dir("test/fixture/cassettes")
 
 Ecto.Adapters.SQL.Sandbox.mode(DB.Repo, :manual)
-Mox.defmock(Transport.Cache.Mock, for: Transport.Cache.API)

@@ -12,7 +12,7 @@ config :transport, TransportWeb.Endpoint,
 config :gbfs, :disable_page_cache, true
 
 # Override cache implementation
-config :transport, cache_impl: Transport.Cache.Mock
+config :transport, cache_impl: Transport.Cache.Null
 
 # Integration testing with Hound
 # See docs at:
