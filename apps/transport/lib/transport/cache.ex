@@ -1,7 +1,17 @@
-defmodule Transport.Cache do
+defmodule Transport.Cache.API do
+  @callback fetch(cache_key :: binary(), fun()) :: any
+
+  defp impl(), do: Application.get_env(:transport, :cache_impl)
+
+  def fetch(cache_key, comp_fn), do: impl().fetch(cache_key, comp_fn)
+end
+
+defmodule Transport.Cache.Cachex do
   @moduledoc """
   Cache utility for transport
   """
+  @behaviour Transport.Cache.API
+
   require Logger
 
   def fetch(cache_key, value_fn) do
@@ -30,4 +40,13 @@ defmodule Transport.Cache do
         value_fn.()
     end
   end
+end
+
+defmodule Transport.Cache.Null do
+  @moduledoc """
+  A non-caching cache to be used by tests mostly.
+  """
+  @behaviour Transport.Cache.API
+
+  def fetch(_cache_key, value_fn), do: value_fn.()
 end
