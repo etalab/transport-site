@@ -194,6 +194,20 @@ defmodule TransportWeb.API.StatsController do
   @spec quality(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features(), "api-stats-quality")
 
+  @doc """
+  This method is the central computation point for GeoJSON features.
+
+  Because the passed `query` can be costly to compute, this method supports optional
+  caching via `Transport.Cache` (enabled only if a `cache_key` is provided).
+
+  Since the data structures are rich (many key/values), the computation result is cached
+  *after* encoding it to JSON, which is many time (100x during our tests) faster than
+  storing the original data structure in cache then re-encoding at each request.
+
+  Because `render` does not support passing a rendered JSON (as binary) today, and to avoid
+  resorting to `send_resp` directly, we leverage `TransportWeb.ConditionalJSONEncoder` to
+  skip JSON encoding, signaling the need to do so via a {:skip_json_encoding, data} tuple.
+  """
   @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary() | nil) :: Plug.Conn.t()
   defp render_features(conn, query, cache_key \\ nil) do
     comp_fn = fn ->
