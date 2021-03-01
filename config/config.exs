@@ -33,6 +33,12 @@ config :transport, TransportWeb.Endpoint,
 
 config :phoenix, :json_library, Jason
 
+#
+# A tweaked format encoder to optionally bypass JSON
+# encoding when the caller knows it is already encoded.
+#
+# See https://hexdocs.pm/phoenix/1.5.8/Phoenix.Template.html#module-format-encoders
+#
 config :phoenix, :format_encoders,
   json: TransportWeb.ConditionalJSONEncoder
 
