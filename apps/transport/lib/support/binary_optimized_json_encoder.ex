@@ -8,12 +8,16 @@ defmodule TransportWeb.BinaryOptimizedJSONEncoder do
   both marshalling/unmarshalling costs from ETS, and re-encoding to JSON strings.
 
   Here we leverage Phoenix "format encoders" to override the "encoding to JSON"
-  process: if the the data is already a binary, we assume it is encoded JSON already,
-  and just pass it through.
+  process: if the data is a well-specified tuple indicating that the code calling
+  `render` knows that the payload is already JSON encoded, we'll just pass the data
+  through.
 
-  A caveat is that this assumes the app never sends back a single string of JSON,
-  something that must be double-checked! If this becomes a problem, then it will be
-  better to just use `send_resp` at specific places (see second link below).
+  We are using a tuple rather than just detecting that the data is binary because
+  there could be places where the reply is just a string (e.g. "OK"), and this would
+  require JSON encoding.
+
+  This bit of code makes sure we can rely on `render` (common code path) instead of
+  moving to `send_resp` calls to mimic `render` for JSON, so it is a bit more future-proof.
 
   References:
   * https://hexdocs.pm/phoenix/1.5.8/Phoenix.Template.html#module-format-encoders
