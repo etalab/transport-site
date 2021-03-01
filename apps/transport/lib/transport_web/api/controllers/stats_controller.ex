@@ -222,7 +222,7 @@ defmodule TransportWeb.API.StatsController do
 
     data =
       if cache_key do
-        Transport.Cache.fetch(cache_key, comp_fn)
+        Transport.Cache.API.fetch(cache_key, comp_fn)
       else
         comp_fn.()
       end

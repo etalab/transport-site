@@ -7,7 +7,7 @@ defmodule TransportWeb.PageController do
   def index(conn, _params) do
     conn
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
-    |> merge_assigns(Transport.Cache.fetch("home-index-stats", fn -> compute_home_index_stats() end))
+    |> merge_assigns(Transport.Cache.API.fetch("home-index-stats", fn -> compute_home_index_stats() end))
     |> render("index.html")
   end
 
