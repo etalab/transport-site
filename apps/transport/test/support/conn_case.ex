@@ -33,6 +33,11 @@ defmodule TransportWeb.ConnCase do
   end
 
   setup _tags do
+    # The test.exs config points to the Mock, and we override it with default behaviour
+    # that makes it transparent to most tests. This allows us to add Mox expectations in
+    # specific tests, without having to swap the App config at runtime (which forbids async).
+    Mox.stub_with(Transport.Cache.Mock, Transport.Cache.Null)
+
     {:ok, conn: ConnTest.build_conn()}
   end
 end
