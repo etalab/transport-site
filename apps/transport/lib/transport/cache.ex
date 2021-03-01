@@ -37,7 +37,8 @@ defmodule Transport.Cache.Cachex do
         Logger.info("Value for key #{cache_key} regenerated")
         result
 
-      :error ->
+      # I believe this can be :ignore (which we could handle better) or :error (for which this blocks was written initially)
+      _ ->
         # should normally not occur, but as a safeguard we'll still try to evaluate the computation
         Logger.error("Cache error while handling key #{cache_key} - attempting to evaluate without cache")
         Sentry.capture_message("unable_to_reach_cache")
