@@ -196,9 +196,12 @@ defmodule TransportWeb.API.StatsController do
 
   @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary() | nil) :: Plug.Conn.t()
   defp render_features(conn, query, cache_key \\ nil) do
-    # Careful: the output is JSON already encoded to binary, something which requires the
-    # `BinaryOptimizedJSONEncoder` to be enabled, or you'll get an error.
-    comp_fn = fn -> %{data: query |> features() |> geojson() |> Jason.encode!()} end
+    comp_fn = fn ->
+      query
+      |> features()
+      |> geojson()
+      |> Jason.encode!()
+    end
 
     data =
       if cache_key do
@@ -207,7 +210,7 @@ defmodule TransportWeb.API.StatsController do
         comp_fn.()
       end
 
-    render(conn, data)
+    render(conn, data: {:skip_json_encoding, data})
   end
 
   @spec aom_features :: Ecto.Query.t()

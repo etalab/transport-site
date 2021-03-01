@@ -21,7 +21,7 @@ defmodule TransportWeb.BinaryOptimizedJSONEncoder do
   for his help on this.
   """
 
-  def encode_to_iodata!(data) when is_binary(data) do
+  def encode_to_iodata!({:skip_json_encoding, data}) when is_binary(data) do
     data
   end
 
