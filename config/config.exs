@@ -81,6 +81,8 @@ config :sentry,
   },
   included_environments: [:prod]
 
+config :transport,
+  cache_impl: Transport.Cache.Cachex
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

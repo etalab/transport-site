@@ -11,6 +11,9 @@ config :transport, TransportWeb.Endpoint,
 # Page cache would make tests brittle, so disable it by default
 config :gbfs, :disable_page_cache, true
 
+# Override cache implementation
+config :transport, cache_impl: Transport.Cache.Null
+
 # Integration testing with Hound
 # See docs at:
 # * https://github.com/HashNuke/hound/blob/master/notes/configuring-hound.md
