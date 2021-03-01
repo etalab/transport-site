@@ -6,7 +6,6 @@ defmodule TransportWeb.PageControllerTest do
 
   doctest TransportWeb.PageController
 
-  @tag :focus
   test "GET /", %{conn: conn} do
     conn = conn |> get(page_path(conn, :index))
     assert html_response(conn, 200) =~ "disponible, valoriser et améliorer"
