@@ -1,7 +1,11 @@
 defmodule Transport.Cache.API do
+  @moduledoc """
+  This behaviour defines the API for caching, with alternative implementations.
+  """
+
   @callback fetch(cache_key :: binary(), fun()) :: any
 
-  defp impl(), do: Application.get_env(:transport, :cache_impl)
+  defp impl, do: Application.get_env(:transport, :cache_impl)
 
   def fetch(cache_key, comp_fn), do: impl().fetch(cache_key, comp_fn)
 end
