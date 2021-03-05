@@ -28,19 +28,11 @@ defmodule Helpers do
     |> List.last()
   end
 
-  @spec format_datetime(binary()) :: binary()
-  def format_datetime(nil), do: ""
+  @spec convert_datetime_paris_zone(Calendar.datetime() | nil) :: Calendar.datetime() | binary()
+  def convert_datetime_paris_zone(nil), do: ""
 
-  def format_datetime(date) do
-    with {:ok, parsed_date} <- Timex.parse(date, "{ISO:Extended}"),
-         converted_date <- Timezone.convert(parsed_date, "Europe/Paris"),
-         {:ok, formatted_date} <- Formatter.format(converted_date, "{RFC3339}") do
-      formatted_date
-    else
-      {:error, error} ->
-        Logger.error(error)
-        ""
-    end
+  def convert_datetime_paris_zone(datetime) do
+    Timezone.convert(datetime, "Europe/Paris")
   end
 
   @spec last_updated([DB.Resource.t()]) :: binary()
