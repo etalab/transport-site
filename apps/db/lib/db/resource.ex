@@ -22,7 +22,7 @@ defmodule DB.Resource do
     field(:last_import, :string)
     field(:title, :string)
     field(:metadata, :map)
-    field(:last_update, :string)
+    field(:last_update, :utc_datetime)
     # stable data.gouv.fr url if exists, else (for ODS gtfs as csv) it's the real url
     field(:latest_url, :string)
     field(:is_available, :boolean, default: true)
