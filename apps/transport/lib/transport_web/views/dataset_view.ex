@@ -24,7 +24,6 @@ defmodule TransportWeb.DatasetView do
 
   def format_datetime_to_date(datetime) do
     datetime
-    |> Timex.parse!("{ISO:Extended}")
     |> Timex.format!("{0D}-{0M}-{YYYY}")
   end
 
