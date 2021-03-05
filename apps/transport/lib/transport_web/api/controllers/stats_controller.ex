@@ -183,16 +183,16 @@ defmodule TransportWeb.API.StatsController do
   end
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def index(%Plug.Conn{} = conn, _params), do: render_features(conn, aom_features(), "api-stats-aoms")
+  def index(%Plug.Conn{} = conn, _params), do: render_features(conn, aom_features_query(), "api-stats-aoms")
 
   @spec regions(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, region_features(), "api-stats-regions")
+  def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, region_features_query(), "api-stats-regions")
 
   @spec bike_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def bike_sharing(%Plug.Conn{} = conn, _params), do: render_features(conn, bike_sharing_features())
+  def bike_sharing(%Plug.Conn{} = conn, _params), do: render_features(conn, bike_sharing_features_query())
 
   @spec quality(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features(), "api-stats-quality")
+  def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features_query(), "api-stats-quality")
 
   #
   # (not using @doc because this is a private method and it would then generate a warning ;
@@ -230,8 +230,8 @@ defmodule TransportWeb.API.StatsController do
     render(conn, data: {:skip_json_encoding, data})
   end
 
-  @spec aom_features :: Ecto.Query.t()
-  defp aom_features do
+  @spec aom_features_query :: Ecto.Query.t()
+  defp aom_features_query do
     AOM
     |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id)
     |> select([aom, parent_dataset], %{
@@ -256,8 +256,8 @@ defmodule TransportWeb.API.StatsController do
     })
   end
 
-  @spec region_features :: Ecto.Query.t()
-  defp region_features do
+  @spec region_features_query :: Ecto.Query.t()
+  defp region_features_query do
     Region
     |> select([r], %{
       geometry: r.geom,
@@ -286,8 +286,8 @@ defmodule TransportWeb.API.StatsController do
     })
   end
 
-  @spec bike_sharing_features :: Ecto.Query.t()
-  defp bike_sharing_features do
+  @spec bike_sharing_features_query :: Ecto.Query.t()
+  defp bike_sharing_features_query do
     DatasetGeographicView
     |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
     |> select([gv, dataset], %{
@@ -299,10 +299,10 @@ defmodule TransportWeb.API.StatsController do
     |> where([_gv, dataset], dataset.type == "bike-sharing")
   end
 
-  @spec quality_features :: Ecto.Query.t()
-  defp quality_features do
-    # Note: this query is not done in the meantime as aoms_features because this query is quite long to execute
-    # and we don't want to slow down the main aom_features to much
+  @spec quality_features_query :: Ecto.Query.t()
+  defp quality_features_query do
+    # Note: this query is not done in the meantime as aom_features_query because this query is quite long to execute
+    # and we don't want to slow down the main aom_features_query to much
     dt = Date.utc_today() |> Date.to_iso8601()
 
     AOM
