@@ -1,5 +1,6 @@
 defmodule Transport.Cache.Cachex.Test do
-  use ExUnit.Case, async: false
+  # make sure to keep UUID for cache keys so that async can be kept in place
+  use ExUnit.Case, async: true
   import ExUnit.CaptureLog
 
   test "it caches values provided in Cachex cache" do
