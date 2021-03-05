@@ -22,7 +22,7 @@ defmodule DB.Dataset do
     field(:created_at, :string)
     field(:description, :string)
     field(:frequency, :string)
-    field(:last_update, :string)
+    field(:last_update, :utc_datetime)
     field(:licence, :string)
     field(:logo, :string)
     field(:full_logo, :string)
