@@ -44,6 +44,7 @@ defmodule Helpers do
       [] -> nil
       dates -> Enum.max(dates)
     end
+    |> convert_datetime_paris_zone
   end
 
   @spec admin?(map | nil) :: boolean

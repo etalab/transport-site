@@ -180,7 +180,7 @@ defmodule TransportWeb.API.DatasetController do
       %{
         "datagouv_id" => resource.datagouv_id,
         "title" => resource.title,
-        "updated" => Helpers.format_datetime(resource.last_update),
+        "updated" => Helpers.convert_datetime_paris_zone(resource.last_update),
         "url" => resource.latest_url,
         "original_url" => resource.url,
         "end_calendar_validity" => resource.metadata["end_date"],
