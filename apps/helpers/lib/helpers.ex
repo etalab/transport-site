@@ -52,7 +52,6 @@ defmodule Helpers do
       [] -> nil
       dates -> Enum.max(dates)
     end
-    |> format_datetime()
   end
 
   @spec admin?(map | nil) :: boolean
