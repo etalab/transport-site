@@ -12,7 +12,7 @@
     <title><%= seo[:title] || dgettext("seo", "National Access Point for transport open data") %></title>
 
     <link rel="stylesheet" media="all" href="<%= static_path(@conn, "/css/app.css") %>">
-    <link rel="alternate" type="application/atom+xml"  href="<%= atom_url(@conn, :index) %>" title="Resources feed" >
+    <link rel="alternate" type="application/atom+xml" href="<%= atom_url(@conn, :index) %>" title="Resources feed" >
     <%= if assigns[:mix_env] == :prod do %>
     <!-- Polyfill for css grid-->
     <script type="text/javascript">
