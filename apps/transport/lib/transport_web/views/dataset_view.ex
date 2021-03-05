@@ -251,13 +251,10 @@ defmodule TransportWeb.DatasetView do
     |> Stream.reject(&Resource.is_netex?/1)
     |> Enum.to_list()
     |> Enum.sort(fn r1, r2 ->
-      nd1 = NaiveDateTime.from_iso8601(Map.get(r1, :last_update, ""))
-      nd2 = NaiveDateTime.from_iso8601(Map.get(r2, :last_update, ""))
-
-      case {nd1, nd2} do
-        {{:ok, nd1}, {:ok, nd2}} -> NaiveDateTime.compare(nd1, nd2) == :gt
-        _ -> true
-      end
+      ten_years_ago = DateTime.now!("Etc/UTC") |> DateTime.add(-315_360_000, :second)
+      nd1 = Map.get(r1, :last_update, ten_years_ago)
+      nd2 = Map.get(r2, :last_update, ten_years_ago)
+      DateTime.compare(nd1, nd2) == :gt
     end)
   end
 
