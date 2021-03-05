@@ -1,29 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<feed xmlns="http://www.w3.org/2005/Atom">
-
-  <title>transport.data.gouv.fr</title>
-  <subtitle>Jeux de données GTFS</subtitle>
-  <link href="<%= atom_url(@conn, :index) %>" rel="self" />
-  <id>tag:transport.data.gouv.fr,2019-02-27:/20190227161047181</id>
-  <updated><%= last_updated(@resources) %></updated>
-
-  <%= for resource <- @resources do %>
-  <entry>
-    <title><%= resource.dataset.spatial %> — <%= resource.title %></title>
-    <link href="<%= resource.latest_url %>" />
-    <id><%= resource_url(@conn, :details, resource.id) %></id>
-    <updated><%= format_datetime(resource.last_update) %></updated>
-    <summary>Cette resource fait partie du jeux de données <%= resource.dataset.spatial %></summary>
-    <content type="html">
-      <![CDATA[
+  <feed xmlns="http://www.w3.org/2005/Atom">
+    <title>transport.data.gouv.fr</title>
+    <subtitle>Jeux de données GTFS</subtitle>
+    <link href="<%= atom_url(@conn, :index) %>" rel="self" />
+    <id>tag:transport.data.gouv.fr,2019-02-27:/20190227161047181</id>
+    <updated><%= last_updated(@resources) %></updated>
+    <%= for resource <- @resources do %>
+      <entry>
+        <title><%= resource.dataset.spatial %> — <%= resource.title %></title>
+        <link href="<%= resource.latest_url %>" />
+        <id><%= resource_url(@conn, :details, resource.id) %></id>
+        <updated><%= format_datetime(resource.last_update) %></updated>
+        <summary>Cette resource fait partie du jeux de données <%= resource.dataset.spatial %></summary>
+        <content type="html">
+          <![CDATA[
       <%= raw Earmark.as_html!(resource.dataset.description) %>
-      ]]>
-    </content>
-    <author>
-      <name><%= resource.dataset.organization %></name>
-    </author>
-  </entry>
-  <% end %>
-
-</feed>
+          ]]>
+        </content>
+        <author>
+          <name><%= resource.dataset.organization %></name>
+        </author>
+      </entry>
+    <% end %>
+  </feed>
