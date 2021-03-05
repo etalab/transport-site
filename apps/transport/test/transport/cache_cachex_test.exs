@@ -13,6 +13,13 @@ defmodule Transport.Cache.Cachex.Test do
     assert Cachex.get!(:transport, unique_cache_key) == [hello: "world"]
   end
 
+  # TODO: wrap the computation function with a rescue, and make sure to
+  # avoid duplicate invoke since there is no point
+  test "it bubbles up errors occurring inside the computation function"
+
+  test "it invoke the computation function directly in case of technical cachex error"
+
+
   test "it handles errors as best as it can" do
     unique_cache_key = Ecto.UUID.generate()
 
