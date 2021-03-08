@@ -523,14 +523,17 @@ defmodule Transport.ImportData do
   def check_download_url(%{"download_url" => _}), do: true
 
   @doc """
-  Returns an date only part of the datetime
+  Returns an date only part of the datetime.
 
   ## Examples
 
       iex> ImportData.parse_date("2018-09-28T13:37:00")
       "2018-09-28"
+
+      iex> ImportData.parse_date(~U[2018-09-28T13:37:00])
+      "2018-09-28"
   """
-  @spec parse_date(binary()) :: binary()
+  @spec parse_date(binary() | Calendar.datetime()) :: binary()
   def parse_date(date) when is_binary(date) do
     with {:ok, date} <- NaiveDateTime.from_iso8601(date) do
       date
@@ -539,7 +542,9 @@ defmodule Transport.ImportData do
     end
   end
 
-  def parse_date(nil), do: nil
+  def parse_date(%DateTime{} = date) do
+    NaiveDateTime.to_date(date)
+  end
 
   @doc """
   Formats the file format in a human readable form
