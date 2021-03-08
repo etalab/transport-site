@@ -20,6 +20,13 @@ defmodule TransportWeb.DatasetView do
     )
   end
 
+  @doc """
+  convert a datetime to a French display of the date
+
+  iex > DatasetView.format_datetime_to_date(~U[2021-03-08 14:50:49.821198Z])
+  "08-03-2021"
+  """
+  @spec format_datetime_to_date(Calendar.datetime() | nil) :: binary()
   def format_datetime_to_date(nil), do: ""
 
   def format_datetime_to_date(datetime) do
