@@ -15,9 +15,6 @@ defmodule Transport.Cache.Cachex.Test do
     # a technical error is provided with the following tuple:
     {:error, :no_cache} = Cachex.fetch(:pok, "some-key-001", fn _ -> "data" end, ttl: :timer.seconds(0))
 
-    # a regular data change comes out like this:
-    {:commit, "data"} = Cachex.fetch(:transport, "some-key-002", fn _ -> "data" end, ttl: :timer.seconds(0))
-
     # an error raised inside the computation callback gives:
     {:error, "foobar"} = Cachex.fetch(:transport, "some-key-003", fn _ -> raise "foobar" end, ttl: :timer.seconds(0))
 
