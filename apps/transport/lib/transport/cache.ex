@@ -44,13 +44,23 @@ defmodule Transport.Cache.Cachex do
         Logger.info("Value for key #{cache_key} regenerated")
         result
 
-      # I believe this can be :ignore (which we could handle better)
-      # or :error (for which this blocks was written initially)
-      _ ->
-        # should normally not occur, but as a safeguard we'll still try to evaluate the computation
-        Logger.error("Cache error while handling key #{cache_key} - attempting to evaluate without cache")
-        Sentry.capture_message("unable_to_reach_cache")
-        value_fn.()
+      :error ->
+        case result do
+          {:computation_error, computation_error, computation_error_stacktrace} ->
+            Logger.error("The computation function failed during cached query for key #{cache_key}. Re-raising.")
+            reraise(computation_error, computation_error_stacktrace)
+
+          _ ->
+            # here we assume we have a technical (cache-oriented) error, and we'll try to evaluate the function again
+            Logger.error(
+              "Cache error #{result |> inspect} while handling key #{cache_key} - attempting to evaluate without cache"
+            )
+
+            # NOTE: if this occurs, we'll need to propagate "result" into it, instead of hiding the underlying details,
+            # but I'm not 100% sure how to do it reliably yet
+            Sentry.capture_message("unable_to_reach_cache")
+            value_fn.()
+        end
     end
   end
 end
