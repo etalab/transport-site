@@ -3,6 +3,40 @@ defmodule Transport.Cache.Cachex.Test do
   use ExUnit.Case, async: true
   import ExUnit.CaptureLog
 
+  defmodule SomeCustomException do
+    defexception message: "Oh noes! A custom error occurred!"
+  end
+
+  test "safeguard code to ensure Cachex does not change of behaviour on their future upgrades" do
+    # see relevant parts of code:
+    # * https://github.com/whitfin/cachex/blob/836578ec452bfa6eba3c3159123cccdc9038127e/lib/cachex/services/courier.ex#L73-L78
+    # * https://github.com/whitfin/cachex/blob/836578ec452bfa6eba3c3159123cccdc9038127e/lib/cachex/actions.ex#L85
+
+    # a technical error is provided with the following tuple:
+    {:error, :no_cache} = Cachex.fetch(:pok, "some-key-001", fn _ -> "data" end, ttl: :timer.seconds(0))
+
+    # a regular data change comes out like this:
+    {:commit, "data"} = Cachex.fetch(:transport, "some-key-002", fn _ -> "data" end, ttl: :timer.seconds(0))
+
+    # an error raised inside the computation callback gives:
+    {:error, "foobar"} = Cachex.fetch(:transport, "some-key-003", fn _ -> raise "foobar" end, ttl: :timer.seconds(0))
+
+    # catching the error ourselves to allow re-raising
+    # (inspired by https://github.com/whitfin/cachex/issues/252, not merged at time of writing)
+    {:error, {:computation_error, captured_error = %SomeCustomException{}, captured_stacktrace}} =
+      Cachex.fetch(:transport, "some-key-004", fn _ ->
+        try do
+          raise SomeCustomException
+        rescue
+          e -> {:error, {:computation_error, e, __STACKTRACE__}}
+        end
+      end)
+
+    assert_raise(SomeCustomException, fn ->
+      Kernel.reraise(captured_error, captured_stacktrace)
+    end)
+  end
+
   test "it caches values provided in Cachex cache" do
     unique_cache_key = Ecto.UUID.generate()
     initial_value = [hello: "world"]
