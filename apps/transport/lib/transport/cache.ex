@@ -18,7 +18,7 @@ defmodule Transport.Cache.Cachex do
 
   require Logger
 
-  def fetch(cache_key, value_fn) do
+  def fetch(cache_key, value_fn, cache_name \\ Transport.Application.cache_name()) do
     comp_fn = fn key ->
       Logger.info("Generating cached value for key #{key}")
 
@@ -32,8 +32,6 @@ defmodule Transport.Cache.Cachex do
           {:error, {:computation_error, e, __STACKTRACE__}}
       end
     end
-
-    cache_name = Transport.Application.cache_name()
 
     {operation, result} = Cachex.fetch(cache_name, cache_key, comp_fn, ttl: :timer.seconds(60))
 
