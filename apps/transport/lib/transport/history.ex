@@ -40,8 +40,9 @@ defmodule Transport.History do
     end
   end
 
+  # Ultimately, resource.last_import should probably also become a DateTime
   @spec modification_date(Resource.t()) :: binary()
-  defp modification_date(resource), do: resource.last_update || resource.last_import
+  defp modification_date(resource), do: DateTime.to_string(resource.last_update) || resource.last_import
 
   @spec needs_to_be_updated(Resource.t()) :: boolean()
   defp needs_to_be_updated(resource) do
