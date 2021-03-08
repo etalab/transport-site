@@ -9,6 +9,7 @@ defmodule TransportWeb.AtomController do
       Resource
       |> preload(:dataset)
       |> where([r], not is_nil(r.latest_url))
+      |> where([r], r.last_update > from_now(-1, "month"))
       |> Repo.all()
 
     conn
