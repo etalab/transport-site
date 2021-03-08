@@ -44,6 +44,10 @@ defmodule Transport.Cache.Cachex do
         Logger.info("Value for key #{cache_key} regenerated")
         result
 
+      :ignore ->
+        # NOTE: should normally not happen, due to how the code is structured, but kept for clarity
+        raise "Ignore mode is not supported"
+
       :error ->
         case result do
           {:computation_error, computation_error, computation_error_stacktrace} ->
