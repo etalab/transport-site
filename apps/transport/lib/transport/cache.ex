@@ -18,6 +18,19 @@ defmodule Transport.Cache.Cachex do
 
   require Logger
 
+  @doc """
+  Run the `value_fn` function, caching the result in Cachex with the provided `cache_key`.
+
+  Any error occurring inside the `value_fn` function will be propagated to the caller.
+
+  In case of technical error (unlikely) inside Cachex, the `value_fn` will be evaluated
+  without caching, in a kind of degraded mode, so that we can still serve the request.
+
+  Useful notes to understand the :commit/:ok/:error/:ignore stuff:
+  * https://github.com/whitfin/cachex/blob/836578ec452bfa6eba3c3159123cccdc9038127e/lib/cachex/services/courier.ex#L73-L78
+  * https://github.com/whitfin/cachex/blob/836578ec452bfa6eba3c3159123cccdc9038127e/lib/cachex/actions.ex#L85
+  * https://github.com/whitfin/cachex/issues/252
+  """
   def fetch(cache_key, value_fn, cache_name \\ Transport.Application.cache_name()) do
     comp_fn = fn key ->
       Logger.info("Generating cached value for key #{key}")
