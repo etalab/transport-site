@@ -21,7 +21,16 @@ defmodule Transport.Cache.Cachex do
   def fetch(cache_key, value_fn) do
     comp_fn = fn key ->
       Logger.info("Generating cached value for key #{key}")
-      {:commit, value_fn.()}
+
+      try do
+        {:commit, value_fn.()}
+      rescue
+        e ->
+          # NOTE: if an error occurs inside the value_fn computation, then
+          # we want to track it down specifically and re-raise, without
+          # re-calling the value function
+          {:error, {:computation_error, e, __STACKTRACE__}}
+      end
     end
 
     cache_name = Transport.Application.cache_name()
