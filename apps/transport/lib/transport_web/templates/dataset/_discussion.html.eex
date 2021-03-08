@@ -12,7 +12,7 @@
             <%= comment["posted_by"]["first_name"] %> <%= comment["posted_by"]["last_name"] %>
           </a>
           <span><%= dgettext("page-dataset-details", "Posted on") %></span>
-          <span> <%= format_datetime comment["posted_on"] %></span>
+          <span> <%= convert_binary_datetime_paris_zone comment["posted_on"] %></span>
         </div>
         <div class="discussion-comment__content">
           <%= raw Earmark.as_html!(comment["content"]) %>

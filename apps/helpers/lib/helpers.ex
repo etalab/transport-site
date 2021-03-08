@@ -60,13 +60,13 @@ defmodule Helpers do
 
   ## Examples
 
-  iex> Helpers.format_datetime("2020-03-08T00:00:00+00:00")
+  iex> Helpers.convert_binary_datetime_paris_zone("2020-03-08T00:00:00+00:00")
   "2020-03-08T01:00:00+01:00"
   """
-  @spec format_datetime(binary()) :: binary()
-  def format_datetime(nil), do: ""
+  @spec convert_binary_datetime_paris_zone(binary()) :: binary()
+  def convert_binary_datetime_paris_zone(nil), do: ""
 
-  def format_datetime(date) do
+  def convert_binary_datetime_paris_zone(date) do
     with {:ok, parsed_date} <- Timex.parse(date, "{ISO:Extended}"),
          formatted_date <- convert_datetime_paris_zone(parsed_date) do
       formatted_date
