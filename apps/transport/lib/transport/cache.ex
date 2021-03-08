@@ -32,6 +32,7 @@ defmodule Transport.Cache.Cachex do
   * https://github.com/whitfin/cachex/issues/252
   """
   def fetch(cache_key, value_fn, cache_name \\ Transport.Application.cache_name()) do
+    # The computation function must adhere to the `Cachex.fetch` contract (see links above)
     comp_fn = fn key ->
       Logger.info("Generating cached value for key #{key}")
 
