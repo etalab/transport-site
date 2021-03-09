@@ -36,7 +36,7 @@ defmodule TransportWeb do
         namespace: TransportWeb
 
       # Import convenience functions from controllers
-      import Phoenix.Controller, only: [get_flash: 2, view_module: 1, get_csrf_token: 0]
+      import Phoenix.Controller, only: [get_flash: 2, view_module: 1, get_csrf_token: 0, view_template: 1]
 
       # Use all HTML functionality (forms, tags, etc)
       use TransportWeb.InputHelpers
@@ -48,8 +48,8 @@ defmodule TransportWeb do
       import TransportWeb.SeoMetadata
       import Helpers
 
-      import Phoenix.LiveView,
-        only: [live_render: 2, live_render: 3, live_link: 1, live_link: 2]
+      import Phoenix.LiveView.Helpers,
+        only: [live_render: 2, live_render: 3]
 
       import Plug.Conn, only: [get_session: 2]
     end

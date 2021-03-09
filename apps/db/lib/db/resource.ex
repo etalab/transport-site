@@ -240,6 +240,7 @@ defmodule DB.Resource do
     |> base_tag()
     |> Enum.concat(has_fares_tag(metadata))
     |> Enum.concat(has_shapes_tag(metadata))
+    |> Enum.concat(has_odt_tag(metadata))
     |> Enum.uniq()
   end
 
@@ -255,6 +256,12 @@ defmodule DB.Resource do
   @spec has_shapes_tag(map()) :: [binary()]
   def has_shapes_tag(%{"has_shapes" => true}), do: ["tracés de lignes"]
   def has_shapes_tag(_), do: []
+
+  # check if the resource contains some On Demand Transport (odt) tags
+  @spec has_odt_tag(map()) :: [binary()]
+  def has_odt_tag(%{"some_stops_need_phone_agency" => true}), do: ["transport à la demande"]
+  def has_odt_tag(%{"some_stops_need_phone_driver" => true}), do: ["transport à la demande"]
+  def has_odt_tag(_), do: []
 
   @spec base_tag(__MODULE__.t()) :: [binary()]
   def base_tag(%__MODULE__{format: "GTFS"}), do: ["position des stations", "horaires théoriques", "topologie du réseau"]
@@ -320,7 +327,7 @@ defmodule DB.Resource do
       "InvalidTransferDuration" => dgettext("validations", "Invalid transfer duration"),
       "MissingLanguage" => dgettext("validations", "Missing language"),
       "InvalidLanguage" => dgettext("validations", "Invalid language"),
-      "DupplicateObjectId" => dgettext("validations", "Dupplicate object id"),
+      "DuplicateObjectId" => dgettext("validations", "Duplicate object id"),
       "UnloadableModel" => dgettext("validations", "Not compliant with the GTFS specification"),
       "MissingMandatoryFile" => dgettext("validations", "Missing mandatory file"),
       "ExtraFile" => dgettext("validations", "Extra file"),

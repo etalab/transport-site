@@ -14,7 +14,7 @@ config :gbfs, jcdecaux_apikey: System.get_env("JCDECAUX_APIKEY")
 config :gbfs, GBFS.Endpoint,
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: GBFS.ErrorView, accepts: ~w(json)],
-  pubsub: [name: GBFS.PubSub, adapter: Phoenix.PubSub.PG2],
+  pubsub_server: GBFS.PubSub, # TODO: verify if this is truly needed? unsure.
   server: false
 
 # Configures the endpoint
@@ -26,18 +26,21 @@ config :transport, TransportWeb.Endpoint,
     layout: {TransportWeb.LayoutView, "app.html"},
     accepts: ~w(html json)
   ],
-  pubsub: [name: Transport.PubSub,
-           adapter: Phoenix.PubSub.PG2],
+  pubsub_server: TransportWeb.PubSub,
   live_view: [
     signing_salt: System.get_env("SECRET_KEY_BASE")
   ]
 
 config :phoenix, :json_library, Jason
 
-# Configures format encoders
+#
+# A tweaked format encoder to optionally bypass JSON
+# encoding when the caller knows it is already encoded.
+#
+# See https://hexdocs.pm/phoenix/1.5.8/Phoenix.Template.html#module-format-encoders
+#
 config :phoenix, :format_encoders,
-  html: Phoenix.Template.HTML,
-  json: Jason
+  json: TransportWeb.ConditionalJSONEncoder
 
 # Configures Elixir's Logger
 config :logger,
@@ -78,6 +81,8 @@ config :sentry,
   },
   included_environments: [:prod]
 
+config :transport,
+  cache_impl: Transport.Cache.Cachex
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
@@ -99,4 +104,5 @@ config :ex_aws,
 
 config :transport,
   max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer(),
-  nb_days_to_keep_validations: 60
+  nb_days_to_keep_validations: 60,
+  join_our_slack_link: "https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA"

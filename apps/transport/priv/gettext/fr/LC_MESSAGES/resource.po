@@ -3,11 +3,7 @@ msgstr "Impossible d'accéder à la resource, réessayez"
 
 #, elixir-format
 msgid "Choose the resource you want to update"
-msgstr "Choisissez la ressource à mettre à jour"
-
-#, elixir-format
-msgid "Dataset: "
-msgstr "Jeu de données :"
+msgstr "Choisissez la ressource à mettre à modifier"
 
 #, elixir-format
 msgid "File uploaded!"
@@ -16,10 +12,6 @@ msgstr "Fichier mis à jour !"
 #, elixir-format
 msgid "Unable to upload file"
 msgstr "Impossible de mettre à jour le fichier"
-
-#, elixir-format
-msgid "Update this resource"
-msgstr "Mettre à jour cette ressource"
 
 #, elixir-format
 msgid "Publish a new dataset"
@@ -35,7 +27,7 @@ msgstr "Ressource mise à jour avec une URL !"
 
 #, elixir-format
 msgid "Update the resource"
-msgstr "Mettre à jour la ressource"
+msgstr "Modifier la ressource"
 
 #, elixir-format
 msgid "Add the resource"
@@ -87,7 +79,7 @@ msgstr "Éditer directement la ressource sur data.gouv.fr"
 
 #, elixir-format
 msgid "Option 1: Directly update the resource"
-msgstr "Option 1 : mettre à jour la ressource simplement"
+msgstr "Option 1 : modifier la ressource simplement"
 
 #, elixir-format
 msgid "Option 2: for more options, create the resource on data.gouv.fr"
@@ -98,12 +90,8 @@ msgid "Option 2: for more options, edit the resource on data.gouv.fr"
 msgstr "Option 2 : pour plus d'options, éditer la ressource sur data.gouv.fr"
 
 #, elixir-format
-msgid "Add a resource for dataset "
-msgstr "Ajouter une nouvelle ressource pour le jeu de données "
-
-#, elixir-format
-msgid "Modify resource for dataset "
-msgstr "Modifier la ressource pour le jeu de données "
+msgid "Resource modification"
+msgstr "Modification d'une ressource"
 
 #, elixir-format
 msgid "Give a link for the resource"
@@ -111,7 +99,7 @@ msgstr "Donner un lien vers la ressource"
 
 #, elixir-format
 msgid "This option allows you to update the resource on data.gouv.fr, directly from here."
-msgstr "Cette option vous permet de mettre à jour la ressource sur data.gouv.fr depuis ici, sans avoir à vous y rendre."
+msgstr "Cette option vous permet de modifier la ressource sur data.gouv.fr depuis ici, sans avoir à vous y rendre."
 
 #, elixir-format
 msgid "Option 1: Directly add the resource"
@@ -120,3 +108,11 @@ msgstr "Option 1 : ajouter la ressource simplement"
 #, elixir-format
 msgid "This option allows you to add the resource on data.gouv.fr, directly from here."
 msgstr "Cette option vous permet d'ajouter la ressource sur data.gouv.fr depuis ici, sans avoir à vous y rendre."
+
+#, elixir-format
+msgid "Example : Paris GTFS dataset"
+msgstr "exemple : Horaires au format GTFS"
+
+#, elixir-format
+msgid "Visit the dataset page"
+msgstr "Voir la page du jeu de données"

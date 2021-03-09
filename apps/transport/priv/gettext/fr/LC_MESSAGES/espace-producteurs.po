@@ -1,0 +1,92 @@
+## "msgid"s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove "msgid"s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use "mix gettext.extract --merge" or "mix gettext.merge"
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2\n"
+
+#, elixir-format
+msgid "Add a resource"
+msgstr "Ajouter une ressource"
+
+#, elixir-format
+msgid "Adding a dataset guidelines"
+msgstr "Consultez le guide de publication"
+
+#, elixir-format
+msgid "Contact us"
+msgstr "Contacter l'équipe"
+
+#, elixir-format
+msgid "Get your mobility data on the National Access Point. You will be redirected to data.gouv.fr to have your data published."
+msgstr "Référencez vos données de mobilité sur le Point d'Accès National. Vous serez redirigé sur data.gouv.fr pour publier votre nouveau jeu de données."
+
+#, elixir-format
+msgid "If you have any question on how to publish or update your data and you can't find an anwser on the website, do not hesitate, contact us:"
+msgstr "Une question sur la meilleure manière de publier de données ou de les mettre à jour ? Si vous ne trouvez pas de réponses sur le site, contactez-nous à l'adresse :"
+
+#, elixir-format
+msgid "Publish a dataset"
+msgstr "Publier un jeu de données"
+
+#, elixir-format
+msgid "Publish a new dataset"
+msgstr "Publier un nouveau jeu de données"
+
+#, elixir-format
+msgid "Publishing best practices"
+msgstr "Les bonnes pratiques de publication"
+
+#, elixir-format
+msgid "Test a file"
+msgstr "Analyser la qualité d'un fichier"
+
+#, elixir-format
+msgid "Update a dataset"
+msgstr "Mettre à jour un jeu de données"
+
+#, elixir-format
+msgid "Update a resource"
+msgstr "Modifier une ressource"
+
+#, elixir-format
+msgid "Useful tools and content"
+msgstr "Des ressources pour vous aider"
+
+#, elixir-format
+msgid "Validate your datasets"
+msgstr "Tester vos jeux de données"
+
+#, elixir-format
+msgid "Your producer space"
+msgstr "Votre espace producteur"
+
+#, elixir-format
+msgid "You can test your data online and check its validity."
+msgstr "Utilisez nos validateurs de données pour vous assurer qu'ils sont bien conformes."
+
+#, elixir-format
+msgid "updating a dataset guidelines"
+msgstr "Consultez le guide de mise à jour"
+
+#, elixir-format
+msgid "What would you like to do?"
+msgstr "Que souhaitez-vous faire ?"
+
+#, elixir-format
+msgid "You have no resource to update for the moment"
+msgstr "Vous n'avez pas de ressource à mettre à jour pour le moment"
+
+#, elixir-format
+msgid "New resource"
+msgstr "Nouvelle ressource"
+
+#, elixir-format
+msgid "Select a resource"
+msgstr "Sélectionner une resource"

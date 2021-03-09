@@ -25,8 +25,8 @@ msgstr "Pour être informé·e des nouveautés, inscrivez-vous à notre newslett
 msgid "SUBSCRIBE"
 msgstr "INSCRIPTION"
 
-msgid "Join us on Slack"
-msgstr "Rejoignez-nous sur Slack"
+msgid "Join us on"
+msgstr "Rejoignez-nous sur"
 
 msgid "Download presentation"
 msgstr "Télécharger la présentation"
@@ -59,7 +59,7 @@ msgstr "Lieux de covoiturage"
 
 #, elixir-format
 msgid "Electric vehicles charging stations"
-msgstr "Bornes de recharges de véhicules électriques"
+msgstr "Bornes de recharges véhicules électriques"
 
 #, elixir-format
 msgid "Long distance coach"
@@ -81,7 +81,7 @@ msgstr[1] "%{count} jeux de données"
 
 #, elixir-format
 msgid "See newly added datasets"
-msgstr "Voir les derniers jeux de données ajoutés"
+msgstr "Voir les jeux de données récents"
 
 #, elixir-format
 msgid "Air data"
@@ -148,32 +148,12 @@ msgid "on"
 msgstr "sur"
 
 #, elixir-format
-msgid "one platform description"
-msgstr "Les données sont proposées dans une licence et un format homogènes, afin de réduire les barrières à leur exploitation. Pour chaque jeu de données, un interlocuteur en charge de la publication est identifié."
-
-#, elixir-format
-msgid "one platform title"
-msgstr "1 plate-forme, 1 licence, 1 format, 1 interlocuteur identifié"
-
-#, elixir-format
 msgid "of the population"
 msgstr "de la population"
 
 #, elixir-format
-msgid "I’m producing transport data"
-msgstr "Je produis des données de transport"
-
-#, elixir-format
-msgid "I’m using transport data"
-msgstr "J’utilise des données de transport"
-
-#, elixir-format
-msgid "Learn more about ODbL"
-msgstr "En savoir plus sur la licence ODbL"
-
-#, elixir-format
-msgid "See tools for reusers"
-msgstr "Voir les outils pour les réutilisateurs"
+msgid "Are you producing transport data ?"
+msgstr "Vous produisez des données de transport ?"
 
 #, elixir-format
 msgid "Who is reusing data from"
@@ -182,10 +162,6 @@ msgstr "Qui réutilise des données de"
 #, elixir-format
 msgid "producer description"
 msgstr "<abbr title=\"Autorité organistatrice des mobilités\">AOMs</abbr>, opérateurs de transport… : vous êtes tenus de publier vos données relatives à l’information voyageur sur le Point d’Accès National. L’équipe de transport.data.gouv.fr vous accompagne dans leur mise en qualité, mise en conformité et publication."
-
-#, elixir-format
-msgid "user description"
-msgstr "Éditeurs d’applications, développeurs… : vous pouvez utiliser librement et gratuitement les données du Point d’accès National. Elles sont soumises à la licence ODbL."
 
 #, elixir-format
 msgid "reusers list description"
@@ -198,10 +174,6 @@ msgstr "Demander de l’aide"
 #, elixir-format
 msgid "Close the form"
 msgstr "Fermer le formulaire"
-
-#, elixir-format
-msgid "I wish to follow the development of transport.data.gouv.fr"
-msgstr "Je souhaite suivre l’évolution de transport.data.gouv.fr"
 
 #, elixir-format
 msgid "I'd like to be informed"
@@ -234,3 +206,15 @@ msgstr "Aménagements cyclables"
 #, elixir-format
 msgid "Road works"
 msgstr "Travaux sur voirie"
+
+#, elixir-format
+msgid "Use our APIs"
+msgstr "Utiliser nos API"
+
+#, elixir-format
+msgid "Use the map"
+msgstr "Rechercher sur la carte"
+
+#, elixir-format
+msgid "You can also"
+msgstr "Vous pouvez également"

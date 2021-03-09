@@ -7,16 +7,22 @@ defmodule TransportWeb.PageController do
   def index(conn, _params) do
     conn
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
-    |> assign(:count_by_type, Dataset.count_by_type())
-    |> assign(:count_train, Dataset.count_by_mode("rail"))
-    |> assign(:count_boat, Dataset.count_by_mode("ferry"))
-    |> assign(:count_coach, Dataset.count_coach())
-    |> assign(:count_aoms_with_dataset, count_aoms_with_dataset())
-    |> assign(:count_regions_completed, count_regions_completed())
-    |> assign(:count_public_transport_has_realtime, Dataset.count_public_transport_has_realtime())
-    |> assign(:percent_population, percent_population())
-    |> assign(:reusers, CSVDocuments.reusers())
+    |> merge_assigns(Transport.Cache.API.fetch("home-index-stats", fn -> compute_home_index_stats() end))
     |> render("index.html")
+  end
+
+  defp compute_home_index_stats do
+    [
+      count_by_type: Dataset.count_by_type(),
+      count_train: Dataset.count_by_mode("rail"),
+      count_boat: Dataset.count_by_mode("ferry"),
+      count_coach: Dataset.count_coach(),
+      count_aoms_with_dataset: count_aoms_with_dataset(),
+      count_regions_completed: count_regions_completed(),
+      count_public_transport_has_realtime: Dataset.count_public_transport_has_realtime(),
+      percent_population: percent_population(),
+      reusers: CSVDocuments.reusers()
+    ]
   end
 
   def login(conn, %{"redirect_path" => redirect_path}) do
@@ -54,6 +60,46 @@ defmodule TransportWeb.PageController do
 
   def conditions(conn, _params) do
     single_page(conn, %{"page" => "conditions"})
+  end
+
+  def infos_producteurs(conn, _params) do
+    conn
+    |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
+    |> render("infos_producteurs.html")
+  end
+
+  @doc """
+    Retrieve the user datasets + corresponding org datasets.
+
+    Data Gouv is queried, and we support a degraded mode with an error reporting in case of connection issue.
+  """
+  def espace_producteur(conn, _params) do
+    {datasets, errors} =
+      [
+        Dataset.user_datasets(conn),
+        Dataset.user_org_datasets(conn)
+      ]
+      |> Enum.split_with(&(elem(&1, 0) == :ok))
+
+    datasets =
+      datasets
+      |> Enum.map(&elem(&1, 1))
+      |> List.flatten()
+
+    errors
+    |> Enum.each(&Sentry.capture_exception(&1))
+
+    # NOTE: this could be refactored in more functional style, but that will be good enough for today
+    conn =
+      if length(errors) != 0 do
+        conn |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
+      else
+        conn
+      end
+
+    conn
+    |> assign(:datasets, datasets)
+    |> render("espace_producteur.html")
   end
 
   defp aoms_with_dataset do

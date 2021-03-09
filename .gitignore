@@ -37,3 +37,6 @@ apps/transport/priv/static/js/*
 # the blog build folder
 /blog/public
 .clever.json
+
+dialyzer-plt/*.plt
+dialyzer-plt/*.plt.hash

@@ -6,6 +6,18 @@ defmodule Hasher do
 
   @spec get_content_hash(String.t()) :: String.t()
   def get_content_hash(url) do
+    case scheme = URI.parse(url).scheme do
+      s when s in ["http", "https"] ->
+        get_content_hash_http(url)
+
+      _ ->
+        Logger.warn("Cannot process #{scheme |> inspect} url (#{url}) at the moment. Skipping.")
+        nil
+    end
+  end
+
+  @spec get_content_hash_http(String.t()) :: String.t()
+  def get_content_hash_http(url) do
     with {:ok, %{headers: headers}} <- HTTPoison.head(url),
          etag when not is_nil(etag) <- Enum.find_value(headers, &find_etag/1),
          content_hash <- String.replace(etag, "\"", "") do

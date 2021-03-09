@@ -54,15 +54,11 @@ msgid "Publish a dataset"
 msgstr ""
 
 #, elixir-format
-msgid "Publish or update a dataset"
-msgstr ""
-
-#, elixir-format
 msgid "Check a GTFS file's quality"
 msgstr ""
 
 #, elixir-format
-msgid "About"
+msgid "Documentation"
 msgstr ""
 
 #, elixir-format
@@ -71,4 +67,16 @@ msgstr ""
 
 #, elixir-format
 msgid "Source code"
+msgstr ""
+
+#, elixir-format
+msgid "Service status"
+msgstr ""
+
+#, elixir-format
+msgid "Producer informations"
+msgstr ""
+
+#, elixir-format
+msgid "Producer infos"
 msgstr ""

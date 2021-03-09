@@ -1,0 +1,117 @@
+:root {
+  --primary-color-producer: #00ac8cff;
+}
+
+.is-grey {
+  color: var(--dark-grey);
+}
+
+.tramway {
+  text-align: right;
+  width: 50vw;
+  position: relative;
+  height: 0;
+  margin: 0 0 0 auto;
+  padding-right: 48px;
+  img {
+    position: absolute;
+    bottom: 0;
+    right: 20px;
+    max-height: 36px;
+    max-width: 100%;
+  }
+}
+
+.espace-producer-panel {
+  display: flex;
+  img {
+    padding-right: 12px;
+  }
+}
+
+.producer-space {
+  .button.primary {
+    background-color: var(--primary-color-producer);
+  }
+  .button-outline.primary {
+    color: var(--primary-color-producer);
+    border-color: var(--primary-color-producer);
+  }
+}
+
+.producer-tools-content {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  margin: 0 -24px;
+  .panel {
+    margin: 0 24px 24px 24px;
+    flex-basis: 300px;
+    flex-grow: 1;
+  }
+  .test-header,
+  .checklist-header {
+    display: flex;
+    img {
+      padding-right: 12px;
+    }
+  }
+}
+
+.resource-update-section {
+  background-color: var(--theme-background-grey);
+  min-height: 80vh;
+  .resources-update-list {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -24px;
+    .panel {
+      margin: 0 24px 12px 24px;
+      display: flex;
+      align-items: center;
+      img {
+        padding-right: 12px;
+      }
+    }
+    a {
+      text-decoration: none;
+      color: initial;
+    }
+  }
+}
+
+.producer-actions {
+  background-color: var(--theme-background-grey);
+  padding-top: 24px;
+  .producer-actions-flex {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    margin: 0 -24px;
+    > div {
+      margin: 0 24px;
+      flex-basis: 350px;
+      flex-grow: 1;
+      margin-bottom: 24px;
+    }
+    h3.with-link {
+      margin-bottom: 0;
+    }
+    .update-header,
+    .publish-header {
+      display: flex;
+      img {
+        padding-right: 12px;
+      }
+    }
+    .resource-list {
+      max-height: 60vh;
+      overflow: auto;
+    }
+  }
+  .dataset-item {
+    a:nth-child(1) {
+      margin-right: 12px;
+    }
+  }
+}

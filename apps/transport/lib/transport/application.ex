@@ -10,13 +10,19 @@ defmodule Transport.Application do
   alias TransportWeb.Endpoint
   import Supervisor.Spec, only: [supervisor: 2]
 
+  @cache_name :transport
+  # for DRY external reference
+  def cache_name, do: @cache_name
+
   def start(_type, _args) do
     children =
       [
+        {Cachex, name: @cache_name},
         supervisor(TransportWeb.Endpoint, []),
         supervisor(ImportDataWorker, []),
         CSVDocuments,
-        SearchCommunes
+        SearchCommunes,
+        {Phoenix.PubSub, [name: TransportWeb.PubSub, adapter: Phoenix.PubSub.PG2]}
       ]
       |> add_scheduler()
       ## manually add a children supervisor that is not scheduled

@@ -179,10 +179,6 @@ msgid "NeTEx resources"
 msgstr ""
 
 #, elixir-format
-msgid "Other resources"
-msgstr ""
-
-#, elixir-format
 msgid "Reuses"
 msgstr ""
 
@@ -366,10 +362,10 @@ msgstr ""
 msgid "Up to date"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Not"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "available"
 msgstr ""

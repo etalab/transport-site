@@ -8,13 +8,18 @@ defmodule Transport.MixProject do
       deps: deps(),
       aliases: aliases(),
       test_coverage: [tool: ExCoveralls],
-      dialyzer: [plt_add_deps: :transitive, plt_add_apps: [:mix]]
+      dialyzer: [
+        plt_add_deps: :app_tree,
+        plt_add_apps: [:mix],
+        plt_local_path: "dialyzer-plt",
+        plt_core_path: "dialyzer-plt"
+      ]
     ]
   end
 
   defp deps do
     [
-      {:dialyxir, "~> 1.0.0-rc.7", runtime: false},
+      {:dialyxir, "~> 1.1.0", only: :dev, runtime: false},
       {:excoveralls, "~> 0.10", only: :test}
     ]
   end

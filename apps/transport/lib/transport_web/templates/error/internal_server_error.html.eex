@@ -1,5 +1,5 @@
 <section class="error">
   <h1><%= dgettext("errors", "End of the road!") %></h1>
-  <h2><%= assigns[:reason] || dgettext("errors", "Try to refresh the page in a few seconds, or contact us.") %></h2>
-  <div class="error__background"></div>
+  <h2><%= dgettext("errors", "Try to refresh the page in a few seconds, or contact us.") %></h2>
+  <div class="error__background internal_error"></div>
 </section>
