@@ -12,7 +12,7 @@ images:
 
 <!--StartFragment-->
 
-Cityway, filiale de Transdev, est une entreprise spécialisée dans le traitement des systèmes d’informations multimodaux (SIM) et la mise en oeuvre de solutions numériques depuis une vingtaine d’année.
+[Cityway](https://www.cityway.fr/), filiale de Transdev, est une entreprise spécialisée dans le traitement des systèmes d’informations multimodaux (SIM) et la mise en oeuvre de solutions numériques depuis une vingtaine d’année.
 
 Elle conçoit les SIM des deux tiers des régions françaises.
 
