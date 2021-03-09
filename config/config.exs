@@ -33,6 +33,15 @@ config :transport, TransportWeb.Endpoint,
 
 config :phoenix, :json_library, Jason
 
+#
+# A tweaked format encoder to optionally bypass JSON
+# encoding when the caller knows it is already encoded.
+#
+# See https://hexdocs.pm/phoenix/1.5.8/Phoenix.Template.html#module-format-encoders
+#
+config :phoenix, :format_encoders,
+  json: TransportWeb.ConditionalJSONEncoder
+
 # Configures Elixir's Logger
 config :logger,
   handle_otp_reports: true,
@@ -72,6 +81,8 @@ config :sentry,
   },
   included_environments: [:prod]
 
+config :transport,
+  cache_impl: Transport.Cache.Cachex
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
