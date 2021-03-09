@@ -28,6 +28,8 @@ defmodule Proxy.MixProject do
   defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
-    []
+    [
+      {:phoenix, "~> 1.5.7"}
+    ]
   end
 end
