@@ -258,7 +258,7 @@ defmodule TransportWeb.DatasetView do
     |> Stream.reject(&Resource.is_netex?/1)
     |> Enum.to_list()
     |> Enum.sort(fn r1, r2 ->
-      ten_years_ago = DateTime.now!("Etc/UTC") |> DateTime.add(-315_360_000, :second)
+      ten_years_ago = "Etc/UTC" |> DateTime.now!() |> DateTime.add(-315_360_000, :second)
       nd1 = Map.get(r1, :last_update, ten_years_ago)
       nd2 = Map.get(r2, :last_update, ten_years_ago)
       DateTime.compare(nd1, nd2) == :gt
