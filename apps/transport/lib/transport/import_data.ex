@@ -176,7 +176,7 @@ defmodule Transport.ImportData do
       |> Map.put("logo", get_logo_thumbnail(dataset))
       |> Map.put("full_logo", get_logo(dataset))
       |> Map.put("created_at", parse_date(dataset["created_at"]))
-      |> Map.put("last_update", parse_date(dataset["last_update"]))
+      |> Map.put("last_update", parse_datetime_from_udata(dataset["last_update"]))
       |> Map.put("type", type)
       |> Map.put("organization", dataset["organization"]["name"])
       |> Map.put("resources", get_resources(dataset, type))
@@ -523,7 +523,18 @@ defmodule Transport.ImportData do
   def check_download_url(%{"download_url" => _}), do: true
 
   @doc """
-  Returns an date only part of the datetime.
+  Small wrapper function because data.gouv is currently sending naive datetimes (without time zones)
+  but is not supposed to do so. The day it changes, if all calls are done with this function, the change will be easier for us.
+  see https://github.com/etalab/data.gouv.fr/issues/171
+
+  """
+  @spec parse_datetime_from_udata(binary()) :: Calendar.datetime()
+  def parse_datetime_from_udata(datetime) do
+    NaiveDateTime.from_iso8601!(datetime)
+  end
+
+  @doc """
+  Returns an date only part of the datetime
 
   ## Examples
 
@@ -533,17 +544,12 @@ defmodule Transport.ImportData do
       iex> ImportData.parse_date(~U[2018-09-28T13:37:00])
       "2018-09-28"
   """
-  @spec parse_date(binary() | Calendar.datetime()) :: binary()
+  @spec parse_date(binary()) :: binary()
   def parse_date(date) when is_binary(date) do
-    with {:ok, date} <- NaiveDateTime.from_iso8601(date) do
-      date
-      |> NaiveDateTime.to_date()
-      |> Date.to_string()
-    end
-  end
-
-  def parse_date(%DateTime{} = date) do
-    NaiveDateTime.to_date(date)
+    date
+    |> parse_datetime_from_udata()
+    |> NaiveDateTime.to_date()
+    |> Date.to_string()
   end
 
   @doc """
