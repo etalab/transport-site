@@ -369,3 +369,7 @@ msgstr ""
 #, elixir-format
 msgid "available"
 msgstr ""
+
+#, elixir-format
+msgid "Reuses are temporarily unavailable"
+msgstr ""
