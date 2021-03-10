@@ -40,9 +40,23 @@ defmodule Transport.History do
     end
   end
 
-  # Ultimately, resource.last_import should probably also become a DateTime
+  @doc """
+  Gives resource modification date
+  Ultimately, resource.last_import should probably also become a DateTime
+
+  iex> History.modification_date(%DB.Resource{last_update: ~U[2021-03-10 13:58:23.127966Z], last_import: "2012"})
+  "2021-03-10 13:58:23.127966Z"
+
+  iex> History.modification_date(%DB.Resource{last_update: nil, last_import: "2021-03"})
+  "2021-03"
+  """
   @spec modification_date(Resource.t()) :: binary()
-  defp modification_date(resource), do: DateTime.to_string(resource.last_update) || resource.last_import
+  def modification_date(resource) do
+    case resource.last_update do
+      %DateTime{} = d -> DateTime.to_string(d)
+      _ -> resource.last_import
+    end
+  end
 
   @spec needs_to_be_updated(Resource.t()) :: boolean()
   defp needs_to_be_updated(resource) do
