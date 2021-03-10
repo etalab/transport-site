@@ -528,8 +528,12 @@ defmodule Transport.ImportData do
   see https://github.com/etalab/data.gouv.fr/issues/171
 
   """
-  @spec parse_datetime_from_udata(binary()) :: Calendar.datetime()
-  def parse_datetime_from_udata(datetime) do
+  @spec parse_datetime_from_udata(binary() | nil) :: Calendar.datetime()
+  def parse_datetime_from_udata(""), do: nil
+
+  def parse_datetime_from_udata(nil), do: nil
+
+  def parse_datetime_from_udata(datetime) when is_binary(datetime) do
     NaiveDateTime.from_iso8601!(datetime)
   end
 
@@ -540,17 +544,16 @@ defmodule Transport.ImportData do
 
       iex> ImportData.parse_date("2018-09-28T13:37:00")
       "2018-09-28"
-
-      iex> ImportData.parse_date(~U[2018-09-28T13:37:00])
-      "2018-09-28"
   """
-  @spec parse_date(binary()) :: binary()
+  @spec parse_date(binary() | nil) :: binary() | nil
   def parse_date(date) when is_binary(date) do
     date
     |> parse_datetime_from_udata()
     |> NaiveDateTime.to_date()
     |> Date.to_string()
   end
+
+  def parse_date(nil), do: nil
 
   @doc """
   Formats the file format in a human readable form
