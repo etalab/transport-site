@@ -441,7 +441,7 @@ defmodule DB.Dataset do
 
   def get_territory(_), do: {:error, "Trying to find the territory of an unkown entity"}
 
-  @spec get_territory_or_nil(__MODULE__.t()) :: binary()
+  @spec get_territory_or_nil(__MODULE__.t()) :: binary() | nil
   def get_territory_or_nil(%__MODULE__{} = d) do
     case get_territory(d) do
       {:ok, t} -> t
