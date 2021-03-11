@@ -21,7 +21,8 @@ defmodule TransportWeb.DatasetControllerTest do
       {Datagouvfr.Client.Discussions, [], [get: fn _id -> nil end]}
     ] do
       conn = conn |> get(dataset_path(conn, :details, dataset.slug))
-      assert html_response(conn, 200) =~ "dataset de test"
+      html = html_response(conn, 200)
+      assert html =~ "réutilisations sont temporairement indisponibles"
     end
   end
 end
