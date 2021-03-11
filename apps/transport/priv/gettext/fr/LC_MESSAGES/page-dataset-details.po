@@ -369,3 +369,7 @@ msgstr "Non"
 #, elixir-format
 msgid "available"
 msgstr "disponible"
+
+#, elixir-format
+msgid "Reuses are temporarily unavailable"
+msgstr "Les réutilisations sont temporairement indisponibles"
