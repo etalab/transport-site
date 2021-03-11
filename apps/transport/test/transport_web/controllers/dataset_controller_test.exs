@@ -14,7 +14,7 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "Datasets details page loads even when data.gouv is down", %{conn: conn} do
-    dataset = insert(:dataset, spatial: "dataset de test")
+    dataset = insert(:dataset)
 
     with_mocks [
       {Datagouvfr.Client.Reuses, [], [get: fn dataset -> {:error, "data.gouv is down !"} end]},
