@@ -14,7 +14,9 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "Datasets details page loads even when data.gouv is down", %{conn: conn} do
-    dataset = insert(:dataset)
+    # NOTE: we just want a dataset, but the factory setup is not finished, so
+    # we have to provide an already built aom
+    dataset = insert(:dataset, aom: insert(:aom, composition_res_id: 157))
 
     with_mocks [
       {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:error, "data.gouv is down !"} end]},
