@@ -183,22 +183,55 @@ defmodule TransportWeb.API.StatsController do
   end
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def index(%Plug.Conn{} = conn, _params), do: render_features(conn, aom_features())
+  def index(%Plug.Conn{} = conn, _params), do: render_features(conn, aom_features_query(), "api-stats-aoms")
 
   @spec regions(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, region_features())
+  def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, region_features_query(), "api-stats-regions")
 
   @spec bike_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def bike_sharing(%Plug.Conn{} = conn, _params), do: render_features(conn, bike_sharing_features())
+  def bike_sharing(%Plug.Conn{} = conn, _params), do: render_features(conn, bike_sharing_features_query())
 
   @spec quality(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features())
+  def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features_query(), "api-stats-quality")
 
-  @spec render_features(Plug.Conn.t(), Ecto.Query.t()) :: Plug.Conn.t()
-  defp render_features(conn, query), do: render(conn, %{data: query |> features() |> geojson()})
+  #
+  # (not using @doc because this is a private method and it would then generate a warning ;
+  # this is a sign the whole computation should move to a separate module when we can!)
+  #
+  # This method is the central computation point for GeoJSON features.
+  #
+  # Because the passed `query` can be costly to compute, this method supports optional
+  # caching via `Transport.Cache` (enabled only if a `cache_key` is provided).
+  #
+  # Since the data structures are rich (many key/values), the computation result is cached
+  # *after* encoding it to JSON, which is many time (100x during our tests) faster than
+  # storing the original data structure in cache then re-encoding at each request.
+  #
+  # Because `render` does not support passing a rendered JSON (as binary) today, and to avoid
+  # resorting to `send_resp` directly, we leverage `TransportWeb.ConditionalJSONEncoder` to
+  # skip JSON encoding, signaling the need to do so via a {:skip_json_encoding, data} tuple.
+  #
+  @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary() | nil) :: Plug.Conn.t()
+  defp render_features(conn, query, cache_key \\ nil) do
+    comp_fn = fn ->
+      query
+      |> features()
+      |> geojson()
+      |> Jason.encode!()
+    end
 
-  @spec aom_features :: Ecto.Query.t()
-  defp aom_features do
+    data =
+      if cache_key do
+        Transport.Cache.API.fetch(cache_key, comp_fn)
+      else
+        comp_fn.()
+      end
+
+    render(conn, data: {:skip_json_encoding, data})
+  end
+
+  @spec aom_features_query :: Ecto.Query.t()
+  defp aom_features_query do
     AOM
     |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id)
     |> select([aom, parent_dataset], %{
@@ -223,8 +256,8 @@ defmodule TransportWeb.API.StatsController do
     })
   end
 
-  @spec region_features :: Ecto.Query.t()
-  defp region_features do
+  @spec region_features_query :: Ecto.Query.t()
+  defp region_features_query do
     Region
     |> select([r], %{
       geometry: r.geom,
@@ -253,8 +286,8 @@ defmodule TransportWeb.API.StatsController do
     })
   end
 
-  @spec bike_sharing_features :: Ecto.Query.t()
-  defp bike_sharing_features do
+  @spec bike_sharing_features_query :: Ecto.Query.t()
+  defp bike_sharing_features_query do
     DatasetGeographicView
     |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
     |> select([gv, dataset], %{
@@ -266,10 +299,10 @@ defmodule TransportWeb.API.StatsController do
     |> where([_gv, dataset], dataset.type == "bike-sharing")
   end
 
-  @spec quality_features :: Ecto.Query.t()
-  defp quality_features do
-    # Note: this query is not done in the meantime as aoms_features because this query is quite long to execute
-    # and we don't want to slow down the main aom_features to much
+  @spec quality_features_query :: Ecto.Query.t()
+  defp quality_features_query do
+    # Note: this query is not done in the meantime as aom_features_query because this query is quite long to execute
+    # and we don't want to slow down the main aom_features_query to much
     dt = Date.utc_today() |> Date.to_iso8601()
 
     AOM
