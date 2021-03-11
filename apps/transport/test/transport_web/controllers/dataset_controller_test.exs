@@ -17,8 +17,8 @@ defmodule TransportWeb.DatasetControllerTest do
     dataset = insert(:dataset)
 
     with_mocks [
-      {Datagouvfr.Client.Reuses, [], [get: fn dataset -> {:error, "data.gouv is down !"} end]},
-      {Datagouvfr.Client.Discussions, [], [get: fn id -> nil end]}
+      {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:error, "data.gouv is down !"} end]},
+      {Datagouvfr.Client.Discussions, [], [get: fn _id -> nil end]}
     ] do
       conn = conn |> get(dataset_path(conn, :details, dataset.slug))
       assert html_response(conn, 200) =~ "dataset de test"
