@@ -1,4 +1,5 @@
 defmodule TransportWeb.Endpoint do
+  use Sentry.PlugCapture
   use Phoenix.Endpoint, otp_app: :transport
 
   @session_options [
@@ -39,6 +40,8 @@ defmodule TransportWeb.Endpoint do
     json_decoder: Jason,
     length: 100_000_000
   )
+
+  plug(Sentry.PlugContext)
 
   plug(Plug.MethodOverride)
   plug(Plug.Head)
