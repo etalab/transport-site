@@ -38,7 +38,7 @@ defmodule GBFS.MixProject do
       {:sweet_xml, ">= 0.0.0"},
       {:jason, ">= 0.0.0"},
       {:cors_plug, "~> 2.0"},
-      {:sentry, "~> 7.1"},
+      {:sentry, "~> 8.0"},
       {:exvcr, "~> 0.10", only: :test},
       {:mock, "~> 0.3.6", only: :test},
       {:bypass, "~> 1.0", only: :test}
