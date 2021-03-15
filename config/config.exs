@@ -44,10 +44,6 @@ config :phoenix, :format_encoders,
 
 # Configures Elixir's Logger
 config :logger,
-  translators: [
-    {Support.Logger.Translator, :translate},
-    {Logger.Translator, :translate}
-  ],
   backends: [
     :console,
     Sentry.LoggerBackend # error logs are also send to sentry
