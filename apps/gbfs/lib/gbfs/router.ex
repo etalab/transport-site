@@ -1,7 +1,5 @@
 defmodule GBFS.Router do
   use GBFS, :router
-  use Plug.ErrorHandler
-  use Sentry.Plug
 
   pipeline :api do
     plug(:accepts, ["json"])
