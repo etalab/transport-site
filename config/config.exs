@@ -44,8 +44,6 @@ config :phoenix, :format_encoders,
 
 # Configures Elixir's Logger
 config :logger,
-  handle_otp_reports: true,
-  handle_sasl_reports: true,
   translators: [
     {Support.Logger.Translator, :translate},
     {Logger.Translator, :translate}
