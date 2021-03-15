@@ -5,15 +5,39 @@ defmodule TransportWeb.AtomController do
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params) do
-    resources =
-      Resource
-      |> preload(:dataset)
-      |> where([r], not is_nil(r.latest_url))
-      |> Repo.all()
+    two_month_ago =
+      "Etc/UTC"
+      |> DateTime.now!()
+      |> DateTime.add(-2 * 30 * 24 * 3600)
+
+    resources = get_recent_resources(two_month_ago)
 
     conn
     |> put_layout(false)
     |> put_resp_content_type("application/xml")
     |> render("index.html", resources: resources)
+  end
+
+  def get_recent_resources(limit_date) do
+    Resource
+    |> preload(:dataset)
+    |> where([r], not is_nil(r.latest_url))
+    |> Repo.all()
+    |> Enum.filter(fn r ->
+      case Timex.parse(r.last_update, "{ISO:Extended}") do
+        {:ok, datetime} -> DateTime.compare(datetime, limit_date) == :gt
+        _ -> false
+      end
+    end)
+    |> Enum.sort(fn r1, r2 ->
+      d1 = Timex.parse(r1.last_update, "{ISO:Extended}")
+      d2 = Timex.parse(r2.last_update, "{ISO:Extended}")
+
+      case {d1, d2} do
+        {{:ok, dt1}, {:ok, dt2}} -> DateTime.compare(dt1, dt2) == :gt
+        {_, {:ok, _}} -> false
+        _ -> true
+      end
+    end)
   end
 end
