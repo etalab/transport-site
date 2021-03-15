@@ -65,15 +65,13 @@ config :phoenix, :template_engines,
 
 config :phoenix_markdown, :server_tags, :all
 
+# check out https://sentry.io/settings/transport-data-gouv-fr/projects/transport-site/install/elixir/
 config :sentry,
   dsn: System.get_env("SENTRY_DSN"),
-  environment_name: Mix.env,
+  environment_name: System.get_env("SENTRY_ENV") || "unknown",
+  included_environments: ["production", "staging"],
   enable_source_code_context: true,
-  root_source_code_path: File.cwd!,
-  tags: %{
-    env: "production"
-  },
-  included_environments: [:prod]
+  root_source_code_path: File.cwd!
 
 config :transport,
   cache_impl: Transport.Cache.Cachex
