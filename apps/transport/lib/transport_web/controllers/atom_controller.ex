@@ -31,14 +31,11 @@ defmodule TransportWeb.AtomController do
       end
     end)
     |> Enum.sort(fn r1, r2 ->
-      d1 = Timex.parse(r1.last_update, "{ISO:Extended}")
-      d2 = Timex.parse(r2.last_update, "{ISO:Extended}")
+      # we can use the ! version of parse, because of the filter above
+      d1 = Timex.parse!(r1.last_update, "{ISO:Extended}")
+      d2 = Timex.parse!(r2.last_update, "{ISO:Extended}")
 
-      case {d1, d2} do
-        {{:ok, dt1}, {:ok, dt2}} -> DateTime.compare(dt1, dt2) == :gt
-        {_, {:ok, _}} -> false
-        _ -> true
-      end
+      DateTime.compare(d1, d2) == :gt
     end)
   end
 end
