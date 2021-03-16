@@ -37,7 +37,8 @@ defmodule TransportWeb.Factory do
 
   def resource_factory do
     %DB.Resource{
-      title: "GTFS.zip"
+      title: "GTFS.zip",
+      latest_url: "url"
     }
   end
 

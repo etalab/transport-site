@@ -9,29 +9,38 @@ defmodule TransportWeb.AtomControllerTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
+  def days_ago(days) do
+    "Etc/UTC"
+    |> DateTime.now!()
+    |> DateTime.add(-days)
+  end
+
+  def days_ago_as_iso_string(days) do
+    days
+    |> days_ago()
+    |> Formatter.format!("{ISO:Extended}")
+  end
+
   test "get recent resources for atom feed" do
-    insert(:resource,
-      latest_url: "url",
-      last_update: "Etc/UTC" |> DateTime.now!() |> DateTime.add(-10) |> Formatter.format!("{ISO:Extended}")
-    )
+    days = 1000
 
-    now = "Etc/UTC" |> DateTime.now!() |> Formatter.format!("{ISO:Extended}")
-    insert(:resource, latest_url: "url", last_update: now)
+    # Database currently expects datetime as iso string!
+    insert(:resource, title: "10-days-old", last_update: days_ago_as_iso_string(div(days, 2)))
+    insert(:resource, title: "today-old", last_update: now = days_ago_as_iso_string(0))
+    insert(:resource, title: "no-timestamp-should-not-appear", last_update: nil)
+    insert(:resource, title: "too-old-should-not-appear", last_update: days_ago_as_iso_string(days * 2))
 
-    insert(:resource, latest_url: "url")
+    limit = days_ago(days)
 
-    insert(:resource,
-      latest_url: "url",
-      last_update: "Etc/UTC" |> DateTime.now!() |> DateTime.add(-3600) |> Formatter.format!("{ISO:Extended}")
-    )
+    resources = get_recently_updated_resources(days_ago(days))
+    titles = resources |> Enum.map(& &1.title)
 
-    limit = "Etc/UTC" |> DateTime.now!() |> DateTime.add(-1000)
-
-    resources = get_recently_updated_resources(limit)
-    # 2 resources are more recent than the limit, 1 is older, 1 has no last_update filled.
-    assert resources |> Enum.count() == 2
-    # check the sorting works (more recent resources come first)
-    first_resource = Enum.at(resources, 0)
-    assert first_resource.last_update == now
+    assert titles == [
+             # most recent at the top, despite created after
+             "today-old",
+             # not too old to be filtered out
+             "10-days-old"
+             # very old and no timestamp are excluded
+           ]
   end
 end
