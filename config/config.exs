@@ -65,11 +65,16 @@ config :phoenix, :template_engines,
 
 config :phoenix_markdown, :server_tags, :all
 
+sentry_env_name_as_atom = cond do
+  Mix.env() in [:dev, :test] -> Mix.env()
+  true -> System.fetch_env!("SENTRY_ENV", "unknown") |> String.to_atom()
+end
+
 # check out https://sentry.io/settings/transport-data-gouv-fr/projects/transport-site/install/elixir/
 config :sentry,
   dsn: System.get_env("SENTRY_DSN"),
-  environment_name: System.get_env("SENTRY_ENV") || "unknown",
-  included_environments: ["production", "staging"],
+  environment_name: sentry_env_name_as_atom,
+  included_environments: [:prod, :staging],
   enable_source_code_context: true,
   root_source_code_path: File.cwd!
 
