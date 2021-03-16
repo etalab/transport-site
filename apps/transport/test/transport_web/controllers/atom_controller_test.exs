@@ -27,7 +27,7 @@ defmodule TransportWeb.AtomControllerTest do
 
     limit = "Etc/UTC" |> DateTime.now!() |> DateTime.add(-1000)
 
-    resources = get_recent_resources(limit)
+    resources = get_recently_updated_resources(limit)
     # 2 resources are more recent than the limit, 1 is older, 1 has no last_update filled.
     assert resources |> Enum.count() == 2
     # check the sorting works (more recent resources come first)

@@ -10,7 +10,7 @@ defmodule TransportWeb.AtomController do
       |> DateTime.now!()
       |> DateTime.add(-2 * 30 * 24 * 3600)
 
-    resources = get_recent_resources(two_month_ago)
+    resources = get_recently_updated_resources(two_month_ago)
 
     conn
     |> put_layout(false)
@@ -18,8 +18,8 @@ defmodule TransportWeb.AtomController do
     |> render("index.html", resources: resources)
   end
 
-  @spec get_recent_resources(Calendar.datetime()) :: list
-  def get_recent_resources(limit_date) do
+  @spec get_recently_updated_resources(Calendar.datetime()) :: list
+  def get_recently_updated_resources(limit_date) do
     Resource
     |> preload(:dataset)
     |> where([r], not is_nil(r.latest_url))
