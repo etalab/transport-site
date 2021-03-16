@@ -18,6 +18,7 @@ defmodule TransportWeb.AtomController do
     |> render("index.html", resources: resources)
   end
 
+  @spec get_recent_resources(Calendar.datetime()) :: list
   def get_recent_resources(limit_date) do
     Resource
     |> preload(:dataset)
