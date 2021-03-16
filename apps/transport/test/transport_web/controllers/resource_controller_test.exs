@@ -28,8 +28,10 @@ defmodule TransportWeb.ResourceControllerTest do
     |> html_response(200)
   end
 
-  test "Non existing resource id send back a 404", %{conn: conn} do
-    conn |> get(resource_path(conn, :details, 0)) |> html_response(404) |> assert =~ "404"
+  test "Non existing resource raises a Ecto.NoResultsError (interpreted as a 404 thanks to phoenix_ecto)", %{conn: conn} do
+    assert_raise Ecto.NoResultsError, fn ->
+      conn |> get(resource_path(conn, :details, 0))
+    end
   end
 
   test "resource without metadata send back a 404", %{conn: conn} do
