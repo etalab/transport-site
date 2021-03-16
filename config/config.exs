@@ -76,7 +76,10 @@ config :sentry,
   environment_name: sentry_env_name_as_atom,
   included_environments: [:prod, :staging],
   enable_source_code_context: true,
-  root_source_code_path: File.cwd!
+  root_source_code_path: File.cwd!,
+  # the key must be there for overriding during tests,
+  # so we set it to the default based on source code for now
+  send_result: :none
 
 config :transport,
   cache_impl: Transport.Cache.Cachex
