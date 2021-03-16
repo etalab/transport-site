@@ -12,20 +12,20 @@ defmodule TransportWeb.AtomControllerTest do
   test "get recent resources for atom feed" do
     insert(:resource,
       latest_url: "url",
-      last_update: DateTime.now!("Etc/UTC") |> DateTime.add(-10) |> Formatter.format!("{ISO:Extended}")
+      last_update: "Etc/UTC" |> DateTime.now!() |> DateTime.add(-10) |> Formatter.format!("{ISO:Extended}")
     )
 
-    now = DateTime.now!("Etc/UTC") |> Formatter.format!("{ISO:Extended}")
+    now = "Etc/UTC" |> DateTime.now!() |> Formatter.format!("{ISO:Extended}")
     insert(:resource, latest_url: "url", last_update: now)
 
     insert(:resource, latest_url: "url")
 
     insert(:resource,
       latest_url: "url",
-      last_update: DateTime.now!("Etc/UTC") |> DateTime.add(-3600) |> Formatter.format!("{ISO:Extended}")
+      last_update: "Etc/UTC" |> DateTime.now!() |> DateTime.add(-3600) |> Formatter.format!("{ISO:Extended}")
     )
 
-    limit = DateTime.now!("Etc/UTC") |> DateTime.add(-1000)
+    limit = "Etc/UTC" |> DateTime.now!() |> DateTime.add(-1000)
 
     resources = get_recent_resources(limit)
     # 2 resources are more recent than the limit, 1 is older, 1 has no last_update filled.
