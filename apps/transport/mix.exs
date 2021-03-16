@@ -32,7 +32,8 @@ defmodule Transport.Mixfile do
       extra_applications: [
         :logger,
         :mime,
-        :unidecode
+        :unidecode,
+        :phoenix_ecto
       ]
     ]
   end
@@ -79,7 +80,8 @@ defmodule Transport.Mixfile do
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
       {:unidecode, "~> 0.0.2"},
-      {:ex_machina, "~> 2.4", only: :test}
+      {:ex_machina, "~> 2.4", only: :test},
+      {:phoenix_ecto, "~> 4.0"}
     ]
   end
 end
