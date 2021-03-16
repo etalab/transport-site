@@ -32,7 +32,7 @@ defmodule TransportWeb.AtomControllerTest do
 
     limit = days_ago(days)
 
-    resources = get_recently_updated_resources(days_ago(days))
+    resources = get_recently_updated_resources(limit)
     titles = resources |> Enum.map(& &1.title)
 
     assert titles == [
