@@ -6,9 +6,8 @@ defmodule TransportWeb.AtomController do
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params) do
     two_month_ago =
-      "Etc/UTC"
-      |> DateTime.now!()
-      |> DateTime.add(-2 * 30 * 24 * 3600)
+      NaiveDateTime.utc_now()
+      |> NaiveDateTime.add(-15 * 24 * 3600)
 
     resources = get_recently_updated_resources(two_month_ago)
 
@@ -26,7 +25,7 @@ defmodule TransportWeb.AtomController do
     |> Repo.all()
     |> Enum.filter(fn r ->
       case Timex.parse(r.last_update, "{ISO:Extended}") do
-        {:ok, datetime} -> DateTime.compare(datetime, limit_date) == :gt
+        {:ok, datetime} -> NaiveDateTime.compare(datetime, limit_date) == :gt
         _ -> false
       end
     end)
@@ -35,7 +34,7 @@ defmodule TransportWeb.AtomController do
       d1 = Timex.parse!(r1.last_update, "{ISO:Extended}")
       d2 = Timex.parse!(r2.last_update, "{ISO:Extended}")
 
-      DateTime.compare(d1, d2) == :gt
+      NaiveDateTime.compare(d1, d2) == :gt
     end)
   end
 end
