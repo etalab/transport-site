@@ -12,7 +12,7 @@ defmodule TransportWeb.AtomControllerTest do
   def days_ago(days) do
     "Etc/UTC"
     |> DateTime.now!()
-    |> DateTime.add(-days)
+    |> DateTime.add(-days * 24 * 3600)
   end
 
   def days_ago_as_iso_string(days) do
