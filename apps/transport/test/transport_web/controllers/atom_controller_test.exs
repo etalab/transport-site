@@ -21,12 +21,20 @@ defmodule TransportWeb.AtomControllerTest do
     |> Formatter.format!("{ISO:Extended}")
   end
 
+  def days_ago_as_naive_iso_string(days) do
+    days
+    |> days_ago()
+    |> NaiveDateTime.to_iso8601()
+  end
+
   test "get recent resources for atom feed" do
     days = 1000
 
     # Database currently expects datetime as iso string!
-    insert(:resource, title: "10-days-old", last_update: days_ago_as_iso_string(div(days, 2)))
-    insert(:resource, title: "today-old", last_update: now = days_ago_as_iso_string(0))
+    # With or without timezones, we are not too sure, so we insert both
+    insert(:resource, title: "10-days-old", last_update: days_ago_as_iso_string(10))
+    insert(:resource, title: "today-old", last_update: days_ago_as_iso_string(0))
+    insert(:resource, title: "naive-yesterday-old", last_update: days_ago_as_naive_iso_string(1))
     insert(:resource, title: "no-timestamp-should-not-appear", last_update: nil)
     insert(:resource, title: "too-old-should-not-appear", last_update: days_ago_as_iso_string(days * 2))
 
@@ -38,6 +46,7 @@ defmodule TransportWeb.AtomControllerTest do
     assert titles == [
              # most recent at the top, despite created after
              "today-old",
+             "naive-yesterday-old",
              # not too old to be filtered out
              "10-days-old"
              # very old and no timestamp are excluded
