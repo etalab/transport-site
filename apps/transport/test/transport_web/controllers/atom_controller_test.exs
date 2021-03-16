@@ -1,5 +1,5 @@
 defmodule TransportWeb.AtomControllerTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   import TransportWeb.AtomController
   # use TransportWeb.DatabaseCase, cleanup: [:datasets]
   import TransportWeb.Factory
