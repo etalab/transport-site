@@ -35,6 +35,13 @@ defmodule TransportWeb.Factory do
     }
   end
 
+  def resource_factory do
+    %DB.Resource{
+      title: "GTFS.zip",
+      latest_url: "url"
+    }
+  end
+
   # Non-Ecto stuff, for now kept here for convenience
 
   def datagouv_api_get_factory do
