@@ -1,7 +1,6 @@
 defmodule TransportWeb.API.Router do
   use TransportWeb, :router
-  use Plug.ErrorHandler
-  use Sentry.Plug
+  use Sentry.PlugCapture
 
   pipeline :accept_json do
     plug(:accepts, ["json"])
@@ -10,6 +9,7 @@ defmodule TransportWeb.API.Router do
   pipeline :api do
     plug(CORSPlug, origin: "*")
     plug(OpenApiSpex.Plug.PutApiSpec, module: TransportWeb.API.Spec)
+    plug(Sentry.PlugContext)
   end
 
   scope "/api/" do

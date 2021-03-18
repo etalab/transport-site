@@ -44,12 +44,6 @@ config :phoenix, :format_encoders,
 
 # Configures Elixir's Logger
 config :logger,
-  handle_otp_reports: true,
-  handle_sasl_reports: true,
-  translators: [
-    {Support.Logger.Translator, :translate},
-    {Logger.Translator, :translate}
-  ],
   backends: [
     :console,
     Sentry.LoggerBackend # error logs are also send to sentry
@@ -71,15 +65,23 @@ config :phoenix, :template_engines,
 
 config :phoenix_markdown, :server_tags, :all
 
+# build sentry env based on Mix env, unless overriden (useful for staging)
+sentry_env_as_atom = if v = System.get_env("SENTRY_ENV") do
+  v |> String.to_atom()
+else
+  Mix.env()
+end
+
+# check out https://sentry.io/settings/transport-data-gouv-fr/projects/transport-site/install/elixir/
 config :sentry,
   dsn: System.get_env("SENTRY_DSN"),
-  environment_name: Mix.env,
+  environment_name: sentry_env_as_atom,
+  included_environments: [:prod, :staging],
   enable_source_code_context: true,
   root_source_code_path: File.cwd!,
-  tags: %{
-    env: "production"
-  },
-  included_environments: [:prod]
+  # the key must be there for overriding during tests,
+  # so we set it to the default based on source code for now
+  send_result: :none
 
 config :transport,
   cache_impl: Transport.Cache.Cachex
