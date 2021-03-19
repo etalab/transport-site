@@ -176,23 +176,6 @@ jobs:
             export SECRET_KEY_BASE=`mix phx.gen.secret`
             mix test
 
-  test_integration:
-    <<: *defaults_with_postgres_and_phantom
-
-    steps:
-      - attach_workspace:
-          at: ~/transport
-
-      - run:
-          name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git
-
-      - run:
-          name: Run tests
-          command: |
-            export SECRET_KEY_BASE=`mix phx.gen.secret`
-            mix test --only integration
-
   test_external:
     <<: *defaults_with_postgres
 
@@ -225,10 +208,6 @@ workflows:
             - build
 
       - test_unit:
-          requires:
-            - build
-
-      - test_integration:
           requires:
             - build
 
