@@ -5,19 +5,6 @@ defmodule TransportWeb.Integration.BackofficeTest do
   import Plug.Test
 
   @tag :integration
-  test "deny acces to backoffice if not logged" do
-    @endpoint
-    |> backoffice_page_url(:index)
-    |> navigate_to
-
-    :class
-    |> find_element("notification")
-    |> visible_text
-    |> Kernel.==("Vous devez être préalablement connecté·e.")
-    |> assert
-  end
-
-  @tag :integration
   test "check that you belong to the right organization", %{conn: conn} do
     conn
     |> init_test_session(%{current_user: %{"organizations" => [%{"slug" => "pouet pouet"}]}})

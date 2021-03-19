@@ -23,6 +23,12 @@ defmodule TransportWeb.BackofficeControllerTest do
     "action" => "new"
   }
 
+  test "Deny access to backoffice if not logged", %{conn: conn} do
+    conn = get(conn, backoffice_page_path(conn, :index))
+    assert redirected_to(conn, 302) == "/login/explanation?redirect_path=%2Fbackoffice"
+    assert get_flash(conn, :info) =~ "Vous devez être préalablement connecté"
+  end
+
   @tag :external
   test "Add a dataset with a region and AOM", %{conn: conn} do
     conn =
