@@ -15,7 +15,7 @@ defmodule TransportWeb.PageControllerTest do
   test "GET / shows a contact button", %{conn: conn} do
     conn = conn |> get(page_path(conn, :index))
 
-    [element] =
+    [_element] =
       conn
       |> html_response(200)
       |> Floki.parse_document!()
