@@ -5,16 +5,6 @@ defmodule TransportWeb.Integration.BackofficeTest do
   import Plug.Test
 
   @tag :integration
-  test "check that you belong to the right organization", %{conn: conn} do
-    conn
-    |> init_test_session(%{current_user: %{"organizations" => [%{"slug" => "pouet pouet"}]}})
-    |> get("/backoffice")
-    |> get_flash(:error)
-    |> Kernel.=~("You need to be a member of the transport.data.gouv.fr team.")
-    |> assert
-  end
-
-  @tag :integration
   test "show add new dataset form", %{conn: conn} do
     conn
     |> init_test_session(%{
