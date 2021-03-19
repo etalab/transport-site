@@ -1,7 +1,6 @@
 defmodule TransportWeb.Router do
   use TransportWeb, :router
-  use Plug.ErrorHandler
-  use Sentry.Plug
+  use Sentry.PlugCapture
 
   defimpl Plug.Exception, for: Phoenix.Template.UndefinedError do
     def status(_exception), do: 404
@@ -19,6 +18,7 @@ defmodule TransportWeb.Router do
     plug(:assign_contact_email)
     plug(:assign_token)
     plug(:assign_mix_env)
+    plug(Sentry.PlugContext)
   end
 
   pipeline :accept_json do

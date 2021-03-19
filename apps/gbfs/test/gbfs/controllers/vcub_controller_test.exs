@@ -58,17 +58,11 @@ defmodule GBFS.VCubControllerTest do
 
       change_app_config_temporarily(:sentry, :dsn, "http://public:secret@localhost:#{bypass.port}/1")
       change_app_config_temporarily(:sentry, :included_environments, [:test])
+      change_app_config_temporarily(:sentry, :send_result, :sync)
 
       with_mock HTTPoison, get: mock do
         conn = conn |> get(Routes.v_cub_path(conn, :station_status))
         assert %{"error" => "service vcub unavailable"} == json_response(conn, 502)
-
-        # Sentry 0.7 does not have a sync mode, so the message is send asynchronously,
-        # we wait to be sure that the message is send.
-        # in Sentry 0.8 we'll be able to do:
-        # change_app_config_temporarily(:sentry, :send_result, :sync)
-        :timer.sleep(500)
-
         assert_called_exactly(HTTPoison.get(:_), 1)
       end
     end

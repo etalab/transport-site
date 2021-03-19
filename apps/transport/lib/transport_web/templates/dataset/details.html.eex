@@ -79,6 +79,11 @@
     <%= unless is_nil(@reuses) or @reuses == [] do %>
       <section class="white pt-48" id="dataset-reuses">
         <h2><%= dgettext("page-dataset-details", "Reuses" )%></h2>
+        <%= if @fetch_reuses_error do %>
+          <div class="panel reuses_not_available">
+            🔌 <%= dgettext("page-dataset-details", "Reuses are temporarily unavailable") %>
+          </div>
+        <% end %>
         <div class="reuses">
           <%= for reuse <- @reuses do %>
             <div class="panel reuse">

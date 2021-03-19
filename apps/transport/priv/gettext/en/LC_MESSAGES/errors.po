@@ -31,3 +31,7 @@ msgstr ""
 #, elixir-format
 msgid "Region %{id} does not exist"
 msgstr ""
+
+#, elixir-format
+msgid "400: Bad Request"
+msgstr ""

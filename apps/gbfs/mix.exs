@@ -38,7 +38,11 @@ defmodule GBFS.MixProject do
       {:sweet_xml, ">= 0.0.0"},
       {:jason, ">= 0.0.0"},
       {:cors_plug, "~> 2.0"},
-      {:sentry, "~> 7.1"},
+      {:sentry, "~> 8.0"},
+      # Required for ConditionalJSONEncoder which is referenced by global config,
+      # otherwise the tests won't run. Not sure if there's a better way for this,
+      # since the GBFS app itself does not currently rely on conditional encoding.
+      {:helpers, in_umbrella: true},
       {:exvcr, "~> 0.10", only: :test},
       {:mock, "~> 0.3.6", only: :test},
       {:bypass, "~> 1.0", only: :test}

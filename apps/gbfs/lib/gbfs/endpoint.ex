@@ -1,4 +1,5 @@
 defmodule GBFS.Endpoint do
+  use Sentry.PlugCapture
   use Phoenix.Endpoint, otp_app: :gbfs
 
   if code_reloading? do
@@ -13,6 +14,8 @@ defmodule GBFS.Endpoint do
     pass: ["*/*"],
     json_decoder: Phoenix.json_library()
   )
+
+  plug(Sentry.PlugContext)
 
   plug(Plug.MethodOverride)
   plug(Plug.Head)

@@ -32,7 +32,8 @@ defmodule Transport.Mixfile do
       extra_applications: [
         :logger,
         :mime,
-        :unidecode
+        :unidecode,
+        :phoenix_ecto
       ]
     ]
   end
@@ -53,12 +54,12 @@ defmodule Transport.Mixfile do
       {:phoenix_live_view, "~> 0.15.0"},
       {:phoenix_html_sanitizer, "~> 1.1.0"},
       {:floki, ">= 0.0.0", only: :test},
-      {:plug_cowboy, "~> 2.1"},
+      {:plug_cowboy, "~> 2.3"},
       {:recon, "~> 2.4"},
       {:vex, "~> 0.8"},
       {:quantum, "~> 2.3"},
       {:timex, "~> 3.5"},
-      {:sentry, "~> 7.1"},
+      {:sentry, "~> 8.0"},
       {:scrivener, "~> 2.5"},
       # We'll use upstream again once https://github.com/mgwidmann/scrivener_html/pull/98 is merged
       {:scrivener_html, git: "https://github.com/thbar/scrivener_html.git", branch: "phoenix_1.5"},
@@ -79,7 +80,8 @@ defmodule Transport.Mixfile do
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
       {:unidecode, "~> 0.0.2"},
-      {:ex_machina, "~> 2.4", only: :test}
+      {:ex_machina, "~> 2.4", only: :test},
+      {:phoenix_ecto, "~> 4.0"}
     ]
   end
 end
