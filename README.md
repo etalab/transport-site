@@ -81,7 +81,7 @@ Run the server with `mix phx.server` and you can visit [`127.0.0.1:5000`](http:/
 
 #### Selenium web driver
 
-Before running the `integration` or `solution` tests, you need to start a selenium web driver.
+Before running the `integration`, you need to start a selenium web driver.
 
 On Linux, you can do this with `docker run -p 4444:4444 --network=host selenium/standalone-chrome:3.141.59-oxygen`.
 
@@ -102,7 +102,6 @@ Run the tests with `MIX_ENV=test mix test`
 You can also:
 
   * Run the integration tests with `MIX_ENV=test mix test --only integration`
-  * Run the solution tests with `MIX_ENV=test mix test --only solution`
   * Run the external tests with `MIX_ENV=test mix test --only external`
   * Run everything with `MIX_ENV=test RUN_ALL=1 mix test`
 
