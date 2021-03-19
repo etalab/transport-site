@@ -22,6 +22,39 @@ defmodule TransportWeb.PageControllerTest do
       |> Floki.find(".mail__button .icon--envelope")
   end
 
+  test "I can see a log-in link on home", %{conn: conn} do
+    # go to the home page
+    conn = conn |> get("/")
+    doc = html_response(conn, 200)
+    html = doc |> Floki.parse_document!()
+
+    # simulate click on login link
+    [link] = Floki.find(html, ".navigation__link--login")
+    [href] = Floki.attribute(link, "href")
+    assert href == "/login/explanation?redirect_path=%2F"
+    conn = conn |> get(href)
+
+    # verify the content
+    html = html_response(conn, 200)
+    assert html =~ "disponible, valoriser et améliorer"
+
+    # # I have an explanation of what data.gouv.fr is
+    assert html =~ "plateforme ouverte des données publiques françaises"
+
+    # # I have an explanation of what the relationship is between data.gouv.fr and Transport
+    assert html =~ "transport.data.gouv.fr est un site affilié à data.gouv.fr"
+
+    # # I have an explanation of what's going to happen and what I'm I supposed to do
+    assert html =~ "créer un compte ou vous identifier avec votre compte data.gouv.fr"
+    assert html =~ "autoriser transport.data.gouv.fr à utiliser votre compte data.gouv.fr"
+
+    # # I can click somewhere to start the log in / sign up process
+    assert html =~ "Se connecter"
+
+    # # I can click somewhere to ask for help
+    assert html =~ "Nous contacter"
+  end
+
   describe "GET /espace_producteur" do
     test "requires authentication", %{conn: conn} do
       conn =
