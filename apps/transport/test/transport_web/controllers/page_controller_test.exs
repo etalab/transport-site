@@ -11,6 +11,16 @@ defmodule TransportWeb.PageControllerTest do
     assert html_response(conn, 200) =~ "disponible, valoriser et améliorer"
   end
 
+  test "GET / shows a contact button", %{conn: conn} do
+    conn = conn |> get(page_path(conn, :index))
+
+    conn
+    |> html_response(200)
+    |> Floki.parse()
+    |> Floki.find(".mail__button .icon--envelope")
+    |> assert
+  end
+
   describe "GET /espace_producteur" do
     test "requires authentication", %{conn: conn} do
       conn =
