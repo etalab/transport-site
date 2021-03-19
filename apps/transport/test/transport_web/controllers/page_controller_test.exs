@@ -8,7 +8,8 @@ defmodule TransportWeb.PageControllerTest do
 
   test "GET /", %{conn: conn} do
     conn = conn |> get(page_path(conn, :index))
-    assert html_response(conn, 200) =~ "disponible, valoriser et améliorer"
+    html = html_response(conn, 200)
+    assert html =~ "disponible, valoriser et améliorer"
   end
 
   test "GET / shows a contact button", %{conn: conn} do
