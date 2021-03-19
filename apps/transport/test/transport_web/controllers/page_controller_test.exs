@@ -16,7 +16,7 @@ defmodule TransportWeb.PageControllerTest do
 
     conn
     |> html_response(200)
-    |> Floki.parse()
+    |> Floki.parse_document()
     |> Floki.find(".mail__button .icon--envelope")
     |> assert
   end
