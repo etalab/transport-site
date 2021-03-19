@@ -25,7 +25,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Deny access to backoffice if not logged", %{conn: conn} do
     conn = get(conn, backoffice_page_path(conn, :index))
-    assert redirected_to(conn, 302) =~ "/login/explanation"
+    target_uri = URI.parse(redirected_to(conn, 302))
+    assert target_uri.path == "/login/explanation"
+    assert target_uri.query == URI.encode_query(redirect_path: "/backoffice")
     assert get_flash(conn, :info) =~ "Vous devez être préalablement connecté"
   end
 
