@@ -26,16 +26,6 @@ defaults_with_postgres: &defaults_with_postgres
         POSTGRES_USER: root
         POSTGRES_DB: transport_test
 
-defaults_with_postgres_and_phantom: &defaults_with_postgres_and_phantom
-  <<: *defaults
-  docker:
-    - *default_docker
-    - image: selenium/standalone-chrome:86.0
-    - image: mdillon/postgis:11-alpine
-      environment:
-        POSTGRES_USER: root
-        POSTGRES_DB: transport_test
-
 jobs:
   build:
     <<: *defaults
@@ -176,40 +166,6 @@ jobs:
             export SECRET_KEY_BASE=`mix phx.gen.secret`
             mix test
 
-  test_integration:
-    <<: *defaults_with_postgres_and_phantom
-
-    steps:
-      - attach_workspace:
-          at: ~/transport
-
-      - run:
-          name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git
-
-      - run:
-          name: Run tests
-          command: |
-            export SECRET_KEY_BASE=`mix phx.gen.secret`
-            mix test --only integration
-
-  test_solution:
-    <<: *defaults_with_postgres_and_phantom
-
-    steps:
-      - attach_workspace:
-          at: ~/transport
-
-      - run:
-          name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git
-
-      - run:
-          name: Run tests
-          command: |
-            export SECRET_KEY_BASE=`mix phx.gen.secret`
-            mix test --only solution
-
   test_external:
     <<: *defaults_with_postgres
 
@@ -245,15 +201,7 @@ workflows:
           requires:
             - build
 
-      - test_integration:
-          requires:
-            - build
-
       - test_external:
-          requires:
-            - build
-
-      - test_solution:
           requires:
             - build
 

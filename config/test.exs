@@ -14,12 +14,6 @@ config :gbfs, :disable_page_cache, true
 # Override cache implementation
 config :transport, cache_impl: Transport.Cache.Null
 
-# Integration testing with Hound
-# See docs at:
-# * https://github.com/HashNuke/hound/blob/master/notes/configuring-hound.md
-# * https://github.com/HashNuke/hound/wiki/Starting-a-webdriver-server
-config :hound, driver: "selenium", browser: "chrome"
-
 # Print only warnings and errors during test
 config :logger, level: :warn
 

@@ -23,6 +23,35 @@ defmodule TransportWeb.BackofficeControllerTest do
     "action" => "new"
   }
 
+  test "Deny access to backoffice if not logged", %{conn: conn} do
+    conn = get(conn, backoffice_page_path(conn, :index))
+    target_uri = URI.parse(redirected_to(conn, 302))
+    assert target_uri.path == "/login/explanation"
+    assert target_uri.query == URI.encode_query(redirect_path: "/backoffice")
+    assert get_flash(conn, :info) =~ "Vous devez être préalablement connecté"
+  end
+
+  test "Check that you belong to the right organization", %{conn: conn} do
+    conn =
+      conn
+      |> init_test_session(%{current_user: %{"organizations" => [%{"slug" => "pouet pouet"}]}})
+      |> get(backoffice_page_path(conn, :index))
+
+    assert redirected_to(conn, 302) =~ "/login/explanation"
+    assert get_flash(conn, :error) =~ "You need to be a member of the transport.data.gouv.fr team."
+  end
+
+  test "Show 'add new dataset' form", %{conn: conn} do
+    conn =
+      conn
+      |> init_test_session(%{
+        current_user: %{"organizations" => [%{"slug" => "blurp"}, %{"slug" => "equipe-transport-data-gouv-fr"}]}
+      })
+      |> get(backoffice_page_path(conn, :index))
+
+    assert html_response(conn, 200) =~ "Ajouter un jeu de données"
+  end
+
   @tag :external
   test "Add a dataset with a region and AOM", %{conn: conn} do
     conn =
