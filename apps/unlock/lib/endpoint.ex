@@ -1,0 +1,14 @@
+defmodule Unlock.Endpoint do
+  use Phoenix.Endpoint, otp_app: :unlock
+
+  if code_reloading? do
+    plug(Phoenix.CodeReloader)
+  end
+
+  # TODO: review items here
+  plug(Plug.RequestId)
+  plug(Plug.Logger)
+  plug(Plug.Head)
+
+  plug(Unlock.Router)
+end
