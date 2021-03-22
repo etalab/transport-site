@@ -70,6 +70,7 @@ defmodule Transport.Mixfile do
       {:datagouvfr, in_umbrella: true},
       {:helpers, in_umbrella: true},
       {:db, in_umbrella: true},
+      {:unlock, in_umbrella: true},
       {:castore, "~> 0.1.0"},
       {:mint, "~> 0.2.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
