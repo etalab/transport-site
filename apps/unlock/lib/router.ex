@@ -1,5 +1,5 @@
 defmodule Unlock.Router do
   use Phoenix.Router
 
-  get "/", Unlock.Controller, :get
+  get "/", Unlock.Controller, :index
 end
