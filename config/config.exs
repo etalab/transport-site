@@ -5,6 +5,18 @@
 # is restricted to this project.
 use Mix.Config
 
+# TODO: use a proper module for config, but make sure to allow
+# tests run for the unlock app separately, without depending on the whole house
+config :unlock, :resources,
+  fn() ->
+    %{
+      "angouleme" => %{
+        "url" => System.fetch_env!("SOME_SECRET_URL"),
+        "ttl" => 30
+      }
+    }
+  end
+
 config :gbfs,
   generators: [context_app: false]
 
