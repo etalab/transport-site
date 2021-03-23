@@ -52,7 +52,7 @@ config :phoenix, :json_library, Jason
 # See https://hexdocs.pm/phoenix/1.5.8/Phoenix.Template.html#module-format-encoders
 #
 config :phoenix, :format_encoders,
-  json: TransportWeb.ConditionalJSONEncoder
+  json: Transport.Shared.ConditionalJSONEncoder
 
 # Configures Elixir's Logger
 config :logger,
