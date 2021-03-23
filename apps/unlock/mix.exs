@@ -30,6 +30,7 @@ defmodule Unlock.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.5.7"},
+      {:httpoison, "~> 1.5.0"},
       {:sentry, "~> 8.0"},
       # required indirectly by sentry
       {:hackney, "~> 1.8"},
