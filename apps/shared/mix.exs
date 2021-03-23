@@ -1,9 +1,9 @@
-defmodule Helpers.MixProject do
+defmodule Shared.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :helpers,
+      app: :shared,
       version: "0.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -30,6 +30,17 @@ defmodule Helpers.MixProject do
     [
       {:timex, ">= 0.0.0"},
       {:httpoison, ">= 0.0.0"},
+      # Mint is used by our HttpStream shared component, so we add an explicity dependency
+      {:mint, "~> 0.2.0"},
+      # Required for ConditionalJSONEncoder shared component
+      {:phoenix, "~> 1.5.7"},
+      # The global app config references Sentry.LoggerBackend. We add it in "shared"
+      # as an implicit dependency, to ensure `Sentry.LoggerBackend` is always defined,
+      # otherwise running tests for an individual umbrella sub-app will raise error.
+      {:sentry, "~> 8.0.0"},
+      # Similarly, Jason is configured as `json_library` by the main app, so it will
+      # be required no matter what.
+      {:jason, ">= 0.0.0"}
     ]
   end
 end
