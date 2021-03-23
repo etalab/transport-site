@@ -42,7 +42,7 @@ defmodule GBFS.MixProject do
       # Required for ConditionalJSONEncoder which is referenced by global config,
       # otherwise the tests won't run. Not sure if there's a better way for this,
       # since the GBFS app itself does not currently rely on conditional encoding.
-      {:helpers, in_umbrella: true},
+      {:shared, in_umbrella: true},
       {:exvcr, "~> 0.10", only: :test},
       {:mock, "~> 0.3.6", only: :test},
       {:bypass, "~> 1.0", only: :test}

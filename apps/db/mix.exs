@@ -42,7 +42,7 @@ defmodule Db.MixProject do
       {:phoenix_html, ">= 0.0.0"},
       {:jason, ">= 0.0.0"},
       {:datagouvfr, in_umbrella: true},
-      {:helpers, in_umbrella: true},
+      {:shared, in_umbrella: true},
       {:ex_aws, ">= 0.0.0"},
       {:ex_aws_s3, ">= 0.0.0"},
       {:sentry, ">= 0.0.0"},

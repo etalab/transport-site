@@ -68,7 +68,7 @@ defmodule Transport.Mixfile do
       {:open_api_spex, "~> 3.8"},
       {:gbfs, in_umbrella: true},
       {:datagouvfr, in_umbrella: true},
-      {:helpers, in_umbrella: true},
+      {:shared, in_umbrella: true},
       {:db, in_umbrella: true},
       {:unlock, in_umbrella: true},
       {:castore, "~> 0.1.0"},
