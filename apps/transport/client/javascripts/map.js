@@ -44,7 +44,7 @@ const getLegend = (title, colors, labels) => {
         const div = Leaflet.DomUtil.create('div', 'info legend')
         div.innerHTML += title
         // loop through our density intervals and generate a label with a colored square for each interval
-        for (var i = 0; i < colors.length; i++) {
+        for (let i = 0; i < colors.length; i++) {
             div.innerHTML += `<i style="background:${colors[i]}"></i>${labels[i]}<br/>`
         }
         return div
@@ -54,10 +54,10 @@ const getLegend = (title, colors, labels) => {
 }
 
 // simple cache on stats
-var aomStats = null
-var regionStats = null
-var bikeStats = null
-var qualityStats = null
+let aomStats = null
+let regionStats = null
+let bikeStats = null
+let qualityStats = null
 
 function getAomsFG (featureFunction, style, filter = null) {
     const aomsFeatureGroup = Leaflet.featureGroup()
@@ -149,8 +149,10 @@ function addStaticPTMapRegions (id, view) {
         const name = feature.properties.nom
         const id = feature.properties.id
         const count = nbBaseSchedule(feature)
-        const text = count === 0 ? 'Aucun jeu de données'
-            : count === 1 ? 'Un jeu de données'
+        const text = count === 0
+            ? 'Aucun jeu de données'
+            : count === 1
+                ? 'Un jeu de données'
                 : `${count} jeux de données`
         let popupContent = `<strong>${name}</strong><br/><a href="/datasets/region/${id}?type=public-transit#datasets-results">${text}</a>`
         if (id === 2) {
@@ -207,8 +209,10 @@ function addStaticPTMapAOMS (id, view) {
         const name = feature.properties.nom
         const type = feature.properties.forme_juridique
         const count = nbBaseSchedule(feature)
-        const text = count === 0 ? 'Aucun jeu de données'
-            : count === 1 ? 'Un jeu de données'
+        const text = count === 0
+            ? 'Aucun jeu de données'
+            : count === 1
+                ? 'Un jeu de données'
                 : `${count} jeux de données`
         const extra = feature.properties.parent_dataset_slug !== null
             ? `<br>Des données sont disponibles au sein <a href="/datasets/${feature.properties.parent_dataset_slug}/">d'un jeu agrégé</a>.`
