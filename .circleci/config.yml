@@ -79,7 +79,7 @@ jobs:
 
       - run:
           name: Compile assets
-          command: cd ~/transport/apps/transport/client && npm run deploy
+          command: cd ~/transport/apps/transport/client && npm run build
 
       # NOTE: I think this should be moved to the dialyzer parallel section,
       # but then we need to think about how the persistence/caching will be
