@@ -26,12 +26,10 @@
     "import-glob-loader": "^1.1.0",
     "leaflet": "^1.4.0",
     "leaflet.pattern": "^0.1.0",
-    "node-sass": "^4.12.0",
     "papaparse": "^5.1.1",
     "phoenix": "file:../../../deps/phoenix",
     "phoenix_html": "file:../../../deps/phoenix_html",
     "phoenix_live_view": "file:../../../deps/phoenix_live_view",
-    "sass-loader": "^8.0.0",
     "style-loader": "^1.0.2",
     "template.data.gouv.fr": "^1.2.1",
     "webpack": "^4.41.3"
@@ -46,6 +44,8 @@
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
     "mini-css-extract-plugin": "^1.3.9",
+    "sass-loader": "^8.0.0",
+    "sass": "^1.32.8",
     "stylelint": "^13.3.1",
     "stylelint-scss": "^3.16.1",
     "webpack-cli": "^3.2.3"
