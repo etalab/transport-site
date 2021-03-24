@@ -41,7 +41,7 @@ jobs:
       - restore_cache:
           keys:
             - elixir-v9-build-{{ checksum "mix.lock" }}
-  
+
       - run:
           name: Install hex
           command: mix local.hex --force
@@ -72,7 +72,7 @@ jobs:
             - ~/transport/_build
             - ~/transport/deps
             - ~/.mix
-  
+
       - run:
           name: Install yarn dependencies
           command: cd ~/transport/apps/transport/client && yarn install
@@ -100,7 +100,7 @@ jobs:
           key: elixir-v8-plt-{{ checksum "mix.lock" }}
           paths:
             - ~/transport/dialyzer-plt
-  
+
       - persist_to_workspace:
           root: ~/transport
           paths:
