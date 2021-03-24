@@ -15,7 +15,6 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.1.0",
     "@tarekraafat/autocomplete.js": "^7.2.0",
-    "acorn": "^7.1.1",
     "core-js": "3",
     "leaflet": "^1.4.0",
     "leaflet.pattern": "^0.1.0",
@@ -49,7 +48,6 @@
     "webpack-cli": "^3.2.3"
   },
   "resolutions": {
-    "kind-of": "^6.0.3",
-    "acorn": "^7.1.1"
+    "kind-of": "^6.0.3"
   }
 }
