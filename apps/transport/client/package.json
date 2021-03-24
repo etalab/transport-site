@@ -28,7 +28,7 @@
     "@babel/core": "^7.3.4",
     "@babel/preset-env": "^7.3.4",
     "babel-loader": "^8.0.5",
-    "copy-webpack-plugin": "^6.0.0",
+    "copy-webpack-plugin": "^8.1.0",
     "css-loader": "^5.1.4",
     "eslint": "^7.22.0",
     "eslint-config-standard": "^16.0.2",
