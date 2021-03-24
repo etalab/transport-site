@@ -4,7 +4,8 @@
   "license": "AGPL-3.0",
   "repository": "https://github.com/etalab/transport-site.git",
   "scripts": {
-    "watch": "webpack --stdin --progress --color",
+    "info": "webpack --debug",
+    "watch": "webpack --watch-options-stdin --progress --color",
     "build": "webpack",
     "deploy": "webpack -p",
     "errors": "webpack --display-error-details",
@@ -50,7 +51,7 @@
     "mini-css-extract-plugin": "^0.8.2",
     "stylelint": "^13.3.1",
     "stylelint-scss": "^3.16.1",
-    "webpack-cli": "^4.5.0"
+    "webpack-cli": "^3.2.3"
   },
   "resolutions": {
     "kind-of": "^6.0.3",
