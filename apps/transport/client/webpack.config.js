@@ -88,7 +88,7 @@ module.exports = {
                 }
             }]
         }, {
-            test: /\.(eot|ttf|otf|woff|woff2|svg)(\?v=\d+\.\d+\.\d+)?$/,
+            test: /\.(eot|ttf|otf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
             use: [{
                 loader: 'file-loader',
                 options: {
