@@ -7,6 +7,7 @@ const extractImages = new CopyWebpackPlugin({ patterns: [{ from: 'images', to: '
 const extractSass = new MiniCssExtractPlugin({ filename: '../css/app.css' })
 const promisePolyfill = new webpack.ProvidePlugin({ Promise: 'core-js/es/promise' })
 const processEnv = new webpack.DefinePlugin({ 'process.env': { DATAGOUVFR_SITE: JSON.stringify(process.env.DATAGOUVFR_SITE) } })
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 module.exports = {
     mode: devMode ? 'development' : 'production',
@@ -97,5 +98,12 @@ module.exports = {
                 }
             }]
         }]
-    }
+    },
+    optimization: {
+        minimizer: [
+            // For webpack@5 you can use the `...` syntax to extend existing minimizers (i.e. `terser-webpack-plugin`), uncomment the next line
+            `...`,
+            new CssMinimizerPlugin(),
+        ],
+    },
 }
