@@ -21,7 +21,7 @@
     "babel-loader": "^8.0.5",
     "copy-webpack-plugin": "^6.0.0",
     "core-js": "3",
-    "css-loader": "^3.4.0",
+    "css-loader": "^5.1.4",
     "exports-loader": "^0.7.0",
     "file-loader": "^5.0.2",
     "import-glob-loader": "^1.1.0",
