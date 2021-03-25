@@ -1,5 +1,4 @@
 const { resolve } = require('path')
-const devMode = process.env.NODE_ENV !== 'production'
 const webpack = require('webpack')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
@@ -7,14 +6,8 @@ const extractImages = new CopyWebpackPlugin({ patterns: [{ from: 'images', to: '
 const extractSass = new MiniCssExtractPlugin({ filename: '../css/app.css' })
 const promisePolyfill = new webpack.ProvidePlugin({ Promise: 'core-js/es/promise' })
 const processEnv = new webpack.DefinePlugin({ 'process.env': { DATAGOUVFR_SITE: JSON.stringify(process.env.DATAGOUVFR_SITE) } })
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
-
-console.log('NODE_ENV is set to :', process.env.NODE_ENV)
-const mode = devMode ? 'development' : 'production'
-console.log('webpack mode is set to :', mode)
 
 module.exports = {
-    mode: mode,
     entry: {
         app: './javascripts/app.js',
         map: './javascripts/map.js',
@@ -47,27 +40,26 @@ module.exports = {
         promisePolyfill,
         processEnv
     ],
-    devtool: 'source-map',
     module: {
         rules: [{ test: /\.css$/, use: ['style-loader', 'css-loader'] },
-            {
-                test: /\.(js|scss)$/,
-                exclude: [/node_modules/],
-                enforce: 'pre',
-                loader: 'import-glob-loader'
-            }, {
-                test: /\.js$/,
-                exclude: [/node_modules/],
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env']
-                    }
+        {
+            test: /\.(js|scss)$/,
+            exclude: [/node_modules/],
+            enforce: 'pre',
+            loader: 'import-glob-loader'
+        }, {
+            test: /\.js$/,
+            exclude: [/node_modules/],
+            use: {
+                loader: 'babel-loader',
+                options: {
+                    presets: ['@babel/preset-env']
                 }
-            }, {
-                test: /\.scss$/,
-                exclude: [/node_modules/],
-                use:
+            }
+        }, {
+            test: /\.scss$/,
+            exclude: [/node_modules/],
+            use:
                 [
                     MiniCssExtractPlugin.loader,
                     {
@@ -82,32 +74,25 @@ module.exports = {
                         }
                     }
                 ]
-            }, {
-                test: /\.(jpe?g|png|gif|svg)$/,
-                exclude: [/font-awesome/],
-                use: [{
-                    loader: 'file-loader',
-                    options: {
-                        name: '[name].[ext]',
-                        outputPath: '../images/'
-                    }
-                }]
-            }, {
-                test: /\.(eot|ttf|otf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
-                use: [{
-                    loader: 'file-loader',
-                    options: {
-                        name: '[name].[ext]',
-                        outputPath: '../fonts/'
-                    }
-                }]
+        }, {
+            test: /\.(jpe?g|png|gif|svg)$/,
+            exclude: [/font-awesome/],
+            use: [{
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]',
+                    outputPath: '../images/'
+                }
             }]
-    },
-    optimization: {
-        minimizer: [
-            // For webpack@5 you can use the `...` syntax to extend existing minimizers (i.e. `terser-webpack-plugin`), uncomment the next line
-            '...',
-            new CssMinimizerPlugin()
-        ]
+        }, {
+            test: /\.(eot|ttf|otf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
+            use: [{
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]',
+                    outputPath: '../fonts/'
+                }
+            }]
+        }]
     }
 }
