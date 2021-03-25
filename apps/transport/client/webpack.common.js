@@ -1,16 +1,13 @@
 const { resolve } = require('path')
-const devMode = process.env.NODE_ENV !== 'production'
 const webpack = require('webpack')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const extractImages = new CopyWebpackPlugin({ patterns: [{ from: 'images', to: '../images' }] })
-const extractSass = new MiniCssExtractPlugin({ filename: '../css/app.css', allChunks: true })
-const fetchPolyfill = new webpack.ProvidePlugin({ fetch: 'exports-loader?self.fetch!whatwg-fetch/dist/fetch.umd' })
+const extractSass = new MiniCssExtractPlugin({ filename: '../css/app.css' })
 const promisePolyfill = new webpack.ProvidePlugin({ Promise: 'core-js/es/promise' })
 const processEnv = new webpack.DefinePlugin({ 'process.env': { DATAGOUVFR_SITE: JSON.stringify(process.env.DATAGOUVFR_SITE) } })
 
 module.exports = {
-    mode: devMode ? 'development' : 'production',
     entry: {
         app: './javascripts/app.js',
         map: './javascripts/map.js',
@@ -40,11 +37,9 @@ module.exports = {
     plugins: [
         extractImages,
         extractSass,
-        fetchPolyfill,
         promisePolyfill,
         processEnv
     ],
-    devtool: 'source-map',
     module: {
         rules: [{ test: /\.css$/, use: ['style-loader', 'css-loader'] },
             {
@@ -90,7 +85,7 @@ module.exports = {
                     }
                 }]
             }, {
-                test: /\.(eot|ttf|otf|woff|woff2|svg)(\?v=\d+\.\d+\.\d+)?$/,
+                test: /\.(eot|ttf|otf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
                 use: [{
                     loader: 'file-loader',
                     options: {
