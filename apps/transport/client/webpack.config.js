@@ -9,6 +9,9 @@ const promisePolyfill = new webpack.ProvidePlugin({ Promise: 'core-js/es/promise
 const processEnv = new webpack.DefinePlugin({ 'process.env': { DATAGOUVFR_SITE: JSON.stringify(process.env.DATAGOUVFR_SITE) } })
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 
+const mode = devMode ? 'development' : 'production';
+console.log('mode:', mode)
+
 module.exports = {
     mode: devMode ? 'development' : 'production',
     entry: {
