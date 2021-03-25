@@ -1,5 +1,5 @@
-const { merge } = require('webpack-merge');
-const common = require('./webpack.common.js');
+const { merge } = require('webpack-merge')
+const common = require('./webpack.common.js')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 
 console.log('webpack production configuration is used 🚀')
@@ -13,4 +13,4 @@ module.exports = merge(common, {
             new CssMinimizerPlugin()
         ]
     }
-});
+})
