@@ -1,14 +1,14 @@
-var addSeeMore = function (maxHeight, querySelector, seeMoreText, seeLessText) {
+const addSeeMore = function (maxHeight, querySelector, seeMoreText, seeLessText) {
     document.querySelectorAll(querySelector).forEach(
         function (div) {
             div.style.maxHeight = maxHeight
             div.style.overflow = 'hidden'
             if (div.scrollHeight > div.clientHeight) {
-                var parent = div.parentElement
-                var displayMore = document.createElement('div')
+                const parent = div.parentElement
+                const displayMore = document.createElement('div')
                 parent.appendChild(displayMore)
                 displayMore.className = '.displayMore'
-                var linkDisplayMore = document.createElement('a')
+                const linkDisplayMore = document.createElement('a')
                 displayMore.appendChild(linkDisplayMore)
                 linkDisplayMore.innerHTML = seeMoreText
                 displayMore.addEventListener('click',
