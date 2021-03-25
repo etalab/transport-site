@@ -10,10 +10,10 @@ const processEnv = new webpack.DefinePlugin({ 'process.env': { DATAGOUVFR_SITE: 
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 
 const mode = devMode ? 'development' : 'production';
-console.log('mode:', mode)
+console.log('webpack mode is set to :', mode)
 
 module.exports = {
-    mode: devMode ? 'development' : 'production',
+    mode: mode,
     entry: {
         app: './javascripts/app.js',
         map: './javascripts/map.js',
@@ -49,24 +49,24 @@ module.exports = {
     devtool: 'source-map',
     module: {
         rules: [{ test: /\.css$/, use: ['style-loader', 'css-loader'] },
-            {
-                test: /\.(js|scss)$/,
-                exclude: [/node_modules/],
-                enforce: 'pre',
-                loader: 'import-glob-loader'
-            }, {
-                test: /\.js$/,
-                exclude: [/node_modules/],
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env']
-                    }
+        {
+            test: /\.(js|scss)$/,
+            exclude: [/node_modules/],
+            enforce: 'pre',
+            loader: 'import-glob-loader'
+        }, {
+            test: /\.js$/,
+            exclude: [/node_modules/],
+            use: {
+                loader: 'babel-loader',
+                options: {
+                    presets: ['@babel/preset-env']
                 }
-            }, {
-                test: /\.scss$/,
-                exclude: [/node_modules/],
-                use:
+            }
+        }, {
+            test: /\.scss$/,
+            exclude: [/node_modules/],
+            use:
                 [
                     MiniCssExtractPlugin.loader,
                     {
@@ -81,26 +81,26 @@ module.exports = {
                         }
                     }
                 ]
-            }, {
-                test: /\.(jpe?g|png|gif|svg)$/,
-                exclude: [/font-awesome/],
-                use: [{
-                    loader: 'file-loader',
-                    options: {
-                        name: '[name].[ext]',
-                        outputPath: '../images/'
-                    }
-                }]
-            }, {
-                test: /\.(eot|ttf|otf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
-                use: [{
-                    loader: 'file-loader',
-                    options: {
-                        name: '[name].[ext]',
-                        outputPath: '../fonts/'
-                    }
-                }]
+        }, {
+            test: /\.(jpe?g|png|gif|svg)$/,
+            exclude: [/font-awesome/],
+            use: [{
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]',
+                    outputPath: '../images/'
+                }
             }]
+        }, {
+            test: /\.(eot|ttf|otf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
+            use: [{
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]',
+                    outputPath: '../fonts/'
+                }
+            }]
+        }]
     },
     optimization: {
         minimizer: [
