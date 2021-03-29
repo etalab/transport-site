@@ -74,5 +74,8 @@ defmodule HTTPStream do
   @spec handle_response(keyword()) :: any()
   def handle_response({:data, _ref, data}), do: data
   def handle_response({:done, _ref}), do: :done
+  # NOTE: as seen in https://github.com/elixir-mint/mint#usage,
+  # :headers and :status can also be seen, and are currently
+  # ignored. I do not know if this is a problem or not.
   def handle_response(_), do: nil
 end
