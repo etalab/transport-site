@@ -54,4 +54,27 @@ defmodule HTTPStream.Test do
     # once re-joined, the server output should equal what we receive
     assert data |> Enum.join() == large_content_in_n_chunks |> Enum.join()
   end
+
+  test "error case returns nil (BOGUS ???)" do
+    # ⚠️ adding this test but I think the behaviour of the tested code is not what we need:
+    # the computed checksum is likely incorrect (to be investigated).
+    buggy_url = "http://localhost:aaaa"
+
+    data = buggy_url |> HTTPStream.get() |> Stream.into([]) |> Enum.to_list()
+    assert data == []
+  end
+
+  test "status 404 (BOGUS ???)", %{bypass: bypass} do
+    # ⚠️ apparently 404 just returns the data, but there is no trace
+    # that the 404 occurred. I am not sure what the implications are, since
+    # the target resource computed checksum will actually be the one of the 404 result
+
+    Bypass.expect_once(bypass, "GET", "/", fn conn ->
+      Plug.Conn.resp(conn, 404, "NOT FOUND")
+    end)
+
+    url = "http://localhost:#{bypass.port}/"
+    [content] = url |> HTTPStream.get() |> Stream.into([]) |> Enum.to_list()
+    assert content == "NOT FOUND"
+  end
 end
