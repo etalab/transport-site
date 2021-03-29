@@ -17,6 +17,21 @@ defmodule HTTPStream.Test do
     assert content == "Some content"
   end
 
+  # this is a different code path in current HTTPStream code
+  test "fetch content with url query", %{bypass: bypass} do
+    url = "/hello"
+    query = "var=value"
+
+    Bypass.expect_once(bypass, "GET", url, fn conn ->
+      assert conn.query_string == query
+      Plug.Conn.resp(conn, 200, "Some content")
+    end)
+
+    url = "http://localhost:#{bypass.port}#{url}?#{query}"
+    [content] = url |> HTTPStream.get() |> Stream.into([]) |> Enum.to_list()
+    assert content == "Some content"
+  end
+
   test "fetch content using chunked encoding for streaming", %{bypass: bypass} do
     # a large payload that the server sends back into 2 large chunks
     large_content_in_n_chunks = [
