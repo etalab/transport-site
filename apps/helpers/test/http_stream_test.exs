@@ -13,7 +13,7 @@ defmodule HTTPStream.Test do
     end)
 
     url = "http://localhost:#{bypass.port}/"
-    [content] = HTTPStream.get(url) |> Stream.into([]) |> Enum.to_list()
+    [content] = url |> HTTPStream.get() |> Stream.into([]) |> Enum.to_list()
     assert content == "Some content"
   end
 
@@ -47,7 +47,7 @@ defmodule HTTPStream.Test do
     end)
 
     url = "http://localhost:#{bypass.port}/"
-    data = HTTPStream.get(url) |> Stream.into([]) |> Enum.to_list()
+    data = url |> HTTPStream.get() |> Stream.into([]) |> Enum.to_list()
     # We should have multiple chunks (different ones) on the receiving end
     # due to how the client app buffering works
     assert data |> Enum.count() >= 5
