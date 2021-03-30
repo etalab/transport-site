@@ -25,7 +25,7 @@ defmodule HTTPStream do
     uri = URI.parse(url)
 
     with {:ok, conn} <- HTTP.connect(String.to_atom(uri.scheme), uri.host, uri.port),
-         {:ok, conn, _ref} <- HTTP.request(conn, "GET", merge_path(uri), []) do
+         {:ok, conn, _ref} <- HTTP.request(conn, "GET", merge_path(uri), [], "") do
       conn
     else
       {:error, conn, reason} ->
