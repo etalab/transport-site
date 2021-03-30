@@ -47,7 +47,7 @@ defmodule Transport.Cache.Cachex do
       end
     end
 
-    {operation, result} = Cachex.fetch(cache_name, cache_key, comp_fn, ttl: :timer.seconds(60))
+    {operation, result} = Cachex.fetch(cache_name, cache_key, comp_fn)
 
     case operation do
       :ok ->
@@ -55,6 +55,7 @@ defmodule Transport.Cache.Cachex do
         result
 
       :commit ->
+        Cachex.expire(cache_name, cache_key, :timer.seconds(60))
         Logger.info("Value for key #{cache_key} regenerated")
         result
 
