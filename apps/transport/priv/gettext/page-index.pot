@@ -58,7 +58,7 @@ msgid "Car-sharing areas"
 msgstr ""
 
 #, elixir-format
-msgid "Electric vehicles charging stations"
+msgid "Charging & refuelling stations"
 msgstr ""
 
 #, elixir-format
