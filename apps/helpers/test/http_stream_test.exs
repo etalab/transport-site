@@ -63,9 +63,6 @@ defmodule HTTPStream.Test do
 
     url = "http://localhost:#{bypass.port}/"
     data = url |> HTTPStream.get() |> Stream.into([]) |> Enum.to_list()
-    # We should have multiple chunks (different ones) on the receiving end
-    # due to how the client app buffering works
-    assert data |> Enum.count() >= 5
     # once re-joined, the server output should equal what we receive
     assert data |> Enum.join() == large_content_in_n_chunks |> Enum.join()
   end
