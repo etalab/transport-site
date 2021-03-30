@@ -14,6 +14,8 @@ defmodule Transport.Cache.Cachex.Test do
 
     Transport.Cache.Cachex.fetch(unique_cache_key, fn -> "something else" end)
     assert Cachex.get!(:transport, unique_cache_key) == [hello: "world"]
+
+    assert_in_delta Cachex.ttl!(:transport, unique_cache_key), 60_000, 1000
   end
 
   test "it bubbles up errors occurring inside the computation function" do
