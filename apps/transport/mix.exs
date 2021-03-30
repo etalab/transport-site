@@ -71,7 +71,6 @@ defmodule Transport.Mixfile do
       {:helpers, in_umbrella: true},
       {:db, in_umbrella: true},
       {:castore, "~> 0.1.0"},
-      {:mint, "~> 0.2.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:cors_plug, "~> 2.0"},
       {:exvcr, "~> 0.10", only: :test},
