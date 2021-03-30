@@ -30,6 +30,8 @@ defmodule Helpers.MixProject do
     [
       {:timex, ">= 0.0.0"},
       {:httpoison, ">= 0.0.0"},
+      {:bypass, "~> 2.1", only: :test},
+      {:mint, "~> 1.2"}
     ]
   end
 end
