@@ -182,3 +182,8 @@ nav.navigation input {
 .input__group .button {
   margin-left: var(--space-s) !important;
 }
+
+.user-name-display {
+  display: flex;
+  align-items: center;
+}
