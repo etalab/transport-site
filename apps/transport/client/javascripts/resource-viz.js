@@ -27,7 +27,7 @@ function getLabel (obj, labelsList) {
 }
 
 function initilizeMap (id) {
-    const map = L.map(id, { renderer: L.canvas() }).setView([46.505, 2], 5)
+    const map = L.map(id, { preferCanvas: true }).setView([46.505, 2], 5)
     L.tileLayer(Mapbox.url, {
         accessToken: Mapbox.accessToken,
         attribution: Mapbox.attribution,
