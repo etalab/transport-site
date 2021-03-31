@@ -129,11 +129,6 @@ defmodule Transport.ImportData do
         # if the dataset is already inactive, we don't want to raise an error
         error_level = if is_active, do: "error", else: "info"
 
-        Sentry.capture_message("unable_to_import_dataset",
-          level: error_level,
-          extra: %{datagouv_id: datagouv_id, type: type, title: title, slug: slug, error: error}
-        )
-
         # log the import failure
         Repo.insert(%LogsImport{
           datagouv_id: datagouv_id,
