@@ -79,6 +79,7 @@ config :sentry,
   included_environments: [:prod, :staging],
   enable_source_code_context: true,
   root_source_code_path: File.cwd!,
+  filter: Transport.Shared.SentryExceptionFilter,
   # the key must be there for overriding during tests,
   # so we set it to the default based on source code for now
   send_result: :none
