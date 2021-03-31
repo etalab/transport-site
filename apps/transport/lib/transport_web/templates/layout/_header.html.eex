@@ -38,12 +38,18 @@
           <%= if assigns[:current_user] do %>
             <li class="nav__item">
               <div class="dropdown">
-                <%= if assigns[:current_user]["avatar_thumbnail"] do %>
+                <div class="user-name-display">
                   <span class="nav__username">
-                    <%= assigns[:current_user]["first_name"] %> <%= assigns[:current_user]["last_name"] %>
+                    <%= if assigns[:current_user]["first_name"] || assigns[:current_user]["last_name"] do %>
+                        <%= assigns[:current_user]["first_name"] %> <%= assigns[:current_user]["last_name"] %>
+                    <% else %>
+                        <%= gettext("My account") %>
+                    <% end %>
                   </span>
-                  <img src="<%= assigns[:current_user]["avatar_thumbnail"] %>" alt="" class="nav__avatar"> </img>
-              <% end %>
+                  <%= if assigns[:current_user]["avatar_thumbnail"] do %>
+                    <img src="<%= assigns[:current_user]["avatar_thumbnail"] %>" alt="" class="nav__avatar"> </img>
+                  <% end %>
+                </div>
               <div class="dropdown-content">
                 <%= if admin?(assigns[:current_user]) do %>
                   <%= link("Administration", to: "/backoffice") %>
