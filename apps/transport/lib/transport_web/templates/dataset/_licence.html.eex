@@ -5,7 +5,7 @@
   <%= licence(@dataset) %>
 <% end %>
 <%= if @dataset.type == "public-transit" && @dataset.licence == "odc-odbl" do %>
-  <%= dgettext("page-dataset-details", "and ") %>
+   	&#32<%= dgettext("page-dataset-details", "and ") %>
   <%= link(
         dgettext("page-dataset-details", "Specific usage conditions"),
         to: page_path(@conn, :conditions)
