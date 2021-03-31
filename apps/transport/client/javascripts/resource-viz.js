@@ -38,6 +38,10 @@ function initilizeMap (id) {
     return { map, fg }
 }
 
+function coordinatesAreCorrect (lat, lon) {
+    return lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180
+}
+
 function displayData (data, fg, { latField, lonField, nameField }) {
     const markerOptions = {
         fillColor: '#0066db',
@@ -46,7 +50,7 @@ function displayData (data, fg, { latField, lonField, nameField }) {
         fillOpacity: 0.15
     }
     for (const m of data) {
-        if (m[latField] && m[lonField]) {
+        if (coordinatesAreCorrect(m[latField], m[lonField])) {
             try {
                 L.circleMarker([m[latField], m[lonField]], markerOptions)
                     .bindPopup(m[nameField])
