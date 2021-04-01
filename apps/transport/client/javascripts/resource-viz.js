@@ -27,7 +27,7 @@ function getLabel (obj, labelsList) {
 }
 
 function initilizeMap (id) {
-    const map = L.map(id, { renderer: L.canvas() }).setView([46.505, 2], 5)
+    const map = L.map(id, { preferCanvas: true }).setView([46.505, 2], 5)
     L.tileLayer(Mapbox.url, {
         accessToken: Mapbox.accessToken,
         attribution: Mapbox.attribution,
@@ -38,6 +38,10 @@ function initilizeMap (id) {
     return { map, fg }
 }
 
+function coordinatesAreCorrect (lat, lon) {
+    return !isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180
+}
+
 function displayData (data, fg, { latField, lonField, nameField }) {
     const markerOptions = {
         fillColor: '#0066db',
@@ -46,7 +50,7 @@ function displayData (data, fg, { latField, lonField, nameField }) {
         fillOpacity: 0.15
     }
     for (const m of data) {
-        if (m[latField] && m[lonField]) {
+        if (coordinatesAreCorrect(m[latField], m[lonField])) {
             try {
                 L.circleMarker([m[latField], m[lonField]], markerOptions)
                     .bindPopup(m[nameField])
@@ -83,6 +87,8 @@ function createCSVmap (id, resourceUrl) {
                 displayData(data.data, fg, { latField, lonField, nameField })
                 map.fitBounds(fg.getBounds())
                 setZoomEvents(map, fg)
+            } else {
+                removeViz('vizualisation of the resource has failed : not recognized column names')
             }
         }
     })
@@ -166,11 +172,19 @@ function createGBFSmap (id, resourceUrl) {
     setInterval(() => fillGBFSMap(resourceUrl, fg, availableDocks, map), 60000)
 }
 
+function removeViz (consoleMsg) {
+    const element = document.querySelector('#dataset-visualisation')
+    element.remove()
+    console.log(consoleMsg)
+}
+
 function createMap (id, resourceUrl) {
     if (resourceUrl.endsWith('.csv')) {
         createCSVmap(id, resourceUrl)
     } else if (resourceUrl.endsWith('gbfs.json')) {
         createGBFSmap(id, resourceUrl)
+    } else {
+        removeViz(`vizualisation of the resource ${resourceUrl} has failed : not recognized file extension`)
     }
 }
 
