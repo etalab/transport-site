@@ -87,6 +87,8 @@ function createCSVmap (id, resourceUrl) {
                 displayData(data.data, fg, { latField, lonField, nameField })
                 map.fitBounds(fg.getBounds())
                 setZoomEvents(map, fg)
+            } else {
+                removeViz('vizualisation of the resource has failed : not recognized column names')
             }
         }
     })
@@ -170,11 +172,19 @@ function createGBFSmap (id, resourceUrl) {
     setInterval(() => fillGBFSMap(resourceUrl, fg, availableDocks, map), 60000)
 }
 
+function removeViz (consoleMsg) {
+    const element = document.querySelector('#dataset-visualisation')
+    element.remove()
+    console.log(consoleMsg)
+}
+
 function createMap (id, resourceUrl) {
     if (resourceUrl.endsWith('.csv')) {
         createCSVmap(id, resourceUrl)
     } else if (resourceUrl.endsWith('gbfs.json')) {
         createGBFSmap(id, resourceUrl)
+    } else {
+        removeViz(`vizualisation of the resource ${resourceUrl} has failed : not recognized file extension`)
     }
 }
 
