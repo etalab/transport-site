@@ -283,7 +283,7 @@ msgid "Visualization"
 msgstr "Visualisation"
 
 #, elixir-format
-msgid "data type"
+msgid "Data type"
 msgstr "Type de données"
 
 #, elixir-format
