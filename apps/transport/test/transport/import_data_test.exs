@@ -45,7 +45,10 @@ defmodule Transport.ImportDataTest do
   end
 
   test "the available? function with HTTP request", _ do
-    mock = fn url ->
+    mock = fn url, [], options ->
+      # temporary fix for https://github.com/etalab/transport-site/issues/1564
+      assert options == [ssl: [versions: [:"tlsv1.2"]]]
+
       case url do
         'url200' -> {:ok, %HTTPoison.Response{body: "{}", status_code: 200}}
         'url300' -> {:ok, %HTTPoison.Response{body: "{}", status_code: 300}}
