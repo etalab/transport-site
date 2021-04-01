@@ -8,7 +8,7 @@
     "watch": "webpack --watch-options-stdin --progress --color --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
     "errors": "webpack --display-error-details --config webpack.dev.js",
-    "linter:ecma": "eslint -c ../../../.eslintrc --resolve-plugins-relative-to ./apps/transport/client/node_modules --ext .js .",
+    "linter:ecma": "eslint -c .eslintrc --resolve-plugins-relative-to ./apps/transport/client/node_modules --ext .js .",
     "linter:sass": "stylelint --config '../../../.stylelintrc.json' 'stylesheets/**/*.scss'"
   },
   "dependencies": {
