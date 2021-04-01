@@ -5,5 +5,6 @@ console.log('webpack dev configuration is used')
 
 module.exports = merge(common, {
     mode: 'development',
+    watch: true,
     devtool: 'source-map'
 })
