@@ -373,3 +373,7 @@ msgstr "disponible"
 #, elixir-format
 msgid "Reuses are temporarily unavailable"
 msgstr "Les réutilisations sont temporairement indisponibles"
+
+#, elixir-format
+msgid "Data producer"
+msgstr "Producteur de la donnée"
