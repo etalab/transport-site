@@ -23,7 +23,10 @@ defmodule HTTPStream do
   @spec request(binary() | URI.t()) :: nil | Mint.HTTP.t()
   def request(url) do
     uri = URI.parse(url)
-
+    # Notes for later:
+    # HTTP.connect is affected by https://github.com/etalab/transport-site/issues/1564
+    # but we could not fix it for now here. This means "nil" is returned, generating
+    # a sha256 based on nil, which is incorrect as well.
     with {:ok, conn} <- HTTP.connect(String.to_atom(uri.scheme), uri.host, uri.port),
          {:ok, conn, _ref} <- HTTP.request(conn, "GET", merge_path(uri), [], "") do
       conn

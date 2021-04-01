@@ -339,7 +339,9 @@ defmodule Transport.ImportData do
   def available?(%{"type" => "api"}), do: true
 
   def available?(%{"url" => url}) do
-    case HTTPoison.head(url) do
+    # NOTE: ssl options are a hotfix for https://github.com/etalab/transport-site/issues/1564
+    # We will be able to remove them once OTP is updated to 23 (https://github.com/etalab/transport-site/issues/1584)
+    case HTTPoison.head(url, [], ssl: [versions: [:"tlsv1.2"]]) do
       {:ok, %HTTPoison.Response{status_code: code}} when code >= 200 and code < 400 -> true
       _ -> false
     end

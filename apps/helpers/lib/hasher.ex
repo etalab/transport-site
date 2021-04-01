@@ -18,7 +18,9 @@ defmodule Hasher do
 
   @spec get_content_hash_http(String.t()) :: String.t()
   def get_content_hash_http(url) do
-    with {:ok, %{headers: headers}} <- HTTPoison.head(url),
+    # SSL config is a temporary fix for https://github.com/etalab/transport-site/issues/1564
+    # The better fix is to add proper tests around that and upgrade to OTP 23.
+    with {:ok, %{headers: headers}} <- HTTPoison.head(url, [], ssl: [versions: [:"tlsv1.2"]]),
          etag when not is_nil(etag) <- Enum.find_value(headers, &find_etag/1),
          content_hash <- String.replace(etag, "\"", "") do
       content_hash
