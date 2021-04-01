@@ -60,7 +60,7 @@ defmodule Transport.ImportDataTest do
       assert ImportData.available?(%{"url" => 'url200'})
       assert ImportData.available?(%{"url" => 'url300'})
       refute ImportData.available?(%{"url" => 'url400'})
-      assert_called_exactly(HTTPoison.head(:_), 3)
+      assert_called_exactly(HTTPoison.head(:_, :_, :_), 3)
     end
   end
 end
