@@ -39,7 +39,7 @@ function initilizeMap (id) {
 }
 
 function coordinatesAreCorrect (lat, lon) {
-    return lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180
+    return !isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180
 }
 
 function displayData (data, fg, { latField, lonField, nameField }) {
