@@ -44,6 +44,7 @@ defmodule Helpers.MixProject do
       {:sentry, "~> 8.0.0"},
       # Similarly, Jason is configured as `json_library` by the main app, so it will
       # be required no matter what.
+      {:jason, ">= 0.0.0"}
     ]
   end
 end
