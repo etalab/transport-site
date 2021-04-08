@@ -15,4 +15,4 @@ elixir 1.10.4-otp-23
 # - `asdf list all erlang`
 erlang 23.2.7.2
 
-nodejs 12.15.0
+nodejs 14.16.1
