@@ -16,7 +16,8 @@ default_docker: &default_docker
 defaults: &defaults
   parameters:
     base_image:
-      default: betagouv/transport:0.5.0
+      # TODO: move to stable release
+      default: betagouv/transport:develop
       type: string
   working_directory: ~/transport
   docker:
