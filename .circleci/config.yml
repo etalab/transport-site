@@ -1,9 +1,10 @@
-version: 2
+version: 2.1
 
 # useful information at https://circleci.com/docs/2.0/language-elixir/
+# and https://circleci.com/docs/2.0/reusing-config/#using-the-parameters-declaration
 
 default_docker: &default_docker
-  image: betagouv/transport:0.5.0
+  image: << parameters.base_image >>
   environment:
     MIX_ENV: test
     PG_URL_TEST: ecto://root@127.0.0.1/transport_test
@@ -13,6 +14,10 @@ default_docker: &default_docker
     SECRET_KEY_BASE: "SOME-SECRET-KEY-BASE-FOR-TESTING-SOME-SECRET-KEY-BASE-FOR-TESTING"
 
 defaults: &defaults
+  parameters:
+    base_image:
+      default: betagouv/transport:0.5.0
+      type: string
   working_directory: ~/transport
   docker:
     - *default_docker
@@ -35,7 +40,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - elixir-v9-build-{{ checksum "mix.lock" }}
+            - elixir-<< parameters.base_image >>-{{ checksum "mix.lock" }}
 
       - run:
           name: Install hex
@@ -62,7 +67,7 @@ jobs:
           command: mix deps.compile
 
       - save_cache:
-          key: elixir-v9-build-{{ checksum "mix.lock" }}
+          key: elixir-<< parameters.base_image >>-{{ checksum "mix.lock" }}
           paths:
             - ~/transport/_build
             - ~/transport/deps
@@ -82,7 +87,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - elixir-v8-plt-{{ checksum "mix.lock" }}
+            - elixir-<< parameters.base_image >>-plt-{{ checksum "mix.lock" }}
 
       - run:
           name: Build PLT
@@ -92,7 +97,7 @@ jobs:
           no_output_timeout: 20m
 
       - save_cache:
-          key: elixir-v8-plt-{{ checksum "mix.lock" }}
+          key: elixir-<< parameters.base_image >>-plt-{{ checksum "mix.lock" }}
           paths:
             - ~/transport/dialyzer-plt
 
