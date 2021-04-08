@@ -283,7 +283,7 @@ msgid "Visualization"
 msgstr ""
 
 #, elixir-format
-msgid "data type"
+msgid "Data type"
 msgstr ""
 
 #, elixir-format
@@ -372,4 +372,8 @@ msgstr ""
 
 #, elixir-format
 msgid "Reuses are temporarily unavailable"
+msgstr ""
+
+#, elixir-format
+msgid "Data producer"
 msgstr ""

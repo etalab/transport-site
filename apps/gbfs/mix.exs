@@ -45,7 +45,7 @@ defmodule GBFS.MixProject do
       {:shared, in_umbrella: true},
       {:exvcr, "~> 0.10", only: :test},
       {:mock, "~> 0.3.6", only: :test},
-      {:bypass, "~> 1.0", only: :test}
+      {:bypass, "~> 2.1", only: :test}
     ]
   end
 end

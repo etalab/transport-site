@@ -23,9 +23,12 @@ defmodule HTTPStream do
   @spec request(binary() | URI.t()) :: nil | Mint.HTTP.t()
   def request(url) do
     uri = URI.parse(url)
-
+    # Notes for later:
+    # HTTP.connect is affected by https://github.com/etalab/transport-site/issues/1564
+    # but we could not fix it for now here. This means "nil" is returned, generating
+    # a sha256 based on nil, which is incorrect as well.
     with {:ok, conn} <- HTTP.connect(String.to_atom(uri.scheme), uri.host, uri.port),
-         {:ok, conn, _ref} <- HTTP.request(conn, "GET", merge_path(uri), []) do
+         {:ok, conn, _ref} <- HTTP.request(conn, "GET", merge_path(uri), [], "") do
       conn
     else
       {:error, conn, reason} ->
@@ -74,5 +77,8 @@ defmodule HTTPStream do
   @spec handle_response(keyword()) :: any()
   def handle_response({:data, _ref, data}), do: data
   def handle_response({:done, _ref}), do: :done
+  # NOTE: as seen in https://github.com/elixir-mint/mint#usage,
+  # :headers and :status can also be seen, and are currently
+  # ignored. I do not know if this is a problem or not.
   def handle_response(_), do: nil
 end

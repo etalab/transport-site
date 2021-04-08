@@ -226,7 +226,13 @@
       <i class="fa fa-map-marker-alt"></i> <%= Dataset.get_territory_or_nil(@dataset) %>
     </div>
     <div class="pt-12">
-      <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "data type")%></span>
+      <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Data producer") %></span>
+      <div class="dataset-type-info">
+        <b><%= @dataset.organization %></b>
+      </div>
+    </div>
+    <div class="pt-12">
+      <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Data type")%></span>
       <div class="dataset-type-info">
         <%= unless is_nil(icon_type_path(@dataset)) do %>
           <span class="dataset-icon-type">

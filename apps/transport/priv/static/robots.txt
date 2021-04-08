@@ -6,3 +6,6 @@ Disallow: /backoffice/
 
 User-agent: *
 Allow: /
+
+User-agent: SemrushBot
+Disallow: /login/*

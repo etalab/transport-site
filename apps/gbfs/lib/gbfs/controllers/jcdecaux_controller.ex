@@ -79,7 +79,6 @@ defmodule GBFS.JCDecauxController do
     else
       e ->
         Logger.error("impossible to query jcdecaux: #{inspect(e)}")
-        Sentry.capture_message("impossible to query jcdecaux")
         {:error, "jcdecaux service unavailable"}
     end
   end

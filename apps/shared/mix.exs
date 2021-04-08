@@ -30,13 +30,17 @@ defmodule Shared.MixProject do
     [
       {:timex, ">= 0.0.0"},
       {:httpoison, ">= 0.0.0"},
+      {:bypass, "~> 2.1", only: :test},
       # Mint is used by our HttpStream shared component, so we add an explicity dependency
-      {:mint, "~> 0.2.0"},
-      # Required for ConditionalJSONEncoder shared component
+      {:mint, "~> 1.2"},
+      # Required for the ConditionalJSONEncoder shared component, but
+      # there is probably a way to avoid that?
       {:phoenix, "~> 1.5.7"},
       # The global app config references Sentry.LoggerBackend. We add it in "shared"
       # as an implicit dependency, to ensure `Sentry.LoggerBackend` is always defined,
       # otherwise running tests for an individual umbrella sub-app will raise error.
+      # A better way to achieve this will be to configure it at runtime, like described
+      # in https://github.com/getsentry/sentry-elixir/pull/472.
       {:sentry, "~> 8.0.0"},
       # Similarly, Jason is configured as `json_library` by the main app, so it will
       # be required no matter what.
