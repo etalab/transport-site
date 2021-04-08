@@ -27,7 +27,7 @@ defaults_with_postgres: &defaults_with_postgres
   <<: *defaults
   docker:
     - *default_docker
-    - image: postgis/postgis/12-3.0-alpine
+    - image: circleci/postgres:12.0-alpine-postgis
       environment:
         POSTGRES_USER: root
         POSTGRES_DB: transport_test
