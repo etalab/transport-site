@@ -13,6 +13,6 @@ elixir 1.10.4-otp-23
 # - https://github.com/erlang/otp/releases
 # - https://github.com/erlang/otp/blob/master/otp_versions.table
 # - `asdf list all erlang`
-erlang 23.3.1
+erlang 23.2.7.2
 
 nodejs 12.15.0
