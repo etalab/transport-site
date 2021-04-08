@@ -21,7 +21,7 @@ defaults_with_postgres: &defaults_with_postgres
   <<: *defaults
   docker:
     - *default_docker
-    - image: mdillon/postgis:11-alpine
+    - image: postgis/postgis/12-3.0-alpine
       environment:
         POSTGRES_USER: root
         POSTGRES_DB: transport_test
