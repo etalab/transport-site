@@ -3,7 +3,7 @@ version: 2
 # useful information at https://circleci.com/docs/2.0/language-elixir/
 
 default_docker: &default_docker
-  image: betagouv/transport:0.4.5
+  image: betagouv/transport:0.5.0
   environment:
     MIX_ENV: test
     PG_URL_TEST: ecto://root@127.0.0.1/transport_test
