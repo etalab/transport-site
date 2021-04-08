@@ -33,11 +33,6 @@ jobs:
     steps:
       - checkout
 
-      # TODO: remove this once https://github.com/etalab/transport-ops/issues/19 is solved
-      - run:
-          name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git
-
       - restore_cache:
           keys:
             - elixir-v9-build-{{ checksum "mix.lock" }}
@@ -114,10 +109,6 @@ jobs:
           at: ~/transport
 
       - run:
-          name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git
-
-      - run:
           name: Run linters
           command: |
             mix credo --strict
@@ -143,10 +134,6 @@ jobs:
           at: ~/transport
 
       - run:
-          name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git
-
-      - run:
           name: Run dialyzer (static analysis)
           command: MIX_ENV=dev mix dialyzer
 
@@ -155,10 +142,6 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/transport
-
-      - run:
-          name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git
 
       - run:
           name: Run tests
@@ -172,10 +155,6 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/transport
-
-      - run:
-          name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git
 
       - run:
           name: Run tests
