@@ -31,7 +31,7 @@ defmodule Datagouvfr.MixProject do
       {:httpoison, ">= 0.0.0"},
       {:plug, ">= 0.0.0"},
 
-      {:helpers, in_umbrella: true}
+      {:shared, in_umbrella: true}
     ]
   end
 end
