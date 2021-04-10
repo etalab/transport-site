@@ -31,6 +31,7 @@ defmodule Helpers.MixProject do
       {:timex, ">= 0.0.0"},
       {:httpoison, ">= 0.0.0"},
       {:bypass, "~> 2.1", only: :test},
+      {:finch, "~> 0.6.3"},
       # Mint is used by our HttpStream shared component, so we add an explicity dependency
       {:mint, "~> 1.2"},
       # Required for the ConditionalJSONEncoder shared component, but
