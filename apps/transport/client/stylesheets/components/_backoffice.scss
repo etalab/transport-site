@@ -108,3 +108,40 @@
   color: var(--grey);
   padding-left: 3px;
 }
+
+.dashboard-heatmap {
+  border-spacing: 0.5px;
+  border-collapse: separate;
+  margin: 0 auto;
+  margin-bottom: 2em;
+  background-color: #ddd;
+  a {
+    text-decoration: none;
+    color: #333;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  .ko {
+    background-color: red;
+  }
+  .unknown {
+    background-color:#eee;
+  }
+  tr {
+    padding: 0;
+    margin: 0;
+    border-spacing: 1px;
+    border-bottom: 1px solid black;
+  }
+  th {
+    font-size: 8px;
+    line-height: 10px;
+    font-weight: normal;
+  }
+  td {
+    padding: 3px 6px;
+    border: none !important;
+  }
+}
+
