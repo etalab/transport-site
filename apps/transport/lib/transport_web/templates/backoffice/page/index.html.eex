@@ -7,7 +7,7 @@
     </div>
     <div>
       <a class="button" href="<%= backoffice_dashboard_path(@conn, :index) %>">
-        <%= dgettext("backoffice", "Access operations dashboard") %>
+        <%= dgettext("backoffice", "Rapport de complétude des imports") %>
       </a>
     </div>
     <div class="import-all">
