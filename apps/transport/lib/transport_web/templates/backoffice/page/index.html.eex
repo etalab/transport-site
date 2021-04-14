@@ -5,6 +5,11 @@
         <i class="fas fa-plus"></i> <%= dgettext("backoffice", "Add a dataset") %>
       </a>
     </div>
+    <div>
+      <a class="button" href="<%= backoffice_dashboard_path(@conn, :index) %>">
+        <%= dgettext("backoffice", "Access operations dashboard") %>
+      </a>
+    </div>
     <div class="import-all">
       <%= form_for @conn, backoffice_dataset_path(@conn, :import_validate_all), [method: "post"], fn _f -> %>
         <%= submit dgettext("backoffice", "Import and validate all") %>
