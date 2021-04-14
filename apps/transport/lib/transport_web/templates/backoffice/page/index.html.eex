@@ -1,8 +1,10 @@
 <section class="container pt-48 pb-48">
   <h1>Backoffice</h1>
-    <a class="button" href="<%= backoffice_page_path(@conn, :new) %>">
-      <i class="fas fa-plus"></i> <%= dgettext("backoffice", "Add a dataset") %>
-    </a>
+    <div>
+      <a class="button" href="<%= backoffice_page_path(@conn, :new) %>">
+        <i class="fas fa-plus"></i> <%= dgettext("backoffice", "Add a dataset") %>
+      </a>
+    </div>
     <div class="import-all">
       <%= form_for @conn, backoffice_dataset_path(@conn, :import_validate_all), [method: "post"], fn _f -> %>
         <%= submit dgettext("backoffice", "Import and validate all") %>
