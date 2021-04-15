@@ -94,6 +94,8 @@ defmodule TransportWeb.Router do
       pipe_through([:admin_rights])
       get("/", PageController, :index)
 
+      get("/dashboard", DashboardController, :index)
+
       scope "/datasets" do
         get("/new", PageController, :new)
         get("/:id/edit", PageController, :edit)
