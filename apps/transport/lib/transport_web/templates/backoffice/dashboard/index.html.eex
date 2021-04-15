@@ -13,8 +13,8 @@
 <table class="dashboard-heatmap">
 <tbody>
 <%= for {dataset_id, counts} <- @import_count_by_dataset_and_by_day do %>
-    <tr>
-        <th><%= link to: backoffice_page_path(@conn, :edit, dataset_id) do %><%= dataset_id %><% end %></th>
+    <tr class="dataset">
+        <th class="heatmap-header"><%= link to: backoffice_page_path(@conn, :edit, dataset_id) do %><%= dataset_id %><% end %></th>
         <%= for {date, count} <- counts do %>
             <% failure = (count == 0) %>
             <% cell_class = if failure, do: "ko", else: "unknown" %>

@@ -128,13 +128,14 @@
   .unknown {
     background-color:#eee;
   }
-  tr {
+  /* I used class to work around linter error here */
+  .dataset {
     padding: 0;
     margin: 0;
     border-spacing: 1px;
     border-bottom: 1px solid black;
   }
-  th {
+  .heatmap-header {
     font-size: 8px;
     line-height: 10px;
     font-weight: normal;
@@ -144,4 +145,3 @@
     border: none !important;
   }
 }
-
