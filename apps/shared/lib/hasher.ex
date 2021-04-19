@@ -36,19 +36,17 @@ defmodule Hasher do
 
   @spec compute_sha256(String.t()) :: String.t()
   def compute_sha256(url) do
-    try do
-      %{status: status, hash: hash} = HTTPStreamV2.fetch_status_and_hash(url)
-      if status == 200 do
-        hash
-      else
-        Logger.warn("Invalid status #{status} for url #{url |> inspect}, returning nil for hash")
-        nil
-      end
-    rescue
-      e ->
-        Logger.error("Exception #{e |> inspect} occurred during hash computation for url #{url |> inspect}, returning nil for hash")
-        nil
+    %{status: status, hash: hash} = HTTPStreamV2.fetch_status_and_hash(url)
+    if status == 200 do
+      hash
+    else
+      Logger.warn("Invalid status #{status} for url #{url |> inspect}, returning nil for hash")
+      nil
     end
+  rescue
+    e ->
+      Logger.error("Exception #{e |> inspect} occurred during hash computation for url #{url |> inspect}, returning nil for hash")
+      nil
   end
 
   @spec update_hash(binary(), binary() | :error) :: binary() | :error
