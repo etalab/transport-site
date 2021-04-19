@@ -22,6 +22,7 @@ defmodule Shared.MixProject do
 
   def application do
     [
+      mod: {Shared.Application, []},
       extra_applications: [:logger]
     ]
   end
