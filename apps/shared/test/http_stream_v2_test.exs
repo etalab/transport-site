@@ -17,8 +17,11 @@ defmodule HTTPStreamV2.Test do
     result = HTTPStreamV2.fetch_status_and_hash(url)
 
     assert result.status == 302
-    assert result.hash == :crypto.hash(:sha256, "Contenu éphémère") |> Base.encode16 |> String.downcase
+    assert result.hash == :sha256 |> :crypto.hash("Contenu éphémère") |> Base.encode16 |> String.downcase
     assert result.body_byte_size == ("Contenu éphémère" |> byte_size())
-    assert result.headers |> Enum.filter(fn({a,b}) -> a == "hello" end) == [{"hello", "header"}]
+    headers = result.headers
+    |> Enum.filter(fn({a, b}) -> a == "hello" end)
+
+    assert headers == [{"hello", "header"}]
   end
 end
