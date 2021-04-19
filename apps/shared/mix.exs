@@ -1,4 +1,4 @@
-defmodule Helpers.MixProject do
+defmodule Shared.MixProject do
   use Mix.Project
 
   def project do
