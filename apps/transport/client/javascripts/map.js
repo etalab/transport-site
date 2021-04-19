@@ -154,7 +154,7 @@ function addStaticPTMapRegions (id, view) {
             : count === 1
                 ? 'Un jeu de données'
                 : `${count} jeux de données`
-        let popupContent = `<strong>${name}</strong><br/><a href="/datasets/region/${id}?type=public-transit#datasets-results">${text}</a>`
+        const popupContent = `<strong>${name}</strong><br/><a href="/datasets/region/${id}?type=public-transit#datasets-results">${text}</a>`
         layer.bindPopup(popupContent)
     }
 
