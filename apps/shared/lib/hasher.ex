@@ -36,19 +36,18 @@ defmodule Hasher do
 
   @spec compute_sha256(String.t()) :: String.t()
   def compute_sha256(url) do
-    url
-    |> HTTPStream.get()
-    |> Enum.reduce(:crypto.hash_init(:sha256), &update_hash/2)
-    |> case do
-      :error ->
-        Logger.debug(fn -> "Unable to compute hash for #{url}" end)
-        ""
-
-      hash ->
+    try do
+      %{status: status, hash: hash} = HTTPStreamV2.fetch_status_and_hash(url)
+      if status == 200 do
         hash
-        |> :crypto.hash_final()
-        |> Base.encode16()
-        |> String.downcase()
+      else
+        Logger.warn("Invalid status #{status} for url #{url |> inspect}, returning nil for hash")
+        nil
+      end
+    rescue
+      e ->
+        Logger.error("Exception #{e |> inspect} occurred during hash computation for url #{url |> inspect}, returning nil for hash")
+        nil
     end
   end
 
