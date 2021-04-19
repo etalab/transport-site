@@ -29,6 +29,10 @@ defmodule Transport.Inspect do
   Shortcut to color-pretty-print something easily
   """
   def pretty_inspect(data) do
+    # NOTE: disabling credo here is not ideal ; we should have an equivalent check instead
+    # to ensure we don't leave stuff like this in the codebase (usually it's a debugging
+    # statement), but that will do for now.
+    # credo:disable-for-next-line Credo.Check.Warning.IoInspect
     IO.inspect(data, syntax_colors: syntax_colors())
   end
 end
