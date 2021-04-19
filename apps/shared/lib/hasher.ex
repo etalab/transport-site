@@ -40,13 +40,15 @@ defmodule Hasher do
     if status == 200 do
       hash
     else
-      Logger.warn("Invalid status #{status} for url #{url |> inspect}, returning nil for hash")
-      nil
+      Logger.warn("Invalid status #{status} for url #{url |> inspect}, returning empty hash")
+      # NOTE: this mimics the legacy code, and maybe we could return nil instead, but the whole
+      # thing isn't under tests, so I prefer to keep it like before for now.
+      ""
     end
   rescue
     e ->
-      Logger.error("Exception #{e |> inspect} occurred during hash computation for url #{url |> inspect}, returning nil for hash")
-      nil
+      Logger.error("Exception #{e |> inspect} occurred during hash computation for url #{url |> inspect}, returning empty hash")
+      ""
   end
 
   @spec update_hash(binary(), binary() | :error) :: binary() | :error
