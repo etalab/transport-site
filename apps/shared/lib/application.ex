@@ -7,7 +7,10 @@ defmodule Shared.Application do
     children = [
       # Used for streaming component, see possible config at:
       # https://github.com/keathley/finch#usage
-      {Finch, name: Transport.Finch}
+      {Finch, name: Transport.Finch,
+      pools: %{
+        :default => [size: 25] # slightly larger than default
+     }}
     ]
 
     opts = [strategy: :one_for_one, name: Shared.Supervisor]
