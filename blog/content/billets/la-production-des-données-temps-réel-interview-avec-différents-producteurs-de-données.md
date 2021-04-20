@@ -93,7 +93,9 @@ Le SIRI Lite est un sous dérivé de SIRI qui ne contient que les informations s
 * `StopPointsDiscovery` / `LineDiscovery` qui fournit des informations sur le réseau
 * `GeneralMessage`  qui génère des alertes de service
 
-les données sont servies via une API http classique dans le format JSON
+les données sont servies via une API http classique dans le format JSON.
+
+Contrairement au SIRI, Le SIRI-Lite n'est pas un format permettant pas de répondre à la réglementation européenne. 
 
 <!--EndFragment-->
 
