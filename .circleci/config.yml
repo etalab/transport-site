@@ -1,9 +1,10 @@
-version: 2
+version: 2.1
 
 # useful information at https://circleci.com/docs/2.0/language-elixir/
+# and https://circleci.com/docs/2.0/reusing-config/#using-the-parameters-declaration
 
 default_docker: &default_docker
-  image: betagouv/transport:0.4.5
+  image: << parameters.base_image >>
   environment:
     MIX_ENV: test
     PG_URL_TEST: ecto://root@127.0.0.1/transport_test
@@ -13,6 +14,10 @@ default_docker: &default_docker
     SECRET_KEY_BASE: "SOME-SECRET-KEY-BASE-FOR-TESTING-SOME-SECRET-KEY-BASE-FOR-TESTING"
 
 defaults: &defaults
+  parameters:
+    base_image:
+      default: betagouv/transport:elixir-1.10.4-erlang-23.2.7.2-alpine-3.13.3
+      type: string
   working_directory: ~/transport
   docker:
     - *default_docker
@@ -21,7 +26,7 @@ defaults_with_postgres: &defaults_with_postgres
   <<: *defaults
   docker:
     - *default_docker
-    - image: mdillon/postgis:11-alpine
+    - image: circleci/postgres:12.0-alpine-postgis
       environment:
         POSTGRES_USER: root
         POSTGRES_DB: transport_test
@@ -33,14 +38,9 @@ jobs:
     steps:
       - checkout
 
-      # TODO: remove this once https://github.com/etalab/transport-ops/issues/19 is solved
-      - run:
-          name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git
-
       - restore_cache:
           keys:
-            - elixir-v9-build-{{ checksum "mix.lock" }}
+            - elixir-<< parameters.base_image >>-{{ checksum "mix.lock" }}
 
       - run:
           name: Install hex
@@ -67,7 +67,7 @@ jobs:
           command: mix deps.compile
 
       - save_cache:
-          key: elixir-v9-build-{{ checksum "mix.lock" }}
+          key: elixir-<< parameters.base_image >>-{{ checksum "mix.lock" }}
           paths:
             - ~/transport/_build
             - ~/transport/deps
@@ -87,7 +87,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - elixir-v8-plt-{{ checksum "mix.lock" }}
+            - elixir-<< parameters.base_image >>-plt-{{ checksum "mix.lock" }}
 
       - run:
           name: Build PLT
@@ -97,7 +97,7 @@ jobs:
           no_output_timeout: 20m
 
       - save_cache:
-          key: elixir-v8-plt-{{ checksum "mix.lock" }}
+          key: elixir-<< parameters.base_image >>-plt-{{ checksum "mix.lock" }}
           paths:
             - ~/transport/dialyzer-plt
 
@@ -112,10 +112,6 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/transport
-
-      - run:
-          name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git
 
       - run:
           name: Run linters
@@ -143,10 +139,6 @@ jobs:
           at: ~/transport
 
       - run:
-          name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git
-
-      - run:
           name: Run dialyzer (static analysis)
           command: MIX_ENV=dev mix dialyzer
 
@@ -155,10 +147,6 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/transport
-
-      - run:
-          name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git
 
       - run:
           name: Run tests
@@ -172,10 +160,6 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/transport
-
-      - run:
-          name: Install git (required if we use git-hosted hex packages)
-          command: apk add --update git
 
       - run:
           name: Run tests

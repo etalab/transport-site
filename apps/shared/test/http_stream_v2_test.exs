@@ -20,7 +20,7 @@ defmodule HTTPStreamV2.Test do
     assert result.hash == :sha256 |> :crypto.hash("Contenu éphémère") |> Base.encode16 |> String.downcase
     assert result.body_byte_size == ("Contenu éphémère" |> byte_size())
     headers = result.headers
-    |> Enum.filter(fn({a, b}) -> a == "hello" end)
+    |> Enum.filter(fn({key, _val}) -> key == "hello" end)
 
     assert headers == [{"hello", "header"}]
   end
