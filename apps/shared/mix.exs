@@ -22,6 +22,7 @@ defmodule Shared.MixProject do
 
   def application do
     [
+      mod: {Shared.Application, []},
       extra_applications: [:logger]
     ]
   end
@@ -33,6 +34,8 @@ defmodule Shared.MixProject do
       {:bypass, "~> 2.1", only: :test},
       # Mint is used by our HttpStream shared component, so we add an explicity dependency
       {:mint, "~> 1.2"},
+      # Finch is used for built-in streaming
+      {:finch, "~> 0.6.3"},
       # Required for the ConditionalJSONEncoder shared component, but
       # there is probably a way to avoid that?
       {:phoenix, "~> 1.5.7"},

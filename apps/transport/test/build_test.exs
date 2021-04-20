@@ -33,6 +33,16 @@ defmodule TransportWeb.BuildTest do
     assert output |> String.trim() == "v" <> asdf_nodejs_release()
   end
 
+  test "make sure Docker image is same for production & CI" do
+    content = File.read!("../../Dockerfile")
+    [[_, production_version]] = Regex.scan(~r/FROM (.*)/, content)
+
+    content = File.read!("../../.circleci/config.yml")
+    [[_, ci_version]] = Regex.scan(~r/(betagouv\/transport.*)/, content)
+
+    assert ci_version == production_version
+  end
+
   # figuring out you have forgotten to upgrade the assets can be tricky, so we add a little reminder here
   test "make sure LiveView client assets are up to date" do
     {output, 0} = System.cmd("yarn", ["list", "--pattern", "phoenix_live_view"], cd: "client")
