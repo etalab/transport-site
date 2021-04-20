@@ -36,20 +36,19 @@ defmodule Hasher do
 
   @spec compute_sha256(String.t()) :: String.t()
   def compute_sha256(url) do
-    url
-    |> HTTPStream.get()
-    |> Enum.reduce(:crypto.hash_init(:sha256), &update_hash/2)
-    |> case do
-      :error ->
-        Logger.debug(fn -> "Unable to compute hash for #{url}" end)
-        ""
-
-      hash ->
-        hash
-        |> :crypto.hash_final()
-        |> Base.encode16()
-        |> String.downcase()
+    %{status: status, hash: hash} = HTTPStreamV2.fetch_status_and_hash(url)
+    if status == 200 do
+      hash
+    else
+      Logger.warn("Invalid status #{status} for url #{url |> inspect}, returning empty hash")
+      # NOTE: this mimics the legacy code, and maybe we could return nil instead, but the whole
+      # thing isn't under tests, so I prefer to keep it like before for now.
+      ""
     end
+  rescue
+    e ->
+      Logger.error("Exception #{e |> inspect} occurred during hash computation for url #{url |> inspect}, returning empty hash")
+      ""
   end
 
   @spec update_hash(binary(), binary() | :error) :: binary() | :error
