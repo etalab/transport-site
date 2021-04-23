@@ -47,7 +47,7 @@ defmodule Transport.Mixfile do
       {:earmark, "~> 1.3"},
       {:exconstructor, "~> 1.1"},
       {:gettext, "~> 0.11"},
-      {:httpoison, "~> 1.5"},
+      {:httpoison, "~> 1.8.0"},
       {:phoenix, "~> 1.5.7"},
       {:phoenix_html, "~> 2.13"},
       {:phoenix_markdown, "~> 1.0"},
