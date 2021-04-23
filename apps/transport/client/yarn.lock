@@ -3632,7 +3632,7 @@ path-type@^4.0.0:
   version "2.14.3"
 
 "phoenix_live_view@file:../../../deps/phoenix_live_view":
-  version "0.15.4"
+  version "0.15.5"
 
 picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.2.3:
   version "2.2.3"
