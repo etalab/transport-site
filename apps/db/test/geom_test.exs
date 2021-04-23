@@ -33,6 +33,8 @@ defmodule DB.GeomTest do
       instance
       |> Ecto.Changeset.change(%{geom: geom})
       |> DB.Repo.update!()
+      instance = DB.Repo.get!(unquote(tested_module), instance.id)
+      assert instance.geom == geom
     end
   end)
 end
