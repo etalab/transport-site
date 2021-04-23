@@ -6,7 +6,8 @@ defmodule DB.GeomTest do
 
   import Ecto.Query
 
-  @modules [DB.Region]
+  # NOTE: we could add DB.DatasetGeographicView here, but we lack an example record
+  @modules [DB.Region, DB.AOM, DB.Commune]
 
   Enum.each(@modules, fn tested_module ->
     test "geom support for #{tested_module |> inspect}" do
