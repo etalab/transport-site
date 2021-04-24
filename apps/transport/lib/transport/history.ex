@@ -3,6 +3,69 @@ defmodule Transport.History do
   Tooling related to backup and restore resources from S3/Cellar.
   """
 
+  defmodule Fetcher do
+    require Logger
+
+    @spec history_resources(DB.Dataset.t()) :: [map()]
+    def history_resources(%DB.Dataset{} = dataset) do
+      if Application.get_env(:ex_aws, :access_key_id) == nil ||
+           Application.get_env(:ex_aws, :secret_access_key) == nil do
+        # if the cellar credential are missing, we skip the whole history
+        []
+      else
+        try do
+          bucket = history_bucket_id(dataset)
+
+          bucket
+          |> S3.list_objects()
+          |> ExAws.stream!()
+          |> Enum.to_list()
+          |> Enum.map(fn f ->
+            metadata = fetch_history_metadata(bucket, f.key)
+
+            is_current =
+              dataset.resources
+              |> Enum.map(fn r -> r.content_hash end)
+              |> Enum.any?(fn hash -> !is_nil(hash) && metadata["content-hash"] == hash end)
+
+            %{
+              name: f.key,
+              href: history_resource_path(bucket, f.key),
+              metadata: fetch_history_metadata(bucket, f.key),
+              is_current: is_current,
+              last_modified: f.last_modified
+            }
+          end)
+          |> Enum.sort_by(fn f -> f.last_modified end, &Kernel.>=/2)
+        rescue
+          e in ExAws.Error ->
+            Logger.error("error while accessing the S3 bucket: #{inspect(e)}")
+            []
+        end
+      end
+    end
+
+    @spec history_bucket_id(DB.Dataset.t()) :: binary()
+    defp history_bucket_id(%DB.Dataset{} = dataset) do
+      "#{System.get_env("CELLAR_NAMESPACE")}dataset-#{dataset.datagouv_id}"
+    end
+
+    @spec fetch_history_metadata(binary(), binary()) :: map()
+    defp fetch_history_metadata(bucket, obj_key) do
+      bucket
+      |> S3.head_object(obj_key)
+      |> ExAws.request!()
+      |> Map.get(:headers)
+      |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
+      |> Map.take(["format", "title", "start", "end", "updated-at", "content-hash"])
+    end
+
+    @cellar_host ".cellar-c2.services.clever-cloud.com/"
+
+    @spec history_resource_path(binary(), binary()) :: binary()
+    defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> @cellar_host, name])
+  end
+
   defmodule Backup do
     @moduledoc """
     Backup all ressources into s3 to have an history
