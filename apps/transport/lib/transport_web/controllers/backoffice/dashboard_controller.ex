@@ -18,7 +18,7 @@ defmodule TransportWeb.Backoffice.DashboardController do
         fn [dataset_id, _, _] -> dataset_id end,
         fn [_, date, count] -> {date, count} end
       )
-      |> Enum.sort_by(fn {key, value} -> key end)
+      |> Enum.sort_by(fn {key, _value} -> key end)
 
     conn
     |> render("index.html", import_count_by_dataset_and_by_day: import_count_by_dataset_and_by_day)
