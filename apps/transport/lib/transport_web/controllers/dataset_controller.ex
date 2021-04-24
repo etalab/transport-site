@@ -49,7 +49,7 @@ defmodule TransportWeb.DatasetController do
       |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
       |> merge_assigns(reuses_assign)
       |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
-      |> assign(:history_resources, Dataset.history_resources(dataset))
+      |> assign(:history_resources, Transport.History.Fetcher.history_resources(dataset))
       |> put_status(if dataset.is_active, do: :ok, else: :not_found)
       |> render("details.html")
     else
