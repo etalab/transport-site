@@ -18,7 +18,7 @@ config :transport, Transport.Scheduler,
     # Set inactive data
     {"@daily", {Transport.DataChecker, :inactive_data, []}},
     # backup all resources
-    {"@daily", {Transport.History, :backup_resources, []}},
+    {"@daily", {Transport.History.Backup, :backup_resources, []}},
     # clean old logs
     {"0 3 * * *", {Transport.LogCleaner, :clean_old_logs, []}},
     # clean old validations
