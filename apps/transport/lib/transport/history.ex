@@ -4,6 +4,9 @@ defmodule Transport.History do
   """
 
   defmodule Fetcher do
+    @moduledoc """
+    Module able to fetch history resources from S3
+    """
     require Logger
 
     @spec history_resources(DB.Dataset.t()) :: [map()]
