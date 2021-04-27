@@ -10,6 +10,84 @@ defmodule Transport.ImportDataTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
+  def generate_payload() do
+    %{
+      "title" => "dataset1",
+      "id" => "dataset1_id",
+      "slug" => "dataset-slug",
+      "resources" => [
+        %{
+          "title" => "resource1",
+          "url" => "http://localhost:4321/resource1",
+          "id" => "resource1_id"
+        }
+      ]
+    }
+  end
+
+  @tag :focus
+  test "hello world des imports" do
+    # _dataset =
+    #   insert(
+    #     # hello
+    #     :dataset,
+    #     datagouv_id: datagouv_id = "some-id",
+    #     national_dataset: "true"
+    #   )
+
+    insert(:region, nom: "National")
+
+    Transport.Inspect.pretty_inspect(DB.Repo.all(DB.Region))
+
+    {:ok, changes} =
+      DB.Dataset.changeset(%{
+        "datagouv_id" => datagouv_id = "some-id",
+        "slug" => "ma_limace",
+        "national_dataset" => "true"
+        # "insee" => "38185"
+      })
+
+    DB.Repo.insert!(changes)
+
+    assert DB.Repo.aggregate(DB.Dataset, :count, :id) == 1
+    assert DB.Repo.aggregate(DB.Resource, :count, :id) == 0
+
+    http_mock = fn url, [], hackney: [follow_redirect: true] ->
+      base_url = Application.get_env(:transport, :datagouvfr_site)
+      expected_url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
+      assert url == expected_url
+
+      {:ok, %HTTPoison.Response{body: Jason.encode!(generate_payload())}}
+    end
+
+    http_head_mock = fn url, _, _ ->
+      assert url == "http://localhost:4321/resource1"
+      {:ok, %HTTPoison.Response{status_code: 200}}
+    end
+
+    http_stream_mock = fn url ->
+      assert url == "http://localhost:4321/resource1"
+
+      %{
+        status: 200,
+        hash: "resource1_hash"
+      }
+    end
+
+    with_mock HTTPoison, get: http_mock, head: http_head_mock do
+      with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
+        with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock do
+          # TODO check mocks are called once
+          Transport.Inspect.pretty_inspect(ImportData.import_all_datasets())
+        end
+      end
+    end
+  end
+
+  test "error while connecting to datagouv server"
+
+  test "with community resources"
+
   describe "import_all_test" do
     test "logs unmanaged exceptions" do
       # NOTE: we should ultimately use "valid" datasets (which went through the changesets),
