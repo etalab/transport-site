@@ -11,10 +11,10 @@ defmodule Transport.ImportDataTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  def generate_dataset_payload() do
+  def generate_dataset_payload(datagouv_id) do
     %{
       "title" => "dataset1",
-      "id" => "dataset1_id",
+      "id" => datagouv_id,
       "slug" => "dataset-slug",
       "resources" => [
         %{
@@ -26,36 +26,39 @@ defmodule Transport.ImportDataTest do
     }
   end
 
-  test "hello world des imports" do
-    # we insert a national dataset in the DB
+  def insert_national_dataset(datagouv_id) do
     {:ok, changes} =
       DB.Dataset.changeset(%{
-        "datagouv_id" => datagouv_id = "dataset1_id",
+        "datagouv_id" => datagouv_id,
         "slug" => "ma_limace",
         "national_dataset" => "true"
       })
 
     DB.Repo.insert!(changes)
+  end
 
-    assert DB.Repo.aggregate(DB.Dataset, :count, :id) == 1
-    assert DB.Repo.aggregate(DB.Resource, :count, :id) == 0
-    # The national dataset is pre-inserted in the DB via a migration
-    assert DB.Region |> where([r], r.nom == "National") |> DB.Repo.aggregate(:count) == 1
-
-    http_get_mock = fn url, [], hackney: [follow_redirect: true] ->
+  def http_get_mock_200(datagouv_id) do
+    fn url, [], hackney: [follow_redirect: true] ->
       base_url = Application.get_env(:transport, :datagouvfr_site)
       expected_url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
       assert url == expected_url
 
-      {:ok, %HTTPoison.Response{body: Jason.encode!(generate_dataset_payload())}}
+      {:ok, %HTTPoison.Response{body: Jason.encode!(generate_dataset_payload(datagouv_id)), status_code: 200}}
     end
+  end
 
-    http_head_mock = fn url, _, _ ->
-      assert url == "http://localhost:4321/resource1"
-      {:ok, %HTTPoison.Response{status_code: 200}}
+  def http_get_mock_404(datagouv_id) do
+    fn url, [], hackney: [follow_redirect: true] ->
+      base_url = Application.get_env(:transport, :datagouvfr_site)
+      expected_url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
+      assert url == expected_url
+
+      {:ok, %HTTPoison.Response{body: "erreur 404, page non trouvée", status_code: 404}}
     end
+  end
 
-    http_stream_mock = fn url ->
+  def http_stream_mock() do
+    fn url ->
       assert url == "http://localhost:4321/resource1"
 
       %{
@@ -63,11 +66,30 @@ defmodule Transport.ImportDataTest do
         hash: "resource1_hash"
       }
     end
+  end
 
-    with_mock HTTPoison, get: http_get_mock, head: http_head_mock do
+  def http_head_mock() do
+    fn url, _, _ ->
+      assert url == "http://localhost:4321/resource1"
+      {:ok, %HTTPoison.Response{status_code: 200}}
+    end
+  end
+
+  def check_db_content() do
+    assert DB.Repo.aggregate(DB.Dataset, :count, :id) == 1
+    assert DB.Repo.aggregate(DB.Resource, :count, :id) == 0
+    # The national dataset is pre-inserted in the DB via a migration
+    assert DB.Region |> where([r], r.nom == "National") |> DB.Repo.aggregate(:count) == 1
+  end
+
+  test "hello world des imports" do
+    insert_national_dataset(datagouv_id = "dataset1_id")
+    check_db_content()
+
+    with_mock HTTPoison, get: http_get_mock_200(datagouv_id), head: http_head_mock do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock do
-          logs = capture_log(fn -> ImportData.import_all_datasets() end)
+          logs = capture_log([level: :info], fn -> ImportData.import_all_datasets() end)
 
           assert_called_exactly(HTTPoison.get(:_, :_, :_), 1)
 
@@ -78,14 +100,35 @@ defmodule Transport.ImportDataTest do
 
           # import is a success
           assert logs =~ "all datasets have been reimported (0 failures / 1)"
+          # Transport.Inspect.pretty_inspect(logs)
         end
       end
     end
   end
 
-  test "error while connecting to datagouv server"
+  test "import fails when datagouv responds a 404" do
+    insert_national_dataset(datagouv_id = "dataset1_id")
+    check_db_content()
 
-  test "with community resources"
+    with_mock HTTPoison, get: http_get_mock_404(datagouv_id), head: http_head_mock do
+      with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
+        with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock do
+          logs = capture_log([level: :info], fn -> ImportData.import_all_datasets() end)
+          assert_called_exactly(HTTPoison.get(:_, :_, :_), 1)
+
+          # we could expect to have the following log :
+          # assert logs =~ "all datasets have been reimported (1 failures / 1)"
+          # but the code handling the error in import_dataset crashes when trying to inspect the error
+          # hence we get an unmanaged exception :
+          assert logs =~ "Unmanaged exception during import"
+        end
+      end
+    end
+  end
+
+  # test "error while connecting to datagouv server"
+
+  # test "with community resources"
 
   describe "import_all_test" do
     test "logs unmanaged exceptions" do
@@ -105,7 +148,7 @@ defmodule Transport.ImportDataTest do
       with_mock Sentry, capture_message: fn _, _ -> nil end do
         with_mock HTTPoison, get: mock do
           logs =
-            capture_log(fn ->
+            capture_log([level: :warn], fn ->
               ImportData.import_all_datasets()
             end)
 
