@@ -4,13 +4,14 @@ defmodule Transport.ImportDataTest do
   import Mock
   import TransportWeb.Factory
   import ExUnit.CaptureLog
+  import Ecto.Query
   doctest ImportData
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  def generate_payload() do
+  def generate_dataset_payload() do
     %{
       "title" => "dataset1",
       "id" => "dataset1_id",
@@ -25,39 +26,28 @@ defmodule Transport.ImportDataTest do
     }
   end
 
-  @tag :focus
   test "hello world des imports" do
-    # _dataset =
-    #   insert(
-    #     # hello
-    #     :dataset,
-    #     datagouv_id: datagouv_id = "some-id",
-    #     national_dataset: "true"
-    #   )
-
-    insert(:region, nom: "National")
-
-    Transport.Inspect.pretty_inspect(DB.Repo.all(DB.Region))
-
+    # we insert a national dataset in the DB
     {:ok, changes} =
       DB.Dataset.changeset(%{
-        "datagouv_id" => datagouv_id = "some-id",
+        "datagouv_id" => datagouv_id = "dataset1_id",
         "slug" => "ma_limace",
         "national_dataset" => "true"
-        # "insee" => "38185"
       })
 
     DB.Repo.insert!(changes)
 
     assert DB.Repo.aggregate(DB.Dataset, :count, :id) == 1
     assert DB.Repo.aggregate(DB.Resource, :count, :id) == 0
+    # The national dataset is pre-inserted in the DB via a migration
+    assert DB.Region |> where([r], r.nom == "National") |> DB.Repo.aggregate(:count) == 1
 
-    http_mock = fn url, [], hackney: [follow_redirect: true] ->
+    http_get_mock = fn url, [], hackney: [follow_redirect: true] ->
       base_url = Application.get_env(:transport, :datagouvfr_site)
       expected_url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
       assert url == expected_url
 
-      {:ok, %HTTPoison.Response{body: Jason.encode!(generate_payload())}}
+      {:ok, %HTTPoison.Response{body: Jason.encode!(generate_dataset_payload())}}
     end
 
     http_head_mock = fn url, _, _ ->
@@ -74,11 +64,20 @@ defmodule Transport.ImportDataTest do
       }
     end
 
-    with_mock HTTPoison, get: http_mock, head: http_head_mock do
+    with_mock HTTPoison, get: http_get_mock, head: http_head_mock do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock do
-          # TODO check mocks are called once
-          Transport.Inspect.pretty_inspect(ImportData.import_all_datasets())
+          logs = capture_log(fn -> ImportData.import_all_datasets() end)
+
+          assert_called_exactly(HTTPoison.get(:_, :_, :_), 1)
+
+          # for each resource, 2 head requests are potentially made, one to check for availability, one to compute the resource hash.
+          assert_called_exactly(HTTPoison.head(:_, :_, :_), 2)
+          assert_called_exactly(Datagouvfr.Client.CommunityResources.get(:_), 1)
+          assert_called_exactly(HTTPStreamV2.fetch_status_and_hash(:_), 1)
+
+          # import is a success
+          assert logs =~ "all datasets have been reimported (0 failures / 1)"
         end
       end
     end
