@@ -9,20 +9,31 @@ defmodule Transport.ImportDataTest do
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+
+    # The national dataset is pre-inserted in the DB via a migration
+    assert DB.Region |> where([r], r.nom == "National") |> DB.Repo.aggregate(:count) == 1
+
+    :ok
   end
 
-  def generate_dataset_payload(datagouv_id) do
+  def generate_resources_payload(title \\ nil) do
+    [
+      %{
+        "title" => title || "resource1",
+        "url" => "http://localhost:4321/resource1",
+        "id" => "resource1_id"
+      }
+    ]
+  end
+
+  def generate_dataset_payload(datagouv_id, resources \\ nil) do
+    resources = resources || generate_resources_payload()
+
     %{
       "title" => "dataset1",
       "id" => datagouv_id,
       "slug" => "dataset-slug",
-      "resources" => [
-        %{
-          "title" => "resource1",
-          "url" => "http://localhost:4321/resource1",
-          "id" => "resource1_id"
-        }
-      ]
+      "resources" => resources
     }
   end
 
@@ -37,13 +48,15 @@ defmodule Transport.ImportDataTest do
     DB.Repo.insert!(changes)
   end
 
-  def http_get_mock_200(datagouv_id) do
+  def http_get_mock_200(datagouv_id, payload \\ nil) do
     fn url, [], hackney: [follow_redirect: true] ->
       base_url = Application.get_env(:transport, :datagouvfr_site)
       expected_url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
       assert url == expected_url
 
-      {:ok, %HTTPoison.Response{body: Jason.encode!(generate_dataset_payload(datagouv_id)), status_code: 200}}
+      payload = payload || generate_dataset_payload(datagouv_id)
+
+      {:ok, %HTTPoison.Response{body: Jason.encode!(payload), status_code: 200}}
     end
   end
 
@@ -75,16 +88,15 @@ defmodule Transport.ImportDataTest do
     end
   end
 
-  def check_db_content do
-    assert DB.Repo.aggregate(DB.Dataset, :count, :id) == 1
-    assert DB.Repo.aggregate(DB.Resource, :count, :id) == 0
-    # The national dataset is pre-inserted in the DB via a migration
-    assert DB.Region |> where([r], r.nom == "National") |> DB.Repo.aggregate(:count) == 1
+  def db_count(type) do
+    DB.Repo.aggregate(type, :count, :id)
   end
 
   test "hello world des imports" do
     insert_national_dataset(datagouv_id = "dataset1_id")
-    check_db_content()
+
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 0
 
     with_mock HTTPoison, get: http_get_mock_200(datagouv_id), head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
@@ -105,11 +117,16 @@ defmodule Transport.ImportDataTest do
         end
       end
     end
+
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 1
   end
 
   test "import fails when datagouv responds a 404" do
     insert_national_dataset(datagouv_id = "dataset1_id")
-    check_db_content()
+
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 0
 
     with_mock HTTPoison, get: http_get_mock_404(datagouv_id), head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
@@ -120,6 +137,49 @@ defmodule Transport.ImportDataTest do
         end
       end
     end
+
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 0
+  end
+
+  test "what happens with resources" do
+    insert_national_dataset(datagouv_id = "dataset1_id")
+
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 0
+
+    with_mock HTTPoison, get: http_get_mock_200(datagouv_id), head: http_head_mock() do
+      with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
+        with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
+          # logs = capture_log([level: :info], fn -> ImportData.import_all_datasets() end)
+          IO.puts("=================== all start here =============")
+          ImportData.import_all_datasets()
+          # assert_called_exactly(HTTPoison.get(:_, :_, :_), 1)
+          # assert logs =~ "all datasets have been reimported (1 failures / 1)"
+        end
+      end
+    end
+
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 1
+    # TODO: assert a few fields on the resource
+
+    payload = generate_dataset_payload(datagouv_id, generate_resources_payload("new title !!! fresh !!!"))
+
+    with_mock HTTPoison, get: http_get_mock_200(datagouv_id, payload), head: http_head_mock() do
+      with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
+        with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
+          # logs = capture_log([level: :info], fn -> ImportData.import_all_datasets() end)
+          IO.puts("=================== big update !!! =============")
+          ImportData.import_all_datasets()
+          # assert_called_exactly(HTTPoison.get(:_, :_, :_), 1)
+          # assert logs =~ "all datasets have been reimported (1 failures / 1)"
+        end
+      end
+    end
+
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 1
   end
 
   # test "error while connecting to datagouv server"
