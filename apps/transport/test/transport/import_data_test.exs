@@ -116,12 +116,7 @@ defmodule Transport.ImportDataTest do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
           logs = capture_log([level: :info], fn -> ImportData.import_all_datasets() end)
           assert_called_exactly(HTTPoison.get(:_, :_, :_), 1)
-
-          # we could expect to have the following log :
-          # assert logs =~ "all datasets have been reimported (1 failures / 1)"
-          # but the code handling the error in import_dataset crashes when trying to inspect the error
-          # hence we get an unmanaged exception :
-          assert logs =~ "Unmanaged exception during import"
+          assert logs =~ "all datasets have been reimported (1 failures / 1)"
         end
       end
     end
