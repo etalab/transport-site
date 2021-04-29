@@ -57,7 +57,7 @@ defmodule Transport.ImportDataTest do
     end
   end
 
-  def http_stream_mock() do
+  def http_stream_mock do
     fn url ->
       assert url == "http://localhost:4321/resource1"
 
@@ -68,14 +68,14 @@ defmodule Transport.ImportDataTest do
     end
   end
 
-  def http_head_mock() do
+  def http_head_mock do
     fn url, _, _ ->
       assert url == "http://localhost:4321/resource1"
       {:ok, %HTTPoison.Response{status_code: 200}}
     end
   end
 
-  def check_db_content() do
+  def check_db_content do
     assert DB.Repo.aggregate(DB.Dataset, :count, :id) == 1
     assert DB.Repo.aggregate(DB.Resource, :count, :id) == 0
     # The national dataset is pre-inserted in the DB via a migration
@@ -86,14 +86,15 @@ defmodule Transport.ImportDataTest do
     insert_national_dataset(datagouv_id = "dataset1_id")
     check_db_content()
 
-    with_mock HTTPoison, get: http_get_mock_200(datagouv_id), head: http_head_mock do
+    with_mock HTTPoison, get: http_get_mock_200(datagouv_id), head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
-        with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock do
+        with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
           logs = capture_log([level: :info], fn -> ImportData.import_all_datasets() end)
 
           assert_called_exactly(HTTPoison.get(:_, :_, :_), 1)
 
-          # for each resource, 2 head requests are potentially made, one to check for availability, one to compute the resource hash.
+          # for each resource, 2 head requests are potentially made
+          # one to check for availability, one to compute the resource hash.
           assert_called_exactly(HTTPoison.head(:_, :_, :_), 2)
           assert_called_exactly(Datagouvfr.Client.CommunityResources.get(:_), 1)
           assert_called_exactly(HTTPStreamV2.fetch_status_and_hash(:_), 1)
@@ -110,9 +111,9 @@ defmodule Transport.ImportDataTest do
     insert_national_dataset(datagouv_id = "dataset1_id")
     check_db_content()
 
-    with_mock HTTPoison, get: http_get_mock_404(datagouv_id), head: http_head_mock do
+    with_mock HTTPoison, get: http_get_mock_404(datagouv_id), head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
-        with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock do
+        with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
           logs = capture_log([level: :info], fn -> ImportData.import_all_datasets() end)
           assert_called_exactly(HTTPoison.get(:_, :_, :_), 1)
 
