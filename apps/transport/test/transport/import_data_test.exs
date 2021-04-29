@@ -162,7 +162,7 @@ defmodule Transport.ImportDataTest do
 
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 1
-    # TODO: assert a few fields on the resource
+    # TO DO: assert a few fields on the resource
 
     payload = generate_dataset_payload(datagouv_id, generate_resources_payload("new title !!! fresh !!!"))
 
