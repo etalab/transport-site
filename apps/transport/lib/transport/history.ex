@@ -50,7 +50,7 @@ defmodule Transport.History do
 
     @spec history_bucket_id(DB.Dataset.t()) :: binary()
     defp history_bucket_id(%DB.Dataset{} = dataset) do
-      "#{System.get_env("CELLAR_NAMESPACE")}dataset-#{dataset.datagouv_id}"
+      "dataset-#{dataset.datagouv_id}"
     end
 
     @spec fetch_history_metadata(binary(), binary()) :: map()
