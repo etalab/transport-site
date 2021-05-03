@@ -142,7 +142,7 @@ defmodule Transport.ImportDataTest do
     assert db_count(DB.Resource) == 0
   end
 
-  test "what happens with resources" do
+  test "import a dataset, change the resource payload, re-import the dataset" do
     insert_national_dataset(datagouv_id = "dataset1_id")
 
     assert db_count(DB.Dataset) == 1
@@ -151,11 +151,7 @@ defmodule Transport.ImportDataTest do
     with_mock HTTPoison, get: http_get_mock_200(datagouv_id), head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
-          # logs = capture_log([level: :info], fn -> ImportData.import_all_datasets() end)
-          IO.puts("=================== all start here =============")
           ImportData.import_all_datasets()
-          # assert_called_exactly(HTTPoison.get(:_, :_, :_), 1)
-          # assert logs =~ "all datasets have been reimported (1 failures / 1)"
         end
       end
     end
@@ -169,11 +165,7 @@ defmodule Transport.ImportDataTest do
     with_mock HTTPoison, get: http_get_mock_200(datagouv_id, payload), head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
-          # logs = capture_log([level: :info], fn -> ImportData.import_all_datasets() end)
-          IO.puts("=================== big update !!! =============")
           ImportData.import_all_datasets()
-          # assert_called_exactly(HTTPoison.get(:_, :_, :_), 1)
-          # assert logs =~ "all datasets have been reimported (1 failures / 1)"
         end
       end
     end
