@@ -16,12 +16,12 @@ defmodule Transport.ImportDataTest do
     :ok
   end
 
-  def generate_resources_payload(title \\ nil) do
+  def generate_resources_payload(title \\ nil, url \\ nil, id \\ nil) do
     [
       %{
         "title" => title || "resource1",
-        "url" => "http://localhost:4321/resource1",
-        "id" => "resource1_id"
+        "url" => url || "http://localhost:4321/resource1",
+        "id" => id || "resource1_id"
       }
     ]
   end
@@ -72,8 +72,6 @@ defmodule Transport.ImportDataTest do
 
   def http_stream_mock do
     fn url ->
-      assert url == "http://localhost:4321/resource1"
-
       %{
         status: 200,
         hash: "resource1_hash"
@@ -83,7 +81,6 @@ defmodule Transport.ImportDataTest do
 
   def http_head_mock do
     fn url, _, _ ->
-      assert url == "http://localhost:4321/resource1"
       {:ok, %HTTPoison.Response{status_code: 200}}
     end
   end
@@ -113,7 +110,6 @@ defmodule Transport.ImportDataTest do
 
           # import is a success
           assert logs =~ "all datasets have been reimported (0 failures / 1)"
-          # Transport.Inspect.pretty_inspect(logs)
         end
       end
     end
@@ -142,7 +138,7 @@ defmodule Transport.ImportDataTest do
     assert db_count(DB.Resource) == 0
   end
 
-  test "import a dataset, change the resource payload, re-import the dataset" do
+  test "what happens with resources when a dataset is reimported multiple times" do
     insert_national_dataset(datagouv_id = "dataset1_id")
 
     assert db_count(DB.Dataset) == 1
@@ -157,15 +153,23 @@ defmodule Transport.ImportDataTest do
     end
 
     assert db_count(DB.Dataset) == 1
-    assert db_count(DB.Resource) == 1
 
-    resource = DB.Resource |> DB.Repo.one!()
+    [resource] = DB.Resource |> DB.Repo.all()
     assert Map.get(resource, :title) == "resource1"
     resource_id = Map.get(resource, :id)
 
-    payload = generate_dataset_payload(datagouv_id, generate_resources_payload(new_title = "new title !!! fresh !!!"))
+    # import 2
+    payload_2 =
+      generate_dataset_payload(
+        datagouv_id,
+        generate_resources_payload(
+          new_title = "new title !!! fresh !!!",
+          "http://localhost:4321/resource1",
+          new_datagouv_id = "resource2_id"
+        )
+      )
 
-    with_mock HTTPoison, get: http_get_mock_200(datagouv_id, payload), head: http_head_mock() do
+    with_mock HTTPoison, get: http_get_mock_200(datagouv_id, payload_2), head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
           ImportData.import_all_datasets()
@@ -174,13 +178,44 @@ defmodule Transport.ImportDataTest do
     end
 
     assert db_count(DB.Dataset) == 1
-    assert db_count(DB.Resource) == 1
 
-    resource_updated = DB.Resource |> DB.Repo.one!()
-    # assert that the resource has been updated with a new title
+    [resource_updated] = DB.Resource |> DB.Repo.all()
+    # assert that the resource has been updated with a new title and a new datagouv_id
     # but its id is still the same
     assert Map.get(resource_updated, :title) == new_title
     assert Map.get(resource_updated, :id) == resource_id
+    assert Map.get(resource_updated, :datagouv_id) == new_datagouv_id
+
+    # import 3
+    payload_3 =
+      generate_dataset_payload(
+        datagouv_id,
+        generate_resources_payload(
+          new_title,
+          new_url = "http://localhost:4321/resource1_new",
+          new_datagouv_id
+        )
+      )
+
+    with_mock HTTPoison, get: http_get_mock_200(datagouv_id, payload_3), head: http_head_mock() do
+      with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
+        with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
+          ImportData.import_all_datasets()
+        end
+      end
+    end
+
+    assert db_count(DB.Dataset) == 1
+
+    # we still have only one resource
+    [resource_updated] = DB.Resource |> DB.Repo.all()
+
+    # the resource is up-to-date with data.gouv
+    assert Map.get(resource_updated, :title) == new_title
+    assert Map.get(resource_updated, :datagouv_id) == new_datagouv_id
+
+    # but its a new one : its DB id has been incremented
+    refute Map.get(resource_updated, :id) == resource_id
   end
 
   test "import dataset with a community resource" do
