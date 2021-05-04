@@ -183,6 +183,28 @@ defmodule Transport.ImportDataTest do
     assert Map.get(resource_updated, :id) == resource_id
   end
 
+  test "import dataset with a community resource" do
+    insert_national_dataset(datagouv_id = "dataset1_id")
+    assert db_count(DB.Dataset) == 1
+    assert db_count(DB.Resource) == 0
+
+    community_resource_title = "a_community_resource"
+
+    with_mock HTTPoison,
+      get: http_get_mock_200(datagouv_id, generate_dataset_payload(datagouv_id, [])),
+      head: http_head_mock() do
+      with_mock Datagouvfr.Client.CommunityResources,
+        get: fn _ -> {:ok, generate_resources_payload(community_resource_title)} end do
+        with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
+          ImportData.import_all_datasets()
+        end
+      end
+    end
+
+    [resource] = DB.Resource |> where([r], r.is_community_resource) |> DB.Repo.all()
+    assert Map.get(resource, :title) == community_resource_title
+  end
+
   # test "error while connecting to datagouv server"
 
   # test "with community resources"
