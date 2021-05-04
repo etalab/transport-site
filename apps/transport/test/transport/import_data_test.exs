@@ -158,9 +158,12 @@ defmodule Transport.ImportDataTest do
 
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 1
-    # TO DO: assert a few fields on the resource
 
-    payload = generate_dataset_payload(datagouv_id, generate_resources_payload("new title !!! fresh !!!"))
+    resource = DB.Resource |> DB.Repo.one!()
+    assert Map.get(resource, :title) == "resource1"
+    resource_id = Map.get(resource, :id)
+
+    payload = generate_dataset_payload(datagouv_id, generate_resources_payload(new_title = "new title !!! fresh !!!"))
 
     with_mock HTTPoison, get: http_get_mock_200(datagouv_id, payload), head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
@@ -172,6 +175,12 @@ defmodule Transport.ImportDataTest do
 
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 1
+
+    resource_updated = DB.Resource |> DB.Repo.one!()
+    # assert that the resource has been updated with a new title
+    # but its id is still the same
+    assert Map.get(resource_updated, :title) == new_title
+    assert Map.get(resource_updated, :id) == resource_id
   end
 
   # test "error while connecting to datagouv server"
