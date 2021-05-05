@@ -5,9 +5,9 @@ tags:
   - réutilisation
 description: Interview avec Théodore Chiche, chargé de projet à Transitec.
 images:
-  - /images/cityway-cover.png
+  - /images/f_logo_transitec_rvb-1-.png
 ---
-![](/images/unnamed-1-.png)
+![]()
 
 <!--StartFragment-->
 
