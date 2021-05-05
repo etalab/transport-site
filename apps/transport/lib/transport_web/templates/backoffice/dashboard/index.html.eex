@@ -6,15 +6,16 @@
     - que le dataset n'existait pas encore à l'instant t<br>
     - que les imports n'ont pas tourné du tout à une date donnée<br>
     <br>
-    La couleur grise n'indique pas qu'il y a eu succès, mais simplement que <br>
-    le système a été assez loin pour noter le résultat de l'import (OK ou KO), sans être interrompu.
+    La couleur orange signifie qu'un import a tourné et qu'une erreur (gérée) s'est produite.
+    <br>
+    La couleur claire indique un import réalisé avec succès !
 </p>
 
 <table class="dashboard-heatmap">
 <tbody>
 <%= for {dataset_id, counts} <- @import_count_by_dataset_and_by_day do %>
     <tr class="dataset">
-        <th class="heatmap-header"><%= link to: backoffice_page_path(@conn, :edit, dataset_id) do %><%= dataset_id %><% end %></th>
+        <th class="heatmap-header"><%= link to: "#{backoffice_page_path(@conn, :edit, dataset_id)}#imports_history" ,target: "_blank" do %><%= dataset_id %><% end %></th>
         <%= for {date, import_count, success_count} <- counts do %>
             <% import_crash = (import_count == 0) %>
             <% import_failure = (success_count == 0) %>
