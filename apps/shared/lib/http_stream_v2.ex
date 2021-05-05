@@ -21,7 +21,7 @@ defmodule HTTPStreamV2 do
   double-check the etag, verify the content type etc.
   """
   def fetch_status_and_hash(url) do
-    request = Finch.build(:get, url)
+    request = Finch.build(:get, URI.encode(url))
     {:ok, result} = Finch.stream(request, Transport.Finch, %{}, &handle_stream_response/2)
     compute_final_hash(result)
   end
