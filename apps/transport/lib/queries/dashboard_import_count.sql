@@ -7,26 +7,30 @@
 
 */
 
-SELECT
-	dataset_day.dataset_id, day, COALESCE(count, 0) as count
-FROM (
-	SELECT
-		d.id AS dataset_id,
-		day::date
-	FROM
-		generate_series(current_date - interval '30 day', current_date, '1 day') AS day,
-		dataset d
-	ORDER BY
-		d.id ASC,
-		day ASC) dataset_day
-	LEFT JOIN (
-		SELECT
-			dataset_id,
-			timestamp::date AS date,
-			count(*) AS count
-		FROM
-			logs_import
-		GROUP BY
-			dataset_id,
-			date) counts ON dataset_day.dataset_id = counts.dataset_id
-	AND dataset_day.day = counts.date
+with dates as (
+select
+	d.id as dataset_id,
+	day::date
+from
+	generate_series(current_date - interval '30 day', current_date, '1 day') as day,
+	dataset d),
+
+counts as (
+select
+	dataset_id,
+	timestamp::date as date,
+	count(*) as count
+from
+	logs_import
+group by
+	dataset_id,
+	date)
+
+select
+	dates.*,
+	coalesce(counts.count, 0) as count
+from
+	dates
+left join counts on
+	dates.day = counts.date
+	and dates.dataset_id = counts.dataset_id;
