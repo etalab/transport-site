@@ -15,10 +15,10 @@
 <%= for {dataset_id, counts} <- @import_count_by_dataset_and_by_day do %>
     <tr class="dataset">
         <th class="heatmap-header"><%= link to: backoffice_page_path(@conn, :edit, dataset_id) do %><%= dataset_id %><% end %></th>
-        <%= for {date, count} <- counts do %>
-            <% failure = (count == 0) %>
-            <% cell_class = if failure, do: "ko", else: "unknown" %>
-            <%= content_tag :td, title: date, class: cell_class do %><% end %>
+        <%= for {date, import_count, success_count} <- counts do %>
+            <% import_crash = (import_count == 0) %>
+            <% import_failure = (success_count == 0) %>
+            <%= content_tag :td, title: date, class: cell_class({import_crash, import_failure}) do %><% end %>
         <% end %>
     </tr>
 <% end %>
