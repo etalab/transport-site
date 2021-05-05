@@ -37,7 +37,7 @@ defmodule Hasher do
   @spec compute_sha256(String.t()) :: String.t()
   def compute_sha256(url) do
     %{status: status, hash: hash} = HTTPStreamV2.fetch_status_and_hash(url)
-    if status < 400 do
+    if status >= 200 and status < 400 do
       hash
     else
       Logger.warn("Invalid status #{status} for url #{url |> inspect}, returning empty hash")
