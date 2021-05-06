@@ -43,7 +43,6 @@ jobs:
           keys:
             - elixir-<< parameters.base_image >>-{{ .Branch }}-{{ checksum "mix.lock" }}
             - elixir-<< parameters.base_image >>-{{ .Branch }}
-            - elixir-<< parameters.base_image >>
       - run:
           name: Install hex
           command: mix local.hex --force
@@ -81,14 +80,6 @@ jobs:
       # Intermediate
       - save_cache:
           key: elixir-<< parameters.base_image >>-{{ .Branch }}
-          paths:
-            - ~/transport/_build
-            - ~/transport/deps
-            - ~/.mix
-
-      # Least specific
-      - save_cache:
-          key: elixir-<< parameters.base_image >>
           paths:
             - ~/transport/_build
             - ~/transport/deps
