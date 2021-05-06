@@ -607,8 +607,7 @@ defmodule DB.Dataset do
         end)
         |> Enum.sort_by(fn f -> f.last_modified end, &Kernel.>=/2)
       rescue
-        e in ExAws.Error ->
-          Logger.error("error while accessing the S3 bucket: #{inspect(e)}")
+        _ in ExAws.Error ->
           []
       end
     end
