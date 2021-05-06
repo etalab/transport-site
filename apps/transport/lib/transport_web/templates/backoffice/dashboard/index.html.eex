@@ -1,7 +1,7 @@
 <h2 class="is-centered">Rapport de complétude des imports (<%= @import_count_by_dataset_and_by_day |> length %> datasets).</h2>
 
 <div class="container pt-24">
-<div style="margin: 0 auto; max-width: 700px;">
+<div class="dashboard-description">
   <ul>
     <li>
         La couleur rouge foncée dénote l'absence de trace d'au moins 1 log d'import pour une date donnée, c'est à dire:
