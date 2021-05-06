@@ -122,14 +122,17 @@
   a:hover {
     text-decoration: underline;
   }
-  .crash {
+  .no_import {
+    background-color: rgb(71, 32, 32);
+  }
+  .only_failures {
     background-color: red;
   }
-  .failure {
+  .some_failures {
     background-color:orange;
   }
-  .success {
-    background-color: rgb(231, 255, 217);
+  .only_successes {
+    background-color: rgb(0, 255, 0);
   }
   /* I used class to work around linter error here */
   .dataset {
