@@ -101,8 +101,8 @@ defmodule Transport.ImportData do
         id: dataset_id,
         datagouv_id: datagouv_id,
         type: type,
-        title: title,
-        slug: slug,
+        title: _title,
+        slug: _slug,
         is_active: is_active
       }) do
     now = DateTime.truncate(DateTime.utc_now(), :second)
