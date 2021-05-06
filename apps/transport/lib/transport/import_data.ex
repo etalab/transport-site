@@ -108,7 +108,8 @@ defmodule Transport.ImportData do
     now = DateTime.truncate(DateTime.utc_now(), :second)
 
     with {:ok, new_data} <- import_from_udata(datagouv_id, type),
-         {:ok, changeset} <- Dataset.changeset(new_data) do
+         {:ok, changeset} <- Dataset.changeset(new_data),
+         {:ok, dataset} <- Repo.update(changeset) do
       # log the import success
       Repo.insert(%LogsImport{
         datagouv_id: datagouv_id,
@@ -117,11 +118,9 @@ defmodule Transport.ImportData do
         dataset_id: dataset_id
       })
 
-      result = Repo.update(changeset)
-
       refresh_places()
 
-      result
+      {:ok, dataset}
     else
       {:error, error} ->
         Logger.error("Unable to import data of dataset #{datagouv_id}: #{inspect(error)}")
