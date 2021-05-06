@@ -1,5 +1,6 @@
 defmodule Transport.ImportDataTest do
-  use ExUnit.Case, async: true
+  # the test module should be async in the future
+  use ExUnit.Case, async: false
   alias Transport.ImportData
   import Mock
   import TransportWeb.Factory
