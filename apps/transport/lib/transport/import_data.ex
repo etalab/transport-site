@@ -22,7 +22,8 @@ defmodule Transport.ImportData do
       ImportTaskSupervisor
       |> Task.Supervisor.async_stream_nolink(datasets, &import_dataset_logged/1,
         max_concurrency: @max_import_concurrent_jobs,
-        timeout: 180_000
+        timeout: 180_000,
+        on_timeout: :kill_task
       )
       |> Enum.to_list()
 
