@@ -1,5 +1,5 @@
 defmodule TransportWeb.ContactControllerTest do
-  use TransportWeb.ConnCase, async: false
+  use TransportWeb.ConnCase, async: true
 
   test "Post contact form with honey pot filled", %{conn: conn} do
     conn
