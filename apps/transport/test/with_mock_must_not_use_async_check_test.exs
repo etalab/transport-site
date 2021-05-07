@@ -10,6 +10,7 @@ defmodule WithMockMustNotUseAsyncCheckTest do
     files =
       Path.wildcard("../../apps/**/*_test.exs")
       |> Enum.filter(&potential_incorrect_use_detected?/1)
+      |> Enum.map(&Path.relative_to(&1, "../.."))
 
     assert files == []
   end
