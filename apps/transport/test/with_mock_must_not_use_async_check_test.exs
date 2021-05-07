@@ -8,7 +8,8 @@ defmodule WithMockMustNotUseAsyncCheckTest do
 
   test "async must be set to false if you use with_mock" do
     files =
-      Path.wildcard("../../apps/**/*_test.exs")
+      "../../apps/**/*_test.exs"
+      |> Path.wildcard()
       |> Enum.filter(&potential_incorrect_use_detected?/1)
       |> Enum.map(&Path.relative_to(&1, "../.."))
 
