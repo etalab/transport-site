@@ -88,7 +88,8 @@ defmodule Transport.ImportData do
           datagouv_id: datagouv_id,
           timestamp: now,
           is_success: false,
-          dataset_id: dataset_id
+          dataset_id: dataset_id,
+          error_msg: inspect(e)
         })
 
       Logger.error("import of dataset #{dataset_id} has failed (datagouv_id #{datagouv_id})")
@@ -101,7 +102,7 @@ defmodule Transport.ImportData do
         )
       end
 
-      reraise e, __STACKTRACE__
+      {:error, inspect(e)}
   end
 
   @spec import_dataset!(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
