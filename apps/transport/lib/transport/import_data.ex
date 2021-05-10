@@ -74,30 +74,35 @@ defmodule Transport.ImportData do
     {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW places;")
   end
 
-  @doc """
-  This is just a temporary wrapper until `import_dataset` gets fully tested & refactored.
-
-  It will increase the chances of being notified via Sentry.
-  """
-  @spec import_dataset_logged(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
+  @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
   def import_dataset_logged(dataset) do
-    import_dataset(dataset)
+    import_dataset!(dataset)
   rescue
     e ->
-      Sentry.capture_message("unmanaged_exception_during_import",
-        level: "error",
-        # minimal information to avoid recreating an exception here!
-        extra: %{dataset_id: dataset.id}
-      )
+      now = DateTime.truncate(DateTime.utc_now(), :second)
 
-      Logger.error("Unmanaged exception during import")
+      log_import_result =
+        Repo.insert(%LogsImport{
+          datagouv_id: dataset.datagouv_id,
+          timestamp: now,
+          is_success: false,
+          dataset_id: dataset.id
+        })
+
+      Logger.error("import of dataset #{dataset_id} has failed")
       Logger.error(Exception.format(:error, e, __STACKTRACE__))
 
-      # mimic original behaviour to avoid impact on overall report code
+      with {:error, msg} <- log_import_result do
+        Sentry.capture_message("import has failed, and failure log couldn't be inserted",
+          level: "error",
+          extra: %{dataset_id: dataset.id, msg: msg}
+        )
+      end
+
       reraise e, __STACKTRACE__
   end
 
-  @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
+  @spec import_dataset!(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
   def import_dataset(%Dataset{
         id: dataset_id,
         datagouv_id: datagouv_id,
