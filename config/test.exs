@@ -17,8 +17,12 @@ config :gbfs, :disable_page_cache, true
 # Override cache implementation
 config :transport, cache_impl: Transport.Cache.Null
 
-# Print only warnings and errors during test
-config :logger, level: :warn
+# capture all info logs and up during tests
+config :logger, level: :info
+
+# ... but show only warnings and up on the console
+config :logger, :console,
+  level: :warn
 
 # Configure data.gouv.fr authentication
 config :oauth2, Authentication,
