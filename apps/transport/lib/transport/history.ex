@@ -20,7 +20,7 @@ defmodule Transport.History do
           bucket = history_bucket_id(dataset)
 
           bucket
-          |> S3.list_objects()
+          |> ExAws.S3.list_objects()
           |> ExAws.stream!()
           |> Enum.to_list()
           |> Enum.map(fn f ->
@@ -56,7 +56,7 @@ defmodule Transport.History do
     @spec fetch_history_metadata(binary(), binary()) :: map()
     defp fetch_history_metadata(bucket, obj_key) do
       bucket
-      |> S3.head_object(obj_key)
+      |> ExAws.S3.head_object(obj_key)
       |> ExAws.request!()
       |> Map.get(:headers)
       |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
