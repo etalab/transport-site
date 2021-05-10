@@ -126,7 +126,7 @@ defmodule Transport.ImportData do
     })
 
     refresh_places()
-    result
+    {:ok, result}
   end
 
   @spec import_from_data_gouv!(binary, binary) :: map
