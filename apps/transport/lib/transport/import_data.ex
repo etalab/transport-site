@@ -113,8 +113,9 @@ defmodule Transport.ImportData do
       }) do
     now = DateTime.truncate(DateTime.utc_now(), :second)
 
-    with {:ok, new_data} <- import_from_data_gouv(datagouv_id, type),
-         {:ok, changeset} <- Dataset.changeset(new_data) do
+    {:ok, dataset_map_from_data_gouv} = import_from_data_gouv(datagouv_id, type)
+
+    with  {:ok, changeset} <- Dataset.changeset(dataset_map_from_data_gouv) do
       # log the import success
       Repo.insert(%LogsImport{
         datagouv_id: datagouv_id,
@@ -150,20 +151,15 @@ defmodule Transport.ImportData do
 
   @spec import_from_data_gouv(binary, binary) :: map
   def import_from_data_gouv(id, type) do
-    base_url = Application.get_env(:transport, :datagouvfr_site)
-    url = "#{base_url}/api/1/datasets/#{id}/"
-
     Logger.info("Importing dataset #{id} (url = #{url})")
 
-    with {:ok, response} <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
-         {:ok, json} <- Jason.decode(response.body),
-         {:ok, dataset} <- get_dataset(json, type) do
-      {:ok, dataset}
-    else
-      {:error, error} ->
-        Logger.error("Error while importing dataset #{id} (url = #{url}) : #{inspect(error)}")
-        {:error, error}
-    end
+    base_url = Application.get_env(:transport, :datagouvfr_site)
+    url = "#{base_url}/api/1/datasets/#{id}/"
+    {:ok, response} = HTTPoison.get(url, [], hackney: [follow_redirect: true])
+    {:ok, json} = Jason.decode(response.body)
+    {:ok, dataset} = get_dataset(json, type)
+
+    dataset
   end
 
   @spec get_dataset(map, binary) :: {:error, any} | {:ok, map}
