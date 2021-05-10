@@ -260,21 +260,17 @@ defmodule Transport.ImportDataTest do
         {:ok, %HTTPoison.Response{body: payload, status_code: 200}}
       end
 
-      with_mock Sentry, capture_message: fn _, _ -> nil end do
-        with_mock HTTPoison, get: mock do
-          logs =
-            capture_log([level: :warn], fn ->
-              ImportData.import_all_datasets()
-            end)
+      with_mock HTTPoison, get: mock do
+        logs =
+          capture_log([level: :warn], fn ->
+            ImportData.import_all_datasets()
+          end)
 
-          logs = logs |> String.split("\n")
-          assert logs |> Enum.at(0) =~ "Unmanaged exception during import"
-          # NOTE: for now, relying on a specific error that we're triggering due to missing key, but it's
-          # far from ideal and it would be better to have something more explicit
-          assert logs |> Enum.at(1) =~ "no function clause matching in Transport.ImportData.get_valid_resources/2"
-        end
-
-        assert_called_exactly(Sentry.capture_message(:_, :_), 1)
+        logs = logs |> String.split("\n")
+        assert logs |> Enum.at(0) =~ "Import of dataset has failed"
+        # NOTE: for now, relying on a specific error that we're triggering due to missing key, but it's
+        # far from ideal and it would be better to have something more explicit
+        assert logs |> Enum.at(1) =~ "no function clause matching in Transport.ImportData.get_valid_resources/2"
       end
     end
   end
