@@ -92,11 +92,12 @@ defmodule Transport.ImportData do
           error_msg: inspect(e)
         })
 
-      Logger.error("import of dataset #{dataset_id} has failed (datagouv_id #{datagouv_id})")
+      Logger.error("Import of dataset has failed (id:  #{dataset_id}, datagouv_id: #{datagouv_id})")
+
       Logger.error(Exception.format(:error, e, __STACKTRACE__))
 
       with {:error, msg} <- log_import_result do
-        Sentry.capture_message("import has failed, and failure log couldn't be inserted",
+        Sentry.capture_message("Import has failed, and failure log couldn't be inserted",
           level: "error",
           extra: %{dataset_id: dataset_id, datagouv_id: datagouv_id, msg: msg}
         )
