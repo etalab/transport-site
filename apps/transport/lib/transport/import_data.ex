@@ -105,7 +105,7 @@ defmodule Transport.ImportData do
       {:error, inspect(e)}
   end
 
-  @spec import_dataset!(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
+  @spec import_dataset!(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()}
   def import_dataset!(%Dataset{
         id: dataset_id,
         datagouv_id: datagouv_id,
