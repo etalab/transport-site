@@ -73,7 +73,6 @@ defmodule Transport.History do
     @moduledoc """
     Backup all ressources into s3 to have an history
     """
-    alias ExAws.S3
     alias DB.{Dataset, Repo, Resource}
     import Ecto.{Query}
     require Logger
@@ -100,7 +99,7 @@ defmodule Transport.History do
 
           r
           |> bucket_id()
-          |> S3.put_bucket("", %{acl: "public-read"})
+          |> ExAws.S3.put_bucket("", %{acl: "public-read"})
           |> ExAws.request!()
 
           r
@@ -143,7 +142,7 @@ defmodule Transport.History do
     defp get_already_backuped_resources(resource) do
       resource
       |> bucket_id()
-      |> S3.list_objects(prefix: resource_title(resource))
+      |> ExAws.S3.list_objects(prefix: resource_title(resource))
       |> ExAws.stream!()
       |> Enum.map(fn o ->
         metadata = Dataset.fetch_history_metadata(bucket_id(resource), o.key)
@@ -192,7 +191,7 @@ defmodule Transport.History do
         {:ok, %{status_code: 200, body: body}} ->
           resource
           |> bucket_id()
-          |> S3.put_object(
+          |> ExAws.S3.put_object(
             "#{resource_title(resource)}_#{now}",
             body,
             acl: "public-read",
