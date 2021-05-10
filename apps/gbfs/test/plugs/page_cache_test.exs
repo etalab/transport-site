@@ -1,5 +1,6 @@
 defmodule GBFS.PageCachePlugTest do
-  use ExUnit.Case, async: true
+  # NOTE: temporarily set to false, until it doesn't use with_mock anymore
+  use ExUnit.Case, async: false
   use Plug.Test
   import ExUnit.CaptureLog
   import Mock
