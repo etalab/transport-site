@@ -3,6 +3,16 @@ defmodule Transport.History do
   Tooling related to backup and restore resources from S3/Cellar.
   """
 
+  defmodule Wrapper.ExAWS do
+    @moduledoc """
+    Central access point for the ExAWS behaviour defined at
+    https://github.com/ex-aws/ex_aws/blob/master/lib/ex_aws/behaviour.ex
+    in order to provide easy mocking during tests.
+    """
+
+    defp impl, do: Application.get_env(:transport, :ex_aws_impl)
+  end
+
   defmodule Fetcher do
     @moduledoc """
     Module able to fetch history resources from S3
@@ -21,7 +31,7 @@ defmodule Transport.History do
 
           bucket
           |> ExAws.S3.list_objects()
-          |> ExAws.stream!()
+          |> Wrapper.ExAWS.impl().stream!()
           |> Enum.to_list()
           |> Enum.map(fn f ->
             metadata = fetch_history_metadata(bucket, f.key)
@@ -57,7 +67,7 @@ defmodule Transport.History do
     defp fetch_history_metadata(bucket, obj_key) do
       bucket
       |> ExAws.S3.head_object(obj_key)
-      |> ExAws.request!()
+      |> Wrapper.ExAWS.impl().request!()
       |> Map.get(:headers)
       |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
       |> Map.take(["format", "title", "start", "end", "updated-at", "content-hash"])
@@ -100,7 +110,7 @@ defmodule Transport.History do
           r
           |> bucket_id()
           |> ExAws.S3.put_bucket("", %{acl: "public-read"})
-          |> ExAws.request!()
+          |> Wrapper.ExAWS.impl().request!()
 
           r
         end)
@@ -143,7 +153,7 @@ defmodule Transport.History do
       resource
       |> bucket_id()
       |> ExAws.S3.list_objects(prefix: resource_title(resource))
-      |> ExAws.stream!()
+      |> Wrapper.ExAWS.impl().stream!()
       |> Enum.map(fn o ->
         metadata = Dataset.fetch_history_metadata(bucket_id(resource), o.key)
 
@@ -197,7 +207,7 @@ defmodule Transport.History do
             acl: "public-read",
             meta: meta
           )
-          |> ExAws.request!()
+          |> Wrapper.ExAWS.impl().request!()
 
         {:ok, response} ->
           Logger.error(inspect(response))

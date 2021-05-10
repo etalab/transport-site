@@ -92,7 +92,6 @@ config :sentry,
 
 config :transport,
   cache_impl: Transport.Cache.Cachex,
-  # TODO: leverage this
   ex_aws_impl: ExAws
 
 # Import environment specific config. This must remain at the bottom
