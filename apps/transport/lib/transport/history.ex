@@ -15,7 +15,7 @@ defmodule Transport.History do
 
   defmodule Shared do
     @spec dataset_bucket_id(DB.Dataset.t()) :: binary()
-    defp dataset_bucket_id(%DB.Dataset{} = dataset) do
+    def dataset_bucket_id(%DB.Dataset{} = dataset) do
       "dataset-#{dataset.datagouv_id}"
     end
 
