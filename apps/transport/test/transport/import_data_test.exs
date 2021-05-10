@@ -1,5 +1,5 @@
 defmodule Transport.ImportDataTest do
-  # the test module should be async in the future
+  # NOTE: temporarily set to false, until it doesn't use with_mock anymore
   use ExUnit.Case, async: false
   alias Transport.ImportData
   import Mock

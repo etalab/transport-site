@@ -1,5 +1,6 @@
 defmodule TransportWeb.NavTest do
-  use TransportWeb.ConnCase, async: true
+  # NOTE: temporarily set to false, until it doesn't use with_mock anymore
+  use TransportWeb.ConnCase, async: false
   import TransportWeb.Factory
   import Mock
 
