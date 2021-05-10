@@ -80,8 +80,7 @@ defmodule Transport.History do
     @moduledoc """
     Backup all ressources into s3 to have an history
     """
-    alias DB.{Dataset, Repo, Resource}
-    import Ecto.{Query}
+    import Ecto.Query
     require Logger
 
     @spec backup_resources(boolean()) :: any()
@@ -89,7 +88,7 @@ defmodule Transport.History do
       # TODO: disable based on config
       Logger.info("backuping the resources")
 
-      Resource
+      DB.Resource
       |> where(
         [r],
         not is_nil(r.url) and not is_nil(r.title) and
@@ -97,7 +96,7 @@ defmodule Transport.History do
           not r.is_community_resource
       )
       |> preload([:dataset])
-      |> Repo.all()
+      |> DB.Repo.all()
       |> Stream.map(fn r ->
         Logger.debug(fn -> "creating bucket #{Shared.resource_bucket_id(r)}" end)
 
