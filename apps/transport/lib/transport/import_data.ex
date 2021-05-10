@@ -112,7 +112,7 @@ defmodule Transport.ImportData do
       }) do
     now = DateTime.truncate(DateTime.utc_now(), :second)
 
-    {:ok, dataset_map_from_data_gouv} = import_from_data_gouv(datagouv_id, type)
+    dataset_map_from_data_gouv = import_from_data_gouv!(datagouv_id, type)
     {:ok, changeset} = Dataset.changeset(dataset_map_from_data_gouv)
     {:ok, result} = Repo.update(changeset)
 
@@ -128,8 +128,8 @@ defmodule Transport.ImportData do
     result
   end
 
-  @spec import_from_data_gouv(binary, binary) :: map
-  def import_from_data_gouv(datagouv_id, type) do
+  @spec import_from_data_gouv!(binary, binary) :: map
+  def import_from_data_gouv!(datagouv_id, type) do
     base_url = Application.get_env(:transport, :datagouvfr_site)
     url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
 
