@@ -20,7 +20,7 @@ defmodule Transport.ImportData do
 
     results =
       ImportTaskSupervisor
-      |> Task.Supervisor.async_stream_nolink(datasets, &import_dataset_logged/1,
+      |> Task.Supervisor.async_stream_nolink(datasets, &import_dataset/1,
         max_concurrency: @max_import_concurrent_jobs,
         timeout: 180_000,
         on_timeout: :kill_task
@@ -75,7 +75,7 @@ defmodule Transport.ImportData do
   end
 
   @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
-  def import_dataset_logged(dataset) do
+  def import_dataset(dataset) do
     import_dataset!(dataset)
   rescue
     e ->
@@ -103,7 +103,7 @@ defmodule Transport.ImportData do
   end
 
   @spec import_dataset!(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
-  def import_dataset(%Dataset{
+  def import_dataset!(%Dataset{
         id: dataset_id,
         datagouv_id: datagouv_id,
         type: type,
