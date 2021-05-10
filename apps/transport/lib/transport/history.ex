@@ -13,6 +13,16 @@ defmodule Transport.History do
     def impl, do: Application.get_env(:transport, :ex_aws_impl)
   end
 
+  defmodule Shared do
+    @spec dataset_bucket_id(DB.Dataset.t()) :: binary()
+    defp dataset_bucket_id(%DB.Dataset{} = dataset) do
+      "dataset-#{dataset.datagouv_id}"
+    end
+
+    @spec resource_bucket_id(Resource.t()) :: binary()
+    def resource_bucket_id(%DB.Resource{} = resource), do: dataset_bucket_id(resource.dataset)
+  end
+
   defmodule Fetcher do
     @moduledoc """
     Module able to fetch history resources from S3
@@ -21,7 +31,7 @@ defmodule Transport.History do
 
     @spec history_resources(DB.Dataset.t()) :: [map()]
     def history_resources(%DB.Dataset{} = dataset) do
-      bucket = history_bucket_id(dataset)
+      bucket = Transport.History.Shared.dataset_bucket_id(dataset)
 
       bucket
       |> ExAws.S3.list_objects()
@@ -48,11 +58,6 @@ defmodule Transport.History do
       e in ExAws.Error ->
         Logger.error("error while accessing the S3 bucket: #{inspect(e)}")
         []
-    end
-
-    @spec history_bucket_id(DB.Dataset.t()) :: binary()
-    defp history_bucket_id(%DB.Dataset{} = dataset) do
-      "dataset-#{dataset.datagouv_id}"
     end
 
     @spec fetch_history_metadata(binary(), binary()) :: map()
@@ -94,10 +99,10 @@ defmodule Transport.History do
       |> preload([:dataset])
       |> Repo.all()
       |> Stream.map(fn r ->
-        Logger.debug(fn -> "creating bucket #{bucket_id(r)}" end)
+        Logger.debug(fn -> "creating bucket #{Shared.resource_bucket_id(r)}" end)
 
         r
-        |> bucket_id()
+        |> Shared.resource_bucket_id()
         |> ExAws.S3.put_bucket("", %{acl: "public-read"})
         |> Wrapper.ExAWS.impl().request!()
 
@@ -133,17 +138,14 @@ defmodule Transport.History do
       end
     end
 
-    @spec bucket_id(Resource.t()) :: binary()
-    def bucket_id(resource), do: Dataset.history_bucket_id(resource.dataset)
-
     @spec get_already_backuped_resources(Resource.t()) :: [map()]
     defp get_already_backuped_resources(resource) do
       resource
-      |> bucket_id()
+      |> Shared.resource_bucket_id()
       |> ExAws.S3.list_objects(prefix: resource_title(resource))
       |> Wrapper.ExAWS.impl().stream!()
       |> Enum.map(fn o ->
-        metadata = Dataset.fetch_history_metadata(bucket_id(resource), o.key)
+        metadata = Dataset.fetch_history_metadata(Shared.resource_bucket_id(resource), o.key)
 
         %{
           key: o.key,
@@ -188,7 +190,7 @@ defmodule Transport.History do
       case HTTPoison.get(resource.url) do
         {:ok, %{status_code: 200, body: body}} ->
           resource
-          |> bucket_id()
+          |> Shared.resource_bucket_id()
           |> ExAws.S3.put_object(
             "#{resource_title(resource)}_#{now}",
             body,
