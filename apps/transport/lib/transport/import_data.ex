@@ -76,7 +76,8 @@ defmodule Transport.ImportData do
 
   @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
   def import_dataset(dataset) do
-    import_dataset!(dataset)
+    result = import_dataset!(dataset)
+    {:ok, result}
   rescue
     e ->
       now = DateTime.truncate(DateTime.utc_now(), :second)
@@ -106,7 +107,7 @@ defmodule Transport.ImportData do
       {:error, inspect(e)}
   end
 
-  @spec import_dataset!(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()}
+  @spec import_dataset!(DB.Dataset.t()) :: Ecto.Schema.t()
   def import_dataset!(%Dataset{
         id: dataset_id,
         datagouv_id: datagouv_id,
@@ -127,7 +128,7 @@ defmodule Transport.ImportData do
     })
 
     refresh_places()
-    {:ok, result}
+    result
   end
 
   @spec import_from_data_gouv!(binary, binary) :: map
