@@ -154,7 +154,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
     do: put_flash(conn, :error, "#{err} (#{message})")
 
   @spec import_data(Dataset.t() | nil) :: any()
-  defp import_data(%Dataset{} = dataset), do: ImportData.import_dataset(dataset)
+  defp import_data(%Dataset{} = dataset), do: ImportData.import_dataset_logged(dataset)
   defp import_data(nil), do: {:error, dgettext("backoffice", "Unable to find dataset")}
 
   defp redirect_to_index(conn),

@@ -104,8 +104,8 @@ defmodule Transport.ImportData do
     end
   end
 
-  @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
-  def import_dataset(dataset) do
+  @spec import_dataset_logged(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
+  def import_dataset_logged(dataset) do
     result = import_dataset!(dataset)
     generate_import_logs!(dataset, success: true)
     {:ok, result}
