@@ -74,58 +74,59 @@ defmodule Transport.ImportData do
     {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW places;")
   end
 
+  def generate_import_logs!(
+        %Dataset{id: dataset_id, datagouv_id: datagouv_id},
+        options
+      ) do
+    success = options |> Keyword.fetch!(:success)
+    msg = options |> Keyword.get(:msg, "")
+
+    now = DateTime.truncate(DateTime.utc_now(), :second)
+
+    insert_result =
+      Repo.insert(%LogsImport{
+        datagouv_id: datagouv_id,
+        timestamp: now,
+        is_success: success,
+        dataset_id: dataset_id,
+        error_msg: msg
+      })
+
+    # if the insertion fails, we retry with a basic error message
+    with {:error, _} <- insert_result do
+      Repo.insert(%LogsImport{
+        datagouv_id: datagouv_id,
+        timestamp: now,
+        is_success: success,
+        dataset_id: dataset_id,
+        error_msg: "error message could not be logged"
+      })
+    end
+  end
+
   @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
   def import_dataset(dataset) do
     result = import_dataset!(dataset)
+    generate_import_logs!(dataset, success: true)
     {:ok, result}
   rescue
     e ->
-      now = DateTime.truncate(DateTime.utc_now(), :second)
-      dataset_id = dataset.id
-      datagouv_id = dataset.datagouv_id
+      generate_import_logs!(dataset, success: false, msg: inspect(e))
 
-      log_import_result =
-        Repo.insert(%LogsImport{
-          datagouv_id: datagouv_id,
-          timestamp: now,
-          is_success: false,
-          dataset_id: dataset_id,
-          error_msg: inspect(e)
-        })
-
-      Logger.error("Import of dataset has failed (id:  #{dataset_id}, datagouv_id: #{datagouv_id})")
-
+      Logger.error("Import of dataset has failed (id:  #{dataset.id}, datagouv_id: #{dataset.datagouv_id})")
       Logger.error(Exception.format(:error, e, __STACKTRACE__))
-
-      with {:error, msg} <- log_import_result do
-        Sentry.capture_message("Import has failed, and failure log couldn't be inserted",
-          level: "error",
-          extra: %{dataset_id: dataset_id, datagouv_id: datagouv_id, msg: msg}
-        )
-      end
 
       {:error, inspect(e)}
   end
 
   @spec import_dataset!(DB.Dataset.t()) :: Ecto.Schema.t()
   def import_dataset!(%Dataset{
-        id: dataset_id,
         datagouv_id: datagouv_id,
         type: type
       }) do
-    now = DateTime.truncate(DateTime.utc_now(), :second)
-
     dataset_map_from_data_gouv = import_from_data_gouv!(datagouv_id, type)
     {:ok, changeset} = Dataset.changeset(dataset_map_from_data_gouv)
-    {:ok, result} = Repo.update(changeset)
-
-    # log the import success
-    Repo.insert!(%LogsImport{
-      datagouv_id: datagouv_id,
-      timestamp: now,
-      is_success: true,
-      dataset_id: dataset_id
-    })
+    result = Repo.update!(changeset)
 
     refresh_places()
     result
@@ -136,10 +137,12 @@ defmodule Transport.ImportData do
     base_url = Application.get_env(:transport, :datagouvfr_site)
     url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
 
-    Logger.info("Importing dataset #{datagouv_id} (url = #{url})")
+    Logger.info("Importing dataset #{datagouv_id} from data.gouv.fr (url = #{url})")
 
-    {:ok, response} = HTTPoison.get(url, [], hackney: [follow_redirect: true])
-    {:ok, json} = Jason.decode(response.body)
+    # We'll have to verify the behaviour of hackney/httpoison for follow_redirect: how
+    # many redirects are allowed? Is an error raised after a while or not? etc.
+    response = HTTPoison.get!(url, [], hackney: [follow_redirect: true])
+    json = Jason.decode!(response.body)
     {:ok, dataset} = prepare_dataset_from_data_gouv_response(json, type)
 
     dataset
