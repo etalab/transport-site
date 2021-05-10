@@ -108,10 +108,7 @@ defmodule Transport.ImportData do
   def import_dataset!(%Dataset{
         id: dataset_id,
         datagouv_id: datagouv_id,
-        type: type,
-        title: title,
-        slug: slug,
-        is_active: is_active
+        type: type
       }) do
     now = DateTime.truncate(DateTime.utc_now(), :second)
 
