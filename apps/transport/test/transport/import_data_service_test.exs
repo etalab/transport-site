@@ -6,13 +6,13 @@ defmodule Transport.ImportDataServiceTest do
 
   @moduletag :external
 
-  describe "import_from_udata" do
+  describe "import_from_data_gouv" do
     test "import dataset with a zip" do
       url = "http://hstan.g-ny.org/grandnancy/data/public/gtfs_stan.zip"
 
       use_cassette "client/datasets/stan" do
         assert {:ok, dataset} =
-                 ImportData.import_from_udata(
+                 ImportData.import_from_data_gouv(
                    "arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs",
                    "public-transit"
                  )
@@ -25,7 +25,7 @@ defmodule Transport.ImportDataServiceTest do
       url = "https://si.metzmetropole.fr/fiches/opendata/gtfs_current.zip"
 
       use_cassette "client/datasets/metz" do
-        assert {:ok, dataset} = ImportData.import_from_udata("transport-donnees-gtfs", "public-transit")
+        assert {:ok, dataset} = ImportData.import_from_data_gouv("transport-donnees-gtfs", "public-transit")
         assert List.first(dataset["resources"])["url"] == url
       end
     end
@@ -35,7 +35,7 @@ defmodule Transport.ImportDataServiceTest do
         "https://ressources.data.sncf.com/api/v2/catalog/datasets/sncf-ter-gtfs/files/24e02fa969496e2caa5863a365c66ec2"
 
       use_cassette "client/datasets/sncf" do
-        assert {:ok, dataset} = ImportData.import_from_udata("horaires-des-lignes-ter-sncf", "public-transit")
+        assert {:ok, dataset} = ImportData.import_from_data_gouv("horaires-des-lignes-ter-sncf", "public-transit")
 
         assert length(dataset["resources"]) == 1
         resource = List.first(dataset["resources"])

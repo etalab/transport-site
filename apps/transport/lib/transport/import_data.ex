@@ -124,7 +124,7 @@ defmodule Transport.ImportData do
         datagouv_id: datagouv_id,
         type: type
       }) do
-    dataset_map_from_data_gouv = import_from_data_gouv!(datagouv_id, type)
+    {:ok, dataset_map_from_data_gouv} = import_from_data_gouv(datagouv_id, type)
     {:ok, changeset} = Dataset.changeset(dataset_map_from_data_gouv)
     result = Repo.update!(changeset)
 
@@ -132,8 +132,8 @@ defmodule Transport.ImportData do
     result
   end
 
-  @spec import_from_data_gouv!(binary, binary) :: map
-  def import_from_data_gouv!(datagouv_id, type) do
+  @spec import_from_data_gouv(binary, binary) :: {:ok, map}
+  def import_from_data_gouv(datagouv_id, type) do
     base_url = Application.get_env(:transport, :datagouvfr_site)
     url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
 
@@ -145,7 +145,7 @@ defmodule Transport.ImportData do
     json = Jason.decode!(response.body)
     {:ok, dataset} = prepare_dataset_from_data_gouv_response(json, type)
 
-    dataset
+    {:ok, dataset}
   end
 
   @spec prepare_dataset_from_data_gouv_response(map, binary) :: {:error, any} | {:ok, map}
