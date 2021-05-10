@@ -114,39 +114,19 @@ defmodule Transport.ImportData do
     now = DateTime.truncate(DateTime.utc_now(), :second)
 
     {:ok, dataset_map_from_data_gouv} = import_from_data_gouv(datagouv_id, type)
+    {:ok, changeset} = Dataset.changeset(dataset_map_from_data_gouv)
+    {:ok, result} = Repo.update(changeset)
 
-    with  {:ok, changeset} <- Dataset.changeset(dataset_map_from_data_gouv) do
-      # log the import success
-      Repo.insert(%LogsImport{
-        datagouv_id: datagouv_id,
-        timestamp: now,
-        is_success: true,
-        dataset_id: dataset_id
-      })
+    # log the import success
+    Repo.insert!(%LogsImport{
+      datagouv_id: datagouv_id,
+      timestamp: now,
+      is_success: true,
+      dataset_id: dataset_id
+    })
 
-      result = Repo.update(changeset)
-
-      refresh_places()
-
-      result
-    else
-      {:error, error} ->
-        Logger.error("Unable to import data of dataset #{datagouv_id}: #{inspect(error)}")
-
-        # if the dataset is already inactive, we don't want to raise an error
-        error_level = if is_active, do: "error", else: "info"
-
-        # log the import failure
-        Repo.insert(%LogsImport{
-          datagouv_id: datagouv_id,
-          timestamp: now,
-          is_success: false,
-          dataset_id: dataset_id,
-          error_msg: error
-        })
-
-        {:error, error}
-    end
+    refresh_places()
+    result
   end
 
   @spec import_from_data_gouv(binary, binary) :: map
