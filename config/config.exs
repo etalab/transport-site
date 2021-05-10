@@ -91,7 +91,6 @@ config :sentry,
   send_result: :none
 
 config :transport,
-  cache_impl: Transport.Cache.Cachex
   cache_impl: Transport.Cache.Cachex,
   ex_aws_impl: ExAws
 
