@@ -17,6 +17,9 @@ config :gbfs, :disable_page_cache, true
 # Override cache implementation
 config :transport, cache_impl: Transport.Cache.Null
 
+# Override ExAws (S3...) implementation
+config :transport, ex_aws_impl: Transport.ExAWS.Mock
+
 # capture all info logs and up during tests
 config :logger, level: :info
 
