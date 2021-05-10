@@ -21,41 +21,33 @@ defmodule Transport.History do
 
     @spec history_resources(DB.Dataset.t()) :: [map()]
     def history_resources(%DB.Dataset{} = dataset) do
-      if Application.get_env(:ex_aws, :access_key_id) == nil ||
-           Application.get_env(:ex_aws, :secret_access_key) == nil do
-        # if the cellar credential are missing, we skip the whole history
+      bucket = history_bucket_id(dataset)
+
+      bucket
+      |> ExAws.S3.list_objects()
+      |> Wrapper.ExAWS.impl().stream!()
+      |> Enum.to_list()
+      |> Enum.map(fn f ->
+        metadata = fetch_history_metadata(bucket, f.key)
+
+        is_current =
+          dataset.resources
+          |> Enum.map(fn r -> r.content_hash end)
+          |> Enum.any?(fn hash -> !is_nil(hash) && metadata["content-hash"] == hash end)
+
+        %{
+          name: f.key,
+          href: history_resource_path(bucket, f.key),
+          metadata: fetch_history_metadata(bucket, f.key),
+          is_current: is_current,
+          last_modified: f.last_modified
+        }
+      end)
+      |> Enum.sort_by(fn f -> f.last_modified end, &Kernel.>=/2)
+    rescue
+      e in ExAws.Error ->
+        Logger.error("error while accessing the S3 bucket: #{inspect(e)}")
         []
-      else
-        try do
-          bucket = history_bucket_id(dataset)
-
-          bucket
-          |> ExAws.S3.list_objects()
-          |> Wrapper.ExAWS.impl().stream!()
-          |> Enum.to_list()
-          |> Enum.map(fn f ->
-            metadata = fetch_history_metadata(bucket, f.key)
-
-            is_current =
-              dataset.resources
-              |> Enum.map(fn r -> r.content_hash end)
-              |> Enum.any?(fn hash -> !is_nil(hash) && metadata["content-hash"] == hash end)
-
-            %{
-              name: f.key,
-              href: history_resource_path(bucket, f.key),
-              metadata: fetch_history_metadata(bucket, f.key),
-              is_current: is_current,
-              last_modified: f.last_modified
-            }
-          end)
-          |> Enum.sort_by(fn f -> f.last_modified end, &Kernel.>=/2)
-        rescue
-          e in ExAws.Error ->
-            Logger.error("error while accessing the S3 bucket: #{inspect(e)}")
-            []
-        end
-      end
     end
 
     @spec history_bucket_id(DB.Dataset.t()) :: binary()
@@ -89,35 +81,31 @@ defmodule Transport.History do
 
     @spec backup_resources(boolean()) :: any()
     def backup_resources(force_update \\ false) do
-      if Application.get_env(:ex_aws, :access_key_id) == nil ||
-           Application.get_env(:ex_aws, :secret_access_key) == nil do
-        Logger.warn("no cellar credential set, we skip resource backup")
-      else
-        Logger.info("backuping the resources")
+      # TODO: disable based on config
+      Logger.info("backuping the resources")
 
-        Resource
-        |> where(
-          [r],
-          not is_nil(r.url) and not is_nil(r.title) and
-            (r.format == "GTFS" or r.format == "NeTEx") and
-            not r.is_community_resource
-        )
-        |> preload([:dataset])
-        |> Repo.all()
-        |> Stream.map(fn r ->
-          Logger.debug(fn -> "creating bucket #{bucket_id(r)}" end)
+      Resource
+      |> where(
+        [r],
+        not is_nil(r.url) and not is_nil(r.title) and
+          (r.format == "GTFS" or r.format == "NeTEx") and
+          not r.is_community_resource
+      )
+      |> preload([:dataset])
+      |> Repo.all()
+      |> Stream.map(fn r ->
+        Logger.debug(fn -> "creating bucket #{bucket_id(r)}" end)
 
-          r
-          |> bucket_id()
-          |> ExAws.S3.put_bucket("", %{acl: "public-read"})
-          |> Wrapper.ExAWS.impl().request!()
+        r
+        |> bucket_id()
+        |> ExAws.S3.put_bucket("", %{acl: "public-read"})
+        |> Wrapper.ExAWS.impl().request!()
 
-          r
-        end)
-        |> Stream.filter(fn r -> force_update || needs_to_be_updated(r) end)
-        |> Stream.each(&backup/1)
-        |> Stream.run()
-      end
+        r
+      end)
+      |> Stream.filter(fn r -> force_update || needs_to_be_updated(r) end)
+      |> Stream.each(&backup/1)
+      |> Stream.run()
     end
 
     @spec modification_date(Resource.t()) :: binary()
