@@ -10,7 +10,7 @@ defmodule Transport.History do
     in order to provide easy mocking during tests.
     """
 
-    defp impl, do: Application.get_env(:transport, :ex_aws_impl)
+    def impl, do: Application.get_env(:transport, :ex_aws_impl)
   end
 
   defmodule Fetcher do
