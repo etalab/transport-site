@@ -80,22 +80,24 @@ defmodule Transport.ImportData do
   rescue
     e ->
       now = DateTime.truncate(DateTime.utc_now(), :second)
+      dataset_id = dataset.dataset.id
+      datagouv_id = dataset.datagouv_id
 
       log_import_result =
         Repo.insert(%LogsImport{
-          datagouv_id: dataset.datagouv_id,
+          datagouv_id: datagouv_id,
           timestamp: now,
           is_success: false,
-          dataset_id: dataset.id
+          dataset_id: dataset_id
         })
 
-      Logger.error("import of dataset #{dataset_id} has failed")
+      Logger.error("import of dataset #{dataset_id} has failed (datagouv_id #{datagouv_id})")
       Logger.error(Exception.format(:error, e, __STACKTRACE__))
 
       with {:error, msg} <- log_import_result do
         Sentry.capture_message("import has failed, and failure log couldn't be inserted",
           level: "error",
-          extra: %{dataset_id: dataset.id, msg: msg}
+          extra: %{dataset_id: dataset_id, datagouv_id: datagouv_id, msg: msg}
         )
       end
 
@@ -130,11 +132,12 @@ defmodule Transport.ImportData do
   end
 
   @spec import_from_data_gouv(binary, binary) :: map
-  def import_from_data_gouv(id, type) do
-    Logger.info("Importing dataset #{id} (url = #{url})")
-
+  def import_from_data_gouv(datagouv_id, type) do
     base_url = Application.get_env(:transport, :datagouvfr_site)
-    url = "#{base_url}/api/1/datasets/#{id}/"
+    url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
+
+    Logger.info("Importing dataset #{datagouv_id} (url = #{url})")
+
     {:ok, response} = HTTPoison.get(url, [], hackney: [follow_redirect: true])
     {:ok, json} = Jason.decode(response.body)
     {:ok, dataset} = prepare_dataset_from_data_gouv_response(json, type)
