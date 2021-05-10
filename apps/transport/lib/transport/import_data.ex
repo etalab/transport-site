@@ -113,7 +113,7 @@ defmodule Transport.ImportData do
       }) do
     now = DateTime.truncate(DateTime.utc_now(), :second)
 
-    with {:ok, new_data} <- import_from_udata(datagouv_id, type),
+    with {:ok, new_data} <- import_from_data_gouv(datagouv_id, type),
          {:ok, changeset} <- Dataset.changeset(new_data) do
       # log the import success
       Repo.insert(%LogsImport{
@@ -148,8 +148,8 @@ defmodule Transport.ImportData do
     end
   end
 
-  @spec import_from_udata(binary, binary) :: {:error, any} | {:ok, map}
-  def import_from_udata(id, type) do
+  @spec import_from_data_gouv(binary, binary) :: map
+  def import_from_data_gouv(id, type) do
     base_url = Application.get_env(:transport, :datagouvfr_site)
     url = "#{base_url}/api/1/datasets/#{id}/"
 
