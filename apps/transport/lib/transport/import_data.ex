@@ -157,32 +157,32 @@ defmodule Transport.ImportData do
     url = "#{base_url}/api/1/datasets/#{id}/"
     {:ok, response} = HTTPoison.get(url, [], hackney: [follow_redirect: true])
     {:ok, json} = Jason.decode(response.body)
-    {:ok, dataset} = get_dataset(json, type)
+    {:ok, dataset} = prepare_dataset_from_data_gouv_response(json, type)
 
     dataset
   end
 
-  @spec get_dataset(map, binary) :: {:error, any} | {:ok, map}
-  def get_dataset(%{"message" => error}, _), do: {:error, error}
+  @spec prepare_dataset_from_data_gouv_response(map, binary) :: {:error, any} | {:ok, map}
+  def prepare_dataset_from_data_gouv_response(%{"message" => error}, _), do: {:error, error}
 
-  def get_dataset(%{} = dataset, type) do
+  def prepare_dataset_from_data_gouv_response(%{} = data_gouv_resp, type) do
     dataset =
-      dataset
+      data_gouv_resp
       |> Map.take(["title", "description", "id", "slug", "frequency", "tags"])
-      |> Map.put("datagouv_id", dataset["id"])
-      |> Map.put("logo", get_logo_thumbnail(dataset))
-      |> Map.put("full_logo", get_logo(dataset))
-      |> Map.put("created_at", parse_date(dataset["created_at"]))
-      |> Map.put("last_update", parse_date(dataset["last_update"]))
+      |> Map.put("datagouv_id", data_gouv_resp["id"])
+      |> Map.put("logo", get_logo_thumbnail(data_gouv_resp))
+      |> Map.put("full_logo", get_logo(data_gouv_resp))
+      |> Map.put("created_at", parse_date(data_gouv_resp["created_at"]))
+      |> Map.put("last_update", parse_date(data_gouv_resp["last_update"]))
       |> Map.put("type", type)
-      |> Map.put("organization", dataset["organization"]["name"])
-      |> Map.put("resources", get_resources(dataset, type))
-      |> Map.put("nb_reuses", get_nb_reuses(dataset))
-      |> Map.put("licence", dataset["license"])
-      |> Map.put("zones", get_associated_zones_insee(dataset))
+      |> Map.put("organization", data_gouv_resp["organization"]["name"])
+      |> Map.put("resources", get_resources(data_gouv_resp, type))
+      |> Map.put("nb_reuses", get_nb_reuses(data_gouv_resp))
+      |> Map.put("licence", data_gouv_resp["license"])
+      |> Map.put("zones", get_associated_zones_insee(data_gouv_resp))
 
-    case Map.get(dataset, "resources") do
-      nil -> {:error, "No download uri found"}
+    case Map.get(data_gouv_resp, "resources") do
+      nil -> {:error, "dataset #{data_gouv_resp["id"]} has no resource"}
       _ -> {:ok, dataset}
     end
   end
