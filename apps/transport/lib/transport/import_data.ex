@@ -80,7 +80,7 @@ defmodule Transport.ImportData do
   rescue
     e ->
       now = DateTime.truncate(DateTime.utc_now(), :second)
-      dataset_id = dataset.dataset.id
+      dataset_id = dataset.id
       datagouv_id = dataset.datagouv_id
 
       log_import_result =
