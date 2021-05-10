@@ -72,7 +72,7 @@ defmodule Transport.ImportDataTest do
   end
 
   def http_stream_mock do
-    fn url ->
+    fn _url ->
       %{
         status: 200,
         hash: "resource1_hash"
@@ -81,7 +81,7 @@ defmodule Transport.ImportDataTest do
   end
 
   def http_head_mock do
-    fn url, _, _ ->
+    fn _url, _, _ ->
       {:ok, %HTTPoison.Response{status_code: 200}}
     end
   end
@@ -193,7 +193,7 @@ defmodule Transport.ImportDataTest do
         datagouv_id,
         generate_resources_payload(
           new_title,
-          new_url = "http://localhost:4321/resource1_new",
+          _new_url = "http://localhost:4321/resource1_new",
           new_datagouv_id
         )
       )
