@@ -79,7 +79,7 @@ defmodule Transport.ImportData do
         options
       ) do
     success = options |> Keyword.fetch!(:success)
-    msg = options |> Keyword.get(:msg, "")
+    msg = options |> Keyword.get(:msg)
 
     now = DateTime.truncate(DateTime.utc_now(), :second)
 
