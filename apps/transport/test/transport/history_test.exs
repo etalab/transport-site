@@ -3,10 +3,13 @@ defmodule Transport.HistoryTest do
   import ExUnit.CaptureLog
   import TransportWeb.Factory
   import Ecto.Query
+  import Mox
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
+
+  setup :verify_on_exit!
 
   test "backup_resources" do
     logs =
