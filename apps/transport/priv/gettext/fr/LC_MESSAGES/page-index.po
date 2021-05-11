@@ -218,3 +218,7 @@ msgstr "Rechercher sur la carte"
 #, elixir-format
 msgid "You can also"
 msgstr "Vous pouvez également"
+
+#, elixir-format
+msgid "Bike path"
+msgstr "Aménagements cyclables"
