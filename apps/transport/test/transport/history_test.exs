@@ -23,6 +23,28 @@ defmodule Transport.HistoryTest do
             dataset: insert(:dataset)
           )
 
+          Transport.ExAWS.Mock
+          # bucket creation
+          |> expect(:request!, fn(request) ->
+            assert %{
+              service: :s3,
+              http_method: :put,
+              path: "/",
+              bucket: "dataset-123",
+              headers: %{"x-amz-acl" => "public-read"}
+            }
+          end)
+          |> expect(:stream!, fn(request) ->
+            assert %{
+              service: :s3,
+              bucket: "dataset-123",
+              http_method: :get,
+              params: %{"prefix" => "Hello"},
+              path: "/"
+            }
+            [%{key: "hello"}]
+          end)
+
         assert :ok == Transport.History.Backup.backup_resources()
       end)
 
