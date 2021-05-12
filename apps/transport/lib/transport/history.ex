@@ -58,7 +58,7 @@ defmodule Transport.History do
         %{
           name: f.key,
           href: history_resource_path(bucket, f.key),
-          metadata: fetch_history_metadata(bucket, f.key),
+          metadata: metadata,
           is_current: is_current,
           last_modified: f.last_modified
         }
