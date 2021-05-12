@@ -74,6 +74,7 @@ defmodule Transport.History do
         []
     end
 
+    # TODO: lookup the configuration to grab back scheme and host instead of hardcoding here
     @cellar_host ".cellar-c2.services.clever-cloud.com/"
 
     @spec history_resource_path(binary(), binary()) :: binary()
