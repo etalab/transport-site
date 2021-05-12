@@ -81,6 +81,8 @@ defmodule Transport.HistoryTest do
   test "history_resources" do
     dataset = insert(:dataset)
 
+    # TODO: support "no bucket found" error by returning an empty thing,
+    # otherwise raise
     Transport.History.Fetcher.history_resources(dataset)
   end
 end
