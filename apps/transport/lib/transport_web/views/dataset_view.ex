@@ -170,6 +170,7 @@ defmodule TransportWeb.DatasetView do
     icons = %{
       "public-transit" => "/images/icons/bus.svg",
       "bike-sharing" => "/images/icons/bicycle.svg",
+      "bike-path" => "/images/icons/bike-path.svg",
       "carsharing-areas" => "/images/icons/car.svg",
       "charging-stations" => "/images/icons/charge-station.svg",
       "air-transport" => "/images/icons/plane.svg",
