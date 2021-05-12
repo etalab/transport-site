@@ -3,6 +3,10 @@ defmodule Transport.History do
   Tooling related to backup and restore resources from S3/Cellar.
   """
 
+  defmodule Wrapper.HTTPoison do
+    def impl, do: Application.get_env(:transport, :httpoison_impl, HTTPoison)
+  end
+
   defmodule Wrapper.ExAWS do
     @moduledoc """
     Central access point for the ExAWS behaviour defined at
@@ -186,7 +190,7 @@ defmodule Transport.History do
         |> maybe_put(:end, resource.metadata["end_date"])
         |> maybe_put(:content_hash, resource.content_hash)
 
-      case HTTPoison.get(resource.url) do
+      case Wrapper.HTTPoison.impl().get(resource.url) do
         {:ok, %{status_code: 200, body: body}} ->
           resource
           |> Shared.resource_bucket_id()
