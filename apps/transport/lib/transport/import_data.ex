@@ -14,9 +14,12 @@ defmodule Transport.ImportData do
 
   @spec import_all_datasets :: :ok
   def import_all_datasets do
-    Logger.info("reimporting all datasets")
+    Logger.info("reimporting all active datasets")
 
-    datasets = Repo.all(Dataset)
+    datasets =
+      Dataset
+      |> where([d], d.is_active == true)
+      |> Repo.all()
 
     results =
       ImportTaskSupervisor
