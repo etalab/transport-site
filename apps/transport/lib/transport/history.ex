@@ -21,6 +21,16 @@ defmodule Transport.History do
 
     @spec resource_bucket_id(Resource.t()) :: binary()
     def resource_bucket_id(%DB.Resource{} = resource), do: dataset_bucket_id(resource.dataset)
+
+    @spec fetch_history_metadata(binary(), binary()) :: map()
+    def fetch_history_metadata(bucket, obj_key) do
+      bucket
+      |> ExAws.S3.head_object(obj_key)
+      |> Wrapper.ExAWS.impl().request!()
+      |> Map.get(:headers)
+      |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
+      |> Map.take(["format", "title", "start", "end", "updated-at", "content-hash"])
+    end
   end
 
   defmodule Fetcher do
@@ -38,7 +48,7 @@ defmodule Transport.History do
       |> Wrapper.ExAWS.impl().stream!()
       |> Enum.to_list()
       |> Enum.map(fn f ->
-        metadata = fetch_history_metadata(bucket, f.key)
+        metadata = Shared.fetch_history_metadata(bucket, f.key)
 
         is_current =
           dataset.resources
@@ -58,16 +68,6 @@ defmodule Transport.History do
       e in ExAws.Error ->
         Logger.error("error while accessing the S3 bucket: #{inspect(e)}")
         []
-    end
-
-    @spec fetch_history_metadata(binary(), binary()) :: map()
-    defp fetch_history_metadata(bucket, obj_key) do
-      bucket
-      |> ExAws.S3.head_object(obj_key)
-      |> Wrapper.ExAWS.impl().request!()
-      |> Map.get(:headers)
-      |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
-      |> Map.take(["format", "title", "start", "end", "updated-at", "content-hash"])
     end
 
     @cellar_host ".cellar-c2.services.clever-cloud.com/"
@@ -144,7 +144,7 @@ defmodule Transport.History do
       |> ExAws.S3.list_objects(prefix: resource_title(resource))
       |> Wrapper.ExAWS.impl().stream!()
       |> Enum.map(fn o ->
-        metadata = Dataset.fetch_history_metadata(Shared.resource_bucket_id(resource), o.key)
+        metadata = Shared.fetch_history_metadata(Shared.resource_bucket_id(resource), o.key)
 
         %{
           key: o.key,
