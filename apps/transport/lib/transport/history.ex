@@ -190,6 +190,9 @@ defmodule Transport.History do
         |> maybe_put(:end, resource.metadata["end_date"])
         |> maybe_put(:content_hash, resource.content_hash)
 
+      # NOTE: this call has a few drawbacks:
+      # - redirects are not followed
+      # - the whole resource is loaded in memory (could be streamed directly to S3 instead with Finch)
       case Wrapper.HTTPoison.impl().get(resource.url) do
         {:ok, %{status_code: 200, body: body}} ->
           resource
