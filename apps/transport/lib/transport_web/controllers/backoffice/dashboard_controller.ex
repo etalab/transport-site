@@ -15,10 +15,10 @@ defmodule TransportWeb.Backoffice.DashboardController do
     import_count_by_dataset_and_by_day =
       data.rows
       |> Enum.group_by(
-        fn [dataset_id, _, _] -> dataset_id end,
-        fn [_, date, count] -> {date, count} end
+        fn [dataset_id, _, _, _] -> dataset_id end,
+        fn [_, date, import_count, success_count] -> {date, import_count, success_count} end
       )
-      |> Enum.sort_by(fn {key, value} -> key end)
+      |> Enum.sort_by(fn {key, _} -> key end)
 
     conn
     |> render("index.html", import_count_by_dataset_and_by_day: import_count_by_dataset_and_by_day)
