@@ -57,7 +57,7 @@ defmodule Transport.ImportDataTest do
 
       payload = payload || generate_dataset_payload(datagouv_id)
 
-      {:ok, %HTTPoison.Response{body: Jason.encode!(payload), status_code: 200}}
+      %HTTPoison.Response{body: Jason.encode!(payload), status_code: 200}
     end
   end
 
@@ -67,12 +67,12 @@ defmodule Transport.ImportDataTest do
       expected_url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
       assert url == expected_url
 
-      {:ok, %HTTPoison.Response{body: "erreur 404, page non trouvée", status_code: 404}}
+      %HTTPoison.Response{body: "erreur 404, page non trouvée", status_code: 404}
     end
   end
 
   def http_stream_mock do
-    fn url ->
+    fn _url ->
       %{
         status: 200,
         hash: "resource1_hash"
@@ -81,7 +81,7 @@ defmodule Transport.ImportDataTest do
   end
 
   def http_head_mock do
-    fn url, _, _ ->
+    fn _url, _, _ ->
       {:ok, %HTTPoison.Response{status_code: 200}}
     end
   end
@@ -96,12 +96,12 @@ defmodule Transport.ImportDataTest do
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
 
-    with_mock HTTPoison, get: http_get_mock_200(datagouv_id), head: http_head_mock() do
+    with_mock HTTPoison, get!: http_get_mock_200(datagouv_id), head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
           logs = capture_log([level: :info], fn -> ImportData.import_all_datasets() end)
 
-          assert_called_exactly(HTTPoison.get(:_, :_, :_), 1)
+          assert_called_exactly(HTTPoison.get!(:_, :_, :_), 1)
 
           # for each resource, 2 head requests are potentially made
           # one to check for availability, one to compute the resource hash.
@@ -125,11 +125,11 @@ defmodule Transport.ImportDataTest do
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
 
-    with_mock HTTPoison, get: http_get_mock_404(datagouv_id), head: http_head_mock() do
+    with_mock HTTPoison, get!: http_get_mock_404(datagouv_id), head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
           logs = capture_log([level: :info], fn -> ImportData.import_all_datasets() end)
-          assert_called_exactly(HTTPoison.get(:_, :_, :_), 1)
+          assert_called_exactly(HTTPoison.get!(:_, :_, :_), 1)
           assert logs =~ "all datasets have been reimported (1 failures / 1)"
         end
       end
@@ -145,7 +145,7 @@ defmodule Transport.ImportDataTest do
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
 
-    with_mock HTTPoison, get: http_get_mock_200(datagouv_id), head: http_head_mock() do
+    with_mock HTTPoison, get!: http_get_mock_200(datagouv_id), head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
           ImportData.import_all_datasets()
@@ -170,7 +170,7 @@ defmodule Transport.ImportDataTest do
         )
       )
 
-    with_mock HTTPoison, get: http_get_mock_200(datagouv_id, payload_2), head: http_head_mock() do
+    with_mock HTTPoison, get!: http_get_mock_200(datagouv_id, payload_2), head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
           ImportData.import_all_datasets()
@@ -193,12 +193,12 @@ defmodule Transport.ImportDataTest do
         datagouv_id,
         generate_resources_payload(
           new_title,
-          new_url = "http://localhost:4321/resource1_new",
+          _new_url = "http://localhost:4321/resource1_new",
           new_datagouv_id
         )
       )
 
-    with_mock HTTPoison, get: http_get_mock_200(datagouv_id, payload_3), head: http_head_mock() do
+    with_mock HTTPoison, get!: http_get_mock_200(datagouv_id, payload_3), head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources, get: fn _ -> {:ok, []} end do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
           ImportData.import_all_datasets()
@@ -227,7 +227,7 @@ defmodule Transport.ImportDataTest do
     community_resource_title = "a_community_resource"
 
     with_mock HTTPoison,
-      get: http_get_mock_200(datagouv_id, generate_dataset_payload(datagouv_id, [])),
+      get!: http_get_mock_200(datagouv_id, generate_dataset_payload(datagouv_id, [])),
       head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources,
         get: fn _ -> {:ok, generate_resources_payload(community_resource_title)} end do
@@ -257,24 +257,20 @@ defmodule Transport.ImportDataTest do
       payload = :datagouv_api_get |> build() |> Jason.encode!()
 
       mock = fn _, _, _ ->
-        {:ok, %HTTPoison.Response{body: payload, status_code: 200}}
+        %HTTPoison.Response{body: payload, status_code: 200}
       end
 
-      with_mock Sentry, capture_message: fn _, _ -> nil end do
-        with_mock HTTPoison, get: mock do
-          logs =
-            capture_log([level: :warn], fn ->
-              ImportData.import_all_datasets()
-            end)
+      with_mock HTTPoison, get!: mock do
+        logs =
+          capture_log([level: :warn], fn ->
+            ImportData.import_all_datasets()
+          end)
 
-          logs = logs |> String.split("\n")
-          assert logs |> Enum.at(0) =~ "Unmanaged exception during import"
-          # NOTE: for now, relying on a specific error that we're triggering due to missing key, but it's
-          # far from ideal and it would be better to have something more explicit
-          assert logs |> Enum.at(1) =~ "no function clause matching in Transport.ImportData.get_valid_resources/2"
-        end
-
-        assert_called_exactly(Sentry.capture_message(:_, :_), 1)
+        logs = logs |> String.split("\n")
+        assert logs |> Enum.at(0) =~ "Import of dataset has failed"
+        # NOTE: for now, relying on a specific error that we're triggering due to missing key, but it's
+        # far from ideal and it would be better to have something more explicit
+        assert logs |> Enum.at(1) =~ "no function clause matching in Transport.ImportData.get_valid_resources/2"
       end
     end
   end
