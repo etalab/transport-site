@@ -53,6 +53,55 @@ defmodule Datagouvfr.Client.Discussions do
     end
   end
 
+  def latest_comment_timestamp(nil), do: nil
+
+  def latest_comment_timestamp(discussions) do
+    case discussions do
+      [] ->
+        nil
+
+      [d] ->
+        discussion_timestamp(d)
+
+      [d | other_discussions] ->
+        latest_naive_datetime(
+          discussion_timestamp(d),
+          latest_comment_timestamp(other_discussions)
+        )
+    end
+  end
+
+  def comment_timestamp(comment) do
+    comment
+    |> Map.get("posted_on")
+    |> NaiveDateTime.from_iso8601()
+    |> case do
+      {:ok, datetime} -> datetime
+      _ -> nil
+    end
+  end
+
+  def discussion_timestamp(discussion) do
+    discussion
+    |> Map.get("discussion")
+    |> comments_latest_timestamp()
+  end
+
+  def comments_latest_timestamp(comments) do
+    case comments do
+      [] -> nil
+      [comment] -> comment_timestamp(comment)
+      [c | comments] -> latest_naive_datetime(comment_timestamp(c), comments_latest_timestamp(comments))
+    end
+  end
+
+  def latest_naive_datetime(date1, date2) do
+    case NaiveDateTime.compare(date1, date2) do
+      :lt -> date2
+      _ -> date1
+    end
+  end
+
   @spec payload_post(binary(), binary(), binary(), [] | nil) :: map()
   defp payload_post(id_, title, comment, extras \\ nil) do
     payload = %{

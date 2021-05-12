@@ -50,4 +50,25 @@ defmodule Datagouvfr.Client.DiscussionTest do
       assert Map.get(discussion, "extras") == %{"type" => "STOP_UNUSED"}
     end
   end
+
+  test "get latest comment timestamp" do
+    discussions = [
+      %{"discussion" => [%{"posted_on" => "2020-05-12T15:07:04.547000"}]},
+      %{
+        "discussion" => [%{"posted_on" => "2021-05-12T15:07:00.547000"}, %{"posted_on" => "2021-05-12T15:07:04.547000"}]
+      },
+      %{"discussion" => [%{"posted_on" => "2021-05-12T15:06:48.512000"}]}
+    ]
+
+    assert Discussions.latest_comment_timestamp(discussions) ==
+             NaiveDateTime.from_iso8601!("2021-05-12T15:07:04.547000")
+  end
+
+  test "timestamp of empty list is nil" do
+    assert is_nil(Discussions.latest_comment_timestamp([]))
+  end
+
+  test "timestamp of nil is nil" do
+    assert is_nil(Discussions.latest_comment_timestamp(nil))
+  end
 end
