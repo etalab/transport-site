@@ -17,6 +17,8 @@ config :transport, Transport.Scheduler,
     {"@daily", {Transport.DataChecker, :outdated_data, []}},
     # Set inactive data
     {"@daily", {Transport.DataChecker, :inactive_data, []}},
+    # Watch for new comments on datasets
+    {"@daily", {Transport.CommentsChecker, :check_for_new_comments, []}},
     # backup all resources
     {"@daily", {Transport.History, :backup_resources, []}},
     # clean old logs
