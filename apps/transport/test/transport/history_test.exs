@@ -76,11 +76,43 @@ defmodule Transport.HistoryTest do
     assert :ok == Transport.History.Backup.backup_resources()
   end
 
-  test "history_resources" do
-    dataset = insert(:dataset)
+  # TODO: verify behaviour with a real credential then write test
+  test "history_resources (no bucket found)"
+
+  test "history_resources (regular use)" do
+    dataset = insert(:dataset) |> DB.Repo.preload(:resources)
+
+    Transport.ExAWS.Mock
+    |> expect(:stream!, fn request ->
+      assert %{
+               service: :s3,
+               bucket: "dataset-123",
+               http_method: :get,
+               path: "/"
+             } = request
+
+      [%{key: "some-resource", last_modified: DateTime.add(DateTime.utc_now(), -60 * 60 * 24, :second)}]
+    end)
+    |> expect(:request!, fn request ->
+      assert %{
+               service: :s3,
+               bucket: "dataset-123",
+               path: "some-resource",
+               http_method: :head
+             } = request
+
+      %{headers: %{}}
+    end)
 
     # TODO: support "no bucket found" error by returning an empty thing,
     # otherwise raise
-    Transport.History.Fetcher.history_resources(dataset)
+    resources = Transport.History.Fetcher.history_resources(dataset)
+
+    assert [
+             %{
+               name: "some-resource",
+               href: "http://dataset-123.cellar-c2.services.clever-cloud.com/some-resource"
+             }
+           ] = resources
   end
 end
