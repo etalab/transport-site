@@ -21,7 +21,8 @@ defmodule Transport.HistoryTest do
     )
 
     Transport.HTTPoison.Mock
-    |> expect(:get, fn resource_url ->
+    |> expect(:get, fn url ->
+      assert url == resource_url
       {:ok, %{status_code: 200, body: "the-payload"}}
     end)
 
