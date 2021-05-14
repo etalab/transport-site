@@ -11,15 +11,14 @@ defmodule Transport.HistoryTest do
 
   @tag :focus
   test "backup_resources" do
-    resource =
-      insert(:resource,
-        url: resource_url = "http://localhost/the-resource-url",
-        title: "Hello",
-        format: "GTFS",
-        is_community_resource: false,
-        dataset: insert(:dataset),
-        last_update: DateTime.utc_now() |> DateTime.to_iso8601()
-      )
+    insert(:resource,
+      url: resource_url = "http://localhost/the-resource-url",
+      title: "Hello",
+      format: "GTFS",
+      is_community_resource: false,
+      dataset: insert(:dataset),
+      last_update: DateTime.utc_now() |> DateTime.to_iso8601()
+    )
 
     Transport.HTTPoison.Mock
     |> expect(:get, fn resource_url ->
