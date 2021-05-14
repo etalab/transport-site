@@ -1,8 +1,6 @@
 defmodule Transport.HistoryTest do
   use ExUnit.Case, async: true
-  import ExUnit.CaptureLog
   import TransportWeb.Factory
-  import Ecto.Query
   import Mox
 
   setup do
