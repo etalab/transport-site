@@ -74,11 +74,10 @@ defmodule Transport.History do
         []
     end
 
-    # TODO: lookup the configuration to grab back scheme and host instead of hardcoding here
-    @cellar_host ".cellar-c2.services.clever-cloud.com/"
+    defp cellar_host, do: Application.get_env(:ex_aws, :s3)[:host]
 
     @spec history_resource_path(binary(), binary()) :: binary()
-    defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> @cellar_host, name])
+    defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> "." <> cellar_host(), name])
   end
 
   defmodule Backup do
