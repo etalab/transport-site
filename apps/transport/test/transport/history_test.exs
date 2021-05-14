@@ -111,7 +111,7 @@ defmodule Transport.HistoryTest do
     assert [
              %{
                name: "some-resource",
-               href: "http://dataset-123.cellar-c2.services.clever-cloud.com/some-resource"
+               href: "https://dataset-123.cellar-c2.services.clever-cloud.com/some-resource"
              }
            ] = resources
   end

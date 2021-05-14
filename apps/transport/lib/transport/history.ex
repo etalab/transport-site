@@ -75,9 +75,10 @@ defmodule Transport.History do
     end
 
     defp cellar_host, do: Application.get_env(:ex_aws, :s3)[:host]
+    defp cellar_scheme, do: Application.get_env(:ex_aws, :s3)[:scheme]
 
     @spec history_resource_path(binary(), binary()) :: binary()
-    defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> "." <> cellar_host(), name])
+    defp history_resource_path(bucket, name), do: Path.join([cellar_scheme(), bucket <> "." <> cellar_host(), name])
   end
 
   defmodule Backup do
