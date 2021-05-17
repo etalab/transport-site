@@ -22,6 +22,8 @@ config :transport, ex_aws_impl: Transport.ExAWS.Mock
 
 config :transport, httpoison_impl: Transport.HTTPoison.Mock
 
+config :transport, history_impl: Transport.History.Fetcher.Mock
+
 # capture all info logs and up during tests
 config :logger, level: :info
 

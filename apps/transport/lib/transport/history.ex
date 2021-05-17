@@ -39,8 +39,34 @@ defmodule Transport.History do
 
   defmodule Fetcher do
     @moduledoc """
-    Module able to fetch history resources from S3
+    Boundary for all retrieval resources' history, with an indirection to
+    the default implementation.
     """
+    @callback history_resources(DB.Dataset.t()) :: [map()]
+
+    def impl(), do: Application.get_env(:transport, :history_impl, Fetcher.S3)
+
+    def history_resources(%DB.Dataset{} = dataset), do: impl().history_resources(dataset)
+  end
+
+  defmodule Fetcher.Mock do
+    @behaviour Fetcher
+
+    @moduledoc """
+    A default implementation returning an empty history, useful as a default
+    implementation for tests unrelated to history.
+    """
+
+    def history_resources(%DB.Dataset{}), do: []
+  end
+
+  defmodule Fetcher.S3 do
+    @behaviour Fetcher
+
+    @moduledoc """
+    The S3-backed implementation of history fetching.
+    """
+
     require Logger
 
     @spec history_resources(DB.Dataset.t()) :: [map()]
