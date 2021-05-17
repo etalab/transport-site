@@ -74,3 +74,7 @@ msgstr "Autres informations"
 #, elixir-format
 msgid "Private parking"
 msgstr "Stationnement hors voirie"
+
+#, elixir-format
+msgid "Bike path"
+msgstr "Aménagements cyclables"
