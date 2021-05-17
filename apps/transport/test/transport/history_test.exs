@@ -106,7 +106,7 @@ defmodule Transport.HistoryTest do
 
     # TODO: support "no bucket found" error by returning an empty thing,
     # otherwise raise
-    resources = Transport.History.Fetcher.history_resources(dataset)
+    resources = Transport.History.Fetcher.S3.history_resources(dataset)
 
     assert [
              %{
