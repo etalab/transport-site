@@ -76,43 +76,45 @@ defmodule Transport.HistoryTest do
     assert :ok == Transport.History.Backup.backup_resources()
   end
 
-  # TODO: verify behaviour with a real credential then write test
-  test "history_resources (no bucket found)"
+  describe "Fetcher.S3" do
+    # TODO: verify behaviour with a real credential then write test
+    test "history_resources (no bucket found)"
 
-  test "history_resources (regular use)" do
-    dataset = insert(:dataset) |> DB.Repo.preload(:resources)
+    test "history_resources (regular use)" do
+      dataset = insert(:dataset) |> DB.Repo.preload(:resources)
 
-    Transport.ExAWS.Mock
-    |> expect(:stream!, fn request ->
-      assert %{
-               service: :s3,
-               bucket: "dataset-123",
-               http_method: :get,
-               path: "/"
-             } = request
+      Transport.ExAWS.Mock
+      |> expect(:stream!, fn request ->
+        assert %{
+                 service: :s3,
+                 bucket: "dataset-123",
+                 http_method: :get,
+                 path: "/"
+               } = request
 
-      [%{key: "some-resource", last_modified: DateTime.add(DateTime.utc_now(), -60 * 60 * 24, :second)}]
-    end)
-    |> expect(:request!, fn request ->
-      assert %{
-               service: :s3,
-               bucket: "dataset-123",
-               path: "some-resource",
-               http_method: :head
-             } = request
+        [%{key: "some-resource", last_modified: DateTime.add(DateTime.utc_now(), -60 * 60 * 24, :second)}]
+      end)
+      |> expect(:request!, fn request ->
+        assert %{
+                 service: :s3,
+                 bucket: "dataset-123",
+                 path: "some-resource",
+                 http_method: :head
+               } = request
 
-      %{headers: %{}}
-    end)
+        %{headers: %{}}
+      end)
 
-    # TODO: support "no bucket found" error by returning an empty thing,
-    # otherwise raise
-    resources = Transport.History.Fetcher.S3.history_resources(dataset)
+      # TODO: support "no bucket found" error by returning an empty thing,
+      # otherwise raise
+      resources = Transport.History.Fetcher.S3.history_resources(dataset)
 
-    assert [
-             %{
-               name: "some-resource",
-               href: "https://dataset-123.cellar-c2.services.clever-cloud.com/some-resource"
-             }
-           ] = resources
+      assert [
+               %{
+                 name: "some-resource",
+                 href: "https://dataset-123.cellar-c2.services.clever-cloud.com/some-resource"
+               }
+             ] = resources
+    end
   end
 end
