@@ -173,8 +173,14 @@ function createGBFSmap (id, resourceUrl) {
 }
 
 function removeViz (consoleMsg) {
-    const element = document.querySelector('#dataset-visualisation')
-    element.remove()
+    const vis = document.querySelector('#dataset-visualisation')
+    if (vis) {
+        vis.remove()
+    }
+    const menu = document.querySelector('#menu-item-visualisation')
+    if (menu) {
+        menu.remove()
+    }
     console.log(consoleMsg)
 }
 
