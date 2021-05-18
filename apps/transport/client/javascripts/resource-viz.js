@@ -160,7 +160,7 @@ function fillGBFSMap (resourceUrl, fg, availableDocks, map, fitBounds = false) {
                 setGBFSMarkerStyle(stations, station, 'num_docks_available')
             }
         })
-        .catch(_ => console.log('invalid geojson'))
+        .catch(e => removeViz(e))
 }
 
 function createGBFSmap (id, resourceUrl) {
