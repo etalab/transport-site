@@ -46,15 +46,15 @@
         <div class="panel">
           <div id='map' class='leaflet-map'></div>
           <%= if displayResource.format == "gbfs" do %>
-            <div class="is-centered"><%= dgettext("page-dataset-details", "Real-time visualization of ")%> "<%= get_resource_to_display(@dataset).title %>".</div>
+            <div class="is-centered"><%= dgettext("page-dataset-details", "Real-time visualization of ")%> "<%= displayResource.title %>".</div>
           <% else %>
-            <div class="is-centered"><%= dgettext("page-dataset-details", "Visualization of the resource")%> "<%= get_resource_to_display(@dataset).title %>".</div>
+            <div class="is-centered"><%= dgettext("page-dataset-details", "Visualization of the resource")%> "<%= displayResource.title %>".</div>
           <% end %>
         </div>
         <script src="<%= static_path(@conn, "/js/resourceviz.js") %>"></script>
         <script>
           document.addEventListener("DOMContentLoaded", function() {
-            createMap('map', "<%= get_resource_to_display(@dataset).url %>")
+            createMap('map', "<%= displayResource.url %>", "<%= displayResource.format %>")
           })
         </script>
       </section>

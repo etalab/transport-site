@@ -184,10 +184,10 @@ function removeViz (consoleMsg) {
     console.log(consoleMsg)
 }
 
-function createMap (id, resourceUrl) {
+function createMap (id, resourceUrl, resourceFormat) {
     if (resourceUrl.endsWith('.csv')) {
         createCSVmap(id, resourceUrl)
-    } else if (resourceUrl.endsWith('gbfs.json')) {
+    } else if (resourceFormat === 'gbfs' || resourceUrl.endsWith('gbfs.json')) {
         createGBFSmap(id, resourceUrl)
     } else {
         removeViz(`vizualisation of the resource ${resourceUrl} has failed : not recognized file extension`)
