@@ -1,61 +1,74 @@
 defmodule Transport.CommentsChecker do
   @moduledoc """
-  Use to check data, and act about it, like send email
+  Check for new comments posted on data.gouv.fr for datasets referenced on the PAN
+  Send an email to the team with the new comments and a link to them.
   """
-  alias Datagouvfr.Client.{Datasets, Discussions}
-  alias Mailjet.Client
+  alias Datagouvfr.Client.Discussions
   alias DB.{Dataset, Repo}
-  import TransportWeb.Router.Helpers
   import Ecto.Query
   require Logger
 
   def check_for_new_comments() do
-    datasets_with_new_comments =
+    discussions_infos =
       Dataset
       |> where([d], d.is_active == true)
       |> select([:id, :datagouv_id, :latest_data_gouv_comment_timestamp])
       |> limit(10)
       |> Repo.all()
-      |> Enum.map(fn %{id: id, datagouv_id: datagouv_id, latest_data_gouv_comment_timestamp: ts} ->
-        IO.inspect(datagouv_id)
-
-        updated_ts =
+      |> Enum.map(fn %{datagouv_id: datagouv_id, latest_data_gouv_comment_timestamp: current_ts} = dataset ->
+        comments =
           datagouv_id
           |> Discussions.get()
-          |> Discussions.latest_comment_timestamp()
+          |> Discussions.add_discussion_id_to_comments()
+          |> Discussions.comments_posted_after(current_ts)
 
-        case {updated_ts, ts} do
-          {nil, _} ->
-            nil
+        title = get_dataset_title(datagouv_id)
+        IO.inspect(title)
 
-          {updated_ts, nil} ->
-            handle_new_comment(id, datagouv_id, updated_ts)
-            datagouv_id
-
-          {updated_ts, ts} ->
-            if NaiveDateTime.diff(updated_ts, ts) > 1 do
-              handle_new_comment(id, datagouv_id, updated_ts)
-              datagouv_id
-            end
-        end
+        {dataset, datagouv_id, title, comments}
       end)
-      |> Enum.reject(&is_nil/1)
 
-    send_email(datasets_with_new_comments)
-  end
+    number_new_comments =
+      discussions_infos |> Enum.reduce(0, fn {_, _, _, comments}, acc -> acc + Enum.count(comments) end)
 
-  def handle_new_comment(id, datagouv_id, timestamp) do
-    with {:ok, changeset} <-
-           Dataset.changeset(%{
-             "id" => id,
-             "datagouv_id" => datagouv_id,
-             "latest_data_gouv_comment_timestamp" => timestamp
-           }) do
-      Repo.update(changeset)
+    case number_new_comments do
+      0 ->
+        Logger.info("no new comment posted since last check")
+
+      _ ->
+        email_content =
+          Phoenix.View.render_to_string(TransportWeb.EmailView, "index.html", discussions_infos: discussions_infos)
+
+        Mailjet.Client.send_mail(
+          "transport.data.gouv.fr",
+          "contact@transport.beta.gouv.fr",
+          "contact@transport.beta.gouv.fr",
+          "Nouveaux commentaires sur data.gouv.fr",
+          "",
+          email_content,
+          false
+        )
+
+        discussions_infos
+        |> Enum.map(fn {dataset, datagouv_id, _, comments} ->
+          ts = Discussions.comments_latest_timestamp(comments)
+
+          unless is_nil(ts) do
+            update_dataset_ts(dataset, datagouv_id, ts)
+          end
+        end)
     end
   end
 
-  def send_email(_datasets) do
-    nil
+  def update_dataset_ts(dataset, _datagouv_id, timestamp) do
+    changeset = Ecto.Changeset.change(dataset, %{latest_data_gouv_comment_timestamp: timestamp})
+    Repo.update(changeset)
+  end
+
+  def get_dataset_title(datagouv_id) do
+    Dataset
+    |> where([d], d.datagouv_id == ^datagouv_id)
+    |> select([d], d.spatial)
+    |> Repo.one()
   end
 end
