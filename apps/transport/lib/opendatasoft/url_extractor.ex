@@ -19,7 +19,8 @@ defmodule Opendatasoft.UrlExtractor do
     "fichier à télécharger",
     "url",
     "fichier",
-    "fichier a telecharger"
+    "fichier a telecharger",
+    "fichier_a_telecharger"
   ]
 
   @spec get_csv_resources([any]) :: [any]
