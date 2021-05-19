@@ -76,7 +76,7 @@ defmodule Datagouvfr.Client.Discussions do
     |> Map.get("posted_on")
     |> NaiveDateTime.from_iso8601()
     |> case do
-      {:ok, datetime} -> datetime
+      {:ok, datetime} -> NaiveDateTime.truncate(datetime, :second)
       _ -> nil
     end
   end
@@ -100,6 +100,24 @@ defmodule Datagouvfr.Client.Discussions do
       :lt -> date2
       _ -> date1
     end
+  end
+
+  def comments_posted_after(discussions, nil), do: discussions
+
+  def comments_posted_after(discussions, timestamp) do
+    discussions
+    |> Enum.flat_map(fn d -> d["discussion"] end)
+    |> Enum.filter(fn comment -> NaiveDateTime.compare(comment_timestamp(comment), timestamp) == :gt end)
+  end
+
+  def add_discussion_id_to_comments(discussions) do
+    discussions
+    |> Enum.map(fn discussion ->
+      discussion_id = discussion |> Map.get("id")
+      comments = discussion |> Map.get("discussion")
+      updated_comments = comments |> Enum.map(fn comment -> Map.put(comment, "discussion_id", discussion_id) end)
+      %{discussion | "discussion" => updated_comments}
+    end)
   end
 
   @spec payload_post(binary(), binary(), binary(), [] | nil) :: map()
