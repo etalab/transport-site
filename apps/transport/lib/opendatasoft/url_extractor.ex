@@ -192,6 +192,23 @@ defmodule Opendatasoft.UrlExtractor do
     nil
   end
 
+  @doc """
+  Given a CSV row formatted as a map (keys as headers, values for values),
+  this function attempts to detect potential candidates (`@csv_headers`) of columns
+  # that should contain the target url.
+
+  ## Examples
+
+  If a well-known column is found, the module must return the url like this:
+
+    iex> UrlExtractor.get_url_from_csv_line(%{"fichier_a_telecharger" => "http://the-url"})
+    "http://the-url"
+
+  On the other hand, if the column is unknown, the module will return `nil`:
+
+    iex> UrlExtractor.get_url_from_csv_line(%{"fichié_a_download" => "http://the-url"})
+    nil
+  """
   @spec get_url_from_csv_line(map) :: binary
   def get_url_from_csv_line(line) do
     @csv_headers
