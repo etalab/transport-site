@@ -15,7 +15,15 @@ defmodule TransportWeb.ContactController do
   end
 
   def send_mail(conn, %{"email" => email, "topic" => topic, "demande" => demande} = params) do
-    case Client.send_mail("PAN, Formulaire Contact", "contact@transport.beta.gouv.fr", email, topic, demande, false) do
+    case Client.send_mail(
+           "PAN, Formulaire Contact",
+           "contact@transport.beta.gouv.fr",
+           email,
+           topic,
+           demande,
+           "",
+           false
+         ) do
       {:ok, _} ->
         conn
         |> put_flash(:info, gettext("Your email has been sent, we will contact you soon"))

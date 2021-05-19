@@ -125,6 +125,7 @@ defmodule Transport.DataChecker do
       "contact@transport.beta.gouv.fr",
       "Jeux de données arrivant à expiration",
       make_outdated_data_body(datasets),
+      "",
       is_blank
     )
 
@@ -181,6 +182,7 @@ defmodule Transport.DataChecker do
       "contact@transport.beta.gouv.fr",
       "Jeux de données qui disparaissent",
       make_inactive_dataset_body(reactivated_datasets, inactive_datasets),
+      nil,
       false
     )
   end
