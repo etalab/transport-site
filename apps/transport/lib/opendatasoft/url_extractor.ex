@@ -1,8 +1,12 @@
 defmodule Opendatasoft.UrlExtractor do
   @moduledoc """
-    Opendatasoft publishes a CSV file with an url to the GTFS
+    Opendatasoft publishes a CSV file with an url to the GTFS.
 
-    This module extracts the actual url
+    The name of the actual column which contains that url varies,
+    because there is no clear specification. The module provides
+    a heuristic to extract the actual url from the CSV,
+    based on a list of potential names that have been seen in real
+    life so far.
   """
   require Logger
 
