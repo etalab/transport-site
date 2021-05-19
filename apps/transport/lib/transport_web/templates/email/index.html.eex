@@ -1,0 +1,15 @@
+  <div class="container">
+    Nouveaux commentaires postés sur les datasets référencés par le PAN :
+    <%= for {_, datagouv_id, title, comments} <- @discussions_infos do %>
+      <%= for comment <- comments do %>
+        <div style="padding-top: 24px;">
+          <h4><%= title %></h4>
+          Commentaire de <%= comment["posted_by"]["first_name"] %> <%= comment["posted_by"]["last_name"] %>
+          <div class="panel">
+            <%= comment["content"] %>
+            <br>
+            <%= link("voir la discussion", to: "https://demo.data.gouv.fr/fr/datasets/#{datagouv_id}/#discussion-#{comment["discussion_id"]}") %>
+          </div>
+      <% end %>
+    <% end %>
+  </div>
