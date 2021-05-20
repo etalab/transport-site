@@ -52,6 +52,8 @@ defmodule Transport.CommentsChecker do
 
         update_all_datasets_ts(discussions_infos)
     end
+
+    number_new_comments
   end
 
   def update_all_datasets_ts(discussions_infos) do
