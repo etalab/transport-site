@@ -107,7 +107,7 @@ defmodule Datagouvfr.Client.DiscussionTest do
       %{"discussion" => [%{"posted_on" => "2022-05-12T15:06:48.512000", "content" => "commentaire 4"}]}
     ]
 
-    assert Discussions.comments_posted_after(discussions, nil) |> Enum.count() == 4
+    assert discussions |> Discussions.comments_posted_after(nil) |> Enum.count() == 4
     assert Discussions.comments_posted_after([], nil) == []
   end
 
