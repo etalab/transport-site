@@ -35,6 +35,8 @@ defmodule Transport.CommentsChecker do
         Logger.info("no new comment posted since last check")
 
       _ ->
+        Logger.info("#{number_new_comments} new comment(s), sending an email to the team")
+
         email_content =
           Phoenix.View.render_to_string(TransportWeb.EmailView, "index.html", discussions_infos: discussions_infos)
 
