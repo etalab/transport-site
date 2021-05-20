@@ -35,7 +35,7 @@ defmodule Transport.CommentsCheckerTest do
            %{
              "id" => "discussion_id_1",
              "discussion" => [
-               %{"posted_on" => "2020-01-01T12:00:00.000000", "content" => "commentaire 1"}
+               %{"posted_on" => "2020-01-01T12:00:00.000100", "content" => "commentaire 1"}
              ]
            }
          ]
@@ -52,7 +52,7 @@ defmodule Transport.CommentsCheckerTest do
 
         assert number_new_comments == 1
         assert_called_exactly(Mailjet.Client.send_mail(:_, :_, :_, :_, :_, :_, :_), 1)
-        assert_dataset_ts(dataset_id, "2020-01-01T12:00:00.000000")
+        assert_dataset_ts(dataset_id, "2020-01-01T12:00:00.000100")
 
         # second run : we shouldn't find new comment
         number_new_comments_2 = CommentsChecker.check_for_new_comments()
@@ -60,7 +60,7 @@ defmodule Transport.CommentsCheckerTest do
         # no additionnal mail is sent
         assert_called_exactly(Mailjet.Client.send_mail(:_, :_, :_, :_, :_, :_, :_), 1)
         # timestamp has not changed
-        assert_dataset_ts(dataset_id, "2020-01-01T12:00:00.000000")
+        assert_dataset_ts(dataset_id, "2020-01-01T12:00:00.000100")
       end
     end
 
@@ -72,8 +72,8 @@ defmodule Transport.CommentsCheckerTest do
            %{
              "id" => "discussion_id_1",
              "discussion" => [
-               %{"posted_on" => "2020-01-01T12:00:00.000000", "content" => "commentaire 1"},
-               %{"posted_on" => "2021-01-01T12:00:00.000000", "content" => "commentaire 2"}
+               %{"posted_on" => "2020-01-01T12:00:00.000100", "content" => "commentaire 1"},
+               %{"posted_on" => "2021-01-01T12:00:00.000200", "content" => "commentaire 2"}
              ]
            }
          ]
@@ -86,7 +86,7 @@ defmodule Transport.CommentsCheckerTest do
 
         assert number_new_comments == 1
         assert_called_exactly(Mailjet.Client.send_mail(:_, :_, :_, :_, :_, :_, :_), 1)
-        assert_dataset_ts(dataset_id, "2021-01-01T12:00:00.000000")
+        assert_dataset_ts(dataset_id, "2021-01-01T12:00:00.000200")
       end
     end
   end
