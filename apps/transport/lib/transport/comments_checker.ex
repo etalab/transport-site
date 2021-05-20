@@ -8,7 +8,7 @@ defmodule Transport.CommentsChecker do
   import Ecto.Query
   require Logger
 
-  def check_for_new_comments() do
+  def check_for_new_comments do
     discussions_infos =
       Dataset
       |> where([d], d.is_active == true)
@@ -23,7 +23,6 @@ defmodule Transport.CommentsChecker do
           |> Discussions.comments_posted_after(current_ts)
 
         title = get_dataset_title(datagouv_id)
-        IO.inspect(title)
 
         {dataset, datagouv_id, title, comments}
       end)
@@ -49,15 +48,25 @@ defmodule Transport.CommentsChecker do
           false
         )
 
-        discussions_infos
-        |> Enum.map(fn {dataset, datagouv_id, _, comments} ->
-          ts = Discussions.comments_latest_timestamp(comments)
-
-          unless is_nil(ts) do
-            update_dataset_ts(dataset, datagouv_id, ts)
-          end
-        end)
+        update_all_datasets_ts(discussions_infos)
     end
+  end
+
+  def update_all_datasets_ts(discussions_infos) do
+    discussions_infos
+    |> Enum.map(fn {dataset, datagouv_id, _, comments} ->
+      comments
+      |> Discussions.comments_latest_timestamp()
+      |> case do
+        nil ->
+          nil
+
+        # ecto does not want to store microseconds
+        datetime ->
+          ts = NaiveDateTime.truncate(datetime, :second)
+          update_dataset_ts(dataset, datagouv_id, ts)
+      end
+    end)
   end
 
   def update_dataset_ts(dataset, _datagouv_id, timestamp) do

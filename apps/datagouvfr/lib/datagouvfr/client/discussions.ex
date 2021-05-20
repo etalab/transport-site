@@ -76,7 +76,7 @@ defmodule Datagouvfr.Client.Discussions do
     |> Map.get("posted_on")
     |> NaiveDateTime.from_iso8601()
     |> case do
-      {:ok, datetime} -> NaiveDateTime.truncate(datetime, :second)
+      {:ok, datetime} -> datetime
       _ -> nil
     end
   end
