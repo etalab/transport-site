@@ -160,7 +160,7 @@ function fillGBFSMap (resourceUrl, fg, availableDocks, map, fitBounds = false) {
                 setGBFSMarkerStyle(stations, station, 'num_docks_available')
             }
         })
-        .catch(_ => console.log('invalid geojson'))
+        .catch(e => removeViz(e))
 }
 
 function createGBFSmap (id, resourceUrl) {
@@ -173,15 +173,21 @@ function createGBFSmap (id, resourceUrl) {
 }
 
 function removeViz (consoleMsg) {
-    const element = document.querySelector('#dataset-visualisation')
-    element.remove()
+    const vis = document.querySelector('#dataset-visualisation')
+    if (vis) {
+        vis.remove()
+    }
+    const menu = document.querySelector('#menu-item-visualisation')
+    if (menu) {
+        menu.remove()
+    }
     console.log(consoleMsg)
 }
 
-function createMap (id, resourceUrl) {
+function createMap (id, resourceUrl, resourceFormat) {
     if (resourceUrl.endsWith('.csv')) {
         createCSVmap(id, resourceUrl)
-    } else if (resourceUrl.endsWith('gbfs.json')) {
+    } else if (resourceFormat === 'gbfs' || resourceUrl.endsWith('gbfs.json')) {
         createGBFSmap(id, resourceUrl)
     } else {
         removeViz(`vizualisation of the resource ${resourceUrl} has failed : not recognized file extension`)
