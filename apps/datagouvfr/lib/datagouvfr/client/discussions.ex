@@ -110,7 +110,7 @@ defmodule Datagouvfr.Client.Discussions do
   def comments_posted_after(discussions, timestamp) do
     discussions
     |> Enum.flat_map(fn d -> d["discussion"] end)
-    |> Enum.filter(fn comment -> NaiveDateTime.compare(comment_timestamp(comment), timestamp) == :gt end)
+    |> Enum.filter(fn comment -> NaiveDateTime.diff(comment_timestamp(comment), timestamp) >= 1 end)
   end
 
   def add_discussion_id_to_comments(discussions) do
