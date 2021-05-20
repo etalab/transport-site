@@ -44,7 +44,7 @@ defmodule Transport.CommentsChecker do
           "transport.data.gouv.fr",
           "contact@transport.beta.gouv.fr",
           "contact@transport.beta.gouv.fr",
-          "Nouveaux commentaires sur data.gouv.fr",
+          "#{number_new_comments} nouveaux commentaires sur data.gouv.fr",
           "",
           email_content,
           false
