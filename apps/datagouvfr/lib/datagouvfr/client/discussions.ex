@@ -102,7 +102,10 @@ defmodule Datagouvfr.Client.Discussions do
     end
   end
 
-  def comments_posted_after(discussions, nil), do: discussions
+  def comments_posted_after(discussions, nil) do
+    discussions
+    |> Enum.flat_map(fn d -> d["discussion"] end)
+  end
 
   def comments_posted_after(discussions, timestamp) do
     discussions
