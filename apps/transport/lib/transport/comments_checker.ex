@@ -13,7 +13,6 @@ defmodule Transport.CommentsChecker do
       Dataset
       |> where([d], d.is_active == true)
       |> select([:id, :datagouv_id, :latest_data_gouv_comment_timestamp])
-      |> limit(10)
       |> Repo.all()
       |> Enum.map(fn %{datagouv_id: datagouv_id, latest_data_gouv_comment_timestamp: current_ts} = dataset ->
         comments =
