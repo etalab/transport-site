@@ -34,10 +34,10 @@ defmodule Transport.History.Backup do
     |> Stream.run()
   end
 
-  @spec modification_date(Resource.t()) :: binary()
+  @spec modification_date(DB.Resource.t()) :: binary()
   defp modification_date(resource), do: resource.last_update || resource.last_import
 
-  @spec needs_to_be_updated(Resource.t()) :: boolean()
+  @spec needs_to_be_updated(DB.Resource.t()) :: boolean()
   defp needs_to_be_updated(resource) do
     backuped_resources = get_already_backuped_resources(resource)
 
@@ -59,7 +59,7 @@ defmodule Transport.History.Backup do
     end
   end
 
-  @spec get_already_backuped_resources(Resource.t()) :: [map()]
+  @spec get_already_backuped_resources(DB.Resource.t()) :: [map()]
   defp get_already_backuped_resources(resource) do
     resource
     |> Shared.resource_bucket_id()
@@ -77,7 +77,7 @@ defmodule Transport.History.Backup do
     |> Enum.to_list()
   end
 
-  @spec resource_title(Resource.t()) :: binary()
+  @spec resource_title(DB.Resource.t()) :: binary()
   defp resource_title(resource) do
     resource.title
     |> String.replace(" ", "_")
@@ -92,7 +92,7 @@ defmodule Transport.History.Backup do
   defp maybe_put(map, _key, nil), do: map
   defp maybe_put(map, key, value), do: Map.put(map, key, value)
 
-  @spec backup(Resource.t()) :: :ok
+  @spec backup(DB.Resource.t()) :: :ok
   defp backup(resource) do
     Logger.info("backuping #{resource.dataset.title} - #{resource.title}")
     now = DateTime.utc_now() |> Timex.format!("%Y%m%dT%H%M%S", :strftime)

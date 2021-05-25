@@ -8,7 +8,7 @@ defmodule Transport.History.Shared do
     "dataset-#{dataset.datagouv_id}"
   end
 
-  @spec resource_bucket_id(Resource.t()) :: binary()
+  @spec resource_bucket_id(DB.Resource.t()) :: binary()
   def resource_bucket_id(%DB.Resource{} = resource), do: dataset_bucket_id(resource.dataset)
 
   @spec fetch_history_metadata(binary(), binary()) :: map()
