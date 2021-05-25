@@ -74,7 +74,7 @@ defmodule Transport.CommentsChecker do
   @spec update_all_datasets_ts([comments_with_context()]) :: :ok
   def update_all_datasets_ts(comments_with_context) do
     comments_with_context
-    |> Enum.map(fn {dataset, datagouv_id, _, comments} ->
+    |> Enum.map(fn {dataset, _datagouv_id, _title, comments} ->
       comments
       |> comments_latest_timestamp()
       |> case do
@@ -84,14 +84,25 @@ defmodule Transport.CommentsChecker do
         # ecto does not want to store microseconds
         datetime ->
           ts = DgDate.truncate(datetime, :second)
-          update_dataset_ts(dataset, datagouv_id, ts)
+          update_dataset_ts(dataset, ts)
       end
     end)
+
+    :ok
   end
 
-  def update_dataset_ts(dataset, _datagouv_id, timestamp) do
-    changeset = Ecto.Changeset.change(dataset, %{latest_data_gouv_comment_timestamp: timestamp})
-    Repo.update(changeset)
+  @spec update_dataset_ts(%Dataset{}, DgDate.dt()) :: {:ok, any()} | {:error, any()}
+  def update_dataset_ts(dataset, timestamp) do
+    changeset_request = Ecto.Changeset.change(dataset, %{latest_data_gouv_comment_timestamp: timestamp})
+    update = Repo.update(changeset_request)
+
+    with {:error, _changeset} <- update do
+      Sentry.capture_message("unable_to_update_dataset_comment_timestamp",
+        extra: %{id: dataset.id}
+      )
+    end
+
+    update
   end
 
   defp get_dataset_title(datagouv_id) do

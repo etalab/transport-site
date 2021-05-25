@@ -6,6 +6,7 @@ defmodule Datagouvfr.DgDate do
   Data.gouv API contains iso8601 local datetimes (no timezone specified), but its documentation says that tz should be specified.
   """
 
+  @type dt :: %NaiveDateTime{}
   def truncate(dg_datetime, precision), do: NaiveDateTime.truncate(dg_datetime, precision)
 
   def from_iso8601(string_datetime, calendar \\ Calendar.ISO) do
