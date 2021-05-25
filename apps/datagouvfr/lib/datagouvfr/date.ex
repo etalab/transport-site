@@ -7,12 +7,16 @@ defmodule Datagouvfr.DgDate do
   """
 
   @type dt :: %NaiveDateTime{}
+
+  @spec truncate(dt(), :microsecond | :millisecond | :second) :: dt
   def truncate(dg_datetime, precision), do: NaiveDateTime.truncate(dg_datetime, precision)
 
+  @spec from_iso8601(String.t(), Calendar.calendar()) :: {:ok, dt} | {:error, atom}
   def from_iso8601(string_datetime, calendar \\ Calendar.ISO) do
     NaiveDateTime.from_iso8601(string_datetime, calendar)
   end
 
+  @spec latest_dg_datetime(dt, dt) :: dt
   def latest_dg_datetime(date1, date2) do
     case NaiveDateTime.compare(date1, date2) do
       :lt -> date2
@@ -20,5 +24,6 @@ defmodule Datagouvfr.DgDate do
     end
   end
 
+  @spec diff(dt, dt) :: integer
   def diff(date1, date2), do: NaiveDateTime.diff(date1, date2)
 end
