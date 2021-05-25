@@ -116,10 +116,8 @@ defmodule Transport.CommentsChecker do
 
   def comments_latest_timestamp(comments) when is_list(comments) do
     case comments do
-      [comment] -> comment_timestamp(comment)
-      [c | comments] -> latest_naive_datetime(comment_timestamp(c), comments_latest_timestamp(comments))
-    end
-  end
+      [comment] ->
+        comment_timestamp(comment)
 
       [c | comments] ->
         DgDate.latest_dg_datetime(comment_timestamp(c), comments_latest_timestamp(comments))
@@ -142,7 +140,9 @@ defmodule Transport.CommentsChecker do
     |> Enum.map(fn discussion ->
       discussion_id = discussion |> Map.get("id")
       comments = discussion |> Map.get("discussion")
+
       updated_comments = comments |> Enum.map(fn comment -> Map.put(comment, "discussion_id", discussion_id) end)
+
       %{discussion | "discussion" => updated_comments}
     end)
   end
