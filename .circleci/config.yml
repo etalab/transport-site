@@ -41,9 +41,9 @@ jobs:
       - restore_cache:
           # Please read: https://circleci.com/docs/2.0/caching/#restoring-cache
           keys:
-            - elixir-<< parameters.base_image >>-{{ .Branch }}-{{ checksum "mix.lock" }}
-            - elixir-<< parameters.base_image >>-{{ .Branch }}
-            - elixir-<< parameters.base_image >>
+            - elixir-<< parameters.base_image >>-build-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - elixir-<< parameters.base_image >>-build-{{ .Branch }}
+            - elixir-<< parameters.base_image >>-build
       - run:
           name: Install hex
           command: mix local.hex --force
@@ -72,7 +72,7 @@ jobs:
 
       # Most specific
       - save_cache:
-          key: elixir-<< parameters.base_image >>-{{ .Branch }}-{{ checksum "mix.lock" }}
+          key: elixir-<< parameters.base_image >>-build-{{ .Branch }}-{{ checksum "mix.lock" }}
           paths:
             - ~/transport/_build
             - ~/transport/deps
@@ -80,7 +80,7 @@ jobs:
 
       # Intermediate
       - save_cache:
-          key: elixir-<< parameters.base_image >>-{{ .Branch }}
+          key: elixir-<< parameters.base_image >>-build-{{ .Branch }}
           paths:
             - ~/transport/_build
             - ~/transport/deps
@@ -88,7 +88,7 @@ jobs:
 
       # Least specific
       - save_cache:
-          key: elixir-<< parameters.base_image >>
+          key: elixir-<< parameters.base_image >>-build
           paths:
             - ~/transport/_build
             - ~/transport/deps
