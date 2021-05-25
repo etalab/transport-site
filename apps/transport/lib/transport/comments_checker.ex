@@ -94,9 +94,11 @@ defmodule Transport.CommentsChecker do
     end
   end
 
-  def comments_latest_timestamp(comments) do
+  def comments_latest_timestamp(nil), do: nil
+  def comments_latest_timestamp([]), do: nil
+
+  def comments_latest_timestamp(comments) when is_list(comments) do
     case comments do
-      [] -> nil
       [comment] -> comment_timestamp(comment)
       [c | comments] -> latest_naive_datetime(comment_timestamp(c), comments_latest_timestamp(comments))
     end
