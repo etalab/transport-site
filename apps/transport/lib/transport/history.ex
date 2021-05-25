@@ -116,7 +116,6 @@ defmodule Transport.History do
 
     @spec backup_resources(boolean()) :: any()
     def backup_resources(force_update \\ false) do
-      # TODO: disable based on config
       Logger.info("backuping the resources")
 
       DB.Resource
