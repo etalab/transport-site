@@ -35,7 +35,7 @@ defmodule DB.Dataset do
     field(:is_active, :boolean)
     field(:population, :integer)
     field(:nb_reuses, :integer)
-    field(:latest_data_gouv_comment_timestamp, :naive_datetime)
+    field(:latest_data_gouv_comment_timestamp, :naive_datetime_usec)
 
     # When the dataset is linked to some cities
     # we ask in the backoffice for a name to display

@@ -81,10 +81,8 @@ defmodule Transport.CommentsChecker do
         nil ->
           nil
 
-        # ecto does not want to store microseconds
         datetime ->
-          ts = DgDate.truncate(datetime, :second)
-          update_dataset_ts(dataset, ts)
+          update_dataset_ts(dataset, datetime)
       end
     end)
   end
