@@ -4,6 +4,7 @@ defmodule Transport.CommentsChecker do
   Send an email to the team with the new comments and a link to them.
   """
   alias Datagouvfr.Client.Discussions
+  alias Datagouvfr.DgDate
   alias DB.{Dataset, Repo}
   import Ecto.Query
   require Logger
@@ -66,7 +67,7 @@ defmodule Transport.CommentsChecker do
 
         # ecto does not want to store microseconds
         datetime ->
-          ts = NaiveDateTime.truncate(datetime, :second)
+          ts = DgDate.truncate(datetime, :second)
           update_dataset_ts(dataset, datagouv_id, ts)
       end
     end)
@@ -87,7 +88,7 @@ defmodule Transport.CommentsChecker do
   def comment_timestamp(comment) do
     comment
     |> Map.get("posted_on")
-    |> NaiveDateTime.from_iso8601()
+    |> DgDate.from_iso8601()
     |> case do
       {:ok, datetime} -> datetime
       _ -> nil
@@ -104,10 +105,8 @@ defmodule Transport.CommentsChecker do
     end
   end
 
-  def latest_naive_datetime(date1, date2) do
-    case NaiveDateTime.compare(date1, date2) do
-      :lt -> date2
-      _ -> date1
+      [c | comments] ->
+        DgDate.latest_dg_datetime(comment_timestamp(c), comments_latest_timestamp(comments))
     end
   end
 
@@ -119,7 +118,7 @@ defmodule Transport.CommentsChecker do
   def comments_posted_after(discussions, timestamp) do
     discussions
     |> Enum.flat_map(fn d -> d["discussion"] end)
-    |> Enum.filter(fn comment -> NaiveDateTime.diff(comment_timestamp(comment), timestamp) >= 1 end)
+    |> Enum.filter(fn comment -> DgDate.diff(comment_timestamp(comment), timestamp) >= 1 end)
   end
 
   def add_discussion_id_to_comments(discussions) do
