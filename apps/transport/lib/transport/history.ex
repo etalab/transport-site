@@ -4,6 +4,13 @@ defmodule Transport.History do
   """
 
   defmodule Wrapper.HTTPoison do
+    @moduledoc """
+    Temporary: a HTTPoison wrapper currently used by the history system in
+    order to facilitate the use of mocks.
+
+    Ultimately we will create a central HTTP behaviour with all common calls,
+    and stop using HTTPoison or Finch directly except in lower level parts.
+    """
     def impl, do: Application.get_env(:transport, :httpoison_impl, HTTPoison)
   end
 
@@ -18,6 +25,10 @@ defmodule Transport.History do
   end
 
   defmodule Shared do
+    @moduledoc """
+    This module contains common code which is shared
+    between various parts of the history system.
+    """
     @spec dataset_bucket_id(DB.Dataset.t()) :: binary()
     def dataset_bucket_id(%DB.Dataset{} = dataset) do
       "dataset-#{dataset.datagouv_id}"
@@ -44,7 +55,7 @@ defmodule Transport.History do
     """
     @callback history_resources(DB.Dataset.t()) :: [map()]
 
-    def impl(), do: Application.get_env(:transport, :history_impl, Fetcher.S3)
+    def impl, do: Application.get_env(:transport, :history_impl, Fetcher.S3)
 
     def history_resources(%DB.Dataset{} = dataset), do: impl().history_resources(dataset)
   end

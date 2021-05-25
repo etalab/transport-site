@@ -77,7 +77,7 @@ defmodule Transport.HistoryTest do
 
   describe "Fetcher.S3" do
     test "history_resources (regular use)" do
-      dataset = insert(:dataset) |> DB.Repo.preload(:resources)
+      dataset = :dataset |> insert() |> DB.Repo.preload(:resources)
 
       Transport.ExAWS.Mock
       |> expect(:stream!, fn request ->
