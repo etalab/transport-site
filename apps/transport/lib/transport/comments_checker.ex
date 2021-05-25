@@ -23,7 +23,7 @@ defmodule Transport.CommentsChecker do
   end
 
   @spec fetch_new_comments :: [comments_with_context()]
-  def fetch_new_comments() do
+  def fetch_new_comments do
     Dataset
     |> where([d], d.is_active == true)
     |> select([:id, :datagouv_id, :latest_data_gouv_comment_timestamp])
@@ -48,7 +48,7 @@ defmodule Transport.CommentsChecker do
   end
 
   @spec handle_new_comments(integer(), [comments_with_context()]) :: :ok
-  def handle_new_comments(_comments_number = 0, _comments) do
+  def handle_new_comments(0 = _comments_number, _comments) do
     Logger.info("no new comment posted since last check")
   end
 
@@ -71,7 +71,7 @@ defmodule Transport.CommentsChecker do
     :ok
   end
 
-  @spec update_all_datasets_ts([comments_with_context()]) :: :ok
+  @spec update_all_datasets_ts([comments_with_context()]) :: []
   def update_all_datasets_ts(comments_with_context) do
     comments_with_context
     |> Enum.map(fn {dataset, _datagouv_id, _title, comments} ->
@@ -87,8 +87,6 @@ defmodule Transport.CommentsChecker do
           update_dataset_ts(dataset, ts)
       end
     end)
-
-    :ok
   end
 
   @spec update_dataset_ts(%Dataset{}, DgDate.dt()) :: {:ok, any()} | {:error, any()}
