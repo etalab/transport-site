@@ -3,16 +3,6 @@ defmodule Transport.History do
   Tooling related to backup and restore resources from S3/Cellar.
   """
 
-  defmodule Wrapper.ExAWS do
-    @moduledoc """
-    Central access point for the ExAWS behaviour defined at
-    https://github.com/ex-aws/ex_aws/blob/master/lib/ex_aws/behaviour.ex
-    in order to provide easy mocking during tests.
-    """
-
-    def impl, do: Application.get_env(:transport, :ex_aws_impl)
-  end
-
   defmodule Shared do
     @moduledoc """
     This module contains common code which is shared
@@ -30,7 +20,7 @@ defmodule Transport.History do
     def fetch_history_metadata(bucket, obj_key) do
       bucket
       |> ExAws.S3.head_object(obj_key)
-      |> Wrapper.ExAWS.impl().request!()
+      |> Transport.Wrapper.ExAWS.impl().request!()
       |> Map.get(:headers)
       |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
       |> Map.take(["format", "title", "start", "end", "updated-at", "content-hash"])
@@ -75,7 +65,7 @@ defmodule Transport.History do
 
       bucket
       |> ExAws.S3.list_objects()
-      |> Wrapper.ExAWS.impl().stream!()
+      |> Transport.Wrapper.ExAWS.impl().stream!()
       |> Enum.to_list()
       |> Enum.map(fn f ->
         metadata = Shared.fetch_history_metadata(bucket, f.key)
@@ -133,7 +123,7 @@ defmodule Transport.History do
         r
         |> Shared.resource_bucket_id()
         |> ExAws.S3.put_bucket("", %{acl: "public-read"})
-        |> Wrapper.ExAWS.impl().request!()
+        |> Transport.Wrapper.ExAWS.impl().request!()
 
         r
       end)
@@ -172,7 +162,7 @@ defmodule Transport.History do
       resource
       |> Shared.resource_bucket_id()
       |> ExAws.S3.list_objects(prefix: resource_title(resource))
-      |> Wrapper.ExAWS.impl().stream!()
+      |> Transport.Wrapper.ExAWS.impl().stream!()
       |> Enum.map(fn o ->
         metadata = Shared.fetch_history_metadata(Shared.resource_bucket_id(resource), o.key)
 
@@ -229,7 +219,7 @@ defmodule Transport.History do
             acl: "public-read",
             meta: meta
           )
-          |> Wrapper.ExAWS.impl().request!()
+          |> Transport.Wrapper.ExAWS.impl().request!()
 
         {:ok, response} ->
           Logger.error(inspect(response))
