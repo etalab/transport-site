@@ -76,9 +76,6 @@ defmodule Transport.HistoryTest do
   end
 
   describe "Fetcher.S3" do
-    # TODO: verify behaviour with a real credential then write test
-    test "history_resources (no bucket found)"
-
     test "history_resources (regular use)" do
       dataset = insert(:dataset) |> DB.Repo.preload(:resources)
 
@@ -104,8 +101,6 @@ defmodule Transport.HistoryTest do
         %{headers: %{}}
       end)
 
-      # TODO: support "no bucket found" error by returning an empty thing,
-      # otherwise raise
       resources = Transport.History.Fetcher.S3.history_resources(dataset)
 
       assert [
