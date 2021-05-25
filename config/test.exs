@@ -14,15 +14,11 @@ config :transport, TransportWeb.Endpoint,
 # Page cache would make tests brittle, so disable it by default
 config :gbfs, :disable_page_cache, true
 
-# Override cache implementation
-config :transport, cache_impl: Transport.Cache.Null
-
-# Override ExAws (S3...) implementation
-config :transport, ex_aws_impl: Transport.ExAWS.Mock
-
-config :transport, httpoison_impl: Transport.HTTPoison.Mock
-
-config :transport, history_impl: Transport.History.Fetcher.Mock
+config :transport,
+  cache_impl: Transport.Cache.Null,
+  ex_aws_impl: Transport.ExAWS.Mock,
+  httpoison_impl: Transport.HTTPoison.Mock,
+  history_impl: Transport.History.Fetcher.Mock
 
 # capture all info logs and up during tests
 config :logger, level: :info
