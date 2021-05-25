@@ -3,17 +3,6 @@ defmodule Transport.History do
   Tooling related to backup and restore resources from S3/Cellar.
   """
 
-  defmodule Wrapper.HTTPoison do
-    @moduledoc """
-    Temporary: a HTTPoison wrapper currently used by the history system in
-    order to facilitate the use of mocks.
-
-    Ultimately we will create a central HTTP behaviour with all common calls,
-    and stop using HTTPoison or Finch directly except in lower level parts.
-    """
-    def impl, do: Application.get_env(:transport, :httpoison_impl, HTTPoison)
-  end
-
   defmodule Wrapper.ExAWS do
     @moduledoc """
     Central access point for the ExAWS behaviour defined at
@@ -230,7 +219,7 @@ defmodule Transport.History do
       # NOTE: this call has a few drawbacks:
       # - redirects are not followed
       # - the whole resource is loaded in memory (could be streamed directly to S3 instead with Finch)
-      case Wrapper.HTTPoison.impl().get(resource.url) do
+      case Transport.Wrapper.HTTPoison.impl().get(resource.url) do
         {:ok, %{status_code: 200, body: body}} ->
           resource
           |> Shared.resource_bucket_id()
