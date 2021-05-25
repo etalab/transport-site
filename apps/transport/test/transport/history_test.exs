@@ -9,7 +9,6 @@ defmodule Transport.HistoryTest do
 
   setup :verify_on_exit!
 
-  @tag :focus
   test "backup_resources" do
     insert(:resource,
       url: resource_url = "http://localhost/the-resource-url",
