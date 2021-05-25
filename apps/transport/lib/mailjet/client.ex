@@ -15,7 +15,7 @@ defmodule Mailjet.Client do
       Messages: [
         %{
           From: %{Name: from_name, Email: from_email},
-          To: [%{Email: "contact@transport.beta.gouv.fr"}],
+          To: [%{Email: Application.get_env(:transport, :contact_email)}],
           Subject: topic,
           TextPart: text_body,
           HtmlPart: html_body,
