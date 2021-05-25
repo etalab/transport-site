@@ -17,7 +17,7 @@ defmodule TransportWeb.ContactController do
   def send_mail(conn, %{"email" => email, "topic" => topic, "demande" => demande} = params) do
     case Client.send_mail(
            "PAN, Formulaire Contact",
-           "contact@transport.beta.gouv.fr",
+           Application.get_env(:transport, :contact_email),
            email,
            topic,
            demande,

@@ -121,8 +121,8 @@ defmodule Transport.DataChecker do
   defp send_outdated_data_mail(datasets, is_blank) do
     Client.send_mail(
       "transport.data.gouv.fr",
-      "contact@transport.beta.gouv.fr",
-      "contact@transport.beta.gouv.fr",
+      Application.get_env(:transport, :contact_email),
+      Application.get_env(:transport, :contact_email),
       "Jeux de données arrivant à expiration",
       make_outdated_data_body(datasets),
       "",
@@ -178,8 +178,8 @@ defmodule Transport.DataChecker do
   defp send_inactive_dataset_mail(reactivated_datasets, inactive_datasets) do
     Client.send_mail(
       "transport.data.gouv.fr",
-      "contact@transport.beta.gouv.fr",
-      "contact@transport.beta.gouv.fr",
+      Application.get_env(:transport, :contact_email),
+      Application.get_env(:transport, :contact_email),
       "Jeux de données qui disparaissent",
       make_inactive_dataset_body(reactivated_datasets, inactive_datasets),
       "",

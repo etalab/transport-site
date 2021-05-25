@@ -34,7 +34,7 @@ Cependant, certains réseaux de transport disposent de données temps-réel non 
 <% end %>
 </table>
 
-Vous pouvez signaler à l'équipe du PAN un jeu de données à ajouter ci-dessus en écrivant à contact@transport.beta.gouv.fr.
+Vous pouvez signaler à l'équipe du PAN un jeu de données à ajouter ci-dessus en écrivant à <%= @contact_email %></a>.
 
 # Autre données temps-réel
 

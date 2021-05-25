@@ -59,8 +59,8 @@ defmodule Transport.CommentsChecker do
 
     Mailjet.Client.send_mail(
       "transport.data.gouv.fr",
-      "contact@transport.beta.gouv.fr",
-      "contact@transport.beta.gouv.fr",
+      Application.get_env(:transport, :contact_email),
+      Application.get_env(:transport, :contact_email),
       "#{comments_number} nouveaux commentaires sur data.gouv.fr",
       "",
       email_content,
