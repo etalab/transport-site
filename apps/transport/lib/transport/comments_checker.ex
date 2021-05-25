@@ -18,8 +18,8 @@ defmodule Transport.CommentsChecker do
         comments =
           datagouv_id
           |> Discussions.get()
-          |> Discussions.add_discussion_id_to_comments()
-          |> Discussions.comments_posted_after(current_ts)
+          |> add_discussion_id_to_comments()
+          |> comments_posted_after(current_ts)
 
         title = get_dataset_title(datagouv_id)
 
@@ -59,7 +59,7 @@ defmodule Transport.CommentsChecker do
     discussions_infos
     |> Enum.map(fn {dataset, datagouv_id, _, comments} ->
       comments
-      |> Discussions.comments_latest_timestamp()
+      |> comments_latest_timestamp()
       |> case do
         nil ->
           nil
@@ -77,10 +77,56 @@ defmodule Transport.CommentsChecker do
     Repo.update(changeset)
   end
 
-  def get_dataset_title(datagouv_id) do
+  defp get_dataset_title(datagouv_id) do
     Dataset
     |> where([d], d.datagouv_id == ^datagouv_id)
     |> select([d], d.spatial)
     |> Repo.one()
+  end
+
+  def comment_timestamp(comment) do
+    comment
+    |> Map.get("posted_on")
+    |> NaiveDateTime.from_iso8601()
+    |> case do
+      {:ok, datetime} -> datetime
+      _ -> nil
+    end
+  end
+
+  def comments_latest_timestamp(comments) do
+    case comments do
+      [] -> nil
+      [comment] -> comment_timestamp(comment)
+      [c | comments] -> latest_naive_datetime(comment_timestamp(c), comments_latest_timestamp(comments))
+    end
+  end
+
+  def latest_naive_datetime(date1, date2) do
+    case NaiveDateTime.compare(date1, date2) do
+      :lt -> date2
+      _ -> date1
+    end
+  end
+
+  def comments_posted_after(discussions, nil) do
+    discussions
+    |> Enum.flat_map(fn d -> d["discussion"] end)
+  end
+
+  def comments_posted_after(discussions, timestamp) do
+    discussions
+    |> Enum.flat_map(fn d -> d["discussion"] end)
+    |> Enum.filter(fn comment -> NaiveDateTime.diff(comment_timestamp(comment), timestamp) >= 1 end)
+  end
+
+  def add_discussion_id_to_comments(discussions) do
+    discussions
+    |> Enum.map(fn discussion ->
+      discussion_id = discussion |> Map.get("id")
+      comments = discussion |> Map.get("discussion")
+      updated_comments = comments |> Enum.map(fn comment -> Map.put(comment, "discussion_id", discussion_id) end)
+      %{discussion | "discussion" => updated_comments}
+    end)
   end
 end
