@@ -4,9 +4,9 @@
       <%= for comment <- comments do %>
         <div style="padding-top: 24px;">
           <h4><%= title %></h4>
-          Commentaire de <%= comment["posted_by"]["first_name"] %> <%= comment["posted_by"]["last_name"] %>
+          <span style="color: grey;"> Commentaire de <%= comment["posted_by"]["first_name"] %> <%= comment["posted_by"]["last_name"] %> </span>
           <div class="panel">
-            <%= comment["content"] %>
+            "<%= comment["content"] %>"
             <br>
             <%= link("voir la discussion", to: "https://demo.data.gouv.fr/fr/datasets/#{datagouv_id}/#discussion-#{comment["discussion_id"]}") %>
           </div>
