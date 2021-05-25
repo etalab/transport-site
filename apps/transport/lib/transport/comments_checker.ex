@@ -9,55 +9,71 @@ defmodule Transport.CommentsChecker do
   import Ecto.Query
   require Logger
 
+  @type datagouv_id :: binary()
+  @type title :: binary()
+  @type datagouv_comment :: map()
+  @type comments_with_context :: {%Dataset{}, datagouv_id(), title(), [datagouv_comment()]}
+
   def check_for_new_comments do
-    discussions_infos =
-      Dataset
-      |> where([d], d.is_active == true)
-      |> select([:id, :datagouv_id, :latest_data_gouv_comment_timestamp])
-      |> Repo.all()
-      |> Enum.map(fn %{datagouv_id: datagouv_id, latest_data_gouv_comment_timestamp: current_ts} = dataset ->
-        comments =
-          datagouv_id
-          |> Discussions.get()
-          |> add_discussion_id_to_comments()
-          |> comments_posted_after(current_ts)
-
-        title = get_dataset_title(datagouv_id)
-
-        {dataset, datagouv_id, title, comments}
-      end)
-
-    number_new_comments =
-      discussions_infos |> Enum.reduce(0, fn {_, _, _, comments}, acc -> acc + Enum.count(comments) end)
-
-    case number_new_comments do
-      0 ->
-        Logger.info("no new comment posted since last check")
-
-      _ ->
-        Logger.info("#{number_new_comments} new comment(s), sending an email to the team")
-
-        email_content =
-          Phoenix.View.render_to_string(TransportWeb.EmailView, "index.html", discussions_infos: discussions_infos)
-
-        Mailjet.Client.send_mail(
-          "transport.data.gouv.fr",
-          "contact@transport.beta.gouv.fr",
-          "contact@transport.beta.gouv.fr",
-          "#{number_new_comments} nouveaux commentaires sur data.gouv.fr",
-          "",
-          email_content,
-          false
-        )
-
-        update_all_datasets_ts(discussions_infos)
-    end
+    comments_with_context = fetch_new_comments()
+    number_new_comments = comments_with_context |> count_comments()
+    handle_new_comments(number_new_comments, comments_with_context)
 
     number_new_comments
   end
 
-  def update_all_datasets_ts(discussions_infos) do
-    discussions_infos
+  @spec fetch_new_comments :: [comments_with_context()]
+  def fetch_new_comments() do
+    Dataset
+    |> where([d], d.is_active == true)
+    |> select([:id, :datagouv_id, :latest_data_gouv_comment_timestamp])
+    |> Repo.all()
+    |> Enum.map(fn %{datagouv_id: datagouv_id, latest_data_gouv_comment_timestamp: current_ts} = dataset ->
+      comments =
+        datagouv_id
+        |> Discussions.get()
+        |> add_discussion_id_to_comments()
+        |> comments_posted_after(current_ts)
+
+      title = get_dataset_title(datagouv_id)
+
+      {dataset, datagouv_id, title, comments}
+    end)
+  end
+
+  @spec count_comments([comments_with_context()]) :: integer
+  def count_comments(comments_with_context) do
+    comments_with_context
+    |> Enum.reduce(0, fn {_, _, _, comments}, acc -> acc + Enum.count(comments) end)
+  end
+
+  @spec handle_new_comments(integer(), [comments_with_context()]) :: :ok
+  def handle_new_comments(_comments_number = 0, _comments) do
+    Logger.info("no new comment posted since last check")
+  end
+
+  def handle_new_comments(comments_number, comments) do
+    Logger.info("#{comments_number} new comment(s), sending an email to the team")
+
+    email_content = Phoenix.View.render_to_string(TransportWeb.EmailView, "index.html", comments_with_context: comments)
+
+    Mailjet.Client.send_mail(
+      "transport.data.gouv.fr",
+      "contact@transport.beta.gouv.fr",
+      "contact@transport.beta.gouv.fr",
+      "#{comments_number} nouveaux commentaires sur data.gouv.fr",
+      "",
+      email_content,
+      false
+    )
+
+    update_all_datasets_ts(comments)
+    :ok
+  end
+
+  @spec update_all_datasets_ts([comments_with_context()]) :: :ok
+  def update_all_datasets_ts(comments_with_context) do
+    comments_with_context
     |> Enum.map(fn {dataset, datagouv_id, _, comments} ->
       comments
       |> comments_latest_timestamp()
