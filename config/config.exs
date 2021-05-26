@@ -92,7 +92,9 @@ config :sentry,
 
 config :transport,
   cache_impl: Transport.Cache.Cachex,
-  ex_aws_impl: ExAws
+  ex_aws_impl: ExAws,
+  httpoison_impl: HTTPoison,
+  history_impl: Transport.History.Fetcher.S3
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

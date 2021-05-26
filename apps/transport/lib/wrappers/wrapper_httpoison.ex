@@ -6,5 +6,5 @@ defmodule Transport.Wrapper.HTTPoison do
   Ultimately we will create a central HTTP behaviour with all common calls,
   and stop using HTTPoison or Finch directly except in lower level parts.
   """
-  def impl, do: Application.get_env(:transport, :httpoison_impl, HTTPoison)
+  def impl, do: Application.get_env(:transport, :httpoison_impl)
 end

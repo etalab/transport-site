@@ -6,7 +6,7 @@ defmodule Transport.History.Fetcher do
   """
   @callback history_resources(DB.Dataset.t()) :: [map()]
 
-  def impl, do: Application.get_env(:transport, :history_impl, Transport.History.Fetcher.S3)
+  def impl, do: Application.get_env(:transport, :history_impl)
 
   def history_resources(%DB.Dataset{} = dataset), do: impl().history_resources(dataset)
 end
