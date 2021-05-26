@@ -109,8 +109,13 @@
   padding-left: 3px;
 }
 
+.dashboard-description {
+  margin: 0 auto;
+  max-width: 700px;
+}
+
 .dashboard-heatmap {
-  border-spacing: 0.5px;
+  border-spacing: 1px;
   border-collapse: separate;
   margin: 0 auto;
   margin-bottom: 2em;
@@ -122,11 +127,17 @@
   a:hover {
     text-decoration: underline;
   }
-  .ko {
+  .no_import {
+    background-color: rgb(71, 32, 32);
+  }
+  .only_failures {
     background-color: red;
   }
-  .unknown {
-    background-color:#eee;
+  .some_failures {
+    background-color:orange;
+  }
+  .only_successes {
+    background-color: rgb(0, 255, 0);
   }
   /* I used class to work around linter error here */
   .dataset {

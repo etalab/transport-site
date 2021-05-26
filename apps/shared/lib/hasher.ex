@@ -51,10 +51,6 @@ defmodule Hasher do
       ""
   end
 
-  @spec update_hash(binary(), binary() | :error) :: binary() | :error
-  defp update_hash(_, :error), do: :error
-  defp update_hash(chunk, hash), do: :crypto.hash_update(hash, chunk)
-
   @spec find_etag(keyword()) :: binary()
   defp find_etag({"Etag", v}), do: v
   defp find_etag(_), do: nil

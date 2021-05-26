@@ -39,9 +39,11 @@ jobs:
       - checkout
 
       - restore_cache:
+          # Please read: https://circleci.com/docs/2.0/caching/#restoring-cache
           keys:
-            - elixir-<< parameters.base_image >>-{{ checksum "mix.lock" }}
-
+            - elixir-<< parameters.base_image >>-build-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - elixir-<< parameters.base_image >>-build-{{ .Branch }}
+            - elixir-<< parameters.base_image >>-build
       - run:
           name: Install hex
           command: mix local.hex --force
@@ -66,8 +68,27 @@ jobs:
           name: Compile mix dependencies for MIX_ENV=test
           command: mix deps.compile
 
+      # Here we attempt to create 3 different caches to optimize the build process
+
+      # Most specific
       - save_cache:
-          key: elixir-<< parameters.base_image >>-{{ checksum "mix.lock" }}
+          key: elixir-<< parameters.base_image >>-build-{{ .Branch }}-{{ checksum "mix.lock" }}
+          paths:
+            - ~/transport/_build
+            - ~/transport/deps
+            - ~/.mix
+
+      # Intermediate
+      - save_cache:
+          key: elixir-<< parameters.base_image >>-build-{{ .Branch }}
+          paths:
+            - ~/transport/_build
+            - ~/transport/deps
+            - ~/.mix
+
+      # Least specific
+      - save_cache:
+          key: elixir-<< parameters.base_image >>-build
           paths:
             - ~/transport/_build
             - ~/transport/deps
@@ -87,7 +108,9 @@ jobs:
 
       - restore_cache:
           keys:
-            - elixir-<< parameters.base_image >>-plt-{{ checksum "mix.lock" }}
+            - elixir-<< parameters.base_image >>-plt-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - elixir-<< parameters.base_image >>-plt-{{ .Branch }}
+            - elixir-<< parameters.base_image >>-plt
 
       - run:
           name: Build PLT
@@ -97,7 +120,17 @@ jobs:
           no_output_timeout: 20m
 
       - save_cache:
-          key: elixir-<< parameters.base_image >>-plt-{{ checksum "mix.lock" }}
+          key: elixir-<< parameters.base_image >>-plt-{{ .Branch }}-{{ checksum "mix.lock" }}
+          paths:
+            - ~/transport/dialyzer-plt
+
+      - save_cache:
+          key: elixir-<< parameters.base_image >>-plt-{{ .Branch }}
+          paths:
+            - ~/transport/dialyzer-plt
+
+      - save_cache:
+          key: elixir-<< parameters.base_image >>-plt
           paths:
             - ~/transport/dialyzer-plt
 
