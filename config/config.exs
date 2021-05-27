@@ -5,6 +5,12 @@
 # is restricted to this project.
 use Mix.Config
 
+if System.get_env("CELLAR_NAMESPACE") do
+  # We believe CELLAR_NAMESPACE was a previous attempt at siloting S3 envs.
+  # We will instead rely on separate buckets in the short-term future.
+  raise "CELLAR_NAMESPACE variable is deprecated and must be removed."
+end
+
 config :gbfs,
   generators: [context_app: false]
 
@@ -85,7 +91,10 @@ config :sentry,
   send_result: :none
 
 config :transport,
-  cache_impl: Transport.Cache.Cachex
+  cache_impl: Transport.Cache.Cachex,
+  ex_aws_impl: ExAws,
+  httpoison_impl: HTTPoison,
+  history_impl: Transport.History.Fetcher.S3
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

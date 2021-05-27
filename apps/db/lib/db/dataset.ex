@@ -8,7 +8,6 @@ defmodule DB.Dataset do
   """
   alias Datagouvfr.Client.User
   alias DB.{AOM, Commune, DatasetGeographicView, LogsImport, Region, Repo, Resource}
-  alias ExAws.S3
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
   import DB.Gettext
@@ -576,50 +575,6 @@ defmodule DB.Dataset do
     end
   end
 
-  @spec history_resources(DB.Dataset.t()) :: [map()]
-  def history_resources(%__MODULE__{} = dataset) do
-    if Application.get_env(:ex_aws, :access_key_id) == nil ||
-         Application.get_env(:ex_aws, :secret_access_key) == nil do
-      # if the cellar credential are missing, we skip the whole history
-      []
-    else
-      try do
-        bucket = history_bucket_id(dataset)
-
-        bucket
-        |> S3.list_objects()
-        |> ExAws.stream!()
-        |> Enum.to_list()
-        |> Enum.map(fn f ->
-          metadata = fetch_history_metadata(bucket, f.key)
-
-          is_current =
-            dataset.resources
-            |> Enum.map(fn r -> r.content_hash end)
-            |> Enum.any?(fn hash -> !is_nil(hash) && metadata["content-hash"] == hash end)
-
-          %{
-            name: f.key,
-            href: history_resource_path(bucket, f.key),
-            metadata: fetch_history_metadata(bucket, f.key),
-            is_current: is_current,
-            last_modified: f.last_modified
-          }
-        end)
-        |> Enum.sort_by(fn f -> f.last_modified end, &Kernel.>=/2)
-      rescue
-        e in ExAws.Error ->
-          Logger.error("error while accessing the S3 bucket: #{inspect(e)}")
-          []
-      end
-    end
-  end
-
-  @spec history_bucket_id(__MODULE__.t()) :: binary()
-  def history_bucket_id(%__MODULE__{} = dataset) do
-    "#{System.get_env("CELLAR_NAMESPACE")}dataset-#{dataset.datagouv_id}"
-  end
-
   @spec get_expire_at(Date.t() | binary()) :: binary()
   def get_expire_at(%Date{} = date), do: get_expire_at("#{date}")
 
@@ -631,22 +586,6 @@ defmodule DB.Dataset do
     |> preload([:resources])
     |> Repo.all()
   end
-
-  @spec fetch_history_metadata(binary(), binary()) :: map()
-  def fetch_history_metadata(bucket, obj_key) do
-    bucket
-    |> S3.head_object(obj_key)
-    |> ExAws.request!()
-    |> Map.get(:headers)
-    |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
-    |> Map.take(["format", "title", "start", "end", "updated-at", "content-hash"])
-  end
-
-  ## Private functions
-  @cellar_host ".cellar-c2.services.clever-cloud.com/"
-
-  @spec history_resource_path(binary(), binary()) :: binary()
-  defp history_resource_path(bucket, name), do: Path.join(["http://", bucket <> @cellar_host, name])
 
   @spec validate_territory_mutual_exclusion(Ecto.Changeset.t()) :: Ecto.Changeset.t()
   defp validate_territory_mutual_exclusion(changeset) do
