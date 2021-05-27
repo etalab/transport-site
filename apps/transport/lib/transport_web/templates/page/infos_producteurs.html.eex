@@ -71,7 +71,7 @@
             </div>
           </div>
           <div class="presentation-action">
-            <a href="mailto: contact@transport.data.gouv.fr">contact@transport.data.gouv.fr</a>
+            <a href="mailto: <%= @contact_email %>"><%= @contact_email %></a>
           </div>
         </div>
       </div>

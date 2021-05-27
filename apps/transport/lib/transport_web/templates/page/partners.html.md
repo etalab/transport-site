@@ -81,4 +81,4 @@ Les partenaires suivants ont contribué à l’ouverture des données transport.
 </table>
 
 Vous êtes un réutilisateur de données référencées sur ce site et vous souhaitez apparaître sur cette page ?
-Contactez-nous à <a href="mailto:contact@transport.beta.gouv.fr">contact@transport.beta.gouv.fr</a>.
+Contactez-nous à l'adresse <%= @contact_email %>.
