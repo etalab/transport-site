@@ -1,49 +1,43 @@
-defmodule Transport.History do
+defmodule Transport.History.Backup do
   @moduledoc """
-  backup all ressources into s3 to have an history
+  Backup all ressources into s3 to have an history
   """
-  alias ExAws.S3
-  alias DB.{Dataset, Repo, Resource}
-  import Ecto.{Query}
+  import Ecto.Query
   require Logger
+  alias Transport.History.Shared
 
   @spec backup_resources(boolean()) :: any()
   def backup_resources(force_update \\ false) do
-    if Application.get_env(:ex_aws, :access_key_id) == nil ||
-         Application.get_env(:ex_aws, :secret_access_key) == nil do
-      Logger.warn("no cellar credential set, we skip resource backup")
-    else
-      Logger.info("backuping the resources")
+    Logger.info("backuping the resources")
 
-      Resource
-      |> where(
-        [r],
-        not is_nil(r.url) and not is_nil(r.title) and
-          (r.format == "GTFS" or r.format == "NeTEx") and
-          not r.is_community_resource
-      )
-      |> preload([:dataset])
-      |> Repo.all()
-      |> Stream.map(fn r ->
-        Logger.debug(fn -> "creating bucket #{bucket_id(r)}" end)
+    DB.Resource
+    |> where(
+      [r],
+      not is_nil(r.url) and not is_nil(r.title) and
+        (r.format == "GTFS" or r.format == "NeTEx") and
+        not r.is_community_resource
+    )
+    |> preload([:dataset])
+    |> DB.Repo.all()
+    |> Stream.map(fn r ->
+      Logger.debug(fn -> "creating bucket #{Shared.resource_bucket_id(r)}" end)
 
-        r
-        |> bucket_id()
-        |> S3.put_bucket("", %{acl: "public-read"})
-        |> ExAws.request!()
+      r
+      |> Shared.resource_bucket_id()
+      |> ExAws.S3.put_bucket("", %{acl: "public-read"})
+      |> Transport.Wrapper.ExAWS.impl().request!()
 
-        r
-      end)
-      |> Stream.filter(fn r -> force_update || needs_to_be_updated(r) end)
-      |> Stream.each(&backup/1)
-      |> Stream.run()
-    end
+      r
+    end)
+    |> Stream.filter(fn r -> force_update || needs_to_be_updated(r) end)
+    |> Stream.each(&backup/1)
+    |> Stream.run()
   end
 
-  @spec modification_date(Resource.t()) :: binary()
+  @spec modification_date(DB.Resource.t()) :: binary()
   defp modification_date(resource), do: resource.last_update || resource.last_import
 
-  @spec needs_to_be_updated(Resource.t()) :: boolean()
+  @spec needs_to_be_updated(DB.Resource.t()) :: boolean()
   defp needs_to_be_updated(resource) do
     backuped_resources = get_already_backuped_resources(resource)
 
@@ -65,17 +59,14 @@ defmodule Transport.History do
     end
   end
 
-  @spec bucket_id(Resource.t()) :: binary()
-  def bucket_id(resource), do: Dataset.history_bucket_id(resource.dataset)
-
-  @spec get_already_backuped_resources(Resource.t()) :: [map()]
+  @spec get_already_backuped_resources(DB.Resource.t()) :: [map()]
   defp get_already_backuped_resources(resource) do
     resource
-    |> bucket_id()
-    |> S3.list_objects(prefix: resource_title(resource))
-    |> ExAws.stream!()
+    |> Shared.resource_bucket_id()
+    |> ExAws.S3.list_objects(prefix: resource_title(resource))
+    |> Transport.Wrapper.ExAWS.impl().stream!()
     |> Enum.map(fn o ->
-      metadata = Dataset.fetch_history_metadata(bucket_id(resource), o.key)
+      metadata = Shared.fetch_history_metadata(Shared.resource_bucket_id(resource), o.key)
 
       %{
         key: o.key,
@@ -86,7 +77,7 @@ defmodule Transport.History do
     |> Enum.to_list()
   end
 
-  @spec resource_title(Resource.t()) :: binary()
+  @spec resource_title(DB.Resource.t()) :: binary()
   defp resource_title(resource) do
     resource.title
     |> String.replace(" ", "_")
@@ -101,7 +92,7 @@ defmodule Transport.History do
   defp maybe_put(map, _key, nil), do: map
   defp maybe_put(map, key, value), do: Map.put(map, key, value)
 
-  @spec backup(Resource.t()) :: :ok
+  @spec backup(DB.Resource.t()) :: :ok
   defp backup(resource) do
     Logger.info("backuping #{resource.dataset.title} - #{resource.title}")
     now = DateTime.utc_now() |> Timex.format!("%Y%m%dT%H%M%S", :strftime)
@@ -117,17 +108,20 @@ defmodule Transport.History do
       |> maybe_put(:end, resource.metadata["end_date"])
       |> maybe_put(:content_hash, resource.content_hash)
 
-    case HTTPoison.get(resource.url) do
+    # NOTE: this call has a few drawbacks:
+    # - redirects are not followed
+    # - the whole resource is loaded in memory (could be streamed directly to S3 instead with Finch)
+    case Transport.Wrapper.HTTPoison.impl().get(resource.url) do
       {:ok, %{status_code: 200, body: body}} ->
         resource
-        |> bucket_id()
-        |> S3.put_object(
+        |> Shared.resource_bucket_id()
+        |> ExAws.S3.put_object(
           "#{resource_title(resource)}_#{now}",
           body,
           acl: "public-read",
           meta: meta
         )
-        |> ExAws.request!()
+        |> Transport.Wrapper.ExAWS.impl().request!()
 
       {:ok, response} ->
         Logger.error(inspect(response))

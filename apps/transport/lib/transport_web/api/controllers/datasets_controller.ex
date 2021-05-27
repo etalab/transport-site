@@ -171,7 +171,7 @@ defmodule TransportWeb.API.DatasetController do
   defp transform_dataset_with_detail(%Plug.Conn{} = conn, dataset) do
     conn
     |> transform_dataset(dataset)
-    |> Map.put("history", Dataset.history_resources(dataset))
+    |> Map.put("history", Transport.History.Fetcher.history_resources(dataset))
   end
 
   @spec transform_resource(Resource.t()) :: map()
