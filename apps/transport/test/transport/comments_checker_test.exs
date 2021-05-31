@@ -28,7 +28,7 @@ defmodule Transport.CommentsCheckerTest do
     # when the dataset is created, no comment timestamp is stored
     assert_dataset_ts(dataset_id, nil)
 
-    get_mock = fn url, [], _ ->
+    get_mock = fn _url, [], _ ->
       {:ok,
        %{
          "data" => [
@@ -68,7 +68,7 @@ defmodule Transport.CommentsCheckerTest do
     end
 
     # we add a new comment
-    get_mock = fn url, [], _ ->
+    get_mock = fn _url, [], _ ->
       {:ok,
        %{
          "data" => [
