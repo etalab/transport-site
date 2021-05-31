@@ -16,7 +16,8 @@ defmodule Unlock.Controller do
     # TODO: handle 404 properly
     resource = config |> Map.fetch!(id)
     # TODO: handle 500 properly
-    %{"url" => url, "ttl" => _ttl} = resource
+    # TODO: ensure uniqueness right from inside the config instead
+    [%{"url" => url, "ttl" => _ttl}] = resource
     Logger.info "Proxy match found for id #{id}"
 
     # NOTE: if needed, pool size can be customized (this could be useful if
