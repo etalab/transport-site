@@ -53,6 +53,7 @@ defmodule Transport.Mixfile do
       {:phoenix_markdown, "~> 1.0"},
       {:phoenix_live_view, "~> 0.15.0"},
       {:phoenix_html_sanitizer, "~> 1.1.0"},
+      {:html_sanitize_ex, "~> 1.4"},
       {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 2.3"},
       {:recon, "~> 2.4"},
