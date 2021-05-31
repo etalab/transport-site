@@ -7,7 +7,9 @@ defmodule Unlock.Application do
 
   def start(_type, _args) do
     children = [
-      Unlock.Endpoint
+      Unlock.Endpoint,
+      {Finch, name: Unlock.Finch},
+      {Cachex, name: Unlock.Cachex}
     ]
 
     opts = [strategy: :one_for_one, name: Unlock.Supervisor]
