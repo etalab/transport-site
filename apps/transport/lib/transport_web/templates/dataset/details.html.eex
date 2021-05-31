@@ -100,7 +100,7 @@
               <div class="reuse__details">
                 <div>
                   <h3><%= reuse["title"] %></h3>
-                  <p><%= raw Earmark.as_html!(reuse["description"]) %> </p>
+                  <p><%= MarkdownHandler.markdown_to_safe_html!(reuse["description"]) %> </p>
                 </div>
               </div>
             </div>

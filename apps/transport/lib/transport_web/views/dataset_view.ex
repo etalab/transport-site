@@ -1,10 +1,10 @@
 defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
-  use PhoenixHtmlSanitizer, :strip_tags
   alias DB.{Dataset, Resource, Validation}
   alias Plug.Conn.Query
   alias TransportWeb.PaginationHelpers
   alias TransportWeb.Router.Helpers
+  alias TransportWeb.MarkdownHandler
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   alias TransportWeb.ResourceView
 
@@ -274,16 +274,7 @@ defmodule TransportWeb.DatasetView do
   @spec description(%Dataset{} | %Resource{}) :: any
   def description(instance) do
     instance.description
-    |> sanitize()
-    |> case do
-      {:safe, sanitized_md} ->
-        sanitized_md
-        |> Earmark.as_html!()
-        |> raw()
-
-      _raw ->
-        instance.description
-    end
+    |> MarkdownHandler.markdown_to_safe_html!()
   end
 
   @doc """

@@ -17,7 +17,7 @@
     <summary>Cette resource fait partie du jeux de données <%= resource.dataset.spatial %></summary>
     <content type="html">
       <![CDATA[
-      <%= raw Earmark.as_html!(resource.dataset.description) %>
+      <%= MarkdownHandler.markdown_to_safe_html!(resource.dataset.description) %>
       ]]>
     </content>
     <author>
