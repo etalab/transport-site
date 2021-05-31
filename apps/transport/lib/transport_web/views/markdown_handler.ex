@@ -5,6 +5,9 @@ defmodule TransportWeb.MarkdownHandler do
   require HtmlSanitizeEx
   alias Phoenix.HTML
 
+  @doc """
+  transform an external markdown content into safe HTML
+  """
   @spec markdown_to_safe_html!(binary()) :: HTML.safe()
   def markdown_to_safe_html!(md) do
     md
