@@ -184,7 +184,7 @@ defmodule TransportWeb.Router do
   end
 
   defp assign_contact_email(conn, _) do
-    assign(conn, :contact_email, "contact@transport.beta.gouv.fr")
+    assign(conn, :contact_email, Application.get_env(:transport, :contact_email))
   end
 
   defp assign_token(conn, _) do
