@@ -4,9 +4,10 @@ defmodule TransportWeb.ProxyRoutingTest do
   @endpoint TransportWeb.Endpoint
 
   test "accepts proxy. subdomain calls and delegates them to unlock" do
-    conn = build_conn()
-    |> Map.put(:host, "proxy.example.com")
-    |> get("/")
+    conn =
+      build_conn()
+      |> Map.put(:host, "proxy.example.com")
+      |> get("/")
 
     [h] = Plug.Conn.get_resp_header(conn, "x-request-id")
     assert h
