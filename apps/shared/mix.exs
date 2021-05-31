@@ -35,7 +35,7 @@ defmodule Shared.MixProject do
       # Mint is used by our HttpStream shared component, so we add an explicity dependency
       {:mint, "~> 1.2"},
       # Finch is used for built-in streaming
-      {:finch, "~> 0.6.3"},
+      {:finch, "~> 0.7.0"},
       # Required for the ConditionalJSONEncoder shared component, but
       # there is probably a way to avoid that?
       {:phoenix, "~> 1.5.7"},
