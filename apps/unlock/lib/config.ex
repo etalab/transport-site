@@ -35,7 +35,10 @@ defmodule Unlock.Config do
     url = "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml"
     github_token = System.fetch_env!("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN")
 
-    {:ok, response = %{status: 200}} = Finch.build(:get, url, [{"Authorization", "token #{github_token}"}]) |> Finch.request(Unlock.Finch)
-    YamlElixir.read_from_string!(response.body)
+    {:ok, response = %{status: 200, body: body}} = Finch.build(:get, url, [{"Authorization", "token #{github_token}"}]) |> Finch.request(Unlock.Finch)
+
+    YamlElixir.read_from_string!(body)
+    |> Map.fetch!("feeds")
+    |> Enum.group_by(fn(x) -> x["unique_slug"] end)
   end
 end
