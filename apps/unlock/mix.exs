@@ -34,7 +34,9 @@ defmodule Unlock.MixProject do
       {:sentry, "~> 8.0"},
       # required indirectly by sentry
       {:hackney, "~> 1.8"},
-      {:jason, "~> 1.1"}
+      {:jason, "~> 1.1"},
+      {:finch, "~> 0.7.0"},
+      {:yaml_elixir, "~> 2.7"}
     ]
   end
 end
