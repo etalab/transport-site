@@ -34,7 +34,7 @@ defmodule TransportWeb.DiscussionController do
         |> put_flash(:info, dgettext("page-dataset-details", "Answer published"))
 
       {:error, error} ->
-        Logger.error("When publishing an answer: #{error}")
+        Logger.error("When publishing an answer: #{inspect(error)}")
 
         conn
         |> put_flash(:error, dgettext("page-dataset-details", "Unable to publish the answer"))
