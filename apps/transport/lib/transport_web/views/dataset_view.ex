@@ -1,8 +1,8 @@
 defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
-  use PhoenixHtmlSanitizer, :strip_tags
   alias DB.{Dataset, Resource, Validation}
   alias Plug.Conn.Query
+  alias TransportWeb.MarkdownHandler
   alias TransportWeb.PaginationHelpers
   alias TransportWeb.Router.Helpers
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
@@ -271,19 +271,10 @@ defmodule TransportWeb.DatasetView do
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
   def licence_url(_), do: nil
 
-  @spec description(%Dataset{} | %Resource{}) :: any
+  @spec description(%Dataset{} | %Resource{}) :: Phoenix.HTML.safe()
   def description(instance) do
     instance.description
-    |> sanitize()
-    |> case do
-      {:safe, sanitized_md} ->
-        sanitized_md
-        |> Earmark.as_html!()
-        |> raw()
-
-      _raw ->
-        instance.description
-    end
+    |> MarkdownHandler.markdown_to_safe_html!()
   end
 
   @doc """
