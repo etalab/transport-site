@@ -39,6 +39,18 @@
     <div>
     <%= link(dgettext("backoffice", "Show datasets not compliant to spec"), to: backoffice_page_path(@conn, :index, %{"filter" => "not_compliant"}) <> "#list_datasets") %>
     </div>
+    <div>
+    <%= link(dgettext("backoffice", "Show dataset with licence unspecified"), to: backoffice_page_path(@conn, :index, %{"filter" => "licence_not_specified"}) <> "#list_datasets") %>
+    </div>
+    <div>
+    <%= link(dgettext("backoffice", "Show dataset with more than 1 GTFS"), to: backoffice_page_path(@conn, :index, %{"filter" => "multi_gtfs"}) <> "#list_datasets") %>
+    </div>
+    <div>
+    <%= link(dgettext("backoffice", "Show dataset with a resource not available"), to: backoffice_page_path(@conn, :index, %{"filter" => "resource_not_available"}) <> "#list_datasets") %>
+    </div>
+    <div>
+    <%= link(dgettext("backoffice", "Show dataset with a gtfs-rt but without a siri-lite"), to: backoffice_page_path(@conn, :index, %{"filter" => "rt_resource_without_siri_lite"}) <> "#list_datasets") %>
+    </div>
   <% else %>
     <%= link(dgettext("backoffice", "Show all datasets"), to: backoffice_page_path(@conn, :index) <> "#list_datasets") %>
   <% end %>

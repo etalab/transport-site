@@ -109,7 +109,7 @@ msgstr "Importer et valider tous les jeux de données"
 
 #, elixir-format
 msgid "Show outdated datasets only"
-msgstr "Montrer seulement les jeux de données périmés"
+msgstr "Montrer les jeux de données périmés"
 
 #, elixir-format
 msgid "Show all datasets"
@@ -125,7 +125,7 @@ msgstr "Édition d'un jeu de données"
 
 #, elixir-format
 msgid "Show datasets with unidentified resources"
-msgstr "Montrer seulement les jeux de données avec ressources autres"
+msgstr "Montrer les jeux de données avec ressources autres"
 
 #, elixir-format
 msgid "Associated territory"
@@ -202,3 +202,23 @@ msgstr "validation nécessaire"
 #, elixir-format
 msgid "Generate community resources (GeoJSON and NeTEx)"
 msgstr "Générer les ressources communautaires (GeoJSON et NeTEx)"
+
+#, elixir-format
+msgid "Rapport de complétude des imports"
+msgstr ""
+
+#, elixir-format
+msgid "Show dataset with a gtfs-rt but without a siri-lite"
+msgstr "Montrer les jeux de données avec un gtfs-rt et sans siri-lite"
+
+#, elixir-format
+msgid "Show dataset with a resource not available"
+msgstr "Montrer les jeux de données ayant une ressource non disponible"
+
+#, elixir-format
+msgid "Show dataset with licence unspecified"
+msgstr "Montrer les jeux de données sans licence spécifiée"
+
+#, elixir-format
+msgid "Show dataset with more than 1 GTFS"
+msgstr "Montrer les jeux de données ayant plus de 1 GTFS"

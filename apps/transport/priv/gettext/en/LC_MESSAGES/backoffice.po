@@ -202,3 +202,23 @@ msgstr ""
 #, elixir-format
 msgid "Generate community resources (GeoJSON and NeTEx)"
 msgstr ""
+
+#, elixir-format
+msgid "Rapport de complétude des imports"
+msgstr ""
+
+#, elixir-format
+msgid "Show dataset with a gtfs-rt but without a siri-lite"
+msgstr ""
+
+#, elixir-format
+msgid "Show dataset with a resource not available"
+msgstr ""
+
+#, elixir-format, fuzzy
+msgid "Show dataset with licence unspecified"
+msgstr ""
+
+#, elixir-format
+msgid "Show dataset with more than 1 GTFS"
+msgstr ""
