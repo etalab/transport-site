@@ -289,7 +289,7 @@ defmodule TransportWeb.DatasetView do
       "fr-lo"
       iex> %Dataset{licence: "Libertarian"}
       ...> |> TransportWeb.DatasetView.licence
-      "notspecified"
+      "Libertarian"
   """
   @spec licence(%Dataset{}) :: String.t()
   def licence(%Dataset{licence: licence}) do
