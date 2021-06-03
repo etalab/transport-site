@@ -51,4 +51,59 @@ defmodule HTTPStreamV2 do
 
     %{result | hash: hash}
   end
+
+  def fetch_status(url) do
+    try do
+      request = Finch.build(:get, url)
+      Finch.stream(request, Transport.Finch, %{}, &handle_stream_status/2)
+    catch
+      status -> status
+    end
+  end
+
+  defp handle_stream_status(tuple, acc) do
+    case tuple do
+      {:status, status} when status in [301,302] ->
+        acc
+        |> Map.put(:status, status)
+
+      {:status, status} ->
+        throw({:ok, acc |> Map.put(:status, status)})
+
+      {:headers, headers} ->
+        location_header = headers |> Enum.find(fn {k, _v} -> k in ["Location", "location"] end)
+
+        case location_header do
+          nil -> acc
+          {_, url} -> acc |> Map.put(:location, url)
+        end
+
+      {:data, _data} ->
+        case acc do
+          {:ok, %{status: _, location: _}} -> throw(acc)
+          {:ok, %{status: status}} when status not in [301, 302] -> throw(acc)
+          _ -> acc
+        end
+    end
+  end
+
+  def fetch_status_follow_redirect(url, redirect_count \\ 0, max_redirect \\ 10)
+
+  def fetch_status_follow_redirect(_url, redirect_count, max_redirect)
+      when redirect_count > max_redirect do
+    {:error, "maximum number of redirect reached"}
+  end
+
+  def fetch_status_follow_redirect(url, redirect_count, max_redirect) do
+    case fetch_status(url) do
+      {:ok, %{status: status, location: redirect_url}} when status in [301, 302] ->
+        fetch_status_follow_redirect(redirect_url, redirect_count + 1, max_redirect)
+
+      {:ok, %{status: status}} ->
+        status
+
+      _ ->
+        {:error, "error while fetching status"}
+    end
+  end
 end
