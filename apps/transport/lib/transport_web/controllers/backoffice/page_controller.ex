@@ -64,6 +64,65 @@ defmodule TransportWeb.Backoffice.PageController do
     |> render_index(conn, params)
   end
 
+  def index(%Plug.Conn{} = conn, %{"filter" => "licence_not_specified"} = params) do
+    Dataset
+    |> where([d], d.licence == "notspecified")
+    |> query_order_by_from_params(params)
+    |> render_index(conn, params)
+  end
+
+  def index(%Plug.Conn{} = conn, %{"filter" => "multi_gtfs"} = params) do
+    resources =
+      from(r in Resource,
+        where: r.format == "GTFS",
+        group_by: r.dataset_id,
+        select: %{dataset_id: r.dataset_id},
+        having: count(r.dataset_id) > 1
+      )
+
+    Dataset
+    |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
+    |> query_order_by_from_params(params)
+    |> render_index(conn, params)
+  end
+
+  def index(%Plug.Conn{} = conn, %{"filter" => "resource_not_available"} = params) do
+    resources =
+      from(r in Resource,
+        where: r.is_available == false,
+        group_by: r.dataset_id,
+        select: %{dataset_id: r.dataset_id}
+      )
+
+    Dataset
+    |> join(:inner, [d], r in subquery(resources), on: d.id == r.dataset_id)
+    |> query_order_by_from_params(params)
+    |> render_index(conn, params)
+  end
+
+  def index(%Plug.Conn{} = conn, %{"filter" => "rt_resource_without_siri_lite"} = params) do
+    resources_siri =
+      from(r in Resource,
+        where: r.format == "siri-lite",
+        group_by: r.dataset_id,
+        select: %{dataset_id: r.dataset_id, count: count(r.dataset_id)}
+      )
+
+    resources_gtfs_rt =
+      from(r in Resource,
+        where: r.format == "gtfs-rt",
+        group_by: r.dataset_id,
+        select: %{dataset_id: r.dataset_id, count: count(r.dataset_id)}
+      )
+
+    Dataset
+    |> join(:left, [d], rs in subquery(resources_siri), on: d.id == rs.dataset_id)
+    |> join(:left, [d], rg in subquery(resources_gtfs_rt), on: d.id == rg.dataset_id)
+    |> where([d, rs, rg], rs.count == 0 and rg.count > 0)
+    |> query_order_by_from_params(params)
+    |> render_index(conn, params)
+  end
+
   def index(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id} = params) do
     conn =
       Dataset
