@@ -29,15 +29,30 @@
 
 <div class="pt-24">
   <%= if is_nil(@conn.params["filter"]) or @conn.params["filter"] == "" do %>
-    -- ou --
-    <div>
-      <%= link(dgettext("backoffice", "Show outdated datasets only"), to: backoffice_page_path(@conn, :index, %{"filter" => "outdated"}) <> "#list_datasets") %>
-    </div>
-    <div>
-      <%= link(dgettext("backoffice", "Show datasets with unidentified resources"), to: backoffice_page_path(@conn, :index, %{"filter" => "other_resources"}) <> "#list_datasets") %>
-    </div>
-    <div>
-    <%= link(dgettext("backoffice", "Show datasets not compliant to spec"), to: backoffice_page_path(@conn, :index, %{"filter" => "not_compliant"}) <> "#list_datasets") %>
+    -- ou -- <br>
+    <%= dgettext("backoffice", "Show only datasets") %> :
+    <div style="padding-left: 12px;">
+      <div>
+        <%= link(dgettext("backoffice", "Outdated"), to: backoffice_page_path(@conn, :index, %{"filter" => "outdated"}) <> "#list_datasets") %>
+      </div>
+      <div>
+        <%= link(dgettext("backoffice", "With unidentified resources"), to: backoffice_page_path(@conn, :index, %{"filter" => "other_resources"}) <> "#list_datasets") %>
+      </div>
+      <div>
+      <%= link(dgettext("backoffice", "Not compliant to spec"), to: backoffice_page_path(@conn, :index, %{"filter" => "not_compliant"}) <> "#list_datasets") %>
+      </div>
+      <div>
+      <%= link(dgettext("backoffice", "With licence unspecified"), to: backoffice_page_path(@conn, :index, %{"filter" => "licence_not_specified"}) <> "#list_datasets") %>
+      </div>
+      <div>
+      <%= link(dgettext("backoffice", "With more than 1 GTFS"), to: backoffice_page_path(@conn, :index, %{"filter" => "multi_gtfs"}) <> "#list_datasets") %>
+      </div>
+      <div>
+      <%= link(dgettext("backoffice", "With a resource not available"), to: backoffice_page_path(@conn, :index, %{"filter" => "resource_not_available"}) <> "#list_datasets") %>
+      </div>
+      <div>
+      <%= link(dgettext("backoffice", "With a gtfs-rt but without a siri-lite"), to: backoffice_page_path(@conn, :index, %{"filter" => "rt_resource_without_siri_lite"}) <> "#list_datasets") %>
+      </div>
     </div>
   <% else %>
     <%= link(dgettext("backoffice", "Show all datasets"), to: backoffice_page_path(@conn, :index) <> "#list_datasets") %>
