@@ -268,6 +268,8 @@ defmodule TransportWeb.DatasetView do
   def licence_url("fr-lo"),
     do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
 
+  def licence_url("lov2"), do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
+
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
   def licence_url(_), do: nil
 
@@ -279,13 +281,15 @@ defmodule TransportWeb.DatasetView do
 
   @doc """
   Builds a licence.
+  It looks like fr-lo has been deprecrated by data.gouv and replaced by "lov2"
+  If it is confirmed, we can remove it in the future.
   ## Examples
       iex> %Dataset{licence: "fr-lo"}
       ...> |> TransportWeb.DatasetView.licence
       "fr-lo"
       iex> %Dataset{licence: "Libertarian"}
       ...> |> TransportWeb.DatasetView.licence
-      "notspecified"
+      "Libertarian"
   """
   @spec licence(%Dataset{}) :: String.t()
   def licence(%Dataset{licence: licence}) do
@@ -293,7 +297,9 @@ defmodule TransportWeb.DatasetView do
       "fr-lo" -> dgettext("dataset", "fr-lo")
       "odc-odbl" -> dgettext("dataset", "odc-odbl")
       "other-open" -> dgettext("dataset", "other-open")
-      _ -> dgettext("dataset", "notspecified")
+      "lov2" -> dgettext("dataset", "lov2")
+      "notspecified" -> dgettext("dataset", "notspecified")
+      other -> other
     end
   end
 
