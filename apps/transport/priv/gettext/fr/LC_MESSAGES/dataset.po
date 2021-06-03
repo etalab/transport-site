@@ -71,3 +71,7 @@ msgstr "Autre ouverte"
 #, elixir-format
 msgid "The resource is not available (maybe temporarily)"
 msgstr "La ressource est indisponible (peut-être temporairement)"
+
+#, elixir-format
+msgid "lov2"
+msgstr "Licence Ouverte Version 2.0"
