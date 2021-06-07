@@ -29,7 +29,6 @@ defmodule Unlock.Config do
   @doc """
   Retrieve the configuration from GitHub as a map.
   """
-  @spec fetch_config!() :: map
   def fetch_config!() do
     # NOTE: this stuff will have to move into the config
     url = "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml"
