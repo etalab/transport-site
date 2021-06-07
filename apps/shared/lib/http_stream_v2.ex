@@ -55,11 +55,14 @@ defmodule HTTPStreamV2 do
     %{result | hash: hash}
   end
 
+  @spec fetch_status(binary()) :: {:ok, map()} | {:error, any()}
   def fetch_status(url) do
     request = Finch.build(:get, url)
     Finch.stream(request, Transport.Finch, %{}, &handle_stream_status/2)
   catch
-    status -> status
+    # when status is fetched, a throw is used to stop the streaming and exit with the needed information
+    {:status_fetched, status} -> status
+    e -> {:error, e}
   end
 
   @redirect_status [301, 302, 307]
@@ -68,7 +71,7 @@ defmodule HTTPStreamV2 do
     res = acc |> Map.put(:status, status)
     if status not in @redirect_status do
       # we know everything we need to know
-      throw({:ok, res})
+      throw({:status_fetched, {:ok, res}})
     end
     res
   end
@@ -84,8 +87,8 @@ defmodule HTTPStreamV2 do
 
   defp handle_stream_status({:data, _data}, acc) do
     case acc do
-      {:ok, %{status: _, location: _}} -> throw(acc)
-      {:ok, %{status: status}} when status not in @redirect_status -> throw(acc)
+      {:ok, %{status: _, location: _}} -> throw({:status_fetched, acc})
+      {:ok, %{status: status}} when status not in @redirect_status -> throw({:status_fetched, acc})
       _ -> acc
     end
   end
