@@ -211,11 +211,15 @@ defmodule TransportWeb.Router do
     end
   end
 
-  defp transport_data_gouv_member(conn, _) do
-    conn.assigns[:current_user]
+  # NOTE: method visibility set to public because we need to call the same logic from LiveView
+  def is_transport_data_gouv_member?(current_user) do
+    current_user
     |> Map.get("organizations", [])
     |> Enum.any?(fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end)
-    |> if do
+  end
+
+  defp transport_data_gouv_member(conn, _) do
+    if is_transport_data_gouv_member?(conn.assigns[:current_user]) do
       conn
     else
       conn
