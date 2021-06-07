@@ -61,14 +61,19 @@ defmodule HTTPStreamV2 do
     end
   end
 
+  @redirect_status [301, 302, 307]
+
   defp handle_stream_status(tuple, acc) do
     case tuple do
-      {:status, status} when status in [301,302] ->
-        acc
-        |> Map.put(:status, status)
-
       {:status, status} ->
-        throw({:ok, acc |> Map.put(:status, status)})
+        res = acc |> Map.put(:status, status)
+
+        if status not in @redirect_status do
+          # we know everything we need to know
+          throw({:ok, res})
+        end
+
+        res
 
       {:headers, headers} ->
         location_header = headers |> Enum.find(fn {k, _v} -> k in ["Location", "location"] end)
@@ -81,26 +86,27 @@ defmodule HTTPStreamV2 do
       {:data, _data} ->
         case acc do
           {:ok, %{status: _, location: _}} -> throw(acc)
-          {:ok, %{status: status}} when status not in [301, 302] -> throw(acc)
+          {:ok, %{status: status}} when status not in @redirect_status -> throw(acc)
           _ -> acc
         end
     end
   end
 
-  def fetch_status_follow_redirect(url, redirect_count \\ 0, max_redirect \\ 10)
+  # same default max_redirect as HTTPoison
+  def fetch_status_follow_redirect(url, max_redirect \\ 5, redirect_count \\ 0)
 
-  def fetch_status_follow_redirect(_url, redirect_count, max_redirect)
+  def fetch_status_follow_redirect(_url, max_redirect, redirect_count)
       when redirect_count > max_redirect do
     {:error, "maximum number of redirect reached"}
   end
 
-  def fetch_status_follow_redirect(url, redirect_count, max_redirect) do
+  def fetch_status_follow_redirect(url, max_redirect, redirect_count) do
     case fetch_status(url) do
-      {:ok, %{status: status, location: redirect_url}} when status in [301, 302] ->
-        fetch_status_follow_redirect(redirect_url, redirect_count + 1, max_redirect)
+      {:ok, %{status: status, location: redirect_url}} when status in @redirect_status ->
+        fetch_status_follow_redirect(redirect_url, max_redirect, redirect_count + 1)
 
       {:ok, %{status: status}} ->
-        status
+        {:ok, status}
 
       _ ->
         {:error, "error while fetching status"}
