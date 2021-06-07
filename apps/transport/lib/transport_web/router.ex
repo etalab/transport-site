@@ -98,7 +98,10 @@ defmodule TransportWeb.Router do
       # NOTE: by default no layout are automatically picked at time of writing
       # for live views, so an explicit call is needed
       # See https://hexdocs.pm/phoenix_live_view/live-layouts.html
-      live("/proxy-config", ProxyConfigLive, layout: {TransportWeb.LayoutView, :app})
+      live("/proxy-config", ProxyConfigLive,
+        layout: {TransportWeb.LayoutView, :app},
+        session: {TransportWeb.Backoffice.ProxyConfigLive, :build_session, []}
+      )
 
       scope "/datasets" do
         get("/new", PageController, :new)
