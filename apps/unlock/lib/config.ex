@@ -4,16 +4,14 @@ defmodule Unlock.Config do
   """
   require Logger
 
-  def fetch_config!(use_cache \\ true)
-
   @doc """
   Fetch the configuration from GitHub and cache it in RAM using Cachex.
 
   This will allow expiry via a simple key deletion.
   """
-  def fetch_config!(_use_cache = true) do
+  def fetch_config!() do
     # NOTE: this won't handle errors correctly
-    fetch_config = fn _key -> {:commit, fetch_config!()} end
+    fetch_config = fn _key -> {:commit, fetch_config_no_cache!()} end
     cache_name = Unlock.Cachex
     cache_key = "config:proxy"
     # NOTE: we do not want any expiry here. For now I'm using a very large TTL
@@ -31,7 +29,8 @@ defmodule Unlock.Config do
   @doc """
   Retrieve the configuration from GitHub as a map.
   """
-  def fetch_config!(_use_cache = false) do
+  def fetch_config_no_cache!() do
+    Logger.info "Fetching proxy config from GitHub"
     # NOTE: this stuff will have to move into the config
     url = "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml"
     github_token = System.fetch_env!("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN")
