@@ -17,7 +17,7 @@ defmodule Unlock.Config do
     # NOTE: we do not want any expiry here. For now I'm using a very large TTL
     ttl = :timer.hours(100_000)
 
-    case {operation, result} = Cachex.fetch(cache_name, cache_key, fetch_config) do
+    case {_operation, _result} = Cachex.fetch(cache_name, cache_key, fetch_config) do
       {:commit, result} ->
         Cachex.expire(cache_name, cache_key, ttl)
         result
@@ -35,7 +35,7 @@ defmodule Unlock.Config do
     url = "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml"
     github_token = System.fetch_env!("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN")
 
-    {:ok, response = %{status: 200, body: body}} = Finch.build(:get, url, [{"Authorization", "token #{github_token}"}]) |> Finch.request(Unlock.Finch)
+    {:ok, _response = %{status: 200, body: body}} = Finch.build(:get, url, [{"Authorization", "token #{github_token}"}]) |> Finch.request(Unlock.Finch)
 
     YamlElixir.read_from_string!(body)
     |> Map.fetch!("feeds")
