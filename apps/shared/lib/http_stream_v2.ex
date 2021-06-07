@@ -33,9 +33,11 @@ defmodule HTTPStreamV2 do
         |> Map.put(:status, status)
         |> Map.put(:hash, :crypto.hash_init(:sha256))
         |> Map.put(:body_byte_size, 0)
+
       {:headers, headers} ->
         acc
         |> Map.put(:headers, headers)
+
       {:data, data} ->
         hash = :crypto.hash_update(acc.hash, data)
         %{acc | hash: hash, body_byte_size: acc[:body_byte_size] + (data |> byte_size)}
@@ -43,52 +45,48 @@ defmodule HTTPStreamV2 do
   end
 
   defp compute_final_hash(result) do
-    hash = result
-    |> Map.fetch!(:hash)
-    |> :crypto.hash_final()
-    |> Base.encode16()
-    |> String.downcase()
+    hash =
+      result
+      |> Map.fetch!(:hash)
+      |> :crypto.hash_final()
+      |> Base.encode16()
+      |> String.downcase()
 
     %{result | hash: hash}
   end
 
   def fetch_status(url) do
-    try do
-      request = Finch.build(:get, url)
-      Finch.stream(request, Transport.Finch, %{}, &handle_stream_status/2)
-    catch
-      status -> status
-    end
+    request = Finch.build(:get, url)
+    Finch.stream(request, Transport.Finch, %{}, &handle_stream_status/2)
+  catch
+    status -> status
   end
 
   @redirect_status [301, 302, 307]
 
-  defp handle_stream_status(tuple, acc) do
-    case tuple do
-      {:status, status} ->
-        res = acc |> Map.put(:status, status)
+  defp handle_stream_status({:status, status}, acc) do
+    res = acc |> Map.put(:status, status)
+    if status not in @redirect_status do
+      # we know everything we need to know
+      throw({:ok, res})
+    end
+    res
+  end
 
-        if status not in @redirect_status do
-          # we know everything we need to know
-          throw({:ok, res})
-        end
+  defp handle_stream_status({:headers, headers}, acc) do
+    location_header = headers |> Enum.find(fn {k, _v} -> k in ["Location", "location"] end)
 
-        res
+    case location_header do
+      nil -> acc
+      {_, url} -> acc |> Map.put(:location, url)
+    end
+  end
 
-      {:headers, headers} ->
-        location_header = headers |> Enum.find(fn {k, _v} -> k in ["Location", "location"] end)
-
-        case location_header do
-          nil -> acc
-          {_, url} -> acc |> Map.put(:location, url)
-        end
-
-      {:data, _data} ->
-        case acc do
-          {:ok, %{status: _, location: _}} -> throw(acc)
-          {:ok, %{status: status}} when status not in @redirect_status -> throw(acc)
-          _ -> acc
-        end
+  defp handle_stream_status({:data, _data}, acc) do
+    case acc do
+      {:ok, %{status: _, location: _}} -> throw(acc)
+      {:ok, %{status: status}} when status not in @redirect_status -> throw(acc)
+      _ -> acc
     end
   end
 

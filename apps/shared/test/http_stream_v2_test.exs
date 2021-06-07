@@ -50,12 +50,10 @@ defmodule HTTPStreamV2.Test do
       |> Plug.Conn.resp(301, "va voir ailleurs si j'y suis")
     end)
 
-
     Bypass.expect_once(bypass, "GET", "/here", fn conn ->
       conn
       |> Plug.Conn.resp(200, "gagné")
     end)
-
 
     result = HTTPStreamV2.fetch_status(url)
     assert result == {:ok, %{status: 301, location: "#{url}here"}}

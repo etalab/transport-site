@@ -17,7 +17,7 @@ defmodule Transport.AvailabilityChecker do
     end
   end
 
-  def available?(url, _use_stream_method = true) do
+  def available?(url, true = _use_stream_method) do
     case HTTPStreamV2.fetch_status_follow_redirect(url) do
       {:ok, 200} -> true
       _ -> false
