@@ -4,12 +4,21 @@
         <thead>
             <tr>
                 <th>Identifiant</th>
-                <th>Donnée proxy</th>
-                <th>Donnée d'origine</th>
+                <th>URL proxy</th>
+                <th>Donnée cible</th>
+                <th>TTL</th>
             </tr>
         </thead>
         <tbody>
-
+            <%= for resource <- @proxy_configuration do %>
+            <tr>
+                <td><%= resource.unique_slug %></td>
+                <% # TODO: use regular link helper %>
+                <td><a href="<%= resource.proxy_url %>">lien</a></td>
+                <td><a href="<%= resource.original_url %>">lien</a></td>
+                <td><%= resource.ttl %></td>
+            </tr>
+            <% end %>
         </tbody>
     </table>
 </section>
