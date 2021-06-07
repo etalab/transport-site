@@ -1,3 +1,5 @@
+# NOTE: required for tests, but not used in the actually app (the main app endpoint
+# branches into Unlock.Router directly)
 defmodule Unlock.Endpoint do
   use Phoenix.Endpoint, otp_app: :unlock
 
