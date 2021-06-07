@@ -6,7 +6,8 @@
       </a>
     </div>
     <div>
-      <a class="button" href="<%= backoffice_proxy_config_path(@conn, :index) %>">
+      <% # See path explanation at https://elixirforum.com/t/scoped-live-view-does-not-seem-to-generate-a-live-path-helper/31162/4?u=thbar %>
+      <a class="button" href="<%= backoffice_live_path(@socket, TransportWeb.Backoffice.ProxyConfigLive) %>">
         <%= dgettext("backoffice", "Configuration du proxy") %>
       </a>
     </div>
