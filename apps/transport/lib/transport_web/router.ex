@@ -95,6 +95,7 @@ defmodule TransportWeb.Router do
       get("/", PageController, :index)
 
       get("/dashboard", DashboardController, :index)
+      get("/proxy-config", ProxyConfigController, :index)
 
       scope "/datasets" do
         get("/new", PageController, :new)
