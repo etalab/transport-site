@@ -43,8 +43,8 @@ defmodule HTTPStreamV2 do
       {:redirect, redirect_url} ->
         fetch_status_and_hash(redirect_url, max_redirect, redirect_count + 1)
 
-      {:error, msg} ->
-        {:error, msg}
+      {:error, e} ->
+        {:error, e}
     end
   end
 
