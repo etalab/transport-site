@@ -72,29 +72,26 @@ defmodule HTTPStreamV2 do
   end
 
   defp handle_stream_status({:status, status}, acc) do
-    res = acc |> Map.put(:status, status)
+    acc = acc |> Map.put(:status, status)
+
     if status not in @redirect_status do
       # we know everything we need to know
-      throw({:status_fetched, {:ok, res}})
+      throw({:status_fetched, {:ok, acc}})
     end
-    res
+
+    acc
   end
 
   defp handle_stream_status({:headers, headers}, acc) do
-    location_header = headers |> Enum.find(fn {k, _v} -> k in ["Location", "location"] end)
+    acc =
+      headers
+      |> location_header_value()
+      |> case do
+        nil -> acc
+        {_, url} -> acc |> Map.put(:location, url)
+      end
 
-    case location_header do
-      nil -> acc
-      {_, url} -> acc |> Map.put(:location, url)
-    end
-  end
-
-  defp handle_stream_status({:data, _data}, acc) do
-    case acc do
-      {:ok, %{status: _, location: _}} -> throw({:status_fetched, acc})
-      {:ok, %{status: status}} when status not in @redirect_status -> throw({:status_fetched, acc})
-      _ -> acc
-    end
+    throw({:status_fetched, {:ok, acc}})
   end
 
   # same default max_redirect as HTTPoison
