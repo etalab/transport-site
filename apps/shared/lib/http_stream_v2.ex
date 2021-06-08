@@ -58,7 +58,7 @@ defmodule HTTPStreamV2 do
     case acc.status do
       status when status in @redirect_status ->
         headers
-        |> location_header_value()
+        |> location_header()
         |> case do
           nil -> throw({:error, "no redirection url provided"})
           redirect_url -> throw({:redirect, redirect_url})
@@ -95,7 +95,7 @@ defmodule HTTPStreamV2 do
     e -> {:error, e}
   end
 
-  defp location_header_value(headers) do
+  defp location_header(headers) do
     headers |> Enum.find(fn {k, _v} -> String.downcase(k) == "location" end)
   end
 
@@ -113,7 +113,7 @@ defmodule HTTPStreamV2 do
   defp handle_stream_status({:headers, headers}, acc) do
     acc =
       headers
-      |> location_header_value()
+      |> location_header()
       |> case do
         nil -> acc
         {_, url} -> acc |> Map.put(:location, url)
