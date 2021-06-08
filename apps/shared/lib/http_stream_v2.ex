@@ -67,6 +67,10 @@ defmodule HTTPStreamV2 do
 
   @redirect_status [301, 302, 307]
 
+  defp location_header_value(headers) do
+    headers |> Enum.find(fn {k, _v} -> String.downcase(k) == "location" end)
+  end
+
   defp handle_stream_status({:status, status}, acc) do
     res = acc |> Map.put(:status, status)
     if status not in @redirect_status do
