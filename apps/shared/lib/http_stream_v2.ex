@@ -61,7 +61,7 @@ defmodule HTTPStreamV2 do
         |> location_header()
         |> case do
           nil -> throw({:error, "no redirection url provided"})
-          redirect_url -> throw({:redirect, redirect_url})
+          {_, redirect_url} -> throw({:redirect, redirect_url})
         end
 
       _ ->
