@@ -274,24 +274,4 @@ defmodule Transport.ImportDataTest do
       end
     end
   end
-
-  test "the available? function with HTTP request", _ do
-    mock = fn url, [], options ->
-      # temporary fix for https://github.com/etalab/transport-site/issues/1564
-      assert options == [ssl: [versions: [:"tlsv1.2"]]]
-
-      case url do
-        'url200' -> {:ok, %HTTPoison.Response{body: "{}", status_code: 200}}
-        'url300' -> {:ok, %HTTPoison.Response{body: "{}", status_code: 300}}
-        'url400' -> {:ok, %HTTPoison.Response{body: "{}", status_code: 400}}
-      end
-    end
-
-    with_mock HTTPoison, head: mock do
-      assert ImportData.available?(%{"url" => 'url200'})
-      assert ImportData.available?(%{"url" => 'url300'})
-      refute ImportData.available?(%{"url" => 'url400'})
-      assert_called_exactly(HTTPoison.head(:_, :_, :_), 3)
-    end
-  end
 end
