@@ -25,6 +25,20 @@ defmodule HTTPStreamV2.Test do
     assert headers == [{"hello", "header"}]
   end
 
+  test "hashing works with url containing caracaters that need to be encoded", %{bypass: bypass} do
+    # "|" needs to be encoded or we'll get a %Mint.HTTPError
+    url = "http://localhost:#{bypass.port}/?ville=paris|berlin"
+
+    Bypass.expect(bypass, "GET", "/", fn conn ->
+      conn
+      |> Plug.Conn.resp(200, "2 belles villes")
+    end)
+
+    result = HTTPStreamV2.fetch_status_and_hash(url)
+
+    assert result.status == 200
+  end
+
   describe "get a request status by streaming it" do
     test "simple 200 response", %{bypass: bypass} do
       Bypass.expect(bypass, "GET", "/", fn conn ->
