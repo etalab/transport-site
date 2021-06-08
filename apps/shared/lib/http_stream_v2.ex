@@ -57,7 +57,7 @@ defmodule HTTPStreamV2 do
 
   @spec fetch_status(binary()) :: {:ok, map()} | {:error, any()}
   def fetch_status(url) do
-    request = Finch.build(:get, url)
+    request = Finch.build(:get, URI.encode(url))
     Finch.stream(request, Transport.Finch, %{}, &handle_stream_status/2)
   catch
     # when status is fetched, a throw is used to stop the streaming and exit with the needed information
