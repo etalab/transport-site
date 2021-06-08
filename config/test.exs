@@ -14,8 +14,12 @@ config :transport, TransportWeb.Endpoint,
 # Page cache would make tests brittle, so disable it by default
 config :gbfs, :disable_page_cache, true
 
-# Override cache implementation
-config :transport, cache_impl: Transport.Cache.Null
+# Use stubbing to enjoy disconnected tests & allow setting mocks expectations
+config :transport,
+  cache_impl: Transport.Cache.Null,
+  ex_aws_impl: Transport.ExAWS.Mock,
+  httpoison_impl: Transport.HTTPoison.Mock,
+  history_impl: Transport.History.Fetcher.Mock
 
 # capture all info logs and up during tests
 config :logger, level: :info

@@ -33,9 +33,11 @@ defmodule HTTPStreamV2 do
         |> Map.put(:status, status)
         |> Map.put(:hash, :crypto.hash_init(:sha256))
         |> Map.put(:body_byte_size, 0)
+
       {:headers, headers} ->
         acc
         |> Map.put(:headers, headers)
+
       {:data, data} ->
         hash = :crypto.hash_update(acc.hash, data)
         %{acc | hash: hash, body_byte_size: acc[:body_byte_size] + (data |> byte_size)}
@@ -43,12 +45,72 @@ defmodule HTTPStreamV2 do
   end
 
   defp compute_final_hash(result) do
-    hash = result
-    |> Map.fetch!(:hash)
-    |> :crypto.hash_final()
-    |> Base.encode16()
-    |> String.downcase()
+    hash =
+      result
+      |> Map.fetch!(:hash)
+      |> :crypto.hash_final()
+      |> Base.encode16()
+      |> String.downcase()
 
     %{result | hash: hash}
+  end
+
+  @spec fetch_status(binary()) :: {:ok, map()} | {:error, any()}
+  def fetch_status(url) do
+    request = Finch.build(:get, url)
+    Finch.stream(request, Transport.Finch, %{}, &handle_stream_status/2)
+  catch
+    # when status is fetched, a throw is used to stop the streaming and exit with the needed information
+    {:status_fetched, status} -> status
+    e -> {:error, e}
+  end
+
+  @redirect_status [301, 302, 307]
+
+  defp handle_stream_status({:status, status}, acc) do
+    res = acc |> Map.put(:status, status)
+    if status not in @redirect_status do
+      # we know everything we need to know
+      throw({:status_fetched, {:ok, res}})
+    end
+    res
+  end
+
+  defp handle_stream_status({:headers, headers}, acc) do
+    location_header = headers |> Enum.find(fn {k, _v} -> k in ["Location", "location"] end)
+
+    case location_header do
+      nil -> acc
+      {_, url} -> acc |> Map.put(:location, url)
+    end
+  end
+
+  defp handle_stream_status({:data, _data}, acc) do
+    case acc do
+      {:ok, %{status: _, location: _}} -> throw({:status_fetched, acc})
+      {:ok, %{status: status}} when status not in @redirect_status -> throw({:status_fetched, acc})
+      _ -> acc
+    end
+  end
+
+  # same default max_redirect as HTTPoison
+  def fetch_status_follow_redirect(url, max_redirect \\ 5, redirect_count \\ 0)
+
+  def fetch_status_follow_redirect(_url, max_redirect, redirect_count)
+      when redirect_count > max_redirect do
+    {:error, "maximum number of redirect reached"}
+  end
+
+  def fetch_status_follow_redirect(url, max_redirect, redirect_count) do
+    case fetch_status(url) do
+      {:ok, %{status: status, location: redirect_url}} when status in @redirect_status ->
+        fetch_status_follow_redirect(redirect_url, max_redirect, redirect_count + 1)
+
+      {:ok, %{status: status}} ->
+        {:ok, status}
+
+      _ ->
+        {:error, "error while fetching status"}
+    end
   end
 end

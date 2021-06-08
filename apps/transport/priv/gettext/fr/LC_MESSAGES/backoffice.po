@@ -108,8 +108,8 @@ msgid "Import and validate all"
 msgstr "Importer et valider tous les jeux de données"
 
 #, elixir-format
-msgid "Show outdated datasets only"
-msgstr "Montrer seulement les jeux de données périmés"
+msgid "Outdated"
+msgstr "Périmés"
 
 #, elixir-format
 msgid "Show all datasets"
@@ -124,8 +124,8 @@ msgid "Edit a dataset"
 msgstr "Édition d'un jeu de données"
 
 #, elixir-format
-msgid "Show datasets with unidentified resources"
-msgstr "Montrer seulement les jeux de données avec ressources autres"
+msgid "With unidentified resources"
+msgstr "Avec ressources autres"
 
 #, elixir-format
 msgid "Associated territory"
@@ -156,8 +156,8 @@ msgid "National dataset"
 msgstr "Jeu de données national"
 
 #, elixir-format
-msgid "Show datasets not compliant to spec"
-msgstr "Montrer les jeux de données ne respectant pas les spec"
+msgid "Not compliant to spec"
+msgstr "Ne respectant pas les spec"
 
 #, elixir-format
 msgid "Cancel"
@@ -202,3 +202,27 @@ msgstr "validation nécessaire"
 #, elixir-format
 msgid "Generate community resources (GeoJSON and NeTEx)"
 msgstr "Générer les ressources communautaires (GeoJSON et NeTEx)"
+
+#, elixir-format
+msgid "Rapport de complétude des imports"
+msgstr ""
+
+#, elixir-format
+msgid "With a gtfs-rt but without a siri-lite"
+msgstr "Avec un gtfs-rt et sans siri-lite"
+
+#, elixir-format
+msgid "With a resource not available"
+msgstr "Ayant une ressource non disponible"
+
+#, elixir-format
+msgid "With licence unspecified"
+msgstr "Sans licence spécifiée"
+
+#, elixir-format
+msgid "With more than 1 GTFS"
+msgstr "Ayant plus de 1 GTFS"
+
+#, elixir-format
+msgid "Show only datasets"
+msgstr "Montrer seulement les jeux de données"

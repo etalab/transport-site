@@ -44,7 +44,7 @@ defmodule Transport.Mixfile do
   defp deps do
     [
       {:csv, "~> 2.1"},
-      {:earmark, "~> 1.3"},
+      {:earmark, "~> 1.4"},
       {:exconstructor, "~> 1.1"},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 1.8.0"},
@@ -52,7 +52,7 @@ defmodule Transport.Mixfile do
       {:phoenix_html, "~> 2.13"},
       {:phoenix_markdown, "~> 1.0"},
       {:phoenix_live_view, "~> 0.15.0"},
-      {:phoenix_html_sanitizer, "~> 1.1.0"},
+      {:html_sanitize_ex, "~> 1.4"},
       {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 2.3"},
       {:recon, "~> 2.4"},
@@ -79,7 +79,8 @@ defmodule Transport.Mixfile do
       {:ex_aws_s3, "~> 2.0"},
       {:unidecode, "~> 0.0.2"},
       {:ex_machina, "~> 2.4", only: :test},
-      {:phoenix_ecto, "~> 4.0"}
+      {:phoenix_ecto, "~> 4.0"},
+      {:mox, "~> 1.0.0", only: :test}
     ]
   end
 end
