@@ -10,19 +10,55 @@ defmodule HTTPStreamV2.Test do
     Bypass.expect_once(bypass, "GET", "/", fn conn ->
       conn
       |> Plug.Conn.put_resp_header("hello", "header")
-      |> Plug.Conn.resp(302, "Contenu éphémère")
+      |> Plug.Conn.resp(200, "Contenu classique")
     end)
 
     url = "http://localhost:#{bypass.port}/"
-    result = HTTPStreamV2.fetch_status_and_hash(url)
+    {:ok, result} = HTTPStreamV2.fetch_status_and_hash(url)
 
-    assert result.status == 302
-    assert result.hash == :sha256 |> :crypto.hash("Contenu éphémère") |> Base.encode16 |> String.downcase
-    assert result.body_byte_size == ("Contenu éphémère" |> byte_size())
+    assert result.status == 200
+    assert result.hash == :sha256 |> :crypto.hash("Contenu classique") |> Base.encode16 |> String.downcase
+    assert result.body_byte_size == ("Contenu classique" |> byte_size())
     headers = result.headers
     |> Enum.filter(fn({key, _val}) -> key == "hello" end)
 
     assert headers == [{"hello", "header"}]
+  end
+
+  test "streams the content and compute expected information after a redirect", %{bypass: bypass} do
+    url = "http://localhost:#{bypass.port}/"
+
+    # the content is accessible after 2 successive redirects
+    Bypass.expect(bypass, "GET", "/", fn conn ->
+      conn
+      |> Plug.Conn.put_resp_header("location", "#{url}page1")
+      |> Plug.Conn.resp(301, "")
+    end)
+
+    Bypass.expect(bypass, "GET", "/page1", fn conn ->
+      conn
+      |> Plug.Conn.put_resp_header("location", "#{url}page2")
+      |> Plug.Conn.resp(301, "")
+    end)
+
+        Bypass.expect(bypass, "GET", "/page2", fn conn ->
+      conn
+      |> Plug.Conn.put_resp_header("hello", "header")
+      |> Plug.Conn.resp(200, "hello world")
+    end)
+
+    {:ok, result} = HTTPStreamV2.fetch_status_and_hash(url)
+
+    assert result.status == 200
+    assert result.hash == :sha256 |> :crypto.hash("hello world") |> Base.encode16 |> String.downcase
+    assert result.body_byte_size == ("hello world" |> byte_size())
+    headers = result.headers
+    |> Enum.filter(fn({key, _val}) -> key == "hello" end)
+
+    assert headers == [{"hello", "header"}]
+
+    # we get an error if there are two many redirects
+    {:error, "maximum number of redirect reached"} = HTTPStreamV2.fetch_status_and_hash(url, _max_redirect = 1)
   end
 
   test "hashing works with url containing caracaters that need to be encoded", %{bypass: bypass} do
@@ -34,7 +70,7 @@ defmodule HTTPStreamV2.Test do
       |> Plug.Conn.resp(200, "2 belles villes")
     end)
 
-    result = HTTPStreamV2.fetch_status_and_hash(url)
+    {:ok, result} = HTTPStreamV2.fetch_status_and_hash(url)
 
     assert result.status == 200
   end
