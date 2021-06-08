@@ -25,6 +25,7 @@ defmodule HTTPStreamV2 do
   @redirect_status [301, 302, 307]
   @default_allowed_redirects 5
 
+  @spec fetch_status_and_hash(binary(), integer(), integer()) :: {:ok, map()} | {:error, any()}
   def fetch_status_and_hash(url, max_redirect \\ @default_allowed_redirects, redirect_count \\ 0)
 
   def fetch_status_and_hash(_url, max_redirect, redirect_count)
@@ -37,7 +38,7 @@ defmodule HTTPStreamV2 do
 
     try do
       {:ok, result} = Finch.stream(request, Transport.Finch, %{}, &handle_stream_response/2)
-      compute_final_hash(result)
+      {:ok, compute_final_hash(result)}
     catch
       {:redirect, redirect_url} ->
         fetch_status_and_hash(redirect_url, max_redirect, redirect_count + 1)
