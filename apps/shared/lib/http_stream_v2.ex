@@ -122,8 +122,11 @@ defmodule HTTPStreamV2 do
     throw({:status_fetched, {:ok, acc}})
   end
 
-  # same default max_redirect as HTTPoison
-  def fetch_status_follow_redirect(url, max_redirect \\ 5, redirect_count \\ 0)
+  def fetch_status_follow_redirect(
+        url,
+        max_redirect \\ @default_allowed_redirects,
+        redirect_count \\ 0
+      )
 
   def fetch_status_follow_redirect(_url, max_redirect, redirect_count)
       when redirect_count > max_redirect do
