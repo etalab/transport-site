@@ -4,6 +4,8 @@ defmodule Unlock.Config do
   """
   require Logger
 
+  @callback fetch_config!() :: any
+
   @doc """
   Fetch the configuration from GitHub and cache it in RAM using Cachex.
 
