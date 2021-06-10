@@ -1,5 +1,6 @@
 defmodule Unlock.ControllerTest do
   # async false until we stub Cachex calls or use per-test cache name
+  # and also due to our current global mox use
   use ExUnit.Case, async: false
   use Plug.Test
   import Phoenix.ConnTest
@@ -7,6 +8,8 @@ defmodule Unlock.ControllerTest do
 
   import Mox
   setup :verify_on_exit!
+  # require for current cachex use (out of process)
+  setup :set_mox_from_context
 
   # TODO: persist config in DB for reliability during GitHub outages
 
@@ -28,11 +31,13 @@ defmodule Unlock.ControllerTest do
     test "handles a regular read" do
       slug = "an-existing-identifier"
 
+      ttl_in_seconds = 30
+
       setup_proxy_config(%{
         slug => %Unlock.Config.Item{
           identifier: slug,
           target_url: target_url = "http://localhost/some-remote-resource",
-          ttl: 30
+          ttl: ttl_in_seconds
         }
       })
 
@@ -75,19 +80,62 @@ defmodule Unlock.ControllerTest do
 
       remaining_headers =
         resp.resp_headers
-        |> Enum.reject(fn {h, v} -> Enum.member?(our_headers, h) end)
+        |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
 
       assert remaining_headers == [
                {"content-type", "application/json"},
                {"content-length", "7350"},
                {"date", "Thu, 10 Jun 2021 19:45:14 GMT"}
              ]
+
+      verify!(Unlock.HTTP.Client.Mock)
+
+      # subsequent queries should work based on cache
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, 0, fn(_url, _headers) -> end)
+
+      {:ok, ttl} = Cachex.ttl(Unlock.Cachex, "resource:an-existing-identifier")
+      assert_in_delta ttl / 1000.0, ttl_in_seconds, 1
+
+      resp =
+        build_conn()
+        |> get("/resource/an-existing-identifier")
+
+      assert resp.resp_body == "somebody-to-love"
+      assert resp.status == 207
+
+      # NOTE: this whole test will have to be DRYed
+      remaining_headers =
+        resp.resp_headers
+        |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
+
+      assert remaining_headers == [
+               {"content-type", "application/json"},
+               {"content-length", "7350"},
+               {"date", "Thu, 10 Jun 2021 19:45:14 GMT"}
+             ]
+
+      verify!(Unlock.HTTP.Client.Mock)
     end
 
-    test "handles 404"
-    test "handles caching"
-    test "supports reloading"
+    test "handles 404" do
+      setup_proxy_config(%{}) # such empty
+
+      resp =
+        build_conn()
+        |> get("/resource/unknown")
+
+      assert resp.resp_body == "Not Found"
+      assert resp.status == 404
+    end
+
+    @tag :skip
     test "handles remote error"
+
+    @tag :skip
     test "handles proxy error"
+
+    @tag :skip
+    test "times out without locking the whole thing"
   end
 end
