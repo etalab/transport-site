@@ -19,7 +19,7 @@ defmodule Unlock.ControllerTest do
   end
 
   def setup_proxy_config(config) do
-    Unlock.Config.Mock
+    Unlock.Config.Fetcher.Mock
     |> stub(:fetch_config!, fn() -> config end)
   end
 
