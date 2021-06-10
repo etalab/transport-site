@@ -79,4 +79,19 @@ defmodule Unlock.Config do
       body
     end
   end
+
+  defmodule Disk do
+    @behaviour Fetcher
+
+    @doc """
+    Fetch the configuration from a file on disk (useful for development or disk-based persistence).
+    """
+    @impl Fetcher
+    def fetch_config!() do
+      file = Application.fetch_env!(:unlock, :disk_config_file)
+      File.read!(file)
+      |> Fetcher.convert_yaml_to_config_items()
+      |> Fetcher.index_items_by_unique_identifier()
+    end
+  end
 end
