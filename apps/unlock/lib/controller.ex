@@ -45,6 +45,9 @@ defmodule Unlock.Controller do
 
     prepare_response_headers(response.headers)
     |> Enum.reduce(conn, fn {h,v}, c -> put_resp_header(c,h,v) end)
+    # For now, we enforce the download. This will result in incorrect filenames
+    # if the content-type is incorrect, but is better than nothing.
+    |> put_resp_header("content-disposition", "attachment")
     |> send_resp(response.status, response.body)
   end
 

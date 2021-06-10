@@ -67,10 +67,15 @@ defmodule Unlock.ControllerTest do
       assert Plug.Conn.get_resp_header(resp, "cache-control") == [
                "max-age=0, private, must-revalidate"
              ]
+      # we enforce downloads for now, even if this results sometimes in incorrect filenames
+      # due to incorrect content-type headers from the remote
+      assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment"]
+
+      our_headers = ["x-request-id", "cache-control", "content-disposition"]
 
       remaining_headers =
         resp.resp_headers
-        |> Enum.reject(fn {h, v} -> Enum.member?(["x-request-id", "cache-control"], h) end)
+        |> Enum.reject(fn {h, v} -> Enum.member?(our_headers, h) end)
 
       assert remaining_headers == [
                {"content-type", "application/json"},
