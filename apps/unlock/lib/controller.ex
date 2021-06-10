@@ -11,7 +11,7 @@ defmodule Unlock.Controller do
   end
 
   def fetch(conn, %{"id" => id}) do
-    config = Application.get_env(:unlock, :resources).fetch_config!()
+    config = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
 
     # TODO: handle 404 properly
     resource = config |> Map.fetch!(id)
