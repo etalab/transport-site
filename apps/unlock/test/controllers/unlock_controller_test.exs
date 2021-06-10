@@ -4,9 +4,12 @@ defmodule Unlock.ControllerTest do
   import Phoenix.ConnTest
   @endpoint Unlock.Endpoint
 
-  test "/" do
-    build_conn()
-    |> get("/")
-    |> text_response(200)
+  test "GET /" do
+    output =
+      build_conn()
+      |> get("/")
+      |> text_response(200)
+
+    assert output == "Unlock Proxy"
   end
 end
