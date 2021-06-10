@@ -38,7 +38,8 @@ defmodule Unlock.MixProject do
       {:finch, "~> 0.7.0"},
       {:yaml_elixir, "~> 2.7"},
       {:cachex, "~> 3.3.0"},
-      {:mox, "~> 1.0.0", only: :test}
+      {:mox, "~> 1.0.0", only: :test},
+      {:ymlr, "~> 2.0", only: :test}
     ]
   end
 end
