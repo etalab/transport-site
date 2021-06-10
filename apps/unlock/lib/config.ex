@@ -31,15 +31,42 @@ defmodule Unlock.Config do
   Retrieve the configuration from GitHub as a map.
   """
   def fetch_config_no_cache!() do
-    Logger.info "Fetching proxy config from GitHub"
-    # NOTE: this stuff will have to move into the config
-    url = "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml"
-    github_token = System.fetch_env!("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN")
+    fetch_config_from_github!()
+    |> convert_yaml_to_config_items()
+    |> index_items_by_unique_identifier()
+  end
 
-    {:ok, _response = %{status: 200, body: body}} = Finch.build(:get, url, [{"Authorization", "token #{github_token}"}]) |> Finch.request(Unlock.Finch)
+  defp fetch_config_from_github!() do
+    Logger.info("Fetching proxy config from GitHub")
+    config_url = Application.fetch_env!(:unlock, :github_config_url)
+    github_token = Application.fetch_env!(:unlock, :github_auth_token)
 
+    %{status: 200, body: body} =
+      Unlock.HTTP.Client.impl().get!(config_url, [{"Authorization", "token #{github_token}"}])
+
+    body
+  end
+
+  defp convert_yaml_to_config_items(body) do
     YamlElixir.read_from_string!(body)
     |> Map.fetch!("feeds")
-    |> Enum.group_by(fn(x) -> x["unique_slug"] end)
+    |> Enum.map(fn f ->
+      %Item{
+        identifier: Map.fetch!(f, "unique_slug"),
+        target_url: Map.fetch!(f, "url"),
+        # By default, no TTL
+        ttl: Map.get(f, "ttl", 0)
+      }
+    end)
+  end
+
+  # for easy access, we're indexing items by identifier
+  # caveat: this will raise if more than 2 items share
+  # the same slug/identifier
+  defp index_items_by_unique_identifier(items) do
+    items
+    |> Enum.group_by(& &1.identifier)
+    |> Enum.map(fn {k, [v]} -> {k, v} end)
+    |> Enum.into(%{})
   end
 end
