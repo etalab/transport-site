@@ -16,8 +16,6 @@ defmodule Unlock.Controller do
     # TODO: handle 404 properly
     resource = config |> Map.fetch!(id)
     # TODO: handle 500 properly
-    # TODO: ensure uniqueness right from inside the config instead
-    [%{"url" => url, "ttl" => _ttl}] = resource
     Logger.info "Proxy match found for id #{id}"
 
     {:ok, response} = Finch.build(:get, url)
