@@ -18,4 +18,13 @@ defmodule Unlock.ControllerTest do
 
     assert output == "Unlock Proxy"
   end
+
+  describe "GET /resource/:slug" do
+    test "handles a regular read"
+    test "handles 404"
+    test "handles caching"
+    test "supports reloading"
+    test "handles remote error"
+    test "handles proxy error"
+  end
 end
