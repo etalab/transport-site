@@ -25,7 +25,14 @@ defmodule Unlock.ControllerTest do
   end
 
   describe "GET /resource/:slug" do
-    test "handles a regular read"
+    test "handles a regular read" do
+      # TODO: create clean struct for item
+      setup_proxy_config(%{"some-configure-slug" => stuff})
+
+      build_conn()
+      |> get("/resource/some-configured-slug")
+    end
+
     test "handles 404"
     test "handles caching"
     test "supports reloading"
