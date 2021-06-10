@@ -21,15 +21,17 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   end
 
   defp get_proxy_configuration(session) do
-    config_method = Application.fetch_env!(:unlock, :resources)
-    data = config_method.()
-    # TODO: stop using an array here
-    Enum.map(data, fn {slug, [resource]} ->
+    data = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
+
+    data
+    |> Map.values()
+    |> Enum.sort_by(& &1.identifier)
+    |> Enum.map(fn resource ->
       %{
-        unique_slug: slug,
-        proxy_url: get_proxy_resource_url(session, slug),
-        original_url: resource["url"],
-        ttl: resource["ttl"]
+        unique_slug: resource.identifier,
+        proxy_url: get_proxy_resource_url(session, resource.identifier),
+        original_url: resource.target_url,
+        ttl: resource.ttl
       }
     end)
   end
