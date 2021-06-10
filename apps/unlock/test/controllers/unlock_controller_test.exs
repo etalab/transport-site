@@ -19,6 +19,11 @@ defmodule Unlock.ControllerTest do
     assert output == "Unlock Proxy"
   end
 
+  def setup_proxy_config(config) do
+    Unlock.Config.Mock
+    |> stub(:fetch_config!, fn() -> config end)
+  end
+
   describe "GET /resource/:slug" do
     test "handles a regular read"
     test "handles 404"
