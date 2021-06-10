@@ -6,6 +6,10 @@ defmodule Unlock.ControllerTest do
 
   import Mox
   setup :verify_on_exit!
+
+  # TODO: test config itself
+  # TODO: persist config in DB for reliability during GitHub outages
+
   test "GET /" do
     output =
       build_conn()
