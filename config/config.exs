@@ -5,7 +5,7 @@
 # is restricted to this project.
 use Mix.Config
 
-config :unlock, :resources, &Unlock.Config.fetch_config!/0
+config :unlock, :resources, Unlock.Config
 
 if System.get_env("CELLAR_NAMESPACE") do
   # We believe CELLAR_NAMESPACE was a previous attempt at siloting S3 envs.
