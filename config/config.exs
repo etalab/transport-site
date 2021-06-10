@@ -5,7 +5,11 @@
 # is restricted to this project.
 use Mix.Config
 
-config :unlock, :resources, Unlock.Config
+config :unlock,
+  resources: Unlock.Config,
+  http_client: Unlock.HTTP.FinchImpl,
+  github_config_url: "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml",
+  github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN")
 
 if System.get_env("CELLAR_NAMESPACE") do
   # We believe CELLAR_NAMESPACE was a previous attempt at siloting S3 envs.
