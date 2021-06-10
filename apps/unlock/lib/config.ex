@@ -5,6 +5,10 @@ defmodule Unlock.Config do
   require Logger
 
   defmodule Item do
+    @moduledoc """
+    An intermediate structure to add a bit of typing to the
+    external YAML configuration.
+    """
     @enforce_keys [:identifier, :target_url, :ttl]
     defstruct [:identifier, :target_url, :ttl]
   end
@@ -16,7 +20,8 @@ defmodule Unlock.Config do
     @callback fetch_config!() :: list(Item)
 
     def convert_yaml_to_config_items(body) do
-      YamlElixir.read_from_string!(body)
+      body
+      |> YamlElixir.read_from_string!()
       |> Map.fetch!("feeds")
       |> Enum.map(fn f ->
         %Item{
@@ -42,7 +47,7 @@ defmodule Unlock.Config do
   defmodule GitHub do
     @behaviour Fetcher
 
-    @doc """
+    @moduledoc """
     Fetch the configuration from GitHub and cache it in RAM using Cachex.
 
     This will allow expiry via a simple key deletion.
@@ -83,13 +88,15 @@ defmodule Unlock.Config do
   defmodule Disk do
     @behaviour Fetcher
 
-    @doc """
+    @moduledoc """
     Fetch the configuration from a file on disk (useful for development or disk-based persistence).
     """
     @impl Fetcher
     def fetch_config!() do
-      file = Application.fetch_env!(:unlock, :disk_config_file)
-      File.read!(file)
+      config_file = Application.fetch_env!(:unlock, :disk_config_file)
+
+      config_file
+      |> File.read!()
       |> Fetcher.convert_yaml_to_config_items()
       |> Fetcher.index_items_by_unique_identifier()
     end

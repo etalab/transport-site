@@ -11,8 +11,6 @@ defmodule Unlock.ControllerTest do
   # require for current cachex use (out of process)
   setup :set_mox_from_context
 
-  # TODO: persist config in DB for reliability during GitHub outages
-
   test "GET /" do
     output =
       build_conn()

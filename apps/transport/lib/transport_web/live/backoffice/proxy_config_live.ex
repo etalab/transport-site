@@ -1,4 +1,9 @@
 defmodule TransportWeb.Backoffice.ProxyConfigLive do
+  @moduledoc """
+  A view able to display the current running configuration of the proxy.
+
+  It will soon support a hot-reload button, and caching stats.
+  """
   use Phoenix.LiveView
 
   def mount(_params, session, socket) do
@@ -8,8 +13,10 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     # https://hexdocs.pm/phoenix_live_view/security-model.html
     # Also, disconnect will have to be handled:
     # https://hexdocs.pm/phoenix_live_view/security-model.html#disconnecting-all-instances-of-a-given-live-user
+    current_user = socket.assigns.current_user
+
     socket =
-      if (current_user = socket.assigns.current_user) &&
+      if current_user &&
            TransportWeb.Router.is_transport_data_gouv_member?(current_user) do
         socket
       else
@@ -42,7 +49,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     %{
       "current_user" => conn.assigns[:current_user],
       "proxy_base_url" =>
-        TransportWeb.Router.Helpers.url(conn)
+        conn
+        |> TransportWeb.Router.Helpers.url()
         |> String.replace("127.0.0.1", "localhost")
         |> String.replace("://", "://proxy.")
     }

@@ -15,17 +15,24 @@ defmodule Unlock.HTTP do
   end
 
   defmodule Client do
+    @moduledoc """
+    Behaviour and central access point for HTTP client operations.
+    """
     @callback get!(url :: binary, headers :: list()) :: Response.t()
 
-    def impl(), do: Application.fetch_env!(:unlock, :http_client)
+    def impl, do: Application.fetch_env!(:unlock, :http_client)
   end
 
   defmodule FinchImpl do
+    @moduledoc """
+    A Finch-based implementation of the Client behaviour.
+    """
     @behaviour Client
 
     def get!(url, headers) do
       {:ok, response} =
-        Finch.build(:get, url, headers)
+        :get
+        |> Finch.build(url, headers)
         |> Finch.request(Unlock.Finch)
 
       %Response{

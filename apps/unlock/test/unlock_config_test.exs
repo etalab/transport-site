@@ -68,4 +68,7 @@ defmodule UnlockGitHubConfigTest do
     # yet data must not change
     assert Unlock.Config.GitHub.fetch_config!() == data
   end
+
+  @tag :skip
+  test "database persistence to cope with GitHub outages"
 end

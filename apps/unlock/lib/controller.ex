@@ -16,6 +16,9 @@ defmodule Unlock.Controller do
   require Logger
 
   defmodule ProxyCacheEntry do
+    @moduledoc """
+    The structure we use to persist HTTP responses we got from the remote servers.
+    """
     @enforce_keys [:body, :headers, :status]
     defstruct [:body, :headers, :status]
   end
@@ -65,8 +68,9 @@ defmodule Unlock.Controller do
   defp process_resource(conn, item) do
     response = fetch_remote(item)
 
-    prepare_response_headers(response.headers)
-    |> Enum.reduce(conn, fn {h,v}, c -> put_resp_header(c,h,v) end)
+    response.headers
+    |> prepare_response_headers()
+    |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
     # For now, we enforce the download. This will result in incorrect filenames
     # if the content-type is incorrect, but is better than nothing.
     |> put_resp_header("content-disposition", "attachment")
@@ -117,7 +121,7 @@ defmodule Unlock.Controller do
   # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug
   defp prepare_response_headers(headers) do
     headers
-    |> Enum.map(fn {h,v} -> {String.downcase(h) ,v} end)
-    |> Enum.filter(fn {h,_v} -> Enum.member?(@forwarded_headers_whitelist, h) end)
+    |> Enum.map(fn {h, v} -> {String.downcase(h), v} end)
+    |> Enum.filter(fn {h, _v} -> Enum.member?(@forwarded_headers_whitelist, h) end)
   end
 end

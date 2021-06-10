@@ -7,7 +7,6 @@ defmodule Unlock.Endpoint do
     plug(Phoenix.CodeReloader)
   end
 
-  # TODO: review items here
   plug(Plug.RequestId)
   plug(Plug.Logger)
   plug(Plug.Head)
