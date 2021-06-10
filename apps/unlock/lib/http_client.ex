@@ -17,8 +17,10 @@ defmodule Unlock.HTTP do
   defmodule Client do
     @moduledoc """
     Behaviour and central access point for HTTP client operations.
+
+    NOTE: the return type is incorrect, should be Response.t().
     """
-    @callback get!(url :: binary, headers :: list()) :: Response.t()
+    @callback get!(url :: binary, headers :: list()) :: any()
 
     def impl, do: Application.fetch_env!(:unlock, :http_client)
   end
