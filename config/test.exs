@@ -14,6 +14,8 @@ config :transport, TransportWeb.Endpoint,
 # Page cache would make tests brittle, so disable it by default
 config :gbfs, :disable_page_cache, true
 
+config :unlock, :resources, Unlock.Config.Mock
+
 # Use stubbing to enjoy disconnected tests & allow setting mocks expectations
 config :transport,
   cache_impl: Transport.Cache.Null,

@@ -7,6 +7,7 @@ defmodule Transport.ImportData do
   alias Helpers
   alias Opendatasoft.UrlExtractor
   alias DB.{Dataset, EPCI, LogsImport, Repo, Resource}
+  alias Transport.AvailabilityChecker
   require Logger
   import Ecto.Query
 
@@ -310,7 +311,7 @@ defmodule Transport.ImportData do
         "latest_url" => resource["latest"] || resource["url"],
         "id" => get_resource_id(resource, dataset["id"]),
         "datagouv_id" => resource["id"],
-        "is_available" => available?(resource),
+        "is_available" => AvailabilityChecker.available?(resource),
         "is_community_resource" => is_community_resource,
         "community_resource_publisher" => get_publisher(resource),
         "description" => resource["description"],
@@ -319,23 +320,6 @@ defmodule Transport.ImportData do
         "original_resource_url" => get_original_resource_url(resource)
       }
     end)
-  end
-
-  @spec available?(map()) :: boolean
-  # Temporarily disabled since data.gouv.fr has been blocked by ODS
-  # def available?(%{"extras" => %{"check:available" => available}}), do: available
-  def available?(%{"url" => "https://static.data.gouv.fr/" <> _}), do: true
-  def available?(%{"url" => "https://demo.data.gouv.fr/" <> _}), do: true
-  def available?(%{"format" => "csv"}), do: true
-  def available?(%{"type" => "api"}), do: true
-
-  def available?(%{"url" => url}) do
-    # NOTE: ssl options are a hotfix for https://github.com/etalab/transport-site/issues/1564
-    # We will be able to remove them once OTP is updated to 23 (https://github.com/etalab/transport-site/issues/1584)
-    case HTTPoison.head(url, [], ssl: [versions: [:"tlsv1.2"]]) do
-      {:ok, %HTTPoison.Response{status_code: code}} when code >= 200 and code < 400 -> true
-      _ -> false
-    end
   end
 
   @spec get_valid_resources(map(), binary()) :: [map()]

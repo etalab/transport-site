@@ -30,13 +30,15 @@ defmodule Unlock.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.5.7"},
+      {:phoenix_html, "~> 2.13"},
       {:sentry, "~> 8.0"},
       # required indirectly by sentry
       {:hackney, "~> 1.8"},
       {:jason, "~> 1.1"},
       {:finch, "~> 0.7.0"},
       {:yaml_elixir, "~> 2.7"},
-      {:cachex, "~> 3.3.0"}
+      {:cachex, "~> 3.3.0"},
+      {:mox, "~> 1.0.0", only: :test}
     ]
   end
 end
