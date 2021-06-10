@@ -18,8 +18,7 @@ defmodule Unlock.Controller do
     # TODO: handle 500 properly
     Logger.info "Proxy match found for id #{id}"
 
-    {:ok, response} = Finch.build(:get, url)
-    |> Finch.request(Unlock.Finch)
+    response = Unlock.HTTP.Client.impl().get!(resource.target_url, [])
 
     # TODO: handle some response headers at least
     # TODO: add a bit of in-memory caching
