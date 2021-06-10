@@ -1,4 +1,4 @@
-defmodule UnlockConfigTest do
+defmodule UnlockGitHubConfigTest do
   #
   # NOTE: Here we use Mox in global setup, and disable async.
   # It would be nice to avoid that in the future.
@@ -31,7 +31,7 @@ defmodule UnlockConfigTest do
   @config_cache_name Unlock.Cachex
   @config_cache_key "config:proxy"
 
-  test "fetch_config!" do
+  test "GitHub.fetch_config!" do
     Cachex.del!(@config_cache_name, @config_cache_key)
 
     # the config module is expected to reach out to GitHub (here with a fake url)
@@ -47,7 +47,7 @@ defmodule UnlockConfigTest do
       }
     end)
 
-    data = Unlock.Config.fetch_config!()
+    data = Unlock.Config.GitHub.fetch_config!()
     # No TTL since we want to keep the configuration always
     assert Cachex.ttl(@config_cache_name, @config_cache_key) == {:ok, nil}
 
@@ -66,6 +66,6 @@ defmodule UnlockConfigTest do
     |> expect(:get!, 0, fn _url, _headers -> nil end)
 
     # yet data must not change
-    assert Unlock.Config.fetch_config!() == data
+    assert Unlock.Config.GitHub.fetch_config!() == data
   end
 end

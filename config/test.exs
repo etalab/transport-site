@@ -15,7 +15,7 @@ config :transport, TransportWeb.Endpoint,
 config :gbfs, :disable_page_cache, true
 
 config :unlock,
-  resources: Unlock.Config.Mock,
+  config_fetcher: Unlock.Config.Fetcher.Mock,
   http_client: Unlock.HTTP.Client.Mock,
   # Used for config testing
   github_config_url: "https://localhost/some-github-url",

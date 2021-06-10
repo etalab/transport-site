@@ -6,7 +6,7 @@
 use Mix.Config
 
 config :unlock,
-  resources: Unlock.Config,
+  config_fetcher: Unlock.Config.GitHub,
   http_client: Unlock.HTTP.FinchImpl,
   github_config_url: "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml",
   github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN")
