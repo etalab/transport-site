@@ -4,6 +4,8 @@ defmodule Unlock.ControllerTest do
   import Phoenix.ConnTest
   @endpoint Unlock.Endpoint
 
+  import Mox
+  setup :verify_on_exit!
   test "GET /" do
     output =
       build_conn()
