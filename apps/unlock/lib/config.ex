@@ -20,8 +20,8 @@ defmodule Unlock.Config do
       |> Map.fetch!("feeds")
       |> Enum.map(fn f ->
         %Item{
-          identifier: Map.fetch!(f, "unique_slug"),
-          target_url: Map.fetch!(f, "url"),
+          identifier: Map.fetch!(f, "identifier"),
+          target_url: Map.fetch!(f, "target_url"),
           # By default, no TTL
           ttl: Map.get(f, "ttl", 0)
         }

@@ -20,8 +20,8 @@ defmodule UnlockGitHubConfigTest do
     %{
       "feeds" => [
         %{
-          "unique_slug" => "test-slug",
-          "url" => "http://localhost/real-time"
+          "identifier" => "test-slug",
+          "target_url" => "http://localhost/real-time"
         }
       ]
     }
