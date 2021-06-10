@@ -17,16 +17,10 @@ defmodule Unlock.Config do
   This will allow expiry via a simple key deletion.
   """
   def fetch_config!() do
-    # NOTE: this won't handle errors correctly
+    # NOTE: this won't handle errors correctly at this point
     fetch_config = fn _key -> {:commit, fetch_config_no_cache!()} end
-    cache_name = Unlock.Cachex
-    cache_key = "config:proxy"
-    # NOTE: we do not want any expiry here. For now I'm using a very large TTL
-    ttl = :timer.hours(100_000)
-
-    case {_operation, _result} = Cachex.fetch(cache_name, cache_key, fetch_config) do
+    case {_operation, _result} = Cachex.fetch(Unlock.Cachex, "config:proxy", fetch_config) do
       {:commit, result} ->
-        Cachex.expire(cache_name, cache_key, ttl)
         result
       {:ok, result} ->
         result
