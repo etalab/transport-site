@@ -90,7 +90,7 @@ defmodule Unlock.ControllerTest do
 
       # subsequent queries should work based on cache
       Unlock.HTTP.Client.Mock
-      |> expect(:get!, 0, fn(_url, _headers) -> end)
+      |> expect(:get!, 0, fn(_url, _headers) -> nil end)
 
       {:ok, ttl} = Cachex.ttl(Unlock.Cachex, "resource:an-existing-identifier")
       assert_in_delta ttl / 1000.0, ttl_in_seconds, 1
