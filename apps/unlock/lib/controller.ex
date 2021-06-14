@@ -99,14 +99,19 @@ defmodule Unlock.Controller do
 
     cache_name = Unlock.Cachex
     cache_key = "resource:#{item.identifier}"
+    # NOTE: concurrent calls to `fetch` with the same key will result (here)
+    # in only one fetching call, which is a nice guarantee (avoid overloading of target)
     {operation, result} = Cachex.fetch(cache_name, cache_key, comp_fn)
     case operation do
       :ok ->
         Logger.info("Proxy response for #{item.identifier} served from cache")
         result
       :commit ->
+        # NOTE: in case of concurrent calls, the expire will be called 1 time per call. I am
+        # doing research to verify if this could be changed (e.g. call `expire` inside the `comp_fn`),
+        # but at this point it doesn't cause troubles.
         Cachex.expire(cache_name, cache_key, :timer.seconds(item.ttl))
-        Logger.info("Value for key #{cache_key} regenerated (will expire in #{item.ttl} seconds)")
+        Logger.info("Setting cache TTL for key #{cache_key} (expire in #{item.ttl} seconds)")
         result
       :ignore ->
         Logger.info("Cache has been skipped for proxy response")
