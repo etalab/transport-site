@@ -27,7 +27,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     {:ok, socket}
   end
 
-  defp get_proxy_configuration(session) do
+  defp get_proxy_configuration(proxy_base_url) do
     data = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
 
     data
@@ -36,7 +36,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     |> Enum.map(fn resource ->
       %{
         unique_slug: resource.identifier,
-        proxy_url: get_proxy_resource_url(session, resource.identifier),
+        proxy_url: get_proxy_resource_url(proxy_base_url, resource.identifier),
         original_url: resource.target_url,
         ttl: resource.ttl
       }
@@ -56,9 +56,9 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     }
   end
 
-  defp get_proxy_resource_url(%{"proxy_base_url" => base_url}, slug) do
+  defp get_proxy_resource_url(proxy_base_url, slug) do
     Path.join(
-      base_url,
+      proxy_base_url,
       Unlock.Router.Helpers.resource_path(Unlock.Endpoint, :fetch, slug)
     )
   end
