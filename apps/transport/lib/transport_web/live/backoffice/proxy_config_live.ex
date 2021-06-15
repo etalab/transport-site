@@ -44,7 +44,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   end
 
   defp schedule_next_update_data() do
-    Process.send_after(self(), :update_data, 250)
+    Process.send_after(self(), :update_data, 1000)
   end
 
   defp update_data(socket) do
