@@ -3,7 +3,7 @@ use Mix.Config
 # For local work, it is usually more convenient to copy-paste
 config :unlock,
   config_fetcher: Unlock.Config.Disk,
-  disk_config_file: "config/proxy-config.yml"
+  disk_config_file: Path.join(__DIR__, "proxy-config.yml")
 
 config :transport, TransportWeb.Endpoint,
   http: [port: 5000],
