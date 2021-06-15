@@ -47,6 +47,8 @@ defmodule Unlock.Config do
   defmodule GitHub do
     @behaviour Fetcher
 
+    @proxy_config_cache_key "config:proxy"
+
     @moduledoc """
     Fetch the configuration from GitHub and cache it in RAM using Cachex.
 
@@ -56,7 +58,7 @@ defmodule Unlock.Config do
     def fetch_config!() do
       # NOTE: this won't handle errors correctly at this point
       fetch_config = fn _key -> {:commit, fetch_config_no_cache!()} end
-      case {_operation, _result} = Cachex.fetch(Unlock.Cachex, "config:proxy", fetch_config) do
+      case {_operation, _result} = Cachex.fetch(Unlock.Cachex, @proxy_config_cache_key, fetch_config) do
         {:commit, result} ->
           result
         {:ok, result} ->
