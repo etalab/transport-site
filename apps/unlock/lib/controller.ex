@@ -97,8 +97,8 @@ defmodule Unlock.Controller do
       end
     end
 
-    cache_name = Unlock.Cachex
-    cache_key = "resource:#{item.identifier}"
+    cache_name = Unlock.Shared.cache_name()
+    cache_key = Unlock.Shared.cache_key(item.identifier)
     # NOTE: concurrent calls to `fetch` with the same key will result (here)
     # in only one fetching call, which is a nice guarantee (avoid overloading of target)
     {operation, result} = Cachex.fetch(cache_name, cache_key, comp_fn)
