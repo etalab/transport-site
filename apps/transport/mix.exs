@@ -81,6 +81,7 @@ defmodule Transport.Mixfile do
       {:unidecode, "~> 0.0.2"},
       {:ex_machina, "~> 2.4", only: :test},
       {:phoenix_ecto, "~> 4.0"},
+      {:sizeable, "~> 1.0"},
       {:mox, "~> 1.0.0", only: :test}
     ]
   end
