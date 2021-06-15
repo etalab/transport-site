@@ -18,6 +18,7 @@ defmodule Unlock.Config do
     A behaviour + shared methods for config fetching.
     """
     @callback fetch_config!() :: list(Item)
+    @callback clear_config_cache!() :: any
 
     def convert_yaml_to_config_items(body) do
       body
@@ -66,6 +67,11 @@ defmodule Unlock.Config do
       end
     end
 
+    @impl Fetcher
+    def clear_config_cache!() do
+      Cachex.del!(Unlock.Cachex, @proxy_config_cache_key)
+    end
+
     @doc """
     Retrieve the configuration from GitHub as a map.
     """
@@ -89,6 +95,7 @@ defmodule Unlock.Config do
 
   defmodule Disk do
     @behaviour Fetcher
+    require Logger
 
     @moduledoc """
     Fetch the configuration from a file on disk (useful for development or disk-based persistence).
@@ -101,6 +108,11 @@ defmodule Unlock.Config do
       |> File.read!()
       |> Fetcher.convert_yaml_to_config_items()
       |> Fetcher.index_items_by_unique_identifier()
+    end
+
+    @impl Fetcher
+    def clear_config_cache!() do
+      Logger.info "Clearing cache config (no-op)"
     end
   end
 end
