@@ -18,6 +18,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
        socket
        |> assign(proxy_base_url: proxy_base_url)
+       |> update_data()
      end)}
   end
 
@@ -38,6 +39,13 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     else
       redirect(socket, to: "/login")
     end
+  end
+
+  defp update_data(socket) do
+    assign(socket,
+      last_updated_at: DateTime.utc_now() |> DateTime.to_iso8601(),
+      proxy_configuration: get_proxy_configuration(socket.assigns.proxy_base_url)
+    )
   end
 
   defp get_proxy_configuration(proxy_base_url) do
