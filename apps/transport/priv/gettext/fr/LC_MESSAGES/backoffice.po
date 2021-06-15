@@ -37,7 +37,7 @@ msgstr "Échec à l’ajout du jeu de données"
 msgid "public-transit"
 msgstr "Transport en communs"
 
-msgid "carsharing-areas"
+msgid "carpooling-areas"
 msgstr "Lieux de covoiturage"
 
 msgid "stops-ref"

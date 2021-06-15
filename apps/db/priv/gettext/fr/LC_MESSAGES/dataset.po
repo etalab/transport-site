@@ -20,7 +20,7 @@ msgid "Bike sharing"
 msgstr "Vélo partage"
 
 #, elixir-format
-msgid "Carsharing areas"
+msgid "Carpooling areas"
 msgstr "Lieux de covoiturage"
 
 #, elixir-format
