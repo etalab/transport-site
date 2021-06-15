@@ -43,7 +43,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
   defp update_data(socket) do
     assign(socket,
-      last_updated_at: DateTime.utc_now() |> DateTime.to_iso8601(),
+      last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
       proxy_configuration: get_proxy_configuration(socket.assigns.proxy_base_url)
     )
   end
