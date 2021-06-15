@@ -1,4 +1,4 @@
-defmodule TransportWeb.ConditionalJSONEncoder do
+defmodule Transport.Shared.ConditionalJSONEncoder do
   require Logger
 
   @moduledoc """

@@ -6,6 +6,12 @@
       </a>
     </div>
     <div>
+      <% # See path explanation at https://elixirforum.com/t/scoped-live-view-does-not-seem-to-generate-a-live-path-helper/31162/4?u=thbar %>
+      <a class="button" href="<%= backoffice_live_path(@conn, TransportWeb.Backoffice.ProxyConfigLive) %>">
+        <%= dgettext("backoffice", "Configuration du proxy") %>
+      </a>
+    </div>
+    <div>
       <a class="button" href="<%= backoffice_dashboard_path(@conn, :index) %>">
         <%= dgettext("backoffice", "Rapport de complétude des imports") %>
       </a>
@@ -83,5 +89,4 @@
   <%= pagination_links @conn, @datasets %>
 </div>
 </section>
-<%= csrf_meta_tag() %>
 <script src="js/app.js"></script>

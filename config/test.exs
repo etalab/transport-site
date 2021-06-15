@@ -14,6 +14,13 @@ config :transport, TransportWeb.Endpoint,
 # Page cache would make tests brittle, so disable it by default
 config :gbfs, :disable_page_cache, true
 
+config :unlock,
+  config_fetcher: Unlock.Config.Fetcher.Mock,
+  http_client: Unlock.HTTP.Client.Mock,
+  # Used for config testing
+  github_config_url: "https://localhost/some-github-url",
+  github_auth_token: "some-test-github-auth-token"
+
 # Use stubbing to enjoy disconnected tests & allow setting mocks expectations
 config :transport,
   cache_impl: Transport.Cache.Null,
