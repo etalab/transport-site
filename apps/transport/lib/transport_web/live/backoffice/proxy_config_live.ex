@@ -1,8 +1,6 @@
 defmodule TransportWeb.Backoffice.ProxyConfigLive do
   @moduledoc """
   A view able to display the current running configuration of the proxy.
-
-  It will soon support a hot-reload button, and caching stats.
   """
   use Phoenix.LiveView
 
@@ -59,10 +57,16 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     {:noreply, update_data(socket)}
   end
 
-  defp get_proxy_configuration(proxy_base_url) do
-    data = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
+  def handle_event("refresh_proxy_config", _value, socket) do
+    if socket.assigns.current_admin_user, do: config_module().clear_config_cache!()
 
-    data
+    {:noreply, socket}
+  end
+
+  defp config_module, do: Application.fetch_env!(:unlock, :config_fetcher)
+
+  defp get_proxy_configuration(proxy_base_url) do
+    config_module().fetch_config!()
     |> Map.values()
     |> Enum.sort_by(& &1.identifier)
     |> Enum.map(fn resource ->
