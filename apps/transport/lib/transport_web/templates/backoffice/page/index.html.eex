@@ -89,5 +89,4 @@
   <%= pagination_links @conn, @datasets %>
 </div>
 </section>
-<%= csrf_meta_tag() %>
 <script src="js/app.js"></script>
