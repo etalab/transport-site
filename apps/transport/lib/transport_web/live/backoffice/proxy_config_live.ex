@@ -72,7 +72,24 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
         original_url: resource.target_url,
         ttl: resource.ttl
       }
+      |> add_cache_state()
     end)
+  end
+
+  defp add_cache_state(item) do
+    cache_entry =
+      item.unique_slug
+      |> Unlock.Shared.cache_key()
+      |> Unlock.Shared.cache_entry()
+
+    if cache_entry do
+      Map.merge(item, %{
+        cache_size: cache_entry.body |> byte_size() |> Sizeable.filesize(),
+        cache_status: cache_entry.status
+      })
+    else
+      item
+    end
   end
 
   # This method is currently referenced in the proxy router, which

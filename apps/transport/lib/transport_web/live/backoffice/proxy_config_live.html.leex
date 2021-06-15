@@ -6,7 +6,9 @@
                 <th>Identifiant</th>
                 <th>URL proxy</th>
                 <th>Donnée cible</th>
-                <th>TTL</th>
+                <th alt="Time To Live (durée en secondes de conservation dans le cache">TTL</th>
+                <th>Taille RAM</th>
+                <th>Statut HTTP</th>
             </tr>
         </thead>
         <tbody>
@@ -17,6 +19,9 @@
                 <td><a href="<%= resource.proxy_url %>">lien</a></td>
                 <td><a href="<%= resource.original_url %>">lien</a></td>
                 <td><%= resource.ttl %></td>
+                <!-- optional stuff, only available when cache is loaded -->
+                <td><%= resource[:cache_size] %></td>
+                <td><%= resource[:cache_status] %></td>
             </tr>
             <% end %>
         </tbody>
