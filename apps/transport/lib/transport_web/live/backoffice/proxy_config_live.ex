@@ -16,6 +16,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
     {:ok,
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
+       if connected?(socket), do: schedule_next_update_data()
+
        socket
        |> assign(proxy_base_url: proxy_base_url)
        |> update_data()
@@ -41,11 +43,20 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     end
   end
 
+  defp schedule_next_update_data() do
+    Process.send_after(self(), :update_data, 250)
+  end
+
   defp update_data(socket) do
     assign(socket,
       last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
       proxy_configuration: get_proxy_configuration(socket.assigns.proxy_base_url)
     )
+  end
+
+  def handle_info(:update_data, socket) do
+    schedule_next_update_data()
+    {:noreply, update_data(socket)}
   end
 
   defp get_proxy_configuration(proxy_base_url) do
