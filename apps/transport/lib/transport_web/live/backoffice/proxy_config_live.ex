@@ -66,6 +66,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
   # This method is currently referenced in the proxy router, which
   # uses it to create initialisation data for the code to work (aka session)
+  # It would be better to use a well-defined variable instead of this hack.
   def build_session(conn) do
     %{
       "current_user" => conn.assigns[:current_user],
