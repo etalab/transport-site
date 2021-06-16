@@ -18,23 +18,6 @@
         </a>
         <ul class="nav__links top-nav-links">
           <li class="nav__item">
-            <div class="dropdown">
-              <%= if get_session(@conn, :locale) == "fr" do %>
-                <img class="language" src=<%= static_path(@conn, "/images/icons/fr.png") %>>
-              <% else %>
-                <img class="language" src=<%= static_path(@conn, "/images/icons/en.png") %>>
-              <% end %>
-              <div class="dropdown-content">
-                <%= link(to: add_locale_to_url(@conn, "fr")) do %>
-                  <img class="language" src=<%= static_path(@conn, "/images/icons/fr.png") %>> Français
-                <% end %>
-                <%= link(to: add_locale_to_url(@conn, "en")) do %>
-                  <img class="language" src=<%= static_path(@conn, "/images/icons/en.png") %>> English
-                <% end %>
-              </div>
-            </div>
-          </li>
-          <li class="nav__item">
             <%= link(gettext("Documentation"), to: "https://doc.transport.data.gouv.fr") %>
           </li>
           <li class="nav__item">
@@ -86,6 +69,23 @@
             </a>
           </li>
         <% end %>
+          <li class="nav__item">
+            <div class="dropdown">
+              <%= if get_session(@conn, :locale) == "fr" do %>
+                <img src="<%= static_path(@conn, "/images/icons/fr.png") %>" height=24 >
+              <% else %>
+                <img src="<%= static_path(@conn, "/images/icons/en.png") %>" height=24 >
+              <% end %>
+              <div class="dropdown-content">
+                <%= link(to: add_locale_to_url(@conn, "fr")) do %>
+                  Français
+                <% end %>
+                <%= link(to: add_locale_to_url(@conn, "en")) do %>
+                  English
+                <% end %>
+              </div>
+            </div>
+          </li>
       </ul>
     </div>
   </nav>
