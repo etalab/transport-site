@@ -39,7 +39,7 @@
           </li>
           <li class="nav__item">
             <div class="dropdown">
-              Outils
+              <%= gettext("Tools") %>
               <div class="dropdown-content">
                 <%= link(gettext("Check a GTFS file's quality"), to: "/validation") %>
                 <%= link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank") %>

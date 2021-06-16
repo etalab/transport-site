@@ -56,23 +56,25 @@
 <div class="container">
 
 <div id="pan-offer-descriptions">
-  <div class="pan-offer">Une plateforme GRATUITE et librement ACCESSIBLE</div>
   <div class="pan-offer">
-    Un catalogue EXHAUSTIF de données ouvertes
+    <%= dgettext("page-index", "A freely accessible service")%>
+  </div>
+  <div class="pan-offer">
+    <%= dgettext("page-index", "ALL French open mobility data at the same place")%>
     <div class="pan-offer-subtitle pt-12">
-      Formats homogènes
+      <%= dgettext("page-index", "Selected formats")%>
     </div>
     <div class="pan-offer-subtitle">
-      Licences harmonisées
+      <%= dgettext("page-index", "Selected licences")%>
     </div>
   </div>
     <div class="pan-offer">
-      Des outils pour faciliter leur réutilisation
+      <%= dgettext("page-index", "Online tools to ease data reuses")%>
     </div>
 </div>
 
   <div class="existing pt-48" id="datasets">
-  <h1>Les données disponibles par thème</h1>
+  <h1><%= dgettext("page-index", "Available data by theme")%></h1>
     <div class="available-data grid">
       <a class="tile" href="<%= dataset_path(@conn, :index, type: "public-transit") %>">
         <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus.svg") %>" alt="" />
