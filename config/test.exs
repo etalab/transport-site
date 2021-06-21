@@ -50,3 +50,6 @@ config :exvcr, [
 config :db, DB.Repo,
   url: System.get_env("PG_URL_TEST") || System.get_env("PG_URL") || "ecto://postgres:postgres@localhost/transport_test",
   pool: Ecto.Adapters.SQL.Sandbox
+
+# temporary stuff, yet this is not DRY
+config :transport, datagouvfr_site: "https://demo.data.gouv.fr"
