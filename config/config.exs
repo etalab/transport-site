@@ -5,6 +5,12 @@
 # is restricted to this project.
 use Mix.Config
 
+config :unlock,
+  config_fetcher: Unlock.Config.GitHub,
+  http_client: Unlock.HTTP.FinchImpl,
+  github_config_url: "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml",
+  github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN")
+
 if System.get_env("CELLAR_NAMESPACE") do
   # We believe CELLAR_NAMESPACE was a previous attempt at siloting S3 envs.
   # We will instead rely on separate buckets in the short-term future.
@@ -46,7 +52,7 @@ config :phoenix, :json_library, Jason
 # See https://hexdocs.pm/phoenix/1.5.8/Phoenix.Template.html#module-format-encoders
 #
 config :phoenix, :format_encoders,
-  json: TransportWeb.ConditionalJSONEncoder
+  json: Transport.Shared.ConditionalJSONEncoder
 
 # Configures Elixir's Logger
 config :logger,
