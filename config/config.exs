@@ -3,6 +3,11 @@
 #
 # This configuration file is loaded before any dependency and
 # is restricted to this project.
+
+# NOTE: this is very much legacy & work in progress to modernize the situation.
+# For reference, ultimately most tests should not connect to outside stuff.
+# A good model for improvements is https://github.com/hexpm/hexpm/tree/main/config
+#
 use Mix.Config
 
 config :unlock,
