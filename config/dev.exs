@@ -63,3 +63,7 @@ else
   require Logger
   Logger.warn("Only the most basic features will work. Please create #{extra_config_file} based on config/dev.secret.template.exs for more advanced use.")
 end
+
+if File.exists?(".envrc") do
+  Mix.raise("The .envrc file is deprecated and must be removed")
+end
