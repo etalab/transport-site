@@ -1,12 +1,3 @@
-# A few notes: apparently, to run the tests, you do not need a full config.
-#
-# Just the following variables are needed (mostly seen in the CircleCI config):
-# - DATAGOUVFR_SITE
-# - GTFS_VALIDATOR_URL # for external?
-# - SECRET_KEY_BASE (to be generated)
-# 
-# MIX_ENV=dev can actually be removed, so that you don't have to type MIX_ENV=test
-# before each test run.
 
 # Set the mix_env to dev. Only for dev purpose.
 export MIX_ENV=dev
