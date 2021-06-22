@@ -223,6 +223,6 @@ msgstr ""
 msgid "With more than 1 GTFS"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Show only datasets"
 msgstr ""

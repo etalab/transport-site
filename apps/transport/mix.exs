@@ -70,6 +70,7 @@ defmodule Transport.Mixfile do
       {:datagouvfr, in_umbrella: true},
       {:shared, in_umbrella: true},
       {:db, in_umbrella: true},
+      {:unlock, in_umbrella: true},
       {:castore, "~> 0.1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:cors_plug, "~> 2.0"},
@@ -80,6 +81,7 @@ defmodule Transport.Mixfile do
       {:unidecode, "~> 0.0.2"},
       {:ex_machina, "~> 2.4", only: :test},
       {:phoenix_ecto, "~> 4.0"},
+      {:sizeable, "~> 1.0"},
       {:mox, "~> 1.0.0", only: :test}
     ]
   end
