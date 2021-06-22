@@ -8,7 +8,7 @@
           <div class="panel">
             "<%= comment["content"] %>"
             <br>
-            <%= link("voir la discussion", to: "#{Application.get_env(:transport, :datagouvfr_site)}/datasets/#{datagouv_id}/#discussion-#{comment["discussion_id"]}") %>
+            <%= link("voir la discussion", to: "#{Application.fetch_env!(:transport, :datagouvfr_site)}/datasets/#{datagouv_id}/#discussion-#{comment["discussion_id"]}") %>
           </div>
       <% end %>
     <% end %>

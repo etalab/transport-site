@@ -52,17 +52,20 @@ defmodule TransportWeb.ResourceView do
   def link_to_datagouv_resource_edit(dataset_id, resource_id),
     do:
       :transport
-      |> Application.get_env(:datagouvfr_site)
+      |> Application.fetch_env!(:datagouvfr_site)
       |> Path.join("/fr/admin/dataset/#{dataset_id}/resource/#{resource_id}")
 
   def link_to_datagouv_resource_creation(dataset_id),
     do:
       :transport
-      |> Application.get_env(:datagouvfr_site)
+      |> Application.fetch_env!(:datagouvfr_site)
       |> Path.join("/fr/admin/dataset/#{dataset_id}?new_resource=")
 
   def dataset_creation,
-    do: :transport |> Application.get_env(:datagouvfr_site) |> Path.join("/fr/admin/dataset/new/")
+    do:
+      :transport
+      |> Application.fetch_env!(:datagouvfr_site)
+      |> Path.join("/fr/admin/dataset/new/")
 
   @doc """
   Given a dataset, a ressource, and a format, get the community resources
