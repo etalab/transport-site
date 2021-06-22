@@ -42,3 +42,15 @@ config :phoenix, :stacktrace_depth, 20
 # as often done.
 config :transport,
   history_impl: Transport.History.Fetcher.Mock
+
+# Provide a default experience that will mostly work without manual config,
+# except for more a
+# One can use dev.secret.exs to override this
+secret_key_base = "lrS928IORjEwtIIdxjRZ30I8PUR4rbXorGCfmA4nbX2Jkgjl7U9rpcz6QjjH1AOc"
+
+config :transport, TransportWeb.Endpoint,
+  secret_key_base: secret_key_base,
+  live_view: [
+    # NOTE: unsure if this is actually great to reuse the same value
+    signing_salt: secret_key_base
+  ]
