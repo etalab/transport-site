@@ -73,10 +73,11 @@ defmodule Transport.ImportDataTest do
 
   def http_stream_mock do
     fn _url ->
-      %{
-        status: 200,
-        hash: "resource1_hash"
-      }
+      {:ok,
+       %{
+         status: 200,
+         hash: "resource1_hash"
+       }}
     end
   end
 
