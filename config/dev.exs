@@ -54,3 +54,12 @@ config :transport, TransportWeb.Endpoint,
     # NOTE: unsure if this is actually great to reuse the same value
     signing_salt: secret_key_base
   ]
+
+extra_config_file = Path.join(__DIR__, "#{Mix.env()}.secret.exs")
+
+if File.exists?(extra_config_file) do
+  import_config extra_config_file
+else
+  require Logger
+  Logger.warn("Only the most basic features will work. Please create #{extra_config_file} based on config/dev.secret.template.exs for more advanced use.")
+end
