@@ -1,7 +1,3 @@
-
-# Set the mix_env to dev. Only for dev purpose.
-export MIX_ENV=dev
-
 # Configuration for the data.gouv.fr connection
 export DATAGOUVFR_SITE=https://demo.data.gouv.fr # This is data.gouv.fr test environment
 export DATAGOUVFR_CLIENT_ID=asdf1234
