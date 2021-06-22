@@ -55,6 +55,14 @@ config :transport, TransportWeb.Endpoint,
     signing_salt: secret_key_base
   ]
 
+datagouvfr_site = "https://demo.data.gouv.fr"
+
+config :transport, datagouvfr_site: datagouvfr_site
+
+config :oauth2, Authentication,
+  site: datagouvfr_site,
+  redirect_uri: "http://localhost:5000/login/callback"
+
 extra_config_file = Path.join(__DIR__, "#{Mix.env()}.secret.exs")
 
 if File.exists?(extra_config_file) do
