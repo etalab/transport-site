@@ -59,7 +59,7 @@ defmodule DB.Dataset do
   def type_to_str_map,
     do: %{
       "public-transit" => dgettext("dataset", "Public transit timetable"),
-      "carsharing-areas" => dgettext("dataset", "Carsharing areas"),
+      "carpooling-areas" => dgettext("dataset", "Carpooling areas"),
       "stops-ref" => dgettext("dataset", "Stops referential"),
       "charging-stations" => dgettext("dataset", "Charging stations"),
       "micro-mobility" => dgettext("dataset", "Micro mobility"),

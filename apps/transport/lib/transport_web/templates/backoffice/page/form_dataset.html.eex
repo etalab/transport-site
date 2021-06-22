@@ -152,5 +152,4 @@
       </div>
     <% end %>
 </div>
-<%= csrf_meta_tag() %>
 <script src="/js/app.js"></script>
