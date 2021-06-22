@@ -33,13 +33,13 @@ defmodule DB.Repo.Migrations.DatasetCommunesOnDelete do
     recreate_materialized_view()
   end
 
-  def drop_materialized_view() do
+  def drop_materialized_view do
     execute("DROP TRIGGER refresh_dataset_geographic_view_trigger ON dataset;")
     execute("DROP FUNCTION refresh_dataset_geographic_view;")
     execute("DROP MATERIALIZED VIEW dataset_geographic_view;")
   end
 
-  def recreate_materialized_view() do
+  def recreate_materialized_view do
     execute("""
       CREATE MATERIALIZED VIEW dataset_geographic_view AS
       SELECT
