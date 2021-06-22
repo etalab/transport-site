@@ -53,3 +53,6 @@ config :db, DB.Repo,
 
 # temporary stuff, yet this is not DRY
 config :transport, datagouvfr_site: "https://demo.data.gouv.fr"
+
+config :transport, TransportWeb.Endpoint,
+  secret_key_base: "SOME-LONG-SECRET-KEY-BASE-FOR-TESTING-SOME-LONG-SECRET-KEY-BASE-FOR-TESTING"
