@@ -171,7 +171,7 @@ defmodule TransportWeb.DatasetView do
       "public-transit" => "/images/icons/bus.svg",
       "bike-sharing" => "/images/icons/bicycle.svg",
       "bike-path" => "/images/icons/bike-path.svg",
-      "carsharing-areas" => "/images/icons/car.svg",
+      "carpooling-areas" => "/images/icons/car.svg",
       "charging-stations" => "/images/icons/charge-station.svg",
       "air-transport" => "/images/icons/plane.svg",
       "road-network" => "/images/icons/map.svg",
@@ -308,7 +308,7 @@ defmodule TransportWeb.DatasetView do
   """
   @spec get_resource_to_display(%Dataset{}) :: Resource.t() | nil
   def get_resource_to_display(%Dataset{type: type, resources: resources})
-      when type == "carsharing-areas" or type == "private-parking" or type == "charging-stations" do
+      when type == "carpooling-areas" or type == "private-parking" or type == "charging-stations" do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
     |> Enum.reject(fn r -> r.is_community_resource end)
