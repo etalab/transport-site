@@ -52,7 +52,12 @@ config :db, DB.Repo,
   pool: Ecto.Adapters.SQL.Sandbox
 
 # temporary stuff, yet this is not DRY
-config :transport, datagouvfr_site: "https://demo.data.gouv.fr"
+config :transport,
+  datagouvfr_site: "https://demo.data.gouv.fr",
+  # NOTE: the tests are normally expected to be marked :external
+  # and rely on ExVCR cassettes at the moment. This provides the expected
+  # target host name for them, until we move to a behaviour-based testing instead.
+  gtfs_validator_url: "https://transport-validator.cleverapps.io"
 
 config :transport, TransportWeb.Endpoint,
   secret_key_base: "SOME-LONG-SECRET-KEY-BASE-FOR-TESTING-SOME-LONG-SECRET-KEY-BASE-FOR-TESTING"
