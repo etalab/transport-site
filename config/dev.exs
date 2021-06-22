@@ -59,7 +59,7 @@ datagouvfr_site = "https://demo.data.gouv.fr"
 
 config :transport, datagouvfr_site: datagouvfr_site
 
-config :oauth2, Authentication,
+config :oauth2, Datagouvfr.Authentication,
   site: datagouvfr_site,
   redirect_uri: "http://localhost:5000/login/callback"
 
