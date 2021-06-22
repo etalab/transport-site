@@ -29,7 +29,6 @@ config :gbfs, jcdecaux_apikey: System.get_env("JCDECAUX_APIKEY")
 
 # Configures the endpoint
 config :gbfs, GBFS.Endpoint,
-  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: GBFS.ErrorView, accepts: ~w(json)],
   pubsub_server: GBFS.PubSub, # TODO: verify if this is truly needed? unsure.
   server: false
