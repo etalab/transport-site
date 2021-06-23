@@ -256,7 +256,7 @@ msgid "Data for private car-parks in France are produced by different local auth
 msgstr "Les données concernant le stationnement hors-voirie en France sont produites par différentes collectivités et gestionnaires de parking. Ces données, lorsqu’elles sont normalisées, sont assemblées et consolidées dans un jeu de données national : la %{start_link}Base Nationale des Lieux de Stationnement (BNLS)%{end_link}."
 
 #, elixir-format
-msgid "This dataset only describes parking spaces accessible to the general public, with barrier entrance."
+msgid "parking spaces text"
 msgstr "Cette base ne référence que les parkings accessibles au public dont l’accès est limité par une barrière."
 
 #, elixir-format
