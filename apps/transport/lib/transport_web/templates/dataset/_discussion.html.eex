@@ -15,7 +15,7 @@
           <span> <%= format_datetime comment["posted_on"] %></span>
         </div>
         <div class="discussion-comment__content">
-          <%= raw Earmark.as_html!(comment["content"]) %>
+          <%= MarkdownHandler.markdown_to_safe_html!(comment["content"]) %>
         </div>
       </div>
   </div>

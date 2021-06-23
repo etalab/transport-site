@@ -32,7 +32,6 @@ export GTFS_VALIDATOR_URL=https://transport-validator.cleverapps.io
 # Clever cloud cellar keys. If empty no dataset history is available
 export CELLAR_ACCESS_KEY_ID=
 export CELLAR_SECRET_ACCESS_KEY=
-export CELLAR_NAMESPACE=
 
 # Mailjet configuration
 export MJ_APIKEY_PUBLIC=

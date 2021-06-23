@@ -2,6 +2,9 @@ use Mix.Config
 
 alias Datagouvfr.Authentication
 
+# avoid test failures with VCR, as tzdata tries to update
+config :tzdata, :autoupdate, :disabled
+
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :transport, TransportWeb.Endpoint,
@@ -11,11 +14,26 @@ config :transport, TransportWeb.Endpoint,
 # Page cache would make tests brittle, so disable it by default
 config :gbfs, :disable_page_cache, true
 
-# Override cache implementation
-config :transport, cache_impl: Transport.Cache.Null
+config :unlock,
+  config_fetcher: Unlock.Config.Fetcher.Mock,
+  http_client: Unlock.HTTP.Client.Mock,
+  # Used for config testing
+  github_config_url: "https://localhost/some-github-url",
+  github_auth_token: "some-test-github-auth-token"
 
-# Print only warnings and errors during test
-config :logger, level: :warn
+# Use stubbing to enjoy disconnected tests & allow setting mocks expectations
+config :transport,
+  cache_impl: Transport.Cache.Null,
+  ex_aws_impl: Transport.ExAWS.Mock,
+  httpoison_impl: Transport.HTTPoison.Mock,
+  history_impl: Transport.History.Fetcher.Mock
+
+# capture all info logs and up during tests
+config :logger, level: :info
+
+# ... but show only warnings and up on the console
+config :logger, :console,
+  level: :warn
 
 # Configure data.gouv.fr authentication
 config :oauth2, Authentication,

@@ -208,7 +208,7 @@ defmodule TransportWeb.API.StatsController do
   # storing the original data structure in cache then re-encoding at each request.
   #
   # Because `render` does not support passing a rendered JSON (as binary) today, and to avoid
-  # resorting to `send_resp` directly, we leverage `TransportWeb.ConditionalJSONEncoder` to
+  # resorting to `send_resp` directly, we leverage `Transport.Shared.ConditionalJSONEncoder` to
   # skip JSON encoding, signaling the need to do so via a {:skip_json_encoding, data} tuple.
   #
   @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary() | nil) :: Plug.Conn.t()

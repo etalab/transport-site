@@ -1,5 +1,7 @@
 /*
-  Return the "count" of logs_import for each dataset and each day of a recent date range.
+  Return :
+  - the "count" of logs_import for each dataset and each day of a recent date range (import_counts)
+  - the count of logs_import full success for each dataset and each day of a recent date range (success_counts)
 
   NOTE: If we need to parameterize the date range, but still work with a raw SQL like here
   (easier to test with SQL tooling, without having to rewrite into Ecto SQL), we can have
@@ -7,26 +9,47 @@
 
 */
 
-SELECT
-	dataset_day.dataset_id, day, COALESCE(count, 0) as count
-FROM (
-	SELECT
-		d.id AS dataset_id,
-		day::date
-	FROM
-		generate_series(current_date - interval '30 day', current_date, '1 day') AS day,
-		dataset d
-	ORDER BY
-		d.id ASC,
-		day ASC) dataset_day
-	LEFT JOIN (
-		SELECT
-			dataset_id,
-			timestamp::date AS date,
-			count(*) AS count
-		FROM
-			logs_import
-		GROUP BY
-			dataset_id,
-			date) counts ON dataset_day.dataset_id = counts.dataset_id
-	AND dataset_day.day = counts.date
+with dates as (
+select
+	d.id as dataset_id,
+	day::date
+from
+	generate_series(current_date - interval '30 day', current_date, '1 day') as day,
+	dataset d),
+
+import_counts as (
+select
+	dataset_id,
+	timestamp::date as date,
+	count(*) as count
+from
+	logs_import
+group by
+	dataset_id,
+	date),
+
+  success_counts as (
+select
+	dataset_id,
+	timestamp::date as date,
+	count(*) as count
+from
+	logs_import
+  WHERE is_success = TRUE
+
+group by
+	dataset_id,
+	date)
+
+select
+	dates.*,
+	coalesce(import_counts.count, 0) as import_counts,
+  coalesce(success_counts.count, 0) as success_counts
+from
+	dates
+left join import_counts on
+	dates.day = import_counts.date
+	and dates.dataset_id = import_counts.dataset_id
+left join success_counts on
+	dates.day = success_counts.date
+	and dates.dataset_id = success_counts.dataset_id;

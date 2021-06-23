@@ -1,8 +1,12 @@
 defmodule Opendatasoft.UrlExtractor do
   @moduledoc """
-    Opendatasoft publishes a CSV file with an url to the GTFS
+    Opendatasoft publishes a CSV file with an url to the GTFS.
 
-    This module extracts the actual url
+    The name of the actual column which contains that url varies,
+    because there is no clear specification. The module provides
+    a heuristic to extract the actual url from the CSV,
+    based on a list of potential names that have been seen in real
+    life so far.
   """
   require Logger
 
@@ -15,7 +19,8 @@ defmodule Opendatasoft.UrlExtractor do
     "fichier à télécharger",
     "url",
     "fichier",
-    "fichier a telecharger"
+    "fichier a telecharger",
+    "fichier_a_telecharger"
   ]
 
   @spec get_csv_resources([any]) :: [any]
@@ -188,6 +193,23 @@ defmodule Opendatasoft.UrlExtractor do
     nil
   end
 
+  @doc """
+  Given a CSV row formatted as a map (keys as headers, values for values),
+  this function attempts to detect potential candidates (`@csv_headers`) of columns
+  # that should contain the target url.
+
+  ## Examples
+
+  If a well-known column is found, the module must return the url like this:
+
+    iex> UrlExtractor.get_url_from_csv_line(%{"fichier_a_telecharger" => "http://the-url"})
+    "http://the-url"
+
+  On the other hand, if the column is unknown, the module will return `nil`:
+
+    iex> UrlExtractor.get_url_from_csv_line(%{"fichié_a_download" => "http://the-url"})
+    nil
+  """
   @spec get_url_from_csv_line(map) :: binary
   def get_url_from_csv_line(line) do
     @csv_headers

@@ -7,6 +7,7 @@ defmodule Transport.ImportData do
   alias Helpers
   alias Opendatasoft.UrlExtractor
   alias DB.{Dataset, EPCI, LogsImport, Repo, Resource}
+  alias Transport.AvailabilityChecker
   require Logger
   import Ecto.Query
 
@@ -14,15 +15,19 @@ defmodule Transport.ImportData do
 
   @spec import_all_datasets :: :ok
   def import_all_datasets do
-    Logger.info("reimporting all datasets")
+    Logger.info("reimporting all active datasets")
 
-    datasets = Repo.all(Dataset)
+    datasets =
+      Dataset
+      |> where([d], d.is_active == true)
+      |> Repo.all()
 
     results =
       ImportTaskSupervisor
       |> Task.Supervisor.async_stream_nolink(datasets, &import_dataset_logged/1,
         max_concurrency: @max_import_concurrent_jobs,
-        timeout: 180_000
+        timeout: 180_000,
+        on_timeout: :kill_task
       )
       |> Enum.to_list()
 
@@ -73,114 +78,101 @@ defmodule Transport.ImportData do
     {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW places;")
   end
 
-  @doc """
-  This is just a temporary wrapper until `import_dataset` gets fully tested & refactored.
+  def generate_import_logs!(
+        %Dataset{id: dataset_id, datagouv_id: datagouv_id},
+        options
+      ) do
+    success = options |> Keyword.fetch!(:success)
+    msg = options |> Keyword.get(:msg)
 
-  It will increase the chances of being notified via Sentry.
-  """
-  @spec import_dataset_logged(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
-  def import_dataset_logged(dataset) do
-    import_dataset(dataset)
-  rescue
-    e ->
-      Sentry.capture_message("unmanaged_exception_during_import",
-        level: "error",
-        # minimal information to avoid recreating an exception here!
-        extra: %{dataset_id: dataset.id}
-      )
-
-      Logger.error("Unmanaged exception during import")
-      Logger.error(Exception.format(:error, e, __STACKTRACE__))
-
-      # mimic original behaviour to avoid impact on overall report code
-      reraise e, __STACKTRACE__
-  end
-
-  @spec import_dataset(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
-  def import_dataset(%Dataset{
-        id: dataset_id,
-        datagouv_id: datagouv_id,
-        type: type,
-        title: title,
-        slug: slug,
-        is_active: is_active
-      }) do
     now = DateTime.truncate(DateTime.utc_now(), :second)
 
-    with {:ok, new_data} <- import_from_udata(datagouv_id, type),
-         {:ok, changeset} <- Dataset.changeset(new_data) do
-      # log the import success
+    insert_result =
       Repo.insert(%LogsImport{
         datagouv_id: datagouv_id,
         timestamp: now,
-        is_success: true,
-        dataset_id: dataset_id
+        is_success: success,
+        dataset_id: dataset_id,
+        error_msg: msg
       })
 
-      result = Repo.update(changeset)
-
-      refresh_places()
-
-      result
-    else
-      {:error, error} ->
-        Logger.error("Unable to import data of dataset #{datagouv_id}: #{inspect(error)}")
-
-        # if the dataset is already inactive, we don't want to raise an error
-        error_level = if is_active, do: "error", else: "info"
-
-        # log the import failure
-        Repo.insert(%LogsImport{
-          datagouv_id: datagouv_id,
-          timestamp: now,
-          is_success: false,
-          dataset_id: dataset_id,
-          error_msg: error
-        })
-
-        {:error, error}
+    # if the insertion fails, we retry with a basic error message
+    with {:error, _} <- insert_result do
+      Repo.insert(%LogsImport{
+        datagouv_id: datagouv_id,
+        timestamp: now,
+        is_success: success,
+        dataset_id: dataset_id,
+        error_msg: "Error message could not be logged"
+      })
     end
   end
 
-  @spec import_from_udata(binary, binary) :: {:error, any} | {:ok, map}
-  def import_from_udata(id, type) do
+  @spec import_dataset_logged(DB.Dataset.t()) :: {:ok, Ecto.Schema.t()} | {:error, any}
+  def import_dataset_logged(dataset) do
+    result = import_dataset!(dataset)
+    generate_import_logs!(dataset, success: true)
+    {:ok, result}
+  rescue
+    e ->
+      generate_import_logs!(dataset, success: false, msg: inspect(e))
+
+      Logger.error("Import of dataset has failed (id:  #{dataset.id}, datagouv_id: #{dataset.datagouv_id})")
+      Logger.error(Exception.format(:error, e, __STACKTRACE__))
+
+      {:error, inspect(e)}
+  end
+
+  @spec import_dataset!(DB.Dataset.t()) :: Ecto.Schema.t()
+  def import_dataset!(%Dataset{
+        datagouv_id: datagouv_id,
+        type: type
+      }) do
+    {:ok, dataset_map_from_data_gouv} = import_from_data_gouv(datagouv_id, type)
+    {:ok, changeset} = Dataset.changeset(dataset_map_from_data_gouv)
+    result = Repo.update!(changeset)
+
+    refresh_places()
+    result
+  end
+
+  @spec import_from_data_gouv(binary, binary) :: {:ok, map}
+  def import_from_data_gouv(datagouv_id, type) do
     base_url = Application.get_env(:transport, :datagouvfr_site)
-    url = "#{base_url}/api/1/datasets/#{id}/"
+    url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
 
-    Logger.info("Importing dataset #{id} (url = #{url})")
+    Logger.info("Importing dataset #{datagouv_id} from data.gouv.fr (url = #{url})")
 
-    with {:ok, response} <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
-         {:ok, json} <- Jason.decode(response.body),
-         {:ok, dataset} <- get_dataset(json, type) do
-      {:ok, dataset}
-    else
-      {:error, error} ->
-        Logger.error("Error while importing dataset #{id} (url = #{url}) : #{inspect(error)}")
-        {:error, error}
-    end
+    # We'll have to verify the behaviour of hackney/httpoison for follow_redirect: how
+    # many redirects are allowed? Is an error raised after a while or not? etc.
+    response = HTTPoison.get!(url, [], hackney: [follow_redirect: true])
+    json = Jason.decode!(response.body)
+    {:ok, dataset} = prepare_dataset_from_data_gouv_response(json, type)
+
+    {:ok, dataset}
   end
 
-  @spec get_dataset(map, binary) :: {:error, any} | {:ok, map}
-  def get_dataset(%{"message" => error}, _), do: {:error, error}
+  @spec prepare_dataset_from_data_gouv_response(map, binary) :: {:error, any} | {:ok, map}
+  def prepare_dataset_from_data_gouv_response(%{"message" => error}, _), do: {:error, error}
 
-  def get_dataset(%{} = dataset, type) do
+  def prepare_dataset_from_data_gouv_response(%{} = data_gouv_resp, type) do
     dataset =
-      dataset
+      data_gouv_resp
       |> Map.take(["title", "description", "id", "slug", "frequency", "tags"])
-      |> Map.put("datagouv_id", dataset["id"])
-      |> Map.put("logo", get_logo_thumbnail(dataset))
-      |> Map.put("full_logo", get_logo(dataset))
-      |> Map.put("created_at", parse_date(dataset["created_at"]))
-      |> Map.put("last_update", parse_date(dataset["last_update"]))
+      |> Map.put("datagouv_id", data_gouv_resp["id"])
+      |> Map.put("logo", get_logo_thumbnail(data_gouv_resp))
+      |> Map.put("full_logo", get_logo(data_gouv_resp))
+      |> Map.put("created_at", parse_date(data_gouv_resp["created_at"]))
+      |> Map.put("last_update", parse_date(data_gouv_resp["last_update"]))
       |> Map.put("type", type)
-      |> Map.put("organization", dataset["organization"]["name"])
-      |> Map.put("resources", get_resources(dataset, type))
-      |> Map.put("nb_reuses", get_nb_reuses(dataset))
-      |> Map.put("licence", dataset["license"])
-      |> Map.put("zones", get_associated_zones_insee(dataset))
+      |> Map.put("organization", data_gouv_resp["organization"]["name"])
+      |> Map.put("resources", get_resources(data_gouv_resp, type))
+      |> Map.put("nb_reuses", get_nb_reuses(data_gouv_resp))
+      |> Map.put("licence", data_gouv_resp["license"])
+      |> Map.put("zones", get_associated_zones_insee(data_gouv_resp))
 
-    case Map.get(dataset, "resources") do
-      nil -> {:error, "No download uri found"}
+    case Map.get(data_gouv_resp, "resources") do
+      nil -> {:error, "dataset #{data_gouv_resp["id"]} has no resource"}
       _ -> {:ok, dataset}
     end
   end
@@ -319,7 +311,7 @@ defmodule Transport.ImportData do
         "latest_url" => resource["latest"] || resource["url"],
         "id" => get_resource_id(resource, dataset["id"]),
         "datagouv_id" => resource["id"],
-        "is_available" => available?(resource),
+        "is_available" => AvailabilityChecker.available?(resource),
         "is_community_resource" => is_community_resource,
         "community_resource_publisher" => get_publisher(resource),
         "description" => resource["description"],
@@ -328,23 +320,6 @@ defmodule Transport.ImportData do
         "original_resource_url" => get_original_resource_url(resource)
       }
     end)
-  end
-
-  @spec available?(map()) :: boolean
-  # Temporarily disabled since data.gouv.fr has been blocked by ODS
-  # def available?(%{"extras" => %{"check:available" => available}}), do: available
-  def available?(%{"url" => "https://static.data.gouv.fr/" <> _}), do: true
-  def available?(%{"url" => "https://demo.data.gouv.fr/" <> _}), do: true
-  def available?(%{"format" => "csv"}), do: true
-  def available?(%{"type" => "api"}), do: true
-
-  def available?(%{"url" => url}) do
-    # NOTE: ssl options are a hotfix for https://github.com/etalab/transport-site/issues/1564
-    # We will be able to remove them once OTP is updated to 23 (https://github.com/etalab/transport-site/issues/1584)
-    case HTTPoison.head(url, [], ssl: [versions: [:"tlsv1.2"]]) do
-      {:ok, %HTTPoison.Response{status_code: code}} when code >= 200 and code < 400 -> true
-      _ -> false
-    end
   end
 
   @spec get_valid_resources(map(), binary()) :: [map()]

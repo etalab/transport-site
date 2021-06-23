@@ -12,4 +12,9 @@ defmodule TransportWeb.LayoutView do
     # to check if the `put_flash` function has been called, and it's important for error pages
     not is_nil(conn.private[:phoenix_flash])
   end
+
+  def add_locale_to_url(conn, locale) do
+    params = conn.params |> Map.put("locale", locale)
+    "#{conn.request_path}?#{Plug.Conn.Query.encode(params)}"
+  end
 end

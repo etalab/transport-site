@@ -56,23 +56,25 @@
 <div class="container">
 
 <div id="pan-offer-descriptions">
-  <div class="pan-offer">Une plateforme GRATUITE et librement ACCESSIBLE</div>
   <div class="pan-offer">
-    Un catalogue EXHAUSTIF de données ouvertes
+    <%= dgettext("page-index", "A freely accessible service")%>
+  </div>
+  <div class="pan-offer">
+    <%= dgettext("page-index", "ALL French open mobility data at the same place")%>
     <div class="pan-offer-subtitle pt-12">
-      Formats homogènes
+      <%= dgettext("page-index", "Selected formats")%>
     </div>
     <div class="pan-offer-subtitle">
-      Licences harmonisées
+      <%= dgettext("page-index", "Selected licences")%>
     </div>
   </div>
     <div class="pan-offer">
-      Des outils pour faciliter leur réutilisation
+      <%= dgettext("page-index", "Online tools to ease data reuses")%>
     </div>
 </div>
 
   <div class="existing pt-48" id="datasets">
-  <h1>Les données disponibles par thème</h1>
+  <h1><%= dgettext("page-index", "Available data by theme")%></h1>
     <div class="available-data grid">
       <a class="tile" href="<%= dataset_path(@conn, :index, type: "public-transit") %>">
         <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bus.svg") %>" alt="" />
@@ -103,11 +105,11 @@
         <div><%= dngettext("page-index", "dataset", "datasets", @count_by_type["bike-sharing"] || 0) %></div>
       </div>
     </a>
-    <a class="tile" href="<%= dataset_path(@conn, :index, type: "carsharing-areas") %>">
+    <a class="tile" href="<%= dataset_path(@conn, :index, type: "carpooling-areas") %>">
                           <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/car.svg") %>" alt="" />
     <div class="tile__text">
       <h4 class=""><%= dgettext("page-index", "Car-sharing areas") %></h4>
-      <div><%= dngettext("page-index", "dataset", "datasets", @count_by_type["carsharing-areas"] || 0) %></div>
+      <div><%= dngettext("page-index", "dataset", "datasets", @count_by_type["carpooling-areas"] || 0) %></div>
     </div>
   </a>
   <a class="tile" href="<%= dataset_path(@conn, :index, type: "charging-stations") %>">
@@ -165,6 +167,12 @@
   <h4 class=""><%= dgettext("page-index", "Private parking") %></h4>
   <div><%= dngettext("page-index", "dataset", "datasets", @count_by_type["private-parking"] || 0) %></div>
 </div>
+<a class="tile" href="<%= dataset_path(@conn, :index, type: "bike-path") %>">
+                          <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bike-path.svg") %>" alt="" />
+<div class="tile__text">
+  <h4 class=""><%= dgettext("page-index", "Bike path") %></h4>
+  <div><%= dngettext("page-index", "dataset", "datasets", @count_by_type["bike-path"] || 0) %></div>
+</div>
 </a>
 </div>
 </div>
@@ -178,10 +186,6 @@
     <div class="tile">
       <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/scooter-grey.svg") %>" alt="" />
       <h3 class="text-center"><%= dgettext("page-index", "Freefloating vehicles") %></h3>
-    </div>
-    <div class="tile">
-      <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bike-route-grey.svg") %>" alt="" />
-      <h3 class="text-center"><%= dgettext("page-index", "Bicycle paths") %></h3>
     </div>
     <div class="tile">
       <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/construction-zone-grey.svg") %>" alt="" />

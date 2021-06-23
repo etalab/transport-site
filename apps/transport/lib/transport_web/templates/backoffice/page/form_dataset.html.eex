@@ -105,7 +105,7 @@
           <%= submit dgettext("backoffice", "Generate community resources (GeoJSON and NeTEx)"), [class: "button"] %>
         <% end %>
       </div>
-      <div class="dataset_import_validations_logs">
+      <div class="dataset_import_validations_logs" id="imports_history">
         <h3><%= dgettext("backoffice", "Imports history") %></h3>
         <table>
           <tr>
@@ -152,5 +152,4 @@
       </div>
     <% end %>
 </div>
-<%= csrf_meta_tag() %>
 <script src="/js/app.js"></script>
