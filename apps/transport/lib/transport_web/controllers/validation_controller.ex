@@ -11,7 +11,7 @@ defmodule TransportWeb.ValidationController do
 
   @geojson_converter_url "https://convertisseur.transport.data.gouv.fr/gtfs2geojson_sync"
 
-  defp endpoint, do: Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
+  defp endpoint, do: Application.fetch_env!(:transport, :gtfs_validator_url) <> "/validate"
 
   def index(%Plug.Conn{} = conn, _) do
     render(conn, "index.html")

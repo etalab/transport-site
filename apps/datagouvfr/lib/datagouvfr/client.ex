@@ -10,7 +10,7 @@ defmodule Datagouvfr.Client do
       @type path :: list(binary()) | binary
 
       @spec base_url :: binary
-      def base_url, do: :transport |> Application.get_env(:datagouvfr_site) |> Path.join("/api/1/")
+      def base_url, do: :transport |> Application.fetch_env!(:datagouvfr_site) |> Path.join("/api/1/")
 
       @spec process_url(path) :: String.t()
       def process_url(path) when is_list(path), do: path |> Path.join() |> process_url()

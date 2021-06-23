@@ -10,6 +10,7 @@ defmodule Datagouvfr.MixProject do
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       elixir: "~> 1.8",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       gettext: [{:write_reference_comments, false}],
@@ -17,6 +18,9 @@ defmodule Datagouvfr.MixProject do
       test_coverage: [tool: ExCoveralls]
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   def application do
     [
@@ -30,7 +34,9 @@ defmodule Datagouvfr.MixProject do
       {:oauth2, "~> 0.9"},
       {:httpoison, ">= 0.0.0"},
       {:plug, ">= 0.0.0"},
-      {:shared, in_umbrella: true}
+      {:shared, in_umbrella: true},
+      {:vex, "~> 0.8"},
+      {:exvcr, "~> 0.10", only: :test}
     ]
   end
 end
