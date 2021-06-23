@@ -3,6 +3,11 @@
 #
 # This configuration file is loaded before any dependency and
 # is restricted to this project.
+
+# NOTE: this is very much legacy & work in progress to modernize the situation.
+# For reference, ultimately most tests should not connect to outside stuff.
+# A good model for improvements is https://github.com/hexpm/hexpm/tree/main/config
+#
 use Mix.Config
 
 config :unlock,
@@ -24,7 +29,6 @@ config :gbfs, jcdecaux_apikey: System.get_env("JCDECAUX_APIKEY")
 
 # Configures the endpoint
 config :gbfs, GBFS.Endpoint,
-  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: GBFS.ErrorView, accepts: ~w(json)],
   pubsub_server: GBFS.PubSub, # TODO: verify if this is truly needed? unsure.
   server: false
@@ -32,16 +36,12 @@ config :gbfs, GBFS.Endpoint,
 # Configures the endpoint
 config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],
-  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [
     view: TransportWeb.ErrorView,
     layout: {TransportWeb.LayoutView, "app.html"},
     accepts: ~w(html json)
   ],
-  pubsub_server: TransportWeb.PubSub,
-  live_view: [
-    signing_salt: System.get_env("SECRET_KEY_BASE")
-  ]
+  pubsub_server: TransportWeb.PubSub
 
 config :phoenix, :json_library, Jason
 

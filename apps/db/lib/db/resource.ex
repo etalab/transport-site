@@ -60,7 +60,7 @@ defmodule DB.Resource do
   end
 
   @spec endpoint() :: binary()
-  def endpoint, do: Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
+  def endpoint, do: Application.fetch_env!(:transport, :gtfs_validator_url) <> "/validate"
 
   @doc """
   A validation is needed if the last update from the data is newer than the last validation.

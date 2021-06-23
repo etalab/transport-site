@@ -138,7 +138,7 @@ defmodule Transport.ImportData do
 
   @spec import_from_data_gouv(binary, binary) :: {:ok, map}
   def import_from_data_gouv(datagouv_id, type) do
-    base_url = Application.get_env(:transport, :datagouvfr_site)
+    base_url = Application.fetch_env!(:transport, :datagouvfr_site)
     url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
 
     Logger.info("Importing dataset #{datagouv_id} from data.gouv.fr (url = #{url})")
@@ -225,7 +225,7 @@ defmodule Transport.ImportData do
 
   @spec fetch_data_gouv_zone_insee(binary()) :: [binary()]
   defp fetch_data_gouv_zone_insee(zone) do
-    base_url = Application.get_env(:transport, :datagouvfr_site)
+    base_url = Application.fetch_env!(:transport, :datagouvfr_site)
     url = "#{base_url}/api/1/spatial/zones/#{zone}"
     Logger.info("getting zone (url = #{url})")
 

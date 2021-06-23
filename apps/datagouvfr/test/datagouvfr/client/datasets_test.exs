@@ -1,8 +1,6 @@
 defmodule Datagouvfr.Client.DatasetsTest do
-  # smell
-  use TransportWeb.ConnCase, async: false
-  # smell
-  use TransportWeb.ExternalCase
+  use DataGouvFr.ConnCase, async: false
+  use DataGouvFr.ExternalCase
   alias Datagouvfr.Client
   alias Datagouvfr.Client.Datasets
 
