@@ -44,8 +44,8 @@ config :transport,
   history_impl: Transport.History.Fetcher.Mock
 
 # Provide a default experience that will mostly work without manual config,
-# except for more a
-# One can use dev.secret.exs to override this
+# as long as the developer does not use advanced features (backoffice login, gbfs etc)
+# One can use dev.secret.exs to override this.
 secret_key_base = "lrS928IORjEwtIIdxjRZ30I8PUR4rbXorGCfmA4nbX2Jkgjl7U9rpcz6QjjH1AOc"
 
 config :transport, TransportWeb.Endpoint,
