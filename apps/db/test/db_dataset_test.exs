@@ -25,7 +25,8 @@ defmodule DB.DatasetDBTest do
     commune = insert(:commune)
 
     dataset =
-      insert(:dataset)
+      :dataset
+      |> insert()
       |> Repo.preload(:communes)
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:communes, [commune])
