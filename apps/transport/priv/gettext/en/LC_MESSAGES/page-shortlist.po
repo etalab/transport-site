@@ -256,8 +256,8 @@ msgid "Data for private car-parks in France are produced by different local auth
 msgstr ""
 
 #, elixir-format
-msgid "This dataset only describes parking spaces accessible to the general public, with barrier entrance. Other datasets referenced here can have a broader definition and might include freely accessible car-parks, (ie. with no entrance barrier), in addition to the parking spaces with barrier entrance included in the “Base Nationale des Lieux de Stationnement” (BNLS)."
-msgstr ""
+msgid "parking spaces text"
+msgstr "This dataset only describes parking spaces accessible to the general public, with barrier entrance."
 
 #, elixir-format
 msgid "category"
