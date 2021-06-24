@@ -51,7 +51,7 @@ defmodule Transport.ImportDataTest do
 
   def http_get_mock_200(datagouv_id, payload \\ nil) do
     fn url, [], hackney: [follow_redirect: true] ->
-      base_url = Application.get_env(:transport, :datagouvfr_site)
+      base_url = Application.fetch_env!(:transport, :datagouvfr_site)
       expected_url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
       assert url == expected_url
 
@@ -63,7 +63,7 @@ defmodule Transport.ImportDataTest do
 
   def http_get_mock_404(datagouv_id) do
     fn url, [], hackney: [follow_redirect: true] ->
-      base_url = Application.get_env(:transport, :datagouvfr_site)
+      base_url = Application.fetch_env!(:transport, :datagouvfr_site)
       expected_url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
       assert url == expected_url
 

@@ -339,7 +339,7 @@ defmodule DB.Dataset do
 
   @spec datagouv_url(DB.Dataset.t()) :: binary()
   def datagouv_url(%__MODULE__{slug: slug}) do
-    Path.join([System.get_env("DATAGOUVFR_SITE"), "datasets", slug])
+    Path.join([Application.fetch_env!(:transport, :datagouvfr_site), "datasets", slug])
   end
 
   @spec count_by_mode(binary()) :: number()
