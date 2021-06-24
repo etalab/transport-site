@@ -1,4 +1,4 @@
-defmodule :"Elixir.DB.Repo.Migrations.Add-nouvelle-caledonie" do
+defmodule Elixir.DB.Repo.Migrations.AddNouvelleCaledonie do
   use Ecto.Migration
 
   def up do
