@@ -10,13 +10,18 @@ defmodule Transport.CommunityResourcesCleaner do
   import Ecto.Query
   require Logger
 
-  @transport_publisher_label "Point d'Accès National transport.data.gouv.fr"
+  @transport_publisher_label Application.get_env(
+                               :transport,
+                               :datagouvfr_transport_publisher_label
+                             )
 
   def clean_community_resources do
     orphan_resources = list_orphan_community_resources()
     n = delete_resources(orphan_resources)
 
-    Logger.info("#{n} community resources were deleted because their parent resource didn't exist anymore")
+    Logger.info(
+      "#{n} community resources were deleted because their parent resource didn't exist anymore"
+    )
 
     {:ok, n}
   end
@@ -39,7 +44,8 @@ defmodule Transport.CommunityResourcesCleaner do
 
     dataset.resources
     |> Enum.filter(fn r ->
-      r.is_community_resource == true and r.community_resource_publisher == @transport_publisher_label
+      r.is_community_resource == true and
+        r.community_resource_publisher == @transport_publisher_label
     end)
     |> Enum.reject(fn r -> resources_url |> Enum.member?(r.original_resource_url) end)
     |> Enum.map(fn r -> r.id end)

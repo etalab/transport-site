@@ -4,7 +4,7 @@ defmodule Transport.CommunityResourcesCleanerTest do
   import Transport.CommunityResourcesCleaner
   alias DB.Repo
 
-  @transport_publisher_label "Point d'Accès National transport.data.gouv.fr"
+  @transport_publisher_label Application.get_env(:transport, :datagouvfr_transport_publisher_label)
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
