@@ -16,7 +16,7 @@ defmodule TransportWeb.API.StatsControllerTest do
 
       with_mock Transport.Cache.API, fetch: mock do
         conn = conn |> get(unquote(route))
-        %{"features" => features} = json_response(conn, 200)
+        %{"features" => _features} = json_response(conn, 200)
         assert_called_exactly(Transport.Cache.API.fetch(:_, :_), 1)
       end
     end
