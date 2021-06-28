@@ -11,7 +11,8 @@ defmodule Datagouvfr.Client.API do
   def decode_body({:ok, %HTTPoison.Response{body: "", status_code: status_code}}),
     do: {:ok, %{body: %{}, status_code: status_code}}
 
-  def decode_body({:ok, %HTTPoison.Response{body: body, status_code: status_code}}) when is_binary(body) do
+  def decode_body({:ok, %HTTPoison.Response{body: body, status_code: status_code}})
+      when is_binary(body) do
     case Jason.decode(body) do
       {:ok, decoded_body} -> {:ok, %{body: decoded_body, status_code: status_code}}
       {:error, error} -> {:error, error}
