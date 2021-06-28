@@ -102,6 +102,9 @@ config :transport,
   httpoison_impl: HTTPoison,
   history_impl: Transport.History.Fetcher.S3
 
+config :datagouvfr,
+  community_resources_impl: DataGouvFr.Client.CommunityResources.API
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "datagouvfr.exs"
