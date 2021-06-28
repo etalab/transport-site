@@ -31,9 +31,7 @@ defmodule Datagouvfr.Client.CommunityResources.API do
 
       {:ok, data} ->
         Logger.error(
-          "When getting community_ressources for id #{id}: request was ok but the response didn't contain data #{
-            data
-          }"
+          "When getting community_ressources for id #{id}: request was ok but the response didn't contain data #{data}"
         )
 
         {:error, []}
