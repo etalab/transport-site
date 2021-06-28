@@ -80,4 +80,36 @@ defmodule Transport.CommunityResourcesCleanerTest do
     assert Enum.count(resources) == 2
     assert Enum.member?(resources, resource1.id) and Enum.member?(resources, resource2.id)
   end
+
+  test "clean 2 orphan resources" do
+    # not an orphan of transport.data.gouv
+    resource10 =
+      insert(:resource, %{
+        is_community_resource: true,
+        community_resource_publisher: "someone else",
+        original_resource_url: "original_url10"
+      })
+
+    # orphan 1
+    resource11 =
+      insert(:resource, %{
+        is_community_resource: true,
+        community_resource_publisher: @transport_publisher_label,
+        original_resource_url: "original_url11"
+      })
+
+    insert_dataset_associated_with_ressources([resource10, resource11])
+
+    # orphan 2
+    resource20 =
+      insert(:resource, %{
+        is_community_resource: true,
+        community_resource_publisher: @transport_publisher_label,
+        original_resource_url: "original_url20"
+      })
+
+    insert_dataset_associated_with_ressources([resource20])
+
+    assert {:ok, 2} == clean_community_resources()
+  end
 end
