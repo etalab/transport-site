@@ -45,7 +45,7 @@ defmodule Transport.CommunityResourcesCleanerTest do
         original_resource_url: "original_url"
       })
 
-    insert_dataset_associated_with_ressources([resource_parent, community_resource])
+    dataset = insert_dataset_associated_with_ressources([resource_parent, community_resource])
 
     # community_resource is not an orphan
     assert [] == list_orphan_community_resources()
@@ -54,7 +54,7 @@ defmodule Transport.CommunityResourcesCleanerTest do
     Repo.delete!(resource_parent)
 
     # the community resource is now an orphan
-    assert [community_resource.id] == list_orphan_community_resources()
+    assert [%{dataset_id: dataset.id, resource_id: community_resource.id}] == list_orphan_community_resources()
   end
 
   test "orphan detection with 2 datasets" do
@@ -75,7 +75,7 @@ defmodule Transport.CommunityResourcesCleanerTest do
     insert_dataset_associated_with_ressources([resource1])
     insert_dataset_associated_with_ressources([resource2])
 
-    resources = list_orphan_community_resources()
+    resources = list_orphan_community_resources() |> Enum.map(& &1.resource_id)
 
     assert Enum.count(resources) == 2
     assert Enum.member?(resources, resource1.id) and Enum.member?(resources, resource2.id)
