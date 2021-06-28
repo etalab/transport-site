@@ -1,5 +1,5 @@
 defmodule Transport.CommunityResourcesCleanerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import TransportWeb.Factory
   import Transport.CommunityResourcesCleaner
   alias DB.Repo
