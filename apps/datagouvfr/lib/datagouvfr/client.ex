@@ -28,8 +28,7 @@ defmodule Datagouvfr.Client do
         Logger.debug(fn -> "response: #{inspect(response)}" end)
 
         case response do
-          {:ok, %{status_code: 200, body: body}} -> {:ok, body}
-          {:ok, %{status_code: 201, body: body}} -> {:ok, body}
+          {:ok, %{status_code: status_code, body: body}} when status_code in [200, 201, 204] -> {:ok, body}
           {:ok, %{status_code: _, body: body}} -> {:error, body}
           {:error, error} -> {:error, error}
         end
