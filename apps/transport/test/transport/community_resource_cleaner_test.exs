@@ -77,7 +77,7 @@ defmodule Transport.CommunityResourcesCleanerTest do
 
     resources = list_orphan_community_resources()
 
-    assert Enum.count(resources) == 2>>
+    assert Enum.count(resources) == 2
     assert Enum.member?(resources, resource1.id) and Enum.member?(resources, resource2.id)
   end
 end
