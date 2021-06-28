@@ -16,18 +16,23 @@ defmodule Transport.CommunityResourcesCleaner do
                              )
 
   def clean_community_resources do
-    orphan_resources = list_orphan_community_resources()
-    n = delete_resources(orphan_resources)
+    n =
+      list_orphan_community_resources()
+      |> delete_resources()
+      |> Enum.filter(&match?({:ok, _}, &1))
+      |> Enum.count()
 
-    Logger.info(
-      "#{n} community resources were deleted because their parent resource didn't exist anymore"
-    )
+    Logger.info("#{n} community resources were successfully deleted because their parent resource didn't exist anymore")
 
     {:ok, n}
   end
 
-  def delete_resources(res) do
-    res |> Enum.count()
+  @spec delete_resources([%{dataset_id: binary(), resource_id: binary()}]) :: [%{}]
+  def delete_resources(resources) do
+    resources
+    |> Enum.map(fn %{dataset_id: dataset_id, resource_id: resource_id} ->
+      Datagouvfr.Client.CommunityResources.delete(dataset_id, resource_id)
+    end)
   end
 
   def list_orphan_community_resources do
@@ -48,6 +53,6 @@ defmodule Transport.CommunityResourcesCleaner do
         r.community_resource_publisher == @transport_publisher_label
     end)
     |> Enum.reject(fn r -> resources_url |> Enum.member?(r.original_resource_url) end)
-    |> Enum.map(fn r -> r.id end)
+    |> Enum.map(fn r -> %{dataset_id: dataset.id, resource_id: r.id} end)
   end
 end
