@@ -3,18 +3,20 @@ defmodule Datagouvfr.Client.API do
   Request Datagouv API
   """
   require Logger
+  use Datagouvfr.Client
 
   @type response :: {:ok, any} | {:error, any}
 
-  @spec post_process({:ok, %HTTPoison.Response{body: binary()}}) :: {:ok, map()} | {:error, any()}
-  def post_process({:ok, %HTTPoison.Response{body: body} = response}) when is_binary(body) do
+  @spec decode_body({:ok, %HTTPoison.Response{body: binary()}}) :: {:ok, map()} | {:error, any()}
+  def decode_body({:ok, %HTTPoison.Response{body: "", status_code: status_code}}),
+    do: {:ok, %{body: %{}, status_code: status_code}}
+
+  def decode_body({:ok, %HTTPoison.Response{body: body, status_code: status_code}}) when is_binary(body) do
     case Jason.decode(body) do
-      {:ok, body} -> post_process({:ok, %{body: body, status_code: response.status_code}})
-      {:error, error} -> post_process({:error, error})
+      {:ok, decoded_body} -> {:ok, %{body: decoded_body, status_code: status_code}}
+      {:error, error} -> {:error, error}
     end
   end
-
-  use Datagouvfr.Client
 
   @spec get(path, [{binary(), binary()}], keyword()) :: response
   def get(path, headers \\ [], options \\ []) when is_binary(path) or is_list(path) do
@@ -65,6 +67,7 @@ defmodule Datagouvfr.Client.API do
 
     method
     |> HTTPoison.request(url, body, headers, options)
+    |> decode_body()
     |> post_process()
   end
 end
