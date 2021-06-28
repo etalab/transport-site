@@ -10,7 +10,7 @@ defmodule TransportWeb.StatsController do
       |> Enum.reduce(conn, fn {k, v}, conn -> conn |> assign(k, v) end)
 
     conn
-    |> assign(:droms, ["antilles", "guyane", "mayotte", "reunion"])
+    |> assign(:droms, ["antilles", "guyane", "nouvelle_caledonie", "reunion"])
     |> render("index.html")
   end
 end
