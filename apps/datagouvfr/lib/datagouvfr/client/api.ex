@@ -47,6 +47,11 @@ defmodule Datagouvfr.Client.API do
     end
   end
 
+  @spec delete(path, [{binary(), binary()}], keyword()) :: response
+  def delete(path, headers \\ [], options \\ []) when is_binary(path) do
+    request(:delete, path, "", headers, options)
+  end
+
   @spec request(
           :delete | :get | :head | :options | :patch | :post | :put,
           path(),
