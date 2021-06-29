@@ -7,6 +7,7 @@ defmodule Transport.CommunityResourcesCleanerTest do
   @transport_publisher_label Application.get_env(:transport, :datagouvfr_transport_publisher_label)
 
   setup do
+    Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
