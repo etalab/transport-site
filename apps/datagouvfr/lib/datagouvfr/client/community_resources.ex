@@ -16,7 +16,7 @@ end
 
 defmodule Datagouvfr.Client.CommunityResources.API do
   @moduledoc """
-    Actual implementation to intercat with community resources through data.gouv.fr API
+    Actual implementation to interact with community resources through data.gouv.fr API
   """
   require Logger
 
@@ -54,9 +54,9 @@ defmodule Datagouvfr.Client.CommunityResources.API do
   end
 end
 
-defmodule Datagouvfr.Client.CommunityResources.Mock do
+defmodule Datagouvfr.Client.StubCommunityResources do
   @moduledoc """
-    A mock used for testing
+    A stub used for testing, when we don't really care about community resources
   """
   @behaviour Datagouvfr.Client.CommunityResources
 
