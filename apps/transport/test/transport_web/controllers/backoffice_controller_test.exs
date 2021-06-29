@@ -199,6 +199,8 @@ defmodule TransportWeb.BackofficeControllerTest do
       |> Map.put("insee", nil)
       |> Map.put("associated_territory_name", "pouet")
 
+    Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
+
     conn =
       use_cassette "dataset/dataset-with-multiple-cities.json" do
         post(conn, backoffice_dataset_path(conn, :post), dataset)
