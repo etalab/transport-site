@@ -114,10 +114,12 @@ defmodule TransportWeb.BackofficeControllerTest do
       |> Map.put("insee", nil)
 
     Datagouvfr.Client.CommunityResources.Mock
-    |> expect(:get, fn _id ->
+    |> expect(:get, fn id ->
       # we return the same urls that the one we find in dataset-region.json cassette
       # because for the moment the Hasher is not Mocked
       # we it is the case, we will be able to put random urls here
+      assert id == "5760038cc751df708cac31a0"
+
       {:ok,
        [
          %{
@@ -154,10 +156,11 @@ defmodule TransportWeb.BackofficeControllerTest do
     dataset = %{@dataset | "region_id" => nil}
 
     Datagouvfr.Client.CommunityResources.Mock
-    |> expect(:get, fn _id ->
+    |> expect(:get, fn id ->
       # we return the same urls that the one we find in dataset-aom.json cassette
       # because for the moment the Hasher is not Mocked
       # we it is the case, we will be able to put random urls here
+      assert id == "5760038cc751df708cac31a0"
 
       {:ok,
        [
