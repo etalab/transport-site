@@ -75,7 +75,7 @@ defmodule Transport.Mixfile do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:cors_plug, "~> 2.0"},
       {:exvcr, "~> 0.10", only: :test},
-      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.5.0", only: [:dev, :test], runtime: false},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
       {:unidecode, "~> 0.0.2"},

@@ -56,7 +56,7 @@ defmodule Unlock.Config do
     This will allow expiry via a simple key deletion.
     """
     @impl Fetcher
-    def fetch_config!() do
+    def fetch_config! do
       # NOTE: this won't handle errors correctly at this point
       fetch_config = fn _key -> {:commit, fetch_config_no_cache!()} end
       case {_operation, _result} = Cachex.fetch(Unlock.Cachex, @proxy_config_cache_key, fetch_config) do
@@ -68,20 +68,20 @@ defmodule Unlock.Config do
     end
 
     @impl Fetcher
-    def clear_config_cache!() do
+    def clear_config_cache! do
       Cachex.del!(Unlock.Cachex, @proxy_config_cache_key)
     end
 
     @doc """
     Retrieve the configuration from GitHub as a map.
     """
-    def fetch_config_no_cache!() do
+    def fetch_config_no_cache! do
       fetch_config_from_github!()
       |> Fetcher.convert_yaml_to_config_items()
       |> Fetcher.index_items_by_unique_identifier()
     end
 
-    defp fetch_config_from_github!() do
+    defp fetch_config_from_github! do
       Logger.info("Fetching proxy config from GitHub")
       config_url = Application.fetch_env!(:unlock, :github_config_url)
       github_token = Application.fetch_env!(:unlock, :github_auth_token)
@@ -101,7 +101,7 @@ defmodule Unlock.Config do
     Fetch the configuration from a file on disk (useful for development or disk-based persistence).
     """
     @impl Fetcher
-    def fetch_config!() do
+    def fetch_config! do
       config_file = Application.fetch_env!(:unlock, :disk_config_file)
 
       config_file
@@ -111,7 +111,7 @@ defmodule Unlock.Config do
     end
 
     @impl Fetcher
-    def clear_config_cache!() do
+    def clear_config_cache! do
       Logger.info "Clearing cache config (no-op)"
     end
   end
