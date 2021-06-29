@@ -6,6 +6,11 @@ defmodule Transport.ImportDataServiceTest do
 
   @moduletag :external
 
+  setup do
+    Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
+    :ok
+  end
+
   describe "import_from_data_gouv" do
     test "import dataset with a zip" do
       url = "http://hstan.g-ny.org/grandnancy/data/public/gtfs_stan.zip"

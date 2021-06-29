@@ -8,6 +8,11 @@ defmodule TransportWeb.BackofficeControllerTest do
   import Mox
   setup :verify_on_exit!
 
+  setup do
+    Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
+    :ok
+  end
+
   @dataset_url "https://demo.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-de-transport-tag-1/"
   @dataset %{
     "url" => @dataset_url,
@@ -201,8 +206,6 @@ defmodule TransportWeb.BackofficeControllerTest do
       |> Map.put("region_id", nil)
       |> Map.put("insee", nil)
       |> Map.put("associated_territory_name", "pouet")
-
-    Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
 
     conn =
       use_cassette "dataset/dataset-with-multiple-cities.json" do
