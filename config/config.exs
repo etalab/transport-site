@@ -103,7 +103,7 @@ config :transport,
   history_impl: Transport.History.Fetcher.S3
 
 config :datagouvfr,
-  community_resources_impl: DataGouvFr.Client.CommunityResources.API
+  community_resources_impl: Datagouvfr.Client.CommunityResources.API
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
