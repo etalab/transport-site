@@ -97,7 +97,8 @@ defmodule DB.Dataset do
         community_resource_publisher: r.community_resource_publisher,
         original_resource_url: r.original_resource_url,
         features: r.features,
-        modes: r.modes
+        modes: r.modes,
+        schema: r.schema
       }
     )
   end
