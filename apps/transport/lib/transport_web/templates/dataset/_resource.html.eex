@@ -8,7 +8,7 @@
   <%= unless is_nil(@resource.schema) do %>
     <div title="<%= dgettext("page-dataset-details", "Resource declared schema") %>">
       <i class="icon icon--table" aria-hidden="true"></i>
-      <%= link(@resource.schema, to: schema_url(@resource.schema)) %>
+      <%= link(@resource.schema, to: schema_url(@resource.schema), target: "_blank") %>
     </div>
   <% end %>
 
