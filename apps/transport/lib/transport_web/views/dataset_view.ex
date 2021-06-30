@@ -352,4 +352,8 @@ defmodule TransportWeb.DatasetView do
     |> Enum.sort_by(& &1.metadata["end_date"], &>=/2)
     |> Enum.sort_by(&Resource.valid_and_available?(&1), &>=/2)
   end
+
+  def schema_url(schema_name) do
+    "https://schema.data.gouv.fr/#{schema_name}/latest.html"
+  end
 end
