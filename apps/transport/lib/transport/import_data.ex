@@ -317,10 +317,18 @@ defmodule Transport.ImportData do
         "description" => resource["description"],
         "filesize" => resource["filesize"],
         "content_hash" => Hasher.get_content_hash(resource["url"]),
-        "original_resource_url" => get_original_resource_url(resource)
+        "original_resource_url" => get_original_resource_url(resource),
+        "schema" => get_schema(resource)
       }
     end)
   end
+
+  @spec get_schema(any) :: binary() | nil
+  def get_schema(%{"schema" => %{"name" => schema}}) do
+    schema
+  end
+
+  def get_schema(_), do: nil
 
   @spec get_valid_resources(map(), binary()) :: [map()]
   def get_valid_resources(%{"resources" => resources}, "public-transit") do
