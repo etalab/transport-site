@@ -35,7 +35,10 @@ defmodule DB.Resource do
     field(:conversion_latest_content_hash, :string)
 
     field(:is_community_resource, :boolean)
-    field(:schema, :string)
+
+    # the declared official schema used by the resource
+    field(:schema_name, :string)
+    field(:schema_version, :string)
 
     # only relevant for community resources, name of the owner or the organization that published the resource
     field(:community_resource_publisher, :string)
@@ -291,7 +294,8 @@ defmodule DB.Resource do
         :features,
         :modes,
         :is_community_resource,
-        :schema,
+        :schema_name,
+        :schema_version,
         :community_resource_publisher,
         :original_resource_url,
         :content_hash,

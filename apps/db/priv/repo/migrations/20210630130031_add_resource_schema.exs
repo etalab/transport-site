@@ -3,7 +3,8 @@ defmodule DB.Repo.Migrations.AddResourceSchema do
 
   def change do
     alter table(:resource) do
-      add :schema, :string
+      add :schema_name, :string
+      add :schema_version, :string
     end
   end
 end
