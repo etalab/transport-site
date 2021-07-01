@@ -30,7 +30,6 @@ If you wish to use `asdf` (recommended), make sure to install the correct plugin
 * `asdf plugin-add erlang` (https://github.com/asdf-vm/asdf-erlang)
 * `asdf plugin-add elixir` (https://github.com/asdf-vm/asdf-elixir)
 * `asdf plugin-add nodejs` (https://github.com/asdf-vm/asdf-nodejs)
-* Make sure to add the [OpenPGP keys](https://github.com/asdf-vm/asdf-nodejs#install) for the nodejs plugin
 
 Installation can then be done with:
 * `asdf install`
@@ -39,18 +38,16 @@ Installation can then be done with:
 
 You also need an up to date postgresql with postgis installed. Version 12+ is recommended.
 
+For Mac users, you can use https://postgresapp.com/.
+
 ## Configuration
 
-For easier configuration handling you can use [direnv](https://direnv.net/).
+TODO
 
-* copy the example file `cp .envrc.example .envrc`;
-* in the terminal, generate a phoenix secret key with the command `mix phx.gen.secret` and paste the result in the .envrc file at the line `export SECRET_KEY_BASE=<secret_key>`
-* you must know the password of the postgres user, and update the `PG_URL` environment variable accordingly : `export PG_URL=ecto://postgres:<postgres_user_password>@localhost/transport_repo`
-* by default, connections to postgresql will be made on the 5432 port. If your postgresql installation uses a different port, or if you have several postgresql installed, update the `PG_URL` environment variable accordingly :
-`export PG_URL=ecto://postgres:postgres@localhost:<port>/transport_repo`
+#### Dependencies
 
-* allow direnv to export those variables `direnv allow .`
-
+Reply "Yes" to the question "Shall I install Hex? (if running non-interactively, use "mix local.hex --force")".
+Download depencies using `mix deps.get`.
 
 #### Creating a database
 
