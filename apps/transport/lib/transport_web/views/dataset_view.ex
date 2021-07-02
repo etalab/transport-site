@@ -8,6 +8,14 @@ defmodule TransportWeb.DatasetView do
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   alias TransportWeb.ResourceView
 
+
+  @doc """
+  Count the number of resources (official + community)
+  """
+  def count_resources(dataset) do
+    Enum.count(official_available_resources(dataset)) + Enum.count(community_resources(dataset))
+  end
+
   def render_sidebar_from_type(conn, dataset),
     do: render_panel_from_type(conn, dataset, "sidebar")
 
