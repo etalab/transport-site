@@ -16,6 +16,13 @@ defmodule TransportWeb.DatasetView do
     Enum.count(official_available_resources(dataset)) + Enum.count(community_resources(dataset))
   end
 
+  @spec count_discussions(any) :: [45, ...] | non_neg_integer
+  @doc """
+  Count the number of discussions if they are available
+  """
+  def count_discussions(nil), do: '-'
+  def count_discussions(discussions), do: Enum.count(discussions)
+
   def render_sidebar_from_type(conn, dataset),
     do: render_panel_from_type(conn, dataset, "sidebar")
 
