@@ -35,8 +35,11 @@ defmodule Transport.CommunityResourcesCleaner do
   @spec delete_resources([%{dataset_id: binary(), resource_id: binary()}]) :: [%{}]
   def delete_resources(resources) do
     resources
-    |> Enum.map(fn %{dataset_id: dataset_id, resource_id: resource_id} ->
-      Datagouvfr.Client.CommunityResources.delete(dataset_id, resource_id)
+    |> Enum.map(fn %{
+                     dataset_datagouv_id: dataset_datagouv_id,
+                     resource_datagouv_id: resource_datagouv_id
+                   } ->
+      Datagouvfr.Client.CommunityResources.delete(dataset_datagouv_id, resource_datagouv_id)
     end)
   end
 
@@ -58,6 +61,13 @@ defmodule Transport.CommunityResourcesCleaner do
         r.community_resource_publisher == @transport_publisher_label
     end)
     |> Enum.reject(fn r -> resources_url |> Enum.member?(r.original_resource_url) end)
-    |> Enum.map(fn r -> %{dataset_id: dataset.id, resource_id: r.id} end)
+    |> Enum.map(fn r ->
+      %{
+        dataset_datagouv_id: dataset.datagouv_id,
+        resource_datagouv_id: r.datagouv_id,
+        dataset_id: dataset.id,
+        resource_id: r.id
+      }
+    end)
   end
 end
