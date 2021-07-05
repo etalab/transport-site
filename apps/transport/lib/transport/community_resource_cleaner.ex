@@ -16,15 +16,20 @@ defmodule Transport.CommunityResourcesCleaner do
                              )
 
   def clean_community_resources do
-    n =
+    %{error: error_n, ok: ok_n} =
       list_orphan_community_resources()
       |> delete_resources()
-      |> Enum.filter(&match?({:ok, _}, &1))
-      |> Enum.count()
+      |> Enum.frequencies_by(fn {r, _} -> r end)
 
-    Logger.info("#{n} community resources were successfully deleted because their parent resource didn't exist anymore")
+    Logger.info(
+      "#{ok_n} community resources were successfully deleted because their parent resource didn't exist anymore"
+    )
 
-    {:ok, n}
+    if error_n > 0 do
+      Logger.warn("#{error_n} community resources were listed as orphans but could not be deleted")
+    end
+
+    {:ok, ok_n}
   end
 
   @spec delete_resources([%{dataset_id: binary(), resource_id: binary()}]) :: [%{}]
