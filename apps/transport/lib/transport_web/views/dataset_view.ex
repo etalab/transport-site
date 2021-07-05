@@ -8,7 +8,6 @@ defmodule TransportWeb.DatasetView do
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   alias TransportWeb.ResourceView
 
-
   @doc """
   Count the number of resources (official + community)
   """
