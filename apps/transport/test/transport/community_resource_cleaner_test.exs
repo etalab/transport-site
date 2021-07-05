@@ -4,16 +4,23 @@ defmodule Transport.CommunityResourcesCleanerTest do
   import Transport.CommunityResourcesCleaner
   alias DB.Repo
 
-  @transport_publisher_label Application.get_env(:transport, :datagouvfr_transport_publisher_label)
+  @transport_publisher_label Application.get_env(
+                               :transport,
+                               :datagouvfr_transport_publisher_label
+                             )
 
   setup do
-    Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
+    Mox.stub_with(
+      Datagouvfr.Client.CommunityResources.Mock,
+      Datagouvfr.Client.StubCommunityResources
+    )
+
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  defp insert_dataset_associated_with_ressources(resources) do
+  defp insert_dataset_associated_with_ressources(resources, datagouv_id \\ nil) do
     :dataset
-    |> insert()
+    |> insert(%{datagouv_id: datagouv_id})
     |> Repo.preload(:resources)
     |> Ecto.Changeset.change()
     |> Ecto.Changeset.put_assoc(:resources, resources)
@@ -33,6 +40,9 @@ defmodule Transport.CommunityResourcesCleanerTest do
   end
 
   test "what happens when a community resource becomes an orphan" do
+    resource_datagouv_id = "r1"
+    dataset_datagouv_id = "d1"
+
     resource_parent =
       insert(:resource, %{
         is_community_resource: false,
@@ -43,10 +53,15 @@ defmodule Transport.CommunityResourcesCleanerTest do
       insert(:resource, %{
         is_community_resource: true,
         community_resource_publisher: @transport_publisher_label,
-        original_resource_url: "original_url"
+        original_resource_url: "original_url",
+        datagouv_id: resource_datagouv_id
       })
 
-    dataset = insert_dataset_associated_with_ressources([resource_parent, community_resource])
+    dataset =
+      insert_dataset_associated_with_ressources(
+        [resource_parent, community_resource],
+        dataset_datagouv_id
+      )
 
     # community_resource is not an orphan
     assert [] == list_orphan_community_resources()
@@ -55,7 +70,14 @@ defmodule Transport.CommunityResourcesCleanerTest do
     Repo.delete!(resource_parent)
 
     # the community resource is now an orphan
-    assert [%{dataset_id: dataset.id, resource_id: community_resource.id}] == list_orphan_community_resources()
+    assert [
+             %{
+               dataset_datagouv_id: dataset_datagouv_id,
+               resource_datagouv_id: resource_datagouv_id,
+               dataset_id: dataset.id,
+               resource_id: community_resource.id
+             }
+           ] == list_orphan_community_resources()
   end
 
   test "orphan detection with 2 datasets" do
