@@ -40,14 +40,11 @@ You also need an up to date postgresql with postgis installed. Version 12+ is re
 
 For Mac users, you can use https://postgresapp.com/.
 
-## Configuration
-
-TODO
-
 #### Dependencies
 
-Reply "Yes" to the question "Shall I install Hex? (if running non-interactively, use "mix local.hex --force")".
 Download depencies using `mix deps.get`.
+
+Reply "Yes" to the question "Shall I install Hex? (if running non-interactively, use "mix local.hex --force")".
 
 #### Creating a database
 
