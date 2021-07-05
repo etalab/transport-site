@@ -16,18 +16,20 @@ defmodule Transport.CommunityResourcesCleaner do
                              )
 
   def clean_community_resources do
-    %{error: error_n, ok: ok_n} =
+    result =
       list_orphan_community_resources()
       |> delete_resources()
       |> Enum.frequencies_by(fn {r, _} -> r end)
 
+    with %{error: error_n} <- result do
+      Logger.warn("#{error_n} community resources were listed as orphans but could not be deleted")
+    end
+
+    ok_n = Map.get(result, :ok, 0)
+
     Logger.info(
       "#{ok_n} community resources were successfully deleted because their parent resource didn't exist anymore"
     )
-
-    if error_n > 0 do
-      Logger.warn("#{error_n} community resources were listed as orphans but could not be deleted")
-    end
 
     {:ok, ok_n}
   end
