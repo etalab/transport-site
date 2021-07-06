@@ -78,7 +78,7 @@ defmodule Transport.Mixfile do
       {:credo, "~> 1.5.0", only: [:dev, :test], runtime: false},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
-      {:unidecode, "~> 0.0.2"},
+      {:unidecode, "~> 1.0.0"},
       {:ex_machina, "~> 2.4", only: :test},
       {:phoenix_ecto, "~> 4.0"},
       {:sizeable, "~> 1.0"},
