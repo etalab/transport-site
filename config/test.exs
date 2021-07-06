@@ -28,6 +28,9 @@ config :transport,
   httpoison_impl: Transport.HTTPoison.Mock,
   history_impl: Transport.History.Fetcher.Mock
 
+config :datagouvfr,
+  community_resources_impl: Datagouvfr.Client.CommunityResources.Mock
+
 # capture all info logs and up during tests
 config :logger, level: :info
 

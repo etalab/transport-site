@@ -1,6 +1,6 @@
 defmodule Datagouvfr.Client.DatasetsTest do
-  use DataGouvFr.ConnCase, async: false
-  use DataGouvFr.ExternalCase
+  use Datagouvfr.ConnCase, async: false
+  use Datagouvfr.ExternalCase
   alias Datagouvfr.Client
   alias Datagouvfr.Client.Datasets
 
