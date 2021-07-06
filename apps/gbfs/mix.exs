@@ -32,7 +32,6 @@ defmodule GBFS.MixProject do
     [
       {:cachex, "~> 3.3"},
       {:httpoison, "~> 1.8.0"},
-      {:exshape, "~> 2.2.6"},
       {:phoenix, "~> 1.5.7"},
       {:iconv, "~> 1.0.10"},
       {:sweet_xml, ">= 0.0.0"},

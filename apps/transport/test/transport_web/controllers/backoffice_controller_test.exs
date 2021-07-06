@@ -5,6 +5,14 @@ defmodule TransportWeb.BackofficeControllerTest do
   alias DB.{Repo, Resource}
   import Ecto.Repo
 
+  import Mox
+  setup :verify_on_exit!
+
+  setup do
+    Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
+    :ok
+  end
+
   @dataset_url "https://demo.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-de-transport-tag-1/"
   @dataset %{
     "url" => @dataset_url,
@@ -110,6 +118,26 @@ defmodule TransportWeb.BackofficeControllerTest do
       |> Map.put("region_id", Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes").id)
       |> Map.put("insee", nil)
 
+    Datagouvfr.Client.CommunityResources.Mock
+    |> expect(:get, fn id ->
+      # we return the same urls that the one we find in dataset-region.json cassette
+      # because for the moment the Hasher is not Mocked
+      # we it is the case, we will be able to put random urls here
+      assert id == "5760038cc751df708cac31a0"
+
+      {:ok,
+       [
+         %{
+           "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json",
+           "id" => "r1"
+         },
+         %{
+           "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt",
+           "id" => "r2"
+         }
+       ]}
+    end)
+
     conn =
       use_cassette "dataset/dataset-region.json" do
         post(conn, backoffice_dataset_path(conn, :post), dataset)
@@ -131,6 +159,26 @@ defmodule TransportWeb.BackofficeControllerTest do
       end
 
     dataset = %{@dataset | "region_id" => nil}
+
+    Datagouvfr.Client.CommunityResources.Mock
+    |> expect(:get, fn id ->
+      # we return the same urls that the one we find in dataset-aom.json cassette
+      # because for the moment the Hasher is not Mocked
+      # we it is the case, we will be able to put random urls here
+      assert id == "5760038cc751df708cac31a0"
+
+      {:ok,
+       [
+         %{
+           "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json",
+           "id" => "r1"
+         },
+         %{
+           "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt",
+           "id" => "r2"
+         }
+       ]}
+    end)
 
     conn =
       use_cassette "dataset/dataset-aom.json" do
