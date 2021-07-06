@@ -36,7 +36,8 @@ defmodule Datagouvfr.MixProject do
       {:plug, ">= 0.0.0"},
       {:shared, in_umbrella: true},
       {:vex, "~> 0.8"},
-      {:exvcr, "~> 0.10", only: :test}
+      {:exvcr, "~> 0.10", only: :test},
+      {:mox, "~> 1.0.0", only: :test}
     ]
   end
 end
