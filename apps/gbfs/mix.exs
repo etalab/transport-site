@@ -30,7 +30,7 @@ defmodule GBFS.MixProject do
 
   defp deps do
     [
-      {:cachex, "~> 3.3"},
+      {:cachex, "~> 3.4"},
       {:httpoison, "~> 1.8.0"},
       {:phoenix, "~> 1.5.7"},
       {:iconv, "~> 1.0.10"},
