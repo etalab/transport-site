@@ -626,9 +626,9 @@ const droms = {
         center: [3.830, -53.097],
         zoom: 6
     },
-    mayotte: {
-        center: [-12.8503, 45.1670],
-        zoom: 9
+    nouvelle_caledonie: {
+        center: [-22, 166],
+        zoom: 6
     },
     metropole: {
         center: [44.670, 2.087],

@@ -1,4 +1,4 @@
-defmodule DataGouvFr.ConnCase do
+defmodule Datagouvfr.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -13,7 +13,7 @@ defmodule DataGouvFr.ConnCase do
       import Phoenix.ConnTest, except: [init_test_session: 2]
 
       # The default endpoint for testing
-      @endpoint DataGouvFr.Endpoint
+      @endpoint Datagouvfr.Endpoint
     end
   end
 

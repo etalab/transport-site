@@ -24,9 +24,7 @@ defmodule Datagouvfr.Client.Discussions do
   """
   @spec post(binary(), binary(), binary(), boolean()) :: Client.oauth2_response()
   def post(id_, title, comment, blank) when is_binary(id_) do
-    headers = [
-      {"X-API-KEY", Application.get_env(:transport, :datagouvfr_apikey)}
-    ]
+    headers = [API.api_key_headers()]
 
     API.post(@endpoint, payload_post(id_, title, comment), headers, blank)
   end

@@ -1,4 +1,4 @@
-defmodule DataGouvFr.ExternalCase do
+defmodule Datagouvfr.ExternalCase do
   @moduledoc """
   This module defines the test case to be used by
   test that require to mock external API calls.
