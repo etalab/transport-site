@@ -366,4 +366,18 @@ defmodule TransportWeb.DatasetView do
     |> Enum.sort_by(& &1.metadata["end_date"], &>=/2)
     |> Enum.sort_by(&Resource.valid_and_available?(&1), &>=/2)
   end
+
+  def schema_url(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do
+    "https://schema.data.gouv.fr/#{schema_name}/#{schema_version}.html"
+  end
+
+  def schema_url(%{schema_name: schema_name}) do
+    "https://schema.data.gouv.fr/#{schema_name}/latest.html"
+  end
+
+  def schema_label(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do
+    "#{schema_name} (#{schema_version})"
+  end
+
+  def schema_label(%{schema_name: schema_name}), do: schema_name
 end

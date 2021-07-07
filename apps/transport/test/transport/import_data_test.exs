@@ -17,12 +17,13 @@ defmodule Transport.ImportDataTest do
     :ok
   end
 
-  def generate_resources_payload(title \\ nil, url \\ nil, id \\ nil) do
+  def generate_resources_payload(title \\ nil, url \\ nil, id \\ nil, schema_name \\ nil, schema_version \\ nil) do
     [
       %{
         "title" => title || "resource1",
         "url" => url || "http://localhost:4321/resource1",
-        "id" => id || "resource1_id"
+        "id" => id || "resource1_id",
+        "schema" => %{"name" => schema_name, "version" => schema_version}
       }
     ]
   end
@@ -226,12 +227,16 @@ defmodule Transport.ImportDataTest do
     assert db_count(DB.Resource) == 0
 
     community_resource_title = "a_community_resource"
+    schema_name = "etalab/covoiturage"
+    schema_version = "v1.0"
 
     with_mock HTTPoison,
       get!: http_get_mock_200(datagouv_id, generate_dataset_payload(datagouv_id, [])),
       head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources,
-        get: fn _ -> {:ok, generate_resources_payload(community_resource_title)} end do
+        get: fn _ ->
+          {:ok, generate_resources_payload(community_resource_title, "url", "1", schema_name, schema_version)}
+        end do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
           ImportData.import_all_datasets()
         end
@@ -240,6 +245,8 @@ defmodule Transport.ImportDataTest do
 
     [resource] = DB.Resource |> where([r], r.is_community_resource) |> DB.Repo.all()
     assert Map.get(resource, :title) == community_resource_title
+    assert Map.get(resource, :schema_name) == schema_name
+    assert Map.get(resource, :schema_version) == schema_version
   end
 
   # test "error while connecting to datagouv server"
