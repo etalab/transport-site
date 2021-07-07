@@ -43,8 +43,6 @@ defmodule Db.MixProject do
       {:jason, ">= 0.0.0"},
       {:datagouvfr, in_umbrella: true},
       {:shared, in_umbrella: true},
-      {:ex_aws, ">= 0.0.0"},
-      {:ex_aws_s3, ">= 0.0.0"},
       {:sentry, ">= 0.0.0"},
       {:typed_ecto_schema, ">= 0.1.1"}
     ]
