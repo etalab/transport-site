@@ -8,7 +8,7 @@ use Mix.Config
 config :transport, datagouvfr_apikey: "TO-BE-REPLACED"
 config :oauth2, Datagouvfr.Authentication,
   client_id: "TO-BE-REPLACED",
-  client_secret: "TO-BE-REPLACED",
+  client_secret: "TO-BE-REPLACED"
 
 # NOTE: we will replace this by a proxy config (https://github.com/etalab/transport-proxy-config) ultimarely
 config :gbfs, jcdecaux_apikey: "TO-BE-REPLACED"
