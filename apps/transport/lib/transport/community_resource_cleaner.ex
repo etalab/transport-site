@@ -10,10 +10,9 @@ defmodule Transport.CommunityResourcesCleaner do
   import Ecto.Query
   require Logger
 
-  @transport_publisher_label Application.get_env(
-                               :transport,
-                               :datagouvfr_transport_publisher_label
-                             )
+  def transport_publisher_label do
+    Application.fetch_env!(:transport, :datagouvfrtransport_publisher_label)
+  end
 
   def clean_community_resources do
     result =
@@ -60,7 +59,7 @@ defmodule Transport.CommunityResourcesCleaner do
     dataset.resources
     |> Enum.filter(fn r ->
       r.is_community_resource == true and
-        r.community_resource_publisher == @transport_publisher_label
+        r.community_resource_publisher == transport_publisher_label()
     end)
     |> Enum.reject(fn r -> resources_url |> Enum.member?(r.original_resource_url) end)
     |> Enum.map(fn r ->
