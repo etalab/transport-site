@@ -11,7 +11,7 @@ defmodule Transport.CommunityResourcesCleaner do
   require Logger
 
   def transport_publisher_label do
-    Application.fetch_env!(:transport, :datagouvfrtransport_publisher_label)
+    Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
   end
 
   def clean_community_resources do
