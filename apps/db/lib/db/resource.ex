@@ -383,6 +383,7 @@ defmodule DB.Resource do
         %{severity: max_severity, count_errors: count_errors}
 
       {:ok, _} ->
+        # credo:disable-for-next-line
         with %Validation{details: details} when details == %{} <- Repo.get_by(Validation, resource_id: id) do
           %{severity: "Irrevelant", count_errors: 0}
         else
