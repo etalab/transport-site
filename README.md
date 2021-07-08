@@ -107,12 +107,12 @@ The following commands will launch the test and generate coverage:
 
 ```
 # Display overall (whole app) coverage for all tests in the console
-RUN_ALL=1 mix coveralls --umbrella
+MIX_ENV=test RUN_ALL=1 mix coveralls --umbrella
 # Same with a HTML report
-RUN_ALL=1 mix coveralls.html --umbrella
+MIX_ENV=test RUN_ALL=1 mix coveralls.html --umbrella
 
 # Display coverage for each umbrella component, rather
-mix coveralls
+MIX_ENV=test mix coveralls
 ```
 
 The coverage is written on screen by default, or in the `cover` subfolders for HTML output.

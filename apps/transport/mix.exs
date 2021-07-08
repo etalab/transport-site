@@ -17,7 +17,11 @@ defmodule Transport.Mixfile do
         vcr: :test,
         "vcr.delete": :test,
         "vcr.check": :test,
-        "vcr.show": :test
+        "vcr.show": :test,
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
       ],
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
