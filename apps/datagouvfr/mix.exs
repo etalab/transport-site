@@ -15,7 +15,13 @@ defmodule Datagouvfr.MixProject do
       deps: deps(),
       gettext: [{:write_reference_comments, false}],
       compilers: [:gettext] ++ Mix.compilers(),
-      test_coverage: [tool: ExCoveralls]
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -35,7 +41,8 @@ defmodule Datagouvfr.MixProject do
       {:httpoison, ">= 0.0.0"},
       {:plug, ">= 0.0.0"},
       {:shared, in_umbrella: true},
-      {:vex, "~> 0.8"},
+      # Using master until https://github.com/CargoSense/vex/issues/68 is fixed
+      {:vex, github: "CargoSense/vex", ref: "328a39f7"},
       {:exvcr, "~> 0.10", only: :test},
       {:mox, "~> 1.0.0", only: :test}
     ]

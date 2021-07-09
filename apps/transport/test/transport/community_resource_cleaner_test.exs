@@ -4,11 +4,6 @@ defmodule Transport.CommunityResourcesCleanerTest do
   import Transport.CommunityResourcesCleaner
   alias DB.Repo
 
-  @transport_publisher_label Application.get_env(
-                               :transport,
-                               :datagouvfr_transport_publisher_label
-                             )
-
   setup do
     Mox.stub_with(
       Datagouvfr.Client.CommunityResources.Mock,
@@ -52,7 +47,7 @@ defmodule Transport.CommunityResourcesCleanerTest do
     community_resource =
       insert(:resource, %{
         is_community_resource: true,
-        community_resource_publisher: @transport_publisher_label,
+        community_resource_publisher: transport_publisher_label(),
         original_resource_url: "original_url",
         datagouv_id: resource_datagouv_id
       })
@@ -84,14 +79,14 @@ defmodule Transport.CommunityResourcesCleanerTest do
     resource1 =
       insert(:resource, %{
         is_community_resource: true,
-        community_resource_publisher: @transport_publisher_label,
+        community_resource_publisher: transport_publisher_label(),
         original_resource_url: "original_url1"
       })
 
     resource2 =
       insert(:resource, %{
         is_community_resource: true,
-        community_resource_publisher: @transport_publisher_label,
+        community_resource_publisher: transport_publisher_label(),
         original_resource_url: "original_url2"
       })
 
@@ -117,7 +112,7 @@ defmodule Transport.CommunityResourcesCleanerTest do
     resource11 =
       insert(:resource, %{
         is_community_resource: true,
-        community_resource_publisher: @transport_publisher_label,
+        community_resource_publisher: transport_publisher_label(),
         original_resource_url: "original_url11"
       })
 
@@ -127,7 +122,7 @@ defmodule Transport.CommunityResourcesCleanerTest do
     resource20 =
       insert(:resource, %{
         is_community_resource: true,
-        community_resource_publisher: @transport_publisher_label,
+        community_resource_publisher: transport_publisher_label(),
         original_resource_url: "original_url20"
       })
 
