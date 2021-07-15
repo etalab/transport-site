@@ -377,3 +377,7 @@ msgstr "Les réutilisations sont temporairement indisponibles"
 #, elixir-format
 msgid "Data producer"
 msgstr "Producteur de la donnée"
+
+#, elixir-format
+msgid "Resource declared schema"
+msgstr "La ressource déclare utiliser ce schéma"

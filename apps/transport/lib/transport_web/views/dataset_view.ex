@@ -8,6 +8,20 @@ defmodule TransportWeb.DatasetView do
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   alias TransportWeb.ResourceView
 
+  @doc """
+  Count the number of resources (official + community)
+  """
+  def count_resources(dataset) do
+    Enum.count(official_available_resources(dataset)) + Enum.count(community_resources(dataset))
+  end
+
+  @spec count_discussions(any) :: [45, ...] | non_neg_integer
+  @doc """
+  Count the number of discussions if they are available
+  """
+  def count_discussions(nil), do: '-'
+  def count_discussions(discussions), do: Enum.count(discussions)
+
   def render_sidebar_from_type(conn, dataset),
     do: render_panel_from_type(conn, dataset, "sidebar")
 
@@ -171,7 +185,7 @@ defmodule TransportWeb.DatasetView do
       "public-transit" => "/images/icons/bus.svg",
       "bike-sharing" => "/images/icons/bicycle.svg",
       "bike-path" => "/images/icons/bike-path.svg",
-      "carsharing-areas" => "/images/icons/car.svg",
+      "carpooling-areas" => "/images/icons/car.svg",
       "charging-stations" => "/images/icons/charge-station.svg",
       "air-transport" => "/images/icons/plane.svg",
       "road-network" => "/images/icons/map.svg",
@@ -308,7 +322,7 @@ defmodule TransportWeb.DatasetView do
   """
   @spec get_resource_to_display(%Dataset{}) :: Resource.t() | nil
   def get_resource_to_display(%Dataset{type: type, resources: resources})
-      when type == "carsharing-areas" or type == "private-parking" or type == "charging-stations" do
+      when type == "carpooling-areas" or type == "private-parking" or type == "charging-stations" do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
     |> Enum.reject(fn r -> r.is_community_resource end)
@@ -352,4 +366,18 @@ defmodule TransportWeb.DatasetView do
     |> Enum.sort_by(& &1.metadata["end_date"], &>=/2)
     |> Enum.sort_by(&Resource.valid_and_available?(&1), &>=/2)
   end
+
+  def schema_url(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do
+    "https://schema.data.gouv.fr/#{schema_name}/#{schema_version}.html"
+  end
+
+  def schema_url(%{schema_name: schema_name}) do
+    "https://schema.data.gouv.fr/#{schema_name}/latest.html"
+  end
+
+  def schema_label(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do
+    "#{schema_name} (#{schema_version})"
+  end
+
+  def schema_label(%{schema_name: schema_name}), do: schema_name
 end

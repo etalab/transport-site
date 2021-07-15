@@ -37,7 +37,7 @@ msgstr ""
 msgid "public-transit"
 msgstr "Public transit"
 
-msgid "carsharing-areas"
+msgid "carpooling-areas"
 msgstr "Car sharing areas"
 
 msgid "stops-ref"
@@ -223,6 +223,6 @@ msgstr ""
 msgid "With more than 1 GTFS"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgid "Show only datasets"
 msgstr ""

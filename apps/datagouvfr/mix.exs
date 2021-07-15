@@ -10,13 +10,23 @@ defmodule Datagouvfr.MixProject do
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       elixir: "~> 1.8",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       gettext: [{:write_reference_comments, false}],
       compilers: [:gettext] ++ Mix.compilers(),
-      test_coverage: [tool: ExCoveralls]
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   def application do
     [
@@ -30,7 +40,11 @@ defmodule Datagouvfr.MixProject do
       {:oauth2, "~> 0.9"},
       {:httpoison, ">= 0.0.0"},
       {:plug, ">= 0.0.0"},
-      {:shared, in_umbrella: true}
+      {:shared, in_umbrella: true},
+      # Using master until https://github.com/CargoSense/vex/issues/68 is fixed
+      {:vex, github: "CargoSense/vex", ref: "328a39f7"},
+      {:exvcr, "~> 0.10", only: :test},
+      {:mox, "~> 1.0.0", only: :test}
     ]
   end
 end

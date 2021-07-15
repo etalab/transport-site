@@ -200,10 +200,6 @@ msgid "Datasets"
 msgstr ""
 
 #, elixir-format
-msgid "Bicycle paths"
-msgstr ""
-
-#, elixir-format
 msgid "Road works"
 msgstr ""
 
@@ -221,4 +217,28 @@ msgstr ""
 
 #, elixir-format
 msgid "Bike path"
+msgstr ""
+
+#, elixir-format
+msgid "A freely accessible service"
+msgstr ""
+
+#, elixir-format
+msgid "ALL French open mobility data at the same place"
+msgstr ""
+
+#, elixir-format
+msgid "Available data by theme"
+msgstr ""
+
+#, elixir-format
+msgid "Online tools to ease data reuses"
+msgstr ""
+
+#, elixir-format
+msgid "Selected formats"
+msgstr ""
+
+#, elixir-format
+msgid "Selected licences"
 msgstr ""

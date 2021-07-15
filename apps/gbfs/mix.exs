@@ -14,7 +14,13 @@ defmodule GBFS.MixProject do
       compilers: [:phoenix] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      test_coverage: [tool: ExCoveralls]
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -30,9 +36,8 @@ defmodule GBFS.MixProject do
 
   defp deps do
     [
-      {:cachex, "~> 3.3"},
+      {:cachex, "~> 3.4"},
       {:httpoison, "~> 1.8.0"},
-      {:exshape, "~> 2.2.6"},
       {:phoenix, "~> 1.5.7"},
       {:iconv, "~> 1.0.10"},
       {:sweet_xml, ">= 0.0.0"},

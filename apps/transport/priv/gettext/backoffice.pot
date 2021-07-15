@@ -38,7 +38,7 @@ msgstr ""
 msgid "public-transit"
 msgstr ""
 
-msgid "carsharing-areas"
+msgid "carpooling-areas"
 msgstr ""
 
 msgid "stops-ref"

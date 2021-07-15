@@ -20,28 +20,59 @@ defmodule HTTPStreamV2 do
   The headers are kept around for a variety of reasons. We could use them to follow a redirect,
   double-check the etag, verify the content type etc.
   """
-  def fetch_status_and_hash(url) do
-    request = Finch.build(:get, url)
-    {:ok, result} = Finch.stream(request, Transport.Finch, %{}, &handle_stream_response/2)
-    compute_final_hash(result)
+
+  # same as HTTPoison
+  @redirect_status [301, 302, 307]
+  @default_allowed_redirects 5
+
+  @spec fetch_status_and_hash(binary(), integer(), integer()) :: {:ok, map()} | {:error, any()}
+  def fetch_status_and_hash(url, max_redirect \\ @default_allowed_redirects, redirect_count \\ 0)
+
+  def fetch_status_and_hash(_url, max_redirect, redirect_count)
+      when redirect_count > max_redirect do
+    {:error, "maximum number of redirect reached"}
   end
 
-  defp handle_stream_response(tuple, acc) do
-    case tuple do
-      {:status, status} ->
-        acc
-        |> Map.put(:status, status)
-        |> Map.put(:hash, :crypto.hash_init(:sha256))
-        |> Map.put(:body_byte_size, 0)
+  def fetch_status_and_hash(url, max_redirect, redirect_count) do
+    request = Finch.build(:get, URI.encode(url))
 
-      {:headers, headers} ->
-        acc
-        |> Map.put(:headers, headers)
+    try do
+      {:ok, result} = Finch.stream(request, Transport.Finch, %{}, &handle_stream_response/2)
+      {:ok, compute_final_hash(result)}
+    catch
+      {:redirect, redirect_url} ->
+        fetch_status_and_hash(redirect_url, max_redirect, redirect_count + 1)
 
-      {:data, data} ->
-        hash = :crypto.hash_update(acc.hash, data)
-        %{acc | hash: hash, body_byte_size: acc[:body_byte_size] + (data |> byte_size)}
+      {:error, e} ->
+        {:error, e}
     end
+  end
+
+  defp handle_stream_response({:status, status}, acc) do
+    acc
+    |> Map.put(:status, status)
+    |> Map.put(:hash, :crypto.hash_init(:sha256))
+    |> Map.put(:body_byte_size, 0)
+  end
+
+  defp handle_stream_response({:headers, headers}, acc) do
+    case acc.status do
+      status when status in @redirect_status ->
+        headers
+        |> location_header()
+        |> case do
+          nil -> throw({:error, "no redirection url provided"})
+          {_, redirect_url} -> throw({:redirect, redirect_url})
+        end
+
+      _ ->
+        acc |> Map.put(:headers, headers)
+    end
+  end
+
+  defp handle_stream_response({:data, data}, acc) do
+    hash = :crypto.hash_update(acc.hash, data)
+    %{acc | hash: hash, body_byte_size: acc[:body_byte_size] + (data |> byte_size)}
   end
 
   defp compute_final_hash(result) do
@@ -57,7 +88,7 @@ defmodule HTTPStreamV2 do
 
   @spec fetch_status(binary()) :: {:ok, map()} | {:error, any()}
   def fetch_status(url) do
-    request = Finch.build(:get, url)
+    request = Finch.build(:get, URI.encode(url))
     Finch.stream(request, Transport.Finch, %{}, &handle_stream_status/2)
   catch
     # when status is fetched, a throw is used to stop the streaming and exit with the needed information
@@ -65,36 +96,38 @@ defmodule HTTPStreamV2 do
     e -> {:error, e}
   end
 
-  @redirect_status [301, 302, 307]
+  defp location_header(headers) do
+    headers |> Enum.find(fn {k, _v} -> String.downcase(k) == "location" end)
+  end
 
   defp handle_stream_status({:status, status}, acc) do
-    res = acc |> Map.put(:status, status)
+    acc = acc |> Map.put(:status, status)
+
     if status not in @redirect_status do
       # we know everything we need to know
-      throw({:status_fetched, {:ok, res}})
+      throw({:status_fetched, {:ok, acc}})
     end
-    res
+
+    acc
   end
 
   defp handle_stream_status({:headers, headers}, acc) do
-    location_header = headers |> Enum.find(fn {k, _v} -> k in ["Location", "location"] end)
+    acc =
+      headers
+      |> location_header()
+      |> case do
+        nil -> acc
+        {_, url} -> acc |> Map.put(:location, url)
+      end
 
-    case location_header do
-      nil -> acc
-      {_, url} -> acc |> Map.put(:location, url)
-    end
+    throw({:status_fetched, {:ok, acc}})
   end
 
-  defp handle_stream_status({:data, _data}, acc) do
-    case acc do
-      {:ok, %{status: _, location: _}} -> throw({:status_fetched, acc})
-      {:ok, %{status: status}} when status not in @redirect_status -> throw({:status_fetched, acc})
-      _ -> acc
-    end
-  end
-
-  # same default max_redirect as HTTPoison
-  def fetch_status_follow_redirect(url, max_redirect \\ 5, redirect_count \\ 0)
+  def fetch_status_follow_redirect(
+        url,
+        max_redirect \\ @default_allowed_redirects,
+        redirect_count \\ 0
+      )
 
   def fetch_status_follow_redirect(_url, max_redirect, redirect_count)
       when redirect_count > max_redirect do

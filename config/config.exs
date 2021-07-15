@@ -3,6 +3,11 @@
 #
 # This configuration file is loaded before any dependency and
 # is restricted to this project.
+
+# NOTE: this is very much legacy & work in progress to modernize the situation.
+# For reference, ultimately most tests should not connect to outside stuff.
+# A good model for improvements is https://github.com/hexpm/hexpm/tree/main/config
+#
 use Mix.Config
 
 config :unlock,
@@ -10,6 +15,11 @@ config :unlock,
   http_client: Unlock.HTTP.FinchImpl,
   github_config_url: "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml",
   github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN")
+
+# NOTE: the config is unused by the app (because the endpoint is not used, the
+# unlock router is directly wired into the main transport endpoint). The config key
+# is nonetheless present to avoid a warning at runtime / test time.
+config :unlock, Unlock.Endpoint, []
 
 if System.get_env("CELLAR_NAMESPACE") do
   # We believe CELLAR_NAMESPACE was a previous attempt at siloting S3 envs.
@@ -24,7 +34,6 @@ config :gbfs, jcdecaux_apikey: System.get_env("JCDECAUX_APIKEY")
 
 # Configures the endpoint
 config :gbfs, GBFS.Endpoint,
-  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: GBFS.ErrorView, accepts: ~w(json)],
   pubsub_server: GBFS.PubSub, # TODO: verify if this is truly needed? unsure.
   server: false
@@ -32,16 +41,12 @@ config :gbfs, GBFS.Endpoint,
 # Configures the endpoint
 config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],
-  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [
     view: TransportWeb.ErrorView,
     layout: {TransportWeb.LayoutView, "app.html"},
     accepts: ~w(html json)
   ],
-  pubsub_server: TransportWeb.PubSub,
-  live_view: [
-    signing_salt: System.get_env("SECRET_KEY_BASE")
-  ]
+  pubsub_server: TransportWeb.PubSub
 
 config :phoenix, :json_library, Jason
 
@@ -101,6 +106,9 @@ config :transport,
   ex_aws_impl: ExAws,
   httpoison_impl: HTTPoison,
   history_impl: Transport.History.Fetcher.S3
+
+config :datagouvfr,
+  community_resources_impl: Datagouvfr.Client.CommunityResources.API
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

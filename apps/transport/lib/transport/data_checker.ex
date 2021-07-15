@@ -70,11 +70,9 @@ defmodule Transport.DataChecker do
       "Jeu de données arrivant à expiration",
       """
       Bonjour,
-      Ce jeu de données arrive à expiration dans #{delay} jour#{
-        if delay != 1 do
-          "s"
-        end
-      }.
+      Ce jeu de données arrive à expiration dans #{delay} jour#{if delay != 1 do
+        "s"
+      end}.
       Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour prochainement.
       L’équipe transport.data.gouv.fr
       """,

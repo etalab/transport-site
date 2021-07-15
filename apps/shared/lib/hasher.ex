@@ -36,18 +36,27 @@ defmodule Hasher do
 
   @spec compute_sha256(String.t()) :: String.t()
   def compute_sha256(url) do
-    %{status: status, hash: hash} = HTTPStreamV2.fetch_status_and_hash(url)
-    if status == 200 do
-      hash
-    else
-      Logger.warn("Invalid status #{status} for url #{url |> inspect}, returning empty hash")
-      # NOTE: this mimics the legacy code, and maybe we could return nil instead, but the whole
-      # thing isn't under tests, so I prefer to keep it like before for now.
-      ""
+    case HTTPStreamV2.fetch_status_and_hash(url) do
+      {:ok, %{status: 200, hash: hash}} ->
+        hash
+
+      {:error, msg} ->
+        Logger.warn(
+          "Cannot compute hash for url #{url |> inspect}, returning empty hash. Error : #{
+            msg |> inspect
+          }"
+        )
+
+        # NOTE: this mimics the legacy code, and maybe we could return nil instead, but the whole
+        # thing isn't under tests, so I prefer to keep it like before for now.
+        ""
     end
   rescue
     e ->
-      Logger.error("Exception #{e |> inspect} occurred during hash computation for url #{url |> inspect}, returning empty hash")
+      Logger.error(
+        "Exception #{e |> inspect} occurred during hash computation for url #{url |> inspect}, returning empty hash"
+      )
+
       ""
   end
 

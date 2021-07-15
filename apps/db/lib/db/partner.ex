@@ -78,7 +78,7 @@ defmodule DB.Partner do
   @spec partner_regex() :: Regex.t()
   defp partner_regex do
     :transport
-    |> Application.get_env(:datagouvfr_site)
+    |> Application.fetch_env!(:datagouvfr_site)
     |> Regex.escape()
     |> Kernel.<>(".*\/(organizations|users)\/(.*)\/$")
     |> Regex.compile!()

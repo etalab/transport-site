@@ -8,15 +8,11 @@ default_docker: &default_docker
   environment:
     MIX_ENV: test
     PG_URL_TEST: ecto://root@127.0.0.1/transport_test
-    DATAGOUVFR_SITE: https://demo.data.gouv.fr
-    MAILCHIMP_NEWSLETTER_URL: //gouv.us13.list-manage.com/subscribe/post?u=5ee8bfe0f1b073b49de06a063&amp;id=13db2e9a94
-    GTFS_VALIDATOR_URL: https://transport-validator.cleverapps.io
-    SECRET_KEY_BASE: "SOME-SECRET-KEY-BASE-FOR-TESTING-SOME-SECRET-KEY-BASE-FOR-TESTING"
 
 defaults: &defaults
   parameters:
     base_image:
-      default: betagouv/transport:elixir-1.10.4-erlang-23.2.7.2-alpine-3.13.3
+      default: betagouv/transport:elixir-1.12.2-erlang-24.0.3-alpine-3.13.3
       type: string
   working_directory: ~/transport
   docker:
@@ -184,7 +180,6 @@ jobs:
       - run:
           name: Run tests
           command: |
-            export SECRET_KEY_BASE=`mix phx.gen.secret`
             mix test
 
   test_external:
@@ -197,7 +192,6 @@ jobs:
       - run:
           name: Run tests
           command: |
-            export SECRET_KEY_BASE=`mix phx.gen.secret`
             mix test --only external
 
 workflows:

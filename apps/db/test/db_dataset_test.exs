@@ -4,6 +4,7 @@ defmodule DB.DatasetDBTest do
   """
   use DB.DatabaseCase, cleanup: [:datasets]
   alias DB.Repo
+  import TransportWeb.Factory
 
   test "delete_parent_dataset" do
     parent_dataset = Repo.insert!(%Dataset{})
@@ -18,6 +19,25 @@ defmodule DB.DatasetDBTest do
     # after parent deletion, the aom should have a nil parent_dataset
     linked_aom = Repo.get!(AOM, linked_aom.id)
     assert is_nil(linked_aom.parent_dataset_id)
+  end
+
+  test "delete dataset associated to a commune" do
+    commune = insert(:commune)
+
+    dataset =
+      :dataset
+      |> insert()
+      |> Repo.preload(:communes)
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:communes, [commune])
+      |> Repo.update!()
+
+    # check the assoc succeeded
+    [associated_commune] = dataset.communes
+    assert associated_commune.id == commune.id
+
+    # the deletion will raise if no on_delete action is defined because of the presence of a foreign key
+    Repo.delete!(dataset)
   end
 
   describe "changeset of a dataset" do

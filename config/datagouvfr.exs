@@ -6,6 +6,9 @@ alias Datagouvfr.Authentication
 config :transport, datagouvfr_site: System.get_env("DATAGOUVFR_SITE")
 config :transport, datagouvfr_apikey: System.get_env("DATAGOUVFR_API_KEY")
 
+config :transport,
+  datagouvfr_transport_publisher_label: "Point d'Accès National transport.data.gouv.fr"
+
 # Configure data.gouv.fr authentication
 config :oauth2, Authentication,
   strategy: Authentication,
@@ -17,5 +20,5 @@ config :oauth2, Authentication,
 config :oauth2,
   serializers: %{
     "multipart/form-data" => Transport.Datagouvfr.MultipartSerializer,
-    "application/json"    => Jason
+    "application/json" => Jason
   }

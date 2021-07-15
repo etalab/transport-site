@@ -90,9 +90,7 @@ defmodule TransportWeb.ResourceController do
     else
       {:error, error} ->
         Logger.error(
-          "Unable to update resource #{params["resource_id"]} of dataset #{params["dataset_id"]}, error: #{
-            inspect(error)
-          }"
+          "Unable to update resource #{params["resource_id"]} of dataset #{params["dataset_id"]}, error: #{inspect(error)}"
         )
 
         conn

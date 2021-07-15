@@ -42,3 +42,36 @@ config :phoenix, :stacktrace_depth, 20
 # as often done.
 config :transport,
   history_impl: Transport.History.Fetcher.Mock
+
+# Provide a default experience that will mostly work without manual config,
+# as long as the developer does not use advanced features (backoffice login, gbfs etc)
+# One can use dev.secret.exs to override this.
+secret_key_base = "lrS928IORjEwtIIdxjRZ30I8PUR4rbXorGCfmA4nbX2Jkgjl7U9rpcz6QjjH1AOc"
+
+config :transport, TransportWeb.Endpoint,
+  secret_key_base: secret_key_base,
+  live_view: [
+    # NOTE: unsure if this is actually great to reuse the same value
+    signing_salt: secret_key_base
+  ]
+
+datagouvfr_site = "https://demo.data.gouv.fr"
+
+config :transport, datagouvfr_site: datagouvfr_site
+
+config :oauth2, Datagouvfr.Authentication,
+  site: datagouvfr_site,
+  redirect_uri: "http://localhost:5000/login/callback"
+
+extra_config_file = Path.join(__DIR__, "#{Mix.env()}.secret.exs")
+
+if File.exists?(extra_config_file) do
+  import_config extra_config_file
+else
+  require Logger
+  Logger.warn("Only the most basic features will work. Please create #{extra_config_file} based on config/dev.secret.template.exs for more advanced use.")
+end
+
+if File.exists?(".envrc") do
+  Mix.raise("The .envrc file is deprecated and must be removed")
+end

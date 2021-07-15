@@ -28,6 +28,9 @@ config :transport,
   httpoison_impl: Transport.HTTPoison.Mock,
   history_impl: Transport.History.Fetcher.Mock
 
+config :datagouvfr,
+  community_resources_impl: Datagouvfr.Client.CommunityResources.Mock
+
 # capture all info logs and up during tests
 config :logger, level: :info
 
@@ -50,3 +53,14 @@ config :exvcr, [
 config :db, DB.Repo,
   url: System.get_env("PG_URL_TEST") || System.get_env("PG_URL") || "ecto://postgres:postgres@localhost/transport_test",
   pool: Ecto.Adapters.SQL.Sandbox
+
+# temporary stuff, yet this is not DRY
+config :transport,
+  datagouvfr_site: "https://demo.data.gouv.fr",
+  # NOTE: the tests are normally expected to be marked :external
+  # and rely on ExVCR cassettes at the moment. This provides the expected
+  # target host name for them, until we move to a behaviour-based testing instead.
+  gtfs_validator_url: "https://transport-validator.cleverapps.io"
+
+config :transport, TransportWeb.Endpoint,
+  secret_key_base: "SOME-LONG-SECRET-KEY-BASE-FOR-TESTING-SOME-LONG-SECRET-KEY-BASE-FOR-TESTING"

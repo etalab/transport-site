@@ -17,7 +17,11 @@ defmodule Transport.Mixfile do
         vcr: :test,
         "vcr.delete": :test,
         "vcr.check": :test,
-        "vcr.show": :test
+        "vcr.show": :test,
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
       ],
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -56,7 +60,6 @@ defmodule Transport.Mixfile do
       {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 2.3"},
       {:recon, "~> 2.4"},
-      {:vex, "~> 0.8"},
       {:quantum, "~> 2.3"},
       {:timex, "~> 3.5"},
       {:sentry, "~> 8.0"},
@@ -75,10 +78,12 @@ defmodule Transport.Mixfile do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:cors_plug, "~> 2.0"},
       {:exvcr, "~> 0.10", only: :test},
-      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.5.0", only: [:dev, :test], runtime: false},
+      # NOTE: we cannot upgrade to the very latest (2.2.x) because of
+      # https://github.com/parroty/exvcr/issues/153#issuecomment-874864317
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
-      {:unidecode, "~> 0.0.2"},
+      {:unidecode, "~> 1.0.0"},
       {:ex_machina, "~> 2.4", only: :test},
       {:phoenix_ecto, "~> 4.0"},
       {:sizeable, "~> 1.0"},

@@ -59,7 +59,7 @@ defmodule DB.Dataset do
   def type_to_str_map,
     do: %{
       "public-transit" => dgettext("dataset", "Public transit timetable"),
-      "carsharing-areas" => dgettext("dataset", "Carsharing areas"),
+      "carpooling-areas" => dgettext("dataset", "Carpooling areas"),
       "stops-ref" => dgettext("dataset", "Stops referential"),
       "charging-stations" => dgettext("dataset", "Charging stations"),
       "micro-mobility" => dgettext("dataset", "Micro mobility"),
@@ -97,7 +97,9 @@ defmodule DB.Dataset do
         community_resource_publisher: r.community_resource_publisher,
         original_resource_url: r.original_resource_url,
         features: r.features,
-        modes: r.modes
+        modes: r.modes,
+        schema_name: r.schema_name,
+        schema_version: r.schema_version
       }
     )
   end
@@ -339,7 +341,7 @@ defmodule DB.Dataset do
 
   @spec datagouv_url(DB.Dataset.t()) :: binary()
   def datagouv_url(%__MODULE__{slug: slug}) do
-    Path.join([System.get_env("DATAGOUVFR_SITE"), "datasets", slug])
+    Path.join([Application.fetch_env!(:transport, :datagouvfr_site), "datasets", slug])
   end
 
   @spec count_by_mode(binary()) :: number()

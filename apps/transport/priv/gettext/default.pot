@@ -84,3 +84,7 @@ msgstr ""
 #, elixir-format
 msgid "My account"
 msgstr ""
+
+#, elixir-format
+msgid "Tools"
+msgstr ""

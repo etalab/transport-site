@@ -84,3 +84,7 @@ msgstr "Infos producteurs"
 #, elixir-format
 msgid "My account"
 msgstr "Mon compte"
+
+#, elixir-format
+msgid "Tools"
+msgstr "Outils"

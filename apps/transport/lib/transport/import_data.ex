@@ -11,7 +11,9 @@ defmodule Transport.ImportData do
   require Logger
   import Ecto.Query
 
-  @max_import_concurrent_jobs Application.get_env(:transport, :max_import_concurrent_jobs)
+  def max_import_concurrent_jobs do
+    Application.fetch_env!(:transport, :max_import_concurrent_jobs)
+  end
 
   @spec import_all_datasets :: :ok
   def import_all_datasets do
@@ -25,7 +27,7 @@ defmodule Transport.ImportData do
     results =
       ImportTaskSupervisor
       |> Task.Supervisor.async_stream_nolink(datasets, &import_dataset_logged/1,
-        max_concurrency: @max_import_concurrent_jobs,
+        max_concurrency: max_import_concurrent_jobs(),
         timeout: 180_000,
         on_timeout: :kill_task
       )
@@ -54,7 +56,7 @@ defmodule Transport.ImportData do
       |> Task.Supervisor.async_stream_nolink(
         resources_id,
         fn r_id -> Resource.validate_and_save(r_id, force) end,
-        max_concurrency: @max_import_concurrent_jobs,
+        max_concurrency: max_import_concurrent_jobs(),
         timeout: 180_000
       )
       |> Enum.to_list()
@@ -138,7 +140,7 @@ defmodule Transport.ImportData do
 
   @spec import_from_data_gouv(binary, binary) :: {:ok, map}
   def import_from_data_gouv(datagouv_id, type) do
-    base_url = Application.get_env(:transport, :datagouvfr_site)
+    base_url = Application.fetch_env!(:transport, :datagouvfr_site)
     url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
 
     Logger.info("Importing dataset #{datagouv_id} from data.gouv.fr (url = #{url})")
@@ -225,7 +227,7 @@ defmodule Transport.ImportData do
 
   @spec fetch_data_gouv_zone_insee(binary()) :: [binary()]
   defp fetch_data_gouv_zone_insee(zone) do
-    base_url = Application.get_env(:transport, :datagouvfr_site)
+    base_url = Application.fetch_env!(:transport, :datagouvfr_site)
     url = "#{base_url}/api/1/spatial/zones/#{zone}"
     Logger.info("getting zone (url = #{url})")
 
@@ -317,10 +319,26 @@ defmodule Transport.ImportData do
         "description" => resource["description"],
         "filesize" => resource["filesize"],
         "content_hash" => Hasher.get_content_hash(resource["url"]),
-        "original_resource_url" => get_original_resource_url(resource)
+        "original_resource_url" => get_original_resource_url(resource),
+        "schema_name" => get_schema_name(resource),
+        "schema_version" => get_schema_version(resource)
       }
     end)
   end
+
+  @spec get_schema_name(any) :: binary() | nil
+  def get_schema_name(%{"schema" => %{"name" => schema}}) do
+    schema
+  end
+
+  def get_schema_name(_), do: nil
+
+  @spec get_schema_version(any) :: binary() | nil
+  def get_schema_version(%{"schema" => %{"version" => version}}) do
+    version
+  end
+
+  def get_schema_version(_), do: nil
 
   @spec get_valid_resources(map(), binary()) :: [map()]
   def get_valid_resources(%{"resources" => resources}, "public-transit") do

@@ -3,7 +3,7 @@ defmodule TransportWeb.API.PlacesController do
   alias DB.{Place, Repo}
   alias Helpers
   alias OpenApiSpex.Operation
-  alias TransportWeb.API.Schemas.{AutocompleteResponse}
+  alias TransportWeb.API.Schemas.AutocompleteResponse
   import Ecto.{Query}
 
   @spec open_api_operation(any) :: Operation.t()
