@@ -148,7 +148,7 @@ defmodule TransportWeb.Router do
     )
 
     get("/legal", Redirect,
-      external: "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/cadre-juridique-harmonise"
+      external: "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/mentions-legales-et-conditions-generales-dutilisation"
     )
 
     # old static pages that have been moved to blog.transport
