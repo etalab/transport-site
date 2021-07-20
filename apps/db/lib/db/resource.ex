@@ -190,7 +190,9 @@ defmodule DB.Resource do
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
   def validate(%__MODULE__{url: url, format: "GTFS"}) do
-    case @client.get("#{endpoint()}?url=#{URI.encode_www_form(url)}", [], recv_timeout: @timeout) do
+    gtfs_validation_request_url = "#{endpoint()}?url=#{URI.encode_www_form(url)}"
+
+    case @client.get(gtfs_validation_request_url, [], recv_timeout: @timeout) do
       {:ok, %@res{status_code: 200, body: body}} -> Jason.decode(body)
       {:ok, %@res{body: body}} -> {:error, body}
       {:error, %@err{reason: error}} -> {:error, error}
@@ -206,12 +208,15 @@ defmodule DB.Resource do
   @spec save(__MODULE__.t(), map()) :: {:ok, any()} | {:error, any()}
   def save(%__MODULE__{id: id, format: format} = r, %{
         "validations" => validations,
-        "metadata" => metadata
+        "metadata" => metadata,
+        "data_vis" => data_vis
       }) do
     # When the validator is unable to open the archive, it will return a fatal issue
     # And the metadata will be nil (as it couldn’t read them)
     if is_nil(metadata) and format == "GTFS",
       do: Logger.warn("Unable to validate resource ##{id}: #{inspect(validations)}")
+
+    # TODO construire les datavis à l'aide du module Transport.DataVisualization
 
     __MODULE__
     |> preload(:validation)
@@ -222,7 +227,8 @@ defmodule DB.Resource do
         date: DateTime.utc_now() |> DateTime.to_string(),
         details: validations,
         max_error: get_max_severity_error(validations),
-        validation_latest_content_hash: r.content_hash
+        validation_latest_content_hash: r.content_hash,
+        data_vis: data_vis
       },
       features: find_tags(r, metadata),
       modes: find_modes(metadata),
@@ -461,4 +467,9 @@ defmodule DB.Resource do
   end
 
   defp str_to_date(_), do: nil
+
+  def by_id(query, id) do
+      from resource in query,
+      where: resource.id == ^id
+  end
 end
