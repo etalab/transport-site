@@ -2,8 +2,11 @@ defmodule TransportWeb.ResourceController do
   use TransportWeb, :controller
   alias Datagouvfr.Client.{Datasets, Resources, Validation}
   alias DB.{Dataset, Repo, Resource, Validation}
+  alias Transport.DataVisualization
   alias Transport.ImportData
   require Logger
+
+  import TransportWeb.ResourceView, only: [issue_type: 1]
 
   def details(conn, %{"id" => id} = params) do
     config = make_pagination_config(params)
@@ -18,12 +21,30 @@ defmodule TransportWeb.ResourceController do
         conn |> put_status(:not_found) |> put_view(ErrorView) |> render("404.html")
 
       true ->
-        issues = resource.validation |> Validation.get_issues(params) |> Scrivener.paginate(config)
+        issues = resource.validation |> Validation.get_issues(params)
+
+        # TODO mutualise issue features with ValidationController
+        issue_type =
+          case params["issue_type"] do
+            nil -> issue_type(issues)
+            issue_type -> issue_type
+          end
+
+        issue_data_vis = resource.validation.data_vis[issue_type]
+        has_features = DataVisualization.has_features(issue_data_vis["geojson"])
+
+        encoded_data_vis =
+          case {has_features, Jason.encode(issue_data_vis)} do
+            {false, _} -> nil
+            {true, {:ok, encoded_data_vis}} -> encoded_data_vis
+            _ -> nil
+          end
 
         conn
         |> assign(:resource, resource)
         |> assign(:other_resources, Resource.other_resources(resource))
-        |> assign(:issues, issues)
+        |> assign(:issues,  Scrivener.paginate(issues, config))
+        |> assign(:data_vis, encoded_data_vis)
         |> assign(:validation_summary, Validation.summary(resource.validation))
         |> assign(:severities_count, Validation.count_by_severity(resource.validation))
         |> render("details.html")

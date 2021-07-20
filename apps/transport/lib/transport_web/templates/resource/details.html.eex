@@ -77,7 +77,7 @@
           <%= unless @resource.validation do %>
             <%= dgettext("validations", "No validation available") %>
           <% else %>
-            <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, issues: @issues, conn: @conn %>
+            <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, issues: @issues, conn: @conn, data_vis: @data_vis %>
           <% end %>
         </nav>
         <div class="main-pane">

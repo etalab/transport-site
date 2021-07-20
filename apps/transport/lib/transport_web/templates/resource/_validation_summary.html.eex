@@ -1,21 +1,39 @@
-<%= for {severity, issues} <- @validation_summary do %>
-<%= if Map.get(@severities_count, severity, 0) > 0 do %>
-    <div class="validation-issue">
-    <h4><%= @severities_count[severity] %> <%= severities(severity).text %></h4>
-    <ul>
-    <%= for {key, issue} <- issues do %>
-        <li>
+ <div id="issues" class="validation-navigation">
+    <nav class="issues-list validation" role="navigation">
+    <%= for {severity, issues} <- @validation_summary do %>
+        <%= if Map.get(@severities_count, severity, 0) > 0 do %>
+            <div class="validation-issue">
+            <h4><%= @severities_count[severity] %> <%= severities(severity).text %></h4>
+            <ul>
+            <%= for {key, issue} <- issues do %>
+                <li>
 
-        <%= if issue.count > 0 do %>
-        <%= link(
-            "#{issue.title} (#{issue.count})",
-            to: "#{current_url(@conn, %{"issue_type" => "#{key}"})}#issues",
-            class: (if key == issue_type(@issues.entries), do: "active")
-        ) %>
+                <%= if issue.count > 0 do %>
+                <%= link(
+                    "#{issue.title} (#{issue.count})",
+                    to: "#{current_url(@conn, %{"issue_type" => "#{key}"})}#issues",
+                    class: (if key == issue_type(@issues.entries), do: "active")
+                ) %>
+                <% end %>
+                </li>
+            <% end %>
+            </ul>
+            </div>
+            <% end %>
         <% end %>
-        </li>
-    <% end %>
-    </ul>
-    </div>
+    </nav>
+</div>
+
+<%= if assigns[:data_vis] do %>
+    <%= unless is_nil(@data_vis) do %>
+        <div class="panel p-6" style="width:100%;">
+            <div id='map' class='leaflet-map'></div>
+            <script src="<%= static_path(@conn, "/js/validationmap.js") %>"></script>
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                createValidationMap('map', <%= raw(@data_vis) %>)
+                })
+            </script>
+        </div>
     <% end %>
 <% end %>
