@@ -43,3 +43,7 @@ dialyzer-plt/*.plt
 dialyzer-plt/*.plt.hash
 config/proxy-config.yml
 config/dev.secret.exs
+
+# Jetbrains IDE
+.idea
+**/*.iml

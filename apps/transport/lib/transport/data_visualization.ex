@@ -18,13 +18,16 @@ defmodule Transport.DataVisualization do
   def convert_to_geojson(file_path_or_content),
     do:
       dertermine_content_type(file_path_or_content)
+      |> IO.inspect()
       |> build_http_body(file_path_or_content)
       |> post_http_request()
       |> handle_response()
+      |> IO.inspect()
 
+  def has_features(nil), do: false
   def has_features(data_visualization), do: length(data_visualization["features"]) > 0
 
-  defp handle_response({:ok, %@res{status_code: 200, body: geojson_encoded}}), do: geojson_encoded |> Jason.decode!()
+  defp handle_response({:ok, %@res{status_code: 200, body: geojson_encoded}}), do: geojson_encoded # |> Jason.decode!()
 
   defp handle_response({:ok, %@res{status_code: 500, body: body}}) do
     Logger.warn("Error during geojson conversion : #{body}")
@@ -49,19 +52,6 @@ defmodule Transport.DataVisualization do
     case File.exists?(file_path_or_content) do
       true -> :file_path
       _ -> :content
-    end
-  end
-
-  @doc """
-  Download a file and try to convert its content into GeoJson
-  """
-  def convert_to_geojson_from_url(url) do
-    case @client.get!(url) do
-      %@res{status_code: 200, body: body} ->
-        convert_to_geojson(body)
-
-      error ->
-        Logger.error(inspect(error))
     end
   end
 

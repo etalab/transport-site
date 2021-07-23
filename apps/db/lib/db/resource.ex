@@ -133,8 +133,7 @@ defmodule DB.Resource do
 
     with {true, msg} <- __MODULE__.needs_validation(resource, force_validation),
          {:ok, validations} <- validate(resource),
-         geojson <- DataVisualization.convert_to_geojson_from_url(resource.url),
-         data_vis <- DataVisualization.validation_data_vis(geojson, validations),
+         data_vis <- fetch_gtfs_from_url(resource.url) |> build_validations_data_vis(validations),
          {:ok, _} <- save(resource, validations, data_vis) do
       # log the validation success
       Repo.insert(%LogsValidation{
@@ -189,6 +188,22 @@ defmodule DB.Resource do
       {:error, e}
   end
 
+  defp build_validations_data_vis(gtfs, validations), do:
+    DataVisualization.convert_to_geojson(gtfs)
+    |> DataVisualization.validation_data_vis(validations)
+
+  defp fetch_gtfs_from_url(url) do
+    case @client.get!(url) do
+    %@res{status_code: 200, body: body} ->
+      body
+
+    error ->
+      Logger.error(inspect(error))
+      nil
+
+    end
+  end
+
   @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
@@ -221,8 +236,6 @@ defmodule DB.Resource do
     # And the metadata will be nil (as it couldn’t read them)
     if is_nil(metadata) and format == "GTFS",
       do: Logger.warn("Unable to validate resource ##{id}: #{inspect(validations)}")
-
-    # TODO construire les datavis à l'aide du module Transport.DataVisualization
 
     __MODULE__
     |> preload(:validation)
