@@ -5,6 +5,7 @@ defmodule DB.Resource do
   use Ecto.Schema
   use TypedEctoSchema
   alias DB.{Dataset, LogsValidation, Repo, Validation}
+  alias Transport.DataVisualization
   import Ecto.{Changeset, Query}
   import DB.Gettext
   require Logger
@@ -132,7 +133,9 @@ defmodule DB.Resource do
 
     with {true, msg} <- __MODULE__.needs_validation(resource, force_validation),
          {:ok, validations} <- validate(resource),
-         {:ok, _} <- save(resource, validations) do
+         geojson <- DataVisualization.convert_to_geojson_from_url(resource.url),
+         data_vis <- DataVisualization.validation_data_vis(geojson, validations),
+         {:ok, _} <- save(resource, validations, data_vis) do
       # log the validation success
       Repo.insert(%LogsValidation{
         resource_id: resource_id,
@@ -206,11 +209,14 @@ defmodule DB.Resource do
   end
 
   @spec save(__MODULE__.t(), map()) :: {:ok, any()} | {:error, any()}
-  def save(%__MODULE__{id: id, format: format} = r, %{
-        "validations" => validations,
-        "metadata" => metadata,
-        "data_vis" => data_vis
-      }) do
+  def save(
+        %__MODULE__{id: id, format: format} = r,
+        %{
+          "validations" => validations,
+          "metadata" => metadata
+        },
+        data_vis
+      ) do
     # When the validator is unable to open the archive, it will return a fatal issue
     # And the metadata will be nil (as it couldn’t read them)
     if is_nil(metadata) and format == "GTFS",
@@ -236,6 +242,10 @@ defmodule DB.Resource do
       end_date: str_to_date(metadata["end_date"])
     )
     |> Repo.update()
+  end
+
+  def save(resource, validation_data) do
+    save(resource, %{validation_data | data_vis: nil})
   end
 
   def save(url, _) do
