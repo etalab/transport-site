@@ -275,10 +275,6 @@ defmodule DB.Resource do
     |> Repo.update()
   end
 
-  def save(resource, validation_data) do
-    save(resource, %{validation_data | data_vis: nil})
-  end
-
   def save(url, _) do
     Logger.warn("Unknown error when saving the validation")
     Sentry.capture_message("validation_save_failed", extra: url)
