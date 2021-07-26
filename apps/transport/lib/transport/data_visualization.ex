@@ -18,16 +18,15 @@ defmodule Transport.DataVisualization do
   def convert_to_geojson(file_path_or_content),
     do:
       dertermine_content_type(file_path_or_content)
-      |> IO.inspect()
       |> build_http_body(file_path_or_content)
       |> post_http_request()
       |> handle_response()
-      |> IO.inspect()
 
   def has_features(nil), do: false
   def has_features(data_visualization), do: length(data_visualization["features"]) > 0
 
-  defp handle_response({:ok, %@res{status_code: 200, body: geojson_encoded}}), do: geojson_encoded # |> Jason.decode!()
+  # |> Jason.decode!()
+  defp handle_response({:ok, %@res{status_code: 200, body: geojson_encoded}}), do: geojson_encoded
 
   defp handle_response({:ok, %@res{status_code: 500, body: body}}) do
     Logger.warn("Error during geojson conversion : #{body}")
@@ -83,6 +82,8 @@ defmodule Transport.DataVisualization do
   end
 
   defp data_vis_content(geojson, validations) do
+    IO.puts("#################### data_vis_content")
+
     validations
     |> Map.new(fn {issue_name, issues_list} ->
       issues_map = get_issues_map(issues_list)

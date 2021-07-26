@@ -43,7 +43,7 @@ defmodule TransportWeb.ResourceController do
         conn
         |> assign(:resource, resource)
         |> assign(:other_resources, Resource.other_resources(resource))
-        |> assign(:issues,  Scrivener.paginate(issues, config))
+        |> assign(:issues, Scrivener.paginate(issues, config))
         |> assign(:data_vis, encoded_data_vis)
         |> assign(:validation_summary, Validation.summary(resource.validation))
         |> assign(:severities_count, Validation.count_by_severity(resource.validation))
