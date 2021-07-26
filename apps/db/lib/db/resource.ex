@@ -135,7 +135,7 @@ defmodule DB.Resource do
 
     with {true, msg} <- __MODULE__.needs_validation(resource, force_validation),
          {:ok, validations_result} <- validate(resource),
-         validations <- Map.fetch(validations_result, "validations"),
+         {:ok, validations} <- Map.fetch(validations_result, "validations"),
          data_vis <-
            fetch_gtfs_archive_from_url(resource.url)
            |> build_validations_data_vis(validations),
