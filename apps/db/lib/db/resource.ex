@@ -6,14 +6,13 @@ defmodule DB.Resource do
   use TypedEctoSchema
   alias DB.{Dataset, LogsValidation, Repo, Validation}
   alias Transport.DataVisualization
+  alias Shared.Validation.GtfsValidator
   import Ecto.{Changeset, Query}
   import DB.Gettext
   require Logger
 
   @client Transport.Shared.Wrapper.HTTPoison.impl()
   @res HTTPoison.Response
-  @err HTTPoison.Error
-  @timeout 180_000
 
   typed_schema "resource" do
     field(:is_active, :boolean)
@@ -134,11 +133,10 @@ defmodule DB.Resource do
     Logger.info("Validating #{resource.url}")
 
     with {true, msg} <- __MODULE__.needs_validation(resource, force_validation),
-         {:ok, validations_result} <- validate(resource),
+         gtfs <- fetch_gtfs_archive_from_url(resource.url),
+         {:ok, validations_result} <- GtfsValidator.validate(gtfs),
          {:ok, validations} <- Map.fetch(validations_result, "validations"),
-         data_vis <-
-           fetch_gtfs_archive_from_url(resource.url)
-           |> build_validations_data_vis(validations),
+         data_vis <- build_validations_data_vis(gtfs, validations),
          {:ok, _} <- save(resource, validations_result, data_vis) do
       # log the validation success
       Repo.insert(%LogsValidation{
@@ -217,16 +215,7 @@ defmodule DB.Resource do
   @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
-  def validate(%__MODULE__{url: url, format: "GTFS"}) do
-    gtfs_validation_request_url = "#{endpoint()}?url=#{URI.encode_www_form(url)}"
-
-    case @client.get(gtfs_validation_request_url, [], recv_timeout: @timeout) do
-      {:ok, %@res{status_code: 200, body: body}} -> Jason.decode(body)
-      {:ok, %@res{body: body}} -> {:error, body}
-      {:error, %@err{reason: error}} -> {:error, error}
-      _ -> {:error, "Unknown error in validation"}
-    end
-  end
+  def validate(%__MODULE__{url: url, format: "GTFS"}), do: GtfsValidator.validate_from_url(url)
 
   def validate(%__MODULE__{format: f, id: id}) do
     Logger.info("cannot validate resource id=#{id} because we don't know how to validate the #{f} format")

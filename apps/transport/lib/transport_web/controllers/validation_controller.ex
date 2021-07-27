@@ -1,14 +1,10 @@
 defmodule TransportWeb.ValidationController do
   use TransportWeb, :controller
   alias DB.{Repo, Validation}
+  alias Shared.Validation.GtfsValidator
   alias Transport.DataVisualization
 
   import TransportWeb.ResourceView, only: [issue_type: 1]
-
-  @client HTTPoison
-  @res HTTPoison.Response
-  @err HTTPoison.Error
-  @timeout 180_000
 
   defp endpoint, do: Application.fetch_env!(:transport, :gtfs_validator_url) <> "/validate"
 
@@ -21,8 +17,7 @@ defmodule TransportWeb.ValidationController do
 
     with {:ok, gtfs} <- File.read(file_path),
          geojson <- DataVisualization.convert_to_geojson(gtfs),
-         {:ok, %@res{status_code: 200, body: body}} <- @client.post(endpoint(), gtfs, [], recv_timeout: @timeout),
-         {:ok, %{"validations" => validations, "metadata" => metadata}} <- Jason.decode(body) do
+         {:ok, %{"validations" => validations, "metadata" => metadata}} <- GtfsValidator.validate(gtfs) do
       data_vis = DataVisualization.validation_data_vis(geojson, validations)
 
       %Validation{
@@ -33,7 +28,7 @@ defmodule TransportWeb.ValidationController do
       }
       |> Repo.insert()
     else
-      {:error, %@err{reason: error}} -> {:error, error}
+      {:error, %{reason: error}} -> {:error, error}
       _ -> {:error, "Unknown error in validate"}
     end
     |> case do
