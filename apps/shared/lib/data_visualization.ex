@@ -25,7 +25,6 @@ defmodule Transport.DataVisualization do
   def has_features(nil), do: false
   def has_features(data_visualization), do: length(data_visualization["features"]) > 0
 
-  # |> Jason.decode!()
   defp handle_response({:ok, %@res{status_code: 200, body: geojson_encoded}}), do: geojson_encoded
 
   defp handle_response({:ok, %@res{status_code: 500, body: body}}) do
@@ -82,8 +81,6 @@ defmodule Transport.DataVisualization do
   end
 
   defp data_vis_content(geojson, validations) do
-    IO.puts("#################### data_vis_content")
-
     validations
     |> Map.new(fn {issue_name, issues_list} ->
       issues_map = get_issues_map(issues_list)

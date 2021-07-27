@@ -201,12 +201,6 @@ defmodule DB.Resource do
   defp build_validations_data_vis(gtfs, validations),
     do:
       DataVisualization.convert_to_geojson(gtfs)
-      #        |> (fn geojson ->
-      #              IO.puts("---------- geojson")
-      #              IO.puts("#{geojson}")
-      #              File.write("/Users/lionel/Downloads/1694_ajout_carte_validation/gtfs.json", geojson)
-      #              geojson
-      #            end).()
       |> DataVisualization.validation_data_vis(validations)
 
   defp fetch_gtfs_archive_from_url(url) do
