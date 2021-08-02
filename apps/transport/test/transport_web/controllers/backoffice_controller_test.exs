@@ -3,7 +3,6 @@ defmodule TransportWeb.BackofficeControllerTest do
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   alias DB.{Repo, Resource}
-  import Ecto.Repo
 
   import Mox
   setup :verify_on_exit!
