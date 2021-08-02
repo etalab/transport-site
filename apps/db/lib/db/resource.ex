@@ -66,6 +66,11 @@ defmodule DB.Resource do
   @spec endpoint() :: binary()
   def endpoint, do: Application.fetch_env!(:transport, :gtfs_validator_url) <> "/validate"
 
+  # NOTE: extracted as attribute + public method because this is actually a filter, that
+  # we use for computing improved modified_at based on content hash change
+  @content_hash_changed_text "content hash has changed"
+  def get_content_hash_changed_text, do: @content_hash_changed_text
+
   @doc """
   A validation is needed if the last update from the data is newer than the last validation.
   ## Examples
@@ -107,7 +112,7 @@ defmodule DB.Resource do
     # if there is already a validation, we revalidate only if the file has changed
     if content_hash != validation_latest_content_hash do
       Logger.info("the files for resource #{r.id} have been modified since last validation, we need to revalidate them")
-      {true, "content hash has changed"}
+      {true, @content_hash_changed_text}
     else
       {false, "content hash has not changed"}
     end
