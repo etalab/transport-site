@@ -51,6 +51,10 @@ defmodule TransportWeb.Factory do
     }
   end
 
+  def validation_log_factory do
+    %DB.LogsValidation{}
+  end
+
   def commune_factory do
     %DB.Commune{
       nom: "Ballans",
