@@ -35,10 +35,19 @@ defmodule TransportWeb.Factory do
     }
   end
 
+  # this mimics what is used in http_stream_v2 at the moment
+  def generate_content_hash(content \\ "some content") do
+    :sha256
+    |> :crypto.hash(content)
+    |> Base.encode16()
+    |> String.downcase()
+  end
+
   def resource_factory do
     %DB.Resource{
       title: "GTFS.zip",
-      latest_url: "url"
+      latest_url: "url",
+      content_hash: generate_content_hash()
     }
   end
 
