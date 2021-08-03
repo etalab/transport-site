@@ -127,6 +127,37 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 404
     end
 
+    test "handles optional hardcoded request headers" do
+      setup_proxy_config(%{
+        "some-identifier" => %Unlock.Config.Item{
+          identifier: "some-identifier",
+          target_url: "http://localhost/some-remote-resource",
+          ttl: 10,
+          request_headers: [
+            {"SomeHeader", "SomeValue"}
+          ]
+        }
+      })
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, fn _url, request_headers ->
+        # The important assertion is here!
+        assert request_headers == [{"SomeHeader", "SomeValue"}]
+
+        # but I'll also use the body to ensure
+        %Unlock.HTTP.Response{body: request_headers |> inspect, status: 200, headers: []}
+      end)
+
+      resp =
+        build_conn()
+        |> get("/resource/some-identifier")
+
+      assert resp.resp_body == ~s([{"SomeHeader", "SomeValue"}])
+      assert resp.status == 200
+
+      verify!(Unlock.HTTP.Client.Mock)
+    end
+
     @tag :skip
     test "handles remote error"
 

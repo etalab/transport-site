@@ -81,7 +81,7 @@ defmodule Unlock.Controller do
     comp_fn = fn _key ->
       Logger.info("Processing proxy request for identifier #{item.identifier}")
       try do
-        response = Unlock.HTTP.Client.impl().get!(item.target_url, [])
+        response = Unlock.HTTP.Client.impl().get!(item.target_url, item.request_headers)
         size = byte_size(response.body)
         if size > @max_allowed_cached_byte_size do
           Logger.warn("Payload is too large (#{size} bytes > #{@max_allowed_cached_byte_size}). Skipping cache.")
