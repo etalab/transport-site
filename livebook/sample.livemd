@@ -1,0 +1,73 @@
+# Prototypage de lecture GTFS pour charger en base PostGIS
+
+## Section
+
+Si on veut paginer simplement, voilà ce que ça donne en passant une donnée évaluée à [Kino](https://github.com/livebook-dev/kino):
+
+```elixir
+import Ecto.Query, only: [from: 2]
+
+resources =
+  from(r in DB.Resource,
+    select: map(r, [:id, :url]),
+    where: r.format == "GTFS",
+    order_by: {:desc, :id}
+  )
+  |> DB.Repo.all()
+
+resources
+|> Kino.DataTable.new()
+```
+
+```elixir
+%{id: resource_id, url: url} = resources |> List.first()
+
+filename = "resource-download-#{resource_id}.zip"
+storage_folder = __DIR__ |> Path.join("storage")
+
+unless File.exists?(storage_folder), do: File.mkdir!(storage_folder)
+
+filename = storage_folder |> Path.join(filename)
+
+unless File.exists?(filename) do
+  IO.puts("Downloading file #{filename}...")
+  # NOTE: not streamed; we use HTTPoison instead of Finch for easy redirect
+  %{status_code: 200, body: body} = HTTPoison.get!(url, [], hackney: [follow_redirect: true])
+  File.write!(filename, body)
+end
+
+IO.puts("Reading #{filename}")
+
+# crappy zip reader
+defmodule ReadFromZip do
+  # non-streaming version for now
+  def read_file(zip_name, entry_name) do
+    File.stream!(zip_name, [], 512)
+    |> Zstream.unzip()
+    |> Enum.reduce(%{}, fn
+      {:entry, %Zstream.Entry{name: file_name}}, state ->
+        if file_name == entry_name do
+          state
+          |> Map.put(:data, [])
+          |> Map.put(:current_file, file_name)
+        else
+          state
+        end
+
+      {:data, :eof}, state ->
+        state
+
+      {:data, data}, state ->
+        if Map.get(state, :current_file) == entry_name do
+          Map.put(state, :data, Map.get(state, :data) ++ data)
+        else
+          state
+        end
+    end)
+  end
+end
+
+%{data: data} = ReadFromZip.read_file(filename, "stops.txt")
+
+data
+```
