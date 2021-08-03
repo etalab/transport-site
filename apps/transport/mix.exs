@@ -87,7 +87,9 @@ defmodule Transport.Mixfile do
       {:ex_machina, "~> 2.4", only: :test},
       {:phoenix_ecto, "~> 4.0"},
       {:sizeable, "~> 1.0"},
-      {:mox, "~> 1.0.0", only: :test}
+      {:mox, "~> 1.0.0", only: :test},
+      # for livebook support
+      {:kino, "~> 0.3.0", only: :dev}
     ]
   end
 end
