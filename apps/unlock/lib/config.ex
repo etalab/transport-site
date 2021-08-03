@@ -44,7 +44,7 @@ defmodule Unlock.Config do
     """
     def parse_config_request_headers(list) do
       list
-      |> Enum.map(fn([k,v]) -> {k, v} end)
+      |> Enum.map(fn([k, v]) -> {k, v} end)
     end
 
     # for easy access, we're indexing items by identifier
