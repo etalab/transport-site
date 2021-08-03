@@ -1,0 +1,8 @@
+---
+# this is a sample which can be used during development
+feeds:
+  - identifier: "httpbin-header-auth-ok"
+    target_url: "https://httpbin.org/bearer"
+    ttl: 10
+    request_headers:
+      - ["Authorization", "Bearer any-value-will-work-here"]
