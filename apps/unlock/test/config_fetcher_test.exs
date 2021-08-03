@@ -33,4 +33,20 @@ defmodule Unlock.ConfigFetcherTest do
 
     assert item.ttl == 0
   end
+
+  # This was the cleanest/most robust way I could find to express this in YAML
+  test "supports requests headers as array of 2-element arrays, mapped into tuples" do
+    yaml_config = """
+    ---
+    feeds:
+      - identifier: "httpbin-header-auth-ok"
+        target_url: "https://httpbin.org/bearer"
+        request_headers:
+          - ["Authorization", "Bearer some-value"]
+    """
+
+    [item] = parse_config(yaml_config)
+
+    assert item.request_headers == [{"Authorization", "Bearer some-value"}]
+  end
 end
