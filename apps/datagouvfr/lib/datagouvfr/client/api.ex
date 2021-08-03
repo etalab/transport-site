@@ -7,6 +7,9 @@ defmodule Datagouvfr.Client.API do
 
   @type response :: {:ok, any} | {:error, any}
 
+  # HTTP client injection. Allow mock injection in tests
+  defp http_client, do: Application.get_env(:transport, :httpoison_impl)
+
   def api_key_headers do
     {"X-API-KEY", Application.get_env(:transport, :datagouvfr_apikey)}
   end
@@ -71,7 +74,7 @@ defmodule Datagouvfr.Client.API do
     options = Keyword.put_new(options, :follow_redirect, true)
 
     method
-    |> HTTPoison.request(url, body, headers, options)
+    |> http_client().request(url, body, headers, options)
     |> decode_body()
     |> post_process()
   end
