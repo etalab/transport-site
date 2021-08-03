@@ -27,6 +27,8 @@ defmodule DB.Resource do
     field(:latest_url, :string)
     field(:is_available, :boolean, default: true)
     field(:content_hash, :string)
+    field(:content_hash_last_modified_at, :utc_datetime_usec)
+
     # automatically discovered tags
     field(:features, {:array, :string}, default: [])
     # all the detected modes of the ressource

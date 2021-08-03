@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.AddContentHashLastModifiedAt do
 
   def change do
     alter table("resource") do
-      add :content_hash_last_modified_at, :utc_datetime
+      add :content_hash_last_modified_at, :utc_datetime_usec
     end
   end
 end
