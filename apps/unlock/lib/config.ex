@@ -11,8 +11,8 @@ defmodule Unlock.Config do
 
     It supports hardcoded request headers for e.g. simple authentication.
     """
-    @enforce_keys [:identifier, :target_url, :ttl, :request_headers]
-    defstruct [:identifier, :target_url, :ttl, :request_headers]
+    @enforce_keys [:identifier, :target_url, :ttl]
+    defstruct [:identifier, :target_url, :ttl, request_headers: []]
   end
 
   defmodule Fetcher do
