@@ -8,9 +8,11 @@ defmodule Unlock.Config do
     @moduledoc """
     An intermediate structure to add a bit of typing to the
     external YAML configuration.
+
+    It supports hardcoded request headers for e.g. simple authentication.
     """
-    @enforce_keys [:identifier, :target_url, :ttl]
-    defstruct [:identifier, :target_url, :ttl]
+    @enforce_keys [:identifier, :target_url, :ttl, :request_headers]
+    defstruct [:identifier, :target_url, :ttl, :request_headers]
   end
 
   defmodule Fetcher do
