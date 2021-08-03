@@ -89,7 +89,8 @@ defmodule Transport.Mixfile do
       {:sizeable, "~> 1.0"},
       {:mox, "~> 1.0.0", only: :test},
       # for livebook support
-      {:kino, "~> 0.3.0", only: :dev}
+      {:kino, "~> 0.3.0", only: :dev},
+      {:zstream, "~> 0.6.0"}
     ]
   end
 end

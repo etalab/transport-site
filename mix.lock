@@ -100,4 +100,5 @@
   "yamerl": {:hex, :yamerl, "0.8.1", "07da13ffa1d8e13948943789665c62ccd679dfa7b324a4a2ed3149df17f453a4", [:rebar3], [], "hexpm", "96cb30f9d64344fed0ef8a92e9f16f207de6c04dfff4f366752ca79f5bceb23f"},
   "yaml_elixir": {:hex, :yaml_elixir, "2.7.0", "6f731d622a3b28769e26e634f82aa171d1d01cae0e8820ce9e93e559c83c23c8", [:mix], [{:yamerl, "~> 0.8", [hex: :yamerl, repo: "hexpm", optional: false]}], "hexpm", "f2eb39e0fb23625777f74e0c821f42f033dc4eaa5402c34beaa665944d85f3ea"},
   "ymlr": {:hex, :ymlr, "2.0.0", "7525b6da40250777c35456017ef44f7faec06da254eafcf9f9cfb0d65f4c8cb7", [:mix], [], "hexpm", "f9301ad7ea377213b506f6e58ddffd1a7743e24238bb70e572ee510bdc2d1d5a"},
+  "zstream": {:hex, :zstream, "0.6.0", "a939837a577cbe8a01d75225d9e54956a6d6521eaef525b67238bffc0729c068", [:mix], [], "hexpm", "f17e43853b41fdc4f236c65afa38d89a2592cd30038a11ccc7a2288863a8ff24"},
 }
