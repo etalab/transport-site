@@ -20,10 +20,44 @@ defmodule Transport.ModifiedAtCalculationTest do
     Transport.ModifiedAtCalculation.compute_last_modified_at_based_on_content_hash_change(r)
   end
 
+  defmodule BigQueryThing do
+    import Ecto.Query
+
+    def logs_validation_query() do
+      from(l in DB.LogsValidation,
+      distinct: [asc: l.resource_id],
+      select: %{resource_id: l.resource_id, log_timestamp: l.timestamp},
+      where: l.skipped_reason == "content hash has changed",
+      order_by: [desc: l.timestamp]
+    )
+    end
+
+    def update_content_hash_modified_at_query() do
+      # keyword syntax is not supported for this feature at bottom of
+      # https://hexdocs.pm/ecto/Ecto.Query.html#with_cte/3-expression-examples
+      DB.Resource
+      |> with_cte("latest_timestamps", as: ^logs_validation_query())
+      |> join(:inner, [r], l in "latest_timestamps", on: r.id == l.resource_id)
+      |> update(set: [content_hash_last_modified_at: fragment("log_timestamp")])
+      # TODO: only update if new value is more recent than old value. This will ensure
+      # we do not lower the timestamp, in the events of the logs being deleted
+    end
+
+    def update_content_has_modified_at!() do
+      update_content_hash_modified_at_query()
+      |> DB.Repo.update_all([])
+    end
+  end
+
   # NOTE: at time of writing, the timestamp on LogsValidation
   # is only accurate to the second, so we have to mimic that here
   # or we'll get test errors
   @some_datetime ~U[2021-07-15 14:17:06Z]
+
+  @tag :focus
+  test "stuff" do
+    BigQueryThing.update_content_has_modified_at!()
+  end
 
   test "takes the most recent 'content has has changed' timestamp" do
     assert compute_modified_at(
