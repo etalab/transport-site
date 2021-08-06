@@ -23,7 +23,7 @@ defmodule Shared.Validation.GtfsValidator do
     |> send_post_request(gtfs)
     |> handle_validation_response()
 
-  @spec validate_from_url(binary()) :: {:ok, map()}
+  @spec validate_from_url(binary()) :: {:ok, map()} | {:error, binary()}
   def validate_from_url(gtfs_url), do:
     build_validate_url()
     |> (&(&1 <> "?url=#{URI.encode_www_form(gtfs_url)}")).()
