@@ -34,8 +34,4 @@
             })
         </script>
     </div>
-<% else %>
-    <div class="panel p-6" style="width:100%;">
-        <span class="center">Aucune donnée géographique à afficher. Valider de nouveau le dataset pour les générer.</span>
-    </div>
 <% end %>

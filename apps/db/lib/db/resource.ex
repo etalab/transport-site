@@ -133,11 +133,8 @@ defmodule DB.Resource do
     Logger.info("Validating #{resource.url}")
 
     with {true, msg} <- __MODULE__.needs_validation(resource, force_validation),
-         gtfs <- fetch_gtfs_archive_from_url(resource.url),
-         {:ok, validations_result} <- GtfsValidator.validate(gtfs),
-         {:ok, validations} <- Map.fetch(validations_result, "validations"),
-         data_vis <- build_validations_data_vis(gtfs, validations),
-         {:ok, _} <- save(resource, validations_result, data_vis) do
+         {:ok, validations} <- validate(resource),
+         {:ok, _} <- save(resource, validations) do
       # log the validation success
       Repo.insert(%LogsValidation{
         resource_id: resource_id,
@@ -215,7 +212,18 @@ defmodule DB.Resource do
   @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
-  def validate(%__MODULE__{url: url, format: "GTFS"}), do: GtfsValidator.validate_from_url(url)
+  def validate(%__MODULE__{url: url, format: "GTFS"}) do
+    {:ok, validation_result} = GtfsValidator.validate_from_url(url)
+
+    # data_vis will be generated from validation_results soon so following lines will be removed
+    {:ok, validations} = Map.fetch(validation_result, "validations")
+
+    data_vis =
+      fetch_gtfs_archive_from_url(url)
+      |> build_validations_data_vis(validations)
+
+    {:ok, Map.put(validation_result, "data_vis", data_vis)}
+  end
 
   def validate(%__MODULE__{format: f, id: id}) do
     Logger.info("cannot validate resource id=#{id} because we don't know how to validate the #{f} format")
@@ -227,9 +235,9 @@ defmodule DB.Resource do
         %__MODULE__{id: id, format: format} = r,
         %{
           "validations" => validations,
-          "metadata" => metadata
-        },
-        data_vis
+          "metadata" => metadata,
+          "data_vis" => data_vis
+        }
       ) do
     # When the validator is unable to open the archive, it will return a fatal issue
     # And the metadata will be nil (as it couldn’t read them)
