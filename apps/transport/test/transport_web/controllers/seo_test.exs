@@ -77,9 +77,9 @@ defmodule TransportWeb.SeoMetadataTest do
     assert title =~ "Jeux de données ouverts de la commune de Châteauroux"
   end
 
-  test "GET /datasets?type=bike-sharing ", %{conn: conn} do
-    title = conn |> get("/datasets?type=bike-sharing") |> html_response(200) |> title
-    assert title =~ "Jeux de données ouverts de la catégorie Vélo partage"
+  test "GET /datasets?type=bike-scooter-sharing ", %{conn: conn} do
+    title = conn |> get("/datasets?type=bike-scooter-sharing") |> html_response(200) |> title
+    assert title =~ "Jeux de données ouverts de la catégorie Vélos et trottinettes en libre-service"
   end
 
   test "GET /dataset/:id ", %{conn: conn} do

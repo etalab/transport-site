@@ -50,11 +50,11 @@ msgid "subtitle"
 msgstr "Rassembler les données de toute l’offre de mobilité à travers la France"
 
 #, elixir-format
-msgid "Bike sharing"
-msgstr "Vélos en libre-service"
+msgid "Bike and scooter sharing"
+msgstr "Vélos et trottinettes en libre-service"
 
 #, elixir-format
-msgid "Car-sharing areas"
+msgid "Carpooling areas"
 msgstr "Lieux de covoiturage"
 
 #, elixir-format
@@ -96,8 +96,8 @@ msgid "Coming soon"
 msgstr "À venir dans les prochains mois"
 
 #, elixir-format
-msgid "Freefloating vehicles"
-msgstr "Véhicules en free-floating"
+msgid "Car and motorbike sharing"
+msgstr "Voitures et scooters en libre-service"
 
 #, elixir-format
 msgid "Private parking"

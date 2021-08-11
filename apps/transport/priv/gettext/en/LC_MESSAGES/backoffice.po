@@ -43,9 +43,6 @@ msgstr "Car sharing areas"
 msgid "stops-ref"
 msgstr "Stops referential"
 
-msgid "micro-mobility"
-msgstr "Bike sharing and micro mobility"
-
 msgid "charging-stations"
 msgstr "Charging stations"
 

@@ -183,7 +183,8 @@ defmodule TransportWeb.DatasetView do
   def icon_type_path(%{type: type}) do
     icons = %{
       "public-transit" => "/images/icons/bus.svg",
-      "bike-sharing" => "/images/icons/bicycle.svg",
+      "bike-scooter-sharing" => "/images/icons/bicycle-scooter.svg",
+      "car-motorbike-sharing" => "/images/icons/car-motorbike.svg",
       "bike-path" => "/images/icons/bike-path.svg",
       "carpooling-areas" => "/images/icons/car.svg",
       "charging-stations" => "/images/icons/charge-station.svg",
