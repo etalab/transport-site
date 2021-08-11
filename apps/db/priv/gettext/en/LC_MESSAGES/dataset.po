@@ -28,10 +28,6 @@ msgid "Charging stations"
 msgstr ""
 
 #, elixir-format
-msgid "Micro mobility"
-msgstr ""
-
-#, elixir-format
 msgid "Stops referential"
 msgstr ""
 
@@ -77,4 +73,8 @@ msgstr ""
 
 #, elixir-format
 msgid "Bike path"
+msgstr ""
+
+#, elixir-format
+msgid "Car and motorbike sharing"
 msgstr ""

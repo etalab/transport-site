@@ -28,10 +28,6 @@ msgid "Charging stations"
 msgstr "Stations de réapprovisionnement"
 
 #, elixir-format
-msgid "Micro mobility"
-msgstr "Micro mobilité"
-
-#, elixir-format
 msgid "Stops referential"
 msgstr "Référentiel d'arrêts"
 
@@ -78,3 +74,7 @@ msgstr "Stationnement hors voirie"
 #, elixir-format
 msgid "Bike path"
 msgstr "Aménagements cyclables"
+
+#, elixir-format
+msgid "Car and motorbike sharing"
+msgstr "Voitures et scooters en libre-service"
