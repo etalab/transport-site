@@ -50,8 +50,8 @@ msgid "subtitle"
 msgstr "Rassembler les données de toute l’offre de mobilité à travers la France"
 
 #, elixir-format
-msgid "Bike sharing"
-msgstr "Vélos en libre-service"
+msgid "Bike and scooter sharing"
+msgstr "Vélos et trottinettes en libre-service"
 
 #, elixir-format
 msgid "Car-sharing areas"

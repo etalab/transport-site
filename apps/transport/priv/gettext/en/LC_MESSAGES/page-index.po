@@ -50,7 +50,7 @@ msgid "subtitle"
 msgstr "Gather all french mobility data"
 
 #, elixir-format
-msgid "Bike sharing"
+msgid "Bike and scooter sharing"
 msgstr ""
 
 #, elixir-format

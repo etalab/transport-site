@@ -99,9 +99,9 @@
         </div>
       </a>
       <a class="tile" href="<%= dataset_path(@conn, :index, type: "bike-sharing") %>">
-                          <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle.svg") %>" alt="" />
+      <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle-scooter.svg") %>" alt="" />
       <div class="tile__text">
-        <h4 class=""><%= dgettext("page-index", "Bike sharing") %></h4>
+        <h4 class=""><%= dgettext("page-index", "Bike and scooter sharing") %></h4>
         <div><%= dngettext("page-index", "dataset", "datasets", @count_by_type["bike-sharing"] || 0) %></div>
       </div>
     </a>

@@ -16,8 +16,8 @@ msgid "Aerial"
 msgstr "Aérien"
 
 #, elixir-format
-msgid "Bike sharing"
-msgstr "Vélo partage"
+msgid "Bike and scooter sharing"
+msgstr "Vélos et trottinettes en libre-service"
 
 #, elixir-format
 msgid "Carpooling areas"
