@@ -82,7 +82,7 @@ defmodule TransportWeb.ResourceController do
     with {:ok, _} <- Resources.update(conn, params),
          dataset when not is_nil(dataset) <-
            Repo.get_by(Dataset, datagouv_id: params["dataset_id"]),
-         {:ok, _} <- ImportData.import_dataset(dataset),
+         {:ok, _} <- ImportData.import_dataset_logged(dataset),
          {:ok, _} <- Dataset.validate(dataset) do
       conn
       |> put_flash(:info, success_message)
@@ -90,9 +90,7 @@ defmodule TransportWeb.ResourceController do
     else
       {:error, error} ->
         Logger.error(
-          "Unable to update resource #{params["resource_id"]} of dataset #{params["dataset_id"]}, error: #{
-            inspect(error)
-          }"
+          "Unable to update resource #{params["resource_id"]} of dataset #{params["dataset_id"]}, error: #{inspect(error)}"
         )
 
         conn

@@ -20,7 +20,11 @@ defmodule Transport.MixProject do
   defp deps do
     [
       {:dialyxir, "~> 1.1.0", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.10", only: :test}
+      {:excoveralls, "~> 0.10", only: :test},
+      # To be removed once https://github.com/mochi/mochiweb/issues/233 is fixed
+      # `override: true` is required because `html_sanitize_ex` also specifies this
+      # dependency. The lack of hex.pm release led me to force this.
+      {:mochiweb, github: "mochi/mochiweb", tag: "v2.21.0", override: true}
     ]
   end
 

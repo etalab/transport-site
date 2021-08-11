@@ -15,7 +15,13 @@ defmodule Db.MixProject do
       deps: deps(),
       gettext: [{:write_reference_comments, false}],
       compilers: [:gettext] ++ Mix.compilers(),
-      test_coverage: [tool: ExCoveralls]
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -31,23 +37,20 @@ defmodule Db.MixProject do
 
   defp deps do
     [
-      {:ecto, "~> 3.1"},
-      {:ecto_sql, "~> 3.1"},
+      {:ecto, "~> 3.6.1"},
+      {:ecto_sql, "~> 3.6.1"},
       {:postgrex, ">= 0.0.0"},
-      {:geo_postgis, "~> 2.0"},
-      {:scrivener, "~> 2.5"},
-      {:scrivener_ecto, "~> 2.0"},
+      {:geo_postgis, "~> 3.4"},
+      {:scrivener, "~> 2.7.2"},
+      {:scrivener_ecto, "~> 2.7.0"},
       {:gettext, "~> 0.11"},
       {:httpoison, ">= 0.0.0"},
       {:phoenix_html, ">= 0.0.0"},
       {:jason, ">= 0.0.0"},
       {:datagouvfr, in_umbrella: true},
       {:shared, in_umbrella: true},
-      {:ex_aws, ">= 0.0.0"},
-      {:ex_aws_s3, ">= 0.0.0"},
       {:sentry, ">= 0.0.0"},
-      {:typed_ecto_schema, ">= 0.1.1"},
-      {:vex, "~> 0.8"}
+      {:typed_ecto_schema, ">= 0.1.1"}
     ]
   end
 end

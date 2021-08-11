@@ -1,5 +1,6 @@
 defmodule TransportWeb.PageControllerTest do
-  use TransportWeb.ConnCase, async: true
+  # NOTE: temporarily set to false, until it doesn't use with_mock anymore
+  use TransportWeb.ConnCase, async: false
   use TransportWeb.DatabaseCase, cleanup: []
   import Plug.Test, only: [init_test_session: 2]
   import Mock

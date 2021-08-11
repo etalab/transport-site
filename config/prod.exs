@@ -5,7 +5,10 @@ config :transport, TransportWeb.Endpoint,
   url: [scheme: "https", host: System.get_env("DOMAIN_NAME") || "transport.data.gouv.fr", port: 443],
   cache_static_manifest: "priv/static/cache_manifest.json",
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
-  force_ssl: [rewrite_on: [:x_forwarded_proto]]
+  force_ssl: [rewrite_on: [:x_forwarded_proto]],
+  live_view: [
+    signing_salt: System.get_env("SECRET_KEY_BASE")
+  ]
 
 config :gbfs, GBFSWeb.Endpoint, secret_key_base: System.get_env("SECRET_KEY_BASE")
 
@@ -17,8 +20,12 @@ config :transport, Transport.Scheduler,
     {"@daily", {Transport.DataChecker, :outdated_data, []}},
     # Set inactive data
     {"@daily", {Transport.DataChecker, :inactive_data, []}},
+    # Watch for new comments on datasets
+    {"@daily", {Transport.CommentsChecker, :check_for_new_comments, []}},
+    # Delete orphan community resources
+    {"@daily", {Transport.CommunityResourcesCleaner, :clean_community_resources, []}},
     # backup all resources
-    {"@daily", {Transport.History, :backup_resources, []}},
+    {"@daily", {Transport.History.Backup, :backup_resources, []}},
     # clean old logs
     {"0 3 * * *", {Transport.LogCleaner, :clean_old_logs, []}},
     # clean old validations

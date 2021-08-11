@@ -5,34 +5,40 @@ defmodule Mailjet.Client do
   use HTTPoison.Base
   require Logger
 
-  @user Application.get_env(:transport, __MODULE__)[:mailjet_user]
-  @key Application.get_env(:transport, __MODULE__)[:mailjet_key]
-  @url Application.get_env(:transport, __MODULE__)[:mailjet_url]
+  def get_config!(key) do
+    config = Application.fetch_env!(:transport, __MODULE__)
+    Keyword.fetch!(config, key)
+  end
+
+  def mailjet_user, do: get_config!(:mailjet_user)
+  def mailjet_key, do: get_config!(:mailjet_key)
+  def mailjet_url, do: get_config!(:mailjet_url)
 
   @spec payload!(binary(), binary(), binary(), binary(), binary()) :: any()
-  def payload!(from_name, from_email, reply_to, topic, body) do
+  def payload!(from_name, from_email, reply_to, topic, text_body, html_body \\ nil) do
     Jason.encode!(%{
       Messages: [
         %{
           From: %{Name: from_name, Email: from_email},
-          To: [%{Email: "contact@transport.beta.gouv.fr"}],
+          To: [%{Email: Application.get_env(:transport, :contact_email)}],
           Subject: topic,
-          TextPart: body,
+          TextPart: text_body,
+          HtmlPart: html_body,
           ReplyTo: %{Email: reply_to}
         }
       ]
     })
   end
 
-  @spec send_mail(binary, binary, binary, binary, binary, boolean) :: {:error, any} | {:ok, any}
-  def send_mail(from_name, from_email, reply_to, topic, body, true) do
-    Logger.debug(fn -> "payload: #{payload!(from_name, from_email, reply_to, topic, body)}" end)
-    {:ok, body}
+  @spec send_mail(binary, binary, binary, binary, binary, binary, boolean) :: {:error, any} | {:ok, any}
+  def send_mail(from_name, from_email, reply_to, topic, text_body, html_body, true) do
+    Logger.debug(fn -> "payload: #{payload!(from_name, from_email, reply_to, topic, text_body, html_body)}" end)
+    {:ok, text_body || html_body}
   end
 
-  def send_mail(from_name, from_email, reply_to, topic, body, false) do
-    @url
-    |> post(payload!(from_name, from_email, reply_to, topic, body))
+  def send_mail(from_name, from_email, reply_to, topic, text_body, html_body, false) do
+    mailjet_url()
+    |> post(payload!(from_name, from_email, reply_to, topic, text_body, html_body))
     |> case do
       {:ok, %{status_code: 200, body: body}} -> {:ok, body}
       {:ok, %{status_code: _, body: body}} -> {:error, body}
@@ -41,7 +47,7 @@ defmodule Mailjet.Client do
   end
 
   def request(method, url, body \\ "", headers \\ [], options \\ []) do
-    options = options ++ [hackney: [basic_auth: {@user, @key}]]
+    options = options ++ [hackney: [basic_auth: {mailjet_user(), mailjet_key()}]]
     super(method, url, body, headers, options)
   end
 end

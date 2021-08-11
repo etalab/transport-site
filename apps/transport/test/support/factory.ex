@@ -42,6 +42,13 @@ defmodule TransportWeb.Factory do
     }
   end
 
+  def commune_factory do
+    %DB.Commune{
+      nom: "Ballans",
+      insee: "17031"
+    }
+  end
+
   # Non-Ecto stuff, for now kept here for convenience
 
   def datagouv_api_get_factory do

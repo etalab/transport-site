@@ -6,7 +6,7 @@ This project brings a mobility focus on data hosted on [data.gouv.fr](https://ww
 
 You will find user documentation at [doc.transport.data.gouv.fr](https://doc.transport.data.gouv.fr).
 
-A status dashboard is available at [https://status.transport.data.gouv.fr](https://status.transport.data.gouv.fr) for a part of the project.
+A status dashboard is available at [https://stats.uptimerobot.com/q7nqyiO9yQ](https://stats.uptimerobot.com/q7nqyiO9yQ) for a part of the project.
 
 # Glossary
 
@@ -30,7 +30,6 @@ If you wish to use `asdf` (recommended), make sure to install the correct plugin
 * `asdf plugin-add erlang` (https://github.com/asdf-vm/asdf-erlang)
 * `asdf plugin-add elixir` (https://github.com/asdf-vm/asdf-elixir)
 * `asdf plugin-add nodejs` (https://github.com/asdf-vm/asdf-nodejs)
-* Make sure to add the [OpenPGP keys](https://github.com/asdf-vm/asdf-nodejs#install) for the nodejs plugin
 
 Installation can then be done with:
 * `asdf install`
@@ -39,18 +38,13 @@ Installation can then be done with:
 
 You also need an up to date postgresql with postgis installed. Version 12+ is recommended.
 
-## Configuration
+For Mac users, you can use https://postgresapp.com/.
 
-For easier configuration handling you can use [direnv](https://direnv.net/).
+#### Dependencies
 
-* copy the example file `cp .envrc.example .envrc`;
-* in the terminal, generate a phoenix secret key with the command `mix phx.gen.secret` and paste the result in the .envrc file at the line `export SECRET_KEY_BASE=<secret_key>`
-* you must know the password of the postgres user, and update the `PG_URL` environment variable accordingly : `export PG_URL=ecto://postgres:<postgres_user_password>@localhost/transport_repo`
-* by default, connections to postgresql will be made on the 5432 port. If your postgresql installation uses a different port, or if you have several postgresql installed, update the `PG_URL` environment variable accordingly :
-`export PG_URL=ecto://postgres:postgres@localhost:<port>/transport_repo`
+Download depencies using `mix deps.get`.
 
-* allow direnv to export those variables `direnv allow .`
-
+Reply "Yes" to the question "Shall I install Hex? (if running non-interactively, use "mix local.hex --force")".
 
 #### Creating a database
 
@@ -81,12 +75,12 @@ Run the server with `mix phx.server` and you can visit [`127.0.0.1:5000`](http:/
 
 #### Running the tests
 
-Run the tests with `MIX_ENV=test mix test`
+Run the tests with `mix test`
 
 You can also:
 
-  * Run the external tests with `MIX_ENV=test mix test --only external`
-  * Run everything with `MIX_ENV=test RUN_ALL=1 mix test`
+  * Run the "external" tests with `mix test --only external`
+  * Run everything with `RUN_ALL=1 mix test`
 
 The application is an [umbrella app](https://elixir-lang.org/getting-started/mix-otp/dependencies-and-umbrella-projects.html). It means that it is split into several sub-projects (that you can see under `/apps`).
 
@@ -113,9 +107,9 @@ The following commands will launch the test and generate coverage:
 
 ```
 # Display overall (whole app) coverage for all tests in the console
-RUN_ALL=1 MIX_ENV=test mix coveralls --umbrella
+MIX_ENV=test RUN_ALL=1 mix coveralls --umbrella
 # Same with a HTML report
-RUN_ALL=1 MIX_ENV=test mix coveralls.html --umbrella
+MIX_ENV=test RUN_ALL=1 mix coveralls.html --umbrella
 
 # Display coverage for each umbrella component, rather
 MIX_ENV=test mix coveralls
@@ -179,7 +173,7 @@ You can run any `mix` command with:
 
 For the tests you also need to add an environment variable:
 
-`docker-compose run -e MIX_ENV=test web mix test`
+`docker-compose run -e web mix test`
 
 ### Production
 

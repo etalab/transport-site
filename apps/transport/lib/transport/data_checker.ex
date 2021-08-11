@@ -70,11 +70,9 @@ defmodule Transport.DataChecker do
       "Jeu de données arrivant à expiration",
       """
       Bonjour,
-      Ce jeu de données arrive à expiration dans #{delay} jour#{
-        if delay != 1 do
-          "s"
-        end
-      }.
+      Ce jeu de données arrive à expiration dans #{delay} jour#{if delay != 1 do
+        "s"
+      end}.
       Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour prochainement.
       L’équipe transport.data.gouv.fr
       """,
@@ -121,10 +119,11 @@ defmodule Transport.DataChecker do
   defp send_outdated_data_mail(datasets, is_blank) do
     Client.send_mail(
       "transport.data.gouv.fr",
-      "contact@transport.beta.gouv.fr",
-      "contact@transport.beta.gouv.fr",
+      Application.get_env(:transport, :contact_email),
+      Application.get_env(:transport, :contact_email),
       "Jeux de données arrivant à expiration",
       make_outdated_data_body(datasets),
+      "",
       is_blank
     )
 
@@ -177,10 +176,11 @@ defmodule Transport.DataChecker do
   defp send_inactive_dataset_mail(reactivated_datasets, inactive_datasets) do
     Client.send_mail(
       "transport.data.gouv.fr",
-      "contact@transport.beta.gouv.fr",
-      "contact@transport.beta.gouv.fr",
+      Application.get_env(:transport, :contact_email),
+      Application.get_env(:transport, :contact_email),
       "Jeux de données qui disparaissent",
       make_inactive_dataset_body(reactivated_datasets, inactive_datasets),
+      "",
       false
     )
   end

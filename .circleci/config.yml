@@ -8,15 +8,11 @@ default_docker: &default_docker
   environment:
     MIX_ENV: test
     PG_URL_TEST: ecto://root@127.0.0.1/transport_test
-    DATAGOUVFR_SITE: https://demo.data.gouv.fr
-    MAILCHIMP_NEWSLETTER_URL: //gouv.us13.list-manage.com/subscribe/post?u=5ee8bfe0f1b073b49de06a063&amp;id=13db2e9a94
-    GTFS_VALIDATOR_URL: https://transport-validator.cleverapps.io
-    SECRET_KEY_BASE: "SOME-SECRET-KEY-BASE-FOR-TESTING-SOME-SECRET-KEY-BASE-FOR-TESTING"
 
 defaults: &defaults
   parameters:
     base_image:
-      default: betagouv/transport:elixir-1.10.4-erlang-23.2.7.2-alpine-3.13.3
+      default: betagouv/transport:elixir-1.12.2-erlang-24.0.3-alpine-3.13.3
       type: string
   working_directory: ~/transport
   docker:
@@ -39,9 +35,11 @@ jobs:
       - checkout
 
       - restore_cache:
+          # Please read: https://circleci.com/docs/2.0/caching/#restoring-cache
           keys:
-            - elixir-<< parameters.base_image >>-{{ checksum "mix.lock" }}
-
+            - elixir-<< parameters.base_image >>-build-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - elixir-<< parameters.base_image >>-build-{{ .Branch }}
+            - elixir-<< parameters.base_image >>-build
       - run:
           name: Install hex
           command: mix local.hex --force
@@ -66,8 +64,27 @@ jobs:
           name: Compile mix dependencies for MIX_ENV=test
           command: mix deps.compile
 
+      # Here we attempt to create 3 different caches to optimize the build process
+
+      # Most specific
       - save_cache:
-          key: elixir-<< parameters.base_image >>-{{ checksum "mix.lock" }}
+          key: elixir-<< parameters.base_image >>-build-{{ .Branch }}-{{ checksum "mix.lock" }}
+          paths:
+            - ~/transport/_build
+            - ~/transport/deps
+            - ~/.mix
+
+      # Intermediate
+      - save_cache:
+          key: elixir-<< parameters.base_image >>-build-{{ .Branch }}
+          paths:
+            - ~/transport/_build
+            - ~/transport/deps
+            - ~/.mix
+
+      # Least specific
+      - save_cache:
+          key: elixir-<< parameters.base_image >>-build
           paths:
             - ~/transport/_build
             - ~/transport/deps
@@ -87,7 +104,9 @@ jobs:
 
       - restore_cache:
           keys:
-            - elixir-<< parameters.base_image >>-plt-{{ checksum "mix.lock" }}
+            - elixir-<< parameters.base_image >>-plt-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - elixir-<< parameters.base_image >>-plt-{{ .Branch }}
+            - elixir-<< parameters.base_image >>-plt
 
       - run:
           name: Build PLT
@@ -97,7 +116,17 @@ jobs:
           no_output_timeout: 20m
 
       - save_cache:
-          key: elixir-<< parameters.base_image >>-plt-{{ checksum "mix.lock" }}
+          key: elixir-<< parameters.base_image >>-plt-{{ .Branch }}-{{ checksum "mix.lock" }}
+          paths:
+            - ~/transport/dialyzer-plt
+
+      - save_cache:
+          key: elixir-<< parameters.base_image >>-plt-{{ .Branch }}
+          paths:
+            - ~/transport/dialyzer-plt
+
+      - save_cache:
+          key: elixir-<< parameters.base_image >>-plt
           paths:
             - ~/transport/dialyzer-plt
 
@@ -151,7 +180,6 @@ jobs:
       - run:
           name: Run tests
           command: |
-            export SECRET_KEY_BASE=`mix phx.gen.secret`
             mix test
 
   test_external:
@@ -164,7 +192,6 @@ jobs:
       - run:
           name: Run tests
           command: |
-            export SECRET_KEY_BASE=`mix phx.gen.secret`
             mix test --only external
 
 workflows:

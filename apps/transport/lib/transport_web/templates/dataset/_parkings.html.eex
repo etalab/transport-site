@@ -1,11 +1,11 @@
 <div class="container">
   <div class="notification">
     <div>
-      <%= dgettext("page-shortlist", "Data for private car-parks in France are produced by different local authorities or parking operators. These data, when published in a normalized format described here, are aggregated into a national dataset called %{start_link}“Base Nationale des Lieux de Stationnement” (BNLS)%{end_link}.", 
+      <%= dgettext("page-shortlist", "Data for private car-parks in France are produced by different local authorities or parking operators. These data, when published in a normalized format described here, are aggregated into a national dataset called %{start_link}“Base Nationale des Lieux de Stationnement” (BNLS)%{end_link}.",
       start_link: "<a href='/datasets/base-nationale-des-lieux-de-stationnement/'>", end_link: "</a>") |> raw() %>
     </div>
     <div>
-      <%= dgettext("page-shortlist", "This dataset only describes parking spaces accessible to the general public, with barrier entrance. Other datasets referenced here can have a broader definition and might include freely accessible car-parks, (ie. with no entrance barrier), in addition to the parking spaces with barrier entrance included in the “Base Nationale des Lieux de Stationnement” (BNLS).") %>
+      <%= dgettext("page-shortlist", "parking spaces text") %>
     </div>
   </div>
 </div>

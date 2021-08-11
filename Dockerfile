@@ -1,4 +1,4 @@
-FROM betagouv/transport:elixir-1.10.4-erlang-23.2.7.2-alpine-3.13.3
+FROM betagouv/transport:elixir-1.12.2-erlang-24.0.3-alpine-3.13.3
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ gnu-libiconv-dev
 

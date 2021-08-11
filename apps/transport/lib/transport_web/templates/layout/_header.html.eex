@@ -22,10 +22,10 @@
           </li>
           <li class="nav__item">
             <div class="dropdown">
-              Outils
+              <%= gettext("Tools") %>
               <div class="dropdown-content">
                 <%= link(gettext("Check a GTFS file's quality"), to: "/validation") %>
-                <%= link(gettext("Service status"), to: "https://status.transport.data.gouv.fr", target: "_blank") %>
+                <%= link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank") %>
               </div>
             </div>
           </li>
@@ -69,6 +69,23 @@
             </a>
           </li>
         <% end %>
+          <li class="nav__item">
+            <div class="dropdown">
+              <%= if get_session(@conn, :locale) == "fr" do %>
+                <img src="<%= static_path(@conn, "/images/icons/fr.png") %>" height=24 >
+              <% else %>
+                <img src="<%= static_path(@conn, "/images/icons/en.png") %>" height=24 >
+              <% end %>
+              <div class="dropdown-content">
+                <%= link(to: add_locale_to_url(@conn, "fr")) do %>
+                  Français
+                <% end %>
+                <%= link(to: add_locale_to_url(@conn, "en")) do %>
+                  English
+                <% end %>
+              </div>
+            </div>
+          </li>
       </ul>
     </div>
   </nav>

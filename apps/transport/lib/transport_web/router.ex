@@ -95,6 +95,13 @@ defmodule TransportWeb.Router do
       get("/", PageController, :index)
 
       get("/dashboard", DashboardController, :index)
+      # NOTE: by default no layout are automatically picked at time of writing
+      # for live views, so an explicit call is needed
+      # See https://hexdocs.pm/phoenix_live_view/live-layouts.html
+      live("/proxy-config", ProxyConfigLive,
+        layout: {TransportWeb.LayoutView, :app},
+        session: {TransportWeb.Backoffice.ProxyConfigLive, :build_session, []}
+      )
 
       scope "/datasets" do
         get("/new", PageController, :new)
@@ -141,7 +148,8 @@ defmodule TransportWeb.Router do
     )
 
     get("/legal", Redirect,
-      external: "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/cadre-juridique-harmonise"
+      external:
+        "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/mentions-legales-et-conditions-generales-dutilisation"
     )
 
     # old static pages that have been moved to blog.transport
@@ -184,7 +192,7 @@ defmodule TransportWeb.Router do
   end
 
   defp assign_contact_email(conn, _) do
-    assign(conn, :contact_email, "contact@transport.beta.gouv.fr")
+    assign(conn, :contact_email, Application.get_env(:transport, :contact_email))
   end
 
   defp assign_token(conn, _) do
@@ -204,11 +212,15 @@ defmodule TransportWeb.Router do
     end
   end
 
-  defp transport_data_gouv_member(conn, _) do
-    conn.assigns[:current_user]
+  # NOTE: method visibility set to public because we need to call the same logic from LiveView
+  def is_transport_data_gouv_member?(current_user) do
+    current_user
     |> Map.get("organizations", [])
     |> Enum.any?(fn org -> org["slug"] == "equipe-transport-data-gouv-fr" end)
-    |> if do
+  end
+
+  defp transport_data_gouv_member(conn, _) do
+    if is_transport_data_gouv_member?(conn.assigns[:current_user]) do
       conn
     else
       conn

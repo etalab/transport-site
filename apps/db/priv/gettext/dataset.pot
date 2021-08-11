@@ -19,7 +19,7 @@ msgid "Bike sharing"
 msgstr ""
 
 #, elixir-format
-msgid "Carsharing areas"
+msgid "Carpooling areas"
 msgstr ""
 
 #, elixir-format
@@ -72,4 +72,8 @@ msgstr ""
 
 #, elixir-format
 msgid "Private parking"
+msgstr ""
+
+#, elixir-format
+msgid "Bike path"
 msgstr ""

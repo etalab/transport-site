@@ -36,6 +36,10 @@ defmodule DB.Resource do
 
     field(:is_community_resource, :boolean)
 
+    # the declared official schema used by the resource
+    field(:schema_name, :string)
+    field(:schema_version, :string)
+
     # only relevant for community resources, name of the owner or the organization that published the resource
     field(:community_resource_publisher, :string)
     field(:description, :string)
@@ -60,7 +64,7 @@ defmodule DB.Resource do
   end
 
   @spec endpoint() :: binary()
-  def endpoint, do: Application.get_env(:transport, :gtfs_validator_url) <> "/validate"
+  def endpoint, do: Application.fetch_env!(:transport, :gtfs_validator_url) <> "/validate"
 
   @doc """
   A validation is needed if the last update from the data is newer than the last validation.
@@ -290,6 +294,8 @@ defmodule DB.Resource do
         :features,
         :modes,
         :is_community_resource,
+        :schema_name,
+        :schema_version,
         :community_resource_publisher,
         :original_resource_url,
         :content_hash,
@@ -377,6 +383,7 @@ defmodule DB.Resource do
         %{severity: max_severity, count_errors: count_errors}
 
       {:ok, _} ->
+        # credo:disable-for-next-line
         with %Validation{details: details} when details == %{} <- Repo.get_by(Validation, resource_id: id) do
           %{severity: "Irrevelant", count_errors: 0}
         else

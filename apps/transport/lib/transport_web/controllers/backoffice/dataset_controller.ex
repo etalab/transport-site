@@ -20,7 +20,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
     }
 
     with datagouv_id when not is_nil(datagouv_id) <- Datasets.get_id_from_url(params["url"]),
-         {:ok, dg_dataset} <- ImportData.import_from_udata(datagouv_id, params["type"]),
+         {:ok, dg_dataset} <- ImportData.import_from_data_gouv(datagouv_id, params["type"]),
          params <- Map.merge(params, dg_dataset),
          {:ok, changeset} <- Dataset.changeset(params),
          {:ok, dataset} <- insert_dataset(changeset) do
@@ -154,7 +154,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
     do: put_flash(conn, :error, "#{err} (#{message})")
 
   @spec import_data(Dataset.t() | nil) :: any()
-  defp import_data(%Dataset{} = dataset), do: ImportData.import_dataset(dataset)
+  defp import_data(%Dataset{} = dataset), do: ImportData.import_dataset_logged(dataset)
   defp import_data(nil), do: {:error, dgettext("backoffice", "Unable to find dataset")}
 
   defp redirect_to_index(conn),

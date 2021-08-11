@@ -17,19 +17,19 @@
   <div class="dataset-menu-container">
     <div class="dataset-menu">
       <div class="menu-item"><a href="#dataset-top">Description</a></div>
-      <%= if not is_nil(get_resource_to_display(@dataset)) do %>
-        <div class="menu-item"><a href="#dataset-visualisation"><%= dgettext("page-dataset-details", "Visualization")%></a></div>
+      <%= unless is_nil(get_resource_to_display(@dataset)) do %>
+        <div id="menu-item-visualisation" class="menu-item"><a href="#dataset-visualisation"><%= dgettext("page-dataset-details", "Visualization")%></a></div>
       <% end %>
-      <div class="menu-item"><a href="#dataset-resources"><%= dgettext("page-dataset-details", "Resources")%></a></div>
+      <div class="menu-item"><a href="#dataset-resources"><%= dgettext("page-dataset-details", "Resources")%> (<%= count_resources(@dataset) %>)</a></div>
       <%= unless is_nil(@reuses) or @reuses == [] do %>
         <div class="menu-item"><a href="#dataset-reuses"><%= dgettext("page-dataset-details", "Reuses")%></a></div>
       <% end %>
-      <div class="menu-item"><a href="#dataset-discussions">Discussions</a></div>
+      <div class="menu-item"><a href="#dataset-discussions">Discussions (<%= count_discussions(@discussions) %>)</a></div>
       <%= unless @history_resources == [] do %>
         <div class="menu-item"><a href="#dataset-historic"><%= dgettext("page-dataset-details", "History")%></a></div>
       <% end %>
       <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
-        <div class="menu-item"><a href="#dataset-other-datasets"><%= dgettext("page-dataset-details", "Other datasets")%></a></div>
+        <div class="menu-item"><a href="#dataset-other-datasets"><%= dgettext("page-dataset-details", "Other datasets")%> (<%= Enum.count(@other_datasets) %>)</a></div>
       <% end %>
     </div>
   </div>
@@ -46,15 +46,15 @@
         <div class="panel">
           <div id='map' class='leaflet-map'></div>
           <%= if displayResource.format == "gbfs" do %>
-            <div class="is-centered"><%= dgettext("page-dataset-details", "Real-time visualization of ")%> "<%= get_resource_to_display(@dataset).title %>".</div>
+            <div class="is-centered"><%= dgettext("page-dataset-details", "Real-time visualization of ")%> "<%= displayResource.title %>".</div>
           <% else %>
-            <div class="is-centered"><%= dgettext("page-dataset-details", "Visualization of the resource")%> "<%= get_resource_to_display(@dataset).title %>".</div>
+            <div class="is-centered"><%= dgettext("page-dataset-details", "Visualization of the resource")%> "<%= displayResource.title %>".</div>
           <% end %>
         </div>
         <script src="<%= static_path(@conn, "/js/resourceviz.js") %>"></script>
         <script>
           document.addEventListener("DOMContentLoaded", function() {
-            createMap('map', "<%= get_resource_to_display(@dataset).url %>")
+            createMap('map', "<%= displayResource.url %>", "<%= displayResource.format %>")
           })
         </script>
       </section>
@@ -100,7 +100,7 @@
               <div class="reuse__details">
                 <div>
                   <h3><%= reuse["title"] %></h3>
-                  <p><%= raw Earmark.as_html!(reuse["description"]) %> </p>
+                  <p><%= MarkdownHandler.markdown_to_safe_html!(reuse["description"]) %> </p>
                 </div>
               </div>
             </div>

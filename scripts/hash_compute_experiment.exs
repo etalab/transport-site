@@ -17,8 +17,9 @@ enriched_items =
     fn(item) ->
       Logger.info "Computing for item #{item[:id]}..."
       try do
+        {:ok, status_and_hash} = HTTPStreamV2.fetch_status_and_hash(item[:url])
         item
-        |> Map.put(:content_hash_v2, HTTPStreamV2.fetch_status_and_hash(item[:url])[:hash])
+        |> Map.put(:content_hash_v2, status_and_hash[:hash])
 #        |> Map.put(:content_hash_v1, Hasher.compute_sha256(item[:url]))
       rescue
         _ -> item
