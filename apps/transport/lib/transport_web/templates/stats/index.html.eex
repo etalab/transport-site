@@ -252,6 +252,11 @@
         La <a href="/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/">base nationale des bornes de Recharge pour véhicules électriques </a> est consolidée de manière automatique par Etalab.
       </p>
     </div>
+    <div class="domain parking">
+      <h2>Lieux de stationnement</h2>
+      <p><a href="datasets/base-nationale-des-lieux-de-stationnement/">La base nationale des lieux de stationnement</a> est consolidée par l'équipe du Point d’Accès National.
+      </p>
+    </div>
   </div>
 </section>
 <script src="<%= static_path(@conn, "/js/map.js") %>"></script>
