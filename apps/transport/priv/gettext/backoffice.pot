@@ -44,9 +44,6 @@ msgstr ""
 msgid "stops-ref"
 msgstr ""
 
-msgid "micro-mobility"
-msgstr ""
-
 msgid "charging-stations"
 msgstr ""
 
