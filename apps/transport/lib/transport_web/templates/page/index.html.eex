@@ -98,7 +98,7 @@
           <div><%= dngettext("page-index", "dataset", "datasets", @count_coach || 0) %></div>
         </div>
       </a>
-      <a class="tile" href="<%= dataset_path(@conn, :index, type: "bike-sharing") %>">
+      <a class="tile" href="<%= dataset_path(@conn, :index, type: "bike-scooter-sharing") %>">
       <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle-scooter.svg") %>" alt="" />
       <div class="tile__text">
         <h4 class=""><%= dgettext("page-index", "Bike and scooter sharing") %></h4>
