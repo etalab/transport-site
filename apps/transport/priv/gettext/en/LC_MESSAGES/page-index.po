@@ -96,7 +96,7 @@ msgid "Coming soon"
 msgstr ""
 
 #, elixir-format
-msgid "Freefloating vehicles"
+msgid "Car and motorbike sharing"
 msgstr ""
 
 #, elixir-format

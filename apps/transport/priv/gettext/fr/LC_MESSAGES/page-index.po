@@ -96,8 +96,8 @@ msgid "Coming soon"
 msgstr "À venir dans les prochains mois"
 
 #, elixir-format
-msgid "Freefloating vehicles"
-msgstr "Véhicules en free-floating"
+msgid "Car and motorbike sharing"
+msgstr "Voitures et scooters en libre-service"
 
 #, elixir-format
 msgid "Private parking"
