@@ -54,7 +54,7 @@ msgid "Bike and scooter sharing"
 msgstr "Vélos et trottinettes en libre-service"
 
 #, elixir-format
-msgid "Car-sharing areas"
+msgid "Carpooling areas"
 msgstr "Lieux de covoiturage"
 
 #, elixir-format
