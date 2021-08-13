@@ -192,6 +192,17 @@ defmodule TransportWeb.Backoffice.PageController do
     |> render("form_dataset.html")
   end
 
+  def import_all_aoms(%Plug.Conn{} = conn, _params) do
+    try do
+      Transport.ImportAOMs.run()
+      conn |> put_flash(:info, "AOMs successfully imported")
+    rescue
+      e ->
+        conn |> put_flash(:error, "AOMs import failed. #{inspect(e)}")
+    end
+    |> redirect(to: backoffice_page_path(conn, :index))
+  end
+
   ## Private functions
   @spec render_index(Ecto.Queryable.t(), Plug.Conn.t(), map()) :: Plug.Conn.t()
   defp render_index(datasets, conn, params) do
