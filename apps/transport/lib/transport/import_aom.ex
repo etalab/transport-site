@@ -91,7 +91,7 @@ defmodule Transport.ImportAOMs do
   defp normalize_forme("EPL"), do: "Établissement public local"
   defp normalize_forme(f), do: f
 
-  def run() do
+  def run do
     aoms =
       AOM
       |> Repo.all()
@@ -104,18 +104,19 @@ defmodule Transport.ImportAOMs do
     # get all the aom to import, outside of the transaction to reduce the time in the transaction
     aom_to_add = get_aom_to_import()
 
-    {:ok, _} = Repo.transaction(
-      fn ->
-        # we load all aoms
-        import_aoms(aom_to_add)
+    {:ok, _} =
+      Repo.transaction(
+        fn ->
+          # we load all aoms
+          import_aoms(aom_to_add)
 
-        delete_old_aoms(aom_to_add, aoms)
+          delete_old_aoms(aom_to_add, aoms)
 
-        # we load the join on cities
-        import_insee_aom()
-      end,
-      timeout: 400_000
-    )
+          # we load the join on cities
+          import_insee_aom()
+        end,
+        timeout: 400_000
+      )
 
     # we can then compute the aom geometries (the union of each cities geometries)
     compute_geom()
