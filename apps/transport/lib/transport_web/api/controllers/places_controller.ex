@@ -48,7 +48,13 @@ defmodule TransportWeb.API.PlacesController do
     results =
       places
       |> Enum.map(fn res ->
-        %{name: res.nom, type: res.type, url: get_result_url(conn, res)}
+        name =
+          case res.type do
+            "commune" -> "#{res.nom} (#{res.place_id})"
+            _ -> res.nom
+          end
+
+        %{name: name, type: res.type, url: get_result_url(conn, res)}
       end)
 
     conn
