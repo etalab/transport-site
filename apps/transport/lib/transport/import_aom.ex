@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Transport.ImportAom do
+defmodule Transport.ImportAOMs do
   @moduledoc """
   Import the AOM files and updates the database
 
@@ -12,23 +12,14 @@ defmodule Mix.Tasks.Transport.ImportAom do
 
   This is a one shot import task, run when the aom have changed.
 
-  To run this script:
-  connect to the server, then run it as a mix task:
-  `mix Transport.ImportAom`
-
-  or run it in iex:
-  `iex -S mix`
-  then
-  `Mix.Tasks.Transport.ImportAom.run([])`
+  The import can be launched from the site backoffice
   """
 
-  use Mix.Task
   import Ecto.{Query}
   alias DB.{AOM, Commune, Region, Repo}
   require Logger
 
-  # Those 2 files are community resources published by transport for the following dataset :
-  # https://www.data.gouv.fr/fr/datasets/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/#community-resources
+  # The 2 community resources stable urls
   @aom_file "https://www.data.gouv.fr/fr/datasets/r/2668b0eb-2cfb-4f96-a359-d1b7876c13f4"
   @aom_insee_file "https://www.data.gouv.fr/fr/datasets/r/00635634-065f-4008-b032-f5d5f7ba8617"
 
@@ -100,10 +91,7 @@ defmodule Mix.Tasks.Transport.ImportAom do
   defp normalize_forme("EPL"), do: "Établissement public local"
   defp normalize_forme(f), do: f
 
-  @shortdoc "One shot update of AOM from a data.gouv.fr community ressource file"
-  def run(_) do
-    Mix.Task.run("app.start")
-
+  def run() do
     aoms =
       AOM
       |> Repo.all()
@@ -116,7 +104,7 @@ defmodule Mix.Tasks.Transport.ImportAom do
     # get all the aom to import, outside of the transaction to reduce the time in the transaction
     aom_to_add = get_aom_to_import()
 
-    Repo.transaction(
+    {:ok, _} = Repo.transaction(
       fn ->
         # we load all aoms
         import_aoms(aom_to_add)
@@ -131,6 +119,8 @@ defmodule Mix.Tasks.Transport.ImportAom do
 
     # we can then compute the aom geometries (the union of each cities geometries)
     compute_geom()
+
+    :ok
   end
 
   defp get_aom_to_import do
