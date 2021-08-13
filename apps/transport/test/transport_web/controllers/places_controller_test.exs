@@ -27,7 +27,7 @@ defmodule TransportWeb.API.PlacesControllerTest do
     assert sort_and_clean(r) ==
              Enum.sort([
                %{
-                 "name" => "Châteauroux",
+                 "name" => "Châteauroux (36044)",
                  "type" => "commune",
                  "url" => "/datasets/commune/:id"
                },
