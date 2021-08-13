@@ -27,8 +27,10 @@ defmodule Mix.Tasks.Transport.ImportAom do
   alias DB.{AOM, Commune, Region, Repo}
   require Logger
 
-  @aom_file "https://static.data.gouv.fr/resources/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/20201112-141547/base-aom-2020.csv"
-  @aom_insee_file "https://static.data.gouv.fr/resources/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/20201112-142236/aom-insee.csv"
+  # Those 2 files are community resources published by transport for the following dataset :
+  # https://www.data.gouv.fr/fr/datasets/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/#community-resources
+  @aom_file "https://www.data.gouv.fr/fr/datasets/r/2668b0eb-2cfb-4f96-a359-d1b7876c13f4"
+  @aom_insee_file "https://www.data.gouv.fr/fr/datasets/r/00635634-065f-4008-b032-f5d5f7ba8617"
 
   @spec to_int(binary()) :: number() | nil
   def to_int(""), do: nil
