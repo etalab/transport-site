@@ -24,7 +24,7 @@
         <%= submit dgettext("backoffice", "validate all") %>
       <% end %>
     </div>
-    <a class="button" href="" title="Télécharge depuis data.gouv la dernière version de la liste des AOMs, puis les importe dans notre base.">
+    <a class="button" href="<%= backoffice_page_path(@conn, :import_all_aoms) %>" title="Télécharge depuis data.gouv la dernière version de la liste des AOMs, puis les importe dans notre base.">
       <%= dgettext("backoffice", "Update all AOMs") %>
     </a>
   <h1 class="pt-48">
