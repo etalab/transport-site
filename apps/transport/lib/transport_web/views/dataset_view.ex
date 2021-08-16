@@ -330,7 +330,7 @@ defmodule TransportWeb.DatasetView do
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
-  def get_resource_to_display(%Dataset{type: "bike-sharing", resources: resources}) do
+  def get_resource_to_display(%Dataset{type: "bike-scooter-sharing", resources: resources}) do
     resources
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
     |> Enum.reject(fn r -> r.is_community_resource end)

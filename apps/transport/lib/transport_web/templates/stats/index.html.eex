@@ -210,7 +210,7 @@
     <div class="domain bikes" id="real-time-bikes">
       <h2>Vélos libre service</h2>
       <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "bikes_map") %>
+        <%= render("_maps.html", droms: @droms, prefix: "bike_scooter_map") %>
         <div class="panel">
           <div class="description">
             <span class="stat-link">
@@ -229,7 +229,7 @@
           <div class="tile-numbers">
             <div class="tile">
               <h3><%= @nb_bikes_datasets %></h3>
-              <div> <a href="/datasets?type=bike-sharing">Jeux de données disponibles</a></div>
+              <div> <a href="/datasets?type=bike-scooter-sharing">Jeux de données disponibles</a></div>
             </div>
             <div class="rt-viz">
               <%= for _i <- 1..@nb_bikes_datasets do %>
