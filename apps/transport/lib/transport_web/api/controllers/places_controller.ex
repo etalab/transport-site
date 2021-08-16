@@ -19,6 +19,14 @@ defmodule TransportWeb.API.PlacesController do
 
   defp get_result_url(conn, %Place{:place_id => id, :type => "mode"}), do: dataset_path(conn, :index, "modes[]": id)
 
+  defp approx_search_query(query) do
+    Place
+    |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
+    |> where([p], fragment("indexed_name % unaccent(?)", ^query))
+    |> limit(10)
+    |> Repo.all()
+  end
+
   @spec autocomplete(Plug.Conn.t(), map) :: Plug.Conn.t()
   def autocomplete(%Plug.Conn{} = conn, %{"q" => query}) do
     query =
@@ -44,6 +52,10 @@ defmodule TransportWeb.API.PlacesController do
       |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
       |> limit(10)
       |> Repo.all()
+      |> case do
+        [] -> approx_search_query(query)
+        r -> r
+      end
 
     results =
       places
