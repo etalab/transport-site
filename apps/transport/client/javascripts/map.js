@@ -14,7 +14,7 @@ const Mapbox = {
 
 const regionsUrl = '/api/stats/regions'
 const aomsUrl = '/api/stats/'
-const bikesUrl = '/api/stats/bike-sharing'
+const bikeScooterUrl = '/api/stats/bike-scooter-sharing'
 const qualityUrl = '/api/stats/quality'
 
 const lightGreen = '#BCE954'
@@ -56,7 +56,7 @@ const getLegend = (title, colors, labels) => {
 // simple cache on stats
 let aomStats = null
 let regionStats = null
-let bikeStats = null
+let bikeScooterStats = null
 let qualityStats = null
 
 function getAomsFG (featureFunction, style, filter = null) {
@@ -96,13 +96,13 @@ function getRegionsFG (featureFunction, style) {
     return regionsFeatureGroup
 }
 
-function displayBikes (map, featureFunction) {
-    if (bikeStats == null) {
-        bikeStats = fetch(bikesUrl).then(response => {
+function displayBikeScooter (map, featureFunction) {
+    if (bikeScooterStats == null) {
+        bikeScooterStats = fetch(bikeScooterUrl).then(response => {
             return response.json()
         })
     }
-    bikeStats.then(response => {
+    bikeScooterStats.then(response => {
         const options = {
             fillColor: '#0066db',
             radius: 5,
@@ -605,10 +605,10 @@ function addPtFormatMap (id, view) {
     }
 }
 
-function addBikesMap (id, view) {
+function addBikeScooterMap (id, view) {
     const map = makeMapOnView(id, view)
 
-    displayBikes(map, (feature, layer) => {
+    displayBikeScooter(map, (feature, layer) => {
         const name = feature.properties.nom
         const slug = feature.properties.parent_dataset_slug
 
@@ -648,5 +648,5 @@ for (const [drom, view] of Object.entries(droms)) {
     addStaticPTQuality(`pt_quality_${drom}`, view)
     addPtFormatMap(`pt_format_map_${drom}`, view)
     addRealTimePTMap(`rt_map_${drom}`, view)
-    addBikesMap(`bikes_map_${drom}`, view)
+    addBikeScooterMap(`bike_scooter_map_${drom}`, view)
 }
