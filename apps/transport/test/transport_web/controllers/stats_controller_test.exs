@@ -33,7 +33,7 @@ defmodule TransportWeb.API.StatsControllerTest do
   end
 
   test "Get the bike and scooter stats", %{conn: _conn} do
-    _dataset = :dataset |> insert(%{type: "bike-scooter-sharing"})
+    _dataset = :dataset |> insert(%{type: "bike-scooter-sharing", aom: nil})
     result = TransportWeb.API.StatsController.bike_scooter_sharing_features_query() |> DB.Repo.all()
     assert length(result) == 1
   end
