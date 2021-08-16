@@ -22,12 +22,7 @@ defmodule TransportWeb.API.PlacesController do
   defp approx_search_query(query) do
     Place
     |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
-    |> order_by(asc: fragment("CASE type
-            when 'feature' then 1
-            when 'mode' then 2
-            when 'region' then 3
-            when 'aom' then 4
-            else 4 END"))
+    |> where([p], fragment("indexed_name % unaccent(?)", ^query))
     |> limit(10)
     |> Repo.all()
   end
