@@ -41,7 +41,7 @@ defmodule Unlock.MixProject do
       # required indirectly by sentry
       {:hackney, "~> 1.8"},
       {:jason, "~> 1.1"},
-      {:finch, "~> 0.7.0"},
+      {:finch, "~> 0.8"},
       {:yaml_elixir, "~> 2.7"},
       {:cachex, "~> 3.4"},
       {:mox, "~> 1.0.0", only: :test},
