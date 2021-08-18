@@ -50,11 +50,11 @@ msgid "subtitle"
 msgstr "Gather all french mobility data"
 
 #, elixir-format
-msgid "Bike sharing"
+msgid "Bike and scooter sharing"
 msgstr ""
 
 #, elixir-format
-msgid "Car-sharing areas"
+msgid "Carpooling areas"
 msgstr ""
 
 #, elixir-format
@@ -96,7 +96,7 @@ msgid "Coming soon"
 msgstr ""
 
 #, elixir-format
-msgid "Freefloating vehicles"
+msgid "Car and motorbike sharing"
 msgstr ""
 
 #, elixir-format

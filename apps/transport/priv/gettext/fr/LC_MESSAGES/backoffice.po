@@ -43,9 +43,6 @@ msgstr "Lieux de covoiturage"
 msgid "stops-ref"
 msgstr "Référentiel points d’arrêts"
 
-msgid "micro-mobility"
-msgstr "Vélo en libre service"
-
 msgid "charging-stations"
 msgstr "Bornes de recharge"
 
