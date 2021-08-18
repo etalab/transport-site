@@ -20,7 +20,15 @@ defmodule Unlock.HTTP do
 
     NOTE: the return type is incorrect, should be Response.t().
     """
-    @callback get!(url :: binary, headers :: list()) :: any()
+
+    @typedoc """
+    HTTP headers, with the same definition as Mint. See
+
+    https://github.com/elixir-mint/mint/blob/main/lib/mint/types.ex
+    """
+    @type headers() :: [{header_name :: String.t(), header_value :: String.t()}]
+
+    @callback get!(url :: binary, headers :: headers()) :: any()
 
     def impl, do: Application.fetch_env!(:unlock, :http_client)
   end

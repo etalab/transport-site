@@ -1,0 +1,10 @@
+---
+# this is a sample which can be used during development.
+# to use it, rename to `proxy-config.yml`. you can check
+# out config/dev.exs to see how this gets loaded
+feeds:
+  - identifier: "httpbin-header-auth-ok"
+    target_url: "https://httpbin.org/bearer"
+    ttl: 10
+    request_headers:
+      - ["Authorization", "Bearer any-value-will-work-here"]
