@@ -8,9 +8,11 @@ defmodule Unlock.Config do
     @moduledoc """
     An intermediate structure to add a bit of typing to the
     external YAML configuration.
+
+    It supports hardcoded request headers for e.g. simple authentication.
     """
     @enforce_keys [:identifier, :target_url, :ttl]
-    defstruct [:identifier, :target_url, :ttl]
+    defstruct [:identifier, :target_url, :ttl, request_headers: []]
   end
 
   defmodule Fetcher do
@@ -29,9 +31,20 @@ defmodule Unlock.Config do
           identifier: Map.fetch!(f, "identifier"),
           target_url: Map.fetch!(f, "target_url"),
           # By default, no TTL
-          ttl: Map.get(f, "ttl", 0)
+          ttl: Map.get(f, "ttl", 0),
+          request_headers: parse_config_request_headers(Map.get(f, "request_headers", []))
         }
       end)
+    end
+
+    @doc """
+    In the YAML, we use an array of 2-element arrays to specify optional hardcoded request headers.
+    This method converts that to a list of tuple, commonly used for HTTP headers
+    (e.g. `Mint.Types.headers()` in https://github.com/elixir-mint/mint/blob/main/lib/mint/types.ex)
+    """
+    def parse_config_request_headers(list) do
+      list
+      |> Enum.map(fn([k, v]) -> {k, v} end)
     end
 
     # for easy access, we're indexing items by identifier
