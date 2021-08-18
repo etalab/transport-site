@@ -40,7 +40,7 @@ Vous pouvez signaler à l'équipe du PAN un jeu de données à ajouter ci-dessus
 
 ## Velo en libre service
 
-Plusieurs jeux de données de données temps-réel de vélo en libre service sont [disponibles sur la plateforme](https://transport.data.gouv.fr/datasets?type=bike-sharing). Ces données sont standardisées en [BGFS](https://github.com/NABSA/gbfs/blob/master/gbfs.md).
+Plusieurs jeux de données de données temps-réel de vélo en libre service sont [disponibles sur la plateforme](https://transport.data.gouv.fr/datasets?type=bike-scooter-sharing). Ces données sont standardisées en [BGFS](https://github.com/NABSA/gbfs/blob/master/gbfs.md).
 
 ## Aérien
 

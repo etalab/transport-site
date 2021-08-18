@@ -49,7 +49,6 @@ defmodule Transport.Mixfile do
     [
       {:csv, "~> 2.1"},
       {:earmark, "~> 1.4"},
-      {:exconstructor, "~> 1.1"},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 1.8.0"},
       {:phoenix, "~> 1.5.7"},

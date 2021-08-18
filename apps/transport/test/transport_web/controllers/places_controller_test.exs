@@ -27,7 +27,7 @@ defmodule TransportWeb.API.PlacesControllerTest do
     assert sort_and_clean(r) ==
              Enum.sort([
                %{
-                 "name" => "Châteauroux",
+                 "name" => "Châteauroux (36044)",
                  "type" => "commune",
                  "url" => "/datasets/commune/:id"
                },
@@ -49,7 +49,7 @@ defmodule TransportWeb.API.PlacesControllerTest do
     assert sort_and_clean(r) ==
              Enum.sort([
                %{
-                 "name" => "Châteauroux",
+                 "name" => "Châteauroux (36044)",
                  "type" => "commune",
                  "url" => "/datasets/commune/:id"
                },
@@ -59,7 +59,7 @@ defmodule TransportWeb.API.PlacesControllerTest do
                  "url" => "/datasets/aom/:id"
                },
                %{
-                 "name" => "Chas",
+                 "name" => "Chas (63096)",
                  "type" => "commune",
                  "url" => "/datasets/commune/:id"
                }

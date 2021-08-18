@@ -210,7 +210,7 @@
     <div class="domain bikes" id="real-time-bikes">
       <h2>Vélos libre service</h2>
       <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "bikes_map") %>
+        <%= render("_maps.html", droms: @droms, prefix: "bike_scooter_map") %>
         <div class="panel">
           <div class="description">
             <span class="stat-link">
@@ -229,7 +229,7 @@
           <div class="tile-numbers">
             <div class="tile">
               <h3><%= @nb_bikes_datasets %></h3>
-              <div> <a href="/datasets?type=bike-sharing">Jeux de données disponibles</a></div>
+              <div> <a href="/datasets?type=bike-scooter-sharing">Jeux de données disponibles</a></div>
             </div>
             <div class="rt-viz">
               <%= for _i <- 1..@nb_bikes_datasets do %>
@@ -250,6 +250,11 @@
       <h2>Infrastructures de recharge pour véhicules électriques (IRVE)</h2>
       <p>
         La <a href="/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/">base nationale des bornes de Recharge pour véhicules électriques </a> est consolidée de manière automatique par Etalab.
+      </p>
+    </div>
+    <div class="domain parking">
+      <h2>Lieux de stationnement</h2>
+      <p><a href="datasets/base-nationale-des-lieux-de-stationnement/">La base nationale des lieux de stationnement</a> est consolidée par l'équipe du Point d’Accès National.
       </p>
     </div>
   </div>

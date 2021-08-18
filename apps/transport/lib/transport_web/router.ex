@@ -103,6 +103,8 @@ defmodule TransportWeb.Router do
         session: {TransportWeb.Backoffice.ProxyConfigLive, :build_session, []}
       )
 
+      get("/import_aoms", PageController, :import_all_aoms)
+
       scope "/datasets" do
         get("/new", PageController, :new)
         get("/:id/edit", PageController, :edit)

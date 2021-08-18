@@ -16,7 +16,7 @@ msgid "Aerial"
 msgstr ""
 
 #, elixir-format
-msgid "Bike sharing"
+msgid "Bike and scooter sharing"
 msgstr ""
 
 #, elixir-format
@@ -25,10 +25,6 @@ msgstr ""
 
 #, elixir-format
 msgid "Charging stations"
-msgstr ""
-
-#, elixir-format
-msgid "Micro mobility"
 msgstr ""
 
 #, elixir-format
@@ -77,4 +73,8 @@ msgstr ""
 
 #, elixir-format
 msgid "Bike path"
+msgstr ""
+
+#, elixir-format
+msgid "Car and motorbike sharing"
 msgstr ""
