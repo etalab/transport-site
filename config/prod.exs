@@ -12,6 +12,10 @@ config :transport, TransportWeb.Endpoint,
 
 config :gbfs, GBFSWeb.Endpoint, secret_key_base: System.get_env("SECRET_KEY_BASE")
 
+# as specified in Dockerfile copy step
+config :transport,
+  gtfs_to_geojson_cmd_path: "/usr/local/bin/gtfs-geojson"
+
 config :transport, Transport.Scheduler,
   jobs: [
     # Every day at 4am UTC
