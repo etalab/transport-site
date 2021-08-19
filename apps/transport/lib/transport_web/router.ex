@@ -93,6 +93,7 @@ defmodule TransportWeb.Router do
     scope "/backoffice", Backoffice, as: :backoffice do
       pipe_through([:admin_rights])
       get("/", PageController, :index)
+      get("/labs-convert-gtfs-to-geojson", PageController, :labs_convert_gtfs_to_geojson)
 
       get("/dashboard", DashboardController, :index)
       # NOTE: by default no layout are automatically picked at time of writing
