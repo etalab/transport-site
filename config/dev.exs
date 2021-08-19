@@ -47,6 +47,10 @@ config :phoenix, :stacktrace_depth, 20
 config :transport,
   history_impl: Transport.History.Fetcher.Mock
 
+# Experimental configuration
+config :transport,
+  gtfs_to_geojson_cmd_path: "../gtfs-to-geojson/target/release/gtfs-geojson"
+
 # Provide a default experience that will mostly work without manual config,
 # as long as the developer does not use advanced features (backoffice login, gbfs etc)
 # One can use dev.secret.exs to override this.
