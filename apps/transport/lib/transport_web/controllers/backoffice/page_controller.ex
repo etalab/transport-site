@@ -205,6 +205,16 @@ defmodule TransportWeb.Backoffice.PageController do
     conn |> redirect(to: backoffice_page_path(conn, :index))
   end
 
+  def labs_convert_gtfs_to_geojson(conn, _params) do
+    cmd = Application.fetch_env!(:transport, :gtfs_to_geojson_cmd_path) |> Path.expand()
+    {stdout, result} = MuonTrap.cmd(cmd, ["--version"])
+
+    case result do
+      0 -> conn |> send_resp(200, stdout)
+      error -> conn |> send_resp(500, "Error occurred (exit code #{error})")
+    end
+  end
+
   ## Private functions
   @spec render_index(Ecto.Queryable.t(), Plug.Conn.t(), map()) :: Plug.Conn.t()
   defp render_index(datasets, conn, params) do
