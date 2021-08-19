@@ -205,13 +205,32 @@ defmodule TransportWeb.Backoffice.PageController do
     conn |> redirect(to: backoffice_page_path(conn, :index))
   end
 
-  def labs_convert_gtfs_to_geojson(conn, _params) do
+  # NOTE: this is experimental code, whose purpose is only to verify the behaviour of MuonTrap
+  # in Docker on our hosting provider. We need to benchmark how much memory is used at most,
+  # and run this on an isolated instance instead (via some form of background job system).
+  def labs_convert_gtfs_to_geojson(conn, params) do
     cmd = Application.fetch_env!(:transport, :gtfs_to_geojson_cmd_path) |> Path.expand()
-    {stdout, result} = MuonTrap.cmd(cmd, ["--version"])
+
+    parameters =
+      case params do
+        %{"input" => input} ->
+          # NOTE: this will store the whole GeoJSON, provided via STDOUT, in RAM
+          # A future implementation will instead cache to some storage, using checksums etc.
+          ["--input", input]
+
+        _ ->
+          ["--help"]
+      end
+
+    {stdout, result} = MuonTrap.cmd(cmd, parameters)
 
     case result do
-      0 -> conn |> send_resp(200, stdout)
-      error -> conn |> send_resp(500, "Error occurred (exit code #{error})")
+      0 ->
+        conn |> send_resp(200, stdout)
+
+      error ->
+        Logger.info("Error during conversion #{stdout}")
+        conn |> send_resp(500, "Error occurred (exit code #{error})\n\nPayload is #{stdout}")
     end
   end
 
