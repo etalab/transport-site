@@ -222,7 +222,7 @@ defmodule TransportWeb.Backoffice.PageController do
           ["--help"]
       end
 
-    {stdout, result} = MuonTrap.cmd(cmd, parameters)
+    {stdout, result} = MuonTrap.cmd(cmd, parameters, stderr_to_stdout: true)
 
     case result do
       0 ->
