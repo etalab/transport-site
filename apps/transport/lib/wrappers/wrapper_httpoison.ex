@@ -1,6 +1,6 @@
 defmodule Transport.Wrapper.HTTPoison do
   @moduledoc """
-  Temporary: a HTTPoison wrapper currently used by the history system in
+  Temporary: a HTTPoison wrapper currently used by some modules in
   order to facilitate the use of mocks.
 
   Ultimately we will create a central HTTP behaviour with all common calls,
