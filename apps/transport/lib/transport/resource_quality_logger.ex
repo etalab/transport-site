@@ -1,7 +1,11 @@
 defmodule Transport.ResourceQualityLogger do
+  @moduledoc """
+  A module to launch the insertion in the DB of quality metrics about the resources
+  """
+
   alias DB.{LogsResourceQuality, Repo, Resource}
 
-  def inserts_all_resources_logs() do
+  def inserts_all_resources_logs do
     stream = Resource |> Repo.stream()
 
     Repo.transaction(fn ->
