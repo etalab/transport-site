@@ -1,6 +1,6 @@
 defmodule DB.ResourceTest do
   use ExUnit.Case, async: true
-  alias DB.{Resource, Validation, Repo, LogsValidation}
+  alias DB.{LogsValidation, Repo, Resource, Validation}
   import Mox
   import TransportWeb.Factory
   import Ecto.Query
