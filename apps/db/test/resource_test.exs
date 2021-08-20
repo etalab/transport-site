@@ -1,6 +1,6 @@
 defmodule DB.ResourceTest do
   use ExUnit.Case, async: true
-  alias DB.{Resource, Validation, Repo}
+  alias DB.{Resource, Validation, Repo, LogsValidation}
   import Mox
   import TransportWeb.Factory
   import Ecto.Query
@@ -29,7 +29,13 @@ defmodule DB.ResourceTest do
     end)
 
     assert Resource.validate_and_save(resource, false) == {:ok, nil}
+
+    # a validation is saved in the DB
     validations = Validation |> where([v], v.resource_id == ^resource.id) |> Repo.all()
     assert length(validations) == 1
+
+    # a log of the validation is saved as well
+    [log_validation] = LogsValidation |> where([l], l.resource_id == ^resource.id) |> Repo.all()
+    assert log_validation.skipped_reason == "no previous validation"
   end
 end
