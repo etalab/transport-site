@@ -16,7 +16,7 @@ FROM betagouv/transport:elixir-1.12.2-erlang-24.0.3-alpine-3.13.3
 
 COPY --from=builder /gtfs-to-geojson/target/release/gtfs-geojson /usr/local/bin/gtfs-geojson
 
-Repro for arch issue (I get "not found")
+# Repro for arch issue (I get "not found")
 RUN /usr/local/bin/gtfs-geojson --help
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ gnu-libiconv-dev
