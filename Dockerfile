@@ -10,7 +10,7 @@ RUN git clone --depth=1 --branch main --single-branch https://github.com/rust-tr
 WORKDIR /gtfs-to-geojson
 RUN cargo build --release
 RUN strip ./target/release/gtfs-geojson
-
+RUN ./target/release/gtfs-geojson --help
 
 FROM betagouv/transport:elixir-1.12.2-erlang-24.0.3-alpine-3.13.3
 
