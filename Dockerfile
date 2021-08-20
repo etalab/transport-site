@@ -4,6 +4,8 @@
 # it at deploy time.
 FROM rust:1.54-alpine3.13 as builder
 WORKDIR /
+# git is not inside "rust alpine", apparently
+RUN apk add git
 RUN git clone --depth=1 --branch main --single-branch https://github.com/rust-transit/gtfs-to-geojson.git
 WORKDIR /gtfs-to-geojson
 RUN cargo build --release
