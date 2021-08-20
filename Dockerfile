@@ -2,7 +2,7 @@
 # what is at https://github.com/etalab/gtfs_converter/blob/master/Dockerfile) but ultimately we'll
 # make a dedicated Docker image with all the binaries we want to leverage, then simply copying them
 # it at deploy time.
-FROM rust:latest as builder
+FROM rust:1.54-alpine3.13 as builder
 WORKDIR /
 RUN git clone --depth=1 --branch main --single-branch https://github.com/rust-transit/gtfs-to-geojson.git
 WORKDIR /gtfs-to-geojson
