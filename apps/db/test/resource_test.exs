@@ -1,7 +1,9 @@
 defmodule DB.ResourceTest do
   use ExUnit.Case, async: true
-  alias DB.{Resource, Validation}
+  alias DB.{Resource, Validation, Repo}
   import Mox
+  import TransportWeb.Factory
+  import Ecto.Query
 
   doctest Resource
 
@@ -11,5 +13,23 @@ defmodule DB.ResourceTest do
 
   setup :verify_on_exit!
 
-  test "validate and save a resource"
+  test "validate and save a resource" do
+    resource = insert(:resource, %{url: "url1", format: "GTFS"})
+
+    Transport.HTTPoison.Mock
+    |> expect(:get, 1, fn url, [], _ ->
+      assert url |> String.contains?(resource.url)
+
+      {:ok,
+       %HTTPoison.Response{
+         status_code: 200,
+         body:
+           "{\"metadata\":{\"start_date\":\"2021-07-08\",\"end_date\":\"2021-10-24\",\"stop_areas_count\":588,\"stop_points_count\":1016,\"lines_count\":126,\"networks\":[\"Sté de Transport de l'Agglomération Nazairienne\"],\"modes\":[\"bus\"],\"issues_count\":{\"ExcessiveSpeed\":2,\"NullDuration\":10,\"DuplicateStops\":43},\"has_fares\":false,\"has_shapes\":true,\"some_stops_need_phone_agency\":false,\"some_stops_need_phone_driver\":false},\"validations\":{\"ExcessiveSpeed\":[{\"severity\":\"Information\",\"issue_type\":\"ExcessiveSpeed\",\"object_id\":\"22226\",\"object_type\":\"Stop\",\"object_name\":\"FossedeRotz\",\"related_objects\":[{\"id\":\"21994\",\"object_type\":\"Stop\",\"name\":\"FosseBlanc\"},{\"id\":\"118\",\"object_type\":\"Route\",\"name\":\"301\"}],\"details\":\"computed speed between the stops is 525.76 km/h (17525 m travelled in 120 seconds)\"}]}}"
+       }}
+    end)
+
+    assert Resource.validate_and_save(resource, false) == {:ok, nil}
+    validations = Validation |> where([v], v.resource_id == ^resource.id) |> Repo.all()
+    assert length(validations) == 1
+  end
 end
