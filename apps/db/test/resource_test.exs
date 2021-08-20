@@ -1,4 +1,4 @@
-defmodule Transport.ResourceTest do
+defmodule DB.ResourceTest do
   use ExUnit.Case, async: true
   alias DB.{Resource, Validation}
 
