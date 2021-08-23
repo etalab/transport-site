@@ -239,7 +239,7 @@ defmodule TransportWeb.API.StatsController do
       geometry: aom.geom,
       id: aom.id,
       insee_commune_principale: aom.insee_commune_principale,
-      nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=?", aom.id),
+      nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND is_active=TRUE ", aom.id),
       dataset_formats: %{
         gtfs: count_aom_format(aom.id, "GTFS"),
         netex: count_aom_format(aom.id, "NeTEx"),
@@ -249,9 +249,13 @@ defmodule TransportWeb.API.StatsController do
       nom: aom.nom,
       forme_juridique: aom.forme_juridique,
       dataset_types: %{
-        pt: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit'", aom.id),
+        pt:
+          fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit' AND is_active=TRUE", aom.id),
         bike_scooter_sharing:
-          fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-scooter-sharing'", aom.id)
+          fragment(
+            "SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-scooter-sharing' AND is_active=TRUE",
+            aom.id
+          )
       },
       parent_dataset_slug: parent_dataset.slug,
       parent_dataset_name: parent_dataset.title
@@ -272,6 +276,7 @@ defmodule TransportWeb.API.StatsController do
           SELECT COUNT(*) FROM dataset
           JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
           WHERE d_geo.region_id = ?
+          AND is_active=TRUE
           """,
           r.id
         ),
@@ -316,9 +321,13 @@ defmodule TransportWeb.API.StatsController do
       nom: aom.nom,
       forme_juridique: aom.forme_juridique,
       dataset_types: %{
-        pt: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit'", aom.id),
+        pt:
+          fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit' AND is_active=TRUE", aom.id),
         bike_scooter_sharing:
-          fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-scooter-sharing'", aom.id)
+          fragment(
+            "SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-scooter-sharing' AND is_active=TRUE",
+            aom.id
+          )
       },
       quality: %{
         # we get the number of day since the latest resource is expired
