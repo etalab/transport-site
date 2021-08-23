@@ -483,8 +483,9 @@ function addRealTimePTMap (id, view) {
         },
         both: {
             weight: 1,
-            color: 'orange',
-            fillOpacity: 0.5
+            color: lightGreen,
+            fillOpacity: 0.5,
+            opacity: 1
         }
     }
 
@@ -518,11 +519,11 @@ function addRealTimePTMap (id, view) {
     if (view.display_legend) {
         const legend = getLegend(
             '<h4>Disponibilité des horaires temps réel</h4>',
-            ['green', 'red', 'orange'],
+            ['green', lightGreen, 'red'],
             [
-                'Données disponibles sur transport.data.gouv.fr',
-                'Données existantes',
-                'Certaines données disponibles'
+                'Données intégralement ouvertes sur transport.data.gouv.fr',
+                'Données partiellement ouvertes sur transport.data.gouv.fr',
+                'Données non ouvertes sur transport.data.gouv.fr'
             ]
         )
         legend.addTo(map)
