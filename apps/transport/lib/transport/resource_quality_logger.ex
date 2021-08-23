@@ -5,7 +5,7 @@ defmodule Transport.ResourceQualityLogger do
 
   alias DB.{LogsResourceQuality, Repo, Resource}
 
-  def inserts_all_resources_logs do
+  def insert_all_resources_logs do
     stream = Resource |> Repo.stream()
 
     Repo.transaction(fn ->

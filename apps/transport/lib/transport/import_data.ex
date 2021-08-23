@@ -72,7 +72,7 @@ defmodule Transport.ImportData do
   def import_validate_all do
     import_all_datasets()
     validate_all_resources()
-    Transport.ResourceQualityLogger.inserts_all_resources_logs()
+    Transport.ResourceQualityLogger.insert_all_resources_logs()
   end
 
   def refresh_places do
