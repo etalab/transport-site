@@ -14,6 +14,7 @@ defmodule Transport.ResourceQualityLogger do
         %{
           resource_id: resource.id,
           is_available: resource.is_available,
+          resource_format: resource.format,
           resource_end_date: resource.end_date,
           log_date: DateTime.utc_now()
         }

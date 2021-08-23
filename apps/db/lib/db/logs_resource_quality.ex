@@ -12,6 +12,7 @@ defmodule DB.LogsResourceQuality do
     field(:log_date, :utc_datetime_usec)
     field(:resource_end_date, :date)
     field(:is_available, :boolean)
+    field(:resource_format, :string)
 
     belongs_to(:resource, Resource)
   end

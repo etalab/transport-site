@@ -13,8 +13,10 @@ defmodule Transport.ResourceQualityLoggerTest do
   end
 
   test "log resources quality metrics" do
-    resource1 = insert(:resource, %{is_available: true, end_date: %Date{year: 2021, month: 8, day: 23}})
-    resource2 = insert(:resource, %{is_available: false, end_date: %Date{year: 2020, month: 8, day: 23}})
+    resource1 = insert(:resource, %{is_available: true, format: "csv", end_date: %Date{year: 2021, month: 8, day: 23}})
+
+    resource2 =
+      insert(:resource, %{is_available: false, format: "gtfs", end_date: %Date{year: 2020, month: 8, day: 23}})
 
     assert Resource |> DB.Repo.all() |> length == 2
 
@@ -27,9 +29,11 @@ defmodule Transport.ResourceQualityLoggerTest do
     resource1_log = logs |> Enum.find(&(&1.resource_id == resource1.id))
     assert resource1_log |> Map.fetch!(:resource_end_date) == resource1.end_date
     assert resource1_log |> Map.fetch!(:is_available) == resource1.is_available
+    assert resource1_log |> Map.fetch!(:resource_format) == resource1.format
 
     resource2_log = logs |> Enum.find(&(&1.resource_id == resource2.id))
     assert resource2_log |> Map.fetch!(:resource_end_date) == resource2.end_date
     assert resource2_log |> Map.fetch!(:is_available) == resource2.is_available
+    assert resource2_log |> Map.fetch!(:resource_format) == resource2.format
   end
 end

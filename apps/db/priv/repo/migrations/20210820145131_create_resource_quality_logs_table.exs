@@ -11,6 +11,7 @@ defmodule DB.Repo.Migrations.CreateResourceQualityLogsTable do
       add :log_date, :utc_datetime_usec
       add :resource_end_date, :date
       add :is_available, :boolean
+      add :resource_format, :string
     end
   end
 end
