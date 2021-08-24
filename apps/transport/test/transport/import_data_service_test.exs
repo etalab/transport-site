@@ -4,8 +4,6 @@ defmodule Transport.ImportDataServiceTest do
   use TransportWeb.ExternalCase
   alias Transport.ImportData
 
-  @moduletag :external
-
   setup do
     Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
     :ok

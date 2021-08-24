@@ -5,8 +5,6 @@ defmodule GBFS.VCubControllerTest do
   import Mock
   import GBFS.Checker
 
-  @moduletag :external
-
   describe "test VCub GBFS conversion" do
     test "test gbfs.json", %{conn: conn} do
       conn = conn |> get(Routes.v_cub_path(conn, :index))
