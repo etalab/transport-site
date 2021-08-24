@@ -182,18 +182,6 @@ jobs:
           command: |
             mix test
 
-  test_external:
-    <<: *defaults_with_postgres
-
-    steps:
-      - attach_workspace:
-          at: ~/transport
-
-      - run:
-          name: Run tests
-          command: |
-            mix test --only external
-
 workflows:
   version: 2
   transport:
@@ -209,10 +197,6 @@ workflows:
             - build
 
       - test_unit:
-          requires:
-            - build
-
-      - test_external:
           requires:
             - build
 
