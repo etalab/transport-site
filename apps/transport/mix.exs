@@ -83,7 +83,6 @@ defmodule Transport.Mixfile do
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
       {:unidecode, "~> 1.0.0"},
-      {:ex_machina, "~> 2.4", only: :test},
       {:phoenix_ecto, "~> 4.0"},
       {:sizeable, "~> 1.0"},
       {:mox, "~> 1.0.0", only: :test}
