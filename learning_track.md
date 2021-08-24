@@ -22,8 +22,7 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 
 * Double-check `.envrc` values (this requirement will go away later)
 * Make sure to run ChromeDriver in a way or another
-* Run the default `mix test` suite (which excludes tests with special needs)
-* Run the full suite with `RUN_ALL` (see readme, this includes tests with special needs e.g. ChromeDriver)
+* Run the test suite with `mix test`
 * Learn how to run a single test (see readme), as this is very useful for debugging
 * :warning: All the tests should pass locally! If they don't, file an issue
 
