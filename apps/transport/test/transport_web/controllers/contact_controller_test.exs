@@ -12,7 +12,6 @@ defmodule TransportWeb.ContactControllerTest do
     |> assert
   end
 
-  @tag :focus
   test "Post contact form without honey pot", %{conn: conn} do
     conn
     |> post(
