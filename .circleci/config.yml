@@ -180,7 +180,7 @@ jobs:
       - run:
           name: Run tests
           command: |
-            mix test
+            mix test --warning-as-errors
 
 workflows:
   version: 2
