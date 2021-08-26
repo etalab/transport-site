@@ -1,6 +1,6 @@
 defmodule Transport.HistoryTest do
   use ExUnit.Case, async: true
-  import TransportWeb.Factory
+  import DB.Factory
   import Mox
 
   setup do

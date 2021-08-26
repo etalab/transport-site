@@ -50,7 +50,8 @@ defmodule Db.MixProject do
       {:datagouvfr, in_umbrella: true},
       {:shared, in_umbrella: true},
       {:sentry, ">= 0.0.0"},
-      {:typed_ecto_schema, ">= 0.1.1"}
+      {:typed_ecto_schema, ">= 0.1.1"},
+      {:ex_machina, "~> 2.4", only: :test}
     ]
   end
 end

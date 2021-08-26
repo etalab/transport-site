@@ -2,7 +2,7 @@ defmodule TransportWeb.DatasetControllerTest do
   use TransportWeb.ConnCase, async: false
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
-  import TransportWeb.Factory
+  import DB.Factory
 
   import Mock
 
