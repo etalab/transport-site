@@ -4,7 +4,7 @@ defmodule DB.DatasetDBTest do
   """
   use DB.DatabaseCase, cleanup: [:datasets]
   alias DB.Repo
-  import TransportWeb.Factory
+  import DB.Factory
 
   test "delete_parent_dataset" do
     parent_dataset = Repo.insert!(%Dataset{})

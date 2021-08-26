@@ -111,7 +111,7 @@ defmodule Transport.History.Backup do
     # NOTE: this call has a few drawbacks:
     # - redirects are not followed
     # - the whole resource is loaded in memory (could be streamed directly to S3 instead with Finch)
-    case Transport.Wrapper.HTTPoison.impl().get(resource.url) do
+    case Transport.Shared.Wrapper.HTTPoison.impl().get(resource.url) do
       {:ok, %{status_code: 200, body: body}} ->
         resource
         |> Shared.resource_bucket_id()

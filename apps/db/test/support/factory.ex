@@ -1,4 +1,4 @@
-defmodule TransportWeb.Factory do
+defmodule DB.Factory do
   @moduledoc """
   Very preliminary use of ExMachina to generate test records.
   We should figure out how to use changeset validations here, but
