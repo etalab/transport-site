@@ -12,7 +12,7 @@ default_docker: &default_docker
 defaults: &defaults
   parameters:
     base_image:
-      default: betagouv/transport:elixir-1.10.4-erlang-23.2.7.2-alpine-3.13.3
+      default: betagouv/transport:elixir-1.12.2-erlang-24.0.3-alpine-3.13.3
       type: string
   working_directory: ~/transport
   docker:
@@ -180,19 +180,7 @@ jobs:
       - run:
           name: Run tests
           command: |
-            mix test
-
-  test_external:
-    <<: *defaults_with_postgres
-
-    steps:
-      - attach_workspace:
-          at: ~/transport
-
-      - run:
-          name: Run tests
-          command: |
-            mix test --only external
+            mix test --warnings-as-errors
 
 workflows:
   version: 2
@@ -209,10 +197,6 @@ workflows:
             - build
 
       - test_unit:
-          requires:
-            - build
-
-      - test_external:
           requires:
             - build
 

@@ -5,6 +5,13 @@
     <%= @resource.title %>
   </h4>
 
+  <%= unless is_nil(@resource.schema_name) do %>
+    <div title="<%= dgettext("page-dataset-details", "Resource declared schema") %>">
+      <i class="icon icon--table" aria-hidden="true"></i>
+      <%= link(schema_label(@resource), to: schema_url(@resource), target: "_blank") %>
+    </div>
+  <% end %>
+
   <%= if Resource.valid_and_available?(@resource) do %>
     <div title="<%= dgettext("page-dataset-details", "Validity period") %>">
       <i class="icon icon--calendar-alt" aria-hidden="true"></i>

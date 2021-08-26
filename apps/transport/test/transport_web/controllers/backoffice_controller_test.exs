@@ -3,7 +3,18 @@ defmodule TransportWeb.BackofficeControllerTest do
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   alias DB.{Repo, Resource}
-  import Ecto.Repo
+
+  import Mox
+  setup :verify_on_exit!
+
+  setup do
+    Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
+
+    # ressource.db now uses Transport.Shared.Wrapper.HTTPoison instead of HTTPoison directly
+    # we stub the mock with the real module here to keep the tests of this file unchanged.
+    Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
+    :ok
+  end
 
   @dataset_url "https://demo.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-de-transport-tag-1/"
   @dataset %{
@@ -52,7 +63,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert html_response(conn, 200) =~ "Ajouter un jeu de données"
   end
 
-  @tag :external
   test "Add a dataset with a region and AOM", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -73,7 +83,6 @@ defmodule TransportWeb.BackofficeControllerTest do
              "%{region: [\"Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv\"]}"
   end
 
-  @tag :external
   test "Add a dataset without a region nor aom", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -96,7 +105,6 @@ defmodule TransportWeb.BackofficeControllerTest do
              "%{region: [\"Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv\"]}"
   end
 
-  @tag :external
   test "Add a dataset linked to a region", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -110,6 +118,26 @@ defmodule TransportWeb.BackofficeControllerTest do
       |> Map.put("region_id", Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes").id)
       |> Map.put("insee", nil)
 
+    Datagouvfr.Client.CommunityResources.Mock
+    |> expect(:get, fn id ->
+      # we return the same urls that the one we find in dataset-region.json cassette
+      # because for the moment the Hasher is not Mocked
+      # we it is the case, we will be able to put random urls here
+      assert id == "5760038cc751df708cac31a0"
+
+      {:ok,
+       [
+         %{
+           "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json",
+           "id" => "r1"
+         },
+         %{
+           "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt",
+           "id" => "r2"
+         }
+       ]}
+    end)
+
     conn =
       use_cassette "dataset/dataset-region.json" do
         post(conn, backoffice_dataset_path(conn, :post), dataset)
@@ -121,7 +149,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert get_flash(conn, :info) =~ "ajouté"
   end
 
-  @tag :external
   test "Add a dataset linked to aom", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -131,6 +158,26 @@ defmodule TransportWeb.BackofficeControllerTest do
       end
 
     dataset = %{@dataset | "region_id" => nil}
+
+    Datagouvfr.Client.CommunityResources.Mock
+    |> expect(:get, fn id ->
+      # we return the same urls that the one we find in dataset-aom.json cassette
+      # because for the moment the Hasher is not Mocked
+      # we it is the case, we will be able to put random urls here
+      assert id == "5760038cc751df708cac31a0"
+
+      {:ok,
+       [
+         %{
+           "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json",
+           "id" => "r1"
+         },
+         %{
+           "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt",
+           "id" => "r2"
+         }
+       ]}
+    end)
 
     conn =
       use_cassette "dataset/dataset-aom.json" do
@@ -144,7 +191,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert get_flash(conn, :info) =~ "ajouté"
   end
 
-  @tag :external
   test "Add a dataset linked to cities", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -169,7 +215,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert get_flash(conn, :info) =~ "ajouté"
   end
 
-  @tag :external
   test "Add a dataset linked to cities and to the country", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -200,7 +245,6 @@ defmodule TransportWeb.BackofficeControllerTest do
              "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
   end
 
-  @tag :external
   test "Add a dataset linked to an AO and with an empty territory name", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -227,7 +271,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert get_flash(conn, :info) =~ "ajouté"
   end
 
-  @tag :external
   test "Add a dataset linked to a region and to the country", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -254,7 +297,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert flash =~ "Un jeu de données ne pas pas être à la fois régional et national"
   end
 
-  @tag :external
   test "Add a dataset twice", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do

@@ -16,6 +16,11 @@ config :unlock,
   github_config_url: "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml",
   github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN")
 
+# NOTE: the config is unused by the app (because the endpoint is not used, the
+# unlock router is directly wired into the main transport endpoint). The config key
+# is nonetheless present to avoid a warning at runtime / test time.
+config :unlock, Unlock.Endpoint, []
+
 if System.get_env("CELLAR_NAMESPACE") do
   # We believe CELLAR_NAMESPACE was a previous attempt at siloting S3 envs.
   # We will instead rely on separate buckets in the short-term future.
@@ -101,6 +106,9 @@ config :transport,
   ex_aws_impl: ExAws,
   httpoison_impl: HTTPoison,
   history_impl: Transport.History.Fetcher.S3
+
+config :datagouvfr,
+  community_resources_impl: Datagouvfr.Client.CommunityResources.API
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

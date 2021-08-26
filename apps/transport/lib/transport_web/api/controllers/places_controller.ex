@@ -3,7 +3,7 @@ defmodule TransportWeb.API.PlacesController do
   alias DB.{Place, Repo}
   alias Helpers
   alias OpenApiSpex.Operation
-  alias TransportWeb.API.Schemas.{AutocompleteResponse}
+  alias TransportWeb.API.Schemas.AutocompleteResponse
   import Ecto.{Query}
 
   @spec open_api_operation(any) :: Operation.t()
@@ -18,6 +18,14 @@ defmodule TransportWeb.API.PlacesController do
     do: dataset_path(conn, :index, "features[]": id)
 
   defp get_result_url(conn, %Place{:place_id => id, :type => "mode"}), do: dataset_path(conn, :index, "modes[]": id)
+
+  defp approx_search_query(query) do
+    Place
+    |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
+    |> where([p], fragment("indexed_name % unaccent(?)", ^query))
+    |> limit(10)
+    |> Repo.all()
+  end
 
   @spec autocomplete(Plug.Conn.t(), map) :: Plug.Conn.t()
   def autocomplete(%Plug.Conn{} = conn, %{"q" => query}) do
@@ -44,11 +52,21 @@ defmodule TransportWeb.API.PlacesController do
       |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
       |> limit(10)
       |> Repo.all()
+      |> case do
+        [] -> approx_search_query(query)
+        r -> r
+      end
 
     results =
       places
       |> Enum.map(fn res ->
-        %{name: res.nom, type: res.type, url: get_result_url(conn, res)}
+        name =
+          case res.type do
+            "commune" -> "#{res.nom} (#{res.place_id})"
+            _ -> res.nom
+          end
+
+        %{name: name, type: res.type, url: get_result_url(conn, res)}
       end)
 
     conn

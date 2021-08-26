@@ -9,7 +9,7 @@ defmodule DB.Resource do
   import DB.Gettext
   require Logger
 
-  @client HTTPoison
+  @client Transport.Shared.Wrapper.HTTPoison.impl()
   @res HTTPoison.Response
   @err HTTPoison.Error
   @timeout 180_000
@@ -35,6 +35,10 @@ defmodule DB.Resource do
     field(:conversion_latest_content_hash, :string)
 
     field(:is_community_resource, :boolean)
+
+    # the declared official schema used by the resource
+    field(:schema_name, :string)
+    field(:schema_version, :string)
 
     # only relevant for community resources, name of the owner or the organization that published the resource
     field(:community_resource_publisher, :string)
@@ -290,6 +294,8 @@ defmodule DB.Resource do
         :features,
         :modes,
         :is_community_resource,
+        :schema_name,
+        :schema_version,
         :community_resource_publisher,
         :original_resource_url,
         :content_hash,
@@ -377,6 +383,7 @@ defmodule DB.Resource do
         %{severity: max_severity, count_errors: count_errors}
 
       {:ok, _} ->
+        # credo:disable-for-next-line
         with %Validation{details: details} when details == %{} <- Repo.get_by(Validation, resource_id: id) do
           %{severity: "Irrevelant", count_errors: 0}
         else

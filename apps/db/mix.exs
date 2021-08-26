@@ -15,7 +15,13 @@ defmodule Db.MixProject do
       deps: deps(),
       gettext: [{:write_reference_comments, false}],
       compilers: [:gettext] ++ Mix.compilers(),
-      test_coverage: [tool: ExCoveralls]
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -43,11 +49,9 @@ defmodule Db.MixProject do
       {:jason, ">= 0.0.0"},
       {:datagouvfr, in_umbrella: true},
       {:shared, in_umbrella: true},
-      {:ex_aws, ">= 0.0.0"},
-      {:ex_aws_s3, ">= 0.0.0"},
       {:sentry, ">= 0.0.0"},
       {:typed_ecto_schema, ">= 0.1.1"},
-      {:vex, "~> 0.8"}
+      {:ex_machina, "~> 2.4", only: :test}
     ]
   end
 end

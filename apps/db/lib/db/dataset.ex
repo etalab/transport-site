@@ -62,9 +62,9 @@ defmodule DB.Dataset do
       "carpooling-areas" => dgettext("dataset", "Carpooling areas"),
       "stops-ref" => dgettext("dataset", "Stops referential"),
       "charging-stations" => dgettext("dataset", "Charging stations"),
-      "micro-mobility" => dgettext("dataset", "Micro mobility"),
       "air-transport" => dgettext("dataset", "Aerial"),
-      "bike-sharing" => dgettext("dataset", "Bike sharing"),
+      "bike-scooter-sharing" => dgettext("dataset", "Bike and scooter sharing"),
+      "car-motorbike-sharing" => dgettext("dataset", "Car and motorbike sharing"),
       "road-network" => dgettext("dataset", "Road networks"),
       "addresses" => dgettext("dataset", "Addresses"),
       "informations" => dgettext("dataset", "Other informations"),
@@ -97,7 +97,9 @@ defmodule DB.Dataset do
         community_resource_publisher: r.community_resource_publisher,
         original_resource_url: r.original_resource_url,
         features: r.features,
-        modes: r.modes
+        modes: r.modes,
+        schema_name: r.schema_name,
+        schema_version: r.schema_version
       }
     )
   end

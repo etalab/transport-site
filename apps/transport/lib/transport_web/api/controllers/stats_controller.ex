@@ -36,13 +36,13 @@ defmodule TransportWeb.API.StatsController do
       }
     }
 
-  @spec bike_sharing_operation() :: Operation.t()
-  def bike_sharing_operation,
+  @spec bike_scooter_sharing_operation() :: Operation.t()
+  def bike_scooter_sharing_operation,
     do: %Operation{
-      tags: ["bike-sharing"],
-      summary: "Show bike sharing stats",
-      description: "Show bike sharing stats",
-      operationId: "API.StatsController.bike_sharing",
+      tags: ["bike-scooter-sharing"],
+      summary: "Show bike and scooter sharing stats",
+      description: "Show bike and scooter sharing stats",
+      operationId: "API.StatsController.bike_scooter_sharing",
       parameters: [],
       responses: %{
         200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
@@ -188,8 +188,9 @@ defmodule TransportWeb.API.StatsController do
   @spec regions(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, region_features_query(), "api-stats-regions")
 
-  @spec bike_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def bike_sharing(%Plug.Conn{} = conn, _params), do: render_features(conn, bike_sharing_features_query())
+  @spec bike_scooter_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def bike_scooter_sharing(%Plug.Conn{} = conn, _params),
+    do: render_features(conn, bike_scooter_sharing_features_query())
 
   @spec quality(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features_query(), "api-stats-quality")
@@ -238,7 +239,7 @@ defmodule TransportWeb.API.StatsController do
       geometry: aom.geom,
       id: aom.id,
       insee_commune_principale: aom.insee_commune_principale,
-      nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=?", aom.id),
+      nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND is_active=TRUE ", aom.id),
       dataset_formats: %{
         gtfs: count_aom_format(aom.id, "GTFS"),
         netex: count_aom_format(aom.id, "NeTEx"),
@@ -248,8 +249,13 @@ defmodule TransportWeb.API.StatsController do
       nom: aom.nom,
       forme_juridique: aom.forme_juridique,
       dataset_types: %{
-        pt: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit'", aom.id),
-        bike_sharing: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-sharing'", aom.id)
+        pt:
+          fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit' AND is_active=TRUE", aom.id),
+        bike_scooter_sharing:
+          fragment(
+            "SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-scooter-sharing' AND is_active=TRUE",
+            aom.id
+          )
       },
       parent_dataset_slug: parent_dataset.slug,
       parent_dataset_name: parent_dataset.title
@@ -270,6 +276,7 @@ defmodule TransportWeb.API.StatsController do
           SELECT COUNT(*) FROM dataset
           JOIN dataset_geographic_view d_geo ON d_geo.dataset_id = dataset.id
           WHERE d_geo.region_id = ?
+          AND is_active=TRUE
           """,
           r.id
         ),
@@ -281,13 +288,13 @@ defmodule TransportWeb.API.StatsController do
       },
       dataset_types: %{
         pt: count_type_by_region(r.id, "public-transit"),
-        bike_sharing: count_type_by_region(r.id, "bike-sharing")
+        bike_scooter_sharing: count_type_by_region(r.id, "bike-scooter-sharing")
       }
     })
   end
 
-  @spec bike_sharing_features_query :: Ecto.Query.t()
-  defp bike_sharing_features_query do
+  @spec bike_scooter_sharing_features_query :: Ecto.Query.t()
+  def bike_scooter_sharing_features_query do
     DatasetGeographicView
     |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
     |> select([gv, dataset], %{
@@ -296,7 +303,7 @@ defmodule TransportWeb.API.StatsController do
       nom: dataset.spatial,
       parent_dataset_slug: dataset.slug
     })
-    |> where([_gv, dataset], dataset.type == "bike-sharing")
+    |> where([_gv, dataset], dataset.type == "bike-scooter-sharing")
   end
 
   @spec quality_features_query :: Ecto.Query.t()
@@ -314,8 +321,13 @@ defmodule TransportWeb.API.StatsController do
       nom: aom.nom,
       forme_juridique: aom.forme_juridique,
       dataset_types: %{
-        pt: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit'", aom.id),
-        bike_sharing: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-sharing'", aom.id)
+        pt:
+          fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit' AND is_active=TRUE", aom.id),
+        bike_scooter_sharing:
+          fragment(
+            "SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-scooter-sharing' AND is_active=TRUE",
+            aom.id
+          )
       },
       quality: %{
         # we get the number of day since the latest resource is expired
