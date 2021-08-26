@@ -13,7 +13,7 @@ defmodule DB.ResourceTest do
 
   setup :verify_on_exit!
 
-  def http_validation_response() do
+  def http_validation_response do
     %HTTPoison.Response{
       status_code: 200,
       body:
