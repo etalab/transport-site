@@ -17,7 +17,6 @@ defmodule TransportWeb.API.PlacesControllerTest do
       |> Enum.sort()
       |> Enum.map(&Map.update!(&1, "url", fn v -> cleanup(v) end))
 
-  @tag :external
   test "Search a place", %{conn: conn} do
     r =
       conn
@@ -39,7 +38,6 @@ defmodule TransportWeb.API.PlacesControllerTest do
              ])
   end
 
-  @tag :external
   test "Search a place with accent", %{conn: conn} do
     r =
       conn
@@ -66,7 +64,6 @@ defmodule TransportWeb.API.PlacesControllerTest do
              ])
   end
 
-  @tag :external
   test "Search a place with multiple word", %{conn: conn} do
     r =
       conn
@@ -88,7 +85,6 @@ defmodule TransportWeb.API.PlacesControllerTest do
              ])
   end
 
-  @tag :external
   test "Search a unknown place", %{conn: conn} do
     r =
       conn

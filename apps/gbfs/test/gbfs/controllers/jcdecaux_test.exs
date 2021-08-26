@@ -5,8 +5,6 @@ defmodule GBFS.JCDecauxControllerTest do
   import Mock
   import GBFS.Checker
 
-  @moduletag :external
-
   describe "JCDecaux GBFS conversion" do
     test "on gbfs.json", %{conn: conn} do
       conn = conn |> get(Routes.toulouse_path(conn, :index))

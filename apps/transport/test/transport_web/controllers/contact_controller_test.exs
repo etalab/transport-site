@@ -1,5 +1,7 @@
 defmodule TransportWeb.ContactControllerTest do
-  use TransportWeb.ConnCase, async: true
+  # NOTE: going "async" false until https://github.com/etalab/transport-site/issues/1751 is solved,
+  # because other tests are using "with_mock" on Mailjet.Client
+  use TransportWeb.ConnCase, async: false
 
   test "Post contact form with honey pot filled", %{conn: conn} do
     conn

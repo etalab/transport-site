@@ -63,7 +63,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert html_response(conn, 200) =~ "Ajouter un jeu de données"
   end
 
-  @tag :external
   test "Add a dataset with a region and AOM", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -84,7 +83,6 @@ defmodule TransportWeb.BackofficeControllerTest do
              "%{region: [\"Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv\"]}"
   end
 
-  @tag :external
   test "Add a dataset without a region nor aom", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -107,7 +105,6 @@ defmodule TransportWeb.BackofficeControllerTest do
              "%{region: [\"Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv\"]}"
   end
 
-  @tag :external
   test "Add a dataset linked to a region", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -152,7 +149,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert get_flash(conn, :info) =~ "ajouté"
   end
 
-  @tag :external
   test "Add a dataset linked to aom", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -195,7 +191,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert get_flash(conn, :info) =~ "ajouté"
   end
 
-  @tag :external
   test "Add a dataset linked to cities", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -220,7 +215,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert get_flash(conn, :info) =~ "ajouté"
   end
 
-  @tag :external
   test "Add a dataset linked to cities and to the country", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -251,7 +245,6 @@ defmodule TransportWeb.BackofficeControllerTest do
              "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
   end
 
-  @tag :external
   test "Add a dataset linked to an AO and with an empty territory name", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -278,7 +271,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert get_flash(conn, :info) =~ "ajouté"
   end
 
-  @tag :external
   test "Add a dataset linked to a region and to the country", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
@@ -305,7 +297,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert flash =~ "Un jeu de données ne pas pas être à la fois régional et national"
   end
 
-  @tag :external
   test "Add a dataset twice", %{conn: conn} do
     conn =
       use_cassette "session/create-2" do
