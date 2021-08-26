@@ -1,4 +1,4 @@
-defmodule Transport.Wrapper.HTTPoison do
+defmodule Transport.Shared.Wrapper.HTTPoison do
   @moduledoc """
   Temporary: a HTTPoison wrapper currently used by some modules in
   order to facilitate the use of mocks.

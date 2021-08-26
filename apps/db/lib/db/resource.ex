@@ -9,7 +9,7 @@ defmodule DB.Resource do
   import DB.Gettext
   require Logger
 
-  @client Transport.Wrapper.HTTPoison.impl()
+  @client Transport.Shared.Wrapper.HTTPoison.impl()
   @res HTTPoison.Response
   @err HTTPoison.Error
   @timeout 180_000

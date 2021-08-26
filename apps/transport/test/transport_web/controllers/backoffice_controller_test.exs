@@ -10,7 +10,7 @@ defmodule TransportWeb.BackofficeControllerTest do
   setup do
     Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
 
-    # ressource.db now uses Transport.Wrapper.HTTPoison instead of HTTPoison directly
+    # ressource.db now uses Transport.Shared.Wrapper.HTTPoison instead of HTTPoison directly
     # we stub the mock with the real module here to keep the tests of this file unchanged.
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
     :ok
