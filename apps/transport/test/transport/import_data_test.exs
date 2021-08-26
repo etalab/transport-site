@@ -3,7 +3,7 @@ defmodule Transport.ImportDataTest do
   use ExUnit.Case, async: false
   alias Transport.ImportData
   import Mock
-  import TransportWeb.Factory
+  import DB.Factory
   import ExUnit.CaptureLog
   import Ecto.Query
   doctest ImportData

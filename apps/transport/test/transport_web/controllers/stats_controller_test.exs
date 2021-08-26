@@ -2,7 +2,7 @@ defmodule TransportWeb.API.StatsControllerTest do
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   use TransportWeb.ConnCase
   import Mock
-  import TransportWeb.Factory
+  import DB.Factory
 
   @cached_features_routes [
     {"/api/stats", "api-stats-aoms"},

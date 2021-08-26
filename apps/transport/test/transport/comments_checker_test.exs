@@ -2,7 +2,7 @@ defmodule Transport.CommentsCheckerTest do
   use ExUnit.Case, async: false
   alias Transport.CommentsChecker
   alias DB.{Dataset, Repo}
-  import TransportWeb.Factory
+  import DB.Factory
   import Mock
 
   setup do
