@@ -9,10 +9,6 @@ defmodule DB.Resource do
   import DB.Gettext
   require Logger
 
-  @client Transport.Shared.Wrapper.HTTPoison.impl()
-  @res HTTPoison.Response
-  @err HTTPoison.Error
-  @timeout 180_000
 
   typed_schema "resource" do
     field(:is_active, :boolean)
@@ -186,23 +182,6 @@ defmodule DB.Resource do
       })
 
       {:error, e}
-  end
-
-  @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
-  def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
-
-  def validate(%__MODULE__{url: url, format: "GTFS"}) do
-    case @client.get("#{endpoint()}?url=#{URI.encode_www_form(url)}", [], recv_timeout: @timeout) do
-      {:ok, %@res{status_code: 200, body: body}} -> Jason.decode(body)
-      {:ok, %@res{body: body}} -> {:error, body}
-      {:error, %@err{reason: error}} -> {:error, error}
-      _ -> {:error, "Unknown error in validation"}
-    end
-  end
-
-  def validate(%__MODULE__{format: f, id: id}) do
-    Logger.info("cannot validate resource id=#{id} because we don't know how to validate the #{f} format")
-    {:ok, %{"validations" => nil, "metadata" => nil}}
   end
 
   @spec save(__MODULE__.t(), map()) :: {:ok, any()} | {:error, any()}
