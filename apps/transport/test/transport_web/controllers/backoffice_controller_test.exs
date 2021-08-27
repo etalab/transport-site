@@ -11,7 +11,8 @@ defmodule TransportWeb.BackofficeControllerTest do
     Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
 
     # ressource.db now uses DB.Resource.GtfsTransportValidatorinstead of HTTPoison directly
-    # we stub the 2 mocks with the real modules here to keep the tests of this file unchanged (ie make real validator calls !)
+    # we stub the 2 mocks with the real modules here to keep the tests of this file unchanged
+    # (ie make real validator calls !)
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
     Mox.stub_with(DB.Resource.GtfsTransportValidator.Mock, DB.Resource.GtfsTransportValidator)
 
