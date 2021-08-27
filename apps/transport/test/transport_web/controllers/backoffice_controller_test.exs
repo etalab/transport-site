@@ -10,9 +10,11 @@ defmodule TransportWeb.BackofficeControllerTest do
   setup do
     Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
 
-    # ressource.db now uses Transport.Shared.Wrapper.HTTPoison instead of HTTPoison directly
-    # we stub the mock with the real module here to keep the tests of this file unchanged.
+    # ressource.db now uses DB.Resource.GtfsTransportValidatorinstead of HTTPoison directly
+    # we stub the 2 mocks with the real modules here to keep the tests of this file unchanged (ie make real validator calls !)
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
+    Mox.stub_with(DB.Resource.GtfsTransportValidator.Mock, DB.Resource.GtfsTransportValidator)
+
     :ok
   end
 
