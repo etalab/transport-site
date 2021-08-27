@@ -26,7 +26,8 @@ config :transport,
   cache_impl: Transport.Cache.Null,
   ex_aws_impl: Transport.ExAWS.Mock,
   httpoison_impl: Transport.HTTPoison.Mock,
-  history_impl: Transport.History.Fetcher.Mock
+  history_impl: Transport.History.Fetcher.Mock,
+  gtfs_transport_validator: DB.Resource.GtfsTransportValidator.Mock
 
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.Mock
