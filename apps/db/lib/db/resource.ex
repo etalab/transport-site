@@ -9,7 +9,6 @@ defmodule DB.Resource do
   import DB.Gettext
   require Logger
 
-
   typed_schema "resource" do
     field(:is_active, :boolean)
     # real url
