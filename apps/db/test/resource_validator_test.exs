@@ -14,7 +14,7 @@ defmodule DB.ResourceValidatorTest do
         {:ok, %HTTPoison.Response{status_code: 200, body: "{\"is_valid\": true}"}}
       end)
 
-      validation = %DB.Resource{format: "GTFS", url: resource_url} |> DB.Resource.GtfsTransportValidator.validate
+      validation = %DB.Resource{format: "GTFS", url: resource_url} |> DB.Resource.GtfsTransportValidator.validate()
       assert {:ok, %{"is_valid" => true}} == validation
     end
 
@@ -27,17 +27,17 @@ defmodule DB.ResourceValidatorTest do
         {:ok, %HTTPoison.Response{status_code: 500, body: "internal server error"}}
       end)
 
-      validation = %DB.Resource{format: "GTFS", url: resource_url} |> DB.Resource.GtfsTransportValidator.validate
+      validation = %DB.Resource{format: "GTFS", url: resource_url} |> DB.Resource.GtfsTransportValidator.validate()
       assert {:error, "internal server error"} == validation
     end
 
     test "with a wrong format" do
-      {:error, msg} = %DB.Resource{format: "CSV", url: "url"} |> DB.Resource.GtfsTransportValidator.validate
+      {:error, msg} = %DB.Resource{format: "CSV", url: "url"} |> DB.Resource.GtfsTransportValidator.validate()
       assert msg |> String.contains?("can only validate GTFS resources")
     end
 
     test "with a missing url" do
-      {:error, msg} = %DB.Resource{format: "GTFS", url: nil} |> DB.Resource.GtfsTransportValidator.validate
+      {:error, msg} = %DB.Resource{format: "GTFS", url: nil} |> DB.Resource.GtfsTransportValidator.validate()
       assert msg == "No Resource url provided"
     end
   end
