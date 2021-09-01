@@ -18,7 +18,7 @@ defmodule TransportWeb.Endpoint do
   plug(Plug.Static,
     at: "/",
     from: :transport,
-    gzip: true,
+    gzip: Mix.env() == :prod,
     only:
       ~w(js css fonts images data favicon.ico robots.txt documents BingSiteAuth.xml google5be4b09db1274976.html demo_rt.html)
   )
