@@ -16,6 +16,7 @@ ENV PORT 8080
 ENV MIX_ENV prod
 RUN mix deps.compile
 RUN cd apps/transport/client && yarn install && npm run build
+# assets digest must happen after the npm build step
 RUN mix phx.digest
 
 EXPOSE 8080
