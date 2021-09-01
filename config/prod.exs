@@ -1,7 +1,7 @@
 use Mix.Config
 
 config :transport, TransportWeb.Endpoint,
-  http: [port: {:system, "PORT"}],
+  http: [port: {:system, "PORT"}, compress: true],
   url: [scheme: "https", host: System.get_env("DOMAIN_NAME") || "transport.data.gouv.fr", port: 443],
   cache_static_manifest: "priv/static/cache_manifest.json",
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
