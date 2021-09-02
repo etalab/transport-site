@@ -13,6 +13,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     # ressource.db now uses Transport.Shared.Wrapper.HTTPoison instead of HTTPoison directly
     # we stub the mock with the real module here to keep the tests of this file unchanged.
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
+    Mox.stub_with(Validation.Validator.Mock, Shared.Validation.GtfsValidator)
     :ok
   end
 

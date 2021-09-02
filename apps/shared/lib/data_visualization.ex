@@ -15,6 +15,8 @@ defmodule Transport.DataVisualization do
   The GTFS may be a file path or data.
   """
   @spec convert_to_geojson(binary()) :: binary()
+  def convert_to_geojson(nil), do: nil
+
   def convert_to_geojson(file_path_or_content),
     do:
       dertermine_content_type(file_path_or_content)
