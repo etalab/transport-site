@@ -134,6 +134,7 @@ defmodule DB.Resource do
 
     with {true, msg} <- __MODULE__.needs_validation(resource, force_validation),
          {:ok, validations} <- validate(resource),
+         IO.inspect(validations),
          {:ok, _} <- save(resource, validations) do
       # log the validation success
       Repo.insert(%LogsValidation{
@@ -198,31 +199,42 @@ defmodule DB.Resource do
       DataVisualization.convert_to_geojson(gtfs)
       |> DataVisualization.validation_data_vis(validations)
 
+  @spec fetch_gtfs_archive_from_url(binary()) :: {:ok, binary()} | {:error, binary()}
   defp fetch_gtfs_archive_from_url(url) do
-    case @client.get!(url) do
-      %@res{status_code: 200, body: body} ->
-        body
+    case @client.get(url, [], hackney: [follow_redirect: true]) do
+      {:ok, %@res{status_code: 200, body: body}} ->
+        {:ok, body}
 
       error ->
         Logger.error(inspect(error))
-        nil
+        {:error, "could not fetch gtfs archive at #{url}"}
     end
   end
 
   @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
+  defp gtfs_validator, do: Shared.Validation.GtfsValidator.Wrapper.impl()
+
   def validate(%__MODULE__{url: url, format: "GTFS"}) do
-    {:ok, validation_result} = GtfsValidator.validate_from_url(url)
+    with {:ok, validation_result} <- gtfs_validator().validate_from_url(url),
+         {:ok, validations} <- Map.fetch(validation_result, "validations"),
+         {:ok, gtfs_archive} <- fetch_gtfs_archive_from_url(url) do
+      # data_vis will be generated from validation_results soon so following lines will be removed
+      data_vis = build_validations_data_vis(gtfs_archive, validations)
 
-    # data_vis will be generated from validation_results soon so following lines will be removed
-    {:ok, validations} = Map.fetch(validation_result, "validations")
+      IO.inspect("validate")
+      IO.inspect(data_vis)
 
-    data_vis =
-      fetch_gtfs_archive_from_url(url)
-      |> build_validations_data_vis(validations)
+      {:ok, Map.put(validation_result, "data_vis", data_vis)}
+    else
+      {:error, error} ->
+        Logger.error(inspect(error))
+        {:error, "Validation failed."}
 
-    {:ok, Map.put(validation_result, "data_vis", data_vis)}
+      :error ->
+        {:error, "Validation failed."}
+    end
   end
 
   def validate(%__MODULE__{format: f, id: id}) do
@@ -244,26 +256,31 @@ defmodule DB.Resource do
     if is_nil(metadata) and format == "GTFS",
       do: Logger.warn("Unable to validate resource ##{id}: #{inspect(validations)}")
 
-    __MODULE__
-    |> preload(:validation)
-    |> Repo.get(id)
-    |> change(
-      metadata: metadata,
-      validation: %Validation{
-        date:
-          DateTime.utc_now()
-          |> DateTime.to_string(),
-        details: validations,
-        max_error: get_max_severity_error(validations),
-        validation_latest_content_hash: r.content_hash,
-        data_vis: data_vis
-      },
-      features: find_tags(r, metadata),
-      modes: find_modes(metadata),
-      start_date: str_to_date(metadata["start_date"]),
-      end_date: str_to_date(metadata["end_date"])
-    )
-    |> Repo.update()
+    ecto_response =
+      __MODULE__
+      |> preload(:validation)
+      |> Repo.get(id)
+      |> change(
+        metadata: metadata,
+        validation: %Validation{
+          date:
+            DateTime.utc_now()
+            |> DateTime.to_string(),
+          details: validations,
+          max_error: get_max_severity_error(validations),
+          validation_latest_content_hash: r.content_hash,
+          data_vis: data_vis
+        },
+        features: find_tags(r, metadata),
+        modes: find_modes(metadata),
+        start_date: str_to_date(metadata["start_date"]),
+        end_date: str_to_date(metadata["end_date"])
+      )
+      |> Repo.update()
+
+    IO.inspect("ecto_response")
+    IO.inspect(ecto_response)
+    ecto_response
   end
 
   def save(url, _) do

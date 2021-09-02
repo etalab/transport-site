@@ -1,3 +1,12 @@
+defmodule Shared.Validation.GtfsValidator.Wrapper do
+  @moduledoc """
+  A wrapper for GtfsValidator
+  """
+
+  def impl, do: Application.get_env(:transport, :gtfs_validator, Shared.Validation.GtfsValidator)
+end
+
+
 defmodule Shared.Validation.GtfsValidator do
   @moduledoc """
   GTFS validation module.
@@ -5,6 +14,10 @@ defmodule Shared.Validation.GtfsValidator do
 
   Actually validation is delegated to an external service called via HTTP.
   """
+
+  @behaviour Shared.Validation.Validator
+  alias Shared.Validation.Validator
+
   require Logger
 
   @timeout 180_000
@@ -18,17 +31,19 @@ defmodule Shared.Validation.GtfsValidator do
   Return {:error} if validation cannot be done.
   """
   @spec validate(binary()) :: {:ok, map()}
-  def validate(gtfs), do:
-    build_validate_url()
-    |> send_post_request(gtfs)
-    |> handle_validation_response()
+  def validate(gtfs),
+    do:
+      build_validate_url()
+      |> send_post_request(gtfs)
+      |> handle_validation_response()
 
-  @spec validate_from_url(binary()) :: {:ok, map()} | {:error, binary()}
-  def validate_from_url(gtfs_url), do:
-    build_validate_url()
-    |> (&(&1 <> "?url=#{URI.encode_www_form(gtfs_url)}")).()
-    |> send_get_request()
-    |> handle_validation_response()
+  @impl Validator
+  def validate_from_url(gtfs_url),
+    do:
+      build_validate_url()
+      |> (&(&1 <> "?url=#{URI.encode_www_form(gtfs_url)}")).()
+      |> send_get_request()
+      |> handle_validation_response()
 
   defp build_validate_url, do: gtfs_validator_base_url() <> "/validate"
 
@@ -43,6 +58,7 @@ defmodule Shared.Validation.GtfsValidator do
     case Jason.decode(body) do
       {:ok, decoded} ->
         {:ok, decoded}
+
       {:error, error} ->
         Logger.error(error)
         {:error, "Error while decoding GTFS validator response"}
@@ -56,10 +72,7 @@ defmodule Shared.Validation.GtfsValidator do
 
   defp http_client(), do: Application.fetch_env!(:transport, :httpoison_impl)
 
-  defp send_get_request(url), do:
-    http_client().get(url, [], recv_timeout: @timeout)
+  defp send_get_request(url), do: http_client().get(url, [], recv_timeout: @timeout)
 
-  defp send_post_request(url, body), do:
-    http_client().post(url, body, [], recv_timeout: @timeout)
-
+  defp send_post_request(url, body), do: http_client().post(url, body, [], recv_timeout: @timeout)
 end
