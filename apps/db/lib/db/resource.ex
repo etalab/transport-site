@@ -108,7 +108,10 @@ defmodule DB.Resource do
       ) do
     # if there is already a validation, we revalidate only if the file has changed
     if content_hash != validation_latest_content_hash do
-      Logger.info("the files for resource #{r.id} have been modified since last validation, we need to revalidate them")
+      Logger.info(
+        "the files for resource #{r.id} have been modified since last validation, we need to revalidate them"
+      )
+
       {true, "content hash has changed"}
     else
       {false, "content hash has not changed"}
@@ -134,7 +137,6 @@ defmodule DB.Resource do
 
     with {true, msg} <- __MODULE__.needs_validation(resource, force_validation),
          {:ok, validations} <- validate(resource),
-         IO.inspect(validations),
          {:ok, _} <- save(resource, validations) do
       # log the validation success
       Repo.insert(%LogsValidation{
@@ -223,9 +225,6 @@ defmodule DB.Resource do
       # data_vis will be generated from validation_results soon so following lines will be removed
       data_vis = build_validations_data_vis(gtfs_archive, validations)
 
-      IO.inspect("validate")
-      IO.inspect(data_vis)
-
       {:ok, Map.put(validation_result, "data_vis", data_vis)}
     else
       {:error, error} ->
@@ -238,7 +237,10 @@ defmodule DB.Resource do
   end
 
   def validate(%__MODULE__{format: f, id: id}) do
-    Logger.info("cannot validate resource id=#{id} because we don't know how to validate the #{f} format")
+    Logger.info(
+      "cannot validate resource id=#{id} because we don't know how to validate the #{f} format"
+    )
+
     {:ok, %{"validations" => nil, "metadata" => nil}}
   end
 
@@ -278,8 +280,6 @@ defmodule DB.Resource do
       )
       |> Repo.update()
 
-    IO.inspect("ecto_response")
-    IO.inspect(ecto_response)
     ecto_response
   end
 
@@ -319,7 +319,8 @@ defmodule DB.Resource do
   def has_odt_tag(_), do: []
 
   @spec base_tag(__MODULE__.t()) :: [binary()]
-  def base_tag(%__MODULE__{format: "GTFS"}), do: ["position des stations", "horaires théoriques", "topologie du réseau"]
+  def base_tag(%__MODULE__{format: "GTFS"}),
+    do: ["position des stations", "horaires théoriques", "topologie du réseau"]
 
   def base_tag(%__MODULE__{format: "NeTEx"}),
     do: ["position des stations", "horaires théoriques", "topologie du réseau"]
@@ -388,7 +389,8 @@ defmodule DB.Resource do
       "UnloadableModel" => dgettext("validations", "Not compliant with the GTFS specification"),
       "MissingMandatoryFile" => dgettext("validations", "Missing mandatory file"),
       "ExtraFile" => dgettext("validations", "Extra file"),
-      "ImpossibleToInterpolateStopTimes" => dgettext("validations", "Impossible to interpolate stop times")
+      "ImpossibleToInterpolateStopTimes" =>
+        dgettext("validations", "Impossible to interpolate stop times")
     }
 
   @spec has_metadata?(__MODULE__.t()) :: boolean()
@@ -453,7 +455,8 @@ defmodule DB.Resource do
 
       {:ok, _} ->
         # credo:disable-for-next-line
-        with %Validation{details: details} when details == %{} <- Repo.get_by(Validation, resource_id: id) do
+        with %Validation{details: details} when details == %{} <-
+               Repo.get_by(Validation, resource_id: id) do
           %{severity: "Irrevelant", count_errors: 0}
         else
           _ ->
@@ -510,7 +513,8 @@ defmodule DB.Resource do
     do:
       from(
         r in __MODULE__,
-        where: r.dataset_id == ^resource.dataset_id and r.id != ^resource.id and not is_nil(r.metadata)
+        where:
+          r.dataset_id == ^resource.dataset_id and r.id != ^resource.id and not is_nil(r.metadata)
       )
 
   @spec other_resources(__MODULE__.t()) :: [__MODULE__.t()]
