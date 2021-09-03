@@ -8,20 +8,6 @@ defmodule GtfsValidatorTest do
 
   setup :verify_on_exit!
 
-############################################################################################
-# Test skipped because Application.delete_env make other tests fail due async tests
-############################################################################################
-#  test "raise an error if gtfs_validator_url is not set" do
-#    Application.delete_env(:transport, :gtfs_validator_url)
-#
-#    assert Application.fetch_env(:transport, :gtfs_validator_url) == :error
-#
-#    assert_raise RuntimeError, fn ->
-#      create_gtfs()
-#      |> GtfsValidator.validate()
-#    end
-#  end
-
   test "validate gtfs zip file" do
     expected_validation_report = %{"text" => "GTFS is great"}
 
@@ -37,14 +23,15 @@ defmodule GtfsValidatorTest do
 
     expect_validator_called_with_gtfs_url_and_return_report(gtfs_url, expected_validation_report)
 
-    GtfsValidator.validate_from_url(gtfs_url)
+    gtfs_url
+    |> GtfsValidator.validate_from_url()
     |> assert_validation_report_is(expected_validation_report)
   end
 
   defp assert_validation_report_is({:ok, obtained_validation_report}, expected_validation_report), do:
     assert obtained_validation_report == expected_validation_report
 
-  defp create_gtfs(), do: File.read!("#{__DIR__}/gtfs.zip")
+  defp create_gtfs, do: File.read!("#{__DIR__}/gtfs.zip")
 
   defp expect_validator_called_with_gtfs_and_return_report(_gtfs, expected_validation_report), do:
     Transport.HTTPoison.Mock

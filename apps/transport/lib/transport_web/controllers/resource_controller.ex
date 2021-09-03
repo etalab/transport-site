@@ -23,7 +23,6 @@ defmodule TransportWeb.ResourceController do
       true ->
         issues = resource.validation |> Validation.get_issues(params)
 
-        # TODO mutualise issue features with ValidationController
         issue_type =
           case params["issue_type"] do
             nil -> issue_type(issues)
