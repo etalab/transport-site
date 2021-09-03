@@ -32,7 +32,7 @@ defmodule DB.ResourceTest do
 
     # this call corresponds to the geojson conversion and will be removed soon
     Transport.HTTPoison.Mock
-    |> expect(:get, 1, fn url, [], _ ->
+    |> expect(:get, 1, fn _url, [], _ ->
       {:ok, %HTTPoison.Response{status_code: 200, body: nil}}
     end)
 
@@ -59,7 +59,7 @@ defmodule DB.ResourceTest do
 
     # this call corresponds to the geojson conversion and will be removed soon
     Transport.HTTPoison.Mock
-    |> expect(:get, 1, fn url, [], _ ->
+    |> expect(:get, 1, fn _url, [], _ ->
       {:ok, %HTTPoison.Response{status_code: 200, body: nil}}
     end)
 
@@ -90,7 +90,7 @@ defmodule DB.ResourceTest do
 
     # this call corresponds to the geojson conversion and will be removed soon
     Transport.HTTPoison.Mock
-    |> expect(:get, 2, fn url, [], _ ->
+    |> expect(:get, 2, fn _url, [], _ ->
       {:ok, %HTTPoison.Response{status_code: 200, body: nil}}
     end)
 
