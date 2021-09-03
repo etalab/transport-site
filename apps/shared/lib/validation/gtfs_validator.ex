@@ -6,7 +6,6 @@ defmodule Shared.Validation.GtfsValidator.Wrapper do
   def impl, do: Application.get_env(:transport, :gtfs_validator, Shared.Validation.GtfsValidator)
 end
 
-
 defmodule Shared.Validation.GtfsValidator do
   @moduledoc """
   GTFS validation module.
@@ -47,7 +46,7 @@ defmodule Shared.Validation.GtfsValidator do
 
   defp build_validate_url, do: gtfs_validator_base_url() <> "/validate"
 
-  defp gtfs_validator_base_url() do
+  defp gtfs_validator_base_url do
     case Application.fetch_env(:transport, :gtfs_validator_url) do
       {:ok, url} -> url
       _ -> raise @url_property_not_set_error
@@ -70,7 +69,7 @@ defmodule Shared.Validation.GtfsValidator do
     {:error, "Error while requesting GTFS validator"}
   end
 
-  defp http_client(), do: Application.fetch_env!(:transport, :httpoison_impl)
+  defp http_client, do: Application.fetch_env!(:transport, :httpoison_impl)
 
   defp send_get_request(url), do: http_client().get(url, [], recv_timeout: @timeout)
 

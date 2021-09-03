@@ -19,7 +19,8 @@ defmodule Transport.DataVisualization do
 
   def convert_to_geojson(file_path_or_content),
     do:
-      dertermine_content_type(file_path_or_content)
+      file_path_or_content
+      |> dertermine_content_type()
       |> build_http_body(file_path_or_content)
       |> post_http_request()
       |> handle_response()

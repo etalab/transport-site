@@ -6,7 +6,6 @@ defmodule DB.Resource do
   use TypedEctoSchema
   alias DB.{Dataset, LogsValidation, Repo, Validation}
   alias Transport.DataVisualization
-  alias Shared.Validation.GtfsValidator
   import Ecto.{Changeset, Query}
   import DB.Gettext
   require Logger
@@ -63,6 +62,8 @@ defmodule DB.Resource do
     has_many(:logs_validation, LogsValidation, on_replace: :delete, on_delete: :delete_all)
   end
 
+  defp gtfs_validator, do: Shared.Validation.GtfsValidator.Wrapper.impl()
+
   @spec endpoint() :: binary()
   def endpoint, do: Application.fetch_env!(:transport, :gtfs_validator_url) <> "/validate"
 
@@ -108,9 +109,7 @@ defmodule DB.Resource do
       ) do
     # if there is already a validation, we revalidate only if the file has changed
     if content_hash != validation_latest_content_hash do
-      Logger.info(
-        "the files for resource #{r.id} have been modified since last validation, we need to revalidate them"
-      )
+      Logger.info("the files for resource #{r.id} have been modified since last validation, we need to revalidate them")
 
       {true, "content hash has changed"}
     else
@@ -198,7 +197,8 @@ defmodule DB.Resource do
 
   defp build_validations_data_vis(gtfs, validations),
     do:
-      DataVisualization.convert_to_geojson(gtfs)
+      gtfs
+      |> DataVisualization.convert_to_geojson()
       |> DataVisualization.validation_data_vis(validations)
 
   @spec fetch_gtfs_archive_from_url(binary()) :: {:ok, binary()} | {:error, binary()}
@@ -215,8 +215,6 @@ defmodule DB.Resource do
 
   @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
-
-  defp gtfs_validator, do: Shared.Validation.GtfsValidator.Wrapper.impl()
 
   def validate(%__MODULE__{url: url, format: "GTFS"}) do
     with {:ok, validation_result} <- gtfs_validator().validate_from_url(url),
@@ -237,9 +235,7 @@ defmodule DB.Resource do
   end
 
   def validate(%__MODULE__{format: f, id: id}) do
-    Logger.info(
-      "cannot validate resource id=#{id} because we don't know how to validate the #{f} format"
-    )
+    Logger.info("cannot validate resource id=#{id} because we don't know how to validate the #{f} format")
 
     {:ok, %{"validations" => nil, "metadata" => nil}}
   end
@@ -389,8 +385,7 @@ defmodule DB.Resource do
       "UnloadableModel" => dgettext("validations", "Not compliant with the GTFS specification"),
       "MissingMandatoryFile" => dgettext("validations", "Missing mandatory file"),
       "ExtraFile" => dgettext("validations", "Extra file"),
-      "ImpossibleToInterpolateStopTimes" =>
-        dgettext("validations", "Impossible to interpolate stop times")
+      "ImpossibleToInterpolateStopTimes" => dgettext("validations", "Impossible to interpolate stop times")
     }
 
   @spec has_metadata?(__MODULE__.t()) :: boolean()
@@ -513,8 +508,7 @@ defmodule DB.Resource do
     do:
       from(
         r in __MODULE__,
-        where:
-          r.dataset_id == ^resource.dataset_id and r.id != ^resource.id and not is_nil(r.metadata)
+        where: r.dataset_id == ^resource.dataset_id and r.id != ^resource.id and not is_nil(r.metadata)
       )
 
   @spec other_resources(__MODULE__.t()) :: [__MODULE__.t()]
