@@ -3,108 +3,35 @@
     "request": {
       "body": "",
       "headers": [],
-      "method": "get",
-      "options": {
-        "follow_redirect": "true"
-      },
-      "request_body": "",
-      "url": "https://demo.data.gouv.fr/api/1/datasets/test-jeux-de-donnees-associe-a-plusieurs-villes/"
-    },
-    "response": {
-      "binary": false,
-      "body": "{\"acronym\": null, \"archived\": null, \"badges\": [], \"created_at\": \"2020-01-20T15:09:50.989000\", \"deleted\": null, \"description\": \"pouet\", \"extras\": {}, \"frequency\": \"threeTimesADay\", \"frequency_date\": null, \"id\": \"5e25b4afdc47091fd5c0e986\", \"last_modified\": \"2020-01-20T15:10:54.795000\", \"last_update\": \"2020-01-20T15:10:42\", \"license\": \"notspecified\", \"metrics\": {\"discussions\": 0, \"followers\": 0, \"issues\": 0, \"reuses\": 0, \"views\": 1}, \"organization\": {\"acronym\": null, \"class\": \"Organization\", \"id\": \"5abca8d588ee386ee6ece479\", \"logo\": \"https://next-static.data.gouv.fr/avatars/fb/c57e4ce94f4227811f20c329d3eed0-original.png\", \"logo_thumbnail\": \"https://next-static.data.gouv.fr/avatars/fb/c57e4ce94f4227811f20c329d3eed0-100.png\", \"name\": \"Point d'Acc\\u00e8s National transport.data.gouv.fr\", \"page\": \"https://demo.data.gouv.fr/fr/organizations/equipe-transport-data-gouv-fr/\", \"slug\": \"equipe-transport-data-gouv-fr\", \"uri\": \"https://demo.data.gouv.fr/api/1/organizations/equipe-transport-data-gouv-fr/\"}, \"owner\": null, \"page\": \"https://demo.data.gouv.fr/fr/datasets/test-jeux-de-donnees-associe-a-plusieurs-villes/\", \"private\": false, \"resources\": [{\"checksum\": {\"type\": \"sha1\", \"value\": \"c6aa38bac1da50271933d6bc537ccd3106021bb6\"}, \"created_at\": \"2020-01-20T15:10:42.020000\", \"description\": null, \"extras\": {}, \"filesize\": 26375, \"filetype\": \"file\", \"format\": \"zip\", \"id\": \"0bbd76a6-76e4-41d7-bec5-4f833e71b5d8\", \"last_modified\": \"2020-01-20T15:10:54.795000\", \"latest\": \"https://demo.data.gouv.fr/fr/datasets/r/0bbd76a6-76e4-41d7-bec5-4f833e71b5d8\", \"metrics\": {\"views\": 0}, \"mime\": \"application/zip\", \"preview_url\": null, \"published\": \"2020-01-20T15:10:42\", \"title\": \"190627agglobus.zip\", \"type\": \"main\", \"url\": \"https://next-static.data.gouv.fr/resources/test-jeux-de-donnees-associe-a-plusieurs-villes/20200120-151042/190627agglobus.zip\"}], \"slug\": \"test-jeux-de-donnees-associe-a-plusieurs-villes\", \"spatial\": {\"geom\": null, \"granularity\": \"other\", \"zones\": [\"fr:commune:36044@1943-01-01\", \"fr:commune:36063@1943-01-01\"]}, \"tags\": [], \"temporal_coverage\": null, \"title\": \"test jeux de donn\\u00e9es associ\\u00e9 \\u00e0 plusieurs villes\", \"uri\": \"https://demo.data.gouv.fr/api/1/datasets/test-jeux-de-donnees-associe-a-plusieurs-villes/\"}",
-      "headers": {
-        "Server": "nginx",
-        "Date": "Fri, 07 Feb 2020 16:46:24 GMT",
-        "Content-Type": "application/json",
-        "Content-Length": "2244",
-        "Connection": "keep-alive",
-        "Vary": "Accept-Encoding",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "PUT, HEAD, GET, OPTIONS, DELETE",
-        "Access-Control-Max-Age": "21600",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, AUTHORIZATION, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
-        "Pragma": "public",
-        "Cache-Control": "public",
-        "Strict-Transport-Security": "max-age=31536000",
-        "Content-Security-Policy": "frame-ancestors *.data.gouv.fr;",
-        "X-Content-Type-Options": "nosniff",
-        "X-XSS-Protection": "1; mode=block"
-      },
-      "status_code": 200,
-      "type": "ok"
-    }
-  },
-  {
-    "request": {
-      "body": "",
-      "headers": [],
-      "method": "get",
-      "options": {
-        "follow_redirect": "true"
-      },
-      "request_body": "",
-      "url": "https://demo.data.gouv.fr/api/1/datasets/5e25b4afdc47091fd5c0e986/"
-    },
-    "response": {
-      "binary": false,
-      "body": "{\"acronym\": null, \"archived\": null, \"badges\": [], \"created_at\": \"2020-01-20T15:09:50.989000\", \"deleted\": null, \"description\": \"pouet\", \"extras\": {}, \"frequency\": \"threeTimesADay\", \"frequency_date\": null, \"id\": \"5e25b4afdc47091fd5c0e986\", \"last_modified\": \"2020-01-20T15:10:54.795000\", \"last_update\": \"2020-01-20T15:10:42\", \"license\": \"notspecified\", \"metrics\": {\"discussions\": 0, \"followers\": 0, \"issues\": 0, \"reuses\": 0, \"views\": 1}, \"organization\": {\"acronym\": null, \"class\": \"Organization\", \"id\": \"5abca8d588ee386ee6ece479\", \"logo\": \"https://next-static.data.gouv.fr/avatars/fb/c57e4ce94f4227811f20c329d3eed0-original.png\", \"logo_thumbnail\": \"https://next-static.data.gouv.fr/avatars/fb/c57e4ce94f4227811f20c329d3eed0-100.png\", \"name\": \"Point d'Acc\\u00e8s National transport.data.gouv.fr\", \"page\": \"https://demo.data.gouv.fr/fr/organizations/equipe-transport-data-gouv-fr/\", \"slug\": \"equipe-transport-data-gouv-fr\", \"uri\": \"https://demo.data.gouv.fr/api/1/organizations/equipe-transport-data-gouv-fr/\"}, \"owner\": null, \"page\": \"https://demo.data.gouv.fr/fr/datasets/test-jeux-de-donnees-associe-a-plusieurs-villes/\", \"private\": false, \"resources\": [{\"checksum\": {\"type\": \"sha1\", \"value\": \"c6aa38bac1da50271933d6bc537ccd3106021bb6\"}, \"created_at\": \"2020-01-20T15:10:42.020000\", \"description\": null, \"extras\": {}, \"filesize\": 26375, \"filetype\": \"file\", \"format\": \"zip\", \"id\": \"0bbd76a6-76e4-41d7-bec5-4f833e71b5d8\", \"last_modified\": \"2020-01-20T15:10:54.795000\", \"latest\": \"https://demo.data.gouv.fr/fr/datasets/r/0bbd76a6-76e4-41d7-bec5-4f833e71b5d8\", \"metrics\": {\"views\": 0}, \"mime\": \"application/zip\", \"preview_url\": null, \"published\": \"2020-01-20T15:10:42\", \"title\": \"190627agglobus.zip\", \"type\": \"main\", \"url\": \"https://next-static.data.gouv.fr/resources/test-jeux-de-donnees-associe-a-plusieurs-villes/20200120-151042/190627agglobus.zip\"}], \"slug\": \"test-jeux-de-donnees-associe-a-plusieurs-villes\", \"spatial\": {\"geom\": null, \"granularity\": \"other\", \"zones\": [\"fr:commune:36044@1943-01-01\", \"fr:commune:36063@1943-01-01\"]}, \"tags\": [], \"temporal_coverage\": null, \"title\": \"test jeux de donn\\u00e9es associ\\u00e9 \\u00e0 plusieurs villes\", \"uri\": \"https://demo.data.gouv.fr/api/1/datasets/test-jeux-de-donnees-associe-a-plusieurs-villes/\"}",
-      "headers": {
-        "Server": "nginx",
-        "Date": "Fri, 07 Feb 2020 16:46:24 GMT",
-        "Content-Type": "application/json",
-        "Content-Length": "2244",
-        "Connection": "keep-alive",
-        "Vary": "Accept-Encoding",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "PUT, HEAD, GET, OPTIONS, DELETE",
-        "Access-Control-Max-Age": "21600",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, AUTHORIZATION, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
-        "Pragma": "public",
-        "Cache-Control": "public",
-        "Strict-Transport-Security": "max-age=31536000",
-        "Content-Security-Policy": "frame-ancestors *.data.gouv.fr;",
-        "X-Content-Type-Options": "nosniff",
-        "X-XSS-Protection": "1; mode=block"
-      },
-      "status_code": 200,
-      "type": "ok"
-    }
-  },
-  {
-    "request": {
-      "body": "",
-      "headers": [],
       "method": "head",
-      "options": [],
+      "options": {
+        "follow_redirect": "true"
+      },
       "request_body": "",
-      "url": "https://next-static.data.gouv.fr/resources/test-jeux-de-donnees-associe-a-plusieurs-villes/20200120-151042/190627agglobus.zip"
+      "url": "https://demo-static.data.gouv.fr/resources/test-jeu-de-donnees-associes-a-plusieurs-villes-2/20210903-120331/stran-merge.gtfs-1-.zip"
     },
     "response": {
       "binary": false,
       "body": null,
       "headers": {
         "Server": "nginx",
-        "Date": "Fri, 07 Feb 2020 16:46:24 GMT",
+        "Date": "Fri, 03 Sep 2021 10:38:06 GMT",
         "Content-Type": "application/zip",
-        "Content-Length": "26375",
-        "Connection": "keep-alive",
-        "Last-Modified": "Mon, 20 Jan 2020 14:10:42 GMT",
-        "ETag": "\"5e25b4e2-6707\"",
-        "Expires": "Sun, 08 Mar 2020 16:46:24 GMT",
+        "Content-Length": "1074893",
+        "Last-Modified": "Fri, 03 Sep 2021 10:03:31 GMT",
+        "ETag": "\"6131f2f3-1066cd\"",
+        "Expires": "Sun, 03 Oct 2021 10:38:06 GMT",
         "Cache-Control": "max-age=2592000",
+        "Content-Disposition": "attachment",
         "Pragma": "public",
+        "X-Content-Type-Options": "nosniff",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Frame-Options": "SAMEORIGIN",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Origin,Authorization,Accept,DNT,User-Agent,If-Modified-Since,Cache-Control,Content-Type,Range",
         "Access-Control-Allow-Credentials": "true",
-        "Accept-Ranges": "bytes",
-        "Strict-Transport-Security": "max-age=31536000",
-        "Content-Security-Policy": "frame-ancestors *.data.gouv.fr;",
-        "X-Content-Type-Options": "nosniff",
-        "X-XSS-Protection": "1; mode=block"
+        "Accept-Ranges": "bytes"
       },
       "status_code": 200,
       "type": "ok"
@@ -119,104 +46,23 @@
         "follow_redirect": "true"
       },
       "request_body": "",
-      "url": "https://demo.data.gouv.fr/api/1/spatial/zones/fr:commune:36044@1943-01-01"
+      "url": "https://demo.data.gouv.fr/api/1/datasets/test-jeu-de-donnees-associes-a-plusieurs-villes-2/"
     },
     "response": {
       "binary": false,
-      "body": "{\"features\": [{\"geometry\": {\"coordinates\": [[[[1.672762, 46.825291], [1.67323, 46.827042], [1.679261, 46.827702], [1.682599, 46.829585], [1.688209, 46.829218], [1.691064, 46.827856], [1.695468, 46.829471], [1.697556, 46.826751], [1.700223, 46.821514], [1.706549, 46.819954], [1.710404, 46.821811], [1.710079, 46.824251], [1.712744, 46.826715], [1.71861, 46.827306], [1.721747, 46.825886], [1.727543, 46.820224], [1.728407, 46.815254], [1.727046, 46.81326], [1.728735, 46.810622], [1.733114, 46.808724], [1.737727, 46.807742], [1.742268, 46.805559], [1.740429, 46.803931], [1.741845, 46.801812], [1.739021, 46.801453], [1.727945, 46.797784], [1.726054, 46.796575], [1.727208, 46.792622], [1.721421, 46.791727], [1.714388, 46.789054], [1.713973, 46.787118], [1.707166, 46.779386], [1.696778, 46.775313], [1.685107, 46.775865], [1.685135, 46.777208], [1.683075, 46.778771], [1.680235, 46.778972], [1.671465, 46.782115], [1.666794, 46.78632], [1.665119, 46.792245], [1.661012, 46.795597], [1.653156, 46.797345], [1.63855, 46.79875], [1.63825, 46.800189], [1.642655, 46.802258], [1.648263, 46.807086], [1.660037, 46.804613], [1.661579, 46.807671], [1.661064, 46.808967], [1.663671, 46.812973], [1.671474, 46.818266], [1.672762, 46.825291]]]], \"type\": \"MultiPolygon\"}, \"id\": \"fr:commune:36044@1943-01-01\", \"properties\": {\"area\": 25.54, \"code\": \"36044\", \"keys\": {\"geonames\": \"3026204\", \"histo\": \"COM-36044@1943-01-01\", \"insee\": \"36044\", \"postal\": [\"36000\"], \"siren\": \"213600448\"}, \"level\": \"fr:commune\", \"logo\": \"https://next-static.data.gouv.fr/logos/Flag_of_Chateauroux.svg\", \"name\": \"Ch\\u00e2teauroux\", \"parents\": [\"country:fr\", \"country-group:ue\", \"country-group:world\", \"fr:region:24@2015-01-17\", \"fr:departement:36@1860-07-01\", \"fr:arrondissement:362\", \"country-subset:fr:metro\", \"fr:epci:243600327@2000-01-01\", \"fr:epci:243600327@2004-01-01\", \"fr:epci:243600327@2006-01-01\", \"fr:epci:243600327@2007-01-01\", \"fr:epci:243600327@2011-01-01\", \"fr:epci:243600327@2013-01-01\", \"fr:epci:243600327@2016-01-01\"], \"population\": 43732, \"slug\": \"Chateauroux\", \"validity\": {}}, \"type\": \"Feature\"}], \"type\": \"FeatureCollection\"}",
+      "body": "{\"acronym\": null, \"archived\": null, \"badges\": [], \"created_at\": \"2021-09-03T12:03:06.247000\", \"deleted\": null, \"description\": \"Pour les tests de transport.data.gouv.fr\", \"extras\": {}, \"frequency\": \"unknown\", \"frequency_date\": null, \"id\": \"6131f2dad332822c01a7ca65\", \"last_modified\": \"2021-09-03T12:37:22.912000\", \"last_update\": \"2021-09-03T12:03:31\", \"license\": \"notspecified\", \"metrics\": {\"discussions\": 0, \"followers\": 0, \"issues\": 0, \"reuses\": 0, \"views\": 0}, \"organization\": {\"acronym\": null, \"badges\": [], \"class\": \"Organization\", \"id\": \"5abca8d588ee386ee6ece479\", \"logo\": \"https://demo-static.data.gouv.fr/avatars/fb/c57e4ce94f4227811f20c329d3eed0-original.png\", \"logo_thumbnail\": \"https://demo-static.data.gouv.fr/avatars/fb/c57e4ce94f4227811f20c329d3eed0-100.png\", \"name\": \"Point d'Acc\\u00e8s National transport.data.gouv.fr\", \"page\": \"https://demo.data.gouv.fr/fr/organizations/equipe-transport-data-gouv-fr/\", \"slug\": \"equipe-transport-data-gouv-fr\", \"uri\": \"https://demo.data.gouv.fr/api/1/organizations/equipe-transport-data-gouv-fr/\"}, \"owner\": null, \"page\": \"https://demo.data.gouv.fr/fr/datasets/test-jeu-de-donnees-associes-a-plusieurs-villes-2/\", \"private\": false, \"resources\": [{\"checksum\": {\"type\": \"sha1\", \"value\": \"85639a00edea58923918743a5d2e910682c27c8c\"}, \"created_at\": \"2021-09-03T12:03:31.973000\", \"description\": null, \"extras\": {}, \"filesize\": 1074893, \"filetype\": \"file\", \"format\": \"gtfs-1-.zip\", \"id\": \"caa38020-ee4c-40e9-a978-cbb7e9ef5b7b\", \"last_modified\": \"2021-09-03T12:03:42.006000\", \"latest\": \"https://demo.data.gouv.fr/fr/datasets/r/caa38020-ee4c-40e9-a978-cbb7e9ef5b7b\", \"metrics\": {}, \"mime\": \"application/zip\", \"preview_url\": null, \"published\": \"2021-09-03T12:03:31\", \"schema\": {}, \"title\": \"stran-merge.gtfs-1-.zip\", \"type\": \"main\", \"url\": \"https://demo-static.data.gouv.fr/resources/test-jeu-de-donnees-associes-a-plusieurs-villes-2/20210903-120331/stran-merge.gtfs-1-.zip\"}], \"slug\": \"test-jeu-de-donnees-associes-a-plusieurs-villes-2\", \"spatial\": {\"geom\": null, \"granularity\": \"fr:commune\", \"zones\": [\"fr:commune:38185@1943-01-01\"]}, \"tags\": [], \"temporal_coverage\": null, \"title\": \"Test jeu de donn\\u00e9es associ\\u00e9s \\u00e0 plusieurs villes 2\", \"uri\": \"https://demo.data.gouv.fr/api/1/datasets/test-jeu-de-donnees-associes-a-plusieurs-villes-2/\"}",
       "headers": {
         "Server": "nginx",
-        "Date": "Fri, 07 Feb 2020 16:46:25 GMT",
+        "Date": "Fri, 03 Sep 2021 10:38:06 GMT",
         "Content-Type": "application/json",
-        "Content-Length": "2114",
-        "Connection": "keep-alive",
+        "Content-Length": "2294",
         "Vary": "Accept-Encoding",
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "HEAD, OPTIONS, GET",
-        "Access-Control-Max-Age": "21600",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, AUTHORIZATION, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
-        "Expires": "Fri, 14 Feb 2020 16:46:25 GMT",
-        "Cache-Control": "max-age=604800",
-        "Pragma": "public",
-        "Strict-Transport-Security": "max-age=31536000",
-        "Content-Security-Policy": "frame-ancestors *.data.gouv.fr;",
-        "X-Content-Type-Options": "nosniff",
-        "X-XSS-Protection": "1; mode=block"
-      },
-      "status_code": 200,
-      "type": "ok"
-    }
-  },
-  {
-    "request": {
-      "body": "",
-      "headers": [],
-      "method": "get",
-      "options": {
-        "follow_redirect": "true"
-      },
-      "request_body": "",
-      "url": "https://demo.data.gouv.fr/api/1/spatial/zones/fr:commune:36063@1943-01-01"
-    },
-    "response": {
-      "binary": false,
-      "body": "{\"features\": [{\"geometry\": {\"coordinates\": [[[[1.653258, 46.870617], [1.665613, 46.87129], [1.669302, 46.871851], [1.670194, 46.869134], [1.672134, 46.868161], [1.675114, 46.869268], [1.679308, 46.866715], [1.683189, 46.865889], [1.681868, 46.864172], [1.684541, 46.861199], [1.689208, 46.861443], [1.703698, 46.873565], [1.707376, 46.873245], [1.71106, 46.871906], [1.708587, 46.867726], [1.716037, 46.86545], [1.716255, 46.86294], [1.721372, 46.845388], [1.731478, 46.838357], [1.739738, 46.836163], [1.752266, 46.830589], [1.758706, 46.831148], [1.770503, 46.826267], [1.769989, 46.819408], [1.754921, 46.814264], [1.754432, 46.810704], [1.74969, 46.808285], [1.74508, 46.807448], [1.742268, 46.805559], [1.737727, 46.807742], [1.733114, 46.808724], [1.728735, 46.810622], [1.727046, 46.81326], [1.728407, 46.815254], [1.727543, 46.820224], [1.721747, 46.825886], [1.71861, 46.827306], [1.712744, 46.826715], [1.710079, 46.824251], [1.710404, 46.821811], [1.706549, 46.819954], [1.700223, 46.821514], [1.697556, 46.826751], [1.695468, 46.829471], [1.691064, 46.827856], [1.688209, 46.829218], [1.682599, 46.829585], [1.679261, 46.827702], [1.67323, 46.827042], [1.672762, 46.825291], [1.667576, 46.831053], [1.661921, 46.835741], [1.653147, 46.837152], [1.646694, 46.835694], [1.643107, 46.836397], [1.641373, 46.835157], [1.635115, 46.836293], [1.632691, 46.837939], [1.63436, 46.841047], [1.644474, 46.840583], [1.646963, 46.843478], [1.655046, 46.843775], [1.655526, 46.85365], [1.659418, 46.85971], [1.658794, 46.862245], [1.653258, 46.870617]]]], \"type\": \"MultiPolygon\"}, \"id\": \"fr:commune:36063@1943-01-01\", \"properties\": {\"area\": 31.74, \"code\": \"36063\", \"keys\": {\"geonames\": \"3021570\", \"histo\": \"COM-36063@1943-01-01\", \"insee\": \"36063\", \"postal\": [\"36130\"], \"siren\": \"213600638\"}, \"level\": \"fr:commune\", \"logo\": \"https://next-static.data.gouv.fr/logos/Blason_D%C3%A9ols.svg\", \"name\": \"D\\u00e9ols\", \"parents\": [\"country:fr\", \"country-group:ue\", \"country-group:world\", \"fr:region:24@2015-01-17\", \"fr:departement:36@1860-07-01\", \"fr:arrondissement:362\", \"country-subset:fr:metro\", \"fr:epci:243600327@2000-01-01\", \"fr:epci:243600327@2004-01-01\", \"fr:epci:243600327@2006-01-01\", \"fr:epci:243600327@2007-01-01\", \"fr:epci:243600327@2011-01-01\", \"fr:epci:243600327@2013-01-01\", \"fr:epci:243600327@2016-01-01\"], \"population\": 7598, \"slug\": \"Deols\", \"validity\": {}}, \"type\": \"Feature\"}], \"type\": \"FeatureCollection\"}",
-      "headers": {
-        "Server": "nginx",
-        "Date": "Fri, 07 Feb 2020 16:46:25 GMT",
-        "Content-Type": "application/json",
-        "Content-Length": "2416",
-        "Connection": "keep-alive",
-        "Vary": "Accept-Encoding",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "HEAD, OPTIONS, GET",
-        "Access-Control-Max-Age": "21600",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, AUTHORIZATION, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
-        "Expires": "Fri, 14 Feb 2020 16:46:25 GMT",
-        "Cache-Control": "max-age=604800",
-        "Pragma": "public",
-        "Strict-Transport-Security": "max-age=31536000",
-        "Content-Security-Policy": "frame-ancestors *.data.gouv.fr;",
-        "X-Content-Type-Options": "nosniff",
-        "X-XSS-Protection": "1; mode=block"
-      },
-      "status_code": 200,
-      "type": "ok"
-    }
-  },
-  {
-    "request": {
-      "body": "",
-      "headers": [],
-      "method": "get",
-      "options": {
-        "follow_redirect": "true"
-      },
-      "request_body": "",
-      "url": "https://demo.data.gouv.fr/api/1/datasets/community_resources/?dataset=5e25b4afdc47091fd5c0e986"
-    },
-    "response": {
-      "binary": false,
-      "body": "{\"data\": [], \"facets\": null, \"next_page\": null, \"page\": 1, \"page_size\": 20, \"previous_page\": null, \"total\": 0}",
-      "headers": {
-        "Server": "nginx",
-        "Date": "Fri, 07 Feb 2020 16:46:25 GMT",
-        "Content-Type": "application/json",
-        "Content-Length": "110",
-        "Connection": "keep-alive",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "HEAD, GET, PUT, POST, OPTIONS, DELETE",
-        "Access-Control-Max-Age": "21600",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, AUTHORIZATION, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
         "Pragma": "public",
         "Cache-Control": "public",
-        "Strict-Transport-Security": "max-age=31536000",
-        "Content-Security-Policy": "frame-ancestors *.data.gouv.fr;",
         "X-Content-Type-Options": "nosniff",
-        "X-XSS-Protection": "1; mode=block"
+        "X-XSS-Protection": "1; mode=block",
+        "X-Frame-Options": "SAMEORIGIN"
       },
       "status_code": 200,
       "type": "ok"
@@ -226,23 +72,28 @@
     "request": {
       "body": "",
       "headers": [],
-      "method": "head",
-      "options": [],
+      "method": "get",
+      "options": {
+        "follow_redirect": "true"
+      },
       "request_body": "",
-      "url": "http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip"
+      "url": "https://demo.data.gouv.fr/api/1/datasets/6131f2dad332822c01a7ca65/"
     },
     "response": {
       "binary": false,
-      "body": null,
+      "body": "{\"acronym\": null, \"archived\": null, \"badges\": [], \"created_at\": \"2021-09-03T12:03:06.247000\", \"deleted\": null, \"description\": \"Pour les tests de transport.data.gouv.fr\", \"extras\": {}, \"frequency\": \"unknown\", \"frequency_date\": null, \"id\": \"6131f2dad332822c01a7ca65\", \"last_modified\": \"2021-09-03T12:37:22.912000\", \"last_update\": \"2021-09-03T12:03:31\", \"license\": \"notspecified\", \"metrics\": {\"discussions\": 0, \"followers\": 0, \"issues\": 0, \"reuses\": 0, \"views\": 0}, \"organization\": {\"acronym\": null, \"badges\": [], \"class\": \"Organization\", \"id\": \"5abca8d588ee386ee6ece479\", \"logo\": \"https://demo-static.data.gouv.fr/avatars/fb/c57e4ce94f4227811f20c329d3eed0-original.png\", \"logo_thumbnail\": \"https://demo-static.data.gouv.fr/avatars/fb/c57e4ce94f4227811f20c329d3eed0-100.png\", \"name\": \"Point d'Acc\\u00e8s National transport.data.gouv.fr\", \"page\": \"https://demo.data.gouv.fr/fr/organizations/equipe-transport-data-gouv-fr/\", \"slug\": \"equipe-transport-data-gouv-fr\", \"uri\": \"https://demo.data.gouv.fr/api/1/organizations/equipe-transport-data-gouv-fr/\"}, \"owner\": null, \"page\": \"https://demo.data.gouv.fr/fr/datasets/test-jeu-de-donnees-associes-a-plusieurs-villes-2/\", \"private\": false, \"resources\": [{\"checksum\": {\"type\": \"sha1\", \"value\": \"85639a00edea58923918743a5d2e910682c27c8c\"}, \"created_at\": \"2021-09-03T12:03:31.973000\", \"description\": null, \"extras\": {}, \"filesize\": 1074893, \"filetype\": \"file\", \"format\": \"gtfs-1-.zip\", \"id\": \"caa38020-ee4c-40e9-a978-cbb7e9ef5b7b\", \"last_modified\": \"2021-09-03T12:03:42.006000\", \"latest\": \"https://demo.data.gouv.fr/fr/datasets/r/caa38020-ee4c-40e9-a978-cbb7e9ef5b7b\", \"metrics\": {}, \"mime\": \"application/zip\", \"preview_url\": null, \"published\": \"2021-09-03T12:03:31\", \"schema\": {}, \"title\": \"stran-merge.gtfs-1-.zip\", \"type\": \"main\", \"url\": \"https://demo-static.data.gouv.fr/resources/test-jeu-de-donnees-associes-a-plusieurs-villes-2/20210903-120331/stran-merge.gtfs-1-.zip\"}], \"slug\": \"test-jeu-de-donnees-associes-a-plusieurs-villes-2\", \"spatial\": {\"geom\": null, \"granularity\": \"fr:commune\", \"zones\": [\"fr:commune:38185@1943-01-01\"]}, \"tags\": [], \"temporal_coverage\": null, \"title\": \"Test jeu de donn\\u00e9es associ\\u00e9s \\u00e0 plusieurs villes 2\", \"uri\": \"https://demo.data.gouv.fr/api/1/datasets/test-jeu-de-donnees-associes-a-plusieurs-villes-2/\"}",
       "headers": {
-        "Server": "nginx/1.2.1",
-        "Date": "Wed, 24 Jun 2020 07:05:57 GMT",
-        "Content-Type": "text/html",
-        "Content-Length": "160",
-        "Etag": "some_etag",
-        "Connection": "keep-alive",
-        "Location": "https://www.mobilites-m.fr/data/Horaires/SEM-GTFS.zip",
-        "Strict-Transport-Security": "max-age=31536000; includeSubdomains;"
+        "Server": "nginx",
+        "Date": "Fri, 03 Sep 2021 10:38:06 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "2294",
+        "Vary": "Accept-Encoding",
+        "Access-Control-Allow-Origin": "*",
+        "Pragma": "public",
+        "Cache-Control": "public",
+        "X-Content-Type-Options": "nosniff",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Frame-Options": "SAMEORIGIN"
       },
       "status_code": 200,
       "type": "ok"
@@ -252,46 +103,29 @@
     "request": {
       "body": "",
       "headers": [],
-      "method": "head",
-      "options": [],
-      "request_body": "",
-      "url": "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json"
-    },
-    "response": {
-      "binary": false,
-      "body": null,
-      "headers": {
-        "Server": "nginx/1.2.1",
-        "Date": "Wed, 24 Jun 2020 07:05:57 GMT",
-        "Content-Type": "text/html",
-        "Content-Length": "160",
-        "Etag": "some_other_etag",
-        "Connection": "keep-alive",
-        "Location": "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json"
+      "method": "get",
+      "options": {
+        "follow_redirect": "true"
       },
-      "status_code": 200,
-      "type": "ok"
-    }
-  },
-  {
-    "request": {
-      "body": "",
-      "headers": [],
-      "method": "head",
-      "options": [],
       "request_body": "",
-      "url": "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt"
+      "url": "https://demo.data.gouv.fr/api/1/spatial/zones/fr:commune:38185@1943-01-01"
     },
     "response": {
       "binary": false,
-      "body": null,
+      "body": "{\"features\": [{\"geometry\": {\"coordinates\": [[[[5.678881, 45.213518], [5.680842, 45.213413], [5.684044, 45.211893], [5.692887, 45.210439], [5.710877, 45.204526], [5.713646, 45.202457], [5.715407, 45.199781], [5.717924, 45.200006], [5.72308, 45.198257], [5.725562, 45.199549], [5.724486, 45.2024], [5.725916, 45.205142], [5.731672, 45.202296], [5.734922, 45.201257], [5.739929, 45.201598], [5.743175, 45.197866], [5.742156, 45.19091], [5.744982, 45.189121], [5.749113, 45.188869], [5.746362, 45.186323], [5.747991, 45.182158], [5.750322, 45.180816], [5.752828, 45.175751], [5.751636, 45.171771], [5.749786, 45.168915], [5.745416, 45.171527], [5.743029, 45.166375], [5.7408, 45.165659], [5.739791, 45.159843], [5.737548, 45.15931], [5.737773, 45.154207], [5.731757, 45.154791], [5.730448, 45.159076], [5.726175, 45.159055], [5.721186, 45.159805], [5.720241, 45.159103], [5.703844, 45.158463], [5.700222, 45.160145], [5.700983, 45.172944], [5.701531, 45.187785], [5.701478, 45.193311], [5.699012, 45.197568], [5.687932, 45.205426], [5.677606, 45.212869], [5.678881, 45.213518]]]], \"type\": \"MultiPolygon\"}, \"id\": \"fr:commune:38185@1943-01-01\", \"properties\": {\"area\": 18.13, \"code\": \"38185\", \"keys\": {\"geonames\": \"3014728\", \"histo\": \"COM-38185@1943-01-01\", \"insee\": \"38185\", \"postal\": [\"38000\", \"38100\", \"38700\"], \"siren\": \"213801855\"}, \"level\": \"fr:commune\", \"logo\": \"https://demo-static.data.gouv.fr/logos/Blason_ville_fr_Grenoble_(Isere).svg\", \"name\": \"Grenoble\", \"parents\": [\"country:fr\", \"country-group:ue\", \"country-group:world\", \"fr:region:84@2016-01-01\", \"fr:departement:38@1860-07-01\", \"fr:arrondissement:381\", \"country-subset:fr:metro\", \"fr:epci:200040715@2014-01-01\", \"fr:epci:243800901@1999-01-01\", \"fr:epci:243800901@2004-01-01\", \"fr:epci:243800901@2005-01-01\", \"fr:epci:243800901@2010-01-01\", \"fr:epci:243800901@2012-01-01\"], \"population\": 160649, \"slug\": \"Grenoble\", \"validity\": {}}, \"type\": \"Feature\"}], \"type\": \"FeatureCollection\"}",
       "headers": {
-        "Date": "Wed, 24 Jun 2020 07:05:57 GMT",
-        "Content-Type": "text/html",
-        "Content-Length": "160",
-        "Etag": "some_other_etag_gtfs_rt",
-        "Connection": "keep-alive",
-        "Location": "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt"
+        "Server": "nginx",
+        "Date": "Fri, 03 Sep 2021 10:38:06 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "1942",
+        "Vary": "Accept-Encoding",
+        "Access-Control-Allow-Origin": "*",
+        "Expires": "Fri, 10 Sep 2021 10:38:06 GMT",
+        "Cache-Control": "max-age=604800",
+        "Pragma": "public",
+        "X-Content-Type-Options": "nosniff",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Frame-Options": "SAMEORIGIN"
       },
       "status_code": 200,
       "type": "ok"

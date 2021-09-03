@@ -27,7 +27,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     "action" => "new"
   }
 
-  @dataset_with_zones_url "https://demo.data.gouv.fr/fr/datasets/test-jeux-de-donnees-associe-a-plusieurs-villes/"
+  @dataset_with_zones_url "https://demo.data.gouv.fr/fr/datasets/test-jeu-de-donnees-associes-a-plusieurs-villes-2/"
   @dataset_with_zones %{
     "url" => @dataset_with_zones_url,
     "spatial" => "Grenoble",
