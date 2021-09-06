@@ -105,7 +105,8 @@ config :transport,
   cache_impl: Transport.Cache.Cachex,
   ex_aws_impl: ExAws,
   httpoison_impl: HTTPoison,
-  history_impl: Transport.History.Fetcher.S3
+  history_impl: Transport.History.Fetcher.S3,
+  gtfs_to_json_converter_url: "https://convertisseur.transport.data.gouv.fr/gtfs2geojson_sync"
 
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API
