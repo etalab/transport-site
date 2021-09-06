@@ -16,7 +16,7 @@ Face au constat de trajets domicile-travail de plus en plus longs et effectués 
 
 L'équipe commence par analyser quantitativement les trajets des salariés en étudiant notamment les distances parcourues, les modes de déplacement alternatifs, l'impact carbone. Cette analyse sert ensuite à établir puis à mettre en oeuvre un Plan de mobilité adapté selon les priorités de l’entreprise. L’étape finale consiste à rapprocher les salariés de leur lieu de travail en favorisant les échanges de poste au sein des groupes ayant plusieurs établissements sur un même territoire.
 
-![Les trois étapes de l'action d'1km à pied : diagnostic des trajets, construction d'un plan de mobilité puis rapprochement domicile-travail](/images/3-etapes-1km-a-pied.png "Les trois étapes d'action de la startup ")
+![Les trois étapes de l'action d'1km à pied : diagnostic des trajets, construction d'un plan de mobilité puis rapprochement domicile-travail](/images/3-etapes-1km-a-pied.png "Les trois étapes d'action de la startup ").
 
 1km à pied utilise les données de [transport.data.gouv.fr](https://transport.data.gouv.fr/) à travers **Navitia** pour calculer les trajets possibles en transports publics. Ils sont ensuite comparés aux trajets en voiture, vélo… pour ainsi trouver le mode de transport idéal - pour l’utilisateur comme pour l’environnement ! 
 
