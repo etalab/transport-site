@@ -8,8 +8,6 @@ defmodule Transport.DataVisualization do
   @res HTTPoison.Response
   @timeout 180_000
 
-  @geojson_converter_url "https://convertisseur.transport.data.gouv.fr/gtfs2geojson_sync"
-
   @doc """
   Try to convert a GTFS structure into GeoJson.
   The GTFS may be a file path or data.
@@ -28,6 +26,8 @@ defmodule Transport.DataVisualization do
   def has_features(nil), do: false
   def has_features(data_visualization), do: length(data_visualization["features"]) > 0
 
+  defp gtfs_to_json_converter_url, do: Application.fetch_env!(:transport, :gtfs_to_json_converter_url)
+
   defp handle_response({:ok, %@res{status_code: 200, body: geojson_encoded}}), do: geojson_encoded
 
   defp handle_response({:ok, %@res{status_code: 500, body: body}}) do
@@ -43,7 +43,7 @@ defmodule Transport.DataVisualization do
   defp post_http_request(body),
     do:
       @client.post(
-        @geojson_converter_url,
+        gtfs_to_json_converter_url(),
         body,
         [{"content-type", "multipart/form-data;"}],
         recv_timeout: @timeout
