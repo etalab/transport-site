@@ -346,6 +346,7 @@ defmodule Transport.ImportData do
     |> get_valid_gtfs_resources()
     |> Enum.concat(get_valid_netex_resources(resources))
     |> Enum.concat(get_valid_gtfs_rt_resources(resources))
+    |> Enum.concat(get_valid_siri_resources(resources))
   end
 
   def get_valid_resources(%{"resources" => resources}, _type) do
@@ -367,6 +368,13 @@ defmodule Transport.ImportData do
 
   @spec get_valid_gtfs_rt_resources([map()]) :: [map()]
   def get_valid_gtfs_rt_resources(resources), do: Enum.filter(resources, &is_gtfs_rt?/1)
+
+  @doc """
+    iex> ImportData.get_valid_siri_resources([%{"format" => "siri", id: 1}, %{"format" => "xxx", id: 2}])
+    [%{"format" => "siri", id: 1}]
+  """
+  @spec get_valid_siri_resources([map()]) :: [map()]
+  def get_valid_siri_resources(resources), do: Enum.filter(resources, &is_siri?/1)
 
   @spec get_community_resources(map()) :: [map()]
   def get_community_resources(%{"id" => id}) do
@@ -418,6 +426,9 @@ defmodule Transport.ImportData do
 
   @spec is_gtfs_rt?(binary() | map()) :: boolean()
   def is_gtfs_rt?(str), do: is_format?(str, "gtfs-rt") or is_format?(str, "gtfsrt")
+
+  @spec is_siri?(binary() | map()) :: boolean()
+  def is_siri?(str), do: is_format?(str, "siri")
 
   @doc """
   check the format
