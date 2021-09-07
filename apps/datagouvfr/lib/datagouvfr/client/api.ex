@@ -6,6 +6,7 @@ defmodule Datagouvfr.Client.API do
   use Datagouvfr.Client
 
   @type response :: {:ok, any} | {:error, any}
+  @type method :: :delete | :get | :head | :options | :patch | :post | :put
 
   # HTTP client injection. Allow mock injection in tests
   defp http_client, do: Application.get_env(:transport, :httpoison_impl)
@@ -71,11 +72,46 @@ defmodule Datagouvfr.Client.API do
         ) :: response
   def request(method, path, body \\ "", headers \\ [], options \\ []) do
     url = process_url(path)
+    request_url(method, url, body, headers, options)
+  end
+
+  @spec request_url(
+          method(),
+          path(),
+          any(),
+          [{binary(), binary()}],
+          keyword
+        ) :: response
+  defp request_url(method, url, body \\ "", headers \\ [], options \\ []) do
     options = Keyword.put_new(options, :follow_redirect, true)
 
     method
     |> http_client().request(url, body, headers, options)
     |> decode_body()
     |> post_process()
+  end
+
+  @spec stream(path(), method()) :: Enumerable.t()
+  def stream(path, method \\ :get) do
+    next_fun = fn
+      nil ->
+        {:halt, nil}
+
+      url ->
+        case request_url(method, url) do
+          {:ok, body} ->
+            next_page = Map.get(body, "next_page", nil)
+            {[{:ok, body}], next_page}
+
+          {:error, error} ->
+            {[{:error, error}], nil}
+        end
+    end
+
+    Stream.resource(
+      fn -> process_url(path) end,
+      next_fun,
+      fn _ -> nil end
+    )
   end
 end

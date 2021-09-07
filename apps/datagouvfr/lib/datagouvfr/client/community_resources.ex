@@ -25,25 +25,28 @@ defmodule Datagouvfr.Client.CommunityResources.API do
 
   @spec get(binary) :: Datagouvfr.Client.API.response()
   def get(id) when is_binary(id) do
-    case Datagouvfr.Client.API.get("#{@endpoint}?dataset=#{id}") do
-      {:ok, %{"data" => data}} ->
-        {:ok, data}
+    "#{@endpoint}?dataset=#{id}"
+    |> Datagouvfr.Client.API.stream()
+    |> Stream.transform([], fn item, acc ->
+      case item do
+        {:ok, %{"data" => data}} ->
+          {[data], [data | acc]}
 
-      {:ok, data} ->
-        Logger.error(
-          "When getting community_ressources for id #{id}: request was ok but the response didn't contain data #{data}"
-        )
+        {:ok, data} ->
+          raise "When getting community_ressources for id #{id}: request was ok but the response didn't contain data #{data}"
 
-        {:error, []}
+        {:error, %{reason: reason}} ->
+          raise "When getting community_ressources for id #{id}: #{reason}"
 
-      {:error, %{reason: reason}} ->
-        Logger.error("When getting community_ressources for id #{id}: #{reason}")
-        {:error, []}
-
-      {:error, error} ->
-        Logger.error("When getting community_ressources for id #{id}: #{error}")
-        {:error, []}
-    end
+        {:error, error} ->
+          raise "When getting community_ressources for id #{id}: #{error}"
+      end
+    end)
+    |> Enum.to_list()
+  rescue
+    error ->
+      Logger.error(error)
+      {:error, []}
   end
 
   def delete(dataset_datagouv_id, resource_datagouv_id) do
