@@ -563,6 +563,7 @@ defmodule Transport.ImportData do
       "GTFS"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
+  # credo:disable-for-next-line
   def formated_format(resource, type, is_community_resource) do
     format = Map.get(resource, "format", "")
 
