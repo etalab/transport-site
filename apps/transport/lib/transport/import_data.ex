@@ -430,6 +430,9 @@ defmodule Transport.ImportData do
   @spec is_siri?(binary() | map()) :: boolean()
   def is_siri?(str), do: is_format?(str, "siri")
 
+  @spec is_siri_lite?(binary() | map()) :: boolean()
+  def is_siri_lite?(str), do: is_format?(str, "siri lite")
+
   @doc """
   check the format
       iex> ImportData.is_format?("NeTEx", ["GTFS", "NeTEx"])
@@ -568,6 +571,8 @@ defmodule Transport.ImportData do
       is_netex?(format) -> "NeTEx"
       is_neptune?(format) -> "Neptune"
       is_gtfs?(format) -> "GTFS"
+      is_siri_lite?(format) -> "SIRI Lite"
+      is_siri?(format) -> "SIRI"
       type == "public-transit" and not is_community_resource -> "GTFS"
       true -> format
     end
