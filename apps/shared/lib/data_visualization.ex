@@ -101,6 +101,17 @@ defmodule Transport.DataVisualization do
     end)
   end
 
+  def data_vis_content(validations) do
+    validations
+    |> Enum.map(fn {issue_type, issues} -> {issue_type, data_vis_per_issue_type(issues)} end)
+    |> Enum.into(%{})
+  end
+
+  def data_vis_per_issue_type([%{"severity" => severity}] = issues) do
+    geojson = issues |> Enum.flat_map(fn issue -> issue["geojson"]["features"] end)
+    %{"severity" => severity, "geojson" => %{"features" => geojson, "type" => "FeatureCollection"}}
+  end
+
   defp get_issues_map(issues_list) do
     # create a map with stops id as keys and issue description as values
     Map.new(issues_list, fn issue ->
