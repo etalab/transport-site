@@ -83,7 +83,7 @@ defmodule Transport.DataVisualization do
     end
   end
 
-  defp data_vis_content(geojson, validations) do
+  def data_vis_content(geojson, validations) do
     validations
     |> Map.new(fn {issue_name, issues_list} ->
       issues_map = get_issues_map(issues_list)
