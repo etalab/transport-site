@@ -83,6 +83,10 @@ defmodule Transport.DataVisualization do
     end
   end
 
+  def validation_data_vis(validations) do
+    data_vis_content(validations)
+  end
+
   def data_vis_content(geojson, validations) do
     validations
     |> Map.new(fn {issue_name, issues_list} ->
@@ -107,7 +111,8 @@ defmodule Transport.DataVisualization do
     |> Enum.into(%{})
   end
 
-  def data_vis_per_issue_type([%{"severity" => severity}] = issues) do
+  def data_vis_per_issue_type(issues) do
+    severity = issues |> Enum.at(0) |> Map.get("severity")
     geojson = issues |> Enum.flat_map(fn issue -> issue["geojson"]["features"] end)
     %{"severity" => severity, "geojson" => %{"features" => geojson, "type" => "FeatureCollection"}}
   end

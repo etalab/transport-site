@@ -16,9 +16,8 @@ defmodule TransportWeb.ValidationController do
     file_path = upload_params["file"].path
 
     with {:ok, gtfs} <- File.read(file_path),
-         geojson <- DataVisualization.convert_to_geojson(gtfs),
          {:ok, %{"validations" => validations, "metadata" => metadata}} <- GtfsValidator.validate(gtfs) do
-      data_vis = DataVisualization.validation_data_vis(geojson, validations)
+      data_vis = DataVisualization.validation_data_vis(validations)
 
       %Validation{
         date: DateTime.utc_now() |> DateTime.to_string(),
