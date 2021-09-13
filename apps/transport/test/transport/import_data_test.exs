@@ -282,4 +282,27 @@ defmodule Transport.ImportDataTest do
       end
     end
   end
+
+  test "get valid resources" do
+    m = %{
+      "resources" => [
+        %{"format" => "gtfs"},
+        %{"format" => "netex"},
+        %{"format" => "gtfs-rt"},
+        %{"format" => "siri"},
+        %{"format" => "siri lite"},
+        %{"format" => "csv"}
+      ]
+    }
+
+    valid_resources = ImportData.get_valid_resources(m, "public-transit")
+
+    assert valid_resources |> Enum.frequencies_by(fn %{"format" => f} -> f end) == %{
+             "gtfs" => 1,
+             "gtfs-rt" => 1,
+             "netex" => 1,
+             "siri" => 1,
+             "siri lite" => 1
+           }
+  end
 end
