@@ -346,6 +346,8 @@ defmodule Transport.ImportData do
     |> get_valid_gtfs_resources()
     |> Enum.concat(get_valid_netex_resources(resources))
     |> Enum.concat(get_valid_gtfs_rt_resources(resources))
+    |> Enum.concat(get_valid_siri_resources(resources))
+    |> Enum.concat(get_valid_siri_lite_resources(resources))
   end
 
   def get_valid_resources(%{"resources" => resources}, _type) do
@@ -367,6 +369,16 @@ defmodule Transport.ImportData do
 
   @spec get_valid_gtfs_rt_resources([map()]) :: [map()]
   def get_valid_gtfs_rt_resources(resources), do: Enum.filter(resources, &is_gtfs_rt?/1)
+
+  @doc """
+    iex> ImportData.get_valid_siri_resources([%{"format" => "siri", id: 1}, %{"format" => "xxx", id: 2}])
+    [%{"format" => "siri", id: 1}]
+  """
+  @spec get_valid_siri_resources([map()]) :: [map()]
+  def get_valid_siri_resources(resources), do: Enum.filter(resources, &is_siri?/1)
+
+  @spec get_valid_siri_lite_resources([map()]) :: [map()]
+  def get_valid_siri_lite_resources(resources), do: Enum.filter(resources, &is_siri_lite?/1)
 
   @spec get_community_resources(map()) :: [map()]
   def get_community_resources(%{"id" => id}) do
@@ -418,6 +430,18 @@ defmodule Transport.ImportData do
 
   @spec is_gtfs_rt?(binary() | map()) :: boolean()
   def is_gtfs_rt?(str), do: is_format?(str, "gtfs-rt") or is_format?(str, "gtfsrt")
+
+  @doc """
+  iex> ImportData.is_siri?("siri lite")
+  false
+  iex> ImportData.is_siri?("SIRI")
+  true
+  """
+  @spec is_siri?(binary() | map()) :: boolean()
+  def is_siri?(str), do: is_format?(str, "siri") and not is_siri_lite?(str)
+
+  @spec is_siri_lite?(binary() | map()) :: boolean()
+  def is_siri_lite?(str), do: is_format?(str, "siri lite")
 
   @doc """
   check the format
@@ -549,6 +573,7 @@ defmodule Transport.ImportData do
       "GTFS"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
+  # credo:disable-for-next-line
   def formated_format(resource, type, is_community_resource) do
     format = Map.get(resource, "format", "")
 
@@ -557,6 +582,8 @@ defmodule Transport.ImportData do
       is_netex?(format) -> "NeTEx"
       is_neptune?(format) -> "Neptune"
       is_gtfs?(format) -> "GTFS"
+      is_siri_lite?(format) -> "SIRI Lite"
+      is_siri?(format) -> "SIRI"
       type == "public-transit" and not is_community_resource -> "GTFS"
       true -> format
     end
