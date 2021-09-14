@@ -195,33 +195,13 @@ defmodule DB.Resource do
       {:error, e}
   end
 
-  defp build_validations_data_vis(gtfs, validations),
-    do:
-      gtfs
-      |> DataVisualization.convert_to_geojson()
-      |> DataVisualization.validation_data_vis(validations)
-
-  @spec fetch_gtfs_archive_from_url(binary()) :: {:ok, binary()} | {:error, binary()}
-  defp fetch_gtfs_archive_from_url(url) do
-    case @client.get(url, [], hackney: [follow_redirect: true]) do
-      {:ok, %@res{status_code: 200, body: body}} ->
-        {:ok, body}
-
-      error ->
-        Logger.error(inspect(error))
-        {:error, "could not fetch gtfs archive at #{url}"}
-    end
-  end
-
   @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
   def validate(%__MODULE__{url: url, format: "GTFS"}) do
     with {:ok, validation_result} <- gtfs_validator().validate_from_url(url),
-         {:ok, validations} <- Map.fetch(validation_result, "validations"),
-         {:ok, gtfs_archive} <- fetch_gtfs_archive_from_url(url) do
-      # data_vis will be generated from validation_results soon so following lines will be removed
-      data_vis = build_validations_data_vis(gtfs_archive, validations)
+         {:ok, validations} <- Map.fetch(validation_result, "validations") do
+      data_vis = DataVisualization.validation_data_vis(validations)
 
       {:ok, Map.put(validation_result, "data_vis", data_vis)}
     else
