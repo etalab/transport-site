@@ -73,39 +73,11 @@ defmodule Transport.DataVisualization do
   @spec validation_data_vis(any, any) :: nil | map
   def validation_data_vis(nil, _), do: nil
 
-  def validation_data_vis(geojson_encoded, validations) do
-    case Jason.decode(geojson_encoded) do
-      {:ok, geojson} ->
-        data_vis_content(geojson, validations)
-
-      _ ->
-        %{}
-    end
-  end
-
   # create  the data_vis from the validation output only
   # when we get rid of validation_data_vis(geojson_encoded, validations)
   # we will simply this
   def validation_data_vis(validations) do
     data_vis_content(validations)
-  end
-
-  def data_vis_content(geojson, validations) do
-    validations
-    |> Map.new(fn {issue_name, issues_list} ->
-      issues_map = get_issues_map(issues_list)
-
-      # create a map with with stop id as keys and geojson features as values
-      features_map =
-        geojson["features"]
-        |> Map.new(fn feature -> {feature["properties"]["id"], feature} end)
-
-      issues_geojson = get_issues_geojson(geojson, issues_map, features_map)
-
-      severity = issues_map |> Map.values() |> Enum.at(0) |> Map.get("severity")
-      # severity is used to customize the markers color in leaflet
-      {issue_name, %{"severity" => severity, "geojson" => issues_geojson}}
-    end)
   end
 
   def data_vis_content(validations) do
@@ -118,70 +90,5 @@ defmodule Transport.DataVisualization do
     severity = issues |> Enum.at(0) |> Map.get("severity")
     geojson = issues |> Enum.flat_map(fn issue -> issue["geojson"]["features"] end)
     %{"severity" => severity, "geojson" => %{"features" => geojson, "type" => "FeatureCollection"}}
-  end
-
-  defp get_issues_map(issues_list) do
-    # create a map with stops id as keys and issue description as values
-    Map.new(issues_list, fn issue ->
-      simplified_issue = simplified_issue(issue)
-
-      {issue["object_id"], simplified_issue}
-    end)
-  end
-
-  defp simplified_issue(issue) do
-    # keep only on related stop in related objects
-    issue
-    |> Map.update("related_objects", [], fn related_objects ->
-      related_objects |> Enum.filter(fn o -> o["object_type"] == "Stop" end) |> List.first()
-    end)
-  end
-
-  defp get_issues_geojson(geojson, issues_map, features_map) do
-    # create a geojson for each issue type
-    Map.update(geojson, "features", [], fn _features ->
-      issues_map
-      |> Enum.flat_map(fn {id, issue} ->
-        features_from_issue(issue, id, features_map)
-      end)
-    end)
-  end
-
-  defp features_from_issue(issue, id, features_map) do
-    # features contains a list of stops, related_stops and Linestrings
-    # Linestrings are used to link a stop and its related stop
-
-    case features_map[id] do
-      nil ->
-        []
-
-      feature ->
-        properties = Map.put(feature["properties"] || %{}, "details", Map.get(issue, "details"))
-        stop = Map.put(feature, "properties", properties)
-
-        case issue["related_objects"] do
-          %{"id" => id, "name" => _name} ->
-            related_stop = features_map[id]
-
-            stops_link = %{
-              "type" => "Feature",
-              "properties" => %{
-                "details" => Map.get(issue, "details")
-              },
-              "geometry" => %{
-                "type" => "LineString",
-                "coordinates" => [
-                  stop["geometry"]["coordinates"],
-                  related_stop["geometry"]["coordinates"]
-                ]
-              }
-            }
-
-            [stop, related_stop, stops_link]
-
-          _ ->
-            [stop]
-        end
-    end
   end
 end
