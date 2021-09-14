@@ -75,25 +75,10 @@ defmodule Transport.DataVisualizationTest do
   }
 
   describe "test the data visualization creation" do
-    test "simple data vis for validation and geojson" do
-      data_vis = DataVisualization.data_vis_content(@geojson, @validations)
-
-      assert data_vis |> Map.keys() == ["ExcessiveSpeed"]
-
-      excessive_speed = data_vis |> Map.fetch!("_s")
-      assert excessive_speed |> Map.keys() == ["geojson", "severity"]
-
-      features = excessive_speed |> Map.fetch!("geojson") |> Map.fetch!("features")
-      assert features |> Enum.frequencies_by(fn %{"geometry" => %{"type" => type}} -> type end) == %{"Point" => 2, "LineString" => 1}
-
-      [line_string] = features |> Enum.filter(fn %{"geometry" => %{"type" => type}} -> type == "LineString" end)
-      assert line_string["properties"]["details"] |> String.contains?("computed speed between the stops")
-    end
-
     test "simple data vis from validation only" do
       # We want to make sure the new method to create the data_vis
       # from the validation only has an output similar to the previous method
-      data_vis = DataVisualization.data_vis_content(@validations)
+      data_vis = DataVisualization.validation_data_vis(@validations)
 
       assert data_vis |> Map.keys() == ["ExcessiveSpeed"]
 
@@ -105,7 +90,6 @@ defmodule Transport.DataVisualizationTest do
 
       [line_string] = features |> Enum.filter(fn %{"geometry" => %{"type" => type}} -> type == "LineString" end)
       assert line_string["properties"]["details"] |> String.contains?("computed speed between the stops")
-
-    end
   end
+end
 end
