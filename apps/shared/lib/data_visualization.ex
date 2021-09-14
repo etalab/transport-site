@@ -83,6 +83,9 @@ defmodule Transport.DataVisualization do
     end
   end
 
+  # create  the data_vis from the validation output only
+  # when we get rid of validation_data_vis(geojson_encoded, validations)
+  # we will simply this
   def validation_data_vis(validations) do
     data_vis_content(validations)
   end
