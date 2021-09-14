@@ -3,6 +3,35 @@
     "request": {
       "body": "",
       "headers": [],
+      "method": "head",
+      "options": {
+        "follow_redirect": "true"
+      },
+      "request_body": "",
+      "url": "http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip"
+    },
+    "response": {
+      "binary": false,
+      "body": null,
+      "headers": {
+        "Server": "nginx/1.14.2",
+        "Date": "Fri, 03 Sep 2021 10:38:02 GMT",
+        "Content-Type": "application/zip",
+        "Content-Length": "2745721",
+        "Connection": "keep-alive",
+        "Vary": "Accept-Encoding, Origin",
+        "Last-Modified": "Fri, 03 Sep 2021 08:20:51 GMT",
+        "Cache-Control": "max-age=0",
+        "Strict-Transport-Security": "max-age=31536000; includeSubdomains;"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  },
+  {
+    "request": {
+      "body": "",
+      "headers": [],
       "method": "get",
       "options": {
         "follow_redirect": "true"
@@ -12,25 +41,19 @@
     },
     "response": {
       "binary": false,
-      "body": "{\"acronym\": null, \"archived\": null, \"badges\": [], \"created_at\": \"2016-06-14T15:15:56.629000\", \"deleted\": null, \"description\": \"Un nouveau lien est disponible : https://www.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-tag/\\n\\nMerci de vous y reporter\", \"extras\": {}, \"frequency\": \"monthly\", \"frequency_date\": \"2018-04-12T00:00:00\", \"id\": \"5760038cc751df708cac31a0\", \"last_modified\": \"2019-07-15T13:51:51.544000\", \"last_update\": \"2018-04-12T00:00:00\", \"license\": \"odc-odbl\", \"metrics\": {\"badges\": 0, \"discussions\": 1, \"followers\": 2, \"issues\": 0, \"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"reuses\": 1, \"views\": 21}, \"organization\": {\"acronym\": null, \"class\": \"Organization\", \"id\": \"575fc7f0c751df0e1dac31a0\", \"logo\": \"https://next-static.data.gouv.fr/avatars/41/1232bce00148eaac91fb2fc5443fdb-original.png\", \"logo_thumbnail\": \"https://next-static.data.gouv.fr/avatars/41/1232bce00148eaac91fb2fc5443fdb-100.png\", \"name\": \"SMTC Grenoble\", \"page\": \"https://demo.data.gouv.fr/fr/organizations/smtc/\", \"slug\": \"smtc\", \"uri\": \"https://demo.data.gouv.fr/api/1/organizations/smtc/\"}, \"owner\": null, \"page\": \"https://demo.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description/\", \"private\": false, \"resources\": [{\"checksum\": null, \"created_at\": \"2016-06-14T15:59:17.637000\", \"description\": null, \"extras\": {\"check:available\": true, \"check:count-availability\": 8, \"check:date\": \"2019-08-02T06:33:11.006000\", \"check:status\": 200, \"check:url\": \"http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip\"}, \"filesize\": null, \"filetype\": \"remote\", \"format\": \"gtfs\", \"id\": \"5fb562c5-5447-47a6-a1e7-909010240ee7\", \"last_modified\": \"2018-04-12T16:17:54.979000\", \"latest\": \"https://demo.data.gouv.fr/fr/datasets/r/5fb562c5-5447-47a6-a1e7-909010240ee7\", \"metrics\": {\"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"views\": 11}, \"mime\": null, \"preview_url\": null, \"published\": \"2018-04-12T00:00:00\", \"title\": \"horaires bus et trams\", \"type\": \"main\", \"url\": \"http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip\"}], \"slug\": \"horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description\", \"spatial\": {\"geom\": null, \"granularity\": \"fr:epci\", \"zones\": []}, \"tags\": [\"bus\", \"gtfs\", \"horaires\", \"tramway\", \"transport\"], \"temporal_coverage\": null, \"title\": \"Horaires th\\u00e9oriques du r\\u00e9seau de transport TAG - obsol\\u00e8te  (cf description)\", \"uri\": \"https://demo.data.gouv.fr/api/1/datasets/horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description/\"}",
+      "body": "{\"acronym\": null, \"archived\": null, \"badges\": [], \"created_at\": \"2016-06-14T15:15:56.629000\", \"deleted\": null, \"description\": \"Un nouveau lien est disponible : https://www.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-tag/\\n\\nMerci de vous y reporter\", \"extras\": {}, \"frequency\": \"monthly\", \"frequency_date\": \"2018-04-12T00:00:00\", \"id\": \"5760038cc751df708cac31a0\", \"last_modified\": \"2019-07-15T13:51:51.544000\", \"last_update\": \"2018-04-12T00:00:00\", \"license\": \"odc-odbl\", \"metrics\": {\"discussions\": 1, \"followers\": 2, \"issues\": 0, \"reuses\": 1, \"views\": 0}, \"organization\": {\"acronym\": \"SMMAG\", \"badges\": [{\"kind\": \"certified\"}, {\"kind\": \"public-service\"}], \"class\": \"Organization\", \"id\": \"575fc7f0c751df0e1dac31a0\", \"logo\": \"https://demo-static.data.gouv.fr/avatars/9e/8cb873d4ec48dda1c8f31abe7d5802-original.png\", \"logo_thumbnail\": \"https://demo-static.data.gouv.fr/avatars/9e/8cb873d4ec48dda1c8f31abe7d5802-100.png\", \"name\": \"Syndicat Mixte des Mobilit\\u00e9s de l'Aire Grenobloise\", \"page\": \"https://demo.data.gouv.fr/fr/organizations/syndicat-mixte-des-mobilites-de-laire-grenobloise/\", \"slug\": \"syndicat-mixte-des-mobilites-de-laire-grenobloise\", \"uri\": \"https://demo.data.gouv.fr/api/1/organizations/syndicat-mixte-des-mobilites-de-laire-grenobloise/\"}, \"owner\": null, \"page\": \"https://demo.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description/\", \"private\": false, \"resources\": [{\"checksum\": null, \"created_at\": \"2016-06-14T15:59:17.637000\", \"description\": null, \"extras\": {\"check:available\": true, \"check:count-availability\": 1, \"check:date\": \"2021-07-01T12:31:27.203000\", \"check:headers:content-length\": 3445594, \"check:headers:content-type\": \"application/zip\", \"check:status\": 200, \"check:url\": \"http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip\"}, \"filesize\": null, \"filetype\": \"remote\", \"format\": \"gtfs\", \"id\": \"5fb562c5-5447-47a6-a1e7-909010240ee7\", \"last_modified\": \"2018-04-12T16:17:54.979000\", \"latest\": \"https://demo.data.gouv.fr/fr/datasets/r/5fb562c5-5447-47a6-a1e7-909010240ee7\", \"metrics\": {\"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"views\": 29}, \"mime\": null, \"preview_url\": null, \"published\": \"2018-04-12T00:00:00\", \"schema\": {}, \"title\": \"horaires bus et trams\", \"type\": \"main\", \"url\": \"http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip\"}], \"slug\": \"horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description\", \"spatial\": {\"geom\": null, \"granularity\": \"fr:epci\", \"zones\": []}, \"tags\": [\"bus\", \"gtfs\", \"horaires\", \"tramway\", \"transport\"], \"temporal_coverage\": null, \"title\": \"Horaires th\\u00e9oriques du r\\u00e9seau de transport TAG - obsol\\u00e8te  (cf description)\", \"uri\": \"https://demo.data.gouv.fr/api/1/datasets/horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description/\"}",
       "headers": {
         "Server": "nginx",
-        "Date": "Fri, 07 Feb 2020 16:46:23 GMT",
+        "Date": "Fri, 03 Sep 2021 10:38:02 GMT",
         "Content-Type": "application/json",
-        "Content-Length": "2520",
-        "Connection": "keep-alive",
+        "Content-Length": "2800",
         "Vary": "Accept-Encoding",
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "PUT, HEAD, GET, OPTIONS, DELETE",
-        "Access-Control-Max-Age": "21600",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, AUTHORIZATION, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
         "Pragma": "public",
         "Cache-Control": "public",
-        "Strict-Transport-Security": "max-age=31536000",
-        "Content-Security-Policy": "frame-ancestors *.data.gouv.fr;",
         "X-Content-Type-Options": "nosniff",
-        "X-XSS-Protection": "1; mode=block"
+        "X-XSS-Protection": "1; mode=block",
+        "X-Frame-Options": "SAMEORIGIN"
       },
       "status_code": 200,
       "type": "ok"
@@ -49,137 +72,19 @@
     },
     "response": {
       "binary": false,
-      "body": "{\"acronym\": null, \"archived\": null, \"badges\": [], \"created_at\": \"2016-06-14T15:15:56.629000\", \"deleted\": null, \"description\": \"Un nouveau lien est disponible : https://www.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-tag/\\n\\nMerci de vous y reporter\", \"extras\": {}, \"frequency\": \"monthly\", \"frequency_date\": \"2018-04-12T00:00:00\", \"id\": \"5760038cc751df708cac31a0\", \"last_modified\": \"2019-07-15T13:51:51.544000\", \"last_update\": \"2018-04-12T00:00:00\", \"license\": \"odc-odbl\", \"metrics\": {\"badges\": 0, \"discussions\": 1, \"followers\": 2, \"issues\": 0, \"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"reuses\": 1, \"views\": 21}, \"organization\": {\"acronym\": null, \"class\": \"Organization\", \"id\": \"575fc7f0c751df0e1dac31a0\", \"logo\": \"https://next-static.data.gouv.fr/avatars/41/1232bce00148eaac91fb2fc5443fdb-original.png\", \"logo_thumbnail\": \"https://next-static.data.gouv.fr/avatars/41/1232bce00148eaac91fb2fc5443fdb-100.png\", \"name\": \"SMTC Grenoble\", \"page\": \"https://demo.data.gouv.fr/fr/organizations/smtc/\", \"slug\": \"smtc\", \"uri\": \"https://demo.data.gouv.fr/api/1/organizations/smtc/\"}, \"owner\": null, \"page\": \"https://demo.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description/\", \"private\": false, \"resources\": [{\"checksum\": null, \"created_at\": \"2016-06-14T15:59:17.637000\", \"description\": null, \"extras\": {\"check:available\": true, \"check:count-availability\": 8, \"check:date\": \"2019-08-02T06:33:11.006000\", \"check:status\": 200, \"check:url\": \"http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip\"}, \"filesize\": null, \"filetype\": \"remote\", \"format\": \"gtfs\", \"id\": \"5fb562c5-5447-47a6-a1e7-909010240ee7\", \"last_modified\": \"2018-04-12T16:17:54.979000\", \"latest\": \"https://demo.data.gouv.fr/fr/datasets/r/5fb562c5-5447-47a6-a1e7-909010240ee7\", \"metrics\": {\"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"views\": 11}, \"mime\": null, \"preview_url\": null, \"published\": \"2018-04-12T00:00:00\", \"title\": \"horaires bus et trams\", \"type\": \"main\", \"url\": \"http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip\"}], \"slug\": \"horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description\", \"spatial\": {\"geom\": null, \"granularity\": \"fr:epci\", \"zones\": []}, \"tags\": [\"bus\", \"gtfs\", \"horaires\", \"tramway\", \"transport\"], \"temporal_coverage\": null, \"title\": \"Horaires th\\u00e9oriques du r\\u00e9seau de transport TAG - obsol\\u00e8te  (cf description)\", \"uri\": \"https://demo.data.gouv.fr/api/1/datasets/horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description/\"}",
+      "body": "{\"acronym\": null, \"archived\": null, \"badges\": [], \"created_at\": \"2016-06-14T15:15:56.629000\", \"deleted\": null, \"description\": \"Un nouveau lien est disponible : https://www.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-tag/\\n\\nMerci de vous y reporter\", \"extras\": {}, \"frequency\": \"monthly\", \"frequency_date\": \"2018-04-12T00:00:00\", \"id\": \"5760038cc751df708cac31a0\", \"last_modified\": \"2019-07-15T13:51:51.544000\", \"last_update\": \"2018-04-12T00:00:00\", \"license\": \"odc-odbl\", \"metrics\": {\"discussions\": 1, \"followers\": 2, \"issues\": 0, \"reuses\": 1, \"views\": 0}, \"organization\": {\"acronym\": \"SMMAG\", \"badges\": [{\"kind\": \"certified\"}, {\"kind\": \"public-service\"}], \"class\": \"Organization\", \"id\": \"575fc7f0c751df0e1dac31a0\", \"logo\": \"https://demo-static.data.gouv.fr/avatars/9e/8cb873d4ec48dda1c8f31abe7d5802-original.png\", \"logo_thumbnail\": \"https://demo-static.data.gouv.fr/avatars/9e/8cb873d4ec48dda1c8f31abe7d5802-100.png\", \"name\": \"Syndicat Mixte des Mobilit\\u00e9s de l'Aire Grenobloise\", \"page\": \"https://demo.data.gouv.fr/fr/organizations/syndicat-mixte-des-mobilites-de-laire-grenobloise/\", \"slug\": \"syndicat-mixte-des-mobilites-de-laire-grenobloise\", \"uri\": \"https://demo.data.gouv.fr/api/1/organizations/syndicat-mixte-des-mobilites-de-laire-grenobloise/\"}, \"owner\": null, \"page\": \"https://demo.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description/\", \"private\": false, \"resources\": [{\"checksum\": null, \"created_at\": \"2016-06-14T15:59:17.637000\", \"description\": null, \"extras\": {\"check:available\": true, \"check:count-availability\": 1, \"check:date\": \"2021-07-01T12:31:27.203000\", \"check:headers:content-length\": 3445594, \"check:headers:content-type\": \"application/zip\", \"check:status\": 200, \"check:url\": \"http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip\"}, \"filesize\": null, \"filetype\": \"remote\", \"format\": \"gtfs\", \"id\": \"5fb562c5-5447-47a6-a1e7-909010240ee7\", \"last_modified\": \"2018-04-12T16:17:54.979000\", \"latest\": \"https://demo.data.gouv.fr/fr/datasets/r/5fb562c5-5447-47a6-a1e7-909010240ee7\", \"metrics\": {\"nb_hits\": 0, \"nb_uniq_visitors\": 0, \"nb_visits\": 0, \"views\": 29}, \"mime\": null, \"preview_url\": null, \"published\": \"2018-04-12T00:00:00\", \"schema\": {}, \"title\": \"horaires bus et trams\", \"type\": \"main\", \"url\": \"http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip\"}], \"slug\": \"horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description\", \"spatial\": {\"geom\": null, \"granularity\": \"fr:epci\", \"zones\": []}, \"tags\": [\"bus\", \"gtfs\", \"horaires\", \"tramway\", \"transport\"], \"temporal_coverage\": null, \"title\": \"Horaires th\\u00e9oriques du r\\u00e9seau de transport TAG - obsol\\u00e8te  (cf description)\", \"uri\": \"https://demo.data.gouv.fr/api/1/datasets/horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description/\"}",
       "headers": {
         "Server": "nginx",
-        "Date": "Fri, 07 Feb 2020 16:46:23 GMT",
+        "Date": "Fri, 03 Sep 2021 10:38:02 GMT",
         "Content-Type": "application/json",
-        "Content-Length": "2520",
-        "Connection": "keep-alive",
+        "Content-Length": "2800",
         "Vary": "Accept-Encoding",
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "PUT, HEAD, GET, OPTIONS, DELETE",
-        "Access-Control-Max-Age": "21600",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, AUTHORIZATION, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
         "Pragma": "public",
         "Cache-Control": "public",
-        "Strict-Transport-Security": "max-age=31536000",
-        "Content-Security-Policy": "frame-ancestors *.data.gouv.fr;",
         "X-Content-Type-Options": "nosniff",
-        "X-XSS-Protection": "1; mode=block"
-      },
-      "status_code": 200,
-      "type": "ok"
-    }
-  },
-  {
-    "request": {
-      "body": "",
-      "headers": [],
-      "method": "get",
-      "options": {
-        "follow_redirect": "true"
-      },
-      "request_body": "",
-      "url": "https://demo.data.gouv.fr/api/1/datasets/community_resources/?dataset=5760038cc751df708cac31a0"
-    },
-    "response": {
-      "binary": false,
-      "body": "{\"data\": [{\"checksum\": null, \"created_at\": \"2019-02-21T11:11:22.458000\", \"dataset\": {\"acronym\": null, \"class\": \"Dataset\", \"id\": \"5760038cc751df708cac31a0\", \"page\": \"https://demo.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description/\", \"title\": \"Horaires th\\u00e9oriques du r\\u00e9seau de transport TAG - obsol\\u00e8te  (cf description)\", \"uri\": \"https://demo.data.gouv.fr/api/1/datasets/horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description/\"}, \"description\": \"Flux trip-update en export\\u00a0JSON\", \"extras\": {}, \"filesize\": null, \"filetype\": \"remote\", \"format\": \"json\", \"id\": \"70518892-af60-4180-9ab9-0f77fa613bbd\", \"last_modified\": \"2019-02-21T11:11:22.458000\", \"latest\": \"https://demo.data.gouv.fr/fr/datasets/r/70518892-af60-4180-9ab9-0f77fa613bbd\", \"metrics\": {\"views\": 0}, \"mime\": null, \"organization\": {\"acronym\": null, \"class\": \"Organization\", \"id\": \"5abca8d588ee386ee6ece479\", \"logo\": \"https://next-static.data.gouv.fr/avatars/fb/c57e4ce94f4227811f20c329d3eed0-original.png\", \"logo_thumbnail\": \"https://next-static.data.gouv.fr/avatars/fb/c57e4ce94f4227811f20c329d3eed0-100.png\", \"name\": \"Point d'Acc\\u00e8s National transport.data.gouv.fr\", \"page\": \"https://demo.data.gouv.fr/fr/organizations/equipe-transport-data-gouv-fr/\", \"slug\": \"equipe-transport-data-gouv-fr\", \"uri\": \"https://demo.data.gouv.fr/api/1/organizations/equipe-transport-data-gouv-fr/\"}, \"owner\": null, \"preview_url\": null, \"published\": \"2019-02-21T11:11:22.458000\", \"title\": \"Flux temps r\\u00e9el GTFS-RT (JSON)\", \"type\": \"api\", \"url\": \"https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json\"}, {\"checksum\": null, \"created_at\": \"2019-01-14T16:14:26.285000\", \"dataset\": {\"acronym\": null, \"class\": \"Dataset\", \"id\": \"5760038cc751df708cac31a0\", \"page\": \"https://demo.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description/\", \"title\": \"Horaires th\\u00e9oriques du r\\u00e9seau de transport TAG - obsol\\u00e8te  (cf description)\", \"uri\": \"https://demo.data.gouv.fr/api/1/datasets/horaires-theoriques-du-reseau-de-transport-tag-obsolete-cf-description/\"}, \"description\": \"Flux Trip-Update\", \"extras\": {}, \"filesize\": null, \"filetype\": \"remote\", \"format\": \"gtfs-rt\", \"id\": \"98224004-986c-4940-b7ae-61c6dda0d01e\", \"last_modified\": \"2019-02-21T11:09:30.837000\", \"latest\": \"https://demo.data.gouv.fr/fr/datasets/r/98224004-986c-4940-b7ae-61c6dda0d01e\", \"metrics\": {\"views\": 0}, \"mime\": \"application/protobuf\", \"organization\": {\"acronym\": null, \"class\": \"Organization\", \"id\": \"5abca8d588ee386ee6ece479\", \"logo\": \"https://next-static.data.gouv.fr/avatars/fb/c57e4ce94f4227811f20c329d3eed0-original.png\", \"logo_thumbnail\": \"https://next-static.data.gouv.fr/avatars/fb/c57e4ce94f4227811f20c329d3eed0-100.png\", \"name\": \"Point d'Acc\\u00e8s National transport.data.gouv.fr\", \"page\": \"https://demo.data.gouv.fr/fr/organizations/equipe-transport-data-gouv-fr/\", \"slug\": \"equipe-transport-data-gouv-fr\", \"uri\": \"https://demo.data.gouv.fr/api/1/organizations/equipe-transport-data-gouv-fr/\"}, \"owner\": null, \"preview_url\": null, \"published\": \"2019-01-14T16:14:26\", \"title\": \"Flux temps r\\u00e9el GTFS-RT\", \"type\": \"api\", \"url\": \"https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt\"}], \"facets\": null, \"next_page\": null, \"page\": 1, \"page_size\": 20, \"previous_page\": null, \"total\": 2}",
-      "headers": {
-        "Server": "nginx",
-        "Date": "Fri, 07 Feb 2020 16:46:23 GMT",
-        "Content-Type": "application/json",
-        "Content-Length": "3406",
-        "Connection": "keep-alive",
-        "Vary": "Accept-Encoding",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "HEAD, GET, PUT, POST, OPTIONS, DELETE",
-        "Access-Control-Max-Age": "21600",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Headers": "X-API-KEY, X-FIELDS, CONTENT-TYPE, ACCEPT, ACCEPT-CHARSET, ACCEPT-LANGUAGE, AUTHORIZATION, CACHE-CONTROL, CONTENT-ENCODING, CONTENT-LENGTH, CONTENT-SECURITY-POLICY, CONTENT-TYPE, COOKIE, ETAG, HOST, IF-MODIFIED-SINCE, KEEP-ALIVE, LAST-MODIFIED, ORIGIN, REFERER, USER-AGENT, X-FORWARDED-FOR, X-FORWARDED-PORT, X-FORWARDED-PROTO",
-        "Pragma": "public",
-        "Cache-Control": "public",
-        "Strict-Transport-Security": "max-age=31536000",
-        "Content-Security-Policy": "frame-ancestors *.data.gouv.fr;",
-        "X-Content-Type-Options": "nosniff",
-        "X-XSS-Protection": "1; mode=block"
-      },
-      "status_code": 200,
-      "type": "ok"
-    }
-  },
-  {
-    "request": {
-      "body": "",
-      "headers": [],
-      "method": "head",
-      "options": [],
-      "request_body": "",
-      "url": "http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip"
-    },
-    "response": {
-      "binary": false,
-      "body": null,
-      "headers": {
-        "Server": "nginx/1.2.1",
-        "Date": "Wed, 24 Jun 2020 07:05:57 GMT",
-        "Content-Type": "text/html",
-        "Content-Length": "160",
-        "Etag": "some_etag",
-        "Connection": "keep-alive",
-        "Location": "https://www.mobilites-m.fr/data/Horaires/SEM-GTFS.zip",
-        "Strict-Transport-Security": "max-age=31536000; includeSubdomains;"
-      },
-      "status_code": 200,
-      "type": "ok"
-    }
-  },
-  {
-    "request": {
-      "body": "",
-      "headers": [],
-      "method": "head",
-      "options": [],
-      "request_body": "",
-      "url": "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json"
-    },
-    "response": {
-      "binary": false,
-      "body": null,
-      "headers": {
-        "Server": "nginx/1.2.1",
-        "Date": "Wed, 24 Jun 2020 07:05:57 GMT",
-        "Content-Type": "text/html",
-        "Content-Length": "160",
-        "Etag": "some_other_etag",
-        "Connection": "keep-alive",
-        "Location": "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json"
-      },
-      "status_code": 200,
-      "type": "ok"
-    }
-  },
-  {
-    "request": {
-      "body": "",
-      "headers": [],
-      "method": "head",
-      "options": [],
-      "request_body": "",
-      "url": "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt"
-    },
-    "response": {
-      "binary": false,
-      "body": null,
-      "headers": {
-        "Date": "Wed, 24 Jun 2020 07:05:57 GMT",
-        "Content-Type": "text/html",
-        "Content-Length": "160",
-        "Etag": "some_other_etag_gtfs_rt",
-        "Connection": "keep-alive",
-        "Location": "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt"
+        "X-XSS-Protection": "1; mode=block",
+        "X-Frame-Options": "SAMEORIGIN"
       },
       "status_code": 200,
       "type": "ok"

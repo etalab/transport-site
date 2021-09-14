@@ -13,6 +13,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     # ressource.db now uses Transport.Shared.Wrapper.HTTPoison instead of HTTPoison directly
     # we stub the mock with the real module here to keep the tests of this file unchanged.
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
+    Mox.stub_with(Validation.Validator.Mock, Shared.Validation.GtfsValidator)
     :ok
   end
 
@@ -26,7 +27,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     "action" => "new"
   }
 
-  @dataset_with_zones_url "https://demo.data.gouv.fr/fr/datasets/test-jeux-de-donnees-associe-a-plusieurs-villes/"
+  @dataset_with_zones_url "https://demo.data.gouv.fr/fr/datasets/test-jeu-de-donnees-associes-a-plusieurs-villes-2/"
   @dataset_with_zones %{
     "url" => @dataset_with_zones_url,
     "spatial" => "Grenoble",

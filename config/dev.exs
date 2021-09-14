@@ -67,6 +67,9 @@ config :oauth2, Datagouvfr.Authentication,
   site: datagouvfr_site,
   redirect_uri: "http://localhost:5000/login/callback"
 
+# by default, use the production validator. This can be overriden with dev.secret.exs
+config :transport, gtfs_validator_url: "https://transport-validator.cleverapps.io"
+
 extra_config_file = Path.join(__DIR__, "#{Mix.env()}.secret.exs")
 
 if File.exists?(extra_config_file) do

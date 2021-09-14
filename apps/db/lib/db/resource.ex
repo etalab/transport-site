@@ -5,14 +5,13 @@ defmodule DB.Resource do
   use Ecto.Schema
   use TypedEctoSchema
   alias DB.{Dataset, LogsValidation, Repo, Validation}
+  alias Transport.DataVisualization
   import Ecto.{Changeset, Query}
   import DB.Gettext
   require Logger
 
   @client Transport.Shared.Wrapper.HTTPoison.impl()
   @res HTTPoison.Response
-  @err HTTPoison.Error
-  @timeout 180_000
 
   typed_schema "resource" do
     field(:is_active, :boolean)
@@ -63,6 +62,8 @@ defmodule DB.Resource do
     has_many(:logs_validation, LogsValidation, on_replace: :delete, on_delete: :delete_all)
   end
 
+  defp gtfs_validator, do: Shared.Validation.GtfsValidator.Wrapper.impl()
+
   @spec endpoint() :: binary()
   def endpoint, do: Application.fetch_env!(:transport, :gtfs_validator_url) <> "/validate"
 
@@ -100,13 +101,16 @@ defmodule DB.Resource do
   def needs_validation(
         %__MODULE__{
           content_hash: content_hash,
-          validation: %Validation{validation_latest_content_hash: validation_latest_content_hash}
+          validation: %Validation{
+            validation_latest_content_hash: validation_latest_content_hash
+          }
         } = r,
         _force_validation
       ) do
     # if there is already a validation, we revalidate only if the file has changed
     if content_hash != validation_latest_content_hash do
       Logger.info("the files for resource #{r.id} have been modified since last validation, we need to revalidate them")
+
       {true, "content hash has changed"}
     else
       {false, "content hash has not changed"}
@@ -158,8 +162,12 @@ defmodule DB.Resource do
       {:error, error} ->
         Logger.warn("Error when calling the validator: #{error}")
 
-        Sentry.capture_message("unable_to_call_validator",
-          extra: %{url: resource.url, error: error}
+        Sentry.capture_message(
+          "unable_to_call_validator",
+          extra: %{
+            url: resource.url,
+            error: error
+          }
         )
 
         # log the validation error
@@ -175,6 +183,7 @@ defmodule DB.Resource do
   rescue
     e ->
       Logger.error("error while validating resource #{resource.id}: #{inspect(e)}")
+      Logger.error(Exception.format(:error, e, __STACKTRACE__))
 
       Repo.insert(%LogsValidation{
         resource_id: resource_id,
@@ -186,50 +195,88 @@ defmodule DB.Resource do
       {:error, e}
   end
 
+  defp build_validations_data_vis(gtfs, validations),
+    do:
+      gtfs
+      |> DataVisualization.convert_to_geojson()
+      |> DataVisualization.validation_data_vis(validations)
+
+  @spec fetch_gtfs_archive_from_url(binary()) :: {:ok, binary()} | {:error, binary()}
+  defp fetch_gtfs_archive_from_url(url) do
+    case @client.get(url, [], hackney: [follow_redirect: true]) do
+      {:ok, %@res{status_code: 200, body: body}} ->
+        {:ok, body}
+
+      error ->
+        Logger.error(inspect(error))
+        {:error, "could not fetch gtfs archive at #{url}"}
+    end
+  end
+
   @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
   def validate(%__MODULE__{url: url, format: "GTFS"}) do
-    case @client.get("#{endpoint()}?url=#{URI.encode_www_form(url)}", [], recv_timeout: @timeout) do
-      {:ok, %@res{status_code: 200, body: body}} -> Jason.decode(body)
-      {:ok, %@res{body: body}} -> {:error, body}
-      {:error, %@err{reason: error}} -> {:error, error}
-      _ -> {:error, "Unknown error in validation"}
+    with {:ok, validation_result} <- gtfs_validator().validate_from_url(url),
+         {:ok, validations} <- Map.fetch(validation_result, "validations"),
+         {:ok, gtfs_archive} <- fetch_gtfs_archive_from_url(url) do
+      # data_vis will be generated from validation_results soon so following lines will be removed
+      data_vis = build_validations_data_vis(gtfs_archive, validations)
+
+      {:ok, Map.put(validation_result, "data_vis", data_vis)}
+    else
+      {:error, error} ->
+        Logger.error(inspect(error))
+        {:error, "Validation failed."}
+
+      :error ->
+        {:error, "Validation failed."}
     end
   end
 
   def validate(%__MODULE__{format: f, id: id}) do
     Logger.info("cannot validate resource id=#{id} because we don't know how to validate the #{f} format")
+
     {:ok, %{"validations" => nil, "metadata" => nil}}
   end
 
   @spec save(__MODULE__.t(), map()) :: {:ok, any()} | {:error, any()}
-  def save(%__MODULE__{id: id, format: format} = r, %{
-        "validations" => validations,
-        "metadata" => metadata
-      }) do
+  def save(
+        %__MODULE__{id: id, format: format} = r,
+        %{
+          "validations" => validations,
+          "metadata" => metadata,
+          "data_vis" => data_vis
+        }
+      ) do
     # When the validator is unable to open the archive, it will return a fatal issue
     # And the metadata will be nil (as it couldn’t read them)
     if is_nil(metadata) and format == "GTFS",
       do: Logger.warn("Unable to validate resource ##{id}: #{inspect(validations)}")
 
-    __MODULE__
-    |> preload(:validation)
-    |> Repo.get(id)
-    |> change(
-      metadata: metadata,
-      validation: %Validation{
-        date: DateTime.utc_now() |> DateTime.to_string(),
-        details: validations,
-        max_error: get_max_severity_error(validations),
-        validation_latest_content_hash: r.content_hash
-      },
-      features: find_tags(r, metadata),
-      modes: find_modes(metadata),
-      start_date: str_to_date(metadata["start_date"]),
-      end_date: str_to_date(metadata["end_date"])
-    )
-    |> Repo.update()
+    ecto_response =
+      __MODULE__
+      |> preload(:validation)
+      |> Repo.get(id)
+      |> change(
+        metadata: metadata,
+        validation: %Validation{
+          date:
+            DateTime.utc_now()
+            |> DateTime.to_string(),
+          details: validations,
+          max_error: get_max_severity_error(validations),
+          validation_latest_content_hash: r.content_hash,
+          data_vis: data_vis
+        },
+        features: find_tags(r, metadata),
+        modes: find_modes(metadata),
+        start_date: str_to_date(metadata["start_date"]),
+        end_date: str_to_date(metadata["end_date"])
+      )
+      |> Repo.update()
+
+    ecto_response
   end
 
   def save(url, _) do
@@ -268,7 +315,8 @@ defmodule DB.Resource do
   def has_odt_tag(_), do: []
 
   @spec base_tag(__MODULE__.t()) :: [binary()]
-  def base_tag(%__MODULE__{format: "GTFS"}), do: ["position des stations", "horaires théoriques", "topologie du réseau"]
+  def base_tag(%__MODULE__{format: "GTFS"}),
+    do: ["position des stations", "horaires théoriques", "topologie du réseau"]
 
   def base_tag(%__MODULE__{format: "NeTEx"}),
     do: ["position des stations", "horaires théoriques", "topologie du réseau"]
@@ -344,17 +392,35 @@ defmodule DB.Resource do
   def has_metadata?(%__MODULE__{} = r), do: r.metadata != nil
 
   @spec valid_and_available?(__MODULE__.t()) :: boolean()
-  def valid_and_available?(%__MODULE__{is_available: available, metadata: %{"start_date" => s, "end_date" => e}})
+  def valid_and_available?(%__MODULE__{
+        is_available: available,
+        metadata: %{
+          "start_date" => s,
+          "end_date" => e
+        }
+      })
       when not is_nil(s) and not is_nil(e),
       do: available
 
   def valid_and_available?(%__MODULE__{}), do: false
 
   @spec is_outdated?(__MODULE__.t()) :: boolean
-  def is_outdated?(%__MODULE__{metadata: %{"end_date" => nil}}), do: false
+  def is_outdated?(%__MODULE__{
+        metadata: %{
+          "end_date" => nil
+        }
+      }),
+      do: false
 
-  def is_outdated?(%__MODULE__{metadata: %{"end_date" => end_date}}),
-    do: end_date <= Date.utc_today() |> Date.to_iso8601()
+  def is_outdated?(%__MODULE__{
+        metadata: %{
+          "end_date" => end_date
+        }
+      }),
+      do:
+        end_date <=
+          Date.utc_today()
+          |> Date.to_iso8601()
 
   def is_outdated?(_), do: true
 
@@ -384,7 +450,8 @@ defmodule DB.Resource do
 
       {:ok, _} ->
         # credo:disable-for-next-line
-        with %Validation{details: details} when details == %{} <- Repo.get_by(Validation, resource_id: id) do
+        with %Validation{details: details} when details == %{} <-
+               Repo.get_by(Validation, resource_id: id) do
           %{severity: "Irrevelant", count_errors: 0}
         else
           _ ->
@@ -439,12 +506,17 @@ defmodule DB.Resource do
   @spec other_resources_query(__MODULE__.t()) :: Ecto.Query.t()
   def other_resources_query(%__MODULE__{} = resource),
     do:
-      from(r in __MODULE__,
+      from(
+        r in __MODULE__,
         where: r.dataset_id == ^resource.dataset_id and r.id != ^resource.id and not is_nil(r.metadata)
       )
 
   @spec other_resources(__MODULE__.t()) :: [__MODULE__.t()]
-  def other_resources(%__MODULE__{} = r), do: r |> other_resources_query() |> Repo.all()
+  def other_resources(%__MODULE__{} = r),
+    do:
+      r
+      |> other_resources_query()
+      |> Repo.all()
 
   @spec str_to_date(binary()) :: Date.t() | nil
   defp str_to_date(date) when not is_nil(date) do
@@ -461,4 +533,10 @@ defmodule DB.Resource do
   end
 
   defp str_to_date(_), do: nil
+
+  def by_id(query, id) do
+    from(resource in query,
+      where: resource.id == ^id
+    )
+  end
 end

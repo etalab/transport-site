@@ -22,25 +22,8 @@
       <% end %>
 
       <%= if has_errors?(@validation_summary) do %>
-        <div id="issues" class="validation-navigation">
-          <nav class="issues-list validation" role="navigation">
-            <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, conn: @conn, issues: @issues %>
-          </nav>
-        </div>
-
-        <%= unless is_nil(@data_vis) do %>
-          <div class="panel p-6">
-            <div id='map' class='leaflet-map'></div>
-            <script src="<%= static_path(@conn, "/js/validationmap.js") %>"></script>
-            <script>
-              document.addEventListener("DOMContentLoaded", function() {
-              createValidationMap('map', <%= raw(@data_vis) %>)
-              })
-            </script>
-          </div>
-        <% end %>
+        <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, conn: @conn, issues: @issues, data_vis: @data_vis %>
       <% end %>
-
 
       <div class="validation-content-details">
         <div class="panel" style="overflow-x:auto;">

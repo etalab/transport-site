@@ -1,5 +1,6 @@
 defmodule DB.ResourceTest do
   use ExUnit.Case, async: true
+  alias Validation.Validator.Mock, as: ValidatorMock
   alias DB.{LogsValidation, Repo, Resource, Validation}
   import Mox
   import DB.Factory
@@ -24,11 +25,15 @@ defmodule DB.ResourceTest do
   test "validate and save a resource" do
     resource = insert(:resource, %{url: "url1", format: "GTFS"})
 
-    Transport.HTTPoison.Mock
-    |> expect(:get, 1, fn url, [], _ ->
-      assert url |> String.contains?(resource.url)
+    ValidatorMock
+    |> expect(:validate_from_url, 1, fn _resource_url ->
+      {:ok, %{"validations" => %{}, "metadata" => %{}}}
+    end)
 
-      {:ok, http_validation_response()}
+    # this call corresponds to the geojson conversion and will be removed soon
+    Transport.HTTPoison.Mock
+    |> expect(:get, 1, fn _url, [], _ ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: nil}}
     end)
 
     assert Resource.validate_and_save(resource, false) == {:ok, nil}
@@ -47,11 +52,15 @@ defmodule DB.ResourceTest do
 
     # we expect the validator the be called only once, as the second validation
     # should be skipped
-    Transport.HTTPoison.Mock
-    |> expect(:get, 1, fn url, [], _ ->
-      assert url |> String.contains?(resource.url)
+    ValidatorMock
+    |> expect(:validate_from_url, 1, fn _resource_url ->
+      {:ok, %{"validations" => %{}, "metadata" => %{}}}
+    end)
 
-      {:ok, http_validation_response()}
+    # this call corresponds to the geojson conversion and will be removed soon
+    Transport.HTTPoison.Mock
+    |> expect(:get, 1, fn _url, [], _ ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: nil}}
     end)
 
     # first validation
@@ -74,11 +83,15 @@ defmodule DB.ResourceTest do
     resource = insert(:resource, %{url: "url1", format: "GTFS", content_hash: "sha256_hash"})
 
     # we expect 2 validator calls here
-    Transport.HTTPoison.Mock
-    |> expect(:get, 2, fn url, [], _ ->
-      assert url |> String.contains?(resource.url)
+    ValidatorMock
+    |> expect(:validate_from_url, 2, fn _resource_url ->
+      {:ok, %{"validations" => %{}, "metadata" => %{}}}
+    end)
 
-      {:ok, http_validation_response()}
+    # this call corresponds to the geojson conversion and will be removed soon
+    Transport.HTTPoison.Mock
+    |> expect(:get, 2, fn _url, [], _ ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: nil}}
     end)
 
     # first validation
