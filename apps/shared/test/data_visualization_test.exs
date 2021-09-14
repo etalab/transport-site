@@ -3,33 +3,7 @@ defmodule Transport.DataVisualizationTest do
   alias Transport.DataVisualization
   doctest Transport.DataVisualization
 
-  @geojson %{
-  "features" => [
-    %{
-      "geometry" => %{"coordinates" => [2.449186, 48.796058], "type" => "Point"},
-      "properties" => %{
-        "description" => "",
-        "id" => "near1",
-        "name" => "Near1",
-        "wheelchair_boarding" => "unknown"
-      },
-      "type" => "Feature"
-    },
-    %{
-      "geometry" => %{"coordinates" => [0.0, 0.0], "type" => "Point"},
-      "properties" => %{
-        "description" => "",
-        "id" => "null",
-        "name" => "Null Island",
-        "wheelchair_boarding" => "unknown"
-      },
-      "type" => "Feature"
-    }
-  ],
-  "type" => "FeatureCollection"
-}
-
-    @validations %{
+  @validations %{
     "ExcessiveSpeed" => [
       %{
         "details" => "computed speed between the stops is 325858.52 km/h (5430975 m travelled in 60 seconds)",
