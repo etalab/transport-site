@@ -195,6 +195,24 @@ defmodule DB.Resource do
       {:error, e}
   end
 
+  defp build_validations_data_vis(gtfs, validations),
+    do:
+      gtfs
+      |> DataVisualization.convert_to_geojson()
+      |> DataVisualization.validation_data_vis(validations)
+
+  @spec fetch_gtfs_archive_from_url(binary()) :: {:ok, binary()} | {:error, binary()}
+  defp fetch_gtfs_archive_from_url(url) do
+    case @client.get(url, [], hackney: [follow_redirect: true]) do
+      {:ok, %@res{status_code: 200, body: body}} ->
+        {:ok, body}
+
+      error ->
+        Logger.error(inspect(error))
+        {:error, "could not fetch gtfs archive at #{url}"}
+    end
+  end
+
   @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
