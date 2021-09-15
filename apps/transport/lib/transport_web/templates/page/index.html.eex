@@ -177,7 +177,7 @@
 </a>
 
       <a class="tile" href="<%= dataset_path(@conn, :index, type: "bike-parking") %>">
-        <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bicycle-parking.svg") %>" alt="" />
+        <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bike-parking.svg") %>" alt="" />
         <div class="tile__text">
           <h4 class=""><%= dgettext("page-index", "Bike parking") %></h4>
           <div><%= dngettext("page-index", "dataset", "datasets", @count_by_type["bike-parking"] || 0) %></div>
