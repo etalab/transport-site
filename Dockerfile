@@ -1,6 +1,6 @@
-FROM betagouv/transport:elixir-1.12.2-erlang-24.0.3-alpine-3.13.3
+FROM betagouv/transport:elixir-1.12.2-erlang-24.0.3-ubuntu-focal-20210325
 
-RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ gnu-libiconv-dev
+# RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ gnu-libiconv-dev
 
 RUN mkdir phoenixapp
 WORKDIR /phoenixapp
