@@ -1,7 +1,5 @@
 FROM betagouv/transport:elixir-1.12.2-erlang-24.0.3-ubuntu-focal-20210325
 
-# RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ gnu-libiconv-dev
-
 RUN mkdir phoenixapp
 WORKDIR /phoenixapp
 COPY ./ /phoenixapp
@@ -15,7 +13,6 @@ RUN node --version
 ENV PORT 8080
 ENV MIX_ENV prod
 RUN mix deps.compile
-RUN yarn --version
 RUN cd apps/transport/client && yarn install && npm run build
 # assets digest must happen after the npm build step
 RUN mix phx.digest
