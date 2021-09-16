@@ -9,7 +9,7 @@ defmodule Datagouvfr.Client.API do
   @type method :: :delete | :get | :head | :options | :patch | :post | :put
 
   # HTTP client injection. Allow mock injection in tests
-  defp http_client, do: Application.get_env(:transport, :httpoison_impl)
+  defp http_client, do: Application.fetch_env!(:transport, :httpoison_impl)
 
   def api_key_headers do
     {"X-API-KEY", Application.get_env(:transport, :datagouvfr_apikey)}
