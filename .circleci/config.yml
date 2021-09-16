@@ -22,7 +22,7 @@ defaults_with_postgres: &defaults_with_postgres
   <<: *defaults
   docker:
     - *default_docker
-    - image: postgis/postgis:12-3.1
+    - image: istopopoki/ubuntu-postgis:12-3.1
       environment:
         POSTGRES_USER: root
         POSTGRES_DB: transport_test
