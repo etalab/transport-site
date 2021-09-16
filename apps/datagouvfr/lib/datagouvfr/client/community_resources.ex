@@ -27,10 +27,10 @@ defmodule Datagouvfr.Client.CommunityResources.API do
   def get(id) when is_binary(id) do
     "#{@endpoint}?dataset=#{id}"
     |> Datagouvfr.Client.API.stream()
-    |> Stream.transform([], fn item, acc ->
+    |> Stream.map(fn item ->
       case item do
         {:ok, %{"data" => data}} ->
-          {[data], [data | acc]}
+          data
 
         {:ok, data} ->
           raise "When getting community_ressources for id #{id}: request was ok but the response didn't contain data #{data}"
