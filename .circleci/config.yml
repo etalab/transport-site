@@ -7,7 +7,7 @@ default_docker: &default_docker
   image: << parameters.base_image >>
   environment:
     MIX_ENV: test
-    PG_URL_TEST: ecto://root@127.0.0.1/transport_test
+    PG_URL_TEST: ecto://postgres:postgres@127.0.0.1/transport_test
 
 defaults: &defaults
   parameters:
@@ -24,8 +24,9 @@ defaults_with_postgres: &defaults_with_postgres
     - *default_docker
     - image: istopopoki/ubuntu-postgis:12-3.1
       environment:
-        POSTGRES_USER: root
-        POSTGRES_DB: transport_test
+        POSTGRES_USER: postgres
+        POSTGRES_PASS: postgres
+        POSTGRES_DBNAME: transport_test
 
 jobs:
   build:
