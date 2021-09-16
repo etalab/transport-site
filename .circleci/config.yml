@@ -12,7 +12,7 @@ default_docker: &default_docker
 defaults: &defaults
   parameters:
     base_image:
-      default: betagouv/transport:elixir-1.12.2-erlang-24.0.3-alpine-3.13.3
+      default: betagouv/transport:elixir-1.12.2-erlang-24.0.3-ubuntu-focal-20210325
       type: string
   working_directory: ~/transport
   docker:
