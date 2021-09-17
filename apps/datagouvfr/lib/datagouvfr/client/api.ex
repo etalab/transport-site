@@ -114,4 +114,35 @@ defmodule Datagouvfr.Client.API do
       fn _ -> nil end
     )
   end
+
+  @spec fetch_all_pages!(path(), method()) :: Enumerable.t()
+  def fetch_all_pages!(path, method \\ :get) do
+    path
+    |> Datagouvfr.Client.API.stream(method)
+    |> Stream.map(fn item ->
+      case item do
+        {:ok, %{"data" => data}} ->
+          data
+
+        {:ok, response} ->
+          raise "Request was ok but the response didn't contain data. Response : #{response}"
+
+        {:error, %{reason: reason}} ->
+          raise reason
+
+        {:error, error} ->
+          raise error
+      end
+    end)
+    |> Enum.to_list()
+  end
+
+  @spec fetch_all_pages(path(), method()) :: {:ok, Enumerable.t()} | {:error, binary()}
+  def fetch_all_pages(path, method \\ :get) do
+    {:ok, fetch_all_pages!(path, method)}
+  rescue
+    error ->
+      Logger.error(error)
+      {:error, error}
+  end
 end
