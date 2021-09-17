@@ -115,12 +115,12 @@ defmodule Datagouvfr.Client.API do
     )
   end
 
-  @spec fetch_all_pages!(path(), method()) :: Enumerable.t()
+  @spec fetch_all_pages!(path(), method()) :: [any()]
   def fetch_all_pages!(path, method \\ :get) do
     path
     |> Datagouvfr.Client.API.stream(method)
-    |> Stream.map(fn item ->
-      case item do
+    |> Stream.map(fn element ->
+      case element do
         {:ok, %{"data" => data}} ->
           data
 
@@ -137,7 +137,7 @@ defmodule Datagouvfr.Client.API do
     |> Enum.to_list()
   end
 
-  @spec fetch_all_pages(path(), method()) :: {:ok, Enumerable.t()} | {:error, binary()}
+  @spec fetch_all_pages(path(), method()) :: {:ok, [any()]} | {:error, any()}
   def fetch_all_pages(path, method \\ :get) do
     {:ok, fetch_all_pages!(path, method)}
   rescue

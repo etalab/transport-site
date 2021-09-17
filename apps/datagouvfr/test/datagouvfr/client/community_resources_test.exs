@@ -45,17 +45,13 @@ defmodule Datagouvfr.Client.CommunityResources.APITest do
   end
 
   defp assert_stream_return_data(resource_to_stream, expected_pages_data) do
-    obtained_pages_data =
-      resource_to_stream
-      |> API.get()
-      |> Enum.to_list()
-
+    {:ok, obtained_pages_data} = API.get(resource_to_stream)
     assert obtained_pages_data == expected_pages_data
   end
 
   defp assert_stream_return_an_error(resource_to_stream) do
-    result = resource_to_stream |> API.get()
-    assert result == {:error, []}
+    {:error, data} = API.get(resource_to_stream)
+    assert data == []
   end
 
   defp build_expected_community_resource_base_url(community_resource_id),

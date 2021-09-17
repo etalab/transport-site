@@ -5,7 +5,7 @@ defmodule Datagouvfr.Client.CommunityResources do
   """
   alias Datagouvfr.Client.API
 
-  @callback get(dataset_id :: binary()) :: API.response()
+  @callback get(dataset_id :: binary()) :: {:ok, [any()]} | {:error, []}
   @callback delete(dataset_id :: binary(), resource_id :: binary()) ::
               {:ok, any()} | {:error, any()}
 
@@ -23,10 +23,10 @@ defmodule Datagouvfr.Client.CommunityResources.API do
   @behaviour Datagouvfr.Client.CommunityResources
   @endpoint "/datasets/community_resources/"
 
-  @spec get(binary) :: Datagouvfr.Client.API.response()
-  def get(id) when is_binary(id) do
-    case Datagouvfr.Client.API.fetch_all_pages("#{@endpoint}?dataset=#{id}") do
-      {:ok, pages} -> pages
+  @spec get(dataset_id :: binary()) :: {:ok, [any()]} | {:error, []}
+  def get(dataset_id) when is_binary(dataset_id) do
+    case Datagouvfr.Client.API.fetch_all_pages("#{@endpoint}?dataset=#{dataset_id}") do
+      {:ok, pages} -> {:ok, pages}
       {:error, error} -> {:error, []}
     end
   end
