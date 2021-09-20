@@ -75,9 +75,9 @@ Run the server with `mix phx.server` and you can visit [`127.0.0.1:5000`](http:/
 
 The proxy relies on this [yaml configuration](https://github.com/etalab/transport-proxy-config/blob/master/proxy-config.yml) which is currently fetched at runtime once (but can be hot-reloaded via this [backoffice page](https://transport.data.gouv.fr/backoffice/proxy-config)).
 
-Each proxied "feed" (currently GTFS-RT data) has a private (target) url hidden from the general public, can be configured with an independent Time-To-Live (TTL), and is exposed as a credential-free public url to the public. When queries occurs, the HTTP connection is hold and the proxy issues a query to the target server, caching the response in RAM based on the configured TTL.
+Each proxied "feed" (currently GTFS-RT data) has a private (target) url hidden from the general public, can be configured with an independent Time-To-Live (TTL), and is exposed as a credential-free public url to the public. When queries occurs, the incoming HTTP connection is kept on hold while the proxy issues a query to the target server, caching the response in RAM based on the configured TTL.
 
-The backoffice implementation leverages [LiveView](https://github.com/phoenixframework/phoenix_live_view) to provide an automatically updated dashboard view with all the feeds, the size of the latest payload, the latest HTTP code returned by the target etc.
+The backoffice implementation leverages [LiveView](https://github.com/phoenixframework/phoenix_live_view) to provide an automatically updated dashboard view with all the feeds, the size of the latest payload, the latest HTTP code returned by the target etc. Implementation is [here](https://github.com/etalab/transport-site/tree/master/apps/transport/lib/transport_web/live/backoffice).
 
 When working in development, instead of fetching the configuration from GitHub, the configuration is taken from a local config file (`
 config/proxy-config.yml`, see [config](https://github.com/etalab/transport-site/blob/master/config/dev.exs#L3)), in order to make it very easy to play with sample configurations locally.
