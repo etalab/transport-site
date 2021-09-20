@@ -69,6 +69,19 @@ The production database does not contains any sensitive data, you can retreive i
 
 Run the server with `mix phx.server` and you can visit [`127.0.0.1:5000`](http://127.0.0.1:5000) on your browser.
 
+## Usage of the Elixir Proxy
+
+[`apps/unlock`](https://github.com/etalab/transport-site/tree/master/apps/unlock) is a sub-part of the apps, which is served on its own subdomain (https://proxy.transport.data.gouv.fr for production, https://proxy.prochainement.transport.data.gouv.fr/ for staging).
+
+The proxy relies on this [yaml configuration](https://github.com/etalab/transport-proxy-config/blob/master/proxy-config.yml) which is currently fetched at runtime once (but can be hot-reloaded via this [backoffice page](https://transport.data.gouv.fr/backoffice/proxy-config)).
+
+When working in development, instead of fetching the configuration from GitHub, the configuration is taken from a local config file (`
+config/proxy-config.yml`, see [config](https://github.com/etalab/transport-site/blob/master/config/dev.exs#L3)), in order to make it very easy to play with sample configurations locally.
+
+For local work, you will have (for now at least) to add `proxy.localhost 127.0.0.1` to your `/etc/hosts` file.
+
+The app currently routes whatever starts with `proxy.` to the proxy (as implemented [here](https://github.com/etalab/transport-site/blob/master/apps/transport/lib/transport_web/plugs/router.ex)), although in the future we will probably use a more explicit configuration.
+
 ## Development
 
 ### Testing
