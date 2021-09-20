@@ -79,8 +79,7 @@ Each proxied "feed" (currently GTFS-RT data) has a private (target) url hidden f
 
 The backoffice implementation leverages [LiveView](https://github.com/phoenixframework/phoenix_live_view) to provide an automatically updated dashboard view with all the feeds, the size of the latest payload, the latest HTTP code returned by the target etc. Implementation is [here](https://github.com/etalab/transport-site/tree/master/apps/transport/lib/transport_web/live/backoffice).
 
-When working in development, instead of fetching the configuration from GitHub, the configuration is taken from a local config file (`
-config/proxy-config.yml`, see [config](https://github.com/etalab/transport-site/blob/master/config/dev.exs#L3)), in order to make it very easy to play with sample configurations locally.
+When working in development, instead of fetching the configuration from GitHub, the configuration is taken from a local config file (`config/proxy-config.yml`, see [config](https://github.com/etalab/transport-site/blob/master/config/dev.exs#L3)), in order to make it very easy to play with sample configurations locally.
 
 For local work, you will have (for now at least) to add `proxy.localhost 127.0.0.1` to your `/etc/hosts` file.
 
