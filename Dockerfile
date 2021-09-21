@@ -1,4 +1,4 @@
-FROM betagouv/transport:elixir-1.12.2-erlang-24.0.3-ubuntu-focal-20210325
+FROM betagouv/transport:elixir-1.12.2-erlang-24.0.4-ubuntu-focal-20210325
 
 RUN mkdir phoenixapp
 WORKDIR /phoenixapp
