@@ -198,6 +198,12 @@
         <h3 class="text-center"><%= dgettext("page-index", "Car and motorbike sharing") %></h3>
       </div>
     </div>
+    <div>
+      <div class="tile">
+        <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/low-emission-zones-grey.svg") %>" alt="" />
+        <h3 class="text-center"><%= dgettext("page-index", "Low emission zones") %></h3>
+      </div>
+    </div>
   </div>
   <a href="#mailing-list"><%= dgettext("page-index", "I'd like to be informed") %></a>
 </div>
