@@ -9,15 +9,18 @@ defmodule Datagouvfr.Client.CommunityResources.APITest do
 
   setup :verify_on_exit!
 
+  @data_containing_1_element ["data_containing_1_element #1"]
+  @data_containing_2_elements ["data_containing_2_elements #1", "data_containing_2_elements #2"]
+
   describe "Fetch community resources by dataset id" do
     test "when resource is NOT paginated" do
       a_dataset_id = "a_dataset_id"
 
       a_dataset_id
       |> build_expected_community_resource_base_url()
-      |> expect_request_called_with_only_one_page("page 1 data")
+      |> expect_request_called_with_only_one_page(@data_containing_2_elements)
 
-      assert_stream_return_data(a_dataset_id, ["page 1 data"])
+      assert_stream_return_data(a_dataset_id, @data_containing_2_elements)
     end
 
     test "when resource is paginated" do
@@ -25,10 +28,10 @@ defmodule Datagouvfr.Client.CommunityResources.APITest do
 
       a_dataset_id
       |> build_expected_community_resource_base_url()
-      |> expect_request_called_and_return_next_page("page 1 data")
-      |> expect_request_called_with_only_one_page("page 2 data")
+      |> expect_request_called_and_return_next_page(@data_containing_2_elements)
+      |> expect_request_called_with_only_one_page(@data_containing_1_element)
 
-      assert_stream_return_data(a_dataset_id, ["page 1 data", "page 2 data"])
+      assert_stream_return_data(a_dataset_id, @data_containing_2_elements ++ @data_containing_1_element)
     end
 
     test "when resource return a page in error" do
@@ -36,8 +39,8 @@ defmodule Datagouvfr.Client.CommunityResources.APITest do
 
       a_dataset_id
       |> build_expected_community_resource_base_url()
-      |> expect_request_called_and_return_next_page("page 1 data")
-      |> expect_request_called_and_return_next_page("page 2 data")
+      |> expect_request_called_and_return_next_page(@data_containing_2_elements)
+      |> expect_request_called_and_return_next_page(@data_containing_1_element)
       |> expect_request_called_and_return_an_error("community resource error")
 
       assert_stream_return_an_error(a_dataset_id)

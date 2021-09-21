@@ -23,7 +23,13 @@ defmodule Datagouvfr.ApiFixtures do
   Also generate a "next_page" url and return it into the mocked response.
   Assert that it's called only one time, that the given expected_url is called.
   """
-  def expect_request_called_and_return_next_page(expected_url, expected_data, has_next_page? \\ true) do
+  def expect_request_called_and_return_next_page(expected_url, expected_data, has_next_page? \\ true)
+
+  def expect_request_called_and_return_next_page(expected_url, expected_data, has_next_page?)
+      when not is_list(expected_data),
+      do: expect_request_called_and_return_next_page(expected_url, [expected_data], has_next_page?)
+
+  def expect_request_called_and_return_next_page(expected_url, expected_data, has_next_page?) do
     next_page =
       case has_next_page? do
         true -> expected_url <> "_next"

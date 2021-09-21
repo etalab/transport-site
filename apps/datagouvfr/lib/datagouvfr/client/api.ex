@@ -119,7 +119,7 @@ defmodule Datagouvfr.Client.API do
   def fetch_all_pages!(path, method \\ :get) do
     path
     |> Datagouvfr.Client.API.stream(method)
-    |> Stream.map(fn element ->
+    |> Stream.flat_map(fn element ->
       case element do
         {:ok, %{"data" => data}} ->
           data

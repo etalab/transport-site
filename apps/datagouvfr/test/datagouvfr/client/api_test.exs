@@ -10,15 +10,18 @@ defmodule Datagouvfr.Client.APITest do
 
   setup :verify_on_exit!
 
+  @data_containing_1_element ["data_containing_1_element #1"]
+  @data_containing_2_elements ["data_containing_2_elements #1", "data_containing_2_elements #2"]
+
   describe "Stream a data.gouv.fr resource" do
     test "when resource is NOT paginated" do
       resource_to_stream = "resource"
 
       resource_to_stream
       |> API.process_url()
-      |> expect_request_called_with_only_one_page("page 1 data")
+      |> expect_request_called_with_only_one_page(@data_containing_1_element)
 
-      assert_stream_return_pages(resource_to_stream, [{:ok, "page 1 data"}])
+      assert_stream_return_pages(resource_to_stream, [{:ok, @data_containing_1_element}])
     end
 
     test "when resource is paginated" do
@@ -26,14 +29,14 @@ defmodule Datagouvfr.Client.APITest do
 
       resource_to_stream
       |> API.process_url()
-      |> expect_request_called_and_return_next_page("page 1 data")
-      |> expect_request_called_and_return_next_page("page 2 data")
-      |> expect_request_called_without_next_page("page 3 data")
+      |> expect_request_called_and_return_next_page(@data_containing_2_elements)
+      |> expect_request_called_and_return_next_page(@data_containing_1_element)
+      |> expect_request_called_without_next_page(@data_containing_2_elements)
 
       assert_stream_return_pages(resource_to_stream, [
-        {:ok, "page 1 data"},
-        {:ok, "page 2 data"},
-        {:ok, "page 3 data"}
+        {:ok, @data_containing_2_elements},
+        {:ok, @data_containing_1_element},
+        {:ok, @data_containing_2_elements}
       ])
     end
 
@@ -42,13 +45,13 @@ defmodule Datagouvfr.Client.APITest do
 
       resource_to_stream
       |> API.process_url()
-      |> expect_request_called_and_return_next_page("page 1 data")
+      |> expect_request_called_and_return_next_page(@data_containing_2_elements)
       |> expect_request_called_and_return_an_error("error page")
 
       assert_stream_return_pages(
         resource_to_stream,
         [
-          {:ok, "page 1 data"},
+          {:ok, @data_containing_2_elements},
           {:error, "error page"}
         ]
       )
