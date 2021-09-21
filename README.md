@@ -152,7 +152,7 @@ To run a custom task: `mix <custom task>`
 
 If you don't plan to work a lot on this project, the docker installation is way easier.
 
-You need a .env file with the same variables that you have in .envrc.example (but you'll need to remove `export` at the beginning of each line.
+You need a .env file, and can use .env.example to see which variables need to be set.
 (No need to setup the variable `PG_URL`, it is defined in the docker-compose.yml)
 
 Then you only need to run:
