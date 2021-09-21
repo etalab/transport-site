@@ -199,10 +199,10 @@ defmodule TransportWeb.DatasetView do
       "low-emission-zones" => "low-emission-zones-grey.svg"
     }
 
-    "/images/icons/#{Map.get(icons, type)}"
+    if Map.has_key?(icons, type), do: "/images/icons/#{Map.get(icons, type)}"
   end
 
-  def icon_type_path(type) do
+  def icon_type_path(type) when is_binary(type) do
     icon_type_path(%{type: type})
   end
 
