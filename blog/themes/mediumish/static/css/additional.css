@@ -34,3 +34,8 @@
         padding-left: 0px !important;
     }
 }
+.mediumnavigation .navbar-brand img.marianne {
+    width: 60px;
+    height: 40px;
+    margin-right: 1.5rem;
+}

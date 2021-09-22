@@ -8,6 +8,7 @@ publishDir = "public"
 #disqusShortname = "your-shortname-here"
 
 [params]
+  marianne = "/images/logo-marianne.svg"
   logo = "/images/logo-header.svg"
   description = "Le blog de transport.data.gouv.fr"
   title = "Et PAN !"
