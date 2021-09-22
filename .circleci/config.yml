@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 
 default_docker: &default_docker
   image: betagouv/transport:0.4.3
@@ -167,7 +167,11 @@ workflows:
   version: 2
   transport:
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              ignore:
+                - /.*blog.*/
 
       - test_lint:
           requires:
