@@ -39,3 +39,7 @@
     height: 40px;
     margin-right: 1.5rem;
 }
+
+.navbar-brand a:hover {
+    text-decoration: none;
+}
