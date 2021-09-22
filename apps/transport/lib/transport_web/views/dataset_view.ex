@@ -195,7 +195,8 @@ defmodule TransportWeb.DatasetView do
       "informations" => "infos.svg",
       "road-works" => "construction-zone-grey.svg",
       "car-motorbike-sharing" => "car-motorbike-grey.svg",
-      "low-emission-zones" => "low-emission-zones-grey.svg"
+      "low-emission-zones" => "low-emission-zones-grey.svg",
+      "bike-parking" => "bike-parking.svg"
     }
 
     if Map.has_key?(icons, type), do: "/images/icons/#{Map.get(icons, type)}"
