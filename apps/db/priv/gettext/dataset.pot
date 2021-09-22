@@ -77,3 +77,11 @@ msgstr ""
 #, elixir-format
 msgid "Car and motorbike sharing"
 msgstr ""
+
+#, elixir-format
+msgid "Bike parking"
+msgstr ""
+
+#, elixir-format
+msgid "Low emission zones"
+msgstr ""
