@@ -124,7 +124,7 @@
         "follow_redirect": "true"
       },
       "request_body": "",
-      "url": "https://demo.data.gouv.fr/api/1/spatial/zones/country:fr"
+      "url": "https://demo.data.gouv.fr/api/1/spatial/zones/country:fr/"
     },
     "response": {
       "binary": false,
