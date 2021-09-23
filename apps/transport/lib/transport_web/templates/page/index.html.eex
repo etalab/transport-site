@@ -189,13 +189,19 @@
   <h2><%= dgettext("page-index", "Coming soon") %></h2>
   <div class="grid">
     <div class="tile">
-      <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/construction-zone-grey.svg") %>" alt="" />
+      <%= img_tag(icon_type_path("road-works"), class: "tile__icon") %>
       <h3 class="text-center"><%= dgettext("page-index", "Road works") %></h3>
     </div>
     <div>
       <div class="tile">
-        <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/car-motorbike-grey.svg") %>" alt="" />
+        <%= img_tag(icon_type_path("car-motorbike-sharing"), class: "tile__icon") %>
         <h3 class="text-center"><%= dgettext("page-index", "Car and motorbike sharing") %></h3>
+      </div>
+    </div>
+    <div>
+      <div class="tile">
+        <%= img_tag(icon_type_path("low-emission-zones"), class: "tile__icon") %>
+        <h3 class="text-center"><%= dgettext("page-index", "Low emission zones") %></h3>
       </div>
     </div>
   </div>

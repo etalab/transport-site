@@ -186,7 +186,10 @@ workflows:
   version: 2
   transport:
     jobs:
-      - build
+      - build:
+        branches:
+          ignore:
+            - blog
 
       - test_lint:
           requires:

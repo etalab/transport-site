@@ -78,3 +78,11 @@ msgstr "Aménagements cyclables"
 #, elixir-format
 msgid "Car and motorbike sharing"
 msgstr "Voitures et scooters en libre-service"
+
+#, elixir-format
+msgid "Bike parking"
+msgstr "Stationnement vélo"
+
+#, elixir-format
+msgid "Low emission zones"
+msgstr "Zones à faibles émissions"
