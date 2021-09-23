@@ -138,6 +138,7 @@ defmodule TransportWeb.Router do
     scope "/validation" do
       get("/", ValidationController, :index)
       post("/", ValidationController, :validate)
+      post("/convert", ValidationController, :convert)
       get("/:id", ValidationController, :show)
     end
 

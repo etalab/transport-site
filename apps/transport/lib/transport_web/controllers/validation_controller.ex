@@ -42,6 +42,19 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
+  def convert(%Plug.Conn{} = conn, %{"upload" => upload_params}) do
+    file_path = upload_params["file"].path
+
+    res = case Rambo.run("external-tools/gtfs-geojson", ["--input",  file_path]) do
+       {:ok, %Rambo{out: x}} -> x
+       x -> "errooooor"
+     end
+
+     conn
+      |> Plug.Conn.resp(200, res)
+      |> Plug.Conn.send_resp()
+  end
+
   def show(%Plug.Conn{} = conn, %{} = params) do
     config = make_pagination_config(params)
     validation = Repo.get(Validation, params["id"])
