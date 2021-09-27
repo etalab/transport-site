@@ -1,8 +1,6 @@
-FROM betagouv/transport:elixir-1.12.2-erlang-24.0.3-alpine-3.13.3
+FROM betagouv/transport:elixir-1.12.2-erlang-24.0.4-ubuntu-focal-20210325
 
-RUN apk add inotify-tools
-RUN apk add postgresql-client>=11
-RUN apk add git
+RUN apt-get install -y git inotify-tools postgresql-client>=11
 
 RUN mkdir /app/
 RUN mkdir /app/_build
