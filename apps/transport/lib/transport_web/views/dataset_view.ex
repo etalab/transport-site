@@ -182,21 +182,28 @@ defmodule TransportWeb.DatasetView do
 
   def icon_type_path(%{type: type}) do
     icons = %{
-      "public-transit" => "/images/icons/bus.svg",
-      "bike-scooter-sharing" => "/images/icons/bicycle-scooter.svg",
-      "car-motorbike-sharing" => "/images/icons/car-motorbike.svg",
-      "bike-path" => "/images/icons/bike-path.svg",
-      "carpooling-areas" => "/images/icons/car.svg",
-      "charging-stations" => "/images/icons/charge-station.svg",
-      "air-transport" => "/images/icons/plane.svg",
-      "road-network" => "/images/icons/map.svg",
-      "addresses" => "/images/icons/addresses.svg",
-      "private-parking" => "/images/icons/parking.svg",
-      "stops-ref" => "/images/icons/addresses.svg",
-      "informations" => "/images/icons/infos.svg"
+      "public-transit" => "bus.svg",
+      "bike-scooter-sharing" => "bicycle-scooter.svg",
+      "bike-path" => "bike-path.svg",
+      "carpooling-areas" => "car.svg",
+      "charging-stations" => "charge-station.svg",
+      "air-transport" => "plane.svg",
+      "road-network" => "map.svg",
+      "addresses" => "addresses.svg",
+      "private-parking" => "parking.svg",
+      "stops-ref" => "addresses.svg",
+      "informations" => "infos.svg",
+      "road-works" => "construction-zone-grey.svg",
+      "car-motorbike-sharing" => "car-motorbike-grey.svg",
+      "low-emission-zones" => "low-emission-zones-grey.svg",
+      "bike-parking" => "bike-parking.svg"
     }
 
-    Map.get(icons, type)
+    if Map.has_key?(icons, type), do: "/images/icons/#{Map.get(icons, type)}"
+  end
+
+  def icon_type_path(type) when is_binary(type) do
+    icon_type_path(%{type: type})
   end
 
   def display_all_types_links?(%{params: %{"type" => type}}) when not is_nil(type), do: true

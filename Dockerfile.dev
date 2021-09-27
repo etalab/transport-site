@@ -1,7 +1,6 @@
-FROM betagouv/transport:0.4.3
+FROM betagouv/transport:elixir-1.12.2-erlang-24.0.4-ubuntu-focal-20210325
 
-RUN apk add inotify-tools
-RUN apk add postgresql-client>=11
+RUN apt-get install -y git inotify-tools postgresql-client>=11
 
 RUN mkdir /app/
 RUN mkdir /app/_build
@@ -9,7 +8,7 @@ RUN mkdir /app/deps/
 WORKDIR /app/
 
 # fetch a wait-for-it script to wait for postgres startup
-ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/54d1f0bfeb6557adf8a3204455389d0901652242/wait-for-it.sh /opt/bin/
+ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/81b1373f17855a4dc21156cfe1694c31d7d1792e/wait-for-it.sh /opt/bin/
 RUN chmod +x /opt/bin/wait-for-it.sh
 
 ADD docker_phoenix_startup.sh /docker_phoenix_startup.sh
