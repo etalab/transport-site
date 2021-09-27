@@ -228,7 +228,7 @@ defmodule Transport.ImportData do
   @spec fetch_data_gouv_zone_insee(binary()) :: [binary()]
   defp fetch_data_gouv_zone_insee(zone) do
     base_url = Application.fetch_env!(:transport, :datagouvfr_site)
-    url = "#{base_url}/api/1/spatial/zones/#{zone}"
+    url = "#{base_url}/api/1/spatial/zones/#{zone}/"
     Logger.info("getting zone (url = #{url})")
 
     with {:ok, response} <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),

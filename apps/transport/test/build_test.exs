@@ -37,10 +37,14 @@ defmodule TransportWeb.BuildTest do
     content = File.read!("../../Dockerfile")
     [[_, production_version]] = Regex.scan(~r/FROM (.*)/, content)
 
+    content = File.read!("../../Dockerfile.dev")
+    [[_, docker_compose_version]] = Regex.scan(~r/FROM (.*)/, content)
+
     content = File.read!("../../.circleci/config.yml")
     [[_, ci_version]] = Regex.scan(~r/(betagouv\/transport.*)/, content)
 
     assert ci_version == production_version
+    assert ci_version == docker_compose_version
   end
 
   # figuring out you have forgotten to upgrade the assets can be tricky, so we add a little reminder here
