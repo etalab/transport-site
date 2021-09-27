@@ -220,6 +220,10 @@ msgid "Bike path"
 msgstr ""
 
 #, elixir-format
+msgid "Low emission zones"
+msgstr ""
+
+#, elixir-format
 msgid "A freely accessible service"
 msgstr ""
 

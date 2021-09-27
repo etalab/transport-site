@@ -1,6 +1,7 @@
 version: "3"
 services:
   database:
+    # this will need to be replaced, as the DB content is now really old
     image: antoinede/transport_data_gouv_dev_database
     volumes:
       - pgdata:/var/lib/postgresql/data
