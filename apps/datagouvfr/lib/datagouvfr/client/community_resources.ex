@@ -3,7 +3,6 @@ defmodule Datagouvfr.Client.CommunityResources do
     This behaviour defines the API for interacting with data.gouv community resources
     , with alternative implementations.
   """
-  alias Datagouvfr.Client.API
 
   @callback get(dataset_id :: binary()) :: {:ok, [any()]} | {:error, []}
   @callback delete(dataset_id :: binary(), resource_id :: binary()) ::
@@ -27,7 +26,7 @@ defmodule Datagouvfr.Client.CommunityResources.API do
   def get(dataset_id) when is_binary(dataset_id) do
     case Datagouvfr.Client.API.fetch_all_pages("#{@endpoint}?dataset=#{dataset_id}") do
       {:ok, pages} -> {:ok, pages}
-      {:error, error} -> {:error, []}
+      {:error, _error} -> {:error, []}
     end
   end
 
