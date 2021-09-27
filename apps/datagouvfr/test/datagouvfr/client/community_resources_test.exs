@@ -5,7 +5,7 @@ defmodule Datagouvfr.Client.CommunityResources.APITest do
   import Datagouvfr.ApiFixtures
   import Mox
 
-  alias Datagouvfr.Client.CommunityResources.API
+  alias Datagouvfr.Client.CommunityResources.API, as: CommunityResourcesAPI
 
   setup :verify_on_exit!
 
@@ -18,9 +18,11 @@ defmodule Datagouvfr.Client.CommunityResources.APITest do
 
       a_dataset_id
       |> build_expected_community_resource_base_url()
-      |> expect_request_called_with_only_one_page(@data_containing_2_elements)
+      |> given_request_return_only_one_page(@data_containing_2_elements)
 
-      assert_stream_return_data(a_dataset_id, @data_containing_2_elements)
+      a_dataset_id
+      |> CommunityResourcesAPI.get()
+      |> assert_response_is_valid_and_contains_data(@data_containing_2_elements)
     end
 
     test "when resource is paginated" do
@@ -28,10 +30,12 @@ defmodule Datagouvfr.Client.CommunityResources.APITest do
 
       a_dataset_id
       |> build_expected_community_resource_base_url()
-      |> expect_request_called_and_return_next_page(@data_containing_2_elements)
-      |> expect_request_called_with_only_one_page(@data_containing_1_element)
+      |> given_request_return_response_with_next_page(@data_containing_2_elements)
+      |> given_request_return_response_without_next_page(@data_containing_1_element)
 
-      assert_stream_return_data(a_dataset_id, @data_containing_2_elements ++ @data_containing_1_element)
+      a_dataset_id
+      |> CommunityResourcesAPI.get()
+      |> assert_response_is_valid_and_contains_data(@data_containing_2_elements ++ @data_containing_1_element)
     end
 
     test "when resource return a page in error" do
@@ -39,23 +43,21 @@ defmodule Datagouvfr.Client.CommunityResources.APITest do
 
       a_dataset_id
       |> build_expected_community_resource_base_url()
-      |> expect_request_called_and_return_next_page(@data_containing_2_elements)
-      |> expect_request_called_and_return_next_page(@data_containing_1_element)
-      |> expect_request_called_and_return_an_error("community resource error")
+      |> given_request_return_response_with_next_page(@data_containing_2_elements)
+      |> given_request_return_response_with_next_page(@data_containing_1_element)
+      |> given_request_return_an_error("community resource error")
 
-      assert_stream_return_an_error(a_dataset_id)
+      a_dataset_id
+      |> CommunityResourcesAPI.get()
+      |> assert_is_an_error_response
     end
   end
 
-  defp assert_stream_return_data(resource_to_stream, expected_pages_data) do
-    {:ok, obtained_pages_data} = API.get(resource_to_stream)
-    assert obtained_pages_data == expected_pages_data
-  end
+  defp assert_response_is_valid_and_contains_data({:ok, obtained_data}, expected_data),
+    do: assert(obtained_data == expected_data)
 
-  defp assert_stream_return_an_error(resource_to_stream) do
-    {:error, data} = API.get(resource_to_stream)
-    assert data == []
-  end
+  defp assert_is_an_error_response({:error, obtained_data}),
+    do: assert(obtained_data == [])
 
   defp build_expected_community_resource_base_url(community_resource_id),
     do:

@@ -19,7 +19,7 @@ defmodule Datagouvfr.Client.APITest do
 
       resource_to_stream
       |> API.process_url()
-      |> expect_request_called_with_only_one_page(@data_containing_1_element)
+      |> given_request_return_only_one_page(@data_containing_1_element)
 
       assert_stream_return_pages(resource_to_stream, [{:ok, @data_containing_1_element}])
     end
@@ -29,9 +29,9 @@ defmodule Datagouvfr.Client.APITest do
 
       resource_to_stream
       |> API.process_url()
-      |> expect_request_called_and_return_next_page(@data_containing_2_elements)
-      |> expect_request_called_and_return_next_page(@data_containing_1_element)
-      |> expect_request_called_without_next_page(@data_containing_2_elements)
+      |> given_request_return_response_with_next_page(@data_containing_2_elements)
+      |> given_request_return_response_with_next_page(@data_containing_1_element)
+      |> given_request_return_response_without_next_page(@data_containing_2_elements)
 
       assert_stream_return_pages(resource_to_stream, [
         {:ok, @data_containing_2_elements},
@@ -45,8 +45,8 @@ defmodule Datagouvfr.Client.APITest do
 
       resource_to_stream
       |> API.process_url()
-      |> expect_request_called_and_return_next_page(@data_containing_2_elements)
-      |> expect_request_called_and_return_an_error("error page")
+      |> given_request_return_response_with_next_page(@data_containing_2_elements)
+      |> given_request_return_an_error("error page")
 
       assert_stream_return_pages(
         resource_to_stream,
