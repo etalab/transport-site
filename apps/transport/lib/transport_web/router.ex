@@ -169,6 +169,8 @@ defmodule TransportWeb.Router do
       external:
         "https://blog.transport.data.gouv.fr/billets/donn%C3%A9es-p%C3%A9rim%C3%A9es-donn%C3%A9es-inutilis%C3%A9es/"
     )
+
+    get("/*path", PageController, :not_found)
   end
 
   # private

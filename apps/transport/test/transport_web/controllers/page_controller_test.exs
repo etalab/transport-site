@@ -131,4 +131,10 @@ defmodule TransportWeb.PageControllerTest do
     assert Floki.attribute(item, "href") == ["/login/explanation?redirect_path=%2Finfos_producteurs"]
     assert item |> Floki.text() =~ "Identifiez-vous"
   end
+
+  test "404 page", %{conn: conn} do
+    conn = conn |> get("/notfound")
+    html = html_response(conn, 404)
+    assert html =~ "Page non disponible"
+  end
 end
