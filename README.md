@@ -69,6 +69,22 @@ The production database does not contains any sensitive data, you can retreive i
 
 Run the server with `mix phx.server` and you can visit [`127.0.0.1:5000`](http://127.0.0.1:5000) on your browser.
 
+## Usage of the Elixir Proxy
+
+[`apps/unlock`](https://github.com/etalab/transport-site/tree/master/apps/unlock) is a sub-part of the "umbrella app", which is served on its own subdomain (https://proxy.transport.data.gouv.fr for production, https://proxy.prochainement.transport.data.gouv.fr/ for staging).
+
+The proxy relies on this [yaml configuration](https://github.com/etalab/transport-proxy-config/blob/master/proxy-config.yml) which is currently fetched at runtime once (but can be hot-reloaded via this [backoffice page](https://transport.data.gouv.fr/backoffice/proxy-config)).
+
+Each proxied "feed" (currently GTFS-RT data) has a private (target) url hidden from the general public, can be configured with an independent Time-To-Live (TTL), and is exposed as a credential-free public url to the public. When a query occurs, the incoming HTTP connection is kept on hold while the proxy issues a query to the target server, caching the response in RAM based on the configured TTL.
+
+The backoffice implementation leverages [LiveView](https://github.com/phoenixframework/phoenix_live_view) to provide an automatically updated dashboard view with all the feeds, the size of the latest payload, the latest HTTP code returned by the target etc. Implementation is [here](https://github.com/etalab/transport-site/tree/master/apps/transport/lib/transport_web/live/backoffice).
+
+When working in development, instead of fetching the configuration from GitHub, the configuration is taken from a local config file (`config/proxy-config.yml`, see [config](https://github.com/etalab/transport-site/blob/master/config/dev.exs#L3)), in order to make it very easy to play with sample configurations locally.
+
+For local work, you will have (for now at least) to add `proxy.localhost 127.0.0.1` to your `/etc/hosts` file.
+
+The app currently routes whatever starts with `proxy.` to the proxy (as implemented [here](https://github.com/etalab/transport-site/blob/master/apps/transport/lib/transport_web/plugs/router.ex)), although in the future we will probably use a more explicit configuration.
+
 ## Development
 
 ### Testing
@@ -152,7 +168,7 @@ To run a custom task: `mix <custom task>`
 
 If you don't plan to work a lot on this project, the docker installation is way easier.
 
-You need a .env file with the same variables that you have in .envrc.example (but you'll need to remove `export` at the beginning of each line.
+You need a .env file, and can use .env.example to see which variables need to be set.
 (No need to setup the variable `PG_URL`, it is defined in the docker-compose.yml)
 
 Then you only need to run:
