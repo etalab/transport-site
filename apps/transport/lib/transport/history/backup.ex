@@ -61,12 +61,12 @@ defmodule Transport.History.Backup do
 
   @spec get_already_backuped_resources(DB.Resource.t()) :: [map()]
   defp get_already_backuped_resources(resource) do
-    resource
-    |> Shared.resource_bucket_id()
-    |> ExAws.S3.list_objects(prefix: resource_title(resource))
-    |> Transport.Wrapper.ExAWS.impl().stream!()
+    bucket = Shared.resource_bucket_id(resource)
+
+    bucket
+    |> Transport.History.Shared.list_objects(resource_title(resource))
     |> Enum.map(fn o ->
-      metadata = Shared.fetch_history_metadata(Shared.resource_bucket_id(resource), o.key)
+      metadata = Shared.fetch_history_metadata(bucket, o.key)
 
       %{
         key: o.key,

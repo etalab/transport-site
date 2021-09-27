@@ -29,6 +29,9 @@ config :transport,
   history_impl: Transport.History.Fetcher.Mock,
   gtfs_validator: Validation.Validator.Mock
 
+config :ex_aws,
+  cellar_organisation_id: "fake-cellar_organisation_id"
+
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.Mock
 

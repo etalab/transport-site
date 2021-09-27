@@ -12,8 +12,7 @@ defmodule Transport.History.Fetcher.S3 do
     bucket = Transport.History.Shared.dataset_bucket_id(dataset)
 
     bucket
-    |> ExAws.S3.list_objects()
-    |> Transport.Wrapper.ExAWS.impl().stream!()
+    |> Transport.History.Shared.list_objects()
     |> Enum.to_list()
     |> Enum.map(fn f ->
       metadata = Transport.History.Shared.fetch_history_metadata(bucket, f.key)

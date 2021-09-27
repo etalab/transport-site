@@ -11,6 +11,17 @@ defmodule Transport.History.Shared do
   @spec resource_bucket_id(DB.Resource.t()) :: binary()
   def resource_bucket_id(%DB.Resource{} = resource), do: dataset_bucket_id(resource.dataset)
 
+  @spec list_objects(binary(), binary() | nil) :: Stream.t()
+  def list_objects(bucket, prefix \\ nil) do
+    bucket
+    |> ExAws.S3.list_objects(prefix: prefix)
+    |> Transport.Wrapper.ExAWS.impl().stream!()
+    # Make sure objects belong to our organisation
+    |> Enum.filter(fn object ->
+      String.ends_with?(object[:owner][:display_name], Application.fetch_env!(:ex_aws, :cellar_organisation_id))
+    end)
+  end
+
   @spec fetch_history_metadata(binary(), binary()) :: map()
   def fetch_history_metadata(bucket, obj_key) do
     bucket
