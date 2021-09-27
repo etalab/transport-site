@@ -133,7 +133,7 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "404 page", %{conn: conn} do
-    conn = conn |> get("/notfound")
+    conn = conn |> get("/this-page-does-not-exist")
     html = html_response(conn, 404)
     assert html =~ "Page non disponible"
   end

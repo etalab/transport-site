@@ -170,6 +170,11 @@ defmodule TransportWeb.Router do
         "https://blog.transport.data.gouv.fr/billets/donn%C3%A9es-p%C3%A9rim%C3%A9es-donn%C3%A9es-inutilis%C3%A9es/"
     )
 
+    # Define a "catch all" route, rendering the 404 page.
+    # By default pipelines are not invoked when a route is not found.
+    # We need the `browser` pipeline in order to start the session.
+    #
+    # See https://elixirforum.com/t/phoenix-router-no-pipelines-invoked-for-404/42563
     get("/*path", PageController, :not_found)
   end
 
