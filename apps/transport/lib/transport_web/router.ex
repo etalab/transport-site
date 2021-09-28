@@ -142,6 +142,11 @@ defmodule TransportWeb.Router do
       get("/:id", ValidationController, :show)
     end
 
+    scope "/gtfs-geojson-conversion" do
+      get("/", GeojsonConversionController, :index)
+      post("/", GeojsonConversionController, :convert)
+    end
+
     # old static pages that have been moved to doc.transport
     get("/faq", Redirect, external: "https://doc.transport.data.gouv.fr/foire-aux-questions")
 
