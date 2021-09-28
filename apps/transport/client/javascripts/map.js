@@ -565,30 +565,38 @@ function addRealTimePtFormatMap (id, view) {
         layer.bindPopup(bind)
     }
 
+    const legends = {
+        gtfs_rt: { label: 'GTFS RT', color: 'blue' },
+        siri: { label: 'SIRI', color: 'green' },
+        siri_lite: { label: 'SIRI Lite', color: lightGreen },
+        non_standard_rt: { label: 'Non standard', color: 'red' },
+        multiple: { label: 'Multiple', color: 'orange' }
+    }
+
     const styles = {
         gtfs_rt: {
             weight: 1,
             fillOpacity: 0.5,
-            color: 'green'
+            color: legends.gtfs_rt.color
         },
         siri: {
             weight: 1,
-            color: 'blue',
+            color: legends.siri.color,
             fillOpacity: 0.3
         },
         siri_lite: {
             weight: 1,
-            color: 'orange',
+            color: legends.siri_lite.color,
             fillOpacity: 0.5
         },
         non_standard_rt: {
             weight: 1,
-            color: 'red',
+            color: legends.non_standard_rt.color,
             fillOpacity: 0.5
         },
         multiple: {
             weight: 1,
-            color: 'pink',
+            color: legends.multiple.color,
             fillOpacity: 0.5
         },
         unavailable: {
@@ -647,18 +655,11 @@ function addRealTimePtFormatMap (id, view) {
     aomsFG.addTo(map)
 
     if (view.display_legend) {
-        const legend = getLegend(
+        getLegend(
             '<h4>Format des données temps réel</h4>',
-            ['green', 'blue', 'orange', 'red', 'pink'],
-            [
-                'GTFS RT',
-                'SIRI',
-                'SIRI Lite',
-                'Non standard',
-                'multiple'
-            ]
-        )
-        legend.addTo(map)
+            Object.entries(legends).map(([key, legend]) => legend.color),
+            Object.entries(legends).map(([key, legend]) => legend.label)
+        ).addTo(map)
     }
 }
 
@@ -674,11 +675,11 @@ function addPtFormatMap (id, view) {
         gtfs: {
             weight: 1,
             fillOpacity: 0.5,
-            color: 'green'
+            color: 'blue'
         },
         netex: {
             weight: 1,
-            color: 'blue',
+            color: 'green',
             fillOpacity: 0.3
         },
         both: {
@@ -731,7 +732,7 @@ function addPtFormatMap (id, view) {
     if (view.display_legend) {
         const legend = getLegend(
             '<h4>Format de données</h4>',
-            ['green', 'blue', 'orange'],
+            ['blue', 'green', 'orange'],
             ['GTFS', 'NeTEx', 'GTFS & NeTEx']
         )
         legend.addTo(map)
