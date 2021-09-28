@@ -11,6 +11,13 @@ defmodule TransportWeb.PageController do
     |> render("index.html")
   end
 
+  def not_found(conn, _params) do
+    conn
+    |> put_status(:not_found)
+    |> put_view(ErrorView)
+    |> render("404.html")
+  end
+
   defp compute_home_index_stats do
     [
       count_by_type: Dataset.count_by_type(),
