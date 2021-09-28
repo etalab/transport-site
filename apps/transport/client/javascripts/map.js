@@ -606,7 +606,7 @@ function addRealTimePtFormatMap (id, view) {
         const hasNonStandard = format.non_standard_rt > 0
 
         let style = styles.unavailable
-        let nbFormats = 0;
+        let nbFormats = 0
 
         if (hasGtfsRt) {
             style = styles.gtfs_rt
@@ -628,7 +628,7 @@ function addRealTimePtFormatMap (id, view) {
             nbFormats++
         }
 
-        if(nbFormats > 1) {
+        if (nbFormats > 1) {
             style = styles.multiple
         }
 

@@ -77,7 +77,10 @@ defmodule Transport.StatsHandler do
       nb_gtfs: count_dataset_with_format("GTFS"),
       nb_netex: count_dataset_with_format("NeTEx"),
       nb_bss_datasets: count_dataset_with_format("gbfs"),
-      nb_bikes_datasets: nb_bikes()
+      nb_bikes_datasets: nb_bikes(),
+      nb_gtfs_rt: count_dataset_with_format("gtfs-rt"),
+      nb_siri: count_dataset_with_format("siri"),
+      nb_siri_lite: count_dataset_with_format("siri-lite")
     }
   end
 

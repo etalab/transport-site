@@ -223,6 +223,18 @@
                 Les données temps réel qui ne respectent pas ces conditions sont référencées sur <a href="/real_time">une page à part</a>.<br>
                 Plus d’informations sur le temps réel sont disponibles dans <a href="https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/temps-reel-des-transports-en-commun">la documentation</a>.</p>
             </div>
+             <div class=tile>
+               <h3><%= @nb_gtfs_rt %></h3>
+               <div>jeux de données en <strong>GTFS-RT</strong></div>
+             </div>
+             <div class=tile>
+               <h3><%= @nb_siri %></h3>
+               <div>jeux de données en <strong>SIRI</strong></div>
+             </div>
+             <div class=tile>
+               <h3><%= @nb_siri_lite %></h3>
+               <div>jeux de données en <strong>SIRI Lite</strong></div>
+             </div>
           </div>
       </div>
     </div>
