@@ -12,7 +12,7 @@ defmodule TransportWeb.GeojsonConversionControllerTest do
     end
 
     test "we can convert a gtfs" do
-      {:ok, msg} = GeojsonConversionController.call_geojson_converter("/home/francis/projects/transport/transport-site/apps/transport/test/fixture/files/gtfs.zip")
+      {:ok, msg} = GeojsonConversionController.call_geojson_converter("#{__DIR__}/../../fixture/files/gtfs.zip")
       assert String.contains?(msg, "FeatureCollection")
     end
 
