@@ -1,7 +1,6 @@
 defmodule TransportWeb.GeojsonConversionController do
   use TransportWeb, :controller
 
-
   def index(%Plug.Conn{} = conn, _) do
     conn |> render("index.html")
   end
@@ -14,7 +13,9 @@ defmodule TransportWeb.GeojsonConversionController do
         {:ok, res} ->
           conn
           |> Plug.Conn.resp(200, res)
-        {:error, err_msg} -> conn |> Plug.Conn.resp(400, err_msg)
+
+        {:error, err_msg} ->
+          conn |> Plug.Conn.resp(400, err_msg)
       end
 
     conn

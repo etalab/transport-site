@@ -35,10 +35,10 @@ defmodule TransportWeb.BuildTest do
 
   test "make sure Docker image is same for production & CI" do
     content = File.read!("../../Dockerfile")
-    [[_, production_version]] = Regex.scan(~r/FROM (.*)/, content)
+    [[_, production_version]] = Regex.scan(~r/FROM (betagouv.*)/, content)
 
     content = File.read!("../../Dockerfile.dev")
-    [[_, docker_compose_version]] = Regex.scan(~r/FROM (.*)/, content)
+    [[_, docker_compose_version]] = Regex.scan(~r/FROM (betagouv.*)/, content)
 
     content = File.read!("../../.circleci/config.yml")
     [[_, ci_version]] = Regex.scan(~r/(betagouv\/transport.*)/, content)
