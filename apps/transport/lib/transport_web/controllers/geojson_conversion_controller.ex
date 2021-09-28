@@ -23,7 +23,7 @@ defmodule TransportWeb.GeojsonConversionController do
   end
 
   def call_geojson_converter(file_path) do
-    binary_path = Path.join(Application.fetch_env!(:transport, :external_tools_folder), "gtfs-geojson")
+    binary_path = Path.join(Application.fetch_env!(:transport, :transport_tools_folder), "gtfs-geojson")
 
     case Rambo.run(binary_path, ["--input", file_path]) do
       {:ok, %Rambo{out: res}} -> {:ok, res}
