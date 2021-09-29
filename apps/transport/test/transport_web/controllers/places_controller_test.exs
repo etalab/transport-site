@@ -18,10 +18,8 @@ defmodule TransportWeb.API.PlacesControllerTest do
       |> Enum.map(&Map.update!(&1, "url", fn v -> cleanup(v) end))
 
   test "Search a place", %{conn: conn} do
-    r =
-      conn
-      |> get(Helpers.places_path(conn, :autocomplete, q: "chat"))
-      |> json_response(200)
+    conn = conn |> get(Helpers.places_path(conn, :autocomplete, q: "chat"))
+    r = conn |> json_response(200)
 
     assert sort_and_clean(r) ==
              Enum.sort([
@@ -36,6 +34,9 @@ defmodule TransportWeb.API.PlacesControllerTest do
                  "url" => "/datasets/aom/:id"
                }
              ])
+
+    assert conn |> get_resp_header("etag")
+    assert conn |> get_resp_header("cache-control") == ["max-age=60, public, must-revalidate"]
   end
 
   test "Search a place with accent", %{conn: conn} do
