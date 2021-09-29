@@ -27,4 +27,13 @@ defmodule TransportWeb.DatasetControllerTest do
       assert html =~ "réutilisations sont temporairement indisponibles"
     end
   end
+
+  test "GET /api/datasets has HTTP cache headers set", %{conn: conn} do
+    conn = conn |> get(TransportWeb.API.Router.Helpers.dataset_path(conn, :datasets))
+
+    json_response(conn, 200)
+
+    assert conn |> get_resp_header("etag")
+    assert conn |> get_resp_header("cache-control") == ["max-age=60, public, must-revalidate"]
+  end
 end
