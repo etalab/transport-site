@@ -39,10 +39,10 @@ jobs:
 
       - run:
           name: Copy transport tools
-          command: |
-            mkdir ./transport-tools
-            docker create -t --name transport-tools ghcr.io/etalab/transport-tools:master
-            docker cp transport-tools:/usr/local/bin/gtfs-geojson ./transport-tools/gtfs-geojson
+          command: docker create -t --name transport-tools ghcr.io/etalab/transport-tools:master
+            # mkdir ./transport-tools
+
+            # docker cp transport-tools:/usr/local/bin/gtfs-geojson ./transport-tools/gtfs-geojson
 
       - restore_cache:
           # Please read: https://circleci.com/docs/2.0/caching/#restoring-cache
