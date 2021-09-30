@@ -40,11 +40,11 @@ jobs:
       - run:
           name: Copy transport tools
           command: |
-            sudo apt-get update
-            sudo apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
+            apt-get update
+            apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
             curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-            sudo apt-get update
-            sudo apt-get install docker-ce docker-ce-cli containerd.io
+            apt-get update
+            apt-get install docker-ce docker-ce-cli containerd.io
             mkdir ./transport-tools
             docker create -t --name transport-tools ghcr.io/etalab/transport-tools:master
             docker cp transport-tools:/usr/local/bin/gtfs-geojson ./transport-tools/gtfs-geojson
