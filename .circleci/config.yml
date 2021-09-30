@@ -34,6 +34,10 @@ jobs:
     steps:
       - checkout
 
+      - run:
+        name: Move transport-tools folder
+        command: mv /transport-tools ./transport-tools
+
       - restore_cache:
           # Please read: https://circleci.com/docs/2.0/caching/#restoring-cache
           keys:
