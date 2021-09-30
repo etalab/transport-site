@@ -1,8 +1,9 @@
-FROM betagouv/transport:elixir-1.12.2-erlang-24.0.4-ubuntu-focal-20210325
+FROM betagouv/transport:elixir-1.12.2-erlang-24.0.4-ubuntu-focal-20210325-with-transport-tools
 
 RUN mkdir phoenixapp
 WORKDIR /phoenixapp
 COPY ./ /phoenixapp
+RUN mv  /transport-tools /phoenixapp
 
 RUN mix do deps.get --only prod
 

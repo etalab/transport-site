@@ -12,7 +12,7 @@ default_docker: &default_docker
 defaults: &defaults
   parameters:
     base_image:
-      default: betagouv/transport:elixir-1.12.2-erlang-24.0.4-ubuntu-focal-20210325
+      default: betagouv/transport:elixir-1.12.2-erlang-24.0.4-ubuntu-focal-20210325-with-transport-tools
       type: string
   working_directory: ~/transport
   docker:
@@ -33,6 +33,10 @@ jobs:
 
     steps:
       - checkout
+
+      - run:
+          name: Move transport-tools folder
+          command: mv /transport-tools ./transport-tools
 
       - restore_cache:
           # Please read: https://circleci.com/docs/2.0/caching/#restoring-cache
