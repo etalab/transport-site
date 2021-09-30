@@ -541,9 +541,9 @@ function addRealTimePtFormatMap (id, view) {
         const name = feature.properties.nom
         const type = feature.properties.forme_juridique
         const format = feature.properties.dataset_formats
-        const gtfsRT = (format.gtfs_rt !== undefined ? format.gtfs_rt : 0)
-        const siri = (format.siri !== undefined ? format.siri : 0)
-        const siriLite = (format.siri_lite !== undefined ? format.siri_lite : 0)
+        const gtfsRT = format.gtfs_rt ?? 0
+        const siri = format.siri ?? 0
+        const siriLite = format.siri_lite ?? 0
         const countOfficial = gtfsRT + siri + siriLite
 
         const countNonStandardRT = format.non_standard_rt
@@ -612,35 +612,21 @@ function addRealTimePtFormatMap (id, view) {
         const hasSiri = format.siri > 0
         const hasSiriLite = format.siri_lite > 0
         const hasNonStandard = format.non_standard_rt > 0
+        const hasMultipleFormats = [hasSiri, hasSiriLite, hasNonStandard, hasGtfsRt].filter(x => !!x).length > 1
 
-        let style = styles.unavailable
-        let nbFormats = 0
-
-        if (hasGtfsRt) {
-            style = styles.gtfs_rt
-            nbFormats++
+        if (hasMultipleFormats) {
+            return styles.multiple
+        } else if (hasGtfsRt) {
+            return styles.gtfs_rt
+        } else if (hasSiri) {
+            return styles.siri
+        } else if (hasSiriLite) {
+            return styles.siri_lite
+        } else if (hasNonStandard) {
+            return styles.non_standard_rt
+        } else {
+            return styles.unavailable
         }
-
-        if (hasSiri) {
-            style = styles.siri
-            nbFormats++
-        }
-
-        if (hasSiriLite) {
-            style = styles.siri_lite
-            nbFormats++
-        }
-
-        if (hasNonStandard) {
-            style = styles.non_standard_rt
-            nbFormats++
-        }
-
-        if (nbFormats > 1) {
-            style = styles.multiple
-        }
-
-        return style
     }
 
     const filter = feature => {
