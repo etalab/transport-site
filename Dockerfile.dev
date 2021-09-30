@@ -1,6 +1,4 @@
-# FROM ghcr.io/etalab/transport-tools:master as transport-tools
-
-FROM betagouv/transport:test-transport-tools
+FROM betagouv/transport:elixir-1.12.2-erlang-24.0.4-ubuntu-focal-20210325-with-transport-tools
 
 RUN apt-get install -y git inotify-tools postgresql-client>=11
 
@@ -9,9 +7,6 @@ RUN mkdir /app/_build
 RUN mkdir /app/deps/
 WORKDIR /app/
 RUN mv /transport-tools /app
-
-# COPY --from=transport-tools /usr/local/bin/gtfs-geojson ./transport-tools
-# RUN chmod +x ./transport-tools/gtfs-geojson
 
 # fetch a wait-for-it script to wait for postgres startup
 ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/81b1373f17855a4dc21156cfe1694c31d7d1792e/wait-for-it.sh /opt/bin/
