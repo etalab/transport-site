@@ -111,6 +111,18 @@ config :transport,
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API
 
+config :ex_aws,
+  access_key_id: System.get_env("CELLAR_ACCESS_KEY_ID"),
+  secret_access_key: System.get_env("CELLAR_SECRET_ACCESS_KEY"),
+  # The expected S3 owner of buckets/objects.
+  # For CleverCloud and the Cellar service, it looks like `orga-$UUID`
+  cellar_organisation_id: System.get_env("CELLAR_ORGANISATION_ID"),
+  s3: [
+    scheme: "https://",
+    host: "cellar-c2.services.clever-cloud.com",
+  ],
+  json_codec: Jason
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "datagouvfr.exs"
@@ -119,15 +131,6 @@ import_config "gtfs_validator.exs"
 import_config "mailjet.exs"
 import_config "mailchimp.exs"
 import_config "#{Mix.env}.exs"
-
-config :ex_aws,
-  access_key_id: System.get_env("CELLAR_ACCESS_KEY_ID"),
-  secret_access_key: System.get_env("CELLAR_SECRET_ACCESS_KEY"),
-  s3: [
-    scheme: "https://",
-    host: "cellar-c2.services.clever-cloud.com",
-  ],
-  json_codec: Jason
 
 config :transport,
   max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer(),
