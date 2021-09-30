@@ -1,14 +1,14 @@
-FROM ghcr.io/etalab/transport-tools:master as transport-tools
+# FROM ghcr.io/etalab/transport-tools:master as transport-tools
 
-FROM betagouv/transport:elixir-1.12.2-erlang-24.0.4-ubuntu-focal-20210325
+FROM betagouv/transport:test-transport-tools
 
 RUN mkdir phoenixapp
 WORKDIR /phoenixapp
 COPY ./ /phoenixapp
-RUN mkdir /phoenixapp/transport-tools
+RUN mv  /transport-tools /phoenixapp
 
-COPY --from=transport-tools /usr/local/bin/gtfs-geojson ./transport-tools
-RUN chmod +x ./transport-tools/gtfs-geojson
+# COPY --from=transport-tools /usr/local/bin/gtfs-geojson ./transport-tools
+# RUN chmod +x ./transport-tools/gtfs-geojson
 
 RUN mix do deps.get --only prod
 

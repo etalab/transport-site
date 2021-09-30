@@ -12,7 +12,7 @@ default_docker: &default_docker
 defaults: &defaults
   parameters:
     base_image:
-      default: betagouv/transport:elixir-1.12.2-erlang-24.0.4-ubuntu-focal-20210325
+      default: betagouv/transport:test-transport-tools
       type: string
   working_directory: ~/transport
   docker:
@@ -33,21 +33,6 @@ jobs:
 
     steps:
       - checkout
-
-      - setup_remote_docker:
-          version: 19.03.13
-
-      - run:
-          name: Copy transport tools
-          command: |
-            apt-get update
-            apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-            apt-get update
-            apt-get install docker-ce docker-ce-cli containerd.io
-            mkdir ./transport-tools
-            docker create -t --name transport-tools ghcr.io/etalab/transport-tools:master
-            docker cp transport-tools:/usr/local/bin/gtfs-geojson ./transport-tools/gtfs-geojson
 
       - restore_cache:
           # Please read: https://circleci.com/docs/2.0/caching/#restoring-cache
