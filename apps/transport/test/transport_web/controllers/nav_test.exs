@@ -16,6 +16,8 @@ defmodule TransportWeb.NavTest do
       aom: build(:aom)
     )
 
+    Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
+
     :ok
   end
 
