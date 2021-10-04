@@ -18,7 +18,8 @@ defmodule TransportWeb.API.PlacesControllerTest do
       |> Enum.map(&Map.update!(&1, "url", fn v -> cleanup(v) end))
 
   test "Search a place", %{conn: conn} do
-    conn = conn |> get(Helpers.places_path(conn, :autocomplete, q: "chat"))
+    path = Helpers.places_path(conn, :autocomplete, q: "chat")
+    conn = conn |> get(path)
     r = conn |> json_response(200)
 
     assert sort_and_clean(r) ==
@@ -35,8 +36,13 @@ defmodule TransportWeb.API.PlacesControllerTest do
                }
              ])
 
-    assert conn |> get_resp_header("etag")
+    [etag] = conn |> get_resp_header("etag")
+    json_response(conn, 200)
+    assert etag
     assert conn |> get_resp_header("cache-control") == ["max-age=60, public, must-revalidate"]
+
+    # Passing the previous `ETag` value in a new HTTP request returns a 304
+    conn |> recycle() |> put_req_header("if-none-match", etag) |> get(path) |> response(304)
   end
 
   test "Search a place with accent", %{conn: conn} do

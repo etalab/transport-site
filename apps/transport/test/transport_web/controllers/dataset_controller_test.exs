@@ -29,11 +29,15 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "GET /api/datasets has HTTP cache headers set", %{conn: conn} do
-    conn = conn |> get(TransportWeb.API.Router.Helpers.dataset_path(conn, :datasets))
+    path = TransportWeb.API.Router.Helpers.dataset_path(conn, :datasets)
+    conn = conn |> get(path)
 
+    [etag] = conn |> get_resp_header("etag")
     json_response(conn, 200)
-
-    assert conn |> get_resp_header("etag")
+    assert etag
     assert conn |> get_resp_header("cache-control") == ["max-age=60, public, must-revalidate"]
+
+    # Passing the previous `ETag` value in a new HTTP request returns a 304
+    conn |> recycle() |> put_req_header("if-none-match", etag) |> get(path) |> response(304)
   end
 end
