@@ -18,7 +18,9 @@ defmodule Transport.DataVisualization do
 
   def data_vis_per_issue_type(issues) do
     severity = issues |> Enum.at(0) |> Map.get("severity")
-    geojson = issues |> Enum.flat_map(fn issue -> issue["geojson"]["features"] end)
+    geojson = issues
+      |> Enum.flat_map(fn issue -> issue["geojson"]["features"] end)
+      |> Enum.reject(&is_nil(&1))
 
     %{
       "severity" => severity,
