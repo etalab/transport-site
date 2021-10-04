@@ -3,9 +3,8 @@ defmodule Datagouvfr.Client.CommunityResources do
     This behaviour defines the API for interacting with data.gouv community resources
     , with alternative implementations.
   """
-  alias Datagouvfr.Client.API
 
-  @callback get(dataset_id :: binary()) :: API.response()
+  @callback get(dataset_id :: binary()) :: {:ok, [any()]} | {:error, []}
   @callback delete(dataset_id :: binary(), resource_id :: binary()) ::
               {:ok, any()} | {:error, any()}
 
@@ -23,26 +22,11 @@ defmodule Datagouvfr.Client.CommunityResources.API do
   @behaviour Datagouvfr.Client.CommunityResources
   @endpoint "/datasets/community_resources/"
 
-  @spec get(binary) :: Datagouvfr.Client.API.response()
-  def get(id) when is_binary(id) do
-    case Datagouvfr.Client.API.get("#{@endpoint}?dataset=#{id}") do
-      {:ok, %{"data" => data}} ->
-        {:ok, data}
-
-      {:ok, data} ->
-        Logger.error(
-          "When getting community_ressources for id #{id}: request was ok but the response didn't contain data #{data}"
-        )
-
-        {:error, []}
-
-      {:error, %{reason: reason}} ->
-        Logger.error("When getting community_ressources for id #{id}: #{reason}")
-        {:error, []}
-
-      {:error, error} ->
-        Logger.error("When getting community_ressources for id #{id}: #{error}")
-        {:error, []}
+  @spec get(dataset_id :: binary()) :: {:ok, [any()]} | {:error, []}
+  def get(dataset_id) when is_binary(dataset_id) do
+    case Datagouvfr.Client.API.fetch_all_pages("#{@endpoint}?dataset=#{dataset_id}") do
+      {:ok, pages} -> {:ok, pages}
+      {:error, _error} -> {:error, []}
     end
   end
 

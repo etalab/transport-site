@@ -138,7 +138,13 @@ defmodule TransportWeb.Router do
     scope "/validation" do
       get("/", ValidationController, :index)
       post("/", ValidationController, :validate)
+      post("/convert", ValidationController, :convert)
       get("/:id", ValidationController, :show)
+    end
+
+    scope "/gtfs-geojson-conversion-#{System.get_env("TRANSPORT_TOOLS_SECRET_TOKEN")}" do
+      get("/", GeojsonConversionController, :index)
+      post("/", GeojsonConversionController, :convert)
     end
 
     # old static pages that have been moved to doc.transport
@@ -169,6 +175,13 @@ defmodule TransportWeb.Router do
       external:
         "https://blog.transport.data.gouv.fr/billets/donn%C3%A9es-p%C3%A9rim%C3%A9es-donn%C3%A9es-inutilis%C3%A9es/"
     )
+
+    # Define a "catch all" route, rendering the 404 page.
+    # By default pipelines are not invoked when a route is not found.
+    # We need the `browser` pipeline in order to start the session.
+    #
+    # See https://elixirforum.com/t/phoenix-router-no-pipelines-invoked-for-404/42563
+    get("/*path", PageController, :not_found)
   end
 
   # private

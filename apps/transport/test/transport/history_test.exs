@@ -45,7 +45,7 @@ defmodule Transport.HistoryTest do
                path: "/"
              } = request
 
-      [%{key: "hello"}]
+      [%{key: "hello", owner: %{display_name: "foo@fake-cellar_organisation_id"}}]
     end)
     |> expect(:request!, fn request ->
       assert %{
@@ -88,7 +88,19 @@ defmodule Transport.HistoryTest do
                  path: "/"
                } = request
 
-        [%{key: "some-resource", last_modified: DateTime.add(DateTime.utc_now(), -60 * 60 * 24, :second)}]
+        [
+          %{
+            key: "some-resource",
+            last_modified: DateTime.add(DateTime.utc_now(), -60 * 60 * 24, :second),
+            owner: %{display_name: "foo@fake-cellar_organisation_id"}
+          },
+          # Resource *not* belonging to our organisation
+          %{
+            key: "other-resource",
+            last_modified: DateTime.add(DateTime.utc_now(), -60 * 60 * 24, :second),
+            owner: %{display_name: "foo@other-cellar_organisation_id"}
+          }
+        ]
       end)
       |> expect(:request!, fn request ->
         assert %{

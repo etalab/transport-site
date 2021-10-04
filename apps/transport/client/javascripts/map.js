@@ -531,6 +531,125 @@ function addRealTimePTMap (id, view) {
 }
 
 /**
+ * Initialises a map with the realtime format.
+ * @param  {String} id Dom element id, where the map is to be bound.
+ * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
+ */
+function addRealTimePtFormatMap (id, view) {
+    const map = makeMapOnView(id, view)
+    function onEachAomFeature (feature, layer) {
+        const name = feature.properties.nom
+        const type = feature.properties.forme_juridique
+        const format = feature.properties.dataset_formats
+        const gtfsRT = format.gtfs_rt ?? 0
+        const siri = format.siri ?? 0
+        const siriLite = format.siri_lite ?? 0
+        const countOfficial = gtfsRT + siri + siriLite
+
+        const countNonStandardRT = format.non_standard_rt
+        if (countOfficial === undefined && countNonStandardRT === 0) {
+            return null
+        }
+
+        let bind = `<strong>${name}</strong><br/>${type}`
+        if (countOfficial) {
+            const text = countOfficial === 1 ? 'Un jeu de données standardisé' : `${countOfficial} jeux de données standardisés`
+            const commune = feature.properties.id
+            bind += `<br/><a href="/datasets/aom/${commune}">${text}</a>`
+        }
+
+        if (countNonStandardRT) {
+            const text = 'jeu de données non officiellement référencé'
+            bind += `<br/><a href="/real_time">${text}</a>`
+        }
+        layer.bindPopup(bind)
+    }
+
+    const legends = {
+        gtfs_rt: { label: 'GTFS RT', color: 'blue' },
+        siri: { label: 'SIRI', color: 'green' },
+        siri_lite: { label: 'SIRI Lite', color: lightGreen },
+        non_standard_rt: { label: 'Non standard', color: 'red' },
+        multiple: { label: 'Multiple', color: 'orange' }
+    }
+
+    const styles = {
+        gtfs_rt: {
+            weight: 1,
+            fillOpacity: 0.5,
+            color: legends.gtfs_rt.color
+        },
+        siri: {
+            weight: 1,
+            color: legends.siri.color,
+            fillOpacity: 0.3
+        },
+        siri_lite: {
+            weight: 1,
+            color: legends.siri_lite.color,
+            fillOpacity: 0.5
+        },
+        non_standard_rt: {
+            weight: 1,
+            color: legends.non_standard_rt.color,
+            fillOpacity: 0.5
+        },
+        multiple: {
+            weight: 1,
+            color: legends.multiple.color,
+            fillOpacity: 0.5
+        },
+        unavailable: {
+            weight: 1,
+            fillOpacity: 0.0,
+            color: 'grey'
+        }
+    }
+
+    const style = feature => {
+        const format = feature.properties.dataset_formats
+        const hasGtfsRt = format.gtfs_rt > 0
+        const hasSiri = format.siri > 0
+        const hasSiriLite = format.siri_lite > 0
+        const hasNonStandard = format.non_standard_rt > 0
+        const hasMultipleFormats = [hasSiri, hasSiriLite, hasNonStandard, hasGtfsRt].filter(x => !!x).length > 1
+
+        if (hasMultipleFormats) {
+            return styles.multiple
+        } else if (hasGtfsRt) {
+            return styles.gtfs_rt
+        } else if (hasSiri) {
+            return styles.siri
+        } else if (hasSiriLite) {
+            return styles.siri_lite
+        } else if (hasNonStandard) {
+            return styles.non_standard_rt
+        } else {
+            return styles.unavailable
+        }
+    }
+
+    const filter = feature => {
+        const formats = feature.properties.dataset_formats
+        return formats.gtfs_rt !== undefined ||
+            formats.non_standard_rt !== 0 ||
+            formats.siri !== undefined ||
+            formats.siri_lite !== undefined
+    }
+
+    const aomsFG = getAomsFG(onEachAomFeature, style, filter)
+    aomsFG.addTo(map)
+
+    if (view.display_legend) {
+        getLegend(
+            '<h4>Format des données temps réel</h4>',
+            Object.entries(legends).map(([key, legend]) => legend.color),
+            Object.entries(legends).map(([key, legend]) => legend.label)
+        ).addTo(map)
+    }
+}
+
+/**
  * Initialises a map with the realtime coverage.
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
@@ -542,11 +661,11 @@ function addPtFormatMap (id, view) {
         gtfs: {
             weight: 1,
             fillOpacity: 0.5,
-            color: 'green'
+            color: 'blue'
         },
         netex: {
             weight: 1,
-            color: 'blue',
+            color: 'green',
             fillOpacity: 0.3
         },
         both: {
@@ -599,7 +718,7 @@ function addPtFormatMap (id, view) {
     if (view.display_legend) {
         const legend = getLegend(
             '<h4>Format de données</h4>',
-            ['green', 'blue', 'orange'],
+            ['blue', 'green', 'orange'],
             ['GTFS', 'NeTEx', 'GTFS & NeTEx']
         )
         legend.addTo(map)
@@ -649,5 +768,6 @@ for (const [drom, view] of Object.entries(droms)) {
     addStaticPTQuality(`pt_quality_${drom}`, view)
     addPtFormatMap(`pt_format_map_${drom}`, view)
     addRealTimePTMap(`rt_map_${drom}`, view)
+    addRealTimePtFormatMap(`rt_pt_format_map_${drom}`, view)
     addBikeScooterMap(`bike_scooter_map_${drom}`, view)
 }

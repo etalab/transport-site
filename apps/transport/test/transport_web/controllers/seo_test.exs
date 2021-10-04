@@ -38,6 +38,8 @@ defmodule TransportWeb.SeoMetadataTest do
       }
       |> Repo.insert()
 
+    Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
+
     :ok
   end
 

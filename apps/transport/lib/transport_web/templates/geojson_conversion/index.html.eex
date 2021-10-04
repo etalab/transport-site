@@ -1,0 +1,11 @@
+<section class="single-page section section-grey">
+  <div class="container">
+    <article class="panel">
+    <h1>Convertir un GTFS en GeoJson</h1>
+      <%= form_for @conn, geojson_conversion_path(@conn, :convert), [as: "upload", multipart: :true], fn f -> %>
+        <%= file_input f, :file, accept: ".zip" %>
+        <%= submit dgettext("validations", "Upload") %>
+      <% end %>
+    </article>
+  </div>
+</section>

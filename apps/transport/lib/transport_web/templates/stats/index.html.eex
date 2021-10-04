@@ -173,7 +173,9 @@
     </div>
     <div class="domain rt" id="public-transport-real-time">
       <h2>Transports en commun - temps réel</h2>
-      <div class="domain-stats">
+
+      <div class="domain quality">
+        <div class="domain-stats">
         <%= render("_maps.html", droms: @droms, prefix: "rt_map") %>
         <div class="panel">
           <div class="description">
@@ -205,6 +207,26 @@
             </div>
           </div>
         </div>
+      </div>
+      </div>
+      </div>
+      <div class="domain quality">
+        <div class="domain-stats">
+          <%= render("_maps.html", droms: @droms, prefix: "rt_pt_format_map") %>
+          <div class="panel">
+             <div class=tile>
+               <h3><%= @nb_gtfs_rt %></h3>
+               <div>jeux de données en <strong>GTFS-RT</strong></div>
+             </div>
+             <div class=tile>
+               <h3><%= @nb_siri %></h3>
+               <div>jeux de données en <strong>SIRI</strong></div>
+             </div>
+             <div class=tile>
+               <h3><%= @nb_siri_lite %></h3>
+               <div>jeux de données en <strong>SIRI Lite</strong></div>
+             </div>
+          </div>
       </div>
     </div>
     <div class="domain bikes" id="real-time-bikes">
