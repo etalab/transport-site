@@ -376,7 +376,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def schema_url(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do
-    "https://schema.data.gouv.fr/#{schema_name}/#{schema_version}.html"
+    "https://schema.data.gouv.fr/#{schema_name}/#{schema_version}/"
   end
 
   def schema_url(%{schema_name: schema_name}) do
