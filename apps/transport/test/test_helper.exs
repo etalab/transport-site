@@ -1,4 +1,7 @@
-ExUnit.configure(exclude: [:pending])
+exclude = [:pending]
+extra_exclude = if System.get_env("CI") == "1", do: [], else: [:transport_tools]
+
+ExUnit.configure(exclude: exclude ++ extra_exclude)
 
 {:ok, _} = Application.ensure_all_started(:ex_machina)
 
