@@ -173,12 +173,18 @@ defmodule DB.Dataset do
   defp filter_by_type(query, _), do: query
 
   @spec filter_by_aom(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_aom(query, %{"aom" => aom_id}),
-    do: where(query, [d], d.aom_id == ^aom_id or d.id == ^parent_dataset(aom_id))
+  defp filter_by_aom(query, %{"aom" => aom_id}) do
+    parent_dataset_id = parent_dataset(aom_id)
+
+    case parent_dataset_id do
+      nil -> where(query, [d], d.aom_id == ^aom_id)
+      parent_dataset_id -> where(query, [d], d.aom_id == ^aom_id or d.id == ^parent_dataset_id)
+    end
+  end
 
   defp filter_by_aom(query, _), do: query
 
-  @spec parent_dataset(binary()) :: binary()
+  @spec parent_dataset(binary()) :: binary() | nil
   defp parent_dataset(aom_id) do
     aom =
       AOM
