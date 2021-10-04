@@ -174,9 +174,7 @@ defmodule DB.Dataset do
 
   @spec filter_by_aom(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_aom(query, %{"aom" => aom_id}) do
-    parent_dataset_id = parent_dataset(aom_id)
-
-    case parent_dataset_id do
+    case parent_dataset(aom_id) do
       nil -> where(query, [d], d.aom_id == ^aom_id)
       parent_dataset_id -> where(query, [d], d.aom_id == ^aom_id or d.id == ^parent_dataset_id)
     end
