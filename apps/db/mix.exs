@@ -37,8 +37,8 @@ defmodule Db.MixProject do
 
   defp deps do
     [
-      {:ecto, "~> 3.6.1"},
-      {:ecto_sql, "~> 3.6.1"},
+      {:ecto, "~> 3.7.0"},
+      {:ecto_sql, "~> 3.7.0"},
       {:postgrex, ">= 0.0.0"},
       {:geo_postgis, "~> 3.4"},
       {:scrivener, "~> 2.7.2"},
