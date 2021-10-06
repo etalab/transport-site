@@ -59,7 +59,7 @@ defmodule Transport.Mixfile do
       {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 2.3"},
       {:recon, "~> 2.4"},
-      {:quantum, "~> 2.3"},
+      {:quantum, "~> 3.4"},
       {:timex, "~> 3.5"},
       {:sentry, "~> 8.0"},
       {:scrivener, "~> 2.5"},
@@ -85,7 +85,9 @@ defmodule Transport.Mixfile do
       {:unidecode, "~> 1.0.0"},
       {:phoenix_ecto, "~> 4.0"},
       {:sizeable, "~> 1.0"},
-      {:mox, "~> 1.0.0", only: :test}
+      {:mox, "~> 1.0.0", only: :test},
+      {:rambo, "~> 0.3"},
+      {:etag_plug, "~> 1.0"}
     ]
   end
 end

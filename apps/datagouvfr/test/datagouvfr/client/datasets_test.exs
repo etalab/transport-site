@@ -6,6 +6,11 @@ defmodule Datagouvfr.Client.DatasetsTest do
 
   doctest Client
 
+  setup do
+    Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
+    :ok
+  end
+
   test "get one dataset" do
     use_cassette "client/datasets/one-0" do
       assert "5387f0a0a3a7291cb367549e" == Datasets.get_id_from_url("horaires-et-arrets-du-reseau-irigo-format-gtfs")

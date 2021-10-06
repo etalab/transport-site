@@ -138,7 +138,13 @@ defmodule TransportWeb.Router do
     scope "/validation" do
       get("/", ValidationController, :index)
       post("/", ValidationController, :validate)
+      post("/convert", ValidationController, :convert)
       get("/:id", ValidationController, :show)
+    end
+
+    scope "/gtfs-geojson-conversion-#{System.get_env("TRANSPORT_TOOLS_SECRET_TOKEN")}" do
+      get("/", GeojsonConversionController, :index)
+      post("/", GeojsonConversionController, :convert)
     end
 
     # old static pages that have been moved to doc.transport
