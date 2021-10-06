@@ -10,6 +10,11 @@ defmodule TransportWeb.API.Router do
     plug(CORSPlug, origin: "*")
     plug(OpenApiSpex.Plug.PutApiSpec, module: TransportWeb.API.Spec)
     plug(Sentry.PlugContext)
+    plug(ETag.Plug)
+  end
+
+  pipeline :public_cache do
+    plug(TransportWeb.API.Plugs.PublicCache, max_age: 60)
   end
 
   scope "/api/" do
@@ -30,9 +35,15 @@ defmodule TransportWeb.API.Router do
 
     get("/openapi", OpenApiSpex.Plug.RenderSpec, :show)
 
-    get("/places", TransportWeb.API.PlacesController, :autocomplete)
+    scope "/places" do
+      pipe_through(:public_cache)
+
+      get("/", TransportWeb.API.PlacesController, :autocomplete)
+    end
 
     scope "/datasets" do
+      pipe_through(:public_cache)
+
       get("/", TransportWeb.API.DatasetController, :datasets)
       get("/:id", TransportWeb.API.DatasetController, :by_id)
       get("/:id/geojson", TransportWeb.API.DatasetController, :geojson_by_id)
