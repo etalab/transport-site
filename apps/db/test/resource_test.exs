@@ -30,12 +30,6 @@ defmodule DB.ResourceTest do
       {:ok, %{"validations" => %{}, "metadata" => %{}}}
     end)
 
-    # this call corresponds to the geojson conversion and will be removed soon
-    Transport.HTTPoison.Mock
-    |> expect(:get, 1, fn _url, [], _ ->
-      {:ok, %HTTPoison.Response{status_code: 200, body: nil}}
-    end)
-
     assert Resource.validate_and_save(resource, false) == {:ok, nil}
 
     # a validation is saved in the DB
@@ -55,12 +49,6 @@ defmodule DB.ResourceTest do
     ValidatorMock
     |> expect(:validate_from_url, 1, fn _resource_url ->
       {:ok, %{"validations" => %{}, "metadata" => %{}}}
-    end)
-
-    # this call corresponds to the geojson conversion and will be removed soon
-    Transport.HTTPoison.Mock
-    |> expect(:get, 1, fn _url, [], _ ->
-      {:ok, %HTTPoison.Response{status_code: 200, body: nil}}
     end)
 
     # first validation
@@ -86,12 +74,6 @@ defmodule DB.ResourceTest do
     ValidatorMock
     |> expect(:validate_from_url, 2, fn _resource_url ->
       {:ok, %{"validations" => %{}, "metadata" => %{}}}
-    end)
-
-    # this call corresponds to the geojson conversion and will be removed soon
-    Transport.HTTPoison.Mock
-    |> expect(:get, 2, fn _url, [], _ ->
-      {:ok, %HTTPoison.Response{status_code: 200, body: nil}}
     end)
 
     # first validation
