@@ -201,3 +201,21 @@ Technically, the blog is a hugo static website, enhanced with [netlifyCMS](https
 To write or edit an article, visit https://blog.transport.data.gouv.fr/admin/.
 
 For developement purposes, you can run the blog locally. Install [hugo](https://gohugo.io/getting-started/installing/), open a terminal, go the blog folder of the project and run `hugo serve`.
+
+# Troubleshootings
+
+## No usable OpenSSL found (during Erlang installation via ASDF)
+MacOS come with a pre-installed version of LibreSSL which is a fork from OpenSSL.
+This could cause trouble since it's considered as a "no usable OpenSSL" by Erlang.
+
+We can fix this error in 2 steps :
+1. Install OpenSSL 1.1 (via homebrew for example)
+```
+> brew install --prefix=openssl
+```
+2. Force the use of the installed version when installing erlang by setting the --with-ssl option in the KERL_CONFIGURE_OPTIONS variable.
+```
+> export KERL_CONFIGURE_OPTIONS="--with-ssl=$(brew --prefix --installed openssl@1.1)"
+> asdf install erlang 24.0.4
+```
+See https://github.com/asdf-vm/asdf-erlang/issues/82.
