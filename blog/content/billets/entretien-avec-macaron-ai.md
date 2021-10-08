@@ -14,6 +14,8 @@ description: "Il y a près d’un an, l’équipe transport.data.gouv.fr a crois
   des producteurs de données est très intéressant, c’est pourquoi nous vous
   proposons une interview de leur Chief Technical Officer : Abderrahmane
   Bouroubi."
+images:
+  - /images/macaron-c7b81ada7083912b2ca064eba829903e.png
 ---
 **Bonjour Abderrahmane, est-ce que tu peux te présenter ?**
 
@@ -36,6 +38,8 @@ Enfin, nous avons développé un algorithme de NLP (Natural Language Processing)
 **Vous avez engagé un groupe de travail sur la normalisation des données sur le stationnement en voirie. Quel est l’enjeu selon vous et quels retours avez-vous eus des réutilisateurs et producteurs de données ?**
 
 L'absence d'une méthode standardisée de répertoriage des emprises de stationnements constitue un obstacle pour les villes et territoires de demain. Elle empêche un partage des données entre les acteurs publics et privés pour créer les solutions mobilités du futur. Nous en avons discuté avec transport.data.gouv.fr et Etalab et leur avons proposé de mettre notre schéma de données en open source. Macaron a créé ce standard afin d’en faire la première brique d’un écosystème de mobilité innovant. Nous l’avons présenté à des réutilisateurs de référence comme la RATP, la SNCF et Tom Tom, et à la Ville de Paris côté producteur. Leurs avis nous ont été précieux et utiles pour améliorer le schéma. Notamment sur la façon de représenter le nombre de places, sur son adaptation à d’autres pays et sur certaines régulations tarifaires. Notre ambition est que la publication de ce schéma facilite l’ouverture des données publiques, un vrai enjeu pour les villes et collectivités. La prochaine étape est la multiplication des publications de données ouvertes sur le stationnement voirie dans ce format « machine readable ». Elles nourriront les applications et algorithmes de milliers de startups et acteurs privés/publics. Macaron va participer à cet effort de publication puisque nous sommes en mesure de produire ces données.
+
+![](/images/capture-d’écran-2021-10-08-à-16.14.31.png)
 
 **Comment les villes et collectivités perçoivent et approchent ces enjeux d’ouverture des données de stationnement sur voirie?**
 
