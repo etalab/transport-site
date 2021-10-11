@@ -44,7 +44,9 @@ config :logger, :console,
 
 # Configure data.gouv.fr authentication
 config :oauth2, Authentication,
-  site: "https://demo.data.gouv.fr"
+  site: "https://demo.data.gouv.fr",
+  client_id: "my_client_id",
+  client_secret: "my_client_secret"
 
 # Validator configuration
 config :transport, gtfs_validator_url: System.get_env("GTFS_VALIDATOR_URL") || "http://127.0.0.1:7878"
