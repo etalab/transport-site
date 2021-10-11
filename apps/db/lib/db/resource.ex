@@ -482,7 +482,10 @@ defmodule DB.Resource do
 
   @spec can_direct_download?(__MODULE__.t()) :: boolean
   def can_direct_download?(resource) do
-    String.starts_with?(resource.url, "https://")
+    # raw.githubusercontent.com does not put `Content-Disposition: attachment`
+    # in response headers and we'd like to have this
+    String.starts_with?(resource.url, "https://") and
+      not String.starts_with?(resource.url, "https://raw.githubusercontent.com")
   end
 
   @spec other_resources_query(__MODULE__.t()) :: Ecto.Query.t()
