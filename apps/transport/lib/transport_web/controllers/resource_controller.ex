@@ -92,7 +92,21 @@ defmodule TransportWeb.ResourceController do
 
   def download(conn, %{"id" => id}) do
     resource = Resource |> Repo.get!(id)
-    redirect(conn, external: resource.url)
+
+    case HTTPoison.get(resource.url) do
+      {:ok, response} ->
+        headers = Enum.into(response.headers, %{}, fn {h, v} -> {String.downcase(h), v} end)
+        %{"content-type" => content_type} = headers
+
+        send_download(conn, {:binary, response.body},
+          content_type: content_type,
+          disposition: :attachment,
+          filename: resource.url |> Path.basename()
+        )
+
+      {:error, _error} ->
+        conn |> put_status(:not_found) |> render(ErrorView, "404.html")
+    end
   end
 
   @spec post_file(Plug.Conn.t(), map) :: Plug.Conn.t()
