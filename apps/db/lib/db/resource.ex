@@ -480,6 +480,11 @@ defmodule DB.Resource do
     is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource)
   end
 
+  @spec can_direct_download?(__MODULE__.t()) :: boolean
+  def can_direct_download?(resource) do
+    String.starts_with?(resource.url, "https://")
+  end
+
   @spec other_resources_query(__MODULE__.t()) :: Ecto.Query.t()
   def other_resources_query(%__MODULE__{} = resource),
     do:

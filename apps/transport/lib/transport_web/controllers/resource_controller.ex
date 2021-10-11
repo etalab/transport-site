@@ -90,6 +90,11 @@ defmodule TransportWeb.ResourceController do
     |> render("form.html")
   end
 
+  def download(conn, %{"id" => id}) do
+    resource = Resource |> Repo.get!(id)
+    redirect(conn, external: resource.url)
+  end
+
   @spec post_file(Plug.Conn.t(), map) :: Plug.Conn.t()
   def post_file(conn, params) do
     success_message =
