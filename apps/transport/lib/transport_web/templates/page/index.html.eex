@@ -168,11 +168,11 @@
   <div><%= dngettext("page-index", "dataset", "datasets", @count_by_type["private-parking"] || 0) %></div>
 </div>
 </a>
-<a class="tile" href="<%= dataset_path(@conn, :index, type: "bike-path") %>">
-                          <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bike-path.svg") %>" alt="" />
+<a class="tile" href="<%= dataset_path(@conn, :index, type: "bike-way") %>">
+                          <img class="tile__icon" src="<%= static_path(@conn, "/images/icons/bike-way.svg") %>" alt="" />
 <div class="tile__text">
-  <h4 class=""><%= dgettext("page-index", "Bike path") %></h4>
-  <div><%= dngettext("page-index", "dataset", "datasets", @count_by_type["bike-path"] || 0) %></div>
+  <h4 class=""><%= dgettext("page-index", "Bike way") %></h4>
+  <div><%= dngettext("page-index", "dataset", "datasets", @count_by_type["bike-way"] || 0) %></div>
 </div>
 </a>
 
