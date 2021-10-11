@@ -182,7 +182,11 @@ defmodule Opendatasoft.UrlExtractor do
     e ->
       # A non UTF-8 encoded CSV file can make CSV.decode() raise an exception
       # we skip the file to allow the import to continue
-      Sentry.capture_exception(e, [stacktrace: __STACKTRACE__, extra: %{extra: "possibly trying to decode a non UTF-8 encoded csv resource"}])
+      Sentry.capture_exception(e,
+        stacktrace: __STACKTRACE__,
+        extra: %{extra: "possibly trying to decode a non UTF-8 encoded csv resource"}
+      )
+
       []
   end
 
