@@ -15,6 +15,7 @@ defmodule Datagouvfr.Authentication do
     |> Application.get_env(__MODULE__)
     |> Keyword.put(:token, token)
     |> Client.new()
+    |> Client.put_serializer("application/json", Jason)
   end
 
   @spec authorize_url :: binary()

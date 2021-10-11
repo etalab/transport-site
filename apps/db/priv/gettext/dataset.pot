@@ -71,7 +71,7 @@ msgid "Private parking"
 msgstr ""
 
 #, elixir-format
-msgid "Bike path"
+msgid "Bike way"
 msgstr ""
 
 #, elixir-format
