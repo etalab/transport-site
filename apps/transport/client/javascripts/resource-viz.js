@@ -129,9 +129,10 @@ function fillGBFSMap (resourceUrl, fg, availableDocks, map, fitBounds = false) {
         .then(response => response.json())
         .then(gbfs => {
             const feeds = gbfs.data.fr.feeds
-            const stationInformation = feeds.filter(feed => feed.name === 'station_information')[0]
+            setGBFSLayersControl(feeds, fg, availableDocks, map)
+            const stationInformation = feeds.filter(feed => feed.name.includes('station_information'))[0]
             const stationInformationUrl = stationInformation.url
-            const stationStatus = feeds.filter(feed => feed.name === 'station_status')[0]
+            const stationStatus = feeds.filter(feed => feed.name.includes('station_status'))[0]
             stationStatusUrl = stationStatus.url
             return fetch(stationInformationUrl)
         })
@@ -163,10 +164,50 @@ function fillGBFSMap (resourceUrl, fg, availableDocks, map, fitBounds = false) {
         .catch(e => removeViz(e))
 }
 
+// we want a custom message on the layers toggle control, depending on the GBFS vehicle type
+function setGBFSLayersControl (feeds, fg, availableDocks, map) {
+    if (!map.hasControlLayers) { // we don't want a new control at each data refresh
+        const labels = { bicycle: 'Vélos', car: 'Voitures', moped: 'Scooters', scooter: 'Trottinettes', other: 'Véhicules' } // according to GBFS v2.2
+        // 1 vehicle known vehicle type, we use it
+        // more vehicle types or unknown, we use a generic label : véhicules
+        getVehicleType(feeds).then(types => {
+            let vehicleLabel
+            if (types.length === 1) {
+                vehicleLabel = labels[types[0]]
+            } else {
+                vehicleLabel = 'Véhicules'
+            }
+            const availableLabel = `${vehicleLabel} disponibles`
+            const control = { 'places disponibles': availableDocks }
+            control[availableLabel] = fg
+            L.control.layers(control, {}, { collapsed: false }).addTo(map)
+            map.hasControlLayers = true
+        }
+        )
+    }
+}
+
+function getVehicleType (feeds) {
+    const vehicleTypes = feeds.filter(feed => feed.name.includes('vehicle_types'))[0]
+    if (vehicleTypes) {
+        const vehicleTypesUrl = vehicleTypes.url
+
+        return fetch(vehicleTypesUrl)
+            .then(data => data.json())
+            .then(vehicleTypes => {
+                const vehicleTypesList = vehicleTypes.data.vehicle_types
+                const types = vehicleTypesList.map(type => type.form_factor)
+                const uniqueTypes = [...new Set(types)]
+                return uniqueTypes
+            })
+    } else {
+        return Promise.resolve([])
+    }
+}
+
 function createGBFSmap (id, resourceUrl) {
     const { map, fg } = initilizeMap(id)
     const availableDocks = L.featureGroup()
-    L.control.layers({ 'vélos disponibles': fg, 'places disponibles': availableDocks }, {}, { collapsed: false }).addTo(map)
 
     fillGBFSMap(resourceUrl, fg, availableDocks, map, true)
     setInterval(() => fillGBFSMap(resourceUrl, fg, availableDocks, map), 60000)
