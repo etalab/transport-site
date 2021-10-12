@@ -496,6 +496,10 @@
   height: 400px;
   margin: 0 auto;
   z-index: 0;
+  input[type="radio"]::before {
+    top: 0.29em;
+    left: 0.265em;
+  }
 }
 
 #dataset-covered-area-map {
