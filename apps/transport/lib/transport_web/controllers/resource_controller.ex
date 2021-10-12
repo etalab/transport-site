@@ -90,22 +90,37 @@ defmodule TransportWeb.ResourceController do
     |> render("form.html")
   end
 
+  @doc """
+  `download` is in charge of downloading resources.
+
+  - If the resource can be "directly downloaded" over HTTPS,
+  this method redirects.
+  - Otherwise, we proxy the response of the resource's url
+
+  We introduced this method because some browsers
+  block downloads of external HTTP resources when
+  they are referenced on an HTTPS page.
+  """
   def download(conn, %{"id" => id}) do
     resource = Resource |> Repo.get!(id)
 
-    case HTTPoison.get(resource.url) do
-      {:ok, response} ->
-        headers = Enum.into(response.headers, %{}, fn {h, v} -> {String.downcase(h), v} end)
-        %{"content-type" => content_type} = headers
+    if Resource.can_direct_download?(resource) do
+      redirect(conn, external: resource.url)
+    else
+      case Transport.Shared.Wrapper.HTTPoison.impl().get(resource.url) do
+        {:ok, response} ->
+          headers = Enum.into(response.headers, %{}, fn {h, v} -> {String.downcase(h), v} end)
+          %{"content-type" => content_type} = headers
 
-        send_download(conn, {:binary, response.body},
-          content_type: content_type,
-          disposition: :attachment,
-          filename: resource.url |> Path.basename()
-        )
+          send_download(conn, {:binary, response.body},
+            content_type: content_type,
+            disposition: :attachment,
+            filename: resource.url |> Path.basename()
+          )
 
-      {:error, _error} ->
-        conn |> put_status(:not_found) |> render(ErrorView, "404.html")
+        {:error, _error} ->
+          conn |> put_status(:not_found) |> render(ErrorView, "404.html")
+      end
     end
   end
 
