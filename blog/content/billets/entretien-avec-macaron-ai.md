@@ -15,7 +15,7 @@ description: "Il y a près d’un an, l’équipe transport.data.gouv.fr a crois
   proposons une interview de leur Chief Technical Officer : Abderrahmane
   Bouroubi."
 images:
-  - /images/macaron-c7b81ada7083912b2ca064eba829903e.png
+  - /images/sans-titre-1-.png
 ---
 **Bonjour Abderrahmane, est-ce que tu peux te présenter ?**
 
