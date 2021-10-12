@@ -178,7 +178,7 @@ function setGBFSLayersControl (feeds, fg, availableDocks, map) {
                 vehicleLabel = 'Véhicules'
             }
             const availableLabel = `${vehicleLabel} disponibles`
-            const control = { 'places disponibles': availableDocks }
+            const control = { 'Places disponibles': availableDocks }
             control[availableLabel] = fg
             L.control.layers(control, {}, { collapsed: false }).addTo(map)
             map.hasControlLayers = true
