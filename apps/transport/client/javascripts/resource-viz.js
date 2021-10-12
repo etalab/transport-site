@@ -107,7 +107,7 @@ function setGBFSMarkerStyle (stations, stationStatus, field) {
             .bindTooltip('HS', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
             .setStyle({ fillColor: 'red' })
     } else {
-        const bikesN = stationStatus[field]
+        const bikesN = stationStatus[field] | 0
         let opacity = 0.8
         if (bikesN === 0) {
             opacity = 0.4
