@@ -500,6 +500,9 @@
     top: 0.29em;
     left: 0.265em;
   }
+  .leaflet-popup-content {
+    overflow: auto;
+  }
 }
 
 #dataset-covered-area-map {
