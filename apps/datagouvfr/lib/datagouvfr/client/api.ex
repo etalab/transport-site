@@ -27,6 +27,10 @@ defmodule Datagouvfr.Client.API do
     end
   end
 
+  def decode_body({:error, %HTTPoison.Error{} = error}) do
+    {:error, error}
+  end
+
   @spec get(path, [{binary(), binary()}], keyword()) :: response
   def get(path, headers \\ [], options \\ []) when is_binary(path) or is_list(path) do
     request(:get, path, "", headers, options)
