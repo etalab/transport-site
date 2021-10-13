@@ -119,7 +119,7 @@ function setGBFSMarkerStyle (stations, stationStatus, field) {
             .bindTooltip(`${bikesN}`, { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
             .setStyle({ fillOpacity: opacity })
     }
-    marker.bindPopup(JSON.stringify(stationStatus, null, '<br>&ensp;&ensp;').replace('}', '<br>}'))
+    marker.bindPopup(`<pre>${JSON.stringify(stationStatus, null, 2)}</pre>`)
 }
 
 function fillGBFSMap (resourceUrl, fg, availableDocks, map, fitBounds = false) {
