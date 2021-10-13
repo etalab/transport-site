@@ -237,7 +237,7 @@
         <%= unless is_nil(icon_type_path(@dataset)) do %>
           <span class="dataset-icon-type">
             <%= img_tag(icon_type_path(@dataset), alt: @dataset.type) %>
-          </span> <br>
+          </span>
         <% end %>
         <b><%= Dataset.type_to_str(@dataset.type) %></b>
       </div>
