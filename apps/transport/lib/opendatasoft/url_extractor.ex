@@ -179,8 +179,8 @@ defmodule Opendatasoft.UrlExtractor do
         |> Enum.filter(&(&1 != nil))
     end
   rescue
-    e ->
-      # A non UTF-8 encoded CSV file can make CSV.decode() raise an exception
+    e in FunctionClauseError ->
+      # A non UTF-8 encoded CSV file can make CSV.decode() raises a FunctionClauseError exception
       # we skip the file to allow the import to continue
       Sentry.capture_exception(e,
         stacktrace: __STACKTRACE__,
