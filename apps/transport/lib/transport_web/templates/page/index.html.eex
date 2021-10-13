@@ -183,6 +183,16 @@
           <div><%= dngettext("page-index", "dataset", "datasets", @count_by_type["bike-parking"] || 0) %></div>
         </div>
       </a>
+
+      <a class="tile" href="<%= dataset_path(@conn, :index, type: "low-emission-zones") %>">
+        <%= img_tag(icon_type_path("low-emission-zones"), class: "tile__icon") %>
+        <div class="tile__text">
+          <h4><%= dgettext("page-index", "Low emission zones") %></h4>
+          <div>
+            <%= dngettext("page-index", "dataset", "datasets", @count_by_type["low-emission-zones"] || 0) %>
+          </div>
+        </div>
+      </a>
 </div>
 </div>
 <div class="upcoming">
@@ -196,12 +206,6 @@
       <div class="tile">
         <%= img_tag(icon_type_path("car-motorbike-sharing"), class: "tile__icon") %>
         <h3 class="text-center"><%= dgettext("page-index", "Car and motorbike sharing") %></h3>
-      </div>
-    </div>
-    <div>
-      <div class="tile">
-        <%= img_tag(icon_type_path("low-emission-zones"), class: "tile__icon") %>
-        <h3 class="text-center"><%= dgettext("page-index", "Low emission zones") %></h3>
       </div>
     </div>
   </div>
