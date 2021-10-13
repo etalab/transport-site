@@ -195,7 +195,7 @@ defmodule TransportWeb.DatasetView do
       "informations" => "infos.svg",
       "road-works" => "construction-zone-grey.svg",
       "car-motorbike-sharing" => "car-motorbike-grey.svg",
-      "low-emission-zones" => "low-emission-zones-grey.svg",
+      "low-emission-zones" => "low-emission-zones.svg",
       "bike-parking" => "bike-parking.svg"
     }
 
