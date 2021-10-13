@@ -178,6 +178,16 @@ defmodule Opendatasoft.UrlExtractor do
         |> Enum.map(&get_url_from_row/1)
         |> Enum.filter(&(&1 != nil))
     end
+  rescue
+    e in FunctionClauseError ->
+      # A non UTF-8 encoded CSV file can make CSV.decode() raises a FunctionClauseError exception
+      # we skip the file to allow the import to continue
+      Sentry.capture_exception(e,
+        stacktrace: __STACKTRACE__,
+        extra: %{extra: "possibly trying to decode a non UTF-8 encoded csv resource"}
+      )
+
+      []
   end
 
   @spec get_url_from_row({:ok, map} | any | {:error, any}) :: binary | nil
