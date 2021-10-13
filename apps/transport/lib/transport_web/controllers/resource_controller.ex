@@ -107,8 +107,8 @@ defmodule TransportWeb.ResourceController do
     if Resource.can_direct_download?(resource) do
       redirect(conn, external: resource.url)
     else
-      case Transport.Shared.Wrapper.HTTPoison.impl().get(resource.url) do
-        {:ok, response} ->
+      case Transport.Shared.Wrapper.HTTPoison.impl().get(resource.url, [], hackney: [follow_redirect: true]) do
+        {:ok, %HTTPoison.Response{status_code: 200} = response} ->
           headers = Enum.into(response.headers, %{}, fn {h, v} -> {String.downcase(h), v} end)
           %{"content-type" => content_type} = headers
 
@@ -118,8 +118,11 @@ defmodule TransportWeb.ResourceController do
             filename: resource.url |> Path.basename()
           )
 
-        {:error, _error} ->
-          conn |> put_status(:not_found) |> render(ErrorView, "404.html")
+        _ ->
+          conn
+          |> put_flash(:error, dgettext("resource", "Resource is not available on remote server"))
+          |> put_status(:not_found)
+          |> render(ErrorView, "404.html")
       end
     end
   end

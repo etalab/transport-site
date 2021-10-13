@@ -59,9 +59,9 @@ defmodule TransportWeb.ResourceControllerTest do
     refute Resource.can_direct_download?(resource)
 
     Transport.HTTPoison.Mock
-    |> expect(:get, fn url ->
+    |> expect(:get, fn url, [], hackney: [follow_redirect: true] ->
       assert url == resource.url
-      {:ok, %{status_code: 200, body: "payload", headers: [{"Content-Type", "application/zip"}]}}
+      {:ok, %HTTPoison.Response{status_code: 200, body: "payload", headers: [{"Content-Type", "application/zip"}]}}
     end)
 
     conn = conn |> get(resource_path(conn, :download, resource.id))
@@ -69,5 +69,39 @@ defmodule TransportWeb.ResourceControllerTest do
     assert content_type == "application/zip"
 
     assert conn |> response(200) == "payload"
+  end
+
+  test "downloading a resource that cannot be directly downloaded, not found case", %{conn: conn} do
+    resource = Resource |> Repo.get_by(datagouv_id: "2")
+    refute Resource.can_direct_download?(resource)
+
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn url, [], hackney: [follow_redirect: true] ->
+      assert url == resource.url
+      {:ok, %HTTPoison.Response{status_code: 404}}
+    end)
+
+    conn = conn |> get(resource_path(conn, :download, resource.id))
+
+    html = html_response(conn, 404)
+    assert html =~ "Page non disponible"
+    assert get_flash(conn, :error) == "La ressource n'est pas disponible sur le serveur distant"
+  end
+
+  test "downloading a resource that cannot be directly downloaded, remote server error case", %{conn: conn} do
+    resource = Resource |> Repo.get_by(datagouv_id: "2")
+    refute Resource.can_direct_download?(resource)
+
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn url, [], hackney: [follow_redirect: true] ->
+      assert url == resource.url
+      {:ok, %HTTPoison.Response{status_code: 500}}
+    end)
+
+    conn = conn |> get(resource_path(conn, :download, resource.id))
+
+    html = html_response(conn, 404)
+    assert html =~ "Page non disponible"
+    assert get_flash(conn, :error) == "La ressource n'est pas disponible sur le serveur distant"
   end
 end
