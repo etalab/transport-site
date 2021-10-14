@@ -370,6 +370,7 @@ defmodule Transport.ImportData do
       cond do
         !Enum.empty?(l = Enum.filter(resources, &is_netex?/1)) -> l
         !Enum.empty?(l = UrlExtractor.get_netex_csv_resources(resources)) -> l
+        true -> []
       end
 
     resources |> Enum.map(fn r -> %{r | "format" => "NeTEx"} end)
