@@ -84,9 +84,9 @@ msgid "You have no resource to update for the moment"
 msgstr "Vous n'avez pas de ressource à mettre à jour pour le moment"
 
 #, elixir-format
-msgid "New resource"
-msgstr "Nouvelle ressource"
-
-#, elixir-format
 msgid "Select a resource"
 msgstr "Sélectionner une resource"
+
+#, elixir-format
+msgid "New resource"
+msgstr "Nouvelle ressource"
