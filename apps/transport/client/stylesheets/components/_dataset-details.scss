@@ -485,9 +485,9 @@
   display: flex;
 }
 
-.dataset-icon-type {
+.dataset-icon-type img {
   width: 26px;
-  padding-top: 6px;
+  vertical-align: middle;
   padding-right: 6px;
 }
 
@@ -496,6 +496,13 @@
   height: 400px;
   margin: 0 auto;
   z-index: 0;
+  input[type="radio"]::before {
+    top: 0.29em;
+    left: 0.265em;
+  }
+  .leaflet-popup-content {
+    overflow: auto;
+  }
 }
 
 #dataset-covered-area-map {

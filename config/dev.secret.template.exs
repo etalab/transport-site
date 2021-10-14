@@ -6,6 +6,11 @@ use Mix.Config
 # Careful about https://github.com/etalab/transport_deploy/issues/36, make sure
 # to avoid using credentials with production access here:
 config :transport, datagouvfr_apikey: "TO-BE-REPLACED"
+
+# If you want to log in on the transport website when running the server locally, you need to fill those informations
+# ask a fellow developper of the transport team to share the credentials with you.
+# We are talking here about *demo*.data.gouv.fr credentials, not data.gouv.fr.
+# You can also find them in "prochainement" environment variables.
 config :oauth2, Datagouvfr.Authentication,
   client_id: "TO-BE-REPLACED",
   client_secret: "TO-BE-REPLACED"

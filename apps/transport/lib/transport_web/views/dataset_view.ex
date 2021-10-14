@@ -184,7 +184,7 @@ defmodule TransportWeb.DatasetView do
     icons = %{
       "public-transit" => "bus.svg",
       "bike-scooter-sharing" => "bicycle-scooter.svg",
-      "bike-path" => "bike-path.svg",
+      "bike-way" => "bike-way.svg",
       "carpooling-areas" => "car.svg",
       "charging-stations" => "charge-station.svg",
       "air-transport" => "plane.svg",
@@ -195,7 +195,7 @@ defmodule TransportWeb.DatasetView do
       "informations" => "infos.svg",
       "road-works" => "construction-zone-grey.svg",
       "car-motorbike-sharing" => "car-motorbike-grey.svg",
-      "low-emission-zones" => "low-emission-zones-grey.svg",
+      "low-emission-zones" => "low-emission-zones.svg",
       "bike-parking" => "bike-parking.svg"
     }
 
@@ -340,7 +340,8 @@ defmodule TransportWeb.DatasetView do
   def get_resource_to_display(%Dataset{type: "bike-scooter-sharing", resources: resources}) do
     resources
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
-    |> Enum.reject(fn r -> r.is_community_resource end)
+    |> Enum.reject(fn r -> String.contains?(r.url, "station_status") end)
+    |> Enum.reject(fn r -> String.contains?(r.url, "station_information") end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 

@@ -216,7 +216,7 @@ msgid "You can also"
 msgstr ""
 
 #, elixir-format
-msgid "Bike path"
+msgid "Bike way"
 msgstr ""
 
 #, elixir-format
