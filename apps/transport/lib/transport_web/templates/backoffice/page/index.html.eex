@@ -8,7 +8,7 @@
     <div>
       <% # See path explanation at https://elixirforum.com/t/scoped-live-view-does-not-seem-to-generate-a-live-path-helper/31162/4?u=thbar %>
       <a class="button" href="<%= backoffice_live_path(@conn, TransportWeb.Backoffice.ProxyConfigLive) %>">
-        <%= dgettext("backoffice", "Configuration du proxy") %>
+        <%= dgettext("backoffice", "Proxy configuration") %>
       </a>
     </div>
     <div>
