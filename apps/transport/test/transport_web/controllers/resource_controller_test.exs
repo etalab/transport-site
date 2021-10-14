@@ -72,30 +72,23 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "downloading a resource that cannot be directly downloaded, not found case", %{conn: conn} do
-    resource = Resource |> Repo.get_by(datagouv_id: "2")
-    refute Resource.can_direct_download?(resource)
-
-    Transport.HTTPoison.Mock
-    |> expect(:get, fn url, [], hackney: [follow_redirect: true] ->
-      assert url == resource.url
-      {:ok, %HTTPoison.Response{status_code: 404}}
-    end)
-
-    conn = conn |> get(resource_path(conn, :download, resource.id))
-
-    html = html_response(conn, 404)
-    assert html =~ "Page non disponible"
-    assert get_flash(conn, :error) == "La ressource n'est pas disponible sur le serveur distant"
+    test_remote_download_error(conn, 404)
   end
 
   test "downloading a resource that cannot be directly downloaded, remote server error case", %{conn: conn} do
+    for status_code <- [500, 502] do
+      test_remote_download_error(conn, status_code)
+    end
+  end
+
+  defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
     resource = Resource |> Repo.get_by(datagouv_id: "2")
     refute Resource.can_direct_download?(resource)
 
     Transport.HTTPoison.Mock
     |> expect(:get, fn url, [], hackney: [follow_redirect: true] ->
       assert url == resource.url
-      {:ok, %HTTPoison.Response{status_code: 500}}
+      {:ok, %HTTPoison.Response{status_code: mock_status_code}}
     end)
 
     conn = conn |> get(resource_path(conn, :download, resource.id))
