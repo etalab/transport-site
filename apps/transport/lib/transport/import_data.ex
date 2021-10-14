@@ -373,7 +373,7 @@ defmodule Transport.ImportData do
         true -> []
       end
 
-    resources |> Enum.map(fn r -> %{r | "format" => "NeTEx"} end)
+    resources |> Enum.map(fn r -> %{r | "format" => "netex"} end)
   end
 
   @spec get_valid_gtfs_rt_resources([map()]) :: [map()]
