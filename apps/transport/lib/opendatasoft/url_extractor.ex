@@ -59,6 +59,18 @@ defmodule Opendatasoft.UrlExtractor do
     end)
   end
 
+  @spec get_netex_csv_resources([any]) :: [any]
+  def get_netex_csv_resources(resources) do
+    resources
+    |> get_csv_resources
+    |> Enum.reject(fn r -> r["title"] |> String.ends_with?(".pdf") end)
+    |> Enum.filter(fn r ->
+      r["title"]
+      |> String.downcase()
+      |> String.contains?("netex")
+    end)
+  end
+
   @doc """
   filter csv http response
 
