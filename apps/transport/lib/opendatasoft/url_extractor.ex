@@ -124,15 +124,6 @@ defmodule Opendatasoft.UrlExtractor do
 
   @doc """
   Get a download from a CSVs if it exists
-
-  ## Examples
-      iex> [{"name,file\\ntoulouse,http", %{"id" => "bob"}}, {"stop,lon,lat\\n1,48.8,2.3", %{"id" => "bobette"}}]
-      ...> |> UrlExtractor.get_resources_with_url_from_csv()
-      {:ok, [%{"url" => "http", "title" => "http", "id" => "bob"}]}
-
-    iex> UrlExtractor.get_resources_with_url_from_csv([{"stop,lon,lat\\n1,48.8,2.3", %{"id" => "bob"}}])
-    {:error, "No url found"}
-
   """
   @spec get_resources_with_url_from_csv([{binary, map()}]) ::
           {:ok, [map()]} | {:error, binary()}
@@ -141,6 +132,7 @@ defmodule Opendatasoft.UrlExtractor do
     |> Enum.map(fn {body, r} ->
       body
       |> get_url_from_csv()
+      |> IO.inspect()
       |> Enum.map(fn url ->
         r
         |> Map.merge(%{
@@ -175,9 +167,13 @@ defmodule Opendatasoft.UrlExtractor do
   """
   @spec get_url_from_csv(binary()) :: [any()]
   def get_url_from_csv(body) do
+    IO.inspect("body")
+    IO.inspect(body)
+
     @separators
     |> Enum.map(&get_url_from_csv(&1, body))
     |> List.flatten()
+    |> IO.inspect()
   end
 
   @spec get_url_from_csv(binary(), binary()) :: [binary()]
@@ -234,6 +230,9 @@ defmodule Opendatasoft.UrlExtractor do
   """
   @spec get_url_from_csv_line(map) :: binary
   def get_url_from_csv_line(line) do
+    IO.inspect("line")
+    IO.inspect(line)
+
     @csv_headers
     |> Enum.map(&Map.get(line, &1))
     |> Enum.filter(&(&1 != nil))
@@ -277,7 +276,10 @@ defmodule Opendatasoft.UrlExtractor do
 
   @spec get_filename(binary()) :: binary()
   defp get_filename(url) do
-    with {:ok, %HTTPoison.Response{headers: headers}} <- HTTPoison.head(url),
+    IO.inspect(url)
+    HTTPoisonImpl = Transport.Shared.Wrapper.HTTPoison.impl()
+
+    with {:ok, %HTTPoison.Response{headers: headers}} <- HTTPoisonImpl.head(url),
          {_, content} <- Enum.find(headers, fn {h, _} -> h == "Content-Disposition" end),
          %{"filename" => filename} <- Regex.named_captures(~r/filename="(?<filename>.*)"/, content) do
       filename
