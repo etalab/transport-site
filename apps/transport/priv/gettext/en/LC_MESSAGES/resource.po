@@ -116,3 +116,7 @@ msgstr ""
 #, elixir-format
 msgid "Visit the dataset page"
 msgstr ""
+
+#, elixir-format
+msgid "Resource is not available on remote server"
+msgstr ""
