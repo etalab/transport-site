@@ -6,6 +6,7 @@ defmodule Transport.ImportDataServiceTest do
 
   setup do
     Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
+    Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
     :ok
   end
 
