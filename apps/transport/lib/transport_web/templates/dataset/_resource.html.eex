@@ -100,7 +100,7 @@
             <button class="button-outline secondary small"><i class="icon icon--plus" aria-hidden="true"></i><%= dgettext("page-dataset-details", "details") %></button>
           </a>
         <% end %>
-        <a class="download-button" href="<%= @resource.url %>">
+        <a class="download-button" href="<%= download_url(@conn, @resource) %>">
           <button class="button-outline primary small"><i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %></button>
         </a>
       </div>
