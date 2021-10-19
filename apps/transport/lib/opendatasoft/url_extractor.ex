@@ -268,10 +268,9 @@ defmodule Opendatasoft.UrlExtractor do
 
   @spec get_filename(binary()) :: binary()
   defp get_filename(url) do
-    IO.inspect(url)
-    HTTPoisonImpl = Transport.Shared.Wrapper.HTTPoison.impl()
+    httpoison_impl = Transport.Shared.Wrapper.HTTPoison.impl()
 
-    with {:ok, %HTTPoison.Response{headers: headers}} <- HTTPoisonImpl.head(url),
+    with {:ok, %HTTPoison.Response{headers: headers}} <- httpoison_impl.head(url),
          {_, content} <- Enum.find(headers, fn {h, _} -> h == "Content-Disposition" end),
          %{"filename" => filename} <- Regex.named_captures(~r/filename="(?<filename>.*)"/, content) do
       filename
