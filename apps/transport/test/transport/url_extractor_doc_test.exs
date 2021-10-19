@@ -8,7 +8,7 @@ defmodule Transport.UrlExtractorDocTest do
     Transport.HTTPoison.Mock |> expect(:head, fn _url -> %HTTPoison.Response{} end)
 
     res =
-      [{"name,file\\ntoulouse,http", %{"id" => "bob"}}, {"stop,lon,lat\\n1,48.8,2.3", %{"id" => "bobette"}}]
+      [{"name,file\ntoulouse,http", %{"id" => "bob"}}, {"stop,lon,lat\n1,48.8,2.3", %{"id" => "bobette"}}]
       |> UrlExtractor.get_resources_with_url_from_csv()
 
     assert res == {:ok, [%{"url" => "http", "title" => "http", "id" => "bob"}]}
