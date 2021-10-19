@@ -340,7 +340,8 @@ defmodule TransportWeb.DatasetView do
   def get_resource_to_display(%Dataset{type: "bike-scooter-sharing", resources: resources}) do
     resources
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
-    |> Enum.reject(fn r -> r.is_community_resource end)
+    |> Enum.reject(fn r -> String.contains?(r.url, "station_status") end)
+    |> Enum.reject(fn r -> String.contains?(r.url, "station_information") end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
@@ -388,4 +389,8 @@ defmodule TransportWeb.DatasetView do
   end
 
   def schema_label(%{schema_name: schema_name}), do: schema_name
+
+  def download_url(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
+    if Resource.can_direct_download?(resource), do: resource.url, else: resource_path(conn, :download, resource.id)
+  end
 end

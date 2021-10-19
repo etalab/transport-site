@@ -480,6 +480,14 @@ defmodule DB.Resource do
     is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource)
   end
 
+  @spec can_direct_download?(__MODULE__.t()) :: boolean
+  def can_direct_download?(resource) do
+    # raw.githubusercontent.com does not put `Content-Disposition: attachment`
+    # in response headers and we'd like to have this
+    uri = URI.parse(resource.url)
+    uri.scheme == "https" and uri.host != "raw.githubusercontent.com"
+  end
+
   @spec other_resources_query(__MODULE__.t()) :: Ecto.Query.t()
   def other_resources_query(%__MODULE__{} = resource),
     do:

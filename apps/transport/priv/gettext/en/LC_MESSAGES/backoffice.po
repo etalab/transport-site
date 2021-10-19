@@ -223,3 +223,11 @@ msgstr ""
 #, elixir-format
 msgid "Show only datasets"
 msgstr ""
+
+#, elixir-format
+msgid "Proxy configuration"
+msgstr ""
+
+#, elixir-format
+msgid "Update all AOMs"
+msgstr ""
