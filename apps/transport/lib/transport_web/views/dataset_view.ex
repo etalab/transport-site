@@ -389,4 +389,8 @@ defmodule TransportWeb.DatasetView do
   end
 
   def schema_label(%{schema_name: schema_name}), do: schema_name
+
+  def download_url(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
+    if Resource.can_direct_download?(resource), do: resource.url, else: resource_path(conn, :download, resource.id)
+  end
 end
