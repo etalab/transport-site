@@ -105,7 +105,9 @@ defmodule GBFS.SmooveController do
 
   @spec get_stations(binary()) :: {:ok, map()} | {:error, binary()}
   defp get_stations(url) do
-    with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(url),
+    http_client = Transport.Shared.Wrapper.HTTPoison.impl()
+
+    with {:ok, %{status_code: 200, body: body}} <- http_client.get(url),
          body when not is_nil(body) <- :iconv.convert("iso8859-1", "latin1", body) do
       {:ok,
        body

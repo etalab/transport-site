@@ -1,9 +1,10 @@
 defmodule GBFS.SmooveControllerTest do
-  use GBFS.ConnCase, async: false
+  use GBFS.ConnCase, async: true
   alias GBFS.Router.Helpers, as: Routes
-  use GBFS.ExternalCase
-  import Mock
+  import Mox
   import GBFS.Checker
+
+  setup :verify_on_exit!
 
   describe "Smoove GBFS conversion" do
     test "on gbfs.json", %{conn: conn} do
@@ -19,34 +20,42 @@ defmodule GBFS.SmooveControllerTest do
     end
 
     test "on station_information.json", %{conn: conn} do
-      use_cassette "smoove/stations" do
-        conn = conn |> get(Routes.montpellier_path(conn, :station_information))
-        body = json_response(conn, 200)
-        check_station_information(body)
-      end
+      setup_stations_response()
+
+      conn = conn |> get(Routes.montpellier_path(conn, :station_information))
+      body = json_response(conn, 200)
+      check_station_information(body)
     end
 
     test "on station_status.json", %{conn: conn} do
-      use_cassette "smoove/stations" do
-        conn = conn |> get(Routes.montpellier_path(conn, :station_status))
-        body = json_response(conn, 200)
-        check_station_status(body)
-      end
+      setup_stations_response()
+
+      conn = conn |> get(Routes.montpellier_path(conn, :station_status))
+      body = json_response(conn, 200)
+      check_station_status(body)
     end
 
     test "on invalid response", %{conn: conn} do
-      mock = fn url ->
-        if String.match?(url, ~r|TAM_MMM_VELOMAG.xml$|) do
-          {:ok, %HTTPoison.Response{body: "{}", status_code: 500}}
-        end
-      end
+      Transport.HTTPoison.Mock |> expect(:get, fn _url -> {:ok, %HTTPoison.Response{status_code: 500}} end)
 
-      with_mock HTTPoison, get: mock do
-        conn = conn |> get(Routes.montpellier_path(conn, :station_status))
-        assert %{"error" => "smoove service unavailable"} == json_response(conn, 502)
+      conn = conn |> get(Routes.montpellier_path(conn, :station_status))
+      assert %{"error" => "smoove service unavailable"} == json_response(conn, 502)
+    end
 
-        assert_called_exactly(HTTPoison.get(:_), 1)
-      end
+    defp setup_stations_response do
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn url ->
+        assert url == "https://data.montpellier3m.fr/sites/default/files/ressources/TAM_MMM_VELOMAG.xml"
+
+        {:ok,
+         %HTTPoison.Response{
+           status_code: 200,
+           body: """
+            <vcs ver="1"><sl><si na="001 Rue Jules Ferry - Gare Saint-Roch" id="001" la="43.605366" lg="3.881346" av="5" fr="7" to="12"></si></sl></vcs>
+           """,
+           headers: [{"Content-Type", "application/xml"}]
+         }}
+      end)
     end
   end
 end
