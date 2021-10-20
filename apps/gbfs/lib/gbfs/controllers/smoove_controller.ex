@@ -107,21 +107,21 @@ defmodule GBFS.SmooveController do
   defp get_stations(url) do
     http_client = Transport.Shared.Wrapper.HTTPoison.impl()
 
-    with {:ok, %{status_code: 200, body: body}} <- http_client.get(url),
-         body when not is_nil(body) <- :iconv.convert("iso8859-1", "latin1", body) do
-      {:ok,
-       body
-       |> xpath(~x"//si"l,
-         name: ~x"@na"S,
-         station_id: ~x"@id"s,
-         lat: ~x"@la"f,
-         lon: ~x"@lg"f,
-         capacity: ~x"@to"i,
-         credit_card: ~x"@cb"I,
-         num_bikes_available: ~x"@av"i,
-         num_docks_available: ~x"@fr"i
-       )}
-    else
+    case http_client.get(url) do
+      {:ok, %{status_code: 200, body: body}} ->
+        {:ok,
+         body
+         |> xpath(~x"//si"l,
+           name: ~x"@na"S,
+           station_id: ~x"@id"s,
+           lat: ~x"@la"f,
+           lon: ~x"@lg"f,
+           capacity: ~x"@to"i,
+           credit_card: ~x"@cb"I,
+           num_bikes_available: ~x"@av"i,
+           num_docks_available: ~x"@fr"i
+         )}
+
       e ->
         Logger.error("impossible to query smoove: #{inspect(e)}")
         {:error, "smoove service unavailable"}
