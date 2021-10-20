@@ -14,13 +14,12 @@
 
     <meta property="og:title" content="<%= seo[:title] %>" />
     <meta property="twitter:title" content="<%= seo[:title] %>" />
-    <meta property="og:image" content="<%= static_path(@conn, "/images/transport-social-share.png") %>" />
+    <meta property="og:image" content="<%= static_url(@conn, "/images/transport-social-share.png") %>" />
     <meta property="og:type" content="website" />
     <meta property="og:description" content="<%= description %>" />
     <meta property="twitter:description" content="<%= description %>" />
     <meta property="og:locale" content="<%= get_session(@conn, :locale) %>" />
 
-    <img src="<%= static_path(@conn, "/images/transport-social-share.svg") %>" alt="">
     <link rel="stylesheet" media="all" href="<%= static_path(@conn, "/css/app.css") %>">
     <link rel="alternate" type="application/atom+xml" href="<%= atom_url(@conn, :index) %>" title="Resources feed" >
     <%= if assigns[:mix_env] == :prod do %>
