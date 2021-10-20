@@ -12,8 +12,8 @@
     <meta name="description" content="<%= description %>">
     <title><%= seo[:title] || dgettext("seo", "National Access Point for transport open data") %></title>
 
-    <meta property="og:title" content=<%= seo[:title] %> />
-    <meta property="twitter:title" content=<%= seo[:title] %> />
+    <meta property="og:title" content="<%= seo[:title] %>" />
+    <meta property="twitter:title" content="<%= seo[:title] %>" />
     <meta property="og:image" content="<%= static_path(@conn, "/images/transport-social-share.png") %>" />
     <meta property="og:type" content="website" />
     <meta property="og:description" content="<%= description %>" />
