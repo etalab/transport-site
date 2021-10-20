@@ -8,8 +8,16 @@
     <meta name="csrf" content="<%= get_csrf_token() %>">
 
     <% seo = metadata(assigns) %>
-    <meta name="description" content='<%= seo[:description] || dgettext("seo", "Publish, improve and reuse French public transport data") %>'>
+    <% description = seo[:description] || dgettext("seo", "Publish, improve and reuse French public transport data") %>
+    <meta name="description" content="<%= description %>">
     <title><%= seo[:title] || dgettext("seo", "National Access Point for transport open data") %></title>
+
+    <meta property="og:title" content=<%= seo[:title] %> />
+    <meta property="og:image" content="<%= static_path(@conn, "/images/transport-social-share.svg") %>" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="<%= description %>" />
+    <meta property="og:locale" content="<%= get_session(@conn, :locale) %>" />
+    <%# <meta property="og:url" content="<%=  current_url(@conn) %>" /> %>
 
     <link rel="stylesheet" media="all" href="<%= static_path(@conn, "/css/app.css") %>">
     <link rel="alternate" type="application/atom+xml" href="<%= atom_url(@conn, :index) %>" title="Resources feed" >
