@@ -1,5 +1,5 @@
 defmodule GBFS.SmooveControllerTest do
-  use GBFS.ConnCase, async: true
+  use GBFS.ConnCase, async: false
   alias GBFS.Router.Helpers, as: Routes
   import Mox
   import GBFS.Checker
