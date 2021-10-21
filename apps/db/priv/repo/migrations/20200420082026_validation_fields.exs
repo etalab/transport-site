@@ -14,6 +14,8 @@ defmodule DB.Repo.Migrations.ValidationFields do
 
     dt = Date.utc_today() |> Date.to_iso8601()
 
+    # NOTE: this migration has been "retrofitted" to make
+    # https://github.com/etalab/transport-site/pull/1873 work
     execute("""
     UPDATE validations v SET
     max_error = (
@@ -21,7 +23,7 @@ defmodule DB.Repo.Migrations.ValidationFields do
         SELECT distinct(json_data.value#>>'{0,severity}') as severity
         FROM validations
         JOIN resource ON resource.id = validations.resource_id,
-        json_each(validations.details) json_data
+        jsonb_each(validations.details) json_data
         WHERE
         (validations.id = v.id)
         -- we only consider valid resources
