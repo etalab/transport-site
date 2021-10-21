@@ -345,6 +345,17 @@ defmodule TransportWeb.DatasetView do
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
+  def get_resource_to_display(%Dataset{type: "low-emission-zones", resources: resources}) do
+    resources
+    |> Enum.filter(fn r ->
+      r.schema_name == "etalab/schema-zfe" or r.format == "geojson" or
+        String.contains?(String.downcase(r.title), "geojson")
+    end)
+    # Display zones and not special roads
+    |> Enum.reject(fn r -> String.contains?(r.url, "voie") end)
+    |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
+  end
+
   def get_resource_to_display(%Dataset{}), do: nil
 
   def resource_tooltip_content(%DB.Resource{is_available: false}),
@@ -389,4 +400,8 @@ defmodule TransportWeb.DatasetView do
   end
 
   def schema_label(%{schema_name: schema_name}), do: schema_name
+
+  def download_url(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
+    if Resource.can_direct_download?(resource), do: resource.url, else: resource_path(conn, :download, resource.id)
+  end
 end

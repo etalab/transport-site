@@ -124,15 +124,6 @@ defmodule Opendatasoft.UrlExtractor do
 
   @doc """
   Get a download from a CSVs if it exists
-
-  ## Examples
-      iex> [{"name,file\\ntoulouse,http", %{"id" => "bob"}}, {"stop,lon,lat\\n1,48.8,2.3", %{"id" => "bobette"}}]
-      ...> |> UrlExtractor.get_resources_with_url_from_csv()
-      {:ok, [%{"url" => "http", "title" => "http", "id" => "bob"}]}
-
-    iex> UrlExtractor.get_resources_with_url_from_csv([{"stop,lon,lat\\n1,48.8,2.3", %{"id" => "bob"}}])
-    {:error, "No url found"}
-
   """
   @spec get_resources_with_url_from_csv([{binary, map()}]) ::
           {:ok, [map()]} | {:error, binary()}
@@ -277,7 +268,9 @@ defmodule Opendatasoft.UrlExtractor do
 
   @spec get_filename(binary()) :: binary()
   defp get_filename(url) do
-    with {:ok, %HTTPoison.Response{headers: headers}} <- HTTPoison.head(url),
+    httpoison_impl = Transport.Shared.Wrapper.HTTPoison.impl()
+
+    with {:ok, %HTTPoison.Response{headers: headers}} <- httpoison_impl.head(url),
          {_, content} <- Enum.find(headers, fn {h, _} -> h == "Content-Disposition" end),
          %{"filename" => filename} <- Regex.named_captures(~r/filename="(?<filename>.*)"/, content) do
       filename

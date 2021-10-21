@@ -74,6 +74,7 @@ defmodule TransportWeb.Router do
 
     scope "/resources" do
       get("/:id", ResourceController, :details)
+      get("/:id/download", ResourceController, :download)
 
       scope "/update" do
         pipe_through([:authenticated])

@@ -208,6 +208,17 @@ function createGBFSmap (id, resourceUrl) {
     setInterval(() => fillGBFSMap(resourceUrl, fg, availableDocks, map), 60000)
 }
 
+function createGeojsonMap (id, resourceUrl) {
+    const { map, fg } = initilizeMap(id)
+    fetch(resourceUrl)
+        .then(data => data.json())
+        .then(geojson => {
+            L.geoJSON(geojson).addTo(fg)
+            map.fitBounds(fg.getBounds())
+        })
+        .catch(e => removeViz(e))
+}
+
 function removeViz (consoleMsg) {
     const vis = document.querySelector('#dataset-visualisation')
     if (vis) {
@@ -225,6 +236,8 @@ function createMap (id, resourceUrl, resourceFormat) {
         createCSVmap(id, resourceUrl)
     } else if (resourceFormat === 'gbfs' || resourceUrl.endsWith('gbfs.json')) {
         createGBFSmap(id, resourceUrl)
+    } else if (resourceUrl.endsWith('.geojson') || resourceUrl.endsWith('.json')) {
+        createGeojsonMap(id, resourceUrl)
     } else {
         removeViz(`vizualisation of the resource ${resourceUrl} has failed : not recognized file extension`)
     }

@@ -27,7 +27,7 @@ defmodule GBFS.MixProject do
   def application do
     [
       mod: {GBFS.Application, []},
-      extra_applications: [:logger, :runtime_tools, :iconv]
+      extra_applications: [:logger, :runtime_tools]
     ]
   end
 
@@ -39,7 +39,6 @@ defmodule GBFS.MixProject do
       {:cachex, "~> 3.4"},
       {:httpoison, "~> 1.8.0"},
       {:phoenix, "~> 1.5.7"},
-      {:iconv, "~> 1.0.10"},
       {:sweet_xml, ">= 0.0.0"},
       {:jason, ">= 0.0.0"},
       {:cors_plug, "~> 2.0"},
