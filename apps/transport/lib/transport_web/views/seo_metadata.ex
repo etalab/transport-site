@@ -8,7 +8,7 @@ defmodule TransportWeb.SeoMetadata do
   @spec metadata(any()) :: %{optional(:title) => binary(), optional(:description) => binary()}
   def metadata(%{view_module: TransportWeb.DatasetView, q: q}) when not is_nil(q),
     do: %{
-      title: dgettext("seo", "Transport open datasets for search %{q}", q: q)
+      title: dgettext("seo", "%{q}: Available transport open datasets", q: q)
     }
 
   def metadata(%{view_module: TransportWeb.DatasetView, dataset: dataset}) do
@@ -20,10 +20,9 @@ defmodule TransportWeb.SeoMetadata do
 
     %{
       title:
-        dgettext("seo", "Transport open datasets on %{type} for %{spatial} - %{territory}%{formats}",
+        dgettext("seo", "%{spatial} - Open %{formats} datasets - %{territory}",
           spatial: dataset.spatial,
           territory: DB.Dataset.get_territory_or_nil(dataset),
-          type: dataset.type,
           formats: formats
         )
     }
@@ -31,7 +30,7 @@ defmodule TransportWeb.SeoMetadata do
 
   def metadata(%{view_module: TransportWeb.DatasetView, page_title: %{type: "AOM", name: name}}),
     do: %{
-      title: dgettext("seo", "Transport open datasets for AOM %{name}", name: name)
+      title: dgettext("seo", "%{name} AOM: Transport open datasets ", name: name)
     }
 
   def metadata(%{
