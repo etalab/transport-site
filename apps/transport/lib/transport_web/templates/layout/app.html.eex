@@ -8,18 +8,19 @@
     <meta name="csrf" content="<%= get_csrf_token() %>">
 
     <% seo = metadata(assigns) %>
+    <% title = seo[:title] || dgettext("seo", "National Access Point for transport open data") %>
     <% description = seo[:description] || dgettext("seo", "Publish, improve and reuse French public transport data") %>
     <meta name="description" content="<%= description %>">
-    <title><%= seo[:title] || dgettext("seo", "National Access Point for transport open data") %></title>
+    <title><%= title  %></title>
 
-    <meta property="og:title" content="<%= seo[:title] %>" />
+    <meta property="og:title" content="<%= title %>" />
     <meta property="og:image" content="<%= static_url(@conn, "/images/transport-social-share.png") %>" />
     <meta property="og:type" content="website" />
     <meta property="og:description" content="<%= description %>" />
     <meta property="og:locale" content="<%= get_session(@conn, :locale) %>" />
 
     <meta name="twitter:card" content="summary" />
-    <meta property="twitter:title" content="<%= seo[:title] %>" />
+    <meta property="twitter:title" content="<%= title %>" />
     <meta property="twitter:image" content="<%= static_url(@conn, "/images/transport-social-share.png") %>" />
     <meta property="twitter:description" content="<%= description %>" />
 
