@@ -84,20 +84,25 @@ defmodule PageCache do
       status: conn.status
     }
 
-    Cachex.put(options |> Keyword.fetch!(:cache_name), page_cache_key, value, ttl: :timer.seconds(ttl_seconds(options)))
+    unless page_cache_disabled?() do
+      Cachex.put(options |> Keyword.fetch!(:cache_name), page_cache_key, value,
+        ttl: :timer.seconds(ttl_seconds(options))
+      )
+    end
 
     conn
   end
 
   @doc """
-  The purpose of this method is to help us set TTL to 0 during most tests, to disable cache for tests.
+  Determines if page cache is enabled.
 
-  A better way (to be implemented in the future) will be to use behaviours and alternate implementations
-  (like explained in https://dashbit.co/blog/mocks-and-explicit-contracts), but that will do for now.
+  Page cache is disabled during most tests.
   """
+  def page_cache_disabled? do
+    Application.get_env(:gbfs, :disable_page_cache, false)
+  end
+
   def ttl_seconds(options) do
-    ttl_seconds = options |> Keyword.fetch!(:ttl_seconds)
-    disable_page_cache = Application.get_env(:gbfs, :disable_page_cache, false)
-    if disable_page_cache, do: 0, else: ttl_seconds
+    options |> Keyword.fetch!(:ttl_seconds)
   end
 end
