@@ -405,7 +405,7 @@ defmodule DB.Resource do
   def get_max_severity_validation_number(%__MODULE__{id: id}) do
     """
       SELECT json_data.value#>'{0,severity}', json_array_length(json_data.value)
-      FROM validations, json_each(validations.details) json_data
+      FROM validations, json_each(validations.details::json) json_data
       WHERE validations.resource_id = $1
     """
     |> Repo.query([id])
