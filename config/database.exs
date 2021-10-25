@@ -8,5 +8,3 @@ config :db, DB.Repo,
 
 config :db, ecto_repos: [DB.Repo]
 config :transport, ecto_repos: [DB.Repo]
-
-config :ecto_sql, postgres_map_type: "json"
