@@ -74,14 +74,21 @@ defmodule Datagouvfr.Client.Resources do
   end
 
   @spec upload_query(Plug.Conn.t(), map()) :: Client.oauth2_response()
-  defp upload_query(conn, params),
-    do:
-      Client.post(
-        conn,
-        make_path(params, ["upload"]),
-        {:file, params["resource_file"]},
-        [{"content-type", "multipart/form-data"}]
-      )
+  defp upload_query(conn, params) do
+    file_path = params["resource_file"] |> Map.fetch!(:path)
+    file_name = params["resource_file"] |> Map.fetch!(:filename)
+
+    Client.post(
+      conn,
+      make_path(params, ["upload"]),
+      # found here how to properly upload the file: https://github.com/edgurgel/httpoison/issues/237
+      {:multipart,
+       [
+         {:file, file_path, {"form-data", [{:name, "file"}, {:filename, file_name}]}, []}
+       ]},
+      [{"content-type", "multipart/form-data"}]
+    )
+  end
 
   @spec make_path(map(), [binary()]) :: binary()
   defp make_path(params, suffix \\ [])
