@@ -35,8 +35,18 @@ defmodule Transport.History.Backup do
   end
 
   @spec modification_date(DB.Resource.t()) :: binary()
-  defp modification_date(resource), do: resource.last_update || resource.last_import
+  defp modification_date(resource) do
+    [resource.last_update, resource.last_import] |> Enum.filter(fn x -> x != nil end) |> Enum.max()
+  end
 
+  @doc """
+  Determines if a resource needs to be historicized.
+
+  A resource needs to be historicized if:
+  - it has never been historicized
+  - the current resource's content hash does not exist in the backups
+  and the resource has been modified or imported since the most recent historicized resource
+  """
   @spec needs_to_be_updated(DB.Resource.t()) :: boolean()
   defp needs_to_be_updated(resource) do
     backuped_resources = get_already_backuped_resources(resource)
