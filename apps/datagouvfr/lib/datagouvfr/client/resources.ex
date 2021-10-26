@@ -52,6 +52,27 @@ defmodule Datagouvfr.Client.Resources do
     end
   end
 
+  # Update function #3
+  # Creates a new resource with a remote url
+  # data.gouv.fr calls made :
+  # * POST on /datasets/{dataset}/upload/ => creates a new resource for the given dataset if the resource is an uploaded file
+  @spec update(Plug.Conn.t(), map) :: Client.oauth2_response() | nil
+  def update(conn, %{"url" => _url, "dataset_id" => dataset_id} = params) do
+    payload =
+      params
+      |> Map.take(@fields)
+      |> Enum.filter(fn {_k, v} -> v != "" end)
+      |> Map.new()
+      |> Map.put("filetype", "remote")
+      |> put_mime(params)
+
+    Client.post(
+      conn,
+      "/datasets/#{dataset_id}/resources/",
+      payload
+    )
+  end
+
   @spec get(map) :: map
   def get(%{"resource_id" => _id} = params) do
     params
