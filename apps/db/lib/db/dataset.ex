@@ -558,6 +558,7 @@ defmodule DB.Dataset do
         {:ok,
          __MODULE__
          |> where([d], d.datagouv_id in ^datagouv_ids)
+         |> order_by([d], desc: d.id)
          |> Repo.all()}
 
       error ->
@@ -578,6 +579,7 @@ defmodule DB.Dataset do
         {:ok,
          __MODULE__
          |> where([d], d.datagouv_id in ^datagouv_ids)
+         |> order_by([d], desc: d.id)
          |> Repo.all()}
 
       error ->
