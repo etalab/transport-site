@@ -86,7 +86,7 @@ defmodule TransportWeb.SeoMetadataTest do
 
   test "GET /dataset/:id ", %{conn: conn} do
     title = conn |> get("/datasets/horaires-et-arrets-du-reseau-irigo-format-gtfs") |> html_response(200) |> title
-    assert title =~ "Horaires Angers - Données  (GTFS) ouvertes - Angers Métropôle"
+    assert title =~ "Horaires Angers - Données (GTFS) ouvertes - Angers Métropôle"
   end
 
   test "GET /resources/:id ", %{conn: conn} do

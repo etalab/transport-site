@@ -15,7 +15,7 @@ defmodule TransportWeb.SeoMetadata do
     formats =
       case DB.Dataset.formats(dataset) do
         [] -> ""
-        l -> " (#{Enum.join(l, ", ")})"
+        l -> "(#{Enum.join(l, ", ")})"
       end
 
     %{
