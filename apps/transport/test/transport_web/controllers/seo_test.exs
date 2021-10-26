@@ -65,7 +65,7 @@ defmodule TransportWeb.SeoMetadataTest do
 
   test "GET /datasets/aom/4242 ", %{conn: conn} do
     title = conn |> get("/datasets/aom/4242") |> html_response(200) |> title
-    assert title =~ "Jeux de données ouverts de l&#39;AOM Angers Métropôle"
+    assert title =~ "AOM Angers Métropôle : Jeux de données ouverts"
   end
 
   test "GET /datasets/region/12 ", %{conn: conn} do
@@ -86,7 +86,7 @@ defmodule TransportWeb.SeoMetadataTest do
 
   test "GET /dataset/:id ", %{conn: conn} do
     title = conn |> get("/datasets/horaires-et-arrets-du-reseau-irigo-format-gtfs") |> html_response(200) |> title
-    assert title =~ "Jeux de données ouverts de Horaires Angers - Angers Métropôle (GTFS)"
+    assert title =~ "Horaires Angers - Données (GTFS) ouvertes - Angers Métropôle"
   end
 
   test "GET /resources/:id ", %{conn: conn} do

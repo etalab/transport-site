@@ -23,15 +23,15 @@ msgid "Transport open datasets for %{type} %{name}"
 msgstr ""
 
 #, elixir-format
-msgid "Transport open datasets for AOM %{name}"
+msgid "%{name} AOM: Transport open datasets "
 msgstr ""
 
 #, elixir-format
-msgid "Transport open datasets for search %{q}"
+msgid "%{q}: Available transport open datasets"
 msgstr ""
 
 #, elixir-format
-msgid "Transport open datasets on %{type} for %{spatial} - %{territory}%{formats}"
+msgid "%{spatial} - Open %{formats} datasets - %{territory}"
 msgstr ""
 
 #, elixir-format
