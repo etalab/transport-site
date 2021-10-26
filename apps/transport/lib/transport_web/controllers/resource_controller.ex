@@ -151,7 +151,12 @@ defmodule TransportWeb.ResourceController do
         )
 
         # eventually get the error reason given by data.gouv and pass it to the user
-        msg = error |> Map.get(:body, %{}) |> Map.get("message", "")
+        msg =
+          if is_map(error) do
+            error |> Map.get(:body, %{}) |> Map.get("message", "")
+          else
+            ""
+          end
 
         conn
         |> put_flash(:error, [dgettext("resource", "Unable to upload file."), " ", msg])

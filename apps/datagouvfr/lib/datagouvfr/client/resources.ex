@@ -17,7 +17,8 @@ defmodule Datagouvfr.Client.Resources do
   # It can be an existing resource update or a new resource
   # After this function, the update function #2 is called
   # data.gouv.fr calls made here:
-  # * POST on /datasets/{dataset}/resources/ => creates a new resource for the given dataset if the resource source is a remote file
+  # * POST on /datasets/{dataset}/resources/ => creates a new resource for the given dataset
+  #                                             if the resource source is a remote file
   # * POST on /datasets/{dataset}/resources/{rid}/upload/ => upload a new file for the given existing resource
   @spec update(Plug.Conn.t(), map) :: Client.oauth2_response() | nil
   def update(conn, %{"resource_file" => _file} = params) do
@@ -65,7 +66,8 @@ defmodule Datagouvfr.Client.Resources do
   # Update function #3
   # Creates a new resource with a remote url
   # data.gouv.fr calls made here:
-  # * POST on /datasets/{dataset}/upload/ => creates a new resource for the given dataset if the resource is an uploaded file
+  # * POST on /datasets/{dataset}/upload/ => creates a new resource for the given dataset
+  #                                          if the resource is an uploaded file
   @spec update(Plug.Conn.t(), map) :: Client.oauth2_response() | nil
   def update(conn, %{"url" => _url, "dataset_id" => dataset_id} = params) do
     payload =
