@@ -11,7 +11,7 @@ defmodule Datagouvfr.Client.Resources do
   }
   @fields ["url", "format", "title", "filetype"]
 
-  # when the new resource comes from an uploaded file
+  # when the resource has an uploaded file
   @spec update(Plug.Conn.t(), map) :: Client.oauth2_response() | nil
   def update(conn, %{"resource_file" => _file} = params) do
     case upload_query(conn, params) do
@@ -92,6 +92,14 @@ defmodule Datagouvfr.Client.Resources do
   defp upload_query(conn, _), do: {:error, "no file to upload"}
 
   @spec make_path(map(), [binary()]) :: binary()
+  # The different data.gouv.fr api calls targeted by this function :
+  # * POST on /datasets/{dataset}/resources/ => creates a new resource for the given dataset if the resource source is a remote file
+  # * POST on /datasets/{dataset}/upload/ => creates a new resource for the given dataset if the resource is an uploaded file
+  # * PUT on /datasets/{dataset}/resources/{rid}/ => updates the information about the given resource
+  # * POST on /datasets/{dataset}/resources/{rid}/upload/ => upload a new file for the given existing resource
+
+  # See https://doc.data.gouv.fr/api/reference/#/datasets for reference
+
   defp make_path(params, suffix \\ [])
 
   defp make_path(%{"dataset_id" => d_id, "resource_id" => r_id}, suffix),
