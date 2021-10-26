@@ -41,7 +41,6 @@ defmodule Datagouvfr.Client.Resources do
   # Updates the informations about an existing resource (file or url)
   # data.gouv.fr calls made here:
   # * PUT on /datasets/{dataset}/resources/{rid}/ => updates the information about the given resource
-  @spec update(Plug.Conn.t(), map) :: Client.oauth2_response() | nil
   def update(conn, %{"resource_id" => _} = params) do
     params
     |> Map.take(@fields)
@@ -68,7 +67,6 @@ defmodule Datagouvfr.Client.Resources do
   # data.gouv.fr calls made here:
   # * POST on /datasets/{dataset}/upload/ => creates a new resource for the given dataset
   #                                          if the resource is an uploaded file
-  @spec update(Plug.Conn.t(), map) :: Client.oauth2_response() | nil
   def update(conn, %{"url" => _url, "dataset_id" => dataset_id} = params) do
     payload =
       params

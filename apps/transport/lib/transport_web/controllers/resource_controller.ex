@@ -150,16 +150,8 @@ defmodule TransportWeb.ResourceController do
           "Unable to update resource #{params["resource_id"]} of dataset #{params["dataset_id"]}, error: #{inspect(error)}"
         )
 
-        # eventually get the error reason given by data.gouv and pass it to the user
-        msg =
-          if is_map(error) do
-            error |> Map.get(:body, %{}) |> Map.get("message", "")
-          else
-            ""
-          end
-
         conn
-        |> put_flash(:error, [dgettext("resource", "Unable to upload file."), " ", msg])
+        |> put_flash(:error, dgettext("resource", "Unable to upload file."))
         |> form(params)
 
       nil ->
