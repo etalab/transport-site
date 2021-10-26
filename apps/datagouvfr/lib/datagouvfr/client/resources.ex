@@ -109,7 +109,7 @@ defmodule Datagouvfr.Client.Resources do
     )
   end
 
-  defp upload_query(conn, _), do: {:error, "no file to upload"}
+  defp upload_query(_conn, _), do: {:error, "no file to upload"}
 
   @spec make_path(map(), [binary()]) :: binary()
   # The different data.gouv.fr api calls targeted by this function :
