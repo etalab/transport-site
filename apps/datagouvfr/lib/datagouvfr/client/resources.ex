@@ -15,30 +15,29 @@ defmodule Datagouvfr.Client.Resources do
   @spec update(Plug.Conn.t(), map) :: Client.oauth2_response() | nil
   def update(conn, %{"resource_file" => _file} = params) do
     case upload_query(conn, params) do
-      {:ok, %{"id" => r_id}} = upload_resp ->
+      {:ok, %{"id" => r_id}} ->
         new_params =
           params
           |> Map.drop(["resource_file"])
           |> Map.put("resource_id", r_id)
           |> Map.put("filetype", "file")
 
-        update(conn, new_params, upload_resp)
+        update(conn, new_params)
 
       error ->
         error
     end
   end
 
-  @spec update(Plug.Conn.t(), map, Client.oauth2_response() | nil) :: Client.oauth2_response() | nil
-  def update(conn, params, prev_resp \\ nil) do
+  @spec update(Plug.Conn.t(), map) :: Client.oauth2_response() | nil
+  def update(conn, %{"resource_id" => _} = params) do
     params
     |> Map.take(@fields)
     |> Enum.filter(fn {_k, v} -> v != "" end)
     |> Map.new()
     |> case do
       params when map_size(params) == 0 ->
-        # We have nothing to upload, so we return the previous response
-        prev_resp
+        {:ok, "resource already up-to-date"}
 
       filtered_params ->
         payload =
