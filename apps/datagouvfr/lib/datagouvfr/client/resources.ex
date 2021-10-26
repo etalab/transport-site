@@ -11,6 +11,7 @@ defmodule Datagouvfr.Client.Resources do
   }
   @fields ["url", "format", "title", "filetype"]
 
+  # when the new resource comes from an uploaded file
   @spec update(Plug.Conn.t(), map) :: Client.oauth2_response() | nil
   def update(conn, %{"resource_file" => _file} = params) do
     case upload_query(conn, params) do
@@ -74,14 +75,12 @@ defmodule Datagouvfr.Client.Resources do
   end
 
   @spec upload_query(Plug.Conn.t(), map()) :: Client.oauth2_response()
-  defp upload_query(conn, params) do
-    file_path = params["resource_file"] |> Map.fetch!(:path)
-    file_name = params["resource_file"] |> Map.fetch!(:filename)
-
+  defp upload_query(conn, %{"resource_file" => %{path: file_path, filename: file_name}} = params) do
     Client.post(
       conn,
       make_path(params, ["upload"]),
       # found here how to properly upload the file: https://github.com/edgurgel/httpoison/issues/237
+      # (the underlying lib is the same: hackney)
       {:multipart,
        [
          {:file, file_path, {"form-data", [{:name, "file"}, {:filename, file_name}]}, []}
@@ -89,6 +88,8 @@ defmodule Datagouvfr.Client.Resources do
       [{"content-type", "multipart/form-data"}]
     )
   end
+
+  defp upload_query(conn, _), do: {:error, "no file to upload"}
 
   @spec make_path(map(), [binary()]) :: binary()
   defp make_path(params, suffix \\ [])
