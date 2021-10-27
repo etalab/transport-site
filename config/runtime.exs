@@ -20,6 +20,9 @@ if config_env() == :prod do
 
   config :transport, Transport.Scheduler,
     jobs: scheduled_jobs
+
+  queue_size = if worker == "1", do: 1, else: 0
+  config :transport, Oban, repo: DB.Repo, plugins: [Oban.Plugins.Pruner], queues: [default: queue_size]
 end
 
 if config_env() == :dev do
@@ -30,9 +33,7 @@ if config_env() == :dev do
   config :transport,
     worker: worker,
     webserver: webserver
-end
 
-if config_env() != :test do
-  # TODO queue size could be defined with ENV variable
-  config :transport, Oban, repo: DB.Repo, plugins: [Oban.Plugins.Pruner], queues: [default: 1]
+  queue_size = if worker == "1", do: 1, else: 0
+  config :transport, Oban, repo: DB.Repo, plugins: [Oban.Plugins.Pruner], queues: [default: queue_size]
 end
