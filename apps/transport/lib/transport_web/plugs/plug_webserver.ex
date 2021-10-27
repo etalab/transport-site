@@ -9,9 +9,9 @@ defmodule TransportWeb.Plugs.Webserver do
   def init(options), do: options
 
   def call(conn, opts) do
-    conn
-  else
     if Application.get_env(:transport, :webserver) == "1" do
+      conn
+    else
       conn
       |> put_resp_content_type("text/plain")
       |> send_resp(200, "UP")
