@@ -14,7 +14,7 @@ defmodule TransportWeb.LayoutView do
   end
 
   def add_locale_to_url(conn, locale) do
-    params = conn.params |> Map.put("locale", locale)
-    "#{conn.request_path}?#{Plug.Conn.Query.encode(params)}"
+    path_params = conn.path_params |> Map.put("locale", locale)
+    "#{conn.request_path}?#{Plug.Conn.Query.encode(path_params)}"
   end
 end

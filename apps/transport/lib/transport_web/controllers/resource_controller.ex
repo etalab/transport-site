@@ -130,7 +130,7 @@ defmodule TransportWeb.ResourceController do
   @spec post_file(Plug.Conn.t(), map) :: Plug.Conn.t()
   def post_file(conn, params) do
     success_message =
-      if Map.has_key?(params, "file") do
+      if Map.has_key?(params, "resource_file") do
         dgettext("resource", "File uploaded!")
       else
         dgettext("resource", "Resource updated with URL!")
