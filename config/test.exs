@@ -69,3 +69,5 @@ config :transport,
 
 config :transport, TransportWeb.Endpoint,
   secret_key_base: "SOME-LONG-SECRET-KEY-BASE-FOR-TESTING-SOME-LONG-SECRET-KEY-BASE-FOR-TESTING"
+
+config :transport, Oban, queues: false, plugins: false
