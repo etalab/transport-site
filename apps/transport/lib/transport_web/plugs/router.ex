@@ -1,6 +1,9 @@
 defmodule TransportWeb.Plugs.Router do
   use Plug.Router
 
+  # if the application is in worker mode, routing stops here
+  plug(TransportWeb.Plugs.Worker)
+
   plug(:match)
   plug(:dispatch)
 
