@@ -34,5 +34,5 @@ end
 
 if config_env() != :test do
   # TODO queue size could be defined with ENV variable
-  config :transport, Oban, queues: [default: 1]
+  config :transport, Oban, repo: DB.Repo, plugins: [Oban.Plugins.Pruner], queues: [default: 1]
 end
