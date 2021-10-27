@@ -29,7 +29,7 @@ if config_env() == :dev do
 
   config :transport,
     worker: worker,
-    webserver: webserver,
+    webserver: webserver
 end
 
 if config_env() != :test do
