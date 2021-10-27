@@ -151,7 +151,7 @@ defmodule TransportWeb.ResourceController do
         )
 
         conn
-        |> put_flash(:error, dgettext("resource", "Unable to upload file."))
+        |> put_flash(:error, dgettext("resource", "Unable to upload file"))
         |> form(params)
 
       nil ->
