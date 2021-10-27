@@ -6,6 +6,8 @@ defmodule Transport.GeojsonConverterJob do
 
   @impl true
   def perform(%{id: id, args: %{"resource_id" => resource_id}}) do
+    IO.inspect("I, worker, start this job.")
+
     url = Resource |> Repo.get!(resource_id) |> Map.fetch!(:url)
 
     # TODO how is the tmp folder cleaned (upon completion or after a crash)?
