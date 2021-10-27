@@ -51,15 +51,7 @@ defmodule TransportWeb.Endpoint do
   # Set :encryption_salt if you would also like to encrypt it.
   plug(Plug.Session, @session_options)
 
-  plug(get_router_module())
-
-  defp get_router_module() do
-    case Application.get_env(:worker) do
-      0 -> TransportWeb.Plugs.Router
-      1 -> TransportWeb.Plugs.WorkerRouter
-      _ -> raise "WORKER environment variables allowed value are 0 or 1"
-    end
-  end
+  plug(TransportWeb.Plugs.Router)
 
   @doc """
   Callback invoked for dynamically configuring the endpoint.
