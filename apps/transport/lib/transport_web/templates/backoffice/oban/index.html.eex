@@ -1,0 +1,6 @@
+<div>
+  Job lancé pour la ressource <%= @resource_id %>
+</div>
+<div>
+  <%= @job_id %>
+</div>
