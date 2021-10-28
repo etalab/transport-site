@@ -21,6 +21,7 @@ defmodule GBFS.Router do
 
   @reseaux_jcdecaux %{
     "amiens" => "Velam",
+    "besancon" => "VéloCité",
     "cergy-pontoise" => "Velo2",
     "creteil" => "CristoLib",
     "lyon" => "Vélo'v",
@@ -29,7 +30,8 @@ defmodule GBFS.Router do
     "nancy" => "vélOstan'lib",
     "nantes" => "Bicloo",
     "rouen" => "cy'clic",
-    "toulouse" => "Vélô"
+    "toulouse" => "Vélô",
+    "valence" => "Libélo"
   }
 
   @reseaux_smoove [
