@@ -73,7 +73,9 @@ defmodule GBFS.JCDecauxController do
 
   @spec query_jcdecaux(binary()) :: {:ok, map()} | {:error, binary()}
   def query_jcdecaux(contract) do
-    with {:ok, %{status_code: 200, body: body}} <- HTTPoison.get(rt_url(contract)),
+    http_client = Transport.Shared.Wrapper.HTTPoison.impl()
+
+    with {:ok, %{status_code: 200, body: body}} <- http_client.get(rt_url(contract)),
          {:ok, json} <- Jason.decode(body) do
       {:ok, json}
     else
