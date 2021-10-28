@@ -104,7 +104,7 @@ defmodule Opendatasoft.UrlExtractor do
 
     cond do
       String.ends_with?(title, ".pdf") -> nil
-      Enum.any?(Enum.map(["gtfs-rt", "gtfs rt", "gtfsrt"], fn kw -> String.contains?(title, kw) end)) -> "gtfs-rt"
+      String.match?(title, ~r/\bgtfs(-rt|rt| rt)\b/) -> "gtfs-rt"
       String.contains?(title, "netex") -> "netex"
       String.contains?(title, "gtfs") -> "gtfs"
       true -> nil
