@@ -24,16 +24,16 @@ msgid "Transport open datasets for %{type} %{name}"
 msgstr "Jeux de données ouverts de la %{type} %{name}"
 
 #, elixir-format
-msgid "Transport open datasets for AOM %{name}"
-msgstr "Jeux de données ouverts de l'AOM %{name}"
+msgid "%{name} AOM: Transport open datasets "
+msgstr "AOM %{name} : Jeux de données ouverts"
 
 #, elixir-format
-msgid "Transport open datasets for search %{q}"
-msgstr "Jeux de données ouverts pour la recherche %{q}"
+msgid "%{q}: Available transport open datasets"
+msgstr "%{q} : Jeux de données ouverts disponibles"
 
 #, elixir-format
-msgid "Transport open datasets on %{type} for %{spatial} - %{territory}%{formats}"
-msgstr "Jeux de données ouverts de %{spatial} - %{territory}%{formats}"
+msgid "%{spatial} - Open %{formats} datasets - %{territory}"
+msgstr "%{spatial} - Données %{formats} ouvertes - %{territory}"
 
 #, elixir-format
 msgid "National Access Point for transport open data"
