@@ -377,7 +377,16 @@ defmodule Transport.ImportData do
   end
 
   @spec get_valid_gtfs_rt_resources([map()]) :: [map()]
-  def get_valid_gtfs_rt_resources(resources), do: Enum.filter(resources, &is_gtfs_rt?/1)
+  def get_valid_gtfs_rt_resources(resources) do
+    resources =
+      cond do
+        !Enum.empty?(l = Enum.filter(resources, &is_gtfs_rt?/1)) -> l
+        !Enum.empty?(l = UrlExtractor.get_gtfs_rt_csv_resources(resources)) -> l
+        true -> []
+      end
+
+    resources |> Enum.map(fn r -> %{r | "format" => "gtfs-rt"} end)
+  end
 
   @doc """
     iex> ImportData.get_valid_siri_resources([%{"format" => "siri", id: 1}, %{"format" => "xxx", id: 2}])
