@@ -1,5 +1,5 @@
 defmodule Transport.AvailabilityCheckerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   import Mock
   alias Transport.AvailabilityChecker
 
@@ -37,8 +37,17 @@ defmodule Transport.AvailabilityCheckerTest do
   end
 
   test "head NOT supported, fallback on stream method", _ do
+    test_fallback_to_stream(405)
+  end
+
+  test "head requires auth, fallback on stream method", _ do
+    test_fallback_to_stream(401)
+    test_fallback_to_stream(403)
+  end
+
+  defp test_fallback_to_stream(status_code) do
     httpoison_mock = fn _url, [], _options ->
-      {:ok, %HTTPoison.Response{body: "{}", status_code: 405}}
+      {:ok, %HTTPoison.Response{body: "{}", status_code: status_code}}
     end
 
     streamer_mock = fn _url ->
@@ -47,7 +56,7 @@ defmodule Transport.AvailabilityCheckerTest do
 
     with_mock HTTPoison, head: httpoison_mock do
       with_mock HTTPStreamV2, fetch_status_follow_redirect: streamer_mock do
-        assert AvailabilityChecker.available?(%{"url" => "url405"})
+        assert AvailabilityChecker.available?(%{"url" => "url"})
         assert_called_exactly(HTTPoison.head(:_, :_, :_), 1)
         assert_called_exactly(HTTPStreamV2.fetch_status_follow_redirect(:_), 1)
       end
