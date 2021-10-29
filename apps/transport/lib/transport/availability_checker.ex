@@ -3,6 +3,7 @@ defmodule Transport.AvailabilityChecker do
   A module used to check if a remote file is "available" through a GET a request.
   Gives a response even if remote server does not support HEAD requests (405 response)
   """
+  alias HTTPoison.Response
 
   @spec available?(map() | binary()) :: boolean
   def available?(target, use_http_streaming \\ false)
@@ -11,8 +12,8 @@ defmodule Transport.AvailabilityChecker do
 
   def available?(url, false) when is_binary(url) do
     case HTTPoison.head(url, [], follow_redirect: true) do
-      {:ok, %HTTPoison.Response{status_code: 200}} -> true
-      {:ok, %HTTPoison.Response{status_code: 405}} -> available?(url, _use_http_streaming = true)
+      {:ok, %Response{status_code: 200}} -> true
+      {:ok, %Response{status_code: code}} when code in [401, 403, 405] -> available?(url, _use_http_streaming = true)
       _ -> false
     end
   end
