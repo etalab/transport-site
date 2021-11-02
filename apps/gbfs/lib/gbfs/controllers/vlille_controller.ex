@@ -48,7 +48,8 @@ defmodule GBFS.VLilleController do
       {:error, msg} ->
         conn
         |> assign(:error, msg)
-        |> render(GBFS.ErrorView, "error.json")
+        |> put_view(GBFS.ErrorView)
+        |> render("error.json")
     end
   end
 
