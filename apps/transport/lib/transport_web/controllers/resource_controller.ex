@@ -122,7 +122,8 @@ defmodule TransportWeb.ResourceController do
           conn
           |> put_flash(:error, dgettext("resource", "Resource is not available on remote server"))
           |> put_status(:not_found)
-          |> render(ErrorView, "404.html")
+          |> put_view(ErrorView)
+          |> render("404.html")
       end
     end
   end
