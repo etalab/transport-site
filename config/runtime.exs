@@ -45,7 +45,8 @@ if config_env() == :dev do
     end
 
   config :transport, TransportWeb.Endpoint,
-    http: [port: 5000],
+    # optionally allowing to override the port is useful to play with 2 nodes locally
+    http: [port: System.get_env("PORT", "5000")],
     debug_errors: true,
     code_reloader: true,
     check_origin: false,
