@@ -37,4 +37,18 @@ if config_env() == :dev do
 
   queues = if worker == "1", do: [default: 1], else: false
   config :transport, Oban, repo: DB.Repo, plugins: [Oban.Plugins.Pruner], queues: queues
+
+  config :transport, TransportWeb.Endpoint,
+  http: [port: 5000],
+  debug_errors: true,
+  code_reloader: true,
+  check_origin: false,
+  # NOTE: this is required to ensure code reloading will work.
+  # A page reload is required to trigger this. More apps could
+  # be added when needed here, we just added what we needed.
+  reloadable_apps: [:shared, :db, :transport, :unlock],
+  watchers: [
+    npm: ["run", "--prefix", "apps/transport/client", "watch"]
+  ]
+
 end
