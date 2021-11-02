@@ -34,9 +34,24 @@ defmodule Transport.History.Backup do
     |> Stream.run()
   end
 
-  @spec modification_date(DB.Resource.t()) :: binary()
+  @spec modification_date(DB.Resource.t()) :: NaiveDateTime.t()
   defp modification_date(resource) do
-    [resource.last_update, resource.last_import] |> Enum.filter(fn x -> x != nil end) |> Enum.max()
+    # See https://github.com/etalab/transport-site/issues/1550
+    # Datetimes format are a bit different for these values
+    # Example:
+    # > r.last_update
+    # "2021-08-21T03:00:17.520000"
+    # > r.last_import
+    # "2021-10-05 04:22:19.520708Z"
+    last_update =
+      cond do
+        resource.last_update == nil -> nil
+        {:ok, date} = Datagouvfr.DgDate.from_iso8601(resource.last_update) -> date
+        true -> nil
+      end
+
+    last_import = if resource.last_import == nil, do: nil, else: NaiveDateTime.from_iso8601!(resource.last_import)
+    [last_update, last_import] |> Enum.filter(fn x -> x != nil end) |> Enum.max()
   end
 
   @doc """
@@ -61,7 +76,7 @@ defmodule Transport.History.Backup do
       else
         max_last_modified =
           backuped_resources
-          |> Enum.map(fn r -> r.updated_at end)
+          |> Enum.map(fn r -> NaiveDateTime.from_iso8601!(r.updated_at) end)
           |> Enum.max()
 
         max_last_modified < modification_date(resource)
@@ -112,7 +127,7 @@ defmodule Transport.History.Backup do
         url: resource.url,
         title: resource_title(resource),
         format: resource.format,
-        updated_at: modification_date(resource)
+        updated_at: resource |> modification_date() |> to_string()
       }
       |> maybe_put(:start, resource.metadata["start_date"])
       |> maybe_put(:end, resource.metadata["end_date"])

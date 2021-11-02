@@ -16,7 +16,10 @@ defmodule Transport.HistoryTest do
       format: "GTFS",
       is_community_resource: false,
       dataset: insert(:dataset),
-      last_update: DateTime.utc_now() |> DateTime.to_iso8601()
+      # See https://github.com/etalab/transport-site/issues/1550
+      # to understand why this has got a weird format
+      last_update: DateTime.utc_now() |> DateTime.to_iso8601(),
+      content_hash: "fake_content_hash"
     )
 
     Transport.HTTPoison.Mock
@@ -57,8 +60,9 @@ defmodule Transport.HistoryTest do
 
       %{
         headers: %{
-          "content-hash" => "some-hash",
-          "updated_at" => DateTime.add(DateTime.utc_now(), -60 * 60 * 24, :second)
+          "x-amz-meta-content-hash" => "some-hash",
+          # The S3 API returns a string and not a DateTime
+          "x-amz-meta-updated-at" => DateTime.utc_now() |> DateTime.add(-60 * 60 * 24, :second) |> DateTime.to_string()
         }
       }
     end)
@@ -66,7 +70,7 @@ defmodule Transport.HistoryTest do
       assert %{
                service: :s3,
                bucket: "dataset-123",
-               headers: %{"x-amz-acl" => "public-read"},
+               headers: %{"x-amz-acl" => "public-read", "x-amz-meta-content_hash" => "fake_content_hash"},
                http_method: :put,
                body: "the-payload"
              } = request
