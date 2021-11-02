@@ -51,24 +51,64 @@ defmodule Opendatasoft.UrlExtractor do
   def get_gtfs_csv_resources(resources) do
     resources
     |> get_csv_resources
-    |> Enum.reject(fn r -> r["title"] |> String.ends_with?(".pdf") end)
-    |> Enum.reject(fn r ->
-      r["title"]
-      |> String.downcase()
-      |> String.contains?("netex")
-    end)
+    |> Enum.filter(fn r -> r["title"] |> title_matches_type?("gtfs") end)
+  end
+
+  @spec get_gtfs_rt_csv_resources([any]) :: [any]
+  def get_gtfs_rt_csv_resources(resources) do
+    resources
+    |> get_csv_resources
+    |> Enum.filter(fn r -> r["title"] |> title_matches_type?("gtfs-rt") end)
   end
 
   @spec get_netex_csv_resources([any]) :: [any]
   def get_netex_csv_resources(resources) do
     resources
     |> get_csv_resources
-    |> Enum.reject(fn r -> r["title"] |> String.ends_with?(".pdf") end)
-    |> Enum.filter(fn r ->
-      r["title"]
-      |> String.downcase()
-      |> String.contains?("netex")
-    end)
+    |> Enum.filter(fn r -> r["title"] |> title_matches_type?("netex") end)
+  end
+
+  @spec title_matches_type?(binary(), binary()) :: boolean()
+  defp title_matches_type?(csv_title, expected_type) do
+    title_to_type(csv_title) == expected_type
+  end
+
+  @doc ~S"""
+  Infers a resource's type from its title.
+
+  ## Examples
+      iex> UrlExtractor.title_to_type("GTFS angers")
+      "gtfs"
+
+      iex > UrlExtractor.title_to_type("Angers GTFS RT Alerts")
+      "gtfs-rt"
+
+      iex > UrlExtractor.title_to_type("Angers GTFS-RT")
+      "gtfs-rt"
+
+      iex > UrlExtractor.title_to_type("Angers GTFSRT")
+      "gtfs-rt"
+
+      iex > UrlExtractor.title_to_type("description gtfs.pdf")
+      nil
+
+      iex > UrlExtractor.title_to_type("réseau NeTEx")
+      "netex"
+
+      iex > UrlExtractor.title_to_type("foobar")
+      nil
+  """
+  @spec title_to_type(binary()) :: nil | binary()
+  def title_to_type(title) do
+    title = String.downcase(title)
+
+    cond do
+      String.ends_with?(title, ".pdf") -> nil
+      String.match?(title, ~r/\bgtfs(-rt|rt| rt)\b/) -> "gtfs-rt"
+      String.contains?(title, "netex") -> "netex"
+      String.contains?(title, "gtfs") -> "gtfs"
+      true -> nil
+    end
   end
 
   @doc """
