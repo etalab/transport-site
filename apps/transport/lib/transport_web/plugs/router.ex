@@ -1,7 +1,7 @@
 defmodule TransportWeb.Plugs.Router do
   use Plug.Router
 
-  plug(Halt, if: {Transport.Application, :worker_only?}, message: "UP (WORKER-ONLY)")
+  plug(TransportWeb.Plugs.Halt, if: {Transport.Application, :worker_only?}, message: "UP (WORKER-ONLY)")
 
   plug(:match)
   plug(:dispatch)
