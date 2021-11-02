@@ -33,6 +33,11 @@ defmodule Transport.Application do
     Supervisor.start_link(children, opts)
   end
 
+  def worker_only? do
+    Application.fetch_env!(:transport, :webserver) != "1" &&
+      Application.fetch_env!(:transport, :worker) == "1"
+  end
+
   defp add_scheduler(children) do
     if Mix.env() != :test do
       import Supervisor.Spec, only: [worker: 2]
