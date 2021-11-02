@@ -1,5 +1,6 @@
 defmodule Transport.GeojsonConverterJob do
-  use Oban.Worker
+  use Oban.Worker, max_attempts: 1
+
   alias DB.{Repo, Resource}
 
   # TODO: handle the case where a resource cannot be found

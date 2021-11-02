@@ -6,7 +6,7 @@ defmodule TransportWeb.Backoffice.ObanController do
   def index(conn, %{"resource_id" => resource_id}) do
     {:ok, %{id: job_id}} =
       %{resource_id: resource_id}
-      |> Oban.Job.new(queue: :default, worker: Transport.GeojsonConverterJob)
+      |> Transport.GeojsonConverterJob.new()
       |> Oban.insert()
 
     conn
