@@ -72,10 +72,21 @@ defmodule Transport.HistoryTest do
       }
     end)
     |> expect(:request!, fn request ->
+      # Check meta headers do not contain underscores
+      # S3 metadata keys are usually transformed (_ are turned into -)
+      %{headers: headers} = request
+
+      meta_headers_with_underscores = :maps.filter(fn k, _ -> String.match?(k, ~r/^x-amz-meta-\S*_\S*$/) end, headers)
+
+      :maps.map(
+        fn k, _ -> raise ArgumentError, "`#{k}` header should not contain underscores" end,
+        meta_headers_with_underscores
+      )
+
       assert %{
                service: :s3,
                bucket: "dataset-123",
-               headers: %{"x-amz-acl" => "public-read", "x-amz-meta-content_hash" => "fake_content_hash"},
+               headers: %{"x-amz-acl" => "public-read", "x-amz-meta-content-hash" => "fake_content_hash"},
                http_method: :put,
                body: "the-payload"
              } = request

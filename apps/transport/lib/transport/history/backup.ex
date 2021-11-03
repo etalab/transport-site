@@ -127,11 +127,11 @@ defmodule Transport.History.Backup do
         url: resource.url,
         title: resource_title(resource),
         format: resource.format,
-        updated_at: resource |> modification_date() |> to_string()
+        "updated-at": resource |> modification_date() |> to_string()
       }
       |> maybe_put(:start, resource.metadata["start_date"])
       |> maybe_put(:end, resource.metadata["end_date"])
-      |> maybe_put(:content_hash, resource.content_hash)
+      |> maybe_put(:"content-hash", resource.content_hash)
 
     # NOTE: this call has a few drawbacks:
     # - redirects are not followed
