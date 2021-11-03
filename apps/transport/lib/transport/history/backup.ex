@@ -51,7 +51,7 @@ defmodule Transport.History.Backup do
       end
 
     last_import = if resource.last_import == nil, do: nil, else: NaiveDateTime.from_iso8601!(resource.last_import)
-    [last_update, last_import] |> Enum.reject(&is_nil/1) |> Enum.max()
+    [last_update, last_import] |> Enum.reject(&is_nil/1) |> Enum.sort(NaiveDateTime) |> Enum.at(-1)
   end
 
   @doc """

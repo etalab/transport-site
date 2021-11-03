@@ -18,7 +18,12 @@ defmodule Transport.HistoryTest do
       dataset: insert(:dataset),
       # See https://github.com/etalab/transport-site/issues/1550
       # to understand why this has got a weird format
-      last_update: DateTime.utc_now() |> DateTime.to_iso8601(),
+      last_update:
+        DateTime.utc_now()
+        |> DateTime.add(-5 * 60 * 60 * 24, :second)
+        |> DateTime.to_iso8601()
+        |> String.replace(" ", "T"),
+      last_import: DateTime.utc_now() |> DateTime.add(-6 * 60 * 60, :second) |> DateTime.to_iso8601(),
       content_hash: "fake_content_hash"
     )
 
