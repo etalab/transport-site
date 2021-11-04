@@ -6,6 +6,9 @@ defmodule Transport.Scheduler do
   use Quantum,
     otp_app: :transport
 
+  @doc """
+  The jobs are defined here, but only programmatically activated on one node. See `config/runtime.exs`.
+  """
   def scheduled_jobs do
     [
       # Every day at 4am UTC
