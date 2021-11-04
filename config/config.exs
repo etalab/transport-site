@@ -106,10 +106,6 @@ config :transport,
   ex_aws_impl: ExAws,
   httpoison_impl: HTTPoison,
   history_impl: Transport.History.Fetcher.S3,
-  gbfs_validator_impl: Shared.Validation.GBFSValidator.HTTPClient,
-  # This endpoint is not really public but we can use it for now
-  # See https://github.com/MobilityData/gbfs-validator/issues/53#issuecomment-957917240
-  gbfs_validator_url: "https://gbfs-validator.netlify.app/.netlify/functions/validator",
   gtfs_to_json_converter_url: "https://convertisseur.transport.data.gouv.fr/gtfs2geojson_sync"
 
 config :datagouvfr,
@@ -132,6 +128,7 @@ config :ex_aws,
 import_config "datagouvfr.exs"
 import_config "database.exs"
 import_config "gtfs_validator.exs"
+import_config "gbfs_validator.exs"
 import_config "mailjet.exs"
 import_config "mailchimp.exs"
 import_config "#{Mix.env}.exs"
