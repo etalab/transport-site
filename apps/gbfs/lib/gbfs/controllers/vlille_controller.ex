@@ -48,6 +48,7 @@ defmodule GBFS.VLilleController do
       {:error, msg} ->
         conn
         |> assign(:error, msg)
+        |> put_status(502)
         |> put_view(GBFS.ErrorView)
         |> render("error.json")
     end
@@ -70,13 +71,15 @@ defmodule GBFS.VLilleController do
         Enum.map(records, fn r ->
           {:ok, dt, _offset} = DateTime.from_iso8601(r["fields"]["datemiseajour"])
           last_reported = DateTime.to_unix(dt)
+          is_open = r["fields"]["etat"] == "EN SERVICE"
 
           %{
             station_id: r["recordid"],
             num_bikes_available: r["fields"]["nbvelosdispo"],
             num_docks_available: r["fields"]["nbplacesdispo"],
-            is_renting: r["fields"]["etat"] == "EN SERVICE",
-            is_returning: r["fields"]["etat"] == "EN SERVICE",
+            is_installed: is_open,
+            is_renting: is_open,
+            is_returning: is_open,
             last_reported: last_reported
           }
         end)
@@ -99,7 +102,7 @@ defmodule GBFS.VLilleController do
             name: r["fields"]["nom"],
             lat: lon,
             lon: lat,
-            address: r["fields"]["adresse"],
+            address: r["fields"]["adresse"] <> ", " <> r["fields"]["commune"],
             capacity: r["fields"]["nbvelosdispo"] + r["fields"]["nbplacesdispo"]
           }
         end)
@@ -112,14 +115,16 @@ defmodule GBFS.VLilleController do
 
   @spec get_information_aux((map -> map)) :: {:ok, map()} | {:error, binary}
   defp get_information_aux(convert_func) do
+    http_client = Transport.Shared.Wrapper.HTTPoison.impl()
+
     with {:ok, %HTTPoison.Response{status_code: status_code, body: body}}
          when status_code >= 200 and status_code < 400 <-
-           HTTPoison.get(@rt_url, [], hackney: [follow_redirect: true]),
+           http_client.get(@rt_url, [], hackney: [follow_redirect: true]),
          {:ok, data} <- Jason.decode(body) do
       res = convert_func.(data)
       {:ok, res}
     else
-      _ -> {:error, "service unavailable"}
+      _ -> {:error, "VLille service unavailable"}
     end
   end
 end
