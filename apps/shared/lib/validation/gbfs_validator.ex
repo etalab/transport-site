@@ -33,6 +33,9 @@ defmodule Shared.Validation.GBFSValidator do
     """
     @behaviour Wrapper
     require Logger
+
+    # This endpoint is not really public but we can use it for now
+    # See https://github.com/MobilityData/gbfs-validator/issues/53#issuecomment-957917240
     @validator_url "https://gbfs-validator.netlify.app/.netlify/functions/validator"
 
     def validate(url) do
