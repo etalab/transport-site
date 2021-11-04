@@ -8,7 +8,7 @@ config :tzdata, :autoupdate, :disabled
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :transport, TransportWeb.Endpoint,
-  http: [port: 5001],
+  http: [port: 5100],
   server: true
 
 # Page cache would make tests brittle, so disable it by default
