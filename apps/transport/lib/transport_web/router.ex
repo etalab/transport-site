@@ -96,7 +96,6 @@ defmodule TransportWeb.Router do
       get("/", PageController, :index)
 
       get("/dashboard", DashboardController, :index)
-      get("/oban/:resource_id", ObanController, :index)
       # NOTE: by default no layout are automatically picked at time of writing
       # for live views, so an explicit call is needed
       # See https://hexdocs.pm/phoenix_live_view/live-layouts.html
