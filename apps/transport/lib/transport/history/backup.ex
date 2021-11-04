@@ -51,7 +51,7 @@ defmodule Transport.History.Backup do
       end
 
     last_import = if resource.last_import == nil, do: nil, else: NaiveDateTime.from_iso8601!(resource.last_import)
-    [last_update, last_import] |> Enum.reject(&is_nil/1) |> Enum.max()
+    [last_update, last_import] |> Enum.reject(&is_nil/1) |> Enum.sort(NaiveDateTime) |> Enum.at(-1)
   end
 
   @doc """
@@ -79,7 +79,7 @@ defmodule Transport.History.Backup do
           |> Enum.map(fn r -> NaiveDateTime.from_iso8601!(r.updated_at) end)
           |> Enum.max()
 
-        max_last_modified < modification_date(resource)
+        NaiveDateTime.compare(max_last_modified, modification_date(resource)) == :lt
       end
     end
   end
@@ -127,11 +127,11 @@ defmodule Transport.History.Backup do
         url: resource.url,
         title: resource_title(resource),
         format: resource.format,
-        updated_at: resource |> modification_date() |> to_string()
+        "updated-at": resource |> modification_date() |> to_string()
       }
       |> maybe_put(:start, resource.metadata["start_date"])
       |> maybe_put(:end, resource.metadata["end_date"])
-      |> maybe_put(:content_hash, resource.content_hash)
+      |> maybe_put(:"content-hash", resource.content_hash)
 
     # NOTE: this call has a few drawbacks:
     # - redirects are not followed
