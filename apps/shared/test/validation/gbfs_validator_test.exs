@@ -4,8 +4,8 @@ defmodule GBFSValidatorTest do
 
   import Mox
 
-  alias Shared.Validation.GBFSValidator.Wrapper, as: GBFSValidator
   alias Shared.Validation.GBFSValidator.Summary
+  alias Shared.Validation.GBFSValidator.Wrapper, as: GBFSValidator
 
   setup :verify_on_exit!
 
