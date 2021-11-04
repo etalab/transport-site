@@ -53,15 +53,13 @@ defmodule Shared.Validation.GBFSValidator do
       end
     end
 
-    defp http_client, do: Application.fetch_env!(:transport, :httpoison_impl)
-
     defp validator_url, do: Application.fetch_env!(:transport, :gbfs_validator_url)
 
     defp call_api(url) do
       body = Jason.encode!(%{url: url})
       headers = [{"content-type", "application/json"}, {"user-agent", Application.get_env(:transport, :contact_email)}]
 
-      http_client().post(validator_url(), body, headers)
+      Transport.Shared.Wrapper.HTTPoison.impl().post(validator_url(), body, headers)
     end
   end
 end
