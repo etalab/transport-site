@@ -68,6 +68,17 @@ if config_env() == :dev do
   config :transport, TransportWeb.Endpoint,
     # optionally allowing to override the port is useful to play with 2 nodes locally, without conflict
     http: [port: System.get_env("PORT", "5000")],
+    debug_errors: true,
+    code_reloader: true,
+    check_origin: false,
+    # NOTE: this is required to ensure code reloading will work.
+    # A page reload is required to trigger this. More apps could
+    # be added when needed here, we just added what we needed.
+    reloadable_apps: [:shared, :db, :transport, :unlock],
     #  We also make sure to start the assets watcher only if the webserver is up, to avoid cluttering the logs.
-    watchers: if(webserver == "1", do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]], else: [])
+    watchers:
+      if(webserver == "1",
+        do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]],
+        else: []
+      )
 end
