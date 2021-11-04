@@ -79,7 +79,7 @@ defmodule Transport.History.Backup do
           |> Enum.map(fn r -> NaiveDateTime.from_iso8601!(r.updated_at) end)
           |> Enum.max()
 
-        max_last_modified < modification_date(resource)
+        NaiveDateTime.compare(max_last_modified, modification_date(resource)) == :lt
       end
     end
   end
