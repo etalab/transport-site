@@ -1,5 +1,9 @@
 import Config
 
+# TODO: this must be DRYed out
+# TODO: disable processing & plugins if IEx is started, no matter prod
+# or dev (https://github.com/sorentwo/oban/issues/520#issuecomment-883416363)
+
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
 # system starts, so it is typically used to load production configuration
