@@ -7,7 +7,8 @@ defmodule Shared.Validation.GBFSValidator do
     @moduledoc """
     A structure holding validation results for a GBFS feed
     """
-    defstruct has_errors: nil, errors_count: nil, version_detected: nil, version_validated: nil
+    @enforce_keys [:has_errors, :errors_count, :version_detected, :version_validated]
+    defstruct has_errors: false, errors_count: nil, version_detected: nil, version_validated: nil
 
     @type t :: %__MODULE__{
             has_errors: boolean,
@@ -21,7 +22,7 @@ defmodule Shared.Validation.GBFSValidator do
     @moduledoc """
     This behaviour defines the API for a GBFS Validator
     """
-    defp impl, do: Application.get_env(:transport, :gbfs_validator_impl, Shared.Validation.GBFSValidator.HTTPClient)
+    defp impl, do: Application.get_env(:transport, :gbfs_validator_impl)
 
     @callback validate(binary()) :: {:ok, Summary.t()} | {:error, binary()}
     def validate(url), do: impl().validate(url)
@@ -33,10 +34,6 @@ defmodule Shared.Validation.GBFSValidator do
     """
     @behaviour Wrapper
     require Logger
-
-    # This endpoint is not really public but we can use it for now
-    # See https://github.com/MobilityData/gbfs-validator/issues/53#issuecomment-957917240
-    @validator_url "https://gbfs-validator.netlify.app/.netlify/functions/validator"
 
     def validate(url) do
       with {:ok, %{status_code: 200, body: response}} <- call_api(url),
@@ -58,10 +55,13 @@ defmodule Shared.Validation.GBFSValidator do
 
     defp http_client, do: Application.fetch_env!(:transport, :httpoison_impl)
 
+    defp validator_url, do: Application.fetch_env!(:transport, :gbfs_validator_url)
+
     defp call_api(url) do
       body = Jason.encode!(%{url: url})
       headers = [{"content-type", "application/json"}, {"user-agent", Application.get_env(:transport, :contact_email)}]
-      http_client().post(@validator_url, body, headers)
+
+      http_client().post(validator_url(), body, headers)
     end
   end
 end
