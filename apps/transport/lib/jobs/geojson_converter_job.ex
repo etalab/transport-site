@@ -16,8 +16,7 @@ defmodule Transport.GeojsonConverterJob do
 
     # TODO stream file to disk
     # TODO verify headers (content-type) and maybe provide alerts to providers!
-    {:ok, %{status: 200, body: body}} = Finch.build(:get, url) |> Finch.request(Transport.Finch)
-
+    %{status: 200, body: body} = Unlock.HTTP.Client.impl().get!(url, [])
     File.write!(file_path, body)
 
     # TODO add a bit of logging
