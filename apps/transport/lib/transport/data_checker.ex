@@ -93,13 +93,14 @@ defmodule Transport.DataChecker do
 
     resources
     |> Stream.map(fn r ->
-      compute_gbfs_feed_meta(r) |> IO.inspect()
+      r |> compute_gbfs_feed_meta()
+      # |> IO.inspect()
     end)
     |> Stream.run()
   end
 
   @spec compute_gbfs_feed_meta(Resource.t()) :: map()
-  defp compute_gbfs_feed_meta(resource) do
+  def compute_gbfs_feed_meta(resource) do
     Logger.debug(fn -> "Handling feed #{resource.url}" end)
 
     with {:ok, %{status_code: 200, body: body}} <- http_client().get(resource.url),
@@ -122,16 +123,16 @@ defmodule Transport.DataChecker do
     feed = payload |> gbfs_first_feed()
 
     has_bike_status = gbfs_has_feed?(feed, "free_bike_status")
-    has_station_status = gbfs_has_feed?(feed, "station_status")
+    has_station_information = gbfs_has_feed?(feed, "station_information")
 
     cond do
-      has_bike_status and has_station_status ->
+      has_bike_status and has_station_information ->
         ["free_floating", "stations"]
 
       has_bike_status ->
         ["free_floating"]
 
-      has_station_status ->
+      has_station_information ->
         ["stations"]
 
       true ->
@@ -143,16 +144,20 @@ defmodule Transport.DataChecker do
   defp gbfs_ttl(%{"data" => _data} = payload) do
     feed = payload |> gbfs_first_feed()
 
-    case gbfs_types(payload) do
-      ["free_floating", "stations"] -> feed |> gbfs_feed_url_by_name("free_bike_status")
-      ["free_floating"] -> feed |> gbfs_feed_url_by_name("free_bike_status")
-      ["stations"] -> feed |> gbfs_feed_url_by_name("station_status")
-      nil -> payload["ttl"]
-    end
-    |> gbfs_feed_ttl()
+    value =
+      case gbfs_types(payload) do
+        ["free_floating", "stations"] -> feed |> gbfs_feed_url_by_name("free_bike_status")
+        ["free_floating"] -> feed |> gbfs_feed_url_by_name("free_bike_status")
+        ["stations"] -> feed |> gbfs_feed_url_by_name("station_information")
+        nil -> payload["ttl"]
+      end
+
+    gbfs_feed_ttl(value)
   end
 
-  defp gbfs_feed_ttl(feed_url) do
+  defp gbfs_feed_ttl(value) when is_integer(value) and value >= 0, do: value
+
+  defp gbfs_feed_ttl(feed_url) when is_binary(feed_url) do
     with {:ok, %{status_code: 200, body: body}} <- http_client().get(feed_url),
          {:ok, json} <- Jason.decode(body) do
       json["ttl"]
@@ -182,7 +187,7 @@ defmodule Transport.DataChecker do
   end
 
   defp gbfs_first_feed(%{"data" => data} = payload) do
-    (data["en"] || data["fr"] || data[gbfs_languages(payload).at(0)])["feeds"]
+    (data["en"] || data["fr"] || data[payload |> gbfs_languages() |> Enum.at(0)])["feeds"]
   end
 
   defp gbfs_languages(%{"data" => data}) do
