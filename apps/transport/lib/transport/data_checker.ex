@@ -4,7 +4,7 @@ defmodule Transport.DataChecker do
   """
   alias Datagouvfr.Client.{Datasets, Discussions}
   alias Mailjet.Client
-  alias DB.{Dataset, Repo}
+  alias DB.{Dataset, Repo, Resource}
   import TransportWeb.Router.Helpers
   import Ecto.Query
   require Logger
@@ -78,6 +78,148 @@ defmodule Transport.DataChecker do
       """,
       blank
     )
+  end
+
+  def gbfs_feeds do
+    resources =
+      Resource
+      |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
+      |> where([_r, d], d.type == "bike-scooter-sharing" and d.is_active)
+      |> where([r, _d], like(r.url, "%gbfs.json") or r.format == "gbfs")
+      |> where([r, _d], not fragment("? ~ ?", r.url, "station|free_bike"))
+      |> Repo.all()
+
+    Logger.info("Fetching details about #{Enum.count(resources)} GBFS feeds")
+
+    resources
+    |> Stream.map(fn r ->
+      compute_gbfs_feed_meta(r) |> IO.inspect()
+    end)
+    |> Stream.run()
+  end
+
+  @spec compute_gbfs_feed_meta(Resource.t()) :: map()
+  defp compute_gbfs_feed_meta(resource) do
+    Logger.debug(fn -> "Handling feed #{resource.url}" end)
+
+    with {:ok, %{status_code: 200, body: body}} <- http_client().get(resource.url),
+         {:ok, json} <- Jason.decode(body) do
+      %{
+        versions: gbfs_versions(json),
+        languages: gbfs_languages(json),
+        system_details: gbfs_system_details(json),
+        types: gbfs_types(json),
+        ttl: gbfs_ttl(json)
+      }
+    else
+      e ->
+        Logger.error(inspect(e))
+        %{}
+    end
+  end
+
+  defp gbfs_types(%{"data" => _data} = payload) do
+    feed = payload |> gbfs_first_feed()
+
+    has_bike_status = gbfs_has_feed?(feed, "free_bike_status")
+    has_station_status = gbfs_has_feed?(feed, "station_status")
+
+    cond do
+      has_bike_status and has_station_status ->
+        ["free_floating", "stations"]
+
+      has_bike_status ->
+        ["free_floating"]
+
+      has_station_status ->
+        ["stations"]
+
+      true ->
+        Logger.error("Cannot detect GBFS types for feed #{inspect(feed)}")
+        nil
+    end
+  end
+
+  defp gbfs_ttl(%{"data" => _data} = payload) do
+    feed = payload |> gbfs_first_feed()
+
+    case gbfs_types(payload) do
+      ["free_floating", "stations"] -> feed |> gbfs_feed_url_by_name("free_bike_status")
+      ["free_floating"] -> feed |> gbfs_feed_url_by_name("free_bike_status")
+      ["stations"] -> feed |> gbfs_feed_url_by_name("station_status")
+      nil -> payload["ttl"]
+    end
+    |> gbfs_feed_ttl()
+  end
+
+  defp gbfs_feed_ttl(feed_url) do
+    with {:ok, %{status_code: 200, body: body}} <- http_client().get(feed_url),
+         {:ok, json} <- Jason.decode(body) do
+      json["ttl"]
+    else
+      e ->
+        Logger.error("Cannot get GBFS ttl details: #{inspect(e)}")
+        nil
+    end
+  end
+
+  defp gbfs_system_details(%{"data" => _data} = payload) do
+    feed_url = payload |> gbfs_first_feed() |> gbfs_feed_url_by_name("system_information")
+
+    if not is_nil(feed_url) do
+      with {:ok, %{status_code: 200, body: body}} <- http_client().get(feed_url),
+           {:ok, json} <- Jason.decode(body) do
+        %{
+          timezone: json["data"]["timezone"],
+          name: json["data"]["name"]
+        }
+      else
+        e ->
+          Logger.error("Cannot get GBFS system_information details: #{inspect(e)}")
+          nil
+      end
+    end
+  end
+
+  defp gbfs_first_feed(%{"data" => data} = payload) do
+    (data["en"] || data["fr"] || data[gbfs_languages(payload).at(0)])["feeds"]
+  end
+
+  defp gbfs_languages(%{"data" => data}) do
+    Map.keys(data)
+  end
+
+  @spec gbfs_versions(map()) :: [binary()] | nil
+  defp gbfs_versions(%{"data" => _data} = payload) do
+    gbfs_versions_url = payload |> gbfs_first_feed() |> gbfs_feed_url_by_name("gbfs_versions")
+
+    if is_nil(gbfs_versions_url) do
+      [Map.get(payload, "version", "1.0")]
+    else
+      with {:ok, %{status_code: 200, body: body}} <- http_client().get(gbfs_versions_url),
+           {:ok, json} <- Jason.decode(body) do
+        json["data"]["versions"] |> Enum.map(fn json -> json["version"] end) |> Enum.sort(:desc)
+      else
+        _ -> nil
+      end
+    end
+  end
+
+  @spec gbfs_feed_url_by_name(list(), binary()) :: binary() | nil
+  defp gbfs_feed_url_by_name(feeds, name) do
+    Enum.find(feeds, fn map -> gbfs_feed_is_named?(map, name) end)["url"]
+  end
+
+  @spec gbfs_feed_is_named?(map(), binary()) :: boolean()
+  def gbfs_feed_is_named?(map, name) do
+    # Many people make the mistake of append `.json` to feed names
+    # so try to match this as well
+    Enum.member?([name, "#{name}.json"], map["name"])
+  end
+
+  @spec gbfs_has_feed?([map()], binary()) :: boolean()
+  def gbfs_has_feed?(feeds, name) do
+    Enum.any?(feeds |> Enum.map(fn feed -> gbfs_feed_is_named?(feed, name) end))
   end
 
   defp make_str({delay, datasets}) do
@@ -184,4 +326,6 @@ defmodule Transport.DataChecker do
       false
     )
   end
+
+  defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 end
