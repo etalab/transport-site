@@ -21,7 +21,7 @@ defmodule Transport.GeojsonConverterJob do
 
     # TODO add a bit of logging
 
-    {:ok, output} = file_path |> call_geojson_converter()
+    {:ok, output} = file_path |> Transport.GtfsToGeojsonConverter.convert()
 
     output_path =
       System.tmp_dir!()
@@ -33,17 +33,15 @@ defmodule Transport.GeojsonConverterJob do
 
     :ok
   end
+end
 
-  def call_geojson_converter(file_path) do
-    # TODO: make sure to have a command that we can run on any dev machine (with docker)
-    # TODO: make sure to "clear" the ENV before calling a binary
-    # TODO: make sure to "change working directory" to a specific working place
+defmodule Transport.GtfsToGeojsonConverter do
+  @moduledoc """
+    Given a GTFS file path, create from the file the corresponding geojson with the stops and line shapes if available.
+  """
+  @spec convert(binary()) :: {:ok, binary()} | {:error, any()}
+  def convert(file_path) do
     binary_path = Path.join(Application.fetch_env!(:transport, :transport_tools_folder), "gtfs-geojson")
-
-    case Rambo.run(binary_path, ["--input", file_path]) do
-      {:ok, %Rambo{out: res}} -> {:ok, res}
-      {:error, %Rambo{err: err_msg}} -> {:error, err_msg}
-      {:error, _} = r -> r
-    end
+    Transport.RamboLauncher.run(binary_path, ["--input", file_path])
   end
 end
