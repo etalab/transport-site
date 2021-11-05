@@ -28,7 +28,7 @@ config :transport,
   httpoison_impl: Transport.HTTPoison.Mock,
   history_impl: Transport.History.Fetcher.Mock,
   gtfs_validator: Validation.Validator.Mock,
-  rambo_impl: Transport.RamboLauncher.Mock
+  rambo_impl: Transport.Rambo.Mock
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"

@@ -107,7 +107,7 @@ config :transport,
   httpoison_impl: HTTPoison,
   history_impl: Transport.History.Fetcher.S3,
   gtfs_to_json_converter_url: "https://convertisseur.transport.data.gouv.fr/gtfs2geojson_sync",
-  rambo_impl: Transport.RamboLauncher
+  rambo_impl: Transport.Rambo
 
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API

@@ -18,7 +18,7 @@ defmodule Transport.Test.Transport.Jobs.GeojsonConverterJobTest do
         %{status: 200, body: "this is my file"}
       end)
 
-      Transport.RamboLauncher.Mock
+      Transport.Rambo.Mock
       |> expect(:run, 1, fn binary_path, opts ->
         assert(["--input", file_path] = opts)
         {:ok, "this my geojson content"}
