@@ -60,21 +60,23 @@ defmodule TransportWeb.Backoffice.JobsLive do
     )
   end
 
-  def oban_query(query) do
-    Oban.config() |> Oban.Repo.all(query)
-  end
+  def oban_query(query), do: Oban.config() |> Oban.Repo.all(query)
+
+  def last_jobs(state, n), do: last_jobs_query(state, n) |> oban_query
+
+  def count_jobs(state), do: count_jobs_query(state) |> oban_query |> Enum.at(0)
 
   defp update_data(socket) do
     assign(socket,
       last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
-      executing_jobs: last_jobs_query("executing", 5) |> oban_query,
-      count_executing_jobs: count_jobs_query("executing") |> oban_query |> Enum.at(0),
-      last_completed_jobs: last_jobs_query("completed", 5) |> oban_query,
-      count_completed_jobs: count_jobs_query("completed") |> oban_query |> Enum.at(0),
-      available_jobs: last_jobs_query("available", 5) |> oban_query,
-      count_available_jobs: count_jobs_query("available") |> oban_query |> Enum.at(0),
-      last_discarded_jobs: last_jobs_query("discarded", 5) |> oban_query,
-      count_discarded_jobs: count_jobs_query("discarded") |> oban_query |> Enum.at(0)
+      executing_jobs: last_jobs("executing", 5),
+      count_executing_jobs: count_jobs("executing"),
+      last_completed_jobs: last_jobs("completed", 5),
+      count_completed_jobs: count_jobs("completed"),
+      available_jobs: last_jobs("available", 5),
+      count_available_jobs: count_jobs("available"),
+      last_discarded_jobs: last_jobs("discarded", 5),
+      count_discarded_jobs: count_jobs("discarded")
     )
   end
 
