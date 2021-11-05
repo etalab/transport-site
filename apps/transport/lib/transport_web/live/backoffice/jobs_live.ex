@@ -3,6 +3,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
   A quick dashboard for jobs.
   """
   use Phoenix.LiveView
+  import Ecto.Query
 
   # Authentication is assumed to happen in regular HTTP land. Here we verify
   # the user presence + belonging to admin team, or redirect immediately.
@@ -43,9 +44,37 @@ defmodule TransportWeb.Backoffice.JobsLive do
     Process.send_after(self(), :update_data, 1000)
   end
 
+  def last_jobs_query(state, n) do
+    from(j in "oban_jobs",
+      select: map(j, [:id, :state, :queue, :args, :inserted_at]),
+      order_by: [desc: j.id],
+      where: j.state == ^state,
+      limit: ^n
+    )
+  end
+
+  def count_jobs_query(state) do
+    from(j in "oban_jobs",
+      select: count(),
+      where: j.state == ^state
+    )
+  end
+
+  def oban_query(query) do
+    Oban.config() |> Oban.Repo.all(query)
+  end
+
   defp update_data(socket) do
     assign(socket,
-      last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC"
+      last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
+      executing_jobs: last_jobs_query("executing", 5) |> oban_query,
+      count_executing_jobs: count_jobs_query("executing") |> oban_query |> Enum.at(0),
+      last_completed_jobs: last_jobs_query("completed", 5) |> oban_query,
+      count_completed_jobs: count_jobs_query("completed") |> oban_query |> Enum.at(0),
+      available_jobs: last_jobs_query("available", 5) |> oban_query,
+      count_available_jobs: count_jobs_query("available") |> oban_query |> Enum.at(0),
+      last_discarded_jobs: last_jobs_query("discarded", 5) |> oban_query,
+      count_discarded_jobs: count_jobs_query("discarded") |> oban_query |> Enum.at(0)
     )
   end
 

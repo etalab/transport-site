@@ -1,5 +1,21 @@
 <section class="container pt-48 pb-48">
-    <h1>Jobs</h1>
+    <h1>Jobs Observation Center</h1>
     <p class="small">Dernière mise à jour: <%= @last_updated_at %></p>
+
+    <h2>Executing jobs</h2>
+    <%= live_component JobsTableComponent, jobs: @executing_jobs %>
+    <p class="small"> Total: <%= @count_executing_jobs %></p>
+
+    <h2>Completed jobs</h2>
+    <%= live_component JobsTableComponent, jobs: @last_completed_jobs %>
+    <p class="small"> Total: <%= @count_completed_jobs %></p>
+
+    <h2>Available jobs</h2>
+    <%= live_component JobsTableComponent, jobs: @available_jobs %>
+    <p class="small"> Total: <%= @count_available_jobs %></p>
+
+    <h2>Discarded jobs</h2>
+    <%= live_component JobsTableComponent, jobs: @last_discarded_jobs %>
+    <p class="small"> Total: <%= @count_discarded_jobs %></p>
 </section>
 <script defer type="text/javascript" src="/js/app.js") %>></script>
