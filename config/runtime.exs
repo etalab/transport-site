@@ -51,7 +51,7 @@ iex_started? = Code.ensure_loaded?(IEx) && IEx.started?()
 base_oban_conf = [repo: DB.Repo]
 
 extra_oban_conf =
-  if worker != "1" || iex_started? || config_env() == :test do
+  if worker != "1" || (iex_started? and config_env() == :prod) || config_env() == :test do
     [queues: false, plugins: false]
   else
     [
