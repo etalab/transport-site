@@ -137,4 +137,8 @@ defmodule TransportWeb.PageControllerTest do
     html = html_response(conn, 404)
     assert html =~ "Page non disponible"
   end
+
+  test "security.txt page", %{conn: conn} do
+    conn |> get("/.well-known/security.txt") |> text_response(200)
+  end
 end
