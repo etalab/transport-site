@@ -1,11 +1,13 @@
 defmodule Transport.Test.Transport.Jobs.GeojsonConverterJobTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import DB.Factory
   import Mox
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
+
+  setup :verify_on_exit!
 
   describe "Geojson conversion" do
     test "a simple successful case" do
@@ -28,7 +30,7 @@ defmodule Transport.Test.Transport.Jobs.GeojsonConverterJobTest do
       assert :ok == Transport.GeojsonConverterJob.perform(%{id: job_id, args: %{"resource_id" => resource_id}})
 
       result_path = System.tmp_dir!() |> Path.join("#{job_id}_output.geojson")
-      assert result_path |> File.exists?()
+      assert result_path |> File.read!() == "this my geojson content"
       File.rm!(result_path)
     end
   end
