@@ -128,6 +128,7 @@ config :ex_aws,
 import_config "datagouvfr.exs"
 import_config "database.exs"
 import_config "gtfs_validator.exs"
+import_config "gbfs_validator.exs"
 import_config "mailjet.exs"
 import_config "mailchimp.exs"
 import_config "#{Mix.env}.exs"
