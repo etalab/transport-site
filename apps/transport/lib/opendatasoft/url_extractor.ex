@@ -49,23 +49,39 @@ defmodule Opendatasoft.UrlExtractor do
   """
   @spec get_gtfs_csv_resources([any]) :: [any]
   def get_gtfs_csv_resources(resources) do
-    resources
-    |> get_csv_resources
-    |> Enum.filter(fn r -> r["title"] |> title_matches_type?("gtfs") end)
+    csv_resources = resources |> get_csv_resources
+
+    gtfs_files =
+      csv_resources
+      |> Enum.filter(fn r -> r["parsed_filename"] |> title_matches_type?("gtfs") end)
+
+    if Enum.empty?(gtfs_files) do
+      # No GTFS files have been found, use the
+      # legacy implementation rejecting PDF and NeTEx files
+      csv_resources
+      |> Enum.reject(fn r -> r["parsed_filename"] |> String.ends_with?(".pdf") end)
+      |> Enum.reject(fn r ->
+        r["parsed_filename"]
+        |> String.downcase()
+        |> String.contains?("netex")
+      end)
+    else
+      gtfs_files
+    end
   end
 
   @spec get_gtfs_rt_csv_resources([any]) :: [any]
   def get_gtfs_rt_csv_resources(resources) do
     resources
     |> get_csv_resources
-    |> Enum.filter(fn r -> r["title"] |> title_matches_type?("gtfs-rt") end)
+    |> Enum.filter(fn r -> r["parsed_filename"] |> title_matches_type?("gtfs-rt") end)
   end
 
   @spec get_netex_csv_resources([any]) :: [any]
   def get_netex_csv_resources(resources) do
     resources
     |> get_csv_resources
-    |> Enum.filter(fn r -> r["title"] |> title_matches_type?("netex") end)
+    |> Enum.filter(fn r -> r["parsed_filename"] |> title_matches_type?("netex") end)
   end
 
   @spec title_matches_type?(binary(), binary()) :: boolean()
@@ -77,22 +93,22 @@ defmodule Opendatasoft.UrlExtractor do
   Infers a resource's type from its title.
 
   ## Examples
-      iex> UrlExtractor.title_to_type("GTFS angers")
+      iex> UrlExtractor.title_to_type("angers-gtfs-.zip")
       "gtfs"
 
-      iex > UrlExtractor.title_to_type("Angers GTFS RT Alerts")
+      iex > UrlExtractor.title_to_type("angers-gtfs-rt-alerts.json")
       "gtfs-rt"
 
-      iex > UrlExtractor.title_to_type("Angers GTFS-RT")
+      iex > UrlExtractor.title_to_type("angers gtfs-rt.json")
       "gtfs-rt"
 
-      iex > UrlExtractor.title_to_type("Angers GTFSRT")
+      iex > UrlExtractor.title_to_type("angers gtfsrt.json")
       "gtfs-rt"
 
       iex > UrlExtractor.title_to_type("description gtfs.pdf")
       nil
 
-      iex > UrlExtractor.title_to_type("réseau NeTEx")
+      iex > UrlExtractor.title_to_type("réseau NeTEx.zip")
       "netex"
 
       iex > UrlExtractor.title_to_type("foobar")
@@ -176,7 +192,7 @@ defmodule Opendatasoft.UrlExtractor do
         r
         |> Map.merge(%{
           "url" => url,
-          "title" => get_filename(url)
+          "parsed_filename" => get_filename(url)
         })
       end)
     end)
@@ -311,7 +327,7 @@ defmodule Opendatasoft.UrlExtractor do
     httpoison_impl = Transport.Shared.Wrapper.HTTPoison.impl()
 
     with {:ok, %HTTPoison.Response{headers: headers}} <- httpoison_impl.head(url),
-         {_, content} <- Enum.find(headers, fn {h, _} -> h == "Content-Disposition" end),
+         {_, content} <- Enum.find(headers, fn {h, _} -> String.downcase(h) == "content-disposition" end),
          %{"filename" => filename} <- Regex.named_captures(~r/filename="(?<filename>.*)"/, content) do
       filename
     else
