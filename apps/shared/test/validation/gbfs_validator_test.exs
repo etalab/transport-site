@@ -7,7 +7,10 @@ defmodule GBFSValidatorTest do
   alias Shared.Validation.GBFSValidator.Summary
   alias Shared.Validation.GBFSValidator.Wrapper, as: GBFSValidator
 
-  setup :verify_on_exit!
+  setup do
+    :verify_on_exit!
+    Application.put_env(:transport, :gbfs_validator_impl, Shared.Validation.GBFSValidator.HTTPClient)
+  end
 
   test "validate GBFS feed" do
     Transport.HTTPoison.Mock
@@ -41,5 +44,17 @@ defmodule GBFSValidatorTest do
 
     {:error, error} = GBFSValidator.validate("https://example.com/gbfs.json")
     assert String.starts_with?(error, "impossible to query GBFS Validator")
+  end
+
+  test "can encode summary" do
+    assert """
+    {"errors_count":0,"has_errors":false,"version_detected":"1.1","version_validated":"1.1"}\
+    """
+     == Jason.encode!(%Summary{
+      errors_count: 0,
+      has_errors: false,
+      version_detected: "1.1",
+      version_validated: "1.1"
+    })
   end
 end

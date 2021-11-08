@@ -5,6 +5,8 @@ defmodule Transport.DataChecker do
   alias Datagouvfr.Client.{Datasets, Discussions}
   alias Mailjet.Client
   alias DB.{Dataset, Repo, Resource}
+  alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
+  alias Shared.Validation.GBFSValidator.Wrapper, as: GBFSValidator
   import TransportWeb.Router.Helpers
   import Ecto.Query
   require Logger
@@ -106,6 +108,7 @@ defmodule Transport.DataChecker do
     with {:ok, %{status_code: 200, body: body}} <- http_client().get(resource.url),
          {:ok, json} <- Jason.decode(body) do
       %{
+        validation: gbfs_validation(resource),
         versions: gbfs_versions(json),
         languages: gbfs_languages(json),
         system_details: gbfs_system_details(json),
@@ -116,6 +119,14 @@ defmodule Transport.DataChecker do
       e ->
         Logger.error(inspect(e))
         %{}
+    end
+  end
+
+  @spec gbfs_validation(Resource.t()) :: GBFSValidationSummary.t() | nil
+  defp gbfs_validation(resource) do
+    case GBFSValidator.validate(resource.url) do
+      {:ok, %GBFSValidationSummary{} = summary} -> summary
+      {:error, _} -> nil
     end
   end
 
