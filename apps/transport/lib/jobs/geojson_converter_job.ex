@@ -1,13 +1,13 @@
 defmodule Transport.GeojsonConverterJob do
   use Oban.Worker, max_attempts: 1
-
+  import Logger
   alias DB.{Repo, Resource}
 
   # TODO: handle the case where a resource cannot be found
 
   @impl true
   def perform(%{id: id, args: %{"resource_id" => resource_id}}) do
-    IO.inspect("I, worker, start this job.")
+    Logger.info("Job #{id} started by #{__MODULE__}")
 
     url = Resource |> Repo.get!(resource_id) |> Map.fetch!(:url)
 
@@ -29,7 +29,7 @@ defmodule Transport.GeojsonConverterJob do
 
     File.write!(output_path, output)
 
-    IO.inspect("saving result #{output_path}")
+    Logger.info("Job #{id} success, saving result: #{output_path}")
 
     :ok
   end
