@@ -13,9 +13,9 @@ defmodule Transport.Rambo do
   @moduledoc """
     Run an executable with Rambo
   """
-  @behaviour Transport.Rambo
+  @behaviour Transport.RamboLauncher
 
-  @impl
+  @impl Transport.RamboLauncher
   def run(binary_path, options) do
     # TODO: make sure to have a command that we can run on any dev machine (with docker)
     # TODO: make sure to "clear" the ENV before calling a binary
