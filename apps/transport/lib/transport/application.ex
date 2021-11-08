@@ -41,6 +41,8 @@ defmodule Transport.Application do
       ## manually add a children supervisor that is not scheduled
       |> Kernel.++([{Task.Supervisor, name: ImportTaskSupervisor}])
 
+    :ok = Transport.ObanLogger.setup()
+
     opts = [strategy: :one_for_one, name: Transport.Supervisor]
     Supervisor.start_link(children, opts)
   end
