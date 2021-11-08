@@ -82,7 +82,7 @@ defmodule Transport.DataChecker do
     )
   end
 
-  def gbfs_feeds do
+  def set_gbfs_feeds_metadata do
     resources =
       Resource
       |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
@@ -94,21 +94,21 @@ defmodule Transport.DataChecker do
     Logger.info("Fetching details about #{Enum.count(resources)} GBFS feeds")
 
     resources
-    |> Stream.map(fn r ->
-      r |> compute_gbfs_feed_meta()
-      # |> IO.inspect()
+    |> Stream.map(fn resource ->
+      Logger.info("Fetching GBFS metadata for #{resource.url} (##{resource.id})")
+      changeset = Resource.changeset(resource, %{format: "gbfs", metadata: compute_gbfs_feed_metadata(resource)})
+      Repo.update(changeset)
     end)
     |> Stream.run()
   end
 
-  @spec compute_gbfs_feed_meta(Resource.t()) :: map()
-  def compute_gbfs_feed_meta(resource) do
-    Logger.debug(fn -> "Handling feed #{resource.url}" end)
-
+  @spec compute_gbfs_feed_metadata(Resource.t()) :: map()
+  def compute_gbfs_feed_metadata(resource) do
     with {:ok, %{status_code: 200, body: body}} <- http_client().get(resource.url),
          {:ok, json} <- Jason.decode(body) do
       %{
         validation: gbfs_validation(resource),
+        feeds: gbfs_feeds(json),
         versions: gbfs_versions(json),
         languages: gbfs_languages(json),
         system_details: gbfs_system_details(json),
@@ -131,10 +131,8 @@ defmodule Transport.DataChecker do
   end
 
   defp gbfs_types(%{"data" => _data} = payload) do
-    feed = payload |> gbfs_first_feed()
-
-    has_bike_status = gbfs_has_feed?(feed, "free_bike_status")
-    has_station_information = gbfs_has_feed?(feed, "station_information")
+    has_bike_status = gbfs_has_feed?(payload, "free_bike_status")
+    has_station_information = gbfs_has_feed?(payload, "station_information")
 
     cond do
       has_bike_status and has_station_information ->
@@ -147,7 +145,7 @@ defmodule Transport.DataChecker do
         ["stations"]
 
       true ->
-        Logger.error("Cannot detect GBFS types for feed #{inspect(feed)}")
+        Logger.error("Cannot detect GBFS types for feed #{inspect(payload)}")
         nil
     end
   end
@@ -234,8 +232,12 @@ defmodule Transport.DataChecker do
   end
 
   @spec gbfs_has_feed?([map()], binary()) :: boolean()
-  def gbfs_has_feed?(feeds, name) do
-    Enum.any?(feeds |> Enum.map(fn feed -> gbfs_feed_is_named?(feed, name) end))
+  def gbfs_has_feed?(%{"data" => _data} = payload, name) do
+    Enum.member?(gbfs_feeds(payload), name)
+  end
+
+  def gbfs_feeds(%{"data" => _data} = payload) do
+    payload |> gbfs_first_feed() |> Enum.map(fn feed -> String.replace(feed["name"], ".json", "") end)
   end
 
   defp make_str({delay, datasets}) do
