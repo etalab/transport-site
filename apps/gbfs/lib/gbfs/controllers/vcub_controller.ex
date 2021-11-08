@@ -72,13 +72,15 @@ defmodule GBFS.VCubController do
         Enum.map(records, fn r ->
           {:ok, dt, _offset} = DateTime.from_iso8601(r["fields"]["mdate"])
           last_reported = DateTime.to_unix(dt)
+          is_open = r["fields"]["etat"] == "CONNECTEE"
 
           %{
-            station_id: r["fields"]["ident"],
+            station_id: to_string(r["fields"]["ident"]),
             num_bikes_available: to_int(r["fields"]["nbvelos"]),
             num_docks_available: to_int(r["fields"]["nbplaces"]),
-            is_renting: r["fields"]["etat"] == "CONNECTEE",
-            is_returning: r["fields"]["etat"] == "CONNECTEE",
+            is_installed: is_open,
+            is_renting: is_open,
+            is_returning: is_open,
             last_reported: last_reported
           }
         end)
@@ -102,7 +104,7 @@ defmodule GBFS.VCubController do
           [lat, lon] = r["geometry"]["coordinates"]
 
           %{
-            station_id: r["fields"]["ident"],
+            station_id: to_string(r["fields"]["ident"]),
             name: r["fields"]["nom"],
             lat: lon,
             lon: lat,
@@ -119,15 +121,17 @@ defmodule GBFS.VCubController do
 
   @spec get_information_aux((map -> map)) :: {:ok, map()} | {:error, binary}
   defp get_information_aux(convert_func) do
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(@rt_url),
+    http_client = Transport.Shared.Wrapper.HTTPoison.impl()
+
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client.get(@rt_url),
          {:ok, data} <- Jason.decode(body) do
       res = convert_func.(data["records"])
 
       {:ok, res}
     else
       e ->
-        Logger.error("impossible to query vcub: #{inspect(e)}")
-        {:error, "service vcub unavailable"}
+        Logger.error("impossible to query VCub: #{inspect(e)}")
+        {:error, "VCub service unavailable"}
     end
   end
 end

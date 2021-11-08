@@ -24,6 +24,7 @@ defmodule GBFS.Checker do
 
   def check_station_information(body) do
     assert_keys_in_map(["version", "ttl", "last_updated", "data"], body)
+    assert body["ttl"] >= 0 && body["ttl"] <= 300
 
     stations = body["data"]["stations"]
     assert Enum.count(stations) > 0
@@ -37,6 +38,7 @@ defmodule GBFS.Checker do
 
   def check_station_status(body) do
     assert_keys_in_map(["version", "ttl", "last_updated", "data"], body)
+    assert body["ttl"] >= 0 && body["ttl"] <= 300
 
     stations = body["data"]["stations"]
     assert Enum.count(stations) > 0
@@ -45,6 +47,7 @@ defmodule GBFS.Checker do
 
     assert_keys_in_map(
       [
+        "is_installed",
         "is_renting",
         "is_returning",
         "last_reported",
