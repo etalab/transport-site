@@ -53,7 +53,7 @@ defmodule Opendatasoft.UrlExtractor do
 
     gtfs_files =
       csv_resources
-      |> Enum.filter(fn r -> r["parsed_filename"] |> title_matches_type?("gtfs") end)
+      |> Enum.filter(fn r -> r["parsed_filename"] |> filename_matches_type?("gtfs") end)
 
     if Enum.empty?(gtfs_files) do
       # No GTFS files have been found, use the
@@ -74,55 +74,55 @@ defmodule Opendatasoft.UrlExtractor do
   def get_gtfs_rt_csv_resources(resources) do
     resources
     |> get_csv_resources
-    |> Enum.filter(fn r -> r["parsed_filename"] |> title_matches_type?("gtfs-rt") end)
+    |> Enum.filter(fn r -> r["parsed_filename"] |> filename_matches_type?("gtfs-rt") end)
   end
 
   @spec get_netex_csv_resources([any]) :: [any]
   def get_netex_csv_resources(resources) do
     resources
     |> get_csv_resources
-    |> Enum.filter(fn r -> r["parsed_filename"] |> title_matches_type?("netex") end)
+    |> Enum.filter(fn r -> r["parsed_filename"] |> filename_matches_type?("netex") end)
   end
 
-  @spec title_matches_type?(binary(), binary()) :: boolean()
-  defp title_matches_type?(csv_title, expected_type) do
-    title_to_type(csv_title) == expected_type
+  @spec filename_matches_type?(binary(), binary()) :: boolean()
+  defp filename_matches_type?(filename, expected_type) do
+    filename_to_type(filename) == expected_type
   end
 
   @doc ~S"""
-  Infers a resource's type from its title.
+  Infers a resource's type from its filename.
 
   ## Examples
-      iex> UrlExtractor.title_to_type("angers-gtfs-.zip")
+      iex> UrlExtractor.filename_to_type("angers-gtfs-.zip")
       "gtfs"
 
-      iex > UrlExtractor.title_to_type("angers-gtfs-rt-alerts.json")
+      iex > UrlExtractor.filename_to_type("angers-gtfs-rt-alerts.json")
       "gtfs-rt"
 
-      iex > UrlExtractor.title_to_type("angers gtfs-rt.json")
+      iex > UrlExtractor.filename_to_type("angers gtfs-rt.json")
       "gtfs-rt"
 
-      iex > UrlExtractor.title_to_type("angers gtfsrt.json")
+      iex > UrlExtractor.filename_to_type("angers gtfsrt.json")
       "gtfs-rt"
 
-      iex > UrlExtractor.title_to_type("description gtfs.pdf")
+      iex > UrlExtractor.filename_to_type("description gtfs.pdf")
       nil
 
-      iex > UrlExtractor.title_to_type("réseau NeTEx.zip")
+      iex > UrlExtractor.filename_to_type("réseau NeTEx.zip")
       "netex"
 
-      iex > UrlExtractor.title_to_type("foobar")
+      iex > UrlExtractor.filename_to_type("foobar")
       nil
   """
-  @spec title_to_type(binary()) :: nil | binary()
-  def title_to_type(title) do
-    title = String.downcase(title)
+  @spec filename_to_type(binary()) :: nil | binary()
+  def filename_to_type(filename) do
+    filename = String.downcase(filename)
 
     cond do
-      String.ends_with?(title, ".pdf") -> nil
-      String.match?(title, ~r/\bgtfs(-rt|rt| rt)\b/) -> "gtfs-rt"
-      String.contains?(title, "netex") -> "netex"
-      String.contains?(title, "gtfs") -> "gtfs"
+      String.ends_with?(filename, ".pdf") -> nil
+      String.match?(filename, ~r/\bgtfs(-rt|rt| rt)\b/) -> "gtfs-rt"
+      String.contains?(filename, "netex") -> "netex"
+      String.contains?(filename, "gtfs") -> "gtfs"
       true -> nil
     end
   end
