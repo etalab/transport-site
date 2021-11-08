@@ -13,7 +13,10 @@ defmodule JobsTableComponent do
             <th>queue</th>
             <th>args</th>
             <th>inserted_at</th>
-          </tr>
+            <%= if @state == "discarded" do %>
+              <th>errors</th>
+            <% end %>
+            </tr>
         </thead>
         <tbody>
           <%= for job <- @jobs do %>
@@ -23,6 +26,9 @@ defmodule JobsTableComponent do
               <td><%= job.queue %></td>
               <td><%= inspect(job.args) %></td>
               <td><%= job.inserted_at %></td>
+              <%= if @state == "discarded" do %>
+                <td><%= inspect(job.errors) %></td>
+              <% end %>
             </tr>
           <% end %>
         </tbody>

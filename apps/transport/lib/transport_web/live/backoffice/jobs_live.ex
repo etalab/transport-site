@@ -46,7 +46,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
 
   def last_jobs_query(state, n) do
     from(j in "oban_jobs",
-      select: map(j, [:id, :state, :queue, :args, :inserted_at]),
+      select: map(j, [:id, :state, :queue, :args, :inserted_at, :errors]),
       order_by: [desc: j.id],
       where: j.state == ^state,
       limit: ^n
