@@ -69,7 +69,6 @@ defmodule Transport.DataCheckerTest do
 
     test "for feed with a 500 error on the root URL" do
       setup_feeds([:gbfs_with_server_error])
-      # setup_validation_result({:error, "server error"})
 
       assert %{} == compute_gbfs_feed_metadata(%DB.Resource{url: @gbfs_url})
     end

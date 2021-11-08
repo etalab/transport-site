@@ -226,17 +226,19 @@ defmodule Transport.DataChecker do
 
   @spec gbfs_feed_is_named?(map(), binary()) :: boolean()
   def gbfs_feed_is_named?(map, name) do
-    # Many people make the mistake of append `.json` to feed names
+    # Many people make the mistake of appending `.json` to feed names
     # so try to match this as well
     Enum.member?([name, "#{name}.json"], map["name"])
   end
 
-  @spec gbfs_has_feed?([map()], binary()) :: boolean()
+  @spec gbfs_has_feed?(map(), binary()) :: boolean()
   def gbfs_has_feed?(%{"data" => _data} = payload, name) do
     Enum.member?(gbfs_feeds(payload), name)
   end
 
   def gbfs_feeds(%{"data" => _data} = payload) do
+    # Remove potential ".json" at the end of feed names as people
+    # often make this mistake
     payload |> gbfs_first_feed() |> Enum.map(fn feed -> String.replace(feed["name"], ".json", "") end)
   end
 
