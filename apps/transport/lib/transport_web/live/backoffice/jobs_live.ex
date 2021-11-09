@@ -21,7 +21,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
      end)}
   end
 
-  # TODO: DRY code with proxy live
+  # TO DO: DRY code with proxy live
   # If one calls "redirect" and does not leave immediately, the remaining code will
   # be executed, opening security issues. This method goal is to minimize this risk.
   # See https://hexdocs.pm/phoenix_live_view/security-model.html for overall docs.
@@ -62,9 +62,9 @@ defmodule TransportWeb.Backoffice.JobsLive do
 
   def oban_query(query), do: Oban.config() |> Oban.Repo.all(query)
 
-  def last_jobs(state, n), do: last_jobs_query(state, n) |> oban_query
+  def last_jobs(state, n), do: state |> last_jobs_query(n) |> oban_query
 
-  def count_jobs(state), do: count_jobs_query(state) |> oban_query |> Enum.at(0)
+  def count_jobs(state), do: state |> count_jobs_query |> oban_query |> Enum.at(0)
 
   defp update_data(socket) do
     assign(socket,

@@ -1,9 +1,12 @@
 defmodule Transport.GeojsonConverterJob do
+  @moduledoc """
+  Job converting a GTFS file to GeoJSON
+  """
   use Oban.Worker, max_attempts: 1
   import Logger
   alias DB.{Repo, Resource}
 
-  # TODO: handle the case where a resource cannot be found
+  # TO DO: handle the case where a resource cannot be found
 
   @impl true
   def perform(%{id: id, args: %{"resource_id" => resource_id}}) do
@@ -11,15 +14,15 @@ defmodule Transport.GeojsonConverterJob do
 
     url = Resource |> Repo.get!(resource_id) |> Map.fetch!(:url)
 
-    # TODO how is the tmp folder cleaned (upon completion or after a crash)?
+    # TO DO how is the tmp folder cleaned (upon completion or after a crash)?
     file_path = System.tmp_dir!() |> Path.join("#{id}_download")
 
-    # TODO stream file to disk
-    # TODO verify headers (content-type) and maybe provide alerts to providers!
+    # TO DO stream file to disk
+    # TO DO verify headers (content-type) and maybe provide alerts to providers!
     %{status: 200, body: body} = Unlock.HTTP.Client.impl().get!(url, [])
     File.write!(file_path, body)
 
-    # TODO add a bit of logging
+    # TO DO add a bit of logging
 
     {:ok, output} = file_path |> Transport.GtfsToGeojsonConverter.convert()
 

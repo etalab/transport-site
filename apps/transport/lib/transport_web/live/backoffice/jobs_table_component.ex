@@ -1,6 +1,7 @@
 defmodule JobsTableComponent do
-  # If you generated an app with mix phx.new --live,
-  # the line below would be: use MyAppWeb, :live_component
+  @moduledoc """
+  A live view table for Oban jobs monitoring
+  """
   use Phoenix.LiveComponent
 
   def render(assigns) do

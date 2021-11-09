@@ -4,7 +4,7 @@ defmodule Transport.RamboLauncher do
   """
   @callback run(binary(), [binary()]) :: {:ok, binary()} | {:error, any()}
 
-  def impl(), do: Application.get_env(:transport, :rambo_impl)
+  def impl, do: Application.get_env(:transport, :rambo_impl)
 
   def run(binary_path, options), do: impl().run(binary_path, options)
 end
@@ -17,9 +17,9 @@ defmodule Transport.Rambo do
 
   @impl Transport.RamboLauncher
   def run(binary_path, options) do
-    # TODO: make sure to have a command that we can run on any dev machine (with docker)
-    # TODO: make sure to "clear" the ENV before calling a binary
-    # TODO: make sure to "change working directory" to a specific working place
+    # TO DO: make sure to have a command that we can run on any dev machine (with docker)
+    # TO DO: make sure to "clear" the ENV before calling a binary
+    # TO DO: make sure to "change working directory" to a specific working place
     case Rambo.run(binary_path, options) do
       {:ok, %Rambo{out: res}} -> {:ok, res}
       {:error, %Rambo{err: err_msg}} -> {:error, err_msg}

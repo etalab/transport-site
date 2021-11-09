@@ -2,7 +2,7 @@ defmodule DB.Repo.Migrations.AddObanJobsTable do
   use Ecto.Migration
 
   def up do
-    # TODO check Oban migration policy
+    # TO DO check Oban migration policy
     Oban.Migrations.up()
   end
 
