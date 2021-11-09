@@ -20,18 +20,16 @@ defmodule Transport.Test.Transport.Jobs.GeojsonConverterJobTest do
         %{status: 200, body: "this is my file"}
       end)
 
+      job_id = 33
+      geojson_file_path = System.tmp_dir!() |> Path.join("#{job_id}_output.geojson")
+
       Transport.Rambo.Mock
       |> expect(:run, 1, fn binary_path, opts ->
-        assert(["--input", file_path] = opts)
+        assert(["--input", file_path, "--output", geojson_file_path] = opts)
         {:ok, "this my geojson content"}
       end)
 
-      job_id = 33
       assert :ok == Transport.GeojsonConverterJob.perform(%{id: job_id, args: %{"resource_id" => resource_id}})
-
-      result_path = System.tmp_dir!() |> Path.join("#{job_id}_output.geojson")
-      assert result_path |> File.read!() == "this my geojson content"
-      File.rm!(result_path)
     end
   end
 end
