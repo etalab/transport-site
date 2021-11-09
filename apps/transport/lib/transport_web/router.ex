@@ -45,6 +45,7 @@ defmodule TransportWeb.Router do
     get("/partners", PageController, :partners)
     get("/conditions", PageController, :conditions)
     get("/infos_producteurs", PageController, :infos_producteurs)
+    get("/.well-known/security.txt", PageController, :security_txt)
 
     scope "/espace_producteur" do
       pipe_through([:authenticated])

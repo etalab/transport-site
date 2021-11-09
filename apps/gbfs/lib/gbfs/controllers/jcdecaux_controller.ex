@@ -4,6 +4,7 @@ defmodule GBFS.JCDecauxController do
 
   plug(:put_view, GBFS.FeedView)
   @gbfs_version "1.1"
+  @ttl 60
 
   @spec rt_url(binary()) :: binary()
   defp rt_url(contract_name) do
@@ -119,6 +120,7 @@ defmodule GBFS.JCDecauxController do
       conn
       |> assign(:data, data)
       |> assign(:version, @gbfs_version)
+      |> assign(:ttl, @ttl)
       |> render("gbfs.json")
 
   defp render_response({:error, msg}, conn),

@@ -2,7 +2,7 @@ defmodule GBFS.FeedView do
   use GBFS, :view
 
   def render("gbfs.json", %{data: data} = params) do
-    ttl = Map.get(params, :ttl, 3600)
+    ttl = Map.get(params, :ttl, 300)
 
     res = %{
       "last_updated" => Map.get(params, "last_updated", default_last_updated()),
