@@ -23,6 +23,10 @@ defmodule TransportWeb.PageControllerTest do
       |> Floki.find(".mail__button .icon--envelope")
   end
 
+  test "GET login page without a redirect_path", %{conn: conn} do
+    conn |> get(page_path(conn, :login)) |> html_response(200)
+  end
+
   test "I can see a log-in link on home", %{conn: conn} do
     # go to the home page
     conn = conn |> get("/")
@@ -140,5 +144,9 @@ defmodule TransportWeb.PageControllerTest do
 
   test "security.txt page", %{conn: conn} do
     conn |> get("/.well-known/security.txt") |> text_response(200)
+  end
+
+  test "robots.txt page", %{conn: conn} do
+    conn |> get("robots.txt") |> text_response(200)
   end
 end
