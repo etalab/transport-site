@@ -49,64 +49,80 @@ defmodule Opendatasoft.UrlExtractor do
   """
   @spec get_gtfs_csv_resources([any]) :: [any]
   def get_gtfs_csv_resources(resources) do
-    resources
-    |> get_csv_resources
-    |> Enum.filter(fn r -> r["title"] |> title_matches_type?("gtfs") end)
+    csv_resources = resources |> get_csv_resources
+
+    gtfs_files =
+      csv_resources
+      |> Enum.filter(fn r -> r["parsed_filename"] |> filename_matches_type?("gtfs") end)
+
+    if Enum.empty?(gtfs_files) do
+      # No GTFS files have been found, use the
+      # legacy implementation rejecting PDF and NeTEx files
+      csv_resources
+      |> Enum.reject(fn r -> r["parsed_filename"] |> String.ends_with?(".pdf") end)
+      |> Enum.reject(fn r ->
+        r["parsed_filename"]
+        |> String.downcase()
+        |> String.contains?("netex")
+      end)
+    else
+      gtfs_files
+    end
   end
 
   @spec get_gtfs_rt_csv_resources([any]) :: [any]
   def get_gtfs_rt_csv_resources(resources) do
     resources
     |> get_csv_resources
-    |> Enum.filter(fn r -> r["title"] |> title_matches_type?("gtfs-rt") end)
+    |> Enum.filter(fn r -> r["parsed_filename"] |> filename_matches_type?("gtfs-rt") end)
   end
 
   @spec get_netex_csv_resources([any]) :: [any]
   def get_netex_csv_resources(resources) do
     resources
     |> get_csv_resources
-    |> Enum.filter(fn r -> r["title"] |> title_matches_type?("netex") end)
+    |> Enum.filter(fn r -> r["parsed_filename"] |> filename_matches_type?("netex") end)
   end
 
-  @spec title_matches_type?(binary(), binary()) :: boolean()
-  defp title_matches_type?(csv_title, expected_type) do
-    title_to_type(csv_title) == expected_type
+  @spec filename_matches_type?(binary(), binary()) :: boolean()
+  defp filename_matches_type?(filename, expected_type) do
+    filename_to_type(filename) == expected_type
   end
 
   @doc ~S"""
-  Infers a resource's type from its title.
+  Infers a resource's type from its filename.
 
   ## Examples
-      iex> UrlExtractor.title_to_type("GTFS angers")
+      iex> UrlExtractor.filename_to_type("angers-gtfs-.zip")
       "gtfs"
 
-      iex > UrlExtractor.title_to_type("Angers GTFS RT Alerts")
+      iex > UrlExtractor.filename_to_type("angers-gtfs-rt-alerts.json")
       "gtfs-rt"
 
-      iex > UrlExtractor.title_to_type("Angers GTFS-RT")
+      iex > UrlExtractor.filename_to_type("angers gtfs-rt.json")
       "gtfs-rt"
 
-      iex > UrlExtractor.title_to_type("Angers GTFSRT")
+      iex > UrlExtractor.filename_to_type("angers gtfsrt.json")
       "gtfs-rt"
 
-      iex > UrlExtractor.title_to_type("description gtfs.pdf")
+      iex > UrlExtractor.filename_to_type("description gtfs.pdf")
       nil
 
-      iex > UrlExtractor.title_to_type("réseau NeTEx")
+      iex > UrlExtractor.filename_to_type("réseau NeTEx.zip")
       "netex"
 
-      iex > UrlExtractor.title_to_type("foobar")
+      iex > UrlExtractor.filename_to_type("foobar")
       nil
   """
-  @spec title_to_type(binary()) :: nil | binary()
-  def title_to_type(title) do
-    title = String.downcase(title)
+  @spec filename_to_type(binary()) :: nil | binary()
+  def filename_to_type(filename) do
+    filename = String.downcase(filename)
 
     cond do
-      String.ends_with?(title, ".pdf") -> nil
-      String.match?(title, ~r/\bgtfs(-rt|rt| rt)\b/) -> "gtfs-rt"
-      String.contains?(title, "netex") -> "netex"
-      String.contains?(title, "gtfs") -> "gtfs"
+      String.ends_with?(filename, ".pdf") -> nil
+      String.match?(filename, ~r/\bgtfs(-rt|rt| rt)\b/) -> "gtfs-rt"
+      String.contains?(filename, "netex") -> "netex"
+      String.contains?(filename, "gtfs") -> "gtfs"
       true -> nil
     end
   end
@@ -176,7 +192,7 @@ defmodule Opendatasoft.UrlExtractor do
         r
         |> Map.merge(%{
           "url" => url,
-          "title" => get_filename(url)
+          "parsed_filename" => get_filename(url)
         })
       end)
     end)
@@ -311,7 +327,7 @@ defmodule Opendatasoft.UrlExtractor do
     httpoison_impl = Transport.Shared.Wrapper.HTTPoison.impl()
 
     with {:ok, %HTTPoison.Response{headers: headers}} <- httpoison_impl.head(url),
-         {_, content} <- Enum.find(headers, fn {h, _} -> h == "Content-Disposition" end),
+         {_, content} <- Enum.find(headers, fn {h, _} -> String.downcase(h) == "content-disposition" end),
          %{"filename" => filename} <- Regex.named_captures(~r/filename="(?<filename>.*)"/, content) do
       filename
     else

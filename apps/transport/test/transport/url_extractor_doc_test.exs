@@ -11,7 +11,7 @@ defmodule Transport.UrlExtractorDocTest do
       [{"name,file\ntoulouse,http", %{"id" => "bob"}}, {"stop,lon,lat\n1,48.8,2.3", %{"id" => "bobette"}}]
       |> UrlExtractor.get_resources_with_url_from_csv()
 
-    assert res == {:ok, [%{"url" => "http", "title" => "http", "id" => "bob"}]}
+    assert res == {:ok, [%{"url" => "http", "parsed_filename" => "http", "id" => "bob"}]}
   end
 
   test "get urls in CSV file : no url available" do
