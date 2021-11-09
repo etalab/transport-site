@@ -18,6 +18,9 @@ defmodule Datagouvfr.Client.Reuses do
 
       {:error, %{reason: reason}} ->
         {:error, "Unable to get reuses of dataset #{dataset_id} because of #{reason}"}
+
+      {:error, %Jason.DecodeError{}} ->
+        {:error, "Unable to get reuses of dataset #{dataset_id} could not decode JSON"}
     end
   end
 
