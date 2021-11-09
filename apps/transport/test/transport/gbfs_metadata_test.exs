@@ -1,8 +1,8 @@
-defmodule Transport.DataCheckerTest do
+defmodule Transport.GBFSMetadataTest do
   use ExUnit.Case, async: true
   import Mox
   alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
-  import Transport.DataChecker, only: [compute_gbfs_feed_metadata: 1]
+  import Transport.GBFSMetadata, only: [compute_feed_metadata: 1]
 
   @gbfs_url "https://example.com/gbfs.json"
 
@@ -28,7 +28,7 @@ defmodule Transport.DataCheckerTest do
         }
       }
 
-      assert expected == compute_gbfs_feed_metadata(%DB.Resource{url: @gbfs_url})
+      assert expected == compute_feed_metadata(%DB.Resource{url: @gbfs_url})
     end
 
     test "for a stations + free floating feed with a multiple versions" do
@@ -64,13 +64,13 @@ defmodule Transport.DataCheckerTest do
         ]
       }
 
-      assert expected == compute_gbfs_feed_metadata(%DB.Resource{url: @gbfs_url})
+      assert expected == compute_feed_metadata(%DB.Resource{url: @gbfs_url})
     end
 
     test "for feed with a 500 error on the root URL" do
       setup_feeds([:gbfs_with_server_error])
 
-      assert %{} == compute_gbfs_feed_metadata(%DB.Resource{url: @gbfs_url})
+      assert %{} == compute_feed_metadata(%DB.Resource{url: @gbfs_url})
     end
   end
 
