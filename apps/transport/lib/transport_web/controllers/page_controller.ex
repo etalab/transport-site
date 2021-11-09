@@ -32,9 +32,9 @@ defmodule TransportWeb.PageController do
     ]
   end
 
-  def login(conn, %{"redirect_path" => redirect_path}) do
+  def login(conn, params) do
     conn
-    |> put_session(:redirect_path, redirect_path)
+    |> put_session(:redirect_path, Map.get(params, "redirect_path", "/"))
     |> render("login.html")
   end
 
