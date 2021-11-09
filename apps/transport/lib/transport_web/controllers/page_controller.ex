@@ -75,6 +75,18 @@ defmodule TransportWeb.PageController do
     |> render("infos_producteurs.html")
   end
 
+  def security_txt(conn, _params) do
+    expires = DateTime.utc_now() |> DateTime.add(1 * 24 * 3600 * 7, :second) |> DateTime.to_iso8601()
+
+    content = """
+    Contact: mailto:#{Application.fetch_env!(:transport, :security_email)}
+    Preferred-Languages: fr, en
+    Expires: #{expires}
+    """
+
+    conn |> text(content)
+  end
+
   @doc """
     Retrieve the user datasets + corresponding org datasets.
 
