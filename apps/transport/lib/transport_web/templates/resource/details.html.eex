@@ -34,7 +34,7 @@
             <%= dgettext("page-dataset-details", "Features available in the resource:") %>
             <div>
               <%= for tag <- @resource.features do %>
-                <span class="label feature"><%= tag %></span>
+                <span class="label"><%= tag %></span>
               <% end %>
             </div>
           <% end %>

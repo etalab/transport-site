@@ -138,4 +138,5 @@ config :transport,
   nb_days_to_keep_validations: 60,
   join_our_slack_link: "https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA",
   contact_email: "contact@transport.beta.gouv.fr",
+  security_email: "contact@transport.beta.gouv.fr",
   transport_tools_folder: Path.absname("transport-tools/")
