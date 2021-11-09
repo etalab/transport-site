@@ -55,7 +55,7 @@ extra_oban_conf =
     [queues: false, plugins: false]
   else
     [
-      queues: [default: 25, heavy: 1],
+      queues: [default: 2, heavy: 1],
       plugins: [Oban.Plugins.Pruner]
     ]
   end
