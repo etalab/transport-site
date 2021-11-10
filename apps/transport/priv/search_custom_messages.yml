@@ -1,0 +1,36 @@
+# for each message, specify:
+#  - a category name (for humans)
+
+
+custom_messages:
+  - category: real-time
+    search_params:
+      - key: type
+        value: public-transit
+      - key: filter
+        value: has_realtime
+    msg:
+      fr: |
+          Les jeux de données référencés dans cette catégorie contiennent des flux d’information décrivant en temps réel l’état des réseaux de transports en commun. Ils peuvent  nous renseigner sur l’état du trafic, l’horaire de passage réel d’un véhicule ou même de sa position en temps-réel.
+
+          Deux standards de données peuvent être utilisés : le format [GTFS-RT](https://developers.google.com/transit/gtfs-realtime?hl=fr) ou le format [SIRI](https://www.siri-cen.eu/).
+      en: |
+
+  - category: addresses
+    search_params:
+      - key: type
+        value: addresses
+    msg:
+      fr: |
+          Les données d’adresses françaises sont disponibles dans le jeu de données de la [Base Adresse Nationale (BAN)](https://transport.data.gouv.fr/datasets/base-adresse-nationale/) qui a vocation à réunir **l’ensemble des adresses géolocalisées du territoire national**.
+
+          Elle est **co-produite** par la Direction Interministérielle du Numérique (DINUM) et l’IGN, avec la participation des collectivités locales, de la Direction Générale des Finances Publiques (DGFiP) et de l’INSEE.
+
+          Elle fait partie du [Service Public des Données de référence](https://www.data.gouv.fr/fr/reference).
+      en: |
+          The french addresses are available in the BAN, a dataset with all the French addresses and their coordinates.
+
+          This dataset is produced by the Direction Interministérielle du Numérique (DINUM) and the Institut géographique national (IGN), with the help of the local authorities, the Direction Générale des Finances Publiques (DGFiP) and the Institut national de la statistique et des études économiques (INSEE).
+
+          This dataset is part of the French Public Service of Data.
+
