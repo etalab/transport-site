@@ -381,3 +381,7 @@ msgstr "Producteur de la donnée"
 #, elixir-format
 msgid "Resource declared schema"
 msgstr "La ressource déclare utiliser ce schéma"
+
+#, elixir-format
+msgid "Past versions of the dataset resources are available in the  %{link} section."
+msgstr "Des versions précédentes des ressources de ce dataset sont disponibles dans la section %{link}."

@@ -11,6 +11,14 @@
       <div class="ressources-list">
         <%= render_many order_resources_by_validity(@resources), TransportWeb.DatasetView, "_resource.html", as: :resource, conn: @conn, dataset: assigns[:dataset] %>
       </div>
+
+      <%= if assigns[:show_history_section_link] do %>
+        <% link_history =  safe_to_string(link(dgettext("page-dataset-details", "History"), to: "#dataset-historic")) %>
+        <div class="pb-24" style="font-weight: bold">
+          <%= raw(dgettext("page-dataset-details", "Past versions of the dataset resources are available in the  %{link} section.", link: link_history)) %>
+        </div>
+      <% end %>
+
       <div class="reuser-message pb-48">
         <i class="fas fa-info-circle"></i>
         <%= dgettext(
