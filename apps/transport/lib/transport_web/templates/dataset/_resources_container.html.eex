@@ -13,7 +13,7 @@
       </div>
 
       <%= if assigns[:show_history_section_link] do %>
-        <% link_history =  safe_to_string(link(dgettext("page-dataset-details", "History"), to: "#dataset-historic")) %>
+        <% link_history =  safe_to_string(link(dgettext("page-dataset-details", "Backed up resources"), to: "#backed-up-resources")) %>
         <div class="pb-24" style="font-weight: bold">
           <%= raw(dgettext("page-dataset-details", "Past versions of the dataset resources are available in the  %{link} section.", link: link_history)) %>
         </div>

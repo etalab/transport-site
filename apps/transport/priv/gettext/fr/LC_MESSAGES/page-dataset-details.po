@@ -231,8 +231,8 @@ msgid "This dataset has been removed from data.gouv.fr"
 msgstr "Ce jeu de données a été supprimé de data.gouv.fr"
 
 #, elixir-format
-msgid "History"
-msgstr "Historique"
+msgid "Backed up resources"
+msgstr "Ressources historisées"
 
 #, elixir-format
 msgid "%{start} to %{end}"

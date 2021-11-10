@@ -26,7 +26,7 @@
       <% end %>
       <div class="menu-item"><a href="#dataset-discussions">Discussions (<%= count_discussions(@discussions) %>)</a></div>
       <%= unless @history_resources == [] do %>
-        <div class="menu-item"><a href="#dataset-historic"><%= dgettext("page-dataset-details", "History")%></a></div>
+        <div class="menu-item"><a href="#backed-up-resources"><%= dgettext("page-dataset-details", "Backed up resources")%></a></div>
       <% end %>
       <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
         <div class="menu-item"><a href="#dataset-other-datasets"><%= dgettext("page-dataset-details", "Other datasets")%> (<%= Enum.count(@other_datasets) %>)</a></div>
@@ -165,8 +165,8 @@
   </section>
 <% end %>
 <%= unless @history_resources == [] do %>
-  <section class="white pt-48" id="dataset-historic">
-    <h3><%= dgettext("page-dataset-details", "History")%></h3>
+  <section class="white pt-48" id="backed-up-resources">
+    <h3><%= dgettext("page-dataset-details", "Backed up resources")%></h3>
     <div class="">
       <div class="panel">
         <table class="table">
