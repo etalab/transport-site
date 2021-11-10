@@ -480,6 +480,10 @@ defmodule DB.Resource do
     is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource)
   end
 
+  @spec ttl(__MODULE__.t()) :: integer() | nil
+  def ttl(%__MODULE__{format: "gbfs", metadata: %{"ttl" => ttl}}) when is_integer(ttl) and ttl >= 0, do: ttl
+  def ttl(_), do: nil
+
   @spec can_direct_download?(__MODULE__.t()) :: boolean
   def can_direct_download?(resource) do
     # raw.githubusercontent.com does not put `Content-Disposition: attachment`
