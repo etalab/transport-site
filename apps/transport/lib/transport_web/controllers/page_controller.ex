@@ -32,9 +32,9 @@ defmodule TransportWeb.PageController do
     ]
   end
 
-  def login(conn, %{"redirect_path" => redirect_path}) do
+  def login(conn, params) do
     conn
-    |> put_session(:redirect_path, redirect_path)
+    |> put_session(:redirect_path, Map.get(params, "redirect_path", "/"))
     |> render("login.html")
   end
 
@@ -73,6 +73,18 @@ defmodule TransportWeb.PageController do
     conn
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
     |> render("infos_producteurs.html")
+  end
+
+  def security_txt(conn, _params) do
+    expires = DateTime.utc_now() |> DateTime.add(1 * 24 * 3600 * 7, :second) |> DateTime.to_iso8601()
+
+    content = """
+    Contact: mailto:#{Application.fetch_env!(:transport, :security_email)}
+    Preferred-Languages: fr, en
+    Expires: #{expires}
+    """
+
+    conn |> text(content)
   end
 
   @doc """
