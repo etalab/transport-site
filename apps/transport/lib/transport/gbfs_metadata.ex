@@ -30,10 +30,13 @@ defmodule Transport.GBFSMetadata do
 
   @spec compute_feed_metadata(Resource.t()) :: map()
   def compute_feed_metadata(resource) do
-    with {:ok, %{status_code: 200, body: body}} <- http_client().get(resource.url),
+    with {:ok, %{status_code: 200, body: body} = response} <-
+           http_client().get(resource.url, [{"origin", website_url()}]),
          {:ok, json} <- Jason.decode(body) do
       %{
         validation: validation(resource),
+        has_cors: has_cors?(response),
+        is_cors_allowed: cors_headers_allows_self?(response),
         feeds: feeds(json),
         versions: versions(json),
         languages: languages(json),
@@ -74,6 +77,46 @@ defmodule Transport.GBFSMetadata do
         Logger.error("Cannot detect GBFS types for feed #{inspect(payload)}")
         nil
     end
+  end
+
+  defp cors_header_value(%HTTPoison.Response{headers: headers}) do
+    headers = headers |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v} end)
+    Map.get(headers, "access-control-allow-origin")
+  end
+
+  @doc """
+  Find the value of the `Access-Control-Allow-Origin` header
+
+  iex> Transport.GBFSMetadata.has_cors?(%HTTPoison.Response{headers: []})
+  false
+
+  iex> Transport.GBFSMetadata.has_cors?(%HTTPoison.Response{headers: [{"access-control-allow-origin", "*"}]})
+  true
+
+  iex> Transport.GBFSMetadata.has_cors?(%HTTPoison.Response{headers: [{"Access-Control-Allow-Origin", "*"}]})
+  true
+  """
+  def has_cors?(%HTTPoison.Response{} = response) do
+    not is_nil(cors_header_value(response))
+  end
+
+  @doc """
+  Determines if the CORS header allows transport.data.gouv.fr
+
+  iex> Transport.GBFSMetadata.cors_headers_allows_self?(%HTTPoison.Response{headers: []})
+  false
+
+  iex> Transport.GBFSMetadata.cors_headers_allows_self?(%HTTPoison.Response{headers: [{"access-control-allow-origin", "*"}]})
+  true
+
+  iex> Transport.GBFSMetadata.cors_headers_allows_self?(%HTTPoison.Response{headers: [{"Access-Control-Allow-Origin", "*"}]})
+  true
+
+  iex> Transport.GBFSMetadata.cors_headers_allows_self?(%HTTPoison.Response{headers: [{"Access-Control-Allow-Origin", "http://127.0.0.1:5001"}]})
+  true
+  """
+  def cors_headers_allows_self?(%HTTPoison.Response{} = response) do
+    Enum.member?([website_url(), "*"], cors_header_value(response))
   end
 
   defp ttl(%{"data" => _data} = payload) do
@@ -169,4 +212,5 @@ defmodule Transport.GBFSMetadata do
   end
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
+  defp website_url, do: TransportWeb.Endpoint.url()
 end

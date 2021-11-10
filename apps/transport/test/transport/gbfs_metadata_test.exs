@@ -3,6 +3,7 @@ defmodule Transport.GBFSMetadataTest do
   import Mox
   alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
   import Transport.GBFSMetadata, only: [compute_feed_metadata: 1]
+  doctest Transport.GBFSMetadata
 
   @gbfs_url "https://example.com/gbfs.json"
 
@@ -25,7 +26,9 @@ defmodule Transport.GBFSMetadataTest do
           has_errors: false,
           version_detected: "1.1",
           version_validated: "1.1"
-        }
+        },
+        has_cors: true,
+        is_cors_allowed: true
       }
 
       assert expected == compute_feed_metadata(%DB.Resource{url: @gbfs_url})
@@ -61,7 +64,9 @@ defmodule Transport.GBFSMetadataTest do
           "station_status",
           "geofencing_zones",
           "gbfs_versions"
-        ]
+        ],
+        has_cors: true,
+        is_cors_allowed: true
       }
 
       assert expected == compute_feed_metadata(%DB.Resource{url: @gbfs_url})
@@ -107,6 +112,22 @@ defmodule Transport.GBFSMetadataTest do
     end)
   end
 
+  defp setup_response_with_headers(expected_url, body) do
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn url, headers ->
+      assert TransportWeb.Endpoint.url() == "http://127.0.0.1:5001"
+      assert headers == [{"origin", "http://127.0.0.1:5001"}]
+      assert url == expected_url
+
+      {:ok,
+       %HTTPoison.Response{
+         status_code: 200,
+         body: body,
+         headers: [{"Content-Type", "application/json"}, {"Access-Control-Allow-Origin", "*"}]
+       }}
+    end)
+  end
+
   defp setup_response(expected_url, body) do
     Transport.HTTPoison.Mock
     |> expect(:get, fn url ->
@@ -123,7 +144,7 @@ defmodule Transport.GBFSMetadataTest do
 
   defp setup_gbfs_with_server_error_response do
     Transport.HTTPoison.Mock
-    |> expect(:get, fn _url -> {:ok, %HTTPoison.Response{status_code: 500}} end)
+    |> expect(:get, fn _url, _headers -> {:ok, %HTTPoison.Response{status_code: 500}} end)
   end
 
   defp setup_gbfs_response do
@@ -131,7 +152,7 @@ defmodule Transport.GBFSMetadataTest do
      {"data":{"fr":{"feeds":[{"name":"system_information","url":"https://example.com/system_information.json"},{"name":"station_information","url":"https://example.com/station_information.json"},{"name":"station_status","url":"https://example.com/station_status.json"}]}},"last_updated":1636116464,"ttl":3600,"version":"1.1"}
     """
 
-    setup_response(@gbfs_url, body)
+    setup_response_with_headers(@gbfs_url, body)
   end
 
   defp setup_gbfs_with_versions_response do
@@ -139,7 +160,7 @@ defmodule Transport.GBFSMetadataTest do
     {"last_updated":1636365542,"ttl":60,"version":"2.2","data":{"fr":{"feeds":[{"name":"system_information.json","url":"https://example.com/system_information.json"},{"name":"free_bike_status.json","url":"https://example.com/free_bike_status.json"},{"name":"vehicle_types.json","url":"https://example.com/vehicle_types.json"},{"name":"system_pricing_plans.json","url":"https://example.com/system_pricing_plans.json"},{"name":"station_information.json","url":"https://example.com/station_information.json"},{"name":"station_status.json","url":"https://example.com/station_status.json"},{"name":"geofencing_zones.json","url":"https://example.com/geofencing_zones.json"},{"name":"gbfs_versions.json","url":"https://example.com/gbfs_versions.json"}]}}}
     """
 
-    setup_response(@gbfs_url, body)
+    setup_response_with_headers(@gbfs_url, body)
   end
 
   defp setup_gbfs_versions_response do
