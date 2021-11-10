@@ -88,7 +88,7 @@ defmodule Transport.GBFSMetadataTest do
         Repo.insert!(%Resource{
           url: @gbfs_url,
           datagouv_id: "r1",
-          dataset: insert(:dataset, is_active: true, type: "bike-scooter-sharing")
+          dataset: insert(:dataset, is_active: true, type: "bike-scooter-sharing", aom: nil)
         })
 
       setup_feeds([:gbfs, :system_information, :station_information])
