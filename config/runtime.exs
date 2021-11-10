@@ -35,19 +35,20 @@ config :transport,
   worker: worker == "1",
   webserver: webserver == "1"
 
-# Scheduled jobs (via Quantum at this point) are run in production and only on the first worker node
-# https://www.clever-cloud.com/doc/reference/reference-environment-variables/#set-by-the-deployment-process
-if config_env() == :prod && worker && System.fetch_env!("INSTANCE_NUMBER") == "0" do
-  config :transport, Transport.Scheduler, jobs: Transport.Scheduler.scheduled_jobs()
-end
-
 # Inside IEx, we do not want jobs to start processing, nor plugins working.
 # The jobs can be heavy and for instance in production, one person could
 # unknowningly create duplicate RAM heavy jobs. With this trick, we can still
 # enqueue jobs from IEx, but only the real worker will process them
 # See https://github.com/sorentwo/oban/issues/520#issuecomment-883416363
-
 iex_started? = Code.ensure_loaded?(IEx) && IEx.started?()
+
+# Scheduled jobs (via Quantum at this point) are run in production and only on the first worker node
+# https://www.clever-cloud.com/doc/reference/reference-environment-variables/#set-by-the-deployment-process
+# They should not run in an iex session either.
+if config_env() == :prod && !iex_started? && worker && System.fetch_env!("INSTANCE_NUMBER") == "0" do
+  config :transport, Transport.Scheduler, jobs: Transport.Scheduler.scheduled_jobs()
+end
+
 base_oban_conf = [repo: DB.Repo]
 
 extra_oban_conf =
