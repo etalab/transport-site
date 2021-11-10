@@ -6,7 +6,7 @@ defmodule Transport.Application do
 
   use Application
   use Task
-  alias Transport.{CSVDocuments, ImportDataWorker, SearchCommunes}
+  alias Transport.{CSVDocuments, CustomSearchMessage, ImportDataWorker, SearchCommunes}
   alias TransportWeb.Endpoint
   import Supervisor.Spec, only: [supervisor: 2]
 
@@ -20,6 +20,7 @@ defmodule Transport.Application do
         {Cachex, name: @cache_name},
         supervisor(TransportWeb.Endpoint, []),
         supervisor(ImportDataWorker, []),
+        CustomSearchMessage,
         CSVDocuments,
         SearchCommunes,
         {Phoenix.PubSub, [name: TransportWeb.PubSub, adapter: Phoenix.PubSub.PG2]}
