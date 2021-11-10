@@ -247,16 +247,14 @@ defmodule TransportWeb.DatasetController do
   defp put_empty_message(conn, _params), do: conn
 
   @spec put_custom_context(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  defp put_custom_context(conn, %{"filter" => "has_realtime"}),
-    do: assign(conn, :custom_context, "_realtime.html")
+  defp put_custom_context(conn, params) do
+    locale = get_session(conn, :locale)
 
-  defp put_custom_context(conn, %{"type" => "addresses"}),
-    do: assign(conn, :custom_context, "_addresses.html")
-
-  defp put_custom_context(conn, %{"type" => "private-parking"}),
-    do: assign(conn, :custom_context, "_parkings.html")
-
-  defp put_custom_context(conn, _), do: conn
+    case Transport.CustomSearchMessage.get_message(params, locale) do
+      nil -> conn
+      msg -> assign(conn, :custom_context, msg)
+    end
+  end
 
   defp put_page_title(conn, %{"region" => id}),
     do:
