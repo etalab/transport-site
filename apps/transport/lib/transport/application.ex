@@ -47,8 +47,8 @@ defmodule Transport.Application do
     Supervisor.start_link(children, opts)
   end
 
-  def webserver_enabled?, do: Application.fetch_env!(:transport, :webserver) == "1"
-  def worker_enabled?, do: Application.fetch_env!(:transport, :worker) == "1"
+  def webserver_enabled?, do: Application.fetch_env!(:transport, :webserver)
+  def worker_enabled?, do: Application.fetch_env!(:transport, :worker)
   def worker_only?, do: worker_enabled?() && !webserver_enabled?()
   def webserver_only?, do: webserver_enabled?() && !worker_enabled?()
   def dual_mode?, do: worker_enabled?() && webserver_enabled?()

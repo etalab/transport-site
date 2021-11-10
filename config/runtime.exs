@@ -32,8 +32,8 @@ require Logger
 
 # expose the result so that the application can configure itself from there
 config :transport,
-  worker: worker,
-  webserver: webserver
+  worker: worker == "1",
+  webserver: webserver == "1"
 
 # Scheduled jobs (via Quantum at this point) are run in production and only on the first worker node
 # https://www.clever-cloud.com/doc/reference/reference-environment-variables/#set-by-the-deployment-process
@@ -57,6 +57,7 @@ extra_oban_conf =
     [
       queues: [default: 2, heavy: 1],
       plugins: [Oban.Plugins.Pruner]
+      # node: "worker_#{inspect(self())}"
     ]
   end
 
