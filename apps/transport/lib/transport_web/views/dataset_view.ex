@@ -213,6 +213,7 @@ defmodule TransportWeb.DatasetView do
   defp add_order_by(kwargs, _), do: kwargs
 
   def gbfs_validation_link(%Resource{format: "gbfs"} = r) do
+    # credo:disable-for-lines:2 Credo.Check.Refactor.PipeChainStart
     Application.fetch_env!(:transport, :gbfs_validator_website)
     |> URI.parse()
     |> Map.put(:query, URI.encode_query(%{url: r.url}))
