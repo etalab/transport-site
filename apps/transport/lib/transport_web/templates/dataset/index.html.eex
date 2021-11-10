@@ -26,7 +26,7 @@
 
 
 <%= if @conn.assigns[:custom_context] do %>
-  <%= render TransportWeb.DatasetView, @custom_context, conn: @conn %>
+  <%= render TransportWeb.DatasetView, "_custom_message.html", conn: @conn, msg: @custom_context %>
 <% end %>
 
 <%= if is_nil(@conn.assigns[:q]) or @datasets.total_entries > 0  do %>
