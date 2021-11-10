@@ -1,8 +1,11 @@
 defmodule Transport.GBFSMetadataTest do
   use ExUnit.Case, async: true
+  use TransportWeb.DatabaseCase, cleanup: []
+  import DB.Factory
   import Mox
   alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
-  import Transport.GBFSMetadata, only: [compute_feed_metadata: 1]
+  alias DB.{Repo, Resource}
+  import Transport.GBFSMetadata
   doctest Transport.GBFSMetadata
 
   @gbfs_url "https://example.com/gbfs.json"
@@ -31,7 +34,7 @@ defmodule Transport.GBFSMetadataTest do
         is_cors_allowed: true
       }
 
-      assert expected == compute_feed_metadata(%DB.Resource{url: @gbfs_url})
+      assert expected == compute_feed_metadata(%Resource{url: @gbfs_url})
     end
 
     test "for a stations + free floating feed with a multiple versions" do
@@ -69,13 +72,50 @@ defmodule Transport.GBFSMetadataTest do
         is_cors_allowed: true
       }
 
-      assert expected == compute_feed_metadata(%DB.Resource{url: @gbfs_url})
+      assert expected == compute_feed_metadata(%Resource{url: @gbfs_url})
     end
 
     test "for feed with a 500 error on the root URL" do
       setup_feeds([:gbfs_with_server_error])
 
-      assert %{} == compute_feed_metadata(%DB.Resource{url: @gbfs_url})
+      assert %{} == compute_feed_metadata(%Resource{url: @gbfs_url})
+    end
+  end
+
+  describe "can compute GBFS metadata for all resources" do
+    test "it updates format and metadata" do
+      %{id: resource_id} =
+        Repo.insert!(%Resource{
+          url: @gbfs_url,
+          datagouv_id: "r1",
+          dataset: insert(:dataset, is_active: true, type: "bike-scooter-sharing")
+        })
+
+      setup_feeds([:gbfs, :system_information, :station_information])
+      setup_validation_result()
+
+      assert :ok == set_gbfs_feeds_metadata()
+
+      resource = Resource |> where([r], r.id == ^resource_id) |> Repo.one!()
+
+      expected = %{
+        "feeds" => ["system_information", "station_information", "station_status"],
+        "has_cors" => true,
+        "is_cors_allowed" => true,
+        "languages" => ["fr"],
+        "system_details" => %{"name" => "velhop", "timezone" => "Europe/Paris"},
+        "ttl" => 3600,
+        "types" => ["stations"],
+        "validation" => %{
+          "errors_count" => 0,
+          "has_errors" => false,
+          "version_detected" => "1.1",
+          "version_validated" => "1.1"
+        },
+        "versions" => ["1.1"]
+      }
+
+      assert %{format: "gbfs", metadata: ^expected} = resource
     end
   end
 

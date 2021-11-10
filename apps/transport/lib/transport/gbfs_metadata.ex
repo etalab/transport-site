@@ -2,7 +2,7 @@ defmodule Transport.GBFSMetadata do
   @moduledoc """
   Compute and store metadata for GBFS resources.
   """
-  alias DB.{Repo, Resource}
+  alias DB.{Dataset, Repo, Resource}
   alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
   alias Shared.Validation.GBFSValidator.Wrapper, as: GBFSValidator
   import Ecto.Query
@@ -23,7 +23,7 @@ defmodule Transport.GBFSMetadata do
     |> Stream.map(fn resource ->
       Logger.info("Fetching GBFS metadata for #{resource.url} (##{resource.id})")
       changeset = Resource.changeset(resource, %{format: "gbfs", metadata: compute_feed_metadata(resource)})
-      Repo.update(changeset)
+      Repo.update!(changeset)
     end)
     |> Stream.run()
   end
