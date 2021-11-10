@@ -1,6 +1,9 @@
 defmodule Transport.CSVDocuments do
   @moduledoc """
-  Reads the CSV file of all Real Time Providers and caches it
+  Reads the CSV file of :
+    * Real Time Providers
+    * Reusers
+  and caches them
   """
   use Agent
 
