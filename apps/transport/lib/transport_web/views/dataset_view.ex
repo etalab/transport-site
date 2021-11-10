@@ -298,8 +298,10 @@ defmodule TransportWeb.DatasetView do
   @spec description(%Dataset{} | %Resource{}) :: Phoenix.HTML.safe()
   def description(instance) do
     instance.description
-    |> MarkdownHandler.markdown_to_safe_html!()
+    |> markdown_to_safe_html!()
   end
+
+  def markdown_to_safe_html!(md), do: MarkdownHandler.markdown_to_safe_html!(md)
 
   @doc """
   Builds a licence.
