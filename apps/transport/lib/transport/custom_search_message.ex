@@ -1,0 +1,48 @@
+defmodule Transport.CustomSearchMessage do
+  @moduledoc """
+    Some specific dataset search results have a custom text displayed.
+    See for example https://transport.data.gouv.fr/datasets?type=public-transit&filter=has_realtime
+    This module loads the custom message content from priv/search_custom_messages.yml
+  """
+  use Agent
+
+  def start_link(_options), do: Agent.start_link(fn -> load_messages() end, name: __MODULE__)
+
+  def get_messages(), do: Agent.get(__MODULE__, & &1)
+
+  @doc """
+    Given a query parameters and a locale, returns the custom message content
+  """
+  @spec get_message(map(), binary()) :: binary() | nil
+  def get_message(query_params, locale) do
+    get_messages()
+    |> Enum.find(&message_matches_query?(query_params, &1))
+    |> case do
+      %{"msg" => %{^locale => msg_content}} -> msg_content
+      _ -> nil
+    end
+  end
+
+  @doc """
+    we have found a message matching a query if all the message search parameters are in the query.
+
+    iex> Transport.CustomSearchMessage.message_matches_query?(%{"type" => "bus", "locale" => "en"}, %{"search_params" => [%{"key" => "type", "value" => "bus"}]})
+    true
+    iex> Transport.CustomSearchMessage.message_matches_query?(%{"type" => "bus", "locale" => "en"}, %{"search_params" => [%{"key" => "type", "value" => "bus"}, %{"key" => "modes", "value" => "xxx"}]})
+    false
+  """
+  def message_matches_query?(query_params, %{"search_params" => message_search_params} = _messages) do
+    message_search_params
+    |> Enum.all?(fn %{"key" => msg_key, "value" => msg_value} ->
+      case Map.fetch(query_params, msg_key) do
+        {:ok, query_value} -> query_value == msg_value
+        :error -> false
+      end
+    end)
+  end
+
+  def load_messages() do
+    file_path = Application.app_dir(:transport, "priv") <> "/search_custom_messages.yml"
+    file_path |> File.read!() |> YamlElixir.read_from_string!() |> Map.fetch!("custom_messages")
+  end
+end
