@@ -383,9 +383,13 @@ msgid "Resource declared schema"
 msgstr "La ressource déclare utiliser ce schéma"
 
 #, elixir-format
-msgid "GBFS versions"
-msgstr "versions GBFS"
-
-#, elixir-format
 msgid "Past versions of the dataset resources are available in the %{link} section."
 msgstr "Des versions précédentes des ressources de ce jeu de données sont disponibles dans la section %{link}."
+
+#, elixir-format
+msgid "time to live"
+msgstr "durée de vie"
+
+#, elixir-format
+msgid "Version %{version}"
+msgstr "Version %{version}"

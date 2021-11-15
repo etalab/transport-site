@@ -383,7 +383,11 @@ msgid "Resource declared schema"
 msgstr ""
 
 #, elixir-format
-msgid "GBFS versions"
+msgid "time to live"
+msgstr ""
+
+#, elixir-format
+msgid "Version %{version}"
 msgstr ""
 
 #, elixir-format

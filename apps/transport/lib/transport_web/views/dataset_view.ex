@@ -220,10 +220,16 @@ defmodule TransportWeb.DatasetView do
     |> URI.to_string()
   end
 
+  def gbfs_documentation_link(version) when is_binary(version) do
+    "https://github.com/NABSA/gbfs/blob/v#{version}/gbfs.md"
+  end
+
   def summary_class(%{format: "gbfs", metadata: %{"validation" => %{"has_errors" => false}}}),
     do: "resource__summary--Success"
 
   def summary_class(%{format: "gbfs", metadata: %{}}), do: "resource__summary--Error"
+
+  # For GTFS resources
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
   def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
 
