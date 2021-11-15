@@ -29,7 +29,7 @@ defmodule Shared.Validation.GBFSValidator do
     def validate(url), do: impl().validate(url)
   end
 
-  defmodule HTTPClient do
+  defmodule HTTPValidatorClient do
     @moduledoc """
     An HTTP GBFS Validator calling a third party API
     """

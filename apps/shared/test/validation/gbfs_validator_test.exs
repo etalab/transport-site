@@ -5,7 +5,7 @@ defmodule GBFSValidatorTest do
   import Mox
 
   alias Shared.Validation.GBFSValidator.Summary
-  alias Shared.Validation.GBFSValidator.HTTPClient, as: GBFSValidator
+  alias Shared.Validation.GBFSValidator.HTTPValidatorClient
 
   setup :verify_on_exit!
 
@@ -32,14 +32,14 @@ defmodule GBFSValidatorTest do
       version_detected: "1.1",
       version_validated: "1.1"
     }
-    assert {:ok, ^expected} = GBFSValidator.validate("https://example.com/gbfs.json")
+    assert {:ok, ^expected} = HTTPValidatorClient.validate("https://example.com/gbfs.json")
   end
 
   test "on invalid server response" do
     Transport.HTTPoison.Mock |> expect(:post, fn _url, _, _ -> {:ok, %HTTPoison.Response
       {status_code: 500}} end)
 
-    {:error, error} = GBFSValidator.validate("https://example.com/gbfs.json")
+    {:error, error} = HTTPValidatorClient.validate("https://example.com/gbfs.json")
     assert String.starts_with?(error, "impossible to query GBFS Validator")
   end
 
