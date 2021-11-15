@@ -7,8 +7,9 @@ defmodule GBFSValidatorTest do
   alias Shared.Validation.GBFSValidator.Summary
   alias Shared.Validation.GBFSValidator.Wrapper, as: GBFSValidator
 
+  setup :verify_on_exit!
+
   setup do
-    :verify_on_exit!
     # Do not use a mock for the GBFS Validator as we'll mock HTTP calls
     old_value = Application.fetch_env!(:transport, :gbfs_validator_impl)
     on_exit(fn -> Application.put_env(:transport, :gbfs_validator_impl, old_value) end)
