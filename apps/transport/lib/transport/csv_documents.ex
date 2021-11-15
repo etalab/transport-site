@@ -1,6 +1,6 @@
 defmodule Transport.CSVDocuments do
   @moduledoc """
-  Reads the CSV file of :
+  Reads the CSV file of:
     * Real Time Providers
     * Reusers
   and caches them
