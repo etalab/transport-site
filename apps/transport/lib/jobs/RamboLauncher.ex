@@ -1,6 +1,6 @@
 defmodule Transport.RamboLauncher do
   @moduledoc """
-    A behavior for Rambo, with dynamic dispatching
+  A behavior for Rambo, with dynamic dispatching
   """
   @callback run(binary(), [binary()]) :: {:ok, binary()} | {:error, any()}
 
