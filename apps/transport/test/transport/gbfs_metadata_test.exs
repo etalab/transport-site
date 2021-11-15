@@ -155,8 +155,8 @@ defmodule Transport.GBFSMetadataTest do
   defp setup_response_with_headers(expected_url, body) do
     Transport.HTTPoison.Mock
     |> expect(:get, fn url, headers ->
-      assert TransportWeb.Endpoint.url() == "http://127.0.0.1:5001"
-      assert headers == [{"origin", "http://127.0.0.1:5001"}]
+      assert TransportWeb.Endpoint.url() == "http://127.0.0.1:5100"
+      assert headers == [{"origin", "http://127.0.0.1:5100"}]
       assert url == expected_url
 
       {:ok,

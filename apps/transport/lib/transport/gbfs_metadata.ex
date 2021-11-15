@@ -120,7 +120,7 @@ defmodule Transport.GBFSMetadata do
   iex> Transport.GBFSMetadata.cors_headers_allows_self?(%HTTPoison.Response{headers: [{"Access-Control-Allow-Origin", "*"}]})
   true
 
-  iex> Transport.GBFSMetadata.cors_headers_allows_self?(%HTTPoison.Response{headers: [{"Access-Control-Allow-Origin", "http://127.0.0.1:5001"}]})
+  iex> Transport.GBFSMetadata.cors_headers_allows_self?(%HTTPoison.Response{headers: [{"Access-Control-Allow-Origin", "http://127.0.0.1:5100"}]})
   true
   """
   def cors_headers_allows_self?(%HTTPoison.Response{} = response) do

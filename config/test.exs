@@ -8,6 +8,7 @@ config :tzdata, :autoupdate, :disabled
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :transport, TransportWeb.Endpoint,
+  # If you change this, there are hardcoded refs in the source to update
   http: [port: 5100],
   server: true
 
