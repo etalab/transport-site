@@ -11,7 +11,7 @@ end
 
 defmodule Transport.Rambo do
   @moduledoc """
-    Run an executable with Rambo
+  Run an executable with Rambo
   """
   @behaviour Transport.RamboLauncher
 
