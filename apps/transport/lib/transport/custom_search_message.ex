@@ -48,6 +48,6 @@ defmodule Transport.CustomSearchMessage do
 
   def load_messages do
     file_path = Application.app_dir(:transport, "priv") <> "/search_custom_messages.yml"
-    file_path |> File.read!() |> YamlElixir.read_from_string!() |> Map.fetch!("custom_messages")
+    file_path |> File.read!() |> YamlElixir.read_from_string!()
   end
 end
