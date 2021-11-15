@@ -28,7 +28,6 @@ custom_messages:
       en:
 
 
-custom_messages:
   - category: real-time
     search_params:
       - key: type
