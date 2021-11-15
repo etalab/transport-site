@@ -8,7 +8,7 @@ defmodule Transport.CustomSearchMessage do
 
   def start_link(_options), do: Agent.start_link(fn -> load_messages() end, name: __MODULE__)
 
-  def get_messages(), do: Agent.get(__MODULE__, & &1)
+  def get_messages, do: Agent.get(__MODULE__, & &1)
 
   @doc """
     Given a query parameters and a locale, returns the custom message content
@@ -41,7 +41,7 @@ defmodule Transport.CustomSearchMessage do
     end)
   end
 
-  def load_messages() do
+  def load_messages do
     file_path = Application.app_dir(:transport, "priv") <> "/search_custom_messages.yml"
     file_path |> File.read!() |> YamlElixir.read_from_string!() |> Map.fetch!("custom_messages")
   end
