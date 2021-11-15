@@ -36,6 +36,10 @@ defmodule Transport.GBFSMetadata do
     |> Stream.run()
   end
 
+  @doc """
+  This function does 2 HTTP calls on a given resource url, and returns a report
+  with metadata and also validation status (using a third-party HTTP validator).
+  """
   @spec compute_feed_metadata(Resource.t()) :: map()
   def compute_feed_metadata(resource) do
     with {:ok, %{status_code: 200, body: body} = response} <-
