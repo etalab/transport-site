@@ -25,7 +25,7 @@ defmodule TransportWeb.DatasetController do
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
     |> put_empty_message(params)
-    |> put_custom_context(params)
+    |> put_category_custom_message(params)
     |> put_page_title(params)
     |> render("index.html")
   end
@@ -246,13 +246,13 @@ defmodule TransportWeb.DatasetController do
 
   defp put_empty_message(conn, _params), do: conn
 
-  @spec put_custom_context(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  defp put_custom_context(conn, params) do
+  @spec put_category_custom_message(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  defp put_category_custom_message(conn, params) do
     locale = get_session(conn, :locale)
 
     case Transport.CustomSearchMessage.get_message(params, locale) do
       nil -> conn
-      msg -> assign(conn, :custom_context, msg)
+      msg -> assign(conn, :category_custom_message, msg)
     end
   end
 
