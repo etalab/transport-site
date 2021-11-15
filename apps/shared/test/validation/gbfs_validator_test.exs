@@ -1,20 +1,13 @@
 defmodule GBFSValidatorTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   doctest Shared.Validation.GBFSValidator
 
   import Mox
 
   alias Shared.Validation.GBFSValidator.Summary
-  alias Shared.Validation.GBFSValidator.Wrapper, as: GBFSValidator
+  alias Shared.Validation.GBFSValidator.HTTPClient, as: GBFSValidator
 
   setup :verify_on_exit!
-
-  setup do
-    # Do not use a mock for the GBFS Validator as we'll mock HTTP calls
-    old_value = Application.fetch_env!(:transport, :gbfs_validator_impl)
-    on_exit(fn -> Application.put_env(:transport, :gbfs_validator_impl, old_value) end)
-    Application.put_env(:transport, :gbfs_validator_impl, Shared.Validation.GBFSValidator.HTTPClient)
-  end
 
   test "validate GBFS feed" do
     Transport.HTTPoison.Mock
