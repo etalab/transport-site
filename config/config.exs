@@ -106,7 +106,8 @@ config :transport,
   ex_aws_impl: ExAws,
   httpoison_impl: HTTPoison,
   history_impl: Transport.History.Fetcher.S3,
-  gtfs_to_json_converter_url: "https://convertisseur.transport.data.gouv.fr/gtfs2geojson_sync"
+  gtfs_to_json_converter_url: "https://convertisseur.transport.data.gouv.fr/gtfs2geojson_sync",
+  rambo_impl: Transport.Rambo
 
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API
@@ -123,6 +124,14 @@ config :ex_aws,
   ],
   json_codec: Jason
 
+config :transport,
+  max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer(),
+  nb_days_to_keep_validations: 60,
+  join_our_slack_link: "https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA",
+  contact_email: "contact@transport.beta.gouv.fr",
+  security_email: "contact@transport.beta.gouv.fr",
+  transport_tools_folder: Path.absname("transport-tools/")
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "datagouvfr.exs"
@@ -132,11 +141,3 @@ import_config "gbfs_validator.exs"
 import_config "mailjet.exs"
 import_config "mailchimp.exs"
 import_config "#{Mix.env}.exs"
-
-config :transport,
-  max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer(),
-  nb_days_to_keep_validations: 60,
-  join_our_slack_link: "https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA",
-  contact_email: "contact@transport.beta.gouv.fr",
-  security_email: "contact@transport.beta.gouv.fr",
-  transport_tools_folder: Path.absname("transport-tools/")

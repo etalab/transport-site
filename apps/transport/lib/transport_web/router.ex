@@ -105,6 +105,12 @@ defmodule TransportWeb.Router do
         session: {TransportWeb.Backoffice.ProxyConfigLive, :build_session, []}
       )
 
+      live("/jobs", JobsLive,
+        layout: {TransportWeb.LayoutView, :app},
+        # Will likely be removable once https://github.com/etalab/transport-site/issues/1899 is tackled
+        session: {TransportWeb.Backoffice.JobsLive, :build_session, []}
+      )
+
       get("/import_aoms", PageController, :import_all_aoms)
 
       scope "/datasets" do

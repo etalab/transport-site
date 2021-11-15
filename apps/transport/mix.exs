@@ -87,7 +87,8 @@ defmodule Transport.Mixfile do
       {:sizeable, "~> 1.0"},
       {:mox, "~> 1.0.0", only: :test},
       {:rambo, "~> 0.3"},
-      {:etag_plug, "~> 1.0"}
+      {:etag_plug, "~> 1.0"},
+      {:oban, "~> 2.9"}
     ]
   end
 end
