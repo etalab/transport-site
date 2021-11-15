@@ -1,6 +1,6 @@
 defmodule Transport.ObanLogger do
   @moduledoc """
-    Logs the Oban job exceptions as warnings
+  Logs the Oban job exceptions as warnings
   """
   require Logger
 
