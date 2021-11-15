@@ -4,8 +4,7 @@ defmodule GBFSValidatorTest do
 
   import Mox
 
-  alias Shared.Validation.GBFSValidator.Summary
-  alias Shared.Validation.GBFSValidator.HTTPValidatorClient
+  alias Shared.Validation.GBFSValidator.{HTTPValidatorClient, Summary}
 
   setup :verify_on_exit!
 
