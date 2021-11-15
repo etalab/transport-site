@@ -30,10 +30,13 @@ require Logger
       }
   end
 
+worker = worker == "1"
+webserver = webserver == "1"
+
 # expose the result so that the application can configure itself from there
 config :transport,
-  worker: worker == "1",
-  webserver: webserver == "1"
+  worker: worker,
+  webserver: webserver
 
 # Inside IEx, we do not want jobs to start processing, nor plugins working.
 # The jobs can be heavy and for instance in production, one person could
@@ -52,13 +55,12 @@ end
 base_oban_conf = [repo: DB.Repo]
 
 extra_oban_conf =
-  if worker != "1" || (iex_started? and config_env() == :prod) || config_env() == :test do
+  if worker || (iex_started? and config_env() == :prod) || config_env() == :test do
     [queues: false, plugins: false]
   else
     [
       queues: [default: 2, heavy: 1],
       plugins: [Oban.Plugins.Pruner]
-      # node: "worker_#{inspect(self())}"
     ]
   end
 
@@ -71,5 +73,5 @@ if config_env() == :dev do
     # optionally allowing to override the port is useful to play with 2 nodes locally, without conflict
     http: [port: System.get_env("PORT", "5000")],
     #  We also make sure to start the assets watcher only if the webserver is up, to avoid cluttering the logs.
-    watchers: if(webserver == "1", do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]], else: [])
+    watchers: if(webserver, do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]], else: [])
 end
