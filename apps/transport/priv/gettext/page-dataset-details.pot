@@ -383,5 +383,13 @@ msgid "Resource declared schema"
 msgstr ""
 
 #, elixir-format
+msgid "Version %{version}"
+msgstr ""
+
+#, elixir-format
 msgid "Past versions of the dataset resources are available in the %{link} section."
+msgstr ""
+
+#, elixir-format
+msgid "time to live (%{feed})"
 msgstr ""

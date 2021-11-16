@@ -132,17 +132,13 @@ defmodule Transport.GBFSMetadata do
   end
 
   defp ttl(%{"data" => _data} = payload) do
-    feed = payload |> first_feed()
+    feed_name = feed_to_use_for_ttl(types(payload))
 
-    value =
-      case types(payload) do
-        ["free_floating", "stations"] -> feed |> feed_url_by_name("free_bike_status")
-        ["free_floating"] -> feed |> feed_url_by_name("free_bike_status")
-        ["stations"] -> feed |> feed_url_by_name("station_information")
-        nil -> payload["ttl"]
-      end
-
-    feed_ttl(value)
+    if is_nil(feed_name) do
+      feed_ttl(payload["ttl"])
+    else
+      payload |> first_feed() |> feed_url_by_name(feed_name) |> feed_ttl()
+    end
   end
 
   defp feed_ttl(value) when is_integer(value) and value >= 0, do: value
@@ -155,6 +151,27 @@ defmodule Transport.GBFSMetadata do
       e ->
         Logger.error("Cannot get GBFS ttl details: #{inspect(e)}")
         nil
+    end
+  end
+
+  @doc """
+  Determines the feed to use as the ttl value of a GBFS feed.
+
+  iex> Transport.GBFSMetadata.feed_to_use_for_ttl(["free_floating", "stations"])
+  "free_bike_status"
+
+  iex> Transport.GBFSMetadata.feed_to_use_for_ttl(["stations"])
+  "station_information"
+
+  iex> Transport.GBFSMetadata.feed_to_use_for_ttl(nil)
+  nil
+  """
+  def feed_to_use_for_ttl(types) do
+    case types do
+      ["free_floating", "stations"] -> "free_bike_status"
+      ["free_floating"] -> "free_bike_status"
+      ["stations"] -> "station_information"
+      nil -> nil
     end
   end
 

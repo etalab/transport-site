@@ -231,3 +231,7 @@ msgstr ""
 #, elixir-format
 msgid "Update all AOMs"
 msgstr ""
+
+#, elixir-format
+msgid "Jobs"
+msgstr ""
