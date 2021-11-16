@@ -8,7 +8,8 @@ config :tzdata, :autoupdate, :disabled
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :transport, TransportWeb.Endpoint,
-  http: [port: 5001],
+  # If you change this, there are hardcoded refs in the source to update
+  http: [port: 5100],
   server: true
 
 # Page cache would make tests brittle, so disable it by default
@@ -27,7 +28,9 @@ config :transport,
   ex_aws_impl: Transport.ExAWS.Mock,
   httpoison_impl: Transport.HTTPoison.Mock,
   history_impl: Transport.History.Fetcher.Mock,
-  gtfs_validator: Validation.Validator.Mock
+  gtfs_validator: Validation.Validator.Mock,
+  gbfs_validator_impl: Shared.Validation.GBFSValidator.Mock,
+  rambo_impl: Transport.Rambo.Mock
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"
