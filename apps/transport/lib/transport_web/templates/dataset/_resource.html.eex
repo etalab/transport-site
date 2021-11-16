@@ -20,12 +20,20 @@
       <span class="<%= outdated_class(@resource) %>"><%= format_date(@resource.metadata["end_date"]) %></span>
     </div>
   <% end %>
-  <div title="<%= dgettext("page-dataset-details", "last update") %>" class="pb-24 light-gry">
-    <i class="icon icon--sync-alt" aria-hidden="true"></i>
-    <%= if Resource.is_real_time?(@resource) do %>
-      <%= dgettext("page-dataset-details", "real-time") %>
-    <% else %>
-      <%= @resource.last_update |> format_datetime_to_date() %>
+  <div class="pb-24 light-gry">
+    <span title="<%= dgettext("page-dataset-details", "last update") %>">
+      <i class="icon icon--sync-alt" aria-hidden="true"></i>
+      <%= if Resource.is_real_time?(@resource) do %>
+        <%= dgettext("page-dataset-details", "real-time") %>
+      <% else %>
+        <%= @resource.last_update |> format_datetime_to_date() %>
+      <% end %>
+    </span>
+    <%= unless is_nil(Resource.ttl(@resource)) do %>
+      <span class="ml-05-em" title="<%= dgettext("page-dataset-details", "time to live (%{feed})", feed: gbfs_feed_source_for_ttl(@resource)) %>">
+        <i class="icon fa fa-history" aria-hidden="true"></i>
+        <%= Resource.ttl(@resource) %>s
+      </span>
     <% end %>
   </div>
 
@@ -73,6 +81,23 @@
       <% end %>
     </div>
   <% end %>
+  <%= if Resource.is_gbfs?(@resource) and Resource.has_metadata?(@resource) do %>
+    <% nb_errors = errors_count(@resource) %>
+    <%= if nb_errors do %>
+      <div class="pb-24">
+        <a href="<%= gbfs_validation_link(@resource) %>" target="_blank">
+          <span class="<%= summary_class(@resource) %>">
+            <%= if nb_errors == 0 do %>
+              <%= dgettext("page-dataset-details", "No error detected") %>
+            <% else %>
+              <%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+            <% end %>
+          </span>
+        </a>
+        <span><%= dgettext("page-dataset-details", "during validation") %></span>
+      </div>
+    <% end %>
+  <% end %>
   <div class="resource-panel-bottom">
     <div class="resource-features">
       <%= if length(@resource.modes) > 0 do %>
@@ -81,6 +106,13 @@
             <span class="label mode"><%= mode %></span>
           <% end %>
         </div>
+      <% end %>
+      <%= if Resource.has_metadata?(@resource) and Resource.is_gbfs?(@resource) do %>
+        <%= for version <- @resource.metadata["versions"] do %>
+          <a href="<%= gbfs_documentation_link(version) %>" target="_blank">
+            <span class="label version"><%= dgettext("page-dataset-details", "Version %{version}", version: version) %></span>
+          </a>
+        <% end %>
       <% end %>
     </div>
     <div class="resource-actions">
