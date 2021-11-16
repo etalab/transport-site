@@ -1,8 +1,8 @@
 defmodule Transport.CustomSearchMessage do
   @moduledoc """
-    Some specific dataset search results have a custom text displayed.
-    See for example https://transport.data.gouv.fr/datasets?type=public-transit&filter=has_realtime
-    This module loads the custom message content from priv/search_custom_messages.yml
+  Some specific dataset search results have a custom text displayed.
+  See for example https://transport.data.gouv.fr/datasets?type=public-transit&filter=has_realtime
+  This module loads the custom message content from priv/search_custom_messages.yml
   """
   use Agent
 
@@ -11,7 +11,7 @@ defmodule Transport.CustomSearchMessage do
   def get_messages, do: Agent.get(__MODULE__, & &1)
 
   @doc """
-    Given a query parameters and a locale, returns the custom message content
+  Given a query parameters and a locale, returns the custom message content
   """
   @spec get_message(map(), binary()) :: binary() | nil
   def get_message(query_params, locale) do
@@ -29,12 +29,12 @@ defmodule Transport.CustomSearchMessage do
   end
 
   @doc """
-    we have found a message matching a query if all the message search parameters are in the query.
+  we have found a message matching a query if all the message search parameters are in the query.
 
-    iex> Transport.CustomSearchMessage.message_matches_query?(%{"type" => "bus", "locale" => "en"}, %{"search_params" => [%{"key" => "type", "value" => "bus"}]})
-    true
-    iex> Transport.CustomSearchMessage.message_matches_query?(%{"type" => "bus", "locale" => "en"}, %{"search_params" => [%{"key" => "type", "value" => "bus"}, %{"key" => "modes", "value" => "xxx"}]})
-    false
+  iex> Transport.CustomSearchMessage.message_matches_query?(%{"type" => "bus", "locale" => "en"}, %{"search_params" => [%{"key" => "type", "value" => "bus"}]})
+  true
+  iex> Transport.CustomSearchMessage.message_matches_query?(%{"type" => "bus", "locale" => "en"}, %{"search_params" => [%{"key" => "type", "value" => "bus"}, %{"key" => "modes", "value" => "xxx"}]})
+  false
   """
   def message_matches_query?(query_params, %{"search_params" => message_search_params} = _messages) do
     message_search_params
