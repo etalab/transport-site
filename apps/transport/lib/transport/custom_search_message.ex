@@ -26,7 +26,7 @@ defmodule Transport.CustomSearchMessage do
     get_messages() |> filter_messages(query_params, locale)
   end
 
-  @spec filter_messages(map(), map(), binary()) :: binary() | nil
+  @spec filter_messages(list(), map(), binary()) :: binary() | nil
   def filter_messages(messages, query_params, locale) do
     messages
     |> Enum.find(&message_matches_query?(query_params, &1))
