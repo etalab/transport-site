@@ -17,6 +17,8 @@ defmodule Transport.Scheduler do
       {"@daily", {Transport.DataChecker, :outdated_data, []}},
       # Set inactive data
       {"@daily", {Transport.DataChecker, :inactive_data, []}},
+      # Compute metadata for GBFS resources
+      {"@daily", {Transport.GBFSMetadata, :set_gbfs_feeds_metadata, []}},
       # Watch for new comments on datasets
       {"@daily", {Transport.CommentsChecker, :check_for_new_comments, []}},
       # Delete orphan community resources

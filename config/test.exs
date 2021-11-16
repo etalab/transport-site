@@ -8,6 +8,7 @@ config :tzdata, :autoupdate, :disabled
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :transport, TransportWeb.Endpoint,
+  # If you change this, there are hardcoded refs in the source to update
   http: [port: 5100],
   server: true
 
@@ -28,6 +29,7 @@ config :transport,
   httpoison_impl: Transport.HTTPoison.Mock,
   history_impl: Transport.History.Fetcher.Mock,
   gtfs_validator: Validation.Validator.Mock,
+  gbfs_validator_impl: Shared.Validation.GBFSValidator.Mock,
   rambo_impl: Transport.Rambo.Mock
 
 config :ex_aws,

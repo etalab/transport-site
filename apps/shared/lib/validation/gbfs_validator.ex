@@ -8,6 +8,7 @@ defmodule Shared.Validation.GBFSValidator do
     A structure holding validation results for a GBFS feed
     """
     @enforce_keys [:has_errors, :errors_count, :version_detected, :version_validated]
+    @derive Jason.Encoder
     defstruct has_errors: false, errors_count: nil, version_detected: nil, version_validated: nil
 
     @type t :: %__MODULE__{
@@ -28,7 +29,7 @@ defmodule Shared.Validation.GBFSValidator do
     def validate(url), do: impl().validate(url)
   end
 
-  defmodule HTTPClient do
+  defmodule HTTPValidatorClient do
     @moduledoc """
     An HTTP GBFS Validator calling a third party API
     """
