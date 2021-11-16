@@ -30,7 +30,7 @@
       <% end %>
     </span>
     <%= unless is_nil(Resource.ttl(@resource)) do %>
-      <span class="ml-05-em" title="<%= dgettext("page-dataset-details", "time to live") %>">
+      <span class="ml-05-em" title="<%= dgettext("page-dataset-details", "time to live (%{feed})", feed: gbfs_feed_source_for_ttl(@resource)) %>">
         <i class="icon fa fa-history" aria-hidden="true"></i>
         <%= Resource.ttl(@resource) %>s
       </span>

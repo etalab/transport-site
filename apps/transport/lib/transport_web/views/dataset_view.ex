@@ -224,6 +224,11 @@ defmodule TransportWeb.DatasetView do
     "https://github.com/NABSA/gbfs/blob/v#{version}/gbfs.md"
   end
 
+  def gbfs_feed_source_for_ttl(%Resource{format: "gbfs", metadata: %{"types" => types}}) do
+    feed_name = Transport.GBFSMetadata.feed_to_use_for_ttl(types)
+    if feed_name, do: feed_name, else: "root"
+  end
+
   def summary_class(%{format: "gbfs", metadata: %{"validation" => %{"has_errors" => false}}}),
     do: "resource__summary--Success"
 
