@@ -6,7 +6,15 @@ defmodule Transport.CustomSearchMessage do
   """
   use Agent
 
-  def start_link(_options), do: Agent.start_link(fn -> load_messages() end, name: __MODULE__)
+  def start_link(options \\ []) do
+    messages =
+      case options |> Keyword.get(:load_messages_func) do
+        {mod, fun} -> apply(mod, fun, [])
+        _ -> load_messages()
+      end
+
+    Agent.start_link(fn -> messages end, name: __MODULE__)
+  end
 
   def get_messages, do: Agent.get(__MODULE__, & &1)
 
@@ -49,5 +57,19 @@ defmodule Transport.CustomSearchMessage do
   def load_messages do
     file_path = Application.app_dir(:transport, "priv") <> "/search_custom_messages.yml"
     file_path |> File.read!() |> YamlElixir.read_from_string!()
+  end
+
+  defmodule Test do
+    @moduledoc """
+    A module used to test the display of the custom messages
+    """
+    def messages,
+      do: [
+        %{
+          "category" => "test",
+          "search_params" => [%{"key" => "type", "value" => "public-transit"}],
+          "msg" => %{"fr" => "message personnalisé !"}
+        }
+      ]
   end
 end
