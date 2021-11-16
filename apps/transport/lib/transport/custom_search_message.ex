@@ -62,6 +62,7 @@ defmodule Transport.CustomSearchMessage do
   defmodule Test do
     @moduledoc """
     A module used to test the display of the custom messages
+    This content will be loaded in the CustomSearchMessage Agent when MIX_ENV=test
     """
     def messages,
       do: [
