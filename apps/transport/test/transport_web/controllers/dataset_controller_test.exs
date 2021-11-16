@@ -46,4 +46,10 @@ defmodule TransportWeb.DatasetControllerTest do
     html = html_response(conn, 200)
     assert html =~ "message personnalisé !"
   end
+
+  test "the search custom message is not displayed", %{conn: conn} do
+    conn = conn |> get(dataset_path(conn, :index, type: "inexistant"))
+    html = html_response(conn, 200)
+    refute html =~ "message personnalisé !"
+  end
 end
