@@ -130,7 +130,10 @@ config :transport,
   join_our_slack_link: "https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA",
   contact_email: "contact@transport.beta.gouv.fr",
   security_email: "contact@transport.beta.gouv.fr",
-  transport_tools_folder: Path.absname("transport-tools/")
+  transport_tools_folder: Path.absname("transport-tools/"),
+  notifications_impl: Transport.Notifications.GitHub,
+  notifications_github_config_url: "https://raw.githubusercontent.com/etalab/transport-notifications/master/config.yml",
+  notifications_github_auth_token: System.get_env("TRANSPORT_NOTIFICATIONS_CONFIG_GITHUB_TOKEN")
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
