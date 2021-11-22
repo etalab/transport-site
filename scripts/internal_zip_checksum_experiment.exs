@@ -61,7 +61,7 @@ end
 
 # Uncomment and run twice to get files with different external checksums,
 # but same content inside
-# Download.download()
+# DemoDownload.download()
 
 Path.wildcard("save-*.zip")
 |> Enum.map(&ZipMetaDataExtractor.extract!/1)
