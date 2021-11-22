@@ -101,7 +101,7 @@ defmodule Transport.DataChecker do
           """
           Bonjour,
 
-          Un jeu de données expire #{delay_str(delay)} :
+          Une ressource associée au jeu de données expire #{delay_str(delay)} :
 
           #{link_and_name(dataset)}
 
@@ -110,7 +110,7 @@ defmodule Transport.DataChecker do
           L’équipe transport.data.gouv.fr
 
           ---
-          Si vous souhaitez modifier ou supprimer ces alertes, merci de nous envoyer un e-mail à #{Application.get_env(:transport, :contact_email)}.
+          Si vous souhaitez modifier ou supprimer ces alertes, vous pouvez répondre à cet e-mail.
           """,
           "",
           is_blank
