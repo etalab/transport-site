@@ -10,15 +10,21 @@ defmodule Transport.Telemetry do
   process (or a pool of processes) by sending a message. "
 
   """
-  def handle_event([:proxy, r = :request, type], _measurements, %{identifier: identifier}, _config) do
+  def handle_event(event = [:proxy, :request, type], _measurements, %{identifier: identifier}, _config) do
     Logger.info("Telemetry event: processing #{type} proxy request for #{identifier} data")
-    count_event(identifier, [r, type] |> Enum.join(":"))
+    count_event(identifier, event |> Enum.join(":"))
+  end
+
+  def truncate_datetime_to_minute(datetime) do
+    %{DateTime.truncate(datetime, :second) | second: 0}
   end
 
   @doc """
   Atomically upsert a count record in the database.
   """
   def count_event(identifier, event, period \\ DateTime.utc_now()) do
+    period = truncate_datetime_to_minute(period)
+
     DB.Repo.insert!(
       %DB.ProxyMetric{resource_identifier: identifier, event: event, period: period, count: 1},
       returning: [:count],
