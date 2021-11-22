@@ -46,7 +46,7 @@ defmodule Transport.NotificationsTest do
       Notifications.emails_for_reason(config, :nope, %DB.Dataset{slug: "my_slug"})
     end
 
-    assert is_nil(Notifications.emails_for_reason(config, :expiration, %DB.Dataset{slug: "nope"}))
+    assert [] == Notifications.emails_for_reason(config, :expiration, %DB.Dataset{slug: "nope"})
   end
 
   test "GitHub.fetch_config!" do

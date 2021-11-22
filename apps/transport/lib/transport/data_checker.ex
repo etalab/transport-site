@@ -9,6 +9,8 @@ defmodule Transport.DataChecker do
   import Ecto.Query
   require Logger
 
+  @update_data_doc_link "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
+
   def inactive_data do
     # we first check if some inactive datasets have reapeared
     to_reactivate_datasets = get_to_reactivate_datasets()
@@ -50,6 +52,7 @@ defmodule Transport.DataChecker do
     end
     |> Enum.reject(fn {_, d} -> d == [] end)
     |> send_outdated_data_mail(blank)
+    |> send_outdated_data_notifications(blank)
 
     # |> post_outdated_data_comments(blank)
   end
@@ -78,6 +81,39 @@ defmodule Transport.DataChecker do
       """,
       blank
     )
+  end
+
+  def send_outdated_data_notifications({delay, datasets}, is_blank) do
+    notifications_config = Transport.Notifications.config()
+
+    datasets
+    |> Enum.map(fn dataset ->
+      emails = Transport.Notifications.emails_for_reason(notifications_config, :expiration, dataset)
+
+      emails
+      |> Enum.map(fn email ->
+        Client.send_mail(
+          "transport.data.gouv.fr",
+          Application.get_env(:transport, :contact_email),
+          email,
+          Application.get_env(:transport, :contact_email),
+          "Jeu de données arrivant à expiration",
+          """
+          Bonjour,
+
+          Un jeu de données expire #{delay_str(delay)} :
+
+          #{link_and_name(dataset)}
+
+          Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour. N'hésitez pas à consulter la documentation pour mettre à jour vos données #{@update_data_doc_link}.
+
+          L’équipe transport.data.gouv.fr
+          """,
+          "",
+          is_blank
+        )
+      end)
+    end)
   end
 
   defp make_str({delay, datasets}) do
@@ -119,6 +155,7 @@ defmodule Transport.DataChecker do
   defp send_outdated_data_mail(datasets, is_blank) do
     Client.send_mail(
       "transport.data.gouv.fr",
+      Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :contact_email),
       "Jeux de données arrivant à expiration",
@@ -176,6 +213,7 @@ defmodule Transport.DataChecker do
   defp send_inactive_dataset_mail(reactivated_datasets, inactive_datasets) do
     Client.send_mail(
       "transport.data.gouv.fr",
+      Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :contact_email),
       "Jeux de données qui disparaissent",
