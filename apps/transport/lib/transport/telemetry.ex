@@ -10,10 +10,22 @@ defmodule Transport.Telemetry do
   process (or a pool of processes) by sending a message. "
 
   """
-  def handle_event([:proxy, :request, type], _measurements, %{identifier: identifier}, _config) do
+  def handle_event([:proxy, r = :request, type], _measurements, %{identifier: identifier}, _config) do
     Logger.info("Telemetry event: processing #{type} proxy request for #{identifier} data")
+    count_event(identifier, [r, type] |> Enum.join(":"))
   end
 
+  @doc """
+  Atomically upsert a count record in the database.
+  """
+  def count_event(identifier, event, period \\ DateTime.utc_now()) do
+    DB.Repo.insert!(
+      %DB.ProxyMetric{resource_identifier: identifier, event: event, period: period, count: 1},
+      returning: [:count],
+      conflict_target: [:resource_identifier, :event, :period],
+      on_conflict: [inc: [count: 1]]
+    )
+  end
 
   @doc """
   Attach the required handles. To be called at application start.
