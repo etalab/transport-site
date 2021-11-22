@@ -36,9 +36,8 @@ defmodule Transport.CustomSearchMessageTest do
   test "all messages have a french AND an english content" do
     Transport.CustomSearchMessage.load_messages()
     |> Enum.each(fn %{"msg" => msg, "category" => category} ->
-      # this way the category will be visible in the logs in case of failure
-      assert {category, is_binary(msg["fr"])} == {category, true}
-      assert {category, is_binary(msg["en"])} == {category, true}
+      assert is_binary(msg["fr"])}, "fr message is missing for category #{category}"
+      assert is_binary(msg["en"])}, "en message is missing for category #{category}"
     end)
   end
 
