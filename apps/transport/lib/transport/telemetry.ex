@@ -13,4 +13,18 @@ defmodule Transport.Telemetry do
   def handle_event([:proxy, :request, type], _measurements, %{identifier: identifier}, _config) do
     Logger.info("Telemetry event: processing #{type} proxy request for #{identifier} data")
   end
+
+  def setup() do
+    :ok =
+      :telemetry.attach_many(
+        # unique handler id
+        "proxy-logging-handler",
+        [
+          [:proxy, :request, :external],
+          [:proxy, :request, :internal]
+        ],
+        &Transport.Telemetry.handle_event/4,
+        nil
+      )
+  end
 end

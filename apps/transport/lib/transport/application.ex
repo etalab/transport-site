@@ -43,6 +43,8 @@ defmodule Transport.Application do
 
     :ok = Transport.ObanLogger.setup()
 
+    :ok = Transport.Telemetry.setup()
+
     opts = [strategy: :one_for_one, name: Transport.Supervisor]
     Supervisor.start_link(children, opts)
   end
