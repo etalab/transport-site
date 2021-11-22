@@ -182,10 +182,6 @@ msgid "Order by"
 msgstr ""
 
 #, elixir-format
-msgid "here"
-msgstr ""
-
-#, elixir-format
 msgid "Get dataset list via an API"
 msgstr ""
 
@@ -199,14 +195,6 @@ msgstr ""
 
 #, elixir-format
 msgid "There is no data for region %{name}"
-msgstr ""
-
-#, elixir-format
-msgid "More information about realtime"
-msgstr ""
-
-#, elixir-format
-msgid "The french addresses are available in the %{start_link}BAN%{end_link}, a dataset produced by the Institut géographique national (IGN), La Poste, Etalab and various administrations"
 msgstr ""
 
 #, elixir-format
@@ -250,14 +238,6 @@ msgstr ""
 #, elixir-format
 msgid "Regions"
 msgstr ""
-
-#, elixir-format
-msgid "Data for private car-parks in France are produced by different local authorities or parking operators. These data, when published in a normalized format described here, are aggregated into a national dataset called %{start_link}“Base Nationale des Lieux de Stationnement” (BNLS)%{end_link}."
-msgstr ""
-
-#, elixir-format
-msgid "parking spaces text"
-msgstr "This dataset only describes parking spaces accessible to the general public, with barrier entrance."
 
 #, elixir-format
 msgid "category"

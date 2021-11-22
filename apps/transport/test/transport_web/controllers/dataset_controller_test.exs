@@ -40,4 +40,20 @@ defmodule TransportWeb.DatasetControllerTest do
     # Passing the previous `ETag` value in a new HTTP request returns a 304
     conn |> recycle() |> put_req_header("if-none-match", etag) |> get(path) |> response(304)
   end
+
+  test "the search custom message gets displayed", %{conn: conn} do
+    conn = conn |> get(dataset_path(conn, :index, type: "public-transit"))
+    html = html_response(conn, 200)
+    doc = Floki.parse_document!(html)
+    [msg] = Floki.find(doc, "#custom-message")
+    # extract from the category "public-transit" fr message :
+    assert(Floki.text(msg) =~ "Les jeux de données référencés dans cette catégorie")
+  end
+
+  test "the search custom message is not displayed", %{conn: conn} do
+    conn = conn |> get(dataset_path(conn, :index, type: "inexistant"))
+    html = html_response(conn, 200)
+    doc = Floki.parse_document!(html)
+    assert [] == Floki.find(doc, "#custom-message")
+  end
 end
