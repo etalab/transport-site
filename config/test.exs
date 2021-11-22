@@ -27,8 +27,7 @@ config :transport,
   ex_aws_impl: Transport.ExAWS.Mock,
   httpoison_impl: Transport.HTTPoison.Mock,
   history_impl: Transport.History.Fetcher.Mock,
-  gtfs_validator: Validation.Validator.Mock,
-  custom_search_messages: {Transport.CustomSearchMessage.Test, :messages}
+  gtfs_validator: Validation.Validator.Mock
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"

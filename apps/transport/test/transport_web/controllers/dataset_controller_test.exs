@@ -44,12 +44,16 @@ defmodule TransportWeb.DatasetControllerTest do
   test "the search custom message gets displayed", %{conn: conn} do
     conn = conn |> get(dataset_path(conn, :index, type: "public-transit"))
     html = html_response(conn, 200)
-    assert html =~ "message personnalisé !"
+    doc = Floki.parse_document!(html)
+    [msg] = Floki.find(doc, "#custom-message")
+    # extract from the category "public-transit" fr message :
+    assert(Floki.text(msg) =~ "Les jeux de données référencés dans cette catégorie")
   end
 
   test "the search custom message is not displayed", %{conn: conn} do
     conn = conn |> get(dataset_path(conn, :index, type: "inexistant"))
     html = html_response(conn, 200)
-    refute html =~ "message personnalisé !"
+    doc = Floki.parse_document!(html)
+    assert [] == Floki.find(doc, "#custom-message")
   end
 end

@@ -20,7 +20,6 @@ defmodule Transport.Application do
         {Cachex, name: @cache_name},
         supervisor(TransportWeb.Endpoint, []),
         supervisor(ImportDataWorker, []),
-        {CustomSearchMessage, load_messages_func: Application.get_env(:transport, :custom_search_messages)},
         CSVDocuments,
         SearchCommunes,
         {Phoenix.PubSub, [name: TransportWeb.PubSub, adapter: Phoenix.PubSub.PG2]}
