@@ -11,6 +11,8 @@
                 <th alt="Time To Live (durée en secondes de conservation dans le cache">TTL</th>
                 <th>Taille RAM</th>
                 <th>Statut HTTP</th>
+                <th>Req externes</th>
+                <th>Req internes</th>
             </tr>
         </thead>
         <tbody>
@@ -24,6 +26,9 @@
                 <!-- optional stuff, only available when cache is loaded -->
                 <td><%= resource[:cache_size] %></td>
                 <td><%= resource[:cache_status] %></td>
+                <!-- computed stuff -->
+                <td><%= resource[:stats_external_requests] %></td>
+                <td><%= resource[:stats_internal_requests] %></td>
             </tr>
             <% end %>
         </tbody>

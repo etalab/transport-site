@@ -65,7 +65,36 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
   defp config_module, do: Application.fetch_env!(:unlock, :config_fetcher)
 
+  defmodule Stats do
+    @moduledoc """
+    A quick stat module to compute the total count of event per identifier/event
+    for the last N days
+    """
+    import Ecto.Query
+
+    def compute(days \\ 7) do
+      date_from = DateTime.add(DateTime.utc_now(), -days * 24 * 60 * 60, :second)
+
+      from(m in DB.ProxyMetric,
+        group_by: [m.resource_identifier, m.event],
+        where: m.period >= ^date_from,
+        select: %{count: sum(m.count), identifier: m.resource_identifier, event: m.event}
+      )
+      |> DB.Repo.all()
+    end
+  end
+
   defp get_proxy_configuration(proxy_base_url) do
+    # NOTE: if the stats query becomes too costly, we will be able to throttle it every N seconds instead,
+    # using a simple cache.
+    stats =
+      Stats.compute()
+      |> Enum.group_by(fn x -> x[:identifier] end)
+      |> Enum.into(%{}, fn {k, v} ->
+        v = Enum.into(v, %{}, fn x -> {x[:event], x[:count]} end)
+        {k, v}
+      end)
+
     config_module().fetch_config!()
     |> Map.values()
     |> Enum.sort_by(& &1.identifier)
@@ -77,7 +106,17 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
         ttl: resource.ttl
       }
       |> add_cache_state()
+      |> add_stats(stats)
     end)
+  end
+
+  defp add_stats(item, stats) do
+    counts = stats[item.unique_slug] || %{}
+
+    Map.merge(item, %{
+      stats_external_requests: Map.get(counts, "proxy:request:external", 0),
+      stats_internal_requests: Map.get(counts, "proxy:request:internal", 0)
+    })
   end
 
   defp add_cache_state(item) do
