@@ -14,6 +14,10 @@ defmodule Transport.Telemetry do
     Logger.info("Telemetry event: processing #{type} proxy request for #{identifier} data")
   end
 
+
+  @doc """
+  Attach the required handles. To be called at application start.
+  """
   def setup() do
     :ok =
       :telemetry.attach_many(
