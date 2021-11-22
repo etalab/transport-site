@@ -11,8 +11,12 @@ defmodule Transport.Telemetry do
 
   """
   def handle_event(event = [:proxy, :request, type], _measurements, %{identifier: identifier}, _config) do
-    Logger.info("Telemetry event: processing #{type} proxy request for #{identifier} data")
-    count_event(identifier, event |> Enum.join(":"))
+    # make it non-blocking, to ensure the traffic will be served quickly. this also means, though, we
+    # won't notice if a tracing of event fails
+    Task.start(fn ->
+      Logger.info("Telemetry event: processing #{type} proxy request for #{identifier} data")
+      count_event(identifier, event |> Enum.join(":"))
+    end)
   end
 
   def truncate_datetime_to_minute(datetime) do
