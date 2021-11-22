@@ -25,7 +25,12 @@
         Ils nous renseignent notamment sur la position des arrêts, les parcours, les horaires de passage des véhicules.
 
         Deux standards de données peuvent être utilisés : le format [GTFS](https://developers.google.com/transit/gtfs?hl=fr) ou le format [NeTEx](http://netex-cen.eu/).
-    en:
+    en: |
+        The datasets referenced in this category contain information for describing public transport networks. 
+        
+        They inform us in particular about the position of the stops, the routes, the times of passage of the vehicles.
+        
+        Two data standards can be used: the [GTFS format](https://developers.google.com/transit/gtfs) or the [NeTEx format](http://netex-cen.eu/).
 
 
 - category: real-time
@@ -41,7 +46,13 @@
         Ils peuvent  nous renseigner sur l’état du trafic, l’horaire de passage réel d’un véhicule ou même de sa position en temps-réel.
 
         Deux standards de données peuvent être utilisés : le format [GTFS-RT](https://developers.google.com/transit/gtfs-realtime?hl=fr) ou le format [SIRI](https://www.siri-cen.eu/).
-    en:
+    en: |
+        The datasets referenced in this category contain information flows describing in real time the state of public transport networks.
+        
+        They can tell us about traffic conditions, a vehicle's actual passage time or even its position in real time.
+        
+        Two data standards can be used: the [GTFS-RT format](https://developers.google.com/transit/gtfs-realtime) or the [SIRI format](https://www.siri-cen.eu/).
+
 
 
 - category: road-network
@@ -54,8 +65,13 @@
 
         À ce jour, les seules informations disponibles de manière ouverte portent sur le réseau routier principal (autoroutes et routes nationales).
 
-        L’équipe de transport.data.gouv.fr travaille au référencement de nouveaux jeux de données permettant de cartographier le réseau routier secondaire.
-    en:
+        L’équipe de transport.data.gouv.fr travaille au référencement de nouveaux jeux de données permettant de cartographier le réseau routier secondaire comme la [BD Topo de l’IGN](https://geoservices.ign.fr/documentation/donnees/vecteur/bdtopo).
+    en: |
+        The mapping of the national road network is carried out by different organizations. 
+        
+        To date, only information is available in an open manner, information on the main road network (motorways and national roads). 
+        
+        The transport.data.gouv.fr team is working on referencing new datasets to map the secondary road network, such as the [IGN’s BD Topo](https://geoservices.ign.fr/documentation/donnees/vecteur/bdtopo).
 
 
 - category: addresses
