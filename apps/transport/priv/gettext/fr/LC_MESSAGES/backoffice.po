@@ -231,3 +231,7 @@ msgstr "Configuration du proxy"
 #, elixir-format
 msgid "Update all AOMs"
 msgstr "Mettre à jour toutes les AOMs"
+
+#, elixir-format
+msgid "Jobs"
+msgstr "Jobs"

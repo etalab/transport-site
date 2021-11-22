@@ -212,8 +212,37 @@ defmodule TransportWeb.DatasetView do
   defp add_order_by(kwargs, %{"order_by" => order}), do: Keyword.put(kwargs, :order_by, order)
   defp add_order_by(kwargs, _), do: kwargs
 
+  def gbfs_validation_link(%Resource{format: "gbfs"} = r) do
+    # credo:disable-for-lines:2 Credo.Check.Refactor.PipeChainStart
+    Application.fetch_env!(:transport, :gbfs_validator_website)
+    |> URI.parse()
+    |> Map.put(:query, URI.encode_query(%{url: r.url}))
+    |> URI.to_string()
+  end
+
+  def gbfs_documentation_link(version) when is_binary(version) do
+    "https://github.com/NABSA/gbfs/blob/v#{version}/gbfs.md"
+  end
+
+  def gbfs_feed_source_for_ttl(%Resource{format: "gbfs", metadata: %{"types" => types}}) do
+    feed_name = Transport.GBFSMetadata.feed_to_use_for_ttl(types)
+    if feed_name, do: feed_name, else: "root"
+  end
+
+  def summary_class(%{format: "gbfs", metadata: %{"validation" => %{"has_errors" => false}}}),
+    do: "resource__summary--Success"
+
+  def summary_class(%{format: "gbfs", metadata: %{}}), do: "resource__summary--Error"
+
+  # For GTFS resources
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
   def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
+
+  def errors_count(%Resource{format: "gbfs", metadata: %{"validation" => %{"errors_count" => nb_errors}}})
+      when nb_errors >= 0,
+      do: nb_errors
+
+  def errors_count(%Resource{format: "gbfs"}), do: nil
 
   def outdated_class(resource) do
     case Resource.is_outdated?(resource) do
