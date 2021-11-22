@@ -52,7 +52,7 @@ defmodule Transport.DataChecker do
     end
     |> Enum.reject(fn {_, d} -> d == [] end)
     |> send_outdated_data_mail(blank)
-    |> send_outdated_data_notifications(blank)
+    |> Enum.map(fn x -> send_outdated_data_notifications(x, blank) end)
 
     # |> post_outdated_data_comments(blank)
   end
@@ -83,15 +83,15 @@ defmodule Transport.DataChecker do
     )
   end
 
-  def send_outdated_data_notifications({delay, datasets}, is_blank) do
+  def send_outdated_data_notifications({delay, datasets} = payload, is_blank) do
     notifications_config = Transport.Notifications.config()
 
     datasets
-    |> Enum.map(fn dataset ->
+    |> Enum.each(fn dataset ->
       emails = Transport.Notifications.emails_for_reason(notifications_config, :expiration, dataset)
 
       emails
-      |> Enum.map(fn email ->
+      |> Enum.each(fn email ->
         Client.send_mail(
           "transport.data.gouv.fr",
           Application.get_env(:transport, :contact_email),
@@ -105,15 +105,20 @@ defmodule Transport.DataChecker do
 
           #{link_and_name(dataset)}
 
-          Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour. N'hésitez pas à consulter la documentation pour mettre à jour vos données #{@update_data_doc_link}.
+          Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour. Veuillez anticiper vos prochaines mises à jour. N'hésitez pas à consulter la documentation pour mettre à jour vos données #{@update_data_doc_link}.
 
           L’équipe transport.data.gouv.fr
+
+          ---
+          Si vous souhaitez modifier ou supprimer ces alertes, merci de nous envoyer un e-mail à #{Application.get_env(:transport, :contact_email)}.
           """,
           "",
           is_blank
         )
       end)
     end)
+
+    payload
   end
 
   defp make_str({delay, datasets}) do

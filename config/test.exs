@@ -30,7 +30,8 @@ config :transport,
   history_impl: Transport.History.Fetcher.Mock,
   gtfs_validator: Validation.Validator.Mock,
   gbfs_validator_impl: Shared.Validation.GBFSValidator.Mock,
-  rambo_impl: Transport.Rambo.Mock
+  rambo_impl: Transport.Rambo.Mock,
+  notifications_impl: Transport.Notifications.FetcherMock
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"
@@ -39,7 +40,7 @@ config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.Mock
 
 # capture all info logs and up during tests
-config :logger, level: :info
+config :logger, level: :debug
 
 # ... but show only warnings and up on the console
 config :logger, :console,
