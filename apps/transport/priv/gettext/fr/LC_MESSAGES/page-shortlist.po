@@ -182,10 +182,6 @@ msgid "Order by"
 msgstr "Trier par"
 
 #, elixir-format
-msgid "here"
-msgstr "ici"
-
-#, elixir-format
 msgid "Get dataset list via an API"
 msgstr "Récupérer la liste des jeux de données via l'API"
 
@@ -200,14 +196,6 @@ msgstr "Il n'y a pas de données disponibles pour la ville %{name}"
 #, elixir-format
 msgid "There is no data for region %{name}"
 msgstr "Il n'y a pas de données disponibles pour la région %{name}"
-
-#, elixir-format
-msgid "More information about realtime"
-msgstr "Plus d'informations et d'autres jeux de données temps réel"
-
-#, elixir-format
-msgid "The french addresses are available in the %{start_link}BAN%{end_link}, a dataset produced by the Institut géographique national (IGN), La Poste, Etalab and various administrations"
-msgstr "Les données d’adresses françaises sont disponibles dans le jeu de données de la %{start_link}BAN%{end_link}, produit par l’Institut géographique national (IGN), La Poste, Etalab et diverses administrations"
 
 #, elixir-format
 msgid "Data type"
@@ -250,14 +238,6 @@ msgstr "commune"
 #, elixir-format
 msgid "Regions"
 msgstr "Régions"
-
-#, elixir-format
-msgid "Data for private car-parks in France are produced by different local authorities or parking operators. These data, when published in a normalized format described here, are aggregated into a national dataset called %{start_link}“Base Nationale des Lieux de Stationnement” (BNLS)%{end_link}."
-msgstr "Les données concernant le stationnement hors-voirie en France sont produites par différentes collectivités et gestionnaires de parking. Ces données, lorsqu’elles sont normalisées, sont assemblées et consolidées dans un jeu de données national : la %{start_link}Base Nationale des Lieux de Stationnement (BNLS)%{end_link}."
-
-#, elixir-format
-msgid "parking spaces text"
-msgstr "Cette base ne référence que les parkings accessibles au public dont l’accès est limité par une barrière."
 
 #, elixir-format
 msgid "category"
