@@ -16,7 +16,8 @@ defmodule TransportWeb.ResourceController do
       |> Repo.get!(id)
       |> Repo.preload([:validation, dataset: [:resources]])
 
-    case Resource.has_metadata?(resource) do
+      # for the moment, only gtfs have a dedicated resource details page
+    case Resource.has_metadata?(resource) && Resource.is_gtfs?(resource) do
       false ->
         conn |> put_status(:not_found) |> put_view(ErrorView) |> render("404.html")
 
