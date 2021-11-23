@@ -13,7 +13,6 @@
 #     value:
 #       - ferry
 
-
 - category: real-time
   search_params:
     - key: type
@@ -110,3 +109,92 @@
         These data, when published in a normalized format described [here](https://schema.data.gouv.fr/etalab/schema-stationnement/latest.html), are aggregated into a national dataset called [Base Nationale des Lieux de Stationnement (BNLS)](https://transport.data.gouv.fr/datasets/base-nationale-des-lieux-de-stationnement/).
 
         This dataset only describes parking spaces accessible to the general public, with barrier entrance. Other datasets referenced here can have a broader definition and might include freely accessible car-parks, (ie. with no entrance barrier), in addition to the parking spaces with barrier entrance included in the “Base Nationale des Lieux de Stationnement” (BNLS).
+
+- category: carpooling-area
+  search_params:
+    - key: type
+      value: carpooling-area
+  msg:
+    fr: |
+        Les jeux de données de cette catégorie décrivent les aires de covoiturage en France.
+
+        Ces données respectent le [schéma national des aires de covoiturage](https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/).
+
+    en: |
+        The datasets in this category describe carpooling areas in France.
+
+        These data comply with the [national schema for carpooling areas](https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/).
+
+- category: bike-scooter-sharing
+  search_params:
+    - key: type
+      value: bike-scooter-sharing
+  msg:
+    fr: |
+        Les jeux de données référencés dans cette catégorie contiennent des flux d’information décrivant des flottes de vélos ou de trottinettes en libre service en station ou en freefloating.
+
+        Ces données sont disponibles en temps réel pour connaître la position des véhicules ou le taux de remplissage des stations.
+
+        Le standard utilisé est le [GBFS](https://github.com/NABSA/gbfs).
+
+    en: |
+        The datasets referenced in this category contain information flows describing fleets of self-service bicycles or scooters in stations or in freefloating.
+
+        These data are available in real time to know the position of vehicles or the filling rate of stations.
+
+        The standard used is [GBFS](https://github.com/NABSA/gbfs).
+
+- category: charging-stations
+  search_params:
+    - key: type
+      value: charging-stations
+  msg:
+    fr: |
+        Les jeux de données de cette catégorie décrivent les bornes de recharge électriques.
+
+        Ces données respectent le [schéma national des infrastructures de recharge pour véhicules électriques (IRVE)](https://schema.data.gouv.fr/etalab/schema-irve/).
+
+        La Base Nationale des IRVE regroupe l'ensemble des données publiées conformes au schéma v2 dans une base nationale. Elle est en cours de construction et ne regroupe à ce jour (novembre 2021) que 5000 bornes sur les 20000 bornes installées en France.
+
+
+    en: |
+        The datasets in this category describe electric charging stations.
+
+        These data comply with the [national schema for recharging infrastructure for electric vehicles (IRVE)](https://schema.data.gouv.fr/etalab/schema-irve/).
+
+        The National IRVE database brings together all the published data in accordance with the v2 schema in a national database. It is under construction and to date (November 2021) only includes 5,000 terminals out of the 20,000 terminals installed in France.
+
+- category: rail
+  search_params:
+    - key: modes
+      value:
+        - rail
+  msg:
+    fr: |
+        Cette catégorie contient les données de transports en commun décrivant l’offre de transport des réseaux ferrés nationaux et régionaux.
+
+        Deux standards de données peuvent être utilisés : le format [GTFS](https://developers.google.com/transit/gtfs?hl=fr) ou le format [NeTEx](http://netex-cen.eu/).
+
+
+    en: |
+        This category contains public transport data describing the transport offer of national and regional rail networks.
+
+        Two data standards can be used: the [GTFS format](https://developers.google.com/transit/gtfs) or the [NeTEx format](http://netex-cen.eu/).
+
+- category: ferry
+  search_params:
+    - key: modes
+      value:
+        - ferry
+  msg:
+    fr: |
+        Les jeux de données cette catégorie décrivent l’offre de transport de réseaux maritimes et fluviaux.
+
+        Deux standards de données peuvent être utilisés : le format [GTFS](https://developers.google.com/transit/gtfs?hl=fr) ou le format [NeTEx](http://netex-cen.eu/).
+
+    en: |
+        This category contains public transport data describing the transport offer of national and regional rail networks.
+
+        Two data standards can be used: the [GTFS format](https://developers.google.com/transit/gtfs) or the [NeTEx format](http://netex-cen.eu/).
+
+
