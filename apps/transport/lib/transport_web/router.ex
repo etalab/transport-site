@@ -101,13 +101,16 @@ defmodule TransportWeb.Router do
       # for live views, so an explicit call is needed
       # See https://hexdocs.pm/phoenix_live_view/live-layouts.html
 
-      # TODO: replace session by on_mount
-      live_session :backoffice, root_layout: {TransportWeb.LayoutView, :app} do
-        live("/proxy-config", ProxyConfigLive,
-          session: {TransportWeb.Backoffice.ProxyConfigLive, :build_session, []}
-        )
+      live_session :backoffice_proxy_config,
+        root_layout: {TransportWeb.LayoutView, :app},
+        session: {TransportWeb.Backoffice.ProxyConfigLive, :build_session, []} do
+        live("/proxy-config", ProxyConfigLive)
+      end
 
-        live("/jobs", JobsLive, session: {TransportWeb.Backoffice.JobsLive, :build_session, []})
+      live_session :backoffice_jobs,
+        root_layout: {TransportWeb.LayoutView, :app},
+        session: {TransportWeb.Backoffice.JobsLive, :build_session, []} do
+        live("/jobs", JobsLive)
       end
 
       get("/import_aoms", PageController, :import_all_aoms)
