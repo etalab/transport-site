@@ -1,7 +1,7 @@
 defmodule TransportWeb.ResourceControllerTest do
   use TransportWeb.ConnCase, async: false
   use TransportWeb.DatabaseCase, cleanup: [:datasets], async: false
-  alias DB.{AOM, Dataset, Resource}
+  alias DB.{AOM, Dataset, Resource, Validation}
   import Plug.Test
   import Mox
 
@@ -16,7 +16,19 @@ defmodule TransportWeb.ResourceControllerTest do
           },
           %Resource{
             url: "http://link.to/angers.zip",
-            datagouv_id: "2"
+            datagouv_id: "2",
+            validation: %Validation{
+              details: %{},
+              max_error: "Info"
+            },
+            metadata: %{"networks" => [], "modes" => []},
+            format: "GTFS"
+          },
+          %Resource{
+            url: "http://link.to/gbfs",
+            datagouv_id: "3",
+            metadata: %{"versions" => ["2.2"]},
+            format: "gbfs"
           }
         ],
         aom: %AOM{id: 4242, nom: "Angers Métropôle"}
@@ -39,10 +51,24 @@ defmodule TransportWeb.ResourceControllerTest do
     end
   end
 
-  test "resource without metadata send back a 404", %{conn: conn} do
+  test "resource without metadata sends back a 404", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "1")
     refute is_nil(resource)
     assert is_nil(resource.metadata)
+    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(404) |> assert =~ "404"
+  end
+
+  test "GTFS resource with metadata sends back a 200", %{conn: conn} do
+    resource = Resource |> Repo.get_by(datagouv_id: "2")
+    assert resource.format == "GTFS"
+    refute is_nil(resource.metadata)
+    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+  end
+
+  test "GBFS resource with metadata sends back a 404", %{conn: conn} do
+    resource = Resource |> Repo.get_by(datagouv_id: "3")
+    refute resource.format == "GTFS"
+    refute is_nil(resource.metadata)
     conn |> get(resource_path(conn, :details, resource.id)) |> html_response(404) |> assert =~ "404"
   end
 
