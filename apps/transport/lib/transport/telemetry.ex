@@ -24,15 +24,15 @@ defmodule Transport.Telemetry do
     end)
   end
 
-  def truncate_datetime_to_minute(datetime) do
-    %{DateTime.truncate(datetime, :second) | second: 0}
+  def truncate_datetime_to_hour(datetime) do
+    %{DateTime.truncate(datetime, :second) | second: 0, minute: 0}
   end
 
   @doc """
   Atomically upsert a count record in the database.
   """
   def count_event(target, event, period \\ DateTime.utc_now()) do
-    period = truncate_datetime_to_minute(period)
+    period = truncate_datetime_to_hour(period)
 
     DB.Repo.insert!(
       %DB.Metrics{target: target, event: event, period: period, count: 1},
