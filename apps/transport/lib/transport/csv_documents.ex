@@ -21,11 +21,17 @@ defmodule Transport.CSVDocuments do
     Agent.get(__MODULE__, & &1.reusers)
   end
 
+  @spec facilitators :: [binary()]
+  def facilitators do
+    Agent.get(__MODULE__, & &1.facilitators)
+  end
+
   @spec load_documents :: map()
   defp load_documents do
     %{
       real_time_providers: read_csv("real_time_providers.csv"),
-      reusers: read_csv("reusers.csv")
+      reusers: read_csv("reusers.csv"),
+      facilitators: read_csv("facilitators.csv")
     }
   end
 

@@ -282,7 +282,23 @@
         <p class="text-center"><%= dgettext("page-index", "reusers list description") %> <a href=""><%= link(dgettext("page-index", "Learn more"), to: "https://doc.transport.data.gouv.fr/reutilisateurs/outils-pour-les-reutilisateurs") %></a>.</p>
       </div>
     </section>
-    <section class="section section-grey mailing-list" id="mailing-list">
+    <section class="section section-grey reusers">
+      <div class="container">
+        <h2 class="text-center"><%= dgettext("page-index", "They help us in our mission") %> 🙏‍</h2>
+        <div class="reusers__logos">
+          <%= for facilitator <- @facilitators do %>
+            <%= link(
+                img_tag(static_path(@conn, "/images/logos/#{facilitator["image"]}"), alt: facilitator["name"]),
+                to: facilitator["website"]
+            )
+            %>
+          <% end %>
+        </div>
+        <% link_facilitators =  safe_to_string(link(dgettext("page-index", "complete list"), to: "https://doc.transport.data.gouv.fr/notre-ecosysteme/les-facilitateurs")) %>
+        <p class="text-center"><%= raw(dgettext("page-index", "facilitators list description, %{link}", link: link_facilitators)) %>. </p>
+      </div>
+    </section>
+    <section class="section mailing-list" id="mailing-list">
       <%= render "join_the_community.html", conn: @conn, mailchimp_newsletter_url: @mailchimp_newsletter_url %>
     </section>
     <script src="<%= static_path(@conn, "/js/autocomplete.js") %>"></script>

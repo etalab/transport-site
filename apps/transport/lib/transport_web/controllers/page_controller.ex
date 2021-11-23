@@ -28,7 +28,8 @@ defmodule TransportWeb.PageController do
       count_regions_completed: count_regions_completed(),
       count_public_transport_has_realtime: Dataset.count_public_transport_has_realtime(),
       percent_population: percent_population(),
-      reusers: CSVDocuments.reusers()
+      reusers: CSVDocuments.reusers(),
+      facilitators: CSVDocuments.facilitators()
     ]
   end
 
