@@ -35,7 +35,6 @@ defmodule Transport.Mixfile do
       mod: {Transport.Application, []},
       extra_applications: [
         :logger,
-        :mime,
         :unidecode,
         :phoenix_ecto
       ]
