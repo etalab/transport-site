@@ -100,16 +100,15 @@ defmodule TransportWeb.Router do
       # NOTE: by default no layout are automatically picked at time of writing
       # for live views, so an explicit call is needed
       # See https://hexdocs.pm/phoenix_live_view/live-layouts.html
-      live("/proxy-config", ProxyConfigLive,
-        layout: {TransportWeb.LayoutView, :app},
-        session: {TransportWeb.Backoffice.ProxyConfigLive, :build_session, []}
-      )
 
-      live("/jobs", JobsLive,
-        layout: {TransportWeb.LayoutView, :app},
-        # Will likely be removable once https://github.com/etalab/transport-site/issues/1899 is tackled
-        session: {TransportWeb.Backoffice.JobsLive, :build_session, []}
-      )
+      # TODO: replace session by on_mount
+      live_session :backoffice, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/proxy-config", ProxyConfigLive,
+          session: {TransportWeb.Backoffice.ProxyConfigLive, :build_session, []}
+        )
+
+        live("/jobs", JobsLive, session: {TransportWeb.Backoffice.JobsLive, :build_session, []})
+      end
 
       get("/import_aoms", PageController, :import_all_aoms)
 
