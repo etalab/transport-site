@@ -6,7 +6,7 @@ defmodule DB.ProxyMetric do
   use Ecto.Schema
   use TypedEctoSchema
 
-  typed_schema "proxy_metrics" do
+  typed_schema "metrics" do
     field(:resource_identifier, :string)
     field(:event, :string)
     field(:period, :utc_datetime)
