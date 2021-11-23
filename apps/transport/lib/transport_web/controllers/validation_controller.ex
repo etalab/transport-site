@@ -12,9 +12,7 @@ defmodule TransportWeb.ValidationController do
     render(conn, "index.html")
   end
 
-  def validate(%Plug.Conn{} = conn, %{"upload" => upload_params}) do
-    file_path = upload_params["file"].path
-
+  def validate(%Plug.Conn{} = conn, %{"upload" => %{"file" => %{path: file_path}}}) do
     with {:ok, gtfs} <- File.read(file_path),
          {:ok, %{"validations" => validations, "metadata" => metadata}} <- GtfsValidator.validate(gtfs) do
       data_vis = DataVisualization.validation_data_vis(validations)
@@ -39,6 +37,13 @@ defmodule TransportWeb.ValidationController do
         |> put_flash(:error, dgettext("validations", "Unable to validate file"))
         |> redirect(to: validation_path(conn, :index))
     end
+  end
+
+  def validate(conn, _) do
+    conn
+    |> put_status(:bad_request)
+    |> put_view(ErrorView)
+    |> render("400.html")
   end
 
   def show(%Plug.Conn{} = conn, %{} = params) do
