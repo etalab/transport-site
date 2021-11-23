@@ -267,10 +267,10 @@
         </div>
       </div>
     </section>
-    <section class="section reusers">
+    <section class="section companies">
       <div class="container">
         <h2 class="text-center"><%= dgettext("page-index", "Who is reusing data from") %> transport.data.gouv.fr ?</h2>
-        <div class="reusers__logos">
+        <div class="companies__logos">
           <%= for reuser <- @reusers do %>
             <%= link(
                 img_tag(static_path(@conn, "/images/logos/#{reuser["image"]}"), alt: reuser["name"]),
@@ -282,10 +282,10 @@
         <p class="text-center"><%= dgettext("page-index", "reusers list description") %> <a href=""><%= link(dgettext("page-index", "Learn more"), to: "https://doc.transport.data.gouv.fr/reutilisateurs/outils-pour-les-reutilisateurs") %></a>.</p>
       </div>
     </section>
-    <section class="section section-grey reusers">
+    <section class="section section-grey companies">
       <div class="container">
         <h2 class="text-center"><%= dgettext("page-index", "They help us in our mission") %> 🙏‍</h2>
-        <div class="reusers__logos">
+        <div class="companies__logos">
           <%= for facilitator <- @facilitators do %>
             <%= link(
                 img_tag(static_path(@conn, "/images/logos/#{facilitator["image"]}"), alt: facilitator["name"]),
