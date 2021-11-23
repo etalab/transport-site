@@ -10,7 +10,12 @@ defmodule Transport.Telemetry do
   process (or a pool of processes) by sending a message. "
 
   """
-  def handle_event(event = [:proxy, :request, type], _measurements, %{identifier: identifier}, _config) do
+  def handle_event(
+        event = [:proxy, :request, type],
+        _measurements,
+        %{identifier: identifier},
+        _config
+      ) do
     # make it non-blocking, to ensure the traffic will be served quickly. this also means, though, we
     # won't notice if a tracing of event fails
     Task.start(fn ->
