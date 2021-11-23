@@ -65,8 +65,12 @@ defmodule Unlock.Controller do
   # RAM consumption
   @max_allowed_cached_byte_size 20 * 1024 * 1024
 
+  defp trace_request(item_identifier, request_type) do
+    :telemetry.execute([:proxy, :request, request_type], %{}, %{identifier: item_identifier})
+  end
+
   defp process_resource(conn, item) do
-    :telemetry.execute([:proxy, :request, :external], %{}, %{identifier: item.identifier})
+    trace_request(item.identifier, :external)
     response = fetch_remote(item)
 
     response.headers
@@ -82,7 +86,7 @@ defmodule Unlock.Controller do
     comp_fn = fn _key ->
       Logger.info("Processing proxy request for identifier #{item.identifier}")
       try do
-        :telemetry.execute([:proxy, :request, :internal], %{}, %{identifier: item.identifier})
+        trace_request(item.identifier, :internal)
         response = Unlock.HTTP.Client.impl().get!(item.target_url, item.request_headers)
         size = byte_size(response.body)
         if size > @max_allowed_cached_byte_size do
