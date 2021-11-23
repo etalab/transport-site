@@ -17,7 +17,7 @@ defmodule Transport.TelemetryTest do
                count: 2,
                event: "proxy:request:internal",
                period: ~U[2021-11-22 14:28:00Z],
-               resource_identifier: "id-001"
+               target: "id-001"
              }
            ] = stored_events()
   end
@@ -31,13 +31,13 @@ defmodule Transport.TelemetryTest do
                count: 1,
                event: "proxy:request:internal",
                period: ~U[2021-11-22 14:28:00Z],
-               resource_identifier: "id-001"
+               target: "id-001"
              },
              %{
                count: 1,
                event: "proxy:request:internal",
                period: ~U[2021-11-22 14:29:00Z],
-               resource_identifier: "id-001"
+               target: "id-001"
              }
            ] = stored_events()
   end

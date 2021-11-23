@@ -7,7 +7,7 @@ defmodule DB.Metrics do
   use TypedEctoSchema
 
   typed_schema "metrics" do
-    field(:resource_identifier, :string)
+    field(:target, :string)
     field(:event, :string)
     field(:period, :utc_datetime)
     field(:count, :integer)

@@ -30,9 +30,9 @@ defmodule Transport.Telemetry do
     period = truncate_datetime_to_minute(period)
 
     DB.Repo.insert!(
-      %DB.Metrics{resource_identifier: identifier, event: event, period: period, count: 1},
+      %DB.Metrics{target: identifier, event: event, period: period, count: 1},
       returning: [:count],
-      conflict_target: [:resource_identifier, :event, :period],
+      conflict_target: [:target, :event, :period],
       on_conflict: [inc: [count: 1]]
     )
   end

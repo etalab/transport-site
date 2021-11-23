@@ -76,9 +76,9 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
       date_from = DateTime.add(DateTime.utc_now(), -days * 24 * 60 * 60, :second)
 
       from(m in DB.Metrics,
-        group_by: [m.resource_identifier, m.event],
+        group_by: [m.target, m.event],
         where: m.period >= ^date_from,
-        select: %{count: sum(m.count), identifier: m.resource_identifier, event: m.event}
+        select: %{count: sum(m.count), identifier: m.target, event: m.event}
       )
       |> DB.Repo.all()
     end
