@@ -51,9 +51,9 @@ defmodule Transport.Mixfile do
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 1.8.0"},
       {:phoenix, "~> 1.5.7"},
-      {:phoenix_html, "~> 2.13"},
+      {:phoenix_html, "~> 3.1"},
       {:phoenix_markdown, "~> 1.0"},
-      {:phoenix_live_view, "~> 0.15.0"},
+      {:phoenix_live_view, "~> 0.17.5"},
       {:html_sanitize_ex, "~> 1.4"},
       {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 2.3"},
@@ -62,8 +62,8 @@ defmodule Transport.Mixfile do
       {:timex, "~> 3.5"},
       {:sentry, "~> 8.0"},
       {:scrivener, "~> 2.5"},
-      # We'll use upstream again once https://github.com/mgwidmann/scrivener_html/pull/98 is merged
-      {:scrivener_html, git: "https://github.com/thbar/scrivener_html.git", branch: "phoenix_1.5"},
+      # We'll use upstream again once https://github.com/mgwidmann/scrivener_html/pull/97 is merged
+      {:scrivener_html, git: "https://github.com/thbar/scrivener_html.git", ref: "c579ed1"},
       {:scrivener_list, "~>2.0"},
       {:jason, "~> 1.1"},
       {:open_api_spex, "~> 3.8"},
