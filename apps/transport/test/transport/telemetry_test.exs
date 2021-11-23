@@ -6,7 +6,7 @@ defmodule Transport.TelemetryTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  def stored_events, do: DB.Repo.all(DB.ProxyMetric)
+  def stored_events, do: DB.Repo.all(DB.Metrics)
 
   test "aggregates same minute for a given identifier/event" do
     count_event("id-001", "proxy:request:internal", ~U[2021-11-22 14:28:06.098765Z])
