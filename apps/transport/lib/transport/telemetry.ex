@@ -13,14 +13,14 @@ defmodule Transport.Telemetry do
   def handle_event(
         event = [:proxy, :request, type],
         _measurements,
-        %{identifier: identifier},
+        %{target: target},
         _config
       ) do
     # make it non-blocking, to ensure the traffic will be served quickly. this also means, though, we
     # won't notice if a tracing of event fails
     Task.start(fn ->
-      Logger.info("Telemetry event: processing #{type} proxy request for #{identifier} data")
-      count_event(identifier, event |> Enum.join(":"))
+      Logger.info("Telemetry event: processing #{type} proxy request for #{target}")
+      count_event(target, event |> Enum.join(":"))
     end)
   end
 
@@ -31,11 +31,11 @@ defmodule Transport.Telemetry do
   @doc """
   Atomically upsert a count record in the database.
   """
-  def count_event(identifier, event, period \\ DateTime.utc_now()) do
+  def count_event(target, event, period \\ DateTime.utc_now()) do
     period = truncate_datetime_to_minute(period)
 
     DB.Repo.insert!(
-      %DB.Metrics{target: identifier, event: event, period: period, count: 1},
+      %DB.Metrics{target: target, event: event, period: period, count: 1},
       returning: [:count],
       conflict_target: [:target, :event, :period],
       on_conflict: [inc: [count: 1]]

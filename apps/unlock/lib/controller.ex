@@ -66,7 +66,9 @@ defmodule Unlock.Controller do
   @max_allowed_cached_byte_size 20 * 1024 * 1024
 
   defp trace_request(item_identifier, request_type) do
-    :telemetry.execute([:proxy, :request, request_type], %{}, %{identifier: item_identifier})
+    :telemetry.execute([:proxy, :request, request_type], %{}, %{
+      target: "proxy:#{item_identifier}"
+    })
   end
 
   defp process_resource(conn, item) do
