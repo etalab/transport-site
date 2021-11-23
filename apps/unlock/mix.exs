@@ -35,7 +35,7 @@ defmodule Unlock.MixProject do
 
   defp deps do
     [
-      {:phoenix, "~> 1.5.13"},
+      {:phoenix, "~> 1.6.2"},
       {:phoenix_html, "~> 3.1"},
       {:sentry, "~> 8.0"},
       # required indirectly by sentry

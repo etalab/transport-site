@@ -38,7 +38,7 @@ defmodule GBFS.MixProject do
     [
       {:cachex, "~> 3.4"},
       {:httpoison, "~> 1.8.0"},
-      {:phoenix, "~> 1.5.7"},
+      {:phoenix, "~> 1.6.2"},
       {:sweet_xml, ">= 0.0.0"},
       {:jason, ">= 0.0.0"},
       {:cors_plug, "~> 2.0"},

@@ -50,7 +50,7 @@ defmodule Transport.Mixfile do
       {:earmark, "~> 1.4"},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 1.8.0"},
-      {:phoenix, "~> 1.5.7"},
+      {:phoenix, "~> 1.6.2"},
       {:phoenix_html, "~> 3.1"},
       {:phoenix_markdown, "~> 1.0"},
       {:phoenix_live_view, "~> 0.17.5"},
