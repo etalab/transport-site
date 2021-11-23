@@ -12,7 +12,7 @@ defmodule Transport.Mixfile do
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       gettext: [{:write_reference_comments, false}],
-      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      compilers: [:gettext] ++ Mix.compilers(),
       preferred_cli_env: [
         vcr: :test,
         "vcr.delete": :test,
