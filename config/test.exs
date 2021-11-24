@@ -31,7 +31,8 @@ config :transport,
   gtfs_validator: Validation.Validator.Mock,
   gbfs_validator_impl: Shared.Validation.GBFSValidator.Mock,
   rambo_impl: Transport.Rambo.Mock,
-  notifications_impl: Transport.Notifications.FetcherMock
+  notifications_impl: Transport.Notifications.FetcherMock,
+  notifications_api_token: "secret"
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"
