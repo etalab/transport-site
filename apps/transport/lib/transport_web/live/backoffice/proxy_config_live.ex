@@ -4,6 +4,9 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   """
   use Phoenix.LiveView
 
+  # DRY declaration for the number of days we want to count on
+  @stats_days 7
+
   # Authentication is assumed to happen in regular HTTP land. Here we verify
   # the user presence + belonging to admin team, or redirect immediately.
   def mount(_params, session, socket) do
@@ -48,7 +51,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   defp update_data(socket) do
     assign(socket,
       last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
-      proxy_configuration: get_proxy_configuration(socket.assigns.proxy_base_url)
+      stats_days: @stats_days,
+      proxy_configuration: get_proxy_configuration(socket.assigns.proxy_base_url, @stats_days)
     )
   end
 
@@ -72,7 +76,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     """
     import Ecto.Query
 
-    def compute(days \\ 7) do
+    def compute(days) do
       date_from = DateTime.add(DateTime.utc_now(), -days * 24 * 60 * 60, :second)
 
       from(m in DB.Metrics,
@@ -84,11 +88,11 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     end
   end
 
-  defp get_proxy_configuration(proxy_base_url) do
+  defp get_proxy_configuration(proxy_base_url, stats_days) do
     # NOTE: if the stats query becomes too costly, we will be able to throttle it every N seconds instead,
     # using a simple cache.
     stats =
-      Stats.compute()
+      Stats.compute(stats_days)
       |> Enum.group_by(fn x -> x[:identifier] end)
       |> Enum.into(%{}, fn {k, v} ->
         v = Enum.into(v, %{}, fn x -> {x[:event], x[:count]} end)
