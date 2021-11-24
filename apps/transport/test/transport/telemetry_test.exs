@@ -4,6 +4,8 @@ defmodule Transport.TelemetryTest do
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    DB.Repo.delete_all(DB.Metrics)
+    :ok
   end
 
   def stored_events, do: DB.Repo.all(DB.Metrics)
