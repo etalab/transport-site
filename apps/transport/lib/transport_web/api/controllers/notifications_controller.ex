@@ -4,11 +4,9 @@ defmodule TransportWeb.API.NotificationsController do
 
   @spec clear_config_cache(Conn.t(), map()) :: Conn.t()
   def clear_config_cache(conn, _params) do
-    authorization = conn.req_headers |> Enum.into(%{}) |> Map.get("authorization")
+    expected_token = ["token #{secret_token()}"]
 
-    expected_token = "token #{secret_token()}"
-
-    case authorization do
+    case conn |> get_req_header("authorization") do
       ^expected_token ->
         notifications().clear_config_cache!()
         conn |> send_response(200)
