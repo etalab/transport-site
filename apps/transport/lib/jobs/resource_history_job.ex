@@ -2,7 +2,7 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
   @moduledoc """
   Job in charge of dispatching multiple `ResourceHistoryJob`
   """
-  use Oban.Worker, unique: [period: 60 * 60 * 5]
+  use Oban.Worker, unique: [period: 60 * 60 * 5], tags: ["history"]
   import Ecto.Query
   alias DB.{Repo, Resource}
 
@@ -42,14 +42,31 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   @moduledoc """
   Job historicising a single resource
   """
-  use Oban.Worker, unique: [period: 60 * 60 * 5]
-  import Logger
+  use Oban.Worker, unique: [period: 60 * 60 * 5], tags: ["history"]
+  require Logger
+  import Ecto.Query
   alias DB.{Repo, Resource}
 
   @impl Oban.Worker
-  def perform(%{id: id, args: %{"datagouv_id" => datagouv_id}}) do
-    Logger.info("Job for #{datagouv_id}")
+  def perform(%Oban.Job{args: %{"datagouv_id" => datagouv_id}}) do
+    Logger.info("Running ResourceHistoryJob for #{datagouv_id}")
+
+    download_resource(datagouv_id)
 
     :ok
+  end
+
+  defp download_resource(datagouv_id) do
+    resource = Resource |> where([r], r.datagouv_id == ^datagouv_id) |> Repo.one!()
+
+    file_path = System.tmp_dir!() |> Path.join("resource_#{datagouv_id}_download")
+
+    # TO DO stream file to disk
+    # TO DO verify headers (content-type) and maybe provide alerts to providers!
+    %{status: 200, body: body} = Unlock.HTTP.Client.impl().get!(resource.url, [])
+    Logger.debug("Saving resource #{datagouv_id} to #{file_path}")
+    File.write!(file_path, body)
+
+    file_path
   end
 end
