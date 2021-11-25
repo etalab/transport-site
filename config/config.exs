@@ -134,7 +134,7 @@ config :transport,
   notifications_impl: Transport.Notifications.GitHub,
   notifications_github_config_url: "https://raw.githubusercontent.com/etalab/transport-notifications/master/config.yml",
   notifications_github_auth_token: System.get_env("TRANSPORT_NOTIFICATIONS_CONFIG_GITHUB_TOKEN"),
-  notifications_api_token: System.get_env("TRANSPORT_NOTIFICATIONS_API_TOKEN", "")
+  notifications_api_token: System.get_env("TRANSPORT_NOTIFICATIONS_API_TOKEN")
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
