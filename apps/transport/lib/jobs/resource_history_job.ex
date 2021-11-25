@@ -8,6 +8,8 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
 
   @impl Oban.Worker
   def perform(_job) do
+    Transport.S3.create_bucket_if_needed!(:history)
+
     duplicates =
       Resource
       |> where([r], not is_nil(r.datagouv_id))
