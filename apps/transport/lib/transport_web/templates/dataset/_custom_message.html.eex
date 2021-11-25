@@ -1,0 +1,5 @@
+<div class="container" style="max-width: 700px;">
+  <div class="panel mb-24" id="custom-message">
+    <%= markdown_to_safe_html!(@conn.assigns[:category_custom_message]) %>
+  </div>
+</div>

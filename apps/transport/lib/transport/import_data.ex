@@ -589,6 +589,18 @@ defmodule Transport.ImportData do
       iex> %{"format" => "csv"}
       ...> |> ImportData.formated_format("public-transit", false)
       "GTFS"
+
+      iex> %{"url" => "https://example.com/gbfs.json"}
+      ...> |> ImportData.formated_format("bike-scooter-sharing", false)
+      "gbfs"
+
+      iex> %{"url" => "https://example.com/gbfs/v2"}
+      ...> |> ImportData.formated_format("bike-scooter-sharing", false)
+      "gbfs"
+
+      iex> %{"url" => "https://example.com/gbfs/free_bike_status.json", "format" => "json"}
+      ...> |> ImportData.formated_format("bike-scooter-sharing", false)
+      "json"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
   # credo:disable-for-next-line
@@ -603,7 +615,16 @@ defmodule Transport.ImportData do
       is_siri_lite?(format) -> "SIRI Lite"
       is_siri?(format) -> "SIRI"
       type == "public-transit" and not is_community_resource -> "GTFS"
+      type == "bike-scooter-sharing" and is_gbfs?(resource) -> "gbfs"
       true -> format
+    end
+  end
+
+  defp is_gbfs?(%{"url" => url}) do
+    if String.contains?(url, "gbfs") do
+      Enum.all?(["free_bike", "station"] |> Enum.map(fn w -> not String.contains?(url, w) end))
+    else
+      false
     end
   end
 

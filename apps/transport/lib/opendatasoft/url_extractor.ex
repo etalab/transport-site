@@ -89,7 +89,7 @@ defmodule Opendatasoft.UrlExtractor do
     filename_to_type(filename) == expected_type
   end
 
-  @doc ~S"""
+  @doc """
   Infers a resource's type from its filename.
 
   ## Examples
