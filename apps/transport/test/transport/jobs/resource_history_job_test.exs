@@ -12,6 +12,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
   setup :verify_on_exit!
 
+  @gtfs_path "#{__DIR__}/../../../../shared/test/validation/gtfs.zip"
+
   describe "ResourceHistoryDispatcherJob" do
     test "a simple successful case" do
       setup_s3_mocks()
@@ -61,6 +63,29 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert :ok == perform_job(ResourceHistoryDispatcherJob, %{})
       assert [%{args: %{"datagouv_id" => ^datagouv_id}}] = all_enqueued(worker: ResourceHistoryJob)
       refute_enqueued(worker: ResourceHistoryDispatcherJob)
+    end
+  end
+
+  describe "ResourceHistoryJob" do
+    test "a simple successful case" do
+      resource_url = "https://example.com/gtfs.zip"
+
+      %{datagouv_id: datagouv_id} =
+        insert(:resource,
+          url: resource_url,
+          format: "GTFS",
+          title: "title",
+          datagouv_id: "1",
+          is_community_resource: false
+        )
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, fn url, _headers ->
+        assert url == resource_url
+        %{status: 200, body: File.read!(@gtfs_path), headers: [{"content-type", "application/octet-stream"}]}
+      end)
+
+      assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
     end
   end
 

@@ -51,22 +51,40 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   def perform(%Oban.Job{args: %{"datagouv_id" => datagouv_id}}) do
     Logger.info("Running ResourceHistoryJob for #{datagouv_id}")
 
-    download_resource(datagouv_id)
+    {resource_path, headers} = download_resource(datagouv_id)
+
+    data = %{
+      zip_metadata: Transport.ZipMetaDataExtractor.extract!(resource_path),
+      http_headers: headers
+    }
 
     :ok
   end
 
+  @spec download_resource(binary()) :: {binary(), map()}
   defp download_resource(datagouv_id) do
     resource = Resource |> where([r], r.datagouv_id == ^datagouv_id) |> Repo.one!()
 
     file_path = System.tmp_dir!() |> Path.join("resource_#{datagouv_id}_download")
 
-    # TO DO stream file to disk
-    # TO DO verify headers (content-type) and maybe provide alerts to providers!
-    %{status: 200, body: body} = Unlock.HTTP.Client.impl().get!(resource.url, [])
+    %{status: 200, body: body, headers: headers} = Unlock.HTTP.Client.impl().get!(resource.url, [])
     Logger.debug("Saving resource #{datagouv_id} to #{file_path}")
     File.write!(file_path, body)
 
-    file_path
+    relevant_headers = headers |> Enum.into(%{}) |> Map.take(relevant_http_headers)
+
+    {file_path, relevant_headers}
+  end
+
+  defp relevant_http_headers do
+    [
+      "content-encoding",
+      "content-length",
+      "content-type",
+      "etag",
+      "expires",
+      "if-modified-since",
+      "last-modified"
+    ]
   end
 end
