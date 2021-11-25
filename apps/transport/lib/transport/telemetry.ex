@@ -24,6 +24,10 @@ defmodule Transport.Telemetry do
     end)
   end
 
+  @doc """
+  We embrace the fact that our current implementation's goal is not to replace
+  a full-blown timeseries, by limiting the bucket timespan to 1 hour.
+  """
   def truncate_datetime_to_hour(datetime) do
     %{DateTime.truncate(datetime, :second) | second: 0, minute: 0}
   end
