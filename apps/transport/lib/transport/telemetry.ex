@@ -1,6 +1,13 @@
 defmodule Transport.Telemetry do
   require Logger
 
+  @moduledoc """
+  This place groups various aspects of event handling (currently to get metrics for the proxy, later more):
+  - events handler declaration
+  - upsert code to make it easy to count an event in database
+  - setup code
+  """
+
   @doc """
 
   Important: as documented here https://github.com/beam-telemetry/telemetry:
@@ -11,7 +18,7 @@ defmodule Transport.Telemetry do
 
   """
   def handle_event(
-        event = [:proxy, :request, type],
+        [:proxy, :request, type] = event,
         _measurements,
         %{target: target},
         _config
@@ -49,7 +56,7 @@ defmodule Transport.Telemetry do
   @doc """
   Attach the required handles. To be called at application start.
   """
-  def setup() do
+  def setup do
     :ok =
       :telemetry.attach_many(
         # unique handler id

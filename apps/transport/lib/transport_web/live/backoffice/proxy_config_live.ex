@@ -79,12 +79,14 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     def compute(days) do
       date_from = DateTime.add(DateTime.utc_now(), -days * 24 * 60 * 60, :second)
 
-      from(m in DB.Metrics,
-        group_by: [m.target, m.event],
-        where: m.period >= ^date_from,
-        select: %{count: sum(m.count), identifier: m.target, event: m.event}
-      )
-      |> DB.Repo.all()
+      query =
+        from(m in DB.Metrics,
+          group_by: [m.target, m.event],
+          where: m.period >= ^date_from,
+          select: %{count: sum(m.count), identifier: m.target, event: m.event}
+        )
+
+      query |> DB.Repo.all()
     end
   end
 
@@ -92,7 +94,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     # NOTE: if the stats query becomes too costly, we will be able to throttle it every N seconds instead,
     # using a simple cache.
     stats =
-      Stats.compute(stats_days)
+      stats_days
+      |> Stats.compute()
       |> Enum.group_by(fn x -> x[:identifier] end)
       |> Enum.into(%{}, fn {k, v} ->
         v = Enum.into(v, %{}, fn x -> {x[:event], x[:count]} end)
