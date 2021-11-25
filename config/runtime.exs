@@ -55,7 +55,7 @@ end
 base_oban_conf = [repo: DB.Repo]
 
 extra_oban_conf =
-  if worker || (iex_started? and config_env() == :prod) || config_env() == :test do
+  if not worker || (iex_started? and config_env() == :prod) || config_env() == :test do
     [queues: false, plugins: false]
   else
     [
