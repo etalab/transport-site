@@ -9,7 +9,7 @@ defmodule Transport.GbfsToGeojson do
          {:ok, json} <- Jason.decode(body) do
       {:ok, json}
     else
-      e -> {:error, "could not fetch gbfs content at #{url}"}
+      _e -> {:error, "could not fetch gbfs content at #{url}"}
     end
   end
 
@@ -23,14 +23,54 @@ defmodule Transport.GbfsToGeojson do
   end
 
   def gbfs_geojsons(url) do
-    {:ok, json} = fetch_gbfs_endpoint(url)
+    {:ok, payload} = fetch_gbfs_endpoint(url)
 
-    station_information = case json |> feed_url_from_payload("station_information") do
-      nil -> nil
-      url -> station_information_geojson(url)
+    %{}
+    |> add_station_information(payload)
+    |> add_station_status(payload)
+  end
+
+  def add_station_information(resp_data, payload) do
+    payload
+    |> feed_url_from_payload("station_information")
+    |> case do
+      nil -> resp_data
+      url -> geojson = url |> station_information_geojson()
+            resp_data |> Map.put("stations", geojson)
     end
+  rescue
+      _e -> resp_data
+  end
 
-    %{"stations" => station_information}
+  def add_station_status(%{"stations" => stations_geojson} = resp_data, payload) do
+    payload
+      |> feed_url_from_payload("station_status")
+      |> IO.inspect()
+      |> case do
+        nil -> resp_data
+        url -> geojson = url |> station_status_to_geojson!(stations_geojson)
+            resp_data |> Map.put("stations", geojson)
+    end
+  rescue
+      _e -> resp_data
+  end
+
+  def add_station_status(resp_data, _payload) do
+    resp_data
+  end
+
+  def station_status_to_geojson!(station_status_url, stations_geojson) do
+    {:ok, json} = fetch_gbfs_endpoint(station_status_url)
+    station_status = json
+    |> Map.fetch!("data")
+    |> Map.fetch!("stations")
+
+    stations_geojson
+    |> Enum.map(fn s ->
+      station_id = s["properties"]["station_id"]
+      status = station_status |> Enum.find(fn s -> s["station_id"] == station_id end)
+      put_in(s["properties"]["station_status"], status)
+    end)
   end
 
   def convert_station_information!(json) do
