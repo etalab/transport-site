@@ -37,6 +37,13 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     assert html_response(conn, 302)
   end
 
+  def extract_data_from_html(html) do
+    doc = Floki.parse_document!(html)
+    headers = doc |> Floki.find("table thead tr th") |> Enum.map(&Floki.text/1)
+    row = doc |> Floki.find("table tbody tr td") |> Enum.map(&Floki.text/1)
+    headers |> Enum.zip(row) |> Enum.into(%{})
+  end
+
   # NOTE: this fakes previous proxy requests, without having to
   # setup a complete scenario, to prepare the data for the test below
   def add_events(item_id) do
@@ -61,20 +68,11 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     response = html_response(conn, 200)
     assert response =~ "Configuration du Proxy"
 
-    doc = Floki.parse_document!(response)
-    headers = doc |> Floki.find("table thead tr th") |> Enum.map(&Floki.text/1)
-    row = doc |> Floki.find("table tbody tr td") |> Enum.map(&Floki.text/1)
-
-    data = headers |> Enum.zip(row) |> Enum.into(%{})
-
-    # NOTE: we might need a sleep here if the assertion fails, because
-    # trace_request is making async calls at time of writings, and the counts
-    # may end up being incorrect
     assert %{
              "Identifiant" => "slug",
              "Req ext 7j" => "2",
              "Req int 7j" => "1"
-           } = data
+           } = extract_data_from_html(response)
 
     {:ok, _view, _html} = live(conn)
   end
