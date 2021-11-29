@@ -108,7 +108,7 @@
         </div>
       <% end %>
       <%= if Resource.has_metadata?(@resource) and Resource.is_gbfs?(@resource) do %>
-        <%= for version <- @resource.metadata["versions"] do %>
+        <%= for version <- Map.get(@resource.metadata, "versions", []) do %>
           <a href="<%= gbfs_documentation_link(version) %>" target="_blank">
             <span class="label version"><%= dgettext("page-dataset-details", "Version %{version}", version: version) %></span>
           </a>
