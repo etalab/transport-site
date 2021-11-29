@@ -18,6 +18,7 @@ defmodule TransportWeb.ContactController do
     case Client.send_mail(
            "PAN, Formulaire Contact",
            Application.get_env(:transport, :contact_email),
+           Application.get_env(:transport, :contact_email),
            email,
            topic,
            demande,
