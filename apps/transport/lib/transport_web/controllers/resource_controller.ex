@@ -115,7 +115,7 @@ defmodule TransportWeb.ResourceController do
           send_download(conn, {:binary, response.body},
             content_type: content_type,
             disposition: :attachment,
-            filename: get_filename(headers, resource.url)
+            filename: Transport.FileDownloads.guess_filename(headers, resource.url)
           )
 
         _ ->
@@ -125,15 +125,6 @@ defmodule TransportWeb.ResourceController do
           |> put_view(ErrorView)
           |> render("404.html")
       end
-    end
-  end
-
-  defp get_filename(headers, url) do
-    with {_, content} <- Enum.find(headers, fn {h, _} -> String.downcase(h) == "content-disposition" end),
-         %{"filename" => filename} <- Regex.named_captures(~r/filename="(?<filename>.*)"/, content) do
-      filename
-    else
-      _ -> url |> Path.basename()
     end
   end
 

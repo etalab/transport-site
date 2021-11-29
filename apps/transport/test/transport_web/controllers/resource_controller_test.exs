@@ -15,7 +15,7 @@ defmodule TransportWeb.ResourceControllerTest do
             datagouv_id: "1"
           },
           %Resource{
-            url: "http://link.to/angers.zip",
+            url: "http://link.to/angers.zip?foo=bar",
             datagouv_id: "2",
             validation: %Validation{
               details: %{},
