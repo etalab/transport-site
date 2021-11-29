@@ -42,7 +42,7 @@ defmodule Transport.CommentsCheckerTest do
        }}
     end
 
-    send_mail_mock = fn _, _, _, _, _, _, _ ->
+    send_mail_mock = fn _, _, _, _, _, _, _, _ ->
       {:ok, "envoyé !"}
     end
 
@@ -51,7 +51,7 @@ defmodule Transport.CommentsCheckerTest do
         number_new_comments = CommentsChecker.check_for_new_comments()
 
         assert number_new_comments == 1
-        assert_called_exactly(Mailjet.Client.send_mail(:_, :_, :_, :_, :_, :_, :_), 1)
+        assert_called_exactly(Mailjet.Client.send_mail(:_, :_, :_, :_, :_, :_, :_, :_), 1)
         assert_dataset_ts(dataset_id, "2020-01-01T12:00:00.000100")
       end
     end
@@ -62,7 +62,7 @@ defmodule Transport.CommentsCheckerTest do
         number_new_comments = CommentsChecker.check_for_new_comments()
 
         assert number_new_comments == 0
-        assert_called_exactly(Mailjet.Client.send_mail(:_, :_, :_, :_, :_, :_, :_), 0)
+        assert_called_exactly(Mailjet.Client.send_mail(:_, :_, :_, :_, :_, :_, :_, :_), 0)
         assert_dataset_ts(dataset_id, "2020-01-01T12:00:00.000100")
       end
     end
@@ -88,7 +88,7 @@ defmodule Transport.CommentsCheckerTest do
         number_new_comments = CommentsChecker.check_for_new_comments()
 
         assert number_new_comments == 1
-        assert_called_exactly(Mailjet.Client.send_mail(:_, :_, :_, :_, :_, :_, :_), 1)
+        assert_called_exactly(Mailjet.Client.send_mail(:_, :_, :_, :_, :_, :_, :_, :_), 1)
         assert_dataset_ts(dataset_id, "2021-01-01T12:00:00.000200")
       end
     end
