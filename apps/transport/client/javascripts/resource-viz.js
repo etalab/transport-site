@@ -123,44 +123,54 @@ function setGBFSMarkerStyle (stations, stationStatus, field) {
 }
 
 function fillGBFSMap (resourceUrl, fg, availableDocks, map, fitBounds = false) {
-    let stationStatusUrl
-    const stations = {}
-    fetch(resourceUrl)
+    const geojsonUrl = `tools/gbfs/geojson_convert/convert?url=${resourceUrl}`
+    fetch(geojsonUrl)
         .then(response => response.json())
-        .then(gbfs => {
-            const feeds = gbfs.data.fr.feeds
-            setGBFSLayersControl(feeds, fg, availableDocks, map)
-            const stationInformation = feeds.filter(feed => feed.name.includes('station_information'))[0]
-            const stationInformationUrl = stationInformation.url
-            const stationStatus = feeds.filter(feed => feed.name.includes('station_status'))[0]
-            stationStatusUrl = stationStatus.url
-            return fetch(stationInformationUrl)
-        })
-        .then(data => data.json())
-        .then(stationInformation => {
+        .then(data => {
+            const stationsGeojson = data.stations
             fg.clearLayers()
-            availableDocks.clearLayers()
-            for (const station of stationInformation.data.stations) {
-                const markerBike = L.circleMarker([station.lat, station.lon], { stroke: false, color: '#0066db', fillOpacity: 0.8 })
-                    .bindTooltip('&#x21bb', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
-                    .addTo(fg)
-                const markerSpot = L.circleMarker([station.lat, station.lon], { stroke: false, color: '#009c34', fillOpacity: 0.8 })
-                    .bindTooltip('&#x21bb', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
-                    .addTo(availableDocks)
-                stations[station.station_id] = { bike: markerBike, spot: markerSpot }
-            }
-            if (fitBounds) {
-                map.fitBounds(fg.getBounds())
-            }
-        })
-        .then(() => fetch(stationStatusUrl))
-        .then(response => response.json())
-        .then(status => {
-            for (const station of status.data.stations) {
-                setGBFSMarkerStyle(stations, station, 'num_bikes_available')
-                setGBFSMarkerStyle(stations, station, 'num_docks_available')
-            }
-        })
+            L.geoJSON(stationsGeojson).addTo(fg)
+        }
+        )
+
+    // let stationStatusUrl
+    // const stations = {}
+    // fetch(resourceUrl)
+    //     .then(response => response.json())
+    //     .then(gbfs => {
+    //         const feeds = gbfs.data.fr.feeds
+    //         setGBFSLayersControl(feeds, fg, availableDocks, map)
+    //         const stationInformation = feeds.filter(feed => feed.name.includes('station_information'))[0]
+    //         const stationInformationUrl = stationInformation.url
+    //         const stationStatus = feeds.filter(feed => feed.name.includes('station_status'))[0]
+    //         stationStatusUrl = stationStatus.url
+    //         return fetch(stationInformationUrl)
+    //     })
+    //     .then(data => data.json())
+    //     .then(stationInformation => {
+    //         fg.clearLayers()
+    //         availableDocks.clearLayers()
+    //         for (const station of stationInformation.data.stations) {
+    //             const markerBike = L.circleMarker([station.lat, station.lon], { stroke: false, color: '#0066db', fillOpacity: 0.8 })
+    //                 .bindTooltip('&#x21bb', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
+    //                 .addTo(fg)
+    //             const markerSpot = L.circleMarker([station.lat, station.lon], { stroke: false, color: '#009c34', fillOpacity: 0.8 })
+    //                 .bindTooltip('&#x21bb', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
+    //                 .addTo(availableDocks)
+    //             stations[station.station_id] = { bike: markerBike, spot: markerSpot }
+    //         }
+    //         if (fitBounds) {
+    //             map.fitBounds(fg.getBounds())
+    //         }
+    //     })
+    //     .then(() => fetch(stationStatusUrl))
+    //     .then(response => response.json())
+    //     .then(status => {
+    //         for (const station of status.data.stations) {
+    //             setGBFSMarkerStyle(stations, station, 'num_bikes_available')
+    //             setGBFSMarkerStyle(stations, station, 'num_docks_available')
+    //         }
+    //     })
         .catch(e => removeViz(e))
 }
 
