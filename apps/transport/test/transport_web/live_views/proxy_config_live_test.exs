@@ -37,17 +37,21 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     assert html_response(conn, 302)
   end
 
+  # NOTE: this fakes previous proxy requests, without having to
+  # setup a complete scenario, to prepare the data for the test below
+  def add_events(item_id) do
+    Unlock.Controller.Telemetry.trace_request(item_id, :external)
+    Unlock.Controller.Telemetry.trace_request(item_id, :external)
+    Unlock.Controller.Telemetry.trace_request(item_id, :internal)
+  end
+
   test "disconnected and connected mount", %{conn: conn} do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
 
     item_id = "slug"
     setup_proxy_config(item_id)
 
-    # NOTE: this fakes previous proxy requests, without having to
-    # setup a complete scenario, to prepare the data for the test below
-    Unlock.Controller.Telemetry.trace_request(item_id, :external)
-    Unlock.Controller.Telemetry.trace_request(item_id, :external)
-    Unlock.Controller.Telemetry.trace_request(item_id, :internal)
+    add_events(item_id)
 
     conn = setup_admin_in_session(conn)
     conn = get(conn, "/backoffice/proxy-config")
