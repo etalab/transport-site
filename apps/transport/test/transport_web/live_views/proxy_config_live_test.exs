@@ -54,7 +54,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     :timer.sleep(5)
   end
 
-  test "disconnected and connected mount", %{conn: conn} do
+  test "disconnected and connected mount refresh stats", %{conn: conn} do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
 
     item_id = "slug"
