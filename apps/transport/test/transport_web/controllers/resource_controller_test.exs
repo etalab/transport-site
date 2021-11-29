@@ -15,7 +15,7 @@ defmodule TransportWeb.ResourceControllerTest do
             datagouv_id: "1"
           },
           %Resource{
-            url: "http://link.to/angers.zip",
+            url: "http://link.to/angers.zip?foo=bar",
             datagouv_id: "2",
             validation: %Validation{
               details: %{},
@@ -91,8 +91,31 @@ defmodule TransportWeb.ResourceControllerTest do
     end)
 
     conn = conn |> get(resource_path(conn, :download, resource.id))
-    [content_type] = conn |> get_resp_header("content-type")
-    assert content_type == "application/zip"
+    assert ["application/zip"] == conn |> get_resp_header("content-type")
+    assert [~s(attachment; filename="angers.zip")] == conn |> get_resp_header("content-disposition")
+
+    assert conn |> response(200) == "payload"
+  end
+
+  test "downloading a resource that cannot be directly downloaded with a filename", %{conn: conn} do
+    resource = Resource |> Repo.get_by(datagouv_id: "2")
+    refute Resource.can_direct_download?(resource)
+
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn url, [], hackney: [follow_redirect: true] ->
+      assert url == resource.url
+
+      {:ok,
+       %HTTPoison.Response{
+         status_code: 200,
+         body: "payload",
+         headers: [{"Content-Type", "application/zip"}, {"Content-Disposition", ~s(attachment; filename="foo.zip")}]
+       }}
+    end)
+
+    conn = conn |> get(resource_path(conn, :download, resource.id))
+    assert ["application/zip"] == conn |> get_resp_header("content-type")
+    assert [~s(attachment; filename="foo.zip")] == conn |> get_resp_header("content-disposition")
 
     assert conn |> response(200) == "payload"
   end
