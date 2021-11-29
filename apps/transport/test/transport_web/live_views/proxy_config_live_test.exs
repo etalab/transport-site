@@ -56,10 +56,10 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     assert response =~ "Configuration du Proxy"
 
     doc = Floki.parse_document!(response)
-    headers = Floki.find(doc, "table thead tr th") |> Enum.map(&Floki.text/1)
-    row = Floki.find(doc, "table tbody tr td") |> Enum.map(&Floki.text/1)
+    headers = doc |> Floki.find("table thead tr th") |> Enum.map(&Floki.text/1)
+    row = doc |> Floki.find("table tbody tr td") |> Enum.map(&Floki.text/1)
 
-    data = Enum.zip(headers, row) |> Enum.into(%{})
+    data = headers |> Enum.zip(row) |> Enum.into(%{})
 
     # NOTE: we might need a sleep here if the assertion fails, because
     # trace_request is making async calls at time of writings, and the counts
