@@ -23,6 +23,22 @@ defmodule Unlock.Controller do
     defstruct [:body, :headers, :status]
   end
 
+  defmodule Telemetry do
+    @moduledoc """
+    A quick place to centralize definition of tracing events and targets
+    """
+
+    def target_for_identifier(item_identifier) do
+      "proxy:#{item_identifier}"
+    end
+
+    def trace_request(item_identifier, request_type) do
+      :telemetry.execute([:proxy, :request, request_type], %{}, %{
+        target: target_for_identifier(item_identifier)
+      })
+    end
+  end
+
   def index(conn, _params) do
     text(conn, "Unlock Proxy")
   end
@@ -65,14 +81,8 @@ defmodule Unlock.Controller do
   # RAM consumption
   @max_allowed_cached_byte_size 20 * 1024 * 1024
 
-  defp trace_request(item_identifier, request_type) do
-    :telemetry.execute([:proxy, :request, request_type], %{}, %{
-      target: "proxy:#{item_identifier}"
-    })
-  end
-
   defp process_resource(conn, item) do
-    trace_request(item.identifier, :external)
+    Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
 
     response.headers
@@ -88,7 +98,7 @@ defmodule Unlock.Controller do
     comp_fn = fn _key ->
       Logger.info("Processing proxy request for identifier #{item.identifier}")
       try do
-        trace_request(item.identifier, :internal)
+        Telemetry.trace_request(item.identifier, :internal)
         response = Unlock.HTTP.Client.impl().get!(item.target_url, item.request_headers)
         size = byte_size(response.body)
         if size > @max_allowed_cached_byte_size do

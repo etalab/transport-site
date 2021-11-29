@@ -118,7 +118,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   end
 
   defp add_stats(item, stats) do
-    counts = stats[item.unique_slug] || %{}
+    metrics_target = Unlock.Controller.Telemetry.target_for_identifier(item.unique_slug)
+    counts = stats[metrics_target] || %{}
 
     Map.merge(item, %{
       stats_external_requests: Map.get(counts, "proxy:request:external", 0),
