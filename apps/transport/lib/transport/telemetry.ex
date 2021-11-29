@@ -54,7 +54,7 @@ defmodule Transport.Telemetry do
   end
 
   @doc """
-  Attach the required handles. To be called at application start.
+  Attach the required handlers. To be called at application start.
   """
   def setup do
     :ok =
