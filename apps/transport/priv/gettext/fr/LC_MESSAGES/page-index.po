@@ -252,7 +252,7 @@ msgid "facilitators list description, %{link}"
 msgstr "Voir la %{link} de nos facilitateurs"
 
 #, elixir-format
-msgid "complete list"
+msgid "full list"
 msgstr "liste complète"
 
 #, elixir-format

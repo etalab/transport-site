@@ -294,7 +294,7 @@
             %>
           <% end %>
         </div>
-        <% link_facilitators =  safe_to_string(link(dgettext("page-index", "complete list"), to: "https://doc.transport.data.gouv.fr/notre-ecosysteme/les-facilitateurs")) %>
+        <% link_facilitators =  safe_to_string(link(dgettext("page-index", "full list"), to: "https://doc.transport.data.gouv.fr/notre-ecosysteme/les-facilitateurs")) %>
         <p class="text-center"><%= raw(dgettext("page-index", "facilitators list description, %{link}", link: link_facilitators)) %>. </p>
       </div>
     </section>
