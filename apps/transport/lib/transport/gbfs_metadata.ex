@@ -45,17 +45,23 @@ defmodule Transport.GBFSMetadata do
     with {:ok, %{status_code: 200, body: body} = response} <-
            http_client().get(resource.url, [{"origin", website_url()}]),
          {:ok, json} <- Jason.decode(body) do
-      %{
-        validation: validation(resource),
-        has_cors: has_cors?(response),
-        is_cors_allowed: cors_headers_allows_self?(response),
-        feeds: feeds(json),
-        versions: versions(json),
-        languages: languages(json),
-        system_details: system_details(json),
-        types: types(json),
-        ttl: ttl(json)
-      }
+      try do
+        %{
+          validation: validation(resource),
+          has_cors: has_cors?(response),
+          is_cors_allowed: cors_headers_allows_self?(response),
+          feeds: feeds(json),
+          versions: versions(json),
+          languages: languages(json),
+          system_details: system_details(json),
+          types: types(json),
+          ttl: ttl(json)
+        }
+      rescue
+        e in FunctionClauseError ->
+          Logger.error(inspect(e))
+          %{}
+      end
     else
       e ->
         Logger.error(inspect(e))
