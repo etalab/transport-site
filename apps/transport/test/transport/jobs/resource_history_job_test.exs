@@ -13,10 +13,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   setup :verify_on_exit!
 
   @gtfs_path "#{__DIR__}/../../../../shared/test/validation/gtfs.zip"
+  @gtfs_content File.read!(@gtfs_path)
 
   describe "ResourceHistoryDispatcherJob" do
     test "a simple successful case" do
-      setup_s3_mocks()
+      s3_mocks_create_bucket()
 
       %{datagouv_id: datagouv_id} =
         insert(:resource,
@@ -76,20 +77,38 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           format: "GTFS",
           title: "title",
           datagouv_id: "1",
-          is_community_resource: false
+          is_community_resource: false,
+          metadata: %{"foo" => "bar"}
         )
 
       Unlock.HTTP.Client.Mock
       |> expect(:get!, fn url, _headers ->
         assert url == resource_url
-        %{status: 200, body: File.read!(@gtfs_path), headers: [{"content-type", "application/octet-stream"}]}
+        %{status: 200, body: @gtfs_content, headers: [{"content-type", "application/octet-stream"}, {"x-foo", "bar"}]}
+      end)
+
+      Transport.ExAWS.Mock
+      # Resource upload
+      |> expect(:request!, fn request ->
+        bucket_name = Transport.S3.bucket_name(:history)
+
+        assert %{
+                 service: :s3,
+                 http_method: :put,
+                 path: path,
+                 bucket: ^bucket_name,
+                 body: @gtfs_content,
+                 headers: %{"x-amz-acl" => "public-read"}
+               } = request
+
+        assert String.starts_with?(path, "#{datagouv_id}/#{datagouv_id}.")
       end)
 
       assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
     end
   end
 
-  defp setup_s3_mocks do
+  defp s3_mocks_create_bucket do
     Transport.ExAWS.Mock
     # Listing buckets
     |> expect(:request!, fn request ->
