@@ -1,6 +1,6 @@
 defmodule DB.Metrics do
   @moduledoc """
-  A quick proxy metric schema to store bucketed events, until a moment may come
+  A quick metric schema to count bucketed events, until a moment may come
   where we'll outgrow this and use timescaledb or similar instead.
   """
   use Ecto.Schema
