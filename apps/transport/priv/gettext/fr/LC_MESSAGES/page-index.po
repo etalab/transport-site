@@ -256,5 +256,5 @@ msgid "full list"
 msgstr "liste complète"
 
 #, elixir-format
-msgid "They help us in our mission"
+msgid "They help us achieve our mission"
 msgstr "Ils nous aident dans notre mission"

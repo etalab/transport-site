@@ -284,7 +284,7 @@
     </section>
     <section class="section section-grey companies">
       <div class="container">
-        <h2 class="text-center"><%= dgettext("page-index", "They help us in our mission") %> 🙏‍</h2>
+        <h2 class="text-center"><%= dgettext("page-index", "They help us achieve our mission") %> 🙏‍</h2>
         <div class="companies__logos">
           <%= for facilitator <- @facilitators do %>
             <%= link(
