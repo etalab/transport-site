@@ -4,17 +4,13 @@ defmodule Transport.GbfsToGeojson do
   """
   alias Transport.GBFSMetadata
 
-  def fetch_gbfs_endpoint(url) do
-    with {:ok, %{status_code: 200, body: body}} <- http_client().get(url),
-         {:ok, json} <- Jason.decode(body) do
-      {:ok, json}
-    else
-      _e -> {:error, "could not fetch gbfs content at #{url}"}
-    end
+  def fetch_gbfs_endpoint!(url) do
+    %{status_code: 200, body: body} = http_client().get!(url)
+    Jason.decode!(body)
   end
 
   def station_information_geojson(url) do
-    {:ok, json} = fetch_gbfs_endpoint(url)
+    json = fetch_gbfs_endpoint!(url)
     convert_station_information!(json)
   end
 
@@ -23,7 +19,7 @@ defmodule Transport.GbfsToGeojson do
   end
 
   def gbfs_geojsons(url) do
-    {:ok, payload} = fetch_gbfs_endpoint(url)
+    payload = fetch_gbfs_endpoint!(url)
 
     %{}
     |> add_station_information(payload)
@@ -45,7 +41,6 @@ defmodule Transport.GbfsToGeojson do
   def add_station_status(%{"stations" => stations_geojson} = resp_data, payload) do
     payload
       |> feed_url_from_payload("station_status")
-      |> IO.inspect()
       |> case do
         nil -> resp_data
         url -> geojson = url |> station_status_to_geojson!(stations_geojson)
@@ -60,7 +55,7 @@ defmodule Transport.GbfsToGeojson do
   end
 
   def station_status_to_geojson!(station_status_url, stations_geojson) do
-    {:ok, json} = fetch_gbfs_endpoint(station_status_url)
+    json = fetch_gbfs_endpoint!(station_status_url)
     station_status = json
     |> Map.fetch!("data")
     |> Map.fetch!("stations")
