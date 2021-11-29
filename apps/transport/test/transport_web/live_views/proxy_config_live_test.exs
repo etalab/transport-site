@@ -74,6 +74,16 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
              "Req int 7j" => "1"
            } = extract_data_from_html(response)
 
-    {:ok, _view, _html} = live(conn)
+    {:ok, view, _html} = live(conn)
+
+    add_events(item_id)
+
+    send(view.pid, :update_data)
+
+    assert %{
+             "Identifiant" => "slug",
+             "Req ext 7j" => "4",
+             "Req int 7j" => "2"
+           } = extract_data_from_html(render(view))
   end
 end
