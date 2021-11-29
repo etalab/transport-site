@@ -4,20 +4,9 @@ defmodule Transport.GbfsToGeojson do
   """
   alias Transport.GBFSMetadata
 
-  def fetch_gbfs_endpoint!(url) do
-    %{status_code: 200, body: body} = http_client().get!(url)
-    Jason.decode!(body)
-  end
-
-  def station_information_geojson(url) do
-    json = fetch_gbfs_endpoint!(url)
-    convert_station_information!(json)
-  end
-
-  def feed_url_from_payload(payload, feed_name) do
-    payload |> GBFSMetadata.first_feed() |> GBFSMetadata.feed_url_by_name(feed_name)
-  end
-
+  @doc """
+  Main module function: returns a map of geojsons generated from the GBFS endpoint
+  """
   def gbfs_geojsons(url) do
     payload = fetch_gbfs_endpoint!(url)
 
@@ -31,11 +20,31 @@ defmodule Transport.GbfsToGeojson do
     |> feed_url_from_payload("station_information")
     |> case do
       nil -> resp_data
-      url -> geojson = url |> station_information_geojson()
+      url -> geojson =  station_information_geojson(url)
             resp_data |> Map.put("stations", geojson)
     end
   rescue
       _e -> resp_data
+  end
+
+  defp station_information_geojson(url) do
+    url
+    |> fetch_gbfs_endpoint!()
+    |> Map.fetch!("data")
+    |> Map.fetch!("stations")
+    |> Enum.map(fn s ->
+      %{
+        "type" => "Feature",
+        "geometry" => %{
+          "type" => "Point",
+          "coordinates" => [s["lon"], s["lat"]]
+        },
+        "properties" => %{
+          "name" => s["name"],
+          "station_id" => s["station_id"]
+        }
+      }
+    end)
   end
 
   def add_station_status(%{"stations" => stations_geojson} = resp_data, payload) do
@@ -68,23 +77,13 @@ defmodule Transport.GbfsToGeojson do
     end)
   end
 
-  def convert_station_information!(json) do
-    json
-    |> Map.fetch!("data")
-    |> Map.fetch!("stations")
-    |> Enum.map(fn s ->
-      %{
-        "type" => "Feature",
-        "geometry" => %{
-          "type" => "Point",
-          "coordinates" => [s["lon"], s["lat"]]
-        },
-        "properties" => %{
-          "name" => s["name"],
-          "station_id" => s["station_id"]
-        }
-      }
-    end)
+  defp fetch_gbfs_endpoint!(url) do
+    %{status_code: 200, body: body} = http_client().get!(url)
+    Jason.decode!(body)
+  end
+
+  defp feed_url_from_payload(payload, feed_name) do
+    payload |> GBFSMetadata.first_feed() |> GBFSMetadata.feed_url_by_name(feed_name)
   end
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
