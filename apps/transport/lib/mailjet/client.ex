@@ -14,13 +14,13 @@ defmodule Mailjet.Client do
   def mailjet_key, do: get_config!(:mailjet_key)
   def mailjet_url, do: get_config!(:mailjet_url)
 
-  @spec payload!(binary(), binary(), binary(), binary(), binary()) :: any()
-  def payload!(from_name, from_email, reply_to, topic, text_body, html_body \\ nil) do
+  @spec payload!(binary(), binary(), binary(), binary(), binary(), binary()) :: any()
+  def payload!(from_name, from_email, to_email, reply_to, topic, text_body, html_body \\ nil) do
     Jason.encode!(%{
       Messages: [
         %{
           From: %{Name: from_name, Email: from_email},
-          To: [%{Email: Application.get_env(:transport, :contact_email)}],
+          To: [%{Email: to_email}],
           Subject: topic,
           TextPart: text_body,
           HtmlPart: html_body,
@@ -30,15 +30,18 @@ defmodule Mailjet.Client do
     })
   end
 
-  @spec send_mail(binary, binary, binary, binary, binary, binary, boolean) :: {:error, any} | {:ok, any}
-  def send_mail(from_name, from_email, reply_to, topic, text_body, html_body, true) do
-    Logger.debug(fn -> "payload: #{payload!(from_name, from_email, reply_to, topic, text_body, html_body)}" end)
+  @spec send_mail(binary, binary, binary, binary, binary, binary, binary, boolean) :: {:error, any} | {:ok, any}
+  def send_mail(from_name, from_email, to_email, reply_to, topic, text_body, html_body, true) do
+    Logger.debug(fn ->
+      "payload: #{payload!(from_name, from_email, to_email, reply_to, topic, text_body, html_body)}"
+    end)
+
     {:ok, text_body || html_body}
   end
 
-  def send_mail(from_name, from_email, reply_to, topic, text_body, html_body, false) do
+  def send_mail(from_name, from_email, to_email, reply_to, topic, text_body, html_body, false) do
     mailjet_url()
-    |> post(payload!(from_name, from_email, reply_to, topic, text_body, html_body))
+    |> post(payload!(from_name, from_email, to_email, reply_to, topic, text_body, html_body))
     |> case do
       {:ok, %{status_code: 200, body: body}} -> {:ok, body}
       {:ok, %{status_code: _, body: body}} -> {:error, body}
