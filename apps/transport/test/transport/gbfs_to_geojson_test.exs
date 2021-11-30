@@ -90,6 +90,31 @@ defmodule Transport.GbfsToGeojsonTest do
       assert geojsons["stations"] == simple_station_information_geojson()
     end
 
+    test "free-floating conversion" do
+      gbfs_endpoint = "gbfs.json"
+
+      feeds = [
+        %{"name" => "free_bike_status", "url" => "free_bike_status.json"}
+      ]
+
+      set_gbfs_entrypoint_expect(gbfs_endpoint, feeds)
+      set_free_bike_status_expect()
+
+      geojsons = Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint)
+
+      # Only one bike was kept, because the other one add a station_id, so it was not "free floating"
+      assert geojsons["free_floating"] == %{
+        "features" => [
+          %{
+            "geometry" => %{"coordinates" => [5.723688, 45.195638], "type" => "Point"},
+            "properties" => %{"bike_id" => "bike1", "is_disabled" => false, "is_reserved" => false},
+            "type" => "Feature"
+          }
+        ],
+        "type" => "FeatureCollection"
+      }
+    end
+
   end
 
   defp simple_station_information_geojson() do
@@ -170,7 +195,6 @@ defmodule Transport.GbfsToGeojsonTest do
   end
 
   defp set_station_status_expect(custom_response \\ nil) do
-
     Transport.HTTPoison.Mock
     |> expect(:get!, fn "station_status.json" ->
       custom_response ||
@@ -200,6 +224,34 @@ defmodule Transport.GbfsToGeojsonTest do
           }
         }
         """
+      }
+    end)
+  end
+
+  defp set_free_bike_status_expect() do
+    Transport.HTTPoison.Mock
+    |> expect(:get!, fn "free_bike_status.json" ->
+      %{
+        status_code: 200,
+        body: """
+              {
+                "data": {
+                    "bikes": [
+                        {
+                            "bike_id": "bike1",
+                            "is_disabled": false,
+                            "is_reserved": false,
+                            "lat": 45.195638,
+                            "lon": 5.723688
+                        },
+                        {
+                            "vehicle_type_id": "ebike",
+                            "station_id" : "1"
+                        }
+                    ]
+                }
+            }
+            """
       }
     end)
   end
