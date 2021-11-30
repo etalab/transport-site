@@ -77,7 +77,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     """
     import Ecto.Query
 
-    def compute(days) when stats_days > 0 do
+    def compute(days) when days > 0 do
       date_from = DateTime.add(DateTime.utc_now(), -days * 24 * 60 * 60, :second)
 
       query =
