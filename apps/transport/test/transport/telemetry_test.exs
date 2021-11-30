@@ -11,8 +11,8 @@ defmodule Transport.TelemetryTest do
   def stored_events, do: DB.Repo.all(DB.Metrics)
 
   test "aggregates same hour for a given identifier/event" do
-    count_event("id-001", "proxy:request:internal", ~U[2021-11-22 14:28:06.098765Z])
-    count_event("id-001", "proxy:request:internal", ~U[2021-11-22 14:28:56.098765Z])
+    count_event("id-001", [:proxy, :request, :internal], ~U[2021-11-22 14:28:06.098765Z])
+    count_event("id-001", [:proxy, :request, :internal], ~U[2021-11-22 14:28:56.098765Z])
 
     assert [
              %{
@@ -25,8 +25,8 @@ defmodule Transport.TelemetryTest do
   end
 
   test "dissociates events at different hours" do
-    count_event("id-001", "proxy:request:internal", ~U[2021-11-22 14:28:06.098765Z])
-    count_event("id-001", "proxy:request:internal", ~U[2021-11-22 15:29:56.098765Z])
+    count_event("id-001", [:proxy, :request, :internal], ~U[2021-11-22 14:28:06.098765Z])
+    count_event("id-001", [:proxy, :request, :internal], ~U[2021-11-22 15:29:56.098765Z])
 
     assert [
              %{
@@ -45,8 +45,8 @@ defmodule Transport.TelemetryTest do
   end
 
   test "dissociates events for different events and identifiers at the same hour" do
-    count_event(id = "id-001", event = "first-event", datetime = ~U[2021-11-22 14:28:06.098765Z])
-    count_event(id, second_event = "second-event", datetime)
+    count_event(id = "id-001", event = [:first_event], datetime = ~U[2021-11-22 14:28:06.098765Z])
+    count_event(id, second_event = [:second_event], datetime)
     count_event("id-002", event, datetime)
     count_event("id-003", second_event, datetime)
 
