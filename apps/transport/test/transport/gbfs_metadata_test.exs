@@ -80,6 +80,13 @@ defmodule Transport.GBFSMetadataTest do
 
       assert %{} == compute_feed_metadata(%Resource{url: @gbfs_url})
     end
+
+    test "for feed with an invalid JSON response" do
+      setup_feeds([:gbfs_with_invalid_gbfs_json])
+      setup_validation_result({:error, nil})
+
+      assert %{} == compute_feed_metadata(%Resource{url: @gbfs_url})
+    end
   end
 
   describe "can compute GBFS metadata for all resources" do
@@ -144,6 +151,7 @@ defmodule Transport.GBFSMetadataTest do
         :gbfs -> setup_gbfs_response()
         :gbfs_with_versions -> setup_gbfs_with_versions_response()
         :gbfs_with_server_error -> setup_gbfs_with_server_error_response()
+        :gbfs_with_invalid_gbfs_json -> setup_invalid_gbfs_response()
         :gbfs_versions -> setup_gbfs_versions_response()
         :free_bike_status -> setup_free_bike_status_response()
         :system_information -> setup_system_information_response()
@@ -190,6 +198,14 @@ defmodule Transport.GBFSMetadataTest do
   defp setup_gbfs_response do
     body = """
      {"data":{"fr":{"feeds":[{"name":"system_information","url":"https://example.com/system_information.json"},{"name":"station_information","url":"https://example.com/station_information.json"},{"name":"station_status","url":"https://example.com/station_status.json"}]}},"last_updated":1636116464,"ttl":3600,"version":"1.1"}
+    """
+
+    setup_response_with_headers(@gbfs_url, body)
+  end
+
+  defp setup_invalid_gbfs_response do
+    body = """
+    {"foo": "bar"}
     """
 
     setup_response_with_headers(@gbfs_url, body)

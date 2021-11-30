@@ -61,6 +61,7 @@ defmodule Transport.CommentsChecker do
       "transport.data.gouv.fr",
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :contact_email),
+      Application.get_env(:transport, :contact_email),
       "#{comments_number} nouveaux commentaires sur data.gouv.fr",
       "",
       email_content,

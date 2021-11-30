@@ -30,7 +30,9 @@ config :transport,
   history_impl: Transport.History.Fetcher.Mock,
   gtfs_validator: Validation.Validator.Mock,
   gbfs_validator_impl: Shared.Validation.GBFSValidator.Mock,
-  rambo_impl: Transport.Rambo.Mock
+  rambo_impl: Transport.Rambo.Mock,
+  notifications_impl: Transport.Notifications.FetcherMock,
+  notifications_api_token: "secret"
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"
@@ -39,7 +41,7 @@ config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.Mock
 
 # capture all info logs and up during tests
-config :logger, level: :info
+config :logger, level: :debug
 
 # ... but show only warnings and up on the console
 config :logger, :console,
@@ -70,5 +72,11 @@ config :transport,
   # expected host here, until we move to a behaviour-based testing instead.
   gtfs_validator_url: "https://transport-validator.cleverapps.io"
 
+secret_key_base = "SOME-LONG-SECRET-KEY-BASE-FOR-TESTING-SOME-LONG-SECRET-KEY-BASE-FOR-TESTING"
+
 config :transport, TransportWeb.Endpoint,
-  secret_key_base: "SOME-LONG-SECRET-KEY-BASE-FOR-TESTING-SOME-LONG-SECRET-KEY-BASE-FOR-TESTING"
+  secret_key_base: secret_key_base,
+  live_view: [
+    # NOTE: unsure if this is actually great to reuse the same value
+    signing_salt: secret_key_base
+  ]

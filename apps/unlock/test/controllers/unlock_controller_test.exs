@@ -27,6 +27,17 @@ defmodule Unlock.ControllerTest do
 
   describe "GET /resource/:slug" do
     test "handles a regular read" do
+      test_pid = self()
+      # inspired by https://github.com/dashbitco/broadway/blob/main/test/broadway_test.exs
+      :telemetry.attach_many(
+        "test-handler-#{System.unique_integer()}",
+        [[:proxy, :request, :internal], [:proxy, :request, :external]],
+        fn name, measurements, metadata, _ ->
+          send(test_pid, {:telemetry_event, name, measurements, metadata})
+        end,
+        nil
+      )
+
       slug = "an-existing-identifier"
 
       ttl_in_seconds = 30
@@ -63,6 +74,12 @@ defmodule Unlock.ControllerTest do
 
       assert resp.resp_body == "somebody-to-love"
       assert resp.status == 207
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-identifier"}}
 
       # these ones are added by our pipeline for now
       assert Plug.Conn.get_resp_header(resp, "x-request-id")
@@ -101,6 +118,12 @@ defmodule Unlock.ControllerTest do
 
       assert resp.resp_body == "somebody-to-love"
       assert resp.status == 207
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-identifier"}}
+
+      refute_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-identifier"}}
 
       # NOTE: this whole test will have to be DRYed
       remaining_headers =
