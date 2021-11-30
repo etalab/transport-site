@@ -13,6 +13,7 @@ defmodule Transport.GbfsToGeojson do
     %{}
     |> add_station_information(payload)
     |> add_station_status(payload)
+    |> add_free_bike_status(payload)
   end
 
   def add_station_information(resp_data, payload) do
@@ -99,6 +100,49 @@ defmodule Transport.GbfsToGeojson do
       "features" => features
     }
   end
+
+  def add_free_bike_status(resp_data, payload) do
+    payload
+    |> feed_url_from_payload("free_bike_status")
+    |> case do
+      nil ->
+        resp_data
+
+      url ->
+        geojson = free_bike_status_geojson(url)
+        resp_data |> Map.put("free_floating", geojson)
+    end
+  rescue
+    _e -> resp_data
+  end
+
+  def free_bike_status_geojson(url) do
+    json = fetch_gbfs_endpoint!(url)
+
+    vehicles =
+    json
+    |> Map.fetch!("data")
+    |> Map.fetch!("bikes")
+
+    features =
+      vehicles
+      |> Enum.map(fn v ->
+        %{
+          "type" => "Feature",
+          "geometry" => %{
+            "type" => "Point",
+            "coordinates" => [v["lon"], v["lat"]]
+          },
+          "properties" => Map.drop(v, ["lat", "lon"])
+        }
+      end)
+
+    %{
+      "type" => "FeatureCollection",
+      "features" => features
+    }
+  end
+
 
   defp fetch_gbfs_endpoint!(url) do
     %{status_code: 200, body: body} = http_client().get!(url)
