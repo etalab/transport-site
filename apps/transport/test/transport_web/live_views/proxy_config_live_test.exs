@@ -51,7 +51,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     Unlock.Controller.Telemetry.trace_request(item_id, :external)
     Unlock.Controller.Telemetry.trace_request(item_id, :internal)
     # events are async, so we wait a bit for now (not ideal)
-    :timer.sleep(5)
+    :timer.sleep(25)
   end
 
   test "disconnected and connected mount refresh stats", %{conn: conn} do
