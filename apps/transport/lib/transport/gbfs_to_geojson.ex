@@ -156,8 +156,8 @@ defmodule Transport.GbfsToGeojson do
         geojson = geofencing_zones_geojson(url)
         resp_data |> Map.put("geofencing_zones", geojson)
     end
-  # rescue
-  #   _e -> resp_data
+  rescue
+    _e -> resp_data
   end
 
   def geofencing_zones_geojson(url) do
@@ -167,7 +167,6 @@ defmodule Transport.GbfsToGeojson do
     json
     |> Map.fetch!("data")
     |> Map.fetch!("geofencing_zones")
-
   end
 
   defp fetch_gbfs_endpoint!(url) do
