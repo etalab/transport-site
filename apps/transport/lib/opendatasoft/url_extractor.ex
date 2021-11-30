@@ -326,12 +326,9 @@ defmodule Opendatasoft.UrlExtractor do
   defp get_filename(url) do
     httpoison_impl = Transport.Shared.Wrapper.HTTPoison.impl()
 
-    with {:ok, %HTTPoison.Response{headers: headers}} <- httpoison_impl.head(url),
-         {_, content} <- Enum.find(headers, fn {h, _} -> String.downcase(h) == "content-disposition" end),
-         %{"filename" => filename} <- Regex.named_captures(~r/filename="(?<filename>.*)"/, content) do
-      filename
-    else
-      _ -> url
+    case httpoison_impl.head(url) do
+      {:ok, %HTTPoison.Response{headers: headers}} -> Transport.FileDownloads.guess_filename(headers, url)
+      _ -> Transport.FileDownloads.guess_filename(%{}, url)
     end
   end
 end
