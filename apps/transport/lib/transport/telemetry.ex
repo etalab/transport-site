@@ -61,6 +61,9 @@ defmodule Transport.Telemetry do
       :telemetry.attach_many(
         # unique handler id
         "proxy-logging-handler",
+        # here we list the "event names" (a name is actually a list of atoms, per
+        # https://hexdocs.pm/telemetry/telemetry.html#t:event_name/0)
+        # for which we want to be called in the handler
         [
           [:proxy, :request, :external],
           [:proxy, :request, :internal]
