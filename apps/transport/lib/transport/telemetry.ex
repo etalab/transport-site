@@ -75,7 +75,7 @@ defmodule Transport.Telemetry do
         # here we list the "event names" (a name is actually a list of atoms, per
         # https://hexdocs.pm/telemetry/telemetry.html#t:event_name/0)
         # for which we want to be called in the handler
-        proxy_request_event_names,
+        proxy_request_event_names(),
         &Transport.Telemetry.handle_event/4,
         nil
       )
