@@ -166,7 +166,14 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   defp upload_filename(%Resource{} = resource) do
     d = DateTime.utc_now()
     {microsecond, _} = d.microsecond
-    "#{resource.datagouv_id}/#{resource.datagouv_id}.#{d.year}#{d.month}#{d.minute}.#{microsecond}.zip"
+
+    parts = [
+      "#{d.year}#{d.month}#{d.day}",
+      "#{d.hour}#{d.minute}",
+      microsecond
+    ]
+
+    "#{resource.datagouv_id}/#{resource.datagouv_id}.#{parts |> Enum.join(".")}.zip"
   end
 
   defp relevant_http_headers do
