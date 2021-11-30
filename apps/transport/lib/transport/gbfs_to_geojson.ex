@@ -19,44 +19,56 @@ defmodule Transport.GbfsToGeojson do
     payload
     |> feed_url_from_payload("station_information")
     |> case do
-      nil -> resp_data
-      url -> geojson =  station_information_geojson(url)
-            resp_data |> Map.put("stations", geojson)
+      nil ->
+        resp_data
+
+      url ->
+        geojson = station_information_geojson(url)
+        resp_data |> Map.put("stations", geojson)
     end
   rescue
-      _e -> resp_data
+    _e -> resp_data
   end
 
   defp station_information_geojson(url) do
-    url
-    |> fetch_gbfs_endpoint!()
-    |> Map.fetch!("data")
-    |> Map.fetch!("stations")
-    |> Enum.map(fn s ->
-      %{
-        "type" => "Feature",
-        "geometry" => %{
-          "type" => "Point",
-          "coordinates" => [s["lon"], s["lat"]]
-        },
-        "properties" => %{
-          "name" => s["name"],
-          "station_id" => s["station_id"]
+    features =
+      url
+      |> fetch_gbfs_endpoint!()
+      |> Map.fetch!("data")
+      |> Map.fetch!("stations")
+      |> Enum.map(fn s ->
+        %{
+          "type" => "Feature",
+          "geometry" => %{
+            "type" => "Point",
+            "coordinates" => [s["lon"], s["lat"]]
+          },
+          "properties" => %{
+            "name" => s["name"],
+            "station_id" => s["station_id"]
+          }
         }
-      }
-    end)
+      end)
+
+    %{
+      "type" => "FeatureCollection",
+      "features" => features
+    }
   end
 
   def add_station_status(%{"stations" => stations_geojson} = resp_data, payload) do
     payload
-      |> feed_url_from_payload("station_status")
-      |> case do
-        nil -> resp_data
-        url -> geojson = url |> station_status_to_geojson!(stations_geojson)
-            resp_data |> Map.put("stations", geojson)
+    |> feed_url_from_payload("station_status")
+    |> case do
+      nil ->
+        resp_data
+
+      url ->
+        geojson = url |> station_status_to_geojson!(stations_geojson)
+        resp_data |> Map.put("stations", geojson)
     end
   rescue
-      _e -> resp_data
+    _e -> resp_data
   end
 
   def add_station_status(resp_data, _payload) do
@@ -65,16 +77,27 @@ defmodule Transport.GbfsToGeojson do
 
   def station_status_to_geojson!(station_status_url, stations_geojson) do
     json = fetch_gbfs_endpoint!(station_status_url)
-    station_status = json
-    |> Map.fetch!("data")
-    |> Map.fetch!("stations")
 
-    stations_geojson
-    |> Enum.map(fn s ->
-      station_id = s["properties"]["station_id"]
-      status = station_status |> Enum.find(fn s -> s["station_id"] == station_id end)
-      put_in(s["properties"]["station_status"], status)
-    end)
+    station_status =
+      json
+      |> Map.fetch!("data")
+      |> Map.fetch!("stations")
+
+    features =
+      stations_geojson
+      |> Map.fetch!("features")
+      |> Enum.map(fn s ->
+        station_id = s["properties"]["station_id"]
+        status = station_status
+        |> Enum.find(fn s -> s["station_id"] == station_id end)
+        |> Map.delete("station_id")
+        put_in(s["properties"]["station_status"], status)
+      end)
+
+    %{
+      "type" => "FeatureCollection",
+      "features" => features
+    }
   end
 
   defp fetch_gbfs_endpoint!(url) do
