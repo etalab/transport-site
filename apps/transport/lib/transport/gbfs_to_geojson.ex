@@ -90,9 +90,12 @@ defmodule Transport.GbfsToGeojson do
       |> Map.fetch!("features")
       |> Enum.map(fn s ->
         station_id = s["properties"]["station_id"]
-        status = station_status
-        |> Enum.find(fn s -> s["station_id"] == station_id end)
-        |> Map.delete("station_id")
+
+        status =
+          station_status
+          |> Enum.find(fn s -> s["station_id"] == station_id end)
+          |> Map.delete("station_id")
+
         put_in(s["properties"]["station_status"], status)
       end)
 
@@ -121,9 +124,9 @@ defmodule Transport.GbfsToGeojson do
     json = fetch_gbfs_endpoint!(url)
 
     vehicles =
-    json
-    |> Map.fetch!("data")
-    |> Map.fetch!("bikes")
+      json
+      |> Map.fetch!("data")
+      |> Map.fetch!("bikes")
 
     features =
       vehicles
@@ -164,9 +167,9 @@ defmodule Transport.GbfsToGeojson do
     json = fetch_gbfs_endpoint!(url)
 
     zones =
-    json
-    |> Map.fetch!("data")
-    |> Map.fetch!("geofencing_zones")
+      json
+      |> Map.fetch!("data")
+      |> Map.fetch!("geofencing_zones")
   end
 
   defp fetch_gbfs_endpoint!(url) do

@@ -129,22 +129,22 @@ defmodule Transport.GbfsToGeojsonTest do
       IO.inspect(geojsons)
 
       assert geojsons["geofencing_zones"] == %{
-                   "type" => "FeatureCollection",
-                   "features" => [
-                     %{
-                       "type" => "Feature",
-                       "geometry" => %{
-                         "type" => "MultiPolygon",
-                         "coordinates" => [
-                           [[[0, 0], [0, 1], [1, 1], [0, 0]]]
-                         ]
-                       },
-                       "properties" => %{
-                         "name" => "zone_0"
-                       }
-                     }
-                   ]
+               "type" => "FeatureCollection",
+               "features" => [
+                 %{
+                   "type" => "Feature",
+                   "geometry" => %{
+                     "type" => "MultiPolygon",
+                     "coordinates" => [
+                       [[[0, 0], [0, 1], [1, 1], [0, 0]]]
+                     ]
+                   },
+                   "properties" => %{
+                     "name" => "zone_0"
+                   }
                  }
+               ]
+             }
     end
   end
 
