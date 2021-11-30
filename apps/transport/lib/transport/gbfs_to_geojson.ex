@@ -126,6 +126,7 @@ defmodule Transport.GbfsToGeojson do
 
     features =
       vehicles
+      |> Enum.filter(fn v -> v["station_id"] |> is_nil() end)
       |> Enum.map(fn v ->
         %{
           "type" => "Feature",
