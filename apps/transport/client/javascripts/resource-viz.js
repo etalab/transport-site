@@ -187,7 +187,7 @@ function clearFeatureGroups (featureGroups) {
 function fillFreeFloating (geojson, freeFloating) {
     L.geoJSON(geojson, {
         pointToLayer: function (geoJsonPoint, latlng) {
-            return L.circleMarker(latlng, { stroke: false, color: '#0066db', fillOpacity: 0.7})
+            return L.circleMarker(latlng, { stroke: false, color: '#0066db', fillOpacity: 0.7 })
         },
         onEachFeature: (feature, layer) => setGBFSFreeFloatingStyle(feature, layer)
     }).addTo(freeFloating)
@@ -236,13 +236,6 @@ function fillGBFSMap (resourceUrl, fg, map, firstCall = false) {
 // we want a custom message on the layers toggle control, depending on the GBFS vehicle type
 function setGBFSLayersControl (/* feeds, */fg, map) {
     if (!map.controlLayers) {
-        // we don't want a new control at each data refresh
-        // According to GBFS v2.2 https://github.com/NABSA/gbfs/blob/v2.2/gbfs.md
-        // const labels = { bicycle: 'Vélos', car: 'Voitures', moped: 'Scooters', scooter: 'Trottinettes', other: 'Véhicules' }
-        // 1 vehicle known vehicle type, we use it
-        // more vehicle types or unknown, we use a generic label : véhicules
-        // getVehicleType(feeds).then(types => {
-        // const vehicleLabel = /* types.length === 1 ? labels[types[0]] : */ 'Véhicules'
         const control = {}
         if ('bikesAvailable' in fg) {
             control['Véhicules disponibles'] = fg.bikesAvailable
@@ -257,24 +250,6 @@ function setGBFSLayersControl (/* feeds, */fg, map) {
             control.Geofencing = fg.geofencingZones
         }
         map.controlLayers = L.control.layers(control, {}, { collapsed: false }).addTo(map)
-    }
-}
-
-function getVehicleType (feeds) {
-    const vehicleTypes = feeds.filter(feed => feed.name.includes('vehicle_types'))[0]
-    if (vehicleTypes) {
-        const vehicleTypesUrl = vehicleTypes.url
-
-        return fetch(vehicleTypesUrl)
-            .then(data => data.json())
-            .then(vehicleTypes => {
-                const vehicleTypesList = vehicleTypes.data.vehicle_types
-                const types = vehicleTypesList.map(type => type.form_factor)
-                const uniqueTypes = [...new Set(types)]
-                return uniqueTypes
-            })
-    } else {
-        return Promise.resolve([])
     }
 }
 
