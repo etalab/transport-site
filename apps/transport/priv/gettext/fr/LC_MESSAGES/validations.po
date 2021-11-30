@@ -115,7 +115,7 @@ msgstr "Le format GeoJSON ne contient que les informations géographiques de la 
 msgid "This resource is also available in the following formats:"
 msgstr "Cette ressource est également disponible dans les formats suivants :"
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgctxt "errors"
 msgid "error"
 msgid_plural "errors"
