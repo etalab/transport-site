@@ -246,3 +246,15 @@ msgstr ""
 #, elixir-format
 msgid "Selected licences"
 msgstr ""
+
+#, elixir-format
+msgid "facilitators list description, %{link}"
+msgstr ""
+
+#, elixir-format
+msgid "full list"
+msgstr ""
+
+#, elixir-format
+msgid "They help us achieve our mission"
+msgstr ""
