@@ -4,7 +4,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   """
   use Phoenix.LiveView
 
-  # DRY declaration for the number of days we want to count on
+  # The number of past days we want to report on (as a positive integer).
+  # This is a DRYed ref we are using in multiple places.
   @stats_days 7
 
   # Authentication is assumed to happen in regular HTTP land. Here we verify
@@ -76,7 +77,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     """
     import Ecto.Query
 
-    def compute(days) do
+    def compute(days) when stats_days > 0 do
       date_from = DateTime.add(DateTime.utc_now(), -days * 24 * 60 * 60, :second)
 
       query =
