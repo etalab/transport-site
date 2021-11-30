@@ -14,6 +14,7 @@ defmodule Transport.GbfsToGeojson do
     |> add_station_information(payload)
     |> add_station_status(payload)
     |> add_free_bike_status(payload)
+    |> add_geofencing_zones(payload)
   end
 
   def add_station_information(resp_data, payload) do
@@ -144,6 +145,30 @@ defmodule Transport.GbfsToGeojson do
     }
   end
 
+  def add_geofencing_zones(resp_data, payload) do
+    payload
+    |> feed_url_from_payload("geofencing_zones")
+    |> case do
+      nil ->
+        resp_data
+
+      url ->
+        geojson = geofencing_zones_geojson(url)
+        resp_data |> Map.put("geofencing_zones", geojson)
+    end
+  # rescue
+  #   _e -> resp_data
+  end
+
+  def geofencing_zones_geojson(url) do
+    json = fetch_gbfs_endpoint!(url)
+
+    zones =
+    json
+    |> Map.fetch!("data")
+    |> Map.fetch!("geofencing_zones")
+
+  end
 
   defp fetch_gbfs_endpoint!(url) do
     %{status_code: 200, body: body} = http_client().get!(url)
