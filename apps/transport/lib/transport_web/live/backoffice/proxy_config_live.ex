@@ -119,22 +119,20 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     end)
   end
 
+  # a bit over the top, but this allows to keep events & database strings definitions in the telemetry module
+  defp db_filter_for_event(type) do
+    type
+    |> Transport.Telemetry.proxy_request_event_name()
+    |> Transport.Telemetry.database_event_name()
+  end
+
   defp add_stats(item, stats) do
     metrics_target = Unlock.Controller.Telemetry.target_for_identifier(item.unique_slug)
     counts = stats[metrics_target] || %{}
 
-    # a bit over the top, but this allows to keep events & database strings definitions in the telemetry module
-    external_filter =
-      Transport.Telemetry.proxy_request_event_name(:external)
-      |> Transport.Telemetry.database_event_name()
-
-    internal_filter =
-      Transport.Telemetry.proxy_request_event_name(:internal)
-      |> Transport.Telemetry.database_event_name()
-
     Map.merge(item, %{
-      stats_external_requests: Map.get(counts, external_filter, 0),
-      stats_internal_requests: Map.get(counts, internal_filter, 0)
+      stats_external_requests: Map.get(counts, db_filter_for_event(:external), 0),
+      stats_internal_requests: Map.get(counts, db_filter_for_event(:internal), 0)
     })
   end
 
