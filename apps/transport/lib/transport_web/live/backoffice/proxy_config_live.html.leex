@@ -8,9 +8,11 @@
                 <th>Identifiant</th>
                 <th>URL proxy</th>
                 <th>Donnée cible</th>
-                <th alt="Time To Live (durée en secondes de conservation dans le cache">TTL</th>
+                <th title="Time To Live (durée en secondes de conservation dans le cache">TTL</th>
                 <th>Taille RAM</th>
                 <th>Statut HTTP</th>
+                <th title="Requêtes reçues par le proxy sur les <%= @stats_days %> derniers jours">Req ext <%= @stats_days %>j</th>
+                <th title="Requêtes envoyées au serveur du producteur sur les <%= @stats_days %> derniers jours">Req int <%= @stats_days %>j</th>
             </tr>
         </thead>
         <tbody>
@@ -24,6 +26,9 @@
                 <!-- optional stuff, only available when cache is loaded -->
                 <td><%= resource[:cache_size] %></td>
                 <td><%= resource[:cache_status] %></td>
+                <!-- computed stuff -->
+                <td><%= resource[:stats_external_requests] %></td>
+                <td><%= resource[:stats_internal_requests] %></td>
             </tr>
             <% end %>
         </tbody>

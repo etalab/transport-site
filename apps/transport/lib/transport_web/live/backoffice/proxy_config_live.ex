@@ -4,6 +4,10 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   """
   use Phoenix.LiveView
 
+  # The number of past days we want to report on (as a positive integer).
+  # This is a DRYed ref we are using in multiple places.
+  @stats_days 7
+
   # Authentication is assumed to happen in regular HTTP land. Here we verify
   # the user presence + belonging to admin team, or redirect immediately.
   def mount(_params, session, socket) do
@@ -48,7 +52,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   defp update_data(socket) do
     assign(socket,
       last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
-      proxy_configuration: get_proxy_configuration(socket.assigns.proxy_base_url)
+      stats_days: @stats_days,
+      proxy_configuration: get_proxy_configuration(socket.assigns.proxy_base_url, @stats_days)
     )
   end
 
@@ -65,7 +70,40 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
   defp config_module, do: Application.fetch_env!(:unlock, :config_fetcher)
 
-  defp get_proxy_configuration(proxy_base_url) do
+  defmodule Stats do
+    @moduledoc """
+    A quick stat module to compute the total count of event per identifier/event
+    for the last N days
+    """
+    import Ecto.Query
+
+    def compute(days) when days > 0 do
+      date_from = DateTime.add(DateTime.utc_now(), -days * 24 * 60 * 60, :second)
+
+      query =
+        from(m in DB.Metrics,
+          group_by: [m.target, m.event],
+          where: m.period >= ^date_from,
+          select: %{count: sum(m.count), identifier: m.target, event: m.event}
+        )
+
+      query |> DB.Repo.all()
+    end
+  end
+
+  defp get_proxy_configuration(proxy_base_url, stats_days) do
+    # NOTE: if the stats query becomes too costly, we will be able to throttle it every N seconds instead,
+    # using a simple cache. At the moment, `get_proxy_configuration` is called once per frame, and not
+    # once per item.
+    stats =
+      stats_days
+      |> Stats.compute()
+      |> Enum.group_by(fn x -> x[:identifier] end)
+      |> Enum.into(%{}, fn {k, v} ->
+        v = Enum.into(v, %{}, fn x -> {x[:event], x[:count]} end)
+        {k, v}
+      end)
+
     config_module().fetch_config!()
     |> Map.values()
     |> Enum.sort_by(& &1.identifier)
@@ -77,7 +115,25 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
         ttl: resource.ttl
       }
       |> add_cache_state()
+      |> add_stats(stats)
     end)
+  end
+
+  # a bit over the top, but this allows to keep events & database strings definitions in the telemetry module
+  defp db_filter_for_event(type) do
+    type
+    |> Transport.Telemetry.proxy_request_event_name()
+    |> Transport.Telemetry.database_event_name()
+  end
+
+  defp add_stats(item, stats) do
+    metrics_target = Unlock.Controller.Telemetry.target_for_identifier(item.unique_slug)
+    counts = stats[metrics_target] || %{}
+
+    Map.merge(item, %{
+      stats_external_requests: Map.get(counts, db_filter_for_event(:external), 0),
+      stats_internal_requests: Map.get(counts, db_filter_for_event(:internal), 0)
+    })
   end
 
   defp add_cache_state(item) do
