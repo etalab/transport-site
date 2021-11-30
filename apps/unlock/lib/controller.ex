@@ -37,6 +37,8 @@ defmodule Unlock.Controller do
       "proxy:#{item_identifier}"
     end
 
+    # This call will result in synchronous invoke of all registered handlers for the specified events.
+    # (for instance, check out `Transport.Telemetry#handle_event`, available at time of writing)
     def trace_request(item_identifier, request_type) when request_type in @proxy_requests do
       :telemetry.execute([:proxy, :request, request_type], %{}, %{
         target: target_for_identifier(item_identifier)
