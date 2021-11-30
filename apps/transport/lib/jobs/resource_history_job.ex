@@ -47,6 +47,8 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   import Ecto.Query
   alias DB.{Repo, Resource}
 
+  @payload_version 1
+
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"datagouv_id" => datagouv_id}}) do
     Logger.info("Running ResourceHistoryJob for #{datagouv_id}")
@@ -58,17 +60,25 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
     zip_metadata = Transport.ZipMetaDataExtractor.extract!(resource_path)
 
-    _data = %{
+    data = %{
       zip_metadata: zip_metadata,
       http_headers: headers,
       resource_metadata: resource.metadata,
       upload_filename: upload_filename,
+      format: resource.format,
       filenames: zip_metadata |> Enum.map(& &1.file_name),
       total_uncompressed_size: zip_metadata |> Enum.map(& &1.uncompressed_size) |> Enum.sum(),
       total_compressed_size: zip_metadata |> Enum.map(& &1.compressed_size) |> Enum.sum()
     }
 
+    store_resource_history!(resource, data)
+
     :ok
+  end
+
+  defp store_resource_history!(%Resource{datagouv_id: datagouv_id}, payload) do
+    %DB.ResourceHistory{datagouv_id: datagouv_id, payload: payload, version: @payload_version}
+    |> DB.Repo.insert!()
   end
 
   defp download_resource(%Resource{datagouv_id: datagouv_id, url: url}) do

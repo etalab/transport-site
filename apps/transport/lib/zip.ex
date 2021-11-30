@@ -4,6 +4,10 @@ defmodule Transport.ZipMetaDataExtractor do
   which is able to stream the content of each file, allowing us to easily compute a
   SHA256 for each entry.
   """
+  require Protocol
+
+  Protocol.derive(Jason.Encoder, Unzip.Entry)
+
   def extract!(file) do
     zip_file = Unzip.LocalFile.open(file)
     {:ok, unzip} = Unzip.new(zip_file)
