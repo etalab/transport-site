@@ -6,6 +6,10 @@ defmodule TransportWeb.DatasetView do
   alias TransportWeb.PaginationHelpers
   alias TransportWeb.Router.Helpers
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
+  # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
+  # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
+  # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
+  import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
   alias TransportWeb.ResourceView
 
   @doc """
@@ -106,8 +110,8 @@ defmodule TransportWeb.DatasetView do
         "most_recent" => dgettext("page-shortlist", "Most recently added")
       }[order_by]
 
-    case conn.assigns do
-      %{order_by: ^order_by} -> ~E"<span class=\"activefilter\"><%= msg %></span>"
+    case assigns = conn.assigns do
+      %{order_by: ^order_by} -> ~H"<span class=\"activefilter\"><%= msg %></span>"
       _ -> link(msg, to: "#{current_url(conn, Map.put(conn.query_params, "order_by", order_by))}")
     end
   end
@@ -122,8 +126,10 @@ defmodule TransportWeb.DatasetView do
     params = conn.query_params
     full_url = "#{url}?#{Query.encode(params)}"
 
+    assigns = conn.assigns
+
     case current_path(conn, %{}) do
-      ^url -> ~E"<span class=\"activefilter\"><%= nom %> (<%= count %>)</span>"
+      ^url -> ~H"<span class=\"activefilter\"><%= nom %> (<%= count %>)</span>"
       _ -> link("#{nom} (#{count})", to: full_url)
     end
   end
@@ -142,7 +148,8 @@ defmodule TransportWeb.DatasetView do
       |> URI.to_string()
 
     link_text = "#{msg} (#{count})"
-    active_filter_text = ~E"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>"
+    assigns = conn.assigns
+    active_filter_text = ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>"
 
     case conn.params do
       %{"type" => ^type} ->
@@ -173,10 +180,12 @@ defmodule TransportWeb.DatasetView do
       |> URI.to_string()
       |> Kernel.<>("#datasets-results")
 
+    assigns = conn.assigns
+
     case {only_rt, Map.get(conn.query_params, "filter")} do
       {false, "has_realtime"} -> link("#{msg} (#{count})", to: full_url)
       {true, nil} -> link("#{msg} (#{count})", to: full_url)
-      _ -> ~E"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>"
+      _ -> ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>"
     end
   end
 
