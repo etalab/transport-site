@@ -24,6 +24,11 @@ defmodule Unlock.Controller do
   end
 
   defmodule Telemetry do
+    # NOTE: to be DRYed with what is in the "transport" app later (`telemetry.ex`), if we stop using an umbrella app.
+    # Currently we would have a circular dependency, or would have to move all this to `shared`.
+
+    @proxy_requests [:internal, :external]
+
     @moduledoc """
     A quick place to centralize definition of tracing events and targets
     """
@@ -32,7 +37,7 @@ defmodule Unlock.Controller do
       "proxy:#{item_identifier}"
     end
 
-    def trace_request(item_identifier, request_type) do
+    def trace_request(item_identifier, request_type) when request_type in @proxy_requests do
       :telemetry.execute([:proxy, :request, request_type], %{}, %{
         target: target_for_identifier(item_identifier)
       })
