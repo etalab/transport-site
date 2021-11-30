@@ -1,6 +1,8 @@
 defmodule Transport.Telemetry do
   require Logger
 
+  @proxy_request_types [:external, :internal]
+
   @moduledoc """
   This place groups various aspects of event handling (currently to get metrics for the proxy, later more):
   - events handler declaration
@@ -56,6 +58,11 @@ defmodule Transport.Telemetry do
     )
   end
 
+  def proxy_request_event_name(request) when request in @proxy_request_types,
+    do: [:proxy, :request, request]
+
+  def proxy_request_event_names, do: @proxy_request_types |> Enum.map(&[:proxy, :request, &1])
+
   @doc """
   Attach the required handlers. To be called at application start.
   """
@@ -67,10 +74,7 @@ defmodule Transport.Telemetry do
         # here we list the "event names" (a name is actually a list of atoms, per
         # https://hexdocs.pm/telemetry/telemetry.html#t:event_name/0)
         # for which we want to be called in the handler
-        [
-          [:proxy, :request, :external],
-          [:proxy, :request, :internal]
-        ],
+        proxy_request_event_names,
         &Transport.Telemetry.handle_event/4,
         nil
       )
