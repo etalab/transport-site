@@ -2,7 +2,7 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
   @moduledoc """
   Job in charge of dispatching multiple `ResourceHistoryJob`
   """
-  use Oban.Worker, unique: [period: 60 * 60 * 5], tags: ["history"]
+  use Oban.Worker, unique: [period: 60 * 60 * 5], tags: ["history"], max_attempts: 5
   import Ecto.Query
   alias DB.{Repo, Resource}
 
@@ -72,9 +72,13 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     }
 
     store_resource_history!(resource, data)
+    remove_file!(resource_path)
 
     :ok
   end
+
+  @impl Oban.Worker
+  def timeout(_job), do: :timer.minutes(5)
 
   defp store_resource_history!(%Resource{datagouv_id: datagouv_id}, payload) do
     %DB.ResourceHistory{datagouv_id: datagouv_id, payload: payload, version: @payload_version}
@@ -92,6 +96,8 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
     {file_path, relevant_headers, body}
   end
+
+  defp remove_file!(path), do: File.rm!(path)
 
   defp upload_to_s3!(%Resource{} = resource, body) do
     filename = upload_filename(resource)

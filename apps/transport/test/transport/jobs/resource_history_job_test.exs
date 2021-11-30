@@ -111,6 +111,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
       assert 1 == count_resource_history()
 
+      ensure_no_tmp_files!()
+
       assert %DB.ResourceHistory{
                datagouv_id: ^datagouv_id,
                payload: %{
@@ -191,6 +193,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                version: 1
              } = DB.ResourceHistory |> DB.Repo.one!()
     end
+  end
+
+  defp ensure_no_tmp_files! do
+    tmp_files = System.tmp_dir!() |> File.ls!()
+    assert tmp_files |> Enum.filter(fn f -> String.starts_with?(f, "resource_") end) |> Enum.empty?()
   end
 
   defp count_resource_history do
