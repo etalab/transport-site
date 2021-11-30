@@ -140,6 +140,28 @@ function setGBFSFreeFloatingStyle (feature, layer) {
     layer.bindPopup(`<pre>${JSON.stringify(properties, null, 2)}</pre>`)
 }
 
+function setGBFSGeofencingStyle (feature, layer) {
+    const rules = feature.properties.rules
+    const rule = rules.length > 0 ? rules[0] : undefined
+    let color, opacity
+
+    if (rule) {
+        if (rule.ride_through_allowed === false) {
+            color = 'red'
+            opacity = 0.6
+        } else if (rule.ride_allowed === false) {
+            color = 'orange'
+            opacity = 0.6
+        } else {
+            color = 'green'
+            opacity = 0.4
+        }
+    }
+    layer
+        .bindPopup(`<pre>${JSON.stringify(feature.properties, null, 2)}</pre>`)
+        .setStyle({ fillColor: color, color: color, fillOpacity: opacity, stroke: false })
+}
+
 function fillStations (stationsGeojson, bikesAvailable, docksAvailable) {
     L.geoJSON(stationsGeojson, {
         pointToLayer: function (geoJsonPoint, latlng) {
@@ -156,46 +178,55 @@ function fillStations (stationsGeojson, bikesAvailable, docksAvailable) {
     }).addTo(docksAvailable)
 }
 
-function removeFeatureGroups (featureGroups) {
+function clearFeatureGroups (featureGroups) {
     for (const fg in featureGroups) {
-        featureGroups[fg].remove()
+        featureGroups[fg].clearLayers()
     }
 }
 
 function fillFreeFloating (geojson, freeFloating) {
     L.geoJSON(geojson, {
         pointToLayer: function (geoJsonPoint, latlng) {
-            return L.circleMarker(latlng, { stroke: false, color: '#0066db', fillOpacity: 0.7 })
+            return L.circleMarker(latlng, { stroke: false, color: '#0066db', fillOpacity: 0.7})
         },
         onEachFeature: (feature, layer) => setGBFSFreeFloatingStyle(feature, layer)
     }).addTo(freeFloating)
 }
 
-function fillGBFSMap (resourceUrl, fg, map, fitBounds = false) {
+function fillGeofencingZones (geojson, geoFencingZones) {
+    L.geoJSON(geojson, {
+        onEachFeature: (feature, layer) => setGBFSGeofencingStyle(feature, layer)
+    }).addTo(geoFencingZones)
+}
+
+function fillGBFSMap (resourceUrl, fg, map, firstCall = false) {
     const geojsonUrl = `/tools/gbfs/geojson_convert?url=${resourceUrl}`
     fetch(geojsonUrl)
         .then(response => response.json())
         .then(data => {
-            removeFeatureGroups(fg)
+            clearFeatureGroups(fg)
 
             if ('stations' in data) {
-                fg.bikesAvailable = L.featureGroup()
-                fg.docksAvailable = L.featureGroup()
+                fg.bikesAvailable = fg.bikesAvailable ? fg.bikesAvailable : L.featureGroup()
+                fg.docksAvailable = fg.docksAvailable ? fg.docksAvailable : L.featureGroup()
                 fillStations(data.stations, fg.bikesAvailable, fg.docksAvailable)
             }
 
             if ('free_floating' in data) {
-                fg.freeFloating = L.featureGroup()
+                fg.freeFloating = fg.freeFloating ? fg.freeFloating : L.featureGroup()
                 fillFreeFloating(data.free_floating, fg.freeFloating)
             }
 
-            // add one of the feature to the map (initial state)
-            const firstFg = fg[Object.keys(fg)[0]]
-            firstFg.addTo(map)
-
+            if ('geofencing_zones' in data) {
+                fg.geofencingZones = fg.geofencingZones ? fg.geofencingZones : L.featureGroup()
+                fillGeofencingZones(data.geofencing_zones, fg.geofencingZones)
+            }
 
             setGBFSLayersControl(fg, map)
-            if (fitBounds) {
+            if (firstCall) {
+                // add one of the feature to the map (initial state)
+                const firstFg = fg[Object.keys(fg)[0]]
+                firstFg.addTo(map)
                 map.fitBounds(firstFg.getBounds())
             }
         })
@@ -204,7 +235,8 @@ function fillGBFSMap (resourceUrl, fg, map, fitBounds = false) {
 
 // we want a custom message on the layers toggle control, depending on the GBFS vehicle type
 function setGBFSLayersControl (/* feeds, */fg, map) {
-    if (!map.hasControlLayers) { // we don't want a new control at each data refresh
+    if (!map.controlLayers) {
+        // we don't want a new control at each data refresh
         // According to GBFS v2.2 https://github.com/NABSA/gbfs/blob/v2.2/gbfs.md
         // const labels = { bicycle: 'Vélos', car: 'Voitures', moped: 'Scooters', scooter: 'Trottinettes', other: 'Véhicules' }
         // 1 vehicle known vehicle type, we use it
@@ -221,10 +253,10 @@ function setGBFSLayersControl (/* feeds, */fg, map) {
         if ('freeFloating' in fg) {
             control['Véhicules free-floating'] = fg.freeFloating
         }
-
-        L.control.layers(control, {}, { collapsed: false }).addTo(map)
-        map.hasControlLayers = true
-        // })
+        if ('geofencingZones' in fg) {
+            control.Geofencing = fg.geofencingZones
+        }
+        map.controlLayers = L.control.layers(control, {}, { collapsed: false }).addTo(map)
     }
 }
 
@@ -247,8 +279,7 @@ function getVehicleType (feeds) {
 }
 
 function createGBFSmap (id, resourceUrl) {
-    const { map, _fg } = initilizeMap(id)
-
+    const { map, _ } = initilizeMap(id)
     const featureGroups = {}
 
     fillGBFSMap(resourceUrl, featureGroups, map, true)
