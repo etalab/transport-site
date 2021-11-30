@@ -268,7 +268,6 @@ function createGBFSmap (id, resourceUrl) {
     // eslint-disable-next-line no-unused-vars
     const { map, _ } = initilizeMap(id)
     const featureGroups = {}
-    resourceUrl = 'https://gbfs.spin.pm/api/gbfs/v2_2/seattle/gbfs'
     const refreshInterval = 60
 
     addCountdownDiv('coutdown', refreshInterval)
