@@ -93,7 +93,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
   defp get_proxy_configuration(proxy_base_url, stats_days) do
     # NOTE: if the stats query becomes too costly, we will be able to throttle it every N seconds instead,
-    # using a simple cache.
+    # using a simple cache. At the moment, `get_proxy_configuration` is called once per frame, and not
+    # once per item.
     stats =
       stats_days
       |> Stats.compute()
