@@ -278,12 +278,37 @@ function getVehicleType (feeds) {
     }
 }
 
+function addCountdownDiv (id, refreshInterval) {
+    const node = document.createElement('div')
+    node.style.position = 'relative'
+    node.style.zIndex = '1000'
+    node.style.left = '50%'
+    node.id = id
+    const textnode = document.createTextNode(refreshInterval)
+    node.appendChild(textnode)
+    document.getElementById('map').appendChild(node)
+}
+
 function createGBFSmap (id, resourceUrl) {
+    // eslint-disable-next-line no-unused-vars
     const { map, _ } = initilizeMap(id)
     const featureGroups = {}
+    resourceUrl = 'https://gbfs.spin.pm/api/gbfs/v2_2/seattle/gbfs'
+    const refreshInterval = 60
+
+    addCountdownDiv('coutdown', refreshInterval)
+    let countdown = refreshInterval
 
     fillGBFSMap(resourceUrl, featureGroups, map, true)
-    setInterval(() => fillGBFSMap(resourceUrl, featureGroups, map), 60000)
+    setInterval(() => {
+        countdown = refreshInterval
+        fillGBFSMap(resourceUrl, featureGroups, map)
+    }, refreshInterval * 1000)
+
+    // update the countdown every second
+    setInterval(() => {
+        document.getElementById('coutdown').innerHTML = (countdown-- <= 3 ? 'mise à jour' : countdown)
+    }, 1000)
 }
 
 function createGeojsonMap (id, resourceUrl) {
