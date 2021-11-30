@@ -27,9 +27,11 @@ defmodule Transport.Telemetry do
     # won't notice if a tracing of event fails
     Task.start(fn ->
       Logger.info("Telemetry event: processing #{type} proxy request for #{target}")
-      count_event(target, event |> Enum.join(":"))
+      count_event(target, event)
     end)
   end
+
+  def database_event_name(event_name), do: Enum.join(event_name, ":")
 
   @doc """
   We embrace the fact that our current implementation's goal is not to replace
@@ -43,6 +45,7 @@ defmodule Transport.Telemetry do
   Atomically upsert a count record in the database.
   """
   def count_event(target, event, period \\ DateTime.utc_now()) do
+    event = database_event_name(event)
     period = truncate_datetime_to_hour(period)
 
     DB.Repo.insert!(
