@@ -24,7 +24,8 @@ defmodule Transport.Telemetry do
         _measurements,
         %{target: target},
         _config
-      ) do
+      )
+      when type in @proxy_request_types do
     # make it non-blocking, to ensure the traffic will be served quickly. this also means, though, we
     # won't notice if a tracing of event fails
     Task.start(fn ->
