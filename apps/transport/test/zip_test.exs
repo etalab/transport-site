@@ -8,7 +8,6 @@ defmodule Transport.ZipMetaDataExtractorTest do
     assert 9 == Enum.count(results)
 
     assert %{
-             __struct__: Unzip.Entry,
              compressed_size: 251,
              file_name: "stops.txt",
              last_modified_datetime: ~N[2017-02-16 05:01:12],
@@ -17,7 +16,6 @@ defmodule Transport.ZipMetaDataExtractorTest do
            } == results |> Enum.find(fn e -> e.file_name == "stops.txt" end)
 
     assert %{
-             __struct__: Unzip.Entry,
              compressed_size: 378,
              file_name: "trips.txt",
              last_modified_datetime: ~N[2017-02-16 05:01:12],

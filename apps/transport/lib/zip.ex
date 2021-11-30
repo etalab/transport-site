@@ -4,9 +4,6 @@ defmodule Transport.ZipMetaDataExtractor do
   which is able to stream the content of each file, allowing us to easily compute a
   SHA256 for each entry.
   """
-  require Protocol
-
-  Protocol.derive(Jason.Encoder, Unzip.Entry)
 
   def extract!(file) do
     zip_file = Unzip.LocalFile.open(file)
@@ -25,7 +22,7 @@ defmodule Transport.ZipMetaDataExtractor do
       |> Unzip.file_stream!(entry.file_name)
       |> compute_checksum(algorithm)
 
-    Map.put(entry, algorithm, checksum)
+    entry |> Map.put(algorithm, checksum) |> Map.delete(:__struct__)
   end
 
   def compute_checksum(stream, algorithm) do

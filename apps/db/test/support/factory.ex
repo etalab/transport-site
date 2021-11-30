@@ -42,6 +42,10 @@ defmodule DB.Factory do
     }
   end
 
+  def resource_history_factory do
+    %DB.ResourceHistory{version: "1"}
+  end
+
   def commune_factory do
     %DB.Commune{
       nom: "Ballans",
