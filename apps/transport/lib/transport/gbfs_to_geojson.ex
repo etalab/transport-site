@@ -185,7 +185,7 @@ defmodule Transport.GbfsToGeojson do
     Jason.decode!(body)
   end
 
-  @spec feed_url_from_payload(map(), binary()) :: binary()
+  @spec feed_url_from_payload(map(), binary()) :: binary() | nil
   defp feed_url_from_payload(payload, feed_name) do
     payload |> GBFSMetadata.first_feed() |> GBFSMetadata.feed_url_by_name(feed_name)
   end
