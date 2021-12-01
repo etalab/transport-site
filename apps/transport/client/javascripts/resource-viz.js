@@ -103,7 +103,7 @@ function setGBFSStationStyle (feature, layer, field) {
             .bindTooltip('HS', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
             .setStyle({ fillColor: 'red' })
     } else {
-        const N = stationStatus[field]
+        const N = stationStatus[field] || ''
         let opacity = 0.8
         if (N === 0) {
             opacity = 0.4
