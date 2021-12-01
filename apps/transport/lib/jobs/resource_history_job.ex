@@ -57,8 +57,20 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     Logger.info("Running ResourceHistoryJob for #{datagouv_id}")
     resource = Resource |> where([r], r.datagouv_id == ^datagouv_id) |> Repo.one!()
 
-    {resource_path, headers, body} = download_resource(resource)
+    resource |> download_resource() |> process_download(resource) |> remove_file!()
 
+    :ok
+  end
+
+  @impl Oban.Worker
+  def timeout(_job), do: :timer.minutes(5)
+
+  defp process_download({:error, message}, %Resource{datagouv_id: datagouv_id}) do
+    Logger.debug("Got an error while downloading #{datagouv_id}: #{message}")
+    nil
+  end
+
+  defp process_download({:ok, resource_path, headers, body}, %Resource{datagouv_id: datagouv_id} = resource) do
     zip_metadata = Transport.ZipMetaDataExtractor.extract!(resource_path)
 
     case should_store_resource?(resource, zip_metadata) do
@@ -80,16 +92,10 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
       false ->
         Logger.debug("skipping historization for #{datagouv_id} because resource did not change")
-        :ok
     end
 
-    remove_file!(resource_path)
-
-    :ok
+    resource_path
   end
-
-  @impl Oban.Worker
-  def timeout(_job), do: :timer.minutes(5)
 
   @doc """
   Determine if we would historicise a payload now.
@@ -135,16 +141,22 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   defp download_resource(%Resource{datagouv_id: datagouv_id, url: url}) do
     file_path = System.tmp_dir!() |> Path.join("resource_#{datagouv_id}_download")
 
-    %{status: 200, body: body, headers: headers} = Unlock.HTTP.Client.impl().get!(url, [])
-    Logger.debug("Saving resource #{datagouv_id} to #{file_path}")
-    File.write!(file_path, body)
+    case Unlock.HTTP.Client.impl().get!(url, []) do
+      %{status: 200, body: body, headers: headers} ->
+        Logger.debug("Saving resource #{datagouv_id} to #{file_path}")
+        File.write!(file_path, body)
+        relevant_headers = headers |> Enum.into(%{}) |> Map.take(relevant_http_headers())
+        {:ok, file_path, relevant_headers, body}
 
-    relevant_headers = headers |> Enum.into(%{}) |> Map.take(relevant_http_headers())
+      %{status: status} ->
+        {:error, "Got a non 200 status: #{status}"}
 
-    {file_path, relevant_headers, body}
+      %Finch.Error{reason: reason} ->
+        {:error, "Got an error: #{reason}"}
+    end
   end
 
-  defp remove_file!(path), do: File.rm!(path)
+  defp remove_file!(path), do: if(is_nil(path), do: :ok, else: File.rm!(path))
 
   defp upload_to_s3!(%Resource{} = resource, body) do
     filename = upload_filename(resource)

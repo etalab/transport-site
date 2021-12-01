@@ -287,6 +287,30 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       ensure_no_tmp_files!()
     end
+
+    test "does not crash when there is a server error" do
+      resource_url = "https://example.com/gtfs.zip"
+
+      %{datagouv_id: datagouv_id} =
+        insert(:resource,
+          url: resource_url,
+          format: "GTFS",
+          title: "title",
+          datagouv_id: "1",
+          is_community_resource: false
+        )
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, fn url, _headers ->
+        assert url == resource_url
+        %{status: 500, body: "", headers: []}
+      end)
+
+      assert 0 == count_resource_history()
+      assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
+
+      ensure_no_tmp_files!()
+    end
   end
 
   defp zip_metadata do
