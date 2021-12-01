@@ -43,7 +43,7 @@ defmodule DB.Factory do
   end
 
   def resource_history_factory do
-    %DB.ResourceHistory{version: "1"}
+    %DB.ResourceHistory{}
   end
 
   def commune_factory do

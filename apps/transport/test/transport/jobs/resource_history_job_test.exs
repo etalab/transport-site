@@ -89,18 +89,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       refute ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
     end
 
-    test "with the latest ResourceHistory matching but with a different version" do
-      %{datagouv_id: datagouv_id} =
-        insert(:resource_history,
-          datagouv_id: "1",
-          payload: %{"zip_metadata" => zip_metadata()},
-          version: 2
-        )
-
-      assert 1 == count_resource_history()
-      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
-    end
-
     test "with the latest ResourceHistory matching but for a different datagouv_id" do
       %{datagouv_id: datagouv_id} =
         insert(:resource_history,
@@ -253,8 +241,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  "total_uncompressed_size" => 10_685,
                  "upload_filename" => _upload_filename,
                  "zip_metadata" => ^expected_zip_metadata
-               },
-               version: 1
+               }
              } = DB.ResourceHistory |> DB.Repo.one!()
     end
 

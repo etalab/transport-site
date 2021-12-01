@@ -56,7 +56,10 @@ config :transport, TransportWeb.Endpoint,
   live_view: [
     # NOTE: unsure if this is actually great to reuse the same value
     signing_salt: secret_key_base
-  ]
+  ],
+  s3_buckets: %{
+    history: "resource-history-dev"
+  }
 
 datagouvfr_site = "https://demo.data.gouv.fr"
 

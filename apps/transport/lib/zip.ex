@@ -12,6 +12,21 @@ defmodule Transport.ZipMetaDataExtractor do
     unzip
     |> Unzip.list_entries()
     |> Enum.map(&enrich(&1, unzip))
+    |> Enum.map(fn m -> keep_keys(m, keys()) end)
+  end
+
+  def keep_keys(map, keys) do
+    Enum.into(keys, %{}, fn key -> {key, Map.fetch!(map, key)} end)
+  end
+
+  defp keys do
+    [
+      :compressed_size,
+      :file_name,
+      :last_modified_datetime,
+      :sha256,
+      :uncompressed_size
+    ]
   end
 
   def enrich(entry, unzip) do
@@ -22,7 +37,7 @@ defmodule Transport.ZipMetaDataExtractor do
       |> Unzip.file_stream!(entry.file_name)
       |> compute_checksum(algorithm)
 
-    entry |> Map.put(algorithm, checksum) |> Map.delete(:__struct__)
+    entry |> Map.put(algorithm, checksum)
   end
 
   def compute_checksum(stream, algorithm) do

@@ -31,11 +31,10 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
     Logger.debug("Dispatching #{Enum.count(datagouv_ids)} ResourceHistoryJob jobs")
 
     datagouv_ids
-    |> Enum.each(fn datagouv_id ->
-      %{datagouv_id: datagouv_id}
-      |> Transport.Jobs.ResourceHistoryJob.new()
-      |> Oban.insert()
+    |> Enum.map(fn datagouv_id ->
+      %{datagouv_id: datagouv_id} |> Transport.Jobs.ResourceHistoryJob.new()
     end)
+    |> Oban.insert_all()
 
     :ok
   end
@@ -49,8 +48,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   require Logger
   import Ecto.Query
   alias DB.{Repo, Resource}
-
-  @payload_version 1
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"datagouv_id" => datagouv_id}}) do
@@ -66,6 +63,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   def timeout(_job), do: :timer.minutes(5)
 
   defp process_download({:error, message}, %Resource{datagouv_id: datagouv_id}) do
+    # Good opportunity to add a :telemetry event
+    # Consider storing in our database that the resource
+    # was not available.
     Logger.debug("Got an error while downloading #{datagouv_id}: #{message}")
     nil
   end
@@ -91,6 +91,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         store_resource_history!(resource, data)
 
       false ->
+        # Good opportunity to add a :telemetry event
         Logger.debug("skipping historization for #{datagouv_id} because resource did not change")
     end
 
@@ -105,13 +106,8 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   - the latest ResourceHistory payload is different than the current state
   """
   def should_store_resource?(%Resource{datagouv_id: datagouv_id}, zip_metadata) do
-    if @payload_version != 1 do
-      raise RuntimeError, "may need to update logic if we have multiple versions"
-    end
-
     history =
       DB.ResourceHistory
-      |> where([r], r.version == 1)
       |> where([r], r.datagouv_id == ^datagouv_id)
       |> order_by(desc: :inserted_at)
       |> limit(1)
@@ -134,7 +130,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   defp store_resource_history!(%Resource{datagouv_id: datagouv_id}, payload) do
     Logger.debug("Saving ResourceHistory for #{datagouv_id}")
 
-    %DB.ResourceHistory{datagouv_id: datagouv_id, payload: payload, version: @payload_version}
+    %DB.ResourceHistory{datagouv_id: datagouv_id, payload: payload}
     |> DB.Repo.insert!()
   end
 
@@ -176,20 +172,14 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   end
 
   defp upload_filename(%Resource{} = resource) do
-    d = DateTime.utc_now()
-    {microsecond, _} = d.microsecond
+    time = Calendar.strftime(DateTime.utc_now(), "%Y%m%d.%H%M%S.%f")
 
-    parts = [
-      "#{d.year}#{d.month}#{d.day}",
-      "#{d.hour}#{d.minute}",
-      microsecond
-    ]
-
-    "#{resource.datagouv_id}/#{resource.datagouv_id}.#{parts |> Enum.join(".")}.zip"
+    "#{resource.datagouv_id}/#{resource.datagouv_id}.#{time}.zip"
   end
 
   defp relevant_http_headers do
     [
+      "content-disposition",
       "content-encoding",
       "content-length",
       "content-type",

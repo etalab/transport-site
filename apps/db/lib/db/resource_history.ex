@@ -7,7 +7,6 @@ defmodule DB.ResourceHistory do
 
   typed_schema "resource_history" do
     field(:datagouv_id, :string)
-    field(:version, :integer)
     field(:payload, :map)
 
     timestamps(type: :utc_datetime_usec)

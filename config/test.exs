@@ -32,7 +32,10 @@ config :transport,
   gbfs_validator_impl: Shared.Validation.GBFSValidator.Mock,
   rambo_impl: Transport.Rambo.Mock,
   notifications_impl: Transport.Notifications.FetcherMock,
-  notifications_api_token: "secret"
+  notifications_api_token: "secret",
+  s3_buckets: %{
+    history: "resource-history-test"
+  }
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"

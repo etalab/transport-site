@@ -2,12 +2,10 @@ defmodule Transport.S3 do
   @moduledoc """
   This module contains common code related to S3 object storage.
   """
-  @buckets %{
-    history: "resource-history"
-  }
 
   def bucket_name(feature) do
-    "transport-data-gouv-fr-#{Map.fetch!(@buckets, feature)}-#{Mix.env()}"
+    config = Application.fetch_env!(:transport, :s3_buckets)
+    "transport-data-gouv-fr-#{Map.fetch!(config, feature)}"
   end
 
   def create_bucket_if_needed!(feature, options \\ %{acl: "public-read"}) do
