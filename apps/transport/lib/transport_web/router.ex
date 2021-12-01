@@ -150,7 +150,7 @@ defmodule TransportWeb.Router do
       get("/:id", ValidationController, :show)
     end
 
-    scope "tools" do
+    scope "/tools" do
       get("/gbfs/geojson_convert", GbfsToGeojsonController, :convert)
     end
 
