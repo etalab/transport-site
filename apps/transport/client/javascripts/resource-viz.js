@@ -97,25 +97,27 @@ function createCSVmap (id, resourceUrl) {
 function setGBFSStationStyle (feature, layer, field) {
     const stationStatus = feature.properties.station_status
 
-    if (stationStatus.is_renting !== true && stationStatus.is_renting !== 1) {
-        layer
-            .unbindTooltip()
-            .bindTooltip('HS', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
-            .setStyle({ fillColor: 'red' })
-    } else {
-        const N = stationStatus[field] || ''
-        let opacity = 0.8
-        if (N === 0) {
-            opacity = 0.4
-        } else if (N < 3) {
-            opacity = 0.6
+    if (stationStatus) {
+        if (stationStatus.is_renting !== true && stationStatus.is_renting !== 1) {
+            layer
+                .unbindTooltip()
+                .bindTooltip('HS', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
+                .setStyle({ fillColor: 'red' })
+        } else {
+            const N = stationStatus[field] || ''
+            let opacity = 0.8
+            if (N === 0) {
+                opacity = 0.4
+            } else if (N < 3) {
+                opacity = 0.6
+            }
+            layer
+                .unbindTooltip()
+                .bindTooltip(`${N}`, { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
+                .setStyle({ fillOpacity: opacity })
         }
-        layer
-            .unbindTooltip()
-            .bindTooltip(`${N}`, { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
-            .setStyle({ fillOpacity: opacity })
+        layer.bindPopup(`<pre>${JSON.stringify(stationStatus, null, 2)}</pre>`)
     }
-    layer.bindPopup(`<pre>${JSON.stringify(stationStatus, null, 2)}</pre>`)
 }
 
 function setGBFSFreeFloatingStyle (feature, layer) {
