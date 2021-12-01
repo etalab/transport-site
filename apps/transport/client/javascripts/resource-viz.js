@@ -235,8 +235,8 @@ function fillGBFSMap (resourceUrl, fg, map, firstCall = false) {
         .catch(e => removeViz(e))
 }
 
-// we want a custom message on the layers toggle control, depending on the GBFS vehicle type
-function setGBFSLayersControl (/* feeds, */fg, map) {
+// I have removed custom text for vehicle types for the moment.
+function setGBFSLayersControl (fg, map) {
     if (!map.controlLayers) {
         const control = {}
         if ('bikesAvailable' in fg) {
