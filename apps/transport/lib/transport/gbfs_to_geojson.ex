@@ -7,6 +7,7 @@ defmodule Transport.GbfsToGeojson do
   @doc """
   Main module function: returns a map of geojsons generated from the GBFS endpoint
   """
+  @spec gbfs_geojsons(binary()) :: map()
   def gbfs_geojsons(url) do
     payload = fetch_gbfs_endpoint!(url)
 
@@ -17,6 +18,7 @@ defmodule Transport.GbfsToGeojson do
     |> add_geofencing_zones(payload)
   end
 
+  @spec add_station_information(map(), map()) :: map()
   defp add_station_information(resp_data, payload) do
     payload
     |> feed_url_from_payload("station_information")
@@ -25,14 +27,15 @@ defmodule Transport.GbfsToGeojson do
         resp_data
 
       url ->
-        geojson = station_information_geojson(url)
+        geojson = station_information_geojson!(url)
         resp_data |> Map.put("stations", geojson)
     end
   rescue
     _e -> resp_data
   end
 
-  defp station_information_geojson(url) do
+  @spec station_information_geojson!(binary()) :: map()
+  defp station_information_geojson!(url) do
     features =
       url
       |> fetch_gbfs_endpoint!()
@@ -58,6 +61,7 @@ defmodule Transport.GbfsToGeojson do
     }
   end
 
+  @spec add_station_status(map(), map()) :: map()
   defp add_station_status(%{"stations" => stations_geojson} = resp_data, payload) do
     payload
     |> feed_url_from_payload("station_status")
@@ -66,7 +70,7 @@ defmodule Transport.GbfsToGeojson do
         resp_data
 
       url ->
-        geojson = url |> station_status_to_geojson!(stations_geojson)
+        geojson = url |> station_status_geojson!(stations_geojson)
         resp_data |> Map.put("stations", geojson)
     end
   rescue
@@ -77,7 +81,8 @@ defmodule Transport.GbfsToGeojson do
     resp_data
   end
 
-  defp station_status_to_geojson!(station_status_url, stations_geojson) do
+  @spec station_status_geojson!(binary()) :: map()
+  defp station_status_geojson!(station_status_url, stations_geojson) do
     json = fetch_gbfs_endpoint!(station_status_url)
 
     station_status =
@@ -105,6 +110,7 @@ defmodule Transport.GbfsToGeojson do
     }
   end
 
+  @spec add_free_bike_status(map(), map()) :: map()
   defp add_free_bike_status(resp_data, payload) do
     payload
     |> feed_url_from_payload("free_bike_status")
@@ -113,14 +119,15 @@ defmodule Transport.GbfsToGeojson do
         resp_data
 
       url ->
-        geojson = free_bike_status_geojson(url)
+        geojson = free_bike_status_geojson!(url)
         resp_data |> Map.put("free_floating", geojson)
     end
   rescue
     _e -> resp_data
   end
 
-  defp free_bike_status_geojson(url) do
+  @spec free_bike_status_geojson!(binary()) :: map()
+  defp free_bike_status_geojson!(url) do
     json = fetch_gbfs_endpoint!(url)
 
     vehicles =
@@ -148,6 +155,7 @@ defmodule Transport.GbfsToGeojson do
     }
   end
 
+  @spec add_geofencing_zones(map(), map()) :: map()
   defp add_geofencing_zones(resp_data, payload) do
     payload
     |> feed_url_from_payload("geofencing_zones")
@@ -156,14 +164,15 @@ defmodule Transport.GbfsToGeojson do
         resp_data
 
       url ->
-        geojson = geofencing_zones_geojson(url)
+        geojson = geofencing_zones_geojson!(url)
         resp_data |> Map.put("geofencing_zones", geojson)
     end
   rescue
     _e -> resp_data
   end
 
-  defp geofencing_zones_geojson(url) do
+  @spec geofencing_zones_geojson!(binary()) :: map()
+  defp geofencing_zones_geojson!(url) do
     json = fetch_gbfs_endpoint!(url)
 
     zones =
@@ -172,11 +181,13 @@ defmodule Transport.GbfsToGeojson do
       |> Map.fetch!("geofencing_zones")
   end
 
+  @spec fetch_gbfs_endpoint(binary()) :: map()
   defp fetch_gbfs_endpoint!(url) do
     %{status_code: 200, body: body} = http_client().get!(url)
     Jason.decode!(body)
   end
 
+  @spec feed_url_from_payload(map(), binary()) :: binary()
   defp feed_url_from_payload(payload, feed_name) do
     payload |> GBFSMetadata.first_feed() |> GBFSMetadata.feed_url_by_name(feed_name)
   end
