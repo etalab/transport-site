@@ -7,7 +7,7 @@
     <meta name="author" content="DINSIC">
     <meta name="csrf" content="<%= get_csrf_token() %>">
 
-    <% seo = metadata(assigns) %>
+    <% seo = metadata(Phoenix.Controller.view_module(@conn), assigns) %>
     <% title = seo[:title] || dgettext("seo", "National Access Point for transport open data") %>
     <% description = seo[:description] || dgettext("seo", "Publish, improve and reuse French public transport data") %>
     <meta name="description" content="<%= description %>">
