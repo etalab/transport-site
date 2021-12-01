@@ -126,8 +126,6 @@ defmodule Transport.GbfsToGeojsonTest do
 
       geojsons = Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint)
 
-      IO.inspect(geojsons)
-
       assert geojsons["geofencing_zones"] == %{
                "type" => "FeatureCollection",
                "features" => [
@@ -148,7 +146,7 @@ defmodule Transport.GbfsToGeojsonTest do
     end
   end
 
-  defp simple_station_information_geojson() do
+  defp simple_station_information_geojson do
     %{
       "type" => "FeatureCollection",
       "features" => [
@@ -196,7 +194,7 @@ defmodule Transport.GbfsToGeojsonTest do
     |> Jason.encode!()
   end
 
-  defp set_station_information_expect() do
+  defp set_station_information_expect do
     Transport.HTTPoison.Mock
     |> expect(:get!, fn "station_information.json" ->
       %{
@@ -259,7 +257,7 @@ defmodule Transport.GbfsToGeojsonTest do
     end)
   end
 
-  defp set_free_bike_status_expect() do
+  defp set_free_bike_status_expect do
     Transport.HTTPoison.Mock
     |> expect(:get!, fn "free_bike_status.json" ->
       %{
@@ -287,7 +285,7 @@ defmodule Transport.GbfsToGeojsonTest do
     end)
   end
 
-  defp set_geofencing_expect() do
+  defp set_geofencing_expect do
     Transport.HTTPoison.Mock
     |> expect(:get!, fn "geofencing_zones.json" ->
       %{
