@@ -6,6 +6,11 @@ defmodule Transport.GbfsToGeojson do
 
   @doc """
   Main module function: returns a map of geojsons generated from the GBFS endpoint
+  %{
+    "stations => ...,
+    "free_floating" => ...,
+    "geofencing_zones" => ...
+  }
   """
   @spec gbfs_geojsons(binary()) :: map()
   def gbfs_geojsons(url) do
@@ -16,6 +21,8 @@ defmodule Transport.GbfsToGeojson do
     |> add_station_status(payload)
     |> add_free_bike_status(payload)
     |> add_geofencing_zones(payload)
+  rescue
+    _e -> %{}
   end
 
   @spec add_station_information(map(), map()) :: map()

@@ -144,6 +144,16 @@ defmodule Transport.GbfsToGeojsonTest do
                ]
              }
     end
+
+    test "endpoint unavailable" do
+      gbfs_endpoint = "gbfs.json"
+
+      Transport.HTTPoison.Mock |> expect(:get!, fn ^gbfs_endpoint ->
+      %{status: 500, body: "maintenance en cours"}
+      end)
+
+      assert %{} == Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint)
+    end
   end
 
   defp simple_station_information_geojson do
