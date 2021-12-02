@@ -8,8 +8,9 @@ config :transport, TransportWeb.Endpoint,
   force_ssl: [rewrite_on: [:x_forwarded_proto]],
   live_view: [
     signing_salt: System.get_env("SECRET_KEY_BASE")
-  ],
-  notifications_api_token: System.get_env("TRANSPORT_NOTIFICATIONS_API_TOKEN"),
+  ]
+
+config :transport,
   s3_buckets: %{
     history: "resource-history-prod"
   }

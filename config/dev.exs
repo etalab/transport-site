@@ -56,21 +56,21 @@ config :transport, TransportWeb.Endpoint,
   live_view: [
     # NOTE: unsure if this is actually great to reuse the same value
     signing_salt: secret_key_base
-  ],
-  s3_buckets: %{
-    history: "resource-history-dev"
-  }
+  ]
 
 datagouvfr_site = "https://demo.data.gouv.fr"
 
-config :transport, datagouvfr_site: datagouvfr_site
+config :transport,
+  datagouvfr_site: datagouvfr_site,
+  s3_buckets: %{
+    history: "resource-history-dev"
+  },
+  # by default, use the production validator. This can be overriden with dev.secret.exs
+  gtfs_validator_url: "https://transport-validator.cleverapps.io"
 
 config :oauth2, Datagouvfr.Authentication,
   site: datagouvfr_site,
   redirect_uri: "http://localhost:5000/login/callback"
-
-# by default, use the production validator. This can be overriden with dev.secret.exs
-config :transport, gtfs_validator_url: "https://transport-validator.cleverapps.io"
 
 extra_config_file = Path.join(__DIR__, "#{Mix.env()}.secret.exs")
 
