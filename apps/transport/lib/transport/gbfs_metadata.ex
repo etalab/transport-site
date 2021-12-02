@@ -199,7 +199,7 @@ defmodule Transport.GBFSMetadata do
     end
   end
 
-  defp first_feed(%{"data" => data} = payload) do
+  def first_feed(%{"data" => data} = payload) do
     (data["en"] || data["fr"] || data[payload |> languages() |> Enum.at(0)])["feeds"]
   end
 
@@ -224,7 +224,7 @@ defmodule Transport.GBFSMetadata do
   end
 
   @spec feed_url_by_name(list(), binary()) :: binary() | nil
-  defp feed_url_by_name(feeds, name) do
+  def feed_url_by_name(feeds, name) do
     Enum.find(feeds, fn map -> feed_is_named?(map, name) end)["url"]
   end
 
