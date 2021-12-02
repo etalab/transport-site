@@ -14,6 +14,18 @@ defmodule Transport.S3Test do
     end
   end
 
+  describe "permanent_url" do
+    @bucket_name Transport.S3.bucket_name(:history)
+    test "no path" do
+      assert "https://#{@bucket_name}.cellar-c2.services.clever-cloud.com" == Transport.S3.permanent_url(:history)
+    end
+
+    test "with path" do
+      assert "https://#{@bucket_name}.cellar-c2.services.clever-cloud.com/foo/bar.zip" ==
+               Transport.S3.permanent_url(:history, "foo/bar.zip")
+    end
+  end
+
   test "create_bucket_if_needed! when bucket does not exist" do
     bucket_name = Transport.S3.bucket_name(:history)
 

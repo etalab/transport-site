@@ -75,19 +75,22 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
     case should_store_resource?(resource, zip_metadata) do
       true ->
-        upload_filename = upload_to_s3!(resource, body)
+        filename = upload_filename(resource)
 
         data = %{
+          uuid: Ecto.UUID.generate(),
           zip_metadata: zip_metadata,
           http_headers: headers,
           resource_metadata: resource.metadata,
-          upload_filename: upload_filename,
+          filename: filename,
+          permanent_url: Transport.S3.permanent_url(:history, filename),
           format: resource.format,
           filenames: zip_metadata |> Enum.map(& &1.file_name),
           total_uncompressed_size: zip_metadata |> Enum.map(& &1.uncompressed_size) |> Enum.sum(),
           total_compressed_size: zip_metadata |> Enum.map(& &1.compressed_size) |> Enum.sum()
         }
 
+        upload_to_s3!(body, filename)
         store_resource_history!(resource, data)
 
       false ->
@@ -154,21 +157,17 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   defp remove_file!(path), do: if(is_nil(path), do: :ok, else: File.rm!(path))
 
-  defp upload_to_s3!(%Resource{} = resource, body) do
-    filename = upload_filename(resource)
-
-    Logger.debug("Uploading resource to #{filename}")
+  defp upload_to_s3!(body, path) do
+    Logger.debug("Uploading resource to #{path}")
 
     :history
     |> Transport.S3.bucket_name()
     |> ExAws.S3.put_object(
-      filename,
+      path,
       body,
       acl: "public-read"
     )
     |> Transport.Wrapper.ExAWS.impl().request!()
-
-    filename
   end
 
   defp upload_filename(%Resource{} = resource) do

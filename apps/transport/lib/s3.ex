@@ -8,6 +8,11 @@ defmodule Transport.S3 do
     "transport-data-gouv-fr-#{Map.fetch!(config, feature)}"
   end
 
+  def permanent_url(feature, path \\ "") do
+    host = :io_lib.format(Application.fetch_env!(:ex_aws, :cellar_url), [bucket_name(feature)])
+    host |> to_string() |> URI.merge(path) |> URI.to_string()
+  end
+
   def create_bucket_if_needed!(feature, options \\ %{acl: "public-read"}) do
     buckets_response = ExAws.S3.list_buckets() |> Transport.Wrapper.ExAWS.impl().request!()
     bucket_names = buckets_response.body.buckets |> Enum.map(& &1.name)

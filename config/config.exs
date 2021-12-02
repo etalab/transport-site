@@ -118,6 +118,7 @@ config :ex_aws,
   # The expected S3 owner of buckets/objects.
   # For CleverCloud and the Cellar service, it looks like `orga-$UUID`
   cellar_organisation_id: System.get_env("CELLAR_ORGANISATION_ID"),
+  cellar_url: "https://~s.cellar-c2.services.clever-cloud.com",
   s3: [
     scheme: "https://",
     host: "cellar-c2.services.clever-cloud.com",

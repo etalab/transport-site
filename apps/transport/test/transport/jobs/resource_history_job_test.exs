@@ -239,10 +239,14 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  "resource_metadata" => ^resource_metadata,
                  "total_compressed_size" => 2_370,
                  "total_uncompressed_size" => 10_685,
-                 "upload_filename" => _upload_filename,
-                 "zip_metadata" => ^expected_zip_metadata
+                 "filename" => filename,
+                 "permanent_url" => permanent_url,
+                 "zip_metadata" => ^expected_zip_metadata,
+                 "uuid" => _uuid
                }
              } = DB.ResourceHistory |> DB.Repo.one!()
+
+      assert permanent_url == Transport.S3.permanent_url(:history, filename)
     end
 
     test "does not store resource again when it did not change" do
