@@ -92,6 +92,7 @@
   "unicode_util_compat": {:hex, :unicode_util_compat, "0.7.0", "bc84380c9ab48177092f43ac89e4dfa2c6d62b40b8bd132b1059ecc7232f9a78", [:rebar3], [], "hexpm", "25eee6d67df61960cf6a794239566599b09e17e668d3700247bc498638152521"},
   "unidecode": {:hex, :unidecode, "1.0.1", "d653e7e9777b7c1bcf48b923bbbb9167ecd21a2a90aabb5a3c65b32c6a359497", [:mix], [], "hexpm", "73b490342603a5b1083e0f8f8b9e9bee4149ada327d1b9cdbaf8259f04699611"},
   "unsafe": {:hex, :unsafe, "1.0.1", "a27e1874f72ee49312e0a9ec2e0b27924214a05e3ddac90e91727bc76f8613d8", [:mix], [], "hexpm", "6c7729a2d214806450d29766abc2afaa7a2cbecf415be64f36a6691afebb50e5"},
+  "unzip": {:hex, :unzip, "0.6.0", "8b32aaaeb35996ec8cf4c2c1ed36729dd22cae14b69505467502cb6622327ddb", [:mix], [], "hexpm", "e0a32d162fc696a51a71c2b08ab788d3b07442ca09d2cf7ef99c7488cb28182a"},
   "vex": {:git, "https://github.com/CargoSense/vex.git", "328a39f7688000e2746386eabe2f40e6c8e7796b", [ref: "328a39f7"]},
   "yamerl": {:hex, :yamerl, "0.8.1", "07da13ffa1d8e13948943789665c62ccd679dfa7b324a4a2ed3149df17f453a4", [:rebar3], [], "hexpm", "96cb30f9d64344fed0ef8a92e9f16f207de6c04dfff4f366752ca79f5bceb23f"},
   "yaml_elixir": {:hex, :yaml_elixir, "2.8.0", "c7ff0034daf57279c2ce902788ce6fdb2445532eb4317e8df4b044209fae6832", [:mix], [{:yamerl, "~> 0.8", [hex: :yamerl, repo: "hexpm", optional: false]}], "hexpm", "4b674bd881e373d1ac6a790c64b2ecb69d1fd612c2af3b22de1619c15473830b"},

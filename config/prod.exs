@@ -9,7 +9,10 @@ config :transport, TransportWeb.Endpoint,
   live_view: [
     signing_salt: System.get_env("SECRET_KEY_BASE")
   ],
-  notifications_api_token: System.get_env("TRANSPORT_NOTIFICATIONS_API_TOKEN")
+  notifications_api_token: System.get_env("TRANSPORT_NOTIFICATIONS_API_TOKEN"),
+  s3_buckets: %{
+    history: "resource-history-prod"
+  }
 
 config :gbfs, GBFSWeb.Endpoint, secret_key_base: System.get_env("SECRET_KEY_BASE")
 

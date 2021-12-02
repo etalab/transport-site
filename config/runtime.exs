@@ -73,13 +73,28 @@ end
 
 base_oban_conf = [repo: DB.Repo]
 
+# Oban jobs that should be run in every environment
+oban_crontab_all_envs = []
+# Oban jobs that *should not* be run in staging by the crontab
+non_staging_crontab =
+  if app_env == :staging do
+    []
+  else
+    [
+      {"* */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob}
+    ]
+  end
+
 extra_oban_conf =
   if not worker || (iex_started? and config_env() == :prod) || config_env() == :test do
     [queues: false, plugins: false]
   else
     [
       queues: [default: 2, heavy: 1],
-      plugins: [Oban.Plugins.Pruner]
+      plugins: [
+        {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
+        {Oban.Plugins.Cron, crontab: List.flatten(oban_crontab_all_envs, non_staging_crontab)}
+      ]
     ]
   end
 
