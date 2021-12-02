@@ -79,7 +79,13 @@ extra_oban_conf =
   else
     [
       queues: [default: 2, heavy: 1],
-      plugins: [Oban.Plugins.Pruner]
+      plugins: [
+        {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
+        {Oban.Plugins.Cron,
+         crontab: [
+           {"* */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob}
+         ]}
+      ]
     ]
   end
 
