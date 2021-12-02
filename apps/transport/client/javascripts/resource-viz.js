@@ -113,8 +113,10 @@ function setGBFSStationStyle (feature, layer, field) {
             }
             layer
                 .unbindTooltip()
-                .bindTooltip(`${N}`, { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
                 .setStyle({ fillOpacity: opacity })
+            if (N !== '') {
+                layer.bindTooltip(`${N}`, { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
+            }
         }
         layer.bindPopup(`<pre>${JSON.stringify(stationStatus, null, 2)}</pre>`)
     }
@@ -122,24 +124,30 @@ function setGBFSStationStyle (feature, layer, field) {
 
 function setGBFSFreeFloatingStyle (feature, layer) {
     const properties = feature.properties
+    let popupContent
 
     if (properties.is_disabled) {
+        const color = 'red'
         layer
             .unbindTooltip()
-            .bindTooltip('D', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
-            .setStyle({ fillColor: 'red' })
+            .setStyle({ fillColor: color })
+        popupContent = JSON.stringify(properties, null, 2).replace('"is_disabled": true', `<strong style="color: ${color};">"is_disabled": true</strong>`)
     } else if (properties.is_reserved) {
+        const color = 'orange'
         layer
             .unbindTooltip()
-            .bindTooltip('R', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
-            .setStyle({ fillColor: 'orange' })
+            .setStyle({ fillColor: color })
+        popupContent = JSON.stringify(properties, null, 2).replace('"is_reserved": true', `<strong style="color: ${color};">"is_reserved": true</strong>`)
     } else {
+        const color = 'blue'
         layer
             .unbindTooltip()
-            .bindTooltip('F', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
             .setStyle({ fillColor: 'blue' })
+        popupContent = JSON.stringify(properties, null, 2)
+            .replace('"is_reserved": false', `<strong style="color: ${color};">"is_reserved": false</strong>`)
+            .replace('"is_disabled": false', `<strong style="color: ${color};">"is_disabled": false</strong>`)
     }
-    layer.bindPopup(`<pre>${JSON.stringify(properties, null, 2)}</pre>`)
+    layer.bindPopup(`<pre>${popupContent}</pre>`)
 }
 
 function setGBFSGeofencingStyle (feature, layer) {
@@ -227,7 +235,12 @@ function fillGBFSMap (resourceUrl, fg, map, firstCall = false) {
             setGBFSLayersControl(fg, map)
             if (firstCall) {
                 // add one of the feature to the map (initial state)
-                const firstFg = fg[Object.keys(fg)[0]]
+                const availableLayers = Object.keys(fg)
+                if (availableLayers.length <= 0) {
+                    throw new Error('No GBFS data can be shown on map')
+                }
+                const firstFg = fg[availableLayers[0]]
+
                 firstFg.addTo(map)
                 map.fitBounds(firstFg.getBounds())
             }
@@ -282,8 +295,13 @@ function createGBFSmap (id, resourceUrl) {
     }, refreshInterval * 1000)
 
     // update the countdown every second
-    setInterval(() => {
-        document.getElementById('coutdown').innerHTML = (countdown-- <= 3 ? 'mise à jour' : countdown)
+    const interval = setInterval(() => {
+        const el = document.getElementById('coutdown')
+        if (el) {
+            el.innerHTML = (countdown-- <= 3 ? 'mise à jour' : countdown)
+        } else {
+            clearInterval(interval)
+        }
     }, 1000)
 }
 
