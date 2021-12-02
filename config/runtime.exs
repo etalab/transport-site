@@ -55,10 +55,20 @@ end
 # Make sure that APP_ENV is set in production to distinguish
 # production and staging (both running with MIX_ENV=prod)
 # See https://github.com/etalab/transport-site/issues/1945
-app_env_is_valid = Enum.member?([:production, :staging], Application.fetch_env!(:transport, :app_env))
+app_env = System.get_env("APP_ENV", "") |> String.to_atom()
+app_env_is_valid = Enum.member?([:production, :staging], app_env)
 
 if config_env() == :prod and not app_env_is_valid do
   raise("APP_ENV must be set to production or staging while in production")
+end
+
+config :transport,
+  app_env: app_env
+
+app_env_file = Path.join(__DIR__, "#{app_env}.exs")
+
+if File.exists?(app_env_file) do
+  import_config app_env_file
 end
 
 base_oban_conf = [repo: DB.Repo]

@@ -124,9 +124,7 @@ config :ex_aws,
   ],
   json_codec: Jason
 
-app_env = System.get_env("APP_ENV", "") |> String.to_atom()
 config :transport,
-  app_env: app_env,
   max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer(),
   nb_days_to_keep_validations: 60,
   join_our_slack_link: "https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA",
@@ -147,8 +145,3 @@ import_config "gbfs_validator.exs"
 import_config "mailjet.exs"
 import_config "mailchimp.exs"
 import_config "#{Mix.env}.exs"
-
-app_env_file = Path.join(__DIR__, "#{app_env}.exs")
-if File.exists?(app_env_file) do
-  import_config app_env_file
-end
