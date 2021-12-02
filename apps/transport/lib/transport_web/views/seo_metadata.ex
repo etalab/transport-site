@@ -5,13 +5,13 @@ defmodule TransportWeb.SeoMetadata do
   """
   import TransportWeb.Gettext
 
-  @spec metadata(any()) :: %{optional(:title) => binary(), optional(:description) => binary()}
-  def metadata(%{view_module: TransportWeb.DatasetView, q: q}) when not is_nil(q),
+  @spec metadata(any(), any()) :: %{optional(:title) => binary(), optional(:description) => binary()}
+  def metadata(TransportWeb.DatasetView, %{q: q}) when not is_nil(q),
     do: %{
       title: dgettext("seo", "%{q}: Available transport open datasets", q: q)
     }
 
-  def metadata(%{view_module: TransportWeb.DatasetView, dataset: dataset}) do
+  def metadata(TransportWeb.DatasetView, %{dataset: dataset}) do
     formats =
       case DB.Dataset.formats(dataset) do
         [] -> ""
@@ -28,13 +28,12 @@ defmodule TransportWeb.SeoMetadata do
     }
   end
 
-  def metadata(%{view_module: TransportWeb.DatasetView, page_title: %{type: "AOM", name: name}}),
+  def metadata(TransportWeb.DatasetView, %{page_title: %{type: "AOM", name: name}}),
     do: %{
       title: dgettext("seo", "%{name} AOM: Transport open datasets ", name: name)
     }
 
-  def metadata(%{
-        view_module: TransportWeb.DatasetView,
+  def metadata(TransportWeb.DatasetView, %{
         page_title: %{name: name},
         conn: %{params: %{"insee_commune" => _}}
       }),
@@ -42,12 +41,12 @@ defmodule TransportWeb.SeoMetadata do
         title: dgettext("seo", "Transport open datasets for city %{name}", name: name)
       }
 
-  def metadata(%{view_module: TransportWeb.DatasetView, page_title: %{type: type, name: name}}),
+  def metadata(TransportWeb.DatasetView, %{page_title: %{type: type, name: name}}),
     do: %{
       title: dgettext("seo", "Transport open datasets for %{type} %{name}", type: type, name: name)
     }
 
-  def metadata(%{view_module: TransportWeb.ResourceView, resource: %{format: format, title: title, dataset: dataset}}),
+  def metadata(TransportWeb.ResourceView, %{resource: %{format: format, title: title, dataset: dataset}}),
     do: %{
       title:
         dgettext("seo", "%{format} Transport open dataset - %{title} for %{spatial} - %{territory}",
@@ -58,26 +57,25 @@ defmodule TransportWeb.SeoMetadata do
         )
     }
 
-  def metadata(%{view_module: TransportWeb.StatsView}),
+  def metadata(TransportWeb.StatsView, _),
     do: %{
       title: dgettext("seo", "State of transport open data in France")
     }
 
-  def metadata(%{view_module: TransportWeb.AOMSView}),
+  def metadata(TransportWeb.AOMSView, _),
     do: %{
       title: dgettext("seo", "State of transport open data for french AOMs")
     }
 
-  def metadata(%{view_module: TransportWeb.PageView, page: "real_time.html"}),
+  def metadata(TransportWeb.PageView, %{page: "real_time.html"}),
     do: %{
       title: dgettext("seo", "Non standard real time transport open data")
     }
 
-  def metadata(%{view_module: TransportWeb.ValidationView}),
+  def metadata(TransportWeb.ValidationView, _),
     do: %{
       title: dgettext("seo", "GTFS data quality evaluation")
     }
 
-  def metadata(_),
-    do: %{}
+  def metadata(_view, _assigns), do: %{}
 end
