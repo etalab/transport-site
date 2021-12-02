@@ -115,7 +115,7 @@ defmodule TransportWeb.ResourceController do
           send_download(conn, {:binary, response.body},
             content_type: content_type,
             disposition: :attachment,
-            filename: resource.url |> Path.basename()
+            filename: Transport.FileDownloads.guess_filename(headers, resource.url)
           )
 
         _ ->

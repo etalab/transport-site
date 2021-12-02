@@ -118,6 +118,8 @@ config :ex_aws,
   # The expected S3 owner of buckets/objects.
   # For CleverCloud and the Cellar service, it looks like `orga-$UUID`
   cellar_organisation_id: System.get_env("CELLAR_ORGANISATION_ID"),
+  # ~s is a string parameter, it will be replaced by the bucket's name
+  cellar_url: "https://~s.cellar-c2.services.clever-cloud.com",
   s3: [
     scheme: "https://",
     host: "cellar-c2.services.clever-cloud.com",
@@ -130,7 +132,11 @@ config :transport,
   join_our_slack_link: "https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA",
   contact_email: "contact@transport.beta.gouv.fr",
   security_email: "contact@transport.beta.gouv.fr",
-  transport_tools_folder: Path.absname("transport-tools/")
+  transport_tools_folder: Path.absname("transport-tools/"),
+  notifications_impl: Transport.Notifications.GitHub,
+  notifications_github_config_url: "https://raw.githubusercontent.com/etalab/transport-notifications/master/config.yml",
+  notifications_github_auth_token: System.get_env("TRANSPORT_NOTIFICATIONS_CONFIG_GITHUB_TOKEN"),
+  notifications_api_token: System.get_env("TRANSPORT_NOTIFICATIONS_API_TOKEN")
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

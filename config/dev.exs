@@ -43,7 +43,8 @@ config :phoenix, :stacktrace_depth, 20
 # In a later version we may use dev.secret.exs file (out of git)
 # as often done.
 config :transport,
-  history_impl: Transport.History.Fetcher.Mock
+  history_impl: Transport.History.Fetcher.Mock,
+  notifications_impl: Transport.Notifications.Disk
 
 # Provide a default experience that will mostly work without manual config,
 # as long as the developer does not use advanced features (backoffice login, gbfs etc)
@@ -55,7 +56,10 @@ config :transport, TransportWeb.Endpoint,
   live_view: [
     # NOTE: unsure if this is actually great to reuse the same value
     signing_salt: secret_key_base
-  ]
+  ],
+  s3_buckets: %{
+    history: "resource-history-dev"
+  }
 
 datagouvfr_site = "https://demo.data.gouv.fr"
 

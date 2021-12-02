@@ -52,15 +52,49 @@ if config_env() == :prod && !iex_started? && worker && System.fetch_env!("INSTAN
   config :transport, Transport.Scheduler, jobs: Transport.Scheduler.scheduled_jobs()
 end
 
+# Make sure that APP_ENV is set in production to distinguish
+# production and staging (both running with MIX_ENV=prod)
+# See https://github.com/etalab/transport-site/issues/1945
+app_env = System.get_env("APP_ENV", "") |> String.to_atom()
+app_env_is_valid = Enum.member?([:production, :staging], app_env)
+
+if config_env() == :prod and not app_env_is_valid do
+  raise("APP_ENV must be set to production or staging while in production")
+end
+
+config :transport,
+  app_env: app_env
+
+app_env_file = Path.join(__DIR__, "#{app_env}.exs")
+
+if File.exists?(app_env_file) do
+  import_config app_env_file
+end
+
 base_oban_conf = [repo: DB.Repo]
 
+# Oban jobs that should be run in every environment
+oban_crontab_all_envs = []
+# Oban jobs that *should not* be run in staging by the crontab
+non_staging_crontab =
+  if app_env == :staging do
+    []
+  else
+    [
+      {"* */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob}
+    ]
+  end
+
 extra_oban_conf =
-  if worker || (iex_started? and config_env() == :prod) || config_env() == :test do
+  if not worker || (iex_started? and config_env() == :prod) || config_env() == :test do
     [queues: false, plugins: false]
   else
     [
       queues: [default: 2, heavy: 1],
-      plugins: [Oban.Plugins.Pruner]
+      plugins: [
+        {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
+        {Oban.Plugins.Cron, crontab: List.flatten(oban_crontab_all_envs, non_staging_crontab)}
+      ]
     ]
   end
 

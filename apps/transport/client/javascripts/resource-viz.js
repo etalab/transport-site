@@ -94,118 +94,215 @@ function createCSVmap (id, resourceUrl) {
     })
 }
 
-function setGBFSMarkerStyle (stations, stationStatus, field) {
-    let marker
-    if (field === 'num_bikes_available') {
-        marker = stations[stationStatus.station_id].bike
-    } else if (field === 'num_docks_available') {
-        marker = stations[stationStatus.station_id].spot
-    }
-    if (stationStatus.is_renting !== true && stationStatus.is_renting !== 1) {
-        marker
-            .unbindTooltip()
-            .bindTooltip('HS', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
-            .setStyle({ fillColor: 'red' })
-    } else {
-        const bikesN = stationStatus[field] === undefined ? '?' : stationStatus[field]
-        let opacity = 0.8
-        if (bikesN === 0) {
-            opacity = 0.4
-        } else if (bikesN < 3) {
-            opacity = 0.6
+function setGBFSStationStyle (feature, layer, field) {
+    const stationStatus = feature.properties.station_status
+
+    if (stationStatus) {
+        if (stationStatus.is_renting !== true && stationStatus.is_renting !== 1) {
+            layer
+                .unbindTooltip()
+                .bindTooltip('HS', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
+                .setStyle({ fillColor: 'red' })
+        } else {
+            const N = stationStatus[field] || ''
+            let opacity = 0.8
+            if (N === 0) {
+                opacity = 0.4
+            } else if (N < 3) {
+                opacity = 0.6
+            }
+            layer
+                .unbindTooltip()
+                .setStyle({ fillOpacity: opacity })
+            if (N !== '') {
+                layer.bindTooltip(`${N}`, { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
+            }
         }
-        marker
-            .unbindTooltip()
-            .bindTooltip(`${bikesN}`, { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
-            .setStyle({ fillOpacity: opacity })
+        layer.bindPopup(`<pre>${JSON.stringify(stationStatus, null, 2)}</pre>`)
     }
-    marker.bindPopup(`<pre>${JSON.stringify(stationStatus, null, 2)}</pre>`)
 }
 
-function fillGBFSMap (resourceUrl, fg, availableDocks, map, fitBounds = false) {
-    let stationStatusUrl
-    const stations = {}
-    fetch(resourceUrl)
+function setGBFSFreeFloatingStyle (feature, layer) {
+    const properties = feature.properties
+    let popupContent
+
+    if (properties.is_disabled) {
+        const color = 'red'
+        layer
+            .unbindTooltip()
+            .setStyle({ fillColor: color })
+        popupContent = JSON.stringify(properties, null, 2).replace('"is_disabled": true', `<strong style="color: ${color};">"is_disabled": true</strong>`)
+    } else if (properties.is_reserved) {
+        const color = 'orange'
+        layer
+            .unbindTooltip()
+            .setStyle({ fillColor: color })
+        popupContent = JSON.stringify(properties, null, 2).replace('"is_reserved": true', `<strong style="color: ${color};">"is_reserved": true</strong>`)
+    } else {
+        const color = 'blue'
+        layer
+            .unbindTooltip()
+            .setStyle({ fillColor: 'blue' })
+        popupContent = JSON.stringify(properties, null, 2)
+            .replace('"is_reserved": false', `<strong style="color: ${color};">"is_reserved": false</strong>`)
+            .replace('"is_disabled": false', `<strong style="color: ${color};">"is_disabled": false</strong>`)
+    }
+    layer.bindPopup(`<pre>${popupContent}</pre>`)
+}
+
+function setGBFSGeofencingStyle (feature, layer) {
+    const rules = feature.properties.rules
+    const rule = rules.length > 0 ? rules[0] : undefined
+    let color, opacity
+
+    if (rule) {
+        if (rule.ride_through_allowed === false) {
+            color = 'red'
+            opacity = 0.6
+        } else if (rule.ride_allowed === false) {
+            color = 'orange'
+            opacity = 0.6
+        } else {
+            color = 'green'
+            opacity = 0.4
+        }
+    }
+    layer
+        .bindPopup(`<pre>${JSON.stringify(feature.properties, null, 2)}</pre>`)
+        .setStyle({ fillColor: color, color: color, fillOpacity: opacity, stroke: false })
+}
+
+function fillStations (stationsGeojson, bikesAvailable, docksAvailable) {
+    L.geoJSON(stationsGeojson, {
+        pointToLayer: function (geoJsonPoint, latlng) {
+            return L.circleMarker(latlng, { stroke: false, color: '#0066db', fillOpacity: 0.8 })
+        },
+        onEachFeature: (feature, layer) => setGBFSStationStyle(feature, layer, 'num_bikes_available')
+    }).addTo(bikesAvailable)
+
+    L.geoJSON(stationsGeojson, {
+        pointToLayer: function (geoJsonPoint, latlng) {
+            return L.circleMarker(latlng, { stroke: false, color: '#009c34', fillOpacity: 0.8 })
+        },
+        onEachFeature: (feature, layer) => setGBFSStationStyle(feature, layer, 'num_docks_available')
+    }).addTo(docksAvailable)
+}
+
+function clearFeatureGroups (featureGroups) {
+    for (const fg in featureGroups) {
+        featureGroups[fg].clearLayers()
+    }
+}
+
+function fillFreeFloating (geojson, freeFloating) {
+    L.geoJSON(geojson, {
+        pointToLayer: function (geoJsonPoint, latlng) {
+            return L.circleMarker(latlng, { stroke: false, color: '#0066db', fillOpacity: 0.7 })
+        },
+        onEachFeature: (feature, layer) => setGBFSFreeFloatingStyle(feature, layer)
+    }).addTo(freeFloating)
+}
+
+function fillGeofencingZones (geojson, geoFencingZones) {
+    L.geoJSON(geojson, {
+        onEachFeature: (feature, layer) => setGBFSGeofencingStyle(feature, layer)
+    }).addTo(geoFencingZones)
+}
+
+function fillGBFSMap (resourceUrl, fg, map, firstCall = false) {
+    const geojsonUrl = `/tools/gbfs/geojson_convert?url=${resourceUrl}`
+    fetch(geojsonUrl)
         .then(response => response.json())
-        .then(gbfs => {
-            const feeds = gbfs.data.fr.feeds
-            setGBFSLayersControl(feeds, fg, availableDocks, map)
-            const stationInformation = feeds.filter(feed => feed.name.includes('station_information'))[0]
-            const stationInformationUrl = stationInformation.url
-            const stationStatus = feeds.filter(feed => feed.name.includes('station_status'))[0]
-            stationStatusUrl = stationStatus.url
-            return fetch(stationInformationUrl)
-        })
-        .then(data => data.json())
-        .then(stationInformation => {
-            fg.clearLayers()
-            availableDocks.clearLayers()
-            for (const station of stationInformation.data.stations) {
-                const markerBike = L.circleMarker([station.lat, station.lon], { stroke: false, color: '#0066db', fillOpacity: 0.8 })
-                    .bindTooltip('&#x21bb', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
-                    .addTo(fg)
-                const markerSpot = L.circleMarker([station.lat, station.lon], { stroke: false, color: '#009c34', fillOpacity: 0.8 })
-                    .bindTooltip('&#x21bb', { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
-                    .addTo(availableDocks)
-                stations[station.station_id] = { bike: markerBike, spot: markerSpot }
+        .then(data => {
+            clearFeatureGroups(fg)
+
+            if ('stations' in data) {
+                fg.bikesAvailable = fg.bikesAvailable ? fg.bikesAvailable : L.featureGroup()
+                fg.docksAvailable = fg.docksAvailable ? fg.docksAvailable : L.featureGroup()
+                fillStations(data.stations, fg.bikesAvailable, fg.docksAvailable)
             }
-            if (fitBounds) {
-                map.fitBounds(fg.getBounds())
+
+            if ('free_floating' in data) {
+                fg.freeFloating = fg.freeFloating ? fg.freeFloating : L.featureGroup()
+                fillFreeFloating(data.free_floating, fg.freeFloating)
             }
-        })
-        .then(() => fetch(stationStatusUrl))
-        .then(response => response.json())
-        .then(status => {
-            for (const station of status.data.stations) {
-                setGBFSMarkerStyle(stations, station, 'num_bikes_available')
-                setGBFSMarkerStyle(stations, station, 'num_docks_available')
+
+            if ('geofencing_zones' in data) {
+                fg.geofencingZones = fg.geofencingZones ? fg.geofencingZones : L.featureGroup()
+                fillGeofencingZones(data.geofencing_zones, fg.geofencingZones)
+            }
+
+            setGBFSLayersControl(fg, map)
+            if (firstCall) {
+                // add one of the feature to the map (initial state)
+                const availableLayers = Object.keys(fg)
+                if (availableLayers.length <= 0) {
+                    throw new Error('No GBFS data can be shown on map')
+                }
+                const firstFg = fg[availableLayers[0]]
+
+                firstFg.addTo(map)
+                map.fitBounds(firstFg.getBounds())
             }
         })
         .catch(e => removeViz(e))
 }
 
-// we want a custom message on the layers toggle control, depending on the GBFS vehicle type
-function setGBFSLayersControl (feeds, fg, availableDocks, map) {
-    if (!map.hasControlLayers) { // we don't want a new control at each data refresh
-        // According to GBFS v2.2 https://github.com/NABSA/gbfs/blob/v2.2/gbfs.md
-        const labels = { bicycle: 'Vélos', car: 'Voitures', moped: 'Scooters', scooter: 'Trottinettes', other: 'Véhicules' }
-        // 1 vehicle known vehicle type, we use it
-        // more vehicle types or unknown, we use a generic label : véhicules
-        getVehicleType(feeds).then(types => {
-            const vehicleLabel = types.length === 1 ? labels[types[0]] : 'Véhicules'
-            const availableLabel = `${vehicleLabel} disponibles`
-            const control = { 'Places disponibles': availableDocks }
-            control[availableLabel] = fg
-            L.control.layers(control, {}, { collapsed: false }).addTo(map)
-            map.hasControlLayers = true
-        })
+// I have removed custom text for vehicle types for the moment.
+function setGBFSLayersControl (fg, map) {
+    if (!map.controlLayers) {
+        const control = {}
+        if ('bikesAvailable' in fg) {
+            control['Véhicules disponibles'] = fg.bikesAvailable
+        }
+        if ('docksAvailable' in fg) {
+            control['Places disponibles'] = fg.docksAvailable
+        }
+        if ('freeFloating' in fg) {
+            control['Véhicules free-floating'] = fg.freeFloating
+        }
+        if ('geofencingZones' in fg) {
+            control.Geofencing = fg.geofencingZones
+        }
+        map.controlLayers = L.control.layers(control, {}, { collapsed: false }).addTo(map)
     }
 }
 
-function getVehicleType (feeds) {
-    const vehicleTypes = feeds.filter(feed => feed.name.includes('vehicle_types'))[0]
-    if (vehicleTypes) {
-        const vehicleTypesUrl = vehicleTypes.url
-
-        return fetch(vehicleTypesUrl)
-            .then(data => data.json())
-            .then(vehicleTypes => {
-                const vehicleTypesList = vehicleTypes.data.vehicle_types
-                const types = vehicleTypesList.map(type => type.form_factor)
-                const uniqueTypes = [...new Set(types)]
-                return uniqueTypes
-            })
-    } else {
-        return Promise.resolve([])
-    }
+function addCountdownDiv (id, refreshInterval) {
+    const node = document.createElement('div')
+    node.style.position = 'relative'
+    node.style.zIndex = '1000'
+    node.style.left = '50%'
+    node.id = id
+    const textnode = document.createTextNode(refreshInterval)
+    node.appendChild(textnode)
+    document.getElementById('map').appendChild(node)
 }
 
 function createGBFSmap (id, resourceUrl) {
-    const { map, fg } = initilizeMap(id)
-    const availableDocks = L.featureGroup()
+    // eslint-disable-next-line no-unused-vars
+    const { map, _ } = initilizeMap(id)
+    const featureGroups = {}
+    const refreshInterval = 60
 
-    fillGBFSMap(resourceUrl, fg, availableDocks, map, true)
-    setInterval(() => fillGBFSMap(resourceUrl, fg, availableDocks, map), 60000)
+    addCountdownDiv('coutdown', refreshInterval)
+    let countdown = refreshInterval
+
+    fillGBFSMap(resourceUrl, featureGroups, map, true)
+    setInterval(() => {
+        countdown = refreshInterval
+        fillGBFSMap(resourceUrl, featureGroups, map)
+    }, refreshInterval * 1000)
+
+    // update the countdown every second
+    const interval = setInterval(() => {
+        const el = document.getElementById('coutdown')
+        if (el) {
+            el.innerHTML = (countdown-- <= 3 ? 'mise à jour' : countdown)
+        } else {
+            clearInterval(interval)
+        }
+    }, 1000)
 }
 
 function createGeojsonMap (id, resourceUrl) {

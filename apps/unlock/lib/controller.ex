@@ -23,6 +23,29 @@ defmodule Unlock.Controller do
     defstruct [:body, :headers, :status]
   end
 
+  defmodule Telemetry do
+    # NOTE: to be DRYed with what is in the "transport" app later (`telemetry.ex`), if we stop using an umbrella app.
+    # Currently we would have a circular dependency, or would have to move all this to `shared`.
+
+    @proxy_requests [:internal, :external]
+
+    @moduledoc """
+    A quick place to centralize definition of tracing events and targets
+    """
+
+    def target_for_identifier(item_identifier) do
+      "proxy:#{item_identifier}"
+    end
+
+    # This call will result in synchronous invoke of all registered handlers for the specified events.
+    # (for instance, check out `Transport.Telemetry#handle_event`, available at time of writing)
+    def trace_request(item_identifier, request_type) when request_type in @proxy_requests do
+      :telemetry.execute([:proxy, :request, request_type], %{}, %{
+        target: target_for_identifier(item_identifier)
+      })
+    end
+  end
+
   def index(conn, _params) do
     text(conn, "Unlock Proxy")
   end
@@ -66,6 +89,7 @@ defmodule Unlock.Controller do
   @max_allowed_cached_byte_size 20 * 1024 * 1024
 
   defp process_resource(conn, item) do
+    Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
 
     response.headers
@@ -81,6 +105,7 @@ defmodule Unlock.Controller do
     comp_fn = fn _key ->
       Logger.info("Processing proxy request for identifier #{item.identifier}")
       try do
+        Telemetry.trace_request(item.identifier, :internal)
         response = Unlock.HTTP.Client.impl().get!(item.target_url, item.request_headers)
         size = byte_size(response.body)
         if size > @max_allowed_cached_byte_size do

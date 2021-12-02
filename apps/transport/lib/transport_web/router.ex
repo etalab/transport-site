@@ -100,16 +100,18 @@ defmodule TransportWeb.Router do
       # NOTE: by default no layout are automatically picked at time of writing
       # for live views, so an explicit call is needed
       # See https://hexdocs.pm/phoenix_live_view/live-layouts.html
-      live("/proxy-config", ProxyConfigLive,
-        layout: {TransportWeb.LayoutView, :app},
-        session: {TransportWeb.Backoffice.ProxyConfigLive, :build_session, []}
-      )
 
-      live("/jobs", JobsLive,
-        layout: {TransportWeb.LayoutView, :app},
-        # Will likely be removable once https://github.com/etalab/transport-site/issues/1899 is tackled
-        session: {TransportWeb.Backoffice.JobsLive, :build_session, []}
-      )
+      live_session :backoffice_proxy_config,
+        root_layout: {TransportWeb.LayoutView, :app},
+        session: {TransportWeb.Backoffice.ProxyConfigLive, :build_session, []} do
+        live("/proxy-config", ProxyConfigLive)
+      end
+
+      live_session :backoffice_jobs,
+        root_layout: {TransportWeb.LayoutView, :app},
+        session: {TransportWeb.Backoffice.JobsLive, :build_session, []} do
+        live("/jobs", JobsLive)
+      end
 
       get("/import_aoms", PageController, :import_all_aoms)
 
@@ -148,6 +150,10 @@ defmodule TransportWeb.Router do
       post("/", ValidationController, :validate)
       post("/convert", ValidationController, :convert)
       get("/:id", ValidationController, :show)
+    end
+
+    scope "/tools" do
+      get("/gbfs/geojson_convert", GbfsToGeojsonController, :convert)
     end
 
     scope "/gtfs-geojson-conversion-#{System.get_env("TRANSPORT_TOOLS_SECRET_TOKEN")}" do

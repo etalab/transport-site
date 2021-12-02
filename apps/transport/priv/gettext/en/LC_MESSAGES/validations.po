@@ -115,7 +115,7 @@ msgstr ""
 msgid "This resource is also available in the following formats:"
 msgstr ""
 
-#, elixir-format, fuzzy
+#, elixir-format
 msgctxt "errors"
 msgid "error"
 msgid_plural "errors"

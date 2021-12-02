@@ -492,9 +492,15 @@
   height: 400px;
   margin: 0 auto;
   z-index: 0;
+  input[type="radio"] {
+    width: 16px;
+    height: 16px;
+  }
   input[type="radio"]::before {
-    top: 0.29em;
-    left: 0.265em;
+    top: 15%;
+    left: 15%;
+    width: 10px;
+    height: 10px;
   }
   .leaflet-popup-content {
     overflow: auto;
