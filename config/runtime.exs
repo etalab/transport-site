@@ -52,6 +52,15 @@ if config_env() == :prod && !iex_started? && worker && System.fetch_env!("INSTAN
   config :transport, Transport.Scheduler, jobs: Transport.Scheduler.scheduled_jobs()
 end
 
+# Make sure that APP_ENV is set in production to distinguish
+# production and staging (both running with MIX_ENV=prod)
+# See https://github.com/etalab/transport-site/issues/1945
+app_env_is_valid = Enum.member?([:production, :staging], Application.fetch_env!(:transport, :app_env))
+
+if config_env() == :prod and not app_env_is_valid do
+  raise("APP_ENV must be set to production or staging while in production")
+end
+
 base_oban_conf = [repo: DB.Repo]
 
 extra_oban_conf =
