@@ -81,7 +81,8 @@ non_staging_crontab =
     []
   else
     [
-      {"* */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob}
+      # Disabled while we investigate https://github.com/etalab/transport-site/issues/1951
+      #  {"* */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob}
     ]
   end
 
