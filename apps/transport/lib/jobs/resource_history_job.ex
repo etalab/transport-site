@@ -11,22 +11,7 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
   def perform(_job) do
     Transport.S3.create_bucket_if_needed!(:history)
 
-    duplicates =
-      Resource
-      |> where([r], not is_nil(r.datagouv_id))
-      |> group_by([r], r.datagouv_id)
-      |> having([r], count(r.datagouv_id) > 1)
-      |> select([r], r.datagouv_id)
-      |> Repo.all()
-
-    datagouv_ids =
-      Resource
-      |> where([r], not is_nil(r.url) and not is_nil(r.title) and not is_nil(r.datagouv_id))
-      |> where([r], r.format == "GTFS" or r.format == "NeTEx")
-      |> where([r], r.datagouv_id not in ^duplicates)
-      |> where([r], not r.is_community_resource)
-      |> select([r], r.datagouv_id)
-      |> Repo.all()
+    datagouv_ids = resources_to_historise()
 
     Logger.debug("Dispatching #{Enum.count(datagouv_ids)} ResourceHistoryJob jobs")
 
@@ -38,13 +23,36 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
 
     :ok
   end
+
+  def resources_to_historise do
+    # FIX ME
+    # Some datagouv_ids are duplicated for resources.
+    # Since our ResourceHistoryJob assumes an uniqueness, ignore
+    # those for the time being.
+    # See https://github.com/etalab/transport-site/issues/1930
+    duplicates =
+      Resource
+      |> where([r], not is_nil(r.datagouv_id))
+      |> group_by([r], r.datagouv_id)
+      |> having([r], count(r.datagouv_id) > 1)
+      |> select([r], r.datagouv_id)
+      |> Repo.all()
+
+    Resource
+    |> where([r], not is_nil(r.url) and not is_nil(r.title) and not is_nil(r.datagouv_id))
+    |> where([r], r.format == "GTFS" or r.format == "NeTEx")
+    |> where([r], r.datagouv_id not in ^duplicates)
+    |> where([r], not r.is_community_resource)
+    |> select([r], r.datagouv_id)
+    |> Repo.all()
+  end
 end
 
 defmodule Transport.Jobs.ResourceHistoryJob do
   @moduledoc """
   Job historicising a single resource
   """
-  use Oban.Worker, unique: [period: 60 * 60 * 5], tags: ["history"], max_attempts: 5
+  use Oban.Worker, unique: [period: 60 * 60 * 5, fields: [:args, :queue, :worker]], tags: ["history"], max_attempts: 5
   require Logger
   import Ecto.Query
   alias DB.{Repo, Resource}
@@ -54,30 +62,37 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     Logger.info("Running ResourceHistoryJob for #{datagouv_id}")
     resource = Resource |> where([r], r.datagouv_id == ^datagouv_id) |> Repo.one!()
 
-    resource |> download_resource() |> process_download(resource) |> remove_file!()
+    path = download_path(resource)
+
+    try do
+      resource |> download_resource(path) |> process_download(resource)
+    after
+      remove_file(path)
+    end
 
     :ok
   end
 
   @impl Oban.Worker
-  def timeout(_job), do: :timer.minutes(5)
+  def timeout(_job), do: :timer.minutes(2)
 
   defp process_download({:error, message}, %Resource{datagouv_id: datagouv_id}) do
     # Good opportunity to add a :telemetry event
     # Consider storing in our database that the resource
     # was not available.
     Logger.debug("Got an error while downloading #{datagouv_id}: #{message}")
-    nil
   end
 
   defp process_download({:ok, resource_path, headers, body}, %Resource{datagouv_id: datagouv_id} = resource) do
+    download_datetime = DateTime.utc_now()
     zip_metadata = Transport.ZipMetaDataExtractor.extract!(resource_path)
 
     case should_store_resource?(resource, zip_metadata) do
       true ->
-        filename = upload_filename(resource)
+        filename = upload_filename(resource, download_datetime)
 
         data = %{
+          download_datetime: download_datetime,
           uuid: Ecto.UUID.generate(),
           zip_metadata: zip_metadata,
           http_headers: headers,
@@ -97,8 +112,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         # Good opportunity to add a :telemetry event
         Logger.debug("skipping historization for #{datagouv_id} because resource did not change")
     end
-
-    resource_path
   end
 
   @doc """
@@ -137,9 +150,11 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     |> DB.Repo.insert!()
   end
 
-  defp download_resource(%Resource{datagouv_id: datagouv_id, url: url}) do
-    file_path = System.tmp_dir!() |> Path.join("resource_#{datagouv_id}_download")
+  defp download_path(%Resource{datagouv_id: datagouv_id}) do
+    System.tmp_dir!() |> Path.join("resource_#{datagouv_id}_download")
+  end
 
+  defp download_resource(%Resource{datagouv_id: datagouv_id, url: url}, file_path) do
     case Unlock.HTTP.Client.impl().get!(url, []) do
       %{status: 200, body: body, headers: headers} ->
         Logger.debug("Saving resource #{datagouv_id} to #{file_path}")
@@ -155,7 +170,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     end
   end
 
-  defp remove_file!(path), do: if(is_nil(path), do: :ok, else: File.rm!(path))
+  defp remove_file(path), do: File.rm(path)
 
   defp upload_to_s3!(body, path) do
     Logger.debug("Uploading resource to #{path}")
@@ -170,10 +185,10 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     |> Transport.Wrapper.ExAWS.impl().request!()
   end
 
-  defp upload_filename(%Resource{} = resource) do
-    time = Calendar.strftime(DateTime.utc_now(), "%Y%m%d.%H%M%S.%f")
+  def upload_filename(%Resource{datagouv_id: datagouv_id} = resource, %DateTime{} = dt) do
+    time = Calendar.strftime(dt, "%Y%m%d.%H%M%S.%f")
 
-    "#{resource.datagouv_id}/#{resource.datagouv_id}.#{time}.zip"
+    "#{datagouv_id}/#{datagouv_id}.#{time}.zip"
   end
 
   defp relevant_http_headers do

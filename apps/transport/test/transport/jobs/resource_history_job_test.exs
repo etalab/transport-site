@@ -175,6 +175,13 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     end
   end
 
+  describe "upload_filename" do
+    test "it works" do
+      assert "foo/foo.20211202.130534.393187.zip" ==
+               ResourceHistoryJob.upload_filename(%DB.Resource{datagouv_id: "foo"}, ~U[2021-12-02 13:05:34.393187Z])
+    end
+  end
+
   describe "ResourceHistoryJob" do
     test "a simple successful case" do
       resource_url = "https://example.com/gtfs.zip"
@@ -242,7 +249,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  "filename" => filename,
                  "permanent_url" => permanent_url,
                  "zip_metadata" => ^expected_zip_metadata,
-                 "uuid" => _uuid
+                 "uuid" => _uuid,
+                 "download_datetime" => _download_datetime
                }
              } = DB.ResourceHistory |> DB.Repo.one!()
 
