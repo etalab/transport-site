@@ -227,7 +227,12 @@ function fillGBFSMap (resourceUrl, fg, map, firstCall = false) {
             setGBFSLayersControl(fg, map)
             if (firstCall) {
                 // add one of the feature to the map (initial state)
-                const firstFg = fg[Object.keys(fg)[0]]
+                const availableLayers = Object.keys(fg)
+                if (availableLayers.length <= 0) {
+                    throw new Error('No GBFS data can be shown on map')
+                }
+                const firstFg = fg[availableLayers[0]]
+
                 firstFg.addTo(map)
                 map.fitBounds(firstFg.getBounds())
             }
@@ -282,8 +287,13 @@ function createGBFSmap (id, resourceUrl) {
     }, refreshInterval * 1000)
 
     // update the countdown every second
-    setInterval(() => {
-        document.getElementById('coutdown').innerHTML = (countdown-- <= 3 ? 'mise à jour' : countdown)
+    const interval = setInterval(() => {
+        const el = document.getElementById('coutdown')
+        if (el) {
+            el.innerHTML = (countdown-- <= 3 ? 'mise à jour' : countdown)
+        } else {
+            clearInterval(interval)
+        }
     }, 1000)
 }
 
