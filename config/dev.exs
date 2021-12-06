@@ -61,6 +61,8 @@ config :transport, TransportWeb.Endpoint,
 datagouvfr_site = "https://demo.data.gouv.fr"
 
 config :transport,
+  ops_auth_username: "dev",
+  ops_auth_password: "dev",
   datagouvfr_site: datagouvfr_site,
   s3_buckets: %{
     history: "resource-history-dev"
