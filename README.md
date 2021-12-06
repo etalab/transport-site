@@ -192,7 +192,21 @@ For the tests you also need to add an environment variable:
   https://github.com/etalab/transport-ops
 
   Update it if needed (e.g. updating Elixir’s version) and then update `.circleci/config.yml`.
-  
+
+### Domain names
+
+The following domain names are currently in use:
+
+* Production
+  * site: https://transport.data.gouv.fr
+  * jobs: https://workers.transport.data.gouv.fr
+  * proxy: https://proxy.transport.data.gouv.fr
+* Staging
+  * site: https://prochainement.transport.data.gouv.fr
+  * jobs: https://workers.prochainement.transport.data.gouv.fr
+  * proxy: https://proxy.prochainement.transport.gouv.fr
+
+
 # Blog
 The project [blog](https://blog.transport.data.gouv.fr/) code and articles are hosted in the [blog](https://github.com/etalab/transport-site/tree/blog/blog) folder of the blog branch. A specific blog branch has been created with less restrictive merge rules, to allow publishing articles directly from the CMS without needing a github code review.
 
