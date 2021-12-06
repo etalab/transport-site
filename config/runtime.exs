@@ -52,6 +52,12 @@ if config_env() == :prod && !iex_started? && worker && System.fetch_env!("INSTAN
   config :transport, Transport.Scheduler, jobs: Transport.Scheduler.scheduled_jobs()
 end
 
+if config_env() == :prod do
+  config :transport,
+    ops_auth_username: System.fetch_env!("OPS_AUTH_USERNAME")
+    ops_auth_password: System.fetch_env!("OPS_AUTH_PASSWORD")
+end
+
 # Make sure that APP_ENV is set in production to distinguish
 # production and staging (both running with MIX_ENV=prod)
 # See https://github.com/etalab/transport-site/issues/1945
