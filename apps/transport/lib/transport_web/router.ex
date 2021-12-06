@@ -9,6 +9,14 @@ defmodule TransportWeb.Router do
       do: [%{label: "Not found", handler: {IO, :puts, ["Template not found: #{inspect(e)}"]}}]
   end
 
+  # Not currently called in `TransportWeb.Plugs.Router` anymore
+  pipeline :stop_on_worker_only_node do
+    plug(TransportWeb.Plugs.Halt,
+      if: {Transport.Application, :worker_only?},
+      message: "UP (WORKER-ONLY)"
+    )
+  end
+
   pipeline :browser do
     plug(:accepts, ["html"])
     plug(:fetch_session)
@@ -41,6 +49,7 @@ defmodule TransportWeb.Router do
 
   scope "/", TransportWeb do
     pipe_through(:browser)
+    pipe_through(:stop_on_worker_only_node)
 
     get("/", PageController, :index)
     get("/real_time", PageController, :real_time)
