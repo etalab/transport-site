@@ -36,7 +36,10 @@ defmodule Transport.Mixfile do
       extra_applications: [
         :logger,
         :unidecode,
-        :phoenix_ecto
+        :phoenix_ecto,
+        # https://hexdocs.pm/phoenix_live_dashboard/os_mon.html
+        :runtime_tools,
+        :os_mon
       ]
     ]
   end
