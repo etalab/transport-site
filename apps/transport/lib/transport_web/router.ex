@@ -1,6 +1,7 @@
 defmodule TransportWeb.Router do
   use TransportWeb, :router
   use Sentry.PlugCapture
+  import Phoenix.LiveDashboard.Router
 
   defimpl Plug.Exception, for: Phoenix.Template.UndefinedError do
     def status(_exception), do: 404
@@ -46,6 +47,12 @@ defmodule TransportWeb.Router do
   end
 
   get("/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi")
+
+  scope "/ops" do
+    pipe_through(:browser)
+
+    live_dashboard("/dashboard", ecto_repos: [DB.Repo])
+  end
 
   scope "/", TransportWeb do
     pipe_through(:browser)
