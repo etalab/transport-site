@@ -41,11 +41,7 @@ defmodule Hasher do
         hash
 
       {:error, msg} ->
-        Logger.warn(
-          "Cannot compute hash for url #{url |> inspect}, returning empty hash. Error : #{
-            msg |> inspect
-          }"
-        )
+        Logger.warn("Cannot compute hash for url #{url |> inspect}, returning empty hash. Error : #{msg |> inspect}")
 
         # NOTE: this mimics the legacy code, and maybe we could return nil instead, but the whole
         # thing isn't under tests, so I prefer to keep it like before for now.
