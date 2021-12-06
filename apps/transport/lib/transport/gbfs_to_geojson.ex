@@ -208,7 +208,7 @@ defmodule Transport.GbfsToGeojson do
 
   @spec fetch_gbfs_endpoint!(binary()) :: map()
   defp fetch_gbfs_endpoint!(url) do
-    %{status_code: 200, body: body} = http_client().get!(url)
+    %{status_code: 200, body: body} = http_client().get!(url |> URI.encode())
     Jason.decode!(body)
   end
 
