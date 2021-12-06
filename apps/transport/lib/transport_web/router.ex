@@ -55,8 +55,7 @@ defmodule TransportWeb.Router do
   end
 
   scope "/", TransportWeb do
-    pipe_through(:browser)
-    pipe_through(:stop_on_worker_only_node)
+    pipe_through(:browser, :stop_on_worker_only_node)
 
     get("/", PageController, :index)
     get("/real_time", PageController, :real_time)
