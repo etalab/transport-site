@@ -54,6 +54,10 @@ defmodule Transport.Mixfile do
       {:phoenix_html, "~> 3.1"},
       {:phoenix_markdown, "~> 1.0"},
       {:phoenix_live_view, "~> 0.17.5"},
+      # wait until > 0.6.1 is released
+      {:phoenix_live_dashboard,
+       git: "https://github.com/phoenixframework/phoenix_live_dashboard.git", ref: "7f0346f"},
+      {:ecto_psql_extras, "~> 0.6"},
       {:html_sanitize_ex, "~> 1.4"},
       {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 2.3"},
