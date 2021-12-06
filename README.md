@@ -195,7 +195,7 @@ For the tests you also need to add an environment variable:
 
 ### Domain names
 
-The following domain names are currently in use:
+The following domain names are currently in use by the deployed Elixir app:
 
 * Production
   * site: https://transport.data.gouv.fr
@@ -206,6 +206,9 @@ The following domain names are currently in use:
   * jobs: https://workers.prochainement.transport.data.gouv.fr
   * proxy: https://proxy.prochainement.transport.gouv.fr
 
+These names are [configured via a CNAME on CleverCloud](https://www.clever-cloud.com/doc/administrate/domain-names/#using-personal-domain-names).
+
+The corresponding SSL certificates are auto-generated via Let's Encrypt and CleverCloud.
 
 # Blog
 The project [blog](https://blog.transport.data.gouv.fr/) code and articles are hosted in the [blog](https://github.com/etalab/transport-site/tree/blog/blog) folder of the blog branch. A specific blog branch has been created with less restrictive merge rules, to allow publishing articles directly from the CMS without needing a github code review.
