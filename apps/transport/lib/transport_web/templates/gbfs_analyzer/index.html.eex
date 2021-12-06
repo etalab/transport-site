@@ -1,0 +1,164 @@
+<section class="single-page section section-grey">
+  <div class="container">
+    <h1>Analyseur de flux GBFS</h1>
+    <div>
+    <form style="margin: 0;">
+      <input type="text" id="url" name="url" value=<%= @gbfs_url %>>
+      <input type="submit" value="Analyser">
+    </form>
+    </div>
+
+  <%= unless @gbfs_url == "" do %>
+  <%= unless @metadatas == %{} do %>
+    <h2 class="pt-48">Métadonnées</h2>
+    <table class="table">
+      <% name = get_in(@metadatas, [:system_details, :name]) %>
+      <%= unless is_nil(name) do %>
+      <tr>
+        <td>
+          Nom du flux
+        </td>
+        <td>
+          <%= @metadatas.system_details.name %>
+        </td>
+      </tr>
+      <% end %>
+
+      <tr>
+        <td>Feeds</td>
+        <td>
+          <ul>
+            <%= for feed <- Map.get(@metadatas, :feeds, []) do %>
+              <li><%= feed %></li>
+            <% end %>
+          </ul>
+        </td>
+
+      <% languages = Map.get(@metadatas, :languages) %>
+      <%= unless is_nil(languages) do %>
+      <tr>
+      <td>
+        Langages
+      </td>
+      <td>
+        <ul>
+          <%= for l <- @metadatas.languages do %>
+            <li><%= l %></li>
+          <% end %>
+        </ul>
+      </td>
+      </tr>
+      <% end %>
+
+      <% timezone = get_in(@metadatas, [:system_details, :timezone]) %>
+      <%= unless is_nil(timezone) do %>
+      <tr>
+        <td>
+          Fuseau horaire
+        </td>
+        <td>
+          <%= @metadatas.system_details.timezone %>
+        </td>
+      </tr>
+      <% end %>
+
+      <% has_cors = Map.get(@metadatas, :has_cors) %>
+      <%= unless is_nil(has_cors) do %>
+      <tr>
+        <td>
+          Headers CORS présents
+        </td>
+        <td>
+          <%= if @metadatas.has_cors do %>
+            oui
+          <% else %>
+            non
+          <% end %>
+        </td>
+      <% end %>
+      </tr>
+      <% is_cors_allowed = Map.get(@metadatas, :has_cors) %>
+      <%= unless is_nil(is_cors_allowed) do %>
+      <tr>
+      <td>
+        CORS autorisé
+      </td>
+      <td>
+        <%= if @metadatas.is_cors_allowed do %>
+          oui
+        <% else %>
+          non
+        <% end %>
+      </td>
+      </tr>
+      <% end %>
+    </table>
+
+    <h2>Validation</h2>
+    <table class="table">
+      <tr>
+        <td>Nombre d'erreurs détectées</td>
+        <td>
+          <%= @metadatas.validation.errors_count %>
+        </td>
+        <tr>
+          <td>
+            Version détectée
+          </td>
+        <td>
+          <%= @metadatas.validation.version_detected %>
+        </td>
+        </tr>
+        <tr>
+          <td>
+            Version validée
+          </td>
+          <td>
+            <%= @metadatas.validation.version_validated %>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            Rapport de validation
+          </td>
+          <td>
+            <%= link("lien", to: gbfs_validation_link(@gbfs_url), target: "blank") %>
+          </td>
+        </tr>
+    </table>
+
+    <h2>Visualisation</h2>
+    <div id="map" class="leaflet-map" style="height: 400px; color: red;"></div>
+
+    <h2 class="pb-12">GeoJSONs</h2>
+    <%= if "station_information" in @metadatas.feeds do %>
+      <span class="panel mr-24">
+        <%= link("GeoJSON stations", to: "http://0.0.0.0:5000/tools/gbfs/geojson_convert?url=#{@gbfs_url}&output=stations", target: "blank") %>
+      </span>
+    <% end %>
+
+    <%= if "free_bike_status" in @metadatas.feeds do %>
+      <span class="panel mr-24">
+        <%= link("GeoJSON free-floating ", to: "http://0.0.0.0:5000/tools/gbfs/geojson_convert?url=#{@gbfs_url}&output=free-floating", target: "blank") %>
+      </span>
+    <% end %>
+
+    <%= if "geofencing_zones" in @metadatas.feeds do %>
+      <span class="panel mr-24">
+        <%= link("GeoJSON geofencing ", to: "http://0.0.0.0:5000/tools/gbfs/geojson_convert?url=#{@gbfs_url}&output=geofencing", target: "blank") %>
+      </span>
+    <% end %>
+    </div>
+  <% end %>
+  <% end %>
+</section>
+
+<%= if @gbfs_url != "" do %>
+  <script src="<%= TransportWeb.Router.Helpers.static_path(@conn, "/js/resourceviz.js") %>"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      createMap('map', "<%= @gbfs_url %>", "gbfs")
+    })
+  </script>
+<% end %>
