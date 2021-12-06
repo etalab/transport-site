@@ -28,7 +28,7 @@ defmodule Unlock.HTTP do
     """
     @type headers() :: [{header_name :: String.t(), header_value :: String.t()}]
 
-    @callback get!(url :: binary, headers :: headers()) :: any()
+    @callback get!(url :: binary, headers :: headers(), options :: Keyword.t()) :: any()
 
     def impl, do: Application.fetch_env!(:unlock, :http_client)
   end
@@ -38,18 +38,47 @@ defmodule Unlock.HTTP do
     A Finch-based implementation of the Client behaviour.
     """
     @behaviour Client
+    @redirect_codes [301, 302, 303, 307, 308]
+    @max_redirections 5
 
-    def get!(url, headers) do
+    def get!(url, headers, options \\ []) do
       {:ok, response} =
         :get
         |> Finch.build(url, headers)
         |> Finch.request(Unlock.Finch)
 
-      %Response{
-        body: response.body,
-        status: response.status,
-        headers: response.headers
-      }
+      process_response(response, url, headers, options)
+    end
+
+    defp process_response(response, url, headers, options) do
+      follow_redirect = Keyword.get(options, :follow_redirect, false)
+      max_redirections = Keyword.get(options, :max_redirections, @max_redirections)
+      is_redirect = Enum.member?(@redirect_codes, response.status)
+
+      if is_redirect and follow_redirect do
+        if max_redirections < 0 do
+          raise RuntimeError, "exceeded max redirections for #{url}"
+        end
+
+        location =
+          response.headers |> Enum.into(%{}, fn {k, v} -> {String.downcase(k), v} end) |> Map.fetch!("location")
+
+        uri = URI.parse(location)
+
+        next_url =
+          cond do
+            is_nil(uri.scheme) -> URI.merge(URI.parse(url), uri) |> to_string()
+            true -> uri |> to_string()
+          end
+
+        get!(next_url, headers, options |> Keyword.put(:max_redirections, max_redirections - 1))
+      else
+        %Response{
+          body: response.body,
+          status: response.status,
+          headers: response.headers
+        }
+      end
     end
   end
 end
