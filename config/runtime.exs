@@ -65,10 +65,12 @@ end
 config :transport,
   app_env: app_env
 
-app_env_file = Path.join(__DIR__, "#{app_env}.exs")
-
-if File.exists?(app_env_file) do
-  import_config app_env_file
+# Override configuration specific to staging
+if app_env == :staging do
+  config :transport,
+    s3_buckets: %{
+      history: "resource-history-staging"
+    }
 end
 
 base_oban_conf = [repo: DB.Repo]
