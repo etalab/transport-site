@@ -54,7 +54,7 @@ end
 
 if config_env() == :prod do
   config :transport,
-    ops_auth_username: System.fetch_env!("OPS_AUTH_USERNAME")
+    ops_auth_username: System.fetch_env!("OPS_AUTH_USERNAME"),
     ops_auth_password: System.fetch_env!("OPS_AUTH_PASSWORD")
 end
 
