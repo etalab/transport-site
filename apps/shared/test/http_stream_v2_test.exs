@@ -17,10 +17,12 @@ defmodule HTTPStreamV2.Test do
     {:ok, result} = HTTPStreamV2.fetch_status_and_hash(url)
 
     assert result.status == 200
-    assert result.hash == :sha256 |> :crypto.hash("Contenu classique") |> Base.encode16 |> String.downcase
-    assert result.body_byte_size == ("Contenu classique" |> byte_size())
-    headers = result.headers
-    |> Enum.filter(fn({key, _val}) -> key == "hello" end)
+    assert result.hash == :sha256 |> :crypto.hash("Contenu classique") |> Base.encode16() |> String.downcase()
+    assert result.body_byte_size == "Contenu classique" |> byte_size()
+
+    headers =
+      result.headers
+      |> Enum.filter(fn {key, _val} -> key == "hello" end)
 
     assert headers == [{"hello", "header"}]
   end
@@ -41,7 +43,7 @@ defmodule HTTPStreamV2.Test do
       |> Plug.Conn.resp(301, "")
     end)
 
-        Bypass.expect(bypass, "GET", "/page2", fn conn ->
+    Bypass.expect(bypass, "GET", "/page2", fn conn ->
       conn
       |> Plug.Conn.put_resp_header("hello", "header")
       |> Plug.Conn.resp(200, "hello world")
@@ -50,10 +52,12 @@ defmodule HTTPStreamV2.Test do
     {:ok, result} = HTTPStreamV2.fetch_status_and_hash(url)
 
     assert result.status == 200
-    assert result.hash == :sha256 |> :crypto.hash("hello world") |> Base.encode16 |> String.downcase
-    assert result.body_byte_size == ("hello world" |> byte_size())
-    headers = result.headers
-    |> Enum.filter(fn({key, _val}) -> key == "hello" end)
+    assert result.hash == :sha256 |> :crypto.hash("hello world") |> Base.encode16() |> String.downcase()
+    assert result.body_byte_size == "hello world" |> byte_size()
+
+    headers =
+      result.headers
+      |> Enum.filter(fn {key, _val} -> key == "hello" end)
 
     assert headers == [{"hello", "header"}]
 

@@ -75,11 +75,9 @@ defmodule Unlock.ControllerTest do
       assert resp.resp_body == "somebody-to-love"
       assert resp.status == 207
 
-      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
-                       %{target: "proxy:an-existing-identifier"}}
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{}, %{target: "proxy:an-existing-identifier"}}
 
-      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
-                       %{target: "proxy:an-existing-identifier"}}
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{}, %{target: "proxy:an-existing-identifier"}}
 
       # these ones are added by our pipeline for now
       assert Plug.Conn.get_resp_header(resp, "x-request-id")
@@ -87,6 +85,7 @@ defmodule Unlock.ControllerTest do
       assert Plug.Conn.get_resp_header(resp, "cache-control") == [
                "max-age=0, private, must-revalidate"
              ]
+
       # we enforce downloads for now, even if this results sometimes in incorrect filenames
       # due to incorrect content-type headers from the remote
       assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment"]
@@ -107,7 +106,7 @@ defmodule Unlock.ControllerTest do
 
       # subsequent queries should work based on cache
       Unlock.HTTP.Client.Mock
-      |> expect(:get!, 0, fn(_url, _headers) -> nil end)
+      |> expect(:get!, 0, fn _url, _headers -> nil end)
 
       {:ok, ttl} = Cachex.ttl(Unlock.Cachex, "resource:an-existing-identifier")
       assert_in_delta ttl / 1000.0, ttl_in_seconds, 1
@@ -119,11 +118,9 @@ defmodule Unlock.ControllerTest do
       assert resp.resp_body == "somebody-to-love"
       assert resp.status == 207
 
-      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
-                       %{target: "proxy:an-existing-identifier"}}
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{}, %{target: "proxy:an-existing-identifier"}}
 
-      refute_received {:telemetry_event, [:proxy, :request, :internal], %{},
-                       %{target: "proxy:an-existing-identifier"}}
+      refute_received {:telemetry_event, [:proxy, :request, :internal], %{}, %{target: "proxy:an-existing-identifier"}}
 
       # NOTE: this whole test will have to be DRYed
       remaining_headers =
@@ -140,7 +137,8 @@ defmodule Unlock.ControllerTest do
     end
 
     test "handles 404" do
-      setup_proxy_config(%{}) # such empty
+      # such empty
+      setup_proxy_config(%{})
 
       resp =
         build_conn()
