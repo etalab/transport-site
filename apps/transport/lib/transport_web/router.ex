@@ -50,8 +50,15 @@ defmodule TransportWeb.Router do
 
   scope "/ops" do
     pipe_through(:browser)
+    plug(:ops_auth)
 
     live_dashboard("/dashboard", ecto_repos: [DB.Repo])
+  end
+
+  defp ops_auth(conn, _opts) do
+    username = Application.fetch_env!(:transport, :ops_auth_username)
+    password = Application.fetch_env!(:transport, :ops_auth_password)
+    Plug.BasicAuth.basic_auth(conn, username: username, password: password)
   end
 
   scope "/", TransportWeb do
