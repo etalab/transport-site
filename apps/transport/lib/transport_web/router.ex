@@ -46,16 +46,19 @@ defmodule TransportWeb.Router do
     plug(:transport_data_gouv_member)
   end
 
+  pipeline :ops_auth do
+    plug(:ensure_ops_auth)
+  end
+
   get("/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi")
 
   scope "/ops" do
-    pipe_through(:browser)
-    plug(:ops_auth)
+    pipe_through([:browser, :ops_auth])
 
     live_dashboard("/dashboard", ecto_repos: [DB.Repo])
   end
 
-  defp ops_auth(conn, _opts) do
+  defp ensure_ops_auth(conn, _opts) do
     username = Application.fetch_env!(:transport, :ops_auth_username)
     password = Application.fetch_env!(:transport, :ops_auth_password)
     Plug.BasicAuth.basic_auth(conn, username: username, password: password)
