@@ -76,17 +76,12 @@ end
 base_oban_conf = [repo: DB.Repo]
 
 # Oban jobs that should be run in every environment
-oban_crontab_all_envs = []
+oban_crontab_all_envs = [
+  {"* */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob}
+]
+
 # Oban jobs that *should not* be run in staging by the crontab
-non_staging_crontab =
-  if app_env == :staging do
-    []
-  else
-    [
-      # Disabled while we investigate https://github.com/etalab/transport-site/issues/1951
-      #  {"* */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob}
-    ]
-  end
+non_staging_crontab = []
 
 extra_oban_conf =
   if not worker || (iex_started? and config_env() == :prod) || config_env() == :test do
