@@ -65,25 +65,28 @@ end
 config :transport,
   app_env: app_env
 
-app_env_file = Path.join(__DIR__, "#{app_env}.exs")
-
-if File.exists?(app_env_file) do
-  import_config app_env_file
+# Override configuration specific to staging
+if app_env == :staging do
+  config :transport,
+    s3_buckets: %{
+      history: "resource-history-staging"
+    }
 end
 
 base_oban_conf = [repo: DB.Repo]
 
 # Oban jobs that should be run in every environment
-oban_crontab_all_envs = []
+oban_crontab_all_envs = [
+  {"* */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob}
+]
+
 # Oban jobs that *should not* be run in staging by the crontab
 non_staging_crontab =
   if app_env == :staging do
     []
+    # Oban jobs that should be run in all envs, *except* staging
   else
-    [
-      # Disabled while we investigate https://github.com/etalab/transport-site/issues/1951
-      #  {"* */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob}
-    ]
+    []
   end
 
 extra_oban_conf =
