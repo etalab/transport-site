@@ -70,6 +70,8 @@ config :db, DB.Repo,
 
 # temporary stuff, yet this is not DRY
 config :transport,
+  ops_auth_username: "test",
+  ops_auth_password: "test",
   datagouvfr_site: "https://demo.data.gouv.fr",
   # NOTE: some tests still rely on ExVCR cassettes at the moment. We configure the
   # expected host here, until we move to a behaviour-based testing instead.
