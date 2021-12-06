@@ -81,7 +81,13 @@ oban_crontab_all_envs = [
 ]
 
 # Oban jobs that *should not* be run in staging by the crontab
-non_staging_crontab = []
+non_staging_crontab =
+  if app_env == :staging do
+    []
+    # Oban jobs that should be run in all envs, *except* staging
+  else
+    []
+  end
 
 extra_oban_conf =
   if not worker || (iex_started? and config_env() == :prod) || config_env() == :test do
