@@ -29,7 +29,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
   # Also, disconnect will have to be handled:
   # https://hexdocs.pm/phoenix_live_view/security-model.html#disconnecting-all-instances-of-a-given-live-user
   #
-  defp ensure_admin_auth_or_redirect(socket, current_user, func) do
+  def ensure_admin_auth_or_redirect(socket, current_user, func) do
     if current_user && TransportWeb.Router.is_transport_data_gouv_member?(current_user) do
       # We track down the current admin so that it can be used by next actions
       socket = assign(socket, current_admin_user: current_user)

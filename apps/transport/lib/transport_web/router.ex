@@ -113,6 +113,12 @@ defmodule TransportWeb.Router do
         live("/jobs", JobsLive)
       end
 
+      live_session :gbfs,
+        root_layout: {TransportWeb.LayoutView, :app},
+        session: {TransportWeb.Backoffice.GBFSLive, :build_session, []} do
+        live("/gbfs", GBFSLive)
+      end
+
       get("/import_aoms", PageController, :import_all_aoms)
 
       scope "/datasets" do

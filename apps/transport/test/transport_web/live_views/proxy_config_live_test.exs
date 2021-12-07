@@ -1,22 +1,15 @@
 defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
   use ExUnit.Case, async: true
+  use TransportWeb.LiveCase
 
-  import Phoenix.ConnTest
   import Phoenix.LiveViewTest
   @endpoint TransportWeb.Endpoint
   import Mox
 
+  setup :verify_on_exit!
+
   setup do
     {:ok, conn: build_conn()}
-  end
-
-  def setup_admin_in_session(conn) do
-    conn
-    |> init_test_session(%{
-      current_user: %{
-        "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]
-      }
-    })
   end
 
   def setup_proxy_config(slug) do
@@ -35,13 +28,6 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
   test "requires login", %{conn: conn} do
     conn = get(conn, "/backoffice/proxy-config")
     assert html_response(conn, 302)
-  end
-
-  def extract_data_from_html(html) do
-    doc = Floki.parse_document!(html)
-    headers = doc |> Floki.find("table thead tr th") |> Enum.map(&Floki.text/1)
-    row = doc |> Floki.find("table tbody tr td") |> Enum.map(&Floki.text/1)
-    headers |> Enum.zip(row) |> Enum.into(%{})
   end
 
   # NOTE: this fakes previous proxy requests, without having to
