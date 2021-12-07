@@ -162,10 +162,16 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           metadata: %{"foo" => "bar"}
         )
 
-      Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn url, _headers ->
-        assert url == resource_url
-        %{status: 200, body: @gtfs_content, headers: [{"content-type", "application/octet-stream"}, {"x-foo", "bar"}]}
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^resource_url, _headers, options ->
+        assert options == [follow_redirect: true]
+
+        {:ok,
+         %HTTPoison.Response{
+           status_code: 200,
+           body: @gtfs_content,
+           headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]
+         }}
       end)
 
       Transport.ExAWS.Mock
@@ -240,10 +246,10 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         payload: %{"zip_metadata" => zip_metadata()}
       )
 
-      Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn url, _headers ->
-        assert url == resource_url
-        %{status: 200, body: @gtfs_content, headers: []}
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^resource_url, _headers, options ->
+        assert options == [follow_redirect: true]
+        {:ok, %HTTPoison.Response{status_code: 200, body: @gtfs_content, headers: []}}
       end)
 
       assert 1 == count_resource_history()
@@ -265,10 +271,10 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           is_community_resource: false
         )
 
-      Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn url, _headers ->
-        assert url == resource_url
-        %{status: 500, body: "", headers: []}
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^resource_url, _headers, options ->
+        assert options == [follow_redirect: true]
+        {:ok, %HTTPoison.Response{status_code: 500, body: "", headers: []}}
       end)
 
       assert 0 == count_resource_history()
