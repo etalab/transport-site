@@ -2,7 +2,7 @@
   <div class="container" style="min-height: 50vh;">
     <h1><%= dgettext("gbfs_analyzer", "GBFS feed analyzer") %></h1>
     <div class="pb-48">
-    <form style="margin: 0;">
+    <form class="no-margin">
       <input type="text" id="url" name="url" value="<%= @gbfs_url %>" placeholder="https://.../gbfs.json">
       <input type="submit" value="<%= dgettext("gbfs_analyzer", "Analyze") %>">
     </form>
