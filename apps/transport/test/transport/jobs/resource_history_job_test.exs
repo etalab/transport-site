@@ -19,51 +19,17 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   @gtfs_content File.read!(@gtfs_path)
 
   describe "ResourceHistoryDispatcherJob" do
+    test "resources_to_historise" do
+      datagouv_id = create_resources_for_history()
+      assert 7 == count_resources()
+      assert [datagouv_id] == ResourceHistoryDispatcherJob.resources_to_historise()
+    end
+
     test "a simple successful case" do
       s3_mocks_create_bucket()
+      datagouv_id = create_resources_for_history()
 
-      %{datagouv_id: datagouv_id} =
-        insert(:resource,
-          url: "https://example.com/gtfs.zip",
-          format: "GTFS",
-          title: "title",
-          datagouv_id: "1",
-          is_community_resource: false
-        )
-
-      # Resources that should be ignored
-      insert(:resource,
-        url: "https://example.com/gtfs.zip",
-        format: "GTFS",
-        title: "Ignored because it's a community resource",
-        datagouv_id: "2",
-        is_community_resource: true
-      )
-
-      insert(:resource,
-        url: "https://example.com/gbfs",
-        format: "gbfs",
-        title: "Ignored because it's not GTFS or NeTEx",
-        datagouv_id: "3",
-        is_community_resource: false
-      )
-
-      insert(:resource,
-        url: "https://example.com/gtfs.zip",
-        format: "GTFS",
-        title: "Ignored because of duplicated datagouv_id",
-        datagouv_id: "4",
-        is_community_resource: false
-      )
-
-      insert(:resource,
-        url: "https://example.com/gtfs.zip",
-        format: "GTFS",
-        title: "Ignored because of duplicated datagouv_id",
-        datagouv_id: "4",
-        is_community_resource: false
-      )
-
+      assert count_resources() > 1
       assert :ok == perform_job(ResourceHistoryDispatcherJob, %{})
       assert [%{args: %{"datagouv_id" => ^datagouv_id}}] = all_enqueued(worker: ResourceHistoryJob)
       refute_enqueued(worker: ResourceHistoryDispatcherJob)
@@ -196,10 +162,16 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           metadata: %{"foo" => "bar"}
         )
 
-      Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn url, _headers ->
-        assert url == resource_url
-        %{status: 200, body: @gtfs_content, headers: [{"content-type", "application/octet-stream"}, {"x-foo", "bar"}]}
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^resource_url, _headers, options ->
+        assert options == [follow_redirect: true]
+
+        {:ok,
+         %HTTPoison.Response{
+           status_code: 200,
+           body: @gtfs_content,
+           headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]
+         }}
       end)
 
       Transport.ExAWS.Mock
@@ -274,10 +246,10 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         payload: %{"zip_metadata" => zip_metadata()}
       )
 
-      Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn url, _headers ->
-        assert url == resource_url
-        %{status: 200, body: @gtfs_content, headers: []}
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^resource_url, _headers, options ->
+        assert options == [follow_redirect: true]
+        {:ok, %HTTPoison.Response{status_code: 200, body: @gtfs_content, headers: []}}
       end)
 
       assert 1 == count_resource_history()
@@ -299,10 +271,10 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           is_community_resource: false
         )
 
-      Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn url, _headers ->
-        assert url == resource_url
-        %{status: 500, body: "", headers: []}
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^resource_url, _headers, options ->
+        assert options == [follow_redirect: true]
+        {:ok, %HTTPoison.Response{status_code: 500, body: "", headers: []}}
       end)
 
       assert 0 == count_resource_history()
@@ -310,6 +282,75 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       ensure_no_tmp_files!()
     end
+  end
+
+  defp create_resources_for_history do
+    %{datagouv_id: datagouv_id} =
+      insert(:resource,
+        url: "https://example.com/gtfs.zip",
+        format: "GTFS",
+        title: "title",
+        datagouv_id: "1",
+        is_community_resource: false,
+        is_active: true
+      )
+
+    # Resources that should be ignored
+    insert(:resource,
+      url: "https://example.com/gtfs.zip",
+      format: "GTFS",
+      title: "Ignored because it's a community resource",
+      datagouv_id: "2",
+      is_community_resource: true,
+      is_active: true
+    )
+
+    insert(:resource,
+      url: "https://example.com/gbfs",
+      format: "gbfs",
+      title: "Ignored because it's not GTFS or NeTEx",
+      datagouv_id: "3",
+      is_community_resource: false,
+      is_active: true
+    )
+
+    insert(:resource,
+      url: "https://example.com/gtfs.zip",
+      format: "GTFS",
+      title: "Ignored because of duplicated datagouv_id",
+      datagouv_id: "4",
+      is_community_resource: false,
+      is_active: true
+    )
+
+    insert(:resource,
+      url: "https://example.com/gtfs.zip",
+      format: "GTFS",
+      title: "Ignored because of duplicated datagouv_id",
+      datagouv_id: "4",
+      is_community_resource: false,
+      is_active: true
+    )
+
+    insert(:resource,
+      url: "https://example.com/gtfs.zip",
+      format: "GTFS",
+      title: "Ignored because is not active",
+      datagouv_id: "5",
+      is_community_resource: false,
+      is_active: false
+    )
+
+    insert(:resource,
+      url: "ftp://example.com/gtfs.zip",
+      format: "GTFS",
+      title: "Ignored because is not available over HTTP",
+      datagouv_id: "6",
+      is_community_resource: false,
+      is_active: true
+    )
+
+    datagouv_id
   end
 
   defp zip_metadata do
@@ -389,6 +430,10 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
   defp count_resource_history do
     DB.Repo.one!(from(r in DB.ResourceHistory, select: count()))
+  end
+
+  defp count_resources do
+    DB.Repo.one!(from(r in DB.Resource, select: count()))
   end
 
   defp s3_mocks_create_bucket do
