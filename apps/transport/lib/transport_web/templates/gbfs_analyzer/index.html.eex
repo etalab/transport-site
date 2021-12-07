@@ -169,7 +169,7 @@
   <script src="<%= TransportWeb.Router.Helpers.static_path(@conn, "/js/resourceviz.js") %>"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      createMap('map', "<%= @gbfs_url %>", "gbfs")
+      createMap('map', "<%= @gbfs_url %>", "gbfs", "<%= get_session(@conn, :locale) %>")
     })
   </script>
 <% end %>
