@@ -16,6 +16,8 @@ defmodule Transport.GbfsToGeojson do
   def gbfs_geojsons(url, params) do
     payload = fetch_gbfs_endpoint!(url)
     add_feeds(payload, params)
+  rescue
+    _e -> %{}
   end
 
   def add_feeds(payload, %{"output" => "stations"}) do
