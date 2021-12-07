@@ -43,6 +43,8 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
     |> where([r], r.format == "GTFS" or r.format == "NeTEx")
     |> where([r], r.datagouv_id not in ^duplicates)
     |> where([r], not r.is_community_resource)
+    |> where([r], r.is_active)
+    |> where([r], like(r.url, "http%"))
     |> select([r], r.datagouv_id)
     |> Repo.all()
   end
