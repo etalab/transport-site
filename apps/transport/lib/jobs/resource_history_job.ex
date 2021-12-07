@@ -155,20 +155,21 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   end
 
   defp download_resource(%Resource{datagouv_id: datagouv_id, url: url}, file_path) do
-    case Unlock.HTTP.Client.impl().get!(url, []) do
-      %{status: 200, body: body, headers: headers} ->
+    case http_client().get(url, [], follow_redirect: true) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body} = r} ->
         Logger.debug("Saving resource #{datagouv_id} to #{file_path}")
         File.write!(file_path, body)
-        relevant_headers = headers |> Enum.into(%{}) |> Map.take(relevant_http_headers())
-        {:ok, file_path, relevant_headers, body}
+        {:ok, file_path, relevant_http_headers(r), body}
 
-      %{status: status} ->
+      {:ok, %HTTPoison.Response{status_code: status}} ->
         {:error, "Got a non 200 status: #{status}"}
 
-      %Finch.Error{reason: reason} ->
+      {:error, %HTTPoison.Error{reason: reason}} ->
         {:error, "Got an error: #{reason}"}
     end
   end
+
+  defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 
   defp remove_file(path), do: File.rm(path)
 
@@ -185,14 +186,14 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     |> Transport.Wrapper.ExAWS.impl().request!()
   end
 
-  def upload_filename(%Resource{datagouv_id: datagouv_id} = resource, %DateTime{} = dt) do
+  def upload_filename(%Resource{datagouv_id: datagouv_id}, %DateTime{} = dt) do
     time = Calendar.strftime(dt, "%Y%m%d.%H%M%S.%f")
 
     "#{datagouv_id}/#{datagouv_id}.#{time}.zip"
   end
 
-  defp relevant_http_headers do
-    [
+  defp relevant_http_headers(%HTTPoison.Response{headers: headers}) do
+    headers_to_keep = [
       "content-disposition",
       "content-encoding",
       "content-length",
@@ -202,5 +203,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       "if-modified-since",
       "last-modified"
     ]
+
+    headers |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v} end) |> Map.take(headers_to_keep)
   end
 end
