@@ -88,3 +88,7 @@ msgstr "Mon compte"
 #, elixir-format
 msgid "Tools"
 msgstr "Outils"
+
+#, elixir-format
+msgid "Analyze a GBFS feed"
+msgstr ""
