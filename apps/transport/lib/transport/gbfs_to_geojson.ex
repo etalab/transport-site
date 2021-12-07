@@ -26,12 +26,14 @@ defmodule Transport.GbfsToGeojson do
   end
 
   def add_feeds(payload, %{"output" => "free_floating"}) do
-    %{} |> add_free_bike_status(payload)
+    %{}
+    |> add_free_bike_status(payload)
     |> Map.get("free_floating")
   end
 
   def add_feeds(payload, %{"output" => "geofencing_zones"}) do
-    %{} |> add_geofencing_zones(payload)
+    %{}
+    |> add_geofencing_zones(payload)
     |> Map.get("geofencing_zones")
   end
 
