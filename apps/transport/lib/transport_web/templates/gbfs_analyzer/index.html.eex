@@ -2,18 +2,18 @@
   <div class="container" style="min-height: 50vh;">
     <h1><%= gettext("Analyze a GBFS feed") %></h1>
     <div class="pb-48">
-    <form class="no-margin">
-      <input type="text" id="url" name="url" value="<%= @gbfs_url %>" placeholder="https://.../gbfs.json">
-      <input type="submit" value="<%= dgettext("gbfs_analyzer", "Analyze") %>">
-    </form>
+      <form class="no-margin">
+        <input type="text" id="url" name="url" value="<%= @gbfs_url %>" placeholder="https://.../gbfs.json">
+        <input type="submit" value="<%= dgettext("gbfs_analyzer", "Analyze") %>">
+      </form>
     </div>
 
-  <%= unless @gbfs_url == "" do %>
-  <%= if @metadata == %{} do %>
-  <div>
-  <%= raw dgettext("gbfs_analyzer", "error message") %>
-  </div>
-  <% else %>
+    <%= unless @gbfs_url == "" do %>
+    <%= if @metadata == %{} do %>
+    <div>
+      <%= raw dgettext("gbfs_analyzer", "error message") %>
+    </div>
+    <% else %>
     <h2><%= dgettext("gbfs_analyzer", "Metadata") %></h2>
     <table class="table">
       <% name = get_in(@metadata, [:system_details, :name]) %>
@@ -33,24 +33,24 @@
         <td>
           <ul>
             <%= for feed <- @metadata |> Map.get(:feeds, []) |> Enum.sort() do %>
-              <li><%= feed %></li>
+            <li><%= feed %></li>
             <% end %>
           </ul>
         </td>
 
-      <% languages = Map.get(@metadata, :languages) %>
-      <%= unless is_nil(languages) do %>
+        <% languages = Map.get(@metadata, :languages) %>
+        <%= unless is_nil(languages) do %>
       <tr>
-      <td>
-        <%= dgettext("gbfs_analyzer", "Languages") %>
-      </td>
-      <td>
-        <ul>
-          <%= for l <- @metadata.languages do %>
+        <td>
+          <%= dgettext("gbfs_analyzer", "Languages") %>
+        </td>
+        <td>
+          <ul>
+            <%= for l <- @metadata.languages do %>
             <li><%= l %></li>
-          <% end %>
-        </ul>
-      </td>
+            <% end %>
+          </ul>
+        </td>
       </tr>
       <% end %>
 
@@ -74,26 +74,26 @@
         </td>
         <td>
           <%= if @metadata.has_cors do %>
-            <%= dgettext("gbfs_analyzer", "Yes") %>
+          <%= dgettext("gbfs_analyzer", "Yes") %>
           <% else %>
-            <%= dgettext("gbfs_analyzer", "No") %>
+          <%= dgettext("gbfs_analyzer", "No") %>
           <% end %>
         </td>
-      <% end %>
+        <% end %>
       </tr>
       <% is_cors_allowed = Map.get(@metadata, :has_cors) %>
       <%= unless is_nil(is_cors_allowed) do %>
       <tr>
-      <td>
-        <%= dgettext("gbfs_analyzer", "CORS allowed") %>
-      </td>
-      <td>
-        <%= if @metadata.is_cors_allowed do %>
+        <td>
+          <%= dgettext("gbfs_analyzer", "CORS allowed") %>
+        </td>
+        <td>
+          <%= if @metadata.is_cors_allowed do %>
           <%= dgettext("gbfs_analyzer", "Yes") %>
-        <% else %>
+          <% else %>
           <%= dgettext("gbfs_analyzer", "No") %>
-        <% end %>
-      </td>
+          <% end %>
+        </td>
       </tr>
       <% end %>
     </table>
@@ -109,40 +109,40 @@
           <%= unless is_nil(errorsN) do %>
           <%= errorsN %>
           <%= if errorsN == 0 do %>
-            <span style="padding-left: 24px;">🎉</span>
+          <span style="padding-left: 24px;">🎉</span>
           <% end %>
           <% end %>
         </td>
         <% version_detected = Map.get(validation, :version_detected) %>
         <%= unless is_nil(version_detected) do %>
-        <tr>
-          <td>
-            <%= dgettext("gbfs_analyzer", "Detected version") %>
-          </td>
+      <tr>
+        <td>
+          <%= dgettext("gbfs_analyzer", "Detected version") %>
+        </td>
         <td>
           <%= validation.version_detected %>
         </td>
-        </tr>
-        <% end %>
-        <% version_validated = Map.get(validation, :version_validated) %>
-        <%= unless is_nil(version_validated) do %>
-        <tr>
-          <td>
-            <%= dgettext("gbfs_analyzer", "Validated version") %>
-          </td>
-          <td>
-            <%= validation.version_validated %>
-          </td>
-        </tr>
-        <% end %>
-        <tr>
-          <td>
-            <%= dgettext("gbfs_analyzer", "Detailed validation") %>
-          </td>
-          <td>
-            <%= link(dgettext("gbfs_analyzer", "Link"), to: gbfs_validation_link(@gbfs_url), target: "blank") %>
-          </td>
-        </tr>
+      </tr>
+      <% end %>
+      <% version_validated = Map.get(validation, :version_validated) %>
+      <%= unless is_nil(version_validated) do %>
+      <tr>
+        <td>
+          <%= dgettext("gbfs_analyzer", "Validated version") %>
+        </td>
+        <td>
+          <%= validation.version_validated %>
+        </td>
+      </tr>
+      <% end %>
+      <tr>
+        <td>
+          <%= dgettext("gbfs_analyzer", "Detailed validation") %>
+        </td>
+        <td>
+          <%= link(dgettext("gbfs_analyzer", "Link"), to: gbfs_validation_link(@gbfs_url), target: "blank") %>
+        </td>
+      </tr>
     </table>
     <% end %>
 
@@ -152,34 +152,34 @@
     <%= unless is_nil(Map.get(@metadata, :feeds)) do %>
     <h2 class="pb-12"><%= dgettext("gbfs_analyzer", "GeoJSONs") %></h2>
     <%= if "station_information" in @metadata.feeds do %>
-      <span class="panel p-12 mr-24">
-        <i class="icon icon--download" aria-hidden="true"></i>
-        <%= link("GeoJSON stations", to: gbfs_to_geojson_path(@conn, :convert, url: @gbfs_url, output: "stations"), target: "blank") %>
-      </span>
+    <span class="panel p-12 mr-24">
+      <i class="icon icon--download" aria-hidden="true"></i>
+      <%= link("GeoJSON stations", to: gbfs_to_geojson_path(@conn, :convert, url: @gbfs_url, output: "stations"), target: "blank") %>
+    </span>
     <% end %>
 
     <%= if "free_bike_status" in @metadata.feeds do %>
-      <span class="panel p-12 mr-24">
-        <i class="icon icon--download" aria-hidden="true"></i>
-        <%= link("GeoJSON free-floating ", to: gbfs_to_geojson_path(@conn, :convert, url: @gbfs_url, output: "free_floating"), target: "blank") %>
-      </span>
+    <span class="panel p-12 mr-24">
+      <i class="icon icon--download" aria-hidden="true"></i>
+      <%= link("GeoJSON free-floating ", to: gbfs_to_geojson_path(@conn, :convert, url: @gbfs_url, output: "free_floating"), target: "blank") %>
+    </span>
     <% end %>
 
     <%= if "geofencing_zones" in @metadata.feeds do %>
-      <span class="panel p-12 mr-24">
-        <i class="icon icon--download" aria-hidden="true"></i>
-        <%= link("GeoJSON geofencing ", to: gbfs_to_geojson_path(@conn, :convert, url: @gbfs_url, output: "geofencing_zones"), target: "blank") %>
-      </span>
-      <% end %>
+    <span class="panel p-12 mr-24">
+      <i class="icon icon--download" aria-hidden="true"></i>
+      <%= link("GeoJSON geofencing ", to: gbfs_to_geojson_path(@conn, :convert, url: @gbfs_url, output: "geofencing_zones"), target: "blank") %>
+    </span>
     <% end %>
-    </div>
+    <% end %>
+  </div>
   <% end %>
   <% end %>
 </section>
 
 <%= if @gbfs_url != "" do %>
-  <script src="<%= TransportWeb.Router.Helpers.static_path(@conn, "/js/resourceviz.js") %>"></script>
-  <script>
+<script src="<%= TransportWeb.Router.Helpers.static_path(@conn, "/js/resourceviz.js") %>"></script>
+<script>
     document.addEventListener("DOMContentLoaded", function() {
       createMap('map', "<%= @gbfs_url %>", "gbfs", "<%= get_session(@conn, :locale) %>")
     })
