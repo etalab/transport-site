@@ -87,7 +87,15 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   defp process_download({:ok, resource_path, headers, body}, %Resource{datagouv_id: datagouv_id} = resource) do
     download_datetime = DateTime.utc_now()
-    zip_metadata = Transport.ZipMetaDataExtractor.extract!(resource_path)
+
+    zip_metadata =
+      try do
+        Transport.ZipMetaDataExtractor.extract!(resource_path)
+      rescue
+        _ ->
+          Logger.debug("Cannot compute ZIP metadata for #{datagouv_id}")
+          nil
+      end
 
     case should_store_resource?(resource, zip_metadata) do
       true ->
@@ -123,6 +131,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   - we never historicised it
   - the latest ResourceHistory payload is different than the current state
   """
+  def should_store_resource?(_, []), do: false
+  def should_store_resource?(_, nil), do: false
+
   def should_store_resource?(%Resource{datagouv_id: datagouv_id}, zip_metadata) do
     history =
       DB.ResourceHistory
@@ -131,7 +142,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       |> limit(1)
       |> DB.Repo.one()
 
-    if is_nil(history), do: true, else: not is_same_resource?(history, zip_metadata)
+    is_nil(history) or not is_same_resource?(history, zip_metadata)
   end
 
   @doc """
