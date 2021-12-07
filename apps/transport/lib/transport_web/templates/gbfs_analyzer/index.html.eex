@@ -143,21 +143,21 @@
     <%= if "station_information" in @metadata.feeds do %>
       <span class="panel p-12 mr-24">
         <i class="icon icon--download" aria-hidden="true"></i>
-        <%= link("GeoJSON stations", to: "http://0.0.0.0:5000/tools/gbfs/geojson_convert?url=#{@gbfs_url}&output=stations", target: "blank") %>
+        <%= link("GeoJSON stations", to: gbfs_to_geojson_path(@conn, :convert, url: @gbfs_url, output: "stations"), target: "blank") %>
       </span>
     <% end %>
 
     <%= if "free_bike_status" in @metadata.feeds do %>
       <span class="panel p-12 mr-24">
         <i class="icon icon--download" aria-hidden="true"></i>
-        <%= link("GeoJSON free-floating ", to: "http://0.0.0.0:5000/tools/gbfs/geojson_convert?url=#{@gbfs_url}&output=free_floating", target: "blank") %>
+        <%= link("GeoJSON free-floating ", to: gbfs_to_geojson_path(@conn, :convert, url: @gbfs_url, output: "free_floating"), target: "blank") %>
       </span>
     <% end %>
 
     <%= if "geofencing_zones" in @metadata.feeds do %>
       <span class="panel p-12 mr-24">
         <i class="icon icon--download" aria-hidden="true"></i>
-        <%= link("GeoJSON geofencing ", to: "http://0.0.0.0:5000/tools/gbfs/geojson_convert?url=#{@gbfs_url}&output=geofencing_zones", target: "blank") %>
+        <%= link("GeoJSON geofencing ", to: gbfs_to_geojson_path(@conn, :convert, url: @gbfs_url, output: "geofencing_zones"), target: "blank") %>
       </span>
     <% end %>
     </div>
