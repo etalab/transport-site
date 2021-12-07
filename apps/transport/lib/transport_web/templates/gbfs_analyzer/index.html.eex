@@ -1,22 +1,26 @@
 <section class="single-page section section-grey">
-  <div class="container">
-    <h1>Analyseur de flux GBFS</h1>
-    <div>
+  <div class="container" style="min-height: 50vh;">
+    <h1><%= dgettext("gbfs_analyzer", "GBFS feed analyzer") %></h1>
+    <div class="pb-48">
     <form style="margin: 0;">
-      <input type="text" id="url" name="url" value=<%= @gbfs_url %>>
-      <input type="submit" value="Analyser">
+      <input type="text" id="url" name="url" value="<%= @gbfs_url %>" placeholder="https://.../gbfs.json">
+      <input type="submit" value="<%= dgettext("gbfs_analyzer", "Analyze") %>">
     </form>
     </div>
 
   <%= unless @gbfs_url == "" do %>
-  <%= unless @metadatas == %{} do %>
-    <h2 class="pt-48">Métadonnées</h2>
+  <%= if @metadatas == %{} do %>
+  <div>
+  <%= raw dgettext("gbfs_analyzer", "error message") %>
+  </div>
+  <% else %>
+    <h2><%= dgettext("gbfs_analyzer", "Metadata") %></h2>
     <table class="table">
       <% name = get_in(@metadatas, [:system_details, :name]) %>
       <%= unless is_nil(name) do %>
       <tr>
         <td>
-          Nom du flux
+          <%= dgettext("gbfs_analyzer", "Feed Name") %>
         </td>
         <td>
           <%= @metadatas.system_details.name %>
@@ -25,7 +29,7 @@
       <% end %>
 
       <tr>
-        <td>Feeds</td>
+        <td><%= dgettext("gbfs_analyzer", "Feeds") %></td>
         <td>
           <ul>
             <%= for feed <- Map.get(@metadatas, :feeds, []) do %>
@@ -38,7 +42,7 @@
       <%= unless is_nil(languages) do %>
       <tr>
       <td>
-        Langages
+        <%= dgettext("gbfs_analyzer", "Languages") %>
       </td>
       <td>
         <ul>
@@ -54,7 +58,7 @@
       <%= unless is_nil(timezone) do %>
       <tr>
         <td>
-          Fuseau horaire
+          <%= dgettext("gbfs_analyzer", "Timezone") %>
         </td>
         <td>
           <%= @metadatas.system_details.timezone %>
@@ -66,7 +70,7 @@
       <%= unless is_nil(has_cors) do %>
       <tr>
         <td>
-          Headers CORS présents
+          <%= dgettext("gbfs_analyzer", "CORS headers available") %>
         </td>
         <td>
           <%= if @metadatas.has_cors do %>
@@ -81,7 +85,7 @@
       <%= unless is_nil(is_cors_allowed) do %>
       <tr>
       <td>
-        CORS autorisé
+        <%= dgettext("gbfs_analyzer", "CORS allowed") %>
       </td>
       <td>
         <%= if @metadatas.is_cors_allowed do %>
@@ -94,16 +98,20 @@
       <% end %>
     </table>
 
-    <h2>Validation</h2>
+    <h2><%= dgettext("gbfs_analyzer", "Validation") %></h2>
     <table class="table">
       <tr>
-        <td>Nombre d'erreurs détectées</td>
+        <td><%= dgettext("gbfs_analyzer", "Number of detected errors") %></td>
         <td>
-          <%= @metadatas.validation.errors_count %>
+          <% errorsN = @metadatas.validation.errors_count %>
+          <%= errorsN %>
+          <%= if errorsN == 0 do %>
+            <span style="padding-left: 24px;">🎉</span>
+          <% end %>
         </td>
         <tr>
           <td>
-            Version détectée
+            <%= dgettext("gbfs_analyzer", "Detected version") %>
           </td>
         <td>
           <%= @metadatas.validation.version_detected %>
@@ -111,7 +119,7 @@
         </tr>
         <tr>
           <td>
-            Version validée
+            <%= dgettext("gbfs_analyzer", "Validated version") %>
           </td>
           <td>
             <%= @metadatas.validation.version_validated %>
@@ -120,7 +128,7 @@
 
         <tr>
           <td>
-            Rapport de validation
+            <%= dgettext("gbfs_analyzer", "Detailed validation") %>
           </td>
           <td>
             <%= link("lien", to: gbfs_validation_link(@gbfs_url), target: "blank") %>
@@ -128,25 +136,28 @@
         </tr>
     </table>
 
-    <h2>Visualisation</h2>
+    <h2><%= dgettext("gbfs_analyzer", "Visualization") %></h2>
     <div id="map" class="leaflet-map" style="height: 400px; color: red;"></div>
 
-    <h2 class="pb-12">GeoJSONs</h2>
+    <h2 class="pb-12"><%= dgettext("gbfs_analyzer", "GeoJSONs") %></h2>
     <%= if "station_information" in @metadatas.feeds do %>
-      <span class="panel mr-24">
+      <span class="panel p-12 mr-24">
+        <i class="icon icon--download" aria-hidden="true"></i>
         <%= link("GeoJSON stations", to: "http://0.0.0.0:5000/tools/gbfs/geojson_convert?url=#{@gbfs_url}&output=stations", target: "blank") %>
       </span>
     <% end %>
 
     <%= if "free_bike_status" in @metadatas.feeds do %>
-      <span class="panel mr-24">
-        <%= link("GeoJSON free-floating ", to: "http://0.0.0.0:5000/tools/gbfs/geojson_convert?url=#{@gbfs_url}&output=free-floating", target: "blank") %>
+      <span class="panel p-12 mr-24">
+        <i class="icon icon--download" aria-hidden="true"></i>
+        <%= link("GeoJSON free-floating ", to: "http://0.0.0.0:5000/tools/gbfs/geojson_convert?url=#{@gbfs_url}&output=free_floating", target: "blank") %>
       </span>
     <% end %>
 
     <%= if "geofencing_zones" in @metadatas.feeds do %>
-      <span class="panel mr-24">
-        <%= link("GeoJSON geofencing ", to: "http://0.0.0.0:5000/tools/gbfs/geojson_convert?url=#{@gbfs_url}&output=geofencing", target: "blank") %>
+      <span class="panel p-12 mr-24">
+        <i class="icon icon--download" aria-hidden="true"></i>
+        <%= link("GeoJSON geofencing ", to: "http://0.0.0.0:5000/tools/gbfs/geojson_convert?url=#{@gbfs_url}&output=geofencing_zones", target: "blank") %>
       </span>
     <% end %>
     </div>

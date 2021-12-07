@@ -1,0 +1,80 @@
+## "msgid"s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove "msgid"s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use "mix gettext.extract --merge" or "mix gettext.merge"
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+"Plural-Forms: nplurals=2\n"
+
+#, elixir-format
+msgid "GBFS feed analyzer"
+msgstr ""
+
+#, elixir-format
+msgid "Analyze"
+msgstr ""
+
+#, elixir-format
+msgid "CORS allowed"
+msgstr ""
+
+#, elixir-format
+msgid "CORS headers available"
+msgstr ""
+
+#, elixir-format
+msgid "Detailed validation"
+msgstr ""
+
+#, elixir-format
+msgid "Detected version"
+msgstr ""
+
+#, elixir-format
+msgid "Feed Name"
+msgstr ""
+
+#, elixir-format
+msgid "Feeds"
+msgstr ""
+
+#, elixir-format
+msgid "GeoJSONs"
+msgstr ""
+
+#, elixir-format
+msgid "Languages"
+msgstr ""
+
+#, elixir-format
+msgid "Metadata"
+msgstr ""
+
+#, elixir-format
+msgid "Number of detected errors"
+msgstr ""
+
+#, elixir-format
+msgid "Timezone"
+msgstr ""
+
+#, elixir-format
+msgid "Validated version"
+msgstr ""
+
+#, elixir-format
+msgid "Validation"
+msgstr ""
+
+#, elixir-format
+msgid "Visualization"
+msgstr ""
+
+#, elixir-format
+msgid "error message"
+msgstr ""
