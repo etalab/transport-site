@@ -37,9 +37,14 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   end
 
   describe "should_store_resource?" do
+    test "with an empty or a nil ZIP metadata" do
+      refute ResourceHistoryJob.should_store_resource?(%DB.Resource{}, nil)
+      refute ResourceHistoryJob.should_store_resource?(%DB.Resource{}, [])
+    end
+
     test "with no ResourceHistory records" do
       assert 0 == count_resource_history()
-      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: "1"}, [])
+      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: "1"}, zip_metadata())
     end
 
     test "with the latest ResourceHistory matching" do
