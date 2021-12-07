@@ -58,6 +58,7 @@ defmodule GBFS.PageCacheTest do
     assert "rouen" == PageCache.network_name("/gbfs/rouen/gbfs.json")
     assert "rouen" == PageCache.network_name("/gbfs/rouen/station_information.json")
     assert "st_helene" == PageCache.network_name("/gbfs/st_helene/station_information.json")
+    assert "cergy-pontoise" == PageCache.network_name("/gbfs/cergy-pontoise/station_information.json")
   end
 
   test "mirrors non-200 status code", %{conn: conn} do
@@ -104,7 +105,7 @@ defmodule GBFS.PageCacheTest do
   end
 
   defp telemetry_event(network_name, request_type) do
-    {:telemetry_event, [:gbfs, :request, request_type], %{}, %{target: "gbfs:#{network_name}"}}
+    {:telemetry_event, [:gbfs, :request, request_type], %{}, %{target: GBFS.Telemetry.target_for_network(network_name)}}
   end
 
   # To be implemented later, but for now the error handling on that (Sentry etc)

@@ -98,7 +98,7 @@ defmodule PageCache do
   end
 
   def network_name(page_cache_key) do
-    case Regex.named_captures(~r|/gbfs/(?<network>[\w]+)/|, page_cache_key) do
+    case Regex.named_captures(~r|/gbfs/(?<network>.+)/|, page_cache_key) do
       %{"network" => network} -> network
       _ -> nil
     end
