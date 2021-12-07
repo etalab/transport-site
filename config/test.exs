@@ -32,6 +32,7 @@ config :transport,
   gbfs_validator_impl: Shared.Validation.GBFSValidator.Mock,
   rambo_impl: Transport.Rambo.Mock,
   notifications_impl: Transport.Notifications.FetcherMock,
+  gbfs_metadata_impl: Transport.GBFSMetadata.Mock,
   notifications_api_token: "secret",
   s3_buckets: %{
     history: "resource-history-test"

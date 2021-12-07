@@ -1,3 +1,13 @@
+defmodule Transport.GBFSMetadata.Wrapper do
+  @moduledoc """
+  Defines a behavior
+  """
+  @callback compute_feed_metadata(Resource.t() | binary()) :: map()
+  def impl(), do: Application.get_env(:transport, :gbfs_metadata_impl)
+  def compute_feed_metadata(x), do: impl().compute_feed_metadata(x)
+end
+
+
 defmodule Transport.GBFSMetadata do
   @moduledoc """
   Compute and store metadata for GBFS resources.
@@ -7,6 +17,8 @@ defmodule Transport.GBFSMetadata do
   alias Shared.Validation.GBFSValidator.Wrapper, as: GBFSValidator
   import Ecto.Query
   require Logger
+
+  @behaviour Transport.GBFSMetadata.Wrapper
 
   @doc """
   It is a bit of work, currently, to extract the list of `gbfs.json` endpoints,
@@ -40,7 +52,8 @@ defmodule Transport.GBFSMetadata do
   This function does 2 HTTP calls on a given resource url, and returns a report
   with metadata and also validation status (using a third-party HTTP validator).
   """
-  @spec compute_feed_metadata(Resource.t()) :: map()
+  @impl Transport.GBFSMetadata.Wrapper
+  @spec compute_feed_metadata(Resource.t() | binary()) :: map()
   def compute_feed_metadata(%Resource{} = resource), do: compute_feed_metadata(resource.url)
 
   def compute_feed_metadata(url) do
