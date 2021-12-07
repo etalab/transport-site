@@ -2,6 +2,7 @@ defmodule Transport.Telemetry do
   require Logger
 
   @proxy_request_types [:external, :internal]
+  @gbfs_request_types [:external, :internal]
 
   @moduledoc """
   This place groups various aspects of event handling (currently to get metrics for the proxy, later more):
@@ -34,6 +35,21 @@ defmodule Transport.Telemetry do
     end)
   end
 
+  def handle_event(
+        [:gbfs, :request, type] = event,
+        _measurements,
+        %{target: target},
+        _config
+      )
+      when type in @gbfs_request_types do
+    # make it non-blocking, to ensure the traffic will be served quickly. this also means, though, we
+    # won't notice if a tracing of event fails
+    Task.start(fn ->
+      Logger.info("Telemetry event: processing #{type} GBFS request for #{target}")
+      count_event(target, event)
+    end)
+  end
+
   def database_event_name(event_name), do: Enum.join(event_name, ":")
 
   @doc """
@@ -62,7 +78,12 @@ defmodule Transport.Telemetry do
   def proxy_request_event_name(request) when request in @proxy_request_types,
     do: [:proxy, :request, request]
 
-  def proxy_request_event_names, do: @proxy_request_types |> Enum.map(&[:proxy, :request, &1])
+  def proxy_request_event_names, do: @proxy_request_types |> Enum.map(&proxy_request_event_name/1)
+
+  def gbfs_request_event_name(request) when request in @gbfs_request_types,
+    do: [:gbfs, :request, request]
+
+  def gbfs_request_event_names, do: @gbfs_request_types |> Enum.map(&gbfs_request_event_name/1)
 
   @doc """
   Attach the required handlers. To be called at application start.
@@ -76,6 +97,14 @@ defmodule Transport.Telemetry do
         # https://hexdocs.pm/telemetry/telemetry.html#t:event_name/0)
         # for which we want to be called in the handler
         proxy_request_event_names(),
+        &Transport.Telemetry.handle_event/4,
+        nil
+      )
+
+    :ok =
+      :telemetry.attach_many(
+        "gbfs-logging-handler",
+        gbfs_request_event_names(),
         &Transport.Telemetry.handle_event/4,
         nil
       )

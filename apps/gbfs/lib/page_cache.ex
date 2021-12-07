@@ -45,6 +45,8 @@ defmodule PageCache do
   def handle_miss(conn, page_cache_key, options) do
     Logger.info("Cache miss for key #{page_cache_key}")
 
+    page_cache_key |> network_name() |> trace_request(:external)
+
     conn
     |> register_before_send(&save_to_cache(&1, options))
     |> assign(:page_cache_key, page_cache_key)
@@ -53,6 +55,8 @@ defmodule PageCache do
 
   def handle_hit(conn, page_cache_key, options, value) do
     Logger.info("Cache hit for key #{page_cache_key}")
+
+    page_cache_key |> network_name() |> trace_request(:internal)
 
     conn
     # NOTE: not using put_resp_content_type because we would have to split on ";" for charset
@@ -91,6 +95,19 @@ defmodule PageCache do
     end
 
     conn
+  end
+
+  def network_name(page_cache_key) do
+    case Regex.named_captures(~r|/gbfs/(?<network>[\w]+)/|, page_cache_key) do
+      %{"network" => network} -> network
+      _ -> nil
+    end
+  end
+
+  def trace_request(nil, _), do: nil
+
+  def trace_request(network_name, type) do
+    GBFS.Telemetry.trace_request(network_name, type)
   end
 
   @doc """
