@@ -32,7 +32,7 @@
         <td><%= dgettext("gbfs_analyzer", "Feeds") %></td>
         <td>
           <ul>
-            <%= for feed <- Map.get(@metadata, :feeds, []) do %>
+            <%= for feed <- @metadata |> Map.get(:feeds, []) |> Enum.sort() do %>
               <li><%= feed %></li>
             <% end %>
           </ul>
