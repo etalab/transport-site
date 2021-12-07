@@ -31,7 +31,7 @@ defmodule Unlock.ControllerTest do
       # inspired by https://github.com/dashbitco/broadway/blob/main/test/broadway_test.exs
       :telemetry.attach_many(
         "test-handler-#{System.unique_integer()}",
-        [[:proxy, :request, :internal], [:proxy, :request, :external]],
+        Transport.Telemetry.proxy_request_event_names(),
         fn name, measurements, metadata, _ ->
           send(test_pid, {:telemetry_event, name, measurements, metadata})
         end,
