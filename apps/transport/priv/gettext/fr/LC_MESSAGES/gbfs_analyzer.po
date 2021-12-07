@@ -12,10 +12,6 @@ msgstr ""
 "Plural-Forms: nplurals=2\n"
 
 #, elixir-format
-msgid "GBFS feed analyzer"
-msgstr "Analyseur de flux GBFS"
-
-#, elixir-format
 msgid "Analyze"
 msgstr "Analyser"
 

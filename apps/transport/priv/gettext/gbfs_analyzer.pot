@@ -11,10 +11,6 @@ msgid ""
 msgstr ""
 
 #, elixir-format
-msgid "GBFS feed analyzer"
-msgstr ""
-
-#, elixir-format
 msgid "Analyze"
 msgstr ""
 

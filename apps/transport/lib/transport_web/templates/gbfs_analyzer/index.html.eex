@@ -1,6 +1,6 @@
 <section class="single-page section section-grey">
   <div class="container" style="min-height: 50vh;">
-    <h1><%= dgettext("gbfs_analyzer", "GBFS feed analyzer") %></h1>
+    <h1><%= gettext("Analyze a GBFS feed") %></h1>
     <div class="pb-48">
     <form class="no-margin">
       <input type="text" id="url" name="url" value="<%= @gbfs_url %>" placeholder="https://.../gbfs.json">

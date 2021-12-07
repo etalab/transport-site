@@ -90,5 +90,5 @@ msgid "Tools"
 msgstr "Outils"
 
 #, elixir-format
-msgid "Analyze a GBFS feed please"
-msgstr ""
+msgid "Analyze a GBFS feed"
+msgstr "Analyser un flux GBFS"
