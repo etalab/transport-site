@@ -74,3 +74,15 @@ msgstr "Visualisation"
 #, elixir-format
 msgid "error message"
 msgstr "Aucune analyse n'a pu être faite.</br> Le flux GBFS peut être indisponible ou l'adresse indiquée est incorrecte."
+
+#, elixir-format
+msgid "Link"
+msgstr "Lien"
+
+#, elixir-format
+msgid "No"
+msgstr "Non"
+
+#, elixir-format
+msgid "Yes"
+msgstr "Oui"

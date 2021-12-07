@@ -73,3 +73,15 @@ msgstr ""
 #, elixir-format
 msgid "error message"
 msgstr ""
+
+#, elixir-format
+msgid "Link"
+msgstr ""
+
+#, elixir-format
+msgid "No"
+msgstr ""
+
+#, elixir-format
+msgid "Yes"
+msgstr ""

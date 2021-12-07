@@ -74,9 +74,9 @@
         </td>
         <td>
           <%= if @metadata.has_cors do %>
-            oui
+            <%= dgettext("gbfs_analyzer", "Yes") %>
           <% else %>
-            non
+            <%= dgettext("gbfs_analyzer", "No") %>
           <% end %>
         </td>
       <% end %>
@@ -89,9 +89,9 @@
       </td>
       <td>
         <%= if @metadata.is_cors_allowed do %>
-          oui
+          <%= dgettext("gbfs_analyzer", "Yes") %>
         <% else %>
-          non
+          <%= dgettext("gbfs_analyzer", "No") %>
         <% end %>
       </td>
       </tr>
@@ -131,7 +131,7 @@
             <%= dgettext("gbfs_analyzer", "Detailed validation") %>
           </td>
           <td>
-            <%= link("lien", to: gbfs_validation_link(@gbfs_url), target: "blank") %>
+            <%= link(dgettext("gbfs_analyzer", "Link"), to: gbfs_validation_link(@gbfs_url), target: "blank") %>
           </td>
         </tr>
     </table>
