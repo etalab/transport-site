@@ -103,12 +103,18 @@
       <tr>
         <td><%= dgettext("gbfs_analyzer", "Number of detected errors") %></td>
         <td>
-          <% errorsN = @metadata.validation.errors_count %>
+      <% name = get_in(@metadata, [:system_details, :name]) %>
+
+          <% errorsN = get_in(@metadata, [:validation, :errors_count]) %>
+          <%= unless is_nil(errorsN) do %>
           <%= errorsN %>
           <%= if errorsN == 0 do %>
             <span style="padding-left: 24px;">🎉</span>
           <% end %>
+          <% end %>
         </td>
+        <% version_detected = get_in(@metadata, [:validation, :version_detected]) %>
+        <%= unless is_nil(version_detected) do %>
         <tr>
           <td>
             <%= dgettext("gbfs_analyzer", "Detected version") %>
@@ -117,6 +123,9 @@
           <%= @metadata.validation.version_detected %>
         </td>
         </tr>
+        <% end %>
+        <% version_validated = get_in(@metadata, [:validation, :version_validated]) %>
+        <%= unless is_nil(version_validated) do %>
         <tr>
           <td>
             <%= dgettext("gbfs_analyzer", "Validated version") %>
@@ -125,7 +134,7 @@
             <%= @metadata.validation.version_validated %>
           </td>
         </tr>
-
+        <% end %>
         <tr>
           <td>
             <%= dgettext("gbfs_analyzer", "Detailed validation") %>
@@ -139,6 +148,7 @@
     <h2><%= dgettext("gbfs_analyzer", "Visualization") %></h2>
     <div id="map" class="leaflet-map" style="height: 400px;"></div>
 
+    <%= unless is_nil(Map.get(@metadata, :feeds)) do %>
     <h2 class="pb-12"><%= dgettext("gbfs_analyzer", "GeoJSONs") %></h2>
     <%= if "station_information" in @metadata.feeds do %>
       <span class="panel p-12 mr-24">
@@ -159,6 +169,7 @@
         <i class="icon icon--download" aria-hidden="true"></i>
         <%= link("GeoJSON geofencing ", to: gbfs_to_geojson_path(@conn, :convert, url: @gbfs_url, output: "geofencing_zones"), target: "blank") %>
       </span>
+      <% end %>
     <% end %>
     </div>
   <% end %>
