@@ -137,7 +137,7 @@
     </table>
 
     <h2><%= dgettext("gbfs_analyzer", "Visualization") %></h2>
-    <div id="map" class="leaflet-map" style="height: 400px; color: red;"></div>
+    <div id="map" class="leaflet-map" style="height: 400px;"></div>
 
     <h2 class="pb-12"><%= dgettext("gbfs_analyzer", "GeoJSONs") %></h2>
     <%= if "station_information" in @metadatas.feeds do %>
