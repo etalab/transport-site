@@ -43,6 +43,8 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
     |> where([r], r.format == "GTFS" or r.format == "NeTEx")
     |> where([r], r.datagouv_id not in ^duplicates)
     |> where([r], not r.is_community_resource)
+    |> where([r], r.is_active)
+    |> where([r], like(r.url, "http%"))
     |> select([r], r.datagouv_id)
     |> Repo.all()
   end
@@ -85,7 +87,15 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   defp process_download({:ok, resource_path, headers, body}, %Resource{datagouv_id: datagouv_id} = resource) do
     download_datetime = DateTime.utc_now()
-    zip_metadata = Transport.ZipMetaDataExtractor.extract!(resource_path)
+
+    zip_metadata =
+      try do
+        Transport.ZipMetaDataExtractor.extract!(resource_path)
+      rescue
+        _ ->
+          Logger.debug("Cannot compute ZIP metadata for #{datagouv_id}")
+          nil
+      end
 
     case should_store_resource?(resource, zip_metadata) do
       true ->
@@ -121,6 +131,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   - we never historicised it
   - the latest ResourceHistory payload is different than the current state
   """
+  def should_store_resource?(_, []), do: false
+  def should_store_resource?(_, nil), do: false
+
   def should_store_resource?(%Resource{datagouv_id: datagouv_id}, zip_metadata) do
     history =
       DB.ResourceHistory
@@ -129,7 +142,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       |> limit(1)
       |> DB.Repo.one()
 
-    if is_nil(history), do: true, else: not is_same_resource?(history, zip_metadata)
+    is_nil(history) or not is_same_resource?(history, zip_metadata)
   end
 
   @doc """
@@ -155,20 +168,21 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   end
 
   defp download_resource(%Resource{datagouv_id: datagouv_id, url: url}, file_path) do
-    case Unlock.HTTP.Client.impl().get!(url, []) do
-      %{status: 200, body: body, headers: headers} ->
+    case http_client().get(url, [], follow_redirect: true) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body} = r} ->
         Logger.debug("Saving resource #{datagouv_id} to #{file_path}")
         File.write!(file_path, body)
-        relevant_headers = headers |> Enum.into(%{}) |> Map.take(relevant_http_headers())
-        {:ok, file_path, relevant_headers, body}
+        {:ok, file_path, relevant_http_headers(r), body}
 
-      %{status: status} ->
+      {:ok, %HTTPoison.Response{status_code: status}} ->
         {:error, "Got a non 200 status: #{status}"}
 
-      %Finch.Error{reason: reason} ->
+      {:error, %HTTPoison.Error{reason: reason}} ->
         {:error, "Got an error: #{reason}"}
     end
   end
+
+  defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 
   defp remove_file(path), do: File.rm(path)
 
@@ -185,14 +199,14 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     |> Transport.Wrapper.ExAWS.impl().request!()
   end
 
-  def upload_filename(%Resource{datagouv_id: datagouv_id} = resource, %DateTime{} = dt) do
+  def upload_filename(%Resource{datagouv_id: datagouv_id}, %DateTime{} = dt) do
     time = Calendar.strftime(dt, "%Y%m%d.%H%M%S.%f")
 
     "#{datagouv_id}/#{datagouv_id}.#{time}.zip"
   end
 
-  defp relevant_http_headers do
-    [
+  defp relevant_http_headers(%HTTPoison.Response{headers: headers}) do
+    headers_to_keep = [
       "content-disposition",
       "content-encoding",
       "content-length",
@@ -202,5 +216,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       "if-modified-since",
       "last-modified"
     ]
+
+    headers |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v} end) |> Map.take(headers_to_keep)
   end
 end
