@@ -153,22 +153,27 @@ function setGBFSFreeFloatingStyle (feature, layer) {
 function setGBFSGeofencingStyle (feature, layer) {
     const rules = feature.properties.rules
     const rule = rules.length > 0 ? rules[0] : undefined
-    let color, opacity
+    let color, opacity, popupContent
 
     if (rule) {
         if (rule.ride_through_allowed === false) {
             color = 'red'
             opacity = 0.6
+            popupContent = JSON.stringify(feature.properties, null, 2).replace('"ride_through_allowed": false', `<strong style="color: ${color};">"ride_through_allowed": false</strong>`)
         } else if (rule.ride_allowed === false) {
             color = 'orange'
             opacity = 0.6
+            popupContent = JSON.stringify(feature.properties, null, 2).replace('"ride_allowed": false', `<strong style="color: ${color};">"ride_allowed": false</strong>`)
         } else {
             color = 'green'
             opacity = 0.4
+            popupContent = JSON.stringify(feature.properties, null, 2)
+                .replace('"ride_through_allowed": true', `<strong style="color: ${color};">"ride_through_allowed": true</strong>`)
+                .replace('"ride_allowed": true', `<strong style="color: ${color};">"ride_allowed": true</strong>`)
         }
     }
     layer
-        .bindPopup(`<pre>${JSON.stringify(feature.properties, null, 2)}</pre>`)
+        .bindPopup(`<pre>${popupContent}</pre>`)
         .setStyle({ fillColor: color, color: color, fillOpacity: opacity, stroke: false })
 }
 
@@ -203,7 +208,25 @@ function fillFreeFloating (geojson, freeFloating) {
     }).addTo(freeFloating)
 }
 
+function featureScore (f) {
+    const rules = f.properties.rules
+    const rule = rules.length > 0 ? rules[0] : undefined
+    if (rule === undefined) {
+        return 0
+    } else if (rule.ride_through_allowed === false) {
+        return 3
+    } else if (rule.ride_allowed === false) {
+        return 2
+    } else {
+        return 1
+    }
+}
+
 function fillGeofencingZones (geojson, geoFencingZones) {
+    // sort geojson features, so that forbidden areas layers appear above others
+    geojson.features.sort((f1, f2) => {
+        return featureScore(f1) - featureScore(f2)
+    })
     L.geoJSON(geojson, {
         onEachFeature: (feature, layer) => setGBFSGeofencingStyle(feature, layer)
     }).addTo(geoFencingZones)
