@@ -98,14 +98,14 @@
       <% end %>
     </table>
 
+    <% validation = Map.get(@metadata, :validation) %>
+    <%= unless is_nil(validation) do %>
     <h2><%= dgettext("gbfs_analyzer", "Validation") %></h2>
     <table class="table">
       <tr>
         <td><%= dgettext("gbfs_analyzer", "Number of detected errors") %></td>
         <td>
-      <% name = get_in(@metadata, [:system_details, :name]) %>
-
-          <% errorsN = get_in(@metadata, [:validation, :errors_count]) %>
+          <% errorsN = Map.get(validation, :errors_count) %>
           <%= unless is_nil(errorsN) do %>
           <%= errorsN %>
           <%= if errorsN == 0 do %>
@@ -113,25 +113,25 @@
           <% end %>
           <% end %>
         </td>
-        <% version_detected = get_in(@metadata, [:validation, :version_detected]) %>
+        <% version_detected = Map.get(validation, :version_detected) %>
         <%= unless is_nil(version_detected) do %>
         <tr>
           <td>
             <%= dgettext("gbfs_analyzer", "Detected version") %>
           </td>
         <td>
-          <%= @metadata.validation.version_detected %>
+          <%= validation.version_detected %>
         </td>
         </tr>
         <% end %>
-        <% version_validated = get_in(@metadata, [:validation, :version_validated]) %>
+        <% version_validated = Map.get(validation, :version_validated) %>
         <%= unless is_nil(version_validated) do %>
         <tr>
           <td>
             <%= dgettext("gbfs_analyzer", "Validated version") %>
           </td>
           <td>
-            <%= @metadata.validation.version_validated %>
+            <%= validation.version_validated %>
           </td>
         </tr>
         <% end %>
@@ -144,6 +144,7 @@
           </td>
         </tr>
     </table>
+    <% end %>
 
     <h2><%= dgettext("gbfs_analyzer", "Visualization") %></h2>
     <div id="map" class="leaflet-map" style="height: 400px;"></div>
