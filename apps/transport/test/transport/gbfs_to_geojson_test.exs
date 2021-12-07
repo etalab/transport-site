@@ -12,7 +12,7 @@ defmodule Transport.GbfsToGeojsonTest do
       set_gbfs_entrypoint_expect(gbfs_endpoint, feeds)
       set_station_information_expect()
 
-      geojsons = Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint)
+      geojsons = Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint, %{})
       assert geojsons["stations"] == simple_station_information_geojson()
     end
 
@@ -28,7 +28,7 @@ defmodule Transport.GbfsToGeojsonTest do
       set_station_information_expect()
       set_station_status_expect()
 
-      geojsons = Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint)
+      geojsons = Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint, %{})
 
       assert geojsons["stations"] ==
                %{
@@ -82,7 +82,7 @@ defmodule Transport.GbfsToGeojsonTest do
       set_station_information_expect()
       set_station_status_expect("bad response")
 
-      geojsons = Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint)
+      geojsons = Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint, %{})
 
       # if the station_status is not valid, you should still have a basic geojson
       # from station_information
@@ -99,7 +99,7 @@ defmodule Transport.GbfsToGeojsonTest do
       set_gbfs_entrypoint_expect(gbfs_endpoint, feeds)
       set_free_bike_status_expect()
 
-      geojsons = Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint)
+      geojsons = Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint, %{})
 
       # Only one bike was kept, because the other one add a station_id, so it was not "free floating"
       assert geojsons["free_floating"] == %{
@@ -124,7 +124,7 @@ defmodule Transport.GbfsToGeojsonTest do
       set_gbfs_entrypoint_expect(gbfs_endpoint, feeds)
       set_geofencing_expect()
 
-      geojsons = Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint)
+      geojsons = Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint, %{})
 
       assert geojsons["geofencing_zones"] == %{
                "type" => "FeatureCollection",
@@ -153,7 +153,7 @@ defmodule Transport.GbfsToGeojsonTest do
         %{status: 500, body: "maintenance en cours"}
       end)
 
-      assert %{} == Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint)
+      assert %{} == Transport.GbfsToGeojson.gbfs_geojsons(gbfs_endpoint, %{})
     end
   end
 
