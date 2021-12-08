@@ -36,7 +36,7 @@ La participation de l’équipe de Geovelo aux ateliers nous a permis de mieux c
 
 <!--EndFragment-->
 
-### 1/ L’état des lieux des données existantes et l’identification des besoins et compétences des collectivités
+### 1. L’état des lieux des données existantes et l’identification des besoins et compétences des collectivités
 
 
 
@@ -50,7 +50,7 @@ En parallèle, l’équipe de [Transport.data.gouv.fr](https://transport.data.go
 
 <!--EndFragment-->
 
-### 2/ L’élaboration du schéma national des aménagements cyclables
+### 2. L’élaboration du schéma national des aménagements cyclables
 
 
 
@@ -62,7 +62,7 @@ Le schéma a été publié sur [schema.data.gouv.fr](https://schema.data.gouv.fr
 
 <!--EndFragment-->
 
-### 3/ Le développement d'outils pour faciliter la production des données et accélérer leur ouverture
+### 3. Le développement d'outils pour faciliter la production des données et accélérer leur ouverture
 
 
 
@@ -92,7 +92,7 @@ Nous avons également produit une [documentation spécifique sur les aménagemen
 
 <!--EndFragment-->
 
-### 4/ La valorisation de ces données par la réutilisation
+### 4. La valorisation de ces données par la réutilisation
 
 
 
