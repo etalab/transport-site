@@ -39,11 +39,11 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
       |> Repo.all()
 
     Resource
+    |> join(:inner, [r], d in DB.Dataset, on: r.dataset_id == d.id and d.is_active)
     |> where([r], not is_nil(r.url) and not is_nil(r.title) and not is_nil(r.datagouv_id))
     |> where([r], r.format == "GTFS" or r.format == "NeTEx")
     |> where([r], r.datagouv_id not in ^duplicates)
     |> where([r], not r.is_community_resource)
-    |> where([r], r.is_active)
     |> where([r], like(r.url, "http%"))
     |> select([r], r.datagouv_id)
     |> Repo.all()
