@@ -60,7 +60,14 @@ Le schéma a été publié sur [schema.data.gouv.fr](https://schema.data.gouv.fr
 
 ### 3/ Le développement d'outils pour faciliter la production des données et accélérer leur ouverture
 
-Afin de faciliter la transition vers le schéma national, et pouvoir en suivre les évolutions, Geovelo a développé un outil d’extraction qui permet aux collectivités partenaires de récupérer quand elles le souhaitent, au format du schéma national, [la base existante dans OSM](https://www.amenagements-cyclables.fr/fr/facilities).\
+Afin de faciliter la transition vers le schéma national, et pouvoir en suivre les évolutions, Geovelo a développé un outil d’extraction qui permet aux collectivités partenaires de récupérer quand elles le souhaitent, au format du schéma national, [la base existante dans OSM](https://www.amenagements-cyclables.fr/fr/facilities).
+
+![]()
+
+![](/images/capture-d’écran-2021-09-10-105144-1-.png)
+
+![]()
+
 \
 En plus de l’outil d’extraction que met à disposition Géovélo à toutes les collectivités partenaires dans le tableau de bord que Geovelo leur configure, il y a la possibilité de paramétrer des exports personnalisés comme l’ajout de champs facultatifs ou des “zones 30”. L’intérêt est de profiter de la profondeur de la base OSM, pour alimenter les données métier des collectivités.\
 Géovélo publie également la [base nationale des aménagements cyclables ](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/)publiée sur [transport.data.gouv.fr](https://transport.data.gouv.fr/) et basée sur un export des données publiées sur OSM. Ce jeu de données est mise à jour tous les mois. \
