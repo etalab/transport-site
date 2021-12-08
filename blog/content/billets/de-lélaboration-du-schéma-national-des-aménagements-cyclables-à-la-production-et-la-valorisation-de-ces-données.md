@@ -9,7 +9,7 @@ description: >-
   collaboratif mené avec un groupe de travail composé de collectivités,
   réutilisateurs et associations vélos.
 
-  Vélo & Territoires et Géovélo nous ont accompagné de l’élaboration du schéma à la production et la réutilisation des données sur les aménagements cyclables
+  Cet article relate l'implication de Vélo & Territoires et de Géovélo depuis l'élaboration du schéma à la production et la  réutilisation des données sur les aménagements cyclables
 images:
   - /images/vttdgv.png
 ---
