@@ -1,5 +1,4 @@
 defmodule TransportWeb.Backoffice.GBFSLiveTest do
-  use ExUnit.Case, async: true
   use TransportWeb.LiveCase
 
   import Phoenix.LiveViewTest

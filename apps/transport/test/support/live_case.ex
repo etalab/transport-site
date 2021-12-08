@@ -5,8 +5,11 @@ defmodule TransportWeb.LiveCase do
   """
   use ExUnit.CaseTemplate
 
-  using(options) do
+  using(_options) do
     quote do
+      # Setting async: false for now because live tests
+      # send Telemetry events stored in the database
+      use ExUnit.Case, async: false
       import Phoenix.ConnTest
 
       def extract_data_from_html(html) do
