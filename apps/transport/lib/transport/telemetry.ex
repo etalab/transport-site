@@ -29,8 +29,8 @@ defmodule Transport.Telemetry do
       when type in @proxy_request_types do
     # make it non-blocking, to ensure the traffic will be served quickly. this also means, though, we
     # won't notice if a tracing of event fails
-    Logger.info("Telemetry event: processing #{type} proxy request for #{target}")
     Task.start(fn ->
+      Logger.info("Telemetry event: processing #{type} proxy request for #{target}")
       count_event(target, event)
     end)
   end
@@ -44,8 +44,8 @@ defmodule Transport.Telemetry do
       when type in @gbfs_request_types do
     # make it non-blocking, to ensure the traffic will be served quickly. this also means, though, we
     # won't notice if a tracing of event fails
-    Logger.info("Telemetry event: processing #{type} GBFS request for #{target}")
     Task.start(fn ->
+      Logger.info("Telemetry event: processing #{type} GBFS request for #{target}")
       count_event(target, event)
     end)
   end
