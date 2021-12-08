@@ -11,6 +11,7 @@ defmodule DB.MetricsTest do
     today = truncate_datetime_to_hour(DateTime.utc_now())
     yesterday = truncate_datetime_to_hour(DateTime.add(DateTime.utc_now(), -1 * 24 * 60 * 60, :second))
 
+    DB.Repo.delete_all(DB.Metrics)
     insert(:metrics, target: "foo", event: "internal", count: 5, period: yesterday)
     insert(:metrics, target: "foo", event: "internal", count: 3, period: today)
     insert(:metrics, target: "foo", event: "external", count: 3, period: today)

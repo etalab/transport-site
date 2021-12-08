@@ -1,4 +1,4 @@
-defmodule TransportWeb.Backoffice.GBFSLiveLiveTest do
+defmodule TransportWeb.Backoffice.GBFSLiveTest do
   use ExUnit.Case, async: true
   use TransportWeb.LiveCase
 

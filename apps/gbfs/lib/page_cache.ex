@@ -107,7 +107,9 @@ defmodule PageCache do
   def trace_request(nil, _), do: nil
 
   def trace_request(network_name, type) do
-    GBFS.Telemetry.trace_request(network_name, type)
+    unless page_cache_disabled?() do
+      GBFS.Telemetry.trace_request(network_name, type)
+    end
   end
 
   @doc """
