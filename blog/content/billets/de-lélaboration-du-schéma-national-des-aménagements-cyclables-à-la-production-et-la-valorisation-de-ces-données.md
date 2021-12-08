@@ -11,7 +11,7 @@ description: >-
 
   Vélo & Territoires et Géovélo nous ont accompagné de l’élaboration du schéma à la production et la réutilisation des données sur les aménagements cyclables
 images:
-  - /images/velopng.png
+  - /images/vttdgv.png
 ---
 <!--StartFragment-->
 
