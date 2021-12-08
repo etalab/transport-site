@@ -83,7 +83,7 @@ Nous avons également produit une [documentation spécifique sur les aménagemen
 
 ### 4/ La valorisation de ces données par la réutilisation 
 
-Vélo & Territoires est également réutilisateur des données sur les aménagements cyclables. Leur équipe retraite l’ensemble de ces données pour produire une couche nationale unique et sans doublon, qui agrège la donnée publiée par les collectivités et celle d’OSM partout ailleurs, grâce au travail de Geovelo. Cette couche est mise à jour au fil de l’eau, elle est présentée sur le [WebSIG](https://on3v.veremes.net/vmap/?mode_id=vmap&map_id=31&token=publictoken) et téléchargeable par tous. <!--StartFragment-->
+Vélo & Territoires est également réutilisateur des données sur les aménagements cyclables. Leur équipe retraite l’ensemble de ces données pour produire une couche nationale unique et sans doublon, qui agrège la donnée publiée par les collectivités et celle d’OSM partout ailleurs, grâce au travail de Geovelo. Cette couche est mise à jour au fil de l’eau, dès qu'il y a des mises à jour, et est présentée sur le [WebSIG](https://on3v.veremes.net/vmap/?mode_id=vmap&map_id=31&token=publictoken) et téléchargeable par tous. <!--StartFragment-->
 
 <br />
 
