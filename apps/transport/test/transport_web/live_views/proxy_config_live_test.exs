@@ -8,6 +8,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
   setup :verify_on_exit!
 
   setup do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     {:ok, conn: build_conn()}
   end
 
@@ -40,8 +41,6 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
   end
 
   test "disconnected and connected mount refresh stats", %{conn: conn} do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-
     item_id = "slug"
     setup_proxy_config(item_id)
 
