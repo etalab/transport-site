@@ -120,12 +120,9 @@ Retrouvez-les dans notre section dédiée aux organisations qui facilitent l’o
 
 <!--EndFragment-->
 
-Article co-rédigé avec :
-
-Geovelo : Antoine Laporte Weywada et Simon Réau
-
-Vélo & Territoires : Fabien Commeaux et Thomas Montagne
-
+Article co-rédigé avec :\
+Geovelo : Antoine Laporte Weywada et Simon Réau\
+Vélo & Territoires : Fabien Commeaux et Thomas Montagne\
 Transport.data.gouv.fr : Miryad Ali
 
 <!--EndFragment-->
