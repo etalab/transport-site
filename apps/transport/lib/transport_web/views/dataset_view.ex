@@ -10,6 +10,7 @@ defmodule TransportWeb.DatasetView do
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
+  import Transport.GbfsUtils, only: [gbfs_validation_link: 1]
   alias TransportWeb.ResourceView
 
   @doc """
@@ -220,14 +221,6 @@ defmodule TransportWeb.DatasetView do
 
   defp add_order_by(kwargs, %{"order_by" => order}), do: Keyword.put(kwargs, :order_by, order)
   defp add_order_by(kwargs, _), do: kwargs
-
-  def gbfs_validation_link(%Resource{format: "gbfs"} = r) do
-    # credo:disable-for-lines:2 Credo.Check.Refactor.PipeChainStart
-    Application.fetch_env!(:transport, :gbfs_validator_website)
-    |> URI.parse()
-    |> Map.put(:query, URI.encode_query(%{url: r.url}))
-    |> URI.to_string()
-  end
 
   def gbfs_documentation_link(version) when is_binary(version) do
     "https://github.com/NABSA/gbfs/blob/v#{version}/gbfs.md"
