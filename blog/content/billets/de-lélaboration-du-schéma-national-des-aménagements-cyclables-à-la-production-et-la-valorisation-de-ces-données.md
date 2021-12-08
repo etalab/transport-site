@@ -63,6 +63,7 @@ Le schéma a été publié sur [schema.data.gouv.fr](https://schema.data.gouv.fr
 ### 3/ Le développement d'outils pour faciliter la production des données et accélérer leur ouverture 
 
 Afin de faciliter la transition vers le schéma national, et pouvoir en suivre les évolutions, Geovelo a développé un outil d’extraction qui permet aux collectivités partenaires de récupérer quand elles le souhaitent, au format du schéma national, [la base existante dans OSM](https://www.amenagements-cyclables.fr/fr/facilities).\
+\
 En plus de l’outil d’extraction que met à disposition Géovélo à toutes les collectivités partenaires dans le tableau de bord que Geovelo leur configure, il y a la possibilité de paramétrer des exports personnalisés comme l’ajout de champs facultatifs ou des “zones 30”. L’intérêt est de profiter de la profondeur de la base OSM, pour alimenter les données métier des collectivités.\
 Géovélo publie également la [base nationale des aménagements cyclables ](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/)publiée sur [transport.data.gouv.fr](https://transport.data.gouv.fr/) et basée sur un export des données publiées sur OSM. Ce jeu de données est mise à jour tous les mois. \
 Simon Réau, de Geovelo, participe également activement à l’évolution du schéma national en votant en tant que réutilisateur dès qu’il y a une [demande de modification du schéma en cours](https://doc.transport.data.gouv.fr/producteurs/amenagements-cyclables/contribution-au-schema-sur-les-amenagements-cyclables).
@@ -83,7 +84,13 @@ Nous avons également produit une [documentation spécifique sur les aménagemen
 
 ### 4/ La valorisation de ces données par la réutilisation 
 
-Vélo & Territoires est également réutilisateur des données sur les aménagements cyclables. Leur équipe retraite l’ensemble de ces données pour produire une couche nationale unique et sans doublon, qui agrège la donnée publiée par les collectivités et celle d’OSM partout ailleurs, grâce au travail de Geovelo. Cette couche est mise à jour au fil de l’eau, dès qu'il y a des mises à jour, et est présentée sur le [WebSIG](https://on3v.veremes.net/vmap/?mode_id=vmap&map_id=31&token=publictoken) et téléchargeable par tous. <!--StartFragment-->
+Vélo & Territoires est également réutilisateur des données sur les aménagements cyclables. Leur équipe retraite l’ensemble de ces données pour produire une couche nationale unique et sans doublon, qui agrège la donnée publiée par les collectivités et celle d’OSM partout ailleurs, grâce au travail de Geovelo. Cette couche est mise à jour au fil de l’eau, dès qu'il y a des mises à jour, et est présentée sur le [WebSIG](https://on3v.veremes.net/vmap/?mode_id=vmap&map_id=31&token=publictoken) et téléchargeable par tous. 
+
+![](/images/carte-websig.png "Carte WebSIG Vélo & Territoires du 8.12.2021")
+
+
+
+<!--StartFragment-->
 
 <br />
 
