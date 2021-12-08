@@ -160,6 +160,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       %{datagouv_id: datagouv_id, metadata: resource_metadata} =
         insert(:resource,
           url: resource_url,
+          dataset: insert(:dataset, is_active: true),
           format: "GTFS",
           title: "title",
           datagouv_id: "1",
@@ -240,6 +241,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       %{datagouv_id: datagouv_id} =
         insert(:resource,
           url: resource_url,
+          dataset: insert(:dataset, is_active: true),
           format: "GTFS",
           title: "title",
           datagouv_id: "1",
@@ -270,6 +272,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       %{datagouv_id: datagouv_id} =
         insert(:resource,
           url: resource_url,
+          dataset: insert(:dataset, is_active: true),
           format: "GTFS",
           title: "title",
           datagouv_id: "1",
@@ -290,24 +293,27 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   end
 
   defp create_resources_for_history do
+    %{id: active_dataset_id} = insert(:dataset, is_active: true)
+    %{id: inactive_dataset_id} = insert(:dataset, is_active: false)
+
     %{datagouv_id: datagouv_id} =
       insert(:resource,
         url: "https://example.com/gtfs.zip",
+        dataset_id: active_dataset_id,
         format: "GTFS",
         title: "title",
         datagouv_id: "1",
-        is_community_resource: false,
-        is_active: true
+        is_community_resource: false
       )
 
     # Resources that should be ignored
     insert(:resource,
       url: "https://example.com/gtfs.zip",
+      dataset_id: active_dataset_id,
       format: "GTFS",
       title: "Ignored because it's a community resource",
       datagouv_id: "2",
-      is_community_resource: true,
-      is_active: true
+      is_community_resource: true
     )
 
     insert(:resource,
@@ -315,44 +321,43 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       format: "gbfs",
       title: "Ignored because it's not GTFS or NeTEx",
       datagouv_id: "3",
-      is_community_resource: false,
-      is_active: true
+      is_community_resource: false
     )
 
     insert(:resource,
       url: "https://example.com/gtfs.zip",
+      dataset_id: active_dataset_id,
       format: "GTFS",
       title: "Ignored because of duplicated datagouv_id",
       datagouv_id: "4",
-      is_community_resource: false,
-      is_active: true
+      is_community_resource: false
     )
 
     insert(:resource,
       url: "https://example.com/gtfs.zip",
+      dataset_id: active_dataset_id,
       format: "GTFS",
       title: "Ignored because of duplicated datagouv_id",
       datagouv_id: "4",
-      is_community_resource: false,
-      is_active: true
+      is_community_resource: false
     )
 
     insert(:resource,
       url: "https://example.com/gtfs.zip",
+      dataset_id: inactive_dataset_id,
       format: "GTFS",
       title: "Ignored because is not active",
       datagouv_id: "5",
-      is_community_resource: false,
-      is_active: false
+      is_community_resource: false
     )
 
     insert(:resource,
       url: "ftp://example.com/gtfs.zip",
+      dataset_id: active_dataset_id,
       format: "GTFS",
       title: "Ignored because is not available over HTTP",
       datagouv_id: "6",
-      is_community_resource: false,
-      is_active: true
+      is_community_resource: false
     )
 
     datagouv_id
