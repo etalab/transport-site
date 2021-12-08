@@ -38,7 +38,7 @@ La participation de l’équipe de Geovelo aux ateliers nous a permis de mieux c
 
 <!--EndFragment-->
 
-#### 1/ L’état des lieux des données existantes et l’identification des besoins et compétences des collectivités
+### 1/ L’état des lieux des données existantes et l’identification des besoins et compétences des collectivités
 
 Nous avons repris les travaux sur les données des aménagements cyclables en décembre 2019 car nous avions une forte demande de la part des collectivités et des réutilisateurs. Cette demande s’est accrue avec le début de la crise sanitaire due au COVID-19.
 
@@ -50,7 +50,7 @@ En parallèle, l’équipe de [transport.data.gouv.fr](https://transport.data.go
 
 <!--EndFragment-->
 
-#### 2/ L’élaboration du schéma national des aménagements cyclables
+### 2/ L’élaboration du schéma national des aménagements cyclables
 
 À l'issue de ces deux investigations, cinq ateliers ont été animés. La plus grande difficulté a été de réduire le nombre de champs pour n’avoir que des champs tournés vers l’utilité aux usagers finaux car les collectivités voulaient ajouter des champs qui répondaient seulement à des besoins métiers comme le type de signalisation sur la voie, le nom du gestionnaire de l’aménagement, la dernière date de travaux etc. Cette difficulté a été levée en réexpliquant aux collectivités l’utilité de ces données et grâce aux interventions de Geovelo qui ont recentré les échanges sur l’information voyageur. 
 
@@ -60,7 +60,7 @@ Le schéma a été publié sur [schema.data.gouv.fr](https://schema.data.gouv.fr
 
 <!--EndFragment-->
 
-#### 3/ Le développement d'outils pour faciliter et accélérer l'ouverture de ces données
+### 3/ Le développement d'outils pour faciliter la production des données et accélérer leur ouverture 
 
 Afin de faciliter la transition vers le schéma national, et pouvoir en suivre les évolutions, Geovelo a développé un outil d’extraction qui permet aux collectivités partenaires de récupérer quand elles le souhaitent, au format du schéma national, [la base existante dans OSM](https://www.amenagements-cyclables.fr/fr/facilities).\
 En plus de l’outil d’extraction que met à disposition Géovélo à toutes les collectivités partenaires dans le tableau de bord que Geovelo leur configure, il y a la possibilité de paramétrer des exports personnalisés comme l’ajout de champs facultatifs ou des “zones 30”. L’intérêt est de profiter de la profondeur de la base OSM, pour alimenter les données métier des collectivités.\
@@ -81,7 +81,7 @@ Nous avons également produit une [documentation spécifique sur les aménagemen
 
 <!--EndFragment-->
 
-#### 4/ La réutilisation des données 
+### 4/ La valorisation de ces données par la réutilisation 
 
 Vélo & Territoires est également réutilisateur des données sur les aménagements cyclables. Leur équipe retraite l’ensemble de ces données pour produire une couche nationale unique et sans doublon, qui agrège la donnée publiée par les collectivités et celle d’OSM partout ailleurs, grâce au travail de Geovelo. Cette couche est mise à jour au fil de l’eau, elle est présentée sur le [WebSIG](https://on3v.veremes.net/vmap/?mode_id=vmap&map_id=31&token=publictoken) et téléchargeable par tous. <!--StartFragment-->
 
