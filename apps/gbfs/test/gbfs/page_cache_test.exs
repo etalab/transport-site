@@ -8,6 +8,10 @@ defmodule GBFS.PageCacheTest do
 
   setup :verify_on_exit!
 
+  setup do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+  end
+
   def run_query(conn, url) do
     response =
       conn
