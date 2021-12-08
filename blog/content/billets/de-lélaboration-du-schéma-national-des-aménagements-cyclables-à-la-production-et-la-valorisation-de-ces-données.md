@@ -101,6 +101,8 @@ Vélo & Territoires est également réutilisateur des données sur les aménagem
 
 <!--EndFragment-->
 
+<br />
+
 Ces deux organisations appuient l’équipe de [Transport.data.gouv.fr](https://transport.data.gouv.fr/) dans l’accompagnement aux collectivités pour l’ouverture de leurs données sur les aménagements cyclables.\
 Vélo & Territoires accompagne leurs adhérents pour les aider dans le déploiement du modèle, les mettre en contact quand ils rencontrent les mêmes problématiques et peut également animer des temps d’échanges spécifiques en fonction des besoins. 
 
@@ -109,6 +111,8 @@ Vélo & Territoires accompagne leurs adhérents pour les aider dans le déploiem
 <br />
 
 <!--EndFragment-->
+
+<br />
 
 Un grand merci à l’équipe de Vélo & Territoires et celle de Geovelo pour leur accompagnement qui nous facilite l’ouverture des données vélo.
 
@@ -125,6 +129,8 @@ Retrouvez-les dans notre section dédiée aux organisations qui facilitent l’o
 <br />
 
 <!--EndFragment-->
+
+<br />
 
 Article co-rédigé avec :\
 Geovelo : Antoine Laporte Weywada et Simon Réau\
