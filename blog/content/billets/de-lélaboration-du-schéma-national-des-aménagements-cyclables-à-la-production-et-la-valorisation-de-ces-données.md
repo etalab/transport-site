@@ -71,7 +71,7 @@ Afin de faciliter la transition vers le schéma national, et pouvoir en suivre l
 ![](/images/capture-d’écran-2021-09-10-105144-1-.png)
 
 \
-[*Tutoriel pour extraire les données à partir de l'espace adhérent Géovélo*. ](https://www.linkedin.com/posts/transportdatagouvfr_geovelo-a-int%C3%A9gr%C3%A9-le-sch%C3%A9ma-national-des-activity-6844517734546452480-5Yg1)
+[Tutoriel pour extraire les données à partir de l'espace adhérent Géovélo. ](https://www.linkedin.com/posts/transportdatagouvfr_geovelo-a-int%C3%A9gr%C3%A9-le-sch%C3%A9ma-national-des-activity-6844517734546452480-5Yg1)
 
 \
 En plus de l’outil d’extraction que met à disposition Géovélo à toutes les collectivités partenaires dans le tableau de bord que Geovelo leur configure, il y a la possibilité de paramétrer des exports personnalisés comme l’ajout de champs facultatifs ou des “zones 30”. L’intérêt est de profiter de la profondeur de la base OSM, pour alimenter les données métier des collectivités.\
@@ -100,7 +100,7 @@ Vélo & Territoires est également réutilisateur des données sur les aménagem
 
 ![Carte WebSIG Vélo & Territoires du 8.12.2021](/images/carte-websig.png "Carte WebSIG Vélo & Territoires du 8.12.2021")
 
-*[Tutoriel pour accéder à la carte des aménagements cyclables à partir du WebSIG de Vélo & Territoires](https://www.linkedin.com/posts/transportdatagouvfr_carte-sur-les-am%C3%A9nagements-cyclables-activity-6840528657333661697-RHdU)*.
+[Tutoriel pour accéder à la carte des aménagements cyclables à partir du WebSIG de Vélo & Territoire*s*](https://www.linkedin.com/posts/transportdatagouvfr_carte-sur-les-am%C3%A9nagements-cyclables-activity-6840528657333661697-RHdU).
 
 <!--StartFragment-->
 
