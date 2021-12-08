@@ -628,8 +628,16 @@ defmodule DB.Dataset do
   end
 
   @spec cast_aom(Ecto.Changeset.t(), map()) :: Ecto.Changeset.t()
-  defp cast_aom(changeset, %{"insee" => ""}), do: changeset
-  defp cast_aom(changeset, %{"insee" => nil}), do: changeset
+  defp cast_aom(changeset, %{"insee" => ""}), do: maybe_clean_aom(changeset)
+  defp cast_aom(changeset, %{"insee" => nil}), do: maybe_clean_aom(changeset)
+
+  defp maybe_clean_aom(changeset) do
+    if is_nil(changeset.data.aom_id) do
+      changeset
+    else
+      change(changeset, aom_id: nil)
+    end
+  end
 
   defp cast_aom(changeset, %{"insee" => insee}) do
     Commune
