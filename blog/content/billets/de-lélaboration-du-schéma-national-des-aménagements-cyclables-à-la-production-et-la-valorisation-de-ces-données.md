@@ -38,6 +38,8 @@ La participation de l’équipe de Geovelo aux ateliers nous a permis de mieux c
 
 ### 1/ L’état des lieux des données existantes et l’identification des besoins et compétences des collectivités
 
+
+
 Nous avons repris les travaux sur les données des aménagements cyclables en décembre 2019 car nous avions une forte demande de la part des collectivités et des réutilisateurs. 
 
 Ces travaux ont débuté par une [enquête réalisée par Vélo & Territoires](https://www.velo-territoires.org/politiques-cyclables/data-velo-modeles-donnees/schema-donnees-amenagements-cyclables/) auprès de 70 collectivités pour savoir si elles disposaient de données sur les aménagements cyclables et ressentaient le besoin d’avoir un modèle de données. La moitié des collectivités ont confié leurs difficultés à décrire leurs aménagements d’un point de vue sémantique et à les numériser dans un système d’information géographique (SIG). Pour 80 % des territoires enquêtés, un standard national serait utile et faciliterait leur travail. Cette enquête a également permis d’évaluer les besoins de potentiels utilisateurs pour développer des outils d’aide à la numérisation.  
@@ -50,6 +52,8 @@ En parallèle, l’équipe de [Transport.data.gouv.fr](https://transport.data.go
 
 ### 2/ L’élaboration du schéma national des aménagements cyclables
 
+
+
 À l'issue de ces deux investigations, cinq ateliers ont été animés. La plus grande difficulté a été de réduire le nombre de champs pour n’avoir que des champs tournés vers l’utilité aux usagers finaux car les collectivités voulaient ajouter des champs qui répondaient seulement à des besoins métiers comme le type de signalisation sur la voie, le nom du gestionnaire de l’aménagement, la dernière date de travaux etc. Cette difficulté a été levée en réexpliquant aux collectivités l’utilité de ces données et grâce aux interventions de Geovelo qui ont recentré les échanges sur l’information voyageur. 
 
 Le schéma a été publié sur [schema.data.gouv.fr](https://schema.data.gouv.fr/) le 10.12.2020 et de premières données ont été publiées en avril 2021. Ces données sont issues d’OSM et ont été mises en conformité avec le schéma national par Geovelo pour [Tours Métropole](https://transport.data.gouv.fr/datasets/pistes-cyclables-tours-metropole-val-de-loire/). <!--StartFragment-->
@@ -60,9 +64,14 @@ Le schéma a été publié sur [schema.data.gouv.fr](https://schema.data.gouv.fr
 
 ### 3/ Le développement d'outils pour faciliter la production des données et accélérer leur ouverture
 
+
+
 Afin de faciliter la transition vers le schéma national, et pouvoir en suivre les évolutions, Geovelo a développé un outil d’extraction qui permet aux collectivités partenaires de récupérer quand elles le souhaitent, au format du schéma national, [la base existante dans OSM](https://www.amenagements-cyclables.fr/fr/facilities).
 
 ![](/images/capture-d’écran-2021-09-10-105144-1-.png)
+
+\
+[*Tutoriel pour extraire les données à partir de l'espace adhérent Géovélo*. ](https://www.linkedin.com/posts/transportdatagouvfr_geovelo-a-int%C3%A9gr%C3%A9-le-sch%C3%A9ma-national-des-activity-6844517734546452480-5Yg1)
 
 \
 En plus de l’outil d’extraction que met à disposition Géovélo à toutes les collectivités partenaires dans le tableau de bord que Geovelo leur configure, il y a la possibilité de paramétrer des exports personnalisés comme l’ajout de champs facultatifs ou des “zones 30”. L’intérêt est de profiter de la profondeur de la base OSM, pour alimenter les données métier des collectivités.\
@@ -85,9 +94,13 @@ Nous avons également produit une [documentation spécifique sur les aménagemen
 
 ### 4/ La valorisation de ces données par la réutilisation
 
+
+
 Vélo & Territoires est également réutilisateur des données sur les aménagements cyclables. Leur équipe retraite l’ensemble de ces données pour produire une couche nationale unique et sans doublon, qui agrège la donnée publiée par les collectivités et celle d’OSM partout ailleurs, grâce au travail de Geovelo. Cette couche est mise à jour au fil de l’eau, dès qu'il y a des mises à jour, et est présentée sur le [WebSIG](https://on3v.veremes.net/vmap/?mode_id=vmap&map_id=31&token=publictoken) et téléchargeable par tous. 
 
 ![Carte WebSIG Vélo & Territoires du 8.12.2021](/images/carte-websig.png "Carte WebSIG Vélo & Territoires du 8.12.2021")
+
+*[Tutoriel pour accéder à la carte des aménagements cyclables à partir du WebSIG de Vélo & Territoires](https://www.linkedin.com/posts/transportdatagouvfr_carte-sur-les-am%C3%A9nagements-cyclables-activity-6840528657333661697-RHdU)*.
 
 <!--StartFragment-->
 
