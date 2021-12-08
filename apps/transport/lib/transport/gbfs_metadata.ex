@@ -7,7 +7,6 @@ defmodule Transport.GBFSMetadata.Wrapper do
   def compute_feed_metadata(x), do: impl().compute_feed_metadata(x)
 end
 
-
 defmodule Transport.GBFSMetadata do
   @moduledoc """
   Compute and store metadata for GBFS resources.
