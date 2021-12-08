@@ -68,7 +68,7 @@ Le schéma a été publié sur [schema.data.gouv.fr](https://schema.data.gouv.fr
 
 Afin de faciliter la transition vers le schéma national, et pouvoir en suivre les évolutions, Géovélo a développé un outil d’extraction qui permet aux collectivités partenaires de récupérer quand elles le souhaitent, au format du schéma national, [la base existante dans OSM](https://www.amenagements-cyclables.fr/fr/facilities).
 
-![](/images/capture-d’écran-2021-09-10-105144-1-.png)
+![](/images/capture-d’écran-de-2021-12-08-17-55-13.png)
 
 \
 [Tutoriel pour extraire les données à partir de l'espace adhérent Géovélo. ](https://www.linkedin.com/posts/transportdatagouvfr_geovelo-a-int%C3%A9gr%C3%A9-le-sch%C3%A9ma-national-des-activity-6844517734546452480-5Yg1)
