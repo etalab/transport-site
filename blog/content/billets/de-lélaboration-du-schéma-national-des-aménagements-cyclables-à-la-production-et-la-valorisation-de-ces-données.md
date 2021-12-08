@@ -23,7 +23,7 @@ L’élaboration de ce schéma a été un travail collaboratif mené avec un gro
 
 Deux organisations nous ont accompagné tout au long de l’opération, de l’élaboration du schéma à la production et la réutilisation des données sur les aménagements cyclables :
 
-·   [Vélo & Territoires](https://www.velo-territoires.org/), un réseau de collectivités qui rassemble plus de 140 territoires adhérents, mobilisés dans une dynamique collégiale pour construire la France à vélo en 2030. Thomas Montagne et Fabien Commeaux ont co-animé tous les ateliers avec l’équipe de [transport.data.gouv.fr](https://transport.data.gouv.fr/) et ont apporté leur connaissance métier. L’association anime notamment l'[Observatoire national des Véloroutes](https://www.velo-territoires.org/observatoires/observatoire-national-des-veloroutes-et-voies-vertes/#), un système d’information géographique qui permet de mesurer l’état d’avancement des différents réseaux cyclables, et la [Plateforme nationale des fréquentations](https://www.velo-territoires.org/observatoires/plateforme-nationale-de-frequentation/) qui permet de mutualiser, d’agréger et de diffuser des données de comptage vélo au niveau national
+·   [Vélo & Territoires](https://www.velo-territoires.org/), un réseau de collectivités qui rassemble plus de 140 territoires adhérents, mobilisés dans une dynamique collégiale pour construire la France à vélo en 2030. Thomas Montagne et Fabien Commeaux ont co-animé tous les ateliers avec l’équipe de [Transport.data.gouv.fr](https://transport.data.gouv.fr/) et ont apporté leur connaissance métier. L’association anime notamment l'[Observatoire national des Véloroutes](https://www.velo-territoires.org/observatoires/observatoire-national-des-veloroutes-et-voies-vertes/#), un système d’information géographique qui permet de mesurer l’état d’avancement des différents réseaux cyclables, et la [Plateforme nationale des fréquentations](https://www.velo-territoires.org/observatoires/plateforme-nationale-de-frequentation/) qui permet de mutualiser, d’agréger et de diffuser des données de comptage vélo au niveau national
 
 ·   [Geovelo](https://geovelo.fr/a-propos/), qui développe une application gratuite de calcul d'itinéraires vélo pour laquelle l'entreprise produit et réutilise des données sur les thématiques vélo. Cette organisation contribue depuis plusieurs années à l’enrichissement des données sur les aménagements cyclables sur OpenStreetMap (OSM). En complément des travaux effectués par la communauté OSM, les équipes de Geovelo complètent régulièrement les données sur la base de deux sources principales :
 
@@ -42,7 +42,7 @@ Nous avons repris les travaux sur les données des aménagements cyclables en d�
 
 Ces travaux ont débuté par une [enquête réalisée par Vélo & Territoires](https://www.velo-territoires.org/politiques-cyclables/data-velo-modeles-donnees/schema-donnees-amenagements-cyclables/) auprès de 70 collectivités pour savoir si elles disposaient de données sur les aménagements cyclables et ressentaient le besoin d’avoir un modèle de données. La moitié des collectivités ont confié leurs difficultés à décrire leurs aménagements d’un point de vue sémantique et à les numériser dans un système d’information géographique (SIG). Pour 80 % des territoires enquêtés, un standard national serait utile et faciliterait leur travail. Cette enquête a également permis d’évaluer les besoins de potentiels utilisateurs pour développer des outils d’aide à la numérisation.  
 
-En parallèle, l’équipe de [transport.data.gouv.fr](https://transport.data.gouv.fr/) faisait un état des lieux des données existantes en se basant notamment sur le [modèle d’Île-de-France Mobilités](https://data.iledefrance-mobilites.fr/explore/dataset/amenagements-velo-en-ile-de-france/information/), co-conçu par Geovelo, et les [attributs d’Open Street Map](https://wiki.openstreetmap.org/wiki/FR:Bicycle) (OSM). Le modèle d’Île-de-France Mobilités  avait été réutilisé et validé par plusieurs autres collectivités, partenaires de Geovelo. La compatibilité du schéma national avec la base OSM était importante car cette dernière est réactive aux évolutions fréquentes des réseaux cyclables, mais aussi car elle est privilégiée par la majorité des applications GPS spécifiques au vélo. <!--StartFragment-->
+En parallèle, l’équipe de [Transport.data.gouv.fr](https://transport.data.gouv.fr/) faisait un état des lieux des données existantes en se basant notamment sur le [modèle d’Île-de-France Mobilités](https://data.iledefrance-mobilites.fr/explore/dataset/amenagements-velo-en-ile-de-france/information/), co-conçu par Geovelo, et les [attributs d’Open Street Map](https://wiki.openstreetmap.org/wiki/FR:Bicycle) (OSM). Le modèle d’Île-de-France Mobilités  avait été réutilisé et validé par plusieurs autres collectivités, partenaires de Geovelo. La compatibilité du schéma national avec la base OSM était importante car cette dernière est réactive aux évolutions fréquentes des réseaux cyclables, mais aussi car elle est privilégiée par la majorité des applications GPS spécifiques au vélo. <!--StartFragment-->
 
 <br />
 
@@ -66,7 +66,7 @@ Afin de faciliter la transition vers le schéma national, et pouvoir en suivre l
 
 \
 En plus de l’outil d’extraction que met à disposition Géovélo à toutes les collectivités partenaires dans le tableau de bord que Geovelo leur configure, il y a la possibilité de paramétrer des exports personnalisés comme l’ajout de champs facultatifs ou des “zones 30”. L’intérêt est de profiter de la profondeur de la base OSM, pour alimenter les données métier des collectivités.\
-Géovélo publie également la [base nationale des aménagements cyclables ](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/)publiée sur [transport.data.gouv.fr](https://transport.data.gouv.fr/) et basée sur un export des données publiées sur OSM. Ce jeu de données est mise à jour tous les mois. \
+Géovélo publie également la [base nationale des aménagements cyclables ](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/)publiée sur [Transport.data.gouv.fr](https://transport.data.gouv.fr/) et basée sur un export des données publiées sur OSM. Ce jeu de données est mise à jour tous les mois. \
 Simon Réau, de Geovelo, participe également activement à l’évolution du schéma national en votant en tant que réutilisateur dès qu’il y a une [demande de modification du schéma en cours](https://doc.transport.data.gouv.fr/producteurs/amenagements-cyclables/contribution-au-schema-sur-les-amenagements-cyclables).
 
 L’équipe de Vélo & Territoires a développé plusieurs outils d’aide à la numérisation en tenant compte des réalités très différentes qu’il peut y avoir d’un territoire à l’autre en termes de moyens techniques et humains. En effet, entre une petite commune rurale et une métropole, la question de la production de données ne peut être abordée de la même manière.
@@ -101,7 +101,7 @@ Vélo & Territoires est également réutilisateur des données sur les aménagem
 
 <!--EndFragment-->
 
-Ces deux organisations appuient l’équipe de [transport.data.gouv.fr](https://transport.data.gouv.fr/) dans l’accompagnement aux collectivités pour l’ouverture de leurs données sur les aménagements cyclables.\
+Ces deux organisations appuient l’équipe de [Transport.data.gouv.fr](https://transport.data.gouv.fr/) dans l’accompagnement aux collectivités pour l’ouverture de leurs données sur les aménagements cyclables.\
 Vélo & Territoires accompagne leurs adhérents pour les aider dans le déploiement du modèle, les mettre en contact quand ils rencontrent les mêmes problématiques et peut également animer des temps d’échanges spécifiques en fonction des besoins. 
 
 <!--StartFragment-->
@@ -112,7 +112,7 @@ Vélo & Territoires accompagne leurs adhérents pour les aider dans le déploiem
 
 Un grand merci à l’équipe de Vélo & Territoires et celle de Geovelo pour leur accompagnement qui nous facilite l’ouverture des données vélo.
 
-Retrouvez-les dans notre section dédiée aux organisations qui facilitent l’ouverture des données sur transport.data.gouv.fr ici : <https://doc.transport.data.gouv.fr/notre-ecosysteme/les-facilitateurs>
+Retrouvez-les dans notre section dédiée aux organisations qui facilitent l’ouverture des données sur [Transport.data.gouv.fr](https://transport.data.gouv.fr/) ici : <https://doc.transport.data.gouv.fr/notre-ecosysteme/les-facilitateurs>
 
 <!--StartFragment-->
 
@@ -129,6 +129,6 @@ Retrouvez-les dans notre section dédiée aux organisations qui facilitent l’o
 Article co-rédigé avec :\
 Geovelo : Antoine Laporte Weywada et Simon Réau\
 Vélo & Territoires : Fabien Commeaux et Thomas Montagne\
-Transport.data.gouv.fr : Miryad Ali
+[Transport.data.gouv.f](https://transport.data.gouv.fr/)r : Miryad Ali
 
 <!--EndFragment-->
