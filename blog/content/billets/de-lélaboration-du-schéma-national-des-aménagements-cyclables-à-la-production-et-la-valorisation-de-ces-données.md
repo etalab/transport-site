@@ -6,7 +6,7 @@ tags:
   - retour d'expérience
 description: Cet article relate le travail collaboratif qui a été mené avec Vélo
   & Territoires et Géovélo pour élaborer le schéma national des aménagements
-  cyclables ainsi que leur implication pour faciliter la production et la
+  cyclables ainsi que leur implication pour faciliter la production et leur
   valorisation de ces données
 images:
   - /images/vttdgv.png
