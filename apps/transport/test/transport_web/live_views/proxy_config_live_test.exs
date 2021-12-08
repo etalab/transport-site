@@ -32,14 +32,15 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     assert html_response(conn, 302)
   end
 
-  # NOTE: this fakes previous proxy requests, without having to
-  # setup a complete scenario, to prepare the data for the test below
   def add_events(item_id) do
-    Unlock.Controller.Telemetry.trace_request(item_id, :external)
-    Unlock.Controller.Telemetry.trace_request(item_id, :external)
-    Unlock.Controller.Telemetry.trace_request(item_id, :internal)
-    # events are async, so we wait a bit for now (not ideal)
-    :timer.sleep(25)
+    target = "proxy:#{item_id}"
+    Transport.Telemetry.count_event(target, event_name(:external))
+    Transport.Telemetry.count_event(target, event_name(:external))
+    Transport.Telemetry.count_event(target, event_name(:internal))
+  end
+
+  defp event_name(type) do
+    type |> Transport.Telemetry.proxy_request_event_name()
   end
 
   test "disconnected and connected mount refresh stats", %{conn: conn} do

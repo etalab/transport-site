@@ -21,11 +21,14 @@ defmodule TransportWeb.Backoffice.GBFSLiveTest do
   # NOTE: this fakes previous proxy requests, without having to
   # setup a complete scenario, to prepare the data for the test below
   def add_events(network_name) do
-    GBFS.Telemetry.trace_request(network_name, :external)
-    GBFS.Telemetry.trace_request(network_name, :external)
-    GBFS.Telemetry.trace_request(network_name, :internal)
-    # events are async, so we wait a bit for now (not ideal)
-    :timer.sleep(25)
+    target = "gbfs:#{network_name}"
+    Transport.Telemetry.count_event(target, event_name(:external))
+    Transport.Telemetry.count_event(target, event_name(:external))
+    Transport.Telemetry.count_event(target, event_name(:internal))
+  end
+
+  defp event_name(type) do
+    type |> Transport.Telemetry.gbfs_request_event_name()
   end
 
   test "disconnected and connected mount refresh stats", %{conn: conn} do

@@ -1,8 +1,6 @@
 defmodule DB.MetricsTest do
   use ExUnit.Case, async: true
-  # alias DB.Metrics
   import DB.Factory
-  # import Ecto.Query
   import Transport.Telemetry, only: [truncate_datetime_to_hour: 1]
 
   setup do
