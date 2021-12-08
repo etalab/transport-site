@@ -4,12 +4,10 @@ title: "De l'élaboration du schéma national des aménagements cyclables à la
 date: 2021-12-08T08:12:29.375Z
 tags:
   - retour d'expérience
-description: >-
-  L’élaboration du schéma national des aménagements cyclables a été un travail
-  collaboratif mené avec un groupe de travail composé de collectivités,
-  réutilisateurs et associations vélos.
-
-  Cet article relate l'implication de Vélo & Territoires et de Géovélo depuis l'élaboration du schéma à la production et la  réutilisation des données sur les aménagements cyclables
+description: Cet article relate le travail collaboratif qui a été mené avec Vélo
+  & Territoires et Géovélo pour élaborer le schéma national des aménagements
+  cyclables ainsi que leur implication pour faciliter la production et la
+  valorisation de ces données
 images:
   - /images/vttdgv.png
 ---
@@ -40,9 +38,9 @@ La participation de l’équipe de Geovelo aux ateliers nous a permis de mieux c
 
 ### 1/ L’état des lieux des données existantes et l’identification des besoins et compétences des collectivités
 
-Nous avons repris les travaux sur les données des aménagements cyclables en décembre 2019 car nous avions une forte demande de la part des collectivités et des réutilisateurs. Cette demande s’est accrue avec le début de la crise sanitaire due au COVID-19.
+Nous avons repris les travaux sur les données des aménagements cyclables en décembre 2019 car nous avions une forte demande de la part des collectivités et des réutilisateurs. 
 
-Ces travaux ont débuté par une enquête réalisée par Vélo & Territoires auprès de 70 collectivités pour savoir si elles disposaient de données sur les aménagements cyclables et ressentaient le besoin d’avoir un modèle de données. La moitié des collectivités ont confié leurs difficultés à décrire leurs aménagements d’un point de vue sémantique et à les numériser dans un système d’information géographique (SIG). Pour 80 % des territoires enquêtés, un standard national serait utile et faciliterait leur travail. Cette enquête a également permis d’évaluer les besoins de potentiels utilisateurs pour développer des outils d’aide à la numérisation.  
+Ces travaux ont débuté par une [enquête réalisée par Vélo & Territoires](https://www.velo-territoires.org/politiques-cyclables/data-velo-modeles-donnees/schema-donnees-amenagements-cyclables/) auprès de 70 collectivités pour savoir si elles disposaient de données sur les aménagements cyclables et ressentaient le besoin d’avoir un modèle de données. La moitié des collectivités ont confié leurs difficultés à décrire leurs aménagements d’un point de vue sémantique et à les numériser dans un système d’information géographique (SIG). Pour 80 % des territoires enquêtés, un standard national serait utile et faciliterait leur travail. Cette enquête a également permis d’évaluer les besoins de potentiels utilisateurs pour développer des outils d’aide à la numérisation.  
 
 En parallèle, l’équipe de [transport.data.gouv.fr](https://transport.data.gouv.fr/) faisait un état des lieux des données existantes en se basant notamment sur le [modèle d’Île-de-France Mobilités](https://data.iledefrance-mobilites.fr/explore/dataset/amenagements-velo-en-ile-de-france/information/), co-conçu par Geovelo, et les [attributs d’Open Street Map](https://wiki.openstreetmap.org/wiki/FR:Bicycle) (OSM). Le modèle d’Île-de-France Mobilités  avait été réutilisé et validé par plusieurs autres collectivités, partenaires de Geovelo. La compatibilité du schéma national avec la base OSM était importante car cette dernière est réactive aux évolutions fréquentes des réseaux cyclables, mais aussi car elle est privilégiée par la majorité des applications GPS spécifiques au vélo. <!--StartFragment-->
 
@@ -60,7 +58,7 @@ Le schéma a été publié sur [schema.data.gouv.fr](https://schema.data.gouv.fr
 
 <!--EndFragment-->
 
-### 3/ Le développement d'outils pour faciliter la production des données et accélérer leur ouverture 
+### 3/ Le développement d'outils pour faciliter la production des données et accélérer leur ouverture
 
 Afin de faciliter la transition vers le schéma national, et pouvoir en suivre les évolutions, Geovelo a développé un outil d’extraction qui permet aux collectivités partenaires de récupérer quand elles le souhaitent, au format du schéma national, [la base existante dans OSM](https://www.amenagements-cyclables.fr/fr/facilities).\
 \
@@ -82,13 +80,11 @@ Nous avons également produit une [documentation spécifique sur les aménagemen
 
 <!--EndFragment-->
 
-### 4/ La valorisation de ces données par la réutilisation 
+### 4/ La valorisation de ces données par la réutilisation
 
 Vélo & Territoires est également réutilisateur des données sur les aménagements cyclables. Leur équipe retraite l’ensemble de ces données pour produire une couche nationale unique et sans doublon, qui agrège la donnée publiée par les collectivités et celle d’OSM partout ailleurs, grâce au travail de Geovelo. Cette couche est mise à jour au fil de l’eau, dès qu'il y a des mises à jour, et est présentée sur le [WebSIG](https://on3v.veremes.net/vmap/?mode_id=vmap&map_id=31&token=publictoken) et téléchargeable par tous. 
 
 ![](/images/carte-websig.png "Carte WebSIG Vélo & Territoires du 8.12.2021")
-
-
 
 <!--StartFragment-->
 
