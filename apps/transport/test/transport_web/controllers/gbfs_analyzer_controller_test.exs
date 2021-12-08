@@ -1,6 +1,5 @@
 defmodule TransportWeb.GbfsAnalyzerControllerTest do
   use TransportWeb.ConnCase, async: true
-  alias TransportWeb.GbfsAnalyzerController
 
   import Mox
   setup :verify_on_exit!

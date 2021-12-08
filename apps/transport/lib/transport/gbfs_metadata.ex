@@ -2,7 +2,8 @@ defmodule Transport.GBFSMetadata.Wrapper do
   @moduledoc """
   Defines a behavior
   """
-  @callback compute_feed_metadata(Resource.t() | binary()) :: map()
+
+  @callback compute_feed_metadata(DB.Resource.t() | binary()) :: map()
   def impl, do: Application.get_env(:transport, :gbfs_metadata_impl)
   def compute_feed_metadata(x), do: impl().compute_feed_metadata(x)
 end
