@@ -12,7 +12,7 @@ defmodule TransportWeb.PageController do
     |> render("index.html")
   end
 
-  defp put_breaking_news(conn, %{level: level, msg: msg}) ,do: conn |> put_flash(String.to_atom(level), msg)
+  defp put_breaking_news(conn, %{level: level, msg: msg}), do: conn |> put_flash(String.to_atom(level), msg)
   defp put_breaking_news(conn, %{}), do: conn
 
   def not_found(conn, _params) do
