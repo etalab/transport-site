@@ -73,7 +73,7 @@ Simon Réau de Géovélo participe également activement à l’évolution du sc
 
 L’équipe de Vélo & Territoires a développé plusieurs outils d’aide à la numérisation en tenant compte des réalités très différentes qu’il peut y avoir d’un territoire à l’autre en termes de moyens techniques et humains. En effet, entre une petite commune rurale et une métropole, la question de la production de données ne peut être abordée de la même manière.
 
-Fabien Commeaux et Thomas Montagne ont donc développé des outils qui puissent répondre aux besoins de chacun : 
+Pour répondre aux besoins de chacun, Vélo & Territoires propose les solutions suivantes : 
 
 * une petite commune peut se connecter sur le [webSIG](https://on3v.veremes.net/vmap/?mode_id=vmap&map_id=31&token=publictoken) depuis un simple navigateur Internet et saisir graphiquement ses quelques aménagements cyclables
 * une plus grande commune, qui dispose de compétences en géomatique, fera plutôt le choix d’utiliser [des gabarits de table SIG ou de base de données](https://on3v.veremes.net/vmap/?mode_id=vmap&map_id=31&token=publictoken) 
