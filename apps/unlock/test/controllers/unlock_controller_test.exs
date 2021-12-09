@@ -11,6 +11,11 @@ defmodule Unlock.ControllerTest do
   # require for current cachex use (out of process)
   setup :set_mox_from_context
 
+  setup do
+    setup_telemetry_handler()
+    :ok
+  end
+
   test "GET /" do
     output =
       build_conn()
@@ -27,17 +32,6 @@ defmodule Unlock.ControllerTest do
 
   describe "GET /resource/:slug" do
     test "handles a regular read" do
-      test_pid = self()
-      # inspired by https://github.com/dashbitco/broadway/blob/main/test/broadway_test.exs
-      :telemetry.attach_many(
-        "test-handler-#{System.unique_integer()}",
-        Transport.Telemetry.proxy_request_event_names(),
-        fn name, measurements, metadata, _ ->
-          send(test_pid, {:telemetry_event, name, measurements, metadata})
-        end,
-        nil
-      )
-
       slug = "an-existing-identifier"
 
       ttl_in_seconds = 30
@@ -187,5 +181,23 @@ defmodule Unlock.ControllerTest do
 
     @tag :skip
     test "times out without locking the whole thing"
+  end
+
+  defp setup_telemetry_handler do
+    existing_handlers =
+      :telemetry.list_handlers(Transport.Telemetry.proxy_request_event_names() |> Enum.at(1)) |> Enum.map(& &1.id)
+
+    existing_handlers |> Enum.each(&:telemetry.detach/1)
+
+    test_pid = self()
+    # inspired by https://github.com/dashbitco/broadway/blob/main/test/broadway_test.exs
+    :telemetry.attach_many(
+      "test-handler-#{System.unique_integer()}",
+      Transport.Telemetry.proxy_request_event_names(),
+      fn name, measurements, metadata, _ ->
+        send(test_pid, {:telemetry_event, name, measurements, metadata})
+      end,
+      nil
+    )
   end
 end
