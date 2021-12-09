@@ -1,42 +1,45 @@
 <section class="container pt-48 pb-48">
   <h1>Backoffice</h1>
-    <div>
-      <a class="button" href="<%= backoffice_page_path(@conn, :new) %>">
-        <i class="fas fa-plus"></i> <%= dgettext("backoffice", "Add a dataset") %>
-      </a>
-    </div>
-    <div>
-      <% # See path explanation at https://elixirforum.com/t/scoped-live-view-does-not-seem-to-generate-a-live-path-helper/31162/4?u=thbar %>
-      <a class="button" href="<%= backoffice_live_path(@conn, TransportWeb.Backoffice.ProxyConfigLive) %>">
-        <%= dgettext("backoffice", "Proxy configuration") %>
-      </a>
-    </div>
-    <div>
-      <a class="button" href="<%= backoffice_live_path(@conn, TransportWeb.Backoffice.JobsLive) %>">
-        <%= dgettext("backoffice", "Jobs") %>
-      </a>
-    </div>
-    <div>
-      <a class="button" href="<%= backoffice_live_path(@conn, TransportWeb.Backoffice.GBFSLive) %>">
-        <%= dgettext("backoffice", "GBFS requests") %>
-      </a>
-    </div>
-    <div>
-      <a class="button" href="<%= backoffice_dashboard_path(@conn, :index) %>">
-        <%= dgettext("backoffice", "Rapport de complétude des imports") %>
-      </a>
-    </div>
-    <div class="import-all">
-      <%= form_for @conn, backoffice_dataset_path(@conn, :import_validate_all), [method: "post"], fn _f -> %>
-        <%= submit dgettext("backoffice", "Import and validate all") %>
-      <% end %>
-      <%= form_for @conn, backoffice_dataset_path(@conn, :force_validate_all), fn _f -> %>
-        <%= submit dgettext("backoffice", "validate all") %>
-      <% end %>
-    </div>
-    <a class="button" href="<%= backoffice_page_path(@conn, :import_all_aoms) %>" title="Télécharge depuis data.gouv la dernière version de la liste des AOMs, puis les importe dans notre base.">
-      <%= dgettext("backoffice", "Update all AOMs") %>
+  <h2>Outils d'observation</h2>
+
+  <% # See path explanation at https://elixirforum.com/t/scoped-live-view-does-not-seem-to-generate-a-live-path-helper/31162/4?u=thbar %>
+  <a class="button" href="<%= backoffice_live_path(@conn, TransportWeb.Backoffice.ProxyConfigLive) %>">
+    <%= dgettext("backoffice", "Proxy configuration") %>
+  </a>
+
+  <a class="button" href="<%= backoffice_live_path(@conn, TransportWeb.Backoffice.JobsLive) %>">
+    <%= dgettext("backoffice", "Jobs") %>
+  </a>
+    
+  <a class="button" href="<%= backoffice_live_path(@conn, TransportWeb.Backoffice.GBFSLive) %>">
+    <%= dgettext("backoffice", "GBFS requests") %>
+  </a>
+    
+  <a class="button" href="<%= backoffice_dashboard_path(@conn, :index) %>">
+    <%= dgettext("backoffice", "Rapport de complétude des imports") %>
+  </a>
+
+  <h2>Actions</h2>
+
+  <a class="button" href="<%= backoffice_page_path(@conn, :new) %>">
+    <i class="fas fa-plus"></i> <%= dgettext("backoffice", "Add a dataset") %>
+  </a>
+  <div class="import-all">
+    <%= form_for @conn, backoffice_dataset_path(@conn, :import_validate_all), [method: "post"], fn _f -> %>
+    <%= submit dgettext("backoffice", "Import and validate all") %>
+    <% end %>
+    <%= form_for @conn, backoffice_dataset_path(@conn, :force_validate_all), fn _f -> %>
+    <%= submit dgettext("backoffice", "validate all") %>
+    <% end %>
+  </div>
+  <a class="button warning-light" href="<%= backoffice_page_path(@conn, :import_all_aoms) %>" title="Télécharge depuis data.gouv la dernière version de la liste des AOMs, puis les importe dans notre base.">
+    <%= dgettext("backoffice", "Update all AOMs") %>
+  </a>
+  <div>
+    <a class="button warning-light" href="<%= backoffice_breaking_news_path(@conn, :index) %>" title="Afficher un message sur la home du site">
+      Publier une Breaking News
     </a>
+  </div>
   <h1 class="pt-48">
     <a name="list_datasets" href="#list_datasets" class="anchor"></a>
     <%= dgettext("backoffice", "Valid datasets available") %>
@@ -44,10 +47,10 @@
   <%= form_for @conn, backoffice_page_path(@conn, :index), [id: "backoffice_search_container", method: "get"], fn f -> %>
   <%= search_input f, :q, [id: "backoffice_search", value: assigns[:q] || "", placeholder: dgettext("page-index", "Find dataset")] %>
   <button type="submit" class="button backoffice_search_button"> <i class="fa fa-search"></i></button>
-<% end %>
+  <% end %>
 
-<div class="pt-24">
-  <%= if is_nil(@conn.params["filter"]) or @conn.params["filter"] == "" do %>
+  <div class="pt-24">
+    <%= if is_nil(@conn.params["filter"]) or @conn.params["filter"] == "" do %>
     -- ou -- <br>
     <%= dgettext("backoffice", "Show only datasets") %> :
     <div style="padding-left: 12px;">
@@ -58,48 +61,48 @@
         <%= link(dgettext("backoffice", "With unidentified resources"), to: backoffice_page_path(@conn, :index, %{"filter" => "other_resources"}) <> "#list_datasets") %>
       </div>
       <div>
-      <%= link(dgettext("backoffice", "Not compliant to spec"), to: backoffice_page_path(@conn, :index, %{"filter" => "not_compliant"}) <> "#list_datasets") %>
+        <%= link(dgettext("backoffice", "Not compliant to spec"), to: backoffice_page_path(@conn, :index, %{"filter" => "not_compliant"}) <> "#list_datasets") %>
       </div>
       <div>
-      <%= link(dgettext("backoffice", "With licence unspecified"), to: backoffice_page_path(@conn, :index, %{"filter" => "licence_not_specified"}) <> "#list_datasets") %>
+        <%= link(dgettext("backoffice", "With licence unspecified"), to: backoffice_page_path(@conn, :index, %{"filter" => "licence_not_specified"}) <> "#list_datasets") %>
       </div>
       <div>
-      <%= link(dgettext("backoffice", "With more than 1 GTFS"), to: backoffice_page_path(@conn, :index, %{"filter" => "multi_gtfs"}) <> "#list_datasets") %>
+        <%= link(dgettext("backoffice", "With more than 1 GTFS"), to: backoffice_page_path(@conn, :index, %{"filter" => "multi_gtfs"}) <> "#list_datasets") %>
       </div>
       <div>
-      <%= link(dgettext("backoffice", "With a resource not available"), to: backoffice_page_path(@conn, :index, %{"filter" => "resource_not_available"}) <> "#list_datasets") %>
+        <%= link(dgettext("backoffice", "With a resource not available"), to: backoffice_page_path(@conn, :index, %{"filter" => "resource_not_available"}) <> "#list_datasets") %>
       </div>
       <div>
-      <%= link(dgettext("backoffice", "With a gtfs-rt but without a siri-lite"), to: backoffice_page_path(@conn, :index, %{"filter" => "rt_resource_without_siri_lite"}) <> "#list_datasets") %>
+        <%= link(dgettext("backoffice", "With a gtfs-rt but without a siri-lite"), to: backoffice_page_path(@conn, :index, %{"filter" => "rt_resource_without_siri_lite"}) <> "#list_datasets") %>
       </div>
     </div>
-  <% else %>
+    <% else %>
     <%= link(dgettext("backoffice", "Show all datasets"), to: backoffice_page_path(@conn, :index) <> "#list_datasets") %>
-  <% end %>
-</div>
+    <% end %>
+  </div>
 
-<div class="pt-48" id="backoffice-datasets-table">
-  <%= pagination_links @conn, @datasets %>
-</div>
-<table class="backoffice-datasets">
-  <tr>
-    <th class="sortable"><%= backoffice_sort_link(@conn, "Dataset", :spatial, @order_by) %>
-    </th>
-    <th>transport</th>
-    <th>data.gouv.fr</th>
-    <th>Region</th>
-    <th>Commune principale</th>
-    <th class=sortable><%= backoffice_sort_link(@conn, "Fin de validité", :end_date, @order_by) %>
-    </th>
-    <th class="bo_dataset_button"></th>
-    <th class="bo_dataset_button"></th>
-    <th class="bo_dataset_button"></th>
-    <th class="bo_dataset_button"></th>
-  </tr>
-  <%= render_many(@datasets, TransportWeb.Backoffice.PageView, "_dataset.html", as: :dataset, conn: @conn)%>
-</table>
-<div class="pt-48">
-  <%= pagination_links @conn, @datasets %>
-</div>
+  <div class="pt-48" id="backoffice-datasets-table">
+    <%= pagination_links @conn, @datasets %>
+  </div>
+  <table class="backoffice-datasets">
+    <tr>
+      <th class="sortable"><%= backoffice_sort_link(@conn, "Dataset", :spatial, @order_by) %>
+      </th>
+      <th>transport</th>
+      <th>data.gouv.fr</th>
+      <th>Region</th>
+      <th>Commune principale</th>
+      <th class=sortable><%= backoffice_sort_link(@conn, "Fin de validité", :end_date, @order_by) %>
+      </th>
+      <th class="bo_dataset_button"></th>
+      <th class="bo_dataset_button"></th>
+      <th class="bo_dataset_button"></th>
+      <th class="bo_dataset_button"></th>
+    </tr>
+    <%= render_many(@datasets, TransportWeb.Backoffice.PageView, "_dataset.html", as: :dataset, conn: @conn)%>
+  </table>
+  <div class="pt-48">
+    <%= pagination_links @conn, @datasets %>
+  </div>
 </section>
 <script src="js/app.js"></script>

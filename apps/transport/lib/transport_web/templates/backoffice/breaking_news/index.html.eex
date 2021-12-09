@@ -1,0 +1,23 @@
+<div class="container">
+  <h1>Breaking News sur la home</h1>
+  <div class="pb-48">
+    Cette page permet de faire apparaître instantanément un message d'information sur la page home du site. </br>
+    Pour supprimer le bandeau, il suffit de supprimer le contenu du message.
+  </div>
+
+  <%= form_for @conn, backoffice_breaking_news_path(@conn, :update_breaking_news), [class: "no-margin"], fn f -> %>
+  <%= label do %>
+  Message à faire apparaitre sur le site
+  <%= text_input f, :msg, [
+    value: Map.get(@current_breaking_news, :msg)
+  ] %>
+  <% end %>
+
+  <%= label class: "pt-12" do %>
+  Type de message
+  <%= select f, :level, ["info", "error"], [
+        selected: Map.get(@current_breaking_news, :level, "info")] %>
+  <% end %>
+  <%= submit "Envoyer !" %>
+  <% end %>
+</div>

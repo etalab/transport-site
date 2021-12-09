@@ -8,7 +8,7 @@ defmodule Transport.Application do
 
   use Application
   use Task
-  alias Transport.{CSVDocuments, CustomSearchMessage, ImportDataWorker, SearchCommunes}
+  alias Transport.{CSVDocuments, ImportDataWorker, SearchCommunes}
   alias TransportWeb.Endpoint
   import Supervisor.Spec, only: [supervisor: 2]
 
