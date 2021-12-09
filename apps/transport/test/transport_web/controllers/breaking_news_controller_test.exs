@@ -1,4 +1,4 @@
-defmodule TransportWeb.BackofficeControllerTest do
+defmodule TransportWeb.BreakingNewsControllerTest do
   use TransportWeb.ConnCase, async: true
   use TransportWeb.DatabaseCase, cleanup: []
   import Plug.Test
@@ -9,7 +9,7 @@ defmodule TransportWeb.BackofficeControllerTest do
         conn
         |> get(page_path(conn, :index))
 
-      doc = html_response(conn, 200) |> Floki.parse_document!()
+      doc = conn |> html_response(200) |> Floki.parse_document!()
       assert [] == Floki.find(doc, ".notification")
     end
 
@@ -52,7 +52,7 @@ defmodule TransportWeb.BackofficeControllerTest do
         |> get(page_path(conn, :index))
 
       # no more message is displayed on home
-      doc = html_response(conn_client, 200) |> Floki.parse_document!()
+      doc = conn_client |> html_response(200) |> Floki.parse_document!()
       assert [] == Floki.find(doc, ".notification")
     end
   end
