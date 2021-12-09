@@ -32,6 +32,8 @@ defmodule PageCache do
   def call(conn, options) do
     page_cache_key = build_cache_key(conn.request_path)
 
+    page_cache_key |> network_name() |> trace_request(:external)
+
     options
     |> Keyword.fetch!(:cache_name)
     |> Cachex.get(page_cache_key)
@@ -45,7 +47,7 @@ defmodule PageCache do
   def handle_miss(conn, page_cache_key, options) do
     Logger.info("Cache miss for key #{page_cache_key}")
 
-    page_cache_key |> network_name() |> trace_request(:external)
+    page_cache_key |> network_name() |> trace_request(:internal)
 
     conn
     |> register_before_send(&save_to_cache(&1, options))
@@ -55,8 +57,6 @@ defmodule PageCache do
 
   def handle_hit(conn, page_cache_key, options, value) do
     Logger.info("Cache hit for key #{page_cache_key}")
-
-    page_cache_key |> network_name() |> trace_request(:internal)
 
     conn
     # NOTE: not using put_resp_content_type because we would have to split on ";" for charset
@@ -107,7 +107,9 @@ defmodule PageCache do
   def trace_request(nil, _), do: nil
 
   def trace_request(network_name, type) do
-    GBFS.Telemetry.trace_request(network_name, type)
+    unless page_cache_disabled?() do
+      GBFS.Telemetry.trace_request(network_name, type)
+    end
   end
 
   @doc """

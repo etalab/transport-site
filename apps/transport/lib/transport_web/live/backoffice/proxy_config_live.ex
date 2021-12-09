@@ -3,6 +3,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   A view able to display the current running configuration of the proxy.
   """
   use Phoenix.LiveView
+  alias Transport.Telemetry
 
   # The number of past days we want to report on (as a positive integer).
   # This is a DRYed ref we are using in multiple places.
@@ -70,39 +71,11 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
   defp config_module, do: Application.fetch_env!(:unlock, :config_fetcher)
 
-  defmodule Stats do
-    @moduledoc """
-    A quick stat module to compute the total count of event per identifier/event
-    for the last N days
-    """
-    import Ecto.Query
-
-    def compute(days) when days > 0 do
-      date_from = DateTime.add(DateTime.utc_now(), -days * 24 * 60 * 60, :second)
-
-      query =
-        from(m in DB.Metrics,
-          group_by: [m.target, m.event],
-          where: m.period >= ^date_from,
-          select: %{count: sum(m.count), identifier: m.target, event: m.event}
-        )
-
-      query |> DB.Repo.all()
-    end
-  end
-
   defp get_proxy_configuration(proxy_base_url, stats_days) do
     # NOTE: if the stats query becomes too costly, we will be able to throttle it every N seconds instead,
     # using a simple cache. At the moment, `get_proxy_configuration` is called once per frame, and not
     # once per item.
-    stats =
-      stats_days
-      |> Stats.compute()
-      |> Enum.group_by(fn x -> x[:identifier] end)
-      |> Enum.into(%{}, fn {k, v} ->
-        v = Enum.into(v, %{}, fn x -> {x[:event], x[:count]} end)
-        {k, v}
-      end)
+    stats = DB.Metrics.for_last_days(stats_days, event_names())
 
     config_module().fetch_config!()
     |> Map.values()
@@ -119,11 +92,15 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     end)
   end
 
+  defp event_names do
+    Telemetry.proxy_request_event_names() |> Enum.map(&Telemetry.database_event_name/1)
+  end
+
   # a bit over the top, but this allows to keep events & database strings definitions in the telemetry module
   defp db_filter_for_event(type) do
     type
-    |> Transport.Telemetry.proxy_request_event_name()
-    |> Transport.Telemetry.database_event_name()
+    |> Telemetry.proxy_request_event_name()
+    |> Telemetry.database_event_name()
   end
 
   defp add_stats(item, stats) do
