@@ -43,7 +43,6 @@ defmodule TransportWeb.BreakingNewsControllerTest do
       assert html_response(conn_client, 200) =~ message
 
       # set an empty message
-      conn_admin =
         conn_admin
         |> post(backoffice_breaking_news_path(conn, :update_breaking_news, %{level: "info", msg: ""}))
 
