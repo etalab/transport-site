@@ -27,8 +27,8 @@
                 <td><%= resource[:cache_size] %></td>
                 <td><%= resource[:cache_status] %></td>
                 <!-- computed stuff -->
-                <td><%= resource[:stats_external_requests] %></td>
-                <td><%= resource[:stats_internal_requests] %></td>
+                <td><%= Helpers.format_number(resource[:stats_external_requests]) %></td>
+                <td><%= Helpers.format_number(resource[:stats_internal_requests]) %></td>
             </tr>
             <% end %>
         </tbody>

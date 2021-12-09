@@ -54,7 +54,8 @@ defmodule Shared.MixProject do
       {:sentry, "~> 8.0.0"},
       # Similarly, Jason is configured as `json_library` by the main app, so it will
       # be required no matter what.
-      {:jason, ">= 0.0.0"}
+      {:jason, ">= 0.0.0"},
+      {:ex_cldr_numbers, "~> 2.0"}
     ]
   end
 end
