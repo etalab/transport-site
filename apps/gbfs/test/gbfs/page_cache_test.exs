@@ -77,8 +77,8 @@ defmodule GBFS.PageCacheTest do
 
     # first call must result in call to third party
     r = conn |> get(url)
+    assert_received ^internal_telemetry_event
     assert_received ^external_telemetry_event
-    refute_received ^internal_telemetry_event
 
     # an underlying 500 will result of a 502
     assert r.status == 502
@@ -93,8 +93,8 @@ defmodule GBFS.PageCacheTest do
     # This is verified by the Mox/expect definition to
     # be called only once.
     r = conn |> get(url)
-    assert_received ^internal_telemetry_event
-    refute_received ^external_telemetry_event
+    assert_received ^external_telemetry_event
+    refute_received ^internal_telemetry_event
     assert r.status == 502
   end
 

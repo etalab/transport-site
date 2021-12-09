@@ -43,9 +43,8 @@ defmodule TransportWeb.Backoffice.GBFSLiveTest do
 
     assert %{
              "Réseau" => ^network_name,
-             "Req cache 7j" => "1",
-             "Req ext 7j" => "2",
-             "Req tot 7j" => "3"
+             "Req int 7j" => "1",
+             "Req ext 7j" => "2"
            } = extract_data_from_html(response)
 
     {:ok, view, _html} = live(conn)
@@ -56,9 +55,8 @@ defmodule TransportWeb.Backoffice.GBFSLiveTest do
 
     assert %{
              "Réseau" => ^network_name,
-             "Req cache 7j" => "2",
-             "Req ext 7j" => "4",
-             "Req tot 7j" => "6"
+             "Req int 7j" => "2",
+             "Req ext 7j" => "4"
            } = extract_data_from_html(render(view))
   end
 end
