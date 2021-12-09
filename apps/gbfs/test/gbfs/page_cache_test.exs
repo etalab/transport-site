@@ -103,10 +103,8 @@ defmodule GBFS.PageCacheTest do
   end
 
   defp setup_telemetry_handler do
-    existing_handlers =
-      :telemetry.list_handlers(Transport.Telemetry.gbfs_request_event_names() |> Enum.at(1)) |> Enum.map(& &1.id)
-
-    existing_handlers |> Enum.each(&:telemetry.detach/1)
+    event_prefix = Transport.Telemetry.proxy_request_event_names() |> Enum.at(1)
+    event_prefix |> :telemetry.list_handlers() |> Enum.map(& &1.id) |> Enum.each(&:telemetry.detach/1)
     test_pid = self()
     # inspired by https://github.com/dashbitco/broadway/blob/main/test/broadway_test.exs
     :telemetry.attach_many(
