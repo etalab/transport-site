@@ -19,7 +19,7 @@ Le [schéma national des aménagements cyclables](https://schema.data.gouv.fr/et
 
 <!--StartFragment-->
 
-L’élaboration de ce schéma est le fruit d'une d'un travail collaboratif mené avec un groupe de travail composé de collectivités, réutilisateurs et associations vélo. Vous trouverez la liste des participants dans la [documentation](https://doc.transport.data.gouv.fr/producteurs/amenagements-cyclables/contribution-au-schema-sur-les-amenagements-cyclables) du schéma.
+L’élaboration de ce schéma est le fruit d'un travail collaboratif mené avec un groupe de travail composé de collectivités, réutilisateurs et associations vélo. Vous trouverez la liste des participants dans la [documentation](https://doc.transport.data.gouv.fr/producteurs/amenagements-cyclables/contribution-au-schema-sur-les-amenagements-cyclables) du schéma.
 
 Deux organisations nous ont accompagné tout au long de l’opération, de l’élaboration du schéma à la production et la réutilisation des données sur les aménagements cyclables :
 
