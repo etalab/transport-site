@@ -13,7 +13,6 @@ defmodule Unlock.ControllerTest do
 
   setup do
     setup_telemetry_handler()
-    :ok
   end
 
   test "GET /" do

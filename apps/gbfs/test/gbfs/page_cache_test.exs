@@ -10,7 +10,6 @@ defmodule GBFS.PageCacheTest do
 
   setup do
     setup_telemetry_handler()
-    :ok
   end
 
   def run_query(conn, url) do

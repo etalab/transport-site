@@ -18,8 +18,6 @@ defmodule TransportWeb.Backoffice.GBFSLiveTest do
     assert html_response(conn, 302)
   end
 
-  # NOTE: this fakes previous proxy requests, without having to
-  # setup a complete scenario, to prepare the data for the test below
   def add_events(network_name) do
     target = "gbfs:#{network_name}"
     Transport.Telemetry.count_event(target, event_name(:external))
