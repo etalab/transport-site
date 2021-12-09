@@ -12,8 +12,8 @@
             <%= for item <- @stats do %>
             <tr>
                 <td><%= item.network_name %></td>
-                <td><%= item[:stats_external_requests] %></td>
-                <td><%= item[:stats_internal_requests] %></td>
+                <td><%= Helpers.format_number(item[:stats_external_requests]) %></td>
+                <td><%= Helpers.format_number(item[:stats_internal_requests]) %></td>
             </tr>
             <% end %>
         </tbody>
