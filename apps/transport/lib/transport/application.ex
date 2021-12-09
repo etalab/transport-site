@@ -8,7 +8,7 @@ defmodule Transport.Application do
 
   use Application
   use Task
-  alias Transport.{BreakingNews, CSVDocuments, ImportDataWorker, SearchCommunes}
+  alias Transport.{CSVDocuments, ImportDataWorker, SearchCommunes}
   alias TransportWeb.Endpoint
   import Supervisor.Spec, only: [supervisor: 2]
 
@@ -31,7 +31,6 @@ defmodule Transport.Application do
         supervisor(TransportWeb.Endpoint, []),
         supervisor(ImportDataWorker, []),
         CSVDocuments,
-        BreakingNews,
         SearchCommunes,
         {Phoenix.PubSub, [name: TransportWeb.PubSub, adapter: Phoenix.PubSub.PG2]},
         # Oban is "always started", but muted via `config/runtime.exs` for cases like
