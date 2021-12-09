@@ -133,6 +133,9 @@ defmodule TransportWeb.Router do
         get("/", PartnerController, :partners)
         post("/", PartnerController, :post_partner)
       end
+
+      get("/breaking_news", BreakingNewsController, :index)
+      post("/breaking_news", BreakingNewsController, :update_breaking_news)
     end
 
     # Authentication
