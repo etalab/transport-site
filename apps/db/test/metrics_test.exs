@@ -31,9 +31,7 @@ defmodule DB.MetricsTest do
     end
 
     test "does not handle negative days" do
-      assert_raise FunctionClauseError, fn ->
-        DB.Metrics.for_last_days(-1)
-      end
+      assert_raise FunctionClauseError, fn -> DB.Metrics.for_last_days(-1) end
     end
   end
 end

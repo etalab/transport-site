@@ -2,15 +2,13 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
   use ExUnit.Case, async: false
   use TransportWeb.LiveCase
 
-  import Phoenix.ConnTest
   import Phoenix.LiveViewTest
   @endpoint TransportWeb.Endpoint
   import Mox
 
-  setup :verify_on_exit!
+  @url "/backoffice/proxy-config"
 
   setup do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     {:ok, conn: build_conn()}
   end
 
@@ -28,7 +26,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
   end
 
   test "requires login", %{conn: conn} do
-    conn = get(conn, "/backoffice/proxy-config")
+    conn = get(conn, @url)
     assert html_response(conn, 302)
   end
 
@@ -44,13 +42,15 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
   end
 
   test "disconnected and connected mount refresh stats", %{conn: conn} do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+
     item_id = "slug"
     setup_proxy_config(item_id)
 
     add_events(item_id)
 
     conn = setup_admin_in_session(conn)
-    conn = get(conn, "/backoffice/proxy-config")
+    conn = get(conn, @url)
 
     response = html_response(conn, 200)
     assert response =~ "Configuration du Proxy"

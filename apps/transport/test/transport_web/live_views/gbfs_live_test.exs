@@ -2,14 +2,12 @@ defmodule TransportWeb.Backoffice.GBFSLiveTest do
   use ExUnit.Case, async: false
   use TransportWeb.LiveCase
 
-  import Phoenix.ConnTest
   import Phoenix.LiveViewTest
   @endpoint TransportWeb.Endpoint
 
   @url "/backoffice/gbfs"
 
   setup do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     {:ok, conn: build_conn()}
   end
 
@@ -32,6 +30,8 @@ defmodule TransportWeb.Backoffice.GBFSLiveTest do
   end
 
   test "disconnected and connected mount refresh stats", %{conn: conn} do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+
     network_name = "slug"
     add_events(network_name)
 
