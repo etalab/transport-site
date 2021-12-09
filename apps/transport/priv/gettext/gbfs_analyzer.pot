@@ -1,0 +1,87 @@
+## This file is a PO Template file.
+##
+## "msgid"s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run "mix gettext.extract" to bring this file up to
+## date. Leave "msgstr"s empty as changing them here as no
+## effect: edit them in PO (.po) files instead.
+msgid ""
+msgstr ""
+
+#, elixir-format
+msgid "Analyze"
+msgstr ""
+
+#, elixir-format
+msgid "CORS allowed"
+msgstr ""
+
+#, elixir-format
+msgid "CORS headers available"
+msgstr ""
+
+#, elixir-format
+msgid "Detailed validation"
+msgstr ""
+
+#, elixir-format
+msgid "Detected version"
+msgstr ""
+
+#, elixir-format
+msgid "Feed Name"
+msgstr ""
+
+#, elixir-format
+msgid "Feeds"
+msgstr ""
+
+#, elixir-format
+msgid "GeoJSONs"
+msgstr ""
+
+#, elixir-format
+msgid "Languages"
+msgstr ""
+
+#, elixir-format
+msgid "Metadata"
+msgstr ""
+
+#, elixir-format
+msgid "Number of detected errors"
+msgstr ""
+
+#, elixir-format
+msgid "Timezone"
+msgstr ""
+
+#, elixir-format
+msgid "Validated version"
+msgstr ""
+
+#, elixir-format
+msgid "Validation"
+msgstr ""
+
+#, elixir-format
+msgid "Visualization"
+msgstr ""
+
+#, elixir-format
+msgid "error message"
+msgstr ""
+
+#, elixir-format
+msgid "Link"
+msgstr ""
+
+#, elixir-format
+msgid "No"
+msgstr ""
+
+#, elixir-format
+msgid "Yes"
+msgstr ""

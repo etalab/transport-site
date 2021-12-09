@@ -154,6 +154,7 @@ defmodule TransportWeb.Router do
 
     scope "/tools" do
       get("/gbfs/geojson_convert", GbfsToGeojsonController, :convert)
+      get("/gbfs/analyze", GbfsAnalyzerController, :index)
     end
 
     scope "/gtfs-geojson-conversion-#{System.get_env("TRANSPORT_TOOLS_SECRET_TOKEN")}" do

@@ -1,0 +1,88 @@
+## "msgid"s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove "msgid"s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use "mix gettext.extract --merge" or "mix gettext.merge"
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2\n"
+
+#, elixir-format
+msgid "Analyze"
+msgstr "Analyser"
+
+#, elixir-format
+msgid "CORS allowed"
+msgstr "CORS autorisé"
+
+#, elixir-format
+msgid "CORS headers available"
+msgstr "Headers CORS présents"
+
+#, elixir-format
+msgid "Detailed validation"
+msgstr "Rapport de validation"
+
+#, elixir-format
+msgid "Detected version"
+msgstr "Version détectée"
+
+#, elixir-format
+msgid "Feed Name"
+msgstr "Nom du flux"
+
+#, elixir-format
+msgid "Feeds"
+msgstr ""
+
+#, elixir-format
+msgid "GeoJSONs"
+msgstr ""
+
+#, elixir-format
+msgid "Languages"
+msgstr "Langages"
+
+#, elixir-format
+msgid "Metadata"
+msgstr "Métadonnées"
+
+#, elixir-format
+msgid "Number of detected errors"
+msgstr "Nombre d'erreurs détectées"
+
+#, elixir-format
+msgid "Timezone"
+msgstr "Fuseau horaire"
+
+#, elixir-format
+msgid "Validated version"
+msgstr "Version validée"
+
+#, elixir-format
+msgid "Validation"
+msgstr ""
+
+#, elixir-format
+msgid "Visualization"
+msgstr "Visualisation"
+
+#, elixir-format
+msgid "error message"
+msgstr "Aucune analyse n'a pu être faite.</br> Le flux GBFS peut être indisponible ou l'adresse indiquée est incorrecte."
+
+#, elixir-format
+msgid "Link"
+msgstr "Lien"
+
+#, elixir-format
+msgid "No"
+msgstr "Non"
+
+#, elixir-format
+msgid "Yes"
+msgstr "Oui"
