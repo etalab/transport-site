@@ -50,7 +50,7 @@ En parallèle, l’équipe de [Transport.data.gouv.fr](https://transport.data.go
 
 ### 2. L’élaboration du schéma national des aménagements cyclables
 
-À l'issue de ces deux investigations, cinq ateliers ont été animés. La plus grande difficulté a été de réduire le nombre de champs pour n’avoir que des champs tournés vers l’utilité aux usagers finaux car les collectivités voulaient ajouter des champs qui répondaient seulement à des besoins métiers comme le type de signalisation sur la voie, le nom du gestionnaire de l’aménagement, la dernière date de travaux etc. Cette difficulté a été levée en réexpliquant aux collectivités l’utilité de ces données et grâce aux interventions de Geovelo qui ont recentré les échanges sur l’information voyageur. 
+À l'issue de ces deux investigations, cinq ateliers ont été animés. La plus grande difficulté a été de réduire le nombre de champs pour n’avoir que des champs tournés vers l’utilité aux usagers finaux car les collectivités voulaient ajouter des champs qui répondaient seulement à des besoins métiers comme le nom du gestionnaire de l’aménagement, la dernière date de travaux etc. Cette difficulté a été levée en réexpliquant aux collectivités l’utilité de ces données et grâce aux interventions de Geovelo qui ont recentré les échanges sur l’information voyageur. 
 
 Le schéma a été publié sur [schema.data.gouv.fr](https://schema.data.gouv.fr/) le 10.12.2020 et de premières données ont été publiées quatre mois plus tard. Ces données sont issues d’OSM et ont été mises en conformité avec le schéma national par Géovélo pour [Tours Métropole](https://transport.data.gouv.fr/datasets/pistes-cyclables-tours-metropole-val-de-loire/). <!--StartFragment-->
 
