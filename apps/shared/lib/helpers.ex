@@ -28,6 +28,27 @@ defmodule Helpers do
     |> List.last()
   end
 
+  @doc """
+  Formats numbers.
+
+  See options: https://hexdocs.pm/ex_cldr_numbers/readme.html#primary-public-api
+
+  ## Examples
+
+  iex> Helpers.format_number(12_345)
+  "12 345"
+
+  iex> Helpers.format_number(12_345.42)
+  "12 345,42"
+
+  iex> Helpers.format_number(12_345, locale: "en")
+  "12,345"
+  """
+  def format_number(n, options \\ []) when is_number(n) do
+    {:ok, res} = Transport.Cldr.Number.to_string(n, options)
+    res
+  end
+
   @spec format_datetime(binary()) :: binary()
   def format_datetime(nil), do: ""
 
