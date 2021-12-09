@@ -1,5 +1,5 @@
 backend:
-  name: git-gateway
+  name: github
   repo: etalab/transport-site
   open_authoring: false
   branch: blog
