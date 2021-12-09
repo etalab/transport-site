@@ -62,9 +62,11 @@
                     </div>
                     <!-- End Featured Image -->
 
-                    <!-- Post Content -->
-                    <div class="article-post pt-48">
+                    <div {{ if in .Params.tags "english"}} lang="en" {{ end }}>
+                      <!-- Post Content -->
+                      <div class="article-post pt-48">
                         {{ .Content}}
+                      </div>
                     </div>
 
                     <!-- Next and PrevPage inside current section -->

@@ -29,6 +29,7 @@ collections: # A list of collections the CMS should be able to edit
               "qualité des données",
               "retour d'expérience",
               "tutoriel",
+              "english",
             ],
         }
       - { label: "Intro Blurb", name: "description", widget: "text" }
