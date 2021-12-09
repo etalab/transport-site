@@ -31,8 +31,6 @@ defmodule DB.BreakingNews do
   def set_breaking_news(%{level: level, msg: msg}) do
     DB.BreakingNews |> DB.Repo.delete_all()
 
-    %DB.BreakingNews{}
-    |> change(%{level: level, msg: msg})
-    |> DB.Repo.insert()
+    %DB.BreakingNews{} |> change(%{level: level, msg: msg}) |> DB.Repo.insert()
   end
 end

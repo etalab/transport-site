@@ -52,6 +52,7 @@ defmodule TransportWeb.BreakingNewsControllerTest do
 
       # no more message is displayed on home
       doc = conn_client |> html_response(200) |> Floki.parse_document!()
+      refute html_response(conn_client, 200) =~ message
       assert [] == Floki.find(doc, ".notification")
     end
   end
