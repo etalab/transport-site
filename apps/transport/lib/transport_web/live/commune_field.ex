@@ -34,10 +34,6 @@ defmodule TransportWeb.Live.CommuneField do
       |> SearchCommunes.search()
       |> Enum.take(5)
 
-    if query == "" do
-      socket |> assign(insee: "")
-    end
-
     {:noreply, assign(socket, matches: matches)}
   end
 end
