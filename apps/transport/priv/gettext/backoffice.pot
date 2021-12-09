@@ -236,3 +236,7 @@ msgstr ""
 #, elixir-format
 msgid "Jobs"
 msgstr ""
+
+#, elixir-format
+msgid "GBFS requests"
+msgstr ""

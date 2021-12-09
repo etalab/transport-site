@@ -7,8 +7,6 @@ defmodule TransportWeb.LiveCase do
 
   using(_options) do
     quote do
-      # Setting async: false for now because live tests
-      # send Telemetry events stored in the database
       import Phoenix.ConnTest
 
       def extract_data_from_html(html) do
