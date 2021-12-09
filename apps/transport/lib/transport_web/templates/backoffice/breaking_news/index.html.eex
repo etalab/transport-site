@@ -15,8 +15,8 @@
 
   <%= label class: "pt-12" do %>
   Type de message
-  <%= select f, :level, [:info, :error], [
-        selected: Map.get(@current_breaking_news, :level, :info)] %>
+  <%= select f, :level, ["info", "error"], [
+        selected: Map.get(@current_breaking_news, :level, "info")] %>
   <% end %>
   <%= submit "Envoyer !" %>
   <% end %>

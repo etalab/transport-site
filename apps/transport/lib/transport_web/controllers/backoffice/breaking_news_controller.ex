@@ -3,11 +3,11 @@ defmodule TransportWeb.Backoffice.BreakingNewsController do
 
   def index(conn, _params) do
     conn
-    |> render("index.html", current_breaking_news: Transport.BreakingNews.get_breaking_news())
+    |> render("index.html", current_breaking_news: DB.BreakingNews.get_breaking_news())
   end
 
   def update_breaking_news(conn, %{"level" => level, "msg" => msg}) do
-    Transport.BreakingNews.set_breaking_news(%{level: level, msg: msg})
+    DB.BreakingNews.set_breaking_news(%{level: level, msg: msg})
 
     conn
     |> put_flash_message(msg)

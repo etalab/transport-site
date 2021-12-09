@@ -1,18 +1,18 @@
 defmodule TransportWeb.PageController do
   use TransportWeb, :controller
   alias DB.{AOM, Dataset, Partner, Region, Repo}
-  alias Transport.{BreakingNews, CSVDocuments}
+  alias Transport.CSVDocuments
   import Ecto.Query
 
   def index(conn, _params) do
     conn
     |> assign(:mailchimp_newsletter_url, Application.get_env(:transport, :mailchimp_newsletter_url))
     |> merge_assigns(Transport.Cache.API.fetch("home-index-stats", fn -> compute_home_index_stats() end))
-    |> put_breaking_news(BreakingNews.get_breaking_news())
+    |> put_breaking_news(DB.BreakingNews.get_breaking_news())
     |> render("index.html")
   end
 
-  defp put_breaking_news(conn, %{level: level, msg: msg}) ,do: conn |> put_flash(level, msg)
+  defp put_breaking_news(conn, %{level: level, msg: msg}) ,do: conn |> put_flash(String.to_atom(level), msg)
   defp put_breaking_news(conn, %{}), do: conn
 
   def not_found(conn, _params) do
