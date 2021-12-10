@@ -17,7 +17,7 @@ defmodule DB.ResourceUnavailabilityTest do
       ResourceUnavailability
       |> Repo.get_by(resource_id: resource.id)
       |> Ecto.Changeset.change(%{end: hours_ago(1)})
-      |> Repo.update()
+      |> Repo.update!()
 
       assert is_nil(ResourceUnavailability.ongoing_unavailability(resource))
 

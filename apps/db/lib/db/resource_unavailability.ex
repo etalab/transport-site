@@ -17,6 +17,7 @@ defmodule DB.ResourceUnavailability do
     belongs_to(:resource, Resource)
   end
 
+  @spec ongoing_unavailability(Resource.t()) :: nil | __MODULE__.t()
   def ongoing_unavailability(%Resource{id: resource_id}) do
     __MODULE__
     |> where([r], r.resource_id == ^resource_id and is_nil(r.end))
