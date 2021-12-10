@@ -5,7 +5,7 @@ defmodule Transport.Jobs.ResourcesUnavailableDispatcherJob do
   use Oban.Worker, max_attempts: 3
   require Logger
   import Ecto.Query
-  alias DB.{Repo, Resource}
+  alias DB.{Dataset, Repo, Resource}
 
   @impl Oban.Worker
   def perform(_job) do
@@ -24,7 +24,7 @@ defmodule Transport.Jobs.ResourcesUnavailableDispatcherJob do
 
   def resources_to_check do
     Resource
-    |> join(:inner, [r], d in DB.Dataset, on: r.dataset_id == d.id and d.is_active)
+    |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id and d.is_active)
     |> where([r], not r.is_community_resource)
     |> where([r], like(r.url, "http%"))
     |> select([r], r.id)
@@ -40,15 +40,48 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   use Oban.Worker, max_attempts: 5
   require Logger
   import Ecto.Query
-  alias DB.{Repo, Resource}
+  alias DB.{Repo, Resource, ResourceUnavailability}
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"resource_id" => resource_id}}) do
     Logger.info("Running ResourceUnavailableJob for #{resource_id}")
-    _resource = Resource |> where([r], r.id == ^resource_id) |> Repo.one!()
+    resource = Resource |> where([r], r.id == ^resource_id) |> Repo.one!()
 
-    :ok
+    resource |> check_availability() |> update_data(resource)
   end
+
+  defp check_availability(%Resource{url: url}) do
+    Transport.AvailabilityChecker.available?(url)
+  end
+
+  def update_data(false, %Resource{} = resource) do
+    case ResourceUnavailability.ongoing_unavailability(resource) do
+      nil ->
+        %ResourceUnavailability{resource: resource, start: now()}
+        |> Repo.insert!()
+
+        :ok
+
+      %ResourceUnavailability{} ->
+        :ok
+    end
+  end
+
+  def update_data(true, %Resource{} = resource) do
+    case ResourceUnavailability.ongoing_unavailability(resource) do
+      %ResourceUnavailability{} = resource_unavailability ->
+        resource_unavailability
+        |> Ecto.Changeset.change(%{end: now()})
+        |> Repo.update!()
+
+        :ok
+
+      nil ->
+        :ok
+    end
+  end
+
+  defp now, do: DateTime.utc_now() |> DateTime.truncate(:second)
 
   @impl Oban.Worker
   def timeout(_job), do: :timer.seconds(30)

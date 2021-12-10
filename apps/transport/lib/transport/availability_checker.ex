@@ -1,10 +1,23 @@
 defmodule Transport.AvailabilityChecker do
   @moduledoc """
+  Defines a behavior
+  """
+
+  @callback available?(map() | binary()) :: boolean
+  def impl, do: Application.get_env(:transport, :availability_checker_impl)
+  def available?(x), do: impl().available?(x)
+end
+
+defmodule Transport.AvailabilityChecker.HTTPoison do
+  @moduledoc """
   A module used to check if a remote file is "available" through a GET a request.
   Gives a response even if remote server does not support HEAD requests (405 response)
   """
   alias HTTPoison.Response
 
+  @behaviour Transport.AvailabilityChecker
+
+  @impl Transport.AvailabilityChecker
   @spec available?(map() | binary()) :: boolean
   def available?(target, use_http_streaming \\ false)
 

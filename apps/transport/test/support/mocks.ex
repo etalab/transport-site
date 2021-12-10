@@ -5,3 +5,4 @@ Mox.defmock(Shared.Validation.GBFSValidator.Mock, for: Shared.Validation.GBFSVal
 Mox.defmock(Transport.Rambo.Mock, for: Transport.RamboLauncher)
 Mox.defmock(Transport.Notifications.FetcherMock, for: Transport.Notifications.Fetcher)
 Mox.defmock(Transport.GBFSMetadata.Mock, for: Transport.GBFSMetadata.Wrapper)
+Mox.defmock(Transport.AvailabilityChecker.Mock, for: Transport.AvailabilityChecker)
