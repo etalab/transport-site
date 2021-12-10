@@ -91,6 +91,7 @@ Vélo & Territoires est également réutilisateur des données sur les aménagem
 
 ![Carte WebSIG Vélo & Territoires du 8.12.2021](/images/carte-websig.png "Carte WebSIG Vélo & Territoires du 8.12.2021")
 
+Photo websIG Vélo & Territoires du 8.12.2021\
 [Tutoriel pour accéder à la carte des aménagements cyclables à partir du WebSIG de Vélo & Territoire*s*](https://www.linkedin.com/posts/transportdatagouvfr_carte-sur-les-am%C3%A9nagements-cyclables-activity-6840528657333661697-RHdU).
 
 <!--StartFragment-->
