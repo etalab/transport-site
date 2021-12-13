@@ -78,7 +78,8 @@ base_oban_conf = [repo: DB.Repo]
 # Oban jobs that should be run in every environment
 oban_crontab_all_envs = [
   {"* */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob},
-  {"* * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob}
+  {"* * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
+  {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}}
 ]
 
 # Oban jobs that *should not* be run in staging by the crontab
