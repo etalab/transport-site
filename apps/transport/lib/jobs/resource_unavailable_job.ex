@@ -52,7 +52,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"resource_id" => resource_id}}) do
     Logger.info("Running ResourceUnavailableJob for #{resource_id}")
-    resource = Resource |> where([r], r.id == ^resource_id) |> Repo.one!()
+    resource = Repo.get!(Resource, resource_id)
 
     resource |> check_availability() |> update_data(resource)
   end
