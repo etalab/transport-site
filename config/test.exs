@@ -33,6 +33,7 @@ config :transport,
   rambo_impl: Transport.Rambo.Mock,
   notifications_impl: Transport.Notifications.FetcherMock,
   gbfs_metadata_impl: Transport.GBFSMetadata.Mock,
+  availability_checker_impl: Transport.AvailabilityChecker.Mock,
   notifications_api_token: "secret",
   s3_buckets: %{
     history: "resource-history-test"

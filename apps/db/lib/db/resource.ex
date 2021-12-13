@@ -4,7 +4,7 @@ defmodule DB.Resource do
   """
   use Ecto.Schema
   use TypedEctoSchema
-  alias DB.{Dataset, LogsValidation, Repo, Validation}
+  alias DB.{Dataset, LogsValidation, Repo, ResourceUnavailability, Validation}
   alias Transport.DataVisualization
   import Ecto.{Changeset, Query}
   import DB.Gettext
@@ -57,6 +57,7 @@ defmodule DB.Resource do
     belongs_to(:dataset, Dataset)
     has_one(:validation, Validation, on_replace: :delete)
     has_many(:logs_validation, LogsValidation, on_replace: :delete, on_delete: :delete_all)
+    has_many(:resource_unavailabilities, ResourceUnavailability, on_replace: :delete, on_delete: :delete_all)
   end
 
   defp gtfs_validator, do: Shared.Validation.GtfsValidator.Wrapper.impl()
