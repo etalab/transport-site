@@ -1,4 +1,4 @@
-defmodule Transport.AvailabilityChecker do
+defmodule Transport.AvailabilityChecker.Wrapper do
   @moduledoc """
   Defines a behavior
   """
@@ -8,16 +8,16 @@ defmodule Transport.AvailabilityChecker do
   def available?(x), do: impl().available?(x)
 end
 
-defmodule Transport.AvailabilityChecker.HTTPoison do
+defmodule Transport.AvailabilityChecker do
   @moduledoc """
   A module used to check if a remote file is "available" through a GET a request.
   Gives a response even if remote server does not support HEAD requests (405 response)
   """
   alias HTTPoison.Response
 
-  @behaviour Transport.AvailabilityChecker
+  @behaviour Transport.AvailabilityChecker.Wrapper
 
-  @impl Transport.AvailabilityChecker
+  @impl Transport.AvailabilityChecker.Wrapper
   @spec available?(map() | binary()) :: boolean
   def available?(target, use_http_streaming \\ false)
 

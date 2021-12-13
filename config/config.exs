@@ -109,7 +109,7 @@ config :transport,
   gtfs_to_json_converter_url: "https://convertisseur.transport.data.gouv.fr/gtfs2geojson_sync",
   rambo_impl: Transport.Rambo,
   gbfs_metadata_impl: Transport.GBFSMetadata,
-  availability_checker_impl: Transport.AvailabilityChecker.HTTPoison
+  availability_checker_impl: Transport.AvailabilityChecker
 
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API

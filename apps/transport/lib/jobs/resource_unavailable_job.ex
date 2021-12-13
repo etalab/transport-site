@@ -58,7 +58,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   end
 
   defp check_availability(%Resource{url: url}) do
-    Transport.AvailabilityChecker.available?(url)
+    Transport.AvailabilityChecker.Wrapper.available?(url)
   end
 
   def update_data(false, %Resource{} = resource) do

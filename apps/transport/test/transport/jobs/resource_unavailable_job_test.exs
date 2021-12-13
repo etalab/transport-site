@@ -1,6 +1,5 @@
 defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
-  # Cannot be async because we change envs
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   import DB.Factory
   use Oban.Testing, repo: DB.Repo
 
@@ -14,9 +13,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
   @resource_url "https://example.com/gtfs.zip"
 
   setup do
-    old_value = Application.fetch_env!(:transport, :availability_checker_impl)
-    on_exit(fn -> Application.put_env(:transport, :availability_checker_impl, old_value) end)
-    Application.put_env(:transport, :availability_checker_impl, Transport.AvailabilityChecker.Mock)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
   end
 
