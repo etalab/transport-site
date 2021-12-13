@@ -30,8 +30,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
     test "resources_to_check with only unavailable" do
       assert [] == ResourcesUnavailableDispatcherJob.resources_to_check(true)
 
+      create_resources()
+      assert count_resources() > 1
       resource = insert(:resource)
       insert(:resource_unavailability, resource: resource, start: hours_ago(5))
+      insert(:resource_unavailability, resource: build(:resource), start: hours_ago(5), end: hours_ago(3))
       assert [resource.id] == ResourcesUnavailableDispatcherJob.resources_to_check(true)
     end
 
