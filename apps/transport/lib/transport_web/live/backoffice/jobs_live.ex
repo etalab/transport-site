@@ -16,8 +16,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
        if connected?(socket), do: schedule_next_update_data()
 
-       socket
-       |> update_data()
+       socket |> update_data() |> initial_state()
      end)}
   end
 
@@ -46,7 +45,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
 
   def last_jobs_query(state, n) do
     from(j in "oban_jobs",
-      select: map(j, [:id, :state, :queue, :args, :inserted_at, :errors]),
+      select: map(j, [:id, :state, :queue, :worker, :args, :inserted_at, :errors]),
       order_by: [desc: j.id],
       where: j.state == ^state,
       limit: ^n
@@ -58,6 +57,18 @@ defmodule TransportWeb.Backoffice.JobsLive do
       select: count(),
       where: j.state == ^state
     )
+  end
+
+  def jobs_state(date_after) do
+    query =
+      from(j in "oban_jobs",
+        select: %{worker: j.worker, state: j.state, count: count()},
+        where: j.inserted_at >= ^date_after,
+        group_by: [:worker, :state],
+        order_by: [asc: j.worker, desc: count()]
+      )
+
+    oban_query(query)
   end
 
   def oban_query(query), do: Oban.config() |> Oban.Repo.all(query)
@@ -80,6 +91,19 @@ defmodule TransportWeb.Backoffice.JobsLive do
     )
   end
 
+  defp initial_state(socket) do
+    assign(socket,
+      jobs_state: jobs_state(minutes_ago(60)),
+      over_last_minutes: 60
+    )
+  end
+
+  def handle_event("change_over_last_minutes", %{"value" => value}, socket) do
+    value = if value == "", do: "1", else: value
+    minutes = String.to_integer(value)
+    {:noreply, assign(socket, jobs_state: jobs_state(minutes_ago(minutes)), over_last_minutes: minutes)}
+  end
+
   def handle_info(:update_data, socket) do
     schedule_next_update_data()
     {:noreply, update_data(socket)}
@@ -89,5 +113,9 @@ defmodule TransportWeb.Backoffice.JobsLive do
     %{
       "current_user" => conn.assigns[:current_user]
     }
+  end
+
+  defp minutes_ago(minutes) when minutes > 0 do
+    DateTime.utc_now() |> DateTime.add(-minutes * 60, :second) |> DateTime.truncate(:second)
   end
 end

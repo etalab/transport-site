@@ -2,6 +2,31 @@
     <h1>Jobs Observation Center</h1>
     <p class="small">Dernière mise à jour: <%= @last_updated_at %></p>
 
+    <h2>Counts</h2>
+
+    <%# <input type="number" min="1" max="1440" phx-keyup="change_over_last_minutes" value="<%= @over_last_minutes %>"> %>
+
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>worker</th>
+          <th>state</th>
+          <th>count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for job <- @jobs_state do %>
+          <tr>
+            <td><%= job.worker %></td>
+            <td><%= job.state %></td>
+            <td><%= job.count %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <p class="small"> Over last <%= @over_last_minutes %> minutes</p>
+
     <h2>Executing jobs</h2>
     <%= live_component JobsTableComponent, jobs: @executing_jobs, state: "executing" %>
     <p class="small"> Total: <%= @count_executing_jobs %></p>
