@@ -101,8 +101,4 @@ defmodule TransportWeb.Backoffice.JobsLive do
       "current_user" => conn.assigns[:current_user]
     }
   end
-
-  defp minutes_ago(minutes) when minutes > 0 do
-    DateTime.utc_now() |> DateTime.add(-minutes * 60, :second) |> DateTime.truncate(:second)
-  end
 end
