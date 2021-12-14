@@ -16,7 +16,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
        if connected?(socket), do: schedule_next_update_data()
 
-       socket |> update_data() |> initial_state()
+       socket |> update_data()
      end)}
   end
 
@@ -59,16 +59,15 @@ defmodule TransportWeb.Backoffice.JobsLive do
     )
   end
 
-  def jobs_state(date_after) do
+  def jobs_count do
     query =
       from(j in "oban_jobs",
-        select: %{worker: j.worker, state: j.state, count: count()},
-        where: j.inserted_at >= ^date_after,
-        group_by: [:worker, :state],
-        order_by: [asc: j.worker, desc: count()]
+        select: %{worker: j.worker, hour: fragment("date_trunc('hour', ?) as hour", j.inserted_at), count: count()},
+        group_by: [:worker, fragment("hour")],
+        order_by: [desc: fragment("hour"), asc: :worker]
       )
 
-    oban_query(query)
+    query |> oban_query() |> Enum.group_by(fn d -> Calendar.strftime(d.hour, "%Y-%m-%d %Hh") end) |> Enum.sort(:desc)
   end
 
   def oban_query(query), do: Oban.config() |> Oban.Repo.all(query)
@@ -87,21 +86,9 @@ defmodule TransportWeb.Backoffice.JobsLive do
       available_jobs: last_jobs("available", 5),
       count_available_jobs: count_jobs("available"),
       last_discarded_jobs: last_jobs("discarded", 5),
-      count_discarded_jobs: count_jobs("discarded")
+      count_discarded_jobs: count_jobs("discarded"),
+      jobs_count: jobs_count()
     )
-  end
-
-  defp initial_state(socket) do
-    assign(socket,
-      jobs_state: jobs_state(minutes_ago(60)),
-      over_last_minutes: 60
-    )
-  end
-
-  def handle_event("change_over_last_minutes", %{"value" => value}, socket) do
-    value = if value == "", do: "1", else: value
-    minutes = String.to_integer(value)
-    {:noreply, assign(socket, jobs_state: jobs_state(minutes_ago(minutes)), over_last_minutes: minutes)}
   end
 
   def handle_info(:update_data, socket) do
