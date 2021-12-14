@@ -40,7 +40,7 @@ defmodule Transport.GtfsToGeojsonConverterJob do
         payload: %{"uuid" => resource_uuid, "permanent_url" => resource_url, "filename" => resource_filename}
       }) do
     gtfs_file_path = System.tmp_dir!() |> Path.join("#{resource_history_id}_#{:os.system_time(:millisecond)}")
-    %{status: 200, body: body} = Transport.Shared.Wrapper.HTTPoison.impl().get(resource_url, [], follow_redirect: true)
+    %{status_code: 200, body: body} = Transport.Shared.Wrapper.HTTPoison.impl().get!(resource_url, [], follow_redirect: true)
     File.write!(gtfs_file_path, body)
 
     geojson_file_path = "#{gtfs_file_path}.geojson"
