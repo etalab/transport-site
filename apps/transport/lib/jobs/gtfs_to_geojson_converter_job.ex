@@ -1,4 +1,4 @@
-defmodule Transport.GtfsToGeojsonConverterJob do
+defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
   @moduledoc """
 
   """
