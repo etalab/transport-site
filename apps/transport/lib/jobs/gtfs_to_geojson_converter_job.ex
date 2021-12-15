@@ -1,6 +1,6 @@
 defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
   @moduledoc """
-
+  Conversion Job of a GTFS to a GeoJSON, saving the resulting file in S3
   """
   use Oban.Worker, max_attempts: 1
   import Logger
