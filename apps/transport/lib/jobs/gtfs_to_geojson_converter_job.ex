@@ -3,8 +3,8 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
   Conversion Job of a GTFS to a GeoJSON, saving the resulting file in S3
   """
   use Oban.Worker, max_attempts: 1
-  import Logger
-  alias DB.{DataConversion, Repo, Resource, ResourceHistory}
+  require Logger
+  alias DB.{DataConversion, Repo, ResourceHistory}
 
   @impl true
   def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id}}) do
