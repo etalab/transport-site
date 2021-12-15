@@ -1,12 +1,13 @@
-defmodule DB.GtfsToGeojsonConversion do
+defmodule DB.DataConversion do
   @moduledoc """
-  GtfsToGeojsonConversion stores metadata for GTFS to GeoJSONs conversions
+  DataConversion stores metadata for data conversions from one format to another
   """
   use Ecto.Schema
   use TypedEctoSchema
 
-  typed_schema "gtfs_to_geojson_conversion" do
-    field(:datagouv_id, :string)
+  typed_schema "data_conversion" do
+    field(:convert_from, :string)
+    field(:convert_to, :string)
     field(:resource_history_uuid, :string)
     field(:payload, :map)
 

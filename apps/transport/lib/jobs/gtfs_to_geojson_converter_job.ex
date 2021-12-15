@@ -4,7 +4,7 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
   """
   use Oban.Worker, max_attempts: 1
   import Logger
-  alias DB.{GtfsToGeojsonConversion, Repo, Resource, ResourceHistory}
+  alias DB.{DataConversion, Repo, Resource, ResourceHistory}
 
   @impl true
   def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id}}) do
@@ -29,7 +29,7 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
 
   @spec geojson_exists?(any) :: boolean
   def geojson_exists?(%{payload: %{"uuid" => resource_uuid}}) do
-    GtfsToGeojsonConversion
+    DataConversion
     |> Repo.get_by(resource_history_uuid: resource_uuid) !== nil
   end
 
