@@ -25,7 +25,7 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
   @spec geojson_exists?(any) :: boolean
   def geojson_exists?(%{payload: %{"uuid" => resource_uuid}}) do
     DataConversion
-    |> Repo.get_by(resource_history_uuid: resource_uuid) !== nil
+    |> Repo.get_by(convert_from: "GTFS", convert_to: "GeoJSON", resource_history_uuid: resource_uuid) !== nil
   end
 
   def geojson_exists?(_), do: false
