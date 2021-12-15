@@ -33,8 +33,31 @@ defmodule TransportWeb.API.StatsControllerTest do
   end
 
   test "Get the bike and scooter stats", %{conn: _conn} do
-    _dataset = :dataset |> insert(%{type: "bike-scooter-sharing", aom: nil})
-    result = TransportWeb.API.StatsController.bike_scooter_sharing_features_query() |> DB.Repo.all()
-    assert length(result) == 1
+    aom =
+      insert(:aom,
+        geom:
+          "SRID=4326;POLYGON((55.5832 -21.3723,55.5510 -21.3743,55.5359 -21.3631,55.5832 -21.3723))"
+          |> Geo.WKT.decode!()
+      )
+
+    :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, spatial: "name"})
+
+    expected = [
+      %{
+        "geometry" => %{
+          "coordinates" => [55.55675066666665, -21.36995466693507],
+          "crs" => %{"properties" => %{"name" => "EPSG:4326"}, "type" => "name"},
+          "type" => "Point"
+        },
+        "properties" => %{
+          geometry: %Geo.Point{coordinates: {55.55675066666665, -21.36995466693507}, properties: %{}, srid: 4326},
+          names: ["name"],
+          slugs: ["dataset-0"]
+        },
+        "type" => "Feature"
+      }
+    ]
+
+    assert TransportWeb.API.StatsController.bike_scooter_sharing_features() == expected
   end
 end

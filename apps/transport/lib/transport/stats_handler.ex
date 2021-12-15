@@ -104,7 +104,7 @@ defmodule Transport.StatsHandler do
   defp nb_bikes do
     bikes_datasets =
       from(d in Dataset,
-        where: d.type == "bike-scooter-sharing"
+        where: d.type == "bike-scooter-sharing" and d.is_active
       )
 
     Repo.aggregate(bikes_datasets, :count, :id)

@@ -729,10 +729,9 @@ function addBikeScooterMap (id, view) {
     const map = makeMapOnView(id, view)
 
     displayBikeScooter(map, (feature, layer) => {
-        const name = feature.properties.nom
-        const slug = feature.properties.parent_dataset_slug
-
-        const bind = `<a href="/datasets/${slug}" target="_blank">${name}<br/></a>`
+        const names = feature.properties.names
+        const slugs = feature.properties.slugs
+        const bind = names.map((name, i) => `<a href="/datasets/${slugs[i]}" target="_blank">${name}<br/></a>`).join('')
         layer.bindPopup(bind)
     })
 }
