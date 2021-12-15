@@ -34,6 +34,8 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
         id: resource_history_id,
         payload: %{"uuid" => resource_uuid, "permanent_url" => resource_url, "filename" => resource_filename}
       }) do
+    Logger.info("Starting conversion of download uuid #{resource_uuid}, from GTFS to GeoJSON")
+
     gtfs_file_path = System.tmp_dir!() |> Path.join("#{resource_history_id}_#{:os.system_time(:millisecond)}")
     geojson_file_path = "#{gtfs_file_path}.geojson"
 
