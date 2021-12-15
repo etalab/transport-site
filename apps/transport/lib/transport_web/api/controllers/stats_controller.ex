@@ -1,6 +1,6 @@
 defmodule TransportWeb.API.StatsController do
   use TransportWeb, :controller
-  alias DB.{AOM, Dataset, Region, Repo}
+  alias DB.{AOM, Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
   alias Geo.JSON
   alias OpenApiSpex.Operation
@@ -30,6 +30,19 @@ defmodule TransportWeb.API.StatsController do
       summary: "Show regions",
       description: "Show covered french administrative regions",
       operationId: "API.StatsController.index",
+      parameters: [],
+      responses: %{
+        200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
+      }
+    }
+
+  @spec bike_scooter_sharing_operation() :: Operation.t()
+  def bike_scooter_sharing_operation,
+    do: %Operation{
+      tags: ["bike-scooter-sharing"],
+      summary: "Show bike and scooter sharing stats",
+      description: "Show bike and scooter sharing stats",
+      operationId: "API.StatsController.bike_scooter_sharing",
       parameters: [],
       responses: %{
         200 => Operation.response("GeoJSON", "application/json", GeoJSONResponse)
@@ -175,6 +188,10 @@ defmodule TransportWeb.API.StatsController do
   @spec regions(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def regions(%Plug.Conn{} = conn, _params), do: render_features(conn, region_features_query(), "api-stats-regions")
 
+  @spec bike_scooter_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def bike_scooter_sharing(%Plug.Conn{} = conn, _params),
+    do: render_features(conn, bike_scooter_sharing_features_query())
+
   @spec quality(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features_query(), "api-stats-quality")
 
@@ -195,8 +212,8 @@ defmodule TransportWeb.API.StatsController do
   # resorting to `send_resp` directly, we leverage `Transport.Shared.ConditionalJSONEncoder` to
   # skip JSON encoding, signaling the need to do so via a {:skip_json_encoding, data} tuple.
   #
-  @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary()) :: Plug.Conn.t()
-  defp render_features(conn, query, cache_key) do
+  @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary() | nil) :: Plug.Conn.t()
+  defp render_features(conn, query, cache_key \\ nil) do
     comp_fn = fn ->
       query
       |> features()
@@ -204,7 +221,12 @@ defmodule TransportWeb.API.StatsController do
       |> Jason.encode!()
     end
 
-    data = Transport.Cache.API.fetch(cache_key, comp_fn)
+    data =
+      if cache_key do
+        Transport.Cache.API.fetch(cache_key, comp_fn)
+      else
+        comp_fn.()
+      end
 
     render(conn, data: {:skip_json_encoding, data})
   end
@@ -269,6 +291,19 @@ defmodule TransportWeb.API.StatsController do
         bike_scooter_sharing: count_type_by_region(r.id, "bike-scooter-sharing")
       }
     })
+  end
+
+  @spec bike_scooter_sharing_features_query :: Ecto.Query.t()
+  def bike_scooter_sharing_features_query do
+    DatasetGeographicView
+    |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
+    |> select([gv, dataset], %{
+      geometry: fragment("ST_Centroid(geom)"),
+      id: gv.dataset_id,
+      nom: dataset.spatial,
+      parent_dataset_slug: dataset.slug
+    })
+    |> where([_gv, dataset], dataset.type == "bike-scooter-sharing")
   end
 
   @spec quality_features_query :: Ecto.Query.t()

@@ -14,6 +14,7 @@ const Mapbox = {
 
 const regionsUrl = '/api/stats/regions'
 const aomsUrl = '/api/stats/'
+const bikeScooterUrl = '/api/stats/bike-scooter-sharing'
 const qualityUrl = '/api/stats/quality'
 
 const lightGreen = '#BCE954'
@@ -55,6 +56,7 @@ const getLegend = (title, colors, labels) => {
 // simple cache on stats
 let aomStats = null
 let regionStats = null
+let bikeScooterStats = null
 let qualityStats = null
 
 function getAomsFG (featureFunction, style, filter = null) {
@@ -92,6 +94,27 @@ function getRegionsFG (featureFunction, style) {
             regionsFeatureGroup.addLayer(geoJSON)
         })
     return regionsFeatureGroup
+}
+
+function displayBikeScooter (map, featureFunction) {
+    if (bikeScooterStats == null) {
+        bikeScooterStats = fetch(bikeScooterUrl).then(response => {
+            return response.json()
+        })
+    }
+    bikeScooterStats.then(response => {
+        const options = {
+            fillColor: '#0066db',
+            radius: 5,
+            stroke: false,
+            fillOpacity: 0.9
+        }
+        const geoJSON = Leaflet.geoJSON(response, {
+            onEachFeature: featureFunction,
+            pointToLayer: (_, latlng) => Leaflet.circleMarker(latlng, options)
+        })
+        map.addLayer(geoJSON)
+    })
 }
 
 function displayQuality (featureFunction, style) {
@@ -191,8 +214,8 @@ function addStaticPTMapAOMS (id, view) {
         const extra = feature.properties.parent_dataset_slug !== null
             ? `<br>Des données sont disponibles au sein <a href="/datasets/${feature.properties.parent_dataset_slug}/">d'un jeu agrégé</a>.`
             : ''
-        const id = feature.properties.id
-        layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/><a href="/datasets/aom/${id}">${text}</a> propre à l'AOM. ${extra}`)
+        const commune = feature.properties.id
+        layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/><a href="/datasets/aom/${commune}">${text}</a> propre à l'AOM. ${extra}`)
     }
 
     const smallStripes = new Leaflet.StripePattern({ angle: -45, color: 'green', spaceColor: lightGreen, spaceOpacity: 1, weight: 1, spaceWeight: 1, height: 2 })
@@ -259,50 +282,6 @@ function addStaticPTMapAOMS (id, view) {
             ['Pour l\'AOM spécifiquement', 'Dans un jeu de données agrégé', 'Pour l\'AOM <strong>et</strong> dans un jeu de données agrégé', 'Aucune donnée disponible']
         ).addTo(map)
     }
-}
-
-function addBikesPTMapAOMS (id, view) {
-    const map = makeMapOnView(id, view)
-
-    const nbDatasets = (feature) => feature.properties.dataset_types.bike_scooter_sharing
-
-    function onEachAomFeature (feature, layer) {
-        const name = feature.properties.nom
-        const type = feature.properties.forme_juridique
-        const count = nbDatasets(feature)
-        const text = count === 0
-            ? 'Aucun jeu de données'
-            : count === 1
-                ? 'Un jeu de données'
-                : `${count} jeux de données`
-        const id = feature.properties.id
-        layer.bindPopup(`<strong>${name}</strong><br>(${type})<br/><a href="/datasets/aom/${id}?type=bike-scooter-sharing">${text}</a> dans cette AOM.`)
-    }
-
-    const styles = {
-        unavailable: {
-            weight: 1,
-            color: 'grey',
-            fillOpacity: 0
-        },
-        available: {
-            weight: 1,
-            color: 'green',
-            fillOpacity: 0.6
-        }
-    }
-
-    const style = zoom => feature => {
-        const count = nbDatasets(feature)
-        if (count > 0) {
-            return styles.available
-        } else {
-            return styles.unavailable
-        }
-    }
-
-    const aomsFG = getAomsFG(onEachAomFeature, style(map.getZoom()))
-    aomsFG.addTo(map)
 }
 
 function addStaticPTUpToDate (id, view) {
@@ -480,8 +459,8 @@ function addRealTimePTMap (id, view) {
         let bind = `<strong>${name}</strong><br/>${type}`
         if (countOfficial) {
             const text = countOfficial === 1 ? 'Un jeu de données standardisé' : `${countOfficial} jeux de données standardisés`
-            const id = feature.properties.id
-            bind += `<br/><a href="/datasets/aom/${id}">${text}</a>`
+            const commune = feature.properties.id
+            bind += `<br/><a href="/datasets/aom/${commune}">${text}</a>`
         }
 
         if (countNonStandardRT) {
@@ -575,8 +554,8 @@ function addRealTimePtFormatMap (id, view) {
         let bind = `<strong>${name}</strong><br/>${type}`
         if (countOfficial) {
             const text = countOfficial === 1 ? 'Un jeu de données standardisé' : `${countOfficial} jeux de données standardisés`
-            const id = feature.properties.id
-            bind += `<br/><a href="/datasets/aom/${id}">${text}</a>`
+            const commune = feature.properties.id
+            bind += `<br/><a href="/datasets/aom/${commune}">${text}</a>`
         }
 
         if (countNonStandardRT) {
@@ -726,9 +705,9 @@ function addPtFormatMap (id, view) {
     const aomsFG = getAomsFG(
         (feature, layer) => {
             const name = feature.properties.nom
-            const id = feature.properties.id
+            const commune = feature.properties.id
 
-            const bind = `<a href="/datasets/aom/${id}">${name}<br/></a>`
+            const bind = `<a href="/datasets/aom/${commune}">${name}<br/></a>`
             layer.bindPopup(bind)
         },
         style,
@@ -744,6 +723,18 @@ function addPtFormatMap (id, view) {
         )
         legend.addTo(map)
     }
+}
+
+function addBikeScooterMap (id, view) {
+    const map = makeMapOnView(id, view)
+
+    displayBikeScooter(map, (feature, layer) => {
+        const name = feature.properties.nom
+        const slug = feature.properties.parent_dataset_slug
+
+        const bind = `<a href="/datasets/${slug}" target="_blank">${name}<br/></a>`
+        layer.bindPopup(bind)
+    })
 }
 
 const droms = {
@@ -778,5 +769,5 @@ for (const [drom, view] of Object.entries(droms)) {
     addPtFormatMap(`pt_format_map_${drom}`, view)
     addRealTimePTMap(`rt_map_${drom}`, view)
     addRealTimePtFormatMap(`rt_pt_format_map_${drom}`, view)
-    addBikesPTMapAOMS(`bike_scooter_map_${drom}`, view)
+    addBikeScooterMap(`bike_scooter_map_${drom}`, view)
 }

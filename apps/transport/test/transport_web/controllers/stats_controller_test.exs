@@ -2,6 +2,7 @@ defmodule TransportWeb.API.StatsControllerTest do
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   use TransportWeb.ConnCase
   import Mock
+  import DB.Factory
 
   @cached_features_routes [
     {"/api/stats", "api-stats-aoms"},
@@ -29,5 +30,11 @@ defmodule TransportWeb.API.StatsControllerTest do
         assert json_response(conn, 200) == %{"hello" => 123}
       end
     end
+  end
+
+  test "Get the bike and scooter stats", %{conn: _conn} do
+    _dataset = :dataset |> insert(%{type: "bike-scooter-sharing", aom: nil})
+    result = TransportWeb.API.StatsController.bike_scooter_sharing_features_query() |> DB.Repo.all()
+    assert length(result) == 1
   end
 end
