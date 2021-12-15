@@ -10,7 +10,7 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
   def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id}}) do
     resource_history = ResourceHistory |> Repo.get(resource_history_id)
 
-    if is_resource_gtfs?(resource_history) and not resource_history |> geojson_exists?() do
+    if is_resource_gtfs?(resource_history) and not geojson_exists?(resource_history) do
       generate_and_upload_geojson(resource_history)
     end
 
