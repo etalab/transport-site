@@ -40,19 +40,19 @@ defmodule TransportWeb.API.StatsControllerTest do
           |> Geo.WKT.decode!()
       )
 
-    :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, spatial: "name"})
+    dataset = :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, spatial: "name"})
 
     expected = [
       %{
         "geometry" => %{
-          "coordinates" => [55.55675066666665, -21.36995466693507],
+          "coordinates" => [55.5567, -21.3699],
           "crs" => %{"properties" => %{"name" => "EPSG:4326"}, "type" => "name"},
           "type" => "Point"
         },
         "properties" => %{
-          geometry: %Geo.Point{coordinates: {55.55675066666665, -21.36995466693507}, properties: %{}, srid: 4326},
-          names: ["name"],
-          slugs: ["dataset-0"]
+          geometry: %Geo.Point{coordinates: {55.5567, -21.3699}, properties: %{}, srid: 4326},
+          names: [dataset.spatial],
+          slugs: [dataset.slug]
         },
         "type" => "Feature"
       }
