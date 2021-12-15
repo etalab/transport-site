@@ -13,9 +13,12 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
     case is_resource_gtfs?(resource_history) do
       {:ok, true} ->
         case resource_history |> geojson_exists?() do
-          true -> :ok
-          false -> generate_and_upload_geojson(resource_history)
-                  :ok
+          true ->
+            :ok
+
+          false ->
+            generate_and_upload_geojson(resource_history)
+            :ok
         end
 
       _ ->
@@ -40,21 +43,41 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
         payload: %{"uuid" => resource_uuid, "permanent_url" => resource_url, "filename" => resource_filename}
       }) do
     gtfs_file_path = System.tmp_dir!() |> Path.join("#{resource_history_id}_#{:os.system_time(:millisecond)}")
-    %{status_code: 200, body: body} = Transport.Shared.Wrapper.HTTPoison.impl().get!(resource_url, [], follow_redirect: true)
-    File.write!(gtfs_file_path, body)
-
     geojson_file_path = "#{gtfs_file_path}.geojson"
-    :ok = Transport.GtfsToGeojsonConverter.convert(gtfs_file_path, geojson_file_path)
-    file = geojson_file_path |> File.read!()
 
-    Transport.S3.upload_to_s3!(file, resource_filename |> geojson_file_name())
+    try do
+      %{status_code: 200, body: body} =
+        Transport.Shared.Wrapper.HTTPoison.impl().get!(resource_url, [], follow_redirect: true)
 
-    File.rm(gtfs_file_path)
-    File.rm(geojson_file_path)
+      File.write!(gtfs_file_path, body)
 
-    %DB.GtfsToGeojsonConversion{datagouv_id: "xxx", resource_history_uuid: resource_uuid, payload: %{"coucou" => "toi"}}
-    |> Repo.insert!()
+      :ok = Transport.GtfsToGeojsonConverter.convert(gtfs_file_path, geojson_file_path)
+      file = geojson_file_path |> File.read!()
+
+      Transport.S3.upload_to_s3!(file, resource_filename |> geojson_file_name())
+
+      %DataConversion{convert_from: "GTFS", convert_to: "GeoJSON", resource_history_uuid: resource_uuid, payload: %{}}
+      |> Repo.insert!()
+    after
+      File.rm(gtfs_file_path)
+      File.rm(geojson_file_path)
+    end
   end
 
   def geojson_file_name(resource_name), do: "conversions/gtfs-to-geojson/#{resource_name}.geojson"
+end
+
+defmodule Transport.GtfsToGeojsonConverter do
+  @moduledoc """
+  Given a GTFS file path, create from the file the corresponding geojson with the stops and line shapes if available.
+  """
+  @spec convert(binary(), binary()) :: :ok | {:error, any()}
+  def convert(gtfs_file_path, geojson_file_path) do
+    binary_path = Path.join(Application.fetch_env!(:transport, :transport_tools_folder), "gtfs-geojson")
+
+    case Transport.RamboLauncher.run(binary_path, ["--input", gtfs_file_path, "--output", geojson_file_path]) do
+      {:ok, _} -> :ok
+      {:error, e} -> {:error, e}
+    end
+  end
 end

@@ -33,18 +33,3 @@ defmodule Transport.GeojsonConverterJob do
     :ok
   end
 end
-
-defmodule Transport.GtfsToGeojsonConverter do
-  @moduledoc """
-  Given a GTFS file path, create from the file the corresponding geojson with the stops and line shapes if available.
-  """
-  @spec convert(binary(), binary()) :: :ok | {:error, any()}
-  def convert(gtfs_file_path, geojson_file_path) do
-    binary_path = Path.join(Application.fetch_env!(:transport, :transport_tools_folder), "gtfs-geojson")
-
-    case Transport.RamboLauncher.run(binary_path, ["--input", gtfs_file_path, "--output", geojson_file_path]) do
-      {:ok, _} -> :ok
-      {:error, e} -> {:error, e}
-    end
-  end
-end
