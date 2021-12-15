@@ -15,12 +15,10 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
     end
 
     :ok
-    end
   end
 
-  def is_resource_gtfs?(nil), do: {:error, "resource history not found"}
-  def is_resource_gtfs?(%{payload: %{"format" => "GTFS"}}), do: {:ok, true}
-  def is_resource_gtfs?(_), do: {:ok, false}
+  def is_resource_gtfs?(%{payload: %{"format" => "GTFS"}}), do: true
+  def is_resource_gtfs?(_), do: false
 
   @spec geojson_exists?(any) :: boolean
   def geojson_exists?(%{payload: %{"uuid" => resource_uuid}}) do
