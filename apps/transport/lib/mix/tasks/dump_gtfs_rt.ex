@@ -11,7 +11,8 @@ defmodule Mix.Tasks.Decode.GtfsRt do
   def run([url]) do
     {:ok, _} = Application.ensure_all_started(:finch)
     {:ok, _} = Finch.start_link(name: GtfsRt.Finch)
-    {:ok, %{status: 200, body: body}} = Finch.build(:get, url) |> Finch.request(GtfsRt.Finch)
-    TransitRealtime.FeedMessage.decode(body) |> IO.inspect(IEx.inspect_opts())
+    {:ok, %{status: 200, body: body}} = :get |> Finch.build(url) |> Finch.request(GtfsRt.Finch)
+    # credo:disable-for-next-line
+    body |> TransitRealtime.FeedMessage.decode() |> IO.inspect(IEx.inspect_opts())
   end
 end
