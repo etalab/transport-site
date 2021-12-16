@@ -6,6 +6,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   import Mox
 
   alias Transport.Jobs.{ResourceHistoryDispatcherJob, ResourceHistoryJob}
+  alias Transport.Test.S3TestUtils
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -26,7 +27,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     end
 
     test "a simple successful case" do
-      s3_mocks_create_bucket()
+      S3TestUtils.s3_mocks_create_bucket()
       datagouv_id = create_resources_for_history()
 
       assert count_resources() > 1
@@ -444,33 +445,5 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
   defp count_resources do
     DB.Repo.one!(from(r in DB.Resource, select: count()))
-  end
-
-  defp s3_mocks_create_bucket do
-    Transport.ExAWS.Mock
-    # Listing buckets
-    |> expect(:request!, fn request ->
-      assert %{
-               service: :s3,
-               http_method: :get,
-               path: "/"
-             } = request
-
-      %{body: %{buckets: []}}
-    end)
-
-    Transport.ExAWS.Mock
-    # Bucket creation
-    |> expect(:request!, fn request ->
-      bucket_name = Transport.S3.bucket_name(:history)
-
-      assert %{
-               service: :s3,
-               http_method: :put,
-               path: "/",
-               bucket: ^bucket_name,
-               headers: %{"x-amz-acl" => "public-read"}
-             } = request
-    end)
   end
 end
