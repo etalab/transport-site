@@ -77,7 +77,8 @@ base_oban_conf = [repo: DB.Repo]
 
 # Oban jobs that should be run in every environment
 oban_crontab_all_envs = [
-  {"* */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob},
+  {"0 */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob},
+  {"30 */6 * * *", Transport.Jobs.GtfsToGeojsonConverterJob},
   {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
   {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}}
 ]
