@@ -3,7 +3,7 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJobTest do
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
 
-  alias Transport.Jobs.{GtfsToGeojsonConverterJob, ResourceHistoryJob, SingleGtfsToGeojsonConverterJob}
+  alias Transport.Jobs.{GtfsToGeojsonConverterJob, SingleGtfsToGeojsonConverterJob}
   alias Transport.Test.S3TestUtils
 
   setup do
