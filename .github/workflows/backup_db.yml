@@ -42,4 +42,4 @@ jobs:
         UPLOAD_BUCKET_URI: ${{ secrets.UPLOAD_BUCKET_URI }}
 
     - name: Clean up tmp
-      run: rm -r $TARGET_DIR
+      run: rm -r $TARGET_DIR && echo "foo"
