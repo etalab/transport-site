@@ -7,7 +7,7 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
   alias DB.{Repo, ResourceHistory}
 
   @impl true
-  def perform(%Oban.Job{}) do
+  def perform(%{}) do
     Transport.S3.create_bucket_if_needed!(:history)
 
     query = ResourceHistory |> where([_r], fragment("payload ->>'format'='GTFS'")) |> select([r], r.id)
@@ -24,6 +24,8 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
       end)
       |> Stream.run()
     end)
+
+    :ok
   end
 end
 
