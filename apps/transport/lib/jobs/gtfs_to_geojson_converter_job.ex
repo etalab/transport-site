@@ -38,9 +38,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
   alias DB.{DataConversion, Repo, ResourceHistory}
 
   @impl true
-  def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id}}) do
-    IO.inspect("taking job for resource history #{resource_history_id}")
-
+  def perform(%{args: %{"resource_history_id" => resource_history_id}}) do
     resource_history = ResourceHistory |> Repo.get(resource_history_id)
 
     if is_resource_gtfs?(resource_history) and not geojson_exists?(resource_history) do
