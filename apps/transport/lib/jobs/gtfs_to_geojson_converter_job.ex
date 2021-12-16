@@ -16,8 +16,6 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
     Repo.transaction(fn ->
       stream
       |> Stream.each(fn id ->
-        IO.inspect("enque job for resource history #{id}")
-
         %{"resource_history_id" => id}
         |> Transport.Jobs.SingleGtfsToGeojsonConverterJob.new()
         |> Oban.insert()
