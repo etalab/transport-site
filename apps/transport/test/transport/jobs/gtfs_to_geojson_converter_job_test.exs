@@ -2,16 +2,12 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJobTest do
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
-  # import Ecto.Query
-  # import Mox
 
   alias Transport.Jobs.{GtfsToGeojsonConverterJob, ResourceHistoryJob, SingleGtfsToGeojsonConverterJob}
   alias Transport.Test.S3TestUtils
 
   setup do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-    # DB.Repo.delete_all(DB.ResourceHistory)
-    :ok
+    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
   # setup :verify_on_exit!

@@ -2,12 +2,9 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
   use ExUnit.Case, async: true
   import DB.Factory
   import Mox
-  # alias Transport.Jobs.{GtfsToGeojsonConverterJob, ResourceHistoryJob, SingleGtfsToGeojsonConverterJob}
 
   setup do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-    # DB.Repo.delete_all(DB.ResourceHistory)
-    :ok
+    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
   test "a non GTFS resource" do
