@@ -13,6 +13,4 @@ defmodule DB.DataConversion do
 
     timestamps(type: :utc_datetime_usec)
   end
-
-
 end
