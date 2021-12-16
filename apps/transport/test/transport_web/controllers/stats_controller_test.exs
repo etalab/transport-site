@@ -40,7 +40,11 @@ defmodule TransportWeb.API.StatsControllerTest do
           |> Geo.WKT.decode!()
       )
 
-    dataset = :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, spatial: "name"})
+    dataset1 =
+      :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, spatial: "other name", slug: "a"})
+
+    dataset2 =
+      :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, spatial: "name", slug: "z"})
 
     expected = [
       %{
@@ -51,8 +55,8 @@ defmodule TransportWeb.API.StatsControllerTest do
         },
         "properties" => %{
           geometry: %Geo.Point{coordinates: {55.5567, -21.3699}, properties: %{}, srid: 4326},
-          names: [dataset.spatial],
-          slugs: [dataset.slug]
+          names: [dataset2.spatial, dataset1.spatial],
+          slugs: [dataset2.slug, dataset1.slug]
         },
         "type" => "Feature"
       }

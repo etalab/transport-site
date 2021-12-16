@@ -300,7 +300,7 @@ defmodule TransportWeb.API.StatsController do
       |> select([gv, dataset], %{
         geometry: fragment("ST_Centroid(geom) as geometry"),
         names: fragment("array_agg(? order by ? asc)", dataset.spatial, dataset.spatial),
-        slugs: fragment("array_agg(?)", dataset.slug)
+        slugs: fragment("array_agg(? order by ? asc)", dataset.slug, dataset.spatial)
       })
       |> where([_gv, dataset], dataset.type == "bike-scooter-sharing" and dataset.is_active)
       |> group_by(fragment("geometry"))
