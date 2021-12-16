@@ -1,0 +1,40 @@
+name: Backup production database
+
+on:
+  push:
+  schedule:
+    - cron: "0 6 * * *"
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      DAYS_TO_KEEP: 10
+      TARGET_DIR: /tmp/download
+      TARGET_FILE: /tmp/download/files
+    steps:
+    - name: Clean tmp
+      run: |
+        rm -rf $TARGET_DIR
+        mkdir -p $TARGET_DIR
+
+    - name: Download backups
+      run: |
+        s3cmd --access_key=$DOWNLOAD_ACCESS_KEY --secret_key=$DOWNLOAD_SECRET_KEY --host=$DOWNLOAD_HOST --host-bucket="%(bucket)s.$DOWNLOAD_HOST" ls $DOWNLOAD_BUCKET_URI | sort -n | tail -n $DAYS_TO_KEEP | awk '{n=split($4, a, "/"); print a[n]}' > $TARGET_FILE
+        s3cmd --access_key=$DOWNLOAD_ACCESS_KEY --secret_key=$DOWNLOAD_SECRET_KEY --host=$DOWNLOAD_HOST --host-bucket="%(bucket)s.$DOWNLOAD_HOST" --exclude='*' --include-from=$TARGET_FILE sync $DOWNLOAD_BUCKET_URI $TARGET_DIR
+      env:
+        DOWNLOAD_ACCESS_KEY: ${{ secrets.DOWNLOAD_ACCESS_KEY }}
+        DOWNLOAD_SECRET_KEY: ${{ secrets.DOWNLOAD_SECRET_KEY }}
+        DOWNLOAD_HOST: ${{ secrets.DOWNLOAD_HOST }}
+        DOWNLOAD_BUCKET_URI: ${{ secrets.DOWNLOAD_BUCKET_URI }}
+
+    - name: Upload backups
+      run: |
+        cd $TARGET_DIR
+        s3cmd --access_key=$UPLOAD_ACCESS_KEY --secret_key=$UPLOAD_SECRET_KEY --host=$UPLOAD_HOST --host-bucket="%(bucket)s.$UPLOAD_HOST" sync . $UPLOAD_BUCKET_URI --delete-removed
+      env:
+        UPLOAD_ACCESS_KEY: ${{ secrets.UPLOAD_ACCESS_KEY }}
+        UPLOAD_SECRET_KEY: ${{ secrets.UPLOAD_SECRET_KEY }}
+        UPLOAD_HOST: ${{ secrets.UPLOAD_HOST }}
+        UPLOAD_BUCKET_URI: ${{ secrets.UPLOAD_BUCKET_URI }}
+
