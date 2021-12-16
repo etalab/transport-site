@@ -90,6 +90,9 @@ defmodule Unlock.ControllerTest do
         |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
 
       assert remaining_headers == [
+               {"access-control-allow-origin", "*"},
+               {"access-control-expose-headers", "*"},
+               {"access-control-allow-credentials", "true"},
                {"content-type", "application/json"},
                {"content-length", "7350"},
                {"date", "Thu, 10 Jun 2021 19:45:14 GMT"}
@@ -121,6 +124,9 @@ defmodule Unlock.ControllerTest do
         |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
 
       assert remaining_headers == [
+               {"access-control-allow-origin", "*"},
+               {"access-control-expose-headers", "*"},
+               {"access-control-allow-credentials", "true"},
                {"content-type", "application/json"},
                {"content-length", "7350"},
                {"date", "Thu, 10 Jun 2021 19:45:14 GMT"}
