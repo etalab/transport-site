@@ -10,7 +10,6 @@ defmodule Unlock.Endpoint do
   plug(Plug.RequestId)
   plug(Plug.Logger)
   plug(Plug.Head)
-  plug(CORSPlug, origin: "*", expose: ["*"])
 
   plug(Unlock.Router)
 end
