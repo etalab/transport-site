@@ -1,13 +1,44 @@
 defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
   @moduledoc """
+  This will enqueue GTFS -> GeoJSON conversion jobs for all GTFS resources found in ResourceHistory
+  """
+  use Oban.Worker, max_attempts: 1
+  import Ecto.Query
+  alias DB.{Repo, ResourceHistory}
+
+  @impl true
+  def perform(%Oban.Job{}) do
+    Transport.S3.create_bucket_if_needed!(:history)
+
+    query = ResourceHistory |> where([_r], fragment("payload ->>'format'='GTFS'")) |> select([r], r.id)
+    stream = Repo.stream(query)
+
+    Repo.transaction(fn ->
+      stream
+      |> Stream.each(fn id ->
+        IO.inspect("enque job for resource history #{id}")
+
+        %{"resource_history_id" => id}
+        |> Transport.Jobs.SingleGtfsToGeojsonConverterJob.new()
+        |> Oban.insert()
+      end)
+      |> Stream.run()
+    end)
+  end
+end
+
+defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
+  @moduledoc """
   Conversion Job of a GTFS to a GeoJSON, saving the resulting file in S3
   """
-  use Oban.Worker, max_attempts: 3
+  use Oban.Worker, max_attempts: 1
   require Logger
   alias DB.{DataConversion, Repo, ResourceHistory}
 
   @impl true
   def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id}}) do
+    IO.inspect("taking job for resource history #{resource_history_id}")
+
     resource_history = ResourceHistory |> Repo.get(resource_history_id)
 
     if is_resource_gtfs?(resource_history) and not geojson_exists?(resource_history) do
