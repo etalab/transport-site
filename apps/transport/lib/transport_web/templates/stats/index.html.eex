@@ -229,33 +229,34 @@
           </div>
       </div>
     </div>
-    <div class="domain bikes" id="real-time-bikes">
-      <h2>Vélos libre service</h2>
+    <div class="domain vehicles" id="real-time-vehicles">
+      <h2>Véhicules libre service</h2>
       <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "bike_scooter_map") %>
+        <%= render("_maps.html", droms: @droms, prefix: "vehicles_map") %>
         <div class="panel">
           <div class="description">
             <span class="stat-link">
-              <a href="#real-time-bikes"><i class="fa fa-link fa-small"></i></a>
+              <a href="#real-time-vehicles"><i class="fa fa-link fa-small"></i></a>
             </span>
             <p>
               La plateforme transport.data.gouv.fr référence des données de disponibilité en temps réel de véhicules en libre service (VLS) au format <a href="https://github.com/NABSA/gbfs">GBFS</a>. Le GBFS est le standard ouvert pour les VLS et des services en free-floating.
-              Les données, rafraîchies régulièrement, permettent de connaître :
+              Les données, mises à jour en continu, permettent de connaître :
               <ul>
                 <li>La liste des stations du réseau (géolocalisation, nom, adresse, identifiant)</li>
-                <li>L'état des stations (nombre de vélos disponibles et emplacements libres)</li>
+                <li>L’état des stations (nombre de véhicules disponibles et emplacements libres)</li>
                 <li>La liste des véhicules accessibles en libre-service sans station</li>
+                <li>Les zones faisant l’objet de restrictions de circulation, de stationnement ou de vitesse</li>
               </ul>
-              Plus d’informations sur les données temps réel de vélos en libre service sont disponibles dans la <a href="https://doc.transport.data.gouv.fr/producteurs/velos-en-libre-service">documentation</a>.
+              Plus d’informations sur les données temps réel de véhicules en libre service sont disponibles dans la <a href="https://doc.transport.data.gouv.fr/producteurs/velos-en-libre-service">documentation</a>.
             </p>
           </div>
           <div class="tile-numbers">
             <div class="tile">
-              <h3><%= @nb_bikes_datasets %></h3>
-              <div> <a href="/datasets?type=bike-scooter-sharing">Jeux de données disponibles</a></div>
+              <h3><%= @nb_bikes_scooter_datasets %></h3>
+              <div><a href="/datasets?type=bike-scooter-sharing">Jeux de données disponibles</a></div>
             </div>
             <div class="rt-viz">
-              <%= for _i <- 1..@nb_bikes_datasets do %>
+              <%= for _i <- 1..@nb_bikes_scooter_datasets do %>
                 <div class="item standard"></div>
               <% end %>
             </div>

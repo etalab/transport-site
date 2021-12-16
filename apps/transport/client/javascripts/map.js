@@ -768,5 +768,5 @@ for (const [drom, view] of Object.entries(droms)) {
     addPtFormatMap(`pt_format_map_${drom}`, view)
     addRealTimePTMap(`rt_map_${drom}`, view)
     addRealTimePtFormatMap(`rt_pt_format_map_${drom}`, view)
-    addBikeScooterMap(`bike_scooter_map_${drom}`, view)
+    addBikeScooterMap(`vehicles_map_${drom}`, view)
 }

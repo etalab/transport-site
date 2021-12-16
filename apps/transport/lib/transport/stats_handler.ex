@@ -77,7 +77,7 @@ defmodule Transport.StatsHandler do
       nb_gtfs: count_dataset_with_format("GTFS"),
       nb_netex: count_dataset_with_format("NeTEx"),
       nb_bss_datasets: count_dataset_with_format("gbfs"),
-      nb_bikes_datasets: nb_bikes(),
+      nb_bikes_scooter_datasets: nb_bikes_scooters(),
       nb_gtfs_rt: count_dataset_with_format("gtfs-rt"),
       nb_siri: count_dataset_with_format("siri"),
       nb_siri_lite: count_dataset_with_format("siri-lite")
@@ -100,8 +100,8 @@ defmodule Transport.StatsHandler do
     Repo.aggregate(rt_datasets, :count, :id)
   end
 
-  @spec nb_bikes() :: integer
-  defp nb_bikes do
+  @spec nb_bikes_scooters() :: integer
+  defp nb_bikes_scooters do
     bikes_datasets =
       from(d in Dataset,
         where: d.type == "bike-scooter-sharing" and d.is_active
