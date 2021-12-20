@@ -122,7 +122,8 @@ defmodule Unlock.Controller do
         e ->
           # NOTE: if an error occurs around the HTTP query, then
           # we want to track it down and return Bad Gateway
-          {:error, {:computation_error, e, __STACKTRACE__}}
+          Logger.error(Exception.format(:error, e, __STACKTRACE__))
+          {:ignore, bad_gateway_response()}
       end
     end
 
@@ -152,8 +153,12 @@ defmodule Unlock.Controller do
       :error ->
         # NOTE: we'll want to have some monitoring here, but not using Sentry
         # because in case of troubles, we will blow up our quota.
-        %Unlock.HTTP.Response{status: 502, body: "Bad Gateway", headers: [{"content-type", "text/plain"}]}
+        bad_gateway_response()
     end
+  end
+
+  defp bad_gateway_response do
+    %Unlock.HTTP.Response{status: 502, body: "Bad Gateway", headers: [{"content-type", "text/plain"}]}
   end
 
   # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug
