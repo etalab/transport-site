@@ -11,6 +11,7 @@
                 <th title="Time To Live (durée en secondes de conservation dans le cache">TTL</th>
                 <th>Taille RAM</th>
                 <th>Statut HTTP</th>
+                <th><abbr title="Time to Live">TTL</abbr></th>
                 <th title="Requêtes reçues par le proxy sur les <%= @stats_days %> derniers jours">Req ext <%= @stats_days %>j</th>
                 <th title="Requêtes envoyées au serveur du producteur sur les <%= @stats_days %> derniers jours">Req int <%= @stats_days %>j</th>
             </tr>
@@ -26,6 +27,7 @@
                 <!-- optional stuff, only available when cache is loaded -->
                 <td><%= resource[:cache_size] %></td>
                 <td><%= resource[:cache_status] %></td>
+                <td><%= resource[:cache_ttl] %></td>
                 <!-- computed stuff -->
                 <td><%= Helpers.format_number(resource[:stats_external_requests]) %></td>
                 <td><%= Helpers.format_number(resource[:stats_internal_requests]) %></td>
