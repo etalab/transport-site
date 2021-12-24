@@ -3,8 +3,15 @@ defmodule Unlock.Shared do
   DRY helpers to access cache items (shared between Unlock and main app)
   """
 
-  def cache_key(resource_slug), do: "resource:#{resource_slug}"
+  @cache_prefix "resource:"
+
+  def cache_key(resource_slug), do: "#{@cache_prefix}#{resource_slug}"
   def cache_name, do: Unlock.Cachex
   def cache_entry(cache_key), do: Cachex.get!(cache_name(), cache_key)
   def cache_ttl(cache_key), do: Cachex.ttl(cache_name(), cache_key)
+
+  def cache_keys do
+    {:ok, keys} = Cachex.keys(cache_name())
+    keys |> Enum.filter(fn k -> String.starts_with?(k, @cache_prefix) end)
+  end
 end

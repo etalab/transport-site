@@ -9,7 +9,8 @@ defmodule Unlock.Application do
     children = [
       Unlock.Endpoint,
       {Finch, name: Unlock.Finch},
-      {Cachex, name: Unlock.Cachex}
+      {Cachex, name: Unlock.Cachex},
+      Unlock.EnforceTTL
     ]
 
     opts = [strategy: :one_for_one, name: Unlock.Supervisor]
