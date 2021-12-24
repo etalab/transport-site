@@ -5,6 +5,7 @@ defmodule Unlock.EnforceTTL do
   If a cache key does not have a TTL, it is deleted.
   """
   use GenServer
+  import Unlock.Shared
 
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, %{})
@@ -16,12 +17,12 @@ defmodule Unlock.EnforceTTL do
   end
 
   def handle_info(:work, state) do
-    Unlock.Shared.cache_keys() |> Enum.each(fn key -> enforce_ttl(key, Unlock.Shared.cache_ttl(key)) end)
+    cache_keys() |> Enum.each(fn key -> enforce_ttl(key, cache_ttl(key)) end)
     schedule_work()
     {:noreply, state}
   end
 
-  defp enforce_ttl(key, {:ok, nil}), do: Cachex.del(Unlock.Shared.cache_name(), key)
+  defp enforce_ttl(key, {:ok, nil}), do: Cachex.del(cache_name(), key)
 
   defp enforce_ttl(_key, _res), do: nil
 
