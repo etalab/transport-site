@@ -142,7 +142,7 @@ defmodule Unlock.Controller do
         # NOTE: in case of concurrent calls, the expire will be called 1 time per call. I am
         # doing research to verify if this could be changed (e.g. call `expire` inside the `comp_fn`),
         # but at this point it doesn't cause troubles.
-        Cachex.expire(cache_name, cache_key, :timer.seconds(item.ttl))
+        {:ok, true} = Cachex.expire(cache_name, cache_key, :timer.seconds(item.ttl))
         Logger.info("Setting cache TTL for key #{cache_key} (expire in #{item.ttl} seconds)")
         result
 
@@ -153,6 +153,7 @@ defmodule Unlock.Controller do
       :error ->
         # NOTE: we'll want to have some monitoring here, but not using Sentry
         # because in case of troubles, we will blow up our quota.
+        Logger.error("Error while fetching key #{cache_key}")
         bad_gateway_response()
     end
   end
