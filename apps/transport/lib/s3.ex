@@ -27,10 +27,10 @@ defmodule Transport.S3 do
     end
   end
 
-  def upload_to_s3!(body, path) do
-    Logger.debug("Uploading resource to #{path}")
+  def upload_to_s3!(body, path, feature) do
+    Logger.debug("Uploading file to #{path}")
 
-    :history
+    feature
     |> Transport.S3.bucket_name()
     |> ExAws.S3.put_object(
       path,

@@ -76,7 +76,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
       file = geojson_file_path |> File.read!()
 
       geojson_file_name = resource_filename |> geojson_file_name()
-      Transport.S3.upload_to_s3!(file, geojson_file_name)
+      Transport.S3.upload_to_s3!(file, geojson_file_name, :history)
 
       %DataConversion{
         convert_from: "GTFS",

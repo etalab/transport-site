@@ -115,7 +115,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
           total_compressed_size: zip_metadata |> Enum.map(& &1.compressed_size) |> Enum.sum()
         }
 
-        Transport.S3.upload_to_s3!(body, filename)
+        Transport.S3.upload_to_s3!(body, filename, :history)
         store_resource_history!(resource, data)
 
       false ->
