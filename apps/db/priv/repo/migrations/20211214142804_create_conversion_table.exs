@@ -9,7 +9,7 @@ defmodule DB.Repo.Migrations.CreateConversionTable do
       # See https://github.com/etalab/transport-site/issues/1930
       add :convert_from, :string, null: false
       add :convert_to, :string, null: false
-      add :resource_history_uuid, :string, null: false
+      add :resource_history_uuid, :uuid, null: false
       add :payload, :jsonb, null: false
 
       timestamps([type: :utc_datetime_usec])

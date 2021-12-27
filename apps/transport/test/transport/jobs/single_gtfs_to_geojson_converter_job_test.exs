@@ -22,7 +22,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
   end
 
   test "existing conversion" do
-    uuid = "some-uuid"
+    uuid = Ecto.UUID.generate()
     insert(:data_conversion, convert_from: "GTFS", convert_to: "GeoJSON", resource_history_uuid: uuid, payload: %{})
 
     %{id: resource_history_id} =
@@ -40,7 +40,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
 
   test "launch a conversion" do
     permanent_url = "https://resource.fr"
-    uuid = "some-nice-uuid"
+    uuid = Ecto.UUID.generate()
 
     # add a resource history
     %{id: resource_history_id} =

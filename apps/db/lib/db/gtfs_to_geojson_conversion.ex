@@ -8,7 +8,7 @@ defmodule DB.DataConversion do
   typed_schema "data_conversion" do
     field(:convert_from, :string)
     field(:convert_to, :string)
-    field(:resource_history_uuid, :string)
+    field(:resource_history_uuid, Ecto.UUID)
     field(:payload, :map)
 
     timestamps(type: :utc_datetime_usec)
