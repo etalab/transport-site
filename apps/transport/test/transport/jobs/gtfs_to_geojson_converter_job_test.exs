@@ -17,12 +17,12 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJobTest do
     %{id: resource_history_id} =
       insert(:resource_history,
         datagouv_id: "1",
-        payload: %{"format" => "GTFS"}
+        payload: %{"format" => "GTFS", "uuid" => Ecto.UUID.generate()}
       )
 
     insert(:resource_history,
       datagouv_id: "2",
-      payload: %{"format" => "NeTEx"}
+      payload: %{"format" => "NeTEx", "uuid" => Ecto.UUID.generate()}
     )
 
     insert(:resource_history,
