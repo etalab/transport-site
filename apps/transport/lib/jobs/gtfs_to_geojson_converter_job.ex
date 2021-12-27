@@ -59,6 +59,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
 
   def generate_and_upload_geojson(%{
         id: resource_history_id,
+        datagouv_id: resource_datagouv_id,
         payload: %{"uuid" => resource_uuid, "permanent_url" => resource_url, "filename" => resource_filename}
       }) do
     Logger.info("Starting conversion of download uuid #{resource_uuid}, from GTFS to GeoJSON")
@@ -84,7 +85,8 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
         resource_history_uuid: resource_uuid,
         payload: %{
           filename: geojson_file_name,
-          permanent_url: Transport.S3.permanent_url(:history, geojson_file_name)
+          permanent_url: Transport.S3.permanent_url(:history, geojson_file_name),
+          resource_datagouv_id: resource_datagouv_id
         }
       }
       |> Repo.insert!()
