@@ -2,7 +2,7 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
   @moduledoc """
   This will enqueue GTFS -> GeoJSON conversion jobs for all GTFS resources found in ResourceHistory
   """
-  use Oban.Worker, max_attempts: 1
+  use Oban.Worker, max_attempts: 3
   import Ecto.Query
   alias DB.{Repo, ResourceHistory}
 
@@ -31,7 +31,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
   @moduledoc """
   Conversion Job of a GTFS to a GeoJSON, saving the resulting file in S3
   """
-  use Oban.Worker, max_attempts: 1
+  use Oban.Worker, max_attempts: 3
   require Logger
   alias DB.{DataConversion, Repo, ResourceHistory}
 
