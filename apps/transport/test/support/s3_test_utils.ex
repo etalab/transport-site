@@ -36,4 +36,18 @@ defmodule Transport.Test.S3TestUtils do
       )
     end)
   end
+
+  def s3_mocks_upload_file(assert_path) do
+    Transport.ExAWS.Mock
+    |> expect(:request!, fn %{
+                              service: :s3,
+                              http_method: :put,
+                              path: path,
+                              bucket: _bucket_name,
+                              body: _content,
+                              headers: %{"x-amz-acl" => "public-read"}
+                            } ->
+      ExUnit.Assertions.assert(path |> String.starts_with?(assert_path))
+    end)
+  end
 end

@@ -59,18 +59,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
       {:ok, "this my geojson content"}
     end)
 
-    # mock for the aws upload
-    Transport.ExAWS.Mock
-    |> expect(:request!, fn %{
-                              service: :s3,
-                              http_method: :put,
-                              path: path,
-                              bucket: _bucket_name,
-                              body: _content,
-                              headers: %{"x-amz-acl" => "public-read"}
-                            } ->
-      assert path |> String.starts_with?("conversions/gtfs-to-geojson/")
-    end)
+    Transport.Test.S3TestUtils.s3_mocks_upload_file("conversions/gtfs-to-geojson/")
 
     # job succeed
     assert :ok ==
