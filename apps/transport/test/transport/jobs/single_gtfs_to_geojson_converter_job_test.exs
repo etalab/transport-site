@@ -1,7 +1,9 @@
 defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
   use ExUnit.Case, async: true
+  use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Mox
+  alias Transport.Jobs.SingleGtfsToGeojsonConverterJob
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
