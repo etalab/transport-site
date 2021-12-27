@@ -15,6 +15,8 @@ defmodule DB.Repo.Migrations.CreateConversionTable do
       timestamps([type: :utc_datetime_usec])
     end
 
-    create index("data_conversion", [:convert_to, :resource_history_uuid])
+    create unique_index("data_conversion", [:convert_from, :convert_to, :resource_history_uuid])
+    create constraint("data_conversion", :allowed_from_formats, check: "convert_from IN ('GTFS')")
+    create constraint("data_conversion", :allowed_to_formats, check: "convert_to IN ('GeoJSON')")
   end
 end
