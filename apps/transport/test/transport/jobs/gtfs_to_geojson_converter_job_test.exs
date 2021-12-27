@@ -42,7 +42,7 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJobTest do
     insert(:data_conversion, convert_from: "GTFS", convert_to: "GeoJSON", resource_history_uuid: uuid, payload: %{})
 
     S3TestUtils.s3_mocks_create_bucket()
-    :ok = GtfsToGeojsonConverterJob.perform(%{})
+    :ok = perform_job(GtfsToGeojsonConverterJob, %{})
 
     assert_enqueued(
       [worker: SingleGtfsToGeojsonConverterJob, args: %{"resource_history_id" => resource_history_id}],

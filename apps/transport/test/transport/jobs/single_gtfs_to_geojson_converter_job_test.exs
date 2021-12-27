@@ -16,9 +16,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
 
     # no mox expectation set, and the test passes => conversion is properly skipped
     assert :ok ==
-             Transport.Jobs.SingleGtfsToGeojsonConverterJob.perform(%{
-               args: %{"resource_history_id" => resource_history_id}
-             })
+             perform_job(SingleGtfsToGeojsonConverterJob, %{"resource_history_id" => resource_history_id})
   end
 
   test "existing conversion" do
@@ -33,9 +31,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
 
     # no mox expectation set, and the test passes => conversion is properly skipped
     assert :ok ==
-             Transport.Jobs.SingleGtfsToGeojsonConverterJob.perform(%{
-               args: %{"resource_history_id" => resource_history_id}
-             })
+             perform_job(SingleGtfsToGeojsonConverterJob, %{"resource_history_id" => resource_history_id})
   end
 
   test "launch a conversion" do
@@ -78,9 +74,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
 
     # job succeed
     assert :ok ==
-             Transport.Jobs.SingleGtfsToGeojsonConverterJob.perform(%{
-               args: %{"resource_history_id" => resource_history_id}
-             })
+             perform_job(SingleGtfsToGeojsonConverterJob, %{"resource_history_id" => resource_history_id})
 
     # a data_conversion row is recorded ✌️‍
     DB.DataConversion
