@@ -10,7 +10,19 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
   def perform(%{}) do
     Transport.S3.create_bucket_if_needed!(:history)
 
-    query = ResourceHistory |> where([_r], fragment("payload ->>'format'='GTFS'")) |> select([r], r.id)
+    query =
+      ResourceHistory
+      |> where(
+        [_r],
+        fragment("""
+        payload ->>'format'='GTFS'
+        AND
+        payload ->>'uuid' NOT IN
+        (SELECT resource_history_uuid::text FROM data_conversion WHERE convert_from='GTFS' and convert_to='GeoJSON')
+        """)
+      )
+      |> select([r], r.id)
+
     stream = Repo.stream(query)
 
     Repo.transaction(fn ->
