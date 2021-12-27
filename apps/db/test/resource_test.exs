@@ -44,8 +44,8 @@ defmodule DB.ResourceTest do
   test "validate and save a GBFS resource" do
     resource = insert(:resource, %{url: "url1", format: "gbfs"})
 
-    Transport.GBFSMetadata.Mock
-    |> expect(:compute_feed_metadata, fn _resource -> %{"foo" => "bar"} end)
+    Transport.Shared.GBFSMetadata.Mock
+    |> expect(:compute_feed_metadata, fn _resource, _cors_base_url -> %{"foo" => "bar"} end)
 
     assert Resource.validate_and_save(resource, false) == {:ok, nil}
     assert %{metadata: %{"foo" => "bar"}} = Repo.get(Resource, resource.id)

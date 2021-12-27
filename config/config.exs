@@ -108,7 +108,7 @@ config :transport,
   history_impl: Transport.History.Fetcher.S3,
   gtfs_to_json_converter_url: "https://convertisseur.transport.data.gouv.fr/gtfs2geojson_sync",
   rambo_impl: Transport.Rambo,
-  gbfs_metadata_impl: Transport.GBFSMetadata,
+  gbfs_metadata_impl: Transport.Shared.GBFSMetadata,
   availability_checker_impl: Transport.AvailabilityChecker
 
 config :datagouvfr,

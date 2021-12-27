@@ -2,7 +2,7 @@ defmodule Transport.GbfsToGeojson do
   @moduledoc """
   Converts a GBFS feed to useful GeoJSONs
   """
-  alias Transport.GBFSMetadata
+  alias Transport.Shared.GBFSMetadata
 
   @doc """
   Main module function: returns a map of geojsons generated from the GBFS endpoint

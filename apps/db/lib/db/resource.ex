@@ -200,7 +200,14 @@ defmodule DB.Resource do
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
   def validate(%__MODULE__{url: url, format: "gbfs"}) do
-    {:ok, %{"metadata" => Transport.GBFSMetadata.Wrapper.compute_feed_metadata(url)}}
+    {:ok,
+     %{
+       "metadata" =>
+         Transport.Shared.GBFSMetadata.Wrapper.compute_feed_metadata(
+           url,
+           "https://#{System.get_env("DOMAIN_NAME", "")}"
+         )
+     }}
   end
 
   def validate(%__MODULE__{url: url, format: "GTFS"}) do
