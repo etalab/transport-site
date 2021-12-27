@@ -7,7 +7,7 @@ defmodule DB.DataConversionTest do
   end
 
   test "constraints on data_conversion table" do
-    assert %{id: data_conversion_id} =
+    assert %{id: _data_conversion_id} =
              insert(:data_conversion,
                convert_from: "GTFS",
                convert_to: "GeoJSON",
@@ -39,7 +39,7 @@ defmodule DB.DataConversionTest do
   end
 
   test "uniqueness of data_conversion" do
-    assert %{id: data_conversion_id} =
+    assert %{id: _data_conversion_id} =
              insert(:data_conversion,
                convert_from: "GTFS",
                convert_to: "GeoJSON",
