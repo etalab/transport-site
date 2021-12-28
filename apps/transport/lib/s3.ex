@@ -27,7 +27,7 @@ defmodule Transport.S3 do
     end
   end
 
-  def upload_to_s3!(body, path, feature) do
+  def upload_to_s3!(feature, body, path) do
     Logger.debug("Uploading file to #{path}")
 
     feature
