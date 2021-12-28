@@ -74,5 +74,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
       convert_to: "GeoJSON",
       resource_history_uuid: uuid
     )
+
+    Transport.Test.TestUtils.ensure_no_tmp_files!("conversion_gtfs_geojson_")
   end
 end
