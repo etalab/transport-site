@@ -80,8 +80,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
     geojson_file_path = "#{gtfs_file_path}.geojson"
 
     try do
-      %{status_code: 200, body: body} =
-        Transport.Shared.Wrapper.HTTPoison.impl().get!(resource_url, [], follow_redirect: true)
+      %{status_code: 200, body: body} = Transport.Shared.Wrapper.HTTPoison.impl().get!(resource_url)
 
       File.write!(gtfs_file_path, body)
 
