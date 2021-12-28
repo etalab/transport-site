@@ -16,6 +16,7 @@ defmodule Transport.Shared.ResourceSchema do
     nil
 
     iex> guess_name(%{"format" => "JSON"}, "low-emission-zones")
+    "etalab/schema-zfe"
 
     iex> guess_name(%{"schema" => %{"name" => "etalab/schema-zfe"}}, "low-emission-zones")
     "etalab/schema-zfe"
