@@ -227,7 +227,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def gbfs_feed_source_for_ttl(%Resource{format: "gbfs", metadata: %{"types" => types}}) do
-    feed_name = Transport.GBFSMetadata.feed_to_use_for_ttl(types)
+    feed_name = Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(types)
     if feed_name, do: feed_name, else: "root"
   end
 
