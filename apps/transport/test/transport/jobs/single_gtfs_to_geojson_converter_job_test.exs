@@ -9,6 +9,8 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
+  setup :verify_on_exit!
+
   test "a non GTFS resource" do
     %{id: resource_history_id} =
       insert(:resource_history,

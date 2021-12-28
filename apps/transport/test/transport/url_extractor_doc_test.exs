@@ -4,6 +4,8 @@ defmodule Transport.UrlExtractorDocTest do
   import Mox
   doctest UrlExtractor
 
+  setup :verify_on_exit!
+
   test "get urls in CSV file" do
     Transport.HTTPoison.Mock |> expect(:head, fn _url -> %HTTPoison.Response{} end)
 
