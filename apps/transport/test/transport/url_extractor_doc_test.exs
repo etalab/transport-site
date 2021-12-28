@@ -17,7 +17,7 @@ defmodule Transport.UrlExtractorDocTest do
   end
 
   test "get urls in CSV file : no url available" do
-    Transport.HTTPoison.Mock |> expect(:head, fn _url -> %HTTPoison.Response{} end)
+    # no expect needed : there is no url available
 
     assert UrlExtractor.get_resources_with_url_from_csv([{"stop,lon,lat\\n1,48.8,2.3", %{"id" => "bob"}}]) ==
              {:error, "No url found"}

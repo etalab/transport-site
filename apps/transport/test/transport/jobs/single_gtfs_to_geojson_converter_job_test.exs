@@ -51,7 +51,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
 
     # mock for the resource download
     Transport.HTTPoison.Mock
-    |> expect(:get!, 1, fn ^permanent_url, [], [follow_redirect: true] ->
+    |> expect(:get!, 1, fn ^permanent_url ->
       %{status_code: 200, body: "this is my GTFS file"}
     end)
 
