@@ -46,6 +46,10 @@ defmodule DB.Factory do
     %DB.ResourceHistory{}
   end
 
+  def data_conversion_factory do
+    %DB.DataConversion{}
+  end
+
   def resource_unavailability_factory do
     %DB.ResourceUnavailability{}
   end

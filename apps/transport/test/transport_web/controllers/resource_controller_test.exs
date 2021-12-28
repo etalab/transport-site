@@ -5,6 +5,8 @@ defmodule TransportWeb.ResourceControllerTest do
   import Plug.Test
   import Mox
 
+  setup :verify_on_exit!
+
   setup do
     {:ok, _} =
       %Dataset{
