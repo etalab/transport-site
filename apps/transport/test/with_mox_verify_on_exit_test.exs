@@ -1,4 +1,4 @@
-defmodule WithMockMustNotUseAsyncCheckTest do
+defmodule WithMoxVerifyOnExitTest do
   @moduledoc """
   Check that we did not forget to verify on exit when using Mox.
   """
