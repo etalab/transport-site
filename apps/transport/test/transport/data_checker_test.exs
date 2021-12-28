@@ -3,6 +3,8 @@ defmodule Transport.DataCheckerTest do
   import ExUnit.CaptureLog
   import Mox
 
+  setup :verify_on_exit!
+
   test "send_outdated_data_notifications" do
     dataset_slug = "slug"
 

@@ -6,6 +6,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   import Mox
 
   alias Transport.Jobs.{ResourceHistoryDispatcherJob, ResourceHistoryJob}
+  alias Transport.Test.S3TestUtils
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -26,7 +27,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     end
 
     test "a simple successful case" do
-      s3_mocks_create_bucket()
+      S3TestUtils.s3_mocks_create_bucket()
       datagouv_id = create_resources_for_history()
 
       assert count_resources() > 1
@@ -201,7 +202,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
       assert 1 == count_resource_history()
 
-      ensure_no_tmp_files!()
+      Transport.Test.TestUtils.ensure_no_tmp_files!("resource_")
 
       expected_zip_metadata = zip_metadata()
 
@@ -263,7 +264,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
       assert 1 == count_resource_history()
 
-      ensure_no_tmp_files!()
+      Transport.Test.TestUtils.ensure_no_tmp_files!("resource_")
     end
 
     test "does not crash when there is a server error" do
@@ -288,7 +289,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert 0 == count_resource_history()
       assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
 
-      ensure_no_tmp_files!()
+      Transport.Test.TestUtils.ensure_no_tmp_files!("resource_")
     end
   end
 
@@ -431,46 +432,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     ]
   end
 
-  defp ensure_no_tmp_files! do
-    tmp_files = System.tmp_dir!() |> File.ls!()
-
-    assert tmp_files |> Enum.filter(fn f -> String.starts_with?(f, "resource_") end) |> Enum.empty?(),
-           "tmp files fould in #{System.tmp_dir!()}"
-  end
-
   defp count_resource_history do
     DB.Repo.one!(from(r in DB.ResourceHistory, select: count()))
   end
 
   defp count_resources do
     DB.Repo.one!(from(r in DB.Resource, select: count()))
-  end
-
-  defp s3_mocks_create_bucket do
-    Transport.ExAWS.Mock
-    # Listing buckets
-    |> expect(:request!, fn request ->
-      assert %{
-               service: :s3,
-               http_method: :get,
-               path: "/"
-             } = request
-
-      %{body: %{buckets: []}}
-    end)
-
-    Transport.ExAWS.Mock
-    # Bucket creation
-    |> expect(:request!, fn request ->
-      bucket_name = Transport.S3.bucket_name(:history)
-
-      assert %{
-               service: :s3,
-               http_method: :put,
-               path: "/",
-               bucket: ^bucket_name,
-               headers: %{"x-amz-acl" => "public-read"}
-             } = request
-    end)
   end
 end
