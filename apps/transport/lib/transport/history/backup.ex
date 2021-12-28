@@ -63,7 +63,7 @@ defmodule Transport.History.Backup do
   and the resource has been modified or imported since the most recent historicized resource
   """
   @spec needs_to_be_updated(DB.Resource.t()) :: boolean()
-  defp needs_to_be_updated(resource) do
+  def needs_to_be_updated(resource) do
     backuped_resources = get_already_backuped_resources(resource)
 
     if Enum.empty?(backuped_resources) do

@@ -14,6 +14,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     {:ok, conn: build_conn()}
   end
 
+  setup :verify_on_exit!
+
   def setup_proxy_config(slug) do
     config = %{
       slug => %Unlock.Config.Item{
