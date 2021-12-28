@@ -205,7 +205,7 @@ defmodule DB.Resource do
        "metadata" =>
          Transport.Shared.GBFSMetadata.Wrapper.compute_feed_metadata(
            url,
-           "https://#{System.get_env("DOMAIN_NAME", "")}"
+           "https://#{Application.fetch_env!(:transport, :domain_name)}"
          )
      }}
   end
