@@ -601,6 +601,15 @@ defmodule DB.Dataset do
     |> Repo.all()
   end
 
+  @spec get_resources_related_files(any()) :: map()
+  def get_resources_related_files(%__MODULE__{resources: resources}) when is_list(resources) do
+    resources
+    |> Enum.map(fn %{id: id} = r -> {id, DB.Resource.get_related_files(r)} end)
+    |> Enum.into(%{})
+  end
+
+  def get_resources_related_files(_), do: %{}
+
   @spec validate_territory_mutual_exclusion(Ecto.Changeset.t()) :: Ecto.Changeset.t()
   defp validate_territory_mutual_exclusion(changeset) do
     has_cities =
