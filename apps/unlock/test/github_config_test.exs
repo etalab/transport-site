@@ -13,6 +13,7 @@ defmodule UnlockGitHubConfigTest do
   # also, we're using cachex without a wrapper, and not overriding the cache
   # "name", so this is all global state here until I improve the situation.
   use ExUnit.Case, async: false
+  import Unlock.Shared, only: [cache_name: 0]
   setup :set_mox_from_context
   setup :verify_on_exit!
 
@@ -28,11 +29,10 @@ defmodule UnlockGitHubConfigTest do
     |> Ymlr.document!()
   end
 
-  @config_cache_name Unlock.Cachex
   @config_cache_key "config:proxy"
 
   test "GitHub.fetch_config!" do
-    Cachex.del!(@config_cache_name, @config_cache_key)
+    Cachex.del!(cache_name(), @config_cache_key)
 
     # the config module is expected to reach out to GitHub (here with a fake url)
     Unlock.HTTP.Client.Mock
@@ -49,7 +49,7 @@ defmodule UnlockGitHubConfigTest do
 
     data = Unlock.Config.GitHub.fetch_config!()
     # No TTL since we want to keep the configuration always
-    assert Cachex.ttl(@config_cache_name, @config_cache_key) == {:ok, nil}
+    assert Cachex.ttl(cache_name(), @config_cache_key) == {:ok, nil}
 
     assert data == %{
              "test-slug" => %Unlock.Config.Item{
@@ -59,7 +59,7 @@ defmodule UnlockGitHubConfigTest do
              }
            }
 
-    assert Cachex.get!(@config_cache_name, @config_cache_key) == data
+    assert Cachex.get!(cache_name(), @config_cache_key) == data
 
     # client must not call the data anymore
     Unlock.HTTP.Client.Mock
