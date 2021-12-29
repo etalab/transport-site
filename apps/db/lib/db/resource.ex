@@ -57,7 +57,11 @@ defmodule DB.Resource do
     belongs_to(:dataset, Dataset)
     has_one(:validation, Validation, on_replace: :delete)
     has_many(:logs_validation, LogsValidation, on_replace: :delete, on_delete: :delete_all)
-    has_many(:resource_unavailabilities, ResourceUnavailability, on_replace: :delete, on_delete: :delete_all)
+
+    has_many(:resource_unavailabilities, ResourceUnavailability,
+      on_replace: :delete,
+      on_delete: :delete_all
+    )
   end
 
   defp gtfs_validator, do: Shared.Validation.GtfsValidator.Wrapper.impl()
@@ -86,7 +90,8 @@ defmodule DB.Resource do
     {true, "content hash has changed"}
   """
   @spec needs_validation(__MODULE__.t(), boolean()) :: {boolean(), binary()}
-  def needs_validation(%__MODULE__{format: format}, _force_validation) when format not in ["GTFS", "gbfs"] do
+  def needs_validation(%__MODULE__{format: format}, _force_validation)
+      when format not in ["GTFS", "gbfs"] do
     # we only want to validate GTFS and gbfs
     {false, "we validate only the GTFS and gbfs"}
   end
@@ -110,7 +115,9 @@ defmodule DB.Resource do
       ) do
     # if there is already a validation, we revalidate only if the file has changed
     if content_hash != validation_latest_content_hash do
-      Logger.info("the files for resource #{r.id} have been modified since last validation, we need to revalidate them")
+      Logger.info(
+        "the files for resource #{r.id} have been modified since last validation, we need to revalidate them"
+      )
 
       {true, "content hash has changed"}
     else
@@ -227,7 +234,9 @@ defmodule DB.Resource do
   end
 
   def validate(%__MODULE__{format: f, id: id}) do
-    Logger.info("cannot validate resource id=#{id} because we don't know how to validate the #{f} format")
+    Logger.info(
+      "cannot validate resource id=#{id} because we don't know how to validate the #{f} format"
+    )
 
     {:ok, %{"validations" => nil, "metadata" => nil}}
   end
@@ -381,7 +390,8 @@ defmodule DB.Resource do
       "UnloadableModel" => dgettext("validations", "Not compliant with the GTFS specification"),
       "MissingMandatoryFile" => dgettext("validations", "Missing mandatory file"),
       "ExtraFile" => dgettext("validations", "Extra file"),
-      "ImpossibleToInterpolateStopTimes" => dgettext("validations", "Impossible to interpolate stop times")
+      "ImpossibleToInterpolateStopTimes" =>
+        dgettext("validations", "Impossible to interpolate stop times")
     }
 
   @spec has_metadata?(__MODULE__.t()) :: boolean()
@@ -500,7 +510,10 @@ defmodule DB.Resource do
   end
 
   @spec ttl(__MODULE__.t()) :: integer() | nil
-  def ttl(%__MODULE__{format: "gbfs", metadata: %{"ttl" => ttl}}) when is_integer(ttl) and ttl >= 0, do: ttl
+  def ttl(%__MODULE__{format: "gbfs", metadata: %{"ttl" => ttl}})
+      when is_integer(ttl) and ttl >= 0,
+      do: ttl
+
   def ttl(_), do: nil
 
   @spec can_direct_download?(__MODULE__.t()) :: boolean
@@ -516,7 +529,8 @@ defmodule DB.Resource do
     do:
       from(
         r in __MODULE__,
-        where: r.dataset_id == ^resource.dataset_id and r.id != ^resource.id and not is_nil(r.metadata)
+        where:
+          r.dataset_id == ^resource.dataset_id and r.id != ^resource.id and not is_nil(r.metadata)
       )
 
   @spec other_resources(__MODULE__.t()) :: [__MODULE__.t()]
@@ -546,5 +560,25 @@ defmodule DB.Resource do
     from(resource in query,
       where: resource.id == ^id
     )
+  end
+
+  @spec get_related_files(__MODULE__.t()) :: map()
+  def get_related_files(%__MODULE__{datagouv_id: resource_datagouv_id}) do
+    %{}
+    |> Map.put(:geojson, get_related_geojson_info(resource_datagouv_id))
+  end
+
+  @spec get_related_geojson_info(binary()) :: %{url: binary(), filesize: binary()} | nil
+  def get_related_geojson_info(resource_datagouv_id) do
+    DB.ResourceHistory
+    |> join(:inner, [rh], dc in DB.DataConversion,
+      as: :dc,
+      on: fragment("?::text = ? ->> 'uuid'", dc.resource_history_uuid, rh.payload)
+    )
+    |> select([_, dc], %{url: fragment("? ->> 'permanent_url'", dc.payload), filesize: fragment("? ->> 'filesize'", dc.payload)})
+    |> where([rh, _], rh.datagouv_id == ^resource_datagouv_id)
+    |> order_by([rh, _], desc: rh.inserted_at)
+    |> limit(1)
+    |> DB.Repo.one()
   end
 end
