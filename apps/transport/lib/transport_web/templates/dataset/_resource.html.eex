@@ -1,5 +1,5 @@
 <div class="panel resource <%= valid_panel_class(@resource) %>" title="<%= resource_tooltip_content(@resource) %>">
-  <% has_associated_geojson = ResourceView.has_associated_geojson(@dataset, @resource) %>
+  <% has_associated_geojson = ResourceView.has_associated_geojson(@resources_related_files, @resource.id) %>
   <% has_associated_netex = ResourceView.has_associated_netex(@dataset, @resource) %>
   <h4>
     <%= @resource.title %>
