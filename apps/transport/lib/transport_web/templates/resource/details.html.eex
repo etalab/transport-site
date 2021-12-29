@@ -1,5 +1,5 @@
 <section>
-  <% associated_geojson = get_associated_geojson(@resource) %>
+  <% associated_geojson = get_associated_geojson(@related_files) %>
   <% associated_netex = get_associated_netex(@resource) %>
   <div class="grey-background">
     <div class="container">
@@ -63,7 +63,7 @@
                 'resource-geojson',
                 'resource-geojson-info',
                 "<%= associated_geojson.url %>",
-                "<%= associated_geojson.filesize %>",
+                "<%= associated_geojson.filesize || 0 %>",
                 "<%= dgettext("validations", "Stops visualization is quite big") %>",
                 "<%= dgettext("validations", "Show anyway") %>"
               )
