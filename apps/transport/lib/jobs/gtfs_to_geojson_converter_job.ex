@@ -92,6 +92,12 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
       geojson_file_name = resource_filename |> geojson_file_name()
       Transport.S3.upload_to_s3!(:history, file, geojson_file_name)
 
+      filesize =
+        case File.stat(file) do
+          {:ok, %{size: size}} -> size
+          _ -> nil
+        end
+
       %DataConversion{
         convert_from: "GTFS",
         convert_to: "GeoJSON",
@@ -99,7 +105,8 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
         payload: %{
           filename: geojson_file_name,
           permanent_url: Transport.S3.permanent_url(:history, geojson_file_name),
-          resource_datagouv_id: resource_datagouv_id
+          resource_datagouv_id: resource_datagouv_id,
+          filesize: filesize
         }
       }
       |> Repo.insert!()
