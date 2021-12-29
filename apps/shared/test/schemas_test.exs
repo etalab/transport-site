@@ -54,7 +54,7 @@ defmodule Transport.Shared.SchemasTest do
     end)
   end
 
-  defp setup_schemas_response() do
+  defp setup_schemas_response do
     url = "https://schema.data.gouv.fr/schemas.yml"
 
     Transport.HTTPoison.Mock
