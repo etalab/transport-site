@@ -101,12 +101,17 @@ defmodule TransportWeb.ResourceView do
 
   def get_associated_resource(_resource, _format), do: nil
 
-  def has_associated_geojson(dataset, resource) do
-    case get_associated_resource(dataset, resource, "geojson") do
+  def has_associated_geojson(%{} = resources_related_files, resource_id) do
+    resources_related_files
+    |> Map.get(resource_id)
+    |> get_associated_geojson()
+    |> case do
       nil -> false
       _ -> true
     end
   end
+
+  def has_associated_geojson(_, _), do: false
 
   def has_associated_netex(dataset, resource) do
     case get_associated_resource(dataset, resource, "NeTEx") do
@@ -115,9 +120,8 @@ defmodule TransportWeb.ResourceView do
     end
   end
 
-  def get_associated_geojson(resource) do
-    get_associated_resource(resource, "geojson")
-  end
+  def get_associated_geojson(%{geojson: geojson_url}), do: geojson_url
+  def get_associated_geojson(_), do: nil
 
   def get_associated_netex(resource) do
     get_associated_resource(resource, "NeTEx")
