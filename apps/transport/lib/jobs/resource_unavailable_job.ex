@@ -46,7 +46,6 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   """
   use Oban.Worker, max_attempts: 5
   require Logger
-  import Ecto.Query
   alias DB.{Repo, Resource, ResourceUnavailability}
 
   @impl Oban.Worker

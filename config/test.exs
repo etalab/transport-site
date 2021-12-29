@@ -32,7 +32,7 @@ config :transport,
   gbfs_validator_impl: Shared.Validation.GBFSValidator.Mock,
   rambo_impl: Transport.Rambo.Mock,
   notifications_impl: Transport.Notifications.FetcherMock,
-  gbfs_metadata_impl: Transport.GBFSMetadata.Mock,
+  gbfs_metadata_impl: Transport.Shared.GBFSMetadata.Mock,
   availability_checker_impl: Transport.AvailabilityChecker.Mock,
   notifications_api_token: "secret",
   s3_buckets: %{

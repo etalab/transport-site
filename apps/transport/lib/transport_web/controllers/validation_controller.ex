@@ -6,8 +6,6 @@ defmodule TransportWeb.ValidationController do
 
   import TransportWeb.ResourceView, only: [issue_type: 1]
 
-  defp endpoint, do: Application.fetch_env!(:transport, :gtfs_validator_url) <> "/validate"
-
   def index(%Plug.Conn{} = conn, _) do
     render(conn, "index.html")
   end

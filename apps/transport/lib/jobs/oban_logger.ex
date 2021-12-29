@@ -6,7 +6,7 @@ defmodule Transport.ObanLogger do
 
   def handle_event(
         [:oban, :job, :exception],
-        %{duration: duration} = info,
+        %{duration: duration},
         %{args: args, error: error, id: id, worker: worker},
         nil
       ) do

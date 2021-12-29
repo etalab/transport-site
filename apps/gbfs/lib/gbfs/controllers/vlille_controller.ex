@@ -69,7 +69,19 @@ defmodule GBFS.VLilleController do
     convert_station_status = fn records ->
       stations =
         Enum.map(records, fn r ->
-          {:ok, dt, _offset} = DateTime.from_iso8601(r["fields"]["datemiseajour"])
+          {:ok, dt, _offset} =
+            try do
+              DateTime.from_iso8601(r["fields"]["datemiseajour"])
+            rescue
+              e ->
+                Sentry.capture_exception(e,
+                  stacktrace: __STACKTRACE__,
+                  extra: %{extra: "r[\"fields\"] value is #{inspect(r["fields"])}"}
+                )
+
+                reraise e, __STACKTRACE__
+            end
+
           last_reported = DateTime.to_unix(dt)
           is_open = r["fields"]["etat"] == "EN SERVICE"
 
