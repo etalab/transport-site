@@ -75,21 +75,24 @@ defmodule DB.Resource do
     iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
     ...> validation: %Validation{validation_latest_content_hash: "a_sha"}}, true)
     {true, "forced validation"}
-    iex> Resource.needs_validation(%Resource{format: "gbfs", content_hash: "a_sha",
-    ...> validation: %Validation{validation_latest_content_hash: "a_sha"}}, false)
-    {false, "we validate only the GTFS"}
+    iex> Resource.needs_validation(%Resource{format: "gbfs"}, false)
+    {true, "gbfs is always validated"}
     iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha"}, false)
     {true, "no previous validation"}
     iex> Resource.needs_validation(%Resource{format: "gtfs-rt", content_hash: "a_sha"}, true)
-    {false, "we validate only the GTFS"}
+    {false, "we validate only the GTFS and gbfs"}
     iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
     ...> validation: %Validation{validation_latest_content_hash: "another_sha"}}, false)
     {true, "content hash has changed"}
   """
   @spec needs_validation(__MODULE__.t(), boolean()) :: {boolean(), binary()}
-  def needs_validation(%__MODULE__{format: format}, _force_validation) when format != "GTFS" do
-    # we only want to validate GTFS
-    {false, "we validate only the GTFS"}
+  def needs_validation(%__MODULE__{format: format}, _force_validation) when format not in ["GTFS", "gbfs"] do
+    # we only want to validate GTFS and gbfs
+    {false, "we validate only the GTFS and gbfs"}
+  end
+
+  def needs_validation(%__MODULE__{format: "gbfs"}, _force_validation) do
+    {true, "gbfs is always validated"}
   end
 
   def needs_validation(%__MODULE__{}, true = _force_validation) do
@@ -196,6 +199,17 @@ defmodule DB.Resource do
   @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
+  def validate(%__MODULE__{url: url, format: "gbfs"}) do
+    {:ok,
+     %{
+       "metadata" =>
+         Transport.Shared.GBFSMetadata.Wrapper.compute_feed_metadata(
+           url,
+           "https://#{Application.fetch_env!(:transport, :domain_name)}"
+         )
+     }}
+  end
+
   def validate(%__MODULE__{url: url, format: "GTFS"}) do
     with {:ok, validation_result} <- gtfs_validator().validate_from_url(url),
          {:ok, validations} <- Map.fetch(validation_result, "validations") do
@@ -255,6 +269,10 @@ defmodule DB.Resource do
       |> Repo.update()
 
     ecto_response
+  end
+
+  def save(%__MODULE__{} = r, %{"metadata" => metadata}) do
+    r |> change(metadata: metadata) |> Repo.update()
   end
 
   def save(url, _) do
