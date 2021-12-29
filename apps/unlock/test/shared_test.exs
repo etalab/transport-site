@@ -23,9 +23,11 @@ defmodule Unlock.SharedTest do
     cache_put(cache_key("foo"), :timer.seconds(5))
     cache_put(cache_key("baz"))
     {:ok, ttl} = cache_ttl(cache_key("foo"))
-    assert_in_delta ttl / 1000.0, 5, 1
+    assert_in_delta ttl / 1000, 5, 1
     assert {:ok, nil} == cache_ttl(cache_key("bar"))
-    assert {:ok, nil} == cache_ttl(cache_key("baz"))
+    default_value = default_cache_expiration_seconds()
+    {:ok, ttl} = cache_ttl(cache_key("baz"))
+    assert_in_delta ttl / 1000, default_value, 1
   end
 
   test "cache_keys" do
