@@ -35,6 +35,32 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
     end
   end
 
+  describe "validate" do
+    test "valid object" do
+      assert %{"errors_count" => 0, "has_errors" => false, "errors" => []} ==
+               validate(name_jsonschema(), %{"name" => "foo"})
+    end
+
+    test "invalid object" do
+      assert %{"errors_count" => 1, "has_errors" => true, "errors" => ["#: Required property name was not present."]} ==
+               validate(name_jsonschema(), %{})
+
+      assert %{
+               "errors_count" => 1,
+               "has_errors" => true,
+               "errors" => ["#/name: Type mismatch. Expected String but got Integer."]
+             } ==
+               validate(name_jsonschema(), %{"name" => 42})
+    end
+  end
+
+  defp name_jsonschema do
+    %ExJsonSchema.Schema.Root{
+      schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
+      version: 7
+    }
+  end
+
   defp setup_zfe_schema do
     url = "https://schema.data.gouv.fr/schemas/etalab/schema-zfe/0.1.0/schema.json"
 
