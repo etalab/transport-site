@@ -4,12 +4,16 @@ defmodule Unlock.Application do
   @moduledoc false
 
   use Application
+  import Cachex.Spec
 
   def start(_type, _args) do
     children = [
       Unlock.Endpoint,
       {Finch, name: Unlock.Finch},
-      {Cachex, name: Unlock.Cachex}
+      {Cachex,
+       name: Unlock.Cachex,
+       expiration: expiration(default: :timer.seconds(Unlock.Shared.default_cache_expiration_seconds()))},
+      Unlock.EnforceTTL
     ]
 
     opts = [strategy: :one_for_one, name: Unlock.Supervisor]
