@@ -1,16 +1,6 @@
 defmodule Shared.Validation.JSONSchemaValidatorTest do
-  use ExUnit.Case, async: false
-  import Shared.Application, only: [cache_name: 0]
+  use Shared.CacheCase
   import Shared.Validation.JSONSchemaValidator
-  import Mox
-
-  setup :verify_on_exit!
-  setup :set_mox_from_context
-
-  setup do
-    Cachex.clear(cache_name())
-    on_exit(fn -> Cachex.clear(cache_name()) end)
-  end
 
   describe "load_jsonschema_for_schema" do
     test "schema-zfe" do

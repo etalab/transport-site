@@ -1,16 +1,6 @@
 defmodule Transport.Shared.SchemasTest do
-  use ExUnit.Case, async: false
-  import Shared.Application, only: [cache_name: 0]
+  use Shared.CacheCase
   import Transport.Shared.Schemas
-  import Mox
-
-  setup :verify_on_exit!
-  setup :set_mox_from_context
-
-  setup do
-    Cachex.clear(cache_name())
-    on_exit(fn -> Cachex.clear(cache_name()) end)
-  end
 
   test "transport_schemas" do
     setup_schemas_response()
@@ -46,11 +36,7 @@ defmodule Transport.Shared.SchemasTest do
   defp setup_schema_response(expected_url) do
     Transport.HTTPoison.Mock
     |> expect(:get!, fn ^expected_url ->
-      body = ~S"""
-      {"foo": "bar"}
-      """
-
-      %HTTPoison.Response{body: body, status_code: 200}
+      %HTTPoison.Response{body: ~s({"foo": "bar"}), status_code: 200}
     end)
   end
 
