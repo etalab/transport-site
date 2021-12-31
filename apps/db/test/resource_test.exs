@@ -117,7 +117,10 @@ defmodule DB.ResourceTest do
     insert(:data_conversion, %{resource_history_uuid: uuid3 ,convert_from: "GTFS", convert_to: "GeoJSON", payload: %{permanent_url: "url3", filesize: 10}})
     insert(:data_conversion, %{resource_history_uuid: uuid4 ,convert_from: "GTFS", convert_to: "GeoJSON", payload: %{permanent_url: "url4", filesize: 10}})
 
-    assert %{url: "url2", filesize: "12"} = DB.Resource.get_related_geojson_info("datagouv_id_1")
+    expected_geojson_info = %{url: "url2", filesize: "12"}
+    assert  expected_geojson_info == DB.Resource.get_related_geojson_info("datagouv_id_1")
     assert nil == DB.Resource.get_related_geojson_info("other_id")
+
+    assert %{geojson: expected_geojson_info} = DB.Resource.get_related_files(%DB.Resource{datagouv_id: "datagouv_id_1"})
   end
 end
