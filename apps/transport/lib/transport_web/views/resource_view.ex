@@ -150,7 +150,7 @@ defmodule TransportWeb.ResourceView do
 
     case hours do
       0 -> "#{div(seconds, 60)} min"
-      hours -> "#{hours} h #{rem(seconds, 3600) |> div(60) |> abs()} min"
+      hours -> "#{hours} h #{seconds |> rem(3600) |> div(60) |> abs()} min"
     end
   end
 end

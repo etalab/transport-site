@@ -158,8 +158,6 @@ defmodule DB.ResourceTest do
       payload: %{permanent_url: "url4", filesize: 10}
     })
 
-    expected_geojson_info = %{url: "url2", filesize: "12"}
-
     assert %{url: "url2", filesize: "12", resource_history_updated_at: _} =
              DB.Resource.get_related_geojson_info("datagouv_id_1")
 
