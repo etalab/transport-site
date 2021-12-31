@@ -575,8 +575,11 @@ defmodule DB.Resource do
       as: :dc,
       on: fragment("?::text = ? ->> 'uuid'", dc.resource_history_uuid, rh.payload)
     )
-    |> select([_, dc], %{url: fragment("? ->> 'permanent_url'", dc.payload), filesize: fragment("? ->> 'filesize'", dc.payload)})
-    |> where([rh, _], rh.datagouv_id == ^resource_datagouv_id)
+    |> select([_, dc], %{
+      url: fragment("? ->> 'permanent_url'", dc.payload),
+      filesize: fragment("? ->> 'filesize'", dc.payload)
+    })
+    |> where([rh, dc], rh.datagouv_id == ^resource_datagouv_id and dc.convert_to == "GeoJSON")
     |> order_by([rh, _], desc: rh.inserted_at)
     |> limit(1)
     |> DB.Repo.one()
