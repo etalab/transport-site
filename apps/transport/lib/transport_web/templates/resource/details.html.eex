@@ -26,6 +26,7 @@
               </ul>
               * <%= dgettext("validations", "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)
               It corresponds to the data you can see on the map below.")%>
+              <%= dgettext("validations", "This GeoJSON was up-to-date with the GTFS resource %{hours} ago.", hours: hours_ago(associated_geojson.resource_history_updated_at))%>
             </li>
           </div>
         <% end %>
@@ -66,10 +67,13 @@
                 "<%= associated_geojson.filesize || 0 %>",
                 "<%= dgettext("validations", "Stops visualization is quite big") %>",
                 "<%= dgettext("validations", "Show anyway") %>"
-              )
-            })
-          </script>
-        </div>
+                )
+              })
+              </script>
+              </div>
+              <div class="is-centered no-margin">
+                <%= dgettext("validations", "Visualization up-to-date %{hours} ago.", hours: hours_ago(associated_geojson.resource_history_updated_at))%>
+              </div>
       <% end %>
       <h2 class="mt-48"><%= dgettext("validations", "Validation report")%></h2>
       <div class="panel" id="issues">
