@@ -562,7 +562,9 @@ defmodule DB.Resource do
     |> Map.put(:geojson, get_related_geojson_info(resource_datagouv_id))
   end
 
-  @spec get_related_geojson_info(binary()) :: %{url: binary(), filesize: binary()} | nil
+  @spec get_related_geojson_info(binary() | nil) :: %{url: binary(), filesize: binary()} | nil
+  def get_related_geojson_info(nil), do: nil
+
   def get_related_geojson_info(resource_datagouv_id) do
     DB.ResourceHistory
     |> join(:inner, [rh], dc in DB.DataConversion,
