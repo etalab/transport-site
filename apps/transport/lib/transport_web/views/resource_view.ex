@@ -147,6 +147,7 @@ defmodule TransportWeb.ResourceView do
   @spec seconds_to_hours_minutes(integer()) :: binary()
   def seconds_to_hours_minutes(seconds) do
     hours = div(seconds, 3600)
+
     case hours do
       0 -> "#{div(seconds, 60)} min"
       hours -> "#{hours} h #{rem(seconds, 3600) |> div(60) |> abs()} min"

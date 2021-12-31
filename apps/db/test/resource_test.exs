@@ -159,9 +159,13 @@ defmodule DB.ResourceTest do
     })
 
     expected_geojson_info = %{url: "url2", filesize: "12"}
-    assert %{url: "url2", filesize: "12", resource_history_updated_at: _} = DB.Resource.get_related_geojson_info("datagouv_id_1")
+
+    assert %{url: "url2", filesize: "12", resource_history_updated_at: _} =
+             DB.Resource.get_related_geojson_info("datagouv_id_1")
+
     assert nil == DB.Resource.get_related_geojson_info("other_id")
 
-    assert %{geojson: %{url: "url2", filesize: "12", resource_history_updated_at: _}} = DB.Resource.get_related_files(%DB.Resource{datagouv_id: "datagouv_id_1"})
+    assert %{geojson: %{url: "url2", filesize: "12", resource_history_updated_at: _}} =
+             DB.Resource.get_related_files(%DB.Resource{datagouv_id: "datagouv_id_1"})
   end
 end

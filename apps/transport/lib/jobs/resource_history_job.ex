@@ -145,7 +145,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
     case {history, is_same_resource?(history, zip_metadata)} do
       {nil, _} -> true
-      {_history , false} -> true
+      {_history, false} -> true
       {history, true} -> {false, history}
     end
   end

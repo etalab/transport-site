@@ -58,7 +58,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       assert 1 == count_resource_history()
       assert ResourceHistoryJob.is_same_resource?(resource_history, zip_metadata())
-      assert {false, %{id: ^resource_history_id}} = ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
+
+      assert {false, %{id: ^resource_history_id}} =
+               ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
     end
 
     test "with the latest ResourceHistory matching but for a different datagouv_id" do
@@ -89,7 +91,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
 
       %DB.ResourceHistory{id: latest_rh_id} |> DB.Repo.delete()
-      assert {false, _} =  ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
+
+      assert {false, _} =
+               ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
     end
 
     test "with the latest ResourceHistory not matching" do
@@ -249,10 +253,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           is_community_resource: false
         )
 
-      %{id: resource_history_id, updated_at: updated_at} = insert(:resource_history,
-        datagouv_id: datagouv_id,
-        payload: %{"zip_metadata" => zip_metadata()}
-      )
+      %{id: resource_history_id, updated_at: updated_at} =
+        insert(:resource_history,
+          datagouv_id: datagouv_id,
+          payload: %{"zip_metadata" => zip_metadata()}
+        )
 
       Transport.HTTPoison.Mock
       |> expect(:get, fn ^resource_url, _headers, options ->
@@ -265,7 +270,10 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert 1 == count_resource_history()
 
       # check the updated_at field has been updated.
-      assert DB.ResourceHistory |> DB.Repo.get!(resource_history_id) |> Map.get(:updated_at) |> DateTime.diff(updated_at, :microsecond) > 0
+      assert DB.ResourceHistory
+             |> DB.Repo.get!(resource_history_id)
+             |> Map.get(:updated_at)
+             |> DateTime.diff(updated_at, :microsecond) > 0
 
       Transport.Test.TestUtils.ensure_no_tmp_files!("resource_")
     end
