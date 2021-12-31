@@ -103,22 +103,63 @@ defmodule DB.ResourceTest do
     now = DateTime.now!("Etc/UTC")
 
     # we insert 3 resource history for datagouv_id_1
-    insert(:resource_history, %{datagouv_id: "datagouv_id_1", payload: %{uuid: uuid1 = Ecto.UUID.generate()}, inserted_at: DateTime.add(now, -3600, :second)})
+    insert(:resource_history, %{
+      datagouv_id: "datagouv_id_1",
+      payload: %{uuid: uuid1 = Ecto.UUID.generate()},
+      inserted_at: DateTime.add(now, -3600, :second)
+    })
+
     # (most recent one ⬇️)
-    insert(:resource_history, %{datagouv_id: "datagouv_id_1", payload: %{uuid: uuid2 = Ecto.UUID.generate()}, inserted_at: now})
-    insert(:resource_history, %{datagouv_id: "datagouv_id_1", payload: %{uuid: uuid3 = Ecto.UUID.generate()}, inserted_at: DateTime.add(now, -3601, :second)})
+    insert(:resource_history, %{
+      datagouv_id: "datagouv_id_1",
+      payload: %{uuid: uuid2 = Ecto.UUID.generate()},
+      inserted_at: now
+    })
+
+    insert(:resource_history, %{
+      datagouv_id: "datagouv_id_1",
+      payload: %{uuid: uuid3 = Ecto.UUID.generate()},
+      inserted_at: DateTime.add(now, -3601, :second)
+    })
 
     # and one for datagouv_id_2
-    insert(:resource_history, %{datagouv_id: "datagouv_id_2", payload: %{uuid: uuid4 = Ecto.UUID.generate()}, inserted_at: now})
+    insert(:resource_history, %{
+      datagouv_id: "datagouv_id_2",
+      payload: %{uuid: uuid4 = Ecto.UUID.generate()},
+      inserted_at: now
+    })
 
     # we insert 1 conversion for each resource history
-    insert(:data_conversion, %{resource_history_uuid: uuid1 ,convert_from: "GTFS", convert_to: "GeoJSON", payload: %{permanent_url: "url1", filesize: 10}})
-    insert(:data_conversion, %{resource_history_uuid: uuid2 ,convert_from: "GTFS", convert_to: "GeoJSON", payload: %{permanent_url: "url2", filesize: 12}})
-    insert(:data_conversion, %{resource_history_uuid: uuid3 ,convert_from: "GTFS", convert_to: "GeoJSON", payload: %{permanent_url: "url3", filesize: 10}})
-    insert(:data_conversion, %{resource_history_uuid: uuid4 ,convert_from: "GTFS", convert_to: "GeoJSON", payload: %{permanent_url: "url4", filesize: 10}})
+    insert(:data_conversion, %{
+      resource_history_uuid: uuid1,
+      convert_from: "GTFS",
+      convert_to: "GeoJSON",
+      payload: %{permanent_url: "url1", filesize: 10}
+    })
+
+    insert(:data_conversion, %{
+      resource_history_uuid: uuid2,
+      convert_from: "GTFS",
+      convert_to: "GeoJSON",
+      payload: %{permanent_url: "url2", filesize: 12}
+    })
+
+    insert(:data_conversion, %{
+      resource_history_uuid: uuid3,
+      convert_from: "GTFS",
+      convert_to: "GeoJSON",
+      payload: %{permanent_url: "url3", filesize: 10}
+    })
+
+    insert(:data_conversion, %{
+      resource_history_uuid: uuid4,
+      convert_from: "GTFS",
+      convert_to: "GeoJSON",
+      payload: %{permanent_url: "url4", filesize: 10}
+    })
 
     expected_geojson_info = %{url: "url2", filesize: "12"}
-    assert  expected_geojson_info == DB.Resource.get_related_geojson_info("datagouv_id_1")
+    assert expected_geojson_info == DB.Resource.get_related_geojson_info("datagouv_id_1")
     assert nil == DB.Resource.get_related_geojson_info("other_id")
 
     assert %{geojson: expected_geojson_info} = DB.Resource.get_related_files(%DB.Resource{datagouv_id: "datagouv_id_1"})

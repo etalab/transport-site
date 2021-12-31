@@ -115,9 +115,7 @@ defmodule DB.Resource do
       ) do
     # if there is already a validation, we revalidate only if the file has changed
     if content_hash != validation_latest_content_hash do
-      Logger.info(
-        "the files for resource #{r.id} have been modified since last validation, we need to revalidate them"
-      )
+      Logger.info("the files for resource #{r.id} have been modified since last validation, we need to revalidate them")
 
       {true, "content hash has changed"}
     else
@@ -234,9 +232,7 @@ defmodule DB.Resource do
   end
 
   def validate(%__MODULE__{format: f, id: id}) do
-    Logger.info(
-      "cannot validate resource id=#{id} because we don't know how to validate the #{f} format"
-    )
+    Logger.info("cannot validate resource id=#{id} because we don't know how to validate the #{f} format")
 
     {:ok, %{"validations" => nil, "metadata" => nil}}
   end
@@ -390,8 +386,7 @@ defmodule DB.Resource do
       "UnloadableModel" => dgettext("validations", "Not compliant with the GTFS specification"),
       "MissingMandatoryFile" => dgettext("validations", "Missing mandatory file"),
       "ExtraFile" => dgettext("validations", "Extra file"),
-      "ImpossibleToInterpolateStopTimes" =>
-        dgettext("validations", "Impossible to interpolate stop times")
+      "ImpossibleToInterpolateStopTimes" => dgettext("validations", "Impossible to interpolate stop times")
     }
 
   @spec has_metadata?(__MODULE__.t()) :: boolean()
@@ -529,8 +524,7 @@ defmodule DB.Resource do
     do:
       from(
         r in __MODULE__,
-        where:
-          r.dataset_id == ^resource.dataset_id and r.id != ^resource.id and not is_nil(r.metadata)
+        where: r.dataset_id == ^resource.dataset_id and r.id != ^resource.id and not is_nil(r.metadata)
       )
 
   @spec other_resources(__MODULE__.t()) :: [__MODULE__.t()]
