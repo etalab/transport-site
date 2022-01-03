@@ -59,6 +59,7 @@ defmodule Unlock.Config do
   end
 
   defmodule GitHub do
+    import Unlock.Shared, only: [cache_name: 0]
     @behaviour Fetcher
 
     @proxy_config_cache_key "config:proxy"
@@ -73,8 +74,9 @@ defmodule Unlock.Config do
       # NOTE: this won't handle errors correctly at this point
       fetch_config = fn _key -> {:commit, fetch_config_no_cache!()} end
 
-      case {_operation, _result} = Cachex.fetch(Unlock.Cachex, @proxy_config_cache_key, fetch_config) do
+      case {_operation, _result} = Cachex.fetch(cache_name(), @proxy_config_cache_key, fetch_config) do
         {:commit, result} ->
+          Cachex.persist(cache_name(), @proxy_config_cache_key)
           result
 
         {:ok, result} ->
@@ -84,7 +86,7 @@ defmodule Unlock.Config do
 
     @impl Fetcher
     def clear_config_cache! do
-      Cachex.del!(Unlock.Cachex, @proxy_config_cache_key)
+      Cachex.del!(cache_name(), @proxy_config_cache_key)
     end
 
     @doc """
