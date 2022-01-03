@@ -64,4 +64,31 @@ defmodule TransportWeb.API.StatsControllerTest do
 
     assert TransportWeb.API.StatsController.bike_scooter_sharing_features() == expected
   end
+
+  test "Quality of AOM data stats", %{conn: conn} do
+    aom =
+      insert(
+        :aom,
+        geom:
+          "SRID=4326;POLYGON((55.5832 -21.3723,55.5510 -21.3743,55.5359 -21.3631,55.5832 -21.3723))"
+          |> Geo.WKT.decode!()
+      )
+
+    %{id: dataset_active_id} =
+      :dataset |> insert(%{type: "public-transit", is_active: true, aom: aom, spatial: "Ajaccio", slug: "a"})
+
+    # the active dataset has an outdated resource
+    :resource |> insert(%{dataset_id: dataset_active_id, end_date: Date.new!(2000, 1, 1)})
+
+    %{id: dataset_inactive_id} =
+      :dataset |> insert(%{type: "public-transit", is_active: false, aom: aom, spatial: "Ajacciold", slug: "z"})
+
+    # but the inactive dataset has an up-to-date resource
+    :resource |> insert(%{dataset_id: dataset_inactive_id, end_date: Date.new!(2100, 1, 1)})
+
+    res = conn |> get(TransportWeb.API.Router.Helpers.stats_path(conn, :quality)) |> json_response(200)
+
+    # the aom status is outdated
+    assert %{"features" => [%{"properties" => %{"quality" => %{"expired_from" => %{"status" => "outdated"}}}}]} = res
+  end
 end
