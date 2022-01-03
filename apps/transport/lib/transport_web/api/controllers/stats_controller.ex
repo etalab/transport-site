@@ -374,7 +374,7 @@ defmodule TransportWeb.API.StatsController do
               AND
               resource.is_available
               AND
-              dataset.is_active=TRUE
+              dataset.is_active
             ORDER BY (
               CASE max_error::text
                 WHEN 'Fatal' THEN 1
