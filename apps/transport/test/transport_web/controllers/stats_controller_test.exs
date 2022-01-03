@@ -74,19 +74,17 @@ defmodule TransportWeb.API.StatsControllerTest do
           |> Geo.WKT.decode!()
       )
 
-    dataset_active =
-      %{id: dataset_active_id} =
+    %{id: dataset_active_id} =
       :dataset |> insert(%{type: "public-transit", is_active: true, aom: aom, spatial: "Ajaccio", slug: "a"})
 
     # the active dataset has an outdated resource
-    outdated_resource = :resource |> insert(%{dataset_id: dataset_active_id, end_date: Date.new!(2000, 1, 1)})
+    :resource |> insert(%{dataset_id: dataset_active_id, end_date: Date.new!(2000, 1, 1)})
 
-    dataset_inactive =
-      %{id: dataset_inactive_id} =
+    %{id: dataset_inactive_id} =
       :dataset |> insert(%{type: "public-transit", is_active: false, aom: aom, spatial: "Ajacciold", slug: "z"})
 
     # but the inactive dataset has an up-to-date resource
-    up_to_date_resource = :resource |> insert(%{dataset_id: dataset_inactive_id, end_date: Date.new!(2100, 1, 1)})
+    :resource |> insert(%{dataset_id: dataset_inactive_id, end_date: Date.new!(2100, 1, 1)})
 
     res = conn |> get(TransportWeb.API.Router.Helpers.stats_path(conn, :quality)) |> json_response(200)
 
