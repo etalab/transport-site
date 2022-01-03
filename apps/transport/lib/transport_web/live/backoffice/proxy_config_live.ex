@@ -114,15 +114,24 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   end
 
   defp add_cache_state(item) do
-    cache_entry =
-      item.unique_slug
-      |> Unlock.Shared.cache_key()
-      |> Unlock.Shared.cache_entry()
+    cache_key = item.unique_slug |> Unlock.Shared.cache_key()
+    cache_entry = cache_key |> Unlock.Shared.cache_entry()
+
+    cache_ttl =
+      case cache_key |> Unlock.Shared.cache_ttl() do
+        {:ok, nil} ->
+          "no ttl"
+
+        {:ok, res_in_ms} ->
+          in_seconds = res_in_ms / 1000
+          "#{in_seconds |> Float.round() |> trunc()}s"
+      end
 
     if cache_entry do
       Map.merge(item, %{
         cache_size: cache_entry.body |> byte_size() |> Sizeable.filesize(),
-        cache_status: cache_entry.status
+        cache_status: cache_entry.status,
+        cache_ttl: cache_ttl
       })
     else
       item

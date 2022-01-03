@@ -115,7 +115,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
           total_compressed_size: zip_metadata |> Enum.map(& &1.compressed_size) |> Enum.sum()
         }
 
-        upload_to_s3!(body, filename)
+        Transport.S3.upload_to_s3!(:history, body, filename)
         store_resource_history!(resource, data)
 
       false ->
@@ -185,19 +185,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 
   defp remove_file(path), do: File.rm(path)
-
-  defp upload_to_s3!(body, path) do
-    Logger.debug("Uploading resource to #{path}")
-
-    :history
-    |> Transport.S3.bucket_name()
-    |> ExAws.S3.put_object(
-      path,
-      body,
-      acl: "public-read"
-    )
-    |> Transport.Wrapper.ExAWS.impl().request!()
-  end
 
   def upload_filename(%Resource{datagouv_id: datagouv_id}, %DateTime{} = dt) do
     time = Calendar.strftime(dt, "%Y%m%d.%H%M%S.%f")

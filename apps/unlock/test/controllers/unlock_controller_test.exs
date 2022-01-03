@@ -12,6 +12,7 @@ defmodule Unlock.ControllerTest do
   setup :set_mox_from_context
 
   setup do
+    Cachex.clear(Unlock.Cachex)
     setup_telemetry_handler()
   end
 
@@ -178,8 +179,32 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
     end
 
-    @tag :skip
-    test "handles remote error"
+    test "handles remote error" do
+      url = "http://localhost/some-remote-resource"
+      identifier = "foo"
+
+      setup_proxy_config(%{
+        identifier => %Unlock.Config.Item{
+          identifier: identifier,
+          target_url: url,
+          ttl: 10
+        }
+      })
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, fn ^url, _request_headers ->
+        raise RuntimeError
+      end)
+
+      resp = build_conn() |> get("/resource/#{identifier}")
+
+      # Got an exception, nothing is stored in cache
+      assert {:ok, []} == Cachex.keys(Unlock.Cachex)
+      assert resp.status == 502
+      assert resp.resp_body == "Bad Gateway"
+
+      verify!(Unlock.HTTP.Client.Mock)
+    end
 
     @tag :skip
     test "handles proxy error"
