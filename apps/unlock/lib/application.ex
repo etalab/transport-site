@@ -15,7 +15,7 @@ defmodule Unlock.Application do
          name: Unlock.Cachex,
          expiration: expiration(default: :timer.seconds(Unlock.Shared.default_cache_expiration_seconds()))}
       ]
-      |> prepend_if(webserver?(), Unlock.EnforceTTL)
+      |> prepend_if(enforce_ttl?(), Unlock.EnforceTTL)
 
     opts = [strategy: :one_for_one, name: Unlock.Supervisor]
     Supervisor.start_link(children, opts)
@@ -25,7 +25,7 @@ defmodule Unlock.Application do
     if condition, do: [item | list], else: list
   end
 
-  defp webserver?, do: Application.fetch_env!(:transport, :webserver)
+  defp enforce_ttl?, do: Application.fetch_env!(:unlock, :enforce_ttl)
 
   # NOTE: not implementing `config_change` at this point, but in case
   # you can read about it here:
