@@ -351,7 +351,7 @@ defmodule TransportWeb.API.StatsController do
             WHERE
             end_date IS NOT NULL
             AND (
-              dataset_id in (SELECT id FROM dataset WHERE aom_id=?)
+              dataset_id in (SELECT id FROM dataset WHERE aom_id=? and is_active=TRUE)
               OR dataset_id = ?
               )
             """,
@@ -373,6 +373,8 @@ defmodule TransportWeb.API.StatsController do
               resource.end_date >= TO_DATE(?, 'YYYY-MM-DD')
               AND
               resource.is_available
+              AND
+              dataset.is_active
             ORDER BY (
               CASE max_error::text
                 WHEN 'Fatal' THEN 1
