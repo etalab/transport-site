@@ -234,10 +234,12 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  "zip_metadata" => ^expected_zip_metadata,
                  "uuid" => _uuid,
                  "download_datetime" => _download_datetime
-               }
+               },
+               valide_at: valide_at
              } = DB.ResourceHistory |> DB.Repo.one!()
 
       assert permanent_url == Transport.S3.permanent_url(:history, filename)
+      refute is_nil(valide_at)
     end
 
     test "does not store resource again when it did not change" do

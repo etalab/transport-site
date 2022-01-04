@@ -166,7 +166,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   defp store_resource_history!(%Resource{datagouv_id: datagouv_id}, payload) do
     Logger.debug("Saving ResourceHistory for #{datagouv_id}")
 
-    %DB.ResourceHistory{datagouv_id: datagouv_id, payload: payload}
+    %DB.ResourceHistory{datagouv_id: datagouv_id, payload: payload, valide_at: DateTime.utc_now()}
     |> DB.Repo.insert!()
   end
 
