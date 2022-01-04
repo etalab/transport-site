@@ -240,9 +240,14 @@ defmodule DB.Resource do
     end
   end
 
-  def validate(%__MODULE__{url: url, schema_name: schema_name}) do
-    {:ok,
-     %{"metadata" => JSONSchemaValidator.validate(JSONSchemaValidator.load_jsonschema_for_schema(schema_name), url)}}
+  def validate(%__MODULE__{url: url, schema_name: schema_name, metadata: metadata}) do
+    metadata =
+      case JSONSchemaValidator.validate(JSONSchemaValidator.load_jsonschema_for_schema(schema_name), url) do
+        nil -> metadata
+        payload -> map_merge(metadata, %{"validation" => payload})
+      end
+
+    {:ok, %{"metadata" => metadata}}
   end
 
   def validate(%__MODULE__{format: f, id: id}) do
@@ -566,4 +571,7 @@ defmodule DB.Resource do
       where: resource.id == ^id
     )
   end
+
+  defp map_merge(src, new_map) when is_nil(src), do: new_map
+  defp map_merge(src, new_map), do: Map.merge(src, new_map)
 end

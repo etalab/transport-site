@@ -55,7 +55,7 @@ defmodule DB.ResourceTest do
     url = "https://example.com/file"
     schema_name = "etalab/foo"
 
-    resource = insert(:resource, %{url: url, schema_name: schema_name})
+    resource = insert(:resource, %{url: url, schema_name: schema_name, metadata: %{"bar" => "baz"}})
 
     Transport.Shared.Schemas.Mock
     |> expect(:schemas_by_type, fn type ->
@@ -77,7 +77,7 @@ defmodule DB.ResourceTest do
     end)
 
     assert Resource.validate_and_save(resource, false) == {:ok, nil}
-    assert %{metadata: %{"foo" => "bar"}} = Repo.get(Resource, resource.id)
+    assert %{metadata: %{"bar" => "baz", "validation" => %{"foo" => "bar"}}} = Repo.get(Resource, resource.id)
   end
 
   test "validation is skipped if previous validation is still valid" do
