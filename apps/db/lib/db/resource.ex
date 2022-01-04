@@ -574,7 +574,7 @@ defmodule DB.Resource do
     |> select([rh, dc], %{
       url: fragment("? ->> 'permanent_url'", dc.payload),
       filesize: fragment("? ->> 'filesize'", dc.payload),
-      resource_history_updated_at: rh.updated_at
+      resource_history_valide_at: rh.valide_at
     })
     |> where([rh, dc], rh.datagouv_id == ^resource_datagouv_id and dc.convert_to == "GeoJSON")
     |> order_by([rh, _], desc: rh.inserted_at)

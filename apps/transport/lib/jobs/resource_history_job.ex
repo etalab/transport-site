@@ -173,8 +173,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   defp touch_resource_history!(%DB.ResourceHistory{id: id, datagouv_id: datagouv_id} = history) do
     Logger.debug("Touching unchanged ResourceHistory #{id} for resource datagouv_id #{datagouv_id}")
 
-    # setting force: true will update the updated_at field
-    history |> Ecto.Changeset.change(%{}) |> DB.Repo.update!(force: true)
+    history |> Ecto.Changeset.change(%{valide_at: DateTime.utc_now()}) |> DB.Repo.update!()
   end
 
   defp download_path(%Resource{datagouv_id: datagouv_id}) do
