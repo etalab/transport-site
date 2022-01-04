@@ -12,10 +12,13 @@ defmodule Shared.Application do
        pools: %{
          # slightly larger than default
          :default => [size: 25]
-       }}
+       }},
+      {Cachex, name: cache_name()}
     ]
 
     opts = [strategy: :one_for_one, name: Shared.Supervisor]
     Supervisor.start_link(children, opts)
   end
+
+  def cache_name, do: Shared.Cachex
 end

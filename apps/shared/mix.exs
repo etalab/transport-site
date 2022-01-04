@@ -55,7 +55,10 @@ defmodule Shared.MixProject do
       # Similarly, Jason is configured as `json_library` by the main app, so it will
       # be required no matter what.
       {:jason, ">= 0.0.0"},
-      {:ex_cldr_numbers, "~> 2.0"}
+      {:ex_cldr_numbers, "~> 2.0"},
+      {:yaml_elixir, "~> 2.7"},
+      {:cachex, "~> 3.4"},
+      {:ex_json_schema, "~> 0.9.1"}
     ]
   end
 end
