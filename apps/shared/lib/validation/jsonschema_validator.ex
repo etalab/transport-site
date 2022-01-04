@@ -61,7 +61,7 @@ defmodule Shared.Validation.JSONSchemaValidator do
   end
 
   @impl true
-  def validate(schema, payload) when is_map(payload) do
+  def validate(schema, payload) do
     errors =
       case ExJsonSchema.Validator.validate(schema, payload, error_formatter: ErrorFormatter) do
         :ok -> []
