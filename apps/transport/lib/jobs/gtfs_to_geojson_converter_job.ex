@@ -92,11 +92,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
       geojson_file_name = resource_filename |> geojson_file_name()
       Transport.S3.upload_to_s3!(:history, file, geojson_file_name)
 
-      filesize =
-        case File.stat(file) do
-          {:ok, %{size: size}} -> size
-          _ -> nil
-        end
+      {:ok, %{size: filesize}} = File.stat(geojson_file_path)
 
       %DataConversion{
         convert_from: "GTFS",
