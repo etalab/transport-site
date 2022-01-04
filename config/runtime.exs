@@ -38,6 +38,9 @@ config :transport,
   worker: worker,
   webserver: webserver
 
+config :unlock,
+  enforce_ttl: webserver
+
 # Inside IEx, we do not want jobs to start processing, nor plugins working.
 # The jobs can be heavy and for instance in production, one person could
 # unknowningly create duplicate RAM heavy jobs. With this trick, we can still
