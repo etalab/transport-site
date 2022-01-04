@@ -26,8 +26,8 @@
               </ul>
               * <%= dgettext("validations", "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)
               It corresponds to the data you can see on the map below.")%>
-              <%= unless is_nil(associated_geojson.resource_history_valide_at) do %>
-                <%= dgettext("validations", "This GeoJSON was up-to-date with the GTFS resource %{hours} ago.", hours: hours_ago(associated_geojson.resource_history_valide_at))%>
+              <%= unless is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
+                <%= dgettext("validations", "This GeoJSON was up-to-date with the GTFS resource %{hours} ago.", hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at))%>
               <% end %>
             </li>
           </div>
@@ -73,9 +73,9 @@
               })
               </script>
               </div>
-              <%= unless is_nil(associated_geojson.resource_history_valide_at) do %>
+              <%= unless is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
               <div class="is-centered no-margin">
-                <%= dgettext("validations", "Visualization up-to-date %{hours} ago.", hours: hours_ago(associated_geojson.resource_history_valide_at))%>
+                <%= dgettext("validations", "Visualization up-to-date %{hours} ago.", hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at))%>
               </div>
               <% end %>
       <% end %>

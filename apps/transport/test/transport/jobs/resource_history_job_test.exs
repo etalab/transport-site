@@ -235,11 +235,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  "uuid" => _uuid,
                  "download_datetime" => _download_datetime
                },
-               valide_at: valide_at
+               last_up_to_date_at: last_up_to_date_at
              } = DB.ResourceHistory |> DB.Repo.one!()
 
       assert permanent_url == Transport.S3.permanent_url(:history, filename)
-      refute is_nil(valide_at)
+      refute is_nil(last_up_to_date_at)
     end
 
     test "does not store resource again when it did not change" do

@@ -116,12 +116,12 @@ defmodule DB.ResourceTest do
     insert_data_conversion(uuid3, "url3", 10)
     insert_data_conversion(uuid4, "url4", 10)
 
-    assert %{url: "url2", filesize: "12", resource_history_valide_at: _} =
+    assert %{url: "url2", filesize: "12", resource_history_last_up_to_date_at: _} =
              DB.Resource.get_related_geojson_info("datagouv_id_1")
 
     assert nil == DB.Resource.get_related_geojson_info("other_id")
 
-    assert %{geojson: %{url: "url2", filesize: "12", resource_history_valide_at: _}} =
+    assert %{geojson: %{url: "url2", filesize: "12", resource_history_last_up_to_date_at: _}} =
              DB.Resource.get_related_files(%DB.Resource{datagouv_id: "datagouv_id_1"})
   end
 

@@ -9,7 +9,7 @@ defmodule DB.ResourceHistory do
     field(:datagouv_id, :string)
     field(:payload, :map)
     # the last moment we checked and the resource history was corresponding to the real online resource
-    field(:valide_at, :utc_datetime_usec)
+    field(:last_up_to_date_at, :utc_datetime_usec)
 
     timestamps(type: :utc_datetime_usec)
   end

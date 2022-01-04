@@ -166,14 +166,14 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   defp store_resource_history!(%Resource{datagouv_id: datagouv_id}, payload) do
     Logger.debug("Saving ResourceHistory for #{datagouv_id}")
 
-    %DB.ResourceHistory{datagouv_id: datagouv_id, payload: payload, valide_at: DateTime.utc_now()}
+    %DB.ResourceHistory{datagouv_id: datagouv_id, payload: payload, last_up_to_date_at: DateTime.utc_now()}
     |> DB.Repo.insert!()
   end
 
   defp touch_resource_history!(%DB.ResourceHistory{id: id, datagouv_id: datagouv_id} = history) do
     Logger.debug("Touching unchanged ResourceHistory #{id} for resource datagouv_id #{datagouv_id}")
 
-    history |> Ecto.Changeset.change(%{valide_at: DateTime.utc_now()}) |> DB.Repo.update!()
+    history |> Ecto.Changeset.change(%{last_up_to_date_at: DateTime.utc_now()}) |> DB.Repo.update!()
   end
 
   defp download_path(%Resource{datagouv_id: datagouv_id}) do
