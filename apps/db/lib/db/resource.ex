@@ -5,7 +5,9 @@ defmodule DB.Resource do
   use Ecto.Schema
   use TypedEctoSchema
   alias DB.{Dataset, LogsValidation, Repo, ResourceUnavailability, Validation}
+  alias Shared.Validation.JSONSchemaValidator.Wrapper, as: JSONSchemaValidator
   alias Transport.DataVisualization
+  alias Transport.Shared.Schemas.Wrapper, as: Schemas
   import Ecto.{Changeset, Query}
   import DB.Gettext
   require Logger
@@ -86,7 +88,8 @@ defmodule DB.Resource do
     {true, "content hash has changed"}
   """
   @spec needs_validation(__MODULE__.t(), boolean()) :: {boolean(), binary()}
-  def needs_validation(%__MODULE__{format: format}, _force_validation) when format not in ["GTFS", "gbfs"] do
+  def needs_validation(%__MODULE__{format: format, schema_name: nil}, _force_validation)
+      when format not in ["GTFS", "gbfs"] do
     # we only want to validate GTFS and gbfs
     {false, "we validate only the GTFS and gbfs"}
   end
@@ -97,6 +100,10 @@ defmodule DB.Resource do
 
   def needs_validation(%__MODULE__{}, true = _force_validation) do
     {true, "forced validation"}
+  end
+
+  def needs_validation(%__MODULE__{schema_name: schema_name} = r, _force_validation) when is_binary(schema_name) do
+    {needs_schema_validation?(r), "schema is set"}
   end
 
   def needs_validation(
@@ -196,6 +203,13 @@ defmodule DB.Resource do
       {:error, e}
   end
 
+  def needs_schema_validation?(%__MODULE__{schema_name: schema_name}) when is_binary(schema_name) do
+    json_schemas = Schemas.schemas_by_type("jsonschema")
+    Map.has_key?(json_schemas, schema_name)
+  end
+
+  def needs_schema_validation?(_), do: false
+
   @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}
 
@@ -224,6 +238,11 @@ defmodule DB.Resource do
       :error ->
         {:error, "Validation failed."}
     end
+  end
+
+  def validate(%__MODULE__{url: url, schema_name: schema_name}) do
+    {:ok,
+     %{"metadata" => JSONSchemaValidator.validate(JSONSchemaValidator.load_jsonschema_for_schema(schema_name), url)}}
   end
 
   def validate(%__MODULE__{format: f, id: id}) do

@@ -51,6 +51,35 @@ defmodule DB.ResourceTest do
     assert %{metadata: %{"foo" => "bar"}} = Repo.get(Resource, resource.id)
   end
 
+  test "validate and save a resource with a JSON Schema" do
+    url = "https://example.com/file"
+    schema_name = "etalab/foo"
+
+    resource = insert(:resource, %{url: url, schema_name: schema_name})
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:schemas_by_type, fn type ->
+      assert type == "jsonschema"
+      %{schema_name => %{}}
+    end)
+
+    Shared.Validation.JSONSchemaValidator.Mock
+    |> expect(:load_jsonschema_for_schema, fn _schema ->
+      %ExJsonSchema.Schema.Root{
+        schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
+        version: 7
+      }
+    end)
+
+    Shared.Validation.JSONSchemaValidator.Mock
+    |> expect(:validate, fn _schema, ^url ->
+      %{"foo" => "bar"}
+    end)
+
+    assert Resource.validate_and_save(resource, false) == {:ok, nil}
+    assert %{metadata: %{"foo" => "bar"}} = Repo.get(Resource, resource.id)
+  end
+
   test "validation is skipped if previous validation is still valid" do
     resource = insert(:resource, %{url: "url1", format: "GTFS", content_hash: "sha256_hash"})
 
@@ -97,5 +126,32 @@ defmodule DB.ResourceTest do
     validations_logs = LogsValidation |> where([l], l.resource_id == ^resource.id) |> Repo.all()
     reasons = validations_logs |> Enum.frequencies_by(& &1.skipped_reason)
     assert reasons == %{"content hash has changed" => 1, "no previous validation" => 1}
+  end
+
+  test "needs validation with a JSON Schema" do
+    schema_name = "etalab/foo"
+    resource = insert(:resource, %{schema_name: schema_name})
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:schemas_by_type, 2, fn type ->
+      assert type == "jsonschema"
+      %{schema_name => %{}}
+    end)
+
+    assert Resource.needs_schema_validation?(resource)
+    assert {true, "schema is set"} == Resource.needs_validation(resource, false)
+  end
+
+  test "needs validation when schema is set but not in list" do
+    resource = insert(:resource, %{schema_name: "foo"})
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:schemas_by_type, 2, fn type ->
+      assert type == "jsonschema"
+      %{}
+    end)
+
+    refute Resource.needs_schema_validation?(resource)
+    assert {false, "schema is set"} == Resource.needs_validation(resource, false)
   end
 end
