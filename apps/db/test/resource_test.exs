@@ -47,8 +47,40 @@ defmodule DB.ResourceTest do
     Transport.Shared.GBFSMetadata.Mock
     |> expect(:compute_feed_metadata, fn _resource, _cors_base_url -> %{"foo" => "bar"} end)
 
+    assert {true, "gbfs can be validated"} == Resource.can_validate?(resource)
     assert Resource.validate_and_save(resource, false) == {:ok, nil}
     assert %{metadata: %{"foo" => "bar"}} = Repo.get(Resource, resource.id)
+  end
+
+  test "validate and save a resource with a JSON Schema" do
+    url = "https://example.com/file"
+    schema_name = "etalab/foo"
+
+    resource = insert(:resource, %{url: url, schema_name: schema_name, metadata: %{"bar" => "baz"}})
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:schemas_by_type, 2, fn type ->
+      assert type == "jsonschema"
+      %{schema_name => %{}}
+    end)
+
+    Shared.Validation.JSONSchemaValidator.Mock
+    |> expect(:load_jsonschema_for_schema, fn _schema ->
+      %ExJsonSchema.Schema.Root{
+        schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
+        version: 7
+      }
+    end)
+
+    Shared.Validation.JSONSchemaValidator.Mock
+    |> expect(:validate, fn _schema, ^url ->
+      %{"foo" => "bar"}
+    end)
+
+    assert {true, "schema is set"} == Resource.can_validate?(resource)
+    assert Resource.need_validate?(resource, false)
+    assert Resource.validate_and_save(resource, false) == {:ok, nil}
+    assert %{metadata: %{"bar" => "baz", "validation" => %{"foo" => "bar"}}} = Repo.get(Resource, resource.id)
   end
 
   test "validation is skipped if previous validation is still valid" do
@@ -62,6 +94,7 @@ defmodule DB.ResourceTest do
     end)
 
     # first validation
+    assert {true, "GTFS can be validated"} == Resource.can_validate?(resource)
     assert Resource.validate_and_save(resource.id, false) == {:ok, nil}
     [validation] = Validation |> where([v], v.resource_id == ^resource.id) |> Repo.all()
 
@@ -140,5 +173,33 @@ defmodule DB.ResourceTest do
       convert_to: "GeoJSON",
       payload: %{permanent_url: permanent_url, filesize: filesize}
     })
+
+  test "needs validation with a JSON Schema" do
+    schema_name = "etalab/foo"
+    resource = insert(:resource, %{schema_name: schema_name})
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:schemas_by_type, 2, fn type ->
+      assert type == "jsonschema"
+      %{schema_name => %{}}
+    end)
+
+    assert {true, "schema is set"} == Resource.can_validate?(resource)
+    assert Resource.need_validate?(resource, false)
+    assert {true, "schema is set"} == Resource.needs_validation(resource, false)
+  end
+
+  test "needs validation when schema is set but not in list" do
+    resource = insert(:resource, %{schema_name: "foo"})
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:schemas_by_type, 2, fn type ->
+      assert type == "jsonschema"
+      %{}
+    end)
+
+    assert {false, "schema is set"} == Resource.can_validate?(resource)
+    assert Resource.need_validate?(resource, false)
+    assert {false, "schema is set"} == Resource.needs_validation(resource, false)
   end
 end
