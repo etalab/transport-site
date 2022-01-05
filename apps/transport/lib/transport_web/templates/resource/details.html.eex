@@ -31,7 +31,7 @@
 
         <%= if nb_errors > 0 do %>
           <p><%= dgettext("validations", "Errors:")%></p>
-          <ul>
+          <ul lang="en">
             <%= for error <- errors(@resource) do %>
               <li><%= error %></li>
             <% end %>
