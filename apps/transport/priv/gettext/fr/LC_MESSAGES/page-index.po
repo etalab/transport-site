@@ -66,12 +66,12 @@ msgid "Long distance coach"
 msgstr "Autocars longue distance"
 
 #, elixir-format
-msgid "Public transit schedules"
+msgid "Public transport - static schedules"
 msgstr "Horaires transports en commun"
 
 #, elixir-format
-msgid "Realtime public transit"
-msgstr "Temps réel transports en commun"
+msgid "Public transport - realtime trafic"
+msgstr "Transport public collectif - horaires temps réel"
 
 #, elixir-format
 msgid "dataset"
@@ -84,12 +84,12 @@ msgid "See newly added datasets"
 msgstr "Voir les jeux de données récents"
 
 #, elixir-format
-msgid "Air data"
-msgstr "Données aériennes"
+msgid "Air transport"
+msgstr "Transport aérien"
 
 #, elixir-format
 msgid "Bike parking"
-msgstr "Stationnement vélo"
+msgstr "Stationnement cyclable"
 
 #, elixir-format
 msgid "Coming soon"
@@ -104,8 +104,8 @@ msgid "Private parking"
 msgstr "Stationnement hors voirie"
 
 #, elixir-format
-msgid "Railroad data"
-msgstr "Données ferroviaires"
+msgid "Rail transport"
+msgstr "Transport ferroviaire"
 
 #, elixir-format
 msgid "Road networks"
@@ -216,8 +216,8 @@ msgid "You can also"
 msgstr "Vous pouvez également"
 
 #, elixir-format
-msgid "Bike way"
-msgstr "Aménagements cyclables"
+msgid "Bike networks"
+msgstr "Réseaux cyclables"
 
 #, elixir-format
 msgid "Low emission zones"
