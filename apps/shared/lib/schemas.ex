@@ -1,8 +1,22 @@
+defmodule Transport.Shared.Schemas.Wrapper do
+  @moduledoc """
+  This behaviour defines the API for schemas
+  """
+  defp impl, do: Application.get_env(:transport, :schemas_impl)
+
+  @callback schemas_by_type(binary()) :: map()
+  def schemas_by_type(schema_name), do: impl().schemas_by_type(schema_name)
+
+  @callback transport_schemas() :: map()
+  def transport_schemas, do: impl().transport_schemas()
+end
+
 defmodule Transport.Shared.Schemas do
   @moduledoc """
   Load transport schemas listed on https://schema.data.gouv.fr
   """
   import Shared.Application, only: [cache_name: 0]
+  @behaviour Transport.Shared.Schemas.Wrapper
 
   @schemas_catalog_url "https://schema.data.gouv.fr/schemas.yml"
 
@@ -23,10 +37,12 @@ defmodule Transport.Shared.Schemas do
     "https://schema.data.gouv.fr/schemas/#{schema_name}/#{schema_version}/schema.json"
   end
 
+  @impl true
   def schemas_by_type(schema_type) when schema_type in ["tableschema", "jsonschema"] do
     :maps.filter(fn _, v -> v["type"] == schema_type end, transport_schemas())
   end
 
+  @impl true
   def transport_schemas do
     comp_fn = fn ->
       %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(@schemas_catalog_url)
