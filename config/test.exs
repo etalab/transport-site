@@ -34,6 +34,8 @@ config :transport,
   notifications_impl: Transport.Notifications.FetcherMock,
   gbfs_metadata_impl: Transport.Shared.GBFSMetadata.Mock,
   availability_checker_impl: Transport.AvailabilityChecker.Mock,
+  jsonschema_validator_impl: Shared.Validation.JSONSchemaValidator.Mock,
+  schemas_impl: Transport.Shared.Schemas.Mock,
   notifications_api_token: "secret",
   s3_buckets: %{
     history: "resource-history-test"
