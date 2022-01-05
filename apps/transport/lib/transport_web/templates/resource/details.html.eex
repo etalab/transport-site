@@ -1,5 +1,5 @@
 <section>
-  <% associated_geojson = get_associated_geojson(@resource) %>
+  <% associated_geojson = get_associated_geojson(@related_files) %>
   <% associated_netex = get_associated_netex(@resource) %>
   <div class="grey-background">
     <div class="container">
@@ -26,6 +26,9 @@
               </ul>
               * <%= dgettext("validations", "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)
               It corresponds to the data you can see on the map below.")%>
+              <%= unless is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
+                <%= dgettext("validations", "This GeoJSON was up-to-date with the GTFS resource %{hours} ago.", hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at))%>
+              <% end %>
             </li>
           </div>
         <% end %>
@@ -63,13 +66,18 @@
                 'resource-geojson',
                 'resource-geojson-info',
                 "<%= associated_geojson.url %>",
-                "<%= associated_geojson.filesize %>",
+                "<%= associated_geojson.filesize || 0 %>",
                 "<%= dgettext("validations", "Stops visualization is quite big") %>",
                 "<%= dgettext("validations", "Show anyway") %>"
-              )
-            })
-          </script>
-        </div>
+                )
+              })
+              </script>
+              </div>
+              <%= unless is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
+              <div class="is-centered no-margin">
+                <%= dgettext("validations", "Visualization up-to-date %{hours} ago.", hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at))%>
+              </div>
+              <% end %>
       <% end %>
       <h2 class="mt-48"><%= dgettext("validations", "Validation report")%></h2>
       <div class="panel" id="issues">
