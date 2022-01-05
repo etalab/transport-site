@@ -547,4 +547,10 @@ defmodule DB.Resource do
       where: resource.id == ^id
     )
   end
+
+  def has_errors_details?(%__MODULE__{metadata: %{"validation" => %{"errors_count" => _}}}), do: true
+  def has_errors_details?(%__MODULE__{}), do: false
+
+  defp map_merge(src, new_map) when is_nil(src), do: new_map
+  defp map_merge(src, new_map), do: Map.merge(src, new_map)
 end
