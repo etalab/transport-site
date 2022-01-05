@@ -173,6 +173,7 @@ defmodule DB.ResourceTest do
       convert_to: "GeoJSON",
       payload: %{permanent_url: permanent_url, filesize: filesize}
     })
+  end
 
   test "needs validation with a JSON Schema" do
     schema_name = "etalab/foo"
