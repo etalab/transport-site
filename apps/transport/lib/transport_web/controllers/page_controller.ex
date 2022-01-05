@@ -188,40 +188,10 @@ defmodule TransportWeb.PageController do
         count: Keyword.fetch!(counts, :count_coach)
       },
       %Tile{
-        link: dataset_path(conn, :index, type: "bike-scooter-sharing"),
-        icon: icon_type_path("bike-scooter-sharing"),
-        title: dgettext("page-index", "Bike and scooter sharing"),
-        count: Keyword.fetch!(counts, :count_by_type)["bike-scooter-sharing"]
-      },
-      %Tile{
-        link: dataset_path(conn, :index, type: "carpooling-areas"),
-        icon: icon_type_path("carpooling-areas"),
-        title: dgettext("page-index", "Carpooling areas"),
-        count: Keyword.fetch!(counts, :count_by_type)["carpooling-areas"]
-      },
-      %Tile{
-        link: dataset_path(conn, :index, type: "charging-stations"),
-        icon: icon_type_path("charging-stations"),
-        title: dgettext("page-index", "Charging & refuelling stations"),
-        count: Keyword.fetch!(counts, :count_by_type)["charging-stations"]
-      },
-      %Tile{
-        link: dataset_path(conn, :index, type: "air-transport"),
-        icon: icon_type_path("air-transport"),
-        title: dgettext("page-index", "Air transport"),
-        count: Keyword.fetch!(counts, :count_by_type)["air-transport"]
-      },
-      %Tile{
         link: dataset_path(conn, :index, "modes[]": "rail"),
         icon: icon_type_path("train"),
         title: dgettext("page-index", "Rail transport"),
         count: Keyword.fetch!(counts, :count_train)
-      },
-      %Tile{
-        link: dataset_path(conn, :index, type: "road-network"),
-        icon: icon_type_path("road-network"),
-        title: dgettext("page-index", "Road networks"),
-        count: Keyword.fetch!(counts, :count_by_type)["road-network"]
       },
       %Tile{
         link: dataset_path(conn, :index, "modes[]": "ferry"),
@@ -230,22 +200,16 @@ defmodule TransportWeb.PageController do
         count: Keyword.fetch!(counts, :count_boat)
       },
       %Tile{
-        link: dataset_path(conn, :index, type: "addresses"),
-        icon: icon_type_path("addresses"),
-        title: dgettext("page-index", "Addresses"),
-        count: Keyword.fetch!(counts, :count_by_type)["addresses"]
+        link: dataset_path(conn, :index, type: "air-transport"),
+        icon: icon_type_path("air-transport"),
+        title: dgettext("page-index", "Air transport"),
+        count: Keyword.fetch!(counts, :count_by_type)["air-transport"]
       },
       %Tile{
-        link: dataset_path(conn, :index, type: "informations"),
-        icon: icon_type_path("informations"),
-        title: dgettext("page-index", "Other informations"),
-        count: Keyword.fetch!(counts, :count_by_type)["informations"]
-      },
-      %Tile{
-        link: dataset_path(conn, :index, type: "private-parking"),
-        icon: icon_type_path("private-parking"),
-        title: dgettext("page-index", "Private parking"),
-        count: Keyword.fetch!(counts, :count_by_type)["private-parking"]
+        link: dataset_path(conn, :index, type: "bike-scooter-sharing"),
+        icon: icon_type_path("bike-scooter-sharing"),
+        title: dgettext("page-index", "Bike and scooter sharing"),
+        count: Keyword.fetch!(counts, :count_by_type)["bike-scooter-sharing"]
       },
       %Tile{
         link: dataset_path(conn, :index, type: "bike-way"),
@@ -260,10 +224,46 @@ defmodule TransportWeb.PageController do
         count: Keyword.fetch!(counts, :count_by_type)["bike-parking"]
       },
       %Tile{
+        link: dataset_path(conn, :index, type: "road-network"),
+        icon: icon_type_path("road-network"),
+        title: dgettext("page-index", "Road networks"),
+        count: Keyword.fetch!(counts, :count_by_type)["road-network"]
+      },
+      %Tile{
         link: dataset_path(conn, :index, type: "low-emission-zones"),
         icon: icon_type_path("low-emission-zones"),
         title: dgettext("page-index", "Low emission zones"),
         count: Keyword.fetch!(counts, :count_by_type)["low-emission-zones"]
+      },
+      %Tile{
+        link: dataset_path(conn, :index, type: "carpooling-areas"),
+        icon: icon_type_path("carpooling-areas"),
+        title: dgettext("page-index", "Carpooling areas"),
+        count: Keyword.fetch!(counts, :count_by_type)["carpooling-areas"]
+      },
+      %Tile{
+        link: dataset_path(conn, :index, type: "charging-stations"),
+        icon: icon_type_path("charging-stations"),
+        title: dgettext("page-index", "Charging & refuelling stations"),
+        count: Keyword.fetch!(counts, :count_by_type)["charging-stations"]
+      },
+      %Tile{
+        link: dataset_path(conn, :index, type: "private-parking"),
+        icon: icon_type_path("private-parking"),
+        title: dgettext("page-index", "Private parking"),
+        count: Keyword.fetch!(counts, :count_by_type)["private-parking"]
+      },
+      %Tile{
+        link: dataset_path(conn, :index, type: "addresses"),
+        icon: icon_type_path("addresses"),
+        title: dgettext("page-index", "Addresses"),
+        count: Keyword.fetch!(counts, :count_by_type)["addresses"]
+      },
+      %Tile{
+        link: dataset_path(conn, :index, type: "informations"),
+        icon: icon_type_path("informations"),
+        title: dgettext("page-index", "Other informations"),
+        count: Keyword.fetch!(counts, :count_by_type)["informations"]
       }
     ]
   end

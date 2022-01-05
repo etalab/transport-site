@@ -67,7 +67,7 @@ msgstr "Autocars longue distance"
 
 #, elixir-format
 msgid "Public transport - static schedules"
-msgstr "Horaires transports en commun"
+msgstr "Transport public collectif - horaires théoriques"
 
 #, elixir-format
 msgid "Public transport - realtime trafic"
