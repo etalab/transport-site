@@ -42,6 +42,39 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
              } ==
                validate(name_jsonschema(), %{"name" => 42})
     end
+
+    test "with an url and a valid payload" do
+      url = "http://example.com/file"
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^url, [], follow_redirect: true ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"name" => "foo"})}}
+      end)
+
+      assert %{"errors_count" => 0, "has_errors" => false, "errors" => []} == validate(name_jsonschema(), url)
+    end
+
+    test "with an url and a server error" do
+      url = "http://example.com/file"
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^url, [], follow_redirect: true ->
+        {:ok, %HTTPoison.Response{status_code: 500, body: "error"}}
+      end)
+
+      assert nil == validate(name_jsonschema(), url)
+    end
+
+    test "with an url and an invalid payload" do
+      url = "http://example.com/file"
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^url, [], follow_redirect: true ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: "error"}}
+      end)
+
+      assert nil == validate(name_jsonschema(), url)
+    end
   end
 
   defp name_jsonschema do
