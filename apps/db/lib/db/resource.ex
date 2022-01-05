@@ -68,7 +68,12 @@ defmodule DB.Resource do
   def endpoint, do: Application.fetch_env!(:transport, :gtfs_validator_url) <> "/validate"
 
   @doc """
-  A validation is needed if the last update from the data is newer than the last validation.
+  Determines if a validation is needed. We need to validate a resource if:
+  - we forced the validation process
+  - the resource is a gbfs
+  - for GTFS resources: the content hash changed since the last validation or it was never validated
+  - the resource has a JSON Schema schema set
+
   ## Examples
 
     iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
@@ -82,31 +87,36 @@ defmodule DB.Resource do
     iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha"}, false)
     {true, "no previous validation"}
     iex> Resource.needs_validation(%Resource{format: "gtfs-rt", content_hash: "a_sha"}, true)
-    {false, "we validate only the GTFS and gbfs"}
+    {false, "cannot validate this resource"}
     iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
     ...> validation: %Validation{validation_latest_content_hash: "another_sha"}}, false)
     {true, "content hash has changed"}
   """
   @spec needs_validation(__MODULE__.t(), boolean()) :: {boolean(), binary()}
-  def needs_validation(%__MODULE__{format: format, schema_name: nil}, _force_validation)
-      when format not in ["GTFS", "gbfs"] do
-    # we only want to validate GTFS and gbfs
-    {false, "we validate only the GTFS and gbfs"}
+  def needs_validation(%__MODULE__{} = resource, force_validation) do
+    case can_validate?(resource) do
+      {true, _} -> need_validate?(resource, force_validation)
+      result -> result
+    end
   end
 
-  def needs_validation(%__MODULE__{format: "gbfs"}, _force_validation) do
-    {true, "gbfs is always validated"}
+  def can_validate?(%__MODULE__{format: format}) when format in ["GTFS", "gbfs"] do
+    {true, "#{format} can be validated"}
   end
 
-  def needs_validation(%__MODULE__{}, true = _force_validation) do
-    {true, "forced validation"}
-  end
-
-  def needs_validation(%__MODULE__{schema_name: schema_name} = r, _force_validation) when is_binary(schema_name) do
+  def can_validate?(%__MODULE__{schema_name: schema_name} = r) when is_binary(schema_name) do
     {needs_schema_validation?(r), "schema is set"}
   end
 
-  def needs_validation(
+  def can_validate?(%__MODULE__{}) do
+    {false, "cannot validate this resource"}
+  end
+
+  def need_validate?(%__MODULE__{}, true) do
+    {true, "forced validation"}
+  end
+
+  def need_validate?(
         %__MODULE__{
           content_hash: content_hash,
           validation: %Validation{
@@ -125,9 +135,16 @@ defmodule DB.Resource do
     end
   end
 
-  def needs_validation(%__MODULE__{}, _force_validation) do
-    # if there is no validation, we want to validate
+  def need_validate?(%__MODULE__{format: "GTFS"}, _force_validation) do
     {true, "no previous validation"}
+  end
+
+  def need_validate?(%__MODULE__{format: "gbfs"}, _force_validation) do
+    {true, "gbfs is always validated"}
+  end
+
+  def need_validate?(%__MODULE__{schema_name: schema_name}, _force_validation) when is_binary(schema_name) do
+    {true, "schema is set"}
   end
 
   @spec validate_and_save(__MODULE__.t() | integer(), boolean()) :: {:error, any} | {:ok, nil}
@@ -244,7 +261,7 @@ defmodule DB.Resource do
     metadata =
       case JSONSchemaValidator.validate(JSONSchemaValidator.load_jsonschema_for_schema(schema_name), url) do
         nil -> metadata
-        payload -> map_merge(metadata, %{"validation" => payload})
+        payload -> Map.merge(metadata || %{}, %{"validation" => payload})
       end
 
     {:ok, %{"metadata" => metadata}}
@@ -571,7 +588,4 @@ defmodule DB.Resource do
       where: resource.id == ^id
     )
   end
-
-  defp map_merge(src, new_map) when is_nil(src), do: new_map
-  defp map_merge(src, new_map), do: Map.merge(src, new_map)
 end

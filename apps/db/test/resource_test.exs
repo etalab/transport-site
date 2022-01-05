@@ -47,6 +47,7 @@ defmodule DB.ResourceTest do
     Transport.Shared.GBFSMetadata.Mock
     |> expect(:compute_feed_metadata, fn _resource, _cors_base_url -> %{"foo" => "bar"} end)
 
+    assert {true, "gbfs can be validated"} == Resource.can_validate?(resource)
     assert Resource.validate_and_save(resource, false) == {:ok, nil}
     assert %{metadata: %{"foo" => "bar"}} = Repo.get(Resource, resource.id)
   end
@@ -58,7 +59,7 @@ defmodule DB.ResourceTest do
     resource = insert(:resource, %{url: url, schema_name: schema_name, metadata: %{"bar" => "baz"}})
 
     Transport.Shared.Schemas.Mock
-    |> expect(:schemas_by_type, fn type ->
+    |> expect(:schemas_by_type, 2, fn type ->
       assert type == "jsonschema"
       %{schema_name => %{}}
     end)
@@ -76,6 +77,8 @@ defmodule DB.ResourceTest do
       %{"foo" => "bar"}
     end)
 
+    assert {true, "schema is set"} == Resource.can_validate?(resource)
+    assert Resource.need_validate?(resource, false)
     assert Resource.validate_and_save(resource, false) == {:ok, nil}
     assert %{metadata: %{"bar" => "baz", "validation" => %{"foo" => "bar"}}} = Repo.get(Resource, resource.id)
   end
@@ -91,6 +94,7 @@ defmodule DB.ResourceTest do
     end)
 
     # first validation
+    assert {true, "GTFS can be validated"} == Resource.can_validate?(resource)
     assert Resource.validate_and_save(resource.id, false) == {:ok, nil}
     [validation] = Validation |> where([v], v.resource_id == ^resource.id) |> Repo.all()
 
@@ -133,11 +137,13 @@ defmodule DB.ResourceTest do
     resource = insert(:resource, %{schema_name: schema_name})
 
     Transport.Shared.Schemas.Mock
-    |> expect(:schemas_by_type, 2, fn type ->
+    |> expect(:schemas_by_type, 3, fn type ->
       assert type == "jsonschema"
       %{schema_name => %{}}
     end)
 
+    assert {true, "schema is set"} == Resource.can_validate?(resource)
+    assert Resource.need_validate?(resource, false)
     assert Resource.needs_schema_validation?(resource)
     assert {true, "schema is set"} == Resource.needs_validation(resource, false)
   end
@@ -146,11 +152,13 @@ defmodule DB.ResourceTest do
     resource = insert(:resource, %{schema_name: "foo"})
 
     Transport.Shared.Schemas.Mock
-    |> expect(:schemas_by_type, 2, fn type ->
+    |> expect(:schemas_by_type, 3, fn type ->
       assert type == "jsonschema"
       %{}
     end)
 
+    assert {false, "schema is set"} == Resource.can_validate?(resource)
+    assert Resource.need_validate?(resource, false)
     refute Resource.needs_schema_validation?(resource)
     assert {false, "schema is set"} == Resource.needs_validation(resource, false)
   end
