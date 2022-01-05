@@ -104,8 +104,9 @@ defmodule DB.Resource do
     {true, "#{format} can be validated"}
   end
 
-  def can_validate?(%__MODULE__{schema_name: schema_name} = r) when is_binary(schema_name) do
-    {needs_schema_validation?(r), "schema is set"}
+  def can_validate?(%__MODULE__{schema_name: schema_name}) when is_binary(schema_name) do
+    json_schemas = Schemas.schemas_by_type("jsonschema")
+    {Map.has_key?(json_schemas, schema_name), "schema is set"}
   end
 
   def can_validate?(%__MODULE__{}) do
@@ -219,13 +220,6 @@ defmodule DB.Resource do
 
       {:error, e}
   end
-
-  def needs_schema_validation?(%__MODULE__{schema_name: schema_name}) when is_binary(schema_name) do
-    json_schemas = Schemas.schemas_by_type("jsonschema")
-    Map.has_key?(json_schemas, schema_name)
-  end
-
-  def needs_schema_validation?(_), do: false
 
   @spec validate(__MODULE__.t()) :: {:error, any} | {:ok, map()}
   def validate(%__MODULE__{url: nil}), do: {:error, "No url"}

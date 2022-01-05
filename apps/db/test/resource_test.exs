@@ -137,14 +137,13 @@ defmodule DB.ResourceTest do
     resource = insert(:resource, %{schema_name: schema_name})
 
     Transport.Shared.Schemas.Mock
-    |> expect(:schemas_by_type, 3, fn type ->
+    |> expect(:schemas_by_type, 2, fn type ->
       assert type == "jsonschema"
       %{schema_name => %{}}
     end)
 
     assert {true, "schema is set"} == Resource.can_validate?(resource)
     assert Resource.need_validate?(resource, false)
-    assert Resource.needs_schema_validation?(resource)
     assert {true, "schema is set"} == Resource.needs_validation(resource, false)
   end
 
@@ -152,14 +151,13 @@ defmodule DB.ResourceTest do
     resource = insert(:resource, %{schema_name: "foo"})
 
     Transport.Shared.Schemas.Mock
-    |> expect(:schemas_by_type, 3, fn type ->
+    |> expect(:schemas_by_type, 2, fn type ->
       assert type == "jsonschema"
       %{}
     end)
 
     assert {false, "schema is set"} == Resource.can_validate?(resource)
     assert Resource.need_validate?(resource, false)
-    refute Resource.needs_schema_validation?(resource)
     assert {false, "schema is set"} == Resource.needs_validation(resource, false)
   end
 end
