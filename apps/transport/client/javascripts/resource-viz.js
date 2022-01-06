@@ -223,10 +223,13 @@ function featureScore (f) {
 }
 
 function fillGeofencingZones (geojson, geoFencingZones) {
-    // sort geojson features, so that forbidden areas layers appear above others
-    geojson.features.sort((f1, f2) => {
-        return featureScore(f1) - featureScore(f2)
-    })
+    // According to GBFS specification, in case of conflicting rules
+    // the first rule in the GeoJSON takes precedence
+    // see https://github.com/NABSA/gbfs/blob/v2.2/gbfs.md#geofencing_zonesjson-added-in-v21
+    // In leaflet, the last features in the GeoJSON are displayed above the first, so to reflect the spirit of the rule
+    // we need to revert the array.
+    geojson.features = geojson.features.reverse()
+
     L.geoJSON(geojson, {
         onEachFeature: (feature, layer) => setGBFSGeofencingStyle(feature, layer)
     }).addTo(geoFencingZones)
