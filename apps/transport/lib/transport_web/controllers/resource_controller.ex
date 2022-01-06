@@ -40,6 +40,7 @@ defmodule TransportWeb.ResourceController do
           end
 
         conn
+        |> assign(:related_files, Resource.get_related_files(resource))
         |> assign(:resource, resource)
         |> assign(:other_resources, Resource.other_resources(resource))
         |> assign(:issues, Scrivener.paginate(issues, config))

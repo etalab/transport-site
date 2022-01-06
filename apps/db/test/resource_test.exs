@@ -132,6 +132,49 @@ defmodule DB.ResourceTest do
     assert reasons == %{"content hash has changed" => 1, "no previous validation" => 1}
   end
 
+  test "get resource related geojson infos" do
+    now = DateTime.now!("Etc/UTC")
+
+    # we insert 3 resource history for datagouv_id_1
+    insert_resouce_history("datagouv_id_1", uuid1 = Ecto.UUID.generate(), now, -3600)
+    insert_resouce_history("datagouv_id_1", uuid2 = Ecto.UUID.generate(), now)
+    insert_resouce_history("datagouv_id_1", uuid3 = Ecto.UUID.generate(), now, -3601)
+
+    # and one for datagouv_id_2
+    insert_resouce_history("datagouv_id_2", uuid4 = Ecto.UUID.generate(), now)
+
+    # we insert 1 conversion for each resource history
+    insert_data_conversion(uuid1, "url1", 10)
+    insert_data_conversion(uuid2, "url2", 12)
+    insert_data_conversion(uuid3, "url3", 10)
+    insert_data_conversion(uuid4, "url4", 10)
+
+    assert %{url: "url2", filesize: "12", resource_history_last_up_to_date_at: _} =
+             DB.Resource.get_related_geojson_info("datagouv_id_1")
+
+    assert nil == DB.Resource.get_related_geojson_info("other_id")
+
+    assert %{geojson: %{url: "url2", filesize: "12", resource_history_last_up_to_date_at: _}} =
+             DB.Resource.get_related_files(%DB.Resource{datagouv_id: "datagouv_id_1"})
+  end
+
+  defp insert_resouce_history(datagouv_id, uuid, datetime, time_delta_seconds \\ 0) do
+    insert(:resource_history, %{
+      datagouv_id: datagouv_id,
+      payload: %{uuid: uuid},
+      inserted_at: DateTime.add(datetime, time_delta_seconds, :second)
+    })
+  end
+
+  defp insert_data_conversion(uuid, permanent_url, filesize) do
+    insert(:data_conversion, %{
+      resource_history_uuid: uuid,
+      convert_from: "GTFS",
+      convert_to: "GeoJSON",
+      payload: %{permanent_url: permanent_url, filesize: filesize}
+    })
+  end
+
   test "needs validation with a JSON Schema" do
     schema_name = "etalab/foo"
     resource = insert(:resource, %{schema_name: schema_name})

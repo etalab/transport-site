@@ -43,6 +43,7 @@ defmodule TransportWeb.DatasetController do
 
       conn
       |> assign(:dataset, dataset)
+      |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
       |> assign(:territory, territory)
       |> assign(:discussions, Discussions.get(dataset.datagouv_id))
       |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
