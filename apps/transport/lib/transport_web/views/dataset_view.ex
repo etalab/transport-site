@@ -247,6 +247,16 @@ defmodule TransportWeb.DatasetView do
 
   def errors_count(%Resource{}), do: nil
 
+  def availability_number_days, do: 30
+
+  def availability_ratio_class(ratio) when ratio >= 0 and ratio <= 100 do
+    cond do
+      ratio >= 99 -> "resource__summary--Success"
+      ratio >= 95 -> "resource__summary--Warning"
+      true -> "resource__summary--Error"
+    end
+  end
+
   def outdated_class(resource) do
     case Resource.is_outdated?(resource) do
       true -> "resource__summary--Error"

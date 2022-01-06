@@ -28,7 +28,25 @@ defmodule DB.ResourceUnavailability do
 
   def availability_over_last_days(%Resource{} = resource, nb_days) when is_integer(nb_days) and nb_days > 0 do
     %{hours: hours} = unavailabilities_over_last_days(resource, nb_days)
-    100 - hours / (24.0 * nb_days) * 100
+    round_float(100 - hours / (24.0 * nb_days) * 100)
+  end
+
+  @doc """
+  Round a float up to a precision and removes unneeded zeroes.
+
+  iex> round_float(1.23)
+  1.2
+
+  iex> round_float(1.0)
+  1
+
+  iex> round_float(1.20, 2)
+  1.20
+  """
+  def round_float(float, precision \\ 1) do
+    rounded = Float.round(float, precision)
+    trunced = trunc(float)
+    if rounded == trunced, do: trunced, else: rounded
   end
 
   def unavailabilities_over_last_days(%Resource{id: resource_id}, nb_days) when is_integer(nb_days) and nb_days > 0 do

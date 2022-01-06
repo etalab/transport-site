@@ -393,3 +393,7 @@ msgstr "Des versions précédentes des ressources de ce jeu de données sont dis
 #, elixir-format
 msgid "time to live (%{feed})"
 msgstr "durée de vie (%{feed})"
+
+#, elixir-format
+msgid "availability over last %{nb} days"
+msgstr "disponibilité au cours des %{nb} derniers jours"

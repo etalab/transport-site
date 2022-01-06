@@ -3,6 +3,8 @@ defmodule DB.ResourceUnavailabilityTest do
   alias DB.{Repo, ResourceUnavailability}
   import DB.Factory
 
+  doctest DB.ResourceUnavailability, import: true
+
   describe "ongoing_unavailability" do
     test "it works" do
       # No unavailabilities
