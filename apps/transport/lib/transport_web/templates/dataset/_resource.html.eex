@@ -38,7 +38,7 @@
     <%= if Map.has_key?(@unavailabilities, @resource.id) do %>
       <div>
         <span title="<%= dgettext("page-dataset-details", "download availability over last %{nb} days", nb: availability_number_days()) %>">
-          <i class="icon fa fa-plug" aria-hidden="true"></i>
+          <img class="icon icon--uptime" src="<%= static_path(@conn, "/images/icons/uptime.svg") %>" />
           <% availability_ratio = @unavailabilities[@resource.id] %>
           <span class="<%= availability_ratio_class(availability_ratio) %>">
             <%= availability_ratio %>%
