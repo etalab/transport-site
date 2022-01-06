@@ -25,4 +25,58 @@ defmodule DB.ResourceUnavailability do
     |> limit(1)
     |> Repo.one()
   end
+
+  def availability_over_last_days(%Resource{} = resource, nb_days) when is_integer(nb_days) and nb_days > 0 do
+    %{hours: hours} = unavailabilities_over_last_days(resource, nb_days)
+    100 - hours / (24.0 * nb_days) * 100
+  end
+
+  def unavailabilities_over_last_days(%Resource{id: resource_id}, nb_days) when is_integer(nb_days) and nb_days > 0 do
+    # Sorry about the messy Ecto code
+    # - interval to number of hours, https://stackoverflow.com/a/952600
+    rows =
+      __MODULE__
+      |> select([:start, :end])
+      |> where([r], r.resource_id == ^resource_id)
+      |> where(
+        [r],
+        fragment(
+          ~s[now() between "start" - '1 day'::interval * ? and greatest(coalesce("end", now()), now())],
+          ^nb_days
+        )
+      )
+      |> Repo.all()
+
+    period_start = days_ago(nb_days)
+
+    %{
+      resource_id: resource_id,
+      nb_periods: Enum.count(rows),
+      hours: total_hours(rows, period_start)
+    }
+  end
+
+  defp total_hours(rows, period_start) do
+    seconds =
+      rows
+      |> Enum.map(fn row ->
+        row_start =
+          if DateTime.compare(row.start, period_start) == :lt do
+            period_start
+          else
+            row.start
+          end
+
+        row_end = if is_nil(row.end), do: days_ago(0), else: row.end
+
+        DateTime.diff(row_end, row_start, :second)
+      end)
+      |> Enum.sum()
+
+    round(seconds / 3600)
+  end
+
+  defp days_ago(days) when days >= 0 do
+    DateTime.utc_now() |> DateTime.add(-days * 24 * 60 * 60, :second) |> DateTime.truncate(:second)
+  end
 end
