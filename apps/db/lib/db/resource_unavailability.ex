@@ -91,7 +91,7 @@ defmodule DB.ResourceUnavailability do
       end)
       |> Enum.sum()
 
-    round(seconds / 3600)
+    seconds / 3600
   end
 
   defp days_ago(days) when days >= 0 do
