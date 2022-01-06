@@ -65,15 +65,19 @@ defmodule TransportWeb.ResourceControllerTest do
     resource = Resource |> Repo.get_by(datagouv_id: "2")
     assert resource.format == "GTFS"
     refute is_nil(resource.metadata)
-    x = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
-    IO.inspect(x)
-    File.write!("/home/francis/projects/transport/transport-site/debug.txt", x)
-    assert false
+    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
   end
 
   test "GTFS resource with associated NeTEx", %{conn: conn} do
     resource = %{url: url, dataset_id: dataset_id} = Resource |> Repo.get_by(datagouv_id: "2")
-    netex_resource = insert(:resource, %{dataset_id: dataset_id, is_community_resource: true, format: "NeTEx", original_resource_url: url})
+
+    insert(:resource, %{
+      dataset_id: dataset_id,
+      is_community_resource: true,
+      format: "NeTEx",
+      original_resource_url: url
+    })
+
     assert conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) =~ "NeTEx"
   end
 
