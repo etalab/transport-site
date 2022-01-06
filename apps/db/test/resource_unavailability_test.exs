@@ -67,7 +67,7 @@ defmodule DB.ResourceUnavailabilityTest do
       assert_in_delta ResourceUnavailability.availability_over_last_days(resource, 1), 100 - 5 / 24 * 100, 0.1
     end
 
-    test "with an unavailabiliy starting before and ending in period" do
+    test "with an unavailability starting before and ending in period" do
       resource = insert(:resource)
       insert(:resource_unavailability, resource: resource, start: hours_ago(26), end: hours_ago(22))
 
