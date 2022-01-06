@@ -133,7 +133,7 @@ defmodule TransportWeb.ResourceView do
   end
 
   def max_display_errors, do: 50
-  
+
   def hours_ago(utcdatetime) do
     DateTime.utc_now() |> DateTime.diff(utcdatetime) |> seconds_to_hours_minutes()
   end

@@ -38,7 +38,7 @@ defmodule TransportWeb.ResourceController do
 
     issue_data_vis = resource.validation.data_vis[issue_type]
     has_features = DataVisualization.has_features(issue_data_vis["geojson"])
-    
+
     encoded_data_vis =
       case {has_features, Jason.encode(issue_data_vis)} do
         {false, _} -> nil
