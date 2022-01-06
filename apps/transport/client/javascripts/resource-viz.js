@@ -208,20 +208,6 @@ function fillFreeFloating (geojson, freeFloating) {
     }).addTo(freeFloating)
 }
 
-function featureScore (f) {
-    const rules = f.properties.rules
-    const rule = rules.length > 0 ? rules[0] : undefined
-    if (rule === undefined) {
-        return 0
-    } else if (rule.ride_through_allowed === false) {
-        return 3
-    } else if (rule.ride_allowed === false) {
-        return 2
-    } else {
-        return 1
-    }
-}
-
 function fillGeofencingZones (geojson, geoFencingZones) {
     // According to GBFS specification, in case of conflicting rules
     // the first rule in the GeoJSON takes precedence
