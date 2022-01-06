@@ -34,7 +34,6 @@ defmodule Shared.Validation.JSONSchemaValidator do
       |> Enum.map(fn %Error{error: error, path: path} ->
         "#{path}: #{to_string(error)}"
       end)
-      |> Enum.sort()
     end
   end
 

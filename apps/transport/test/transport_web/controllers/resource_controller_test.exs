@@ -32,6 +32,13 @@ defmodule TransportWeb.ResourceControllerTest do
             datagouv_id: "3",
             metadata: %{"versions" => ["2.2"]},
             format: "gbfs"
+          },
+          %Resource{
+            url: "http://link.to/file",
+            datagouv_id: "4",
+            metadata: %{"validation" => %{"errors_count" => 1, "has_errors" => true, "errors" => ["this is an error"]}},
+            schema_name: "etalab/foo",
+            format: "json"
           }
         ],
         aom: %AOM{id: 4242, nom: "Angers Métropôle"}
@@ -86,6 +93,13 @@ defmodule TransportWeb.ResourceControllerTest do
     refute resource.format == "GTFS"
     refute is_nil(resource.metadata)
     conn |> get(resource_path(conn, :details, resource.id)) |> html_response(404) |> assert =~ "404"
+  end
+
+  test "resource with error details sends back a 200", %{conn: conn} do
+    resource = Resource |> Repo.get_by(datagouv_id: "4")
+    refute is_nil(resource.schema_name)
+    assert Resource.has_errors_details?(resource)
+    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) |> assert =~ "this is an error"
   end
 
   test "downloading a resource that can be directly downloaded", %{conn: conn} do

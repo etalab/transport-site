@@ -4,6 +4,7 @@ defmodule TransportWeb.ResourceView do
   import DB.Validation
   import Phoenix.Controller, only: [current_url: 2]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
+  import TransportWeb.DatasetView, only: [schema_url: 1, errors_count: 1]
 
   def format_related_objects(nil), do: ""
 
@@ -126,6 +127,12 @@ defmodule TransportWeb.ResourceView do
   def get_associated_netex(resource) do
     get_associated_resource(resource, "NeTEx")
   end
+
+  def errors_sample(%DB.Resource{metadata: %{"validation" => %{"errors" => errors}}}) do
+    Enum.take(errors, max_display_errors())
+  end
+
+  def max_display_errors, do: 50
 
   def hours_ago(utcdatetime) do
     DateTime.utc_now() |> DateTime.diff(utcdatetime) |> seconds_to_hours_minutes()

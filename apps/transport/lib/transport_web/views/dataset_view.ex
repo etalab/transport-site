@@ -236,20 +236,21 @@ defmodule TransportWeb.DatasetView do
     if feed_name, do: feed_name, else: "root"
   end
 
-  def summary_class(%{format: "gbfs", metadata: %{"validation" => %{"has_errors" => false}}}),
-    do: "resource__summary--Success"
-
-  def summary_class(%{format: "gbfs", metadata: %{}}), do: "resource__summary--Error"
-
   # For GTFS resources
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
   def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
 
-  def errors_count(%Resource{format: "gbfs", metadata: %{"validation" => %{"errors_count" => nb_errors}}})
+  # For other resources
+  def summary_class(%{metadata: %{"validation" => %{"has_errors" => false}}}),
+    do: "resource__summary--Success"
+
+  def summary_class(%{metadata: %{"validation" => _}}), do: "resource__summary--Error"
+
+  def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => nb_errors}}})
       when nb_errors >= 0,
       do: nb_errors
 
-  def errors_count(%Resource{format: "gbfs"}), do: nil
+  def errors_count(%Resource{}), do: nil
 
   def outdated_class(resource) do
     case Resource.is_outdated?(resource) do
