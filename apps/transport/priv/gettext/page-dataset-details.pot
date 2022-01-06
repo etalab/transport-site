@@ -395,5 +395,5 @@ msgid "time to live (%{feed})"
 msgstr ""
 
 #, elixir-format
-msgid "availability over last %{nb} days"
+msgid "download availability over last %{nb} days"
 msgstr ""
