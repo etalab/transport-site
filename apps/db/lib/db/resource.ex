@@ -590,6 +590,9 @@ defmodule DB.Resource do
     )
   end
 
+  def has_errors_details?(%__MODULE__{metadata: %{"validation" => %{"errors_count" => _}}}), do: true
+  def has_errors_details?(%__MODULE__{}), do: false
+
   @spec get_related_files(__MODULE__.t()) :: map()
   def get_related_files(%__MODULE__{datagouv_id: resource_datagouv_id}) do
     %{}

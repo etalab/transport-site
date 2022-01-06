@@ -81,11 +81,15 @@
       <% end %>
     </div>
   <% end %>
-  <%= if Resource.is_gbfs?(@resource) and Resource.has_metadata?(@resource) do %>
+  <%= if Resource.has_errors_details?(@resource) do %>
     <% nb_errors = errors_count(@resource) %>
     <%= if nb_errors do %>
       <div class="pb-24">
-        <a href="<%= gbfs_validation_link(@resource) %>" target="_blank">
+        <%= if Resource.is_gbfs?(@resource) do %>
+          <a href="<%= gbfs_validation_link(@resource) %>" target="_blank">
+        <% else %>
+          <a href="<%= resource_path(@conn, :details, @resource.id) %>">
+        <% end %>
           <span class="<%= summary_class(@resource) %>">
             <%= if nb_errors == 0 do %>
               <%= dgettext("page-dataset-details", "No error detected") %>
