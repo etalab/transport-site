@@ -38,7 +38,7 @@ defmodule TransportWeb.ResourceController do
 
     issue_data_vis = resource.validation.data_vis[issue_type]
     has_features = DataVisualization.has_features(issue_data_vis["geojson"])
-
+    
     encoded_data_vis =
       case {has_features, Jason.encode(issue_data_vis)} do
         {false, _} -> nil
@@ -47,6 +47,7 @@ defmodule TransportWeb.ResourceController do
       end
 
     conn
+    |> assign(:related_files, Resource.get_related_files(resource))
     |> assign(:resource, resource)
     |> assign(:other_resources, Resource.other_resources(resource))
     |> assign(:issues, Scrivener.paginate(issues, config))

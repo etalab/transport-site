@@ -118,9 +118,10 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         Transport.S3.upload_to_s3!(:history, body, filename)
         store_resource_history!(resource, data)
 
-      false ->
+      {false, history} ->
         # Good opportunity to add a :telemetry event
         Logger.debug("skipping historization for #{datagouv_id} because resource did not change")
+        touch_resource_history!(history)
     end
   end
 
@@ -142,7 +143,11 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       |> limit(1)
       |> DB.Repo.one()
 
-    is_nil(history) or not is_same_resource?(history, zip_metadata)
+    case {history, is_same_resource?(history, zip_metadata)} do
+      {nil, _} -> true
+      {_history, false} -> true
+      {history, true} -> {false, history}
+    end
   end
 
   @doc """
@@ -154,13 +159,21 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     MapSet.equal?(set_of_sha256(payload["zip_metadata"]), set_of_sha256(zip_metadata))
   end
 
+  def is_same_resource?(nil, _), do: false
+
   def set_of_sha256(items), do: MapSet.new(items |> Enum.map(fn m -> Map.get(m, "sha256") || Map.get(m, :sha256) end))
 
   defp store_resource_history!(%Resource{datagouv_id: datagouv_id}, payload) do
     Logger.debug("Saving ResourceHistory for #{datagouv_id}")
 
-    %DB.ResourceHistory{datagouv_id: datagouv_id, payload: payload}
+    %DB.ResourceHistory{datagouv_id: datagouv_id, payload: payload, last_up_to_date_at: DateTime.utc_now()}
     |> DB.Repo.insert!()
+  end
+
+  defp touch_resource_history!(%DB.ResourceHistory{id: id, datagouv_id: datagouv_id} = history) do
+    Logger.debug("Touching unchanged ResourceHistory #{id} for resource datagouv_id #{datagouv_id}")
+
+    history |> Ecto.Changeset.change(%{last_up_to_date_at: DateTime.utc_now()}) |> DB.Repo.update!()
   end
 
   defp download_path(%Resource{datagouv_id: datagouv_id}) do

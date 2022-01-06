@@ -140,3 +140,11 @@ msgstr ""
 #, elixir-format
 msgid "No error detected"
 msgstr ""
+
+#, elixir-format
+msgid "This GeoJSON was up-to-date with the GTFS resource %{hours} ago."
+msgstr ""
+
+#, elixir-format
+msgid "Visualization up-to-date %{hours} ago."
+msgstr ""

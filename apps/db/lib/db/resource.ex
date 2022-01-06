@@ -59,7 +59,11 @@ defmodule DB.Resource do
     belongs_to(:dataset, Dataset)
     has_one(:validation, Validation, on_replace: :delete)
     has_many(:logs_validation, LogsValidation, on_replace: :delete, on_delete: :delete_all)
-    has_many(:resource_unavailabilities, ResourceUnavailability, on_replace: :delete, on_delete: :delete_all)
+
+    has_many(:resource_unavailabilities, ResourceUnavailability,
+      on_replace: :delete,
+      on_delete: :delete_all
+    )
   end
 
   defp gtfs_validator, do: Shared.Validation.GtfsValidator.Wrapper.impl()
@@ -535,7 +539,10 @@ defmodule DB.Resource do
   end
 
   @spec ttl(__MODULE__.t()) :: integer() | nil
-  def ttl(%__MODULE__{format: "gbfs", metadata: %{"ttl" => ttl}}) when is_integer(ttl) and ttl >= 0, do: ttl
+  def ttl(%__MODULE__{format: "gbfs", metadata: %{"ttl" => ttl}})
+      when is_integer(ttl) and ttl >= 0,
+      do: ttl
+
   def ttl(_), do: nil
 
   @spec can_direct_download?(__MODULE__.t()) :: boolean
@@ -585,4 +592,30 @@ defmodule DB.Resource do
 
   def has_errors_details?(%__MODULE__{metadata: %{"validation" => %{"errors_count" => _}}}), do: true
   def has_errors_details?(%__MODULE__{}), do: false
+  
+  @spec get_related_files(__MODULE__.t()) :: map()
+  def get_related_files(%__MODULE__{datagouv_id: resource_datagouv_id}) do
+    %{}
+    |> Map.put(:geojson, get_related_geojson_info(resource_datagouv_id))
+  end
+
+  @spec get_related_geojson_info(binary() | nil) :: %{url: binary(), filesize: binary()} | nil
+  def get_related_geojson_info(nil), do: nil
+
+  def get_related_geojson_info(resource_datagouv_id) do
+    DB.ResourceHistory
+    |> join(:inner, [rh], dc in DB.DataConversion,
+      as: :dc,
+      on: fragment("?::text = ? ->> 'uuid'", dc.resource_history_uuid, rh.payload)
+    )
+    |> select([rh, dc], %{
+      url: fragment("? ->> 'permanent_url'", dc.payload),
+      filesize: fragment("? ->> 'filesize'", dc.payload),
+      resource_history_last_up_to_date_at: rh.last_up_to_date_at
+    })
+    |> where([rh, dc], rh.datagouv_id == ^resource_datagouv_id and dc.convert_to == "GeoJSON")
+    |> order_by([rh, _], desc: rh.inserted_at)
+    |> limit(1)
+    |> DB.Repo.one()
+  end
 end
