@@ -128,7 +128,7 @@ defmodule TransportWeb.ResourceView do
     get_associated_resource(resource, "NeTEx")
   end
 
-  def errors(%DB.Resource{metadata: %{"validation" => %{"errors" => errors}}}) do
+  def errors_sample(%DB.Resource{metadata: %{"validation" => %{"errors" => errors}}}) do
     Enum.take(errors, max_display_errors())
   end
 
