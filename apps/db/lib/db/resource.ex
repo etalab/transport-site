@@ -276,9 +276,12 @@ defmodule DB.Resource do
     {:ok, %{"validations" => nil, "metadata" => nil}}
   end
 
-  defp validate_against_schema(%__MODULE__{url: url, schema_name: schema_name}, schema_type) do
+  defp validate_against_schema(
+         %__MODULE__{url: url, schema_name: schema_name, schema_version: schema_version},
+         schema_type
+       ) do
     case schema_type do
-      "tableschema" -> TableSchemaValidator.validate(schema_name, url)
+      "tableschema" -> TableSchemaValidator.validate(schema_name, url, schema_version)
       "jsonschema" -> JSONSchemaValidator.validate(JSONSchemaValidator.load_jsonschema_for_schema(schema_name), url)
     end
   end

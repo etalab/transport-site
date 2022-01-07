@@ -5,7 +5,9 @@ defmodule Shared.Validation.TableSchemaValidator.Wrapper do
   defp impl, do: Application.get_env(:transport, :tableschema_validator_impl)
 
   @callback validate(binary(), binary()) :: map()
+  @callback validate(binary(), binary(), binary()) :: map()
   def validate(schema_name, url), do: impl().validate(schema_name, url)
+  def validate(schema_name, url, schema_version), do: impl().validate(schema_name, url, schema_version)
 end
 
 defmodule Shared.Validation.TableSchemaValidator do
@@ -19,10 +21,10 @@ defmodule Shared.Validation.TableSchemaValidator do
   @validata_api_url URI.parse("https://validata-api.app.etalab.studio/validate")
 
   @impl true
-  def validate(schema_name, url) when is_binary(schema_name) and is_binary(url) do
+  def validate(schema_name, url, schema_version \\ "latest") when is_binary(schema_name) and is_binary(url) do
     ensure_schema_is_tableschema!(schema_name)
 
-    schema_url = schema_url(schema_name, "latest")
+    schema_url = schema_url(schema_name, schema_version || "latest")
 
     # See https://go.validata.fr/api/v1/apidocs
     api_url =

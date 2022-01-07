@@ -103,7 +103,7 @@ defmodule DB.ResourceTest do
     |> expect(:schemas_by_type, 1, fn "tableschema" -> %{schema_name => %{}} end)
 
     Shared.Validation.TableSchemaValidator.Mock
-    |> expect(:validate, fn ^schema_name, ^url -> %{"foo" => "bar"} end)
+    |> expect(:validate, fn ^schema_name, ^url, nil -> %{"foo" => "bar"} end)
 
     assert {true, "schema is set"} == Resource.can_validate?(resource)
     assert Resource.need_validate?(resource, false)
