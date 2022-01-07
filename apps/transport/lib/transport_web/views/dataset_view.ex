@@ -206,7 +206,12 @@ defmodule TransportWeb.DatasetView do
       "road-works" => "construction-zone-grey.svg",
       "car-motorbike-sharing" => "car-motorbike-grey.svg",
       "low-emission-zones" => "low-emission-zones.svg",
-      "bike-parking" => "bike-parking.svg"
+      "bike-parking" => "bike-parking.svg",
+      # Not proper types, but modes/filters
+      "real-time-public-transit" => "bus-stop.svg",
+      "long-distance-coach" => "bus.svg",
+      "train" => "train.svg",
+      "boat" => "boat.svg"
     }
 
     if Map.has_key?(icons, type), do: "/images/icons/#{Map.get(icons, type)}"
