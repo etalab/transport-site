@@ -10,7 +10,7 @@ defmodule Transport.Jobs.GtfsGenericConverter do
   Enqueues conversion jobs for all resource history that need one.
   """
   @spec enqueue_all_conversion_jobs(binary(), module()) :: :ok
-  def enqueue_all_conversion_jobs(format, conversionJob) when format in ["GeoJSON", "NeTEx"] do
+  def enqueue_all_conversion_jobs(format, conversion_job_module) when format in ["GeoJSON", "NeTEx"] do
     query =
       ResourceHistory
       |> where(
@@ -33,7 +33,7 @@ defmodule Transport.Jobs.GtfsGenericConverter do
       stream
       |> Stream.each(fn id ->
         %{"resource_history_id" => id}
-        |> conversionJob.new()
+        |> conversion_job_module.new()
         |> Oban.insert()
       end)
       |> Stream.run()
