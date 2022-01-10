@@ -637,7 +637,7 @@ defmodule Transport.ImportData do
   def get_title(%{"title" => title}) when not is_nil(title), do: title
   def get_title(%{"url" => url}), do: Helpers.filename_from_url(url)
 
-  @spec get_existing_resource(map(), binary()) :: Resource.t()
+  @spec get_existing_resource(map(), binary()) :: Resource.t() | nil
   defp get_existing_resource(%{"url" => url}, dataset_id) do
     Resource
     |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
