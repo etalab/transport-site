@@ -19,25 +19,11 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
   """
   use Oban.Worker, max_attempts: 3
   require Logger
-  alias DB.{Repo, ResourceHistory}
   alias Transport.Jobs.GtfsGenericConverter
 
   @impl true
   def perform(%{args: %{"resource_history_id" => resource_history_id}}) do
-    resource_history = ResourceHistory |> Repo.get(resource_history_id)
-
-    if GtfsGenericConverter.is_resource_gtfs?(resource_history) and not geojson_exists?(resource_history) do
-      generate_and_upload_geojson(resource_history)
-    end
-
-    :ok
-  end
-
-  @spec geojson_exists?(any) :: boolean
-  def geojson_exists?(resource_history), do: GtfsGenericConverter.format_exists?("GeoJSON", resource_history)
-
-  def generate_and_upload_geojson(resource_history) do
-    GtfsGenericConverter.generate_and_upload_conversion(resource_history, "GeoJSON", Transport.GtfsToGeojsonConverter)
+    GtfsGenericConverter.perform_single_conversion_job(resource_history_id, "GeoJSON", Transport.GtfsToGeojsonConverter)
   end
 end
 

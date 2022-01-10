@@ -43,13 +43,24 @@ defmodule Transport.Jobs.GtfsGenericConverter do
 
   def is_resource_gtfs?(_), do: false
 
-  @spec format_exists?(binary(), any()) :: boolean
-  def format_exists?(format, %{payload: %{"uuid" => resource_uuid}}) do
+  @spec format_exists?(any(), binary()) :: boolean
+  def format_exists?(%{payload: %{"uuid" => resource_uuid}}, format) do
     DataConversion
     |> Repo.get_by(convert_from: "GTFS", convert_to: format, resource_history_uuid: resource_uuid) !== nil
   end
 
   def format_exists?(_, _), do: false
+
+  @spec perform_single_conversion_job(integer(), binary(), module()) :: :ok
+  def perform_single_conversion_job(resource_history_id, format, converter_module) do
+    resource_history = ResourceHistory |> Repo.get(resource_history_id)
+
+    if is_resource_gtfs?(resource_history) and not format_exists?(resource_history, format) do
+      generate_and_upload_conversion(resource_history, format, converter_module)
+    end
+
+    :ok
+  end
 
   def generate_and_upload_conversion(
         %{
