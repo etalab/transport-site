@@ -6,6 +6,9 @@ defmodule Transport.Jobs.GtfsGenericConverter do
   import Ecto.Query
   require Logger
 
+  @doc """
+  Enqueues conversion jobs for all resource history that need one.
+  """
   @spec enqueue_all_conversion_jobs(binary(), module()) :: :ok
   def enqueue_all_conversion_jobs(format, conversionJob) when format in ["GeoJSON", "NeTEx"] do
     query =
@@ -39,18 +42,21 @@ defmodule Transport.Jobs.GtfsGenericConverter do
     :ok
   end
 
-  def is_resource_gtfs?(%{payload: %{"format" => "GTFS"}}), do: true
+  defp is_resource_gtfs?(%{payload: %{"format" => "GTFS"}}), do: true
 
-  def is_resource_gtfs?(_), do: false
+  defp is_resource_gtfs?(_), do: false
 
   @spec format_exists?(any(), binary()) :: boolean
-  def format_exists?(%{payload: %{"uuid" => resource_uuid}}, format) do
+  defp format_exists?(%{payload: %{"uuid" => resource_uuid}}, format) do
     DataConversion
     |> Repo.get_by(convert_from: "GTFS", convert_to: format, resource_history_uuid: resource_uuid) !== nil
   end
 
-  def format_exists?(_, _), do: false
+  defp format_exists?(_, _), do: false
 
+  @doc """
+  Converts a resource_history to the targeted format, using a converter module
+  """
   @spec perform_single_conversion_job(integer(), binary(), module()) :: :ok
   def perform_single_conversion_job(resource_history_id, format, converter_module) do
     resource_history = ResourceHistory |> Repo.get(resource_history_id)
@@ -62,15 +68,15 @@ defmodule Transport.Jobs.GtfsGenericConverter do
     :ok
   end
 
-  def generate_and_upload_conversion(
-        %{
-          id: resource_history_id,
-          datagouv_id: resource_datagouv_id,
-          payload: %{"uuid" => resource_uuid, "permanent_url" => resource_url, "filename" => resource_filename}
-        },
-        format,
-        converter_module
-      ) do
+  defp generate_and_upload_conversion(
+         %{
+           id: resource_history_id,
+           datagouv_id: resource_datagouv_id,
+           payload: %{"uuid" => resource_uuid, "permanent_url" => resource_url, "filename" => resource_filename}
+         },
+         format,
+         converter_module
+       ) do
     format_lower = format |> String.downcase()
     Logger.info("Starting conversion of download uuid #{resource_uuid}, from GTFS to #{format}")
 
@@ -111,5 +117,5 @@ defmodule Transport.Jobs.GtfsGenericConverter do
     end
   end
 
-  def conversion_file_name(resource_name, format), do: "conversions/gtfs-to-#{format}/#{resource_name}.#{format}"
+  defp conversion_file_name(resource_name, format), do: "conversions/gtfs-to-#{format}/#{resource_name}.#{format}"
 end
