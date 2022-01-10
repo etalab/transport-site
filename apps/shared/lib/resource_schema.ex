@@ -31,7 +31,7 @@ defmodule Transport.Shared.ResourceSchema do
     iex> guess_name(%{"schema" => %{"name" => "etalab/schema-zfe"}, "metadata" => %{"override_schema_name" => "etalab/foo"}}, "low-emission-zones")
     "etalab/foo"
   """
-  def guess_name(%{"metadata" => %{"override_schema_name" => schema}}, _dataset_type) when is_binary(schema) do
+  def guess_name(%{"metadata" => %{"override_schema_name" => schema}}, _dataset_type) do
     schema
   end
 
@@ -65,7 +65,7 @@ defmodule Transport.Shared.ResourceSchema do
     iex> guess_version(%{})
     nil
   """
-  def guess_version(%{"metadata" => %{"override_schema_version" => version}}) when is_binary(version) do
+  def guess_version(%{"metadata" => %{"override_schema_version" => version}}) do
     version
   end
 
