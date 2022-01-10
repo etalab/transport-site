@@ -60,13 +60,14 @@ defmodule Transport.Jobs.GtfsGenericConverter do
         format,
         converter_module
       ) do
+    format_lower = format |> String.downcase()
     Logger.info("Starting conversion of download uuid #{resource_uuid}, from GTFS to #{format}")
 
     gtfs_file_path =
       System.tmp_dir!()
-      |> Path.join("conversion_gtfs_#{format}_#{resource_history_id}_#{:os.system_time(:millisecond)}")
+      |> Path.join("conversion_gtfs_#{format_lower}_#{resource_history_id}_#{:os.system_time(:millisecond)}")
 
-    conversion_file_path = "#{gtfs_file_path}.#{format}"
+    conversion_file_path = "#{gtfs_file_path}.#{format_lower}"
 
     try do
       %{status_code: 200, body: body} = Transport.Shared.Wrapper.HTTPoison.impl().get!(resource_url)
@@ -76,7 +77,7 @@ defmodule Transport.Jobs.GtfsGenericConverter do
       :ok = apply(converter_module, :convert, [gtfs_file_path, conversion_file_path])
       file = conversion_file_path |> File.read!()
 
-      conversion_file_name = resource_filename |> conversion_file_name(format)
+      conversion_file_name = resource_filename |> conversion_file_name(format_lower)
       Transport.S3.upload_to_s3!(:history, file, conversion_file_name)
 
       {:ok, %{size: filesize}} = File.stat(conversion_file_path)
