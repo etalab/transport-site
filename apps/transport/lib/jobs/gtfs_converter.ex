@@ -2,7 +2,7 @@ defmodule Transport.Jobs.GtfsConverter do
   @moduledoc """
   Provides some functions to convert GTFS to another format
   """
-  alias DB.{Repo, ResourceHistory}
+  alias DB.{DataConversion, Repo, ResourceHistory}
   import Ecto.Query
 
   @spec enqueue_all_conversion_jobs(binary(), module()) :: :ok
@@ -37,4 +37,16 @@ defmodule Transport.Jobs.GtfsConverter do
 
     :ok
   end
+
+  def is_resource_gtfs?(%{payload: %{"format" => "GTFS"}}), do: true
+
+  def is_resource_gtfs?(_), do: false
+
+  @spec format_exists?(binary(), any()) :: boolean
+  def format_exists?(format, %{payload: %{"uuid" => resource_uuid}}) do
+    DataConversion
+    |> Repo.get_by(convert_from: "GTFS", convert_to: format, resource_history_uuid: resource_uuid) !== nil
+  end
+
+  def format_exists?(_, _), do: false
 end
