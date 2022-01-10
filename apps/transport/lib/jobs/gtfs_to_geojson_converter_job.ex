@@ -4,12 +4,12 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
   """
   use Oban.Worker, max_attempts: 3
   alias DB.{Repo, ResourceHistory}
-  alias Transport.Jobs.GtfsConverter
+  alias Transport.Jobs.GtfsGenericConverter
 
   @impl true
   def perform(%{}) do
     Transport.S3.create_bucket_if_needed!(:history)
-    GtfsConverter.enqueue_all_conversion_jobs("GeoJSON", Transport.Jobs.SingleGtfsToGeojsonConverterJob)
+    GtfsGenericConverter.enqueue_all_conversion_jobs("GeoJSON", Transport.Jobs.SingleGtfsToGeojsonConverterJob)
   end
 end
 
@@ -19,14 +19,14 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
   """
   use Oban.Worker, max_attempts: 3
   require Logger
-  alias DB.{DataConversion, Repo, ResourceHistory}
-  alias Transport.Jobs.GtfsConverter
+  alias DB.{Repo, ResourceHistory}
+  alias Transport.Jobs.GtfsGenericConverter
 
   @impl true
   def perform(%{args: %{"resource_history_id" => resource_history_id}}) do
     resource_history = ResourceHistory |> Repo.get(resource_history_id)
 
-    if GtfsConverter.is_resource_gtfs?(resource_history) and not geojson_exists?(resource_history) do
+    if GtfsGenericConverter.is_resource_gtfs?(resource_history) and not geojson_exists?(resource_history) do
       generate_and_upload_geojson(resource_history)
     end
 
@@ -34,7 +34,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
   end
 
   @spec geojson_exists?(any) :: boolean
-  def geojson_exists?(resource_history), do: GtfsConverter.format_exists?("GeoJSON", resource_history)
+  def geojson_exists?(resource_history), do: GtfsGenericConverter.format_exists?("GeoJSON", resource_history)
 
   def generate_and_upload_geojson(%{
         id: resource_history_id,
