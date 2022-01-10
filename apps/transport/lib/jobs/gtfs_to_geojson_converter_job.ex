@@ -36,50 +36,9 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
   @spec geojson_exists?(any) :: boolean
   def geojson_exists?(resource_history), do: GtfsGenericConverter.format_exists?("GeoJSON", resource_history)
 
-  def generate_and_upload_geojson(%{
-        id: resource_history_id,
-        datagouv_id: resource_datagouv_id,
-        payload: %{"uuid" => resource_uuid, "permanent_url" => resource_url, "filename" => resource_filename}
-      }) do
-    Logger.info("Starting conversion of download uuid #{resource_uuid}, from GTFS to GeoJSON")
-
-    gtfs_file_path =
-      System.tmp_dir!() |> Path.join("conversion_gtfs_geojson_#{resource_history_id}_#{:os.system_time(:millisecond)}")
-
-    geojson_file_path = "#{gtfs_file_path}.geojson"
-
-    try do
-      %{status_code: 200, body: body} = Transport.Shared.Wrapper.HTTPoison.impl().get!(resource_url)
-
-      File.write!(gtfs_file_path, body)
-
-      :ok = Transport.GtfsToGeojsonConverter.convert(gtfs_file_path, geojson_file_path)
-      file = geojson_file_path |> File.read!()
-
-      geojson_file_name = resource_filename |> geojson_file_name()
-      Transport.S3.upload_to_s3!(:history, file, geojson_file_name)
-
-      {:ok, %{size: filesize}} = File.stat(geojson_file_path)
-
-      %DataConversion{
-        convert_from: "GTFS",
-        convert_to: "GeoJSON",
-        resource_history_uuid: resource_uuid,
-        payload: %{
-          filename: geojson_file_name,
-          permanent_url: Transport.S3.permanent_url(:history, geojson_file_name),
-          resource_datagouv_id: resource_datagouv_id,
-          filesize: filesize
-        }
-      }
-      |> Repo.insert!()
-    after
-      File.rm(gtfs_file_path)
-      File.rm(geojson_file_path)
-    end
+  def generate_and_upload_geojson(resource_history) do
+    GtfsGenericConverter.generate_and_upload_conversion(resource_history, "GeoJSON", Transport.GtfsToGeojsonConverter)
   end
-
-  def geojson_file_name(resource_name), do: "conversions/gtfs-to-geojson/#{resource_name}.geojson"
 end
 
 defmodule Transport.GtfsToGeojsonConverter do
