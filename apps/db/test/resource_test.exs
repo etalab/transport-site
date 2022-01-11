@@ -52,16 +52,21 @@ defmodule DB.ResourceTest do
     assert %{metadata: %{"foo" => "bar"}} = Repo.get(Resource, resource.id)
   end
 
-  test "validate and save a resource with a JSON Schema" do
+  test "validate and save a resource with a JSON Schema schema" do
     url = "https://example.com/file"
     schema_name = "etalab/foo"
 
     resource = insert(:resource, %{url: url, schema_name: schema_name, metadata: %{"bar" => "baz"}})
 
     Transport.Shared.Schemas.Mock
+    |> expect(:transport_schemas, 2, fn -> %{schema_name => %{}} end)
+
+    Transport.Shared.Schemas.Mock
     |> expect(:schemas_by_type, 2, fn type ->
-      assert type == "jsonschema"
-      %{schema_name => %{}}
+      case type do
+        "tableschema" -> %{}
+        "jsonschema" -> %{schema_name => %{}}
+      end
     end)
 
     Shared.Validation.JSONSchemaValidator.Mock
@@ -80,7 +85,32 @@ defmodule DB.ResourceTest do
     assert {true, "schema is set"} == Resource.can_validate?(resource)
     assert Resource.need_validate?(resource, false)
     assert Resource.validate_and_save(resource, false) == {:ok, nil}
-    assert %{metadata: %{"bar" => "baz", "validation" => %{"foo" => "bar"}}} = Repo.get(Resource, resource.id)
+
+    assert %{metadata: %{"bar" => "baz", "validation" => %{"foo" => "bar", "schema_type" => "jsonschema"}}} =
+             Repo.get(Resource, resource.id)
+  end
+
+  test "validate and save a resource with a Table Schema schema" do
+    url = "https://example.com/file"
+    schema_name = "etalab/foo"
+
+    resource = insert(:resource, %{url: url, schema_name: schema_name, metadata: %{"bar" => "baz"}})
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:transport_schemas, 2, fn -> %{schema_name => %{}} end)
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:schemas_by_type, 1, fn "tableschema" -> %{schema_name => %{}} end)
+
+    Shared.Validation.TableSchemaValidator.Mock
+    |> expect(:validate, fn ^schema_name, ^url, nil -> %{"foo" => "bar"} end)
+
+    assert {true, "schema is set"} == Resource.can_validate?(resource)
+    assert Resource.need_validate?(resource, false)
+    assert Resource.validate_and_save(resource, false) == {:ok, nil}
+
+    assert %{metadata: %{"bar" => "baz", "validation" => %{"foo" => "bar", "schema_type" => "tableschema"}}} =
+             Repo.get(Resource, resource.id)
   end
 
   test "validation is skipped if previous validation is still valid" do
@@ -180,10 +210,7 @@ defmodule DB.ResourceTest do
     resource = insert(:resource, %{schema_name: schema_name})
 
     Transport.Shared.Schemas.Mock
-    |> expect(:schemas_by_type, 2, fn type ->
-      assert type == "jsonschema"
-      %{schema_name => %{}}
-    end)
+    |> expect(:transport_schemas, 2, fn -> %{schema_name => %{}} end)
 
     assert {true, "schema is set"} == Resource.can_validate?(resource)
     assert Resource.need_validate?(resource, false)
@@ -194,10 +221,7 @@ defmodule DB.ResourceTest do
     resource = insert(:resource, %{schema_name: "foo"})
 
     Transport.Shared.Schemas.Mock
-    |> expect(:schemas_by_type, 2, fn type ->
-      assert type == "jsonschema"
-      %{}
-    end)
+    |> expect(:transport_schemas, 2, fn -> %{} end)
 
     assert {false, "schema is set"} == Resource.can_validate?(resource)
     assert Resource.need_validate?(resource, false)
