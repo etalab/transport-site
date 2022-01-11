@@ -116,6 +116,10 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
         email: contact@transport.beta.gouv.fr
         type: jsonschema
         latest_version: 0.1.0
+        schemas:
+          - path: schema.json
+        versions:
+          - 0.1.0
       """
 
       %HTTPoison.Response{body: body, status_code: 200}
