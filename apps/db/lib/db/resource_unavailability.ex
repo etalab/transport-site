@@ -59,7 +59,7 @@ defmodule DB.ResourceUnavailability do
       |> where(
         [r],
         fragment(
-          ~s[now() between "start" - '1 day'::interval * ? and greatest(coalesce("end", now()), now())],
+          ~s["end" IS NULL OR "end" between now() - '1 day'::interval * ? and now()],
           ^nb_days
         )
       )
@@ -89,6 +89,7 @@ defmodule DB.ResourceUnavailability do
 
         DateTime.diff(row_end, row_start, :second)
       end)
+      |> Enum.reject(&(&1 < 0))
       |> Enum.sum()
 
     seconds / 3600
