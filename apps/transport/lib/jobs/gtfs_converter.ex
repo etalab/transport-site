@@ -1,4 +1,4 @@
-defmodule Transport.Jobs.GtfsGenericConverter do
+defmodule Transport.Jobs.GTFSGenericConverter do
   @moduledoc """
   Provides some functions to convert GTFS to another format
   """

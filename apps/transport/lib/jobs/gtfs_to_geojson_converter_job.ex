@@ -3,12 +3,12 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJob do
   This will enqueue GTFS -> GeoJSON conversion jobs for all GTFS resources found in ResourceHistory
   """
   use Oban.Worker, max_attempts: 3
-  alias Transport.Jobs.GtfsGenericConverter
+  alias Transport.Jobs.GTFSGenericConverter
 
   @impl true
   def perform(%{}) do
     Transport.S3.create_bucket_if_needed!(:history)
-    GtfsGenericConverter.enqueue_all_conversion_jobs("GeoJSON", Transport.Jobs.SingleGtfsToGeojsonConverterJob)
+    GTFSGenericConverter.enqueue_all_conversion_jobs("GeoJSON", Transport.Jobs.SingleGtfsToGeojsonConverterJob)
   end
 end
 
@@ -17,11 +17,11 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJob do
   Conversion Job of a GTFS to a GeoJSON, saving the resulting file in S3
   """
   use Oban.Worker, max_attempts: 3
-  alias Transport.Jobs.GtfsGenericConverter
+  alias Transport.Jobs.GTFSGenericConverter
 
   @impl true
   def perform(%{args: %{"resource_history_id" => resource_history_id}}) do
-    GtfsGenericConverter.perform_single_conversion_job(resource_history_id, "GeoJSON", Transport.GtfsToGeojsonConverter)
+    GTFSGenericConverter.perform_single_conversion_job(resource_history_id, "GeoJSON", Transport.GtfsToGeojsonConverter)
   end
 end
 
