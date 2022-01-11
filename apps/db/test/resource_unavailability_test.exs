@@ -88,6 +88,16 @@ defmodule DB.ResourceUnavailabilityTest do
       assert 87.5 == ResourceUnavailability.availability_over_last_days(resource, 1)
     end
 
+    test "with an unavailability starting before and ending before period" do
+      resource = insert(:resource)
+      insert(:resource_unavailability, resource: resource, start: hours_ago(72), end: hours_ago(25))
+
+      assert %{hours: 0, resource_id: resource.id, nb_periods: 0} ==
+               ResourceUnavailability.unavailabilities_over_last_days(resource, 1)
+
+      assert 100 == ResourceUnavailability.availability_over_last_days(resource, 1)
+    end
+
     test "scopes to specific resource" do
       resource = insert(:resource)
       insert(:resource_unavailability, resource: resource, start: hours_ago(10), end: hours_ago(8))
