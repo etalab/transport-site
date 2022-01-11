@@ -104,9 +104,13 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
       etalab/foo:
         email: contact@transport.beta.gouv.fr
         type: jsonschema
+        schemas:
+          - path: schema.json
       etalab/schema-irve:
         email: contact@transport.beta.gouv.fr
         type: tableschema
+        schemas:
+          - path: schema.json
       """
 
       %HTTPoison.Response{body: body, status_code: 200}
