@@ -34,7 +34,18 @@ defmodule Transport.Shared.Schemas do
   end
 
   def schema_url(schema_name, schema_version) do
-    "https://schema.data.gouv.fr/schemas/#{schema_name}/#{schema_version}/schema.json"
+    details = Map.fetch!(transport_schemas(), schema_name)
+
+    unless Enum.member?(["latest" | details["versions"]], schema_version) do
+      raise KeyError, "#{schema_version} is not a valid version for #{schema_name}"
+    end
+
+    if Enum.count(details["schemas"]) != 1 do
+      raise "does not handle multiple schemas for #{schema_name}"
+    end
+
+    path = hd(details["schemas"])["path"]
+    "https://schema.data.gouv.fr/schemas/#{schema_name}/#{schema_version}/#{path}"
   end
 
   @impl true

@@ -2,31 +2,60 @@ defmodule Transport.Shared.SchemasTest do
   use Shared.CacheCase
   import Transport.Shared.Schemas
 
-  test "transport_schemas" do
-    setup_schemas_response()
+  @base_url "https://schema.data.gouv.fr"
 
-    assert ["etalab/schema-lieux-covoiturage", "etalab/schema-zfe"] == Map.keys(transport_schemas())
+  setup do
+    setup_schemas_response()
+    :ok
+  end
+
+  test "transport_schemas" do
+    assert ["etalab/schema-amenagements-cyclables", "etalab/schema-lieux-covoiturage", "etalab/schema-zfe"] ==
+             Map.keys(transport_schemas())
+
     assert_cache_key_has_ttl("transport_schemas")
   end
 
   test "schemas_by_type" do
-    setup_schemas_response()
-
-    assert ["etalab/schema-zfe"] == Map.keys(schemas_by_type("jsonschema"))
+    assert ["etalab/schema-amenagements-cyclables", "etalab/schema-zfe"] == Map.keys(schemas_by_type("jsonschema"))
     assert ["etalab/schema-lieux-covoiturage"] == Map.keys(schemas_by_type("tableschema"))
   end
 
   test "read_latest_schema" do
-    setup_schemas_response()
-    setup_schema_response("https://schema.data.gouv.fr/schemas/etalab/schema-zfe/0.7.2/schema.json")
+    setup_schema_response("#{@base_url}/schemas/etalab/schema-zfe/0.7.2/schema.json")
 
     assert %{"foo" => "bar"} == read_latest_schema("etalab/schema-zfe")
     assert_cache_key_has_ttl("latest_schema_etalab/schema-zfe")
 
-    setup_schema_response("https://schema.data.gouv.fr/schemas/etalab/schema-lieux-covoiturage/0.2.2/schema.json")
+    setup_schema_response("#{@base_url}/schemas/etalab/schema-lieux-covoiturage/0.2.2/schema.json")
 
     assert %{"foo" => "bar"} == read_latest_schema("etalab/schema-lieux-covoiturage")
     assert_cache_key_has_ttl("latest_schema_etalab/schema-lieux-covoiturage")
+  end
+
+  describe "schema_url" do
+    test "simple case" do
+      assert "#{@base_url}/schemas/etalab/schema-zfe/latest/schema.json" ==
+               schema_url("etalab/schema-zfe", "latest")
+
+      assert "#{@base_url}/schemas/etalab/schema-zfe/0.7.2/schema.json" ==
+               schema_url("etalab/schema-zfe", "0.7.2")
+    end
+
+    test "with a custom schema filename" do
+      assert "#{@base_url}/schemas/etalab/schema-amenagements-cyclables/latest/schema_amenagements_cyclables.json" ==
+               schema_url("etalab/schema-amenagements-cyclables", "latest")
+    end
+
+    test "makes sure schema and version are valid" do
+      assert_raise KeyError, ~r(^key "foo" not found in), fn ->
+        schema_url("foo", "latest")
+      end
+
+      assert_raise KeyError, "foo is not a valid version for etalab/schema-zfe", fn ->
+        schema_url("etalab/schema-zfe", "foo")
+      end
+    end
   end
 
   defp assert_cache_key_has_ttl(cache_key, expected_ttl \\ 300) do
@@ -117,6 +146,43 @@ defmodule Transport.Shared.SchemasTest do
         - 0.2.0
         - 0.2.1
         - 0.2.2
+      etalab/schema-amenagements-cyclables:
+        consolidation: null
+        description: Spécification du schéma de données d'aménagements cyclables
+        email: contact@transport.beta.gouv.fr
+        external_doc: https://doc.transport.data.gouv.fr/producteurs/amenagements-cyclables
+        external_tool: https://github.com/etalab/schema-amenagements-cyclables/tree/master/tools
+        has_changelog: true
+        homepage: https://github.com/etalab/schema_amenagements_cyclables
+        latest_version: 0.3.3
+        schemas:
+        - examples: []
+          latest_url: https://schema.data.gouv.fr/schemas/etalab/schema-amenagements-cyclables/0.3.3/schema_amenagements_cyclables.json
+          original_path: schema_amenagements_cyclables.json
+          path: schema_amenagements_cyclables.json
+          title: Aménagements cyclables
+          versions:
+          - 0.1.0
+          - 0.2.0
+          - 0.2.1
+          - 0.2.2
+          - 0.2.3
+          - 0.3.0
+          - 0.3.1
+          - 0.3.2
+          - 0.3.3
+        title: Aménagements cyclables
+        type: jsonschema
+        versions:
+        - 0.1.0
+        - 0.2.0
+        - 0.2.1
+        - 0.2.2
+        - 0.2.3
+        - 0.3.0
+        - 0.3.1
+        - 0.3.2
+        - 0.3.3
       """
 
       %HTTPoison.Response{body: body, status_code: 200}
