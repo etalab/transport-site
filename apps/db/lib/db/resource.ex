@@ -6,6 +6,7 @@ defmodule DB.Resource do
   use TypedEctoSchema
   alias DB.{Dataset, LogsValidation, Repo, ResourceUnavailability, Validation}
   alias Shared.Validation.JSONSchemaValidator.Wrapper, as: JSONSchemaValidator
+  alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
   alias Transport.DataVisualization
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
   import Ecto.{Changeset, Query}
@@ -109,8 +110,7 @@ defmodule DB.Resource do
   end
 
   def can_validate?(%__MODULE__{schema_name: schema_name}) when is_binary(schema_name) do
-    json_schemas = Schemas.schemas_by_type("jsonschema")
-    {Map.has_key?(json_schemas, schema_name), "schema is set"}
+    {Schemas.is_known_schema?(schema_name), "schema is set"}
   end
 
   def can_validate?(%__MODULE__{}) do
@@ -255,11 +255,16 @@ defmodule DB.Resource do
     end
   end
 
-  def validate(%__MODULE__{url: url, schema_name: schema_name, metadata: metadata}) do
+  def validate(%__MODULE__{schema_name: schema_name, metadata: metadata} = resource) do
+    schema_type = Schemas.schema_type(schema_name)
+
     metadata =
-      case JSONSchemaValidator.validate(JSONSchemaValidator.load_jsonschema_for_schema(schema_name), url) do
-        nil -> metadata
-        payload -> Map.merge(metadata || %{}, %{"validation" => payload})
+      case validate_against_schema(resource, schema_type) do
+        payload when is_map(payload) ->
+          Map.merge(metadata || %{}, %{"validation" => Map.put(payload, "schema_type", schema_type)})
+
+        nil ->
+          metadata
       end
 
     {:ok, %{"metadata" => metadata}}
@@ -269,6 +274,16 @@ defmodule DB.Resource do
     Logger.info("cannot validate resource id=#{id} because we don't know how to validate the #{f} format")
 
     {:ok, %{"validations" => nil, "metadata" => nil}}
+  end
+
+  defp validate_against_schema(
+         %__MODULE__{url: url, schema_name: schema_name, schema_version: schema_version},
+         schema_type
+       ) do
+    case schema_type do
+      "tableschema" -> TableSchemaValidator.validate(schema_name, url, schema_version)
+      "jsonschema" -> JSONSchemaValidator.validate(JSONSchemaValidator.load_jsonschema_for_schema(schema_name), url)
+    end
   end
 
   @spec save(__MODULE__.t(), map()) :: {:ok, any()} | {:error, any()}

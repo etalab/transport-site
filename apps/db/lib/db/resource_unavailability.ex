@@ -25,4 +25,77 @@ defmodule DB.ResourceUnavailability do
     |> limit(1)
     |> Repo.one()
   end
+
+  def availability_over_last_days(%Resource{} = resource, nb_days) when is_integer(nb_days) and nb_days > 0 do
+    %{hours: hours} = unavailabilities_over_last_days(resource, nb_days)
+    round_float(100 - hours / (24.0 * nb_days) * 100)
+  end
+
+  @doc """
+  Round a float up to a precision and removes unneeded zeroes.
+
+  iex> round_float(1.23)
+  1.2
+
+  iex> round_float(1.0)
+  1
+
+  iex> round_float(1.20, 2)
+  1.20
+  """
+  def round_float(float, precision \\ 1) do
+    rounded = Float.round(float, precision)
+    trunced = trunc(float)
+    if rounded == trunced, do: trunced, else: rounded
+  end
+
+  def unavailabilities_over_last_days(%Resource{id: resource_id}, nb_days) when is_integer(nb_days) and nb_days > 0 do
+    # Sorry about the messy Ecto code
+    # - interval to number of hours, https://stackoverflow.com/a/952600
+    rows =
+      __MODULE__
+      |> select([:start, :end])
+      |> where([r], r.resource_id == ^resource_id)
+      |> where(
+        [r],
+        fragment(
+          ~s["end" IS NULL OR "end" between now() - '1 day'::interval * ? and now()],
+          ^nb_days
+        )
+      )
+      |> Repo.all()
+
+    period_start = days_ago(nb_days)
+
+    %{
+      resource_id: resource_id,
+      nb_periods: Enum.count(rows),
+      hours: total_hours(rows, period_start)
+    }
+  end
+
+  defp total_hours(rows, period_start) do
+    seconds =
+      rows
+      |> Enum.map(fn row ->
+        row_start =
+          if DateTime.compare(row.start, period_start) == :lt do
+            period_start
+          else
+            row.start
+          end
+
+        row_end = if is_nil(row.end), do: days_ago(0), else: row.end
+
+        DateTime.diff(row_end, row_start, :second)
+      end)
+      |> Enum.reject(&(&1 < 0))
+      |> Enum.sum()
+
+    seconds / 3600
+  end
+
+  defp days_ago(days) when days >= 0 do
+    DateTime.utc_now() |> DateTime.add(-days * 24 * 60 * 60, :second) |> DateTime.truncate(:second)
+  end
 end
