@@ -395,5 +395,5 @@ msgid "time to live (%{feed})"
 msgstr "durée de vie (%{feed})"
 
 #, elixir-format
-msgid "download availability over last %{nb} days"
+msgid "download availability over the last %{nb} days"
 msgstr "disponibilité au téléchargement durant les %{nb} derniers jours"

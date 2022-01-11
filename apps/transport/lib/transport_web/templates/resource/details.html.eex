@@ -29,7 +29,7 @@
 
         <%= if nb_errors > 0 do %>
           <p><%= dgettext("validations", "Errors:")%></p>
-          <ul lang="en">
+          <ul <%= if @resource.metadata["validation"]["schema_type"] == "jsonschema" do %>lang="en"<% end %>>
             <%= for error <- errors_sample(@resource) do %>
               <li><%= error %></li>
             <% end %>
