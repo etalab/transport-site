@@ -111,6 +111,7 @@ config :transport,
   gbfs_metadata_impl: Transport.Shared.GBFSMetadata,
   availability_checker_impl: Transport.AvailabilityChecker,
   jsonschema_validator_impl: Shared.Validation.JSONSchemaValidator,
+  tableschema_validator_impl: Shared.Validation.TableSchemaValidator,
   schemas_impl: Transport.Shared.Schemas
 
 config :datagouvfr,

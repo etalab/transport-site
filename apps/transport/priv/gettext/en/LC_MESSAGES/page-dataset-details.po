@@ -393,3 +393,7 @@ msgstr ""
 #, elixir-format
 msgid "time to live (%{feed})"
 msgstr ""
+
+#, elixir-format
+msgid "download availability over the last %{nb} days"
+msgstr ""
