@@ -132,6 +132,8 @@ defmodule TransportWeb.ResourceView do
     Enum.take(errors, max_display_errors())
   end
 
+  def errors_sample(%DB.Resource{}), do: []
+
   def max_display_errors, do: 50
 
   def hours_ago(utcdatetime) do
