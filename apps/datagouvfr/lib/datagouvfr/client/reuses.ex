@@ -13,7 +13,7 @@ defmodule Datagouvfr.Client.Reuses do
       {:ok, %{"data" => data}} ->
         {:ok, Enum.map(data, &add_name/1)}
 
-      {:error, body} ->
+      {:error, body} when is_map(body) ->
         {:error, "Unable to get reuses of dataset #{dataset_id} because of #{body}"}
 
       {:error, %Jason.DecodeError{}} ->
