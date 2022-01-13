@@ -56,7 +56,8 @@ defmodule DB.ResourceTest do
     url = "https://example.com/file"
     schema_name = "etalab/foo"
 
-    resource = insert(:resource, %{url: url, schema_name: schema_name, metadata: %{"bar" => "baz"}})
+    resource =
+      insert(:resource, %{url: url, schema_name: schema_name, metadata: %{"bar" => "baz"}, content_hash: "hash"})
 
     Transport.Shared.Schemas.Mock
     |> expect(:transport_schemas, 2, fn -> %{schema_name => %{}} end)
@@ -83,18 +84,23 @@ defmodule DB.ResourceTest do
     end)
 
     assert {true, "schema is set"} == Resource.can_validate?(resource)
-    assert Resource.need_validate?(resource, false)
+    assert {true, "schema is set and no previous validation"} == Resource.need_validate?(resource, false)
     assert Resource.validate_and_save(resource, false) == {:ok, nil}
 
-    assert %{metadata: %{"bar" => "baz", "validation" => %{"foo" => "bar", "schema_type" => "jsonschema"}}} =
-             Repo.get(Resource, resource.id)
+    assert %{
+             metadata: %{
+               "bar" => "baz",
+               "validation" => %{"foo" => "bar", "schema_type" => "jsonschema", "content_hash" => "hash"}
+             }
+           } = Repo.get(Resource, resource.id)
   end
 
   test "validate and save a resource with a Table Schema schema" do
     url = "https://example.com/file"
     schema_name = "etalab/foo"
 
-    resource = insert(:resource, %{url: url, schema_name: schema_name, metadata: %{"bar" => "baz"}})
+    resource =
+      insert(:resource, %{url: url, schema_name: schema_name, metadata: %{"bar" => "baz"}, content_hash: "hash"})
 
     Transport.Shared.Schemas.Mock
     |> expect(:transport_schemas, 2, fn -> %{schema_name => %{}} end)
@@ -106,11 +112,15 @@ defmodule DB.ResourceTest do
     |> expect(:validate, fn ^schema_name, ^url, nil -> %{"foo" => "bar"} end)
 
     assert {true, "schema is set"} == Resource.can_validate?(resource)
-    assert Resource.need_validate?(resource, false)
+    assert {true, "schema is set and no previous validation"} == Resource.need_validate?(resource, false)
     assert Resource.validate_and_save(resource, false) == {:ok, nil}
 
-    assert %{metadata: %{"bar" => "baz", "validation" => %{"foo" => "bar", "schema_type" => "tableschema"}}} =
-             Repo.get(Resource, resource.id)
+    assert %{
+             metadata: %{
+               "bar" => "baz",
+               "validation" => %{"foo" => "bar", "schema_type" => "tableschema", "content_hash" => "hash"}
+             }
+           } = Repo.get(Resource, resource.id)
   end
 
   test "validation is skipped if previous validation is still valid" do
@@ -213,8 +223,8 @@ defmodule DB.ResourceTest do
     |> expect(:transport_schemas, 2, fn -> %{schema_name => %{}} end)
 
     assert {true, "schema is set"} == Resource.can_validate?(resource)
-    assert Resource.need_validate?(resource, false)
-    assert {true, "schema is set"} == Resource.needs_validation(resource, false)
+    assert {true, "schema is set and no previous validation"} == Resource.need_validate?(resource, false)
+    assert {true, "schema is set and no previous validation"} == Resource.needs_validation(resource, false)
   end
 
   test "needs validation when schema is set but not in list" do
@@ -224,7 +234,38 @@ defmodule DB.ResourceTest do
     |> expect(:transport_schemas, 2, fn -> %{} end)
 
     assert {false, "schema is set"} == Resource.can_validate?(resource)
-    assert Resource.need_validate?(resource, false)
+    assert {true, "schema is set and no previous validation"} == Resource.need_validate?(resource, false)
     assert {false, "schema is set"} == Resource.needs_validation(resource, false)
+  end
+
+  test "needs validation when schema is set and content hash is set" do
+    schema_name = "etalab/foo"
+
+    resource =
+      insert(:resource, %{
+        schema_name: schema_name,
+        content_hash: "hash",
+        url: "https://example.com/file",
+        datagouv_id: "1"
+      })
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:transport_schemas, 4, fn -> %{schema_name => %{}} end)
+
+    assert {true, "schema is set"} == Resource.can_validate?(resource)
+    assert {true, "schema is set and no previous validation"} == Resource.need_validate?(resource, false)
+    assert {true, "schema is set and no previous validation"} == Resource.needs_validation(resource, false)
+
+    # Set the same content hash in the validation metadata
+    resource =
+      resource |> Resource.changeset(%{metadata: %{"validation" => %{"content_hash" => "hash"}}}) |> DB.Repo.update!()
+
+    assert {false, "schema is set but content hash has not changed"} == Resource.needs_validation(resource, false)
+
+    # Set the a different content hash in the validation metadata
+    resource =
+      resource |> Resource.changeset(%{metadata: %{"validation" => %{"content_hash" => "nope"}}}) |> DB.Repo.update!()
+
+    assert {true, "schema is set and content hash has changed"} == Resource.needs_validation(resource, false)
   end
 end

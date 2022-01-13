@@ -93,6 +93,8 @@ defmodule DB.Resource do
     {true, "no previous validation"}
     iex> Resource.needs_validation(%Resource{format: "gtfs-rt", content_hash: "a_sha"}, true)
     {false, "cannot validate this resource"}
+    iex> Resource.needs_validation(%Resource{schema_name: "foo", filesize: 11000000}, false)
+    {false, "schema is set but file is bigger than 10 MB"}
     iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
     ...> validation: %Validation{validation_latest_content_hash: "another_sha"}}, false)
     {true, "content hash has changed"}
@@ -107,6 +109,11 @@ defmodule DB.Resource do
 
   def can_validate?(%__MODULE__{format: format}) when format in ["GTFS", "gbfs"] do
     {true, "#{format} can be validated"}
+  end
+
+  def can_validate?(%__MODULE__{schema_name: schema_name, filesize: filesize})
+      when is_binary(schema_name) and is_integer(filesize) and filesize > 10_000_000 do
+    {false, "schema is set but file is bigger than 10 MB"}
   end
 
   def can_validate?(%__MODULE__{schema_name: schema_name}) when is_binary(schema_name) do
@@ -148,8 +155,23 @@ defmodule DB.Resource do
     {true, "gbfs is always validated"}
   end
 
+  def need_validate?(
+        %__MODULE__{
+          schema_name: schema_name,
+          content_hash: content_hash,
+          metadata: %{"validation" => %{"content_hash" => validation_content_hash}}
+        },
+        _force_validation
+      )
+      when is_binary(schema_name) do
+    case validation_content_hash == content_hash do
+      true -> {false, "schema is set but content hash has not changed"}
+      false -> {true, "schema is set and content hash has changed"}
+    end
+  end
+
   def need_validate?(%__MODULE__{schema_name: schema_name}, _force_validation) when is_binary(schema_name) do
-    {true, "schema is set"}
+    {true, "schema is set and no previous validation"}
   end
 
   @spec validate_and_save(__MODULE__.t() | integer(), boolean()) :: {:error, any} | {:ok, nil}
@@ -255,13 +277,14 @@ defmodule DB.Resource do
     end
   end
 
-  def validate(%__MODULE__{schema_name: schema_name, metadata: metadata} = resource) do
+  def validate(%__MODULE__{schema_name: schema_name, metadata: metadata, content_hash: content_hash} = resource) do
     schema_type = Schemas.schema_type(schema_name)
 
     metadata =
       case validate_against_schema(resource, schema_type) do
         payload when is_map(payload) ->
-          Map.merge(metadata || %{}, %{"validation" => Map.put(payload, "schema_type", schema_type)})
+          validation_details = %{"schema_type" => schema_type, "content_hash" => content_hash}
+          Map.merge(metadata || %{}, %{"validation" => Map.merge(payload, validation_details)})
 
         nil ->
           metadata
