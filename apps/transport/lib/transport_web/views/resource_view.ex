@@ -132,7 +132,7 @@ defmodule TransportWeb.ResourceView do
     Enum.take(errors, max_display_errors())
   end
 
-  # GBFS resources to not have `errors` in the `validation` dict
+  # GBFS resources do not have `errors` in the `validation` dict
   # in the metadata because we send people to an external
   # website to see errors.
   #
