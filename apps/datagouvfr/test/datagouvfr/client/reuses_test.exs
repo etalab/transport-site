@@ -30,5 +30,17 @@ defmodule Datagouvfr.Client.ReusesTest do
       assert {:error, ~s(Unable to get reuses of dataset id because of %{"message" => "Internal Server Error"})} ==
                Reuses.get(%{datagouv_id: "id"})
     end
+
+    test "with a decode error" do
+      mock_httpoison_request(
+        "reuses" |> API.process_url(),
+        {:ok, %HTTPoison.Response{status_code: 200, body: "foo"}},
+        follow_redirect: true,
+        params: %{dataset: "id"}
+      )
+
+      {:error, message} = Reuses.get(%{datagouv_id: "id"})
+      assert String.starts_with?(message, "Unable to get reuses of dataset id because of %Jason.DecodeError")
+    end
   end
 end
