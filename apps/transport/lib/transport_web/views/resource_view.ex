@@ -132,7 +132,14 @@ defmodule TransportWeb.ResourceView do
     Enum.take(errors, max_display_errors())
   end
 
-  def errors_sample(%DB.Resource{}), do: []
+  # GBFS resources to not have `errors` in the `validation` dict
+  # in the metadata because we send people to an external
+  # website to see errors.
+  #
+  # It would be better to have a shared model for validations.
+  # See https://github.com/etalab/transport-site/issues/2047
+  # See DB.Resource.has_errors_details?/1
+  def errors_sample(%DB.Resource{format: "gbfs"}), do: []
 
   def max_display_errors, do: 50
 
