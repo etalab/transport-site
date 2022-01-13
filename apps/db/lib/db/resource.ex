@@ -93,6 +93,8 @@ defmodule DB.Resource do
     {true, "no previous validation"}
     iex> Resource.needs_validation(%Resource{format: "gtfs-rt", content_hash: "a_sha"}, true)
     {false, "cannot validate this resource"}
+    iex> Resource.needs_validation(%Resource{schema_name: "foo", filesize: 11000000}, false)
+    {false, "schema is set but file is bigger than 10 MB"}
     iex> Resource.needs_validation(%Resource{format: "GTFS", content_hash: "a_sha",
     ...> validation: %Validation{validation_latest_content_hash: "another_sha"}}, false)
     {true, "content hash has changed"}
@@ -107,6 +109,11 @@ defmodule DB.Resource do
 
   def can_validate?(%__MODULE__{format: format}) when format in ["GTFS", "gbfs"] do
     {true, "#{format} can be validated"}
+  end
+
+  def can_validate?(%__MODULE__{schema_name: schema_name, filesize: filesize})
+      when is_binary(schema_name) and is_integer(filesize) and filesize > 10_000_000 do
+    {false, "schema is set but file is bigger than 10 MB"}
   end
 
   def can_validate?(%__MODULE__{schema_name: schema_name}) when is_binary(schema_name) do
