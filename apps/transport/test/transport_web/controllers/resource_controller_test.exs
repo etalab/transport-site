@@ -30,7 +30,7 @@ defmodule TransportWeb.ResourceControllerTest do
           %Resource{
             url: "http://link.to/gbfs",
             datagouv_id: "3",
-            metadata: %{"versions" => ["2.2"]},
+            metadata: %{"versions" => ["2.2"], "validation" => %{"errors_count" => 1, "has_errors" => true}},
             format: "gbfs"
           },
           %Resource{
@@ -88,11 +88,12 @@ defmodule TransportWeb.ResourceControllerTest do
     assert conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) =~ "NeTEx"
   end
 
-  test "GBFS resource with metadata sends back a 404", %{conn: conn} do
+  test "GBFS resource with metadata but no errors sends back a 200", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "3")
-    refute resource.format == "GTFS"
-    refute is_nil(resource.metadata)
-    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(404) |> assert =~ "404"
+    assert resource.format == "gbfs"
+    assert Resource.has_errors_details?(resource)
+    refute Map.has_key?(resource.metadata["validation"], "errors")
+    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
   end
 
   test "resource with error details sends back a 200", %{conn: conn} do
