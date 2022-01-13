@@ -57,13 +57,18 @@ defmodule Datagouvfr.ApiFixtures do
     nil
   end
 
-  def mock_httpoison_request(expected_url, expected_response) do
+  def mock_httpoison_request(expected_url, expected_response, expected_options \\ nil) do
     Transport.HTTPoison.Mock
     |> expect(
       :request,
       1,
-      fn _method, requested_url, _body, _headers, _options ->
+      fn _method, requested_url, _body, _headers, options ->
         assert expected_url == requested_url
+
+        unless is_nil(expected_options) do
+          assert expected_options == options
+        end
+
         expected_response
       end
     )
