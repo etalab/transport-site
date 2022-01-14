@@ -71,7 +71,14 @@ defmodule TransportWeb.BuildTest do
 
     assert(
       version == expected_version |> to_string(),
-      "Your javascript package for phoenix_live_view is out of date.\nPlease update it with:\n\ncd apps/transport/client && yarn upgrade phoenix_live_view"
+      """
+      Your javascript package for phoenix_live_view is out of date.
+
+      Please update it with:
+
+          cd apps/transport/client && yarn upgrade phoenix_live_view
+
+      """
     )
   end
 end
