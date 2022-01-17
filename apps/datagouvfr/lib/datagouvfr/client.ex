@@ -28,13 +28,34 @@ defmodule Datagouvfr.Client do
         Logger.debug(fn -> "response: #{inspect(response)}" end)
 
         case response do
-          {:ok, %{status_code: status_code, body: body}} when status_code in [200, 201, 202, 204] -> {:ok, body}
-          {:ok, %{status_code: _, body: body}} -> {:error, body}
-          {:error, error} -> {:error, error}
+          {:ok, %{status_code: status_code, body: body}} when status_code in [200, 201, 202, 204] ->
+            {:ok, body}
+
+          {:ok, %{status_code: status_code, body: body} = resp} ->
+            maybe_report_error(resp)
+            {:error, body}
+
+          {:error, error} ->
+            {:error, error}
         end
       end
 
       # private
+      defp maybe_report_error(%HTTPoison.Response{status_code: status_code, body: body, request_url: url} = response)
+           when status_code >= 400 and status_code < 500 and status_code != 404 do
+        Sentry.capture_message("datagouv error: #{status_code} on #{url}",
+          extra: %{request: response.request, body: body, headers: response.headers}
+        )
+      end
+
+      defp maybe_report_error(%OAuth2.Response{status_code: status_code, body: body, headers: headers})
+           when status_code >= 400 and status_code < 500 and status_code != 404 do
+        Sentry.capture_message("datagouv OAuth2 error: #{status_code}",
+          extra: %{body: body, headers: headers}
+        )
+      end
+
+      defp maybe_report_error(_response), do: :ok
 
       @spec add_trailing_slash(map() | path) :: binary()
       defp add_trailing_slash(uri) when is_map(uri) do

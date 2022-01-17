@@ -44,7 +44,8 @@ defmodule Datagouvfr.MixProject do
       # Using master until https://github.com/CargoSense/vex/issues/68 is fixed
       {:vex, github: "CargoSense/vex", ref: "328a39f7"},
       {:exvcr, "~> 0.10", only: :test},
-      {:mox, "~> 1.0.0", only: :test}
+      {:mox, "~> 1.0.0", only: :test},
+      {:sentry, "~> 8.0"}
     ]
   end
 end
