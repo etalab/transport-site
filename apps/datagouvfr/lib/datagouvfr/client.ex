@@ -43,14 +43,14 @@ defmodule Datagouvfr.Client do
       # private
       defp maybe_report_error(%HTTPoison.Response{status_code: status_code, body: body, request_url: url} = response)
            when status_code >= 400 and status_code < 500 and status_code != 404 do
-        Sentry.capture_exception("datagouv error: #{status_code} on #{url}",
+        Sentry.capture_message("datagouv error: #{status_code} on #{url}",
           extra: %{request: response.request, body: body, headers: response.headers}
         )
       end
 
       defp maybe_report_error(%OAuth2.Response{status_code: status_code, body: body, headers: headers})
            when status_code >= 400 and status_code < 500 and status_code != 404 do
-        Sentry.capture_exception("datagouv OAuth2 error: #{status_code}",
+        Sentry.capture_message("datagouv OAuth2 error: #{status_code}",
           extra: %{body: body, headers: headers}
         )
       end
