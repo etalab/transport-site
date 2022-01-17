@@ -31,8 +31,8 @@ defmodule Datagouvfr.Client do
           {:ok, %{status_code: status_code, body: body}} when status_code in [200, 201, 202, 204] ->
             {:ok, body}
 
-          {:ok, %{status_code: status_code, body: body}} ->
-            maybe_report_error(response)
+          {:ok, %{status_code: status_code, body: body} = resp} ->
+            maybe_report_error(resp)
             {:error, body}
 
           {:error, error} ->
