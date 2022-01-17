@@ -1,23 +1,20 @@
 defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
   use ExUnit.Case, async: true
+  use TransportWeb.LiveCase
 
-  import Phoenix.ConnTest
   import Phoenix.LiveViewTest
   @endpoint TransportWeb.Endpoint
   import Mox
 
+  @url "/backoffice/proxy-config"
+
   setup do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    DB.Repo.delete_all(DB.Metrics)
     {:ok, conn: build_conn()}
   end
 
-  def setup_admin_in_session(conn) do
-    conn
-    |> init_test_session(%{
-      current_user: %{
-        "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]
-      }
-    })
-  end
+  setup :verify_on_exit!
 
   def setup_proxy_config(slug) do
     config = %{
@@ -33,37 +30,29 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
   end
 
   test "requires login", %{conn: conn} do
-    conn = get(conn, "/backoffice/proxy-config")
+    conn = get(conn, @url)
     assert html_response(conn, 302)
   end
 
-  def extract_data_from_html(html) do
-    doc = Floki.parse_document!(html)
-    headers = doc |> Floki.find("table thead tr th") |> Enum.map(&Floki.text/1)
-    row = doc |> Floki.find("table tbody tr td") |> Enum.map(&Floki.text/1)
-    headers |> Enum.zip(row) |> Enum.into(%{})
+  def add_events(item_id) do
+    target = "proxy:#{item_id}"
+    Transport.Telemetry.count_event(target, event_name(:external))
+    Transport.Telemetry.count_event(target, event_name(:external))
+    Transport.Telemetry.count_event(target, event_name(:internal))
   end
 
-  # NOTE: this fakes previous proxy requests, without having to
-  # setup a complete scenario, to prepare the data for the test below
-  def add_events(item_id) do
-    Unlock.Controller.Telemetry.trace_request(item_id, :external)
-    Unlock.Controller.Telemetry.trace_request(item_id, :external)
-    Unlock.Controller.Telemetry.trace_request(item_id, :internal)
-    # events are async, so we wait a bit for now (not ideal)
-    :timer.sleep(25)
+  defp event_name(type) do
+    type |> Transport.Telemetry.proxy_request_event_name()
   end
 
   test "disconnected and connected mount refresh stats", %{conn: conn} do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-
     item_id = "slug"
     setup_proxy_config(item_id)
 
     add_events(item_id)
 
     conn = setup_admin_in_session(conn)
-    conn = get(conn, "/backoffice/proxy-config")
+    conn = get(conn, @url)
 
     response = html_response(conn, 200)
     assert response =~ "Configuration du Proxy"

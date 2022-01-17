@@ -2,7 +2,7 @@ defmodule Transport.GbfsToGeojson do
   @moduledoc """
   Converts a GBFS feed to useful GeoJSONs
   """
-  alias Transport.GBFSMetadata
+  alias Transport.Shared.GBFSMetadata
 
   @doc """
   Main module function: returns a map of geojsons generated from the GBFS endpoint
@@ -12,10 +12,34 @@ defmodule Transport.GbfsToGeojson do
     "geofencing_zones" => ...
   }
   """
-  @spec gbfs_geojsons(binary()) :: map()
-  def gbfs_geojsons(url) do
+  @spec gbfs_geojsons(binary(), map()) :: map()
+  def gbfs_geojsons(url, params) do
     payload = fetch_gbfs_endpoint!(url)
+    add_feeds(payload, params)
+  rescue
+    _e -> %{}
+  end
 
+  def add_feeds(payload, %{"output" => "stations"}) do
+    %{}
+    |> add_station_information(payload)
+    |> add_station_status(payload)
+    |> Map.get("stations")
+  end
+
+  def add_feeds(payload, %{"output" => "free_floating"}) do
+    %{}
+    |> add_free_bike_status(payload)
+    |> Map.get("free_floating")
+  end
+
+  def add_feeds(payload, %{"output" => "geofencing_zones"}) do
+    %{}
+    |> add_geofencing_zones(payload)
+    |> Map.get("geofencing_zones")
+  end
+
+  def add_feeds(payload, _) do
     %{}
     |> add_station_information(payload)
     |> add_station_status(payload)

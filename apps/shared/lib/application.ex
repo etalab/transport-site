@@ -7,13 +7,18 @@ defmodule Shared.Application do
     children = [
       # Used for streaming component, see possible config at:
       # https://github.com/keathley/finch#usage
-      {Finch, name: Transport.Finch,
-      pools: %{
-        :default => [size: 25] # slightly larger than default
-     }}
+      {Finch,
+       name: Transport.Finch,
+       pools: %{
+         # slightly larger than default
+         :default => [size: 25]
+       }},
+      {Cachex, name: cache_name()}
     ]
 
     opts = [strategy: :one_for_one, name: Shared.Supervisor]
     Supervisor.start_link(children, opts)
   end
+
+  def cache_name, do: Shared.Cachex
 end

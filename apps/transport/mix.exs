@@ -88,7 +88,8 @@ defmodule Transport.Mixfile do
       {:rambo, "~> 0.3"},
       {:etag_plug, "~> 1.0"},
       {:oban, "~> 2.9"},
-      {:unzip, "~> 0.6.0"}
+      {:unzip, "~> 0.6.0"},
+      {:protobuf, "~> 0.9.0"}
     ]
   end
 end

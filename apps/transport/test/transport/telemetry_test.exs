@@ -52,4 +52,13 @@ defmodule Transport.TelemetryTest do
 
     assert stored_events() |> Enum.count() == 4
   end
+
+  test "handlers have been registered" do
+    events = Transport.Telemetry.proxy_request_event_names() ++ Transport.Telemetry.gbfs_request_event_names()
+
+    events
+    |> Enum.each(fn event ->
+      refute is_nil(:telemetry.list_handlers(event))
+    end)
+  end
 end

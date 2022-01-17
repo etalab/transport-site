@@ -4,6 +4,9 @@ defmodule TransportWeb.ResourceControllerTest do
   alias DB.{AOM, Dataset, Resource, Validation}
   import Plug.Test
   import Mox
+  import DB.Factory
+
+  setup :verify_on_exit!
 
   setup do
     {:ok, _} =
@@ -27,8 +30,15 @@ defmodule TransportWeb.ResourceControllerTest do
           %Resource{
             url: "http://link.to/gbfs",
             datagouv_id: "3",
-            metadata: %{"versions" => ["2.2"]},
+            metadata: %{"versions" => ["2.2"], "validation" => %{"errors_count" => 1, "has_errors" => true}},
             format: "gbfs"
+          },
+          %Resource{
+            url: "http://link.to/file",
+            datagouv_id: "4",
+            metadata: %{"validation" => %{"errors_count" => 1, "has_errors" => true, "errors" => ["this is an error"]}},
+            schema_name: "etalab/foo",
+            format: "json"
           }
         ],
         aom: %AOM{id: 4242, nom: "Angers Métropôle"}
@@ -65,11 +75,32 @@ defmodule TransportWeb.ResourceControllerTest do
     conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
   end
 
-  test "GBFS resource with metadata sends back a 404", %{conn: conn} do
+  test "GTFS resource with associated NeTEx", %{conn: conn} do
+    resource = %{url: url, dataset_id: dataset_id} = Resource |> Repo.get_by(datagouv_id: "2")
+
+    insert(:resource, %{
+      dataset_id: dataset_id,
+      is_community_resource: true,
+      format: "NeTEx",
+      original_resource_url: url
+    })
+
+    assert conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) =~ "NeTEx"
+  end
+
+  test "GBFS resource with metadata but no errors sends back a 200", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "3")
-    refute resource.format == "GTFS"
-    refute is_nil(resource.metadata)
-    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(404) |> assert =~ "404"
+    assert resource.format == "gbfs"
+    assert Resource.has_errors_details?(resource)
+    refute Map.has_key?(resource.metadata["validation"], "errors")
+    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+  end
+
+  test "resource with error details sends back a 200", %{conn: conn} do
+    resource = Resource |> Repo.get_by(datagouv_id: "4")
+    refute is_nil(resource.schema_name)
+    assert Resource.has_errors_details?(resource)
+    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) |> assert =~ "this is an error"
   end
 
   test "downloading a resource that can be directly downloaded", %{conn: conn} do

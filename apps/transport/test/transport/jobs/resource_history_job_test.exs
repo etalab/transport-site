@@ -6,6 +6,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   import Mox
 
   alias Transport.Jobs.{ResourceHistoryDispatcherJob, ResourceHistoryJob}
+  alias Transport.Test.S3TestUtils
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -19,51 +20,17 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   @gtfs_content File.read!(@gtfs_path)
 
   describe "ResourceHistoryDispatcherJob" do
+    test "resources_to_historise" do
+      datagouv_id = create_resources_for_history()
+      assert 7 == count_resources()
+      assert [datagouv_id] == ResourceHistoryDispatcherJob.resources_to_historise()
+    end
+
     test "a simple successful case" do
-      s3_mocks_create_bucket()
+      S3TestUtils.s3_mocks_create_bucket()
+      datagouv_id = create_resources_for_history()
 
-      %{datagouv_id: datagouv_id} =
-        insert(:resource,
-          url: "https://example.com/gtfs.zip",
-          format: "GTFS",
-          title: "title",
-          datagouv_id: "1",
-          is_community_resource: false
-        )
-
-      # Resources that should be ignored
-      insert(:resource,
-        url: "https://example.com/gtfs.zip",
-        format: "GTFS",
-        title: "Ignored because it's a community resource",
-        datagouv_id: "2",
-        is_community_resource: true
-      )
-
-      insert(:resource,
-        url: "https://example.com/gbfs",
-        format: "gbfs",
-        title: "Ignored because it's not GTFS or NeTEx",
-        datagouv_id: "3",
-        is_community_resource: false
-      )
-
-      insert(:resource,
-        url: "https://example.com/gtfs.zip",
-        format: "GTFS",
-        title: "Ignored because of duplicated datagouv_id",
-        datagouv_id: "4",
-        is_community_resource: false
-      )
-
-      insert(:resource,
-        url: "https://example.com/gtfs.zip",
-        format: "GTFS",
-        title: "Ignored because of duplicated datagouv_id",
-        datagouv_id: "4",
-        is_community_resource: false
-      )
-
+      assert count_resources() > 1
       assert :ok == perform_job(ResourceHistoryDispatcherJob, %{})
       assert [%{args: %{"datagouv_id" => ^datagouv_id}}] = all_enqueued(worker: ResourceHistoryJob)
       refute_enqueued(worker: ResourceHistoryDispatcherJob)
@@ -71,13 +38,18 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   end
 
   describe "should_store_resource?" do
+    test "with an empty or a nil ZIP metadata" do
+      refute ResourceHistoryJob.should_store_resource?(%DB.Resource{}, nil)
+      refute ResourceHistoryJob.should_store_resource?(%DB.Resource{}, [])
+    end
+
     test "with no ResourceHistory records" do
       assert 0 == count_resource_history()
-      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: "1"}, [])
+      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: "1"}, zip_metadata())
     end
 
     test "with the latest ResourceHistory matching" do
-      %{datagouv_id: datagouv_id} =
+      %{id: resource_history_id, datagouv_id: datagouv_id} =
         resource_history =
         insert(:resource_history,
           datagouv_id: "1",
@@ -86,7 +58,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       assert 1 == count_resource_history()
       assert ResourceHistoryJob.is_same_resource?(resource_history, zip_metadata())
-      refute ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
+
+      assert {false, %{id: ^resource_history_id}} =
+               ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
     end
 
     test "with the latest ResourceHistory matching but for a different datagouv_id" do
@@ -117,7 +91,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
 
       %DB.ResourceHistory{id: latest_rh_id} |> DB.Repo.delete()
-      refute ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
+
+      assert {false, _} =
+               ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
     end
 
     test "with the latest ResourceHistory not matching" do
@@ -189,6 +165,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       %{datagouv_id: datagouv_id, metadata: resource_metadata} =
         insert(:resource,
           url: resource_url,
+          dataset: insert(:dataset, is_active: true),
           format: "GTFS",
           title: "title",
           datagouv_id: "1",
@@ -196,10 +173,16 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           metadata: %{"foo" => "bar"}
         )
 
-      Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn url, _headers ->
-        assert url == resource_url
-        %{status: 200, body: @gtfs_content, headers: [{"content-type", "application/octet-stream"}, {"x-foo", "bar"}]}
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^resource_url, _headers, options ->
+        assert options == [follow_redirect: true]
+
+        {:ok,
+         %HTTPoison.Response{
+           status_code: 200,
+           body: @gtfs_content,
+           headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]
+         }}
       end)
 
       Transport.ExAWS.Mock
@@ -223,7 +206,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
       assert 1 == count_resource_history()
 
-      ensure_no_tmp_files!()
+      Transport.Test.TestUtils.ensure_no_tmp_files!("resource_")
 
       expected_zip_metadata = zip_metadata()
 
@@ -251,10 +234,12 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  "zip_metadata" => ^expected_zip_metadata,
                  "uuid" => _uuid,
                  "download_datetime" => _download_datetime
-               }
+               },
+               last_up_to_date_at: last_up_to_date_at
              } = DB.ResourceHistory |> DB.Repo.one!()
 
       assert permanent_url == Transport.S3.permanent_url(:history, filename)
+      refute is_nil(last_up_to_date_at)
     end
 
     test "does not store resource again when it did not change" do
@@ -263,28 +248,36 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       %{datagouv_id: datagouv_id} =
         insert(:resource,
           url: resource_url,
+          dataset: insert(:dataset, is_active: true),
           format: "GTFS",
           title: "title",
           datagouv_id: "1",
           is_community_resource: false
         )
 
-      insert(:resource_history,
-        datagouv_id: datagouv_id,
-        payload: %{"zip_metadata" => zip_metadata()}
-      )
+      %{id: resource_history_id, updated_at: updated_at} =
+        insert(:resource_history,
+          datagouv_id: datagouv_id,
+          payload: %{"zip_metadata" => zip_metadata()}
+        )
 
-      Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn url, _headers ->
-        assert url == resource_url
-        %{status: 200, body: @gtfs_content, headers: []}
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^resource_url, _headers, options ->
+        assert options == [follow_redirect: true]
+        {:ok, %HTTPoison.Response{status_code: 200, body: @gtfs_content, headers: []}}
       end)
 
       assert 1 == count_resource_history()
       assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
       assert 1 == count_resource_history()
 
-      ensure_no_tmp_files!()
+      # check the updated_at field has been updated.
+      assert DB.ResourceHistory
+             |> DB.Repo.get!(resource_history_id)
+             |> Map.get(:updated_at)
+             |> DateTime.diff(updated_at, :microsecond) > 0
+
+      Transport.Test.TestUtils.ensure_no_tmp_files!("resource_")
     end
 
     test "does not crash when there is a server error" do
@@ -293,23 +286,95 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       %{datagouv_id: datagouv_id} =
         insert(:resource,
           url: resource_url,
+          dataset: insert(:dataset, is_active: true),
           format: "GTFS",
           title: "title",
           datagouv_id: "1",
           is_community_resource: false
         )
 
-      Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn url, _headers ->
-        assert url == resource_url
-        %{status: 500, body: "", headers: []}
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^resource_url, _headers, options ->
+        assert options == [follow_redirect: true]
+        {:ok, %HTTPoison.Response{status_code: 500, body: "", headers: []}}
       end)
 
       assert 0 == count_resource_history()
       assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
 
-      ensure_no_tmp_files!()
+      Transport.Test.TestUtils.ensure_no_tmp_files!("resource_")
     end
+  end
+
+  defp create_resources_for_history do
+    %{id: active_dataset_id} = insert(:dataset, is_active: true)
+    %{id: inactive_dataset_id} = insert(:dataset, is_active: false)
+
+    %{datagouv_id: datagouv_id} =
+      insert(:resource,
+        url: "https://example.com/gtfs.zip",
+        dataset_id: active_dataset_id,
+        format: "GTFS",
+        title: "title",
+        datagouv_id: "1",
+        is_community_resource: false
+      )
+
+    # Resources that should be ignored
+    insert(:resource,
+      url: "https://example.com/gtfs.zip",
+      dataset_id: active_dataset_id,
+      format: "GTFS",
+      title: "Ignored because it's a community resource",
+      datagouv_id: "2",
+      is_community_resource: true
+    )
+
+    insert(:resource,
+      url: "https://example.com/gbfs",
+      format: "gbfs",
+      title: "Ignored because it's not GTFS or NeTEx",
+      datagouv_id: "3",
+      is_community_resource: false
+    )
+
+    insert(:resource,
+      url: "https://example.com/gtfs.zip",
+      dataset_id: active_dataset_id,
+      format: "GTFS",
+      title: "Ignored because of duplicated datagouv_id",
+      datagouv_id: "4",
+      is_community_resource: false
+    )
+
+    insert(:resource,
+      url: "https://example.com/gtfs.zip",
+      dataset_id: active_dataset_id,
+      format: "GTFS",
+      title: "Ignored because of duplicated datagouv_id",
+      datagouv_id: "4",
+      is_community_resource: false
+    )
+
+    insert(:resource,
+      url: "https://example.com/gtfs.zip",
+      dataset_id: inactive_dataset_id,
+      format: "GTFS",
+      title: "Ignored because is not active",
+      datagouv_id: "5",
+      is_community_resource: false
+    )
+
+    insert(:resource,
+      url: "ftp://example.com/gtfs.zip",
+      dataset_id: active_dataset_id,
+      format: "GTFS",
+      title: "Ignored because is not available over HTTP",
+      datagouv_id: "6",
+      is_community_resource: false
+    )
+
+    datagouv_id
   end
 
   defp zip_metadata do
@@ -380,42 +445,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     ]
   end
 
-  defp ensure_no_tmp_files! do
-    tmp_files = System.tmp_dir!() |> File.ls!()
-
-    assert tmp_files |> Enum.filter(fn f -> String.starts_with?(f, "resource_") end) |> Enum.empty?(),
-           "tmp files fould in #{System.tmp_dir!()}"
-  end
-
   defp count_resource_history do
     DB.Repo.one!(from(r in DB.ResourceHistory, select: count()))
   end
 
-  defp s3_mocks_create_bucket do
-    Transport.ExAWS.Mock
-    # Listing buckets
-    |> expect(:request!, fn request ->
-      assert %{
-               service: :s3,
-               http_method: :get,
-               path: "/"
-             } = request
-
-      %{body: %{buckets: []}}
-    end)
-
-    Transport.ExAWS.Mock
-    # Bucket creation
-    |> expect(:request!, fn request ->
-      bucket_name = Transport.S3.bucket_name(:history)
-
-      assert %{
-               service: :s3,
-               http_method: :put,
-               path: "/",
-               bucket: ^bucket_name,
-               headers: %{"x-amz-acl" => "public-read"}
-             } = request
-    end)
+  defp count_resources do
+    DB.Repo.one!(from(r in DB.Resource, select: count()))
   end
 end

@@ -235,3 +235,7 @@ msgstr "Mettre à jour toutes les AOMs"
 #, elixir-format
 msgid "Jobs"
 msgstr "Jobs"
+
+#, elixir-format
+msgid "GBFS requests"
+msgstr "Requêtes GBFS"

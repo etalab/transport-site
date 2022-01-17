@@ -64,6 +64,7 @@ defmodule Unlock.Controller do
     config = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
 
     resource = Map.get(config, id)
+
     if resource do
       conn
       |> process_resource(resource)
@@ -78,6 +79,7 @@ defmodule Unlock.Controller do
       # hook an unlock-specific handling for this instead.
       # W
       Logger.error("An exception occurred (#{exception |> inspect}")
+
       conn
       |> send_resp(500, "Internal Error")
   end
@@ -104,10 +106,12 @@ defmodule Unlock.Controller do
   defp fetch_remote(item) do
     comp_fn = fn _key ->
       Logger.info("Processing proxy request for identifier #{item.identifier}")
+
       try do
         Telemetry.trace_request(item.identifier, :internal)
         response = Unlock.HTTP.Client.impl().get!(item.target_url, item.request_headers)
         size = byte_size(response.body)
+
         if size > @max_allowed_cached_byte_size do
           Logger.warn("Payload is too large (#{size} bytes > #{@max_allowed_cached_byte_size}). Skipping cache.")
           {:ignore, response}
@@ -118,7 +122,8 @@ defmodule Unlock.Controller do
         e ->
           # NOTE: if an error occurs around the HTTP query, then
           # we want to track it down and return Bad Gateway
-          {:error, {:computation_error, e, __STACKTRACE__}}
+          Logger.error(Exception.format(:error, e, __STACKTRACE__))
+          {:ignore, bad_gateway_response()}
       end
     end
 
@@ -127,25 +132,34 @@ defmodule Unlock.Controller do
     # NOTE: concurrent calls to `fetch` with the same key will result (here)
     # in only one fetching call, which is a nice guarantee (avoid overloading of target)
     {operation, result} = Cachex.fetch(cache_name, cache_key, comp_fn)
+
     case operation do
       :ok ->
         Logger.info("Proxy response for #{item.identifier} served from cache")
         result
+
       :commit ->
         # NOTE: in case of concurrent calls, the expire will be called 1 time per call. I am
         # doing research to verify if this could be changed (e.g. call `expire` inside the `comp_fn`),
         # but at this point it doesn't cause troubles.
-        Cachex.expire(cache_name, cache_key, :timer.seconds(item.ttl))
+        {:ok, true} = Cachex.expire(cache_name, cache_key, :timer.seconds(item.ttl))
         Logger.info("Setting cache TTL for key #{cache_key} (expire in #{item.ttl} seconds)")
         result
+
       :ignore ->
         Logger.info("Cache has been skipped for proxy response")
         result
+
       :error ->
         # NOTE: we'll want to have some monitoring here, but not using Sentry
         # because in case of troubles, we will blow up our quota.
-        %Unlock.HTTP.Response{status: 502, body: "Bad Gateway", headers: [{"content-type", "text/plain"}]}
+        Logger.error("Error while fetching key #{cache_key}")
+        bad_gateway_response()
     end
+  end
+
+  defp bad_gateway_response do
+    %Unlock.HTTP.Response{status: 502, body: "Bad Gateway", headers: [{"content-type", "text/plain"}]}
   end
 
   # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug

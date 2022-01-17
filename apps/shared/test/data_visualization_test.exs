@@ -60,10 +60,14 @@ defmodule Transport.DataVisualizationTest do
       assert excessive_speed |> Map.keys() == ["geojson", "severity"]
 
       features = excessive_speed |> Map.fetch!("geojson") |> Map.fetch!("features")
-      assert features |> Enum.frequencies_by(fn %{"geometry" => %{"type" => type}} -> type end) == %{"Point" => 2, "LineString" => 1}
+
+      assert features |> Enum.frequencies_by(fn %{"geometry" => %{"type" => type}} -> type end) == %{
+               "Point" => 2,
+               "LineString" => 1
+             }
 
       [line_string] = features |> Enum.filter(fn %{"geometry" => %{"type" => type}} -> type == "LineString" end)
       assert line_string["properties"]["details"] |> String.contains?("computed speed between the stops")
+    end
   end
-end
 end

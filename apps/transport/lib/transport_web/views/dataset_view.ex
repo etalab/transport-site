@@ -10,6 +10,7 @@ defmodule TransportWeb.DatasetView do
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
+  import Transport.GbfsUtils, only: [gbfs_validation_link: 1]
   alias TransportWeb.ResourceView
 
   @doc """
@@ -205,7 +206,12 @@ defmodule TransportWeb.DatasetView do
       "road-works" => "construction-zone-grey.svg",
       "car-motorbike-sharing" => "car-motorbike-grey.svg",
       "low-emission-zones" => "low-emission-zones.svg",
-      "bike-parking" => "bike-parking.svg"
+      "bike-parking" => "bike-parking.svg",
+      # Not proper types, but modes/filters
+      "real-time-public-transit" => "bus-stop.svg",
+      "long-distance-coach" => "bus.svg",
+      "train" => "train.svg",
+      "boat" => "boat.svg"
     }
 
     if Map.has_key?(icons, type), do: "/images/icons/#{Map.get(icons, type)}"
@@ -221,37 +227,40 @@ defmodule TransportWeb.DatasetView do
   defp add_order_by(kwargs, %{"order_by" => order}), do: Keyword.put(kwargs, :order_by, order)
   defp add_order_by(kwargs, _), do: kwargs
 
-  def gbfs_validation_link(%Resource{format: "gbfs"} = r) do
-    # credo:disable-for-lines:2 Credo.Check.Refactor.PipeChainStart
-    Application.fetch_env!(:transport, :gbfs_validator_website)
-    |> URI.parse()
-    |> Map.put(:query, URI.encode_query(%{url: r.url}))
-    |> URI.to_string()
-  end
-
   def gbfs_documentation_link(version) when is_binary(version) do
     "https://github.com/NABSA/gbfs/blob/v#{version}/gbfs.md"
   end
 
   def gbfs_feed_source_for_ttl(%Resource{format: "gbfs", metadata: %{"types" => types}}) do
-    feed_name = Transport.GBFSMetadata.feed_to_use_for_ttl(types)
+    feed_name = Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(types)
     if feed_name, do: feed_name, else: "root"
   end
-
-  def summary_class(%{format: "gbfs", metadata: %{"validation" => %{"has_errors" => false}}}),
-    do: "resource__summary--Success"
-
-  def summary_class(%{format: "gbfs", metadata: %{}}), do: "resource__summary--Error"
 
   # For GTFS resources
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
   def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
 
-  def errors_count(%Resource{format: "gbfs", metadata: %{"validation" => %{"errors_count" => nb_errors}}})
+  # For other resources
+  def summary_class(%{metadata: %{"validation" => %{"has_errors" => false}}}),
+    do: "resource__summary--Success"
+
+  def summary_class(%{metadata: %{"validation" => _}}), do: "resource__summary--Error"
+
+  def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => nb_errors}}})
       when nb_errors >= 0,
       do: nb_errors
 
-  def errors_count(%Resource{format: "gbfs"}), do: nil
+  def errors_count(%Resource{}), do: nil
+
+  def availability_number_days, do: 30
+
+  def availability_ratio_class(ratio) when ratio >= 0 and ratio <= 100 do
+    cond do
+      ratio >= 99 -> "resource__summary--Success"
+      ratio >= 95 -> "resource__summary--Warning"
+      true -> "resource__summary--Error"
+    end
+  end
 
   def outdated_class(resource) do
     case Resource.is_outdated?(resource) do

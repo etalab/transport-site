@@ -4,6 +4,7 @@ defmodule TransportWeb.DatasetController do
   alias Datagouvfr.Client.{Datasets, Discussions, Reuses}
   alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
+  import TransportWeb.DatasetView, only: [availability_number_days: 0]
   import Phoenix.HTML
   require Logger
 
@@ -43,12 +44,14 @@ defmodule TransportWeb.DatasetController do
 
       conn
       |> assign(:dataset, dataset)
+      |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
       |> assign(:territory, territory)
       |> assign(:discussions, Discussions.get(dataset.datagouv_id))
       |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
       |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
       |> merge_assigns(reuses_assign)
       |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
+      |> assign(:unavailabilities, unavailabilities(dataset))
       |> assign(:history_resources, Transport.History.Fetcher.history_resources(dataset))
       |> put_status(if dataset.is_active, do: :ok, else: :not_found)
       |> render("details.html")
@@ -84,6 +87,15 @@ defmodule TransportWeb.DatasetController do
       )
 
     by_territory(conn, Commune |> where([c], c.insee == ^insee), params, error_msg)
+  end
+
+  defp unavailabilities(%Dataset{id: id, resources: resources}) do
+    Transport.Cache.API.fetch("unavailabilities_dataset_#{id}", fn ->
+      resources
+      |> Enum.into(%{}, fn resource ->
+        {resource.id, DB.ResourceUnavailability.availability_over_last_days(resource, availability_number_days())}
+      end)
+    end)
   end
 
   defp by_territory(conn, territory, params, error_msg, count_by_region \\ false) do

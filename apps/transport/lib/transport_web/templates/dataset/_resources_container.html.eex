@@ -9,7 +9,7 @@
     <% end %>
     <div>
       <div class="ressources-list">
-        <%= render_many order_resources_by_validity(@resources), TransportWeb.DatasetView, "_resource.html", as: :resource, conn: @conn, dataset: assigns[:dataset] %>
+        <%= render_many order_resources_by_validity(@resources), TransportWeb.DatasetView, "_resource.html", as: :resource, conn: @conn, resources_related_files: assigns[:resources_related_files], dataset: assigns[:dataset], unavailabilities: assigns[:unavailabilities] %>
       </div>
 
       <%= if assigns[:show_history_section_link] do %>

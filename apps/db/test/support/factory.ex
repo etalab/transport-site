@@ -46,6 +46,18 @@ defmodule DB.Factory do
     %DB.ResourceHistory{}
   end
 
+  def data_conversion_factory do
+    %DB.DataConversion{}
+  end
+
+  def resource_unavailability_factory do
+    %DB.ResourceUnavailability{}
+  end
+
+  def metrics_factory do
+    %DB.Metrics{}
+  end
+
   def commune_factory do
     %DB.Commune{
       nom: "Ballans",

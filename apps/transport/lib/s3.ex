@@ -2,6 +2,7 @@ defmodule Transport.S3 do
   @moduledoc """
   This module contains common code related to S3 object storage.
   """
+  require Logger
 
   def bucket_name(feature) do
     config = Application.fetch_env!(:transport, :s3_buckets)
@@ -24,5 +25,18 @@ defmodule Transport.S3 do
       |> ExAws.S3.put_bucket("", options)
       |> Transport.Wrapper.ExAWS.impl().request!()
     end
+  end
+
+  def upload_to_s3!(feature, body, path) do
+    Logger.debug("Uploading file to #{path}")
+
+    feature
+    |> Transport.S3.bucket_name()
+    |> ExAws.S3.put_object(
+      path,
+      body,
+      acl: "public-read"
+    )
+    |> Transport.Wrapper.ExAWS.impl().request!()
   end
 end

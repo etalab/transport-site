@@ -522,7 +522,9 @@ defmodule DB.Dataset do
   def formats(_), do: []
 
   @spec validate(binary | integer | __MODULE__.t()) :: {:error, String.t()} | {:ok, nil}
-  def validate(%__MODULE__{id: id, type: "public-transit"}), do: validate(id)
+  def validate(%__MODULE__{id: id, type: type}) when type in ["public-transit", "bike-scooter-sharing"],
+    do: validate(id)
+
   def validate(%__MODULE__{}), do: {:ok, nil}
   def validate(id) when is_binary(id), do: id |> String.to_integer() |> validate()
 
@@ -599,6 +601,15 @@ defmodule DB.Dataset do
     |> Repo.all()
   end
 
+  @spec get_resources_related_files(any()) :: map()
+  def get_resources_related_files(%__MODULE__{resources: resources}) when is_list(resources) do
+    resources
+    |> Enum.map(fn %{id: id} = r -> {id, DB.Resource.get_related_files(r)} end)
+    |> Enum.into(%{})
+  end
+
+  def get_resources_related_files(_), do: %{}
+
   @spec validate_territory_mutual_exclusion(Ecto.Changeset.t()) :: Ecto.Changeset.t()
   defp validate_territory_mutual_exclusion(changeset) do
     has_cities =
@@ -628,8 +639,7 @@ defmodule DB.Dataset do
   end
 
   @spec cast_aom(Ecto.Changeset.t(), map()) :: Ecto.Changeset.t()
-  defp cast_aom(changeset, %{"insee" => ""}), do: changeset
-  defp cast_aom(changeset, %{"insee" => nil}), do: changeset
+  defp cast_aom(changeset, %{"insee" => insee}) when insee in [nil, ""], do: change(changeset, aom_id: nil)
 
   defp cast_aom(changeset, %{"insee" => insee}) do
     Commune

@@ -190,7 +190,7 @@ defmodule TransportWeb.API.StatsController do
 
   @spec bike_scooter_sharing(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def bike_scooter_sharing(%Plug.Conn{} = conn, _params),
-    do: render_features(conn, bike_scooter_sharing_features_query())
+    do: render_features(conn, bike_scooter_sharing_features())
 
   @spec quality(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def quality(%Plug.Conn{} = conn, _params), do: render_features(conn, quality_features_query(), "api-stats-quality")
@@ -212,8 +212,8 @@ defmodule TransportWeb.API.StatsController do
   # resorting to `send_resp` directly, we leverage `Transport.Shared.ConditionalJSONEncoder` to
   # skip JSON encoding, signaling the need to do so via a {:skip_json_encoding, data} tuple.
   #
-  @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary() | nil) :: Plug.Conn.t()
-  defp render_features(conn, query, cache_key \\ nil) do
+  @spec render_features(Plug.Conn.t(), Ecto.Query.t(), binary()) :: Plug.Conn.t()
+  defp render_features(conn, query, cache_key) do
     comp_fn = fn ->
       query
       |> features()
@@ -221,14 +221,13 @@ defmodule TransportWeb.API.StatsController do
       |> Jason.encode!()
     end
 
-    data =
-      if cache_key do
-        Transport.Cache.API.fetch(cache_key, comp_fn)
-      else
-        comp_fn.()
-      end
+    data = Transport.Cache.API.fetch(cache_key, comp_fn)
 
     render(conn, data: {:skip_json_encoding, data})
+  end
+
+  defp render_features(conn, data) do
+    render(conn, data: {:skip_json_encoding, data |> geojson() |> Jason.encode!()})
   end
 
   @spec aom_features_query :: Ecto.Query.t()
@@ -293,17 +292,29 @@ defmodule TransportWeb.API.StatsController do
     })
   end
 
-  @spec bike_scooter_sharing_features_query :: Ecto.Query.t()
-  def bike_scooter_sharing_features_query do
-    DatasetGeographicView
-    |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
-    |> select([gv, dataset], %{
-      geometry: fragment("ST_Centroid(geom)"),
-      id: gv.dataset_id,
-      nom: dataset.spatial,
-      parent_dataset_slug: dataset.slug
-    })
-    |> where([_gv, dataset], dataset.type == "bike-scooter-sharing")
+  @spec bike_scooter_sharing_features :: []
+  def bike_scooter_sharing_features do
+    query =
+      DatasetGeographicView
+      |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
+      |> select([gv, dataset], %{
+        geometry: fragment("ST_Centroid(geom) as geometry"),
+        names: fragment("array_agg(? order by ? asc)", dataset.spatial, dataset.spatial),
+        slugs: fragment("array_agg(? order by ? asc)", dataset.slug, dataset.spatial)
+      })
+      |> where([_gv, dataset], dataset.type == "bike-scooter-sharing" and dataset.is_active)
+      |> group_by(fragment("geometry"))
+
+    query
+    |> DB.Repo.all()
+    |> Enum.reject(fn r -> is_nil(r.geometry) end)
+    |> Enum.map(fn r ->
+      %{
+        "geometry" => r.geometry |> JSON.encode!(),
+        "type" => "Feature",
+        "properties" => Map.take(r, Enum.filter(Map.keys(r), fn k -> k != "geometry" end))
+      }
+    end)
   end
 
   @spec quality_features_query :: Ecto.Query.t()
@@ -340,7 +351,7 @@ defmodule TransportWeb.API.StatsController do
             WHERE
             end_date IS NOT NULL
             AND (
-              dataset_id in (SELECT id FROM dataset WHERE aom_id=?)
+              dataset_id in (SELECT id FROM dataset WHERE aom_id=? and is_active=TRUE)
               OR dataset_id = ?
               )
             """,
@@ -362,6 +373,8 @@ defmodule TransportWeb.API.StatsController do
               resource.end_date >= TO_DATE(?, 'YYYY-MM-DD')
               AND
               resource.is_available
+              AND
+              dataset.is_active
             ORDER BY (
               CASE max_error::text
                 WHEN 'Fatal' THEN 1

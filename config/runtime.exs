@@ -38,6 +38,9 @@ config :transport,
   worker: worker,
   webserver: webserver
 
+config :unlock,
+  enforce_ttl: webserver
+
 # Inside IEx, we do not want jobs to start processing, nor plugins working.
 # The jobs can be heavy and for instance in production, one person could
 # unknowningly create duplicate RAM heavy jobs. With this trick, we can still
@@ -65,24 +68,31 @@ end
 config :transport,
   app_env: app_env
 
-app_env_file = Path.join(__DIR__, "#{app_env}.exs")
-
-if File.exists?(app_env_file) do
-  import_config app_env_file
+# Override configuration specific to staging
+if app_env == :staging do
+  config :transport,
+    s3_buckets: %{
+      history: "resource-history-staging"
+    }
 end
 
 base_oban_conf = [repo: DB.Repo]
 
 # Oban jobs that should be run in every environment
-oban_crontab_all_envs = []
+oban_crontab_all_envs = [
+  {"0 */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob},
+  {"30 */6 * * *", Transport.Jobs.GtfsToGeojsonConverterJob},
+  {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
+  {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}}
+]
+
 # Oban jobs that *should not* be run in staging by the crontab
 non_staging_crontab =
   if app_env == :staging do
     []
+    # Oban jobs that should be run in all envs, *except* staging
   else
-    [
-      {"* */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob}
-    ]
+    []
   end
 
 extra_oban_conf =

@@ -113,6 +113,12 @@ defmodule TransportWeb.Router do
         live("/jobs", JobsLive)
       end
 
+      live_session :gbfs,
+        root_layout: {TransportWeb.LayoutView, :app},
+        session: {TransportWeb.Backoffice.GBFSLive, :build_session, []} do
+        live("/gbfs", GBFSLive)
+      end
+
       get("/import_aoms", PageController, :import_all_aoms)
 
       scope "/datasets" do
@@ -133,6 +139,9 @@ defmodule TransportWeb.Router do
         get("/", PartnerController, :partners)
         post("/", PartnerController, :post_partner)
       end
+
+      get("/breaking_news", BreakingNewsController, :index)
+      post("/breaking_news", BreakingNewsController, :update_breaking_news)
     end
 
     # Authentication
@@ -154,6 +163,7 @@ defmodule TransportWeb.Router do
 
     scope "/tools" do
       get("/gbfs/geojson_convert", GbfsToGeojsonController, :convert)
+      get("/gbfs/analyze", GbfsAnalyzerController, :index)
     end
 
     scope "/gtfs-geojson-conversion-#{System.get_env("TRANSPORT_TOOLS_SECRET_TOKEN")}" do

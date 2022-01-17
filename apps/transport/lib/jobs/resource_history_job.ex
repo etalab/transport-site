@@ -39,10 +39,12 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
       |> Repo.all()
 
     Resource
+    |> join(:inner, [r], d in DB.Dataset, on: r.dataset_id == d.id and d.is_active)
     |> where([r], not is_nil(r.url) and not is_nil(r.title) and not is_nil(r.datagouv_id))
     |> where([r], r.format == "GTFS" or r.format == "NeTEx")
     |> where([r], r.datagouv_id not in ^duplicates)
     |> where([r], not r.is_community_resource)
+    |> where([r], like(r.url, "http%"))
     |> select([r], r.datagouv_id)
     |> Repo.all()
   end
@@ -85,7 +87,15 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   defp process_download({:ok, resource_path, headers, body}, %Resource{datagouv_id: datagouv_id} = resource) do
     download_datetime = DateTime.utc_now()
-    zip_metadata = Transport.ZipMetaDataExtractor.extract!(resource_path)
+
+    zip_metadata =
+      try do
+        Transport.ZipMetaDataExtractor.extract!(resource_path)
+      rescue
+        _ ->
+          Logger.debug("Cannot compute ZIP metadata for #{datagouv_id}")
+          nil
+      end
 
     case should_store_resource?(resource, zip_metadata) do
       true ->
@@ -105,12 +115,13 @@ defmodule Transport.Jobs.ResourceHistoryJob do
           total_compressed_size: zip_metadata |> Enum.map(& &1.compressed_size) |> Enum.sum()
         }
 
-        upload_to_s3!(body, filename)
+        Transport.S3.upload_to_s3!(:history, body, filename)
         store_resource_history!(resource, data)
 
-      false ->
+      {false, history} ->
         # Good opportunity to add a :telemetry event
         Logger.debug("skipping historization for #{datagouv_id} because resource did not change")
+        touch_resource_history!(history)
     end
   end
 
@@ -121,6 +132,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   - we never historicised it
   - the latest ResourceHistory payload is different than the current state
   """
+  def should_store_resource?(_, []), do: false
+  def should_store_resource?(_, nil), do: false
+
   def should_store_resource?(%Resource{datagouv_id: datagouv_id}, zip_metadata) do
     history =
       DB.ResourceHistory
@@ -129,7 +143,11 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       |> limit(1)
       |> DB.Repo.one()
 
-    if is_nil(history), do: true, else: not is_same_resource?(history, zip_metadata)
+    case {history, is_same_resource?(history, zip_metadata)} do
+      {nil, _} -> true
+      {_history, false} -> true
+      {history, true} -> {false, history}
+    end
   end
 
   @doc """
@@ -141,13 +159,21 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     MapSet.equal?(set_of_sha256(payload["zip_metadata"]), set_of_sha256(zip_metadata))
   end
 
+  def is_same_resource?(nil, _), do: false
+
   def set_of_sha256(items), do: MapSet.new(items |> Enum.map(fn m -> Map.get(m, "sha256") || Map.get(m, :sha256) end))
 
   defp store_resource_history!(%Resource{datagouv_id: datagouv_id}, payload) do
     Logger.debug("Saving ResourceHistory for #{datagouv_id}")
 
-    %DB.ResourceHistory{datagouv_id: datagouv_id, payload: payload}
+    %DB.ResourceHistory{datagouv_id: datagouv_id, payload: payload, last_up_to_date_at: DateTime.utc_now()}
     |> DB.Repo.insert!()
+  end
+
+  defp touch_resource_history!(%DB.ResourceHistory{id: id, datagouv_id: datagouv_id} = history) do
+    Logger.debug("Touching unchanged ResourceHistory #{id} for resource datagouv_id #{datagouv_id}")
+
+    history |> Ecto.Changeset.change(%{last_up_to_date_at: DateTime.utc_now()}) |> DB.Repo.update!()
   end
 
   defp download_path(%Resource{datagouv_id: datagouv_id}) do
@@ -155,44 +181,32 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   end
 
   defp download_resource(%Resource{datagouv_id: datagouv_id, url: url}, file_path) do
-    case Unlock.HTTP.Client.impl().get!(url, []) do
-      %{status: 200, body: body, headers: headers} ->
+    case http_client().get(url, [], follow_redirect: true) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body} = r} ->
         Logger.debug("Saving resource #{datagouv_id} to #{file_path}")
         File.write!(file_path, body)
-        relevant_headers = headers |> Enum.into(%{}) |> Map.take(relevant_http_headers())
-        {:ok, file_path, relevant_headers, body}
+        {:ok, file_path, relevant_http_headers(r), body}
 
-      %{status: status} ->
+      {:ok, %HTTPoison.Response{status_code: status}} ->
         {:error, "Got a non 200 status: #{status}"}
 
-      %Finch.Error{reason: reason} ->
+      {:error, %HTTPoison.Error{reason: reason}} ->
         {:error, "Got an error: #{reason}"}
     end
   end
 
+  defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
+
   defp remove_file(path), do: File.rm(path)
 
-  defp upload_to_s3!(body, path) do
-    Logger.debug("Uploading resource to #{path}")
-
-    :history
-    |> Transport.S3.bucket_name()
-    |> ExAws.S3.put_object(
-      path,
-      body,
-      acl: "public-read"
-    )
-    |> Transport.Wrapper.ExAWS.impl().request!()
-  end
-
-  def upload_filename(%Resource{datagouv_id: datagouv_id} = resource, %DateTime{} = dt) do
+  def upload_filename(%Resource{datagouv_id: datagouv_id}, %DateTime{} = dt) do
     time = Calendar.strftime(dt, "%Y%m%d.%H%M%S.%f")
 
     "#{datagouv_id}/#{datagouv_id}.#{time}.zip"
   end
 
-  defp relevant_http_headers do
-    [
+  defp relevant_http_headers(%HTTPoison.Response{headers: headers}) do
+    headers_to_keep = [
       "content-disposition",
       "content-encoding",
       "content-length",
@@ -202,5 +216,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       "if-modified-since",
       "last-modified"
     ]
+
+    headers |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v} end) |> Map.take(headers_to_keep)
   end
 end

@@ -95,6 +95,17 @@ defmodule DB.DatasetDBTest do
                })
     end
 
+    test "territory mutual exclusion with nil INSEE code resets AOM" do
+      %{datagouv_id: datagouv_id} = insert(:dataset)
+
+      assert {:ok, %Ecto.Changeset{changes: %{aom_id: nil, region_id: 1}}} =
+               Dataset.changeset(%{
+                 "datagouv_id" => datagouv_id,
+                 "national_dataset" => "true",
+                 "insee" => nil
+               })
+    end
+
     test "has_real_time=true" do
       changeset =
         Dataset.changeset(%{

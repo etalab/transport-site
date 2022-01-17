@@ -33,8 +33,62 @@ defmodule TransportWeb.API.StatsControllerTest do
   end
 
   test "Get the bike and scooter stats", %{conn: _conn} do
-    _dataset = :dataset |> insert(%{type: "bike-scooter-sharing", aom: nil})
-    result = TransportWeb.API.StatsController.bike_scooter_sharing_features_query() |> DB.Repo.all()
-    assert length(result) == 1
+    aom =
+      insert(:aom,
+        geom:
+          "SRID=4326;POLYGON((55.5832 -21.3723,55.5510 -21.3743,55.5359 -21.3631,55.5832 -21.3723))"
+          |> Geo.WKT.decode!()
+      )
+
+    dataset1 =
+      :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, spatial: "other name", slug: "a"})
+
+    dataset2 =
+      :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, spatial: "name", slug: "z"})
+
+    expected = [
+      %{
+        "geometry" => %{
+          "coordinates" => [55.5567, -21.3699],
+          "crs" => %{"properties" => %{"name" => "EPSG:4326"}, "type" => "name"},
+          "type" => "Point"
+        },
+        "properties" => %{
+          geometry: %Geo.Point{coordinates: {55.5567, -21.3699}, properties: %{}, srid: 4326},
+          names: [dataset2.spatial, dataset1.spatial],
+          slugs: [dataset2.slug, dataset1.slug]
+        },
+        "type" => "Feature"
+      }
+    ]
+
+    assert TransportWeb.API.StatsController.bike_scooter_sharing_features() == expected
+  end
+
+  test "Quality of AOM data stats", %{conn: conn} do
+    aom =
+      insert(
+        :aom,
+        geom:
+          "SRID=4326;POLYGON((55.5832 -21.3723,55.5510 -21.3743,55.5359 -21.3631,55.5832 -21.3723))"
+          |> Geo.WKT.decode!()
+      )
+
+    %{id: dataset_active_id} =
+      :dataset |> insert(%{type: "public-transit", is_active: true, aom: aom, spatial: "Ajaccio", slug: "a"})
+
+    # the active dataset has an outdated resource
+    :resource |> insert(%{dataset_id: dataset_active_id, end_date: Date.new!(2000, 1, 1)})
+
+    %{id: dataset_inactive_id} =
+      :dataset |> insert(%{type: "public-transit", is_active: false, aom: aom, spatial: "Ajacciold", slug: "z"})
+
+    # but the inactive dataset has an up-to-date resource
+    :resource |> insert(%{dataset_id: dataset_inactive_id, end_date: Date.new!(2100, 1, 1)})
+
+    res = conn |> get(TransportWeb.API.Router.Helpers.stats_path(conn, :quality)) |> json_response(200)
+
+    # the aom status is outdated
+    assert %{"features" => [%{"properties" => %{"quality" => %{"expired_from" => %{"status" => "outdated"}}}}]} = res
   end
 end

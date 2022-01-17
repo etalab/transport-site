@@ -12,6 +12,7 @@ defmodule JobsTableComponent do
             <th>id</th>
             <th>state</th>
             <th>queue</th>
+            <th>worker</th>
             <th>args</th>
             <th>inserted_at</th>
             <%= if @state == "discarded" do %>
@@ -25,6 +26,7 @@ defmodule JobsTableComponent do
               <td><%= job.id %></td>
               <td><%= job.state %></td>
               <td><%= job.queue %></td>
+              <td><%= job.worker %></td>
               <td><%= inspect(job.args) %></td>
               <td><%= job.inserted_at %></td>
               <%= if @state == "discarded" do %>

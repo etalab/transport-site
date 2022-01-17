@@ -8,6 +8,10 @@ defmodule GBFS.PageCacheTest do
 
   setup :verify_on_exit!
 
+  setup do
+    setup_telemetry_handler()
+  end
+
   def run_query(conn, url) do
     response =
       conn
@@ -52,7 +56,18 @@ defmodule GBFS.PageCacheTest do
     run_query(conn, url)
   end
 
+  test "network_name" do
+    assert nil == PageCache.network_name("/foo")
+    assert nil == PageCache.network_name("/gbfs")
+    assert "rouen" == PageCache.network_name("/gbfs/rouen/gbfs.json")
+    assert "rouen" == PageCache.network_name("/gbfs/rouen/station_information.json")
+    assert "st_helene" == PageCache.network_name("/gbfs/st_helene/station_information.json")
+    assert "cergy-pontoise" == PageCache.network_name("/gbfs/cergy-pontoise/station_information.json")
+  end
+
   test "mirrors non-200 status code", %{conn: conn} do
+    external_telemetry_event = telemetry_event("toulouse", :external)
+    internal_telemetry_event = telemetry_event("toulouse", :internal)
     enable_cache()
 
     url = "/gbfs/toulouse/station_information.json"
@@ -61,6 +76,9 @@ defmodule GBFS.PageCacheTest do
 
     # first call must result in call to third party
     r = conn |> get(url)
+    assert_received ^internal_telemetry_event
+    assert_received ^external_telemetry_event
+
     # an underlying 500 will result of a 502
     assert r.status == 502
 
@@ -74,7 +92,28 @@ defmodule GBFS.PageCacheTest do
     # This is verified by the Mox/expect definition to
     # be called only once.
     r = conn |> get(url)
+    assert_received ^external_telemetry_event
+    refute_received ^internal_telemetry_event
     assert r.status == 502
+  end
+
+  defp telemetry_event(network_name, request_type) do
+    {:telemetry_event, [:gbfs, :request, request_type], %{}, %{target: GBFS.Telemetry.target_for_network(network_name)}}
+  end
+
+  defp setup_telemetry_handler do
+    events = Transport.Telemetry.gbfs_request_event_names()
+    events |> Enum.at(1) |> :telemetry.list_handlers() |> Enum.map(& &1.id) |> Enum.each(&:telemetry.detach/1)
+    test_pid = self()
+    # inspired by https://github.com/dashbitco/broadway/blob/main/test/broadway_test.exs
+    :telemetry.attach_many(
+      "test-handler-#{System.unique_integer()}",
+      events,
+      fn name, measurements, metadata, _ ->
+        send(test_pid, {:telemetry_event, name, measurements, metadata})
+      end,
+      nil
+    )
   end
 
   # To be implemented later, but for now the error handling on that (Sentry etc)

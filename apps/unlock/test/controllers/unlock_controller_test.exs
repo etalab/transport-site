@@ -11,6 +11,11 @@ defmodule Unlock.ControllerTest do
   # require for current cachex use (out of process)
   setup :set_mox_from_context
 
+  setup do
+    Cachex.clear(Unlock.Cachex)
+    setup_telemetry_handler()
+  end
+
   test "GET /" do
     output =
       build_conn()
@@ -27,17 +32,6 @@ defmodule Unlock.ControllerTest do
 
   describe "GET /resource/:slug" do
     test "handles a regular read" do
-      test_pid = self()
-      # inspired by https://github.com/dashbitco/broadway/blob/main/test/broadway_test.exs
-      :telemetry.attach_many(
-        "test-handler-#{System.unique_integer()}",
-        [[:proxy, :request, :internal], [:proxy, :request, :external]],
-        fn name, measurements, metadata, _ ->
-          send(test_pid, {:telemetry_event, name, measurements, metadata})
-        end,
-        nil
-      )
-
       slug = "an-existing-identifier"
 
       ttl_in_seconds = 30
@@ -75,11 +69,9 @@ defmodule Unlock.ControllerTest do
       assert resp.resp_body == "somebody-to-love"
       assert resp.status == 207
 
-      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
-                       %{target: "proxy:an-existing-identifier"}}
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{}, %{target: "proxy:an-existing-identifier"}}
 
-      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
-                       %{target: "proxy:an-existing-identifier"}}
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{}, %{target: "proxy:an-existing-identifier"}}
 
       # these ones are added by our pipeline for now
       assert Plug.Conn.get_resp_header(resp, "x-request-id")
@@ -87,6 +79,7 @@ defmodule Unlock.ControllerTest do
       assert Plug.Conn.get_resp_header(resp, "cache-control") == [
                "max-age=0, private, must-revalidate"
              ]
+
       # we enforce downloads for now, even if this results sometimes in incorrect filenames
       # due to incorrect content-type headers from the remote
       assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment"]
@@ -98,6 +91,9 @@ defmodule Unlock.ControllerTest do
         |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
 
       assert remaining_headers == [
+               {"access-control-allow-origin", "*"},
+               {"access-control-expose-headers", "*"},
+               {"access-control-allow-credentials", "true"},
                {"content-type", "application/json"},
                {"content-length", "7350"},
                {"date", "Thu, 10 Jun 2021 19:45:14 GMT"}
@@ -107,7 +103,7 @@ defmodule Unlock.ControllerTest do
 
       # subsequent queries should work based on cache
       Unlock.HTTP.Client.Mock
-      |> expect(:get!, 0, fn(_url, _headers) -> nil end)
+      |> expect(:get!, 0, fn _url, _headers -> nil end)
 
       {:ok, ttl} = Cachex.ttl(Unlock.Cachex, "resource:an-existing-identifier")
       assert_in_delta ttl / 1000.0, ttl_in_seconds, 1
@@ -119,11 +115,9 @@ defmodule Unlock.ControllerTest do
       assert resp.resp_body == "somebody-to-love"
       assert resp.status == 207
 
-      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
-                       %{target: "proxy:an-existing-identifier"}}
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{}, %{target: "proxy:an-existing-identifier"}}
 
-      refute_received {:telemetry_event, [:proxy, :request, :internal], %{},
-                       %{target: "proxy:an-existing-identifier"}}
+      refute_received {:telemetry_event, [:proxy, :request, :internal], %{}, %{target: "proxy:an-existing-identifier"}}
 
       # NOTE: this whole test will have to be DRYed
       remaining_headers =
@@ -131,6 +125,9 @@ defmodule Unlock.ControllerTest do
         |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
 
       assert remaining_headers == [
+               {"access-control-allow-origin", "*"},
+               {"access-control-expose-headers", "*"},
+               {"access-control-allow-credentials", "true"},
                {"content-type", "application/json"},
                {"content-length", "7350"},
                {"date", "Thu, 10 Jun 2021 19:45:14 GMT"}
@@ -140,7 +137,8 @@ defmodule Unlock.ControllerTest do
     end
 
     test "handles 404" do
-      setup_proxy_config(%{}) # such empty
+      # such empty
+      setup_proxy_config(%{})
 
       resp =
         build_conn()
@@ -181,13 +179,53 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
     end
 
-    @tag :skip
-    test "handles remote error"
+    test "handles remote error" do
+      url = "http://localhost/some-remote-resource"
+      identifier = "foo"
+
+      setup_proxy_config(%{
+        identifier => %Unlock.Config.Item{
+          identifier: identifier,
+          target_url: url,
+          ttl: 10
+        }
+      })
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, fn ^url, _request_headers ->
+        raise RuntimeError
+      end)
+
+      resp = build_conn() |> get("/resource/#{identifier}")
+
+      # Got an exception, nothing is stored in cache
+      assert {:ok, []} == Cachex.keys(Unlock.Cachex)
+      assert resp.status == 502
+      assert resp.resp_body == "Bad Gateway"
+
+      verify!(Unlock.HTTP.Client.Mock)
+    end
 
     @tag :skip
     test "handles proxy error"
 
     @tag :skip
     test "times out without locking the whole thing"
+  end
+
+  defp setup_telemetry_handler do
+    events = Transport.Telemetry.proxy_request_event_names()
+    events |> Enum.at(1) |> :telemetry.list_handlers() |> Enum.map(& &1.id) |> Enum.each(&:telemetry.detach/1)
+
+    test_pid = self()
+    # inspired by https://github.com/dashbitco/broadway/blob/main/test/broadway_test.exs
+    :telemetry.attach_many(
+      "test-handler-#{System.unique_integer()}",
+      events,
+      fn name, measurements, metadata, _ ->
+        send(test_pid, {:telemetry_event, name, measurements, metadata})
+      end,
+      nil
+    )
   end
 end

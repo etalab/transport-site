@@ -121,3 +121,31 @@ msgid "error"
 msgid_plural "errors"
 msgstr[0] "erreur"
 msgstr[1] "erreurs"
+
+#, elixir-format
+msgid "Errors:"
+msgstr "Erreurs :"
+
+#, elixir-format
+msgid "Showing only the first %{nb} errors."
+msgstr "Montre seulement les %{nb} premières lignes."
+
+#, elixir-format
+msgid "This resource should follow its schema <a href=\"%{link}\" target=\"_blank\">%{schema}</a>."
+msgstr "Cette ressource doit suivre le schéma <a href=\"%{link}\" target=\"_blank\">%{schema}</a>."
+
+#, elixir-format
+msgid "Validation details"
+msgstr "Rapport de validation"
+
+#, elixir-format
+msgid "No error detected"
+msgstr "Pas d'erreur"
+
+#, elixir-format
+msgid "This GeoJSON was up-to-date with the GTFS resource %{hours} ago."
+msgstr "Ce GeoJSON était bien à jour avec la ressource GTFS il y a %{hours}."
+
+#, elixir-format
+msgid "Visualization up-to-date %{hours} ago."
+msgstr "Visualisation à jour il y a %{hours}."

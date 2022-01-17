@@ -153,22 +153,27 @@ function setGBFSFreeFloatingStyle (feature, layer) {
 function setGBFSGeofencingStyle (feature, layer) {
     const rules = feature.properties.rules
     const rule = rules.length > 0 ? rules[0] : undefined
-    let color, opacity
+    let color, opacity, popupContent
 
     if (rule) {
         if (rule.ride_through_allowed === false) {
             color = 'red'
             opacity = 0.6
+            popupContent = JSON.stringify(feature.properties, null, 2).replace('"ride_through_allowed": false', `<strong style="color: ${color};">"ride_through_allowed": false</strong>`)
         } else if (rule.ride_allowed === false) {
             color = 'orange'
             opacity = 0.6
+            popupContent = JSON.stringify(feature.properties, null, 2).replace('"ride_allowed": false', `<strong style="color: ${color};">"ride_allowed": false</strong>`)
         } else {
             color = 'green'
             opacity = 0.4
+            popupContent = JSON.stringify(feature.properties, null, 2)
+                .replace('"ride_through_allowed": true', `<strong style="color: ${color};">"ride_through_allowed": true</strong>`)
+                .replace('"ride_allowed": true', `<strong style="color: ${color};">"ride_allowed": true</strong>`)
         }
     }
     layer
-        .bindPopup(`<pre>${JSON.stringify(feature.properties, null, 2)}</pre>`)
+        .bindPopup(`<pre>${popupContent}</pre>`)
         .setStyle({ fillColor: color, color: color, fillOpacity: opacity, stroke: false })
 }
 
@@ -204,12 +209,19 @@ function fillFreeFloating (geojson, freeFloating) {
 }
 
 function fillGeofencingZones (geojson, geoFencingZones) {
+    // According to GBFS specification, in case of conflicting rules
+    // the first rule in the GeoJSON takes precedence
+    // see https://github.com/NABSA/gbfs/blob/v2.2/gbfs.md#geofencing_zonesjson-added-in-v21
+    // In leaflet, the last features in the GeoJSON are displayed above the first, so to reflect the spirit of the rule
+    // we need to revert the array.
+    geojson.features = geojson.features.reverse()
+
     L.geoJSON(geojson, {
         onEachFeature: (feature, layer) => setGBFSGeofencingStyle(feature, layer)
     }).addTo(geoFencingZones)
 }
 
-function fillGBFSMap (resourceUrl, fg, map, firstCall = false) {
+function fillGBFSMap (resourceUrl, fg, map, lang, firstCall = false) {
     const geojsonUrl = `/tools/gbfs/geojson_convert?url=${resourceUrl}`
     fetch(geojsonUrl)
         .then(response => response.json())
@@ -232,7 +244,7 @@ function fillGBFSMap (resourceUrl, fg, map, firstCall = false) {
                 fillGeofencingZones(data.geofencing_zones, fg.geofencingZones)
             }
 
-            setGBFSLayersControl(fg, map)
+            setGBFSLayersControl(fg, map, lang)
             if (firstCall) {
                 // add one of the feature to the map (initial state)
                 const availableLayers = Object.keys(fg)
@@ -249,17 +261,20 @@ function fillGBFSMap (resourceUrl, fg, map, firstCall = false) {
 }
 
 // I have removed custom text for vehicle types for the moment.
-function setGBFSLayersControl (fg, map) {
+function setGBFSLayersControl (fg, map, lang) {
     if (!map.controlLayers) {
         const control = {}
         if ('bikesAvailable' in fg) {
-            control['Véhicules disponibles'] = fg.bikesAvailable
+            const label = lang === 'fr' ? 'Véhicules disponibles' : 'Available vehicles'
+            control[label] = fg.bikesAvailable
         }
         if ('docksAvailable' in fg) {
-            control['Places disponibles'] = fg.docksAvailable
+            const label = lang === 'fr' ? 'Places disponibles' : 'Available docks'
+            control[label] = fg.docksAvailable
         }
         if ('freeFloating' in fg) {
-            control['Véhicules free-floating'] = fg.freeFloating
+            const label = lang === 'fr' ? 'Véhicules free-floating' : 'Free-floating vehicles'
+            control[label] = fg.freeFloating
         }
         if ('geofencingZones' in fg) {
             control.Geofencing = fg.geofencingZones
@@ -279,7 +294,7 @@ function addCountdownDiv (id, refreshInterval) {
     document.getElementById('map').appendChild(node)
 }
 
-function createGBFSmap (id, resourceUrl) {
+function createGBFSmap (id, resourceUrl, lang) {
     // eslint-disable-next-line no-unused-vars
     const { map, _ } = initilizeMap(id)
     const featureGroups = {}
@@ -288,10 +303,10 @@ function createGBFSmap (id, resourceUrl) {
     addCountdownDiv('coutdown', refreshInterval)
     let countdown = refreshInterval
 
-    fillGBFSMap(resourceUrl, featureGroups, map, true)
+    fillGBFSMap(resourceUrl, featureGroups, map, lang, true)
     setInterval(() => {
         countdown = refreshInterval
-        fillGBFSMap(resourceUrl, featureGroups, map)
+        fillGBFSMap(resourceUrl, featureGroups, map, lang, false)
     }, refreshInterval * 1000)
 
     // update the countdown every second
@@ -328,11 +343,11 @@ function removeViz (consoleMsg) {
     console.log(consoleMsg)
 }
 
-function createMap (id, resourceUrl, resourceFormat) {
+function createMap (id, resourceUrl, resourceFormat, lang = 'fr') {
     if (resourceUrl.endsWith('.csv')) {
         createCSVmap(id, resourceUrl)
     } else if (resourceFormat === 'gbfs' || resourceUrl.endsWith('gbfs.json')) {
-        createGBFSmap(id, resourceUrl)
+        createGBFSmap(id, resourceUrl, lang)
     } else if (resourceUrl.endsWith('.geojson') || resourceUrl.endsWith('.json')) {
         createGeojsonMap(id, resourceUrl)
     } else {

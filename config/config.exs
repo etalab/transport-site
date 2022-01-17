@@ -107,10 +107,19 @@ config :transport,
   httpoison_impl: HTTPoison,
   history_impl: Transport.History.Fetcher.S3,
   gtfs_to_json_converter_url: "https://convertisseur.transport.data.gouv.fr/gtfs2geojson_sync",
-  rambo_impl: Transport.Rambo
+  rambo_impl: Transport.Rambo,
+  gbfs_metadata_impl: Transport.Shared.GBFSMetadata,
+  availability_checker_impl: Transport.AvailabilityChecker,
+  jsonschema_validator_impl: Shared.Validation.JSONSchemaValidator,
+  tableschema_validator_impl: Shared.Validation.TableSchemaValidator,
+  schemas_impl: Transport.Shared.Schemas
 
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API
+
+config :ex_json_schema,
+  :remote_schema_resolver,
+  fn url -> HTTPoison.get!(url).body |> Jason.decode! end
 
 config :ex_aws,
   access_key_id: System.get_env("CELLAR_ACCESS_KEY_ID"),
@@ -127,6 +136,7 @@ config :ex_aws,
   json_codec: Jason
 
 config :transport,
+  domain_name: System.get_env("DOMAIN_NAME", "transport.data.gouv.fr"),
   max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer(),
   nb_days_to_keep_validations: 60,
   join_our_slack_link: "https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA",

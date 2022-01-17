@@ -66,11 +66,11 @@ msgid "Long distance coach"
 msgstr ""
 
 #, elixir-format
-msgid "Public transit schedules"
+msgid "Public transport - static schedules"
 msgstr ""
 
 #, elixir-format
-msgid "Realtime public transit"
+msgid "Public transport - realtime trafic"
 msgstr ""
 
 #, elixir-format
@@ -84,7 +84,7 @@ msgid "See newly added datasets"
 msgstr ""
 
 #, elixir-format
-msgid "Air data"
+msgid "Air transport"
 msgstr ""
 
 #, elixir-format
@@ -104,7 +104,7 @@ msgid "Private parking"
 msgstr ""
 
 #, elixir-format
-msgid "Railroad data"
+msgid "Rail transport"
 msgstr ""
 
 #, elixir-format
@@ -216,7 +216,7 @@ msgid "You can also"
 msgstr ""
 
 #, elixir-format
-msgid "Bike way"
+msgid "Bike networks"
 msgstr ""
 
 #, elixir-format

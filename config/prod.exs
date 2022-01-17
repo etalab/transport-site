@@ -2,14 +2,15 @@ use Mix.Config
 
 config :transport, TransportWeb.Endpoint,
   http: [port: {:system, "PORT"}, compress: true],
-  url: [scheme: "https", host: System.get_env("DOMAIN_NAME") || "transport.data.gouv.fr", port: 443],
+  url: [scheme: "https", host: System.get_env("DOMAIN_NAME", "transport.data.gouv.fr"), port: 443],
   cache_static_manifest: "priv/static/cache_manifest.json",
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
   force_ssl: [rewrite_on: [:x_forwarded_proto]],
   live_view: [
     signing_salt: System.get_env("SECRET_KEY_BASE")
-  ],
-  notifications_api_token: System.get_env("TRANSPORT_NOTIFICATIONS_API_TOKEN"),
+  ]
+
+config :transport,
   s3_buckets: %{
     history: "resource-history-prod"
   }

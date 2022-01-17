@@ -8,6 +8,7 @@ defmodule Transport.ImportData do
   alias Opendatasoft.UrlExtractor
   alias DB.{Dataset, EPCI, LogsImport, Repo, Resource}
   alias Transport.AvailabilityChecker
+  alias Transport.Shared.ResourceSchema
   require Logger
   import Ecto.Query
 
@@ -302,6 +303,9 @@ defmodule Transport.ImportData do
     |> Enum.map(fn resource ->
       is_community_resource = resource["is_community_resource"] == true
 
+      existing_resource = get_existing_resource(resource, dataset["id"]) || %{}
+      resource = Map.put(resource, "metadata", existing_resource[:metadata])
+
       %{
         "url" => resource["url"],
         "format" => formated_format(resource, type, is_community_resource),
@@ -311,7 +315,7 @@ defmodule Transport.ImportData do
         # For ODS gtfs as csv we do not have a 'latest' field
         # (the 'latest' field is the stable data.gouv.fr url)
         "latest_url" => resource["latest"] || resource["url"],
-        "id" => get_resource_id(resource, dataset["id"]),
+        "id" => existing_resource[:id],
         "datagouv_id" => resource["id"],
         "is_available" => AvailabilityChecker.available?(resource),
         "is_community_resource" => is_community_resource,
@@ -320,25 +324,12 @@ defmodule Transport.ImportData do
         "filesize" => resource["filesize"],
         "content_hash" => Hasher.get_content_hash(resource["url"]),
         "original_resource_url" => get_original_resource_url(resource),
-        "schema_name" => get_schema_name(resource),
-        "schema_version" => get_schema_version(resource)
+        "schema_name" => ResourceSchema.guess_name(resource, type),
+        "schema_version" => ResourceSchema.guess_version(resource),
+        "metadata" => resource["metadata"]
       }
     end)
   end
-
-  @spec get_schema_name(any) :: binary() | nil
-  def get_schema_name(%{"schema" => %{"name" => schema}}) do
-    schema
-  end
-
-  def get_schema_name(_), do: nil
-
-  @spec get_schema_version(any) :: binary() | nil
-  def get_schema_version(%{"schema" => %{"version" => version}}) do
-    version
-  end
-
-  def get_schema_version(_), do: nil
 
   @spec get_valid_resources(map(), binary()) :: [map()]
   def get_valid_resources(%{"resources" => resources}, "public-transit") do
@@ -646,13 +637,13 @@ defmodule Transport.ImportData do
   def get_title(%{"title" => title}) when not is_nil(title), do: title
   def get_title(%{"url" => url}), do: Helpers.filename_from_url(url)
 
-  @spec get_resource_id(map(), binary()) :: Resource.t()
-  defp get_resource_id(%{"url" => url}, dataset_id) do
+  @spec get_existing_resource(map(), binary()) :: Resource.t() | nil
+  defp get_existing_resource(%{"url" => url}, dataset_id) do
     Resource
     |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r, _d], r.url == ^url)
     |> where([_r, d], d.datagouv_id == ^dataset_id)
-    |> select([r], r.id)
+    |> select([r], map(r, [:id, :metadata]))
     |> Repo.one()
   end
 
