@@ -1,0 +1,45 @@
+defmodule Transport.Jobs.GtfsToNetexConverterJob do
+  @moduledoc """
+  This will enqueue GTFS -> NeTEx conversion jobs for all GTFS resources found in ResourceHistory
+  """
+  use Oban.Worker, max_attempts: 3
+  alias Transport.Jobs.GTFSGenericConverter
+
+  @impl true
+  def perform(%{}) do
+    Transport.S3.create_bucket_if_needed!(:history)
+    GTFSGenericConverter.enqueue_all_conversion_jobs("NeTEx", Transport.Jobs.SingleGtfsToNetexConverterJob)
+  end
+end
+
+defmodule Transport.Jobs.SingleGtfsToNetexConverterJob do
+  @moduledoc """
+  Conversion Job of a GTFS to a NeTEx, saving the resulting file in S3
+  """
+  use Oban.Worker, max_attempts: 3, queue: :heavy
+  alias Transport.Jobs.GTFSGenericConverter
+
+  @impl true
+  def perform(%{args: %{"resource_history_id" => resource_history_id}}) do
+    GTFSGenericConverter.perform_single_conversion_job(resource_history_id, "NeTEx", Transport.GtfsToNeTExConverter)
+  end
+end
+
+defmodule Transport.GtfsToNeTExConverter do
+  @moduledoc """
+  Given a GTFS file path, convert it to NeTEx.
+  """
+  @spec convert(binary(), binary()) :: :ok | {:error, any()}
+  def convert(gtfs_file_path, netex_file_path) do
+    binary_path = Path.join(Application.fetch_env!(:transport, :transport_tools_folder), "gtfs2netexfr")
+
+    case Transport.RamboLauncher.run(
+           binary_path,
+           ["--input", gtfs_file_path, "--output", netex_file_path, "--participant", "transport.data.gouv.fr"]
+           # %{"LD_LIBRARY_PATH" => "/lib:/usr/lib:/usr/local/lib"}
+         ) do
+      {:ok, _} -> :ok
+      {:error, e} -> {:error, e}
+    end
+  end
+end
