@@ -50,23 +50,7 @@ msgid "subtitle"
 msgstr ""
 
 #, elixir-format
-msgid "Bike and scooter sharing"
-msgstr ""
-
-#, elixir-format
-msgid "Carpooling areas"
-msgstr ""
-
-#, elixir-format
-msgid "Charging & refuelling stations"
-msgstr ""
-
-#, elixir-format
 msgid "Long distance coach"
-msgstr ""
-
-#, elixir-format
-msgid "Public transport - static schedules"
 msgstr ""
 
 #, elixir-format
@@ -84,14 +68,6 @@ msgid "See newly added datasets"
 msgstr ""
 
 #, elixir-format
-msgid "Air transport"
-msgstr ""
-
-#, elixir-format
-msgid "Bike parking"
-msgstr ""
-
-#, elixir-format
 msgid "Coming soon"
 msgstr ""
 
@@ -100,15 +76,7 @@ msgid "Car and motorbike sharing"
 msgstr ""
 
 #, elixir-format
-msgid "Private parking"
-msgstr ""
-
-#, elixir-format
 msgid "Rail transport"
-msgstr ""
-
-#, elixir-format
-msgid "Road networks"
 msgstr ""
 
 #, elixir-format
@@ -188,14 +156,6 @@ msgid "Search data for a region, a city, a network…"
 msgstr ""
 
 #, elixir-format
-msgid "Addresses"
-msgstr ""
-
-#, elixir-format
-msgid "Other informations"
-msgstr ""
-
-#, elixir-format
 msgid "Datasets"
 msgstr ""
 
@@ -213,14 +173,6 @@ msgstr ""
 
 #, elixir-format
 msgid "You can also"
-msgstr ""
-
-#, elixir-format
-msgid "Bike networks"
-msgstr ""
-
-#, elixir-format
-msgid "Low emission zones"
 msgstr ""
 
 #, elixir-format

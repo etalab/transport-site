@@ -50,24 +50,8 @@ msgid "subtitle"
 msgstr "Rassembler les données de toute l’offre de mobilité à travers la France"
 
 #, elixir-format
-msgid "Bike and scooter sharing"
-msgstr "Vélos et trottinettes en libre-service"
-
-#, elixir-format
-msgid "Carpooling areas"
-msgstr "Lieux de covoiturage"
-
-#, elixir-format
-msgid "Charging & refuelling stations"
-msgstr "Stations de réapprovisionnement de véhicules"
-
-#, elixir-format
 msgid "Long distance coach"
 msgstr "Autocars longue distance"
-
-#, elixir-format
-msgid "Public transport - static schedules"
-msgstr "Transport public collectif - horaires théoriques"
 
 #, elixir-format
 msgid "Public transport - realtime trafic"
@@ -84,14 +68,6 @@ msgid "See newly added datasets"
 msgstr "Voir les jeux de données récents"
 
 #, elixir-format
-msgid "Air transport"
-msgstr "Transport aérien"
-
-#, elixir-format
-msgid "Bike parking"
-msgstr "Stationnement cyclable"
-
-#, elixir-format
 msgid "Coming soon"
 msgstr "À venir dans les prochains mois"
 
@@ -100,16 +76,8 @@ msgid "Car and motorbike sharing"
 msgstr "Voitures et scooters en libre-service"
 
 #, elixir-format
-msgid "Private parking"
-msgstr "Stationnement hors voirie"
-
-#, elixir-format
 msgid "Rail transport"
 msgstr "Transport ferroviaire"
-
-#, elixir-format
-msgid "Road networks"
-msgstr "Réseaux routiers"
 
 #, elixir-format
 msgid "Sea and river transport"
@@ -188,14 +156,6 @@ msgid "Search data for a region, a city, a network…"
 msgstr "Cherchez les données d’une région, d’une ville, d’un réseau…"
 
 #, elixir-format
-msgid "Addresses"
-msgstr "Adresses"
-
-#, elixir-format
-msgid "Other informations"
-msgstr "Autres informations"
-
-#, elixir-format
 msgid "Datasets"
 msgstr "Jeux de données"
 
@@ -214,14 +174,6 @@ msgstr "Rechercher sur la carte"
 #, elixir-format
 msgid "You can also"
 msgstr "Vous pouvez également"
-
-#, elixir-format
-msgid "Bike networks"
-msgstr "Réseaux cyclables"
-
-#, elixir-format
-msgid "Low emission zones"
-msgstr "Zones à faibles émissions"
 
 #, elixir-format
 msgid "A freely accessible service"
