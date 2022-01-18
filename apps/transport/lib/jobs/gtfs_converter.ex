@@ -60,9 +60,9 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   @spec perform_single_conversion_job(integer(), binary(), module()) :: :ok
   def perform_single_conversion_job(resource_history_id, format, converter_module) do
     resource_history = ResourceHistory |> Repo.get(resource_history_id)
-
-    if is_resource_gtfs?(resource_history) and not format_exists?(resource_history, format) do
-      generate_and_upload_conversion(resource_history, format, converter_module)
+    case is_resource_gtfs?(resource_history) and not format_exists?(resource_history, format) do
+      true -> generate_and_upload_conversion(resource_history, format, converter_module)
+      false -> Logger.info("Skipping #{format} conversion of resource history #{resource_history_id}")
     end
 
     :ok
