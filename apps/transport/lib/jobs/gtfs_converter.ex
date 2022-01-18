@@ -92,9 +92,19 @@ defmodule Transport.Jobs.GTFSGenericConverter do
       File.write!(gtfs_file_path, body)
 
       :ok = apply(converter_module, :convert, [gtfs_file_path, conversion_file_path])
-      file = conversion_file_path |> File.read!()
 
-      conversion_file_name = resource_filename |> conversion_file_name(format_lower)
+      zip_conversion? = File.dir?(conversion_file_path)
+
+      file = case zip_conversion? do
+        true -> zip_path = "#{conversion_file_path}.zip"
+                :ok = Transport.FolderZipper.zip(conversion_file_path, zip_path)
+                zip_path
+
+        false -> conversion_file_path
+      end
+      |> File.read!()
+
+      conversion_file_name = resource_filename |> conversion_file_name(format_lower) |> add_zip_extension(zip_conversion?)
       Transport.S3.upload_to_s3!(:history, file, conversion_file_name)
 
       {:ok, %{size: filesize}} = File.stat(conversion_file_path)
@@ -118,4 +128,16 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   end
 
   defp conversion_file_name(resource_name, format), do: "conversions/gtfs-to-#{format}/#{resource_name}.#{format}"
+
+  defp add_zip_extension(path, _zip_conversion? = true), do: "#{path}.zip"
+  defp add_zip_extension(path, _), do: path
+end
+
+defmodule Transport.FolderZipper do
+  def zip(folder_path, zip_name) do
+    case Transport.RamboLauncher.run("zip", [zip_name, "-r", folder_path]) do
+      {:ok, _} -> :ok
+      {:error, e} -> {:error, e}
+    end
+  end
 end
