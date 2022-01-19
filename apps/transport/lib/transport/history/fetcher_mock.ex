@@ -5,6 +5,6 @@ defmodule Transport.History.Fetcher.Mock do
   A default implementation returning an empty history, useful as a default
   implementation for tests unrelated to history.
   """
-
+  @impl true
   def history_resources(%DB.Dataset{}), do: []
 end
