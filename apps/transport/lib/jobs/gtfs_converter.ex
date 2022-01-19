@@ -86,6 +86,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
       |> Path.join("conversion_gtfs_#{format_lower}_#{resource_history_id}_#{:os.system_time(:millisecond)}")
 
     conversion_file_path = "#{gtfs_file_path}.#{format_lower}"
+    zip_path = "#{conversion_file_path}.zip"
 
     try do
       %{status_code: 200, body: body} = Transport.Shared.Wrapper.HTTPoison.impl().get!(resource_url)
@@ -99,7 +100,6 @@ defmodule Transport.Jobs.GTFSGenericConverter do
       file =
         case zip_conversion? do
           true ->
-            zip_path = "#{conversion_file_path}.zip"
             :ok = Transport.FolderZipper.zip(conversion_file_path, zip_path)
             zip_path
 
@@ -130,6 +130,8 @@ defmodule Transport.Jobs.GTFSGenericConverter do
     after
       File.rm(gtfs_file_path)
       File.rm(conversion_file_path)
+      # may not exist
+      File.rm(zip_path)
     end
   end
 
