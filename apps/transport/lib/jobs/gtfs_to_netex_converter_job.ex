@@ -36,7 +36,6 @@ defmodule Transport.GtfsToNeTExConverter do
     case Transport.RamboLauncher.run(
            binary_path,
            ["--input", gtfs_file_path, "--output", netex_file_path, "--participant", "transport.data.gouv.fr"]
-           # %{"LD_LIBRARY_PATH" => "/lib:/usr/lib:/usr/local/lib"}
          ) do
       {:ok, _} -> :ok
       {:error, e} -> {:error, e}
