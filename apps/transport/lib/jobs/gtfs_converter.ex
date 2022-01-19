@@ -60,6 +60,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   @spec perform_single_conversion_job(integer(), binary(), module()) :: :ok
   def perform_single_conversion_job(resource_history_id, format, converter_module) do
     resource_history = ResourceHistory |> Repo.get(resource_history_id)
+
     case is_resource_gtfs?(resource_history) and not format_exists?(resource_history, format) do
       true -> generate_and_upload_conversion(resource_history, format, converter_module)
       false -> Logger.info("Skipping #{format} conversion of resource history #{resource_history_id}")
@@ -95,16 +96,21 @@ defmodule Transport.Jobs.GTFSGenericConverter do
 
       zip_conversion? = File.dir?(conversion_file_path)
 
-      file = case zip_conversion? do
-        true -> zip_path = "#{conversion_file_path}.zip"
-                :ok = Transport.FolderZipper.zip(conversion_file_path, zip_path)
-                zip_path
+      file =
+        case zip_conversion? do
+          true ->
+            zip_path = "#{conversion_file_path}.zip"
+            :ok = Transport.FolderZipper.zip(conversion_file_path, zip_path)
+            zip_path
 
-        false -> conversion_file_path
-      end
-      |> File.read!()
+          false ->
+            conversion_file_path
+        end
+        |> File.read!()
 
-      conversion_file_name = resource_filename |> conversion_file_name(format_lower) |> add_zip_extension(zip_conversion?)
+      conversion_file_name =
+        resource_filename |> conversion_file_name(format_lower) |> add_zip_extension(zip_conversion?)
+
       Transport.S3.upload_to_s3!(:history, file, conversion_file_name)
 
       {:ok, %{size: filesize}} = File.stat(conversion_file_path)
