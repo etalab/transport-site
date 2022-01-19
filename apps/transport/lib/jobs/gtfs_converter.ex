@@ -143,7 +143,7 @@ end
 
 defmodule Transport.FolderZipper do
   def zip(folder_path, zip_name) do
-    case Transport.RamboLauncher.run("zip", [zip_name, "-r", folder_path]) do
+    case Transport.RamboLauncher.run("zip", [zip_name, "-r", "./"], cd: folder_path) do
       {:ok, _} -> :ok
       {:error, e} -> {:error, e}
     end
