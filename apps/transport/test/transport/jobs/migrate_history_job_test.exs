@@ -8,7 +8,6 @@ defmodule Transport.Test.Transport.Jobs.MigrateHistoryJobTest do
   alias Transport.Test.S3TestUtils
 
   setup do
-    Mox.defmock(Transport.History.Fetcher.Mock, for: Transport.History.Fetcher)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
