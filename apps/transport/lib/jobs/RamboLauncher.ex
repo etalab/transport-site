@@ -2,11 +2,11 @@ defmodule Transport.RamboLauncher do
   @moduledoc """
   A behavior for Rambo, with dynamic dispatching
   """
-  @callback run(binary(), [binary()], map()) :: {:ok, binary()} | {:error, any()}
+  @callback run(binary(), [binary()], keyword()) :: {:ok, binary()} | {:error, any()}
 
   def impl, do: Application.get_env(:transport, :rambo_impl)
 
-  def run(binary_path, options, env \\ %{}), do: impl().run(binary_path, options, env)
+  def run(binary_path, args, opts \\ []), do: impl().run(binary_path, args, opts)
 end
 
 defmodule Transport.Rambo do
@@ -16,11 +16,11 @@ defmodule Transport.Rambo do
   @behaviour Transport.RamboLauncher
 
   @impl Transport.RamboLauncher
-  def run(binary_path, options, env \\ %{}) do
+  def run(binary_path, args, opts) do
     # TO DO: make sure to have a command that we can run on any dev machine (with docker)
     # TO DO: make sure to "clear" the ENV before calling a binary
     # TO DO: make sure to "change working directory" to a specific working place
-    case Rambo.run(binary_path, options, env: env) do
+    case Rambo.run(binary_path, args, opts) do
       {:ok, %Rambo{out: res}} -> {:ok, res}
       {:error, %Rambo{err: err_msg}} -> {:error, err_msg}
       {:error, _} = r -> r
