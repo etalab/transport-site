@@ -18,7 +18,6 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
     # add a resource history
     %{id: resource_history_id} =
       insert(:resource_history,
-        datagouv_id: "2",
         payload: %{"uuid" => uuid, "format" => "GTFS", "permanent_url" => permanent_url, "filename" => "fff"}
       )
 
@@ -76,7 +75,6 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
     # add a resource history
     %{id: resource_history_id} =
       insert(:resource_history,
-        datagouv_id: "2",
         payload: %{"uuid" => uuid, "format" => "GTFS", "permanent_url" => permanent_url, "filename" => "fff"}
       )
 

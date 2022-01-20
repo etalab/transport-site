@@ -14,7 +14,6 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
   test "a non GTFS resource" do
     %{id: resource_history_id} =
       insert(:resource_history,
-        datagouv_id: "2",
         payload: %{"format" => "NeTEx"}
       )
 
@@ -29,7 +28,6 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
 
     %{id: resource_history_id} =
       insert(:resource_history,
-        datagouv_id: "2",
         payload: %{"uuid" => uuid, "format" => "GTFS", "permanent_url" => "xxx", "filename" => "fff"}
       )
 
@@ -45,7 +43,6 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
     # add a resource history
     %{id: resource_history_id} =
       insert(:resource_history,
-        datagouv_id: "2",
         payload: %{"uuid" => uuid, "format" => "GTFS", "permanent_url" => permanent_url, "filename" => "fff"}
       )
 

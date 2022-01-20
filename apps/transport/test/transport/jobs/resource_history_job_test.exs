@@ -52,7 +52,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       %{id: resource_history_id, datagouv_id: datagouv_id} =
         resource_history =
         insert(:resource_history,
-          datagouv_id: "1",
           payload: %{"zip_metadata" => zip_metadata()}
         )
 
@@ -66,7 +65,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     test "with the latest ResourceHistory matching but for a different datagouv_id" do
       %{datagouv_id: datagouv_id} =
         insert(:resource_history,
-          datagouv_id: "1",
           payload: %{"zip_metadata" => zip_metadata()}
         )
 
@@ -99,7 +97,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     test "with the latest ResourceHistory not matching" do
       %{datagouv_id: datagouv_id} =
         insert(:resource_history,
-          datagouv_id: "1",
           payload: %{"zip_metadata" => zip_metadata() |> Enum.take(2)}
         )
 
