@@ -68,4 +68,56 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
 
     Transport.Test.TestUtils.ensure_no_tmp_files!("conversion_gtfs_netex_")
   end
+
+  test "a failing NeTEx conversion" do
+    permanent_url = "https://resource.fr"
+    uuid = Ecto.UUID.generate()
+
+    # add a resource history
+    %{id: resource_history_id} =
+      insert(:resource_history,
+        datagouv_id: "2",
+        payload: %{"uuid" => uuid, "format" => "GTFS", "permanent_url" => permanent_url, "filename" => "fff"}
+      )
+
+    # mock for the resource download
+    Transport.HTTPoison.Mock
+    |> expect(:get!, 1, fn ^permanent_url ->
+      %{status_code: 200, body: "this is my GTFS file"}
+    end)
+
+    Transport.Rambo.Mock
+    # mock for the resource NeTEx failing conversion
+    |> expect(:run, 1, fn _binary_path,
+                          [
+                            "--input",
+                            _file_path,
+                            "--output",
+                            netex_folder_path,
+                            "--participant",
+                            "transport.data.gouv.fr"
+                          ],
+                          _opts ->
+      file_path = Path.join([netex_folder_path, "a_file"])
+      {:error, "conversion failed"}
+    end)
+
+    # job raises an Error
+    assert_raise MatchError, fn ->
+      perform_job(SingleGtfsToNetexConverterJob, %{"resource_history_id" => resource_history_id})
+    end
+
+    # no data_conversion row is recorded
+    assert_raise(Ecto.NoResultsError, fn ->
+      DB.DataConversion
+      |> DB.Repo.get_by!(
+        convert_from: "GTFS",
+        convert_to: "NeTEx",
+        resource_history_uuid: uuid
+      )
+    end)
+
+    # all temp files have been cleaned
+    Transport.Test.TestUtils.ensure_no_tmp_files!("conversion_gtfs_netex_")
+  end
 end
