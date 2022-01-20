@@ -3,8 +3,6 @@ Application.put_env(:phoenix, :json_library, Jason)
 
 Mix.install([
   {:req, "~> 0.2.1"},
-  # for XML templating trick!
-  {:phoenix_live_view, "~> 0.17.5"},
   # for UUID generation
   {:ecto, "~> 3.7.1"},
   # YAML config to make group tests easier (see https://github.com/etalab/transport_deploy/issues/49)
