@@ -82,3 +82,5 @@ if args[:pretty_dump] do
   |> Floki.parse_document!()
   |> Floki.raw_html(pretty: true)
 end
+
+# TODO: xpath assert on siri:status & siri:dataready (after verifying profile)
