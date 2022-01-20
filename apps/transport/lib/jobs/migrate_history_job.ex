@@ -39,21 +39,15 @@ defmodule Transport.Jobs.MigrateHistoryDispatcherJob do
 
   defp all_objects do
     datasets = Dataset |> preload([:resources]) |> Repo.all()
-    bucket_names = existing_bucket_names()
 
     datasets
     |> Enum.take(10)
-    |> Enum.filter(&Enum.member?(bucket_names, "dataset-#{&1.datagouv_id}"))
+    |> Enum.filter(&Enum.member?(Transport.S3.bucket_names(), "dataset-#{&1.datagouv_id}"))
     |> Enum.flat_map(fn dataset ->
       Logger.debug("Finding objects for #{dataset.datagouv_id}")
       Transport.History.Fetcher.history_resources(dataset)
     end)
     |> Enum.reject(&String.starts_with?(&1.metadata["url"], "https://demo-static.data.gouv.fr"))
-  end
-
-  defp existing_bucket_names do
-    buckets_response = ExAws.S3.list_buckets() |> Transport.Wrapper.ExAWS.impl().request!()
-    buckets_response.body.buckets |> Enum.map(& &1.name)
   end
 end
 
