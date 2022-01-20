@@ -7,9 +7,11 @@ Mix.install([
   {:phoenix_live_view, "~> 0.17.5"},
   # for UUID generation
   {:ecto, "~> 3.7.1"},
+  # YAML config to make group tests easier (see https://github.com/etalab/transport_deploy/issues/49)
+  {:yaml_elixir, "~> 2.8"}
 ])
 
-{args, _rest} = OptionParser.parse!(System.argv, strict: [endpoint: :string, requestor_ref: :string])
+{args, _rest} = OptionParser.parse!(System.argv, strict: [endpoint: :string, requestor_ref: :string, target: :string])
 
 defmodule Helper do
   def halt(error) do
@@ -40,8 +42,19 @@ defmodule SIRI do
 end
 
 timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
-endpoint = (args |> Keyword.get(:endpoint)) || Helper.halt("Please provide --endpoint switch")
-requestor_ref = (args |> Keyword.get(:requestor_ref)) || Helper.halt("Please provide --requestor-ref switch")
+
+target = args |> Keyword.get(:target)
+
+{endpoint, requestor_ref} = if target do
+  config = File.read!("#{__DIR__}/config.yml") |> YamlElixir.read_from_string!()
+  config = config |> Map.fetch!("feeds") |> Enum.filter(&(&1["identifier"] == target))
+  [%{"requestor_ref" => requestor_ref, "target_url" => target_url}] = config
+  {target_url, requestor_ref}
+else
+  endpoint = (args |> Keyword.get(:endpoint)) || Helper.halt("Please provide --endpoint switch (or --target & config.yml)")
+  requestor_ref = (args |> Keyword.get(:requestor_ref)) || Helper.halt("Please provide --requestor-ref switch (or --target & config.yml)")
+  {endpoint, requestor_ref}
+end
 
 message_id = "Test::Message::#{Ecto.UUID.generate()}"
 
