@@ -1,6 +1,3 @@
-# NOTE: Elixir 1.13+ supports :config for `Mix.install/2` here instead
-Application.put_env(:phoenix, :json_library, Jason)
-
 Mix.install([
   {:req, "~> 0.2.1"},
   # for UUID generation
