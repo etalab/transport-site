@@ -98,7 +98,8 @@ defmodule Transport.Jobs.GTFSGenericConverter do
       zip_conversion? = File.dir?(conversion_output_path)
 
       file =
-        case zip_conversion? do
+        zip_conversion?
+        |> case do
           true ->
             :ok = Transport.FolderZipper.zip(conversion_output_path, zip_path)
             zip_path
@@ -137,11 +138,14 @@ defmodule Transport.Jobs.GTFSGenericConverter do
 
   defp conversion_file_name(resource_name, format), do: "conversions/gtfs-to-#{format}/#{resource_name}.#{format}"
 
-  defp add_zip_extension(path, _zip_conversion? = true), do: "#{path}.zip"
+  defp add_zip_extension(path, true = _zip_conversion?), do: "#{path}.zip"
   defp add_zip_extension(path, _), do: path
 end
 
 defmodule Transport.FolderZipper do
+  @moduledoc """
+  Zip a folder using the zip external command
+  """
   def zip(folder_path, zip_name) do
     case Transport.RamboLauncher.run("zip", [zip_name, "-r", "./"], cd: folder_path) do
       {:ok, _} -> :ok

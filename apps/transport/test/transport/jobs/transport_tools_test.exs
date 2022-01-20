@@ -23,7 +23,7 @@ defmodule TransportWeb.TransportToolsTest do
     test "we can convert a gtfs to GeoJSON" do
       geojson_file = "test.geojson"
       :ok = Transport.GtfsToGeojsonConverter.convert("#{__DIR__}/../../fixture/files/gtfs.zip", geojson_file)
-      assert File.read!(geojson_file) |> String.contains?("FeatureCollection")
+      assert geojson_file |> File.read!() |> String.contains?("FeatureCollection")
       File.rm!(geojson_file)
     end
 
