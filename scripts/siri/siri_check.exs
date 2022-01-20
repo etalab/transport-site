@@ -9,12 +9,15 @@ Mix.install([
   {:floki, "~> 0.32.0"}
 ])
 
-{args, _rest} = OptionParser.parse!(System.argv(), strict: [
-  endpoint: :string,
-  requestor_ref: :string,
-  target: :string,
-  pretty_dump: :boolean
-  ])
+{args, _rest} =
+  OptionParser.parse!(System.argv(),
+    strict: [
+      endpoint: :string,
+      requestor_ref: :string,
+      target: :string,
+      pretty_dump: :boolean
+    ]
+  )
 
 defmodule Helper do
   def halt(error) do
@@ -73,9 +76,11 @@ query = SIRI.check_status(timestamp, requestor_ref, message_id)
 %{body: body, status: 200} = Req.post!(endpoint, query)
 
 if args[:pretty_dump] do
-  IO.puts body
-  |> Floki.parse_document!()
-  |> Floki.raw_html(pretty: true)
+  IO.puts(
+    body
+    |> Floki.parse_document!()
+    |> Floki.raw_html(pretty: true)
+  )
 end
 
 # NOTE: we'll parse the document (XPath) on siri:status & siri:dataready (after verifying profile) later to provide
