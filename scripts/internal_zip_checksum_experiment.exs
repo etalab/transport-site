@@ -14,27 +14,28 @@ defmodule ZipMetaDataExtractor do
     {:ok, unzip} = Unzip.new(zip_file)
     # NOTE: `unzip.cd_list` contains crc + filenames & more info, if needed
     unzip
-    |> Unzip.list_entries
+    |> Unzip.list_entries()
     |> Enum.map(&enrich(&1, unzip))
   end
 
   def enrich(entry, unzip) do
     algorithm = :sha256
-    checksum = unzip
-    |> Unzip.file_stream!(entry.file_name)
-    |> compute_checksum(algorithm)
+
+    checksum =
+      unzip
+      |> Unzip.file_stream!(entry.file_name)
+      |> compute_checksum(algorithm)
 
     Map.put(entry, algorithm, checksum)
   end
 
   def compute_checksum(stream, algorithm) do
     stream
-    |> Enum.reduce(:crypto.hash_init(algorithm), fn(elm, acc) -> :crypto.hash_update(acc, elm) end)
+    |> Enum.reduce(:crypto.hash_init(algorithm), fn elm, acc -> :crypto.hash_update(acc, elm) end)
     |> :crypto.hash_final()
     |> Base.encode16()
     |> String.downcase()
   end
-
 end
 
 defmodule DemoDownload do
@@ -65,4 +66,4 @@ end
 
 Path.wildcard("save-*.zip")
 |> Enum.map(&ZipMetaDataExtractor.extract!/1)
-|> IO.inspect(IEx.inspect_opts)
+|> IO.inspect(IEx.inspect_opts())
