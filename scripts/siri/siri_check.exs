@@ -81,4 +81,6 @@ if args[:pretty_dump] do
   |> Floki.raw_html(pretty: true)
 end
 
-# TODO: xpath assert on siri:status & siri:dataready (after verifying profile)
+# NOTE: we'll parse the document (XPath) on siri:status & siri:dataready (after verifying profile) later to provide
+# a better test.
+# One must be careful with memory consumption when doing such tasks, I have benchmarked various options.
