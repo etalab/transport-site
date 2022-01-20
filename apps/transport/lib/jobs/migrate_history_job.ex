@@ -42,8 +42,8 @@ defmodule Transport.Jobs.MigrateHistoryDispatcherJob do
     bucket_names = existing_bucket_names()
 
     datasets
+    |> Enum.take(10)
     |> Enum.filter(&Enum.member?(bucket_names, "dataset-#{&1.datagouv_id}"))
-    |> Enum.take(5)
     |> Enum.flat_map(fn dataset ->
       Logger.debug("Finding objects for #{dataset.datagouv_id}")
       Transport.History.Fetcher.history_resources(dataset)
@@ -64,28 +64,133 @@ defmodule Transport.Jobs.MigrateHistoryJob do
   use Oban.Worker, unique: [period: 60 * 60, fields: [:args, :worker]], tags: ["history"], max_attempts: 3
   require Logger
   import Ecto.Query
-  alias DB.{Repo, ResourceHistory}
-
-  #   %{
-  #   href: "https://dataset-5c34c93f8b4c4104b817fb3a.cellar-c2.services.clever-cloud.com/Fichiers_GTFS_20201118T000001",
-  #   is_current: false,
-  #   last_modified: "2020-11-18T00:00:01.953Z",
-  #   metadata: %{
-  #     "content-hash" => "1111dfda713942722c5497f561e9f2f3d4caa23e01f3c26c0a5252b7e7261fcd",
-  #     "end" => "2021-07-04",
-  #     "format" => "GTFS",
-  #     "start" => "2020-11-01",
-  #     "title" => "Fichiers_GTFS",
-  #     "updated-at" => "2020-11-17T10:28:05.852000",
-  #     "url" => "https://static.data.gouv.fr/resources/donnees-horaires-theoriques-gtfs-du-reseau-de-transport-de-la-metropole-de-saint-etienne-stas/20201117-102502/stas.gtfs.zip"
-  #   },
-  #   name: "Fichiers_GTFS_20201118T000001"
-  # },
+  import Transport.Jobs.ResourceHistoryJob, only: [relevant_http_headers: 1, http_client: 0, remove_file: 1]
+  alias DB.{Dataset, Repo, Resource, ResourceHistory}
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"href" => href, "metadata" => metadata, "name" => name}}) do
+  def perform(%Oban.Job{args: %{"href" => href, "dataset_datagouv_id" => dataset_datagouv_id} = payload}) do
     Logger.info("Running MigrateHistoryJob for #{href}")
+    url = Map.fetch!(payload["metadata"], "url")
+
+    case {already_historised?(href), existing_resource(url, dataset_datagouv_id)} do
+      {false, resource} when is_map(resource) ->
+        path = download_path(resource)
+
+        try do
+          href |> download_resource(path) |> process_download(resource, payload)
+        after
+          remove_file(path)
+        end
+
+      {true, _} ->
+        Logger.debug("#{url} has already been historicized")
+
+      {_, nil} ->
+        Logger.debug("Could not find a resource for #{url}")
+    end
 
     :ok
   end
+
+  defp process_download({:error, message}, %Resource{datagouv_id: datagouv_id}, _) do
+    Logger.debug("Got an error while downloading #{datagouv_id}: #{message}")
+  end
+
+  defp process_download({:ok, resource_path, headers, body}, %Resource{datagouv_id: datagouv_id} = resource, payload) do
+    download_datetime = DateTime.utc_now()
+
+    zip_metadata =
+      try do
+        Transport.ZipMetaDataExtractor.extract!(resource_path)
+      rescue
+        _ ->
+          Logger.error("Cannot compute ZIP metadata for #{datagouv_id}")
+          nil
+      end
+
+    computed_metadata =
+      if Resource.is_gtfs?(resource) do
+        case gtfs_validator().validate_from_url(Map.fetch!(payload, "href")) do
+          {:ok, validation_result} ->
+            Map.fetch!(validation_result, "metadata")
+
+          {:error, message} ->
+            Logger.error("GTFS validator error #{message}")
+            nil
+        end
+      else
+        nil
+      end
+
+    filename = upload_filename(resource, download_datetime)
+
+    data = %{
+      download_datetime: download_datetime,
+      uuid: Ecto.UUID.generate(),
+      zip_metadata: zip_metadata,
+      http_headers: headers,
+      resource_metadata: computed_metadata,
+      filename: filename,
+      permanent_url: Transport.S3.permanent_url(:history, filename),
+      format: resource.format,
+      filenames: zip_metadata |> Enum.map(& &1.file_name),
+      total_uncompressed_size: zip_metadata |> Enum.map(& &1.uncompressed_size) |> Enum.sum(),
+      total_compressed_size: zip_metadata |> Enum.map(& &1.compressed_size) |> Enum.sum(),
+      from_old_system: true,
+      old_href: Map.fetch!(payload, "href"),
+      old_payload: payload
+    }
+
+    Transport.S3.upload_to_s3!(:history, body, filename)
+    store_resource_history!(resource, data)
+  end
+
+  defp store_resource_history!(%Resource{datagouv_id: datagouv_id}, payload) do
+    Logger.debug("Saving ResourceHistory for #{datagouv_id}")
+
+    %ResourceHistory{datagouv_id: datagouv_id, payload: payload} |> DB.Repo.insert!()
+  end
+
+  def already_historised?(old_href) do
+    ResourceHistory
+    |> where([_], fragment("(payload ->> 'from_old_system')::boolean = true"))
+    |> where([_], fragment("payload ->> 'old_href' = ?", ^old_href))
+    |> Repo.exists?()
+  end
+
+  defp existing_resource(url, dataset_datagouv_id) do
+    Resource
+    |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
+    |> where([r, _d], r.url == ^url)
+    |> where([_r, d], d.datagouv_id == ^dataset_datagouv_id)
+    |> Repo.one()
+  end
+
+  defp download_path(%Resource{datagouv_id: datagouv_id}) do
+    time = Calendar.strftime(DateTime.utc_now(), "%Y%m%d.%H%M%S.%f")
+    System.tmp_dir!() |> Path.join("resource_migrate_#{datagouv_id}_#{time}_download")
+  end
+
+  defp download_resource(url, file_path) do
+    case http_client().get(url, [], follow_redirect: true) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body} = r} ->
+        Logger.debug("Saving #{url} to #{file_path}")
+        File.write!(file_path, body)
+        {:ok, file_path, relevant_http_headers(r), body}
+
+      {:ok, %HTTPoison.Response{status_code: status}} ->
+        {:error, "Got a non 200 status: #{status}"}
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, "Got an error: #{reason}"}
+    end
+  end
+
+  def upload_filename(%Resource{datagouv_id: datagouv_id}, %DateTime{} = dt) do
+    time = Calendar.strftime(dt, "%Y%m%d.%H%M%S.%f")
+
+    "#{datagouv_id}/#{datagouv_id}.#{time}.zip"
+  end
+
+  defp gtfs_validator, do: Shared.Validation.GtfsValidator.Wrapper.impl()
 end

@@ -24,6 +24,7 @@ defmodule Transport.History.Fetcher.S3 do
 
       %{
         name: f.key,
+        dataset_datagouv_id: dataset.datagouv_id,
         href: history_resource_path(bucket, f.key),
         metadata: metadata,
         is_current: is_current,
