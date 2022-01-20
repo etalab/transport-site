@@ -91,12 +91,11 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
                             "--input",
                             _file_path,
                             "--output",
-                            netex_folder_path,
+                            _netex_folder_path,
                             "--participant",
                             "transport.data.gouv.fr"
                           ],
                           _opts ->
-      file_path = Path.join([netex_folder_path, "a_file"])
       {:error, "conversion failed"}
     end)
 
