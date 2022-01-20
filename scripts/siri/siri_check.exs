@@ -28,6 +28,7 @@ defmodule Helper do
   end
 end
 
+# Ref: http://www.normes-donnees-tc.org/wp-content/uploads/2021/09/BNTRA-CN03-GT7_NF-Profil-SIRI-FR_v1.2_20210308.pdf
 defmodule SIRI do
   def check_status(timestamp, requestor_ref, message_identifier) do
     # NOTE: we'll need to properly escape & encode the dynamic parts to avoid injection issues (à la XSS).
