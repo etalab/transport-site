@@ -100,8 +100,8 @@ msgid "To log in, you will be redirected to data.gouv.fr, the open platform for 
 msgstr "Pour vous identifier vous allez être redirigé vers data.gouv.fr, la plateforme ouverte des données publiques françaises."
 
 #, elixir-format
-msgid "Users want quality data. Validate online your GTFS files or your data following French national schemas."
-msgstr "Les données de bonne qualité sont réutilisées. Validez vos données dans les formats GTFS ou respectant des schémas nationaux grâce à nos outils."
+msgid "Users want quality data. Validate online GTFS files, GBFS feeds or any data following French national schemas."
+msgstr "Les données de bonne qualité sont réutilisées. Validez des données GTFS, des flux GBFS ou des données respectant des schémas nationaux grâce à nos outils."
 
 #, elixir-format
 msgid "Whether you are Autorité organisatrice de mobilité, délégataire de service public, or collectivité territoriale, you may be concerned by the laws loi pour une république numérique, la Loi Orientation des Mobilités and the european reglementation."

@@ -99,7 +99,7 @@ msgid "To log in, you will be redirected to data.gouv.fr, the open platform for 
 msgstr ""
 
 #, elixir-format
-msgid "Users want quality data. Validate online your GTFS files or your data following French national schemas."
+msgid "Users want quality data. Validate online GTFS files, GBFS feeds or any data following French national schemas."
 msgstr ""
 
 #, elixir-format

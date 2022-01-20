@@ -7,21 +7,21 @@
         </h1>
       </div>
       <%= if assigns[:current_user] do %>
-        <div class="panel-producteurs signed-in">
-          <h2><%= dgettext("page-producteurs", "Welcome!") %></h2>
-          <a class="button" href="<%= page_path @conn, :espace_producteur %>"><%= dgettext("page-producteurs", "Access your producer section") %></a>
-          <div class="pt-24">
-            <%= dgettext("page-producteurs", "transport.data.gouv.fr is affiliated with data.gouv.fr, the open platform for French public data") %>
-          </div>
+      <div class="panel-producteurs signed-in">
+        <h2><%= dgettext("page-producteurs", "Welcome!") %></h2>
+        <a class="button" href="<%= page_path @conn, :espace_producteur %>"><%= dgettext("page-producteurs", "Access your producer section") %></a>
+        <div class="pt-24">
+          <%= dgettext("page-producteurs", "transport.data.gouv.fr is affiliated with data.gouv.fr, the open platform for French public data") %>
         </div>
+      </div>
       <% else %>
-        <div class="panel-producteurs">
-          <h2><%= dgettext("page-producteurs", "Access your producer section") %></h2>
-          <div>
-            <%= dgettext("page-producteurs", "To log in, you will be redirected to data.gouv.fr, the open platform for French public data") %>
-          </div>
-          <a class="button" href="<%= page_path @conn, :login, redirect_path: current_path(@conn) %>"><%= dgettext("page-dataset-details", "Log in") %></a>
+      <div class="panel-producteurs">
+        <h2><%= dgettext("page-producteurs", "Access your producer section") %></h2>
+        <div>
+          <%= dgettext("page-producteurs", "To log in, you will be redirected to data.gouv.fr, the open platform for French public data") %>
         </div>
+        <a class="button" href="<%= page_path @conn, :login, redirect_path: current_path(@conn) %>"><%= dgettext("page-dataset-details", "Log in") %></a>
+      </div>
       <% end %>
     </section>
     <section class="section producteurs-content">
@@ -49,7 +49,7 @@
               <%= dgettext("page-producteurs", "Online validation tools") %>
             </h2>
             <div>
-              <%= dgettext("page-producteurs", "Users want quality data. Validate online your GTFS files or your data following French national schemas.") %>
+              <%= dgettext("page-producteurs", "Users want quality data. Validate online GTFS files, GBFS feeds or any data following French national schemas.") %>
             </div>
           </div>
           <div class="presentation-action pt-24">
