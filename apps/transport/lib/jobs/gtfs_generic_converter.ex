@@ -129,7 +129,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
       |> Repo.insert!()
     after
       File.rm(gtfs_file_path)
-      File.rm(conversion_file_path)
+      File.rm_rf(conversion_output_path)
       # may not exist
       File.rm(zip_path)
     end
