@@ -54,7 +54,12 @@
           </div>
           <div class="presentation-action pt-24">
             <a href="<%= validation_path @conn, :index %>" class="button-outline primary">
-              <%= dgettext("page-producteurs", "Validate data online") %>
+              <%= dgettext("page-producteurs", "Validate a GTFS file") %>
+            </a>
+          </div>
+          <div class="presentation-action pt-24">
+            <a href="<%= gbfs_analyzer_path @conn, :index %>" class="button-outline primary">
+              <%= dgettext("page-producteurs", "Validate a GBFS feed") %>
             </a>
           </div>
         </div>

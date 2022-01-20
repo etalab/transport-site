@@ -104,10 +104,6 @@ msgid "Users want quality data. Validate online your GTFS files or your data fol
 msgstr ""
 
 #, elixir-format
-msgid "Validate data online"
-msgstr ""
-
-#, elixir-format
 msgid "Whether you are Autorité organisatrice de mobilité, délégataire de service public, or collectivité territoriale, you may be concerned by the laws loi pour une république numérique, la Loi Orientation des Mobilités and the european reglementation."
 msgstr ""
 
@@ -125,4 +121,12 @@ msgstr ""
 
 #, elixir-format
 msgid "Why should you publish your data?"
+msgstr ""
+
+#, elixir-format
+msgid "Validate a GBFS feed"
+msgstr ""
+
+#, elixir-format
+msgid "Validate a GTFS file"
 msgstr ""
