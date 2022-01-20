@@ -28,10 +28,18 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
       %{status_code: 200, body: "this is my GTFS file"}
     end)
 
-
     Transport.Rambo.Mock
     # mock for the resource NeTEx conversion
-    |> expect(:run, 1, fn _binary_path, ["--input", _file_path, "--output", netex_folder_path, "--participant", "transport.data.gouv.fr"], _opts ->
+    |> expect(:run, 1, fn _binary_path,
+                          [
+                            "--input",
+                            _file_path,
+                            "--output",
+                            netex_folder_path,
+                            "--participant",
+                            "transport.data.gouv.fr"
+                          ],
+                          _opts ->
       file_path = Path.join([netex_folder_path, "a_file"])
       # we create a netex folder containing one file
       File.mkdir_p!(netex_folder_path)
