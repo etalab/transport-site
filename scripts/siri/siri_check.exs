@@ -11,7 +11,7 @@ Mix.install([
   {:yaml_elixir, "~> 2.8"}
 ])
 
-{args, _rest} = OptionParser.parse!(System.argv, strict: [endpoint: :string, requestor_ref: :string, target: :string])
+{args, _rest} = OptionParser.parse!(System.argv(), strict: [endpoint: :string, requestor_ref: :string, target: :string])
 
 defmodule Helper do
   def halt(error) do
@@ -45,16 +45,22 @@ timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
 
 target = args |> Keyword.get(:target)
 
-{endpoint, requestor_ref} = if target do
-  config = File.read!("#{__DIR__}/config.yml") |> YamlElixir.read_from_string!()
-  config = config |> Map.fetch!("feeds") |> Enum.filter(&(&1["identifier"] == target))
-  [%{"requestor_ref" => requestor_ref, "target_url" => target_url}] = config
-  {target_url, requestor_ref}
-else
-  endpoint = (args |> Keyword.get(:endpoint)) || Helper.halt("Please provide --endpoint switch (or --target & config.yml)")
-  requestor_ref = (args |> Keyword.get(:requestor_ref)) || Helper.halt("Please provide --requestor-ref switch (or --target & config.yml)")
-  {endpoint, requestor_ref}
-end
+{endpoint, requestor_ref} =
+  if target do
+    config = File.read!("#{__DIR__}/config.yml") |> YamlElixir.read_from_string!()
+    config = config |> Map.fetch!("feeds") |> Enum.filter(&(&1["identifier"] == target))
+    [%{"requestor_ref" => requestor_ref, "target_url" => target_url}] = config
+    {target_url, requestor_ref}
+  else
+    endpoint =
+      args |> Keyword.get(:endpoint) || Helper.halt("Please provide --endpoint switch (or --target & config.yml)")
+
+    requestor_ref =
+      args |> Keyword.get(:requestor_ref) ||
+        Helper.halt("Please provide --requestor-ref switch (or --target & config.yml)")
+
+    {endpoint, requestor_ref}
+  end
 
 message_id = "Test::Message::#{Ecto.UUID.generate()}"
 
@@ -62,4 +68,4 @@ query = SIRI.check_status(timestamp, requestor_ref, message_id)
 
 %{body: body, status: 200} = Req.post!(endpoint, query)
 
-IO.inspect body
+IO.inspect(body)
