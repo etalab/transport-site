@@ -85,26 +85,26 @@ defmodule Transport.Jobs.GTFSGenericConverter do
       System.tmp_dir!()
       |> Path.join("conversion_gtfs_#{format_lower}_#{resource_history_id}_#{:os.system_time(:millisecond)}")
 
-    conversion_file_path = "#{gtfs_file_path}.#{format_lower}"
-    zip_path = "#{conversion_file_path}.zip"
+    conversion_output_path = "#{gtfs_file_path}.#{format_lower}"
+    zip_path = "#{conversion_output_path}.zip"
 
     try do
       %{status_code: 200, body: body} = Transport.Shared.Wrapper.HTTPoison.impl().get!(resource_url)
 
       File.write!(gtfs_file_path, body)
 
-      :ok = apply(converter_module, :convert, [gtfs_file_path, conversion_file_path])
+      :ok = apply(converter_module, :convert, [gtfs_file_path, conversion_output_path])
 
-      zip_conversion? = File.dir?(conversion_file_path)
+      zip_conversion? = File.dir?(conversion_output_path)
 
       file =
         case zip_conversion? do
           true ->
-            :ok = Transport.FolderZipper.zip(conversion_file_path, zip_path)
+            :ok = Transport.FolderZipper.zip(conversion_output_path, zip_path)
             zip_path
 
           false ->
-            conversion_file_path
+            conversion_output_path
         end
         |> File.read!()
 
@@ -113,7 +113,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
 
       Transport.S3.upload_to_s3!(:history, file, conversion_file_name)
 
-      {:ok, %{size: filesize}} = File.stat(conversion_file_path)
+      {:ok, %{size: filesize}} = File.stat(conversion_output_path)
 
       %DataConversion{
         convert_from: "GTFS",
