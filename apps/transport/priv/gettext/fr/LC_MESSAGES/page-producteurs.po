@@ -125,7 +125,7 @@ msgstr "Pourquoi publier vos données ?"
 
 #, elixir-format
 msgid "Validate a GBFS feed"
-msgstr "Validez un flux GBFS"
+msgstr "Valider un flux GBFS"
 
 #, elixir-format
 msgid "Validate a GTFS file"
