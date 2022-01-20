@@ -11,7 +11,9 @@ Mix.install([
   {:yaml_elixir, "~> 2.8"},
   # a quick hack to pretty print XML (although it will change things a bit) during debugging
   # see https://elixirforum.com/t/what-is-your-best-trick-to-pretty-print-a-xml-string-with-elixir-or-erlang/42010
-  {:floki, "~> 0.32.0"}
+  {:floki, "~> 0.32.0"},
+  # theoretically more efficient (memory + perf than direct SweetXML), and XPath compatible
+  {:saxmerl, "~> 0.1"}
 ])
 
 {args, _rest} = OptionParser.parse!(System.argv(), strict: [
