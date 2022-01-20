@@ -8,10 +8,18 @@ Mix.install([
   # for UUID generation
   {:ecto, "~> 3.7.1"},
   # YAML config to make group tests easier (see https://github.com/etalab/transport_deploy/issues/49)
-  {:yaml_elixir, "~> 2.8"}
+  {:yaml_elixir, "~> 2.8"},
+  # a quick hack to pretty print XML (although it will change things a bit) during debugging
+  # see https://elixirforum.com/t/what-is-your-best-trick-to-pretty-print-a-xml-string-with-elixir-or-erlang/42010
+  {:floki, "~> 0.32.0"}
 ])
 
-{args, _rest} = OptionParser.parse!(System.argv(), strict: [endpoint: :string, requestor_ref: :string, target: :string])
+{args, _rest} = OptionParser.parse!(System.argv(), strict: [
+  endpoint: :string,
+  requestor_ref: :string,
+  target: :string,
+  pretty_dump: :boolean
+  ])
 
 defmodule Helper do
   def halt(error) do
@@ -68,4 +76,8 @@ query = SIRI.check_status(timestamp, requestor_ref, message_id)
 
 %{body: body, status: 200} = Req.post!(endpoint, query)
 
-IO.inspect(body)
+if args[:pretty_dump] do
+  IO.puts body
+  |> Floki.parse_document!()
+  |> Floki.raw_html(pretty: true)
+end
