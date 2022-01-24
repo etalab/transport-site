@@ -15,6 +15,7 @@ Mix.install([
       endpoint: :string,
       requestor_ref: :string,
       target: :string,
+      request: :string,
       pretty_dump: :boolean
     ]
   )
@@ -46,11 +47,30 @@ defmodule SIRI do
     </S:Envelope>
     """
   end
+
+  def lines_discovery(timestamp, requestor_ref, message_identifier) do
+    """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <S:Body>
+        <sw:LinesDiscovery xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
+            <Request>
+                <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+                <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
+                <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+          	</Request>
+        </sw:LinesDiscovery>
+    </S:Body>
+    </S:Envelope>
+    """
+  end
 end
 
 timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
 
 target = args |> Keyword.get(:target)
+
+request = args |> Keyword.get(:request) || Helper.halt("Please provide --request switch (check_status, lines_discovery")
 
 {endpoint, requestor_ref} =
   if target do
@@ -71,7 +91,14 @@ target = args |> Keyword.get(:target)
 
 message_id = "Test::Message::#{Ecto.UUID.generate()}"
 
-query = SIRI.check_status(timestamp, requestor_ref, message_id)
+query =
+  case request do
+    "check_status" ->
+      SIRI.check_status(timestamp, requestor_ref, message_id)
+
+    "lines_discovery" ->
+      SIRI.lines_discovery(timestamp, requestor_ref, message_id)
+  end
 
 %{body: body, status: 200} = Req.post!(endpoint, query)
 
@@ -81,6 +108,8 @@ if args[:pretty_dump] do
     |> Floki.parse_document!()
     |> Floki.raw_html(pretty: true)
   )
+else
+  IO.puts("Request returned 200. Use --pretty-dump to see the output.")
 end
 
 # NOTE: we'll parse the document (XPath) on siri:status & siri:dataready (after verifying profile) later to provide
