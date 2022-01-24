@@ -23,7 +23,7 @@ defmodule Transport.ImportDataWorker do
     GenServer.cast(__MODULE__, {:force_validate_all})
   end
 
-  def start_link do
+  def start_link([]) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
