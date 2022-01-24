@@ -58,18 +58,17 @@ defmodule DB.Dataset do
   @spec type_to_str_map() :: %{binary() => binary()}
   def type_to_str_map,
     do: %{
-      "public-transit" => dgettext("dataset", "Public transit timetable"),
+      "public-transit" => dgettext("dataset", "Public transit - static schedules"),
       "carpooling-areas" => dgettext("dataset", "Carpooling areas"),
-      "stops-ref" => dgettext("dataset", "Stops referential"),
-      "charging-stations" => dgettext("dataset", "Charging stations"),
-      "air-transport" => dgettext("dataset", "Aerial"),
+      "charging-stations" => dgettext("dataset", "Charging & refuelling stations"),
+      "air-transport" => dgettext("dataset", "Air transport"),
       "bike-scooter-sharing" => dgettext("dataset", "Bike and scooter sharing"),
       "car-motorbike-sharing" => dgettext("dataset", "Car and motorbike sharing"),
       "road-network" => dgettext("dataset", "Road networks"),
       "addresses" => dgettext("dataset", "Addresses"),
       "informations" => dgettext("dataset", "Other informations"),
       "private-parking" => dgettext("dataset", "Private parking"),
-      "bike-way" => dgettext("dataset", "Bike way"),
+      "bike-way" => dgettext("dataset", "Bike networks"),
       "bike-parking" => dgettext("dataset", "Bike parking"),
       "low-emission-zones" => dgettext("dataset", "Low emission zones")
     }
