@@ -64,13 +64,33 @@ defmodule SIRI do
     </S:Envelope>
     """
   end
+
+  def stop_points_discovery(timestamp, requestor_ref, message_identifier) do
+    """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+        <S:Body>
+          <sw:StopPointsDiscovery xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
+          <Request>
+            <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+            <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
+            <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+          </Request>
+          <RequestExtension />
+        </sw:StopPointsDiscovery>
+        </S:Body>
+    </S:Envelope>
+    """
+  end
 end
 
 timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
 
 target = args |> Keyword.get(:target)
 
-request = args |> Keyword.get(:request) || Helper.halt("Please provide --request switch (check_status, lines_discovery")
+request =
+  args |> Keyword.get(:request) ||
+    Helper.halt("Please provide --request switch (check_status, lines_discovery, stop_points_discovery")
 
 {endpoint, requestor_ref} =
   if target do
@@ -91,6 +111,8 @@ request = args |> Keyword.get(:request) || Helper.halt("Please provide --request
 
 message_id = "Test::Message::#{Ecto.UUID.generate()}"
 
+# NOTE: a more dynamic dispatching will be easy to add later, at this point I'm
+# more interested in having actual queries available quickly.
 query =
   case request do
     "check_status" ->
@@ -98,6 +120,9 @@ query =
 
     "lines_discovery" ->
       SIRI.lines_discovery(timestamp, requestor_ref, message_id)
+
+    "stop_points_discovery" ->
+      SIRI.stop_points_discovery(timestamp, requestor_ref, message_id)
   end
 
 %{body: body, status: 200} = Req.post!(endpoint, query)
