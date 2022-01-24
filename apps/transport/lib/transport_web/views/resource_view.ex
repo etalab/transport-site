@@ -102,31 +102,31 @@ defmodule TransportWeb.ResourceView do
 
   def get_associated_resource(_resource, _format), do: nil
 
-  def has_associated_geojson(%{} = resources_related_files, resource_id) do
+  def has_associated_file(%{} = resources_related_files, resource_id, get_associated_file) do
     resources_related_files
     |> Map.get(resource_id)
-    |> get_associated_geojson()
+    |> get_associated_file.()
     |> case do
       nil -> false
       _ -> true
     end
   end
 
-  def has_associated_geojson(_, _), do: false
+  def has_associated_file(_, _, _), do: false
 
-  def has_associated_netex(dataset, resource) do
-    case get_associated_resource(dataset, resource, "NeTEx") do
-      nil -> false
-      _ -> true
-    end
+  def has_associated_geojson(resources_related_files, resource_id) do
+    has_associated_file(resources_related_files, resource_id, &get_associated_geojson/1)
+  end
+
+  def has_associated_netex(resources_related_files, resource_id) do
+    has_associated_file(resources_related_files, resource_id, &get_associated_netex/1)
   end
 
   def get_associated_geojson(%{geojson: geojson_url}), do: geojson_url
   def get_associated_geojson(_), do: nil
 
-  def get_associated_netex(resource) do
-    get_associated_resource(resource, "NeTEx")
-  end
+  def get_associated_netex(%{netex: netex_url}), do: netex_url
+  def get_associated_netex(_), do: nil
 
   def errors_sample(%DB.Resource{metadata: %{"validation" => %{"errors" => errors}}}) do
     Enum.take(errors, max_display_errors())
