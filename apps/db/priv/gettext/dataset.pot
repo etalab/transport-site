@@ -11,19 +11,11 @@ msgid ""
 msgstr ""
 
 #, elixir-format
-msgid "Aerial"
-msgstr ""
-
-#, elixir-format
 msgid "Bike and scooter sharing"
 msgstr ""
 
 #, elixir-format
 msgid "Carpooling areas"
-msgstr ""
-
-#, elixir-format
-msgid "Charging stations"
 msgstr ""
 
 #, elixir-format
@@ -47,10 +39,6 @@ msgid "A dataset cannot be national and regional"
 msgstr ""
 
 #, elixir-format
-msgid "Public transit timetable"
-msgstr ""
-
-#, elixir-format
 msgid "Unable to find INSEE code '%{insee}'"
 msgstr ""
 
@@ -67,10 +55,6 @@ msgid "Private parking"
 msgstr ""
 
 #, elixir-format
-msgid "Bike way"
-msgstr ""
-
-#, elixir-format
 msgid "Car and motorbike sharing"
 msgstr ""
 
@@ -80,4 +64,20 @@ msgstr ""
 
 #, elixir-format
 msgid "Low emission zones"
+msgstr ""
+
+#, elixir-format
+msgid "Air transport"
+msgstr ""
+
+#, elixir-format
+msgid "Bike networks"
+msgstr ""
+
+#, elixir-format
+msgid "Charging & refuelling stations"
+msgstr ""
+
+#, elixir-format
+msgid "Public transit - static schedules"
 msgstr ""
