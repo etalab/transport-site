@@ -32,7 +32,7 @@ msgid "Road networks"
 msgstr ""
 
 #, elixir-format
-msgid "Addresses"
+msgid "Locations"
 msgstr ""
 
 #, elixir-format

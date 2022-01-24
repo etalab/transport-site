@@ -32,8 +32,8 @@ msgid "Road networks"
 msgstr "Réseaux routiers"
 
 #, elixir-format
-msgid "Addresses"
-msgstr "Adresses"
+msgid "Locations"
+msgstr "Lieux d'intérêts"
 
 #, elixir-format
 msgid "A dataset cannot be national and regional"
