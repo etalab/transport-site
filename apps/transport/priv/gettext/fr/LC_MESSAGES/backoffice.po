@@ -34,18 +34,6 @@ msgstr "Jeux de données ajouté avec succès"
 msgid "Dataset not added"
 msgstr "Échec à l’ajout du jeu de données"
 
-msgid "public-transit"
-msgstr "Transport en communs"
-
-msgid "carpooling-areas"
-msgstr "Lieux de covoiturage"
-
-msgid "stops-ref"
-msgstr "Référentiel points d’arrêts"
-
-msgid "charging-stations"
-msgstr "Bornes de recharge"
-
 msgid "Dataset imported with success"
 msgstr "Jeux de données ajouté avec succès"
 

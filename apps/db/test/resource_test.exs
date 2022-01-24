@@ -176,12 +176,12 @@ defmodule DB.ResourceTest do
     now = DateTime.now!("Etc/UTC")
 
     # we insert 3 resource history for datagouv_id_1
-    insert_resouce_history("datagouv_id_1", uuid1 = Ecto.UUID.generate(), now, -3600)
-    insert_resouce_history("datagouv_id_1", uuid2 = Ecto.UUID.generate(), now)
-    insert_resouce_history("datagouv_id_1", uuid3 = Ecto.UUID.generate(), now, -3601)
+    insert_resource_history("datagouv_id_1", uuid1 = Ecto.UUID.generate(), now, -3600)
+    insert_resource_history("datagouv_id_1", uuid2 = Ecto.UUID.generate(), now)
+    insert_resource_history("datagouv_id_1", uuid3 = Ecto.UUID.generate(), now, -3601)
 
     # and one for datagouv_id_2
-    insert_resouce_history("datagouv_id_2", uuid4 = Ecto.UUID.generate(), now)
+    insert_resource_history("datagouv_id_2", uuid4 = Ecto.UUID.generate(), now)
 
     # we insert 1 conversion for each resource history
     insert_data_conversion(uuid1, "url1", 10)
@@ -198,7 +198,7 @@ defmodule DB.ResourceTest do
              DB.Resource.get_related_files(%DB.Resource{datagouv_id: "datagouv_id_1"})
   end
 
-  defp insert_resouce_history(datagouv_id, uuid, datetime, time_delta_seconds \\ 0) do
+  defp insert_resource_history(datagouv_id, uuid, datetime, time_delta_seconds \\ 0) do
     insert(:resource_history, %{
       datagouv_id: datagouv_id,
       payload: %{uuid: uuid},

@@ -64,17 +64,17 @@ defmodule TransportWeb.DatasetSearchControllerTest do
   test "GET /datasets filter", %{conn: conn} do
     conn = conn |> get(dataset_path(conn, :index))
     # info dans les filtres à gauche des datasets
-    assert html_response(conn, 200) =~ "Horaires théoriques de transport public (2)"
+    assert html_response(conn, 200) =~ "Transport public collectif - horaires théoriques (2)"
   end
 
   test "GET /datasets?modes[]=ferry", %{conn: conn} do
     conn = conn |> get(dataset_path(conn, :index), %{modes: ["ferry"]})
-    assert html_response(conn, 200) =~ "Horaires théoriques de transport public (1)"
+    assert html_response(conn, 200) =~ "Transport public collectif - horaires théoriques (1)"
   end
 
   test "GET /datasets?features[]=tarifs", %{conn: conn} do
     conn = conn |> get(dataset_path(conn, :index), %{features: ["tarifs"]})
-    assert html_response(conn, 200) =~ "Horaires théoriques de transport public (1)"
+    assert html_response(conn, 200) =~ "Transport public collectif - horaires théoriques (1)"
   end
 
   test "GET /datasets?type=public-transit", %{conn: conn} do

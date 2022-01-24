@@ -43,10 +43,6 @@ msgid "Publishing best practices"
 msgstr ""
 
 #, elixir-format
-msgid "Test a file"
-msgstr ""
-
-#, elixir-format
 msgid "Update a dataset"
 msgstr ""
 
