@@ -44,10 +44,6 @@ msgid "Publishing best practices"
 msgstr "Les bonnes pratiques de publication"
 
 #, elixir-format
-msgid "Test a file"
-msgstr "Analyser la qualité d'un fichier"
-
-#, elixir-format
 msgid "Update a dataset"
 msgstr "Mettre à jour un jeu de données"
 
