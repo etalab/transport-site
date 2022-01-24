@@ -54,7 +54,7 @@ msgid "Long distance coach"
 msgstr "Autocars longue distance"
 
 #, elixir-format
-msgid "Public transport - realtime trafic"
+msgid "Public transport - realtime traffic"
 msgstr "Transport public collectif - horaires temps réel"
 
 #, elixir-format

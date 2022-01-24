@@ -172,7 +172,7 @@ defmodule TransportWeb.PageController do
       %Tile{
         link: dataset_path(conn, :index, type: "public-transit", filter: "has_realtime"),
         icon: icon_type_path("real-time-public-transit"),
-        title: dgettext("page-index", "Public transport - realtime trafic"),
+        title: dgettext("page-index", "Public transport - realtime traffic"),
         count: Keyword.fetch!(counts, :count_public_transport_has_realtime)
       },
       %Tile{
