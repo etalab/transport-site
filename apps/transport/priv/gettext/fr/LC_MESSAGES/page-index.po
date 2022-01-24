@@ -188,10 +188,6 @@ msgid "Search data for a region, a city, a network…"
 msgstr "Cherchez les données d’une région, d’une ville, d’un réseau…"
 
 #, elixir-format
-msgid "Addresses"
-msgstr "Adresses"
-
-#, elixir-format
 msgid "Other informations"
 msgstr "Autres informations"
 

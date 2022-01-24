@@ -28,10 +28,6 @@ msgid "Charging stations"
 msgstr "Stations de réapprovisionnement"
 
 #, elixir-format
-msgid "Stops referential"
-msgstr "Référentiel d'arrêts"
-
-#, elixir-format
 msgid "You need to fill either aom, region or use datagouv's zone"
 msgstr "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
 
@@ -44,8 +40,8 @@ msgid "Road networks"
 msgstr "Réseaux routiers"
 
 #, elixir-format
-msgid "Addresses"
-msgstr "Adresses"
+msgid "Locations"
+msgstr "Lieux d'intérêts"
 
 #, elixir-format
 msgid "A dataset cannot be national and regional"

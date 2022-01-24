@@ -254,10 +254,10 @@ defmodule TransportWeb.PageController do
         count: Keyword.fetch!(counts, :count_by_type)["private-parking"]
       },
       %Tile{
-        link: dataset_path(conn, :index, type: "addresses"),
-        icon: icon_type_path("addresses"),
-        title: dgettext("page-index", "Addresses"),
-        count: Keyword.fetch!(counts, :count_by_type)["addresses"]
+        link: dataset_path(conn, :index, type: "locations"),
+        icon: icon_type_path("locations"),
+        title: dgettext("page-index", "Locations"),
+        count: Keyword.fetch!(counts, :count_by_type)["locations"]
       },
       %Tile{
         link: dataset_path(conn, :index, type: "informations"),
