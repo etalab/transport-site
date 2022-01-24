@@ -68,40 +68,6 @@ defmodule TransportWeb.ResourceView do
       |> Application.fetch_env!(:datagouvfr_site)
       |> Path.join("/fr/admin/dataset/new/")
 
-  @doc """
-  Given a dataset, a ressource, and a format, get the community resources
-  associated to the given resource, with the specified format
-  """
-  def get_associated_resource(
-        %DB.Dataset{} = dataset,
-        %DB.Resource{title: _title, url: url},
-        format
-      ) do
-    dataset.resources
-    |> Enum.find(fn r ->
-      r.original_resource_url == url and
-        r.is_community_resource and
-        r.format == format
-    end)
-  end
-
-  def get_associated_resource(_dataset, _resource, _format), do: nil
-
-  @doc """
-  Similar to get_associated_resource\3, but when the resources list has been preloaded
-  (no dataset needed)
-  """
-  def get_associated_resource(%DB.Resource{title: _title, url: url, dataset: %{resources: resources}}, format) do
-    resources
-    |> Enum.find(fn r ->
-      r.original_resource_url == url and
-        r.is_community_resource and
-        r.format == format
-    end)
-  end
-
-  def get_associated_resource(_resource, _format), do: nil
-
   def has_associated_file(%{} = resources_related_files, resource_id, get_associated_file) do
     resources_related_files
     |> Map.get(resource_id)
