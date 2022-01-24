@@ -14,7 +14,6 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
   test "a non GTFS resource" do
     %{id: resource_history_id} =
       insert(:resource_history,
-        datagouv_id: "2",
         payload: %{"format" => "NeTEx"}
       )
 
@@ -29,7 +28,6 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
 
     %{id: resource_history_id} =
       insert(:resource_history,
-        datagouv_id: "2",
         payload: %{"uuid" => uuid, "format" => "GTFS", "permanent_url" => "xxx", "filename" => "fff"}
       )
 
@@ -45,7 +43,6 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
     # add a resource history
     %{id: resource_history_id} =
       insert(:resource_history,
-        datagouv_id: "2",
         payload: %{"uuid" => uuid, "format" => "GTFS", "permanent_url" => permanent_url, "filename" => "fff"}
       )
 
@@ -57,8 +54,7 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
 
     # mock for the resource conversion
     Transport.Rambo.Mock
-    |> expect(:run, 1, fn _binary_path, opts ->
-      assert(["--input", _file_path, "--output", geojson_file_path] = opts)
+    |> expect(:run, 1, fn _binary_path, ["--input", _file_path, "--output", geojson_file_path], _opts ->
       File.write!(geojson_file_path, "this my geojson content")
       {:ok, "this my geojson content"}
     end)
