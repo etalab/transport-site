@@ -88,6 +88,8 @@ oban_crontab_all_envs =
       [
         {"0 */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob},
         {"30 */6 * * *", Transport.Jobs.GtfsToGeojsonConverterJob},
+        # every 6 hours but not at the same time as other jobs
+        {"0 3,9,15,21 * * *", Transport.Jobs.GtfsToNetexConverterJob},
         {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
         {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}}
       ]
