@@ -16,7 +16,8 @@ Mix.install([
       requestor_ref: :string,
       target: :string,
       request: :string,
-      pretty_dump: :boolean
+      pretty_dump: :boolean,
+      line_refs: :string
     ]
   )
 
@@ -82,6 +83,36 @@ defmodule SIRI do
     </S:Envelope>
     """
   end
+
+  def get_estimated_timetable(timestamp, requestor_ref, message_identifier, line_refs) do
+    # NOTE: we'll switch to proper well-escaped XML building later, this is research code
+    line_refs
+    |> Enum.map(&"<siri:LineRef>#{&1}</siri:LineRef>")
+    |> Enum.join("\n")
+
+    """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <S:Body>
+        <sw:GetEstimatedTimetable xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
+            <ServiceRequestInfo>
+              <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+              <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
+              <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+            </ServiceRequestInfo>
+            <Request>
+                <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+                <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+                <siri:Lines>
+                  #{line_refs}
+                </siri:Lines>
+            </Request>
+            <RequestExtension />
+        </sw:GetEstimatedTimetable>
+    </S:Body>
+    </S:Envelope>
+    """
+  end
 end
 
 timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
@@ -123,6 +154,10 @@ query =
 
     "stop_points_discovery" ->
       SIRI.stop_points_discovery(timestamp, requestor_ref, message_id)
+
+    "get_estimated_timetable" ->
+      line_refs = args[:line_refs] |> String.split(",")
+      SIRI.get_estimated_timetable(timestamp, requestor_ref, message_id, line_refs)
   end
 
 %{body: body, status: 200} = Req.post!(endpoint, query)
