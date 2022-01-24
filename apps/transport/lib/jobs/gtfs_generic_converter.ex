@@ -95,6 +95,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
 
       :ok = apply(converter_module, :convert, [gtfs_file_path, conversion_output_path])
 
+      # gtfs2netex converter outputs a folder, we need to zip it
       zip_conversion? = File.dir?(conversion_output_path)
 
       file =
