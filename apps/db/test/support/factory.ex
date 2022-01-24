@@ -43,7 +43,9 @@ defmodule DB.Factory do
   end
 
   def resource_history_factory do
-    %DB.ResourceHistory{}
+    %DB.ResourceHistory{
+      datagouv_id: "resource_datagouv_id_123"
+    }
   end
 
   def data_conversion_factory do
