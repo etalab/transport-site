@@ -203,7 +203,7 @@ defmodule TransportWeb.PageController do
       type_tile(conn, "carpooling-areas"),
       type_tile(conn, "charging-stations"),
       type_tile(conn, "private-parking"),
-      type_tile(conn, "addresses"),
+      type_tile(conn, "locations"),
       type_tile(conn, "informations")
     ]
   end
