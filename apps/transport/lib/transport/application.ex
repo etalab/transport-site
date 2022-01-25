@@ -10,7 +10,6 @@ defmodule Transport.Application do
   use Task
   alias Transport.{CSVDocuments, ImportDataWorker, SearchCommunes}
   alias TransportWeb.Endpoint
-  import Supervisor.Spec, only: [supervisor: 2]
 
   @cache_name :transport
   # for DRY external reference
@@ -28,8 +27,8 @@ defmodule Transport.Application do
     children =
       [
         {Cachex, name: @cache_name},
-        supervisor(TransportWeb.Endpoint, []),
-        supervisor(ImportDataWorker, []),
+        TransportWeb.Endpoint,
+        ImportDataWorker,
         CSVDocuments,
         SearchCommunes,
         {Phoenix.PubSub, [name: TransportWeb.PubSub, adapter: Phoenix.PubSub.PG2]},
@@ -57,8 +56,7 @@ defmodule Transport.Application do
 
   defp add_scheduler(children) do
     if Mix.env() != :test do
-      import Supervisor.Spec, only: [worker: 2]
-      [worker(Transport.Scheduler, []) | children]
+      [Transport.Scheduler | children]
     else
       children
     end

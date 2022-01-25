@@ -70,23 +70,19 @@
         The transport.data.gouv.fr team is working on referencing new datasets to map the secondary road network, such as the [IGN’s BD Topo](https://geoservices.ign.fr/documentation/donnees/vecteur/bdtopo).
 
 
-- category: addresses
+- category: locations
   search_params:
     - key: type
-      value: addresses
+      value: locations
   msg:
     fr: |
-        Les données d’adresses françaises sont disponibles dans le jeu de données de la [Base Adresse Nationale (BAN)](https://transport.data.gouv.fr/datasets/base-adresse-nationale/) qui a vocation à réunir **l’ensemble des adresses géolocalisées du territoire national**.
+      Cette catégorie regroupe des jeux de données décrivant des lieux d'intérêts relatifs à la mobilité comme les adresses ou la position des arrêts de transports et gares.
 
-        Elle est **co-produite** par la Direction Interministérielle du Numérique (DINUM) et l’IGN, avec la participation des collectivités locales, de la Direction Générale des Finances Publiques (DGFiP) et de l’INSEE.
-
-        Elle fait partie du [Service Public des Données de référence](https://www.data.gouv.fr/fr/reference).
+      Les données d’adresses françaises sont disponibles dans le jeu de données de la [Base Adresse Nationale (BAN)](https://transport.data.gouv.fr/datasets/base-adresse-nationale/) qui a vocation à réunir **l’ensemble des adresses géolocalisées du territoire national**.
     en: |
-        The french addresses are available in the BAN, a dataset with all the French addresses and their coordinates.
+      This category includes datasets describing places of interest relating to mobility, such as addresses or positions of transport stops and stations.
 
-        This dataset is produced by the Direction Interministérielle du Numérique (DINUM) and the Institut géographique national (IGN), with the help of the local authorities, the Direction Générale des Finances Publiques (DGFiP) and the Institut national de la statistique et des études économiques (INSEE).
-
-        This dataset is part of the French Public Service of Data.
+      French address data is available in the [National Address Base (BAN) dataset](https://transport.data.gouv.fr/datasets/base-adresse-nationale/?locale=en), which aims to bring together all the geolocated addresses of the national territory.
 
 
 - category: private-parking
