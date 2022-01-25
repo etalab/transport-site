@@ -5,6 +5,9 @@ defmodule TransportWeb.DatasetControllerTest do
   import DB.Factory
 
   import Mock
+  import Mox
+
+  setup :verify_on_exit!
 
   doctest TransportWeb.DatasetController
 
@@ -14,6 +17,7 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "Datasets details page loads even when data.gouv is down", %{conn: conn} do
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
     # NOTE: we just want a dataset, but the factory setup is not finished, so
     # we have to provide an already built aom
     dataset = insert(:dataset, aom: insert(:aom, composition_res_id: 157))

@@ -9,3 +9,4 @@ Mox.defmock(Transport.AvailabilityChecker.Mock, for: Transport.AvailabilityCheck
 Mox.defmock(Shared.Validation.JSONSchemaValidator.Mock, for: Shared.Validation.JSONSchemaValidator.Wrapper)
 Mox.defmock(Shared.Validation.TableSchemaValidator.Mock, for: Shared.Validation.TableSchemaValidator.Wrapper)
 Mox.defmock(Transport.Shared.Schemas.Mock, for: Transport.Shared.Schemas.Wrapper)
+Mox.defmock(Transport.History.Fetcher.Mock, for: Transport.History.Fetcher)
