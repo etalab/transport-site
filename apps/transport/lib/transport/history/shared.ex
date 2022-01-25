@@ -29,6 +29,6 @@ defmodule Transport.History.Shared do
     |> Transport.Wrapper.ExAWS.impl().request!()
     |> Map.get(:headers)
     |> Map.new(fn {k, v} -> {String.replace(k, "x-amz-meta-", ""), v} end)
-    |> Map.take(["format", "title", "start", "end", "updated-at", "content-hash"])
+    |> Map.take(["format", "title", "start", "end", "updated-at", "content-hash", "url"])
   end
 end
