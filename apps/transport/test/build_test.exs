@@ -87,8 +87,8 @@ defmodule TransportWeb.BuildTest do
       [_, "phoenix_live_view", phoenix_yarn_live_view_version]
     ] = Regex.scan(~r/deps\/(phoenix_html|phoenix_live_view|phoenix)":  version "([^"]+)"/, lock_file)
 
-    assert phoenix_yarn_version == Application.spec(:phoenix, :vsn)
-    assert phoenix_html_yarn_version == Application.spec(:phoenix_html, :vsn)
-    assert phoenix_yarn_live_view_version == Application.spec(:phoenix_live_view, :vsn)
+    assert phoenix_yarn_version == Application.spec(:phoenix, :vsn) |> to_string()
+    assert phoenix_html_yarn_version == Application.spec(:phoenix_html, :vsn) |> to_string()
+    assert phoenix_yarn_live_view_version == Application.spec(:phoenix_live_view, :vsn) |> to_string()
   end
 end
