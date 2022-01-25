@@ -60,7 +60,12 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     Transport.AvailabilityChecker.Wrapper.available?(url)
   end
 
-  def update_data(false, %Resource{} = resource) do
+  def update_data(is_available, %Resource{} = resource) do
+    resource |> Resource.changeset(%{is_available: is_available}) |> DB.Repo.update!()
+    create_resource_unavailability(is_available, resource)
+  end
+
+  def create_resource_unavailability(false = _is_available, %Resource{} = resource) do
     case ResourceUnavailability.ongoing_unavailability(resource) do
       nil ->
         %ResourceUnavailability{resource: resource, start: now()}
@@ -73,7 +78,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     end
   end
 
-  def update_data(true, %Resource{} = resource) do
+  def create_resource_unavailability(true = _is_available, %Resource{} = resource) do
     case ResourceUnavailability.ongoing_unavailability(resource) do
       %ResourceUnavailability{} = resource_unavailability ->
         resource_unavailability
