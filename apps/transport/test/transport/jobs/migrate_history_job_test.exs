@@ -52,6 +52,29 @@ defmodule Transport.Test.Transport.Jobs.MigrateHistoryJobTest do
       expected_args = dataset |> history_payload(expected_href) |> to_string_keys()
       assert [%Oban.Job{args: ^expected_args}] = all_enqueued(worker: MigrateHistoryJob)
     end
+
+    test "can limit number of objects to process" do
+      datagouv_id = "5c34c93f8b4c4104b817fb3a"
+      expected_href = "https://dataset-#{datagouv_id}.cellar-c2.services.clever-cloud.com/Fichiers_GTFS_20201118T000001"
+      dataset = insert(:dataset, datagouv_id: datagouv_id)
+
+      S3TestUtils.s3_mock_list_buckets(["dataset-#{datagouv_id}"])
+
+      Transport.History.Fetcher.Mock
+      |> expect(:history_resources, 2, fn arg ->
+        assert dataset.id == arg.id
+        [history_payload(dataset, expected_href)]
+      end)
+
+      # Nothing is processed if we use a 0 limit
+      assert :ok == perform_job(MigrateHistoryDispatcherJob, %{"limit" => 0})
+      assert [] = all_enqueued(worker: MigrateHistoryJob)
+
+      # With a limit higher than the number of objects to process
+      S3TestUtils.s3_mock_list_buckets(["dataset-#{datagouv_id}"])
+      assert :ok == perform_job(MigrateHistoryDispatcherJob, %{"limit" => 5})
+      assert 1 == Enum.count(all_enqueued(worker: MigrateHistoryJob))
+    end
   end
 
   describe "already_historised?" do

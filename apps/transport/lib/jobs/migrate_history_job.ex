@@ -12,20 +12,31 @@ defmodule Transport.Jobs.MigrateHistoryDispatcherJob do
   alias DB.{Dataset, Repo, ResourceHistory}
 
   @impl Oban.Worker
-  def perform(_job) do
+  def perform(%Oban.Job{args: args}) do
     already_historised_urls = already_historised()
 
     objects_to_historise =
       all_objects()
       |> Enum.reject(&Map.has_key?(already_historised_urls, &1.href))
+      |> Enum.take(objects_to_process(args))
 
-    Logger.debug("Dispatching #{Enum.count(objects_to_historise)} jobs")
+    Logger.info("Dispatching #{Enum.count(objects_to_historise)} jobs")
 
     objects_to_historise
     |> Enum.map(&Transport.Jobs.MigrateHistoryJob.new(&1))
     |> Oban.insert_all()
 
     :ok
+  end
+
+  defp objects_to_process(args) do
+    value = Map.get(args, "limit", 10_000)
+
+    if value < 0 do
+      raise "limit should not be negative (got #{value})"
+    end
+
+    value
   end
 
   defp already_historised do
@@ -41,10 +52,9 @@ defmodule Transport.Jobs.MigrateHistoryDispatcherJob do
     datasets = Dataset |> preload([:resources]) |> Repo.all()
 
     datasets
-    |> Enum.take(10)
     |> Enum.filter(&Enum.member?(Transport.S3.bucket_names(), "dataset-#{&1.datagouv_id}"))
     |> Enum.flat_map(fn dataset ->
-      Logger.debug("Finding objects for #{dataset.datagouv_id}")
+      Logger.info("Finding objects for #{dataset.datagouv_id}")
       Transport.History.Fetcher.history_resources(dataset)
     end)
     |> Enum.reject(&String.starts_with?(&1.metadata["url"], "https://demo-static.data.gouv.fr"))
@@ -77,20 +87,21 @@ defmodule Transport.Jobs.MigrateHistoryJob do
         end
 
       {true, _} ->
-        Logger.debug("#{url} has already been historicized")
+        Logger.info("#{url} has already been historicized")
 
       {_, nil} ->
-        Logger.debug("Could not find a resource for #{url}")
+        Logger.info("Could not find a resource for #{url}")
     end
 
     :ok
   end
 
   defp process_download({:error, message}, %Resource{datagouv_id: datagouv_id}, _) do
-    Logger.debug("Got an error while downloading #{datagouv_id}: #{message}")
+    Logger.info("Got an error while downloading #{datagouv_id}: #{message}")
   end
 
   defp process_download({:ok, resource_path, headers, body}, %Resource{datagouv_id: datagouv_id} = resource, payload) do
+    Logger.info("Processing download for #{datagouv_id}")
     download_datetime = DateTime.utc_now()
 
     zip_metadata =
@@ -140,7 +151,7 @@ defmodule Transport.Jobs.MigrateHistoryJob do
   end
 
   defp store_resource_history!(%Resource{datagouv_id: datagouv_id}, payload) do
-    Logger.debug("Saving ResourceHistory for #{datagouv_id}")
+    Logger.info("Saving ResourceHistory for #{datagouv_id}")
 
     %ResourceHistory{datagouv_id: datagouv_id, payload: payload} |> DB.Repo.insert!()
   end
@@ -168,7 +179,7 @@ defmodule Transport.Jobs.MigrateHistoryJob do
   defp download_resource(url, file_path) do
     case http_client().get(url, [], follow_redirect: true) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body} = r} ->
-        Logger.debug("Saving #{url} to #{file_path}")
+        Logger.info("Saving #{url} to #{file_path}")
         File.write!(file_path, body)
         {:ok, file_path, relevant_http_headers(r), body}
 
