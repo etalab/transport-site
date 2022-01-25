@@ -77,7 +77,8 @@ defmodule TransportWeb.BuildTest do
     # extra fix for https://github.com/etalab/transport-site/issues/1938
     # problem appears only locally, so probably linked to webpack or similar
     lock_file =
-      File.read!("#{__DIR__}/../client/yarn.lock")
+      "#{__DIR__}/../client/yarn.lock"
+      |> File.read!()
       |> String.replace("\n", "")
 
     [
