@@ -5,9 +5,11 @@ defmodule Transport.Test.S3TestUtils do
   import Mox
   require ExUnit.Assertions
 
-  def s3_mocks_create_bucket do
+  @doc """
+  Returns a list of existing bucket names
+  """
+  def s3_mock_list_buckets(bucket_names \\ []) do
     Transport.ExAWS.Mock
-    # Listing buckets
     |> expect(:request!, fn request ->
       ExUnit.Assertions.assert(
         %{
@@ -17,8 +19,13 @@ defmodule Transport.Test.S3TestUtils do
         } = request
       )
 
-      %{body: %{buckets: []}}
+      %{body: %{buckets: bucket_names |> Enum.map(&%{name: &1})}}
     end)
+  end
+
+  def s3_mocks_create_bucket do
+    # Listing buckets
+    s3_mock_list_buckets([])
 
     Transport.ExAWS.Mock
     # Bucket creation

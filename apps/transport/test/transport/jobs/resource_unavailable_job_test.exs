@@ -45,9 +45,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
   end
 
   describe "ResourceUnavailableJob" do
-    test "when there is no unavailabilities" do
+    test "when there are no unavailabilities" do
       assert 0 == count_resource_unavailabilities()
-      resource = insert(:resource, url: @resource_url)
+      resource = available_resource()
       resource_id = resource.id
 
       setup_mock_unavailable()
@@ -57,10 +57,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
       assert 1 == count_resource_unavailabilities()
       %ResourceUnavailability{resource_id: ^resource_id, start: start, end: nil} = ResourceUnavailability |> Repo.one!()
       assert DateTime.diff(DateTime.utc_now(), start) <= 1
+      assert %{is_available: false} = Repo.get!(Resource, resource.id)
     end
 
     test "when there is an ongoing unavailability and the resource stays unavailable" do
-      resource = insert(:resource, url: @resource_url)
+      resource = unavailable_resource()
       resource_id = resource.id
       start = 2 |> hours_ago()
       insert(:resource_unavailability, resource: resource, start: start)
@@ -72,10 +73,12 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
 
       %ResourceUnavailability{resource_id: ^resource_id, start: ^start, end: nil} =
         ResourceUnavailability |> Repo.one!()
+
+      assert %{is_available: false} = Repo.get!(Resource, resource.id)
     end
 
     test "when there is an ongoing unavailability and the resource is now available" do
-      resource = insert(:resource, url: @resource_url)
+      resource = unavailable_resource()
       resource_id = resource.id
       start = 2 |> hours_ago()
       insert(:resource_unavailability, resource: resource, start: start)
@@ -89,17 +92,26 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
         ResourceUnavailability |> Repo.one!()
 
       assert DateTime.diff(DateTime.utc_now(), date_end) <= 1
+      assert %{is_available: true} = Repo.get!(Resource, resource.id)
     end
 
-    test "when there is no unavailabilities and the resource is available" do
-      resource = insert(:resource, url: @resource_url)
+    test "when there are no unavailabilities and the resource is available" do
+      resource = available_resource()
       assert 0 == count_resource_unavailabilities()
 
       setup_mock_available()
       assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
 
       assert 0 == count_resource_unavailabilities()
+      assert %{is_available: true} = Repo.get!(Resource, resource.id)
     end
+  end
+
+  defp unavailable_resource, do: new_resource(false)
+  defp available_resource, do: new_resource(true)
+
+  defp new_resource(is_available) do
+    insert(:resource, url: @resource_url, is_available: is_available, datagouv_id: "foo")
   end
 
   defp setup_mock_unavailable do
