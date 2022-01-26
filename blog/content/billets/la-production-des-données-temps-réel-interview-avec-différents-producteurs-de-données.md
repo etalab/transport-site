@@ -95,8 +95,6 @@ Le SIRI Lite est un sous dérivé de SIRI qui ne contient que les informations s
 
 les données sont servies via une API http classique dans le format JSON.
 
-Contrairement au SIRI, Le SIRI-Lite n'est pas un format permettant de répondre à la réglementation européenne. 
-
 <!--EndFragment-->
 
 - - -
