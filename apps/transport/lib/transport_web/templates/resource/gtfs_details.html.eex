@@ -56,8 +56,7 @@
         </div>
       </div>
 
-      <h2>Download availability</h2>
-
+      <h2><%= dgettext("page-dataset-details", "Download availability") %></h2>
       <%= render "_download_availability.html", uptime_per_day: @uptime_per_day %>
 
       <%= unless is_nil(associated_geojson) do %>
