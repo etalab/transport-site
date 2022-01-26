@@ -41,7 +41,11 @@
           <img class="icon icon--uptime" src="<%= static_path(@conn, "/images/icons/uptime.svg") %>" />
           <% availability_ratio = @unavailabilities[@resource.id] %>
           <span class="<%= availability_ratio_class(availability_ratio) %>">
-            <%= availability_ratio %>%
+            <%= if Resource.is_gtfs?(@resource) do %>
+              <%= link  "#{availability_ratio}%", to: resource_path(@conn, :details, @resource.id) <> "#download-availability" %>
+            <% else %>
+              <%= availability_ratio %>%
+            <% end %>
           </span>
         </span>
       </div>
