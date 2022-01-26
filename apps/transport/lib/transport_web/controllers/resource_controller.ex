@@ -17,9 +17,9 @@ defmodule TransportWeb.ResourceController do
     conn = conn |> assign(:uptime_per_day, DB.ResourceUnavailability.uptime_per_day(resource, 30))
 
     if Resource.is_gtfs?(resource) and Resource.has_metadata?(resource) do
-        render_gtfs_details(conn, params, resource)
+      render_gtfs_details(conn, params, resource)
     else
-        conn |> assign(:resource, resource) |> render("details.html")
+      conn |> assign(:resource, resource) |> render("details.html")
     end
   end
 

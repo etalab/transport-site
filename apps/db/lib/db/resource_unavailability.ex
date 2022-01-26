@@ -94,8 +94,7 @@ defmodule DB.ResourceUnavailability do
     """
 
     %{columns: columns, rows: rows} = Ecto.Adapters.SQL.query!(DB.Repo, query, [resource_id])
-    Enum.map(rows, fn row -> Enum.zip(columns, row) |> Map.new()
-  end)
+    Enum.map(rows, fn row -> Enum.zip(columns, row) |> Map.new() end)
   end
 
   defp total_hours(rows, period_start) do

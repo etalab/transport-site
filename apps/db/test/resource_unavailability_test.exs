@@ -128,18 +128,32 @@ defmodule DB.ResourceUnavailabilityTest do
 
       three_days_ago_midnight = three_days_ago |> DateTime.new!(~T[00:00:00.00])
 
-      insert(:resource_unavailability, resource: resource, start: three_days_ago_midnight |> add_hours(-2), end: three_days_ago_midnight |> add_hours(2))
-      insert(:resource_unavailability, resource: resource, start: three_days_ago_midnight |> add_hours(3), end: three_days_ago_midnight |> add_hours(4))
+      insert(:resource_unavailability,
+        resource: resource,
+        start: three_days_ago_midnight |> add_hours(-2),
+        end: three_days_ago_midnight |> add_hours(2)
+      )
+
+      insert(:resource_unavailability,
+        resource: resource,
+        start: three_days_ago_midnight |> add_hours(3),
+        end: three_days_ago_midnight |> add_hours(4)
+      )
 
       uptime = ResourceUnavailability.uptime_per_day(resource, 30)
 
-      uptime_two_days_ago = uptime |> Enum.filter(fn d -> d["day"] == two_days_ago end) |> Enum.at(0) |> Map.fetch!("uptime")
-      uptime_three_days_ago = uptime |> Enum.filter(fn d -> d["day"] == three_days_ago end) |> Enum.at(0) |> Map.fetch!("uptime")
-      uptime_four_days_ago = uptime |> Enum.filter(fn d -> d["day"] == four_days_ago end) |> Enum.at(0) |> Map.fetch!("uptime")
+      uptime_two_days_ago =
+        uptime |> Enum.filter(fn d -> d["day"] == two_days_ago end) |> Enum.at(0) |> Map.fetch!("uptime")
+
+      uptime_three_days_ago =
+        uptime |> Enum.filter(fn d -> d["day"] == three_days_ago end) |> Enum.at(0) |> Map.fetch!("uptime")
+
+      uptime_four_days_ago =
+        uptime |> Enum.filter(fn d -> d["day"] == four_days_ago end) |> Enum.at(0) |> Map.fetch!("uptime")
 
       assert uptime_two_days_ago == 1
-      assert_in_delta(uptime_four_days_ago, 22/24, 0.001)
-      assert_in_delta(uptime_three_days_ago, 21/24, 0.001)
+      assert_in_delta(uptime_four_days_ago, 22 / 24, 0.001)
+      assert_in_delta(uptime_three_days_ago, 21 / 24, 0.001)
     end
   end
 
