@@ -169,4 +169,14 @@ defmodule TransportWeb.ResourceView do
       hours -> "#{hours} h #{seconds |> rem(3600) |> div(60) |> abs()} min"
     end
   end
+
+  def download_availability_class(ratio) when ratio >= 0 and ratio <= 100 do
+    cond do
+      ratio == 100 -> "download_availability_100"
+      ratio >= 99 -> "download_availability_99"
+      ratio >= 95 -> "download_availability_95"
+      ratio >= 50 -> "download_availability_50"
+      true -> "download_availability_low"
+    end
+  end
 end

@@ -1,0 +1,8 @@
+<div class="download_availability">
+  <div class="flex_container">
+    <%= for day_data <- @uptime_per_day do %>
+    <div class="day <%= download_availability_class(day_data["uptime"] * 100) %>" title="<%= day_data["day"] %> <%= day_data["uptime"] %>">
+    </div>
+    <% end %>
+  </div>
+</div>

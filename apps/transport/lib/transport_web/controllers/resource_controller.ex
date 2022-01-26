@@ -14,6 +14,8 @@ defmodule TransportWeb.ResourceController do
       |> Repo.get!(id)
       |> Repo.preload([:validation, dataset: [:resources]])
 
+    conn = conn |> assign(:uptime_per_day, DB.ResourceUnavailability.uptime_per_day(resource, 30))
+
     cond do
       Resource.is_gtfs?(resource) and Resource.has_metadata?(resource) ->
         render_gtfs_details(conn, params, resource)

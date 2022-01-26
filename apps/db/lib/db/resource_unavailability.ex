@@ -78,10 +78,10 @@ defmodule DB.ResourceUnavailability do
     query = """
     with dates as
     (select day, tsrange(day, date_trunc('day', day) + interval '1 day' - interval '1 second') as day_range
-    from generate_series(current_date - interval '$1 day', current_date, '1 day') as day),
+    from generate_series(current_date - interval '30 day', current_date, '1 day') as day),
 
     down_ranges as
-    (select tsrange(ru.start, ru.end) as down_range from resource_unavailability ru where ru.resource_id = $2),
+    (select tsrange(ru.start, ru.end) as down_range from resource_unavailability ru where ru.resource_id = $1),
 
     downtimes as
     (select day, sum(upper(day_range * down_range) - lower(day_range * down_range)) as downtime
@@ -93,7 +93,9 @@ defmodule DB.ResourceUnavailability do
     select dates.day::date, coalesce (uptime, 1) as uptime from dates left join uptimes on dates.day = uptimes.day;
     """
 
-    Ecto.Adapters.SQL.query!(DB.Repo, query, [nb_days, resource_id])
+    %{columns: columns, rows: rows} = Ecto.Adapters.SQL.query!(DB.Repo, query, [resource_id])
+    Enum.map(rows, fn row -> Enum.zip(columns, row) |> Map.new()
+  end)
   end
 
   defp total_hours(rows, period_start) do

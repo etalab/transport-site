@@ -1,0 +1,38 @@
+.download_availability {
+  display: flex;
+  align-items: end;
+  height: 36px;
+  .flex_container {
+    display: flex;
+    align-items: baseline;
+    .day {
+      width: 15px;
+      height: 30px;
+      transition: height 0.1s;
+      border-radius: 4px;
+      &:hover {
+        height: 35px;
+        filter: brightness(110%);
+      }
+    }
+    .day~.day {
+      margin-left: 3px;
+    }
+  }
+
+  .download_availability_100{
+    background-color: rgb(117, 206, 94);
+  }
+  .download_availability_99{
+    background-color: rgb(189, 206, 94);
+  }
+  .download_availability_95{
+    background-color: rgb(206, 185, 94);
+  }
+  .download_availability_50{
+    background-color: rgb(255, 118, 83);
+  }
+  .download_availability_low{
+    background-color: rgb(199, 18, 18);
+  }
+}
