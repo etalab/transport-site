@@ -73,5 +73,22 @@ defmodule TransportWeb.BuildTest do
       version == expected_version |> to_string(),
       "Your javascript package for phoenix_live_view is out of date.\nPlease update it with:\n\ncd apps/transport/client && yarn upgrade phoenix_live_view"
     )
+
+    # extra fix for https://github.com/etalab/transport-site/issues/1938
+    # problem appears only locally, so probably linked to webpack or similar
+    lock_file =
+      "#{__DIR__}/../client/yarn.lock"
+      |> File.read!()
+      |> String.replace("\n", "")
+
+    [
+      [_, "phoenix", phoenix_yarn_version],
+      [_, "phoenix_html", phoenix_html_yarn_version],
+      [_, "phoenix_live_view", phoenix_yarn_live_view_version]
+    ] = Regex.scan(~r/deps\/(phoenix_html|phoenix_live_view|phoenix)":  version "([^"]+)"/, lock_file)
+
+    assert phoenix_yarn_version == :phoenix |> Application.spec(:vsn) |> to_string()
+    assert phoenix_html_yarn_version == :phoenix_html |> Application.spec(:vsn) |> to_string()
+    assert phoenix_yarn_live_view_version == :phoenix_live_view |> Application.spec(:vsn) |> to_string()
   end
 end

@@ -50,5 +50,7 @@ master
           compare = repo |> String.replace(".git", "/compare/#{sha1}..#{sha2}")
           IO.puts("* #{compare}")
         end
+      {{:hex, v1}, {:git, repo, sha2}} ->
+        IO.puts("* Now using git-version #{repo} @ #{sha2}")
     end
 end)
