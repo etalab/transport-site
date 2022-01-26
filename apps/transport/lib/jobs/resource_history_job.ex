@@ -107,6 +107,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
           zip_metadata: zip_metadata,
           http_headers: headers,
           resource_metadata: resource.metadata,
+          title: resource.title,
           filename: filename,
           permanent_url: Transport.S3.permanent_url(:history, filename),
           format: resource.format,
