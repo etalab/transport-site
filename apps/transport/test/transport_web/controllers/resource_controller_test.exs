@@ -103,6 +103,14 @@ defmodule TransportWeb.ResourceControllerTest do
     conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) |> assert =~ "this is an error"
   end
 
+  test "resource has download availability displayed", %{conn: conn} do
+    resource = Resource |> Repo.get_by(datagouv_id: "4")
+    html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+
+    assert html =~ "Disponibilité au téléchargement"
+    assert html =~ "download_availability_100"
+  end
+
   test "downloading a resource that can be directly downloaded", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "1")
     assert Resource.can_direct_download?(resource)
