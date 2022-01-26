@@ -61,11 +61,11 @@ defmodule TransportWeb.ResourceControllerTest do
     end
   end
 
-  test "resource without metadata sends back a 404", %{conn: conn} do
+  test "resource without metadata sends back a 200", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "1")
     refute is_nil(resource)
     assert is_nil(resource.metadata)
-    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(404) |> assert =~ "404"
+    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
   end
 
   test "GTFS resource with metadata sends back a 200", %{conn: conn} do
