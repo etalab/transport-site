@@ -10,3 +10,14 @@ defmodule Transport.History.Fetcher do
 
   def history_resources(%DB.Dataset{} = dataset), do: impl().history_resources(dataset)
 end
+
+defmodule Transport.History.Fetcher.Null do
+  @moduledoc """
+  A default implementation returning an empty history,
+  useful as a default implementation for dev.
+  """
+  @behaviour Transport.History.Fetcher
+
+  @impl true
+  def history_resources(%DB.Dataset{}), do: []
+end
