@@ -5,7 +5,7 @@ defmodule TransportWeb.ResourceView do
   import Phoenix.Controller, only: [current_url: 2]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
   import TransportWeb.DatasetView, only: [schema_url: 1, errors_count: 1]
-
+  import DB.ResourceUnavailability, only: [round_float: 2]
   def format_related_objects(nil), do: ""
 
   def format_related_objects(related_objects) do
@@ -177,6 +177,13 @@ defmodule TransportWeb.ResourceView do
       ratio >= 95 -> "download_availability_95"
       ratio >= 50 -> "download_availability_50"
       true -> "download_availability_low"
+    end
+  end
+
+  def date_to_string(conn, %Date{} = date) do
+    case get_session(conn, :locale) do
+      "fr" -> "#{date.day}/#{date.month}/#{date.year}"
+      _ -> "#{date.month}/#{date.day}/#{date.year}"
     end
   end
 end
