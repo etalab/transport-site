@@ -135,6 +135,7 @@ defmodule Transport.Jobs.MigrateHistoryJob do
       zip_metadata: zip_metadata,
       http_headers: headers,
       resource_metadata: computed_metadata,
+      title: Map.fetch!(payload["metadata"], "title"),
       filename: filename,
       permanent_url: Transport.S3.permanent_url(:history, filename),
       format: resource.format,
@@ -153,7 +154,33 @@ defmodule Transport.Jobs.MigrateHistoryJob do
   defp store_resource_history!(%Resource{datagouv_id: datagouv_id}, payload) do
     Logger.info("Saving ResourceHistory for #{datagouv_id}")
 
-    %ResourceHistory{datagouv_id: datagouv_id, payload: payload} |> DB.Repo.insert!()
+    %ResourceHistory{
+      datagouv_id: datagouv_id,
+      payload: payload,
+      inserted_at: to_utc_datetime(Map.fetch!(payload.old_payload["metadata"], "updated-at"))
+    }
+    |> DB.Repo.insert!()
+  end
+
+  @doc """
+  Converts a string datetime to utc_datetime_usec
+
+  iex> to_utc_datetime("2020-11-17T10:28:05.852000")
+  ~U[2020-11-17 10:28:05.852000Z]
+
+  iex> to_utc_datetime("2020-11-17 10:28:05.852000")
+  ~U[2020-11-17 10:28:05.852000Z]
+
+  iex> to_utc_datetime("2020-11-17T10:28:05.852000Z")
+  ~U[2020-11-17 10:28:05.852000Z]
+
+  iex> to_utc_datetime("2020-11-17 10:28:05.852000Z")
+  ~U[2020-11-17 10:28:05.852000Z]
+  """
+  def to_utc_datetime(date) do
+    datetime = NaiveDateTime.from_iso8601!(date)
+    {:ok, val} = Ecto.Type.cast(:utc_datetime_usec, datetime)
+    val
   end
 
   def already_historised?(old_href) do
