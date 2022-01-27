@@ -23,8 +23,6 @@ defmodule Transport.Scheduler do
       {"@daily", {Transport.CommentsChecker, :check_for_new_comments, []}},
       # Delete orphan community resources
       {"@daily", {Transport.CommunityResourcesCleaner, :clean_community_resources, []}},
-      # backup all resources
-      {"@daily", {Transport.History.Backup, :backup_resources, []}},
       # clean old logs
       {"0 3 * * *", {Transport.LogCleaner, :clean_old_logs, []}},
       # clean old validations

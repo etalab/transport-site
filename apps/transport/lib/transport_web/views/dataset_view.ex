@@ -41,6 +41,8 @@ defmodule TransportWeb.DatasetView do
 
   def format_datetime_to_date(nil), do: ""
 
+  def format_datetime_to_date(%DateTime{} = dt), do: dt |> DateTime.to_date() |> Date.to_string()
+
   def format_datetime_to_date(datetime) do
     datetime
     |> Timex.parse!("{ISO:Extended}")
