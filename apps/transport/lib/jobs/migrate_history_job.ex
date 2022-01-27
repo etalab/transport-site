@@ -23,8 +23,8 @@ defmodule Transport.Jobs.MigrateHistoryDispatcherJob do
     Logger.info("Dispatching #{Enum.count(objects_to_historise)} jobs")
 
     objects_to_historise
-    |> Enum.map(&Transport.Jobs.MigrateHistoryJob.new(&1))
-    |> Oban.insert_all()
+    |> Enum.chunk_every(500)
+    |> Enum.map(fn list -> Enum.map(list, &Transport.Jobs.MigrateHistoryJob.new(&1)) |> Oban.insert_all() end)
 
     :ok
   end
