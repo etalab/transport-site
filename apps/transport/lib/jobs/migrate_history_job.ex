@@ -24,9 +24,7 @@ defmodule Transport.Jobs.MigrateHistoryDispatcherJob do
 
     objects_to_historise
     |> Enum.chunk_every(500)
-    |> Enum.map(fn list -> Enum.map(list, &Transport.Jobs.MigrateHistoryJob.new(&1)) |> Oban.insert_all() end)
-
-    :ok
+    |> Enum.each(fn list -> list |> Enum.map(&Transport.Jobs.MigrateHistoryJob.new(&1)) |> Oban.insert_all() end)
   end
 
   defp objects_to_process(args) do
