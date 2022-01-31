@@ -115,6 +115,7 @@ defmodule SIRI do
   end
 end
 
+# must conform to https://www.w3.org/TR/xmlschema-2/#dateTime
 timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
 
 target = args |> Keyword.get(:target)
