@@ -163,6 +163,8 @@ query =
       SIRI.get_estimated_timetable(timestamp, requestor_ref, message_id, line_refs)
   end
 
+# TODO: fix `--target carene` (currently returning https://developer.mozilla.org/fr/docs/Web/HTTP/Status/415)
+# We probably need to pass a proper HTTP header.
 %{body: body, status: 200} = Req.post!(endpoint, query)
 
 if args[:pretty_dump] do
