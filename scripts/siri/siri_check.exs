@@ -17,7 +17,8 @@ Mix.install([
       target: :string,
       request: :string,
       pretty_dump: :boolean,
-      line_refs: :string
+      line_refs: :string,
+      dump_query: :boolean
     ]
   )
 
@@ -162,6 +163,10 @@ query =
 
       SIRI.get_estimated_timetable(timestamp, requestor_ref, message_id, line_refs)
   end
+
+if args[:dump_query] do
+  IO.puts query
+end
 
 # TODO: fix `--target carene` (currently returning https://developer.mozilla.org/fr/docs/Web/HTTP/Status/415)
 # We probably need to pass a proper HTTP header.
