@@ -156,7 +156,9 @@ query =
       SIRI.stop_points_discovery(timestamp, requestor_ref, message_id)
 
     "get_estimated_timetable" ->
-      line_refs = args[:line_refs] |> String.split(",")
+      line_refs =
+        (args[:line_refs] || Helper.halt("Please provide --line-refs switch (comma-separated)")) |> String.split(",")
+
       SIRI.get_estimated_timetable(timestamp, requestor_ref, message_id, line_refs)
   end
 
