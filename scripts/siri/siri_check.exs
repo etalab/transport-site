@@ -144,7 +144,9 @@ target = args |> Keyword.get(:target)
 
 request =
   args |> Keyword.get(:request) ||
-    Helper.halt("Please provide --request switch (check_status, lines_discovery, stop_points_discovery, get_estimated_timetable")
+    Helper.halt(
+      "Please provide --request switch (check_status, lines_discovery, stop_points_discovery, get_estimated_timetable"
+    )
 
 {endpoint, requestor_ref} =
   if target do
@@ -183,13 +185,14 @@ query =
         (args[:line_refs] || Helper.halt("Please provide --line-refs switch (comma-separated)")) |> String.split(",")
 
       SIRI.get_estimated_timetable(timestamp, requestor_ref, message_id, line_refs)
+
     "get_stop_monitoring" ->
-      stop_ref = (args[:stop_ref] || Helper.halt("Please provide --stop-ref switch"))
+      stop_ref = args[:stop_ref] || Helper.halt("Please provide --stop-ref switch")
       SIRI.get_stop_monitoring(timestamp, requestor_ref, message_id, stop_ref)
   end
 
 if args[:dump_query] do
-  IO.puts query
+  IO.puts(query)
 end
 
 # TODO: fix `--target carene` (currently returning https://developer.mozilla.org/fr/docs/Web/HTTP/Status/415)
@@ -199,7 +202,8 @@ end
 if args[:dump_response] do
   IO.puts(body)
 else
-  IO.puts "Got 200. Add --dump-response to see the actual response. Pipe into \"| xmllint --format -\" for indentation"
+  IO.puts("Got 200. Add --dump-response to see the actual response. Pipe into \"| xmllint --format -\" for indentation")
+end
 
 # NOTE: we'll parse the document (XPath) on siri:status & siri:dataready (after verifying profile) later to provide
 # a better test.
