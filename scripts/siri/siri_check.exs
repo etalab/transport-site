@@ -123,7 +123,7 @@ target = args |> Keyword.get(:target)
 
 request =
   args |> Keyword.get(:request) ||
-    Helper.halt("Please provide --request switch (check_status, lines_discovery, stop_points_discovery")
+    Helper.halt("Please provide --request switch (check_status, lines_discovery, stop_points_discovery, get_estimated_timetable")
 
 {endpoint, requestor_ref} =
   if target do
