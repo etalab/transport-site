@@ -114,6 +114,29 @@ defmodule SIRI do
     </S:Envelope>
     """
   end
+
+  def get_stop_monitoring(timestamp, requestor_ref, message_identifier, stop_ref) do
+    """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <S:Body>
+        <sw:GetStopMonitoring xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
+            <ServiceRequestInfo>
+                <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+                <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
+                <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+            </ServiceRequestInfo>
+            <Request version="2.0:FR-IDF-2.4">
+                <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+                <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+                <siri:MonitoringRef>#{stop_ref}</siri:MonitoringRef>
+                <siri:StopVisitTypes>all</siri:StopVisitTypes>
+            </Request>
+        </sw:GetStopMonitoring>
+    </S:Body>
+    </S:Envelope>
+    """
+  end
 end
 
 # must conform to https://www.w3.org/TR/xmlschema-2/#dateTime
