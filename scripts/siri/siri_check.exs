@@ -135,6 +135,27 @@ defmodule SIRI do
     </S:Envelope>
     """
   end
+
+  def get_general_message(timestamp, requestor_ref, message_identifier) do
+    """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <S:Body>
+  	  	<sw:GetGeneralMessage xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri" xmlns:sws="http://wsdl.siri.org.uk/siri">
+  		    	<ServiceRequestInfo>
+	  			      <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+		  		      <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
+			         	<siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+			      </ServiceRequestInfo>
+			      <Request version="2.0:FR-IDF-2.4">
+                <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+                <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+      			</Request>
+    		</sw:GetGeneralMessage>
+    </S:Body>
+    </S:Envelope>
+    """
+  end
 end
 
 # must conform to https://www.w3.org/TR/xmlschema-2/#dateTime
@@ -145,7 +166,7 @@ target = args |> Keyword.get(:target)
 request =
   args |> Keyword.get(:request) ||
     Helper.halt(
-      "Please provide --request switch (check_status, lines_discovery, stop_points_discovery, get_estimated_timetable"
+      "Please provide --request switch (check_status, lines_discovery, stop_points_discovery, get_estimated_timetable, get_stop_monitoring, get_general_message)"
     )
 
 {endpoint, requestor_ref} =
@@ -189,6 +210,9 @@ query =
     "get_stop_monitoring" ->
       stop_ref = args[:stop_ref] || Helper.halt("Please provide --stop-ref switch")
       SIRI.get_stop_monitoring(timestamp, requestor_ref, message_id, stop_ref)
+
+    "get_general_message" ->
+      SIRI.get_general_message(timestamp, requestor_ref, message_id)
   end
 
 if args[:dump_query] do
