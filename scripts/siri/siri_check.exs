@@ -3,10 +3,7 @@ Mix.install([
   # for UUID generation
   {:ecto, "~> 3.7.1"},
   # YAML config to make group tests easier (see https://github.com/etalab/transport_deploy/issues/49)
-  {:yaml_elixir, "~> 2.8"},
-  # a quick hack to pretty print XML (although it will change things a bit) during debugging
-  # see https://elixirforum.com/t/what-is-your-best-trick-to-pretty-print-a-xml-string-with-elixir-or-erlang/42010
-  {:floki, "~> 0.32.0"}
+  {:yaml_elixir, "~> 2.8"}
 ])
 
 {args, _rest} =
@@ -16,9 +13,9 @@ Mix.install([
       requestor_ref: :string,
       target: :string,
       request: :string,
-      pretty_dump: :boolean,
       line_refs: :string,
-      dump_query: :boolean
+      dump_query: :boolean,
+      dump_response: :boolean,
     ]
   )
 
@@ -195,15 +192,10 @@ end
 # We probably need to pass a proper HTTP header.
 %{body: body, status: 200} = Req.post!(endpoint, query)
 
-if args[:pretty_dump] do
-  IO.puts(
-    body
-    |> Floki.parse_document!()
-    |> Floki.raw_html(pretty: true)
-  )
+if args[:dump_response] do
+  IO.puts(body)
 else
-  IO.puts("Request returned 200. Use --pretty-dump to see the output.")
-end
+  IO.puts "Got 200. Add --dump-response to see the actual response. Pipe into \"| xmllint --format -\" for indentation"
 
 # NOTE: we'll parse the document (XPath) on siri:status & siri:dataready (after verifying profile) later to provide
 # a better test.
