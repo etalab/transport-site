@@ -160,7 +160,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     test "a simple successful case" do
       resource_url = "https://example.com/gtfs.zip"
 
-      %{datagouv_id: datagouv_id, metadata: resource_metadata} =
+      %{datagouv_id: datagouv_id, metadata: resource_metadata, title: title} =
         insert(:resource,
           url: resource_url,
           dataset: insert(:dataset, is_active: true),
@@ -227,6 +227,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  "resource_metadata" => ^resource_metadata,
                  "total_compressed_size" => 2_370,
                  "total_uncompressed_size" => 10_685,
+                 "title" => ^title,
                  "filename" => filename,
                  "permanent_url" => permanent_url,
                  "zip_metadata" => ^expected_zip_metadata,
