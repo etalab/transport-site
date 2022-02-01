@@ -16,6 +16,7 @@ Mix.install([
       line_refs: :string,
       dump_query: :boolean,
       dump_response: :boolean,
+      stop_ref: :string
     ]
   )
 
@@ -182,6 +183,9 @@ query =
         (args[:line_refs] || Helper.halt("Please provide --line-refs switch (comma-separated)")) |> String.split(",")
 
       SIRI.get_estimated_timetable(timestamp, requestor_ref, message_id, line_refs)
+    "get_stop_monitoring" ->
+      stop_ref = (args[:stop_ref] || Helper.halt("Please provide --stop-ref switch"))
+      SIRI.get_stop_monitoring(timestamp, requestor_ref, message_id, stop_ref)
   end
 
 if args[:dump_query] do
