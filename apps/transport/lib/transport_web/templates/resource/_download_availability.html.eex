@@ -2,18 +2,20 @@
   <div class="download_availability">
     <div class="flex_container">
       <%= for day_data <- @uptime_per_day do %>
-      <div class="day tooltip <%= download_availability_class(day_data["uptime"] * 100) %>">
+      <% uptime = day_data["uptime"] * 100 %>
+      <div class="day tooltip <%= download_availability_class(uptime) %>">
         <span class="tooltiptext">
           <div><%= date_to_string(@conn, day_data["day"]) %></div>
-          <div><%= round_float(day_data["uptime"] * 100, 1) %>%</div>
+          <div class="<%= download_availability_class_text(uptime) %>">
+            <%= round_float(uptime, 1) %>%
+          </div>
         </span>
       </div>
       <% end %>
     </div>
   </div>
   <details class="pt-24">
-    <summary>En savoir plus</summary>
-    La disponibilité de la ressource au téléchargement est testée toutes les heures.
-    Lorsqu'une indisponibilité est détectée, un nouveau test est effectué toutes les 10 minutes, jusqu'à ce que la ressource soit à nouveau disponible.
+    <summary><%= dgettext("page-dataset-details", "Learn more") %></summary>
+    <%= dgettext("page-dataset-details", "We test this resource download availability every hour. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online.") %>
   </details>
 </div>

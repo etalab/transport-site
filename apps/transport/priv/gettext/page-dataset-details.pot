@@ -401,3 +401,11 @@ msgstr ""
 #, elixir-format
 msgid "Download availability"
 msgstr ""
+
+#, elixir-format, ex-autogen
+msgid "Learn more"
+msgstr ""
+
+#, elixir-format, ex-autogen
+msgid "We test this resource download availability every hour. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online."
+msgstr ""

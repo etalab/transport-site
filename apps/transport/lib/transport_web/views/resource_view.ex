@@ -146,6 +146,8 @@ defmodule TransportWeb.ResourceView do
     end
   end
 
+  def download_availability_class_text(ratio), do: download_availability_class(ratio) <> "_text"
+
   def date_to_string(conn, %Date{} = date) do
     case get_session(conn, :locale) do
       "fr" -> Calendar.strftime(date, "%d/%m/%y")

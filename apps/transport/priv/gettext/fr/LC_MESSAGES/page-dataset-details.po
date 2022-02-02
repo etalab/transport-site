@@ -401,3 +401,11 @@ msgstr "disponibilité au téléchargement durant les %{nb} derniers jours"
 #, elixir-format
 msgid "Download availability"
 msgstr "Disponibilité au téléchargement"
+
+#, elixir-format, ex-autogen
+msgid "Learn more"
+msgstr "En savoir plus"
+
+#, elixir-format, ex-autogen
+msgid "We test this resource download availability every hour. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online."
+msgstr "Nous testons la disponibilité de cette ressource au téléchargement toutes les heures. Si nous détectons une indisponibilité, nous effectuons un nouveau test toutes les 10 minutes, jusqu'à ce que la ressource soit à nouveau disponible."
