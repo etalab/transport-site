@@ -76,16 +76,19 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "GTFS resource with associated NeTEx", %{conn: conn} do
-    resource = %{url: url, dataset_id: dataset_id} = Resource |> Repo.get_by(datagouv_id: "2")
+    resource = Resource |> Repo.get_by(datagouv_id: "2")
+    insert(:resource_history, datagouv_id: "2", payload: %{"uuid" => uuid = Ecto.UUID.generate()})
 
-    insert(:resource, %{
-      dataset_id: dataset_id,
-      is_community_resource: true,
-      format: "NeTEx",
-      original_resource_url: url
-    })
+    insert(:data_conversion,
+      resource_history_uuid: uuid,
+      convert_from: "GTFS",
+      convert_to: "NeTEx",
+      payload: %{"permanent_url" => url = "https://super-cellar-url.com/netex"}
+    )
 
-    assert conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) =~ "NeTEx"
+    html_response = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+    assert html_response =~ "NeTEx"
+    assert html_response =~ url
   end
 
   test "GBFS resource with metadata but no errors sends back a 200", %{conn: conn} do

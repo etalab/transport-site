@@ -9,6 +9,8 @@ defmodule Transport.Test.Transport.Jobs.MigrateHistoryJobTest do
   alias Transport.Jobs.{MigrateHistoryDispatcherJob, MigrateHistoryJob}
   alias Transport.Test.S3TestUtils
 
+  doctest MigrateHistoryJob, import: true
+
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
@@ -174,6 +176,7 @@ defmodule Transport.Test.Transport.Jobs.MigrateHistoryJobTest do
 
       expected_zip_metadata = zip_metadata()
       expected_old_payload = dataset |> history_payload(href) |> to_string_keys()
+      expected_title = expected_old_payload["metadata"]["title"]
 
       assert %DB.ResourceHistory{
                datagouv_id: ^resource_datagouv_id,
@@ -194,6 +197,7 @@ defmodule Transport.Test.Transport.Jobs.MigrateHistoryJobTest do
                  "resource_metadata" => ^gtfs_validator_metadata,
                  "total_compressed_size" => 2_370,
                  "total_uncompressed_size" => 10_685,
+                 "title" => ^expected_title,
                  "filename" => filename,
                  "permanent_url" => permanent_url,
                  "zip_metadata" => ^expected_zip_metadata,
@@ -203,6 +207,7 @@ defmodule Transport.Test.Transport.Jobs.MigrateHistoryJobTest do
                  "old_href" => ^href,
                  "old_payload" => ^expected_old_payload
                },
+               inserted_at: ~U[2020-11-17 10:28:05.852000Z],
                last_up_to_date_at: nil
              } = DB.ResourceHistory |> DB.Repo.one!()
 

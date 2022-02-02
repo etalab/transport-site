@@ -1,7 +1,6 @@
 <section>
   <% associated_geojson = get_associated_geojson(@related_files) %>
-  <% associated_netex = get_associated_netex(@resource) %>
-
+  <% associated_netex = get_associated_netex(@related_files) %>
   <div class="grey-background">
     <div class="container">
       <h2 class="mt-48"><%= dgettext("validations", "Resource details")%></h2>
