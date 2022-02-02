@@ -1,8 +1,19 @@
-<div class="download_availability">
-  <div class="flex_container">
-    <%= for day_data <- @uptime_per_day do %>
-    <div class="day <%= download_availability_class(day_data["uptime"] * 100) %>" title="<%= round_float(day_data["uptime"] * 100, 1) %>% &#13;<%= date_to_string(@conn, day_data["day"]) %>">
+<div class="panel">
+  <div class="download_availability">
+    <div class="flex_container">
+      <%= for day_data <- @uptime_per_day do %>
+      <div class="day tooltip <%= download_availability_class(day_data["uptime"] * 100) %>">
+        <span class="tooltiptext">
+          <div><%= date_to_string(@conn, day_data["day"]) %></div>
+          <div><%= round_float(day_data["uptime"] * 100, 1) %>%</div>
+        </span>
+      </div>
+      <% end %>
     </div>
-    <% end %>
   </div>
+  <details class="pt-24">
+    <summary>En savoir plus</summary>
+    La disponibilité de la ressource au téléchargement est testée toutes les heures.
+    Lorsqu'une indisponibilité est détectée, un nouveau test est effectué toutes les 10 minutes, jusqu'à ce que la ressource soit à nouveau disponible.
+  </details>
 </div>

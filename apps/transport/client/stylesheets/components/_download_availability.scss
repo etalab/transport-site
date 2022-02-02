@@ -1,19 +1,20 @@
 .download_availability {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   height: 36px;
+  width: 100%;
+
   @media (max-width: 950px) {
     justify-content: center;
   }
   .flex_container {
     display: flex;
     align-items: baseline;
+    width: 100%;
     .day {
-      width: 12px;
+      flex: 1 1 12px;
+      max-width: 14px;
       height: 30px;
-      @media (max-width: 950px) {
-        width: 6px;
-      }
       transition: height 0.1s;
       border-radius: 4px;
       &:hover {
