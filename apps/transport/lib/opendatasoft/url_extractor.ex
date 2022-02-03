@@ -113,6 +113,9 @@ defmodule Opendatasoft.UrlExtractor do
 
       iex> UrlExtractor.filename_to_type("foobar")
       nil
+
+      iex> UrlExtractor.filename_to_type("trip-updates")
+      "gtfs-rt"
   """
   @spec filename_to_type(binary()) :: nil | binary()
   def filename_to_type(filename) do
@@ -121,6 +124,7 @@ defmodule Opendatasoft.UrlExtractor do
     cond do
       String.ends_with?(filename, ".pdf") -> nil
       String.match?(filename, ~r/\bgtfs(-rt|rt| rt)\b/) -> "gtfs-rt"
+      String.contains?(filename, "trip-updates") -> "gtfs-rt"
       String.contains?(filename, "netex") -> "netex"
       String.contains?(filename, "gtfs") -> "gtfs"
       true -> nil
