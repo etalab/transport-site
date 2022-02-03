@@ -1,0 +1,46 @@
+# Notes utiles
+
+## Comment lancer ce livebook
+
+* [Suivre la documentation](https://github.com/livebook-dev/livebook#escript) et installer livebook comme `escript`
+* Lancer livebook en connection au projet, avec la commande suivante:
+
+```
+LIVEBOOK_DEFAULT_RUNTIME=mix:. livebook server --open
+```
+
+## Opérations liées à l'import
+
+Lors de l'ajout d'un dataset en backoffice, on donne l'url "data gouv" du dataset. Le contrôleur reçoit cette url via l'action [POST](https://github.com/etalab/transport-site/blob/605696a5638a1e80be27a674ba201c13f2820b81/apps/transport/lib/transport_web/controllers/backoffice/dataset_controller.ex#L10), puis convertit cette url en "id datagouv" comme suit:
+
+```elixir
+url = "https://www.data.gouv.fr/datasets/gtfs-et-gtfs-rt-reseau-tao-2022-orleans-metropole"
+
+datagouv_id = Datagouvfr.Client.Datasets.get_id_from_url(url)
+```
+
+À partir de cet id (voir [code](https://github.com/etalab/transport-site/blob/605696a5638a1e80be27a674ba201c13f2820b81/apps/transport/lib/transport/import_data.ex#L143)), une requête à l'API data gouv publique est réalisée:
+
+```elixir
+base_url = Application.fetch_env!(:transport, :datagouvfr_site)
+url = "#{base_url}/api/1/datasets/#{datagouv_id}/"
+
+response = HTTPoison.get!(url, [], hackney: [follow_redirect: true])
+json = Jason.decode!(response.body)
+
+resource_urls =
+  json["resources"]
+  |> Enum.map(& &1["url"])
+
+first_resource_url = resource_urls |> Enum.take(1)
+
+resource_urls
+```
+
+```elixir
+# csv content is fetched
+
+%{status_code: 200, body: body} = HTTPoison.get!(first_resource_url)
+
+Opendatasoft.UrlExtractor.get_url_from_csv(body)
+```
