@@ -635,12 +635,16 @@ defmodule DB.Resource do
   def get_related_files(%__MODULE__{datagouv_id: resource_datagouv_id}) do
     %{}
     |> Map.put(:geojson, get_related_geojson_info(resource_datagouv_id))
+    |> Map.put(:netex, get_related_netex_info(resource_datagouv_id))
   end
 
-  @spec get_related_geojson_info(binary() | nil) :: %{url: binary(), filesize: binary()} | nil
-  def get_related_geojson_info(nil), do: nil
+  def get_related_geojson_info(resource_datagouv_id), do: get_related_conversion_info(resource_datagouv_id, "GeoJSON")
+  def get_related_netex_info(resource_datagouv_id), do: get_related_conversion_info(resource_datagouv_id, "NeTEx")
 
-  def get_related_geojson_info(resource_datagouv_id) do
+  @spec get_related_conversion_info(binary() | nil, binary()) :: %{url: binary(), filesize: binary()} | nil
+  def get_related_conversion_info(nil, _), do: nil
+
+  def get_related_conversion_info(resource_datagouv_id, format) when format in ["GeoJSON", "NeTEx"] do
     DB.ResourceHistory
     |> join(:inner, [rh], dc in DB.DataConversion,
       as: :dc,
@@ -651,7 +655,7 @@ defmodule DB.Resource do
       filesize: fragment("? ->> 'filesize'", dc.payload),
       resource_history_last_up_to_date_at: rh.last_up_to_date_at
     })
-    |> where([rh, dc], rh.datagouv_id == ^resource_datagouv_id and dc.convert_to == "GeoJSON")
+    |> where([rh, dc], rh.datagouv_id == ^resource_datagouv_id and dc.convert_to == ^format)
     |> order_by([rh, _], desc: rh.inserted_at)
     |> limit(1)
     |> DB.Repo.one()
