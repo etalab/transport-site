@@ -3,7 +3,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
   alias Datagouvfr.Client.Datasets
 
   alias DB.{Dataset, ImportDataWorker, Repo}
-  alias Transport.{GtfsConversions, ImportData, ImportDataWorker}
+  alias Transport.{ImportData, ImportDataWorker}
   require Logger
 
   @spec post(Plug.Conn.t(), map()) :: Plug.Conn.t()
@@ -120,20 +120,6 @@ defmodule TransportWeb.Backoffice.DatasetController do
       dgettext("backoffice_dataset", "validation of all datasets has been launch")
     )
     |> redirect_to_index()
-  end
-
-  @spec launch_resources_conversions(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def launch_resources_conversions(%Plug.Conn{} = conn, %{"id" => dataset_id}) do
-    # force the conversion of GTFS resources to GeoJSON and NeTEx format
-    res = GtfsConversions.convert_resources_of_dataset(dataset_id)
-
-    res
-    |> flash(
-      conn,
-      dgettext("backoffice_dataset", "resources conversion launched"),
-      dgettext("backoffice_dataset", "no resource can be converted")
-    )
-    |> redirect(to: backoffice_page_path(conn, :edit, dataset_id))
   end
 
   ## Private functions
