@@ -150,8 +150,8 @@ defmodule TransportWeb.ResourceView do
 
   def date_to_string(conn, %Date{} = date) do
     case get_session(conn, :locale) do
-      "fr" -> Calendar.strftime(date, "%d/%m/%y")
-      _ -> Calendar.strftime(date, "%m/%d/%y")
+      "fr" -> Calendar.strftime(date, "%d/%m/%Y")
+      _ -> Calendar.strftime(date, "%m/%d/%Y")
     end
   end
 end
