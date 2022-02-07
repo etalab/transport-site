@@ -1,0 +1,66 @@
+.download_availability {
+  display: flex;
+  align-items: flex-end;
+  height: 36px;
+  width: 100%;
+
+  @media (max-width: 950px) {
+    justify-content: center;
+  }
+  .flex_container {
+    display: flex;
+    align-items: baseline;
+    width: 100%;
+    .day {
+      flex: 1 1 12px;
+      max-width: 14px;
+      height: 30px;
+      transition: height 0.1s;
+      border-radius: 4px;
+      &:hover {
+        height: 35px;
+        filter: brightness(110%);
+      }
+    }
+    .day~.day {
+      margin-left: 3px;
+    }
+  }
+
+  .download_availability_100{
+    background-color: rgb(117, 206, 94);
+  }
+  .download_availability_99{
+    background-color: rgb(189, 206, 94);
+  }
+  .download_availability_95{
+    background-color: rgb(206, 185, 94);
+  }
+  .download_availability_50{
+    background-color: rgb(255, 118, 83);
+  }
+  .download_availability_low{
+    background-color: rgb(199, 18, 18);
+  }
+
+  .download_availability_100_text{
+    color: rgb(117, 206, 94);
+    filter: brightness(70%);
+  }
+  .download_availability_99_text{
+    color: rgb(189, 206, 94);
+    filter: brightness(70%);
+  }
+  .download_availability_95_text{
+    color: rgb(206, 185, 94);
+    filter: brightness(70%);
+  }
+  .download_availability_50_text{
+    color: rgb(255, 118, 83);
+    filter: brightness(70%);
+  }
+  .download_availability_low_text{
+    color: rgb(199, 18, 18);
+    filter: brightness(70%);
+  }
+}
