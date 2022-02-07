@@ -91,9 +91,7 @@ defmodule Transport.CommunityResourcesCleaner do
 
     ok_n = Map.get(result, :ok, 0)
 
-    Logger.info(
-      "#{ok_n} transport community resources were successfully deleted"
-    )
+    Logger.info("#{ok_n} transport community resources were successfully deleted")
 
     {:ok, ok_n}
   end
@@ -116,7 +114,7 @@ defmodule Transport.CommunityResourcesCleaner do
         dataset_datagouv_id: dataset.datagouv_id,
         resource_datagouv_id: r.datagouv_id,
         dataset_id: dataset.id,
-        resource_id: r.id,
+        resource_id: r.id
       }
     end)
   end
