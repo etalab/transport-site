@@ -10,6 +10,7 @@ defmodule Transport.DataChecker do
   require Logger
 
   @update_data_doc_link "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
+  @default_outdated_data_delays [0, 7, 14]
 
   def inactive_data do
     # we first check if some inactive datasets have reapeared
@@ -46,7 +47,7 @@ defmodule Transport.DataChecker do
   end
 
   def outdated_data(blank \\ false) do
-    for delay <- [0, 7, 14],
+    for delay <- possible_delays(),
         date = Date.add(Date.utc_today(), delay) do
       {delay, Dataset.get_expire_at(date)}
     end
@@ -83,10 +84,23 @@ defmodule Transport.DataChecker do
     )
   end
 
+  def possible_delays do
+    Transport.Notifications.config()
+    |> Enum.filter(&(&1.reason == :expiration))
+    |> Enum.flat_map(& &1.extra_delays)
+    |> Enum.concat(@default_outdated_data_delays)
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
+
   def send_outdated_data_notifications({delay, datasets} = payload, is_blank) do
     notifications_config = Transport.Notifications.config()
 
     datasets
+    |> Enum.filter(fn dataset ->
+      Enum.member?(@default_outdated_data_delays, delay) or
+        Transport.Notifications.is_valid_extra_delay?(notifications_config, :expiration, dataset, delay)
+    end)
     |> Enum.each(fn dataset ->
       emails = Transport.Notifications.emails_for_reason(notifications_config, :expiration, dataset)
 
