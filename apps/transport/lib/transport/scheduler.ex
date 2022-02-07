@@ -21,8 +21,6 @@ defmodule Transport.Scheduler do
       {"@daily", {Transport.GBFSMetadata, :set_gbfs_feeds_metadata, []}},
       # Watch for new comments on datasets
       {"@daily", {Transport.CommentsChecker, :check_for_new_comments, []}},
-      # Delete orphan community resources
-      {"@daily", {Transport.CommunityResourcesCleaner, :clean_community_resources, []}},
       # backup all resources
       {"@daily", {Transport.History.Backup, :backup_resources, []}},
       # clean old logs
