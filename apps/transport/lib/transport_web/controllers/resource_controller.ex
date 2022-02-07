@@ -7,6 +7,7 @@ defmodule TransportWeb.ResourceController do
   require Logger
 
   import TransportWeb.ResourceView, only: [issue_type: 1]
+  import TransportWeb.DatasetView, only: [availability_number_days: 0]
 
   def details(conn, %{"id" => id} = params) do
     resource =
@@ -14,15 +15,13 @@ defmodule TransportWeb.ResourceController do
       |> Repo.get!(id)
       |> Repo.preload([:validation, dataset: [:resources]])
 
-    cond do
-      Resource.is_gtfs?(resource) and Resource.has_metadata?(resource) ->
-        render_gtfs_details(conn, params, resource)
+    conn =
+      conn |> assign(:uptime_per_day, DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days()))
 
-      Resource.has_errors_details?(resource) ->
-        conn |> assign(:resource, resource) |> render("details.html")
-
-      true ->
-        conn |> put_status(:not_found) |> put_view(ErrorView) |> render("404.html")
+    if Resource.is_gtfs?(resource) and Resource.has_metadata?(resource) do
+      render_gtfs_details(conn, params, resource)
+    else
+      conn |> assign(:resource, resource) |> render("details.html")
     end
   end
 

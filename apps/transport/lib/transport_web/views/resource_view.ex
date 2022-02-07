@@ -5,7 +5,7 @@ defmodule TransportWeb.ResourceView do
   import Phoenix.Controller, only: [current_url: 2]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
   import TransportWeb.DatasetView, only: [schema_url: 1, errors_count: 1]
-
+  import DB.ResourceUnavailability, only: [round_float: 2]
   def format_related_objects(nil), do: ""
 
   def format_related_objects(related_objects) do
@@ -133,6 +133,25 @@ defmodule TransportWeb.ResourceView do
     case hours do
       0 -> "#{div(seconds, 60)} min"
       hours -> "#{hours} h #{seconds |> rem(3600) |> div(60) |> abs()} min"
+    end
+  end
+
+  def download_availability_class(ratio) when ratio >= 0 and ratio <= 100 do
+    cond do
+      ratio == 100 -> "download_availability_100"
+      ratio >= 99 -> "download_availability_99"
+      ratio >= 95 -> "download_availability_95"
+      ratio >= 50 -> "download_availability_50"
+      true -> "download_availability_low"
+    end
+  end
+
+  def download_availability_class_text(ratio), do: download_availability_class(ratio) <> "_text"
+
+  def date_to_string(conn, %Date{} = date) do
+    case get_session(conn, :locale) do
+      "fr" -> Calendar.strftime(date, "%d/%m/%Y")
+      _ -> Calendar.strftime(date, "%m/%d/%Y")
     end
   end
 end
