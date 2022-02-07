@@ -18,7 +18,8 @@ defmodule Transport.Notifications do
     if is_nil(result), do: [], else: result.emails
   end
 
-  def is_valid_extra_delay?(config, :expiration = reason, %DB.Dataset{slug: slug}, delay) when is_integer(delay) and delay > 0 do
+  def is_valid_extra_delay?(config, :expiration = reason, %DB.Dataset{slug: slug}, delay)
+      when is_integer(delay) and delay > 0 do
     item = config |> Enum.find(fn item -> item.reason == reason and item.dataset_slug == slug end)
     if is_nil(item), do: false, else: Enum.member?(item.extra_delays, delay)
   end
