@@ -59,7 +59,9 @@ defmodule Shared.Validation.TableSchemaValidator do
         ~s(#{row["name"]} : colonne #{row["fieldName"]}, ligne #{row["rowPosition"]}. #{row["message"]})
       end)
 
-    %{"has_errors" => nb_errors > 0, "errors_count" => nb_errors, "errors" => structure_errors ++ row_errors}
+    errors = (structure_errors ++ row_errors) |> Enum.take(100)
+
+    %{"has_errors" => nb_errors > 0, "errors_count" => nb_errors, "errors" => errors}
   end
 
   defp build_report(_), do: nil
