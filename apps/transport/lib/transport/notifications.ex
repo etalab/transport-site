@@ -18,6 +18,11 @@ defmodule Transport.Notifications do
     if is_nil(result), do: [], else: result.emails
   end
 
+  def is_valid_extra_delay?(config, :expiration = reason, %DB.Dataset{slug: slug}, delay) when is_integer(delay) and delay > 0 do
+    item = config |> Enum.find(fn item -> item.reason == reason and item.dataset_slug == slug end)
+    if is_nil(item), do: false, else: Enum.member?(item.extra_delays, delay)
+  end
+
   @spec config() :: configuration
   def config, do: Application.fetch_env!(:transport, :notifications_impl).fetch_config!()
 
@@ -29,12 +34,13 @@ defmodule Transport.Notifications do
     external YAML configuration.
     """
     @enforce_keys [:reason, :dataset_slug, :emails]
-    defstruct [:reason, :dataset_slug, :emails]
+    defstruct [:reason, :dataset_slug, :emails, :extra_delays]
 
     @type t :: %__MODULE__{
             reason: atom,
             dataset_slug: term,
-            emails: list(binary)
+            emails: list(binary),
+            extra_delays: list(integer)
           }
   end
 
@@ -56,7 +62,8 @@ defmodule Transport.Notifications do
           %Item{
             reason: reason,
             dataset_slug: slug,
-            emails: Map.fetch!(data, "emails")
+            emails: Map.fetch!(data, "emails"),
+            extra_delays: Map.get(data, "extra_delays", [])
           }
         end)
       end)
