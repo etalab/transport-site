@@ -185,10 +185,6 @@ msgid "validation needed"
 msgstr ""
 
 #, elixir-format
-msgid "Generate community resources (GeoJSON and NeTEx)"
-msgstr ""
-
-#, elixir-format
 msgid "Rapport de complétude des imports"
 msgstr ""
 
