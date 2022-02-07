@@ -36,7 +36,7 @@ defmodule Transport.DataCheckerTest do
              )
     end
 
-    test "with a valid non default delay" do
+    test "with a matching extra delay" do
       dataset_slug = "slug"
       custom_delay = 30
 
@@ -62,7 +62,7 @@ defmodule Transport.DataCheckerTest do
       assert String.contains?(logs, ~s("To":[{"Email":"foo@example.com"}]))
     end
 
-    test "with an invalid non default delay" do
+    test "with a non-matching extra delay" do
       dataset_slug = "slug"
 
       Transport.Notifications.FetcherMock
