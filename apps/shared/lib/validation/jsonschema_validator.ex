@@ -67,7 +67,7 @@ defmodule Shared.Validation.JSONSchemaValidator do
         {:error, errors} -> errors
       end
 
-    %{"has_errors" => not Enum.empty?(errors), "errors_count" => Enum.count(errors), "errors" => errors}
+    %{"has_errors" => not Enum.empty?(errors), "errors_count" => Enum.count(errors), "errors" => errors |> Enum.take(100)}
   end
 
   defp json_schemas_names, do: Map.keys(schemas_by_type("jsonschema"))
