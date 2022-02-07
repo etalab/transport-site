@@ -107,8 +107,8 @@ defmodule Transport.CommunityResourcesCleaner do
     dataset.resources
     |> Enum.filter(fn r ->
       r.is_community_resource == true and
-        r.community_resource_publisher == transport_publisher_label() and r.format in ["geojson", "NeTEx"]
-        and String.contains?(r.description, "automatique")
+        r.community_resource_publisher == transport_publisher_label() and r.format in ["geojson", "NeTEx"] and
+        String.contains?(r.description, "automatique")
     end)
     |> Enum.map(fn r ->
       %{
