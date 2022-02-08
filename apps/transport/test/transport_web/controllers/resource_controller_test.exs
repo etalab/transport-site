@@ -61,11 +61,11 @@ defmodule TransportWeb.ResourceControllerTest do
     end
   end
 
-  test "resource without metadata sends back a 404", %{conn: conn} do
+  test "resource without metadata sends back a 200", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "1")
     refute is_nil(resource)
     assert is_nil(resource.metadata)
-    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(404) |> assert =~ "404"
+    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
   end
 
   test "GTFS resource with metadata sends back a 200", %{conn: conn} do
@@ -76,16 +76,19 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "GTFS resource with associated NeTEx", %{conn: conn} do
-    resource = %{url: url, dataset_id: dataset_id} = Resource |> Repo.get_by(datagouv_id: "2")
+    resource = Resource |> Repo.get_by(datagouv_id: "2")
+    insert(:resource_history, datagouv_id: "2", payload: %{"uuid" => uuid = Ecto.UUID.generate()})
 
-    insert(:resource, %{
-      dataset_id: dataset_id,
-      is_community_resource: true,
-      format: "NeTEx",
-      original_resource_url: url
-    })
+    insert(:data_conversion,
+      resource_history_uuid: uuid,
+      convert_from: "GTFS",
+      convert_to: "NeTEx",
+      payload: %{"permanent_url" => url = "https://super-cellar-url.com/netex"}
+    )
 
-    assert conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) =~ "NeTEx"
+    html_response = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+    assert html_response =~ "NeTEx"
+    assert html_response =~ url
   end
 
   test "GBFS resource with metadata but no errors sends back a 200", %{conn: conn} do
@@ -101,6 +104,14 @@ defmodule TransportWeb.ResourceControllerTest do
     refute is_nil(resource.schema_name)
     assert Resource.has_errors_details?(resource)
     conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) |> assert =~ "this is an error"
+  end
+
+  test "resource has download availability displayed", %{conn: conn} do
+    resource = Resource |> Repo.get_by(datagouv_id: "4")
+    html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+
+    assert html =~ "Disponibilité au téléchargement"
+    assert html =~ "download_availability_100"
   end
 
   test "downloading a resource that can be directly downloaded", %{conn: conn} do

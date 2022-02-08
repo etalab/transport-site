@@ -6,6 +6,9 @@ defmodule TransportWeb.SeoMetadataTest do
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   alias DB.{AOM, Dataset, Repo, Resource, Validation}
+  import Mox
+
+  setup :verify_on_exit!
 
   setup do
     {:ok, _} =
@@ -85,6 +88,7 @@ defmodule TransportWeb.SeoMetadataTest do
   end
 
   test "GET /dataset/:id ", %{conn: conn} do
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
     title = conn |> get("/datasets/horaires-et-arrets-du-reseau-irigo-format-gtfs") |> html_response(200) |> title
     assert title =~ "Horaires Angers - Données (GTFS) ouvertes - Angers Métropôle"
   end

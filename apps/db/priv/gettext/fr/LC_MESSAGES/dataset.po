@@ -12,24 +12,12 @@ msgstr ""
 "Plural-Forms: nplurals=2\n"
 
 #, elixir-format
-msgid "Aerial"
-msgstr "Aérien"
-
-#, elixir-format
 msgid "Bike and scooter sharing"
 msgstr "Vélos et trottinettes en libre-service"
 
 #, elixir-format
 msgid "Carpooling areas"
 msgstr "Lieux de covoiturage"
-
-#, elixir-format
-msgid "Charging stations"
-msgstr "Stations de réapprovisionnement"
-
-#, elixir-format
-msgid "Stops referential"
-msgstr "Référentiel d'arrêts"
 
 #, elixir-format
 msgid "You need to fill either aom, region or use datagouv's zone"
@@ -44,16 +32,12 @@ msgid "Road networks"
 msgstr "Réseaux routiers"
 
 #, elixir-format
-msgid "Addresses"
-msgstr "Adresses"
+msgid "Locations"
+msgstr "Lieux d'intérêts"
 
 #, elixir-format
 msgid "A dataset cannot be national and regional"
 msgstr "Un jeu de données ne pas pas être à la fois régional et national"
-
-#, elixir-format
-msgid "Public transit timetable"
-msgstr "Horaires théoriques de transport public"
 
 #, elixir-format
 msgid "Unable to find INSEE code '%{insee}'"
@@ -72,10 +56,6 @@ msgid "Private parking"
 msgstr "Stationnement hors voirie"
 
 #, elixir-format
-msgid "Bike way"
-msgstr "Aménagements cyclables"
-
-#, elixir-format
 msgid "Car and motorbike sharing"
 msgstr "Voitures et scooters en libre-service"
 
@@ -86,3 +66,19 @@ msgstr "Stationnement vélo"
 #, elixir-format
 msgid "Low emission zones"
 msgstr "Zones à faibles émissions"
+
+#, elixir-format
+msgid "Air transport"
+msgstr "Transport aérien"
+
+#, elixir-format
+msgid "Bike networks"
+msgstr "Réseaux cyclables"
+
+#, elixir-format, fuzzy
+msgid "Charging & refuelling stations"
+msgstr "Stations de réapprovisionnement de véhicules"
+
+#, elixir-format, fuzzy
+msgid "Public transit - static schedules"
+msgstr "Transport public collectif - horaires théoriques"

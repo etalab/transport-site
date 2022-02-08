@@ -34,18 +34,6 @@ msgstr ""
 msgid "Dataset not added"
 msgstr ""
 
-msgid "public-transit"
-msgstr "Public transit"
-
-msgid "carpooling-areas"
-msgstr "Car sharing areas"
-
-msgid "stops-ref"
-msgstr "Stops referential"
-
-msgid "charging-stations"
-msgstr "Charging stations"
-
 msgid "Dataset imported with success"
 msgstr ""
 
@@ -194,10 +182,6 @@ msgstr ""
 
 #, elixir-format
 msgid "validation needed"
-msgstr ""
-
-#, elixir-format
-msgid "Generate community resources (GeoJSON and NeTEx)"
 msgstr ""
 
 #, elixir-format

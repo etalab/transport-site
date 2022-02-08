@@ -5,7 +5,7 @@ defmodule TransportWeb.ResourceView do
   import Phoenix.Controller, only: [current_url: 2]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
   import TransportWeb.DatasetView, only: [schema_url: 1, errors_count: 1]
-
+  import DB.ResourceUnavailability, only: [round_float: 2]
   def format_related_objects(nil), do: ""
 
   def format_related_objects(related_objects) do
@@ -68,65 +68,31 @@ defmodule TransportWeb.ResourceView do
       |> Application.fetch_env!(:datagouvfr_site)
       |> Path.join("/fr/admin/dataset/new/")
 
-  @doc """
-  Given a dataset, a ressource, and a format, get the community resources
-  associated to the given resource, with the specified format
-  """
-  def get_associated_resource(
-        %DB.Dataset{} = dataset,
-        %DB.Resource{title: _title, url: url},
-        format
-      ) do
-    dataset.resources
-    |> Enum.find(fn r ->
-      r.original_resource_url == url and
-        r.is_community_resource and
-        r.format == format
-    end)
-  end
-
-  def get_associated_resource(_dataset, _resource, _format), do: nil
-
-  @doc """
-  Similar to get_associated_resource\3, but when the resources list has been preloaded
-  (no dataset needed)
-  """
-  def get_associated_resource(%DB.Resource{title: _title, url: url, dataset: %{resources: resources}}, format) do
-    resources
-    |> Enum.find(fn r ->
-      r.original_resource_url == url and
-        r.is_community_resource and
-        r.format == format
-    end)
-  end
-
-  def get_associated_resource(_resource, _format), do: nil
-
-  def has_associated_geojson(%{} = resources_related_files, resource_id) do
+  def has_associated_file(%{} = resources_related_files, resource_id, get_associated_file) do
     resources_related_files
     |> Map.get(resource_id)
-    |> get_associated_geojson()
+    |> get_associated_file.()
     |> case do
       nil -> false
       _ -> true
     end
   end
 
-  def has_associated_geojson(_, _), do: false
+  def has_associated_file(_, _, _), do: false
 
-  def has_associated_netex(dataset, resource) do
-    case get_associated_resource(dataset, resource, "NeTEx") do
-      nil -> false
-      _ -> true
-    end
+  def has_associated_geojson(resources_related_files, resource_id) do
+    has_associated_file(resources_related_files, resource_id, &get_associated_geojson/1)
+  end
+
+  def has_associated_netex(resources_related_files, resource_id) do
+    has_associated_file(resources_related_files, resource_id, &get_associated_netex/1)
   end
 
   def get_associated_geojson(%{geojson: geojson_url}), do: geojson_url
   def get_associated_geojson(_), do: nil
 
-  def get_associated_netex(resource) do
-    get_associated_resource(resource, "NeTEx")
-  end
+  def get_associated_netex(%{netex: netex_url}), do: netex_url
+  def get_associated_netex(_), do: nil
 
   def errors_sample(%DB.Resource{metadata: %{"validation" => %{"errors" => errors}}}) do
     Enum.take(errors, max_display_errors())
@@ -167,6 +133,25 @@ defmodule TransportWeb.ResourceView do
     case hours do
       0 -> "#{div(seconds, 60)} min"
       hours -> "#{hours} h #{seconds |> rem(3600) |> div(60) |> abs()} min"
+    end
+  end
+
+  def download_availability_class(ratio) when ratio >= 0 and ratio <= 100 do
+    cond do
+      ratio == 100 -> "download_availability_100"
+      ratio >= 99 -> "download_availability_99"
+      ratio >= 95 -> "download_availability_95"
+      ratio >= 50 -> "download_availability_50"
+      true -> "download_availability_low"
+    end
+  end
+
+  def download_availability_class_text(ratio), do: download_availability_class(ratio) <> "_text"
+
+  def date_to_string(conn, %Date{} = date) do
+    case get_session(conn, :locale) do
+      "fr" -> Calendar.strftime(date, "%d/%m/%Y")
+      _ -> Calendar.strftime(date, "%m/%d/%Y")
     end
   end
 end

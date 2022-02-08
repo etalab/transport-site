@@ -15,16 +15,18 @@ defmodule Transport.S3 do
   end
 
   def create_bucket_if_needed!(feature, options \\ %{acl: "public-read"}) do
-    buckets_response = ExAws.S3.list_buckets() |> Transport.Wrapper.ExAWS.impl().request!()
-    bucket_names = buckets_response.body.buckets |> Enum.map(& &1.name)
-
     bucket_name = bucket_name(feature)
 
-    if not Enum.member?(bucket_names, bucket_name) do
+    if not Enum.member?(bucket_names(), bucket_name) do
       bucket_name
       |> ExAws.S3.put_bucket("", options)
       |> Transport.Wrapper.ExAWS.impl().request!()
     end
+  end
+
+  def bucket_names do
+    buckets_response = ExAws.S3.list_buckets() |> Transport.Wrapper.ExAWS.impl().request!()
+    buckets_response.body.buckets |> Enum.map(& &1.name)
   end
 
   def upload_to_s3!(feature, body, path) do

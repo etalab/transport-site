@@ -92,7 +92,14 @@
               <%= dgettext("espace-producteurs", "You can test your data online and check its validity.") %>
             </div>
             <div class="pt-24">
-              <a href="<%= validation_path(@conn, :index) %>" class="button-outline primary"><%= dgettext("espace-producteurs", "Test a file") %></a>
+              <a href="<%= validation_path @conn, :index %>" class="button-outline primary">
+                <%= dgettext("page-producteurs", "Validate a GTFS file") %>
+              </a>
+            </div>
+            <div class="pt-24">
+              <a href="<%= gbfs_analyzer_path @conn, :index %>" class="button-outline primary">
+                <%= dgettext("page-producteurs", "Validate a GBFS feed") %>
+              </a>
             </div>
           </div>
         </div>

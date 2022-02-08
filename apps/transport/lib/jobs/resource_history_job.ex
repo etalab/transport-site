@@ -107,6 +107,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
           zip_metadata: zip_metadata,
           http_headers: headers,
           resource_metadata: resource.metadata,
+          title: resource.title,
           filename: filename,
           permanent_url: Transport.S3.permanent_url(:history, filename),
           format: resource.format,
@@ -195,9 +196,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     end
   end
 
-  defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
+  def http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 
-  defp remove_file(path), do: File.rm(path)
+  def remove_file(path), do: File.rm(path)
 
   def upload_filename(%Resource{datagouv_id: datagouv_id}, %DateTime{} = dt) do
     time = Calendar.strftime(dt, "%Y%m%d.%H%M%S.%f")
@@ -205,7 +206,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     "#{datagouv_id}/#{datagouv_id}.#{time}.zip"
   end
 
-  defp relevant_http_headers(%HTTPoison.Response{headers: headers}) do
+  def relevant_http_headers(%HTTPoison.Response{headers: headers}) do
     headers_to_keep = [
       "content-disposition",
       "content-encoding",

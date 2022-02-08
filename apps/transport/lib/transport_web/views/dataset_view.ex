@@ -41,6 +41,8 @@ defmodule TransportWeb.DatasetView do
 
   def format_datetime_to_date(nil), do: ""
 
+  def format_datetime_to_date(%DateTime{} = dt), do: dt |> DateTime.to_date() |> Date.to_string()
+
   def format_datetime_to_date(datetime) do
     datetime
     |> Timex.parse!("{ISO:Extended}")
@@ -199,9 +201,8 @@ defmodule TransportWeb.DatasetView do
       "charging-stations" => "charge-station.svg",
       "air-transport" => "plane.svg",
       "road-network" => "map.svg",
-      "addresses" => "addresses.svg",
+      "locations" => "locations.svg",
       "private-parking" => "parking.svg",
-      "stops-ref" => "addresses.svg",
       "informations" => "infos.svg",
       "road-works" => "construction-zone-grey.svg",
       "car-motorbike-sharing" => "car-motorbike-grey.svg",

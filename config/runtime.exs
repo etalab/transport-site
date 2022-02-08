@@ -78,15 +78,30 @@ end
 
 base_oban_conf = [repo: DB.Repo]
 
-# Oban jobs that should be run in every environment
-oban_crontab_all_envs = [
-  {"0 */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob},
-  {"30 */6 * * *", Transport.Jobs.GtfsToGeojsonConverterJob},
-  {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
-  {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}}
-]
+# Oban jobs that should run in every deployed environment (staging, prod)
+# but not during dev or test
+# Be careful : there is "app_env :prod" in contrast  to :staging (ie production website vs prochainement)
+# and "config_env :prod" in contrast to :dev et :test
+oban_crontab_all_envs =
+  case config_env() do
+    :prod ->
+      [
+        {"0 */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob},
+        {"30 */6 * * *", Transport.Jobs.GtfsToGeojsonConverterJob},
+        # every 6 hours but not at the same time as other jobs
+        {"0 3,9,15,21 * * *", Transport.Jobs.GtfsToNetexConverterJob},
+        {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
+        {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}}
+      ]
 
-# Oban jobs that *should not* be run in staging by the crontab
+    :dev ->
+      []
+
+    :test ->
+      []
+  end
+
+# Oban jobs that *should not* be run in staging (ie on prochainement) by the crontab
 non_staging_crontab =
   if app_env == :staging do
     []
@@ -96,7 +111,7 @@ non_staging_crontab =
   end
 
 extra_oban_conf =
-  if not worker || (iex_started? and config_env() == :prod) || config_env() == :test do
+  if not worker || iex_started? || config_env() == :test do
     [queues: false, plugins: false]
   else
     [

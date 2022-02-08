@@ -75,7 +75,7 @@ defmodule Transport.Mixfile do
       {:castore, "~> 0.1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:cors_plug, "~> 2.0"},
-      {:exvcr, "~> 0.10", only: :test},
+      {:exvcr, "~> 0.10", only: :test, git: "https://github.com/thbar/exvcr.git", ref: "2794a4f"},
       {:credo, "~> 1.6.0", only: [:dev, :test], runtime: false},
       # NOTE: we cannot upgrade to the very latest (2.2.x) because of
       # https://github.com/parroty/exvcr/issues/153#issuecomment-874864317

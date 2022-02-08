@@ -23,11 +23,12 @@ defmodule Transport.NotificationsTest do
       other:
         emails:
           - foo@example.com
+        extra_delays: [30]
     """
 
     expected = [
-      %Item{reason: :expiration, dataset_slug: "my_slug", emails: ["foo@bar.com", "foo@bar.fr"]},
-      %Item{reason: :expiration, dataset_slug: "other", emails: ["foo@example.com"]}
+      %Item{reason: :expiration, dataset_slug: "my_slug", emails: ["foo@bar.com", "foo@bar.fr"], extra_delays: []},
+      %Item{reason: :expiration, dataset_slug: "other", emails: ["foo@example.com"], extra_delays: [30]}
     ]
 
     assert expected == parse_config(yaml_config)
@@ -35,8 +36,8 @@ defmodule Transport.NotificationsTest do
 
   test "can filter configuration" do
     config = [
-      %Item{reason: :expiration, dataset_slug: "my_slug", emails: ["foo@bar.com", "foo@bar.fr"]},
-      %Item{reason: :expiration, dataset_slug: "other", emails: ["foo@example.com"]}
+      %Item{reason: :expiration, dataset_slug: "my_slug", emails: ["foo@bar.com", "foo@bar.fr"], extra_delays: []},
+      %Item{reason: :expiration, dataset_slug: "other", emails: ["foo@example.com"], extra_delays: []}
     ]
 
     assert ["foo@bar.com", "foo@bar.fr"] ==
@@ -49,6 +50,18 @@ defmodule Transport.NotificationsTest do
     assert [] == Notifications.emails_for_reason(config, :expiration, %DB.Dataset{slug: "nope"})
   end
 
+  test "is_valid_extra_delay?" do
+    config = [
+      %Item{reason: :expiration, dataset_slug: "my_slug", emails: ["foo@bar.com", "foo@bar.fr"], extra_delays: []},
+      %Item{reason: :expiration, dataset_slug: "other", emails: ["foo@example.com"], extra_delays: [30]}
+    ]
+
+    assert Notifications.is_valid_extra_delay?(config, :expiration, %DB.Dataset{slug: "other"}, 30)
+    refute Notifications.is_valid_extra_delay?(config, :expiration, %DB.Dataset{slug: "other"}, 42)
+    refute Notifications.is_valid_extra_delay?(config, :expiration, %DB.Dataset{slug: "my_slug"}, 14)
+    refute Notifications.is_valid_extra_delay?(config, :expiration, %DB.Dataset{slug: "nope"}, 14)
+  end
+
   test "GitHub.fetch_config!" do
     setup_response()
     Cachex.del!(config_cache_name(), @config_cache_key)
@@ -58,7 +71,7 @@ defmodule Transport.NotificationsTest do
     assert Cachex.ttl(config_cache_name(), @config_cache_key) == {:ok, nil}
 
     expected = [
-      %Item{dataset_slug: "my_slug", emails: ["foo@bar.com", "foo@bar.fr"], reason: :expiration}
+      %Item{dataset_slug: "my_slug", emails: ["foo@bar.com", "foo@bar.fr"], reason: :expiration, extra_delays: []}
     ]
 
     assert expected == data
