@@ -1,6 +1,6 @@
 <section>
   <% associated_geojson = get_associated_geojson(@related_files) %>
-  <% associated_netex = get_associated_netex(@resource) %>
+  <% associated_netex = get_associated_netex(@related_files) %>
   <div class="grey-background">
     <div class="container">
       <h2 class="mt-48"><%= dgettext("validations", "Resource details")%></h2>
@@ -54,6 +54,10 @@
           <% end %>
         </div>
       </div>
+
+      <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>
+      <%= render "_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn %>
+
       <%= unless is_nil(associated_geojson) do %>
         <h2 class="mt-48" id="visualization"><%= dgettext("validations", "Stops and routes visualization of the GTFS file")%></h2>
         <div class="panel no-padding">

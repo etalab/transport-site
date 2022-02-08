@@ -21,8 +21,6 @@ defmodule Transport.Scheduler do
       {"@daily", {Transport.GBFSMetadata, :set_gbfs_feeds_metadata, []}},
       # Watch for new comments on datasets
       {"@daily", {Transport.CommentsChecker, :check_for_new_comments, []}},
-      # Delete orphan community resources
-      {"@daily", {Transport.CommunityResourcesCleaner, :clean_community_resources, []}},
       # backup all resources
       {"@daily", {Transport.History.Backup, :backup_resources, []}},
       # clean old logs
@@ -31,10 +29,6 @@ defmodule Transport.Scheduler do
       {"0 2 * * *", {Transport.ValidationCleaner, :clean_old_validations, []}},
       # compute some global stats and store them in the DB
       {"0 20 * * *", {Transport.StatsHandler, :store_stats, []}},
-      # generate NeTEx / geojson files for all GTFS.
-      # Note : this should be run before the import_validate_all for the NeTEx / geojson
-      # to be created when the import is run
-      {"0 1 * * *", {Transport.GtfsConversions, :convert_all, []}},
       {"0 * * * *", {Transport.ImportData, :refresh_places, []}}
     ]
   end

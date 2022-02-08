@@ -14,7 +14,6 @@
           <p>
             <%= raw dgettext("validations", ~s(This resource should follow its schema <a href="%{link}" target="_blank">%{schema}</a>.), schema: @resource.schema_name, link: schema_url(@resource)) %>
           </p>
-        <% end %>
         <h4><%= dgettext("validations", "Validation details")%></h4>
         <p>
           <b>
@@ -38,7 +37,12 @@
             <p><%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors())%></p>
           <% end %>
         <% end %>
+        <% end %>
       </div>
+
+      <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>
+      <%= render "_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn %>
+
     </div>
   </div>
 </section>
