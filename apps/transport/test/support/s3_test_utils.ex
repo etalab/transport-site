@@ -57,4 +57,18 @@ defmodule Transport.Test.S3TestUtils do
       ExUnit.Assertions.assert(path |> String.starts_with?(assert_path))
     end)
   end
+
+  def s3_mocks_delete_object(expected_bucket, expected_path) do
+    Transport.ExAWS.Mock
+    |> expect(:request!, fn request ->
+      ExUnit.Assertions.assert(
+        %{
+          service: :s3,
+          http_method: :delete,
+          path: ^expected_path,
+          bucket: ^expected_bucket
+        } = request
+      )
+    end)
+  end
 end

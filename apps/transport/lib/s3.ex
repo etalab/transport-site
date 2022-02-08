@@ -29,6 +29,12 @@ defmodule Transport.S3 do
     buckets_response.body.buckets |> Enum.map(& &1.name)
   end
 
+  def delete_object(feature, path) do
+    bucket = bucket_name(feature)
+
+    bucket |> ExAws.S3.delete_object(path) |> Transport.Wrapper.ExAWS.impl().request!()
+  end
+
   def upload_to_s3!(feature, body, path) do
     Logger.debug("Uploading file to #{path}")
 
