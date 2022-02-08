@@ -38,7 +38,7 @@
     "eslint-plugin-standard": "^5.0.0",
     "file-loader": "^6.2.0",
     "import-glob-loader": "^1.1.0",
-    "mini-css-extract-plugin": "^1.3.9",
+    "mini-css-extract-plugin": "^2.5.3",
     "sass": "^1.32.8",
     "sass-loader": "^11.0.1",
     "style-loader": "^2.0.0",
