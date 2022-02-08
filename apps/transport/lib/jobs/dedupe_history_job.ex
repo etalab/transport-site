@@ -61,7 +61,7 @@ defmodule Transport.Jobs.DedupeHistoryJob do
   end
 
   defp remove_s3_objects(paths) do
-    paths |> Enum.each(&Transport.S3.delete_object(:history, &1))
+    paths |> Enum.each(&Transport.S3.delete_object!(:history, &1))
   end
 
   defp shas(%ResourceHistory{payload: payload}) do
