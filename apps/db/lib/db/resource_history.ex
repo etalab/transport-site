@@ -5,7 +5,7 @@ defmodule DB.ResourceHistory do
   use Ecto.Schema
   use TypedEctoSchema
 
-  @derive {Jason.Encoder, except: [:__meta__, :__struct__]}
+  @derive {Jason.Encoder, only: [:datagouv_id, :payload, :last_up_to_date_at, :inserted_at, :updated_at]}
   typed_schema "resource_history" do
     field(:datagouv_id, :string)
     field(:payload, :map)
