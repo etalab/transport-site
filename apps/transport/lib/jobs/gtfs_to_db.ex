@@ -23,7 +23,7 @@ defmodule Transport.Jobs.GtfsToDB do
           stop_lon: Map.fetch!(r, "stop_lon") |> String.to_float(),
           location_type: Map.fetch!(r, "location_type")
         }
-       end)
+      end)
       |> Stream.chunk_every(1000)
       |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GtfsStops, chunk) end)
       |> Stream.run()
