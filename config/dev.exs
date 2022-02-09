@@ -35,15 +35,13 @@ config :logger, :console, format: "[$level] $message\n"
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
-# By default, in development we'll use a mock history fetcher, which
-# means no history is displayed.
+# Swap out some implementations in developement to ease setup and
+# integration with third party services.
 #
-# If you need to target an actual CleverCloud bucket temporarily,
-# just comment-out what is below and configure via envrc for now.
-# In a later version we may use dev.secret.exs file (out of git)
+# Edit the following lines if you want to use another implementation.
+# You can use dev.secret.exs (out of git) if you need to set secrets
 # as often done.
 config :transport,
-  history_impl: Transport.History.Fetcher.Null,
   notifications_impl: Transport.Notifications.Disk
 
 # Provide a default experience that will mostly work without manual config,
