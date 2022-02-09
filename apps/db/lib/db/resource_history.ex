@@ -5,6 +5,7 @@ defmodule DB.ResourceHistory do
   use Ecto.Schema
   use TypedEctoSchema
 
+  @derive {Jason.Encoder, except: [:__meta__, :__struct__]}
   typed_schema "resource_history" do
     field(:datagouv_id, :string)
     field(:payload, :map)
