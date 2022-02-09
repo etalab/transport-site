@@ -53,9 +53,13 @@ defmodule Transport.Jobs.MigrateHistoryDispatcherJob do
     |> Enum.filter(&Enum.member?(Transport.S3.bucket_names(), "dataset-#{&1.datagouv_id}"))
     |> Enum.flat_map(fn dataset ->
       Logger.info("Finding objects for #{dataset.datagouv_id}")
-      Transport.History.Fetcher.history_resources(dataset)
+      history_fetcher().history_resources(dataset)
     end)
     |> Enum.reject(&String.starts_with?(&1.metadata["url"], "https://demo-static.data.gouv.fr"))
+  end
+
+  defp history_fetcher do
+    if Mix.env() == :prod, do: Transport.History.Fetcher.S3, else: Transport.History.Fetcher
   end
 end
 
