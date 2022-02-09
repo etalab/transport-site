@@ -45,8 +45,11 @@ defmodule Transport.Jobs.DedupeHistoryJob do
         |> Enum.filter(&is_same?(Enum.at(objects, &1), Enum.at(objects, &1 - 1)))
         |> Enum.map(&Enum.at(objects, &1))
 
+      ids = to_delete |> Enum.map(& &1.id)
+
+      mark_for_deletion(ids)
       remove_s3_objects(to_delete |> Enum.map(&Map.fetch!(&1.payload, "filename")))
-      remove_resource_history_rows(to_delete |> Enum.map(& &1.id))
+      remove_resource_history_rows(ids)
     end
 
     :ok
@@ -54,6 +57,13 @@ defmodule Transport.Jobs.DedupeHistoryJob do
 
   def is_same?(%ResourceHistory{} = r1, %ResourceHistory{} = r2) do
     MapSet.equal?(shas(r1), shas(r2))
+  end
+
+  defp mark_for_deletion(ids) do
+    ResourceHistory
+    |> where([r], r.id in ^ids)
+    |> update(set: [payload: fragment("jsonb_set(payload, '{mark_for_deletion}', 'true')")])
+    |> Repo.update_all([])
   end
 
   defp remove_resource_history_rows(ids) do
