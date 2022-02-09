@@ -14,5 +14,19 @@ defmodule DB.Repo.Migrations.CreateGtfsStopsTable do
       add(:stop_lon, :float)
       add(:location_type, :binary)
     end
+
+    create table(:gtfs_calendar) do
+      add(:data_import_id, references(:data_import))
+      add(:service_id, :binary)
+      add(:monday, :integer)
+      add(:tuesday, :integer)
+      add(:wednesday, :integer)
+      add(:thursday, :integer)
+      add(:friday, :integer)
+      add(:saturday, :integer)
+      add(:sunday, :integer)
+      add(:start_date, :date)
+      add(:end_date, :date)
+    end
   end
 end
