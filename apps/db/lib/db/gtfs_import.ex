@@ -6,7 +6,7 @@ defmodule DB.GtfsImport do
   use Ecto.Schema
   use TypedEctoSchema
 
-  typed_schema "gtfs_import" do
+  typed_schema "data_import" do
     belongs_to(:resource_history, DB.ResourceHistory)
   end
 end
