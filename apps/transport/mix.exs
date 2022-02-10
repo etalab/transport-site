@@ -89,7 +89,8 @@ defmodule Transport.Mixfile do
       {:etag_plug, "~> 1.0"},
       {:oban, "~> 2.9"},
       {:unzip, "~> 0.6.0"},
-      {:protobuf, "~> 0.9.0"}
+      {:protobuf, "~> 0.9.0"},
+      {:nimble_csv, "~> 1.2.0"}
     ]
   end
 end
