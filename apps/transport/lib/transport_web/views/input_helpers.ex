@@ -47,7 +47,19 @@ defmodule TransportWeb.InputHelpers do
   def form_group(field), do: content_tag(:div, field, class: "form__group")
 
   def select(form, field, options, opts \\ []) do
-    form_group(Form.select(form, field, options, opts))
+    label = Keyword.get(opts, :label)
+    opts = Keyword.drop(opts, [:label])
+
+    if label != nil do
+      form_group do
+        [
+          Form.label(form, field, label),
+          Form.select(form, field, options, opts)
+        ]
+      end
+    else
+      form_group(Form.select(form, field, options, opts))
+    end
   end
 
   @spec search_input(Phoenix.HTML.Form.t(), atom() | binary(), Keyword.t()) :: any
