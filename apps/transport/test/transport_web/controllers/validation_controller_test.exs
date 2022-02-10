@@ -1,4 +1,4 @@
-defmodule TransportWeb.SeoMetadataTest do
+defmodule TransportWeb.ValidationControllerTest do
   use TransportWeb.ConnCase, async: true
   use Oban.Testing, repo: DB.Repo
   import Ecto.Query
