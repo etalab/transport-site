@@ -77,4 +77,46 @@ defmodule Transport.Jobs.GtfsToDB do
       |> Stream.run()
     end)
   end
+
+  def fill_stop_times_from_resource_history(resource_history_id) do
+    %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
+    bucket_name = Transport.S3.bucket_name(:history)
+    file_stream = Transport.Unzip.S3File.get_file_stream("stop_times.txt", filename, bucket_name)
+
+    DB.Repo.transaction(
+      fn ->
+        file_stream
+        |> to_stream_of_maps()
+        |> Stream.map(fn r ->
+          %{
+            trip_id: Map.fetch!(r, "trip_id"),
+            arrival_time: Map.fetch!(r, "arrival_time") |> cast_binary_to_interval(),
+            departure_time: Map.fetch!(r, "departure_time") |> cast_binary_to_interval(),
+            stop_id: Map.fetch!(r, "stop_id"),
+            stop_sequence: Map.fetch!(r, "stop_sequence") |> String.to_integer()
+          }
+        end)
+        |> Stream.chunk_every(1000)
+        |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GtfsStopTimes, chunk) end)
+        |> Stream.run()
+      end,
+      timeout: 240_000
+    )
+  end
+
+  def cast_binary_to_interval(s) do
+    %{"hours" => hours, "minutes" => minutes, "seconds" => seconds} =
+      Regex.named_captures(~r/(?<hours>[0-9]+):(?<minutes>[0-9]+):(?<seconds>[0-9]+)/, s)
+
+    hours = hours |> String.to_integer()
+    minutes = minutes |> String.to_integer()
+    seconds = seconds |> String.to_integer()
+
+    # this is what EctoInterval is able to cast into a Postgrex.Interval
+    %{
+      "secs" => hours * 60 * 60 + minutes * 60 + seconds,
+      "days" => 0,
+      "months" => 0
+    }
+  end
 end
