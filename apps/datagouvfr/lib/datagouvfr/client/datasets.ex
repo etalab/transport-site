@@ -95,7 +95,7 @@ defmodule Datagouvfr.Client.Datasets do
   @doc """
   Make a user follow a dataset
   """
-  @spec post_followers(%Plug.Conn{}, String.t()) :: {atom, map}
+  @spec post_followers(Plug.Conn.(), String.t()) :: {atom, map}
   def post_followers(%Plug.Conn{} = conn, dataset_id) do
     OAuthClient.post(
       conn,
@@ -106,7 +106,7 @@ defmodule Datagouvfr.Client.Datasets do
   @doc """
   Make a user unfollow a dataset
   """
-  @spec delete_followers(%Plug.Conn{}, String.t()) :: {atom, map}
+  @spec delete_followers(Plug.Conn.t(), String.t()) :: {atom, map}
   def delete_followers(%Plug.Conn{} = conn, dataset_id) do
     OAuthClient.delete(
       conn,
@@ -127,7 +127,7 @@ defmodule Datagouvfr.Client.Datasets do
   @doc """
   Is current_user subscribed to this dataset?
   """
-  @spec current_user_subscribed?(%Plug.Conn{}, String.t()) :: boolean
+  @spec current_user_subscribed?(Plug.Conn.t(), String.t()) :: boolean
   def current_user_subscribed?(%Plug.Conn{assigns: %{current_user: %{"id" => user_id}}} = conn, dataset_id) do
     dataset_id
     |> get_followers()

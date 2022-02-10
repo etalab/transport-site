@@ -343,7 +343,7 @@ defmodule TransportWeb.DatasetView do
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
   def licence_url(_), do: nil
 
-  @spec description(%Dataset{} | %Resource{}) :: Phoenix.HTML.safe()
+  @spec description(Dataset.t() | Resource.t()) :: Phoenix.HTML.safe()
   def description(instance) do
     instance.description
     |> markdown_to_safe_html!()
@@ -363,7 +363,7 @@ defmodule TransportWeb.DatasetView do
       ...> |> TransportWeb.DatasetView.licence
       "Libertarian"
   """
-  @spec licence(%Dataset{}) :: String.t()
+  @spec licence(Dataset.t()) :: String.t()
   def licence(%Dataset{licence: licence}) do
     case licence do
       "fr-lo" -> dgettext("dataset", "fr-lo")
@@ -378,7 +378,7 @@ defmodule TransportWeb.DatasetView do
   @doc """
   Returns the resources that need to be displayed on a map
   """
-  @spec get_resource_to_display(%Dataset{}) :: Resource.t() | nil
+  @spec get_resource_to_display(Dataset.t()) :: Resource.t() | nil
   def get_resource_to_display(%Dataset{type: type, resources: resources})
       when type == "carpooling-areas" or type == "private-parking" or type == "charging-stations" do
     resources

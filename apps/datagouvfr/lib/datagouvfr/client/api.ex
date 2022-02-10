@@ -15,7 +15,7 @@ defmodule Datagouvfr.Client.API do
     {"X-API-KEY", Application.get_env(:transport, :datagouvfr_apikey)}
   end
 
-  @spec decode_body({:ok, %HTTPoison.Response{body: binary()}}) :: {:ok, map()} | {:error, any()}
+  @spec decode_body({:ok, HTTPoison.Response.t(body: binary())}) :: {:ok, map()} | {:error, any()}
   def decode_body({:ok, %HTTPoison.Response{body: "", status_code: status_code}}),
     do: {:ok, %{body: %{}, status_code: status_code}}
 
