@@ -72,7 +72,8 @@ config :transport,
 if app_env == :staging do
   config :transport,
     s3_buckets: %{
-      history: "resource-history-staging"
+      history: "resource-history-staging",
+      on_demand_validation: "on-demand-validation-staging"
     }
 end
 

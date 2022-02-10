@@ -12,7 +12,8 @@ config :transport, TransportWeb.Endpoint,
 
 config :transport,
   s3_buckets: %{
-    history: "resource-history-prod"
+    history: "resource-history-prod",
+    on_demand_validation: "on-demand-validation-prod"
   }
 
 config :gbfs, GBFSWeb.Endpoint, secret_key_base: System.get_env("SECRET_KEY_BASE")
