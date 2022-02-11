@@ -157,7 +157,11 @@ defmodule TransportWeb.Router do
       get("/", ValidationController, :index)
       post("/", ValidationController, :validate)
       post("/convert", ValidationController, :convert)
-      get("/:id", ValidationController, :show)
+
+      live_session :on_demand_validation,
+        root_layout: {TransportWeb.LayoutView, :app} do
+        live("/:id", Live.OnDemandValidationLive)
+      end
     end
 
     scope "/tools" do
@@ -214,10 +218,12 @@ defmodule TransportWeb.Router do
       nil ->
         Gettext.put_locale("fr")
         conn |> put_session(:locale, "fr")
+        assign(conn, :locale, "fr")
 
       locale ->
         Gettext.put_locale(locale)
         conn |> put_session(:locale, locale)
+        assign(conn, :locale, locale)
     end
   end
 

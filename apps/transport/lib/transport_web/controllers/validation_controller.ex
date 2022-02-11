@@ -17,7 +17,7 @@ defmodule TransportWeb.ValidationController do
 
       validation = %Validation{on_the_fly_validation_metadata: metadata} |> Repo.insert!()
       dispatch_validation_job(validation)
-      redirect(conn, to: validation_path(conn, :show, validation.id))
+      redirect(conn, to: "/validation/#{validation.id}")
     else
       conn |> bad_request()
     end
