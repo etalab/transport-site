@@ -106,10 +106,10 @@
 
         This dataset only describes parking spaces accessible to the general public, with barrier entrance. Other datasets referenced here can have a broader definition and might include freely accessible car-parks, (ie. with no entrance barrier), in addition to the parking spaces with barrier entrance included in the “Base Nationale des Lieux de Stationnement” (BNLS).
 
-- category: carpooling-area
+- category: carpooling-areas
   search_params:
     - key: type
-      value: carpooling-area
+      value: carpooling-areas
   msg:
     fr: |
         Les jeux de données de cette catégorie décrivent les aires de covoiturage en France.
@@ -192,5 +192,35 @@
         This category contains public transport data describing the transport offer of national and regional rail networks.
 
         Two data standards can be used: the [GTFS format](https://developers.google.com/transit/gtfs) or the [NeTEx format](http://netex-cen.eu/).
+        
+- category: bike-way
+  search_params:
+    - key: type
+      value: bike-way
+  msg:
+    fr: |
+        Les jeux de données de cette catégorie décrivent les réseaux cyclables en France. Tous les aménagements (pistes, bandes, voies vertes, vélo rue...) destinés à être empuntés par des vélos peuvent être représentés selon le [schéma national](https://schema.data.gouv.fr/etalab/schema-amenagements-cyclables/latest.html).
+        
+        Une base nationale extraite d'[OpenStreetMap](https://www.openstreetmap.org/) par [GéoVélo](https://geovelo.fr/) respectant le schéma national [est disponible](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/).
+
+    en: |
+        The datasets in this category describe the cycle networks in France. All facilities (tracks, lanes, greenways, cycle streets...) intended to be used by bicycles can be represented according to the [national schema](https://schema.data.gouv.fr/etalab/schema-amenagements-cyclables/latest.html).
+
+        A national database extracted from [OpenStreetMap](https://www.openstreetmap.org/) by [GéoVélo](https://geovelo.fr/) respecting the national schema [is available](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/).
+
+- category: bike-parking
+  search_params:
+    - key: type
+      value: bike-parking
+  msg:
+    fr: |
+        Les jeux de données de cette catégorie décrivent les équipements de stationnement cyclable en France. Tous les équipements (arceaux, racks, box...) destinés à être utilisés pour stationner des vélos peuvent être représentés selon le [schéma national](https://schema.data.gouv.fr/etalab/schema-stationnement-cyclable/).
+        
+        Une base nationale extraite d'[OpenStreetMap](https://www.openstreetmap.org/) par [GéoDataMine](https://geodatamine.fr/) respectant le schéma national [est disponible](https://transport.data.gouv.fr/datasets/stationnements-cyclables-issus-dopenstreetmap/).
+
+    en: |
+        The datasets in this category describe the bicycle parking facilities in France. All facilities (hoops, racks, boxes...) intended to be used for bicycle parking can be represented according to the [national schema](https://schema.data.gouv.fr/etalab/schema-stationnement-cyclable/).
+
+        A national database extracted from [OpenStreetMap](https://www.openstreetmap.org/) by [GéoDataMine](https://geodatamine.fr/) respecting the national schema [is available](https://transport.data.gouv.fr/datasets/stationnements-cyclables-issus-dopenstreetmap/).
 
 
