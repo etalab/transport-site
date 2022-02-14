@@ -2,7 +2,6 @@ defmodule TransportWeb.ValidationController do
   use TransportWeb, :controller
   alias DB.{Repo, Validation}
   alias Transport.DataVisualization
-
   import TransportWeb.ResourceView, only: [issue_type: 1]
 
   def index(%Plug.Conn{} = conn, _) do
@@ -26,6 +25,52 @@ defmodule TransportWeb.ValidationController do
 
   def validate(conn, _) do
     conn |> bad_request()
+  end
+
+  def show(%Plug.Conn{} = conn, %{} = params) do
+    case Repo.get(Validation, params["id"]) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> put_view(TransportWeb.ErrorView)
+        |> render(:"404")
+
+      %Validation{on_the_fly_validation_metadata: %{"state" => "completed", "type" => "gtfs"}} = validation ->
+        current_issues = Validation.get_issues(validation, params)
+
+        issue_type =
+          case params["issue_type"] do
+            nil -> issue_type(current_issues)
+            issue_type -> issue_type
+          end
+
+        data_vis = validation.data_vis[issue_type]
+        has_features = DataVisualization.has_features(data_vis["geojson"])
+
+        encoded_data_vis =
+          case {has_features, Jason.encode(data_vis)} do
+            {false, _} -> nil
+            {true, {:ok, encoded_data_vis}} -> encoded_data_vis
+            _ -> nil
+          end
+
+        conn
+        |> assign(:validation_id, params["id"])
+        |> assign(:other_resources, [])
+        |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
+        |> assign(:validation_summary, Validation.summary(validation))
+        |> assign(:severities_count, Validation.count_by_severity(validation))
+        |> assign(:metadata, validation.on_the_fly_validation_metadata)
+        |> assign(:data_vis, encoded_data_vis)
+        |> render("show.html")
+
+      # Handles waiting for validation to complete, errors and
+      # validation for schemas
+      _ ->
+        live_render(conn, TransportWeb.Live.OnDemandValidationLive,
+          session: %{"validation_id" => params["id"], "current_url" => validation_path(conn, :show, params["id"])}
+        )
+    end
   end
 
   defp filepath(type) do
@@ -74,55 +119,11 @@ defmodule TransportWeb.ValidationController do
     )
   end
 
-  def show(%Plug.Conn{} = conn, %{} = params) do
-    case Repo.get(Validation, params["id"]) do
-      nil ->
-        conn
-        |> put_status(:not_found)
-        |> put_view(TransportWeb.ErrorView)
-        |> render(:"404")
-
-      %Validation{on_the_fly_validation_metadata: %{"state" => "completed", "type" => "gtfs"}} = validation ->
-        current_issues = Validation.get_issues(validation, params)
-
-        issue_type =
-          case params["issue_type"] do
-            nil -> issue_type(current_issues)
-            issue_type -> issue_type
-          end
-
-        data_vis = validation.data_vis[issue_type]
-        has_features = DataVisualization.has_features(data_vis["geojson"])
-
-        encoded_data_vis =
-          case {has_features, Jason.encode(data_vis)} do
-            {false, _} -> nil
-            {true, {:ok, encoded_data_vis}} -> encoded_data_vis
-            _ -> nil
-          end
-
-        conn
-        |> assign(:validation_id, params["id"])
-        |> assign(:other_resources, [])
-        |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
-        |> assign(:validation_summary, Validation.summary(validation))
-        |> assign(:severities_count, Validation.count_by_severity(validation))
-        |> assign(:metadata, validation.on_the_fly_validation_metadata)
-        |> assign(:data_vis, encoded_data_vis)
-        |> render("show.html")
-
-      _ ->
-        live_render(conn, TransportWeb.Live.OnDemandValidationLive,
-          session: %{"validation_id" => params["id"], "current_url" => current_url(conn)}
-        )
-    end
-  end
-
   defp schema_type(schema_name), do: transport_schemas()[schema_name]["type"]
 
   defp transport_schemas, do: Transport.Shared.Schemas.Wrapper.transport_schemas()
 
-  defp bad_request(conn) do
+  defp bad_request(%Plug.Conn{} = conn) do
     conn
     |> put_status(:bad_request)
     |> put_view(ErrorView)

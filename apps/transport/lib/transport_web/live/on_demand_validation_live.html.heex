@@ -31,7 +31,6 @@
             <p>
               <%= raw dgettext("validations", ~s(This resource should follow its schema <a href="%{link}" target="_blank">%{schema}</a>.), schema: metadata["schema_name"], link: Transport.Shared.Schemas.schema_url(metadata["schema_name"], "latest")) %>
             </p>
-            <h4><%= dgettext("validations", "Validation details")%></h4>
             <p>
               <b>
               <% nb_errors = details["errors_count"] %>

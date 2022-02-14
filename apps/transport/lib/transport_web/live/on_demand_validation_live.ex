@@ -20,7 +20,7 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
     socket =
       assign(socket,
         last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
-        validation: DB.Repo.get(DB.Validation, socket.assigns()[:validation_id])
+        validation: DB.Repo.get!(DB.Validation, socket_value(socket, :validation_id))
       )
 
     unless is_final_state?(socket) do
@@ -28,7 +28,7 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
     end
 
     if is_final_state?(socket) and is_gtfs?(socket) do
-      redirect(socket, to: socket.assigns()[:current_url])
+      redirect(socket, to: socket_value(socket, :current_url))
     else
       socket
     end
@@ -43,12 +43,13 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
   end
 
   defp is_final_state?(socket) do
-    case socket.assigns()[:validation] do
-      nil -> true
+    case socket_value(socket, :validation) do
       %DB.Validation{on_the_fly_validation_metadata: metadata} -> metadata["state"] in ["error", "completed"]
       _ -> false
     end
   end
 
-  defp is_gtfs?(socket), do: socket.assigns()[:validation].on_the_fly_validation_metadata["type"] == "gtfs"
+  defp is_gtfs?(socket), do: socket_value(socket, :validation).on_the_fly_validation_metadata["type"] == "gtfs"
+
+  defp socket_value(%Phoenix.LiveView.Socket{assigns: assigns}, key), do: Map.fetch!(assigns, key)
 end

@@ -1,11 +1,14 @@
 defmodule TransportWeb.ValidationControllerTest do
   use TransportWeb.ConnCase, async: true
   use Oban.Testing, repo: DB.Repo
+  import DB.Factory
   import Ecto.Query
   import Mox
+  import Phoenix.LiveViewTest
   alias Transport.Test.S3TestUtils
 
   setup :verify_on_exit!
+  @gtfs_path "#{__DIR__}/../../fixture/files/gtfs.zip"
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -24,8 +27,8 @@ defmodule TransportWeb.ValidationControllerTest do
 
       conn =
         conn
-        |> post("/validation", %{
-          "upload" => %{"file" => %Plug.Upload{path: "#{__DIR__}/../../fixture/files/gtfs.zip"}, "type" => "gtfs"}
+        |> post(validation_path(conn, :index), %{
+          "upload" => %{"file" => %Plug.Upload{path: @gtfs_path}, "type" => "gtfs"}
         })
 
       assert 1 == count_validations()
@@ -67,8 +70,8 @@ defmodule TransportWeb.ValidationControllerTest do
 
       conn =
         conn
-        |> post("/validation", %{
-          "upload" => %{"file" => %Plug.Upload{path: "#{__DIR__}/../../fixture/files/gtfs.zip"}, "type" => schema_name}
+        |> post(validation_path(conn, :index), %{
+          "upload" => %{"file" => %Plug.Upload{path: @gtfs_path}, "type" => schema_name}
         })
 
       assert 1 == count_validations()
@@ -101,6 +104,112 @@ defmodule TransportWeb.ValidationControllerTest do
              ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob)
 
       assert redirected_to(conn, 302) =~ validation_path(conn, :show, validation_id)
+    end
+
+    test "with an invalid type", %{conn: conn} do
+      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+
+      conn
+      |> post(validation_path(conn, :index), %{"upload" => %{"file" => %Plug.Upload{path: @gtfs_path}, "type" => "foo"}})
+      |> html_response(400)
+
+      assert 0 == count_validations()
+    end
+  end
+
+  describe "GET /validation/:id" do
+    test "with an unknown validation", %{conn: conn} do
+      conn |> get(validation_path(conn, :show, 42)) |> html_response(404)
+    end
+
+    test "with an error", %{conn: conn} do
+      validation = insert(:validation, on_the_fly_validation_metadata: %{"state" => "waiting", "type" => "etalab/foo"})
+      conn = conn |> get(validation_path(conn, :show, validation.id))
+
+      # Displays the waiting message
+      response = html_response(conn, 200)
+      assert response =~ "Validation en cours."
+
+      {:ok, view, _html} = live(conn)
+
+      # Error message is displayed
+      error_msg = "hello world"
+
+      validation
+      |> Ecto.Changeset.change(
+        on_the_fly_validation_metadata:
+          Map.merge(validation.on_the_fly_validation_metadata, %{"state" => "error", "error_reason" => error_msg})
+      )
+      |> DB.Repo.update!()
+
+      send(view.pid, :update_data)
+      assert render(view) =~ error_msg
+    end
+
+    test "with a waiting validation", %{conn: conn} do
+      validation = insert(:validation, on_the_fly_validation_metadata: %{"state" => "waiting", "type" => "gtfs"})
+      conn = conn |> get(validation_path(conn, :show, validation.id))
+
+      # Displays the waiting message
+      response = html_response(conn, 200)
+      assert response =~ "Validation en cours."
+
+      # Redirects to result's page when validation is done
+      {:ok, view, _html} = live(conn)
+
+      validation
+      |> Ecto.Changeset.change(
+        on_the_fly_validation_metadata: Map.merge(validation.on_the_fly_validation_metadata, %{"state" => "completed"}),
+        details: %{}
+      )
+      |> DB.Repo.update!()
+
+      send(view.pid, :update_data)
+
+      assert_redirect(view, validation_path(conn, :show, validation.id))
+    end
+
+    test "with a validation result", %{conn: conn} do
+      schema_name = "etalab/foo"
+
+      Transport.Shared.Schemas.Mock
+      |> expect(:transport_schemas, fn ->
+        %{schema_name => %{"versions" => [], "schemas" => [%{"path" => "schema.json"}]}}
+      end)
+
+      validation = insert(:validation, on_the_fly_validation_metadata: %{"state" => "waiting", "type" => schema_name})
+      conn = conn |> get(validation_path(conn, :show, validation.id))
+
+      # Displays the waiting message
+      response = html_response(conn, 200)
+      assert response =~ "Validation en cours."
+
+      {:ok, view, _html} = live(conn)
+
+      # Error messages are displayed
+      validation
+      |> Ecto.Changeset.change(
+        on_the_fly_validation_metadata:
+          Map.merge(validation.on_the_fly_validation_metadata, %{
+            "state" => "completed",
+            "type" => "tableschema",
+            "schema_name" => schema_name
+          }),
+        details: %{
+          "errors" => [
+            "#/features/0/properties/deux_rm_critair: Value is not allowed in enum.",
+            "#/features/0/properties/vp_critair: Value is not allowed in enum."
+          ],
+          "has_errors" => true,
+          errors_count: 2
+        }
+      )
+      |> DB.Repo.update!()
+
+      send(view.pid, :update_data)
+
+      assert render(view) =~ "2 erreurs"
+      assert render(view) =~ "Value is not allowed in enum."
     end
   end
 
