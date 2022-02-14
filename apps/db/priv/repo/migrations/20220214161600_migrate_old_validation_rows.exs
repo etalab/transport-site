@@ -1,4 +1,4 @@
-defmodule DB.Repo.Migrations.AddTitleResourceHistory do
+defmodule DB.Repo.Migrations.MigrateExistingOnDemandGTFSValidation do
   use Ecto.Migration
 
   def up do
