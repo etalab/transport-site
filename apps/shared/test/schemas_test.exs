@@ -6,7 +6,9 @@ defmodule Transport.Shared.SchemasTest do
 
   setup do
     setup_schemas_response()
-    :ok
+    old_value = Application.fetch_env!(:transport, :schemas_impl)
+    on_exit(fn -> Application.put_env(:transport, :schemas_impl, old_value) end)
+    Application.put_env(:transport, :schemas_impl, Transport.Shared.Schemas)
   end
 
   test "transport_schemas" do
