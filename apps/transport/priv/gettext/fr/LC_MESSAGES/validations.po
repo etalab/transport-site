@@ -165,3 +165,7 @@ msgstr "Validation en cours. Cette page va se rafraichir automatiquement."
 #, elixir-format, ex-autogen, fuzzy
 msgid "Validation results"
 msgstr "Rapport de validation"
+
+#, elixir-format, ex-autogen
+msgid "Once you have fixed your errors, you can verify that your file is valid <a href=\"%{link}\" target=\"_blank\">using our validators</a>."
+msgstr "Une fois vos erreurs réparées, vous pouvez vérifier que votre fichier est valide <a href=\"%{link}\" target=\"_blank\">en utilisant nos validateurs</a>."

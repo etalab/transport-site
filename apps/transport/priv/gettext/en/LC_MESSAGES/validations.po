@@ -165,3 +165,7 @@ msgstr ""
 #, elixir-format, ex-autogen, fuzzy
 msgid "Validation results"
 msgstr ""
+
+#, elixir-format, ex-autogen
+msgid "Once you have fixed your errors, you can verify that your file is valid <a href=\"%{link}\" target=\"_blank\">using our validators</a>."
+msgstr ""
