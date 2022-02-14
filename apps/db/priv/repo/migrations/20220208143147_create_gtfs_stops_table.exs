@@ -28,5 +28,12 @@ defmodule DB.Repo.Migrations.CreateGtfsStopsTable do
       add(:start_date, :date)
       add(:end_date, :date)
     end
+
+    create table(:gtfs_calendar_dates) do
+      add(:data_import_id, references(:data_import))
+      add(:service_id, :binary)
+      add(:date, :date)
+      add(:exception_type, :integer)
+    end
   end
 end

@@ -3,7 +3,7 @@ defmodule Transport.Jobs.GtfsToDB do
   Get the content of a GTFS ResourceHistory, store it in the DB
   """
 
-  def fill_stop_from_resource_history(resource_history_id) do
+  def fill_stops_from_resource_history(resource_history_id) do
     %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
     bucket_name = Transport.S3.bucket_name(:history)
 
@@ -118,5 +118,29 @@ defmodule Transport.Jobs.GtfsToDB do
       "days" => 0,
       "months" => 0
     }
+  end
+
+  def fill_calendar_dates_from_resource_history(resource_history_id) do
+    %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
+    bucket_name = Transport.S3.bucket_name(:history)
+    file_stream = Transport.Unzip.S3File.get_file_stream("calendar_dates.txt", filename, bucket_name)
+
+    DB.Repo.transaction(
+      fn ->
+        file_stream
+        |> to_stream_of_maps()
+        |> Stream.map(fn r ->
+          %{
+            service_id: r |> Map.fetch!("service_id"),
+            date: r |> Map.fetch!("date") |> Timex.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date(),
+            exception_type: r |> Map.fetch!("exception_type") |> String.to_integer()
+          }
+        end)
+        |> Stream.chunk_every(1000)
+        |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GtfsCalendarDates, chunk) end)
+        |> Stream.run()
+      end,
+      timeout: 240_000
+    )
   end
 end
