@@ -1,10 +1,9 @@
 defmodule Transport.Jobs.OnDemandValidationJob do
   @moduledoc """
-  Job in charge of dispatching multiple `MigrateHistoryJob`.
+  Job in charge of validating a file that has been stored
+  on Cellar and tracked by a `DB.Validation` row.
 
-  The goal is to migrate resources that have been historicized
-  by the old system to the new system.
-  It ignores objects that have already been backed up.
+  It validates the file and stores the result in the database.
   """
   use Oban.Worker, tags: ["validation"], max_attempts: 5
   require Logger

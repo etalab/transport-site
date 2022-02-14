@@ -213,11 +213,11 @@ defmodule TransportWeb.Router do
     case conn.params["locale"] || get_session(conn, :locale) do
       nil ->
         Gettext.put_locale("fr")
-        conn |> put_session(:locale, "fr") |> assign(:locale, "fr")
+        conn |> put_session(:locale, "fr")
 
       locale ->
         Gettext.put_locale(locale)
-        conn |> put_session(:locale, locale) |> assign(:locale, locale)
+        conn |> put_session(:locale, locale)
     end
   end
 
