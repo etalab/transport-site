@@ -6,6 +6,12 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
   @schema_name "etalab/schema-irve"
   @url "https://example.com/file"
 
+  setup do
+    old_value = Application.fetch_env!(:transport, :schemas_impl)
+    on_exit(fn -> Application.put_env(:transport, :schemas_impl, old_value) end)
+    Application.put_env(:transport, :schemas_impl, Transport.Shared.Schemas)
+  end
+
   describe "validate" do
     test "ensures schema is a tableschema" do
       schema_name = "foo"

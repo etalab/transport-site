@@ -2,6 +2,12 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
   use Shared.CacheCase
   import Shared.Validation.JSONSchemaValidator
 
+  setup do
+    old_value = Application.fetch_env!(:transport, :schemas_impl)
+    on_exit(fn -> Application.put_env(:transport, :schemas_impl, old_value) end)
+    Application.put_env(:transport, :schemas_impl, Transport.Shared.Schemas)
+  end
+
   describe "load_jsonschema_for_schema" do
     test "schema-zfe" do
       setup_schemas_response()
