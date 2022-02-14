@@ -15,11 +15,11 @@ defmodule Transport.Jobs.GtfsToDB do
       # the map is reshaped for Ecto's needs
       |> Stream.map(fn r ->
         %{
-          stop_id: Map.fetch!(r, "stop_id"),
-          stop_name: Map.fetch!(r, "stop_name"),
-          stop_lat: Map.fetch!(r, "stop_lat") |> String.to_float(),
-          stop_lon: Map.fetch!(r, "stop_lon") |> String.to_float(),
-          location_type: Map.fetch!(r, "location_type")
+          stop_id: r |> Map.fetch!("stop_id"),
+          stop_name: r |> Map.fetch!("stop_name"),
+          stop_lat: r |> Map.fetch!("stop_lat") |> String.to_float(),
+          stop_lon: r |> Map.fetch!("stop_lon") |> String.to_float(),
+          location_type: r |> Map.fetch!("location_type")
         }
       end)
       |> Stream.chunk_every(1000)
@@ -44,7 +44,7 @@ defmodule Transport.Jobs.GtfsToDB do
       if acc == [] do
         {%{}, r |> Enum.map(fn h -> h |> String.replace_prefix("\uFEFF", "") end)}
       else
-        {[Enum.zip(acc, r) |> Enum.into(%{})], acc}
+        {[acc |> Enum.zip(r) |> Enum.into(%{})], acc}
       end
     end)
   end
@@ -60,16 +60,16 @@ defmodule Transport.Jobs.GtfsToDB do
       |> to_stream_of_maps()
       |> Stream.map(fn r ->
         %{
-          service_id: Map.fetch!(r, "service_id"),
-          monday: Map.fetch!(r, "monday") |> String.to_integer(),
-          tuesday: Map.fetch!(r, "tuesday") |> String.to_integer(),
-          wednesday: Map.fetch!(r, "wednesday") |> String.to_integer(),
-          thursday: Map.fetch!(r, "thursday") |> String.to_integer(),
-          friday: Map.fetch!(r, "friday") |> String.to_integer(),
-          saturday: Map.fetch!(r, "saturday") |> String.to_integer(),
-          sunday: Map.fetch!(r, "sunday") |> String.to_integer(),
-          start_date: Map.fetch!(r, "start_date") |> Timex.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date(),
-          end_date: Map.fetch!(r, "end_date") |> Timex.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date()
+          service_id: r |> Map.fetch!("service_id"),
+          monday: r |> Map.fetch!("monday") |> String.to_integer(),
+          tuesday: r |> Map.fetch!("tuesday") |> String.to_integer(),
+          wednesday: r |> Map.fetch!("wednesday") |> String.to_integer(),
+          thursday: r |> Map.fetch!("thursday") |> String.to_integer(),
+          friday: r |> Map.fetch!("friday") |> String.to_integer(),
+          saturday: r |> Map.fetch!("saturday") |> String.to_integer(),
+          sunday: r |> Map.fetch!("sunday") |> String.to_integer(),
+          start_date: r |> Map.fetch!("start_date") |> Timex.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date(),
+          end_date: r |> Map.fetch!("end_date") |> Timex.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date()
         }
       end)
       |> Stream.chunk_every(1000)
@@ -89,11 +89,11 @@ defmodule Transport.Jobs.GtfsToDB do
         |> to_stream_of_maps()
         |> Stream.map(fn r ->
           %{
-            trip_id: Map.fetch!(r, "trip_id"),
-            arrival_time: Map.fetch!(r, "arrival_time") |> cast_binary_to_interval(),
-            departure_time: Map.fetch!(r, "departure_time") |> cast_binary_to_interval(),
-            stop_id: Map.fetch!(r, "stop_id"),
-            stop_sequence: Map.fetch!(r, "stop_sequence") |> String.to_integer()
+            trip_id: r |> Map.fetch!("trip_id"),
+            arrival_time: r |> Map.fetch!("arrival_time") |> cast_binary_to_interval(),
+            departure_time: r |> Map.fetch!("departure_time") |> cast_binary_to_interval(),
+            stop_id: r |> Map.fetch!("stop_id"),
+            stop_sequence: r |> Map.fetch!("stop_sequence") |> String.to_integer()
           }
         end)
         |> Stream.chunk_every(1000)

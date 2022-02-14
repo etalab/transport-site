@@ -28,7 +28,7 @@ defimpl Unzip.FileAccess, for: Transport.Unzip.S3File do
   alias ExAws.S3
 
   def size(file) do
-    %{headers: headers} = S3.head_object(file.bucket, file.path) |> ExAws.request!(file.s3_config)
+    %{headers: headers} = file.bucket |> S3.head_object(file.path) |> ExAws.request!(file.s3_config)
 
     size =
       headers
