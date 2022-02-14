@@ -28,12 +28,12 @@
       <div class="validation-content-details">
         <div class="panel" style="overflow-x:auto;">
           <%= if has_errors?(@validation_summary) do %>
-<%#             <%= pagination_links @conn, @issues,  [@validation_id], issue_type: issue_type(@issues.entries),
-                path: &validation_path/4, action: :show %> %>
+            <%= pagination_links @conn, @issues,  [@validation_id], issue_type: issue_type(@issues.entries),
+                path: &validation_path/4, action: :show %>
             <%= render template(@issues), issues: @issues || [] , conn: @conn %>
             <div class="pt-24">
-<%#               <%= pagination_links @conn, @issues,  [@validation_id], issue_type: issue_type(@issues.entries),
-                path: &validation_path/4, action: :show %> %>
+              <%= pagination_links @conn, @issues,  [@validation_id], issue_type: issue_type(@issues.entries),
+                path: &validation_path/4, action: :show %>
             </div>
           <% else %>
             <h2><%= dgettext("validations", "Nice work, there are no issues!")%></h2>

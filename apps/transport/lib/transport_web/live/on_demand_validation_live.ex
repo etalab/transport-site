@@ -7,24 +7,34 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
   use TransportWeb.InputHelpers
   import TransportWeb.Gettext
 
-  def mount(params, %{"locale" => locale} = _session, socket) do
+  def mount(
+        _params,
+        %{"locale" => locale, "validation_id" => validation_id, "current_url" => current_url} = _session,
+        socket
+      ) do
     Gettext.put_locale(locale)
-    schedule_next_update_data()
-    {:ok, socket |> assign(validation_id: params["id"]) |> update_data()}
+    {:ok, socket |> assign(validation_id: validation_id, current_url: current_url) |> update_data()}
   end
 
   defp update_data(socket) do
-    assign(socket,
-      last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
-      validation: DB.Repo.get(DB.Validation, socket.assigns()[:validation_id])
-    )
-  end
+    socket =
+      assign(socket,
+        last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
+        validation: DB.Repo.get(DB.Validation, socket.assigns()[:validation_id])
+      )
 
-  def handle_info(:update_data, socket) do
     unless is_final_state?(socket) do
       schedule_next_update_data()
     end
 
+    if is_final_state?(socket) and is_gtfs?(socket) do
+      redirect(socket, to: socket.assigns()[:current_url])
+    else
+      socket
+    end
+  end
+
+  def handle_info(:update_data, socket) do
     {:noreply, update_data(socket)}
   end
 
@@ -39,4 +49,6 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
       _ -> false
     end
   end
+
+  defp is_gtfs?(socket), do: socket.assigns()[:validation].on_the_fly_validation_metadata["type"] == "gtfs"
 end

@@ -13,7 +13,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
   test "GET /validation ", %{conn: conn} do
     Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
-    conn |> get("/validation") |> html_response(200)
+    conn |> get(validation_path(conn, :index)) |> html_response(200)
   end
 
   describe "POST validate" do
@@ -53,7 +53,7 @@ defmodule TransportWeb.ValidationControllerTest do
              ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob)
 
       assert permanent_url == Transport.S3.permanent_url(:on_demand_validation, filename)
-      assert redirected_to(conn, 302) =~ "/validation/#{validation_id}"
+      assert redirected_to(conn, 302) =~ validation_path(conn, :show, validation_id)
     end
 
     test "with a schema", %{conn: conn} do
@@ -84,6 +84,7 @@ defmodule TransportWeb.ValidationControllerTest do
                id: validation_id
              } = DB.Repo.one!(DB.Validation)
 
+      assert String.ends_with?(filename, ".csv")
       assert permanent_url == Transport.S3.permanent_url(:on_demand_validation, filename)
 
       assert [
@@ -99,7 +100,7 @@ defmodule TransportWeb.ValidationControllerTest do
                }
              ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob)
 
-      assert redirected_to(conn, 302) =~ "/validation/#{validation_id}"
+      assert redirected_to(conn, 302) =~ validation_path(conn, :show, validation_id)
     end
   end
 

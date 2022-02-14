@@ -157,11 +157,7 @@ defmodule TransportWeb.Router do
       get("/", ValidationController, :index)
       post("/", ValidationController, :validate)
       post("/convert", ValidationController, :convert)
-
-      live_session :on_demand_validation,
-        root_layout: {TransportWeb.LayoutView, :app} do
-        live("/:id", Live.OnDemandValidationLive)
-      end
+      get("/:id", ValidationController, :show)
     end
 
     scope "/tools" do

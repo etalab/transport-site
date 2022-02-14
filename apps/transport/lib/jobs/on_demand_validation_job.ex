@@ -8,7 +8,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   """
   use Oban.Worker, tags: ["validation"], max_attempts: 5
   require Logger
-  import Ecto.{Changeset, Query}
+  import Ecto.Changeset
   alias DB.{Repo, Validation}
   alias Shared.Validation.GtfsValidator.Wrapper, as: GtfsValidator
   alias Shared.Validation.JSONSchemaValidator.Wrapper, as: JSONSchemaValidator

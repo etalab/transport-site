@@ -1,6 +1,7 @@
 defmodule TransportWeb.ValidationController do
   use TransportWeb, :controller
   alias DB.{Repo, Validation}
+  alias Transport.DataVisualization
 
   import TransportWeb.ResourceView, only: [issue_type: 1]
 
@@ -12,14 +13,25 @@ defmodule TransportWeb.ValidationController do
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"file" => %{path: file_path}, "type" => type}}) do
     if is_valid_type?(type) do
-      path = upload_to_s3(file_path, Ecto.UUID.generate())
-      metadata = build_metadata(type, path)
+      metadata = build_metadata(type)
+      upload_to_s3(file_path, Map.fetch!(metadata, "filename"))
 
       validation = %Validation{on_the_fly_validation_metadata: metadata} |> Repo.insert!()
       dispatch_validation_job(validation)
-      redirect(conn, to: "/validation/#{validation.id}")
+      redirect(conn, to: validation_path(conn, :show, validation.id))
     else
       conn |> bad_request()
+    end
+  end
+
+  def validate(conn, _) do
+    conn |> bad_request()
+  end
+
+  defp filepath(type) do
+    cond do
+      type == "tableschema" -> Ecto.UUID.generate() <> ".csv"
+      type in ["jsonschema", "gtfs"] -> Ecto.UUID.generate()
     end
   end
 
@@ -41,69 +53,69 @@ defmodule TransportWeb.ValidationController do
 
   defp upload_to_s3(file_path, path) do
     Transport.S3.upload_to_s3!(:on_demand_validation, File.read!(file_path), path)
-    path
   end
 
-  defp build_metadata(type, path) do
-    base = %{
-      "state" => "waiting",
-      "type" => type,
-      "filename" => path,
-      "permanent_url" => Transport.S3.permanent_url(:on_demand_validation, path)
-    }
+  defp build_metadata(type) do
+    metadata =
+      case type do
+        "gtfs" -> %{"type" => "gtfs"}
+        schema_name -> %{"schema_name" => schema_name, "type" => schema_type(schema_name)}
+      end
 
-    case type do
-      "gtfs" -> base
-      schema_name -> Map.merge(base, %{"schema_name" => schema_name, "type" => schema_type(schema_name)})
-    end
-  end
+    path = filepath(metadata["type"])
 
-  def validate(conn, _) do
-    conn |> bad_request()
+    Map.merge(
+      metadata,
+      %{
+        "state" => "waiting",
+        "filename" => path,
+        "permanent_url" => Transport.S3.permanent_url(:on_demand_validation, path)
+      }
+    )
   end
 
   def show(%Plug.Conn{} = conn, %{} = params) do
-    config = make_pagination_config(params)
-    validation = Repo.get(Validation, params["id"])
+    case Repo.get(Validation, params["id"]) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> put_view(TransportWeb.ErrorView)
+        |> render(:"404")
 
-    text(conn, "ok")
+      %Validation{on_the_fly_validation_metadata: %{"state" => "completed", "type" => "gtfs"}} = validation ->
+        current_issues = Validation.get_issues(validation, params)
 
-    # case validation do
-    #   nil ->
-    #     conn
-    #     |> put_status(:not_found)
-    #     |> put_view(TransportWeb.ErrorView)
-    #     |> render(:"404")
+        issue_type =
+          case params["issue_type"] do
+            nil -> issue_type(current_issues)
+            issue_type -> issue_type
+          end
 
-    #   validation ->
-    #     current_issues = Validation.get_issues(validation, params)
+        data_vis = validation.data_vis[issue_type]
+        has_features = DataVisualization.has_features(data_vis["geojson"])
 
-    #     issue_type =
-    #       case params["issue_type"] do
-    #         nil -> issue_type(current_issues)
-    #         issue_type -> issue_type
-    #       end
+        encoded_data_vis =
+          case {has_features, Jason.encode(data_vis)} do
+            {false, _} -> nil
+            {true, {:ok, encoded_data_vis}} -> encoded_data_vis
+            _ -> nil
+          end
 
-    #     data_vis = validation.data_vis[issue_type]
-    #     has_features = DataVisualization.has_features(data_vis["geojson"])
+        conn
+        |> assign(:validation_id, params["id"])
+        |> assign(:other_resources, [])
+        |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
+        |> assign(:validation_summary, Validation.summary(validation))
+        |> assign(:severities_count, Validation.count_by_severity(validation))
+        |> assign(:metadata, validation.on_the_fly_validation_metadata)
+        |> assign(:data_vis, encoded_data_vis)
+        |> render("show.html")
 
-    #     encoded_data_vis =
-    #       case {has_features, Jason.encode(data_vis)} do
-    #         {false, _} -> nil
-    #         {true, {:ok, encoded_data_vis}} -> encoded_data_vis
-    #         _ -> nil
-    #       end
-
-    #     conn
-    #     |> assign(:validation_id, params["id"])
-    #     |> assign(:other_resources, [])
-    #     |> assign(:issues, Scrivener.paginate(current_issues, config))
-    #     |> assign(:validation_summary, Validation.summary(validation))
-    #     |> assign(:severities_count, Validation.count_by_severity(validation))
-    #     |> assign(:metadata, validation.on_the_fly_validation_metadata)
-    #     |> assign(:data_vis, encoded_data_vis)
-    #     |> render("show.html")
-    # end
+      _ ->
+        live_render(conn, TransportWeb.Live.OnDemandValidationLive,
+          session: %{"validation_id" => params["id"], "current_url" => current_url(conn)}
+        )
+    end
   end
 
   defp schema_type(schema_name), do: transport_schemas()[schema_name]["type"]
