@@ -3,7 +3,16 @@ defmodule Transport.Jobs.GtfsToDB do
   Get the content of a GTFS ResourceHistory, store it in the DB
   """
 
-  def fill_stops_from_resource_history(resource_history_id) do
+  def import_gtfs_from_resource_history(resource_history_id) do
+    %{id: data_import_id} = %DB.DataImport{resource_history_id: 200} |> DB.Repo.insert!()
+
+    fill_stops_from_resource_history(resource_history_id, data_import_id)
+    fill_stop_times_from_resource_history(resource_history_id, data_import_id)
+    fill_calendar_from_resource_history(resource_history_id, data_import_id)
+    fill_calendar_dates_from_resource_history(resource_history_id, data_import_id)
+  end
+
+  def fill_stops_from_resource_history(resource_history_id, data_import_id) do
     %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
     bucket_name = Transport.S3.bucket_name(:history)
 
@@ -15,6 +24,7 @@ defmodule Transport.Jobs.GtfsToDB do
       # the map is reshaped for Ecto's needs
       |> Stream.map(fn r ->
         %{
+          data_import_id: data_import_id,
           stop_id: r |> Map.fetch!("stop_id"),
           stop_name: r |> Map.fetch!("stop_name"),
           stop_lat: r |> Map.fetch!("stop_lat") |> String.to_float(),
@@ -49,7 +59,7 @@ defmodule Transport.Jobs.GtfsToDB do
     end)
   end
 
-  def fill_calendar_from_resource_history(resource_history_id) do
+  def fill_calendar_from_resource_history(resource_history_id, data_import_id) do
     %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
     bucket_name = Transport.S3.bucket_name(:history)
 
@@ -60,6 +70,7 @@ defmodule Transport.Jobs.GtfsToDB do
       |> to_stream_of_maps()
       |> Stream.map(fn r ->
         %{
+          data_import_id: data_import_id,
           service_id: r |> Map.fetch!("service_id"),
           monday: r |> Map.fetch!("monday") |> String.to_integer(),
           tuesday: r |> Map.fetch!("tuesday") |> String.to_integer(),
@@ -78,7 +89,7 @@ defmodule Transport.Jobs.GtfsToDB do
     end)
   end
 
-  def fill_stop_times_from_resource_history(resource_history_id) do
+  def fill_stop_times_from_resource_history(resource_history_id, data_import_id) do
     %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
     bucket_name = Transport.S3.bucket_name(:history)
     file_stream = Transport.Unzip.S3File.get_file_stream("stop_times.txt", filename, bucket_name)
@@ -89,6 +100,7 @@ defmodule Transport.Jobs.GtfsToDB do
         |> to_stream_of_maps()
         |> Stream.map(fn r ->
           %{
+            data_import_id: data_import_id,
             trip_id: r |> Map.fetch!("trip_id"),
             arrival_time: r |> Map.fetch!("arrival_time") |> cast_binary_to_interval(),
             departure_time: r |> Map.fetch!("departure_time") |> cast_binary_to_interval(),
@@ -120,7 +132,7 @@ defmodule Transport.Jobs.GtfsToDB do
     }
   end
 
-  def fill_calendar_dates_from_resource_history(resource_history_id) do
+  def fill_calendar_dates_from_resource_history(resource_history_id, data_import_id) do
     %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
     bucket_name = Transport.S3.bucket_name(:history)
     file_stream = Transport.Unzip.S3File.get_file_stream("calendar_dates.txt", filename, bucket_name)
@@ -131,6 +143,7 @@ defmodule Transport.Jobs.GtfsToDB do
         |> to_stream_of_maps()
         |> Stream.map(fn r ->
           %{
+            data_import_id: data_import_id,
             service_id: r |> Map.fetch!("service_id"),
             date: r |> Map.fetch!("date") |> Timex.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date(),
             exception_type: r |> Map.fetch!("exception_type") |> String.to_integer()
