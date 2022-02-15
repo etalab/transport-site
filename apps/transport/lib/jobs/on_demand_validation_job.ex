@@ -30,7 +30,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
       date: DateTime.utc_now() |> DateTime.to_string(),
       details: Map.get(result, "validation"),
       on_the_fly_validation_metadata:
-        Map.merge(on_the_fly_validation_metadata, map_remove_keys(result, ["validation", "data_vis"])),
+        Map.merge(on_the_fly_validation_metadata, Map.drop(result, ["validation", "data_vis"])),
       data_vis: Map.get(result, "data_vis")
     )
     |> Repo.update!()
@@ -38,10 +38,6 @@ defmodule Transport.Jobs.OnDemandValidationJob do
     Transport.S3.delete_object!(:on_demand_validation, filename)
 
     :ok
-  end
-
-  defp map_remove_keys(m, keys) when is_map(m) do
-    :maps.filter(fn k, _ -> k not in keys end, m)
   end
 
   defp perform_validation(%{"type" => "gtfs", "permanent_url" => url}) do
