@@ -5,7 +5,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
 
   It validates the file and stores the result in the database.
   """
-  use Oban.Worker, tags: ["validation"], max_attempts: 5
+  use Oban.Worker, tags: ["validation"], max_attempts: 5, queue: :on_demand_validation
   require Logger
   import Ecto.Changeset
   alias DB.{Repo, Validation}
