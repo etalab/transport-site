@@ -35,5 +35,12 @@ defmodule DB.Repo.Migrations.CreateGtfsStopsTable do
       add(:date, :date)
       add(:exception_type, :integer)
     end
+
+    create table(:gtfs_trips) do
+      add(:data_import_id, references(:data_import))
+      add(:route_id, :binary)
+      add(:service_id, :binary)
+      add(:trip_id, :binary)
+    end
   end
 end

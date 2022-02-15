@@ -10,6 +10,7 @@ defmodule Transport.Jobs.GtfsToDB do
     fill_stop_times_from_resource_history(resource_history_id, data_import_id)
     fill_calendar_from_resource_history(resource_history_id, data_import_id)
     fill_calendar_dates_from_resource_history(resource_history_id, data_import_id)
+    fill_trips_from_resource_history(resource_history_id, data_import_id)
   end
 
   def fill_stops_from_resource_history(resource_history_id, data_import_id) do
@@ -151,6 +152,31 @@ defmodule Transport.Jobs.GtfsToDB do
         end)
         |> Stream.chunk_every(1000)
         |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GtfsCalendarDates, chunk) end)
+        |> Stream.run()
+      end,
+      timeout: 240_000
+    )
+  end
+
+  def fill_trips_from_resource_history(resource_history_id, data_import_id) do
+    %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
+    bucket_name = Transport.S3.bucket_name(:history)
+    file_stream = Transport.Unzip.S3File.get_file_stream("trips.txt", filename, bucket_name)
+
+    DB.Repo.transaction(
+      fn ->
+        file_stream
+        |> to_stream_of_maps()
+        |> Stream.map(fn r ->
+          %{
+            data_import_id: data_import_id,
+            service_id: r |> Map.fetch!("service_id"),
+            route_id: r |> Map.fetch!("route_id"),
+            trip_id: r |> Map.fetch!("trip_id")
+          }
+        end)
+        |> Stream.chunk_every(1000)
+        |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GtfsTrips, chunk) end)
         |> Stream.run()
       end,
       timeout: 240_000
