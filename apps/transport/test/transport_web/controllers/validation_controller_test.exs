@@ -53,7 +53,7 @@ defmodule TransportWeb.ValidationControllerTest do
                    "type" => "gtfs"
                  }
                }
-             ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob)
+             ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob, queue: :on_demand_validation)
 
       assert permanent_url == Transport.S3.permanent_url(:on_demand_validation, filename)
       assert redirected_to(conn, 302) =~ validation_path(conn, :show, validation_id)
@@ -101,7 +101,7 @@ defmodule TransportWeb.ValidationControllerTest do
                    "schema_name" => ^schema_name
                  }
                }
-             ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob)
+             ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob, queue: :on_demand_validation)
 
       assert redirected_to(conn, 302) =~ validation_path(conn, :show, validation_id)
     end
