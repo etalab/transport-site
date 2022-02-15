@@ -121,9 +121,9 @@
               <%= form_for @conn, follower_path(@conn, :toggle, @dataset.datagouv_id), [class: "form"], fn _f -> %>
               <button class="button">
                 <%= if @is_subscribed do %>
-                  <%= dgettext("page-dataset-details", "Subscribe to comments") %>
-                <% else %>
                   <%= dgettext("page-dataset-details", "Unsubscribe to comments") %>
+                <% else %>
+                  <%= dgettext("page-dataset-details", "Subscribe to comments") %>
                 <% end %>
               </button>
             <% end %>
