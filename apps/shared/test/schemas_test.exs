@@ -5,6 +5,7 @@ defmodule Transport.Shared.SchemasTest do
   @base_url "https://schema.data.gouv.fr"
 
   setup do
+    setup_schemas_response()
     Mox.stub_with(Transport.Shared.Schemas.Mock, Transport.Shared.Schemas)
     :ok
   end
