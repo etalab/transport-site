@@ -16,6 +16,7 @@ defmodule DB.GtfsCalendar do
     field(:friday, :integer)
     field(:saturday, :integer)
     field(:sunday, :integer)
+    field(:days, {:array, :integer})
     field(:start_date, :date)
     field(:end_date, :date)
   end

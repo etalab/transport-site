@@ -70,19 +70,34 @@ defmodule Transport.Jobs.GtfsToDB do
       file_stream
       |> to_stream_of_maps()
       |> Stream.map(fn r ->
-        %{
+        res = %{
           data_import_id: data_import_id,
           service_id: r |> Map.fetch!("service_id"),
-          monday: r |> Map.fetch!("monday") |> String.to_integer(),
-          tuesday: r |> Map.fetch!("tuesday") |> String.to_integer(),
-          wednesday: r |> Map.fetch!("wednesday") |> String.to_integer(),
-          thursday: r |> Map.fetch!("thursday") |> String.to_integer(),
-          friday: r |> Map.fetch!("friday") |> String.to_integer(),
-          saturday: r |> Map.fetch!("saturday") |> String.to_integer(),
-          sunday: r |> Map.fetch!("sunday") |> String.to_integer(),
+          monday: monday = r |> Map.fetch!("monday") |> String.to_integer(),
+          tuesday: tuesday = r |> Map.fetch!("tuesday") |> String.to_integer(),
+          wednesday: wednesday = r |> Map.fetch!("wednesday") |> String.to_integer(),
+          thursday: thursday = r |> Map.fetch!("thursday") |> String.to_integer(),
+          friday: friday = r |> Map.fetch!("friday") |> String.to_integer(),
+          saturday: saturday = r |> Map.fetch!("saturday") |> String.to_integer(),
+          sunday: sunday = r |> Map.fetch!("sunday") |> String.to_integer(),
           start_date: r |> Map.fetch!("start_date") |> Timex.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date(),
           end_date: r |> Map.fetch!("end_date") |> Timex.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date()
         }
+
+        # 'days' is a list of dow (days of weeks) where the service is available
+        # making easier to consume the information
+        # for example for saturdays and sundays : [6,7]
+        days_list = 1..7 |> Enum.map(fn dow -> %{dow: dow} end)
+
+        days =
+          days_list
+          |> Enum.zip_with([monday, tuesday, wednesday, thursday, friday, saturday, sunday], fn d, v ->
+            Map.put(d, :value, v)
+          end)
+          |> Enum.filter(fn m -> m[:value] == 1 end)
+          |> Enum.map(fn m -> m[:dow] end)
+
+        res |> Map.put(:days, days)
       end)
       |> Stream.chunk_every(1000)
       |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GtfsCalendar, chunk) end)

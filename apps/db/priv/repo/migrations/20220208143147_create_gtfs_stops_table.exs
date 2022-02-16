@@ -25,6 +25,7 @@ defmodule DB.Repo.Migrations.CreateGtfsStopsTable do
       add(:friday, :integer)
       add(:saturday, :integer)
       add(:sunday, :integer)
+      add(:days, {:array, :integer})
       add(:start_date, :date)
       add(:end_date, :date)
     end
