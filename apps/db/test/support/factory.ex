@@ -67,27 +67,28 @@ defmodule DB.Factory do
     }
   end
 
+  def data_import_factory do
+    %DB.DataImport{
+    }
+  end
+
   def gtfs_stop_times_factory do
     %DB.GtfsStopTimes{
-      data_import_id: 1
     }
   end
 
   def gtfs_trips_factory do
     %DB.GtfsTrips{
-      data_import_id: 1
     }
   end
 
   def gtfs_calendar_factory do
     %DB.GtfsCalendar{
-      data_import_id: 1
     }
   end
 
   def gtfs_calendar_dates_factory do
     %DB.GtfsCalendarDates{
-      data_import_id: 1
     }
   end
   # Non-Ecto stuff, for now kept here for convenience
