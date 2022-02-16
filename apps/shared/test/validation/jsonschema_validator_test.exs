@@ -3,9 +3,8 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
   import Shared.Validation.JSONSchemaValidator
 
   setup do
-    old_value = Application.fetch_env!(:transport, :schemas_impl)
-    on_exit(fn -> Application.put_env(:transport, :schemas_impl, old_value) end)
-    Application.put_env(:transport, :schemas_impl, Transport.Shared.Schemas)
+    Mox.stub_with(Transport.Shared.Schemas.Mock, Transport.Shared.Schemas)
+    :ok
   end
 
   describe "load_jsonschema_for_schema" do

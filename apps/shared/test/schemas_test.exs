@@ -5,10 +5,8 @@ defmodule Transport.Shared.SchemasTest do
   @base_url "https://schema.data.gouv.fr"
 
   setup do
-    setup_schemas_response()
-    old_value = Application.fetch_env!(:transport, :schemas_impl)
-    on_exit(fn -> Application.put_env(:transport, :schemas_impl, old_value) end)
-    Application.put_env(:transport, :schemas_impl, Transport.Shared.Schemas)
+    Mox.stub_with(Transport.Shared.Schemas.Mock, Transport.Shared.Schemas)
+    :ok
   end
 
   test "transport_schemas" do
