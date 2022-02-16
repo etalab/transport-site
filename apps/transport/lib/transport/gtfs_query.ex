@@ -10,9 +10,9 @@ defmodule Transport.GtfsQuery do
 
     query = """
       with stop_times as (select gst.*, gt.route_id, gt.service_id, gc.days, gc.start_date, gc.end_date from gtfs_stop_times gst
-      left join gtfs_trips gt on gst.trip_id = gt.trip_id
-      left join gtfs_calendar gc on gc.service_id = gt.service_id
-      where stop_id = $1 and gst.data_import_id = $2 and gt.data_import_id = $2 and gc.data_import_id = $2),
+      left join gtfs_trips gt on gst.trip_id = gt.trip_id and gst.data_import_id = gt.data_import_id
+      left join gtfs_calendar gc on gc.service_id = gt.service_id and gst.data_import_id = gc.data_import_id
+      where stop_id = $1 and gst.data_import_id = $2),
       service_ids as (select distinct(service_id) from stop_times),
       days_list as (
         with gs as (
@@ -28,7 +28,8 @@ defmodule Transport.GtfsQuery do
         select date as day, service_id from gtfs_calendar_dates where exception_type = 2 and service_id in (select * from service_ids) and data_import_id = $2
         ),
         res as (
-        select * from gdow where dow = any(days) and day not in (select day from exception_remove er where er.service_id = gdow.service_id) union select day, '{}', extract (isodow from day), service_id from exception_add
+        select * from gdow where dow = any(days) and day not in (select day from exception_remove er where er.service_id = gdow.service_id)
+        union select day, '{}', extract (isodow from day), service_id from exception_add
         )
         select distinct on (day, service_id) day, service_id from res order by day asc
       ),
