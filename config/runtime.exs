@@ -72,7 +72,8 @@ config :transport,
 if app_env == :staging do
   config :transport,
     s3_buckets: %{
-      history: "resource-history-staging"
+      history: "resource-history-staging",
+      on_demand_validation: "on-demand-validation-staging"
     }
 end
 
@@ -115,7 +116,7 @@ extra_oban_conf =
     [queues: false, plugins: false]
   else
     [
-      queues: [default: 2, heavy: 1],
+      queues: [default: 2, heavy: 1, on_demand_validation: 1],
       plugins: [
         {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
         {Oban.Plugins.Cron, crontab: List.flatten(oban_crontab_all_envs, non_staging_crontab)}

@@ -33,13 +33,14 @@ defmodule Transport.Shared.Schemas do
   Load transport schemas listed on https://schema.data.gouv.fr
   """
   import Shared.Application, only: [cache_name: 0]
+  alias Transport.Shared.Schemas.Wrapper
   @behaviour Transport.Shared.Schemas.Wrapper
 
   @schemas_catalog_url "https://schema.data.gouv.fr/schemas.yml"
 
   def read_latest_schema(schema_name) do
     comp_fn = fn ->
-      schema = Map.fetch!(transport_schemas(), schema_name)
+      schema = Map.fetch!(Wrapper.transport_schemas(), schema_name)
 
       %HTTPoison.Response{status_code: 200, body: body} =
         http_client().get!(schema_url(schema_name, schema["latest_version"]))
@@ -51,7 +52,7 @@ defmodule Transport.Shared.Schemas do
   end
 
   def schema_url(schema_name, schema_version) do
-    details = Map.fetch!(transport_schemas(), schema_name)
+    details = Map.fetch!(Wrapper.transport_schemas(), schema_name)
 
     unless Enum.member?(["latest" | details["versions"]], schema_version) do
       raise KeyError, "#{schema_version} is not a valid version for #{schema_name}"
@@ -67,7 +68,7 @@ defmodule Transport.Shared.Schemas do
 
   @impl true
   def schemas_by_type(schema_type) when schema_type in ["tableschema", "jsonschema"] do
-    :maps.filter(fn _, v -> v["type"] == schema_type end, transport_schemas())
+    :maps.filter(fn _, v -> v["type"] == schema_type end, Wrapper.transport_schemas())
   end
 
   @impl true

@@ -127,5 +127,5 @@ msgid "Validate a GBFS feed"
 msgstr ""
 
 #, elixir-format
-msgid "Validate a GTFS file"
+msgid "Validate a file"
 msgstr ""
