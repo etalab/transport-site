@@ -149,5 +149,73 @@ defmodule Transport.GtfsQueryTest do
                "trip_id" => ^trip_id
              } = next_departure
     end
+
+    test "handle calendar_dates exception (add date) when there is an associated calendar" do
+      departure_time = "08:05:00" |> cast_binary_to_interval()
+
+      %{id: resource_history_id} = :resource_history |> insert(payload: %{})
+      %{id: data_import_id} = :data_import |> insert(resource_history_id: resource_history_id)
+
+      :gtfs_stop_times
+      |> insert(
+        data_import_id: data_import_id,
+        trip_id: trip_id = "trip_1",
+        departure_time: departure_time,
+        stop_id: stop_id = "stop_1"
+      )
+
+      :gtfs_trips
+      |> insert(
+        data_import_id: data_import_id,
+        service_id: service_id = "service_1",
+        trip_id: trip_id,
+        route_id: route_id = "route_1"
+      )
+
+      :gtfs_calendar
+      |> insert(
+        data_import_id: data_import_id,
+        service_id: service_id,
+        start_date: Date.new!(2022, 1, 1),
+        end_date: Date.new!(2022, 1, 31),
+        # only on sundays
+        days: [7]
+      )
+
+      # add exception for 2022-01-15 (a saturday)
+      :gtfs_calendar_dates
+      |> insert(
+        data_import_id: data_import_id,
+        service_id: service_id,
+        date: Date.new!(2022, 1, 15),
+        # exception_type 1 means "add"
+        exception_type: 1
+      )
+
+      # the exception day
+      [next_departure] = Transport.GtfsQuery.next_departures(stop_id, data_import_id, ~U[2022-01-15 08:00:00Z], 10)
+
+      assert %{
+               "departure" => ~N[2022-01-15 08:05:00.000000],
+               "route_id" => ^route_id,
+               "service_id" => ^service_id,
+               "stop_id" => ^stop_id,
+               "trip_id" => ^trip_id
+             } = next_departure
+
+      # the regular schedule (a sunday)
+      [next_departure] = Transport.GtfsQuery.next_departures(stop_id, data_import_id, ~U[2022-01-16 08:00:00Z], 10)
+
+      assert %{
+               "departure" => ~N[2022-01-16 08:05:00.000000],
+               "route_id" => ^route_id,
+               "service_id" => ^service_id,
+               "stop_id" => ^stop_id,
+               "trip_id" => ^trip_id
+             } = next_departure
+
+      # nothing the next day (a monday)
+      assert [] = Transport.GtfsQuery.next_departures(stop_id, data_import_id, ~U[2022-01-17 08:00:00Z], 10)
+    end
   end
 end
