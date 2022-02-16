@@ -55,7 +55,14 @@ defmodule Transport.Jobs.DedupeHistoryJob do
     :ok
   end
 
-  def is_same?(%ResourceHistory{} = r1, %ResourceHistory{} = r2) do
+  def is_same?(%ResourceHistory{payload: %{"content_hash" => a}}, %ResourceHistory{payload: %{"content_hash" => b}}) do
+    a == b
+  end
+
+  def is_same?(
+        %ResourceHistory{payload: %{"zip_metadata" => _}} = r1,
+        %ResourceHistory{payload: %{"zip_metadata" => _}} = r2
+      ) do
     MapSet.equal?(shas(r1), shas(r2))
   end
 
@@ -74,7 +81,7 @@ defmodule Transport.Jobs.DedupeHistoryJob do
     paths |> Enum.each(&Transport.S3.delete_object!(:history, &1))
   end
 
-  defp shas(%ResourceHistory{payload: payload}) do
-    MapSet.new(payload["zip_metadata"] |> Enum.map(& &1["sha256"]))
+  defp shas(%ResourceHistory{payload: %{"zip_metadata" => zip_metadata}}) do
+    MapSet.new(zip_metadata |> Enum.map(& &1["sha256"]))
   end
 end
