@@ -521,10 +521,8 @@ defmodule DB.Dataset do
   def formats(_), do: []
 
   @spec validate(binary | integer | __MODULE__.t()) :: {:error, String.t()} | {:ok, nil}
-  def validate(%__MODULE__{id: id, type: type}) when type in ["public-transit", "bike-scooter-sharing"],
-    do: validate(id)
+  def validate(%__MODULE__{id: id}), do: validate(id)
 
-  def validate(%__MODULE__{}), do: {:ok, nil}
   def validate(id) when is_binary(id), do: id |> String.to_integer() |> validate()
 
   def validate(id) when is_integer(id) do
