@@ -5,7 +5,6 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJobTest do
   import Mox
 
   alias Transport.Jobs.{GtfsToGeojsonConverterJob, SingleGtfsToGeojsonConverterJob}
-  alias Transport.Test.S3TestUtils
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -41,7 +40,6 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJobTest do
     # here is the matching data conversion
     insert(:data_conversion, convert_from: "GTFS", convert_to: "GeoJSON", resource_history_uuid: uuid, payload: %{})
 
-    S3TestUtils.s3_mocks_create_bucket()
     :ok = perform_job(GtfsToGeojsonConverterJob, %{})
 
     assert_enqueued(
