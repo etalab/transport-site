@@ -34,7 +34,7 @@ defmodule Transport.GtfsQuery do
         select distinct on (day, service_id) day, service_id from res order by day asc
       ),
       departures as (
-      select st.*, dl.day, dl.day + st.departure_time as real_departure from stop_times st left join days_list dl on dl.service_id = st.service_id
+      select st.*, dl.day, dl.day + '12:00:00'::time - interval '12 hours' + st.departure_time as real_departure from stop_times st left join days_list dl on dl.service_id = st.service_id
       )
       select stop_id, trip_id, route_id, service_id, real_departure as departure from departures where real_departure > $3 and real_departure < $4 order by real_departure asc;
     """
