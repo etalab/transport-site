@@ -123,13 +123,25 @@ defmodule TransportWeb.ValidationControllerTest do
     end
 
     test "with an error", %{conn: conn} do
-      validation = insert(:validation, on_the_fly_validation_metadata: %{"state" => "waiting", "type" => "etalab/foo"})
-      conn = conn |> get(validation_path(conn, :show, validation.id))
+      {conn, validation} = ensure_waiting_message_is_displayed(conn, %{"state" => "waiting", "type" => "etalab/foo"})
+      {:ok, view, _html} = live(conn)
 
-      # Displays the waiting message
-      response = html_response(conn, 200)
-      assert response =~ "Validation en cours."
+      # Error message is displayed
+      error_msg = "hello world"
 
+      validation
+      |> Ecto.Changeset.change(
+        on_the_fly_validation_metadata:
+          Map.merge(validation.on_the_fly_validation_metadata, %{"state" => "error", "error_reason" => error_msg})
+      )
+      |> DB.Repo.update!()
+
+      send(view.pid, :update_data)
+      assert render(view) =~ error_msg
+    end
+
+    test "with an error for a GTFS", %{conn: conn} do
+      {conn, validation} = ensure_waiting_message_is_displayed(conn, %{"state" => "waiting", "type" => "gtfs"})
       {:ok, view, _html} = live(conn)
 
       # Error message is displayed
@@ -147,12 +159,7 @@ defmodule TransportWeb.ValidationControllerTest do
     end
 
     test "with a waiting validation", %{conn: conn} do
-      validation = insert(:validation, on_the_fly_validation_metadata: %{"state" => "waiting", "type" => "gtfs"})
-      conn = conn |> get(validation_path(conn, :show, validation.id))
-
-      # Displays the waiting message
-      response = html_response(conn, 200)
-      assert response =~ "Validation en cours."
+      {conn, validation} = ensure_waiting_message_is_displayed(conn, %{"state" => "waiting", "type" => "gtfs"})
 
       # Redirects to result's page when validation is done
       {:ok, view, _html} = live(conn)
@@ -181,13 +188,7 @@ defmodule TransportWeb.ValidationControllerTest do
         }
       end)
 
-      validation = insert(:validation, on_the_fly_validation_metadata: %{"state" => "waiting", "type" => schema_name})
-      conn = conn |> get(validation_path(conn, :show, validation.id))
-
-      # Displays the waiting message
-      response = html_response(conn, 200)
-      assert response =~ "Validation en cours."
-
+      {conn, validation} = ensure_waiting_message_is_displayed(conn, %{"state" => "waiting", "type" => schema_name})
       {:ok, view, _html} = live(conn)
 
       # Error messages are displayed
@@ -215,6 +216,17 @@ defmodule TransportWeb.ValidationControllerTest do
       assert render(view) =~ "2 erreurs"
       assert render(view) =~ "Value is not allowed in enum."
     end
+  end
+
+  defp ensure_waiting_message_is_displayed(conn, metadata) do
+    validation = insert(:validation, on_the_fly_validation_metadata: metadata)
+    conn = conn |> get(validation_path(conn, :show, validation.id))
+
+    # Displays the waiting message
+    response = html_response(conn, 200)
+    assert response =~ "Validation en cours."
+
+    {conn, validation}
   end
 
   defp count_validations do
