@@ -459,7 +459,9 @@ defmodule TransportWeb.DatasetView do
     history_resources |> Enum.map(&has_validity_period?/1) |> Enum.any?()
   end
 
-  def has_validity_period?(%DB.ResourceHistory{payload: payload}) do
-    Map.has_key?(payload["resource_metadata"], "start_date")
+  def has_validity_period?(%DB.ResourceHistory{payload: %{"resource_metadata" => metadata}}) when is_map(metadata) do
+    Map.has_key?(metadata, "start_date")
   end
+
+  def has_validity_period?(%DB.ResourceHistory{}), do: false
 end
