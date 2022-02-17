@@ -55,13 +55,44 @@ defmodule Transport.Test.Transport.Jobs.DedupeHistoryJobTest do
       assert 2 == count_resource_history()
     end
 
-    test "removes duplicates" do
+    test "does nothing when content hashes are different" do
+      insert_resource_history_with_content_hash("a", ~U[2020-11-17 10:28:05Z])
+      insert_resource_history_with_content_hash("b", ~U[2020-11-18 10:28:05Z])
+
+      assert 2 == count_resource_history()
+
+      perform_job(DedupeHistoryJob, %{"datagouv_id" => @datagouv_id})
+
+      assert 2 == count_resource_history()
+    end
+
+    test "removes duplicates for shas" do
       insert_resource_history_with_shas(["a"], ~U[2020-11-17 10:28:05Z])
       to_remove1 = insert_resource_history_with_shas(["a"], ~U[2020-11-18 10:28:05Z])
       insert_resource_history_with_shas(["b"], ~U[2020-11-18 10:28:05Z])
       insert_resource_history_with_shas(["c"], ~U[2020-11-19 10:28:05Z])
       to_remove2 = insert_resource_history_with_shas(["c"], ~U[2020-11-20 10:28:05Z])
       insert_resource_history_with_shas(["d"], ~U[2020-11-21 10:28:05Z])
+
+      S3TestUtils.s3_mocks_delete_object(Transport.S3.bucket_name(:history), to_remove1.payload["filename"])
+      S3TestUtils.s3_mocks_delete_object(Transport.S3.bucket_name(:history), to_remove2.payload["filename"])
+
+      assert 6 == count_resource_history()
+
+      perform_job(DedupeHistoryJob, %{"datagouv_id" => @datagouv_id})
+
+      assert 4 == count_resource_history()
+      assert is_nil(Repo.get(ResourceHistory, to_remove1.id))
+      assert is_nil(Repo.get(ResourceHistory, to_remove2.id))
+    end
+
+    test "removes duplicates for content hashes" do
+      insert_resource_history_with_content_hash("a", ~U[2020-11-17 10:28:05Z])
+      to_remove1 = insert_resource_history_with_content_hash("a", ~U[2020-11-18 10:28:05Z])
+      insert_resource_history_with_content_hash("b", ~U[2020-11-18 10:28:05Z])
+      insert_resource_history_with_content_hash("c", ~U[2020-11-19 10:28:05Z])
+      to_remove2 = insert_resource_history_with_content_hash("c", ~U[2020-11-20 10:28:05Z])
+      insert_resource_history_with_content_hash("d", ~U[2020-11-21 10:28:05Z])
 
       S3TestUtils.s3_mocks_delete_object(Transport.S3.bucket_name(:history), to_remove1.payload["filename"])
       S3TestUtils.s3_mocks_delete_object(Transport.S3.bucket_name(:history), to_remove2.payload["filename"])
@@ -88,7 +119,16 @@ defmodule Transport.Test.Transport.Jobs.DedupeHistoryJobTest do
     end
   end
 
-  defp insert_resource_history_with_shas(shas, inserted_at, datagouv_id \\ nil) do
+  defp insert_resource_history_with_content_hash(content_hash, inserted_at, datagouv_id \\ nil)
+       when is_binary(content_hash) do
+    insert(:resource_history,
+      payload: %{"content_hash" => content_hash, "filename" => "#{inserted_at}.csv"},
+      inserted_at: inserted_at,
+      datagouv_id: datagouv_id || @datagouv_id
+    )
+  end
+
+  defp insert_resource_history_with_shas(shas, inserted_at, datagouv_id \\ nil) when is_list(shas) do
     insert(:resource_history,
       payload: %{"zip_metadata" => shas |> Enum.map(&%{"sha256" => &1}), "filename" => "#{inserted_at}.zip"},
       inserted_at: inserted_at,
