@@ -454,4 +454,12 @@ defmodule TransportWeb.DatasetView do
   def download_url(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
     if Resource.can_direct_download?(resource), do: resource.url, else: resource_path(conn, :download, resource.id)
   end
+
+  def has_validity_period?(history_resources) when is_list(history_resources) do
+    history_resources |> Enum.map(&has_validity_period?/1) |> Enum.any?()
+  end
+
+  def has_validity_period?(%DB.ResourceHistory{payload: payload}) do
+    Map.has_key?(payload["resource_metadata"], "start_date")
+  end
 end

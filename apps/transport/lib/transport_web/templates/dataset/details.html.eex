@@ -174,7 +174,9 @@
             <tr>
               <th><%= dgettext("page-dataset-details", "File") %></th>
               <th><%= dgettext("page-dataset-details", "Publication date") %></th>
-              <th><%= dgettext("page-dataset-details", "Validity period") %></th>
+              <%= if has_validity_period?(@history_resources) do %>
+                <th><%= dgettext("page-dataset-details", "Validity period") %></th>
+              <% end %>
               <th><%= dgettext("page-dataset-details", "Format") %></th>
             </tr>
           </thead>
@@ -184,15 +186,16 @@
                 <td><%= link(resource_history.payload["title"], to: resource_history.payload["permanent_url"]) %>
                 </td>
                 <td><%= resource_history.inserted_at |> format_datetime_to_date() %></td>
-                <td>
-                  <%= unless is_nil(resource_history.payload["resource_metadata"]) or is_nil(resource_history.payload["resource_metadata"]["start_date"]) do %>
-                    <%= dgettext("page-dataset-details", "%{start} to %{end}",
-                            start: resource_history.payload["resource_metadata"]["start_date"],
-                            end: resource_history.payload["resource_metadata"]["end_date"]
-                          )
+                <%= if has_validity_period?(@history_resources) do %>
+                  <td>
+                    <%= dgettext(
+                      "page-dataset-details", "%{start} to %{end}",
+                        start: resource_history.payload["resource_metadata"]["start_date"],
+                        end: resource_history.payload["resource_metadata"]["end_date"]
+                      )
                       %>
-                  <% end %>
-                </td>
+                  </td>
+                <% end %>
                 <td><span class="label"><%= resource_history.payload["format"] %></span></td>
               </tr>
             <% end %>
