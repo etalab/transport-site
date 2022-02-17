@@ -6,6 +6,11 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
   @schema_name "etalab/schema-irve"
   @url "https://example.com/file"
 
+  setup do
+    Mox.stub_with(Transport.Shared.Schemas.Mock, Transport.Shared.Schemas)
+    :ok
+  end
+
   describe "validate" do
     test "ensures schema is a tableschema" do
       schema_name = "foo"

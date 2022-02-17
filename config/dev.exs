@@ -61,7 +61,8 @@ datagouvfr_site = "https://demo.data.gouv.fr"
 config :transport,
   datagouvfr_site: datagouvfr_site,
   s3_buckets: %{
-    history: "resource-history-dev"
+    history: "resource-history-dev",
+    on_demand_validation: "on-demand-validation-dev"
   },
   # by default, use the production validator. This can be overriden with dev.secret.exs
   gtfs_validator_url: "https://transport-validator.cleverapps.io"

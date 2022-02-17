@@ -2,6 +2,11 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
   use Shared.CacheCase
   import Shared.Validation.JSONSchemaValidator
 
+  setup do
+    Mox.stub_with(Transport.Shared.Schemas.Mock, Transport.Shared.Schemas)
+    :ok
+  end
+
   describe "load_jsonschema_for_schema" do
     test "schema-zfe" do
       setup_schemas_response()
