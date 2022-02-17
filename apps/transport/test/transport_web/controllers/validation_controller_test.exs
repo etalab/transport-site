@@ -63,7 +63,7 @@ defmodule TransportWeb.ValidationControllerTest do
       schema_name = "etalab/foo"
 
       Transport.Shared.Schemas.Mock
-      |> expect(:transport_schemas, 2, fn -> %{schema_name => %{"type" => "tableschema", "title" => "foo"}} end)
+      |> expect(:transport_schemas, 2, fn -> %{schema_name => %{"schema_type" => "tableschema", "title" => "foo"}} end)
 
       S3TestUtils.s3_mocks_upload_file("")
       assert 0 == count_validations()
@@ -181,7 +181,11 @@ defmodule TransportWeb.ValidationControllerTest do
 
       Transport.Shared.Schemas.Mock
       |> expect(:transport_schemas, fn ->
-        %{schema_name => %{"versions" => [], "schemas" => [%{"path" => "schema.json"}]}}
+        %{
+          schema_name => %{
+            "versions" => [%{"version_name" => "0.1.0", "schema_url" => "http://example.com/schema.json"}]
+          }
+        }
       end)
 
       {conn, validation} = ensure_waiting_message_is_displayed(conn, %{"state" => "waiting", "type" => schema_name})
