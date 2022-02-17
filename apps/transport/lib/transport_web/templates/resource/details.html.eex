@@ -18,10 +18,12 @@
         <p>
           <b>
           <% nb_errors = errors_count(@resource) %>
-          <%= if nb_errors == 0 do %>
-            ✅ <%= dgettext("validations", "No error detected") %>
-          <% else %>
-            ❌ <%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+          <%= unless is_nil(nb_errors) do %>
+            <%= if nb_errors == 0 do %>
+              ✅ <%= dgettext("validations", "No error detected") %>
+            <% else %>
+              ❌ <%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+            <% end %>
           <% end %>
           </b>
         </p>
