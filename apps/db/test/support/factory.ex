@@ -68,29 +68,25 @@ defmodule DB.Factory do
   end
 
   def data_import_factory do
-    %DB.DataImport{
-    }
+    %DB.DataImport{}
   end
 
   def gtfs_stop_times_factory do
-    %DB.GtfsStopTimes{
-    }
+    %DB.GtfsStopTimes{}
   end
 
   def gtfs_trips_factory do
-    %DB.GtfsTrips{
-    }
+    %DB.GtfsTrips{}
   end
 
   def gtfs_calendar_factory do
-    %DB.GtfsCalendar{
-    }
+    %DB.GtfsCalendar{}
   end
 
   def gtfs_calendar_dates_factory do
-    %DB.GtfsCalendarDates{
-    }
+    %DB.GtfsCalendarDates{}
   end
+
   # Non-Ecto stuff, for now kept here for convenience
 
   def datagouv_api_get_factory do
