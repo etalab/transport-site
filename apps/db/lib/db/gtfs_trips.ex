@@ -1,6 +1,7 @@
 defmodule DB.GtfsTrips do
   @moduledoc """
   This contains the information present in GTFS trips.txt files.
+  https://developers.google.com/transit/gtfs/reference?hl=fr#tripstxt
   """
   use Ecto.Schema
   use TypedEctoSchema

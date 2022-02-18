@@ -1,6 +1,7 @@
 defmodule DB.GtfsCalendar do
   @moduledoc """
   This contains the information present in GTFS calendar.txt files.
+  https://developers.google.com/transit/gtfs/reference?hl=fr#calendartxt
   """
   use Ecto.Schema
   use TypedEctoSchema

@@ -1,6 +1,7 @@
 defmodule DB.GtfsStopTimes do
   @moduledoc """
   This contains the information present in GTFS stops.txt files.
+  https://developers.google.com/transit/gtfs/reference?hl=fr#stop_timestxt
   """
   use Ecto.Schema
   use TypedEctoSchema
