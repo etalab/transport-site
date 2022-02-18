@@ -91,25 +91,26 @@ defmodule Transport.Jobs.GtfsToDB do
           end_date: r |> Map.fetch!("end_date") |> Timex.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date()
         }
 
-        # 'days' is a list of dow (days of weeks) where the service is available
-        # making easier to consume the information
-        # for example for saturdays and sundays : [6,7]
-        days_list = 1..7 |> Enum.map(fn dow -> %{dow: dow} end)
-
-        days =
-          days_list
-          |> Enum.zip_with([monday, tuesday, wednesday, thursday, friday, saturday, sunday], fn d, v ->
-            Map.put(d, :value, v)
-          end)
-          |> Enum.filter(fn m -> m[:value] == 1 end)
-          |> Enum.map(fn m -> m[:dow] end)
-
-        res |> Map.put(:days, days)
+        res
+        |> Map.put(:days, get_dow_array([monday, tuesday, wednesday, thursday, friday, saturday, sunday]))
       end)
       |> Stream.chunk_every(1000)
       |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GtfsCalendar, chunk) end)
       |> Stream.run()
     end)
+  end
+
+  @doc """
+   Takes values (0 or 1) for each day, return an array with the days of weeks having their value equal to 1
+
+   iex> get_dow_array([1,0,1,0,0,0,1])
+   [1,3,7]
+  """
+  def get_dow_array([_monday, _tuesday, _wednesday, _thursday, _friday, _saturday, _sunday] = dows) do
+    dows
+    |> Enum.with_index()
+    |> Enum.filter(&(elem(&1, 0) == 1))
+    |> Enum.map(&(elem(&1, 1) + 1))
   end
 
   def fill_stop_times_from_resource_history(resource_history_id, data_import_id) do

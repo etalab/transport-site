@@ -1,7 +1,8 @@
-defmodule TTransport.Jobs.GtfsToDBTest do
+defmodule Transport.Jobs.GtfsToDBTest do
   use ExUnit.Case
   import DB.Factory
   import Transport.Jobs.GtfsToDB
+  doctest Transport.Jobs.GtfsToDB, import: true
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
