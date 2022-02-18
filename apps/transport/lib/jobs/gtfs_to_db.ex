@@ -18,7 +18,10 @@ defmodule Transport.Jobs.GtfsToDB do
     bucket_name = Transport.S3.bucket_name(:history)
 
     file_stream = Transport.Unzip.S3File.get_file_stream("stops.txt", filename, bucket_name)
+    stops_stream_insert(file_stream, data_import_id)
+  end
 
+  def stops_stream_insert(file_stream, data_import_id) do
     DB.Repo.transaction(fn ->
       file_stream
       |> to_stream_of_maps()
@@ -30,7 +33,7 @@ defmodule Transport.Jobs.GtfsToDB do
           stop_name: r |> Map.fetch!("stop_name"),
           stop_lat: r |> Map.fetch!("stop_lat") |> String.to_float(),
           stop_lon: r |> Map.fetch!("stop_lon") |> String.to_float(),
-          location_type: r |> Map.fetch!("location_type")
+          location_type: r |> Map.fetch!("location_type") |> String.to_integer()
         }
       end)
       |> Stream.chunk_every(1000)
@@ -66,6 +69,10 @@ defmodule Transport.Jobs.GtfsToDB do
 
     file_stream = Transport.Unzip.S3File.get_file_stream("calendar.txt", filename, bucket_name)
 
+    calendar_stream_insert(file_stream, data_import_id)
+  end
+
+  def calendar_stream_insert(file_stream, data_import_id) do
     DB.Repo.transaction(fn ->
       file_stream
       |> to_stream_of_maps()
@@ -109,7 +116,10 @@ defmodule Transport.Jobs.GtfsToDB do
     %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
     bucket_name = Transport.S3.bucket_name(:history)
     file_stream = Transport.Unzip.S3File.get_file_stream("stop_times.txt", filename, bucket_name)
+    stop_times_stream_insert(file_stream, data_import_id)
+  end
 
+  def stop_times_stream_insert(file_stream, data_import_id) do
     DB.Repo.transaction(
       fn ->
         file_stream
@@ -142,9 +152,9 @@ defmodule Transport.Jobs.GtfsToDB do
 
     # this is what EctoInterval is able to cast into a Postgrex.Interval
     %{
-      "secs" => hours * 60 * 60 + minutes * 60 + seconds,
-      "days" => 0,
-      "months" => 0
+      secs: hours * 60 * 60 + minutes * 60 + seconds,
+      days: 0,
+      months: 0
     }
   end
 
@@ -152,7 +162,10 @@ defmodule Transport.Jobs.GtfsToDB do
     %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
     bucket_name = Transport.S3.bucket_name(:history)
     file_stream = Transport.Unzip.S3File.get_file_stream("calendar_dates.txt", filename, bucket_name)
+    calendar_dates_stream_insert(file_stream, data_import_id)
+  end
 
+  def calendar_dates_stream_insert(file_stream, data_import_id) do
     DB.Repo.transaction(
       fn ->
         file_stream
@@ -177,7 +190,10 @@ defmodule Transport.Jobs.GtfsToDB do
     %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
     bucket_name = Transport.S3.bucket_name(:history)
     file_stream = Transport.Unzip.S3File.get_file_stream("trips.txt", filename, bucket_name)
+    trips_stream_insert(file_stream, data_import_id)
+  end
 
+  def trips_stream_insert(file_stream, data_import_id) do
     DB.Repo.transaction(
       fn ->
         file_stream
