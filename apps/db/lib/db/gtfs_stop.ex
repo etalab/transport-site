@@ -11,6 +11,6 @@ defmodule DB.GtfsStops do
     field(:stop_name, :binary)
     field(:stop_lat, :float)
     field(:stop_lon, :float)
-    field(:location_type, :binary)
+    field(:location_type, :integer)
   end
 end

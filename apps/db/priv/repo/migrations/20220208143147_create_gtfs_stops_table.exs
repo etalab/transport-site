@@ -12,7 +12,7 @@ defmodule DB.Repo.Migrations.CreateGtfsStopsTable do
       add(:stop_name, :binary)
       add(:stop_lat, :float)
       add(:stop_lon, :float)
-      add(:location_type, :binary)
+      add(:location_type, :integer)
     end
 
     create table(:gtfs_calendar) do
