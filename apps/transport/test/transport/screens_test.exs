@@ -23,5 +23,37 @@ defmodule Transport.ScreensTest do
         "resource_datagouv_id": resource_datagouv_id
       }
     )
+
+    query = """
+
+    SELECT
+    resource_history_id,
+    resource_datagouv_id,
+    CASE WHEN data_conversion_id IS NOT NULL THEN
+      TRUE
+    ELSE
+      FALSE
+    END AS conversion_found
+  FROM (
+    SELECT
+      id AS resource_history_id,
+      datagouv_id AS resource_datagouv_id,
+      payload ->> 'uuid' AS resource_history_uuid
+    FROM
+      resource_history
+    WHERE
+      payload ->> 'format' = 'GTFS') resource
+    LEFT OUTER JOIN (
+    SELECT
+      id AS data_conversion_id, convert_from, convert_to, resource_history_uuid
+    FROM
+      data_conversion
+    WHERE
+      convert_from = 'GTFS'
+      AND convert_to != 'GeoJSON') conversion ON conversion.resource_history_uuid::text = resource.resource_history_uuid
+
+    """
+
+    IO.inspect(Ecto.Adapters.SQL.query(DB.Repo, query), IEx.inspect_opts())
   end
 end
