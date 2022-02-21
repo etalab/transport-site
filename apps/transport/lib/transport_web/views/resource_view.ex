@@ -5,6 +5,7 @@ defmodule TransportWeb.ResourceView do
   import Phoenix.Controller, only: [current_url: 2]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
   import TransportWeb.DatasetView, only: [schema_url: 1, errors_count: 1]
+  import DB.Resource, only: [has_errors_details?: 1]
   import DB.ResourceUnavailability, only: [round_float: 2]
   def format_related_objects(nil), do: ""
 
