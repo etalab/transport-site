@@ -1,7 +1,7 @@
 defmodule Transport.Jobs.CleanOrphanConversionsJob do
   @moduledoc """
-  Job in charge of clean `DB.DataConversion` rows
-  where the underlying `DB.ResourceHistory` does not exist.
+  Job in charge of cleaning `DB.DataConversion` rows where
+  the underlying `DB.ResourceHistory` does not exist anymore.
   """
   use Oban.Worker, max_attempts: 3
   import Ecto.Query
