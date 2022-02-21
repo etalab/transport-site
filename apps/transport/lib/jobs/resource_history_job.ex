@@ -42,9 +42,9 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
     |> where([r], r.datagouv_id not in ^duplicates)
     |> where([r], not r.is_community_resource)
     |> where([r], like(r.url, "http%"))
-    |> select([r], r.datagouv_id)
     |> Repo.all()
     |> Enum.reject(&Resource.is_real_time?/1)
+    |> Enum.map(& &1.datagouv_id)
   end
 end
 

@@ -248,7 +248,7 @@ defmodule TransportWeb.DatasetView do
   def summary_class(%{metadata: %{"validation" => _}}), do: "resource__summary--Error"
 
   def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => nb_errors}}})
-      when nb_errors >= 0,
+      when is_integer(nb_errors) and nb_errors >= 0,
       do: nb_errors
 
   def errors_count(%Resource{}), do: nil
@@ -459,7 +459,9 @@ defmodule TransportWeb.DatasetView do
     history_resources |> Enum.map(&has_validity_period?/1) |> Enum.any?()
   end
 
-  def has_validity_period?(%DB.ResourceHistory{payload: payload}) do
-    Map.has_key?(payload["resource_metadata"], "start_date")
+  def has_validity_period?(%DB.ResourceHistory{payload: %{"resource_metadata" => metadata}}) when is_map(metadata) do
+    Map.has_key?(metadata, "start_date")
   end
+
+  def has_validity_period?(%DB.ResourceHistory{}), do: false
 end

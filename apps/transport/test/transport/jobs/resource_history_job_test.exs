@@ -446,6 +446,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
     insert(:resource,
       url: "https://example.com/gbfs",
+      dataset_id: active_dataset_id,
       format: "gbfs",
       title: "Ignored because it's realtime",
       datagouv_id: "3",
