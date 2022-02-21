@@ -27,7 +27,7 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
       schedule_next_update_data()
     end
 
-    if is_final_state?(socket) and is_gtfs?(socket) do
+    if gtfs_validation_completed?(socket) do
       redirect(socket, to: socket_value(socket, :current_url))
     else
       socket
@@ -49,7 +49,15 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
     end
   end
 
-  defp is_gtfs?(socket), do: socket_value(socket, :validation).on_the_fly_validation_metadata["type"] == "gtfs"
+  defp gtfs_validation_completed?(socket) do
+    case socket_value(socket, :validation) do
+      %DB.Validation{on_the_fly_validation_metadata: metadata} ->
+        metadata["type"] == "gtfs" and metadata["state"] == "completed"
+
+      _ ->
+        false
+    end
+  end
 
   defp socket_value(%Phoenix.LiveView.Socket{assigns: assigns}, key), do: Map.fetch!(assigns, key)
 end
