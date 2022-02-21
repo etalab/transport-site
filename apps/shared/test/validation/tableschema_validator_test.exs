@@ -3,8 +3,13 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
   import Transport.Shared.Schemas, only: [schema_url: 2]
   import Shared.Validation.TableSchemaValidator
 
-  @schema_name "etalab/schema-irve"
+  @schema_name "etalab/schema-lieux-covoiturage"
   @url "https://example.com/file"
+
+  setup do
+    Mox.stub_with(Transport.Shared.Schemas.Mock, Transport.Shared.Schemas)
+    :ok
+  end
 
   describe "validate" do
     test "ensures schema is a tableschema" do
@@ -96,24 +101,11 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
   end
 
   defp setup_schemas_response do
-    url = "https://schema.data.gouv.fr/schemas.yml"
+    url = "https://schema.data.gouv.fr/schemas.json"
 
     Transport.HTTPoison.Mock
     |> expect(:get!, fn ^url ->
-      body = """
-      etalab/foo:
-        email: contact@transport.beta.gouv.fr
-        type: jsonschema
-        schemas:
-          - path: schema.json
-      etalab/schema-irve:
-        email: contact@transport.beta.gouv.fr
-        type: tableschema
-        schemas:
-          - path: schema.json
-      """
-
-      %HTTPoison.Response{body: body, status_code: 200}
+      %HTTPoison.Response{body: File.read!("#{__DIR__}/../fixtures/schemas.json"), status_code: 200}
     end)
   end
 end

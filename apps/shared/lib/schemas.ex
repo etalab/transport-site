@@ -33,16 +33,17 @@ defmodule Transport.Shared.Schemas do
   Load transport schemas listed on https://schema.data.gouv.fr
   """
   import Shared.Application, only: [cache_name: 0]
+  alias Transport.Shared.Schemas.Wrapper
   @behaviour Transport.Shared.Schemas.Wrapper
 
-  @schemas_catalog_url "https://schema.data.gouv.fr/schemas.yml"
+  @schemas_catalog_url "https://schema.data.gouv.fr/schemas.json"
 
   def read_latest_schema(schema_name) do
     comp_fn = fn ->
-      schema = Map.fetch!(transport_schemas(), schema_name)
+      schema = Map.fetch!(Wrapper.transport_schemas(), schema_name)
 
       %HTTPoison.Response{status_code: 200, body: body} =
-        http_client().get!(schema_url(schema_name, schema["latest_version"]))
+        http_client().get!(schema_url(schema_name, latest_version(schema)))
 
       Jason.decode!(body)
     end
@@ -51,31 +52,35 @@ defmodule Transport.Shared.Schemas do
   end
 
   def schema_url(schema_name, schema_version) do
-    details = Map.fetch!(transport_schemas(), schema_name)
+    schema = Map.fetch!(Wrapper.transport_schemas(), schema_name)
 
-    unless Enum.member?(["latest" | details["versions"]], schema_version) do
+    schema_version = if schema_version == "latest", do: latest_version(schema), else: schema_version
+
+    unless Enum.member?(schema_versions(schema), schema_version) do
       raise KeyError, "#{schema_version} is not a valid version for #{schema_name}"
     end
 
-    if Enum.count(details["schemas"]) != 1 do
-      raise "does not handle multiple schemas for #{schema_name}"
-    end
-
-    path = hd(details["schemas"])["path"]
-    "https://schema.data.gouv.fr/schemas/#{schema_name}/#{schema_version}/#{path}"
+    Map.fetch!(
+      Enum.find(Map.fetch!(schema, "versions"), &(Map.fetch!(&1, "version_name") == schema_version)),
+      "schema_url"
+    )
   end
 
   @impl true
   def schemas_by_type(schema_type) when schema_type in ["tableschema", "jsonschema"] do
-    :maps.filter(fn _, v -> v["type"] == schema_type end, transport_schemas())
+    :maps.filter(fn _, v -> v["schema_type"] == schema_type end, Wrapper.transport_schemas())
   end
 
   @impl true
   def transport_schemas do
     comp_fn = fn ->
       %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(@schemas_catalog_url)
-      yaml = body |> YamlElixir.read_from_string!()
-      :maps.filter(fn _, v -> v["email"] == Application.fetch_env!(:transport, :contact_email) end, yaml)
+
+      body
+      |> Jason.decode!()
+      |> Map.fetch!("schemas")
+      |> Enum.filter(&Enum.member?(&1["labels"], "transport.data.gouv.fr"))
+      |> Enum.into(%{}, fn schema -> {Map.fetch!(schema, "name"), schema} end)
     end
 
     cache_fetch("transport_schemas", comp_fn)
@@ -93,6 +98,10 @@ defmodule Transport.Shared.Schemas do
         result
     end
   end
+
+  defp latest_version(schema), do: schema |> schema_versions() |> Enum.at(-1)
+
+  defp schema_versions(schema), do: schema |> Map.fetch!("versions") |> Enum.map(& &1["version_name"])
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 end

@@ -572,7 +572,7 @@ defmodule DB.Resource do
   def is_siri_lite?(_), do: false
 
   @spec is_real_time?(__MODULE__.t()) :: boolean
-  def is_real_time?(resource) do
+  def is_real_time?(%__MODULE__{} = resource) do
     is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource)
   end
 
@@ -628,7 +628,10 @@ defmodule DB.Resource do
     )
   end
 
-  def has_errors_details?(%__MODULE__{metadata: %{"validation" => %{"errors_count" => _}}}), do: true
+  def has_errors_details?(%__MODULE__{metadata: %{"validation" => %{"errors_count" => nb_errors}}})
+      when is_integer(nb_errors) and nb_errors >= 0,
+      do: true
+
   def has_errors_details?(%__MODULE__{}), do: false
 
   @spec get_related_files(__MODULE__.t()) :: map()
