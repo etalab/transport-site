@@ -248,7 +248,7 @@ defmodule TransportWeb.DatasetView do
   def summary_class(%{metadata: %{"validation" => _}}), do: "resource__summary--Error"
 
   def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => nb_errors}}})
-      when nb_errors >= 0,
+      when is_integer(nb_errors) and nb_errors >= 0,
       do: nb_errors
 
   def errors_count(%Resource{}), do: nil
