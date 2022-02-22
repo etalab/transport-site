@@ -23,27 +23,6 @@ defmodule Transport.Test.S3TestUtils do
     end)
   end
 
-  def s3_mocks_create_bucket do
-    # Listing buckets
-    s3_mock_list_buckets([])
-
-    Transport.ExAWS.Mock
-    # Bucket creation
-    |> expect(:request!, fn request ->
-      bucket_name = Transport.S3.bucket_name(:history)
-
-      ExUnit.Assertions.assert(
-        %{
-          service: :s3,
-          http_method: :put,
-          path: "/",
-          bucket: ^bucket_name,
-          headers: %{"x-amz-acl" => "public-read"}
-        } = request
-      )
-    end)
-  end
-
   def s3_mocks_upload_file(assert_path) do
     Transport.ExAWS.Mock
     |> expect(:request!, fn %{
@@ -55,6 +34,20 @@ defmodule Transport.Test.S3TestUtils do
                               headers: %{"x-amz-acl" => "public-read"}
                             } ->
       ExUnit.Assertions.assert(path |> String.starts_with?(assert_path))
+    end)
+  end
+
+  def s3_mocks_delete_object(expected_bucket, expected_path) do
+    Transport.ExAWS.Mock
+    |> expect(:request!, fn request ->
+      ExUnit.Assertions.assert(
+        %{
+          service: :s3,
+          http_method: :delete,
+          path: ^expected_path,
+          bucket: ^expected_bucket
+        } = request
+      )
     end)
   end
 end

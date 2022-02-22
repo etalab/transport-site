@@ -74,7 +74,7 @@ defmodule TransportWeb.SeoMetadata do
 
   def metadata(TransportWeb.ValidationView, _),
     do: %{
-      title: dgettext("seo", "GTFS data quality evaluation")
+      title: dgettext("seo", "Data quality evaluation")
     }
 
   def metadata(_view, _assigns), do: %{}

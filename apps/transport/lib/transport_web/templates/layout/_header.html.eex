@@ -24,7 +24,7 @@
             <div class="dropdown">
               <%= gettext("Tools") %>
               <div class="dropdown-content">
-                <%= link(gettext("Check a GTFS file's quality"), to: "/validation") %>
+                <%= link(gettext("Check a file's quality"), to: validation_path(@conn, :index)) %>
                 <%= link(gettext("Analyze a GBFS feed"), to: "/tools/gbfs/analyze") %>
                 <%= link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank") %>
               </div>
