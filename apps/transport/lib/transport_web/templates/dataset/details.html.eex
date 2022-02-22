@@ -165,7 +165,7 @@
   </section>
 <% end %>
 <%= unless @history_resources == [] do %>
-  <%= has_validity_period_col = has_validity_period?(@history_resources) %>
+  <% has_validity_period_col = has_validity_period?(@history_resources) %>
   <section class="white pt-48" id="backed-up-resources">
     <h3><%= dgettext("page-dataset-details", "Backed up resources")%></h3>
     <div class="">
@@ -199,7 +199,7 @@
                         )
                         %>
                     </td>
-                  <%= else %>
+                  <% else %>
                     <td></td>
                   <% end %>
                 <% end %>
