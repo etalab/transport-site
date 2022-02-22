@@ -1,0 +1,581 @@
+[ {
+  "errorMessage" : {
+    "messageId" : 0,
+    "gtfsRtFeedIterationModel" : null,
+    "validationRule" : {
+      "errorId" : "W002",
+      "severity" : "WARNING",
+      "title" : "vehicle_id not populated",
+      "errorDescription" : "vehicle_id should be populated for TripUpdates and VehiclePositions",
+      "occurrenceSuffix" : "does not have a vehicle_id"
+    },
+    "errorDetails" : null
+  },
+  "occurrenceList" : [ {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646637"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646540"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646839"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646810"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646604"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646746"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646660"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646873"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646837"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646562"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646794"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646793"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646904"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646744"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646585"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646874"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646811"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646661"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646745"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646542"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646650"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646563"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646662"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646905"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646659"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646838"
+  } ]
+}, {
+  "errorMessage" : {
+    "messageId" : 0,
+    "gtfsRtFeedIterationModel" : null,
+    "validationRule" : {
+      "errorId" : "W001",
+      "severity" : "WARNING",
+      "title" : "timestamp not populated",
+      "errorDescription" : "Timestamps should be populated for all elements",
+      "occurrenceSuffix" : "does not have a timestamp"
+    },
+    "errorDetails" : null
+  },
+  "occurrenceList" : [ {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646637"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646540"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646603"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646742"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646839"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646810"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646809"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646604"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646746"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646660"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646657"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646873"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646871"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646837"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646562"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646836"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646584"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646794"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646793"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646904"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646744"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646585"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646874"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646811"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646661"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646743"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646745"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646542"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646636"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646650"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646563"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646662"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646905"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646658"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646659"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646838"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646541"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646872"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646903"
+  } ]
+}, {
+  "errorMessage" : {
+    "messageId" : 0,
+    "gtfsRtFeedIterationModel" : null,
+    "validationRule" : {
+      "errorId" : "E022",
+      "severity" : "ERROR",
+      "title" : "Sequential stop_time_update times are not increasing",
+      "errorDescription" : "stop_time_update arrival/departure times between sequential stops should always increase - they should never be the same or decrease.",
+      "occurrenceSuffix" : "- times must increase between two sequential stops"
+    },
+    "errorDetails" : null
+  },
+  "occurrenceList" : [ {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646603 stop_sequence 0 departure_time 15:47:01 (1645454821) is less than previous stop departure_time 15:52:46 (1645455166)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646603 stop_sequence 0 departure_time 15:47:01 (1645454821) is less than previous stop arrival_time 15:52:46 (1645455166)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646603 stop_sequence 1 arrival_time 15:47:45 (1645454865) is less than previous stop arrival_time 15:52:46 (1645455166)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646603 stop_sequence 1 departure_time 15:47:45 (1645454865) is less than previous stop arrival_time 15:52:46 (1645455166)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646604 stop_sequence 0 departure_time 16:25:00 (1645457100) is less than previous stop departure_time 16:31:11 (1645457471)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646604 stop_sequence 0 departure_time 16:25:00 (1645457100) is less than previous stop arrival_time 16:31:11 (1645457471)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646604 stop_sequence 1 arrival_time 16:25:58 (1645457158) is less than previous stop arrival_time 16:31:11 (1645457471)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646604 stop_sequence 1 departure_time 16:25:58 (1645457158) is less than previous stop arrival_time 16:31:11 (1645457471)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646659 stop_sequence 11 arrival_time 16:14:37 (1645456477) is less than previous stop arrival_time 16:15:00 (1645456500)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646659 stop_sequence 11 arrival_time 16:14:37 (1645456477) is less than previous stop departure_time 16:15:00 (1645456500)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646659 stop_sequence 11 departure_time 16:14:37 (1645456477) is less than previous stop departure_time 16:15:00 (1645456500)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646659 stop_sequence 11 departure_time 16:14:37 (1645456477) is less than previous stop arrival_time 16:15:00 (1645456500)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646903 stop_sequence 21 arrival_time 16:00:00 (1645455600) is less than previous stop arrival_time 16:01:12 (1645455672)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646903 stop_sequence 21 arrival_time 16:00:00 (1645455600) is less than previous stop departure_time 16:01:12 (1645455672)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646903 stop_sequence 21 departure_time 16:00:00 (1645455600) is less than previous stop departure_time 16:01:12 (1645455672)"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646903 stop_sequence 21 departure_time 16:00:00 (1645455600) is less than previous stop arrival_time 16:01:12 (1645455672)"
+  } ]
+}, {
+  "errorMessage" : {
+    "messageId" : 0,
+    "gtfsRtFeedIterationModel" : null,
+    "validationRule" : {
+      "errorId" : "E002",
+      "severity" : "ERROR",
+      "title" : "stop_times_updates not strictly sorted",
+      "errorDescription" : "stop_time_updates for a given trip_id must be strictly sorted by increasing stop_sequence",
+      "occurrenceSuffix" : "is not strictly sorted by increasing stop_sequence"
+    },
+    "errorDetails" : null
+  },
+  "occurrenceList" : [ {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646603 stop_sequence [5, 0]"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646604 stop_sequence [5, 0]"
+  } ]
+}, {
+  "errorMessage" : {
+    "messageId" : 0,
+    "gtfsRtFeedIterationModel" : null,
+    "validationRule" : {
+      "errorId" : "E036",
+      "severity" : "ERROR",
+      "title" : "Sequential stop_time_updates have the same stop_sequence",
+      "errorDescription" : "Sequential GTFS-rt trip stop_time_updates should never have the same stop_sequence",
+      "occurrenceSuffix" : "- stop_sequence must increase for each stop_time_update"
+    },
+    "errorDetails" : null
+  },
+  "occurrenceList" : [ {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646603 has repeating stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "trip_id 17646604 has repeating stop_sequence 0"
+  } ]
+}, {
+  "errorMessage" : {
+    "messageId" : 0,
+    "gtfsRtFeedIterationModel" : null,
+    "validationRule" : {
+      "errorId" : "E051",
+      "severity" : "ERROR",
+      "title" : "GTFS-rt stop_sequence not found in GTFS data",
+      "errorDescription" : "All stop_time_update stop_sequences in GTFS-realtime data must appear in GTFS stop_times.txt for that trip",
+      "occurrenceSuffix" : "that does not exist in GTFS stop_times.txt for this trip"
+    },
+    "errorDetails" : null
+  },
+  "occurrenceList" : [ {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646637 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646540 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646603 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646742 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646839 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646810 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646809 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646604 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646746 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646660 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646657 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646873 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646871 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646837 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646562 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646836 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646584 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646794 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646793 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646904 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646744 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646585 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646874 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646811 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646661 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646743 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646745 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646542 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646636 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646650 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646563 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646662 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646905 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646658 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646659 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646838 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646541 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646872 contains stop_sequence 0"
+  }, {
+    "occurrenceId" : 0,
+    "messageLogModel" : null,
+    "prefix" : "GTFS-rt trip_id 17646903 contains stop_sequence 0"
+  } ]
+} ]

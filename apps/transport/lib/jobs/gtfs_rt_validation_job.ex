@@ -46,6 +46,7 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
   require Logger
 
   @validator_path "/usr/local/bin/gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
+  @max_errors_per_section 5
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do
@@ -71,11 +72,12 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
       |> Enum.reject(&(elem(&1, 1) == :error))
       |> Enum.each(fn res ->
         binary_path = "java"
-        {_resource, {:ok, gtfs_rt_path, cellar_filename}} = res
+        {resource, {:ok, gtfs_rt_path, _cellar_filename}} = res
 
         # See https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#batch-processing
         args = ["-jar", @validator_path, "-gtfs", gtfs_path, "-gtfsRealtimePath", Path.dirname(gtfs_rt_path)]
-        Transport.RamboLauncher.run(binary_path, args, log: true)
+        {:ok, _} = Transport.RamboLauncher.run(binary_path, args, log: true)
+        convert_report(gtfs_rt_result_path(resource))
       end)
     after
       gtfs_rts |> Enum.each(&(&1 |> download_path() |> remove_file()))
@@ -127,6 +129,30 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
       {:error, %HTTPoison.Error{reason: reason}} ->
         {:error, "Got an error: #{reason}"}
     end
+  end
+
+  def convert_report(path) do
+    errors =
+      path
+      |> File.read!()
+      |> Jason.decode!()
+      |> Enum.map(fn error ->
+        rule = Map.fetch!(Map.fetch!(error, "errorMessage"), "validationRule")
+        suffix = Map.fetch!(rule, "occurrenceSuffix")
+        occurence_list = Map.fetch!(error, "occurrenceList")
+
+        %{
+          "error_id" => Map.fetch!(rule, "errorId"),
+          "severity" => Map.fetch!(rule, "severity"),
+          "title" => Map.fetch!(rule, "title"),
+          "description" => Map.fetch!(rule, "errorDescription"),
+          "errors_count" => Enum.count(occurence_list),
+          "errors" =>
+            occurence_list |> Enum.take(@max_errors_per_section) |> Enum.map(&"#{Map.fetch!(&1, "prefix")} #{suffix}")
+        }
+      end)
+
+    %{"errors_count" => errors |> Enum.map(&Map.fetch!(&1, "errors_count")) |> Enum.sum(), "errors" => errors}
   end
 
   defp process_download({:error, message}, %Resource{datagouv_id: datagouv_id}) do
