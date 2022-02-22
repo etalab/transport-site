@@ -7,7 +7,6 @@ defmodule Transport.Jobs.GtfsToNetexConverterJob do
 
   @impl true
   def perform(%{}) do
-    Transport.S3.create_bucket_if_needed!(:history)
     GTFSGenericConverter.enqueue_all_conversion_jobs("NeTEx", Transport.Jobs.SingleGtfsToNetexConverterJob)
   end
 end

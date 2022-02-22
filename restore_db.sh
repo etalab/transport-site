@@ -22,3 +22,11 @@ else
 fi
 
 pg_restore -h $HOST -U $USER_NAME -d $DB_NAME --format=c --no-owner --clean --no-acl $BACKUP_PATH
+
+# https://stackoverflow.com/a/1885534
+read -p "Do you want to remove already enqueued Oban jobs? " -n 1 -r
+echo    # (optional) move to a new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    psql -h $HOST -U $USER_NAME -d $DB_NAME -c 'DELETE from oban_jobs'
+fi
