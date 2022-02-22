@@ -32,7 +32,10 @@ defaults_with_postgres: &defaults_with_postgres
       environment:
         POSTGRES_USER: root
         POSTGRES_DB: transport_test
-        # POSTGRES_PASSWORD should be set via encrypted variable on the project
+        # until we figure out how to use encrypted variable here
+        # https://discuss.circleci.com/t/postgres-just-stopped-working/34511/6
+        # https://discuss.circleci.com/t/postgresql-image-password-not-specified-issue/34555
+        POSTGRES_HOST_AUTH_METHOD: trust
 jobs:
   build:
     <<: *defaults
