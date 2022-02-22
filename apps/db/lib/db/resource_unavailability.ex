@@ -90,7 +90,7 @@ defmodule DB.ResourceUnavailability do
     uptimes as
     (select day, 1. - (EXTRACT(EPOCH from downtime) / EXTRACT(EPOCH from interval '1 day')) as uptime from downtimes)
 
-    select dates.day::date, coalesce (uptime, 1) as uptime from dates left join uptimes on dates.day = uptimes.day;
+    select dates.day::date, cast(coalesce (uptime, 1) as double precision) as uptime from dates left join uptimes on dates.day = uptimes.day;
     """
 
     %{columns: columns, rows: rows} = Ecto.Adapters.SQL.query!(DB.Repo, query, [nb_days, resource_id])
