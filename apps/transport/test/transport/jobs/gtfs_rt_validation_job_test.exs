@@ -87,9 +87,24 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
   end
 
   describe "GTFSRTValidationJob" do
-    test "convert_report" do
+    test "get_max_severity_error" do
+      assert nil == GTFSRTValidationJob.get_max_severity_error([])
+      assert "ERROR" == GTFSRTValidationJob.get_max_severity_error([%{"severity" => "ERROR"}])
+
+      assert "ERROR" ==
+               GTFSRTValidationJob.get_max_severity_error([%{"severity" => "ERROR"}, %{"severity" => "WARNING"}])
+
+      assert "WARNING" == GTFSRTValidationJob.get_max_severity_error([%{"severity" => "WARNING"}])
+
+      assert_raise RuntimeError, ~r/^Some severity levels are not handled/, fn ->
+        GTFSRTValidationJob.get_max_severity_error([%{"severity" => "foo"}])
+      end
+    end
+
+    test "convert_validator_report" do
       assert %{
-               "errors_count" => 124,
+               "errors_count" => 30,
+               "has_errors" => true,
                "errors" => [
                  %{
                    "description" => "vehicle_id should be populated for TripUpdates and VehiclePositions",
@@ -104,35 +119,6 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
                    "errors_count" => 26,
                    "severity" => "WARNING",
                    "title" => "vehicle_id not populated"
-                 },
-                 %{
-                   "description" => "Timestamps should be populated for all elements",
-                   "error_id" => "W001",
-                   "errors" => [
-                     "trip_id 17646637 does not have a timestamp",
-                     "trip_id 17646540 does not have a timestamp",
-                     "trip_id 17646603 does not have a timestamp",
-                     "trip_id 17646742 does not have a timestamp",
-                     "trip_id 17646839 does not have a timestamp"
-                   ],
-                   "errors_count" => 39,
-                   "severity" => "WARNING",
-                   "title" => "timestamp not populated"
-                 },
-                 %{
-                   "description" =>
-                     "stop_time_update arrival/departure times between sequential stops should always increase - they should never be the same or decrease.",
-                   "error_id" => "E022",
-                   "errors" => [
-                     "trip_id 17646603 stop_sequence 0 departure_time 15:47:01 (1645454821) is less than previous stop departure_time 15:52:46 (1645455166) - times must increase between two sequential stops",
-                     "trip_id 17646603 stop_sequence 0 departure_time 15:47:01 (1645454821) is less than previous stop arrival_time 15:52:46 (1645455166) - times must increase between two sequential stops",
-                     "trip_id 17646603 stop_sequence 1 arrival_time 15:47:45 (1645454865) is less than previous stop arrival_time 15:52:46 (1645455166) - times must increase between two sequential stops",
-                     "trip_id 17646603 stop_sequence 1 departure_time 15:47:45 (1645454865) is less than previous stop arrival_time 15:52:46 (1645455166) - times must increase between two sequential stops",
-                     "trip_id 17646604 stop_sequence 0 departure_time 16:25:00 (1645457100) is less than previous stop departure_time 16:31:11 (1645457471) - times must increase between two sequential stops"
-                   ],
-                   "errors_count" => 16,
-                   "severity" => "ERROR",
-                   "title" => "Sequential stop_time_update times are not increasing"
                  },
                  %{
                    "description" =>
@@ -157,24 +143,9 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
                    "errors_count" => 2,
                    "severity" => "ERROR",
                    "title" => "Sequential stop_time_updates have the same stop_sequence"
-                 },
-                 %{
-                   "description" =>
-                     "All stop_time_update stop_sequences in GTFS-realtime data must appear in GTFS stop_times.txt for that trip",
-                   "error_id" => "E051",
-                   "errors" => [
-                     "GTFS-rt trip_id 17646637 contains stop_sequence 0 that does not exist in GTFS stop_times.txt for this trip",
-                     "GTFS-rt trip_id 17646540 contains stop_sequence 0 that does not exist in GTFS stop_times.txt for this trip",
-                     "GTFS-rt trip_id 17646603 contains stop_sequence 0 that does not exist in GTFS stop_times.txt for this trip",
-                     "GTFS-rt trip_id 17646742 contains stop_sequence 0 that does not exist in GTFS stop_times.txt for this trip",
-                     "GTFS-rt trip_id 17646839 contains stop_sequence 0 that does not exist in GTFS stop_times.txt for this trip"
-                   ],
-                   "errors_count" => 39,
-                   "severity" => "ERROR",
-                   "title" => "GTFS-rt stop_sequence not found in GTFS data"
                  }
                ]
-             } == GTFSRTValidationJob.convert_report(@gtfs_rt_report_path)
+             } == GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
     end
   end
 end

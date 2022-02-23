@@ -41,8 +41,8 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
   results.
   """
   use Oban.Worker, max_attempts: 5, tags: ["validation"]
-  import Ecto.Query
-  alias DB.{Dataset, Repo, Resource, ResourceHistory}
+  import Ecto.{Changeset, Query}
+  alias DB.{Dataset, Repo, Resource, ResourceHistory, Validation}
   require Logger
 
   @validator_path "/usr/local/bin/gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
@@ -52,7 +52,7 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
   def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do
     dataset =
       Dataset
-      |> preload(:resources)
+      |> preload([:resources, resources: [:validation]])
       |> where([d], d.id == ^dataset_id)
       |> Repo.one!()
 
@@ -64,29 +64,79 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     end
 
     gtfs_path = download_path(gtfs)
-    save_latest_gtfs(latest_resource_history(gtfs), gtfs_path)
+    gtfs_resource_history = latest_resource_history(gtfs)
+    download_latest_gtfs(gtfs_resource_history, gtfs_path)
 
     try do
       gtfs_rts
       |> snapshot_gtfs_rts()
       |> Enum.reject(&(elem(&1, 1) == :error))
-      |> Enum.each(fn res ->
-        binary_path = "java"
-        {resource, {:ok, gtfs_rt_path, _cellar_filename}} = res
+      |> Enum.each(fn snapshot ->
+        {resource, {:ok, gtfs_rt_path, cellar_filename}} = snapshot
 
         # See https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#batch-processing
+        binary_path = "java"
         args = ["-jar", @validator_path, "-gtfs", gtfs_path, "-gtfsRealtimePath", Path.dirname(gtfs_rt_path)]
-        {:ok, _} = Transport.RamboLauncher.run(binary_path, args, log: true)
-        convert_report(gtfs_rt_result_path(resource))
+
+        case Transport.RamboLauncher.run(binary_path, args, log: Mix.env() == :dev) do
+          {:ok, _} ->
+            validation_report = convert_validator_report(gtfs_rt_result_path(resource))
+
+            validation_details =
+              build_validation_details(
+                gtfs_resource_history,
+                validation_report,
+                cellar_filename
+              )
+
+            resource
+            |> change(%{
+              metadata: Map.merge(resource.metadata || %{}, validation_details),
+              validation: %Validation{
+                date: DateTime.utc_now() |> DateTime.to_string(),
+                details: validation_details,
+                max_error: get_in(validation_details, ["validation", "max_severity"])
+              }
+            })
+            |> Repo.update()
+
+          {:error, message} ->
+            Logger.error("Could not run validator #{message}")
+        end
       end)
     after
+      Logger.debug("Cleaning up temporary files")
+      # Clean GTFS-RT: binaries, validation results and folders
       gtfs_rts |> Enum.each(&(&1 |> download_path() |> remove_file()))
       gtfs_rts |> Enum.each(&(&1 |> gtfs_rt_result_path() |> remove_file()))
+      gtfs_rts |> Enum.each(&(&1 |> download_path() |> Path.dirname() |> File.rmdir()))
+      # Clean GTFS zip file and folder
       remove_file(gtfs_path)
       File.rmdir(Path.dirname(gtfs_path))
     end
 
     :ok
+  end
+
+  defp build_validation_details(
+         %ResourceHistory{payload: %{"uuid" => uuid, "permanent_url" => permanent_url}},
+         validation_report,
+         gtfs_rt_cellar_filename
+       ) do
+    %{
+      "validation" =>
+        Map.merge(validation_report, %{
+          "max_severity" => get_max_severity_error(validation_report),
+          "files" => %{
+            "gtfs_resource_history_uuid" => uuid,
+            "gtfs_permanent_url" => permanent_url,
+            "gtfs_rt_filename" => gtfs_rt_cellar_filename,
+            "gtfs_rt_permanent_url" => Transport.S3.permanent_url(:history, gtfs_rt_cellar_filename)
+          },
+          "uuid" => Ecto.UUID.generate(),
+          "datetime" => DateTime.utc_now() |> DateTime.to_string()
+        })
+    }
   end
 
   defp latest_resource_history(%Resource{datagouv_id: datagouv_id, format: "GTFS"}) do
@@ -111,7 +161,7 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     "#{datagouv_id}/#{datagouv_id}.#{time}.bin"
   end
 
-  defp save_latest_gtfs(%ResourceHistory{payload: %{"permanent_url" => url}}, tmp_path) do
+  defp download_latest_gtfs(%ResourceHistory{payload: %{"permanent_url" => url}}, tmp_path) do
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, [], follow_redirect: true)
     File.write!(tmp_path, body)
   end
@@ -131,7 +181,7 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     end
   end
 
-  def convert_report(path) do
+  def convert_validator_report(path) do
     errors =
       path
       |> File.read!()
@@ -152,7 +202,26 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
         }
       end)
 
-    %{"errors_count" => errors |> Enum.map(&Map.fetch!(&1, "errors_count")) |> Enum.sum(), "errors" => errors}
+    total_errors = errors |> Enum.map(&Map.fetch!(&1, "errors_count")) |> Enum.sum()
+
+    %{"errors_count" => total_errors, "has_errors" => total_errors > 0, "errors" => errors}
+  end
+
+  def get_max_severity_error(%{"errors" => errors}), do: get_max_severity_error(errors)
+
+  def get_max_severity_error([]), do: nil
+
+  def get_max_severity_error(errors) do
+    severities = errors |> Enum.map(&Map.fetch!(&1, "severity")) |> MapSet.new()
+
+    unless MapSet.subset?(severities, MapSet.new(["WARNING", "ERROR"])) do
+      raise "Some severity levels are not handled #{inspect(severities)}"
+    end
+
+    cond do
+      "ERROR" in severities -> "ERROR"
+      "WARNING" in severities -> "WARNING"
+    end
   end
 
   defp process_download({:error, message}, %Resource{datagouv_id: datagouv_id}) do
