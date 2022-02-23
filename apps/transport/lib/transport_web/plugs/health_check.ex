@@ -27,11 +27,9 @@ defmodule TransportWeb.Plugs.HealthCheck do
   end
 
   defp database_up? do
-    try do
-      query = Ecto.Adapters.SQL.query!(DB.Repo, "select 0", [])
-      query.rows == [[0]]
-    rescue
-      _ in DBConnection.ConnectionError -> false
-    end
+    query = Ecto.Adapters.SQL.query!(DB.Repo, "select 0", [])
+    query.rows == [[0]]
+  rescue
+    _ in DBConnection.ConnectionError -> false
   end
 end
