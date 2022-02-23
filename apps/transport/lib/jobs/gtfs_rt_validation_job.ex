@@ -42,7 +42,7 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
   """
   use Oban.Worker, max_attempts: 5, tags: ["validation"]
   import Ecto.{Changeset, Query}
-  alias DB.{Dataset, Repo, Resource, ResourceHistory, Validation}
+  alias DB.{Dataset, LogsValidation, Repo, Resource, ResourceHistory, Validation}
   require Logger
 
   defguard is_gtfs_rt(format) when format in ["gtfs-rt", "gtfsrt"]
@@ -76,26 +76,31 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
         binary_path = "java"
         args = ["-jar", @validator_path, "-gtfs", gtfs_path, "-gtfsRealtimePath", Path.dirname(gtfs_rt_path)]
 
-        case Transport.RamboLauncher.run(binary_path, args, log: Mix.env() == :dev) do
-          {:ok, _} ->
-            validation_report = convert_validator_report(gtfs_rt_result_path(resource))
+        validator_return =
+          case Transport.RamboLauncher.run(binary_path, args, log: Mix.env() == :dev) do
+            {:ok, _} = validator_return ->
+              validation_report = convert_validator_report(gtfs_rt_result_path(resource))
 
-            validation_details = build_validation_details(gtfs_resource_history, validation_report, cellar_filename)
+              validation_details = build_validation_details(gtfs_resource_history, validation_report, cellar_filename)
 
-            resource
-            |> change(%{
-              metadata: Map.merge(resource.metadata || %{}, %{"validation" => validation_details}),
-              validation: %Validation{
-                date: DateTime.utc_now() |> DateTime.to_string(),
-                details: validation_details,
-                max_error: Map.fetch!(validation_details, "max_severity")
-              }
-            })
-            |> Repo.update()
+              resource
+              |> change(%{
+                metadata: Map.merge(resource.metadata || %{}, %{"validation" => validation_details}),
+                validation: %Validation{
+                  date: DateTime.utc_now() |> DateTime.to_string(),
+                  details: validation_details,
+                  max_error: Map.fetch!(validation_details, "max_severity")
+                }
+              })
+              |> Repo.update()
 
-          {:error, message} ->
-            Logger.error("Could not run validator #{message}")
-        end
+              validator_return
+
+            {:error, _} = validator_return ->
+              validator_return
+          end
+
+        log_validation(validator_return, resource)
       end)
     after
       Logger.debug("Cleaning up temporary files")
@@ -104,6 +109,28 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     end
 
     :ok
+  end
+
+  defp log_validation({:ok, _}, %Resource{id: id}) do
+    %LogsValidation{
+      resource_id: id,
+      timestamp: DateTime.truncate(DateTime.utc_now(), :second),
+      is_success: true
+    }
+    |> Repo.insert!()
+  end
+
+  defp log_validation({:error, message}, %Resource{id: id}) do
+    error_message = "error while calling the validator: #{inspect(message)}"
+    Logger.error(error_message)
+
+    %LogsValidation{
+      resource_id: id,
+      timestamp: DateTime.truncate(DateTime.utc_now(), :second),
+      is_success: false,
+      error_msg: error_message
+    }
+    |> Repo.insert!()
   end
 
   defp clean_gtfs(gtfs_path) do

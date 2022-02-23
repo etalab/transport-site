@@ -267,10 +267,97 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
       assert validation_files == files
       assert gtfs_rt_no_errors_permanent_url == Transport.S3.permanent_url(:history, gtfs_rt_no_errors_filename)
 
+      # We've got validation logs
+      logs = DB.LogsValidation |> where([l], l.is_success and is_nil(l.error_msg)) |> DB.Repo.all()
+      assert DB.Repo.one!(from(r in DB.LogsValidation, select: count())) == 2
+      assert Enum.count(logs) == 2
+      assert [gtfs_rt.id, gtfs_rt_no_errors.id] == logs |> Enum.map(& &1.resource_id)
+
       # No temporary files left
       refute File.exists?(Path.dirname(gtfs_path))
       refute File.exists?(Path.dirname(gtfs_rt_path))
       refute File.exists?(Path.dirname(gtfs_rt_no_errors_path))
+    end
+
+    test "with a validator error" do
+      gtfs_permanent_url = "https://example.com/gtfs.zip"
+      gtfs_rt_url = "https://example.com/gtfs-rt"
+      validator_message = "io error: entityType=org.onebusaway.gtfs.model.FeedInfo path=feed_info.txt lineNumber=2"
+      dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
+
+      gtfs =
+        insert(:resource,
+          dataset_id: dataset.id,
+          is_available: true,
+          format: "GTFS",
+          start_date: Date.utc_today() |> Date.add(-30),
+          end_date: Date.utc_today() |> Date.add(30),
+          datagouv_id: Ecto.UUID.generate(),
+          metadata: %{
+            "start_date" => Date.utc_today() |> Date.add(-30),
+            "end_date" => Date.utc_today() |> Date.add(30)
+          }
+        )
+
+      gtfs_rt =
+        insert(:resource,
+          dataset_id: dataset.id,
+          is_available: true,
+          format: "gtfs-rt",
+          datagouv_id: Ecto.UUID.generate(),
+          url: gtfs_rt_url,
+          metadata: %{"foo" => "bar"}
+        )
+
+      insert(:resource_history,
+        datagouv_id: gtfs.datagouv_id,
+        payload: %{"format" => "GTFS", "permanent_url" => gtfs_permanent_url, "uuid" => Ecto.UUID.generate()}
+      )
+
+      Transport.HTTPoison.Mock
+      |> expect(:get!, fn ^gtfs_permanent_url, [], [follow_redirect: true] ->
+        %HTTPoison.Response{status_code: 200, body: "gtfs"}
+      end)
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
+      end)
+
+      S3TestUtils.s3_mocks_upload_file(gtfs_rt.datagouv_id)
+
+      gtfs_path = GTFSRTValidationJob.download_path(gtfs)
+      gtfs_rt_path = GTFSRTValidationJob.download_path(gtfs_rt)
+
+      Transport.Rambo.Mock
+      |> expect(:run, fn binary, args, [log: false] ->
+        assert binary == "java"
+        assert File.exists?(gtfs_path)
+        assert File.exists?(gtfs_rt_path)
+
+        assert [
+                 "-jar",
+                 "/usr/local/bin/gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar",
+                 "-gtfs",
+                 gtfs_path,
+                 "-gtfsRealtimePath",
+                 Path.dirname(gtfs_rt_path)
+               ] == args
+
+        {:error, validator_message}
+      end)
+
+      assert :ok == perform_job(GTFSRTValidationJob, %{"dataset_id" => dataset.id})
+
+      gtfs_rt = DB.Resource |> preload([:validation, :logs_validation]) |> DB.Repo.get!(gtfs_rt.id)
+
+      assert %{metadata: %{"foo" => "bar"}} = gtfs_rt
+      assert is_nil(gtfs_rt.validation)
+
+      assert Enum.count(gtfs_rt.logs_validation) == 1
+
+      expected_message = ~s(error while calling the validator: "#{validator_message}")
+      assert %DB.LogsValidation{error_msg: ^expected_message, is_success: false} = hd(gtfs_rt.logs_validation)
     end
 
     test "get_max_severity_error" do
