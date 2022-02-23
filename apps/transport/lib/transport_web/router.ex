@@ -37,6 +37,10 @@ defmodule TransportWeb.Router do
 
   get("/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi")
 
+  scope "/health-check" do
+    get("/", TransportWeb.HealthCheckController, :index)
+  end
+
   scope "/", TransportWeb do
     pipe_through(:browser)
 
