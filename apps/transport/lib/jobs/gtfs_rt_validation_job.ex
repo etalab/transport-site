@@ -45,16 +45,14 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
   alias DB.{Dataset, Repo, Resource, ResourceHistory, Validation}
   require Logger
 
+  defguard is_gtfs_rt(format) when format in ["gtfs-rt", "gtfsrt"]
+
   @validator_path "/usr/local/bin/gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
   @max_errors_per_section 5
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do
-    dataset =
-      Dataset
-      |> preload([:resources, resources: [:validation]])
-      |> where([d], d.id == ^dataset_id)
-      |> Repo.one!()
+    dataset = Dataset |> preload([:resources, resources: [:validation]]) |> Repo.get!(dataset_id)
 
     gtfs = dataset.resources |> Enum.find(&(Resource.is_gtfs?(&1) and Resource.valid_and_available?(&1)))
     gtfs_rts = dataset.resources |> Enum.filter(&(Resource.is_gtfs_rt?(&1) and &1.is_available))
@@ -82,20 +80,15 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
           {:ok, _} ->
             validation_report = convert_validator_report(gtfs_rt_result_path(resource))
 
-            validation_details =
-              build_validation_details(
-                gtfs_resource_history,
-                validation_report,
-                cellar_filename
-              )
+            validation_details = build_validation_details(gtfs_resource_history, validation_report, cellar_filename)
 
             resource
             |> change(%{
-              metadata: Map.merge(resource.metadata || %{}, validation_details),
+              metadata: Map.merge(resource.metadata || %{}, %{"validation" => validation_details}),
               validation: %Validation{
                 date: DateTime.utc_now() |> DateTime.to_string(),
                 details: validation_details,
-                max_error: get_in(validation_details, ["validation", "max_severity"])
+                max_error: Map.fetch!(validation_details, "max_severity")
               }
             })
             |> Repo.update()
@@ -115,7 +108,7 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
 
   defp clean_gtfs(gtfs_path) do
     remove_file(gtfs_path)
-    :ok = File.rmdir!(Path.dirname(gtfs_path))
+    File.rmdir(Path.dirname(gtfs_path))
   end
 
   defp clean_gtfs_rts(gtfs_rts) do
@@ -127,23 +120,20 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
 
   defp build_validation_details(
          %ResourceHistory{payload: %{"uuid" => uuid, "permanent_url" => permanent_url, "format" => "GTFS"}},
-         validation_report,
+         %{"has_errors" => _, "errors" => _, "errors_count" => _} = validation_report,
          gtfs_rt_cellar_filename
        ) do
-    %{
-      "validation" =>
-        Map.merge(validation_report, %{
-          "max_severity" => get_max_severity_error(validation_report),
-          "files" => %{
-            "gtfs_resource_history_uuid" => uuid,
-            "gtfs_permanent_url" => permanent_url,
-            "gtfs_rt_filename" => gtfs_rt_cellar_filename,
-            "gtfs_rt_permanent_url" => Transport.S3.permanent_url(:history, gtfs_rt_cellar_filename)
-          },
-          "uuid" => Ecto.UUID.generate(),
-          "datetime" => DateTime.utc_now() |> DateTime.to_string()
-        })
-    }
+    Map.merge(validation_report, %{
+      "max_severity" => get_max_severity_error(validation_report),
+      "files" => %{
+        "gtfs_resource_history_uuid" => uuid,
+        "gtfs_permanent_url" => permanent_url,
+        "gtfs_rt_filename" => gtfs_rt_cellar_filename,
+        "gtfs_rt_permanent_url" => Transport.S3.permanent_url(:history, gtfs_rt_cellar_filename)
+      },
+      "uuid" => Ecto.UUID.generate(),
+      "datetime" => DateTime.utc_now() |> DateTime.to_string()
+    })
   end
 
   defp latest_resource_history(%Resource{datagouv_id: datagouv_id, format: "GTFS"}) do
@@ -154,15 +144,15 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     |> Repo.one!()
   end
 
-  def snapshot_gtfs_rts(gtfs_rts) do
+  defp snapshot_gtfs_rts(gtfs_rts) do
     gtfs_rts |> Enum.map(&{&1, snapshot_gtfs_rt(&1)})
   end
 
-  def snapshot_gtfs_rt(%Resource{format: format} = resource) when format in ["gtfs-rt", "gtfsrt"] do
+  defp snapshot_gtfs_rt(%Resource{format: format} = resource) when is_gtfs_rt(format) do
     resource |> download_resource(download_path(resource)) |> process_download(resource)
   end
 
-  def upload_filename(%Resource{datagouv_id: datagouv_id}, %DateTime{} = dt) do
+  defp upload_filename(%Resource{datagouv_id: datagouv_id, format: format}, %DateTime{} = dt) when is_gtfs_rt(format) do
     time = Calendar.strftime(dt, "%Y%m%d.%H%M%S.%f")
 
     "#{datagouv_id}/#{datagouv_id}.#{time}.bin"
@@ -173,7 +163,8 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     File.write!(tmp_path, body)
   end
 
-  defp download_resource(%Resource{datagouv_id: datagouv_id, url: url, is_available: true}, tmp_path) do
+  defp download_resource(%Resource{datagouv_id: datagouv_id, url: url, is_available: true, format: format}, tmp_path)
+       when is_gtfs_rt(format) do
     case http_client().get(url, [], follow_redirect: true) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         Logger.debug("Saving resource #{datagouv_id} to #{tmp_path}")
@@ -248,7 +239,7 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     Path.join([folder, datagouv_id])
   end
 
-  def gtfs_rt_result_path(%Resource{format: format} = resource) when format in ["gtfs-rt", "gtfsrt"] do
+  def gtfs_rt_result_path(%Resource{format: format} = resource) when is_gtfs_rt(format) do
     # https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#output
     "#{download_path(resource)}.results.json"
   end

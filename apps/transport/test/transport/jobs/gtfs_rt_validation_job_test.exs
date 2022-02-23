@@ -1,6 +1,7 @@
 defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
+  import Ecto.Query
   import DB.Factory
   import Mox
   alias Transport.Jobs.{GTFSRTValidationDispatcherJob, GTFSRTValidationJob}
@@ -88,9 +89,10 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
   end
 
   describe "GTFSRTValidationJob" do
-    test "it works" do
+    test "with a GTFS and 2 GTFS-rt" do
       gtfs_permanent_url = "https://example.com/gtfs.zip"
       gtfs_rt_url = "https://example.com/gtfs-rt"
+      gtfs_rt_no_errors_url = "https://example.com/gtfs-rt-no-errors"
       resource_history_uuid = Ecto.UUID.generate()
       dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
 
@@ -118,6 +120,16 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
           metadata: %{"foo" => "bar"}
         )
 
+      gtfs_rt_no_errors =
+        insert(:resource,
+          dataset_id: dataset.id,
+          is_available: true,
+          format: "gtfs-rt",
+          datagouv_id: Ecto.UUID.generate(),
+          url: gtfs_rt_no_errors_url,
+          metadata: %{"bar" => "baz"}
+        )
+
       insert(:resource_history,
         datagouv_id: gtfs.datagouv_id,
         payload: %{"format" => "GTFS", "permanent_url" => gtfs_permanent_url, "uuid" => resource_history_uuid}
@@ -133,10 +145,17 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
         {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
       end)
 
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^gtfs_rt_no_errors_url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
+      end)
+
       S3TestUtils.s3_mocks_upload_file(gtfs_rt.datagouv_id)
+      S3TestUtils.s3_mocks_upload_file(gtfs_rt_no_errors.datagouv_id)
 
       gtfs_path = GTFSRTValidationJob.download_path(gtfs)
       gtfs_rt_path = GTFSRTValidationJob.download_path(gtfs_rt)
+      gtfs_rt_no_errors_path = GTFSRTValidationJob.download_path(gtfs_rt_no_errors)
 
       Transport.Rambo.Mock
       |> expect(:run, fn binary, args, [log: false] ->
@@ -157,32 +176,101 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
         {:ok, nil}
       end)
 
+      Transport.Rambo.Mock
+      |> expect(:run, fn binary, args, [log: false] ->
+        assert binary == "java"
+        assert File.exists?(gtfs_path)
+        assert File.exists?(gtfs_rt_no_errors_path)
+
+        assert [
+                 "-jar",
+                 "/usr/local/bin/gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar",
+                 "-gtfs",
+                 gtfs_path,
+                 "-gtfsRealtimePath",
+                 Path.dirname(gtfs_rt_no_errors_path)
+               ] == args
+
+        File.write!(GTFSRTValidationJob.gtfs_rt_result_path(gtfs_rt_no_errors), "[]")
+        {:ok, nil}
+      end)
+
       assert :ok == perform_job(GTFSRTValidationJob, %{"dataset_id" => dataset.id})
       expected_errors = Map.fetch!(GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path), "errors")
 
+      gtfs_rt = DB.Resource |> preload(:validation) |> DB.Repo.get!(gtfs_rt.id)
+      gtfs_rt_no_errors = DB.Resource |> preload(:validation) |> DB.Repo.get!(gtfs_rt_no_errors.id)
+
       assert %{
+               validation: %DB.Validation{
+                 details: %{
+                   "errors_count" => 30,
+                   "has_errors" => true,
+                   "errors" => ^expected_errors,
+                   "files" => validation_files
+                 },
+                 max_error: "ERROR"
+               },
                metadata: %{
                  "foo" => "bar",
                  "validation" => %{
                    "datetime" => _datetime,
                    "errors" => ^expected_errors,
                    "errors_count" => 30,
-                   "files" => %{
-                     "gtfs_permanent_url" => ^gtfs_permanent_url,
-                     "gtfs_resource_history_uuid" => ^resource_history_uuid,
-                     "gtfs_rt_filename" => gtfs_rt_filename,
-                     "gtfs_rt_permanent_url" => gtfs_rt_permanent_url
-                   },
+                   "files" =>
+                     %{
+                       "gtfs_permanent_url" => ^gtfs_permanent_url,
+                       "gtfs_resource_history_uuid" => ^resource_history_uuid,
+                       "gtfs_rt_filename" => gtfs_rt_filename,
+                       "gtfs_rt_permanent_url" => gtfs_rt_permanent_url
+                     } = files,
                    "has_errors" => true,
                    "max_severity" => "ERROR",
                    "uuid" => _uuid
                  }
                }
-             } = DB.Repo.reload(gtfs_rt)
+             } = gtfs_rt
 
+      assert validation_files == files
       assert gtfs_rt_permanent_url == Transport.S3.permanent_url(:history, gtfs_rt_filename)
+
+      assert %{
+               validation: %DB.Validation{
+                 details: %{
+                   "errors_count" => 0,
+                   "has_errors" => false,
+                   "errors" => [],
+                   "files" => validation_files
+                 },
+                 max_error: nil
+               },
+               metadata: %{
+                 "bar" => "baz",
+                 "validation" => %{
+                   "datetime" => _datetime,
+                   "errors" => [],
+                   "errors_count" => 0,
+                   "files" =>
+                     %{
+                       "gtfs_permanent_url" => ^gtfs_permanent_url,
+                       "gtfs_resource_history_uuid" => ^resource_history_uuid,
+                       "gtfs_rt_filename" => gtfs_rt_no_errors_filename,
+                       "gtfs_rt_permanent_url" => gtfs_rt_no_errors_permanent_url
+                     } = files,
+                   "has_errors" => false,
+                   "max_severity" => nil,
+                   "uuid" => _uuid
+                 }
+               }
+             } = gtfs_rt_no_errors
+
+      assert validation_files == files
+      assert gtfs_rt_no_errors_permanent_url == Transport.S3.permanent_url(:history, gtfs_rt_no_errors_filename)
+
+      # No temporary files left
       refute File.exists?(Path.dirname(gtfs_path))
       refute File.exists?(Path.dirname(gtfs_rt_path))
+      refute File.exists?(Path.dirname(gtfs_rt_no_errors_path))
     end
 
     test "get_max_severity_error" do
