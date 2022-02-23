@@ -4,6 +4,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
   import DB.Factory
   import Mox
   alias Transport.Jobs.{GTFSRTValidationDispatcherJob, GTFSRTValidationJob}
+  alias Transport.Test.S3TestUtils
 
   @gtfs_rt_report_path "#{__DIR__}/../../fixture/files/gtfs-rt-validator-errors.json"
 
@@ -87,6 +88,103 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
   end
 
   describe "GTFSRTValidationJob" do
+    test "it works" do
+      gtfs_permanent_url = "https://example.com/gtfs.zip"
+      gtfs_rt_url = "https://example.com/gtfs-rt"
+      resource_history_uuid = Ecto.UUID.generate()
+      dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
+
+      gtfs =
+        insert(:resource,
+          dataset_id: dataset.id,
+          is_available: true,
+          format: "GTFS",
+          start_date: Date.utc_today() |> Date.add(-30),
+          end_date: Date.utc_today() |> Date.add(30),
+          datagouv_id: Ecto.UUID.generate(),
+          metadata: %{
+            "start_date" => Date.utc_today() |> Date.add(-30),
+            "end_date" => Date.utc_today() |> Date.add(30)
+          }
+        )
+
+      gtfs_rt =
+        insert(:resource,
+          dataset_id: dataset.id,
+          is_available: true,
+          format: "gtfs-rt",
+          datagouv_id: Ecto.UUID.generate(),
+          url: gtfs_rt_url,
+          metadata: %{"foo" => "bar"}
+        )
+
+      insert(:resource_history,
+        datagouv_id: gtfs.datagouv_id,
+        payload: %{"format" => "GTFS", "permanent_url" => gtfs_permanent_url, "uuid" => resource_history_uuid}
+      )
+
+      Transport.HTTPoison.Mock
+      |> expect(:get!, fn ^gtfs_permanent_url, [], [follow_redirect: true] ->
+        %HTTPoison.Response{status_code: 200, body: "gtfs"}
+      end)
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
+      end)
+
+      S3TestUtils.s3_mocks_upload_file(gtfs_rt.datagouv_id)
+
+      gtfs_path = GTFSRTValidationJob.download_path(gtfs)
+      gtfs_rt_path = GTFSRTValidationJob.download_path(gtfs_rt)
+
+      Transport.Rambo.Mock
+      |> expect(:run, fn binary, args, [log: false] ->
+        assert binary == "java"
+        assert File.exists?(gtfs_path)
+        assert File.exists?(gtfs_rt_path)
+
+        assert [
+                 "-jar",
+                 "/usr/local/bin/gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar",
+                 "-gtfs",
+                 gtfs_path,
+                 "-gtfsRealtimePath",
+                 Path.dirname(gtfs_rt_path)
+               ] == args
+
+        File.write!(GTFSRTValidationJob.gtfs_rt_result_path(gtfs_rt), File.read!(@gtfs_rt_report_path))
+        {:ok, nil}
+      end)
+
+      assert :ok == perform_job(GTFSRTValidationJob, %{"dataset_id" => dataset.id})
+      expected_errors = Map.fetch!(GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path), "errors")
+
+      assert %{
+               metadata: %{
+                 "foo" => "bar",
+                 "validation" => %{
+                   "datetime" => _datetime,
+                   "errors" => ^expected_errors,
+                   "errors_count" => 30,
+                   "files" => %{
+                     "gtfs_permanent_url" => ^gtfs_permanent_url,
+                     "gtfs_resource_history_uuid" => ^resource_history_uuid,
+                     "gtfs_rt_filename" => gtfs_rt_filename,
+                     "gtfs_rt_permanent_url" => gtfs_rt_permanent_url
+                   },
+                   "has_errors" => true,
+                   "max_severity" => "ERROR",
+                   "uuid" => _uuid
+                 }
+               }
+             } = DB.Repo.reload(gtfs_rt)
+
+      assert gtfs_rt_permanent_url == Transport.S3.permanent_url(:history, gtfs_rt_filename)
+      refute File.exists?(Path.dirname(gtfs_path))
+      refute File.exists?(Path.dirname(gtfs_rt_path))
+    end
+
     test "get_max_severity_error" do
       assert nil == GTFSRTValidationJob.get_max_severity_error([])
       assert "ERROR" == GTFSRTValidationJob.get_max_severity_error([%{"severity" => "ERROR"}])

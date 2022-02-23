@@ -106,20 +106,27 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
       end)
     after
       Logger.debug("Cleaning up temporary files")
-      # Clean GTFS-RT: binaries, validation results and folders
-      gtfs_rts |> Enum.each(&(&1 |> download_path() |> remove_file()))
-      gtfs_rts |> Enum.each(&(&1 |> gtfs_rt_result_path() |> remove_file()))
-      gtfs_rts |> Enum.each(&(&1 |> download_path() |> Path.dirname() |> File.rmdir()))
-      # Clean GTFS zip file and folder
-      remove_file(gtfs_path)
-      File.rmdir(Path.dirname(gtfs_path))
+      clean_gtfs_rts(gtfs_rts)
+      clean_gtfs(gtfs_path)
     end
 
     :ok
   end
 
+  defp clean_gtfs(gtfs_path) do
+    remove_file(gtfs_path)
+    :ok = File.rmdir!(Path.dirname(gtfs_path))
+  end
+
+  defp clean_gtfs_rts(gtfs_rts) do
+    # Clean GTFS-RT: binaries, validation results and folders
+    gtfs_rts |> Enum.each(&(&1 |> download_path() |> remove_file()))
+    gtfs_rts |> Enum.each(&(&1 |> gtfs_rt_result_path() |> remove_file()))
+    gtfs_rts |> Enum.each(&(&1 |> download_path() |> Path.dirname() |> File.rmdir()))
+  end
+
   defp build_validation_details(
-         %ResourceHistory{payload: %{"uuid" => uuid, "permanent_url" => permanent_url}},
+         %ResourceHistory{payload: %{"uuid" => uuid, "permanent_url" => permanent_url, "format" => "GTFS"}},
          validation_report,
          gtfs_rt_cellar_filename
        ) do
@@ -151,7 +158,7 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     gtfs_rts |> Enum.map(&{&1, snapshot_gtfs_rt(&1)})
   end
 
-  def snapshot_gtfs_rt(%Resource{} = resource) do
+  def snapshot_gtfs_rt(%Resource{format: format} = resource) when format in ["gtfs-rt", "gtfsrt"] do
     resource |> download_resource(download_path(resource)) |> process_download(resource)
   end
 
@@ -161,12 +168,12 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     "#{datagouv_id}/#{datagouv_id}.#{time}.bin"
   end
 
-  defp download_latest_gtfs(%ResourceHistory{payload: %{"permanent_url" => url}}, tmp_path) do
+  defp download_latest_gtfs(%ResourceHistory{payload: %{"permanent_url" => url, "format" => "GTFS"}}, tmp_path) do
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, [], follow_redirect: true)
     File.write!(tmp_path, body)
   end
 
-  defp download_resource(%Resource{datagouv_id: datagouv_id, url: url}, tmp_path) do
+  defp download_resource(%Resource{datagouv_id: datagouv_id, url: url, is_available: true}, tmp_path) do
     case http_client().get(url, [], follow_redirect: true) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         Logger.debug("Saving resource #{datagouv_id} to #{tmp_path}")
@@ -235,13 +242,13 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     {:ok, tmp_path, cellar_filename}
   end
 
-  defp download_path(%Resource{datagouv_id: datagouv_id}) do
+  def download_path(%Resource{datagouv_id: datagouv_id}) do
     folder = System.tmp_dir!() |> Path.join("resource_#{datagouv_id}_gtfs_rt_validation")
     File.mkdir_p!(folder)
     Path.join([folder, datagouv_id])
   end
 
-  defp gtfs_rt_result_path(%Resource{} = resource) do
+  def gtfs_rt_result_path(%Resource{format: format} = resource) when format in ["gtfs-rt", "gtfsrt"] do
     # https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#output
     "#{download_path(resource)}.results.json"
   end
