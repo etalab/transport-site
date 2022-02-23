@@ -8,6 +8,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
   alias Transport.Test.S3TestUtils
 
   @gtfs_rt_report_path "#{__DIR__}/../../fixture/files/gtfs-rt-validator-errors.json"
+  @validator_filename "gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
 
   setup :verify_on_exit!
 
@@ -165,7 +166,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
 
         assert [
                  "-jar",
-                 "/usr/local/bin/gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar",
+                 validator_path(),
                  "-gtfs",
                  gtfs_path,
                  "-gtfsRealtimePath",
@@ -184,7 +185,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
 
         assert [
                  "-jar",
-                 "/usr/local/bin/gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar",
+                 validator_path(),
                  "-gtfs",
                  gtfs_path,
                  "-gtfsRealtimePath",
@@ -337,7 +338,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
 
         assert [
                  "-jar",
-                 "/usr/local/bin/gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar",
+                 validator_path(),
                  "-gtfs",
                  gtfs_path,
                  "-gtfsRealtimePath",
@@ -421,4 +422,6 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
              } == GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
     end
   end
+
+  defp validator_path, do: Path.join(Application.fetch_env!(:transport, :transport_tools_folder), @validator_filename)
 end

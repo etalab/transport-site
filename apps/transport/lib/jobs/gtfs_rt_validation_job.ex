@@ -47,7 +47,7 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
 
   defguard is_gtfs_rt(format) when format in ["gtfs-rt", "gtfsrt"]
 
-  @validator_path "/usr/local/bin/gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
+  @validator_filename "gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
   @max_errors_per_section 5
 
   @impl Oban.Worker
@@ -74,7 +74,15 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
 
         # See https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#batch-processing
         binary_path = "java"
-        args = ["-jar", @validator_path, "-gtfs", gtfs_path, "-gtfsRealtimePath", Path.dirname(gtfs_rt_path)]
+
+        args = [
+          "-jar",
+          Path.join(Application.fetch_env!(:transport, :transport_tools_folder), @validator_filename),
+          "-gtfs",
+          gtfs_path,
+          "-gtfsRealtimePath",
+          Path.dirname(gtfs_rt_path)
+        ]
 
         validator_return =
           case Transport.RamboLauncher.run(binary_path, args, log: Mix.env() == :dev) do
