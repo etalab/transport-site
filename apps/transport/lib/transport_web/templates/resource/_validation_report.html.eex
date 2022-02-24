@@ -1,0 +1,64 @@
+<%= unless is_nil(@resource.schema_name) do %>
+  <p>
+    <%= raw dgettext("validations", ~s(This resource should follow its schema <a href="%{link}" target="_blank">%{schema}</a>.), schema: @resource.schema_name, link: schema_url(@resource)) %>
+  </p>
+
+  <%= if has_errors_details?(@resource) do %>
+    <h4><%= dgettext("validations", "Validation details")%></h4>
+    <p>
+      <b>
+      <% nb_errors = errors_count(@resource) %>
+      <%= if nb_errors == 0 do %>
+        <span class="icon--validation">✅</span><%= dgettext("validations", "No error detected") %>
+      <% else %>
+        <span class="icon--validation">❌</span><%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+      <% end %>
+      </b>
+    </p>
+
+    <%= if nb_errors > 0 do %>
+      <p class="notification">
+        <%= raw dgettext("validations", ~s(Once you have fixed your errors, you can verify that your file is valid <a href="%{link}" target="_blank">using our validators</a>.), link: validation_path(@conn, :index)) %>
+      </p>
+      <p><%= dgettext("validations", "Errors:")%></p>
+      <ul <%= if @resource.metadata["validation"]["schema_type"] == "jsonschema" do %>lang="en"<% end %>>
+        <%= for error <- errors_sample(@resource) do %>
+          <li><%= error %></li>
+        <% end %>
+      </ul>
+      <%= if nb_errors > max_display_errors() do %>
+        <p><%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors())%></p>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= if DB.Resource.is_gtfs_rt?(@resource) and has_errors_details?(@resource) do %>
+  <% validation = @resource.validation %>
+  <% errors = Map.fetch!(validation.details, "errors") %>
+  <% errors_error_level = errors |> Enum.filter(& Map.fetch!(&1, "severity") == "ERROR") %>
+  <% errors_warning_level = errors |> Enum.filter(& Map.fetch!(&1, "severity") == "WARNING") %>
+  <h3><%= dgettext("validations", "Validation details")%></h3>
+  <p>
+    <b>
+    <% nb_errors = errors_count(@resource) %>
+    <%= if nb_errors == 0 do %>
+      <span class="icon--validation">✅</span><%= dgettext("validations", "No error detected") %>
+    <% else %>
+      <span class="icon--validation">❌</span><%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+    <% end %>
+    </b>
+  </p>
+  <p>
+    <%= raw dgettext("validations", ~s(Validation carried out using the <a href="%{gtfs_link}">current GTFS file</a> and the <a href="%{gtfs_rt_link}">GTFS-RT</a> at %{date} using the <a href="%{validator_url}" target="_blank">CUTR GTFS-RT validator</a>.), gtfs_link: Map.fetch!(validation.details["files"], "gtfs_permanent_url"), gtfs_rt_link: Map.fetch!(validation.details["files"], "gtfs_rt_permanent_url"), date: format_datetime(validation.date), validator_url: gtfs_rt_validator_url()) %>
+  </p>
+  <%= unless Enum.empty?(errors_error_level) do %>
+    <h4><%= dgettext("validations", "Errors")%></h4>
+    <%= render "_gtfs_rt_errors_for_severity.html", errors_for_severity: errors_error_level %>
+  <% end %>
+
+  <%= unless Enum.empty?(errors_warning_level) do %>
+    <h4><%= dgettext("validations", "Warnings")%></h4>
+      <%= render "_gtfs_rt_errors_for_severity.html", errors_for_severity: errors_warning_level %>
+  <% end %>
+<% end %>

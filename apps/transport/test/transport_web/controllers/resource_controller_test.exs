@@ -39,6 +39,40 @@ defmodule TransportWeb.ResourceControllerTest do
             metadata: %{"validation" => %{"errors_count" => 1, "has_errors" => true, "errors" => ["this is an error"]}},
             schema_name: "etalab/foo",
             format: "json"
+          },
+          %Resource{
+            url: "http://link.to/gtfs-rt",
+            datagouv_id: "5",
+            metadata: %{"validation" => %{"errors_count" => 2}},
+            validation: %Validation{
+              date: DateTime.utc_now() |> DateTime.to_string(),
+              details: %{
+                "errors_count" => 2,
+                "files" => %{
+                  "gtfs_permanent_url" => "https://example.com/gtfs.zip",
+                  "gtfs_rt_permanent_url" => "https://example.com/gtfs-rt"
+                },
+                "errors" => [
+                  %{
+                    "title" => "error title",
+                    "description" => "error description",
+                    "severity" => "ERROR",
+                    "error_id" => "E001",
+                    "errors_count" => 1,
+                    "errors" => ["sample 1"]
+                  },
+                  %{
+                    "title" => "warning title",
+                    "description" => "warning description",
+                    "severity" => "WARNING",
+                    "error_id" => "W001",
+                    "errors_count" => 1,
+                    "errors" => ["sample 2"]
+                  }
+                ]
+              }
+            },
+            format: "gtfs-rt"
           }
         ],
         aom: %AOM{id: 4242, nom: "Angers Métropôle"}
@@ -112,6 +146,26 @@ defmodule TransportWeb.ResourceControllerTest do
 
     assert html =~ "Disponibilité au téléchargement"
     assert html =~ "download_availability_100"
+  end
+
+  test "gtfs-rt resource with error details sends back a 200", %{conn: conn} do
+    resource = Resource |> preload(:validation) |> Repo.get_by(datagouv_id: "5")
+    assert Resource.is_gtfs_rt?(resource)
+    assert Resource.has_errors_details?(resource)
+    content = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+
+    [
+      "2 erreurs",
+      "error title",
+      "E001",
+      "warning title",
+      "W001",
+      "sample 1",
+      "sample 2",
+      resource.validation.details["files"]["gtfs_permanent_url"],
+      resource.validation.details["files"]["gtfs_rt_permanent_url"]
+    ]
+    |> Enum.each(&assert content =~ &1)
   end
 
   test "downloading a resource that can be directly downloaded", %{conn: conn} do

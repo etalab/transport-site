@@ -11,26 +11,26 @@ defmodule Datagouvfr.Client.OAuth do
 
   @type oauth2_response :: {:ok, any} | {:error, Error.t()} | {:error, Response.t()}
 
-  @spec get(%Plug.Conn{}, path, Client.headers(), Keyword.t()) :: oauth2_response
+  @spec get(Plug.Conn.t(), path, Client.headers(), Keyword.t()) :: oauth2_response
   def get(%Plug.Conn{} = conn, path, headers \\ [], opts \\ []) do
     request(:get, conn, path, nil, headers, opts)
   end
 
-  @spec post(%Plug.Conn{}, path, Client.body(), Client.headers(), Keyword.t()) :: oauth2_response
+  @spec post(Plug.Conn.t(), path, Client.body(), Client.headers(), Keyword.t()) :: oauth2_response
   def post(%Plug.Conn{} = conn, path, body \\ "", headers \\ [], opts \\ []) do
     headers = default_content_type(headers)
 
     request(:post, conn, path, body, headers, opts)
   end
 
-  @spec put(%Plug.Conn{}, path, Client.body(), Client.headers(), Keyword.t()) :: oauth2_response
+  @spec put(Plug.Conn.t(), path, Client.body(), Client.headers(), Keyword.t()) :: oauth2_response
   def put(%Plug.Conn{} = conn, path, body \\ "", headers \\ [], opts \\ []) do
     headers = default_content_type(headers)
 
     request(:put, conn, path, body, headers, opts)
   end
 
-  @spec delete(%Plug.Conn{}, path, Client.headers(), Keyword.t()) :: oauth2_response
+  @spec delete(Plug.Conn.t(), path, Client.headers(), Keyword.t()) :: oauth2_response
   def delete(%Plug.Conn{} = conn, path, headers \\ [], opts \\ []) do
     headers = default_content_type(headers)
 
@@ -60,7 +60,7 @@ defmodule Datagouvfr.Client.OAuth do
     |> post_process()
   end
 
-  @spec get_client(%Plug.Conn{}) :: OAuth2.Client.t()
+  @spec get_client(Plug.Conn.t()) :: OAuth2.Client.t()
   def get_client(%Plug.Conn{} = conn) do
     conn.assigns
     |> Map.get(:token, nil)

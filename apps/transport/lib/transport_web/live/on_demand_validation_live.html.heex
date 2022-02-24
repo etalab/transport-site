@@ -1,0 +1,64 @@
+<section>
+  <div class="container">
+    <div class="validation-title">
+      <h2><%= dgettext("validations", "Validation results")%></h2>
+      <p>
+        <%= dgettext("validations", "This report can be shared with") %>
+        <%= link(dgettext("validations", "this permanent link"), to: @current_url )%>.
+      </p>
+    </div>
+  </div>
+
+  <div class="grey-background">
+    <div class="container">
+      <div class="panel">
+        <% metadata = @validation.on_the_fly_validation_metadata %>
+        <% details = @validation.details %>
+
+        <%= if metadata["state"] == "waiting" do %>
+          <p><%= dgettext("validations", "Validation in progress. This page will be updated automatically.")%></p>
+        <% end %>
+
+        <%= if metadata["state"] == "error" do %>
+          <div class="notification error full-width">
+            <p><%= metadata["error_reason"] %></p>
+          </div>
+        <% end %>
+
+        <%= if metadata["state"] == "completed" do %>
+          <%= if metadata["type"] in ["tableschema", "jsonschema"] do %>
+            <% max_display_errors = 50 %>
+            <p>
+              <%= raw dgettext("validations", ~s(This resource should follow its schema <a href="%{link}" target="_blank">%{schema}</a>.), schema: metadata["schema_name"], link: Transport.Shared.Schemas.schema_url(metadata["schema_name"], "latest")) %>
+            </p>
+            <p>
+              <b>
+              <% nb_errors = details["errors_count"] %>
+              <%= if nb_errors == 0 do %>
+                <span class="icon--validation">✅</span><%= dgettext("validations", "No error detected") %>
+              <% else %>
+                <span class="icon--validation">❌</span><%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+              <% end %>
+              </b>
+            </p>
+
+            <%= if nb_errors > 0 do %>
+              <p><%= dgettext("validations", "Errors:")%></p>
+              <ul>
+                <%= for error <- details["errors"] |> Enum.take(max_display_errors) do %>
+                  <li><%= error %></li>
+                <% end %>
+              </ul>
+
+              <%= if nb_errors > max_display_errors do %>
+                <p><%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors)%></p>
+              <% end %>
+            <% end %>
+          <% end %>
+        <% end %>
+        <p class="small"><%= dgettext("validations", "Last updated at %{date}.", date: @last_updated_at)%></p>
+      </div>
+    </div>
+  </div>
+</section>
+<script defer type="text/javascript" src="/js/app.js") %>></script>

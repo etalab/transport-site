@@ -5,6 +5,7 @@ defmodule TransportWeb.ResourceView do
   import Phoenix.Controller, only: [current_url: 2]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
   import TransportWeb.DatasetView, only: [schema_url: 1, errors_count: 1]
+  import DB.Resource, only: [has_errors_details?: 1]
   import DB.ResourceUnavailability, only: [round_float: 2]
   def format_related_objects(nil), do: ""
 
@@ -153,5 +154,11 @@ defmodule TransportWeb.ResourceView do
       "fr" -> Calendar.strftime(date, "%d/%m/%Y")
       _ -> Calendar.strftime(date, "%m/%d/%Y")
     end
+  end
+
+  def gtfs_rt_validator_url, do: "https://github.com/CUTR-at-USF/gtfs-realtime-validator"
+
+  def gtfs_rt_validator_rule_url(%{"error_id" => error_id}) do
+    "https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/RULES.md##{error_id}"
   end
 end

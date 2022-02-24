@@ -19,14 +19,6 @@ msgid "Other resources"
 msgstr ""
 
 #, elixir-format
-msgid "Unable to validate file"
-msgstr ""
-
-#, elixir-format
-msgid "Check a GTFS file's quality"
-msgstr ""
-
-#, elixir-format
 msgid "Upload"
 msgstr ""
 
@@ -148,4 +140,48 @@ msgstr ""
 
 #, elixir-format
 msgid "Visualization up-to-date %{hours} ago."
+msgstr ""
+
+#, elixir-format, ex-autogen, fuzzy
+msgid "Check a file's quality"
+msgstr ""
+
+#, elixir-format, ex-autogen
+msgid "Choose your file"
+msgstr ""
+
+#, elixir-format, ex-autogen
+msgid "File type"
+msgstr ""
+
+#, elixir-format, ex-autogen
+msgid "Last updated at %{date}."
+msgstr ""
+
+#, elixir-format, ex-autogen
+msgid "Validation in progress. This page will be updated automatically."
+msgstr ""
+
+#, elixir-format, ex-autogen, fuzzy
+msgid "Validation results"
+msgstr ""
+
+#, elixir-format, ex-autogen
+msgid "Once you have fixed your errors, you can verify that your file is valid <a href=\"%{link}\" target=\"_blank\">using our validators</a>."
+msgstr ""
+
+#, elixir-format, ex-autogen, fuzzy
+msgid "Errors"
+msgstr ""
+
+#, elixir-format, ex-autogen
+msgid "Sample errors"
+msgstr ""
+
+#, elixir-format, ex-autogen
+msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> and the <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> at %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>."
+msgstr ""
+
+#, elixir-format, ex-autogen
+msgid "Warnings"
 msgstr ""

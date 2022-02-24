@@ -44,7 +44,7 @@ msgid "Transport open datasets for city %{name}"
 msgstr ""
 
 #, elixir-format
-msgid "GTFS data quality evaluation"
+msgid "Data quality evaluation"
 msgstr ""
 
 #, elixir-format

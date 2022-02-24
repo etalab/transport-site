@@ -72,7 +72,8 @@ config :transport,
 if app_env == :staging do
   config :transport,
     s3_buckets: %{
-      history: "resource-history-staging"
+      history: "resource-history-staging",
+      on_demand_validation: "on-demand-validation-staging"
     }
 end
 
@@ -90,6 +91,7 @@ oban_crontab_all_envs =
         {"30 */6 * * *", Transport.Jobs.GtfsToGeojsonConverterJob},
         # every 6 hours but not at the same time as other jobs
         {"0 3,9,15,21 * * *", Transport.Jobs.GtfsToNetexConverterJob},
+        {"20 8 * * *", Transport.Jobs.CleanOrphanConversionsJob},
         {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
         {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}}
       ]
@@ -115,7 +117,7 @@ extra_oban_conf =
     [queues: false, plugins: false]
   else
     [
-      queues: [default: 2, heavy: 1],
+      queues: [default: 2, heavy: 1, on_demand_validation: 1],
       plugins: [
         {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
         {Oban.Plugins.Cron, crontab: List.flatten(oban_crontab_all_envs, non_staging_crontab)}
