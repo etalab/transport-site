@@ -13,6 +13,7 @@ defmodule TransportWeb.FollowerController do
       end
 
     Datasets
+    # credo:disable-for-next-line
     |> apply(method, [conn, dataset_id])
     |> case do
       {:error, error} ->

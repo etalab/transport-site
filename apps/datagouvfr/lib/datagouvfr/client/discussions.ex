@@ -13,7 +13,7 @@ defmodule Datagouvfr.Client.Discussions do
   Call to post /api/1/discussions/:id/
   You can see documentation here: https://www.data.gouv.fr/fr/apidoc/#!/discussions/comment_discussion
   """
-  @spec post(%Plug.Conn{}, binary(), binary()) :: Client.oauth2_response()
+  @spec post(Plug.Conn.t(), binary(), binary()) :: Client.oauth2_response()
   def post(%Plug.Conn{} = conn, id_, comment) do
     Client.post(conn, Path.join(@endpoint, id_), %{comment: comment}, [])
   end
@@ -29,7 +29,7 @@ defmodule Datagouvfr.Client.Discussions do
     API.post(@endpoint, payload_post(id_, title, comment), headers, blank)
   end
 
-  @spec post(%Plug.Conn{}, binary, binary, binary, nil | any) :: Client.oauth2_response()
+  @spec post(Plug.Conn.t(), binary, binary, binary, nil | any) :: Client.oauth2_response()
   def post(%Plug.Conn{} = conn, id_, title, comment, extras \\ nil) do
     Client.post(conn, @endpoint, payload_post(id_, title, comment, extras), [])
   end
