@@ -476,6 +476,7 @@ defmodule DB.Dataset do
   def get_covered_area_names(%__MODULE__{communes: communes}) when length(communes) != 0 do
     communes
     |> Enum.map(fn c -> c.nom end)
+    # credo:disable-for-next-line
     |> Enum.join(", ")
   end
 
