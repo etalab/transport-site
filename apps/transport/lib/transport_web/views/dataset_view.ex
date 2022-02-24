@@ -391,6 +391,7 @@ defmodule TransportWeb.DatasetView do
     resources
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
     |> Enum.reject(fn r -> String.contains?(r.url, "station_status") end)
+    # credo:disable-for-next-line
     |> Enum.reject(fn r -> String.contains?(r.url, "station_information") end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
