@@ -201,7 +201,7 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  @spec redirect_to_dataset(Plug.Conn.t(), %Dataset{} | nil) :: Plug.Conn.t()
+  @spec redirect_to_dataset(Plug.Conn.t(), Dataset.t() | nil) :: Plug.Conn.t()
   defp redirect_to_dataset(conn, nil) do
     conn
     |> put_status(:not_found)
