@@ -95,7 +95,7 @@ defmodule Datagouvfr.Client.Datasets do
   @doc """
   Make a user follow a dataset
   """
-  @spec post_followers(Plug.Conn.(), String.t()) :: {atom, map}
+  @spec post_followers(Plug.Conn.t(), String.t()) :: {atom, map}
   def post_followers(%Plug.Conn{} = conn, dataset_id) do
     OAuthClient.post(
       conn,
