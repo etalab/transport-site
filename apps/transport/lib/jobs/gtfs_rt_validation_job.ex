@@ -100,7 +100,7 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
                   max_error: Map.fetch!(validation_details, "max_severity")
                 }
               })
-              |> Repo.update()
+              |> Repo.update!()
 
               validator_return
 
