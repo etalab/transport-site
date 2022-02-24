@@ -12,7 +12,7 @@ default_docker: &default_docker
 defaults: &defaults
   parameters:
     base_image:
-      default: ghcr.io/etalab/transport-ops:elixir-1.12.2-erlang-24.0.4-ubuntu-focal-20210325-transport-tools-1.0.2
+      default: ghcr.io/etalab/transport-ops:elixir-1.12.2-erlang-24.0.4-ubuntu-focal-20210325-transport-tools-1.0.3
       type: string
     # useful to invalidate the build cache manually by bumping the version
     build_cache_key:
@@ -26,11 +26,13 @@ defaults_with_postgres: &defaults_with_postgres
   <<: *defaults
   docker:
     - *default_docker
-    - image: circleci/postgres:12.0-alpine-postgis
+    # https://hub.docker.com/r/postgis/postgis
+    # See https://github.com/etalab/transport_deploy/issues/50
+    - image: postgis/postgis:14-3.1-alpine
       environment:
         POSTGRES_USER: root
         POSTGRES_DB: transport_test
-
+        POSTGRES_PASSWORD: $POSTGRES_PASSWORD
 jobs:
   build:
     <<: *defaults

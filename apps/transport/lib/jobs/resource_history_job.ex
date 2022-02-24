@@ -9,8 +9,6 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
 
   @impl Oban.Worker
   def perform(_job) do
-    Transport.S3.create_bucket_if_needed!(:history)
-
     datagouv_ids = resources_to_historise()
 
     Logger.debug("Dispatching #{Enum.count(datagouv_ids)} ResourceHistoryJob jobs")

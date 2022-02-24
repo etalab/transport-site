@@ -1,0 +1,30 @@
+<%= for error <- @errors_for_severity |> Enum.sort_by(& Map.fetch!(&1, "error_id")) do %>
+  <% nb_errors = Map.fetch!(error, "errors_count") %>
+  <div class="panel">
+    <p class="mt-0 mb-0">
+      <b lang="en">
+        <%= Map.fetch!(error, "title") %>
+        <span class="small">
+          <a href="<%= gtfs_rt_validator_rule_url(error)%>" target="_blank"><%= Map.fetch!(error, "error_id")%></a>
+        </span>
+      </b>
+
+      <span class="label">
+        <%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+      </span>
+    </p>
+
+    <p lang="en" style="margin: .5em 0">
+      <%= Map.fetch!(error, "description") %>
+    </p>
+
+    <details>
+      <summary><%= dgettext("validations", "Sample errors")%></summary>
+      <ul lang="en">
+        <%= for error_detail <- Map.fetch!(error, "errors") do %>
+          <li><%= error_detail %></li>
+        <% end %>
+      </ul>
+    </details>
+  </div>
+<% end %>
