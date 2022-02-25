@@ -143,6 +143,8 @@ email_host_name =
       "localhost"
 
     :test ->
+      # used to make sure we are replacing the app host name by the email host name
+      # when it is different, in some email testing
       "email.localhost"
 
     :prod ->
