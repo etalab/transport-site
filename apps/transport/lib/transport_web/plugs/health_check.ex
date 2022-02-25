@@ -28,17 +28,17 @@ defmodule TransportWeb.Plugs.HealthCheck do
   end
 
   defp checks do
-    %{
-      "http" => fn -> true end,
-      "db" => &database_up?/0
-    }
+    [
+      %{name: "db", check: &database_up?/0},
+      %{name: "http", check: fn -> true end}
+    ]
   end
 
   @spec run_checks(map()) :: {boolean(), list()}
   defp run_checks(params) do
     checks
-    |> Enum.reject(fn {name, _} -> params[name] == "0" end)
-    |> Enum.map(fn {name, cb} -> {name, cb.()} end)
+    |> Enum.reject(fn %{name: name} -> params[name] == "0" end)
+    |> Enum.map(fn %{name: name, check: cb} -> {name, cb.()} end)
     |> Enum.reduce({true, []}, fn {check_name, check_success}, {global_success, messages} ->
       {
         global_success && check_success,
