@@ -2,8 +2,16 @@ defmodule Transport.DataCheckerTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureLog
   import Mox
+  import DB.Factory
+  use DB.DatabaseCase, cleanup: [:datasets]
 
   setup :verify_on_exit!
+
+  test "link_and_name relies on proper email host name" do
+    dataset = insert(:dataset)
+    link = Transport.DataChecker.link(dataset)
+    assert URI.parse(link).host == "email.localhost"
+  end
 
   describe "send_outdated_data_notifications" do
     test "with a default delay" do
