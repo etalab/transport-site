@@ -152,8 +152,13 @@ defmodule Transport.DataChecker do
   defp delay_str(0), do: "demain"
   defp delay_str(d), do: "dans #{d} jours"
 
-  defp link_and_name(dataset) do
-    link = dataset_url(TransportWeb.Endpoint, :details, dataset.slug)
+  def link(dataset) do
+    base = Transport.RuntimeConfig.EmailHost.email_host()
+    dataset_url(base, :details, dataset.slug)
+  end
+
+  def link_and_name(dataset) do
+    link = link(dataset)
     name = dataset.title
 
     " * #{name} - #{link}"
