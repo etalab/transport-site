@@ -42,7 +42,6 @@ defmodule TransportWeb.Router do
 
     get("/", PageController, :index)
     get("/real_time", PageController, :real_time)
-    get("/partners", PageController, :partners)
     get("/conditions", PageController, :conditions)
     get("/infos_producteurs", PageController, :infos_producteurs)
     get("/.well-known/security.txt", PageController, :security_txt)
@@ -132,11 +131,6 @@ defmodule TransportWeb.Router do
         post("/_all_/_force_validate", DatasetController, :force_validate_all)
         post("/:id/_import_validate", DatasetController, :import_validate_all)
         post("/:id/_validate", DatasetController, :validation)
-      end
-
-      scope "/partners" do
-        get("/", PartnerController, :partners)
-        post("/", PartnerController, :post_partner)
       end
 
       get("/breaking_news", BreakingNewsController, :index)
