@@ -138,10 +138,20 @@ if config_env() == :dev do
 end
 
 email_host_name =
-  cond do
-    config_env() == :dev -> "localhost"
-    config_env() == :test -> "email.localhost"
-    true -> System.fetch_env!("EMAIL_HOST_NAME")
+  case config_env() do
+    :dev ->
+      "localhost"
+
+    :test ->
+      "email.localhost"
+
+    :prod ->
+      # NOTE: it would be best to configure this via EMAIL_HOST_NAME var instead,
+      # but that will do for today.
+      case app_env do
+        :staging -> "prochainement.transport.data.gouv.fr"
+        :production -> "transport.data.gouv.fr"
+      end
   end
 
 config :transport, :email_host_name, email_host_name
