@@ -136,3 +136,12 @@ if config_env() == :dev do
     #  We also make sure to start the assets watcher only if the webserver is up, to avoid cluttering the logs.
     watchers: if(webserver, do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]], else: [])
 end
+
+email_host_name =
+  cond do
+    config_env() == :dev -> "localhost"
+    config_env() == :test -> "email.localhost"
+    true -> System.fetch_env!("EMAIL_HOST_NAME")
+  end
+
+config :transport, :email_host_name, email_host_name
