@@ -53,6 +53,7 @@ defmodule TransportWeb.DatasetController do
       |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
       |> assign(:unavailabilities, unavailabilities(dataset))
       |> assign(:history_resources, Transport.History.Fetcher.history_resources(dataset))
+      |> assign(:resources_updated_at, DB.Dataset.resources_content_updated_at(dataset))
       |> put_status(if dataset.is_active, do: :ok, else: :not_found)
       |> render("details.html")
     else
@@ -93,7 +94,11 @@ defmodule TransportWeb.DatasetController do
     Transport.Cache.API.fetch("unavailabilities_dataset_#{id}", fn ->
       resources
       |> Enum.into(%{}, fn resource ->
-        {resource.id, DB.ResourceUnavailability.availability_over_last_days(resource, availability_number_days())}
+        {resource.id,
+         DB.ResourceUnavailability.availability_over_last_days(
+           resource,
+           availability_number_days()
+         )}
       end)
     end)
   end
@@ -163,7 +168,9 @@ defmodule TransportWeb.DatasetController do
     |> select([d], %{type: d.type, count: count(d.type)})
     |> Repo.all()
     |> Enum.reject(&is_nil/1)
-    |> Enum.map(fn res -> %{type: res.type, count: res.count, msg: Dataset.type_to_str(res.type)} end)
+    |> Enum.map(fn res ->
+      %{type: res.type, count: res.count, msg: Dataset.type_to_str(res.type)}
+    end)
     |> add_current_type(params["type"])
     |> Enum.reject(fn t -> is_nil(t.msg) end)
   end
@@ -225,7 +232,9 @@ defmodule TransportWeb.DatasetController do
 
   @spec empty_message_by_territory(map()) :: binary()
   defp empty_message_by_territory(%{"aom" => id}) do
-    dgettext("page-shortlist", "AOM %{name} has not yet published any datasets", name: get_name(AOM, id))
+    dgettext("page-shortlist", "AOM %{name} has not yet published any datasets",
+      name: get_name(AOM, id)
+    )
   end
 
   defp empty_message_by_territory(%{"region" => id}) do

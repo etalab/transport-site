@@ -26,7 +26,7 @@
       <%= if Resource.is_real_time?(@resource) do %>
         <%= dgettext("page-dataset-details", "real-time") %>
       <% else %>
-        <%= @resource.last_update |> format_datetime_to_date() %>
+        <%= show_resource_last_update(@resources_updated_at, @resource) %>
       <% end %>
     </span>
     <%= unless is_nil(Resource.ttl(@resource)) do %>
