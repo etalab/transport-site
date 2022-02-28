@@ -722,4 +722,8 @@ defmodule DB.Dataset do
     has_realtime = changeset |> get_field(:resources) |> Enum.any?(&Resource.is_real_time?/1)
     changeset |> change(has_realtime: has_realtime)
   end
+
+  def resources_content_updated_at(%__MODULE__{resources: resources}) do
+    resources |> Enum.map(fn r -> {r.id, DB.Resource.content_updated_at(r)} end) |> Enum.into(%{})
+  end
 end
