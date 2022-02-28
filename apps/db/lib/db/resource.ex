@@ -668,13 +668,17 @@ defmodule DB.Resource do
   def content_updated_at(%__MODULE__{id: id}), do: content_updated_at(id)
 
   def content_updated_at(resource_id) do
-    resource_history_list = DB.ResourceHistory |> join(:inner, [rh], r in DB.Resource, on: r.datagouv_id == rh.datagouv_id) |> where([_, r], r.id == ^resource_id)
-    |> select([rh], rh.created_at) |> order_by([rh], desc: rh.created_at) |> DB.Repo.all()
+    resource_history_list =
+      DB.ResourceHistory
+      |> join(:inner, [rh], r in DB.Resource, on: r.datagouv_id == rh.datagouv_id)
+      |> where([_, r], r.id == ^resource_id)
+      |> select([rh], rh.created_at)
+      |> order_by([rh], desc: rh.created_at)
+      |> DB.Repo.all()
 
     case Enum.count(resource_history_list) do
-      n when n in [0,1] -> nil
+      n when n in [0, 1] -> nil
       _ -> resource_history_list |> Enum.at(1)
     end
   end
-
 end

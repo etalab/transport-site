@@ -467,10 +467,11 @@ defmodule TransportWeb.DatasetView do
   def has_validity_period?(%DB.ResourceHistory{}), do: false
 
   def show_resource_last_update(resources_updated_at, %DB.Resource{id: id}) do
-    Map.get(resources_updated_at, id)
+    resources_updated_at
+    |> Map.get(id)
     |> case do
       nil -> "?"
-      dt -> DateTime.to_date(dt) |> Calendar.strftime("%d-%m-%Y")
+      dt -> dt |> DateTime.to_date() |> Calendar.strftime("%d-%m-%Y")
     end
   end
 end

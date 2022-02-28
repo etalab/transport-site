@@ -232,9 +232,7 @@ defmodule TransportWeb.DatasetController do
 
   @spec empty_message_by_territory(map()) :: binary()
   defp empty_message_by_territory(%{"aom" => id}) do
-    dgettext("page-shortlist", "AOM %{name} has not yet published any datasets",
-      name: get_name(AOM, id)
-    )
+    dgettext("page-shortlist", "AOM %{name} has not yet published any datasets", name: get_name(AOM, id))
   end
 
   defp empty_message_by_territory(%{"region" => id}) do
