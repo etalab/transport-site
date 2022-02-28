@@ -38,10 +38,6 @@ msgid "Find dataset"
 msgstr "Trouvez un jeu de données"
 
 #, elixir-format
-msgid "Follow us on twitter"
-msgstr "Suivez-nous sur twitter"
-
-#, elixir-format
 msgid "title"
 msgstr "Le Point d’Accès National aux données de transport"
 
