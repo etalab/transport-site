@@ -18,6 +18,9 @@ defaults: &defaults
     build_cache_key:
       default: build-v2
       type: string
+    plt_cache_key:
+      default: plt
+      type: string
   working_directory: ~/transport
   docker:
     - *default_docker
@@ -114,9 +117,9 @@ jobs:
 
       - restore_cache:
           keys:
-            - elixir-<< parameters.base_image >>-plt-{{ .Branch }}-{{ checksum "mix.lock" }}
-            - elixir-<< parameters.base_image >>-plt-{{ .Branch }}
-            - elixir-<< parameters.base_image >>-plt
+            - elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>-{{ .Branch }}
+            - elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>
 
       - run:
           name: Build PLT
@@ -126,17 +129,17 @@ jobs:
           no_output_timeout: 20m
 
       - save_cache:
-          key: elixir-<< parameters.base_image >>-plt-{{ .Branch }}-{{ checksum "mix.lock" }}
+          key: elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>-{{ .Branch }}-{{ checksum "mix.lock" }}
           paths:
             - ~/transport/dialyzer-plt
 
       - save_cache:
-          key: elixir-<< parameters.base_image >>-plt-{{ .Branch }}
+          key: elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>-{{ .Branch }}
           paths:
             - ~/transport/dialyzer-plt
 
       - save_cache:
-          key: elixir-<< parameters.base_image >>-plt
+          key: elixir-<< parameters.base_image >>-<< parameters.plt_cache_key >>
           paths:
             - ~/transport/dialyzer-plt
 
