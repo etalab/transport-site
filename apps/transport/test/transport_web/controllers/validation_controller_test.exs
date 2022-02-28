@@ -38,7 +38,8 @@ defmodule TransportWeb.ValidationControllerTest do
                  "filename" => filename,
                  "permanent_url" => permanent_url,
                  "state" => "waiting",
-                 "type" => "gtfs"
+                 "type" => "gtfs",
+                 "secret_url_token" => _
                },
                id: validation_id
              } = DB.Repo.one!(DB.Validation)
@@ -118,6 +119,28 @@ defmodule TransportWeb.ValidationControllerTest do
   end
 
   describe "GET /validation/:id" do
+    test "401 when validation with a token and the passed one doesn't match", %{conn: conn} do
+      validation =
+        insert(:validation,
+          on_the_fly_validation_metadata: %{
+            "state" => "waiting",
+            "type" => "etalab/foo",
+            "secret_url_token" => Ecto.UUID.generate()
+          }
+        )
+
+      conn |> get(validation_path(conn, :show, validation.id)) |> html_response(401)
+      conn |> get(validation_path(conn, :show, validation.id, token: "not-valid")) |> html_response(401)
+    end
+
+    test "validation without a token can be accessed", %{conn: conn} do
+      validation = insert(:validation, on_the_fly_validation_metadata: %{"state" => "waiting", "type" => "etalab/foo"})
+
+      refute Map.has_key?(validation.on_the_fly_validation_metadata, "secret_url_token")
+
+      conn |> get(validation_path(conn, :show, validation.id)) |> html_response(200)
+    end
+
     test "with an unknown validation", %{conn: conn} do
       conn |> get(validation_path(conn, :show, 42)) |> html_response(404)
     end
@@ -173,7 +196,12 @@ defmodule TransportWeb.ValidationControllerTest do
 
       send(view.pid, :update_data)
 
-      assert_redirect(view, validation_path(conn, :show, validation.id))
+      assert_redirect(
+        view,
+        validation_path(conn, :show, validation.id,
+          token: Map.fetch!(validation.on_the_fly_validation_metadata, "secret_url_token")
+        )
+      )
     end
 
     test "with a validation result", %{conn: conn} do
@@ -219,8 +247,18 @@ defmodule TransportWeb.ValidationControllerTest do
   end
 
   defp ensure_waiting_message_is_displayed(conn, metadata) do
-    validation = insert(:validation, on_the_fly_validation_metadata: metadata)
-    conn = conn |> get(validation_path(conn, :show, validation.id))
+    validation =
+      insert(:validation,
+        on_the_fly_validation_metadata: Map.merge(metadata, %{"secret_url_token" => Ecto.UUID.generate()})
+      )
+
+    conn =
+      conn
+      |> get(
+        validation_path(conn, :show, validation.id,
+          token: Map.fetch!(validation.on_the_fly_validation_metadata, "secret_url_token")
+        )
+      )
 
     # Displays the waiting message
     response = html_response(conn, 200)
