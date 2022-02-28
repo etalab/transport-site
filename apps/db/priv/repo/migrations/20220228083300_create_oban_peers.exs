@@ -3,5 +3,5 @@ defmodule DB.Repo.Migrations.CreateObanPeers do
 
   def up, do: Oban.Migrations.up(version: 11)
 
-  def down, do: Oban.Migrations.down(version: 11)
+  def down, do: Oban.Migrations.down(version: 10)
 end
