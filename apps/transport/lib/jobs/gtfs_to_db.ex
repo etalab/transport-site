@@ -143,6 +143,12 @@ defmodule Transport.Jobs.GtfsToDB do
     )
   end
 
+  @doc """
+   Parse a binary containing a GTFS style time, and convert it to a struct ready to be inserted as an interval in the DB
+
+   iex> cast_binary_to_interval("01:02:03")
+   %{secs: 3723, days: 0, months: 0}
+  """
   def cast_binary_to_interval(s) do
     %{"hours" => hours, "minutes" => minutes, "seconds" => seconds} =
       Regex.named_captures(~r/(?<hours>[0-9]+):(?<minutes>[0-9]+):(?<seconds>[0-9]+)/, s)
