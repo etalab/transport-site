@@ -19,7 +19,7 @@ defaults: &defaults
       default: build-v2
       type: string
     plt_cache_key:
-      default: plt
+      default: plt-v2
       type: string
   working_directory: ~/transport
   docker:
