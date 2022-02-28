@@ -13,11 +13,14 @@ defmodule Transport.Jobs.GtfsToDB do
     fill_trips_from_resource_history(resource_history_id, data_import_id)
   end
 
-  def fill_stops_from_resource_history(resource_history_id, data_import_id) do
+  def file_stream(resource_history_id, gtfs_file_name) do
     %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
     bucket_name = Transport.S3.bucket_name(:history)
+    Transport.Unzip.S3File.get_file_stream(gtfs_file_name, filename, bucket_name)
+  end
 
-    file_stream = Transport.Unzip.S3File.get_file_stream("stops.txt", filename, bucket_name)
+  def fill_stops_from_resource_history(resource_history_id, data_import_id) do
+    file_stream = file_stream(resource_history_id, "stops.txt")
     stops_stream_insert(file_stream, data_import_id)
   end
 
@@ -64,11 +67,7 @@ defmodule Transport.Jobs.GtfsToDB do
   end
 
   def fill_calendar_from_resource_history(resource_history_id, data_import_id) do
-    %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
-    bucket_name = Transport.S3.bucket_name(:history)
-
-    file_stream = Transport.Unzip.S3File.get_file_stream("calendar.txt", filename, bucket_name)
-
+    file_stream = file_stream(resource_history_id, "calendar.txt")
     calendar_stream_insert(file_stream, data_import_id)
   end
 
@@ -114,9 +113,7 @@ defmodule Transport.Jobs.GtfsToDB do
   end
 
   def fill_stop_times_from_resource_history(resource_history_id, data_import_id) do
-    %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
-    bucket_name = Transport.S3.bucket_name(:history)
-    file_stream = Transport.Unzip.S3File.get_file_stream("stop_times.txt", filename, bucket_name)
+    file_stream = file_stream(resource_history_id, "stop_times.txt")
     stop_times_stream_insert(file_stream, data_import_id)
   end
 
@@ -166,9 +163,7 @@ defmodule Transport.Jobs.GtfsToDB do
   end
 
   def fill_calendar_dates_from_resource_history(resource_history_id, data_import_id) do
-    %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
-    bucket_name = Transport.S3.bucket_name(:history)
-    file_stream = Transport.Unzip.S3File.get_file_stream("calendar_dates.txt", filename, bucket_name)
+    file_stream = file_stream(resource_history_id, "calendar_dates.txt")
     calendar_dates_stream_insert(file_stream, data_import_id)
   end
 
@@ -194,9 +189,7 @@ defmodule Transport.Jobs.GtfsToDB do
   end
 
   def fill_trips_from_resource_history(resource_history_id, data_import_id) do
-    %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
-    bucket_name = Transport.S3.bucket_name(:history)
-    file_stream = Transport.Unzip.S3File.get_file_stream("trips.txt", filename, bucket_name)
+    file_stream = file_stream(resource_history_id, "trips.txt")
     trips_stream_insert(file_stream, data_import_id)
   end
 
