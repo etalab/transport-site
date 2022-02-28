@@ -13,5 +13,8 @@ defmodule DB.ResourceHistory do
     field(:last_up_to_date_at, :utc_datetime_usec)
 
     timestamps(type: :utc_datetime_usec)
+    # the moment the resource history was created. Can be different from the automatic timestamps in case
+    # we retroactively populate the table for example.
+    field(:created_at, :utc_datetime_usec)
   end
 end
