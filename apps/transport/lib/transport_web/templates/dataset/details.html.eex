@@ -165,6 +165,7 @@
   </section>
 <% end %>
 <%= unless @history_resources == [] do %>
+  <% has_validity_period_col = has_validity_period?(@history_resources) %>
   <section class="white pt-48" id="backed-up-resources">
     <h3><%= dgettext("page-dataset-details", "Backed up resources")%></h3>
     <div class="">
@@ -174,8 +175,10 @@
             <tr>
               <th><%= dgettext("page-dataset-details", "File") %></th>
               <th><%= dgettext("page-dataset-details", "Publication date") %></th>
-              <%= if has_validity_period?(@history_resources) do %>
-                <th><%= dgettext("page-dataset-details", "Validity period") %></th>
+              <%= if has_validity_period_col do %>
+                <th>
+                  <%= dgettext("page-dataset-details", "Validity period") %>
+                </th>
               <% end %>
               <th><%= dgettext("page-dataset-details", "Format") %></th>
             </tr>
@@ -186,15 +189,19 @@
                 <td><%= link(resource_history.payload["title"], to: resource_history.payload["permanent_url"]) %>
                 </td>
                 <td><%= resource_history.inserted_at |> format_datetime_to_date() %></td>
-                <%= if has_validity_period?(@history_resources) do %>
-                  <td>
-                    <%= dgettext(
-                      "page-dataset-details", "%{start} to %{end}",
-                        start: resource_history.payload["resource_metadata"]["start_date"],
-                        end: resource_history.payload["resource_metadata"]["end_date"]
-                      )
-                      %>
-                  </td>
+                <%= if has_validity_period_col do %>
+                  <%= if has_validity_period?(resource_history) do %>
+                    <td>
+                      <%= dgettext(
+                        "page-dataset-details", "%{start} to %{end}",
+                          start: resource_history.payload["resource_metadata"]["start_date"],
+                          end: resource_history.payload["resource_metadata"]["end_date"]
+                        )
+                        %>
+                    </td>
+                  <% else %>
+                    <td></td>
+                  <% end %>
                 <% end %>
                 <td><span class="label"><%= resource_history.payload["format"] %></span></td>
               </tr>

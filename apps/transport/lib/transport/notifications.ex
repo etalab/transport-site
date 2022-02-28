@@ -8,7 +8,7 @@ defmodule Transport.Notifications do
 
   @reasons [:expiration]
 
-  @spec emails_for_reason(configuration, atom(), %DB.Dataset{}) :: list(binary())
+  @spec emails_for_reason(configuration, atom(), DB.Dataset.t()) :: list(binary())
   def emails_for_reason(config, reason, %DB.Dataset{slug: slug}) do
     if not Enum.member?(@reasons, reason) do
       raise ArgumentError, message: "#{reason} is not a valid reason"

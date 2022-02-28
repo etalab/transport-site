@@ -10,37 +10,10 @@
             <strong><%= @resource.title %></strong>
           </a>
         </p>
-        <%= unless is_nil(@resource.schema_name) do %>
-          <p>
-            <%= raw dgettext("validations", ~s(This resource should follow its schema <a href="%{link}" target="_blank">%{schema}</a>.), schema: @resource.schema_name, link: schema_url(@resource)) %>
-          </p>
-        <h4><%= dgettext("validations", "Validation details")%></h4>
         <p>
-          <b>
-          <% nb_errors = errors_count(@resource) %>
-          <%= if nb_errors == 0 do %>
-            ✅ <%= dgettext("validations", "No error detected") %>
-          <% else %>
-            ❌ <%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
-          <% end %>
-          </b>
+          <%= dgettext("validations", "This resource file is part of the dataset")%> <%= link(@resource.dataset.title, to: dataset_path(@conn, :details, @resource.dataset.slug) )%>.
         </p>
-
-        <%= if nb_errors > 0 do %>
-          <p class="notification">
-            <%= raw dgettext("validations", ~s(Once you have fixed your errors, you can verify that your file is valid <a href="%{link}" target="_blank">using our validators</a>.), link: validation_path(@conn, :index)) %>
-          </p>
-          <p><%= dgettext("validations", "Errors:")%></p>
-          <ul <%= if @resource.metadata["validation"]["schema_type"] == "jsonschema" do %>lang="en"<% end %>>
-            <%= for error <- errors_sample(@resource) do %>
-              <li><%= error %></li>
-            <% end %>
-          </ul>
-          <%= if nb_errors > max_display_errors() do %>
-            <p><%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors())%></p>
-          <% end %>
-        <% end %>
-        <% end %>
+        <%= render "_validation_report.html", resource: @resource, conn: @conn %>
       </div>
 
       <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>

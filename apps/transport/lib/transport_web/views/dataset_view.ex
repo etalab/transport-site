@@ -248,7 +248,7 @@ defmodule TransportWeb.DatasetView do
   def summary_class(%{metadata: %{"validation" => _}}), do: "resource__summary--Error"
 
   def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => nb_errors}}})
-      when nb_errors >= 0,
+      when is_integer(nb_errors) and nb_errors >= 0,
       do: nb_errors
 
   def errors_count(%Resource{}), do: nil
@@ -343,7 +343,7 @@ defmodule TransportWeb.DatasetView do
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
   def licence_url(_), do: nil
 
-  @spec description(%Dataset{} | %Resource{}) :: Phoenix.HTML.safe()
+  @spec description(Dataset.t() | Resource.t()) :: Phoenix.HTML.safe()
   def description(instance) do
     instance.description
     |> markdown_to_safe_html!()
@@ -363,7 +363,7 @@ defmodule TransportWeb.DatasetView do
       ...> |> TransportWeb.DatasetView.licence
       "Libertarian"
   """
-  @spec licence(%Dataset{}) :: String.t()
+  @spec licence(Dataset.t()) :: String.t()
   def licence(%Dataset{licence: licence}) do
     case licence do
       "fr-lo" -> dgettext("dataset", "fr-lo")
@@ -378,7 +378,7 @@ defmodule TransportWeb.DatasetView do
   @doc """
   Returns the resources that need to be displayed on a map
   """
-  @spec get_resource_to_display(%Dataset{}) :: Resource.t() | nil
+  @spec get_resource_to_display(Dataset.t()) :: Resource.t() | nil
   def get_resource_to_display(%Dataset{type: type, resources: resources})
       when type == "carpooling-areas" or type == "private-parking" or type == "charging-stations" do
     resources
@@ -391,6 +391,7 @@ defmodule TransportWeb.DatasetView do
     resources
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
     |> Enum.reject(fn r -> String.contains?(r.url, "station_status") end)
+    # credo:disable-for-next-line
     |> Enum.reject(fn r -> String.contains?(r.url, "station_information") end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end

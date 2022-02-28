@@ -35,9 +35,9 @@
               <b>
               <% nb_errors = details["errors_count"] %>
               <%= if nb_errors == 0 do %>
-                ✅ <%= dgettext("validations", "No error detected") %>
+                <span class="icon--validation">✅</span><%= dgettext("validations", "No error detected") %>
               <% else %>
-                ❌ <%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+                <span class="icon--validation">❌</span><%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
               <% end %>
               </b>
             </p>
