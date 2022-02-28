@@ -22,8 +22,8 @@ msgstr "Adresse email"
 msgid "Subscribe to our email newsletter to receive update"
 msgstr "Pour être informé·e des nouveautés, inscrivez-vous à notre newsletter :"
 
-msgid "SUBSCRIBE"
-msgstr "INSCRIPTION"
+msgid "subscribe"
+msgstr "Inscription"
 
 msgid "Join us on"
 msgstr "Rejoignez-nous sur"
