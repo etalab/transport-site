@@ -1,7 +1,7 @@
 defmodule DB.GtfsImport do
   @moduledoc """
   GtfsImport list the imports done for each Resource History.
-  It will be a good place to add information about which import is currently in use, publishesd, etc
+  It will be a good place to add information about which import is currently in use, published, etc
   """
   use Ecto.Schema
   use TypedEctoSchema
