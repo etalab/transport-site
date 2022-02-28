@@ -37,7 +37,7 @@ defmodule Transport.Jobs.GtfsToDB do
         }
       end)
       |> Stream.chunk_every(1000)
-      |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GtfsStops, chunk) end)
+      |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GTFS.Stops, chunk) end)
       |> Stream.run()
     end)
   end
@@ -95,7 +95,7 @@ defmodule Transport.Jobs.GtfsToDB do
         |> Map.put(:days, get_dow_array([monday, tuesday, wednesday, thursday, friday, saturday, sunday]))
       end)
       |> Stream.chunk_every(1000)
-      |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GtfsCalendar, chunk) end)
+      |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GTFS.Calendar, chunk) end)
       |> Stream.run()
     end)
   end
@@ -136,7 +136,7 @@ defmodule Transport.Jobs.GtfsToDB do
           }
         end)
         |> Stream.chunk_every(1000)
-        |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GtfsStopTimes, chunk) end)
+        |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GTFS.StopTimes, chunk) end)
         |> Stream.run()
       end,
       timeout: 240_000
@@ -180,7 +180,7 @@ defmodule Transport.Jobs.GtfsToDB do
           }
         end)
         |> Stream.chunk_every(1000)
-        |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GtfsCalendarDates, chunk) end)
+        |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GTFS.CalendarDates, chunk) end)
         |> Stream.run()
       end,
       timeout: 240_000
@@ -208,7 +208,7 @@ defmodule Transport.Jobs.GtfsToDB do
           }
         end)
         |> Stream.chunk_every(1000)
-        |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GtfsTrips, chunk) end)
+        |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GTFS.Trips, chunk) end)
         |> Stream.run()
       end,
       timeout: 240_000

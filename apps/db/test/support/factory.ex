@@ -72,19 +72,19 @@ defmodule DB.Factory do
   end
 
   def gtfs_stop_times_factory do
-    %DB.GtfsStopTimes{}
+    %DB.GTFS.StopTimes{}
   end
 
   def gtfs_trips_factory do
-    %DB.GtfsTrips{}
+    %DB.GTFS.Trips{}
   end
 
   def gtfs_calendar_factory do
-    %DB.GtfsCalendar{}
+    %DB.GTFS.Calendar{}
   end
 
   def gtfs_calendar_dates_factory do
-    %DB.GtfsCalendarDates{}
+    %DB.GTFS.CalendarDates{}
   end
 
   def validation_factory do
