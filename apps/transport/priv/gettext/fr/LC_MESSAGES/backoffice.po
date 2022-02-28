@@ -53,34 +53,6 @@ msgid "Add a partner"
 msgstr "Ajout d'un partenaire"
 
 #, elixir-format
-msgid "Partner's url"
-msgstr "URL datagouv du partenaire"
-
-#, elixir-format
-msgid "This has to be an organization or a user"
-msgstr "L'URL doit être celle d'une organisation ou bien d'un utilisateur datagouv"
-
-#, elixir-format
-msgid "Partner added"
-msgstr "Partenaire ajouté"
-
-#, elixir-format
-msgid "Unable to insert partner in database"
-msgstr "Impossible d'ajouter le partenaire à la base de données"
-
-#, elixir-format
-msgid "Delete"
-msgstr ""
-
-#, elixir-format
-msgid "Partner deleted"
-msgstr "Partenaire supprimé"
-
-#, elixir-format
-msgid "Unable to delete"
-msgstr "Impossible de supprimer le partenaire"
-
-#, elixir-format
 msgid "Dataset's url"
 msgstr "URL du dataset sur data.gouv.fr"
 
