@@ -136,15 +136,20 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
   describe "set_of_sha256" do
     test "with atoms" do
-      assert MapSet.new(["foo"]) == ResourceHistoryJob.set_of_sha256([%{sha256: "foo"}])
+      assert MapSet.new([{"bar", "foo"}]) == ResourceHistoryJob.set_of_sha256([%{sha256: "foo", file_name: "bar"}])
     end
 
     test "with strings" do
-      assert MapSet.new(["foo"]) == ResourceHistoryJob.set_of_sha256([%{"sha256" => "foo"}])
+      assert MapSet.new([{"bar", "foo"}]) ==
+               ResourceHistoryJob.set_of_sha256([%{"sha256" => "foo", "file_name" => "bar"}])
     end
 
     test "with atoms and strings" do
-      assert MapSet.new(["foo", "bar"]) == ResourceHistoryJob.set_of_sha256([%{"sha256" => "foo"}, %{sha256: "bar"}])
+      assert MapSet.new([{"bar", "foo"}, {"foo", "bar"}]) ==
+               ResourceHistoryJob.set_of_sha256([
+                 %{"sha256" => "foo", "file_name" => "bar"},
+                 %{sha256: "bar", file_name: "foo"}
+               ])
     end
   end
 
@@ -179,6 +184,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
              )
 
       refute ResourceHistoryJob.is_same_resource?(%DB.ResourceHistory{payload: %{"zip_metadata" => zip_metadata()}}, [])
+
+      refute ResourceHistoryJob.is_same_resource?(
+               %DB.ResourceHistory{payload: %{"zip_metadata" => [%{"file_name" => "folder/a.txt", "sha256" => "sha"}]}},
+               [%{"file_name" => "a.txt", "sha256" => "sha"}]
+             )
 
       # For regular files
       refute ResourceHistoryJob.is_same_resource?(%DB.ResourceHistory{payload: %{"content_hash" => "foo"}}, "")
