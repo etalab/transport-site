@@ -59,7 +59,7 @@ defmodule Transport.Mixfile do
       {:plug_cowboy, "~> 2.3"},
       {:recon, "~> 2.4"},
       {:quantum, "~> 3.4"},
-      {:timex, "~> 3.5"},
+      {:timex, "~> 3.7"},
       {:sentry, "~> 8.0"},
       {:scrivener, "~> 2.5"},
       # We'll use upstream again once https://github.com/mgwidmann/scrivener_html/pull/97 is merged
