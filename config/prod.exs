@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :transport, TransportWeb.Endpoint,
   http: [port: {:system, "PORT"}, compress: true],
