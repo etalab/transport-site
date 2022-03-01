@@ -9,6 +9,7 @@ defmodule Transport.ScreensTest do
   test "it works" do
     resource_history_uuid = Ecto.UUID.generate()
     resource_datagouv_id = Ecto.UUID.generate()
+
     %{id: resource_history_id} =
       insert(:resource_history,
         datagouv_id: resource_datagouv_id,
@@ -20,12 +21,11 @@ defmodule Transport.ScreensTest do
       convert_to: "NeTEx",
       resource_history_uuid: resource_history_uuid,
       payload: %{
-        "resource_datagouv_id": resource_datagouv_id
+        resource_datagouv_id: resource_datagouv_id
       }
     )
 
     query = """
-
     SELECT
     resource_history_id,
     resource_datagouv_id,
@@ -34,7 +34,7 @@ defmodule Transport.ScreensTest do
     ELSE
       FALSE
     END AS conversion_found
-  FROM (
+    FROM (
     SELECT
       id AS resource_history_id,
       datagouv_id AS resource_datagouv_id,
