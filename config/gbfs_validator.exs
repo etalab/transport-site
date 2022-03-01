@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # Configure GBFS Validator
 config :transport,
