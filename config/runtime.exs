@@ -91,6 +91,7 @@ oban_crontab_all_envs =
         {"30 */6 * * *", Transport.Jobs.GtfsToGeojsonConverterJob},
         # every 6 hours but not at the same time as other jobs
         {"0 3,9,15,21 * * *", Transport.Jobs.GtfsToNetexConverterJob},
+        {"20 8 * * *", Transport.Jobs.CleanOrphanConversionsJob},
         {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
         {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}}
       ]
@@ -135,3 +136,24 @@ if config_env() == :dev do
     #  We also make sure to start the assets watcher only if the webserver is up, to avoid cluttering the logs.
     watchers: if(webserver, do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]], else: [])
 end
+
+email_host_name =
+  case config_env() do
+    :dev ->
+      "localhost"
+
+    :test ->
+      # used to make sure we are replacing the app host name by the email host name
+      # when it is different, in some email testing
+      "email.localhost"
+
+    :prod ->
+      # NOTE: it would be best to configure this via EMAIL_HOST_NAME var instead,
+      # but that will do for today.
+      case app_env do
+        :staging -> "prochainement.transport.data.gouv.fr"
+        :production -> "transport.data.gouv.fr"
+      end
+  end
+
+config :transport, :email_host_name, email_host_name

@@ -169,3 +169,19 @@ msgstr "Rapport de validation"
 #, elixir-format, ex-autogen
 msgid "Once you have fixed your errors, you can verify that your file is valid <a href=\"%{link}\" target=\"_blank\">using our validators</a>."
 msgstr "Une fois vos erreurs réparées, vous pouvez vérifier que votre fichier est valide <a href=\"%{link}\" target=\"_blank\">en utilisant nos validateurs</a>."
+
+#, elixir-format, ex-autogen
+msgid "Errors"
+msgstr "Erreurs"
+
+#, elixir-format, ex-autogen
+msgid "Sample errors"
+msgstr "Exemples d'erreurs"
+
+#, elixir-format, ex-autogen
+msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> and the <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> at %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>."
+msgstr "Validation effectée en utilisant <a href=\"%{gtfs_link}\">le fichier GTFS en vigueur</a> et le <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> à la date du %{date} avec <a href=\"%{validator_url}\" target=\"_blank\">le validateur CUTR GTFS-RT</a>."
+
+#, elixir-format, ex-autogen
+msgid "Warnings"
+msgstr "Avertissements"

@@ -100,7 +100,7 @@
             <%= dgettext("page-producteurs", "Whether you are Autorité organisatrice de mobilité, délégataire de service public, or collectivité territoriale, you may be concerned by the laws loi pour une république numérique, la Loi Orientation des Mobilités and the european reglementation.") %>
           </div>
           <div class="pt-12">
-            <a href="https://doc.transport.data.gouv.fr/producteurs/responsabilite-des-aom-et-des-delegataires">
+            <a href="https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/cadre-juridique-harmonise">
               <%= dgettext("page-producteurs", "Read here a summary of those obligations") %>
             </a>
           </div>

@@ -60,6 +60,7 @@ defmodule Opendatasoft.UrlExtractor do
       # legacy implementation rejecting PDF and NeTEx files
       csv_resources
       |> Enum.reject(fn r -> r["parsed_filename"] |> String.ends_with?(".pdf") end)
+      # credo:disable-for-next-line
       |> Enum.reject(fn r ->
         r["parsed_filename"]
         |> String.downcase()

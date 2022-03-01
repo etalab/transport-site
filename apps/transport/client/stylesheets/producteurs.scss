@@ -6,19 +6,12 @@
   );
 }
 
-.slack-logo {
+.social-media-logo {
   display: inline-block;
-  max-width: 100px;
-  img {
-    width: 100%;
-  }
-}
+  margin-right: 1em;
 
-.twitter-logo {
-  display: inline-block;
-  width: 30px;
   img {
-    width: 100%;
+    width: 50px;
   }
 }
 

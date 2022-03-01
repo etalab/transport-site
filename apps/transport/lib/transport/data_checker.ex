@@ -139,6 +139,7 @@ defmodule Transport.DataChecker do
     r_str =
       datasets
       |> Enum.map(&link_and_name/1)
+      # credo:disable-for-next-line
       |> Enum.join("\n")
 
     """
@@ -151,14 +152,20 @@ defmodule Transport.DataChecker do
   defp delay_str(0), do: "demain"
   defp delay_str(d), do: "dans #{d} jours"
 
-  defp link_and_name(dataset) do
-    link = dataset_url(TransportWeb.Endpoint, :details, dataset.slug)
+  def link(dataset) do
+    base = Transport.RuntimeConfig.EmailHost.email_host()
+    dataset_url(base, :details, dataset.slug)
+  end
+
+  def link_and_name(dataset) do
+    link = link(dataset)
     name = dataset.title
 
     " * #{name} - #{link}"
   end
 
   defp make_outdated_data_body(datasets) do
+    # credo:disable-for-lines:5
     """
     Bonjour,
     Voici un résumé des jeux de données arrivant à expiration
@@ -192,6 +199,7 @@ defmodule Transport.DataChecker do
     datasets_str =
       inactive_datasets
       |> Enum.map(&link_and_name/1)
+      # credo:disable-for-next-line
       |> Enum.join("\n")
 
     """
@@ -206,6 +214,7 @@ defmodule Transport.DataChecker do
     datasets_str =
       reactivated_datasets
       |> Enum.map(&link_and_name/1)
+      # credo:disable-for-next-line
       |> Enum.join("\n")
 
     """

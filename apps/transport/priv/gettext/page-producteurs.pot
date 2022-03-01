@@ -67,10 +67,6 @@ msgid "Our reusers create applications allowing people to better use the mobilit
 msgstr ""
 
 #, elixir-format
-msgid "Our twitter account"
-msgstr ""
-
-#, elixir-format
 msgid "Read here a summary of those obligations"
 msgstr ""
 
@@ -128,4 +124,8 @@ msgstr ""
 
 #, elixir-format
 msgid "Validate a file"
+msgstr ""
+
+#, elixir-format, ex-autogen
+msgid "Our social media accounts"
 msgstr ""
