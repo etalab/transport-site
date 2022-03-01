@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # One can use this as a template to create their own optional dev.secret.exs (not stored in git)
 # with credentials sourced from the rest of the team.
