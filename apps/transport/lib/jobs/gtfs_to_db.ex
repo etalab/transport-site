@@ -141,10 +141,14 @@ defmodule Transport.Jobs.GtfsToDB do
   end
 
   @doc """
-   Parse a binary containing a GTFS style time, and convert it to a struct ready to be inserted as an interval in the DB
+   Parse a binary containing a GTFS style time, and convert it to a struct ready to be inserted as an interval in the DB.
+   According to the doc, "HH:MM:SS format (H:MM:SS is also accepted)"
+   https://developers.google.com/transit/gtfs/reference#field_types
 
    iex> cast_binary_to_interval("01:02:03")
    %{secs: 3723, days: 0, months: 0}
+   iex> cast_binary_to_interval("1:02:04")
+   %{secs: 3724, days: 0, months: 0}
   """
   def cast_binary_to_interval(s) do
     %{"hours" => hours, "minutes" => minutes, "seconds" => seconds} =
