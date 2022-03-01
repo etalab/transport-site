@@ -22,8 +22,8 @@ msgstr "Adresse email"
 msgid "Subscribe to our email newsletter to receive update"
 msgstr "Pour être informé·e des nouveautés, inscrivez-vous à notre newsletter :"
 
-msgid "SUBSCRIBE"
-msgstr "INSCRIPTION"
+msgid "subscribe"
+msgstr "Inscription"
 
 msgid "Join us on"
 msgstr "Rejoignez-nous sur"
@@ -36,10 +36,6 @@ msgstr "Guide de publication"
 
 msgid "Find dataset"
 msgstr "Trouvez un jeu de données"
-
-#, elixir-format
-msgid "Follow us on twitter"
-msgstr "Suivez-nous sur twitter"
 
 #, elixir-format
 msgid "title"
