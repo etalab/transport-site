@@ -7,7 +7,7 @@ defmodule DB.GTFS.StopTimes do
   use TypedEctoSchema
 
   typed_schema "gtfs_stop_times" do
-    belongs_to(:data_import, DB.GTFS.Import)
+    belongs_to(:data_import, DB.DataImport)
     field(:trip_id, :binary)
     field(:stop_id, :binary)
     field(:stop_sequence, :integer)

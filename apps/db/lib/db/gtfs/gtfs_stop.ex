@@ -7,7 +7,7 @@ defmodule DB.GTFS.Stops do
   use TypedEctoSchema
 
   typed_schema "gtfs_stops" do
-    belongs_to(:data_import, DB.GTFS.Import)
+    belongs_to(:data_import, DB.DataImport)
     field(:stop_id, :binary)
     field(:stop_name, :binary)
     field(:stop_lat, :float)

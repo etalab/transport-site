@@ -7,7 +7,7 @@ defmodule DB.GTFS.CalendarDates do
   use TypedEctoSchema
 
   typed_schema "gtfs_calendar_dates" do
-    belongs_to(:data_import, DB.GTFS.Import)
+    belongs_to(:data_import, DB.DataImport)
 
     field(:service_id, :binary)
     field(:date, :date)

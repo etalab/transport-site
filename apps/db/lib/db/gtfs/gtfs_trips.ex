@@ -7,7 +7,7 @@ defmodule DB.GTFS.Trips do
   use TypedEctoSchema
 
   typed_schema "gtfs_trips" do
-    belongs_to(:data_import, DB.GTFS.Import)
+    belongs_to(:data_import, DB.DataImport)
 
     field(:route_id, :binary)
     field(:service_id, :binary)
