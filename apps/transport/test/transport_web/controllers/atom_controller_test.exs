@@ -1,5 +1,5 @@
 defmodule TransportWeb.AtomControllerTest do
-  use ExUnit.Case, async: true
+  use TransportWeb.ConnCase, async: true
   import TransportWeb.AtomController
   # use TransportWeb.DatabaseCase, cleanup: [:datasets]
   import DB.Factory
@@ -51,5 +51,21 @@ defmodule TransportWeb.AtomControllerTest do
              "10-days-old"
              # very old and no timestamp are excluded
            ]
+  end
+
+  test "date format in atom feed", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset)
+    today_string = Date.utc_today() |> Date.to_string()
+    last_update_utc = today_string <> "T10:00:00.000000+00:00"
+    insert(:resource, title: "today-old", last_update: last_update_utc, dataset_id: dataset_id)
+    conn =
+      conn
+      |> get(atom_path(conn, :index))
+
+    # the timestamp displayed gets converted from utc to paris timezone
+    last_update_paris = today_string <> "T11:00:00.000000+01:00"
+
+    doc = conn |> response(200) |> Floki.parse_document!()
+    assert {"updated", [], [last_update_paris]} == Floki.find(doc, "updated") |> Enum.at(0)
   end
 end
