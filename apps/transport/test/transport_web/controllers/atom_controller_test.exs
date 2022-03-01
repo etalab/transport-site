@@ -58,6 +58,7 @@ defmodule TransportWeb.AtomControllerTest do
     today_string = Date.utc_today() |> Date.to_string()
     last_update_utc = today_string <> "T10:00:00.000000+00:00"
     insert(:resource, title: "today-old", last_update: last_update_utc, dataset_id: dataset_id)
+
     conn =
       conn
       |> get(atom_path(conn, :index))
@@ -66,6 +67,6 @@ defmodule TransportWeb.AtomControllerTest do
     last_update_paris = today_string <> "T11:00:00.000000+01:00"
 
     doc = conn |> response(200) |> Floki.parse_document!()
-    assert {"updated", [], [last_update_paris]} == Floki.find(doc, "updated") |> Enum.at(0)
+    assert {"updated", [], [last_update_paris]} == doc |> Floki.find("updated") |> Enum.at(0)
   end
 end
