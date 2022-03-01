@@ -53,7 +53,7 @@ msgstr "Suivez et participez à l'actualité de la communauté transport.data.go
 
 #, elixir-format
 msgid "Our community"
-msgstr "Le slack de la communauté"
+msgstr "Le Slack de la communauté"
 
 #, elixir-format
 msgid "Online validation tools"
@@ -61,15 +61,11 @@ msgstr "Des outils pour valider la qualité de vos données"
 
 #, elixir-format
 msgid "Our blog"
-msgstr "Notre Blog"
+msgstr "Notre blog"
 
 #, elixir-format
 msgid "Our reusers create applications allowing people to better use the mobility resources available around them."
 msgstr "Nos réutilisateurs développent des applications permettant aux usagers des services de mobilités de se repérer dans toute l'offre disponible sur leur territoire."
-
-#, elixir-format
-msgid "Our twitter account"
-msgstr "Le fil Twitter"
 
 #, elixir-format
 msgid "Read here a summary of those obligations"
@@ -130,3 +126,7 @@ msgstr "Valider un flux GBFS"
 #, elixir-format
 msgid "Validate a file"
 msgstr "Valider un fichier"
+
+#, elixir-format, ex-autogen
+msgid "Our social media accounts"
+msgstr "Nos réseaux sociaux"

@@ -67,6 +67,26 @@ defmodule DB.Factory do
     }
   end
 
+  def data_import_factory do
+    %DB.DataImport{}
+  end
+
+  def gtfs_stop_times_factory do
+    %DB.GtfsStopTimes{}
+  end
+
+  def gtfs_trips_factory do
+    %DB.GtfsTrips{}
+  end
+
+  def gtfs_calendar_factory do
+    %DB.GtfsCalendar{}
+  end
+
+  def gtfs_calendar_dates_factory do
+    %DB.GtfsCalendarDates{}
+  end
+
   def validation_factory do
     %DB.Validation{}
   end

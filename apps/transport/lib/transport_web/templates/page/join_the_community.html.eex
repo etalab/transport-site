@@ -11,10 +11,8 @@
         <div>
           <%= dgettext("page-producteurs", "A place to chat, ask questions and get answers for data producers and reusers.") %>
           <div class="pt-24">
-            <a class="button-outline primary" href="<%= Application.get_env(:transport, :join_our_slack_link) %>">
-              <span class="slack-logo">
-                <img src="<%= static_path(@conn, "/images/Slack_RGB.png") %>" alt="Slack" >
-              </span>
+            <a class="button-outline primary social-media-logo" href="<%= Application.get_env(:transport, :join_our_slack_link) %>">
+              <img src="<%= static_path(@conn, "/images/slack.svg") %>" alt="Slack" >
             </a>
           </div>
         </div>
@@ -33,12 +31,13 @@
         </div>
       </div>
       <div class="pt-48 pb-48">
-        <h2> <%= dgettext("page-producteurs", "Our twitter account") %> <span class="twitter-logo">
-            <img src="<%= static_path(@conn, "/images/Twitter_Logo_Blue.svg") %>" alt="Twitter" >
-          </span></h2>
-        <div>
-          <a class="button-outline primary" href="https://twitter.com/transportdatafr"><%= dgettext("page-index", "Follow us on twitter") %></a>
-        </div>
+        <h2><%= dgettext("page-producteurs", "Our social media accounts") %></h2>
+        <a class="button-outline primary social-media-logo" href="https://twitter.com/transportdatafr">
+          <img src="<%= static_path(@conn, "/images/twitter.svg") %>" alt="Twitter" >
+        </a>
+        <a class="button-outline primary social-media-logo" href="https://www.linkedin.com/company/transportdatagouvfr/">
+          <img src="<%= static_path(@conn, "/images/linkedin.svg") %>" alt="LinkedIn" >
+        </a>
       </div>
     </div>
     <div class="producteurs-community-child">
@@ -59,7 +58,7 @@
                 <div>
                   <input type="hidden" name="b_5ee8bfe0f1b073b49de06a063_13db2e9a94" tabindex="-1" value="">
                 </div>
-                <button class="button" type="submit" name="subscribe" id="mc-embedded-subscribe"><%= dgettext("page-index", "SUBSCRIBE") %></button>
+                <button class="button" type="submit" name="subscribe" id="mc-embedded-subscribe"><%= dgettext("page-index", "Subscribe") %></button>
               </div>
             </div>
           </form>
