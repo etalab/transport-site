@@ -167,7 +167,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   def is_same_resource?(nil, _), do: false
 
-  def set_of_sha256(items), do: MapSet.new(items |> Enum.map(fn m -> Map.get(m, "sha256") || Map.get(m, :sha256) end))
+  def set_of_sha256(items) do
+    items |> Enum.map(&{map_get(&1, :file_name), map_get(&1, :sha256)}) |> MapSet.new()
+  end
 
   defp resource_hash(%Resource{content_hash: content_hash, datagouv_id: datagouv_id} = resource, resource_path) do
     case is_zip?(resource) do
@@ -183,6 +185,10 @@ defmodule Transport.Jobs.ResourceHistoryJob do
       false ->
         content_hash
     end
+  end
+
+  def map_get(map, key) when is_atom(key) do
+    Map.get(map, key) || Map.get(map, to_string(key))
   end
 
   defp is_zip?(%Resource{format: format}), do: format in ["NeTEx", "GTFS"]
