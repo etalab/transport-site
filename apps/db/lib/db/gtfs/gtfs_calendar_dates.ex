@@ -1,4 +1,4 @@
-defmodule DB.GtfsCalendarDates do
+defmodule DB.GTFS.CalendarDates do
   @moduledoc """
   This contains the information present in GTFS calendar_dates.txt files.
   https://developers.google.com/transit/gtfs/reference?hl=fr#calendar_datestxt
@@ -7,7 +7,7 @@ defmodule DB.GtfsCalendarDates do
   use TypedEctoSchema
 
   typed_schema "gtfs_calendar_dates" do
-    belongs_to(:data_import, DB.GtfsImport)
+    belongs_to(:data_import, DB.DataImport)
 
     field(:service_id, :binary)
     field(:date, :date)
