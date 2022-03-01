@@ -8,6 +8,9 @@ defmodule Transport.GtfsQuery do
     datetime_end = DateTime.add(datetime_start, window_in_minutes * 60, :second)
     no_dates_before = datetime_start |> DateTime.to_date() |> Date.add(-2)
 
+    # GTFS Times are defined as "The time is measured from "noon minus 12h" of the service day"
+    # Hence the strange way to compute the effective departure time.
+    # https://developers.google.com/transit/gtfs/reference#field_types
     query = """
       with stop_times as (select gst.*, gt.route_id, gt.service_id, gc.days, gc.start_date, gc.end_date from gtfs_stop_times gst
       left join gtfs_trips gt on gst.trip_id = gt.trip_id and gst.data_import_id = gt.data_import_id
