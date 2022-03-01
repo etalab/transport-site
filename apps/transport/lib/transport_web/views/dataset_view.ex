@@ -39,6 +39,16 @@ defmodule TransportWeb.DatasetView do
     )
   end
 
+  @doc """
+  Function converting either a datetime or a binary to a binary date.
+  The formatting output is not coherent : it needs to be fixed
+
+
+  iex> format_datetime_to_date(~U[2022-03-01 15:53:56.335645Z])
+  "2022-03-01"
+  iex> format_datetime_to_date("2022-03-01 15:53:56.335645Z")
+  "01-03-2022"
+  """
   def format_datetime_to_date(nil), do: ""
 
   def format_datetime_to_date(%DateTime{} = dt), do: dt |> DateTime.to_date() |> Date.to_string()
@@ -49,6 +59,12 @@ defmodule TransportWeb.DatasetView do
     |> Timex.format!("{0D}-{0M}-{YYYY}")
   end
 
+  @doc """
+  Converts a binary date to a French looking date
+
+  iex> format_date("2022-03-01")
+  "01-03-2022"
+  """
   def format_date(nil), do: ""
 
   def format_date(date) do
