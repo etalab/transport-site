@@ -159,10 +159,12 @@ email_host_name =
 config :transport, :email_host_name, email_host_name
 
 if config_env() == :prod do
-  pool_size = case app_env do
-    :production -> 15,
-    :staging -> 6
-  end
+  pool_size =
+    case app_env do
+      :production -> 15
+      :staging -> 6
+    end
+
   config :db, DB.Repo,
     url:
       System.get_env("POSTGRESQL_ADDON_DIRECT_URI") || System.get_env("POSTGRESQL_ADDON_URI") ||
