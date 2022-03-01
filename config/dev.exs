@@ -71,7 +71,7 @@ config :oauth2, Datagouvfr.Authentication,
   site: datagouvfr_site,
   redirect_uri: "http://localhost:5000/login/callback"
 
-extra_config_file = Path.join(__DIR__, "#{Mix.env()}.secret.exs")
+extra_config_file = Path.join(__DIR__, "#{config_env()}.secret.exs")
 
 if File.exists?(extra_config_file) do
   import_config extra_config_file

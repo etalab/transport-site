@@ -83,11 +83,12 @@ config :phoenix, :template_engines,
 config :phoenix_markdown, :server_tags, :all
 
 # build sentry env based on Mix env, unless overriden (useful for staging)
-sentry_env_as_atom = if v = System.get_env("SENTRY_ENV") do
-  v |> String.to_atom()
-else
-  Mix.env()
-end
+sentry_env_as_atom =
+  if v = System.get_env("SENTRY_ENV") do
+    v |> String.to_atom()
+  else
+    config_env()
+  end
 
 # check out https://sentry.io/settings/transport-data-gouv-fr/projects/transport-site/install/elixir/
 config :sentry,
