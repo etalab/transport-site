@@ -171,8 +171,8 @@ if config_env() == :prod do
         "" |> String.replace_prefix("postgresql", "ecto"),
     # NOTE: we must be careful with this ; front-end + worker are consuming
     pool_size: pool_size,
-    # NOTE: pool_timeout is deprecated!
-    # Must be replaced by https://hexdocs.pm/db_connection/DBConnection.html#start_link/2-queue-config
-    pool_timeout: 15_000,
+    # See https://hexdocs.pm/db_connection/DBConnection.html#start_link/2-queue-config
+    # [Ecto.Repo] :pool_timeout is no longer supported in favor of a new queue system described in DBConnection.start_link/2
+    # under "Queue config". For most users, configuring :timeout is enough, as it now includes both queue and query time
     timeout: 15_000
 end
