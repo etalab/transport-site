@@ -10,7 +10,7 @@
       </b>
 
       <span class="label">
-        <%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+        <%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
       </span>
     </p>
 
