@@ -58,7 +58,7 @@ defmodule Transport.ImportData do
         resources_id,
         fn r_id -> Resource.validate_and_save(r_id, force) end,
         max_concurrency: max_import_concurrent_jobs(),
-        timeout: 180_000
+        timeout: 240_000
       )
       |> Enum.to_list()
 
