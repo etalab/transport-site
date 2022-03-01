@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # Configure GTFS Validator
 config :transport,

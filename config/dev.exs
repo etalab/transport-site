@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # For local work, it is usually more convenient to copy-paste
 config :unlock,

@@ -8,7 +8,7 @@
 # For reference, ultimately most tests should not connect to outside stuff.
 # A good model for improvements is https://github.com/hexpm/hexpm/tree/main/config
 #
-use Mix.Config
+import Config
 
 config :unlock,
   config_fetcher: Unlock.Config.GitHub,
