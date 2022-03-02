@@ -21,14 +21,12 @@
     </div>
   <% end %>
   <div class="pb-24 light-gry">
-    <span title="<%= dgettext("page-dataset-details", "last update") %>">
+
+    <span title="<%= dgettext("page-dataset-details", "last content modification") %>">
       <i class="icon icon--sync-alt" aria-hidden="true"></i>
-      <%= if Resource.is_real_time?(@resource) do %>
-        <%= dgettext("page-dataset-details", "real-time") %>
-      <% else %>
         <%= show_resource_last_update(@resources_updated_at, @resource) %>
-      <% end %>
     </span>
+
     <%= unless is_nil(Resource.ttl(@resource)) do %>
       <span class="ml-05-em" title="<%= dgettext("page-dataset-details", "time to live (%{feed})", feed: gbfs_feed_source_for_ttl(@resource)) %>">
         <i class="icon fa fa-history" aria-hidden="true"></i>
