@@ -3,5 +3,5 @@
   ~r/deps\/postgrex\/lib\/postgrex\/type_module.ex/,
   ~r/lib\/postgrex\/type_module.ex/,
   # EctoInterval raises an unknown_type error
-  ~r/lib\/db\/gtfs_stop_times.ex/
+  ~r/lib\/db\/gtfs\/gtfs_stop_times.ex/
 ]

@@ -17,7 +17,7 @@ defmodule TransportWeb.ValidationController do
 
       validation = %Validation{on_the_fly_validation_metadata: metadata} |> Repo.insert!()
       dispatch_validation_job(validation)
-      redirect(conn, to: validation_path(conn, :show, validation.id))
+      redirect(conn, to: validation_path(conn, :show, validation.id, token: Map.fetch!(metadata, "secret_url_token")))
     else
       conn |> bad_request()
     end
@@ -28,12 +28,15 @@ defmodule TransportWeb.ValidationController do
   end
 
   def show(%Plug.Conn{} = conn, %{} = params) do
+    token = params["token"]
+
     case Repo.get(Validation, params["id"]) do
       nil ->
-        conn
-        |> put_status(:not_found)
-        |> put_view(TransportWeb.ErrorView)
-        |> render(:"404")
+        not_found(conn)
+
+      %Validation{on_the_fly_validation_metadata: %{"secret_url_token" => expected_token}}
+      when expected_token != token ->
+        unauthorized(conn)
 
       %Validation{on_the_fly_validation_metadata: %{"state" => "completed", "type" => "gtfs"}} = validation ->
         current_issues = Validation.get_issues(validation, params)
@@ -44,16 +47,6 @@ defmodule TransportWeb.ValidationController do
             issue_type -> issue_type
           end
 
-        data_vis = validation.data_vis[issue_type]
-        has_features = DataVisualization.has_features(data_vis["geojson"])
-
-        encoded_data_vis =
-          case {has_features, Jason.encode(data_vis)} do
-            {false, _} -> nil
-            {true, {:ok, encoded_data_vis}} -> encoded_data_vis
-            _ -> nil
-          end
-
         conn
         |> assign(:validation_id, params["id"])
         |> assign(:other_resources, [])
@@ -61,15 +54,29 @@ defmodule TransportWeb.ValidationController do
         |> assign(:validation_summary, Validation.summary(validation))
         |> assign(:severities_count, Validation.count_by_severity(validation))
         |> assign(:metadata, validation.on_the_fly_validation_metadata)
-        |> assign(:data_vis, encoded_data_vis)
+        |> assign(:data_vis, data_vis(validation, issue_type))
         |> render("show.html")
 
       # Handles waiting for validation to complete, errors and
       # validation for schemas
       _ ->
         live_render(conn, TransportWeb.Live.OnDemandValidationLive,
-          session: %{"validation_id" => params["id"], "current_url" => validation_path(conn, :show, params["id"])}
+          session: %{
+            "validation_id" => params["id"],
+            "current_url" => validation_path(conn, :show, params["id"], token: token)
+          }
         )
+    end
+  end
+
+  defp data_vis(%Validation{} = validation, issue_type) do
+    data_vis = validation.data_vis[issue_type]
+    has_features = DataVisualization.has_features(data_vis["geojson"])
+
+    case {has_features, Jason.encode(data_vis)} do
+      {false, _} -> nil
+      {true, {:ok, encoded_data_vis}} -> encoded_data_vis
+      _ -> nil
     end
   end
 
@@ -114,7 +121,8 @@ defmodule TransportWeb.ValidationController do
       %{
         "state" => "waiting",
         "filename" => path,
-        "permanent_url" => Transport.S3.permanent_url(:on_demand_validation, path)
+        "permanent_url" => Transport.S3.permanent_url(:on_demand_validation, path),
+        "secret_url_token" => Ecto.UUID.generate()
       }
     )
   end
@@ -122,6 +130,20 @@ defmodule TransportWeb.ValidationController do
   defp schema_type(schema_name), do: transport_schemas()[schema_name]["schema_type"]
 
   defp transport_schemas, do: Transport.Shared.Schemas.Wrapper.transport_schemas()
+
+  defp not_found(%Plug.Conn{} = conn) do
+    conn
+    |> put_status(:not_found)
+    |> put_view(TransportWeb.ErrorView)
+    |> render(:"404")
+  end
+
+  defp unauthorized(%Plug.Conn{} = conn) do
+    conn
+    |> put_status(:unauthorized)
+    |> put_view(TransportWeb.ErrorView)
+    |> render(:"401")
+  end
 
   defp bad_request(%Plug.Conn{} = conn) do
     conn

@@ -185,3 +185,10 @@ msgstr ""
 #, elixir-format, ex-autogen
 msgid "Warnings"
 msgstr ""
+
+#, elixir-format, ex-autogen, fuzzy
+msgctxt "warnings"
+msgid "warning"
+msgid_plural "warnings"
+msgstr[0] ""
+msgstr[1] ""

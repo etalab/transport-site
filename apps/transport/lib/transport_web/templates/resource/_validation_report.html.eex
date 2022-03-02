@@ -11,7 +11,7 @@
       <%= if nb_errors == 0 do %>
         <span class="icon--validation">✅</span><%= dgettext("validations", "No error detected") %>
       <% else %>
-        <span class="icon--validation">❌</span><%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+        <span class="icon--validation">❌</span><%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
       <% end %>
       </b>
     </p>
@@ -42,10 +42,18 @@
   <p>
     <b>
     <% nb_errors = errors_count(@resource) %>
-    <%= if nb_errors == 0 do %>
+    <% nb_warnings = warnings_count(@resource) %>
+    <%= if nb_errors + nb_warnings == 0 do %>
       <span class="icon--validation">✅</span><%= dgettext("validations", "No error detected") %>
-    <% else %>
-      <span class="icon--validation">❌</span><%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+    <% end %>
+    <%= if nb_errors == 0 and nb_warnings > 0 do %>
+      <span class="icon--validation">⚠️</span><%= "#{format_number(nb_warnings)} #{dpngettext("validations", "warnings", "warning", "warnings", nb_warnings)}" %>
+    <% end %>
+    <%= if nb_errors > 0 and nb_warnings == 0 do %>
+      <span class="icon--validation">❌</span><%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+    <% end %>
+    <%= if nb_errors > 0 and nb_warnings > 0 do %>
+      <span class="icon--validation">❌</span><%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>, <%= "#{format_number(nb_warnings)} #{dpngettext("validations", "warnings", "warning", "warnings", nb_warnings)}" %>
     <% end %>
     </b>
   </p>

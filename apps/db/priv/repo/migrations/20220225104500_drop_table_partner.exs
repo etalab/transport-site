@@ -2,7 +2,7 @@ defmodule DB.Repo.Migrations.DropTablePartner do
   use Ecto.Migration
 
   def up do
-    drop table("partner")
+    drop_if_exists table("partner")
   end
 
   def down do

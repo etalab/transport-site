@@ -42,6 +42,7 @@ defmodule TransportWeb.Router do
 
     get("/", PageController, :index)
     get("/real_time", PageController, :real_time)
+    get("/accessibilite", PageController, :accessibility)
     get("/conditions", PageController, :conditions)
     get("/infos_producteurs", PageController, :infos_producteurs)
     get("/.well-known/security.txt", PageController, :security_txt)
@@ -165,7 +166,7 @@ defmodule TransportWeb.Router do
     end
 
     # old static pages that have been moved to doc.transport
-    get("/faq", Redirect, external: "https://doc.transport.data.gouv.fr/foire-aux-questions")
+    get("/faq", Redirect, external: "https://doc.transport.data.gouv.fr/foire-aux-questions-1/generalites")
 
     get("/guide", Redirect,
       external:
