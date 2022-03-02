@@ -16,7 +16,7 @@ defmodule Transport.Jobs.GtfsToDBTest do
       file_stream = stream_local_file("stop_times.txt", "#{__DIR__}/../../fixture/files/gtfs_import.zip")
       stop_times_stream_insert(file_stream, data_import_id)
 
-      assert [stop_time_1, stop_time_2] = DB.GtfsStopTimes |> DB.Repo.all()
+      assert [stop_time_1, stop_time_2] = DB.GTFS.StopTimes |> DB.Repo.all()
 
       arrival_time = struct(Postgrex.Interval, cast_binary_to_interval("08:05:00"))
       departure_time = struct(Postgrex.Interval, cast_binary_to_interval("08:06:00"))
@@ -49,7 +49,7 @@ defmodule Transport.Jobs.GtfsToDBTest do
       file_stream = stream_local_file("stops.txt", "#{__DIR__}/../../fixture/files/gtfs_import.zip")
       stops_stream_insert(file_stream, data_import_id)
 
-      assert [stop_1, stop_2] = DB.GtfsStops |> DB.Repo.all()
+      assert [stop_1, stop_2] = DB.GTFS.Stops |> DB.Repo.all()
 
       assert %{
                stop_id: "stop_1",
@@ -75,7 +75,7 @@ defmodule Transport.Jobs.GtfsToDBTest do
       file_stream = stream_local_file("calendar.txt", "#{__DIR__}/../../fixture/files/gtfs_import.zip")
       calendar_stream_insert(file_stream, data_import_id)
 
-      assert [cal_1, cal_2] = DB.GtfsCalendar |> DB.Repo.all()
+      assert [cal_1, cal_2] = DB.GTFS.Calendar |> DB.Repo.all()
 
       assert %{
                service_id: "service_1",
@@ -101,7 +101,7 @@ defmodule Transport.Jobs.GtfsToDBTest do
       file_stream = stream_local_file("calendar_dates.txt", "#{__DIR__}/../../fixture/files/gtfs_import.zip")
       calendar_dates_stream_insert(file_stream, data_import_id)
 
-      assert [cald_1, cald_2] = DB.GtfsCalendarDates |> DB.Repo.all()
+      assert [cald_1, cald_2] = DB.GTFS.CalendarDates |> DB.Repo.all()
 
       assert %{
                service_id: "service_1",
@@ -125,7 +125,7 @@ defmodule Transport.Jobs.GtfsToDBTest do
       file_stream = stream_local_file("trips.txt", "#{__DIR__}/../../fixture/files/gtfs_import.zip")
       trips_stream_insert(file_stream, data_import_id)
 
-      assert [trip_1, trip_2] = DB.GtfsTrips |> DB.Repo.all()
+      assert [trip_1, trip_2] = DB.GTFS.Trips |> DB.Repo.all()
 
       assert %{
                route_id: "route_1",
