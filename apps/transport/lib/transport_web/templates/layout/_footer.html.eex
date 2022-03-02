@@ -35,7 +35,7 @@
       <a class="footer__link" href="https://doc.transport.data.gouv.fr/reutilisateurs/apis/" role="link">API</a>
     </li>
     <li>
-      <a class="footer__link" href="https://doc.transport.data.gouv.fr/foire-aux-questions" role="link">FAQ</a>
+      <a class="footer__link" href="https://doc.transport.data.gouv.fr/foire-aux-questions-1/generalites" role="link">FAQ</a>
     </li>
     <li>
       <a class="footer__link" href="https://github.com/etalab/transport-site/" role="link"><%= gettext("Source code")%></a>
