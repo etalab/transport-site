@@ -92,3 +92,7 @@ msgstr ""
 #, elixir-format
 msgid "Analyze a GBFS feed"
 msgstr ""
+
+#, elixir-format, ex-autogen
+msgid "Accessibility: non-compliant"
+msgstr ""
