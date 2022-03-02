@@ -1,4 +1,4 @@
-<%= raw ~s(<div lang="fr">) %>
+<%= raw ~s(<div lang=fr>) %>
 
 Le Ministère de la Transition écologique s’engage à rendre ses sites web, intranet, extranet et ses progiciels accessibles (et ses applications mobiles et mobilier urbain numérique) conformément à l’article 47 de la loi n°2005-102 du 11 février 2005.
 
