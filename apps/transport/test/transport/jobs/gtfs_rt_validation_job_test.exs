@@ -205,7 +205,8 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
       assert %{
                validation: %DB.Validation{
                  details: %{
-                   "errors_count" => 30,
+                   "warnings_count" => 26,
+                   "errors_count" => 4,
                    "has_errors" => true,
                    "errors" => ^expected_errors,
                    "files" => validation_files
@@ -217,7 +218,8 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
                  "validation" => %{
                    "datetime" => _datetime,
                    "errors" => ^expected_errors,
-                   "errors_count" => 30,
+                   "warnings_count" => 26,
+                   "errors_count" => 4,
                    "files" =>
                      %{
                        "gtfs_permanent_url" => ^gtfs_permanent_url,
@@ -377,7 +379,8 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
 
     test "convert_validator_report" do
       assert %{
-               "errors_count" => 30,
+               "warnings_count" => 26,
+               "errors_count" => 4,
                "has_errors" => true,
                "errors" => [
                  %{

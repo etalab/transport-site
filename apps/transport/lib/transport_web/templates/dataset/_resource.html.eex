@@ -75,7 +75,7 @@
             <%= if r.severity == "Irrevelant" do %>
               <%= dgettext("page-dataset-details", "No error detected") %>
             <% else %>
-              <%= "#{r.count_errors} #{Validation.severities(r.severity)[:text]}" %>
+              <%= "#{r.count_errors} #{String.downcase(Validation.severities(r.severity)[:text])}" %>
             <% end %>
           </span>
         <% end %>
@@ -92,24 +92,27 @@
   <% end %>
   <%= if Resource.has_errors_details?(@resource) do %>
     <% nb_errors = errors_count(@resource) %>
-    <%= if nb_errors do %>
-      <div class="pb-24">
-        <%= if Resource.is_gbfs?(@resource) do %>
-          <a href="<%= gbfs_validation_link(@resource) %>" target="_blank">
-        <% else %>
-          <a href="<%= resource_path(@conn, :details, @resource.id) %>">
-        <% end %>
-          <span class="<%= summary_class(@resource) %>">
-            <%= if nb_errors == 0 do %>
-              <%= dgettext("page-dataset-details", "No error detected") %>
-            <% else %>
-              <%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
-            <% end %>
-          </span>
-        </a>
-        <span><%= dgettext("page-dataset-details", "during validation") %></span>
-      </div>
-    <% end %>
+    <% nb_warnings = warnings_count(@resource) %>
+    <div class="pb-24">
+      <%= if Resource.is_gbfs?(@resource) do %>
+        <a href="<%= gbfs_validation_link(@resource) %>" target="_blank">
+      <% else %>
+        <a href="<%= resource_path(@conn, :details, @resource.id) %>">
+      <% end %>
+        <span class="<%= summary_class(@resource) %>">
+          <%= if nb_errors + (nb_warnings || 0) == 0 do %>
+            <%= dgettext("page-dataset-details", "No error detected") %>
+          <% end %>
+          <%= if nb_errors == 0 and is_integer(nb_warnings) and nb_warnings > 0 do %>
+            <%= "#{format_number(nb_warnings)} #{dpngettext("validations", "warnings", "warning", "warnings", nb_warnings)}" %>
+          <% end %>
+          <%= if nb_errors > 0 do %>
+            <%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+          <% end %>
+        </span>
+      </a>
+      <span><%= dgettext("page-dataset-details", "during validation") %></span>
+    </div>
   <% end %>
   <div class="resource-panel-bottom">
     <div class="resource-features">

@@ -35,3 +35,7 @@ msgstr ""
 #, elixir-format
 msgid "400: Bad Request"
 msgstr ""
+
+#, elixir-format, ex-autogen
+msgid "401: Unauthorized"
+msgstr ""

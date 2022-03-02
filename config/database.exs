@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :db, DB.Repo,
   url: System.get_env("PG_URL") || "ecto://postgres:postgres@localhost/transport_repo",

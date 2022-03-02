@@ -185,3 +185,10 @@ msgstr "Validation effectée en utilisant <a href=\"%{gtfs_link}\">le fichier GT
 #, elixir-format, ex-autogen
 msgid "Warnings"
 msgstr "Avertissements"
+
+#, elixir-format, ex-autogen, fuzzy
+msgctxt "warnings"
+msgid "warning"
+msgid_plural "warnings"
+msgstr[0] "avertissement"
+msgstr[1] "avertissements"
