@@ -41,7 +41,7 @@ defmodule TransportWeb.DatasetView do
 
   @doc """
   Function converting either a datetime or a binary to a binary date.
-  The formatting output is not coherent : it needs to be fixed
+  The formatting output is not coherent: it needs to be fixed
 
 
   iex> format_datetime_to_date(~U[2022-03-01 15:53:56.335645Z])
