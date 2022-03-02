@@ -156,7 +156,6 @@ defmodule DB.DatasetDBTest do
 
     dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get!(dataset_id)
 
-    assert %{^resource_id_1 => resource_1_result, ^resource_id_2 => nil} = Dataset.resources_content_updated_at(dataset)
-    assert {:ok, ^resource_1_last_update_time, _} = resource_1_result |> DateTime.from_iso8601()
+    assert %{^resource_id_1 => ^resource_1_last_update_time, ^resource_id_2 => nil} = Dataset.resources_content_updated_at(dataset)
   end
 end

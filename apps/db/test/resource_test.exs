@@ -283,8 +283,7 @@ defmodule DB.ResourceTest do
         payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
       })
 
-      {:ok, result, _} = resource_id |> Resource.content_updated_at() |> DateTime.from_iso8601()
-      assert expected_last_update_time == result
+      assert expected_last_update_time == resource_id |> Resource.content_updated_at()
     end
 
     test "only one resource history, we don't know the resource last content update time" do
@@ -319,8 +318,7 @@ defmodule DB.ResourceTest do
         payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
       })
 
-      {:ok, result, _} = resource_id |> Resource.content_updated_at() |> DateTime.from_iso8601()
-      assert expected_last_update_time == result
+      assert expected_last_update_time == resource_id |> Resource.content_updated_at()
     end
   end
 end
