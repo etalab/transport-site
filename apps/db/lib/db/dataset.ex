@@ -723,6 +723,7 @@ defmodule DB.Dataset do
     changeset |> change(has_realtime: has_realtime)
   end
 
+  @spec resources_content_updated_at(__MODULE__.t()) :: map()
   def resources_content_updated_at(%__MODULE__{resources: resources}) do
     resources |> Enum.map(fn r -> {r.id, DB.Resource.content_updated_at(r)} end) |> Enum.into(%{})
   end
