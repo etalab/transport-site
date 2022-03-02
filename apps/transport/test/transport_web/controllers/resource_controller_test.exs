@@ -43,11 +43,12 @@ defmodule TransportWeb.ResourceControllerTest do
           %Resource{
             url: "http://link.to/gtfs-rt",
             datagouv_id: "5",
-            metadata: %{"validation" => %{"errors_count" => 2}},
+            metadata: %{"validation" => %{"errors_count" => 2, "warnings_count" => 3}},
             validation: %Validation{
               date: DateTime.utc_now() |> DateTime.to_string(),
               details: %{
                 "errors_count" => 2,
+                "warnings_count" => 3,
                 "files" => %{
                   "gtfs_permanent_url" => "https://example.com/gtfs.zip",
                   "gtfs_rt_permanent_url" => "https://example.com/gtfs-rt"
@@ -58,16 +59,16 @@ defmodule TransportWeb.ResourceControllerTest do
                     "description" => "error description",
                     "severity" => "ERROR",
                     "error_id" => "E001",
-                    "errors_count" => 1,
-                    "errors" => ["sample 1"]
+                    "errors_count" => 2,
+                    "errors" => ["sample 1", "foo"]
                   },
                   %{
                     "title" => "warning title",
                     "description" => "warning description",
                     "severity" => "WARNING",
                     "error_id" => "W001",
-                    "errors_count" => 1,
-                    "errors" => ["sample 2"]
+                    "errors_count" => 3,
+                    "errors" => ["sample 2", "bar", "baz"]
                   }
                 ]
               }
@@ -156,6 +157,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
     [
       "2 erreurs",
+      "3 avertissements",
       "error title",
       "E001",
       "warning title",
