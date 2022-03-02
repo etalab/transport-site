@@ -261,11 +261,22 @@ defmodule TransportWeb.DatasetView do
   def summary_class(%{metadata: %{"validation" => %{"has_errors" => false}}}),
     do: "resource__summary--Success"
 
+  def summary_class(%{metadata: %{"validation" => %{"errors_count" => 0, "warnings_count" => warnings_count}}})
+      when warnings_count > 0,
+      do: "resource__summary--Warning"
+
   def summary_class(%{metadata: %{"validation" => _}}), do: "resource__summary--Error"
 
-  def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => nb_errors}}})
-      when is_integer(nb_errors) and nb_errors >= 0,
-      do: nb_errors
+  def warnings_count(%Resource{metadata: %{"validation" => %{"warnings_count" => warnings_count}}})
+      when is_integer(warnings_count) and warnings_count >= 0,
+      do: warnings_count
+
+  def warnings_count(%Resource{format: "gtfs-rt"}), do: 0
+  def warnings_count(%Resource{}), do: nil
+
+  def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => errors_count}}})
+      when is_integer(errors_count) and errors_count >= 0,
+      do: errors_count
 
   def errors_count(%Resource{}), do: nil
 

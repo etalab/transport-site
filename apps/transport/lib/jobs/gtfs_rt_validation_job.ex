@@ -155,7 +155,7 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
 
   defp build_validation_details(
          %ResourceHistory{payload: %{"uuid" => uuid, "permanent_url" => permanent_url, "format" => "GTFS"}},
-         %{"has_errors" => _, "errors" => _, "errors_count" => _} = validation_report,
+         %{"has_errors" => _, "errors" => _, "errors_count" => _, "warnings_count" => _} = validation_report,
          gtfs_rt_cellar_filename
        ) do
     Map.merge(validation_report, %{
@@ -235,9 +235,24 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
         }
       end)
 
-    total_errors = errors |> Enum.map(&Map.fetch!(&1, "errors_count")) |> Enum.sum()
+    total_errors =
+      errors
+      |> Enum.filter(&(Map.fetch!(&1, "severity") == "ERROR"))
+      |> Enum.map(&Map.fetch!(&1, "errors_count"))
+      |> Enum.sum()
 
-    %{"errors_count" => total_errors, "has_errors" => total_errors > 0, "errors" => errors}
+    total_warnings =
+      errors
+      |> Enum.filter(&(Map.fetch!(&1, "severity") == "WARNING"))
+      |> Enum.map(&Map.fetch!(&1, "errors_count"))
+      |> Enum.sum()
+
+    %{
+      "errors_count" => total_errors,
+      "warnings_count" => total_warnings,
+      "has_errors" => total_errors + total_warnings > 0,
+      "errors" => errors
+    }
   end
 
   def get_max_severity_error(%{"errors" => errors}), do: get_max_severity_error(errors)
