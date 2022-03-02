@@ -133,4 +133,30 @@ defmodule DB.DatasetDBTest do
       assert {:ok, %Ecto.Changeset{changes: %{has_realtime: false}}} = changeset
     end
   end
+
+  test "for a dataset, get resources last update times" do
+    %{id: dataset_id} = insert(:dataset, %{datagouv_id: "xxx", title: "coucou"})
+
+    %{id: resource_id_1} = insert(:resource, %{datagouv_id: datagouv_id_1 = "datagouv_id_1", dataset_id: dataset_id})
+    %{id: resource_id_2} = insert(:resource, %{datagouv_id: datagouv_id_2 = "datagouv_id_2", dataset_id: dataset_id})
+
+    # resource 1
+    insert(:resource_history, %{
+      datagouv_id: datagouv_id_1,
+      payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+    })
+
+    insert(:resource_history, %{
+      datagouv_id: datagouv_id_1,
+      payload: %{download_datetime: resource_1_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
+    })
+
+    # resource 2
+    insert(:resource_history, %{datagouv_id: datagouv_id_2, payload: %{}})
+
+    dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get!(dataset_id)
+
+    assert %{^resource_id_1 => resource_1_result, ^resource_id_2 => nil} = Dataset.resources_content_updated_at(dataset)
+    assert {:ok, ^resource_1_last_update_time, _} = resource_1_result |> DateTime.from_iso8601()
+  end
 end

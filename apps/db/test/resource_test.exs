@@ -268,4 +268,59 @@ defmodule DB.ResourceTest do
 
     assert {true, "schema is set and content hash has changed"} == Resource.needs_validation(resource, false)
   end
+
+  describe "resource last content update time" do
+    test "basic case" do
+      %{id: resource_id} = insert(:resource, %{datagouv_id: datagouv_id = "datagouv_id"})
+
+      insert(:resource_history, %{
+        datagouv_id: datagouv_id,
+        payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+      })
+
+      insert(:resource_history, %{
+        datagouv_id: datagouv_id,
+        payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
+      })
+
+      {:ok, result, _} = resource_id |> Resource.content_updated_at() |> DateTime.from_iso8601()
+      assert expected_last_update_time == result
+    end
+
+    test "only one resource history, we don't know the resource last content update time" do
+      %{id: resource_id} = insert(:resource, %{datagouv_id: datagouv_id = "datagouv_id"})
+
+      insert(:resource_history, %{
+        datagouv_id: datagouv_id,
+        payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+      })
+
+      assert Resource.content_updated_at(resource_id) == nil
+    end
+
+    test "last content update time, download_datime not in payload" do
+      %{id: resource_id} = insert(:resource, %{datagouv_id: datagouv_id = "datagouv_id"})
+      insert(:resource_history, %{datagouv_id: datagouv_id, payload: %{}})
+
+      assert Resource.content_updated_at(resource_id) == nil
+    end
+
+    test "last content update time, some download_datime not in payload" do
+      %{id: resource_id} = insert(:resource, %{datagouv_id: datagouv_id = "datagouv_id"})
+      insert(:resource_history, %{datagouv_id: datagouv_id, payload: %{}})
+
+      insert(:resource_history, %{
+        datagouv_id: datagouv_id,
+        payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+      })
+
+      insert(:resource_history, %{
+        datagouv_id: datagouv_id,
+        payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
+      })
+
+      {:ok, result, _} = resource_id |> Resource.content_updated_at() |> DateTime.from_iso8601()
+      assert expected_last_update_time == result
+    end
+  end
 end
