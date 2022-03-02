@@ -151,6 +151,6 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "accessibility page", %{conn: conn} do
-    conn |> get(page_path(conn, :accessibility)) |> text_response(200)
+    conn |> get(page_path(conn, :accessibility)) |> html_response(200)
   end
 end
