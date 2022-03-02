@@ -45,6 +45,11 @@
         <%= gettext "Legal Information" %>
       </a>
     </li>
+    <li>
+      <a class="footer__link footer__link--tos" href="<%= page_path(@conn, :accessibility) %>" role="link">
+        <%= gettext "Accessibility: non-compliant" %>
+      </a>
+    </li>
   </ul>
 </div>
 </footer>
