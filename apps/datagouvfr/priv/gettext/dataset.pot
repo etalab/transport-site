@@ -10,14 +10,14 @@
 msgid ""
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "A description is needed"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "A title is needed"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "An organization is needed"
 msgstr ""
