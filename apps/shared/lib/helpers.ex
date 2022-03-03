@@ -56,6 +56,8 @@ defmodule Helpers do
   "2022-03-01T17:06:44.139954+01:00"
   iex> format_datetime("2022-03-01T16:06:44.139954+00:00")
   "2022-03-01T17:06:44.139954+01:00"
+  iex> format_datetime("2022-03-01 16:06:44.139954")
+  "2022-03-01T16:06:44.139954+01:00"
   """
   @spec format_datetime(binary()) :: binary()
   def format_datetime(nil), do: ""
