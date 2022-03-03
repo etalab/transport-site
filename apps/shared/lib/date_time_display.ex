@@ -2,6 +2,7 @@ defmodule Shared.DateTimeDisplay do
   @moduledoc """
   A module to have a coherent display of dates and times accross the website
   """
+  alias Timex.Format.DateTime.Formatter
 
   @doc """
   Formats a date to display depending on the locale
@@ -60,4 +61,44 @@ defmodule Shared.DateTimeDisplay do
     naive_datetime |> NaiveDateTime.from_iso8601!() |> format_naive_datetime(locale)
   end
 
+  @doc """
+  Formats a date time for display.
+  Input can be in any timezone, outputs is in UTC.
+
+  iex> format_datetime_to_utc(~U[2022-03-01 15:30:00+00:00], "fr")
+  "01/03/2022 à 15h30 UTC"
+  iex> format_datetime_to_utc(~U[2022-03-01 15:30:00+00:00], "en")
+  "03/01/2022 at 15:30 UTC"
+  iex> format_datetime_to_utc("2022-03-01T15:30:00Z", "fr")
+  "01/03/2022 à 15h30 UTC"
+  iex> format_datetime_to_utc("2022-03-01T15:30:00+01:00", "fr")
+  "01/03/2022 à 14h30 UTC"
+  iex> format_datetime_to_utc("2022-03-01T15:30:00+00:00", "en")
+  "03/01/2022 at 15:30 UTC"
+  """
+  def format_datetime_to_utc(%DateTime{} = dt, "fr") do
+    Calendar.strftime(dt, "%d/%m/%Y à %Hh%M UTC")
+  end
+
+  def format_datetime_to_utc(%DateTime{} = dt, "en") do
+    Calendar.strftime(dt, "%m/%d/%Y at %H:%M UTC")
+  end
+
+  def format_datetime_to_utc(datetime, locale) when is_binary(datetime) do
+    {:ok, dt, _} = datetime |> DateTime.from_iso8601()
+    format_datetime_to_utc(dt, locale)
+  end
+
+  @doc """
+  Converts a binary naive date time to a binary date time having the Paris timezone
+
+  iex> format_naive_datetime_to_paris_tz("2022-03-01T15:30:00")
+  "2022-03-01T15:30:00+01:00"
+  """
+  def format_naive_datetime_to_paris_tz(naive_datetime) do
+    naive_datetime
+    |> Timex.parse!("{ISO:Extended}")
+    |> Timex.Timezone.convert("Europe/Paris")
+    |> Formatter.format!("{ISO:Extended}")
+  end
 end
