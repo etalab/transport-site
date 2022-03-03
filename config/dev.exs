@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # For local work, it is usually more convenient to copy-paste
 config :unlock,
@@ -35,15 +35,13 @@ config :logger, :console, format: "[$level] $message\n"
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
-# By default, in development we'll use a mock history fetcher, which
-# means no history is displayed.
+# Swap out some implementations in developement to ease setup and
+# integration with third party services.
 #
-# If you need to target an actual CleverCloud bucket temporarily,
-# just comment-out what is below and configure via envrc for now.
-# In a later version we may use dev.secret.exs file (out of git)
+# Edit the following lines if you want to use another implementation.
+# You can use dev.secret.exs (out of git) if you need to set secrets
 # as often done.
 config :transport,
-  history_impl: Transport.History.Fetcher.Null,
   notifications_impl: Transport.Notifications.Disk
 
 # Provide a default experience that will mostly work without manual config,
@@ -63,7 +61,8 @@ datagouvfr_site = "https://demo.data.gouv.fr"
 config :transport,
   datagouvfr_site: datagouvfr_site,
   s3_buckets: %{
-    history: "resource-history-dev"
+    history: "resource-history-dev",
+    on_demand_validation: "on-demand-validation-dev"
   },
   # by default, use the production validator. This can be overriden with dev.secret.exs
   gtfs_validator_url: "https://transport-validator.cleverapps.io"
@@ -72,7 +71,7 @@ config :oauth2, Datagouvfr.Authentication,
   site: datagouvfr_site,
   redirect_uri: "http://localhost:5000/login/callback"
 
-extra_config_file = Path.join(__DIR__, "#{Mix.env()}.secret.exs")
+extra_config_file = Path.join(__DIR__, "#{config_env()}.secret.exs")
 
 if File.exists?(extra_config_file) do
   import_config extra_config_file

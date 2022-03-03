@@ -8,7 +8,7 @@
 # For reference, ultimately most tests should not connect to outside stuff.
 # A good model for improvements is https://github.com/hexpm/hexpm/tree/main/config
 #
-use Mix.Config
+import Config
 
 config :unlock,
   config_fetcher: Unlock.Config.GitHub,
@@ -83,11 +83,12 @@ config :phoenix, :template_engines,
 config :phoenix_markdown, :server_tags, :all
 
 # build sentry env based on Mix env, unless overriden (useful for staging)
-sentry_env_as_atom = if v = System.get_env("SENTRY_ENV") do
-  v |> String.to_atom()
-else
-  Mix.env()
-end
+sentry_env_as_atom =
+  if v = System.get_env("SENTRY_ENV") do
+    v |> String.to_atom()
+  else
+    config_env()
+  end
 
 # check out https://sentry.io/settings/transport-data-gouv-fr/projects/transport-site/install/elixir/
 config :sentry,
@@ -105,7 +106,7 @@ config :transport,
   cache_impl: Transport.Cache.Cachex,
   ex_aws_impl: ExAws,
   httpoison_impl: HTTPoison,
-  history_impl: Transport.History.Fetcher.S3,
+  history_impl: Transport.History.Fetcher.Database,
   rambo_impl: Transport.Rambo,
   gbfs_metadata_impl: Transport.Shared.GBFSMetadata,
   availability_checker_impl: Transport.AvailabilityChecker,
@@ -155,4 +156,4 @@ import_config "gtfs_validator.exs"
 import_config "gbfs_validator.exs"
 import_config "mailjet.exs"
 import_config "mailchimp.exs"
-import_config "#{Mix.env}.exs"
+import_config "#{config_env()}.exs"

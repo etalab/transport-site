@@ -59,7 +59,7 @@ defmodule Transport.Mixfile do
       {:plug_cowboy, "~> 2.3"},
       {:recon, "~> 2.4"},
       {:quantum, "~> 3.4"},
-      {:timex, "~> 3.5"},
+      {:timex, "~> 3.7"},
       {:sentry, "~> 8.0"},
       {:scrivener, "~> 2.5"},
       # We'll use upstream again once https://github.com/mgwidmann/scrivener_html/pull/97 is merged
@@ -76,7 +76,7 @@ defmodule Transport.Mixfile do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:cors_plug, "~> 2.0"},
       {:exvcr, "~> 0.10", only: :test, git: "https://github.com/thbar/exvcr.git", ref: "2794a4f"},
-      {:credo, "~> 1.5.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.6.0", only: [:dev, :test], runtime: false},
       # NOTE: we cannot upgrade to the very latest (2.2.x) because of
       # https://github.com/parroty/exvcr/issues/153#issuecomment-874864317
       {:ex_aws, "~> 2.1"},
@@ -89,7 +89,8 @@ defmodule Transport.Mixfile do
       {:etag_plug, "~> 1.0"},
       {:oban, "~> 2.9"},
       {:unzip, "~> 0.6.0"},
-      {:protobuf, "~> 0.9.0"}
+      {:protobuf, "~> 0.9.0"},
+      {:nimble_csv, "~> 1.2.0"}
     ]
   end
 end

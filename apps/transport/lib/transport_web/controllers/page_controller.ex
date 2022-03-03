@@ -1,6 +1,6 @@
 defmodule TransportWeb.PageController do
   use TransportWeb, :controller
-  alias DB.{AOM, Dataset, Partner, Region, Repo}
+  alias DB.{AOM, Dataset, Region, Repo}
   alias Transport.CSVDocuments
   import Ecto.Query
   import TransportWeb.DatasetView, only: [icon_type_path: 1]
@@ -50,21 +50,6 @@ defmodule TransportWeb.PageController do
     |> render("login.html")
   end
 
-  def partners(conn) do
-    partners =
-      Partner
-      |> Repo.all()
-      |> Task.async_stream(fn partner -> Map.put(partner, :description, Partner.description(partner)) end)
-      |> Task.async_stream(fn {:ok, partner} -> Map.put(partner, :count_reuses, Partner.count_reuses(partner)) end)
-      |> Stream.map(fn {:ok, partner} -> partner end)
-      |> Enum.to_list()
-
-    conn
-    |> assign(:partners, partners)
-    |> assign(:page, "partners.html")
-    |> render("single_page.html")
-  end
-
   defp single_page(conn, %{"page" => page}) do
     conn
     |> assign(:page, page <> ".html")
@@ -79,6 +64,10 @@ defmodule TransportWeb.PageController do
 
   def conditions(conn, _params) do
     single_page(conn, %{"page" => "conditions"})
+  end
+
+  def accessibility(conn, _params) do
+    single_page(conn, %{"page" => "accessibility"})
   end
 
   def infos_producteurs(conn, _params) do

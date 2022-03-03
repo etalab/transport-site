@@ -2,6 +2,11 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
   use Shared.CacheCase
   import Shared.Validation.JSONSchemaValidator
 
+  setup do
+    Mox.stub_with(Transport.Shared.Schemas.Mock, Transport.Shared.Schemas)
+    :ok
+  end
+
   describe "load_jsonschema_for_schema" do
     test "schema-zfe" do
       setup_schemas_response()
@@ -85,7 +90,7 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
   end
 
   defp setup_zfe_schema do
-    url = "https://schema.data.gouv.fr/schemas/etalab/schema-zfe/0.1.0/schema.json"
+    url = "https://schema.data.gouv.fr/schemas/etalab/schema-zfe/0.7.2/schema.json"
 
     Transport.HTTPoison.Mock
     |> expect(:get!, fn ^url ->
@@ -104,25 +109,11 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
   end
 
   defp setup_schemas_response do
-    url = "https://schema.data.gouv.fr/schemas.yml"
+    url = "https://schema.data.gouv.fr/schemas.json"
 
     Transport.HTTPoison.Mock
     |> expect(:get!, fn ^url ->
-      body = """
-      etalab/foo:
-        email: contact@transport.beta.gouv.fr
-        type: tableschema
-      etalab/schema-zfe:
-        email: contact@transport.beta.gouv.fr
-        type: jsonschema
-        latest_version: 0.1.0
-        schemas:
-          - path: schema.json
-        versions:
-          - 0.1.0
-      """
-
-      %HTTPoison.Response{body: body, status_code: 200}
+      %HTTPoison.Response{body: File.read!("#{__DIR__}/../fixtures/schemas.json"), status_code: 200}
     end)
   end
 end

@@ -19,14 +19,6 @@ msgid "Other resources"
 msgstr "Autres ressources"
 
 #, elixir-format
-msgid "Unable to validate file"
-msgstr "Impossible de valider le fichier"
-
-#, elixir-format
-msgid "Check a GTFS file's quality"
-msgstr "Analyser la qualité d’un fichier GTFS"
-
-#, elixir-format
 msgid "Upload"
 msgstr "Envoyer"
 
@@ -149,3 +141,54 @@ msgstr "Ce GeoJSON était bien à jour avec la ressource GTFS il y a %{hours}."
 #, elixir-format
 msgid "Visualization up-to-date %{hours} ago."
 msgstr "Visualisation à jour il y a %{hours}."
+
+#, elixir-format, ex-autogen, fuzzy
+msgid "Check a file's quality"
+msgstr "Analyser la qualité d’un fichier"
+
+#, elixir-format, ex-autogen
+msgid "Choose your file"
+msgstr "Choisissez votre fichier"
+
+#, elixir-format, ex-autogen
+msgid "File type"
+msgstr "Type de fichier"
+
+#, elixir-format, ex-autogen
+msgid "Last updated at %{date}."
+msgstr "Dernière mise à jour %{date}."
+
+#, elixir-format, ex-autogen
+msgid "Validation in progress. This page will be updated automatically."
+msgstr "Validation en cours. Cette page va se rafraichir automatiquement."
+
+#, elixir-format, ex-autogen, fuzzy
+msgid "Validation results"
+msgstr "Rapport de validation"
+
+#, elixir-format, ex-autogen
+msgid "Once you have fixed your errors, you can verify that your file is valid <a href=\"%{link}\" target=\"_blank\">using our validators</a>."
+msgstr "Une fois vos erreurs réparées, vous pouvez vérifier que votre fichier est valide <a href=\"%{link}\" target=\"_blank\">en utilisant nos validateurs</a>."
+
+#, elixir-format, ex-autogen
+msgid "Errors"
+msgstr "Erreurs"
+
+#, elixir-format, ex-autogen
+msgid "Sample errors"
+msgstr "Exemples d'erreurs"
+
+#, elixir-format, ex-autogen
+msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> and the <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> at %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>."
+msgstr "Validation effectée en utilisant <a href=\"%{gtfs_link}\">le fichier GTFS en vigueur</a> et le <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> à la date du %{date} avec <a href=\"%{validator_url}\" target=\"_blank\">le validateur CUTR GTFS-RT</a>."
+
+#, elixir-format, ex-autogen
+msgid "Warnings"
+msgstr "Avertissements"
+
+#, elixir-format, ex-autogen, fuzzy
+msgctxt "warnings"
+msgid "warning"
+msgid_plural "warnings"
+msgstr[0] "avertissement"
+msgstr[1] "avertissements"

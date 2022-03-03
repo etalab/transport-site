@@ -39,7 +39,19 @@ defmodule TransportWeb.DatasetView do
     )
   end
 
+  @doc """
+  Function converting either a datetime or a binary to a binary date.
+  The formatting output is not coherent: it needs to be fixed
+
+
+  iex> format_datetime_to_date(~U[2022-03-01 15:53:56.335645Z])
+  "2022-03-01"
+  iex> format_datetime_to_date("2022-03-01 15:53:56.335645Z")
+  "01-03-2022"
+  """
   def format_datetime_to_date(nil), do: ""
+
+  def format_datetime_to_date(%DateTime{} = dt), do: dt |> DateTime.to_date() |> Date.to_string()
 
   def format_datetime_to_date(datetime) do
     datetime
@@ -47,6 +59,12 @@ defmodule TransportWeb.DatasetView do
     |> Timex.format!("{0D}-{0M}-{YYYY}")
   end
 
+  @doc """
+  Converts a binary date to a French looking date
+
+  iex> format_date("2022-03-01")
+  "01-03-2022"
+  """
   def format_date(nil), do: ""
 
   def format_date(date) do
@@ -243,11 +261,22 @@ defmodule TransportWeb.DatasetView do
   def summary_class(%{metadata: %{"validation" => %{"has_errors" => false}}}),
     do: "resource__summary--Success"
 
+  def summary_class(%{metadata: %{"validation" => %{"errors_count" => 0, "warnings_count" => warnings_count}}})
+      when warnings_count > 0,
+      do: "resource__summary--Warning"
+
   def summary_class(%{metadata: %{"validation" => _}}), do: "resource__summary--Error"
 
-  def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => nb_errors}}})
-      when nb_errors >= 0,
-      do: nb_errors
+  def warnings_count(%Resource{metadata: %{"validation" => %{"warnings_count" => warnings_count}}})
+      when is_integer(warnings_count) and warnings_count >= 0,
+      do: warnings_count
+
+  def warnings_count(%Resource{format: "gtfs-rt"}), do: 0
+  def warnings_count(%Resource{}), do: nil
+
+  def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => errors_count}}})
+      when is_integer(errors_count) and errors_count >= 0,
+      do: errors_count
 
   def errors_count(%Resource{}), do: nil
 
@@ -341,7 +370,7 @@ defmodule TransportWeb.DatasetView do
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
   def licence_url(_), do: nil
 
-  @spec description(%Dataset{} | %Resource{}) :: Phoenix.HTML.safe()
+  @spec description(Dataset.t() | Resource.t()) :: Phoenix.HTML.safe()
   def description(instance) do
     instance.description
     |> markdown_to_safe_html!()
@@ -361,7 +390,7 @@ defmodule TransportWeb.DatasetView do
       ...> |> TransportWeb.DatasetView.licence
       "Libertarian"
   """
-  @spec licence(%Dataset{}) :: String.t()
+  @spec licence(Dataset.t()) :: String.t()
   def licence(%Dataset{licence: licence}) do
     case licence do
       "fr-lo" -> dgettext("dataset", "fr-lo")
@@ -376,7 +405,7 @@ defmodule TransportWeb.DatasetView do
   @doc """
   Returns the resources that need to be displayed on a map
   """
-  @spec get_resource_to_display(%Dataset{}) :: Resource.t() | nil
+  @spec get_resource_to_display(Dataset.t()) :: Resource.t() | nil
   def get_resource_to_display(%Dataset{type: type, resources: resources})
       when type == "carpooling-areas" or type == "private-parking" or type == "charging-stations" do
     resources
@@ -389,6 +418,7 @@ defmodule TransportWeb.DatasetView do
     resources
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
     |> Enum.reject(fn r -> String.contains?(r.url, "station_status") end)
+    # credo:disable-for-next-line
     |> Enum.reject(fn r -> String.contains?(r.url, "station_information") end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
@@ -452,4 +482,14 @@ defmodule TransportWeb.DatasetView do
   def download_url(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
     if Resource.can_direct_download?(resource), do: resource.url, else: resource_path(conn, :download, resource.id)
   end
+
+  def has_validity_period?(history_resources) when is_list(history_resources) do
+    history_resources |> Enum.map(&has_validity_period?/1) |> Enum.any?()
+  end
+
+  def has_validity_period?(%DB.ResourceHistory{payload: %{"resource_metadata" => metadata}}) when is_map(metadata) do
+    Map.has_key?(metadata, "start_date")
+  end
+
+  def has_validity_period?(%DB.ResourceHistory{}), do: false
 end

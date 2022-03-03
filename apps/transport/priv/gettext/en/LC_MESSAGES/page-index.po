@@ -22,7 +22,7 @@ msgstr ""
 msgid "Subscribe to our email newsletter to receive update"
 msgstr ""
 
-msgid "SUBSCRIBE"
+msgid "Subscribe"
 msgstr ""
 
 msgid "Join us on"
@@ -38,10 +38,6 @@ msgid "Find dataset"
 msgstr ""
 
 #, elixir-format
-msgid "Follow us on twitter"
-msgstr ""
-
-#, elixir-format
 msgid "title"
 msgstr "French national access point to transport data"
 
@@ -54,7 +50,7 @@ msgid "Long distance coach"
 msgstr ""
 
 #, elixir-format
-msgid "Public transport - realtime trafic"
+msgid "Public transport - realtime traffic"
 msgstr ""
 
 #, elixir-format

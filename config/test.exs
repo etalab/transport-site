@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 alias Datagouvfr.Authentication
 
@@ -39,7 +39,8 @@ config :transport,
   schemas_impl: Transport.Shared.Schemas.Mock,
   notifications_api_token: "secret",
   s3_buckets: %{
-    history: "resource-history-test"
+    history: "resource-history-test",
+    on_demand_validation: "on-demand-validation-test"
   }
 
 config :ex_aws,

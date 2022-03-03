@@ -9,8 +9,6 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
 
   @impl Oban.Worker
   def perform(_job) do
-    Transport.S3.create_bucket_if_needed!(:history)
-
     datagouv_ids = resources_to_historise()
 
     Logger.debug("Dispatching #{Enum.count(datagouv_ids)} ResourceHistoryJob jobs")
@@ -41,12 +39,12 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
     Resource
     |> join(:inner, [r], d in DB.Dataset, on: r.dataset_id == d.id and d.is_active)
     |> where([r], not is_nil(r.url) and not is_nil(r.title) and not is_nil(r.datagouv_id))
-    |> where([r], r.format == "GTFS" or r.format == "NeTEx")
     |> where([r], r.datagouv_id not in ^duplicates)
     |> where([r], not r.is_community_resource)
     |> where([r], like(r.url, "http%"))
-    |> select([r], r.datagouv_id)
     |> Repo.all()
+    |> Enum.reject(&Resource.is_real_time?/1)
+    |> Enum.map(& &1.datagouv_id)
   end
 end
 
@@ -57,7 +55,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   use Oban.Worker, unique: [period: 60 * 60 * 5, fields: [:args, :queue, :worker]], tags: ["history"], max_attempts: 5
   require Logger
   import Ecto.Query
-  alias DB.{Repo, Resource}
+  alias DB.{Repo, Resource, ResourceHistory}
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"datagouv_id" => datagouv_id}}) do
@@ -88,33 +86,36 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   defp process_download({:ok, resource_path, headers, body}, %Resource{datagouv_id: datagouv_id} = resource) do
     download_datetime = DateTime.utc_now()
 
-    zip_metadata =
-      try do
-        Transport.ZipMetaDataExtractor.extract!(resource_path)
-      rescue
-        _ ->
-          Logger.debug("Cannot compute ZIP metadata for #{datagouv_id}")
-          nil
-      end
+    hash = resource_hash(resource, resource_path)
 
-    case should_store_resource?(resource, zip_metadata) do
+    case should_store_resource?(resource, hash) do
       true ->
         filename = upload_filename(resource, download_datetime)
 
-        data = %{
+        base = %{
           download_datetime: download_datetime,
           uuid: Ecto.UUID.generate(),
-          zip_metadata: zip_metadata,
           http_headers: headers,
           resource_metadata: resource.metadata,
           title: resource.title,
           filename: filename,
           permanent_url: Transport.S3.permanent_url(:history, filename),
-          format: resource.format,
-          filenames: zip_metadata |> Enum.map(& &1.file_name),
-          total_uncompressed_size: zip_metadata |> Enum.map(& &1.uncompressed_size) |> Enum.sum(),
-          total_compressed_size: zip_metadata |> Enum.map(& &1.compressed_size) |> Enum.sum()
+          format: resource.format
         }
+
+        data =
+          case is_zip?(resource) do
+            true ->
+              Map.merge(base, %{
+                zip_metadata: hash,
+                filenames: hash |> Enum.map(& &1.file_name),
+                total_uncompressed_size: hash |> Enum.map(& &1.uncompressed_size) |> Enum.sum(),
+                total_compressed_size: hash |> Enum.map(& &1.compressed_size) |> Enum.sum()
+              })
+
+            false ->
+              Map.merge(base, %{content_hash: hash})
+          end
 
         Transport.S3.upload_to_s3!(:history, body, filename)
         store_resource_history!(resource, data)
@@ -136,15 +137,15 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   def should_store_resource?(_, []), do: false
   def should_store_resource?(_, nil), do: false
 
-  def should_store_resource?(%Resource{datagouv_id: datagouv_id}, zip_metadata) do
+  def should_store_resource?(%Resource{datagouv_id: datagouv_id}, resource_hash) do
     history =
-      DB.ResourceHistory
+      ResourceHistory
       |> where([r], r.datagouv_id == ^datagouv_id)
       |> order_by(desc: :inserted_at)
       |> limit(1)
       |> DB.Repo.one()
 
-    case {history, is_same_resource?(history, zip_metadata)} do
+    case {history, is_same_resource?(history, resource_hash)} do
       {nil, _} -> true
       {_history, false} -> true
       {history, true} -> {false, history}
@@ -156,22 +157,50 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   the latest resource_history's row in the database by comparing sha256
   hashes for all files in the ZIP.
   """
-  def is_same_resource?(%DB.ResourceHistory{payload: payload}, zip_metadata) do
-    MapSet.equal?(set_of_sha256(payload["zip_metadata"]), set_of_sha256(zip_metadata))
+  def is_same_resource?(%ResourceHistory{payload: %{"zip_metadata" => rh_zip_metadata}}, zip_metadata) do
+    MapSet.equal?(set_of_sha256(rh_zip_metadata), set_of_sha256(zip_metadata))
+  end
+
+  def is_same_resource?(%ResourceHistory{payload: %{"content_hash" => rh_content_hash}}, content_hash) do
+    rh_content_hash == content_hash
   end
 
   def is_same_resource?(nil, _), do: false
 
-  def set_of_sha256(items), do: MapSet.new(items |> Enum.map(fn m -> Map.get(m, "sha256") || Map.get(m, :sha256) end))
+  def set_of_sha256(items) do
+    items |> Enum.map(&{map_get(&1, :file_name), map_get(&1, :sha256)}) |> MapSet.new()
+  end
+
+  defp resource_hash(%Resource{content_hash: content_hash, datagouv_id: datagouv_id} = resource, resource_path) do
+    case is_zip?(resource) do
+      true ->
+        try do
+          Transport.ZipMetaDataExtractor.extract!(resource_path)
+        rescue
+          _ ->
+            Logger.debug("Cannot compute ZIP metadata for #{datagouv_id}")
+            nil
+        end
+
+      false ->
+        content_hash
+    end
+  end
+
+  def map_get(map, key) when is_atom(key) do
+    Map.get(map, key) || Map.get(map, to_string(key))
+  end
+
+  defp is_zip?(%Resource{format: format}), do: format in ["NeTEx", "GTFS"]
 
   defp store_resource_history!(%Resource{datagouv_id: datagouv_id}, payload) do
     Logger.debug("Saving ResourceHistory for #{datagouv_id}")
 
-    %DB.ResourceHistory{datagouv_id: datagouv_id, payload: payload, last_up_to_date_at: DateTime.utc_now()}
+    %ResourceHistory{datagouv_id: datagouv_id, payload: payload, last_up_to_date_at: DateTime.utc_now()}
     |> DB.Repo.insert!()
   end
 
-  defp touch_resource_history!(%DB.ResourceHistory{id: id, datagouv_id: datagouv_id} = history) do
+  defp touch_resource_history!(%ResourceHistory{id: id, datagouv_id: datagouv_id} = history) do
     Logger.debug("Touching unchanged ResourceHistory #{id} for resource datagouv_id #{datagouv_id}")
 
     history |> Ecto.Changeset.change(%{last_up_to_date_at: DateTime.utc_now()}) |> DB.Repo.update!()
@@ -200,10 +229,35 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   def remove_file(path), do: File.rm(path)
 
-  def upload_filename(%Resource{datagouv_id: datagouv_id}, %DateTime{} = dt) do
+  def upload_filename(%Resource{datagouv_id: datagouv_id} = resource, %DateTime{} = dt) do
     time = Calendar.strftime(dt, "%Y%m%d.%H%M%S.%f")
 
-    "#{datagouv_id}/#{datagouv_id}.#{time}.zip"
+    "#{datagouv_id}/#{datagouv_id}.#{time}#{file_extension(resource)}"
+  end
+
+  @doc """
+  Guess an appropriate file extension according to a format
+
+    iex> file_extension(%DB.Resource{format: "GTFS"})
+    ".zip"
+
+    iex> file_extension(%DB.Resource{format: ".csv"})
+    ".csv"
+
+    iex> file_extension(%DB.Resource{format: "HTML"})
+    ".html"
+
+    iex> file_extension(%DB.Resource{format: ".csv.zip"})
+    ".csv.zip"
+  """
+  def file_extension(%Resource{format: format} = resource) do
+    case is_zip?(resource) do
+      true ->
+        ".zip"
+
+      false ->
+        "." <> (format |> String.downcase() |> String.replace_prefix(".", ""))
+    end
   end
 
   def relevant_http_headers(%HTTPoison.Response{headers: headers}) do

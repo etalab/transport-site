@@ -72,7 +72,8 @@ config :transport,
 if app_env == :staging do
   config :transport,
     s3_buckets: %{
-      history: "resource-history-staging"
+      history: "resource-history-staging",
+      on_demand_validation: "on-demand-validation-staging"
     }
 end
 
@@ -90,6 +91,7 @@ oban_crontab_all_envs =
         {"30 */6 * * *", Transport.Jobs.GtfsToGeojsonConverterJob},
         # every 6 hours but not at the same time as other jobs
         {"0 3,9,15,21 * * *", Transport.Jobs.GtfsToNetexConverterJob},
+        {"20 8 * * *", Transport.Jobs.CleanOrphanConversionsJob},
         {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
         {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}}
       ]
@@ -115,7 +117,7 @@ extra_oban_conf =
     [queues: false, plugins: false]
   else
     [
-      queues: [default: 2, heavy: 1],
+      queues: [default: 2, heavy: 1, on_demand_validation: 1],
       plugins: [
         {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
         {Oban.Plugins.Cron, crontab: List.flatten(oban_crontab_all_envs, non_staging_crontab)}
@@ -133,4 +135,44 @@ if config_env() == :dev do
     http: [port: System.get_env("PORT", "5000")],
     #  We also make sure to start the assets watcher only if the webserver is up, to avoid cluttering the logs.
     watchers: if(webserver, do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]], else: [])
+end
+
+email_host_name =
+  case config_env() do
+    :dev ->
+      "localhost"
+
+    :test ->
+      # used to make sure we are replacing the app host name by the email host name
+      # when it is different, in some email testing
+      "email.localhost"
+
+    :prod ->
+      # NOTE: it would be best to configure this via EMAIL_HOST_NAME var instead,
+      # but that will do for today.
+      case app_env do
+        :staging -> "prochainement.transport.data.gouv.fr"
+        :production -> "transport.data.gouv.fr"
+      end
+  end
+
+config :transport, :email_host_name, email_host_name
+
+if config_env() == :prod do
+  pool_size =
+    case app_env do
+      :production -> 15
+      :staging -> 6
+    end
+
+  config :db, DB.Repo,
+    url:
+      System.get_env("POSTGRESQL_ADDON_DIRECT_URI") || System.get_env("POSTGRESQL_ADDON_URI") ||
+        "" |> String.replace_prefix("postgresql", "ecto"),
+    # NOTE: we must be careful with this ; front-end + worker are consuming
+    pool_size: pool_size,
+    # See https://hexdocs.pm/db_connection/DBConnection.html#start_link/2-queue-config
+    # [Ecto.Repo] :pool_timeout is no longer supported in favor of a new queue system described in DBConnection.start_link/2
+    # under "Queue config". For most users, configuring :timeout is enough, as it now includes both queue and query time
+    timeout: 15_000
 end

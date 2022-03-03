@@ -88,7 +88,7 @@ defmodule Transport.CommentsChecker do
     end)
   end
 
-  @spec update_dataset_ts(%Dataset{}, DgDate.dt()) :: {:ok, any()} | {:error, any()}
+  @spec update_dataset_ts(Dataset.t(), DgDate.dt()) :: {:ok, any()} | {:error, any()}
   def update_dataset_ts(dataset, timestamp) do
     changeset_request = Ecto.Changeset.change(dataset, %{latest_data_gouv_comment_timestamp: timestamp})
     update = Repo.update(changeset_request)

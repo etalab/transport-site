@@ -9,7 +9,7 @@ defmodule TransportWeb.API.PlacesController do
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
-  @spec get_result_url(Plug.Conn.t(), %Place{}) :: binary()
+  @spec get_result_url(Plug.Conn.t(), Place.t()) :: binary()
   defp get_result_url(conn, %Place{:place_id => id, :type => "commune"}), do: dataset_path(conn, :by_commune_insee, id)
   defp get_result_url(conn, %Place{:place_id => id, :type => "region"}), do: dataset_path(conn, :by_region, id)
   defp get_result_url(conn, %Place{:place_id => id, :type => "aom"}), do: dataset_path(conn, :by_aom, id)
