@@ -149,7 +149,10 @@ defmodule TransportWeb.Router do
     get("/logout", SessionController, :delete)
 
     scope "/validation" do
-      get("/", ValidationController, :index)
+      live_session :validation, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/", Live.OnDemandValidationSelectLive)
+      end
+
       post("/", ValidationController, :validate)
       post("/convert", ValidationController, :convert)
       get("/:id", ValidationController, :show)

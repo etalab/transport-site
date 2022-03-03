@@ -4,10 +4,8 @@ defmodule TransportWeb.ValidationController do
   alias Transport.DataVisualization
   import TransportWeb.ResourceView, only: [issue_type: 1]
 
-  def index(%Plug.Conn{} = conn, _) do
-    conn
-    |> assign(:select_options, select_options())
-    |> render("index.html")
+  def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => url, "type" => "gbfs"}}) do
+    redirect(conn, to: gbfs_analyzer_path(conn, :index, url: url))
   end
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"file" => %{path: file_path}, "type" => type}}) do
@@ -92,13 +90,13 @@ defmodule TransportWeb.ValidationController do
     oban_args |> Transport.Jobs.OnDemandValidationJob.new() |> Oban.insert!()
   end
 
-  defp select_options do
+  def select_options do
     schemas =
       transport_schemas()
       |> Enum.map(fn {k, v} -> {Map.fetch!(v, "title"), k} end)
       |> Enum.sort_by(&elem(&1, 0))
 
-    [{"GTFS", "gtfs"} | schemas]
+    [{"GTFS", "gtfs"}, {"GBFS", "gbfs"}] ++ schemas
   end
 
   defp is_valid_type?(type), do: type in (select_options() |> Enum.map(&elem(&1, 1)))

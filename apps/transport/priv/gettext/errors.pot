@@ -1,29 +1,31 @@
+#, elixir-autogen
 msgid "End of the road!"
 msgstr ""
 
+#, elixir-autogen
 msgid "Try to refresh the page in a few seconds, or contact us."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "404: Page not available"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Impossible to find a city with the insee code %{insee}"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "AOM %{id} does not exist"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Region %{id} does not exist"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "400: Bad Request"
 msgstr ""
 
-#, elixir-format, ex-autogen
+#, elixir-autogen, elixir-format
 msgid "401: Unauthorized"
 msgstr ""

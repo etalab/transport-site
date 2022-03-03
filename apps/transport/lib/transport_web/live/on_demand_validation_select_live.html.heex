@@ -1,0 +1,20 @@
+<section class="single-page section section-grey">
+  <div class="container" style="min-height: 50vh;">
+    <article class="">
+    <h1><%= TransportWeb.Gettext.dgettext("validations", "Check the quality of a file or a feed") %></h1>
+    <div class="pb-48">
+      <.form let={f} for={@changeset} action={validation_path(@socket, :validate)} class="no-margin" multipart={true} as="upload" phx-change="form_changed">
+        <%= select f, :type, @select_options, selected: @selected, label: dgettext("validations", "Data type"), required: true %>
+        <%= if @input_type == "file" do %>
+          <%= file_input f, :file, label: dgettext("validations", "Choose your file"), required: true %>
+        <% end %>
+        <%= if @input_type == "link" do %>
+          <%= text_input f, :url, label: dgettext("validations", "Your URL"), placeholder: "https://.../gbfs.json", required: true, type: "url" %>
+        <% end %>
+        <%= submit dgettext("validations", "Validate"), [nodiv: true] %>
+      </.form>
+    </div>
+    </article>
+  </div>
+</section>
+<script defer type="text/javascript" src="/js/app.js"/>

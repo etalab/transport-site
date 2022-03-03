@@ -19,15 +19,19 @@ msgstr ""
 msgid "Warnings"
 msgstr ""
 
+#, elixir-autogen
 msgid "Posted on"
 msgstr ""
 
+#, elixir-autogen
 msgid "Respond"
 msgstr ""
 
+#, elixir-autogen
 msgid "Begin a new conversation"
 msgstr ""
 
+#, elixir-autogen
 msgid "Title"
 msgstr ""
 
@@ -49,12 +53,15 @@ msgstr ""
 msgid "Unsubscribe to dataset"
 msgstr ""
 
+#, elixir-autogen
 msgid "Object ID"
 msgstr ""
 
+#, elixir-autogen
 msgid "Object name"
 msgstr ""
 
+#, elixir-autogen
 msgid "Related object ID"
 msgstr ""
 
@@ -115,293 +122,298 @@ msgstr "Invalid coordinates"
 msgid "InvalidRouteType"
 msgstr "Invalid route type"
 
+#, elixir-autogen
 msgid "You need to be connected to start a discussion"
 msgstr ""
 
+#, elixir-autogen
 msgid "Answer published"
 msgstr ""
 
+#, elixir-autogen
 msgid "New discussion started"
 msgstr ""
 
+#, elixir-autogen
 msgid "Unable to publish the answer"
 msgstr ""
 
+#, elixir-autogen
 msgid "Unable to start a new discussion"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Start a new discussion"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Unable to retrieve discussions from data.gouv.fr"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "See on data.gouv.fr"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Details"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Other datasets of "
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Website"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "tags: "
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Outdated"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Community ressources"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "GBFS resources"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "GTFS resources"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "NeTEx resources"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Reuses"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "License"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Specific usage conditions"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "and "
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "You're using this dataset? %{a_start}Send an email!%{a_end}"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Display more"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Display less"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Subscribe to comments"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Unsubscribe to comments"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Log in"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "to subscribe to comments of this dataset."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "No error detected"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "This dataset has been removed from data.gouv.fr"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Backed up resources"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "%{start} to %{end}"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Format"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Publication date"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validity period"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "File"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Get details about this dataset via an %{start_link}API call%{end_link}"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "compatible with"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "dataset"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Other datasets"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Resources"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Visualization"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Data type"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Covered area"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Impossible to read"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "GTFS real time resources"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "during validation"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Data visualisation available!"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Download"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "details"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "last update"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "resource format"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "see other formats"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "real-time"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Real-time visualization of "
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Visualization of the resource"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset modes"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Features available in the resource:"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Modes available in the resource:"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "unavailable resources"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Those resources are listed by the provider but are unreachable for now"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Up to date"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Not"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "available"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Reuses are temporarily unavailable"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Data producer"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Resource declared schema"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Version %{version}"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Past versions of the dataset resources are available in the %{link} section."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "time to live (%{feed})"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "download availability over the last %{nb} days"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Download availability"
 msgstr ""
 
-#, elixir-format, ex-autogen
+#, elixir-autogen, elixir-format
 msgid "Learn more"
 msgstr ""
 
-#, elixir-format, ex-autogen
+#, elixir-autogen, elixir-format
 msgid "We test this resource download availability every hour. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online."
 msgstr ""

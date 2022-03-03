@@ -10,12 +10,15 @@
 msgid ""
 msgstr ""
 
+#, elixir-autogen
 msgid "Sign In"
 msgstr ""
 
+#, elixir-autogen
 msgid "Sign Out"
 msgstr ""
 
+#, elixir-autogen
 msgid "Contact"
 msgstr ""
 
@@ -25,74 +28,81 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+#, elixir-autogen
 msgid "Email address"
 msgstr ""
 
+#, elixir-autogen
 msgid "Send email"
 msgstr ""
 
+#, elixir-autogen
 msgid "There has been an error, try again later"
 msgstr ""
 
+#, elixir-autogen
 msgid "Your email has been sent, we will contact you soon"
 msgstr ""
 
+#, elixir-autogen
 msgid "transport.data.gouv.fr"
 msgstr ""
 
+#, elixir-autogen
 msgid "Ask for help"
 msgstr ""
 
+#, elixir-autogen
 msgid "Legal Information"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Question about transport.data.gouv.fr"
 msgstr ""
 
 msgid "Publish a dataset"
 msgstr ""
 
-#, elixir-format
-msgid "Check a file's quality"
-msgstr ""
-
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Documentation"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Blog"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Source code"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Service status"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Producer informations"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Producer infos"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "My account"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Tools"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Analyze a GBFS feed"
 msgstr ""
 
-#, elixir-format, ex-autogen
+#, elixir-autogen, elixir-format
 msgid "Accessibility: non-compliant"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Check the quality of a file or a feed"
 msgstr ""

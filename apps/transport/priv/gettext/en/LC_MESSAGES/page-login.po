@@ -10,17 +10,22 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
+#, elixir-autogen
 msgid "transport.data.gouv.fr belongs to the data.gouv.fr network, and share the same user account"
 msgstr ""
 
+#, elixir-autogen
 msgid "After having clicked this button, you should click on 'accepter' to authorise transport.data.gouv.fr to access your data.gouv.fr account details"
 msgstr ""
 
+#, elixir-autogen
 msgid "data.gouv.fr is the open platform for French public data"
 msgstr ""
 
+#, elixir-autogen
 msgid "Sign In with data.gouv.fr"
 msgstr ""
 
+#, elixir-autogen
 msgid "By clicking this button, you'll be able to create an account or use your existing data.gouv.fr account to log in"
 msgstr ""

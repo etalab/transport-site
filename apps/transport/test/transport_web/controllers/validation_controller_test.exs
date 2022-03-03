@@ -6,6 +6,7 @@ defmodule TransportWeb.ValidationControllerTest do
   import Mox
   import Phoenix.LiveViewTest
   alias Transport.Test.S3TestUtils
+  alias TransportWeb.Live.OnDemandValidationSelectLive
 
   setup :verify_on_exit!
   @gtfs_path "#{__DIR__}/../../fixture/files/gtfs.zip"
@@ -14,12 +15,49 @@ defmodule TransportWeb.ValidationControllerTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  test "GET /validation ", %{conn: conn} do
-    Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
-    conn |> get(validation_path(conn, :index)) |> html_response(200)
+  describe "GET /validation " do
+    test "renders form", %{conn: conn} do
+      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+      conn |> get(live_path(conn, OnDemandValidationSelectLive)) |> html_response(200)
+    end
+
+    test "updates inputs", %{conn: conn} do
+      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
+      {:ok, view, _html} = conn |> get(live_path(conn, OnDemandValidationSelectLive)) |> live()
+      assert view |> has_element?("input[name='upload[file]']")
+      refute view |> has_element?("input[name='upload[url]']")
+
+      render_change(view, "form_changed", %{"upload" => %{"type" => "gbfs"}})
+      assert_patched(view, live_path(conn, OnDemandValidationSelectLive, type: "gbfs"))
+      assert view |> has_element?("input[name='upload[url]']")
+      refute view |> has_element?("input[name='upload[file]']")
+
+      render_change(view, "form_changed", %{"upload" => %{"type" => "gtfs"}})
+      assert_patched(view, live_path(conn, OnDemandValidationSelectLive, type: "gtfs"))
+      refute view |> has_element?("input[name='upload[url]']")
+      assert view |> has_element?("input[name='upload[file]']")
+    end
+
+    test "takes into account query params", %{conn: conn} do
+      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
+
+      {:ok, view, _html} = conn |> get(live_path(conn, OnDemandValidationSelectLive, type: "gbfs")) |> live()
+      refute view |> has_element?("input[name='upload[file]']")
+      assert view |> has_element?("input[name='upload[url]']")
+    end
   end
 
   describe "POST validate" do
+    test "with a GBFS", %{conn: conn} do
+      conn =
+        conn
+        |> post(validation_path(conn, :validate), %{
+          "upload" => %{"url" => url = "https://example.com/gbfs.json", "type" => "gbfs"}
+        })
+
+      assert redirected_to(conn, 302) == gbfs_analyzer_path(conn, :index, url: url)
+    end
+
     test "with a GTFS", %{conn: conn} do
       Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
       S3TestUtils.s3_mocks_upload_file("")
@@ -27,7 +65,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
       conn =
         conn
-        |> post(validation_path(conn, :index), %{
+        |> post(validation_path(conn, :validate), %{
           "upload" => %{"file" => %Plug.Upload{path: @gtfs_path}, "type" => "gtfs"}
         })
 
@@ -71,7 +109,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
       conn =
         conn
-        |> post(validation_path(conn, :index), %{
+        |> post(validation_path(conn, :validate), %{
           "upload" => %{"file" => %Plug.Upload{path: @gtfs_path}, "type" => schema_name}
         })
 
@@ -111,7 +149,9 @@ defmodule TransportWeb.ValidationControllerTest do
       Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
 
       conn
-      |> post(validation_path(conn, :index), %{"upload" => %{"file" => %Plug.Upload{path: @gtfs_path}, "type" => "foo"}})
+      |> post(validation_path(conn, :validate), %{
+        "upload" => %{"file" => %Plug.Upload{path: @gtfs_path}, "type" => "foo"}
+      })
       |> html_response(400)
 
       assert 0 == count_validations()
