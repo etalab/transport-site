@@ -178,59 +178,59 @@ msgstr "Funiculaire"
 msgid "No dataset found"
 msgstr "Aucun jeu de données trouvé"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Alphabetical"
 msgstr "Ordre alphabetique"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Most recently added"
 msgstr "Récemment ajouté"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Order by"
 msgstr "Trier par"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Get dataset list via an API"
 msgstr "Récupérer la liste des jeux de données via l'API"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "AOM %{name} has not yet published any datasets"
 msgstr "L'AOM %{name} n'a pas encore publié de données"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "There is no data for city %{name}"
 msgstr "Il n'y a pas de données disponibles pour la ville %{name}"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "There is no data for region %{name}"
 msgstr "Il n'y a pas de données disponibles pour la région %{name}"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Data type"
 msgstr "Type de données"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "All"
 msgstr "Tous"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Real Time"
 msgstr "Temps réel"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "with real time"
 msgstr "Avec temps réel"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Any"
 msgstr "Peu importe"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "added on"
 msgstr "ajouté le"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "region"
 msgstr "région"
 
@@ -240,14 +240,14 @@ msgid_plural "results"
 msgstr[0] "résultat"
 msgstr[1] "résultats"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "city"
 msgstr "commune"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Regions"
 msgstr "Régions"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "category"
 msgstr "catégorie"

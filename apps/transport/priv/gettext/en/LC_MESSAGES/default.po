@@ -56,53 +56,53 @@ msgstr ""
 msgid "Legal Information"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Question about transport.data.gouv.fr"
 msgstr ""
 
 msgid "Publish a dataset"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Documentation"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Blog"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Source code"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Service status"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Producer informations"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Producer infos"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "My account"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Tools"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Analyze a GBFS feed"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Accessibility: non-compliant"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Check the quality of a file or a feed"
 msgstr ""

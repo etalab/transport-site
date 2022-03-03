@@ -10,31 +10,31 @@
 msgid ""
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "No validation available"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Other resources"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Upload"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "GTFS review report"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "This report can be shared with"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "this permanent link"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Nice work, there are no issues!"
 msgstr ""
 
@@ -50,59 +50,59 @@ msgid_plural "transport modes"
 msgstr[0] ""
 msgstr[1] ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "File name"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "It is valid from"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Resource details"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "This resource file is part of the dataset"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validation report"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "number of stop areas"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "number of stop points"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "to"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "explanations"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Show anyway"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Stops visualization is quite big"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Stops and routes visualization of the GTFS file"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)\n              It corresponds to the data you can see on the map below."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "This resource is also available in the following formats:"
 msgstr ""
 
@@ -113,75 +113,75 @@ msgid_plural "errors"
 msgstr[0] ""
 msgstr[1] ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Errors:"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Showing only the first %{nb} errors."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "This resource should follow its schema <a href=\"%{link}\" target=\"_blank\">%{schema}</a>."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validation details"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "No error detected"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "This GeoJSON was up-to-date with the GTFS resource %{hours} ago."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Visualization up-to-date %{hours} ago."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Check a file's quality"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Choose your file"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "File type"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Last updated at %{date}."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validation in progress. This page will be updated automatically."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validation results"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Once you have fixed your errors, you can verify that your file is valid <a href=\"%{link}\" target=\"_blank\">using our validators</a>."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Errors"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Sample errors"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> and the <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> at %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Warnings"
 msgstr ""
 
@@ -192,14 +192,18 @@ msgid_plural "warnings"
 msgstr[0] ""
 msgstr[1] ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Data type"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validate"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Your URL"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Check the quality of a file or a feed"
 msgstr ""
