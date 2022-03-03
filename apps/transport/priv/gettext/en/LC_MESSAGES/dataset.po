@@ -52,26 +52,26 @@ msgstr ""
 msgid "Your modified version of this dataset has beed added"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "fr-lo"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "notspecified"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "odc-odbl"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "other-open"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "The resource is not available (maybe temporarily)"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "lov2"
 msgstr ""

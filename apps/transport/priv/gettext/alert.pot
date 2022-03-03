@@ -22,6 +22,6 @@ msgstr ""
 msgid "You need to be a member of the transport.data.gouv.fr team."
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Unable to get all your resources for the moment"
 msgstr ""

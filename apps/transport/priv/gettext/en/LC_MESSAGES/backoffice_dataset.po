@@ -11,58 +11,58 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2\n"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Dataset deleted"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Dataset imported with success"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Dataset not imported"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Could not add dataset"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Dataset added with success"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Import and validation of all datasets have been launch"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Could not edit dataset"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Dataset edited with success"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Error"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Validate"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Validated"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Validating"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "validation of all datasets has been launched"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "validation of all datasets has been launch"
 msgstr ""

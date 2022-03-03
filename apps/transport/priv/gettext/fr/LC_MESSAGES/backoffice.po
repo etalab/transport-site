@@ -57,146 +57,146 @@ msgstr "Impossible d’ajouter le jeu de données"
 msgid "Add a partner"
 msgstr "Ajout d'un partenaire"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Dataset's url"
 msgstr "URL du dataset sur data.gouv.fr"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Unable to find dataset"
 msgstr "Impossible de trouver le jeu de données"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Import and validate all"
 msgstr "Importer et valider tous les jeux de données"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Outdated"
 msgstr "Périmés"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Show all datasets"
 msgstr "Montrer tous les jeux de données"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Edit"
 msgstr "Éditer"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Edit a dataset"
 msgstr "Édition d'un jeu de données"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "With unidentified resources"
 msgstr "Avec ressources autres"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Associated territory"
 msgstr "Territoire associé"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Choose one"
 msgstr "Choisissez l'une des options"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Dataset linked to a list of cities in data.gouv.fr"
 msgstr "Jeu de données rattaché à des communes sur data.gouv.fr"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Dataset linked to a region"
 msgstr "Jeu de données rattaché à une région"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Dataset linked to an AOM"
 msgstr "Jeu de données rattaché à une AOM"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Name of the associtated territory (used in the title of the dataset)"
 msgstr "Nom du territoire associé (utilisé dans le titre du jeu de données)"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "National dataset"
 msgstr "Jeu de données national"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Not compliant to spec"
 msgstr "Ne respectant pas les spec"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Cancel"
 msgstr "Annuler"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "validate all"
 msgstr "Valider tous les jeux de données"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Other actions on the dataset"
 msgstr "Autres actions associées au dataset"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Imports history"
 msgstr "Historique des imports"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Validations history"
 msgstr "Historique des validations"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "date / time"
 msgstr "date / heure"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "error message"
 msgstr "message d'erreur"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "explanation"
 msgstr "raison"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "success"
 msgstr "succès"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "validation needed"
 msgstr "validation nécessaire"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Rapport de complétude des imports"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "With a gtfs-rt but without a siri-lite"
 msgstr "Avec un gtfs-rt et sans siri-lite"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "With a resource not available"
 msgstr "Ayant une ressource non disponible"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "With licence unspecified"
 msgstr "Sans licence spécifiée"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "With more than 1 GTFS"
 msgstr "Ayant plus de 1 GTFS"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Show only datasets"
 msgstr "Montrer seulement les jeux de données"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Proxy configuration"
 msgstr "Configuration du proxy"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Update all AOMs"
 msgstr "Mettre à jour toutes les AOMs"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Jobs"
 msgstr "Jobs"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "GBFS requests"
 msgstr "Requêtes GBFS"

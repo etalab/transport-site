@@ -10,6 +10,6 @@
 msgid ""
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "by"
 msgstr ""

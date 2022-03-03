@@ -10,74 +10,74 @@
 msgid ""
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Bike and scooter sharing"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Carpooling areas"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "You need to fill either aom, region or use datagouv's zone"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "See on data.gouv.fr"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Road networks"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Locations"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "A dataset cannot be national and regional"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Unable to find INSEE code '%{insee}'"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "INSEE code '%{insee}' not associated with an AOM"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Other informations"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Private parking"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Car and motorbike sharing"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Bike parking"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Low emission zones"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Air transport"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Bike networks"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Charging & refuelling stations"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Public transit - static schedules"
 msgstr ""

@@ -178,59 +178,59 @@ msgstr ""
 msgid "No dataset found"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Alphabetical"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Most recently added"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Order by"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Get dataset list via an API"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "AOM %{name} has not yet published any datasets"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "There is no data for city %{name}"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "There is no data for region %{name}"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Data type"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "All"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Real Time"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "with real time"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Any"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "added on"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "region"
 msgstr ""
 
@@ -240,14 +240,14 @@ msgid_plural "results"
 msgstr[0] ""
 msgstr[1] ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "city"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Regions"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "category"
 msgstr ""

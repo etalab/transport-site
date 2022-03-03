@@ -11,74 +11,74 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2\n"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "DuplicateStops"
 msgstr "Some stops are very close. This could mean that they are a duplicate"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Impacted file"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Close stop"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Stop ID"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Stop name"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "ExtraFile"
 msgstr "The GTFS archive should only contain files that are part of the specification"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "File name"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Next stop and service"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "SpeedIssue"
 msgstr "The speed between two consecutive stops do not seem credible"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "MissingFile"
 msgstr "Some mandatory files are missing in the GTFS archive"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "UnusedStop"
 msgstr "Existing stop that never occurs in any service"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "CoordinatesIssue"
 msgstr "Coordinates of stops are mandatory in the GTFS specification"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Error detail:"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "at line"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "The file does not comply with the GTFS specification, the tool cannot perform all the checks."
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Glimpse of the file"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Error on file"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "details"
 msgstr ""

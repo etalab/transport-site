@@ -10,74 +10,74 @@
 msgid ""
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "DuplicateStops"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Impacted file"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Close stop"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Stop ID"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Stop name"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "ExtraFile"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "File name"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Next stop and service"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "SpeedIssue"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "MissingFile"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "UnusedStop"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "CoordinatesIssue"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Error detail:"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "at line"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "The file does not comply with the GTFS specification, the tool cannot perform all the checks."
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Glimpse of the file"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Error on file"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "details"
 msgstr ""

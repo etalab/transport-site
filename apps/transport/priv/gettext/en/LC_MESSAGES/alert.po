@@ -22,6 +22,6 @@ msgstr "Il y a eu une erreur, veuillez ré-essayer"
 msgid "You need to be a member of the transport.data.gouv.fr team."
 msgstr "Vous devez être membre de l’équipe transport.data.gouv.fr."
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Unable to get all your resources for the moment"
 msgstr ""

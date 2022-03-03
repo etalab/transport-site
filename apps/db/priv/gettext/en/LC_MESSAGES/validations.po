@@ -11,138 +11,138 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2\n"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Close stops"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Duplicate stops"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Duplicate object id"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Errors"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Excessive speed between two stops"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Extra file"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Fatal failures"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Informations"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Invalid archive"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Invalid coordinates"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Invalid currency"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Invalid language"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Invalid reference"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Invalid route type"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Invalid timezone"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Invalid transfer duration"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Invalid transfers"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Invalid url"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Missing coordinates"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Missing name"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Missing id"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Missing language"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Missing mandatory file"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Missing price"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Missing route name"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Missing url"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Negative travel time between two stops"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Null duration between two stops"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Passed validations"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Slow"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Unused stops"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Warnings"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Not compliant with the GTFS specification"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Impossible to interpolate stop times"
 msgstr ""

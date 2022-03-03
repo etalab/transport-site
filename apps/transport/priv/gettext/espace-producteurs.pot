@@ -10,78 +10,78 @@
 msgid ""
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Add a resource"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Adding a dataset guidelines"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Contact us"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Get your mobility data on the National Access Point. You will be redirected to data.gouv.fr to have your data published."
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "If you have any question on how to publish or update your data and you can't find an anwser on the website, do not hesitate, contact us:"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Publish a dataset"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Publish a new dataset"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Publishing best practices"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Update a dataset"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Update a resource"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Useful tools and content"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Validate your datasets"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Your producer space"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "You can test your data online and check its validity."
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "updating a dataset guidelines"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "What would you like to do?"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "You have no resource to update for the moment"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Select a resource"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "New resource"
 msgstr ""

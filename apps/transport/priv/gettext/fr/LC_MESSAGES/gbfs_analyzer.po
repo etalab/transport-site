@@ -11,78 +11,78 @@ msgstr ""
 "Language: fr\n"
 "Plural-Forms: nplurals=2\n"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Analyze"
 msgstr "Analyser"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "CORS allowed"
 msgstr "CORS autorisé"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "CORS headers available"
 msgstr "Headers CORS présents"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Detailed validation"
 msgstr "Rapport de validation"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Detected version"
 msgstr "Version détectée"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Feed Name"
 msgstr "Nom du flux"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Feeds"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "GeoJSONs"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Languages"
 msgstr "Langages"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Metadata"
 msgstr "Métadonnées"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Number of detected errors"
 msgstr "Nombre d'erreurs détectées"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Timezone"
 msgstr "Fuseau horaire"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Validated version"
 msgstr "Version validée"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Validation"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Visualization"
 msgstr "Visualisation"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "error message"
 msgstr "Aucune analyse n'a pu être faite.</br> Le flux GBFS peut être indisponible ou l'adresse indiquée est incorrecte."
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Link"
 msgstr "Lien"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "No"
 msgstr "Non"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Yes"
 msgstr "Oui"

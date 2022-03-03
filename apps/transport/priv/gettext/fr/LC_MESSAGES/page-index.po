@@ -40,19 +40,19 @@ msgstr "Guide de publication"
 msgid "Find dataset"
 msgstr "Trouvez un jeu de données"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "title"
 msgstr "Le Point d’Accès National aux données de transport"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "subtitle"
 msgstr "Rassembler les données de toute l’offre de mobilité à travers la France"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Long distance coach"
 msgstr "Autocars longue distance"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Public transport - realtime traffic"
 msgstr "Transport public collectif - horaires temps réel"
 
@@ -62,150 +62,150 @@ msgid_plural "datasets"
 msgstr[0] "%{count} jeu de données"
 msgstr[1] "%{count} jeux de données"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "See newly added datasets"
 msgstr "Voir les jeux de données récents"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Coming soon"
 msgstr "À venir dans les prochains mois"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Car and motorbike sharing"
 msgstr "Voitures et scooters en libre-service"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Rail transport"
 msgstr "Transport ferroviaire"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Sea and river transport"
 msgstr "Transport maritime et fluvial"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Learn more"
 msgstr "En savoir plus"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Regions covered"
 msgstr "régions couvertes"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Scheduled public transit"
 msgstr "Pour les horaires théoriques des transports en commun :"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "See more statistics"
 msgstr "Voir plus de statistiques et de cartes"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Territories covered"
 msgstr "<abbr title=\"Autorité organistatrice des mobilités\">AOMs</abbr> couvertes"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Territory coverage"
 msgstr "Couverture du territoire"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "covered"
 msgstr "couverte"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "on"
 msgstr "sur"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "of the population"
 msgstr "de la population"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Are you producing transport data ?"
 msgstr "Vous produisez des données de transport ?"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Who is reusing data from"
 msgstr "Qui réutilise des données de"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "producer description"
 msgstr "<abbr title=\"Autorité organistatrice des mobilités\">AOMs</abbr>, opérateurs de transport… : vous êtes tenus de publier vos données relatives à l’information voyageur sur le Point d’Accès National. L’équipe de transport.data.gouv.fr vous accompagne dans leur mise en qualité, mise en conformité et publication."
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "reusers list description"
 msgstr "Les réutilisateurs listés ici sont ceux ayant déclaré une réutilisation sur la plate-forme."
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Ask for help"
 msgstr "Demander de l’aide"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Close the form"
 msgstr "Fermer le formulaire"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "I'd like to be informed"
 msgstr "Je souhaite être tenu·e au courant"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Close the menu"
 msgstr "Fermer le formulaire"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Search data for a region, a city, a network…"
 msgstr "Cherchez les données d’une région, d’une ville, d’un réseau…"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Datasets"
 msgstr "Jeux de données"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Road works"
 msgstr "Travaux sur voirie"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Use our APIs"
 msgstr "Utiliser nos API"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Use the map"
 msgstr "Rechercher sur la carte"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "You can also"
 msgstr "Vous pouvez également"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "A freely accessible service"
 msgstr "Une plateforme GRATUITE et librement ACCESSIBLE"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "ALL French open mobility data at the same place"
 msgstr "Un catalogue EXHAUSTIF de données ouvertes"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Available data by theme"
 msgstr "Les données disponibles par thème"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Online tools to ease data reuses"
 msgstr "Des outils pour faciliter leur réutilisation"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Selected formats"
 msgstr "Formats homogènes"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Selected licences"
 msgstr "Licences harmonisées"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "facilitators list description, %{link}"
 msgstr "Voir la %{link} de nos facilitateurs"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "full list"
 msgstr "liste complète"
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "They help us achieve our mission"
 msgstr "Ils nous aident dans notre mission"

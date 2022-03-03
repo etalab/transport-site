@@ -40,19 +40,19 @@ msgstr ""
 msgid "Find dataset"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "title"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "subtitle"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Long distance coach"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Public transport - realtime traffic"
 msgstr ""
 
@@ -62,150 +62,150 @@ msgid_plural "datasets"
 msgstr[0] ""
 msgstr[1] ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "See newly added datasets"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Coming soon"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Car and motorbike sharing"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Rail transport"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Sea and river transport"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Learn more"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Regions covered"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Scheduled public transit"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "See more statistics"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Territories covered"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Territory coverage"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "covered"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "on"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "of the population"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Are you producing transport data ?"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Who is reusing data from"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "producer description"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "reusers list description"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Ask for help"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Close the form"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "I'd like to be informed"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Close the menu"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Search data for a region, a city, a network…"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Datasets"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Road works"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Use our APIs"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Use the map"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "You can also"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "A freely accessible service"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "ALL French open mobility data at the same place"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Available data by theme"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Online tools to ease data reuses"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Selected formats"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "Selected licences"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "facilitators list description, %{link}"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "full list"
 msgstr ""
 
-#, elixir-autogen, elixir-format
+#, elixir-format
 msgid "They help us achieve our mission"
 msgstr ""
