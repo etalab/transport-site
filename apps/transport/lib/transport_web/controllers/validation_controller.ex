@@ -99,7 +99,7 @@ defmodule TransportWeb.ValidationController do
     [{"GTFS", "gtfs"}, {"GBFS", "gbfs"}] ++ schemas
   end
 
-  defp is_valid_type?(type), do: type in (select_options() |> Enum.map(&elem(&1, 1)))
+  def is_valid_type?(type), do: type in (select_options() |> Enum.map(&elem(&1, 1)))
 
   defp upload_to_s3(file_path, path) do
     Transport.S3.upload_to_s3!(:on_demand_validation, File.read!(file_path), path)
