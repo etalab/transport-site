@@ -1,7 +1,53 @@
+defmodule EasyInspect do
+  def show(x) do
+    IO.inspect(x, IEx.inspect_opts)
+  end
+end
+
 defmodule Transport.Data.Screens do
   use ExUnit.Case
+  import EasyInspect
 
-  import Ecto.Query, only: [from: 2]
+  defmodule TheRealCode do
+
+    import Ecto.Query
+
+    def resources do
+      DB.Resource
+      |> select([p], map(p, [:id, :format, :datagouv_id]))
+    end
+
+    def resources_with_duplicate_datagouv_id do
+      resources
+      |> DB.Repo.all
+      |> Enum.group_by(fn(x) -> x[:datagouv_id] end)
+      |> Enum.filter(fn({a,b}) -> b |> Enum.count > 1 end)
+    end
+  end
+
+  import Ecto.Query
+
+  test "resources without resource history" do
+    # TODO: dump a report somewhere on disk
+    # TODO: let LiveBook show the result in exploratory fashion
+    # TODO: move the code to the right place so that we can call it from anywhere
+    result = TheRealCode.resources_with_duplicate_datagouv_id()
+    assert result == [], result |> inspect
+  end
+
+  @tag :focus
+  test "resources (or datagouv_id, actually, at the moment) without at least one resource history" do
+    # TODO: dump / report
+    non_nil_datagouv_ids = DB.Resource
+    |> where([r], not is_nil(r.datagouv_id))
+    |> select([r], map(r, [:datagouv_id]))
+    |> DB.Repo.all()
+    |> Enum.map(fn(x) -> x[:datagouv_id] end)
+    |> show
+
+  end
+
+  # TODO: replace what's below with Elixir + Ecto code (for clarity / composability / maintenance)
 
   test "converts every GTFS to GeoJSON" do
     %{rows: [[originals_count]]} = Ecto.Adapters.SQL.query!(DB.Repo, """
@@ -28,4 +74,5 @@ defmodule Transport.Data.Screens do
   end
 end
 
-ExUnit.start
+ExUnit.configure(exclude: :test, include: :focus)
+ExUnit.start()
