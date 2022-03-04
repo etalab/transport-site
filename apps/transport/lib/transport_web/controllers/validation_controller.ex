@@ -4,7 +4,9 @@ defmodule TransportWeb.ValidationController do
   alias Transport.DataVisualization
   import TransportWeb.ResourceView, only: [issue_type: 1]
 
-  def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => url, "type" => "gbfs"}}) do
+  def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => url, "type" => "gbfs"} = params}) do
+    %Validation{on_the_fly_validation_metadata: build_metadata(params)} |> Repo.insert!()
+
     redirect(conn, to: gbfs_analyzer_path(conn, :index, url: url))
   end
 
@@ -103,6 +105,10 @@ defmodule TransportWeb.ValidationController do
 
   defp upload_to_s3(file_path, path) do
     Transport.S3.upload_to_s3!(:on_demand_validation, File.read!(file_path), path)
+  end
+
+  defp build_metadata(%{"url" => url, "type" => "gbfs"}) do
+    %{"type" => "gbfs", "state" => "submitted", "feed_url" => url}
   end
 
   defp build_metadata(type) do

@@ -56,6 +56,14 @@ defmodule TransportWeb.ValidationControllerTest do
         })
 
       assert redirected_to(conn, 302) == gbfs_analyzer_path(conn, :index, url: url)
+
+      assert %{
+               on_the_fly_validation_metadata: %{
+                 "state" => "submitted",
+                 "type" => "gbfs",
+                 "feed_url" => ^url
+               }
+             } = DB.Repo.one!(DB.Validation)
     end
 
     test "with a GTFS", %{conn: conn} do
