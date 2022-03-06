@@ -8,22 +8,6 @@ defmodule Transport.Data.Screens do
   use ExUnit.Case
   import EasyInspect
 
-  defmodule TheRealCode do
-
-    import Ecto.Query
-
-    def resources do
-      DB.Resource
-      |> select([p], map(p, [:id, :format, :datagouv_id]))
-    end
-
-    def resources_with_duplicate_datagouv_id do
-      resources
-      |> DB.Repo.all
-      |> Enum.group_by(fn(x) -> x[:datagouv_id] end)
-      |> Enum.filter(fn({a,b}) -> b |> Enum.count > 1 end)
-    end
-  end
 
   import Ecto.Query
 
