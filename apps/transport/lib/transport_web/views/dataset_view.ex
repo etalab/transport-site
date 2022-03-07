@@ -368,6 +368,10 @@ defmodule TransportWeb.DatasetView do
   def licence_url("lov2"), do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
 
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
+
+  def licence_url("mobility-license"),
+    do: "https://download.data.grandlyon.com/licences/Licence_mobilit%C3%A9s_V_02_2021.pdf"
+
   def licence_url(_), do: nil
 
   @spec description(Dataset.t() | Resource.t()) :: Phoenix.HTML.safe()
@@ -398,6 +402,7 @@ defmodule TransportWeb.DatasetView do
       "other-open" -> dgettext("dataset", "other-open")
       "lov2" -> dgettext("dataset", "lov2")
       "notspecified" -> dgettext("dataset", "notspecified")
+      "mobility-license" -> dgettext("dataset", "Mobility license")
       other -> other
     end
   end

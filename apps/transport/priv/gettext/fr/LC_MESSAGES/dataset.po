@@ -75,3 +75,7 @@ msgstr "La ressource est indisponible (peut-être temporairement)"
 #, elixir-autogen, elixir-format
 msgid "lov2"
 msgstr "Licence Ouverte Version 2.0"
+
+#, elixir-autogen, elixir-format
+msgid "Mobility license"
+msgstr "Licence mobilités"

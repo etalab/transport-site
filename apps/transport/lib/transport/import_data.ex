@@ -171,7 +171,7 @@ defmodule Transport.ImportData do
       |> Map.put("organization", data_gouv_resp["organization"]["name"])
       |> Map.put("resources", get_resources(data_gouv_resp, type))
       |> Map.put("nb_reuses", get_nb_reuses(data_gouv_resp))
-      |> Map.put("licence", data_gouv_resp["license"])
+      |> Map.put("licence", license(data_gouv_resp))
       |> Map.put("zones", get_associated_zones_insee(data_gouv_resp))
 
     case Map.get(data_gouv_resp, "resources") do
@@ -179,6 +179,33 @@ defmodule Transport.ImportData do
       _ -> {:ok, dataset}
     end
   end
+
+  @doc """
+  Set the license according to the datagouv response with possible overrides.
+
+    ## Examples
+
+      iex> ImportData.license(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Lyon"}})
+      "mobility-license"
+
+      iex> ImportData.license(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Rouen"}})
+      "notspecified"
+
+      iex> ImportData.license(%{"license" => "odc-odbl"})
+      "odc-odbl"
+
+  """
+  def license(%{"license" => "notspecified", "organization" => %{"name" => org_name}}) do
+    orgs_with_mobility_license = ["Métropole de Lyon"]
+    if org_name in orgs_with_mobility_license do
+      "mobility-license"
+    else
+      "notspecified"
+    end
+  end
+
+  def license(%{"license" => datagouv_license}), do: datagouv_license
+  def license(_), do: nil
 
   @doc """
   Get logo from datagouv dataset
@@ -507,27 +534,6 @@ defmodule Transport.ImportData do
 
   @spec is_neptune?(binary() | map()) :: boolean()
   def is_neptune?(s), do: is_format?(s, "neptune")
-
-  @doc """
-  Check for licence, returns ["bad_license"] if the licence is not "odc-odbl"
-  or "fr-lo".
-
-  ## Examples
-
-      iex> ImportData.check_license(%{"license" => "bliblablou"})
-      false
-
-      iex> ImportData.check_license(%{"license" => "odc-odbl"})
-      true
-
-      iex> ImportData.check_license(%{"license" => "fr-lo"})
-      true
-
-  """
-  @spec check_license(map()) :: boolean()
-  def check_license(%{"license" => "odc-odbl"}), do: true
-  def check_license(%{"license" => "fr-lo"}), do: true
-  def check_license(_), do: false
 
   @doc """
   Check for download uri, returns ["no_download_url"] if there's no download_url
