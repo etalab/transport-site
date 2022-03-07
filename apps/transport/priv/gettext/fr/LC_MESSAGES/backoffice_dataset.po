@@ -11,58 +11,58 @@ msgstr ""
 "Language: fr\n"
 "Plural-Forms: nplurals=2\n"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset deleted"
 msgstr "Jeu de données supprimé"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset imported with success"
 msgstr "Jeu de données importé"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset not imported"
 msgstr "Impossible d'importer le jeu de données"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Could not add dataset"
 msgstr "Impossible d'ajouter le jeu de données"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset added with success"
 msgstr "Dataset ajouté"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Import and validation of all datasets have been launch"
 msgstr "L'import et la validation de tous les jeux de données ont été lancés."
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Could not edit dataset"
 msgstr "Impossible d'éditer le jeu de données"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset edited with success"
 msgstr "Jeu de données édité"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Error"
 msgstr "Erreur"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validate"
 msgstr "Valider"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validated"
 msgstr "Validé"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validating"
 msgstr "En cours"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "validation of all datasets has been launched"
 msgstr "La validation de tous les jeux de données a été lancée."
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "validation of all datasets has been launch"
 msgstr "La validation de tous les jeux de données a été lancée."
