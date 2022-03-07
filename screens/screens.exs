@@ -1,3 +1,6 @@
+# half-baked exploration
+# run with `mix run screens/screens.exs`
+
 defmodule EasyInspect do
   def show(x) do
     IO.inspect(x, IEx.inspect_opts)
