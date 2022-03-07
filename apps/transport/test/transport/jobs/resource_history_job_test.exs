@@ -300,7 +300,13 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     test "a simple successful case for a CSV" do
       resource_url = "https://example.com/file.csv"
 
-      %{datagouv_id: datagouv_id, dataset_id: dataset_id, metadata: resource_metadata, title: title, content_hash: content_hash} =
+      %{
+        datagouv_id: datagouv_id,
+        dataset_id: dataset_id,
+        metadata: resource_metadata,
+        title: title,
+        content_hash: content_hash
+      } =
         insert(:resource,
           url: resource_url,
           dataset: insert(:dataset, is_active: true),
