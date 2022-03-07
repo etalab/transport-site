@@ -500,7 +500,7 @@ defmodule TransportWeb.DatasetView do
       resources_updated_at
       |> Map.get(id)
       |> case do
-        nil -> dgettext("page-dataset-details", "inconnue")
+        nil -> dgettext("page-dataset-details", "unknown")
         dt -> dt |> DateTime.to_date() |> Calendar.strftime("%d-%m-%Y")
       end
     end

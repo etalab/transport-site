@@ -414,10 +414,10 @@ msgstr ""
 msgid "We test this resource download availability every hour. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online."
 msgstr ""
 
-#, elixir-format, ex-autogen
-msgid "unknown"
+#, elixir-autogen, elixir-format
+msgid "last content modification"
 msgstr ""
 
-#, elixir-format, ex-autogen
-msgid "last content modification"
+#, elixir-autogen, elixir-format
+msgid "unknown"
 msgstr ""
