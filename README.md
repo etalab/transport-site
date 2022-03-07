@@ -68,6 +68,8 @@ The production database does not contains any sensitive data, you can retreive i
 
 The app uses a number of tools via [transport-tools](https://github.com/etalab/transport-tools).
 
+They are expected at `./transport-tools` by default (but this can be configured via `:transport_tools_folder` in `config.exs`).
+
 When working locally, you may want to have these tools readily available at times.
 
 ```
