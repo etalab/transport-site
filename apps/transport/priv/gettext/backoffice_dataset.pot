@@ -10,58 +10,58 @@
 msgid ""
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset deleted"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset imported with success"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset not imported"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Could not add dataset"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset added with success"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Import and validation of all datasets have been launch"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Could not edit dataset"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset edited with success"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Error"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validate"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validated"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validating"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "validation of all datasets has been launched"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "validation of all datasets has been launch"
 msgstr ""

@@ -11,74 +11,74 @@ msgstr ""
 "Language: fr\n"
 "Plural-Forms: nplurals=2\n"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "DuplicateStops"
 msgstr "Certains arrêts sont très proches. Cela pourrait indiquer une duplication du même arrêt."
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Impacted file"
 msgstr "Fichier concerné"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Close stop"
 msgstr "Arrêt proche"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Stop ID"
 msgstr "Identifiant de l’arrêt"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Stop name"
 msgstr "Nom de l’arrêt"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "ExtraFile"
 msgstr "L’archive GTFS devrait uniquement contenir des fichiers décrits par la spécification"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "File name"
 msgstr "Nom de fichier"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Next stop and service"
 msgstr "Prochain arrêt et circulation"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "SpeedIssue"
 msgstr "La vitesse entre deux arrêts consécutifs ne semble pas réaliste"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "MissingFile"
 msgstr "Certains fichiers obligatoires manquent dans l’archive GTFS"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "UnusedStop"
 msgstr "Arrêt présent mais n’apparaissant dans aucune circulation"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "CoordinatesIssue"
 msgstr "Les coordonnées des arrêts sont obligatoires dans la spécification GTFS"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Error detail:"
 msgstr "Détails de l'erreur :"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "at line"
 msgstr "à la ligne"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "The file does not comply with the GTFS specification, the tool cannot perform all the checks."
 msgstr "Le fichier ne respecte pas les spécifications GTFS, le validateur ne peut effectuer toutes les vérifications."
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Glimpse of the file"
 msgstr "Aperçu du fichier"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Error on file"
 msgstr "Erreur sur le fichier"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "details"
 msgstr "détails"

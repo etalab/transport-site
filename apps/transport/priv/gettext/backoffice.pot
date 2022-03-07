@@ -10,21 +10,25 @@
 msgid ""
 msgstr ""
 
+#, elixir-autogen
 msgid "Add"
 msgstr ""
 
+#, elixir-autogen
 msgid "Add a dataset"
 msgstr ""
 
 msgid "INSEE Code"
 msgstr ""
 
+#, elixir-autogen
 msgid "Valid datasets available"
 msgstr ""
 
 msgid "data.gouv.fr id"
 msgstr ""
 
+#, elixir-autogen
 msgid "name"
 msgstr ""
 
@@ -40,6 +44,7 @@ msgstr ""
 msgid "Dataset not imported"
 msgstr ""
 
+#, elixir-autogen
 msgid "Could not delete dataset"
 msgstr ""
 
@@ -52,146 +57,146 @@ msgstr ""
 msgid "Add a partner"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset's url"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Unable to find dataset"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Import and validate all"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Outdated"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Show all datasets"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Edit"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Edit a dataset"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "With unidentified resources"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Associated territory"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Choose one"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset linked to a list of cities in data.gouv.fr"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset linked to a region"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Dataset linked to an AOM"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Name of the associtated territory (used in the title of the dataset)"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "National dataset"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Not compliant to spec"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Cancel"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "validate all"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Other actions on the dataset"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Imports history"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validations history"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "date / time"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "error message"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "explanation"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "success"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "validation needed"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Rapport de complétude des imports"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "With a gtfs-rt but without a siri-lite"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "With a resource not available"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "With licence unspecified"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "With more than 1 GTFS"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Show only datasets"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Proxy configuration"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Update all AOMs"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Jobs"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "GBFS requests"
 msgstr ""
