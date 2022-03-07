@@ -123,10 +123,10 @@ msgstr "Pourquoi publier vos données ?"
 msgid "Validate a GBFS feed"
 msgstr "Valider un flux GBFS"
 
-#, elixir-autogen, elixir-format
-msgid "Our social media accounts"
-msgstr "Nos réseaux sociaux"
-
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Validate a file or a feed"
 msgstr "Valider un fichier ou un flux"
+
+#, elixir-autogen, elixir-format
+msgid "Our social media accounts"
+msgstr "Nos réseaux sociaux"
