@@ -197,6 +197,7 @@ defmodule Transport.ImportData do
   """
   def license(%{"license" => "notspecified", "organization" => %{"name" => org_name}}) do
     orgs_with_mobility_license = ["Métropole de Lyon"]
+
     if org_name in orgs_with_mobility_license do
       "mobility-license"
     else
