@@ -155,6 +155,7 @@ jobs:
       - run:
           name: Run linters
           command: |
+            mix gettext.extract --check-up-to-date
             mix credo --strict
             mix npm "run linter:ecma"
             mix npm "run linter:sass"

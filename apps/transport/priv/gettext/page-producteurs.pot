@@ -123,9 +123,9 @@ msgid "Validate a GBFS feed"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Our social media accounts"
+msgid "Validate a file or a feed"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Validate a file or a feed"
+msgid "Our social media accounts"
 msgstr ""
