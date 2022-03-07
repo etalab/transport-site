@@ -11,122 +11,122 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2\n"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "transport.data.gouv.fr help you publish your data"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "A number of administrations, companies and assocations use the French National Access Point to find mobility open-data in France."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "A place to chat, ask questions and get answers for data producers and reusers."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Access your producer section"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Contact us"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Data publishing guidelines"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "For the users"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Go to transport.data.gouv.fr blog"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Help users find and use your data by following our publications guidelines."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Join the transport.data.gouv.fr community and stay informed!"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Our community"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Online validation tools"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Our blog"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Our reusers create applications allowing people to better use the mobility resources available around them."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Read here a summary of those obligations"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Read our guidelines"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Read tutorials and users testimonies"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Regulatory obligations"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Stay informed of the National Access Point latest news and upcoming functionalities."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "The newsletter"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "To log in, you will be redirected to data.gouv.fr, the open platform for French public data"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Users want quality data. Validate online GTFS files, GBFS feeds or any data following French national schemas."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Whether you are Autorité organisatrice de mobilité, délégataire de service public, or collectivité territoriale, you may be concerned by the laws loi pour une république numérique, la Loi Orientation des Mobilités and the european reglementation."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Welcome!"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "transport.data.gouv.fr is affiliated with data.gouv.fr, the open platform for French public data"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "If you any question, send us an email and we'll be glad to help you!"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Why should you publish your data?"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validate a GBFS feed"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validate a file"
 msgstr ""
 
-#, elixir-format, ex-autogen
+#, elixir-autogen, elixir-format
 msgid "Our social media accounts"
 msgstr ""

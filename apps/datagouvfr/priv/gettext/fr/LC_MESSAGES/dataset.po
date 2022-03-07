@@ -11,14 +11,14 @@ msgstr ""
 "Language: fr\n"
 "Plural-Forms: nplurals=2\n"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "A description is needed"
 msgstr "Vous devez fournir une description"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "A title is needed"
 msgstr "Vous devez fournir un titre"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "An organization is needed"
 msgstr "Une organisation est requise"

@@ -10,15 +10,18 @@ msgid ""
 msgstr ""
 "Language: en\n"
 
+#, elixir-autogen
 msgid "You need to be connected before doing this."
 msgstr "Vous devez être connecté avant de poursuivre."
 
+#, elixir-autogen
 msgid "An error occured, please try again"
 msgstr "Il y a eu une erreur, veuillez ré-essayer"
 
+#, elixir-autogen
 msgid "You need to be a member of the transport.data.gouv.fr team."
 msgstr "Vous devez être membre de l’équipe transport.data.gouv.fr."
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Unable to get all your resources for the moment"
 msgstr ""

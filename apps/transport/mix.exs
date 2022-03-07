@@ -90,7 +90,8 @@ defmodule Transport.Mixfile do
       {:oban, "~> 2.9"},
       {:unzip, "~> 0.6.0"},
       {:protobuf, "~> 0.9.0"},
-      {:nimble_csv, "~> 1.2.0"}
+      {:nimble_csv, "~> 1.2.0"},
+      {:kino, "~> 0.5.2", only: :dev}
     ]
   end
 end
