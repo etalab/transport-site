@@ -37,7 +37,7 @@ defmodule DB.DatabaseCase do
           insee_commune_principale: "38185",
           nom: "Grenoble",
           region: Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes"),
-          composition_res_id: 2
+          composition_res_id: 100
         })
 
         Repo.insert(%Commune{
@@ -45,7 +45,7 @@ defmodule DB.DatabaseCase do
           nom: "Grenoble",
           wikipedia: "fr:Grenoble",
           surf_ha: 200_554.0,
-          aom_res_id: 2
+          aom_res_id: 100
         })
 
         cleanup()
