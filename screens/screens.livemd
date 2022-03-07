@@ -4,6 +4,7 @@
 
 ```elixir
 Transport.Screens.resources_with_duplicate_datagouv_id(markdown: true)
+|> Kino.Markdown.new()
 ```
 
 ## Ressources jamais historisées

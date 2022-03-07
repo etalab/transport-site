@@ -26,6 +26,5 @@ defmodule Transport.Screens do
     end)
     |> List.flatten()
     |> Enum.join("\n")
-    |> Kino.Markdown.new()
   end
 end
