@@ -1,4 +1,7 @@
 defmodule Transport.Screens do
+  @moduledoc """
+  Exploratory code that I have used from LiveBook.
+  """
   import Ecto.Query
 
   def resources do
