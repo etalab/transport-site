@@ -11,7 +11,7 @@
                 <%= if issue.count > 0 do %>
                 <%= link(
                     "#{issue.title} (#{issue.count})",
-                    to: "#{current_url(@conn, %{"issue_type" => "#{key}"})}#issues",
+                    to: "#{current_url(@conn, %{"issue_type" => key, "token" => @token} |> Map.reject(fn {_, v} -> is_nil(v) end))}#issues",
                     class: (if key == issue_type(@issues.entries), do: "active")
                 ) %>
                 <% end %>
