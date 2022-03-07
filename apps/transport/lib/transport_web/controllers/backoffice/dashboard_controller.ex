@@ -6,6 +6,7 @@ defmodule TransportWeb.Backoffice.DashboardController do
   require Logger
 
   @dashboard_import_count_sql File.read!("lib/queries/dashboard_import_count.sql")
+  @conversions_check_sql File.read!("lib/queries/conversions_check.sql")
 
   def index(conn, _params) do
     data =
@@ -22,5 +23,19 @@ defmodule TransportWeb.Backoffice.DashboardController do
 
     conn
     |> render("index.html", import_count_by_dataset_and_by_day: import_count_by_dataset_and_by_day)
+  end
+
+  def conversions(conn, _params) do
+    result =
+      @conversions_check_sql
+      |> DB.Repo.query!()
+
+    data = result.rows
+    |> Enum.map(fn(x) -> Map.new(Enum.zip(result.columns, x)) end)
+    |> Enum.filter(fn(x) -> x["conversion_recorded"] == false end)
+    |> Enum.group_by(fn(x) -> x["r_datagouv_id"] end)
+
+    conn
+    |> render("conversions.html", data: data)
   end
 end
