@@ -134,29 +134,93 @@ defmodule DB.DatasetDBTest do
     end
   end
 
-  test "for a dataset, get resources last update times" do
-    %{id: dataset_id} = insert(:dataset, %{datagouv_id: "xxx", title: "coucou"})
+  describe "resources last content update time" do
+    test "for a dataset, get resources last update times" do
+      %{id: dataset_id} = insert(:dataset, %{datagouv_id: "xxx", title: "coucou"})
 
-    %{id: resource_id_1} = insert(:resource, %{datagouv_id: datagouv_id_1 = "datagouv_id_1", dataset_id: dataset_id})
-    %{id: resource_id_2} = insert(:resource, %{datagouv_id: datagouv_id_2 = "datagouv_id_2", dataset_id: dataset_id})
+      %{id: resource_id_1} = insert(:resource, %{datagouv_id: datagouv_id_1 = "datagouv_id_1", dataset_id: dataset_id})
+      %{id: resource_id_2} = insert(:resource, %{datagouv_id: datagouv_id_2 = "datagouv_id_2", dataset_id: dataset_id})
 
-    # resource 1
-    insert(:resource_history, %{
-      datagouv_id: datagouv_id_1,
-      payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
-    })
+      # resource 1
+      insert(:resource_history, %{
+        datagouv_id: datagouv_id_1,
+        payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+      })
 
-    insert(:resource_history, %{
-      datagouv_id: datagouv_id_1,
-      payload: %{download_datetime: resource_1_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
-    })
+      insert(:resource_history, %{
+        datagouv_id: datagouv_id_1,
+        payload: %{download_datetime: resource_1_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
+      })
 
-    # resource 2
-    insert(:resource_history, %{datagouv_id: datagouv_id_2, payload: %{}})
+      # resource 2
+      insert(:resource_history, %{datagouv_id: datagouv_id_2, payload: %{}})
 
-    dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get!(dataset_id)
+      dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get!(dataset_id)
 
-    assert %{^resource_id_1 => ^resource_1_last_update_time, ^resource_id_2 => nil} =
-             Dataset.resources_content_updated_at(dataset)
+      assert %{resource_id_1 => resource_1_last_update_time, resource_id_2 => nil} ==
+               Dataset.resources_content_updated_at(dataset)
+    end
+
+    defp insert_dataset_resource() do
+      dataset = %{id: dataset_id} = insert(:dataset)
+
+      %{id: resource_id} =
+        insert(:resource, %{dataset_id: dataset_id, datagouv_id: resource_datagouv_id = "datagouv_id"})
+
+      {dataset, resource_id, resource_datagouv_id}
+    end
+
+    test "1 resource, basic case" do
+      {dataset, resource_id, resource_datagouv_id} = insert_dataset_resource()
+
+      insert(:resource_history, %{
+        datagouv_id: resource_datagouv_id,
+        payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+      })
+
+      insert(:resource_history, %{
+        datagouv_id: resource_datagouv_id,
+        payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
+      })
+
+      assert %{resource_id => expected_last_update_time} == Dataset.resources_content_updated_at(dataset)
+    end
+
+    test "only one resource history, we don't know the resource last content update time" do
+      {dataset, resource_id, resource_datagouv_id} = insert_dataset_resource()
+
+      insert(:resource_history, %{
+        datagouv_id: resource_datagouv_id,
+        payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+      })
+
+      assert Dataset.resources_content_updated_at(dataset) == %{resource_id => nil}
+    end
+
+    test "last content update time, download_datime not in payload" do
+      {dataset, resource_id, resource_datagouv_id} = insert_dataset_resource()
+
+      insert(:resource_history, %{datagouv_id: resource_datagouv_id, payload: %{}})
+
+      assert Dataset.resources_content_updated_at(dataset) == %{resource_id => nil}
+    end
+
+    test "last content update time, some download_datime not in payload" do
+      {dataset, resource_id, resource_datagouv_id} = insert_dataset_resource()
+
+      insert(:resource_history, %{datagouv_id: resource_datagouv_id, payload: %{}})
+
+      insert(:resource_history, %{
+        datagouv_id: resource_datagouv_id,
+        payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+      })
+
+      insert(:resource_history, %{
+        datagouv_id: resource_datagouv_id,
+        payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
+      })
+
+      assert Dataset.resources_content_updated_at(dataset) == %{resource_id => expected_last_update_time}
+    end
   end
 end

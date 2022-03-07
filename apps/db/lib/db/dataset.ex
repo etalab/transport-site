@@ -724,7 +724,23 @@ defmodule DB.Dataset do
   end
 
   @spec resources_content_updated_at(__MODULE__.t()) :: map()
-  def resources_content_updated_at(%__MODULE__{resources: resources}) do
-    resources |> Enum.map(fn r -> {r.id, DB.Resource.content_updated_at(r)} end) |> Enum.into(%{})
+  def resources_content_updated_at(%__MODULE__{id: dataset_id}) do
+    DB.Resource
+    |> join(:left, [r], rh in DB.ResourceHistory, on: rh.datagouv_id == r.datagouv_id)
+    |> where([r, rh], r.dataset_id == ^dataset_id)
+    |> group_by([r, rh], [r.id, rh.datagouv_id])
+    |> select([r, rh], {r.id, count(rh.datagouv_id), max(fragment("payload ->>'download_datetime'"))})
+    |> DB.Repo.all()
+    |> Enum.map(fn {id, count, updated_at} ->
+      case count do
+        n when n in [0, 1] ->
+          {id, nil}
+
+        _ ->
+          {:ok, datetime_updated_at, 0} = updated_at |> DateTime.from_iso8601()
+          {id, datetime_updated_at}
+      end
+    end)
+    |> Enum.into(%{})
   end
 end
