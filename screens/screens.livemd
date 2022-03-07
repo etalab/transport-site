@@ -1,0 +1,143 @@
+# Exploration des données
+
+## Ressources avec un "duplicate resource data gouv id"
+
+```elixir
+Transport.Screens.resources_with_duplicate_datagouv_id(markdown: true)
+|> Kino.Markdown.new()
+```
+
+## Ressources jamais historisées
+
+On va déjà compter tous les `datagouv_id` des ressources:
+
+```elixir
+import Ecto.Query
+
+datagouv_ids =
+  DB.Resource
+  |> where([r], not is_nil(r.datagouv_id))
+  |> select([r], map(r, [:datagouv_id]))
+  |> DB.Repo.all()
+  |> Enum.map(fn x -> x[:datagouv_id] end)
+  |> Enum.sort()
+
+[
+  count: datagouv_ids |> Enum.count(),
+  unique_count: datagouv_ids |> Enum.uniq() |> Enum.count()
+]
+```
+
+```elixir
+used_datagouv_ids =
+  DB.ResourceHistory
+  |> select([:datagouv_id])
+  |> DB.Repo.all()
+  |> Enum.map(& &1.datagouv_id)
+  |> MapSet.new()
+
+[count: used_datagouv_ids |> Enum.count()]
+```
+
+Curieux !?
+
+```elixir
+non_duplicate_datagouv_ids =
+  datagouv_ids
+  |> Enum.group_by(fn x -> x end)
+  |> Enum.reject(fn {_a, b} -> b |> Enum.count() > 1 end)
+  |> Enum.map(fn {a, _b} -> a end)
+  |> MapSet.new()
+
+problematic_non_duplicate_datagouv_ids =
+  MapSet.difference(non_duplicate_datagouv_ids, used_datagouv_ids)
+
+[count: problematic_non_duplicate_datagouv_ids |> Enum.count()]
+```
+
+```elixir
+ids = problematic_non_duplicate_datagouv_ids |> Enum.into([])
+
+DB.Resource
+|> select([r], %{format: r.format, count: count(r.id)})
+|> where([r], r.datagouv_id in ^ids)
+|> group_by([r], r.format)
+|> DB.Repo.all()
+|> Enum.sort_by(fn x -> -x.count end)
+|> Kino.DataTable.new()
+```
+
+```elixir
+resource_history_uuids =
+  DB.ResourceHistory
+  |> select([r], %{uuid: fragment("payload ->> 'uuid'")})
+  |> where([r], fragment("payload->>'format' = 'GTFS'"))
+  |> DB.Repo.all()
+  |> Enum.map(& &1.uuid)
+  |> MapSet.new()
+
+geojson_conversion_uuids =
+  DB.DataConversion
+  |> where([r], r.convert_from == "GTFS" and r.convert_to == "GeoJSON")
+  |> select([dc], %{uuid: dc.resource_history_uuid})
+  |> DB.Repo.all()
+  |> Enum.map(& &1.uuid)
+  |> MapSet.new()
+
+# TODO: dry
+netex_conversion_uuids =
+  DB.DataConversion
+  |> where([r], r.convert_from == "GTFS" and r.convert_to == "NeTEx")
+  |> select([dc], %{uuid: dc.resource_history_uuid})
+  |> DB.Repo.all()
+  |> Enum.map(& &1.uuid)
+  |> MapSet.new()
+
+missing_netex = MapSet.difference(resource_history_uuids, netex_conversion_uuids)
+missing_geojson = MapSet.difference(resource_history_uuids, geojson_conversion_uuids)
+
+[
+  missing_netex_per_resource_history: missing_netex |> Enum.count(),
+  missing_geojson_per_resource_history: missing_geojson |> Enum.count()
+]
+```
+
+```elixir
+uuids = geojson_conversion_uuids |> Enum.into([])
+
+existing_resource_datagouv_id =
+  DB.Resource
+  |> select([r], %{datagouv_id: r.datagouv_id})
+  |> DB.Repo.all()
+  |> Enum.map(& &1.datagouv_id)
+  |> MapSet.new()
+
+gtfs_resources_with_no_netex =
+  DB.ResourceHistory
+  |> select([r], %{datagouv_id: r.datagouv_id})
+  |> where([r], r.datagouv_id not in ^uuids)
+  |> where([r], fragment("payload->>'format' = 'GTFS'"))
+  |> distinct(:datagouv_id)
+  |> DB.Repo.all()
+  |> MapSet.new()
+  # clean-up for not used anymore
+  |> MapSet.intersection(existing_resource_datagouv_id)
+
+uuids = netex_conversion_uuids |> Enum.into([])
+
+gtfs_resources_with_no_geojson =
+  DB.ResourceHistory
+  |> select([r], %{datagouv_id: r.datagouv_id})
+  |> where([r], r.datagouv_id not in ^uuids)
+  |> where([r], fragment("payload->>'format' = 'NeTEx'"))
+  |> distinct(:datagouv_id)
+  |> DB.Repo.all()
+  |> MapSet.new()
+  # clean-up for not used anymore
+  |> MapSet.intersection(existing_resource_datagouv_id)
+
+[
+  gtfs_resources_with_no_netex: gtfs_resources_with_no_netex |> Enum.count(),
+  gtfs_resources_with_no_geojson: gtfs_resources_with_no_geojson |> Enum.count()
+]
+```
