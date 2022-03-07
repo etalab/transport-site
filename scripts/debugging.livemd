@@ -2,7 +2,13 @@
 
 ## Comment lancer ce livebook
 
-* [Suivre la documentation](https://github.com/livebook-dev/livebook#escript) et installer livebook comme `escript`
+* [Suivre la documentation](https://github.com/livebook-dev/livebook#escript) et installer livebook comme `escript`:
+
+```
+mix escript.install hex livebook
+asdf reshim elixir
+```
+
 * Lancer livebook en connection au projet, avec la commande suivante:
 
 ```
