@@ -22,6 +22,7 @@ msgstr ""
 msgid "Territory"
 msgstr ""
 
+#, elixir-autogen
 msgid "Format"
 msgstr ""
 
@@ -121,24 +122,31 @@ msgstr "Quinquennial"
 msgid "irregular"
 msgstr "Irregular"
 
+#, elixir-autogen
 msgid "Timetable begin"
 msgstr ""
 
+#, elixir-autogen
 msgid "Timetable end"
 msgstr ""
 
+#, elixir-autogen
 msgid "Number of lines"
 msgstr ""
 
+#, elixir-autogen
 msgid "Number of stop areas"
 msgstr ""
 
+#, elixir-autogen
 msgid "Number of stop points"
 msgstr ""
 
+#, elixir-autogen
 msgid "Networks"
 msgstr ""
 
+#, elixir-autogen
 msgid "Modes"
 msgstr ""
 
@@ -166,62 +174,63 @@ msgstr "Gondola"
 msgid "funicular"
 msgstr "Funicular"
 
+#, elixir-autogen
 msgid "No dataset found"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Alphabetical"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Most recently added"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Order by"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Get dataset list via an API"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "AOM %{name} has not yet published any datasets"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "There is no data for city %{name}"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "There is no data for region %{name}"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Data type"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "All"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Real Time"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "with real time"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Any"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "added on"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "region"
 msgstr ""
 
@@ -231,14 +240,14 @@ msgid_plural "results"
 msgstr[0] ""
 msgstr[1] ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "city"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Regions"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "category"
 msgstr ""

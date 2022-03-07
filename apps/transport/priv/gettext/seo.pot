@@ -10,50 +10,50 @@
 msgid ""
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "%{format} Transport open dataset - %{title} for %{spatial} - %{territory}"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Publish, improve and reuse French public transport data"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Transport open datasets for %{type} %{name}"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "%{name} AOM: Transport open datasets "
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "%{q}: Available transport open datasets"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "%{spatial} - Open %{formats} datasets - %{territory}"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "National Access Point for transport open data"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Transport open datasets for city %{name}"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Data quality evaluation"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Non standard real time transport open data"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "State of transport open data for french AOMs"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "State of transport open data in France"
 msgstr ""
