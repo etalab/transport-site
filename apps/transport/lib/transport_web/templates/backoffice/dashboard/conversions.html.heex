@@ -1,0 +1,29 @@
+<h2 class="is-centered">Rapport de complétude des conversions</h2>
+
+<div class="container mt-48">
+
+<table class="mt-48">
+<tbody>
+    <tr>
+        <th>r_datagouv_id</th>
+        <th>rh_inserted_at</th>
+        <th>convert_from</th>
+        <th>convert_to</th>
+        <th>rh_uuid</th>
+    </tr>
+    <%= for {_datagouv_id, conversions} <- @data do %>
+        <%= for conv <- conversions do %>
+        <tr>
+            <td><%= conv["r_datagouv_id"] %></td>
+            <td><%= conv["rh_inserted_at"] %></td>
+            <td><%= conv["convert_from"] %></td>
+            <td><%= conv["convert_to"] %></td>
+            <td><%= conv["rh_uuid"] %></td>
+        </tr>
+        <% end %>
+    <% end %>
+
+</tbody>
+</table>
+
+</div>
