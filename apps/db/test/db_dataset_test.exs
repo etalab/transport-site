@@ -161,7 +161,7 @@ defmodule DB.DatasetDBTest do
                Dataset.resources_content_updated_at(dataset)
     end
 
-    defp insert_dataset_resource() do
+    defp insert_dataset_resource do
       dataset = %{id: dataset_id} = insert(:dataset)
 
       %{id: resource_id} =
