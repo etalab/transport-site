@@ -55,6 +55,7 @@ defmodule TransportWeb.ValidationController do
         |> assign(:severities_count, Validation.count_by_severity(validation))
         |> assign(:metadata, validation.on_the_fly_validation_metadata)
         |> assign(:data_vis, data_vis(validation, issue_type))
+        |> assign(:token, token)
         |> render("show.html")
 
       # Handles waiting for validation to complete, errors and
