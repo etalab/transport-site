@@ -1,7 +1,9 @@
 defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   @moduledoc """
-  This Live view is in charge of displaying an on demand validation:
-  waiting, error and results screens.
+  This LiveView is in charge of displaying a select input to choose
+  the type of data to validate. According to the type of data
+  selected, display appropriate input fields (file upload,
+  text inputs etc.)
   """
   use Phoenix.LiveView
   use TransportWeb.InputHelpers
