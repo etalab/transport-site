@@ -3,7 +3,7 @@
 ## Ressources avec un "duplicate resource data gouv id"
 
 ```elixir
-TheRealCode.resources_with_duplicate_datagouv_id(markdown: true)
+Transport.Screens.resources_with_duplicate_datagouv_id(markdown: true)
 ```
 
 ## Ressources jamais historisées

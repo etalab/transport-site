@@ -15,7 +15,7 @@ defmodule Transport.Data.Screens do
     # TODO: dump a report somewhere on disk
     # TODO: let LiveBook show the result in exploratory fashion
     # TODO: move the code to the right place so that we can call it from anywhere
-    result = TheRealCode.resources_with_duplicate_datagouv_id()
+    result = Transport.Screens.resources_with_duplicate_datagouv_id()
     assert result == [], result |> inspect
   end
 
