@@ -19,7 +19,6 @@ defmodule Transport.Data.Screens do
     assert result == [], result |> inspect
   end
 
-  @tag :focus
   test "resources (or datagouv_id, actually, at the moment) without at least one resource history" do
     # TODO: dump / report
     non_nil_datagouv_ids = DB.Resource
@@ -58,5 +57,5 @@ defmodule Transport.Data.Screens do
   end
 end
 
-ExUnit.configure(exclude: :test, include: :focus)
+# ExUnit.configure(exclude: :test, include: :focus)
 ExUnit.start()
