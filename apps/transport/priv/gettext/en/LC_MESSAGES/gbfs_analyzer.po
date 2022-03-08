@@ -12,10 +12,6 @@ msgstr ""
 "Plural-Forms: nplurals=2\n"
 
 #, elixir-autogen, elixir-format
-msgid "Analyze"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "CORS allowed"
 msgstr ""
 

@@ -11,6 +11,6 @@ defmodule TransportWeb.GbfsAnalyzerController do
   end
 
   def index(conn, _params) do
-    conn |> assign(:gbfs_url, "") |> render("index.html")
+    conn |> redirect(to: live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: "gbfs"))
   end
 end

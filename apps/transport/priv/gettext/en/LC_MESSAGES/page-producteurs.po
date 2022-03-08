@@ -123,8 +123,8 @@ msgstr ""
 msgid "Validate a GBFS feed"
 msgstr ""
 
-#, elixir-autogen, elixir-format
-msgid "Validate a file"
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Validate a file or a feed"
 msgstr ""
 
 #, elixir-autogen, elixir-format

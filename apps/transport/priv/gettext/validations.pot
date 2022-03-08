@@ -166,7 +166,7 @@ msgid "Validation results"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Once you have fixed your errors, you can verify that your file is valid <a href=\"%{link}\" target=\"_blank\">using our validators</a>."
+msgid "Are you the producer of this data? Once you have fixed your errors, you can verify that your file is valid <a href=\"%{link}\" target=\"_blank\">using our validators</a>."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -191,3 +191,27 @@ msgid "warning"
 msgid_plural "warnings"
 msgstr[0] ""
 msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "Data type"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Validate"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your URL"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Check the quality of a file or a feed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "GBFS validation report"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This is the validation report of the GBFS feed %{link}."
+msgstr ""
