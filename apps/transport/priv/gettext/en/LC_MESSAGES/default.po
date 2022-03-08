@@ -96,10 +96,6 @@ msgid "Tools"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Analyze a GBFS feed"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Accessibility: non-compliant"
 msgstr ""
 

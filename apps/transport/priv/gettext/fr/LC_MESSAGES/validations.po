@@ -208,3 +208,11 @@ msgstr "Votre URL"
 #, elixir-autogen, elixir-format
 msgid "Check the quality of a file or a feed"
 msgstr "Vérifier la qualité d'un fichier ou d'un flux"
+
+#, elixir-autogen, elixir-format
+msgid "GBFS validation report"
+msgstr "Rapport de validation GBFS"
+
+#, elixir-autogen, elixir-format
+msgid "This is the validation report of the GBFS feed %{link}."
+msgstr "Ceci est le rapport de validation du flux GBFS %{link}."

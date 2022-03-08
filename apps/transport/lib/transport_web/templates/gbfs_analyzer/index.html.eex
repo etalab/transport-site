@@ -1,7 +1,15 @@
-<section class="single-page section section-grey">
-  <div class="container" style="min-height: 50vh;">
-    <h1><%= gettext("Analyze a GBFS feed") %></h1>
+<section>
+  <div class="container">
+    <div class="validation-title">
+      <h2><%= dgettext("validations", "GBFS validation report")%></h2>
+      <p>
+        <%= dgettext("validations", ~s(This is the validation report of the GBFS feed %{link}.), link: @gbfs_url) %>
+      </p>
+    </div>
+  </div>
 
+  <div class="validation-content">
+    <div class="container">
     <%= if @metadata == %{} do %>
       <div>
         <%= raw dgettext("gbfs_analyzer", "error message") %>
@@ -166,8 +174,9 @@
     </span>
     <% end %>
     <% end %>
-  </div>
   <% end %>
+  </div>
+  </div>
 </section>
 
 <script src="<%= TransportWeb.Router.Helpers.static_path(@conn, "/js/resourceviz.js") %>"></script>
