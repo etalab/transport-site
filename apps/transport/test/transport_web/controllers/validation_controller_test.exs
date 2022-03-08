@@ -62,8 +62,11 @@ defmodule TransportWeb.ValidationControllerTest do
                  "state" => "submitted",
                  "type" => "gbfs",
                  "feed_url" => ^url
-               }
+               },
+               date: date
              } = DB.Repo.one!(DB.Validation)
+
+      refute is_nil(date)
     end
 
     test "with a GTFS", %{conn: conn} do

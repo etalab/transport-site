@@ -5,7 +5,11 @@ defmodule TransportWeb.ValidationController do
   import TransportWeb.ResourceView, only: [issue_type: 1]
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => url, "type" => "gbfs"} = params}) do
-    %Validation{on_the_fly_validation_metadata: build_metadata(params)} |> Repo.insert!()
+    %Validation{
+      on_the_fly_validation_metadata: build_metadata(params),
+      date: DateTime.utc_now() |> DateTime.to_string()
+    }
+    |> Repo.insert!()
 
     redirect(conn, to: gbfs_analyzer_path(conn, :index, url: url))
   end
