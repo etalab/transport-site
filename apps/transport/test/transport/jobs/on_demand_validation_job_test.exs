@@ -4,6 +4,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
   import DB.Factory
   import Mox
   import Transport.Test.S3TestUtils
+  alias Transport.Jobs.GTFSRTValidationJob
   alias Transport.Jobs.OnDemandValidationJob
 
   setup :verify_on_exit!
@@ -14,6 +15,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
   @url "https://example.com/file.zip"
   @filename "file.zip"
+  @gtfs_rt_report_path "#{__DIR__}/../../fixture/files/gtfs-rt-validator-errors.json"
+  @validator_filename "gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
 
   describe "OnDemandValidationJob" do
     test "with a GTFS" do
@@ -160,10 +163,163 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                data_vis: nil
              } = DB.Repo.reload(validation)
     end
+
+    test "with a gtfs-rt" do
+      gtfs_url = "https://example.com/gtfs.zip"
+      gtfs_rt_url = "https://example.com/gtfs-rt"
+      validation = create_validation(%{"type" => "gtfs-rt", "gtfs_url" => gtfs_url, "gtfs_rt_url" => gtfs_rt_url})
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^gtfs_url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs"}}
+      end)
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
+      end)
+
+      gtfs_path = OnDemandValidationJob.filename(validation.id, "gtfs")
+      gtfs_rt_path = OnDemandValidationJob.filename(validation.id, "gtfs-rt")
+
+      Transport.Rambo.Mock
+      |> expect(:run, fn binary, args, [log: false] ->
+        assert binary == "java"
+        assert File.exists?(gtfs_path)
+        assert File.exists?(gtfs_rt_path)
+
+        assert [
+                 "-jar",
+                 validator_path(),
+                 "-gtfs",
+                 gtfs_path,
+                 "-gtfsRealtimePath",
+                 Path.dirname(gtfs_rt_path)
+               ] == args
+
+        File.write!(OnDemandValidationJob.gtfs_rt_result_path(gtfs_rt_path), File.read!(@gtfs_rt_report_path))
+        {:ok, nil}
+      end)
+
+      assert :ok == run_job(validation)
+
+      expected_details = GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
+
+      assert %{
+               details: ^expected_details,
+               on_the_fly_validation_metadata: %{
+                 "state" => "completed",
+                 "type" => "gtfs-rt",
+                 "gtfs_url" => ^gtfs_url,
+                 "gtfs_rt_url" => ^gtfs_rt_url
+               },
+               data_vis: nil
+             } = DB.Repo.reload(validation)
+
+      refute File.exists?(gtfs_path)
+      refute File.exists?(gtfs_rt_path)
+      refute File.exists?(OnDemandValidationJob.gtfs_rt_result_path(gtfs_rt_path))
+    end
+
+    test "with a gtfs-rt, cannot download GTFS" do
+      gtfs_url = "https://example.com/gtfs.zip"
+      gtfs_rt_url = "https://example.com/gtfs-rt"
+      validation = create_validation(%{"type" => "gtfs-rt", "gtfs_url" => gtfs_url, "gtfs_rt_url" => gtfs_rt_url})
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^gtfs_url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 404}}
+      end)
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
+      end)
+
+      assert :ok == run_job(validation)
+
+      assert %{
+               details: nil,
+               on_the_fly_validation_metadata: %{
+                 "state" => "error",
+                 "error_reason" => "Got a non 200 status: 404",
+                 "type" => "gtfs-rt",
+                 "gtfs_url" => ^gtfs_url,
+                 "gtfs_rt_url" => ^gtfs_rt_url
+               },
+               data_vis: nil
+             } = DB.Repo.reload(validation)
+
+      gtfs_path = OnDemandValidationJob.filename(validation.id, "gtfs")
+      gtfs_rt_path = OnDemandValidationJob.filename(validation.id, "gtfs-rt")
+      refute File.exists?(gtfs_path)
+      refute File.exists?(gtfs_rt_path)
+    end
+
+    test "with a gtfs-rt, validator error" do
+      gtfs_url = "https://example.com/gtfs.zip"
+      gtfs_rt_url = "https://example.com/gtfs-rt"
+      validation = create_validation(%{"type" => "gtfs-rt", "gtfs_url" => gtfs_url, "gtfs_rt_url" => gtfs_rt_url})
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^gtfs_url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs"}}
+      end)
+
+      gtfs_path = OnDemandValidationJob.filename(validation.id, "gtfs")
+      gtfs_rt_path = OnDemandValidationJob.filename(validation.id, "gtfs-rt")
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
+      end)
+
+      Transport.Rambo.Mock
+      |> expect(:run, fn binary, args, [log: false] ->
+        assert binary == "java"
+        assert File.exists?(gtfs_path)
+        assert File.exists?(gtfs_rt_path)
+
+        assert [
+                 "-jar",
+                 validator_path(),
+                 "-gtfs",
+                 gtfs_path,
+                 "-gtfsRealtimePath",
+                 Path.dirname(gtfs_rt_path)
+               ] == args
+
+        {:error, "validator error"}
+      end)
+
+      assert :ok == run_job(validation)
+
+      assert %{
+               details: nil,
+               on_the_fly_validation_metadata: %{
+                 "state" => "error",
+                 "error_reason" => ~s("validator error"),
+                 "type" => "gtfs-rt",
+                 "gtfs_url" => ^gtfs_url,
+                 "gtfs_rt_url" => ^gtfs_rt_url
+               },
+               data_vis: nil
+             } = DB.Repo.reload(validation)
+
+      refute File.exists?(gtfs_path)
+      refute File.exists?(gtfs_rt_path)
+    end
   end
 
   defp create_validation(details) do
-    metadata = Map.merge(%{"state" => "waiting", "permanent_url" => @url, "filename" => @filename}, details)
+    details =
+      if details["type"] == "gtfs-rt" do
+        details
+      else
+        Map.merge(details, %{"filename" => @filename, "permanent_url" => @url})
+      end
+
+    metadata = Map.merge(%{"state" => "waiting"}, details)
     insert(:validation, on_the_fly_validation_metadata: metadata)
   end
 
@@ -171,4 +327,6 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
     payload = Map.merge(%{"id" => validation.id}, validation.on_the_fly_validation_metadata)
     perform_job(OnDemandValidationJob, payload)
   end
+
+  defp validator_path, do: Path.join(Application.fetch_env!(:transport, :transport_tools_folder), @validator_filename)
 end
