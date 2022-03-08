@@ -182,6 +182,9 @@ defmodule Transport.ImportData do
 
   @doc """
   Set the license according to the datagouv response with possible overrides.
+  Context: we're doing this directly on transport.data.gouv.fr because data.gouv.fr does
+  not handle licenses that have not been homologated. Some custom licenses with be
+  classified as `notspecified` on the datagouv API response as a result.
 
     ## Examples
 
