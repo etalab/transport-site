@@ -77,7 +77,9 @@ mkdir transport-tools
 cd transport-tools
 
 # jars are cross-platform, so we can copy them from the container (see `transport-tools` repository for exact naming)
-docker run --rm -v $(pwd):/binary ghcr.io/etalab/transport-tools:latest /bin/sh -c "cp /usr/local/bin/*.jar /binary"
+# here we share the host folder `transport-site/transport-tools` with a folder inside the container named `/tmp-docker-folder`,
+# in order to copy back the exact same jars we use in production
+docker run --rm -v $(pwd):/tmp-docker-folder ghcr.io/etalab/transport-tools:latest /bin/sh -c "cp /usr/local/bin/*.jar /tmp-docker-folder"
 ```
 
 For Rust binaries, you will have to compile them locally and copy them to the same folder.
