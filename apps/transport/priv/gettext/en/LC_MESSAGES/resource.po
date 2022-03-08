@@ -1,122 +1,122 @@
 msgid "Unable to get resources, please retry."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Choose the resource you want to update"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "File uploaded!"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Unable to upload file"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Publish a new dataset"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Update an existing dataset"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Resource updated with URL!"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Update the resource"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Add the resource"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "or"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "I'm not sure. Learn more."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Select a dataset to update it."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Select this dataset"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Add a new resource"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Current file: %{current_file}"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Upload a file"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "format"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "title"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Create it directly on data.gouv.fr"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Edit directly on data.gouv.fr"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Option 1: Directly update the resource"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Option 2: for more options, create the resource on data.gouv.fr"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Option 2: for more options, edit the resource on data.gouv.fr"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Resource modification"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Give a link for the resource"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "This option allows you to update the resource on data.gouv.fr, directly from here."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Option 1: Directly add the resource"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "This option allows you to add the resource on data.gouv.fr, directly from here."
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Example : Paris GTFS dataset"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Visit the dataset page"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Resource is not available on remote server"
 msgstr ""

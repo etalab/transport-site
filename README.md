@@ -64,6 +64,27 @@ The production database does not contains any sensitive data, you can retreive i
 * On the clever-cloud website, under transport-site-postgresql, there is a Backups section with download links.
 * restore the downloaded backup on you database: `./restore_db.sh <path_to_the_backup>`
 
+#### Binary CLI dependencies
+
+The app uses a number of tools via [transport-tools](https://github.com/etalab/transport-tools).
+
+They are expected at `./transport-tools` by default (but this can be configured via `:transport_tools_folder` in `config.exs`).
+
+When working locally, you may want to have these tools readily available at times.
+
+```
+mkdir transport-tools
+cd transport-tools
+
+# jars are cross-platform, so we can copy them from the container (see `transport-tools` repository for exact naming)
+# here we share the host folder `transport-site/transport-tools` with a folder inside the container named `/tmp-docker-folder`,
+# in order to copy back the exact same jars we use in production
+docker run --rm -v $(pwd):/tmp-docker-folder ghcr.io/etalab/transport-tools:latest /bin/sh -c "cp /usr/local/bin/*.jar /tmp-docker-folder"
+```
+
+For Rust binaries, you will have to compile them locally and copy them to the same folder.
+
+Once this is done, make sure to configure your configuration via `:transport_tools_folder`.
 
 ## Usage
 

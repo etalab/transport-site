@@ -11,78 +11,74 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2\n"
 
-#, elixir-format
-msgid "Analyze"
-msgstr ""
-
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "CORS allowed"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "CORS headers available"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Detailed validation"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Detected version"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Feed Name"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Feeds"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "GeoJSONs"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Languages"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Metadata"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Number of detected errors"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Timezone"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validated version"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validation"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Visualization"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "error message"
 msgstr "The feed could not be analyzed.</br> The feed may be unavailable, or the provided URL may be wrong."
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Link"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "No"
 msgstr ""
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Yes"
 msgstr ""

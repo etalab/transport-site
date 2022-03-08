@@ -19,6 +19,23 @@
 
 <%= if nb_errors > 0 do %>
 <p class="notification">
+  <%= raw dgettext("validations", ~s(Are you the producer of this data? Once you have fixed your errors, you can verify that your file is valid <a href="%{link}" target="_blank">using our validators</a>.), link: on_demand_validation_link(@conn, @resource)) %>
+</p>
+<p><%= dgettext("validations", "Errors:")%></p>
+<ul <%= if @resource.metadata["validation"]["schema_type"] == "jsonschema" do %>lang="en" <% end %>>
+  <%= for error <- errors_sample(@resource) do %>
+  <li><%= error %></li>
+  <% end %>
+</ul>
+<%= if nb_errors > max_display_errors() do %>
+<p><%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors())%></p>
+<% end %>
+<% end %>
+</b>
+</p>
+
+<%= if nb_errors > 0 do %>
+<p class="notification">
   <%= raw dgettext("validations", ~s(Once you have fixed your errors, you can verify that your file is valid <a href="%{link}" target="_blank">using our validators</a>.), link: validation_path(@conn, :index)) %>
 </p>
 <p><%= dgettext("validations", "Errors:")%></p>

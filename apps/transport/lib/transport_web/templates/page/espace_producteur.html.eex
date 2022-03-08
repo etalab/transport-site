@@ -92,8 +92,8 @@
               <%= dgettext("espace-producteurs", "You can test your data online and check its validity.") %>
             </div>
             <div class="pt-24">
-              <a href="<%= validation_path @conn, :index %>" class="button-outline primary">
-                <%= dgettext("page-producteurs", "Validate a file") %>
+              <a href="<%= live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive) %>" class="button-outline primary">
+                <%= dgettext("page-producteurs", "Validate a file or a feed") %>
               </a>
             </div>
             <div class="pt-24">

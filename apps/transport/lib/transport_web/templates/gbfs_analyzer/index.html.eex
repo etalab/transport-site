@@ -1,19 +1,69 @@
-<section class="single-page section section-grey">
-  <div class="container" style="min-height: 50vh;">
-    <h1><%= gettext("Analyze a GBFS feed") %></h1>
-    <div class="pb-48">
-      <form class="no-margin">
-        <input type="text" id="url" name="url" value="<%= @gbfs_url %>" placeholder="https://.../gbfs.json">
-        <input type="submit" value="<%= dgettext("gbfs_analyzer", "Analyze") %>">
-      </form>
+<section>
+  <div class="container">
+    <div class="validation-title">
+      <h2><%= dgettext("validations", "GBFS validation report")%></h2>
+      <p>
+        <%= dgettext("validations", ~s(This is the validation report of the GBFS feed %{link}.), link: @gbfs_url) %>
+      </p>
     </div>
+  </div>
 
-    <%= unless @gbfs_url == "" do %>
+  <div class="validation-content">
+    <div class="container">
     <%= if @metadata == %{} do %>
-    <div>
-      <%= raw dgettext("gbfs_analyzer", "error message") %>
-    </div>
+      <div>
+        <%= raw dgettext("gbfs_analyzer", "error message") %>
+      </div>
     <% else %>
+
+    <% validation = Map.get(@metadata, :validation) %>
+    <%= unless is_nil(validation) do %>
+    <h2><%= dgettext("gbfs_analyzer", "Validation") %></h2>
+    <table class="table">
+      <tr>
+        <td><%= dgettext("gbfs_analyzer", "Number of detected errors") %></td>
+        <td>
+          <% errorsN = Map.get(validation, :errors_count) %>
+          <%= unless is_nil(errorsN) do %>
+          <%= errorsN %>
+          <%= if errorsN == 0 do %>
+          <span style="padding-left: 24px;">🎉</span>
+          <% end %>
+          <% end %>
+        </td>
+        <% version_detected = Map.get(validation, :version_detected) %>
+        <%= unless is_nil(version_detected) do %>
+      <tr>
+        <td>
+          <%= dgettext("gbfs_analyzer", "Detected version") %>
+        </td>
+        <td>
+          <%= validation.version_detected %>
+        </td>
+      </tr>
+      <% end %>
+      <% version_validated = Map.get(validation, :version_validated) %>
+      <%= unless is_nil(version_validated) do %>
+      <tr>
+        <td>
+          <%= dgettext("gbfs_analyzer", "Validated version") %>
+        </td>
+        <td>
+          <%= validation.version_validated %>
+        </td>
+      </tr>
+      <% end %>
+      <tr>
+        <td>
+          <%= dgettext("gbfs_analyzer", "Detailed validation") %>
+        </td>
+        <td>
+          <%= link(dgettext("gbfs_analyzer", "Link"), to: gbfs_validation_link(@gbfs_url), target: "blank") %>
+        </td>
+      </tr>
+    </table>
+    <% end %>
+
     <h2><%= dgettext("gbfs_analyzer", "Metadata") %></h2>
     <table class="table">
       <% name = get_in(@metadata, [:system_details, :name]) %>
@@ -98,54 +148,6 @@
       <% end %>
     </table>
 
-    <% validation = Map.get(@metadata, :validation) %>
-    <%= unless is_nil(validation) do %>
-    <h2><%= dgettext("gbfs_analyzer", "Validation") %></h2>
-    <table class="table">
-      <tr>
-        <td><%= dgettext("gbfs_analyzer", "Number of detected errors") %></td>
-        <td>
-          <% errorsN = Map.get(validation, :errors_count) %>
-          <%= unless is_nil(errorsN) do %>
-          <%= errorsN %>
-          <%= if errorsN == 0 do %>
-          <span style="padding-left: 24px;">🎉</span>
-          <% end %>
-          <% end %>
-        </td>
-        <% version_detected = Map.get(validation, :version_detected) %>
-        <%= unless is_nil(version_detected) do %>
-      <tr>
-        <td>
-          <%= dgettext("gbfs_analyzer", "Detected version") %>
-        </td>
-        <td>
-          <%= validation.version_detected %>
-        </td>
-      </tr>
-      <% end %>
-      <% version_validated = Map.get(validation, :version_validated) %>
-      <%= unless is_nil(version_validated) do %>
-      <tr>
-        <td>
-          <%= dgettext("gbfs_analyzer", "Validated version") %>
-        </td>
-        <td>
-          <%= validation.version_validated %>
-        </td>
-      </tr>
-      <% end %>
-      <tr>
-        <td>
-          <%= dgettext("gbfs_analyzer", "Detailed validation") %>
-        </td>
-        <td>
-          <%= link(dgettext("gbfs_analyzer", "Link"), to: gbfs_validation_link(@gbfs_url), target: "blank") %>
-        </td>
-      </tr>
-    </table>
-    <% end %>
-
     <h2><%= dgettext("gbfs_analyzer", "Visualization") %></h2>
     <div id="map" class="leaflet-map" style="height: 400px;"></div>
 
@@ -172,16 +174,14 @@
     </span>
     <% end %>
     <% end %>
+  <% end %>
   </div>
-  <% end %>
-  <% end %>
+  </div>
 </section>
 
-<%= if @gbfs_url != "" do %>
 <script src="<%= TransportWeb.Router.Helpers.static_path(@conn, "/js/resourceviz.js") %>"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      createMap('map', "<%= @gbfs_url %>", "gbfs", "<%= get_session(@conn, :locale) %>")
-    })
-  </script>
-<% end %>
+  document.addEventListener("DOMContentLoaded", function() {
+    createMap('map', "<%= @gbfs_url %>", "gbfs", "<%= get_session(@conn, :locale) %>")
+  })
+</script>
