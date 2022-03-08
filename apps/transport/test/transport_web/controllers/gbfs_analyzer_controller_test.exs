@@ -24,7 +24,7 @@ defmodule TransportWeb.GbfsAnalyzerControllerTest do
       end)
 
       conn = conn |> get(gbfs_analyzer_path(conn, :index, url: gbfs_url))
-      assert html_response(conn, 200) =~ "Analyser un flux GBFS"
+      assert html_response(conn, 200) =~ "Rapport de validation GBFS"
       assert html_response(conn, 200) =~ "GBFS feed name"
       assert html_response(conn, 200) =~ "station_information"
     end
