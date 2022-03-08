@@ -25,7 +25,7 @@
 
     <span title="<%= dgettext("page-dataset-details", "last content modification") %>">
       <i class="icon icon--sync-alt" aria-hidden="true"></i>
-        <%= show_resource_last_update(@resources_updated_at, @resource) %>
+        <%= show_resource_last_update(@resources_updated_at, @resource, locale) %>
     </span>
 
     <%= unless is_nil(Resource.ttl(@resource)) do %>

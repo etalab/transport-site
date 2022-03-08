@@ -499,7 +499,7 @@ defmodule TransportWeb.DatasetView do
 
   def has_validity_period?(%DB.ResourceHistory{}), do: false
 
-  def show_resource_last_update(resources_updated_at, %DB.Resource{id: id} = resource) do
+  def show_resource_last_update(resources_updated_at, %DB.Resource{id: id} = resource, locale) do
     if Resource.is_real_time?(resource) do
       dgettext("page-dataset-details", "real-time")
     else
@@ -507,7 +507,7 @@ defmodule TransportWeb.DatasetView do
       |> Map.get(id)
       |> case do
         nil -> dgettext("page-dataset-details", "unknown")
-        dt -> dt |> DateTime.to_date() |> Calendar.strftime("%d-%m-%Y")
+        dt -> dt |> DateTimeDisplay.format_datetime_to_date(locale)
       end
     end
   end
