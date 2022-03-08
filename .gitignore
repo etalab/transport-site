@@ -44,3 +44,4 @@ dialyzer-plt/*.plt.hash
 config/proxy-config.yml
 config/dev.secret.exs
 scripts/siri/config.yml
+transport-tools
