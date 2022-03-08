@@ -58,7 +58,7 @@ defmodule Helpers do
       [] -> nil
       dates -> Enum.max(dates)
     end
-    |> Shared.format_naive_datetime_to_paris_tz()
+    |> Shared.DateTimeDisplay.format_naive_datetime_to_paris_tz()
   end
 
   @spec admin?(map | nil) :: boolean
