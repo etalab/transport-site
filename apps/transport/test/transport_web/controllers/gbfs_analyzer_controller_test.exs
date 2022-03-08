@@ -7,13 +7,7 @@ defmodule TransportWeb.GbfsAnalyzerControllerTest do
   describe "GBFS analyzer" do
     test "the analyzer starting page", %{conn: conn} do
       conn = conn |> get(gbfs_analyzer_path(conn, :index))
-      assert html_response(conn, 200) =~ "Analyser un flux GBFS"
-    end
-
-    test "with an empty url", %{conn: conn} do
-      conn = conn |> get(gbfs_analyzer_path(conn, :index, url: ""))
-      assert html_response(conn, 200) =~ "Analyser un flux GBFS"
-      refute html_response(conn, 200) =~ "Metadata"
+      assert redirected_to(conn, 302) == live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: "gbfs")
     end
 
     test "with a GBFS to analyze", %{conn: conn} do
@@ -30,7 +24,7 @@ defmodule TransportWeb.GbfsAnalyzerControllerTest do
       end)
 
       conn = conn |> get(gbfs_analyzer_path(conn, :index, url: gbfs_url))
-      assert html_response(conn, 200) =~ "Analyser un flux GBFS"
+      assert html_response(conn, 200) =~ "Rapport de validation GBFS"
       assert html_response(conn, 200) =~ "GBFS feed name"
       assert html_response(conn, 200) =~ "station_information"
     end

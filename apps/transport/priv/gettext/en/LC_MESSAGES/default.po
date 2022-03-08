@@ -64,10 +64,6 @@ msgid "Publish a dataset"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Check a file's quality"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Documentation"
 msgstr ""
 
@@ -100,9 +96,9 @@ msgid "Tools"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Analyze a GBFS feed"
+msgid "Accessibility: non-compliant"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Accessibility: non-compliant"
+msgid "Check the quality of a file or a feed"
 msgstr ""

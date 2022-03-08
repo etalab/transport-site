@@ -1,6 +1,5 @@
 <section class="single-page section section-grey">
   <div class="container" style="min-height: 50vh;">
-    <article class="">
     <h1><%= TransportWeb.Gettext.dgettext("validations", "Check a file's quality") %></h1>
     <div class="pb-48">
       <%= form_for @conn, validation_path(@conn, :validate), [as: "upload", multipart: :true, class: "no-margin"], fn f -> %>
@@ -9,6 +8,5 @@
         <%= submit dgettext("validations", "Upload"), [nodiv: true] %>
       <% end %>
     </div>
-    </article>
   </div>
 </section>
