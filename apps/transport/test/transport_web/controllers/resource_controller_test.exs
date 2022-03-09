@@ -236,6 +236,22 @@ defmodule TransportWeb.ResourceControllerTest do
     end
   end
 
+  test "flash message when parent dataset is inactive", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset, %{is_active: false})
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
+
+    conn = conn |> get(resource_path(conn, :details, resource_id))
+    assert conn |> html_response(200) =~ "supprimé de data.gouv.fr"
+  end
+
+  test "no flash message when parent dataset is active", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset, %{is_active: true})
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
+
+    conn = conn |> get(resource_path(conn, :details, resource_id))
+    refute conn |> html_response(200) =~ "supprimé de data.gouv.fr"
+  end
+
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
     resource = Resource |> Repo.get_by(datagouv_id: "2")
     refute Resource.can_direct_download?(resource)
