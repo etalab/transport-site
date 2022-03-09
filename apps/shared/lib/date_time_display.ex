@@ -1,6 +1,7 @@
 defmodule Shared.DateTimeDisplay do
   @moduledoc """
-  A module to have a coherent display of dates and times accross the website
+  A module to have a coherent display of dates and times accross the website.
+  The goal is to show date times for Europe/Paris timezone to our users.
   """
   alias Timex.Format.DateTime.Formatter
 
@@ -73,37 +74,51 @@ defmodule Shared.DateTimeDisplay do
 
   @doc """
   Formats a date time for display.
-  Input can be in any timezone, outputs is in UTC.
+  Input can be in any timezone, outputs is in Europe/Paris timezone.
 
-  iex> format_datetime_to_utc(~U[2022-03-01 15:30:00+00:00], "fr")
-  "01/03/2022 à 15h30 UTC"
-  iex> format_datetime_to_utc(~U[2022-03-01 15:30:00+00:00], "en")
-  "03/01/2022 at 15:30 UTC"
-  iex> format_datetime_to_utc("2022-03-01T15:30:00Z", "fr")
-  "01/03/2022 à 15h30 UTC"
-  iex> format_datetime_to_utc("2022-03-01T15:30:00+01:00", "fr")
-  "01/03/2022 à 14h30 UTC"
-  iex> format_datetime_to_utc("2022-03-01T15:30:00+00:00", "en")
-  "03/01/2022 at 15:30 UTC"
+  iex> format_datetime_to_paris(~U[2022-03-01 15:30:00+00:00], "fr")
+  "01/03/2022 à 16h30 Europe/Paris"
+  iex> format_datetime_to_paris(~U[2022-03-01 15:30:00+00:00], "en")
+  "03/01/2022 at 16:30 Europe/Paris"
+  iex> format_datetime_to_paris("2022-03-01T15:30:00Z", "fr")
+  "01/03/2022 à 16h30 Europe/Paris"
+  iex> format_datetime_to_paris("2022-03-01T15:30:00+01:00", "fr")
+  "01/03/2022 à 15h30 Europe/Paris"
+  iex> format_datetime_to_paris("2022-03-01T15:30:00+00:00", "en")
+  "03/01/2022 at 16:30 Europe/Paris"
   """
-  def format_datetime_to_utc(%DateTime{} = dt, "fr") do
-    Calendar.strftime(dt, "%d/%m/%Y à %Hh%M UTC")
+  def format_datetime_to_paris(%DateTime{} = dt, "fr") do
+    dt
+    |> convert_to_paris_time()
+    |> Calendar.strftime("%d/%m/%Y à %Hh%M Europe/Paris")
   end
 
-  def format_datetime_to_utc(%DateTime{} = dt, nil) do
-    format_datetime_to_utc(dt, "fr")
+  def format_datetime_to_paris(%DateTime{} = dt, nil) do
+    format_datetime_to_paris(dt, "fr")
   end
 
-  def format_datetime_to_utc(%DateTime{} = dt, "en") do
-    Calendar.strftime(dt, "%m/%d/%Y at %H:%M UTC")
+  def format_datetime_to_paris(%DateTime{} = dt, "en") do
+    dt
+    |> convert_to_paris_time()
+    |> Calendar.strftime("%m/%d/%Y at %H:%M Europe/Paris")
   end
 
-  def format_datetime_to_utc(datetime, locale) when is_binary(datetime) do
-    {:ok, dt, _} = datetime |> DateTime.from_iso8601()
-    format_datetime_to_utc(dt, locale)
+  def format_datetime_to_paris(%NaiveDateTime{} = ndt, locale) do
+    ndt
+    |> convert_to_paris_time()
+    |> format_datetime_to_paris(locale)
   end
 
-  def format_datetime_to_utc(nil, _), do: ""
+  def format_datetime_to_paris(datetime, locale) when is_binary(datetime) do
+    datetime
+    |> Timex.parse!("{ISO:Extended}")
+    |> format_datetime_to_paris(locale)
+  end
+
+  def format_datetime_to_paris(nil, _), do: ""
+
+  def convert_to_paris_time(%DateTime{} = dt), do: dt |> Timex.Timezone.convert("Europe/Paris")
+  def convert_to_paris_time(%NaiveDateTime{} = ndt), do: ndt |> Timex.Timezone.convert("Europe/Paris")
 
   @doc """
   Converts a binary naive date time to a binary date time having the Paris timezone
@@ -116,7 +131,7 @@ defmodule Shared.DateTimeDisplay do
   def format_naive_datetime_to_paris_tz(naive_datetime) do
     naive_datetime
     |> Timex.parse!("{ISO:Extended}")
-    |> Timex.Timezone.convert("Europe/Paris")
+    |> convert_to_paris_time()
     |> Formatter.format!("{ISO:Extended}")
   end
 end

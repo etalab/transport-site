@@ -179,7 +179,7 @@ msgid "Sample errors"
 msgstr "Exemples d'erreurs"
 
 #, elixir-autogen, elixir-format
-msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> and the <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> at %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>."
+msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> and the <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>."
 msgstr "Validation effectée en utilisant <a href=\"%{gtfs_link}\">le fichier GTFS en vigueur</a> et le <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> à la date du %{date} avec <a href=\"%{validator_url}\" target=\"_blank\">le validateur CUTR GTFS-RT</a>."
 
 #, elixir-autogen, elixir-format

@@ -13,7 +13,7 @@
             <%= comment["posted_by"]["first_name"] %> <%= comment["posted_by"]["last_name"] %>
           </a>
           <span><%= dgettext("page-dataset-details", "Posted on") %></span>
-          <span> <%= DateTimeDisplay.format_naive_datetime(comment["posted_on"], locale) %></span>
+          <span> <%= DateTimeDisplay.format_datetime_to_paris(comment["posted_on"], locale) %></span>
         </div>
         <div class="discussion-comment__content">
           <%= MarkdownHandler.markdown_to_safe_html!(comment["content"]) %>
