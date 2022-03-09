@@ -239,3 +239,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Each GTFS-RT feed can only be validated once per 5 minutes. Please wait a moment and try again."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "GTFS-RT feeds change in real-time. This validation report shows the validation result performed at %{date}. You can relaunch a validation later on and get different results."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This validation concerns the given GTFS-RT feed and GTFS file. It does not validate the GTFS itself. You can validate your GTFS file <a href=\"%{gtfs_validator}\">using our GTFS validator</a>."
+msgstr ""
