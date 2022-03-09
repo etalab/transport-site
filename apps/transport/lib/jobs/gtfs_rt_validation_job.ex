@@ -72,20 +72,8 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
       |> Enum.each(fn snapshot ->
         {resource, {:ok, gtfs_rt_path, cellar_filename}} = snapshot
 
-        # See https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#batch-processing
-        binary_path = "java"
-
-        args = [
-          "-jar",
-          Path.join(Application.fetch_env!(:transport, :transport_tools_folder), @validator_filename),
-          "-gtfs",
-          gtfs_path,
-          "-gtfsRealtimePath",
-          Path.dirname(gtfs_rt_path)
-        ]
-
         validator_return =
-          case Transport.RamboLauncher.run(binary_path, args, log: Mix.env() == :dev) do
+          case run_validator(gtfs_path, gtfs_rt_path) do
             {:ok, _} = validator_return ->
               validation_report = convert_validator_report(gtfs_rt_result_path(resource))
 
@@ -117,6 +105,22 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     end
 
     :ok
+  end
+
+  def run_validator(gtfs_path, gtfs_rt_path) do
+    # See https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#batch-processing
+    binary_path = "java"
+
+    args = [
+      "-jar",
+      Path.join(Application.fetch_env!(:transport, :transport_tools_folder), @validator_filename),
+      "-gtfs",
+      gtfs_path,
+      "-gtfsRealtimePath",
+      Path.dirname(gtfs_rt_path)
+    ]
+
+    Transport.RamboLauncher.run(binary_path, args, log: Mix.env() == :dev)
   end
 
   defp log_validation({:ok, _}, %Resource{id: id}) do

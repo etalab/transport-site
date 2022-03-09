@@ -215,7 +215,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     test "a simple successful case for a GTFS" do
       resource_url = "https://example.com/gtfs.zip"
 
-      %{datagouv_id: datagouv_id, metadata: resource_metadata, title: title} =
+      %{datagouv_id: datagouv_id, dataset_id: dataset_id, metadata: resource_metadata, title: title} =
         insert(:resource,
           url: resource_url,
           dataset: insert(:dataset, is_active: true),
@@ -277,6 +277,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                    "transfers.txt",
                    "trips.txt"
                  ],
+                 "dataset_id" => ^dataset_id,
                  "format" => "GTFS",
                  "http_headers" => %{"content-type" => "application/octet-stream"},
                  "resource_metadata" => ^resource_metadata,
@@ -299,7 +300,13 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     test "a simple successful case for a CSV" do
       resource_url = "https://example.com/file.csv"
 
-      %{datagouv_id: datagouv_id, metadata: resource_metadata, title: title, content_hash: content_hash} =
+      %{
+        datagouv_id: datagouv_id,
+        dataset_id: dataset_id,
+        metadata: resource_metadata,
+        title: title,
+        content_hash: content_hash
+      } =
         insert(:resource,
           url: resource_url,
           dataset: insert(:dataset, is_active: true),
@@ -349,6 +356,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert %DB.ResourceHistory{
                datagouv_id: ^datagouv_id,
                payload: %{
+                 "dataset_id" => ^dataset_id,
                  "format" => "csv",
                  "content_hash" => ^content_hash,
                  "http_headers" => %{"content-type" => "application/octet-stream"},

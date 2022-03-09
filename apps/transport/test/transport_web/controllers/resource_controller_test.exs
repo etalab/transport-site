@@ -137,12 +137,20 @@ defmodule TransportWeb.ResourceControllerTest do
   test "resource with error details sends back a 200", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "4")
     refute is_nil(resource.schema_name)
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:transport_schemas, fn -> %{resource.schema_name => %{"title" => "foo"}} end)
+
     assert Resource.has_errors_details?(resource)
     conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) |> assert =~ "this is an error"
   end
 
   test "resource has download availability displayed", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "4")
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:transport_schemas, fn -> %{resource.schema_name => %{"title" => "foo"}} end)
+
     html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
 
     assert html =~ "Disponibilité au téléchargement"

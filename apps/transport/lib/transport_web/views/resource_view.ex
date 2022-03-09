@@ -161,4 +161,20 @@ defmodule TransportWeb.ResourceView do
   def gtfs_rt_validator_rule_url(%{"error_id" => error_id}) do
     "https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/RULES.md##{error_id}"
   end
+
+  def on_demand_validation_link(conn, %DB.Resource{} = resource) do
+    type =
+      cond do
+        DB.Resource.is_gtfs?(resource) -> "gtfs"
+        DB.Resource.is_gbfs?(resource) -> "gbfs"
+        not is_nil(resource.schema_name) -> resource.schema_name
+        true -> ""
+      end
+
+    unless type == "" or TransportWeb.ValidationController.is_valid_type?(type) do
+      raise "#{type} is not a valid type for on demand validation"
+    end
+
+    live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: type)
+  end
 end
