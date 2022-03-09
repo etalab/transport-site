@@ -10,6 +10,10 @@
         <%= if @input_type == "link" do %>
           <%= text_input f, :url, label: dgettext("validations", "Your URL"), placeholder: "https://.../gbfs.json", required: true, type: "url" %>
         <% end %>
+        <%= if @input_type == "gtfs-rt" do %>
+          <%= text_input f, :url, label: dgettext("validations", "Your GTFS' URL"), placeholder: "https://example.com/gtfs.zip", required: true, type: "url" %>
+          <%= text_input f, :feed_url, label: dgettext("validations", "Your GTFS realtime's URL"), placeholder: "https://example.com/gtfs-rt.bin", required: true, type: "url" %>
+        <% end %>
         <%= submit dgettext("validations", "Validate"), [nodiv: true] %>
       </.form>
     </div>

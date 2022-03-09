@@ -36,6 +36,10 @@ defmodule TransportWeb.ValidationControllerTest do
       assert_patched(view, live_path(conn, OnDemandValidationSelectLive, type: "gtfs"))
       refute view |> has_element?("input[name='upload[url]']")
       assert view |> has_element?("input[name='upload[file]']")
+
+      render_change(view, "form_changed", %{"upload" => %{"type" => "gtfs-rt"}})
+      assert view |> has_element?("input[name='upload[url]']")
+      assert view |> has_element?("input[name='upload[feed_url]']")
     end
 
     test "takes into account query params", %{conn: conn} do

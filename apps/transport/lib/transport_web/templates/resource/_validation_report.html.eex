@@ -38,25 +38,8 @@
   <% errors = Map.fetch!(validation.details, "errors") %>
   <% errors_error_level = errors |> Enum.filter(& Map.fetch!(&1, "severity") == "ERROR") %>
   <% errors_warning_level = errors |> Enum.filter(& Map.fetch!(&1, "severity") == "WARNING") %>
-  <h3><%= dgettext("validations", "Validation details")%></h3>
-  <p>
-    <b>
-    <% nb_errors = errors_count(@resource) %>
-    <% nb_warnings = warnings_count(@resource) %>
-    <%= if nb_errors + nb_warnings == 0 do %>
-      <span class="icon--validation">✅</span><%= dgettext("validations", "No error detected") %>
-    <% end %>
-    <%= if nb_errors == 0 and nb_warnings > 0 do %>
-      <span class="icon--validation">⚠️</span><%= "#{format_number(nb_warnings)} #{dpngettext("validations", "warnings", "warning", "warnings", nb_warnings)}" %>
-    <% end %>
-    <%= if nb_errors > 0 and nb_warnings == 0 do %>
-      <span class="icon--validation">❌</span><%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
-    <% end %>
-    <%= if nb_errors > 0 and nb_warnings > 0 do %>
-      <span class="icon--validation">❌</span><%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>, <%= "#{format_number(nb_warnings)} #{dpngettext("validations", "warnings", "warning", "warnings", nb_warnings)}" %>
-    <% end %>
-    </b>
-  </p>
+  <%= render "_errors_warnings_count.html", nb_errors: errors_count(@resource), nb_warnings: warnings_count(@resource) %>
+
   <p>
     <%= raw dgettext("validations", ~s(Validation carried out using the <a href="%{gtfs_link}">current GTFS file</a> and the <a href="%{gtfs_rt_link}">GTFS-RT</a> at %{date} using the <a href="%{validator_url}" target="_blank">CUTR GTFS-RT validator</a>.), gtfs_link: Map.fetch!(validation.details["files"], "gtfs_permanent_url"), gtfs_rt_link: Map.fetch!(validation.details["files"], "gtfs_rt_permanent_url"), date: format_datetime(validation.date), validator_url: gtfs_rt_validator_url()) %>
   </p>

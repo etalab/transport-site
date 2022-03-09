@@ -216,3 +216,19 @@ msgstr "Rapport de validation GBFS"
 #, elixir-autogen, elixir-format
 msgid "This is the validation report of the GBFS feed %{link}."
 msgstr "Ceci est le rapport de validation du flux GBFS %{link}."
+
+#, elixir-autogen, elixir-format
+msgid "Feed details"
+msgstr "Détail des flux"
+
+#, elixir-autogen, elixir-format
+msgid "Validation performed at %{date}."
+msgstr "Validation effectée le %{date}."
+
+#, elixir-autogen, elixir-format
+msgid "Your GTFS realtime's URL"
+msgstr "L'URL de votre GTFS temps réel"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Your GTFS' URL"
+msgstr "L'URL de votre GTFS"

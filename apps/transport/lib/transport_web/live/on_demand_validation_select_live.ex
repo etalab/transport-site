@@ -19,7 +19,12 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
      socket
      |> socket_data(%{
        select_options: select_options(),
-       changeset: Ecto.Changeset.cast({%{url: "", type: ""}, %{url: :string, type: :string}}, %{}, [:url, :type])
+       changeset:
+         Ecto.Changeset.cast(
+           {%{url: "", type: "", feed_url: ""}, %{url: :string, type: :string, feed_url: :string}},
+           %{},
+           [:url, :type, :feed_url]
+         )
      })}
   end
 
@@ -39,6 +44,7 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   end
 
   def determine_input_type(type) when type in ["gbfs"], do: "link"
+  def determine_input_type(type) when type in ["gtfs-rt"], do: "gtfs-rt"
   def determine_input_type(_), do: "file"
 
   def handle_event("form_changed", %{"upload" => params}, socket) do

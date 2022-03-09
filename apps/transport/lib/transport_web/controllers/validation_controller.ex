@@ -14,6 +14,14 @@ defmodule TransportWeb.ValidationController do
     redirect(conn, to: gbfs_analyzer_path(conn, :index, url: url))
   end
 
+  def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => _, "feed_url" => _, "type" => "gtfs-rt"} = params}) do
+    metadata = build_metadata(params)
+
+    validation = %Validation{on_the_fly_validation_metadata: metadata} |> Repo.insert!()
+    dispatch_validation_job(validation)
+    redirect_to_validation_show(conn, validation)
+  end
+
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"file" => %{path: file_path}, "type" => type}}) do
     if is_valid_type?(type) do
       metadata = build_metadata(type)
@@ -21,7 +29,7 @@ defmodule TransportWeb.ValidationController do
 
       validation = %Validation{on_the_fly_validation_metadata: metadata} |> Repo.insert!()
       dispatch_validation_job(validation)
-      redirect(conn, to: validation_path(conn, :show, validation.id, token: Map.fetch!(metadata, "secret_url_token")))
+      redirect_to_validation_show(conn, validation)
     else
       conn |> bad_request()
     end
@@ -29,6 +37,13 @@ defmodule TransportWeb.ValidationController do
 
   def validate(conn, _) do
     conn |> bad_request()
+  end
+
+  defp redirect_to_validation_show(conn, %Validation{
+         on_the_fly_validation_metadata: %{"secret_url_token" => token},
+         id: id
+       }) do
+    redirect(conn, to: validation_path(conn, :show, id, token: token))
   end
 
   def show(%Plug.Conn{} = conn, %{} = params) do
@@ -103,13 +118,23 @@ defmodule TransportWeb.ValidationController do
       |> Enum.map(fn {k, v} -> {Map.fetch!(v, "title"), k} end)
       |> Enum.sort_by(&elem(&1, 0))
 
-    [{"GTFS", "gtfs"}, {"GBFS", "gbfs"}] ++ schemas
+    ["GTFS", "GTFS-RT", "GBFS"] |> Enum.map(&{&1, String.downcase(&1)}) |> Kernel.++(schemas)
   end
 
   def is_valid_type?(type), do: type in (select_options() |> Enum.map(&elem(&1, 1)))
 
   defp upload_to_s3(file_path, path) do
     Transport.S3.upload_to_s3!(:on_demand_validation, File.read!(file_path), path)
+  end
+
+  defp build_metadata(%{"url" => url, "feed_url" => feed_url, "type" => "gtfs-rt"}) do
+    %{
+      "type" => "gtfs-rt",
+      "state" => "waiting",
+      "gtfs_rt_url" => feed_url,
+      "gtfs_url" => url,
+      "secret_url_token" => Ecto.UUID.generate()
+    }
   end
 
   defp build_metadata(%{"url" => url, "type" => "gbfs"}) do

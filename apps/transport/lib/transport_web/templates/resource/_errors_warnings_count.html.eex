@@ -1,0 +1,17 @@
+<h3><%= dgettext("validations", "Validation details")%></h3>
+<p>
+  <b>
+  <%= if @nb_errors + @nb_warnings == 0 do %>
+  <span class="icon--validation">✅</span><%= dgettext("validations", "No error detected") %>
+  <% end %>
+  <%= if @nb_errors == 0 and @nb_warnings > 0 do %>
+  <span class="icon--validation">⚠️</span><%= "#{format_number(@nb_warnings)} #{dpngettext("validations", "warnings", "warning", "warnings", @nb_warnings)}" %>
+  <% end %>
+  <%= if @nb_errors > 0 and @nb_warnings == 0 do %>
+  <span class="icon--validation">❌</span><%= "#{format_number(@nb_errors)} #{dpngettext("validations", "errors", "error", "errors", @nb_errors)}" %>
+  <% end %>
+  <%= if @nb_errors > 0 and @nb_warnings > 0 do %>
+  <span class="icon--validation">❌</span><%= "#{format_number(@nb_errors)} #{dpngettext("validations", "errors", "error", "errors", @nb_errors)}" %>, <%= "#{format_number(@nb_warnings)} #{dpngettext("validations", "warnings", "warning", "warnings", @nb_warnings)}" %>
+  <% end %>
+  </b>
+</p>
