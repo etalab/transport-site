@@ -21,9 +21,9 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     %{id: dataset_id_2} = insert(:dataset)
 
     %{id: resource_id_2_1} = insert(:resource, %{dataset_id: dataset_id_2})
-    %{id: resource_id_2_2} = insert(:resource, %{dataset_id: dataset_id_2})
+    insert(:resource, %{dataset_id: dataset_id_2})
 
-    insert(:resource_unavailability, %{resource_id: resource_id_2_2, start: hours_ago_73, end: minute_ago_1})
+    insert(:resource_unavailability, %{resource_id: resource_id_2_1, start: hours_ago_73, end: minute_ago_1})
 
     # dataset 3 : all resources unavailable
     %{id: dataset_id_3} = insert(:dataset)
