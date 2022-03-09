@@ -75,10 +75,8 @@ defmodule Transport.Mixfile do
       {:castore, "~> 0.1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:cors_plug, "~> 2.0"},
-      {:exvcr, "~> 0.10", only: :test, git: "https://github.com/thbar/exvcr.git", ref: "2794a4f"},
+      {:exvcr, "~> 0.13", only: :test},
       {:credo, "~> 1.6.0", only: [:dev, :test], runtime: false},
-      # NOTE: we cannot upgrade to the very latest (2.2.x) because of
-      # https://github.com/parroty/exvcr/issues/153#issuecomment-874864317
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
       {:unidecode, "~> 1.0.0"},
@@ -87,7 +85,9 @@ defmodule Transport.Mixfile do
       {:mox, "~> 1.0.0", only: :test},
       {:rambo, "~> 0.3"},
       {:etag_plug, "~> 1.0"},
-      {:oban, "~> 2.9"},
+      # conservatively waiting for https://github.com/sorentwo/oban/issues/652
+      # to be fixed before upgrading
+      {:oban, "~> 2.10.1"},
       {:unzip, "~> 0.6.0"},
       {:protobuf, "~> 0.9.0"},
       {:nimble_csv, "~> 1.2.0"},

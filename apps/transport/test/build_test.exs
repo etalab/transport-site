@@ -62,6 +62,10 @@ defmodule TransportWeb.BuildTest do
     assert ci_version == docker_compose_version
   end
 
+  def js_out_of_date_message(dep) do
+    "Your javascript package for #{dep} is out of date.\nPlease update it with:\n\ncd apps/transport/client && yarn upgrade #{dep}"
+  end
+
   # figuring out you have forgotten to upgrade the assets can be tricky, so we add a little reminder here
   test "make sure LiveView client assets are up to date" do
     {output, 0} = System.cmd("yarn", ["list", "--pattern", "phoenix_live_view"], cd: "client")
@@ -71,7 +75,7 @@ defmodule TransportWeb.BuildTest do
 
     assert(
       version == expected_version |> to_string(),
-      "Your javascript package for phoenix_live_view is out of date.\nPlease update it with:\n\ncd apps/transport/client && yarn upgrade phoenix_live_view"
+      js_out_of_date_message(:phoenix_live_view)
     )
 
     # extra fix for https://github.com/etalab/transport-site/issues/1938
@@ -87,8 +91,12 @@ defmodule TransportWeb.BuildTest do
       [_, "phoenix_live_view", phoenix_yarn_live_view_version]
     ] = Regex.scan(~r/deps\/(phoenix_html|phoenix_live_view|phoenix)":  version "([^"]+)"/, lock_file)
 
-    assert phoenix_yarn_version == :phoenix |> Application.spec(:vsn) |> to_string()
-    assert phoenix_html_yarn_version == :phoenix_html |> Application.spec(:vsn) |> to_string()
-    assert phoenix_yarn_live_view_version == :phoenix_live_view |> Application.spec(:vsn) |> to_string()
+    assert phoenix_yarn_version == :phoenix |> Application.spec(:vsn) |> to_string(), js_out_of_date_message(:phoenix)
+
+    assert phoenix_html_yarn_version == :phoenix_html |> Application.spec(:vsn) |> to_string(),
+           js_out_of_date_message(:phoenix_html)
+
+    assert phoenix_yarn_live_view_version == :phoenix_live_view |> Application.spec(:vsn) |> to_string(),
+           js_out_of_date_message(:phoenix_live_view)
   end
 end
