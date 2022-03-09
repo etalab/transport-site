@@ -126,6 +126,7 @@ defmodule Shared.DateTimeDisplay do
   iex> format_naive_datetime_to_paris_tz("2022-03-01T15:30:00")
   "2022-03-01T15:30:00+01:00"
   """
+  @spec format_naive_datetime_to_paris_tz(nil | binary) :: binary
   def format_naive_datetime_to_paris_tz(nil), do: ""
 
   def format_naive_datetime_to_paris_tz(naive_datetime) do
