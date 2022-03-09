@@ -216,11 +216,11 @@ defmodule TransportWeb.Backoffice.PageController do
 
   def dataset_with_resource_under_90_availability do
     query = """
-    with down_ranges as (select *, tsrange(ru.start, ru.end) as down_range, tsrange(now()::timestamp - interval '1 day' * 30, now()::timestamp) as window_range from resource_unavailability ru),
-    availability as (select resource_id, r.dataset_id, 1. - (EXTRACT(EPOCH from sum(upper(down_range * window_range) - lower(down_range * window_range))) / EXTRACT(EPOCH from interval '30 day')) as availability from down_ranges
+    with down_ranges as (select *, tsrange(ru.start, ru.end) as down_range, tsrange(now()::timestamp - interval '30 day', now()::timestamp) as compute_range from resource_unavailability ru),
+    availability as (select resource_id, r.dataset_id, 1. - (EXTRACT(EPOCH from sum(upper(down_range * compute_range) - lower(down_range * compute_range))) / EXTRACT(EPOCH from interval '30 day')) as availability from down_ranges
     left join resource r on r.id = resource_id
     group by resource_id, dataset_id)
-    select dataset_id from availability where availability <= 0.9 order by availability desc;
+    select distinct dataset_id from availability where availability <= 0.9 order by dataset_id;
     """
 
     %{rows: rows} = Ecto.Adapters.SQL.query!(DB.Repo, query)
