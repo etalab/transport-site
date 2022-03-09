@@ -107,6 +107,30 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
+  defp dispatch_validation_job(
+         %Validation{id: id, on_the_fly_validation_metadata: %{"type" => "gtfs-rt"} = metadata} = validation
+       ) do
+    oban_args = Map.merge(%{"id" => id}, metadata)
+
+    oban_return =
+      oban_args
+      |> Transport.Jobs.OnDemandValidationJob.new(unique: [period: 300, keys: [:type, :gtfs_rt_url, :gtfs_url]])
+      |> Oban.insert()
+
+    case oban_return do
+      {:ok, %Oban.Job{conflict?: true}} ->
+        validation
+        |> Ecto.Changeset.change(
+          on_the_fly_validation_metadata:
+            Map.merge(metadata, %{"state" => "error", "error_reason" => "Can run this job only once every 5 minutes"})
+        )
+        |> Repo.update!()
+
+      _ ->
+        :ok
+    end
+  end
+
   defp dispatch_validation_job(%Validation{id: id, on_the_fly_validation_metadata: metadata}) do
     oban_args = Map.merge(%{"id" => id}, metadata)
     oban_args |> Transport.Jobs.OnDemandValidationJob.new() |> Oban.insert!()
