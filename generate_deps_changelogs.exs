@@ -52,5 +52,7 @@ master
         end
       {{:hex, v1}, {:git, repo, sha2}} ->
         IO.puts("* Now using git-version #{repo} @ #{sha2}")
+      {{:git, repo, sha1}, {:hex, v2}} ->
+        IO.puts("* Now using https://hex.pm/packages/#{dep} instead of #{repo} @ #{sha1}")
     end
 end)

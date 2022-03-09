@@ -47,7 +47,7 @@ defmodule GBFS.MixProject do
       # otherwise the tests won't run. Not sure if there's a better way for this,
       # since the GBFS app itself does not currently rely on conditional encoding.
       {:shared, in_umbrella: true},
-      {:exvcr, "~> 0.10", only: :test, git: "https://github.com/thbar/exvcr.git", ref: "2794a4f"},
+      {:exvcr, "~> 0.13", only: :test},
       {:mock, "~> 0.3.6", only: :test},
       {:bypass, "~> 2.1", only: :test}
     ]
