@@ -10,6 +10,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
   setup :verify_on_exit!
   @gtfs_path "#{__DIR__}/../../fixture/files/gtfs.zip"
+  @gtfs_rt_report_path "#{__DIR__}/../../fixture/files/gtfs-rt-validator-errors.json"
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -298,6 +299,32 @@ defmodule TransportWeb.ValidationControllerTest do
 
       assert render(view) =~ "2 erreurs"
       assert render(view) =~ "Value is not allowed in enum."
+    end
+
+    test "with a GTFS-RT validation", %{conn: conn} do
+      {conn, validation} =
+        ensure_waiting_message_is_displayed(conn, %{
+          "state" => "waiting",
+          "type" => "gtfs-rt",
+          "gtfs_url" => "https://example.com/gtfs.zip",
+          "gtfs_rt_url" => "https://example.com/gtfs-rt"
+        })
+
+      {:ok, view, _html} = live(conn)
+
+      # Error messages are displayed
+      validation
+      |> Ecto.Changeset.change(
+        on_the_fly_validation_metadata: %{validation.on_the_fly_validation_metadata | "state" => "completed"},
+        details: Transport.Jobs.GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
+      )
+      |> DB.Repo.update!()
+
+      send(view.pid, :update_data)
+
+      assert render(view) =~ "4 erreurs, 26 avertissements"
+      assert render(view) =~ "stop_times_updates not strictly sorted"
+      assert render(view) =~ "vehicle_id should be populated for TripUpdates and VehiclePositions"
     end
   end
 
