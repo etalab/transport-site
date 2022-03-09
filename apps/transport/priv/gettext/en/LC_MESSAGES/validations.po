@@ -232,3 +232,7 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Your GTFS' URL"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Validate this GTFS-RT now"
+msgstr ""

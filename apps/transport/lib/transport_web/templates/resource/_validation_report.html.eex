@@ -49,7 +49,16 @@
   <% end %>
 
   <%= unless Enum.empty?(errors_warning_level) do %>
-    <h4><%= dgettext("validations", "Warnings")%></h4>
+    <h4><%= dgettext("validations", "Warnings") %></h4>
       <%= render "_gtfs_rt_errors_for_severity.html", errors_for_severity: errors_warning_level %>
+  <% end %>
+
+  <% current_gtfs = @resource.dataset |> DB.Dataset.valid_gtfs() |> Enum.reject(&DB.Resource.is_outdated?/1) |> List.first() %>
+  <%= unless is_nil(current_gtfs) do %>
+    <% validation_path = live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive, type: "gtfs-rt", url: current_gtfs.url, feed_url: @resource.url) %>
+    <a class="button" href="<%= validation_path %>" target="_blank" role="link">
+      <i class="icon fa-check" aria-hidden="true"></i>
+      <%= dgettext("validations", "Validate this GTFS-RT now") %>
+    </a>
   <% end %>
 <% end %>
