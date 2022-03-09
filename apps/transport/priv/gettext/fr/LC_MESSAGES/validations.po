@@ -167,8 +167,8 @@ msgid "Validation results"
 msgstr "Rapport de validation"
 
 #, elixir-autogen, elixir-format
-msgid "Once you have fixed your errors, you can verify that your file is valid <a href=\"%{link}\" target=\"_blank\">using our validators</a>."
-msgstr "Une fois vos erreurs réparées, vous pouvez vérifier que votre fichier est valide <a href=\"%{link}\" target=\"_blank\">en utilisant nos validateurs</a>."
+msgid "Are you the producer of this data? Once you have fixed your errors, you can verify that your file is valid <a href=\"%{link}\" target=\"_blank\">using our validators</a>."
+msgstr "Êtes-vous le producteur de ces données ? Une fois vos erreurs réparées, vous pouvez vérifier que votre fichier est valide <a href=\"%{link}\" target=\"_blank\">en utilisant nos validateurs</a>."
 
 #, elixir-autogen, elixir-format
 msgid "Errors"
@@ -192,3 +192,27 @@ msgid "warning"
 msgid_plural "warnings"
 msgstr[0] "avertissement"
 msgstr[1] "avertissements"
+
+#, elixir-autogen, elixir-format
+msgid "Data type"
+msgstr "Type de données"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Validate"
+msgstr "Valider"
+
+#, elixir-autogen, elixir-format
+msgid "Your URL"
+msgstr "Votre URL"
+
+#, elixir-autogen, elixir-format
+msgid "Check the quality of a file or a feed"
+msgstr "Vérifier la qualité d'un fichier ou d'un flux"
+
+#, elixir-autogen, elixir-format
+msgid "GBFS validation report"
+msgstr "Rapport de validation GBFS"
+
+#, elixir-autogen, elixir-format
+msgid "This is the validation report of the GBFS feed %{link}."
+msgstr "Ceci est le rapport de validation du flux GBFS %{link}."

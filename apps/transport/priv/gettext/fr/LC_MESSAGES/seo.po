@@ -45,7 +45,7 @@ msgstr "Jeux de données ouverts de la commune de %{name}"
 
 #, elixir-autogen, elixir-format
 msgid "Data quality evaluation"
-msgstr "Évaluation de la qualité d’un fichier"
+msgstr "Évaluation de la qualité d’un fichier ou d’un flux"
 
 #, elixir-autogen, elixir-format
 msgid "Non standard real time transport open data"

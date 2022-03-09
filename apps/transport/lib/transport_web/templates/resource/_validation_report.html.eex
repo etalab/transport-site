@@ -18,7 +18,7 @@
 
     <%= if nb_errors > 0 do %>
       <p class="notification">
-        <%= raw dgettext("validations", ~s(Once you have fixed your errors, you can verify that your file is valid <a href="%{link}" target="_blank">using our validators</a>.), link: validation_path(@conn, :index)) %>
+        <%= raw dgettext("validations", ~s(Are you the producer of this data? Once you have fixed your errors, you can verify that your file is valid <a href="%{link}" target="_blank">using our validators</a>.), link: on_demand_validation_link(@conn, @resource)) %>
       </p>
       <p><%= dgettext("validations", "Errors:")%></p>
       <ul <%= if @resource.metadata["validation"]["schema_type"] == "jsonschema" do %>lang="en"<% end %>>
