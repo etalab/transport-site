@@ -117,8 +117,8 @@ defmodule Shared.DateTimeDisplay do
 
   def format_datetime_to_paris(nil, _), do: ""
 
-  def convert_to_paris_time(%DateTime{} = dt), do: dt |> Timex.Timezone.convert("Europe/Paris")
-  def convert_to_paris_time(%NaiveDateTime{} = ndt), do: ndt |> Timex.Timezone.convert("Europe/Paris")
+  defp convert_to_paris_time(%DateTime{} = dt), do: dt |> Timex.Timezone.convert("Europe/Paris")
+  defp convert_to_paris_time(%NaiveDateTime{} = ndt), do: ndt |> Timex.Timezone.convert("Europe/Paris")
 
   @doc """
   Converts a binary naive date time to a binary date time having the Paris timezone
