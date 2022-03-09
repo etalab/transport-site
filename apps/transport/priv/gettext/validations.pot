@@ -235,3 +235,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Validate this GTFS-RT now"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Each GTFS-RT feed can only be validated once per 5 minutes. Please wait a moment and try again."
+msgstr ""
