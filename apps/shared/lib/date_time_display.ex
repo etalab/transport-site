@@ -37,7 +37,7 @@ defmodule Shared.DateTimeDisplay do
   "03/01/2022"
   """
   def format_datetime_to_date(%DateTime{} = dt, locale) do
-    DateTime.to_date(dt) |> format_date(locale)
+    dt |> DateTime.to_date() |> format_date(locale)
   end
 
   def format_datetime_to_date(nil, _), do: ""
