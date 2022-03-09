@@ -18,8 +18,29 @@ defmodule TransportWeb.ValidationController do
     metadata = build_metadata(params)
 
     validation = %Validation{on_the_fly_validation_metadata: metadata} |> Repo.insert!()
-    dispatch_validation_job(validation)
-    redirect_to_validation_show(conn, validation)
+
+    case dispatch_validation_job(validation) do
+      :ok ->
+        redirect_to_validation_show(conn, validation)
+
+      :error ->
+        conn
+        |> put_flash(
+          :error,
+          dgettext(
+            "validations",
+            "Each GTFS-RT feed can only be validated once per 5 minutes. Please wait a moment and try again."
+          )
+        )
+        |> redirect(
+          to:
+            live_path(
+              conn,
+              TransportWeb.Live.OnDemandValidationSelectLive,
+              params |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
+            )
+        )
+    end
   end
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"file" => %{path: file_path}, "type" => type}}) do
@@ -125,6 +146,8 @@ defmodule TransportWeb.ValidationController do
             Map.merge(metadata, %{"state" => "error", "error_reason" => "Can run this job only once every 5 minutes"})
         )
         |> Repo.update!()
+
+        :error
 
       _ ->
         :ok

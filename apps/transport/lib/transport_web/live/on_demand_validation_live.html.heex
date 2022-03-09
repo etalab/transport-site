@@ -1,5 +1,6 @@
 <% metadata = @validation.on_the_fly_validation_metadata %>
 <% details = @validation.details %>
+<% is_final_state = metadata["state"] in ["completed", "error"] %>
 <section>
   <div class="container">
     <div class="validation-title">
@@ -8,7 +9,7 @@
         <%= dgettext("validations", "This report can be shared with") %>
         <%= link(dgettext("validations", "this permanent link"), to: @current_url )%>.
       </p>
-      <%= if metadata["state"] == "completed" do %>
+      <%= if is_final_state do %>
         <p class="small">
           <%= dgettext("validations", "Validation performed at %{date}.", date: @validation.date)%>
         </p>
@@ -88,7 +89,7 @@
             <% end %>
           <% end %>
         <% end %>
-        <%= unless metadata["state"] == "completed" do %>
+        <%= unless is_final_state do %>
           <p class="small">
             <%= dgettext("validations", "Last updated at %{date}.", date: @last_updated_at)%>
           </p>

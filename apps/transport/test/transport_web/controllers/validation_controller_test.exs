@@ -195,7 +195,12 @@ defmodule TransportWeb.ValidationControllerTest do
 
       assert redirected_to(conn, 302) == validation_path(conn, :show, validation_id, token: token)
 
-      conn |> post(validation_path(conn, :validate), %{"upload" => upload_params})
+      # Submitting the same GTFS/GTFS-RT should not enqueue another job
+      conn = conn |> post(validation_path(conn, :validate), %{"upload" => upload_params})
+
+      assert redirected_to(conn, 302) ==
+               live_path(conn, OnDemandValidationSelectLive, feed_url: gtfs_rt_url, type: "gtfs-rt", url: gtfs_url)
+
       assert Enum.count(all_enqueued(worker: Transport.Jobs.OnDemandValidationJob, queue: :on_demand_validation)) == 1
 
       assert %{
