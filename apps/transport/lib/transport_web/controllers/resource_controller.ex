@@ -16,7 +16,9 @@ defmodule TransportWeb.ResourceController do
       |> Repo.preload([:validation, dataset: [:resources]])
 
     conn =
-      conn |> assign(:uptime_per_day, DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days()))
+      conn
+      |> assign(:uptime_per_day, DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days()))
+      |> put_resource_flash(resource.dataset.is_active)
 
     if Resource.is_gtfs?(resource) and Resource.has_metadata?(resource) do
       render_gtfs_details(conn, params, resource)
@@ -24,6 +26,16 @@ defmodule TransportWeb.ResourceController do
       conn |> assign(:resource, resource) |> render("details.html")
     end
   end
+
+  defp put_resource_flash(conn, _dataset_active = false) do
+    conn
+    |> put_flash(
+      :error,
+      dgettext("resource", "This resource belongs to a dataset that has been deleted from data.gouv.fr")
+    )
+  end
+
+  defp put_resource_flash(conn, _), do: conn
 
   defp render_gtfs_details(conn, params, resource) do
     config = make_pagination_config(params)
