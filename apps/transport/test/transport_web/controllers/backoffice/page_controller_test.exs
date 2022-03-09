@@ -36,4 +36,16 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
 
     assert [dataset_id_2, dataset_id_3] == PageController.dataset_with_resource_under_90_availability()
   end
+
+  test "inactive datasets are filtered out" do
+    now = DateTime.utc_now()
+    hours_ago_73 = now |> DateTime.add(-73 * 60 * 60)
+    minute_ago_1 = now |> DateTime.add(-60)
+
+    %{id: dataset_id} = insert(:dataset, %{is_active: false})
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
+    insert(:resource_unavailability, %{resource_id: resource_id, start: hours_ago_73, end: minute_ago_1})
+
+    assert [] == PageController.dataset_with_resource_under_90_availability()
+  end
 end
