@@ -60,20 +60,6 @@ defmodule TransportWeb.DatasetView do
     |> Timex.format!("{0D}-{0M}-{YYYY}")
   end
 
-  @doc """
-  Converts a binary date to a French looking date
-
-  iex> format_date("2022-03-01")
-  "01-03-2022"
-  """
-  def format_date(nil), do: ""
-
-  def format_date(date) do
-    date
-    |> Timex.parse!("{YYYY}-{0M}-{0D}")
-    |> Timex.format!("{0D}-{0M}-{YYYY}")
-  end
-
   def first_gtfs(dataset) do
     dataset
     |> Dataset.valid_gtfs()
