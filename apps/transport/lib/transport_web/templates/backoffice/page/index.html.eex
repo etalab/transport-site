@@ -10,11 +10,11 @@
   <a class="button" href="<%= backoffice_live_path(@conn, TransportWeb.Backoffice.JobsLive) %>">
     <%= dgettext("backoffice", "Jobs") %>
   </a>
-    
+
   <a class="button" href="<%= backoffice_live_path(@conn, TransportWeb.Backoffice.GBFSLive) %>">
     <%= dgettext("backoffice", "GBFS requests") %>
   </a>
-    
+
   <a class="button" href="<%= backoffice_dashboard_path(@conn, :index) %>">
     <%= dgettext("backoffice", "Rapport de complétude des imports") %>
   </a>
@@ -71,6 +71,9 @@
       </div>
       <div>
         <%= link(dgettext("backoffice", "With a resource not available"), to: backoffice_page_path(@conn, :index, %{"filter" => "resource_not_available"}) <> "#list_datasets") %>
+      </div>
+      <div>
+        <%= link(dgettext("backoffice", "With a resource under 90% availability"), to: backoffice_page_path(@conn, :index, %{"filter" => "resource_under_90_availability"}) <> "#list_datasets") %>
       </div>
       <div>
         <%= link(dgettext("backoffice", "With a gtfs-rt but without a siri-lite"), to: backoffice_page_path(@conn, :index, %{"filter" => "rt_resource_without_siri_lite"}) <> "#list_datasets") %>
