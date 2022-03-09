@@ -27,7 +27,7 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  defp put_resource_flash(conn, _dataset_active = false) do
+  defp put_resource_flash(conn, false = _dataset_active) do
     conn
     |> put_flash(
       :error,
