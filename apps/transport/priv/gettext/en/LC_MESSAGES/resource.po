@@ -120,3 +120,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Resource is not available on remote server"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This resource belongs to a dataset that has been deleted from data.gouv.fr"
+msgstr ""

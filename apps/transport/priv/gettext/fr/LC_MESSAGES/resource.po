@@ -120,3 +120,7 @@ msgstr "Voir la page du jeu de données"
 #, elixir-autogen, elixir-format
 msgid "Resource is not available on remote server"
 msgstr "La ressource n'est pas disponible sur le serveur distant"
+
+#, elixir-autogen, elixir-format
+msgid "This resource belongs to a dataset that has been deleted from data.gouv.fr"
+msgstr "Cette ressource appartient à un dataset qui a été supprimé de data.gouv.fr"
