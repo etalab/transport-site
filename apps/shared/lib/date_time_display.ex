@@ -43,36 +43,6 @@ defmodule Shared.DateTimeDisplay do
   def format_datetime_to_date(nil, _), do: ""
 
   @doc """
-  Formats a naive date time for display
-
-  iex> format_naive_datetime(~N[2022-03-01 15:30:00], "fr")
-  "01/03/2022 à 15h30"
-  iex> format_naive_datetime(~N[2022-03-01 15:30:00], "en")
-  "03/01/2022 at 15:30"
-  iex> format_naive_datetime("2022-03-01T15:30:00", "fr")
-  "01/03/2022 à 15h30"
-  iex> format_naive_datetime("2022-03-01T15:30:00", "en")
-  "03/01/2022 at 15:30"
-  """
-  def format_naive_datetime(%NaiveDateTime{} = ndt, "fr") do
-    Calendar.strftime(ndt, "%d/%m/%Y à %Hh%M")
-  end
-
-  def format_naive_datetime(%NaiveDateTime{} = ndt, nil) do
-    format_naive_datetime(ndt, "fr")
-  end
-
-  def format_naive_datetime(%NaiveDateTime{} = ndt, "en") do
-    Calendar.strftime(ndt, "%m/%d/%Y at %H:%M")
-  end
-
-  def format_naive_datetime(naive_datetime, locale) when is_binary(naive_datetime) do
-    naive_datetime |> NaiveDateTime.from_iso8601!() |> format_naive_datetime(locale)
-  end
-
-  def format_naive_datetime(nil, _), do: ""
-
-  @doc """
   Formats a date time for display.
   Input can be in any timezone, outputs is in Europe/Paris timezone.
 
