@@ -27,7 +27,7 @@
         <script src="<%= static_path(@conn, "/js/mapgeojson.js") %>"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-              GTFSGeojsonMap(
+              GenericGeojsonMap(
                 'resource-geojson',
                 'resource-geojson-info',
                 "<%= @resource.url %>",
