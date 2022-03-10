@@ -245,5 +245,5 @@ msgid "GTFS-RT feeds change in real-time. This validation report shows the valid
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "This validation concerns the given GTFS-RT feed and GTFS file. It does not validate the GTFS itself. You can validate your GTFS file <a href=\"%{gtfs_validator}\">using our GTFS validator</a>."
+msgid "This validation concerns the given GTFS-RT feed and GTFS file and has been carried out using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>. It does not validate the GTFS itself. You can validate your GTFS file <a href=\"%{gtfs_validator}\">using our GTFS validator</a>."
 msgstr ""

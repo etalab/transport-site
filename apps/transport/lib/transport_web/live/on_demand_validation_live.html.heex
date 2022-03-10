@@ -54,7 +54,7 @@
 
             <div class="notification">
               <p>
-                <%= raw dgettext("validations", ~s(This validation concerns the given GTFS-RT feed and GTFS file. It does not validate the GTFS itself. You can validate your GTFS file <a href="%{gtfs_validator}">using our GTFS validator</a>.), gtfs_validator: TransportWeb.Router.Helpers.live_path(@socket, TransportWeb.Live.OnDemandValidationSelectLive, type: "gtfs")) %>
+                <%= raw dgettext("validations", ~s(This validation concerns the given GTFS-RT feed and GTFS file and has been carried out using the <a href="%{validator_url}" target="_blank">CUTR GTFS-RT validator</a>. It does not validate the GTFS itself. You can validate your GTFS file <a href="%{gtfs_validator}">using our GTFS validator</a>.), gtfs_validator: TransportWeb.Router.Helpers.live_path(@socket, TransportWeb.Live.OnDemandValidationSelectLive, type: "gtfs"), validator_url: TransportWeb.ResourceView.gtfs_rt_validator_url()) %>
               </p>
               <p>
                 <%= dgettext("validations", ~s(GTFS-RT feeds change in real-time. This validation report shows the validation result performed at %{date}. You can relaunch a validation later on and get different results.), date: @validation.date) %>
