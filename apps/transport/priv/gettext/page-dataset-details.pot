@@ -421,3 +421,59 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "unknown"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Additional service"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Between %{start} and %{end}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Detour"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "From %{start}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Modified service"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "No service"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Other effect"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Reduced service"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "See details"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Service alerts"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Stop moved"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Unknown effect"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Until %{end}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Significant delays"
+msgstr ""

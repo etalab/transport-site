@@ -18,6 +18,7 @@ defmodule TransportWeb.ResourceController do
     conn =
       conn
       |> assign(:uptime_per_day, DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days()))
+      |> assign(:service_alerts, service_alerts(resource))
       |> put_resource_flash(resource.dataset.is_active)
 
     if Resource.is_gtfs?(resource) and Resource.has_metadata?(resource) do
@@ -25,6 +26,22 @@ defmodule TransportWeb.ResourceController do
     else
       conn |> assign(:resource, resource) |> render("details.html")
     end
+  end
+
+  defp service_alerts(%Resource{} = resource) do
+    Transport.Cache.API.fetch("service_alerts_#{resource.id}", fn ->
+      if Resource.is_gtfs_rt?(resource) do
+        case Transport.GTFSRT.decode_remote_feed(resource.url) do
+          {:ok, feed} ->
+            Transport.GTFSRT.alerts_for_display(feed)
+
+          _ ->
+            nil
+        end
+      else
+        nil
+      end
+    end)
   end
 
   defp put_resource_flash(conn, false = _dataset_active) do
