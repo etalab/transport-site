@@ -460,7 +460,7 @@ msgstr "Voir le détail"
 
 #, elixir-autogen, elixir-format
 msgid "Service alerts"
-msgstr "Alertes de service"
+msgstr "Infos trafic"
 
 #, elixir-autogen, elixir-format
 msgid "Stop moved"
@@ -484,4 +484,4 @@ msgstr "Contenu du flux GTFS-RT"
 
 #, elixir-autogen, elixir-format
 msgid "Here is a display of service alerts contained in this feed."
-msgstr "Voici un aperçu des alertes de service présentes dans ce flux."
+msgstr "Voici un aperçu des informations de trafic présentes dans ce flux."
