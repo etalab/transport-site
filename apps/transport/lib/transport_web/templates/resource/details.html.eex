@@ -19,6 +19,26 @@
       <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>
       <%= render "_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn %>
 
+      <%= if @resource.format == "geojson" do %>
+      <h2 class="mt-48" id="visualization"><%= dgettext("validations", "Visualization")%></h2>
+      <div class="panel no-padding">
+        <div id="resource-geojson-info" class="p-24"></div>
+        <div id="resource-geojson"></div>
+        <script src="<%= static_path(@conn, "/js/mapgeojson.js") %>"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+              GTFSGeojsonMap(
+                'resource-geojson',
+                'resource-geojson-info',
+                "<%= @resource.url %>",
+                "<%= 0 || 0 %>",
+                "<%= dgettext("validations", "Stops visualization is quite big") %>",
+                "<%= dgettext("validations", "Show anyway") %>"
+                )
+              })
+              </script>
+      </div>
+      <% end %>
     </div>
   </div>
 </section>

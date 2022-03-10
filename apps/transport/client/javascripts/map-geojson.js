@@ -46,7 +46,7 @@ function setZoomEvents (map, fg) {
     })
 }
 
-function createResourceGeojson (mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
+function GTFSGeojsonMap (mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
     const sizeMB = filesize / 1024 / 1024
     const infoDiv = document.getElementById(infoDivId)
     const mapDiv = document.getElementById(mapDivId)
@@ -54,7 +54,7 @@ function createResourceGeojson (mapDivId, infoDivId, geojsonUrl, filesize = 0, m
     if (sizeMB > 2) {
         // for large files, user has to click to download and see the file
         infoDiv.innerHTML = `<div>${msg1} (${Math.round(sizeMB)} Mo).</div>
-            <button class="button" onclick="createResourceGeojson('${mapDivId}', '${infoDivId}', '${geojsonUrl}')">
+            <button class="button" onclick="GTFSGeojsonMap('${mapDivId}', '${infoDivId}', '${geojsonUrl}')">
             ${msg2}
             </button>`
         mapDiv.outerHTML = `<div id="${mapDivId}"></div>`
@@ -86,13 +86,13 @@ function createResourceGeojson (mapDivId, infoDivId, geojsonUrl, filesize = 0, m
 
                 setZoomEvents(map, stops)
 
-                const bounds = markersfg.getBounds()
+                const bounds = linesfg.getBounds()
                 if (bounds.isValid()) {
-                    map.fitBounds(markersfg.getBounds())
+                    map.fitBounds(linesfg.getBounds())
                 }
             })
             .catch(_ => console.log('invalid geojson'))
     }
 }
 
-window.createResourceGeojson = createResourceGeojson
+window.GTFSGeojsonMap = GTFSGeojsonMap
