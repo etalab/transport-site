@@ -180,7 +180,7 @@ msgstr "Exemples d'erreurs"
 
 #, elixir-autogen, elixir-format
 msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> and the <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> at %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>."
-msgstr "Validation effectée en utilisant <a href=\"%{gtfs_link}\">le fichier GTFS en vigueur</a> et le <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> à la date du %{date} avec <a href=\"%{validator_url}\" target=\"_blank\">le validateur CUTR GTFS-RT</a>."
+msgstr "Validation effectuée en utilisant <a href=\"%{gtfs_link}\">le fichier GTFS en vigueur</a> et le <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> à la date du %{date} avec <a href=\"%{validator_url}\" target=\"_blank\">le validateur CUTR GTFS-RT</a>."
 
 #, elixir-autogen, elixir-format
 msgid "Warnings"
@@ -223,7 +223,7 @@ msgstr "Détail des flux"
 
 #, elixir-autogen, elixir-format
 msgid "Validation performed at %{date}."
-msgstr "Validation effectée le %{date}."
+msgstr "Validation effectuée le %{date}."
 
 #, elixir-autogen, elixir-format
 msgid "Your GTFS realtime's URL"
