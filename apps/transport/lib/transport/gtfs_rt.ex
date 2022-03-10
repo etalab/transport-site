@@ -1,4 +1,7 @@
 defmodule Transport.GTFSRT do
+  @moduledoc """
+  A module to work with GTFS-RT feeds.
+  """
   def decode_remote_feed(url) do
     case http_client().get(url, [], follow_redirect: true) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -38,7 +41,8 @@ defmodule Transport.GTFSRT do
 
   def alerts_for_display(%TransitRealtime.FeedMessage{} = feed, requested_language \\ "fr") do
     # https://developers.google.com/transit/gtfs-realtime/reference#message-alert
-    alerts(feed)
+    feed
+    |> alerts()
     |> Enum.map(fn %TransitRealtime.Alert{} = el ->
       %{
         effect: el.effect,
