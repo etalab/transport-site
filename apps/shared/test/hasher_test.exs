@@ -3,7 +3,7 @@ defmodule HasherTest do
 
   test "hash by streaming a local file" do
     content = "coucou"
-    hash = :crypto.hash(:sha256, content) |> Base.encode16() |> String.downcase()
+    hash = :sha256 |> :crypto.hash(content) |> Base.encode16() |> String.downcase()
     file_path = System.tmp_dir!() |> Path.join("coucou_file")
     File.write!(file_path, content)
 
