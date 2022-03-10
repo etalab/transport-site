@@ -1,6 +1,7 @@
 defmodule Hasher do
   @moduledoc """
-  Hasher computes the hash sha256 of file given by the URL
+  Hasher computes the hash sha256 of a file given by 
+  an URL or a local path
   """
   require Logger
 
