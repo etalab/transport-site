@@ -57,7 +57,8 @@ defmodule Helpers do
   iex> format_datetime("2022-03-01T16:06:44.139954+00:00")
   "2022-03-01T17:06:44.139954+01:00"
   """
-  @spec format_datetime(binary()) :: binary()
+  @spec format_datetime(binary() | DateTime.t()) :: binary()
+  def format_datetime(%DateTime{} = dt), do: format_datetime(dt |> DateTime.to_string())
   def format_datetime(nil), do: ""
 
   def format_datetime(date) do

@@ -477,3 +477,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Significant delays"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "GTFS-RT feed content"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Here is a display of service alerts contained in this feed."
+msgstr ""

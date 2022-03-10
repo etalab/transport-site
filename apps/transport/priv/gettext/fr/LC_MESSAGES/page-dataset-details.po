@@ -477,3 +477,11 @@ msgstr "Jusqu'au %{end}"
 #, elixir-autogen, elixir-format
 msgid "Significant delays"
 msgstr "Retards importants"
+
+#, elixir-autogen, elixir-format
+msgid "GTFS-RT feed content"
+msgstr "Contenu du flux GTFS-RT"
+
+#, elixir-autogen, elixir-format
+msgid "Here is a display of service alerts contained in this feed."
+msgstr "Voici un aperçu des alertes de service présentes dans ce flux."

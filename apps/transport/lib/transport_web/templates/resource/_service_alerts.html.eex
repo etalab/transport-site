@@ -1,0 +1,45 @@
+<%= unless is_nil(@service_alerts) do %>
+  <h2><%= dgettext("page-dataset-details", "GTFS-RT feed content") %></h2>
+  <div class="panel">
+    <h3 id="service-alerts"><%= dgettext("page-dataset-details", "Service alerts") %></h3>
+    <p>
+      <%= dgettext("page-dataset-details", "Here is a display of service alerts contained in this feed.") %>
+    </p>
+    <%= for service_alert <- @service_alerts do %>
+      <div class="panel">
+        <p class="mt-0 mb-0">
+          <i class="icon <%= service_alert_icon(service_alert) %>" title="<%= service_alert.cause %>"></i>
+          <b>
+            <%= service_alert.header_text %>
+          </b>
+          <span class="label">
+            <%= service_alert_effect(service_alert) %>
+          </span>
+        </p>
+        <p>
+          <%= service_alert.description_text %>
+        </p>
+        <%= unless is_nil(service_alert.current_active_period) do %>
+          <p class="small">
+          <% start_date = Map.fetch!(service_alert.current_active_period, :start) %>
+          <% end_date = Map.fetch!(service_alert.current_active_period, :end) %>
+          <%= if not is_nil(start_date) and not is_nil(end_date) do %>
+            <%= dgettext("page-dataset-details", "Between %{start} and %{end}", start: format_datetime(start_date), end: format_datetime(end_date)) %>
+          <% end %>
+          <%= if not is_nil(start_date) and is_nil(end_date) do %>
+            <%= dgettext("page-dataset-details", "From %{start}", start: format_datetime(start_date)) %>
+          <% end %>
+          <%= if is_nil(start_date) and not is_nil(end_date) do %>
+            <%= dgettext("page-dataset-details", "Until %{end}", end: format_datetime(end_date)) %>
+          <% end %>
+          </p>
+        <% end %>
+        <%= unless is_nil(service_alert.url) do %>
+          <a href="<%= service_alert.url%>" target="_blank">
+            <%= dgettext("page-dataset-details", "See details") %>
+          </a>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

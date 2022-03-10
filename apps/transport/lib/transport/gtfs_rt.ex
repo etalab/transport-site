@@ -4,15 +4,21 @@ defmodule Transport.GTFSRT do
   """
   alias TransitRealtime.{Alert, FeedMessage, TimeRange, TranslatedString}
 
-  @spec decode_remote_feed(binary()) :: {:ok, TransitRealtime.FeedMessage} | :error
+  @spec decode_remote_feed(binary()) :: {:ok, TransitRealtime.FeedMessage.t()} | :error
   def decode_remote_feed(url) do
     case http_client().get(url, [], follow_redirect: true) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        data = TransitRealtime.FeedMessage.decode(body)
-        # The only supported value for now is `FULL_DATASET`.
-        # https://developers.google.com/transit/gtfs-realtime/reference#enum-incrementality
-        %{gtfs_realtime_version: "2.0", incrementality: :FULL_DATASET} = data.header
-        {:ok, data}
+        try do
+          data = TransitRealtime.FeedMessage.decode(body)
+          # The only supported value for now is `FULL_DATASET`.
+          # https://developers.google.com/transit/gtfs-realtime/reference#enum-incrementality
+          %{incrementality: :FULL_DATASET} = data.header
+          {:ok, data}
+        rescue
+          e ->
+            Sentry.capture_exception(e)
+            :error
+        end
 
       _ ->
         :error
