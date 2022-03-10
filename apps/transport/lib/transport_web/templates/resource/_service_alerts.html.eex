@@ -1,4 +1,4 @@
-<%= unless is_nil(@service_alerts) do %>
+<%= unless Enum.empty?(@service_alerts || []) do %>
   <h2><%= dgettext("page-dataset-details", "GTFS-RT feed content") %></h2>
   <div class="panel">
     <h3 id="service-alerts"><%= dgettext("page-dataset-details", "Service alerts") %></h3>
