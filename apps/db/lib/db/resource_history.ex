@@ -26,11 +26,11 @@ defmodule DB.ResourceHistory do
     |> DB.Repo.one()
   end
 
-  def latest_resource_history_url(resource_id) do
+  def latest_resource_history_infos(resource_id) do
     resource_id
     |> latest_resource_history()
     |> case do
-      %{"permanent_url" => url} -> url
+      %{"permanent_url" => url, "total_uncompressed_size" => size} -> %{url: url, size: size}
       _ -> nil
     end
   end
