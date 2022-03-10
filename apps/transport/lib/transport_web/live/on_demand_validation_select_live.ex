@@ -63,10 +63,12 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
 
   defp new_changeset(socket, params) do
     changeset = socket_value(socket, :changeset)
-    allowed_fields = Map.keys(changeset.data())
 
     changeset
-    |> Ecto.Changeset.change(params |> Map.new(fn {k, v} -> {String.to_atom(k), v} end) |> Map.take(allowed_fields))
+    |> Ecto.Changeset.cast(
+      params |> Map.new(fn {k, v} -> {String.to_existing_atom(k), v} end),
+      Map.keys(changeset.data())
+    )
   end
 
   defp socket_value(%Phoenix.LiveView.Socket{assigns: assigns}, key), do: Map.get(assigns, key)
