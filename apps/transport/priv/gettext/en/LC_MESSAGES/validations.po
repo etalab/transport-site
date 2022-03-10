@@ -216,3 +216,35 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "This is the validation report of the GBFS feed %{link}."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Feed details"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Validation performed at %{date}."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your GTFS realtime's URL"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Your GTFS' URL"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Validate this GTFS-RT now"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Each GTFS-RT feed can only be validated once per 5 minutes. Please wait a moment and try again."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "GTFS-RT feeds change in real-time. This validation report shows the validation result performed at %{date}. You can relaunch a validation later on and get different results."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This validation concerns the given GTFS-RT feed and GTFS file and has been carried out using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>. It does not validate the GTFS itself. You can validate your GTFS file <a href=\"%{gtfs_validator}\">using our GTFS validator</a>."
+msgstr ""

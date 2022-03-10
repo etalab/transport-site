@@ -10,6 +10,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
   setup :verify_on_exit!
   @gtfs_path "#{__DIR__}/../../fixture/files/gtfs.zip"
+  @gtfs_rt_report_path "#{__DIR__}/../../fixture/files/gtfs-rt-validator-errors.json"
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -36,6 +37,10 @@ defmodule TransportWeb.ValidationControllerTest do
       assert_patched(view, live_path(conn, OnDemandValidationSelectLive, type: "gtfs"))
       refute view |> has_element?("input[name='upload[url]']")
       assert view |> has_element?("input[name='upload[file]']")
+
+      render_change(view, "form_changed", %{"upload" => %{"type" => "gtfs-rt"}})
+      assert view |> has_element?("input[name='upload[url]']")
+      assert view |> has_element?("input[name='upload[feed_url]']")
     end
 
     test "takes into account query params", %{conn: conn} do
@@ -88,7 +93,7 @@ defmodule TransportWeb.ValidationControllerTest do
                  "permanent_url" => permanent_url,
                  "state" => "waiting",
                  "type" => "gtfs",
-                 "secret_url_token" => _
+                 "secret_url_token" => token
                },
                id: validation_id
              } = DB.Repo.one!(DB.Validation)
@@ -106,7 +111,7 @@ defmodule TransportWeb.ValidationControllerTest do
              ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob, queue: :on_demand_validation)
 
       assert permanent_url == Transport.S3.permanent_url(:on_demand_validation, filename)
-      assert redirected_to(conn, 302) =~ validation_path(conn, :show, validation_id)
+      assert redirected_to(conn, 302) == validation_path(conn, :show, validation_id, token: token)
     end
 
     test "with a schema", %{conn: conn} do
@@ -148,12 +153,65 @@ defmodule TransportWeb.ValidationControllerTest do
                    "filename" => ^filename,
                    "permanent_url" => ^permanent_url,
                    "type" => "tableschema",
-                   "schema_name" => ^schema_name
+                   "schema_name" => ^schema_name,
+                   "secret_url_token" => token
                  }
                }
              ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob, queue: :on_demand_validation)
 
-      assert redirected_to(conn, 302) =~ validation_path(conn, :show, validation_id)
+      assert redirected_to(conn, 302) == validation_path(conn, :show, validation_id, token: token)
+    end
+
+    test "with a GTFS-RT", %{conn: conn} do
+      gtfs_url = "https://example.com/gtfs.zip"
+      gtfs_rt_url = "https://example.com/gtfs-rt"
+      upload_params = %{"type" => "gtfs-rt", "url" => gtfs_url, "feed_url" => gtfs_rt_url}
+
+      conn = conn |> post(validation_path(conn, :validate), %{"upload" => upload_params})
+
+      assert 1 == count_validations()
+
+      assert %{
+               on_the_fly_validation_metadata: %{
+                 "gtfs_url" => ^gtfs_url,
+                 "gtfs_rt_url" => ^gtfs_rt_url,
+                 "state" => "waiting",
+                 "type" => "gtfs-rt",
+                 "secret_url_token" => token
+               },
+               id: validation_id
+             } = DB.Repo.one!(DB.Validation)
+
+      assert [
+               %Oban.Job{
+                 args: %{
+                   "id" => ^validation_id,
+                   "gtfs_url" => ^gtfs_url,
+                   "gtfs_rt_url" => ^gtfs_rt_url,
+                   "type" => "gtfs-rt"
+                 }
+               }
+             ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob, queue: :on_demand_validation)
+
+      assert redirected_to(conn, 302) == validation_path(conn, :show, validation_id, token: token)
+
+      # Submitting the same GTFS/GTFS-RT should not enqueue another job
+      conn = conn |> post(validation_path(conn, :validate), %{"upload" => upload_params})
+
+      assert redirected_to(conn, 302) ==
+               live_path(conn, OnDemandValidationSelectLive, feed_url: gtfs_rt_url, type: "gtfs-rt", url: gtfs_url)
+
+      assert Enum.count(all_enqueued(worker: Transport.Jobs.OnDemandValidationJob, queue: :on_demand_validation)) == 1
+
+      assert %{
+               on_the_fly_validation_metadata: %{
+                 "gtfs_url" => ^gtfs_url,
+                 "gtfs_rt_url" => ^gtfs_rt_url,
+                 "state" => "error",
+                 "error_reason" => "Can run this job only once every 5 minutes",
+                 "type" => "gtfs-rt"
+               }
+             } = DB.Validation |> last() |> DB.Repo.one!()
     end
 
     test "with an invalid type", %{conn: conn} do
@@ -294,6 +352,32 @@ defmodule TransportWeb.ValidationControllerTest do
 
       assert render(view) =~ "2 erreurs"
       assert render(view) =~ "Value is not allowed in enum."
+    end
+
+    test "with a GTFS-RT validation", %{conn: conn} do
+      {conn, validation} =
+        ensure_waiting_message_is_displayed(conn, %{
+          "state" => "waiting",
+          "type" => "gtfs-rt",
+          "gtfs_url" => "https://example.com/gtfs.zip",
+          "gtfs_rt_url" => "https://example.com/gtfs-rt"
+        })
+
+      {:ok, view, _html} = live(conn)
+
+      # Error messages are displayed
+      validation
+      |> Ecto.Changeset.change(
+        on_the_fly_validation_metadata: %{validation.on_the_fly_validation_metadata | "state" => "completed"},
+        details: Transport.Jobs.GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
+      )
+      |> DB.Repo.update!()
+
+      send(view.pid, :update_data)
+
+      assert render(view) =~ "4 erreurs, 26 avertissements"
+      assert render(view) =~ "stop_times_updates not strictly sorted"
+      assert render(view) =~ "vehicle_id should be populated for TripUpdates and VehiclePositions"
     end
   end
 

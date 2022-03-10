@@ -180,7 +180,7 @@ msgstr "Exemples d'erreurs"
 
 #, elixir-autogen, elixir-format
 msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> and the <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> at %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>."
-msgstr "Validation effectée en utilisant <a href=\"%{gtfs_link}\">le fichier GTFS en vigueur</a> et le <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> à la date du %{date} avec <a href=\"%{validator_url}\" target=\"_blank\">le validateur CUTR GTFS-RT</a>."
+msgstr "Validation effectuée en utilisant <a href=\"%{gtfs_link}\">le fichier GTFS en vigueur</a> et le <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> à la date du %{date} avec <a href=\"%{validator_url}\" target=\"_blank\">le validateur CUTR GTFS-RT</a>."
 
 #, elixir-autogen, elixir-format
 msgid "Warnings"
@@ -216,3 +216,35 @@ msgstr "Rapport de validation GBFS"
 #, elixir-autogen, elixir-format
 msgid "This is the validation report of the GBFS feed %{link}."
 msgstr "Ceci est le rapport de validation du flux GBFS %{link}."
+
+#, elixir-autogen, elixir-format
+msgid "Feed details"
+msgstr "Détail des flux"
+
+#, elixir-autogen, elixir-format
+msgid "Validation performed at %{date}."
+msgstr "Validation effectuée le %{date}."
+
+#, elixir-autogen, elixir-format
+msgid "Your GTFS realtime's URL"
+msgstr "L'URL de votre GTFS temps réel"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Your GTFS' URL"
+msgstr "L'URL de votre GTFS"
+
+#, elixir-autogen, elixir-format
+msgid "Validate this GTFS-RT now"
+msgstr "Valider ce GTFS-RT maintenant"
+
+#, elixir-autogen, elixir-format
+msgid "Each GTFS-RT feed can only be validated once per 5 minutes. Please wait a moment and try again."
+msgstr "Chaque flux GTFS-RT ne peut être validé que toutes les 5 minutes. Veuillez patienter un instant et réessayer."
+
+#, elixir-autogen, elixir-format
+msgid "GTFS-RT feeds change in real-time. This validation report shows the validation result performed at %{date}. You can relaunch a validation later on and get different results."
+msgstr "Le contenu d'un flux GTFS-RT est susceptible de changer à chaque instant. Cette page présente les résultats de la validation effectuée le %{date} et son contenu est fixe. Il vous est possible de revalider le flux ultérieurement et d'obtenir des résultats différents."
+
+#, elixir-autogen, elixir-format
+msgid "This validation concerns the given GTFS-RT feed and GTFS file and has been carried out using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>. It does not validate the GTFS itself. You can validate your GTFS file <a href=\"%{gtfs_validator}\">using our GTFS validator</a>."
+msgstr "La validation porte sur le flux GTFS-RT et sur sa cohérence avec le fichier GTFS fourni. Elle a été réalisée avec le <a href=\"%{validator_url}\" target=\"_blank\">validateur CUTR GTFS-RT</a>. Elle ne porte pas sur le fichier GTFS en lui-même. Il est possible de valider un fichier GTFS grâce à <a href=\"%{gtfs_validator}\">notre validateur GTFS</a>."
