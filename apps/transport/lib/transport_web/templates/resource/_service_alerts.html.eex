@@ -1,11 +1,11 @@
-<%= unless is_nil(@service_alerts) do %>
+<%= unless is_nil(@gtfs_rt_feed) or Enum.empty?(@gtfs_rt_feed.alerts)  do %>
   <h2><%= dgettext("page-dataset-details", "GTFS-RT feed content") %></h2>
   <div class="panel">
     <h3 id="service-alerts"><%= raw dgettext("page-dataset-details", "Service alerts") %></h3>
     <p>
-      <%= dgettext("page-dataset-details", "Here is a display of service alerts contained in this feed at %{date}.", date: format_datetime(Transport.GTFSRT.timestamp(@service_alerts.feed))) %>
+      <%= dgettext("page-dataset-details", "Here is a display of service alerts contained in this feed at %{date}.", date: format_datetime(Transport.GTFSRT.timestamp(@gtfs_rt_feed.feed))) %>
     </p>
-    <%= for service_alert <- @service_alerts.alerts do %>
+    <%= for service_alert <- @gtfs_rt_feed.alerts do %>
       <div class="panel">
         <p class="mt-0 mb-0">
           <i class="icon <%= service_alert_icon(service_alert) %>" title="<%= service_alert.cause %>"></i>
@@ -52,7 +52,7 @@
           <%= dgettext("page-dataset-details", "Copy to clipboard") %>
         </button>
         <code id="alerts_payload">
-          <%= inspect(@service_alerts.feed, pretty: true, width: 120) %>
+          <%= inspect(@gtfs_rt_feed.feed, pretty: true, width: 120) %>
         </code>
     </details>
   </div>
