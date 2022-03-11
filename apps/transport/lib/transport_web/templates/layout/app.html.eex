@@ -79,4 +79,7 @@
 
     <%= render(LayoutView, "_footer.html", assigns) %>
   </body>
+  <%= if assigns[:extra_bottom_script_tags] do %>
+    <%= apply(&render/2, assigns[:extra_bottom_script_tags]) %>
+  <% end  %>
 </html>
