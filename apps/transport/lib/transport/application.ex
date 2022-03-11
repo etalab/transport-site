@@ -37,6 +37,7 @@ defmodule Transport.Application do
         {Oban, Application.fetch_env!(:transport, Oban)}
       ]
       |> add_scheduler()
+      |> add_if(fn() -> Mix.env() != :test && webserver_enabled? end, Transport.RealtimePoller)
       ## manually add a children supervisor that is not scheduled
       |> Kernel.++([{Task.Supervisor, name: ImportTaskSupervisor}])
 
@@ -53,6 +54,15 @@ defmodule Transport.Application do
   def worker_only?, do: worker_enabled?() && !webserver_enabled?()
   def webserver_only?, do: webserver_enabled?() && !worker_enabled?()
   def dual_mode?, do: worker_enabled?() && webserver_enabled?()
+
+
+  defp add_if(children, condition, child) do
+    if condition.() do
+      children ++ [child]
+    else
+      children
+    end
+  end
 
   defp add_scheduler(children) do
     if Mix.env() != :test do
