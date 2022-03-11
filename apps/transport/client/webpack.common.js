@@ -11,6 +11,7 @@ module.exports = {
         app: './javascripts/app.js',
         map: './javascripts/map.js',
         resourceviz: './javascripts/resource-viz.js',
+        explore: './javascripts/explore.js',
         mapgeojson: './javascripts/map-geojson.js',
         datasetmap: './javascripts/dataset-map.js',
         validationmap: './javascripts/validation-map.js',
