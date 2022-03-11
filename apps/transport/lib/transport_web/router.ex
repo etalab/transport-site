@@ -58,6 +58,10 @@ defmodule TransportWeb.Router do
     get("/aoms", AOMSController, :index)
     get("/aoms.csv", AOMSController, :csv)
 
+    scope "/explore" do
+      get "/vehicle-positions", ExploreController, :vehicle_positions
+    end
+
     scope "/datasets" do
       get("/", DatasetController, :index)
       get("/:slug/", DatasetController, :details)
