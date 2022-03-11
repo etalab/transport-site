@@ -35,7 +35,10 @@ defmodule TransportWeb.ResourceController do
       if Resource.is_gtfs_rt?(resource) do
         case Transport.GTFSRT.decode_remote_feed(resource.url) do
           {:ok, feed} ->
-            Transport.GTFSRT.alerts_for_display(feed, lang)
+            %{
+              alerts: Transport.GTFSRT.service_alerts_for_display(feed, lang),
+              feed: feed
+            }
 
           _ ->
             nil

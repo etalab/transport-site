@@ -21,11 +21,17 @@ defmodule Transport.GTFSRTTest do
     assert message.alert.description_text.translation |> List.first() |> Map.get(:text) =~ ~r/Prolongation des travaux/
   end
 
-  test "alerts" do
+  test "timestamp" do
     setup_gtfs_rt_feed(@url)
     {:ok, feed} = GTFSRT.decode_remote_feed(@url)
-    assert GTFSRT.has_alerts?(feed)
-    assert Enum.count(GTFSRT.alerts(feed)) == 12
+    assert GTFSRT.timestamp(feed) == ~U[2021-12-16 15:29:02Z]
+  end
+
+  test "service_alerts" do
+    setup_gtfs_rt_feed(@url)
+    {:ok, feed} = GTFSRT.decode_remote_feed(@url)
+    assert GTFSRT.has_service_alerts?(feed)
+    assert Enum.count(GTFSRT.service_alerts(feed)) == 12
   end
 
   test "trip_updates" do
@@ -125,7 +131,7 @@ defmodule Transport.GTFSRTTest do
            }
   end
 
-  test "alerts_for_display" do
+  test "service_alerts_for_display" do
     setup_gtfs_rt_feed(@url)
     {:ok, feed} = GTFSRT.decode_remote_feed(@url)
 
@@ -138,7 +144,7 @@ defmodule Transport.GTFSRTTest do
              header_text: "L 45 Prolongation des travaux rue de Kermaria jusqu'au 24/12",
              is_active: false,
              url: "https://www.bibus.fr/deviation/20265cf9-6a99-403e-9ddb-4290b852c00a.pdf"
-           } == feed |> GTFSRT.alerts_for_display() |> List.first()
+           } == feed |> GTFSRT.service_alerts_for_display() |> List.first()
   end
 
   def timerange(start_date, end_date) do

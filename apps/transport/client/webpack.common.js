@@ -9,6 +9,7 @@ const promisePolyfill = new webpack.ProvidePlugin({ Promise: 'core-js/es/promise
 module.exports = {
     entry: {
         app: './javascripts/app.js',
+        clipboard: './javascripts/clipboard.js',
         map: './javascripts/map.js',
         resourceviz: './javascripts/resource-viz.js',
         mapgeojson: './javascripts/map-geojson.js',

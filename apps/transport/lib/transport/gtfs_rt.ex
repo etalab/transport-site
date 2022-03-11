@@ -25,15 +25,19 @@ defmodule Transport.GTFSRT do
     end
   end
 
+  def timestamp(%FeedMessage{} = feed) do
+    feed.header.timestamp |> DateTime.from_unix!()
+  end
+
   def filter_feed(%FeedMessage{entity: entity}, type)
-      when type in [:alerts, :trip_updates, :vehicle_positions] do
-    types = %{alerts: :alert, trip_updates: :trip_update, vehicle_positions: :vehicle}
+      when type in [:service_alerts, :trip_updates, :vehicle_positions] do
+    types = %{service_alerts: :alert, trip_updates: :trip_update, vehicle_positions: :vehicle}
     field_to_use = Map.fetch!(types, type)
     entity |> Enum.map(&Map.fetch!(&1, field_to_use)) |> Enum.reject(&is_nil/1)
   end
 
-  def alerts(%FeedMessage{} = feed) do
-    filter_feed(feed, :alerts)
+  def service_alerts(%FeedMessage{} = feed) do
+    filter_feed(feed, :service_alerts)
   end
 
   def trip_updates(%FeedMessage{} = feed) do
@@ -44,14 +48,14 @@ defmodule Transport.GTFSRT do
     filter_feed(feed, :vehicle_positions)
   end
 
-  def has_alerts?(%FeedMessage{} = feed) do
-    not Enum.empty?(alerts(feed))
+  def has_service_alerts?(%FeedMessage{} = feed) do
+    not Enum.empty?(service_alerts(feed))
   end
 
-  def alerts_for_display(%FeedMessage{} = feed, requested_language \\ "fr") do
+  def service_alerts_for_display(%FeedMessage{} = feed, requested_language \\ "fr") do
     # https://developers.google.com/transit/gtfs-realtime/reference#message-alert
     feed
-    |> alerts()
+    |> service_alerts()
     |> Enum.map(fn %Alert{} = el ->
       %{
         effect: el.effect,

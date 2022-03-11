@@ -483,5 +483,17 @@ msgid "GTFS-RT feed content"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Here is a display of service alerts contained in this feed."
+msgid "Copy to clipboard"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Here is a display of service alerts contained in this feed at %{date}."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Here is the decoded GTFS-RT feed Protobuf. You can look at <a href=\"%{link}\" target=\"_blank\">the GTFS-RT documentation</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "See full payload"
 msgstr ""
