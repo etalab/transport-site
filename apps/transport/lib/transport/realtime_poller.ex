@@ -6,7 +6,11 @@ defmodule Transport.RealtimePoller do
     # initial schedule is immediate, but via the same code path,
     # to ensure we jump on the data
     schedule_next_tick(0)
-    {:ok, state |> Map.put(:url, DB.Repo.get!(DB.Resource, 67732).url)}
+    resource_id = 67732
+    {:ok, state
+      |> Map.put(:resource_id, resource_id)
+      |> Map.put(:url, DB.Repo.get!(DB.Resource, resource_id).url)
+    }
   end
 
   def start_link(_opts) do
