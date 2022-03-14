@@ -31,22 +31,26 @@ defmodule TransportWeb.ResourceController do
   defp gtfs_rt_feed(conn, %Resource{} = resource) do
     lang = get_session(conn, :locale)
 
-    Transport.Cache.API.fetch("service_alerts_#{resource.id}_#{lang}", fn ->
-      if Resource.is_gtfs_rt?(resource) do
-        case Transport.GTFSRT.decode_remote_feed(resource.url) do
-          {:ok, feed} ->
-            %{
-              alerts: Transport.GTFSRT.service_alerts_for_display(feed, lang),
-              feed: feed
-            }
+    Transport.Cache.API.fetch(
+      "service_alerts_#{resource.id}_#{lang}",
+      fn ->
+        if Resource.is_gtfs_rt?(resource) do
+          case Transport.GTFSRT.decode_remote_feed(resource.url) do
+            {:ok, feed} ->
+              %{
+                alerts: Transport.GTFSRT.service_alerts_for_display(feed, lang),
+                feed: feed
+              }
 
-          _ ->
-            nil
+            _ ->
+              nil
+          end
+        else
+          nil
         end
-      else
-        nil
-      end
-    end)
+      end,
+      :timer.minutes(5)
+    )
   end
 
   defp put_resource_flash(conn, false = _dataset_active) do
