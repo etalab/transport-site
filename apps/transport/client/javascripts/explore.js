@@ -59,12 +59,13 @@ const deckLayer = new LeafletLayer({
 });
 map.addLayer(deckLayer);
 
+// internal dictionary
+let layers = {};
+
 channel.on("vehicle-positions", payload => {
-    console.log("update...", payload)
-    // TODO: track multiple layers, one per topic, and pass the props accordingly,
-    // only changing the layer that has changed, and relying on their identification
-    deckLayer.setProps({ layers: [prepareLayer("some-gtfs-rt", payload.vehicle_positions)] });
-    console.log("Updated...")
+    layers[payload.resource_id] = prepareLayer(payload.resource_id, payload.vehicle_positions);
+    deckLayer.setProps({ layers: Object.values(layers) });
+    console.log(`Updated resource ${payload.resource_id}`);
 })
 
 export default socket
