@@ -103,7 +103,7 @@ function GTFSMap (mapDivId, geojsonUrl) {
 }
 
 function GenericLinesStyle (feature) {
-    return { color: 'blue', weight: 3 }
+    return {weight: 3 }
 }
 
 function createPointsMarkers (geoJsonPoint, latlng) {
