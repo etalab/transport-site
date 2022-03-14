@@ -12,7 +12,6 @@ channel.on("vehicle-positions", payload => {
 })
 
 import Leaflet from 'leaflet'
-import 'leaflet.pattern'
 
 const Mapbox = {
     url: 'https://api.mapbox.com/styles/v1/istopopoki/ckg98kpoc010h19qusi9kxcct/tiles/256/{z}/{x}/{y}?access_token={accessToken}',
