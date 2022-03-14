@@ -13,7 +13,7 @@ channel.on("vehicle-positions", payload => {
 
 import Leaflet from 'leaflet'
 import { LeafletLayer } from 'deck.gl-leaflet';
-import { GeoJsonLayer } from '@deck.gl/layers';
+import { ScatterplotLayer } from '@deck.gl/layers';
 import { MapView } from '@deck.gl/core';
 
 const Mapbox = {
@@ -33,11 +33,59 @@ L.tileLayer(Mapbox.url, {
 }).addTo(map)
 
 
-// TODO: cleanup
+const data = [
+    {
+        "position": {
+            "bearing": null,
+            "latitude": 48.62916946411133,
+            "longitude": 6.294188976287842,
+            "odometer": null,
+            "speed": null
+        },
+        "trip": {
+            "trip_id": "672480005:12"
+        },
+        "vehicle": {
+            "id": "zenbus:Vehicle:661810001:LOC"
+        }
+    },
+    {
+        "position": {
+            "bearing": null,
+            "latitude": 48.60530090332031,
+            "longitude": 6.357180118560791,
+            "odometer": null,
+            "speed": null
+        },
+        "trip": {
+            "trip_id": "690160036:13"
+        },
+        "vehicle": {
+            "id": "zenbus:Vehicle:644560001:LOC"
+        }
+    }
+]
 
-
-// source: Natural Earth http://www.naturalearthdata.com/ via geojson.xyz
-const AIR_PORTS = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_airports.geojson';
+const dataLayer = new ScatterplotLayer({
+    id: 'scatterplot-layer',
+    data,
+    pickable: true,
+    opacity: 1,
+    stroked: true,
+    filled: true,
+    radiusScale: 3,
+    radiusMinPixels: 1,
+    radiusMaxPixels: 2,
+    lineWidthMinPixels: 1,
+    getPosition: d => {
+        console.log(d);
+        let a = [d.position.longitude, d.position.latitude];
+        return a;
+    },
+    getRadius: d => 100000,
+    getFillColor: d => [127, 150, 255],
+    getLineColor: d => [100, 100, 200]
+})
 
 const deckLayer = new LeafletLayer({
     views: [
@@ -45,23 +93,8 @@ const deckLayer = new LeafletLayer({
             repeat: true
         })
     ],
-    layers: [
-        new GeoJsonLayer({
-            id: 'airports',
-            data: AIR_PORTS,
-            // Styles
-            filled: true,
-            pointRadiusMinPixels: 2,
-            pointRadiusScale: 2000,
-            getPointRadius: f => 11 - f.properties.scalerank,
-            getFillColor: [200, 0, 80, 180]
-        })
-    ]
+    layers: [dataLayer]
 });
 map.addLayer(deckLayer);
-
-const featureGroup = L.featureGroup();
-featureGroup.addLayer(L.marker([51.4709959, -0.4531566]));
-map.addLayer(featureGroup);
 
 export default socket
