@@ -64,7 +64,7 @@ function GeojsonMap (fillMapFunction, mapDivId, infoDivId, geojsonUrl, filesize,
         mapDiv.outerHTML = `<div id="${mapDivId}"></div>`
     } else {
         infoDiv.outerHTML = ''
-        mapDiv.outerHTML = `<div id="${mapDivId}" style="height: 400px;"></div>`
+        mapDiv.outerHTML = `<div id="${mapDivId}" style="height: 600px; max-height: 80vh;"></div>`
         fillMapFunction(mapDivId, geojsonUrl)
     }
 }
