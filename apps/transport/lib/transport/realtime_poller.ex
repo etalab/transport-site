@@ -2,6 +2,11 @@ defmodule Transport.RealtimePoller do
   use GenServer
   require Logger
 
+  def init(state) do
+    schedule_next_tick()
+    {:ok, state}
+  end
+
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, %{})
   end
