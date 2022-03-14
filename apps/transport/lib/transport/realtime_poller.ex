@@ -53,10 +53,11 @@ defmodule Transport.RealtimePoller do
           bearing: v.position.bearing,
           odometer: v.position.odometer,
           speed: v.position.speed
-        },
-        trip: %{
-          trip_id: v.trip.trip_id,
         }
+        # TODO: some trip are empty, causing a nil exception, so we'll need to verify the presence
+        # trip: %{
+        #   trip_id: v.trip.trip_id,
+        # }
       }
     end)
 
