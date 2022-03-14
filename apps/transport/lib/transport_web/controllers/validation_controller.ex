@@ -14,6 +14,35 @@ defmodule TransportWeb.ValidationController do
     redirect(conn, to: gbfs_analyzer_path(conn, :index, url: url))
   end
 
+  def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => _, "feed_url" => _, "type" => "gtfs-rt"} = params}) do
+    metadata = build_metadata(params)
+
+    validation = %Validation{on_the_fly_validation_metadata: metadata} |> Repo.insert!()
+
+    case dispatch_validation_job(validation) do
+      :ok ->
+        redirect_to_validation_show(conn, validation)
+
+      :error ->
+        conn
+        |> put_flash(
+          :error,
+          dgettext(
+            "validations",
+            "Each GTFS-RT feed can only be validated once per 5 minutes. Please wait a moment and try again."
+          )
+        )
+        |> redirect(
+          to:
+            live_path(
+              conn,
+              TransportWeb.Live.OnDemandValidationSelectLive,
+              params |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
+            )
+        )
+    end
+  end
+
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"file" => %{path: file_path}, "type" => type}}) do
     if is_valid_type?(type) do
       metadata = build_metadata(type)
@@ -21,7 +50,7 @@ defmodule TransportWeb.ValidationController do
 
       validation = %Validation{on_the_fly_validation_metadata: metadata} |> Repo.insert!()
       dispatch_validation_job(validation)
-      redirect(conn, to: validation_path(conn, :show, validation.id, token: Map.fetch!(metadata, "secret_url_token")))
+      redirect_to_validation_show(conn, validation)
     else
       conn |> bad_request()
     end
@@ -29,6 +58,13 @@ defmodule TransportWeb.ValidationController do
 
   def validate(conn, _) do
     conn |> bad_request()
+  end
+
+  defp redirect_to_validation_show(conn, %Validation{
+         on_the_fly_validation_metadata: %{"secret_url_token" => token},
+         id: id
+       }) do
+    redirect(conn, to: validation_path(conn, :show, id, token: token))
   end
 
   def show(%Plug.Conn{} = conn, %{} = params) do
@@ -92,6 +128,32 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
+  defp dispatch_validation_job(
+         %Validation{id: id, on_the_fly_validation_metadata: %{"type" => "gtfs-rt"} = metadata} = validation
+       ) do
+    oban_args = Map.merge(%{"id" => id}, metadata)
+
+    oban_return =
+      oban_args
+      |> Transport.Jobs.OnDemandValidationJob.new(unique: [period: 300, keys: [:type, :gtfs_rt_url, :gtfs_url]])
+      |> Oban.insert()
+
+    case oban_return do
+      {:ok, %Oban.Job{conflict?: true}} ->
+        validation
+        |> Ecto.Changeset.change(
+          on_the_fly_validation_metadata:
+            Map.merge(metadata, %{"state" => "error", "error_reason" => "Can run this job only once every 5 minutes"})
+        )
+        |> Repo.update!()
+
+        :error
+
+      _ ->
+        :ok
+    end
+  end
+
   defp dispatch_validation_job(%Validation{id: id, on_the_fly_validation_metadata: metadata}) do
     oban_args = Map.merge(%{"id" => id}, metadata)
     oban_args |> Transport.Jobs.OnDemandValidationJob.new() |> Oban.insert!()
@@ -103,13 +165,23 @@ defmodule TransportWeb.ValidationController do
       |> Enum.map(fn {k, v} -> {Map.fetch!(v, "title"), k} end)
       |> Enum.sort_by(&elem(&1, 0))
 
-    [{"GTFS", "gtfs"}, {"GBFS", "gbfs"}] ++ schemas
+    ["GTFS", "GTFS-RT", "GBFS"] |> Enum.map(&{&1, String.downcase(&1)}) |> Kernel.++(schemas)
   end
 
   def is_valid_type?(type), do: type in (select_options() |> Enum.map(&elem(&1, 1)))
 
   defp upload_to_s3(file_path, path) do
     Transport.S3.upload_to_s3!(:on_demand_validation, File.read!(file_path), path)
+  end
+
+  defp build_metadata(%{"url" => url, "feed_url" => feed_url, "type" => "gtfs-rt"}) do
+    %{
+      "type" => "gtfs-rt",
+      "state" => "waiting",
+      "gtfs_rt_url" => feed_url,
+      "gtfs_url" => url,
+      "secret_url_token" => Ecto.UUID.generate()
+    }
   end
 
   defp build_metadata(%{"url" => url, "type" => "gbfs"}) do

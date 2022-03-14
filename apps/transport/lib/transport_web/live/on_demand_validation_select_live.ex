@@ -19,12 +19,20 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
      socket
      |> socket_data(%{
        select_options: select_options(),
-       changeset: Ecto.Changeset.cast({%{url: "", type: ""}, %{url: :string, type: :string}}, %{}, [:url, :type])
+       changeset: cast(%{})
      })}
   end
 
+  defp cast(params) do
+    Ecto.Changeset.cast(
+      {%{url: "", type: "", feed_url: ""}, %{url: :string, type: :string, feed_url: :string}},
+      params,
+      [:url, :type, :feed_url]
+    )
+  end
+
   def handle_params(params, _uri, socket) do
-    {:noreply, socket |> socket_data(%{changeset: new_changeset(socket, params)})}
+    {:noreply, socket |> socket_data(%{changeset: cast(params)})}
   end
 
   def self_path(socket) do
@@ -39,10 +47,11 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   end
 
   def determine_input_type(type) when type in ["gbfs"], do: "link"
+  def determine_input_type(type) when type in ["gtfs-rt"], do: "gtfs-rt"
   def determine_input_type(_), do: "file"
 
   def handle_event("form_changed", %{"upload" => params}, socket) do
-    socket = socket |> socket_data(%{changeset: new_changeset(socket, params)})
+    socket = socket |> socket_data(%{changeset: cast(params)})
     {:noreply, socket |> push_patch(to: self_path(socket))}
   end
 
@@ -53,11 +62,6 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   defp form_fields(socket) do
     changeset = socket_value(socket, :changeset)
     Map.merge(changeset.data(), changeset.changes())
-  end
-
-  defp new_changeset(socket, params) do
-    changeset = socket_value(socket, :changeset)
-    changeset |> Ecto.Changeset.change(params |> Map.new(fn {k, v} -> {String.to_atom(k), v} end))
   end
 
   defp socket_value(%Phoenix.LiveView.Socket{assigns: assigns}, key), do: Map.get(assigns, key)

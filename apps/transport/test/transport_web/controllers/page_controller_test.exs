@@ -147,7 +147,7 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "robots.txt page", %{conn: conn} do
-    conn |> get("robots.txt") |> text_response(200)
+    conn |> get("/robots.txt") |> text_response(200)
   end
 
   test "accessibility page", %{conn: conn} do

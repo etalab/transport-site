@@ -1,3 +1,6 @@
+<% metadata = @validation.on_the_fly_validation_metadata %>
+<% details = @validation.details %>
+<% is_final_state = metadata["state"] in ["completed", "error"] %>
 <section>
   <div class="container">
     <div class="validation-title">
@@ -6,15 +9,17 @@
         <%= dgettext("validations", "This report can be shared with") %>
         <%= link(dgettext("validations", "this permanent link"), to: @current_url )%>.
       </p>
+      <%= if is_final_state do %>
+        <p class="small">
+          <%= dgettext("validations", "Validation performed at %{date}.", date: @validation.date) %>
+        </p>
+      <% end %>
     </div>
   </div>
 
   <div class="grey-background">
     <div class="container">
       <div class="panel">
-        <% metadata = @validation.on_the_fly_validation_metadata %>
-        <% details = @validation.details %>
-
         <%= if metadata["state"] == "waiting" do %>
           <p><%= dgettext("validations", "Validation in progress. This page will be updated automatically.")%></p>
         <% end %>
@@ -26,6 +31,47 @@
         <% end %>
 
         <%= if metadata["state"] == "completed" do %>
+          <%= if metadata["type"] == "gtfs-rt" do %>
+            <% errors = Map.fetch!(details, "errors") %>
+            <% errors_error_level = errors |> Enum.filter(& Map.fetch!(&1, "severity") == "ERROR") %>
+            <% errors_warning_level = errors |> Enum.filter(& Map.fetch!(&1, "severity") == "WARNING") %>
+
+            <%= TransportWeb.ValidationView.render("_errors_warnings_count.html", nb_errors: Map.fetch!(details, "errors_count"), nb_warnings: Map.fetch!(details, "warnings_count")) %>
+
+            <p>
+              <%= dgettext("validations", "Validation performed at %{date}.", date: @validation.date) %>
+            </p>
+
+            <h4><%= dgettext("validations", "Feed details")%></h4>
+            <ul>
+              <li>
+                GTFS <a href={Map.fetch!(metadata, "gtfs_url")}><%= Map.fetch!(metadata, "gtfs_url") %></a>
+              </li>
+              <li>
+                GTFS-RT <a href={Map.fetch!(metadata, "gtfs_rt_url")}><%= Map.fetch!(metadata, "gtfs_rt_url") %></a>
+              </li>
+            </ul>
+
+            <div class="notification">
+              <p>
+                <%= raw dgettext("validations", ~s(This validation concerns the given GTFS-RT feed and GTFS file and has been carried out using the <a href="%{validator_url}" target="_blank">CUTR GTFS-RT validator</a>. It does not validate the GTFS itself. You can validate your GTFS file <a href="%{gtfs_validator}">using our GTFS validator</a>.), gtfs_validator: TransportWeb.Router.Helpers.live_path(@socket, TransportWeb.Live.OnDemandValidationSelectLive, type: "gtfs"), validator_url: TransportWeb.ResourceView.gtfs_rt_validator_url()) %>
+              </p>
+              <p>
+                <%= dgettext("validations", ~s(GTFS-RT feeds change in real-time. This validation report shows the validation result performed at %{date}. You can relaunch a validation later on and get different results.), date: @validation.date) %>
+              </p>
+            </div>
+
+            <%= unless Enum.empty?(errors_error_level) do %>
+              <h4><%= dgettext("validations", "Errors")%></h4>
+              <%= TransportWeb.ValidationView.render "_gtfs_rt_errors_for_severity.html", errors_for_severity: errors_error_level %>
+            <% end %>
+
+            <%= unless Enum.empty?(errors_warning_level) do %>
+              <h4><%= dgettext("validations", "Warnings")%></h4>
+                <%= TransportWeb.ValidationView.render "_gtfs_rt_errors_for_severity.html", errors_for_severity: errors_warning_level %>
+            <% end %>
+          <% end %>
+
           <%= if metadata["type"] in ["tableschema", "jsonschema"] do %>
             <% max_display_errors = 50 %>
             <p>
@@ -56,7 +102,11 @@
             <% end %>
           <% end %>
         <% end %>
-        <p class="small"><%= dgettext("validations", "Last updated at %{date}.", date: @last_updated_at)%></p>
+        <%= unless is_final_state do %>
+          <p class="small">
+            <%= dgettext("validations", "Last updated at %{date}.", date: @last_updated_at)%>
+          </p>
+        <% end %>
       </div>
     </div>
   </div>
