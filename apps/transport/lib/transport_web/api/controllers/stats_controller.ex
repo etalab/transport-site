@@ -243,7 +243,9 @@ defmodule TransportWeb.API.StatsController do
         gtfs: count_aom_format(aom.id, "GTFS"),
         netex: count_aom_format(aom.id, "NeTEx"),
         gtfs_rt: count_aom_format(aom.id, "gtfs-rt"),
-        gbfs: count_aom_format(aom.id, "gbfs")
+        gbfs: count_aom_format(aom.id, "gbfs"),
+        siri: count_aom_format(aom.id, "SIRI"),
+        siri_lite: count_aom_format(aom.id, "SIRI Lite")
       },
       nom: aom.nom,
       forme_juridique: aom.forme_juridique,
@@ -283,7 +285,9 @@ defmodule TransportWeb.API.StatsController do
         gtfs: count_region_format(r.id, "GTFS"),
         netex: count_region_format(r.id, "NeTEx"),
         gtfs_rt: count_region_format(r.id, "gtfs-rt"),
-        gbfs: count_region_format(r.id, "gbfs")
+        gbfs: count_region_format(r.id, "gbfs"),
+        siri: count_region_format(r.id, "SIRI"),
+        siri_lite: count_region_format(r.id, "SIRI Lite")
       },
       dataset_types: %{
         pt: count_type_by_region(r.id, "public-transit"),
