@@ -41,7 +41,6 @@ defmodule Transport.RealtimePoller do
     # this currently requires protobuf3 and some feeds are protobuf2
     entity
     |> Enum.filter(& &1.vehicle)
-    |> IO.inspect(IEx.inspect_opts)
     |> Enum.map(& &1.vehicle)
     |> Enum.map(fn v ->
       %{
@@ -60,7 +59,6 @@ defmodule Transport.RealtimePoller do
         }
       }
     end)
-    |> IO.inspect(IEx.inspect_opts)
 
   rescue
     e -> Logger.error e
