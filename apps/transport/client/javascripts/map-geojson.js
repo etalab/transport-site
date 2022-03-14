@@ -143,11 +143,11 @@ function GenericMap (mapDivId, geojsonUrl) {
 }
 
 function GTFSGeojsonMap (mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
-    GeojsonMap(GTFSMap, mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '')
+    GeojsonMap(GTFSMap, mapDivId, infoDivId, geojsonUrl, filesize, msg1, msg2)
 }
 
 function GenericGeojsonMap (mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
-    GeojsonMap(GenericMap, mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '')
+    GeojsonMap(GenericMap, mapDivId, infoDivId, geojsonUrl, filesize, msg1, msg2)
 }
 
 window.GTFSGeojsonMap = GTFSGeojsonMap
