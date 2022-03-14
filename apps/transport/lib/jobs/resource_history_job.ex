@@ -115,7 +115,8 @@ defmodule Transport.Jobs.ResourceHistoryJob do
               })
 
             false ->
-              Map.merge(base, %{content_hash: hash})
+              %{size: size} = File.stat!(resource_path)
+              Map.merge(base, %{content_hash: hash, file_size: size})
           end
 
         Transport.S3.upload_to_s3!(:history, body, filename)
