@@ -7,10 +7,6 @@ channel.join()
     .receive("ok", resp => { console.log("Joined successfully", resp) })
     .receive("error", resp => { console.log("Unable to join", resp) })
 
-channel.on("vehicle-positions", payload => {
-    console.log(payload);
-})
-
 import Leaflet from 'leaflet'
 import { LeafletLayer } from 'deck.gl-leaflet';
 import { ScatterplotLayer } from '@deck.gl/layers';
@@ -32,60 +28,26 @@ L.tileLayer(Mapbox.url, {
     maxZoom: Mapbox.maxZoom
 }).addTo(map)
 
-
-const data = [
-    {
-        "position": {
-            "bearing": null,
-            "latitude": 48.62916946411133,
-            "longitude": 6.294188976287842,
-            "odometer": null,
-            "speed": null
+function prepareLayer(layerId, layerData) {
+    return new ScatterplotLayer({
+        id: layerId,
+        data: layerData,
+        pickable: true,
+        opacity: 1,
+        stroked: true,
+        filled: true,
+        radiusScale: 3,
+        radiusMinPixels: 1,
+        radiusMaxPixels: 4,
+        lineWidthMinPixels: 1,
+        getPosition: d => {
+            return [d.position.longitude, d.position.latitude];
         },
-        "trip": {
-            "trip_id": "672480005:12"
-        },
-        "vehicle": {
-            "id": "zenbus:Vehicle:661810001:LOC"
-        }
-    },
-    {
-        "position": {
-            "bearing": null,
-            "latitude": 48.60530090332031,
-            "longitude": 6.357180118560791,
-            "odometer": null,
-            "speed": null
-        },
-        "trip": {
-            "trip_id": "690160036:13"
-        },
-        "vehicle": {
-            "id": "zenbus:Vehicle:644560001:LOC"
-        }
-    }
-]
-
-const dataLayer = new ScatterplotLayer({
-    id: 'scatterplot-layer',
-    data,
-    pickable: true,
-    opacity: 1,
-    stroked: true,
-    filled: true,
-    radiusScale: 3,
-    radiusMinPixels: 1,
-    radiusMaxPixels: 2,
-    lineWidthMinPixels: 1,
-    getPosition: d => {
-        console.log(d);
-        let a = [d.position.longitude, d.position.latitude];
-        return a;
-    },
-    getRadius: d => 100000,
-    getFillColor: d => [127, 150, 255],
-    getLineColor: d => [100, 100, 200]
-})
+        getRadius: d => 100000,
+        getFillColor: d => [127, 150, 255],
+        getLineColor: d => [100, 100, 200]
+    })
+}
 
 const deckLayer = new LeafletLayer({
     views: [
@@ -93,8 +55,16 @@ const deckLayer = new LeafletLayer({
             repeat: true
         })
     ],
-    layers: [dataLayer]
+    layers: []
 });
 map.addLayer(deckLayer);
+
+channel.on("vehicle-positions", payload => {
+    console.log("update...", payload)
+    // TODO: track multiple layers, one per topic, and pass the props accordingly,
+    // only changing the layer that has changed, and relying on their identification
+    deckLayer.setProps({ layers: [prepareLayer("some-gtfs-rt", payload.vehicle_positions)] });
+    console.log("Updated...")
+})
 
 export default socket
