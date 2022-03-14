@@ -35,7 +35,7 @@ defmodule DB.ResourceHistory do
     end
   end
 
-  @spec latest_dataset_resources_history_infos(integer())::map()
+  @spec latest_dataset_resources_history_infos(integer()) :: map()
   def latest_dataset_resources_history_infos(dataset_id) do
     DB.Resource
     |> join(:left, [r], d in DB.Dataset, on: r.dataset_id == d.id, as: :d)
@@ -43,7 +43,10 @@ defmodule DB.ResourceHistory do
     |> where([r, d: d], d.id == ^dataset_id)
     |> order_by([rh: rh], desc: rh.inserted_at)
     |> distinct([r, rh: rh], rh.datagouv_id)
-    |> select([r,rh: rh], {r.id, %{url: fragment("payload->>'permanent_url'"), file_size: fragment("payload->>'file_size'")}})
+    |> select(
+      [r, rh: rh],
+      {r.id, %{url: fragment("payload->>'permanent_url'"), file_size: fragment("payload->>'file_size'")}}
+    )
     |> DB.Repo.all()
     |> Enum.into(%{})
   end
