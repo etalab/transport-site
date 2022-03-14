@@ -31,7 +31,7 @@
                 'resource-geojson',
                 'resource-geojson-info',
                 "<%= @resource_history_infos.url %>",
-                "<%= 0 || 0 %>",
+                "<%= @resource_history_infos.file_size %>",
                 "<%= dgettext("validations", "Stops visualization is quite big") %>",
                 "<%= dgettext("validations", "Show anyway") %>"
                 )
