@@ -172,7 +172,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     items |> Enum.map(&{map_get(&1, :file_name), map_get(&1, :sha256)}) |> MapSet.new()
   end
 
-  defp resource_hash(%Resource{content_hash: content_hash, datagouv_id: datagouv_id} = resource, resource_path) do
+  defp resource_hash(%Resource{datagouv_id: datagouv_id} = resource, resource_path) do
     case is_zip?(resource) do
       true ->
         try do
@@ -184,7 +184,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         end
 
       false ->
-        content_hash
+        Hasher.get_file_hash(resource_path)
     end
   end
 
