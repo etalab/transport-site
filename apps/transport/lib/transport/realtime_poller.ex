@@ -18,8 +18,52 @@ defmodule Transport.RealtimePoller do
   end
 
   def handle_info(:tick, state) do
-    Logger.info "Ticking..."
     schedule_next_tick()
+    # Hardcoded resource with vehicle positions for now
+    resource = DB.Repo.get!(DB.Resource, 12615)
+    download_stuff_safely(resource.url)
     {:noreply, state}
+  end
+
+  def download_stuff_safely(url) do
+    query_time = DateTime.utc_now()
+    %{status_code: 200, body: body} = Transport.Shared.Wrapper.HTTPoison.impl().get!(url, [], follow_redirect: true)
+    %{
+      header: %{
+        gtfs_realtime_version: _version,
+        incrementality: :FULL_DATASET,
+        timestamp: timestamp
+      },
+      entity: entity
+    } = TransitRealtime.FeedMessage.decode(body)
+    Logger.info "Timestamp is #{timestamp} aka #{timestamp |> DateTime.from_unix!()}, while query time is #{query_time}"
+
+    # NOTE: we cannot directly use Protobuf.JSON.encode!() because
+    # this currently requires protobuf3 and some feeds are protobuf2
+    entity
+    |> Enum.filter(& &1.vehicle)
+    |> IO.inspect(IEx.inspect_opts)
+    |> Enum.map(& &1.vehicle)
+    |> Enum.map(fn v ->
+      %{
+        vehicle: %{
+          id: v.vehicle.id,
+        },
+        position: %{
+          latitude: v.position.latitude,
+          longitude: v.position.longitude,
+          bearing: v.position.bearing,
+          odometer: v.position.odometer,
+          speed: v.position.speed
+        },
+        trip: %{
+          trip_id: v.trip.trip_id,
+        }
+      }
+    end)
+    |> IO.inspect(IEx.inspect_opts)
+
+  rescue
+    e -> Logger.error e
   end
 end
