@@ -6,7 +6,7 @@ defmodule Transport.RealtimePoller do
     # initial schedule is immediate, but via the same code path,
     # to ensure we jump on the data
     schedule_next_tick(0)
-    {:ok, state}
+    {:ok, state |> Map.put(:url, DB.Repo.get!(DB.Resource, 12615).url)}
   end
 
   def start_link(_opts) do
@@ -20,8 +20,7 @@ defmodule Transport.RealtimePoller do
   def handle_info(:tick, state) do
     schedule_next_tick()
     # Hardcoded resource with vehicle positions for now
-    resource = DB.Repo.get!(DB.Resource, 12615)
-    download_stuff_safely(resource.url)
+    download_stuff_safely(state.url)
     {:noreply, state}
   end
 
