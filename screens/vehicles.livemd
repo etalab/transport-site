@@ -62,6 +62,6 @@ DB.Resource
 |> Enum.map(fn {:ok, r} -> r end)
 |> Enum.reject(fn r -> Map.has_key?(r, :error) end)
 |> Enum.reject(fn r -> r.vehicles |> length() == 0 end)
-|> Enum.map(fn x -> x.resource_id end)
+|> Enum.map(fn x -> {x.resource_id, x.vehicles |> length()} end)
 |> Enum.into([])
 ```
