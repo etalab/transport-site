@@ -3,7 +3,9 @@ defmodule Transport.RealtimePoller do
   require Logger
 
   def init(state) do
-    schedule_next_tick()
+    # initial schedule is immediate, but via the same code path,
+    # to ensure we jump on the data
+    schedule_next_tick(0)
     {:ok, state}
   end
 
@@ -11,8 +13,8 @@ defmodule Transport.RealtimePoller do
     GenServer.start_link(__MODULE__, %{})
   end
 
-  def schedule_next_tick do
-    Process.send_after(self(), :tick, 5_000)
+  def schedule_next_tick(delay \\ 5_000) do
+    Process.send_after(self(), :tick, delay)
   end
 
   def handle_info(:tick, state) do
