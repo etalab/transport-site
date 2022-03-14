@@ -30,7 +30,7 @@ defmodule DB.ResourceHistory do
     resource_id
     |> latest_resource_history()
     |> case do
-      %{"permanent_url" => url, "total_uncompressed_size" => size} -> %{url: url, size: size}
+      %{"permanent_url" => url, "file_size" => file_size} -> %{url: url, file_size: file_size}
       _ -> nil
     end
   end
