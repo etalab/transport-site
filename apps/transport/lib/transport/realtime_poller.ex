@@ -12,7 +12,7 @@ defmodule Transport.RealtimePoller do
   end
 
   def schedule_next_tick do
-    Process.send_after(self(), :tick, 1_000)
+    Process.send_after(self(), :tick, 5_000)
   end
 
   def handle_info(:tick, state) do
