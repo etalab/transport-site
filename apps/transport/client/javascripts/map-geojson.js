@@ -46,7 +46,7 @@ function setZoomEvents (map, fg) {
     })
 }
 
-function GeojsonMap (fillMapFunction, mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
+function GeojsonMap (fillMapFunction, mapDivId, infoDivId, geojsonUrl, filesize, msg1, msg2) {
     const sizeMB = filesize / 1024 / 1024
     const infoDiv = document.getElementById(infoDivId)
     const mapDiv = document.getElementById(mapDivId)
@@ -54,9 +54,13 @@ function GeojsonMap (fillMapFunction, mapDivId, infoDivId, geojsonUrl, filesize 
     if (sizeMB > 2) {
         // for large files, user has to click to download and see the file
         infoDiv.innerHTML = `<div>${msg1} (${Math.round(sizeMB)} Mo).</div>
-            <button class="button" onclick="GTFSGeojsonMap('${mapDivId}', '${infoDivId}', '${geojsonUrl}')">
+            <button class="button">
             ${msg2}
             </button>`
+        infoDiv.addEventListener('click', function () {
+            // show anyway
+            GeojsonMap(fillMapFunction, mapDivId, infoDivId, geojsonUrl, 0, msg1, msg2)
+        })
         mapDiv.outerHTML = `<div id="${mapDivId}"></div>`
     } else {
         infoDiv.outerHTML = ''
