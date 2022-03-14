@@ -60,7 +60,7 @@ defmodule Transport.RealtimePoller do
       }
     end)
 
-    TransportWeb.Endpoint.broadcast!("explore", "hello",%{vehicle_positions: vehicle_positions})
+    TransportWeb.Endpoint.broadcast!("explore", "vehicle-positions", %{vehicle_positions: vehicle_positions})
   rescue
     e -> Logger.error e
   end

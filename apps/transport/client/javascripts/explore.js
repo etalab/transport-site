@@ -7,8 +7,8 @@ channel.join()
     .receive("ok", resp => { console.log("Joined successfully", resp) })
     .receive("error", resp => { console.log("Unable to join", resp) })
 
-channel.on("hello", payload => {
-    console.log("hello received", payload);
+channel.on("vehicle-positions", payload => {
+    console.log(payload);
 })
 
 export default socket
