@@ -39,7 +39,7 @@ defmodule Transport.RealtimePoller do
 
     # NOTE: we cannot directly use Protobuf.JSON.encode!() because
     # this currently requires protobuf3 and some feeds are protobuf2
-    entity
+    vehicle_positions = entity
     |> Enum.filter(& &1.vehicle)
     |> Enum.map(& &1.vehicle)
     |> Enum.map(fn v ->
@@ -60,6 +60,7 @@ defmodule Transport.RealtimePoller do
       }
     end)
 
+    TransportWeb.Endpoint.broadcast!("explore", "hello",%{vehicle_positions: vehicle_positions})
   rescue
     e -> Logger.error e
   end
