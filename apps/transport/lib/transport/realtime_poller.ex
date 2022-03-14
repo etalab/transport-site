@@ -24,11 +24,16 @@ defmodule Transport.RealtimePoller do
   def handle_info(:tick, state) do
     schedule_next_tick()
     # Hardcoded resource with vehicle positions for now
-    download_stuff_safely(state.url)
+    fetch_vehicle_positions_safely(state.url)
+    |> broadcast(state[:resource_id])
     {:noreply, state}
   end
 
-  def download_stuff_safely(url) do
+  def broadcast(vehicle_positions, id) do
+    TransportWeb.Endpoint.broadcast!("explore", "vehicle-positions", %{resource_id: id, vehicle_positions: vehicle_positions})
+  end
+
+  def fetch_vehicle_positions_safely(url) do
     query_time = DateTime.utc_now()
     %{status_code: 200, body: body} = Transport.Shared.Wrapper.HTTPoison.impl().get!(url, [], follow_redirect: true)
     %{
@@ -43,7 +48,7 @@ defmodule Transport.RealtimePoller do
 
     # NOTE: we cannot directly use Protobuf.JSON.encode!() because
     # this currently requires protobuf3 and some feeds are protobuf2
-    vehicle_positions = entity
+    entity
     |> Enum.filter(& &1.vehicle)
     |> Enum.map(& &1.vehicle)
     |> Enum.map(fn v ->
@@ -64,9 +69,10 @@ defmodule Transport.RealtimePoller do
         # }
       }
     end)
-
-    TransportWeb.Endpoint.broadcast!("explore", "vehicle-positions", %{vehicle_positions: vehicle_positions})
   rescue
-    e -> Logger.error e
+    e ->
+      Logger.error e
+      # TODO: propagate error instead of this
+      []
   end
 end
