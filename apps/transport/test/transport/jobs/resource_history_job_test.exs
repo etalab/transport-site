@@ -299,13 +299,13 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
     test "a simple successful case for a CSV" do
       resource_url = "https://example.com/file.csv"
+      csv_content = "col1,col2\nval1,val2"
 
       %{
         datagouv_id: datagouv_id,
         dataset_id: dataset_id,
         metadata: resource_metadata,
-        title: title,
-        content_hash: content_hash
+        title: title
       } =
         insert(:resource,
           url: resource_url,
@@ -314,7 +314,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           title: "title",
           datagouv_id: "1",
           is_community_resource: false,
-          content_hash: "hash",
           metadata: %{"foo" => "bar"}
         )
 
@@ -325,7 +324,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         {:ok,
          %HTTPoison.Response{
            status_code: 200,
-           body: @gtfs_content,
+           body: csv_content,
            headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]
          }}
       end)
@@ -340,7 +339,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  http_method: :put,
                  path: path,
                  bucket: ^bucket_name,
-                 body: @gtfs_content,
+                 body: ^csv_content,
                  headers: %{"x-amz-acl" => "public-read"}
                } = request
 
@@ -352,6 +351,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert 1 == count_resource_history()
 
       ensure_no_tmp_files!("resource_")
+
+      content_hash = :sha256 |> :crypto.hash(csv_content) |> Base.encode16() |> String.downcase()
 
       assert %DB.ResourceHistory{
                datagouv_id: ^datagouv_id,
