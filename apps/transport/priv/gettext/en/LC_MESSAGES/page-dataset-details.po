@@ -159,10 +159,6 @@ msgid "Details"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Other datasets of "
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Website"
 msgstr ""
 
@@ -420,4 +416,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "unknown"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Other datasets of %{name}"
 msgstr ""
