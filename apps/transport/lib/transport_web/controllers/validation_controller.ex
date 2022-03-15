@@ -15,9 +15,12 @@ defmodule TransportWeb.ValidationController do
   end
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => _, "feed_url" => _, "type" => "gtfs-rt"} = params}) do
-    metadata = build_metadata(params)
-
-    validation = %Validation{on_the_fly_validation_metadata: metadata} |> Repo.insert!()
+    validation =
+      %Validation{
+        on_the_fly_validation_metadata: build_metadata(params),
+        date: DateTime.utc_now() |> DateTime.to_string()
+      }
+      |> Repo.insert!()
 
     case dispatch_validation_job(validation) do
       :ok ->
