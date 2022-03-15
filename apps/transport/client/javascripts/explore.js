@@ -37,7 +37,7 @@ function prepareLayer(layerId, layerData) {
         filled: true,
         radiusScale: 3,
         radiusMinPixels: 1,
-        radiusMaxPixels: 4,
+        radiusMaxPixels: 3,
         lineWidthMinPixels: 1,
         getPosition: d => {
             return [d.position.longitude, d.position.latitude];
