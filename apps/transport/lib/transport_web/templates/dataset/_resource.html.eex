@@ -144,7 +144,7 @@
         </div>
       </div>
       <div>
-        <%= if Resource.is_gtfs?(@resource) do %>
+        <%= if Resource.is_gtfs?(@resource) or Resource.is_gtfs_rt?(@resource) do %>
           <a href="<%= resource_path(@conn, :details, @resource.id) %>">
             <button class="button-outline secondary small"><i class="icon icon--plus" aria-hidden="true"></i><%= dgettext("page-dataset-details", "details") %></button>
           </a>
