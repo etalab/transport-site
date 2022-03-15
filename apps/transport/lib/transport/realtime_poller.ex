@@ -30,7 +30,10 @@ defmodule Transport.RealtimePoller do
   end
 
   def broadcast(vehicle_positions, id) do
-    TransportWeb.Endpoint.broadcast!("explore", "vehicle-positions", %{resource_id: id, vehicle_positions: vehicle_positions})
+    TransportWeb.Endpoint.broadcast!("explore", "vehicle-positions", %{
+      resource_id: id,
+      vehicle_positions: vehicle_positions
+    })
   end
 
   def fetch_vehicle_positions_safely(url) do
