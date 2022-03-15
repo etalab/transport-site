@@ -126,7 +126,7 @@
                     <div class="dataset__info">
                       <div class="shortlist__notices">
                         <div class="dataset-udpate-date ml-1em">
-                          <%= dgettext("page-shortlist", "added on") %> <%= dataset.created_at %>
+                          <%= dgettext("page-shortlist", "added on") %> <%= DateTimeDisplay.format_date(dataset.created_at, get_session(@conn, :locale)) %>
                         </div>
                         <dl class="dataset-format shortlist__notice">
                           <%= unless Dataset.formats(dataset) == [] do %>
