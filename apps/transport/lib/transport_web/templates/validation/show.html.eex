@@ -17,7 +17,7 @@
 
       <%= unless is_nil(@metadata) do %>
         <div class="panel validation-metadata">
-          <%= render "_resources_details.html", metadata: @metadata %>
+          <%= render "_resources_details.html", metadata: @metadata, conn: @conn %>
         </div>
       <% end %>
 
