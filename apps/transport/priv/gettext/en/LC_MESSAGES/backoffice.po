@@ -166,10 +166,6 @@ msgid "Rapport de complétude des imports"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "With a gtfs-rt but without a siri-lite"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "With a resource not available"
 msgstr ""
 

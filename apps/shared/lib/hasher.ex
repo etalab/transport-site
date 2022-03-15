@@ -1,6 +1,7 @@
 defmodule Hasher do
   @moduledoc """
-  Hasher computes the hash sha256 of file given by the URL
+  Hasher computes the hash sha256 of a file given by
+  an URL or a local path
   """
   require Logger
 
@@ -59,4 +60,18 @@ defmodule Hasher do
   @spec find_etag(keyword()) :: binary()
   defp find_etag({"Etag", v}), do: v
   defp find_etag(_), do: nil
+
+  def compute_checksum(stream, algorithm) do
+    stream
+    |> Enum.reduce(:crypto.hash_init(algorithm), fn elm, acc -> :crypto.hash_update(acc, elm) end)
+    |> :crypto.hash_final()
+    |> Base.encode16()
+    |> String.downcase()
+  end
+
+  def get_file_hash(file_path) do
+    file_path
+    |> File.stream!([], 2048)
+    |> compute_checksum(:sha256)
+  end
 end
