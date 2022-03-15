@@ -2,7 +2,7 @@ defmodule TransportWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "explore", TransportWeb.ExploreChannel
+  channel("explore", TransportWeb.ExploreChannel)
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
