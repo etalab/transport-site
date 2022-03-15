@@ -79,7 +79,7 @@ defmodule Transport.RealtimePoller do
     } = TransitRealtime.FeedMessage.decode(body)
 
     Logger.info(
-      "Timestamp is #{timestamp} aka #{timestamp |> DateTime.from_unix!()}, while query time is #{query_time}"
+      "resource:#{resource_id} - timestamp=#{timestamp} #{timestamp |> DateTime.from_unix!()} query_time=#{query_time}"
     )
 
     # NOTE: we cannot directly use Protobuf.JSON.encode!() because
