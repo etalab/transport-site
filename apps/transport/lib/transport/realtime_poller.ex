@@ -6,11 +6,8 @@ defmodule Transport.RealtimePoller do
     # initial schedule is immediate, but via the same code path,
     # to ensure we jump on the data
     schedule_next_tick(0)
-    resource_id = 67732
-    {:ok, state
-      |> Map.put(:resource_id, resource_id)
-      |> Map.put(:url, DB.Repo.get!(DB.Resource, resource_id).url)
-    }
+
+    {:ok, state}
   end
 
   def start_link(_opts) do
@@ -21,11 +18,43 @@ defmodule Transport.RealtimePoller do
     Process.send_after(self(), :tick, delay)
   end
 
+  import Ecto.Query
+
+  # separated here so that we can filter if we want
+  def relevant_resources do
+    DB.Resource
+    |> where(format: "gtfs-rt")
+    |> preload(:dataset)
+    |> DB.Repo.all()
+    |> Enum.filter(& &1.dataset.is_active)
+    |> Enum.map(&{&1.id, &1.url})
+  end
+
   def handle_info(:tick, state) do
     schedule_next_tick()
-    # Hardcoded resource with vehicle positions for now
-    fetch_vehicle_positions_safely(state.url)
-    |> broadcast(state[:resource_id])
+
+    task = fn {resource_id, resource_url} ->
+      try do
+        Logger.info("Processing #{resource_id}...")
+
+        fetch_vehicle_positions_safely(resource_url)
+        |> broadcast(resource_id)
+
+        %{ok: true}
+      rescue
+        e -> %{error: e}
+      end
+    end
+
+    relevant_resources()
+    |> Task.async_stream(
+      task,
+      max_concurrency: 50,
+      on_timeout: :kill_task,
+      timeout: 10000
+    )
+    |> Stream.run()
+
     {:noreply, state}
   end
 
