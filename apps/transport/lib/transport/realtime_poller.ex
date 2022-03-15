@@ -44,7 +44,10 @@ defmodule Transport.RealtimePoller do
       },
       entity: entity
     } = TransitRealtime.FeedMessage.decode(body)
-    Logger.info "Timestamp is #{timestamp} aka #{timestamp |> DateTime.from_unix!()}, while query time is #{query_time}"
+
+    Logger.info(
+      "Timestamp is #{timestamp} aka #{timestamp |> DateTime.from_unix!()}, while query time is #{query_time}"
+    )
 
     # NOTE: we cannot directly use Protobuf.JSON.encode!() because
     # this currently requires protobuf3 and some feeds are protobuf2
