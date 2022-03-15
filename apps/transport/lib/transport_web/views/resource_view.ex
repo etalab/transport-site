@@ -7,6 +7,7 @@ defmodule TransportWeb.ResourceView do
   import TransportWeb.DatasetView, only: [schema_url: 1, errors_count: 1, warnings_count: 1]
   import DB.Resource, only: [has_errors_details?: 1]
   import DB.ResourceUnavailability, only: [round_float: 2]
+  import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
   alias Shared.DateTimeDisplay
   def format_related_objects(nil), do: ""
 

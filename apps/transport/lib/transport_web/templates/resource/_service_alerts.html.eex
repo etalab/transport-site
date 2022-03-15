@@ -3,7 +3,7 @@
   <div class="panel">
     <h3 id="service-alerts"><%= raw dgettext("page-dataset-details", "Service alerts") %></h3>
     <p>
-      <%= dgettext("page-dataset-details", "Here is a display of service alerts contained in this feed at %{date}.", date: format_datetime(Transport.GTFSRT.timestamp(@gtfs_rt_feed.feed))) %>
+      <%= dgettext("page-dataset-details", "Here is a display of service alerts contained in this feed at %{date}.", date: format_datetime_to_paris(Transport.GTFSRT.timestamp(@gtfs_rt_feed.feed), @locale)) %>
     </p>
     <%= for service_alert <- @gtfs_rt_feed.alerts do %>
       <div class="panel">
@@ -24,13 +24,13 @@
           <% start_date = Map.fetch!(service_alert.current_active_period, :start) %>
           <% end_date = Map.fetch!(service_alert.current_active_period, :end) %>
           <%= if not is_nil(start_date) and not is_nil(end_date) do %>
-            <%= dgettext("page-dataset-details", "Between %{start} and %{end}", start: format_datetime(start_date), end: format_datetime(end_date)) %>
+            <%= dgettext("page-dataset-details", "Between %{start} and %{end}", start: format_datetime_to_paris(start_date, @locale), end: format_datetime_to_paris(end_date, @locale)) %>
           <% end %>
           <%= if not is_nil(start_date) and is_nil(end_date) do %>
-            <%= dgettext("page-dataset-details", "From %{start}", start: format_datetime(start_date)) %>
+            <%= dgettext("page-dataset-details", "From %{start}", start: format_datetime_to_paris(start_date, @locale)) %>
           <% end %>
           <%= if is_nil(start_date) and not is_nil(end_date) do %>
-            <%= dgettext("page-dataset-details", "Until %{end}", end: format_datetime(end_date)) %>
+            <%= dgettext("page-dataset-details", "Until %{end}", end: format_datetime_to_paris(end_date, @locale)) %>
           <% end %>
           </p>
         <% end %>
