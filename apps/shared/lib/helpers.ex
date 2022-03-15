@@ -72,7 +72,7 @@ defmodule Helpers do
         ""
     end
   end
-  
+
   @spec last_updated([DB.Resource.t()]) :: binary()
   def last_updated(resources) do
     resources
