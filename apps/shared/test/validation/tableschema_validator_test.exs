@@ -61,7 +61,8 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
                  "Format de date incorrect : colonne date_maj, ligne 3. La date doit être écrite sous la forme `aaaa-mm-jj`."
                ],
                "errors_count" => 32,
-               "has_errors" => true
+               "has_errors" => true,
+               "validator" => Shared.Validation.TableSchemaValidator
              } == validate(@schema_name, @url)
     end
 
@@ -69,7 +70,12 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
       setup_schemas_response()
       "validata_with_no_errors.json" |> setup_validata_response()
 
-      assert %{"errors" => [], "errors_count" => 0, "has_errors" => false} == validate(@schema_name, @url)
+      assert %{
+               "errors" => [],
+               "errors_count" => 0,
+               "has_errors" => false,
+               "validator" => Shared.Validation.TableSchemaValidator
+             } == validate(@schema_name, @url)
     end
 
     test "with a server error" do

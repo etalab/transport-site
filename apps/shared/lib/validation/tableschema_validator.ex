@@ -61,7 +61,7 @@ defmodule Shared.Validation.TableSchemaValidator do
 
     errors = (structure_errors ++ row_errors) |> Enum.take(100)
 
-    %{"has_errors" => nb_errors > 0, "errors_count" => nb_errors, "errors" => errors}
+    %{"has_errors" => nb_errors > 0, "errors_count" => nb_errors, "errors" => errors, "validator" => __MODULE__}
   end
 
   defp build_report(_), do: nil

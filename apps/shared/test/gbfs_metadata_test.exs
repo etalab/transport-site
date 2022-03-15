@@ -26,7 +26,8 @@ defmodule Transport.Shared.GBFSMetadataTest do
           errors_count: 0,
           has_errors: false,
           version_detected: "1.1",
-          version_validated: "1.1"
+          version_validated: "1.1",
+          validator: :validator_module
         },
         has_cors: true,
         is_cors_allowed: true
@@ -45,7 +46,8 @@ defmodule Transport.Shared.GBFSMetadataTest do
              errors_count: 0,
              has_errors: false,
              version_detected: "2.2",
-             version_validated: "2.2"
+             version_validated: "2.2",
+             validator: :validator_module
            }}
       )
 
@@ -98,7 +100,8 @@ defmodule Transport.Shared.GBFSMetadataTest do
            has_errors: false,
            errors_count: 0,
            version_detected: "1.1",
-           version_validated: "1.1"
+           version_validated: "1.1",
+           validator: :validator_module
          }}
 
       if is_nil(summary), do: default, else: summary

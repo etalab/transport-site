@@ -186,6 +186,8 @@ defmodule DB.Resource do
   def validate_and_save(%__MODULE__{id: resource_id} = resource, force_validation) do
     Logger.info("Validating #{resource.url}")
 
+    resource = Repo.preload(resource, :validation)
+
     with {true, msg} <- __MODULE__.needs_validation(resource, force_validation),
          {:ok, validations} <- validate(resource),
          {:ok, _} <- save(resource, validations) do
@@ -346,6 +348,18 @@ defmodule DB.Resource do
       |> Repo.update()
 
     ecto_response
+  end
+
+  def save(%__MODULE__{} = r, %{"metadata" => %{"validation" => validation} = metadata}) do
+    r
+    |> change(
+      metadata: metadata,
+      validation: %Validation{
+        date: DateTime.utc_now() |> DateTime.to_string(),
+        details: validation
+      }
+    )
+    |> Repo.update()
   end
 
   def save(%__MODULE__{} = r, %{"metadata" => metadata}) do
