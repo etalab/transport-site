@@ -19,9 +19,8 @@ const Mapbox = {
     maxZoom: 20
 }
 
-const metropolitan_france_bounds = [[51.1, -4.9], [41.2, 9.8]]
+const map = Leaflet.map("map", { renderer: Leaflet.canvas() }).setView([46.43645655692041, 2.314039149959886], 7);
 
-const map = Leaflet.map("map", { renderer: Leaflet.canvas() }).fitBounds(metropolitan_france_bounds);
 L.tileLayer(Mapbox.url, {
     accessToken: Mapbox.accessToken,
     attribution: Mapbox.attribution,
