@@ -39,6 +39,7 @@ defmodule Transport.RealtimePoller do
   def fetch_vehicle_positions_safely(url) do
     query_time = DateTime.utc_now()
     %{status_code: 200, body: body} = Transport.Shared.Wrapper.HTTPoison.impl().get!(url, [], follow_redirect: true)
+
     %{
       header: %{
         gtfs_realtime_version: _version,
@@ -60,7 +61,7 @@ defmodule Transport.RealtimePoller do
     |> Enum.map(fn v ->
       %{
         vehicle: %{
-          id: v.vehicle.id,
+          id: v.vehicle.id
         },
         position: %{
           latitude: v.position.latitude,
@@ -77,7 +78,7 @@ defmodule Transport.RealtimePoller do
     end)
   rescue
     e ->
-      Logger.error e
+      Logger.error(e)
       # TODO: propagate error instead of this
       []
   end
