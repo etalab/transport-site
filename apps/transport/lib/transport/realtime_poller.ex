@@ -37,7 +37,7 @@ defmodule Transport.RealtimePoller do
       try do
         Logger.info("Processing #{resource_id}...")
 
-        fetch_vehicle_positions_safely(resource_url)
+        fetch_vehicle_positions_safely(resource_id, resource_url)
         |> broadcast(resource_id)
 
         %{ok: true}
@@ -65,7 +65,7 @@ defmodule Transport.RealtimePoller do
     })
   end
 
-  def fetch_vehicle_positions_safely(url) do
+  def fetch_vehicle_positions_safely(resource_id, url) do
     query_time = DateTime.utc_now()
     %{status_code: 200, body: body} = Transport.Shared.Wrapper.HTTPoison.impl().get!(url, [], follow_redirect: true)
 
@@ -89,6 +89,9 @@ defmodule Transport.RealtimePoller do
     |> Enum.map(& &1.vehicle)
     |> Enum.map(fn v ->
       %{
+        transport: %{
+          resource_id: resource_id
+        },
         vehicle: %{
           id: v.vehicle.id
         },

@@ -54,7 +54,8 @@ const deckLayer = new LeafletLayer({
             repeat: true
         })
     ],
-    layers: []
+    layers: [],
+    getTooltip: ({ object }) => object && { html: `transport_resource: ${object.transport.resource_id}<br>id: ${object.vehicle.id}` }
 });
 map.addLayer(deckLayer);
 
