@@ -70,7 +70,7 @@ defmodule Shared.DateTimeDisplay do
   def format_datetime_to_paris(%DateTime{} = dt, "en") do
     dt
     |> convert_to_paris_time()
-    |> Calendar.strftime("Y-%m-%d at %H:%M Europe/Paris")
+    |> Calendar.strftime("%Y-%m-%d at %H:%M Europe/Paris")
   end
 
   def format_datetime_to_paris(%NaiveDateTime{} = ndt, locale) do
