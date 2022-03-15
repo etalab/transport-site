@@ -1,7 +1,8 @@
 <%= unless is_nil(@metadata) do %>
-  <div>
+<% locale = get_session(@conn, :locale) %>
+<div>
     <%= if @metadata["start_date"] != nil and @metadata["end_date"] != nil do %>
-      <p><%= dgettext("validations", "It is valid from")%> <strong><%= @metadata["start_date"] %></strong> <%= dgettext("validations", "to")%> <strong><%= @metadata["end_date"] %></strong>.</p>
+      <p><%= dgettext("validations", "It is valid from")%> <strong><%= DateTimeDisplay.format_date(@metadata["start_date"], locale) %></strong> <%= dgettext("validations", "to")%> <strong><%= DateTimeDisplay.format_date(@metadata["end_date"], locale) %></strong>.</p>
     <% end %>
     <ul>
     <%= if @metadata["modes"] != [] do %>
