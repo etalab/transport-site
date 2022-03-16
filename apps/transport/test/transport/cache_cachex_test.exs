@@ -18,6 +18,16 @@ defmodule Transport.Cache.Cachex.Test do
     assert_in_delta Cachex.ttl!(:transport, unique_cache_key), 60_000, 1000
   end
 
+  test "custom expire" do
+    unique_cache_key = build_unique_cache_key()
+    initial_value = [hello: "world"]
+
+    Transport.Cache.Cachex.fetch(unique_cache_key, fn -> initial_value end, :timer.seconds(45))
+
+    assert Cachex.get!(:transport, unique_cache_key) == initial_value
+    assert_in_delta Cachex.ttl!(:transport, unique_cache_key), 45_000, 1000
+  end
+
   test "it bubbles up errors occurring inside the computation function" do
     logs =
       capture_log(fn ->
@@ -27,17 +37,5 @@ defmodule Transport.Cache.Cachex.Test do
       end)
 
     assert logs =~ "The computation function failed during cached query"
-  end
-
-  test "it invokes the computation function directly in case of technical cachex error" do
-    unique_cache_key = build_unique_cache_key()
-
-    logs =
-      capture_log(fn ->
-        data = Transport.Cache.Cachex.fetch(unique_cache_key, fn -> "some data" end, :non_existent_cache)
-        assert data == "some data"
-      end)
-
-    assert logs =~ "Cache error :no_cache"
   end
 end

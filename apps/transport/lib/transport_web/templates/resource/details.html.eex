@@ -19,6 +19,7 @@
       <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>
       <%= render "_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn %>
 
+      <%= render "_service_alerts.html", gtfs_rt_feed: @gtfs_rt_feed, locale: get_session(@conn, :locale)%>
     </div>
   </div>
 </section>

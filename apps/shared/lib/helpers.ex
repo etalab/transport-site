@@ -2,9 +2,6 @@ defmodule Helpers do
   @moduledoc """
   Helper functions that are used accross the whole project
   """
-
-  alias Timex.Format.DateTime.Formatter
-  alias Timex.Timezone
   require Logger
 
   @doc """
