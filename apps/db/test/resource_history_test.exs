@@ -58,7 +58,7 @@ defmodule DB.ResourceHistoryTest do
     %{id: dataset_id} = insert(:dataset)
 
     # wrong dataset
-    %{id: resource_id_0} = insert(:resource, %{datagouv_id: "datagouv_0"})
+    insert(:resource, %{datagouv_id: "datagouv_0"})
     insert(:resource_history, %{datagouv_id: "datagouv_0", inserted_at: now})
 
     # no resource history payload
