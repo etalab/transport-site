@@ -251,4 +251,4 @@ msgstr "La validation porte sur le flux GTFS-RT et sur sa cohérence avec le fic
 
 #, elixir-autogen, elixir-format
 msgid "Visualization"
-msgstr ""
+msgstr "Visualisation"
