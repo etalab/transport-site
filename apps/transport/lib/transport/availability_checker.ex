@@ -25,7 +25,7 @@ defmodule Transport.AvailabilityChecker do
 
   def available?(url, false) when is_binary(url) do
     case HTTPoison.head(url, [], follow_redirect: true) do
-      {:ok, %Response{status_code: 200}} -> true
+      {:ok, %Response{status_code: code}} when code >= 200 and code < 300 -> true
       {:ok, %Response{status_code: code}} when code in [401, 403, 405] -> available?(url, _use_http_streaming = true)
       _ -> false
     end
