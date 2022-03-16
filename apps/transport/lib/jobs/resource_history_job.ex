@@ -107,11 +107,14 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         data =
           case is_zip?(resource) do
             true ->
+              total_compressed_size = hash |> Enum.map(& &1.compressed_size) |> Enum.sum()
+
               Map.merge(base, %{
                 zip_metadata: hash,
                 filenames: hash |> Enum.map(& &1.file_name),
                 total_uncompressed_size: hash |> Enum.map(& &1.uncompressed_size) |> Enum.sum(),
-                total_compressed_size: hash |> Enum.map(& &1.compressed_size) |> Enum.sum()
+                total_compressed_size: total_compressed_size,
+                file_size: total_compressed_size
               })
 
             false ->
