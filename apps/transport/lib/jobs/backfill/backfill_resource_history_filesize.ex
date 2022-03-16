@@ -49,7 +49,9 @@ defmodule Transport.Jobs.Backfill.ResourceHistoryFileSize do
   # update the others
   def do_update(%{payload: %{"permanent_url" => url} = payload} = rh) do
     # Clever Cloud provides the file size in the http response headers <3
-    {:ok, %{headers: headers}} = HTTPoison.head(url)
+    http_client = Transport.Shared.Wrapper.HTTPoison.impl()
+
+    {:ok, %{headers: headers}} = http_client.head(url)
     {_, filesize} = headers |> Enum.find(fn {h, _} -> h == "content-length" end)
 
     payload = payload |> Map.put("filesize", filesize)
