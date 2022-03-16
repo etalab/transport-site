@@ -16,7 +16,7 @@ defmodule DB.ResourceHistory do
     timestamps(type: :utc_datetime_usec)
   end
 
-  def latest_resource_history(resource_id) do
+  def latest_resource_history_payload(resource_id) do
     DB.Resource
     |> join(:left, [r], rh in DB.ResourceHistory, on: r.datagouv_id == rh.datagouv_id)
     |> where([r, rh], r.id == ^resource_id)
@@ -28,7 +28,7 @@ defmodule DB.ResourceHistory do
 
   def latest_resource_history_infos(resource_id) do
     resource_id
-    |> latest_resource_history()
+    |> latest_resource_history_payload()
     |> case do
       %{"permanent_url" => url, "file_size" => file_size} -> %{url: url, file_size: file_size}
       _ -> nil
