@@ -1,4 +1,7 @@
 defmodule Transport.Jobs.Backfill.ResourceHistoryFileSize do
+  @moduledoc """
+  Backfill of ResourceHistory payload to fill filesize information for all rows.
+  """
   use Oban.Worker
   import Ecto.Query
 
