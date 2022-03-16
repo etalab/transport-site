@@ -114,12 +114,12 @@ defmodule Transport.Jobs.ResourceHistoryJob do
                 filenames: hash |> Enum.map(& &1.file_name),
                 total_uncompressed_size: hash |> Enum.map(& &1.uncompressed_size) |> Enum.sum(),
                 total_compressed_size: total_compressed_size,
-                file_size: total_compressed_size
+                filesize: total_compressed_size
               })
 
             false ->
               %{size: size} = File.stat!(resource_path)
-              Map.merge(base, %{content_hash: hash, file_size: size})
+              Map.merge(base, %{content_hash: hash, filesize: size})
           end
 
         Transport.S3.upload_to_s3!(:history, body, filename)

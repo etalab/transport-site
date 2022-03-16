@@ -30,7 +30,7 @@ defmodule DB.ResourceHistory do
     resource_id
     |> latest_resource_history_payload()
     |> case do
-      %{"permanent_url" => url, "file_size" => file_size} -> %{url: url, file_size: file_size}
+      %{"permanent_url" => url, "filesize" => filesize} -> %{url: url, filesize: filesize}
       _ -> nil
     end
   end
@@ -45,7 +45,7 @@ defmodule DB.ResourceHistory do
     |> distinct([r, rh: rh], rh.datagouv_id)
     |> select(
       [r, rh: rh],
-      {r.id, %{url: fragment("payload->>'permanent_url'"), file_size: fragment("payload->>'file_size'")}}
+      {r.id, %{url: fragment("payload->>'permanent_url'"), filesize: fragment("payload->>'filesize'")}}
     )
     |> DB.Repo.all()
     |> Enum.into(%{})

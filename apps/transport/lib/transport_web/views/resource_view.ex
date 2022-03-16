@@ -172,8 +172,8 @@ defmodule TransportWeb.ResourceView do
     live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: type)
   end
 
-  def is_geojson_with_viz(%{format: "geojson"}, %{url: url, file_size: file_size})
-      when not is_nil(file_size) and not is_nil(url),
+  def is_geojson_with_viz(%{format: "geojson"}, %{url: url, filesize: filesize})
+      when not is_nil(filesize) and not is_nil(url),
       do: true
 
   def is_geojson_with_viz(_, _), do: false

@@ -39,12 +39,12 @@ defmodule DB.ResourceHistoryTest do
     insert(:resource_history, %{
       datagouv_id: "datagouv",
       inserted_at: past,
-      payload: %{"permanent_url" => url = "url", "file_size" => size = 10}
+      payload: %{"permanent_url" => url = "url", "filesize" => size = 10}
     })
 
-    assert %{url: url, file_size: size} == latest_resource_history_infos(resource_id_2)
+    assert %{url: url, filesize: size} == latest_resource_history_infos(resource_id_2)
 
-    # new resource history, no file_size
+    # new resource history, no filesize
     insert(:resource_history, %{datagouv_id: "datagouv", inserted_at: now, payload: %{"permanent_url" => url}})
 
     assert is_nil(latest_resource_history_infos(resource_id_2))
@@ -65,7 +65,7 @@ defmodule DB.ResourceHistoryTest do
     %{id: resource_id_1} = insert(:resource, %{dataset_id: dataset_id, datagouv_id: "datagouv_1"})
     insert(:resource_history, %{datagouv_id: "datagouv_1", inserted_at: now})
 
-    # no file_size in payload
+    # no filesize in payload
     %{id: resource_id_2} = insert(:resource, %{dataset_id: dataset_id, datagouv_id: "datagouv_2"})
     insert(:resource_history, %{datagouv_id: "datagouv_2", inserted_at: pastpast})
 
@@ -82,13 +82,13 @@ defmodule DB.ResourceHistoryTest do
     insert(:resource_history, %{
       datagouv_id: "datagouv_3",
       inserted_at: now,
-      payload: %{"permanent_url" => url, "file_size" => file_size = "10"}
+      payload: %{"permanent_url" => url, "filesize" => filesize = "10"}
     })
 
     assert %{
-             resource_id_1 => %{url: nil, file_size: nil},
-             resource_id_2 => %{url: url, file_size: nil},
-             resource_id_3 => %{url: url, file_size: file_size}
+             resource_id_1 => %{url: nil, filesize: nil},
+             resource_id_2 => %{url: url, filesize: nil},
+             resource_id_3 => %{url: url, filesize: filesize}
            } == latest_dataset_resources_history_infos(dataset_id)
   end
 end
