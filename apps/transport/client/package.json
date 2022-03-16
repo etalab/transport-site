@@ -14,6 +14,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.1.0",
     "@tarekraafat/autocomplete.js": "^7.2.0",
+    "clipboard": "^2.0.10",
     "core-js": "3",
     "leaflet": "^1.4.0",
     "leaflet.pattern": "^0.1.0",

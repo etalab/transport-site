@@ -7,6 +7,7 @@ defmodule TransportWeb.ResourceView do
   import TransportWeb.DatasetView, only: [schema_url: 1, errors_count: 1, warnings_count: 1]
   import DB.Resource, only: [has_errors_details?: 1]
   import DB.ResourceUnavailability, only: [round_float: 2]
+  import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
   alias Shared.DateTimeDisplay
   def format_related_objects(nil), do: ""
 
@@ -170,5 +171,44 @@ defmodule TransportWeb.ResourceView do
     end
 
     live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: type)
+  end
+
+  def is_geojson_with_viz(%{format: "geojson"}, %{url: url, filesize: filesize})
+      when not is_nil(filesize) and not is_nil(url),
+      do: true
+
+  def is_geojson_with_viz(_, _), do: false
+
+  # credo:disable-for-next-line
+  def service_alert_icon(%{cause: cause}) do
+    case cause do
+      :UNKNOWN_CAUSE -> "fa fa-question-circle"
+      :OTHER_CAUSE -> "fa fa-question-circle"
+      :TECHNICAL_PROBLEM -> "fa fa-exclamation-triangle"
+      :STRIKE -> "fa fa-fist-raised"
+      :DEMONSTRATION -> "fa fa-bullhorn"
+      :ACCIDENT -> "fa fa-car-crash"
+      :HOLIDAY -> "fa fa-calendar"
+      :WEATHER -> "fa fa-cloud-rain"
+      :MAINTENANCE -> "fa fa-wrench"
+      :CONSTRUCTION -> "fa fa-hard-hat"
+      :POLICE_ACTIVITY -> "fa fa-user-shield"
+      :MEDICAL_EMERGENCY -> "fa fa-ambulance"
+    end
+  end
+
+  # credo:disable-for-next-line
+  def service_alert_effect(%{effect: effect}) do
+    case effect do
+      :NO_SERVICE -> dgettext("page-dataset-details", "No service")
+      :REDUCED_SERVICE -> dgettext("page-dataset-details", "Reduced service")
+      :SIGNIFICANT_DELAYS -> dgettext("page-dataset-details", "Significant delays")
+      :DETOUR -> dgettext("page-dataset-details", "Detour")
+      :ADDITIONAL_SERVICE -> dgettext("page-dataset-details", "Additional service")
+      :MODIFIED_SERVICE -> dgettext("page-dataset-details", "Modified service")
+      :OTHER_EFFECT -> dgettext("page-dataset-details", "Other effect")
+      :UNKNOWN_EFFECT -> dgettext("page-dataset-details", "Unknown effect")
+      :STOP_MOVED -> dgettext("page-dataset-details", "Stop moved")
+    end
   end
 end

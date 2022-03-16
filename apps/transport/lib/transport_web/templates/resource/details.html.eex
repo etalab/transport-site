@@ -19,6 +19,28 @@
       <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>
       <%= render "_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn %>
 
+      <%= if is_geojson_with_viz(@resource, @resource_history_infos) do %>
+      <h2 class="mt-48" id="visualization"><%= dgettext("validations", "Visualization")%></h2>
+      <div class="panel no-padding">
+        <div id="resource-geojson-info" class="p-24"></div>
+        <div id="resource-geojson"></div>
+        <script src="<%= static_path(@conn, "/js/mapgeojson.js") %>"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+              GenericGeojsonMap(
+                'resource-geojson',
+                'resource-geojson-info',
+                "<%= @resource_history_infos.url %>",
+                "<%= @resource_history_infos.filesize %>",
+                "<%= dgettext("validations", "Visualization is quite big") %>",
+                "<%= dgettext("validations", "Show anyway") %>"
+                )
+              })
+              </script>
+      </div>
+      <% end %>
+
+      <%= render "_service_alerts.html", gtfs_rt_feed: @gtfs_rt_feed, locale: get_session(@conn, :locale)%>
     </div>
   </div>
 </section>

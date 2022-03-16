@@ -8,6 +8,8 @@ defmodule TransportWeb.ResourceControllerTest do
 
   setup :verify_on_exit!
 
+  @service_alerts_file "#{__DIR__}/../../fixture/files/bibus-brest-gtfs-rt-alerts.pb"
+
   setup do
     {:ok, _} =
       %Dataset{
@@ -158,7 +160,13 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "gtfs-rt resource with error details sends back a 200", %{conn: conn} do
-    resource = Resource |> preload(:validation) |> Repo.get_by(datagouv_id: "5")
+    %{url: url} = resource = Resource |> preload(:validation) |> Repo.get_by(datagouv_id: "5")
+
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn ^url, [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: File.read!(@service_alerts_file)}}
+    end)
+
     assert Resource.is_gtfs_rt?(resource)
     assert Resource.has_errors_details?(resource)
     content = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
@@ -173,7 +181,8 @@ defmodule TransportWeb.ResourceControllerTest do
       "sample 1",
       "sample 2",
       resource.validation.details["files"]["gtfs_permanent_url"],
-      resource.validation.details["files"]["gtfs_rt_permanent_url"]
+      resource.validation.details["files"]["gtfs_rt_permanent_url"],
+      "Prolongation des travaux rue de Kermaria"
     ]
     |> Enum.each(&assert content =~ &1)
   end
