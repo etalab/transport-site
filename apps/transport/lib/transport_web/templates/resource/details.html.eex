@@ -39,6 +39,8 @@
               </script>
       </div>
       <% end %>
+
+      <%= render "_service_alerts.html", gtfs_rt_feed: @gtfs_rt_feed, locale: get_session(@conn, :locale)%>
     </div>
   </div>
 </section>

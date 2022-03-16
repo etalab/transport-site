@@ -567,13 +567,17 @@ defmodule DB.Resource do
   def is_gtfs_rt?(%__MODULE__{format: "gtfsrt"}), do: true
   def is_gtfs_rt?(_), do: false
 
+  @spec is_siri?(__MODULE__.t()) :: boolean
+  def is_siri?(%__MODULE__{format: "SIRI"}), do: true
+  def is_siri?(_), do: false
+
   @spec is_siri_lite?(__MODULE__.t()) :: boolean
   def is_siri_lite?(%__MODULE__{format: "SIRI lite"}), do: true
   def is_siri_lite?(_), do: false
 
   @spec is_real_time?(__MODULE__.t()) :: boolean
   def is_real_time?(%__MODULE__{} = resource) do
-    is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource)
+    is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource) or is_siri?(resource)
   end
 
   @spec ttl(__MODULE__.t()) :: integer() | nil

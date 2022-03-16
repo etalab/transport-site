@@ -290,11 +290,11 @@ defmodule TransportWeb.DatasetView do
       |> Dataset.official_resources()
       |> Enum.reject(fn r -> r.is_available end)
 
-  def gtfs_rt_official_resources(dataset),
+  def real_time_official_resources(dataset),
     do:
       dataset
       |> official_available_resources()
-      |> Enum.filter(&Resource.is_gtfs_rt?/1)
+      |> Enum.filter(&Resource.is_real_time?/1)
 
   def gbfs_official_resources(dataset),
     do:
@@ -436,6 +436,8 @@ defmodule TransportWeb.DatasetView do
     |> Enum.sort_by(& &1.metadata["end_date"], &>=/2)
     |> Enum.sort_by(&Resource.valid_and_available?(&1), &>=/2)
   end
+
+  def order_resources_by_format(resources), do: resources |> Enum.sort_by(& &1.format, &>=/2)
 
   def schema_url(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do
     "https://schema.data.gouv.fr/#{schema_name}/#{schema_version}/"
