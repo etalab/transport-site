@@ -159,10 +159,6 @@ msgid "Details"
 msgstr "Détails"
 
 #, elixir-autogen, elixir-format
-msgid "Other datasets of "
-msgstr "Autres jeux de données de "
-
-#, elixir-autogen, elixir-format
 msgid "Website"
 msgstr "Site internet"
 
@@ -497,3 +493,7 @@ msgstr "Voici le flux GTFS-RT décodé au format Protobuf. Vous pouvez consulter
 #, elixir-autogen, elixir-format
 msgid "See full payload"
 msgstr "Voir le contenu du flux"
+
+#, elixir-autogen, elixir-format
+msgid "Other datasets of %{name}"
+msgstr "Autres jeux de données de %{name}"
