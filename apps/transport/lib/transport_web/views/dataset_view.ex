@@ -290,11 +290,11 @@ defmodule TransportWeb.DatasetView do
       |> Dataset.official_resources()
       |> Enum.reject(fn r -> r.is_available end)
 
-  def gtfs_rt_official_resources(dataset),
+  def real_time_official_resources(dataset),
     do:
       dataset
       |> official_available_resources()
-      |> Enum.filter(&Resource.is_gtfs_rt?/1)
+      |> Enum.filter(&Resource.is_real_time?/1)
 
   def gbfs_official_resources(dataset),
     do:
