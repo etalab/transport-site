@@ -250,4 +250,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Visualization"
-msgstr "Visualisation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Visualization is quite big"
+msgstr ""

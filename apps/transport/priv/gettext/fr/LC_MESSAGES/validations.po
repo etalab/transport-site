@@ -252,3 +252,7 @@ msgstr "La validation porte sur le flux GTFS-RT et sur sa cohérence avec le fic
 #, elixir-autogen, elixir-format
 msgid "Visualization"
 msgstr "Visualisation"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Visualization is quite big"
+msgstr "La visualisation est volumineuse"
