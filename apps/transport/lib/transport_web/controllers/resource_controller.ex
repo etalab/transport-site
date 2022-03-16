@@ -18,6 +18,7 @@ defmodule TransportWeb.ResourceController do
     conn =
       conn
       |> assign(:uptime_per_day, DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days()))
+      |> assign(:resource_history_infos, DB.ResourceHistory.latest_resource_history_infos(id))
       |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
       |> put_resource_flash(resource.dataset.is_active)
 

@@ -299,7 +299,7 @@ msgid "during validation"
 msgstr "lors de la validation"
 
 #, elixir-autogen, elixir-format
-msgid "Data visualisation available!"
+msgid "Data visualization available!"
 msgstr "Visualisation des données disponible !"
 
 #, elixir-autogen, elixir-format

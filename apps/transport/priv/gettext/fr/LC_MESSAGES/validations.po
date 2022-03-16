@@ -248,3 +248,11 @@ msgstr "Le contenu d'un flux GTFS-RT est susceptible de changer à chaque instan
 #, elixir-autogen, elixir-format
 msgid "This validation concerns the given GTFS-RT feed and GTFS file and has been carried out using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>. It does not validate the GTFS itself. You can validate your GTFS file <a href=\"%{gtfs_validator}\">using our GTFS validator</a>."
 msgstr "La validation porte sur le flux GTFS-RT et sur sa cohérence avec le fichier GTFS fourni. Elle a été réalisée avec le <a href=\"%{validator_url}\" target=\"_blank\">validateur CUTR GTFS-RT</a>. Elle ne porte pas sur le fichier GTFS en lui-même. Il est possible de valider un fichier GTFS grâce à <a href=\"%{gtfs_validator}\">notre validateur GTFS</a>."
+
+#, elixir-autogen, elixir-format
+msgid "Visualization"
+msgstr "Visualisation"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Visualization is quite big"
+msgstr "La visualisation est volumineuse"
