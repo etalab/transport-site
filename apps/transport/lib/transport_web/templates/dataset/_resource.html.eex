@@ -89,7 +89,7 @@
   <%= if has_associated_geojson or is_geojson_with_viz do %>
     <div>
       <a class="light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#visualization" %>">
-        <%= dgettext("page-dataset-details", "Data visualisation available!") %>
+        <%= dgettext("page-dataset-details", "Data visualization available!") %>
       </a>
     </div>
   <% end %>
