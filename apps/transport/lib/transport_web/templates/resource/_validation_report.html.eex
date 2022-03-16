@@ -1,3 +1,4 @@
+<% locale = get_session(@conn, :locale) %>
 <%= unless is_nil(@resource.schema_name) do %>
   <p>
     <%= raw dgettext("validations", ~s(This resource should follow its schema <a href="%{link}" target="_blank">%{schema}</a>.), schema: @resource.schema_name, link: schema_url(@resource)) %>
@@ -41,7 +42,7 @@
   <%= render "_errors_warnings_count.html", nb_errors: errors_count(@resource), nb_warnings: warnings_count(@resource) %>
 
   <p>
-    <%= raw dgettext("validations", ~s(Validation carried out using the <a href="%{gtfs_link}">current GTFS file</a> and the <a href="%{gtfs_rt_link}">GTFS-RT</a> at %{date} using the <a href="%{validator_url}" target="_blank">CUTR GTFS-RT validator</a>.), gtfs_link: Map.fetch!(validation.details["files"], "gtfs_permanent_url"), gtfs_rt_link: Map.fetch!(validation.details["files"], "gtfs_rt_permanent_url"), date: format_datetime(validation.date), validator_url: gtfs_rt_validator_url()) %>
+    <%= raw dgettext("validations", ~s(Validation carried out using the <a href="%{gtfs_link}">current GTFS file</a> and the <a href="%{gtfs_rt_link}">GTFS-RT</a> the %{date} using the <a href="%{validator_url}" target="_blank">CUTR GTFS-RT validator</a>.), gtfs_link: Map.fetch!(validation.details["files"], "gtfs_permanent_url"), gtfs_rt_link: Map.fetch!(validation.details["files"], "gtfs_rt_permanent_url"), date: DateTimeDisplay.format_datetime_to_paris(validation.date, locale), validator_url: gtfs_rt_validator_url()) %>
   </p>
   <%= unless Enum.empty?(errors_error_level) do %>
     <h4><%= dgettext("validations", "Errors")%></h4>

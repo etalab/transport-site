@@ -49,29 +49,6 @@ defmodule Helpers do
     res
   end
 
-  @doc """
-  Takes a binary date in the iso format, converts it to Paris timezone, outputs a binary result
-
-  iex> format_datetime("2022-03-01 16:06:44.139954Z")
-  "2022-03-01T17:06:44.139954+01:00"
-  iex> format_datetime("2022-03-01T16:06:44.139954+00:00")
-  "2022-03-01T17:06:44.139954+01:00"
-  """
-  @spec format_datetime(binary()) :: binary()
-  def format_datetime(nil), do: ""
-
-  def format_datetime(date) do
-    with {:ok, parsed_date} <- Timex.parse(date, "{ISO:Extended}"),
-         converted_date <- Timezone.convert(parsed_date, "Europe/Paris"),
-         {:ok, formatted_date} <- Formatter.format(converted_date, "{RFC3339}") do
-      formatted_date
-    else
-      {:error, error} ->
-        Logger.error(error)
-        ""
-    end
-  end
-
   @spec last_updated([DB.Resource.t()]) :: binary()
   def last_updated(resources) do
     resources
@@ -81,7 +58,7 @@ defmodule Helpers do
       [] -> nil
       dates -> Enum.max(dates)
     end
-    |> format_datetime()
+    |> Shared.DateTimeDisplay.format_naive_datetime_to_paris_tz()
   end
 
   @spec admin?(map | nil) :: boolean

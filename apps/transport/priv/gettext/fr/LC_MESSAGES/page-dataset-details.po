@@ -159,10 +159,6 @@ msgid "Details"
 msgstr "Détails"
 
 #, elixir-autogen, elixir-format
-msgid "Other datasets of "
-msgstr "Autres jeux de données de "
-
-#, elixir-autogen, elixir-format
 msgid "Website"
 msgstr "Site internet"
 
@@ -421,3 +417,7 @@ msgstr "date de dernière modification du contenu"
 #, elixir-autogen, elixir-format
 msgid "unknown"
 msgstr "inconnue"
+
+#, elixir-autogen, elixir-format
+msgid "Other datasets of %{name}"
+msgstr "Autres jeux de données de %{name}"

@@ -1,3 +1,4 @@
+<% locale = get_session(@conn, :locale) %>
 <div class="panel resource <%= valid_panel_class(@resource) %>" title="<%= resource_tooltip_content(@resource) %>">
   <% has_associated_geojson = ResourceView.has_associated_geojson(@resources_related_files, @resource.id) %>
   <% has_associated_netex = ResourceView.has_associated_netex(@resources_related_files, @resource.id) %>
@@ -16,16 +17,16 @@
   <%= if Resource.valid_and_available?(@resource) do %>
     <div title="<%= dgettext("page-dataset-details", "Validity period") %>">
       <i class="icon icon--calendar-alt" aria-hidden="true"></i>
-      <span><%= format_date(@resource.metadata["start_date"]) %></span>
+      <span><%= DateTimeDisplay.format_date(@resource.metadata["start_date"], locale) %></span>
       <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
-      <span class="<%= outdated_class(@resource) %>"><%= format_date(@resource.metadata["end_date"]) %></span>
+      <span class="<%= outdated_class(@resource) %>"><%= DateTimeDisplay.format_date(@resource.metadata["end_date"], locale) %></span>
     </div>
   <% end %>
   <div class="pb-24 light-gry">
 
     <span title="<%= dgettext("page-dataset-details", "last content modification") %>">
       <i class="icon icon--sync-alt" aria-hidden="true"></i>
-        <%= show_resource_last_update(@resources_updated_at, @resource) %>
+        <%= show_resource_last_update(@resources_updated_at, @resource, locale) %>
     </span>
 
     <%= unless is_nil(Resource.ttl(@resource)) do %>
