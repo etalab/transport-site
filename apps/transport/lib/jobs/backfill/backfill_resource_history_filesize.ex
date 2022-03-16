@@ -54,7 +54,7 @@ defmodule Transport.Jobs.Backfill.ResourceHistoryFileSize do
     {:ok, %{headers: headers}} = http_client.head(url)
     {_, filesize} = headers |> Enum.find(fn {h, _} -> h == "content-length" end)
 
-    payload = payload |> Map.put("filesize", filesize)
+    payload = payload |> Map.put("filesize", filesize |> String.to_integer())
 
     rh
     |> Ecto.Changeset.change(%{payload: payload})
