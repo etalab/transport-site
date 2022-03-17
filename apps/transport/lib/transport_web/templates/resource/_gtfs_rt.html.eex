@@ -10,6 +10,18 @@
     </p>
   <% end %>
 
+  <%= unless @gtfs_rt_feed == :error do %>
+    <h3 id="entities"><%= raw dgettext("page-dataset-details", "Entities") %></h3>
+    <p>
+      <%= raw dgettext("page-dataset-details", "Entities present in this feed at %{date}.", date: format_datetime_to_paris(Transport.GTFSRT.timestamp(@gtfs_rt_feed.feed), @locale)) %>
+    </p>
+    <%= for {entity, count} <- @gtfs_rt_feed.feed |> Transport.GTFSRT.count_entities() |> Enum.sort_by(fn {_, v} -> v end, &>=/2) do %>
+      <span class="label<%= if count > 0 do %> mode<% end %>" lang="en">
+        <%= "#{entity} (#{format_number(count)})" %>
+      </span>
+    <% end %>
+  <% end %>
+
   <%= unless @gtfs_rt_feed == :error or Enum.empty?(@gtfs_rt_feed.alerts) do %>
     <h3 id="service-alerts"><%= raw dgettext("page-dataset-details", "Service alerts") %></h3>
     <p>

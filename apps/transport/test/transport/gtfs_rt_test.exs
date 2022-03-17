@@ -49,6 +49,12 @@ defmodule Transport.GTFSRTTest do
     assert GTFSRT.timestamp(feed) == ~U[2021-12-16 15:29:02Z]
   end
 
+  test "count_entities" do
+    setup_gtfs_rt_feed(@url)
+    {:ok, feed} = GTFSRT.decode_remote_feed(@url)
+    assert %{service_alerts: 12, trip_updates: 0, vehicle_positions: 0} == GTFSRT.count_entities(feed)
+  end
+
   test "service_alerts" do
     setup_gtfs_rt_feed(@url)
     {:ok, feed} = GTFSRT.decode_remote_feed(@url)
