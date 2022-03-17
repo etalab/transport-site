@@ -187,6 +187,20 @@ defmodule TransportWeb.ResourceControllerTest do
     |> Enum.each(&assert content =~ &1)
   end
 
+  test "gtfs-rt resource with feed decode error", %{conn: conn} do
+    %{url: url} = resource = Resource |> preload(:validation) |> Repo.get_by(datagouv_id: "5")
+
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn ^url, [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 502, body: ""}}
+    end)
+
+    assert Resource.is_gtfs_rt?(resource)
+    content = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+
+    assert content =~ "Impossible de décoder le flux GTFS-RT"
+  end
+
   test "downloading a resource that can be directly downloaded", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "1")
     assert Resource.can_direct_download?(resource)

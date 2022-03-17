@@ -1,6 +1,16 @@
-<%= unless is_nil(@gtfs_rt_feed) or Enum.empty?(@gtfs_rt_feed.alerts)  do %>
-  <h2><%= dgettext("page-dataset-details", "GTFS-RT feed content") %></h2>
-  <div class="panel">
+<h2><%= dgettext("page-dataset-details", "GTFS-RT feed content") %></h2>
+
+<div class="panel">
+  <%= if @gtfs_rt_feed == :error do %>
+    <div class="notification error full-width mt-0">
+      <p><%= dgettext("page-dataset-details", "Could not decode the GTFS-RT feed.") %></p>
+    </div>
+    <p>
+      <%= dgettext("page-dataset-details", "The GTFS-RT feed should be accessible over HTTP, without authentication and use the Protobuf format.") %>
+    </p>
+  <% end %>
+
+  <%= unless @gtfs_rt_feed == :error or Enum.empty?(@gtfs_rt_feed.alerts) do %>
     <h3 id="service-alerts"><%= raw dgettext("page-dataset-details", "Service alerts") %></h3>
     <p>
       <%= dgettext("page-dataset-details", "Here is a display of service alerts contained in this feed at %{date}.", date: format_datetime_to_paris(Transport.GTFSRT.timestamp(@gtfs_rt_feed.feed), @locale)) %>
@@ -41,20 +51,24 @@
         <% end %>
       </div>
     <% end %>
+  <% end %>
+
+  <%= unless @gtfs_rt_feed == :error do %>
+    <h3 id="gtfs-rt-decoded-feed"><%= dgettext("page-dataset-details", "Decoded GTFS-RT feed") %></h3>
 
     <details>
       <summary><%= dgettext("page-dataset-details", "See full payload") %></summary>
         <p>
-          <%= raw dgettext("page-dataset-details", "Here is the decoded GTFS-RT feed Protobuf. You can look at <a href=\"%{link}\" target=\"_blank\">the GTFS-RT documentation</a>.", link: "https://developers.google.com/transit/gtfs-realtime/reference") %>
+          <%= raw dgettext("page-dataset-details", "Here is the decoded GTFS-RT feed Protobuf at %{date}. You can look at <a href=\"%{link}\" target=\"_blank\">the GTFS-RT documentation</a>.", link: "https://developers.google.com/transit/gtfs-realtime/reference", date: format_datetime_to_paris(Transport.GTFSRT.timestamp(@gtfs_rt_feed.feed), @locale)) %>
         </p>
-        <button class="button" data-clipboard-target="#alerts_payload">
+        <button class="button" data-clipboard-target="#feed_payload">
           <i class="fa fa-copy"></i>
           <%= dgettext("page-dataset-details", "Copy to clipboard") %>
         </button>
-        <code id="alerts_payload">
+        <code id="feed_payload">
           <%= inspect(@gtfs_rt_feed.feed, pretty: true, width: 120) %>
         </code>
     </details>
-  </div>
+  <% end %>
+</div>
 <script defer type="text/javascript" src="/js/clipboard.js"></script>
-<% end %>

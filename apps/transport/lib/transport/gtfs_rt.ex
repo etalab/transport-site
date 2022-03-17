@@ -2,9 +2,10 @@ defmodule Transport.GTFSRT do
   @moduledoc """
   A module to work with GTFS-RT feeds.
   """
+  require Logger
   alias TransitRealtime.{Alert, FeedMessage, TimeRange, TranslatedString}
 
-  @spec decode_remote_feed(binary()) :: {:ok, TransitRealtime.FeedMessage.t()} | :error
+  @spec decode_remote_feed(binary()) :: {:ok, TransitRealtime.FeedMessage.t()} | {:error, binary()}
   def decode_remote_feed(url) do
     case http_client().get(url, [], follow_redirect: true) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -16,12 +17,15 @@ defmodule Transport.GTFSRT do
           {:ok, data}
         rescue
           e ->
-            Sentry.capture_exception(e)
-            :error
+            Logger.error(e)
+            {:error, "Could not decode Protobuf"}
         end
 
-      _ ->
-        :error
+      {:ok, %HTTPoison.Response{status_code: status_code}} when status_code != 200 ->
+        {:error, "Got a non 200 HTTP status code: #{status_code}"}
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, "Got an HTTP error: #{reason}"}
     end
   end
 

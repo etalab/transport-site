@@ -9,16 +9,38 @@ defmodule Transport.GTFSRTTest do
   @sample_file "#{__DIR__}/../fixture/files/bibus-brest-gtfs-rt-alerts.pb"
   @url "https://example.com/gtfs-rt"
 
-  test "decode_remote_feed" do
-    setup_gtfs_rt_feed(@url)
-    {:ok, feed} = GTFSRT.decode_remote_feed(@url)
-    message = feed.entity |> List.first()
+  describe "decode_remote_feed" do
+    test "it works" do
+      setup_gtfs_rt_feed(@url)
+      {:ok, feed} = GTFSRT.decode_remote_feed(@url)
+      message = feed.entity |> List.first()
 
-    assert message.id == "2ea09850-74d9-4db7-a537-d97d821956e8"
-    assert message.vehicle == nil
-    assert message.trip_update == nil
-    assert message.alert.cause == :CONSTRUCTION
-    assert message.alert.description_text.translation |> List.first() |> Map.get(:text) =~ ~r/Prolongation des travaux/
+      assert message.id == "2ea09850-74d9-4db7-a537-d97d821956e8"
+      assert message.vehicle == nil
+      assert message.trip_update == nil
+      assert message.alert.cause == :CONSTRUCTION
+
+      assert message.alert.description_text.translation |> List.first() |> Map.get(:text) =~
+               ~r/Prolongation des travaux/
+    end
+
+    test "cannot decode Protobuf" do
+      setup_http_response(@url, {:ok, %HTTPoison.Response{status_code: 200, body: ~s({"foo": 42})}})
+
+      assert {:error, "Could not decode Protobuf"} == GTFSRT.decode_remote_feed(@url)
+    end
+
+    test "502 HTTP status code" do
+      setup_http_response(@url, {:ok, %HTTPoison.Response{status_code: 502, body: ""}})
+
+      assert {:error, "Got a non 200 HTTP status code: 502"} == GTFSRT.decode_remote_feed(@url)
+    end
+
+    test "HTTPoison error" do
+      setup_http_response(@url, {:error, %HTTPoison.Error{reason: "SSL problemz"}})
+
+      assert {:error, "Got an HTTP error: SSL problemz"} == GTFSRT.decode_remote_feed(@url)
+    end
   end
 
   test "timestamp" do
@@ -157,10 +179,11 @@ defmodule Transport.GTFSRTTest do
     DateTime.utc_now() |> DateTime.add(seconds, :second) |> DateTime.to_unix()
   end
 
+  defp setup_http_response(url, response) do
+    Transport.HTTPoison.Mock |> expect(:get, fn ^url, [], follow_redirect: true -> response end)
+  end
+
   defp setup_gtfs_rt_feed(url) do
-    Transport.HTTPoison.Mock
-    |> expect(:get, fn ^url, [], follow_redirect: true ->
-      {:ok, %HTTPoison.Response{status_code: 200, body: File.read!(@sample_file)}}
-    end)
+    setup_http_response(url, {:ok, %HTTPoison.Response{status_code: 200, body: File.read!(@sample_file)}})
   end
 end
