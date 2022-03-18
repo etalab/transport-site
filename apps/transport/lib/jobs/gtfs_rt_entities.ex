@@ -35,7 +35,7 @@ defmodule Transport.Jobs.GTFSRTEntitiesJob do
   def perform(%Oban.Job{args: %{"resource_id" => id}}) do
     resource = Repo.get!(Resource, id)
 
-    GTFSRT.decode_remote_feed(resource.url) |> process_feed(resource)
+    resource.url |> GTFSRT.decode_remote_feed() |> process_feed(resource)
 
     :ok
   end
@@ -50,7 +50,7 @@ defmodule Transport.Jobs.GTFSRTEntitiesJob do
 
     resource
     |> Resource.changeset(%{
-      metadata: Map.put(metadata || %{}, @entities_metadata_key, new_entities),
+      metadata: Map.put(metadata, @entities_metadata_key, new_entities),
       features: Map.keys(new_entities)
     })
     |> Repo.update!()
