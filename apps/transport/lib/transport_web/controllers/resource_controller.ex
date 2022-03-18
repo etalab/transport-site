@@ -33,7 +33,7 @@ defmodule TransportWeb.ResourceController do
     lang = get_session(conn, :locale)
 
     Transport.Cache.API.fetch(
-      "service_alerts_#{resource.id}_#{lang}",
+      "gtfs_rt_feed_#{resource.id}_#{lang}",
       fn ->
         if Resource.is_gtfs_rt?(resource) do
           case Transport.GTFSRT.decode_remote_feed(resource.url) do
@@ -43,8 +43,8 @@ defmodule TransportWeb.ResourceController do
                 feed: feed
               }
 
-            _ ->
-              nil
+            {:error, _} ->
+              :error
           end
         else
           nil

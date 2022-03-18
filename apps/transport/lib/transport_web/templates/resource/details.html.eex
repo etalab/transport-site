@@ -40,7 +40,9 @@
       </div>
       <% end %>
 
-      <%= render "_service_alerts.html", gtfs_rt_feed: @gtfs_rt_feed, locale: get_session(@conn, :locale)%>
+      <%= if DB.Resource.is_gtfs_rt?(@resource) do %>
+        <%= render "_gtfs_rt.html", gtfs_rt_feed: @gtfs_rt_feed, locale: get_session(@conn, :locale) %>
+      <% end %>
     </div>
   </div>
 </section>
