@@ -189,7 +189,12 @@ defmodule TransportWeb.API.DatasetController do
         "content_hash" => resource.content_hash,
         "community_resource_publisher" => resource.community_resource_publisher,
         "metadata" => resource.metadata,
-        "original_resource_url" => resource.original_resource_url
+        "original_resource_url" => resource.original_resource_url,
+        "filesize" => resource.filesize,
+        "modes" => resource.modes,
+        "features" => resource.features,
+        "schema_name" => resource.schema_name,
+        "schema_version" => resource.schema_version
       }
       |> Enum.filter(fn {_, v} -> !is_nil(v) end)
       |> Enum.into(%{})
