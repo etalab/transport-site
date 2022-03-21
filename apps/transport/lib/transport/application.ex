@@ -24,17 +24,20 @@ defmodule Transport.Application do
       end
     end
 
-    run_realtime_poller = cond do
-      Mix.env() == :prod && worker_only?() ->
-        # in prod, run only on the worker, to avoid polluting the website
-        true
-      Mix.env() == :dev ->
-        # in dev, always run
-        true
-      true ->
-        # otherwise, nope
-        false
-    end
+    run_realtime_poller =
+      cond do
+        Mix.env() == :prod && worker_enabled?() ->
+          # in prod, run only on the worker, to avoid polluting the website
+          true
+
+        Mix.env() == :dev ->
+          # in dev, always run
+          true
+
+        true ->
+          # otherwise, nope
+          false
+      end
 
     children =
       [
