@@ -16,9 +16,12 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTEntitiesJobTest do
 
   describe "GTFSRTEntitiesDispatcherJob" do
     test "selects appropriate resources" do
+      active_dataset = insert(:dataset, is_active: true)
+      inactive_dataset = insert(:dataset, is_active: false)
       insert(:resource, is_available: true, format: "gbfs")
       insert(:resource, is_available: false, format: "gtfs-rt")
-      %{id: resource_id} = insert(:resource, is_available: true, format: "gtfs-rt")
+      insert(:resource, is_available: true, format: "gtfs-rt", dataset: inactive_dataset)
+      %{id: resource_id} = insert(:resource, is_available: true, format: "gtfs-rt", dataset: active_dataset)
 
       assert :ok == perform_job(GTFSRTEntitiesDispatcherJob, %{})
       assert [%Oban.Job{args: %{"resource_id" => ^resource_id}}] = all_enqueued(worker: GTFSRTEntitiesJob)

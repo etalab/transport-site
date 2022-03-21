@@ -21,7 +21,7 @@
       </span>
     <% end %>
 
-    <%= if @entities_seen_recently do %>
+    <%= unless is_nil(@entities_seen_recently) or Enum.empty?(@entities_seen_recently) do %>
       <p>
         <%= dgettext("page-dataset-details", "Entities seen in the last %{nb} days.", nb: nb_days_entities()) %>
       </p>

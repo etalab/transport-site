@@ -4,7 +4,7 @@ defmodule Transport.Jobs.GTFSRTEntitiesDispatcherJob do
   """
   use Oban.Worker, max_attempts: 3
   import Ecto.Query
-  alias DB.{Repo, Resource}
+  alias DB.{Dataset, Repo, Resource}
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
@@ -16,7 +16,11 @@ defmodule Transport.Jobs.GTFSRTEntitiesDispatcherJob do
   end
 
   def relevant_resources do
-    Resource |> where([r], r.format == "gtfs-rt" and r.is_available) |> Repo.all()
+    Resource
+    |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
+    |> where([_r, d], d.is_active)
+    |> where([r, _d], r.format == "gtfs-rt" and r.is_available)
+    |> Repo.all()
   end
 end
 
