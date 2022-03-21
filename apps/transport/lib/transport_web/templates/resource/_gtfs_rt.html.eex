@@ -20,6 +20,15 @@
         <%= "#{entity} (#{format_number(count)})" %>
       </span>
     <% end %>
+
+    <%= if @entities_seen_recently do %>
+      <p>
+        <%= dgettext("page-dataset-details", "Entities seen in the last %{nb} days.", nb: nb_days_entities()) %>
+      </p>
+      <%= for feature <- @entities_seen_recently do %>
+        <span class="label"><%= feature %></span>
+      <% end %>
+    <% end %>
   <% end %>
 
   <%= unless @gtfs_rt_feed == :error or Enum.empty?(@gtfs_rt_feed.alerts) do %>

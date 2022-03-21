@@ -211,4 +211,6 @@ defmodule TransportWeb.ResourceView do
       :STOP_MOVED -> dgettext("page-dataset-details", "Stop moved")
     end
   end
+
+  def nb_days_entities, do: Transport.Jobs.GTFSRTEntitiesJob.days_to_keep()
 end

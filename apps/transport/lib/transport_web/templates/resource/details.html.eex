@@ -41,7 +41,7 @@
       <% end %>
 
       <%= if DB.Resource.is_gtfs_rt?(@resource) do %>
-        <%= render "_gtfs_rt.html", gtfs_rt_feed: @gtfs_rt_feed, locale: get_session(@conn, :locale) %>
+        <%= render "_gtfs_rt.html", gtfs_rt_feed: @gtfs_rt_feed, locale: get_session(@conn, :locale), entities_seen_recently: @resource.features %>
       <% end %>
     </div>
   </div>
