@@ -24,6 +24,18 @@ defmodule Transport.Application do
       end
     end
 
+    run_realtime_poller = cond do
+      Mix.env() == :prod && worker_only?() ->
+        # in prod, run only on the worker, to avoid polluting the website
+        true
+      Mix.env() == :dev ->
+        # in dev, always run
+        true
+      true ->
+        # otherwise, nope
+        false
+    end
+
     children =
       [
         {Cachex, name: @cache_name},
@@ -37,7 +49,7 @@ defmodule Transport.Application do
         {Oban, Application.fetch_env!(:transport, Oban)}
       ]
       |> add_scheduler()
-      |> add_if(fn -> Mix.env() != :test && webserver_enabled?() end, Transport.RealtimePoller)
+      |> add_if(fn -> run_realtime_poller end, Transport.RealtimePoller)
       ## manually add a children supervisor that is not scheduled
       |> Kernel.++([{Task.Supervisor, name: ImportTaskSupervisor}])
 
