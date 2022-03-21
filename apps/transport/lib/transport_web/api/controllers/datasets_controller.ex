@@ -180,7 +180,7 @@ defmodule TransportWeb.API.DatasetController do
       %{
         "datagouv_id" => resource.datagouv_id,
         "title" => resource.title,
-        "updated" => Helpers.format_datetime(resource.last_update),
+        "updated" => Shared.DateTimeDisplay.format_naive_datetime_to_paris_tz(resource.last_update),
         "url" => resource.latest_url,
         "original_url" => resource.url,
         "end_calendar_validity" => resource.metadata["end_date"],
@@ -189,7 +189,12 @@ defmodule TransportWeb.API.DatasetController do
         "content_hash" => resource.content_hash,
         "community_resource_publisher" => resource.community_resource_publisher,
         "metadata" => resource.metadata,
-        "original_resource_url" => resource.original_resource_url
+        "original_resource_url" => resource.original_resource_url,
+        "filesize" => resource.filesize,
+        "modes" => resource.modes,
+        "features" => resource.features,
+        "schema_name" => resource.schema_name,
+        "schema_version" => resource.schema_version
       }
       |> Enum.filter(fn {_, v} -> !is_nil(v) end)
       |> Enum.into(%{})

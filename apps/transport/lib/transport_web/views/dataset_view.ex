@@ -11,6 +11,7 @@ defmodule TransportWeb.DatasetView do
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
   import Transport.GbfsUtils, only: [gbfs_validation_link: 1]
+  alias Shared.DateTimeDisplay
   alias TransportWeb.ResourceView
 
   @doc """
@@ -37,40 +38,6 @@ defmodule TransportWeb.DatasetView do
       dataset: dataset,
       conn: conn
     )
-  end
-
-  @doc """
-  Function converting either a datetime or a binary to a binary date.
-  The formatting output is not coherent: it needs to be fixed
-
-
-  iex> format_datetime_to_date(~U[2022-03-01 15:53:56.335645Z])
-  "2022-03-01"
-  iex> format_datetime_to_date("2022-03-01 15:53:56.335645Z")
-  "01-03-2022"
-  """
-  def format_datetime_to_date(nil), do: ""
-
-  def format_datetime_to_date(%DateTime{} = dt), do: dt |> DateTime.to_date() |> Date.to_string()
-
-  def format_datetime_to_date(datetime) do
-    datetime
-    |> Timex.parse!("{ISO:Extended}")
-    |> Timex.format!("{0D}-{0M}-{YYYY}")
-  end
-
-  @doc """
-  Converts a binary date to a French looking date
-
-  iex> format_date("2022-03-01")
-  "01-03-2022"
-  """
-  def format_date(nil), do: ""
-
-  def format_date(date) do
-    date
-    |> Timex.parse!("{YYYY}-{0M}-{0D}")
-    |> Timex.format!("{0D}-{0M}-{YYYY}")
   end
 
   def first_gtfs(dataset) do
@@ -323,11 +290,11 @@ defmodule TransportWeb.DatasetView do
       |> Dataset.official_resources()
       |> Enum.reject(fn r -> r.is_available end)
 
-  def gtfs_rt_official_resources(dataset),
+  def real_time_official_resources(dataset),
     do:
       dataset
       |> official_available_resources()
-      |> Enum.filter(&Resource.is_gtfs_rt?/1)
+      |> Enum.filter(&Resource.is_real_time?/1)
 
   def gbfs_official_resources(dataset),
     do:
@@ -470,6 +437,8 @@ defmodule TransportWeb.DatasetView do
     |> Enum.sort_by(&Resource.valid_and_available?(&1), &>=/2)
   end
 
+  def order_resources_by_format(resources), do: resources |> Enum.sort_by(& &1.format, &>=/2)
+
   def schema_url(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do
     "https://schema.data.gouv.fr/#{schema_name}/#{schema_version}/"
   end
@@ -498,7 +467,7 @@ defmodule TransportWeb.DatasetView do
 
   def has_validity_period?(%DB.ResourceHistory{}), do: false
 
-  def show_resource_last_update(resources_updated_at, %DB.Resource{id: id} = resource) do
+  def show_resource_last_update(resources_updated_at, %DB.Resource{id: id} = resource, locale) do
     if Resource.is_real_time?(resource) do
       dgettext("page-dataset-details", "real-time")
     else
@@ -506,7 +475,7 @@ defmodule TransportWeb.DatasetView do
       |> Map.get(id)
       |> case do
         nil -> dgettext("page-dataset-details", "unknown")
-        dt -> dt |> DateTime.to_date() |> Calendar.strftime("%d-%m-%Y")
+        dt -> dt |> DateTimeDisplay.format_datetime_to_date(locale)
       end
     end
   end

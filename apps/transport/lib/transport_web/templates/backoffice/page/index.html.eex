@@ -75,9 +75,6 @@
       <div>
         <%= link(dgettext("backoffice", "With a resource under 90% availability"), to: backoffice_page_path(@conn, :index, %{"filter" => "resource_under_90_availability"}) <> "#list_datasets") %>
       </div>
-      <div>
-        <%= link(dgettext("backoffice", "With a gtfs-rt but without a siri-lite"), to: backoffice_page_path(@conn, :index, %{"filter" => "rt_resource_without_siri_lite"}) <> "#list_datasets") %>
-      </div>
     </div>
     <% else %>
     <%= link(dgettext("backoffice", "Show all datasets"), to: backoffice_page_path(@conn, :index) <> "#list_datasets") %>

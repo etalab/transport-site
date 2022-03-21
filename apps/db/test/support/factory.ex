@@ -44,7 +44,8 @@ defmodule DB.Factory do
 
   def resource_history_factory do
     %DB.ResourceHistory{
-      datagouv_id: "resource_datagouv_id_123"
+      datagouv_id: "resource_datagouv_id_123",
+      payload: %{}
     }
   end
 

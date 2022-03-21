@@ -179,8 +179,11 @@ defmodule TransportWeb.ValidationControllerTest do
                  "type" => "gtfs-rt",
                  "secret_url_token" => token
                },
-               id: validation_id
+               id: validation_id,
+               date: date
              } = DB.Repo.one!(DB.Validation)
+
+      refute is_nil(date)
 
       assert [
                %Oban.Job{
