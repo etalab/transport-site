@@ -26,7 +26,7 @@
         <%= dgettext("page-dataset-details", "Entities seen in the last %{nb} days.", nb: nb_days_entities()) %>
       </p>
       <%= for feature <- @entities_seen_recently do %>
-        <span class="label"><%= feature %></span>
+        <span class="label mode"><%= feature %></span>
       <% end %>
     <% end %>
   <% end %>
