@@ -11,7 +11,7 @@
       </p>
       <%= if is_final_state do %>
         <p class="small">
-          <%= dgettext("validations", "Validation performed at %{date}.", date: @validation.date) %>
+          <%= dgettext("validations", "Validation performed at %{date}.", date: format_datetime(@validation.date, @locale)) %>
         </p>
       <% end %>
     </div>
@@ -39,7 +39,7 @@
             <%= TransportWeb.ValidationView.render("_errors_warnings_count.html", nb_errors: Map.fetch!(details, "errors_count"), nb_warnings: Map.fetch!(details, "warnings_count")) %>
 
             <p>
-              <%= dgettext("validations", "Validation performed at %{date}.", date: @validation.date) %>
+              <%= dgettext("validations", "Validation performed at %{date}.", date: format_datetime(@validation.date, @locale)) %>
             </p>
 
             <h4><%= dgettext("validations", "Feed details")%></h4>
@@ -57,7 +57,7 @@
                 <%= raw dgettext("validations", ~s(This validation concerns the given GTFS-RT feed and GTFS file and has been carried out using the <a href="%{validator_url}" target="_blank">CUTR GTFS-RT validator</a>. It does not validate the GTFS itself. You can validate your GTFS file <a href="%{gtfs_validator}">using our GTFS validator</a>.), gtfs_validator: TransportWeb.Router.Helpers.live_path(@socket, TransportWeb.Live.OnDemandValidationSelectLive, type: "gtfs"), validator_url: TransportWeb.ResourceView.gtfs_rt_validator_url()) %>
               </p>
               <p>
-                <%= dgettext("validations", ~s(GTFS-RT feeds change in real-time. This validation report shows the validation result performed at %{date}. You can relaunch a validation later on and get different results.), date: @validation.date) %>
+                <%= dgettext("validations", ~s(GTFS-RT feeds change in real-time. This validation report shows the validation result performed at %{date}. You can relaunch a validation later on and get different results.), date: format_datetime(@validation.date, @locale)) %>
               </p>
             </div>
 
@@ -104,7 +104,7 @@
         <% end %>
         <%= unless is_final_state do %>
           <p class="small">
-            <%= dgettext("validations", "Last updated at %{date}.", date: @last_updated_at)%>
+            <%= dgettext("validations", "Last updated at %{date}.", date: format_datetime(@last_updated_at, @locale)) %>
           </p>
         <% end %>
       </div>
