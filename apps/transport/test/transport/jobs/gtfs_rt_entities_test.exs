@@ -1,7 +1,6 @@
 defmodule Transport.Test.Transport.Jobs.GTFSRTEntitiesJobTest do
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
-  import Ecto.Query
   import DB.Factory
   import Mox
   alias Transport.Jobs.{GTFSRTEntitiesDispatcherJob, GTFSRTEntitiesJob}
