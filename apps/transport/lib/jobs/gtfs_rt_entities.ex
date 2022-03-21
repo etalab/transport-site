@@ -22,9 +22,9 @@ end
 
 defmodule Transport.Jobs.GTFSRTEntitiesJob do
   @moduledoc """
-  Job in of keeping tracking which entities are present
-  in a GTFS-RT feed over the last 7 days by using what
-  has seen and stored in the metadata and decoding
+  Job in charge of keeping track of which entities are present
+  in a GTFS-RT feed over the last 7 days by leveraging what has
+  been seen and stored in the metadata and decoding
   the feed when the job is performed.
   """
   use Oban.Worker, max_attempts: 3
