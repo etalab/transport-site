@@ -22,7 +22,10 @@ end
 
 defmodule Transport.Jobs.GTFSRTEntitiesJob do
   @moduledoc """
-  Job in charge of dispatching multiple `GTFSRTEntitiesJob`.
+  Job in of keeping tracking which entities are present
+  in a GTFS-RT feed over the last 7 days by using what
+  has seen and stored in the metadata and decoding
+  the feed when the job is performed.
   """
   use Oban.Worker, max_attempts: 3
   require Logger
@@ -41,6 +44,8 @@ defmodule Transport.Jobs.GTFSRTEntitiesJob do
   end
 
   def process_feed({:ok, feed}, %Resource{metadata: metadata} = resource) do
+    metadata = metadata || %{}
+
     new_entities =
       compute_new_entities(
         Map.get(metadata, @entities_metadata_key, %{}),
@@ -64,7 +69,7 @@ defmodule Transport.Jobs.GTFSRTEntitiesJob do
   Compute entities that have been seen in the feed over the last
   `days_to_keep()` days, using:
   - existing_entities: `%{"trip_updates" => "2022-03-18 15:43:40.963443Z", "vehicle_positions" => "2022-03-18 15:43:40.963443Z"}`
-  - entities_in_feed: `[:trip_updates: 4, :vehicle_positions: 0, :service_alerts: 0]`
+  - entities_in_feed: `%{trip_updates: 4, vehicle_positions: 0, service_alerts: 0}`
 
   Will return the same type as `existing_entities`.
   """
