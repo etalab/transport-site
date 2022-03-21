@@ -62,6 +62,12 @@ defmodule Shared.DateTimeDisplay do
   "2022-03-01 at 16:30 Europe/Paris"
   iex> format_datetime_to_paris("2022-03-01T15:30:09+00:00", "en", with_seconds: true)
   "2022-03-01 at 16:30:09 Europe/Paris"
+  # right before daylight hour change
+  iex> format_datetime_to_paris("2022-03-27T00:59+00:00", "fr")
+  "27/03/2022 à 01h59 Europe/Paris"
+  # right after daylight hour change
+  iex> format_datetime_to_paris("2022-03-27T01:00:00+00:00", "fr")
+  "27/03/2022 à 03h00 Europe/Paris"
   """
   def format_datetime_to_paris(dt, locale), do: format_datetime_to_paris(dt, locale, [])
 
