@@ -479,10 +479,6 @@ msgid "Here is a display of service alerts contained in this feed at %{date}."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Here is the decoded GTFS-RT feed Protobuf. You can look at <a href=\"%{link}\" target=\"_blank\">the GTFS-RT documentation</a>."
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "See full payload"
 msgstr ""
 
@@ -492,4 +488,28 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Real time resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Could not decode the GTFS-RT feed."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Decoded GTFS-RT feed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The GTFS-RT feed should be accessible over HTTP, without authentication and use the Protobuf format."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Here is the decoded GTFS-RT feed Protobuf at %{date}. You can look at <a href=\"%{link}\" target=\"_blank\">the GTFS-RT documentation</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Entities"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Entities present in this feed at %{date}."
 msgstr ""

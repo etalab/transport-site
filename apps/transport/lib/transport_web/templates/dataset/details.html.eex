@@ -70,6 +70,7 @@
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, unavailabilities: @unavailabilities, resources_updated_at: @resources_updated_at, resources: netex_official_resources(@dataset), title: dgettext("page-dataset-details", "NeTEx resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, unavailabilities: @unavailabilities, resources_updated_at: @resources_updated_at, resources: other_official_resources(@dataset), title: dgettext("page-dataset-details", "Resources"), latest_resources_history_infos: @latest_resources_history_infos %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, unavailabilities: @unavailabilities, resources_updated_at: @resources_updated_at, resources: unavailable_resources(@dataset), dataset: @dataset, title: dgettext("page-dataset-details", "unavailable resources"), message: dgettext("page-dataset-details", "Those resources are listed by the provider but are unreachable for now"), latest_resources_history_infos: @latest_resources_history_infos%>
+      <%= render "_reuser_message.html" %>
       <% community_resources = community_resources(@dataset) %>
       <%= unless community_resources == [] do %>
         <section class="dataset__resources white">
