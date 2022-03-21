@@ -31,8 +31,6 @@ defmodule DB.Resource do
     # all the detected modes of the ressource
     field(:modes, {:array, :string}, default: [])
 
-    field(:conversion_latest_content_hash, :string)
-
     field(:is_community_resource, :boolean)
 
     # the declared official schema used by the resource
