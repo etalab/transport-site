@@ -2,9 +2,11 @@ defmodule Transport.GTFSRT do
   @moduledoc """
   A module to work with GTFS-RT feeds.
   """
+  require Logger
   alias TransitRealtime.{Alert, FeedMessage, TimeRange, TranslatedString}
+  @entities [:service_alerts, :trip_updates, :vehicle_positions]
 
-  @spec decode_remote_feed(binary()) :: {:ok, TransitRealtime.FeedMessage.t()} | :error
+  @spec decode_remote_feed(binary()) :: {:ok, TransitRealtime.FeedMessage.t()} | {:error, binary()}
   def decode_remote_feed(url) do
     case http_client().get(url, [], follow_redirect: true) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -16,12 +18,15 @@ defmodule Transport.GTFSRT do
           {:ok, data}
         rescue
           e ->
-            Sentry.capture_exception(e)
-            :error
+            Logger.error(e)
+            {:error, "Could not decode Protobuf"}
         end
 
-      _ ->
-        :error
+      {:ok, %HTTPoison.Response{status_code: status_code}} when status_code != 200 ->
+        {:error, "Got a non 200 HTTP status code: #{status_code}"}
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, "Got an HTTP error: #{reason}"}
     end
   end
 
@@ -29,8 +34,19 @@ defmodule Transport.GTFSRT do
     feed.header.timestamp |> DateTime.from_unix!()
   end
 
-  def filter_feed(%FeedMessage{entity: entity}, type)
-      when type in [:service_alerts, :trip_updates, :vehicle_positions] do
+  @doc """
+  Count the number of entities in the feed.
+
+  Example:
+  ```
+  %{service_alerts: 12, trip_updates: 0, vehicle_positions: 0}
+  ```
+  """
+  def count_entities(%FeedMessage{} = feed) do
+    @entities |> Enum.into(%{}, &{&1, feed |> filter_feed(&1) |> Enum.count()})
+  end
+
+  def filter_feed(%FeedMessage{entity: entity}, type) when type in @entities do
     types = %{service_alerts: :alert, trip_updates: :trip_update, vehicle_positions: :vehicle}
     field_to_use = Map.fetch!(types, type)
     entity |> Enum.map(&Map.fetch!(&1, field_to_use)) |> Enum.reject(&is_nil/1)

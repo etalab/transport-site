@@ -4,7 +4,7 @@ defmodule Transport.Jobs.GtfsToDB do
   """
 
   def import_gtfs_from_resource_history(resource_history_id) do
-    %{id: data_import_id} = %DB.DataImport{resource_history_id: 200} |> DB.Repo.insert!()
+    %{id: data_import_id} = %DB.DataImport{resource_history_id: resource_history_id} |> DB.Repo.insert!()
 
     fill_stops_from_resource_history(resource_history_id, data_import_id)
     fill_stop_times_from_resource_history(resource_history_id, data_import_id)
