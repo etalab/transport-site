@@ -513,3 +513,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Entities present in this feed at %{date}."
 msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Entities seen in the last %{nb} days."
+msgstr ""
