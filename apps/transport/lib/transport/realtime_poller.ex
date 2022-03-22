@@ -2,6 +2,11 @@ defmodule Transport.RealtimePoller do
   use GenServer
   require Logger
 
+  @moduledoc """
+  A first implementation of GenServer polling (GTFS-RT) realtime data
+  only once per deployment, and broadcasting that to all connected clients.
+  """
+
   def init(state) do
     # initial schedule is immediate, but via the same code path,
     # to ensure we jump on the data
@@ -37,7 +42,8 @@ defmodule Transport.RealtimePoller do
       try do
         Logger.info("Processing #{resource_id}...")
 
-        fetch_vehicle_positions_safely(resource_id, resource_url)
+        resource_id
+        |> fetch_vehicle_positions_safely(resource_url)
         |> broadcast(resource_id)
 
         %{ok: true}
@@ -51,7 +57,7 @@ defmodule Transport.RealtimePoller do
       task,
       max_concurrency: 50,
       on_timeout: :kill_task,
-      timeout: 10000
+      timeout: 10_000
     )
     |> Stream.run()
 

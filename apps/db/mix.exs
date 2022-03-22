@@ -53,7 +53,7 @@ defmodule Db.MixProject do
       {:typed_ecto_schema, ">= 0.1.1"},
       {:ex_machina, "~> 2.4", only: :test},
       {:oban, "~> 2.9"},
-      {:ecto_interval, git: "https://github.com/etalab/ecto_interval", ref: "master"}
+      {:ecto_interval, "~> 0.2.5"}
     ]
   end
 end

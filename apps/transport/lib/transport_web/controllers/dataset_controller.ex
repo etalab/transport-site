@@ -54,6 +54,7 @@ defmodule TransportWeb.DatasetController do
       |> assign(:unavailabilities, unavailabilities(dataset))
       |> assign(:history_resources, Transport.History.Fetcher.history_resources(dataset))
       |> assign(:resources_updated_at, DB.Dataset.resources_content_updated_at(dataset))
+      |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset.id))
       |> put_status(if dataset.is_active, do: :ok, else: :not_found)
       |> render("details.html")
     else

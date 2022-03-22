@@ -2,6 +2,7 @@
 <div class="panel resource <%= valid_panel_class(@resource) %>" title="<%= resource_tooltip_content(@resource) %>">
   <% has_associated_geojson = ResourceView.has_associated_geojson(@resources_related_files, @resource.id) %>
   <% has_associated_netex = ResourceView.has_associated_netex(@resources_related_files, @resource.id) %>
+  <% is_geojson_with_viz = ResourceView.is_geojson_with_viz(@resource, Map.get(@latest_resources_history_infos || %{}, @resource.id)) %>
   <h4>
     <%= @resource.title %>
   </h4>
@@ -82,15 +83,17 @@
         <% end %>
       </a>
       <span><%= dgettext("page-dataset-details", "during validation") %></span>
-      <%= if has_associated_geojson do %>
-        <div>
-          <a class="light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#visualization" %>">
-            <%= dgettext("page-dataset-details", "Data visualisation available!") %>
-          </a>
-        </div>
-      <% end %>
     </div>
   <% end %>
+
+  <%= if has_associated_geojson or is_geojson_with_viz do %>
+    <div>
+      <a class="light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#visualization" %>">
+        <%= dgettext("page-dataset-details", "Data visualization available!") %>
+      </a>
+    </div>
+  <% end %>
+
   <%= if Resource.has_errors_details?(@resource) do %>
     <% nb_errors = errors_count(@resource) %>
     <% nb_warnings = warnings_count(@resource) %>
@@ -144,7 +147,7 @@
         </div>
       </div>
       <div>
-        <%= if Resource.is_gtfs?(@resource) do %>
+        <%= if Resource.is_gtfs?(@resource) or Resource.is_gtfs_rt?(@resource) do %>
           <a href="<%= resource_path(@conn, :details, @resource.id) %>">
             <button class="button-outline secondary small"><i class="icon icon--plus" aria-hidden="true"></i><%= dgettext("page-dataset-details", "details") %></button>
           </a>
