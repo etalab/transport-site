@@ -5,7 +5,11 @@ defmodule TransportWeb.ExploreChannel do
   A Phoenix channel used to deliver real-time data to a view.
   """
 
-  def join("explore", _message, socket) do
+  @explore_topic "explore"
+
+  def explore_topic, do: @explore_topic
+
+  def join(@explore_topic, _message, socket) do
     send(self(), :after_join)
     {:ok, socket}
   end

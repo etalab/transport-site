@@ -37,8 +37,27 @@ defmodule Transport.RealtimePoller do
 
   def handle_info(:tick, state) do
     schedule_next_tick()
-    process()
+    count = viewers_count()
+
+    if count > 0 do
+      Logger.info("Processing (#{count} viewers connected)")
+      process()
+    end
+
     {:noreply, state}
+  end
+
+  def viewers do
+    TransportWeb.Presence
+    |> Phoenix.Presence.list(TransportWeb.ExploreChannel.explore_topic())
+    |> get_in(["viewers", :metas])
+  end
+
+  def viewers_count() do
+    case viewers() do
+      nil -> 0
+      list when is_list(list) -> list |> length()
+    end
   end
 
   def process do
