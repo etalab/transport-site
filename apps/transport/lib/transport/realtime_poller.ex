@@ -129,7 +129,7 @@ defmodule Transport.RealtimePoller do
           odometer: v.position.odometer,
           speed: v.position.speed
         }
-        # TODO: some trip are empty, causing a nil exception, so we'll need to verify the presence
+        # NOTE: some trip are empty, causing a nil exception, so we'll need to verify the presence
         # trip: %{
         #   trip_id: v.trip.trip_id,
         # }
