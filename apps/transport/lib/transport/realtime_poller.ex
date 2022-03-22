@@ -37,7 +37,11 @@ defmodule Transport.RealtimePoller do
 
   def handle_info(:tick, state) do
     schedule_next_tick()
+    process()
+    {:noreply, state}
+  end
 
+  def process do
     task = fn {resource_id, resource_url} ->
       try do
         Logger.info("Processing #{resource_id}...")
@@ -60,8 +64,6 @@ defmodule Transport.RealtimePoller do
       timeout: 10_000
     )
     |> Stream.run()
-
-    {:noreply, state}
   end
 
   def broadcast(vehicle_positions, id) do
