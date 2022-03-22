@@ -27,7 +27,7 @@ defmodule DB.Dataset do
     field(:full_logo, :string)
     field(:slug, :string)
     field(:tags, {:array, :string})
-    field(:title, :string)
+    field(:datagouv_title, :string)
     field(:type, :string)
     field(:organization, :string)
     field(:has_realtime, :boolean)
@@ -118,7 +118,7 @@ defmodule DB.Dataset do
     where(
       query,
       [d],
-      fragment("search_vector @@ plainto_tsquery('custom_french', ?) or unaccent(title) = unaccent(?)", ^q, ^q)
+      fragment("search_vector @@ plainto_tsquery('custom_french', ?) or unaccent(datagouv_title) = unaccent(?)", ^q, ^q)
     )
   end
 
@@ -290,7 +290,7 @@ defmodule DB.Dataset do
       :full_logo,
       :slug,
       :tags,
-      :title,
+      :datagouv_title,
       :type,
       :region_id,
       :nb_reuses,

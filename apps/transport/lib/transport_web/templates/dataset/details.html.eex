@@ -232,7 +232,7 @@
 <div class="dataset-metas">
   <div class="panel">
     <div class="dataset__logo">
-      <%= img_tag(@dataset.full_logo, alt: @dataset.title) %>
+      <%= img_tag(@dataset.full_logo, alt: @dataset.spatial) %>
     </div>
     <div>
       <i class="fa fa-map-marker-alt"></i> <%= Dataset.get_territory_or_nil(@dataset) %>

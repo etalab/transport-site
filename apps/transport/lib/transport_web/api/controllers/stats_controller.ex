@@ -259,7 +259,7 @@ defmodule TransportWeb.API.StatsController do
           )
       },
       parent_dataset_slug: parent_dataset.slug,
-      parent_dataset_name: parent_dataset.title
+      parent_dataset_name: parent_dataset.datagouv_title
     })
   end
 

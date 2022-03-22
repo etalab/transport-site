@@ -11,7 +11,7 @@
           </a>
         </p>
         <p>
-          <%= dgettext("validations", "This resource file is part of the dataset")%> <%= link(@resource.dataset.title, to: dataset_path(@conn, :details, @resource.dataset.slug) )%>.
+          <%= dgettext("validations", "This resource file is part of the dataset")%> <%= link(@resource.dataset.spatial, to: dataset_path(@conn, :details, @resource.dataset.slug) )%>.
         </p>
         <%= render "_validation_report.html", resource: @resource, conn: @conn %>
       </div>

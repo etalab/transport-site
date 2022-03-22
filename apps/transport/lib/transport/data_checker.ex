@@ -159,7 +159,7 @@ defmodule Transport.DataChecker do
 
   def link_and_name(dataset) do
     link = link(dataset)
-    name = dataset.title
+    name = dataset.datagouv_title
 
     " * #{name} - #{link}"
   end

@@ -11,7 +11,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
       %Dataset{
         description: "Un jeu de données",
         licence: "odc-odbl",
-        title: "Horaires et arrêts du réseau IRIGO - format GTFS",
+        datagouv_title: "Horaires et arrêts du réseau IRIGO - format GTFS",
         spatial: "Horaires Angers",
         type: "public-transit",
         slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
@@ -36,7 +36,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
       %Dataset{
         description: "Un autre jeu de données",
         licence: "odc-odbl",
-        title: "offre de transport du réseau de LAVAL Agglomération (GTFS)",
+        datagouv_title: "offre de transport du réseau de LAVAL Agglomération (GTFS)",
         slug: "offre-de-transport-du-reseau-de-laval-agglomeration-gtfs",
         type: "public-transit",
         datagouv_id: "5bc493d08b4c416c84a69500",

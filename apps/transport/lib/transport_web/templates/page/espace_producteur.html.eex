@@ -18,16 +18,16 @@
           </div>
           <div class="resource-list">
             <%= if @datasets == [] do %>
-              <%= dgettext("espace-producteurs", "You have no resource to update for the moment") %>
+            <%= dgettext("espace-producteurs", "You have no resource to update for the moment") %>
             <% end %>
             <%= for dataset <- @datasets do %>
-              <div class="pt-24 panel dataset-item">
-                <strong><%= dataset.title %></strong>
-                <div class="pt-12">
-                  <%= link(dgettext("espace-producteurs", "Update a resource"),to: resource_path(@conn, :resources_list, dataset.datagouv_id), class: "button-outline primary small") %>
-                  <%= link(dgettext("espace-producteurs", "Add a resource"),to: resource_path(@conn, :form, dataset.datagouv_id), class: "button-outline secondary small") %>
-                </div>
+            <div class="pt-24 panel dataset-item">
+              <strong><%= dataset.datagouv_title %></strong>
+              <div class="pt-12">
+                <%= link(dgettext("espace-producteurs", "Update a resource"),to: resource_path(@conn, :resources_list, dataset.datagouv_id), class: "button-outline primary small") %>
+                <%= link(dgettext("espace-producteurs", "Add a resource"),to: resource_path(@conn, :form, dataset.datagouv_id), class: "button-outline secondary small") %>
               </div>
+            </div>
             <% end %>
           </div>
         </div>
