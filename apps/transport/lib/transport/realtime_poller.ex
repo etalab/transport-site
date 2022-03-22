@@ -53,7 +53,7 @@ defmodule Transport.RealtimePoller do
     |> get_in(["viewers", :metas])
   end
 
-  def viewers_count() do
+  def viewers_count do
     case viewers() do
       nil -> 0
       list when is_list(list) -> list |> length()
