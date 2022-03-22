@@ -136,4 +136,16 @@ defmodule TransportWeb.DatasetControllerTest do
     doc = Floki.parse_document!(html)
     assert [] == Floki.find(doc, "#custom-message")
   end
+
+  test "has_validity_period?" do
+    assert TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{
+             payload: %{"resource_metadata" => %{"start_date" => "2022-02-17"}}
+           })
+
+    refute TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{
+             payload: %{"resource_metadata" => %{"start_date" => nil}}
+           })
+
+    refute TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{payload: %{}})
+  end
 end
