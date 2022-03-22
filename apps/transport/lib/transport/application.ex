@@ -26,7 +26,7 @@ defmodule Transport.Application do
 
     run_realtime_poller =
       cond do
-        Mix.env() == :prod && worker_enabled?() ->
+        Mix.env() == :prod && webserver_enabled?() ->
           # in prod, run only on the worker, to avoid polluting the website
           true
 
