@@ -21,7 +21,7 @@ defmodule TransportWeb.SeoMetadata do
     %{
       title:
         dgettext("seo", "%{custom_title} - Open %{formats} datasets - %{territory}",
-        custom_title: dataset.custom_title,
+          custom_title: dataset.custom_title,
           territory: DB.Dataset.get_territory_or_nil(dataset),
           formats: formats
         )

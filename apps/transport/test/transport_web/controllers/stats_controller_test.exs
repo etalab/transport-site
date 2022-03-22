@@ -41,7 +41,8 @@ defmodule TransportWeb.API.StatsControllerTest do
       )
 
     dataset1 =
-      :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, custom_title: "other name", slug: "a"})
+      :dataset
+      |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, custom_title: "other name", slug: "a"})
 
     dataset2 =
       :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, custom_title: "name", slug: "z"})
