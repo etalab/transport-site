@@ -602,6 +602,12 @@ defmodule Transport.ImportData do
       iex> %{"url" => "https://example.com/gbfs/free_bike_status.json", "format" => "json"}
       ...> |> ImportData.formated_format("bike-scooter-sharing", false)
       "json"
+
+      iex> ImportData.formated_format(%{"title" => "Export au format GeoJSON", "format" => "json"}, "low-emission-zones", false)
+      "geojson"
+
+      iex> ImportData.formated_format(%{"format" => "GeoJSON"}, "low-emission-zones", false)
+      "geojson"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
   # credo:disable-for-next-line
@@ -615,11 +621,17 @@ defmodule Transport.ImportData do
       is_gtfs?(format) -> "GTFS"
       is_siri_lite?(format) -> "SIRI Lite"
       is_siri?(format) -> "SIRI"
+      is_geojson?(resource, format) -> "geojson"
       type == "public-transit" and not is_community_resource -> "GTFS"
       type == "bike-scooter-sharing" and is_gbfs?(resource) -> "gbfs"
       true -> format
     end
   end
+
+  # Classify GeoJSONs from ODS as geojson instead of json
+  # See https://github.com/opendatateam/udata-ods/issues/211
+  defp is_geojson?(%{"title" => "Export au format GeoJSON"}, _), do: true
+  defp is_geojson?(_, format), do: is_format?(format, ["geojson"])
 
   defp is_gbfs?(%{"url" => url}) do
     if String.contains?(url, "gbfs") do
