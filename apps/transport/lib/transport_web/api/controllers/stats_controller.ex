@@ -303,8 +303,8 @@ defmodule TransportWeb.API.StatsController do
       |> join(:left, [gv], dataset in Dataset, on: dataset.id == gv.dataset_id)
       |> select([gv, dataset], %{
         geometry: fragment("ST_Centroid(geom) as geometry"),
-        names: fragment("array_agg(? order by ? asc)", dataset.spatial, dataset.spatial),
-        slugs: fragment("array_agg(? order by ? asc)", dataset.slug, dataset.spatial)
+        names: fragment("array_agg(? order by ? asc)", dataset.custom_title, dataset.custom_title),
+        slugs: fragment("array_agg(? order by ? asc)", dataset.slug, dataset.custom_title)
       })
       |> where([_gv, dataset], dataset.type == "bike-scooter-sharing" and dataset.is_active)
       |> group_by(fragment("geometry"))

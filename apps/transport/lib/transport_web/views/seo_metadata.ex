@@ -20,8 +20,8 @@ defmodule TransportWeb.SeoMetadata do
 
     %{
       title:
-        dgettext("seo", "%{spatial} - Open %{formats} datasets - %{territory}",
-          spatial: dataset.spatial,
+        dgettext("seo", "%{custom_title} - Open %{formats} datasets - %{territory}",
+        custom_title: dataset.custom_title,
           territory: DB.Dataset.get_territory_or_nil(dataset),
           formats: formats
         )
@@ -49,8 +49,8 @@ defmodule TransportWeb.SeoMetadata do
   def metadata(TransportWeb.ResourceView, %{resource: %{format: format, title: title, dataset: dataset}}),
     do: %{
       title:
-        dgettext("seo", "%{format} Transport open dataset - %{title} for %{spatial} - %{territory}",
-          spatial: dataset.spatial,
+        dgettext("seo", "%{format} Transport open dataset - %{title} for %{custom_title} - %{territory}",
+          custom_title: dataset.custom_title,
           territory: DB.Dataset.get_territory_or_nil(dataset),
           format: format,
           title: title

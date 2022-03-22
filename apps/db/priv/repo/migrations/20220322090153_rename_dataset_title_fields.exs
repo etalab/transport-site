@@ -3,5 +3,6 @@ defmodule DB.Repo.Migrations.RenameDatasetTitleFields do
 
   def change do
     rename table(:dataset), :title, to: :datagouv_title
+    rename table(:dataset), :spatial, to: :custom_title
   end
 end

@@ -96,13 +96,13 @@
         <div class="panel dataset__panel">
           <div class="panel__content">
             <div class="dataset__description">
-              <div class="dataset__image" data-provider="<%= dataset.spatial%>">
-                <%= img_tag(dataset.logo, alt: dataset.spatial) %>
+              <div class="dataset__image" data-provider="<%= dataset.custom_title%>">
+                <%= img_tag(dataset.logo, alt: dataset.custom_title) %>
               </div>
               <div class="dataset__infos">
                 <h3 class="dataset__title">
                   <a href="/datasets/<%= dataset.slug %>/">
-                    <%= dataset.spatial %>
+                    <%= dataset.custom_title %>
                   </a>
                   <%= if admin?(assigns[:current_user]) do %>
                   <span class="dataset-backoffice-link">

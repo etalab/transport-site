@@ -48,7 +48,7 @@ defmodule TransportWeb.DatasetControllerTest do
   test "GET /api/datasets/:id", %{conn: conn} do
     dataset =
       %DB.Dataset{
-        spatial: "title",
+        custom_title: "title",
         type: "public-transit",
         datagouv_id: "datagouv",
         slug: "slug-1",
