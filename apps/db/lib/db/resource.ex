@@ -14,7 +14,6 @@ defmodule DB.Resource do
   require Logger
 
   typed_schema "resource" do
-    field(:is_active, :boolean)
     # real url
     field(:url, :string)
     field(:format, :string)
@@ -30,8 +29,6 @@ defmodule DB.Resource do
     field(:features, {:array, :string}, default: [])
     # all the detected modes of the ressource
     field(:modes, {:array, :string}, default: [])
-
-    field(:conversion_latest_content_hash, :string)
 
     field(:is_community_resource, :boolean)
 
@@ -415,7 +412,6 @@ defmodule DB.Resource do
     |> cast(
       params,
       [
-        :is_active,
         :url,
         :format,
         :last_import,

@@ -93,7 +93,8 @@ oban_crontab_all_envs =
         {"0 3,9,15,21 * * *", Transport.Jobs.GtfsToNetexConverterJob},
         {"20 8 * * *", Transport.Jobs.CleanOrphanConversionsJob},
         {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
-        {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}}
+        {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}},
+        {"20 */2 * * *", Transport.Jobs.GTFSRTEntitiesDispatcherJob}
       ]
 
     :dev ->
