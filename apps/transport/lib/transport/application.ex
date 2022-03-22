@@ -47,6 +47,7 @@ defmodule Transport.Application do
         CSVDocuments,
         SearchCommunes,
         {Phoenix.PubSub, [name: TransportWeb.PubSub, adapter: Phoenix.PubSub.PG2]},
+        TransportWeb.Presence,
         # Oban is "always started", but muted via `config/runtime.exs` for cases like
         # tests, IEx usage, front-end only mode etc.
         {Oban, Application.fetch_env!(:transport, Oban)}

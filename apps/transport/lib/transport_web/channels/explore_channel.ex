@@ -6,6 +6,12 @@ defmodule TransportWeb.ExploreChannel do
   """
 
   def join("explore", _message, socket) do
+    send(self(), :after_join)
     {:ok, socket}
+  end
+
+  def handle_info(:after_join, socket) do
+    {:ok, _} = TransportWeb.Presence.track(socket, :viewers, %{})
+    {:noreply, socket}
   end
 end
