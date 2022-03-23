@@ -102,3 +102,11 @@ msgstr "Accessibilité : non conforme"
 #, elixir-autogen, elixir-format
 msgid "Check the quality of a file or a feed"
 msgstr "Vérifier la qualité d'un fichier ou d'un flux"
+
+#, elixir-autogen, elixir-format
+msgid "Regulation"
+msgstr "Réglementation"
+
+#, elixir-autogen, elixir-format
+msgid "Standards"
+msgstr "Normes"
