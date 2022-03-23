@@ -102,3 +102,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Check the quality of a file or a feed"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Regulation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Standards"
+msgstr ""
