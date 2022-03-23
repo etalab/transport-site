@@ -462,7 +462,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def has_validity_period?(%DB.ResourceHistory{payload: %{"resource_metadata" => metadata}}) when is_map(metadata) do
-    Map.has_key?(metadata, "start_date")
+    not is_nil(Map.get(metadata, "start_date"))
   end
 
   def has_validity_period?(%DB.ResourceHistory{}), do: false
