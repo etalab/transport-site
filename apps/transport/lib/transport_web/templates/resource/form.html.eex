@@ -4,16 +4,16 @@
   <section class="pt-48 pb-24">
     <div class="container">
       <%= if new_resource do %>
-        <%= breadcrumbs [@conn, :new_resource] %>
+      <%= breadcrumbs [@conn, :new_resource] %>
       <% else %>
-        <%= breadcrumbs [@conn, :update_resource, @dataset["id"]] %>
+      <%= breadcrumbs [@conn, :update_resource, @dataset["id"]] %>
       <% end %>
     </div>
   </section>
   <section class="choose-file">
 
     <div class="container pt-24">
-      <strong><%= @dataset["title"] %></strong>
+      <strong><%= @dataset["datagouv_title"] %></strong>
       <div class="pt-24">
         <h2><%= title(@conn) %></h2>
       </div>
@@ -21,15 +21,15 @@
         <div class="panel">
           <div>
             <%= if new_resource do %>
-              <h4> <%= dgettext("resource", "Option 1: Directly add the resource") %> </h4>
-              <p>
-                <%= dgettext("resource", "This option allows you to add the resource on data.gouv.fr, directly from here.") %>
-              </p>
+            <h4> <%= dgettext("resource", "Option 1: Directly add the resource") %> </h4>
+            <p>
+              <%= dgettext("resource", "This option allows you to add the resource on data.gouv.fr, directly from here.") %>
+            </p>
             <% else %>
-              <h4> <%= dgettext("resource", "Option 1: Directly update the resource") %> </h4>
-              <p>
-                <%= dgettext("resource", "This option allows you to update the resource on data.gouv.fr, directly from here.") %>
-              </p>
+            <h4> <%= dgettext("resource", "Option 1: Directly update the resource") %> </h4>
+            <p>
+              <%= dgettext("resource", "This option allows you to update the resource on data.gouv.fr, directly from here.") %>
+            </p>
             <% end %>
           </div>
           <div>
@@ -50,33 +50,33 @@ value: resource["format"]
 %>
             <div class="pt-48">
               <%= if new_resource do %>
-                <%= render "_upload_file.html", resource: resource, f: f, conn: @conn %>
-                <div class="choose-or">
-                  - <%= dgettext("resource", "or") %> -
-                </div>
-                <%= render "_specify_url.html", resource: resource, f: f, conn: @conn %>
-                <div class="choose-submit pt-24">
-                  <%= submit dgettext("resource", "Add the resource"), class: "button primary" %>
-                </div>
+              <%= render "_upload_file.html", resource: resource, f: f, conn: @conn %>
+              <div class="choose-or">
+                - <%= dgettext("resource", "or") %> -
+              </div>
+              <%= render "_specify_url.html", resource: resource, f: f, conn: @conn %>
+              <div class="choose-submit pt-24">
+                <%= submit dgettext("resource", "Add the resource"), class: "button primary" %>
+              </div>
               <% else %>
-                <%= if remote?(resource) do %>
-                  <%= render "_specify_url.html", resource: resource, f: f, conn: @conn %>
-                <% else %>
-                  <%= render "_upload_file.html", resource: resource, f: f, conn: @conn %>
-                <% end %>
-                <div class="choose-submit pt-24">
-                  <%= submit dgettext("resource", "Update the resource"), class: "button primary" %>
-                </div>
+              <%= if remote?(resource) do %>
+              <%= render "_specify_url.html", resource: resource, f: f, conn: @conn %>
+              <% else %>
+              <%= render "_upload_file.html", resource: resource, f: f, conn: @conn %>
+              <% end %>
+              <div class="choose-submit pt-24">
+                <%= submit dgettext("resource", "Update the resource"), class: "button primary" %>
+              </div>
               <% end %>
             </div>
-          <% end %>
+            <% end %>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="option-2 mt-48">
-      <div class="panel">
-        <div>
-          <%= if new_resource do %>
+      <div class="option-2 mt-48">
+        <div class="panel">
+          <div>
+            <%= if new_resource do %>
             <h4><%= dgettext("resource", "Option 2: for more options, create the resource on data.gouv.fr") %></h4>
             <div>
               <a class="button primary" href="<%= link_to_datagouv_resource_creation(@dataset["id"]) %>" role="link" target="_blank">
@@ -84,7 +84,7 @@ value: resource["format"]
                 <%=dgettext("resource", "Create it directly on data.gouv.fr")%>
               </a>
             </div>
-          <% else %>
+            <% else %>
             <h4><%= dgettext("resource", "Option 2: for more options, edit the resource on data.gouv.fr") %></h4>
             <div>
               <a class="button primary" href="<%= link_to_datagouv_resource_edit(@dataset["id"], @conn.params["resource_id"]) %>" role="link" target="_blank">
@@ -92,20 +92,20 @@ value: resource["format"]
                 <%= dgettext("resource", "Edit directly on data.gouv.fr") %>
               </a>
             </div>
-          <% end %>
+            <% end %>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="pt-48">
-      <p>
-        <%= link(
+      <div class="pt-48">
+        <p>
+          <%= link(
 dgettext("resource", "I'm not sure. Learn more."),
 to: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
 )%>
-      </p>
+        </p>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 </div>
 <script>
   function fill(id) {

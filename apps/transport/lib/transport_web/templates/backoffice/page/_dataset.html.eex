@@ -1,7 +1,7 @@
 <tr>
   <td>
     <strong>
-      <%= @dataset.spatial %>
+      <%= @dataset.custom_title %>
     </strong>
   </td>
   <td class="is-centered">

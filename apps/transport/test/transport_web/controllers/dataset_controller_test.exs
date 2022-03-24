@@ -48,7 +48,7 @@ defmodule TransportWeb.DatasetControllerTest do
   test "GET /api/datasets/:id", %{conn: conn} do
     dataset =
       %DB.Dataset{
-        spatial: "title",
+        custom_title: "title",
         type: "public-transit",
         datagouv_id: "datagouv",
         slug: "slug-1",
@@ -135,5 +135,17 @@ defmodule TransportWeb.DatasetControllerTest do
     html = html_response(conn, 200)
     doc = Floki.parse_document!(html)
     assert [] == Floki.find(doc, "#custom-message")
+  end
+
+  test "has_validity_period?" do
+    assert TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{
+             payload: %{"resource_metadata" => %{"start_date" => "2022-02-17"}}
+           })
+
+    refute TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{
+             payload: %{"resource_metadata" => %{"start_date" => nil}}
+           })
+
+    refute TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{payload: %{}})
   end
 end
