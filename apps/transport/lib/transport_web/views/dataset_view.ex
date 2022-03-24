@@ -296,12 +296,6 @@ defmodule TransportWeb.DatasetView do
       |> official_available_resources()
       |> Enum.filter(&Resource.is_real_time?/1)
 
-  def gbfs_official_resources(dataset),
-    do:
-      dataset
-      |> official_available_resources()
-      |> Enum.filter(&Resource.is_gbfs?/1)
-
   def netex_official_resources(dataset),
     do:
       dataset
@@ -312,9 +306,8 @@ defmodule TransportWeb.DatasetView do
     dataset
     |> official_available_resources()
     |> Stream.reject(&Resource.is_gtfs?/1)
-    |> Stream.reject(&Resource.is_gtfs_rt?/1)
-    |> Stream.reject(&Resource.is_gbfs?/1)
     |> Stream.reject(&Resource.is_netex?/1)
+    |> Stream.reject(&Resource.is_real_time?/1)
     |> Enum.to_list()
     |> Enum.sort(fn r1, r2 ->
       nd1 = NaiveDateTime.from_iso8601(Map.get(r1, :last_update, ""))
