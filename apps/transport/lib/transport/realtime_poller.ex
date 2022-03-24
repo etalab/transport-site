@@ -70,16 +70,20 @@ defmodule Transport.RealtimePoller do
   def process do
     task = fn {resource_id, resource_url} ->
       Logger.info("Processing #{resource_id}...")
-      outcome = try do
-        positions = resource_id
-        |> fetch_vehicle_positions_safely(resource_url)
-        %{vehicle_positions: positions}
-      rescue
-        # NOTE: out of precaution, I'm not forwarding the full exception to the client at the moment
-        e ->
-          Logger.error(e)
-          %{error: true}
-      end
+
+      outcome =
+        try do
+          positions =
+            resource_id
+            |> fetch_vehicle_positions_safely(resource_url)
+
+          %{vehicle_positions: positions}
+        rescue
+          # NOTE: out of precaution, I'm not forwarding the full exception to the client at the moment
+          e ->
+            Logger.error(e)
+            %{error: true}
+        end
 
       %{resource_id: resource_id}
       |> Map.merge(outcome)
