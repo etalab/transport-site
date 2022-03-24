@@ -361,6 +361,7 @@ defmodule Transport.ImportData do
         "metadata" => resource["metadata"]
       }
     end)
+    |> maybe_filter_resources(type)
   end
 
   @spec get_valid_resources(map(), binary()) :: [map()]
@@ -376,6 +377,12 @@ defmodule Transport.ImportData do
   def get_valid_resources(%{"resources" => resources}, _type) do
     resources
   end
+
+  def maybe_filter_resources(resources, "low-emission-zones") do
+    resources |> Enum.filter(&(&1["schema_name"] == "etalab/schema-zfe"))
+  end
+
+  def maybe_filter_resources(resources, _), do: resources
 
   @spec get_valid_gtfs_resources([map()]) :: [map()]
   def get_valid_gtfs_resources(resources) do
