@@ -10,11 +10,11 @@
 
   <%= for resource <- @resources do %>
   <entry>
-    <title><%= resource.dataset.spatial %> — <%= resource.title %></title>
+    <title><%= resource.dataset.custom_title %> — <%= resource.title %></title>
     <link href="<%= resource.latest_url %>" />
     <id><%= resource_url(@conn, :details, resource.id) %></id>
     <updated><%= DateTimeDisplay.format_naive_datetime_to_paris_tz(resource.last_update) %></updated>
-    <summary>Cette resource fait partie du jeux de données <%= resource.dataset.spatial %></summary>
+    <summary>Cette resource fait partie du jeux de données <%= resource.dataset.custom_title %></summary>
     <content type="html">
       <![CDATA[
       <%= TransportWeb.MarkdownHandler.markdown_to_safe_html!(resource.dataset.description) %>
