@@ -7,7 +7,7 @@
 <div class="dataset-title-div" id="dataset-top">
   <%= dgettext("page-dataset-details", "dataset")%>
   <h1>
-    <%= @dataset.spatial %>
+    <%= @dataset.custom_title %>
   </h1>
   <%= if admin?(assigns[:current_user]) do %>
     <i class="fa fa-external-link-alt"></i>
@@ -220,7 +220,7 @@
       <ul>
         <%= for dataset <- @other_datasets do %>
           <li><%= link(
-            dataset.spatial,
+            dataset.custom_title,
             to: dataset_path(@conn, :details, dataset.slug)
           ) %></li>
         <% end %>
@@ -232,7 +232,7 @@
 <div class="dataset-metas">
   <div class="panel">
     <div class="dataset__logo">
-      <%= img_tag(@dataset.full_logo, alt: @dataset.title) %>
+      <%= img_tag(@dataset.full_logo, alt: @dataset.custom_title) %>
     </div>
     <div>
       <i class="fa fa-map-marker-alt"></i> <%= Dataset.get_territory_or_nil(@dataset) %>

@@ -86,7 +86,7 @@
   </div>
   <table class="backoffice-datasets">
     <tr>
-      <th class="sortable"><%= backoffice_sort_link(@conn, "Dataset", :spatial, @order_by) %>
+      <th class="sortable"><%= backoffice_sort_link(@conn, "Dataset", :custom_title, @order_by) %>
       </th>
       <th>transport</th>
       <th>data.gouv.fr</th>

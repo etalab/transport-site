@@ -136,7 +136,7 @@ defmodule DB.DatasetDBTest do
 
   describe "resources last content update time" do
     test "for a dataset, get resources last update times" do
-      %{id: dataset_id} = insert(:dataset, %{datagouv_id: "xxx", title: "coucou"})
+      %{id: dataset_id} = insert(:dataset, %{datagouv_id: "xxx", datagouv_title: "coucou"})
 
       %{id: resource_id_1} = insert(:resource, %{datagouv_id: datagouv_id_1 = "datagouv_id_1", dataset_id: dataset_id})
       %{id: resource_id_2} = insert(:resource, %{datagouv_id: datagouv_id_2 = "datagouv_id_2", dataset_id: dataset_id})

@@ -197,7 +197,8 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
       end)
 
       assert :ok == perform_job(GTFSRTValidationJob, %{"dataset_id" => dataset.id})
-      expected_errors = Map.fetch!(GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path), "errors")
+      {:ok, report} = GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
+      expected_errors = Map.fetch!(report, "errors")
 
       gtfs_rt = DB.Resource |> preload(:validation) |> DB.Repo.get!(gtfs_rt.id)
       gtfs_rt_no_errors = DB.Resource |> preload(:validation) |> DB.Repo.get!(gtfs_rt_no_errors.id)
@@ -378,52 +379,57 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
     end
 
     test "convert_validator_report" do
-      assert %{
-               "warnings_count" => 26,
-               "errors_count" => 4,
-               "has_errors" => true,
-               "errors" => [
-                 %{
-                   "description" => "vehicle_id should be populated for TripUpdates and VehiclePositions",
-                   "error_id" => "W002",
-                   "errors" => [
-                     "trip_id 17646637 does not have a vehicle_id",
-                     "trip_id 17646540 does not have a vehicle_id",
-                     "trip_id 17646839 does not have a vehicle_id",
-                     "trip_id 17646810 does not have a vehicle_id",
-                     "trip_id 17646604 does not have a vehicle_id"
-                   ],
-                   "errors_count" => 26,
-                   "severity" => "WARNING",
-                   "title" => "vehicle_id not populated"
-                 },
-                 %{
-                   "description" =>
-                     "stop_time_updates for a given trip_id must be strictly sorted by increasing stop_sequence",
-                   "error_id" => "E002",
-                   "errors" => [
-                     "trip_id 17646603 stop_sequence [5, 0] is not strictly sorted by increasing stop_sequence",
-                     "trip_id 17646604 stop_sequence [5, 0] is not strictly sorted by increasing stop_sequence"
-                   ],
-                   "errors_count" => 2,
-                   "severity" => "ERROR",
-                   "title" => "stop_times_updates not strictly sorted"
-                 },
-                 %{
-                   "description" =>
-                     "Sequential GTFS-rt trip stop_time_updates should never have the same stop_sequence",
-                   "error_id" => "E036",
-                   "errors" => [
-                     "trip_id 17646603 has repeating stop_sequence 0 - stop_sequence must increase for each stop_time_update",
-                     "trip_id 17646604 has repeating stop_sequence 0 - stop_sequence must increase for each stop_time_update"
-                   ],
-                   "errors_count" => 2,
-                   "severity" => "ERROR",
-                   "title" => "Sequential stop_time_updates have the same stop_sequence"
-                 }
-               ]
-             } == GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
+      assert {:ok,
+              %{
+                "warnings_count" => 26,
+                "errors_count" => 4,
+                "has_errors" => true,
+                "errors" => [
+                  %{
+                    "description" => "vehicle_id should be populated for TripUpdates and VehiclePositions",
+                    "error_id" => "W002",
+                    "errors" => [
+                      "trip_id 17646637 does not have a vehicle_id",
+                      "trip_id 17646540 does not have a vehicle_id",
+                      "trip_id 17646839 does not have a vehicle_id",
+                      "trip_id 17646810 does not have a vehicle_id",
+                      "trip_id 17646604 does not have a vehicle_id"
+                    ],
+                    "errors_count" => 26,
+                    "severity" => "WARNING",
+                    "title" => "vehicle_id not populated"
+                  },
+                  %{
+                    "description" =>
+                      "stop_time_updates for a given trip_id must be strictly sorted by increasing stop_sequence",
+                    "error_id" => "E002",
+                    "errors" => [
+                      "trip_id 17646603 stop_sequence [5, 0] is not strictly sorted by increasing stop_sequence",
+                      "trip_id 17646604 stop_sequence [5, 0] is not strictly sorted by increasing stop_sequence"
+                    ],
+                    "errors_count" => 2,
+                    "severity" => "ERROR",
+                    "title" => "stop_times_updates not strictly sorted"
+                  },
+                  %{
+                    "description" =>
+                      "Sequential GTFS-rt trip stop_time_updates should never have the same stop_sequence",
+                    "error_id" => "E036",
+                    "errors" => [
+                      "trip_id 17646603 has repeating stop_sequence 0 - stop_sequence must increase for each stop_time_update",
+                      "trip_id 17646604 has repeating stop_sequence 0 - stop_sequence must increase for each stop_time_update"
+                    ],
+                    "errors_count" => 2,
+                    "severity" => "ERROR",
+                    "title" => "Sequential stop_time_updates have the same stop_sequence"
+                  }
+                ]
+              }} == GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
     end
+  end
+
+  test "convert_validator_report when file does not exist" do
+    assert :error == GTFSRTValidationJob.convert_validator_report(Ecto.UUID.generate())
   end
 
   defp validator_path, do: Path.join(Application.fetch_env!(:transport, :transport_tools_folder), @validator_filename)

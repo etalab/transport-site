@@ -11,9 +11,9 @@
         placeholder: dgettext("backoffice", "Dataset's url"),
         value: if not is_nil(@dataset) do Dataset.datagouv_url(@dataset) else "" end
       ] %>
-  <%= text_input f, :spatial, [
+  <%= text_input f, :custom_title, [
         placeholder: dgettext("backoffice", "name"),
-        value: if not is_nil(@dataset) do @dataset.spatial else "" end
+        value: if not is_nil(@dataset) do @dataset.custom_title else "" end
       ] %>
   <%= select f, :type, @dataset_types, [
         selected: if not is_nil(@dataset) do @dataset.type else "public-transit" end ]%>
