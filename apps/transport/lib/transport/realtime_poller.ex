@@ -76,7 +76,9 @@ defmodule Transport.RealtimePoller do
         %{vehicle_positions: positions}
       rescue
         # NOTE: out of precaution, I'm not forwarding the full exception to the client at the moment
-        e -> %{error: true}
+        e ->
+          Logger.error(e)
+          %{error: true}
       end
 
       %{resource_id: resource_id}
