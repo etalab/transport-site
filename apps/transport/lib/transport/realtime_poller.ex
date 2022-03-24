@@ -86,7 +86,8 @@ defmodule Transport.RealtimePoller do
   end
 
   def broadcast(vehicle_positions, id) do
-    TransportWeb.Endpoint.broadcast!("explore", "vehicle-positions", %{
+    TransportWeb.ExploreChannel.explore_topic()
+    |> TransportWeb.Endpoint.broadcast!("vehicle-positions", %{
       resource_id: id,
       vehicle_positions: vehicle_positions
     })
