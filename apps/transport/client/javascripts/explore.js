@@ -1,16 +1,15 @@
 import { Socket } from 'phoenix'
-
-let socket = new Socket("/socket", { params: { token: window.userToken } });
-socket.connect();
-let channel = socket.channel("explore", {})
-channel.join()
-    .receive("ok", resp => { console.log("Joined successfully", resp) })
-    .receive("error", resp => { console.log("Unable to join", resp) })
-
 import Leaflet from 'leaflet'
-import { LeafletLayer } from 'deck.gl-leaflet';
-import { ScatterplotLayer } from '@deck.gl/layers';
-import { MapView } from '@deck.gl/core';
+import { LeafletLayer } from 'deck.gl-leaflet'
+import { ScatterplotLayer } from '@deck.gl/layers'
+import { MapView } from '@deck.gl/core'
+
+const socket = new Socket('/socket', { params: { token: window.userToken } })
+socket.connect()
+const channel = socket.channel('explore', {})
+channel.join()
+    .receive('ok', resp => { console.log('Joined successfully', resp) })
+    .receive('error', resp => { console.log('Unable to join', resp) })
 
 const Mapbox = {
     url: 'https://api.mapbox.com/styles/v1/istopopoki/ckg98kpoc010h19qusi9kxcct/tiles/256/{z}/{x}/{y}?access_token={accessToken}',
@@ -19,15 +18,15 @@ const Mapbox = {
     maxZoom: 20
 }
 
-const map = Leaflet.map("map", { renderer: Leaflet.canvas() }).setView([46.43645655692041, 2.314039149959886], 7);
+const map = Leaflet.map('map', { renderer: Leaflet.canvas() }).setView([46.43645655692041, 2.314039149959886], 7)
 
-L.tileLayer(Mapbox.url, {
+Leaflet.tileLayer(Mapbox.url, {
     accessToken: Mapbox.accessToken,
     attribution: Mapbox.attribution,
     maxZoom: Mapbox.maxZoom
 }).addTo(map)
 
-function prepareLayer(layerId, layerData) {
+function prepareLayer (layerId, layerData) {
     return new ScatterplotLayer({
         id: layerId,
         data: layerData,
@@ -40,7 +39,7 @@ function prepareLayer(layerId, layerData) {
         radiusMaxPixels: 3,
         lineWidthMinPixels: 1,
         getPosition: d => {
-            return [d.position.longitude, d.position.latitude];
+            return [d.position.longitude, d.position.latitude]
         },
         getRadius: d => 100000,
         getFillColor: d => [127, 150, 255],
@@ -56,18 +55,18 @@ const deckLayer = new LeafletLayer({
     ],
     layers: [],
     getTooltip: ({ object }) => object && { html: `transport_resource: ${object.transport.resource_id}<br>id: ${object.vehicle.id}` }
-});
-map.addLayer(deckLayer);
+})
+map.addLayer(deckLayer)
 
 // internal dictionary
-let layers = {};
+const layers = {}
 
-channel.on("vehicle-positions", payload => {
+channel.on('vehicle-positions', payload => {
     if (payload.error) {
         console.log(`Resource ${payload.resource_id} failed to load`)
     } else {
-        layers[payload.resource_id] = prepareLayer(payload.resource_id, payload.vehicle_positions);
-        deckLayer.setProps({ layers: Object.values(layers) });
+        layers[payload.resource_id] = prepareLayer(payload.resource_id, payload.vehicle_positions)
+        deckLayer.setProps({ layers: Object.values(layers) })
     }
 })
 
