@@ -20,6 +20,7 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
 
   defp update_data(socket) do
     validation = DB.Repo.get!(DB.Validation, socket_value(socket, :validation_id))
+
     socket =
       assign(socket,
         last_updated_at: DateTime.utc_now(),
@@ -69,7 +70,10 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
     format_datetime_to_paris(dt, locale, with_seconds: true)
   end
 
-  defp maybe_gtfs_rt_feed(socket, %DB.Validation{on_the_fly_validation_metadata: %{"type" => "gtfs-rt", "state" => "completed"}} = validation) do
+  defp maybe_gtfs_rt_feed(
+         socket,
+         %DB.Validation{on_the_fly_validation_metadata: %{"type" => "gtfs-rt", "state" => "completed"}} = validation
+       ) do
     lang = socket_value(socket, :locale)
     url = Map.fetch!(validation.on_the_fly_validation_metadata, "gtfs_rt_url")
 
