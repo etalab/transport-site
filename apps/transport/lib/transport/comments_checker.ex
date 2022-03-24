@@ -105,7 +105,7 @@ defmodule Transport.CommentsChecker do
   defp get_dataset_title(datagouv_id) do
     Dataset
     |> where([d], d.datagouv_id == ^datagouv_id)
-    |> select([d], d.spatial)
+    |> select([d], d.custom_title)
     |> Repo.one()
   end
 

@@ -26,7 +26,7 @@ defmodule DB.Factory do
 
   def dataset_factory do
     %DB.Dataset{
-      title: "Hello",
+      datagouv_title: "Hello",
       slug: sequence("dataset_slug", fn i -> "dataset-#{i}" end),
       # NOTE: need to figure out how to pass aom/region together with changeset checks here
       datagouv_id: "123",
