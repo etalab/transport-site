@@ -69,17 +69,19 @@ defmodule Transport.RealtimePoller do
 
   def process do
     task = fn {resource_id, resource_url} ->
-      try do
-        Logger.info("Processing #{resource_id}...")
-
-        resource_id
+      Logger.info("Processing #{resource_id}...")
+      outcome = try do
+        positions = resource_id
         |> fetch_vehicle_positions_safely(resource_url)
-        |> broadcast(resource_id)
-
-        %{ok: true}
+        %{vehicle_positions: positions}
       rescue
-        e -> %{error: e}
+        # NOTE: out of precaution, I'm not forwarding the full exception to the client at the moment
+        e -> %{error: true}
       end
+
+      %{resource_id: resource_id}
+      |> Map.merge(outcome)
+      |> broadcast()
     end
 
     relevant_resources()
@@ -92,12 +94,9 @@ defmodule Transport.RealtimePoller do
     |> Stream.run()
   end
 
-  def broadcast(vehicle_positions, id) do
+  def broadcast(payload) do
     TransportWeb.ExploreChannel.explore_topic()
-    |> TransportWeb.Endpoint.broadcast!("vehicle-positions", %{
-      resource_id: id,
-      vehicle_positions: vehicle_positions
-    })
+    |> TransportWeb.Endpoint.broadcast!("vehicle-positions", payload)
   end
 
   def fetch_vehicle_positions_safely(resource_id, url) do
@@ -143,10 +142,5 @@ defmodule Transport.RealtimePoller do
         # }
       }
     end)
-  rescue
-    e ->
-      Logger.error(e)
-      # TODO: propagate error instead of this
-      []
   end
 end

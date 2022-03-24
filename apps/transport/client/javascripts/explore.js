@@ -63,9 +63,12 @@ map.addLayer(deckLayer);
 let layers = {};
 
 channel.on("vehicle-positions", payload => {
-    layers[payload.resource_id] = prepareLayer(payload.resource_id, payload.vehicle_positions);
-    deckLayer.setProps({ layers: Object.values(layers) });
-    console.log(`Updated resource ${payload.resource_id}`);
+    if (payload.error) {
+        console.log(`Resource ${payload.resource_id} failed to load`)
+    } else {
+        layers[payload.resource_id] = prepareLayer(payload.resource_id, payload.vehicle_positions);
+        deckLayer.setProps({ layers: Object.values(layers) });
+    }
 })
 
 export default socket
