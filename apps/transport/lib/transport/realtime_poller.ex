@@ -50,7 +50,7 @@ defmodule Transport.RealtimePoller do
   def viewers do
     TransportWeb.Presence
     |> Phoenix.Presence.list(TransportWeb.ExploreChannel.explore_topic())
-    |> get_in(["viewers", :metas])
+    |> get_in([TransportWeb.ExploreChannel.viewers_key(), :metas])
   end
 
   def viewers_count do
