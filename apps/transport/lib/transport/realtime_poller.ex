@@ -7,9 +7,10 @@ defmodule Transport.RealtimePoller do
   only once per deployment, and broadcasting that to all connected clients.
   """
 
-  # NOTE: make sure to keep the tick high enough to avoid tick
-  # stacking up in the list of messages. It will be better to empty
-  # the box if more than one message is waiting.
+  # NOTE: at time of writing, the code will not result into `:tick` events stacking
+  # up in the mailbox, because the code is synchronously waiting for all requests to finish.
+  # if going asynchronous, though, it will be important to flush multiple `:tick` messages,
+  # to avoid overload.
   @tick_frequency 5_000
   @http_timeout 10_000
 
