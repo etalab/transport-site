@@ -368,11 +368,13 @@ defmodule TransportWeb.ValidationControllerTest do
 
       {:ok, view, _html} = live(conn)
 
-      # Error messages are displayed
+      # Validation is displayed
+      {:ok, report} = Transport.Jobs.GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
+
       validation
       |> Ecto.Changeset.change(
         on_the_fly_validation_metadata: %{validation.on_the_fly_validation_metadata | "state" => "completed"},
-        details: Transport.Jobs.GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
+        details: report
       )
       |> DB.Repo.update!()
 

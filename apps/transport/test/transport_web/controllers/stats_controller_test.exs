@@ -41,10 +41,11 @@ defmodule TransportWeb.API.StatsControllerTest do
       )
 
     dataset1 =
-      :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, spatial: "other name", slug: "a"})
+      :dataset
+      |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, custom_title: "other name", slug: "a"})
 
     dataset2 =
-      :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, spatial: "name", slug: "z"})
+      :dataset |> insert(%{type: "bike-scooter-sharing", is_active: true, aom: aom, custom_title: "name", slug: "z"})
 
     expected = [
       %{
@@ -55,7 +56,7 @@ defmodule TransportWeb.API.StatsControllerTest do
         },
         "properties" => %{
           geometry: %Geo.Point{coordinates: {55.5567, -21.3699}, properties: %{}, srid: 4326},
-          names: [dataset2.spatial, dataset1.spatial],
+          names: [dataset2.custom_title, dataset1.custom_title],
           slugs: [dataset2.slug, dataset1.slug]
         },
         "type" => "Feature"
@@ -75,13 +76,13 @@ defmodule TransportWeb.API.StatsControllerTest do
       )
 
     %{id: dataset_active_id} =
-      :dataset |> insert(%{type: "public-transit", is_active: true, aom: aom, spatial: "Ajaccio", slug: "a"})
+      :dataset |> insert(%{type: "public-transit", is_active: true, aom: aom, custom_title: "Ajaccio", slug: "a"})
 
     # the active dataset has an outdated resource
     :resource |> insert(%{dataset_id: dataset_active_id, end_date: Date.new!(2000, 1, 1)})
 
     %{id: dataset_inactive_id} =
-      :dataset |> insert(%{type: "public-transit", is_active: false, aom: aom, spatial: "Ajacciold", slug: "z"})
+      :dataset |> insert(%{type: "public-transit", is_active: false, aom: aom, custom_title: "Ajacciold", slug: "z"})
 
     # but the inactive dataset has an up-to-date resource
     :resource |> insert(%{dataset_id: dataset_inactive_id, end_date: Date.new!(2100, 1, 1)})

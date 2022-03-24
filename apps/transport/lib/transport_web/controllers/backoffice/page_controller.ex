@@ -237,7 +237,7 @@ defmodule TransportWeb.Backoffice.PageController do
     order_by =
       case params do
         %{"order_by" => "end_date"} -> :end_date
-        %{"order_by" => "spatial"} -> :spatial
+        %{"order_by" => "custom_title"} -> :custom_title
         _ -> nil
       end
 
@@ -250,7 +250,7 @@ defmodule TransportWeb.Backoffice.PageController do
 
     case field do
       :end_date -> order_by(query, [d, r], {^dir, field(r, :end_date)})
-      :spatial -> order_by(query, [d, r], {^dir, field(d, :spatial)})
+      :custom_title -> order_by(query, [d, r], {^dir, field(d, :custom_title)})
       _ -> query
     end
   end
