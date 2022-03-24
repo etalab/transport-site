@@ -7,6 +7,12 @@ defmodule Transport.RealtimePoller do
   only once per deployment, and broadcasting that to all connected clients.
   """
 
+  # NOTE: make sure to keep the tick high enough to avoid tick
+  # stacking up in the list of messages. It will be better to empty
+  # the box if more than one message is waiting.
+  @tick_frequency 5_000
+  @http_timeout 10_000
+
   def init(state) do
     # initial schedule is immediate, but via the same code path,
     # to ensure we jump on the data
@@ -19,7 +25,7 @@ defmodule Transport.RealtimePoller do
     GenServer.start_link(__MODULE__, %{})
   end
 
-  def schedule_next_tick(delay \\ 5_000) do
+  def schedule_next_tick(delay \\ @tick_frequency) do
     Process.send_after(self(), :tick, delay)
   end
 
@@ -80,7 +86,7 @@ defmodule Transport.RealtimePoller do
       task,
       max_concurrency: 50,
       on_timeout: :kill_task,
-      timeout: 10_000
+      timeout: @http_timeout
     )
     |> Stream.run()
   end
