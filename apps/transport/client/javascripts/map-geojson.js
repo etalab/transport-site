@@ -119,12 +119,12 @@ function GenericMap (mapDivId, geojsonUrl) {
     fetch(geojsonUrl)
         .then(data => data.json())
         .then(geojson => {
-            const stops = L.geoJSON(geojson, {
+            const markers = L.geoJSON(geojson, {
                 pointToLayer: createPointsMarkers,
                 filter: (feature) => feature.geometry.type === 'Point'
             }).addTo(markersfg)
 
-            stops.bindPopup(layer => { return 'coucou' })
+            markers.bindPopup(layer => formatPopupContent(layer.feature.properties))
 
             const lines = L.geoJSON(geojson, {
                 style: GenericLinesStyle,
@@ -134,13 +134,12 @@ function GenericMap (mapDivId, geojsonUrl) {
             lines.bindPopup(layer => { return formatPopupContent(layer.feature.properties) })
 
             lines.bringToBack()
-            stops.bringToFront()
+            markers.bringToFront()
 
-            setZoomEvents(map, stops)
-
-            const bounds = linesfg.getBounds()
-            if (bounds.isValid()) {
+            if (linesfg.getBounds().isValid()) {
                 map.fitBounds(linesfg.getBounds())
+            } else if (markersfg.getBounds().isValid()) {
+                map.fitBounds(markersfg.getBounds())
             }
         })
         .catch(_ => console.log('invalid geojson'))

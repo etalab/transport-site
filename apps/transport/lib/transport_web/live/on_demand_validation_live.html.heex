@@ -70,6 +70,7 @@
               <h4><%= dgettext("validations", "Warnings")%></h4>
                 <%= TransportWeb.ValidationView.render "_gtfs_rt_errors_for_severity.html", errors_for_severity: errors_warning_level %>
             <% end %>
+            <%= TransportWeb.ResourceView.render("_gtfs_rt.html", gtfs_rt_feed: @gtfs_rt_feed, entities_seen_recently: nil, locale: @locale) %>
           <% end %>
 
           <%= if metadata["type"] in ["tableschema", "jsonschema"] do %>
