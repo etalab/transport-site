@@ -3,8 +3,8 @@ defmodule Transport.RealtimePoller do
   require Logger
 
   @moduledoc """
-  A first implementation of GenServer polling (GTFS-RT) realtime data
-  only once per deployment, and broadcasting that to all connected clients.
+  A system to poll all active GTFS-RT feeds in the database, and broadcast
+  the data via pubsub to the subscribed clients.
   """
 
   # NOTE: at time of writing, the code will not result into `:tick` events stacking
