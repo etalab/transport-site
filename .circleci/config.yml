@@ -62,19 +62,11 @@ jobs:
           command: mix local.rebar --force
 
       - run:
-          name: Install mix dependencies for MIX_ENV=dev
-          command: MIX_ENV=dev mix deps.get --force
-
-      - run:
-          name: Compile mix dependencies for MIX_ENV=dev
-          command: MIX_ENV=dev mix deps.compile
-
-      - run:
-          name: Install mix dependencies for MIX_ENV=test
+          name: Install mix dependencies
           command: mix deps.get
 
       - run:
-          name: Compile mix dependencies for MIX_ENV=test
+          name: Compile mix dependencies
           command: mix deps.compile
 
       # Here we attempt to create 3 different caches to optimize the build process
@@ -123,7 +115,7 @@ jobs:
 
       - run:
           name: Build PLT
-          command: MIX_ENV=dev mix dialyzer --plt
+          command: mix dialyzer --plt
           # PLT construction can stay up quite a bit without generating any output
           # We add a bit of tolerance here
           no_output_timeout: 20m
