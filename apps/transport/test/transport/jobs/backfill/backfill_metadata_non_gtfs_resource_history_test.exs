@@ -2,13 +2,10 @@ defmodule Transport.Jobs.Backfill.ResourceHistoryMetadataNonGTFSTest do
   use ExUnit.Case
   import Transport.Jobs.Backfill.ResourceHistoryMetadataNonGTFS
   import DB.Factory
-  import Mox
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
-
-  setup :verify_on_exit!
 
   test "updates a non GTFS ResourceHistory" do
     resource_history =
