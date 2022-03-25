@@ -1,9 +1,9 @@
 defmodule TransportWeb.ExploreChannel do
-  use Phoenix.Channel
-
   @moduledoc """
   A Phoenix channel used to deliver real-time data to a view.
   """
+
+  use Phoenix.Channel
 
   @explore_topic "explore"
   @viewers_key "viewers"
