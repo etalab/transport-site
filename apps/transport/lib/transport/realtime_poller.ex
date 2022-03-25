@@ -1,11 +1,11 @@
 defmodule Transport.RealtimePoller do
-  use GenServer
-  require Logger
-
   @moduledoc """
   A system to poll all active GTFS-RT feeds in the database, and broadcast
   the data via pubsub to the subscribed clients.
   """
+
+  use GenServer
+  require Logger
 
   # NOTE: at time of writing, the code will not result into `:tick` events stacking
   # up in the mailbox, because the code is synchronously waiting for all requests to finish.
