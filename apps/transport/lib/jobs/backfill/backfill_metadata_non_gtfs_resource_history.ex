@@ -3,6 +3,8 @@ defmodule Transport.Jobs.Backfill.ResourceHistoryMetadataNonGTFS do
   Backfill of ResourceHistory payload to fix metadata for
   non-GTFS resources with metadata specific to GTFS.
 
+  See also `ResourceMetadataNonGTFS`.
+
   See https://github.com/etalab/transport-site/issues/2258
   """
   use Oban.Worker
