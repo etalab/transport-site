@@ -24,6 +24,8 @@ defmodule Transport.Application do
       end
     end
 
+    run_realtime_poller = webserver_enabled?() && Mix.env() != :test
+
     children =
       [
         {Cachex, name: @cache_name},
@@ -32,11 +34,13 @@ defmodule Transport.Application do
         CSVDocuments,
         SearchCommunes,
         {Phoenix.PubSub, [name: TransportWeb.PubSub, adapter: Phoenix.PubSub.PG2]},
+        TransportWeb.Presence,
         # Oban is "always started", but muted via `config/runtime.exs` for cases like
         # tests, IEx usage, front-end only mode etc.
         {Oban, Application.fetch_env!(:transport, Oban)}
       ]
       |> add_scheduler()
+      |> add_if(fn -> run_realtime_poller end, Transport.RealtimePoller)
       ## manually add a children supervisor that is not scheduled
       |> Kernel.++([{Task.Supervisor, name: ImportTaskSupervisor}])
 
@@ -53,6 +57,14 @@ defmodule Transport.Application do
   def worker_only?, do: worker_enabled?() && !webserver_enabled?()
   def webserver_only?, do: webserver_enabled?() && !worker_enabled?()
   def dual_mode?, do: worker_enabled?() && webserver_enabled?()
+
+  defp add_if(children, condition, child) do
+    if condition.() do
+      children ++ [child]
+    else
+      children
+    end
+  end
 
   defp add_scheduler(children) do
     if Mix.env() != :test do
