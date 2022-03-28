@@ -15,8 +15,8 @@ defmodule TransportWeb.SeoMetadataTest do
       %Dataset{
         description: "Un jeu de données",
         licence: "odc-odbl",
-        title: "Horaires et arrêts du réseau IRIGO - format GTFS",
-        spatial: "Horaires Angers",
+        datagouv_title: "Horaires et arrêts du réseau IRIGO - format GTFS",
+        custom_title: "Horaires Angers",
         type: "public-transit",
         slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
         datagouv_id: "5b4cd3a0b59508054dd496cd",
@@ -111,6 +111,6 @@ defmodule TransportWeb.SeoMetadataTest do
   test "GET /validation ", %{conn: conn} do
     Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
     title = conn |> get("/validation") |> html_response(200) |> title
-    assert title =~ "Évaluation de la qualité d’un fichier"
+    assert title =~ "Évaluation de la qualité d’un fichier ou d’un flux"
   end
 end

@@ -10,31 +10,31 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "No validation available"
 msgstr "Pas de validation disponibles"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Other resources"
 msgstr "Autres ressources"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Upload"
 msgstr "Envoyer"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "GTFS review report"
 msgstr "Rapport de l’analyse de fichier GTFS"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "This report can be shared with"
 msgstr "Ce bilan peut être partagé via"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "this permanent link"
 msgstr "ce lien permanent"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Nice work, there are no issues!"
 msgstr "Félicitations, aucune erreur n'a été trouvée !"
 
@@ -50,60 +50,60 @@ msgid_plural "transport modes"
 msgstr[0] "mode de transport"
 msgstr[1] "modes de transport"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "File name"
 msgstr "Nom du fichier"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "It is valid from"
 msgstr "Le fichier couvre la période du "
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Resource details"
 msgstr "Détails de la ressource"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "This resource file is part of the dataset"
 msgstr "Cette ressource fait partie du jeu de données"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validation report"
 msgstr "Rapport de validation"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "number of stop areas"
 msgstr "nombre de zones d'arrêts (stop areas)"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "number of stop points"
 msgstr "nombre de stops (stop points)"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "to"
 msgstr "au"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "explanations"
 msgstr "Voici le bilan automatisé sur la qualité du fichier GTFS. "
 "Cette validation ne concerne que la structure des données et pas la complétude ni l’exactitude des horaires. "
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Show anyway"
 msgstr "Afficher quand même"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Stops visualization is quite big"
 msgstr "La visualisation des arrêts est volumineuse"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Stops and routes visualization of the GTFS file"
 msgstr "Aperçu des arrêts et lignes de la ressource GTFS"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)\n              It corresponds to the data you can see on the map below."
 msgstr "Le format GeoJSON ne contient que les informations géographiques de la ressource (position des arrêts, éventuellement tracé des lignes), telles que vous les visualisez sur la carte ci-dessous."
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "This resource is also available in the following formats:"
 msgstr "Cette ressource est également disponible dans les formats suivants :"
 
@@ -114,74 +114,145 @@ msgid_plural "errors"
 msgstr[0] "erreur"
 msgstr[1] "erreurs"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Errors:"
 msgstr "Erreurs :"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Showing only the first %{nb} errors."
 msgstr "Montre seulement les %{nb} premières lignes."
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "This resource should follow its schema <a href=\"%{link}\" target=\"_blank\">%{schema}</a>."
 msgstr "Cette ressource doit suivre le schéma <a href=\"%{link}\" target=\"_blank\">%{schema}</a>."
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Validation details"
 msgstr "Rapport de validation"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "No error detected"
 msgstr "Pas d'erreur"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "This GeoJSON was up-to-date with the GTFS resource %{hours} ago."
 msgstr "Ce GeoJSON était bien à jour avec la ressource GTFS il y a %{hours}."
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Visualization up-to-date %{hours} ago."
 msgstr "Visualisation à jour il y a %{hours}."
 
-#, elixir-format, ex-autogen, fuzzy
+#, elixir-autogen, elixir-format, fuzzy
 msgid "Check a file's quality"
 msgstr "Analyser la qualité d’un fichier"
 
-#, elixir-format, ex-autogen
+#, elixir-autogen, elixir-format
 msgid "Choose your file"
 msgstr "Choisissez votre fichier"
 
-#, elixir-format, ex-autogen
+#, elixir-autogen, elixir-format
 msgid "File type"
 msgstr "Type de fichier"
 
-#, elixir-format, ex-autogen
+#, elixir-autogen, elixir-format
 msgid "Last updated at %{date}."
 msgstr "Dernière mise à jour %{date}."
 
-#, elixir-format, ex-autogen
+#, elixir-autogen, elixir-format
 msgid "Validation in progress. This page will be updated automatically."
 msgstr "Validation en cours. Cette page va se rafraichir automatiquement."
 
-#, elixir-format, ex-autogen, fuzzy
+#, elixir-autogen, elixir-format, fuzzy
 msgid "Validation results"
 msgstr "Rapport de validation"
 
-#, elixir-format, ex-autogen
-msgid "Once you have fixed your errors, you can verify that your file is valid <a href=\"%{link}\" target=\"_blank\">using our validators</a>."
-msgstr "Une fois vos erreurs réparées, vous pouvez vérifier que votre fichier est valide <a href=\"%{link}\" target=\"_blank\">en utilisant nos validateurs</a>."
+#, elixir-autogen, elixir-format
+msgid "Are you the producer of this data? Once you have fixed your errors, you can verify that your file is valid <a href=\"%{link}\" target=\"_blank\">using our validators</a>."
+msgstr "Êtes-vous le producteur de ces données ? Une fois vos erreurs réparées, vous pouvez vérifier que votre fichier est valide <a href=\"%{link}\" target=\"_blank\">en utilisant nos validateurs</a>."
 
-#, elixir-format, ex-autogen
+#, elixir-autogen, elixir-format
 msgid "Errors"
 msgstr "Erreurs"
 
-#, elixir-format, ex-autogen
+#, elixir-autogen, elixir-format
 msgid "Sample errors"
 msgstr "Exemples d'erreurs"
 
-#, elixir-format, ex-autogen
-msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> and the <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> at %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>."
-msgstr "Validation effectée en utilisant <a href=\"%{gtfs_link}\">le fichier GTFS en vigueur</a> et le <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> à la date du %{date} avec <a href=\"%{validator_url}\" target=\"_blank\">le validateur CUTR GTFS-RT</a>."
+#, elixir-autogen, elixir-format
+msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> and the <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>."
+msgstr "Validation effectuée en utilisant <a href=\"%{gtfs_link}\">le fichier GTFS en vigueur</a> et le <a href=\"%{gtfs_rt_link}\">GTFS-RT</a>, le %{date} avec <a href=\"%{validator_url}\" target=\"_blank\">le validateur CUTR GTFS-RT</a>."
 
-#, elixir-format, ex-autogen
+#, elixir-autogen, elixir-format
 msgid "Warnings"
 msgstr "Avertissements"
+
+#, elixir-format, ex-autogen, fuzzy
+msgctxt "warnings"
+msgid "warning"
+msgid_plural "warnings"
+msgstr[0] "avertissement"
+msgstr[1] "avertissements"
+
+#, elixir-autogen, elixir-format
+msgid "Data type"
+msgstr "Type de données"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Validate"
+msgstr "Valider"
+
+#, elixir-autogen, elixir-format
+msgid "Your URL"
+msgstr "Votre URL"
+
+#, elixir-autogen, elixir-format
+msgid "Check the quality of a file or a feed"
+msgstr "Vérifier la qualité d'un fichier ou d'un flux"
+
+#, elixir-autogen, elixir-format
+msgid "GBFS validation report"
+msgstr "Rapport de validation GBFS"
+
+#, elixir-autogen, elixir-format
+msgid "This is the validation report of the GBFS feed %{link}."
+msgstr "Ceci est le rapport de validation du flux GBFS %{link}."
+
+#, elixir-autogen, elixir-format
+msgid "Feed details"
+msgstr "Détail des flux"
+
+#, elixir-autogen, elixir-format
+msgid "Validation performed at %{date}."
+msgstr "Validation effectuée le %{date}."
+
+#, elixir-autogen, elixir-format
+msgid "Your GTFS realtime's URL"
+msgstr "L'URL de votre GTFS temps réel"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Your GTFS' URL"
+msgstr "L'URL de votre GTFS"
+
+#, elixir-autogen, elixir-format
+msgid "Validate this GTFS-RT now"
+msgstr "Valider ce GTFS-RT maintenant"
+
+#, elixir-autogen, elixir-format
+msgid "Each GTFS-RT feed can only be validated once per 5 minutes. Please wait a moment and try again."
+msgstr "Chaque flux GTFS-RT ne peut être validé que toutes les 5 minutes. Veuillez patienter un instant et réessayer."
+
+#, elixir-autogen, elixir-format
+msgid "GTFS-RT feeds change in real-time. This validation report shows the validation result performed at %{date}. You can relaunch a validation later on and get different results."
+msgstr "Le contenu d'un flux GTFS-RT est susceptible de changer à chaque instant. Cette page présente les résultats de la validation effectuée le %{date} et son contenu est fixe. Il vous est possible de revalider le flux ultérieurement et d'obtenir des résultats différents."
+
+#, elixir-autogen, elixir-format
+msgid "This validation concerns the given GTFS-RT feed and GTFS file and has been carried out using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>. It does not validate the GTFS itself. You can validate your GTFS file <a href=\"%{gtfs_validator}\">using our GTFS validator</a>."
+msgstr "La validation porte sur le flux GTFS-RT et sur sa cohérence avec le fichier GTFS fourni. Elle a été réalisée avec le <a href=\"%{validator_url}\" target=\"_blank\">validateur CUTR GTFS-RT</a>. Elle ne porte pas sur le fichier GTFS en lui-même. Il est possible de valider un fichier GTFS grâce à <a href=\"%{gtfs_validator}\">notre validateur GTFS</a>."
+
+#, elixir-autogen, elixir-format
+msgid "Visualization"
+msgstr "Visualisation"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Visualization is quite big"
+msgstr "La visualisation est volumineuse"

@@ -136,15 +136,20 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
   describe "set_of_sha256" do
     test "with atoms" do
-      assert MapSet.new(["foo"]) == ResourceHistoryJob.set_of_sha256([%{sha256: "foo"}])
+      assert MapSet.new([{"bar", "foo"}]) == ResourceHistoryJob.set_of_sha256([%{sha256: "foo", file_name: "bar"}])
     end
 
     test "with strings" do
-      assert MapSet.new(["foo"]) == ResourceHistoryJob.set_of_sha256([%{"sha256" => "foo"}])
+      assert MapSet.new([{"bar", "foo"}]) ==
+               ResourceHistoryJob.set_of_sha256([%{"sha256" => "foo", "file_name" => "bar"}])
     end
 
     test "with atoms and strings" do
-      assert MapSet.new(["foo", "bar"]) == ResourceHistoryJob.set_of_sha256([%{"sha256" => "foo"}, %{sha256: "bar"}])
+      assert MapSet.new([{"bar", "foo"}, {"foo", "bar"}]) ==
+               ResourceHistoryJob.set_of_sha256([
+                 %{"sha256" => "foo", "file_name" => "bar"},
+                 %{sha256: "bar", file_name: "foo"}
+               ])
     end
   end
 
@@ -180,6 +185,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       refute ResourceHistoryJob.is_same_resource?(%DB.ResourceHistory{payload: %{"zip_metadata" => zip_metadata()}}, [])
 
+      refute ResourceHistoryJob.is_same_resource?(
+               %DB.ResourceHistory{payload: %{"zip_metadata" => [%{"file_name" => "folder/a.txt", "sha256" => "sha"}]}},
+               [%{"file_name" => "a.txt", "sha256" => "sha"}]
+             )
+
       # For regular files
       refute ResourceHistoryJob.is_same_resource?(%DB.ResourceHistory{payload: %{"content_hash" => "foo"}}, "")
     end
@@ -205,7 +215,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     test "a simple successful case for a GTFS" do
       resource_url = "https://example.com/gtfs.zip"
 
-      %{datagouv_id: datagouv_id, metadata: resource_metadata, title: title} =
+      %{datagouv_id: datagouv_id, dataset_id: dataset_id, metadata: resource_metadata, title: title} =
         insert(:resource,
           url: resource_url,
           dataset: insert(:dataset, is_active: true),
@@ -267,6 +277,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                    "transfers.txt",
                    "trips.txt"
                  ],
+                 "dataset_id" => ^dataset_id,
                  "format" => "GTFS",
                  "http_headers" => %{"content-type" => "application/octet-stream"},
                  "resource_metadata" => ^resource_metadata,
@@ -288,8 +299,14 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
     test "a simple successful case for a CSV" do
       resource_url = "https://example.com/file.csv"
+      csv_content = "col1,col2\nval1,val2"
 
-      %{datagouv_id: datagouv_id, metadata: resource_metadata, title: title, content_hash: content_hash} =
+      %{
+        datagouv_id: datagouv_id,
+        dataset_id: dataset_id,
+        metadata: resource_metadata,
+        title: title
+      } =
         insert(:resource,
           url: resource_url,
           dataset: insert(:dataset, is_active: true),
@@ -297,7 +314,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           title: "title",
           datagouv_id: "1",
           is_community_resource: false,
-          content_hash: "hash",
           metadata: %{"foo" => "bar"}
         )
 
@@ -308,7 +324,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         {:ok,
          %HTTPoison.Response{
            status_code: 200,
-           body: @gtfs_content,
+           body: csv_content,
            headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]
          }}
       end)
@@ -323,7 +339,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  http_method: :put,
                  path: path,
                  bucket: ^bucket_name,
-                 body: @gtfs_content,
+                 body: ^csv_content,
                  headers: %{"x-amz-acl" => "public-read"}
                } = request
 
@@ -336,9 +352,12 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       ensure_no_tmp_files!("resource_")
 
+      content_hash = :sha256 |> :crypto.hash(csv_content) |> Base.encode16() |> String.downcase()
+
       assert %DB.ResourceHistory{
                datagouv_id: ^datagouv_id,
                payload: %{
+                 "dataset_id" => ^dataset_id,
                  "format" => "csv",
                  "content_hash" => ^content_hash,
                  "http_headers" => %{"content-type" => "application/octet-stream"},

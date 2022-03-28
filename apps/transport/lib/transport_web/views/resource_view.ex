@@ -4,9 +4,11 @@ defmodule TransportWeb.ResourceView do
   import DB.Validation
   import Phoenix.Controller, only: [current_url: 2]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
-  import TransportWeb.DatasetView, only: [schema_url: 1, errors_count: 1]
+  import TransportWeb.DatasetView, only: [schema_url: 1, errors_count: 1, warnings_count: 1]
   import DB.Resource, only: [has_errors_details?: 1]
   import DB.ResourceUnavailability, only: [round_float: 2]
+  import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
+  alias Shared.DateTimeDisplay
   def format_related_objects(nil), do: ""
 
   def format_related_objects(related_objects) do
@@ -149,16 +151,66 @@ defmodule TransportWeb.ResourceView do
 
   def download_availability_class_text(ratio), do: download_availability_class(ratio) <> "_text"
 
-  def date_to_string(conn, %Date{} = date) do
-    case get_session(conn, :locale) do
-      "fr" -> Calendar.strftime(date, "%d/%m/%Y")
-      _ -> Calendar.strftime(date, "%m/%d/%Y")
-    end
-  end
-
   def gtfs_rt_validator_url, do: "https://github.com/CUTR-at-USF/gtfs-realtime-validator"
 
   def gtfs_rt_validator_rule_url(%{"error_id" => error_id}) do
     "https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/RULES.md##{error_id}"
   end
+
+  def on_demand_validation_link(conn, %DB.Resource{} = resource) do
+    type =
+      cond do
+        DB.Resource.is_gtfs?(resource) -> "gtfs"
+        DB.Resource.is_gbfs?(resource) -> "gbfs"
+        not is_nil(resource.schema_name) -> resource.schema_name
+        true -> ""
+      end
+
+    unless type == "" or TransportWeb.ValidationController.is_valid_type?(type) do
+      raise "#{type} is not a valid type for on demand validation"
+    end
+
+    live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: type)
+  end
+
+  def is_geojson_with_viz(%{format: "geojson"}, %{url: url, filesize: filesize})
+      when not is_nil(filesize) and not is_nil(url),
+      do: true
+
+  def is_geojson_with_viz(_, _), do: false
+
+  # credo:disable-for-next-line
+  def service_alert_icon(%{cause: cause}) do
+    case cause do
+      :UNKNOWN_CAUSE -> "fa fa-question-circle"
+      :OTHER_CAUSE -> "fa fa-question-circle"
+      :TECHNICAL_PROBLEM -> "fa fa-exclamation-triangle"
+      :STRIKE -> "fa fa-fist-raised"
+      :DEMONSTRATION -> "fa fa-bullhorn"
+      :ACCIDENT -> "fa fa-car-crash"
+      :HOLIDAY -> "fa fa-calendar"
+      :WEATHER -> "fa fa-cloud-rain"
+      :MAINTENANCE -> "fa fa-wrench"
+      :CONSTRUCTION -> "fa fa-hard-hat"
+      :POLICE_ACTIVITY -> "fa fa-user-shield"
+      :MEDICAL_EMERGENCY -> "fa fa-ambulance"
+    end
+  end
+
+  # credo:disable-for-next-line
+  def service_alert_effect(%{effect: effect}) do
+    case effect do
+      :NO_SERVICE -> dgettext("page-dataset-details", "No service")
+      :REDUCED_SERVICE -> dgettext("page-dataset-details", "Reduced service")
+      :SIGNIFICANT_DELAYS -> dgettext("page-dataset-details", "Significant delays")
+      :DETOUR -> dgettext("page-dataset-details", "Detour")
+      :ADDITIONAL_SERVICE -> dgettext("page-dataset-details", "Additional service")
+      :MODIFIED_SERVICE -> dgettext("page-dataset-details", "Modified service")
+      :OTHER_EFFECT -> dgettext("page-dataset-details", "Other effect")
+      :UNKNOWN_EFFECT -> dgettext("page-dataset-details", "Unknown effect")
+      :STOP_MOVED -> dgettext("page-dataset-details", "Stop moved")
+    end
+  end
+
+  def nb_days_entities, do: Transport.Jobs.GTFSRTEntitiesJob.days_to_keep()
 end

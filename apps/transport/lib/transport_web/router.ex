@@ -42,6 +42,7 @@ defmodule TransportWeb.Router do
 
     get("/", PageController, :index)
     get("/real_time", PageController, :real_time)
+    get("/accessibilite", PageController, :accessibility)
     get("/conditions", PageController, :conditions)
     get("/infos_producteurs", PageController, :infos_producteurs)
     get("/.well-known/security.txt", PageController, :security_txt)
@@ -148,7 +149,10 @@ defmodule TransportWeb.Router do
     get("/logout", SessionController, :delete)
 
     scope "/validation" do
-      get("/", ValidationController, :index)
+      live_session :validation, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/", Live.OnDemandValidationSelectLive)
+      end
+
       post("/", ValidationController, :validate)
       post("/convert", ValidationController, :convert)
       get("/:id", ValidationController, :show)
@@ -165,7 +169,7 @@ defmodule TransportWeb.Router do
     end
 
     # old static pages that have been moved to doc.transport
-    get("/faq", Redirect, external: "https://doc.transport.data.gouv.fr/foire-aux-questions")
+    get("/faq", Redirect, external: "https://doc.transport.data.gouv.fr/foire-aux-questions-1/generalites")
 
     get("/guide", Redirect,
       external:

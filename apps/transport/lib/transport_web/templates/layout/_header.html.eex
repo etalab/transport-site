@@ -24,14 +24,21 @@
             <div class="dropdown">
               <%= gettext("Tools") %>
               <div class="dropdown-content">
-                <%= link(gettext("Check a file's quality"), to: validation_path(@conn, :index)) %>
-                <%= link(gettext("Analyze a GBFS feed"), to: "/tools/gbfs/analyze") %>
+                <%= link(gettext("Check the quality of a file or a feed"), to: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)) %>
                 <%= link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank") %>
               </div>
             </div>
           </li>
           <li class="nav__item">
             <%= link(gettext("Producer infos"), to: page_path(@conn, :infos_producteurs)) %>
+          </li>
+          <li class="nav__item">
+            <div class="dropdown">
+              <%= gettext("Regulation") %>
+              <div class="dropdown-content">
+                <%= link(gettext("Standards"), to: "https://normes.transport.data.gouv.fr", target: "_blank") %>
+              </div>
+            </div>
           </li>
           <li class="nav__item">
             <%= link(gettext("Blog"), to: "https://blog.transport.data.gouv.fr") %>

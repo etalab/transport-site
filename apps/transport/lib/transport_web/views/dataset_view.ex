@@ -11,6 +11,7 @@ defmodule TransportWeb.DatasetView do
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
   import Transport.GbfsUtils, only: [gbfs_validation_link: 1]
+  alias Shared.DateTimeDisplay
   alias TransportWeb.ResourceView
 
   @doc """
@@ -37,24 +38,6 @@ defmodule TransportWeb.DatasetView do
       dataset: dataset,
       conn: conn
     )
-  end
-
-  def format_datetime_to_date(nil), do: ""
-
-  def format_datetime_to_date(%DateTime{} = dt), do: dt |> DateTime.to_date() |> Date.to_string()
-
-  def format_datetime_to_date(datetime) do
-    datetime
-    |> Timex.parse!("{ISO:Extended}")
-    |> Timex.format!("{0D}-{0M}-{YYYY}")
-  end
-
-  def format_date(nil), do: ""
-
-  def format_date(date) do
-    date
-    |> Timex.parse!("{YYYY}-{0M}-{0D}")
-    |> Timex.format!("{0D}-{0M}-{YYYY}")
   end
 
   def first_gtfs(dataset) do
@@ -245,11 +228,22 @@ defmodule TransportWeb.DatasetView do
   def summary_class(%{metadata: %{"validation" => %{"has_errors" => false}}}),
     do: "resource__summary--Success"
 
+  def summary_class(%{metadata: %{"validation" => %{"errors_count" => 0, "warnings_count" => warnings_count}}})
+      when warnings_count > 0,
+      do: "resource__summary--Warning"
+
   def summary_class(%{metadata: %{"validation" => _}}), do: "resource__summary--Error"
 
-  def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => nb_errors}}})
-      when is_integer(nb_errors) and nb_errors >= 0,
-      do: nb_errors
+  def warnings_count(%Resource{metadata: %{"validation" => %{"warnings_count" => warnings_count}}})
+      when is_integer(warnings_count) and warnings_count >= 0,
+      do: warnings_count
+
+  def warnings_count(%Resource{format: "gtfs-rt"}), do: 0
+  def warnings_count(%Resource{}), do: nil
+
+  def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => errors_count}}})
+      when is_integer(errors_count) and errors_count >= 0,
+      do: errors_count
 
   def errors_count(%Resource{}), do: nil
 
@@ -296,17 +290,11 @@ defmodule TransportWeb.DatasetView do
       |> Dataset.official_resources()
       |> Enum.reject(fn r -> r.is_available end)
 
-  def gtfs_rt_official_resources(dataset),
+  def real_time_official_resources(dataset),
     do:
       dataset
       |> official_available_resources()
-      |> Enum.filter(&Resource.is_gtfs_rt?/1)
-
-  def gbfs_official_resources(dataset),
-    do:
-      dataset
-      |> official_available_resources()
-      |> Enum.filter(&Resource.is_gbfs?/1)
+      |> Enum.filter(&Resource.is_real_time?/1)
 
   def netex_official_resources(dataset),
     do:
@@ -318,9 +306,8 @@ defmodule TransportWeb.DatasetView do
     dataset
     |> official_available_resources()
     |> Stream.reject(&Resource.is_gtfs?/1)
-    |> Stream.reject(&Resource.is_gtfs_rt?/1)
-    |> Stream.reject(&Resource.is_gbfs?/1)
     |> Stream.reject(&Resource.is_netex?/1)
+    |> Stream.reject(&Resource.is_real_time?/1)
     |> Enum.to_list()
     |> Enum.sort(fn r1, r2 ->
       nd1 = NaiveDateTime.from_iso8601(Map.get(r1, :last_update, ""))
@@ -341,6 +328,10 @@ defmodule TransportWeb.DatasetView do
   def licence_url("lov2"), do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
 
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
+
+  def licence_url("mobility-license"),
+    do: "https://download.data.grandlyon.com/licences/Licence_mobilit%C3%A9s_V_02_2021.pdf"
+
   def licence_url(_), do: nil
 
   @spec description(Dataset.t() | Resource.t()) :: Phoenix.HTML.safe()
@@ -371,6 +362,7 @@ defmodule TransportWeb.DatasetView do
       "other-open" -> dgettext("dataset", "other-open")
       "lov2" -> dgettext("dataset", "lov2")
       "notspecified" -> dgettext("dataset", "notspecified")
+      "mobility-license" -> dgettext("dataset", "Mobility license")
       other -> other
     end
   end
@@ -438,6 +430,8 @@ defmodule TransportWeb.DatasetView do
     |> Enum.sort_by(&Resource.valid_and_available?(&1), &>=/2)
   end
 
+  def order_resources_by_format(resources), do: resources |> Enum.sort_by(& &1.format, &>=/2)
+
   def schema_url(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do
     "https://schema.data.gouv.fr/#{schema_name}/#{schema_version}/"
   end
@@ -461,8 +455,21 @@ defmodule TransportWeb.DatasetView do
   end
 
   def has_validity_period?(%DB.ResourceHistory{payload: %{"resource_metadata" => metadata}}) when is_map(metadata) do
-    Map.has_key?(metadata, "start_date")
+    not is_nil(Map.get(metadata, "start_date"))
   end
 
   def has_validity_period?(%DB.ResourceHistory{}), do: false
+
+  def show_resource_last_update(resources_updated_at, %DB.Resource{id: id} = resource, locale) do
+    if Resource.is_real_time?(resource) do
+      dgettext("page-dataset-details", "real-time")
+    else
+      resources_updated_at
+      |> Map.get(id)
+      |> case do
+        nil -> dgettext("page-dataset-details", "unknown")
+        dt -> dt |> DateTimeDisplay.format_datetime_to_date(locale)
+      end
+    end
+  end
 end

@@ -8,6 +8,8 @@ defmodule TransportWeb.ResourceControllerTest do
 
   setup :verify_on_exit!
 
+  @service_alerts_file "#{__DIR__}/../../fixture/files/bibus-brest-gtfs-rt-alerts.pb"
+
   setup do
     {:ok, _} =
       %Dataset{
@@ -43,11 +45,12 @@ defmodule TransportWeb.ResourceControllerTest do
           %Resource{
             url: "http://link.to/gtfs-rt",
             datagouv_id: "5",
-            metadata: %{"validation" => %{"errors_count" => 2}},
+            metadata: %{"validation" => %{"errors_count" => 2, "warnings_count" => 3}},
             validation: %Validation{
               date: DateTime.utc_now() |> DateTime.to_string(),
               details: %{
                 "errors_count" => 2,
+                "warnings_count" => 3,
                 "files" => %{
                   "gtfs_permanent_url" => "https://example.com/gtfs.zip",
                   "gtfs_rt_permanent_url" => "https://example.com/gtfs-rt"
@@ -58,16 +61,16 @@ defmodule TransportWeb.ResourceControllerTest do
                     "description" => "error description",
                     "severity" => "ERROR",
                     "error_id" => "E001",
-                    "errors_count" => 1,
-                    "errors" => ["sample 1"]
+                    "errors_count" => 2,
+                    "errors" => ["sample 1", "foo"]
                   },
                   %{
                     "title" => "warning title",
                     "description" => "warning description",
                     "severity" => "WARNING",
                     "error_id" => "W001",
-                    "errors_count" => 1,
-                    "errors" => ["sample 2"]
+                    "errors_count" => 3,
+                    "errors" => ["sample 2", "bar", "baz"]
                   }
                 ]
               }
@@ -136,12 +139,20 @@ defmodule TransportWeb.ResourceControllerTest do
   test "resource with error details sends back a 200", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "4")
     refute is_nil(resource.schema_name)
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:transport_schemas, fn -> %{resource.schema_name => %{"title" => "foo"}} end)
+
     assert Resource.has_errors_details?(resource)
     conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) |> assert =~ "this is an error"
   end
 
   test "resource has download availability displayed", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "4")
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:transport_schemas, fn -> %{resource.schema_name => %{"title" => "foo"}} end)
+
     html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
 
     assert html =~ "Disponibilité au téléchargement"
@@ -149,13 +160,20 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "gtfs-rt resource with error details sends back a 200", %{conn: conn} do
-    resource = Resource |> preload(:validation) |> Repo.get_by(datagouv_id: "5")
+    %{url: url} = resource = Resource |> preload(:validation) |> Repo.get_by(datagouv_id: "5")
+
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn ^url, [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: File.read!(@service_alerts_file)}}
+    end)
+
     assert Resource.is_gtfs_rt?(resource)
     assert Resource.has_errors_details?(resource)
     content = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
 
     [
       "2 erreurs",
+      "3 avertissements",
       "error title",
       "E001",
       "warning title",
@@ -163,9 +181,24 @@ defmodule TransportWeb.ResourceControllerTest do
       "sample 1",
       "sample 2",
       resource.validation.details["files"]["gtfs_permanent_url"],
-      resource.validation.details["files"]["gtfs_rt_permanent_url"]
+      resource.validation.details["files"]["gtfs_rt_permanent_url"],
+      "Prolongation des travaux rue de Kermaria"
     ]
     |> Enum.each(&assert content =~ &1)
+  end
+
+  test "gtfs-rt resource with feed decode error", %{conn: conn} do
+    %{url: url} = resource = Resource |> preload(:validation) |> Repo.get_by(datagouv_id: "5")
+
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn ^url, [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 502, body: ""}}
+    end)
+
+    assert Resource.is_gtfs_rt?(resource)
+    content = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+
+    assert content =~ "Impossible de décoder le flux GTFS-RT"
   end
 
   test "downloading a resource that can be directly downloaded", %{conn: conn} do
@@ -224,6 +257,22 @@ defmodule TransportWeb.ResourceControllerTest do
     for status_code <- [500, 502] do
       test_remote_download_error(conn, status_code)
     end
+  end
+
+  test "flash message when parent dataset is inactive", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset, %{is_active: false})
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
+
+    conn = conn |> get(resource_path(conn, :details, resource_id))
+    assert conn |> html_response(200) =~ "supprimé de data.gouv.fr"
+  end
+
+  test "no flash message when parent dataset is active", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset, %{is_active: true})
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
+
+    conn = conn |> get(resource_path(conn, :details, resource_id))
+    refute conn |> html_response(200) =~ "supprimé de data.gouv.fr"
   end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do

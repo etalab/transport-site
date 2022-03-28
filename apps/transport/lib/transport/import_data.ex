@@ -58,7 +58,7 @@ defmodule Transport.ImportData do
         resources_id,
         fn r_id -> Resource.validate_and_save(r_id, force) end,
         max_concurrency: max_import_concurrent_jobs(),
-        timeout: 180_000
+        timeout: 240_000
       )
       |> Enum.to_list()
 
@@ -161,7 +161,8 @@ defmodule Transport.ImportData do
   def prepare_dataset_from_data_gouv_response(%{} = data_gouv_resp, type) do
     dataset =
       data_gouv_resp
-      |> Map.take(["title", "description", "id", "slug", "frequency", "tags"])
+      |> Map.take(["description", "id", "slug", "frequency", "tags"])
+      |> Map.put("datagouv_title", data_gouv_resp["title"])
       |> Map.put("datagouv_id", data_gouv_resp["id"])
       |> Map.put("logo", get_logo_thumbnail(data_gouv_resp))
       |> Map.put("full_logo", get_logo(data_gouv_resp))
@@ -171,7 +172,7 @@ defmodule Transport.ImportData do
       |> Map.put("organization", data_gouv_resp["organization"]["name"])
       |> Map.put("resources", get_resources(data_gouv_resp, type))
       |> Map.put("nb_reuses", get_nb_reuses(data_gouv_resp))
-      |> Map.put("licence", data_gouv_resp["license"])
+      |> Map.put("licence", license(data_gouv_resp))
       |> Map.put("zones", get_associated_zones_insee(data_gouv_resp))
 
     case Map.get(data_gouv_resp, "resources") do
@@ -179,6 +180,37 @@ defmodule Transport.ImportData do
       _ -> {:ok, dataset}
     end
   end
+
+  @doc """
+  Set the license according to the datagouv response with possible overrides.
+  Context: we're doing this directly on transport.data.gouv.fr because data.gouv.fr does
+  not handle licenses that have not been homologated. Some custom licenses will be
+  classified as `notspecified` on the datagouv API response as a result.
+
+    ## Examples
+
+      iex> ImportData.license(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Lyon"}})
+      "mobility-license"
+
+      iex> ImportData.license(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Rouen"}})
+      "notspecified"
+
+      iex> ImportData.license(%{"license" => "odc-odbl"})
+      "odc-odbl"
+
+  """
+  def license(%{"license" => "notspecified", "organization" => %{"name" => org_name}}) do
+    orgs_with_mobility_license = ["Métropole de Lyon"]
+
+    if org_name in orgs_with_mobility_license do
+      "mobility-license"
+    else
+      "notspecified"
+    end
+  end
+
+  def license(%{"license" => datagouv_license}), do: datagouv_license
+  def license(_), do: nil
 
   @doc """
   Get logo from datagouv dataset
@@ -329,6 +361,7 @@ defmodule Transport.ImportData do
         "metadata" => resource["metadata"]
       }
     end)
+    |> maybe_filter_resources(type)
   end
 
   @spec get_valid_resources(map(), binary()) :: [map()]
@@ -344,6 +377,12 @@ defmodule Transport.ImportData do
   def get_valid_resources(%{"resources" => resources}, _type) do
     resources
   end
+
+  def maybe_filter_resources(resources, "low-emission-zones") do
+    resources |> Enum.filter(&(&1["schema_name"] == "etalab/schema-zfe"))
+  end
+
+  def maybe_filter_resources(resources, _), do: resources
 
   @spec get_valid_gtfs_resources([map()]) :: [map()]
   def get_valid_gtfs_resources(resources) do
@@ -509,27 +548,6 @@ defmodule Transport.ImportData do
   def is_neptune?(s), do: is_format?(s, "neptune")
 
   @doc """
-  Check for licence, returns ["bad_license"] if the licence is not "odc-odbl"
-  or "fr-lo".
-
-  ## Examples
-
-      iex> ImportData.check_license(%{"license" => "bliblablou"})
-      false
-
-      iex> ImportData.check_license(%{"license" => "odc-odbl"})
-      true
-
-      iex> ImportData.check_license(%{"license" => "fr-lo"})
-      true
-
-  """
-  @spec check_license(map()) :: boolean()
-  def check_license(%{"license" => "odc-odbl"}), do: true
-  def check_license(%{"license" => "fr-lo"}), do: true
-  def check_license(_), do: false
-
-  @doc """
   Check for download uri, returns ["no_download_url"] if there's no download_url
 
   ## Examples
@@ -592,6 +610,12 @@ defmodule Transport.ImportData do
       iex> %{"url" => "https://example.com/gbfs/free_bike_status.json", "format" => "json"}
       ...> |> ImportData.formated_format("bike-scooter-sharing", false)
       "json"
+
+      iex> ImportData.formated_format(%{"title" => "Export au format GeoJSON", "format" => "json"}, "low-emission-zones", false)
+      "geojson"
+
+      iex> ImportData.formated_format(%{"format" => "GeoJSON"}, "low-emission-zones", false)
+      "geojson"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
   # credo:disable-for-next-line
@@ -605,11 +629,17 @@ defmodule Transport.ImportData do
       is_gtfs?(format) -> "GTFS"
       is_siri_lite?(format) -> "SIRI Lite"
       is_siri?(format) -> "SIRI"
+      is_geojson?(resource, format) -> "geojson"
       type == "public-transit" and not is_community_resource -> "GTFS"
       type == "bike-scooter-sharing" and is_gbfs?(resource) -> "gbfs"
       true -> format
     end
   end
+
+  # Classify GeoJSONs from ODS as geojson instead of json
+  # See https://github.com/opendatateam/udata-ods/issues/211
+  defp is_geojson?(%{"title" => "Export au format GeoJSON"}, _), do: true
+  defp is_geojson?(_, format), do: is_format?(format, ["geojson"])
 
   defp is_gbfs?(%{"url" => url}) do
     if String.contains?(url, "gbfs") do

@@ -100,25 +100,11 @@ defmodule TransportWeb.Backoffice.PageController do
     |> render_index(conn, params)
   end
 
-  def index(%Plug.Conn{} = conn, %{"filter" => "rt_resource_without_siri_lite"} = params) do
-    resources_siri =
-      from(r in Resource,
-        where: r.format == "siri-lite",
-        group_by: r.dataset_id,
-        select: %{dataset_id: r.dataset_id, count: count(r.dataset_id)}
-      )
-
-    resources_gtfs_rt =
-      from(r in Resource,
-        where: r.format == "gtfs-rt",
-        group_by: r.dataset_id,
-        select: %{dataset_id: r.dataset_id, count: count(r.dataset_id)}
-      )
+  def index(%Plug.Conn{} = conn, %{"filter" => "resource_under_90_availability"} = params) do
+    datasets_id = dataset_with_resource_under_90_availability()
 
     Dataset
-    |> join(:left, [d], rs in subquery(resources_siri), on: d.id == rs.dataset_id)
-    |> join(:left, [d], rg in subquery(resources_gtfs_rt), on: d.id == rg.dataset_id)
-    |> where([d, rs, rg], rs.count == 0 and rg.count > 0)
+    |> where([d], d.id in ^datasets_id)
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
@@ -205,6 +191,23 @@ defmodule TransportWeb.Backoffice.PageController do
     conn |> redirect(to: backoffice_page_path(conn, :index))
   end
 
+  def dataset_with_resource_under_90_availability do
+    query = """
+    with down_ranges as (select *, tsrange(ru.start, ru.end) as down_range, tsrange(now()::timestamp - interval '30 day', now()::timestamp) as compute_range from resource_unavailability ru),
+    availability as (select resource_id, r.dataset_id, 1. - (EXTRACT(EPOCH from sum(upper(down_range * compute_range) - lower(down_range * compute_range))) / EXTRACT(EPOCH from interval '30 day')) as availability from down_ranges
+    left join resource r on r.id = resource_id
+    group by resource_id, dataset_id)
+    select distinct dataset_id from availability a
+    left join dataset d on a.dataset_id = d.id
+    where availability <= 0.9 and d.is_active = true
+    order by dataset_id;
+    """
+
+    %{rows: rows} = Ecto.Adapters.SQL.query!(DB.Repo, query)
+
+    List.flatten(rows)
+  end
+
   ## Private functions
   @spec render_index(Ecto.Queryable.t(), Plug.Conn.t(), map()) :: Plug.Conn.t()
   defp render_index(datasets, conn, params) do
@@ -234,7 +237,7 @@ defmodule TransportWeb.Backoffice.PageController do
     order_by =
       case params do
         %{"order_by" => "end_date"} -> :end_date
-        %{"order_by" => "spatial"} -> :spatial
+        %{"order_by" => "custom_title"} -> :custom_title
         _ -> nil
       end
 
@@ -247,7 +250,7 @@ defmodule TransportWeb.Backoffice.PageController do
 
     case field do
       :end_date -> order_by(query, [d, r], {^dir, field(r, :end_date)})
-      :spatial -> order_by(query, [d, r], {^dir, field(d, :spatial)})
+      :custom_title -> order_by(query, [d, r], {^dir, field(d, :custom_title)})
       _ -> query
     end
   end

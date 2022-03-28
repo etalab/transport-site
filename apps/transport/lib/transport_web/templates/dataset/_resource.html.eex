@@ -1,6 +1,8 @@
+<% locale = get_session(@conn, :locale) %>
 <div class="panel resource <%= valid_panel_class(@resource) %>" title="<%= resource_tooltip_content(@resource) %>">
   <% has_associated_geojson = ResourceView.has_associated_geojson(@resources_related_files, @resource.id) %>
   <% has_associated_netex = ResourceView.has_associated_netex(@resources_related_files, @resource.id) %>
+  <% is_geojson_with_viz = ResourceView.is_geojson_with_viz(@resource, Map.get(@latest_resources_history_infos || %{}, @resource.id)) %>
   <h4>
     <%= @resource.title %>
   </h4>
@@ -15,20 +17,18 @@
   <%= if Resource.valid_and_available?(@resource) do %>
     <div title="<%= dgettext("page-dataset-details", "Validity period") %>">
       <i class="icon icon--calendar-alt" aria-hidden="true"></i>
-      <span><%= format_date(@resource.metadata["start_date"]) %></span>
+      <span><%= DateTimeDisplay.format_date(@resource.metadata["start_date"], locale) %></span>
       <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
-      <span class="<%= outdated_class(@resource) %>"><%= format_date(@resource.metadata["end_date"]) %></span>
+      <span class="<%= outdated_class(@resource) %>"><%= DateTimeDisplay.format_date(@resource.metadata["end_date"], locale) %></span>
     </div>
   <% end %>
   <div class="pb-24 light-gry">
-    <span title="<%= dgettext("page-dataset-details", "last update") %>">
+
+    <span title="<%= dgettext("page-dataset-details", "last content modification") %>">
       <i class="icon icon--sync-alt" aria-hidden="true"></i>
-      <%= if Resource.is_real_time?(@resource) do %>
-        <%= dgettext("page-dataset-details", "real-time") %>
-      <% else %>
-        <%= @resource.last_update |> format_datetime_to_date() %>
-      <% end %>
+        <%= show_resource_last_update(@resources_updated_at, @resource, locale) %>
     </span>
+
     <%= unless is_nil(Resource.ttl(@resource)) do %>
       <span class="ml-05-em" title="<%= dgettext("page-dataset-details", "time to live (%{feed})", feed: gbfs_feed_source_for_ttl(@resource)) %>">
         <i class="icon fa fa-history" aria-hidden="true"></i>
@@ -77,41 +77,46 @@
             <%= if r.severity == "Irrevelant" do %>
               <%= dgettext("page-dataset-details", "No error detected") %>
             <% else %>
-              <%= "#{r.count_errors} #{Validation.severities(r.severity)[:text]}" %>
+              <%= "#{r.count_errors} #{String.downcase(Validation.severities(r.severity)[:text])}" %>
             <% end %>
           </span>
         <% end %>
       </a>
       <span><%= dgettext("page-dataset-details", "during validation") %></span>
-      <%= if has_associated_geojson do %>
-        <div>
-          <a class="light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#visualization" %>">
-            <%= dgettext("page-dataset-details", "Data visualisation available!") %>
-          </a>
-        </div>
-      <% end %>
     </div>
   <% end %>
+
+  <%= if has_associated_geojson or is_geojson_with_viz do %>
+    <div>
+      <a class="light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#visualization" %>">
+        <%= dgettext("page-dataset-details", "Data visualization available!") %>
+      </a>
+    </div>
+  <% end %>
+
   <%= if Resource.has_errors_details?(@resource) do %>
     <% nb_errors = errors_count(@resource) %>
-    <%= if nb_errors do %>
-      <div class="pb-24">
-        <%= if Resource.is_gbfs?(@resource) do %>
-          <a href="<%= gbfs_validation_link(@resource) %>" target="_blank">
-        <% else %>
-          <a href="<%= resource_path(@conn, :details, @resource.id) %>">
-        <% end %>
-          <span class="<%= summary_class(@resource) %>">
-            <%= if nb_errors == 0 do %>
-              <%= dgettext("page-dataset-details", "No error detected") %>
-            <% else %>
-              <%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
-            <% end %>
-          </span>
-        </a>
-        <span><%= dgettext("page-dataset-details", "during validation") %></span>
-      </div>
-    <% end %>
+    <% nb_warnings = warnings_count(@resource) %>
+    <div class="pb-24">
+      <%= if Resource.is_gbfs?(@resource) do %>
+        <a href="<%= gbfs_validation_link(@resource) %>" target="_blank">
+      <% else %>
+        <a href="<%= resource_path(@conn, :details, @resource.id) %>">
+      <% end %>
+        <span class="<%= summary_class(@resource) %>">
+          <%= if nb_errors + (nb_warnings || 0) == 0 do %>
+            <%= dgettext("page-dataset-details", "No error detected") %>
+          <% end %>
+          <%= if nb_errors == 0 and is_integer(nb_warnings) and nb_warnings > 0 do %>
+            <%= "#{format_number(nb_warnings)} #{dpngettext("validations", "warnings", "warning", "warnings", nb_warnings)}" %>
+          <% end %>
+          <%= if nb_errors > 0 do %>
+            <%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+          <% end %>
+        </span>
+      </a>
+      <span><%= dgettext("page-dataset-details", "during validation") %></span>
+    </div>
   <% end %>
   <div class="resource-panel-bottom">
     <div class="resource-features">
@@ -119,6 +124,14 @@
         <div title="<%= dgettext("page-dataset-details", "Dataset modes") %>">
           <%= for mode <- @resource.modes do %>
             <span class="label mode"><%= mode %></span>
+          <% end %>
+        </div>
+      <% end %>
+      <%= if Resource.is_gtfs_rt?(@resource) and length(@resource.features) > 0 do %>
+        <%= dgettext("page-dataset-details", "Features available in the resource:") %>
+        <div>
+          <%= for feature <- @resource.features do %>
+            <span class="label mode"><%= feature %></span>
           <% end %>
         </div>
       <% end %>
@@ -142,7 +155,7 @@
         </div>
       </div>
       <div>
-        <%= if Resource.is_gtfs?(@resource) do %>
+        <%= if Resource.is_gtfs?(@resource) or Resource.is_gtfs_rt?(@resource) do %>
           <a href="<%= resource_path(@conn, :details, @resource.id) %>">
             <button class="button-outline secondary small"><i class="icon icon--plus" aria-hidden="true"></i><%= dgettext("page-dataset-details", "details") %></button>
           </a>

@@ -70,8 +70,8 @@ defmodule TransportWeb.PageControllerTest do
     end
 
     test "renders successfully when data gouv returns no error", %{conn: conn} do
-      ud = Repo.insert!(%Dataset{title: "User Dataset", datagouv_id: "123"})
-      uod = Repo.insert!(%Dataset{title: "Org Dataset", datagouv_id: "456"})
+      ud = Repo.insert!(%Dataset{datagouv_title: "User Dataset", datagouv_id: "123"})
+      uod = Repo.insert!(%Dataset{datagouv_title: "Org Dataset", datagouv_id: "456"})
 
       # It would be ultimately better to have a mock implementation of `Datagouvfr.Client.OAuth` for the
       # whole test suite, like Hex.pm does:
@@ -147,6 +147,10 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "robots.txt page", %{conn: conn} do
-    conn |> get("robots.txt") |> text_response(200)
+    conn |> get("/robots.txt") |> text_response(200)
+  end
+
+  test "accessibility page", %{conn: conn} do
+    conn |> get(page_path(conn, :accessibility)) |> html_response(200)
   end
 end

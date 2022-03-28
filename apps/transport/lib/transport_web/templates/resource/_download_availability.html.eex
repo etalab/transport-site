@@ -1,3 +1,4 @@
+<% locale = get_session(@conn, :locale) %>
 <div class="panel">
   <div class="download_availability">
     <div class="flex_container">
@@ -5,7 +6,7 @@
       <% uptime = day_data["uptime"] * 100 %>
       <div class="day tooltip <%= download_availability_class(uptime) %>">
         <span class="tooltiptext">
-          <div><%= date_to_string(@conn, day_data["day"]) %></div>
+          <div><%= DateTimeDisplay.format_date(day_data["day"], locale) %></div>
           <div class="<%= download_availability_class_text(uptime) %>">
             <strong><%= round_float(uptime, 1) %>%</strong>
           </div>

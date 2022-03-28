@@ -100,21 +100,26 @@ defmodule Transport.Jobs.ResourceHistoryJob do
           title: resource.title,
           filename: filename,
           permanent_url: Transport.S3.permanent_url(:history, filename),
-          format: resource.format
+          format: resource.format,
+          dataset_id: resource.dataset_id
         }
 
         data =
           case is_zip?(resource) do
             true ->
+              total_compressed_size = hash |> Enum.map(& &1.compressed_size) |> Enum.sum()
+
               Map.merge(base, %{
                 zip_metadata: hash,
                 filenames: hash |> Enum.map(& &1.file_name),
                 total_uncompressed_size: hash |> Enum.map(& &1.uncompressed_size) |> Enum.sum(),
-                total_compressed_size: hash |> Enum.map(& &1.compressed_size) |> Enum.sum()
+                total_compressed_size: total_compressed_size,
+                filesize: total_compressed_size
               })
 
             false ->
-              Map.merge(base, %{content_hash: hash})
+              %{size: size} = File.stat!(resource_path)
+              Map.merge(base, %{content_hash: hash, filesize: size})
           end
 
         Transport.S3.upload_to_s3!(:history, body, filename)
@@ -167,9 +172,11 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   def is_same_resource?(nil, _), do: false
 
-  def set_of_sha256(items), do: MapSet.new(items |> Enum.map(fn m -> Map.get(m, "sha256") || Map.get(m, :sha256) end))
+  def set_of_sha256(items) do
+    items |> Enum.map(&{map_get(&1, :file_name), map_get(&1, :sha256)}) |> MapSet.new()
+  end
 
-  defp resource_hash(%Resource{content_hash: content_hash, datagouv_id: datagouv_id} = resource, resource_path) do
+  defp resource_hash(%Resource{datagouv_id: datagouv_id} = resource, resource_path) do
     case is_zip?(resource) do
       true ->
         try do
@@ -181,8 +188,12 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         end
 
       false ->
-        content_hash
+        Hasher.get_file_hash(resource_path)
     end
+  end
+
+  def map_get(map, key) when is_atom(key) do
+    Map.get(map, key) || Map.get(map, to_string(key))
   end
 
   defp is_zip?(%Resource{format: format}), do: format in ["NeTEx", "GTFS"]

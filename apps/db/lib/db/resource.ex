@@ -14,7 +14,6 @@ defmodule DB.Resource do
   require Logger
 
   typed_schema "resource" do
-    field(:is_active, :boolean)
     # real url
     field(:url, :string)
     field(:format, :string)
@@ -30,8 +29,6 @@ defmodule DB.Resource do
     field(:features, {:array, :string}, default: [])
     # all the detected modes of the ressource
     field(:modes, {:array, :string}, default: [])
-
-    field(:conversion_latest_content_hash, :string)
 
     field(:is_community_resource, :boolean)
 
@@ -401,7 +398,6 @@ defmodule DB.Resource do
     |> cast(
       params,
       [
-        :is_active,
         :url,
         :format,
         :last_import,
@@ -567,13 +563,17 @@ defmodule DB.Resource do
   def is_gtfs_rt?(%__MODULE__{format: "gtfsrt"}), do: true
   def is_gtfs_rt?(_), do: false
 
+  @spec is_siri?(__MODULE__.t()) :: boolean
+  def is_siri?(%__MODULE__{format: "SIRI"}), do: true
+  def is_siri?(_), do: false
+
   @spec is_siri_lite?(__MODULE__.t()) :: boolean
   def is_siri_lite?(%__MODULE__{format: "SIRI lite"}), do: true
   def is_siri_lite?(_), do: false
 
   @spec is_real_time?(__MODULE__.t()) :: boolean
   def is_real_time?(%__MODULE__{} = resource) do
-    is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource)
+    is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource) or is_siri?(resource)
   end
 
   @spec ttl(__MODULE__.t()) :: integer() | nil
@@ -662,5 +662,28 @@ defmodule DB.Resource do
     |> order_by([rh, _], desc: rh.inserted_at)
     |> limit(1)
     |> DB.Repo.one()
+  end
+
+  @spec content_updated_at(integer() | __MODULE__.t()) :: Calendar.datetime() | nil
+  def content_updated_at(%__MODULE__{id: id}), do: content_updated_at(id)
+
+  def content_updated_at(resource_id) do
+    resource_history_list =
+      DB.ResourceHistory
+      |> join(:inner, [rh], r in DB.Resource, on: r.datagouv_id == rh.datagouv_id)
+      |> where([_, r], r.id == ^resource_id and fragment("payload \\? 'download_datetime'"))
+      |> select([rh], fragment("payload ->>'download_datetime'"))
+      |> order_by([rh], desc: fragment("payload ->>'download_datetime'"))
+      |> limit(2)
+      |> DB.Repo.all()
+
+    case Enum.count(resource_history_list) do
+      n when n in [0, 1] ->
+        nil
+
+      _ ->
+        {:ok, updated_at, 0} = resource_history_list |> Enum.at(0) |> DateTime.from_iso8601()
+        updated_at
+    end
   end
 end

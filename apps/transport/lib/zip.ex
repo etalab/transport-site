@@ -35,16 +35,8 @@ defmodule Transport.ZipMetaDataExtractor do
     checksum =
       unzip
       |> Unzip.file_stream!(entry.file_name)
-      |> compute_checksum(algorithm)
+      |> Hasher.compute_checksum(algorithm)
 
     entry |> Map.put(algorithm, checksum)
-  end
-
-  def compute_checksum(stream, algorithm) do
-    stream
-    |> Enum.reduce(:crypto.hash_init(algorithm), fn elm, acc -> :crypto.hash_update(acc, elm) end)
-    |> :crypto.hash_final()
-    |> Base.encode16()
-    |> String.downcase()
   end
 end

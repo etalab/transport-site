@@ -93,7 +93,8 @@ oban_crontab_all_envs =
         {"0 3,9,15,21 * * *", Transport.Jobs.GtfsToNetexConverterJob},
         {"20 8 * * *", Transport.Jobs.CleanOrphanConversionsJob},
         {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
-        {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}}
+        {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}},
+        {"20 */2 * * *", Transport.Jobs.GTFSRTEntitiesDispatcherJob}
       ]
 
     :dev ->
@@ -158,3 +159,22 @@ email_host_name =
   end
 
 config :transport, :email_host_name, email_host_name
+
+if config_env() == :prod do
+  pool_size =
+    case app_env do
+      :production -> 15
+      :staging -> 6
+    end
+
+  config :db, DB.Repo,
+    url:
+      System.get_env("POSTGRESQL_ADDON_DIRECT_URI") || System.get_env("POSTGRESQL_ADDON_URI") ||
+        "" |> String.replace_prefix("postgresql", "ecto"),
+    # NOTE: we must be careful with this ; front-end + worker are consuming
+    pool_size: pool_size,
+    # See https://hexdocs.pm/db_connection/DBConnection.html#start_link/2-queue-config
+    # [Ecto.Repo] :pool_timeout is no longer supported in favor of a new queue system described in DBConnection.start_link/2
+    # under "Queue config". For most users, configuring :timeout is enough, as it now includes both queue and query time
+    timeout: 15_000
+end

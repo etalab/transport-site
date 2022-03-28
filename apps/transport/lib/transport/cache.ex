@@ -3,11 +3,11 @@ defmodule Transport.Cache.API do
   This behaviour defines the API for caching, with alternative implementations.
   """
 
-  @callback fetch(cache_key :: binary(), fun()) :: any
+  @callback fetch(cache_key :: binary(), fun(), integer()) :: any
 
   defp impl, do: Application.get_env(:transport, :cache_impl)
 
-  def fetch(cache_key, comp_fn), do: impl().fetch(cache_key, comp_fn)
+  def fetch(cache_key, comp_fn, expire_value \\ :timer.seconds(60)), do: impl().fetch(cache_key, comp_fn, expire_value)
 end
 
 defmodule Transport.Cache.Cachex do
@@ -31,7 +31,7 @@ defmodule Transport.Cache.Cachex do
   * https://github.com/whitfin/cachex/blob/836578ec452bfa6eba3c3159123cccdc9038127e/lib/cachex/actions.ex#L85
   * https://github.com/whitfin/cachex/issues/252
   """
-  def fetch(cache_key, value_fn, cache_name \\ Transport.Application.cache_name()) do
+  def fetch(cache_key, value_fn, expire_value \\ :timer.seconds(60)) do
     # The computation function must adhere to the `Cachex.fetch` contract (see links above)
     comp_fn = fn key ->
       Logger.info("Generating cached value for key #{key}")
@@ -47,7 +47,7 @@ defmodule Transport.Cache.Cachex do
       end
     end
 
-    {operation, result} = Cachex.fetch(cache_name, cache_key, comp_fn)
+    {operation, result} = Cachex.fetch(cache_name(), cache_key, comp_fn)
 
     case operation do
       :ok ->
@@ -55,7 +55,7 @@ defmodule Transport.Cache.Cachex do
         result
 
       :commit ->
-        Cachex.expire(cache_name, cache_key, :timer.seconds(60))
+        Cachex.expire(cache_name(), cache_key, expire_value)
         Logger.info("Value for key #{cache_key} regenerated")
         result
 
@@ -82,6 +82,8 @@ defmodule Transport.Cache.Cachex do
         end
     end
   end
+
+  def cache_name, do: Transport.Application.cache_name()
 end
 
 defmodule Transport.Cache.Null do
@@ -90,5 +92,5 @@ defmodule Transport.Cache.Null do
   """
   @behaviour Transport.Cache.API
 
-  def fetch(_cache_key, value_fn), do: value_fn.()
+  def fetch(_cache_key, value_fn, _expire_value), do: value_fn.()
 end

@@ -24,7 +24,7 @@ function initilizeMap (id) {
     return { map, markersfg, linesfg }
 }
 
-function setLinesStyle (feature) {
+function GTFSLinesStyle (feature) {
     if (feature.geometry.type !== 'Point') {
         return { color: feature.properties.route_color, weight: 5 }
     } else {
@@ -46,7 +46,7 @@ function setZoomEvents (map, fg) {
     })
 }
 
-function createResourceGeojson (mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
+function GeojsonMap (fillMapFunction, mapDivId, infoDivId, geojsonUrl, filesize, msg1, msg2) {
     const sizeMB = filesize / 1024 / 1024
     const infoDiv = document.getElementById(infoDivId)
     const mapDiv = document.getElementById(mapDivId)
@@ -54,45 +54,104 @@ function createResourceGeojson (mapDivId, infoDivId, geojsonUrl, filesize = 0, m
     if (sizeMB > 2) {
         // for large files, user has to click to download and see the file
         infoDiv.innerHTML = `<div>${msg1} (${Math.round(sizeMB)} Mo).</div>
-            <button class="button" onclick="createResourceGeojson('${mapDivId}', '${infoDivId}', '${geojsonUrl}')">
+            <button class="button">
             ${msg2}
             </button>`
+        infoDiv.addEventListener('click', function () {
+            // show anyway
+            GeojsonMap(fillMapFunction, mapDivId, infoDivId, geojsonUrl, 0, msg1, msg2)
+        })
         mapDiv.outerHTML = `<div id="${mapDivId}"></div>`
     } else {
         infoDiv.outerHTML = ''
-        mapDiv.outerHTML = `<div id="${mapDivId}" style="height: 400px;"></div>`
-
-        const { map, markersfg, linesfg } = initilizeMap(mapDivId)
-        fetch(geojsonUrl)
-            .then(data => data.json())
-            .then(geojson => {
-                const stops = L.geoJSON(geojson, {
-                    pointToLayer: createStopsMarkers,
-                    style: setLinesStyle,
-                    filter: (feature) => feature.geometry.type === 'Point'
-                }).addTo(markersfg)
-
-                stops.bindPopup(layer => { return layer.feature.properties.name })
-
-                const lines = L.geoJSON(geojson, {
-                    style: setLinesStyle,
-                    filter: (feature) => feature.geometry.type !== 'Point'
-                }).addTo(linesfg)
-
-                lines.bindPopup(layer => { return layer.feature.properties.route_long_name })
-
-                lines.bringToBack()
-                stops.bringToFront()
-
-                setZoomEvents(map, stops)
-
-                const bounds = markersfg.getBounds()
-                if (bounds.isValid()) {
-                    map.fitBounds(markersfg.getBounds())
-                }
-            })
-            .catch(_ => console.log('invalid geojson'))
+        mapDiv.outerHTML = `<div id="${mapDivId}" style="height: 600px; max-height: 80vh;"></div>`
+        fillMapFunction(mapDivId, geojsonUrl)
     }
 }
 
-window.createResourceGeojson = createResourceGeojson
+function GTFSMap (mapDivId, geojsonUrl) {
+    const { map, markersfg, linesfg } = initilizeMap(mapDivId)
+    fetch(geojsonUrl)
+        .then(data => data.json())
+        .then(geojson => {
+            const stops = L.geoJSON(geojson, {
+                pointToLayer: createStopsMarkers,
+                style: GTFSLinesStyle,
+                filter: (feature) => feature.geometry.type === 'Point'
+            }).addTo(markersfg)
+
+            stops.bindPopup(layer => { return layer.feature.properties.name })
+
+            const lines = L.geoJSON(geojson, {
+                style: GTFSLinesStyle,
+                filter: (feature) => feature.geometry.type !== 'Point'
+            }).addTo(linesfg)
+
+            lines.bindPopup(layer => { return layer.feature.properties.route_long_name })
+
+            lines.bringToBack()
+            stops.bringToFront()
+
+            setZoomEvents(map, stops)
+
+            const bounds = markersfg.getBounds()
+            if (bounds.isValid()) {
+                map.fitBounds(markersfg.getBounds())
+            }
+        })
+        .catch(_ => console.log('invalid geojson'))
+}
+
+function GenericLinesStyle (feature) {
+    return { weight: 3 }
+}
+
+function createPointsMarkers (geoJsonPoint, latlng) {
+    return L.circleMarker(latlng, { stroke: false, color: '#0066db', fillOpacity: 0.7 })
+}
+
+function formatPopupContent (content) {
+    return `<pre>${JSON.stringify(content, null, 2)}</pre>`
+}
+
+function GenericMap (mapDivId, geojsonUrl) {
+    const { map, markersfg, linesfg } = initilizeMap(mapDivId)
+    fetch(geojsonUrl)
+        .then(data => data.json())
+        .then(geojson => {
+            const markers = L.geoJSON(geojson, {
+                pointToLayer: createPointsMarkers,
+                filter: (feature) => feature.geometry.type === 'Point'
+            }).addTo(markersfg)
+
+            markers.bindPopup(layer => formatPopupContent(layer.feature.properties))
+
+            const lines = L.geoJSON(geojson, {
+                style: GenericLinesStyle,
+                filter: (feature) => feature.geometry.type !== 'Point'
+            }).addTo(linesfg)
+
+            lines.bindPopup(layer => { return formatPopupContent(layer.feature.properties) })
+
+            lines.bringToBack()
+            markers.bringToFront()
+
+            if (linesfg.getBounds().isValid()) {
+                map.fitBounds(linesfg.getBounds())
+            } else if (markersfg.getBounds().isValid()) {
+                map.fitBounds(markersfg.getBounds())
+            }
+        })
+        .catch(_ => console.log('invalid geojson'))
+}
+
+function GTFSGeojsonMap (mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
+    GeojsonMap(GTFSMap, mapDivId, infoDivId, geojsonUrl, filesize, msg1, msg2)
+}
+
+function GenericGeojsonMap (mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
+    GeojsonMap(GenericMap, mapDivId, infoDivId, geojsonUrl, filesize, msg1, msg2)
+}
+
+window.GTFSGeojsonMap = GTFSGeojsonMap
+window.GenericGeojsonMap = GenericGeojsonMap

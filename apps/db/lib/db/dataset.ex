@@ -17,7 +17,7 @@ defmodule DB.Dataset do
 
   typed_schema "dataset" do
     field(:datagouv_id, :string)
-    field(:spatial, :string)
+    field(:custom_title, :string)
     field(:created_at, :string)
     field(:description, :string)
     field(:frequency, :string)
@@ -27,7 +27,7 @@ defmodule DB.Dataset do
     field(:full_logo, :string)
     field(:slug, :string)
     field(:tags, {:array, :string})
-    field(:title, :string)
+    field(:datagouv_title, :string)
     field(:type, :string)
     field(:organization, :string)
     field(:has_realtime, :boolean)
@@ -118,7 +118,7 @@ defmodule DB.Dataset do
     where(
       query,
       [d],
-      fragment("search_vector @@ plainto_tsquery('custom_french', ?) or unaccent(title) = unaccent(?)", ^q, ^q)
+      fragment("search_vector @@ plainto_tsquery('custom_french', ?) or unaccent(datagouv_title) = unaccent(?)", ^q, ^q)
     )
   end
 
@@ -254,7 +254,7 @@ defmodule DB.Dataset do
   end
 
   @spec order_datasets(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  def order_datasets(datasets, %{"order_by" => "alpha"}), do: order_by(datasets, asc: :spatial)
+  def order_datasets(datasets, %{"order_by" => "alpha"}), do: order_by(datasets, asc: :custom_title)
   def order_datasets(datasets, %{"order_by" => "most_recent"}), do: order_by(datasets, desc: :created_at)
 
   def order_datasets(datasets, %{"q" => q}),
@@ -279,7 +279,7 @@ defmodule DB.Dataset do
     |> Repo.preload([:resources, :communes, :region])
     |> cast(params, [
       :datagouv_id,
-      :spatial,
+      :custom_title,
       :created_at,
       :description,
       :frequency,
@@ -290,7 +290,7 @@ defmodule DB.Dataset do
       :full_logo,
       :slug,
       :tags,
-      :title,
+      :datagouv_title,
       :type,
       :region_id,
       :nb_reuses,
@@ -721,5 +721,26 @@ defmodule DB.Dataset do
   defp has_real_time(changeset) do
     has_realtime = changeset |> get_field(:resources) |> Enum.any?(&Resource.is_real_time?/1)
     changeset |> change(has_realtime: has_realtime)
+  end
+
+  @spec resources_content_updated_at(__MODULE__.t()) :: map()
+  def resources_content_updated_at(%__MODULE__{id: dataset_id}) do
+    DB.Resource
+    |> join(:left, [r], rh in DB.ResourceHistory, on: rh.datagouv_id == r.datagouv_id)
+    |> where([r, rh], r.dataset_id == ^dataset_id)
+    |> group_by([r, rh], [r.id, rh.datagouv_id])
+    |> select([r, rh], {r.id, count(rh.datagouv_id), max(fragment("payload ->>'download_datetime'"))})
+    |> DB.Repo.all()
+    |> Enum.map(fn {id, count, updated_at} ->
+      case count do
+        n when n in [0, 1] ->
+          {id, nil}
+
+        _ ->
+          {:ok, datetime_updated_at, 0} = updated_at |> DateTime.from_iso8601()
+          {id, datetime_updated_at}
+      end
+    end)
+    |> Enum.into(%{})
   end
 end

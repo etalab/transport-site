@@ -11,50 +11,50 @@ msgstr ""
 "Language: fr\n"
 "Plural-Forms: nplurals=2\n"
 
-#, elixir-format
-msgid "%{format} Transport open dataset - %{title} for %{spatial} - %{territory}"
-msgstr "Jeu de données ouvert %{format} - %{title} pour %{spatial} - %{territory}"
+#, elixir-autogen, elixir-format
+msgid "%{format} Transport open dataset - %{title} for %{custom_title} - %{territory}"
+msgstr "Jeu de données ouvert %{format} - %{title} pour %{custom_title} - %{territory}"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Publish, improve and reuse French public transport data"
 msgstr "Rendre disponible, valoriser et améliorer les données transports"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Transport open datasets for %{type} %{name}"
 msgstr "Jeux de données ouverts de la %{type} %{name}"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "%{name} AOM: Transport open datasets "
 msgstr "AOM %{name} : Jeux de données ouverts"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "%{q}: Available transport open datasets"
 msgstr "%{q} : Jeux de données ouverts disponibles"
 
-#, elixir-format
-msgid "%{spatial} - Open %{formats} datasets - %{territory}"
-msgstr "%{spatial} - Données %{formats} ouvertes - %{territory}"
+#, elixir-autogen, elixir-format
+msgid "%{custom_title} - Open %{formats} datasets - %{territory}"
+msgstr "%{custom_title} - Données %{formats} ouvertes - %{territory}"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "National Access Point for transport open data"
 msgstr "Le Point d’Accès National aux données ouvertes de transport"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Transport open datasets for city %{name}"
 msgstr "Jeux de données ouverts de la commune de %{name}"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Data quality evaluation"
-msgstr "Évaluation de la qualité d’un fichier"
+msgstr "Évaluation de la qualité d’un fichier ou d’un flux"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "Non standard real time transport open data"
 msgstr "Liste des données temps-réel de transport en commun, non standardisées"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "State of transport open data for french AOMs"
 msgstr "État de l’ouverture des données de transport en commun pour les AOMs françaises"
 
-#, elixir-format
+#, elixir-autogen, elixir-format
 msgid "State of transport open data in France"
 msgstr "État de l’ouverture des données de transport en France"

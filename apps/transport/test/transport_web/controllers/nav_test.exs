@@ -12,7 +12,7 @@ defmodule TransportWeb.NavTest do
 
     insert(:dataset,
       description: "Un jeu de données",
-      spatial: "Horaires Angers",
+      custom_title: "Horaires Angers",
       resources: [
         build(:resource, url: "https://link.to/angers.zip")
       ],

@@ -26,7 +26,7 @@ defmodule DB.Factory do
 
   def dataset_factory do
     %DB.Dataset{
-      title: "Hello",
+      datagouv_title: "Hello",
       slug: sequence("dataset_slug", fn i -> "dataset-#{i}" end),
       # NOTE: need to figure out how to pass aom/region together with changeset checks here
       datagouv_id: "123",
@@ -44,7 +44,8 @@ defmodule DB.Factory do
 
   def resource_history_factory do
     %DB.ResourceHistory{
-      datagouv_id: "resource_datagouv_id_123"
+      datagouv_id: "resource_datagouv_id_123",
+      payload: %{}
     }
   end
 
@@ -65,6 +66,26 @@ defmodule DB.Factory do
       nom: "Ballans",
       insee: "17031"
     }
+  end
+
+  def data_import_factory do
+    %DB.DataImport{}
+  end
+
+  def gtfs_stop_times_factory do
+    %DB.GTFS.StopTimes{}
+  end
+
+  def gtfs_trips_factory do
+    %DB.GTFS.Trips{}
+  end
+
+  def gtfs_calendar_factory do
+    %DB.GTFS.Calendar{}
+  end
+
+  def gtfs_calendar_dates_factory do
+    %DB.GTFS.CalendarDates{}
   end
 
   def validation_factory do
