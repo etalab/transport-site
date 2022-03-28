@@ -17,4 +17,4 @@ msgstr "Vehicle positions (GTFS-RT) - beta"
 
 #, elixir-autogen, elixir-format
 msgid "beta-explanation"
-msgstr "This maps aggregates all the GTFS-RT files referenced on this site, and display their vehicle positions in realtime."
+msgstr "This map aggregates all the GTFS-RT files referenced on this site, and display their vehicle positions in real-time."
