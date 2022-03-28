@@ -269,7 +269,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     # is empty (but not null since it comes from a form)
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 1
-    assert get_flash(conn, :info) =~ "ajouté"
+    assert ["Dataset ajouté" | _] = conn |> get_flash(:info)
   end
 
   test "Add a dataset linked to a region and to the country", %{conn: conn} do
