@@ -70,7 +70,8 @@ defmodule Shared.Validation.JSONSchemaValidator do
     %{
       "has_errors" => not Enum.empty?(errors),
       "errors_count" => Enum.count(errors),
-      "errors" => errors |> Enum.take(100)
+      "errors" => errors |> Enum.take(100),
+      "validator" => __MODULE__
     }
   end
 
