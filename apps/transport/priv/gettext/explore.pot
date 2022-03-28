@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "GTFS-RT vehicule positions"
+msgid "GTFS-RT vehicle positions"
 msgstr ""
 
 #, elixir-autogen, elixir-format
