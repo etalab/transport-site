@@ -20,7 +20,7 @@ defmodule TransportWeb.BackofficeControllerTest do
   @dataset_url "https://demo.data.gouv.fr/fr/datasets/horaires-theoriques-du-reseau-de-transport-tag-1/"
   @dataset %{
     "url" => @dataset_url,
-    "spatial" => "Grenoble",
+    "custom_title" => "Grenoble",
     "region_id" => 1,
     "insee" => "38185",
     "type" => "public-transit",
@@ -30,7 +30,7 @@ defmodule TransportWeb.BackofficeControllerTest do
   @dataset_with_zones_url "https://demo.data.gouv.fr/fr/datasets/test-jeu-de-donnees-associes-a-plusieurs-villes-2/"
   @dataset_with_zones %{
     "url" => @dataset_with_zones_url,
-    "spatial" => "Grenoble",
+    "custom_title" => "Grenoble",
     "type" => "public-transit",
     "action" => "new"
   }

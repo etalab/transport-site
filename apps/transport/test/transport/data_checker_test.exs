@@ -28,7 +28,7 @@ defmodule Transport.DataCheckerTest do
         ]
       end)
 
-      dataset = %DB.Dataset{slug: dataset_slug, title: "title"}
+      dataset = %DB.Dataset{slug: dataset_slug, datagouv_title: "title"}
 
       fun = fn ->
         Transport.DataChecker.send_outdated_data_notifications({7, [dataset]}, true)
@@ -59,7 +59,7 @@ defmodule Transport.DataCheckerTest do
         ]
       end)
 
-      dataset = %DB.Dataset{slug: dataset_slug, title: "title"}
+      dataset = %DB.Dataset{slug: dataset_slug, datagouv_title: "title"}
 
       fun = fn ->
         Transport.DataChecker.send_outdated_data_notifications({custom_delay, [dataset]}, true)
@@ -84,7 +84,7 @@ defmodule Transport.DataCheckerTest do
         ]
       end)
 
-      dataset = %DB.Dataset{slug: dataset_slug, title: "title"}
+      dataset = %DB.Dataset{slug: dataset_slug, datagouv_title: "title"}
 
       fun = fn ->
         Transport.DataChecker.send_outdated_data_notifications({42, [dataset]}, true)

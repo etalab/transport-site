@@ -75,22 +75,15 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
         validator_return =
           case run_validator(gtfs_path, gtfs_rt_path) do
             {:ok, _} = validator_return ->
-              validation_report = convert_validator_report(gtfs_rt_result_path(resource))
+              case convert_validator_report(gtfs_rt_result_path(resource)) do
+                {:ok, report} ->
+                  update_resource(resource, build_validation_details(gtfs_resource_history, report, cellar_filename))
 
-              validation_details = build_validation_details(gtfs_resource_history, validation_report, cellar_filename)
+                  validator_return
 
-              resource
-              |> change(%{
-                metadata: Map.merge(resource.metadata || %{}, %{"validation" => validation_details}),
-                validation: %Validation{
-                  date: DateTime.utc_now() |> DateTime.to_string(),
-                  details: validation_details,
-                  max_error: Map.fetch!(validation_details, "max_severity")
-                }
-              })
-              |> Repo.update!()
-
-              validator_return
+                :error ->
+                  {:error, "Could not run validator. Please provide a GTFS and a GTFS-RT."}
+              end
 
             {:error, _} = validator_return ->
               validator_return
@@ -121,6 +114,19 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     ]
 
     Transport.RamboLauncher.run(binary_path, args, log: Mix.env() == :dev)
+  end
+
+  defp update_resource(%Resource{} = resource, validation_details) do
+    resource
+    |> change(%{
+      metadata: Map.merge(resource.metadata || %{}, %{"validation" => validation_details}),
+      validation: %Validation{
+        date: DateTime.utc_now() |> DateTime.to_string(),
+        details: validation_details,
+        max_error: Map.fetch!(validation_details, "max_severity")
+      }
+    })
+    |> Repo.update!()
   end
 
   defp log_validation({:ok, _}, %Resource{id: id}) do
@@ -219,46 +225,55 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     end
   end
 
+  @spec convert_validator_report(binary()) :: {:ok, map()} | :error
   def convert_validator_report(path) do
-    errors =
-      path
-      |> File.read!()
-      |> Jason.decode!()
-      |> Enum.map(fn error ->
-        rule = Map.fetch!(Map.fetch!(error, "errorMessage"), "validationRule")
-        suffix = Map.fetch!(rule, "occurrenceSuffix")
-        occurence_list = Map.fetch!(error, "occurrenceList")
+    case File.read(path) do
+      {:ok, content} ->
+        errors =
+          content
+          |> Jason.decode!()
+          |> Enum.map(fn error ->
+            rule = Map.fetch!(Map.fetch!(error, "errorMessage"), "validationRule")
+            suffix = Map.fetch!(rule, "occurrenceSuffix")
+            occurence_list = Map.fetch!(error, "occurrenceList")
 
-        %{
-          "error_id" => Map.fetch!(rule, "errorId"),
-          "severity" => Map.fetch!(rule, "severity"),
-          "title" => Map.fetch!(rule, "title"),
-          "description" => Map.fetch!(rule, "errorDescription"),
-          "errors_count" => Enum.count(occurence_list),
-          "errors" =>
-            occurence_list |> Enum.take(@max_errors_per_section) |> Enum.map(&"#{Map.fetch!(&1, "prefix")} #{suffix}")
-        }
-      end)
+            %{
+              "error_id" => Map.fetch!(rule, "errorId"),
+              "severity" => Map.fetch!(rule, "severity"),
+              "title" => Map.fetch!(rule, "title"),
+              "description" => Map.fetch!(rule, "errorDescription"),
+              "errors_count" => Enum.count(occurence_list),
+              "errors" =>
+                occurence_list
+                |> Enum.take(@max_errors_per_section)
+                |> Enum.map(&"#{Map.fetch!(&1, "prefix")} #{suffix}")
+            }
+          end)
 
-    total_errors =
-      errors
-      |> Enum.filter(&(Map.fetch!(&1, "severity") == "ERROR"))
-      |> Enum.map(&Map.fetch!(&1, "errors_count"))
-      |> Enum.sum()
+        total_errors =
+          errors
+          |> Enum.filter(&(Map.fetch!(&1, "severity") == "ERROR"))
+          |> Enum.map(&Map.fetch!(&1, "errors_count"))
+          |> Enum.sum()
 
-    total_warnings =
-      errors
-      |> Enum.filter(&(Map.fetch!(&1, "severity") == "WARNING"))
-      |> Enum.map(&Map.fetch!(&1, "errors_count"))
-      |> Enum.sum()
+        total_warnings =
+          errors
+          |> Enum.filter(&(Map.fetch!(&1, "severity") == "WARNING"))
+          |> Enum.map(&Map.fetch!(&1, "errors_count"))
+          |> Enum.sum()
 
-    %{
-      "errors_count" => total_errors,
-      "warnings_count" => total_warnings,
-      "has_errors" => total_errors + total_warnings > 0,
-      "errors" => errors,
-      "validator" => __MODULE__ |> to_string
-    }
+        {:ok,
+         %{
+           "errors_count" => total_errors,
+           "warnings_count" => total_warnings,
+           "has_errors" => total_errors + total_warnings > 0,
+           "errors" => errors,
+           "validator" => __MODULE__ |> to_string
+         }}
+
+      {:error, _} ->
+        :error
+    end
   end
 
   def get_max_severity_error(%{"errors" => errors}), do: get_max_severity_error(errors)

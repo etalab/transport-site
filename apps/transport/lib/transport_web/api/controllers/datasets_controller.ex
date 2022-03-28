@@ -146,7 +146,7 @@ defmodule TransportWeb.API.DatasetController do
       # to help discoverability, we explicitly add the datagouv_id as the id
       # (since it's used in /dataset/:id)
       "id" => dataset.datagouv_id,
-      "title" => dataset.spatial,
+      "title" => dataset.custom_title,
       "created_at" => dataset.created_at,
       "page_url" => TransportWeb.Router.Helpers.dataset_url(conn, :details, dataset.slug),
       "slug" => dataset.slug,

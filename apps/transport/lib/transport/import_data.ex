@@ -161,7 +161,8 @@ defmodule Transport.ImportData do
   def prepare_dataset_from_data_gouv_response(%{} = data_gouv_resp, type) do
     dataset =
       data_gouv_resp
-      |> Map.take(["title", "description", "id", "slug", "frequency", "tags"])
+      |> Map.take(["description", "id", "slug", "frequency", "tags"])
+      |> Map.put("datagouv_title", data_gouv_resp["title"])
       |> Map.put("datagouv_id", data_gouv_resp["id"])
       |> Map.put("logo", get_logo_thumbnail(data_gouv_resp))
       |> Map.put("full_logo", get_logo(data_gouv_resp))
@@ -360,6 +361,7 @@ defmodule Transport.ImportData do
         "metadata" => resource["metadata"]
       }
     end)
+    |> maybe_filter_resources(type)
   end
 
   @spec get_valid_resources(map(), binary()) :: [map()]
@@ -375,6 +377,12 @@ defmodule Transport.ImportData do
   def get_valid_resources(%{"resources" => resources}, _type) do
     resources
   end
+
+  def maybe_filter_resources(resources, "low-emission-zones") do
+    resources |> Enum.filter(&(&1["schema_name"] == "etalab/schema-zfe"))
+  end
+
+  def maybe_filter_resources(resources, _), do: resources
 
   @spec get_valid_gtfs_resources([map()]) :: [map()]
   def get_valid_gtfs_resources(resources) do

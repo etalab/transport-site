@@ -105,8 +105,13 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   defp process_download([{:ok, gtfs_path}, {:ok, gtfs_rt_path}]) do
     case GTFSRTValidationJob.run_validator(gtfs_path, gtfs_rt_path) do
       {:ok, _} ->
-        validation = GTFSRTValidationJob.convert_validator_report(gtfs_rt_result_path(gtfs_rt_path))
-        %{"state" => "completed", "validation" => validation}
+        case GTFSRTValidationJob.convert_validator_report(gtfs_rt_result_path(gtfs_rt_path)) do
+          {:ok, validation} ->
+            %{"state" => "completed", "validation" => validation}
+
+          :error ->
+            %{"state" => "error", "error_reason" => "Could not run validator. Please provide a GTFS and a GTFS-RT."}
+        end
 
       {:error, reason} ->
         %{"state" => "error", "error_reason" => inspect(reason)}

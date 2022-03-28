@@ -15,8 +15,8 @@ defmodule TransportWeb.SeoMetadataTest do
       %Dataset{
         description: "Un jeu de données",
         licence: "odc-odbl",
-        title: "Horaires et arrêts du réseau IRIGO - format GTFS",
-        spatial: "Horaires Angers",
+        datagouv_title: "Horaires et arrêts du réseau IRIGO - format GTFS",
+        custom_title: "Horaires Angers",
         type: "public-transit",
         slug: "horaires-et-arrets-du-reseau-irigo-format-gtfs",
         datagouv_id: "5b4cd3a0b59508054dd496cd",

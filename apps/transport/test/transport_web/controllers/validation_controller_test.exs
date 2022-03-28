@@ -11,6 +11,7 @@ defmodule TransportWeb.ValidationControllerTest do
   setup :verify_on_exit!
   @gtfs_path "#{__DIR__}/../../fixture/files/gtfs.zip"
   @gtfs_rt_report_path "#{__DIR__}/../../fixture/files/gtfs-rt-validator-errors.json"
+  @service_alerts_file "#{__DIR__}/../../fixture/files/bibus-brest-gtfs-rt-alerts.pb"
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -358,21 +359,30 @@ defmodule TransportWeb.ValidationControllerTest do
     end
 
     test "with a GTFS-RT validation", %{conn: conn} do
+      gtfs_rt_url = "https://example.com/gtfs-rt"
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: File.read!(@service_alerts_file)}}
+      end)
+
       {conn, validation} =
         ensure_waiting_message_is_displayed(conn, %{
           "state" => "waiting",
           "type" => "gtfs-rt",
           "gtfs_url" => "https://example.com/gtfs.zip",
-          "gtfs_rt_url" => "https://example.com/gtfs-rt"
+          "gtfs_rt_url" => gtfs_rt_url
         })
 
       {:ok, view, _html} = live(conn)
 
-      # Error messages are displayed
+      # Validation is displayed
+      {:ok, report} = Transport.Jobs.GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
+
       validation
       |> Ecto.Changeset.change(
         on_the_fly_validation_metadata: %{validation.on_the_fly_validation_metadata | "state" => "completed"},
-        details: Transport.Jobs.GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
+        details: report
       )
       |> DB.Repo.update!()
 
@@ -381,6 +391,7 @@ defmodule TransportWeb.ValidationControllerTest do
       assert render(view) =~ "4 erreurs, 26 avertissements"
       assert render(view) =~ "stop_times_updates not strictly sorted"
       assert render(view) =~ "vehicle_id should be populated for TripUpdates and VehiclePositions"
+      assert render(view) =~ "Ligne 5 Travaux à compter 22/11 pour 5 semaines"
     end
   end
 
