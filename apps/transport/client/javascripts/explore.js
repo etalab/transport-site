@@ -18,8 +18,8 @@ const Mapbox = {
     maxZoom: 20
 }
 
-// these coordinates allow to vaguely France centered view. I have tried fitBounds but wasn't happy with the result
-const map = Leaflet.map('map', { renderer: Leaflet.canvas() }).setView([46.43645655692041, 2.314039149959886], 7)
+const metropolitanFranceBounds = [[51.1, -4.9], [41.2, 9.8]]
+const map = Leaflet.map('map', { renderer: Leaflet.canvas() }).fitBounds(metropolitanFranceBounds)
 
 Leaflet.tileLayer(Mapbox.url, {
     accessToken: Mapbox.accessToken,
