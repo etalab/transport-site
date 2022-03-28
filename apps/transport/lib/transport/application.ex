@@ -31,11 +31,9 @@ defmodule Transport.Application do
           true
 
         Mix.env() == :dev ->
-          # in dev, always run
-          true
+          webserver_enabled?()
 
         true ->
-          # otherwise, nope
           false
       end
 
