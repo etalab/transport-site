@@ -55,16 +55,13 @@ defmodule TransportWeb.AtomControllerTest do
 
   test "date format in atom feed", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset)
-    today_string = Date.utc_today() |> Date.to_string()
-    last_update_utc = today_string <> "T10:00:00.000000+00:00"
+    last_update_utc = "2022-03-28T10:00:00.000000+00:00"
     insert(:resource, title: "today-old", last_update: last_update_utc, dataset_id: dataset_id)
 
-    conn =
-      conn
-      |> get(atom_path(conn, :index))
+    conn = conn |> get(atom_path(conn, :index))
 
     # the timestamp displayed gets converted from utc to paris timezone
-    last_update_paris = today_string <> "T11:00:00.000000+01:00"
+    last_update_paris = "2022-03-28T12:00:00.000000+02:00"
 
     doc = conn |> response(200) |> Floki.parse_document!()
     assert {"updated", [], [last_update_paris]} == doc |> Floki.find("updated") |> Enum.at(0)
