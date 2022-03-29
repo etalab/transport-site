@@ -175,7 +175,7 @@ jobs:
 
       - run:
           name: Run dialyzer (static analysis)
-          command: MIX_ENV=dev mix dialyzer
+          command: mix dialyzer
 
   test_unit:
     <<: *defaults_with_postgres
