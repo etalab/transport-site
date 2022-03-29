@@ -38,7 +38,7 @@ defaults_with_postgres: &defaults_with_postgres
         POSTGRES_PASSWORD: $POSTGRES_PASSWORD
 jobs:
   build:
-    <<: *defaults
+    <<: *defaults_with_postgres
 
     steps:
       - checkout
@@ -135,18 +135,6 @@ jobs:
           paths:
             - ~/transport/dialyzer-plt
 
-      - persist_to_workspace:
-          root: ~/transport
-          paths:
-            - .
-
-  test_lint:
-    <<: *defaults
-
-    steps:
-      - attach_workspace:
-          at: ~/transport
-
       - run:
           name: Run linters
           command: |
@@ -155,39 +143,19 @@ jobs:
             mix npm "run linter:ecma"
             mix npm "run linter:sass"
 
-  test_format:
-    <<: *defaults
-
-    steps:
-      - attach_workspace:
-          at: ~/transport
-
       - run:
           name: Run formatter
           command: mix format --check-formatted --dry-run
-
-  test_dialyzer:
-    <<: *defaults
-
-    steps:
-      - attach_workspace:
-          at: ~/transport
 
       - run:
           name: Run dialyzer (static analysis)
           command: mix dialyzer
 
-  test_unit:
-    <<: *defaults_with_postgres
-    steps:
-      - attach_workspace:
-          at: ~/transport
-
       - run:
           name: Run tests
           command: |
             mix test --warnings-as-errors
-
+  
 workflows:
   version: 2
   transport:
@@ -196,19 +164,3 @@ workflows:
         branches:
           ignore:
             - blog
-
-      - test_lint:
-          requires:
-            - build
-
-      - test_format:
-          requires:
-            - build
-
-      - test_unit:
-          requires:
-            - build
-
-      - test_dialyzer:
-          requires:
-            - build
