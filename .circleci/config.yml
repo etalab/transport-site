@@ -104,7 +104,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - js-<< parameters.js_cache_key >>-{{ checksum "yarn.lock" }}
+            - js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
             - js-<< parameters.js_cache_key >>
           
       - run:
@@ -116,7 +116,7 @@ jobs:
           command: cd ~/transport/apps/transport/client && npm run build
 
       - save_cache:
-          key: js-<< parameters.js_cache_key >>-{{ checksum "yarn.lock" }}
+          key: js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
           paths: 
             - ~/transport/apps/transport/client/node_modules
 
