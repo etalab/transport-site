@@ -136,12 +136,20 @@ jobs:
             - ~/transport/dialyzer-plt
 
       - run:
-          name: Run linters
-          command: |
-            mix gettext.extract --check-up-to-date
-            mix credo --strict
-            mix npm "run linter:ecma"
-            mix npm "run linter:sass"
+          name: Run gettext check
+          command: mix gettext.extract --check-up-to-date
+      
+      - run:
+          name: Run credo
+          command: mix credo --strict
+      
+      - run:
+          name: Run javascript linter
+          command: mix npm "run linter:ecma"
+
+      - run:
+          name: Run stylesheets linter
+          command: mix npm "run linter:sass"
 
       - run:
           name: Run formatter
