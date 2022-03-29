@@ -21,6 +21,9 @@ defaults: &defaults
     plt_cache_key:
       default: plt-v3
       type: string
+    js_cache_key:
+      default: js-v1
+      type: string
   working_directory: ~/transport
   docker:
     - *default_docker
@@ -99,6 +102,9 @@ jobs:
             - ~/transport/deps
             - ~/.mix
 
+      - restore_cache:
+          key: js-<< parameters.js_cache_key >>-{{ checksum "yarn.lock" }}
+          
       - run:
           name: Install yarn dependencies
           command: cd ~/transport/apps/transport/client && yarn install
@@ -106,6 +112,13 @@ jobs:
       - run:
           name: Compile assets
           command: cd ~/transport/apps/transport/client && npm run build
+
+      - save_cache:
+          keys:
+            - js-<< parameters.js_cache_key >>-{{ checksum "yarn.lock" }}
+            - js-<< parameters.js_cache_key >>
+          paths: 
+            - apps/transport/client/node_modules
 
       # NOTE: I think this should be moved to the dialyzer parallel section,
       # but then we need to think about how the persistence/caching will be
