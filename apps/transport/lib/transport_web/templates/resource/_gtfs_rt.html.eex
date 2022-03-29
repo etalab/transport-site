@@ -86,10 +86,13 @@
           <i class="fa fa-copy"></i>
           <%= dgettext("page-dataset-details", "Copy to clipboard") %>
         </button>
-        <code id="feed_payload">
-          <%= inspect(@gtfs_rt_feed.feed, pretty: true, width: 120) %>
-        </code>
+        <pre>
+          <code id="feed_payload" class="language-elixir">
+            <%= inspect(@gtfs_rt_feed.feed, pretty: true, width: 120) %>
+          </code>
+        </pre>
     </details>
   <% end %>
 </div>
 <script defer type="text/javascript" src="/js/clipboard.js"></script>
+<script defer type="text/javascript" src="/js/prism.js"></script>
