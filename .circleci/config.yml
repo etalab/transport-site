@@ -69,6 +69,10 @@ jobs:
           name: Compile mix dependencies
           command: mix deps.compile
 
+      - run:
+          name: Compile code
+          command: mix compile
+
       # Here we attempt to create 3 different caches to optimize the build process
 
       # Most specific
