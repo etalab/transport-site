@@ -22,7 +22,7 @@ defaults: &defaults
       default: plt-v3
       type: string
     js_cache_key:
-      default: js-v1
+      default: js-v2
       type: string
   working_directory: ~/transport
   docker:
@@ -119,6 +119,8 @@ jobs:
           key: js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
           paths: 
             - ~/transport/apps/transport/client/node_modules
+            - ~/transport/apps/transport/priv/static/js
+            - ~/transport/apps/transport/priv/static/css
 
       # NOTE: I think this should be moved to the dialyzer parallel section,
       # but then we need to think about how the persistence/caching will be
