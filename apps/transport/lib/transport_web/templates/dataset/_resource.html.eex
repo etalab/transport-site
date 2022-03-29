@@ -70,7 +70,7 @@
   <% end %>
   <%= if Resource.is_gtfs?(@resource) do %>
     <div class="pb-24">
-      <a href="<%= resource_path(@conn, :details, @resource.id)<>"#issues" %>">
+      <a href="<%= resource_path(@conn, :details, @resource.id)<>"#validation-report" %>">
         <% r = Resource.get_max_severity_validation_number(@resource) %>
         <%= unless is_nil(r) do %>
           <span class="<%= summary_class(r) %>">
@@ -101,7 +101,7 @@
       <%= if Resource.is_gbfs?(@resource) do %>
         <a href="<%= gbfs_validation_link(@resource) %>" target="_blank">
       <% else %>
-        <a href="<%= resource_path(@conn, :details, @resource.id) %>">
+        <a href="<%= resource_path(@conn, :details, @resource.id)<>"#validation-report" %>">
       <% end %>
         <span class="<%= summary_class(@resource) %>">
           <%= if nb_errors + (nb_warnings || 0) == 0 do %>
