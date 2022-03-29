@@ -206,6 +206,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
       assert %{
                validation: %DB.Validation{
                  details: %{
+                   "validator" => "Elixir.Transport.Jobs.GTFSRTValidationJob",
                    "warnings_count" => 26,
                    "errors_count" => 4,
                    "has_errors" => true,
@@ -219,6 +220,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
                  "validation" => %{
                    "datetime" => _datetime,
                    "errors" => ^expected_errors,
+                   "validator" => "Elixir.Transport.Jobs.GTFSRTValidationJob",
                    "warnings_count" => 26,
                    "errors_count" => 4,
                    "files" =>
@@ -241,6 +243,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
       assert %{
                validation: %DB.Validation{
                  details: %{
+                   "validator" => "Elixir.Transport.Jobs.GTFSRTValidationJob",
                    "errors_count" => 0,
                    "has_errors" => false,
                    "errors" => [],
@@ -252,8 +255,10 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
                  "bar" => "baz",
                  "validation" => %{
                    "datetime" => _datetime,
+                   "validator" => "Elixir.Transport.Jobs.GTFSRTValidationJob",
                    "errors" => [],
                    "errors_count" => 0,
+                   "warnings_count" => 0,
                    "files" =>
                      %{
                        "gtfs_permanent_url" => ^gtfs_permanent_url,
@@ -381,6 +386,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
     test "convert_validator_report" do
       assert {:ok,
               %{
+                "validator" => "Elixir.Transport.Jobs.GTFSRTValidationJob",
                 "warnings_count" => 26,
                 "errors_count" => 4,
                 "has_errors" => true,
