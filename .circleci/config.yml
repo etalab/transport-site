@@ -103,7 +103,9 @@ jobs:
             - ~/.mix
 
       - restore_cache:
-          key: js-<< parameters.js_cache_key >>-{{ checksum "yarn.lock" }}
+          keys:
+            - js-<< parameters.js_cache_key >>-{{ checksum "yarn.lock" }}
+            - js-<< parameters.js_cache_key >>
           
       - run:
           name: Install yarn dependencies
@@ -114,9 +116,7 @@ jobs:
           command: cd ~/transport/apps/transport/client && npm run build
 
       - save_cache:
-          keys:
-            - js-<< parameters.js_cache_key >>-{{ checksum "yarn.lock" }}
-            - js-<< parameters.js_cache_key >>
+          key: js-<< parameters.js_cache_key >>-{{ checksum "yarn.lock" }}
           paths: 
             - apps/transport/client/node_modules
 
