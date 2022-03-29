@@ -69,4 +69,4 @@ msgstr "La validation de tous les jeux de données a été lancée."
 
 #, elixir-autogen, elixir-format
 msgid "Check the dataset page"
-msgstr "Voir la page du dataset"
+msgstr "Voir la page du jeu de données"
