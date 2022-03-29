@@ -69,10 +69,6 @@ jobs:
           command: mix deps.get
 
       - run:
-          name: Compile mix dependencies
-          command: mix deps.compile
-
-      - run:
           name: Compile code
           command: mix compile
 
