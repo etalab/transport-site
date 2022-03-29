@@ -118,7 +118,7 @@ jobs:
       - save_cache:
           key: js-<< parameters.js_cache_key >>-{{ checksum "yarn.lock" }}
           paths: 
-            - apps/transport/client/node_modules
+            - ~/transport/apps/transport/client/node_modules
 
       # NOTE: I think this should be moved to the dialyzer parallel section,
       # but then we need to think about how the persistence/caching will be
