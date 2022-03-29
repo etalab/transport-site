@@ -32,18 +32,29 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
 
   describe "validate" do
     test "valid object" do
-      assert %{"errors_count" => 0, "has_errors" => false, "errors" => []} ==
+      assert %{
+               "errors_count" => 0,
+               "has_errors" => false,
+               "errors" => [],
+               "validator" => Shared.Validation.JSONSchemaValidator
+             } ==
                validate(name_jsonschema(), %{"name" => "foo"})
     end
 
     test "invalid object" do
-      assert %{"errors_count" => 1, "has_errors" => true, "errors" => ["#: Required property name was not present."]} ==
+      assert %{
+               "errors_count" => 1,
+               "has_errors" => true,
+               "errors" => ["#: Required property name was not present."],
+               "validator" => Shared.Validation.JSONSchemaValidator
+             } ==
                validate(name_jsonschema(), %{})
 
       assert %{
                "errors_count" => 1,
                "has_errors" => true,
-               "errors" => ["#/name: Type mismatch. Expected String but got Integer."]
+               "errors" => ["#/name: Type mismatch. Expected String but got Integer."],
+               "validator" => Shared.Validation.JSONSchemaValidator
              } ==
                validate(name_jsonschema(), %{"name" => 42})
     end
@@ -56,7 +67,12 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
         {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"name" => "foo"})}}
       end)
 
-      assert %{"errors_count" => 0, "has_errors" => false, "errors" => []} == validate(name_jsonschema(), url)
+      assert %{
+               "errors_count" => 0,
+               "has_errors" => false,
+               "errors" => [],
+               "validator" => Shared.Validation.JSONSchemaValidator
+             } == validate(name_jsonschema(), url)
     end
 
     test "with an url and a server error" do

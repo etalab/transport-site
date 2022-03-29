@@ -29,7 +29,8 @@ defmodule GBFSValidatorTest do
       errors_count: 0,
       has_errors: false,
       version_detected: "1.1",
-      version_validated: "1.1"
+      version_validated: "1.1",
+      validator: Shared.Validation.GBFSValidator.HTTPValidatorClient
     }
 
     assert {:ok, ^expected} = HTTPValidatorClient.validate("https://example.com/gbfs.json")
@@ -44,13 +45,14 @@ defmodule GBFSValidatorTest do
 
   test "can encode summary" do
     assert """
-           {"errors_count":0,"has_errors":false,"version_detected":"1.1","version_validated":"1.1"}\
+           {"errors_count":0,"has_errors":false,"validator":"validator_module","version_detected":"1.1","version_validated":"1.1"}\
            """ ==
              Jason.encode!(%Summary{
                errors_count: 0,
                has_errors: false,
                version_detected: "1.1",
-               version_validated: "1.1"
+               version_validated: "1.1",
+               validator: :validator_module
              })
   end
 end

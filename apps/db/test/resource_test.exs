@@ -45,11 +45,17 @@ defmodule DB.ResourceTest do
     resource = insert(:resource, %{url: "url1", format: "gbfs"})
 
     Transport.Shared.GBFSMetadata.Mock
-    |> expect(:compute_feed_metadata, fn _resource, _cors_base_url -> %{"foo" => "bar"} end)
+    |> expect(:compute_feed_metadata, fn _resource, _cors_base_url ->
+      %{"foo" => "bar", "validation" => %{"has_errors" => true}}
+    end)
 
     assert {true, "gbfs can be validated"} == Resource.can_validate?(resource)
     assert Resource.validate_and_save(resource, false) == {:ok, nil}
-    assert %{metadata: %{"foo" => "bar"}} = Repo.get(Resource, resource.id)
+
+    assert %Resource{
+             metadata: %{"foo" => "bar", "validation" => %{"has_errors" => true}},
+             validation: %Validation{details: %{"has_errors" => true}}
+           } = Resource |> preload(:validation) |> Repo.get(resource.id)
   end
 
   test "validate and save a resource with a JSON Schema schema" do
@@ -91,8 +97,14 @@ defmodule DB.ResourceTest do
              metadata: %{
                "bar" => "baz",
                "validation" => %{"foo" => "bar", "schema_type" => "jsonschema", "content_hash" => "hash"}
+             },
+             validation: %Validation{
+               details: %{"foo" => "bar", "schema_type" => "jsonschema", "content_hash" => "hash"},
+               data_vis: nil,
+               max_error: nil,
+               validation_latest_content_hash: nil
              }
-           } = Repo.get(Resource, resource.id)
+           } = Resource |> preload(:validation) |> Repo.get(resource.id)
   end
 
   test "validate and save a resource with a Table Schema schema" do
@@ -119,8 +131,14 @@ defmodule DB.ResourceTest do
              metadata: %{
                "bar" => "baz",
                "validation" => %{"foo" => "bar", "schema_type" => "tableschema", "content_hash" => "hash"}
+             },
+             validation: %Validation{
+               details: %{"foo" => "bar", "schema_type" => "tableschema", "content_hash" => "hash"},
+               data_vis: nil,
+               max_error: nil,
+               validation_latest_content_hash: nil
              }
-           } = Repo.get(Resource, resource.id)
+           } = Resource |> preload(:validation) |> Repo.get(resource.id)
   end
 
   test "validation is skipped if previous validation is still valid" do
