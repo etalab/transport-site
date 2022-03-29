@@ -111,6 +111,7 @@ jobs:
           name: Install yarn dependencies
           command: cd ~/transport/apps/transport/client && yarn install
 
+      # NOTE: this cannot be cached effectively at time of writing
       - run:
           name: Compile assets
           command: cd ~/transport/apps/transport/client && npm run build
@@ -119,8 +120,6 @@ jobs:
           key: js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
           paths: 
             - ~/transport/apps/transport/client/node_modules
-            - ~/transport/apps/transport/priv/static/js
-            - ~/transport/apps/transport/priv/static/css
 
       # NOTE: I think this should be moved to the dialyzer parallel section,
       # but then we need to think about how the persistence/caching will be
