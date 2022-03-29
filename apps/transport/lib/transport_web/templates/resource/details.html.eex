@@ -5,11 +5,15 @@
         <%= dgettext("validations", "Resource details")%>
       </h2>
       <div class="panel">
-        <p><%= dgettext("validations", "File name")%> :
+        <div>
+          <%= dgettext("validations", "File name")%> :
           <a href="<%= @resource.url %>">
             <strong><%= @resource.title %></strong>
           </a>
-        </p>
+        </div>
+        <div>
+          <%= dgettext("validations", "Format") %> : <span class="label"><%= @resource.format %></span>
+        </div>
         <p>
           <%= dgettext("validations", "This resource file is part of the dataset")%> <%= link(@resource.dataset.custom_title, to: dataset_path(@conn, :details, @resource.dataset.slug) )%>.
         </p>
