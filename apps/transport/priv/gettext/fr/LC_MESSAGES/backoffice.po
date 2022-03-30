@@ -200,3 +200,7 @@ msgstr "Requêtes GBFS"
 #, elixir-autogen, elixir-format
 msgid "With a resource under 90% availability"
 msgstr "Ayant une ressource sous les 90% de disponibilité"
+
+#, elixir-autogen, elixir-format
+msgid "See dataset on website"
+msgstr "Voir le jeu de données sur le site"
