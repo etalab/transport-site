@@ -177,7 +177,7 @@ jobs:
           name: Run tests
           command: |
             mix test --warnings-as-errors
-  
+
 workflows:
   version: 2
   transport:
