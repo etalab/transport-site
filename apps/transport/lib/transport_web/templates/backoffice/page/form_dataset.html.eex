@@ -1,4 +1,4 @@
-<div class="pt-48 pb-48">
+<div class="pt-48">
   <%= form_for @conn, backoffice_dataset_path(@conn, :post), fn f -> %>
   <h1>
     <%= if is_nil(@dataset) do %>
@@ -7,16 +7,26 @@
       <%= dgettext("backoffice", "Edit a dataset") %>
     <% end %>
   </h1>
-  <%= text_input f, :url, [
-        placeholder: dgettext("backoffice", "Dataset's url"),
-        value: if not is_nil(@dataset) do Dataset.datagouv_url(@dataset) else "" end
-      ] %>
-  <%= text_input f, :custom_title, [
-        placeholder: dgettext("backoffice", "name"),
-        value: if not is_nil(@dataset) do @dataset.custom_title else "" end
-      ] %>
-  <%= select f, :type, @dataset_types, [
-        selected: if not is_nil(@dataset) do @dataset.type else "public-transit" end ]%>
+  <%= unless is_nil(assigns[:dataset_id]) do %>
+    <div class="pb-24">
+      <i class="fa fa-external-link-alt"></i>
+      <%= link(dgettext("backoffice", "See dataset on website"), to: dataset_path(@conn, :details, @dataset_id)) %>
+    </div>
+  <% end %>
+
+  <div class="pt-24">
+    <%= text_input f, :url, [
+            placeholder: dgettext("backoffice", "Dataset's url"),
+            value: if not is_nil(@dataset) do Dataset.datagouv_url(@dataset) else "" end
+          ] %>
+    <%= text_input f, :custom_title, [
+          placeholder: dgettext("backoffice", "name"),
+          value: if not is_nil(@dataset) do @dataset.custom_title else "" end
+        ] %>
+    <%= select f, :type, @dataset_types, [
+          selected: if not is_nil(@dataset) do @dataset.type else "public-transit" end ]%>
+  </div>
+
   <div class="panel mt-48">
     <div class="panel__header">
       <h4>
