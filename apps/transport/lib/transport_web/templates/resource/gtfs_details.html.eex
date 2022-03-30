@@ -83,7 +83,7 @@
       </div>
       <% end %>
       <% end %>
-      <h2 class="mt-48"><%= dgettext("validations", "Validation report")%></h2>
+      <h2 id="validation-report" class="mt-48"><%= dgettext("validations", "Validation report")%></h2>
       <div class="panel" id="issues">
         <nav class="issues-list validation" role="navigation">
           <%= unless @resource.validation do %>

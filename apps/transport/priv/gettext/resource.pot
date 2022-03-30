@@ -62,7 +62,7 @@ msgid "Upload a file"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "format"
+msgid "Format"
 msgstr ""
 
 #, elixir-autogen, elixir-format

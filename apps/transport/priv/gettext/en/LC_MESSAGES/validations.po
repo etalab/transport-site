@@ -123,7 +123,7 @@ msgid "Showing only the first %{nb} errors."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "This resource should follow its schema <a href=\"%{link}\" target=\"_blank\">%{schema}</a>."
+msgid "This resource should follow its schema %{link}."
 msgstr ""
 
 #, elixir-autogen, elixir-format
