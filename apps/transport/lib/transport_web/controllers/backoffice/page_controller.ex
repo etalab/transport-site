@@ -156,6 +156,7 @@ defmodule TransportWeb.Backoffice.PageController do
       end
 
     conn
+    |> assign(:dataset_id, dataset_id)
     |> assign(:dataset_types, Dataset.types())
     |> assign(:regions, Region |> where([r], r.nom != "National") |> Repo.all())
     |> assign(
