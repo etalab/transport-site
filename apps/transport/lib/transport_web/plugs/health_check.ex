@@ -36,7 +36,7 @@ defmodule TransportWeb.Plugs.HealthCheck do
 
   @spec run_checks(map()) :: {boolean(), list()}
   defp run_checks(params) do
-    checks
+    checks()
     |> Enum.reject(fn %{name: name} -> params[name] == "0" end)
     |> Enum.map(fn %{name: name, check: cb} -> {name, cb.()} end)
     |> Enum.reduce({true, []}, fn {check_name, check_success}, {global_success, messages} ->
