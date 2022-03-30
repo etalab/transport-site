@@ -15,14 +15,14 @@ defmodule Mix.Tasks.Url do
     %{path: path} = URI.parse(url)
     %{plug: plug, plug_opts: plug_opts} = Phoenix.Router.route_info(TransportWeb.Router, "GET", path, "")
 
-    moduleName = Atom.to_string(plug) |> String.replace("Elixir.", "")
+    module_name = plug |> Atom.to_string() |> String.replace("Elixir.", "")
 
     line_number = get_line_number(plug, plug_opts)
 
     file =
       "../**/*.ex"
       |> Path.wildcard()
-      |> Enum.find(fn file -> file_contains_module_def?(file, moduleName) end)
+      |> Enum.find(fn file -> file_contains_module_def?(file, module_name) end)
 
     IO.puts("#{file}:#{line_number}")
   rescue
