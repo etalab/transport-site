@@ -19,10 +19,11 @@ defmodule Transport.History.FetcherTest do
       other_resource = insert(:resource, dataset: insert(:dataset), datagouv_id: "bar")
       insert(:resource_history, datagouv_id: resource.datagouv_id, payload: %{})
       insert(:resource_history, datagouv_id: resource.datagouv_id, payload: %{})
+      insert(:resource_history, datagouv_id: "bar", payload: %{"dataset_id" => dataset.id})
       # Should be ignored
       insert(:resource_history, datagouv_id: other_resource.datagouv_id, payload: %{})
 
-      assert Enum.count(Transport.History.Fetcher.Database.history_resources(dataset)) == 2
+      assert Enum.count(Transport.History.Fetcher.Database.history_resources(dataset)) == 3
       assert Transport.History.Fetcher.Database.history_resources(insert(:dataset)) == []
     end
   end

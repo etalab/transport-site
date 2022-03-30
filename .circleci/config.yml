@@ -19,7 +19,10 @@ defaults: &defaults
       default: build-v2
       type: string
     plt_cache_key:
-      default: plt-v2
+      default: plt-v3
+      type: string
+    js_cache_key:
+      default: js-v2
       type: string
   working_directory: ~/transport
   docker:
@@ -38,7 +41,7 @@ defaults_with_postgres: &defaults_with_postgres
         POSTGRES_PASSWORD: $POSTGRES_PASSWORD
 jobs:
   build:
-    <<: *defaults
+    <<: *defaults_with_postgres
 
     steps:
       - checkout
@@ -66,8 +69,8 @@ jobs:
           command: mix deps.get
 
       - run:
-          name: Compile mix dependencies
-          command: mix deps.compile
+          name: Compile code
+          command: mix compile
 
       # Here we attempt to create 3 different caches to optimize the build process
 
@@ -95,13 +98,24 @@ jobs:
             - ~/transport/deps
             - ~/.mix
 
+      - restore_cache:
+          keys:
+            - js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
+            - js-<< parameters.js_cache_key >>
+          
       - run:
           name: Install yarn dependencies
           command: cd ~/transport/apps/transport/client && yarn install
 
+      # NOTE: this cannot be cached effectively at time of writing
       - run:
           name: Compile assets
           command: cd ~/transport/apps/transport/client && npm run build
+
+      - save_cache:
+          key: js-<< parameters.js_cache_key >>-{{ checksum "apps/transport/client/yarn.lock" }}
+          paths: 
+            - ~/transport/apps/transport/client/node_modules
 
       # NOTE: I think this should be moved to the dialyzer parallel section,
       # but then we need to think about how the persistence/caching will be
@@ -135,53 +149,29 @@ jobs:
           paths:
             - ~/transport/dialyzer-plt
 
-      - persist_to_workspace:
-          root: ~/transport
-          paths:
-            - .
-
-  test_lint:
-    <<: *defaults
-
-    steps:
-      - attach_workspace:
-          at: ~/transport
+      - run:
+          name: Run gettext check
+          command: mix gettext.extract --check-up-to-date
+      
+      - run:
+          name: Run credo
+          command: mix credo --strict
+      
+      - run:
+          name: Run javascript linter
+          command: mix npm "run linter:ecma"
 
       - run:
-          name: Run linters
-          command: |
-            mix gettext.extract --check-up-to-date
-            mix credo --strict
-            mix npm "run linter:ecma"
-            mix npm "run linter:sass"
-
-  test_format:
-    <<: *defaults
-
-    steps:
-      - attach_workspace:
-          at: ~/transport
+          name: Run stylesheets linter
+          command: mix npm "run linter:sass"
 
       - run:
           name: Run formatter
           command: mix format --check-formatted --dry-run
 
-  test_dialyzer:
-    <<: *defaults
-
-    steps:
-      - attach_workspace:
-          at: ~/transport
-
       - run:
           name: Run dialyzer (static analysis)
-          command: MIX_ENV=dev mix dialyzer
-
-  test_unit:
-    <<: *defaults_with_postgres
-    steps:
-      - attach_workspace:
-          at: ~/transport
+          command: mix dialyzer
 
       - run:
           name: Run tests
@@ -196,19 +186,3 @@ workflows:
         branches:
           ignore:
             - blog
-
-      - test_lint:
-          requires:
-            - build
-
-      - test_format:
-          requires:
-            - build
-
-      - test_unit:
-          requires:
-            - build
-
-      - test_dialyzer:
-          requires:
-            - build
