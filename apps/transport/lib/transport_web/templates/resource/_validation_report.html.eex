@@ -1,12 +1,12 @@
 <% locale = get_session(@conn, :locale) %>
-<% schema_validation = not is_nil(@resource.schema_name) %>
-<% gtfs_rt_validation = DB.Resource.is_gtfs_rt?(@resource) and has_errors_details?(@resource) %>
+<% show_schema_validation = not is_nil(@resource.schema_name) %>
+<% show_gtfs_rt_validation = DB.Resource.is_gtfs_rt?(@resource) and has_errors_details?(@resource) %>
 
-<%= if schema_validation or gtfs_rt_validation do %>
+<%= if show_schema_validation or show_gtfs_rt_validation do %>
 <h2 id="validation-report"><%= dgettext("validations", "Validation details")%></h2>
 <div class="panel">
 
-  <%= if schema_validation do %>
+  <%= if show_schema_validation do %>
     <p>
       <%= raw dgettext("validations", ~s(This resource should follow its schema <a href="%{link}" target="_blank">%{schema}</a>.), schema: @resource.schema_name, link: schema_url(@resource)) %>
     </p>
@@ -40,7 +40,7 @@
     <% end %>
   <% end %>
 
-  <%= if gtfs_rt_validation do %>
+  <%= if show_gtfs_rt_validation do %>
     <% validation = @resource.validation %>
     <% errors = Map.fetch!(validation.details, "errors") %>
     <% errors_error_level = errors |> Enum.filter(& Map.fetch!(&1, "severity") == "ERROR") %>
