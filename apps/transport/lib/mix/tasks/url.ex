@@ -15,23 +15,18 @@ defmodule Mix.Tasks.Url do
     %{path: path} = URI.parse(url)
     %{plug: plug, plug_opts: plug_opts} = Phoenix.Router.route_info(TransportWeb.Router, "GET", path, "")
 
-    module_name = plug |> Atom.to_string() |> String.replace("Elixir.", "")
-
     line_number = get_line_number(plug, plug_opts)
+    file_path = get_file_path(plug)
 
-    file =
-      "../**/*.ex"
-      |> Path.wildcard()
-      |> Enum.find(fn file -> file_contains_module_def?(file, module_name) end)
-
-    IO.puts("#{file}:#{line_number}")
+    IO.puts("#{file_path}:#{line_number}")
   rescue
     _ -> IO.puts("function definition not found")
   end
 
-  def file_contains_module_def?(file, module_name) do
-    content = File.read!(file)
-    String.contains?(content, "defmodule #{module_name} do")
+  def get_file_path(module_name) do
+    [compile_infos] = Keyword.get_values(module_name.module_info(), :compile)
+    [source] = Keyword.get_values(compile_infos, :source)
+    source
   end
 
   def get_line_number(module, function_name) do
