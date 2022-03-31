@@ -41,7 +41,9 @@ defmodule Mailjet.Client do
 
   def send_mail(from_name, from_email, to_email, reply_to, topic, text_body, html_body, false) do
     mailjet_url()
-    |> httpoison_impl().post(payload!(from_name, from_email, to_email, reply_to, topic, text_body, html_body), nil, [hackney: [basic_auth: {mailjet_user(), mailjet_key()}]])
+    |> httpoison_impl().post(payload!(from_name, from_email, to_email, reply_to, topic, text_body, html_body), nil,
+      hackney: [basic_auth: {mailjet_user(), mailjet_key()}]
+    )
     |> case do
       {:ok, %{status_code: 200, body: body}} -> {:ok, body}
       {:ok, %{status_code: _, body: body}} -> {:error, body}
