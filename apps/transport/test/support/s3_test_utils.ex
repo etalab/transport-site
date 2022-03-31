@@ -3,7 +3,7 @@ defmodule Transport.Test.S3TestUtils do
   Some utility functions for S3 mocks
   """
   import Mox
-  require ExUnit.Assertions
+  import ExUnit.Assertions
 
   @doc """
   Returns a list of existing bucket names
@@ -11,13 +11,9 @@ defmodule Transport.Test.S3TestUtils do
   def s3_mock_list_buckets(bucket_names \\ []) do
     Transport.ExAWS.Mock
     |> expect(:request!, fn request ->
-      ExUnit.Assertions.assert(
-        %{
-          service: :s3,
-          http_method: :get,
-          path: "/"
-        } = request
-      )
+      assert(request.service == :s3)
+      assert(request.http_method == :get)
+      assert(request.path == "/")
 
       %{body: %{buckets: bucket_names |> Enum.map(&%{name: &1})}}
     end)
@@ -33,21 +29,17 @@ defmodule Transport.Test.S3TestUtils do
                               body: _content,
                               headers: %{"x-amz-acl" => "public-read"}
                             } ->
-      ExUnit.Assertions.assert(path |> String.starts_with?(assert_path))
+      assert(path |> String.starts_with?(assert_path))
     end)
   end
 
   def s3_mocks_delete_object(expected_bucket, expected_path) do
     Transport.ExAWS.Mock
     |> expect(:request!, fn request ->
-      ExUnit.Assertions.assert(
-        %{
-          service: :s3,
-          http_method: :delete,
-          path: ^expected_path,
-          bucket: ^expected_bucket
-        } = request
-      )
+      assert(request.service == :s3)
+      assert(request.http_method == :delete)
+      assert(request.path == expected_path)
+      assert(request.bucket == expected_bucket)
     end)
   end
 end

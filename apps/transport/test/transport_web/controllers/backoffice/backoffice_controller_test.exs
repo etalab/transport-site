@@ -147,7 +147,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> where([r], not r.is_community_resource) |> Repo.all() |> length() == 1
     assert Resource |> where([r], r.is_community_resource) |> Repo.all() |> length() == 2
-    assert get_flash(conn, :info) =~ "ajouté"
+    assert ["Dataset ajouté" | _] = get_flash(conn, :info)
   end
 
   test "Add a dataset linked to aom", %{conn: conn} do
@@ -189,7 +189,7 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     assert Resource |> where([r], not r.is_community_resource) |> Repo.all() |> length() == 1
     assert Resource |> where([r], r.is_community_resource) |> Repo.all() |> length() == 2
-    assert get_flash(conn, :info) =~ "ajouté"
+    assert ["Dataset ajouté" | _] = get_flash(conn, :info)
   end
 
   test "Add a dataset linked to cities", %{conn: conn} do
@@ -213,7 +213,7 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 1
-    assert get_flash(conn, :info) =~ "ajouté"
+    assert ["Dataset ajouté" | _] = get_flash(conn, :info)
   end
 
   test "Add a dataset linked to cities and to the country", %{conn: conn} do
@@ -269,7 +269,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     # is empty (but not null since it comes from a form)
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 1
-    assert get_flash(conn, :info) =~ "ajouté"
+    assert ["Dataset ajouté" | _] = conn |> get_flash(:info)
   end
 
   test "Add a dataset linked to a region and to the country", %{conn: conn} do

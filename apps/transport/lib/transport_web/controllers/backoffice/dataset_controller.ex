@@ -19,14 +19,27 @@ defmodule TransportWeb.Backoffice.DatasetController do
       }
     }
 
-    with datagouv_id when not is_nil(datagouv_id) <- Datasets.get_id_from_url(params["url"]),
+    dataset_id = Datasets.get_id_from_url(params["url"])
+
+    with datagouv_id when not is_nil(datagouv_id) <- dataset_id,
          {:ok, dg_dataset} <- ImportData.import_from_data_gouv(datagouv_id, params["type"]),
          params <- Map.merge(params, dg_dataset),
          {:ok, changeset} <- Dataset.changeset(params),
          {:ok, dataset} <- insert_dataset(changeset) do
       dataset
       |> Dataset.validate()
-      |> flash(conn, msgs.success[params["action"]], msgs.error[params["action"]])
+      |> flash(
+        conn,
+        [
+          msgs.success[params["action"]],
+          ". ",
+          Phoenix.HTML.Link.link(
+            dgettext("backoffice_dataset", "Check the dataset page"),
+            to: dataset_path(conn, :details, dataset_id)
+          )
+        ],
+        msgs.error[params["action"]]
+      )
     else
       {:error, error} ->
         conn
@@ -124,7 +137,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
 
   ## Private functions
 
-  @spec flash(:ok | {:ok, any} | {:error, any}, Plug.Conn.t(), binary, binary) :: Plug.Conn.t()
+  @spec flash(:ok | {:ok, any} | {:error, any}, Plug.Conn.t(), iodata(), iodata()) :: Plug.Conn.t()
   defp flash({:ok, _message}, conn, ok_message, err_message),
     do: flash(:ok, conn, ok_message, err_message)
 

@@ -123,8 +123,8 @@ msgid "Showing only the first %{nb} errors."
 msgstr "Montre seulement les %{nb} premières lignes."
 
 #, elixir-autogen, elixir-format
-msgid "This resource should follow its schema <a href=\"%{link}\" target=\"_blank\">%{schema}</a>."
-msgstr "Cette ressource doit suivre le schéma <a href=\"%{link}\" target=\"_blank\">%{schema}</a>."
+msgid "This resource should follow its schema %{link}."
+msgstr "Cette ressource doit suivre le schéma %{link}."
 
 #, elixir-autogen, elixir-format
 msgid "Validation details"

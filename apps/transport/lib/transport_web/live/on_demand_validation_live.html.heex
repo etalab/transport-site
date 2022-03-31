@@ -76,7 +76,7 @@
           <%= if metadata["type"] in ["tableschema", "jsonschema"] do %>
             <% max_display_errors = 50 %>
             <p>
-              <%= raw dgettext("validations", ~s(This resource should follow its schema <a href="%{link}" target="_blank">%{schema}</a>.), schema: metadata["schema_name"], link: Transport.Shared.Schemas.schema_url(metadata["schema_name"], "latest")) %>
+              <%= raw dgettext("validations", ~s(This resource should follow its schema %{link}.), link: safe_to_string(link(metadata["schema_name"], to: Transport.Shared.Schemas.schema_url(metadata["schema_name"], "latest"), target: "_blank"))) %>
             </p>
             <p>
               <b>

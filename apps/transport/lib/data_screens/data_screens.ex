@@ -10,10 +10,10 @@ defmodule Transport.Screens do
   end
 
   def resources_with_duplicate_datagouv_id do
-    resources
+    resources()
     |> DB.Repo.all()
     |> Enum.group_by(fn x -> x[:datagouv_id] end)
-    |> Enum.filter(fn {a, b} -> b |> Enum.count() > 1 end)
+    |> Enum.filter(fn {_, b} -> b |> Enum.count() > 1 end)
   end
 
   def resources_with_duplicate_datagouv_id(markdown: true) do

@@ -14,7 +14,8 @@ config :transport, TransportWeb.Endpoint,
   # A page reload is required to trigger this. More apps could
   # be added when needed here, we just added what we needed.
   reloadable_apps: [:shared, :db, :transport, :unlock]
-  # watchers are also configured via config/runtime.exs
+
+# watchers are also configured via config/runtime.exs
 
 config :transport, TransportWeb.Endpoint,
   live_reload: [
@@ -77,7 +78,10 @@ if File.exists?(extra_config_file) do
   import_config extra_config_file
 else
   require Logger
-  Logger.warn("Only the most basic features will work. Please create #{extra_config_file} based on config/dev.secret.template.exs for more advanced use.")
+
+  Logger.warn(
+    "Only the most basic features will work. Please create #{extra_config_file} based on config/dev.secret.template.exs for more advanced use."
+  )
 end
 
 if File.exists?(".envrc") do

@@ -1,4 +1,3 @@
-<h3><%= dgettext("validations", "Validation details")%></h3>
 <p>
   <b>
   <%= if @nb_errors + @nb_warnings == 0 do %>
