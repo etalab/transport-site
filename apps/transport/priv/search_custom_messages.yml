@@ -120,7 +120,7 @@
 
         Ces données respectent le [schéma national des aires de covoiturage](https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/).
         
-        Pour contribuer à cette base, vous pouvez utiliser [cet outil](https://contribuer.transport.data.gouv.fr/) ou nous contacter à l'adresse contact@transport.beta.gouv.fr.
+        Pour contribuer à cette base, vous pouvez utiliser [cet outil](https://contribuer.transport.data.gouv.fr/).
 
     en: |
         The datasets in this category describe carpooling areas in France.
