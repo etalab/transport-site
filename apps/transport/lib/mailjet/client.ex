@@ -2,7 +2,6 @@ defmodule Mailjet.Client do
   @moduledoc """
     Helper to send mail via mailjet
   """
-  use HTTPoison.Base
   require Logger
 
   def get_config!(key) do
@@ -13,6 +12,7 @@ defmodule Mailjet.Client do
   def mailjet_user, do: get_config!(:mailjet_user)
   def mailjet_key, do: get_config!(:mailjet_key)
   def mailjet_url, do: get_config!(:mailjet_url)
+  def httpoison_impl, do: Application.fetch_env!(:transport, :httpoison_impl)
 
   @spec payload!(binary(), binary(), binary(), binary(), binary(), binary()) :: any()
   def payload!(from_name, from_email, to_email, reply_to, topic, text_body, html_body \\ nil) do
@@ -41,16 +41,11 @@ defmodule Mailjet.Client do
 
   def send_mail(from_name, from_email, to_email, reply_to, topic, text_body, html_body, false) do
     mailjet_url()
-    |> post(payload!(from_name, from_email, to_email, reply_to, topic, text_body, html_body))
+    |> httpoison_impl().post(payload!(from_name, from_email, to_email, reply_to, topic, text_body, html_body), nil, [hackney: [basic_auth: {mailjet_user(), mailjet_key()}]])
     |> case do
       {:ok, %{status_code: 200, body: body}} -> {:ok, body}
       {:ok, %{status_code: _, body: body}} -> {:error, body}
       {:error, error} -> {:error, error}
     end
-  end
-
-  def request(method, url, body \\ "", headers \\ [], options \\ []) do
-    options = options ++ [hackney: [basic_auth: {mailjet_user(), mailjet_key()}]]
-    super(method, url, body, headers, options)
   end
 end
