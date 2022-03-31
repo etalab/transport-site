@@ -38,4 +38,19 @@ defmodule Mailjet.ClientTest do
         false
       )
   end
+
+  @tag :focus
+  test "alternate" do
+    {:ok, "This is the body"} =
+      Mailjet.Client.send_mail(
+        "Test",
+        "from@example.com",
+        "to@example.com",
+        "reply@example.com",
+        "Hello world",
+        "This is the body",
+        "<p>It is the HTML body</p>",
+        true
+      )
+  end
 end
