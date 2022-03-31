@@ -127,7 +127,7 @@
 
         These data comply with the [national schema for carpooling areas](https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/).
         
-        To contribute to this database, you can use [this tool](https://contribuer.transport.data.gouv.fr/) or contact us at contact@transport.beta.gouv.fr.
+        To contribute to this database, you can use [this tool](https://contribuer.transport.data.gouv.fr/).
 
 - category: bike-scooter-sharing
   search_params:
