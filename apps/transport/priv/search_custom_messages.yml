@@ -119,11 +119,15 @@
         Les jeux de données de cette catégorie décrivent les aires de covoiturage en France.
 
         Ces données respectent le [schéma national des aires de covoiturage](https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/).
+        
+        Pour contribuer à cette base, vous pouvez utiliser [cet outil](https://contribuer.transport.data.gouv.fr/) ou nous contacter à l'adresse contact@transport.beta.gouv.fr.
 
     en: |
         The datasets in this category describe carpooling areas in France.
 
         These data comply with the [national schema for carpooling areas](https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/).
+        
+        To contribute to this database, you can use [this tool](https://contribuer.transport.data.gouv.fr/) or contact us at contact@transport.beta.gouv.fr.
 
 - category: bike-scooter-sharing
   search_params:
