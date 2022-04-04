@@ -112,11 +112,11 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset linked to a region", %{conn: conn} do
     conn =
-      use_cassette "session/create-2" do
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
-      end
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
+
+    dataset_datagouv_id = "12"
 
     dataset =
       @dataset
