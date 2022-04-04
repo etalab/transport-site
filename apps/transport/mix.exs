@@ -90,7 +90,12 @@ defmodule Transport.Mixfile do
       {:unzip, "~> 0.6.0"},
       {:protobuf, "~> 0.9.0"},
       {:nimble_csv, "~> 1.2.0"},
-      {:kino, "~> 0.5.2", only: :dev}
+      {:kino, "~> 0.5.2", only: :dev},
+      # db
+      {:typed_ecto_schema, ">= 0.1.1"},
+      {:geo_postgis, "~> 3.4"},
+      {:ecto_interval, "~> 0.2.5"},
+      {:ex_machina, "~> 2.4", only: :test},
     ]
   end
 end
