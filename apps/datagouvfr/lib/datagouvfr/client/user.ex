@@ -14,6 +14,7 @@ defmodule Datagouvfr.Client.User.Dummy do
        %{
          "first_name" => "trotro",
          "last_name" => "rigolo",
+         "id" => "user_id_1",
          "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]
        }}
 end
