@@ -123,30 +123,42 @@ defmodule TransportWeb.BackofficeControllerTest do
       |> Map.put("region_id", Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes").id)
       |> Map.put("insee", nil)
 
-    Datagouvfr.Client.CommunityResources.Mock
-    |> expect(:get, fn id ->
-      # we return the same urls that the one we find in dataset-region.json cassette
-      # because for the moment the Hasher is not Mocked
-      # we it is the case, we will be able to put random urls here
-      assert id == "5760038cc751df708cac31a0"
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :get, _url, _, _, _ ->
+      {:ok, %HTTPoison.Response{body: %{"id" => dataset_datagouv_id} |> Jason.encode!(), status_code: 200}}
+    end)
 
+    Transport.HTTPoison.Mock
+    |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/12/", [], _ ->
+      body =
+        %{
+          "slug" => "dataset-slug",
+          "type" => "public-transit",
+          "id" => dataset_datagouv_id,
+          "resources" => [
+            %{
+              "url" => "url1",
+              "id" => "resource_datagouv_id",
+              "format" => "siri"
+            }
+          ]
+        }
+        |> Jason.encode!()
+
+      %HTTPoison.Response{body: body, status_code: 200}
+    end)
+
+    # we fetch 2 community resources
+    Datagouvfr.Client.CommunityResources.Mock
+    |> expect(:get, fn dataset_id ->
       {:ok,
        [
-         %{
-           "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json",
-           "id" => "r1"
-         },
-         %{
-           "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt",
-           "id" => "r2"
-         }
+         %{"url" => "url2", "format" => "json", "id" => "resource_datagouv_id_2"},
+         %{"url" => "url3", "format" => "csv", "id" => "resource_datagouv_id_3"}
        ]}
     end)
 
-    conn =
-      use_cassette "dataset/dataset-region.json" do
-        post(conn, backoffice_dataset_path(conn, :post), dataset)
-      end
+    conn = post(conn, backoffice_dataset_path(conn, :post), dataset)
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> where([r], not r.is_community_resource) |> Repo.all() |> length() == 1
