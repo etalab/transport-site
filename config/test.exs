@@ -52,8 +52,6 @@ config :datagouvfr,
   authentication_impl: Datagouvfr.Authentication.Mock,
   user_impl: Datagouvfr.Client.User.Mock
 
-
-
 # capture all info logs and up during tests
 config :logger, level: :debug
 

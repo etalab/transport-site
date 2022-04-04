@@ -70,9 +70,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset with a region and AOM", %{conn: conn} do
     conn =
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     conn =
       use_cassette "dataset/dataset-region-ao.json" do
@@ -88,9 +88,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset without a region nor aom", %{conn: conn} do
     conn =
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     dataset = @dataset |> Map.put("region_id", nil) |> Map.put("insee", nil)
 
@@ -164,9 +164,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset linked to aom", %{conn: conn} do
     conn =
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     dataset = %{@dataset | "region_id" => nil}
 
@@ -204,9 +204,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset linked to cities", %{conn: conn} do
     conn =
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     dataset =
       @dataset_with_zones
@@ -226,9 +226,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset linked to cities and to the country", %{conn: conn} do
     conn =
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     dataset =
       @dataset_with_zones
@@ -254,9 +254,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset linked to an AO and with an empty territory name", %{conn: conn} do
     conn =
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     dataset =
       @dataset_with_zones
@@ -278,9 +278,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset linked to a region and to the country", %{conn: conn} do
     conn =
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     dataset =
       @dataset
@@ -302,9 +302,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset twice", %{conn: conn} do
     conn =
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     resource_url = "http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip"
     dataset = %{@dataset | "region_id" => nil}
