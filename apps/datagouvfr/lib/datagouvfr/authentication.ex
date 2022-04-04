@@ -1,10 +1,16 @@
 defmodule Datagouvfr.Authentication.Wrapper do
+  @moduledoc """
+  An Authentication wrapper, useful for testing purposes
+  """
   @callback get_token!(keyword() | map()) :: map()
 
   def impl, do: Application.get_env(:datagouvfr, :authentication_impl)
 end
 
 defmodule Datagouvfr.Authentication.Dummy do
+  @moduledoc """
+  A dummy Authentication module, giving back a dummy tocken.
+  """
   @behaviour Datagouvfr.Authentication.Wrapper
 
   @impl Datagouvfr.Authentication.Wrapper

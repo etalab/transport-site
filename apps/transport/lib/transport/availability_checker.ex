@@ -9,6 +9,9 @@ defmodule Transport.AvailabilityChecker.Wrapper do
 end
 
 defmodule Transport.AvailabilityChecker.Dummy do
+  @moduledoc """
+  A dummy module where everything is always available
+  """
   @behaviour Transport.AvailabilityChecker.Wrapper
 
   @impl Transport.AvailabilityChecker.Wrapper
