@@ -35,7 +35,8 @@ config :gbfs, jcdecaux_apikey: System.get_env("JCDECAUX_APIKEY")
 # Configures the endpoint
 config :gbfs, GBFS.Endpoint,
   render_errors: [view: GBFS.ErrorView, accepts: ~w(json)],
-  pubsub_server: GBFS.PubSub, # TODO: verify if this is truly needed? unsure.
+  # TODO: verify if this is truly needed? unsure.
+  pubsub_server: GBFS.PubSub,
   server: false
 
 # Configures the endpoint
@@ -56,14 +57,14 @@ config :phoenix, :json_library, Jason
 #
 # See https://hexdocs.pm/phoenix/1.5.8/Phoenix.Template.html#module-format-encoders
 #
-config :phoenix, :format_encoders,
-  json: Transport.Shared.ConditionalJSONEncoder
+config :phoenix, :format_encoders, json: Transport.Shared.ConditionalJSONEncoder
 
 # Configures Elixir's Logger
 config :logger,
   backends: [
     :console,
-    Sentry.LoggerBackend # error logs are also send to sentry
+    # error logs are also send to sentry
+    Sentry.LoggerBackend
   ]
 
 config :logger, :console,
@@ -75,10 +76,8 @@ config :scrivener_html,
 
 # Allow to have Markdown templates
 config :phoenix, :template_engines,
-  [
-    md: PhoenixMarkdown.Engine,
-    leex: Phoenix.LiveView.Engine
-  ]
+  md: PhoenixMarkdown.Engine,
+  leex: Phoenix.LiveView.Engine
 
 config :phoenix_markdown, :server_tags, :all
 
@@ -96,7 +95,7 @@ config :sentry,
   environment_name: sentry_env_as_atom,
   included_environments: [:prod, :staging],
   enable_source_code_context: true,
-  root_source_code_path: File.cwd!,
+  root_source_code_path: File.cwd!(),
   filter: Transport.Shared.SentryExceptionFilter,
   # the key must be there for overriding during tests,
   # so we set it to the default based on source code for now
@@ -121,8 +120,8 @@ config :datagouvfr,
   user_impl: Datagouvfr.Client.User
 
 config :ex_json_schema,
-  :remote_schema_resolver,
-  fn url -> HTTPoison.get!(url).body |> Jason.decode! end
+       :remote_schema_resolver,
+       fn url -> HTTPoison.get!(url).body |> Jason.decode!() end
 
 config :ex_aws,
   access_key_id: System.get_env("CELLAR_ACCESS_KEY_ID"),
@@ -134,7 +133,7 @@ config :ex_aws,
   cellar_url: "https://~s.cellar-c2.services.clever-cloud.com",
   s3: [
     scheme: "https://",
-    host: "cellar-c2.services.clever-cloud.com",
+    host: "cellar-c2.services.clever-cloud.com"
   ],
   json_codec: Jason
 
