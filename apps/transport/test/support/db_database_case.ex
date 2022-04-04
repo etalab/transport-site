@@ -2,6 +2,9 @@ defmodule DB.DatabaseCase do
   @moduledoc """
   This module defines the test case to be used by
   tests interacting with database.
+
+  NOTE: this is fairly redundant with `TransportWeb.DatabaseCase` at the moment,
+  and we'll be able to DRY-it out later.
   """
 
   use ExUnit.CaseTemplate
