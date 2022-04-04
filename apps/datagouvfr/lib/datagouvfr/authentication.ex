@@ -1,3 +1,16 @@
+defmodule Datagouvfr.Authentication.Wrapper do
+  @callback get_token!(keyword() | map()) :: map()
+
+  def impl, do: Application.get_env(:datagouvfr, :authentication_impl)
+end
+
+defmodule Datagouvfr.Authentication.Dummy do
+  @behaviour Datagouvfr.Authentication.Wrapper
+
+  @impl Datagouvfr.Authentication.Wrapper
+  def get_token!(_), do: %{token: "token"}
+end
+
 defmodule Datagouvfr.Authentication do
   @moduledoc """
   An OAuth2 strategy for data.gouv.fr.
@@ -6,6 +19,7 @@ defmodule Datagouvfr.Authentication do
   alias OAuth2.Client
   use OAuth2.Strategy
   alias OAuth2.Strategy.AuthCode
+  @behaviour Datagouvfr.Authentication.Wrapper
 
   # Public API
 
@@ -24,6 +38,7 @@ defmodule Datagouvfr.Authentication do
     url
   end
 
+  @impl Datagouvfr.Authentication.Wrapper
   @spec get_token!(keyword() | map()) :: OAuth2.Client.t()
   def get_token!(params \\ []) do
     Client.get_token!(client(), params, [], [{:timeout, 15_000}])
@@ -31,11 +46,13 @@ defmodule Datagouvfr.Authentication do
 
   # Strategy Callbacks
 
+  @impl OAuth2.Strategy
   @spec authorize_url(OAuth2.Client.t(), keyword() | map()) :: OAuth2.Client.t()
   def authorize_url(client, params) do
     AuthCode.authorize_url(client, params)
   end
 
+  @impl OAuth2.Strategy
   @spec get_token(OAuth2.Client.t(), keyword(), [{binary(), binary()}]) :: OAuth2.Client.t()
   def get_token(client, params, headers) do
     client
