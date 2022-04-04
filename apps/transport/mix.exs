@@ -92,10 +92,15 @@ defmodule Transport.Mixfile do
       {:nimble_csv, "~> 1.2.0"},
       {:kino, "~> 0.5.2", only: :dev},
       # db
-      {:typed_ecto_schema, ">= 0.1.1"},
+      {:ecto, "~> 3.7.0"},
+      {:ecto_sql, "~> 3.7.0"},
+      {:postgrex, ">= 0.0.0"},
       {:geo_postgis, "~> 3.4"},
-      {:ecto_interval, "~> 0.2.5"},
+      # ???
+      {:scrivener_ecto, "~> 2.7.0"},
+      {:typed_ecto_schema, ">= 0.1.1"},
       {:ex_machina, "~> 2.4", only: :test},
+      {:ecto_interval, "~> 0.2.5"}
     ]
   end
 end
