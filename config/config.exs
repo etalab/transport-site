@@ -112,10 +112,13 @@ config :transport,
   availability_checker_impl: Transport.AvailabilityChecker,
   jsonschema_validator_impl: Shared.Validation.JSONSchemaValidator,
   tableschema_validator_impl: Shared.Validation.TableSchemaValidator,
-  schemas_impl: Transport.Shared.Schemas
+  schemas_impl: Transport.Shared.Schemas,
+  hasher_impl: Hasher
 
 config :datagouvfr,
-  community_resources_impl: Datagouvfr.Client.CommunityResources.API
+  community_resources_impl: Datagouvfr.Client.CommunityResources.API,
+  authentication_impl: Datagouvfr.Authentication,
+  user_impl: Datagouvfr.Client.User
 
 config :ex_json_schema,
   :remote_schema_resolver,
