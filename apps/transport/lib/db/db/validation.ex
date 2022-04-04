@@ -26,11 +26,11 @@ defmodule DB.Validation do
   @spec severities_map() :: map()
   def severities_map,
     do: %{
-      "Fatal" => %{level: 0, text: dgettext("validations", "Fatal failures")},
-      "Error" => %{level: 1, text: dgettext("validations", "Errors")},
-      "Warning" => %{level: 2, text: dgettext("validations", "Warnings")},
-      "Information" => %{level: 3, text: dgettext("validations", "Informations")},
-      "Irrelevant" => %{level: 4, text: dgettext("validations", "Passed validations")}
+      "Fatal" => %{level: 0, text: dgettext("db-validations", "Fatal failures")},
+      "Error" => %{level: 1, text: dgettext("db-validations", "Errors")},
+      "Warning" => %{level: 2, text: dgettext("db-validations", "Warnings")},
+      "Information" => %{level: 3, text: dgettext("db-validations", "Informations")},
+      "Irrelevant" => %{level: 4, text: dgettext("db-validations", "Passed validations")}
     }
 
   @spec severities(binary()) :: %{level: integer(), text: binary()}
