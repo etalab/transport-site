@@ -70,7 +70,6 @@ defmodule Transport.Mixfile do
       {:gbfs, in_umbrella: true},
       {:datagouvfr, in_umbrella: true},
       {:shared, in_umbrella: true},
-      {:db, in_umbrella: true},
       {:unlock, in_umbrella: true},
       {:castore, "~> 0.1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
