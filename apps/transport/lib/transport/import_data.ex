@@ -429,14 +429,14 @@ defmodule Transport.ImportData do
   def get_valid_siri_lite_resources(resources), do: Enum.filter(resources, &is_siri_lite?/1)
 
   @spec get_community_resources(map()) :: [map()]
-  def get_community_resources(%{"id" => id}) do
-    case CommunityResources.get(id) do
+  def get_community_resources(%{"id" => datagouv_id}) do
+    case CommunityResources.get(datagouv_id) do
       {:ok, resources} ->
         resources
         |> Enum.map(fn r -> Map.put(r, "is_community_resource", true) end)
 
       {:error, error} ->
-        Logger.warn("impossible to get community ressource for dataset #{id} => #{inspect(error)}")
+        Logger.warn("impossible to get community ressource for dataset #{datagouv_id} => #{inspect(error)}")
 
         []
     end
