@@ -3,6 +3,7 @@ defmodule Mailjet.Client do
     Helper to send mail via mailjet
   """
   require Logger
+  @behaviour Transport.EmailSender
 
   def get_config!(key) do
     config = Application.fetch_env!(:transport, __MODULE__)
@@ -30,6 +31,7 @@ defmodule Mailjet.Client do
     })
   end
 
+  # TODO: remove completely: if called in existing code, it shouldn't be called, but skipped upstream
   @spec send_mail(binary, binary, binary, binary, binary, binary, binary, boolean) :: {:error, any} | {:ok, any}
   def send_mail(from_name, from_email, to_email, reply_to, topic, text_body, html_body, true) do
     Logger.debug(fn ->
@@ -39,7 +41,7 @@ defmodule Mailjet.Client do
     {:ok, text_body || html_body}
   end
 
-  def send_mail(from_name, from_email, to_email, reply_to, topic, text_body, html_body, false) do
+  def send_mail(from_name, from_email, to_email, reply_to, topic, text_body, html_body) do
     mailjet_url()
     |> httpoison_impl().post(payload!(from_name, from_email, to_email, reply_to, topic, text_body, html_body), nil,
       hackney: [basic_auth: {mailjet_user(), mailjet_key()}]
