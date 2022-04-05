@@ -47,6 +47,7 @@ defmodule Transport.CommentsCheckerTest do
     end
 
     with_mock Datagouvfr.Client.API, get: get_mock do
+      # TODO: remove below with_mock
       with_mock Mailjet.Client, send_mail: send_mail_mock do
         number_new_comments = CommentsChecker.check_for_new_comments()
 
@@ -58,6 +59,7 @@ defmodule Transport.CommentsCheckerTest do
 
     # second run : we shouldn't find new comment
     with_mock Datagouvfr.Client.API, get: get_mock do
+      # TODO: remove below with_mock
       with_mock Mailjet.Client, send_mail: send_mail_mock do
         number_new_comments = CommentsChecker.check_for_new_comments()
 
@@ -84,6 +86,7 @@ defmodule Transport.CommentsCheckerTest do
     end
 
     with_mock Datagouvfr.Client.API, get: get_mock do
+      # TODO: remove below with_mock
       with_mock Mailjet.Client, send_mail: send_mail_mock do
         number_new_comments = CommentsChecker.check_for_new_comments()
 
