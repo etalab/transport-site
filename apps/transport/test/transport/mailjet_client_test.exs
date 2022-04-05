@@ -1,7 +1,6 @@
 defmodule Mailjet.ClientTest do
   use ExUnit.Case
   import Mox
-  import ExUnit.CaptureLog
   setup :verify_on_exit!
 
   test "sends email via the MailJet API" do
