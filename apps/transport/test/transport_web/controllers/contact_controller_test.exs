@@ -4,6 +4,9 @@ defmodule TransportWeb.ContactControllerTest do
   setup :verify_on_exit!
 
   test "Post contact form with honey pot filled", %{conn: conn} do
+    Transport.EmailSender.Mock
+    |> expect(:send_mail, 0, fn(_, _, _, _, _, _, _) -> nil end)
+
     conn
     |> post(contact_path(conn, :send_mail, %{email: "spammer@internet.com", name: "John Doe"}))
     |> get_flash(:info)
