@@ -35,8 +35,7 @@ defmodule Mailjet.ClientTest do
         "reply@example.com",
         "Hello world",
         "This is the body",
-        "<p>It is the HTML body</p>",
-        false
+        "<p>It is the HTML body</p>"
       )
   end
 
