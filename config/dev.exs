@@ -87,3 +87,5 @@ end
 if File.exists?(".envrc") do
   Mix.raise("The .envrc file is deprecated and must be removed")
 end
+
+# TODO: setup stub for :email_sender_impl

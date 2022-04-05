@@ -94,3 +94,5 @@ config :transport, TransportWeb.Endpoint,
 config :transport, Mailjet.Client,
   mailjet_user: "TEST_MJ_APIKEY_PUBLIC",
   mailjet_key: "TEST_MJ_APIKEY_PRIVATE"
+
+config :transport, :email_sender_impl, Transport.EmailSender.Mock
