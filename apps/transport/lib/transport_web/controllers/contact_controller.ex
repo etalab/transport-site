@@ -1,6 +1,5 @@
 defmodule TransportWeb.ContactController do
   use TransportWeb, :controller
-  alias Mailjet.Client
   require Logger
 
   @spec send_mail(Plug.Conn.t(), map()) :: {:error, any} | Plug.Conn.t()
@@ -15,15 +14,14 @@ defmodule TransportWeb.ContactController do
   end
 
   def send_mail(conn, %{"email" => email, "topic" => topic, "demande" => demande} = params) do
-    case Client.send_mail(
+    case Transport.EmailSender.impl().send_mail(
            "PAN, Formulaire Contact",
            Application.get_env(:transport, :contact_email),
            Application.get_env(:transport, :contact_email),
            email,
            topic,
            demande,
-           "",
-           false
+           ""
          ) do
       {:ok, _} ->
         conn
