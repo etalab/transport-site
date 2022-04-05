@@ -5,6 +5,8 @@ defmodule Transport.CommentsCheckerTest do
   import DB.Factory
   import Mock
   import Mox
+  setup :verify_on_exit!
+
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
