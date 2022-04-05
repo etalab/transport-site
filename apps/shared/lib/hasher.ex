@@ -1,11 +1,31 @@
+defmodule Hasher.Wrapper do
+  @moduledoc """
+  A Hasher wrapper, useful for testing purposes
+  """
+
+  @callback get_content_hash(binary()) :: binary()
+  def impl, do: Application.get_env(:transport, :hasher_impl)
+end
+
+defmodule Hasher.Dummy do
+  @moduledoc """
+  A dummy module, where everything always has the same dummy hash
+  """
+  @behaviour Hasher.Wrapper
+
+  @impl Hasher.Wrapper
+  def get_content_hash(_url), do: "xxx"
+end
+
 defmodule Hasher do
   @moduledoc """
   Hasher computes the hash sha256 of a file given by
   an URL or a local path
   """
   require Logger
+  @behaviour Hasher.Wrapper
 
-  @spec get_content_hash(String.t()) :: String.t()
+  @impl Hasher.Wrapper
   def get_content_hash(url) do
     case scheme = URI.parse(url).scheme do
       s when s in ["http", "https"] ->

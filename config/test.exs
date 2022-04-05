@@ -37,6 +37,7 @@ config :transport,
   jsonschema_validator_impl: Shared.Validation.JSONSchemaValidator.Mock,
   tableschema_validator_impl: Shared.Validation.TableSchemaValidator.Mock,
   schemas_impl: Transport.Shared.Schemas.Mock,
+  hasher_impl: Hasher.Mock,
   notifications_api_token: "secret",
   s3_buckets: %{
     history: "resource-history-test",
@@ -47,7 +48,9 @@ config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"
 
 config :datagouvfr,
-  community_resources_impl: Datagouvfr.Client.CommunityResources.Mock
+  community_resources_impl: Datagouvfr.Client.CommunityResources.Mock,
+  authentication_impl: Datagouvfr.Authentication.Mock,
+  user_impl: Datagouvfr.Client.User.Mock
 
 # capture all info logs and up during tests
 config :logger, level: :debug
