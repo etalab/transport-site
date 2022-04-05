@@ -1,4 +1,8 @@
 defmodule Transport.EmailSender do
+  @moduledoc """
+  A wrapper for email sending, that we can use to mock out email sending operations during tests.
+  """
+
   # NOTE: it would be better to refactor this into the use of a map,
   # but at time of writing I'm minimizing the size of the refactoring.
   @callback send_mail(
