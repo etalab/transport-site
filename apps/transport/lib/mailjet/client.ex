@@ -31,6 +31,7 @@ defmodule Mailjet.Client do
     })
   end
 
+  @impl Transport.EmailSender
   def send_mail(from_name, from_email, to_email, reply_to, topic, text_body, html_body) do
     mailjet_url()
     |> httpoison_impl().post(payload!(from_name, from_email, to_email, reply_to, topic, text_body, html_body), nil,
