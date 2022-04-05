@@ -4,7 +4,7 @@ defmodule TransportWeb.SessionController do
   """
 
   use TransportWeb, :controller
-  alias Datagouvfr.{Authentication, Client.User}
+  alias Datagouvfr.Authentication
   require Logger
 
   def new(conn, _) do
@@ -12,12 +12,15 @@ defmodule TransportWeb.SessionController do
   end
 
   def create(conn, %{"code" => code}) do
-    with %{token: token} <- Authentication.get_token!(code: code),
+    authentication_module = Datagouvfr.Authentication.Wrapper.impl()
+    user_module = Datagouvfr.Client.User.Wrapper.impl()
+
+    with %{token: token} <- authentication_module.get_token!(code: code),
          conn <-
            conn
            |> put_session(:token, token)
            |> assign(:token, token),
-         {:ok, user} <- User.me(conn) do
+         {:ok, user} <- user_module.me(conn) do
       conn
       |> put_session(:current_user, user_params(user))
       |> redirect(to: get_redirect_path(conn))

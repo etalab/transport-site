@@ -8,6 +8,16 @@ defmodule Transport.AvailabilityChecker.Wrapper do
   def available?(x), do: impl().available?(x)
 end
 
+defmodule Transport.AvailabilityChecker.Dummy do
+  @moduledoc """
+  A dummy module where everything is always available
+  """
+  @behaviour Transport.AvailabilityChecker.Wrapper
+
+  @impl Transport.AvailabilityChecker.Wrapper
+  def available?(_), do: true
+end
+
 defmodule Transport.AvailabilityChecker do
   @moduledoc """
   A module used to check if a remote file is "available" through a GET a request.
