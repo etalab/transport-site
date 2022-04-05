@@ -38,23 +38,4 @@ defmodule Mailjet.ClientTest do
         "<p>It is the HTML body</p>"
       )
   end
-
-  test "alternate impl just logs" do
-    logs =
-      capture_log(fn ->
-        {:ok, "This is the body"} =
-          Mailjet.Client.send_mail(
-            "Test",
-            "from@example.com",
-            "to@example.com",
-            "reply@example.com",
-            "Hello world",
-            "This is the body",
-            "<p>It is the HTML body</p>",
-            true
-          )
-      end)
-
-    assert logs =~ ~r/payload:/
-  end
 end
