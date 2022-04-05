@@ -3,7 +3,6 @@ defmodule Transport.DataChecker do
   Use to check data, and act about it, like send email
   """
   alias Datagouvfr.Client.{Datasets, Discussions}
-  alias Mailjet.Client
   alias DB.{Dataset, Repo}
   import TransportWeb.Router.Helpers
   import Ecto.Query
@@ -106,29 +105,30 @@ defmodule Transport.DataChecker do
 
       emails
       |> Enum.each(fn email ->
-        Client.send_mail(
-          "transport.data.gouv.fr",
-          Application.get_env(:transport, :contact_email),
-          email,
-          Application.get_env(:transport, :contact_email),
-          "Jeu de données arrivant à expiration",
-          """
-          Bonjour,
+        unless is_blank do
+          Transport.EmailSender.impl().send_mail(
+            "transport.data.gouv.fr",
+            Application.get_env(:transport, :contact_email),
+            email,
+            Application.get_env(:transport, :contact_email),
+            "Jeu de données arrivant à expiration",
+            """
+            Bonjour,
 
-          Une ressource associée au jeu de données expire #{delay_str(delay)} :
+            Une ressource associée au jeu de données expire #{delay_str(delay)} :
 
-          #{link_and_name(dataset)}
+            #{link_and_name(dataset)}
 
-          Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour. Veuillez anticiper vos prochaines mises à jour. N'hésitez pas à consulter la documentation pour mettre à jour vos données #{@update_data_doc_link}.
+            Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour. Veuillez anticiper vos prochaines mises à jour. N'hésitez pas à consulter la documentation pour mettre à jour vos données #{@update_data_doc_link}.
 
-          L’équipe transport.data.gouv.fr
+            L’équipe transport.data.gouv.fr
 
-          ---
-          Si vous souhaitez modifier ou supprimer ces alertes, vous pouvez répondre à cet e-mail.
-          """,
-          "",
-          is_blank
-        )
+            ---
+            Si vous souhaitez modifier ou supprimer ces alertes, vous pouvez répondre à cet e-mail.
+            """,
+            ""
+          )
+        end
       end)
     end)
 
@@ -179,17 +179,17 @@ defmodule Transport.DataChecker do
   defp send_outdated_data_mail([], _), do: []
 
   defp send_outdated_data_mail(datasets, is_blank) do
-    Client.send_mail(
-      "transport.data.gouv.fr",
-      Application.get_env(:transport, :contact_email),
-      Application.get_env(:transport, :contact_email),
-      Application.get_env(:transport, :contact_email),
-      "Jeux de données arrivant à expiration",
-      make_outdated_data_body(datasets),
-      "",
-      is_blank
-    )
-
+    unless is_blank do
+      Transport.EmailSender.impl().send_mail(
+        "transport.data.gouv.fr",
+        Application.get_env(:transport, :contact_email),
+        Application.get_env(:transport, :contact_email),
+        Application.get_env(:transport, :contact_email),
+        "Jeux de données arrivant à expiration",
+        make_outdated_data_body(datasets),
+        ""
+      )
+    end
     datasets
   end
 
@@ -239,15 +239,14 @@ defmodule Transport.DataChecker do
   defp send_inactive_dataset_mail([], []), do: nil
 
   defp send_inactive_dataset_mail(reactivated_datasets, inactive_datasets) do
-    Client.send_mail(
+    Transport.EmailSender.impl().send_mail(
       "transport.data.gouv.fr",
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :contact_email),
       "Jeux de données qui disparaissent",
       make_inactive_dataset_body(reactivated_datasets, inactive_datasets),
-      "",
-      false
+      ""
     )
   end
 end
