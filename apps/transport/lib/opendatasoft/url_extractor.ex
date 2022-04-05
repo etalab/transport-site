@@ -25,8 +25,15 @@ defmodule Opendatasoft.UrlExtractor do
 
   @spec get_csv_resources([any]) :: [any]
   def get_csv_resources(resources) do
-    csv_resources = filter_csv(resources)
+    resources
+    |> filter_csv()
+    |> get_resources_inside_csv()
+  end
 
+  @spec get_resources_inside_csv([any]) :: [any]
+  defp get_resources_inside_csv([]), do: []
+
+  defp get_resources_inside_csv(csv_resources) do
     with {:ok, bodys_and_resources} <- download_csv_list(csv_resources),
          {:ok, resources} <- get_resources_with_url_from_csv(bodys_and_resources) do
       resources
@@ -34,7 +41,7 @@ defmodule Opendatasoft.UrlExtractor do
       {:error, error} ->
         Logger.warn(" <message>  #{inspect(error)}")
 
-        Enum.each(resources, fn resource ->
+        Enum.each(csv_resources, fn resource ->
           Logger.warn(" <resource> #{resource["url"]}")
         end)
 
