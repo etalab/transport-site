@@ -11,3 +11,4 @@ Mox.defmock(Shared.Validation.TableSchemaValidator.Mock, for: Shared.Validation.
 Mox.defmock(Transport.Shared.Schemas.Mock, for: Transport.Shared.Schemas.Wrapper)
 Mox.defmock(Transport.History.Fetcher.Mock, for: Transport.History.Fetcher)
 Mox.defmock(Transport.EmailSender.Mock, for: Transport.EmailSender)
+Mox.defmock(Hasher.Mock, for: Hasher.Wrapper)

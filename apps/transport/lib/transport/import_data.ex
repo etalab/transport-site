@@ -7,10 +7,12 @@ defmodule Transport.ImportData do
   alias Helpers
   alias Opendatasoft.UrlExtractor
   alias DB.{Dataset, EPCI, LogsImport, Repo, Resource}
-  alias Transport.AvailabilityChecker
   alias Transport.Shared.ResourceSchema
   require Logger
   import Ecto.Query
+
+  defp availability_checker, do: Transport.AvailabilityChecker.Wrapper.impl()
+  defp hasher, do: Hasher.Wrapper.impl()
 
   def max_import_concurrent_jobs do
     Application.fetch_env!(:transport, :max_import_concurrent_jobs)
@@ -146,9 +148,11 @@ defmodule Transport.ImportData do
 
     Logger.info("Importing dataset #{datagouv_id} from data.gouv.fr (url = #{url})")
 
+    http_client = Transport.Shared.Wrapper.HTTPoison.impl()
+
     # We'll have to verify the behaviour of hackney/httpoison for follow_redirect: how
     # many redirects are allowed? Is an error raised after a while or not? etc.
-    response = HTTPoison.get!(url, [], hackney: [follow_redirect: true])
+    response = http_client.get!(url, [], hackney: [follow_redirect: true])
     json = Jason.decode!(response.body)
     {:ok, dataset} = prepare_dataset_from_data_gouv_response(json, type)
 
@@ -349,12 +353,12 @@ defmodule Transport.ImportData do
         "latest_url" => resource["latest"] || resource["url"],
         "id" => existing_resource[:id],
         "datagouv_id" => resource["id"],
-        "is_available" => AvailabilityChecker.available?(resource),
+        "is_available" => availability_checker().available?(resource),
         "is_community_resource" => is_community_resource,
         "community_resource_publisher" => get_publisher(resource),
         "description" => resource["description"],
         "filesize" => resource["filesize"],
-        "content_hash" => Hasher.get_content_hash(resource["url"]),
+        "content_hash" => hasher().get_content_hash(resource["url"]),
         "original_resource_url" => get_original_resource_url(resource),
         "schema_name" => ResourceSchema.guess_name(resource, type),
         "schema_version" => ResourceSchema.guess_version(resource),
@@ -429,14 +433,14 @@ defmodule Transport.ImportData do
   def get_valid_siri_lite_resources(resources), do: Enum.filter(resources, &is_siri_lite?/1)
 
   @spec get_community_resources(map()) :: [map()]
-  def get_community_resources(%{"id" => id}) do
-    case CommunityResources.get(id) do
+  def get_community_resources(%{"id" => datagouv_id}) do
+    case CommunityResources.get(datagouv_id) do
       {:ok, resources} ->
         resources
         |> Enum.map(fn r -> Map.put(r, "is_community_resource", true) end)
 
       {:error, error} ->
-        Logger.warn("impossible to get community ressource for dataset #{id} => #{inspect(error)}")
+        Logger.warn("impossible to get community ressource for dataset #{datagouv_id} => #{inspect(error)}")
 
         []
     end
