@@ -31,16 +31,6 @@ defmodule Mailjet.Client do
     })
   end
 
-  # TODO: remove completely: if called in existing code, it shouldn't be called, but skipped upstream
-  @spec send_mail(binary, binary, binary, binary, binary, binary, binary, boolean) :: {:error, any} | {:ok, any}
-  def send_mail(from_name, from_email, to_email, reply_to, topic, text_body, html_body, true) do
-    Logger.debug(fn ->
-      "payload: #{payload!(from_name, from_email, to_email, reply_to, topic, text_body, html_body)}"
-    end)
-
-    {:ok, text_body || html_body}
-  end
-
   def send_mail(from_name, from_email, to_email, reply_to, topic, text_body, html_body) do
     mailjet_url()
     |> httpoison_impl().post(payload!(from_name, from_email, to_email, reply_to, topic, text_body, html_body), nil,
