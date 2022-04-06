@@ -18,6 +18,9 @@ defmodule PageCache do
   # See https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-p1-messaging-14#section-7.1.3
   # https://www.mnot.net/blog/2011/07/11/what_proxies_must_do
   @forwarded_headers_allowlist [
+    "access-control-allow-credentials",
+    "access-control-allow-origin",
+    "access-control-expose-headers",
     "content-type",
     "content-length",
     "date",
