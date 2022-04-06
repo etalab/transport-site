@@ -14,6 +14,7 @@ defmodule DB.ResourceHistory do
     field(:last_up_to_date_at, :utc_datetime_usec)
 
     timestamps(type: :utc_datetime_usec)
+    has_many(:geo_data_import, DB.GeoDataImport)
   end
 
   def latest_resource_history_payload(resource_id) do
