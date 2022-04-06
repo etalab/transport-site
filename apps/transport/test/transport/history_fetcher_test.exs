@@ -18,7 +18,7 @@ defmodule Transport.History.FetcherTest do
       resource = insert(:resource, dataset: dataset, datagouv_id: "foo")
       other_resource = insert(:resource, dataset: insert(:dataset), datagouv_id: "bar")
       insert(:resource_history, datagouv_id: resource.datagouv_id, payload: %{})
-      insert(:resource_history, datagouv_id: resource.datagouv_id, payload: %{})
+      insert(:resource_history, datagouv_id: resource.datagouv_id, payload: %{"dataset_id" => dataset.id})
       insert(:resource_history, datagouv_id: "bar", payload: %{"dataset_id" => dataset.id})
       # Should be ignored
       insert(:resource_history, datagouv_id: other_resource.datagouv_id, payload: %{})
