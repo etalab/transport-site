@@ -93,7 +93,6 @@ defmodule PageCache do
     page_cache_key = conn.assigns.page_cache_key
     Logger.info("Persisting cache key #{page_cache_key} for status #{conn.status}")
 
-    # We will likely want to store status code and more headers shortly.
     value = %CacheEntry{
       body: conn.resp_body,
       status: conn.status,
