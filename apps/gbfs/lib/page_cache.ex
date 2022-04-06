@@ -65,6 +65,7 @@ defmodule PageCache do
     conn
     |> register_before_send(&save_to_cache(&1, options))
     |> assign(:page_cache_key, page_cache_key)
+    |> filter_out_headers()
     |> set_cache_control(options)
   end
 
@@ -134,6 +135,12 @@ defmodule PageCache do
 
   def ttl_seconds(options) do
     options |> Keyword.fetch!(:ttl_seconds)
+  end
+
+  defp filter_out_headers(%Plug.Conn{resp_headers: headers} = conn) do
+    headers
+    |> Enum.reject(fn {header, _} -> Enum.member?(@forwarded_headers_allowlist, header) end)
+    |> Enum.reduce(conn, fn {header, _}, conn -> delete_resp_header(conn, header) end)
   end
 
   defp keep_relevant_headers(%Plug.Conn{resp_headers: headers}) do
