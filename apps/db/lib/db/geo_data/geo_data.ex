@@ -6,7 +6,7 @@ defmodule DB.GeoData do
   use TypedEctoSchema
 
   typed_schema "geo_data" do
-    field(:geom, Geo.PostGIS.Geometry)
+    field(:geom, Geo.PostGIS.Geometry) :: Geo.geometry()
     field(:payload, :map)
     belongs_to(:geo_data_import, DB.GeoDataImport)
   end
