@@ -40,36 +40,46 @@ defmodule Transport.Jobs.BNLCToGeoData do
       end
 
       %{id: geo_data_import_id} =
-        DB.Repo.insert!(%DB.GeoDataImport{resource_history_id: new_resource_history_id, publish: true})
+        DB.Repo.insert!(%DB.GeoDataImport{resource_history_id: latest_resource_history_id, publish: true})
 
-      %{status_code: 200, body: body} = HTTPoison.get!(url)
+      http_client = Transport.Shared.Wrapper.HTTPoison.impl()
+      %{status_code: 200, body: body} = http_client.get!(url)
 
-      body
-      |> CSV.parse_string(skip_headers: false)
-      |> Stream.transform([], fn r, acc ->
-        if acc == [] do
-          {%{}, r}
-        else
-          {[acc |> Enum.zip(r) |> Enum.into(%{})], acc}
-        end
-      end)
-      |> Stream.map(fn m ->
-        %{
-          geo_data_import_id: geo_data_import_id,
-          geom: %Geo.Point{
-            coordinates: {m["Xlong"] |> string_to_float(), m["Ylat"] |> string_to_float()},
-            properties: %{},
-            srid: 4326
-          },
-          payload: m |> Map.drop(["Xlong", "Ylat"])
-        }
-      end)
-      |> Stream.chunk_every(1000)
-      |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GeoData, chunk) end)
-      |> Stream.run()
+      insert_bnlc_data(body, geo_data_import_id)
     end)
 
     :ok
+  end
+
+  def insert_bnlc_data(body, geo_data_import_id) do
+    body
+    |> prepare_data_for_insert(geo_data_import_id)
+    |> Stream.chunk_every(1000)
+    |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GeoData, chunk) end)
+    |> Stream.run()
+  end
+
+  def prepare_data_for_insert(body, geo_data_import_id) do
+    body
+    |> CSV.parse_string(skip_headers: false)
+    |> Stream.transform([], fn r, acc ->
+      if acc == [] do
+        {%{}, r}
+      else
+        {[acc |> Enum.zip(r) |> Enum.into(%{})], acc}
+      end
+    end)
+    |> Stream.map(fn m ->
+      %{
+        geo_data_import_id: geo_data_import_id,
+        geom: %Geo.Point{
+          coordinates: {m["Xlong"] |> string_to_float(), m["Ylat"] |> string_to_float()},
+          properties: %{},
+          srid: 4326
+        },
+        payload: m |> Map.drop(["Xlong", "Ylat"])
+      }
+    end)
   end
 
   # remove spaces (U+0020) and non-break spaces (U+00A0) from the string
