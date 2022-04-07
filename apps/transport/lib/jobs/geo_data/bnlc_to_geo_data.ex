@@ -24,13 +24,12 @@ defmodule Transport.Jobs.BNLCToGeoData do
     :ok
   end
 
-  defp import_replace_data(_url, new_resource_history_id, %{resource_history_id: current_resource_history_id})
-       when new_resource_history_id <= current_resource_history_id do
+  defp import_replace_data(_url, latest_resource_history_id, %{resource_history_id: latest_resource_history_id}) do
     Logger.info("nothing new to import for BNLC")
     :ok
   end
 
-  defp import_replace_data(url, new_resource_history_id, current_geo_data_import) do
+  defp import_replace_data(url, latest_resource_history_id, current_geo_data_import) do
     Logger.info("New BNLC content detected...update content")
 
     DB.Repo.transaction(fn ->
