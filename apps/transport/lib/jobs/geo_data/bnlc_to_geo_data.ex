@@ -57,9 +57,7 @@ defmodule Transport.Jobs.BNLCToGeoData do
         %{
           geo_data_import_id: geo_data_import_id,
           geom: %Geo.Point{
-            coordinates:
-              {m["Xlong"] |> String.replace([" ", " "], "") |> String.to_float(),
-               m["Ylat"] |> String.replace([" ", " "], "") |> String.to_float()},
+            coordinates: {m["Xlong"] |> string_to_float(), m["Ylat"] |> string_to_float()},
             properties: %{},
             srid: 4326
           },
@@ -73,4 +71,11 @@ defmodule Transport.Jobs.BNLCToGeoData do
 
     :ok
   end
+
+  @doc """
+  remove spaces (U+0020) and non-break spaces (U+00A0) from the string
+  """
+  defp string_to_float(s), do: s |> String.replace([" ", " "], "") |> String.to_float()
 end
+
+a
