@@ -7,13 +7,17 @@ defmodule DB.GeoDataImport do
   import Ecto.Query
 
   typed_schema "geo_data_import" do
-      belongs_to(:resource_history, DB.ResourceHistory)
-      field(:publish, :boolean)
-      has_many(:geo_data, DB.GeoData)
+    belongs_to(:resource_history, DB.ResourceHistory)
+    field(:publish, :boolean)
+    has_many(:geo_data, DB.GeoData)
   end
 
+  @doc """
+  takes a dataset_id as input, return the latest geo_data_import done for that dataset
+  """
   def dataset_latest_geo_data_import(dataset_id) do
     dataset_id = dataset_id |> Integer.to_string()
+
     DB.ResourceHistory
     |> join(:inner, [rh], g in DB.GeoDataImport, on: rh.id == g.resource_history_id)
     |> where([rh, _g], fragment("payload->>'dataset_id'") == ^dataset_id)
