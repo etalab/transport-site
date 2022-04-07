@@ -72,10 +72,6 @@ defmodule Transport.Jobs.BNLCToGeoData do
     :ok
   end
 
-  @doc """
-  remove spaces (U+0020) and non-break spaces (U+00A0) from the string
-  """
+  # remove spaces (U+0020) and non-break spaces (U+00A0) from the string
   defp string_to_float(s), do: s |> String.replace([" ", " "], "") |> String.to_float()
 end
-
-a
