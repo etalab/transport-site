@@ -8,13 +8,13 @@ defmodule GBFS.SmooveControllerTest do
 
   describe "Smoove GBFS conversion" do
     test "on gbfs.json", %{conn: conn} do
-      conn = conn |> get(Routes.montpellier_path(conn, :index))
+      conn = conn |> get(Routes.strasbourg_path(conn, :index))
       body = json_response(conn, 200)
       check_entrypoint(body)
     end
 
     test "on system_information.json", %{conn: conn} do
-      conn = conn |> get(Routes.montpellier_path(conn, :system_information))
+      conn = conn |> get(Routes.strasbourg_path(conn, :system_information))
       body = json_response(conn, 200)
       check_system_information(body)
     end
@@ -22,7 +22,7 @@ defmodule GBFS.SmooveControllerTest do
     test "on station_information.json", %{conn: conn} do
       setup_stations_response()
 
-      conn = conn |> get(Routes.montpellier_path(conn, :station_information))
+      conn = conn |> get(Routes.strasbourg_path(conn, :station_information))
       body = json_response(conn, 200)
       check_station_information(body)
     end
@@ -30,7 +30,7 @@ defmodule GBFS.SmooveControllerTest do
     test "on station_status.json", %{conn: conn} do
       setup_stations_response()
 
-      conn = conn |> get(Routes.montpellier_path(conn, :station_status))
+      conn = conn |> get(Routes.strasbourg_path(conn, :station_status))
       body = json_response(conn, 200)
       check_station_status(body)
     end
@@ -38,14 +38,14 @@ defmodule GBFS.SmooveControllerTest do
     test "on invalid response", %{conn: conn} do
       Transport.HTTPoison.Mock |> expect(:get, fn _url -> {:ok, %HTTPoison.Response{status_code: 500}} end)
 
-      conn = conn |> get(Routes.montpellier_path(conn, :station_status))
+      conn = conn |> get(Routes.strasbourg_path(conn, :station_status))
       assert %{"error" => "smoove service unavailable"} == json_response(conn, 502)
     end
 
     defp setup_stations_response do
       Transport.HTTPoison.Mock
       |> expect(:get, fn url ->
-        assert url == "https://data.montpellier3m.fr/sites/default/files/ressources/TAM_MMM_VELOMAG.xml"
+        assert url == "http://velhop.strasbourg.eu/tvcstations.xml"
 
         {:ok,
          %HTTPoison.Response{
