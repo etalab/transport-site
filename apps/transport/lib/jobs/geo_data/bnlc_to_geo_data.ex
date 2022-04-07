@@ -11,7 +11,7 @@ defmodule Transport.Jobs.BNLCToGeoData do
   @bnlc_dataset 253
 
   @impl Oban.Worker
-  def perform(%Oban.Job{}) do
+  def perform(%{}) do
     # get resource id
     %{type: "carpooling-areas", resources: [%{id: resource_id}]} =
       DB.Dataset |> preload(:resources) |> DB.Repo.get!(@bnlc_dataset)
