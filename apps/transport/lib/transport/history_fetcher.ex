@@ -21,15 +21,12 @@ defmodule Transport.History.Fetcher.Database do
   alias DB.{Dataset, Repo, Resource, ResourceHistory}
 
   @impl true
-  def history_resources(%Dataset{id: id}) do
-    Dataset
-    |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
-    |> join(:inner, [d, r], rh in ResourceHistory,
-      on: rh.datagouv_id == r.datagouv_id or fragment("cast(payload->>'dataset_id' as bigint) = ?", d.id)
-    )
-    |> where([d, _r, _rh], d.id == ^id)
-    |> order_by([_d, _r, rh], desc: rh.inserted_at)
-    |> select([_d, _r, rh], rh)
+  def history_resources(%Dataset{id: dataset_id}) do
+    ResourceHistory
+    |> join(:left, [rh], r in Resource, on: rh.datagouv_id == r.datagouv_id and r.dataset_id == ^dataset_id)
+    |> where([_rh, r], not is_nil(r.id) or fragment("cast(payload->>'dataset_id' as bigint) = ?", ^dataset_id))
+    |> order_by([rh, _r], desc: rh.inserted_at)
+    |> select([rh, _r], rh)
     |> Repo.all()
   end
 end

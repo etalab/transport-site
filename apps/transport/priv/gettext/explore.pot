@@ -17,3 +17,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "beta-explanation"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "GTFS-RT feeds referenced on this site"
+msgstr ""
