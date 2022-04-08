@@ -12,6 +12,21 @@ defmodule Datagouvfr.Client.Resources do
   }
   @fields ["url", "format", "title", "filetype"]
 
+  # Update a file, without using the OAuth client, to update
+  # files published by the PAN org on data.gouv.fr
+  def update(
+        %{"resource_file" => %{filename: filename, path: filepath}, "dataset_id" => _, "resource_id" => _} = params
+      ) do
+    API.post(
+      make_path(params, ["upload"]),
+      {:multipart,
+       [
+         {:file, filepath, {"form-data", [{:name, "file"}, {:filename, filename}]}, []}
+       ]},
+      [{"content-type", "multipart/form-data"}, API.api_key_headers()]
+    )
+  end
+
   # Update function #1
   # For a resource having an uploaded file.
   # It can be an existing resource update or a new resource

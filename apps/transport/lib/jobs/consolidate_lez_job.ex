@@ -1,12 +1,19 @@
 defmodule Transport.Jobs.ConsolidateLEZsJob do
   @moduledoc """
-  Job in charge of dispatching multiple `GTFSRTEntitiesJob`.
+  Consolidates a low emission zones' national database
+  using valid `etalab/schema-zfe` resources published
+  on our platform.
   """
   use Oban.Worker, max_attempts: 3
   import Ecto.Query
   alias DB.{Dataset, Repo, Resource, ResourceHistory}
 
-  @zfe_schema_name "etalab/schema-zfe"
+  @schema_name "etalab/schema-zfe"
+  @datagouv_dataset_id "624ff4b1bbb449a550264040"
+  @datagouv_resources_ids %{
+    "voies" => "98c6bcdb-1205-4481-8859-f885290763f2",
+    "aires" => "3ddd29ee-00dd-40af-bc98-3367adbd0289"
+  }
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
@@ -20,21 +27,32 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     |> Enum.into(%{}, fn {type, resources} ->
       {type, consolidate_features(resources)}
     end)
-    |> write_files()
+    |> update_files()
   end
 
-  def write_files(consolidated_data) do
-    write_file(consolidated_data |> Map.fetch!("aire") |> Jason.encode!(), "aires.json")
-    write_file(consolidated_data |> Map.fetch!("voie") |> Jason.encode!(), "voies.json")
+  def update_files(consolidated_data) do
+    for type <- ~w(voies aires) do
+      filename = "#{type}.geojson"
+      path = write_file(consolidated_data |> Map.fetch!(type) |> Jason.encode!(), filename)
+
+      Datagouvfr.Client.Resources.update(%{
+        "dataset_id" => @datagouv_dataset_id,
+        "resource_id" => Map.fetch!(@datagouv_resources_ids, type),
+        "resource_file" => %{path: path, filename: filename}
+      })
+
+      File.rm!(path)
+    end
   end
 
   def write_file(content, filename) do
     dst_path = System.tmp_dir!() |> Path.join(filename)
     dst_path |> File.write!(content)
+    dst_path
   end
 
   def type(%Resource{} = resource) do
-    if is_voie?(resource), do: "voie", else: "aire"
+    if is_voie?(resource), do: "voies", else: "aires"
   end
 
   def is_voie?(%Resource{url: url}) do
@@ -50,8 +68,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     )
     |> where(
       [r],
-      r.schema_name == @zfe_schema_name and r.is_available and
-        fragment("(metadata->'validation'->>'has_errors')::bool = false")
+      r.schema_name == @schema_name and fragment("(metadata->'validation'->>'has_errors')::bool = false")
     )
     |> Repo.all()
   end
