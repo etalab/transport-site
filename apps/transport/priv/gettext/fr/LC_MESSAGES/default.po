@@ -110,3 +110,7 @@ msgstr "Réglementation"
 #, elixir-autogen, elixir-format
 msgid "Standards"
 msgstr "Normes"
+
+#, elixir-autogen, elixir-format
+msgid "GTFS-RT vehicle positions"
+msgstr "Positions des véhicules GTFS-RT"

@@ -13,7 +13,7 @@ config :transport, TransportWeb.Endpoint,
   # NOTE: this is required to ensure code reloading will work.
   # A page reload is required to trigger this. More apps could
   # be added when needed here, we just added what we needed.
-  reloadable_apps: [:shared, :db, :transport, :unlock]
+  reloadable_apps: [:shared, :db, :transport, :unlock, :gbfs]
 
 # watchers are also configured via config/runtime.exs
 

@@ -15,6 +15,10 @@ defmodule GBFS.Router do
     plug(:assign_smoove)
   end
 
+  pipeline :redirect_reseau do
+    plug(:assign_redirect)
+  end
+
   pipeline :index_pipeline do
     plug(:assign_index)
   end
@@ -36,14 +40,21 @@ defmodule GBFS.Router do
 
   @reseaux_smoove [
     %{
-      contract_id: "montpellier",
-      nom: "Velomagg",
-      url: "https://data.montpellier3m.fr/sites/default/files/ressources/TAM_MMM_VELOMAG.xml"
-    },
-    %{
       contract_id: "strasbourg",
       nom: "velhop",
       url: "http://velhop.strasbourg.eu/tvcstations.xml"
+    }
+  ]
+
+  @reseaux_redirects [
+    %{
+      contract_id: "montpellier",
+      redirects: %{
+        "gbfs.json" => "https://montpellier-fr-smoove.klervi.net/gbfs/gbfs.json",
+        "system_information.json" => "https://montpellier-fr-smoove.klervi.net/gbfs/en/system_information.json",
+        "station_information.json" => "https://montpellier-fr-smoove.klervi.net/gbfs/en/station_information.json",
+        "station_status.json" => "https://montpellier-fr-smoove.klervi.net/gbfs/en/station_status.json"
+      }
     }
   ]
 
@@ -64,6 +75,15 @@ defmodule GBFS.Router do
         get("/system_information.json", SmooveController, :system_information, as: contract_id)
         get("/station_information.json", SmooveController, :station_information, as: contract_id)
         get("/station_status.json", SmooveController, :station_status, as: contract_id)
+      end
+    end)
+
+    @reseaux_redirects
+    |> Enum.map(fn %{contract_id: contract_id} ->
+      scope "/" <> contract_id do
+        pipe_through(:redirect_reseau)
+
+        get("/:path", RedirectController, :index, as: contract_id)
       end
     end)
 
@@ -110,11 +130,20 @@ defmodule GBFS.Router do
     |> assign(:smoove_params, Enum.find(@reseaux_smoove, &(&1.contract_id == contract_id)))
   end
 
+  defp assign_redirect(conn, _) do
+    [_, contract_id, _] = conn.path_info
+
+    conn
+    |> assign(:redirect_params, Enum.find(@reseaux_redirects, &(&1.contract_id == contract_id)))
+  end
+
   defp assign_index(conn, _) do
     conn
     |> assign(
       :networks,
-      ["vcub", "vlille"] ++ (@reseaux_jcdecaux |> Map.keys()) ++ (@reseaux_smoove |> Enum.map(& &1.contract_id))
+      ["vcub", "vlille"] ++
+        (@reseaux_jcdecaux |> Map.keys()) ++
+        (@reseaux_smoove |> Enum.map(& &1.contract_id)) ++ (@reseaux_redirects |> Enum.map(& &1.contract_id))
     )
   end
 end

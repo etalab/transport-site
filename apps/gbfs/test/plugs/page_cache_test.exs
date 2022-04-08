@@ -38,6 +38,8 @@ defmodule GBFS.PageCachePlugTest do
   def issue_uncached_query(options \\ plug_options()) do
     :get
     |> conn("/some")
+    |> put_resp_header("keep-alive", "timeout=5, max=1000")
+    |> put_resp_header("etag", "sample-etag")
     |> PageCache.call(options)
     # NOTE: this will raise if the plug has already sent a response
     |> put_resp_content_type("text/plain", "utf-8")
@@ -50,6 +52,8 @@ defmodule GBFS.PageCachePlugTest do
     assert conn.resp_body == "Hello world"
     assert conn.status == 200
     assert conn |> get_resp_header("content-type") == ["text/plain; charset=utf-8"]
+    assert conn |> get_resp_header("etag") == ["sample-etag"]
+    assert conn |> get_resp_header("keep-alive") == []
     # we return the same value for max-age rather than a decreasing value, to simplify things for now
     # default plug behaviour is "max-age=0, private, must-revalidate", we just tweak the max-age here
     assert conn |> get_resp_header("cache-control") == ["max-age=60, private, must-revalidate"]
@@ -74,6 +78,8 @@ defmodule GBFS.PageCachePlugTest do
     assert conn.status == 200
     assert conn.resp_body == "Hello world"
     assert conn |> get_resp_header("content-type") == ["text/plain; charset=utf-8"]
+    assert conn |> get_resp_header("etag") == ["sample-etag"]
+    assert conn |> get_resp_header("keep-alive") == []
     # we return the same value for max-age rather than a decreasing value, to simplify things for now
     assert conn |> get_resp_header("cache-control") == ["max-age=60, private, must-revalidate"]
   end

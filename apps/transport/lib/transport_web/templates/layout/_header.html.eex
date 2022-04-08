@@ -26,6 +26,7 @@
               <div class="dropdown-content">
                 <%= link(gettext("Check the quality of a file or a feed"), to: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)) %>
                 <%= link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank") %>
+                <%= link(gettext("GTFS-RT vehicle positions"), to: explore_path(@conn, :vehicle_positions)) %>
               </div>
             </div>
           </li>

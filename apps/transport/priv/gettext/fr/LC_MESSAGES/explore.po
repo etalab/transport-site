@@ -17,4 +17,8 @@ msgstr "Positions des véhicules (GTFS-RT) - beta"
 
 #, elixir-autogen, elixir-format
 msgid "beta-explanation"
-msgstr "Cette carte reprend la totalité des GTFS-RT référencés sur ce site, et affiche les positions des véhicules en temps réel."
+msgstr "Cette carte reprend la totalité des %{link}, et affiche les positions des véhicules (trains, bus, trams et plus). Cette carte est mise à jour en temps réel, en fonction du rafraîchissement de chaque flux."
+
+#, elixir-autogen, elixir-format
+msgid "GTFS-RT feeds referenced on this site"
+msgstr "flux GTFS-RT référencés sur ce site"
