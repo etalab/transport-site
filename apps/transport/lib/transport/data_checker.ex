@@ -45,29 +45,30 @@ defmodule Transport.DataChecker do
     |> Enum.filter(&Datasets.is_active?/1)
   end
 
-  def outdated_data(blank \\ false) do
+  def outdated_data() do
     for delay <- possible_delays(),
         date = Date.add(Date.utc_today(), delay) do
       {delay, Dataset.get_expire_at(date)}
     end
     |> Enum.reject(fn {_, d} -> d == [] end)
-    |> send_outdated_data_mail(blank)
-    |> Enum.map(fn x -> send_outdated_data_notifications(x, blank) end)
+    |> send_outdated_data_mail()
+    |> Enum.map(fn x -> send_outdated_data_notifications(x) end)
 
     # |> post_outdated_data_comments(blank)
   end
 
-  def post_outdated_data_comments(delays_datasets, blank) do
+  def post_outdated_data_comments(delays_datasets) do
     case Enum.find(delays_datasets, fn {delay, _} -> delay == 7 end) do
       nil ->
         Logger.info("No datasets need a comment about outdated resources")
 
       {delay, datasets} ->
-        Enum.map(datasets, fn r -> post_outdated_data_comment(r, delay, blank) end)
+        Enum.map(datasets, fn r -> post_outdated_data_comment(r, delay) end)
     end
   end
 
-  def post_outdated_data_comment(dataset, delay, blank) do
+  def post_outdated_data_comment(dataset, delay) do
+    # TODO: verify how to mock this & verify assertions
     Discussions.post(
       dataset.datagouv_id,
       "Jeu de données arrivant à expiration",
@@ -78,8 +79,7 @@ defmodule Transport.DataChecker do
       end}.
       Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour prochainement.
       L’équipe transport.data.gouv.fr
-      """,
-      blank
+      """
     )
   end
 
@@ -92,7 +92,7 @@ defmodule Transport.DataChecker do
     |> Enum.sort()
   end
 
-  def send_outdated_data_notifications({delay, datasets} = payload, is_blank) do
+  def send_outdated_data_notifications({delay, datasets} = payload) do
     notifications_config = Transport.Notifications.config()
 
     datasets
@@ -105,30 +105,28 @@ defmodule Transport.DataChecker do
 
       emails
       |> Enum.each(fn email ->
-        unless is_blank do
-          Transport.EmailSender.impl().send_mail(
-            "transport.data.gouv.fr",
-            Application.get_env(:transport, :contact_email),
-            email,
-            Application.get_env(:transport, :contact_email),
-            "Jeu de données arrivant à expiration",
-            """
-            Bonjour,
+        Transport.EmailSender.impl().send_mail(
+          "transport.data.gouv.fr",
+          Application.get_env(:transport, :contact_email),
+          email,
+          Application.get_env(:transport, :contact_email),
+          "Jeu de données arrivant à expiration",
+          """
+          Bonjour,
 
-            Une ressource associée au jeu de données expire #{delay_str(delay)} :
+          Une ressource associée au jeu de données expire #{delay_str(delay)} :
 
-            #{link_and_name(dataset)}
+          #{link_and_name(dataset)}
 
-            Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour. Veuillez anticiper vos prochaines mises à jour. N'hésitez pas à consulter la documentation pour mettre à jour vos données #{@update_data_doc_link}.
+          Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour. Veuillez anticiper vos prochaines mises à jour. N'hésitez pas à consulter la documentation pour mettre à jour vos données #{@update_data_doc_link}.
 
-            L’équipe transport.data.gouv.fr
+          L’équipe transport.data.gouv.fr
 
-            ---
-            Si vous souhaitez modifier ou supprimer ces alertes, vous pouvez répondre à cet e-mail.
-            """,
-            ""
-          )
-        end
+          ---
+          Si vous souhaitez modifier ou supprimer ces alertes, vous pouvez répondre à cet e-mail.
+          """,
+          ""
+        )
       end)
     end)
 
@@ -178,18 +176,16 @@ defmodule Transport.DataChecker do
 
   defp send_outdated_data_mail([], _), do: []
 
-  defp send_outdated_data_mail(datasets, is_blank) do
-    unless is_blank do
-      Transport.EmailSender.impl().send_mail(
-        "transport.data.gouv.fr",
-        Application.get_env(:transport, :contact_email),
-        Application.get_env(:transport, :contact_email),
-        Application.get_env(:transport, :contact_email),
-        "Jeux de données arrivant à expiration",
-        make_outdated_data_body(datasets),
-        ""
-      )
-    end
+  defp send_outdated_data_mail(datasets) do
+    Transport.EmailSender.impl().send_mail(
+      "transport.data.gouv.fr",
+      Application.get_env(:transport, :contact_email),
+      Application.get_env(:transport, :contact_email),
+      Application.get_env(:transport, :contact_email),
+      "Jeux de données arrivant à expiration",
+      make_outdated_data_body(datasets),
+      ""
+    )
 
     datasets
   end
