@@ -14,6 +14,18 @@ defmodule Transport.DataCheckerTest do
 
   describe "send_outdated_data_notifications" do
     test "with a default delay" do
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, fn "transport.data.gouv.fr" = _subject,
+                               "contact@transport.beta.gouv.fr",
+                               "foo@example.com" = _to,
+                               "contact@transport.beta.gouv.fr",
+                               "Jeu de données arrivant à expiration",
+                               plain_text_body,
+                               "" = _html_part ->
+        assert plain_text_body =~ ~r/Bonjour/
+        :ok
+      end)
+
       dataset_slug = "slug"
 
       Transport.Notifications.FetcherMock
@@ -32,15 +44,7 @@ defmodule Transport.DataCheckerTest do
 
       Transport.DataChecker.send_outdated_data_notifications({7, [dataset]})
 
-      # TODO: add assertions on the email sending mock (adapting the code below)
-
-      # logs = capture_log(fun)
-      # assert String.contains?(logs, ~s("To":[{"Email":"foo@example.com"}]))
-
-      # assert String.contains?(
-      #          logs,
-      #          ~s({"Messages":[{"From":{"Email":"contact@transport.beta.gouv.fr","Name":"transport.data.gouv.fr"},"HtmlPart":"","ReplyTo":{"Email":"contact@transport.beta.gouv.fr"},"Subject":"Jeu de données arrivant à expiration")
-      #        )
+      verify!(Transport.EmailSender.Mock)
     end
 
     test "with a matching extra delay" do
