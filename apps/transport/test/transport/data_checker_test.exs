@@ -72,6 +72,9 @@ defmodule Transport.DataCheckerTest do
     end
 
     test "with a non-matching extra delay" do
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, 0, fn _, _, _, _, _, _, _ -> :ok end)
+
       dataset_slug = "slug"
 
       Transport.Notifications.FetcherMock
@@ -89,9 +92,6 @@ defmodule Transport.DataCheckerTest do
       dataset = %DB.Dataset{slug: dataset_slug, datagouv_title: "title"}
 
       Transport.DataChecker.send_outdated_data_notifications({42, [dataset]})
-
-      # TODO: add send email assertions for this
-      # assert capture_log(fun) == ""
     end
   end
 
