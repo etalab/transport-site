@@ -45,7 +45,7 @@ defmodule Transport.DataChecker do
     |> Enum.filter(&Datasets.is_active?/1)
   end
 
-  def outdated_data() do
+  def outdated_data do
     for delay <- possible_delays(),
         date = Date.add(Date.utc_today(), delay) do
       {delay, Dataset.get_expire_at(date)}
