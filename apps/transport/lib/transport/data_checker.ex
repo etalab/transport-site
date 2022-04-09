@@ -68,7 +68,6 @@ defmodule Transport.DataChecker do
   end
 
   def post_outdated_data_comment(dataset, delay) do
-    # TODO: verify how to mock this & verify assertions
     Discussions.post(
       dataset.datagouv_id,
       "Jeu de données arrivant à expiration",
