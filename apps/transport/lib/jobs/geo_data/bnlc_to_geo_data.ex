@@ -44,7 +44,7 @@ defmodule Transport.Jobs.BNLCToGeoData do
       end
 
       %{id: geo_data_import_id} =
-        DB.Repo.insert!(%DB.GeoDataImport{resource_history_id: latest_resource_history_id, publish: true})
+        DB.Repo.insert!(%DB.GeoDataImport{resource_history_id: latest_resource_history_id})
 
       http_client = Transport.Shared.Wrapper.HTTPoison.impl()
       %{status_code: 200, body: body} = http_client.get!(url)

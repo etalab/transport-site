@@ -13,7 +13,7 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
   @bnlc_content ~s("id_lieu","Xlong","Ylat","nbre_pl"\n"2A004-C-001","8.783403","41.9523692","0"\n"01024-C-001","5.158352778","46.28957222","5")
 
   test "import a BNLC to the DB" do
-    geo_data_import = %{id: id} = insert(:geo_data_import, %{publish: true})
+    geo_data_import = %{id: id} = insert(:geo_data_import)
     BNLCToGeoData.insert_bnlc_data(@bnlc_content, id)
 
     [row1, row2] = DB.GeoData |> DB.Repo.all()

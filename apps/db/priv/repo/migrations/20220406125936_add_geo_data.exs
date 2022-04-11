@@ -4,7 +4,6 @@ defmodule DB.Repo.Migrations.AddGeoData do
   def change do
     create table(:geo_data_import) do
       add :resource_history_id, references(:resource_history)
-      add :publish, :boolean
       timestamps([type: :utc_datetime_usec])
     end
 
