@@ -30,7 +30,7 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
              payload: %{"id_lieu" => "01024-C-001", "nbre_pl" => "5"}
            } = row2
 
-    # test cascading delete : if geo_data_import is deleted, associated geo_data are deleted too
+    # test cascading delete: if geo_data_import is deleted, associated geo_data are deleted too
     geo_data_import |> DB.Repo.delete!()
     assert [] = DB.GeoData |> DB.Repo.all()
   end
