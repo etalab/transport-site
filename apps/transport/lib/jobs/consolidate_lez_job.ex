@@ -26,7 +26,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     relevant_resources()
     |> Enum.group_by(&type/1)
     |> Enum.map(fn {type, resources} ->
-      details = resources |> Enum.map_join(&"#{&1.dataset.custom_title} (#{&1.title})", ", ")
+      details = resources |> Enum.map_join(", ", &"#{&1.dataset.custom_title} (#{&1.title})")
       Logger.info("Found #{Enum.count(resources)} resources for #{type}: #{details}")
       {type, consolidate_features(resources)}
     end)
