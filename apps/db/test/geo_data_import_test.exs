@@ -1,5 +1,5 @@
 defmodule DB.GeoDataImportTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import DB.Factory
 
   setup do
