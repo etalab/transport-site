@@ -20,13 +20,13 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
 
     assert %{
              geo_data_import_id: ^id,
-             geom: %Geo.Point{coordinates: {8.783403, 41.9523692}, srid: 4326},
+             geom: %Geo.Point{coordinates: {8.783403, 41.952369}, srid: 4326},
              payload: %{"id_lieu" => "2A004-C-001", "nbre_pl" => "0"}
            } = row1
 
     assert %{
              geo_data_import_id: ^id,
-             geom: %Geo.Point{coordinates: {5.158352778, 46.28957222}, srid: 4326},
+             geom: %Geo.Point{coordinates: {5.158353, 46.289572}, srid: 4326},
              payload: %{"id_lieu" => "01024-C-001", "nbre_pl" => "5"}
            } = row2
 
