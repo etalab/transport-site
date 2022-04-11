@@ -72,8 +72,7 @@ defmodule Transport.Jobs.BNLCToGeoData do
       %{
         geo_data_import_id: geo_data_import_id,
         geom: %Geo.Point{
-          coordinates: {m["Xlong"] |> string_to_float(), m["Ylat"] |> string_to_float()},
-          properties: %{},
+          coordinates: {m["Xlong"] |> parse_coordinate(), m["Ylat"] |> parse_coordinate()},
           srid: 4326
         },
         payload: m |> Map.drop(["Xlong", "Ylat"])
@@ -83,4 +82,9 @@ defmodule Transport.Jobs.BNLCToGeoData do
 
   # remove spaces (U+0020) and non-break spaces (U+00A0) from the string
   defp string_to_float(s), do: s |> String.replace([" ", " "], "") |> String.to_float()
+
+  # keep 6 digits for WGS 84, see https://en.wikipedia.org/wiki/Decimal_degrees#Precision
+  defp parse_coordinate(s) do
+    s |> string_to_float() |> Float.round(6)
+  end
 end
