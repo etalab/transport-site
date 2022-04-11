@@ -10,6 +10,8 @@ defmodule DB.GeoDataImport do
     belongs_to(:resource_history, DB.ResourceHistory)
     field(:publish, :boolean)
     has_many(:geo_data, DB.GeoData)
+
+    timestamps(type: :utc_datetime_usec)
   end
 
   @doc """

@@ -11,6 +11,7 @@ defmodule DB.Repo.Migrations.AddGeoData do
       add :geom, :geometry
       add :payload, :map
       add :geo_data_import_id, references(:geo_data_import, on_delete: :delete_all)
+      timestamps([type: :utc_datetime_usec])
     end
 
   end
