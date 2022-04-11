@@ -12,9 +12,11 @@ defmodule Transport.Jobs.BNLCToGeoData do
 
   @impl Oban.Worker
   def perform(%{}) do
+    transport_publisher_label =  Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+
     # get resource id
     %{type: "carpooling-areas", resources: [%{id: resource_id}]} =
-      DB.Dataset |> preload(:resources) |> DB.Repo.get!(@bnlc_dataset)
+      DB.Dataset |> preload(:resources) |> where([d], d.type == "carpooling-areas" and d.organization == ^transport_publisher_label) |> DB.Repo.one!()
 
     %{id: latest_resource_history_id, payload: %{"permanent_url" => permanent_url}} =
       DB.ResourceHistory.latest_resource_history(resource_id)
