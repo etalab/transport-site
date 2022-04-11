@@ -101,7 +101,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     }
   end
 
-  def content_features(%Resource{} = resource) do
+  defp content_features(%Resource{} = resource) do
     # TO DO: enforce `has_errors` to `false`
     %ResourceHistory{payload: %{"permanent_url" => url, "resource_metadata" => %{"validation" => %{"has_errors" => _}}}} =
       latest_resource_history(resource)
@@ -110,7 +110,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     body |> Jason.decode!() |> Map.fetch!("features")
   end
 
-  def latest_resource_history(%Resource{datagouv_id: datagouv_id}) do
+  defp latest_resource_history(%Resource{datagouv_id: datagouv_id}) do
     ResourceHistory
     |> where([rh], rh.datagouv_id == ^datagouv_id)
     |> order_by(desc: :inserted_at)
