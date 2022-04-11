@@ -5,6 +5,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   on our platform.
   """
   use Oban.Worker, max_attempts: 3
+  require Logger
   import Ecto.Query
   alias DB.{Dataset, Repo, Resource, ResourceHistory}
 
@@ -17,23 +18,25 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    run()
+    consolidate() |> update_files()
     :ok
   end
 
-  def run do
+  def consolidate do
     relevant_resources()
     |> Enum.group_by(&type/1)
-    |> Enum.into(%{}, fn {type, resources} ->
+    |> Enum.map(fn {type, resources} ->
+      details = resources |> Enum.map_join(&"#{&1.dataset.custom_title} (#{&1.title})", ", ")
+      Logger.info("Found #{Enum.count(resources)} resources for #{type}: #{details}")
       {type, consolidate_features(resources)}
     end)
-    |> update_files()
   end
 
   def update_files(consolidated_data) do
-    for type <- ~w(voies aires) do
+    consolidated_data
+    |> Enum.each(fn {type, data} ->
       filename = "#{type}.geojson"
-      path = write_file(consolidated_data |> Map.fetch!(type) |> Jason.encode!(), filename)
+      path = write_file(filename, data |> Jason.encode!())
 
       Datagouvfr.Client.Resources.update(%{
         "dataset_id" => @datagouv_dataset_id,
@@ -41,21 +44,38 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
         "resource_file" => %{path: path, filename: filename}
       })
 
+      Logger.info("Updated #{filename} on data.gouv.fr")
+
       File.rm!(path)
-    end
+    end)
   end
 
-  def write_file(content, filename) do
+  def write_file(filename, content) do
     dst_path = System.tmp_dir!() |> Path.join(filename)
+    Logger.info("Created #{dst_path}")
     dst_path |> File.write!(content)
     dst_path
   end
 
-  def type(%Resource{} = resource) do
+  def type(%Resource{dataset: %Dataset{type: "low-emission-zones"}} = resource) do
     if is_voie?(resource), do: "voies", else: "aires"
   end
 
-  def is_voie?(%Resource{url: url}) do
+  @doc """
+  ZFE files can be of 2 types:
+  - `aires` is a perimeter
+  - `voies` describes roads where rules may be different than what's described in a perimeter. They act as a kind of override.
+
+  The [schema](https://schema.data.gouv.fr/etalab/schema-zfe/) advises to name files according to their type
+
+  > Nous préconisons aux producteurs de données de publier leurs fichiers concernant les zones avec la règle de nommage suivante : zfe_zone_nom.geojson avec nom étant le nom de la collectivité productrice des données, par exemple zfe_zone_grenoble.geojson. Pour les fichiers concernant les voies spéciales : zfe_voie_speciale_nom.geojson, avec nom étant le nom de la collectivité productrice des données, par exemple zfe_voie_speciale_grenoble.geojson.
+
+  Unfortunately this is not followed by everyone so we cannot be strict about it.
+
+  The current logic looks for the keyword `voie` in the URL/filename.
+  We could also inspect the GeoJSON payload and look for `MultiLineString`|`MultiLine`
+  """
+  def is_voie?(%Resource{url: url, dataset: %Dataset{type: "low-emission-zones"}}) do
     url |> String.downcase() |> String.contains?("voie")
   end
 
@@ -70,6 +90,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
       [r],
       r.schema_name == @schema_name and fragment("(metadata->'validation'->>'has_errors')::bool = false")
     )
+    |> preload(:dataset)
     |> Repo.all()
   end
 
