@@ -12,8 +12,10 @@ defmodule Datagouvfr.Client.Resources do
   }
   @fields ["url", "format", "title", "filetype"]
 
-  # Update a file, without using the OAuth client, to update
-  # files published by the PAN org on data.gouv.fr
+  @doc """
+  Update a file, without using the OAuth client, to update
+  files published by the PAN org on data.gouv.fr.
+  """
   def update(
         %{"resource_file" => %{filename: filename, path: filepath}, "dataset_id" => _, "resource_id" => _} = params
       ) do

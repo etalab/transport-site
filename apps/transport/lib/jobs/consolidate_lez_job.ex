@@ -10,11 +10,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   alias DB.{Dataset, Repo, Resource, ResourceHistory}
 
   @schema_name "etalab/schema-zfe"
-  @datagouv_dataset_id "624ff4b1bbb449a550264040"
-  @datagouv_resources_ids %{
-    "voies" => "98c6bcdb-1205-4481-8859-f885290763f2",
-    "aires" => "3ddd29ee-00dd-40af-bc98-3367adbd0289"
-  }
+  @lez_dataset_type "low-emission-zones"
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
@@ -39,8 +35,8 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
       path = write_file(filename, data |> Jason.encode!())
 
       Datagouvfr.Client.Resources.update(%{
-        "dataset_id" => @datagouv_dataset_id,
-        "resource_id" => Map.fetch!(@datagouv_resources_ids, type),
+        "dataset_id" => Map.fetch!(consolidation_configuration(), :dataset_id),
+        "resource_id" => resource_id_for_type(type),
         "resource_file" => %{path: path, filename: filename}
       })
 
@@ -57,7 +53,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     dst_path
   end
 
-  def type(%Resource{dataset: %Dataset{type: "low-emission-zones"}} = resource) do
+  def type(%Resource{dataset: %Dataset{type: @lez_dataset_type}} = resource) do
     if is_voie?(resource), do: "voies", else: "aires"
   end
 
@@ -75,16 +71,18 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   The current logic looks for the keyword `voie` in the URL/filename.
   We could also inspect the GeoJSON payload and look for `MultiLineString`|`MultiLine`
   """
-  def is_voie?(%Resource{url: url, dataset: %Dataset{type: "low-emission-zones"}}) do
+  def is_voie?(%Resource{url: url, dataset: %Dataset{type: @lez_dataset_type}}) do
     url |> String.downcase() |> String.contains?("voie")
   end
 
   def relevant_resources do
+    own_publisher = pan_publisher()
+
     Resource
     |> join(:inner, [r], d in Dataset,
       on:
-        r.dataset_id == d.id and d.type == "low-emission-zones" and
-          d.organization != "Point d'Accès National transport.data.gouv.fr"
+        r.dataset_id == d.id and d.type == @lez_dataset_type and
+          d.organization != ^own_publisher
     )
     |> where(
       [r],
@@ -116,6 +114,18 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     |> order_by(desc: :inserted_at)
     |> limit(1)
     |> Repo.one!()
+  end
+
+  def pan_publisher do
+    Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+  end
+
+  def resource_id_for_type(type) do
+    consolidation_configuration() |> Map.fetch!(:resource_ids) |> Map.fetch!(type)
+  end
+
+  def consolidation_configuration do
+    Map.fetch!(Application.fetch_env!(:transport, :consolidation), :zfe)
   end
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()

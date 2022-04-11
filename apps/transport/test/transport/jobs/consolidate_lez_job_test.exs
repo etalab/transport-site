@@ -73,7 +73,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
     assert [zfe_aire.id, zfe_voies.id] == ConsolidateLEZsJob.relevant_resources() |> Enum.map(& &1.id)
   end
 
-  test "consolidate_features" do
+  test "consolidate_features and consolidate" do
     dataset = insert(:dataset, type: "low-emission-zones", organization: "Sample")
 
     zfe_aire =
@@ -110,17 +110,61 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
       }
     )
 
+    setup_http_mocks(permanent_url_aires, permanent_url_voies)
+
+    assert %{features: [["foo", "bar"], ["bar", "baz"]], type: "FeatureCollection"} ==
+             ConsolidateLEZsJob.consolidate_features([zfe_aire, zfe_voies])
+
+    setup_http_mocks(permanent_url_aires, permanent_url_voies)
+
+    assert [
+             {"aires", %{features: [["foo", "bar"]], type: "FeatureCollection"}},
+             {"voies", %{features: [["bar", "baz"]], type: "FeatureCollection"}}
+           ] == ConsolidateLEZsJob.consolidate()
+  end
+
+  test "update_files" do
+    data = [
+      {"aires", %{features: [["foo", "bar"]], type: "FeatureCollection"}},
+      {"voies", %{features: [["bar", "baz"]], type: "FeatureCollection"}}
+    ]
+
     Transport.HTTPoison.Mock
-    |> expect(:get!, fn ^permanent_url_aires, [], follow_redirect: true ->
+    |> expect(:request, fn :post, url, args, headers, [follow_redirect: true] ->
+      {:multipart, [{:file, path, {"form-data", [name: "file", filename: "aires.geojson"]}, []}]} = args
+      assert String.ends_with?(path, "aires.geojson")
+
+      assert url ==
+               "https://demo.data.gouv.fr/api/1/datasets/624ff4b1bbb449a550264040/resources/3ddd29ee-00dd-40af-bc98-3367adbd0289/upload/"
+
+      assert headers == [{"content-type", "multipart/form-data"}, {"X-API-KEY", nil}]
+      {:ok, %HTTPoison.Response{body: "", status_code: 200}}
+    end)
+
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :post, url, args, headers, [follow_redirect: true] ->
+      {:multipart, [{:file, path, {"form-data", [name: "file", filename: "voies.geojson"]}, []}]} = args
+      assert String.ends_with?(path, "voies.geojson")
+
+      assert url ==
+               "https://demo.data.gouv.fr/api/1/datasets/624ff4b1bbb449a550264040/resources/98c6bcdb-1205-4481-8859-f885290763f2/upload/"
+
+      assert headers == [{"content-type", "multipart/form-data"}, {"X-API-KEY", nil}]
+      {:ok, %HTTPoison.Response{body: "", status_code: 200}}
+    end)
+
+    ConsolidateLEZsJob.update_files(data)
+  end
+
+  defp setup_http_mocks(url_aires, url_voies) do
+    Transport.HTTPoison.Mock
+    |> expect(:get!, fn ^url_aires, [], follow_redirect: true ->
       %HTTPoison.Response{status_code: 200, body: ~s({"features": [["foo", "bar"]]})}
     end)
 
     Transport.HTTPoison.Mock
-    |> expect(:get!, fn ^permanent_url_voies, [], follow_redirect: true ->
+    |> expect(:get!, fn ^url_voies, [], follow_redirect: true ->
       %HTTPoison.Response{status_code: 200, body: ~s({"features": [["bar", "baz"]]})}
     end)
-
-    assert %{features: [["foo", "bar"], ["bar", "baz"]], type: "FeatureCollection"} ==
-             ConsolidateLEZsJob.consolidate_features([zfe_aire, zfe_voies])
   end
 end
