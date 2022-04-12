@@ -79,7 +79,7 @@ const bnlcLayer = new LeafletLayer({
         })
     ],
     layers: [],
-    getTooltip: ({ object }) => object && { html: object.properties.payload.nom_lieu }
+    getTooltip: ({ object }) => object && { html: object.properties.nom_lieu }
 })
 map.addLayer(bnlcLayer)
 let bnlcGeoJSON
