@@ -4,14 +4,16 @@
 <section>
   <div class="container">
     <div class="validation-title">
-      <h2><%= dgettext("validations", "Validation results")%></h2>
+      <h2><%= dgettext("validations", "Validation results") %></h2>
       <p>
         <%= dgettext("validations", "This report can be shared with") %>
-        <%= link(dgettext("validations", "this permanent link"), to: @current_url )%>.
+        <%= link(dgettext("validations", "this permanent link"), to: @current_url) %>.
       </p>
       <%= if is_final_state do %>
         <p class="small">
-          <%= dgettext("validations", "Validation performed at %{date}.", date: format_datetime(@validation.date, @locale)) %>
+          <%= dgettext("validations", "Validation performed at %{date}.",
+            date: format_datetime(@validation.date, @locale)
+          ) %>
         </p>
       <% end %>
     </div>
@@ -21,7 +23,7 @@
     <div class="container">
       <div class="panel">
         <%= if metadata["state"] == "waiting" do %>
-          <p><%= dgettext("validations", "Validation in progress. This page will be updated automatically.")%></p>
+          <p><%= dgettext("validations", "Validation in progress. This page will be updated automatically.") %></p>
         <% end %>
 
         <%= if metadata["state"] == "error" do %>
@@ -33,16 +35,21 @@
         <%= if metadata["state"] == "completed" do %>
           <%= if metadata["type"] == "gtfs-rt" do %>
             <% errors = Map.fetch!(details, "errors") %>
-            <% errors_error_level = errors |> Enum.filter(& Map.fetch!(&1, "severity") == "ERROR") %>
-            <% errors_warning_level = errors |> Enum.filter(& Map.fetch!(&1, "severity") == "WARNING") %>
+            <% errors_error_level = errors |> Enum.filter(&(Map.fetch!(&1, "severity") == "ERROR")) %>
+            <% errors_warning_level = errors |> Enum.filter(&(Map.fetch!(&1, "severity") == "WARNING")) %>
 
-            <%= TransportWeb.ValidationView.render("_errors_warnings_count.html", nb_errors: Map.fetch!(details, "errors_count"), nb_warnings: Map.fetch!(details, "warnings_count")) %>
+            <%= TransportWeb.ValidationView.render("_errors_warnings_count.html",
+              nb_errors: Map.fetch!(details, "errors_count"),
+              nb_warnings: Map.fetch!(details, "warnings_count")
+            ) %>
 
             <p>
-              <%= dgettext("validations", "Validation performed at %{date}.", date: format_datetime(@validation.date, @locale)) %>
+              <%= dgettext("validations", "Validation performed at %{date}.",
+                date: format_datetime(@validation.date, @locale)
+              ) %>
             </p>
 
-            <h4><%= dgettext("validations", "Feed details")%></h4>
+            <h4><%= dgettext("validations", "Feed details") %></h4>
             <ul>
               <li>
                 GTFS <a href={Map.fetch!(metadata, "gtfs_url")}><%= Map.fetch!(metadata, "gtfs_url") %></a>
@@ -54,43 +61,76 @@
 
             <div class="notification">
               <p>
-                <%= raw dgettext("validations", ~s(This validation concerns the given GTFS-RT feed and GTFS file and has been carried out using the <a href="%{validator_url}" target="_blank">CUTR GTFS-RT validator</a>. It does not validate the GTFS itself. You can validate your GTFS file <a href="%{gtfs_validator}">using our GTFS validator</a>.), gtfs_validator: TransportWeb.Router.Helpers.live_path(@socket, TransportWeb.Live.OnDemandValidationSelectLive, type: "gtfs"), validator_url: TransportWeb.ResourceView.gtfs_rt_validator_url()) %>
+                <%= raw(
+                  dgettext(
+                    "validations",
+                    ~s(This validation concerns the given GTFS-RT feed and GTFS file and has been carried out using the <a href="%{validator_url}" target="_blank">CUTR GTFS-RT validator</a>. It does not validate the GTFS itself. You can validate your GTFS file <a href="%{gtfs_validator}">using our GTFS validator</a>.),
+                    gtfs_validator:
+                      TransportWeb.Router.Helpers.live_path(@socket, TransportWeb.Live.OnDemandValidationSelectLive,
+                        type: "gtfs"
+                      ),
+                    validator_url: TransportWeb.ResourceView.gtfs_rt_validator_url()
+                  )
+                ) %>
               </p>
               <p>
-                <%= dgettext("validations", ~s(GTFS-RT feeds change in real-time. This validation report shows the validation result performed at %{date}. You can relaunch a validation later on and get different results.), date: format_datetime(@validation.date, @locale)) %>
+                <%= dgettext(
+                  "validations",
+                  ~s(GTFS-RT feeds change in real-time. This validation report shows the validation result performed at %{date}. You can relaunch a validation later on and get different results.),
+                  date: format_datetime(@validation.date, @locale)
+                ) %>
               </p>
             </div>
 
             <%= unless Enum.empty?(errors_error_level) do %>
-              <h4><%= dgettext("validations", "Errors")%></h4>
-              <%= TransportWeb.ValidationView.render "_gtfs_rt_errors_for_severity.html", errors_for_severity: errors_error_level %>
+              <h4><%= dgettext("validations", "Errors") %></h4>
+              <%= TransportWeb.ValidationView.render("_gtfs_rt_errors_for_severity.html",
+                errors_for_severity: errors_error_level
+              ) %>
             <% end %>
 
             <%= unless Enum.empty?(errors_warning_level) do %>
-              <h4><%= dgettext("validations", "Warnings")%></h4>
-                <%= TransportWeb.ValidationView.render "_gtfs_rt_errors_for_severity.html", errors_for_severity: errors_warning_level %>
+              <h4><%= dgettext("validations", "Warnings") %></h4>
+              <%= TransportWeb.ValidationView.render("_gtfs_rt_errors_for_severity.html",
+                errors_for_severity: errors_warning_level
+              ) %>
             <% end %>
-            <%= TransportWeb.ResourceView.render("_gtfs_rt.html", gtfs_rt_feed: @gtfs_rt_feed, entities_seen_recently: nil, locale: @locale) %>
+            <%= TransportWeb.ResourceView.render("_gtfs_rt.html",
+              gtfs_rt_feed: @gtfs_rt_feed,
+              entities_seen_recently: nil,
+              locale: @locale
+            ) %>
           <% end %>
 
           <%= if metadata["type"] in ["tableschema", "jsonschema"] do %>
             <% max_display_errors = 50 %>
             <p>
-              <%= raw dgettext("validations", ~s(This resource should follow its schema %{link}.), link: safe_to_string(link(metadata["schema_name"], to: Transport.Shared.Schemas.schema_url(metadata["schema_name"], "latest"), target: "_blank"))) %>
+              <%= raw(
+                dgettext("validations", ~s(This resource should follow its schema %{link}.),
+                  link:
+                    safe_to_string(
+                      link(metadata["schema_name"],
+                        to: Transport.Shared.Schemas.schema_url(metadata["schema_name"], "latest"),
+                        target: "_blank"
+                      )
+                    )
+                )
+              ) %>
             </p>
             <p>
               <b>
-              <% nb_errors = details["errors_count"] %>
-              <%= if nb_errors == 0 do %>
-                <span class="icon--validation">✅</span><%= dgettext("validations", "No error detected") %>
-              <% else %>
-                <span class="icon--validation">❌</span><%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
-              <% end %>
+                <% nb_errors = details["errors_count"] %>
+                <%= if nb_errors == 0 do %>
+                  <span class="icon--validation">✅</span><%= dgettext("validations", "No error detected") %>
+                <% else %>
+                  <span class="icon--validation">❌</span>
+                  <%= "#{nb_errors} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+                <% end %>
               </b>
             </p>
 
             <%= if nb_errors > 0 do %>
-              <p><%= dgettext("validations", "Errors:")%></p>
+              <p><%= dgettext("validations", "Errors:") %></p>
               <ul>
                 <%= for error <- details["errors"] |> Enum.take(max_display_errors) do %>
                   <li><%= error %></li>
@@ -98,7 +138,7 @@
               </ul>
 
               <%= if nb_errors > max_display_errors do %>
-                <p><%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors)%></p>
+                <p><%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors) %></p>
               <% end %>
             <% end %>
           <% end %>
@@ -112,4 +152,5 @@
     </div>
   </div>
 </section>
-<script defer type="text/javascript" src="/js/app.js"></script>
+<script defer type="text/javascript" src="/js/app.js">
+</script>

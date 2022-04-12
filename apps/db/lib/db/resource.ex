@@ -53,6 +53,9 @@ defmodule DB.Resource do
     field(:end_date, :date)
 
     field(:filesize, :integer)
+    # Can be `remote` or `file`. `file` are for files uploaded and hosted
+    # on data.gouv.fr
+    field(:filetype, :string)
 
     belongs_to(:dataset, Dataset)
     has_one(:validation, Validation, on_replace: :delete)
@@ -431,7 +434,8 @@ defmodule DB.Resource do
         :original_resource_url,
         :content_hash,
         :description,
-        :filesize
+        :filesize,
+        :filetype
       ]
     )
     |> validate_required([:url, :datagouv_id])

@@ -59,7 +59,7 @@ defmodule DB.ResourceUnavailability do
       |> where(
         [r],
         fragment(
-          ~s["end" IS NULL OR "end" between now() - '1 day'::interval * ? and now()],
+          ~s["end" IS NULL OR "end" between (now() at time zone 'UTC') - '1 day'::interval * ? and (now() at time zone 'UTC')],
           ^nb_days
         )
       )

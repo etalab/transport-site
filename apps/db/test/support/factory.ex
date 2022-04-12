@@ -92,6 +92,10 @@ defmodule DB.Factory do
     %DB.Validation{}
   end
 
+  def geo_data_import_factory do
+    %DB.GeoDataImport{}
+  end
+
   # Non-Ecto stuff, for now kept here for convenience
 
   def datagouv_api_get_factory do

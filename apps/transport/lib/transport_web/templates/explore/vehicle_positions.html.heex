@@ -1,9 +1,16 @@
 <% real_time_datasets = dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime") %>
 <div class="container dataset-page-top">
-    <h2><%= dgettext("explore", "GTFS-RT vehicle positions") %></h2>
-    <p><%= raw dgettext("explore", "beta-explanation", link: safe_to_string(link(dgettext("explore", "GTFS-RT feeds referenced on this site"), to: real_time_datasets))) %></p>
+  <h2><%= dgettext("explore", "GTFS-RT vehicle positions") %></h2>
+  <p>
+    <%= raw(
+      dgettext("explore", "beta-explanation",
+        link: safe_to_string(link(dgettext("explore", "GTFS-RT feeds referenced on this site"), to: real_time_datasets))
+      )
+    ) %>
+  </p>
 </div>
 
 <div id="map" class="explore_map"></div>
 
-<script src={static_path(@conn, "/js/explore.js")}></script>
+<script src={static_path(@conn, "/js/explore.js")}>
+</script>
