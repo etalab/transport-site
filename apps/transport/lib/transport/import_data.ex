@@ -351,6 +351,7 @@ defmodule Transport.ImportData do
         # For ODS gtfs as csv we do not have a 'latest' field
         # (the 'latest' field is the stable data.gouv.fr url)
         "latest_url" => resource["latest"] || resource["url"],
+        "filetype" => resource["filetype"],
         "id" => existing_resource[:id],
         "datagouv_id" => resource["id"],
         "is_available" => availability_checker().available?(resource),
