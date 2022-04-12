@@ -13,7 +13,7 @@ defmodule DB.GeoData do
   end
 
   def geo_data_as_geojson(geo_data_import_id) do
-    subquery = from g in DB.GeoData, where: g.geo_data_import_id == ^geo_data_import_id
+    subquery = from g in DB.GeoData, where: g.geo_data_import_id == ^geo_data_import_id, select: %{geom: g.geom, nom_lieu: fragment("payload->>'nom_lieu'")}
 
     query =
       from(g in subquery(subquery),
