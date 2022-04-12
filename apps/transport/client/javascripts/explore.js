@@ -78,8 +78,8 @@ const bnlcLayer = new LeafletLayer({
             repeat: true
         })
     ],
-    layers: []
-    // getTooltip: ({ object }) => object && { html: `transport_resource: ${object.transport.resource_id}<br>id: ${object.vehicle.id}` }
+    layers: [],
+    getTooltip: ({ object }) => object && { html: object.properties.payload.nom_lieu }
 })
 map.addLayer(bnlcLayer)
 let bnlcGeoJSON
