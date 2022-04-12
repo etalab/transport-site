@@ -11,6 +11,7 @@ defmodule Transport.DataChecker do
   @update_data_doc_link "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
   @default_outdated_data_delays [0, 7, 14]
 
+  # TODO: add a test (this has been verified as useful)
   def inactive_data do
     # we first check if some inactive datasets have reapeared
     to_reactivate_datasets = get_to_reactivate_datasets()
@@ -45,6 +46,7 @@ defmodule Transport.DataChecker do
     |> Enum.filter(&Datasets.is_active?/1)
   end
 
+  # TODO: add test (very useful - the subpart is already tested)
   def outdated_data do
     for delay <- possible_delays(),
         date = Date.add(Date.utc_today(), delay) do
