@@ -121,8 +121,9 @@ extra_oban_conf =
       queues: [default: 2, heavy: 1, on_demand_validation: 1],
       plugins: [
         {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
-        {Oban.Plugins.Cron, crontab: List.flatten(oban_crontab_all_envs, non_staging_crontab)},
-        {Oban.Plugins.Lifeline, rescue_after: :timer.minutes(60)}
+        {Oban.Plugins.Cron, crontab: List.flatten(oban_crontab_all_envs, non_staging_crontab)}
+        # NOTE: disabled for now, to verify if this is the cause of staging worker crashes
+        # {Oban.Plugins.Lifeline, rescue_after: :timer.minutes(60)}
       ]
     ]
   end
