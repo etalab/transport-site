@@ -14,6 +14,10 @@ defmodule TransportWeb.BackofficeControllerTest do
     # we stub the mock with the real module here to keep the tests of this file unchanged.
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
     Mox.stub_with(Validation.Validator.Mock, Shared.Validation.GtfsValidator)
+    Mox.stub_with(Transport.AvailabilityChecker.Mock, Transport.AvailabilityChecker.Dummy)
+    Mox.stub_with(Hasher.Mock, Hasher.Dummy)
+    Mox.stub_with(Datagouvfr.Authentication.Mock, Datagouvfr.Authentication.Dummy)
+    Mox.stub_with(Datagouvfr.Client.User.Mock, Datagouvfr.Client.User.Dummy)
     :ok
   end
 
@@ -66,11 +70,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset with a region and AOM", %{conn: conn} do
     conn =
-      use_cassette "session/create-2" do
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
-      end
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     conn =
       use_cassette "dataset/dataset-region-ao.json" do
@@ -86,11 +88,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset without a region nor aom", %{conn: conn} do
     conn =
-      use_cassette "session/create-2" do
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
-      end
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     dataset = @dataset |> Map.put("region_id", nil) |> Map.put("insee", nil)
 
@@ -108,41 +108,53 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset linked to a region", %{conn: conn} do
     conn =
-      use_cassette "session/create-2" do
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
-      end
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
+
+    dataset_datagouv_id = "12"
 
     dataset =
       @dataset
       |> Map.put("region_id", Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes").id)
       |> Map.put("insee", nil)
 
-    Datagouvfr.Client.CommunityResources.Mock
-    |> expect(:get, fn id ->
-      # we return the same urls that the one we find in dataset-region.json cassette
-      # because for the moment the Hasher is not Mocked
-      # we it is the case, we will be able to put random urls here
-      assert id == "5760038cc751df708cac31a0"
+    Transport.HTTPoison.Mock
+    |> expect(:request, fn :get, _url, _, _, _ ->
+      {:ok, %HTTPoison.Response{body: %{"id" => dataset_datagouv_id} |> Jason.encode!(), status_code: 200}}
+    end)
 
+    Transport.HTTPoison.Mock
+    |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/12/", [], _ ->
+      body =
+        %{
+          "slug" => "dataset-slug",
+          "type" => "public-transit",
+          "id" => dataset_datagouv_id,
+          "resources" => [
+            %{
+              "url" => "url1",
+              "id" => "resource_datagouv_id",
+              "format" => "siri"
+            }
+          ]
+        }
+        |> Jason.encode!()
+
+      %HTTPoison.Response{body: body, status_code: 200}
+    end)
+
+    # we fetch 2 community resources
+    Datagouvfr.Client.CommunityResources.Mock
+    |> expect(:get, fn _dataset_id ->
       {:ok,
        [
-         %{
-           "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt.json",
-           "id" => "r1"
-         },
-         %{
-           "url" => "https://app-be8e53a7-9b77-4f95-bea0-681b97077017.cleverapps.io/metromobilite/gtfs-rt",
-           "id" => "r2"
-         }
+         %{"url" => "url2", "format" => "json", "id" => "resource_datagouv_id_2"},
+         %{"url" => "url3", "format" => "csv", "id" => "resource_datagouv_id_3"}
        ]}
     end)
 
-    conn =
-      use_cassette "dataset/dataset-region.json" do
-        post(conn, backoffice_dataset_path(conn, :post), dataset)
-      end
+    conn = post(conn, backoffice_dataset_path(conn, :post), dataset)
 
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> where([r], not r.is_community_resource) |> Repo.all() |> length() == 1
@@ -152,11 +164,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset linked to aom", %{conn: conn} do
     conn =
-      use_cassette "session/create-2" do
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
-      end
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     dataset = %{@dataset | "region_id" => nil}
 
@@ -194,11 +204,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset linked to cities", %{conn: conn} do
     conn =
-      use_cassette "session/create-2" do
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
-      end
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     dataset =
       @dataset_with_zones
@@ -218,11 +226,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset linked to cities and to the country", %{conn: conn} do
     conn =
-      use_cassette "session/create-2" do
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
-      end
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     dataset =
       @dataset_with_zones
@@ -248,11 +254,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset linked to an AO and with an empty territory name", %{conn: conn} do
     conn =
-      use_cassette "session/create-2" do
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
-      end
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     dataset =
       @dataset_with_zones
@@ -274,11 +278,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset linked to a region and to the country", %{conn: conn} do
     conn =
-      use_cassette "session/create-2" do
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
-      end
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     dataset =
       @dataset
@@ -300,11 +302,9 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   test "Add a dataset twice", %{conn: conn} do
     conn =
-      use_cassette "session/create-2" do
-        conn
-        |> init_test_session(redirect_path: "/datasets")
-        |> get(session_path(conn, :create, %{"code" => "secret"}))
-      end
+      conn
+      |> init_test_session(redirect_path: "/datasets")
+      |> get(session_path(conn, :create, %{"code" => "secret"}))
 
     resource_url = "http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip"
     dataset = %{@dataset | "region_id" => nil}
