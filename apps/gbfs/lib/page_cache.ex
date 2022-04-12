@@ -13,6 +13,22 @@ defmodule PageCache do
   - let the caller handle errors
   """
 
+  # For now we use an allowlist which we can expand.
+  # Make sure to avoid including "hop-by-hop" headers here.
+  # See https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-p1-messaging-14#section-7.1.3
+  # https://www.mnot.net/blog/2011/07/11/what_proxies_must_do
+  @forwarded_headers_allowlist [
+    "access-control-allow-credentials",
+    "access-control-allow-origin",
+    "access-control-expose-headers",
+    "content-type",
+    "content-length",
+    "date",
+    "last-modified",
+    "etag",
+    "location"
+  ]
+
   import Plug.Conn
   require Logger
 
@@ -22,7 +38,7 @@ defmodule PageCache do
     @moduledoc """
     The CacheEntry contains what is serialized in the cache currently.
     """
-    defstruct [:body, :content_type, :status]
+    defstruct [:body, :headers, :status]
   end
 
   def build_cache_key(request_path) do
@@ -52,15 +68,15 @@ defmodule PageCache do
     conn
     |> register_before_send(&save_to_cache(&1, options))
     |> assign(:page_cache_key, page_cache_key)
+    |> filter_out_headers()
     |> set_cache_control(options)
   end
 
   def handle_hit(conn, page_cache_key, options, value) do
     Logger.info("Cache hit for key #{page_cache_key}")
 
-    conn
-    # NOTE: not using put_resp_content_type because we would have to split on ";" for charset
-    |> put_resp_header("content-type", value.content_type)
+    value.headers
+    |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
     |> set_cache_control(options)
     |> send_resp(value.status, value.body)
     |> halt
@@ -81,11 +97,10 @@ defmodule PageCache do
     page_cache_key = conn.assigns.page_cache_key
     Logger.info("Persisting cache key #{page_cache_key} for status #{conn.status}")
 
-    # We will likely want to store status code and more headers shortly.
     value = %CacheEntry{
       body: conn.resp_body,
-      content_type: conn |> get_resp_header("content-type") |> Enum.at(0),
-      status: conn.status
+      status: conn.status,
+      headers: keep_relevant_headers(conn)
     }
 
     unless page_cache_disabled?() do
@@ -123,5 +138,17 @@ defmodule PageCache do
 
   def ttl_seconds(options) do
     options |> Keyword.fetch!(:ttl_seconds)
+  end
+
+  defp filter_out_headers(%Plug.Conn{resp_headers: headers} = conn) do
+    headers
+    |> Enum.reject(fn {header, _} -> Enum.member?(@forwarded_headers_allowlist, header) end)
+    |> Enum.reduce(conn, fn {header, _}, conn -> delete_resp_header(conn, header) end)
+  end
+
+  defp keep_relevant_headers(%Plug.Conn{resp_headers: headers}) do
+    headers
+    |> Enum.map(fn {h, v} -> {String.downcase(h), v} end)
+    |> Enum.filter(fn {h, _v} -> Enum.member?(@forwarded_headers_allowlist, h) end)
   end
 end

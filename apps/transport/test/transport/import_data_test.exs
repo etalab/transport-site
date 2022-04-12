@@ -17,6 +17,13 @@ defmodule Transport.ImportDataTest do
     :ok
   end
 
+  setup do
+    Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
+    Mox.stub_with(Transport.AvailabilityChecker.Mock, Transport.AvailabilityChecker)
+    Mox.stub_with(Hasher.Mock, Hasher)
+    :ok
+  end
+
   def generate_resources_payload(title \\ nil, url \\ nil, id \\ nil, schema_name \\ nil, schema_version \\ nil) do
     [
       %{

@@ -1,3 +1,30 @@
+defmodule Datagouvfr.Client.User.Wrapper do
+  @moduledoc """
+  A wrapper for the User module, useful for testing purposes
+  """
+  @callback me(Plug.Conn.t()) :: {:error, map()} | {:ok, map()}
+
+  def impl, do: Application.get_env(:datagouvfr, :user_impl)
+end
+
+defmodule Datagouvfr.Client.User.Dummy do
+  @moduledoc """
+  A dummy User, to avoid any communication with the Oauth Server.
+  """
+  @behaviour Datagouvfr.Client.User.Wrapper
+
+  @impl Datagouvfr.Client.User.Wrapper
+  def me(_),
+    do:
+      {:ok,
+       %{
+         "first_name" => "trotro",
+         "last_name" => "rigolo",
+         "id" => "user_id_1",
+         "organizations" => [%{"slug" => "equipe-transport-data-gouv-fr"}]
+       }}
+end
+
 defmodule Datagouvfr.Client.User do
   @moduledoc """
   An Client to retrieve User information of data.gouv.fr

@@ -23,19 +23,19 @@
     fr: |
         Les jeux de données référencés dans cette catégorie contiennent des flux d’information décrivant en **temps réel** l’état des réseaux de transports en commun.
 
-        Ils peuvent  nous renseigner sur l’état du trafic, l’horaire de passage réel d’un véhicule ou même de sa position en temps-réel.
+        Ils peuvent  nous renseigner sur l’état du trafic, l’horaire de passage réel d’un véhicule ou même de sa position en temps-réel (une [carte temps réel](/explore/vehicle-positions) affiche cette information).
 
         Deux standards de données peuvent être utilisés : le format [GTFS-RT](https://developers.google.com/transit/gtfs-realtime?hl=fr) ou le format [SIRI](https://www.siri-cen.eu/).
-        
-        Les fichiers non standardisés sont référencés sur [cette page](https://transport.data.gouv.fr/real_time).
-    en: |
-        The datasets referenced in this category contain information flows describing in real time the state of public transport networks.
 
-        They can tell us about traffic conditions, a vehicle's actual passage time or even its position in real time.
+        Les flux non standardisés sont référencés sur [cette page](/real_time).
+    en: |
+        The datasets referenced in this category contain information flows describing in real-time the state of public transport networks.
+
+        They can tell us about traffic conditions, a vehicle's actual passage time or even its position in real-time (a [real-time map](/explore/vehicle-positions) displays these vehicles).
 
         Two data standards can be used: the [GTFS-RT format](https://developers.google.com/transit/gtfs-realtime) or the [SIRI format](https://www.siri-cen.eu/).
-        
-        The non-standardized files are referenced on [this page](https://transport.data.gouv.fr/real_time).
+
+        Non-standardized feeds are referenced on [this page](/real_time).
 
 - category: public-transit
   search_params:
@@ -120,10 +120,14 @@
 
         Ces données respectent le [schéma national des aires de covoiturage](https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/).
 
+        Pour contribuer à cette base, vous pouvez utiliser [cet outil](https://contribuer.transport.data.gouv.fr/).
+
     en: |
         The datasets in this category describe carpooling areas in France.
 
         These data comply with the [national schema for carpooling areas](https://schema.data.gouv.fr/etalab/schema-lieux-covoiturage/).
+
+        To contribute to this database, you can use [this tool](https://contribuer.transport.data.gouv.fr/).
 
 - category: bike-scooter-sharing
   search_params:
@@ -196,7 +200,7 @@
         This category contains public transport data describing the transport offer of national and regional rail networks.
 
         Two data standards can be used: the [GTFS format](https://developers.google.com/transit/gtfs) or the [NeTEx format](http://netex-cen.eu/).
-        
+
 - category: bike-way
   search_params:
     - key: type
@@ -204,7 +208,7 @@
   msg:
     fr: |
         Les jeux de données de cette catégorie décrivent les réseaux cyclables en France. Tous les aménagements (pistes, bandes, voies vertes, vélo rue...) destinés à être empuntés par des vélos peuvent être représentés selon le [schéma national](https://schema.data.gouv.fr/etalab/schema-amenagements-cyclables/latest.html).
-        
+
         Une base nationale extraite d'[OpenStreetMap](https://www.openstreetmap.org/) par [GéoVélo](https://geovelo.fr/) respectant le schéma national [est disponible](https://transport.data.gouv.fr/datasets/amenagements-cyclables-france-metropolitaine/).
 
     en: |
@@ -219,7 +223,7 @@
   msg:
     fr: |
         Les jeux de données de cette catégorie décrivent les équipements de stationnement cyclable en France. Tous les équipements (arceaux, racks, box...) destinés à être utilisés pour stationner des vélos peuvent être représentés selon le [schéma national](https://schema.data.gouv.fr/etalab/schema-stationnement-cyclable/).
-        
+
         Une base nationale extraite d'[OpenStreetMap](https://www.openstreetmap.org/) par [GéoDataMine](https://geodatamine.fr/) respectant le schéma national [est disponible](https://transport.data.gouv.fr/datasets/stationnements-cyclables-issus-dopenstreetmap/).
 
     en: |
