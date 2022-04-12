@@ -1,7 +1,8 @@
 import { Socket } from 'phoenix'
 import Leaflet from 'leaflet'
 import { LeafletLayer } from 'deck.gl-leaflet'
-import { ScatterplotLayer } from '@deck.gl/layers'
+import { ScatterplotLayer, GeoJsonLayer } from '@deck.gl/layers'
+
 import { MapView } from '@deck.gl/core'
 
 const socket = new Socket('/socket', { params: { token: window.userToken } })
@@ -68,6 +69,56 @@ channel.on('vehicle-positions', payload => {
     } else {
         layers[payload.resource_id] = prepareLayer(payload.resource_id, payload.vehicle_positions)
         deckLayer.setProps({ layers: Object.values(layers) })
+    }
+})
+
+const bnlcLayer = new LeafletLayer({
+    views: [
+        new MapView({
+            repeat: true
+        })
+    ],
+    layers: []
+    // getTooltip: ({ object }) => object && { html: `transport_resource: ${object.transport.resource_id}<br>id: ${object.vehicle.id}` }
+})
+map.addLayer(bnlcLayer)
+let bnlcGeoJSON
+
+const checkbox = document.getElementById('bnlc-check')
+checkbox.addEventListener('change', (event) => {
+    if (event.currentTarget.checked) {
+        if (bnlcGeoJSON) {
+            const geojsonLayer = createBNLCLayer(bnlcGeoJSON)
+            bnlcLayer.setProps({ layers: [geojsonLayer] })
+        } else {
+            fetch('/api/geo-query?data=bnlc')
+                .then(data => data.json())
+                .then(geojson => {
+                    bnlcGeoJSON = geojson
+                    const geojsonLayer = createBNLCLayer(bnlcGeoJSON)
+                    bnlcLayer.setProps({ layers: [geojsonLayer] })
+                }
+                )
+        }
+    } else {
+        bnlcLayer.setProps({ layers: [] })
+    }
+
+    function createBNLCLayer (geojson) {
+        return new GeoJsonLayer({
+            id: 'bnlc-layer',
+            data: geojson,
+            pickable: true,
+            stroked: false,
+            filled: true,
+            extruded: true,
+            pointType: 'circle',
+            getFillColor: [160, 160, 180, 200],
+            getPointRadius: 100,
+            pointRadiusUnits: 'meters',
+            pointRadiusMinPixels: 2,
+            pointRadiusMaxPixels: 10
+        })
     }
 })
 
