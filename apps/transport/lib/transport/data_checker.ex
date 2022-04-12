@@ -53,33 +53,6 @@ defmodule Transport.DataChecker do
     |> Enum.reject(fn {_, d} -> d == [] end)
     |> send_outdated_data_mail()
     |> Enum.map(fn x -> send_outdated_data_notifications(x) end)
-
-    # |> post_outdated_data_comments(blank)
-  end
-
-  def post_outdated_data_comments(delays_datasets) do
-    case Enum.find(delays_datasets, fn {delay, _} -> delay == 7 end) do
-      nil ->
-        Logger.info("No datasets need a comment about outdated resources")
-
-      {delay, datasets} ->
-        Enum.map(datasets, fn r -> post_outdated_data_comment(r, delay) end)
-    end
-  end
-
-  def post_outdated_data_comment(dataset, delay) do
-    Discussions.post(
-      dataset.datagouv_id,
-      "Jeu de données arrivant à expiration",
-      """
-      Bonjour,
-      Ce jeu de données arrive à expiration dans #{delay} jour#{if delay != 1 do
-        "s"
-      end}.
-      Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour prochainement.
-      L’équipe transport.data.gouv.fr
-      """
-    )
   end
 
   def possible_delays do
