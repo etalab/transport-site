@@ -3,6 +3,10 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   Consolidates a low emission zones' national database
   using valid `etalab/schema-zfe` resources published
   on our platform.
+
+  Preferred way to run for now (until we have more safeguards!):
+  - in iex, run `consolidate()`, look at logs and inspect the files
+  - run the Oban job to consolidate and update files on data.gouv.fr
   """
   use Oban.Worker, max_attempts: 3
   require Logger
