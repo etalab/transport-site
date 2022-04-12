@@ -5,11 +5,9 @@ defmodule TransportWeb.AtomController do
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params) do
-    two_month_ago =
-      NaiveDateTime.utc_now()
-      |> NaiveDateTime.add(-15 * 24 * 3600)
+    two_weeks_ago = NaiveDateTime.utc_now() |> NaiveDateTime.add(-15 * 24 * 3600)
 
-    resources = get_recently_updated_resources(two_month_ago)
+    resources = get_recently_updated_resources(two_weeks_ago)
 
     conn
     |> put_layout(false)
