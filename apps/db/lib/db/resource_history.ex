@@ -25,6 +25,8 @@ defmodule DB.ResourceHistory do
     |> limit(1)
   end
 
+  def latest_resource_history(%DB.Resource{id: id}), do: latest_resource_history(id)
+
   def latest_resource_history(resource_id) do
     resource_id
     |> latest_resource_history_query

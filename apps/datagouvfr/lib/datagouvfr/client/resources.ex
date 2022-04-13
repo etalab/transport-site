@@ -12,6 +12,20 @@ defmodule Datagouvfr.Client.Resources do
   }
   @fields ["url", "format", "title", "filetype"]
 
+  @doc """
+  Update a file, without using the OAuth client, to update
+  files published by the PAN org on data.gouv.fr.
+  """
+  def update(
+        %{"resource_file" => %{filename: filename, path: filepath}, "dataset_id" => _, "resource_id" => _} = params
+      ) do
+    API.post(
+      make_path(params, ["upload"]),
+      multipart_upload(filepath, filename),
+      [{"content-type", "multipart/form-data"}, API.api_key_headers()]
+    )
+  end
+
   # Update function #1
   # For a resource having an uploaded file.
   # It can be an existing resource update or a new resource
@@ -106,16 +120,11 @@ defmodule Datagouvfr.Client.Resources do
   end
 
   @spec upload_query(Plug.Conn.t(), map()) :: Client.oauth2_response()
-  defp upload_query(conn, %{"resource_file" => %{path: file_path, filename: file_name}} = params) do
+  defp upload_query(conn, %{"resource_file" => %{path: filepath, filename: filename}} = params) do
     Client.post(
       conn,
       make_path(params, ["upload"]),
-      # found here how to properly upload the file: https://github.com/edgurgel/httpoison/issues/237
-      # (the underlying lib is the same: hackney)
-      {:multipart,
-       [
-         {:file, file_path, {"form-data", [{:name, "file"}, {:filename, file_name}]}, []}
-       ]},
+      multipart_upload(filepath, filename),
       [{"content-type", "multipart/form-data"}]
     )
   end
@@ -129,4 +138,13 @@ defmodule Datagouvfr.Client.Resources do
     do: Path.join(["datasets", d_id, "resources", r_id] ++ suffix)
 
   defp make_path(%{"dataset_id" => d_id}, suffix), do: Path.join(["datasets", d_id] ++ suffix)
+
+  defp multipart_upload(filepath, filename) do
+    # Found here how to properly upload the file: https://github.com/edgurgel/httpoison/issues/237
+    # (the underlying lib is the same: hackney)
+    {:multipart,
+     [
+       {:file, filepath, {"form-data", [{:name, "file"}, {:filename, filename}]}, []}
+     ]}
+  end
 end

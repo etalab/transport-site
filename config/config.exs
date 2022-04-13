@@ -114,6 +114,19 @@ config :transport,
   schemas_impl: Transport.Shared.Schemas,
   hasher_impl: Hasher
 
+# Datagouv IDs for national databases created automatically.
+# These are IDs used in staging, demo.data.gouv.fr
+config :transport,
+  consolidation: %{
+    zfe: %{
+      dataset_id: "624ff4b1bbb449a550264040",
+      resource_ids: %{
+        "voies" => "98c6bcdb-1205-4481-8859-f885290763f2",
+        "aires" => "3ddd29ee-00dd-40af-bc98-3367adbd0289"
+      }
+    }
+  }
+
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API,
   authentication_impl: Datagouvfr.Authentication,
