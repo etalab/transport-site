@@ -10,6 +10,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   """
   use Oban.Worker, max_attempts: 3
   require Logger
+  import DB.ResourceHistory, only: [latest_resource_history: 1]
   import Ecto.Query
   alias DB.{Dataset, Repo, Resource, ResourceHistory}
 
@@ -115,14 +116,6 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
 
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, [], follow_redirect: true)
     body |> Jason.decode!() |> Map.fetch!("features")
-  end
-
-  defp latest_resource_history(%Resource{datagouv_id: datagouv_id}) do
-    ResourceHistory
-    |> where([rh], rh.datagouv_id == ^datagouv_id)
-    |> order_by(desc: :inserted_at)
-    |> limit(1)
-    |> Repo.one!()
   end
 
   def pan_publisher do
