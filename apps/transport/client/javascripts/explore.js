@@ -49,29 +49,45 @@ function prepareLayer (layerId, layerData) {
     })
 }
 
-const deckLayer = new LeafletLayer({
-    views: [
-        new MapView({
-            repeat: true
-        })
-    ],
-    layers: [],
-    getTooltip: ({ object }) => object && { html: `transport_resource: ${object.transport.resource_id}<br>id: ${object.vehicle.id}` }
-})
-map.addLayer(deckLayer)
+function addGtfsrtLayer () {
+    const gtfsrtLayer = new LeafletLayer({
+        views: [
+            new MapView({
+                repeat: true
+            })
+        ],
+        layers: [],
+        visible: false,
+        getTooltip: ({ object }) => object && { html: `transport_resource: ${object.transport.resource_id}<br>id: ${object.vehicle.id}` }
+    })
+    map.addLayer(gtfsrtLayer)
 
-// internal dictionary
-const layers = {}
+    // internal dictionary
+    const layers = {}
 
-channel.on('vehicle-positions', payload => {
-    if (payload.error) {
-        console.log(`Resource ${payload.resource_id} failed to load`)
+    channel.on('vehicle-positions', payload => {
+        if (payload.error) {
+            console.log(`Resource ${payload.resource_id} failed to load`)
+        } else {
+            layers[payload.resource_id] = prepareLayer(payload.resource_id, payload.vehicle_positions)
+            gtfsrtLayer.setProps({ layers: Object.values(layers) })
+        }
+    })
+    return gtfsrtLayer
+}
+
+// handle GTFS-RT toggle
+let gtfsrtLayer = addGtfsrtLayer()
+const gtfsrtCheckbox = document.getElementById('gtfs-rt-check')
+gtfsrtCheckbox.addEventListener('change', (event) => {
+    if (event.currentTarget.checked) {
+        gtfsrtLayer = addGtfsrtLayer()
     } else {
-        layers[payload.resource_id] = prepareLayer(payload.resource_id, payload.vehicle_positions)
-        deckLayer.setProps({ layers: Object.values(layers) })
+        map.removeLayer(gtfsrtLayer)
     }
 })
 
+// BNLC
 const bnlcLayer = new LeafletLayer({
     views: [
         new MapView({
