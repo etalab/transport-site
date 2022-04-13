@@ -451,8 +451,20 @@ defmodule TransportWeb.DatasetView do
   def schema_label(%{schema_name: schema_name}), do: schema_name
 
   def download_url(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
-    if Resource.can_direct_download?(resource), do: resource.url, else: resource_path(conn, :download, resource.id)
+    cond do
+      needs_stable_url?(resource) -> resource.latest_url
+      Resource.can_direct_download?(resource) -> resource.url
+      true -> resource_path(conn, :download, resource.id)
+    end
   end
+
+  defp needs_stable_url?(%DB.Resource{latest_url: nil}), do: false
+
+  defp needs_stable_url?(%DB.Resource{url: url, filetype: "file"}) do
+    Enum.member?(["static.data.gouv.fr", "demo-static.data.gouv.fr"], URI.parse(url).host)
+  end
+
+  defp needs_stable_url?(%DB.Resource{}), do: false
 
   def has_validity_period?(history_resources) when is_list(history_resources) do
     history_resources |> Enum.map(&has_validity_period?/1) |> Enum.any?()

@@ -65,4 +65,37 @@ defmodule TransportWeb.DatasetViewTest do
     assert get_resource_to_display(dataset_title_geojson).id == 1
     assert get_resource_to_display(dataset_only_roads) == nil
   end
+
+  test "download url", %{conn: conn} do
+    # Files hosted on data.gouv.fr
+    assert download_url(conn, %DB.Resource{
+             filetype: "file",
+             url: "https://demo-static.data.gouv.fr/resources/base-nationale-zfe/20220412-121638/voies.geojson",
+             latest_url: latest_url = "https://demo.data.gouv.fr/fake_stable_url"
+           }) == latest_url
+
+    assert download_url(conn, %DB.Resource{
+             filetype: "file",
+             url: "https://static.data.gouv.fr/resources/base-nationale-zfe/20220412-121638/voies.geojson",
+             latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
+           }) == latest_url
+
+    # File not hosted on data.gouv.fr
+    assert download_url(conn, %DB.Resource{filetype: "file", url: url = "https://data.example.com/voies.geojson"}) ==
+             url
+
+    # Remote filetype / can direct download
+    assert download_url(conn, %DB.Resource{filetype: "remote", url: url = "https://data.example.com/data"}) == url
+    # http URL
+    assert download_url(conn, %DB.Resource{id: id = 1, filetype: "remote", url: "http://data.example.com/data"}) ==
+             resource_path(conn, :download, id)
+
+    # file hosted on GitHub
+    assert download_url(conn, %DB.Resource{
+             id: id = 1,
+             filetype: "remote",
+             url:
+               "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/898dc67fb19fae2464c24a85a0557e8ccce18791/bnlc-.csv"
+           }) == resource_path(conn, :download, id)
+  end
 end
