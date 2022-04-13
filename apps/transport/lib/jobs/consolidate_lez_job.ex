@@ -36,26 +36,31 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     consolidated_data
     |> Enum.each(fn {type, data} ->
       filename = "#{type}.geojson"
-      path = write_file(filename, data |> Jason.encode!())
+      filepath = tmp_filepath(filename)
 
-      Datagouvfr.Client.Resources.update(%{
-        "dataset_id" => Map.fetch!(consolidation_configuration(), :dataset_id),
-        "resource_id" => resource_id_for_type(type),
-        "resource_file" => %{path: path, filename: filename}
-      })
+      try do
+        write_file(filepath, data |> Jason.encode!())
 
-      Logger.info("Updated #{filename} on data.gouv.fr")
+        Datagouvfr.Client.Resources.update(%{
+          "dataset_id" => Map.fetch!(consolidation_configuration(), :dataset_id),
+          "resource_id" => resource_id_for_type(type),
+          "resource_file" => %{path: filepath, filename: filename}
+        })
 
-      File.rm!(path)
+        Logger.info("Updated #{filename} on data.gouv.fr")
+      after
+        File.rm(filepath)
+      end
     end)
   end
 
-  def write_file(filename, content) do
-    dst_path = System.tmp_dir!() |> Path.join(filename)
-    Logger.info("Created #{dst_path}")
-    dst_path |> File.write!(content)
-    dst_path
+  def write_file(filepath, content) do
+    Logger.info("Created #{filepath}")
+    filepath |> File.write!(content)
   end
+
+  def tmp_filepath(filename) when filename in ["aires.geojson", "voies.geojson"],
+    do: Path.join(System.tmp_dir!(), filename)
 
   def type(%Resource{dataset: %Dataset{type: @lez_dataset_type}} = resource) do
     if is_voie?(resource), do: "voies", else: "aires"

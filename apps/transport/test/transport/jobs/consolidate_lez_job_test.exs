@@ -154,6 +154,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
     end)
 
     ConsolidateLEZsJob.update_files(data)
+
+    refute File.exists?(ConsolidateLEZsJob.tmp_filepath("voies.geojson"))
+    refute File.exists?(ConsolidateLEZsJob.tmp_filepath("aires.geojson"))
   end
 
   defp setup_http_mocks(url_aires, url_voies) do
