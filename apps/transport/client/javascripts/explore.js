@@ -113,8 +113,7 @@ checkbox.addEventListener('change', (event) => {
                     bnlcGeoJSON = geojson
                     const geojsonLayer = createBNLCLayer(bnlcGeoJSON)
                     bnlcLayer.setProps({ layers: [geojsonLayer] })
-                }
-                )
+                })
         }
     } else {
         bnlcLayer.setProps({ layers: [] })
