@@ -458,6 +458,8 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
+  defp needs_stable_url?(%DB.Resource{latest_url: nil}), do: false
+
   defp needs_stable_url?(%DB.Resource{url: url, filetype: "file"}) do
     Enum.member?(["static.data.gouv.fr", "demo-static.data.gouv.fr"], URI.parse(url).host)
   end
