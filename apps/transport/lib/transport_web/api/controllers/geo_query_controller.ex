@@ -13,10 +13,15 @@ defmodule TransportWeb.API.GeoQueryController do
 
       id
       |> DB.GeoDataImport.dataset_latest_geo_data_import()
-      |> DB.GeoData.geo_data_as_geojson()
+      |> geo_data_as_bnlc_geojson()
     end
 
     geojson = Transport.Cache.API.fetch(:bnlc_data, get_geojson)
     conn |> json(geojson)
+  end
+
+  def geo_data_as_bnlc_geojson(geo_data_import) do
+    add_bnlc_fields = fn query -> from(g in query, select_merge: %{nom_lieu: fragment("payload->>'nom_lieu'")}) end
+    DB.GeoData.geo_data_as_geojson(geo_data_import, add_bnlc_fields)
   end
 end

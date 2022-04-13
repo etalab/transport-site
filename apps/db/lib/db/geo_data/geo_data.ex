@@ -12,12 +12,15 @@ defmodule DB.GeoData do
     belongs_to(:geo_data_import, DB.GeoDataImport)
   end
 
-  def geo_data_as_geojson(%{id: geo_data_import_id}) do
-    subquery =
-      from(g in DB.GeoData,
-        where: g.geo_data_import_id == ^geo_data_import_id,
-        select: %{geom: g.geom, nom_lieu: fragment("payload->>'nom_lieu'")}
-      )
+  defp geo_data_subquery_init(geo_data_import_id) do
+    from(g in DB.GeoData,
+      where: g.geo_data_import_id == ^geo_data_import_id,
+      select: %{geom: g.geom}
+    )
+  end
+
+  def geo_data_as_geojson(%{id: geo_data_import_id}, add_fields_func) do
+    subquery = geo_data_import_id |> geo_data_subquery_init() |> add_fields_func.()
 
     query =
       from(g in subquery(subquery),
