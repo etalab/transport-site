@@ -94,4 +94,15 @@ defmodule Hasher do
     |> File.stream!([], 2048)
     |> compute_checksum(:sha256)
   end
+
+  def zip_hash(zip_metadata) when is_list(zip_metadata) do
+    zip_metadata
+    |> Enum.sort_by(&map_get(&1, :sha256))
+    |> Stream.map(&map_get(&1, :sha256))
+    |> compute_checksum(:sha256)
+  end
+
+  defp map_get(map, key) when is_atom(key) do
+    Map.get(map, key) || Map.get(map, to_string(key))
+  end
 end

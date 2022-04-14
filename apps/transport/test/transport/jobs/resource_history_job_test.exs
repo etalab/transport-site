@@ -215,7 +215,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     test "a simple successful case for a GTFS" do
       resource_url = "https://example.com/gtfs.zip"
 
-      %{datagouv_id: datagouv_id, dataset_id: dataset_id, metadata: resource_metadata, title: title} =
+      %{datagouv_id: datagouv_id, dataset_id: dataset_id, title: title, content_hash: first_content_hash} =
+        resource =
         insert(:resource,
           url: resource_url,
           dataset: insert(:dataset, is_active: true),
@@ -223,6 +224,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           title: "title",
           datagouv_id: "1",
           is_community_resource: false,
+          content_hash: "first_hash",
           metadata: %{"foo" => "bar"}
         )
 
@@ -236,6 +238,19 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
            body: @gtfs_content,
            headers: [{"Content-Type", "application/octet-stream"}, {"x-foo", "bar"}]
          }}
+      end)
+
+      validator_metadata = %{
+        "start_date" => "2021-12-04",
+        "end_date" => "2022-04-24",
+        "modes" => ["bus"],
+        "networks" => ["Autocars RESALP"]
+      }
+
+      # Validator should be called because resource was never historicised
+      Validation.Validator.Mock
+      |> expect(:validate_from_url, fn ^resource_url ->
+        {:ok, %{"validations" => %{}, "metadata" => validator_metadata}}
       end)
 
       Transport.ExAWS.Mock
@@ -280,7 +295,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  "dataset_id" => ^dataset_id,
                  "format" => "GTFS",
                  "http_headers" => %{"content-type" => "application/octet-stream"},
-                 "resource_metadata" => ^resource_metadata,
+                 "resource_metadata" => ^validator_metadata,
                  "total_compressed_size" => 2_370,
                  "total_uncompressed_size" => 10_685,
                  "title" => ^title,
@@ -295,6 +310,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       assert permanent_url == Transport.S3.permanent_url(:history, filename)
       refute is_nil(last_up_to_date_at)
+      %DB.Resource{content_hash: content_hash} = DB.Repo.reload(resource)
+      refute content_hash == first_content_hash
     end
 
     test "a simple successful case for a CSV" do

@@ -90,6 +90,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
     case should_store_resource?(resource, hash) do
       true ->
+        resource = validate_resource(resource, hash)
         filename = upload_filename(resource, download_datetime)
 
         base = %{
@@ -175,6 +176,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   def set_of_sha256(items) do
     items |> Enum.map(&{map_get(&1, :file_name), map_get(&1, :sha256)}) |> MapSet.new()
   end
+
+  defp to_content_hash(hash) when is_list(hash), do: Hasher.zip_hash(hash)
+  defp to_content_hash(hash) when is_binary(hash), do: hash
 
   defp resource_hash(%Resource{datagouv_id: datagouv_id} = resource, resource_path) do
     case is_zip?(resource) do
@@ -278,5 +282,11 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     ]
 
     headers |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v} end) |> Map.take(headers_to_keep)
+  end
+
+  defp validate_resource(%Resource{} = resource, new_hash) do
+    resource = resource |> Ecto.Changeset.change(%{content_hash: to_content_hash(new_hash)}) |> Repo.update!()
+    Resource.validate_and_save(resource, false)
+    Repo.reload(resource)
   end
 end
