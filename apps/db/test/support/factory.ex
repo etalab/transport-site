@@ -96,6 +96,10 @@ defmodule DB.Factory do
     %DB.GeoDataImport{}
   end
 
+  def geo_data_factory do
+    %DB.GeoData{}
+  end
+
   # Non-Ecto stuff, for now kept here for convenience
 
   def datagouv_api_get_factory do

@@ -52,6 +52,10 @@ defmodule TransportWeb.API.Router do
     scope "/notifications" do
       post("/clear_config_cache", TransportWeb.API.NotificationsController, :clear_config_cache)
     end
+
+    scope "/geo-query" do
+      get("/", TransportWeb.API.GeoQueryController, :index)
+    end
   end
 
   @spec swagger_info :: %{info: %{title: binary(), version: binary()}}
