@@ -205,7 +205,8 @@ defmodule Transport.DataChecker do
     """
   end
 
-  defp send_inactive_dataset_mail([], []), do: nil
+  # Do nothing if both lists are empty
+  defp send_inactive_dataset_mail([] = _reactivated_datasets, [] = _inactive_datasets), do: nil
 
   defp send_inactive_dataset_mail(reactivated_datasets, inactive_datasets) do
     Transport.EmailSender.impl().send_mail(
