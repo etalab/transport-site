@@ -2,7 +2,7 @@ defmodule Transport.DataChecker do
   @moduledoc """
   Use to check data, and act about it, like send email
   """
-  alias Datagouvfr.Client.{Datasets, Discussions}
+  alias Datagouvfr.Client.Datasets
   alias DB.{Dataset, Repo}
   import TransportWeb.Router.Helpers
   import Ecto.Query
