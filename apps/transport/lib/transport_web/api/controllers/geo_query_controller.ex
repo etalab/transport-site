@@ -16,7 +16,7 @@ defmodule TransportWeb.API.GeoQueryController do
       |> geo_data_as_bnlc_geojson()
     end
 
-    geojson = Transport.Cache.API.fetch(:bnlc_data, get_geojson, 3600)
+    geojson = Transport.Cache.API.fetch(:bnlc_data, get_geojson, :timer.hours(1))
     conn |> json(geojson)
   end
 
