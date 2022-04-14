@@ -5,6 +5,39 @@ defmodule Transport.DataCheckerTest do
 
   setup :verify_on_exit!
 
+  test "inactive_data job" do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+
+    # we create a dataset which is considered not active on our side
+    dataset = insert(:dataset, is_active: false)
+
+    # but which is found (= active?) on data gouv side
+    Transport.HTTPoison.Mock
+    |> expect(:head, 2, fn "https://demo.data.gouv.fr/api/1/datasets/123/" ->
+      # the dataset is found on datagouv
+      {:ok, %HTTPoison.Response{status_code: 200}}
+    end)
+
+    Transport.EmailSender.Mock
+    |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, topic, body, _html_body ->
+      assert from_email == "contact@transport.beta.gouv.fr"
+      assert to_email == "contact@transport.beta.gouv.fr"
+      assert topic == "Jeux de données qui disparaissent"
+      assert body =~ ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/
+      :ok
+    end)
+
+    # running the job (...)
+    Transport.DataChecker.inactive_data()
+
+    # should result into marking the dataset back as active
+    dataset = DB.Repo.get!(DB.Dataset, dataset.id)
+    assert %{is_active: true} = dataset
+
+    verify!(Transport.HTTPoison.Mock)
+    verify!(Transport.EmailSender.Mock)
+  end
+
   test "link_and_name relies on proper email host name" do
     dataset = build(:dataset)
     link = Transport.DataChecker.link(dataset)
