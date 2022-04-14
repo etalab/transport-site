@@ -1,0 +1,39 @@
+<% real_time_datasets = dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime") %>
+<% bnlc_link = dataset_path(@conn, :details, "base-nationale-des-lieux-de-covoiturage") %>
+<div class="container dataset-page-top">
+  <h2><%= dgettext("explore", "Transport Explore") %></h2>
+
+  <div class="checkbox-explore pb-24">
+    <input id="gtfs-rt-check" name="gtfs-rt" type="checkbox" value="true" checked />
+    <details>
+      <summary>
+        <%= dgettext("explore", "Real time vehicle positions (GTFS-RT)") %>
+      </summary>
+      <%= raw(
+        dgettext("explore", "gtfs-rt-explanation",
+          link:
+            safe_to_string(link(dgettext("explore", "GTFS-RT feeds referenced on this site"), to: real_time_datasets))
+        )
+      ) %>
+    </details>
+  </div>
+
+  <div class="checkbox-explore pb-24">
+    <input id="bnlc-check" name="bnlc" type="checkbox" value="true" />
+    <details>
+      <summary>
+        <%= dgettext("explore", "Carpooling areas national database") %>
+      </summary>
+      <%= raw(
+        dgettext("explore", "bnlc-explanation",
+          link: safe_to_string(link(dgettext("explore", "dataset"), to: bnlc_link))
+        )
+      ) %>
+    </details>
+  </div>
+</div>
+
+<div id="map" class="explore_map"></div>
+
+<script src={static_path(@conn, "/js/explore.js")}>
+</script>

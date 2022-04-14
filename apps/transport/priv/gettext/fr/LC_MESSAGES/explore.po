@@ -12,13 +12,29 @@ msgstr ""
 "Plural-Forms: nplurals=2\n"
 
 #, elixir-autogen, elixir-format
-msgid "GTFS-RT vehicle positions"
-msgstr "Positions des véhicules (GTFS-RT) - beta"
+msgid "Transport Explore"
+msgstr "Exploration transport - beta"
 
 #, elixir-autogen, elixir-format
-msgid "beta-explanation"
-msgstr "Cette carte reprend la totalité des %{link}, et affiche les positions des véhicules (trains, bus, trams et plus). Cette carte est mise à jour en temps réel, en fonction du rafraîchissement de chaque flux."
+msgid "gtfs-rt-explanation"
+msgstr "Reprend la totalité des %{link}, et affiche les positions des véhicules (trains, bus, trams et plus). La donnée est mise à jour en temps réel, en fonction du rafraîchissement de chaque flux."
 
 #, elixir-autogen, elixir-format
 msgid "GTFS-RT feeds referenced on this site"
 msgstr "flux GTFS-RT référencés sur ce site"
+
+#, elixir-autogen, elixir-format
+msgid "bnlc-explanation"
+msgstr "Données issues du %{link} de la Base Nationale des lieux de covoiturage"
+
+#, elixir-autogen, elixir-format
+msgid "Carpooling areas national database"
+msgstr "Base Nationale de Covoiturage (BNLC)"
+
+#, elixir-autogen, elixir-format
+msgid "Real time vehicle positions (GTFS-RT)"
+msgstr "Position en temps-réel des vehicules (GTFS-RT)"
+
+#, elixir-autogen, elixir-format
+msgid "dataset"
+msgstr "jeu de données"
