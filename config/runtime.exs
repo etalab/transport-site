@@ -177,4 +177,19 @@ if config_env() == :prod do
     # [Ecto.Repo] :pool_timeout is no longer supported in favor of a new queue system described in DBConnection.start_link/2
     # under "Queue config". For most users, configuring :timeout is enough, as it now includes both queue and query time
     timeout: 15_000
+
+  if app_env == :production do
+    # Datagouv IDs for national databases created automatically and
+    # published by us on data.gouv.fr
+    config :transport,
+      consolidation: %{
+        zfe: %{
+          dataset_id: "625438b890bf88454b283a55",
+          resource_ids: %{
+            "voies" => "3a5d0c66-aef9-4d68-841f-4fe81c9de980",
+            "aires" => "673a16bf-49ec-4645-9da2-cf975d0aa0ea"
+          }
+        }
+      }
+  end
 end

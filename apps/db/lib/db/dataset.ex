@@ -100,7 +100,8 @@ defmodule DB.Dataset do
         features: r.features,
         modes: r.modes,
         schema_name: r.schema_name,
-        schema_version: r.schema_version
+        schema_version: r.schema_version,
+        filetype: r.filetype
       }
     )
   end
