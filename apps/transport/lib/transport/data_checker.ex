@@ -11,6 +11,11 @@ defmodule Transport.DataChecker do
   @update_data_doc_link "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
   @default_outdated_data_delays [0, 7, 14]
 
+  @doc """
+  This method is a scheduled job which re-activates disabled datasets
+  which are actually apparently active on data gouv. It also sends an
+  email to the team to warn about that situation.
+  """
   def inactive_data do
     # we first check if some inactive datasets have reapeared
     to_reactivate_datasets = get_to_reactivate_datasets()
