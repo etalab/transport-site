@@ -7,4 +7,10 @@
     flex-basis: 1;
     margin-right: 15px;
   }
+  #gtfs-rt-check:checked {
+    background-color: rgb(0,150,136);
+  }
+  #bnlc-check:checked {
+    background-color: rgb(255, 174, 0);
+  }
 }
