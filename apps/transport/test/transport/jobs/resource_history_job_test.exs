@@ -324,6 +324,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         metadata: resource_metadata,
         title: title
       } =
+        resource =
         insert(:resource,
           url: resource_url,
           dataset: insert(:dataset, is_active: true),
@@ -390,6 +391,10 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       assert permanent_url == Transport.S3.permanent_url(:history, filename)
       refute is_nil(last_up_to_date_at)
+
+      # No validation but content hash should be set to the file hash
+      %DB.Resource{content_hash: content_hash} = DB.Repo.reload(resource)
+      assert content_hash == "580fb39789859f7dc29aebe6bdec9666fc8311739a8705fda0916e2907449e17"
     end
 
     test "does not store resource again when it did not change" do
