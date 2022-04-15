@@ -159,10 +159,6 @@ msgid "Datasets"
 msgstr "Jeux de données"
 
 #, elixir-autogen, elixir-format
-msgid "Road works"
-msgstr "Travaux sur voirie"
-
-#, elixir-autogen, elixir-format
 msgid "Use our APIs"
 msgstr "Utiliser nos API"
 
@@ -209,3 +205,11 @@ msgstr "liste complète"
 #, elixir-autogen, elixir-format
 msgid "They help us achieve our mission"
 msgstr "Ils nous aident dans notre mission"
+
+#, elixir-autogen, elixir-format
+msgid "Mobility counting"
+msgstr "Comptage des mobilités"
+
+#, elixir-autogen, elixir-format
+msgid "Road data"
+msgstr "Données routières"

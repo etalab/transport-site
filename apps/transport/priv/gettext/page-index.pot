@@ -159,10 +159,6 @@ msgid "Datasets"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Road works"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Use our APIs"
 msgstr ""
 
@@ -208,4 +204,12 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "They help us achieve our mission"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Mobility counting"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Road data"
 msgstr ""
