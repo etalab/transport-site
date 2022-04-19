@@ -57,11 +57,6 @@
               <%= dgettext("page-producteurs", "Validate a file or a feed") %>
             </a>
           </div>
-          <div class="presentation-action pt-24">
-            <a href="<%= gbfs_analyzer_path @conn, :index %>" class="button-outline primary">
-              <%= dgettext("page-producteurs", "Validate a GBFS feed") %>
-            </a>
-          </div>
         </div>
         <div class="panel">
           <div class="presentation-description">
