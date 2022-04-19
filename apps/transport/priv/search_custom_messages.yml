@@ -61,18 +61,17 @@
       value: road-data
   msg:
     fr: |
-        La cartographie du réseau routier national est réalisé par différents organismes.
+        Les jeux de données de cette catégorie décrivent le réseau routier et son état en temps réel (trafic, travaux, événements...).
 
         À ce jour, les seules informations disponibles de manière ouverte portent sur le réseau routier principal (autoroutes et routes nationales).
 
-        L’équipe de transport.data.gouv.fr travaille au référencement de nouveaux jeux de données permettant de cartographier le réseau routier secondaire comme la [BD Topo de l’IGN](https://geoservices.ign.fr/documentation/donnees/vecteur/bdtopo).
+        L’équipe de transport.data.gouv.fr travaille au référencement de nouveaux jeux de données permettant de cartographier le réseau routier secondaire comme la [BD Topo de l’IGN](https://geoservices.ign.fr/documentation/donnees/vecteur/bdtopo) ou de connaître [des informations en temps réel](https://www.bison-fute.gouv.fr/donnees-sur-le-rrn.html).
     en: |
-        The mapping of the national road network is carried out by different organizations.
+        Datasets in this category describe the road network and its state in real time (traffic, works, events...).
 
-        To date, only information is available in an open manner, information on the main road network (motorways and national roads).
+        To date, the only openly available information concerns the main road network (motorways and national roads).
 
-        The transport.data.gouv.fr team is working on referencing new datasets to map the secondary road network, such as the [IGN’s BD Topo](https://geoservices.ign.fr/documentation/donnees/vecteur/bdtopo).
-
+        The transport.data.gouv.fr team is working on referencing new datasets to map the secondary road network, such as the [IGN’s BD Topo](https://geoservices.ign.fr/documentation/donnees/vecteur/bdtopo) or to obtain [real-time information](https://www.bison-fute.gouv.fr/donnees-sur-le-rrn.html).
 
 - category: locations
   search_params:
