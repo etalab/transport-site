@@ -1,6 +1,7 @@
 defmodule HasherTest do
   use ExUnit.Case, async: true
   import Transport.Test.TestUtils, only: [zip_metadata: 0]
+  doctest Hasher, import: true
 
   @expected_hash "cb4702410007f184c708dab708152608673e822c04a228d6c1a5d923be661021"
 
