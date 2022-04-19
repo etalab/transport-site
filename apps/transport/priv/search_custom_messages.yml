@@ -55,10 +55,10 @@
 
         Two data standards can be used: the [GTFS format](https://developers.google.com/transit/gtfs) or the [NeTEx format](http://netex-cen.eu/).
 
-- category: road-network
+- category: road-data
   search_params:
     - key: type
-      value: road-network
+      value: road-data
   msg:
     fr: |
         La cartographie du réseau routier national est réalisé par différents organismes.
@@ -238,10 +238,10 @@
   msg:
     fr: |
         Les jeux de données de cette catégorie décrivent les [zones à faibles émissions](https://www.gouvernement.fr/les-actions-du-gouvernement/transition-ecologique/zones-a-faibles-emissions-pour-mieux-respirer-en) applicables en France. Ces zones sont représentées selon le [schéma national](https://schema.data.gouv.fr/etalab/schema-zfe/).
-    
+
         Une [base nationale des ZFE (BNZFE)](https://transport.data.gouv.fr/datasets/base-nationale-consolidee-des-zones-a-faibles-emissions/) est disponible. Elle respecte le schéma et est mise à jour par l'équipe du point national dès qu'une nouvelle ressource conforme est disponible.
-    
-    en: |   
-        The datasets referenced in this category contain Low Emission Zones enforced in France. These zones are represented according to the [national schema](https://schema.data.gouv.fr/etalab/schema-zfe/). 
-     
+
+    en: |
+        The datasets referenced in this category contain Low Emission Zones enforced in France. These zones are represented according to the [national schema](https://schema.data.gouv.fr/etalab/schema-zfe/).
+
         A [national database](https://transport.data.gouv.fr/datasets/base-nationale-consolidee-des-zones-a-faibles-emissions/) is available. As soon as a new compliant dataset is available, the NAP team is in charge of updating the national database.

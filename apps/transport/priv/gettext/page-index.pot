@@ -209,7 +209,3 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Mobility counting"
 msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Road data"
-msgstr ""

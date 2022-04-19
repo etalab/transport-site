@@ -209,7 +209,3 @@ msgstr "Ils nous aident dans notre mission"
 #, elixir-autogen, elixir-format
 msgid "Mobility counting"
 msgstr "Comptage des mobilités"
-
-#, elixir-autogen, elixir-format
-msgid "Road data"
-msgstr "Données routières"
