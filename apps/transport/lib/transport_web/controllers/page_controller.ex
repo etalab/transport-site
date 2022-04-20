@@ -187,7 +187,7 @@ defmodule TransportWeb.PageController do
       type_tile(conn, "bike-scooter-sharing"),
       type_tile(conn, "bike-way"),
       type_tile(conn, "bike-parking"),
-      type_tile(conn, "road-network"),
+      type_tile(conn, "road-data"),
       type_tile(conn, "low-emission-zones"),
       type_tile(conn, "carpooling-areas"),
       type_tile(conn, "charging-stations"),
