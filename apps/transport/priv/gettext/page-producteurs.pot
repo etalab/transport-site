@@ -119,10 +119,6 @@ msgid "Why should you publish your data?"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Validate a GBFS feed"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Validate a file or a feed"
 msgstr ""
 
