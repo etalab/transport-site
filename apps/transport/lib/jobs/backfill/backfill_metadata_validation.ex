@@ -1,11 +1,6 @@
 defmodule Transport.Jobs.Backfill.ResourceHistoryValidationMetadata do
   @moduledoc """
-  Backfill of ResourceHistory payload to fix metadata for
-  non-GTFS resources with metadata specific to GTFS.
-
-  See also `ResourceMetadataNonGTFS`.
-
-  See https://github.com/etalab/transport-site/issues/2258
+  Recompute the `validation` key in `resource_metadata` for multiple `DB.ResourceHistory`.
   """
   use Oban.Worker
   import Ecto.Query
@@ -82,5 +77,5 @@ defmodule Transport.Jobs.Backfill.ResourceHistoryValidationMetadata do
     end
   end
 
-  def http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
+  defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 end
