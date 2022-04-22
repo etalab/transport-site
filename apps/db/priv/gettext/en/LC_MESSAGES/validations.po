@@ -146,3 +146,15 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Impossible to interpolate stop times"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "ID is not ASCII-encoded"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Invalid stop location type in trip"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Invalid stop parent"
+msgstr ""
