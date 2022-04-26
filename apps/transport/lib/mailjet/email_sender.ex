@@ -24,7 +24,7 @@ defmodule Transport.EmailSender.Dummy do
   A development-time implementation which just happens to log to console
   """
 
-  def send_mail(_from_name, from_email, to_email, _reply_to, topic, _text_body, _html_body) do
-    Logger.info("Would send email: from #{from_email} to #{to_email}, topic '#{topic}'")
+  def send_mail(_from_name, from_email, to_email, _reply_to, subject, _text_body, _html_body) do
+    Logger.info("Would send email: from #{from_email} to #{to_email}, subject '#{subject}'")
   end
 end
