@@ -138,30 +138,31 @@ defmodule Transport.DataCheckerTest do
       verify!(Transport.Notifications.FetcherMock)
       verify!(Transport.EmailSender.Mock)
     end
-  end
 
-  test "outdated_data job with nothing to send should not send email" do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    test "outdated_data job with nothing to send should not send email" do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, 0, fn _, _, _, _, _, _, _ -> nil end)
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, 0, fn _, _, _, _, _, _, _ -> nil end)
 
-    Transport.Notifications.FetcherMock
-    |> expect(:fetch_config!, fn ->
-      [
-        %Transport.Notifications.Item{
-          reason: :expiration,
-          dataset_slug: "reseau-de-transport-de-la-ville",
-          emails: ["hello@example.com"],
-          extra_delays: []
-        }
-      ]
-    end)
+      Transport.Notifications.FetcherMock
+      |> expect(:fetch_config!, fn ->
+        [
+          %Transport.Notifications.Item{
+            reason: :expiration,
+            dataset_slug: "reseau-de-transport-de-la-ville",
+            emails: ["hello@example.com"],
+            extra_delays: []
+          }
+        ]
+      end)
 
-    Transport.DataChecker.outdated_data()
+      Transport.DataChecker.outdated_data()
 
-    verify!(Transport.Notifications.FetcherMock)
-    verify!(Transport.EmailSender.Mock)
+      verify!(Transport.Notifications.FetcherMock)
+      verify!(Transport.EmailSender.Mock)
+    end
+
   end
 
   test "link_and_name relies on proper email host name" do
