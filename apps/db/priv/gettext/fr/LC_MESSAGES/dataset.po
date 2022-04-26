@@ -28,10 +28,6 @@ msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
 
 #, elixir-autogen, elixir-format
-msgid "Road networks"
-msgstr "Réseaux routiers"
-
-#, elixir-autogen, elixir-format
 msgid "Locations"
 msgstr "Lieux d'intérêts"
 
@@ -82,3 +78,7 @@ msgstr "Stations de réapprovisionnement de véhicules"
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Public transit - static schedules"
 msgstr "Transport public collectif - horaires théoriques"
+
+#, elixir-autogen, elixir-format
+msgid "Road data"
+msgstr "Données routières"

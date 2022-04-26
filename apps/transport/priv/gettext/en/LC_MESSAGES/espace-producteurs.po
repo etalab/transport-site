@@ -86,3 +86,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "New resource"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Our team maintains a comprehensive documentation detailing how to publish and keep up to date your data on %{link}."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "our documentation"
+msgstr ""

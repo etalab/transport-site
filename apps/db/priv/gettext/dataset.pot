@@ -27,10 +27,6 @@ msgid "See on data.gouv.fr"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Road networks"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Locations"
 msgstr ""
 
@@ -80,4 +76,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Public transit - static schedules"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Road data"
 msgstr ""
