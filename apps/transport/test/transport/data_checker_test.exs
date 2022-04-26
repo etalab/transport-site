@@ -90,6 +90,56 @@ defmodule Transport.DataCheckerTest do
     end
   end
 
+  describe "outdated_data job" do
+    test "sends email to our team + relevant contact before expiry" do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+
+      dataset_slug = "reseau-de-transport-de-la-ville"
+      producer_email = "hello@example.com"
+
+      dataset = insert(:dataset, is_active: true, slug: dataset_slug)
+      # fake one resource expiring today
+      _resource = insert(:resource, dataset: dataset, metadata: %{end_date: Date.utc_today()})
+
+      Transport.Notifications.FetcherMock
+      |> expect(:fetch_config!, 2, fn ->
+        [
+          %Transport.Notifications.Item{
+            reason: :expiration,
+            dataset_slug: dataset_slug,
+            emails: [producer_email],
+            extra_delays: []
+          }
+        ]
+      end)
+
+      # a first mail to our team
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, topic, body, _html_body ->
+        assert from_email == "contact@transport.beta.gouv.fr"
+        assert to_email == "contact@transport.beta.gouv.fr"
+        assert topic == "Jeux de données arrivant à expiration"
+        assert body =~ ~r/Jeux de données expirant demain:/
+        :ok
+      end)
+
+      # a second mail to contact
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, topic, body, _html_body ->
+        assert from_email == "contact@transport.beta.gouv.fr"
+        assert to_email == producer_email
+        assert topic == "Jeu de données arrivant à expiration"
+        assert body =~ ~r/Une ressource associée au jeu de données expire demain/
+        :ok
+      end)
+
+      Transport.DataChecker.outdated_data()
+
+      verify!(Transport.Notifications.FetcherMock)
+      verify!(Transport.EmailSender.Mock)
+    end
+  end
+
   test "outdated_data job with nothing to send should not send email" do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
 
@@ -100,9 +150,10 @@ defmodule Transport.DataCheckerTest do
     |> expect(:fetch_config!, fn ->
       [
         %Transport.Notifications.Item{
-          reason: "expiration",
+          reason: :expiration,
           dataset_slug: "reseau-de-transport-de-la-ville",
-          emails: ["hello@example.com"]
+          emails: ["hello@example.com"],
+          extra_delays: []
         }
       ]
     end)

@@ -62,7 +62,6 @@ defmodule Transport.DataChecker do
     |> Enum.filter(&Datasets.is_active?/1)
   end
 
-  # TODO: add test (very useful - the subpart is already tested)
   def outdated_data do
     for delay <- possible_delays(),
         date = Date.add(Date.utc_today(), delay) do
