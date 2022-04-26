@@ -80,7 +80,7 @@ config :transport,
   datagouvfr_site: "https://demo.data.gouv.fr",
   # NOTE: some tests still rely on ExVCR cassettes at the moment. We configure the
   # expected host here, until we move to a behaviour-based testing instead.
-  gtfs_validator_url: "https://transport-validator.cleverapps.io"
+  gtfs_validator_url: "https://validation.transport.data.gouv.fr"
 
 secret_key_base = "SOME-LONG-SECRET-KEY-BASE-FOR-TESTING-SOME-LONG-SECRET-KEY-BASE-FOR-TESTING"
 

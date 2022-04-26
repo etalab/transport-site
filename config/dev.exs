@@ -66,7 +66,7 @@ config :transport,
     on_demand_validation: "on-demand-validation-dev"
   },
   # by default, use the production validator. This can be overriden with dev.secret.exs
-  gtfs_validator_url: "https://transport-validator.cleverapps.io"
+  gtfs_validator_url: "https://validation.transport.data.gouv.fr"
 
 config :oauth2, Datagouvfr.Authentication,
   site: datagouvfr_site,
