@@ -162,7 +162,6 @@ defmodule Transport.DataCheckerTest do
       verify!(Transport.Notifications.FetcherMock)
       verify!(Transport.EmailSender.Mock)
     end
-
   end
 
   test "link_and_name relies on proper email host name" do
