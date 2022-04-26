@@ -43,7 +43,8 @@ config :phoenix, :stacktrace_depth, 20
 # You can use dev.secret.exs (out of git) if you need to set secrets
 # as often done.
 config :transport,
-  notifications_impl: Transport.Notifications.Disk
+  notifications_impl: Transport.Notifications.Disk,
+  notifications_config_file: Path.join(__DIR__, "notifications-config.yml")
 
 # Provide a default experience that will mostly work without manual config,
 # as long as the developer does not use advanced features (backoffice login, gbfs etc)
@@ -87,3 +88,5 @@ end
 if File.exists?(".envrc") do
   Mix.raise("The .envrc file is deprecated and must be removed")
 end
+
+config :transport, :email_sender_impl, Transport.EmailSender.Dummy
