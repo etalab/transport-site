@@ -16,13 +16,13 @@ defmodule Mailjet.Client do
   def httpoison_impl, do: Application.fetch_env!(:transport, :httpoison_impl)
 
   @spec payload!(binary(), binary(), binary(), binary(), binary(), binary()) :: any()
-  def payload!(from_name, from_email, to_email, reply_to, topic, text_body, html_body \\ nil) do
+  def payload!(from_name, from_email, to_email, reply_to, subject, text_body, html_body \\ nil) do
     Jason.encode!(%{
       Messages: [
         %{
           From: %{Name: from_name, Email: from_email},
           To: [%{Email: to_email}],
-          Subject: topic,
+          Subject: subject,
           TextPart: text_body,
           HtmlPart: html_body,
           ReplyTo: %{Email: reply_to}
@@ -32,9 +32,9 @@ defmodule Mailjet.Client do
   end
 
   @impl Transport.EmailSender
-  def send_mail(from_name, from_email, to_email, reply_to, topic, text_body, html_body) do
+  def send_mail(from_name, from_email, to_email, reply_to, subject, text_body, html_body) do
     mailjet_url()
-    |> httpoison_impl().post(payload!(from_name, from_email, to_email, reply_to, topic, text_body, html_body), nil,
+    |> httpoison_impl().post(payload!(from_name, from_email, to_email, reply_to, subject, text_body, html_body), nil,
       hackney: [basic_auth: {mailjet_user(), mailjet_key()}]
     )
     |> case do

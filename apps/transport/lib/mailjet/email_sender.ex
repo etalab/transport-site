@@ -10,7 +10,7 @@ defmodule Transport.EmailSender do
               from_email :: binary(),
               to_email :: binary(),
               reply_to :: binary(),
-              topic :: binary(),
+              subject :: binary(),
               text_body :: binary(),
               html_body :: binary()
             ) :: {:ok, any()} | {:error, any()}
