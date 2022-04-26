@@ -42,10 +42,10 @@ defmodule Transport.DataCheckerTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
 
     Transport.EmailSender.Mock
-    |> expect(:send_mail, 0, fn(_,_,_,_,_,_,_) -> end)
+    |> expect(:send_mail, 0, fn _, _, _, _, _, _, _ -> nil end)
 
     Transport.Notifications.FetcherMock
-    |> expect(:fetch_config!, fn() ->
+    |> expect(:fetch_config!, fn ->
       [
         %Transport.Notifications.Item{
           reason: "expiration",
