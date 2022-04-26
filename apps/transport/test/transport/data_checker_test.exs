@@ -5,37 +5,89 @@ defmodule Transport.DataCheckerTest do
 
   setup :verify_on_exit!
 
-  test "inactive_data job" do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+  describe "inactive_data job" do
+    test "warns our team of datasets reappearing on data gouv and reactivates them locally" do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
 
-    # we create a dataset which is considered not active on our side
-    dataset = insert(:dataset, is_active: false)
+      # we create a dataset which is considered not active on our side
+      dataset = insert(:dataset, is_active: false)
 
-    # but which is found (= active?) on data gouv side
-    Transport.HTTPoison.Mock
-    |> expect(:head, 2, fn "https://demo.data.gouv.fr/api/1/datasets/123/" ->
-      # the dataset is found on datagouv
-      {:ok, %HTTPoison.Response{status_code: 200}}
-    end)
+      # but which is found (= active?) on data gouv side
+      Transport.HTTPoison.Mock
+      |> expect(:head, 2, fn "https://demo.data.gouv.fr/api/1/datasets/123/" ->
+        # the dataset is found on datagouv
+        {:ok, %HTTPoison.Response{status_code: 200}}
+      end)
 
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, topic, body, _html_body ->
-      assert from_email == "contact@transport.beta.gouv.fr"
-      assert to_email == "contact@transport.beta.gouv.fr"
-      assert topic == "Jeux de données qui disparaissent"
-      assert body =~ ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/
-      :ok
-    end)
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, topic, body, _html_body ->
+        assert from_email == "contact@transport.beta.gouv.fr"
+        assert to_email == "contact@transport.beta.gouv.fr"
+        assert topic == "Jeux de données qui disparaissent"
+        assert body =~ ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/
+        :ok
+      end)
 
-    # running the job (...)
-    Transport.DataChecker.inactive_data()
+      # running the job (...)
+      Transport.DataChecker.inactive_data()
 
-    # should result into marking the dataset back as active
-    dataset = DB.Repo.get!(DB.Dataset, dataset.id)
-    assert %{is_active: true} = dataset
+      # should result into marking the dataset back as active
+      dataset = DB.Repo.get!(DB.Dataset, dataset.id)
+      assert %{is_active: true} = dataset
 
-    verify!(Transport.HTTPoison.Mock)
-    verify!(Transport.EmailSender.Mock)
+      verify!(Transport.HTTPoison.Mock)
+      verify!(Transport.EmailSender.Mock)
+    end
+
+    test "warns our team of datasets disappearing on data gouv and mark them as such locally" do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+
+      # we create a dataset which is considered active on our side
+      dataset = insert(:dataset, is_active: true)
+
+      # but which is not found found (= inactive?) on data gouv side
+      Transport.HTTPoison.Mock
+      |> expect(:head, fn "https://demo.data.gouv.fr/api/1/datasets/123/" ->
+        # the dataset is not found on datagouv
+        {:ok, %HTTPoison.Response{status_code: 404}}
+      end)
+
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, topic, body, _html_body ->
+        assert from_email == "contact@transport.beta.gouv.fr"
+        assert to_email == "contact@transport.beta.gouv.fr"
+        assert topic == "Jeux de données qui disparaissent"
+        assert body =~ ~r/Certains jeux de données ont disparus de data.gouv.fr/
+        :ok
+      end)
+
+      # running the job (...)
+      Transport.DataChecker.inactive_data()
+
+      # should result into marking the dataset as inactive
+      dataset = DB.Repo.get!(DB.Dataset, dataset.id)
+      assert %{is_active: false} = dataset
+
+      verify!(Transport.HTTPoison.Mock)
+      verify!(Transport.EmailSender.Mock)
+    end
+
+    test "does not send email if nothing has disappeared or reappeared" do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+
+      assert DB.Repo.aggregate(DB.Dataset, :count) == 0
+
+      Transport.HTTPoison.Mock
+      |> expect(:head, 0, fn _ -> nil end)
+
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, 0, fn _, _, _, _, _, _, _ -> nil end)
+
+      Transport.DataChecker.inactive_data()
+
+      verify!(Transport.HTTPoison.Mock)
+      verify!(Transport.EmailSender.Mock)
+    end
   end
 
   test "outdated_data job with nothing to send should not send email" do

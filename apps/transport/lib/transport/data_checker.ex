@@ -12,12 +12,15 @@ defmodule Transport.DataChecker do
   @default_outdated_data_delays [0, 7, 14]
 
   @doc """
-  This method is a scheduled job which re-activates disabled datasets
-  which are actually apparently active on data gouv. It also sends an
-  email to the team to warn about that situation.
+  This method is a scheduled job which does two things:
+  - locally re-activates disabled datasets which are actually active on data gouv
+  - locally disables datasets which are actually inactive on data gouv
+
+  It also sends an email to the team via `fmt_inactive_dataset` and `fmt_reactivated_dataset`.
   """
   def inactive_data do
-    # we first check if some inactive datasets have reapeared
+    # Some datasets marked as inactive in our database may have reappeared
+    # on the data gouv side, we'll mark them back as active.
     to_reactivate_datasets = get_to_reactivate_datasets()
     reactivated_ids = Enum.map(to_reactivate_datasets, & &1.datagouv_id)
 
@@ -25,7 +28,8 @@ defmodule Transport.DataChecker do
     |> where([d], d.datagouv_id in ^reactivated_ids)
     |> Repo.update_all(set: [is_active: true])
 
-    # then we disable the unreachable datasets
+    # Some datasets marked as active in our database may have disappeared
+    # on the data gouv side, mark them as inactive.
     inactive_datasets = get_inactive_datasets()
     inactive_ids = Enum.map(inactive_datasets, & &1.datagouv_id)
 
@@ -36,17 +40,25 @@ defmodule Transport.DataChecker do
     send_inactive_dataset_mail(to_reactivate_datasets, inactive_datasets)
   end
 
+  @doc """
+  Return all the datasets locally marked as active, but active on data gouv.
+  """
   def get_inactive_datasets do
     Dataset
     |> where([d], d.is_active == true)
     |> Repo.all()
+    # NOTE: this method issues a HTTP call to datagouv
     |> Enum.reject(&Datasets.is_active?/1)
   end
 
+  @doc """
+  Return all the datasets locally marked as inactive, but active on data gouv.
+  """
   def get_to_reactivate_datasets do
     Dataset
     |> where([d], d.is_active == false)
     |> Repo.all()
+    # NOTE: this method issues a HTTP call to datagouv
     |> Enum.filter(&Datasets.is_active?/1)
   end
 
