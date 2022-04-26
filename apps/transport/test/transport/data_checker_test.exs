@@ -20,10 +20,10 @@ defmodule Transport.DataCheckerTest do
       end)
 
       Transport.EmailSender.Mock
-      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, topic, body, _html_body ->
+      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
         assert to_email == "contact@transport.beta.gouv.fr"
-        assert topic == "Jeux de données qui disparaissent"
+        assert subject == "Jeux de données qui disparaissent"
         assert body =~ ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/
         :ok
       end)
@@ -53,10 +53,10 @@ defmodule Transport.DataCheckerTest do
       end)
 
       Transport.EmailSender.Mock
-      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, topic, body, _html_body ->
+      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
         assert to_email == "contact@transport.beta.gouv.fr"
-        assert topic == "Jeux de données qui disparaissent"
+        assert subject == "Jeux de données qui disparaissent"
         assert body =~ ~r/Certains jeux de données ont disparus de data.gouv.fr/
         :ok
       end)
@@ -115,20 +115,20 @@ defmodule Transport.DataCheckerTest do
 
       # a first mail to our team
       Transport.EmailSender.Mock
-      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, topic, body, _html_body ->
+      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
         assert to_email == "contact@transport.beta.gouv.fr"
-        assert topic == "Jeux de données arrivant à expiration"
+        assert subject == "Jeux de données arrivant à expiration"
         assert body =~ ~r/Jeux de données expirant demain:/
         :ok
       end)
 
       # a second mail to contact
       Transport.EmailSender.Mock
-      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, topic, body, _html_body ->
+      |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
         assert to_email == producer_email
-        assert topic == "Jeu de données arrivant à expiration"
+        assert subject == "Jeu de données arrivant à expiration"
         assert body =~ ~r/Une ressource associée au jeu de données expire demain/
         :ok
       end)
