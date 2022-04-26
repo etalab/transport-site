@@ -163,7 +163,7 @@ defmodule Transport.DataChecker do
     """
   end
 
-  defp send_outdated_data_mail([] = datasets), do: datasets
+  defp send_outdated_data_mail([] = _datasets), do: datasets
 
   defp send_outdated_data_mail(datasets) do
     Transport.EmailSender.impl().send_mail(

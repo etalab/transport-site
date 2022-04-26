@@ -1,5 +1,5 @@
 defmodule Mailjet.ClientTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import Mox
   setup :verify_on_exit!
 
@@ -36,5 +36,7 @@ defmodule Mailjet.ClientTest do
         "This is the body",
         "<p>It is the HTML body</p>"
       )
+
+    verify!(Transport.HTTPoison.Mock)
   end
 end
