@@ -36,5 +36,7 @@ defmodule Mailjet.ClientTest do
         "This is the body",
         "<p>It is the HTML body</p>"
       )
+
+    verify!(Transport.HTTPoison.Mock)
   end
 end
