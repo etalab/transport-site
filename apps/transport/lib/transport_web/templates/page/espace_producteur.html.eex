@@ -77,6 +77,9 @@
             <img height=60 src="<%= static_path(@conn, "/images/producteurs/streamline-icon-employee-checklist.png") %>" alt="">
             <div>
               <h4><%= dgettext("espace-producteurs", "Publishing best practices") %></h4>
+              <p>
+                <%= raw dgettext("espace-producteurs", "Our team maintains a comprehensive documentation detailing how to publish and keep up to date your data on %{link}.", link: safe_to_string(link(dgettext("espace-producteurs", "our documentation"), to: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees", target: "_blank"))) %>
+              </p>
             </div>
           </div>
         </div>
@@ -94,11 +97,6 @@
             <div class="pt-24">
               <a href="<%= live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive) %>" class="button-outline primary">
                 <%= dgettext("page-producteurs", "Validate a file or a feed") %>
-              </a>
-            </div>
-            <div class="pt-24">
-              <a href="<%= gbfs_analyzer_path @conn, :index %>" class="button-outline primary">
-                <%= dgettext("page-producteurs", "Validate a GBFS feed") %>
               </a>
             </div>
           </div>

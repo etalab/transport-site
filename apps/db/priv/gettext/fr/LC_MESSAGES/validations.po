@@ -53,7 +53,7 @@ msgstr "Coordonnées invalide"
 
 #, elixir-autogen, elixir-format
 msgid "Invalid currency"
-msgstr "Monnaie invalide"
+msgstr "Devise invalide"
 
 #, elixir-autogen, elixir-format
 msgid "Invalid language"
@@ -146,3 +146,15 @@ msgstr "Spécifications GTFS non respectées"
 #, elixir-autogen, elixir-format
 msgid "Impossible to interpolate stop times"
 msgstr "Interpolation de certains horaires impossible"
+
+#, elixir-autogen, elixir-format
+msgid "ID is not ASCII-encoded"
+msgstr "Identifiant non encodé en ASCII"
+
+#, elixir-autogen, elixir-format
+msgid "Invalid stop location type in trip"
+msgstr "Type d'arrêt invalide dans un trajet"
+
+#, elixir-autogen, elixir-format
+msgid "Invalid stop parent"
+msgstr "Arrêt parent invalide"
