@@ -472,7 +472,10 @@ defmodule DB.Resource do
       "UnloadableModel" => dgettext("validations", "Not compliant with the GTFS specification"),
       "MissingMandatoryFile" => dgettext("validations", "Missing mandatory file"),
       "ExtraFile" => dgettext("validations", "Extra file"),
-      "ImpossibleToInterpolateStopTimes" => dgettext("validations", "Impossible to interpolate stop times")
+      "ImpossibleToInterpolateStopTimes" => dgettext("validations", "Impossible to interpolate stop times"),
+      "InvalidStopLocationTypeInTrip" => dgettext("validations", "Invalid stop location type in trip"),
+      "InvalidStopParent" => dgettext("validations", "Invalid stop parent"),
+      "IdNotAscii" => dgettext("validations", "ID is not ASCII-encoded")
     }
 
   @spec has_metadata?(__MODULE__.t()) :: boolean()
