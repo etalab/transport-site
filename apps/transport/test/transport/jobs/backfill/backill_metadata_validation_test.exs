@@ -48,6 +48,7 @@ defmodule Transport.Jobs.Backfill.ResourceHistoryValidationMetadataTest do
 
       assert %{
                "content_hash" => @expected_hash,
+               "backfill_source" => "Elixir.Transport.Jobs.Backfill.ResourceHistoryValidationMetadata",
                "permanent_url" => permanent_url,
                "resource_metadata" => %{
                  "bar" => "baz",
@@ -105,6 +106,7 @@ defmodule Transport.Jobs.Backfill.ResourceHistoryValidationMetadataTest do
 
       assert %{
                "content_hash" => @expected_hash,
+               "backfill_source" => "Elixir.Transport.Jobs.Backfill.ResourceHistoryValidationMetadata",
                "permanent_url" => permanent_url,
                "resource_metadata" => %{
                  "bar" => "baz",

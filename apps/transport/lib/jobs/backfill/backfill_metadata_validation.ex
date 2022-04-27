@@ -1,6 +1,9 @@
 defmodule Transport.Jobs.Backfill.ResourceHistoryValidationMetadata do
   @moduledoc """
   Recompute the `validation` key in `resource_metadata` for multiple `DB.ResourceHistory`.
+
+  When done, each `DB.ResourceHistory.payload` will have a key named `backfill_source`
+  set to this module name.
   """
   use Oban.Worker
   import Ecto.Query
@@ -61,7 +64,10 @@ defmodule Transport.Jobs.Backfill.ResourceHistoryValidationMetadata do
     {:ok, %{"metadata" => metadata}} = Resource.validate(resource)
 
     rh
-    |> Ecto.Changeset.change(%{payload: Map.merge(payload, %{"resource_metadata" => metadata, "content_hash" => hash})})
+    |> Ecto.Changeset.change(%{
+      payload:
+        Map.merge(payload, %{"resource_metadata" => metadata, "content_hash" => hash, "backfill_source" => __MODULE__})
+    })
     |> Repo.update!()
   end
 
