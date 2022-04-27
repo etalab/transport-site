@@ -101,16 +101,33 @@ defmodule Hasher do
   ZIP metadata is produced by `Transport.ZipMetaDataExtractor.extract!/1`.
 
   iex> zip_hash([%{"compressed_size" => 41, "file_name" => "ExportService.checksum.md5", "last_modified_datetime" => "2017-02-16T05:01:12", "sha256" => "f0c7216411dec821330ffbebf939bfe73a50707f5e443795a122ec7bef37aa16", "uncompressed_size" => 47}, %{"compressed_size" => 115, "file_name" => "agency.txt", "last_modified_datetime" => "2017-02-16T05:01:12", "sha256" => "548de694a86ab7d6ac0cd3535b0c3b8bffbabcc818e8d7f5a4b8f17030adf617", "uncompressed_size" => 143}])
-  "ff2fbef51cc7d71a00f9ea3f52c0a355e9e134c81c1002d94a7139ca16f372d7"
+  "ddb5bc46003dbe71c98edcbbd4d5c6e9a101b8727a749a84ac4e777fd2302732"
   """
   def zip_hash(zip_metadata) when is_list(zip_metadata) do
     zip_metadata
-    |> Enum.sort_by(&map_get(&1, :sha256))
-    |> Stream.map(&map_get(&1, :sha256))
+    |> Enum.sort_by(&get_signature(&1))
+    |> Stream.map(&get_signature(&1))
     |> compute_checksum(:sha256)
   end
 
-  defp map_get(map, key) when is_atom(key) do
+  @doc """
+  Computes the signature of a ZIP metadata item.
+  We concatenate the filename and its sha256 together.
+
+  Using the sha256 alone is not enough because the ZIP archive hash
+  would be the same when renaming files without changing their content.
+
+  iex> get_signature(%{"compressed_size" => 41, "file_name" => "file.txt", "last_modified_datetime" => "2017-02-16T05:01:12", "sha256" => "f0c7216411dec821330ffbebf939bfe73a50707f5e443795a122ec7bef37aa16", "uncompressed_size" => 47})
+  "file.txtf0c7216411dec821330ffbebf939bfe73a50707f5e443795a122ec7bef37aa16"
+  """
+  def get_signature(zip_metadata_item) when is_map(zip_metadata_item) do
+    map_get(zip_metadata_item, :file_name) <> map_get(zip_metadata_item, :sha256)
+  end
+
+  defp map_get(map, key) when key in [:sha256, :file_name] do
+    # At the moment zip_metadata may have atom keys (when coming from Elixir)
+    # or string keys (when coming from the database).
+    # Guard is here to prevent against other usages.
     Map.get(map, key) || Map.get(map, to_string(key))
   end
 end

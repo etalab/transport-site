@@ -4,12 +4,12 @@ defmodule HasherTest do
   doctest Hasher, import: true
 
   @expected_hash zip_metadata()
-                 |> Enum.map(& &1["sha256"])
+                 |> Enum.map(&(&1["file_name"] <> &1["sha256"]))
                  |> Enum.sort()
                  |> Hasher.compute_checksum(:sha256)
 
   test "test data is stable" do
-    assert @expected_hash == "cb4702410007f184c708dab708152608673e822c04a228d6c1a5d923be661021"
+    assert @expected_hash == "5609a4551776836f9402cf8f37cc75a8fc115999fc038dad0b967cf9c5bd134f"
   end
 
   test "hash by streaming a local file" do
