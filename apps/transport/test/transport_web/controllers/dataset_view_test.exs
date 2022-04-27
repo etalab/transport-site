@@ -80,6 +80,13 @@ defmodule TransportWeb.DatasetViewTest do
              latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
            }) == latest_url
 
+    # Bison Futé files
+    assert download_url(conn, %DB.Resource{
+             filetype: "file",
+             url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/refDir.csv",
+             latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
+           }) == latest_url
+
     # File not hosted on data.gouv.fr
     assert download_url(conn, %DB.Resource{filetype: "file", url: url = "https://data.example.com/voies.geojson"}) ==
              url
