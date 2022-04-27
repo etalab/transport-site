@@ -4,6 +4,8 @@ defmodule Transport.CommentsCheckerTest do
   alias DB.{Dataset, Repo}
   import DB.Factory
   import Mock
+  import Mox
+  setup :verify_on_exit!
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -42,29 +44,27 @@ defmodule Transport.CommentsCheckerTest do
        }}
     end
 
-    send_mail_mock = fn _, _, _, _, _, _, _, _ ->
-      {:ok, "envoyé !"}
-    end
-
     with_mock Datagouvfr.Client.API, get: get_mock do
-      with_mock Mailjet.Client, send_mail: send_mail_mock do
-        number_new_comments = CommentsChecker.check_for_new_comments()
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, 1, fn _, _, _, _, _, _, _ -> {:ok, "envoyé !"} end)
 
-        assert number_new_comments == 1
-        assert_called_exactly(Mailjet.Client.send_mail(:_, :_, :_, :_, :_, :_, :_, :_), 1)
-        assert_dataset_ts(dataset_id, "2020-01-01T12:00:00.000100")
-      end
+      number_new_comments = CommentsChecker.check_for_new_comments()
+
+      assert number_new_comments == 1
+      verify!(Transport.EmailSender.Mock)
+      assert_dataset_ts(dataset_id, "2020-01-01T12:00:00.000100")
     end
 
     # second run : we shouldn't find new comment
     with_mock Datagouvfr.Client.API, get: get_mock do
-      with_mock Mailjet.Client, send_mail: send_mail_mock do
-        number_new_comments = CommentsChecker.check_for_new_comments()
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, 0, fn _, _, _, _, _, _, _ -> {:ok, "envoyé !"} end)
 
-        assert number_new_comments == 0
-        assert_called_exactly(Mailjet.Client.send_mail(:_, :_, :_, :_, :_, :_, :_, :_), 0)
-        assert_dataset_ts(dataset_id, "2020-01-01T12:00:00.000100")
-      end
+      number_new_comments = CommentsChecker.check_for_new_comments()
+
+      assert number_new_comments == 0
+      verify!(Transport.EmailSender.Mock)
+      assert_dataset_ts(dataset_id, "2020-01-01T12:00:00.000100")
     end
 
     # we add a new comment
@@ -84,13 +84,14 @@ defmodule Transport.CommentsCheckerTest do
     end
 
     with_mock Datagouvfr.Client.API, get: get_mock do
-      with_mock Mailjet.Client, send_mail: send_mail_mock do
-        number_new_comments = CommentsChecker.check_for_new_comments()
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, 1, fn _, _, _, _, _, _, _ -> {:ok, "envoyé !"} end)
 
-        assert number_new_comments == 1
-        assert_called_exactly(Mailjet.Client.send_mail(:_, :_, :_, :_, :_, :_, :_, :_), 1)
-        assert_dataset_ts(dataset_id, "2021-01-01T12:00:00.000200")
-      end
+      number_new_comments = CommentsChecker.check_for_new_comments()
+
+      assert number_new_comments == 1
+      verify!(Transport.EmailSender.Mock)
+      assert_dataset_ts(dataset_id, "2021-01-01T12:00:00.000200")
     end
   end
 
