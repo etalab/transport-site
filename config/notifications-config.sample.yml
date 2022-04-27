@@ -1,0 +1,6 @@
+# can be useful in some occasions ; must be kept in sync with the format at 
+# https://github.com/etalab/transport-notifications/
+expiration:
+  offre-2022-de-transport-du-reseau-urbain-agglobus-et-de-transports-scolaires-gtfs:
+    emails:
+      - hello@example.com

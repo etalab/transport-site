@@ -143,8 +143,9 @@ defmodule Datagouvfr.Client.Datasets do
     response =
       path
       |> API.process_url()
-      |> HTTPoison.head()
+      |> Transport.Shared.Wrapper.HTTPoison.impl().head()
 
+    # NOTE: it would be more solid to match above, with %{status_code: xyz} or similar
     not match?({:ok, %HTTPoison.Response{status_code: 404}}, response)
   end
 

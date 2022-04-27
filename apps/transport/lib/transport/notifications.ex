@@ -130,7 +130,7 @@ defmodule Transport.Notifications do
 
     @impl Fetcher
     def fetch_config! do
-      config_file = "#{Application.app_dir(:transport, "priv")}/notifications.yml"
+      config_file = Application.fetch_env!(:transport, :notifications_config_file)
       Logger.info("Fetching notifications config using file #{config_file}")
 
       config_file
