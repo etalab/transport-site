@@ -90,3 +90,12 @@ config :transport, TransportWeb.Endpoint,
     # NOTE: unsure if this is actually great to reuse the same value
     signing_salt: secret_key_base
   ]
+
+# NOTE: adding some explicit values so that we can test the
+# behaviour of the client with regard to those credentials,
+# but these are not real keys.
+config :transport, Mailjet.Client,
+  mailjet_user: "TEST_MJ_APIKEY_PUBLIC",
+  mailjet_key: "TEST_MJ_APIKEY_PRIVATE"
+
+config :transport, :email_sender_impl, Transport.EmailSender.Mock
