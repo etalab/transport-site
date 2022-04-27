@@ -3,7 +3,14 @@ defmodule HasherTest do
   import Transport.Test.TestUtils, only: [zip_metadata: 0]
   doctest Hasher, import: true
 
-  @expected_hash "cb4702410007f184c708dab708152608673e822c04a228d6c1a5d923be661021"
+  @expected_hash zip_metadata()
+    |> Enum.map(&(&1["sha256"]))
+    |> Enum.sort
+    |> Hasher.compute_checksum(:sha256)
+
+  test "test data is stable" do
+    assert @expected_hash == "cb4702410007f184c708dab708152608673e822c04a228d6c1a5d923be661021"
+  end
 
   test "hash by streaming a local file" do
     content = "coucou"
