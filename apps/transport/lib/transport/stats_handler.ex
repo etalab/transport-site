@@ -79,9 +79,19 @@ defmodule Transport.StatsHandler do
       nb_bss_datasets: count_dataset_with_format("gbfs"),
       nb_bikes_scooter_datasets: nb_bikes_scooters(),
       nb_gtfs_rt: count_dataset_with_format("gtfs-rt"),
+      gtfs_rt_types: count_feed_types_gtfs_rt(),
       nb_siri: count_dataset_with_format("SIRI"),
       nb_siri_lite: count_dataset_with_format("SIRI Lite")
     }
+  end
+
+  defp count_feed_types_gtfs_rt do
+    Resource
+    |> select([r], %{type: fragment("unnest(?) as type", r.features), count: count(r.id)})
+    |> where([r], r.format == "gtfs-rt")
+    |> group_by([r], fragment("type"))
+    |> order_by([r], desc: count(r.id))
+    |> Repo.all()
   end
 
   defp get_population(datasets) do
