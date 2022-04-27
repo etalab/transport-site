@@ -119,7 +119,7 @@
         "recv_timeout": 180000
       },
       "request_body": "",
-      "url": "https://transport-validator.cleverapps.io/validate?url=http%3A%2F%2Fwww.metromobilite.fr%2Fdata%2FHoraires%2FSEM-GTFS.zip"
+      "url": "https://validation.transport.data.gouv.fr/validate?url=http%3A%2F%2Fwww.metromobilite.fr%2Fdata%2FHoraires%2FSEM-GTFS.zip"
     },
     "response": {
       "binary": false,

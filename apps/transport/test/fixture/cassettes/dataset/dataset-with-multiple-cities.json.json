@@ -140,7 +140,7 @@
         "recv_timeout": 180000
       },
       "request_body": "",
-      "url": "https://transport-validator.cleverapps.io/validate?url=https%3A%2F%2Fdemo-static.data.gouv.fr%2Fresources%2Ftest-jeu-de-donnees-associes-a-plusieurs-villes-2%2F20210903-120331%2Fstran-merge.gtfs-1-.zip"
+      "url": "https://validation.transport.data.gouv.fr/validate?url=https%3A%2F%2Fdemo-static.data.gouv.fr%2Fresources%2Ftest-jeu-de-donnees-associes-a-plusieurs-villes-2%2F20210903-120331%2Fstran-merge.gtfs-1-.zip"
     },
     "response": {
       "binary": false,
