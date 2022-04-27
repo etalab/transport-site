@@ -219,15 +219,24 @@
           <div class="panel">
              <div class=tile>
                <h3><%= @nb_gtfs_rt %></h3>
-               <div>jeux de données en <strong>GTFS-RT</strong></div>
+               <div>jeux de données<br>en <strong>GTFS-RT</strong></div>
+               <div>
+                 <ul class="small">
+                  <%= for el <- @gtfs_rt_types do %>
+                    <li>
+                      <span title="<%= el.type %>"><%= friendly_gtfs_type(el.type) %></span> : <%= format_number(el.count) %>
+                    </li>
+                  <% end %>
+                 </ul>
+               </div>
              </div>
              <div class=tile>
                <h3><%= @nb_siri %></h3>
-               <div>jeux de données en <strong>SIRI</strong></div>
+               <div>jeux de données<br>en <strong>SIRI</strong></div>
              </div>
              <div class=tile>
                <h3><%= @nb_siri_lite %></h3>
-               <div>jeux de données en <strong>SIRI Lite</strong></div>
+               <div>jeux de données<br>en <strong>SIRI Lite</strong></div>
              </div>
           </div>
       </div>
