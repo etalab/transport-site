@@ -2,8 +2,7 @@ defmodule Transport.DataChecker do
   @moduledoc """
   Use to check data, and act about it, like send email
   """
-  alias Datagouvfr.Client.{Datasets, Discussions}
-  alias Mailjet.Client
+  alias Datagouvfr.Client.Datasets
   alias DB.{Dataset, Repo}
   import TransportWeb.Router.Helpers
   import Ecto.Query
@@ -12,8 +11,16 @@ defmodule Transport.DataChecker do
   @update_data_doc_link "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
   @default_outdated_data_delays [0, 7, 14]
 
+  @doc """
+  This method is a scheduled job which does two things:
+  - locally re-activates disabled datasets which are actually active on data gouv
+  - locally disables datasets which are actually inactive on data gouv
+
+  It also sends an email to the team via `fmt_inactive_dataset` and `fmt_reactivated_dataset`.
+  """
   def inactive_data do
-    # we first check if some inactive datasets have reapeared
+    # Some datasets marked as inactive in our database may have reappeared
+    # on the data gouv side, we'll mark them back as active.
     to_reactivate_datasets = get_to_reactivate_datasets()
     reactivated_ids = Enum.map(to_reactivate_datasets, & &1.datagouv_id)
 
@@ -21,7 +28,8 @@ defmodule Transport.DataChecker do
     |> where([d], d.datagouv_id in ^reactivated_ids)
     |> Repo.update_all(set: [is_active: true])
 
-    # then we disable the unreachable datasets
+    # Some datasets marked as active in our database may have disappeared
+    # on the data gouv side, mark them as inactive.
     inactive_datasets = get_inactive_datasets()
     inactive_ids = Enum.map(inactive_datasets, & &1.datagouv_id)
 
@@ -32,56 +40,36 @@ defmodule Transport.DataChecker do
     send_inactive_dataset_mail(to_reactivate_datasets, inactive_datasets)
   end
 
+  @doc """
+  Return all the datasets locally marked as active, but active on data gouv.
+  """
   def get_inactive_datasets do
     Dataset
     |> where([d], d.is_active == true)
     |> Repo.all()
+    # NOTE: this method issues a HTTP call to datagouv
     |> Enum.reject(&Datasets.is_active?/1)
   end
 
+  @doc """
+  Return all the datasets locally marked as inactive, but active on data gouv.
+  """
   def get_to_reactivate_datasets do
     Dataset
     |> where([d], d.is_active == false)
     |> Repo.all()
+    # NOTE: this method issues a HTTP call to datagouv
     |> Enum.filter(&Datasets.is_active?/1)
   end
 
-  def outdated_data(blank \\ false) do
+  def outdated_data do
     for delay <- possible_delays(),
         date = Date.add(Date.utc_today(), delay) do
       {delay, Dataset.get_expire_at(date)}
     end
     |> Enum.reject(fn {_, d} -> d == [] end)
-    |> send_outdated_data_mail(blank)
-    |> Enum.map(fn x -> send_outdated_data_notifications(x, blank) end)
-
-    # |> post_outdated_data_comments(blank)
-  end
-
-  def post_outdated_data_comments(delays_datasets, blank) do
-    case Enum.find(delays_datasets, fn {delay, _} -> delay == 7 end) do
-      nil ->
-        Logger.info("No datasets need a comment about outdated resources")
-
-      {delay, datasets} ->
-        Enum.map(datasets, fn r -> post_outdated_data_comment(r, delay, blank) end)
-    end
-  end
-
-  def post_outdated_data_comment(dataset, delay, blank) do
-    Discussions.post(
-      dataset.datagouv_id,
-      "Jeu de données arrivant à expiration",
-      """
-      Bonjour,
-      Ce jeu de données arrive à expiration dans #{delay} jour#{if delay != 1 do
-        "s"
-      end}.
-      Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour prochainement.
-      L’équipe transport.data.gouv.fr
-      """,
-      blank
-    )
+    |> send_outdated_data_mail()
+    |> Enum.map(fn x -> send_outdated_data_notifications(x) end)
   end
 
   def possible_delays do
@@ -93,7 +81,7 @@ defmodule Transport.DataChecker do
     |> Enum.sort()
   end
 
-  def send_outdated_data_notifications({delay, datasets} = payload, is_blank) do
+  def send_outdated_data_notifications({delay, datasets} = payload) do
     notifications_config = Transport.Notifications.config()
 
     datasets
@@ -106,7 +94,7 @@ defmodule Transport.DataChecker do
 
       emails
       |> Enum.each(fn email ->
-        Client.send_mail(
+        Transport.EmailSender.impl().send_mail(
           "transport.data.gouv.fr",
           Application.get_env(:transport, :contact_email),
           email,
@@ -126,8 +114,7 @@ defmodule Transport.DataChecker do
           ---
           Si vous souhaitez modifier ou supprimer ces alertes, vous pouvez répondre à cet e-mail.
           """,
-          "",
-          is_blank
+          ""
         )
       end)
     end)
@@ -176,18 +163,17 @@ defmodule Transport.DataChecker do
     """
   end
 
-  defp send_outdated_data_mail([], _), do: []
+  defp send_outdated_data_mail([] = _datasets), do: []
 
-  defp send_outdated_data_mail(datasets, is_blank) do
-    Client.send_mail(
+  defp send_outdated_data_mail(datasets) do
+    Transport.EmailSender.impl().send_mail(
       "transport.data.gouv.fr",
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :contact_email),
       "Jeux de données arrivant à expiration",
       make_outdated_data_body(datasets),
-      "",
-      is_blank
+      ""
     )
 
     datasets
@@ -236,18 +222,18 @@ defmodule Transport.DataChecker do
     """
   end
 
-  defp send_inactive_dataset_mail([], []), do: nil
+  # Do nothing if both lists are empty
+  defp send_inactive_dataset_mail([] = _reactivated_datasets, [] = _inactive_datasets), do: nil
 
   defp send_inactive_dataset_mail(reactivated_datasets, inactive_datasets) do
-    Client.send_mail(
+    Transport.EmailSender.impl().send_mail(
       "transport.data.gouv.fr",
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :contact_email),
       "Jeux de données qui disparaissent",
       make_inactive_dataset_body(reactivated_datasets, inactive_datasets),
-      "",
-      false
+      ""
     )
   end
 end

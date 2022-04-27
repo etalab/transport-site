@@ -57,15 +57,14 @@ defmodule Transport.CommentsChecker do
 
     email_content = Phoenix.View.render_to_string(TransportWeb.EmailView, "index.html", comments_with_context: comments)
 
-    Mailjet.Client.send_mail(
+    Transport.EmailSender.impl().send_mail(
       "transport.data.gouv.fr",
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :contact_email),
       "#{comments_number} nouveaux commentaires sur data.gouv.fr",
       "",
-      email_content,
-      false
+      email_content
     )
 
     update_all_datasets_ts(comments)

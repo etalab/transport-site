@@ -42,6 +42,7 @@ apps/transport/priv/static/js/*
 dialyzer-plt/*.plt
 dialyzer-plt/*.plt.hash
 config/proxy-config.yml
+config/notifications-config.yml
 config/dev.secret.exs
 scripts/siri/config.yml
 transport-tools
