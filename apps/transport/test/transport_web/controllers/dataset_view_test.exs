@@ -82,7 +82,7 @@ defmodule TransportWeb.DatasetViewTest do
 
     # Bison Futé files
     assert download_url(conn, %DB.Resource{
-             filetype: "file",
+             filetype: "remote",
              url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/refDir.csv",
              latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
            }) == latest_url
