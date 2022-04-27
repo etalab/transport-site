@@ -127,6 +127,9 @@ config :transport,
     }
   }
 
+config :transport,
+  domains_hosting_static_files: ["static.data.gouv.fr", "demo-static.data.gouv.fr", "tipi.bison-fute.gouv.fr"]
+
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API,
   authentication_impl: Datagouvfr.Authentication,
