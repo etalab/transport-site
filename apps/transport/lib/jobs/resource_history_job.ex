@@ -286,7 +286,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   defp validate_resource(%Resource{} = resource, new_hash) do
     resource = resource |> Ecto.Changeset.change(%{content_hash: to_content_hash(new_hash)}) |> Repo.update!()
-    Resource.validate_and_save(resource, false)
+    {:ok, _} = Resource.validate_and_save(resource, false)
     Repo.reload(resource)
   end
 end
