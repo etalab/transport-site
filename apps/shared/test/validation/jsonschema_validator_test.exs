@@ -96,6 +96,50 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
 
       assert nil == validate(name_jsonschema(), url)
     end
+
+    test "can validate dependencies" do
+      schema = %ExJsonSchema.Schema.Root{
+        schema: %{
+          "properties" => %{"name" => %{"type" => "string"}, "age" => %{"type" => "integer"}},
+          "type" => "object",
+          "dependencies" => %{"name" => ["age"], "age" => ["name"]}
+        },
+        version: 7
+      }
+
+      assert %{
+               "errors" => ["#: Property name depends on property age to be present but it was not."],
+               "errors_count" => 1,
+               "has_errors" => true,
+               "validator" => Shared.Validation.JSONSchemaValidator
+             } == validate(schema, %{"name" => "Bob"})
+
+      assert %{
+               "errors" => ["#: Property age depends on property name to be present but it was not."],
+               "errors_count" => 1,
+               "has_errors" => true,
+               "validator" => Shared.Validation.JSONSchemaValidator
+             } == validate(schema, %{"age" => 42})
+
+      # Our Elixir validator does not recognise `dependentRequired` yet,
+      # even if it exists in the JSONSchema spec
+      # https://json-schema.org/understanding-json-schema/reference/conditionals.html#id4
+      #
+      # See https://github.com/etalab/transport-site/issues/2347
+      dependent_required_schema = %ExJsonSchema.Schema.Root{
+        schema:
+          Enum.into(schema.schema, %{}, fn
+            {"dependencies", value} -> {"dependentRequired", value}
+            pair -> pair
+          end),
+        version: 7
+      }
+
+      assert Map.has_key?(dependent_required_schema.schema, "dependentRequired")
+
+      assert %{"has_errors" => false} = validate(dependent_required_schema, %{"name" => "Bob"})
+      assert %{"has_errors" => false} = validate(dependent_required_schema, %{"age" => 42})
+    end
   end
 
   defp name_jsonschema do
