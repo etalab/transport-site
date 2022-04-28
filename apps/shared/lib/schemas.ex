@@ -5,7 +5,7 @@ defmodule Transport.Shared.Schemas.Wrapper do
   defp impl, do: Application.get_env(:transport, :schemas_impl)
 
   @callback schemas_by_type(binary()) :: map()
-  def schemas_by_type(schema_name), do: impl().schemas_by_type(schema_name)
+  def schemas_by_type(type), do: impl().schemas_by_type(type)
 
   @callback transport_schemas() :: map()
   def transport_schemas, do: impl().transport_schemas()
