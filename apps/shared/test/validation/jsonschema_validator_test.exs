@@ -140,12 +140,10 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
       # https://json-schema.org/understanding-json-schema/reference/conditionals.html#id4
       #
       # See https://github.com/etalab/transport-site/issues/2347
+      {value, base_schema} = Map.pop!(schema.schema, "dependencies")
+
       dependent_required_schema = %ExJsonSchema.Schema.Root{
-        schema:
-          Enum.into(schema.schema, %{}, fn
-            {"dependencies", value} -> {"dependentRequired", value}
-            pair -> pair
-          end),
+        schema: Map.put(base_schema, "dependentRequired", value),
         version: 7
       }
 
