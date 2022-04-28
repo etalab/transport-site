@@ -460,7 +460,7 @@ defmodule TransportWeb.DatasetView do
 
   defp needs_stable_url?(%DB.Resource{latest_url: nil}), do: false
 
-  defp needs_stable_url?(%DB.Resource{url: url, filetype: "file"}) do
+  defp needs_stable_url?(%DB.Resource{url: url}) do
     host = URI.parse(url).host
     Enum.member?(Application.fetch_env!(:transport, :domains_hosting_static_files), host)
   end

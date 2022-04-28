@@ -38,7 +38,7 @@ defmodule GtfsValidatorTest do
       Transport.HTTPoison.Mock
       |> expect(
         :post,
-        fn "https://transport-validator.cleverapps.io/validate", _gtfs, _, _ ->
+        fn "https://validation.transport.data.gouv.fr/validate", _gtfs, _, _ ->
           {:ok, %{status_code: 200, body: Jason.encode!(expected_validation_report)}}
         end
       )
@@ -51,7 +51,7 @@ defmodule GtfsValidatorTest do
         fn obtained_validator_url, _, _ ->
           # Le validateur doit être appelé en passant le lien de téléchargement du fichier GTFS
           expected_validator_url =
-            "https://transport-validator.cleverapps.io/validate?url=#{URI.encode_www_form(gtfs_url)}"
+            "https://validation.transport.data.gouv.fr/validate?url=#{URI.encode_www_form(gtfs_url)}"
 
           assert obtained_validator_url == expected_validator_url
 
