@@ -19,8 +19,6 @@ defmodule Shared.Validation.TableSchemaValidator do
   import Transport.Shared.Schemas
   @behaviour Shared.Validation.TableSchemaValidator.Wrapper
   @validata_api_url URI.parse("https://validata-api.app.etalab.studio/validate")
-  # https://git.opendatafrance.net/validata/validata-core/-/blob/75ee5258010fc43b6a164122eff2579c2adc01a7/validata_core/helpers.py#L152
-  @structure_tags MapSet.new(["#head", "#structure"])
 
   @impl true
   def validate(schema_name, url, schema_version \\ "latest") when is_binary(schema_name) and is_binary(url) do
@@ -52,7 +50,7 @@ defmodule Shared.Validation.TableSchemaValidator do
     raw_errors = hd(tasks)["errors"]
 
     {row_errors, structure_errors} =
-      raw_errors |> Enum.split_with(&MapSet.disjoint?(MapSet.new(&1["tags"]), @structure_tags))
+      raw_errors |> Enum.split_with(&MapSet.disjoint?(MapSet.new(&1["tags"]), structure_tags()))
 
     structure_errors = structure_errors |> Enum.map(&~s(#{&1["name"]} : #{&1["message"]}))
 
@@ -77,4 +75,7 @@ defmodule Shared.Validation.TableSchemaValidator do
 
   defp tableschema_names, do: Map.keys(schemas_by_type("tableschema"))
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
+
+  # https://git.opendatafrance.net/validata/validata-core/-/blob/75ee5258010fc43b6a164122eff2579c2adc01a7/validata_core/helpers.py#L152
+  defp structure_tags, do: MapSet.new(["#head", "#structure"])
 end
