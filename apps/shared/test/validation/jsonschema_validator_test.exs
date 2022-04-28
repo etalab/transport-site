@@ -97,6 +97,20 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
       assert nil == validate(name_jsonschema(), url)
     end
 
+    test "supports version up to 7" do
+      base_schema = %{"type" => "object", "properties" => %{"foo" => %{"type" => "string"}}}
+      v7_schema = Map.put(base_schema, "$schema", "http://json-schema.org/draft-07/schema")
+
+      assert ExJsonSchema.Schema.resolve(v7_schema)
+
+      # 2019-09 was previously known as version 8
+      assert_raise ExJsonSchema.Schema.UnsupportedSchemaVersionError, fn ->
+        base_schema
+        |> Map.put("$schema", "https://json-schema.org/draft/2019-09/schema")
+        |> ExJsonSchema.Schema.resolve()
+      end
+    end
+
     test "can validate dependencies" do
       schema = %ExJsonSchema.Schema.Root{
         schema: %{
