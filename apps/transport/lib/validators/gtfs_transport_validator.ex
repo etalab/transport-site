@@ -22,7 +22,7 @@ defmodule Transport.Validators.GTFSTransport do
       DB.Repo.insert(val)
     else
       # _ -> {:error, inspect(e)}
-        _ -> {:error, "GTFS Transport Validator, validation failed"}
+      _ -> {:error, "GTFS Transport Validator, validation failed"}
     end
   end
 
