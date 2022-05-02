@@ -20,7 +20,8 @@ defmodule Transport.StatsHandlerTest do
 
     all_metrics = DB.StatsHistory |> select([s], s.metric) |> DB.Repo.all()
 
-    stats_metrics = Map.keys(stats) |> Enum.map(&to_string/1) |> Enum.reject(&String.starts_with?(&1, "gtfs_rt_types"))
+    stats_metrics =
+      stats |> Map.keys() |> Enum.map(&to_string/1) |> Enum.reject(&String.starts_with?(&1, "gtfs_rt_types"))
 
     assert MapSet.subset?(MapSet.new(stats_metrics), MapSet.new(all_metrics))
     assert Enum.member?(all_metrics, "gtfs_rt_types::vehicle_positions")
