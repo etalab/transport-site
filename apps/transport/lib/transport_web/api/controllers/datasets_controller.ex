@@ -185,6 +185,7 @@ defmodule TransportWeb.API.DatasetController do
         "original_url" => resource.url,
         "end_calendar_validity" => resource.metadata["end_date"],
         "start_calendar_validity" => resource.metadata["start_date"],
+        "type" => resource.type,
         "format" => resource.format,
         "content_hash" => resource.content_hash,
         "community_resource_publisher" => resource.community_resource_publisher,

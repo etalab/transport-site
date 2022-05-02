@@ -58,6 +58,7 @@ defmodule TransportWeb.DatasetControllerTest do
             latest_url: "https://static.data.gouv.fr/foo",
             content_hash: "hash",
             datagouv_id: "1",
+            type: "main",
             format: "GTFS",
             filesize: 42
           },
@@ -65,6 +66,7 @@ defmodule TransportWeb.DatasetControllerTest do
             url: "http://link.to/file.zip?foo=bar",
             datagouv_id: "2",
             metadata: %{"has_errors" => false},
+            type: "main",
             format: "geojson",
             schema_name: "etalab/schema-zfe"
           }
@@ -97,6 +99,7 @@ defmodule TransportWeb.DatasetControllerTest do
                  "datagouv_id" => "1",
                  "features" => [],
                  "filesize" => 42,
+                 "type" => "main",
                  "format" => "GTFS",
                  "modes" => [],
                  "original_url" => "https://link.to/file.zip",
@@ -106,6 +109,7 @@ defmodule TransportWeb.DatasetControllerTest do
                %{
                  "datagouv_id" => "2",
                  "features" => [],
+                 "type" => "main",
                  "format" => "geojson",
                  "metadata" => %{"has_errors" => false},
                  "modes" => [],
