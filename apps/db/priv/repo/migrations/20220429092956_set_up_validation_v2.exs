@@ -9,7 +9,6 @@ defmodule DB.Repo.Migrations.SetUpValidationV2 do
       add :command, :text
       add :result, :jsonb
       add :data_vis, :jsonb
-      add :metadata, :jsonb
 
       add :resource_id, references(:resource, on_delete: :delete_all)
       add :resource_history_id, references(:resource_history, on_delete: :delete_all)
