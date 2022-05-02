@@ -9,20 +9,25 @@ defmodule Transport.Validators.GTFSTransport do
     with {:ok, %{"validations" => validations, "metadata" => metadata}} <-
            Shared.Validation.GtfsValidator.validate_from_url(url),
          data_vis <- Transport.DataVisualization.validation_data_vis(validations) do
-      val = %DB.MultiValidation{
-        validation_timestamp: timestamp,
-        validator: validator_name(),
-        result: validations,
-        metadata: metadata,
-        data_vis: data_vis,
-        command: command(url),
-        resource_history_id: resource_history_id
-      }
+      %{id: validation_id} =
+        %DB.MultiValidation{
+          validation_timestamp: timestamp,
+          validator: validator_name(),
+          result: validations,
+          data_vis: data_vis,
+          command: command(url),
+          resource_history_id: resource_history_id
+        }
+        |> DB.Repo.insert!()
 
-      DB.Repo.insert(val)
+      %DB.ResourceMetadata{
+        resource_history_id: resource_history_id,
+        multi_validation_id: validation_id,
+        metadata: metadata
+      }
+      |> DB.Repo.insert!()
     else
-      # _ -> {:error, inspect(e)}
-      _ -> {:error, "GTFS Transport Validator, validation failed"}
+      e -> {:error, "GTFS Transport Validator, validation failed. #{inspect(e)}"}
     end
   end
 
