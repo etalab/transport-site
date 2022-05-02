@@ -137,7 +137,7 @@ defmodule Transport.StatsHandler do
   end
 
   defp nb_reuses do
-    Repo.aggregate(Dataset, :sum, :nb_reuses)
+    Repo.aggregate(Dataset, :sum, :nb_reuses) || 0
   end
 
   defp count_dataset_with_format(format) do
