@@ -2,7 +2,7 @@ defmodule DB.Repo.Migrations.SetUpValidationV2 do
   use Ecto.Migration
 
   def change do
-    create table(:multi_validations) do
+    create table(:multi_validation) do
       add :validation_timestamp, :utc_datetime_usec, null: false
       add :validator, :text, null: false
       add :transport_tools_version, :text
