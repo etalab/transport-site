@@ -5,7 +5,7 @@ defmodule Transport.ValidatorsSelection do
   """
   alias Transport.Validators
 
-  @spec formats_and_validators :: %{optional(<<_::32>>) => [Transport.Validators.GTFSTransport, ...]}
+  @spec formats_and_validators :: map()
   def formats_and_validators do
     %{"GTFS" => [Validators.GTFSTransport]}
   end
