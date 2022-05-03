@@ -66,8 +66,6 @@ defmodule LongRunningJob do
   end
 end
 
+Logger.info "Starting individual process running a very long time"
 Main.main()
-
-Process.sleep(5_000)
-
-Process.sleep(100_000)
+Process.sleep(10_000_000)
