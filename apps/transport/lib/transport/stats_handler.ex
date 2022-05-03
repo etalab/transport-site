@@ -15,15 +15,17 @@ defmodule Transport.StatsHandler do
   def store_stats do
     timestamp = DateTime.truncate(DateTime.utc_now(), :second)
 
-    compute_stats()
-    |> Enum.each(fn {k, v} ->
-      %StatsHistory{
-        timestamp: timestamp,
-        metric: "#{k}",
-        value: v
-      }
-      |> Repo.insert!()
+    compute_stats() |> Enum.each(fn {k, v} -> store_stat_history(k, v, timestamp) end)
+  end
+
+  defp store_stat_history(:gtfs_rt_types = key, values, %DateTime{} = timestamp) do
+    Enum.map(values, fn item ->
+      store_stat_history("#{key}::#{Map.fetch!(item, :type)}", Map.fetch!(item, :count), timestamp)
     end)
+  end
+
+  defp store_stat_history(key, value, %DateTime{} = timestamp) when is_number(value) do
+    %StatsHistory{timestamp: timestamp, metric: to_string(key), value: value} |> Repo.insert!()
   end
 
   @doc """
@@ -87,9 +89,9 @@ defmodule Transport.StatsHandler do
 
   defp count_feed_types_gtfs_rt do
     Resource
-    |> select([r], %{type: fragment("unnest(?) as type", r.features), count: count(r.id)})
+    |> select([r], %{type: fragment("unnest(?) as gtfs_rt_type", r.features), count: count(r.id)})
     |> where([r], r.format == "gtfs-rt")
-    |> group_by([r], fragment("type"))
+    |> group_by([r], fragment("gtfs_rt_type"))
     |> order_by([r], desc: count(r.id))
     |> Repo.all()
   end
@@ -135,7 +137,7 @@ defmodule Transport.StatsHandler do
   end
 
   defp nb_reuses do
-    Repo.aggregate(Dataset, :sum, :nb_reuses)
+    Repo.aggregate(Dataset, :sum, :nb_reuses) || 0
   end
 
   defp count_dataset_with_format(format) do
