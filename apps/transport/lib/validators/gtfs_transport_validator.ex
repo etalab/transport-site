@@ -3,6 +3,10 @@ defmodule Transport.Validators.GTFSTransport do
   Validate a GTFS with transport-validator (https://github.com/etalab/transport-validator/)
   """
 
+  @doc """
+  Validates a resource history and extract metadata from it.
+  Store the results in DB
+  """
   def validate(%DB.ResourceHistory{id: resource_history_id, payload: %{"permanent_url" => url}}) do
     timestamp = DateTime.utc_now()
 
