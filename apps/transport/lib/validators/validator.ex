@@ -13,7 +13,10 @@ defmodule Transport.Validators.Dummy do
   @behaviour Transport.Validators.Validator
 
   @impl Transport.Validators.Validator
-  def validate(_), do: :ok
+  def validate(_) do
+    send(self(), :validate!)
+    :ok
+  end
 
   @impl Transport.Validators.Validator
   def validator_name, do: "dummy validator"
