@@ -1,4 +1,4 @@
-defmodule DB.Repo.Migrations.SetUpValidationV2 do
+defmodule DB.Repo.Migrations.SetUpMultiValidation do
   use Ecto.Migration
 
   def change do
