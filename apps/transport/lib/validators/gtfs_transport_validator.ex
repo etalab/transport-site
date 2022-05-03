@@ -2,11 +2,13 @@ defmodule Transport.Validators.GTFSTransport do
   @moduledoc """
   Validate a GTFS with transport-validator (https://github.com/etalab/transport-validator/)
   """
+  @behaviour Transport.Validators.Validator
 
   @doc """
   Validates a resource history and extract metadata from it.
   Store the results in DB
   """
+  @impl Transport.Validators.Validator
   def validate(%DB.ResourceHistory{id: resource_history_id, payload: %{"permanent_url" => url}}) do
     timestamp = DateTime.utc_now()
 
@@ -30,12 +32,15 @@ defmodule Transport.Validators.GTFSTransport do
         metadata: metadata
       }
       |> DB.Repo.insert!()
+
+      :ok
     else
       e -> {:error, "GTFS Transport Validator, validation failed. #{inspect(e)}"}
     end
   end
 
+  @impl Transport.Validators.Validator
   def validator_name, do: "GTFS transport-validator"
 
-  def command(url), do: Shared.Validation.GtfsValidator.remote_gtfs_validation_query(url)
+  defp command(url), do: Shared.Validation.GtfsValidator.remote_gtfs_validation_query(url)
 end
