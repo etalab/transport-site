@@ -19,6 +19,8 @@ defmodule Shared.Validation.TableSchemaValidator do
   import Transport.Shared.Schemas
   @behaviour Shared.Validation.TableSchemaValidator.Wrapper
   @validata_api_url URI.parse("https://validata-api.app.etalab.studio/validate")
+  # https://git.opendatafrance.net/validata/validata-core/-/blob/75ee5258010fc43b6a164122eff2579c2adc01a7/validata_core/helpers.py#L152
+  @structure_tags ["#head", "#structure"]
 
   @impl true
   def validate(schema_name, url, schema_version \\ "latest") when is_binary(schema_name) and is_binary(url) do
@@ -49,7 +51,8 @@ defmodule Shared.Validation.TableSchemaValidator do
 
     raw_errors = hd(tasks)["errors"]
 
-    {row_errors, structure_errors} = raw_errors |> Enum.split_with(&Enum.member?(&1["tags"], "#row"))
+    {row_errors, structure_errors} =
+      raw_errors |> Enum.split_with(&MapSet.disjoint?(MapSet.new(&1["tags"]), MapSet.new(@structure_tags)))
 
     structure_errors = structure_errors |> Enum.map(&~s(#{&1["name"]} : #{&1["message"]}))
 
