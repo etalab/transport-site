@@ -17,7 +17,6 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
     )
     |> where([rh, mv], fragment("payload->>'format' = ?", ^format) and is_nil(mv.id))
     |> select([rh], rh.id)
-    |> limit(5)
     |> DB.Repo.all()
     |> Enum.each(fn id ->
       %{resource_history_id: id, validator: validator}
