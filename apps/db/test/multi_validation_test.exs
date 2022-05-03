@@ -16,7 +16,11 @@ defmodule DB.MultiValidationTest do
     insert(:multi_validation, %{validator: "coucou", resource_history_id: resource_history_id})
     refute DB.MultiValidation.already_validated?(resource_history, Transport.Validators.Dummy)
 
-    insert(:multi_validation, %{validator: Transport.Validators.Dummy.validator_name(), resource_history_id: resource_history_id})
+    insert(:multi_validation, %{
+      validator: Transport.Validators.Dummy.validator_name(),
+      resource_history_id: resource_history_id
+    })
+
     assert DB.MultiValidation.already_validated?(resource_history, Transport.Validators.Dummy)
   end
 end
