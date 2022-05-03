@@ -58,19 +58,19 @@ defmodule DB.Dataset do
   @spec type_to_str_map() :: %{binary() => binary()}
   def type_to_str_map,
     do: %{
-      "public-transit" => dgettext("dataset", "Public transit - static schedules"),
-      "carpooling-areas" => dgettext("dataset", "Carpooling areas"),
-      "charging-stations" => dgettext("dataset", "Charging & refuelling stations"),
-      "air-transport" => dgettext("dataset", "Air transport"),
-      "bike-scooter-sharing" => dgettext("dataset", "Bike and scooter sharing"),
-      "car-motorbike-sharing" => dgettext("dataset", "Car and motorbike sharing"),
-      "road-data" => dgettext("dataset", "Road data"),
-      "locations" => dgettext("dataset", "Locations"),
-      "informations" => dgettext("dataset", "Other informations"),
-      "private-parking" => dgettext("dataset", "Private parking"),
-      "bike-way" => dgettext("dataset", "Bike networks"),
-      "bike-parking" => dgettext("dataset", "Bike parking"),
-      "low-emission-zones" => dgettext("dataset", "Low emission zones")
+      "public-transit" => dgettext("db-dataset", "Public transit - static schedules"),
+      "carpooling-areas" => dgettext("db-dataset", "Carpooling areas"),
+      "charging-stations" => dgettext("db-dataset", "Charging & refuelling stations"),
+      "air-transport" => dgettext("db-dataset", "Air transport"),
+      "bike-scooter-sharing" => dgettext("db-dataset", "Bike and scooter sharing"),
+      "car-motorbike-sharing" => dgettext("db-dataset", "Car and motorbike sharing"),
+      "road-data" => dgettext("db-dataset", "Road data"),
+      "locations" => dgettext("db-dataset", "Locations"),
+      "informations" => dgettext("db-dataset", "Other informations"),
+      "private-parking" => dgettext("db-dataset", "Private parking"),
+      "bike-way" => dgettext("db-dataset", "Bike networks"),
+      "bike-parking" => dgettext("db-dataset", "Bike parking"),
+      "low-emission-zones" => dgettext("db-dataset", "Low emission zones")
     }
 
   @spec type_to_str(binary()) :: binary()
@@ -339,7 +339,7 @@ defmodule DB.Dataset do
   @spec link_to_datagouv(DB.Dataset.t()) :: any()
   def link_to_datagouv(%__MODULE__{} = dataset) do
     Link.link(
-      dgettext("dataset", "See on data.gouv.fr"),
+      dgettext("db-dataset", "See on data.gouv.fr"),
       to: datagouv_url(dataset),
       role: "link"
     )
@@ -632,7 +632,7 @@ defmodule DB.Dataset do
         add_error(
           changeset,
           :region,
-          dgettext("dataset", "You need to fill either aom, region or use datagouv's zone")
+          dgettext("db-dataset", "You need to fill either aom, region or use datagouv's zone")
         )
     end
   end
@@ -646,7 +646,7 @@ defmodule DB.Dataset do
     |> Repo.get_by(insee: insee)
     |> case do
       nil ->
-        add_error(changeset, :aom_id, dgettext("dataset", "Unable to find INSEE code '%{insee}'", insee: insee))
+        add_error(changeset, :aom_id, dgettext("db-dataset", "Unable to find INSEE code '%{insee}'", insee: insee))
 
       commune ->
         case commune.aom_res do
@@ -654,7 +654,7 @@ defmodule DB.Dataset do
             add_error(
               changeset,
               :aom_id,
-              dgettext("dataset", "INSEE code '%{insee}' not associated with an AOM", insee: insee)
+              dgettext("db-dataset", "INSEE code '%{insee}' not associated with an AOM", insee: insee)
             )
 
           aom_res ->
@@ -675,7 +675,7 @@ defmodule DB.Dataset do
 
       change(changeset, region: national, region_id: national.id)
     else
-      add_error(changeset, :region, dgettext("dataset", "A dataset cannot be national and regional"))
+      add_error(changeset, :region, dgettext("db-dataset", "A dataset cannot be national and regional"))
     end
   end
 

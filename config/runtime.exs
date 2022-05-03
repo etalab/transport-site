@@ -167,7 +167,7 @@ if config_env() == :prod do
       :staging -> 6
     end
 
-  config :db, DB.Repo,
+  config :transport, DB.Repo,
     url:
       System.get_env("POSTGRESQL_ADDON_DIRECT_URI") || System.get_env("POSTGRESQL_ADDON_URI") ||
         "" |> String.replace_prefix("postgresql", "ecto"),
