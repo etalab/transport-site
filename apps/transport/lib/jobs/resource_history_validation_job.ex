@@ -5,7 +5,8 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
   use Oban.Worker, max_attempts: 3, tags: ["validation"]
   import Ecto.Query
 
-  # validate all resource history with one validator
+  # select all resource history with given format
+  # validate them with one validator
   @impl Oban.Worker
   def perform(%{args: %{"format" => format, "validator" => validator}}) do
     validator = String.to_existing_atom(validator)
@@ -41,6 +42,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
     :ok
   end
 
+  # validate one resource history with all validators
   @impl Oban.Worker
   def perform(%{args: %{"resource_history_id" => resource_history_id}}) when is_integer(resource_history_id) do
     %{payload: %{"format" => format}} = resource_history = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
