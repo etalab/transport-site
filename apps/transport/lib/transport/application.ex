@@ -28,6 +28,7 @@ defmodule Transport.Application do
 
     children =
       [
+        DB.Repo,
         {Cachex, name: @cache_name},
         TransportWeb.Endpoint,
         ImportDataWorker,
