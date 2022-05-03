@@ -26,6 +26,7 @@ defmodule DB.MultiValidation do
     timestamps(type: :utc_datetime_usec)
   end
 
+  @spec already_validated?(%DB.ResourceHistory{}, module()) :: boolean()
   def already_validated?(%DB.ResourceHistory{id: id}, validator) do
     validator_name = validator.validator_name()
 
