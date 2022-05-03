@@ -35,7 +35,7 @@ defmodule Transport.Validators.GTFSTransport do
 
       :ok
     else
-      e -> {:error, "GTFS Transport Validator, validation failed. #{inspect(e)}"}
+      e -> {:error, "#{validator_name()}, validation failed. #{inspect(e)}"}
     end
   end
 
