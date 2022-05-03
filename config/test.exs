@@ -38,6 +38,7 @@ config :transport,
   tableschema_validator_impl: Shared.Validation.TableSchemaValidator.Mock,
   schemas_impl: Transport.Shared.Schemas.Mock,
   hasher_impl: Hasher.Mock,
+  validator_selection: Transport.ValidatorsSelection.Mock,
   notifications_api_token: "secret",
   s3_buckets: %{
     history: "resource-history-test",
