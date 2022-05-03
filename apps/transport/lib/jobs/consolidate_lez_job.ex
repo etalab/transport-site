@@ -13,9 +13,17 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   import DB.ResourceHistory, only: [latest_resource_history: 1]
   import Ecto.Query
   alias DB.{AOM, Dataset, Repo, Resource, ResourceHistory}
+  alias Transport.CSVDocuments
 
   @schema_name "etalab/schema-zfe"
   @lez_dataset_type "low-emission-zones"
+  @dataset_org_to_publisher %{
+    "Mairie de Paris" => %{
+      "nom" => "Ville de Paris",
+      "siren" => "217500016",
+      "forme_juridique" => "Autre collectivité territoriale"
+    }
+  }
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
@@ -115,7 +123,11 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
       latest_resource_history(resource)
 
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, [], follow_redirect: true)
-    body |> Jason.decode!() |> Map.fetch!("features") |> Enum.map(&add_publisher(&1, publisher_details(resource)))
+
+    body
+    |> Jason.decode!()
+    |> Map.fetch!("features")
+    |> Enum.map(&add_publisher(&1, publisher_details(resource)))
   end
 
   defp add_publisher(features, publisher_details) do
@@ -132,66 +144,13 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   end
 
   def publisher_details(%Resource{dataset: %Dataset{organization: organization}}) do
-    Map.fetch!(
-      %{
-        "Mairie de Paris" => %{
-          "nom" => "Ville de Paris",
-          "siren" => "217500016",
-          "forme_juridique" => "Autre collectivité territoriale",
-          "zfe_id" => zfe_id("217500016")
-        }
-      },
-      organization
-    )
+    publisher = Map.fetch!(@dataset_org_to_publisher, organization)
+    publisher |> Map.put("zfe_id", zfe_id(Map.fetch!(publisher, "siren")))
   end
 
-  defp zfe_id(siren_or_code) do
-    Map.fetch!(
-      %{
-        # Grenoble-Alpes Métropole
-        "253800825" => "ZFE_01",
-        "200040715" => "ZFE_01",
-        # Métropole européenne de Lille
-        "200093201" => "ZFE_02",
-        # Plaine Commune
-        "200057867" => "ZFE_03",
-        # Eurométropole de Strasbourg
-        "246700488" => "ZFE_04",
-        # Vallée de l'Arve
-        "ARVE" => "ZFE_05",
-        # Métropole Aix-Marseille-Provence
-        "200054807" => "ZFE_06",
-        # Toulouse Métropole
-        "243100518" => "ZFE_07",
-        # Montpellier Méditerranée Métropole
-        "243400017" => "ZFE_08",
-        # Métropole de Lyon
-        "200046977" => "ZFE_09",
-        # Saint Etienne Métropole
-        "244200770" => "ZFE_10",
-        # Métropole du Grand Paris
-        "217500016" => "ZFE_11",
-        # Métropole Toulon Provence Méditerranée
-        "248300543" => "ZFE_12",
-        # Communauté urbaine d’Arras
-        "200033579" => "ZFE_13",
-        # Clermont Auvergne Métropole
-        "246300701" => "ZFE_14",
-        # Métropole du Grand Nancy
-        "245400676" => "ZFE_15",
-        # Grand Annecy
-        "200066793" => "ZFE_16",
-        # Valence Romans Agglo
-        "200068781" => "ZFE_17",
-        # Communauté d’agglomération de La Rochelle
-        "241700434" => "ZFE_18",
-        # Fort de France
-        "219722097" => "ZFE_19",
-        # Voie réservée A15 – contrôle pédagogique
-        "A15" => "VR_A15"
-      },
-      siren_or_code
-    )
+  def zfe_id(siren_or_code) do
+    CSVDocuments.zfe_ids()
+    |> Enum.find_value(fn el -> if el["siren_or_code"] == siren_or_code, do: el["zfe_id"] end)
   end
 
   def pan_publisher do
