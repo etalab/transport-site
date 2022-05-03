@@ -37,6 +37,7 @@ defmodule Transport.ImportDataTest do
         "title" => title || "resource1",
         "url" => url || "http://localhost:4321/resource1",
         "id" => id || "resource1_id",
+        "type" => "main",
         "filetype" => filetype || "remote",
         "schema" => %{"name" => schema_name, "version" => schema_version}
       }
@@ -175,6 +176,7 @@ defmodule Transport.ImportDataTest do
     [resource] = DB.Resource |> DB.Repo.all()
     assert Map.get(resource, :title) == "resource1"
     assert Map.get(resource, :filetype) == "remote"
+    assert Map.get(resource, :type) == "main"
     resource_id = Map.get(resource, :id)
 
     # set the metadata field for this resource

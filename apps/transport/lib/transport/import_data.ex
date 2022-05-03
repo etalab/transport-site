@@ -352,6 +352,7 @@ defmodule Transport.ImportData do
         # (the 'latest' field is the stable data.gouv.fr url)
         "latest_url" => resource["latest"] || resource["url"],
         "filetype" => resource["filetype"],
+        "type" => resource["type"],
         "id" => existing_resource[:id],
         "datagouv_id" => resource["id"],
         "is_available" => availability_checker().available?(resource),

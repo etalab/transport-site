@@ -56,6 +56,10 @@ defmodule DB.Resource do
     # Can be `remote` or `file`. `file` are for files uploaded and hosted
     # on data.gouv.fr
     field(:filetype, :string)
+    # The resource's type on data.gouv.fr
+    # https://github.com/opendatateam/udata/blob/fab505fd9159c6a9f63e3cb55f0d6479b7ca91e2/udata/core/dataset/models.py#L89-L96
+    # Example: `main`, `documentation`, `api`, `code` etc.
+    field(:type, :string)
 
     belongs_to(:dataset, Dataset)
     has_one(:validation, Validation, on_replace: :delete)
@@ -435,7 +439,8 @@ defmodule DB.Resource do
         :content_hash,
         :description,
         :filesize,
-        :filetype
+        :filetype,
+        :type
       ]
     )
     |> validate_required([:url, :datagouv_id])
