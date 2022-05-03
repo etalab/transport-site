@@ -4,6 +4,7 @@ defmodule DB.MultiValidation do
   """
   use Ecto.Schema
   use TypedEctoSchema
+  import Ecto.Query
 
   typed_schema "multi_validation" do
     field(:validation_timestamp, :utc_datetime_usec)
@@ -23,5 +24,13 @@ defmodule DB.MultiValidation do
     field(:secondary_validated_data_name, :string)
 
     timestamps(type: :utc_datetime_usec)
+  end
+
+  def already_validated?(%DB.ResourceHistory{id: id}, validator) do
+    validator_name = validator.validator_name()
+
+    DB.MultiValidation
+    |> where([mv], mv.validator == ^validator_name and mv.resource_history_id == ^id)
+    |> DB.Repo.exists?()
   end
 end
