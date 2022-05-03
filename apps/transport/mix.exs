@@ -70,7 +70,6 @@ defmodule Transport.Mixfile do
       {:gbfs, in_umbrella: true},
       {:datagouvfr, in_umbrella: true},
       {:shared, in_umbrella: true},
-      {:db, in_umbrella: true},
       {:unlock, in_umbrella: true},
       {:castore, "~> 0.1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
@@ -91,7 +90,16 @@ defmodule Transport.Mixfile do
       {:unzip, "~> 0.6.0"},
       {:protobuf, "~> 0.9.0"},
       {:nimble_csv, "~> 1.2.0"},
-      {:kino, "~> 0.5.2", only: :dev}
+      {:kino, "~> 0.5.2", only: :dev},
+      # db
+      {:ecto, "~> 3.7.0"},
+      {:ecto_sql, "~> 3.7.0"},
+      {:postgrex, ">= 0.0.0"},
+      {:geo_postgis, "~> 3.4"},
+      {:ecto_interval, "~> 0.2.5"},
+      {:scrivener_ecto, "~> 2.7.0"},
+      {:typed_ecto_schema, ">= 0.1.1"},
+      {:ex_machina, "~> 2.4", only: :test},
     ]
   end
 end
