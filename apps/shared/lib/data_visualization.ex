@@ -1,8 +1,11 @@
 defmodule Transport.DataVisualization do
+  @moduledoc """
+  Wrapper for DataVisualization
+  """
   @callback has_features(map() | nil) :: boolean()
   @callback validation_data_vis(any) :: nil | map
 
-  defp impl(), do: Application.get_env(:transport, :data_visualization)
+  defp impl, do: Application.get_env(:transport, :data_visualization)
   def has_features(validations), do: impl().has_features(validations)
   def validation_data_vis(validations), do: impl().validation_data_vis(validations)
 end
