@@ -39,6 +39,7 @@ config :transport,
   schemas_impl: Transport.Shared.Schemas.Mock,
   hasher_impl: Hasher.Mock,
   validator_selection: Transport.ValidatorsSelection.Mock,
+  data_visualization: Transport.DataVisualization.Mock,
   notifications_api_token: "secret",
   s3_buckets: %{
     history: "resource-history-test",
