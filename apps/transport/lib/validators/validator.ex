@@ -10,6 +10,9 @@ defmodule Transport.Validators.Validator do
 end
 
 defmodule Transport.Validators.Dummy do
+  @moduledoc """
+  dummy validator used for testing
+  """
   @behaviour Transport.Validators.Validator
 
   @impl Transport.Validators.Validator

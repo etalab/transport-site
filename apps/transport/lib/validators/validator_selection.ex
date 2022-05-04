@@ -1,7 +1,10 @@
 defmodule Transport.ValidatorsSelection do
+  @moduledoc """
+  behavior for Transport.ValidatorsSelection.Impl
+  """
   @callback formats_and_validators() :: map()
 
-  def impl(), do: Application.get_env(:transport, :validator_selection)
+  def impl, do: Application.get_env(:transport, :validator_selection)
   def formats_and_validators, do: impl().formats_and_validators()
 
   def validators(format, formats_and_validators \\ formats_and_validators()),
