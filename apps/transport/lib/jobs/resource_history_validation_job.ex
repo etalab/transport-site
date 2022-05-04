@@ -2,7 +2,13 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
   @moduledoc """
   Validate a resource history and stores result in DB
   """
-  use Oban.Worker, max_attempts: 3, tags: ["validation"]
+  use Oban.Worker,
+    max_attempts: 3,
+    tags: ["validation"]
+
+  # wait for https://github.com/sorentwo/oban/issues/704 response
+  # unique: [period: 5 * 60]
+
   import Ecto.Query
 
   # select all resource history with given format

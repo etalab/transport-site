@@ -76,4 +76,29 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
       args: %{"format" => "SIRI", "validator" => Transport.Validators.Dummy}
     )
   end
+
+  # test "job uniqueness for a resource_history validation" do
+  #   %{"resource_history_id" => 1, "validator" => "Elixir.Transport.Validators.Dummy"}
+  #   |> Transport.Jobs.ResourceHistoryValidationJob.new()
+  #   |> Oban.insert()
+
+  #   %{"resource_history_id" => 1, "validator" => "Elixir.Transport.Validators.Dummy"}
+  #   |> Transport.Jobs.ResourceHistoryValidationJob.new()
+  #   |> Oban.insert()
+
+  #   %{resource_history_id: 2, validator: "Elixir.Transport.Validators.Dummy"}
+  #   |> Transport.Jobs.ResourceHistoryValidationJob.new()
+  #   |> Oban.insert()
+
+  #   %{}
+  #   |> Transport.Jobs.ResourceHistoryValidationJob.new()
+  #   |> Oban.insert()
+
+  #   %{}
+  #   |> Transport.Jobs.ResourceHistoryValidationJob.new()
+  #   |> Oban.insert()
+
+  #   assert jobs = all_enqueued()
+  #   assert 2 == length(jobs)
+  # end
 end
