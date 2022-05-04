@@ -10,6 +10,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
   setup :verify_on_exit!
 
   setup do
+    Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 

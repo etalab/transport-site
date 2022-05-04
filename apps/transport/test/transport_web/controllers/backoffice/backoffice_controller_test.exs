@@ -18,6 +18,7 @@ defmodule TransportWeb.BackofficeControllerTest do
     Mox.stub_with(Hasher.Mock, Hasher.Dummy)
     Mox.stub_with(Datagouvfr.Authentication.Mock, Datagouvfr.Authentication.Dummy)
     Mox.stub_with(Datagouvfr.Client.User.Mock, Datagouvfr.Client.User.Dummy)
+    Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
     :ok
   end
 

@@ -11,6 +11,8 @@ defmodule TransportWeb.ResourceControllerTest do
   @service_alerts_file "#{__DIR__}/../../fixture/files/bibus-brest-gtfs-rt-alerts.pb"
 
   setup do
+    Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
+
     {:ok, _} =
       %Dataset{
         slug: "slug-1",

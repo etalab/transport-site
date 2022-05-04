@@ -13,6 +13,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     DB.Repo.delete_all(DB.ResourceHistory)
+    Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
     :ok
   end
 
