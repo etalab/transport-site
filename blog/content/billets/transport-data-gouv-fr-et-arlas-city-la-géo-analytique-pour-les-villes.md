@@ -1,0 +1,110 @@
+---
+title: "transport.data.gouv.fr et arlas.city : la géo-analytique pour les villes"
+date: 2022-05-04T14:26:21.207Z
+tags:
+  - réutilisation
+description: >-
+  Gisaïa est une jeune entreprise française émanant de l’écosystème Spatial
+  Toulousain et Européen. Sa vocation première est de valoriser la donnée
+  géospatiale à travers sa transformation, son enrichissement et son exploration
+  par le plus grand nombre. 
+
+
+  Nous œuvrons ainsi à ce que les organisations et entreprises du monde entier puissent pleinement bénéficier de la valeur ajoutée nichée dans les données géospatiales et souvent inexploitées du fait de la complexité et de la volumétrie de cette dernière. 
+
+
+  Dans cette perspective, nous avons créé la solution open source ARLAS. La solution allie technologies big data et géo-analytique pour offrir une toute nouvelle approche dans l’exploration et l’analyse de données référencées dans l’espace et dans le temps.
+images:
+  - /images/article-transport.data.gouv.jpg
+---
+*Figure: ARLAS pour l’exploration et l'analyse de millions de trajectoires de navires.*
+
+
+
+**ARLAS** est aujourd’hui adoptée par des institutions telles que le CNES, Tisséo Collectivité (Toulouse) ou l’IRD, par de jeunes startups innovantes telles que Skyline Partners (UK) et enfin par de grands industriels tels que AIRBUS Defence & Space (ADS). 
+
+![Figure: ARLAS pour l’exploration et la visualisation de millions d‘images satellite.](/images/article-transport.data.gouv1.jpg "Figure: ARLAS pour l’exploration et la visualisation de millions d‘images satellite.")
+
+
+
+![Figure: ARLAS pour l’exploration et l'analyse de trajectoires d’oiseaux migrateurs.](/images/article-transport.data.gouv2.jpg "Figure: ARLAS pour l’exploration et l'analyse de trajectoires d’oiseaux migrateurs.")
+
+
+
+
+
+## Les villes, transport.data.gouv.fr et ARLAS : un trio gagnant.
+
+Un [rapport](https://ec.europa.eu/regional_policy/en/information/publications/reports/2020/report-on-the-quality-of-life-in-european-cities) de la Commission européenne publié en 2020 met en évidence la contribution majeure de la qualité des transports en commun dans l’épanouissement des habitants des villes. Les habitants s’épanouissent dans les villes où les transports publics sont efficaces et sûrs.
+
+## La mobilité
+
+La mission première des Autorités Organisatrices des Mobilités (AOM) est précisément d’améliorer la mobilité des habitants. Le premier levier est de déporter au maximum les trajets réalisés en véhicules privés (VP) vers des déplacements en transports communs (TC). 
+
+![Figure: Améliorer la mobilité en déportant les trajets VP vers les TC et le vélo.](/images/article-transport.data.gouv3.jpg "Figure: Améliorer la mobilité en déportant les trajets VP vers les TC et le vélo.")
+
+
+
+
+
+Mais pour cela, l’offre de transport se doit d’être attrayante auprès des habitants. Ce même rapport de la Commission européenne met en avant les principaux axes de satisfaction pour les usagers des transports. Les trois premiers sont :
+
+* La fréquence, en d’autres termes le temps qui s’écoule entre deux passages de véhicules de transport à un arrêt
+* La fiabilité, c’est à dire si les véhicules arrivent et partent à l’heure annoncée
+* L’accessibilité, c’est à dire le temps moyen pour une personne pour se rendre à un arrêt
+
+Puis viennent ensuite la sécurité et enfin le coût. En d’autres termes, les habitants sont heureux là où les transports sont performants, fiables et accessibles.
+
+
+## Les données GTFS
+
+La normalisation des données décrivant les services de transport public, entre autres à travers le format GTFS, a été une formidable opportunité pour Gisaïa de transposer ARLAS pour offrir une perspective géo-analytique sur les performances des transports aux Autorités Organisatrices de la Mobilité (AOM). Cette solution spécialement déclinée pour les AOMs s’appelle **arlas.city**.
+
+La mission d’**arlas.city** est d’élaborer et de représenter les indicateurs mesurant ces axes de performance. Les responsables au sein des AOMs (chargés d’études, chargés de projets et responsables publics) sont ainsi appuyés dans leur prise de décisions par des indicateurs analytiques fiables.
+
+![Figure: arlas.city - Indicateur performance de l’offre de transport portant sur la fréquence et l’accessibilité des arrêts d’une ligne.](/images/article-transport.data.gouv4.jpg "Figure: arlas.city - Indicateur performance de l’offre de transport portant sur la fréquence et l’accessibilité des arrêts d’une ligne.")
+
+
+
+
+
+**arlas.city** permet de charger les données décrivant l’offre théorique (format GTFS) ainsi que tout autre silo de données portant sur le réseau et son emprise territoriale, tels que les données d’exploitation (validations,  retards) ou même les données de référencement de la population (carroyage INSEE). La donnée GTFS joue ici un rôle majeur: les autres silos de données viennent se projeter sur cette donnée de référence à travers la notion de “passage” (voir plus bas).
+
+![Figure: arlas.city - Calculs de performance des transports publics en termes d’accessibilité territoriale proposée aux usagers.](/images/article-transport.data.gouv5.jpg "Figure: arlas.city - Calculs de performance des transports publics en termes d’accessibilité territoriale proposée aux usagers.")
+
+## transport.data.gouv.fr : le hub de référence
+
+Au vu de la sophistication des réseaux de transport, une approche décisionnelle basée sur la donnée (data driven decision making) est le moyen d’opérer des choix sûrs et justifiables auprès des parties prenantes. Cette approche permet également de mesurer les impacts des choix ou scénarios envisagés.
+
+Mais encore faut-il que la donnée (entre autres GTFS) soit disponible, référencée, accessible au téléchargement, exhaustive, cohérente, à jour et fiable. En effet, les analystes et décideurs abordent la donnée dans le processus décisionnel avec prudence, parfois avec méfiance, car leur crédibilité est mêlée à celle de la donnée : cette dernière doit gagner la confiance des décideurs.
+
+C’est précisément sur ces points que le hub de données **transport.data.gouv.fr** prend tout son sens. Le site référence la donnée et la rend téléchargeable. Des métadonnées permettent de qualifier l’archive et de facilement la retrouver sur l’interface ou par l’API proposée par le site.
+
+Sur chaque archive, une frise chronologique démontre la haute disponibilité des archives. La fiabilité de l’accès est primordial pour **arlas.city**.
+
+Un jeu d’étiquettes permet de rapidement identifier le profil des données contenues dans l’archive : position des arrêts, horaires, mode de transport couverts, etc. Ceci permet de connaître la complétude des données avant même de les télécharger.
+
+![](/images/article-transport.data.gouv6.jpg)
+
+Aussi, une validation des données GTFS est appliquée par le site **transport.data.gouv.fr** et le résultat est restitué. Ainsi, il est possible d’évaluer la qualité de la donnée par un simple coup d'oeil sur les avertissements fournis par le validateur.
+
+![](/images/article-transport.data.gouv7.jpg)
+
+Le site **transport.data.gouv.fr** met à disposition d’autres types de données.
+Il est ainsi possible de consommer les données GTFS-realtime pour connaître en temps réel la position des bus et leur retards. L’emplacement des stations de vélos et l’usage des vélos à travers le temps sont accessibles à travers le format GBFS, ce qui en facilite grandement l’exploitation.
+
+## L’usage des données transport.data.gouv.fr par arlas.city
+
+Pour commencer, la plateforme arlas.city permet aux utilisateurs de regrouper leurs archives de données. Les données peuvent porter sur l’offre théorique (GTFS),  sur l’offre réalisée, sur les données de billetique, sur la capacité des véhicules, ou sur tout autre thème qui peut être raccroché à l’offre théorique. 
+
+Un traitement parallélisé sur ces silos indépendants aligne la donnée en vue d’être unifiée. Cette donnée ainsi transformée couvre toutes les dimensions de la donnée source, de manière cohérente et sur un unique concept appelé “passage”, c'est-à-dire l’évènement qu’un véhicule d’une ligne donnée a effectué à un instant donné entre deux arrêts donnés. 
+
+L’utilisation de cette notion présente un intérêt majeur car c’est l’information qui a la granularité la plus fine. Il est alors possible d’y greffer tout type d’information. C’est le cas des données de validations (billettique), des données de retards, mais aussi des capacités de véhicules ou encore des vitesses mesurées entre arrêts. A noter que pour un réseau de métropole, il est possible de dénombrer jusqu’à cent millions de passages sur une année!
+
+La donnée préparée par **arlas.city** est dite “analytic-ready”. En d’autres termes, la donnée est sous une forme optimale pour être analysée instantanément sur tous ses axes. Cette capacité analytique instantanée sur des dizaines de millions de passages est précisément ce qu’offre la plateforme **arlas.city**.
+
+
+
+Les autorités organisatrices de la mobilité peuvent étudier chaque aspect de l’offre de transport. En premier lieu, les chargés d’études peuvent étudier l’offre théorique et les fréquences de passages proposées, comme illustré ci-dessous.
+
+![Figure: arlas.city - Visualisation sur la carte des vitesses de circulation des véhicules (tramway) et visualisation dans la frise temporelle de l’évolution de la fréquence de passage des véhicules sur le réseau Nantais.](/images/article-transport.data.gouv8.jpg "Figure: arlas.city - Visualisation sur la carte des vitesses de circulation des véhicules (tramway) et visualisation dans la frise temporelle de l’évolution de la fréquence de passage des véhicules sur le réseau Nantais.")
