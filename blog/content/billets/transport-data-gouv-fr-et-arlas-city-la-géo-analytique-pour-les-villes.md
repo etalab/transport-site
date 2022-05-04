@@ -10,10 +10,13 @@ description: >-
   par le plus grand nombre. 
 
 
-  Nous œuvrons ainsi à ce que les organisations et entreprises du monde entier puissent pleinement bénéficier de la valeur ajoutée nichée dans les données géospatiales et souvent inexploitées du fait de la complexité et de la volumétrie de cette dernière. 
+  Gisaïa est réutilisateur des données du PAN. Nous leur avons posé quelques questions pour mieux comprendre à quoi leur servent les données présentes sur le PAN
 
 
-  Dans cette perspective, nous avons créé la solution open source ARLAS. La solution allie technologies big data et géo-analytique pour offrir une toute nouvelle approche dans l’exploration et l’analyse de données référencées dans l’espace et dans le temps.
+  "Nous œuvrons ainsi à ce que les organisations et entreprises du monde entier puissent pleinement bénéficier de la valeur ajoutée nichée dans les données géospatiales et souvent inexploitées du fait de la complexité et de la volumétrie de cette dernière. 
+
+
+  Dans cette perspective, nous avons créé la solution open source ARLAS. La solution allie technologies big data et géo-analytique pour offrir une toute nouvelle approche dans l’exploration et l’analyse de données référencées dans l’espace et dans le temps."
 images:
   - /images/article-transport.data.gouv.jpg
 ---
