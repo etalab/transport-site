@@ -16,3 +16,7 @@
   color: #aaa;
   font-size: 12px;
 }
+
+#dataset-visualisation .leaflet-popup-content {
+  max-height: 200px;
+}

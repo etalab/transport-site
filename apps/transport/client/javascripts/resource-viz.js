@@ -42,7 +42,7 @@ function coordinatesAreCorrect (lat, lon) {
     return !isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180
 }
 
-function displayData (data, fg, { latField, lonField, nameField }) {
+function displayData (data, fg, { latField, lonField }) {
     const markerOptions = {
         fillColor: '#0066db',
         radius: 5,
@@ -53,7 +53,7 @@ function displayData (data, fg, { latField, lonField, nameField }) {
         if (coordinatesAreCorrect(m[latField], m[lonField])) {
             try {
                 L.circleMarker([m[latField], m[lonField]], markerOptions)
-                    .bindPopup(m[nameField])
+                    .bindPopup(`<pre>${JSON.stringify(m, null, 2)}</pre>`)
                     .addTo(fg)
             } catch (error) {
                 console.log('There is some invalid lat/lon data in the file')
@@ -81,10 +81,9 @@ function createCSVmap (id, resourceUrl) {
         complete: function (data) {
             const latField = getLabel(data.data[0], latLabels)
             const lonField = getLabel(data.data[0], lonLabels)
-            const nameField = getLabel(data.data[0], namesLabel)
-            if (latField && lonField && nameField) {
+            if (latField && lonField) {
                 const { map, fg } = initilizeMap(id)
-                displayData(data.data, fg, { latField, lonField, nameField })
+                displayData(data.data, fg, { latField, lonField })
                 map.fitBounds(fg.getBounds())
                 setZoomEvents(map, fg)
             } else {
