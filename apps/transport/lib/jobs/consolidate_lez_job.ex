@@ -149,8 +149,15 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   end
 
   def zfe_id(siren_or_code) do
-    CSVDocuments.zfe_ids()
-    |> Enum.find_value(fn el -> if el["siren_or_code"] == siren_or_code, do: el["zfe_id"] end)
+    zfe_id =
+      CSVDocuments.zfe_ids()
+      |> Enum.find_value(fn el -> if el["siren_or_code"] == siren_or_code, do: el["zfe_id"] end)
+
+    if is_nil(zfe_id) do
+      Logger.error("Could not find zfe_id for SIREN or code #{siren_or_code}")
+    end
+
+    zfe_id
   end
 
   def pan_publisher do
