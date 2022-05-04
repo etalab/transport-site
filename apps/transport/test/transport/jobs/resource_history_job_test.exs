@@ -248,7 +248,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       }
 
       # Validator should be called because resource was never historicised
-      Validation.Validator.Mock
+      Shared.Validation.Validator.Mock
       |> expect(:validate_from_url, fn ^resource_url ->
         {:ok, %{"validations" => %{}, "metadata" => validator_metadata}}
       end)

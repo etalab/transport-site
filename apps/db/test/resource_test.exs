@@ -1,6 +1,6 @@
 defmodule DB.ResourceTest do
   use ExUnit.Case, async: true
-  alias Validation.Validator.Mock, as: ValidatorMock
+  alias Shared.Validation.Validator.Mock, as: ValidatorMock
   alias DB.{LogsValidation, Repo, Resource, Validation}
   import Mox
   import DB.Factory

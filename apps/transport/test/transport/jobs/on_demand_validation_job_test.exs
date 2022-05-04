@@ -22,7 +22,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
     test "with a GTFS" do
       validation = create_validation(%{"type" => "gtfs"})
 
-      Validation.Validator.Mock
+      Shared.Validation.Validator.Mock
       |> expect(:validate_from_url, fn url ->
         assert url == @url
 
@@ -56,7 +56,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
     test "GTFS with an error" do
       validation = create_validation(%{"type" => "gtfs"})
 
-      Validation.Validator.Mock
+      Shared.Validation.Validator.Mock
       |> expect(:validate_from_url, fn url ->
         assert url == @url
         {:error, "something happened"}
