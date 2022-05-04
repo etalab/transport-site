@@ -10,7 +10,7 @@ description: >-
   par le plus grand nombre. 
 
 
-  Gisaïa est réutilisateur des données du PAN. Nous leur avons posé quelques questions pour mieux comprendre à quoi leur servent les données présentes sur le PAN
+  Gisaïa est réutilisateur des données du PAN. Nous leur avons posé quelques questions pour mieux comprendre ils réutilisent ces données :
 
 
   "Nous œuvrons ainsi à ce que les organisations et entreprises du monde entier puissent pleinement bénéficier de la valeur ajoutée nichée dans les données géospatiales et souvent inexploitées du fait de la complexité et de la volumétrie de cette dernière. 
