@@ -3,12 +3,12 @@ defmodule Transport.ValidatorsSelection do
   behavior for Transport.ValidatorsSelection.Impl
   """
   @callback formats_and_validators() :: map()
+  @callback validators(binary()) :: list()
 
   def impl, do: Application.get_env(:transport, :validator_selection)
   def formats_and_validators, do: impl().formats_and_validators()
 
-  def validators(format, formats_and_validators \\ formats_and_validators()),
-    do: impl().validators(format, formats_and_validators)
+  def validators(format), do: impl().validators(format)
 end
 
 defmodule Transport.ValidatorsSelection.Impl do
@@ -27,14 +27,21 @@ defmodule Transport.ValidatorsSelection.Impl do
 
   @doc """
   get a list of validators to run for a given format
+  """
+  @impl Transport.ValidatorsSelection
+  @spec validators(binary()) :: list()
+  def validators(format) do
+    format
+    |> get_validators(formats_and_validators())
+  end
 
+  @doc """
   iex> validators("GBFS", %{"GBFS" => ["v1", "v2"], "GTFS" => ["v3"]})
   ["v1", "v2"]
   iex> validators("GBFS", %{"GTFS" => ["v1"]})
   []
   """
-  @spec validators(binary()) :: list()
-  def validators(format, formats_and_validators \\ formats_and_validators()) do
+  def get_validators(format, formats_and_validators) do
     formats_and_validators
     |> Map.get(format, [])
   end
