@@ -11,9 +11,10 @@ defmodule Transport.Validators.GTFSTransport do
   @impl Transport.Validators.Validator
   def validate(%DB.ResourceHistory{id: resource_history_id, payload: %{"permanent_url" => url}}) do
     timestamp = DateTime.utc_now()
+    validator = Shared.Validation.GtfsValidator.Wrapper.impl()
 
     with {:ok, %{"validations" => validations, "metadata" => metadata}} <-
-           Shared.Validation.GtfsValidator.validate_from_url(url),
+           validator.validate_from_url(url),
          data_vis <- Transport.DataVisualization.validation_data_vis(validations) do
       %{id: validation_id} =
         %DB.MultiValidation{
