@@ -77,6 +77,22 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
     )
   end
 
+  test "all validations for one resource history" do
+    %{id: resource_history_id} = insert(:resource_history, %{payload: %{"format" => "GTFS"}})
+
+    Transport.ValidatorsSelection.Mock
+    |> expect(:validators, 1, fn "GTFS" ->
+      [Transport.Validators.Dummy, Transport.Validators.Dummy]
+    end)
+
+    %Oban.Job{args: %{"resource_history_id" => resource_history_id}}
+    |> Transport.Jobs.ResourceHistoryValidationJob.perform()
+
+    # validation has been launched twice
+    assert_received :validate!
+    assert_received :validate!
+  end
+
   # wait for https://github.com/sorentwo/oban/issues/704 response
   # test "job uniqueness for a resource_history validation" do
   #   %{"resource_history_id" => 1, "validator" => "Elixir.Transport.Validators.Dummy"}
