@@ -73,7 +73,7 @@ config :exvcr,
   vcr_cassette_library_dir: "test/fixture/cassettes",
   filter_request_headers: ["authorization"]
 
-config :db, DB.Repo,
+config :transport, DB.Repo,
   url: System.get_env("PG_URL_TEST") || System.get_env("PG_URL") || "ecto://postgres:postgres@localhost/transport_test",
   pool: Ecto.Adapters.SQL.Sandbox
 

@@ -56,6 +56,10 @@ defmodule DB.Resource do
     # Can be `remote` or `file`. `file` are for files uploaded and hosted
     # on data.gouv.fr
     field(:filetype, :string)
+    # The resource's type on data.gouv.fr
+    # https://github.com/opendatateam/udata/blob/fab505fd9159c6a9f63e3cb55f0d6479b7ca91e2/udata/core/dataset/models.py#L89-L96
+    # Example: `main`, `documentation`, `api`, `code` etc.
+    field(:type, :string)
 
     belongs_to(:dataset, Dataset)
     has_one(:validation, Validation, on_replace: :delete)
@@ -435,7 +439,8 @@ defmodule DB.Resource do
         :content_hash,
         :description,
         :filesize,
-        :filetype
+        :filetype,
+        :type
       ]
     )
     |> validate_required([:url, :datagouv_id])
@@ -444,38 +449,38 @@ defmodule DB.Resource do
   @spec issues_short_translation() :: %{binary() => binary()}
   def issues_short_translation,
     do: %{
-      "UnusedStop" => dgettext("validations", "Unused stops"),
-      "Slow" => dgettext("validations", "Slow"),
-      "ExcessiveSpeed" => dgettext("validations", "Excessive speed between two stops"),
-      "NegativeTravelTime" => dgettext("validations", "Negative travel time between two stops"),
-      "CloseStops" => dgettext("validations", "Close stops"),
-      "NullDuration" => dgettext("validations", "Null duration between two stops"),
-      "InvalidReference" => dgettext("validations", "Invalid reference"),
-      "InvalidArchive" => dgettext("validations", "Invalid archive"),
-      "MissingRouteName" => dgettext("validations", "Missing route name"),
-      "MissingId" => dgettext("validations", "Missing id"),
-      "MissingCoordinates" => dgettext("validations", "Missing coordinates"),
-      "MissingName" => dgettext("validations", "Missing name"),
-      "InvalidCoordinates" => dgettext("validations", "Invalid coordinates"),
-      "InvalidRouteType" => dgettext("validations", "Invalid route type"),
-      "MissingUrl" => dgettext("validations", "Missing url"),
-      "InvalidUrl" => dgettext("validations", "Invalid url"),
-      "InvalidTimezone" => dgettext("validations", "Invalid timezone"),
-      "DuplicateStops" => dgettext("validations", "Duplicate stops"),
-      "MissingPrice" => dgettext("validations", "Missing price"),
-      "InvalidCurrency" => dgettext("validations", "Invalid currency"),
-      "InvalidTransfers" => dgettext("validations", "Invalid transfers"),
-      "InvalidTransferDuration" => dgettext("validations", "Invalid transfer duration"),
-      "MissingLanguage" => dgettext("validations", "Missing language"),
-      "InvalidLanguage" => dgettext("validations", "Invalid language"),
-      "DuplicateObjectId" => dgettext("validations", "Duplicate object id"),
-      "UnloadableModel" => dgettext("validations", "Not compliant with the GTFS specification"),
-      "MissingMandatoryFile" => dgettext("validations", "Missing mandatory file"),
-      "ExtraFile" => dgettext("validations", "Extra file"),
-      "ImpossibleToInterpolateStopTimes" => dgettext("validations", "Impossible to interpolate stop times"),
-      "InvalidStopLocationTypeInTrip" => dgettext("validations", "Invalid stop location type in trip"),
-      "InvalidStopParent" => dgettext("validations", "Invalid stop parent"),
-      "IdNotAscii" => dgettext("validations", "ID is not ASCII-encoded")
+      "UnusedStop" => dgettext("db-validations", "Unused stops"),
+      "Slow" => dgettext("db-validations", "Slow"),
+      "ExcessiveSpeed" => dgettext("db-validations", "Excessive speed between two stops"),
+      "NegativeTravelTime" => dgettext("db-validations", "Negative travel time between two stops"),
+      "CloseStops" => dgettext("db-validations", "Close stops"),
+      "NullDuration" => dgettext("db-validations", "Null duration between two stops"),
+      "InvalidReference" => dgettext("db-validations", "Invalid reference"),
+      "InvalidArchive" => dgettext("db-validations", "Invalid archive"),
+      "MissingRouteName" => dgettext("db-validations", "Missing route name"),
+      "MissingId" => dgettext("db-validations", "Missing id"),
+      "MissingCoordinates" => dgettext("db-validations", "Missing coordinates"),
+      "MissingName" => dgettext("db-validations", "Missing name"),
+      "InvalidCoordinates" => dgettext("db-validations", "Invalid coordinates"),
+      "InvalidRouteType" => dgettext("db-validations", "Invalid route type"),
+      "MissingUrl" => dgettext("db-validations", "Missing url"),
+      "InvalidUrl" => dgettext("db-validations", "Invalid url"),
+      "InvalidTimezone" => dgettext("db-validations", "Invalid timezone"),
+      "DuplicateStops" => dgettext("db-validations", "Duplicate stops"),
+      "MissingPrice" => dgettext("db-validations", "Missing price"),
+      "InvalidCurrency" => dgettext("db-validations", "Invalid currency"),
+      "InvalidTransfers" => dgettext("db-validations", "Invalid transfers"),
+      "InvalidTransferDuration" => dgettext("db-validations", "Invalid transfer duration"),
+      "MissingLanguage" => dgettext("db-validations", "Missing language"),
+      "InvalidLanguage" => dgettext("db-validations", "Invalid language"),
+      "DuplicateObjectId" => dgettext("db-validations", "Duplicate object id"),
+      "UnloadableModel" => dgettext("db-validations", "Not compliant with the GTFS specification"),
+      "MissingMandatoryFile" => dgettext("db-validations", "Missing mandatory file"),
+      "ExtraFile" => dgettext("db-validations", "Extra file"),
+      "ImpossibleToInterpolateStopTimes" => dgettext("db-validations", "Impossible to interpolate stop times"),
+      "InvalidStopLocationTypeInTrip" => dgettext("db-validations", "Invalid stop location type in trip"),
+      "InvalidStopParent" => dgettext("db-validations", "Invalid stop parent"),
+      "IdNotAscii" => dgettext("db-validations", "ID is not ASCII-encoded")
     }
 
   @spec has_metadata?(__MODULE__.t()) :: boolean()

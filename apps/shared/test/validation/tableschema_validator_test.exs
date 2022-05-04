@@ -90,6 +90,20 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
 
       assert nil == validate(@schema_name, @url)
     end
+
+    test "with a custom check error" do
+      setup_schemas_response()
+      "validata_with_opening_hours_error.json" |> setup_validata_response()
+
+      assert %{
+               "errors" => [
+                 "Horaires d'ouverture incorrects : colonne horaires, ligne 2. La valeur 'lundi à dimanche' n'est pas une définition d'horaire d'ouverture correcte.\n\n Celle-ci doit respecter la spécification [OpenStreetMap](https://wiki.openstreetmap.org/wiki/Key:opening_hours) de description d'horaires d'ouverture."
+               ],
+               "errors_count" => 1,
+               "has_errors" => true,
+               "validator" => Shared.Validation.TableSchemaValidator
+             } == validate(@schema_name, @url)
+    end
   end
 
   defp setup_validata_response(filename), do: filename |> read_json() |> validata_response_with_body()
