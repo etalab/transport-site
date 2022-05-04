@@ -113,7 +113,8 @@ config :transport,
   tableschema_validator_impl: Shared.Validation.TableSchemaValidator,
   schemas_impl: Transport.Shared.Schemas,
   hasher_impl: Hasher,
-  validator_selection: Transport.ValidatorsSelection.Impl
+  validator_selection: Transport.ValidatorsSelection.Impl,
+  data_visualization: Transport.DataVisualization.Impl
 
 # Datagouv IDs for national databases created automatically.
 # These are IDs used in staging, demo.data.gouv.fr
