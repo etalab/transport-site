@@ -26,7 +26,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
     insert(:multi_validation, %{resource_history_id: rh2.id, validator: validator_name})
     insert(:multi_validation, %{resource_history_id: rh3.id, validator: "coucou"})
 
-    %{args: %{"format" => "GTFS", "validator" => validator_string}}
+    %Oban.Job{args: %{"format" => "GTFS", "validator" => validator_string}}
     |> Transport.Jobs.ResourceHistoryValidationJob.perform()
 
     assert_enqueued(
@@ -43,7 +43,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
   test "validate a resource history with one validator" do
     rh1 = insert(:resource_history)
 
-    %{args: %{"resource_history_id" => rh1.id, "validator" => "Elixir.Transport.Validators.Dummy"}}
+    %Oban.Job{args: %{"resource_history_id" => rh1.id, "validator" => "Elixir.Transport.Validators.Dummy"}}
     |> Transport.Jobs.ResourceHistoryValidationJob.perform()
 
     # dummy validator sends a message for testing
@@ -59,7 +59,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
       }
     end)
 
-    Transport.Jobs.ResourceHistoryValidationJob.perform(%{})
+    Transport.Jobs.ResourceHistoryValidationJob.perform(%Oban.Job{})
 
     assert_enqueued(
       worker: Transport.Jobs.ResourceHistoryValidationJob,

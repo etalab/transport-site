@@ -8,7 +8,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
   # select all resource history with given format
   # validate them with one validator
   @impl Oban.Worker
-  def perform(%{args: %{"format" => format, "validator" => validator}}) do
+  def perform(%Oban.Job{args: %{"format" => format, "validator" => validator}}) do
     validator = String.to_existing_atom(validator)
     validator_name = validator.validator_name()
 
@@ -30,7 +30,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
 
   # validate one resource history with one validator
   @impl Oban.Worker
-  def perform(%{args: %{"resource_history_id" => resource_history_id, "validator" => validator}})
+  def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id, "validator" => validator}})
       when is_integer(resource_history_id) do
     validator = String.to_existing_atom(validator)
     resource_history = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
@@ -44,7 +44,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
 
   # validate one resource history with all validators
   @impl Oban.Worker
-  def perform(%{args: %{"resource_history_id" => resource_history_id}}) when is_integer(resource_history_id) do
+  def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id}}) when is_integer(resource_history_id) do
     %{payload: %{"format" => format}} = resource_history = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
 
     format
@@ -57,7 +57,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
 
   # validate all resource history with all validators
   @impl Oban.Worker
-  def perform(%{}) do
+  def perform(%Oban.Job{}) do
     Transport.ValidatorsSelection.formats_and_validators()
     |> Enum.flat_map(fn {format, validators} -> Enum.zip(Stream.cycle([format]), validators) end)
     |> Enum.each(fn {format, validator} ->
