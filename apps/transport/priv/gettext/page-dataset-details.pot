@@ -517,3 +517,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Entities seen in the last %{nb} days."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Documentation"
+msgstr ""
