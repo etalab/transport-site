@@ -13,7 +13,6 @@ defmodule DB.MultiValidation do
     field(:command, :string)
     field(:result, :map)
     field(:data_vis, :map)
-    field(:metadata, :map)
 
     belongs_to(:resource, DB.Resource)
     belongs_to(:resource_history, DB.ResourceHistory)
