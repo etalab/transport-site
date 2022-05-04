@@ -517,3 +517,7 @@ msgstr "Entités présentes dans ce flux le %{date}."
 #, elixir-autogen, elixir-format
 msgid "Entities seen in the last %{nb} days."
 msgstr "Entités présentes dans ce flux lors des %{nb} derniers jours."
+
+#, elixir-autogen, elixir-format
+msgid "Documentation"
+msgstr "Documentation"

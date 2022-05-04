@@ -312,6 +312,7 @@ defmodule TransportWeb.DatasetView do
     |> Stream.reject(&Resource.is_gtfs?/1)
     |> Stream.reject(&Resource.is_netex?/1)
     |> Stream.reject(&Resource.is_real_time?/1)
+    |> Stream.reject(&Resource.is_documentation?/1)
     |> Enum.to_list()
     |> Enum.sort(fn r1, r2 ->
       nd1 = NaiveDateTime.from_iso8601(Map.get(r1, :last_update, ""))
@@ -322,6 +323,12 @@ defmodule TransportWeb.DatasetView do
         _ -> true
       end
     end)
+  end
+
+  def official_documentation_resources(dataset) do
+    dataset
+    |> official_available_resources()
+    |> Enum.filter(&Resource.is_documentation?/1)
   end
 
   def community_resources(dataset), do: Dataset.community_resources(dataset)
