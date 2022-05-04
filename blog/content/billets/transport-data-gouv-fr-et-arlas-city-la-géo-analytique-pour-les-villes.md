@@ -19,19 +19,11 @@ images:
 ---
 *Figure: ARLAS pour l’exploration et l'analyse de millions de trajectoires de navires.*
 
-
-
 **ARLAS** est aujourd’hui adoptée par des institutions telles que le CNES, Tisséo Collectivité (Toulouse) ou l’IRD, par de jeunes startups innovantes telles que Skyline Partners (UK) et enfin par de grands industriels tels que AIRBUS Defence & Space (ADS). 
 
 ![Figure: ARLAS pour l’exploration et la visualisation de millions d‘images satellite.](/images/article-transport.data.gouv1.jpg "Figure: ARLAS pour l’exploration et la visualisation de millions d‘images satellite.")
 
-
-
 ![Figure: ARLAS pour l’exploration et l'analyse de trajectoires d’oiseaux migrateurs.](/images/article-transport.data.gouv2.jpg "Figure: ARLAS pour l’exploration et l'analyse de trajectoires d’oiseaux migrateurs.")
-
-
-
-
 
 ## Les villes, transport.data.gouv.fr et ARLAS : un trio gagnant.
 
@@ -43,10 +35,6 @@ La mission première des Autorités Organisatrices des Mobilités (AOM) est pré
 
 ![Figure: Améliorer la mobilité en déportant les trajets VP vers les TC et le vélo.](/images/article-transport.data.gouv3.jpg "Figure: Améliorer la mobilité en déportant les trajets VP vers les TC et le vélo.")
 
-
-
-
-
 Mais pour cela, l’offre de transport se doit d’être attrayante auprès des habitants. Ce même rapport de la Commission européenne met en avant les principaux axes de satisfaction pour les usagers des transports. Les trois premiers sont :
 
 * La fréquence, en d’autres termes le temps qui s’écoule entre deux passages de véhicules de transport à un arrêt
@@ -55,7 +43,6 @@ Mais pour cela, l’offre de transport se doit d’être attrayante auprès des 
 
 Puis viennent ensuite la sécurité et enfin le coût. En d’autres termes, les habitants sont heureux là où les transports sont performants, fiables et accessibles.
 
-
 ## Les données GTFS
 
 La normalisation des données décrivant les services de transport public, entre autres à travers le format GTFS, a été une formidable opportunité pour Gisaïa de transposer ARLAS pour offrir une perspective géo-analytique sur les performances des transports aux Autorités Organisatrices de la Mobilité (AOM). Cette solution spécialement déclinée pour les AOMs s’appelle **arlas.city**.
@@ -63,10 +50,6 @@ La normalisation des données décrivant les services de transport public, entre
 La mission d’**arlas.city** est d’élaborer et de représenter les indicateurs mesurant ces axes de performance. Les responsables au sein des AOMs (chargés d’études, chargés de projets et responsables publics) sont ainsi appuyés dans leur prise de décisions par des indicateurs analytiques fiables.
 
 ![Figure: arlas.city - Indicateur performance de l’offre de transport portant sur la fréquence et l’accessibilité des arrêts d’une ligne.](/images/article-transport.data.gouv4.jpg "Figure: arlas.city - Indicateur performance de l’offre de transport portant sur la fréquence et l’accessibilité des arrêts d’une ligne.")
-
-
-
-
 
 **arlas.city** permet de charger les données décrivant l’offre théorique (format GTFS) ainsi que tout autre silo de données portant sur le réseau et son emprise territoriale, tels que les données d’exploitation (validations,  retards) ou même les données de référencement de la population (carroyage INSEE). La donnée GTFS joue ici un rôle majeur: les autres silos de données viennent se projeter sur cette donnée de référence à travers la notion de “passage” (voir plus bas).
 
@@ -103,8 +86,63 @@ L’utilisation de cette notion présente un intérêt majeur car c’est l’in
 
 La donnée préparée par **arlas.city** est dite “analytic-ready”. En d’autres termes, la donnée est sous une forme optimale pour être analysée instantanément sur tous ses axes. Cette capacité analytique instantanée sur des dizaines de millions de passages est précisément ce qu’offre la plateforme **arlas.city**.
 
-
-
 Les autorités organisatrices de la mobilité peuvent étudier chaque aspect de l’offre de transport. En premier lieu, les chargés d’études peuvent étudier l’offre théorique et les fréquences de passages proposées, comme illustré ci-dessous.
 
 ![Figure: arlas.city - Visualisation sur la carte des vitesses de circulation des véhicules (tramway) et visualisation dans la frise temporelle de l’évolution de la fréquence de passage des véhicules sur le réseau Nantais.](/images/article-transport.data.gouv8.jpg "Figure: arlas.city - Visualisation sur la carte des vitesses de circulation des véhicules (tramway) et visualisation dans la frise temporelle de l’évolution de la fréquence de passage des véhicules sur le réseau Nantais.")
+
+Les vitesses prévues de circulation des véhicules ainsi que les vitesses réellement constatées pour effectuer les déplacements sont directement analysables et comparables. Les retards permettent d’identifier rapidement les points de frictions et éventuellement d’ajuster les vitesses commerciales et les tables horaires en conséquence.
+
+Une autre analyse riche en enseignements est la superposition de la structure du réseau de transport à la densité de la population. Ainsi, il est très simple d’identifier les populations mal desservies. 
+
+![Figure: arlas.city - Visualisation sur la carte de la structure du réseau qui se superpose à la densité de population pour identifier les zones habitées mal desservies. Ici sur la commune Villeneuve Tolosan, au sud de Toulouse.](/images/article-transport.data.gouv9.jpg "Figure: arlas.city - Visualisation sur la carte de la structure du réseau qui se superpose à la densité de population pour identifier les zones habitées mal desservies. Ici sur la commune Villeneuve Tolosan, au sud de Toulouse.")
+
+La performance de mobilité offerte par le réseau est évaluée par les isochrones. En d’autres termes, le territoire accessible en un temps donné à partir d’un point de départ est calculé. Il est possible de calculer les isochrones dans différentes configurations pour évaluer le gain ou la perte d’accessibilité. Par exemple, les isochrones peuvent être calculés avec ou sans une ligne de tramway en cours d’étude et mesurer ainsi l’impact de l’ouverture de la ligne. Ou bien les isochrones peuvent être calculés sur des tranches horaires différentes, tel que présenté ci-dessous.
+
+![Figure: arlas.city - Visualisation sur la carte des isochrones au départ de la gare de Lille entre 6h30 et 8h du matin.](/images/article-transport.data.gouv10.jpg "Figure: arlas.city - Visualisation sur la carte des isochrones au départ de la gare de Lille entre 6h30 et 8h du matin.")
+
+![Figure: arlas.city - Visualisation sur la carte des isochrones au départ de la gare de Lille entre 8h et 9h30 du matin.](/images/article-transport.data.gouv11.jpg "Figure: arlas.city - Visualisation sur la carte des isochrones au départ de la gare de Lille entre 8h et 9h30 du matin.")
+
+Bien d’autres analyses sont possibles avec arlas.city. Elles peuvent porter sur la capacité des véhicules, sur les données de validation ou encore sur les données Origine/Destination. 
+
+Mais arlas.city n’a pas la prétention de fournir tous les indicateurs possibles et chaque communauté a ses propres axes d’analyse. C’est pourquoi la solution offre aux utilisateurs une interface graphique dédiée pour qu’ils puissent élaborer par eux mêmes leurs indicateurs d’intérêt.
+
+
+
+## Et après …
+
+La vocation de la solution arlas.city est d’accompagner les autorités organisatrices de la mobilité à mettre en place une stratégie décisionnelle basée sur la donnée pour l’optimisation de l’offre de transport. Nous avons vu leurs contributions:
+
+* les données GTFS permettent de mesurer les performances théoriques de l’offre et leur adéquation à la distribution spatiale de la population
+* les données de l’offre réalisée (ex: retards et annulations) permettent d’évaluer la performance opérationnelle
+* les données billetiques offrent une vue sur le niveau d’adoption du service par les usagers
+
+Tous ces axes permettent d’améliorer significativement l’offre de transport.
+
+
+
+arlas.city cherche de plus en plus à résoudre une difficulté que rencontrent les villes et qui est pour le moment mal adressée: l’offre de transport doit avant tout répondre à une demande de mobilité. En d’autres termes:
+
+* Les lignes de transports doivent être structurées en fonction des principaux flux de voyageurs pour éviter les changements de lignes. 
+* Les arrêts doivent être placés au plus proche des origines et des destinations. 
+* Les horaires doivent être adaptés à l’amplitude de la demande qui évolue au cours des heures, de la journée et des semaines.
+
+Ce besoin en mobilité est particulièrement difficile à appréhender. Différentes sources de données de mobilité des individus sont exploitées mais elles présentent toutes un inconvénient. Elles sont chères à acquérir pour les villes. Quand elles ne le sont pas, le manque de détails des données ne permet pas de prendre des décisions précises. Enfin, avec les bouleversements sociétaux rencontrés ces dernières années, il est primordial de manipuler des données récentes qui reflètent la demande actuelle.
+
+Gisaïa et de nombreuses entreprises pourraient capitaliser si les données étaient normalisées et facilement accessibles via une unique plateforme. Ainsi, les efforts se concentreront sur la valorisation des données et l'innovation et moins sur les problématiques spécifiques à chaque source de données.
+
+Les enquêtes Origine/Destination, les données de déplacements issues des télécommunications, les compteurs intelligents déployés dans les villes portent un potentiel qui doit être mis à la disposition des villes. 
+
+La solution ARLAS est prête pour faire resurgir des motifs de déplacements dans l’espace et dans le temps.
+
+![Figure: ARLAS - Visualisation de milliers de déplacements de navires en Mer du Nord.](/images/article-transport.data.gouv12.jpg "Figure: ARLAS - Visualisation de milliers de déplacements de navires en Mer du Nord.")
+
+La plateforme transport.data.gouv.fr , en complément des données déjà publiées, pourrait jouer un rôle majeur dans la normalisation, la fiabilisation et la mise à disposition de ces données de mobilité des individus. La valeur et l’apport sociétal de ses données en seraient décuplés. Les habitants des villes et métropoles en seraient les premiers bénéficiaires.
+
+
+
+## Pour plus d’informations
+
+* Entreprise : [www.gisaia.com](http://www.gisaia.com)
+* Solution open source ARLAS: [arlas.io](http://arlas.io) et ses [démos](https://www.arlas.io/arlas-demo-io).
+* Solution cloud arlas.city: [arlas.city](http://arlas.city)
+* [Report](https://ec.europa.eu/regional_policy/en/information/publications/reports/2020/report-on-the-quality-of-life-in-european-cities) on the Quality of life in European cities
