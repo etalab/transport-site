@@ -77,6 +77,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
     )
   end
 
+  # wait for https://github.com/sorentwo/oban/issues/704 response
   # test "job uniqueness for a resource_history validation" do
   #   %{"resource_history_id" => 1, "validator" => "Elixir.Transport.Validators.Dummy"}
   #   |> Transport.Jobs.ResourceHistoryValidationJob.new()
