@@ -3,6 +3,11 @@ defmodule Transport.DataVisualizationTest do
   alias Transport.DataVisualization
   doctest Transport.DataVisualization
 
+  setup do
+    Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
+    :ok
+  end
+
   @validations %{
     "ExcessiveSpeed" => [
       %{
