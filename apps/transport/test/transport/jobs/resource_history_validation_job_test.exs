@@ -19,12 +19,12 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
     _rh1 = insert(:resource_history, %{payload: %{"format" => "NeTEx"}})
     # already validated
     rh2 = insert(:resource_history, %{payload: %{"format" => "GTFS"}})
+    insert(:multi_validation, %{resource_history_id: rh2.id, validator: validator_name})
     # needs validation
     rh3 = insert(:resource_history, %{payload: %{"format" => "GTFS"}})
-    rh4 = insert(:resource_history, %{payload: %{"format" => "GTFS"}})
-
-    insert(:multi_validation, %{resource_history_id: rh2.id, validator: validator_name})
     insert(:multi_validation, %{resource_history_id: rh3.id, validator: "coucou"})
+
+    rh4 = insert(:resource_history, %{payload: %{"format" => "GTFS"}})
 
     %Oban.Job{args: %{"format" => "GTFS", "validator" => validator_string}}
     |> Transport.Jobs.ResourceHistoryValidationJob.perform()
@@ -38,12 +38,14 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
       worker: Transport.Jobs.ResourceHistoryValidationJob,
       args: %{"resource_history_id" => rh4.id, "validator" => validator}
     )
+
+    assert 2 == Enum.count(all_enqueued(worker: Transport.Jobs.ResourceHistoryValidationJob))
   end
 
   test "validate a resource history with one validator" do
     rh1 = insert(:resource_history)
 
-    %Oban.Job{args: %{"resource_history_id" => rh1.id, "validator" => "Elixir.Transport.Validators.Dummy"}}
+    %Oban.Job{args: %{"resource_history_id" => rh1.id, "validator" => Transport.Validators.Dummy |> to_string()}}
     |> Transport.Jobs.ResourceHistoryValidationJob.perform()
 
     # dummy validator sends a message for testing
