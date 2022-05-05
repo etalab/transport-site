@@ -2,15 +2,19 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
   @moduledoc """
   Validate a resource history and stores result in DB
   """
-  use Oban.Worker,
-    max_attempts: 3,
-    tags: ["validation"]
+  use Oban.Worker, max_attempts: 3, tags: ["validation"]
 
   # wait for https://github.com/sorentwo/oban/issues/704 response
   # unique: [period: 5 * 60]
 
   import Ecto.Query
 
+  @doc """
+  Launch validation(s) on resource history.
+  Depending on the arguments given, can launch one validation or many.
+  It is handy to group validations per validator, to easily check which resource history
+  are already validated.
+  """
   # select all resource history with given format
   # validate them with one validator
   @impl Oban.Worker
