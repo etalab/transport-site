@@ -60,6 +60,7 @@ defmodule DB.Resource do
     # https://github.com/opendatateam/udata/blob/fab505fd9159c6a9f63e3cb55f0d6479b7ca91e2/udata/core/dataset/models.py#L89-L96
     # Example: `main`, `documentation`, `api`, `code` etc.
     field(:type, :string)
+    field(:display_position, :integer)
 
     belongs_to(:dataset, Dataset)
     has_one(:validation, Validation, on_replace: :delete)
@@ -440,7 +441,8 @@ defmodule DB.Resource do
         :description,
         :filesize,
         :filetype,
-        :type
+        :type,
+        :display_position
       ]
     )
     |> validate_required([:url, :datagouv_id])
