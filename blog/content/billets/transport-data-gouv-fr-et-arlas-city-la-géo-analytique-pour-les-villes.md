@@ -40,7 +40,9 @@ images:
 
 > La mission première des Autorités Organisatrices des Mobilités (AOM) est précisément d’améliorer la mobilité des habitants. Le premier levier est de déporter au maximum les trajets réalisés en véhicules privés (VP) vers des déplacements en transports communs (TC). 
 
-![Figure: Améliorer la mobilité en déportant les trajets VP vers les TC et le vélo.](/images/article-transport.data.gouv3.jpg "Figure: Améliorer la mobilité en déportant les trajets VP vers les TC et le vélo.")
+![Améliorer la mobilité en déportant les trajets VP vers les TC et le vélo.](/images/article-transport.data.gouv3.jpg "Améliorer la mobilité en déportant les trajets VP vers les TC et le vélo.")
+
+*Améliorer la mobilité en déportant les trajets VP vers les TC et le vélo.*
 
 > Mais pour cela, l’offre de transport se doit d’être attrayante auprès des habitants. Ce même rapport de la Commission européenne met en avant les principaux axes de satisfaction pour les usagers des transports. Les trois premiers sont :
 >
@@ -56,11 +58,16 @@ images:
 >
 > La mission d’**arlas.city** est d’élaborer et de représenter les indicateurs mesurant ces axes de performance. Les responsables au sein des AOMs (chargés d’études, chargés de projets et responsables publics) sont ainsi appuyés dans leur prise de décisions par des indicateurs analytiques fiables.
 
-![Figure: arlas.city - Indicateur performance de l’offre de transport portant sur la fréquence et l’accessibilité des arrêts d’une ligne.](/images/article-transport.data.gouv4.jpg "Figure: arlas.city - Indicateur performance de l’offre de transport portant sur la fréquence et l’accessibilité des arrêts d’une ligne.")
+![arlas.city - Indicateur performance de l’offre de transport portant sur la fréquence et l’accessibilité des arrêts d’une ligne.](/images/article-transport.data.gouv4.jpg "arlas.city - Indicateur performance de l’offre de transport portant sur la fréquence et l’accessibilité des arrêts d’une ligne.")
+
+*arlas.city - Indicateur performance de l’offre de transport portant sur la fréquence et l’accessibilité des arrêts d’une ligne.*
 
 > **arlas.city** permet de charger les données décrivant l’offre théorique (format GTFS) ainsi que tout autre silo de données portant sur le réseau et son emprise territoriale, tels que les données d’exploitation (validations,  retards) ou même les données de référencement de la population (carroyage INSEE). La donnée GTFS joue ici un rôle majeur: les autres silos de données viennent se projeter sur cette donnée de référence à travers la notion de “passage” (voir plus bas).
 
-![Figure: arlas.city - Calculs de performance des transports publics en termes d’accessibilité territoriale proposée aux usagers.](/images/article-transport.data.gouv5.jpg "Figure: arlas.city - Calculs de performance des transports publics en termes d’accessibilité territoriale proposée aux usagers.")
+![arlas.city - Calculs de performance des transports publics en termes d’accessibilité territoriale proposée aux usagers.](/images/article-transport.data.gouv5.jpg "arlas.city - Calculs de performance des transports publics en termes d’accessibilité territoriale proposée aux usagers.")
+
+
+*arlas.city - Calculs de performance des transports publics en termes d’accessibilité territoriale proposée aux usagers.*
 
 **Transport.data.gouv.fr : vous nous disiez que le PAN était le hub de référence, pourquoi cela ?**
 
@@ -95,13 +102,17 @@ images:
 >
 > Les autorités organisatrices de la mobilité peuvent étudier chaque aspect de l’offre de transport. En premier lieu, les chargés d’études peuvent étudier l’offre théorique et les fréquences de passages proposées, comme illustré ci-dessous.
 
-![Figure: arlas.city - Visualisation sur la carte des vitesses de circulation des véhicules (tramway) et visualisation dans la frise temporelle de l’évolution de la fréquence de passage des véhicules sur le réseau Nantais.](/images/article-transport.data.gouv8.jpg "Figure: arlas.city - Visualisation sur la carte des vitesses de circulation des véhicules (tramway) et visualisation dans la frise temporelle de l’évolution de la fréquence de passage des véhicules sur le réseau Nantais.")
+![arlas.city - Visualisation sur la carte des vitesses de circulation des véhicules (tramway) et visualisation dans la frise temporelle de l’évolution de la fréquence de passage des véhicules sur le réseau Nantais.](/images/article-transport.data.gouv8.jpg "arlas.city - Visualisation sur la carte des vitesses de circulation des véhicules (tramway) et visualisation dans la frise temporelle de l’évolution de la fréquence de passage des véhicules sur le réseau Nantais.")
+
+*arlas.city - Visualisation sur la carte des vitesses de circulation des véhicules (tramway) et visualisation dans la frise temporelle de l’évolution de la fréquence de passage des véhicules sur le réseau Nantais.*
 
 > Les vitesses prévues de circulation des véhicules ainsi que les vitesses réellement constatées pour effectuer les déplacements sont directement analysables et comparables. Les retards permettent d’identifier rapidement les points de frictions et éventuellement d’ajuster les vitesses commerciales et les tables horaires en conséquence.
 >
 > Une autre analyse riche en enseignements est la superposition de la structure du réseau de transport à la densité de la population. Ainsi, il est très simple d’identifier les populations mal desservies. 
 
-![Figure: arlas.city - Visualisation sur la carte de la structure du réseau qui se superpose à la densité de population pour identifier les zones habitées mal desservies. Ici sur la commune Villeneuve Tolosan, au sud de Toulouse.](/images/article-transport.data.gouv9.jpg "Figure: arlas.city - Visualisation sur la carte de la structure du réseau qui se superpose à la densité de population pour identifier les zones habitées mal desservies. Ici sur la commune Villeneuve Tolosan, au sud de Toulouse.")
+![arlas.city - Visualisation sur la carte de la structure du réseau qui se superpose à la densité de population pour identifier les zones habitées mal desservies. Ici sur la commune Villeneuve Tolosan, au sud de Toulouse.](/images/article-transport.data.gouv9.jpg "arlas.city - Visualisation sur la carte de la structure du réseau qui se superpose à la densité de population pour identifier les zones habitées mal desservies. Ici sur la commune Villeneuve Tolosan, au sud de Toulouse.")
+
+*arlas.city - Visualisation sur la carte de la structure du réseau qui se superpose à la densité de population pour identifier les zones habitées mal desservies. Ici sur la commune Villeneuve Tolosan, au sud de Toulouse.*
 
 > La performance de mobilité offerte par le réseau est évaluée par les isochrones. En d’autres termes, le territoire accessible en un temps donné à partir d’un point de départ est calculé. Il est possible de calculer les isochrones dans différentes configurations pour évaluer le gain ou la perte d’accessibilité. Par exemple, les isochrones peuvent être calculés avec ou sans une ligne de tramway en cours d’étude et mesurer ainsi l’impact de l’ouverture de la ligne. Ou bien les isochrones peuvent être calculés sur des tranches horaires différentes, tel que présenté ci-dessous.
 
