@@ -13,7 +13,7 @@ end
 
 defmodule Transport.ValidatorsSelection.Impl do
   @moduledoc """
-  Lists wich validators should run for each resource format (GBFS, GTFS, NeTEx, etc)
+  Lists which validators should run for each resource format (GBFS, GTFS, NeTEx, etc)
   Give tools to fetch the validators list for a format
   """
   @behaviour Transport.ValidatorsSelection
