@@ -119,7 +119,9 @@ images:
 
 ![arlas.city - Visualisation sur la carte des isochrones au départ de la gare de Lille entre 6h30 et 8h du matin.](/images/article-transport.data.gouv10.jpg "arlas.city - Visualisation sur la carte des isochrones au départ de la gare de Lille entre 6h30 et 8h du matin.")
 
-![Figure: arlas.city - Visualisation sur la carte des isochrones au départ de la gare de Lille entre 8h et 9h30 du matin.](/images/article-transport.data.gouv11.jpg "Figure: arlas.city - Visualisation sur la carte des isochrones au départ de la gare de Lille entre 8h et 9h30 du matin.")
+##### arlas.city - Visualisation sur la carte des isochrones au départ de la gare de Lille entre 8h et 9h30 du matin.
+
+![arlas.city - Visualisation sur la carte des isochrones au départ de la gare de Lille entre 8h et 9h30 du matin.](/images/article-transport.data.gouv11.jpg "arlas.city - Visualisation sur la carte des isochrones au départ de la gare de Lille entre 8h et 9h30 du matin.")
 
 > Bien d’autres analyses sont possibles avec arlas.city. Elles peuvent porter sur la capacité des véhicules, sur les données de validation ou encore sur les données Origine/Destination. 
 >
@@ -149,13 +151,15 @@ images:
 >
 > La solution ARLAS est prête pour faire resurgir des motifs de déplacements dans l’espace et dans le temps.
 
-![Figure: ARLAS - Visualisation de milliers de déplacements de navires en Mer du Nord.](/images/article-transport.data.gouv12.jpg "Figure: ARLAS - Visualisation de milliers de déplacements de navires en Mer du Nord.")
+##### ARLAS - Visualisation de milliers de déplacements de navires en Mer du Nord.
+
+![ARLAS - Visualisation de milliers de déplacements de navires en Mer du Nord.](/images/article-transport.data.gouv12.jpg "ARLAS - Visualisation de milliers de déplacements de navires en Mer du Nord.")
 
 > La plateforme transport.data.gouv.fr , en complément des données déjà publiées, pourrait jouer un rôle majeur dans la normalisation, la fiabilisation et la mise à disposition de ces données de mobilité des individus. La valeur et l’apport sociétal de ses données en seraient décuplés. Les habitants des villes et métropoles en seraient les premiers bénéficiaires.
 
 **Transport.data.gouv.fr : Comment peut-on vous retrouver pour plus d’informations ?**
 
-> * Entreprise : [www.gisaia.com](http://www.gisaia.com)
+> * Site web : [www.gisaia.com](http://www.gisaia.com)
 > * Solution open source ARLAS: [arlas.io](http://arlas.io) et ses [démos](https://www.arlas.io/arlas-demo-io).
 > * Solution cloud arlas.city: [arlas.city](http://arlas.city)
 > * [Report](https://ec.europa.eu/regional_policy/en/information/publications/reports/2020/report-on-the-quality-of-life-in-european-cities) on the Quality of life in European cities
