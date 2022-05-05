@@ -16,20 +16,18 @@ defmodule Transport.Validators.GTFSTransport do
     with {:ok, %{"validations" => validations, "metadata" => metadata}} <-
            validator.validate_from_url(url),
          data_vis <- Transport.DataVisualization.validation_data_vis(validations) do
-      %{id: validation_id} =
-        %DB.MultiValidation{
-          validation_timestamp: timestamp,
-          validator: validator_name(),
-          result: validations,
-          data_vis: data_vis,
-          command: command(url),
-          resource_history_id: resource_history_id
-        }
-        |> DB.Repo.insert!()
-
-      %DB.ResourceMetadata{
+      metadata = %DB.ResourceMetadata{
         resource_history_id: resource_history_id,
-        multi_validation_id: validation_id,
+        metadata: metadata
+      }
+
+      %DB.MultiValidation{
+        validation_timestamp: timestamp,
+        validator: validator_name(),
+        result: validations,
+        data_vis: data_vis,
+        command: command(url),
+        resource_history_id: resource_history_id,
         metadata: metadata
       }
       |> DB.Repo.insert!()

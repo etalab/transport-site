@@ -22,6 +22,7 @@ defmodule DB.MultiValidation do
     belongs_to(:secondary_resource_history, DB.ResourceHistory, foreign_key: :secondary_resource_history_id)
     field(:secondary_validated_data_name, :string)
 
+    has_one(:metadata, DB.ResourceMetadata)
     timestamps(type: :utc_datetime_usec)
   end
 
