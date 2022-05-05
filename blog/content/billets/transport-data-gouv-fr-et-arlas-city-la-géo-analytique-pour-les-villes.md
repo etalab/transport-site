@@ -10,31 +10,31 @@ description: >-
   par le plus grand nombre. 
 
 
-  Gisaïa est réutilisateur des données du PAN. Nous leur avons posé quelques questions pour mieux comprendre ils réutilisent ces données :
+  Gisaïa est réutilisateur des données du PAN. Nous leur avons posé quelques questions pour mieux comprendre ils réutilisent ces données.
 
 
-  "Nous œuvrons ainsi à ce que les organisations et entreprises du monde entier puissent pleinement bénéficier de la valeur ajoutée nichée dans les données géospatiales et souvent inexploitées du fait de la complexité et de la volumétrie de cette dernière. 
+  "Nous œuvrons à ce que les organisations et entreprises du monde entier puissent pleinement bénéficier de la valeur ajoutée nichée dans les données géospatiales et souvent inexploitées du fait de la complexité et de la volumétrie de cette dernière. 
 
 
   Dans cette perspective, nous avons créé la solution open source ARLAS. La solution allie technologies big data et géo-analytique pour offrir une toute nouvelle approche dans l’exploration et l’analyse de données référencées dans l’espace et dans le temps."
 images:
   - /images/article-transport.data.gouv.jpg
 ---
-*Figure: ARLAS pour l’exploration et l'analyse de millions de trajectoires de navires.*
-
 **Transport.data.gouv.fr : Pouvez-vous nous parler d'ARLAS ?**
 
 > **ARLAS** est aujourd’hui adoptée par des institutions telles que le CNES, Tisséo Collectivité (Toulouse) ou l’IRD, par de jeunes startups innovantes telles que Skyline Partners (UK) et enfin par de grands industriels tels que AIRBUS Defence & Space (ADS). 
 
-![Figure: ARLAS pour l’exploration et la visualisation de millions d‘images satellite.](/images/article-transport.data.gouv1.jpg "Figure: ARLAS pour l’exploration et la visualisation de millions d‘images satellite.")
+![ARLAS pour l’exploration et la visualisation de millions d‘images satellite.](/images/article-transport.data.gouv1.jpg "ARLAS pour l’exploration et la visualisation de millions d‘images satellite.")
 
-![Figure: ARLAS pour l’exploration et l'analyse de trajectoires d’oiseaux migrateurs.](/images/article-transport.data.gouv2.jpg "Figure: ARLAS pour l’exploration et l'analyse de trajectoires d’oiseaux migrateurs.")
+*ARLAS pour l’exploration et la visualisation de millions d‘images satellite.*
+
+![ARLAS pour l’exploration et l'analyse de trajectoires d’oiseaux migrateurs.](/images/article-transport.data.gouv2.jpg "ARLAS pour l’exploration et l'analyse de trajectoires d’oiseaux migrateurs.")
+
+*ARLAS pour l’exploration et l'analyse de trajectoires d’oiseaux migrateurs.*
 
 **Transport.data.gouv.fr : Est-il possible de lier les villes, transport.data.gouv.fr et ARLAS pour enfait un trio gagnant ?**
 
 > Un [rapport](https://ec.europa.eu/regional_policy/en/information/publications/reports/2020/report-on-the-quality-of-life-in-european-cities) de la Commission européenne publié en 2020 met en évidence la contribution majeure de la qualité des transports en commun dans l’épanouissement des habitants des villes. Les habitants s’épanouissent dans les villes où les transports publics sont efficaces et sûrs.
-
-
 
 **Transport.data.gouv.fr : Et la mobilité dans tout ça ?**
 
@@ -147,7 +147,5 @@ images:
 > * Solution open source ARLAS: [arlas.io](http://arlas.io) et ses [démos](https://www.arlas.io/arlas-demo-io).
 > * Solution cloud arlas.city: [arlas.city](http://arlas.city)
 > * [Report](https://ec.europa.eu/regional_policy/en/information/publications/reports/2020/report-on-the-quality-of-life-in-european-cities) on the Quality of life in European cities
-
-
 
 Merci pour vos partages et le temps consacré à cette interview ! A bientôt !
