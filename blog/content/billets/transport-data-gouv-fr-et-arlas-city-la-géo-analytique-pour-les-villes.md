@@ -1,5 +1,5 @@
 ---
-title: "arlas.city : la géo-analytique pour les villes"
+title: "Interview avec Gisaïa sur arlas.city : la géo-analytique pour les villes"
 date: 2022-05-04T14:26:21.207Z
 tags:
   - réutilisation
