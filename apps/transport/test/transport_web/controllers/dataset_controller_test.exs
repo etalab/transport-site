@@ -32,6 +32,27 @@ defmodule TransportWeb.DatasetControllerTest do
     end
   end
 
+  test "dataset details with a documentation resource", %{conn: conn} do
+    dataset = insert(:dataset, aom: insert(:aom, composition_res_id: 157))
+    resource = insert(:resource, type: "documentation", url: "https://example.com", dataset: dataset)
+
+    dataset = dataset |> DB.Repo.preload(:resources)
+
+    assert DB.Resource.is_documentation?(resource)
+    assert Enum.empty?(TransportWeb.DatasetView.other_official_resources(dataset))
+    assert 1 == Enum.count(TransportWeb.DatasetView.official_documentation_resources(dataset))
+
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
+
+    with_mocks [
+      {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:ok, []} end]},
+      {Datagouvfr.Client.Discussions, [], [get: fn _id -> nil end]}
+    ] do
+      conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+      assert html_response(conn, 200) =~ "Documentation"
+    end
+  end
+
   test "GET /api/datasets has HTTP cache headers set", %{conn: conn} do
     path = TransportWeb.API.Router.Helpers.dataset_path(conn, :datasets)
     conn = conn |> get(path)
