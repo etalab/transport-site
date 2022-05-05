@@ -105,4 +105,28 @@ defmodule TransportWeb.DatasetViewTest do
                "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/898dc67fb19fae2464c24a85a0557e8ccce18791/bnlc-.csv"
            }) == resource_path(conn, :download, id)
   end
+
+  test "other_official_resources is sorted by display position" do
+    dataset = %DB.Dataset{
+      type: "low-emission-zones",
+      resources: [
+        %DB.Resource{
+          id: 1,
+          url: "https://example.com/zfe.geojson",
+          format: "geojson",
+          schema_name: "etalab/schema-zfe",
+          display_position: 1
+        },
+        %DB.Resource{
+          id: 2,
+          url: "https://example.com/voies.geojson",
+          format: "geojson",
+          schema_name: "etalab/schema-zfe",
+          display_position: 0
+        }
+      ]
+    }
+
+    assert [{0, 2}, {1, 1}] == dataset |> other_official_resources() |> Enum.map(&{&1.display_position, &1.id})
+  end
 end
