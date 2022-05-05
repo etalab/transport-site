@@ -11,18 +11,14 @@ description: >-
 
 
   Gisaïa est réutilisateur des données du PAN. Nous leur avons posé quelques questions pour mieux comprendre ils réutilisent ces données.
-
-
-  "Nous œuvrons à ce que les organisations et entreprises du monde entier puissent pleinement bénéficier de la valeur ajoutée nichée dans les données géospatiales et souvent inexploitées du fait de la complexité et de la volumétrie de cette dernière. 
-
-
-  Dans cette perspective, nous avons créé la solution open source ARLAS. La solution allie technologies big data et géo-analytique pour offrir une toute nouvelle approche dans l’exploration et l’analyse de données référencées dans l’espace et dans le temps."
 images:
   - /images/article-transport.data.gouv.jpg
 ---
-**Transport.data.gouv.fr : Pouvez-vous nous parler d'ARLAS ?**
+**Transport.data.gouv.fr : Pouvez-vous nous parler de Gisaïa et votre produit ARLAS ?**
 
-> **ARLAS** est aujourd’hui adoptée par des institutions telles que le CNES, Tisséo Collectivité (Toulouse) ou l’IRD, par de jeunes startups innovantes telles que Skyline Partners (UK) et enfin par de grands industriels tels que AIRBUS Defence & Space (ADS). 
+> Nous œuvrons à ce que les organisations et entreprises du monde entier puissent pleinement bénéficier de la valeur ajoutée nichée dans les données géospatiales et souvent inexploitées du fait de la complexité et de la volumétrie de cette dernière. 
+> Dans cette perspective, nous avons créé la solution open source **ARLAS**. La solution allie technologies big data et géo-analytique pour offrir une toute nouvelle approche dans l’exploration et l’analyse de données référencées dans l’espace et dans le temps."
+> ARLAS est aujourd’hui adoptée par des institutions telles que le CNES, Tisséo Collectivité (Toulouse) ou l’IRD, par de jeunes startups innovantes telles que Skyline Partners (UK) et enfin par de grands industriels tels que AIRBUS Defence & Space (ADS). 
 
 ![ARLAS pour l’exploration et la visualisation de millions d‘images satellite.](/images/article-transport.data.gouv1.jpg "ARLAS pour l’exploration et la visualisation de millions d‘images satellite.")
 
