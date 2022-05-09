@@ -11,6 +11,8 @@ defmodule TransportWeb.SeoMetadataTest do
   setup :verify_on_exit!
 
   setup do
+    Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
+
     {:ok, _} =
       %Dataset{
         description: "Un jeu de données",

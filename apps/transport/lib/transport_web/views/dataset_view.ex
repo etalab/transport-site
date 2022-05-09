@@ -15,10 +15,18 @@ defmodule TransportWeb.DatasetView do
   alias TransportWeb.ResourceView
 
   @doc """
-  Count the number of resources (official + community)
+  Count the number of resources (official + community), excluding resources with a `documentation` type.
   """
+  @spec count_resources(Dataset.t()) :: non_neg_integer
   def count_resources(dataset) do
-    Enum.count(official_available_resources(dataset)) + Enum.count(community_resources(dataset))
+    nb_resources = Enum.count(official_available_resources(dataset))
+    nb_community_resources = Enum.count(community_resources(dataset))
+    nb_resources + nb_community_resources - count_documentation_resources(dataset)
+  end
+
+  @spec count_documentation_resources(Dataset.t()) :: non_neg_integer
+  def count_documentation_resources(dataset) do
+    dataset |> official_available_resources() |> Stream.filter(&Resource.is_documentation?/1) |> Enum.count()
   end
 
   @spec count_discussions(any) :: [45, ...] | non_neg_integer

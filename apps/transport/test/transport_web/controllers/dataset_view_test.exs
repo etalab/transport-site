@@ -2,6 +2,7 @@ defmodule TransportWeb.DatasetViewTest do
   use TransportWeb.ConnCase, async: false
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
+  import DB.Factory
   import TransportWeb.DatasetView
 
   doctest TransportWeb.DatasetView
@@ -128,5 +129,17 @@ defmodule TransportWeb.DatasetViewTest do
     }
 
     assert [{0, 2}, {1, 1}] == dataset |> other_official_resources() |> Enum.map(&{&1.display_position, &1.id})
+  end
+
+  test "count_resources and count_documentation_resources" do
+    dataset = insert(:dataset)
+    insert(:resource, type: "documentation", url: "https://example.com/doc", dataset: dataset)
+    insert(:resource, type: "main", url: "https://example.com/file", dataset: dataset)
+    insert(:resource, type: "main", url: "https://example.com/community", dataset: dataset, is_community_resource: true)
+
+    dataset = dataset |> DB.Repo.preload(:resources)
+
+    assert count_resources(dataset) == 2
+    assert count_documentation_resources(dataset) == 1
   end
 end
