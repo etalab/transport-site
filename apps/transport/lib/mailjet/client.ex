@@ -34,7 +34,7 @@ defmodule Mailjet.Client do
   @impl Transport.EmailSender
   def send_mail(from_name, from_email, to_email, reply_to, subject, text_body, html_body) do
     mailjet_url()
-    |> httpoison_impl().post(payload!(from_name, from_email, to_email, reply_to, subject, text_body, html_body), nil,
+    |> httpoison_impl().post(payload!(from_name, from_email, to_email, reply_to, subject, text_body, html_body), [],
       hackney: [basic_auth: {mailjet_user(), mailjet_key()}]
     )
     |> case do
