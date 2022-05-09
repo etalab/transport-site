@@ -39,12 +39,17 @@ defmodule Shared.Validation.GtfsValidator do
   @impl Validator
   def validate_from_url(gtfs_url),
     do:
-      build_validate_url()
-      |> (&(&1 <> "?url=#{URI.encode_www_form(gtfs_url)}")).()
+      gtfs_url
+      |> remote_gtfs_validation_query()
       |> send_get_request()
       |> handle_validation_response()
 
   defp build_validate_url, do: gtfs_validator_base_url() <> "/validate"
+
+  def remote_gtfs_validation_query(gtfs_url) do
+    build_validate_url()
+    |> (&(&1 <> "?url=#{URI.encode_www_form(gtfs_url)}")).()
+  end
 
   defp gtfs_validator_base_url do
     case Application.fetch_env(:transport, :gtfs_validator_url) do

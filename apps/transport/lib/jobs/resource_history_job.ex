@@ -124,7 +124,12 @@ defmodule Transport.Jobs.ResourceHistoryJob do
           end
 
         Transport.S3.upload_to_s3!(:history, body, filename)
-        store_resource_history!(resource, data)
+        %{id: resource_history_id} = store_resource_history!(resource, data)
+
+        # validate the resource history
+        %{resource_history_id: resource_history_id}
+        |> Transport.Jobs.ResourceHistoryValidationJob.new()
+        |> Oban.insert()
 
       {false, history} ->
         # Good opportunity to add a :telemetry event
