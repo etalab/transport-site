@@ -1,5 +1,6 @@
 defmodule Mailjet.ClientTest do
-  use ExUnit.Case, async: true
+  # not async because we use config change
+  use ExUnit.Case, async: false
   import Mox
   setup :verify_on_exit!
 
@@ -38,5 +39,21 @@ defmodule Mailjet.ClientTest do
       )
 
     verify!(Transport.HTTPoison.Mock)
+  end
+
+  test "goes through hackney without pain (integration style)" do
+    assert Mailjet.Client.mailjet_url == "https://api.mailjet.com/v3.1/send"
+
+    bypass = Bypass.open()
+
+    # reconfigure the app to tap into bypass server & stop using mocking
+    config = Application.fetch_env!(:transport, Mailjet.Client)
+    AppConfigHelper.change_app_config_temporarily(:transport, Mailjet.Client, Keyword.merge(config, mailjet_url: "http://localhost:#{bypass.port}"))
+    AppConfigHelper.change_app_config_temporarily(:transport, :email_sender_impl, Mailjet.Client)
+    AppConfigHelper.change_app_config_temporarily(:transport, :httpoison_impl, HTTPoison)
+
+    assert Mailjet.Client.mailjet_url == "http://localhost:#{bypass.port}"
+
+    Mailjet.Client.send_mail("FROM", "from@example.com", "to@example.com", "reply_to@example.com", "the subject", "plain text body", "html body")
   end
 end
