@@ -46,6 +46,12 @@ defmodule Mailjet.ClientTest do
 
     bypass = Bypass.open()
 
+    # here we just ensure something has reached the server, to go through a real
+    # hackney path ; the payload itself is tested in the other test
+    Bypass.expect(bypass, fn conn ->
+      Plug.Conn.resp(conn, 200, "")
+    end)
+
     # reconfigure the app to tap into bypass server & stop using mocking
     config = Application.fetch_env!(:transport, Mailjet.Client)
     AppConfigHelper.change_app_config_temporarily(:transport, Mailjet.Client, Keyword.merge(config, mailjet_url: "http://localhost:#{bypass.port}"))
