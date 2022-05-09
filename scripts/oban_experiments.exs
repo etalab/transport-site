@@ -25,24 +25,30 @@ end
 defmodule Main do
   require Logger
 
-  def main do
+  def start_ecto do
     children = [
       Repo,
       {Oban, repo: Repo, plugins: [Oban.Plugins.Pruner], queues: [default: 10]}
     ]
 
-    Logger.info "Erasing database..."
+    {:ok, _} = Supervisor.start_link(children, strategy: :one_for_one)
+  end
+
+  def create_db do
+    Logger.info("Erasing database...")
     Repo.__adapter__().storage_down(Repo.config())
 
-    Logger.info "Creating database..."
+    Logger.info("Creating database...")
     Repo.__adapter__().storage_up(Repo.config())
+  end
 
-    {:ok, _} = Supervisor.start_link(children, strategy: :one_for_one)
+  def main do
+    start_ecto()
 
-    Logger.info "Running migrations..."
+    Logger.info("Running migrations...")
     Ecto.Migrator.run(Repo, [{0, Migration0}], :up, all: true)
 
-    Logger.info "Inserting long running job..."
+    Logger.info("Inserting long running job...")
     Oban.insert!(LongRunningJob.new(%{}))
 
     # Oban.Job
@@ -58,14 +64,31 @@ defmodule LongRunningJob do
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
     max = 10_000
+
     for i <- 1..max do
-      Logger.info "Working (step #{i} of #{max})..."
+      Logger.info("Working (step #{i} of #{max})...")
       Process.sleep(1_000)
     end
+
     :ok
   end
 end
 
-Logger.info "Starting individual process running a very long time"
-Main.main()
-Process.sleep(10_000_000)
+case System.argv() do
+  ["create_db"] ->
+    Main.create_db()
+
+  ["check"] ->
+    Main.start_ecto()
+
+    [job] =
+      Oban.Job
+      |> Repo.all(log: false)
+      |> Enum.map(fn x -> Map.take(x, [:attempt, :state]) end)
+      |> IO.inspect(IEx.inspect_opts())
+
+  ["run"] ->
+    Logger.info("Starting individual process running a very long time")
+    Main.main()
+    Process.sleep(10_000_000)
+end
