@@ -34,4 +34,18 @@ defmodule DB.MultiValidation do
     |> where([mv], mv.validator == ^validator_name and mv.resource_history_id == ^id)
     |> DB.Repo.exists?()
   end
+
+  @spec latest_resource_validation(integer(), atom) :: __MODULE__.t() | nil
+  def latest_resource_validation(resource_id, validator) do
+    validator_name = validator.validator_name()
+
+    resource_id
+    |> DB.ResourceHistory.latest_resource_history_query()
+    |> join(:left, [_r, rh], mv in DB.MultiValidation, on: mv.resource_history_id == rh.id)
+    |> where([_r, _rh, mv], mv.validator == ^validator_name)
+    |> order_by([_r, _rh, mv], desc: mv.validation_timestamp)
+    |> limit(1)
+    |> select([_r, _rh, mv], mv)
+    |> DB.Repo.one()
+  end
 end
