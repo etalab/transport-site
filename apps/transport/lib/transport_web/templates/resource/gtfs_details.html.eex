@@ -11,7 +11,7 @@
           </a>
         </p>
         <p><%= dgettext("validations", "This resource file is part of the dataset")%> <%= link(@resource.dataset.custom_title, to: dataset_path(@conn, :details, @resource.dataset.slug) )%>.</p>
-        <%= render "_resources_details.html", conn: @conn, metadata: @resource.metadata %>
+        <%= render "_resources_details.html", conn: @conn, metadata: @metadata %>
         <%= if !is_nil(associated_geojson) or !is_nil(associated_netex) do %>
         <div id="other-formats">
           <%= dgettext("validations", "This resource is also available in the following formats:")%>
@@ -85,22 +85,18 @@
       <% end %>
       <h2 id="validation-report" class="mt-48"><%= dgettext("validations", "Validation report")%></h2>
       <div class="panel" id="issues">
+        <%= unless @validation_summary do %>
+        <%= dgettext("validations", "No validation available") %>
+        <% else %>
         <nav class="issues-list validation" role="navigation">
-          <%= unless @resource.validation do %>
-          <%= dgettext("validations", "No validation available") %>
-          <% else %>
           <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, issues: @issues, conn: @conn, data_vis: @data_vis, token: nil %>
-          <% end %>
         </nav>
         <div class="main-pane">
-          <%= unless @resource.validation do %>
-          <%= dgettext("validations", "No validation available") %>
-          <% else %>
           <%= pagination_links @conn, @issues, [@resource.id], issue_type: issue_type(@issues.entries),
-              path: &resource_path/4, action: :details %>
-          <% end %>
+            path: &resource_path/4, action: :details %>
           <%=  render template(@issues), issues: @issues || [] , conn: @conn %>
         </div>
+        <% end %>
       </div>
       <%= if length(@other_resources) > 0 do %>
       <div class="mt-48 validation-section">
