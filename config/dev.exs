@@ -73,6 +73,8 @@ config :oauth2, Datagouvfr.Authentication,
   site: datagouvfr_site,
   redirect_uri: "http://localhost:5000/login/callback"
 
+config :transport, :email_sender_impl, Transport.EmailSender.Dummy
+
 extra_config_file = Path.join(__DIR__, "#{config_env()}.secret.exs")
 
 if File.exists?(extra_config_file) do
@@ -88,5 +90,3 @@ end
 if File.exists?(".envrc") do
   Mix.raise("The .envrc file is deprecated and must be removed")
 end
-
-config :transport, :email_sender_impl, Transport.EmailSender.Dummy
