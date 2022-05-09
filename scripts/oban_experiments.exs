@@ -3,7 +3,7 @@ require Logger
 Mix.install([
   {:ecto_sql, "~> 3.8.1"},
   {:postgrex, "~> 0.16.3"},
-  {:oban, "~> 2.12"}
+  {:oban, "~> 2.12.0"}
 ])
 
 Application.put_env(:myapp, Repo, database: "test_oban")
