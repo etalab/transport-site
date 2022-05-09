@@ -1,6 +1,6 @@
 Mox.defmock(Transport.ExAWS.Mock, for: ExAws.Behaviour)
 Mox.defmock(Transport.HTTPoison.Mock, for: HTTPoison.Base)
-Mox.defmock(Validation.Validator.Mock, for: Shared.Validation.Validator)
+Mox.defmock(Shared.Validation.Validator.Mock, for: Shared.Validation.Validator)
 Mox.defmock(Shared.Validation.GBFSValidator.Mock, for: Shared.Validation.GBFSValidator.Wrapper)
 Mox.defmock(Transport.Rambo.Mock, for: Transport.RamboLauncher)
 Mox.defmock(Transport.Notifications.FetcherMock, for: Transport.Notifications.Fetcher)
@@ -12,3 +12,5 @@ Mox.defmock(Transport.Shared.Schemas.Mock, for: Transport.Shared.Schemas.Wrapper
 Mox.defmock(Transport.History.Fetcher.Mock, for: Transport.History.Fetcher)
 Mox.defmock(Transport.EmailSender.Mock, for: Transport.EmailSender)
 Mox.defmock(Hasher.Mock, for: Hasher.Wrapper)
+Mox.defmock(Transport.ValidatorsSelection.Mock, for: Transport.ValidatorsSelection)
+Mox.defmock(Transport.DataVisualization.Mock, for: Transport.DataVisualization)

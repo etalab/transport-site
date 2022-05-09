@@ -13,6 +13,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     DB.Repo.delete_all(DB.ResourceHistory)
+    Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
     :ok
   end
 
@@ -248,7 +249,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       }
 
       # Validator should be called because resource was never historicised
-      Validation.Validator.Mock
+      Shared.Validation.Validator.Mock
       |> expect(:validate_from_url, fn ^resource_url ->
         {:ok, %{"validations" => %{}, "metadata" => validator_metadata}}
       end)
@@ -279,6 +280,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       expected_zip_metadata = zip_metadata()
 
       assert %DB.ResourceHistory{
+               id: resource_history_id,
                datagouv_id: ^datagouv_id,
                payload: %{
                  "filenames" => [
@@ -312,6 +314,10 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       refute is_nil(last_up_to_date_at)
       %DB.Resource{content_hash: content_hash} = DB.Repo.reload(resource)
       refute content_hash == first_content_hash
+
+      # assert a resource validation is launched
+      assert [%{args: %{"resource_history_id" => ^resource_history_id}}] =
+               all_enqueued(worker: Transport.Jobs.ResourceHistoryValidationJob)
     end
 
     test "a simple successful case for a CSV" do
