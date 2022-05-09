@@ -1,4 +1,5 @@
 # elixir oban_suite.exs
+# see https://github.com/etalab/transport-site/pull/2365 for some context
 ExUnit.start()
 
 defmodule ObanSuite do
