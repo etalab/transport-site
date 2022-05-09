@@ -39,13 +39,15 @@ defmodule DB.MultiValidation do
   def latest_resource_validation(resource_id, validator) do
     validator_name = validator.validator_name()
 
-    resource_id
-    |> DB.ResourceHistory.latest_resource_history_query()
-    |> join(:left, [_r, rh], mv in DB.MultiValidation, on: mv.resource_history_id == rh.id)
-    |> where([_r, _rh, mv], mv.validator == ^validator_name)
-    |> order_by([_r, _rh, mv], desc: mv.validation_timestamp)
+    # when resource and resource_history are linked by the resource id,
+    # the join with resource will be removed in this query.
+    DB.MultiValidation
+    |> join(:left, [mv], rh in DB.ResourceHistory, on: rh.id == mv.resource_history_id)
+    |> join(:left, [mv, rh], r in DB.Resource, on: r.datagouv_id == rh.datagouv_id)
+    |> where([mv, rh, r], mv.validator == ^validator_name and r.id == ^resource_id)
+    |> order_by([mv, rh, r], desc: mv.validation_timestamp, desc: rh.inserted_at)
+    |> preload(:metadata)
     |> limit(1)
-    |> select([_r, _rh, mv], mv)
     |> DB.Repo.one()
   end
 end
