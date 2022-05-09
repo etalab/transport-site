@@ -8,7 +8,7 @@ defmodule Mailjet.ClientTest do
     Transport.HTTPoison.Mock
     |> expect(:post, fn url, body, headers, options ->
       assert url == "https://api.mailjet.com/v3.1/send"
-      assert headers == nil
+      assert headers == []
       assert options == [{:hackney, [basic_auth: {"TEST_MJ_APIKEY_PUBLIC", "TEST_MJ_APIKEY_PRIVATE"}]}]
       # see https://dev.mailjet.com/email/guides/send-api-v31/
       assert Jason.decode!(body) == %{
