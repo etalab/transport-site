@@ -71,7 +71,7 @@ defmodule TransportWeb.ResourceController do
 
     validation =
       resource.id
-      |> DB.MultiValidation.latest_resource_validation(Transport.Validators.GTFSTransport)
+      |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)
 
     {validation_summary, severities_count, metadata} =
       case validation do

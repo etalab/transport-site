@@ -35,8 +35,8 @@ defmodule DB.MultiValidation do
     |> DB.Repo.exists?()
   end
 
-  @spec latest_resource_validation(integer(), atom) :: __MODULE__.t() | nil
-  def latest_resource_validation(resource_id, validator) do
+  @spec resource_latest_validation(integer(), atom) :: __MODULE__.t() | nil
+  def resource_latest_validation(resource_id, validator) do
     validator_name = validator.validator_name()
 
     # when resource and resource_history are linked by the resource id,
