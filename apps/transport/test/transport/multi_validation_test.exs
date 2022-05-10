@@ -57,7 +57,8 @@ defmodule DB.MultiValidationTest do
 
     dataset_validations = DB.MultiValidation.dataset_latest_validation(dataset_id, [validator])
 
-    assert %{id: ^mv_id, resource_history_id: ^resource_history_id_latest} = dataset_validations |> Map.get(resource_id)
+    assert [%{id: ^mv_id, resource_history_id: ^resource_history_id_latest}] =
+             dataset_validations |> Map.get(resource_id)
   end
 
   test "no resource latest validation, resource alone" do
@@ -68,7 +69,7 @@ defmodule DB.MultiValidationTest do
     assert nil == DB.MultiValidation.resource_latest_validation(resource_id, validator)
 
     dataset_validations = DB.MultiValidation.dataset_latest_validation(dataset_id, [validator])
-    assert nil == dataset_validations |> Map.get(resource_id, "nothing")
+    assert [nil] == dataset_validations |> Map.get(resource_id, "nothing")
   end
 
   test "no resource latest validation, resource + resource_history" do
@@ -80,7 +81,7 @@ defmodule DB.MultiValidationTest do
     assert nil == DB.MultiValidation.resource_latest_validation(resource_id, validator)
 
     dataset_validations = DB.MultiValidation.dataset_latest_validation(dataset_id, [validator])
-    assert nil == dataset_validations |> Map.get(resource_id, "nothing")
+    assert [nil] == dataset_validations |> Map.get(resource_id, "nothing")
   end
 
   test "no resource latest validation with specified validator" do
@@ -97,6 +98,51 @@ defmodule DB.MultiValidationTest do
     assert nil == DB.MultiValidation.resource_latest_validation(resource_id, validator)
 
     dataset_validations = DB.MultiValidation.dataset_latest_validation(dataset_id, [validator])
-    assert nil == dataset_validations |> Map.get(resource_id, "nothing")
+    assert [nil] == dataset_validations |> Map.get(resource_id, "nothing")
+  end
+
+  test "dataset validations, multiple resources and validators" do
+    validator_1 = Transport.Validators.GTFSTransport
+    validator_1_name = validator_1.validator_name()
+    validator_2 = Transport.Validators.Dummy
+    validator_2_name = validator_2.validator_name()
+
+    %{id: dataset_id} = insert(:dataset)
+
+    %{id: resource_id_1} = insert(:resource, %{dataset_id: dataset_id, datagouv_id: datagouv_id_1 = "datagouv_id_1"})
+    %{id: resource_id_2} = insert(:resource, %{dataset_id: dataset_id, datagouv_id: datagouv_id_2 = "datagouv_id_2"})
+    %{id: resource_id_3} = insert(:resource, %{dataset_id: dataset_id, datagouv_id: "datagouv_id_3"})
+
+    %{id: resource_history_id_1} = insert(:resource_history, %{datagouv_id: datagouv_id_1})
+    %{id: resource_history_id_2} = insert(:resource_history, %{datagouv_id: datagouv_id_2})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id_1,
+      validator: validator_1.validator_name()
+    })
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id_1,
+      validator: validator_2.validator_name()
+    })
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id_2,
+      validator: validator_1.validator_name()
+    })
+
+    validations = DB.MultiValidation.dataset_latest_validation(dataset_id, [validator_1, validator_2])
+
+    resource_1_validations = validations |> Map.get(resource_id_1) |> Enum.sort_by(fn %{id: id} -> id end)
+
+    assert [
+             %{resource_history_id: resource_history_id_1, validator: ^validator_1_name},
+             %{resource_history_id: resource_history_id_1, validator: ^validator_2_name}
+           ] = resource_1_validations
+
+    assert [%{resource_history_id: ^resource_history_id_2, validator: ^validator_1_name}] =
+             validations |> Map.get(resource_id_2)
+
+    assert [nil] = validations |> Map.get(resource_id_3)
   end
 end
