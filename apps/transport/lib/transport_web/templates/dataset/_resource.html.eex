@@ -3,6 +3,10 @@
   <% has_associated_geojson = ResourceView.has_associated_geojson(@resources_related_files, @resource.id) %>
   <% has_associated_netex = ResourceView.has_associated_netex(@resources_related_files, @resource.id) %>
   <% is_geojson_with_viz = ResourceView.is_geojson_with_viz(@resource, Map.get(@latest_resources_history_infos || %{}, @resource.id)) %>
+  <% unavailabilities = @resources_infos.unavailabilities %>
+  <% resources_updated_at = @resources_infos.resources_updated_at %>
+  <% validations = @resources_infos.validations %>
+
   <h4>
     <%= @resource.title %>
   </h4>
@@ -26,7 +30,7 @@
 
     <span title="<%= dgettext("page-dataset-details", "last content modification") %>">
       <i class="icon icon--sync-alt" aria-hidden="true"></i>
-        <%= show_resource_last_update(@resources_updated_at, @resource, locale) %>
+        <%= show_resource_last_update(resources_updated_at, @resource, locale) %>
     </span>
 
     <%= unless is_nil(Resource.ttl(@resource)) do %>
@@ -35,11 +39,11 @@
         <%= Resource.ttl(@resource) %>s
       </span>
     <% end %>
-    <%= if Map.has_key?(@unavailabilities, @resource.id) do %>
+    <%= if Map.has_key?(unavailabilities, @resource.id) do %>
       <div>
         <span title="<%= dgettext("page-dataset-details", "download availability over the last %{nb} days", nb: availability_number_days()) %>">
           <img class="icon icon--uptime" src="<%= static_path(@conn, "/images/icons/uptime.svg") %>" />
-          <% availability_ratio = @unavailabilities[@resource.id] %>
+          <% availability_ratio = unavailabilities[@resource.id] %>
           <span class="<%= availability_ratio_class(availability_ratio) %>">
             <%= link  "#{availability_ratio}%", to: resource_path(@conn, :details, @resource.id) <> "#download-availability" %>
           </span>
@@ -69,21 +73,22 @@
     </div>
   <% end %>
   <%= if Resource.is_gtfs?(@resource) do %>
-    <div class="pb-24">
-      <a href="<%= resource_path(@conn, :details, @resource.id)<>"#validation-report" %>">
-        <% r = Resource.get_max_severity_validation_number(@resource) %>
-        <%= unless is_nil(r) do %>
-          <span class="<%= summary_class(r) %>">
-            <%= if r.severity == "Irrevelant" do %>
-              <%= dgettext("page-dataset-details", "No error detected") %>
-            <% else %>
-              <%= "#{r.count_errors} #{String.downcase(Validation.severities(r.severity)[:text])}" %>
-            <% end %>
-          </span>
-        <% end %>
-      </a>
-      <span><%= dgettext("page-dataset-details", "during validation") %></span>
-    </div>
+    <% validation = Map.get(validations, @resource.id) %>
+    <%= if GTFSTransport.is_me?(validation) do %>
+      <div class="pb-24">
+        <a href="<%= resource_path(@conn, :details, @resource.id)<>"#validation-report" %>">
+          <% {severity, count} = GTFSTransport.count_max_severity(validation.result) %>
+            <span class="<%= summary_class(%{severity: severity, count_errors: count}) %>">
+              <%= if severity == "Irrevelant" do %>
+                <%= dgettext("page-dataset-details", "No error detected") %>
+              <% else %>
+                <%= "#{count} #{String.downcase(GTFSTransport.severities(severity)[:text])}" %>
+              <% end %>
+            </span>
+        </a>
+        <span><%= dgettext("page-dataset-details", "during validation") %></span>
+      </div>
+    <% end %>
   <% end %>
 
   <%= if has_associated_geojson or is_geojson_with_viz do %>
