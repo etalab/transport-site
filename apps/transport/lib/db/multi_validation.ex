@@ -45,7 +45,7 @@ defmodule DB.MultiValidation do
     |> join(:left, [mv], rh in DB.ResourceHistory, on: rh.id == mv.resource_history_id)
     |> join(:left, [mv, rh], r in DB.Resource, on: r.datagouv_id == rh.datagouv_id)
     |> where([mv, rh, r], mv.validator == ^validator_name and r.id == ^resource_id)
-    |> order_by([mv, rh, r], desc: mv.validation_timestamp, desc: rh.inserted_at)
+    |> order_by([mv, rh, r], desc: rh.inserted_at, desc: mv.validation_timestamp)
     |> preload(:metadata)
     |> limit(1)
     |> DB.Repo.one()
