@@ -103,4 +103,15 @@ defmodule Transport.Validators.GTFSTransport do
   end
 
   def count_by_severity(_), do: %{}
+
+  def count_max_severity(validation_result = %{}) do
+    validation_result
+    |> count_by_severity()
+    |> Enum.min_by(fn {severity, _count} -> severity |> severities() |> Map.get(:level) end)
+  end
+
+  @spec is_me?(any) :: boolean()
+  def is_me?(%{validator: validator}) ,do: validator == validator_name()
+  def is_me?(_) ,do: false
+
 end
