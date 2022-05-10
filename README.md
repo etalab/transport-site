@@ -149,7 +149,7 @@ MIX_ENV=test mix coveralls
 
 The coverage is written on screen by default, or in the `cover` subfolders for HTML output.
 
-Running in `--umbrella` mode will generate coverage report at the top-level `cover` folder, while running without it will generate reports under each umbrella sub-app (e.g. `apps/db/cover`).
+Running in `--umbrella` mode will generate coverage report at the top-level `cover` folder, while running without it will generate reports under each umbrella sub-app (e.g. `apps/transport/cover`).
 
 ### Linting
 
@@ -166,9 +166,9 @@ To extract all translations from the source, you can run `mix gettext.extract --
 #### DB migrations
 
 To generate a new migration file:
-`cd apps/db && mix ecto.gen.migration <name of the migration> && cd ..`
+`cd apps/transport && mix ecto.gen.migration <name of the migration> && cd ../..`
 
-The generated [ecto](https://hexdocs.pm/ecto/Ecto.html) migration file will be `apps/db/priv/repo/migrations/<timestamp>_<name of the migration>.exs`
+The generated [ecto](https://hexdocs.pm/ecto/Ecto.html) migration file will be `apps/transport/priv/repo/migrations/<timestamp>_<name of the migration>.exs`
 
 To apply all migrations on you database:
 `mix ecto.migrate`
