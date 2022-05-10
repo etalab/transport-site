@@ -13,6 +13,7 @@ defmodule TransportWeb.DatasetView do
   import Transport.GbfsUtils, only: [gbfs_validation_link: 1]
   alias Shared.DateTimeDisplay
   alias TransportWeb.ResourceView
+  alias Transport.Validators.GTFSTransport
 
   @doc """
   Count the number of resources (official + community)
