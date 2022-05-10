@@ -15,7 +15,7 @@ request = SIRI.stop_points_discovery(timestamp, requestor_ref, message_id)
 {:ok, parsed_request} = Saxy.SimpleForm.parse_string(request, cdata_as_characters: false)
 # TODO: add encoding
 # TODO: verify input encoding (saxy only support UTF-8)
-encoded_request = Saxy.encode!(parsed_request, prolog: [version: "1.0", encoding: "UTF-8"])
+encoded_request = Saxy.encode!(parsed_request, version: "1.0", encoding: :utf8)
 
 File.write!("input.xml", request)
 File.write!("output.xml", encoded_request)
