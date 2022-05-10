@@ -14,8 +14,11 @@ defmodule DB.MultiValidationTest do
     validator = Transport.Validators.GTFSTransport
     validator_name = validator.validator_name()
 
+    # one dataset
+    %{id: dataset_id} = insert(:dataset)
+
     # one resource
-    %{id: resource_id} = insert(:resource, %{datagouv_id: datagouv_id = "datagouv_id"})
+    %{id: resource_id} = insert(:resource, %{datagouv_id: datagouv_id = "datagouv_id", dataset_id: dataset_id})
 
     # one resource history with some validations
     %{id: resource_history_id_latest} = insert(:resource_history, %{datagouv_id: datagouv_id, inserted_at: now})
@@ -51,5 +54,49 @@ defmodule DB.MultiValidationTest do
 
     assert %{id: ^mv_id, resource_history_id: ^resource_history_id_latest} =
              DB.MultiValidation.resource_latest_validation(resource_id, validator)
+
+    dataset_validations = DB.MultiValidation.dataset_latest_validation(dataset_id, [validator])
+
+    assert %{id: ^mv_id, resource_history_id: ^resource_history_id_latest} = dataset_validations |> Map.get(resource_id)
+  end
+
+  test "no resource latest validation, resource alone" do
+    validator = Transport.Validators.GTFSTransport
+    %{id: dataset_id} = insert(:dataset)
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
+
+    assert nil == DB.MultiValidation.resource_latest_validation(resource_id, validator)
+
+    dataset_validations = DB.MultiValidation.dataset_latest_validation(dataset_id, [validator])
+    assert nil == dataset_validations |> Map.get(resource_id, "nothing")
+  end
+
+  test "no resource latest validation, resource + resource_history" do
+    validator = Transport.Validators.GTFSTransport
+    %{id: dataset_id} = insert(:dataset)
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, datagouv_id: datagouv_id = "datagouv_id"})
+    insert(:resource_history, %{datagouv_id: datagouv_id})
+
+    assert nil == DB.MultiValidation.resource_latest_validation(resource_id, validator)
+
+    dataset_validations = DB.MultiValidation.dataset_latest_validation(dataset_id, [validator])
+    assert nil == dataset_validations |> Map.get(resource_id, "nothing")
+  end
+
+  test "no resource latest validation with specified validator" do
+    validator = Transport.Validators.GTFSTransport
+    %{id: dataset_id} = insert(:dataset)
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, datagouv_id: datagouv_id = "datagouv_id"})
+    %{id: resource_history_id} = insert(:resource_history, %{datagouv_id: datagouv_id})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id,
+      validator: "other_validator_name"
+    })
+
+    assert nil == DB.MultiValidation.resource_latest_validation(resource_id, validator)
+
+    dataset_validations = DB.MultiValidation.dataset_latest_validation(dataset_id, [validator])
+    assert nil == dataset_validations |> Map.get(resource_id, "nothing")
   end
 end
