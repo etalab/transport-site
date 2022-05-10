@@ -4,7 +4,7 @@ defmodule Datagouvfr.Client.Discussions.Wrapper do
   """
   @callback get(binary()) :: map() | nil
 
-  defp impl(), do: Application.get_env(:datagouvfr, :datagouvfr_discussions)
+  defp impl, do: Application.get_env(:datagouvfr, :datagouvfr_discussions)
 
   def get(id), do: impl().get(id)
 end
