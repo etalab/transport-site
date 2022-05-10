@@ -37,7 +37,7 @@ defmodule GtfsValidatorTest do
       {:error, %HTTPoison.Error{reason: :timeout}}
     end)
 
-    assert {:error, "Error while requesting GTFS validator"} == GtfsValidator.validate_from_url(gtfs_url)-
+    assert {:error, "Error while requesting GTFS validator"} == GtfsValidator.validate_from_url(gtfs_url)
   end
 
   defp assert_validation_report_is({:ok, obtained_validation_report}, expected_validation_report),
