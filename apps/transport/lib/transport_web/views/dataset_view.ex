@@ -322,15 +322,7 @@ defmodule TransportWeb.DatasetView do
     |> Stream.reject(&Resource.is_real_time?/1)
     |> Stream.reject(&Resource.is_documentation?/1)
     |> Enum.to_list()
-    |> Enum.sort(fn r1, r2 ->
-      nd1 = NaiveDateTime.from_iso8601(Map.get(r1, :last_update, ""))
-      nd2 = NaiveDateTime.from_iso8601(Map.get(r2, :last_update, ""))
-
-      case {nd1, nd2} do
-        {{:ok, nd1}, {:ok, nd2}} -> NaiveDateTime.compare(nd1, nd2) == :gt
-        _ -> true
-      end
-    end)
+    |> Enum.sort_by(& &1.display_position)
   end
 
   def official_documentation_resources(dataset) do
