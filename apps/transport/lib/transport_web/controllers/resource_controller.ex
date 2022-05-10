@@ -23,7 +23,7 @@ defmodule TransportWeb.ResourceController do
       |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
       |> put_resource_flash(resource.dataset.is_active)
 
-    if Resource.is_gtfs?(resource) and Resource.has_metadata?(resource) do
+    if Resource.is_gtfs?(resource) do
       render_gtfs_details(conn, params, resource)
     else
       conn |> assign(:resource, resource) |> render("details.html")
@@ -73,6 +73,8 @@ defmodule TransportWeb.ResourceController do
       resource.id
       |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)
 
+    IO.inspect(validation)
+
     {validation_summary, severities_count, metadata} =
       case validation do
         %{result: validation, metadata: %{metadata: metadata}} ->
@@ -82,6 +84,9 @@ defmodule TransportWeb.ResourceController do
         nil ->
           {nil, nil, nil}
       end
+
+    IO.inspect("validation_summary")
+    IO.inspect(validation_summary)
 
     issue_type =
       case params["issue_type"] do
