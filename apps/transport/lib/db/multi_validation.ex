@@ -58,13 +58,19 @@ defmodule DB.MultiValidation do
       DB.MultiValidation
       |> distinct([mv], [mv.resource_history_id, mv.validator])
       |> order_by([mv], desc: mv.resource_history_id, desc: mv.validator, desc: mv.validation_timestamp)
+      |> where([mv], mv.validator in ^validators_names)
+
+    latest_resource_history =
+      DB.ResourceHistory
+      |> distinct([rh], [rh.datagouv_id])
+      |> order_by([rh], desc: rh.inserted_at)
 
     DB.Resource
-    |> join(:left, [r], rh in DB.ResourceHistory, on: rh.datagouv_id == r.datagouv_id)
+    |> join(:left, [r], rh in subquery(latest_resource_history), on: rh.datagouv_id == r.datagouv_id)
     |> join(:left, [r, rh], mv in subquery(latest_validations), on: rh.id == mv.resource_history_id)
-    |> where([r, rh, mv], r.dataset_id == ^dataset_id and mv.validator in ^validators_names)
+    |> where([r, rh, mv], r.dataset_id == ^dataset_id)
     |> select([r, rh, mv], {r.id, mv})
     |> DB.Repo.all()
-    |> Enum.into(%{})
+    |> Enum.group_by(fn {k, _} -> k end, fn {_, v} -> v end)
   end
 end
