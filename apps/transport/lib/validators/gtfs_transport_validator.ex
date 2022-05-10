@@ -59,11 +59,11 @@ defmodule Transport.Validators.GTFSTransport do
   @spec severities(binary()) :: %{level: integer(), text: binary()}
   def severities(key), do: severities_map()[key]
 
-  def get_issues(validation_result = %{}, %{"issue_type" => issue_type}) do
+  def get_issues(%{} = validation_result, %{"issue_type" => issue_type}) do
     Map.get(validation_result, issue_type, [])
   end
 
-  def get_issues(validation_result = %{}, _) do
+  def get_issues(%{} = validation_result, _) do
     validation_result
     |> Map.values()
     |> Enum.sort_by(fn [%{"severity" => severity} | _] -> severities(severity).level end)
@@ -72,7 +72,7 @@ defmodule Transport.Validators.GTFSTransport do
 
   def get_issues(_, _), do: []
 
-  def summary(validation_result = %{}) do
+  def summary(%{} = validation_result) do
     existing_issues =
       validation_result
       |> Enum.map(fn {key, issues} ->
@@ -96,7 +96,7 @@ defmodule Transport.Validators.GTFSTransport do
   @doc """
   Returns the number of issues by severity level
   """
-  def count_by_severity(validation_result = %{}) do
+  def count_by_severity(%{} = validation_result) do
     validation_result
     |> Enum.flat_map(fn {_, v} -> v end)
     |> Enum.reduce(%{}, fn v, acc -> Map.update(acc, v["severity"], 1, &(&1 + 1)) end)
@@ -104,7 +104,7 @@ defmodule Transport.Validators.GTFSTransport do
 
   def count_by_severity(_), do: %{}
 
-  def count_max_severity(validation_result = %{}) do
+  def count_max_severity(%{} = validation_result) do
     validation_result
     |> count_by_severity()
     |> Enum.min_by(fn {severity, _count} -> severity |> severities() |> Map.get(:level) end)

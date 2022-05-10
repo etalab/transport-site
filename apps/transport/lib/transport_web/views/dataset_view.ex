@@ -2,9 +2,7 @@ defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
   alias DB.{Dataset, Resource, Validation}
   alias Plug.Conn.Query
-  alias TransportWeb.MarkdownHandler
-  alias TransportWeb.PaginationHelpers
-  alias TransportWeb.Router.Helpers
+  alias TransportWeb.{MarkdownHandler, PaginationHelpers, ResourceView, Router.Helpers}
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
@@ -12,7 +10,6 @@ defmodule TransportWeb.DatasetView do
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
   import Transport.GbfsUtils, only: [gbfs_validation_link: 1]
   alias Shared.DateTimeDisplay
-  alias TransportWeb.ResourceView
   alias Transport.Validators.GTFSTransport
 
   @doc """
