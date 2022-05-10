@@ -173,4 +173,27 @@ defmodule TransportWeb.DatasetControllerTest do
 
     refute TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{payload: %{}})
   end
+
+  test "show GTFS number of errors", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug"})
+
+    %{id: resource_id} =
+      insert(:resource, %{dataset_id: dataset_id, format: "GTFS", datagouv_id: datagouv_id = "datagouv_id", url: "url"})
+
+    %{id: resource_history_id} = insert(:resource_history, %{datagouv_id: datagouv_id})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id,
+      validator: Transport.Validators.GTFSTransport.validator_name(),
+      result: %{"Slow" => [%{"severity" => "Information"}]},
+      metadata: %{metadata: %{}}
+    })
+
+    Datagouvfr.Client.Reuses.Mock |> expect(:get, fn _ -> {:ok, []} end)
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _ -> %{} end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
+
+    conn = conn |> get(dataset_path(conn, :details, slug))
+    assert conn |> html_response(200) =~ "1 information"
+  end
 end
