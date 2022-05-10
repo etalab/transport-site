@@ -29,7 +29,7 @@ defmodule Shared.Validation.GtfsValidator do
   Return {:ok, validation_report} if validation succeed with or without errors.
   Return {:error} if validation cannot be done.
   """
-  @spec validate(binary()) :: {:ok, map()}
+  @spec validate(binary()) :: {:ok, map()} | {:error, binary()}
   def validate(gtfs),
     do:
       build_validate_url()
@@ -37,6 +37,7 @@ defmodule Shared.Validation.GtfsValidator do
       |> handle_validation_response()
 
   @impl Validator
+  @spec validate_from_url(binary()) :: {:ok, map()} | {:error, binary()}
   def validate_from_url(gtfs_url),
     do:
       gtfs_url
@@ -71,6 +72,10 @@ defmodule Shared.Validation.GtfsValidator do
 
   defp handle_validation_response({_, %{body: body}}) do
     Logger.error(body)
+    {:error, "Error while requesting GTFS validator"}
+  end
+
+  defp handle_validation_response({:error, _}) do
     {:error, "Error while requesting GTFS validator"}
   end
 
