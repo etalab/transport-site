@@ -160,11 +160,9 @@
         </div>
       </div>
       <div>
-        <%= if Resource.is_gtfs?(@resource) or Resource.is_gtfs_rt?(@resource) do %>
-          <a href="<%= resource_path(@conn, :details, @resource.id) %>">
-            <button class="button-outline secondary small"><i class="icon icon--plus" aria-hidden="true"></i><%= dgettext("page-dataset-details", "details") %></button>
-          </a>
-        <% end %>
+        <a href="<%= resource_path(@conn, :details, @resource.id) %>">
+          <button class="button-outline secondary small"><i class="icon icon--plus" aria-hidden="true"></i><%= dgettext("page-dataset-details", "details") %></button>
+        </a>
         <a class="download-button" href="<%= download_url(@conn, @resource) %>">
           <button class="button-outline primary small"><i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %></button>
         </a>
