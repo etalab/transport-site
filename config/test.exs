@@ -52,7 +52,9 @@ config :ex_aws,
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.Mock,
   authentication_impl: Datagouvfr.Authentication.Mock,
-  user_impl: Datagouvfr.Client.User.Mock
+  user_impl: Datagouvfr.Client.User.Mock,
+  datagouvfr_reuses: Datagouvfr.Client.Reuses.Mock,
+  datagouvfr_discussions: Datagouvfr.Client.Discussions.Mock
 
 # capture all info logs and up during tests
 config :logger, level: :debug

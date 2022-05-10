@@ -1,12 +1,25 @@
+defmodule Datagouvfr.Client.Reuses.Wrapper do
+  @moduledoc """
+  Behavior for Datagouvfr Reuses
+  """
+  @callback get(map()) :: {:ok, any} | {:error, binary()}
+
+  def impl, do: Application.get_env(:datagouvfr, :datagouvfr_reuses)
+
+  def get(dataset), do: impl().get(dataset)
+end
+
 defmodule Datagouvfr.Client.Reuses do
   @moduledoc """
   A client to manipulate https://www.data.gouv.fr/api/1/reuses endpoints
   """
   alias Datagouvfr.Client.API, as: Client
   require Logger
+  @behaviour Datagouvfr.Client.Reuses.Wrapper
 
   @endpoint "reuses"
 
+  @impl true
   @spec get(map()) :: {:ok, any} | {:error, binary()}
   def get(%{datagouv_id: dataset_id}) do
     case Client.get(@endpoint, [], params: %{dataset: dataset_id}) do

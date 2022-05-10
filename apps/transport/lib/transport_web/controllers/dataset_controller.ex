@@ -1,7 +1,7 @@
 defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
-  alias Datagouvfr.Client.{Datasets, Discussions, Reuses}
+  alias Datagouvfr.Client.Datasets
   alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
@@ -37,7 +37,7 @@ defmodule TransportWeb.DatasetController do
          {:ok, territory} <- Dataset.get_territory(dataset) do
       # in case data.gouv datagouv is down, datasets pages should still be available on our site
       reuses_assign =
-        case Reuses.get(dataset) do
+        case Datagouvfr.Client.Reuses.Wrapper.get(dataset) do
           {:ok, reuses} -> [reuses: reuses, fetch_reuses_error: false]
           _ -> [reuses: %{}, fetch_reuses_error: true]
         end
@@ -46,7 +46,7 @@ defmodule TransportWeb.DatasetController do
       |> assign(:dataset, dataset)
       |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
       |> assign(:territory, territory)
-      |> assign(:discussions, Discussions.get(dataset.datagouv_id))
+      |> assign(:discussions, Datagouvfr.Client.Discussions.Wrapper.get(dataset.datagouv_id))
       |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
       |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
       |> merge_assigns(reuses_assign)

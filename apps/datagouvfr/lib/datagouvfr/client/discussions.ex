@@ -1,3 +1,14 @@
+defmodule Datagouvfr.Client.Discussions.Wrapper do
+  @moduledoc """
+  A behavior for discussions
+  """
+  @callback get(binary()) :: map() | nil
+
+  defp impl(), do: Application.get_env(:datagouvfr, :datagouvfr_discussions)
+
+  def get(id), do: impl().get(id)
+end
+
 defmodule Datagouvfr.Client.Discussions do
   @moduledoc """
   An API client for data.gouv.fr discussions
