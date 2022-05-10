@@ -73,8 +73,6 @@ defmodule TransportWeb.ResourceController do
       resource.id
       |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)
 
-    IO.inspect(validation)
-
     {validation_summary, severities_count, metadata} =
       case validation do
         %{result: validation, metadata: %{metadata: metadata}} ->
@@ -84,9 +82,6 @@ defmodule TransportWeb.ResourceController do
         nil ->
           {nil, nil, nil}
       end
-
-    IO.inspect("validation_summary")
-    IO.inspect(validation_summary)
 
     issue_type =
       case params["issue_type"] do
