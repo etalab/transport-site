@@ -111,7 +111,6 @@ defmodule Transport.Validators.GTFSTransport do
   end
 
   @spec is_me?(any) :: boolean()
-  def is_me?(%{validator: validator}) ,do: validator == validator_name()
-  def is_me?(_) ,do: false
-
+  def is_me?(%{validator: validator}), do: validator == validator_name()
+  def is_me?(_), do: false
 end
