@@ -50,4 +50,21 @@ defmodule DB.MultiValidation do
     |> limit(1)
     |> DB.Repo.one()
   end
+
+  def dataset_latest_validation(dataset_id, validators) do
+    validators_names = validators |> Enum.map(fn v -> v.validator_name() end)
+
+    latest_validations =
+      DB.MultiValidation
+      |> distinct([mv], [mv.resource_history_id, mv.validator])
+      |> order_by([mv], desc: mv.resource_history_id, desc: mv.validator, desc: mv.validation_timestamp)
+
+    DB.Resource
+    |> join(:left, [r], rh in DB.ResourceHistory, on: rh.datagouv_id == r.datagouv_id)
+    |> join(:left, [r, rh], mv in subquery(latest_validations), on: rh.id == mv.resource_history_id)
+    |> where([r, rh, mv], r.dataset_id == ^dataset_id and mv.validator in ^validators_names)
+    |> select([r, rh, mv], {r.id, mv})
+    |> DB.Repo.all()
+    |> Enum.into(%{})
+  end
 end
