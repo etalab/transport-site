@@ -107,6 +107,30 @@ defmodule TransportWeb.DatasetViewTest do
            }) == resource_path(conn, :download, id)
   end
 
+  test "other_official_resources is sorted by display position" do
+    dataset = %DB.Dataset{
+      type: "low-emission-zones",
+      resources: [
+        %DB.Resource{
+          id: 1,
+          url: "https://example.com/zfe.geojson",
+          format: "geojson",
+          schema_name: "etalab/schema-zfe",
+          display_position: 1
+        },
+        %DB.Resource{
+          id: 2,
+          url: "https://example.com/voies.geojson",
+          format: "geojson",
+          schema_name: "etalab/schema-zfe",
+          display_position: 0
+        }
+      ]
+    }
+
+    assert [{0, 2}, {1, 1}] == dataset |> other_official_resources() |> Enum.map(&{&1.display_position, &1.id})
+  end
+
   test "count_resources and count_documentation_resources" do
     dataset = insert(:dataset)
     insert(:resource, type: "documentation", url: "https://example.com/doc", dataset: dataset)
