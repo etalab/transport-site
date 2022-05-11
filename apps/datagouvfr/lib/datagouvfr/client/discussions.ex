@@ -13,6 +13,7 @@ defmodule Datagouvfr.Client.Discussions do
   @moduledoc """
   An API client for data.gouv.fr discussions
   """
+  @behaviour Datagouvfr.Client.Discussions.Wrapper
 
   alias Datagouvfr.Client.API
   alias Datagouvfr.Client.OAuth, as: Client
@@ -48,6 +49,7 @@ defmodule Datagouvfr.Client.Discussions do
   @doc """
   Call to GET /api/1/discussions/
   """
+  @impl true
   @spec get(binary()) :: map() | nil
   def get(id) do
     @endpoint
