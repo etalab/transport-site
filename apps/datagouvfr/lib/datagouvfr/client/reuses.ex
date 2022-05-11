@@ -9,6 +9,16 @@ defmodule Datagouvfr.Client.Reuses.Wrapper do
   def get(dataset), do: impl().get(dataset)
 end
 
+defmodule Datagouvfr.Client.Reuses.Dummy do
+  @moduledoc """
+  Dummy reuses, outputing empty list
+  """
+  @behaviour Datagouvfr.Client.Reuses.Wrapper
+
+  @impl true
+  def get(_), do: {:ok, []}
+end
+
 defmodule Datagouvfr.Client.Reuses do
   @moduledoc """
   A client to manipulate https://www.data.gouv.fr/api/1/reuses endpoints
