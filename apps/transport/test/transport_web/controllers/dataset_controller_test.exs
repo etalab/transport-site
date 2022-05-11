@@ -9,6 +9,12 @@ defmodule TransportWeb.DatasetControllerTest do
 
   setup :verify_on_exit!
 
+  setup do
+    Mox.stub_with(Datagouvfr.Client.Reuses.Mock, Datagouvfr.Client.Reuses)
+    Mox.stub_with(Datagouvfr.Client.Discussions.Mock, Datagouvfr.Client.Discussions)
+    :ok
+  end
+
   doctest TransportWeb.DatasetController
 
   test "GET /", %{conn: conn} do
@@ -175,10 +181,9 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "show GTFS number of errors", %{conn: conn} do
-    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug"})
+    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
 
-    %{id: resource_id} =
-      insert(:resource, %{dataset_id: dataset_id, format: "GTFS", datagouv_id: datagouv_id = "datagouv_id", url: "url"})
+    insert(:resource, %{dataset_id: dataset_id, format: "GTFS", datagouv_id: datagouv_id = "datagouv_id", url: "url"})
 
     %{id: resource_history_id} = insert(:resource_history, %{datagouv_id: datagouv_id})
 
