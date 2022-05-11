@@ -9,6 +9,16 @@ defmodule Datagouvfr.Client.Discussions.Wrapper do
   def get(id), do: impl().get(id)
 end
 
+defmodule Datagouvfr.Client.Discussions.Dummy do
+  @moduledoc """
+  Dummy Discussions, outputing nil
+  """
+  @behaviour Datagouvfr.Client.Discussions.Wrapper
+
+  @impl true
+  def get(_), do: nil
+end
+
 defmodule Datagouvfr.Client.Discussions do
   @moduledoc """
   An API client for data.gouv.fr discussions
