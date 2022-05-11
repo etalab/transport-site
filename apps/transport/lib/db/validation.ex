@@ -24,7 +24,7 @@ defmodule DB.Validation do
   end
 
   # All those functions are now duplicated in Transport.Validators.GTFSTransport
-  # the ones are will be removed in the future, when migration to the multi validation is complete.
+  # the ones here will be removed in the future, when migration to the multi validation is complete.
   @spec severities_map() :: map()
   def severities_map,
     do: %{
