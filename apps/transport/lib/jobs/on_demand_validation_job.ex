@@ -8,7 +8,8 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   use Oban.Worker, tags: ["validation"], max_attempts: 5, queue: :on_demand_validation
   require Logger
   import Ecto.Changeset
-  alias DB.{Repo, Validation}
+  import Ecto.Query
+  alias DB.{Repo, MultiValidation}
   alias Shared.Validation.GtfsValidator.Wrapper, as: GtfsValidator
   alias Shared.Validation.JSONSchemaValidator.Wrapper, as: JSONSchemaValidator
   alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
@@ -24,16 +25,19 @@ defmodule Transport.Jobs.OnDemandValidationJob do
         e -> %{"state" => "error", "error_reason" => inspect(e)}
       end
 
-    %{on_the_fly_validation_metadata: on_the_fly_validation_metadata} = validation = Repo.get!(Validation, id)
+    %{metadata: %{id: metadata_id, metadata: metadata}} =
+      validation = MultiValidation |> preload(:metadata) |> Repo.get!(id)
 
     validation
     |> change(
-      date: DateTime.utc_now() |> DateTime.to_string(),
-      details: Map.get(result, "validation"),
-      on_the_fly_validation_metadata:
-        Map.merge(on_the_fly_validation_metadata, Map.drop(result, ["validation", "data_vis"])),
+      validation_timestamp: DateTime.utc_now(),
+      result: Map.get(result, "validation"),
       data_vis: Map.get(result, "data_vis")
     )
+    |> put_assoc(:metadata, %{
+      id: metadata_id,
+      metadata: Map.merge(metadata, Map.drop(result, ["validation", "data_vis"]))
+    })
     |> Repo.update!()
 
     if Map.has_key?(payload, "filename") do

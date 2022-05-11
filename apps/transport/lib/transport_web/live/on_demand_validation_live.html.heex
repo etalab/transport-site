@@ -1,5 +1,6 @@
-<% metadata = @validation.on_the_fly_validation_metadata %>
-<% details = @validation.details %>
+<% metadata = @validation.metadata.metadata %>
+<% details = @validation.result %>
+coucou
 <% is_final_state = metadata["state"] in ["completed", "error"] %>
 <section>
   <div class="container">
@@ -12,7 +13,7 @@
       <%= if is_final_state do %>
         <p class="small">
           <%= dgettext("validations", "Validation performed at %{date}.",
-            date: format_datetime(@validation.date, @locale)
+            date: format_datetime(@validation.validation_timestamp, @locale)
           ) %>
         </p>
       <% end %>

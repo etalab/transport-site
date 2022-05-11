@@ -1,13 +1,15 @@
 defmodule TransportWeb.ValidationController do
   use TransportWeb, :controller
-  alias DB.{Repo, Validation}
+  alias DB.{Repo, MultiValidation}
   alias Transport.DataVisualization
   import TransportWeb.ResourceView, only: [issue_type: 1]
+  import Ecto.Query
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => url, "type" => "gbfs"} = params}) do
-    %Validation{
-      on_the_fly_validation_metadata: build_metadata(params),
-      date: DateTime.utc_now() |> DateTime.to_string()
+    %MultiValidation{
+      metadata: %DB.ResourceMetadata{metadata: build_metadata(params)},
+      validation_timestamp: DateTime.utc_now(),
+      validator: "incoming"
     }
     |> Repo.insert!()
 
@@ -16,9 +18,9 @@ defmodule TransportWeb.ValidationController do
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => _, "feed_url" => _, "type" => "gtfs-rt"} = params}) do
     validation =
-      %Validation{
-        on_the_fly_validation_metadata: build_metadata(params),
-        date: DateTime.utc_now() |> DateTime.to_string()
+      %MultiValidation{
+        metadata: %DB.ResourceMetadata{metadata: build_metadata(params)},
+        validation_timestamp: DateTime.utc_now()
       }
       |> Repo.insert!()
 
@@ -51,7 +53,14 @@ defmodule TransportWeb.ValidationController do
       metadata = build_metadata(type)
       upload_to_s3(file_path, Map.fetch!(metadata, "filename"))
 
-      validation = %Validation{on_the_fly_validation_metadata: metadata} |> Repo.insert!()
+      validation =
+        %MultiValidation{
+          validator: "not validated yet",
+          validation_timestamp: DateTime.utc_now(),
+          metadata: %DB.ResourceMetadata{metadata: metadata}
+        }
+        |> Repo.insert!()
+
       dispatch_validation_job(validation)
       redirect_to_validation_show(conn, validation)
     else
@@ -63,8 +72,8 @@ defmodule TransportWeb.ValidationController do
     conn |> bad_request()
   end
 
-  defp redirect_to_validation_show(conn, %Validation{
-         on_the_fly_validation_metadata: %{"secret_url_token" => token},
+  defp redirect_to_validation_show(conn, %MultiValidation{
+         metadata: %{metadata: %{"secret_url_token" => token}},
          id: id
        }) do
     redirect(conn, to: validation_path(conn, :show, id, token: token))
@@ -72,17 +81,19 @@ defmodule TransportWeb.ValidationController do
 
   def show(%Plug.Conn{} = conn, %{} = params) do
     token = params["token"]
+    validation = MultiValidation |> preload(:metadata) |> Repo.get(params["id"])
 
-    case Repo.get(Validation, params["id"]) do
+    case validation do
       nil ->
         not_found(conn)
 
-      %Validation{on_the_fly_validation_metadata: %{"secret_url_token" => expected_token}}
+      %MultiValidation{metadata: %{metadata: %{"secret_url_token" => expected_token}}}
       when expected_token != token ->
         unauthorized(conn)
 
-      %Validation{on_the_fly_validation_metadata: %{"state" => "completed", "type" => "gtfs"}} = validation ->
-        current_issues = Validation.get_issues(validation, params)
+      %MultiValidation{metadata: %{metadata: %{"state" => "completed", "type" => "gtfs"}}} = validation ->
+        # to be updated when PR 2371 is merged
+        current_issues = DB.Validation.get_issues(%{details: validation.result}, params)
 
         issue_type =
           case params["issue_type"] do
@@ -94,9 +105,11 @@ defmodule TransportWeb.ValidationController do
         |> assign(:validation_id, params["id"])
         |> assign(:other_resources, [])
         |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
-        |> assign(:validation_summary, Validation.summary(validation))
-        |> assign(:severities_count, Validation.count_by_severity(validation))
-        |> assign(:metadata, validation.on_the_fly_validation_metadata)
+        # to be updated when PR 2371 is merged
+        |> assign(:validation_summary, DB.Validation.summary(%{details: validation.result}))
+        # to be updated when PR 2371 is merged
+        |> assign(:severities_count, DB.Validation.count_by_severity(%{details: validation.result}))
+        |> assign(:metadata, validation.metadata.metadata)
         |> assign(:data_vis, data_vis(validation, issue_type))
         |> assign(:token, token)
         |> render("show.html")
@@ -113,7 +126,7 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  defp data_vis(%Validation{} = validation, issue_type) do
+  defp data_vis(%MultiValidation{} = validation, issue_type) do
     data_vis = validation.data_vis[issue_type]
     has_features = DataVisualization.has_features(data_vis["geojson"])
 
@@ -132,7 +145,7 @@ defmodule TransportWeb.ValidationController do
   end
 
   defp dispatch_validation_job(
-         %Validation{id: id, on_the_fly_validation_metadata: %{"type" => "gtfs-rt"} = metadata} = validation
+         %MultiValidation{id: id, metadata: %{metadata: %{"type" => "gtfs-rt"} = metadata}} = validation
        ) do
     oban_args = Map.merge(%{"id" => id}, metadata)
 
@@ -157,7 +170,7 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  defp dispatch_validation_job(%Validation{id: id, on_the_fly_validation_metadata: metadata}) do
+  defp dispatch_validation_job(%MultiValidation{id: id, metadata: %{metadata: metadata}}) do
     oban_args = Map.merge(%{"id" => id}, metadata)
     oban_args |> Transport.Jobs.OnDemandValidationJob.new() |> Oban.insert!()
   end
