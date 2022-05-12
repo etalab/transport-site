@@ -45,7 +45,7 @@
 
             <p>
               <%= dgettext("validations", "Validation performed at %{date}.",
-                date: format_datetime(@validation.date, @locale)
+                date: format_datetime(@validation.validation_timestamp, @locale)
               ) %>
             </p>
 
@@ -77,7 +77,7 @@
                 <%= dgettext(
                   "validations",
                   ~s(GTFS-RT feeds change in real-time. This validation report shows the validation result performed at %{date}. You can relaunch a validation later on and get different results.),
-                  date: format_datetime(@validation.date, @locale)
+                  date: format_datetime(@validation.validation_timestamp, @locale)
                 ) %>
               </p>
             </div>
