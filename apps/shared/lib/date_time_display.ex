@@ -14,13 +14,15 @@ defmodule Shared.DateTimeDisplay do
   "2022-03-01"
   iex> format_date("2022-03-01", "fr")
   "01/03/2022"
+  iex> format_date("2022-03-01", "sauce tomate")
+  "01/03/2022"
   iex> format_date("2022-03-01", "en")
   "2022-03-01"
   """
   @spec format_date(binary | Date.t(), binary() | nil) :: binary
   def format_date(%Date{} = date, "fr"), do: Calendar.strftime(date, "%d/%m/%Y")
-  def format_date(%Date{} = date, nil), do: format_date(date, "fr")
   def format_date(%Date{} = date, "en"), do: Calendar.strftime(date, "%Y-%m-%d")
+  def format_date(%Date{} = date, _), do: format_date(date, "fr")
 
   def format_date(date, locale) when is_binary(date) do
     date |> Date.from_iso8601!() |> format_date(locale)
@@ -52,6 +54,8 @@ defmodule Shared.DateTimeDisplay do
   "2022-03-01 at 16:30 Europe/Paris"
   iex> format_datetime_to_paris("2022-03-01T15:30:00Z", "fr")
   "01/03/2022 à 16h30 Europe/Paris"
+  iex> format_datetime_to_paris("2022-03-01T15:30:00Z", "sauce tomate")
+  "01/03/2022 à 16h30 Europe/Paris"
   iex> format_datetime_to_paris("2022-03-01T15:30:00+01:00", "fr")
   "01/03/2022 à 15h30 Europe/Paris"
   iex> format_datetime_to_paris("2022-03-01T15:30:00+01:00", "fr")
@@ -71,23 +75,23 @@ defmodule Shared.DateTimeDisplay do
   """
   def format_datetime_to_paris(dt, locale), do: format_datetime_to_paris(dt, locale, [])
 
-  def format_datetime_to_paris(%DateTime{} = dt, locale, options) when locale in [nil, "fr"] do
-    format =
-      if Keyword.get(options, :with_seconds) do
-        "%d/%m/%Y à %H:%M:%S Europe/Paris"
-      else
-        "%d/%m/%Y à %Hh%M Europe/Paris"
-      end
-
-    dt |> convert_to_paris_time() |> Calendar.strftime(format)
-  end
-
   def format_datetime_to_paris(%DateTime{} = dt, "en", options) do
     format =
       if Keyword.get(options, :with_seconds) do
         "%Y-%m-%d at %H:%M:%S Europe/Paris"
       else
         "%Y-%m-%d at %H:%M Europe/Paris"
+      end
+
+    dt |> convert_to_paris_time() |> Calendar.strftime(format)
+  end
+
+  def format_datetime_to_paris(%DateTime{} = dt, _locale, options) do
+    format =
+      if Keyword.get(options, :with_seconds) do
+        "%d/%m/%Y à %H:%M:%S Europe/Paris"
+      else
+        "%d/%m/%Y à %Hh%M Europe/Paris"
       end
 
     dt |> convert_to_paris_time() |> Calendar.strftime(format)

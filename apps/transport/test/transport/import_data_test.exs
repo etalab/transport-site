@@ -177,6 +177,7 @@ defmodule Transport.ImportDataTest do
     assert Map.get(resource, :title) == "resource1"
     assert Map.get(resource, :filetype) == "remote"
     assert Map.get(resource, :type) == "main"
+    assert Map.get(resource, :display_position) == 0
     resource_id = Map.get(resource, :id)
 
     # set the metadata field for this resource
@@ -241,6 +242,7 @@ defmodule Transport.ImportDataTest do
     # the resource is up-to-date with data.gouv
     assert Map.get(resource_updated, :title) == new_title
     assert Map.get(resource_updated, :datagouv_id) == new_datagouv_id
+    assert Map.get(resource_updated, :display_position) == 0
 
     # but its a new one : its DB id has been incremented
     refute Map.get(resource_updated, :id) == resource_id
@@ -272,6 +274,7 @@ defmodule Transport.ImportDataTest do
     assert Map.get(resource, :title) == community_resource_title
     assert Map.get(resource, :schema_name) == schema_name
     assert Map.get(resource, :schema_version) == schema_version
+    assert Map.get(resource, :display_position) == 0
   end
 
   # test "error while connecting to datagouv server"

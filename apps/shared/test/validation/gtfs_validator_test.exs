@@ -28,6 +28,18 @@ defmodule GtfsValidatorTest do
     |> assert_validation_report_is(expected_validation_report)
   end
 
+  test "with a timeout" do
+    gtfs_url = "http://example.com/gtfs.zip"
+    expected_url = "https://validation.transport.data.gouv.fr/validate?url=#{URI.encode_www_form(gtfs_url)}"
+
+    Transport.HTTPoison.Mock
+    |> expect(:get, fn ^expected_url, [], [recv_timeout: 180_000] ->
+      {:error, %HTTPoison.Error{reason: :timeout}}
+    end)
+
+    assert {:error, "Error while requesting GTFS validator"} == GtfsValidator.validate_from_url(gtfs_url)
+  end
+
   defp assert_validation_report_is({:ok, obtained_validation_report}, expected_validation_report),
     do: assert(obtained_validation_report == expected_validation_report)
 
