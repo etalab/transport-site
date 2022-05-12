@@ -20,7 +20,6 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
   end
 
   defp update_data(socket) do
-    IO.inspect("update_data !")
     validation = DB.MultiValidation |> preload(:metadata) |> DB.Repo.get!(socket_value(socket, :validation_id))
 
     socket =
@@ -35,7 +34,6 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
     end
 
     if gtfs_validation_completed?(socket) do
-      IO.inspect("redirect !")
       redirect(socket, to: socket_value(socket, :current_url))
     else
       socket
