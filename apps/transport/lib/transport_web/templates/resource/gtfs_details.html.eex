@@ -86,7 +86,7 @@
       <h2 id="validation-report" class="mt-48"><%= dgettext("validations", "Validation report")%></h2>
       <div class="panel" id="issues">
         <%= unless @validation_summary do %>
-        <%= dgettext("validations", "No validation available") %>
+          <%= dgettext("validations", "No validation available") %>
         <% else %>
         <nav class="issues-list validation" role="navigation">
           <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, issues: @issues, conn: @conn, data_vis: @data_vis, token: nil %>
