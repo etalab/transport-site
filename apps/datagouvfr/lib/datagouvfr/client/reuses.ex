@@ -2,7 +2,7 @@ defmodule Datagouvfr.Client.Reuses.Wrapper do
   @moduledoc """
   Behavior for Datagouvfr Reuses
   """
-  @callback get(map()) :: {:ok, any} | {:error, binary()}
+  @callback get(map()) :: {:ok, list()} | {:error, binary()}
 
   def impl, do: Application.get_env(:datagouvfr, :datagouvfr_reuses)
 
@@ -30,7 +30,6 @@ defmodule Datagouvfr.Client.Reuses do
   @endpoint "reuses"
 
   @impl true
-  @spec get(map()) :: {:ok, any} | {:error, binary()}
   def get(%{datagouv_id: dataset_id}) do
     case Client.get(@endpoint, [], params: %{dataset: dataset_id}) do
       {:ok, %{"data" => data}} ->

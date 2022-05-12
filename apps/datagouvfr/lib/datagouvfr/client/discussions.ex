@@ -2,7 +2,7 @@ defmodule Datagouvfr.Client.Discussions.Wrapper do
   @moduledoc """
   A behavior for discussions
   """
-  @callback get(binary()) :: map() | nil
+  @callback get(binary()) :: []
 
   defp impl, do: Application.get_env(:datagouvfr, :datagouvfr_discussions)
 
@@ -16,7 +16,7 @@ defmodule Datagouvfr.Client.Discussions.Dummy do
   @behaviour Datagouvfr.Client.Discussions.Wrapper
 
   @impl true
-  def get(_), do: nil
+  def get(_), do: []
 end
 
 defmodule Datagouvfr.Client.Discussions do
@@ -60,7 +60,6 @@ defmodule Datagouvfr.Client.Discussions do
   Call to GET /api/1/discussions/
   """
   @impl true
-  @spec get(binary()) :: map() | nil
   def get(id) do
     @endpoint
     |> API.get([], follow_redirect: true, params: %{for: id})
@@ -70,7 +69,7 @@ defmodule Datagouvfr.Client.Discussions do
 
       {:error, error} ->
         Logger.error("When fetching discussions for id #{id}: #{inspect(error)}")
-        nil
+        []
     end
   end
 
