@@ -38,6 +38,10 @@ defmodule Transport.Validators.GTFSTransport do
     end
   end
 
+  # https://github.com/etalab/transport-site/issues/2390
+  # delete Shared.Validation.GtfsValidator.Wrapper and bring back the code here.
+  def validate(url), do: Shared.Validation.GtfsValidator.Wrapper.impl().validate_from_url(url)
+
   @impl Transport.Validators.Validator
   def validator_name, do: "GTFS transport-validator"
 
