@@ -51,6 +51,7 @@ defmodule DB.MultiValidation do
     |> DB.Repo.one()
   end
 
+  @spec dataset_latest_validation(integer(), [module()]) :: map
   def dataset_latest_validation(dataset_id, validators) do
     validators_names = validators |> Enum.map(fn v -> v.validator_name() end)
 
