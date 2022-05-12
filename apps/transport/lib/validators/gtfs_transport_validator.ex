@@ -9,7 +9,7 @@ defmodule Transport.Validators.GTFSTransport do
   Store the results in DB
   """
   @impl Transport.Validators.Validator
-  def validate(%DB.ResourceHistory{id: resource_history_id, payload: %{"permanent_url" => url}}) do
+  def validate_and_save(%DB.ResourceHistory{id: resource_history_id, payload: %{"permanent_url" => url}}) do
     timestamp = DateTime.utc_now()
     validator = Shared.Validation.GtfsValidator.Wrapper.impl()
 

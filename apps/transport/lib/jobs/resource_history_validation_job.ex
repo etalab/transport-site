@@ -46,7 +46,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
     resource_history = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
 
     unless resource_history |> DB.MultiValidation.already_validated?(validator) do
-      validator.validate(resource_history)
+      validator.validate_and_save(resource_history)
     end
 
     :ok
@@ -60,7 +60,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
     format
     |> Transport.ValidatorsSelection.validators()
     |> Enum.reject(fn validator -> resource_history |> DB.MultiValidation.already_validated?(validator) end)
-    |> Enum.each(fn validator -> validator.validate(resource_history) end)
+    |> Enum.each(fn validator -> validator.validate_and_save(resource_history) end)
 
     :ok
   end
