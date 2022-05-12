@@ -115,7 +115,9 @@ defmodule Transport.Jobs.OnDemandValidationJob do
       {:ok, _} ->
         case GTFSRTValidationJob.convert_validator_report(gtfs_rt_result_path(gtfs_rt_path)) do
           {:ok, validation} ->
-            %{"state" => "completed", "validation" => validation}
+            # https://github.com/etalab/transport-site/issues/2390
+            # to do : add command, transport-tools version when available
+            %{"state" => "completed", "validation" => validation, "validator" => "gtfs-realtime-validator"}
 
           :error ->
             %{"state" => "error", "error_reason" => "Could not run validator. Please provide a GTFS and a GTFS-RT."}
