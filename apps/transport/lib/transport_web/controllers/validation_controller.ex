@@ -19,6 +19,7 @@ defmodule TransportWeb.ValidationController do
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => _, "feed_url" => _, "type" => "gtfs-rt"} = params}) do
     validation =
       %MultiValidation{
+        validator: temporary_on_demand_validator_name(),
         metadata: %DB.ResourceMetadata{metadata: build_metadata(params)},
         validation_timestamp: DateTime.utc_now()
       }
@@ -55,7 +56,7 @@ defmodule TransportWeb.ValidationController do
 
       validation =
         %MultiValidation{
-          validator: "not validated yet",
+          validator: temporary_on_demand_validator_name(),
           validation_timestamp: DateTime.utc_now(),
           metadata: %DB.ResourceMetadata{metadata: metadata}
         }
@@ -248,4 +249,6 @@ defmodule TransportWeb.ValidationController do
     |> put_view(ErrorView)
     |> render("400.html")
   end
+
+  defp temporary_on_demand_validator_name, do: "on demand validation requested"
 end
