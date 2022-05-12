@@ -41,5 +41,5 @@ defmodule Transport.Validators.GTFSTransport do
   @impl Transport.Validators.Validator
   def validator_name, do: "GTFS transport-validator"
 
-  defp command(url), do: Shared.Validation.GtfsValidator.remote_gtfs_validation_query(url)
+  def command(url), do: Shared.Validation.GtfsValidator.remote_gtfs_validation_query(url)
 end
