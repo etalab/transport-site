@@ -10,7 +10,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   import Ecto.Changeset
   import Ecto.Query
   alias DB.{Repo, MultiValidation}
-  alias Shared.Validation.GtfsValidator.Wrapper, as: GtfsValidator
+  alias Transport.Validators.GTFSTransport
   alias Shared.Validation.JSONSchemaValidator.Wrapper, as: JSONSchemaValidator
   alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
   alias Transport.DataVisualization
@@ -32,11 +32,13 @@ defmodule Transport.Jobs.OnDemandValidationJob do
     |> change(
       validation_timestamp: DateTime.utc_now(),
       result: Map.get(result, "validation"),
-      data_vis: Map.get(result, "data_vis")
+      data_vis: Map.get(result, "data_vis"),
+      validator: Map.get(result, "validator"),
+      command: Map.get(result, "command")
     )
     |> put_assoc(:metadata, %{
       id: metadata_id,
-      metadata: Map.merge(metadata, Map.drop(result, ["validation", "data_vis"]))
+      metadata: Map.merge(metadata, Map.drop(result, ["validation", "data_vis", "validator", "command"]))
     })
     |> Repo.update!()
 
@@ -48,7 +50,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   end
 
   defp perform_validation(%{"type" => "gtfs", "permanent_url" => url}) do
-    case GtfsValidator.impl().validate_from_url(url) do
+    case GTFSTransport.validate(url) do
       {:error, msg} ->
         %{"state" => "error", "error_reason" => msg}
 
@@ -57,7 +59,9 @@ defmodule Transport.Jobs.OnDemandValidationJob do
           %{
             "state" => "completed",
             "validation" => validation,
-            "data_vis" => DataVisualization.validation_data_vis(validation)
+            "data_vis" => DataVisualization.validation_data_vis(validation),
+            "validator" => GTFSTransport.validator_name(),
+            "command" => GTFSTransport.command(url)
           },
           metadata
         )
