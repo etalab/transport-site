@@ -102,7 +102,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
           filename: filename,
           permanent_url: Transport.S3.permanent_url(:history, filename),
           format: resource.format,
-          dataset_id: resource.dataset_id
+          dataset_id: resource.dataset_id,
+          schema_name: resource.schema_name,
+          schema_version: resource.schema_version
         }
 
         data =
