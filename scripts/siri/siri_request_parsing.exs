@@ -4,7 +4,8 @@ Mix.install([
   # parser and encoder
   {:saxy, "~> 1.4"}
 ])
-Code.require_file(__DIR__ |> (Path.join "/siri_queries.exs"))
+
+Code.require_file(__DIR__ |> Path.join("/siri_queries.exs"))
 
 timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
 message_id = "Test::Message::#{Ecto.UUID.generate()}"
@@ -19,7 +20,9 @@ encoded_request = Saxy.encode!(parsed_request, version: "1.0", encoding: :utf8)
 import ExUnit.Assertions
 
 # see https://github.com/qcam/saxy/issues/101
-encoded_request = encoded_request |> String.replace(~S(encoding="utf-8"?>), ~S(encoding="UTF-8"?>) <> "\n") |> String.trim()
+encoded_request =
+  encoded_request |> String.replace(~S(encoding="utf-8"?>), ~S(encoding="UTF-8"?>) <> "\n") |> String.trim()
+
 request = request |> String.trim()
 # File.write!("input.xml", request |> String.trim())
 # File.write!("output.xml", encoded_request |> String.trim())
