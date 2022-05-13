@@ -7,7 +7,7 @@ defmodule SIRI do
   def check_status(timestamp, requestor_ref, message_identifier) do
     # NOTE: we'll need to properly escape & encode the dynamic parts to avoid injection issues (à la XSS).
     """
-    #{prolog}
+    #{prolog()}
     <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
     <S:Body>
         <sw:CheckStatus xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
@@ -25,7 +25,7 @@ defmodule SIRI do
 
   def lines_discovery(timestamp, requestor_ref, message_identifier) do
     """
-    #{prolog}
+    #{prolog()}
     <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
     <S:Body>
         <sw:LinesDiscovery xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
@@ -42,7 +42,7 @@ defmodule SIRI do
 
   def stop_points_discovery(timestamp, requestor_ref, message_identifier) do
     """
-    #{prolog}
+    #{prolog()}
     <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
         <S:Body>
           <sw:StopPointsDiscovery xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
@@ -65,7 +65,7 @@ defmodule SIRI do
     |> Enum.join("\n")
 
     """
-    #{prolog}
+    #{prolog()}
     <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
     <S:Body>
         <sw:GetEstimatedTimetable xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
@@ -90,7 +90,7 @@ defmodule SIRI do
 
   def get_stop_monitoring(timestamp, requestor_ref, message_identifier, stop_ref) do
     """
-    #{prolog}
+    #{prolog()}
     <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
     <S:Body>
         <sw:GetStopMonitoring xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
@@ -113,7 +113,7 @@ defmodule SIRI do
 
   def get_general_message(timestamp, requestor_ref, message_identifier) do
     """
-    #{prolog}
+    #{prolog()}
     <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
     <S:Body>
      	<sw:GetGeneralMessage xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri" xmlns:sws="http://wsdl.siri.org.uk/siri">
