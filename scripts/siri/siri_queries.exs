@@ -51,7 +51,7 @@ defmodule SIRI do
             <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
             <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
           </Request>
-          <RequestExtension />
+          <RequestExtension/>
         </sw:StopPointsDiscovery>
         </S:Body>
     </S:Envelope>
@@ -81,7 +81,7 @@ defmodule SIRI do
                   #{line_refs}
                 </siri:Lines>
             </Request>
-            <RequestExtension />
+            <RequestExtension/>
         </sw:GetEstimatedTimetable>
     </S:Body>
     </S:Envelope>
