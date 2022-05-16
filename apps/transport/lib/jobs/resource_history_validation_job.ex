@@ -40,16 +40,16 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
 
   # validate one resource history with one validator
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id, "validator" => validator}})
+  def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id, "validator" => validator_string}})
       when is_integer(resource_history_id) do
-    validator = String.to_existing_atom(validator)
+    validator = String.to_existing_atom(validator_string)
     resource_history = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
 
-    unless resource_history |> DB.MultiValidation.already_validated?(validator) do
-      validator.validate(resource_history)
+    if resource_history |> DB.MultiValidation.already_validated?(validator) do
+      {:discard, "resource history #{resource_history_id} is already validated by #{validator_string}"}
+    else
+      :ok = validator.validate(resource_history)
     end
-
-    :ok
   end
 
   # validate one resource history with all validators
