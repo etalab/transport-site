@@ -32,7 +32,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
     |> Enum.each(fn id ->
       %{resource_history_id: id, validator: validator}
       |> Transport.Jobs.ResourceHistoryValidationJob.new()
-      |> Oban.insert()
+      |> Oban.insert!()
     end)
 
     :ok
@@ -71,7 +71,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
     Transport.ValidatorsSelection.formats_and_validators()
     |> Enum.flat_map(fn {format, validators} -> Enum.zip(Stream.cycle([format]), validators) end)
     |> Enum.each(fn {format, validator} ->
-      %{format: format, validator: validator} |> Transport.Jobs.ResourceHistoryValidationJob.new() |> Oban.insert()
+      %{format: format, validator: validator} |> Transport.Jobs.ResourceHistoryValidationJob.new() |> Oban.insert!()
     end)
 
     :ok
