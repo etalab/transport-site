@@ -60,9 +60,10 @@ defmodule SIRI do
 
   def get_estimated_timetable(timestamp, requestor_ref, message_identifier, line_refs) do
     # NOTE: we'll switch to proper well-escaped XML building later, this is research code
-    line_refs = line_refs
-    |> Enum.map(&"<siri:LineRef>#{&1}</siri:LineRef>")
-    |> Enum.join("\n")
+    line_refs =
+      line_refs
+      |> Enum.map(&"<siri:LineRef>#{&1}</siri:LineRef>")
+      |> Enum.join("\n")
 
     """
     #{prolog()}
