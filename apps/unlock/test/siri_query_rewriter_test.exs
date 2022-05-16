@@ -103,6 +103,16 @@ defmodule Unlock.SIRI.QueryRewriterTest do
     def handle_event(:characters, chars, stack) do
       [{tag_name, attributes, content} | stack] = stack
 
+      # TODO: record the SIRI namespace instead
+      unnamespaced_tag = tag_name |> String.split(":") |> List.last
+
+      chars = if (unnamespaced_tag == "RequestorRef") do
+        # TODO: attempt to inject this via a compound state
+        "NEW-REQUESTOR-REF"
+      else
+        chars
+      end
+
       current = {tag_name, attributes, [chars | content]}
 
       {:ok, [current | stack]}
