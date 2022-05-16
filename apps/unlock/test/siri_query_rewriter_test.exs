@@ -90,4 +90,39 @@ defmodule Unlock.SIRI.QueryRewriterTest do
     assert parsed(build_xml(timestamp, incoming_requestor_ref, message_id, stop_ref)) ==
              filter_newlines_from_model(parsed(expected_xml(timestamp, incoming_requestor_ref, message_id, stop_ref)))
   end
+
+  # adapted from https://github.com/qcam/saxy/blob/master/lib/saxy/simple_form/handler.ex
+  defmodule SIRI.QueryTweaker.Handler do
+    @moduledoc false
+
+    @behaviour Saxy.Handler
+
+    def handle_event(:start_document, prolog, state), do: Saxy.SimpleForm.Handler.handle_event(:start_document, prolog, state)
+    def handle_event(:start_element, data, stack), do: Saxy.SimpleForm.Handler.handle_event(:start_element, data, stack)
+
+    def handle_event(:characters, chars, stack) do
+      [{tag_name, attributes, content} | stack] = stack
+
+      current = {tag_name, attributes, [chars | content]}
+
+      {:ok, [current | stack]}
+    end
+
+    def handle_event(:cdata, chars, stack), do: Saxy.SimpleForm.Handler.handle_event(:cdata, chars, stack)
+    def handle_event(:end_element, tag_name, stack), do: Saxy.SimpleForm.Handler.handle_event(:end_element, tag_name, stack)
+    def handle_event(:end_document, some_param, stack), do: Saxy.SimpleForm.Handler.handle_event(:end_document, some_param, stack)
+  end
+
+  test "dynamic requestor_ref modification" do
+    timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
+    incoming_requestor_ref = "transport-data-gouv-fr"
+    message_id = "Test::Message::#{Ecto.UUID.generate()}"
+    stop_ref = "SomeStopRef"
+
+    xml = build_xml(timestamp, incoming_requestor_ref, message_id, stop_ref)
+    {:ok, parsed} = Saxy.parse_string(xml, SIRI.QueryTweaker.Handler, [])
+    expected_output = expected_xml(timestamp, "NEW-REQUESTOR-REF", message_id, stop_ref)
+
+    assert parsed |> filter_newlines_from_model == expected_output |> parsed() |> filter_newlines_from_model
+  end
 end
