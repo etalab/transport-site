@@ -99,8 +99,7 @@ defmodule Unlock.SIRI.QueryRewriterTest do
 
     xml = build_xml(timestamp, incoming_requestor_ref, message_id, stop_ref)
     config = %{
-      new_requestor_ref: "TARGET-REQUESTOR-REF",
-      parsed_doc: []
+      new_requestor_ref: "TARGET-REQUESTOR-REF"
     }
 
     {:ok, %{parsed_doc: parsed, incoming_requestor_ref: ^incoming_requestor_ref}} = Saxy.parse_string(xml, SIRI.Saxy.Handler, config)
