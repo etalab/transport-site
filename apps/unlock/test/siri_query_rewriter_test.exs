@@ -112,9 +112,5 @@ defmodule Unlock.SIRI.QueryRewriterTest do
     assert parsed |> filter_newlines_from_model ==
              expected_output |> parsed() |> filter_newlines_from_model
 
-    # TODO: delegate parsing to a child process with memory limit
-    # TODO: create a simplified query verifier (to whitelist as needed)
-    # TODO: add testing for everything
-    # TODO: document and create a first PR
   end
 end
