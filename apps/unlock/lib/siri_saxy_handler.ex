@@ -23,7 +23,9 @@ defmodule SIRI.Saxy.Handler do
 
   @impl Saxy.Handler
   def handle_event(:start_element, data, state) do
-    {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:start_element, data, state.parsed_doc)
+    {:ok, parsed_doc} =
+      Saxy.SimpleForm.Handler.handle_event(:start_element, data, state.parsed_doc)
+
     {:ok, %{state | parsed_doc: parsed_doc}}
   end
 
