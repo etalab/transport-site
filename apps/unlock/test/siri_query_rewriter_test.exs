@@ -97,30 +97,49 @@ defmodule Unlock.SIRI.QueryRewriterTest do
 
     @behaviour Saxy.Handler
 
-    def handle_event(:start_document, prolog, state), do: Saxy.SimpleForm.Handler.handle_event(:start_document, prolog, state)
-    def handle_event(:start_element, data, stack), do: Saxy.SimpleForm.Handler.handle_event(:start_element, data, stack)
+    def handle_event(:start_document, prolog, state) do
+      {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:start_document, prolog, state.parsed_doc)
+      {:ok, %{state | parsed_doc: parsed_doc}}
+    end
 
-    def handle_event(:characters, chars, stack) do
+    def handle_event(:start_element, data, state) do
+      {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:start_element, data, state.parsed_doc)
+      {:ok, %{state | parsed_doc: parsed_doc}}
+    end
+
+    def handle_event(:characters, chars, state) do
+      stack = state.parsed_doc
       [{tag_name, attributes, content} | stack] = stack
 
       # TODO: record the SIRI namespace instead
       unnamespaced_tag = tag_name |> String.split(":") |> List.last
 
       chars = if (unnamespaced_tag == "RequestorRef") do
-        # TODO: attempt to inject this via a compound state
-        "NEW-REQUESTOR-REF"
+        state.new_requestor_ref
       else
         chars
       end
 
       current = {tag_name, attributes, [chars | content]}
 
-      {:ok, [current | stack]}
+      {:ok, %{state | parsed_doc: [current | stack]}}
     end
 
-    def handle_event(:cdata, chars, stack), do: Saxy.SimpleForm.Handler.handle_event(:cdata, chars, stack)
-    def handle_event(:end_element, tag_name, stack), do: Saxy.SimpleForm.Handler.handle_event(:end_element, tag_name, stack)
-    def handle_event(:end_document, some_param, stack), do: Saxy.SimpleForm.Handler.handle_event(:end_document, some_param, stack)
+    # untested
+    def handle_event(:cdata, chars, state) do
+      {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:cdata, chars, state.parsed_doc)
+      {:ok, %{state | parsed_doc: parsed_doc}}
+    end
+
+    def handle_event(:end_element, tag_name, state) do
+      {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:end_element, tag_name, state.parsed_doc)
+      {:ok, %{state | parsed_doc: parsed_doc}}
+     end
+
+     def handle_event(:end_document, some_param, state) do
+       {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:end_document, some_param, state.parsed_doc)
+       {:ok, %{state | parsed_doc: parsed_doc}}
+     end
   end
 
   test "dynamic requestor_ref modification" do
@@ -130,8 +149,13 @@ defmodule Unlock.SIRI.QueryRewriterTest do
     stop_ref = "SomeStopRef"
 
     xml = build_xml(timestamp, incoming_requestor_ref, message_id, stop_ref)
-    {:ok, parsed} = Saxy.parse_string(xml, SIRI.QueryTweaker.Handler, [])
-    expected_output = expected_xml(timestamp, "NEW-REQUESTOR-REF", message_id, stop_ref)
+    config = %{
+      new_requestor_ref: "TARGET-REQUESTOR-REF",
+      parsed_doc: []
+    }
+    {:ok, %{parsed_doc: parsed}} = Saxy.parse_string(xml, SIRI.QueryTweaker.Handler, config)
+
+    expected_output = expected_xml(timestamp, "TARGET-REQUESTOR-REF", message_id, stop_ref)
 
     assert parsed |> filter_newlines_from_model == expected_output |> parsed() |> filter_newlines_from_model
   end
