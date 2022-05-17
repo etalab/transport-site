@@ -10,16 +10,19 @@ defmodule SIRI.Saxy.Handler do
 
   @behaviour Saxy.Handler
 
+  @impl Saxy.Handler
   def handle_event(:start_document, prolog, state) do
     {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:start_document, prolog, state.parsed_doc)
     {:ok, %{state | parsed_doc: parsed_doc}}
   end
 
+  @impl Saxy.Handler
   def handle_event(:start_element, data, state) do
     {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:start_element, data, state.parsed_doc)
     {:ok, %{state | parsed_doc: parsed_doc}}
   end
 
+  @impl Saxy.Handler
   def handle_event(:characters, chars, state) do
     stack = state.parsed_doc
     [{tag_name, attributes, content} | stack] = stack
@@ -40,16 +43,19 @@ defmodule SIRI.Saxy.Handler do
   end
 
   # untested
+  @impl Saxy.Handler
   def handle_event(:cdata, chars, state) do
     {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:cdata, chars, state.parsed_doc)
     {:ok, %{state | parsed_doc: parsed_doc}}
   end
 
+  @impl Saxy.Handler
   def handle_event(:end_element, tag_name, state) do
     {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:end_element, tag_name, state.parsed_doc)
     {:ok, %{state | parsed_doc: parsed_doc}}
   end
 
+  @impl Saxy.Handler
   def handle_event(:end_document, some_param, state) do
     {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:end_document, some_param, state.parsed_doc)
     {:ok, %{state | parsed_doc: parsed_doc}}
