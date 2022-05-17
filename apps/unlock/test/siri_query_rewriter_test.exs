@@ -93,7 +93,13 @@ defmodule Unlock.SIRI.QueryRewriterTest do
 
   # adapted from https://github.com/qcam/saxy/blob/master/lib/saxy/simple_form/handler.ex
   defmodule SIRI.QueryTweaker.Handler do
-    @moduledoc false
+    @moduledoc """
+    This is a Saxy-compliant handler to parse (& slightly modify) XML.
+
+    It is just a thin wrapper on top of https://github.com/qcam/saxy/blob/master/lib/saxy/simple_form/handler.ex.
+
+    Provides functions to parse a XML document to [simple-form](http://erlang.org/doc/man/xmerl.html#export_simple-3) data structure.
+    """
 
     @behaviour Saxy.Handler
 
