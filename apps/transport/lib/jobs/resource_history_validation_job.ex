@@ -27,6 +27,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
       on: rh.id == mv.resource_history_id and mv.validator == ^validator_name
     )
     |> where([rh, mv], fragment("payload->>'format' = ?", ^format) and is_nil(mv.id))
+    |> order_by([rh], desc: rh.inserted_at)
     |> select([rh], rh.id)
     |> DB.Repo.all()
     |> Enum.each(fn id ->
