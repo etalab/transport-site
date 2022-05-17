@@ -3,6 +3,8 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
   import Mox
   import DB.Factory
 
+  doctest Transport.Validators.GTFSTransport, import: true
+
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end

@@ -59,6 +59,21 @@ defmodule Transport.Validators.GTFSTransport do
   @spec severities(binary()) :: %{level: integer(), text: binary()}
   def severities(key), do: severities_map()[key]
 
+  @doc """
+  Get issues from validation results. For a specific issue type if specified, or the most severe.
+
+  iex> validation_result = %{"tooClose" => [%{"severity" => "Warning"}], "funnyName" => [%{"severity" => "Information"}]}
+  iex> get_issues(validation_result, %{"issue_type" => "funnyName"})
+  [%{"severity" => "Information"}]
+  iex> get_issues(validation_result, %{"issue_type" => "BrokenFile"})
+  []
+  iex> get_issues(validation_result, nil)
+  [%{"severity" => "Warning"}]
+  iex> get_issues(%{}, nil)
+  []
+  iex> get_issues([], nil)
+  []
+  """
   def get_issues(%{} = validation_result, %{"issue_type" => issue_type}) do
     Map.get(validation_result, issue_type, [])
   end
@@ -67,7 +82,7 @@ defmodule Transport.Validators.GTFSTransport do
     validation_result
     |> Map.values()
     |> Enum.sort_by(fn [%{"severity" => severity} | _] -> severities(severity).level end)
-    |> List.first()
+    |> List.first([])
   end
 
   def get_issues(_, _), do: []
