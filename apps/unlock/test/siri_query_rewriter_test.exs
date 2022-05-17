@@ -91,7 +91,7 @@ defmodule Unlock.SIRI.QueryRewriterTest do
              filter_newlines_from_model(parsed(expected_xml(timestamp, incoming_requestor_ref, message_id, stop_ref)))
   end
 
-  test "dynamic requestor_ref modification" do
+  test "dynamic requestor_ref modification and service verification" do
     timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
     incoming_requestor_ref = "transport-data-gouv-fr"
     message_id = "Test::Message::#{Ecto.UUID.generate()}"
