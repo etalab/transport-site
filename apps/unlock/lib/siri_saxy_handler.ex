@@ -5,7 +5,8 @@ defmodule SIRI.Saxy.Handler do
 
   It is just a thin wrapper on top of https://github.com/qcam/saxy/blob/master/lib/saxy/simple_form/handler.ex.
 
-  Provides functions to parse a XML document to [simple-form](http://erlang.org/doc/man/xmerl.html#export_simple-3) data structure.
+  Provides functions to parse a XML document to [simple-form](http://erlang.org/doc/man/xmerl.html#export_simple-3) data structure,
+  and modify the requestor ref on the fly.
   """
 
   @behaviour Saxy.Handler
