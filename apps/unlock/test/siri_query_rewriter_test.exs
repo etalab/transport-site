@@ -88,7 +88,9 @@ defmodule Unlock.SIRI.QueryRewriterTest do
     stop_ref = "SomeStopRef"
 
     assert parsed(build_xml(timestamp, incoming_requestor_ref, message_id, stop_ref)) ==
-             filter_newlines_from_model(parsed(expected_xml(timestamp, incoming_requestor_ref, message_id, stop_ref)))
+             filter_newlines_from_model(
+               parsed(expected_xml(timestamp, incoming_requestor_ref, message_id, stop_ref))
+             )
   end
 
   test "dynamic requestor_ref modification" do
