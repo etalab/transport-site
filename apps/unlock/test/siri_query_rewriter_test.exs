@@ -104,11 +104,13 @@ defmodule Unlock.SIRI.QueryRewriterTest do
       new_requestor_ref: "TARGET-REQUESTOR-REF"
     }
 
-    {:ok, %{parsed_doc: parsed, incoming_requestor_ref: ^incoming_requestor_ref}} = Saxy.parse_string(xml, SIRI.Saxy.Handler, config)
+    {:ok, %{parsed_doc: parsed, incoming_requestor_ref: ^incoming_requestor_ref}} =
+      Saxy.parse_string(xml, SIRI.Saxy.Handler, config)
 
     expected_output = expected_xml(timestamp, "TARGET-REQUESTOR-REF", message_id, stop_ref)
 
-    assert parsed |> filter_newlines_from_model == expected_output |> parsed() |> filter_newlines_from_model
+    assert parsed |> filter_newlines_from_model ==
+             expected_output |> parsed() |> filter_newlines_from_model
 
     # TODO: delegate parsing to a child process with memory limit
     # TODO: create a simplified query verifier (to whitelist as needed)
