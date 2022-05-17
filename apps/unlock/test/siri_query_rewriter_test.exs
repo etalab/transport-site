@@ -158,5 +158,12 @@ defmodule Unlock.SIRI.QueryRewriterTest do
     expected_output = expected_xml(timestamp, "TARGET-REQUESTOR-REF", message_id, stop_ref)
 
     assert parsed |> filter_newlines_from_model == expected_output |> parsed() |> filter_newlines_from_model
+
+    # TODO: move parser code to the right place
+    # TODO: delegate parsing to a child process with memory limit
+    # TODO: create a simplified query verifier (to whitelist as needed)
+    # TODO: grab back incoming requestor ref
+    # TODO: add testing for everything
+    # TODO: document and create a first PR
   end
 end
