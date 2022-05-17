@@ -35,7 +35,7 @@ defmodule SIRI.Saxy.Handler do
     [{tag_name, attributes, content} | stack] = stack
 
     # TODO: record the SIRI namespace instead
-    unnamespaced_tag = tag_name |> String.split(":") |> List.last()
+    unnamespaced_tag = tag_name |> XMLHelper.unnamespace()
 
     {chars, state} = if unnamespaced_tag == "RequestorRef" do
         {state.new_requestor_ref, Map.put(state, :incoming_requestor_ref, chars)}
