@@ -37,7 +37,8 @@ defmodule SIRI.Saxy.Handler do
     # NOTE: proper namespace handling not added for now
     unnamespaced_tag = tag_name |> XMLHelper.unnamespace()
 
-    {chars, state} = if unnamespaced_tag == "RequestorRef" do
+    {chars, state} =
+      if unnamespaced_tag == "RequestorRef" do
         {state.new_requestor_ref, Map.put(state, :incoming_requestor_ref, chars)}
       else
         {chars, state}
@@ -57,13 +58,17 @@ defmodule SIRI.Saxy.Handler do
 
   @impl Saxy.Handler
   def handle_event(:end_element, tag_name, state) do
-    {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:end_element, tag_name, state.parsed_doc)
+    {:ok, parsed_doc} =
+      Saxy.SimpleForm.Handler.handle_event(:end_element, tag_name, state.parsed_doc)
+
     {:ok, %{state | parsed_doc: parsed_doc}}
   end
 
   @impl Saxy.Handler
   def handle_event(:end_document, some_param, state) do
-    {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:end_document, some_param, state.parsed_doc)
+    {:ok, parsed_doc} =
+      Saxy.SimpleForm.Handler.handle_event(:end_document, some_param, state.parsed_doc)
+
     {:ok, %{state | parsed_doc: parsed_doc}}
   end
 end
