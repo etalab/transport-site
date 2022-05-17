@@ -4,7 +4,7 @@ defmodule Datagouvfr.Client.Reuses.Wrapper do
   """
   @callback get(map()) :: {:ok, list()} | {:error, binary()}
 
-  def impl, do: Application.get_env(:datagouvfr, :datagouvfr_reuses)
+  def impl, do: Application.fetch_env!(:datagouvfr, :datagouvfr_reuses)
 
   def get(dataset), do: impl().get(dataset)
 end
