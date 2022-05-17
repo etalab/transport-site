@@ -5,10 +5,10 @@
       <p><%= dgettext("validations", "It is valid from")%> <strong><%= DateTimeDisplay.format_date(@metadata["start_date"], locale) %></strong> <%= dgettext("validations", "to")%> <strong><%= DateTimeDisplay.format_date(@metadata["end_date"], locale) %></strong>.</p>
     <% end %>
     <ul>
-    <%= if @metadata["modes"] != [] and @metadata["modes"] != nil do %>
+    <%= if Map.get(@metadata, "modes", []) != [] do %>
       <li><%= dngettext("validations", "transport mode", "transport modes", length(@metadata["networks"])) %> : <strong><%= Enum.join(@metadata["modes"], ", ") %></strong> </li>
     <% end %>
-    <%= if @metadata["networks"] != [] and @metadata["networks"] != nil do %>
+    <%= if Map.get(@metadata, "networks", []) != [] do %>
       <li>
         <div>
           <div class="networks-list">
