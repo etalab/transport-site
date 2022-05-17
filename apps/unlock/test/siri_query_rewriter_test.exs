@@ -112,5 +112,10 @@ defmodule Unlock.SIRI.QueryRewriterTest do
     assert parsed |> filter_newlines_from_model ==
              expected_output |> parsed() |> filter_newlines_from_model
 
+    {envelope, _, [{body, _, [{service, _, _}]}]} = parsed
+
+    assert envelope |> XMLHelper.unnamespace() == "Envelope"
+    assert body |> XMLHelper.unnamespace() == "Body"
+    assert service |> XMLHelper.unnamespace() == "GetStopMonitoring"
   end
 end
