@@ -34,7 +34,7 @@ defmodule SIRI.Saxy.Handler do
     stack = state.parsed_doc
     [{tag_name, attributes, content} | stack] = stack
 
-    # TODO: record the SIRI namespace instead
+    # NOTE: proper namespace handling not added for now
     unnamespaced_tag = tag_name |> XMLHelper.unnamespace()
 
     {chars, state} = if unnamespaced_tag == "RequestorRef" do
