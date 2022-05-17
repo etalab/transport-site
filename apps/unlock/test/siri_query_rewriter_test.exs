@@ -91,63 +91,6 @@ defmodule Unlock.SIRI.QueryRewriterTest do
              filter_newlines_from_model(parsed(expected_xml(timestamp, incoming_requestor_ref, message_id, stop_ref)))
   end
 
-  # adapted from https://github.com/qcam/saxy/blob/master/lib/saxy/simple_form/handler.ex
-  defmodule SIRI.QueryTweaker.Handler do
-    @moduledoc """
-    This is a Saxy-compliant handler to parse (& slightly modify) XML.
-
-    It is just a thin wrapper on top of https://github.com/qcam/saxy/blob/master/lib/saxy/simple_form/handler.ex.
-
-    Provides functions to parse a XML document to [simple-form](http://erlang.org/doc/man/xmerl.html#export_simple-3) data structure.
-    """
-
-    @behaviour Saxy.Handler
-
-    def handle_event(:start_document, prolog, state) do
-      {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:start_document, prolog, state.parsed_doc)
-      {:ok, %{state | parsed_doc: parsed_doc}}
-    end
-
-    def handle_event(:start_element, data, state) do
-      {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:start_element, data, state.parsed_doc)
-      {:ok, %{state | parsed_doc: parsed_doc}}
-    end
-
-    def handle_event(:characters, chars, state) do
-      stack = state.parsed_doc
-      [{tag_name, attributes, content} | stack] = stack
-
-      # TODO: record the SIRI namespace instead
-      unnamespaced_tag = tag_name |> String.split(":") |> List.last
-
-      chars = if (unnamespaced_tag == "RequestorRef") do
-        state.new_requestor_ref
-      else
-        chars
-      end
-
-      current = {tag_name, attributes, [chars | content]}
-
-      {:ok, %{state | parsed_doc: [current | stack]}}
-    end
-
-    # untested
-    def handle_event(:cdata, chars, state) do
-      {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:cdata, chars, state.parsed_doc)
-      {:ok, %{state | parsed_doc: parsed_doc}}
-    end
-
-    def handle_event(:end_element, tag_name, state) do
-      {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:end_element, tag_name, state.parsed_doc)
-      {:ok, %{state | parsed_doc: parsed_doc}}
-     end
-
-     def handle_event(:end_document, some_param, state) do
-       {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:end_document, some_param, state.parsed_doc)
-       {:ok, %{state | parsed_doc: parsed_doc}}
-     end
-  end
-
   test "dynamic requestor_ref modification" do
     timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
     incoming_requestor_ref = "transport-data-gouv-fr"
@@ -159,13 +102,12 @@ defmodule Unlock.SIRI.QueryRewriterTest do
       new_requestor_ref: "TARGET-REQUESTOR-REF",
       parsed_doc: []
     }
-    {:ok, %{parsed_doc: parsed}} = Saxy.parse_string(xml, SIRI.QueryTweaker.Handler, config)
+    {:ok, %{parsed_doc: parsed}} = Saxy.parse_string(xml, SIRI.Saxy.Handler, config)
 
     expected_output = expected_xml(timestamp, "TARGET-REQUESTOR-REF", message_id, stop_ref)
 
     assert parsed |> filter_newlines_from_model == expected_output |> parsed() |> filter_newlines_from_model
 
-    # TODO: move parser code to the right place
     # TODO: delegate parsing to a child process with memory limit
     # TODO: create a simplified query verifier (to whitelist as needed)
     # TODO: grab back incoming requestor ref
