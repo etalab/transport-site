@@ -125,7 +125,7 @@ defmodule Transport.Validators.GTFSTransport do
     |> Enum.min_by(fn {severity, _count} -> severity |> severities() |> Map.get(:level) end)
   end
 
-  @spec is_me?(any) :: boolean()
-  def is_me?(%{validator: validator}), do: validator == validator_name()
-  def is_me?(_), do: false
+  @spec is_mine?(any) :: boolean()
+  def is_mine?(%{validator: validator}), do: validator == validator_name()
+  def is_mine?(_), do: false
 end

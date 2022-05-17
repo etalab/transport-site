@@ -74,7 +74,7 @@
   <% end %>
   <%= if Resource.is_gtfs?(@resource) do %>
     <% [validation] = Map.get(validations, @resource.id) %>
-    <%= if GTFSTransport.is_me?(validation) do %>
+    <%= if GTFSTransport.is_mine?(validation) do %>
       <div class="pb-24">
         <a href="<%= resource_path(@conn, :details, @resource.id)<>"#validation-report" %>">
           <% {severity, count} = GTFSTransport.count_max_severity(validation.result) %>
