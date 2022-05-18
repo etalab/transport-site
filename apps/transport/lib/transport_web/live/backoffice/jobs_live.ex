@@ -3,10 +3,12 @@ defmodule TransportWeb.Backoffice.JobsLive do
   A quick dashboard for jobs.
   """
   use Phoenix.LiveView
+  use Phoenix.HTML
   import Ecto.Query
 
   # Authentication is assumed to happen in regular HTTP land. Here we verify
   # the user presence + belonging to admin team, or redirect immediately.
+  @impl true
   def mount(_params, session, socket) do
     %{
       "current_user" => current_user
@@ -16,7 +18,9 @@ defmodule TransportWeb.Backoffice.JobsLive do
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
        if connected?(socket), do: schedule_next_update_data()
 
-       socket |> update_data()
+       socket
+       |> assign(%{search_worker: :search_worker})
+       |> update_data()
      end)}
   end
 
@@ -40,7 +44,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
   end
 
   defp schedule_next_update_data do
-    Process.send_after(self(), :update_data, 1000)
+    Process.send_after(self(), :update_data, 10000)
   end
 
   def last_jobs_query(state, n) do
@@ -59,6 +63,9 @@ defmodule TransportWeb.Backoffice.JobsLive do
     )
   end
 
+  def filter_worker(query, nil), do: query
+  def filter_worker(query, worker_filter), do: query |> where([o], o.worker == ^worker_filter)
+
   def jobs_count do
     query =
       from(j in "oban_jobs",
@@ -72,28 +79,58 @@ defmodule TransportWeb.Backoffice.JobsLive do
 
   def oban_query(query), do: Oban.config() |> Oban.Repo.all(query)
 
-  def last_jobs(state, n), do: state |> last_jobs_query(n) |> oban_query
+  def last_jobs(state, n, worker), do: state |> last_jobs_query(n) |> filter_worker(worker) |> oban_query
 
-  def count_jobs(state), do: state |> count_jobs_query |> oban_query |> Enum.at(0)
+  def count_jobs(state, worker), do: state |> count_jobs_query |> filter_worker(worker) |> oban_query |> Enum.at(0)
 
-  defp update_data(socket) do
+  defp update_data(socket, worker_filter \\ nil) do
+    # IO.inspect("update data !")
+    # IO.inspect(worker_filter)
     assign(socket,
       last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
-      executing_jobs: last_jobs("executing", 5),
-      count_executing_jobs: count_jobs("executing"),
-      last_completed_jobs: last_jobs("completed", 5),
-      count_completed_jobs: count_jobs("completed"),
-      available_jobs: last_jobs("available", 5),
-      count_available_jobs: count_jobs("available"),
-      last_discarded_jobs: last_jobs("discarded", 5),
-      count_discarded_jobs: count_jobs("discarded"),
+      executing_jobs: last_jobs("executing", 5, worker_filter),
+      count_executing_jobs: count_jobs("executing", worker_filter),
+      last_completed_jobs: last_jobs("completed", 5, worker_filter),
+      count_completed_jobs: count_jobs("completed", worker_filter),
+      available_jobs: last_jobs("available", 5, worker_filter),
+      count_available_jobs: count_jobs("available", worker_filter),
+      last_discarded_jobs: last_jobs("discarded", 5, worker_filter),
+      count_discarded_jobs: count_jobs("discarded", worker_filter),
       jobs_count: jobs_count()
     )
   end
 
+  @impl true
   def handle_info(:update_data, socket) do
+    IO.inspect("handle info est appelé!")
+    IO.inspect("query vaut #{inspect(socket.assigns |> Map.keys())}")
     schedule_next_update_data()
+    {:noreply, update_data(socket, socket.assigns |> Map.get(:query))}
+  end
+
+  @impl true
+  def handle_params(%{"worker" => query}, _uri, socket) do
+    socket = socket |> assign(%{query: query})
+
+    {:noreply, update_data(socket, query)}
+  end
+
+  def handle_params(%{"worker" => query}, _uri, socket) do
+    socket = socket |> assign(%{query: query})
     {:noreply, update_data(socket)}
+  end
+
+  def handle_params(_params, _uri, socket) do
+    {:noreply, update_data(socket)}
+  end
+
+  @impl true
+  def handle_event("filter", %{"search_worker" => %{"query" => query}}, socket) do
+    # {:noreply, update_data(socket)}
+    socket = socket
+    |> push_patch(to: TransportWeb.Router.Helpers.backoffice_live_path(socket, TransportWeb.Backoffice.JobsLive, worker: query))
+
+    {:noreply, socket}
   end
 
   def build_session(conn) do
