@@ -159,14 +159,15 @@ config :ex_aws, :database_backup_source,
   access_key_id: System.get_env("DATABASE_BACKUP_SOURCE_ACCESS_KEY_ID"),
   secret_access_key: System.get_env("DATABASE_BACKUP_SOURCE_SECRET_ACCESS_KEY"),
   bucket_name: System.get_env("DATABASE_BACKUP_SOURCE_BUCKET_NAME"),
-  host: "cellar-c2.services.clever-cloud.com"
+  host: System.get_env("DATABASE_BACKUP_SOURCE_HOST"),
+  region: System.get_env("DATABASE_BACKUP_SOURCE_REGION")
 
 config :ex_aws, :database_backup_destination,
   access_key_id: System.get_env("DATABASE_BACKUP_DESTINATION_ACCESS_KEY_ID"),
   secret_access_key: System.get_env("DATABASE_BACKUP_DESTINATION_SECRET_ACCESS_KEY"),
   bucket_name: System.get_env("DATABASE_BACKUP_DESTINATION_BUCKET_NAME"),
-  host: "s3.fr-par.scw.cloud",
-  region: "fr-par"
+  host: System.get_env("DATABASE_BACKUP_DESTINATION_HOST"),
+  region: System.get_env("DATABASE_BACKUP_DESTINATION_REGION")
 
 config :transport,
   domain_name: System.get_env("DOMAIN_NAME", "transport.data.gouv.fr"),
