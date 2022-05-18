@@ -136,7 +136,9 @@ config :transport,
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API,
   authentication_impl: Datagouvfr.Authentication,
-  user_impl: Datagouvfr.Client.User
+  user_impl: Datagouvfr.Client.User,
+  datagouvfr_reuses: Datagouvfr.Client.Reuses,
+  datagouvfr_discussions: Datagouvfr.Client.Discussions
 
 config :ex_json_schema,
        :remote_schema_resolver,
