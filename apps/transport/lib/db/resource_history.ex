@@ -15,6 +15,7 @@ defmodule DB.ResourceHistory do
     timestamps(type: :utc_datetime_usec)
     belongs_to(:resource, DB.Resource, foreign_key: :datagouv_id, references: :datagouv_id, type: :string)
     has_many(:geo_data_import, DB.GeoDataImport)
+    has_many(:validations, DB.MultiValidation)
   end
 
   defp latest_resource_history_query(resource_id) do
