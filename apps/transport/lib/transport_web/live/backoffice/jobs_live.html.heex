@@ -2,13 +2,12 @@
     <h1>Jobs Observation Center</h1>
     <p class="small">Dernière mise à jour: <%= @last_updated_at %></p>
 
-    <.form let={f} for={@search_worker} phx-change="filter" phx-submit="filter">
-      <%= label f, :query %>
-      <%= text_input f, :query %>
-
-      <%= submit "Save" %>
-    </.form>
-
+    <div class="pb-24">
+        <.form let={f} for={@search_worker} phx-change="filter" class="no-margin">
+          <%= label f, "Filter by worker label" %>
+          <%= text_input f, :worker, value: @worker %>
+        </.form>
+    </div>
 
     <h2>Counts</h2>
 
