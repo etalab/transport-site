@@ -125,7 +125,6 @@ defmodule TransportWeb.Backoffice.JobsLive do
   @impl true
   def handle_event("filter", %{"search_worker" => %{"worker" => worker}}, socket) do
     socket = socket
-    |> assign(%{worker: worker})
     |> push_patch(to: TransportWeb.Router.Helpers.backoffice_live_path(socket, TransportWeb.Backoffice.JobsLive, worker: worker))
 
     {:noreply, socket}
