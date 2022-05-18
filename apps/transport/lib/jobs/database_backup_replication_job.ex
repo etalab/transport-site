@@ -10,7 +10,7 @@ defmodule Transport.Jobs.DatabaseBackupReplicationJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    ensure_destination_credentials_cannot_read!()
+    ensure_destination_permissions_are_appropriate!()
 
     latest_dump()
     |> check_dump_not_too_large!()
@@ -20,11 +20,17 @@ defmodule Transport.Jobs.DatabaseBackupReplicationJob do
     :ok
   end
 
-  def ensure_destination_credentials_cannot_read! do
+  def ensure_destination_permissions_are_appropriate! do
     # Cannot list buckets
     %{body: %{buckets: []}} = ExAws.S3.list_buckets() |> request!(:destination)
     # Cannot list objects in destination bucket
-    {:error, {:http_error, 403, _}} = :destination |> bucket_name() |> ExAws.S3.list_objects() |> request(:destination)
+    destination_bucket = bucket_name(:destination)
+    {:error, {:http_error, 403, _}} = destination_bucket |> ExAws.S3.list_objects() |> request(:destination)
+    # Cannot delete an object in the destination bucket
+    random_filename = Ecto.UUID.generate()
+
+    {:error, {:http_error, 403, _}} =
+      destination_bucket |> ExAws.S3.delete_object(random_filename) |> request(:destination)
   end
 
   def upload!(dump) do

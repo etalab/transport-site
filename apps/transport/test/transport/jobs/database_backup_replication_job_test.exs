@@ -6,6 +6,13 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
   doctest DatabaseBackupReplicationJob, import: true
 
   setup :verify_on_exit!
+  @source_bucket_name "fake_source_bucket_name"
+  @destination_bucket_name "fake_destination_bucket_name"
+
+  test "test config is up to date" do
+    assert @source_bucket_name == Application.fetch_env!(:ex_aws, :database_backup_source)[:bucket_name]
+    assert @destination_bucket_name == Application.fetch_env!(:ex_aws, :database_backup_destination)[:bucket_name]
+  end
 
   test "check_dump_not_too_large!" do
     assert DatabaseBackupReplicationJob.max_size_threshold() == DatabaseBackupReplicationJob.gigabytes(1)
@@ -43,7 +50,7 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
     |> expect(:request!, 2, fn operation, config ->
       assert %ExAws.Operation.S3{
                body: "",
-               bucket: "fake_source_bucket_name",
+               bucket: @source_bucket_name,
                http_method: :get,
                path: "/",
                resource: "",
@@ -72,8 +79,8 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
   end
 
   test "bucket_name" do
-    assert DatabaseBackupReplicationJob.bucket_name(:source) == "fake_source_bucket_name"
-    assert DatabaseBackupReplicationJob.bucket_name(:destination) == "fake_destination_bucket_name"
+    assert DatabaseBackupReplicationJob.bucket_name(:source) == @source_bucket_name
+    assert DatabaseBackupReplicationJob.bucket_name(:destination) == @destination_bucket_name
   end
 
   test "perform" do
@@ -93,7 +100,7 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
     |> expect(:request, fn operation, config ->
       assert %ExAws.Operation.S3{
                body: "",
-               bucket: "fake_destination_bucket_name",
+               bucket: @destination_bucket_name,
                http_method: :get,
                path: "/",
                resource: "",
@@ -104,12 +111,29 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
       {:error, {:http_error, 403, %{}}}
     end)
 
+    # Trying to remove an object in destination bucket
+    Transport.ExAWS.Mock
+    |> expect(:request, fn operation, config ->
+      assert %ExAws.Operation.S3{
+               body: "",
+               bucket: @destination_bucket_name,
+               http_method: :delete,
+               path: path,
+               resource: "",
+               service: :s3
+             } = operation
+
+      refute is_nil(path) or path == "/"
+      assert config_is_destination?(config)
+      {:error, {:http_error, 403, %{}}}
+    end)
+
     # List objects in source bucket
     Transport.ExAWS.Mock
     |> expect(:request!, fn operation, config ->
       assert %ExAws.Operation.S3{
                body: "",
-               bucket: "fake_source_bucket_name",
+               bucket: @source_bucket_name,
                http_method: :get,
                path: "/",
                resource: "",
@@ -134,8 +158,7 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
     # Downloading the most recent dump
     Transport.ExAWS.Mock
     |> expect(:request!, fn operation, config ->
-      assert %ExAws.S3.Download{bucket: "fake_source_bucket_name", path: ^latest_dump_filename, service: :s3} =
-               operation
+      assert %ExAws.S3.Download{bucket: @source_bucket_name, path: ^latest_dump_filename, service: :s3} = operation
 
       assert config_is_source?(config)
     end)
@@ -144,7 +167,7 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
     Transport.ExAWS.Mock
     |> expect(:request!, fn operation, config ->
       assert %ExAws.S3.Upload{
-               bucket: "fake_destination_bucket_name",
+               bucket: @destination_bucket_name,
                path: path,
                service: :s3,
                src: %File.Stream{}
@@ -158,6 +181,6 @@ defmodule Transport.Test.Transport.Jobs.DatabaseBackupReplicationJobTest do
     assert :ok == perform_job(DatabaseBackupReplicationJob, %{})
   end
 
-  defp config_is_destination?(%{bucket_name: bucket_name}), do: bucket_name == "fake_destination_bucket_name"
-  defp config_is_source?(%{bucket_name: bucket_name}), do: bucket_name == "fake_source_bucket_name"
+  defp config_is_destination?(%{bucket_name: bucket_name}), do: bucket_name == @destination_bucket_name
+  defp config_is_source?(%{bucket_name: bucket_name}), do: bucket_name == @source_bucket_name
 end
