@@ -256,3 +256,7 @@ msgstr "Visualisation"
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Visualization is quite big"
 msgstr "La visualisation est volumineuse"
+
+#, elixir-autogen, elixir-format
+msgid "No validation error"
+msgstr "Aucune erreur de validation"
