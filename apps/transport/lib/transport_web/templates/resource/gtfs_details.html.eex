@@ -88,19 +88,23 @@
         <%= unless @validation_summary do %>
           <%= dgettext("validations", "No validation available") %>
         <% else %>
-        <nav class="issues-list validation" role="navigation">
-          <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, issues: @issues, conn: @conn, data_vis: @data_vis, token: nil %>
-        </nav>
-        <div class="main-pane">
-          <%= pagination_links @conn, @issues, [@resource.id], issue_type: issue_type(@issues.entries),
-            path: &resource_path/4, action: :details %>
-          <%=  render template(@issues), issues: @issues || [] , conn: @conn %>
-        </div>
+          <%= if @issues.total_entries == 0 do %>
+            <%= dgettext("validations", "No validation error") %>.
+          <% else %>
+            <nav class="issues-list validation" role="navigation">
+              <%= render "_validation_summary.html", validation_summary: @validation_summary, severities_count: @severities_count, issues: @issues, conn: @conn, data_vis: @data_vis, token: nil %>
+            </nav>
+            <div class="main-pane">
+              <%= pagination_links @conn, @issues, [@resource.id], issue_type: issue_type(@issues.entries),
+                path: &resource_path/4, action: :details %>
+              <%=  render template(@issues), issues: @issues || [] , conn: @conn %>
+            </div>
+          <% end %>
         <% end %>
       </div>
       <%= if length(@other_resources) > 0 do %>
-      <div class="mt-48 validation-section">
-        <h1><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h1>
+      <h2><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h2>
+      <div class="panel">
         <ul>
           <%= for resource <- @other_resources do %>
           <li>

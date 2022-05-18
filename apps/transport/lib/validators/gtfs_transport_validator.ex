@@ -119,6 +119,11 @@ defmodule Transport.Validators.GTFSTransport do
 
   def count_by_severity(_), do: %{}
 
+  @spec count_by_severity(map()) :: {binary(), integer()}
+  def count_max_severity(validation_result) when validation_result == %{} do
+    {"Irrevelant", 0}
+  end
+
   def count_max_severity(%{} = validation_result) do
     validation_result
     |> count_by_severity()
