@@ -121,7 +121,7 @@ extra_oban_conf =
     [queues: false, plugins: false]
   else
     [
-      queues: [default: 2, heavy: 1, on_demand_validation: 1],
+      queues: [default: 2, heavy: 1, on_demand_validation: 1, resource_history_validation: 1],
       plugins: [
         {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
         {Oban.Plugins.Cron, crontab: List.flatten(oban_crontab_all_envs, non_staging_crontab)}
