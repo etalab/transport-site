@@ -1,7 +1,7 @@
 defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
-  alias Datagouvfr.Client.{Datasets, Discussions, Reuses}
+  alias Datagouvfr.Client.Datasets
   alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
@@ -37,7 +37,7 @@ defmodule TransportWeb.DatasetController do
          {:ok, territory} <- Dataset.get_territory(dataset) do
       # in case data.gouv datagouv is down, datasets pages should still be available on our site
       reuses_assign =
-        case Reuses.get(dataset) do
+        case Datagouvfr.Client.Reuses.Wrapper.get(dataset) do
           {:ok, reuses} -> [reuses: reuses, fetch_reuses_error: false]
           _ -> [reuses: %{}, fetch_reuses_error: true]
         end
@@ -46,14 +46,13 @@ defmodule TransportWeb.DatasetController do
       |> assign(:dataset, dataset)
       |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
       |> assign(:territory, territory)
-      |> assign(:discussions, Discussions.get(dataset.datagouv_id))
+      |> assign(:discussions, Datagouvfr.Client.Discussions.Wrapper.get(dataset.datagouv_id))
       |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
       |> assign(:is_subscribed, Datasets.current_user_subscribed?(conn, dataset.datagouv_id))
       |> merge_assigns(reuses_assign)
       |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
-      |> assign(:unavailabilities, unavailabilities(dataset))
+      |> assign(:resources_infos, resources_infos(dataset))
       |> assign(:history_resources, Transport.History.Fetcher.history_resources(dataset))
-      |> assign(:resources_updated_at, DB.Dataset.resources_content_updated_at(dataset))
       |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset.id))
       |> put_status(if dataset.is_active, do: :ok, else: :not_found)
       |> render("details.html")
@@ -65,6 +64,19 @@ defmodule TransportWeb.DatasetController do
       nil ->
         redirect_to_slug_or_404(conn, slug_or_id)
     end
+  end
+
+  def validators_to_use, do: [Transport.Validators.GTFSTransport]
+
+  def resources_infos(dataset) do
+    # multi validations assign
+    validations = DB.MultiValidation.dataset_latest_validation(dataset.id, validators_to_use())
+
+    %{
+      unavailabilities: unavailabilities(dataset),
+      resources_updated_at: DB.Dataset.resources_content_updated_at(dataset),
+      validations: validations
+    }
   end
 
   @spec by_aom(Plug.Conn.t(), map()) :: Plug.Conn.t()

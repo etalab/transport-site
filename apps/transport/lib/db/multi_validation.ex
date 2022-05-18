@@ -34,4 +34,44 @@ defmodule DB.MultiValidation do
     |> where([mv], mv.validator == ^validator_name and mv.resource_history_id == ^id)
     |> DB.Repo.exists?()
   end
+
+  @spec resource_latest_validation(integer(), atom) :: __MODULE__.t() | nil
+  def resource_latest_validation(resource_id, validator) do
+    validator_name = validator.validator_name()
+
+    # when resource and resource_history are linked by the resource id,
+    # the join with resource will be removed in this query.
+    DB.MultiValidation
+    |> join(:left, [mv], rh in DB.ResourceHistory, on: rh.id == mv.resource_history_id)
+    |> join(:left, [mv, rh], r in DB.Resource, on: r.datagouv_id == rh.datagouv_id)
+    |> where([mv, rh, r], mv.validator == ^validator_name and r.id == ^resource_id)
+    |> order_by([mv, rh, r], desc: rh.inserted_at, desc: mv.validation_timestamp)
+    |> preload(:metadata)
+    |> limit(1)
+    |> DB.Repo.one()
+  end
+
+  @spec dataset_latest_validation(integer(), [module()]) :: map
+  def dataset_latest_validation(dataset_id, validators) do
+    validators_names = validators |> Enum.map(fn v -> v.validator_name() end)
+
+    latest_validations =
+      DB.MultiValidation
+      |> distinct([mv], [mv.resource_history_id, mv.validator])
+      |> order_by([mv], desc: mv.resource_history_id, desc: mv.validator, desc: mv.validation_timestamp)
+      |> where([mv], mv.validator in ^validators_names)
+
+    latest_resource_history =
+      DB.ResourceHistory
+      |> distinct([rh], [rh.datagouv_id])
+      |> order_by([rh], desc: rh.inserted_at)
+
+    DB.Resource
+    |> join(:left, [r], rh in subquery(latest_resource_history), on: rh.datagouv_id == r.datagouv_id)
+    |> join(:left, [r, rh], mv in subquery(latest_validations), on: rh.id == mv.resource_history_id)
+    |> where([r, rh, mv], r.dataset_id == ^dataset_id)
+    |> select([r, rh, mv], {r.id, mv})
+    |> DB.Repo.all()
+    |> Enum.group_by(fn {k, _} -> k end, fn {_, v} -> v end)
+  end
 end

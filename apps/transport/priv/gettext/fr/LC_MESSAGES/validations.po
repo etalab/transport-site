@@ -12,7 +12,7 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "No validation available"
-msgstr "Pas de validation disponibles"
+msgstr "Pas de validation disponible"
 
 #, elixir-autogen, elixir-format
 msgid "Other resources"
