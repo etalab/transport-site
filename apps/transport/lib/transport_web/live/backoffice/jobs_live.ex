@@ -68,6 +68,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
 
   def filter_worker(query, nil), do: query
   def filter_worker(query, ""), do: query
+
   def filter_worker(query, worker_filter) do
     reg = "%#{worker_filter}%"
     query |> where([o], ilike(o.worker, ^reg))
@@ -81,7 +82,11 @@ defmodule TransportWeb.Backoffice.JobsLive do
         order_by: [desc: fragment("hour"), asc: :worker]
       )
 
-    query |> filter_worker(worker) |> oban_query() |> Enum.group_by(fn d -> Calendar.strftime(d.hour, "%Y-%m-%d %Hh") end) |> Enum.sort(:desc)
+    query
+    |> filter_worker(worker)
+    |> oban_query()
+    |> Enum.group_by(fn d -> Calendar.strftime(d.hour, "%Y-%m-%d %Hh") end)
+    |> Enum.sort(:desc)
   end
 
   def oban_query(query), do: Oban.config() |> Oban.Repo.all(query)
@@ -124,8 +129,11 @@ defmodule TransportWeb.Backoffice.JobsLive do
 
   @impl true
   def handle_event("filter", %{"search_worker" => %{"worker" => worker}}, socket) do
-    socket = socket
-    |> push_patch(to: TransportWeb.Router.Helpers.backoffice_live_path(socket, TransportWeb.Backoffice.JobsLive, worker: worker))
+    socket =
+      socket
+      |> push_patch(
+        to: TransportWeb.Router.Helpers.backoffice_live_path(socket, TransportWeb.Backoffice.JobsLive, worker: worker)
+      )
 
     {:noreply, socket}
   end
