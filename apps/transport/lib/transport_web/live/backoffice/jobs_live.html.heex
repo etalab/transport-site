@@ -27,7 +27,7 @@
               <td rowspan={Enum.count(rows)}><%= hour %></td>
             <% end %>
             <td><%= row.worker %></td>
-            <td><%= row.count %></td>
+            <td><%= Helpers.format_number(row.count) %></td>
           </tr>
         <% end %>
       <% end %>
