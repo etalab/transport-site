@@ -13,15 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Extract identifier of Docker image to scan
+        id: docker_image_ref_retrieval
+        run: echo ::set-output name=TARGET_IMAGE_REF::$(cat Dockerfile | grep FROM | head -1 | cut -d' ' -f2)
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          # TODO: read from Dockerfile
-          image-ref: 'ghcr.io/etalab/transport-ops:elixir-1.13.3-erlang-24.2.1-ubuntu-focal-20211006-transport-tools-1.0.3'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file: 'trivy-results.sarif'
+          image-ref: "${{ steps.docker_image_ref_retrieval.outputs.TARGET_IMAGE_REF }}"
+          format: 'table'
