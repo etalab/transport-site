@@ -23,6 +23,8 @@ defmodule DB.Validation do
     belongs_to(:resource, Resource)
   end
 
+  # All those functions are now duplicated in Transport.Validators.GTFSTransport
+  # the ones here will be removed in the future, when migration to the multi validation is complete.
   @spec severities_map() :: map()
   def severities_map,
     do: %{
