@@ -96,7 +96,8 @@ oban_crontab_all_envs =
         {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
         {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}},
         {"20 */2 * * *", Transport.Jobs.GTFSRTEntitiesDispatcherJob},
-        {"30 */6 * * *", Transport.Jobs.BNLCToGeoData}
+        {"30 */6 * * *", Transport.Jobs.BNLCToGeoData},
+        {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob}
       ]
 
     :dev ->
