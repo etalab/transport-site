@@ -132,9 +132,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
   def handle_event("filter", %{"search_worker" => %{"worker" => worker}}, socket) do
     socket =
       socket
-      |> push_patch(
-        to: backoffice_live_path(socket, TransportWeb.Backoffice.JobsLive, worker: worker)
-      )
+      |> push_patch(to: backoffice_live_path(socket, TransportWeb.Backoffice.JobsLive, worker: worker))
 
     {:noreply, socket}
   end
