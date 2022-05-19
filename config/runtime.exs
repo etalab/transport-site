@@ -90,7 +90,6 @@ oban_crontab_all_envs =
         {"0 */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob},
         {"30 */6 * * *", Transport.Jobs.GtfsToGeojsonConverterJob},
         # every 6 hours but not at the same time as other jobs
-        {"0 2,8,14,20 * * *", Transport.Jobs.ResourceHistoryValidationJob},
         {"0 3,9,15,21 * * *", Transport.Jobs.GtfsToNetexConverterJob},
         {"20 8 * * *", Transport.Jobs.CleanOrphanConversionsJob},
         {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
@@ -111,9 +110,10 @@ oban_crontab_all_envs =
 non_staging_crontab =
   if app_env == :staging do
     []
-    # Oban jobs that should be run in all envs, *except* staging
   else
-    []
+    # Oban jobs that should be run in all envs, *except* staging
+    # avoid overloading external validators
+    [{"0 2,8,14,20 * * *", Transport.Jobs.ResourceHistoryValidationJob}]
   end
 
 extra_oban_conf =
