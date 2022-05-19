@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - vulnerabilities-container-scan
   pull_request:
 jobs:
   build:
