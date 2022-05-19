@@ -12,7 +12,7 @@ defmodule SIRI.Saxy.Handler do
   @behaviour Saxy.Handler
 
   @impl Saxy.Handler
-  def handle_event(:start_document, prolog, state) do
+  def handle_event(:start_document, prolog, %{new_requestor_ref: _} = state) do
     state = Map.put(state, :parsed_doc, [])
 
     {:ok, parsed_doc} = Saxy.SimpleForm.Handler.handle_event(:start_document, prolog, state.parsed_doc)
