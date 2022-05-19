@@ -39,6 +39,8 @@ defmodule SIRI.Saxy.Handler do
       if unnamespaced_tag == "RequestorRef" do
         # NOTE: an array should be used instead of erasing the key, because it would
         # otherwise allow duplicate elements with a risk to erase the previous ref
+        # Important note: here we replace the existing requestor ref, all while
+        # saving the previous one for verification.
         {state.new_requestor_ref, Map.put(state, :incoming_requestor_ref, chars)}
       else
         {chars, state}
