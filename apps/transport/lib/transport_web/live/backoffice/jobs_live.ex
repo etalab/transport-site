@@ -5,6 +5,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
   use Phoenix.LiveView
   use Phoenix.HTML
   import Ecto.Query
+  import TransportWeb.Router.Helpers
 
   # Authentication is assumed to happen in regular HTTP land. Here we verify
   # the user presence + belonging to admin team, or redirect immediately.
@@ -132,7 +133,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
     socket =
       socket
       |> push_patch(
-        to: TransportWeb.Router.Helpers.backoffice_live_path(socket, TransportWeb.Backoffice.JobsLive, worker: worker)
+        to: backoffice_live_path(socket, TransportWeb.Backoffice.JobsLive, worker: worker)
       )
 
     {:noreply, socket}
