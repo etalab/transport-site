@@ -1,0 +1,17 @@
+{
+   "Rules":[
+      {
+         "Expiration":{
+            "Days":30
+         },
+         "ID":"delete-after-30-days",
+         "Filter":{
+            "Prefix":"",
+            "And":{
+               "Prefix":"*"
+            }
+         },
+         "Status":"Enabled"
+      }
+   ]
+}
