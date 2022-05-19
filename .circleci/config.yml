@@ -177,7 +177,14 @@ jobs:
           name: Run tests
           command: |
             mix test --warnings-as-errors
-
+  scan:
+    steps:
+      - run:
+          name: Install Trivy
+          command: apt-get update && apt-get install -y trivy
+      - run:
+          name: Run Trivy
+          command: trivy image << parameters.base_image >>
 workflows:
   version: 2
   transport:
