@@ -2,3 +2,5 @@ Mox.defmock(Datagouvfr.Client.CommunityResources.Mock, for: Datagouvfr.Client.Co
 Mox.defmock(Transport.HTTPoison.Mock, for: HTTPoison.Base)
 Mox.defmock(Datagouvfr.Authentication.Mock, for: Datagouvfr.Authentication.Wrapper)
 Mox.defmock(Datagouvfr.Client.User.Mock, for: Datagouvfr.Client.User.Wrapper)
+Mox.defmock(Datagouvfr.Client.Reuses.Mock, for: Datagouvfr.Client.Reuses.Wrapper)
+Mox.defmock(Datagouvfr.Client.Discussions.Mock, for: Datagouvfr.Client.Discussions.Wrapper)
