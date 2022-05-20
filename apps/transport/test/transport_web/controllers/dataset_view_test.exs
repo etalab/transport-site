@@ -67,6 +67,10 @@ defmodule TransportWeb.DatasetViewTest do
     assert get_resource_to_display(dataset_only_roads) == nil
   end
 
+  test "test data is up to date" do
+    assert "tipi.bison-fute.gouv.fr" == Application.fetch_env!(:transport, :bison_fute_host)
+  end
+
   test "download url", %{conn: conn} do
     # Files hosted on data.gouv.fr
     assert download_url(conn, %DB.Resource{
@@ -81,12 +85,20 @@ defmodule TransportWeb.DatasetViewTest do
              latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
            }) == latest_url
 
+    # Bison Futé folder
+    assert download_url(conn, %DB.Resource{
+             filetype: "remote",
+             url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/",
+             latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
+           }) == latest_url
+
     # Bison Futé files
     assert download_url(conn, %DB.Resource{
              filetype: "remote",
+             id: id = 1,
              url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/refDir.csv",
-             latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
-           }) == latest_url
+             latest_url: "https://data.gouv.fr/fake_stable_url"
+           }) == resource_path(conn, :download, id)
 
     # File not hosted on data.gouv.fr
     assert download_url(conn, %DB.Resource{filetype: "file", url: url = "https://data.example.com/voies.geojson"}) ==

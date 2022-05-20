@@ -466,11 +466,25 @@ defmodule TransportWeb.DatasetView do
   defp needs_stable_url?(%DB.Resource{latest_url: nil}), do: false
 
   defp needs_stable_url?(%DB.Resource{url: url}) do
-    host = URI.parse(url).host
-    Enum.member?(Application.fetch_env!(:transport, :domains_hosting_static_files), host)
+    parsed_url = URI.parse(url)
+
+    hosted_on_static_datagouv =
+      Enum.member?(Application.fetch_env!(:transport, :datagouv_static_hosts), parsed_url.host)
+
+    hosted_on_bison_fute = parsed_url.host == Application.fetch_env!(:transport, :bison_fute_host)
+
+    cond do
+      hosted_on_bison_fute -> is_link_to_folder?(parsed_url)
+      hosted_on_static_datagouv -> true
+      true -> false
+    end
   end
 
   defp needs_stable_url?(%DB.Resource{}), do: false
+
+  defp is_link_to_folder?(%URI{path: path}) do
+    path |> Path.basename() |> :filename.extension() == ""
+  end
 
   def has_validity_period?(history_resources) when is_list(history_resources) do
     history_resources |> Enum.map(&has_validity_period?/1) |> Enum.any?()
