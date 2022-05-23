@@ -9,7 +9,7 @@ Lyon Rhône Express;69123;Spécifique;n;n;Associée;;https://data.grandlyon.com/
 Lille Ilévia;59350;Spécifique;n;y;LO;;https://opendata.lillemetropole.fr/explore/dataset/ilevia-prochainspassages/;;https://opendata.lillemetropole.fr/explore/dataset/ilevia-perturbations/
 Angers Irigo;49007;Spécifique;n;y;ODbL;;https://data.angers.fr/explore/dataset/bus-tram-circulation-passages/api/;https://data.angers.fr/explore/dataset/bus-tram-position-tr/api/;
 Toulouse Tisséo;31555;Spécifique;n;n;ODbL;;https://data.toulouse-metropole.fr/explore/dataset/api-temps-reel-tisseo/information/;;
-Île-de-France Mobilités;75056;Siri-lite;y;n;ODbL;;https://portal.api.iledefrance-mobilites.fr/fr/api-catalog-fr/;;https://portal.api.iledefrance-mobilites.fr/fr/?option=com_apiportal&view=apitester&usage=api&tab=tests&apiName=Messages%20Info%20Trafic%20%28plateforme%20%C3%8Ele-de-France%20Mobilit%C3%A9s%29&apiId=2edc0361-1c3c-41ea-a5e5-21b28f4828e1&menuId=174&managerId=1&renderTool=2&type=rest&apiVersion=1.0.0
+Île-de-France Mobilités;75056;Siri-lite;y;n;ODbL;;https://prim.iledefrance-mobilites.fr/fr/catalogue-data?type=REST;;https://prim.iledefrance-mobilites.fr/fr/donnees-dynamiques/2edc0361-1c3c-41ea-a5e5-21b28f4828e1;https://prim.iledefrance-mobilites.fr/fr/centre-aide
 Nice Lignes d’Azur;6088;Spécifique;n;n;LO;;http://opendata.nicecotedazur.org/data/dataset/rla-horaires-de-bus-et-tramway-en-temps-reel-infos-perturbations;;
 Besancon Ginko;25056;Spécifique;n;n;LO;;https://api.ginko.voyage/#tr;;https://api.ginko.voyage/#tr
 Saint-Etienne STAS;42218;Spécifique;y;n;Inconnue;;https://data.saint-etienne-metropole.fr/;;
