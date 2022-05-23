@@ -214,7 +214,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
     %ResourceHistory{
       datagouv_id: datagouv_id,
-      id: resource_id,
+      resource_id: resource_id,
       payload: payload,
       last_up_to_date_at: DateTime.utc_now()
     }

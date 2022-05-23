@@ -6,8 +6,9 @@ defmodule DB.ResourceHistory do
   use TypedEctoSchema
   import Ecto.Query
 
-  @derive {Jason.Encoder, only: [:datagouv_id, :payload, :last_up_to_date_at, :inserted_at, :updated_at]}
+  @derive {Jason.Encoder, only: [:resource_id, :payload, :last_up_to_date_at, :inserted_at, :updated_at]}
   typed_schema "resource_history" do
+    field(:datagouv_id, :string)
     field(:payload, :map)
     # the last moment we checked and the resource history was corresponding to the real online resource
     field(:last_up_to_date_at, :utc_datetime_usec)
