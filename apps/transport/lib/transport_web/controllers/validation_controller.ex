@@ -9,10 +9,12 @@ defmodule TransportWeb.ValidationController do
     %MultiValidation{
       metadata: %DB.ResourceMetadata{metadata: build_metadata(params)},
       validation_timestamp: DateTime.utc_now(),
-      validator: "incoming"
+      validator: Transport.GBFSMetadata.validator_name(),
+      validated_data_name: url
     }
     |> Repo.insert!()
 
+    # for the moment, on demand GBFS validations results are not stored in DB
     redirect(conn, to: gbfs_analyzer_path(conn, :index, url: url))
   end
 
