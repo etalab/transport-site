@@ -1,10 +1,12 @@
 defmodule Unlock.ControllerTest do
   # async false until we stub Cachex calls or use per-test cache name
-  # and also due to our current global mox use
+  # and also due to our current global mox use, and capture_log
   use ExUnit.Case, async: false
   use Plug.Test
   import Phoenix.ConnTest
   @endpoint Unlock.Endpoint
+
+  import ExUnit.CaptureLog
 
   import Mox
   setup :verify_on_exit!
@@ -196,12 +198,16 @@ defmodule Unlock.ControllerTest do
         raise RuntimeError
       end)
 
-      resp = build_conn() |> get("/resource/#{identifier}")
+      logs = capture_log fn ->
+        resp = build_conn() |> get("/resource/#{identifier}")
 
-      # Got an exception, nothing is stored in cache
-      assert {:ok, []} == Cachex.keys(Unlock.Cachex)
-      assert resp.status == 502
-      assert resp.resp_body == "Bad Gateway"
+        # Got an exception, nothing is stored in cache
+        assert {:ok, []} == Cachex.keys(Unlock.Cachex)
+        assert resp.status == 502
+        assert resp.resp_body == "Bad Gateway"
+      end
+
+      assert logs =~ ~r/RuntimeError/
 
       verify!(Unlock.HTTP.Client.Mock)
     end
