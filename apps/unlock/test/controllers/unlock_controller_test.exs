@@ -198,14 +198,15 @@ defmodule Unlock.ControllerTest do
         raise RuntimeError
       end)
 
-      logs = capture_log fn ->
-        resp = build_conn() |> get("/resource/#{identifier}")
+      logs =
+        capture_log(fn ->
+          resp = build_conn() |> get("/resource/#{identifier}")
 
-        # Got an exception, nothing is stored in cache
-        assert {:ok, []} == Cachex.keys(Unlock.Cachex)
-        assert resp.status == 502
-        assert resp.resp_body == "Bad Gateway"
-      end
+          # Got an exception, nothing is stored in cache
+          assert {:ok, []} == Cachex.keys(Unlock.Cachex)
+          assert resp.status == 502
+          assert resp.resp_body == "Bad Gateway"
+        end)
 
       assert logs =~ ~r/RuntimeError/
 
