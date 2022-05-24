@@ -130,7 +130,8 @@ config :transport,
   }
 
 config :transport,
-  domains_hosting_static_files: ["static.data.gouv.fr", "demo-static.data.gouv.fr", "tipi.bison-fute.gouv.fr"]
+  datagouv_static_hosts: ["static.data.gouv.fr", "demo-static.data.gouv.fr"],
+  bison_fute_host: "tipi.bison-fute.gouv.fr"
 
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API,
