@@ -253,14 +253,10 @@
     </div>
     <div class="pt-12">
       <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Data type")%></span>
-      <div class="dataset-type-info">
-        <%= unless is_nil(icon_type_path(@dataset)) do %>
-          <span class="dataset-icon-type">
-            <%= img_tag(icon_type_path(@dataset), alt: @dataset.type) %>
-          </span>
-        <% end %>
-        <b><%= Dataset.type_to_str(@dataset.type) %></b>
-      </div>
+      <%= render "_dataset_type.html", conn: @conn, link: dataset_path(@conn, :index, type: @dataset.type), text: Dataset.type_to_str(@dataset.type), icon: icon_type_path(@dataset) %>
+      <%= if is_real_time_public_transit?(@dataset) do %>
+        <%= render "_dataset_type.html", conn: @conn, link: dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime"), text: dgettext("page-index", "Public transport - realtime traffic"), icon: icon_type_path("real-time-public-transit") %>
+      <%= end %>
     </div>
     <div class="pt-12">
       <%= render "_licence.html", conn: @conn, dataset: @dataset %>
