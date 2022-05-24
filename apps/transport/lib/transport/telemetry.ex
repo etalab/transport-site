@@ -1,8 +1,13 @@
 defmodule Transport.Telemetry do
   require Logger
 
-  @proxy_request_types [:external, :internal]
-  @gbfs_request_types [:external, :internal]
+  @proxy_request_types Unlock.Telemetry.proxy_request_types()
+  @gbfs_request_types Unlock.Telemetry.gbfs_request_types()
+
+  defdelegate proxy_request_event_names(), to: Unlock.Telemetry
+  defdelegate gbfs_request_event_names(), to: Unlock.Telemetry
+  defdelegate proxy_request_event_name(request), to: Unlock.Telemetry
+  defdelegate gbfs_request_event_name(request), to: Unlock.Telemetry
 
   @moduledoc """
   This place groups various aspects of event handling (currently to get metrics for the proxy, later more):
@@ -74,16 +79,6 @@ defmodule Transport.Telemetry do
       on_conflict: [inc: [count: 1]]
     )
   end
-
-  def proxy_request_event_name(request) when request in @proxy_request_types,
-    do: [:proxy, :request, request]
-
-  def proxy_request_event_names, do: @proxy_request_types |> Enum.map(&proxy_request_event_name/1)
-
-  def gbfs_request_event_name(request) when request in @gbfs_request_types,
-    do: [:gbfs, :request, request]
-
-  def gbfs_request_event_names, do: @gbfs_request_types |> Enum.map(&gbfs_request_event_name/1)
 
   @doc """
   Attach the required handlers. To be called at application start.
