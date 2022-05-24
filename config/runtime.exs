@@ -106,7 +106,7 @@ oban_crontab_all_envs =
       []
   end
 
-# Oban Jobs that run only on the production server.
+# Oban Jobs that only run on the production server.
 production_server_crontab =
   if app_env == :production and config_env() == :prod do
     # those validations can be heavy for the validators, we run them only on the production server
