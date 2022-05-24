@@ -17,11 +17,11 @@ defmodule Transport.Jobs.Backfill.ResourceHistoryValidationMetadataTest do
       permanent_url = "https://example.com/file"
       initial_content_hash = Ecto.UUID.generate()
       schema_name = "etalab/schema-zfe"
-      resource = insert(:resource, schema_name: schema_name, datagouv_id: Ecto.UUID.generate())
+      resource = insert(:resource, schema_name: schema_name)
 
       resource_history =
         insert(:resource_history,
-          datagouv_id: resource.datagouv_id,
+          resource: resource,
           payload: %{
             "permanent_url" => permanent_url,
             "content_hash" => initial_content_hash,
@@ -62,11 +62,11 @@ defmodule Transport.Jobs.Backfill.ResourceHistoryValidationMetadataTest do
       permanent_url = "https://example.com/file"
       initial_content_hash = Ecto.UUID.generate()
       schema_name = "etalab/schema-amenagements-cyclables"
-      resource = insert(:resource, schema_name: schema_name, datagouv_id: Ecto.UUID.generate())
+      resource = insert(:resource, schema_name: schema_name)
 
       resource_history =
         insert(:resource_history,
-          datagouv_id: resource.datagouv_id,
+          resource: resource,
           payload: %{
             "permanent_url" => permanent_url,
             "content_hash" => initial_content_hash,
