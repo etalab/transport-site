@@ -1,0 +1,17 @@
+{
+   "Version":"2012-10-17",
+   "Id":"default-project-allow-write",
+   "Statement":[
+      {
+         "Sid":"Delegate access",
+         "Effect":"Allow",
+         "Principal":{
+            "SCW":"project_id:48833e60-251c-452a-bd1d-9bfd28f6d84a"
+         },
+         "Action":"s3:PutObject",
+         "Resource":[
+            "transport-staging-backups/*"
+         ]
+      }
+   ]
+}

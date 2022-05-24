@@ -216,7 +216,13 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     test "a simple successful case for a GTFS" do
       resource_url = "https://example.com/gtfs.zip"
 
-      %{datagouv_id: datagouv_id, dataset_id: dataset_id, title: title, content_hash: first_content_hash} =
+      %{
+        datagouv_id: datagouv_id,
+        dataset_id: dataset_id,
+        title: title,
+        content_hash: first_content_hash,
+        id: resource_id
+      } =
         resource =
         insert(:resource,
           url: resource_url,
@@ -281,6 +287,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       assert %DB.ResourceHistory{
                id: resource_history_id,
+               resource_id: ^resource_id,
                datagouv_id: ^datagouv_id,
                payload: %{
                  "filenames" => [
@@ -325,10 +332,12 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       csv_content = "col1,col2\nval1,val2"
 
       %{
+        id: resource_id,
         datagouv_id: datagouv_id,
         dataset_id: dataset_id,
         metadata: resource_metadata,
-        title: title
+        title: title,
+        schema_name: schema_name
       } =
         resource =
         insert(:resource,
@@ -338,7 +347,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           title: "title",
           datagouv_id: "1",
           is_community_resource: false,
-          metadata: %{"foo" => "bar"}
+          metadata: %{"foo" => "bar"},
+          schema_name: "etalab/schema-lieux-covoiturage"
         )
 
       Transport.HTTPoison.Mock
@@ -370,6 +380,18 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         assert String.starts_with?(path, "#{datagouv_id}/#{datagouv_id}.")
       end)
 
+      # Validation according to the schema
+      Transport.Shared.Schemas.Mock
+      |> expect(:transport_schemas, 1, fn -> %{schema_name => %{}} end)
+
+      Transport.Shared.Schemas.Mock
+      |> expect(:schemas_by_type, 1, fn "tableschema" -> %{schema_name => %{}} end)
+
+      validation_result = %{"fake_validation" => "fake_result"}
+
+      Shared.Validation.TableSchemaValidator.Mock
+      |> expect(:validate, fn ^schema_name, ^resource_url, nil -> validation_result end)
+
       assert 0 == count_resource_history()
       assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
       assert 1 == count_resource_history()
@@ -378,19 +400,28 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       content_hash = :sha256 |> :crypto.hash(csv_content) |> Base.encode16() |> String.downcase()
 
+      expected_metadata =
+        Map.merge(resource_metadata, %{
+          "validation" =>
+            Map.merge(%{"content_hash" => content_hash, "schema_type" => "tableschema"}, validation_result)
+        })
+
       assert %DB.ResourceHistory{
+               resource_id: ^resource_id,
                datagouv_id: ^datagouv_id,
                payload: %{
                  "dataset_id" => ^dataset_id,
                  "format" => "csv",
                  "content_hash" => ^content_hash,
                  "http_headers" => %{"content-type" => "application/octet-stream"},
-                 "resource_metadata" => ^resource_metadata,
+                 "resource_metadata" => ^expected_metadata,
                  "title" => ^title,
                  "filename" => filename,
                  "permanent_url" => permanent_url,
                  "uuid" => _uuid,
-                 "download_datetime" => _download_datetime
+                 "download_datetime" => _download_datetime,
+                 "schema_name" => ^schema_name,
+                 "schema_version" => nil
                },
                last_up_to_date_at: last_up_to_date_at
              } = DB.ResourceHistory |> DB.Repo.one!()

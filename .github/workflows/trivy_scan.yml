@@ -1,0 +1,21 @@
+name: trivy_scan
+on:
+  schedule:
+    - cron: 0 9 * * MON
+jobs:
+  build:
+    name: Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Extract identifier of Docker image to scan
+        id: docker_image_ref_retrieval
+        run: echo ::set-output name=TARGET_IMAGE_REF::$(cat Dockerfile | grep FROM | head -1 | cut -d' ' -f2)
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "${{ steps.docker_image_ref_retrieval.outputs.TARGET_IMAGE_REF }}"
+          format: 'table'

@@ -2,9 +2,7 @@ defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
   alias DB.{Dataset, Resource, Validation}
   alias Plug.Conn.Query
-  alias TransportWeb.MarkdownHandler
-  alias TransportWeb.PaginationHelpers
-  alias TransportWeb.Router.Helpers
+  alias TransportWeb.{MarkdownHandler, PaginationHelpers, ResourceView, Router.Helpers}
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
@@ -12,7 +10,7 @@ defmodule TransportWeb.DatasetView do
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
   import Transport.GbfsUtils, only: [gbfs_validation_link: 1]
   alias Shared.DateTimeDisplay
-  alias TransportWeb.ResourceView
+  alias Transport.Validators.GTFSTransport
 
   @doc """
   Count the number of resources (official + community), excluding resources with a `documentation` type.
@@ -105,8 +103,7 @@ defmodule TransportWeb.DatasetView do
       }[order_by]
 
     case assigns = conn.assigns do
-      %{order_by: ^order_by} -> ~H"<span class=\"activefilter\"><%= msg %></span>
-"
+      %{order_by: ^order_by} -> ~H"<span class=\"activefilter\"><%= msg %></span>"
       _ -> link(msg, to: "#{current_url(conn, Map.put(conn.query_params, "order_by", order_by))}")
     end
   end
@@ -124,8 +121,7 @@ defmodule TransportWeb.DatasetView do
     assigns = conn.assigns
 
     case current_path(conn, %{}) do
-      ^url -> ~H"<span class=\"activefilter\"><%= nom %> (<%= count %>)</span>
-"
+      ^url -> ~H"<span class=\"activefilter\"><%= nom %> (<%= count %>)</span>"
       _ -> link("#{nom} (#{count})", to: full_url)
     end
   end
@@ -145,8 +141,7 @@ defmodule TransportWeb.DatasetView do
 
     link_text = "#{msg} (#{count})"
     assigns = conn.assigns
-    active_filter_text = ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>
-"
+    active_filter_text = ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>"
 
     case conn.params do
       %{"type" => ^type} ->
@@ -182,8 +177,7 @@ defmodule TransportWeb.DatasetView do
     case {only_rt, Map.get(conn.query_params, "filter")} do
       {false, "has_realtime"} -> link("#{msg} (#{count})", to: full_url)
       {true, nil} -> link("#{msg} (#{count})", to: full_url)
-      _ -> ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>
-"
+      _ -> ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>"
     end
   end
 
@@ -331,6 +325,12 @@ defmodule TransportWeb.DatasetView do
     |> Enum.filter(&Resource.is_documentation?/1)
   end
 
+  def is_real_time_public_transit?(%Dataset{type: "public-transit"} = dataset) do
+    not Enum.empty?(real_time_official_resources(dataset))
+  end
+
+  def is_real_time_public_transit?(%Dataset{}), do: false
+
   def community_resources(dataset), do: Dataset.community_resources(dataset)
 
   def licence_url("fr-lo"),
@@ -468,11 +468,25 @@ defmodule TransportWeb.DatasetView do
   defp needs_stable_url?(%DB.Resource{latest_url: nil}), do: false
 
   defp needs_stable_url?(%DB.Resource{url: url}) do
-    host = URI.parse(url).host
-    Enum.member?(Application.fetch_env!(:transport, :domains_hosting_static_files), host)
+    parsed_url = URI.parse(url)
+
+    hosted_on_static_datagouv =
+      Enum.member?(Application.fetch_env!(:transport, :datagouv_static_hosts), parsed_url.host)
+
+    hosted_on_bison_fute = parsed_url.host == Application.fetch_env!(:transport, :bison_fute_host)
+
+    cond do
+      hosted_on_bison_fute -> is_link_to_folder?(parsed_url)
+      hosted_on_static_datagouv -> true
+      true -> false
+    end
   end
 
   defp needs_stable_url?(%DB.Resource{}), do: false
+
+  defp is_link_to_folder?(%URI{path: path}) do
+    path |> Path.basename() |> :filename.extension() == ""
+  end
 
   def has_validity_period?(history_resources) when is_list(history_resources) do
     history_resources |> Enum.map(&has_validity_period?/1) |> Enum.any?()

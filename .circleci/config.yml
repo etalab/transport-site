@@ -12,7 +12,7 @@ default_docker: &default_docker
 defaults: &defaults
   parameters:
     base_image:
-      default: ghcr.io/etalab/transport-ops:elixir-1.13.3-erlang-24.2.1-ubuntu-focal-20211006-transport-tools-1.0.3
+      default: ghcr.io/etalab/transport-ops:elixir-1.13.4-erlang-24.3.4-ubuntu-focal-20211006-transport-tools-1.0.3
       type: string
     # useful to invalidate the build cache manually by bumping the version
     build_cache_key:

@@ -102,7 +102,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
           filename: filename,
           permanent_url: Transport.S3.permanent_url(:history, filename),
           format: resource.format,
-          dataset_id: resource.dataset_id
+          dataset_id: resource.dataset_id,
+          schema_name: resource.schema_name,
+          schema_version: resource.schema_version
         }
 
         data =
@@ -207,10 +209,15 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   defp is_zip?(%Resource{format: format}), do: format in ["NeTEx", "GTFS"]
 
-  defp store_resource_history!(%Resource{datagouv_id: datagouv_id}, payload) do
+  defp store_resource_history!(%Resource{datagouv_id: datagouv_id, id: resource_id}, payload) do
     Logger.debug("Saving ResourceHistory for #{datagouv_id}")
 
-    %ResourceHistory{datagouv_id: datagouv_id, payload: payload, last_up_to_date_at: DateTime.utc_now()}
+    %ResourceHistory{
+      datagouv_id: datagouv_id,
+      resource_id: resource_id,
+      payload: payload,
+      last_up_to_date_at: DateTime.utc_now()
+    }
     |> DB.Repo.insert!()
   end
 

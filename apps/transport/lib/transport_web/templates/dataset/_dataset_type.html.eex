@@ -1,0 +1,10 @@
+<div class="dataset-type-info">
+  <%= unless is_nil(@icon) do %>
+    <span class="dataset-icon-type">
+      <%= img_tag(@icon, alt: @text) %>
+    </span>
+  <% end %>
+  <a href="<%= @link %>">
+    <b><%= @text %></b>
+  </a>
+</div>
