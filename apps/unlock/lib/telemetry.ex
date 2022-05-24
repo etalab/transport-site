@@ -6,8 +6,8 @@ defmodule Unlock.Telemetry do
   @proxy_request_types [:external, :internal]
   @gbfs_request_types [:external, :internal]
 
-  def proxy_request_types(), do: @proxy_request_types
-  def gbfs_request_types(), do: @gbfs_request_types
+  def proxy_request_types, do: @proxy_request_types
+  def gbfs_request_types, do: @gbfs_request_types
 
   def proxy_request_event_name(request) when request in @proxy_request_types,
     do: [:proxy, :request, request]
