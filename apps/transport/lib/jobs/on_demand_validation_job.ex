@@ -28,16 +28,20 @@ defmodule Transport.Jobs.OnDemandValidationJob do
     %{metadata: %{id: metadata_id, metadata: metadata}} =
       validation = MultiValidation |> preload(:metadata) |> Repo.get!(id)
 
+    changes =
+      [
+        validation_timestamp: DateTime.utc_now(),
+        result: Map.get(result, "validation"),
+        data_vis: Map.get(result, "data_vis"),
+        validator: Map.get(result, "validator"),
+        command: Map.get(result, "command"),
+        validated_data_name: Map.get(result, "validated_data_name"),
+        secondary_validated_data_name: Map.get(result, "secondary_validated_data_name")
+      ]
+      |> Keyword.filter(fn {_, v} -> v end)
+
     validation
-    |> change(
-      validation_timestamp: DateTime.utc_now(),
-      result: Map.get(result, "validation"),
-      data_vis: Map.get(result, "data_vis"),
-      validator: Map.get(result, "validator"),
-      command: Map.get(result, "command"),
-      validated_data_name: Map.get(result, "validated_data_name"),
-      secondary_validated_data_name: Map.get(result, "secondary_validated_data_name")
-    )
+    |> change(changes)
     |> put_assoc(:metadata, %{
       id: metadata_id,
       metadata: Map.merge(metadata, Map.drop(result, ["validation", "data_vis", "validator", "command"]))
