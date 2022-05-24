@@ -329,6 +329,12 @@ defmodule TransportWeb.DatasetView do
     |> Enum.filter(&Resource.is_documentation?/1)
   end
 
+  def is_real_time_public_transit?(%Dataset{type: "public-transit"} = dataset) do
+    not Enum.empty?(real_time_official_resources(dataset))
+  end
+
+  def is_real_time_public_transit?(%Dataset{}), do: false
+
   def community_resources(dataset), do: Dataset.community_resources(dataset)
 
   def licence_url("fr-lo"),
