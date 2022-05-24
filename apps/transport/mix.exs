@@ -62,8 +62,7 @@ defmodule Transport.Mixfile do
       {:timex, "~> 3.7"},
       {:sentry, "~> 8.0"},
       {:scrivener, "~> 2.5"},
-      # We'll use upstream again once https://github.com/mgwidmann/scrivener_html/pull/97 is merged
-      {:scrivener_html, git: "https://github.com/thbar/scrivener_html.git", ref: "c579ed1"},
+      {:scrivener_html, git: "https://github.com/mgwidmann/scrivener_html.git", ref: "9224d1"},
       {:scrivener_list, "~>2.0"},
       {:jason, "~> 1.1"},
       {:open_api_spex, "~> 3.8"},
