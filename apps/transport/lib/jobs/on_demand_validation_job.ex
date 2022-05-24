@@ -93,12 +93,16 @@ defmodule Transport.Jobs.OnDemandValidationJob do
          "permanent_url" => url,
          "schema_name" => schema_name
        }) do
+    validator = "validata"
+
     case TableSchemaValidator.validate(schema_name, url) do
       nil ->
-        %{"state" => "error", "error_reason" => "could not perform validation"}
+        %{"state" => "error", "error_reason" => "could not perform validation", "validator" => validator}
 
+      # https://github.com/etalab/transport-site/issues/2390
+      # validator name should come from validator module, when it is properly extracted
       validation ->
-        %{"state" => "completed", "validation" => validation}
+        %{"state" => "completed", "validation" => validation, "validator" => validator}
     end
   end
 
@@ -107,15 +111,23 @@ defmodule Transport.Jobs.OnDemandValidationJob do
          "permanent_url" => url,
          "schema_name" => schema_name
        }) do
+    # https://github.com/etalab/transport-site/issues/2390
+    # validator name should come from validator module, when it is properly extracted
+    validator = "ExJsonSchema"
+
     case JSONSchemaValidator.validate(
            JSONSchemaValidator.load_jsonschema_for_schema(schema_name),
            url
          ) do
       nil ->
-        %{"state" => "error", "error_reason" => "could not perform validation"}
+        %{
+          "state" => "error",
+          "error_reason" => "could not perform validation",
+          "validator" => validator
+        }
 
       validation ->
-        %{"state" => "completed", "validation" => validation}
+        %{"state" => "completed", "validation" => validation, "validator" => validator}
     end
   end
 
