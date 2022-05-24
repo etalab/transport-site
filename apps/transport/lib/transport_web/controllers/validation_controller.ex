@@ -51,7 +51,9 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  def validate(%Plug.Conn{} = conn, %{"upload" => %{"file" => %{path: file_path}, "type" => type}}) do
+  def validate(%Plug.Conn{} = conn, %{
+        "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => type}
+      }) do
     if is_valid_type?(type) do
       metadata = build_metadata(type)
       upload_to_s3(file_path, Map.fetch!(metadata, "filename"))
@@ -60,7 +62,8 @@ defmodule TransportWeb.ValidationController do
         %MultiValidation{
           validator: temporary_on_demand_validator_name(),
           validation_timestamp: DateTime.utc_now(),
-          metadata: %DB.ResourceMetadata{metadata: metadata}
+          metadata: %DB.ResourceMetadata{metadata: metadata},
+          validated_data_name: filename
         }
         |> Repo.insert!()
 
