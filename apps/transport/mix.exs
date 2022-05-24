@@ -89,7 +89,7 @@ defmodule Transport.Mixfile do
       {:unzip, "~> 0.6.0"},
       {:protobuf, "~> 0.10.0"},
       {:nimble_csv, "~> 1.2.0"},
-      {:kino, "~> 0.5.2", only: :dev},
+      {:kino, "~> 0.6", only: :dev},
       # db
       {:ecto, "~> 3.7"},
       {:ecto_sql, "~> 3.7"},
@@ -98,7 +98,7 @@ defmodule Transport.Mixfile do
       {:ecto_interval, "~> 0.2.5"},
       {:scrivener_ecto, "~> 2.7.0"},
       {:typed_ecto_schema, ">= 0.1.1"},
-      {:ex_machina, "~> 2.4", only: :test},
+      {:ex_machina, "~> 2.4", only: :test}
     ]
   end
 end
