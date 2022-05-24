@@ -216,7 +216,13 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     test "a simple successful case for a GTFS" do
       resource_url = "https://example.com/gtfs.zip"
 
-      %{datagouv_id: datagouv_id, dataset_id: dataset_id, title: title, content_hash: first_content_hash} =
+      %{
+        datagouv_id: datagouv_id,
+        dataset_id: dataset_id,
+        title: title,
+        content_hash: first_content_hash,
+        id: resource_id
+      } =
         resource =
         insert(:resource,
           url: resource_url,
@@ -281,6 +287,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       assert %DB.ResourceHistory{
                id: resource_history_id,
+               resource_id: ^resource_id,
                datagouv_id: ^datagouv_id,
                payload: %{
                  "filenames" => [
@@ -325,6 +332,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       csv_content = "col1,col2\nval1,val2"
 
       %{
+        id: resource_id,
         datagouv_id: datagouv_id,
         dataset_id: dataset_id,
         metadata: resource_metadata,
@@ -399,6 +407,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         })
 
       assert %DB.ResourceHistory{
+               resource_id: ^resource_id,
                datagouv_id: ^datagouv_id,
                payload: %{
                  "dataset_id" => ^dataset_id,
