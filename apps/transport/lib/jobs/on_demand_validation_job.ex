@@ -67,9 +67,11 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   end
 
   defp perform_validation(%{"type" => "gtfs", "permanent_url" => url}) do
+    validator = GTFSTransport.validator_name()
+
     case GTFSTransport.validate(url) do
       {:error, msg} ->
-        %{"state" => "error", "error_reason" => msg}
+        %{"state" => "error", "error_reason" => msg, "validator" => validator}
 
       {:ok, %{"validations" => validation, "metadata" => metadata}} ->
         Map.merge(
@@ -77,7 +79,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
             "state" => "completed",
             "validation" => validation,
             "data_vis" => DataVisualization.validation_data_vis(validation),
-            "validator" => GTFSTransport.validator_name(),
+            "validator" => validator,
             "command" => GTFSTransport.command(url),
             "validated_data_name" => url
           },
