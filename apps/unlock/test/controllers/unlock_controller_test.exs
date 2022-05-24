@@ -214,8 +214,13 @@ defmodule Unlock.ControllerTest do
   end
 
   defp setup_telemetry_handler do
-    events = Transport.Telemetry.proxy_request_event_names()
-    events |> Enum.at(1) |> :telemetry.list_handlers() |> Enum.map(& &1.id) |> Enum.each(&:telemetry.detach/1)
+    events = Unlock.Telemetry.proxy_request_event_names()
+
+    events
+    |> Enum.at(1)
+    |> :telemetry.list_handlers()
+    |> Enum.map(& &1.id)
+    |> Enum.each(&:telemetry.detach/1)
 
     test_pid = self()
     # inspired by https://github.com/dashbitco/broadway/blob/main/test/broadway_test.exs
