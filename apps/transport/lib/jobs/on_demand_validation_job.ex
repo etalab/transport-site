@@ -44,7 +44,18 @@ defmodule Transport.Jobs.OnDemandValidationJob do
     |> change(changes)
     |> put_assoc(:metadata, %{
       id: metadata_id,
-      metadata: Map.merge(metadata, Map.drop(result, ["validation", "data_vis", "validator", "command"]))
+      metadata:
+        Map.merge(
+          metadata,
+          Map.drop(result, [
+            "validation",
+            "data_vis",
+            "validator",
+            "command",
+            "validated_data_name",
+            "secondary_validated_data_name"
+          ])
+        )
     })
     |> Repo.update!()
 
