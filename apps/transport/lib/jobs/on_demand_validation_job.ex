@@ -71,7 +71,11 @@ defmodule Transport.Jobs.OnDemandValidationJob do
     end
   end
 
-  defp perform_validation(%{"type" => "tableschema", "permanent_url" => url, "schema_name" => schema_name}) do
+  defp perform_validation(%{
+         "type" => "tableschema",
+         "permanent_url" => url,
+         "schema_name" => schema_name
+       }) do
     case TableSchemaValidator.validate(schema_name, url) do
       nil ->
         %{"state" => "error", "error_reason" => "could not perform validation"}
@@ -81,8 +85,15 @@ defmodule Transport.Jobs.OnDemandValidationJob do
     end
   end
 
-  defp perform_validation(%{"type" => "jsonschema", "permanent_url" => url, "schema_name" => schema_name}) do
-    case JSONSchemaValidator.validate(JSONSchemaValidator.load_jsonschema_for_schema(schema_name), url) do
+  defp perform_validation(%{
+         "type" => "jsonschema",
+         "permanent_url" => url,
+         "schema_name" => schema_name
+       }) do
+    case JSONSchemaValidator.validate(
+           JSONSchemaValidator.load_jsonschema_for_schema(schema_name),
+           url
+         ) do
       nil ->
         %{"state" => "error", "error_reason" => "could not perform validation"}
 
@@ -91,11 +102,17 @@ defmodule Transport.Jobs.OnDemandValidationJob do
     end
   end
 
-  defp perform_validation(%{"type" => "gtfs-rt", "gtfs_url" => gtfs_url, "gtfs_rt_url" => gtfs_rt_url, "id" => id}) do
+  defp perform_validation(%{
+         "type" => "gtfs-rt",
+         "gtfs_url" => gtfs_url,
+         "gtfs_rt_url" => gtfs_rt_url,
+         "id" => id
+       }) do
     {gtfs_path, gtfs_rt_path} = {filename(id, "gtfs"), filename(id, "gtfs-rt")}
 
     result =
-      [download_from_url(gtfs_url, gtfs_path), download_from_url(gtfs_rt_url, gtfs_rt_path)] |> process_download()
+      [download_from_url(gtfs_url, gtfs_path), download_from_url(gtfs_rt_url, gtfs_rt_path)]
+      |> process_download()
 
     remove_files([gtfs_path, gtfs_rt_path, gtfs_rt_result_path(gtfs_rt_path)])
 
@@ -123,10 +140,17 @@ defmodule Transport.Jobs.OnDemandValidationJob do
           {:ok, validation} ->
             # https://github.com/etalab/transport-site/issues/2390
             # to do : add command, transport-tools version when available
-            %{"state" => "completed", "validation" => validation, "validator" => "gtfs-realtime-validator"}
+            %{
+              "state" => "completed",
+              "validation" => validation,
+              "validator" => "gtfs-realtime-validator"
+            }
 
           :error ->
-            %{"state" => "error", "error_reason" => "Could not run validator. Please provide a GTFS and a GTFS-RT."}
+            %{
+              "state" => "error",
+              "error_reason" => "Could not run validator. Please provide a GTFS and a GTFS-RT."
+            }
         end
 
       {:error, reason} ->
