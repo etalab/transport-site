@@ -103,8 +103,7 @@ defmodule TransportWeb.DatasetView do
       }[order_by]
 
     case assigns = conn.assigns do
-      %{order_by: ^order_by} -> ~H"<span class=\"activefilter\"><%= msg %></span>
-"
+      %{order_by: ^order_by} -> ~H"<span class=\"activefilter\"><%= msg %></span>"
       _ -> link(msg, to: "#{current_url(conn, Map.put(conn.query_params, "order_by", order_by))}")
     end
   end
@@ -122,8 +121,7 @@ defmodule TransportWeb.DatasetView do
     assigns = conn.assigns
 
     case current_path(conn, %{}) do
-      ^url -> ~H"<span class=\"activefilter\"><%= nom %> (<%= count %>)</span>
-"
+      ^url -> ~H"<span class=\"activefilter\"><%= nom %> (<%= count %>)</span>"
       _ -> link("#{nom} (#{count})", to: full_url)
     end
   end
@@ -143,8 +141,7 @@ defmodule TransportWeb.DatasetView do
 
     link_text = "#{msg} (#{count})"
     assigns = conn.assigns
-    active_filter_text = ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>
-"
+    active_filter_text = ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>"
 
     case conn.params do
       %{"type" => ^type} ->
@@ -180,8 +177,7 @@ defmodule TransportWeb.DatasetView do
     case {only_rt, Map.get(conn.query_params, "filter")} do
       {false, "has_realtime"} -> link("#{msg} (#{count})", to: full_url)
       {true, nil} -> link("#{msg} (#{count})", to: full_url)
-      _ -> ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>
-"
+      _ -> ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>"
     end
   end
 
