@@ -45,10 +45,14 @@ master
           IO.puts("* https://diff.hex.pm/diff/#{dep}/#{v1}..#{v2}")
         end
 
-      {{:git, repo, sha1}, {:git, _repo, sha2}} ->
+      {{:git, repo, sha1}, {:git, repo_next, sha2}} ->
         if sha1 != sha2 do
-          compare = repo |> String.replace(".git", "/compare/#{sha1}..#{sha2}")
-          IO.puts("* #{compare}")
+          if repo == repo_next do
+            compare = repo |> String.replace(".git", "/compare/#{sha1}..#{sha2}")
+            IO.puts("* #{compare}")
+          else
+            IO.puts "* From #{repo}/commit/#{sha1} to #{repo_next}/commit/#{sha2}"
+          end
         end
       {{:hex, v1}, {:git, repo, sha2}} ->
         IO.puts("* Now using git-version #{repo} @ #{sha2}")
