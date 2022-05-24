@@ -34,7 +34,9 @@ defmodule Transport.Jobs.OnDemandValidationJob do
       result: Map.get(result, "validation"),
       data_vis: Map.get(result, "data_vis"),
       validator: Map.get(result, "validator"),
-      command: Map.get(result, "command")
+      command: Map.get(result, "command"),
+      validated_data_name: Map.get(result, "validated_data_name"),
+      secondary_validated_data_name: Map.get(result, "secondary_validated_data_name")
     )
     |> put_assoc(:metadata, %{
       id: metadata_id,
@@ -61,7 +63,8 @@ defmodule Transport.Jobs.OnDemandValidationJob do
             "validation" => validation,
             "data_vis" => DataVisualization.validation_data_vis(validation),
             "validator" => GTFSTransport.validator_name(),
-            "command" => GTFSTransport.command(url)
+            "command" => GTFSTransport.command(url),
+            "validated_data_name" => url
           },
           metadata
         )
@@ -95,7 +98,10 @@ defmodule Transport.Jobs.OnDemandValidationJob do
       [download_from_url(gtfs_url, gtfs_path), download_from_url(gtfs_rt_url, gtfs_rt_path)] |> process_download()
 
     remove_files([gtfs_path, gtfs_rt_path, gtfs_rt_result_path(gtfs_rt_path)])
+
     result
+    |> Map.put("validated_data_name", gtfs_rt_url)
+    |> Map.put("secondary_validated_data_name", gtfs_url)
   end
 
   defp normalize_download(result) do
