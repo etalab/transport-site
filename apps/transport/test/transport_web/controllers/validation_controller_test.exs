@@ -7,7 +7,6 @@ defmodule TransportWeb.ValidationControllerTest do
   import Phoenix.LiveViewTest
   alias Transport.Test.S3TestUtils
   alias TransportWeb.Live.OnDemandValidationSelectLive
-  alias TransportWeb.ValidationController
 
   setup :verify_on_exit!
   @gtfs_path "#{__DIR__}/../../fixture/files/gtfs.zip"
