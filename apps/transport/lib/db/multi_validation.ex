@@ -14,6 +14,9 @@ defmodule DB.MultiValidation do
     field(:result, :map)
     field(:data_vis, :map)
 
+    # field used to enqueue oban validation jobs and store validation arguments and status ("waiting", "completed", "error", ...)
+    field(:oban_args, :map)
+
     belongs_to(:resource, DB.Resource)
     belongs_to(:resource_history, DB.ResourceHistory)
     field(:validated_data_name, :string)
