@@ -22,7 +22,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
       try do
         perform_validation(payload)
       rescue
-        e -> %{oban_args: %{state: "error", error_reason: inspect(e)}}
+        e -> %{oban_args: %{"state" => "error", "error_reason" => inspect(e)}}
       end
 
     validation = %{oban_args: oban_args} = MultiValidation |> preload(:metadata) |> Repo.get!(id)
@@ -174,8 +174,8 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   end
 
   defp process_download(results) do
-    {_, reason} = results |> Enum.find(fn {k, _} -> k !== :ok end)
-    %{oban_args: %{"state" => "error", "error_reason" => reason}}
+    {_, oban_args} = results |> Enum.find(fn {k, _} -> k !== :ok end)
+    %{oban_args: oban_args}
   end
 
   def filename(validation_id, format) when format in ["gtfs", "gtfs-rt"] do
