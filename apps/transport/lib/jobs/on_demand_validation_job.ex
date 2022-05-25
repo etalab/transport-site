@@ -9,7 +9,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   require Logger
   import Ecto.Changeset
   import Ecto.Query
-  alias DB.{Repo, MultiValidation}
+  alias DB.{MultiValidation, Repo}
   alias Transport.Validators.GTFSTransport
   alias Shared.Validation.JSONSchemaValidator.Wrapper, as: JSONSchemaValidator
   alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator

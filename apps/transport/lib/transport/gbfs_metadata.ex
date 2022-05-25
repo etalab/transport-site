@@ -39,5 +39,5 @@ defmodule Transport.GBFSMetadata do
   def compute_feed_metadata(url) when is_binary(url),
     do: Transport.Shared.GBFSMetadata.Wrapper.compute_feed_metadata(url, TransportWeb.Endpoint.url())
 
-  def validator_name(), do: "GBFS-Validator"
+  def validator_name, do: "GBFS-Validator"
 end

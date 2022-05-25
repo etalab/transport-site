@@ -1,6 +1,6 @@
 defmodule TransportWeb.ValidationController do
   use TransportWeb, :controller
-  alias DB.{Repo, MultiValidation}
+  alias DB.{MultiValidation, Repo}
   alias Transport.DataVisualization
   import TransportWeb.ResourceView, only: [issue_type: 1]
   import Ecto.Query

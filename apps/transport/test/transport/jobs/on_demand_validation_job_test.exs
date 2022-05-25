@@ -49,7 +49,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                oban_args: %{"state" => "completed", "type" => "gtfs"},
                metadata: %{metadata: %{"modes" => ["bus"]}},
                data_vis: %{}
-             } = DB.Repo.reload(validation) |> DB.Repo.preload(:metadata)
+             } = validation |> DB.Repo.reload() |> DB.Repo.preload(:metadata)
 
       assert DateTime.diff(date, DateTime.utc_now()) <= 1
     end
