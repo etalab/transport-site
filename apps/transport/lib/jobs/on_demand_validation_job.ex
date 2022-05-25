@@ -18,44 +18,25 @@ defmodule Transport.Jobs.OnDemandValidationJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => id, "state" => "waiting"} = payload}) do
-    result =
+    changes =
       try do
         perform_validation(payload)
       rescue
-        e -> %{"state" => "error", "error_reason" => inspect(e)}
+        e -> %{oban_args: %{state: "error", error_reason: inspect(e)}}
       end
 
-    %{metadata: %{id: metadata_id, metadata: metadata}} =
-      validation = MultiValidation |> preload(:metadata) |> Repo.get!(id)
+    validation = %{oban_args: oban_args} = MultiValidation |> preload(:metadata) |> Repo.get!(id)
 
-    changes =
-      [
-        validation_timestamp: DateTime.utc_now(),
-        result: Map.get(result, "validation"),
-        data_vis: Map.get(result, "data_vis"),
-        validator: Map.get(result, "validator"),
-        command: Map.get(result, "command"),
-        validated_data_name: Map.get(result, "validated_data_name"),
-        secondary_validated_data_name: Map.get(result, "secondary_validated_data_name")
-      ]
-      |> Keyword.filter(fn {_, v} -> v end)
+    # update oban_args with validator output
+    oban_args = Map.merge(oban_args, changes.oban_args)
+    changes = changes |> Map.put(:oban_args, oban_args)
+
+    {metadata, changes} = Map.pop(changes, :metadata)
 
     validation
     |> change(changes)
     |> put_assoc(:metadata, %{
-      id: metadata_id,
-      metadata:
-        Map.merge(
-          metadata,
-          Map.drop(result, [
-            "validation",
-            "data_vis",
-            "validator",
-            "command",
-            "validated_data_name",
-            "secondary_validated_data_name"
-          ])
-        )
+      metadata: metadata
     })
     |> Repo.update!()
 
@@ -71,20 +52,20 @@ defmodule Transport.Jobs.OnDemandValidationJob do
 
     case GTFSTransport.validate(url) do
       {:error, msg} ->
-        %{"state" => "error", "error_reason" => msg, "validator" => validator}
+        %{oban_args: %{"state" => "error", "error_reason" => msg}, validator: validator}
 
       {:ok, %{"validations" => validation, "metadata" => metadata}} ->
-        Map.merge(
-          %{
-            "state" => "completed",
-            "validation" => validation,
-            "data_vis" => DataVisualization.validation_data_vis(validation),
-            "validator" => validator,
-            "command" => GTFSTransport.command(url),
-            "validated_data_name" => url
-          },
-          metadata
-        )
+        %{
+          result: validation,
+          metadata: metadata,
+          data_vis: DataVisualization.validation_data_vis(validation),
+          validator: validator,
+          command: GTFSTransport.command(url),
+          validated_data_name: url,
+          oban_args: %{
+            "state" => "completed"
+          }
+        }
     end
   end
 
