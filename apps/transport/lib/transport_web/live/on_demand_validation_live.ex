@@ -50,15 +50,15 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
 
   defp is_final_state?(socket) do
     case socket_value(socket, :validation) do
-      %DB.MultiValidation{metadata: %{metadata: metadata}} -> metadata["state"] in ["error", "completed"]
+      %DB.MultiValidation{oban_args: oban_args} -> oban_args["state"] in ["error", "completed"]
       _ -> false
     end
   end
 
   defp gtfs_validation_completed?(socket) do
     case socket_value(socket, :validation) do
-      %DB.MultiValidation{metadata: %{metadata: metadata}} ->
-        metadata["type"] == "gtfs" and metadata["state"] == "completed"
+      %DB.MultiValidation{oban_args: oban_args} ->
+        oban_args["type"] == "gtfs" and oban_args["state"] == "completed"
 
       _ ->
         false
@@ -73,10 +73,10 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
 
   defp maybe_gtfs_rt_feed(
          socket,
-         %DB.MultiValidation{metadata: %{metadata: %{"type" => "gtfs-rt", "state" => "completed"}}} = validation
+         %DB.MultiValidation{oban_args: %{"type" => "gtfs-rt", "state" => "completed"}} = validation
        ) do
     lang = socket_value(socket, :locale)
-    url = Map.fetch!(validation.metadata.metadata, "gtfs_rt_url")
+    url = Map.fetch!(validation.oban_args, "gtfs_rt_url")
 
     Transport.Cache.API.fetch(
       "gtfs_rt_feed_validation_#{validation.id}_#{lang}",

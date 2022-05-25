@@ -78,12 +78,12 @@ defmodule Transport.Jobs.OnDemandValidationJob do
 
     case TableSchemaValidator.validate(schema_name, url) do
       nil ->
-        %{"state" => "error", "error_reason" => "could not perform validation", "validator" => validator}
+        %{oban_args: %{"state" => "error", "error_reason" => "could not perform validation"}, validator: validator}
 
       # https://github.com/etalab/transport-site/issues/2390
       # validator name should come from validator module, when it is properly extracted
       validation ->
-        %{"state" => "completed", "validation" => validation, "validator" => validator}
+        %{oban_args: %{"state" => "completed"}, result: validation, validator: validator}
     end
   end
 
@@ -102,13 +102,15 @@ defmodule Transport.Jobs.OnDemandValidationJob do
          ) do
       nil ->
         %{
-          "state" => "error",
-          "error_reason" => "could not perform validation",
-          "validator" => validator
+          oban_args: %{
+            "state" => "error",
+            "error_reason" => "could not perform validation"
+          },
+          validator: validator
         }
 
       validation ->
-        %{"state" => "completed", "validation" => validation, "validator" => validator}
+        %{oban_args: %{"state" => "completed"}, result: validation, validator: validator}
     end
   end
 
@@ -127,8 +129,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
     remove_files([gtfs_path, gtfs_rt_path, gtfs_rt_result_path(gtfs_rt_path)])
 
     result
-    |> Map.put("validated_data_name", gtfs_rt_url)
-    |> Map.put("secondary_validated_data_name", gtfs_url)
+    |> Map.merge(%{validated_data_name: gtfs_rt_url, secondary_validated_data_name: gtfs_url})
   end
 
   defp normalize_download(result) do
@@ -151,25 +152,30 @@ defmodule Transport.Jobs.OnDemandValidationJob do
             # https://github.com/etalab/transport-site/issues/2390
             # to do : add command, transport-tools version when available
             %{
-              "state" => "completed",
-              "validation" => validation,
-              "validator" => "gtfs-realtime-validator"
+              oban_args: %{
+                "state" => "completed"
+              },
+              result: validation,
+              validator: "gtfs-realtime-validator"
             }
 
           :error ->
             %{
-              "state" => "error",
-              "error_reason" => "Could not run validator. Please provide a GTFS and a GTFS-RT."
+              oban_args: %{
+                "state" => "error",
+                "error_reason" => "Could not run validator. Please provide a GTFS and a GTFS-RT."
+              }
             }
         end
 
       {:error, reason} ->
-        %{"state" => "error", "error_reason" => inspect(reason)}
+        %{oban_args: %{"state" => "error", "error_reason" => inspect(reason)}}
     end
   end
 
   defp process_download(results) do
-    results |> Enum.find(fn {k, _} -> k == :error end) |> elem(1)
+    {_, reason} = results |> Enum.find(fn {k, _} -> k !== :ok end)
+    %{oban_args: %{"state" => "error", "error_reason" => reason}}
   end
 
   def filename(validation_id, format) when format in ["gtfs", "gtfs-rt"] do
