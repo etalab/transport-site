@@ -27,7 +27,7 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
       {:ok, %{"validations" => validation_content, "metadata" => metadata_content}}
     end)
 
-    Transport.Validators.GTFSTransport.validate(%DB.ResourceHistory{
+    Transport.Validators.GTFSTransport.validate_and_save(%DB.ResourceHistory{
       id: resource_history_id,
       payload: %{"permanent_url" => "url"}
     })
