@@ -10,11 +10,11 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   import Ecto.Changeset
   import Ecto.Query
   alias DB.{MultiValidation, Repo}
-  alias Transport.Validators.GTFSTransport
   alias Shared.Validation.JSONSchemaValidator.Wrapper, as: JSONSchemaValidator
   alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
   alias Transport.DataVisualization
   alias Transport.Jobs.GTFSRTValidationJob
+  alias Transport.Validators.GTFSTransport
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => id, "state" => "waiting"} = payload}) do
