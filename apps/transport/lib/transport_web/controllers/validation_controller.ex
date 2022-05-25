@@ -7,7 +7,7 @@ defmodule TransportWeb.ValidationController do
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => url, "type" => "gbfs"} = params}) do
     %MultiValidation{
-      metadata: %DB.ResourceMetadata{metadata: build_metadata(params)},
+      oban_args: build_oban_args(params),
       validation_timestamp: DateTime.utc_now(),
       validator: Transport.GBFSMetadata.validator_name(),
       validated_data_name: url
@@ -22,7 +22,7 @@ defmodule TransportWeb.ValidationController do
     validation =
       %MultiValidation{
         validator: temporary_on_demand_validator_name(),
-        metadata: %DB.ResourceMetadata{metadata: build_metadata(params)},
+        oban_args: build_oban_args(params),
         validation_timestamp: DateTime.utc_now()
       }
       |> Repo.insert!()
@@ -55,14 +55,14 @@ defmodule TransportWeb.ValidationController do
         "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => type}
       }) do
     if is_valid_type?(type) do
-      metadata = build_metadata(type)
-      upload_to_s3(file_path, Map.fetch!(metadata, "filename"))
+      oban_args = build_oban_args(type)
+      upload_to_s3(file_path, Map.fetch!(oban_args, "filename"))
 
       validation =
         %MultiValidation{
           validator: temporary_on_demand_validator_name(),
           validation_timestamp: DateTime.utc_now(),
-          metadata: %DB.ResourceMetadata{metadata: metadata},
+          oban_args: oban_args,
           validated_data_name: filename
         }
         |> Repo.insert!()
@@ -79,7 +79,7 @@ defmodule TransportWeb.ValidationController do
   end
 
   defp redirect_to_validation_show(conn, %MultiValidation{
-         metadata: %{metadata: %{"secret_url_token" => token}},
+         oban_args: %{"secret_url_token" => token},
          id: id
        }) do
     redirect(conn, to: validation_path(conn, :show, id, token: token))
@@ -93,11 +93,11 @@ defmodule TransportWeb.ValidationController do
       nil ->
         not_found(conn)
 
-      %MultiValidation{metadata: %{metadata: %{"secret_url_token" => expected_token}}}
+      %MultiValidation{oban_args: %{"secret_url_token" => expected_token}}
       when expected_token != token ->
         unauthorized(conn)
 
-      %MultiValidation{metadata: %{metadata: %{"state" => "completed", "type" => "gtfs"}}} = validation ->
+      %MultiValidation{oban_args: %{"state" => "completed", "type" => "gtfs"}} = validation ->
         # to be updated when PR 2371 is merged
         current_issues = DB.Validation.get_issues(%{details: validation.result}, params)
 
@@ -150,10 +150,8 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  defp dispatch_validation_job(
-         %MultiValidation{id: id, metadata: %{metadata: %{"type" => "gtfs-rt"} = metadata}} = validation
-       ) do
-    oban_args = Map.merge(%{"id" => id}, metadata)
+  defp dispatch_validation_job(%MultiValidation{id: id, oban_args: %{"type" => "gtfs-rt"} = oban_args} = validation) do
+    oban_args = Map.merge(%{"id" => id}, oban_args)
 
     oban_return =
       oban_args
@@ -164,8 +162,8 @@ defmodule TransportWeb.ValidationController do
       {:ok, %Oban.Job{conflict?: true}} ->
         validation
         |> Ecto.Changeset.change(
-          on_the_fly_validation_metadata:
-            Map.merge(metadata, %{"state" => "error", "error_reason" => "Can run this job only once every 5 minutes"})
+          oban_args:
+            Map.merge(oban_args, %{"state" => "error", "error_reason" => "Can run this job only once every 5 minutes"})
         )
         |> Repo.update!()
 
@@ -176,9 +174,8 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  defp dispatch_validation_job(%MultiValidation{id: id, metadata: %{metadata: metadata}}) do
-    oban_args = Map.merge(%{"id" => id}, metadata)
-    oban_args |> Transport.Jobs.OnDemandValidationJob.new() |> Oban.insert!()
+  defp dispatch_validation_job(%MultiValidation{id: id, oban_args: oban_args}) do
+    oban_args |> Map.merge(%{"id" => id}) |> Transport.Jobs.OnDemandValidationJob.new() |> Oban.insert!()
   end
 
   def select_options do
@@ -196,7 +193,7 @@ defmodule TransportWeb.ValidationController do
     Transport.S3.upload_to_s3!(:on_demand_validation, File.read!(file_path), path)
   end
 
-  defp build_metadata(%{"url" => url, "feed_url" => feed_url, "type" => "gtfs-rt"}) do
+  defp build_oban_args(%{"url" => url, "feed_url" => feed_url, "type" => "gtfs-rt"}) do
     %{
       "type" => "gtfs-rt",
       "state" => "waiting",
@@ -206,21 +203,21 @@ defmodule TransportWeb.ValidationController do
     }
   end
 
-  defp build_metadata(%{"url" => url, "type" => "gbfs"}) do
+  defp build_oban_args(%{"url" => url, "type" => "gbfs"}) do
     %{"type" => "gbfs", "state" => "submitted", "feed_url" => url}
   end
 
-  defp build_metadata(type) do
-    metadata =
+  defp build_oban_args(type) do
+    args =
       case type do
         "gtfs" -> %{"type" => "gtfs"}
         schema_name -> %{"schema_name" => schema_name, "type" => schema_type(schema_name)}
       end
 
-    path = filepath(metadata["type"])
+    path = filepath(args["type"])
 
     Map.merge(
-      metadata,
+      args,
       %{
         "state" => "waiting",
         "filename" => path,
@@ -255,5 +252,5 @@ defmodule TransportWeb.ValidationController do
     |> render("400.html")
   end
 
-  defp temporary_on_demand_validator_name, do: "on demand validation requested"
+  def temporary_on_demand_validator_name, do: "on demand validation requested"
 end
