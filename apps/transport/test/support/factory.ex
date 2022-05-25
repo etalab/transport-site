@@ -101,7 +101,7 @@ defmodule DB.Factory do
   end
 
   def multi_validation_factory do
-    %DB.MultiValidation{validation_timestamp: DateTime.utc_now()}
+    %DB.MultiValidation{validator: "validator", validation_timestamp: DateTime.utc_now()}
   end
 
   # Non-Ecto stuff, for now kept here for convenience

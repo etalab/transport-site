@@ -7,6 +7,7 @@ defmodule TransportWeb.ValidationControllerTest do
   import Phoenix.LiveViewTest
   alias Transport.Test.S3TestUtils
   alias TransportWeb.Live.OnDemandValidationSelectLive
+  alias TransportWeb.ValidationController
 
   setup :verify_on_exit!
   @gtfs_path "#{__DIR__}/../../fixture/files/gtfs.zip"
@@ -63,16 +64,15 @@ defmodule TransportWeb.ValidationControllerTest do
 
       assert redirected_to(conn, 302) == gbfs_analyzer_path(conn, :index, url: url)
 
-      assert %{
-               on_the_fly_validation_metadata: %{
-                 "state" => "submitted",
-                 "type" => "gbfs",
-                 "feed_url" => ^url
-               },
-               date: date
-             } = DB.Repo.one!(DB.Validation)
+      validator_name = Transport.GBFSMetadata.validator_name()
 
-      refute is_nil(date)
+      assert %{
+               validator: ^validator_name,
+               validated_data_name: ^url,
+               validation_timestamp: validation_timestamp
+             } = DB.Repo.one!(DB.MultiValidation)
+
+      refute is_nil(validation_timestamp)
     end
 
     test "with a GTFS", %{conn: conn} do
@@ -89,7 +89,7 @@ defmodule TransportWeb.ValidationControllerTest do
       assert 1 == count_validations()
 
       assert %{
-               on_the_fly_validation_metadata: %{
+               oban_args: %{
                  "filename" => filename,
                  "permanent_url" => permanent_url,
                  "state" => "waiting",
@@ -97,7 +97,7 @@ defmodule TransportWeb.ValidationControllerTest do
                  "secret_url_token" => token
                },
                id: validation_id
-             } = DB.Repo.one!(DB.Validation)
+             } = DB.Repo.one!(DB.MultiValidation)
 
       assert [
                %Oban.Job{
@@ -133,7 +133,7 @@ defmodule TransportWeb.ValidationControllerTest do
       assert 1 == count_validations()
 
       assert %{
-               on_the_fly_validation_metadata: %{
+               oban_args: %{
                  "filename" => filename,
                  "permanent_url" => permanent_url,
                  "state" => "waiting",
@@ -141,7 +141,7 @@ defmodule TransportWeb.ValidationControllerTest do
                  "schema_name" => ^schema_name
                },
                id: validation_id
-             } = DB.Repo.one!(DB.Validation)
+             } = DB.Repo.one!(DB.MultiValidation)
 
       assert String.ends_with?(filename, ".csv")
       assert permanent_url == Transport.S3.permanent_url(:on_demand_validation, filename)
@@ -173,7 +173,7 @@ defmodule TransportWeb.ValidationControllerTest do
       assert 1 == count_validations()
 
       assert %{
-               on_the_fly_validation_metadata: %{
+               oban_args: %{
                  "gtfs_url" => ^gtfs_url,
                  "gtfs_rt_url" => ^gtfs_rt_url,
                  "state" => "waiting",
@@ -181,8 +181,8 @@ defmodule TransportWeb.ValidationControllerTest do
                  "secret_url_token" => token
                },
                id: validation_id,
-               date: date
-             } = DB.Repo.one!(DB.Validation)
+               validation_timestamp: date
+             } = DB.Repo.one!(DB.MultiValidation)
 
       refute is_nil(date)
 
@@ -208,14 +208,14 @@ defmodule TransportWeb.ValidationControllerTest do
       assert Enum.count(all_enqueued(worker: Transport.Jobs.OnDemandValidationJob, queue: :on_demand_validation)) == 1
 
       assert %{
-               on_the_fly_validation_metadata: %{
+               oban_args: %{
                  "gtfs_url" => ^gtfs_url,
                  "gtfs_rt_url" => ^gtfs_rt_url,
                  "state" => "error",
                  "error_reason" => "Can run this job only once every 5 minutes",
                  "type" => "gtfs-rt"
                }
-             } = DB.Validation |> last() |> DB.Repo.one!()
+             } = DB.MultiValidation |> last() |> DB.Repo.one!()
     end
 
     test "with an invalid type", %{conn: conn} do
@@ -234,8 +234,8 @@ defmodule TransportWeb.ValidationControllerTest do
   describe "GET /validation/:id" do
     test "401 when validation with a token and the passed one doesn't match", %{conn: conn} do
       validation =
-        insert(:validation,
-          on_the_fly_validation_metadata: %{
+        insert(:multi_validation,
+          oban_args: %{
             "state" => "waiting",
             "type" => "etalab/foo",
             "secret_url_token" => Ecto.UUID.generate()
@@ -247,9 +247,9 @@ defmodule TransportWeb.ValidationControllerTest do
     end
 
     test "validation without a token can be accessed", %{conn: conn} do
-      validation = insert(:validation, on_the_fly_validation_metadata: %{"state" => "waiting", "type" => "etalab/foo"})
+      validation = insert(:multi_validation, oban_args: %{"state" => "waiting", "type" => "etalab/foo"})
 
-      refute Map.has_key?(validation.on_the_fly_validation_metadata, "secret_url_token")
+      refute Map.has_key?(validation.oban_args, "secret_url_token")
 
       conn |> get(validation_path(conn, :show, validation.id)) |> html_response(200)
     end
@@ -267,8 +267,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
       validation
       |> Ecto.Changeset.change(
-        on_the_fly_validation_metadata:
-          Map.merge(validation.on_the_fly_validation_metadata, %{"state" => "error", "error_reason" => error_msg})
+        oban_args: Map.merge(validation.oban_args, %{"state" => "error", "error_reason" => error_msg})
       )
       |> DB.Repo.update!()
 
@@ -285,8 +284,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
       validation
       |> Ecto.Changeset.change(
-        on_the_fly_validation_metadata:
-          Map.merge(validation.on_the_fly_validation_metadata, %{"state" => "error", "error_reason" => error_msg})
+        oban_args: Map.merge(validation.oban_args, %{"state" => "error", "error_reason" => error_msg})
       )
       |> DB.Repo.update!()
 
@@ -301,19 +299,14 @@ defmodule TransportWeb.ValidationControllerTest do
       {:ok, view, _html} = live(conn)
 
       validation
-      |> Ecto.Changeset.change(
-        on_the_fly_validation_metadata: Map.merge(validation.on_the_fly_validation_metadata, %{"state" => "completed"}),
-        details: %{}
-      )
+      |> Ecto.Changeset.change(oban_args: Map.merge(validation.oban_args, %{"state" => "completed"}))
       |> DB.Repo.update!()
 
       send(view.pid, :update_data)
 
       assert_redirect(
         view,
-        validation_path(conn, :show, validation.id,
-          token: Map.fetch!(validation.on_the_fly_validation_metadata, "secret_url_token")
-        )
+        validation_path(conn, :show, validation.id, token: Map.fetch!(validation.oban_args, "secret_url_token"))
       )
     end
 
@@ -335,13 +328,13 @@ defmodule TransportWeb.ValidationControllerTest do
       # Error messages are displayed
       validation
       |> Ecto.Changeset.change(
-        on_the_fly_validation_metadata:
-          Map.merge(validation.on_the_fly_validation_metadata, %{
+        oban_args:
+          Map.merge(validation.oban_args, %{
             "state" => "completed",
             "type" => "tableschema",
             "schema_name" => schema_name
           }),
-        details: %{
+        result: %{
           "errors" => [
             "#/features/0/properties/deux_rm_critair: Value is not allowed in enum.",
             "#/features/0/properties/vp_critair: Value is not allowed in enum."
@@ -381,8 +374,8 @@ defmodule TransportWeb.ValidationControllerTest do
 
       validation
       |> Ecto.Changeset.change(
-        on_the_fly_validation_metadata: %{validation.on_the_fly_validation_metadata | "state" => "completed"},
-        details: report
+        oban_args: %{validation.oban_args | "state" => "completed"},
+        result: report
       )
       |> DB.Repo.update!()
 
@@ -397,17 +390,13 @@ defmodule TransportWeb.ValidationControllerTest do
 
   defp ensure_waiting_message_is_displayed(conn, metadata) do
     validation =
-      insert(:validation,
-        on_the_fly_validation_metadata: Map.merge(metadata, %{"secret_url_token" => Ecto.UUID.generate()})
+      insert(:multi_validation,
+        oban_args: Map.merge(metadata, %{"secret_url_token" => Ecto.UUID.generate()})
       )
 
     conn =
       conn
-      |> get(
-        validation_path(conn, :show, validation.id,
-          token: Map.fetch!(validation.on_the_fly_validation_metadata, "secret_url_token")
-        )
-      )
+      |> get(validation_path(conn, :show, validation.id, token: Map.fetch!(validation.oban_args, "secret_url_token")))
 
     # Displays the waiting message
     response = html_response(conn, 200)
@@ -417,6 +406,6 @@ defmodule TransportWeb.ValidationControllerTest do
   end
 
   defp count_validations do
-    DB.Repo.one!(from(r in DB.Validation, select: count()))
+    DB.Repo.one!(from(v in DB.MultiValidation, select: count()))
   end
 end
