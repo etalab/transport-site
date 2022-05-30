@@ -76,9 +76,8 @@ defmodule TransportWeb.ResourceController do
       case validation do
         %{result: validation_result, metadata: %{metadata: metadata}} ->
           {Transport.Validators.GTFSTransport.summary(validation_result),
-           Transport.Validators.GTFSTransport.count_by_severity(validation_result),
-          metadata,
-          Transport.Validators.GTFSTransport.get_issues(validation_result, params)}
+           Transport.Validators.GTFSTransport.count_by_severity(validation_result), metadata,
+           Transport.Validators.GTFSTransport.get_issues(validation_result, params)}
 
         nil ->
           {nil, nil, nil, nil}
