@@ -17,7 +17,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   alias Transport.Validators.GTFSTransport
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"id" => id, "state" => "waiting"} = payload}) do
+  def perform(%Oban.Job{args: %{"id" => multivalidation_id, "state" => "waiting"} = payload}) do
     changes =
       try do
         perform_validation(payload)
@@ -25,7 +25,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
         e -> %{oban_args: %{"state" => "error", "error_reason" => inspect(e)}}
       end
 
-    validation = %{oban_args: oban_args} = MultiValidation |> preload(:metadata) |> Repo.get!(id)
+    validation = %{oban_args: oban_args} = MultiValidation |> preload(:metadata) |> Repo.get!(multivalidation_id)
 
     # update oban_args with validator output
     oban_args = Map.merge(oban_args, changes.oban_args)
