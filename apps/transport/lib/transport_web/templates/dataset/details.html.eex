@@ -58,7 +58,7 @@
         <script src="<%= static_path(@conn, "/js/resourceviz.js") %>"></script>
         <script>
           document.addEventListener("DOMContentLoaded", function() {
-            createMap('map', "<%= displayResource.url %>", "<%= displayResource.format %>", "<%= get_session(@conn, :locale) %>")
+            createMap('map', "<%= download_url(@conn, displayResource) %>", "<%= displayResource.format %>", "<%= get_session(@conn, :locale) %>")
           })
         </script>
       </section>
