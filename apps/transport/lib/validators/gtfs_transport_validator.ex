@@ -10,7 +10,7 @@ defmodule Transport.Validators.GTFSTransport do
   Store the results in DB
   """
   @impl Transport.Validators.Validator
-  def validate(%DB.ResourceHistory{id: resource_history_id, payload: %{"permanent_url" => url}}) do
+  def validate_and_save(%DB.ResourceHistory{id: resource_history_id, payload: %{"permanent_url" => url}}) do
     timestamp = DateTime.utc_now()
     validator = Shared.Validation.GtfsValidator.Wrapper.impl()
 
@@ -39,10 +39,14 @@ defmodule Transport.Validators.GTFSTransport do
     end
   end
 
+  # https://github.com/etalab/transport-site/issues/2390
+  # delete Shared.Validation.GtfsValidator.Wrapper and bring back the code here.
+  def validate(url), do: Shared.Validation.GtfsValidator.Wrapper.impl().validate_from_url(url)
+
   @impl Transport.Validators.Validator
   def validator_name, do: "GTFS transport-validator"
 
-  defp command(url), do: Shared.Validation.GtfsValidator.remote_gtfs_validation_query(url)
+  def command(url), do: Shared.Validation.GtfsValidator.remote_gtfs_validation_query(url)
 
   # Duplicates of function found in DB.Validation.
   # DB.Validation will be removed later
