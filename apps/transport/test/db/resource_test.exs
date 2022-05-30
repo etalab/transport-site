@@ -6,7 +6,7 @@ defmodule DB.ResourceTest do
   import DB.Factory
   import Ecto.Query
 
-  doctest Resource
+  doctest Resource, import: true
 
   setup do
     Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
