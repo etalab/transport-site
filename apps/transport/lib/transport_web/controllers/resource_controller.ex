@@ -80,7 +80,7 @@ defmodule TransportWeb.ResourceController do
            Transport.Validators.GTFSTransport.get_issues(validation_result, params)}
 
         nil ->
-          {nil, nil, nil, nil}
+          {nil, nil, nil, []}
       end
 
     issue_type =
