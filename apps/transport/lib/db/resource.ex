@@ -385,6 +385,7 @@ defmodule DB.Resource do
     |> Enum.concat(has_shapes_tag(metadata))
     |> Enum.concat(has_odt_tag(metadata))
     |> Enum.concat(has_route_colors_tag(metadata))
+    |> Enum.concat(has_pathways_tag(metadata))
     |> Enum.uniq()
   end
 
@@ -422,6 +423,10 @@ defmodule DB.Resource do
     do: ["couleurs des lignes"]
 
   def has_route_colors_tag(_), do: []
+
+  @spec has_pathways_tag(map()) :: [binary()]
+  def has_pathways_tag(%{"has_pathways" => true}), do: ["description des correspondances"]
+  def has_pathways_tag(_), do: []
 
   @spec base_tag(__MODULE__.t()) :: [binary()]
   def base_tag(%__MODULE__{format: "GTFS"}),
