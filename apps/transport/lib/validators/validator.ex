@@ -5,7 +5,7 @@ defmodule Transport.Validators.Validator do
   * tell its name
   """
 
-  @callback validate(any()) :: :ok | {:error, any()}
+  @callback validate_and_save(any()) :: :ok | {:error, any()}
   @callback validator_name() :: binary()
 end
 
@@ -16,7 +16,7 @@ defmodule Transport.Validators.Dummy do
   @behaviour Transport.Validators.Validator
 
   @impl Transport.Validators.Validator
-  def validate(_) do
+  def validate_and_save(_) do
     send(self(), :validate!)
     :ok
   end

@@ -18,6 +18,10 @@ defmodule TransportWeb.ErrorView do
     render(__MODULE__, "400_family_errors.html", assigns)
   end
 
+  def render("404.html", %{status_message: _status_message} = assigns) do
+    render(__MODULE__, "400_family_errors.html", assigns)
+  end
+
   def render("404.html", assigns) do
     assigns = assigns |> Map.put(:status_message, dgettext("errors", "404: Page not available"))
     render(__MODULE__, "400_family_errors.html", assigns)
