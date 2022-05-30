@@ -235,6 +235,13 @@ defmodule TransportWeb.ValidationController do
     conn
     |> put_status(:not_found)
     |> put_view(TransportWeb.ErrorView)
+    |> assign(
+      :status_message,
+      dgettext(
+        "validation",
+        "Validation not found. On-demand validation results have been reinitialized on 2022-05-30. Please validate your file again."
+      )
+    )
     |> render(:"404")
   end
 
