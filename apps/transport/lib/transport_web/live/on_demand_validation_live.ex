@@ -7,6 +7,7 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
   use TransportWeb.InputHelpers
   import TransportWeb.Gettext
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 3]
+  import Ecto.Query
 
   def mount(
         _params,
@@ -19,7 +20,7 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
   end
 
   defp update_data(socket) do
-    validation = DB.Repo.get!(DB.Validation, socket_value(socket, :validation_id))
+    validation = DB.MultiValidation |> preload(:metadata) |> DB.Repo.get!(socket_value(socket, :validation_id))
 
     socket =
       assign(socket,
@@ -49,15 +50,15 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
 
   defp is_final_state?(socket) do
     case socket_value(socket, :validation) do
-      %DB.Validation{on_the_fly_validation_metadata: metadata} -> metadata["state"] in ["error", "completed"]
+      %DB.MultiValidation{oban_args: oban_args} -> oban_args["state"] in ["error", "completed"]
       _ -> false
     end
   end
 
   defp gtfs_validation_completed?(socket) do
     case socket_value(socket, :validation) do
-      %DB.Validation{on_the_fly_validation_metadata: metadata} ->
-        metadata["type"] == "gtfs" and metadata["state"] == "completed"
+      %DB.MultiValidation{oban_args: oban_args} ->
+        oban_args["type"] == "gtfs" and oban_args["state"] == "completed"
 
       _ ->
         false
@@ -72,10 +73,10 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
 
   defp maybe_gtfs_rt_feed(
          socket,
-         %DB.Validation{on_the_fly_validation_metadata: %{"type" => "gtfs-rt", "state" => "completed"}} = validation
+         %DB.MultiValidation{oban_args: %{"type" => "gtfs-rt", "state" => "completed"}} = validation
        ) do
     lang = socket_value(socket, :locale)
-    url = Map.fetch!(validation.on_the_fly_validation_metadata, "gtfs_rt_url")
+    url = Map.fetch!(validation.oban_args, "gtfs_rt_url")
 
     Transport.Cache.API.fetch(
       "gtfs_rt_feed_validation_#{validation.id}_#{lang}",

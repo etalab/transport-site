@@ -1,24 +1,29 @@
 defmodule TransportWeb.ValidationController do
   use TransportWeb, :controller
-  alias DB.{Repo, Validation}
+  alias DB.{MultiValidation, Repo}
   alias Transport.DataVisualization
   import TransportWeb.ResourceView, only: [issue_type: 1]
+  import Ecto.Query
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => url, "type" => "gbfs"} = params}) do
-    %Validation{
-      on_the_fly_validation_metadata: build_metadata(params),
-      date: DateTime.utc_now() |> DateTime.to_string()
+    %MultiValidation{
+      oban_args: build_oban_args(params),
+      validation_timestamp: DateTime.utc_now(),
+      validator: Transport.GBFSMetadata.validator_name(),
+      validated_data_name: url
     }
     |> Repo.insert!()
 
+    # for the moment, on demand GBFS validations results are not stored in DB
     redirect(conn, to: gbfs_analyzer_path(conn, :index, url: url))
   end
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => _, "feed_url" => _, "type" => "gtfs-rt"} = params}) do
     validation =
-      %Validation{
-        on_the_fly_validation_metadata: build_metadata(params),
-        date: DateTime.utc_now() |> DateTime.to_string()
+      %MultiValidation{
+        validator: temporary_on_demand_validator_name(),
+        oban_args: build_oban_args(params),
+        validation_timestamp: DateTime.utc_now()
       }
       |> Repo.insert!()
 
@@ -46,12 +51,22 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  def validate(%Plug.Conn{} = conn, %{"upload" => %{"file" => %{path: file_path}, "type" => type}}) do
+  def validate(%Plug.Conn{} = conn, %{
+        "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => type}
+      }) do
     if is_valid_type?(type) do
-      metadata = build_metadata(type)
-      upload_to_s3(file_path, Map.fetch!(metadata, "filename"))
+      oban_args = build_oban_args(type)
+      upload_to_s3(file_path, Map.fetch!(oban_args, "filename"))
 
-      validation = %Validation{on_the_fly_validation_metadata: metadata} |> Repo.insert!()
+      validation =
+        %MultiValidation{
+          validator: temporary_on_demand_validator_name(),
+          validation_timestamp: DateTime.utc_now(),
+          oban_args: oban_args,
+          validated_data_name: filename
+        }
+        |> Repo.insert!()
+
       dispatch_validation_job(validation)
       redirect_to_validation_show(conn, validation)
     else
@@ -63,8 +78,8 @@ defmodule TransportWeb.ValidationController do
     conn |> bad_request()
   end
 
-  defp redirect_to_validation_show(conn, %Validation{
-         on_the_fly_validation_metadata: %{"secret_url_token" => token},
+  defp redirect_to_validation_show(conn, %MultiValidation{
+         oban_args: %{"secret_url_token" => token},
          id: id
        }) do
     redirect(conn, to: validation_path(conn, :show, id, token: token))
@@ -72,17 +87,19 @@ defmodule TransportWeb.ValidationController do
 
   def show(%Plug.Conn{} = conn, %{} = params) do
     token = params["token"]
+    validation = MultiValidation |> preload(:metadata) |> Repo.get(params["id"])
 
-    case Repo.get(Validation, params["id"]) do
+    case validation do
       nil ->
         not_found(conn)
 
-      %Validation{on_the_fly_validation_metadata: %{"secret_url_token" => expected_token}}
+      %MultiValidation{oban_args: %{"secret_url_token" => expected_token}}
       when expected_token != token ->
         unauthorized(conn)
 
-      %Validation{on_the_fly_validation_metadata: %{"state" => "completed", "type" => "gtfs"}} = validation ->
-        current_issues = Validation.get_issues(validation, params)
+      %MultiValidation{oban_args: %{"state" => "completed", "type" => "gtfs"}} = validation ->
+        # to be updated when PR 2371 is merged
+        current_issues = DB.Validation.get_issues(%{details: validation.result}, params)
 
         issue_type =
           case params["issue_type"] do
@@ -94,9 +111,11 @@ defmodule TransportWeb.ValidationController do
         |> assign(:validation_id, params["id"])
         |> assign(:other_resources, [])
         |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
-        |> assign(:validation_summary, Validation.summary(validation))
-        |> assign(:severities_count, Validation.count_by_severity(validation))
-        |> assign(:metadata, validation.on_the_fly_validation_metadata)
+        # to be updated when PR 2371 is merged
+        |> assign(:validation_summary, DB.Validation.summary(%{details: validation.result}))
+        # to be updated when PR 2371 is merged
+        |> assign(:severities_count, DB.Validation.count_by_severity(%{details: validation.result}))
+        |> assign(:metadata, validation.metadata.metadata)
         |> assign(:data_vis, data_vis(validation, issue_type))
         |> assign(:token, token)
         |> render("show.html")
@@ -113,7 +132,7 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  defp data_vis(%Validation{} = validation, issue_type) do
+  defp data_vis(%MultiValidation{} = validation, issue_type) do
     data_vis = validation.data_vis[issue_type]
     has_features = DataVisualization.has_features(data_vis["geojson"])
 
@@ -131,10 +150,8 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  defp dispatch_validation_job(
-         %Validation{id: id, on_the_fly_validation_metadata: %{"type" => "gtfs-rt"} = metadata} = validation
-       ) do
-    oban_args = Map.merge(%{"id" => id}, metadata)
+  defp dispatch_validation_job(%MultiValidation{id: id, oban_args: %{"type" => "gtfs-rt"} = oban_args} = validation) do
+    oban_args = Map.merge(%{"id" => id}, oban_args)
 
     oban_return =
       oban_args
@@ -145,8 +162,8 @@ defmodule TransportWeb.ValidationController do
       {:ok, %Oban.Job{conflict?: true}} ->
         validation
         |> Ecto.Changeset.change(
-          on_the_fly_validation_metadata:
-            Map.merge(metadata, %{"state" => "error", "error_reason" => "Can run this job only once every 5 minutes"})
+          oban_args:
+            Map.merge(oban_args, %{"state" => "error", "error_reason" => "Can run this job only once every 5 minutes"})
         )
         |> Repo.update!()
 
@@ -157,9 +174,8 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  defp dispatch_validation_job(%Validation{id: id, on_the_fly_validation_metadata: metadata}) do
-    oban_args = Map.merge(%{"id" => id}, metadata)
-    oban_args |> Transport.Jobs.OnDemandValidationJob.new() |> Oban.insert!()
+  defp dispatch_validation_job(%MultiValidation{id: id, oban_args: oban_args}) do
+    oban_args |> Map.merge(%{"id" => id}) |> Transport.Jobs.OnDemandValidationJob.new() |> Oban.insert!()
   end
 
   def select_options do
@@ -177,7 +193,7 @@ defmodule TransportWeb.ValidationController do
     Transport.S3.upload_to_s3!(:on_demand_validation, File.read!(file_path), path)
   end
 
-  defp build_metadata(%{"url" => url, "feed_url" => feed_url, "type" => "gtfs-rt"}) do
+  defp build_oban_args(%{"url" => url, "feed_url" => feed_url, "type" => "gtfs-rt"}) do
     %{
       "type" => "gtfs-rt",
       "state" => "waiting",
@@ -187,21 +203,21 @@ defmodule TransportWeb.ValidationController do
     }
   end
 
-  defp build_metadata(%{"url" => url, "type" => "gbfs"}) do
+  defp build_oban_args(%{"url" => url, "type" => "gbfs"}) do
     %{"type" => "gbfs", "state" => "submitted", "feed_url" => url}
   end
 
-  defp build_metadata(type) do
-    metadata =
+  defp build_oban_args(type) do
+    args =
       case type do
         "gtfs" -> %{"type" => "gtfs"}
         schema_name -> %{"schema_name" => schema_name, "type" => schema_type(schema_name)}
       end
 
-    path = filepath(metadata["type"])
+    path = filepath(args["type"])
 
     Map.merge(
-      metadata,
+      args,
       %{
         "state" => "waiting",
         "filename" => path,
@@ -219,6 +235,13 @@ defmodule TransportWeb.ValidationController do
     conn
     |> put_status(:not_found)
     |> put_view(TransportWeb.ErrorView)
+    |> assign(
+      :status_message,
+      dgettext(
+        "validation",
+        "Validation not found. On-demand validation results have been reinitialized on 2022-05-30. Please validate your file again."
+      )
+    )
     |> render(:"404")
   end
 
@@ -235,4 +258,6 @@ defmodule TransportWeb.ValidationController do
     |> put_view(ErrorView)
     |> render("400.html")
   end
+
+  def temporary_on_demand_validator_name, do: "on demand validation requested"
 end
