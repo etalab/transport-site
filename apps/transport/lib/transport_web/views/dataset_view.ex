@@ -386,7 +386,7 @@ defmodule TransportWeb.DatasetView do
       when type == "carpooling-areas" or type == "private-parking" or type == "charging-stations" do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
-    |> Enum.reject(fn r -> r.is_community_resource end)
+    |> Enum.reject(fn r -> r.is_community_resource or r.type == "documentation" end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
@@ -396,6 +396,7 @@ defmodule TransportWeb.DatasetView do
     |> Enum.reject(fn r -> String.contains?(r.url, "station_status") end)
     # credo:disable-for-next-line
     |> Enum.reject(fn r -> String.contains?(r.url, "station_information") end)
+    |> Enum.reject(fn r -> r.type == "documentation" end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
@@ -407,6 +408,7 @@ defmodule TransportWeb.DatasetView do
     end)
     # Display zones and not special roads
     |> Enum.reject(fn r -> String.contains?(r.url, "voie") end)
+    |> Enum.reject(fn r -> r.type == "documentation" end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
