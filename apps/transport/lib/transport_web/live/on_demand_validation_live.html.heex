@@ -1,6 +1,6 @@
-<% metadata = @validation.on_the_fly_validation_metadata %>
-<% details = @validation.details %>
-<% is_final_state = metadata["state"] in ["completed", "error"] %>
+<% oban_args = @validation.oban_args %>
+<% details = @validation.result %>
+<% is_final_state = oban_args["state"] in ["completed", "error"] %>
 <section>
   <div class="container">
     <div class="validation-title">
@@ -12,7 +12,7 @@
       <%= if is_final_state do %>
         <p class="small">
           <%= dgettext("validations", "Validation performed at %{date}.",
-            date: format_datetime(@validation.date, @locale)
+            date: format_datetime(@validation.validation_timestamp, @locale)
           ) %>
         </p>
       <% end %>
@@ -22,18 +22,18 @@
   <div class="grey-background">
     <div class="container">
       <div class="panel">
-        <%= if metadata["state"] == "waiting" do %>
+        <%= if oban_args["state"] == "waiting" do %>
           <p><%= dgettext("validations", "Validation in progress. This page will be updated automatically.") %></p>
         <% end %>
 
-        <%= if metadata["state"] == "error" do %>
+        <%= if oban_args["state"] == "error" do %>
           <div class="notification error full-width">
-            <p><%= metadata["error_reason"] %></p>
+            <p><%= oban_args["error_reason"] %></p>
           </div>
         <% end %>
 
-        <%= if metadata["state"] == "completed" do %>
-          <%= if metadata["type"] == "gtfs-rt" do %>
+        <%= if oban_args["state"] == "completed" do %>
+          <%= if oban_args["type"] == "gtfs-rt" do %>
             <% errors = Map.fetch!(details, "errors") %>
             <% errors_error_level = errors |> Enum.filter(&(Map.fetch!(&1, "severity") == "ERROR")) %>
             <% errors_warning_level = errors |> Enum.filter(&(Map.fetch!(&1, "severity") == "WARNING")) %>
@@ -45,17 +45,17 @@
 
             <p>
               <%= dgettext("validations", "Validation performed at %{date}.",
-                date: format_datetime(@validation.date, @locale)
+                date: format_datetime(@validation.validation_timestamp, @locale)
               ) %>
             </p>
 
             <h4><%= dgettext("validations", "Feed details") %></h4>
             <ul>
               <li>
-                GTFS <a href={Map.fetch!(metadata, "gtfs_url")}><%= Map.fetch!(metadata, "gtfs_url") %></a>
+                GTFS <a href={Map.fetch!(oban_args, "gtfs_url")}><%= Map.fetch!(oban_args, "gtfs_url") %></a>
               </li>
               <li>
-                GTFS-RT <a href={Map.fetch!(metadata, "gtfs_rt_url")}><%= Map.fetch!(metadata, "gtfs_rt_url") %></a>
+                GTFS-RT <a href={Map.fetch!(oban_args, "gtfs_rt_url")}><%= Map.fetch!(oban_args, "gtfs_rt_url") %></a>
               </li>
             </ul>
 
@@ -77,7 +77,7 @@
                 <%= dgettext(
                   "validations",
                   ~s(GTFS-RT feeds change in real-time. This validation report shows the validation result performed at %{date}. You can relaunch a validation later on and get different results.),
-                  date: format_datetime(@validation.date, @locale)
+                  date: format_datetime(@validation.validation_timestamp, @locale)
                 ) %>
               </p>
             </div>
@@ -102,15 +102,15 @@
             ) %>
           <% end %>
 
-          <%= if metadata["type"] in ["tableschema", "jsonschema"] do %>
+          <%= if oban_args["type"] in ["tableschema", "jsonschema"] do %>
             <% max_display_errors = 50 %>
             <p>
               <%= raw(
                 dgettext("validations", ~s(This resource should follow its schema %{link}.),
                   link:
                     safe_to_string(
-                      link(metadata["schema_name"],
-                        to: Transport.Shared.Schemas.schema_url(metadata["schema_name"], "latest"),
+                      link(oban_args["schema_name"],
+                        to: Transport.Shared.Schemas.schema_url(oban_args["schema_name"], "latest"),
                         target: "_blank"
                       )
                     )

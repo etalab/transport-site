@@ -67,20 +67,20 @@ defmodule TransportWeb.ResourceController do
 
   defp render_gtfs_details(conn, params, resource) do
     config = make_pagination_config(params)
-    issues = resource.validation |> Validation.get_issues(params)
 
     validation =
       resource.id
       |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)
 
-    {validation_summary, severities_count, metadata} =
+    {validation_summary, severities_count, metadata, issues} =
       case validation do
-        %{result: validation, metadata: %{metadata: metadata}} ->
-          {Transport.Validators.GTFSTransport.summary(validation),
-           Transport.Validators.GTFSTransport.count_by_severity(validation), metadata}
+        %{result: validation_result, metadata: %{metadata: metadata}} ->
+          {Transport.Validators.GTFSTransport.summary(validation_result),
+           Transport.Validators.GTFSTransport.count_by_severity(validation_result), metadata,
+           Transport.Validators.GTFSTransport.get_issues(validation_result, params)}
 
         nil ->
-          {nil, nil, nil}
+          {nil, nil, nil, []}
       end
 
     issue_type =
