@@ -86,7 +86,7 @@ defmodule Transport.Mixfile do
       # conservatively waiting for https://github.com/sorentwo/oban/issues/652
       # to be fixed before upgrading
       {:oban, "~> 2.10.1"},
-      {:unzip, "~> 0.6.0"},
+      {:unzip, "~> 0.7.0"},
       {:protobuf, "~> 0.10.0"},
       {:nimble_csv, "~> 1.2.0"},
       {:kino, "~> 0.6", only: :dev},
