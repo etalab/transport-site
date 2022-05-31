@@ -51,6 +51,8 @@ master
             compare = repo |> String.replace(".git", "/compare/#{sha1}..#{sha2}")
             IO.puts("* #{compare}")
           else
+            repo = repo |> String.replace(".git", "")
+            repo_next = repo_next |> String.replace(".git", "")
             IO.puts "* From #{repo}/commit/#{sha1} to #{repo_next}/commit/#{sha2}"
           end
         end
