@@ -1,7 +1,11 @@
-defmodule DB.Repo.Migrations.BackfillResourceIdResourceHistory do
-  use Ecto.Migration
+defmodule Transport.Jobs.Backfill.ResourceHistoryResourceId do
+  @moduledoc """
+  Backfill of `resource_history` rows to fill
+  """
+  use Oban.Worker
 
-  def up do
+  @impl true
+  def perform(%{}) do
     # Fill resource_id when datagouv_id exists and is not ambiguous.
     execute("""
       update resource_history set resource_id = t.id
@@ -34,9 +38,9 @@ defmodule DB.Repo.Migrations.BackfillResourceIdResourceHistory do
         from resource
       ) t where t.title = resource_history.payload->>'title' and t.dataset_id = (resource_history.payload->>'dataset_id')::bigint and resource_id is null;
     """)
+
+    :ok
   end
 
-  def down do
-    execute "UPDATE resource_history set resource_id = null;"
-  end
+  defp execute(query), do: query |> DB.Repo.query!()
 end
