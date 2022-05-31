@@ -1,6 +1,6 @@
 defmodule Transport.Jobs.Backfill.ResourceHistoryResourceId do
   @moduledoc """
-  Backfill of `resource_history` rows to fill
+  Backfill of `resource_history` rows to fill the `resource_id` column
   """
   use Oban.Worker
 
