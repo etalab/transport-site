@@ -384,6 +384,8 @@ defmodule DB.Resource do
     |> Enum.concat(has_fares_tag(metadata))
     |> Enum.concat(has_shapes_tag(metadata))
     |> Enum.concat(has_odt_tag(metadata))
+    |> Enum.concat(has_route_colors_tag(metadata))
+    |> Enum.concat(has_pathways_tag(metadata))
     |> Enum.uniq()
   end
 
@@ -405,6 +407,26 @@ defmodule DB.Resource do
   def has_odt_tag(%{"some_stops_need_phone_agency" => true}), do: ["transport à la demande"]
   def has_odt_tag(%{"some_stops_need_phone_driver" => true}), do: ["transport à la demande"]
   def has_odt_tag(_), do: []
+
+  @doc """
+  Outputs a tag if all GTFS routes have a custom color
+
+  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 10, "lines_count" => 10})
+  ["couleurs des lignes"]
+  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 8, "lines_count" => 10})
+  []
+  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 0, "lines_count" => 0})
+  []
+  """
+  @spec has_route_colors_tag(map()) :: [binary()]
+  def has_route_colors_tag(%{"lines_with_custom_color_count" => n, "lines_count" => n}) when n > 0,
+    do: ["couleurs des lignes"]
+
+  def has_route_colors_tag(_), do: []
+
+  @spec has_pathways_tag(map()) :: [binary()]
+  def has_pathways_tag(%{"has_pathways" => true}), do: ["description des correspondances"]
+  def has_pathways_tag(_), do: []
 
   @spec base_tag(__MODULE__.t()) :: [binary()]
   def base_tag(%__MODULE__{format: "GTFS"}),
