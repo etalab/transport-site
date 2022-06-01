@@ -17,7 +17,7 @@ defmodule Transport.Validators.GTFSTransport do
     with {:ok, %{"validations" => validations, "metadata" => metadata}} <-
            validator.validate_from_url(url),
          data_vis <- Transport.DataVisualization.validation_data_vis(validations) do
-      metadata = %DB.ResourceMetadata{
+      resource_metadata = %DB.ResourceMetadata{
         resource_history_id: resource_history_id,
         metadata: metadata
       }
@@ -29,7 +29,8 @@ defmodule Transport.Validators.GTFSTransport do
         data_vis: data_vis,
         command: command(url),
         resource_history_id: resource_history_id,
-        metadata: metadata
+        metadata: resource_metadata,
+        validator_version: Map.get(metadata, "validator_version")
       }
       |> DB.Repo.insert!()
 
