@@ -26,13 +26,18 @@ defmodule Transport.Jobs.Backfill.ResourceHistoryResourceIdTest do
     resource_history_with_title =
       insert(:resource_history, payload: %{"title" => fake_title, "dataset_id" => resource_with_url.dataset_id})
 
+    resource_history_orphan = insert(:resource_history)
+
     assert :ok == perform_job(ResourceHistoryResourceId, %{})
 
     resource_history = DB.Repo.reload!(resource_history)
     resource_history_with_url = DB.Repo.reload!(resource_history_with_url)
     resource_history_with_title = DB.Repo.reload!(resource_history_with_title)
+    resource_history_orphan = DB.Repo.reload!(resource_history_orphan)
+
     assert resource_with_datagouv_id.id == resource_history.resource_id
     assert resource_with_url.id == resource_history_with_url.resource_id
     assert resource_with_title.id == resource_history_with_title.resource_id
+    assert is_nil(resource_history_orphan.resource_id)
   end
 end
