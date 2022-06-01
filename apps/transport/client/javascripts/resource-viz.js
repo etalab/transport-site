@@ -13,8 +13,8 @@ const Mapbox = {
 }
 
 // possible field names in csv files
-const latLabels = ['Lat', 'Ylat', 'Ylatitude']
-const lonLabels = ['Lng', 'Xlong', 'Xlongitude']
+const latLabels = ['Lat', 'Ylat', 'Ylatitude', 'consolidated_latitude']
+const lonLabels = ['Lng', 'Xlong', 'Xlongitude', 'consolidated_longitude']
 
 function getLabel (obj, labelsList) {
     for (const label of labelsList) {
@@ -342,7 +342,7 @@ function removeViz (consoleMsg) {
 }
 
 function createMap (id, resourceUrl, resourceFormat, lang = 'fr') {
-    if (resourceUrl.endsWith('.csv')) {
+    if (resourceUrl.endsWith('.csv') || resourceFormat === 'csv') {
         createCSVmap(id, resourceUrl)
     } else if (resourceFormat === 'gbfs' || resourceUrl.endsWith('gbfs.json')) {
         createGBFSmap(id, resourceUrl, lang)

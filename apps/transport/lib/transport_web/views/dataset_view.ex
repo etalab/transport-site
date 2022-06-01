@@ -386,16 +386,17 @@ defmodule TransportWeb.DatasetView do
       when type == "carpooling-areas" or type == "private-parking" or type == "charging-stations" do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
-    |> Enum.reject(fn r -> r.is_community_resource end)
+    |> Enum.reject(fn r -> Resource.is_community_resource?(r) or Resource.is_documentation?(r) end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
   def get_resource_to_display(%Dataset{type: "bike-scooter-sharing", resources: resources}) do
     resources
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
-    |> Enum.reject(fn r -> String.contains?(r.url, "station_status") end)
-    # credo:disable-for-next-line
-    |> Enum.reject(fn r -> String.contains?(r.url, "station_information") end)
+    |> Enum.reject(fn r ->
+      String.contains?(r.url, "station_status") or String.contains?(r.url, "station_information") or
+        Resource.is_community_resource?(r) or Resource.is_documentation?(r)
+    end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
@@ -406,7 +407,9 @@ defmodule TransportWeb.DatasetView do
         String.contains?(String.downcase(r.title), "geojson")
     end)
     # Display zones and not special roads
-    |> Enum.reject(fn r -> String.contains?(r.url, "voie") end)
+    |> Enum.reject(fn r ->
+      String.contains?(r.url, "voie") or Resource.is_community_resource?(r) or Resource.is_documentation?(r)
+    end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
