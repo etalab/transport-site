@@ -386,7 +386,7 @@ defmodule TransportWeb.DatasetView do
       when type == "carpooling-areas" or type == "private-parking" or type == "charging-stations" do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
-    |> Enum.reject(fn r -> r.is_community_resource == true or r.type == "documentation" end)
+    |> Enum.reject(fn r -> r.is_community_resource or Resource.is_documentation?(r) end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
