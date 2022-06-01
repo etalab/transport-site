@@ -395,7 +395,7 @@ defmodule TransportWeb.DatasetView do
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
     |> Enum.reject(fn r ->
       String.contains?(r.url, "station_status") or String.contains?(r.url, "station_information") or
-      Resource.is_community_resource?(r) or Resource.is_documentation?(r)
+        Resource.is_community_resource?(r) or Resource.is_documentation?(r)
     end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
