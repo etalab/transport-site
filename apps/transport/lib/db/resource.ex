@@ -625,6 +625,10 @@ defmodule DB.Resource do
   def is_documentation?(%__MODULE__{type: "documentation"}), do: true
   def is_documentation?(_), do: false
 
+  @spec is_community_resource?(__MODULE__.t()) :: boolean
+  def is_community_resource?(%__MODULE__{is_community_resource: true}), do: true
+  def is_community_resource?(_), do: false
+
   @spec is_real_time?(__MODULE__.t()) :: boolean
   def is_real_time?(%__MODULE__{} = resource) do
     is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource) or is_siri?(resource)
