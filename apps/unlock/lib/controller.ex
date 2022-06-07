@@ -105,7 +105,8 @@ defmodule Unlock.Controller do
 
   defp process_resource(conn, %Unlock.Config.Item.SIRI{}) do
     conn
-    |> send_resp(501, "Not Implemented")
+    |> put_status(501)
+    |> text("Not Implemented")
   end
 
   defp fetch_remote(item) do
