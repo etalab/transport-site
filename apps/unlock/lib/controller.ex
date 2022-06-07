@@ -103,7 +103,15 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, response.body)
   end
 
-  defp process_resource(conn, %Unlock.Config.Item.SIRI{}) do
+  defp process_resource(conn, %Unlock.Config.Item.SIRI{} = _item) do
+    # TODO: trace :external event
+    # TODO: parse XML body to simple struct
+    # TODO: protect from memory overload (maybe)
+    # TODO: replace requestor_ref in simple struct
+    # TODO: rebuild request from simple struct
+    # TODO: post to remote server
+    # TODO: forward body
+    # TODO: set headers
     conn
     |> put_status(501)
     |> text("Not Implemented")
