@@ -123,6 +123,8 @@ config :oauth2, Datagouvfr.Authentication,
   client_secret: "TODO-REPLACE"
 ```
 
+Then make sure to restart the app.
+
 The rest of the configuration is already set via `dev.exs`, with:
 
 ```elixir
