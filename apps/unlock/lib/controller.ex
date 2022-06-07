@@ -103,6 +103,11 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, response.body)
   end
 
+  defp process_resource(conn, %Unlock.Config.Item.SIRI{}) do
+    conn
+    |> send_resp(501, "Not Implemented")
+  end
+
   defp fetch_remote(item) do
     comp_fn = fn _key ->
       Logger.info("Processing proxy request for identifier #{item.identifier}")

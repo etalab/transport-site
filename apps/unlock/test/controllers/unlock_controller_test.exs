@@ -32,7 +32,28 @@ defmodule Unlock.ControllerTest do
     |> stub(:fetch_config!, fn -> config end)
   end
 
-  describe "GET /resource/:slug" do
+  describe "GET /resource/:slug (on a SIRI item)" do
+    test "responds with 501 for now" do
+      slug = "an-existing-identifier"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.SIRI{
+          identifier: slug,
+          target_url: "http://localhost/some-remote-resource",
+          requestor_ref: "the-ref"
+        }
+      })
+
+      resp =
+        build_conn()
+        |> get("/resource/an-existing-identifier")
+
+      assert resp.resp_body == "Not Implemented"
+      assert resp.status == 501
+    end
+  end
+
+  describe "GET /resource/:slug (on a GTFS-RT item)" do
     test "handles a regular read" do
       slug = "an-existing-identifier"
 
