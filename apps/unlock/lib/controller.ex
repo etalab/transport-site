@@ -90,7 +90,7 @@ defmodule Unlock.Controller do
   # RAM consumption
   @max_allowed_cached_byte_size 20 * 1024 * 1024
 
-  defp process_resource(conn, item) do
+  defp process_resource(conn, %Unlock.Config.Item.GTFS.RT{} = item) do
     Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
 
