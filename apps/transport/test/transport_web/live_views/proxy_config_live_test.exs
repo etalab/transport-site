@@ -18,7 +18,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
 
   def setup_proxy_config(slug) do
     config = %{
-      slug => %Unlock.Config.Item{
+      slug => %Unlock.Config.Item.GTFS.RT{
         identifier: slug,
         target_url: "http://localhost/some-remote-resource",
         ttl: 10
