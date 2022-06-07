@@ -70,7 +70,7 @@ jobs:
 
       - run:
           name: Compile code
-          command: mix compile
+          command: mix compile --warnings-as-errors
 
       # Here we attempt to create 3 different caches to optimize the build process
 
