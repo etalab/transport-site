@@ -170,7 +170,9 @@
             %>
           <% end %>
         </div>
-        <p class="text-center"><%= dgettext("page-index", "reusers list description") %> <a href=""><%= link(dgettext("page-index", "Learn more"), to: "https://doc.transport.data.gouv.fr/reutilisateurs/outils-pour-les-reutilisateurs") %></a>.</p>
+        <p class="text-center"><%= dgettext("page-index", "reusers list description") %> 
+          <%= link(dgettext("page-index", "Learn more"), to: "https://doc.transport.data.gouv.fr/reutilisateurs/outils-pour-les-reutilisateurs") %>.
+        </p>
       </div>
     </section>
     <section class="section section-grey companies">
