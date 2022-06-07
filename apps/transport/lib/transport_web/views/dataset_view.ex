@@ -34,18 +34,6 @@ defmodule TransportWeb.DatasetView do
   def count_discussions(nil), do: '-'
   def count_discussions(discussions), do: Enum.count(discussions)
 
-  def render_sidebar_from_type(conn, dataset),
-    do: render_panel_from_type(conn, dataset, "sidebar")
-
-  def render_panel_from_type(conn, dataset, panel_type) do
-    render_existing(
-      TransportWeb.DatasetView,
-      "_#{panel_type}_#{dataset.type}.html",
-      dataset: dataset,
-      conn: conn
-    )
-  end
-
   def first_gtfs(dataset) do
     dataset
     |> Dataset.valid_gtfs()
