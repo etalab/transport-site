@@ -122,34 +122,6 @@ msgstr "Quinquennial"
 msgid "irregular"
 msgstr "Irregular"
 
-#, elixir-autogen
-msgid "Timetable begin"
-msgstr ""
-
-#, elixir-autogen
-msgid "Timetable end"
-msgstr ""
-
-#, elixir-autogen
-msgid "Number of lines"
-msgstr ""
-
-#, elixir-autogen
-msgid "Number of stop areas"
-msgstr ""
-
-#, elixir-autogen
-msgid "Number of stop points"
-msgstr ""
-
-#, elixir-autogen
-msgid "Networks"
-msgstr ""
-
-#, elixir-autogen
-msgid "Modes"
-msgstr ""
-
 msgid "tramway"
 msgstr "Tramway"
 
