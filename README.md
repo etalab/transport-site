@@ -108,7 +108,7 @@ The app currently routes whatever starts with `proxy.` to the proxy (as implemen
 
 ## Configuring OAuth to work with demo.data.gouv.fr
 
-By default the development configuration is very simple and only allow the most basic scenarios.
+By default the development configuration is very simple and only allows the most basic scenarios.
 
 If you need to login via `demo.data.gouv.fr`, follow these steps:
 
