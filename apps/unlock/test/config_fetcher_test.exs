@@ -13,7 +13,7 @@ defmodule Unlock.ConfigFetcherTest do
     """
 
     assert parse_config(yaml_config) == [
-             %Unlock.Config.Item{
+             %Unlock.Config.Item.GTFS.RT{
                identifier: "httpbin-get",
                target_url: "https://httpbin.org/get",
                ttl: 10

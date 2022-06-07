@@ -52,7 +52,7 @@ defmodule UnlockGitHubConfigTest do
     assert Cachex.ttl(cache_name(), @config_cache_key) == {:ok, nil}
 
     assert data == %{
-             "test-slug" => %Unlock.Config.Item{
+             "test-slug" => %Unlock.Config.Item.GTFS.RT{
                identifier: "test-slug",
                ttl: 0,
                target_url: "http://localhost/real-time"
