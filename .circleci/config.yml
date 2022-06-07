@@ -70,6 +70,8 @@ jobs:
 
       - run:
           name: Compile code
+          # NOTE: we'll want to add --warnings-as-errors here once
+          # https://github.com/etalab/transport-site/issues/2284 is fully handled
           command: mix compile
 
       # Here we attempt to create 3 different caches to optimize the build process

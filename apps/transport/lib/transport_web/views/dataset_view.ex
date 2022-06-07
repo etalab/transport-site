@@ -1,6 +1,6 @@
 defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
-  alias DB.{Dataset, Resource, Validation}
+  alias DB.{Dataset, Resource}
   alias Plug.Conn.Query
   alias TransportWeb.{MarkdownHandler, PaginationHelpers, ResourceView, Router.Helpers}
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
@@ -34,18 +34,8 @@ defmodule TransportWeb.DatasetView do
   def count_discussions(nil), do: '-'
   def count_discussions(discussions), do: Enum.count(discussions)
 
-  def render_sidebar_from_type(conn, dataset),
-    do: render_panel_from_type(conn, dataset, "sidebar")
-
-  def render_panel_from_type(conn, dataset, panel_type) do
-    render_existing(
-      TransportWeb.DatasetView,
-      "_#{panel_type}_#{dataset.type}.html",
-      dataset: dataset,
-      conn: conn
-    )
-  end
-
+  # NOTE: this method (and more here) are unused and
+  # were referred to by unused partials
   def first_gtfs(dataset) do
     dataset
     |> Dataset.valid_gtfs()
