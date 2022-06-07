@@ -48,8 +48,7 @@ defmodule Unlock.ControllerTest do
         build_conn()
         |> get("/resource/an-existing-identifier")
 
-      assert resp.resp_body == "Not Implemented"
-      assert resp.status == 501
+      assert html_response(resp, 501) =~ "Not Implemented"
     end
   end
 
