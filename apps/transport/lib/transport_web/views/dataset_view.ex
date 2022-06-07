@@ -1,6 +1,6 @@
 defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
-  alias DB.{Dataset, Resource, Validation}
+  alias DB.{Dataset, Resource}
   alias Plug.Conn.Query
   alias TransportWeb.{MarkdownHandler, PaginationHelpers, ResourceView, Router.Helpers}
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
