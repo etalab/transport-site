@@ -34,6 +34,8 @@ defmodule TransportWeb.DatasetView do
   def count_discussions(nil), do: '-'
   def count_discussions(discussions), do: Enum.count(discussions)
 
+  # NOTE: this method (and more here) are unused and
+  # were referred to by unused partials
   def first_gtfs(dataset) do
     dataset
     |> Dataset.valid_gtfs()
