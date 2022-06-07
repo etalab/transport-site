@@ -56,7 +56,7 @@
                     <% end %>
                   </span>
                   <%= if assigns[:current_user]["avatar_thumbnail"] do %>
-                    <img src="<%= assigns[:current_user]["avatar_thumbnail"] %>" alt="current_user" class="nav__avatar"> </img>
+                    <img src="<%= assigns[:current_user]["avatar_thumbnail"] %>" alt="" class="nav__avatar"> </img>
                   <% end %>
                 </div>
               <div class="dropdown-content">
