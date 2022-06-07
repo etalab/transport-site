@@ -32,14 +32,34 @@ defmodule Unlock.ControllerTest do
     |> stub(:fetch_config!, fn -> config end)
   end
 
-  describe "GET /resource/:slug" do
+  describe "GET /resource/:slug (on a SIRI item)" do
+    test "responds with 501 for now" do
+      slug = "an-existing-identifier"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.SIRI{
+          identifier: slug,
+          target_url: "http://localhost/some-remote-resource",
+          requestor_ref: "the-ref"
+        }
+      })
+
+      resp =
+        build_conn()
+        |> get("/resource/an-existing-identifier")
+
+      assert text_response(resp, 501) =~ "Not Implemented"
+    end
+  end
+
+  describe "GET /resource/:slug (on a GTFS-RT item)" do
     test "handles a regular read" do
       slug = "an-existing-identifier"
 
       ttl_in_seconds = 30
 
       setup_proxy_config(%{
-        slug => %Unlock.Config.Item{
+        slug => %Unlock.Config.Item.GTFS.RT{
           identifier: slug,
           target_url: target_url = "http://localhost/some-remote-resource",
           ttl: ttl_in_seconds
@@ -152,7 +172,7 @@ defmodule Unlock.ControllerTest do
 
     test "handles optional hardcoded request headers" do
       setup_proxy_config(%{
-        "some-identifier" => %Unlock.Config.Item{
+        "some-identifier" => %Unlock.Config.Item.GTFS.RT{
           identifier: "some-identifier",
           target_url: "http://localhost/some-remote-resource",
           ttl: 10,
@@ -186,7 +206,7 @@ defmodule Unlock.ControllerTest do
       identifier = "foo"
 
       setup_proxy_config(%{
-        identifier => %Unlock.Config.Item{
+        identifier => %Unlock.Config.Item.GTFS.RT{
           identifier: identifier,
           target_url: url,
           ttl: 10

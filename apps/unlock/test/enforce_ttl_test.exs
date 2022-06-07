@@ -16,12 +16,12 @@ defmodule Unlock.EnforceTTLTest do
     ttl_config_value = 10
 
     setup_proxy_config(%{
-      "no_ttl" => %Unlock.Config.Item{
+      "no_ttl" => %Unlock.Config.Item.GTFS.RT{
         identifier: "no_ttl",
         target_url: "https://example.com",
         ttl: ttl_config_value
       },
-      "with_ttl" => %Unlock.Config.Item{
+      "with_ttl" => %Unlock.Config.Item.GTFS.RT{
         identifier: "with_ttl",
         target_url: "https://example.com",
         ttl: ttl_config_value
