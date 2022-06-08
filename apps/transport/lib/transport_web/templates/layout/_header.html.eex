@@ -49,7 +49,7 @@
               <div class="dropdown">
                 <div class="user-name-display">
                   <span class="nav__username">
-                    <%= if assigns[:current_user]["first_name"] || assigns[:current_user]["last_name"] do %>
+                    <%= if assigns[:current_user]["first_name"] && assigns[:current_user]["last_name"] do %>
                         <%= assigns[:current_user]["first_name"] %> <%= assigns[:current_user]["last_name"] %>
                     <% else %>
                         <%= gettext("My account") %>
@@ -81,9 +81,9 @@
           <li class="nav__item">
             <div class="dropdown">
               <%= if get_session(@conn, :locale) == "fr" do %>
-                <img src="<%= static_path(@conn, "/images/icons/fr.png") %>" height=24 >
+                <img src="<%= static_path(@conn, "/images/icons/fr.png") %>" alt="Français" height=24 >
               <% else %>
-                <img src="<%= static_path(@conn, "/images/icons/en.png") %>" height=24 >
+                <img src="<%= static_path(@conn, "/images/icons/en.png") %>" alt="English" height=24 >
               <% end %>
               <div class="dropdown-content">
                 <%= link(to: add_locale_to_url(@conn, "fr")) do %>
