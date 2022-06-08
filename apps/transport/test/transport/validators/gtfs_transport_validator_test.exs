@@ -15,7 +15,7 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
     %{id: resource_history_id} = insert(:resource_history)
     validation_content = %{"errors" => 2}
     data_vis_content = %{"data_vis" => "some data vis"}
-    metadata_content = %{"m" => 1}
+    metadata_content = %{"m" => 1, "validator_version" => validator_version = "0.2.0"}
 
     Transport.DataVisualization.Mock
     |> expect(:validation_data_vis, 1, fn _ ->
@@ -36,7 +36,8 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
              id: validation_id,
              result: ^validation_content,
              data_vis: ^data_vis_content,
-             resource_history_id: ^resource_history_id
+             resource_history_id: ^resource_history_id,
+             validator_version: ^validator_version
            } = DB.MultiValidation |> DB.Repo.get_by!(resource_history_id: resource_history_id)
 
     assert %{metadata: ^metadata_content, resource_history_id: ^resource_history_id} =

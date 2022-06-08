@@ -1,7 +1,7 @@
 defmodule TransportWeb.ResourceController do
   use TransportWeb, :controller
-  alias Datagouvfr.Client.{Datasets, Resources, Validation}
-  alias DB.{Dataset, Repo, Resource, Validation}
+  alias Datagouvfr.Client.{Datasets, Resources}
+  alias DB.{Dataset, Repo, Resource}
   alias Transport.DataVisualization
   alias Transport.ImportData
   require Logger

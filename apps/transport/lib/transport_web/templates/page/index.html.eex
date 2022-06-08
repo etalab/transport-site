@@ -92,11 +92,11 @@
   <h2><%= dgettext("page-index", "Coming soon") %></h2>
   <div class="grid">
     <div class="tile">
-      <%= img_tag(icon_type_path("car-motorbike-sharing"), class: "tile__icon") %>
+      <%= img_tag(icon_type_path("car-motorbike-sharing"), class: "tile__icon", alt: "") %>
       <h3 class="text-center"><%= dgettext("page-index", "Car and motorbike sharing") %></h3>
     </div>
     <div class="tile">
-      <%= img_tag(icon_type_path("mobility-counting"), class: "tile__icon") %>
+      <%= img_tag(icon_type_path("mobility-counting"), class: "tile__icon", alt: "") %>
       <h3 class="text-center"><%= dgettext("page-index", "Mobility counting") %></h3>
     </div>
   </div>
@@ -170,7 +170,9 @@
             %>
           <% end %>
         </div>
-        <p class="text-center"><%= dgettext("page-index", "reusers list description") %> <a href=""><%= link(dgettext("page-index", "Learn more"), to: "https://doc.transport.data.gouv.fr/reutilisateurs/outils-pour-les-reutilisateurs") %></a>.</p>
+        <p class="text-center"><%= dgettext("page-index", "reusers list description") %> 
+          <%= link(dgettext("page-index", "Learn more"), to: "https://doc.transport.data.gouv.fr/reutilisateurs/outils-pour-les-reutilisateurs") %>.
+        </p>
       </div>
     </section>
     <section class="section section-grey companies">

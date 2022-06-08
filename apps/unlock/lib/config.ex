@@ -4,15 +4,23 @@ defmodule Unlock.Config do
   """
   require Logger
 
-  defmodule Item do
+  defmodule Item.GTFS.RT do
     @moduledoc """
     An intermediate structure to add a bit of typing to the
-    external YAML configuration.
+    external YAML configuration, specialized for GTFS-RT config.
 
     It supports hardcoded request headers for e.g. simple authentication.
     """
     @enforce_keys [:identifier, :target_url, :ttl]
     defstruct [:identifier, :target_url, :ttl, request_headers: []]
+  end
+
+  defmodule Item.SIRI do
+    @moduledoc """
+    Intermediate structure for SIRI configured items.
+    """
+    @enforce_keys [:identifier, :target_url, :requestor_ref]
+    defstruct [:identifier, :target_url, :requestor_ref]
   end
 
   defmodule Fetcher do
@@ -22,19 +30,35 @@ defmodule Unlock.Config do
     @callback fetch_config!() :: list(Item)
     @callback clear_config_cache!() :: any
 
+    def convert_yaml_item_to_struct(%{"type" => "siri"} = item) do
+      %Item.SIRI{
+        identifier: Map.fetch!(item, "identifier"),
+        target_url: Map.fetch!(item, "target_url"),
+        requestor_ref: Map.fetch!(item, "requestor_ref")
+      }
+    end
+
+    def convert_yaml_item_to_struct(%{"type" => "gtfs-rt"} = item) do
+      %Item.GTFS.RT{
+        identifier: Map.fetch!(item, "identifier"),
+        target_url: Map.fetch!(item, "target_url"),
+        # By default, no TTL
+        ttl: Map.get(item, "ttl", 0),
+        request_headers: parse_config_request_headers(Map.get(item, "request_headers", []))
+      }
+    end
+
+    # provide an automatic upgrade path for existing configuration, to be
+    # deprecated later
+    def convert_yaml_item_to_struct(item) when not is_map_key(item, "type") do
+      convert_yaml_item_to_struct(Map.put(item, "type", "gtfs-rt"))
+    end
+
     def convert_yaml_to_config_items(body) do
       body
       |> YamlElixir.read_from_string!()
       |> Map.fetch!("feeds")
-      |> Enum.map(fn f ->
-        %Item{
-          identifier: Map.fetch!(f, "identifier"),
-          target_url: Map.fetch!(f, "target_url"),
-          # By default, no TTL
-          ttl: Map.get(f, "ttl", 0),
-          request_headers: parse_config_request_headers(Map.get(f, "request_headers", []))
-        }
-      end)
+      |> Enum.map(&convert_yaml_item_to_struct(&1))
     end
 
     @doc """

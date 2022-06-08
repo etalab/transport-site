@@ -9,7 +9,7 @@ defmodule DB.MultiValidation do
   typed_schema "multi_validation" do
     field(:validation_timestamp, :utc_datetime_usec)
     field(:validator, :string)
-    field(:transport_tools_version, :string)
+    field(:validator_version, :string)
     field(:command, :string)
     field(:result, :map)
     field(:data_vis, :map)
