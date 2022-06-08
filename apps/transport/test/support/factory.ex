@@ -100,6 +100,10 @@ defmodule DB.Factory do
     %DB.GeoData{}
   end
 
+  def multi_validation_factory do
+    %DB.MultiValidation{validator: "validator", validation_timestamp: DateTime.utc_now()}
+  end
+
   # Non-Ecto stuff, for now kept here for convenience
 
   def datagouv_api_get_factory do

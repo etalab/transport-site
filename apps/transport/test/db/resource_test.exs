@@ -1,14 +1,15 @@
 defmodule DB.ResourceTest do
   use ExUnit.Case, async: true
-  alias Validation.Validator.Mock, as: ValidatorMock
+  alias Shared.Validation.Validator.Mock, as: ValidatorMock
   alias DB.{LogsValidation, Repo, Resource, Validation}
   import Mox
   import DB.Factory
   import Ecto.Query
 
-  doctest Resource
+  doctest Resource, import: true
 
   setup do
+    Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 

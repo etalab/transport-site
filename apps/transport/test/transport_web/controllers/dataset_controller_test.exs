@@ -9,6 +9,12 @@ defmodule TransportWeb.DatasetControllerTest do
 
   setup :verify_on_exit!
 
+  setup do
+    Mox.stub_with(Datagouvfr.Client.Reuses.Mock, Datagouvfr.Client.Reuses)
+    Mox.stub_with(Datagouvfr.Client.Discussions.Mock, Datagouvfr.Client.Discussions)
+    :ok
+  end
+
   doctest TransportWeb.DatasetController
 
   test "GET /", %{conn: conn} do
@@ -29,6 +35,27 @@ defmodule TransportWeb.DatasetControllerTest do
       conn = conn |> get(dataset_path(conn, :details, dataset.slug))
       html = html_response(conn, 200)
       assert html =~ "réutilisations sont temporairement indisponibles"
+    end
+  end
+
+  test "dataset details with a documentation resource", %{conn: conn} do
+    dataset = insert(:dataset, aom: insert(:aom, composition_res_id: 157))
+    resource = insert(:resource, type: "documentation", url: "https://example.com", dataset: dataset)
+
+    dataset = dataset |> DB.Repo.preload(:resources)
+
+    assert DB.Resource.is_documentation?(resource)
+    assert Enum.empty?(TransportWeb.DatasetView.other_official_resources(dataset))
+    assert 1 == Enum.count(TransportWeb.DatasetView.official_documentation_resources(dataset))
+
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
+
+    with_mocks [
+      {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:ok, []} end]},
+      {Datagouvfr.Client.Discussions, [], [get: fn _id -> nil end]}
+    ] do
+      conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+      assert html_response(conn, 200) =~ "Documentation"
     end
   end
 
@@ -151,5 +178,27 @@ defmodule TransportWeb.DatasetControllerTest do
            })
 
     refute TransportWeb.DatasetView.has_validity_period?(%DB.ResourceHistory{payload: %{}})
+  end
+
+  test "show GTFS number of errors", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
+
+    insert(:resource, %{dataset_id: dataset_id, format: "GTFS", datagouv_id: datagouv_id = "datagouv_id", url: "url"})
+
+    %{id: resource_history_id} = insert(:resource_history, %{datagouv_id: datagouv_id})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id,
+      validator: Transport.Validators.GTFSTransport.validator_name(),
+      result: %{"Slow" => [%{"severity" => "Information"}]},
+      metadata: %{metadata: %{}}
+    })
+
+    Datagouvfr.Client.Reuses.Mock |> expect(:get, fn _ -> {:ok, []} end)
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _ -> %{} end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
+
+    conn = conn |> get(dataset_path(conn, :details, slug))
+    assert conn |> html_response(200) =~ "1 information"
   end
 end

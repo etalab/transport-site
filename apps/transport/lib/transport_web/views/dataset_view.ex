@@ -1,10 +1,8 @@
 defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
-  alias DB.{Dataset, Resource, Validation}
+  alias DB.{Dataset, Resource}
   alias Plug.Conn.Query
-  alias TransportWeb.MarkdownHandler
-  alias TransportWeb.PaginationHelpers
-  alias TransportWeb.Router.Helpers
+  alias TransportWeb.{MarkdownHandler, PaginationHelpers, ResourceView, Router.Helpers}
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
@@ -12,13 +10,21 @@ defmodule TransportWeb.DatasetView do
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
   import Transport.GbfsUtils, only: [gbfs_validation_link: 1]
   alias Shared.DateTimeDisplay
-  alias TransportWeb.ResourceView
+  alias Transport.Validators.GTFSTransport
 
   @doc """
-  Count the number of resources (official + community)
+  Count the number of resources (official + community), excluding resources with a `documentation` type.
   """
+  @spec count_resources(Dataset.t()) :: non_neg_integer
   def count_resources(dataset) do
-    Enum.count(official_available_resources(dataset)) + Enum.count(community_resources(dataset))
+    nb_resources = Enum.count(official_available_resources(dataset))
+    nb_community_resources = Enum.count(community_resources(dataset))
+    nb_resources + nb_community_resources - count_documentation_resources(dataset)
+  end
+
+  @spec count_documentation_resources(Dataset.t()) :: non_neg_integer
+  def count_documentation_resources(dataset) do
+    dataset |> official_available_resources() |> Stream.filter(&Resource.is_documentation?/1) |> Enum.count()
   end
 
   @spec count_discussions(any) :: [45, ...] | non_neg_integer
@@ -28,18 +34,8 @@ defmodule TransportWeb.DatasetView do
   def count_discussions(nil), do: '-'
   def count_discussions(discussions), do: Enum.count(discussions)
 
-  def render_sidebar_from_type(conn, dataset),
-    do: render_panel_from_type(conn, dataset, "sidebar")
-
-  def render_panel_from_type(conn, dataset, panel_type) do
-    render_existing(
-      TransportWeb.DatasetView,
-      "_#{panel_type}_#{dataset.type}.html",
-      dataset: dataset,
-      conn: conn
-    )
-  end
-
+  # NOTE: this method (and more here) are unused and
+  # were referred to by unused partials
   def first_gtfs(dataset) do
     dataset
     |> Dataset.valid_gtfs()
@@ -97,8 +93,7 @@ defmodule TransportWeb.DatasetView do
       }[order_by]
 
     case assigns = conn.assigns do
-      %{order_by: ^order_by} -> ~H"<span class=\"activefilter\"><%= msg %></span>
-"
+      %{order_by: ^order_by} -> ~H"<span class=\"activefilter\"><%= msg %></span>"
       _ -> link(msg, to: "#{current_url(conn, Map.put(conn.query_params, "order_by", order_by))}")
     end
   end
@@ -116,8 +111,7 @@ defmodule TransportWeb.DatasetView do
     assigns = conn.assigns
 
     case current_path(conn, %{}) do
-      ^url -> ~H"<span class=\"activefilter\"><%= nom %> (<%= count %>)</span>
-"
+      ^url -> ~H"<span class=\"activefilter\"><%= nom %> (<%= count %>)</span>"
       _ -> link("#{nom} (#{count})", to: full_url)
     end
   end
@@ -137,8 +131,7 @@ defmodule TransportWeb.DatasetView do
 
     link_text = "#{msg} (#{count})"
     assigns = conn.assigns
-    active_filter_text = ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>
-"
+    active_filter_text = ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>"
 
     case conn.params do
       %{"type" => ^type} ->
@@ -174,8 +167,7 @@ defmodule TransportWeb.DatasetView do
     case {only_rt, Map.get(conn.query_params, "filter")} do
       {false, "has_realtime"} -> link("#{msg} (#{count})", to: full_url)
       {true, nil} -> link("#{msg} (#{count})", to: full_url)
-      _ -> ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>
-"
+      _ -> ~H"<span class=\"activefilter\"><%= msg %> (<%= count %>)</span>"
     end
   end
 
@@ -312,17 +304,22 @@ defmodule TransportWeb.DatasetView do
     |> Stream.reject(&Resource.is_gtfs?/1)
     |> Stream.reject(&Resource.is_netex?/1)
     |> Stream.reject(&Resource.is_real_time?/1)
+    |> Stream.reject(&Resource.is_documentation?/1)
     |> Enum.to_list()
-    |> Enum.sort(fn r1, r2 ->
-      nd1 = NaiveDateTime.from_iso8601(Map.get(r1, :last_update, ""))
-      nd2 = NaiveDateTime.from_iso8601(Map.get(r2, :last_update, ""))
-
-      case {nd1, nd2} do
-        {{:ok, nd1}, {:ok, nd2}} -> NaiveDateTime.compare(nd1, nd2) == :gt
-        _ -> true
-      end
-    end)
+    |> Enum.sort_by(& &1.display_position)
   end
+
+  def official_documentation_resources(dataset) do
+    dataset
+    |> official_available_resources()
+    |> Enum.filter(&Resource.is_documentation?/1)
+  end
+
+  def is_real_time_public_transit?(%Dataset{type: "public-transit"} = dataset) do
+    not Enum.empty?(real_time_official_resources(dataset))
+  end
+
+  def is_real_time_public_transit?(%Dataset{}), do: false
 
   def community_resources(dataset), do: Dataset.community_resources(dataset)
 
@@ -379,16 +376,17 @@ defmodule TransportWeb.DatasetView do
       when type == "carpooling-areas" or type == "private-parking" or type == "charging-stations" do
     resources
     |> Enum.filter(fn r -> r.format == "csv" end)
-    |> Enum.reject(fn r -> r.is_community_resource end)
+    |> Enum.reject(fn r -> Resource.is_community_resource?(r) or Resource.is_documentation?(r) end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
   def get_resource_to_display(%Dataset{type: "bike-scooter-sharing", resources: resources}) do
     resources
     |> Enum.filter(fn r -> r.format == "gbfs" or String.ends_with?(r.url, "gbfs.json") end)
-    |> Enum.reject(fn r -> String.contains?(r.url, "station_status") end)
-    # credo:disable-for-next-line
-    |> Enum.reject(fn r -> String.contains?(r.url, "station_information") end)
+    |> Enum.reject(fn r ->
+      String.contains?(r.url, "station_status") or String.contains?(r.url, "station_information") or
+        Resource.is_community_resource?(r) or Resource.is_documentation?(r)
+    end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
@@ -399,7 +397,9 @@ defmodule TransportWeb.DatasetView do
         String.contains?(String.downcase(r.title), "geojson")
     end)
     # Display zones and not special roads
-    |> Enum.reject(fn r -> String.contains?(r.url, "voie") end)
+    |> Enum.reject(fn r ->
+      String.contains?(r.url, "voie") or Resource.is_community_resource?(r) or Resource.is_documentation?(r)
+    end)
     |> Enum.max_by(fn r -> r.last_update end, fn -> nil end)
   end
 
@@ -461,11 +461,25 @@ defmodule TransportWeb.DatasetView do
   defp needs_stable_url?(%DB.Resource{latest_url: nil}), do: false
 
   defp needs_stable_url?(%DB.Resource{url: url}) do
-    host = URI.parse(url).host
-    Enum.member?(Application.fetch_env!(:transport, :domains_hosting_static_files), host)
+    parsed_url = URI.parse(url)
+
+    hosted_on_static_datagouv =
+      Enum.member?(Application.fetch_env!(:transport, :datagouv_static_hosts), parsed_url.host)
+
+    hosted_on_bison_fute = parsed_url.host == Application.fetch_env!(:transport, :bison_fute_host)
+
+    cond do
+      hosted_on_bison_fute -> is_link_to_folder?(parsed_url)
+      hosted_on_static_datagouv -> true
+      true -> false
+    end
   end
 
   defp needs_stable_url?(%DB.Resource{}), do: false
+
+  defp is_link_to_folder?(%URI{path: path}) do
+    path |> Path.basename() |> :filename.extension() == ""
+  end
 
   def has_validity_period?(history_resources) when is_list(history_resources) do
     history_resources |> Enum.map(&has_validity_period?/1) |> Enum.any?()

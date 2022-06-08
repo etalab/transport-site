@@ -13,11 +13,12 @@ defmodule TransportWeb.BackofficeControllerTest do
     # ressource.db now uses Transport.Shared.Wrapper.HTTPoison instead of HTTPoison directly
     # we stub the mock with the real module here to keep the tests of this file unchanged.
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
-    Mox.stub_with(Validation.Validator.Mock, Shared.Validation.GtfsValidator)
+    Mox.stub_with(Shared.Validation.Validator.Mock, Shared.Validation.GtfsValidator)
     Mox.stub_with(Transport.AvailabilityChecker.Mock, Transport.AvailabilityChecker.Dummy)
     Mox.stub_with(Hasher.Mock, Hasher.Dummy)
     Mox.stub_with(Datagouvfr.Authentication.Mock, Datagouvfr.Authentication.Dummy)
     Mox.stub_with(Datagouvfr.Client.User.Mock, Datagouvfr.Client.User.Dummy)
+    Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
     :ok
   end
 

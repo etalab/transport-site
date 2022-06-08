@@ -2,6 +2,7 @@ defmodule TransportWeb.DatasetViewTest do
   use TransportWeb.ConnCase, async: false
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
+  import DB.Factory
   import TransportWeb.DatasetView
 
   doctest TransportWeb.DatasetView
@@ -66,6 +67,10 @@ defmodule TransportWeb.DatasetViewTest do
     assert get_resource_to_display(dataset_only_roads) == nil
   end
 
+  test "test data is up to date" do
+    assert "tipi.bison-fute.gouv.fr" == Application.fetch_env!(:transport, :bison_fute_host)
+  end
+
   test "download url", %{conn: conn} do
     # Files hosted on data.gouv.fr
     assert download_url(conn, %DB.Resource{
@@ -80,12 +85,20 @@ defmodule TransportWeb.DatasetViewTest do
              latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
            }) == latest_url
 
+    # Bison Futé folder
+    assert download_url(conn, %DB.Resource{
+             filetype: "remote",
+             url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/",
+             latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
+           }) == latest_url
+
     # Bison Futé files
     assert download_url(conn, %DB.Resource{
              filetype: "remote",
+             id: id = 1,
              url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/refDir.csv",
-             latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
-           }) == latest_url
+             latest_url: "https://data.gouv.fr/fake_stable_url"
+           }) == resource_path(conn, :download, id)
 
     # File not hosted on data.gouv.fr
     assert download_url(conn, %DB.Resource{filetype: "file", url: url = "https://data.example.com/voies.geojson"}) ==
@@ -104,5 +117,41 @@ defmodule TransportWeb.DatasetViewTest do
              url:
                "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/898dc67fb19fae2464c24a85a0557e8ccce18791/bnlc-.csv"
            }) == resource_path(conn, :download, id)
+  end
+
+  test "other_official_resources is sorted by display position" do
+    dataset = %DB.Dataset{
+      type: "low-emission-zones",
+      resources: [
+        %DB.Resource{
+          id: 1,
+          url: "https://example.com/zfe.geojson",
+          format: "geojson",
+          schema_name: "etalab/schema-zfe",
+          display_position: 1
+        },
+        %DB.Resource{
+          id: 2,
+          url: "https://example.com/voies.geojson",
+          format: "geojson",
+          schema_name: "etalab/schema-zfe",
+          display_position: 0
+        }
+      ]
+    }
+
+    assert [{0, 2}, {1, 1}] == dataset |> other_official_resources() |> Enum.map(&{&1.display_position, &1.id})
+  end
+
+  test "count_resources and count_documentation_resources" do
+    dataset = insert(:dataset)
+    insert(:resource, type: "documentation", url: "https://example.com/doc", dataset: dataset)
+    insert(:resource, type: "main", url: "https://example.com/file", dataset: dataset)
+    insert(:resource, type: "main", url: "https://example.com/community", dataset: dataset, is_community_resource: true)
+
+    dataset = dataset |> DB.Repo.preload(:resources)
+
+    assert count_resources(dataset) == 2
+    assert count_documentation_resources(dataset) == 1
   end
 end

@@ -336,37 +336,39 @@ defmodule Transport.ImportData do
     |> get_valid_resources(type)
     |> Enum.concat(get_community_resources(dataset))
     |> Enum.uniq_by(fn resource -> resource["url"] end)
-    |> Enum.map(fn resource ->
+    |> Enum.map_reduce(0, fn resource, display_position ->
       is_community_resource = resource["is_community_resource"] == true
 
       existing_resource = get_existing_resource(resource, dataset["id"]) || %{}
       resource = Map.put(resource, "metadata", existing_resource[:metadata])
 
-      %{
-        "url" => resource["url"],
-        "format" => formated_format(resource, type, is_community_resource),
-        "title" => get_title(resource),
-        "last_import" => DateTime.utc_now() |> DateTime.to_string(),
-        "last_update" => resource["last_modified"],
-        # For ODS gtfs as csv we do not have a 'latest' field
-        # (the 'latest' field is the stable data.gouv.fr url)
-        "latest_url" => resource["latest"] || resource["url"],
-        "filetype" => resource["filetype"],
-        "type" => resource["type"],
-        "id" => existing_resource[:id],
-        "datagouv_id" => resource["id"],
-        "is_available" => availability_checker().available?(resource),
-        "is_community_resource" => is_community_resource,
-        "community_resource_publisher" => get_publisher(resource),
-        "description" => resource["description"],
-        "filesize" => resource["filesize"],
-        "content_hash" => hasher().get_content_hash(resource["url"]),
-        "original_resource_url" => get_original_resource_url(resource),
-        "schema_name" => ResourceSchema.guess_name(resource, type),
-        "schema_version" => ResourceSchema.guess_version(resource),
-        "metadata" => resource["metadata"]
-      }
+      {%{
+         "url" => resource["url"],
+         "format" => formated_format(resource, type, is_community_resource),
+         "title" => get_title(resource),
+         "last_import" => DateTime.utc_now() |> DateTime.to_string(),
+         "last_update" => resource["last_modified"],
+         # For ODS gtfs as csv we do not have a 'latest' field
+         # (the 'latest' field is the stable data.gouv.fr url)
+         "latest_url" => resource["latest"] || resource["url"],
+         "filetype" => resource["filetype"],
+         "type" => resource["type"],
+         "id" => existing_resource[:id],
+         "datagouv_id" => resource["id"],
+         "is_available" => availability_checker().available?(resource),
+         "is_community_resource" => is_community_resource,
+         "community_resource_publisher" => get_publisher(resource),
+         "description" => resource["description"],
+         "filesize" => resource["filesize"],
+         "content_hash" => hasher().get_content_hash(resource["url"]),
+         "original_resource_url" => get_original_resource_url(resource),
+         "schema_name" => ResourceSchema.guess_name(resource, type),
+         "schema_version" => ResourceSchema.guess_version(resource),
+         "metadata" => resource["metadata"],
+         "display_position" => display_position
+       }, display_position + 1}
     end)
+    |> elem(0)
     |> maybe_filter_resources(type)
   end
 
@@ -620,6 +622,9 @@ defmodule Transport.ImportData do
       iex> ImportData.formated_format(%{"title" => "Export au format GeoJSON", "format" => "json"}, "low-emission-zones", false)
       "geojson"
 
+      iex> ImportData.formated_format(%{"url" => "https://data.strasbourg.eu/api/datasets/1.0/zfe_voie_exception/alternative_exports/zfe_voie_speciale_eurometropole_strasbourg_geojson", "format" => "a"}, "low-emission-zones", false)
+      "geojson"
+
       iex> ImportData.formated_format(%{"format" => "GeoJSON"}, "low-emission-zones", false)
       "geojson"
   """
@@ -645,6 +650,7 @@ defmodule Transport.ImportData do
   # Classify GeoJSONs from ODS as geojson instead of json
   # See https://github.com/opendatateam/udata-ods/issues/211
   defp is_geojson?(%{"title" => "Export au format GeoJSON"}, _), do: true
+  defp is_geojson?(%{"url" => url}, format), do: is_format?(format, ["geojson"]) or String.ends_with?(url, "geojson")
   defp is_geojson?(_, format), do: is_format?(format, ["geojson"])
 
   defp is_gbfs?(%{"url" => url}) do

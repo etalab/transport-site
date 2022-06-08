@@ -45,8 +45,10 @@ defmodule Unlock.MixProject do
       {:yaml_elixir, "~> 2.7"},
       {:cachex, "~> 3.4"},
       {:cors_plug, "~> 2.0"},
+      {:saxy, "~> 1.4"},
       {:mox, "~> 1.0.0", only: :test},
-      {:ymlr, "~> 2.0", only: :test}
+      {:ymlr, "~> 2.0", only: :test},
+      {:ecto, "~> 3.7", only: :test}
     ]
   end
 end

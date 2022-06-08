@@ -106,6 +106,34 @@ For local work, you will have (for now at least) to add `proxy.localhost 127.0.0
 
 The app currently routes whatever starts with `proxy.` to the proxy (as implemented [here](https://github.com/etalab/transport-site/blob/master/apps/transport/lib/transport_web/plugs/router.ex)), although in the future we will probably use a more explicit configuration.
 
+## Configuring OAuth to work with demo.data.gouv.fr
+
+By default the development configuration is very simple and only allows the most basic scenarios.
+
+If you need to login via `demo.data.gouv.fr`, follow these steps:
+
+* Create or edit `config/dev.secret.exs`
+* Add:
+
+```elixir
+config :oauth2, Datagouvfr.Authentication,
+  # go to CleverCloud staging site and pick `DATAGOUVFR_CLIENT_ID`
+  client_id: "TODO-REPLACE",
+  # same but use `DATAGOUVFR_CLIENT_SECRET`
+  client_secret: "TODO-REPLACE"
+```
+
+Then make sure to restart the app.
+
+The rest of the configuration is already set via `dev.exs`, with:
+
+```elixir
+config :oauth2, Datagouvfr.Authentication,
+  # SNIP
+  site: "https://demo.data.gouv.fr",
+  redirect_uri: "http://localhost:5000/login/callback"
+```
+
 ## Development
 
 ### Testing
@@ -149,7 +177,7 @@ MIX_ENV=test mix coveralls
 
 The coverage is written on screen by default, or in the `cover` subfolders for HTML output.
 
-Running in `--umbrella` mode will generate coverage report at the top-level `cover` folder, while running without it will generate reports under each umbrella sub-app (e.g. `apps/db/cover`).
+Running in `--umbrella` mode will generate coverage report at the top-level `cover` folder, while running without it will generate reports under each umbrella sub-app (e.g. `apps/transport/cover`).
 
 ### Linting
 
@@ -166,9 +194,9 @@ To extract all translations from the source, you can run `mix gettext.extract --
 #### DB migrations
 
 To generate a new migration file:
-`cd apps/db && mix ecto.gen.migration <name of the migration> && cd ..`
+`cd apps/transport && mix ecto.gen.migration <name of the migration> && cd ../..`
 
-The generated [ecto](https://hexdocs.pm/ecto/Ecto.html) migration file will be `apps/db/priv/repo/migrations/<timestamp>_<name of the migration>.exs`
+The generated [ecto](https://hexdocs.pm/ecto/Ecto.html) migration file will be `apps/transport/priv/repo/migrations/<timestamp>_<name of the migration>.exs`
 
 To apply all migrations on you database:
 `mix ecto.migrate`

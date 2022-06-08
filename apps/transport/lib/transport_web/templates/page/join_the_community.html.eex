@@ -23,10 +23,7 @@
           <%= dgettext("page-producteurs", "Read tutorials and users testimonies") %>
         </div>
         <div class="pt-12">
-          <a href="https://blog.transport.data.gouv.fr">
-            <button class="button-outline primary">
-              <%= dgettext("page-producteurs", "Go to transport.data.gouv.fr blog") %>
-            </button>
+          <a  class="button-outline primary" href="https://blog.transport.data.gouv.fr" ><%= dgettext("page-producteurs", "Go to transport.data.gouv.fr blog") %>
           </a>
         </div>
       </div>

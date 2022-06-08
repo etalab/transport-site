@@ -1,0 +1,17 @@
+{
+   "Rules":[
+      {
+         "Expiration":{
+            "Days":90
+         },
+         "ID":"delete-after-90-days",
+         "Filter":{
+            "Prefix":"",
+            "And":{
+               "Prefix":"*"
+            }
+         },
+         "Status":"Enabled"
+      }
+   ]
+}

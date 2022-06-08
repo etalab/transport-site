@@ -112,7 +112,9 @@ config :transport,
   jsonschema_validator_impl: Shared.Validation.JSONSchemaValidator,
   tableschema_validator_impl: Shared.Validation.TableSchemaValidator,
   schemas_impl: Transport.Shared.Schemas,
-  hasher_impl: Hasher
+  hasher_impl: Hasher,
+  validator_selection: Transport.ValidatorsSelection.Impl,
+  data_visualization: Transport.DataVisualization.Impl
 
 # Datagouv IDs for national databases created automatically.
 # These are IDs used in staging, demo.data.gouv.fr
@@ -128,12 +130,15 @@ config :transport,
   }
 
 config :transport,
-  domains_hosting_static_files: ["static.data.gouv.fr", "demo-static.data.gouv.fr", "tipi.bison-fute.gouv.fr"]
+  datagouv_static_hosts: ["static.data.gouv.fr", "demo-static.data.gouv.fr"],
+  bison_fute_host: "tipi.bison-fute.gouv.fr"
 
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API,
   authentication_impl: Datagouvfr.Authentication,
-  user_impl: Datagouvfr.Client.User
+  user_impl: Datagouvfr.Client.User,
+  datagouvfr_reuses: Datagouvfr.Client.Reuses,
+  datagouvfr_discussions: Datagouvfr.Client.Discussions
 
 config :ex_json_schema,
        :remote_schema_resolver,
@@ -152,6 +157,20 @@ config :ex_aws,
     host: "cellar-c2.services.clever-cloud.com"
   ],
   json_codec: Jason
+
+config :ex_aws, :database_backup_source,
+  access_key_id: System.get_env("DATABASE_BACKUP_SOURCE_ACCESS_KEY_ID"),
+  secret_access_key: System.get_env("DATABASE_BACKUP_SOURCE_SECRET_ACCESS_KEY"),
+  bucket_name: System.get_env("DATABASE_BACKUP_SOURCE_BUCKET_NAME"),
+  host: System.get_env("DATABASE_BACKUP_SOURCE_HOST"),
+  region: System.get_env("DATABASE_BACKUP_SOURCE_REGION")
+
+config :ex_aws, :database_backup_destination,
+  access_key_id: System.get_env("DATABASE_BACKUP_DESTINATION_ACCESS_KEY_ID"),
+  secret_access_key: System.get_env("DATABASE_BACKUP_DESTINATION_SECRET_ACCESS_KEY"),
+  bucket_name: System.get_env("DATABASE_BACKUP_DESTINATION_BUCKET_NAME"),
+  host: System.get_env("DATABASE_BACKUP_DESTINATION_HOST"),
+  region: System.get_env("DATABASE_BACKUP_DESTINATION_REGION")
 
 config :transport,
   domain_name: System.get_env("DOMAIN_NAME", "transport.data.gouv.fr"),

@@ -95,7 +95,8 @@ oban_crontab_all_envs =
         {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
         {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}},
         {"20 */2 * * *", Transport.Jobs.GTFSRTEntitiesDispatcherJob},
-        {"30 */6 * * *", Transport.Jobs.BNLCToGeoData}
+        {"30 */6 * * *", Transport.Jobs.BNLCToGeoData},
+        {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob}
       ]
 
     :dev ->
@@ -105,11 +106,11 @@ oban_crontab_all_envs =
       []
   end
 
-# Oban jobs that *should not* be run in staging (ie on prochainement) by the crontab
-non_staging_crontab =
-  if app_env == :staging do
-    []
-    # Oban jobs that should be run in all envs, *except* staging
+# Oban Jobs that only run on the production server.
+production_server_crontab =
+  if app_env == :production and config_env() == :prod do
+    # those validations can be heavy for the validators, we run them only on the production server
+    [{"0 2,8,14,20 * * *", Transport.Jobs.ResourceHistoryValidationJob}]
   else
     []
   end
@@ -119,10 +120,10 @@ extra_oban_conf =
     [queues: false, plugins: false]
   else
     [
-      queues: [default: 2, heavy: 1, on_demand_validation: 1],
+      queues: [default: 2, heavy: 1, on_demand_validation: 1, resource_history_validation: 1],
       plugins: [
         {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
-        {Oban.Plugins.Cron, crontab: List.flatten(oban_crontab_all_envs, non_staging_crontab)}
+        {Oban.Plugins.Cron, crontab: List.flatten(oban_crontab_all_envs, production_server_crontab)}
       ]
     ]
   end

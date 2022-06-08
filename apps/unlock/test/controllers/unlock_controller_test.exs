@@ -1,10 +1,12 @@
 defmodule Unlock.ControllerTest do
   # async false until we stub Cachex calls or use per-test cache name
-  # and also due to our current global mox use
+  # and also due to our current global mox use, and capture_log
   use ExUnit.Case, async: false
   use Plug.Test
   import Phoenix.ConnTest
   @endpoint Unlock.Endpoint
+
+  import ExUnit.CaptureLog
 
   import Mox
   setup :verify_on_exit!
@@ -30,14 +32,34 @@ defmodule Unlock.ControllerTest do
     |> stub(:fetch_config!, fn -> config end)
   end
 
-  describe "GET /resource/:slug" do
+  describe "GET /resource/:slug (on a SIRI item)" do
+    test "responds with 501 for now" do
+      slug = "an-existing-identifier"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.SIRI{
+          identifier: slug,
+          target_url: "http://localhost/some-remote-resource",
+          requestor_ref: "the-ref"
+        }
+      })
+
+      resp =
+        build_conn()
+        |> get("/resource/an-existing-identifier")
+
+      assert text_response(resp, 501) =~ "Not Implemented"
+    end
+  end
+
+  describe "GET /resource/:slug (on a GTFS-RT item)" do
     test "handles a regular read" do
       slug = "an-existing-identifier"
 
       ttl_in_seconds = 30
 
       setup_proxy_config(%{
-        slug => %Unlock.Config.Item{
+        slug => %Unlock.Config.Item.GTFS.RT{
           identifier: slug,
           target_url: target_url = "http://localhost/some-remote-resource",
           ttl: ttl_in_seconds
@@ -150,7 +172,7 @@ defmodule Unlock.ControllerTest do
 
     test "handles optional hardcoded request headers" do
       setup_proxy_config(%{
-        "some-identifier" => %Unlock.Config.Item{
+        "some-identifier" => %Unlock.Config.Item.GTFS.RT{
           identifier: "some-identifier",
           target_url: "http://localhost/some-remote-resource",
           ttl: 10,
@@ -184,7 +206,7 @@ defmodule Unlock.ControllerTest do
       identifier = "foo"
 
       setup_proxy_config(%{
-        identifier => %Unlock.Config.Item{
+        identifier => %Unlock.Config.Item.GTFS.RT{
           identifier: identifier,
           target_url: url,
           ttl: 10
@@ -196,12 +218,17 @@ defmodule Unlock.ControllerTest do
         raise RuntimeError
       end)
 
-      resp = build_conn() |> get("/resource/#{identifier}")
+      logs =
+        capture_log(fn ->
+          resp = build_conn() |> get("/resource/#{identifier}")
 
-      # Got an exception, nothing is stored in cache
-      assert {:ok, []} == Cachex.keys(Unlock.Cachex)
-      assert resp.status == 502
-      assert resp.resp_body == "Bad Gateway"
+          # Got an exception, nothing is stored in cache
+          assert {:ok, []} == Cachex.keys(Unlock.Cachex)
+          assert resp.status == 502
+          assert resp.resp_body == "Bad Gateway"
+        end)
+
+      assert logs =~ ~r/RuntimeError/
 
       verify!(Unlock.HTTP.Client.Mock)
     end
@@ -214,8 +241,13 @@ defmodule Unlock.ControllerTest do
   end
 
   defp setup_telemetry_handler do
-    events = Transport.Telemetry.proxy_request_event_names()
-    events |> Enum.at(1) |> :telemetry.list_handlers() |> Enum.map(& &1.id) |> Enum.each(&:telemetry.detach/1)
+    events = Unlock.Telemetry.proxy_request_event_names()
+
+    events
+    |> Enum.at(1)
+    |> :telemetry.list_handlers()
+    |> Enum.map(& &1.id)
+    |> Enum.each(&:telemetry.detach/1)
 
     test_pid = self()
     # inspired by https://github.com/dashbitco/broadway/blob/main/test/broadway_test.exs

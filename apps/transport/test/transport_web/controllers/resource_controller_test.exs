@@ -11,6 +11,8 @@ defmodule TransportWeb.ResourceControllerTest do
   @service_alerts_file "#{__DIR__}/../../fixture/files/bibus-brest-gtfs-rt-alerts.pb"
 
   setup do
+    Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
+
     {:ok, _} =
       %Dataset{
         slug: "slug-1",
@@ -273,6 +275,28 @@ defmodule TransportWeb.ResourceControllerTest do
 
     conn = conn |> get(resource_path(conn, :details, resource_id))
     refute conn |> html_response(200) =~ "supprimé de data.gouv.fr"
+  end
+
+  test "GTFS Transport validation is shown", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset)
+
+    %{id: resource_id} =
+      insert(:resource, %{dataset_id: dataset_id, format: "GTFS", datagouv_id: datagouv_id = "datagouv_id"})
+
+    conn1 = conn |> get(resource_path(conn, :details, resource_id))
+    assert conn1 |> html_response(200) =~ "Pas de validation disponible"
+
+    %{id: resource_history_id} = insert(:resource_history, %{datagouv_id: datagouv_id})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id,
+      validator: Transport.Validators.GTFSTransport.validator_name(),
+      result: %{},
+      metadata: %{metadata: %{}}
+    })
+
+    conn2 = conn |> get(resource_path(conn, :details, resource_id))
+    assert conn2 |> html_response(200) =~ "Rapport de validation"
   end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do

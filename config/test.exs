@@ -28,7 +28,7 @@ config :transport,
   ex_aws_impl: Transport.ExAWS.Mock,
   httpoison_impl: Transport.HTTPoison.Mock,
   history_impl: Transport.History.Fetcher.Mock,
-  gtfs_validator: Validation.Validator.Mock,
+  gtfs_validator: Shared.Validation.Validator.Mock,
   gbfs_validator_impl: Shared.Validation.GBFSValidator.Mock,
   rambo_impl: Transport.Rambo.Mock,
   notifications_impl: Transport.Notifications.FetcherMock,
@@ -38,6 +38,8 @@ config :transport,
   tableschema_validator_impl: Shared.Validation.TableSchemaValidator.Mock,
   schemas_impl: Transport.Shared.Schemas.Mock,
   hasher_impl: Hasher.Mock,
+  validator_selection: Transport.ValidatorsSelection.Mock,
+  data_visualization: Transport.DataVisualization.Mock,
   notifications_api_token: "secret",
   s3_buckets: %{
     history: "resource-history-test",
@@ -47,10 +49,16 @@ config :transport,
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"
 
+config :ex_aws, :database_backup_source, bucket_name: "fake_source_bucket_name"
+
+config :ex_aws, :database_backup_destination, bucket_name: "fake_destination_bucket_name"
+
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.Mock,
   authentication_impl: Datagouvfr.Authentication.Mock,
-  user_impl: Datagouvfr.Client.User.Mock
+  user_impl: Datagouvfr.Client.User.Mock,
+  datagouvfr_reuses: Datagouvfr.Client.Reuses.Mock,
+  datagouvfr_discussions: Datagouvfr.Client.Discussions.Mock
 
 # capture all info logs and up during tests
 config :logger, level: :debug

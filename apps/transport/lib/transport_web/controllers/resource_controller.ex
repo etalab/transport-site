@@ -1,7 +1,7 @@
 defmodule TransportWeb.ResourceController do
   use TransportWeb, :controller
-  alias Datagouvfr.Client.{Datasets, Resources, Validation}
-  alias DB.{Dataset, Repo, Resource, Validation}
+  alias Datagouvfr.Client.{Datasets, Resources}
+  alias DB.{Dataset, Repo, Resource}
   alias Transport.DataVisualization
   alias Transport.ImportData
   require Logger
@@ -13,6 +13,7 @@ defmodule TransportWeb.ResourceController do
     resource =
       Resource
       |> Repo.get!(id)
+      # loading the v1 validation (to be removed later)
       |> Repo.preload([:validation, dataset: [:resources]])
 
     conn =
@@ -22,7 +23,7 @@ defmodule TransportWeb.ResourceController do
       |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
       |> put_resource_flash(resource.dataset.is_active)
 
-    if Resource.is_gtfs?(resource) and Resource.has_metadata?(resource) do
+    if Resource.is_gtfs?(resource) do
       render_gtfs_details(conn, params, resource)
     else
       conn |> assign(:resource, resource) |> render("details.html")
@@ -66,7 +67,21 @@ defmodule TransportWeb.ResourceController do
 
   defp render_gtfs_details(conn, params, resource) do
     config = make_pagination_config(params)
-    issues = resource.validation |> Validation.get_issues(params)
+
+    validation =
+      resource.id
+      |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)
+
+    {validation_summary, severities_count, metadata, issues} =
+      case validation do
+        %{result: validation_result, metadata: %{metadata: metadata}} ->
+          {Transport.Validators.GTFSTransport.summary(validation_result),
+           Transport.Validators.GTFSTransport.count_by_severity(validation_result), metadata,
+           Transport.Validators.GTFSTransport.get_issues(validation_result, params)}
+
+        nil ->
+          {nil, nil, nil, []}
+      end
 
     issue_type =
       case params["issue_type"] do
@@ -74,25 +89,29 @@ defmodule TransportWeb.ResourceController do
         issue_type -> issue_type
       end
 
-    issue_data_vis = resource.validation.data_vis[issue_type]
-    has_features = DataVisualization.has_features(issue_data_vis["geojson"])
-
-    encoded_data_vis =
-      case {has_features, Jason.encode(issue_data_vis)} do
-        {false, _} -> nil
-        {true, {:ok, encoded_data_vis}} -> encoded_data_vis
-        _ -> nil
-      end
-
     conn
     |> assign(:related_files, Resource.get_related_files(resource))
     |> assign(:resource, resource)
     |> assign(:other_resources, Resource.other_resources(resource))
     |> assign(:issues, Scrivener.paginate(issues, config))
-    |> assign(:data_vis, encoded_data_vis)
-    |> assign(:validation_summary, Validation.summary(resource.validation))
-    |> assign(:severities_count, Validation.count_by_severity(resource.validation))
+    |> assign(:data_vis, encoded_data_vis(issue_type, validation))
+    |> assign(:validation_summary, validation_summary)
+    |> assign(:severities_count, severities_count)
+    |> assign(:metadata, metadata)
     |> render("gtfs_details.html")
+  end
+
+  def encoded_data_vis(_, nil), do: nil
+
+  def encoded_data_vis(issue_type, validation) do
+    issue_data_vis = validation.data_vis[issue_type]
+    has_features = DataVisualization.has_features(issue_data_vis["geojson"])
+
+    case {has_features, Jason.encode(issue_data_vis)} do
+      {false, _} -> nil
+      {true, {:ok, encoded_data_vis}} -> encoded_data_vis
+      _ -> nil
+    end
   end
 
   def choose_action(conn, _), do: render(conn, "choose_action.html")

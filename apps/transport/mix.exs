@@ -62,8 +62,7 @@ defmodule Transport.Mixfile do
       {:timex, "~> 3.7"},
       {:sentry, "~> 8.0"},
       {:scrivener, "~> 2.5"},
-      # We'll use upstream again once https://github.com/mgwidmann/scrivener_html/pull/97 is merged
-      {:scrivener_html, git: "https://github.com/thbar/scrivener_html.git", ref: "c579ed1"},
+      {:scrivener_html, git: "https://github.com/mgwidmann/scrivener_html.git", ref: "9224d1"},
       {:scrivener_list, "~>2.0"},
       {:jason, "~> 1.1"},
       {:open_api_spex, "~> 3.8"},
@@ -87,19 +86,19 @@ defmodule Transport.Mixfile do
       # conservatively waiting for https://github.com/sorentwo/oban/issues/652
       # to be fixed before upgrading
       {:oban, "~> 2.10.1"},
-      {:unzip, "~> 0.6.0"},
-      {:protobuf, "~> 0.9.0"},
+      {:unzip, "~> 0.7.0"},
+      {:protobuf, "~> 0.10.0"},
       {:nimble_csv, "~> 1.2.0"},
-      {:kino, "~> 0.5.2", only: :dev},
+      {:kino, "~> 0.6", only: :dev},
       # db
-      {:ecto, "~> 3.7.0"},
-      {:ecto_sql, "~> 3.7.0"},
+      {:ecto, "~> 3.7"},
+      {:ecto_sql, "~> 3.7"},
       {:postgrex, ">= 0.0.0"},
       {:geo_postgis, "~> 3.4"},
       {:ecto_interval, "~> 0.2.5"},
       {:scrivener_ecto, "~> 2.7.0"},
       {:typed_ecto_schema, ">= 0.1.1"},
-      {:ex_machina, "~> 2.4", only: :test},
+      {:ex_machina, "~> 2.4", only: :test}
     ]
   end
 end

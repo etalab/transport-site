@@ -22,6 +22,9 @@
         <div id="menu-item-visualisation" class="menu-item"><a href="#dataset-visualisation"><%= dgettext("page-dataset-details", "Visualization")%></a></div>
       <% end %>
       <div class="menu-item"><a href="#dataset-resources"><%= dgettext("page-dataset-details", "Resources")%> (<%= count_resources(@dataset) %>)</a></div>
+      <%= unless count_documentation_resources(@dataset) == 0 do %>
+        <div class="menu-item"><a href="#dataset-documentation"><%= dgettext("page-dataset-details", "Documentation")%></a></div>
+      <% end %>
       <%= unless is_nil(@reuses) or @reuses == [] do %>
         <div class="menu-item"><a href="#dataset-reuses"><%= dgettext("page-dataset-details", "Reuses")%></a></div>
       <% end %>
@@ -65,11 +68,15 @@
       <% gtfs_official_resources= gtfs_official_resources(@dataset) %>
       <% show_history_section_link= @history_resources !== [] and gtfs_official_resources !== [] %>
 
-      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, unavailabilities: @unavailabilities, resources_updated_at: @resources_updated_at, resources: gtfs_official_resources, resources_related_files: @resources_related_files, dataset: @dataset, title: dgettext("page-dataset-details", "GTFS resources"), show_history_section_link: show_history_section_link %>
-      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, unavailabilities: @unavailabilities, resources_updated_at: @resources_updated_at, resources: real_time_official_resources(@dataset), title: dgettext("page-dataset-details", "Real time resources") %>
-      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, unavailabilities: @unavailabilities, resources_updated_at: @resources_updated_at, resources: netex_official_resources(@dataset), title: dgettext("page-dataset-details", "NeTEx resources") %>
-      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, unavailabilities: @unavailabilities, resources_updated_at: @resources_updated_at, resources: other_official_resources(@dataset), title: dgettext("page-dataset-details", "Resources"), latest_resources_history_infos: @latest_resources_history_infos %>
-      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, unavailabilities: @unavailabilities, resources_updated_at: @resources_updated_at, resources: unavailable_resources(@dataset), dataset: @dataset, title: dgettext("page-dataset-details", "unavailable resources"), message: dgettext("page-dataset-details", "Those resources are listed by the provider but are unreachable for now"), latest_resources_history_infos: @latest_resources_history_infos%>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: gtfs_official_resources, resources_related_files: @resources_related_files, dataset: @dataset, title: dgettext("page-dataset-details", "GTFS resources"), show_history_section_link: show_history_section_link %>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: real_time_official_resources(@dataset), title: dgettext("page-dataset-details", "Real time resources") %>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: netex_official_resources(@dataset), title: dgettext("page-dataset-details", "NeTEx resources") %>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: other_official_resources(@dataset), title: dgettext("page-dataset-details", "Resources"), latest_resources_history_infos: @latest_resources_history_infos %>
+      <section id="dataset-documentation" class="pt-48">
+        <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: official_documentation_resources(@dataset), title: dgettext("page-dataset-details", "Documentation"), latest_resources_history_infos: @latest_resources_history_infos %>
+      </section>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: unavailable_resources(@dataset), dataset: @dataset, title: dgettext("page-dataset-details", "unavailable resources"), message: dgettext("page-dataset-details", "Those resources are listed by the provider but are unreachable for now"), latest_resources_history_infos: @latest_resources_history_infos%>
+
       <%= render "_reuser_message.html" %>
       <% community_resources = community_resources(@dataset) %>
       <%= unless community_resources == [] do %>
@@ -245,14 +252,10 @@
     </div>
     <div class="pt-12">
       <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Data type")%></span>
-      <div class="dataset-type-info">
-        <%= unless is_nil(icon_type_path(@dataset)) do %>
-          <span class="dataset-icon-type">
-            <%= img_tag(icon_type_path(@dataset), alt: @dataset.type) %>
-          </span>
-        <% end %>
-        <b><%= Dataset.type_to_str(@dataset.type) %></b>
-      </div>
+      <%= render "_dataset_type.html", conn: @conn, link: dataset_path(@conn, :index, type: @dataset.type), text: Dataset.type_to_str(@dataset.type), icon: icon_type_path(@dataset) %>
+      <%= if is_real_time_public_transit?(@dataset) do %>
+        <%= render "_dataset_type.html", conn: @conn, link: dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime"), text: dgettext("page-index", "Public transport - realtime traffic"), icon: icon_type_path("real-time-public-transit") %>
+      <% end %>
     </div>
     <div class="pt-12">
       <%= render "_licence.html", conn: @conn, dataset: @dataset %>

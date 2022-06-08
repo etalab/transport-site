@@ -10,6 +10,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
   setup :verify_on_exit!
 
   setup do
+    Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -22,7 +23,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
     test "with a GTFS" do
       validation = create_validation(%{"type" => "gtfs"})
 
-      Validation.Validator.Mock
+      Shared.Validation.Validator.Mock
       |> expect(:validate_from_url, fn url ->
         assert url == @url
 
@@ -43,20 +44,20 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       assert :ok == run_job(validation)
 
       assert %{
-               date: date,
-               details: %{},
-               on_the_fly_validation_metadata: %{"state" => "completed", "type" => "gtfs", "modes" => ["bus"]},
+               validation_timestamp: date,
+               result: %{},
+               oban_args: %{"state" => "completed", "type" => "gtfs"},
+               metadata: %{metadata: %{"modes" => ["bus"]}},
                data_vis: %{}
-             } = DB.Repo.reload(validation)
+             } = validation |> DB.Repo.reload() |> DB.Repo.preload(:metadata)
 
-      assert {:ok, dt, 0} = DateTime.from_iso8601(date)
-      assert DateTime.diff(dt, DateTime.utc_now()) <= 1
+      assert DateTime.diff(date, DateTime.utc_now()) <= 1
     end
 
     test "GTFS with an error" do
       validation = create_validation(%{"type" => "gtfs"})
 
-      Validation.Validator.Mock
+      Shared.Validation.Validator.Mock
       |> expect(:validate_from_url, fn url ->
         assert url == @url
         {:error, "something happened"}
@@ -67,8 +68,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       assert :ok == run_job(validation)
 
       assert %{
-               details: nil,
-               on_the_fly_validation_metadata: %{
+               result: nil,
+               oban_args: %{
                  "state" => "error",
                  "error_reason" => "something happened",
                  "type" => "gtfs"
@@ -94,8 +95,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       assert :ok == run_job(validation)
 
       assert %{
-               details: ^validation_result,
-               on_the_fly_validation_metadata: %{
+               result: ^validation_result,
+               oban_args: %{
                  "state" => "completed",
                  "type" => "tableschema",
                  "schema_name" => ^schema_name
@@ -129,8 +130,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       assert :ok == run_job(validation)
 
       assert %{
-               details: ^validation_result,
-               on_the_fly_validation_metadata: %{
+               result: ^validation_result,
+               oban_args: %{
                  "state" => "completed",
                  "type" => "jsonschema",
                  "schema_name" => ^schema_name
@@ -154,8 +155,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       assert :ok == run_job(validation)
 
       assert %{
-               details: nil,
-               on_the_fly_validation_metadata: %{
+               result: nil,
+               oban_args: %{
                  "state" => "error",
                  "type" => "jsonschema",
                  "schema_name" => ^schema_name
@@ -206,8 +207,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       {:ok, expected_details} = GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
 
       assert %{
-               details: ^expected_details,
-               on_the_fly_validation_metadata: %{
+               result: ^expected_details,
+               oban_args: %{
                  "state" => "completed",
                  "type" => "gtfs-rt",
                  "gtfs_url" => ^gtfs_url,
@@ -239,8 +240,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       assert :ok == run_job(validation)
 
       assert %{
-               details: nil,
-               on_the_fly_validation_metadata: %{
+               result: nil,
+               oban_args: %{
                  "state" => "error",
                  "error_reason" => "Got a non 200 status: 404",
                  "type" => "gtfs-rt",
@@ -295,8 +296,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       assert :ok == run_job(validation)
 
       assert %{
-               details: nil,
-               on_the_fly_validation_metadata: %{
+               result: nil,
+               oban_args: %{
                  "state" => "error",
                  "error_reason" => ~s("validator error"),
                  "type" => "gtfs-rt",
@@ -319,12 +320,13 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
         Map.merge(details, %{"filename" => @filename, "permanent_url" => @url})
       end
 
-    metadata = Map.merge(%{"state" => "waiting"}, details)
-    insert(:validation, on_the_fly_validation_metadata: metadata)
+    oban_args = Map.merge(%{"state" => "waiting"}, details)
+
+    insert(:multi_validation, oban_args: oban_args)
   end
 
-  defp run_job(%DB.Validation{} = validation) do
-    payload = Map.merge(%{"id" => validation.id}, validation.on_the_fly_validation_metadata)
+  defp run_job(%DB.MultiValidation{} = validation) do
+    payload = Map.merge(%{"id" => validation.id}, validation.oban_args)
     perform_job(OnDemandValidationJob, payload)
   end
 
