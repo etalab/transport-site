@@ -140,7 +140,7 @@ defmodule Transport.StatsHandler do
     Repo.aggregate(Dataset, :sum, :nb_reuses) || 0
   end
 
-  defp count_dataset_with_format(format) do
+  def count_dataset_with_format(format) do
     Resource
     |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([_r, d], d.is_active)
