@@ -113,6 +113,13 @@ defmodule Unlock.Controller do
     # TODO: post to remote server
     # TODO: forward body
     # TODO: set headers
+
+    {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
+
+    parsed = Unlock.SIRI.parse_incoming(body)
+
+    IO.inspect(parsed, IEx.inspect_opts())
+
     conn
     |> put_status(501)
     |> text("Not Implemented")
