@@ -64,6 +64,7 @@ defmodule Unlock.Controller do
     config = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
 
     resource = Map.get(config, id)
+    # TODO: ensure GET for GTFS-RT and POST for SIRI
 
     if resource do
       conn
