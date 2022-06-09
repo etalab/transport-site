@@ -32,7 +32,7 @@ defmodule Transport.StatsHandlerTest do
     inactive_dataset = insert(:dataset, is_active: false)
     insert(:resource, dataset_id: inactive_dataset.id, format: format = "xxx")
 
-    active_dataset = insert(:dataset,is_active: true)
+    active_dataset = insert(:dataset, is_active: true)
     insert(:resource, dataset_id: active_dataset.id, format: format)
 
     count_resources = count_dataset_with_format(format)
