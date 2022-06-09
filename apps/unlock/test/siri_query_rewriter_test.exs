@@ -13,8 +13,10 @@ defmodule Unlock.SIRI.QueryRewriterTest do
     message_id = "Test::Message::#{Ecto.UUID.generate()}"
     stop_ref = "SomeStopRef"
 
-    assert parsed(build_xml(timestamp, incoming_requestor_ref, message_id, stop_ref)) ==
-             filter_newlines_from_model(parsed(expected_xml(timestamp, incoming_requestor_ref, message_id, stop_ref)))
+    assert parsed(siri_query_from_builder(timestamp, incoming_requestor_ref, message_id, stop_ref)) ==
+             filter_newlines_from_model(
+               parsed(siri_query_from_template(timestamp, incoming_requestor_ref, message_id, stop_ref))
+             )
   end
 
   test "dynamic requestor_ref modification and service verification" do
