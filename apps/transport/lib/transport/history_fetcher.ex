@@ -23,7 +23,7 @@ defmodule Transport.History.Fetcher.Database do
   @impl true
   def history_resources(%Dataset{id: dataset_id}) do
     ResourceHistory
-    |> join(:left, [rh], r in Resource, on: rh.datagouv_id == r.datagouv_id and r.dataset_id == ^dataset_id)
+    |> join(:left, [rh], r in Resource, on: rh.resource_id == r.id and r.dataset_id == ^dataset_id)
     |> where([_rh, r], not is_nil(r.id) or fragment("cast(payload->>'dataset_id' as bigint) = ?", ^dataset_id))
     |> order_by([rh, _r], desc: rh.inserted_at)
     |> select([rh, _r], rh)

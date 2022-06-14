@@ -43,13 +43,12 @@ defmodule DB.MultiValidation do
   def resource_latest_validation(resource_id, validator) do
     validator_name = validator.validator_name()
 
-    # when resource and resource_history are linked by the resource id,
-    # the join with resource will be removed in this query.
     DB.MultiValidation
-    |> join(:left, [mv], rh in DB.ResourceHistory, on: rh.id == mv.resource_history_id)
-    |> join(:left, [mv, rh], r in DB.Resource, on: r.datagouv_id == rh.datagouv_id)
-    |> where([mv, rh, r], mv.validator == ^validator_name and r.id == ^resource_id)
-    |> order_by([mv, rh, r], desc: rh.inserted_at, desc: mv.validation_timestamp)
+    |> join(:left, [mv], rh in DB.ResourceHistory,
+      on: rh.id == mv.resource_history_id and rh.resource_id == ^resource_id
+    )
+    |> where([mv, rh], mv.validator == ^validator_name)
+    |> order_by([mv, rh], desc: rh.inserted_at, desc: mv.validation_timestamp)
     |> preload(:metadata)
     |> limit(1)
     |> DB.Repo.one()
@@ -67,11 +66,11 @@ defmodule DB.MultiValidation do
 
     latest_resource_history =
       DB.ResourceHistory
-      |> distinct([rh], [rh.datagouv_id])
+      |> distinct([rh], [rh.resource_id])
       |> order_by([rh], desc: rh.inserted_at)
 
     DB.Resource
-    |> join(:left, [r], rh in subquery(latest_resource_history), on: rh.datagouv_id == r.datagouv_id)
+    |> join(:left, [r], rh in subquery(latest_resource_history), on: rh.resource_id == r.id)
     |> join(:left, [r, rh], mv in subquery(latest_validations), on: rh.id == mv.resource_history_id)
     |> where([r, rh, mv], r.dataset_id == ^dataset_id)
     |> select([r, rh, mv], {r.id, mv})

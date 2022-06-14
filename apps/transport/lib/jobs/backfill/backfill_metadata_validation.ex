@@ -31,7 +31,7 @@ defmodule Transport.Jobs.Backfill.ResourceHistoryValidationMetadata do
 
   def fetch_next(resource_history_id) do
     ResourceHistory
-    |> join(:inner, [rh], r in Resource, on: r.datagouv_id == rh.datagouv_id)
+    |> join(:inner, [rh], r in Resource, on: r.id == rh.resource_id)
     |> where([rh], rh.id > ^resource_history_id)
     |> where([rh], fragment("payload->'resource_metadata' \\? 'validation'"))
     |> order_by(asc: :id)

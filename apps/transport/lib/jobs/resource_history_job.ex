@@ -45,7 +45,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"resource_id" => resource_id}}) do
-    Logger.info("Running ResourceHistoryJob for #{resource_id}")
+    Logger.info("Running ResourceHistoryJob for resource##{resource_id}")
     resource = Repo.get!(Resource, resource_id)
 
     path = download_path(resource)
