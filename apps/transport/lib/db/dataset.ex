@@ -729,7 +729,7 @@ defmodule DB.Dataset do
   def resources_content_updated_at(%__MODULE__{id: dataset_id}) do
     DB.Resource
     |> join(:left, [r], rh in DB.ResourceHistory, on: rh.resource_id == r.id)
-    |> where([r, _rh], r.dataset_id == ^dataset_id)
+    |> where([r], r.dataset_id == ^dataset_id)
     |> group_by([r, rh], [r.id, rh.resource_id])
     |> select([r, rh], {r.id, count(rh.id), max(fragment("payload ->>'download_datetime'"))})
     |> DB.Repo.all()
