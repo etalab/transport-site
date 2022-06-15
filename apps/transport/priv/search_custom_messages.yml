@@ -153,17 +153,17 @@
       value: charging-stations
   msg:
     fr: |
-        Les jeux de données de cette catégorie décrivent les bornes de recharge électriques.
+        Les jeux de données de cette catégorie décrivent les stations de réapprovisionnement de véhicules : stations essence, GNV ou bornes de recharge électriques.
 
-        Ces données respectent le [schéma national des infrastructures de recharge pour véhicules électriques (IRVE)](https://schema.data.gouv.fr/etalab/schema-irve/).
+        Concernant les bornes, ces données respectent le [schéma national des infrastructures de recharge pour véhicules électriques (IRVE)](https://schema.data.gouv.fr/etalab/schema-irve/).
 
-        La Base Nationale des IRVE regroupe l'ensemble des données publiées conformes au schéma v2 dans une base nationale. Elle est en cours de construction et ne regroupe à ce jour (novembre 2021) que 5000 bornes sur les 20000 bornes installées en France.
+        La Base Nationale des IRVE regroupe l'ensemble des données publiées conformes au schéma v2 dans une base nationale. Elle est en cours de construction et ne regroupe à ce jour (novembre 2021) que 5 000 bornes sur les 20 000 bornes installées en France.
 
 
     en: |
-        The datasets in this category describe electric charging stations.
+        The datasets in this category describe gas, CNG and electric vehicle charging stations.
 
-        These data comply with the [national schema for recharging infrastructure for electric vehicles (IRVE)](https://schema.data.gouv.fr/etalab/schema-irve/).
+        Electric vehicle charging stations data comply with the [national schema for recharging infrastructure for electric vehicles (IRVE)](https://schema.data.gouv.fr/etalab/schema-irve/).
 
         The National IRVE database brings together all the published data in accordance with the v2 schema in a national database. It is under construction and to date (November 2021) only includes 5,000 terminals out of the 20,000 terminals installed in France.
 
