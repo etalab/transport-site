@@ -13,6 +13,7 @@ defmodule DB.MultiValidation do
     field(:command, :string)
     field(:result, :map)
     field(:data_vis, :map)
+    field(:max_error, :string)
 
     # if the validation is enqueued via Oban, this field contains the job arguments
     # and its status (waiting, completed, etc)
