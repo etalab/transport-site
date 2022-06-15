@@ -44,10 +44,8 @@ defmodule DB.MultiValidation do
     validator_name = validator.validator_name()
 
     DB.MultiValidation
-    |> join(:left, [mv], rh in DB.ResourceHistory,
-      on: rh.id == mv.resource_history_id and rh.resource_id == ^resource_id
-    )
-    |> where([mv, rh], mv.validator == ^validator_name)
+    |> join(:inner, [mv], rh in DB.ResourceHistory, on: rh.id == mv.resource_history_id and rh.resource_id == ^resource_id)
+    |> where([mv], mv.validator == ^validator_name)
     |> order_by([mv, rh], desc: rh.inserted_at, desc: mv.validation_timestamp)
     |> preload(:metadata)
     |> limit(1)
