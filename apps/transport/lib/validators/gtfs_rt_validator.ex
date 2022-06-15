@@ -100,8 +100,7 @@ defmodule Transport.Validators.GTFSRT do
 
   def build_validation_details(
         %DB.ResourceHistory{payload: %{"uuid" => uuid, "permanent_url" => permanent_url, "format" => "GTFS"}},
-        %{"has_errors" => _, "errors" => _, "errors_count" => _, "warnings_count" => _, "validator" => _} =
-          validation_report,
+        %{"has_errors" => _, "errors" => _, "errors_count" => _, "warnings_count" => _} = validation_report,
         gtfs_rt_cellar_filename
       ) do
     Map.merge(validation_report, %{
