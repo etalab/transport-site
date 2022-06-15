@@ -30,6 +30,25 @@ defmodule DB.MultiValidation do
     timestamps(type: :utc_datetime_usec)
   end
 
+  def join_resource_history_with_latest_validation(query, validator) do
+    latest_validation =
+      DB.MultiValidation
+      |> where(
+        [mv],
+        mv.resource_history_id == parent_as(:resource_history).id and mv.validator == ^validator
+      )
+      |> order_by([mv], desc: :inserted_at)
+      |> select([mv], mv.id)
+      |> limit(1)
+
+    query
+    |> join(:inner, [resource_history: rh], mv in DB.MultiValidation,
+      on: mv.resource_history_id == rh.id,
+      as: :multi_validation
+    )
+    |> join(:inner_lateral, [multi_validation: mv], latest in subquery(latest_validation), on: latest.id == mv.id)
+  end
+
   @spec already_validated?(map(), module()) :: boolean()
   def already_validated?(%DB.ResourceHistory{id: id}, validator) do
     validator_name = validator.validator_name()
