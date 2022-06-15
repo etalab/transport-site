@@ -728,8 +728,8 @@ defmodule DB.Resource do
   def content_updated_at(resource_id) do
     resource_history_list =
       DB.ResourceHistory
-      |> join(:inner, [rh], r in DB.Resource, on: r.id == rh.resource_id)
-      |> where([rh, _r], fragment("payload \\? 'download_datetime'"))
+      |> where([rh], rh.resource_id == ^resource_id)
+      |> where([rh], fragment("payload \\? 'download_datetime'"))
       |> select([rh], fragment("payload ->>'download_datetime'"))
       |> order_by([rh], desc: fragment("payload ->>'download_datetime'"))
       |> limit(2)
