@@ -20,7 +20,7 @@ defmodule DB.ResourceHistory do
     has_many(:metadata, DB.ResourceMetadata)
   end
 
-  def base_query(), do: from(rh in DB.ResourceHistory, as: :resource_history)
+  def base_query, do: from(rh in DB.ResourceHistory, as: :resource_history)
 
   def join_resource_with_latest_resource_history(query) do
     last_resource_history =

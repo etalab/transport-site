@@ -74,7 +74,7 @@ defmodule DB.Resource do
     has_many(:resource_history, DB.ResourceHistory)
   end
 
-  def base_query(), do: from(r in DB.Resource, as: :resource)
+  def base_query, do: from(r in DB.Resource, as: :resource)
 
   def join_dataset_with_resource(query) do
     query
