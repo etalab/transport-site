@@ -1,4 +1,8 @@
 defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
+  @moduledoc """
+  to be deleted later
+  https://github.com/etalab/transport-site/issues/2390
+  """
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   import Ecto.Query
