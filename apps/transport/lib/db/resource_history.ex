@@ -17,6 +17,22 @@ defmodule DB.ResourceHistory do
     belongs_to(:resource, DB.Resource)
     has_many(:geo_data_import, DB.GeoDataImport)
     has_many(:validations, DB.MultiValidation)
+    has_many(:metadata, DB.ResourceMetadata)
+  end
+
+  def base_query(), do: from(rh in DB.ResourceHistory, as: :resource_history)
+
+  def join_resource_with_latest_resource_history(query) do
+    last_resource_history =
+      DB.ResourceHistory
+      |> where([rh], rh.resource_id == parent_as(:resource).id)
+      |> order_by([rh], desc: :inserted_at)
+      |> select([rh], rh.id)
+      |> limit(1)
+
+    query
+    |> join(:inner, [resource: r], rh in DB.ResourceHistory, on: rh.resource_id == r.id, as: :resource_history)
+    |> join(:inner_lateral, [resource_history: rh], latest in subquery(last_resource_history), on: latest.id == rh.id)
   end
 
   defp latest_resource_history_query(resource_id) do
