@@ -70,6 +70,15 @@ defmodule DB.Resource do
       on_replace: :delete,
       on_delete: :delete_all
     )
+
+    has_many(:resource_history, DB.ResourceHistory)
+  end
+
+  def base_query(), do: from(r in DB.Resource, as: :resource)
+
+  def join_dataset_with_resource(query) do
+    query
+    |> join(:inner, [dataset: d], r in DB.Resource, on: d.id == r.dataset_id, as: :resource)
   end
 
   defp gtfs_validator, do: Shared.Validation.GtfsValidator.Wrapper.impl()
