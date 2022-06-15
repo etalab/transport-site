@@ -5,6 +5,7 @@ defmodule Transport.Jobs.GTFSRTMultiValidationDispatcherJob do
   use Oban.Worker, max_attempts: 3, tags: ["validation"]
   import Ecto.Query
   alias DB.{Repo, Resource}
+  alias Transport.Validators.GTFSTransport
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
@@ -22,7 +23,7 @@ defmodule Transport.Jobs.GTFSRTMultiValidationDispatcherJob do
     resources =
       DB.Resource.base_query()
       |> DB.ResourceHistory.join_resource_with_latest_resource_history()
-      |> DB.MultiValidation.join_resource_history_with_latest_validation("GTFS transport-validator")
+      |> DB.MultiValidation.join_resource_history_with_latest_validation(GTFSTransport.validator_name())
       |> DB.ResourceMetadata.join_validation_with_metadata()
       |> where([resource: r], r.format == "GTFS" and r.is_available)
       |> DB.ResourceMetadata.where_gtfs_up_to_date()
@@ -48,6 +49,8 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
   import Ecto.Query
   alias DB.{Repo, Resource, ResourceHistory}
   alias Transport.Validators.GTFSRT
+  alias Transport.Validators.GTFSTransport
+
   require Logger
 
   defguard is_gtfs_rt(format) when format in ["gtfs-rt", "gtfsrt"]
@@ -102,7 +105,7 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
   def up_to_date_gtfs_resources(dataset_id) do
     Resource.base_query()
     |> DB.ResourceHistory.join_resource_with_latest_resource_history()
-    |> DB.MultiValidation.join_resource_history_with_latest_validation("GTFS transport-validator")
+    |> DB.MultiValidation.join_resource_history_with_latest_validation(GTFSTransport.validator_name())
     |> DB.ResourceMetadata.join_validation_with_metadata()
     |> where([resource: r], r.format == "GTFS" and r.is_available and r.dataset_id == ^dataset_id)
     |> DB.ResourceMetadata.where_gtfs_up_to_date()
