@@ -108,8 +108,6 @@ defmodule Unlock.Controller do
     # TODO: trace :external event
     # TODO: parse XML body to simple struct
     # TODO: protect from memory overload (maybe)
-    # TODO: replace requestor_ref in simple struct
-    # TODO: rebuild request from simple struct
     # TODO: post to remote server
     # TODO: forward body
     # TODO: set headers
@@ -117,8 +115,10 @@ defmodule Unlock.Controller do
     {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
 
     parsed = Unlock.SIRI.parse_incoming(body)
+    # TODO: replace requestor_ref in simple struct
 
-    IO.inspect(parsed, IEx.inspect_opts())
+    body = Saxy.encode_to_iodata!(parsed)
+    IO.puts(body)
 
     conn
     |> put_status(501)
