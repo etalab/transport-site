@@ -153,7 +153,7 @@
       value: charging-stations
   msg:
     fr: |
-        Les jeux de données de cette catégorie décrivent les stations de réapprovisionnement de véhicules : stations essence ou bornes de recharge électriques.
+        Les jeux de données de cette catégorie décrivent les stations de réapprovisionnement de véhicules : stations essence, GNV ou bornes de recharge électriques.
 
         Concernant les bornes, ces données respectent le [schéma national des infrastructures de recharge pour véhicules électriques (IRVE)](https://schema.data.gouv.fr/etalab/schema-irve/).
 
@@ -161,7 +161,7 @@
 
 
     en: |
-        The datasets in this category describe gas stations and electric charging stations.
+        The datasets in this category describe gas, CNG and electric charging stations.
 
         Electric charging stations data comply with the [national schema for recharging infrastructure for electric vehicles (IRVE)](https://schema.data.gouv.fr/etalab/schema-irve/).
 
