@@ -136,7 +136,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
         )
 
       insert(:resource_history,
-        datagouv_id: gtfs.datagouv_id,
+        resource_id: gtfs.id,
         payload: %{"format" => "GTFS", "permanent_url" => gtfs_permanent_url, "uuid" => resource_history_uuid}
       )
 
@@ -155,8 +155,8 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
         {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
       end)
 
-      S3TestUtils.s3_mocks_upload_file(gtfs_rt.datagouv_id)
-      S3TestUtils.s3_mocks_upload_file(gtfs_rt_no_errors.datagouv_id)
+      S3TestUtils.s3_mocks_upload_file(to_string(gtfs_rt.id))
+      S3TestUtils.s3_mocks_upload_file(to_string(gtfs_rt_no_errors.id))
 
       gtfs_path = GTFSRTValidationJob.download_path(gtfs)
       gtfs_rt_path = GTFSRTValidationJob.download_path(gtfs_rt)
@@ -323,7 +323,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
         )
 
       insert(:resource_history,
-        datagouv_id: gtfs.datagouv_id,
+        resource_id: gtfs.id,
         payload: %{"format" => "GTFS", "permanent_url" => gtfs_permanent_url, "uuid" => Ecto.UUID.generate()}
       )
 
@@ -337,7 +337,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
         {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
       end)
 
-      S3TestUtils.s3_mocks_upload_file(gtfs_rt.datagouv_id)
+      S3TestUtils.s3_mocks_upload_file(to_string(gtfs_rt.id))
 
       gtfs_path = GTFSRTValidationJob.download_path(gtfs)
       gtfs_rt_path = GTFSRTValidationJob.download_path(gtfs_rt)

@@ -72,6 +72,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   defp generate_and_upload_conversion(
          %{
            id: resource_history_id,
+           resource_id: resource_id,
            datagouv_id: resource_datagouv_id,
            payload: %{"uuid" => resource_uuid, "permanent_url" => resource_url, "filename" => resource_filename}
          },
@@ -125,6 +126,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
         payload: %{
           filename: conversion_file_name,
           permanent_url: Transport.S3.permanent_url(:history, conversion_file_name),
+          resource_id: resource_id,
           resource_datagouv_id: resource_datagouv_id,
           filesize: filesize
         }

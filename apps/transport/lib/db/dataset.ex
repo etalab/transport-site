@@ -730,10 +730,10 @@ defmodule DB.Dataset do
   @spec resources_content_updated_at(__MODULE__.t()) :: map()
   def resources_content_updated_at(%__MODULE__{id: dataset_id}) do
     DB.Resource
-    |> join(:left, [r], rh in DB.ResourceHistory, on: rh.datagouv_id == r.datagouv_id)
-    |> where([r, rh], r.dataset_id == ^dataset_id)
-    |> group_by([r, rh], [r.id, rh.datagouv_id])
-    |> select([r, rh], {r.id, count(rh.datagouv_id), max(fragment("payload ->>'download_datetime'"))})
+    |> join(:left, [r], rh in DB.ResourceHistory, on: rh.resource_id == r.id)
+    |> where([r], r.dataset_id == ^dataset_id)
+    |> group_by([r, rh], [r.id, rh.resource_id])
+    |> select([r, rh], {r.id, count(rh.id), max(fragment("payload ->>'download_datetime'"))})
     |> DB.Repo.all()
     |> Enum.map(fn {id, count, updated_at} ->
       case count do

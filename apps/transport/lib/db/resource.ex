@@ -702,19 +702,19 @@ defmodule DB.Resource do
   def has_errors_details?(%__MODULE__{}), do: false
 
   @spec get_related_files(__MODULE__.t()) :: map()
-  def get_related_files(%__MODULE__{datagouv_id: resource_datagouv_id}) do
+  def get_related_files(%__MODULE__{id: resource_id}) do
     %{}
-    |> Map.put(:geojson, get_related_geojson_info(resource_datagouv_id))
-    |> Map.put(:netex, get_related_netex_info(resource_datagouv_id))
+    |> Map.put(:geojson, get_related_geojson_info(resource_id))
+    |> Map.put(:netex, get_related_netex_info(resource_id))
   end
 
-  def get_related_geojson_info(resource_datagouv_id), do: get_related_conversion_info(resource_datagouv_id, "GeoJSON")
-  def get_related_netex_info(resource_datagouv_id), do: get_related_conversion_info(resource_datagouv_id, "NeTEx")
+  def get_related_geojson_info(resource_id), do: get_related_conversion_info(resource_id, "GeoJSON")
+  def get_related_netex_info(resource_id), do: get_related_conversion_info(resource_id, "NeTEx")
 
-  @spec get_related_conversion_info(binary() | nil, binary()) :: %{url: binary(), filesize: binary()} | nil
+  @spec get_related_conversion_info(integer() | nil, binary()) :: %{url: binary(), filesize: binary()} | nil
   def get_related_conversion_info(nil, _), do: nil
 
-  def get_related_conversion_info(resource_datagouv_id, format) when format in ["GeoJSON", "NeTEx"] do
+  def get_related_conversion_info(resource_id, format) when format in ["GeoJSON", "NeTEx"] do
     DB.ResourceHistory
     |> join(:inner, [rh], dc in DB.DataConversion,
       as: :dc,
@@ -725,7 +725,7 @@ defmodule DB.Resource do
       filesize: fragment("? ->> 'filesize'", dc.payload),
       resource_history_last_up_to_date_at: rh.last_up_to_date_at
     })
-    |> where([rh, dc], rh.datagouv_id == ^resource_datagouv_id and dc.convert_to == ^format)
+    |> where([rh, dc], rh.resource_id == ^resource_id and dc.convert_to == ^format)
     |> order_by([rh, _], desc: rh.inserted_at)
     |> limit(1)
     |> DB.Repo.one()
@@ -737,8 +737,8 @@ defmodule DB.Resource do
   def content_updated_at(resource_id) do
     resource_history_list =
       DB.ResourceHistory
-      |> join(:inner, [rh], r in DB.Resource, on: r.datagouv_id == rh.datagouv_id)
-      |> where([_, r], r.id == ^resource_id and fragment("payload \\? 'download_datetime'"))
+      |> where([rh], rh.resource_id == ^resource_id)
+      |> where([rh], fragment("payload \\? 'download_datetime'"))
       |> select([rh], fragment("payload ->>'download_datetime'"))
       |> order_by([rh], desc: fragment("payload ->>'download_datetime'"))
       |> limit(2)

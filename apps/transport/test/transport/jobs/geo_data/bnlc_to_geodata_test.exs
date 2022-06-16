@@ -53,11 +53,11 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
     })
 
     # insert bnlc resource
-    insert(:resource, %{dataset_id: dataset_id, datagouv_id: resource_datagouv_id = "resource_datagouv_id"})
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
     # insert bnlc resource history
     %{id: id_0} =
       insert(:resource_history, %{
-        datagouv_id: resource_datagouv_id,
+        resource_id: resource_id,
         inserted_at: now_100,
         payload: %{"dataset_id" => dataset_id, "permanent_url" => "url"}
       })
@@ -85,7 +85,7 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
     # new (more recent) resource history
     %{id: id_1} =
       insert(:resource_history, %{
-        datagouv_id: resource_datagouv_id,
+        resource_id: resource_id,
         inserted_at: now_50,
         payload: %{"dataset_id" => dataset_id, "permanent_url" => "url"}
       })
