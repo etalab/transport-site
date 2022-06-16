@@ -68,14 +68,11 @@ defmodule DB.ResourceHistory do
 
   @spec latest_dataset_resources_history_infos(integer()) :: map()
   def latest_dataset_resources_history_infos(dataset_id) do
-    DB.Resource
-    |> join(:left, [r], d in DB.Dataset, on: r.dataset_id == d.id, as: :d)
-    |> join(:left, [r], rh in DB.ResourceHistory, on: rh.resource_id == r.id, as: :rh)
-    |> where([r, d: d], d.id == ^dataset_id)
-    |> order_by([rh: rh], desc: rh.inserted_at)
-    |> distinct([r, rh: rh], rh.resource_id)
+    DB.Resource.base_query()
+    |> DB.ResourceHistory.join_resource_with_latest_resource_history()
+    |> where([resource: r], r.dataset_id == ^dataset_id)
     |> select(
-      [r, rh: rh],
+      [resource: r, resource_history: rh],
       {r.id, %{url: fragment("payload->>'permanent_url'"), filesize: fragment("payload->>'filesize'")}}
     )
     |> DB.Repo.all()
