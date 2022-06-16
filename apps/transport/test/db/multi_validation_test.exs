@@ -2,6 +2,7 @@ defmodule DB.MultiValidationTest do
   use ExUnit.Case, async: true
   doctest DB.MultiValidation
   import DB.Factory
+  import Ecto.Query
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -205,5 +206,44 @@ defmodule DB.MultiValidationTest do
 
       assert [nil] = validations |> Map.get(resource_id_3)
     end
+  end
+
+  test "composable join query for latest validation" do
+    resource_history = insert(:resource_history)
+    insert(:resource_history)
+
+    mv1 =
+      insert(:multi_validation,
+        resource_history_id: resource_history.id,
+        validator: "v1",
+        inserted_at: DateTime.utc_now()
+      )
+
+    insert(:multi_validation,
+      resource_history_id: resource_history.id,
+      validator: "v2",
+      inserted_at: DateTime.utc_now() |> DateTime.add(-100)
+    )
+
+    mv2 =
+      insert(:multi_validation,
+        resource_history_id: resource_history.id,
+        validator: "v2",
+        inserted_at: DateTime.utc_now() |> DateTime.add(-50)
+      )
+
+    assert mv2 ==
+             DB.ResourceHistory.base_query()
+             |> where([resource_history: rh], rh.id == ^resource_history.id)
+             |> DB.MultiValidation.join_resource_history_with_latest_validation("v2")
+             |> select([multi_validation: mv], mv)
+             |> DB.Repo.one!()
+
+    assert mv1 ==
+             DB.ResourceHistory.base_query()
+             |> where([resource_history: rh], rh.id == ^resource_history.id)
+             |> DB.MultiValidation.join_resource_history_with_latest_validation(["v1", "v2"])
+             |> select([multi_validation: mv], mv)
+             |> DB.Repo.one!()
   end
 end
