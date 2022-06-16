@@ -5,7 +5,6 @@ defmodule Unlock.SIRITests do
   doctest Unlock.SIRI
   doctest Unlock.SIRI.RequestorRefReplacer
 
-  @tag :focus
   test "requestor ref can be changed on the fly" do
     timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
     incoming_requestor_ref = "transport-data-gouv-fr"
