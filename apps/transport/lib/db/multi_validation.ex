@@ -31,7 +31,7 @@ defmodule DB.MultiValidation do
     timestamps(type: :utc_datetime_usec)
   end
 
-  def base_query(), do: from(mv in DB.MultiValidation, as: :multi_validation)
+  def base_query, do: from(mv in DB.MultiValidation, as: :multi_validation)
 
   @spec join_resource_history_with_latest_validation(Ecto.Query.t(), binary() | [binary()]) :: Ecto.Query.t()
   @doc """
