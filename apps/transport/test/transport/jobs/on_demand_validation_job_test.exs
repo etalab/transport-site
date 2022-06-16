@@ -4,7 +4,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
   import DB.Factory
   import Mox
   import Transport.Test.S3TestUtils
-  alias Transport.Jobs.GTFSRTValidationJob
+  alias Transport.Validators.GTFSRT
   alias Transport.Jobs.OnDemandValidationJob
 
   setup :verify_on_exit!
@@ -204,7 +204,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       assert :ok == run_job(validation)
 
-      {:ok, expected_details} = GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
+      {:ok, expected_details} = GTFSRT.convert_validator_report(@gtfs_rt_report_path)
 
       assert %{
                result: ^expected_details,

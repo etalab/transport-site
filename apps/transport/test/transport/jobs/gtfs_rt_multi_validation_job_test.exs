@@ -92,7 +92,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
     end
   end
 
-  describe "GTFSRTValidationJob" do
+  describe "GTFSRTMultiValidationJob" do
     test "with a GTFS and 2 GTFS-rt" do
       gtfs_permanent_url = "https://example.com/gtfs.zip"
       gtfs_rt_url = "https://example.com/gtfs-rt"
