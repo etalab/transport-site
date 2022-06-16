@@ -105,7 +105,6 @@ defmodule Unlock.Controller do
 
   defp process_resource(conn, %Unlock.Config.Item.SIRI{} = item) do
     # TODO: trace :external event
-    # TODO: parse XML body to simple struct
     # TODO: protect from memory overload (maybe)
     # TODO: post to remote server
     # TODO: forward body
