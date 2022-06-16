@@ -194,11 +194,6 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
           url: gtfs_rt_no_errors_url
         )
 
-      # insert(:resource_history,
-      #   datagouv_id: gtfs.datagouv_id,
-      #   payload: %{"format" => "GTFS", "permanent_url" => gtfs_permanent_url, "uuid" => resource_history_uuid}
-      # )
-
       Transport.HTTPoison.Mock
       |> expect(:get!, fn ^gtfs_permanent_url, [], [follow_redirect: true] ->
         %HTTPoison.Response{status_code: 200, body: "gtfs"}
@@ -277,10 +272,10 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
         |> limit(1)
         |> DB.Repo.one!()
 
-      # gtfs_rt_no_errors = DB.Resource |> preload(:validation) |> DB.Repo.get!(gtfs_rt_no_errors.id)
+      validator_name = GTFSRT.validator_name()
 
       assert %{
-               validator: @validator_name,
+               validator: ^validator_name,
                result: %{
                  "errors" => ^expected_errors,
                  "warnings_count" => 26,
@@ -295,14 +290,14 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
                  "uuid" => _uuid
                },
                resource_id: ^gtfs_rt_id,
-               secondary_resource_history_id: ^resource_id,
+               secondary_resource_history_id: ^resource_history_id,
                max_error: "ERROR"
              } = gtfs_rt_validation
 
       assert gtfs_rt_permanent_url == Transport.S3.permanent_url(:history, gtfs_rt_filename)
 
       assert %{
-               validator: @validator_name,
+               validator: ^validator_name,
                result: %{
                  "errors" => [],
                  "warnings_count" => 0,
@@ -317,9 +312,9 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
                  "uuid" => _uuid
                },
                resource_id: ^gtfs_rt_no_errors_id,
-               secondary_resource_history_id: ^resource_id,
+               secondary_resource_history_id: ^resource_history_id,
                max_error: nil
-             } = gtfs_rt_no_errors
+             } = gtfs_rt_no_errors_validation
 
       assert gtfs_rt_no_errors_permanent_url == Transport.S3.permanent_url(:history, gtfs_rt_no_errors_filename)
 
