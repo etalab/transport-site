@@ -103,7 +103,7 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, response.body)
   end
 
-  defp process_resource(conn, %Unlock.Config.Item.SIRI{} = _item) do
+  defp process_resource(conn, %Unlock.Config.Item.SIRI{} = item) do
     # TODO: trace :external event
     # TODO: parse XML body to simple struct
     # TODO: protect from memory overload (maybe)
@@ -114,7 +114,7 @@ defmodule Unlock.Controller do
     {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
 
     parsed = Unlock.SIRI.parse_incoming(body)
-    # TODO: replace requestor_ref in simple struct
+    parsed = Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(parsed, %{new_requestor_ref: item.requestor_ref})
 
     body = Saxy.encode_to_iodata!(parsed)
     IO.puts(body)
