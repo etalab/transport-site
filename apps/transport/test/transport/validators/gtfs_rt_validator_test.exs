@@ -1,6 +1,6 @@
 defmodule Transport.Validators.GTFSRTTest do
+  use ExUnit.Case, async: true
   alias Transport.Validators.GTFSRT
-  use ExUnit.Case
 
   @gtfs_rt_report_path "#{__DIR__}/../../fixture/files/gtfs-rt-validator-errors.json"
 
