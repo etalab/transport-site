@@ -32,7 +32,7 @@ defmodule Unlock.ControllerTest do
     |> stub(:fetch_config!, fn -> config end)
   end
 
-  describe "GET /resource/:slug (on a SIRI item)" do
+  describe "POST /resource/:slug (on a SIRI item)" do
     test "responds with 501 for now" do
       slug = "an-existing-identifier"
 
@@ -48,9 +48,11 @@ defmodule Unlock.ControllerTest do
 
       resp =
         build_conn()
-        |> get("/resource/an-existing-identifier")
+        # NOTE: required due to plug testing, not by the actual server
+        |> put_req_header("content-type", "application/soap+xml")
+        |> post("/resource/an-existing-identifier", "<element hello='world'></element>")
 
-      assert text_response(resp, 501) =~ "Not Implemented"
+      assert resp.status == 200
     end
   end
 
