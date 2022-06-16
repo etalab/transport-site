@@ -4,8 +4,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
   import DB.Factory
   import Mox
   import Transport.Test.S3TestUtils
-  alias Transport.Validators.GTFSRT
   alias Transport.Jobs.OnDemandValidationJob
+  alias Transport.Validators.GTFSRT
 
   setup :verify_on_exit!
 
