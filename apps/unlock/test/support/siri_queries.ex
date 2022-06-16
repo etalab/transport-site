@@ -1,4 +1,7 @@
 defmodule SIRIQueries do
+  @moduledoc """
+  A place to group query building, used for testing.
+  """
   import Saxy.XML
 
   @top_level_namespaces [

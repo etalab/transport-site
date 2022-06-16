@@ -13,6 +13,10 @@ defmodule Unlock.SIRI do
   end
 
   defmodule RequestorRefReplacer do
+    @moduledoc """
+    A module able to replace `RequestorRef` tag in a "simple form" XML document
+    """
+
     @doc """
     Newline must not cause a crash:
     iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref("<root>\u0044<hello></root>", %{new_requestor_ref: "ok"})
