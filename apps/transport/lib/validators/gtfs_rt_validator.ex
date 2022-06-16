@@ -111,8 +111,7 @@ defmodule Transport.Validators.GTFSRT do
         "gtfs_rt_filename" => gtfs_rt_cellar_filename,
         "gtfs_rt_permanent_url" => Transport.S3.permanent_url(:history, gtfs_rt_cellar_filename)
       },
-      "uuid" => Ecto.UUID.generate(),
-      "datetime" => DateTime.utc_now() |> DateTime.to_string()
+      "uuid" => Ecto.UUID.generate()
     })
   end
 end
