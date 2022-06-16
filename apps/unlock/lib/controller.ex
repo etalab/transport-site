@@ -116,11 +116,18 @@ defmodule Unlock.Controller do
     parsed = Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(parsed, %{new_requestor_ref: item.requestor_ref})
 
     body = Saxy.encode_to_iodata!(parsed)
-    IO.puts(body)
 
-    conn
-    |> put_status(501)
-    |> text("Not Implemented")
+    # TODO: trace :internal event
+    # TODO: add user-agent (proxy transport)
+    # TODO: redact requestor ref if found (must remain private)
+    # TODO: handle zip answers (e.g. uncompress, redact requestor_ref, recompress)
+    response = Unlock.HTTP.Client.impl().post!(item.target_url, [], body)
+
+    response.headers
+    |> prepare_response_headers()
+    |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
+    # No content-disposition as attachment for now
+    |> send_resp(response.status, response.body)
   end
 
   defp fetch_remote(item) do
