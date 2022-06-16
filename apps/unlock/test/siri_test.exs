@@ -4,29 +4,6 @@ defmodule Unlock.SIRITests do
 
   doctest Unlock.SIRI
 
-  defmodule RequestorRefReplacer do
-    def replace_requestor_ref(data, config) do
-      case data do
-        a = {tag, attributes, [some_text]} when is_binary(some_text) ->
-          [last | _] = tag |> String.split(":") |> Enum.reverse()
-
-          if last == "RequestorRef" do
-            # TODO: add check & stop processing if incorrect requestor ref is detected
-            {tag, attributes, [config.after]}
-          else
-            a
-          end
-
-        {tag, attributes, children} ->
-          {
-            tag,
-            attributes,
-            children |> Enum.map(&replace_requestor_ref(&1, config))
-          }
-      end
-    end
-  end
-
   @tag :focus
   test "requestor ref can be changed on the fly" do
     timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
