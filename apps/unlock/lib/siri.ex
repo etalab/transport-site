@@ -13,6 +13,12 @@ defmodule Unlock.SIRI do
   end
 
   defmodule RequestorRefReplacer do
+    @doc """
+    Newline must not cause a crash:
+    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref("<root>\u0044<hello></root>", %{new_requestor_ref: "ok"})
+    "<root>\u0044<hello></root>"
+    """
+
     def replace_requestor_ref(data, config) do
       case data do
         a = {tag, attributes, [some_text]} when is_binary(some_text) ->
@@ -31,6 +37,9 @@ defmodule Unlock.SIRI do
             attributes,
             children |> Enum.map(&replace_requestor_ref(&1, config))
           }
+
+        data when is_binary(data) ->
+          data
       end
     end
   end

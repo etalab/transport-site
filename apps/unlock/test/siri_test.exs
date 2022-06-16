@@ -3,6 +3,7 @@ defmodule Unlock.SIRITests do
   import SIRIQueries
 
   doctest Unlock.SIRI
+  doctest Unlock.SIRI.RequestorRefReplacer
 
   @tag :focus
   test "requestor ref can be changed on the fly" do
