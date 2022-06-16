@@ -37,10 +37,10 @@ defmodule DB.MultiValidationTest do
       %{id: dataset_id} = insert(:dataset)
 
       # one resource
-      %{id: resource_id} = insert(:resource, %{datagouv_id: datagouv_id = "datagouv_id", dataset_id: dataset_id})
+      %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
 
       # one resource history with some validations
-      %{id: resource_history_id_latest} = insert(:resource_history, %{datagouv_id: datagouv_id, inserted_at: now})
+      %{id: resource_history_id_latest} = insert(:resource_history, %{resource_id: resource_id, inserted_at: now})
 
       insert(:multi_validation, %{
         resource_history_id: resource_history_id_latest,
@@ -62,7 +62,7 @@ defmodule DB.MultiValidationTest do
         })
 
       # a second older resource history
-      %{id: resource_history_id} = insert(:resource_history, %{datagouv_id: datagouv_id, inserted_at: before60})
+      %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id, inserted_at: before60})
 
       # with a very recent validation (it's a trap!)
       insert(:multi_validation, %{
@@ -80,6 +80,47 @@ defmodule DB.MultiValidationTest do
                dataset_validations |> Map.get(resource_id)
     end
 
+    test "resource_latest_validation scopes by resource_id" do
+      now = DateTime.utc_now()
+      before60 = DateTime.utc_now() |> DateTime.add(-60)
+
+      validator = Transport.Validators.GTFSTransport
+      validator_name = validator.validator_name()
+
+      %{id: dataset_id} = insert(:dataset)
+      %{id: resource_id1} = insert(:resource, %{dataset_id: dataset_id})
+      %{id: resource_id2} = insert(:resource, %{dataset_id: dataset_id})
+
+      # one resource history with a validation for resource_id1
+      %{id: resource_history_id1} = insert(:resource_history, %{resource_id: resource_id1, inserted_at: before60})
+
+      %{id: mv_id1} =
+        insert(:multi_validation, %{
+          resource_history_id: resource_history_id1,
+          validator: validator_name,
+          validation_timestamp: before60
+        })
+
+      # resource history and recent validation for resource_id2
+      %{id: resource_history_id2} = insert(:resource_history, %{resource_id: resource_id2, inserted_at: now})
+
+      %{id: mv_id2} =
+        insert(:multi_validation, %{
+          resource_history_id: resource_history_id2,
+          validator: validator_name,
+          validation_timestamp: now
+        })
+
+      assert %{id: ^mv_id1, resource_history_id: ^resource_history_id1} =
+               DB.MultiValidation.resource_latest_validation(resource_id1, validator)
+
+      # Making sure dataset_latest_validation works as well
+      dataset_validations = DB.MultiValidation.dataset_latest_validation(dataset_id, [validator])
+
+      assert [%{id: ^mv_id1, resource_history_id: ^resource_history_id1}] = dataset_validations |> Map.get(resource_id1)
+      assert [%{id: ^mv_id2, resource_history_id: ^resource_history_id2}] = dataset_validations |> Map.get(resource_id2)
+    end
+
     test "no resource latest validation, resource alone" do
       validator = Transport.Validators.GTFSTransport
       %{id: dataset_id} = insert(:dataset)
@@ -94,8 +135,8 @@ defmodule DB.MultiValidationTest do
     test "no resource latest validation, resource + resource_history" do
       validator = Transport.Validators.GTFSTransport
       %{id: dataset_id} = insert(:dataset)
-      %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, datagouv_id: datagouv_id = "datagouv_id"})
-      insert(:resource_history, %{datagouv_id: datagouv_id})
+      %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
+      insert(:resource_history, %{resource_id: resource_id})
 
       assert nil == DB.MultiValidation.resource_latest_validation(resource_id, validator)
 
@@ -106,8 +147,8 @@ defmodule DB.MultiValidationTest do
     test "no resource latest validation with specified validator" do
       validator = Transport.Validators.GTFSTransport
       %{id: dataset_id} = insert(:dataset)
-      %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, datagouv_id: datagouv_id = "datagouv_id"})
-      %{id: resource_history_id} = insert(:resource_history, %{datagouv_id: datagouv_id})
+      %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
+      %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
 
       insert(:multi_validation, %{
         resource_history_id: resource_history_id,
@@ -128,12 +169,12 @@ defmodule DB.MultiValidationTest do
 
       %{id: dataset_id} = insert(:dataset)
 
-      %{id: resource_id_1} = insert(:resource, %{dataset_id: dataset_id, datagouv_id: datagouv_id_1 = "datagouv_id_1"})
-      %{id: resource_id_2} = insert(:resource, %{dataset_id: dataset_id, datagouv_id: datagouv_id_2 = "datagouv_id_2"})
-      %{id: resource_id_3} = insert(:resource, %{dataset_id: dataset_id, datagouv_id: "datagouv_id_3"})
+      %{id: resource_id_1} = insert(:resource, %{dataset_id: dataset_id})
+      %{id: resource_id_2} = insert(:resource, %{dataset_id: dataset_id})
+      %{id: resource_id_3} = insert(:resource, %{dataset_id: dataset_id})
 
-      %{id: resource_history_id_1} = insert(:resource_history, %{datagouv_id: datagouv_id_1})
-      %{id: resource_history_id_2} = insert(:resource_history, %{datagouv_id: datagouv_id_2})
+      %{id: resource_history_id_1} = insert(:resource_history, %{resource_id: resource_id_1})
+      %{id: resource_history_id_2} = insert(:resource_history, %{resource_id: resource_id_2})
 
       insert(:multi_validation, %{
         resource_history_id: resource_history_id_1,

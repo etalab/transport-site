@@ -116,7 +116,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
   test "GTFS resource with associated NeTEx", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "2")
-    insert(:resource_history, datagouv_id: "2", payload: %{"uuid" => uuid = Ecto.UUID.generate()})
+    insert(:resource_history, resource_id: resource.id, payload: %{"uuid" => uuid = Ecto.UUID.generate()})
 
     insert(:data_conversion,
       resource_history_uuid: uuid,

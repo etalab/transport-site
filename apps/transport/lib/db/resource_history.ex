@@ -20,10 +20,9 @@ defmodule DB.ResourceHistory do
   end
 
   defp latest_resource_history_query(resource_id) do
-    DB.Resource
-    |> join(:left, [r], rh in DB.ResourceHistory, on: r.datagouv_id == rh.datagouv_id)
-    |> where([r, rh], r.id == ^resource_id)
-    |> order_by([_r, rh], desc: rh.inserted_at)
+    DB.ResourceHistory
+    |> where([rh], rh.resource_id == ^resource_id)
+    |> order_by([rh], desc: rh.inserted_at)
     |> limit(1)
   end
 
@@ -32,14 +31,13 @@ defmodule DB.ResourceHistory do
   def latest_resource_history(resource_id) do
     resource_id
     |> latest_resource_history_query
-    |> select([_r, rh], rh)
     |> DB.Repo.one()
   end
 
   def latest_resource_history_payload(resource_id) do
     resource_id
     |> latest_resource_history_query
-    |> select([_r, rh], rh.payload)
+    |> select([rh], rh.payload)
     |> DB.Repo.one()
   end
 
@@ -56,10 +54,10 @@ defmodule DB.ResourceHistory do
   def latest_dataset_resources_history_infos(dataset_id) do
     DB.Resource
     |> join(:left, [r], d in DB.Dataset, on: r.dataset_id == d.id, as: :d)
-    |> join(:left, [r], rh in DB.ResourceHistory, on: rh.datagouv_id == r.datagouv_id, as: :rh)
+    |> join(:left, [r], rh in DB.ResourceHistory, on: rh.resource_id == r.id, as: :rh)
     |> where([r, d: d], d.id == ^dataset_id)
     |> order_by([rh: rh], desc: rh.inserted_at)
-    |> distinct([r, rh: rh], rh.datagouv_id)
+    |> distinct([r, rh: rh], rh.resource_id)
     |> select(
       [r, rh: rh],
       {r.id, %{url: fragment("payload->>'permanent_url'"), filesize: fragment("payload->>'filesize'")}}

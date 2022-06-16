@@ -12,11 +12,10 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
 
   test "resource type" do
     dataset = insert(:dataset, type: "low-emission-zones")
-    zfe_aire = insert(:resource, datagouv_id: "foo", dataset: dataset, url: "https://example.com/aires.geojson")
+    zfe_aire = insert(:resource, dataset: dataset, url: "https://example.com/aires.geojson")
 
     zfe_voies =
       insert(:resource,
-        datagouv_id: "foo",
         dataset: dataset,
         url: "https://example.com/zfe_voies_speciale_ville.geojson"
       )
@@ -36,7 +35,6 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
 
     zfe_aire =
       insert(:resource,
-        datagouv_id: Ecto.UUID.generate(),
         dataset: dataset,
         url: "https://example.com/aires.geojson",
         schema_name: "etalab/schema-zfe",
@@ -45,7 +43,6 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
 
     zfe_voies =
       insert(:resource,
-        datagouv_id: Ecto.UUID.generate(),
         dataset: dataset,
         url: "https://example.com/voies.geojson",
         schema_name: "etalab/schema-zfe",
@@ -54,7 +51,6 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
 
     _zfe_pan =
       insert(:resource,
-        datagouv_id: Ecto.UUID.generate(),
         dataset: pan_dataset,
         url: "https://example.com/aires.geojson",
         schema_name: "etalab/schema-zfe",
@@ -63,7 +59,6 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
 
     _zfe_aire_errors =
       insert(:resource,
-        datagouv_id: Ecto.UUID.generate(),
         dataset: dataset,
         url: "https://example.com/aires.geojson",
         schema_name: "etalab/schema-zfe",
@@ -78,7 +73,6 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
 
     zfe_aire =
       insert(:resource,
-        datagouv_id: Ecto.UUID.generate(),
         dataset: dataset,
         url: "https://example.com/aires.geojson",
         schema_name: "etalab/schema-zfe",
@@ -87,7 +81,6 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
 
     zfe_voies =
       insert(:resource,
-        datagouv_id: Ecto.UUID.generate(),
         dataset: dataset,
         url: "https://example.com/voies.geojson",
         schema_name: "etalab/schema-zfe",
@@ -95,7 +88,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
       )
 
     insert(:resource_history,
-      datagouv_id: zfe_aire.datagouv_id,
+      resource_id: zfe_aire.id,
       payload: %{
         "permanent_url" => permanent_url_aires = "https://example.com/permanent_url/aires",
         "resource_metadata" => %{"validation" => %{"has_errors" => false}}
@@ -103,7 +96,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
     )
 
     insert(:resource_history,
-      datagouv_id: zfe_voies.datagouv_id,
+      resource_id: zfe_voies.id,
       payload: %{
         "permanent_url" => permanent_url_voies = "https://example.com/permanent_url/voies",
         "resource_metadata" => %{"validation" => %{"has_errors" => false}}
