@@ -78,7 +78,6 @@ defmodule Unlock.Controller do
       # NOTE: handling this here for now because the main endpoint
       # will otherwise send a full HTML error page. We will have to
       # hook an unlock-specific handling for this instead.
-      # W
       Logger.error("An exception occurred (#{exception |> inspect}")
 
       conn
