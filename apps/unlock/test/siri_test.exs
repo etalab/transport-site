@@ -18,7 +18,10 @@ defmodule Unlock.SIRITests do
     parsed = Unlock.SIRI.parse_incoming(input_xml)
 
     output =
-      RequestorRefReplacer.replace_requestor_ref(parsed, %{before: incoming_requestor_ref, after: "new-requestor-ref"})
+      Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(parsed, %{
+        # before: incoming_requestor_ref,
+        new_requestor_ref: "new-requestor-ref"
+      })
 
     assert output ==
              siri_query_from_builder(timestamp, "new-requestor-ref", message_id, stop_ref)
