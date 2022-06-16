@@ -12,7 +12,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-    DB.Repo.delete_all(DB.ResourceHistory)
     Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
     :ok
   end
@@ -24,19 +23,21 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
   describe "ResourceHistoryDispatcherJob" do
     test "resources_to_historise" do
-      datagouv_ids = create_resources_for_history()
-      assert 8 == count_resources()
-      assert datagouv_ids == ResourceHistoryDispatcherJob.resources_to_historise()
+      ids = create_resources_for_history()
+      assert 6 == count_resources()
+      assert ids == ResourceHistoryDispatcherJob.resources_to_historise()
     end
 
     test "a simple successful case" do
-      create_resources_for_history()
+      ids = create_resources_for_history()
 
       assert count_resources() > 1
       assert :ok == perform_job(ResourceHistoryDispatcherJob, %{})
 
-      assert [%{args: %{"datagouv_id" => "7"}}, %{args: %{"datagouv_id" => "1"}}] =
+      assert [%{args: %{"resource_id" => first_id}}, %{args: %{"resource_id" => second_id}}] =
                all_enqueued(worker: ResourceHistoryJob)
+
+      assert [second_id, first_id] == ids
 
       refute_enqueued(worker: ResourceHistoryDispatcherJob)
     end
@@ -50,13 +51,14 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
     test "with no ResourceHistory records" do
       assert 0 == count_resource_history()
-      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: "1"}, zip_metadata())
+      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{id: 1}, zip_metadata())
     end
 
     test "with the latest ResourceHistory matching for a ZIP" do
-      %{id: resource_history_id, datagouv_id: datagouv_id} =
+      %{id: resource_history_id, resource_id: resource_id} =
         resource_history =
         insert(:resource_history,
+          resource: insert(:resource),
           payload: %{"zip_metadata" => zip_metadata()}
         )
 
@@ -64,15 +66,16 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert ResourceHistoryJob.is_same_resource?(resource_history, zip_metadata())
 
       assert {false, %{id: ^resource_history_id}} =
-               ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
+               ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id}, zip_metadata())
     end
 
     test "with the latest ResourceHistory matching for a content hash" do
       content_hash = "hash"
 
-      %{id: resource_history_id, datagouv_id: datagouv_id} =
+      %{id: resource_history_id, resource_id: resource_id} =
         resource_history =
         insert(:resource_history,
+          resource: insert(:resource),
           payload: %{"content_hash" => content_hash}
         )
 
@@ -80,58 +83,60 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert ResourceHistoryJob.is_same_resource?(resource_history, content_hash)
 
       assert {false, %{id: ^resource_history_id}} =
-               ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, content_hash)
+               ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id}, content_hash)
     end
 
-    test "with the latest ResourceHistory matching but for a different datagouv_id" do
-      %{datagouv_id: datagouv_id} =
+    test "with the latest ResourceHistory matching but for a different resource ID" do
+      %{resource_id: resource_id} =
         insert(:resource_history,
+          resource: insert(:resource),
           payload: %{"zip_metadata" => zip_metadata()}
         )
 
       assert 1 == count_resource_history()
-      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: "#{datagouv_id}foo"}, zip_metadata())
+      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id + 1}, zip_metadata())
     end
 
     test "with the second to last ResourceHistory matching" do
-      %{datagouv_id: datagouv_id, payload: %{"zip_metadata" => zip_metadata}} =
+      %{resource_id: resource_id, payload: %{"zip_metadata" => zip_metadata}} =
         insert(:resource_history,
-          datagouv_id: "1",
+          resource: insert(:resource),
           payload: %{"zip_metadata" => zip_metadata()}
         )
 
       %{id: latest_rh_id} =
         insert(:resource_history,
-          datagouv_id: datagouv_id,
+          resource_id: resource_id,
           payload: %{"zip_metadata" => zip_metadata |> Enum.take(2)}
         )
 
       assert 2 == count_resource_history()
-      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
+      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id}, zip_metadata())
 
       %DB.ResourceHistory{id: latest_rh_id} |> DB.Repo.delete()
 
-      assert {false, _} =
-               ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
+      assert {false, _} = ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id}, zip_metadata())
     end
 
     test "with the latest ResourceHistory not matching for a ZIP" do
-      %{datagouv_id: datagouv_id} =
+      %{resource_id: resource_id} =
         insert(:resource_history,
+          resource: insert(:resource),
           payload: %{"zip_metadata" => zip_metadata() |> Enum.take(2)}
         )
 
       assert 1 == count_resource_history()
 
-      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, zip_metadata())
+      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id}, zip_metadata())
     end
 
     test "with the latest ResourceHistory not matching" do
-      %{datagouv_id: datagouv_id} = insert(:resource_history, payload: %{"content_hash" => "foo"})
+      %{resource_id: resource_id} =
+        insert(:resource_history, resource: insert(:resource), payload: %{"content_hash" => "foo"})
 
       assert 1 == count_resource_history()
 
-      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{datagouv_id: datagouv_id}, "bar")
+      assert ResourceHistoryJob.should_store_resource?(%DB.Resource{id: resource_id}, "bar")
     end
   end
 
@@ -198,15 +203,17 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
   describe "upload_filename" do
     test "it works" do
-      assert "foo/foo.20211202.130534.393187.zip" ==
+      resource_id = 42
+
+      assert "#{resource_id}/#{resource_id}.20211202.130534.393187.zip" ==
                ResourceHistoryJob.upload_filename(
-                 %DB.Resource{datagouv_id: "foo", format: "GTFS"},
+                 %DB.Resource{id: resource_id, format: "GTFS"},
                  ~U[2021-12-02 13:05:34.393187Z]
                )
 
-      assert "foo/foo.20211202.130534.393187.csv" ==
+      assert "#{resource_id}/#{resource_id}.20211202.130534.393187.csv" ==
                ResourceHistoryJob.upload_filename(
-                 %DB.Resource{datagouv_id: "foo", format: "csv"},
+                 %DB.Resource{id: resource_id, format: "csv"},
                  ~U[2021-12-02 13:05:34.393187Z]
                )
     end
@@ -217,11 +224,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       resource_url = "https://example.com/gtfs.zip"
 
       %{
+        id: resource_id,
         datagouv_id: datagouv_id,
         dataset_id: dataset_id,
         title: title,
-        content_hash: first_content_hash,
-        id: resource_id
+        content_hash: first_content_hash
       } =
         resource =
         insert(:resource,
@@ -274,11 +281,11 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  headers: %{"x-amz-acl" => "public-read"}
                } = request
 
-        assert String.starts_with?(path, "#{datagouv_id}/#{datagouv_id}.")
+        assert String.starts_with?(path, "#{resource_id}/#{resource_id}.")
       end)
 
       assert 0 == count_resource_history()
-      assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
+      assert :ok == perform_job(ResourceHistoryJob, %{resource_id: resource_id})
       assert 1 == count_resource_history()
 
       ensure_no_tmp_files!("resource_")
@@ -345,8 +352,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           dataset: insert(:dataset, is_active: true),
           format: "csv",
           title: "title",
-          datagouv_id: "1",
           is_community_resource: false,
+          datagouv_id: Ecto.UUID.generate(),
           metadata: %{"foo" => "bar"},
           schema_name: "etalab/schema-lieux-covoiturage"
         )
@@ -377,7 +384,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  headers: %{"x-amz-acl" => "public-read"}
                } = request
 
-        assert String.starts_with?(path, "#{datagouv_id}/#{datagouv_id}.")
+        assert String.starts_with?(path, "#{resource_id}/#{resource_id}.")
       end)
 
       # Validation according to the schema
@@ -393,7 +400,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       |> expect(:validate, fn ^schema_name, ^resource_url, nil -> validation_result end)
 
       assert 0 == count_resource_history()
-      assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
+      assert :ok == perform_job(ResourceHistoryJob, %{resource_id: resource_id})
       assert 1 == count_resource_history()
 
       ensure_no_tmp_files!("resource_")
@@ -437,19 +444,18 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     test "does not store resource again when it did not change" do
       resource_url = "https://example.com/gtfs.zip"
 
-      %{datagouv_id: datagouv_id} =
+      %{id: resource_id} =
         insert(:resource,
           url: resource_url,
           dataset: insert(:dataset, is_active: true),
           format: "GTFS",
           title: "title",
-          datagouv_id: "1",
           is_community_resource: false
         )
 
       %{id: resource_history_id, updated_at: updated_at} =
         insert(:resource_history,
-          datagouv_id: datagouv_id,
+          resource_id: resource_id,
           payload: %{"zip_metadata" => zip_metadata()}
         )
 
@@ -460,7 +466,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       end)
 
       assert 1 == count_resource_history()
-      assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
+      assert :ok == perform_job(ResourceHistoryJob, %{resource_id: resource_id})
       assert 1 == count_resource_history()
 
       # check the updated_at field has been updated.
@@ -475,13 +481,12 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     test "does not crash when there is a server error" do
       resource_url = "https://example.com/gtfs.zip"
 
-      %{datagouv_id: datagouv_id} =
+      %{id: resource_id} =
         insert(:resource,
           url: resource_url,
           dataset: insert(:dataset, is_active: true),
           format: "GTFS",
           title: "title",
-          datagouv_id: "1",
           is_community_resource: false
         )
 
@@ -492,7 +497,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       end)
 
       assert 0 == count_resource_history()
-      assert :ok == perform_job(ResourceHistoryJob, %{datagouv_id: datagouv_id})
+      assert :ok == perform_job(ResourceHistoryJob, %{resource_id: resource_id})
 
       ensure_no_tmp_files!("resource_")
     end
@@ -502,7 +507,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     %{id: active_dataset_id} = insert(:dataset, is_active: true)
     %{id: inactive_dataset_id} = insert(:dataset, is_active: false)
 
-    %{datagouv_id: datagouv_id_gtfs} =
+    %{id: id_gtfs} =
       insert(:resource,
         url: "https://example.com/gtfs.zip",
         dataset_id: active_dataset_id,
@@ -533,24 +538,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
     insert(:resource,
       url: "https://example.com/gtfs.zip",
-      dataset_id: active_dataset_id,
-      format: "GTFS",
-      title: "Ignored because of duplicated datagouv_id",
-      datagouv_id: "4",
-      is_community_resource: false
-    )
-
-    insert(:resource,
-      url: "https://example.com/gtfs.zip",
-      dataset_id: active_dataset_id,
-      format: "GTFS",
-      title: "Ignored because of duplicated datagouv_id",
-      datagouv_id: "4",
-      is_community_resource: false
-    )
-
-    insert(:resource,
-      url: "https://example.com/gtfs.zip",
       dataset_id: inactive_dataset_id,
       format: "GTFS",
       title: "Ignored because is not active",
@@ -567,17 +554,17 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       is_community_resource: false
     )
 
-    %{datagouv_id: datagouv_id_csv} =
+    %{id: id_csv} =
       insert(:resource,
         url: "https://example.com/file.csv",
         dataset_id: active_dataset_id,
         format: "csv",
-        title: "CSV file",
-        datagouv_id: "7",
+        title: "CSV file without a datagouv_id",
+        datagouv_id: nil,
         is_community_resource: false
       )
 
-    [datagouv_id_gtfs, datagouv_id_csv]
+    [id_gtfs, id_csv]
   end
 
   defp count_resource_history do
