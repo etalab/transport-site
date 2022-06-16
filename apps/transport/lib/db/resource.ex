@@ -81,6 +81,11 @@ defmodule DB.Resource do
     |> join(:inner, [dataset: d], r in DB.Resource, on: d.id == r.dataset_id, as: :resource)
   end
 
+  def filter_on_resource_id(query, resource_id) do
+    query
+    |> where([resource: r], r.id == ^resource_id)
+  end
+
   defp gtfs_validator, do: Shared.Validation.GtfsValidator.Wrapper.impl()
 
   @spec endpoint() :: binary()
