@@ -6,7 +6,7 @@ defmodule Transport.Validators.GTFSRT do
   @validator_filename "gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
   @max_errors_per_section 5
 
-  def validator_name, do: __MODULE__ |> to_string
+  def validator_name, do: "gtfs-realtime-validator"
 
   def command(gtfs_path, gtfs_rt_path) do
     binary_path = "java"
