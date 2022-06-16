@@ -80,14 +80,25 @@ function GTFSMap (mapDivId, geojsonUrl) {
                 filter: (feature) => feature.geometry.type === 'Point'
             }).addTo(markersfg)
 
-            stops.bindPopup(layer => { return layer.feature.properties.name })
+            stops.bindPopup(layer => { return formatPopupContent(layer.feature.properties) })
 
             const lines = L.geoJSON(geojson, {
                 style: GTFSLinesStyle,
-                filter: (feature) => feature.geometry.type !== 'Point'
+                filter: (feature) => feature.geometry.type !== 'Point',
+                onEachFeature: (feature, layer) => {
+                    layer.on('mouseover', () => {
+                        layer.bringToFront()
+                        stops.bringToFront()
+                        lines.setStyle({ weight: 3 })
+                        layer.setStyle({ weight: 10 })
+                    })
+                    layer.on('mouseout', () => {
+                        lines.resetStyle()
+                    })
+                }
             }).addTo(linesfg)
 
-            lines.bindPopup(layer => { return layer.feature.properties.route_long_name })
+            lines.bindPopup(layer => { return formatPopupContent(layer.feature.properties) })
 
             lines.bringToBack()
             stops.bringToFront()
