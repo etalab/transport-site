@@ -36,6 +36,8 @@ defmodule Unlock.ControllerTest do
     test "responds with 501 for now" do
       slug = "an-existing-identifier"
 
+      # TODO: use Mox client (Finch?)
+
       setup_proxy_config(%{
         slug => %Unlock.Config.Item.SIRI{
           identifier: slug,
