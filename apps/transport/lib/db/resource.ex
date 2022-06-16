@@ -86,6 +86,11 @@ defmodule DB.Resource do
     |> where([resource: r], r.id == ^resource_id)
   end
 
+  def filter_on_dataset_id(query, dataset_id) do
+    query
+    |> where([resource: r], r.dataset_id == ^dataset_id)
+  end
+
   defp gtfs_validator, do: Shared.Validation.GtfsValidator.Wrapper.impl()
 
   @spec endpoint() :: binary()

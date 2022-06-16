@@ -70,7 +70,7 @@ defmodule DB.ResourceHistory do
   def latest_dataset_resources_history_infos(dataset_id) do
     DB.Resource.base_query()
     |> DB.ResourceHistory.join_resource_with_latest_resource_history()
-    |> where([resource: r], r.dataset_id == ^dataset_id)
+    |> DB.Resource.filter_on_dataset_id(dataset_id)
     |> select(
       [resource: r, resource_history: rh],
       {r.id, %{url: fragment("payload->>'permanent_url'"), filesize: fragment("payload->>'filesize'")}}
