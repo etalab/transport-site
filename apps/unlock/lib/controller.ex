@@ -119,7 +119,9 @@ defmodule Unlock.Controller do
 
     # TODO: trace :internal event
     # TODO: add user-agent (proxy transport)
-    # TODO: redact requestor ref if found (must remain private)
+    # TODO: redact requestor ref if found (must remain private) ; this could leverage
+    # some form of streaming ideally (depending on max size of responses seen).
+    # (see https://github.com/qcam/saxy/issues/109 for relevant discussion)
     # TODO: handle zip answers (e.g. uncompress, redact requestor_ref, recompress)
     response = Unlock.HTTP.Client.impl().post!(item.target_url, [], body)
 
