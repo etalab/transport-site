@@ -8,7 +8,7 @@ defmodule Transport.Validators.GTFSRT do
 
   def validator_name, do: "gtfs-realtime-validator"
 
-  def command(gtfs_path, gtfs_rt_path) do
+  defp validator_arguments(gtfs_path, gtfs_rt_path) do
     binary_path = "java"
 
     args = [
@@ -23,10 +23,12 @@ defmodule Transport.Validators.GTFSRT do
     {binary_path, args}
   end
 
+  def command(gtfs_path, gtfs_rt_path), do: inspect(validator_arguments(gtfs_path, gtfs_rt_path))
+
   def run_validator(gtfs_path, gtfs_rt_path) do
     # See https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#batch-processing
 
-    {binary_path, args} = command(gtfs_path, gtfs_rt_path)
+    {binary_path, args} = validator_arguments(gtfs_path, gtfs_rt_path)
 
     Transport.RamboLauncher.run(binary_path, args, log: Mix.env() == :dev)
   end

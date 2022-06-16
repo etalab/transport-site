@@ -130,7 +130,7 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
     %DB.MultiValidation{
       validation_timestamp: DateTime.utc_now(),
       validator: GTFSRT.validator_name(),
-      command: inspect(GTFSRT.command(gtfs_path, gtfs_rt_path)),
+      command: GTFSRT.command(gtfs_path, gtfs_rt_path),
       result: validation_details,
       resource_id: gtfs_rt_resource.id,
       secondary_resource_history_id: gtfs_resource_history.id,
