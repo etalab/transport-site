@@ -24,7 +24,8 @@ defmodule Unlock.SIRITests do
       })
 
     assert output ==
-             siri_query_from_builder(timestamp, "new-requestor-ref", message_id, stop_ref)
+             timestamp
+             |> siri_query_from_builder("new-requestor-ref", message_id, stop_ref)
              |> Unlock.SIRI.parse_incoming()
   end
 end

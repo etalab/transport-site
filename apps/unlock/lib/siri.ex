@@ -23,7 +23,7 @@ defmodule Unlock.SIRI do
     "<root>\u0044<hello></root>"
     """
 
-    def replace_requestor_ref(data, config = %{new_requestor_ref: new_requestor_ref}) do
+    def replace_requestor_ref(data, %{new_requestor_ref: new_requestor_ref} = config) do
       case data do
         a = {tag, attributes, [some_text]} when is_binary(some_text) ->
           [last | _] = tag |> String.split(":") |> Enum.reverse()
