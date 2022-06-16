@@ -19,121 +19,71 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
 
   @gtfs_validator_name GTFSTransport.validator_name()
 
-  describe "GTFSRTMultiValidationDispatcherJob" do
-    test "selects appropriate datasets" do
-      dataset = insert(:dataset, is_active: true)
+  defp insert_resource_and_friends(end_date, opts) do
+    def_opts = [resource_available: true, resource_history_payload: %{}]
+    opts = Keyword.merge(def_opts, opts)
 
-      %{id: resource_id} =
-        insert(:resource,
-          dataset_id: dataset.id,
-          is_available: true,
-          format: "GTFS"
-        )
+    dataset = insert(:dataset, is_active: true)
 
-      %{id: resource_history_id} = insert(:resource_history, resource_id: resource_id)
-
-      %{id: multi_validation_id} =
-        insert(:multi_validation, validator: @gtfs_validator_name, resource_history_id: resource_history_id)
-
-      insert(:resource_metadata,
-        multi_validation_id: multi_validation_id,
-        metadata: %{"start_date" => Date.utc_today() |> Date.add(-30), "end_date" => Date.utc_today() |> Date.add(30)}
+    %{id: resource_id} =
+      resource =
+      insert(:resource,
+        dataset_id: dataset.id,
+        is_available: Keyword.get(opts, :resource_available),
+        format: "GTFS",
+        datagouv_id: Ecto.UUID.generate()
       )
 
+    resource_history =
+      insert(:resource_history, resource_id: resource_id, payload: Keyword.get(opts, :resource_history_payload))
+
+    multi_validation =
+      insert(:multi_validation, validator: @gtfs_validator_name, resource_history_id: resource_history.id)
+
+    resource_metadata =
+      insert(:resource_metadata,
+        multi_validation_id: multi_validation.id,
+        metadata: %{"start_date" => Date.utc_today() |> Date.add(-30), "end_date" => end_date}
+      )
+
+    %{
+      dataset: dataset,
+      resource: resource,
+      resource_history: resource_history,
+      multi_validation: multi_validation,
+      resource_metadata: resource_metadata
+    }
+  end
+
+  defp insert_up_to_date_resource_and_friends(opts \\ []) do
+    insert_resource_and_friends(Date.utc_today() |> Date.add(30), opts)
+  end
+
+  defp insert_outdated_resource_and_friends(opts \\ []) do
+    insert_resource_and_friends(Date.utc_today() |> Date.add(-5), opts)
+  end
+
+  describe "GTFSRTMultiValidationDispatcherJob" do
+    test "selects appropriate datasets" do
+      %{dataset: dataset} = insert_up_to_date_resource_and_friends()
       insert(:resource, dataset_id: dataset.id, is_available: true, format: "gtfs-rt")
 
       # Dataset with an outdated GTFS
-      outdated_dataset = insert(:dataset, is_active: true)
-
-      %{id: outdated_resource_id} =
-        insert(:resource,
-          dataset_id: outdated_dataset.id,
-          is_available: true,
-          format: "GTFS"
-        )
-
-      %{id: outdated_resource_history_id} = insert(:resource_history, resource_id: outdated_resource_id)
-
-      %{id: outdated_multi_validation_id} =
-        insert(:multi_validation,
-          validator: @gtfs_validator_name,
-          resource_history_id: outdated_resource_history_id
-        )
-
-      insert(:resource_metadata,
-        multi_validation_id: outdated_multi_validation_id,
-        metadata: %{"start_date" => Date.utc_today() |> Date.add(-30), "end_date" => Date.utc_today() |> Date.add(-5)}
-      )
-
-      insert(:resource, dataset_id: dataset.id, is_available: true, format: "gtfs-rt")
+      %{dataset: outdated_dataset} = insert_outdated_resource_and_friends()
+      insert(:resource, dataset_id: outdated_dataset.id, is_available: true, format: "gtfs-rt")
 
       # Dataset without a gtfs-rt
-      static_dataset = insert(:dataset, is_active: true)
-
-      static_resource =
-        insert(:resource,
-          dataset_id: static_dataset.id,
-          is_available: true,
-          format: "GTFS"
-        )
-
-      %{id: static_resource_history_id} = insert(:resource_history, resource_id: static_resource.id)
-
-      %{id: static_multi_validation_id} =
-        insert(:multi_validation, validator: @gtfs_validator_name, resource_history_id: static_resource_history_id)
-
-      insert(:resource_metadata,
-        multi_validation_id: static_multi_validation_id,
-        metadata: %{"start_date" => Date.utc_today() |> Date.add(-30), "end_date" => Date.utc_today() |> Date.add(30)}
-      )
+      insert_up_to_date_resource_and_friends()
 
       # Dataset with an unavailable GTFS
-      unavailable_dataset = insert(:dataset, is_active: true)
-
-      unavailable_resource =
-        insert(:resource,
-          dataset_id: unavailable_dataset.id,
-          is_available: false,
-          format: "GTFS"
-        )
-
-      %{id: unavailable_resource_history_id} = insert(:resource_history, resource_id: unavailable_resource.id)
-
-      %{id: unavailable_multi_validation_id} =
-        insert(:multi_validation,
-          validator: @gtfs_validator_name,
-          resource_history_id: unavailable_resource_history_id
-        )
-
-      insert(:resource_metadata,
-        multi_validation_id: unavailable_multi_validation_id,
-        metadata: %{"start_date" => Date.utc_today() |> Date.add(-30), "end_date" => Date.utc_today() |> Date.add(30)}
-      )
-
+      %{dataset: unavailable_dataset} = insert_up_to_date_resource_and_friends(resource_available: false)
       insert(:resource, dataset_id: unavailable_dataset.id, is_available: true, format: "gtfs-rt")
 
       assert [dataset.id] == GTFSRTMultiValidationDispatcherJob.relevant_datasets() |> Enum.map(& &1.id)
     end
 
     test "enqueues other jobs" do
-      %{id: dataset_id} = insert(:dataset, is_active: true)
-
-      %{id: resource_id} =
-        insert(:resource,
-          dataset_id: dataset_id,
-          is_available: true,
-          format: "GTFS"
-        )
-
-      %{id: resource_history_id} = insert(:resource_history, resource_id: resource_id)
-
-      %{id: multi_validation_id} =
-        insert(:multi_validation, validator: @gtfs_validator_name, resource_history_id: resource_history_id)
-
-      insert(:resource_metadata,
-        multi_validation_id: multi_validation_id,
-        metadata: %{"start_date" => Date.utc_today() |> Date.add(-30), "end_date" => Date.utc_today() |> Date.add(30)}
-      )
+      %{dataset: %{id: dataset_id}} = insert_up_to_date_resource_and_friends()
 
       insert(:resource, dataset_id: dataset_id, is_available: true, format: "gtfs-rt")
 
@@ -147,32 +97,17 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
       gtfs_permanent_url = "https://example.com/gtfs.zip"
       gtfs_rt_url = "https://example.com/gtfs-rt"
       gtfs_rt_no_errors_url = "https://example.com/gtfs-rt-no-errors"
+
       resource_history_uuid = Ecto.UUID.generate()
 
-      dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
-
-      %{id: resource_id} =
-        gtfs =
-        insert(:resource,
-          dataset_id: dataset.id,
-          is_available: true,
-          format: "GTFS",
-          datagouv_id: Ecto.UUID.generate()
+      %{dataset: dataset, resource_history: %{id: resource_history_id}, resource: gtfs} =
+        insert_up_to_date_resource_and_friends(
+          resource_history_payload: %{
+            "format" => "GTFS",
+            "permanent_url" => gtfs_permanent_url,
+            "uuid" => resource_history_uuid
+          }
         )
-
-      %{id: resource_history_id} =
-        insert(:resource_history,
-          resource_id: resource_id,
-          payload: %{"format" => "GTFS", "permanent_url" => gtfs_permanent_url, "uuid" => resource_history_uuid}
-        )
-
-      %{id: multi_validation_id} =
-        insert(:multi_validation, validator: @gtfs_validator_name, resource_history_id: resource_history_id)
-
-      insert(:resource_metadata,
-        multi_validation_id: multi_validation_id,
-        metadata: %{"start_date" => Date.utc_today() |> Date.add(-30), "end_date" => Date.utc_today() |> Date.add(30)}
-      )
 
       %{id: gtfs_rt_id} =
         gtfs_rt =
@@ -328,19 +263,13 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
       gtfs_permanent_url = "https://example.com/gtfs.zip"
       gtfs_rt_url = "https://example.com/gtfs-rt"
       validator_message = "io error: entityType=org.onebusaway.gtfs.model.FeedInfo path=feed_info.txt lineNumber=2"
-      dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
 
-      gtfs =
-        insert(:resource,
-          dataset_id: dataset.id,
-          is_available: true,
-          format: "GTFS",
-          start_date: Date.utc_today() |> Date.add(-30),
-          end_date: Date.utc_today() |> Date.add(30),
-          datagouv_id: Ecto.UUID.generate(),
-          metadata: %{
-            "start_date" => Date.utc_today() |> Date.add(-30),
-            "end_date" => Date.utc_today() |> Date.add(30)
+      %{dataset: dataset, resource: gtfs} =
+        insert_up_to_date_resource_and_friends(
+          resource_history_payload: %{
+            "format" => "GTFS",
+            "permanent_url" => gtfs_permanent_url,
+            "uuid" => Ecto.UUID.generate()
           }
         )
 
@@ -350,14 +279,8 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
           is_available: true,
           format: "gtfs-rt",
           datagouv_id: Ecto.UUID.generate(),
-          url: gtfs_rt_url,
-          metadata: %{"foo" => "bar"}
+          url: gtfs_rt_url
         )
-
-      insert(:resource_history,
-        datagouv_id: gtfs.datagouv_id,
-        payload: %{"format" => "GTFS", "permanent_url" => gtfs_permanent_url, "uuid" => Ecto.UUID.generate()}
-      )
 
       Transport.HTTPoison.Mock
       |> expect(:get!, fn ^gtfs_permanent_url, [], [follow_redirect: true] ->
@@ -371,8 +294,8 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
 
       S3TestUtils.s3_mocks_upload_file(gtfs_rt.datagouv_id)
 
-      gtfs_path = GTFSRTValidationJob.download_path(gtfs)
-      gtfs_rt_path = GTFSRTValidationJob.download_path(gtfs_rt)
+      gtfs_path = GTFSRTMultiValidationJob.download_path(gtfs)
+      gtfs_rt_path = GTFSRTMultiValidationJob.download_path(gtfs_rt)
 
       Transport.Rambo.Mock
       |> expect(:run, fn binary, args, [log: false] ->
@@ -392,17 +315,16 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
         {:error, validator_message}
       end)
 
-      assert :ok == perform_job(GTFSRTValidationJob, %{"dataset_id" => dataset.id})
+      assert :ok == perform_job(GTFSRTMultiValidationJob, %{"dataset_id" => dataset.id})
 
-      gtfs_rt = DB.Resource |> preload([:validation, :logs_validation]) |> DB.Repo.get!(gtfs_rt.id)
+      gtfs_rt_validation =
+        DB.MultiValidation
+        |> where([mv], mv.resource_id == ^gtfs_rt.id and mv.validator == ^GTFSRT.validator_name())
+        |> order_by([mv], desc: mv.inserted_at)
+        |> limit(1)
+        |> DB.Repo.all()
 
-      assert %{metadata: %{"foo" => "bar"}} = gtfs_rt
-      assert is_nil(gtfs_rt.validation)
-
-      assert Enum.count(gtfs_rt.logs_validation) == 1
-
-      expected_message = ~s(error while calling the validator: "#{validator_message}")
-      assert %DB.LogsValidation{error_msg: ^expected_message, is_success: false} = hd(gtfs_rt.logs_validation)
+      assert [] == gtfs_rt_validation
     end
   end
 
