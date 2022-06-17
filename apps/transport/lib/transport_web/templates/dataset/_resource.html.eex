@@ -79,7 +79,7 @@
         <a href="<%= resource_path(@conn, :details, @resource.id)<>"#validation-report" %>">
           <% {severity, count} = GTFSTransport.count_max_severity(validation.result) %>
             <span class="<%= summary_class(%{severity: severity, count_errors: count}) %>">
-              <%= if severity == "Irrevelant" do %>
+              <%= if severity == "Irrelevant" do %>
                 <%= dgettext("page-dataset-details", "No error detected") %>
               <% else %>
                 <%= "#{count} #{String.downcase(GTFSTransport.severities(severity)[:text])}" %>
