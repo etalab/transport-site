@@ -30,7 +30,8 @@ defmodule Transport.Validators.GTFSTransport do
         command: command(url),
         resource_history_id: resource_history_id,
         metadata: resource_metadata,
-        validator_version: Map.get(metadata, "validator_version")
+        validator_version: Map.get(metadata, "validator_version"),
+        max_error: get_max_severity_error(validations)
       }
       |> DB.Repo.insert!()
 
