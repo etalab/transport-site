@@ -126,7 +126,7 @@ defmodule Transport.Validators.GTFSTransport do
 
   @spec count_by_severity(map()) :: {binary(), integer()}
   def count_max_severity(validation_result) when validation_result == %{} do
-    {"Irrelevant", 0}
+    {"NoError", 0}
   end
 
   def count_max_severity(%{} = validation_result) do

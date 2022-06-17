@@ -590,7 +590,7 @@ defmodule DB.Resource do
         # credo:disable-for-next-line
         with %Validation{details: details} when details == %{} <-
                Repo.get_by(Validation, resource_id: id) do
-          %{severity: "Irrelevant", count_errors: 0}
+          %{severity: "NoError", count_errors: 0}
         else
           _ ->
             Logger.error("Unable to get validation of resource #{id}")
