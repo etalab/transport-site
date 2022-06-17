@@ -194,13 +194,15 @@ defmodule DB.ResourceTest do
   test "get resource related geojson infos" do
     now = DateTime.now!("Etc/UTC")
 
-    # we insert 3 resource history for datagouv_id_1
-    insert_resource_history("datagouv_id_1", uuid1 = Ecto.UUID.generate(), now, -3600)
-    insert_resource_history("datagouv_id_1", uuid2 = Ecto.UUID.generate(), now)
-    insert_resource_history("datagouv_id_1", uuid3 = Ecto.UUID.generate(), now, -3601)
+    # we insert 3 resource history for a resource
+    %{id: resource_id_1} = insert(:resource)
+    insert_resource_history(resource_id_1, uuid1 = Ecto.UUID.generate(), now, -3600)
+    insert_resource_history(resource_id_1, uuid2 = Ecto.UUID.generate(), now)
+    insert_resource_history(resource_id_1, uuid3 = Ecto.UUID.generate(), now, -3601)
 
-    # and one for datagouv_id_2
-    insert_resource_history("datagouv_id_2", uuid4 = Ecto.UUID.generate(), now)
+    # and one for another resource
+    %{id: resource_id_2} = insert(:resource)
+    insert_resource_history(resource_id_2, uuid4 = Ecto.UUID.generate(), now)
 
     # we insert 1 conversion for each resource history
     insert_data_conversion(uuid1, "url1", 10)
@@ -209,17 +211,17 @@ defmodule DB.ResourceTest do
     insert_data_conversion(uuid4, "url4", 10)
 
     assert %{url: "url2", filesize: "12", resource_history_last_up_to_date_at: _} =
-             DB.Resource.get_related_geojson_info("datagouv_id_1")
+             DB.Resource.get_related_geojson_info(resource_id_1)
 
-    assert nil == DB.Resource.get_related_geojson_info("other_id")
+    assert nil == DB.Resource.get_related_geojson_info(resource_id_1 - 10)
 
     assert %{geojson: %{url: "url2", filesize: "12", resource_history_last_up_to_date_at: _}} =
-             DB.Resource.get_related_files(%DB.Resource{datagouv_id: "datagouv_id_1"})
+             DB.Resource.get_related_files(%DB.Resource{id: resource_id_1})
   end
 
-  defp insert_resource_history(datagouv_id, uuid, datetime, time_delta_seconds \\ 0) do
+  defp insert_resource_history(resource_id, uuid, datetime, time_delta_seconds \\ 0) do
     insert(:resource_history, %{
-      datagouv_id: datagouv_id,
+      resource_id: resource_id,
       payload: %{uuid: uuid},
       inserted_at: DateTime.add(datetime, time_delta_seconds, :second)
     })
@@ -290,15 +292,15 @@ defmodule DB.ResourceTest do
 
   describe "resource last content update time" do
     test "basic case" do
-      %{id: resource_id} = insert(:resource, %{datagouv_id: datagouv_id = "datagouv_id"})
+      %{id: resource_id} = insert(:resource)
 
       insert(:resource_history, %{
-        datagouv_id: datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
       })
 
       insert(:resource_history, %{
-        datagouv_id: datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
       })
 
@@ -323,17 +325,17 @@ defmodule DB.ResourceTest do
       assert Resource.content_updated_at(resource_id) == nil
     end
 
-    test "last content update time, some download_datime not in payload" do
-      %{id: resource_id} = insert(:resource, %{datagouv_id: datagouv_id = "datagouv_id"})
-      insert(:resource_history, %{datagouv_id: datagouv_id, payload: %{}})
+    test "last content update time, some download_datetime not in payload" do
+      %{id: resource_id} = insert(:resource)
+      insert(:resource_history, %{payload: %{}})
 
       insert(:resource_history, %{
-        datagouv_id: datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
       })
 
       insert(:resource_history, %{
-        datagouv_id: datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
       })
 

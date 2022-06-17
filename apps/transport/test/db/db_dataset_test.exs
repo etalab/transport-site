@@ -138,22 +138,22 @@ defmodule DB.DatasetDBTest do
     test "for a dataset, get resources last update times" do
       %{id: dataset_id} = insert(:dataset, %{datagouv_id: "xxx", datagouv_title: "coucou"})
 
-      %{id: resource_id_1} = insert(:resource, %{datagouv_id: datagouv_id_1 = "datagouv_id_1", dataset_id: dataset_id})
-      %{id: resource_id_2} = insert(:resource, %{datagouv_id: datagouv_id_2 = "datagouv_id_2", dataset_id: dataset_id})
+      %{id: resource_id_1} = insert(:resource, dataset_id: dataset_id)
+      %{id: resource_id_2} = insert(:resource, dataset_id: dataset_id)
 
       # resource 1
       insert(:resource_history, %{
-        datagouv_id: datagouv_id_1,
+        resource_id: resource_id_1,
         payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
       })
 
       insert(:resource_history, %{
-        datagouv_id: datagouv_id_1,
+        resource_id: resource_id_1,
         payload: %{download_datetime: resource_1_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
       })
 
       # resource 2
-      insert(:resource_history, %{datagouv_id: datagouv_id_2, payload: %{}})
+      insert(:resource_history, %{resource_id: resource_id_2, payload: %{}})
 
       dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get!(dataset_id)
 
@@ -162,24 +162,22 @@ defmodule DB.DatasetDBTest do
     end
 
     defp insert_dataset_resource do
-      dataset = %{id: dataset_id} = insert(:dataset)
+      dataset = insert(:dataset)
+      %{id: resource_id} = insert(:resource, dataset: dataset)
 
-      %{id: resource_id} =
-        insert(:resource, %{dataset_id: dataset_id, datagouv_id: resource_datagouv_id = "datagouv_id"})
-
-      {dataset, resource_id, resource_datagouv_id}
+      {dataset, resource_id}
     end
 
     test "1 resource, basic case" do
-      {dataset, resource_id, resource_datagouv_id} = insert_dataset_resource()
+      {dataset, resource_id} = insert_dataset_resource()
 
       insert(:resource_history, %{
-        datagouv_id: resource_datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
       })
 
       insert(:resource_history, %{
-        datagouv_id: resource_datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
       })
 
@@ -187,36 +185,36 @@ defmodule DB.DatasetDBTest do
     end
 
     test "only one resource history, we don't know the resource last content update time" do
-      {dataset, resource_id, resource_datagouv_id} = insert_dataset_resource()
+      {dataset, resource_id} = insert_dataset_resource()
 
       insert(:resource_history, %{
-        datagouv_id: resource_datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
       })
 
       assert Dataset.resources_content_updated_at(dataset) == %{resource_id => nil}
     end
 
-    test "last content update time, download_datime not in payload" do
-      {dataset, resource_id, resource_datagouv_id} = insert_dataset_resource()
+    test "last content update time, download_datetime not in payload" do
+      {dataset, resource_id} = insert_dataset_resource()
 
-      insert(:resource_history, %{datagouv_id: resource_datagouv_id, payload: %{}})
+      insert(:resource_history, %{resource_id: resource_id, payload: %{}})
 
       assert Dataset.resources_content_updated_at(dataset) == %{resource_id => nil}
     end
 
-    test "last content update time, some download_datime not in payload" do
-      {dataset, resource_id, resource_datagouv_id} = insert_dataset_resource()
+    test "last content update time, some download_datetime not in payload" do
+      {dataset, resource_id} = insert_dataset_resource()
 
-      insert(:resource_history, %{datagouv_id: resource_datagouv_id, payload: %{}})
+      insert(:resource_history, %{resource_id: resource_id, payload: %{}})
 
       insert(:resource_history, %{
-        datagouv_id: resource_datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
       })
 
       insert(:resource_history, %{
-        datagouv_id: resource_datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
       })
 

@@ -183,9 +183,9 @@ defmodule TransportWeb.DatasetControllerTest do
   test "show GTFS number of errors", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
 
-    insert(:resource, %{dataset_id: dataset_id, format: "GTFS", datagouv_id: datagouv_id = "datagouv_id", url: "url"})
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, format: "GTFS", url: "url"})
 
-    %{id: resource_history_id} = insert(:resource_history, %{datagouv_id: datagouv_id})
+    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
 
     insert(:multi_validation, %{
       resource_history_id: resource_history_id,

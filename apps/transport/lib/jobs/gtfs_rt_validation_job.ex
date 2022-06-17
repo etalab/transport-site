@@ -182,9 +182,9 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     })
   end
 
-  defp latest_resource_history(%Resource{datagouv_id: datagouv_id, format: "GTFS"}) do
+  defp latest_resource_history(%Resource{id: resource_id, format: "GTFS"}) do
     ResourceHistory
-    |> where([r], r.datagouv_id == ^datagouv_id)
+    |> where([rh], rh.resource_id == ^resource_id)
     |> order_by(desc: :inserted_at)
     |> limit(1)
     |> Repo.one!()
@@ -198,10 +198,10 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     resource |> download_resource(download_path(resource)) |> process_download(resource)
   end
 
-  defp upload_filename(%Resource{datagouv_id: datagouv_id, format: format}, %DateTime{} = dt) when is_gtfs_rt(format) do
+  defp upload_filename(%Resource{id: resource_id, format: format}, %DateTime{} = dt) when is_gtfs_rt(format) do
     time = Calendar.strftime(dt, "%Y%m%d.%H%M%S.%f")
 
-    "#{datagouv_id}/#{datagouv_id}.#{time}.bin"
+    "#{resource_id}/#{resource_id}.#{time}.bin"
   end
 
   defp download_latest_gtfs(%ResourceHistory{payload: %{"permanent_url" => url, "format" => "GTFS"}}, tmp_path) do
@@ -209,11 +209,11 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     File.write!(tmp_path, body)
   end
 
-  defp download_resource(%Resource{datagouv_id: datagouv_id, url: url, is_available: true, format: format}, tmp_path)
+  defp download_resource(%Resource{id: resource_id, url: url, is_available: true, format: format}, tmp_path)
        when is_gtfs_rt(format) do
     case http_client().get(url, [], follow_redirect: true) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        Logger.debug("Saving resource #{datagouv_id} to #{tmp_path}")
+        Logger.debug("Saving resource##{resource_id} to #{tmp_path}")
         File.write!(tmp_path, body)
         {:ok, tmp_path, body}
 
@@ -293,8 +293,8 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     end
   end
 
-  defp process_download({:error, message}, %Resource{datagouv_id: datagouv_id}) do
-    Logger.debug("Got an error while downloading #{datagouv_id}: #{message}")
+  defp process_download({:error, message}, %Resource{id: resource_id}) do
+    Logger.debug("Got an error while downloading resource##{resource_id}: #{message}")
     :error
   end
 
@@ -304,10 +304,10 @@ defmodule Transport.Jobs.GTFSRTValidationJob do
     {:ok, tmp_path, cellar_filename}
   end
 
-  def download_path(%Resource{datagouv_id: datagouv_id}) do
-    folder = System.tmp_dir!() |> Path.join("resource_#{datagouv_id}_gtfs_rt_validation")
+  def download_path(%Resource{id: resource_id}) do
+    folder = System.tmp_dir!() |> Path.join("resource_#{resource_id}_gtfs_rt_validation")
     File.mkdir_p!(folder)
-    Path.join([folder, datagouv_id])
+    Path.join([folder, to_string(resource_id)])
   end
 
   def gtfs_rt_result_path(%Resource{format: format} = resource) when is_gtfs_rt(format) do
