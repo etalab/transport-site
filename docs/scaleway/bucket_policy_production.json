@@ -23,6 +23,15 @@
          "Resource":[
             "transport-prod-backups/*"
          ]
+      },
+      {
+         "Sid":"Objects cannot be deleted",
+         "Effect":"Deny",
+         "Principal":"*",
+         "Action":"s3:DeleteObject",
+         "Resource":[
+            "transport-prod-backups/*"
+         ]
       }
    ]
 }

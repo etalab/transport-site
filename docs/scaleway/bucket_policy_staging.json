@@ -23,6 +23,15 @@
          "Resource":[
             "transport-staging-backups/*"
          ]
+      },
+      {
+         "Sid":"Objects cannot be deleted",
+         "Effect":"Deny",
+         "Principal":"*",
+         "Action":"s3:DeleteObject",
+         "Resource":[
+            "transport-staging-backups/*"
+         ]
       }
    ]
 }
