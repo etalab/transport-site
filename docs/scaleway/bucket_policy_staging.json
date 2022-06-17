@@ -3,12 +3,23 @@
    "Id":"default-project-allow-write",
    "Statement":[
       {
-         "Sid":"Delegate access",
+         "Sid":"Delegate PutObject to another project we own",
          "Effect":"Allow",
          "Principal":{
             "SCW":"project_id:48833e60-251c-452a-bd1d-9bfd28f6d84a"
          },
          "Action":"s3:PutObject",
+         "Resource":[
+            "transport-staging-backups/*"
+         ]
+      },
+      {
+         "Sid":"Get access to all objects",
+         "Effect":"Allow",
+         "Principal":{
+            "SCW":"project_id:37d278a7-e548-4029-a58d-111bdcf23d46"
+         },
+         "Action":"s3:GetObject",
          "Resource":[
             "transport-staging-backups/*"
          ]
