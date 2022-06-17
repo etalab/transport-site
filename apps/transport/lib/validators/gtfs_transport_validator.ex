@@ -138,4 +138,14 @@ defmodule Transport.Validators.GTFSTransport do
   @spec is_mine?(any) :: boolean()
   def is_mine?(%{validator: validator}), do: validator == validator_name()
   def is_mine?(_), do: false
+
+  @spec get_max_severity_error(any) :: binary()
+  def get_max_severity_error(%{} = validations) do
+    validations
+    |> Map.values()
+    |> Enum.map(fn v -> hd(v)["severity"] end)
+    |> Enum.min_by(fn sev -> severities(sev).level end, fn -> "NoError" end)
+  end
+
+  def get_max_severity_error(_), do: nil
 end

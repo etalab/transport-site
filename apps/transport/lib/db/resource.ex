@@ -605,6 +605,9 @@ defmodule DB.Resource do
 
   def get_max_severity_validation_number(_), do: nil
 
+  # I duplicate this function in Transport.Validators.GTFSTransport
+  # this one should be deleted later
+  # https://github.com/etalab/transport-site/issues/2390
   @spec get_max_severity_error(any) :: binary()
   defp get_max_severity_error(%{} = validations) do
     validations
