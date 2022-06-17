@@ -13,7 +13,7 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
 
   test "the GTFS validator inserts expected data in DB" do
     %{id: resource_history_id} = insert(:resource_history)
-    validation_content = %{"errors" => 2}
+    validation_content = %{"NullDuration" => [%{"severity" => "Information"}]}
     data_vis_content = %{"data_vis" => "some data vis"}
     metadata_content = %{"m" => 1, "validator_version" => validator_version = "0.2.0"}
 
