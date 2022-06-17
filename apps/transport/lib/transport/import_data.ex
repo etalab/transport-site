@@ -496,8 +496,18 @@ defmodule Transport.ImportData do
   @spec is_siri?(binary() | map()) :: boolean()
   def is_siri?(str), do: is_format?(str, "siri") and not is_siri_lite?(str)
 
+  @doc """
+  iex> ImportData.is_siri_lite?("siri lite")
+  true
+  iex> ImportData.is_siri_lite?("siri-lite")
+  true
+  iex> ImportData.is_siri_lite?("SIRI Lite")
+  true
+  iex> ImportData.is_siri_lite?("SIRI")
+  false
+  """
   @spec is_siri_lite?(binary() | map()) :: boolean()
-  def is_siri_lite?(str), do: is_format?(str, "siri lite")
+  def is_siri_lite?(str), do: is_format?(str, "SIRI Lite")
 
   @doc """
   check the format
@@ -517,7 +527,18 @@ defmodule Transport.ImportData do
   def is_format?(_, []), do: false
 
   def is_format?(str, expected),
-    do: str |> String.downcase() |> String.contains?(String.downcase(expected))
+    do: String.contains?(clean_format(str), clean_format(expected))
+
+  @doc """
+  iex> ImportData.clean_format("GTFS-RT")
+  "gtfsrt"
+  iex> ImportData.clean_format("GTFS RT")
+  "gtfsrt"
+  iex> ImportData.clean_format("SIRI Lite")
+  "sirilite"
+  """
+  def clean_format(format),
+    do: format |> String.downcase() |> String.replace(~r/[^0-9a-zA-Z]/, "")
 
   @doc """
   Is the ressource a zip file?
@@ -627,6 +648,9 @@ defmodule Transport.ImportData do
 
       iex> ImportData.formated_format(%{"format" => "GeoJSON"}, "low-emission-zones", false)
       "geojson"
+
+      iex> ImportData.formated_format(%{"format" => "siri-lite"}, "public-transit", false)
+      "SIRI Lite"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
   # credo:disable-for-next-line
