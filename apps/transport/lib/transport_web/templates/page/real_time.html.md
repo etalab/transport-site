@@ -44,4 +44,4 @@ Plusieurs jeux de données de données temps-réel de vélo en libre service son
 
 ## Aérien
 
-Air France propose une [API](https://docs.airfranceklm.com/) non standardisée avec des données temps-réel.
+Air France propose [une API](https://developer.airfranceklm.com/journey/opendata) non standardisée avec des données temps-réel.
