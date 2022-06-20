@@ -17,6 +17,6 @@
   </div>
   <details class="pt-24">
     <summary><%= dgettext("page-dataset-details", "Learn more") %></summary>
-    <%= dgettext("page-dataset-details", "We test this resource download availability every hour. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online.") %>
+    <%= raw dgettext("page-dataset-details", "We test this resource download availability every hour by making an HTTP <code>HEAD</code> request with a timeout of 5 seconds. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online.") %>
   </details>
 </div>
