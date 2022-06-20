@@ -104,6 +104,20 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
                "validator" => Shared.Validation.TableSchemaValidator
              } == validate(@schema_name, @url)
     end
+
+    test "when the custom check is unknown and stats.errors is wrong" do
+      setup_schemas_response()
+      "validata_unknown_custom_check_error.json" |> setup_validata_response()
+
+      assert %{
+               "errors" => [
+                 "Check Error : colonne , ligne . Check is not valid: 'french_gps_coordinates': custom check inconnu."
+               ],
+               "errors_count" => 1,
+               "has_errors" => true,
+               "validator" => Shared.Validation.TableSchemaValidator
+             } == validate(@schema_name, @url)
+    end
   end
 
   defp setup_validata_response(filename), do: filename |> read_json() |> validata_response_with_body()
