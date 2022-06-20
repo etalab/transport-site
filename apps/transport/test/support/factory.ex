@@ -115,4 +115,60 @@ defmodule DB.Factory do
       "title" => "some title"
     }
   end
+
+  def insert_resource_and_friends(end_date, opts) do
+    def_opts = [resource_available: true, is_active: true, resource_history_payload: %{}]
+    opts = Keyword.merge(def_opts, opts)
+
+    dataset_opts = [is_active: Keyword.get(opts, :is_active)]
+
+    dataset_opts =
+      case Keyword.get(opts, :aom) do
+        nil -> dataset_opts
+        aom -> dataset_opts |> Keyword.merge(aom: aom)
+      end
+
+    dataset = Keyword.get(opts, :dataset, insert(:dataset, dataset_opts))
+
+    %{id: resource_id} =
+      resource =
+      insert(:resource,
+        dataset_id: dataset.id,
+        is_available: Keyword.get(opts, :resource_available),
+        format: "GTFS",
+        datagouv_id: Ecto.UUID.generate()
+      )
+
+    resource_history =
+      insert(:resource_history, resource_id: resource_id, payload: Keyword.get(opts, :resource_history_payload))
+
+    multi_validation =
+      insert(:multi_validation,
+        validator: Transport.Validators.GTFSTransport.validator_name(),
+        resource_history_id: resource_history.id,
+        max_error: Keyword.get(opts, :max_error)
+      )
+
+    resource_metadata =
+      insert(:resource_metadata,
+        multi_validation_id: multi_validation.id,
+        metadata: %{"start_date" => Date.utc_today() |> Date.add(-30), "end_date" => end_date}
+      )
+
+    %{
+      dataset: dataset,
+      resource: resource,
+      resource_history: resource_history,
+      multi_validation: multi_validation,
+      resource_metadata: resource_metadata
+    }
+  end
+
+  def insert_up_to_date_resource_and_friends(opts \\ []) do
+    insert_resource_and_friends(Date.utc_today() |> Date.add(30), opts)
+  end
+
+  def insert_outdated_resource_and_friends(opts \\ []) do
+    insert_resource_and_friends(Date.utc_today() |> Date.add(-5), opts)
+  end
 end
