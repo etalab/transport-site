@@ -322,80 +322,85 @@ defmodule TransportWeb.API.StatsController do
   end
 
   @spec quality_features_query :: Ecto.Query.t()
-  defp quality_features_query do
-    # Note: this query is not done in the meantime as aom_features_query because this query is quite long to execute
-    # and we don't want to slow down the main aom_features_query to much
+  # Note: this query is not done in the meantime as aom_features_query because this query is quite long to execute
+  # and we don't want to slow down the main aom_features_query to much
+  def quality_features_query() do
     dt = Date.utc_today() |> Date.to_iso8601()
 
-    AOM
-    |> join(:left, [aom], dataset in Dataset, on: dataset.id == aom.parent_dataset_id)
-    |> select([aom, parent_dataset], %{
-      geometry: aom.geom,
-      id: aom.id,
-      insee_commune_principale: aom.insee_commune_principale,
-      nom: aom.nom,
-      forme_juridique: aom.forme_juridique,
-      dataset_types: %{
-        pt:
-          fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit' AND is_active=TRUE", aom.id),
-        bike_scooter_sharing:
-          fragment(
-            "SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-scooter-sharing' AND is_active=TRUE",
-            aom.id
-          )
-      },
-      quality: %{
-        # we get the number of day since the latest resource is expired
-        expired_from:
-          fragment(
-            """
-            SELECT
-            TO_DATE(?, 'YYYY-MM-DD') - max(end_date)
-            FROM resource
-            WHERE
-            end_date IS NOT NULL
-            AND (
-              dataset_id in (SELECT id FROM dataset WHERE aom_id=? and is_active=TRUE)
-              OR dataset_id = ?
-              )
-            """,
-            ^dt,
-            aom.id,
-            parent_dataset.id
-          ),
-        # we get the least serious error of the valid resources
-        error_level:
-          fragment(
-            """
-            SELECT max_error
-            FROM validations
-            JOIN resource ON resource.id = validations.resource_id
-            JOIN dataset ON dataset.id = resource.dataset_id
-            WHERE
-              (dataset.aom_id = ? OR dataset.id = ?)
-              AND
-              resource.end_date >= TO_DATE(?, 'YYYY-MM-DD')
-              AND
-              resource.is_available
-              AND
-              dataset.is_active
-            ORDER BY (
-              CASE max_error::text
-                WHEN 'Fatal' THEN 1
-                WHEN 'Error' THEN 2
-                WHEN 'Warning' THEN 3
-                WHEN 'Information' THEN 4
-                WHEN 'Irrelevant' THEN 5
-                WHEN 'NoError' THEN 6
-              END
-            ) DESC
-            LIMIT 1
-            """,
-            aom.id,
-            parent_dataset.id,
-            ^dt
-          )
+    error_info_sub = dataset_min_error_level()
+    expired_info_sub = dataset_expired_from()
+
+    DB.AOM
+    |> join(:left, [aom], dataset in Dataset,
+      on: dataset.id == aom.parent_dataset_id or dataset.aom_id == aom.id,
+      as: :dataset
+    )
+    |> join(:left, [dataset: d], error_info in subquery(error_info_sub),
+      on: error_info.dataset_id == d.id,
+      as: :error_info
+    )
+    |> join(:left, [dataset: d], expired_info in subquery(expired_info_sub),
+      on: expired_info.dataset_id == d.id,
+      as: :expired_info
+    )
+    |> select(
+      [aom, error_info: error_info, expired_info: expired_info],
+      %{
+        geometry: aom.geom,
+        id: aom.id,
+        insee_commune_principale: aom.insee_commune_principale,
+        nom: aom.nom,
+        forme_juridique: aom.forme_juridique,
+        dataset_types: %{
+          pt:
+            fragment(
+              "SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'public-transit' AND is_active=TRUE",
+              aom.id
+            ),
+          bike_scooter_sharing:
+            fragment(
+              "SELECT COUNT(*) FROM dataset WHERE aom_id=? AND type = 'bike-scooter-sharing' AND is_active=TRUE",
+              aom.id
+            )
+        },
+        quality: %{
+          expired_from: fragment("TO_DATE(?, 'YYYY-MM-DD') - max(?)", ^dt, expired_info.end_date),
+          # expired_from: max(expired_info.end_date),
+          error_level: fragment("case max(CASE max_error::text
+              WHEN 'Fatal' THEN 1
+              WHEN 'Error' THEN 2
+              WHEN 'Warning' THEN 3
+              WHEN 'Information' THEN 4
+              WHEN 'Irrelevant' THEN 5
+              WHEN 'NoError' THEN 6
+              END)
+            WHEN 1 THEN 'Fatal'
+            WHEN 2 THEN 'Error'
+            WHEN 3 THEN 'Warning'
+            WHEN 4 THEN 'Information'
+            WHEN 5 THEN 'Irrelevant'
+            WHEN 6 THEN 'NoError'
+          END
+          ")
+        }
       }
+    )
+    |> group_by([aom], aom.id)
+  end
+
+  def dataset_expired_from() do
+    DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+    |> where([resource: r], r.is_available == true)
+    |> select([dataset: d, metadata: m], %{
+      dataset_id: d.id,
+      end_date: fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata)
     })
+  end
+
+  def dataset_min_error_level() do
+    DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+    |> DB.ResourceMetadata.where_gtfs_up_to_date()
+    |> where([resource: r], r.is_available == true)
+    |> select([dataset: d, multi_validation: mv], %{dataset_id: d.id, max_error: mv.max_error})
   end
 end
