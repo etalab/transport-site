@@ -44,6 +44,13 @@ request =
   if target do
     config = File.read!("#{__DIR__}/config.yml") |> YamlElixir.read_from_string!()
     config = config |> Map.fetch!("feeds") |> Enum.filter(&(&1["identifier"] == target))
+
+    case config |> Enum.count() do
+      0 -> Helper.halt("Config not found for identifier #{target}. Please check config file.")
+      1 -> true
+      _ -> Helper.halt("Duplicate config found for identifier #{target}. Please check config file.")
+    end
+
     [%{"requestor_ref" => requestor_ref, "target_url" => target_url}] = config
     {target_url, requestor_ref}
   else
@@ -84,6 +91,9 @@ query =
 
     "get_general_message" ->
       SIRI.get_general_message(timestamp, requestor_ref, message_id)
+
+    x ->
+      Helper.halt("Unknown request #{x}")
   end
 
 if args[:dump_query] do
