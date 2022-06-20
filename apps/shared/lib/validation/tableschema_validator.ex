@@ -48,6 +48,8 @@ defmodule Shared.Validation.TableSchemaValidator do
     end
 
     raw_errors = hd(tasks)["errors"]
+    # We count the errors on our side, because the error count given by the report can be wrong
+    # see https://git.opendatafrance.net/validata/validata-core/-/issues/37
     nb_errors = Enum.count(raw_errors)
 
     {row_errors, structure_errors} =
