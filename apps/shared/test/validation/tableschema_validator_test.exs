@@ -105,7 +105,7 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
              } == validate(@schema_name, @url)
     end
 
-    test "when the custom check is not unknown and stats.errors is wrong" do
+    test "when the custom check is unknown and stats.errors is wrong" do
       setup_schemas_response()
       "validata_unknown_custom_check_error.json" |> setup_validata_response()
 
