@@ -42,14 +42,13 @@ defmodule Shared.Validation.TableSchemaValidator do
     end
   end
 
-  defp build_report(%{"report" => %{"stats" => stats, "tasks" => tasks}} = report) do
-    nb_errors = Map.fetch!(stats, "errors")
-
+  defp build_report(%{"report" => %{"tasks" => tasks}} = report) do
     if Enum.count(tasks) != 1 do
       raise "tasks should have a length of 1 for report #{report}"
     end
 
     raw_errors = hd(tasks)["errors"]
+    nb_errors = Enum.count(raw_errors)
 
     {row_errors, structure_errors} =
       raw_errors |> Enum.split_with(&MapSet.disjoint?(MapSet.new(&1["tags"]), MapSet.new(@structure_tags)))
