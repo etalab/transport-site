@@ -399,8 +399,8 @@ msgid "Learn more"
 msgstr "En savoir plus"
 
 #, elixir-autogen, elixir-format
-msgid "We test this resource download availability every hour. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online."
-msgstr "Nous testons la disponibilité de cette ressource au téléchargement toutes les heures. Si nous détectons une indisponibilité, nous effectuons un nouveau test toutes les 10 minutes, jusqu'à ce que la ressource soit à nouveau disponible."
+msgid "We test this resource download availability every hour by making an HTTP <code>HEAD</code> request with a timeout of 5 seconds. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online."
+msgstr "Nous testons la disponibilité de cette ressource au téléchargement toutes les heures, en effectuant une requête HTTP de type <code>HEAD</code> dont le temps de réponse doit être inférieur à 5 secondes. Si nous détectons une indisponibilité, nous effectuons un nouveau test toutes les 10 minutes, jusqu'à ce que la ressource soit à nouveau disponible."
 
 #, elixir-autogen, elixir-format
 msgid "last content modification"
