@@ -1,7 +1,7 @@
 defmodule Transport.Jobs.GTFSRTValidationDispatcherJob do
   @moduledoc """
   Job in charge of dispatching multiple `GTFSRTValidationJob`.
-  Deprecation planned : this module is replaced by Transport.Jobs.GTFSRTMultiValidationDispatcherJob
+  Deprecation planned: this module is replaced by Transport.Jobs.GTFSRTMultiValidationDispatcherJob
   and will be deleted in the future
   https://github.com/etalab/transport-site/issues/2390
   """
