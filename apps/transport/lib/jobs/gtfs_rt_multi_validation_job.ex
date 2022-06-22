@@ -161,10 +161,10 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
     resource |> download_resource(download_path(resource)) |> process_download(resource)
   end
 
-  defp upload_filename(%Resource{datagouv_id: datagouv_id, format: format}, %DateTime{} = dt) when is_gtfs_rt(format) do
+  defp upload_filename(%Resource{id: resource_id, format: format}, %DateTime{} = dt) when is_gtfs_rt(format) do
     time = Calendar.strftime(dt, "%Y%m%d.%H%M%S.%f")
 
-    "#{datagouv_id}/#{datagouv_id}.#{time}.bin"
+    "#{resource_id}/#{resource_id}.#{time}.bin"
   end
 
   defp download_latest_gtfs(%ResourceHistory{payload: %{"permanent_url" => url, "format" => "GTFS"}}, tmp_path) do
