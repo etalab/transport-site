@@ -122,10 +122,10 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
 
   defp insert_multi_validation(
          %Resource{} = gtfs_rt_resource,
-         validation_details,
+         %{} = validation_details,
          gtfs_path,
          gtfs_rt_path,
-         gtfs_resource_history
+         %ResourceHistory{} = gtfs_resource_history
        ) do
     %DB.MultiValidation{
       validation_timestamp: DateTime.utc_now(),
