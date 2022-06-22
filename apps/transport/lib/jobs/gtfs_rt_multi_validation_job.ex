@@ -79,7 +79,7 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
         _validator_return =
           with {:ok, _} <- GTFSRT.run_validator(gtfs_path, gtfs_rt_path),
                {:ok, report} <- rt_resource |> gtfs_rt_result_path() |> GTFSRT.convert_validator_report() do
-            update_resource(
+            insert_multi_validation(
               rt_resource,
               GTFSRT.build_validation_details(gtfs_resource_history, report, cellar_filename),
               gtfs_path,
@@ -120,7 +120,7 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
     |> Repo.all()
   end
 
-  defp update_resource(
+  defp insert_multi_validation(
          %Resource{} = gtfs_rt_resource,
          validation_details,
          gtfs_path,
