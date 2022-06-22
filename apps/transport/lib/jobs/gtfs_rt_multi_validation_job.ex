@@ -91,6 +91,8 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
             e -> e
           end
 
+        # add a validation log when the table is created
+        # https://github.com/etalab/transport-site/issues/2390
         # log_validation(validator_return, resource)
       end)
     after
