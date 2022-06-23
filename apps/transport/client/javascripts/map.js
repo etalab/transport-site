@@ -556,7 +556,7 @@ function addRealTimePtFormatMap (id, view) {
             const text = countOfficial === 1 ? 'Un jeu de données standardisé' : `${countOfficial} jeux de données standardisés`
             const commune = feature.properties.id
             bind += `<div style="padding-bottom: 6px;"><a href="/datasets/aom/${commune}">${text}</a>`
-            bind += `<br/>formats :`
+            bind += `<br> formats :`
             const formats = []
             if (gtfsRT) {
                 formats.push('GTFS RT')
