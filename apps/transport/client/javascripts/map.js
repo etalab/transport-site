@@ -450,8 +450,8 @@ function addRealTimePTMap (id, view) {
         const siri = (format.siri !== undefined ? format.siri : 0)
         const siriLite = (format.siri_lite !== undefined ? format.siri_lite : 0)
         const countOfficial = gtfsRT + siri + siriLite
-
         const countNonStandardRT = format.non_standard_rt
+
         if (countOfficial === undefined && countNonStandardRT === 0) {
             return null
         }
@@ -551,16 +551,28 @@ function addRealTimePtFormatMap (id, view) {
             return null
         }
 
-        let bind = `<strong>${name}</strong><br/>${type}`
+        let bind = `<div style="padding-bottom: 6px;"><strong>${name}</strong><br/>${type}</div>`
         if (countOfficial) {
             const text = countOfficial === 1 ? 'Un jeu de données standardisé' : `${countOfficial} jeux de données standardisés`
             const commune = feature.properties.id
-            bind += `<br/><a href="/datasets/aom/${commune}">${text}</a>`
+            bind += `<div style="padding-bottom: 6px;"><a href="/datasets/aom/${commune}">${text}</a>`
+            bind += `<br/>formats :`
+            let formats = []
+            if (gtfsRT) {
+                formats.push('GTFS RT')
+            }
+            if (siri) {
+                formats.push('SIRI')
+            }
+            if (siriLite) {
+                formats.push('SIRI Lite')
+            }
+            bind += ` ${formats.join(', ')}</div>`
         }
 
         if (countNonStandardRT) {
             const text = 'jeu de données non officiellement référencé'
-            bind += `<br/><a href="/real_time">${text}</a>`
+            bind += `<a href="/real_time">${text}</a>`
         }
         layer.bindPopup(bind)
     }
