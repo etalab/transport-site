@@ -564,11 +564,17 @@ function addRealTimePtFormatMap (id, view) {
         }
         layer.bindPopup(bind)
     }
+    
+    const smallStripes = new Leaflet.StripePattern({ angle: -45, color: lightGreen, spaceColor: 'blue', spaceOpacity: 1, weight: 1, spaceWeight: 1, height: 2 })
+    const bigStripes = new Leaflet.StripePattern({ angle: -45, color: lightGreen, spaceColor: 'blue', spaceOpacity: 1, weight: 4, spaceWeight: 4, height: 8 })
+    smallStripes.addTo(map)
+    bigStripes.addTo(map) 
 
     const legends = {
         gtfs_rt: { label: 'GTFS RT', color: 'blue' },
-        siri: { label: 'SIRI', color: 'green' },
-        siri_lite: { label: 'SIRI Lite', color: lightGreen },
+        siri: { label: 'SIRI', color: lightGreen },
+        gtfs_rt_siri:{ label: 'GTFS RT + SIRI', color: `repeating-linear-gradient(-45deg,blue,blue 3px,${lightGreen} 3px,${lightGreen} 6px)`},
+        siri_lite: { label: 'SIRI Lite', color: 'green' },
         non_standard_rt: { label: 'Non standard', color: 'red' },
         multiple: { label: 'Multiple', color: 'orange' }
     }
@@ -599,22 +605,39 @@ function addRealTimePtFormatMap (id, view) {
             color: legends.multiple.color,
             fillOpacity: 0.5
         },
+        gtfs_rt_siri: {
+            smallStripes: {
+                weight: 1,
+                color: 'blue',
+                fillOpacity: 0.6,
+                fillPattern: smallStripes
+            },
+            bigStripes: {
+                weight: 1,
+                color: 'blue',
+                fillOpacity: 0.6,
+                fillPattern: bigStripes
+            }
+        },
         unavailable: {
             weight: 1,
             fillOpacity: 0.0,
             color: 'grey'
         }
     }
-
-    const style = feature => {
+    
+    const style = zoom => feature => {
         const format = feature.properties.dataset_formats
         const hasGtfsRt = format.gtfs_rt > 0
         const hasSiri = format.siri > 0
         const hasSiriLite = format.siri_lite > 0
         const hasNonStandard = format.non_standard_rt > 0
-        const hasMultipleFormats = [hasSiri, hasSiriLite, hasNonStandard, hasGtfsRt].filter(x => !!x).length > 1
+        const formatNb = [hasSiri, hasSiriLite, hasNonStandard, hasGtfsRt].filter(x => !!x).length
+        const hasMultipleFormats = formatNb > 1
 
-        if (hasMultipleFormats) {
+        if (hasGtfsRt && hasSiri && formatNb == 2) {
+            return zoom > 6 ? styles.gtfs_rt_siri.bigStripes : styles.gtfs_rt_siri.smallStripes
+        } else if (hasMultipleFormats) {
             return styles.multiple
         } else if (hasGtfsRt) {
             return styles.gtfs_rt
@@ -636,8 +659,9 @@ function addRealTimePtFormatMap (id, view) {
             formats.siri !== undefined ||
             formats.siri_lite !== undefined
     }
+    const aomsFG = getAomsFG(onEachAomFeature, style(map.getZoom()), filter)
+    map.on('zoomend',() => aomsFG.setStyle(style(map.getZoom())))
 
-    const aomsFG = getAomsFG(onEachAomFeature, style, filter)
     aomsFG.addTo(map)
 
     if (view.display_legend) {
