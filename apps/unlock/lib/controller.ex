@@ -129,6 +129,12 @@ defmodule Unlock.Controller do
     # TODO: handle zip answers (e.g. uncompress, redact requestor_ref, recompress)
     response = Unlock.HTTP.Client.impl().post!(item.target_url, [], body)
 
+    # NOTE: for now, we unzip systematically. This will make it easier
+    # to analyse payloads & later remove sensitive data, even if we
+    # re-zip afterwards.
+    # The Mint documentation contains useful bits to deal with more scenarios here
+    # https://github.com/elixir-mint/mint/blob/main/pages/Decompression.md#decompressing-the-response-body
+    gzipped = get_header(response.headers, "content-encoding") == ["gzip"]
     response.headers
     |> prepare_response_headers()
     |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
@@ -193,6 +199,11 @@ defmodule Unlock.Controller do
 
   defp bad_gateway_response do
     %Unlock.HTTP.Response{status: 502, body: "Bad Gateway", headers: [{"content-type", "text/plain"}]}
+  end
+
+  # Inspiration https://github.com/elixir-plug/plug/blob/v1.13.6/lib/plug/conn.ex#L615
+  defp get_header(headers, key) do
+    for {^key, value} <- headers, do: value
   end
 
   # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug
