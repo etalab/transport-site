@@ -227,7 +227,7 @@ defmodule Unlock.Controller do
 
   # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug
   defp filter_response_headers(headers) do
-    headeres
+    headers
     |> Enum.filter(fn {h, _v} -> Enum.member?(@forwarded_headers_whitelist, h) end)
   end
 
