@@ -129,17 +129,31 @@ defmodule Unlock.Controller do
     # TODO: handle zip answers (e.g. uncompress, redact requestor_ref, recompress)
     response = Unlock.HTTP.Client.impl().post!(item.target_url, [], body)
 
+    headers =
+      response.headers
+      |> lowercase_headers()
+
     # NOTE: for now, we unzip systematically. This will make it easier
     # to analyse payloads & later remove sensitive data, even if we
     # re-zip afterwards.
     # The Mint documentation contains useful bits to deal with more scenarios here
     # https://github.com/elixir-mint/mint/blob/main/pages/Decompression.md#decompressing-the-response-body
-    gzipped = get_header(response.headers, "content-encoding") == ["gzip"]
-    response.headers
-    |> prepare_response_headers()
+    gzipped = get_header(headers, "content-encoding") == ["gzip"]
+
+    body = response.body
+
+    body =
+      if gzipped do
+        :zlib.gunzip(body)
+      else
+        body
+      end
+
+    headers
+    |> filter_response_headers()
     |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
     # No content-disposition as attachment for now
-    |> send_resp(response.status, response.body)
+    |> send_resp(response.status, body)
   end
 
   defp fetch_remote(item) do
@@ -206,10 +220,20 @@ defmodule Unlock.Controller do
     for {^key, value} <- headers, do: value
   end
 
-  # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug
-  defp prepare_response_headers(headers) do
+  defp lowercase_headers(headers) do
     headers
     |> Enum.map(fn {h, v} -> {String.downcase(h), v} end)
+  end
+
+  # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug
+  defp filter_response_headers(headers) do
+    headeres
     |> Enum.filter(fn {h, _v} -> Enum.member?(@forwarded_headers_whitelist, h) end)
+  end
+
+  defp prepare_response_headers(headers) do
+    headers
+    |> lowercase_headers()
+    |> filter_response_headers()
   end
 end
