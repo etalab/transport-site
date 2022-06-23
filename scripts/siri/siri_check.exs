@@ -27,6 +27,17 @@ defmodule Helper do
     Mix.Shell.IO.error(error)
     System.halt(:abort)
   end
+
+  def exit do
+    System.halt(0)
+  end
+
+  def config do
+    "#{__DIR__}/config.yml"
+    |> File.read!()
+    |> YamlElixir.read_from_string!()
+    |> Map.fetch!("feeds")
+  end
 end
 
 # must conform to https://www.w3.org/TR/xmlschema-2/#dateTime
@@ -41,27 +52,40 @@ request =
     )
 
 {endpoint, requestor_ref} =
-  if target do
-    config = File.read!("#{__DIR__}/config.yml") |> YamlElixir.read_from_string!()
-    config = config |> Map.fetch!("feeds") |> Enum.filter(&(&1["identifier"] == target))
+  cond do
+    target == "all" ->
+      identifiers = Helper.config() |> Enum.map(& &1["identifier"])
 
-    case config |> Enum.count() do
-      0 -> Helper.halt("Config not found for identifier #{target}. Please check config file.")
-      1 -> true
-      _ -> Helper.halt("Duplicate config found for identifier #{target}. Please check config file.")
-    end
+      identifiers
+      |> Enum.each(fn identifier ->
+        cmd = "elixir #{__ENV__.file} --target #{identifier} --request #{request}"
+        IO.puts(IO.ANSI.format([:yellow, "\nRunning #{cmd}\n"]))
+        System.shell(cmd, into: IO.stream())
+      end)
 
-    [%{"requestor_ref" => requestor_ref, "target_url" => target_url}] = config
-    {target_url, requestor_ref}
-  else
-    endpoint =
-      args |> Keyword.get(:endpoint) || Helper.halt("Please provide --endpoint switch (or --target & config.yml)")
+      Helper.exit()
 
-    requestor_ref =
-      args |> Keyword.get(:requestor_ref) ||
-        Helper.halt("Please provide --requestor-ref switch (or --target & config.yml)")
+    target ->
+      config = Helper.config() |> Enum.filter(&(&1["identifier"] == target))
 
-    {endpoint, requestor_ref}
+      case config |> Enum.count() do
+        0 -> Helper.halt("Config not found for identifier #{target}. Please check config file.")
+        1 -> true
+        _ -> Helper.halt("Duplicate config found for identifier #{target}. Please check config file.")
+      end
+
+      [%{"requestor_ref" => requestor_ref, "target_url" => target_url}] = config
+      {target_url, requestor_ref}
+
+    true ->
+      endpoint =
+        args |> Keyword.get(:endpoint) || Helper.halt("Please provide --endpoint switch (or --target & config.yml)")
+
+      requestor_ref =
+        args |> Keyword.get(:requestor_ref) ||
+          Helper.halt("Please provide --requestor-ref switch (or --target & config.yml)")
+
+      {endpoint, requestor_ref}
   end
 
 message_id = "Test::Message::#{Ecto.UUID.generate()}"
