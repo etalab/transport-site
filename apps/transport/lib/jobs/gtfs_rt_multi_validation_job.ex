@@ -172,11 +172,11 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
     File.write!(tmp_path, body)
   end
 
-  defp download_resource(%Resource{datagouv_id: datagouv_id, url: url, is_available: true, format: format}, tmp_path)
+  defp download_resource(%Resource{id: resource_id, url: url, is_available: true, format: format}, tmp_path)
        when is_gtfs_rt(format) do
     case http_client().get(url, [], follow_redirect: true) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        Logger.debug("Saving resource #{datagouv_id} to #{tmp_path}")
+        Logger.debug("Saving resource #{resource_id} to #{tmp_path}")
         File.write!(tmp_path, body)
         {:ok, tmp_path, body}
 
@@ -188,8 +188,8 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
     end
   end
 
-  defp process_download({:error, message}, %Resource{datagouv_id: datagouv_id}) do
-    Logger.debug("Got an error while downloading #{datagouv_id}: #{message}")
+  defp process_download({:error, message}, %Resource{id: resource_id}) do
+    Logger.debug("Got an error while downloading #{resource_id}: #{message}")
     :error
   end
 
@@ -199,10 +199,11 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
     {:ok, tmp_path, cellar_filename}
   end
 
-  def download_path(%Resource{datagouv_id: datagouv_id}) do
-    folder = System.tmp_dir!() |> Path.join("resource_#{datagouv_id}_gtfs_rt_validation")
+  def download_path(%Resource{id: resource_id}) do
+    resource_id = resource_id |> to_string()
+    folder = System.tmp_dir!() |> Path.join("resource_#{resource_id}_gtfs_rt_validation")
     File.mkdir_p!(folder)
-    Path.join([folder, datagouv_id])
+    Path.join([folder, resource_id])
   end
 
   def gtfs_rt_result_path(%Resource{format: format} = resource) when is_gtfs_rt(format) do

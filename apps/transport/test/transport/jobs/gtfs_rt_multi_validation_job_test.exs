@@ -30,8 +30,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
       insert(:resource,
         dataset_id: dataset.id,
         is_available: Keyword.get(opts, :resource_available),
-        format: "GTFS",
-        datagouv_id: Ecto.UUID.generate()
+        format: "GTFS"
       )
 
     resource_history =
@@ -115,7 +114,6 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
           dataset_id: dataset.id,
           is_available: true,
           format: "gtfs-rt",
-          datagouv_id: Ecto.UUID.generate(),
           url: gtfs_rt_url
         )
 
@@ -125,7 +123,6 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
           dataset_id: dataset.id,
           is_available: true,
           format: "gtfs-rt",
-          datagouv_id: Ecto.UUID.generate(),
           url: gtfs_rt_no_errors_url
         )
 
@@ -144,8 +141,8 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
         {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
       end)
 
-      S3TestUtils.s3_mocks_upload_file(gtfs_rt.datagouv_id)
-      S3TestUtils.s3_mocks_upload_file(gtfs_rt_no_errors.datagouv_id)
+      S3TestUtils.s3_mocks_upload_file(gtfs_rt.id |> to_string())
+      S3TestUtils.s3_mocks_upload_file(gtfs_rt_no_errors.id |> to_string())
 
       gtfs_path = GTFSRTMultiValidationJob.download_path(gtfs)
       gtfs_rt_path = GTFSRTMultiValidationJob.download_path(gtfs_rt)
@@ -278,7 +275,6 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
           dataset_id: dataset.id,
           is_available: true,
           format: "gtfs-rt",
-          datagouv_id: Ecto.UUID.generate(),
           url: gtfs_rt_url
         )
 
@@ -292,7 +288,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
         {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
       end)
 
-      S3TestUtils.s3_mocks_upload_file(gtfs_rt.datagouv_id)
+      S3TestUtils.s3_mocks_upload_file(gtfs_rt.id |> to_string())
 
       gtfs_path = GTFSRTMultiValidationJob.download_path(gtfs)
       gtfs_rt_path = GTFSRTMultiValidationJob.download_path(gtfs_rt)
