@@ -201,7 +201,7 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
 
   def download_path(%Resource{id: resource_id}) do
     resource_id = resource_id |> to_string()
-    folder = System.tmp_dir!() |> Path.join("resource_#{resource_id}_gtfs_rt_validation")
+    folder = System.tmp_dir!() |> Path.join("resource_#{resource_id}_gtfs_rt_multi_validation")
     File.mkdir_p!(folder)
     Path.join([folder, resource_id])
   end
