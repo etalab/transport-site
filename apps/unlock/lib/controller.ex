@@ -107,6 +107,9 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, response.body)
   end
 
+  # NOTE: this code is designed for private use for now. I have tracked
+  # what is required or useful for public opening later here:
+  # https://github.com/etalab/transport-site/issues/2476
   defp process_resource(conn, %Unlock.Config.Item.SIRI{} = item) do
     {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
 
