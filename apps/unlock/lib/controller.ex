@@ -110,9 +110,6 @@ defmodule Unlock.Controller do
   defp process_resource(conn, %Unlock.Config.Item.SIRI{} = item) do
     # TODO: trace :external event
     # TODO: protect from memory overload (maybe)
-    # TODO: post to remote server
-    # TODO: forward body
-    # TODO: set headers
 
     {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
 
@@ -122,7 +119,6 @@ defmodule Unlock.Controller do
     body = Saxy.encode_to_iodata!(parsed)
 
     # TODO: trace :internal event
-    # TODO: add user-agent (proxy transport)
     # TODO: redact requestor ref if found (must remain private) ; this could leverage
     # some form of streaming ideally (depending on max size of responses seen).
     # (see https://github.com/qcam/saxy/issues/109 for relevant discussion)
