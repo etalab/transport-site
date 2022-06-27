@@ -17,10 +17,16 @@ defmodule Unlock.SIRI do
     A module able to replace `RequestorRef` tag in a "simple form" XML document
     """
 
+    # TODO: fix those tests: the structure is not binary XML, but a simpleform structure
+
     @doc """
     Newline must not cause a crash:
     iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref("<root>\u0044<hello></root>", %{new_requestor_ref: "ok"})
     "<root>\u0044<hello></root>"
+
+    Otherwise, the ref must be replaced:
+    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref("<root><RequestorRef>before</RequestorRef>", %{new_requestor_ref: "after"})
+    "<root><RequestorRef>after</RequestorRef>"
     """
 
     def replace_requestor_ref(data, %{new_requestor_ref: new_requestor_ref} = config) do
