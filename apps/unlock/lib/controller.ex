@@ -79,7 +79,7 @@ defmodule Unlock.Controller do
       # will otherwise send a full HTML error page. We will have to
       # hook an unlock-specific handling for this instead.
       Logger.error("An exception occurred (#{exception |> inspect}")
-      # TODO: remove
+
       if Mix.env() == :dev do
         Logger.error(Exception.format_stacktrace())
       end
