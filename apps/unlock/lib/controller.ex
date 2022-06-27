@@ -80,8 +80,14 @@ defmodule Unlock.Controller do
       # hook an unlock-specific handling for this instead.
       Logger.error("An exception occurred (#{exception |> inspect}")
 
-      if Mix.env() == :dev do
-        Logger.error(Exception.format_stacktrace())
+      cond do
+        # give a bit more context
+        Mix.env() == :dev ->
+          Logger.error(Exception.format_stacktrace())
+
+        # avoid swallowed Mox expectations & ExUnit assertions
+        Mix.env() == :test ->
+          reraise exception, __STACKTRACE__
       end
 
       conn
