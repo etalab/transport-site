@@ -64,7 +64,6 @@ defmodule Unlock.Controller do
     config = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
 
     resource = Map.get(config, id)
-    # TODO: ensure GET for GTFS-RT and POST for SIRI
 
     if resource do
       conn
@@ -100,7 +99,7 @@ defmodule Unlock.Controller do
   # RAM consumption
   @max_allowed_cached_byte_size 20 * 1024 * 1024
 
-  defp process_resource(conn, %Unlock.Config.Item.GTFS.RT{} = item) do
+  defp process_resource(conn, %Unlock.Config.Item.GTFS.RT{} = item) when conn.method == "GET" do
     Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
 
@@ -113,10 +112,12 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, response.body)
   end
 
+  defp process_resource(conn, %Unlock.Config.Item.GTFS.RT{}), do: send_not_allowed(conn)
+
   # NOTE: this code is designed for private use for now. I have tracked
   # what is required or useful for public opening later here:
   # https://github.com/etalab/transport-site/issues/2476
-  defp process_resource(conn, %Unlock.Config.Item.SIRI{} = item) do
+  defp process_resource(conn, %Unlock.Config.Item.SIRI{} = item) when conn.method == "POST" do
     {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
 
     parsed = Unlock.SIRI.parse_incoming(body)
@@ -151,6 +152,13 @@ defmodule Unlock.Controller do
     |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
     # No content-disposition as attachment for now
     |> send_resp(response.status, body)
+  end
+
+  defp process_resource(conn, %Unlock.Config.Item.SIRI{}) when conn.method == "GET", do: send_not_allowed(conn)
+
+  defp send_not_allowed(conn) do
+    conn
+    |> send_resp(405, "Method Not Allowed")
   end
 
   defp fetch_remote(item) do

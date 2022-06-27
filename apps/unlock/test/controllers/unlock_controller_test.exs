@@ -32,8 +32,29 @@ defmodule Unlock.ControllerTest do
     |> stub(:fetch_config!, fn -> config end)
   end
 
-  describe "POST /resource/:slug (on a SIRI item)" do
-    test "forwards query to the remote server" do
+  describe "SIRI item support" do
+    test "denies GET query" do
+      slug = "an-existing-identifier"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.SIRI{
+          identifier: slug,
+          target_url: "http://localhost/some-remote-resource",
+          requestor_ref: "the-secret-ref",
+          request_headers: [{"Content-Type", "text/xml; charset=utf-8"}]
+        }
+      })
+
+      resp =
+        build_conn()
+        # NOTE: required due to plug testing, not by the actual server
+        |> put_req_header("content-type", "application/soap+xml")
+        |> get("/resource/#{slug}", "Test")
+
+      assert resp.status == 405
+    end
+
+    test "forwards POST query to the remote server" do
       slug = "an-existing-identifier"
 
       setup_proxy_config(%{
@@ -89,8 +110,28 @@ defmodule Unlock.ControllerTest do
     end
   end
 
-  describe "GET /resource/:slug (on a GTFS-RT item)" do
-    test "handles a regular read" do
+  describe "GTFS-RT item support" do
+    test "denies POST query" do
+      slug = "an-existing-identifier"
+
+      ttl_in_seconds = 30
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.GTFS.RT{
+          identifier: slug,
+          target_url: "http://localhost/some-remote-resource",
+          ttl: ttl_in_seconds
+        }
+      })
+
+      resp =
+        build_conn()
+        |> post("/resource/#{slug}")
+
+      assert resp.status == 405
+    end
+
+    test "handles GET /resource/:slug" do
       slug = "an-existing-identifier"
 
       ttl_in_seconds = 30
