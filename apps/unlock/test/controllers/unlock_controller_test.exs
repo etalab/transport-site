@@ -33,26 +33,59 @@ defmodule Unlock.ControllerTest do
   end
 
   describe "POST /resource/:slug (on a SIRI item)" do
-    test "responds with 501 for now" do
+    test "forwards query to the remote server" do
       slug = "an-existing-identifier"
-
-      # TODO: use Mox client (Finch?)
 
       setup_proxy_config(%{
         slug => %Unlock.Config.Item.SIRI{
           identifier: slug,
-          target_url: "http://localhost/some-remote-resource",
-          requestor_ref: "the-ref"
+          target_url: target_url = "http://localhost/some-remote-resource",
+          requestor_ref: target_requestor_ref = "the-secret-ref",
+          request_headers: [{"Content-Type", "text/xml; charset=utf-8"}]
         }
       })
+
+      timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
+      incoming_requestor_ref = "transport-data-gouv-fr"
+      message_id = "Test::Message::#{Ecto.UUID.generate()}"
+      stop_ref = "SomeStopRef"
+
+      prolog = "<?xml version=\"1.0\"?>"
+
+      incoming_query =
+        SIRIQueries.siri_query_from_builder(
+          timestamp,
+          incoming_requestor_ref,
+          message_id,
+          stop_ref
+        )
+
+      expect(Unlock.HTTP.Client.Mock, :post!, fn url, headers, body ->
+        assert url == target_url
+        assert headers == [{"Content-Type", "text/xml; charset=utf-8"}]
+
+        # NOTE: I'll need to verify why the prolog isn't there ???
+        assert prolog <> (body |> IO.iodata_to_binary()) ==
+                 incoming_query |> String.replace(incoming_requestor_ref, target_requestor_ref)
+
+        # NOTE: testing the edge case where the response is gzipped
+        %{
+          body: "<Everything></Everything>" |> :zlib.gzip(),
+          headers: [{"Content-Encoding", "gzip"}],
+          status: 200
+        }
+      end)
 
       resp =
         build_conn()
         # NOTE: required due to plug testing, not by the actual server
         |> put_req_header("content-type", "application/soap+xml")
-        |> post("/resource/an-existing-identifier", "<element hello='world'></element>")
+        |> post("/resource/an-existing-identifier", incoming_query)
 
       assert resp.status == 200
+      # unzipped for now
+      assert resp.resp_body == "<Everything></Everything>"
+      # we should test headers too here
     end
   end
 
