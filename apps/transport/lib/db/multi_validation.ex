@@ -13,6 +13,7 @@ defmodule DB.MultiValidation do
     field(:command, :string)
     field(:result, :map)
     field(:data_vis, :map)
+    field(:max_error, :string)
 
     # if the validation is enqueued via Oban, this field contains the job arguments
     # and its status (waiting, completed, etc)
@@ -28,6 +29,45 @@ defmodule DB.MultiValidation do
 
     has_one(:metadata, DB.ResourceMetadata)
     timestamps(type: :utc_datetime_usec)
+  end
+
+  def base_query, do: from(mv in DB.MultiValidation, as: :multi_validation)
+
+  @spec join_resource_history_with_latest_validation(Ecto.Query.t(), binary() | [binary()]) :: Ecto.Query.t()
+  @doc """
+  joins the query with the latest validation, given a validator name or a list of validator names
+  """
+  def join_resource_history_with_latest_validation(query, validator) do
+    latest_validation = multi_validation_subquery(validator)
+
+    query
+    |> join(:inner, [resource_history: rh], mv in DB.MultiValidation,
+      on: mv.resource_history_id == rh.id,
+      as: :multi_validation
+    )
+    |> join(:inner_lateral, [multi_validation: mv], latest in subquery(latest_validation), on: latest.id == mv.id)
+  end
+
+  defp multi_validation_subquery(v) do
+    DB.MultiValidation
+    |> where(
+      [mv],
+      mv.resource_history_id == parent_as(:resource_history).id
+    )
+    |> filter_on_validator(v)
+    |> order_by([mv], desc: :inserted_at)
+    |> select([mv], mv.id)
+    |> limit(1)
+  end
+
+  defp filter_on_validator(query, validator_names) when is_list(validator_names) do
+    query
+    |> where([mv], mv.validator in ^validator_names)
+  end
+
+  defp filter_on_validator(query, validator_name) do
+    query
+    |> where([mv], mv.validator == ^validator_name)
   end
 
   @spec already_validated?(map(), module()) :: boolean()

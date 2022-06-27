@@ -70,6 +70,25 @@ defmodule DB.Resource do
       on_replace: :delete,
       on_delete: :delete_all
     )
+
+    has_many(:resource_history, DB.ResourceHistory)
+  end
+
+  def base_query, do: from(r in DB.Resource, as: :resource)
+
+  def join_dataset_with_resource(query) do
+    query
+    |> join(:inner, [dataset: d], r in DB.Resource, on: d.id == r.dataset_id, as: :resource)
+  end
+
+  def filter_on_resource_id(query, resource_id) do
+    query
+    |> where([resource: r], r.id == ^resource_id)
+  end
+
+  def filter_on_dataset_id(query, dataset_id) do
+    query
+    |> where([resource: r], r.dataset_id == ^dataset_id)
   end
 
   defp gtfs_validator, do: Shared.Validation.GtfsValidator.Wrapper.impl()
@@ -571,7 +590,7 @@ defmodule DB.Resource do
         # credo:disable-for-next-line
         with %Validation{details: details} when details == %{} <-
                Repo.get_by(Validation, resource_id: id) do
-          %{severity: "Irrevelant", count_errors: 0}
+          %{severity: "Irrelevant", count_errors: 0}
         else
           _ ->
             Logger.error("Unable to get validation of resource #{id}")
