@@ -137,7 +137,7 @@ defmodule Transport.Validators.GTFSTransport do
 
   iex> validation_result = %{"tooClose" => [%{"severity" => "Warning"}], "funnyName" => [%{"severity" => "Information"}, %{"severity" => "Information"}], "NullDuration" => [%{"severity" => "Warning"}]}
   iex> count_max_severity(validation_result)
-  %{"Warning", 2}
+  {"Warning", 2}
   """
   @spec count_max_severity(map()) :: {binary(), integer()}
   def count_max_severity(validation_result) when validation_result == %{} do
@@ -163,6 +163,9 @@ defmodule Transport.Validators.GTFSTransport do
 
   iex> get_max_severity_error(%{})
   "NoError"
+
+    iex> get_max_severity_error(nil)
+  nil
   """
   @spec get_max_severity_error(any) :: binary() | nil
   def get_max_severity_error(%{} = validations) do
