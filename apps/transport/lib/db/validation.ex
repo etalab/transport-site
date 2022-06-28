@@ -62,13 +62,13 @@ defmodule DB.Validation do
         {key,
          %{
            count: Enum.count(issues),
-           title: Resource.issues_short_translation()[key],
+           title: Transport.Validators.GTFSTransport.issues_short_translation()[key],
            severity: issues |> List.first() |> Map.get("severity")
          }}
       end)
       |> Map.new()
 
-    Resource.issues_short_translation()
+      Transport.Validators.GTFSTransport.issues_short_translation()
     |> Enum.map(fn {key, title} -> {key, %{count: 0, title: title, severity: "Irrelevant"}} end)
     |> Map.new()
     |> Map.merge(existing_issues)

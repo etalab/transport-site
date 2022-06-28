@@ -100,13 +100,13 @@ defmodule Transport.Validators.GTFSTransport do
         {key,
          %{
            count: Enum.count(issues),
-           title: DB.Resource.issues_short_translation()[key],
+           title: issues_short_translation()[key],
            severity: issues |> List.first() |> Map.get("severity")
          }}
       end)
       |> Map.new()
 
-    DB.Resource.issues_short_translation()
+    issues_short_translation()
     |> Enum.map(fn {key, title} -> {key, %{count: 0, title: title, severity: "Irrelevant"}} end)
     |> Map.new()
     |> Map.merge(existing_issues)
@@ -149,4 +149,41 @@ defmodule Transport.Validators.GTFSTransport do
   end
 
   def get_max_severity_error(_), do: nil
+
+  @spec issues_short_translation() :: %{binary() => binary()}
+  def issues_short_translation,
+    do: %{
+      "UnusedStop" => dgettext("db-validations", "Unused stops"),
+      "Slow" => dgettext("db-validations", "Slow"),
+      "ExcessiveSpeed" => dgettext("db-validations", "Excessive speed between two stops"),
+      "NegativeTravelTime" => dgettext("db-validations", "Negative travel time between two stops"),
+      "CloseStops" => dgettext("db-validations", "Close stops"),
+      "NullDuration" => dgettext("db-validations", "Null duration between two stops"),
+      "InvalidReference" => dgettext("db-validations", "Invalid reference"),
+      "InvalidArchive" => dgettext("db-validations", "Invalid archive"),
+      "MissingRouteName" => dgettext("db-validations", "Missing route name"),
+      "MissingId" => dgettext("db-validations", "Missing id"),
+      "MissingCoordinates" => dgettext("db-validations", "Missing coordinates"),
+      "MissingName" => dgettext("db-validations", "Missing name"),
+      "InvalidCoordinates" => dgettext("db-validations", "Invalid coordinates"),
+      "InvalidRouteType" => dgettext("db-validations", "Invalid route type"),
+      "MissingUrl" => dgettext("db-validations", "Missing url"),
+      "InvalidUrl" => dgettext("db-validations", "Invalid url"),
+      "InvalidTimezone" => dgettext("db-validations", "Invalid timezone"),
+      "DuplicateStops" => dgettext("db-validations", "Duplicate stops"),
+      "MissingPrice" => dgettext("db-validations", "Missing price"),
+      "InvalidCurrency" => dgettext("db-validations", "Invalid currency"),
+      "InvalidTransfers" => dgettext("db-validations", "Invalid transfers"),
+      "InvalidTransferDuration" => dgettext("db-validations", "Invalid transfer duration"),
+      "MissingLanguage" => dgettext("db-validations", "Missing language"),
+      "InvalidLanguage" => dgettext("db-validations", "Invalid language"),
+      "DuplicateObjectId" => dgettext("db-validations", "Duplicate object id"),
+      "UnloadableModel" => dgettext("db-validations", "Not compliant with the GTFS specification"),
+      "MissingMandatoryFile" => dgettext("db-validations", "Missing mandatory file"),
+      "ExtraFile" => dgettext("db-validations", "Extra file"),
+      "ImpossibleToInterpolateStopTimes" => dgettext("db-validations", "Impossible to interpolate stop times"),
+      "InvalidStopLocationTypeInTrip" => dgettext("db-validations", "Invalid stop location type in trip"),
+      "InvalidStopParent" => dgettext("db-validations", "Invalid stop parent"),
+      "IdNotAscii" => dgettext("db-validations", "ID is not ASCII-encoded")
+    }
 end
