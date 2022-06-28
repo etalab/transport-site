@@ -164,7 +164,7 @@ defmodule Transport.Validators.GTFSTransport do
   iex> get_max_severity_error(%{})
   "NoError"
 
-    iex> get_max_severity_error(nil)
+  iex> get_max_severity_error(nil)
   nil
   """
   @spec get_max_severity_error(any) :: binary() | nil
