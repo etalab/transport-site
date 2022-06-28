@@ -149,12 +149,20 @@ defmodule Transport.Validators.GTFSTransport do
   def is_mine?(%{validator: validator}), do: validator == validator_name()
   def is_mine?(_), do: false
 
-  @spec get_max_severity_error(any) :: binary()
+  @doc """
+  Returns the maximum issue severity found
+
+  iex> validation_result = %{"tooClose" => [%{"severity" => "Warning"}], "funnyName" => [%{"severity" => "Information"}, %{"severity" => "Information"}], "NullDuration" => [%{"severity" => "Warning"}]}
+  iex> get_max_severity_error(validation_result)
+  "Warning"
+
+  iex> get_max_severity_error(%{})
+  "NoError"
+  """
+  @spec get_max_severity_error(any) :: binary() | nil
   def get_max_severity_error(%{} = validations) do
-    validations
-    |> Map.values()
-    |> Enum.map(fn v -> hd(v)["severity"] end)
-    |> Enum.min_by(fn sev -> severities(sev).level end, fn -> "NoError" end)
+    {severity, _} = count_max_severity(validations)
+    severity
   end
 
   def get_max_severity_error(_), do: nil
