@@ -322,9 +322,9 @@ defmodule TransportWeb.API.StatsController do
   end
 
   @spec quality_features_query :: Ecto.Query.t()
+  def quality_features_query do
   # Note: this query is not done in the meantime as aom_features_query because this query is quite long to execute
   # and we don't want to slow down the main aom_features_query to much
-  def quality_features_query() do
     dt = Date.utc_today() |> Date.to_iso8601()
 
     error_info_sub = dataset_min_error_level()
@@ -388,8 +388,9 @@ defmodule TransportWeb.API.StatsController do
     |> group_by([aom], aom.id)
   end
 
-  def dataset_expired_from() do
-    DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+  def dataset_expired_from do
+    Transport.Validators.GTFSTransport.validator_name()
+    |> DB.Dataset.join_from_dataset_to_metadata()
     |> where([resource: r], r.is_available == true)
     |> select([dataset: d, metadata: m], %{
       dataset_id: d.id,
@@ -397,8 +398,9 @@ defmodule TransportWeb.API.StatsController do
     })
   end
 
-  def dataset_min_error_level() do
-    DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+  def dataset_min_error_level do
+    Transport.Validators.GTFSTransport.validator_name()
+    |> DB.Dataset.join_from_dataset_to_metadata()
     |> DB.ResourceMetadata.where_gtfs_up_to_date()
     |> where([resource: r], r.is_available == true)
     |> select([dataset: d, multi_validation: mv], %{dataset_id: d.id, max_error: mv.max_error})
