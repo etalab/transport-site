@@ -58,8 +58,7 @@ defmodule Transport.Validators.GTFSTransport do
       "Fatal" => %{level: 0, text: dgettext("gtfs-transport-validator", "Fatal failures")},
       "Error" => %{level: 1, text: dgettext("gtfs-transport-validator", "Errors")},
       "Warning" => %{level: 2, text: dgettext("gtfs-transport-validator", "Warnings")},
-      "Information" => %{level: 3, text: dgettext("gtfs-transport-validator", "Informations")},
-      "Irrelevant" => %{level: 4, text: dgettext("gtfs-transport-validator", "Passed validations")}
+      "Information" => %{level: 3, text: dgettext("gtfs-transport-validator", "Informations")}
     }
 
   @spec severities(binary()) :: %{level: integer(), text: binary()}
