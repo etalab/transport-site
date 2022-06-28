@@ -110,7 +110,15 @@ defmodule Transport.Validators.GTFSTransport do
 
   @doc """
   Returns the number of issues by severity level
+
+  iex> validation_result = %{"tooClose" => [%{"severity" => "Warning"}], "funnyName" => [%{"severity" => "Information"}, %{"severity" => "Information"}], "NullDuration" => [%{"severity" => "Warning"}]}
+  iex> count_by_severity(validation_result)
+  %{"Warning" => 2, "Information" => 2}
+
+  iex> count_by_severity(%{})
+
   """
+  @spec count_by_severity(map()) :: map()
   def count_by_severity(%{} = validation_result) do
     validation_result
     |> Enum.flat_map(fn {_, v} -> v end)
