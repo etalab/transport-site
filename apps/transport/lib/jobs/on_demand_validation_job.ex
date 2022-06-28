@@ -13,7 +13,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   alias Shared.Validation.JSONSchemaValidator.Wrapper, as: JSONSchemaValidator
   alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
   alias Transport.DataVisualization
-  alias Transport.Jobs.GTFSRTValidationJob
+  alias Transport.Validators.GTFSRT
   alias Transport.Validators.GTFSTransport
 
   @impl Oban.Worker
@@ -145,18 +145,19 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   end
 
   defp process_download([{:ok, gtfs_path}, {:ok, gtfs_rt_path}]) do
-    case GTFSRTValidationJob.run_validator(gtfs_path, gtfs_rt_path) do
+    case GTFSRT.run_validator(gtfs_path, gtfs_rt_path) do
       {:ok, _} ->
-        case GTFSRTValidationJob.convert_validator_report(gtfs_rt_result_path(gtfs_rt_path)) do
+        case GTFSRT.convert_validator_report(gtfs_rt_result_path(gtfs_rt_path)) do
           {:ok, validation} ->
             # https://github.com/etalab/transport-site/issues/2390
-            # to do : add command, transport-tools version when available
+            # to do : transport-tools version when available
             %{
               oban_args: %{
                 "state" => "completed"
               },
               result: validation,
-              validator: "gtfs-realtime-validator"
+              validator: GTFSRT.validator_name(),
+              command: GTFSRT.command(gtfs_path, gtfs_rt_path)
             }
 
           :error ->

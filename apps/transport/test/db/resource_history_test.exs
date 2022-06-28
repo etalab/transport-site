@@ -2,6 +2,7 @@ defmodule DB.ResourceHistoryTest do
   use ExUnit.Case
   import DB.ResourceHistory
   import DB.Factory
+  import Ecto.Query
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -90,5 +91,23 @@ defmodule DB.ResourceHistoryTest do
              resource_id_2 => %{url: url, filesize: nil},
              resource_id_3 => %{url: url, filesize: filesize}
            } == latest_dataset_resources_history_infos(dataset_id)
+  end
+
+  test "composable query" do
+    resource_1 = insert(:resource)
+    insert(:resource_history, resource_id: resource_1.id, inserted_at: DateTime.utc_now() |> DateTime.add(-2000))
+
+    latest_resource_history =
+      insert(:resource_history, resource_id: resource_1.id, inserted_at: DateTime.utc_now() |> DateTime.add(-1000))
+
+    resource_2 = insert(:resource)
+    insert(:resource_history, resource_id: resource_2.id, inserted_at: DateTime.utc_now() |> DateTime.add(-100))
+
+    assert latest_resource_history ==
+             DB.Resource.base_query()
+             |> DB.Resource.filter_on_resource_id(resource_1.id)
+             |> DB.ResourceHistory.join_resource_with_latest_resource_history()
+             |> select([resource_history: rh], rh)
+             |> DB.Repo.one!()
   end
 end

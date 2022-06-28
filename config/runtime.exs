@@ -96,7 +96,8 @@ oban_crontab_all_envs =
         {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}},
         {"20 */2 * * *", Transport.Jobs.GTFSRTEntitiesDispatcherJob},
         {"30 */6 * * *", Transport.Jobs.BNLCToGeoData},
-        {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob}
+        {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob},
+        {"0 7 * * *", Transport.Jobs.GTFSRTMultiValidationDispatcherJob}
       ]
 
     :dev ->
@@ -120,7 +121,7 @@ extra_oban_conf =
     [queues: false, plugins: false]
   else
     [
-      queues: [default: 2, heavy: 1, on_demand_validation: 1, resource_history_validation: 1],
+      queues: [default: 2, heavy: 1, on_demand_validation: 1, resource_validation: 1],
       plugins: [
         {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
         {Oban.Plugins.Cron, crontab: List.flatten(oban_crontab_all_envs, production_server_crontab)}
