@@ -559,13 +559,13 @@ function addRealTimePtFormatMap (id, view) {
             bind += '<br/>formats :'
             const formats = []
             if (gtfsRT) {
-                formats.push('GTFS RT')
+                formats.push('GTFS-RT')
             }
             if (siri) {
-                formats.push('SIRI')
+                formats.push('Siri')
             }
             if (siriLite) {
-                formats.push('SIRI Lite')
+                formats.push('Siri Lite')
             }
             bind += ` ${formats.join(', ')}</div>`
         }
