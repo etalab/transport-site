@@ -12,7 +12,10 @@ defmodule Transport.Validators.GTFSTransport do
   Store the results in DB
   """
   @impl Transport.Validators.Validator
-  def validate_and_save(%DB.ResourceHistory{id: resource_history_id, payload: %{"permanent_url" => url}}) do
+  def validate_and_save(%DB.ResourceHistory{
+        id: resource_history_id,
+        payload: %{"permanent_url" => url}
+      }) do
     timestamp = DateTime.utc_now()
     validator = Shared.Validation.GtfsValidator.Wrapper.impl()
 
@@ -200,7 +203,8 @@ defmodule Transport.Validators.GTFSTransport do
       "UnloadableModel" => dgettext("gtfs-transport-validator", "Not compliant with the GTFS specification"),
       "MissingMandatoryFile" => dgettext("gtfs-transport-validator", "Missing mandatory file"),
       "ExtraFile" => dgettext("gtfs-transport-validator", "Extra file"),
-      "ImpossibleToInterpolateStopTimes" => dgettext("gtfs-transport-validator", "Impossible to interpolate stop times"),
+      "ImpossibleToInterpolateStopTimes" =>
+        dgettext("gtfs-transport-validator", "Impossible to interpolate stop times"),
       "InvalidStopLocationTypeInTrip" => dgettext("gtfs-transport-validator", "Invalid stop location type in trip"),
       "InvalidStopParent" => dgettext("gtfs-transport-validator", "Invalid stop parent"),
       "IdNotAscii" => dgettext("gtfs-transport-validator", "ID is not ASCII-encoded")
