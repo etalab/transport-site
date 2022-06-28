@@ -2,6 +2,9 @@ defmodule Transport.Validators.EXJSONSchema do
   @moduledoc """
   Validate a file against a JSON Schema using [ex_json_schema](https://github.com/jonasschmidt/ex_json_schema).
   """
+  # https://github.com/etalab/transport-site/issues/2390
+  # Plan to move the other validator here as we deprecate
+  # the previous validation flow.
   alias Shared.Validation.JSONSchemaValidator.Wrapper, as: JSONSchemaValidator
   @behaviour Transport.Validators.Validator
 
