@@ -5,6 +5,8 @@ defmodule Transport.Validators.GTFSTransport do
   @behaviour Transport.Validators.Validator
   import DB.Gettext, only: [dgettext: 2]
 
+  @noError "NoError"
+
   @doc """
   Validates a resource history and extract metadata from it.
   Store the results in DB
