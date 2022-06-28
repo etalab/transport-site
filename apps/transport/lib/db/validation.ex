@@ -68,7 +68,7 @@ defmodule DB.Validation do
       end)
       |> Map.new()
 
-      Transport.Validators.GTFSTransport.issues_short_translation()
+    Transport.Validators.GTFSTransport.issues_short_translation()
     |> Enum.map(fn {key, title} -> {key, %{count: 0, title: title, severity: "Irrelevant"}} end)
     |> Map.new()
     |> Map.merge(existing_issues)
