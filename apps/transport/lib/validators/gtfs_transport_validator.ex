@@ -92,23 +92,18 @@ defmodule Transport.Validators.GTFSTransport do
 
   def get_issues(_, _), do: []
 
+  @spec summary(map) :: list
   def summary(%{} = validation_result) do
-    existing_issues =
-      validation_result
-      |> Enum.map(fn {key, issues} ->
-        {key,
-         %{
-           count: Enum.count(issues),
-           title: issues_short_translation()[key],
-           severity: issues |> List.first() |> Map.get("severity")
-         }}
-      end)
-      |> Map.new()
-
-    issues_short_translation()
-    |> Enum.map(fn {key, title} -> {key, %{count: 0, title: title, severity: "Irrelevant"}} end)
+    validation_result
+    |> Enum.map(fn {key, issues} ->
+      {key,
+       %{
+         count: Enum.count(issues),
+         title: issues_short_translation()[key],
+         severity: issues |> List.first() |> Map.get("severity")
+       }}
+    end)
     |> Map.new()
-    |> Map.merge(existing_issues)
     |> Enum.group_by(fn {_, issue} -> issue.severity end)
     |> Enum.sort_by(fn {severity, _} -> severities(severity).level end)
   end
