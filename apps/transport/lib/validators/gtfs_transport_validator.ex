@@ -5,7 +5,7 @@ defmodule Transport.Validators.GTFSTransport do
   @behaviour Transport.Validators.Validator
   import DB.Gettext, only: [dgettext: 2]
 
-  @noError "NoError"
+  @no_error "NoError"
 
   @doc """
   Validates a resource history and extract metadata from it.
@@ -141,7 +141,7 @@ defmodule Transport.Validators.GTFSTransport do
   """
   @spec count_max_severity(map()) :: {binary(), integer()}
   def count_max_severity(validation_result) when validation_result == %{} do
-    {@noError, 0}
+    {@no_error, 0}
   end
 
   def count_max_severity(%{} = validation_result) do
