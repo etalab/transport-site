@@ -17,8 +17,6 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  @gtfs_validator_name GTFSTransport.validator_name()
-
   describe "GTFSRTMultiValidationDispatcherJob" do
     test "selects appropriate datasets" do
       %{dataset: dataset} = insert_up_to_date_resource_and_friends()
