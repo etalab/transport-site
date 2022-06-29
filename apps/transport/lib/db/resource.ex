@@ -10,7 +10,6 @@ defmodule DB.Resource do
   alias Transport.DataVisualization
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
   import Ecto.{Changeset, Query}
-  import DB.Gettext
   require Logger
 
   typed_schema "resource" do
