@@ -6,7 +6,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
   import Mox
   alias Transport.Jobs.{GTFSRTMultiValidationDispatcherJob, GTFSRTMultiValidationJob}
   alias Transport.Test.S3TestUtils
-  alias Transport.Validators.{GTFSRT, GTFSTransport}
+  alias Transport.Validators.GTFSRT
 
   @gtfs_rt_report_path "#{__DIR__}/../../fixture/files/gtfs-rt-validator-errors.json"
   @validator_filename "gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
