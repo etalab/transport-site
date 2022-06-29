@@ -20,7 +20,7 @@ defmodule DB.Factory do
       nom: "Grenoble",
       region: build(:region),
       # The value must be unique, ExFactory helps us with a named sequence
-      composition_res_id: sequence("composition_res_id", & &1)
+      composition_res_id: 1000 + sequence("composition_res_id", & &1)
     }
   end
 
