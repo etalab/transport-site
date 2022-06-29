@@ -14,15 +14,10 @@ defmodule Transport.Validators.EXJSONSchema do
         payload: %{"permanent_url" => url, "schema_name" => schema_name}
       })
       when is_binary(schema_name) do
-    validation_result =
-      schema_name
-      |> JSONSchemaValidator.load_jsonschema_for_schema()
-      |> JSONSchemaValidator.validate(url)
-
     %DB.MultiValidation{
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
-      result: validation_result,
+      result: perform_validation(schema_name, url),
       resource_history_id: resource_history_id,
       validator_version: validator_version()
     }
@@ -30,6 +25,18 @@ defmodule Transport.Validators.EXJSONSchema do
 
     :ok
   end
+
+  def perform_validation(schema_name, url) do
+    schema_name
+    |> JSONSchemaValidator.load_jsonschema_for_schema()
+    |> JSONSchemaValidator.validate(url)
+    |> normalize_validation_result()
+  end
+
+  def normalize_validation_result(nil), do: %{"validation_performed" => false}
+
+  def normalize_validation_result(%{"has_errors" => _, "errors_count" => _, "errors" => _} = validation),
+    do: Map.merge(validation, %{"validation_performed" => true})
 
   @impl Transport.Validators.Validator
   def validator_name, do: "EXJSONSchema"

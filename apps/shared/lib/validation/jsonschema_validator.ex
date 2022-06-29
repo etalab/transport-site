@@ -7,7 +7,7 @@ defmodule Shared.Validation.JSONSchemaValidator.Wrapper do
   @callback load_jsonschema_for_schema(binary()) :: ExJsonSchema.Schema.Root.t()
   def load_jsonschema_for_schema(schema_name), do: impl().load_jsonschema_for_schema(schema_name)
 
-  @callback validate(ExJsonSchema.Schema.Root.t(), map() | binary()) :: map()
+  @callback validate(ExJsonSchema.Schema.Root.t(), map() | binary()) :: map() | nil
   def validate(schema, target), do: impl().validate(schema, target)
 end
 

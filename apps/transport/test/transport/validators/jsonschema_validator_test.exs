@@ -20,23 +20,17 @@ defmodule Transport.Validators.EXJSONSchemaTest do
         }
       )
 
-    Shared.Validation.JSONSchemaValidator.Mock
-    |> expect(:load_jsonschema_for_schema, fn ^schema_name ->
-      %ExJsonSchema.Schema.Root{
-        schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
-        version: 7
-      }
-    end)
+    mock_load_jsonschema(schema_name)
 
     Shared.Validation.JSONSchemaValidator.Mock
     |> expect(:validate, fn _schema, ^permanent_url ->
-      %{"foo" => "bar"}
+      %{"has_errors" => false, "errors_count" => 0, "errors" => []}
     end)
 
     assert :ok == EXJSONSchema.validate_and_save(resource_history)
 
     assert %{
-             result: %{"foo" => "bar"},
+             result: %{"has_errors" => false, "errors_count" => 0, "errors" => [], "validation_performed" => true},
              resource_history_id: ^resource_history_id,
              command: nil,
              data_vis: nil,
@@ -44,5 +38,27 @@ defmodule Transport.Validators.EXJSONSchemaTest do
              validator: "EXJSONSchema",
              validator_version: "0.9.1"
            } = DB.MultiValidation |> DB.Repo.get_by!(resource_history_id: resource_history_id)
+  end
+
+  test "perform_validation when validator returns nil" do
+    schema_name = "etalab/schema-zfe"
+    permanent_url = "https://example.com/permanent_url"
+
+    mock_load_jsonschema(schema_name)
+
+    Shared.Validation.JSONSchemaValidator.Mock
+    |> expect(:validate, fn _schema, ^permanent_url -> nil end)
+
+    assert %{"validation_performed" => false} == EXJSONSchema.perform_validation(schema_name, permanent_url)
+  end
+
+  defp mock_load_jsonschema(schema_name) do
+    Shared.Validation.JSONSchemaValidator.Mock
+    |> expect(:load_jsonschema_for_schema, fn ^schema_name ->
+      %ExJsonSchema.Schema.Root{
+        schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
+        version: 7
+      }
+    end)
   end
 end

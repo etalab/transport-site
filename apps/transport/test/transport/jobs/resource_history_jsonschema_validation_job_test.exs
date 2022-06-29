@@ -30,13 +30,13 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJobTest do
 
     Shared.Validation.JSONSchemaValidator.Mock
     |> expect(:validate, fn _schema, ^permanent_url ->
-      %{"foo" => "bar"}
+      %{"has_errors" => false, "errors_count" => 0, "errors" => []}
     end)
 
     assert :ok == perform_job(ResourceHistoryJSONSchemaValidationJob, %{resource_history_id: resource_history_id})
 
     assert %{
-             result: %{"foo" => "bar"},
+             result: %{"has_errors" => false, "errors_count" => 0, "errors" => [], "validation_performed" => true},
              resource_history_id: ^resource_history_id,
              command: nil,
              data_vis: nil,
