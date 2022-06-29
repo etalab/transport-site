@@ -121,7 +121,7 @@ defmodule Transport.Validators.GTFSTransport do
   %{"Warning" => 2, "Information" => 2}
 
   iex> count_by_severity(%{})
-
+  %{}
   """
   @spec count_by_severity(map()) :: map()
   def count_by_severity(%{} = validation_result) do
