@@ -553,7 +553,7 @@ function addRealTimePtFormatMap (id, view) {
 
         let bind = `<div style="padding-bottom: 6px;"><strong>${name}</strong><br/>${type}</div>`
         if (countOfficial) {
-            const text = countOfficial === 1 ? 'Un jeu de données standardisé' : `${countOfficial} jeux de données standardisés`
+            const text = countOfficial === 1 ? 'Une ressource standardisée' : `${countOfficial} ressources standardisées`
             const commune = feature.properties.id
             bind += `<div style="padding-bottom: 6px;"><a href="/datasets/aom/${commune}">${text}</a>`
             bind += '<br/>formats :'
@@ -571,7 +571,7 @@ function addRealTimePtFormatMap (id, view) {
         }
 
         if (countNonStandardRT) {
-            const text = 'jeu de données non officiellement référencé'
+            const text = countNonStandardRT === 1 ? 'une ressource non officiellement référencée' : `${countNonStandardRT} ressources non officiellement référencées`
             bind += `<a href="/real_time">${text}</a>`
         }
         layer.bindPopup(bind)
