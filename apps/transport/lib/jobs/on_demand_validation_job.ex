@@ -62,6 +62,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
           validator: validator,
           command: GTFSTransport.command(url),
           validated_data_name: url,
+          max_error: GTFSTransport.get_max_severity_error(validation),
           oban_args: %{
             "state" => "completed"
           }
