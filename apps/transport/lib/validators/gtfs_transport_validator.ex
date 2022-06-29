@@ -105,7 +105,7 @@ defmodule Transport.Validators.GTFSTransport do
        %{
          count: Enum.count(issues),
          title: issues_short_translation()[key],
-         severity: issues |> List.first() |> Map.get("severity")
+         severity: issues |> List.first() |> Map.fetch!("severity")
        }}
     end)
     |> Map.new()
