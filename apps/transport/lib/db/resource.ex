@@ -489,43 +489,6 @@ defmodule DB.Resource do
     |> validate_required([:url, :datagouv_id])
   end
 
-  @spec issues_short_translation() :: %{binary() => binary()}
-  def issues_short_translation,
-    do: %{
-      "UnusedStop" => dgettext("db-validations", "Unused stops"),
-      "Slow" => dgettext("db-validations", "Slow"),
-      "ExcessiveSpeed" => dgettext("db-validations", "Excessive speed between two stops"),
-      "NegativeTravelTime" => dgettext("db-validations", "Negative travel time between two stops"),
-      "CloseStops" => dgettext("db-validations", "Close stops"),
-      "NullDuration" => dgettext("db-validations", "Null duration between two stops"),
-      "InvalidReference" => dgettext("db-validations", "Invalid reference"),
-      "InvalidArchive" => dgettext("db-validations", "Invalid archive"),
-      "MissingRouteName" => dgettext("db-validations", "Missing route name"),
-      "MissingId" => dgettext("db-validations", "Missing id"),
-      "MissingCoordinates" => dgettext("db-validations", "Missing coordinates"),
-      "MissingName" => dgettext("db-validations", "Missing name"),
-      "InvalidCoordinates" => dgettext("db-validations", "Invalid coordinates"),
-      "InvalidRouteType" => dgettext("db-validations", "Invalid route type"),
-      "MissingUrl" => dgettext("db-validations", "Missing url"),
-      "InvalidUrl" => dgettext("db-validations", "Invalid url"),
-      "InvalidTimezone" => dgettext("db-validations", "Invalid timezone"),
-      "DuplicateStops" => dgettext("db-validations", "Duplicate stops"),
-      "MissingPrice" => dgettext("db-validations", "Missing price"),
-      "InvalidCurrency" => dgettext("db-validations", "Invalid currency"),
-      "InvalidTransfers" => dgettext("db-validations", "Invalid transfers"),
-      "InvalidTransferDuration" => dgettext("db-validations", "Invalid transfer duration"),
-      "MissingLanguage" => dgettext("db-validations", "Missing language"),
-      "InvalidLanguage" => dgettext("db-validations", "Invalid language"),
-      "DuplicateObjectId" => dgettext("db-validations", "Duplicate object id"),
-      "UnloadableModel" => dgettext("db-validations", "Not compliant with the GTFS specification"),
-      "MissingMandatoryFile" => dgettext("db-validations", "Missing mandatory file"),
-      "ExtraFile" => dgettext("db-validations", "Extra file"),
-      "ImpossibleToInterpolateStopTimes" => dgettext("db-validations", "Impossible to interpolate stop times"),
-      "InvalidStopLocationTypeInTrip" => dgettext("db-validations", "Invalid stop location type in trip"),
-      "InvalidStopParent" => dgettext("db-validations", "Invalid stop parent"),
-      "IdNotAscii" => dgettext("db-validations", "ID is not ASCII-encoded")
-    }
-
   @spec has_metadata?(__MODULE__.t()) :: boolean()
   def has_metadata?(%__MODULE__{} = r), do: r.metadata != nil
 
@@ -590,7 +553,7 @@ defmodule DB.Resource do
         # credo:disable-for-next-line
         with %Validation{details: details} when details == %{} <-
                Repo.get_by(Validation, resource_id: id) do
-          %{severity: "Irrelevant", count_errors: 0}
+          %{severity: "NoError", count_errors: 0}
         else
           _ ->
             Logger.error("Unable to get validation of resource #{id}")
@@ -605,6 +568,9 @@ defmodule DB.Resource do
 
   def get_max_severity_validation_number(_), do: nil
 
+  # I duplicate this function in Transport.Validators.GTFSTransport
+  # this one should be deleted later
+  # https://github.com/etalab/transport-site/issues/2390
   @spec get_max_severity_error(any) :: binary()
   defp get_max_severity_error(%{} = validations) do
     validations

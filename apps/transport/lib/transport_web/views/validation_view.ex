@@ -8,10 +8,6 @@ defmodule TransportWeb.ValidationView do
     render(TransportWeb.ResourceView, partial, assigns)
   end
 
-  def has_errors?(errors) do
-    errors
-    |> Enum.reject(fn error -> match?({"Irrelevant", _}, error) end)
-    |> Enum.empty?()
-    |> Kernel.not()
-  end
+  def has_errors?([]), do: false
+  def has_errors?(summary) when is_list(summary), do: true
 end
