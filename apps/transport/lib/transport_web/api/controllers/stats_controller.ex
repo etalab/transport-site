@@ -371,15 +371,13 @@ defmodule TransportWeb.API.StatsController do
               WHEN 'Error' THEN 2
               WHEN 'Warning' THEN 3
               WHEN 'Information' THEN 4
-              WHEN 'Irrelevant' THEN 5
-              WHEN 'NoError' THEN 6
+              WHEN 'NoError' THEN 5
               END)
             WHEN 1 THEN 'Fatal'
             WHEN 2 THEN 'Error'
             WHEN 3 THEN 'Warning'
             WHEN 4 THEN 'Information'
-            WHEN 5 THEN 'Irrelevant'
-            WHEN 6 THEN 'NoError'
+            WHEN 5 THEN 'NoError'
           END
           ")
         }
