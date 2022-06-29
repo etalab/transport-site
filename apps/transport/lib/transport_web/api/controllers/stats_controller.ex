@@ -327,8 +327,8 @@ defmodule TransportWeb.API.StatsController do
     # and we don't want to slow down the main aom_features_query to much
     dt = Date.utc_today() |> Date.to_iso8601()
 
-    error_info_sub = dataset_min_error_level()
-    expired_info_sub = dataset_expired_from()
+    error_info_sub = dataset_error_levels()
+    expired_info_sub = dataset_expiration_dates()
 
     DB.AOM
     |> join(:left, [aom], dataset in Dataset,
@@ -388,7 +388,7 @@ defmodule TransportWeb.API.StatsController do
     |> group_by([aom], aom.id)
   end
 
-  def dataset_expired_from do
+  def dataset_expiration_dates do
     Transport.Validators.GTFSTransport.validator_name()
     |> DB.Dataset.join_from_dataset_to_metadata()
     |> where([resource: r], r.is_available == true)
@@ -398,7 +398,7 @@ defmodule TransportWeb.API.StatsController do
     })
   end
 
-  def dataset_min_error_level do
+  def dataset_error_levels do
     Transport.Validators.GTFSTransport.validator_name()
     |> DB.Dataset.join_from_dataset_to_metadata()
     |> DB.ResourceMetadata.where_gtfs_up_to_date()
