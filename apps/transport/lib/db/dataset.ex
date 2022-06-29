@@ -517,13 +517,13 @@ defmodule DB.Dataset do
 
   @spec official_resources(__MODULE__.t()) :: list(Resource.t())
   def official_resources(%__MODULE__{resources: resources}),
-    do: resources |> Stream.reject(fn r -> r.is_community_resource end) |> Enum.to_list()
+    do: resources |> Stream.reject(&DB.Resource.is_community_resource?/1) |> Enum.to_list()
 
   def official_resources(%__MODULE__{}), do: []
 
   @spec community_resources(__MODULE__.t()) :: list(Resource.t())
   def community_resources(%__MODULE__{resources: resources}),
-    do: resources |> Stream.filter(fn r -> r.is_community_resource end) |> Enum.to_list()
+    do: resources |> Stream.filter(&DB.Resource.is_community_resource?/1) |> Enum.to_list()
 
   def community_resources(%__MODULE__{}), do: []
 
