@@ -150,11 +150,11 @@ defmodule TransportWeb.API.StatsControllerTest do
       # one dataset with "Error" level
       insert_resource_and_friends(Date.utc_today() |> Date.add(10), aom: aom1, max_error: "Error")
 
-      # one dataset with "Information" and "Irrelevant" level
+      # one dataset with "Information" and "Warning" level
       %{dataset: dataset} =
         insert_resource_and_friends(Date.utc_today() |> Date.add(10), aom: aom1, max_error: "Information")
 
-      insert_resource_and_friends(Date.utc_today() |> Date.add(10), dataset: dataset, max_error: "Irrelevant")
+      insert_resource_and_friends(Date.utc_today() |> Date.add(10), dataset: dataset, max_error: "Warning")
 
       # NoError but outdated
       insert_resource_and_friends(Date.utc_today() |> Date.add(-10), aom: aom1, max_error: "NoError")
@@ -163,7 +163,7 @@ defmodule TransportWeb.API.StatsControllerTest do
       # NoError but inactive dataset
       insert_resource_and_friends(Date.utc_today() |> Date.add(10), max_error: "NoError", is_active: false)
 
-      assert %{quality: %{error_level: "Irrelevant"}} =
+      assert %{quality: %{error_level: "Information"}} =
                TransportWeb.API.StatsController.quality_features_query() |> DB.Repo.get(aom1.id)
     end
   end
