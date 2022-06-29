@@ -365,7 +365,6 @@ defmodule TransportWeb.API.StatsController do
         },
         quality: %{
           expired_from: fragment("TO_DATE(?, 'YYYY-MM-DD') - max(?)", ^dt, expired_info.end_date),
-          # expired_from: max(expired_info.end_date),
           error_level: fragment("case max(CASE max_error::text
               WHEN 'Fatal' THEN 1
               WHEN 'Error' THEN 2
