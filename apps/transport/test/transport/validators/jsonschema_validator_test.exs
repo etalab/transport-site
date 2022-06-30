@@ -4,11 +4,19 @@ defmodule Transport.Validators.EXJSONSchemaTest do
   import Mox
   alias Transport.Validators.EXJSONSchema
 
+  @validator_version_regex ~r/^0\.\d\.\d$/
+
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
   setup :verify_on_exit!
+
+  test "test data is up to date" do
+    # This piece of code or regex may need to be updated if we upgrade
+    # the version of this dependency
+    assert String.match?(to_string(Application.spec(:ex_json_schema, :vsn)), @validator_version_regex)
+  end
 
   test "inserts the expected data in the database" do
     %{id: resource_history_id} =
@@ -36,8 +44,10 @@ defmodule Transport.Validators.EXJSONSchemaTest do
              data_vis: nil,
              validation_timestamp: _,
              validator: "EXJSONSchema",
-             validator_version: "0.9.1"
+             validator_version: validator_version
            } = DB.MultiValidation |> DB.Repo.get_by!(resource_history_id: resource_history_id)
+
+    assert String.match?(validator_version, @validator_version_regex)
   end
 
   test "perform_validation when validator returns nil" do

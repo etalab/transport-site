@@ -42,8 +42,10 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJobTest do
              data_vis: nil,
              validation_timestamp: _,
              validator: "EXJSONSchema",
-             validator_version: "0.9.1"
+             validator_version: validator_version
            } = DB.MultiValidation |> DB.Repo.get_by!(resource_history_id: resource_history_id)
+
+    assert "0." <> _ = validator_version
   end
 
   test "enqueues jobs for all ResourceHistory with a JSON Schema schema that have not been validated" do
