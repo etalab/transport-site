@@ -35,7 +35,7 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJob do
       on: mv.resource_history_id == rh.id and mv.validator == ^validator_name,
       as: :multi_validation
     )
-    |> where([resource_history: rh], fragment("payload ->>'schema_name'") in ^json_schemas)
+    |> where([resource_history: _rh], fragment("payload ->>'schema_name'") in ^json_schemas)
     |> where([multi_validation: mv], is_nil(mv.id))
     |> select([resource_history: rh], rh.id)
     |> DB.Repo.all()
