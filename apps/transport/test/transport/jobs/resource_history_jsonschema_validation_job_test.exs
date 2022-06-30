@@ -58,7 +58,7 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJobTest do
       validator: Transport.Validators.EXJSONSchema.validator_name()
     })
 
-    # needs validation: validated with another validotr
+    # needs validation: validated with another validator
     rh3 = insert(:resource_history, %{payload: %{"schema_name" => sample_json_schema_name}})
     insert(:multi_validation, %{resource_history_id: rh3.id, validator: Ecto.UUID.generate()})
     # does not need validation: schema is not a JSON Schema
