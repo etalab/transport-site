@@ -9,8 +9,10 @@ defmodule Shared.Validation.TableSchemaValidator.Wrapper do
   def validate(schema_name, url), do: impl().validate(schema_name, url)
   def validate(schema_name, url, schema_version), do: impl().validate(schema_name, url, schema_version)
 
-  def validator_api_url(schema_name, url, schema_version),
-    do: impl().validator_api_url(schema_name, url, schema_version)
+  @callback validator_api_url(binary(), binary(), binary()) :: binary()
+  def validator_api_url(schema_name, url, schema_version) do
+    impl().validator_api_url(schema_name, url, schema_version)
+  end
 end
 
 defmodule Shared.Validation.TableSchemaValidator do
