@@ -11,6 +11,25 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
     :ok
   end
 
+  describe "validator_api_url" do
+    test "with a specific schema version" do
+      setup_schemas_response()
+      schema_version = "0.2.2"
+      query = URI.encode_query(%{schema: schema_url(@schema_name, schema_version), url: @url})
+      expected_url = "https://validata-api.app.etalab.studio/validate?#{query}"
+
+      assert validator_api_url(@schema_name, @url, schema_version) == expected_url
+    end
+
+    test "with latest version" do
+      setup_schemas_response()
+      query = URI.encode_query(%{schema: schema_url(@schema_name, "latest"), url: @url})
+      expected_url = "https://validata-api.app.etalab.studio/validate?#{query}"
+
+      assert validator_api_url(@schema_name, @url) == expected_url
+    end
+  end
+
   describe "validate" do
     test "ensures schema is a tableschema" do
       schema_name = "foo"
@@ -62,7 +81,8 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
                ],
                "errors_count" => 32,
                "has_errors" => true,
-               "validator" => Shared.Validation.TableSchemaValidator
+               "validator" => Shared.Validation.TableSchemaValidator,
+               "validata_api_version" => "0.6.1"
              } == validate(@schema_name, @url)
     end
 
@@ -74,7 +94,8 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
                "errors" => [],
                "errors_count" => 0,
                "has_errors" => false,
-               "validator" => Shared.Validation.TableSchemaValidator
+               "validator" => Shared.Validation.TableSchemaValidator,
+               "validata_api_version" => "0.6.1"
              } == validate(@schema_name, @url)
     end
 
@@ -101,7 +122,8 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
                ],
                "errors_count" => 1,
                "has_errors" => true,
-               "validator" => Shared.Validation.TableSchemaValidator
+               "validator" => Shared.Validation.TableSchemaValidator,
+               "validata_api_version" => "0.6.1"
              } == validate(@schema_name, @url)
     end
 
@@ -115,7 +137,8 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
                ],
                "errors_count" => 1,
                "has_errors" => true,
-               "validator" => Shared.Validation.TableSchemaValidator
+               "validator" => Shared.Validation.TableSchemaValidator,
+               "validata_api_version" => "0.6.1"
              } == validate(@schema_name, @url)
     end
   end

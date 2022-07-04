@@ -4,10 +4,13 @@ defmodule Shared.Validation.TableSchemaValidator.Wrapper do
   """
   defp impl, do: Application.get_env(:transport, :tableschema_validator_impl)
 
-  @callback validate(binary(), binary()) :: map()
-  @callback validate(binary(), binary(), binary()) :: map()
+  @callback validate(binary(), binary()) :: map() | nil
+  @callback validate(binary(), binary(), binary()) :: map() | nil
   def validate(schema_name, url), do: impl().validate(schema_name, url)
   def validate(schema_name, url, schema_version), do: impl().validate(schema_name, url, schema_version)
+
+  def validator_api_url(schema_name, url, schema_version),
+    do: impl().validator_api_url(schema_name, url, schema_version)
 end
 
 defmodule Shared.Validation.TableSchemaValidator do
@@ -24,15 +27,7 @@ defmodule Shared.Validation.TableSchemaValidator do
 
   @impl true
   def validate(schema_name, url, schema_version \\ "latest") when is_binary(schema_name) and is_binary(url) do
-    ensure_schema_is_tableschema!(schema_name)
-
-    schema_url = schema_url(schema_name, schema_version || "latest")
-
-    # See https://go.validata.fr/api/v1/apidocs
-    api_url =
-      @validata_api_url
-      |> Map.put(:query, URI.encode_query(%{schema: schema_url, url: url}))
-      |> URI.to_string()
+    api_url = validator_api_url(schema_name, url, schema_version)
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(api_url, []),
          {:ok, json} <- Jason.decode(body) do
@@ -42,9 +37,23 @@ defmodule Shared.Validation.TableSchemaValidator do
     end
   end
 
-  defp build_report(%{"report" => %{"tasks" => tasks}} = report) do
+  @impl true
+  def validator_api_url(schema_name, url, schema_version \\ "latest") when is_binary(schema_name) and is_binary(url) do
+    ensure_schema_is_tableschema!(schema_name)
+
+    schema_url = schema_url(schema_name, schema_version || "latest")
+
+    # See https://go.validata.fr/api/v1/apidocs
+    @validata_api_url
+    |> Map.put(:query, URI.encode_query(%{schema: schema_url, url: url}))
+    |> URI.to_string()
+  end
+
+  defp build_report(
+         %{"report" => %{"tasks" => tasks}, "_meta" => %{"validata-api-version" => validata_api_version}} = payload
+       ) do
     if Enum.count(tasks) != 1 do
-      raise "tasks should have a length of 1 for report #{report}"
+      raise "tasks should have a length of 1 for response #{payload}"
     end
 
     raw_errors = hd(tasks)["errors"]
@@ -65,7 +74,13 @@ defmodule Shared.Validation.TableSchemaValidator do
 
     errors = (structure_errors ++ row_errors) |> Enum.take(100)
 
-    %{"has_errors" => nb_errors > 0, "errors_count" => nb_errors, "errors" => errors, "validator" => __MODULE__}
+    %{
+      "has_errors" => nb_errors > 0,
+      "errors_count" => nb_errors,
+      "errors" => errors,
+      "validator" => __MODULE__,
+      "validata_api_version" => validata_api_version
+    }
   end
 
   defp build_report(_), do: nil
