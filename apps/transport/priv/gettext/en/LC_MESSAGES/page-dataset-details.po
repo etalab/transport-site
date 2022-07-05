@@ -171,7 +171,7 @@ msgid "Outdated"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Community ressources"
+msgid "Community resources"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -520,4 +520,12 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Documentation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Reusers can share in this section edits made on resources%{odbl_text}. <a href=\"%{datagouv_link}\" target=\"_blank\">Publish your own ressource</a> on data.gouv.fr or <a href=\"%{doc_link}\" target=\"_blank\">browse our documentation.</a>"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid ", in accordance with the share-alike clause (article 4.4) of <a href=\"%{doc_link}\" target=\"_blank\">the ODbL License</a>"
 msgstr ""

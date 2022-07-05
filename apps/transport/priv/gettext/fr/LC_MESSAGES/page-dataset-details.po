@@ -171,7 +171,7 @@ msgid "Outdated"
 msgstr "Périmé"
 
 #, elixir-autogen, elixir-format
-msgid "Community ressources"
+msgid "Community resources"
 msgstr "Ressources communautaires"
 
 #, elixir-autogen, elixir-format
@@ -521,3 +521,11 @@ msgstr "Entités présentes dans ce flux lors des %{nb} derniers jours."
 #, elixir-autogen, elixir-format
 msgid "Documentation"
 msgstr "Documentation"
+
+#, elixir-autogen, elixir-format
+msgid "Reusers can share in this section edits made on resources%{odbl_text}. <a href=\"%{datagouv_link}\" target=\"_blank\">Publish your own ressource</a> on data.gouv.fr or <a href=\"%{doc_link}\" target=\"_blank\">browse our documentation.</a>"
+msgstr "Les réutilisateurs peuvent partager dans cette section les modifications apportées à une ressource%{odbl_text}. <a href=\"%{datagouv_link}\" target=\"_blank\">Publiez votre ressource</a> sur data.gouv.fr ou <a href=\"%{doc_link}\" target=\"_blank\">consultez la documentation.</a>"
+
+#, elixir-autogen, elixir-format
+msgid ", in accordance with the share-alike clause (article 4.4) of <a href=\"%{doc_link}\" target=\"_blank\">the ODbL License</a>"
+msgstr ", conformément à la clause de partage à l’identique (article 4.4) de la <a href=\"%{doc_link}\" target=\"_blank\">licence ODbL</a>"

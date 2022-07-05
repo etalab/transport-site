@@ -503,4 +503,10 @@ defmodule TransportWeb.DatasetView do
       end
     end
   end
+
+  def publish_community_resource_url(%DB.Dataset{datagouv_id: datagouv_id}) do
+    :transport
+    |> Application.fetch_env!(:datagouvfr_site)
+    |> Path.join("/admin/community-resource/new/?dataset_id=#{datagouv_id}")
+  end
 end
