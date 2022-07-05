@@ -1,4 +1,4 @@
-<footer class="footer" role="contentinfo" id="footer">
+<footer>
   <a href="#mail_form" class="mail__button" aria-label="<%= dgettext("page-index", "Ask for help") %>">
     <i class="fas icon--envelope"></i>
     <span><%= dgettext("page-index", "Ask for help") %></span>
@@ -26,27 +26,27 @@
   <ul class="footer__links">
     <%= if assigns[:contact_email] do %>
       <li>
-        <a class="footer__link footer__link--contact" href='mailto:<%= @contact_email %>' role="link">
+        <a class="footer__link footer__link--contact" href='mailto:<%= @contact_email %>'>
           <%= gettext "Contact" %>
         </a>
       </li>
     <% end %>
     <li>
-      <a class="footer__link" href="https://doc.transport.data.gouv.fr/reutilisateurs/apis/" role="link">API</a>
+      <a class="footer__link" href="https://doc.transport.data.gouv.fr/reutilisateurs/apis/" >API</a>
     </li>
     <li>
-      <a class="footer__link" href="https://doc.transport.data.gouv.fr/foire-aux-questions-1/generalites" role="link">FAQ</a>
+      <a class="footer__link" href="https://doc.transport.data.gouv.fr/foire-aux-questions-1/generalites">FAQ</a>
     </li>
     <li>
-      <a class="footer__link" href="https://github.com/etalab/transport-site/" role="link"><%= gettext("Source code")%></a>
+      <a class="footer__link" href="https://github.com/etalab/transport-site/"><%= gettext("Source code")%></a>
     </li>
     <li>
-      <a class="footer__link" href="/legal" role="link">
+      <a class="footer__link" href="/legal">
         <%= gettext "Legal Information" %>
       </a>
     </li>
     <li>
-      <a class="footer__link" href="<%= page_path(@conn, :accessibility) %>" role="link">
+      <a class="footer__link" href="<%= page_path(@conn, :accessibility) %>">
         <%= gettext "Accessibility: non-compliant" %>
       </a>
     </li>

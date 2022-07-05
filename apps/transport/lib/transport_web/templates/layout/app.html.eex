@@ -58,7 +58,7 @@
   <body>
     <%= render(LayoutView, "_header.html", assigns) %>
 
-    <main class="layout-main" role="main">
+    <main>
       <%= if has_flash(@conn) do %>
         <%= if get_flash(@conn, :info) do %>
           <p class="notification"><%= get_flash(@conn, :info) %></p>
