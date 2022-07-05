@@ -80,15 +80,7 @@
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: unavailable_resources(@dataset), dataset: @dataset, title: dgettext("page-dataset-details", "unavailable resources"), message: dgettext("page-dataset-details", "Those resources are listed by the provider but are unreachable for now"), latest_resources_history_infos: @latest_resources_history_infos%>
 
       <%= render "_reuser_message.html" %>
-      <% community_resources = community_resources(@dataset) %>
-      <%= unless community_resources == [] do %>
-        <section class="dataset__resources white">
-          <h3><%= dgettext("page-dataset-details", "Community ressources" )%></h3>
-          <div class="ressources-list">
-            <%= render_many community_resources, TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
-          </div>
-        </section>
-      <% end %>
+      <%= render "_community_resources.html", dataset: @dataset %>
     </section>
     <%= unless is_nil(@reuses) or @reuses == [] do %>
       <section class="white pt-48" id="dataset-reuses">
