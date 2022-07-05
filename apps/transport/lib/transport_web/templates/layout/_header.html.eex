@@ -38,7 +38,7 @@
               <%= gettext("Regulation") %>
               <div class="dropdown-content">
                 <%= link(gettext("Standards"), to: "https://normes.transport.data.gouv.fr", target: "_blank") %>
-                <%= link(gettext("Declaration of conformity"), to: "https:???", target: "_blank") %>
+                <%= link(gettext("Declaration of conformity"), to: "https://normes.transport.data.gouv.fr/posts/elements_communs/", target: "_blank") %>
               </div>
             </div>
           </li>
