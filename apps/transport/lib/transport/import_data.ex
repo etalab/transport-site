@@ -704,11 +704,11 @@ defmodule Transport.ImportData do
   def get_title(%{"url" => url}), do: Helpers.filename_from_url(url)
 
   @spec get_existing_resource(map(), binary()) :: Resource.t() | nil
-  defp get_existing_resource(%{"url" => url}, dataset_id) do
+  defp get_existing_resource(%{"url" => url, "id" => datagouv_id}, dataset_datagouv_id) do
     Resource
     |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
-    |> where([r, _d], r.url == ^url)
-    |> where([_r, d], d.datagouv_id == ^dataset_id)
+    |> where([r, _d], r.datagouv_id == ^datagouv_id or r.url == ^url)
+    |> where([_r, d], d.datagouv_id == ^dataset_datagouv_id)
     |> select([r], map(r, [:id, :metadata]))
     |> Repo.one()
   end
