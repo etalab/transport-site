@@ -132,7 +132,7 @@ defmodule Opendatasoft.UrlExtractor do
     cond do
       String.ends_with?(filename, ".pdf") -> nil
       String.match?(filename, ~r/\bgtfs(-rt|rt| rt)\b/) -> "gtfs-rt"
-      String.contains?(filename, "trip-updates") -> "gtfs-rt"
+      String.contains?(filename, "trip-update") -> "gtfs-rt"
       String.contains?(filename, "netex") -> "netex"
       String.contains?(filename, "gtfs") -> "gtfs"
       true -> nil
@@ -290,12 +290,14 @@ defmodule Opendatasoft.UrlExtractor do
 
     iex> UrlExtractor.get_url_from_csv_line(%{"fichié_a_download" => "http://the-url"})
     nil
+    iex> UrlExtractor.get_url_from_csv_line(%{"fichier_a_telecharger" => ""})
+    nil
   """
   @spec get_url_from_csv_line(map) :: binary
   def get_url_from_csv_line(line) do
     @csv_headers
     |> Enum.map(&Map.get(line, &1))
-    |> Enum.filter(&(&1 != nil))
+    |> Enum.reject(&(is_nil(&1) or String.trim(&1) == ""))
     |> case do
       [] -> nil
       [head | _] -> head
