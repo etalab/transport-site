@@ -345,27 +345,27 @@ defmodule DB.ResourceTest do
 
   test "download url", %{conn: conn} do
     # Files hosted on data.gouv.fr
-    assert Resource.download_url(conn, %Resource{
+    assert Resource.download_url(%Resource{
              filetype: "file",
              url: "https://demo-static.data.gouv.fr/resources/base-nationale-zfe/20220412-121638/voies.geojson",
              latest_url: latest_url = "https://demo.data.gouv.fr/fake_stable_url"
            }) == latest_url
 
-    assert Resource.download_url(conn, %Resource{
+    assert Resource.download_url(%Resource{
              filetype: "file",
              url: "https://static.data.gouv.fr/resources/base-nationale-zfe/20220412-121638/voies.geojson",
              latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
            }) == latest_url
 
     # Bison Futé folder
-    assert Resource.download_url(conn, %Resource{
+    assert Resource.download_url(%Resource{
              filetype: "remote",
              url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/",
              latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
            }) == latest_url
 
     # Bison Futé files
-    assert Resource.download_url(conn, %Resource{
+    assert Resource.download_url(%Resource{
              filetype: "remote",
              id: id = 1,
              url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/refDir.csv",
@@ -373,17 +373,17 @@ defmodule DB.ResourceTest do
            }) == resource_path(conn, :download, id)
 
     # File not hosted on data.gouv.fr
-    assert Resource.download_url(conn, %Resource{filetype: "file", url: url = "https://data.example.com/voies.geojson"}) ==
+    assert Resource.download_url(%Resource{filetype: "file", url: url = "https://data.example.com/voies.geojson"}) ==
              url
 
     # Remote filetype / can direct download
-    assert Resource.download_url(conn, %Resource{filetype: "remote", url: url = "https://data.example.com/data"}) == url
+    assert Resource.download_url(%Resource{filetype: "remote", url: url = "https://data.example.com/data"}) == url
     # http URL
-    assert Resource.download_url(conn, %Resource{id: id = 1, filetype: "remote", url: "http://data.example.com/data"}) ==
+    assert Resource.download_url(%Resource{id: id = 1, filetype: "remote", url: "http://data.example.com/data"}) ==
              resource_path(conn, :download, id)
 
     # file hosted on GitHub
-    assert Resource.download_url(conn, %Resource{
+    assert Resource.download_url(%Resource{
              id: id = 1,
              filetype: "remote",
              url:

@@ -730,11 +730,11 @@ defmodule DB.Resource do
     end
   end
 
-  def download_url(%Plug.Conn{} = conn, %__MODULE__{} = resource) do
+  def download_url(%__MODULE__{} = resource, conn_or_endpoint \\ TransportWeb.Endpoint) do
     cond do
       needs_stable_url?(resource) -> resource.latest_url
       can_direct_download?(resource) -> resource.url
-      true -> resource_path(conn, :download, resource.id)
+      true -> resource_path(conn_or_endpoint, :download, resource.id)
     end
   end
 
