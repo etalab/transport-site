@@ -78,7 +78,7 @@ defmodule DB.ResourceTest do
     end)
 
     Shared.Validation.JSONSchemaValidator.Mock
-    |> expect(:load_jsonschema_for_schema, fn _schema ->
+    |> expect(:load_latest_jsonschema_for_schema, fn _schema ->
       %ExJsonSchema.Schema.Root{
         schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
         version: 7
