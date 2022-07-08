@@ -28,7 +28,7 @@ defmodule Transport.Validators.EXJSONSchema do
 
   def perform_validation(schema_name, url) do
     schema_name
-    |> JSONSchemaValidator.load_latest_jsonschema_for_schema()
+    |> JSONSchemaValidator.load_jsonschema_for_schema()
     |> JSONSchemaValidator.validate(url)
     |> normalize_validation_result()
   end

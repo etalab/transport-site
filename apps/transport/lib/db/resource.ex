@@ -333,7 +333,7 @@ defmodule DB.Resource do
         TableSchemaValidator.validate(schema_name, url, schema_version)
 
       "jsonschema" ->
-        JSONSchemaValidator.validate(JSONSchemaValidator.load_latest_jsonschema_for_schema(schema_name), url)
+        JSONSchemaValidator.validate(JSONSchemaValidator.load_jsonschema_for_schema(schema_name), url)
     end
   end
 

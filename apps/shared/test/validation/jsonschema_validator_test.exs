@@ -12,7 +12,7 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
     test "schema-zfe" do
       setup_schemas_response()
       setup_zfe_schema()
-      schema = load_latest_jsonschema_for_schema(schema_name = "etalab/schema-zfe")
+      schema = load_jsonschema_for_schema(schema_name = "etalab/schema-zfe")
 
       assert %ExJsonSchema.Schema.Root{
                schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
@@ -28,7 +28,7 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
       setup_schemas_response()
 
       assert_raise RuntimeError, fn ->
-        load_latest_jsonschema_for_schema("etalab/foo")
+        load_jsonschema_for_schema("etalab/foo")
       end
     end
 

@@ -4,11 +4,11 @@ defmodule Shared.Validation.JSONSchemaValidator.Wrapper do
   """
   defp impl, do: Application.get_env(:transport, :jsonschema_validator_impl)
 
-  @callback load_latest_jsonschema_for_schema(binary()) :: ExJsonSchema.Schema.Root.t()
-  def load_latest_jsonschema_for_schema(schema_name),
-    do: impl().load_jsonschema_for_schema(schema_name, "latest")
-
+  @callback load_jsonschema_for_schema(binary()) :: ExJsonSchema.Schema.Root.t()
   @callback load_jsonschema_for_schema(binary(), binary()) :: ExJsonSchema.Schema.Root.t()
+  def load_jsonschema_for_schema(schema_name),
+    do: impl().load_jsonschema_for_schema(schema_name)
+
   def load_jsonschema_for_schema(schema_name, schema_version),
     do: impl().load_jsonschema_for_schema(schema_name, schema_version)
 
@@ -43,12 +43,7 @@ defmodule Shared.Validation.JSONSchemaValidator do
   end
 
   @impl true
-  def load_latest_jsonschema_for_schema(schema_name) do
-    load_jsonschema_for_schema(schema_name, "latest")
-  end
-
-  @impl true
-  def load_jsonschema_for_schema(schema_name, schema_version) do
+  def load_jsonschema_for_schema(schema_name, schema_version \\ "latest") do
     ensure_schema_is_jsonschema!(schema_name)
 
     comp_fn = fn ->
