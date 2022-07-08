@@ -22,18 +22,6 @@ defmodule Transport.Shared.SchemasTest do
     assert ["etalab/schema-lieux-covoiturage"] == Map.keys(schemas_by_type("tableschema"))
   end
 
-  test "read_latest_schema" do
-    setup_schema_response("#{@base_url}/schemas/etalab/schema-zfe/0.7.2/schema.json")
-
-    assert %{"foo" => "bar"} == read_latest_schema("etalab/schema-zfe")
-    assert_cache_key_has_ttl("latest_schema_etalab/schema-zfe")
-
-    setup_schema_response("#{@base_url}/schemas/etalab/schema-lieux-covoiturage/0.2.3/schema.json")
-
-    assert %{"foo" => "bar"} == read_latest_schema("etalab/schema-lieux-covoiturage")
-    assert_cache_key_has_ttl("latest_schema_etalab/schema-lieux-covoiturage")
-  end
-
   describe "schema_url" do
     test "simple case" do
       assert "#{@base_url}/schemas/etalab/schema-zfe/0.7.2/schema.json" ==
@@ -59,7 +47,7 @@ defmodule Transport.Shared.SchemasTest do
     end
   end
 
-  defp assert_cache_key_has_ttl(cache_key, expected_ttl \\ 300) do
+  def assert_cache_key_has_ttl(cache_key, expected_ttl \\ 300) do
     assert_in_delta Cachex.ttl!(cache_name(), cache_key), :timer.seconds(expected_ttl), :timer.seconds(1)
   end
 

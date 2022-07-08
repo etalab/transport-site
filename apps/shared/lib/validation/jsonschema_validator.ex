@@ -5,7 +5,9 @@ defmodule Shared.Validation.JSONSchemaValidator.Wrapper do
   defp impl, do: Application.get_env(:transport, :jsonschema_validator_impl)
 
   @callback load_jsonschema_for_schema(binary()) :: ExJsonSchema.Schema.Root.t()
-  def load_jsonschema_for_schema(schema_name), do: impl().load_jsonschema_for_schema(schema_name)
+  @callback load_jsonschema_for_schema(binary(), binary()) :: ExJsonSchema.Schema.Root.t()
+  def load_jsonschema_for_schema(schema_name, schema_version \\ "latest"),
+    do: impl().load_jsonschema_for_schema(schema_name, schema_version)
 
   @callback validate(ExJsonSchema.Schema.Root.t(), map() | binary()) :: map() | nil
   def validate(schema, target), do: impl().validate(schema, target)
@@ -39,8 +41,20 @@ defmodule Shared.Validation.JSONSchemaValidator do
 
   @impl true
   def load_jsonschema_for_schema(schema_name) do
+    load_jsonschema_for_schema(schema_name, "latest")
+  end
+
+  @impl true
+  def load_jsonschema_for_schema(schema_name, schema_version) do
     ensure_schema_is_jsonschema!(schema_name)
-    schema_name |> read_latest_schema() |> ExJsonSchema.Schema.resolve()
+
+    comp_fn = fn ->
+      %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(schema_url(schema_name, schema_version))
+
+      body |> Jason.decode!() |> ExJsonSchema.Schema.resolve()
+    end
+
+    cache_fetch("jsonschema_#{schema_name}_#{schema_version}", comp_fn)
   end
 
   def ensure_schema_is_jsonschema!(schema_name) do
