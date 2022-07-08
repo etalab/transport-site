@@ -13,6 +13,9 @@ defmodule Transport.MixProject do
         plt_add_apps: [:mix],
         plt_local_path: "dialyzer-plt",
         plt_core_path: "dialyzer-plt"
+      ],
+      preferred_cli_env: [
+        check_all: :test
       ]
     ]
   end
@@ -30,7 +33,16 @@ defmodule Transport.MixProject do
   defp aliases do
     [
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
-      "phx.migrate_phx.server": ["ecto.migrate", "phx.server"]
+      "phx.migrate_phx.server": ["ecto.migrate", "phx.server"],
+      check_all: [
+        "format --check-formatted",
+        "npm \"run linter:sass\"",
+        fn _ -> Mix.Task.reenable("npm") end,
+        "npm \"run linter:ecma\"",
+        "credo --strict",
+        "gettext.extract --check-up-to-date",
+        "test"
+      ]
     ]
   end
 end
