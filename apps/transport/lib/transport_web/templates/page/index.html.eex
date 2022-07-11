@@ -136,7 +136,7 @@
         </div>
       </div>
       <div class="deployment-map">
-        <a href="<%= static_path(@conn, "/stats") %>" class="text-center" role="link">
+        <a href="<%= static_path(@conn, "/stats") %>" class="text-center">
                     <img class="illustration" src="<%= static_path(@conn, "/images/france.svg") %>" alt="" />
         <div><%= dgettext("page-index", "See more statistics") %></div>
       </a>

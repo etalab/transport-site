@@ -97,7 +97,8 @@ oban_crontab_all_envs =
         {"20 */2 * * *", Transport.Jobs.GTFSRTEntitiesDispatcherJob},
         {"30 */6 * * *", Transport.Jobs.BNLCToGeoData},
         {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob},
-        {"0 7 * * *", Transport.Jobs.GTFSRTMultiValidationDispatcherJob}
+        {"0 7 * * *", Transport.Jobs.GTFSRTMultiValidationDispatcherJob},
+        {"45 */3 * * *", Transport.Jobs.ResourceHistoryJSONSchemaValidationJob}
       ]
 
     :dev ->
