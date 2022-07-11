@@ -15,6 +15,7 @@ defmodule Transport.Validators.TableSchema do
         payload: %{"permanent_url" => url, "schema_name" => schema_name, "schema_version" => schema_version}
       })
       when is_binary(schema_name) do
+    schema_version = schema_version || "latest"
     validation_result = perform_validation(schema_name, url, schema_version)
 
     %DB.MultiValidation{
