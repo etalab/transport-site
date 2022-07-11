@@ -152,7 +152,7 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
     url = "https://validata-api.app.etalab.studio/validate?#{query}"
 
     Transport.HTTPoison.Mock
-    |> expect(:get, fn ^url, [] ->
+    |> expect(:get, fn ^url, [] = _headers, [recv_timeout: 180_000] = _options ->
       {:ok, %HTTPoison.Response{body: body, status_code: status_code}}
     end)
   end

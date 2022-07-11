@@ -23,6 +23,7 @@ defmodule Shared.Validation.TableSchemaValidator do
   """
   import Transport.Shared.Schemas
   @behaviour Shared.Validation.TableSchemaValidator.Wrapper
+  @timeout 180_000
   @validata_api_url URI.parse("https://validata-api.app.etalab.studio/validate")
   # https://git.opendatafrance.net/validata/validata-core/-/blob/75ee5258010fc43b6a164122eff2579c2adc01a7/validata_core/helpers.py#L152
   @structure_tags ["#head", "#structure"]
@@ -31,7 +32,8 @@ defmodule Shared.Validation.TableSchemaValidator do
   def validate(schema_name, url, schema_version \\ "latest") when is_binary(schema_name) and is_binary(url) do
     api_url = validator_api_url(schema_name, url, schema_version)
 
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(api_url, []),
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
+           http_client().get(api_url, [], recv_timeout: @timeout),
          {:ok, json} <- Jason.decode(body) do
       build_report(json)
     else
