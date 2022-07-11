@@ -22,10 +22,11 @@ defmodule Transport.Validators.TableSchemaTest do
       )
 
     expected_command_url = setup_mock_validator_url(schema_name, permanent_url, schema_version)
+    validator_version = "0.13.37"
 
     Shared.Validation.TableSchemaValidator.Mock
     |> expect(:validate, fn ^schema_name, ^permanent_url, ^schema_version ->
-      %{"has_errors" => false, "errors_count" => 0, "errors" => [], "validata-api-version" => "0.13.37"}
+      %{"has_errors" => false, "errors_count" => 0, "errors" => [], "validata_api_version" => validator_version}
     end)
 
     assert :ok == TableSchema.validate_and_save(resource_history)
@@ -37,7 +38,7 @@ defmodule Transport.Validators.TableSchemaTest do
              data_vis: nil,
              validation_timestamp: _,
              validator: "validata-api",
-             validator_version: "0.13.37"
+             validator_version: ^validator_version
            } = DB.MultiValidation |> DB.Repo.get_by!(resource_history_id: resource_history_id)
   end
 

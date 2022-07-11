@@ -6,7 +6,7 @@ defmodule Transport.Validators.TableSchema do
   # Plan to move the other validator here as we deprecate
   # the previous validation flow.
   alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
-  @validator_version_key_name "validata-api-version"
+  @validator_version_key_name "validata_api_version"
   @behaviour Transport.Validators.Validator
 
   @impl Transport.Validators.Validator
