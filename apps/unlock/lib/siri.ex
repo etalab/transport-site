@@ -17,18 +17,19 @@ defmodule Unlock.SIRI do
     A module able to replace `RequestorRef` tag in a "simple form" XML document
     """
 
-    # TODO: fix those tests: the structure is not binary XML, but a simpleform structure
-
     @doc """
     Newline must not cause a crash:
-    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref("<root>\u0044<hello></root>", %{new_requestor_ref: "ok"})
-    "<root>\u0044<hello></root>"
+    iex> input = Unlock.SIRI.parse_incoming("<root>\\n<hello/></root>")
+    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(input, %{new_requestor_ref: "ok"})
+    {"root", [], ["\n", {"hello", [], []}]}
 
     Otherwise, the ref must be replaced:
-    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref("<root><RequestorRef>before</RequestorRef>", %{new_requestor_ref: "after"})
-    "<root><RequestorRef>after</RequestorRef>"
+    iex> input = Unlock.SIRI.parse_incoming("<root><RequestorRef>before</RequestorRef></root>")
+    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(input, %{new_requestor_ref: "after"})
+    {"root", [], [{"RequestorRef", [], ["after"]}]}
     """
 
+    @spec replace_requestor_ref(tuple() | binary(), map()) :: tuple()
     def replace_requestor_ref(data, %{new_requestor_ref: new_requestor_ref} = config) do
       case data do
         a = {tag, attributes, [some_text]} when is_binary(some_text) ->
@@ -48,6 +49,7 @@ defmodule Unlock.SIRI do
             children |> Enum.map(&replace_requestor_ref(&1, config))
           }
 
+        # NOTE: typically used by newlines padding. Maybe the clause is too wide though.
         data when is_binary(data) ->
           data
       end
