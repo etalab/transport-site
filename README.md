@@ -191,6 +191,9 @@ Running in `--umbrella` mode will generate coverage report at the top-level `cov
 
 To extract all translations from the source, you can run `mix gettext.extract --merge` (and then edit the modified .po files).
 
+#### Check all
+To perform all the checks done on the CI with a single command, you can run `mix check_all`. It will run the different linters, credo, check the translations are up-to-date, and launch the tests.
+
 #### DB migrations
 
 To generate a new migration file:
