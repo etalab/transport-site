@@ -36,9 +36,13 @@ defmodule Transport.MixProject do
       "phx.migrate_phx.server": ["ecto.migrate", "phx.server"],
       check_all: [
         "format --check-formatted",
-        "npm \"run linter:sass\"",
+        ~s(npm "run linter:sass"),
+        # from https://hexdocs.pm/mix/1.12/Mix.Task.html#run/2
+        # Remember: by default, tasks will only run once, even when called repeatedly!
+        # If you need to run a task multiple times, you need to re-enable it via reenable/1 or call it using rerun/2."
+        # => here, npm task need to be run twice
         fn _ -> Mix.Task.reenable("npm") end,
-        "npm \"run linter:ecma\"",
+        ~s(npm "run linter:ecma"),
         "credo --strict",
         "gettext.extract --check-up-to-date",
         "test"
