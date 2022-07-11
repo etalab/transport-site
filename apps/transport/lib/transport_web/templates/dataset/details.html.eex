@@ -72,21 +72,15 @@
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: real_time_official_resources(@dataset), title: dgettext("page-dataset-details", "Real time resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: netex_official_resources(@dataset), title: dgettext("page-dataset-details", "NeTEx resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: other_official_resources(@dataset), title: dgettext("page-dataset-details", "Resources"), latest_resources_history_infos: @latest_resources_history_infos %>
-      <section id="dataset-documentation" class="pt-48">
-        <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: official_documentation_resources(@dataset), title: dgettext("page-dataset-details", "Documentation"), latest_resources_history_infos: @latest_resources_history_infos %>
-      </section>
+      <%= if count_documentation_resources(@dataset) > 0 do %>
+        <section id="dataset-documentation" class="pt-48">
+          <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: official_documentation_resources(@dataset), title: dgettext("page-dataset-details", "Documentation"), latest_resources_history_infos: @latest_resources_history_infos %>
+        </section>
+      <% end %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: unavailable_resources(@dataset), dataset: @dataset, title: dgettext("page-dataset-details", "unavailable resources"), message: dgettext("page-dataset-details", "Those resources are listed by the provider but are unreachable for now"), latest_resources_history_infos: @latest_resources_history_infos%>
 
       <%= render "_reuser_message.html" %>
-      <% community_resources = community_resources(@dataset) %>
-      <%= unless community_resources == [] do %>
-        <section class="dataset__resources white">
-          <h3><%= dgettext("page-dataset-details", "Community ressources" )%></h3>
-          <div class="ressources-list">
-            <%= render_many community_resources, TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
-          </div>
-        </section>
-      <% end %>
+      <%= render "_community_resources.html", dataset: @dataset %>
     </section>
     <%= unless is_nil(@reuses) or @reuses == [] do %>
       <section class="white pt-48" id="dataset-reuses">

@@ -52,7 +52,8 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
     })
 
-    # insert bnlc resource
+    # insert bnlc resources
+    insert(:resource, %{dataset_id: dataset_id, is_community_resource: true})
     %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
     # insert bnlc resource history
     %{id: id_0} =

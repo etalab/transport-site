@@ -13,7 +13,12 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
 
   test "the GTFS validator inserts expected data in DB" do
     %{id: resource_history_id} = insert(:resource_history)
-    validation_content = %{"errors" => 2}
+
+    validation_content = %{
+      "NullDuration" => [%{"severity" => "Information"}],
+      "MissingCoordinates" => [%{"severity" => "Warning"}]
+    }
+
     data_vis_content = %{"data_vis" => "some data vis"}
     metadata_content = %{"m" => 1, "validator_version" => validator_version = "0.2.0"}
 
@@ -37,7 +42,8 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
              result: ^validation_content,
              data_vis: ^data_vis_content,
              resource_history_id: ^resource_history_id,
-             validator_version: ^validator_version
+             validator_version: ^validator_version,
+             max_error: "Warning"
            } = DB.MultiValidation |> DB.Repo.get_by!(resource_history_id: resource_history_id)
 
     assert %{metadata: ^metadata_content, resource_history_id: ^resource_history_id} =

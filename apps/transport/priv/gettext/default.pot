@@ -112,5 +112,9 @@ msgid "Standards"
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "Declaration of conformity"
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "GTFS-RT vehicle positions"
 msgstr ""
