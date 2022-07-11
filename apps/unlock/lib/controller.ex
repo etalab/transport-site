@@ -121,6 +121,7 @@ defmodule Unlock.Controller do
     {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
 
     parsed = Unlock.SIRI.parse_incoming(body)
+    # TODO: modify & verify output (now provided by the function)
     parsed = Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(parsed, %{new_requestor_ref: item.requestor_ref})
 
     body = Saxy.encode_to_iodata!(parsed)

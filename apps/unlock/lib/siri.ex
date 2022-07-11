@@ -20,39 +20,47 @@ defmodule Unlock.SIRI do
     @doc """
     Newline must not cause a crash:
     iex> input = Unlock.SIRI.parse_incoming("<root>\\n<hello/></root>")
-    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(input, %{new_requestor_ref: "ok"})
-    {"root", [], ["\n", {"hello", [], []}]}
+    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(input, "ok")
+    {
+      {"root", [], ["\n", {"hello", [], []}]},
+      []
+    }
 
     Otherwise, the ref must be replaced:
     iex> input = Unlock.SIRI.parse_incoming("<root><RequestorRef>before</RequestorRef></root>")
-    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(input, %{new_requestor_ref: "after"})
-    {"root", [], [{"RequestorRef", [], ["after"]}]}
+    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(input, "after")
+    {
+      {"root", [], [{"RequestorRef", [], ["after"]}]},
+      ["before"]
+    }
     """
 
-    @spec replace_requestor_ref(tuple() | binary(), map()) :: tuple()
-    def replace_requestor_ref(data, %{new_requestor_ref: new_requestor_ref} = config) do
-      case data do
-        a = {tag, attributes, [some_text]} when is_binary(some_text) ->
-          [last | _] = tag |> String.split(":") |> Enum.reverse()
+    def replace_requestor_ref(_node, _new_requestor_ref, seen_requestor_refs \\ [])
 
-          if last == "RequestorRef" do
-            # TODO: add check & stop processing if incorrect requestor ref is detected
-            {tag, attributes, [new_requestor_ref]}
-          else
-            a
-          end
+    def replace_requestor_ref({tag, attributes, [text]} = node, new_requestor_ref, seen_requestor_refs)
+        when is_binary(text) do
+      [unnamespaced_tag | _] = tag |> String.split(":") |> Enum.reverse()
 
-        {tag, attributes, children} ->
-          {
-            tag,
-            attributes,
-            children |> Enum.map(&replace_requestor_ref(&1, config))
-          }
-
-        # NOTE: typically used by newlines padding. Maybe the clause is too wide though.
-        data when is_binary(data) ->
-          data
+      if unnamespaced_tag == "RequestorRef" do
+        {{tag, attributes, [new_requestor_ref]}, [text | seen_requestor_refs]}
+      else
+        {node, seen_requestor_refs}
       end
+    end
+
+    # required to support non-semantic newline (\n) characters in the XML
+    def replace_requestor_ref(node, _, seen_requestor_refs) when is_binary(node) do
+      {node, seen_requestor_refs}
+    end
+
+    def replace_requestor_ref({tag, attributes, children}, new_requestor_ref, seen_requestor_refs)
+        when is_list(children) do
+      {children, seen_requestor_refs} =
+        Enum.map_reduce(children, seen_requestor_refs, fn e, acc ->
+          replace_requestor_ref(e, new_requestor_ref, acc)
+        end)
+
+      {{tag, attributes, children}, seen_requestor_refs}
     end
   end
 end
