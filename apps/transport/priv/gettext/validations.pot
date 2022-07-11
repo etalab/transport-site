@@ -259,3 +259,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "No validation error"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "See all your errors <a href=\"%{url}\" target=\"_blank\">using the web interface</a>."
+msgstr ""

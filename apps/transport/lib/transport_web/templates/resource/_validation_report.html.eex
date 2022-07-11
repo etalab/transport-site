@@ -34,7 +34,16 @@
           <% end %>
         </ul>
         <%= if nb_errors > max_display_errors() do %>
-          <p><%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors())%></p>
+          <p class="notification">
+            <%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors())%>
+            <%= if @resource.metadata["validation"]["schema_type"] == "tableschema" do %>
+              <%= raw dgettext(
+                "validations",
+                ~s(See all your errors <a href="%{url}" target="_blank">using the web interface</a>.),
+                url: validata_web_url(@resource.schema_name)
+              ) %>
+            <% end %>
+          </p>
         <% end %>
       <% end %>
     <% end %>

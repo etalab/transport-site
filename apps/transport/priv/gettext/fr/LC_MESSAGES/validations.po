@@ -260,3 +260,7 @@ msgstr "La visualisation est volumineuse"
 #, elixir-autogen, elixir-format
 msgid "No validation error"
 msgstr "Aucune erreur de validation"
+
+#, elixir-autogen, elixir-format
+msgid "See all your errors <a href=\"%{url}\" target=\"_blank\">using the web interface</a>."
+msgstr "Consultez toutes les erreurs <a href=\"%{url}\" target=\"_blank\">sur ce site web</a>."
