@@ -330,8 +330,11 @@ defmodule DB.Resource do
          schema_type
        ) do
     case schema_type do
-      "tableschema" -> TableSchemaValidator.validate(schema_name, url, schema_version)
-      "jsonschema" -> JSONSchemaValidator.validate(JSONSchemaValidator.load_jsonschema_for_schema(schema_name), url)
+      "tableschema" ->
+        TableSchemaValidator.validate(schema_name, url, schema_version)
+
+      "jsonschema" ->
+        JSONSchemaValidator.validate(JSONSchemaValidator.load_jsonschema_for_schema(schema_name), url)
     end
   end
 
