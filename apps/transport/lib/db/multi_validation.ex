@@ -100,8 +100,8 @@ defmodule DB.MultiValidation do
 
     latest_validations =
       DB.MultiValidation
-      |> distinct([mv], [mv.resource_history_id, mv.validator])
-      |> order_by([mv], desc: mv.resource_history_id, desc: mv.validator, desc: mv.validation_timestamp)
+      |> distinct([mv], [mv.resource_history_id, mv.resource_id, mv.validator])
+      |> order_by([mv], desc: mv.resource_history_id, desc: mv.resource_id, desc: mv.validator, desc: mv.validation_timestamp)
       |> where([mv], mv.validator in ^validators_names)
 
     latest_resource_history =
@@ -111,7 +111,7 @@ defmodule DB.MultiValidation do
 
     DB.Resource
     |> join(:left, [r], rh in subquery(latest_resource_history), on: rh.resource_id == r.id)
-    |> join(:left, [r, rh], mv in subquery(latest_validations), on: rh.id == mv.resource_history_id)
+    |> join(:left, [r, rh], mv in subquery(latest_validations), on: rh.id == mv.resource_history_id or r.id == mv.resource_id)
     |> where([r, rh, mv], r.dataset_id == ^dataset_id)
     |> select([r, rh, mv], {r.id, mv})
     |> DB.Repo.all()
