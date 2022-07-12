@@ -1,82 +1,15 @@
-<% locale = get_session(@conn, :locale) %>
 <% show_schema_validation = not is_nil(@resource.schema_name) %>
 <% show_gtfs_rt_validation = DB.Resource.is_gtfs_rt?(@resource) and has_errors_details?(@resource) %>
 
+<%= show_schema_validation %>
+<%= show_gtfs_rt_validation %>
+
 <%= if show_schema_validation or show_gtfs_rt_validation do %>
 <h2 id="validation-report"><%= dgettext("validations", "Validation details")%></h2>
-<div class="panel">
-
   <%= if show_schema_validation do %>
-    <p>
-      <%= raw dgettext("validations", ~s(This resource should follow its schema %{link}.), link: safe_to_string(link(@resource.schema_name, to: schema_url(@resource), target: "_blank"))) %>
-    </p>
-
-    <%= if has_errors_details?(@resource) do %>
-      <p>
-        <b>
-        <% nb_errors = errors_count(@resource) %>
-        <%= if nb_errors == 0 do %>
-          <span class="icon--validation">✅</span><%= dgettext("validations", "No error detected") %>
-        <% else %>
-          <span class="icon--validation">❌</span><%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
-        <% end %>
-        </b>
-      </p>
-
-      <%= if nb_errors > 0 do %>
-        <p class="notification">
-          <%= raw dgettext("validations", ~s(Are you the producer of this data? Once you have fixed your errors, you can verify that your file is valid <a href="%{link}" target="_blank">using our validators</a>.), link: on_demand_validation_link(@conn, @resource)) %>
-        </p>
-        <p><%= dgettext("validations", "Errors:")%></p>
-        <ul <%= if @resource.metadata["validation"]["schema_type"] == "jsonschema" do %>lang="en"<% end %>>
-          <%= for error <- errors_sample(@resource) do %>
-            <li><%= error %></li>
-          <% end %>
-        </ul>
-        <%= if nb_errors > max_display_errors() do %>
-          <p class="notification">
-            <%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors())%>
-            <%= if @resource.metadata["validation"]["schema_type"] == "tableschema" do %>
-              <%= raw dgettext(
-                "validations",
-                ~s(See all your errors <a href="%{url}" target="_blank">using the web interface</a>.),
-                url: validata_web_url(@resource.schema_name)
-              ) %>
-            <% end %>
-          </p>
-        <% end %>
-      <% end %>
-    <% end %>
+    <%= render "_validation_report_schema.html" , resource: @resource, conn: @conn %>
   <% end %>
-
   <%= if show_gtfs_rt_validation do %>
-    <% validation = @resource.validation %>
-    <% errors = Map.fetch!(validation.details, "errors") %>
-    <% errors_error_level = errors |> Enum.filter(& Map.fetch!(&1, "severity") == "ERROR") %>
-    <% errors_warning_level = errors |> Enum.filter(& Map.fetch!(&1, "severity") == "WARNING") %>
-    <%= render "_errors_warnings_count.html", nb_errors: errors_count(@resource), nb_warnings: warnings_count(@resource) %>
-
-    <p>
-      <%= raw dgettext("validations", ~s(Validation carried out using the <a href="%{gtfs_link}">current GTFS file</a> and the <a href="%{gtfs_rt_link}">GTFS-RT</a> the %{date} using the <a href="%{validator_url}" target="_blank">CUTR GTFS-RT validator</a>.), gtfs_link: Map.fetch!(validation.details["files"], "gtfs_permanent_url"), gtfs_rt_link: Map.fetch!(validation.details["files"], "gtfs_rt_permanent_url"), date: DateTimeDisplay.format_datetime_to_paris(validation.date, locale), validator_url: gtfs_rt_validator_url()) %>
-    </p>
-    <%= unless Enum.empty?(errors_error_level) do %>
-      <h4><%= dgettext("validations", "Errors")%></h4>
-      <%= render "_gtfs_rt_errors_for_severity.html", errors_for_severity: errors_error_level %>
-    <% end %>
-
-    <%= unless Enum.empty?(errors_warning_level) do %>
-      <h4><%= dgettext("validations", "Warnings") %></h4>
-        <%= render "_gtfs_rt_errors_for_severity.html", errors_for_severity: errors_warning_level %>
-    <% end %>
-
-    <% current_gtfs = @resource.dataset |> DB.Dataset.valid_gtfs() |> Enum.reject(&DB.Resource.is_outdated?/1) |> List.first() %>
-    <%= unless is_nil(current_gtfs) do %>
-      <% validation_path = live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive, type: "gtfs-rt", url: current_gtfs.url, feed_url: DB.Resource.download_url(@resource)) %>
-      <a class="button" href="<%= validation_path %>" target="_blank" role="link">
-        <i class="icon fa-check" aria-hidden="true"></i>
-        <%= dgettext("validations", "Validate this GTFS-RT now") %>
-      </a>
-    <% end %>
+    <%= render "_validation_report_gtfs_rt.html" , resource: @resource, conn: @conn %>
   <% end %>
-</div>
 <% end %>
