@@ -323,8 +323,6 @@ defmodule TransportWeb.API.StatsController do
 
   @spec quality_features_query :: Ecto.Query.t()
   def quality_features_query do
-    # Note: this query is not done in the meantime as aom_features_query because this query is quite long to execute
-    # and we don't want to slow down the main aom_features_query to much
     dt = Date.utc_today() |> Date.to_iso8601()
 
     error_info_sub = dataset_error_levels()
