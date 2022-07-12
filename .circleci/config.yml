@@ -19,7 +19,7 @@ defaults: &defaults
       default: build-v2
       type: string
     plt_cache_key:
-      default: plt-v3
+      default: plt-v4
       type: string
     js_cache_key:
       default: js-v2
