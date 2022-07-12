@@ -221,7 +221,7 @@ defmodule Transport.ImportDataTest do
         datagouv_id,
         generate_resources_payload(
           new_title,
-          _new_url = "http://localhost:4321/resource1_new",
+          _new_url = "https://example.com/" <> Ecto.UUID.generate(),
           new_datagouv_id
         )
       )
@@ -244,8 +244,8 @@ defmodule Transport.ImportDataTest do
     assert Map.get(resource_updated, :datagouv_id) == new_datagouv_id
     assert Map.get(resource_updated, :display_position) == 0
 
-    # but its a new one : its DB id has been incremented
-    refute Map.get(resource_updated, :id) == resource_id
+    # and the internal resource.id did not change
+    assert Map.get(resource_updated, :id) == resource_id
   end
 
   test "import dataset with a community resource" do

@@ -38,19 +38,6 @@ defmodule Transport.Shared.Schemas do
 
   @schemas_catalog_url "https://schema.data.gouv.fr/schemas.json"
 
-  def read_latest_schema(schema_name) do
-    comp_fn = fn ->
-      schema = Map.fetch!(Wrapper.transport_schemas(), schema_name)
-
-      %HTTPoison.Response{status_code: 200, body: body} =
-        http_client().get!(schema_url(schema_name, latest_version(schema)))
-
-      Jason.decode!(body)
-    end
-
-    cache_fetch("latest_schema_#{schema_name}", comp_fn)
-  end
-
   def schema_url(schema_name, schema_version) do
     schema = Map.fetch!(Wrapper.transport_schemas(), schema_name)
 
