@@ -122,12 +122,25 @@ defmodule Unlock.Controller do
 
     parsed = Unlock.SIRI.parse_incoming(body)
 
-    {modified_xml, _seen_requestor_refs} =
+    {modified_xml, seen_requestor_refs} =
       Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(parsed, item.requestor_ref)
 
-    # TODO: forbid query if seen requestor ref is not what is expected
+    if seen_requestor_refs == ["transport-data-gouv-fr"] do
+      handle_authorized_siri_call(conn, item, modified_xml)
+    else
+      send_resp(conn, 403, "Forbidden")
+    end
+  end
 
-    body = Saxy.encode_to_iodata!(modified_xml)
+  defp process_resource(conn, %Unlock.Config.Item.SIRI{}) when conn.method == "GET", do: send_not_allowed(conn)
+
+  defp send_not_allowed(conn) do
+    conn
+    |> send_resp(405, "Method Not Allowed")
+  end
+
+  defp handle_authorized_siri_call(conn, item, xml) do
+    body = Saxy.encode_to_iodata!(xml)
 
     response = Unlock.HTTP.Client.impl().post!(item.target_url, item.request_headers, body)
 
@@ -156,13 +169,6 @@ defmodule Unlock.Controller do
     |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
     # No content-disposition as attachment for now
     |> send_resp(response.status, body)
-  end
-
-  defp process_resource(conn, %Unlock.Config.Item.SIRI{}) when conn.method == "GET", do: send_not_allowed(conn)
-
-  defp send_not_allowed(conn) do
-    conn
-    |> send_resp(405, "Method Not Allowed")
   end
 
   defp fetch_remote(item) do

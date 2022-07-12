@@ -18,6 +18,9 @@ defmodule Unlock.ControllerTest do
     setup_telemetry_handler()
   end
 
+  @the_good_requestor_ref "transport-data-gouv-fr"
+  @a_bad_requestor_ref "I-can-haz-icecream"
+
   test "GET /" do
     output =
       build_conn()
@@ -67,7 +70,7 @@ defmodule Unlock.ControllerTest do
       })
 
       timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
-      incoming_requestor_ref = "transport-data-gouv-fr"
+      incoming_requestor_ref = @the_good_requestor_ref
       message_id = "Test::Message::#{Ecto.UUID.generate()}"
       stop_ref = "SomeStopRef"
 
@@ -109,8 +112,40 @@ defmodule Unlock.ControllerTest do
       # we should test headers too here
     end
 
-    # TODO: implement
-    test "forbids query when incorrect input requestor ref is provided"
+    test "forbids query when incorrect input requestor ref is provided" do
+      slug = "an-existing-identifier"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.SIRI{
+          identifier: slug,
+          target_url: "http://localhost/some-remote-resource",
+          requestor_ref: "the-secret-ref",
+          request_headers: [{"Content-Type", "text/xml; charset=utf-8"}]
+        }
+      })
+
+      timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
+      incoming_requestor_ref = @a_bad_requestor_ref
+      message_id = "Test::Message::#{Ecto.UUID.generate()}"
+      stop_ref = "SomeStopRef"
+
+      query =
+        SIRIQueries.siri_query_from_builder(
+          timestamp,
+          incoming_requestor_ref,
+          message_id,
+          stop_ref
+        )
+
+      resp =
+        build_conn()
+        # NOTE: required due to plug testing, not by the actual server
+        |> put_req_header("content-type", "application/soap+xml")
+        |> post("/resource/an-existing-identifier", query)
+
+      assert resp.status == 403
+      assert resp.resp_body == "Forbidden"
+    end
   end
 
   describe "GTFS-RT item support" do
