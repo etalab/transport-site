@@ -13,6 +13,9 @@ defmodule Transport.MixProject do
         plt_add_apps: [:mix],
         plt_local_path: "dialyzer-plt",
         plt_core_path: "dialyzer-plt"
+      ],
+      preferred_cli_env: [
+        check_all: :test
       ]
     ]
   end
@@ -30,7 +33,20 @@ defmodule Transport.MixProject do
   defp aliases do
     [
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
-      "phx.migrate_phx.server": ["ecto.migrate", "phx.server"]
+      "phx.migrate_phx.server": ["ecto.migrate", "phx.server"],
+      check_all: [
+        "format --check-formatted",
+        ~s(npm "run linter:sass"),
+        # from https://hexdocs.pm/mix/1.12/Mix.Task.html#run/2
+        # Remember: by default, tasks will only run once, even when called repeatedly!
+        # If you need to run a task multiple times, you need to re-enable it via reenable/1 or call it using rerun/2."
+        # => here, npm task need to be run twice
+        fn _ -> Mix.Task.reenable("npm") end,
+        ~s(npm "run linter:ecma"),
+        "credo --strict",
+        "gettext.extract --check-up-to-date",
+        "test"
+      ]
     ]
   end
 end
