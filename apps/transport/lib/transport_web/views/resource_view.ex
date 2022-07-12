@@ -8,6 +8,7 @@ defmodule TransportWeb.ResourceView do
   import DB.Resource, only: [has_errors_details?: 1]
   import DB.ResourceUnavailability, only: [round_float: 2]
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
+  import Shared.Validation.TableSchemaValidator, only: [validata_web_url: 1]
   alias Shared.DateTimeDisplay
   def format_related_objects(nil), do: ""
 

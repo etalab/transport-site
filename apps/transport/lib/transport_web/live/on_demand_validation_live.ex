@@ -7,6 +7,7 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
   use TransportWeb.InputHelpers
   import TransportWeb.Gettext
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 3]
+  import Shared.Validation.TableSchemaValidator, only: [validata_web_url: 1]
   import Ecto.Query
 
   def mount(

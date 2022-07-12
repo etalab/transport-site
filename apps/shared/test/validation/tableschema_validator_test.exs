@@ -143,6 +143,24 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
     end
   end
 
+  describe "validata_web_url" do
+    test "it works" do
+      setup_schemas_response()
+
+      assert "https://validata.etalab.studio/table-schema?schema_name=schema-transport.etalab%2Fschema-lieux-covoiturage" ==
+               validata_web_url(@schema_name)
+    end
+
+    test "with an unknown schema" do
+      schema_name = "foo"
+
+      assert_raise RuntimeError, "#{schema_name} is not a tableschema", fn ->
+        setup_schemas_response()
+        validata_web_url(schema_name)
+      end
+    end
+  end
+
   defp setup_validata_response(filename), do: filename |> read_json() |> validata_response_with_body()
 
   defp read_json(filename), do: File.read!("#{__DIR__}/../fixtures/#{filename}")
