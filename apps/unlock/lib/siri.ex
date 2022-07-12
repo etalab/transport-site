@@ -26,7 +26,7 @@ defmodule Unlock.SIRI do
       []
     }
 
-    Otherwise, the ref must be replaced:
+    Otherwise, the ref must be replaced, and the replaced ones must be returned for verification:
     iex> input = Unlock.SIRI.parse_incoming("<root><RequestorRef>before</RequestorRef></root>")
     iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(input, "after")
     {
