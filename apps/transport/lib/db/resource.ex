@@ -10,6 +10,7 @@ defmodule DB.Resource do
   alias Transport.DataVisualization
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
   import Ecto.{Changeset, Query}
+  import TransportWeb.Router.Helpers, only: [resource_path: 3]
   require Logger
 
   typed_schema "resource" do
@@ -730,5 +731,36 @@ defmodule DB.Resource do
         {:ok, updated_at, 0} = resource_history_list |> Enum.at(0) |> DateTime.from_iso8601()
         updated_at
     end
+  end
+
+  def download_url(%__MODULE__{} = resource, conn_or_endpoint \\ TransportWeb.Endpoint) do
+    cond do
+      needs_stable_url?(resource) -> resource.latest_url
+      can_direct_download?(resource) -> resource.url
+      true -> resource_path(conn_or_endpoint, :download, resource.id)
+    end
+  end
+
+  defp needs_stable_url?(%__MODULE__{latest_url: nil}), do: false
+
+  defp needs_stable_url?(%__MODULE__{url: url}) do
+    parsed_url = URI.parse(url)
+
+    hosted_on_static_datagouv =
+      Enum.member?(Application.fetch_env!(:transport, :datagouv_static_hosts), parsed_url.host)
+
+    hosted_on_bison_fute = parsed_url.host == Application.fetch_env!(:transport, :bison_fute_host)
+
+    cond do
+      hosted_on_bison_fute -> is_link_to_folder?(parsed_url)
+      hosted_on_static_datagouv -> true
+      true -> false
+    end
+  end
+
+  defp needs_stable_url?(%__MODULE__{}), do: false
+
+  defp is_link_to_folder?(%URI{path: path}) do
+    path |> Path.basename() |> :filename.extension() == ""
   end
 end

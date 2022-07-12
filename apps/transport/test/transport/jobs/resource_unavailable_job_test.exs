@@ -105,6 +105,25 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
       assert 0 == count_resource_unavailabilities()
       assert %{is_available: true} = Repo.get!(Resource, resource.id)
     end
+
+    test "uses latest_url when relevant" do
+      resource =
+        insert(:resource,
+          url: "https://static.data.gouv.fr/gtfs.zip",
+          latest_url: latest_url = "https://static.data.gouv.fr/latest_url",
+          is_available: true,
+          datagouv_id: "foo"
+        )
+
+      Transport.AvailabilityChecker.Mock |> expect(:available?, fn ^latest_url -> true end)
+
+      assert DB.Resource.download_url(resource) == latest_url
+
+      assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
+
+      assert 0 == count_resource_unavailabilities()
+      assert %{is_available: true} = Repo.get!(Resource, resource.id)
+    end
   end
 
   defp unavailable_resource, do: new_resource(false)

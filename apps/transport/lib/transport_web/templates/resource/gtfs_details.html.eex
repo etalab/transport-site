@@ -6,7 +6,7 @@
       <h2 class="mt-48"><%= dgettext("validations", "Resource details")%></h2>
       <div class="panel">
         <p><%= dgettext("validations", "File name")%> :
-          <a href="<%= @resource.url %>">
+          <a href="<%= DB.Resource.download_url(@resource) %>">
             <strong><%= @resource.title %></strong>
           </a>
         </p>
