@@ -450,37 +450,6 @@ defmodule TransportWeb.DatasetView do
 
   def schema_label(%{schema_name: schema_name}), do: schema_name
 
-  def download_url(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
-    cond do
-      needs_stable_url?(resource) -> resource.latest_url
-      Resource.can_direct_download?(resource) -> resource.url
-      true -> resource_path(conn, :download, resource.id)
-    end
-  end
-
-  defp needs_stable_url?(%DB.Resource{latest_url: nil}), do: false
-
-  defp needs_stable_url?(%DB.Resource{url: url}) do
-    parsed_url = URI.parse(url)
-
-    hosted_on_static_datagouv =
-      Enum.member?(Application.fetch_env!(:transport, :datagouv_static_hosts), parsed_url.host)
-
-    hosted_on_bison_fute = parsed_url.host == Application.fetch_env!(:transport, :bison_fute_host)
-
-    cond do
-      hosted_on_bison_fute -> is_link_to_folder?(parsed_url)
-      hosted_on_static_datagouv -> true
-      true -> false
-    end
-  end
-
-  defp needs_stable_url?(%DB.Resource{}), do: false
-
-  defp is_link_to_folder?(%URI{path: path}) do
-    path |> Path.basename() |> :filename.extension() == ""
-  end
-
   def has_validity_period?(history_resources) when is_list(history_resources) do
     history_resources |> Enum.map(&has_validity_period?/1) |> Enum.any?()
   end

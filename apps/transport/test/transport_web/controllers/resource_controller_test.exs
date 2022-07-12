@@ -263,7 +263,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
   test "flash message when parent dataset is inactive", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset, %{is_active: false})
-    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, url: "https://example.com/file"})
 
     conn = conn |> get(resource_path(conn, :details, resource_id))
     assert conn |> html_response(200) =~ "supprimé de data.gouv.fr"
@@ -271,7 +271,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
   test "no flash message when parent dataset is active", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset, %{is_active: true})
-    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, url: "https://example.com/file"})
 
     conn = conn |> get(resource_path(conn, :details, resource_id))
     refute conn |> html_response(200) =~ "supprimé de data.gouv.fr"
@@ -281,7 +281,12 @@ defmodule TransportWeb.ResourceControllerTest do
     %{id: dataset_id} = insert(:dataset)
 
     %{id: resource_id} =
-      insert(:resource, %{dataset_id: dataset_id, format: "GTFS", datagouv_id: datagouv_id = "datagouv_id"})
+      insert(:resource, %{
+        dataset_id: dataset_id,
+        format: "GTFS",
+        datagouv_id: datagouv_id = "datagouv_id",
+        url: "https://example.com/file"
+      })
 
     conn1 = conn |> get(resource_path(conn, :details, resource_id))
     assert conn1 |> html_response(200) =~ "Pas de validation disponible"
