@@ -155,6 +155,31 @@ defmodule DB.ResourceUnavailabilityTest do
       assert_in_delta(uptime_four_days_ago, 22 / 24, 0.001)
       assert_in_delta(uptime_three_days_ago, 21 / 24, 0.001)
     end
+
+    test "uptime_per_day over multiple days with an ongoing downtime" do
+      resource = insert(:resource)
+
+      utc_now = DateTime.utc_now()
+      today_as_date = utc_now |> DateTime.to_date()
+      downtime_in_hours = 3
+
+      insert(:resource_unavailability,
+        resource: resource,
+        start: utc_now |> add_hours(-1 * downtime_in_hours),
+        end: nil
+      )
+
+      uptime = ResourceUnavailability.uptime_per_day(resource, 30)
+      uptime_today = uptime |> Enum.filter(&(&1["day"] == today_as_date)) |> Enum.at(0) |> Map.fetch!("uptime")
+
+      seconds_since_midnight = DateTime.diff(today_as_date |> DateTime.new!(~T[00:00:00.00]), utc_now) * -1
+
+      assert_in_delta(
+        uptime_today,
+        (seconds_since_midnight - downtime_in_hours * 60 * 60) / seconds_since_midnight,
+        0.001
+      )
+    end
   end
 
   defp add_hours(datetime, hours), do: DateTime.add(datetime, hours * 60 * 60, :second)
