@@ -17,15 +17,15 @@ defmodule Unlock.SIRITests do
     # fake the parsing occurring in the controller
     parsed = Unlock.SIRI.parse_incoming(input_xml)
 
-    output =
-      Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(parsed, %{
-        # before: incoming_requestor_ref,
-        new_requestor_ref: "new-requestor-ref"
-      })
+    {xml, seen_requestor_refs} = Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(parsed, "new-requestor-ref")
 
-    assert output ==
+    # the returned XML must have its requestor ref replaced
+    assert xml ==
              timestamp
              |> siri_query_from_builder("new-requestor-ref", message_id, stop_ref)
              |> Unlock.SIRI.parse_incoming()
+
+    # and the input requestor ref seen in the document must be returned
+    assert seen_requestor_refs == [incoming_requestor_ref]
   end
 end

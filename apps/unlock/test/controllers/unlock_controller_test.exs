@@ -108,6 +108,9 @@ defmodule Unlock.ControllerTest do
       assert resp.resp_body == "<Everything></Everything>"
       # we should test headers too here
     end
+
+    # TODO: implement
+    test "forbids query when incorrect input requestor ref is provided"
   end
 
   describe "GTFS-RT item support" do

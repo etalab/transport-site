@@ -121,10 +121,13 @@ defmodule Unlock.Controller do
     {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
 
     parsed = Unlock.SIRI.parse_incoming(body)
-    # TODO: modify & verify output (now provided by the function)
-    parsed = Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(parsed, %{new_requestor_ref: item.requestor_ref})
 
-    body = Saxy.encode_to_iodata!(parsed)
+    {modified_xml, _seen_requestor_refs} =
+      Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(parsed, item.requestor_ref)
+
+    # TODO: forbid query if seen requestor ref is not what is expected
+
+    body = Saxy.encode_to_iodata!(modified_xml)
 
     response = Unlock.HTTP.Client.impl().post!(item.target_url, item.request_headers, body)
 
