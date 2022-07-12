@@ -57,6 +57,18 @@ defmodule DB.Dataset do
 
   def base_query, do: from(d in DB.Dataset, as: :dataset, where: d.is_active == true)
 
+  @doc """
+  Creates a query with the following inner joins:
+  datasets <> Resource <> ResourceHistory <> MultiValidation <> ResourceMetadata
+  """
+  def join_from_dataset_to_metadata(validator_name) do
+    DB.Dataset.base_query()
+    |> DB.Resource.join_dataset_with_resource()
+    |> DB.ResourceHistory.join_resource_with_latest_resource_history()
+    |> DB.MultiValidation.join_resource_history_with_latest_validation(validator_name)
+    |> DB.ResourceMetadata.join_validation_with_metadata()
+  end
+
   @spec type_to_str_map() :: %{binary() => binary()}
   def type_to_str_map,
     do: %{

@@ -6,7 +6,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
   import Mox
   alias Transport.Jobs.{GTFSRTMultiValidationDispatcherJob, GTFSRTMultiValidationJob}
   alias Transport.Test.S3TestUtils
-  alias Transport.Validators.{GTFSRT, GTFSTransport}
+  alias Transport.Validators.GTFSRT
 
   @gtfs_rt_report_path "#{__DIR__}/../../fixture/files/gtfs-rt-validator-errors.json"
   @validator_filename "gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
@@ -15,51 +15,6 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-  end
-
-  @gtfs_validator_name GTFSTransport.validator_name()
-
-  defp insert_resource_and_friends(end_date, opts) do
-    def_opts = [resource_available: true, resource_history_payload: %{}]
-    opts = Keyword.merge(def_opts, opts)
-
-    dataset = insert(:dataset, is_active: true)
-
-    %{id: resource_id} =
-      resource =
-      insert(:resource,
-        dataset_id: dataset.id,
-        is_available: Keyword.get(opts, :resource_available),
-        format: "GTFS"
-      )
-
-    resource_history =
-      insert(:resource_history, resource_id: resource_id, payload: Keyword.get(opts, :resource_history_payload))
-
-    multi_validation =
-      insert(:multi_validation, validator: @gtfs_validator_name, resource_history_id: resource_history.id)
-
-    resource_metadata =
-      insert(:resource_metadata,
-        multi_validation_id: multi_validation.id,
-        metadata: %{"start_date" => Date.utc_today() |> Date.add(-30), "end_date" => end_date}
-      )
-
-    %{
-      dataset: dataset,
-      resource: resource,
-      resource_history: resource_history,
-      multi_validation: multi_validation,
-      resource_metadata: resource_metadata
-    }
-  end
-
-  defp insert_up_to_date_resource_and_friends(opts \\ []) do
-    insert_resource_and_friends(Date.utc_today() |> Date.add(30), opts)
-  end
-
-  defp insert_outdated_resource_and_friends(opts \\ []) do
-    insert_resource_and_friends(Date.utc_today() |> Date.add(-5), opts)
   end
 
   describe "GTFSRTMultiValidationDispatcherJob" do
