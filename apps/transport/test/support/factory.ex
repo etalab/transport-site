@@ -116,6 +116,30 @@ defmodule DB.Factory do
     }
   end
 
+  @doc """
+  Useful function to insert in one call everything needed for resource related tests.
+  A dataset, a resource, a resource history, a multi_validation, some metadata
+  For the moment, it inserts GTFS resources, but could be extended to insert any resource type and validation.
+
+  Usage:
+  insert_resource_and_friends(~D[2022-07-12], [])
+  => insert an active dataset, a resource, a resource history, a validation, a metadata.
+  Metadata contains the end date provided.
+
+  insert_resource_and_friends(~D[2022-07-12], [is_active: false])
+  => same as above, but the dataset is inactive
+
+  insert_resource_and_friends(~D[2022-07-12], [resource_available: false])
+  => resource is inserted with is_available = false
+
+  insert_resource_and_friends(~D[2022-07-12], [resource_history_payload: %{"url" => "xxx"}])
+  => specify resource_history payload
+
+  insert_resource_and_friends(~D[2022-07-12], [dataset: dataset_1])
+  => provide an already existing dataset. Useful when inserting a second resource linked to a dataset.
+
+  The function returns a map with all the created DB structures
+  """
   def insert_resource_and_friends(end_date, opts) do
     def_opts = [resource_available: true, is_active: true, resource_history_payload: %{}]
     opts = Keyword.merge(def_opts, opts)
