@@ -1,5 +1,5 @@
 defmodule DB.ResourceTest do
-  use ExUnit.Case, async: true
+  use TransportWeb.ConnCase, async: true
   alias Shared.Validation.Validator.Mock, as: ValidatorMock
   alias DB.{LogsValidation, Repo, Resource, Validation}
   import Mox
@@ -211,12 +211,12 @@ defmodule DB.ResourceTest do
     insert_data_conversion(uuid4, "url4", 10)
 
     assert %{url: "url2", filesize: "12", resource_history_last_up_to_date_at: _} =
-             DB.Resource.get_related_geojson_info(resource_id_1)
+             Resource.get_related_geojson_info(resource_id_1)
 
-    assert nil == DB.Resource.get_related_geojson_info(resource_id_1 - 10)
+    assert nil == Resource.get_related_geojson_info(resource_id_1 - 10)
 
     assert %{geojson: %{url: "url2", filesize: "12", resource_history_last_up_to_date_at: _}} =
-             DB.Resource.get_related_files(%DB.Resource{id: resource_id_1})
+             Resource.get_related_files(%Resource{id: resource_id_1})
   end
 
   defp insert_resource_history(resource_id, uuid, datetime, time_delta_seconds \\ 0) do
@@ -341,5 +341,53 @@ defmodule DB.ResourceTest do
 
       assert expected_last_update_time == resource_id |> Resource.content_updated_at()
     end
+  end
+
+  test "download url", %{conn: conn} do
+    # Files hosted on data.gouv.fr
+    assert Resource.download_url(%Resource{
+             filetype: "file",
+             url: "https://demo-static.data.gouv.fr/resources/base-nationale-zfe/20220412-121638/voies.geojson",
+             latest_url: latest_url = "https://demo.data.gouv.fr/fake_stable_url"
+           }) == latest_url
+
+    assert Resource.download_url(%Resource{
+             filetype: "file",
+             url: "https://static.data.gouv.fr/resources/base-nationale-zfe/20220412-121638/voies.geojson",
+             latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
+           }) == latest_url
+
+    # Bison Futé folder
+    assert Resource.download_url(%Resource{
+             filetype: "remote",
+             url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/",
+             latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
+           }) == latest_url
+
+    # Bison Futé files
+    assert Resource.download_url(%Resource{
+             filetype: "remote",
+             id: id = 1,
+             url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/refDir.csv",
+             latest_url: "https://data.gouv.fr/fake_stable_url"
+           }) == resource_path(conn, :download, id)
+
+    # File not hosted on data.gouv.fr
+    assert Resource.download_url(%Resource{filetype: "file", url: url = "https://data.example.com/voies.geojson"}) ==
+             url
+
+    # Remote filetype / can direct download
+    assert Resource.download_url(%Resource{filetype: "remote", url: url = "https://data.example.com/data"}) == url
+    # http URL
+    assert Resource.download_url(%Resource{id: id = 1, filetype: "remote", url: "http://data.example.com/data"}) ==
+             resource_path(conn, :download, id)
+
+    # file hosted on GitHub
+    assert Resource.download_url(%Resource{
+             id: id = 1,
+             filetype: "remote",
+             url:
+               "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/898dc67fb19fae2464c24a85a0557e8ccce18791/bnlc-.csv"
+           }) == resource_path(conn, :download, id)
   end
 end
