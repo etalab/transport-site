@@ -18,6 +18,7 @@ defmodule Shared.Validation.TableSchemaValidator do
   """
   import Transport.Shared.Schemas
   @behaviour Shared.Validation.TableSchemaValidator.Wrapper
+  @validata_web_url URI.parse("https://validata.etalab.studio/table-schema")
   @validata_api_url URI.parse("https://validata-api.app.etalab.studio/validate")
   # https://git.opendatafrance.net/validata/validata-core/-/blob/75ee5258010fc43b6a164122eff2579c2adc01a7/validata_core/helpers.py#L152
   @structure_tags ["#head", "#structure"]
@@ -40,6 +41,14 @@ defmodule Shared.Validation.TableSchemaValidator do
     else
       _ -> nil
     end
+  end
+
+  def validata_web_url(schema_name) do
+    ensure_schema_is_tableschema!(schema_name)
+
+    @validata_web_url
+    |> Map.put(:query, URI.encode_query(%{schema_name: "schema-transport.#{schema_name}"}))
+    |> URI.to_string()
   end
 
   defp build_report(%{"report" => %{"tasks" => tasks}} = report) do
