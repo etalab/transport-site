@@ -707,7 +707,7 @@ defmodule Transport.ImportData do
   defp get_existing_resource(%{"url" => url, "id" => datagouv_id}, dataset_datagouv_id) do
     Resource
     |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
-    |> where([r, _d], r.datagouv_id == ^datagouv_id or r.url == ^url)
+    |> where([r, _d], (r.datagouv_id == ^datagouv_id and r.filetype == "file") or r.url == ^url)
     |> where([_r, d], d.datagouv_id == ^dataset_datagouv_id)
     |> select([r], map(r, [:id, :metadata]))
     |> Repo.one()

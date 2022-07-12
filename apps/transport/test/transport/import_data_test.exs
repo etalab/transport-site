@@ -191,7 +191,10 @@ defmodule Transport.ImportDataTest do
         generate_resources_payload(
           new_title = "new title !!! fresh !!!",
           "http://localhost:4321/resource1",
-          new_datagouv_id = "resource2_id"
+          new_datagouv_id = "resource2_id",
+          _schema_name = nil,
+          _schema_version = nil,
+          _filetype = "file"
         )
       )
 
@@ -209,6 +212,9 @@ defmodule Transport.ImportDataTest do
     # assert that the resource has been updated with a new title and a new datagouv_id
     # but its id is still the same
     assert Map.get(resource_updated, :title) == new_title
+    # Resource needs to be a file if we want to find it back
+    # with its datagouv_id afterwards
+    assert Map.get(resource_updated, :filetype) == "file"
     assert Map.get(resource_updated, :id) == resource_id
     assert Map.get(resource_updated, :datagouv_id) == new_datagouv_id
 
@@ -222,7 +228,10 @@ defmodule Transport.ImportDataTest do
         generate_resources_payload(
           new_title,
           _new_url = "https://example.com/" <> Ecto.UUID.generate(),
-          new_datagouv_id
+          new_datagouv_id,
+          _schema_name = nil,
+          _schema_version = nil,
+          _filetype = "file"
         )
       )
 
@@ -245,6 +254,7 @@ defmodule Transport.ImportDataTest do
     assert Map.get(resource_updated, :display_position) == 0
 
     # and the internal resource.id did not change
+    assert Map.get(resource_updated, :filetype) == "file"
     assert Map.get(resource_updated, :id) == resource_id
   end
 
