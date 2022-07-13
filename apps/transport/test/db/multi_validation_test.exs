@@ -208,6 +208,33 @@ defmodule DB.MultiValidationTest do
     end
   end
 
+  test "latest resource validation (no resource history)" do
+    # when validating a GTFS-RT, the resource is validated but there is no resource_history.
+    validator = Transport.Validators.GTFSRT
+    validator_name = validator.validator_name()
+
+    dataset = insert(:dataset)
+
+    resource = insert(:resource, dataset_id: dataset.id)
+    other_resource = insert(:resource, dataset_id: dataset.id)
+
+    # old
+    insert(:multi_validation, resource_id: resource.id, validation_timestamp: DateTime.utc_now() |> DateTime.add(-120), validator: validator_name)
+    # bad validator
+    insert(:multi_validation, resource_id: resource.id, validation_timestamp: DateTime.utc_now() |> DateTime.add(-30), validator: "xxx")
+    # good
+    %{id: mv_id} = insert(:multi_validation, resource_id: resource.id, validation_timestamp: DateTime.utc_now() |> DateTime.add(-60), validator: validator_name)
+    # other resource
+    %{id: other_mv_id} = insert(:multi_validation, resource_id: other_resource.id, validation_timestamp: DateTime.utc_now(), validator: validator_name)
+
+    assert %{id: ^mv_id} = DB.MultiValidation.resource_latest_validation(resource.id, validator)
+
+    validations = DB.MultiValidation.dataset_latest_validation(dataset.id, [validator])
+
+    assert [%{id: ^mv_id}] = validations |> Map.get(resource.id)
+    assert [%{id: ^other_mv_id}] = validations |> Map.get(other_resource.id)
+  end
+
   test "composable join query for latest validation" do
     resource_history = insert(:resource_history)
     insert(:resource_history)
