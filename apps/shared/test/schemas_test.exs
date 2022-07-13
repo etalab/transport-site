@@ -47,10 +47,6 @@ defmodule Transport.Shared.SchemasTest do
     end
   end
 
-  def assert_cache_key_has_ttl(cache_key, expected_ttl \\ 300) do
-    assert_in_delta Cachex.ttl!(cache_name(), cache_key), :timer.seconds(expected_ttl), :timer.seconds(1)
-  end
-
   defp setup_schemas_response do
     url = "https://schema.data.gouv.fr/schemas.json"
 

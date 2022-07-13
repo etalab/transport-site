@@ -1,7 +1,6 @@
 defmodule Shared.Validation.JSONSchemaValidatorTest do
   use Shared.CacheCase
   import Shared.Validation.JSONSchemaValidator
-  import Transport.Shared.SchemasTest, only: [assert_cache_key_has_ttl: 1]
 
   setup do
     Mox.stub_with(Transport.Shared.Schemas.Mock, Transport.Shared.Schemas)
