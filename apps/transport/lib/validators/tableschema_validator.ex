@@ -7,6 +7,7 @@ defmodule Transport.Validators.TableSchema do
   # the previous validation flow.
   alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
   @validator_version_key_name "validata_api_version"
+  @validator_key_name "validator"
   @behaviour Transport.Validators.Validator
 
   @impl Transport.Validators.Validator
@@ -40,7 +41,7 @@ defmodule Transport.Validators.TableSchema do
 
   def normalize_validation_result(result) when is_map(result) do
     result
-    |> Map.reject(fn {key, _value} -> key == @validator_version_key_name end)
+    |> Map.reject(fn {key, _value} -> key in [@validator_version_key_name, @validator_key_name] end)
     |> Map.put("validation_performed", true)
   end
 

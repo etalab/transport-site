@@ -26,7 +26,7 @@ defmodule Transport.Validators.TableSchemaTest do
 
     Shared.Validation.TableSchemaValidator.Mock
     |> expect(:validate, fn ^schema_name, ^permanent_url, ^schema_version ->
-      %{"has_errors" => false, "errors_count" => 0, "errors" => [], "validata_api_version" => validator_version}
+      %{"has_errors" => false, "errors_count" => 0, "errors" => [], "validata_api_version" => validator_version, "validator" => "OriginalValidatorName"}
     end)
 
     assert :ok == TableSchema.validate_and_save(resource_history)
