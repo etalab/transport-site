@@ -88,7 +88,7 @@ defmodule DB.MultiValidation do
       on: rh.id == mv.resource_history_id and rh.resource_id == ^resource_id
     )
     |> join(:left, [mv, rh], r in DB.Resource, on: r.id == mv.resource_id and r.id == ^resource_id)
-    |> where([mv], mv.validator == ^validator_name)
+    |> where([mv, rh, r], mv.validator == ^validator_name and (not is_nil(rh.id) or not is_nil(r.id)))
     |> order_by([mv, rh, r], desc: rh.inserted_at, desc: r.id, desc: mv.validation_timestamp)
     |> preload(:metadata)
     |> limit(1)
