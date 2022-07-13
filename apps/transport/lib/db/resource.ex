@@ -403,13 +403,20 @@ defmodule DB.Resource do
   def find_tags(%__MODULE__{} = r, metadata) do
     r
     |> base_tag()
-    |> Enum.concat(has_fares_tag(metadata))
+    |> Enum.concat(find_tags_from_metadata(metadata))
+    |> Enum.uniq()
+  end
+
+  def find_tags_from_metadata(metadata) do
+    metadata
+    |> has_fares_tag()
     |> Enum.concat(has_shapes_tag(metadata))
     |> Enum.concat(has_odt_tag(metadata))
     |> Enum.concat(has_route_colors_tag(metadata))
     |> Enum.concat(has_pathways_tag(metadata))
-    |> Enum.uniq()
   end
+
+  def existing_gtfs_tags(), do: ["tarifs", "tracés de lignes", "transport à la demande", "couleurs des lignes", "description des correspondances"]
 
   @spec find_modes(map()) :: [binary()]
   def find_modes(%{"modes" => modes}), do: modes
