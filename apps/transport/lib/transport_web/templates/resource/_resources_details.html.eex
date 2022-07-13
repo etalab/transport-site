@@ -24,7 +24,7 @@
       <li><%= dgettext("validations", "number of stop areas")%> : <strong><%= @metadata["stop_areas_count"]%></strong></li>
     <% end %>
 
-    <li>Données disponibles dans la ressource</li>
+    <li>Données disponibles dans la ressource :</li>
     <div>
     <% found_tags = DB.Resource.find_tags_from_metadata(@metadata) %>
     <%= for tag <- found_tags do %>
