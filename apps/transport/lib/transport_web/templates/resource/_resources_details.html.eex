@@ -23,6 +23,53 @@
     <%= if @metadata["stop_areas_count"] != nil do %>
       <li><%= dgettext("validations", "number of stop areas")%> : <strong><%= @metadata["stop_areas_count"]%></strong></li>
     <% end %>
+
+    <%= dgettext("page-dataset-details", "Features available in the resource:") %>
+      <div>
+    <%= if @metadata["MissingCoordinates"] != nil do %>
+        <span class="label">position des stations</span>
+    <%= else %>
+      <span class="label mode">position des stations</span>
+    <% end %>
+
+    <%= if @metadata["has_fares"] == true do %>
+        <span class="label">tarifs</span>
+    <%= else %>
+      <span class="label mode">tarifs</span>
+    <% end %>
+
+    <%= if @metadata["has_shapes"] == true do %>
+        <span class="label">topologie du réseau</span>
+    <%= else %>
+      <span class="label mode">topologie du réseau</span>
+    <% end %>
+
+    <%= if @metadata["has_pathways"] == true do %>
+        <span class="label">tracés de lignes</span>
+    <%= else %>
+      <span class="label mode">tracés de lignes</span>
+    <% end %>
+
+    <%= if @metadata["NullDuration"] != nil do %>
+        <span class="label">horaires théoriques</span>
+    <%= else %>
+      <span class="label mode">horaires théoriques</span>
+    <% end %>
+
+ <%= if @metadata["continuous_pickup"] != nil do %>
+        <span class="label">transport à la demande</span>
+    <%= else %>
+      <span class="label mode">transport à la demande</span>
+    <% end %>
+
+ <%= if @metadata["lines_count"] != @metadata["lines_with_custom_color_count "] do %>
+        <span class="label">couleur des lignes</span>
+    <%= else %>
+      <span class="label mode">couleur des lignes</span>
+    <% end %>
+
+    </div>
+
     </ul>
   </div>
 <% end %>
