@@ -1,8 +1,10 @@
-<% locale = get_session(@conn, :locale) %>
-
 <div class="panel">
   <p>
-    <%= raw dgettext("validations", ~s(This resource should follow its schema %{link}.), link: safe_to_string(link(@resource.schema_name, to: schema_url(@resource), target: "_blank"))) %>
+    <%= raw(
+      dgettext("validations", ~s(This resource should follow its schema %{link}.),
+        link: safe_to_string(link(@resource.schema_name, to: schema_url(@resource), target: "_blank"))
+      )
+    ) %>
   </p>
   <%= if has_errors_details?(@resource) do %>
     <p>
@@ -17,9 +19,15 @@
     </p>
     <%= if nb_errors > 0 do %>
       <p class="notification">
-        <%= raw dgettext("validations", ~s(Are you the producer of this data? Once you have fixed your errors, you can verify that your file is valid <a href="%{link}" target="_blank">using our validators</a>.), link: on_demand_validation_link(@conn, @resource)) %>
+        <%= raw(
+          dgettext(
+            "validations",
+            ~s(Are you the producer of this data? Once you have fixed your errors, you can verify that your file is valid <a href="%{link}" target="_blank">using our validators</a>.),
+            link: on_demand_validation_link(@conn, @resource)
+          )
+        ) %>
       </p>
-      <p><%= dgettext("validations", "Errors:")%></p>
+      <p><%= dgettext("validations", "Errors:") %></p>
       <ul { if @resource.metadata["validation"]["schema_type"] == "jsonschema" do ~s(lang="en") end }>
         <%= for error <- errors_sample(@resource) do %>
           <li><%= error %></li>
@@ -27,13 +35,15 @@
       </ul>
       <%= if nb_errors > max_display_errors() do %>
         <p class="notification">
-          <%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors())%>
+          <%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors()) %>
           <%= if @resource.metadata["validation"]["schema_type"] == "tableschema" do %>
-            <%= raw dgettext(
+            <%= raw(
+              dgettext(
                 "validations",
                 ~s(See all your errors <a href="%{url}" target="_blank">using the web interface</a>.),
                 url: validata_web_url(@resource.schema_name)
-              ) %>
+              )
+            ) %>
           <% end %>
         </p>
       <% end %>

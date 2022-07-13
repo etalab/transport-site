@@ -66,7 +66,6 @@ defmodule TransportWeb.ResourceController do
 
   defp put_resource_flash(conn, _), do: conn
 
-
   defp latest_validation(%{id: resource_id, format: "GTFS"}) do
     DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.GTFSTransport)
   end
