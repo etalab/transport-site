@@ -65,12 +65,19 @@ defmodule TransportWeb.ResourceController do
 
   defp put_resource_flash(conn, _), do: conn
 
+
+  defp latest_validation(%{id: resource_id, format: "GTFS"}) do
+    DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.GTFSTransport)
+  end
+
+  defp latest_validation(%{id: resource_id, format: "gtfs-rt"}) do
+    DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.GTFSRT)
+  end
+
   defp render_gtfs_details(conn, params, resource) do
     config = make_pagination_config(params)
 
-    validation =
-      resource.id
-      |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)
+    validation = resource |> latest_validation()
 
     {validation_summary, severities_count, metadata, issues} =
       case validation do
