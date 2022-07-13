@@ -1,8 +1,5 @@
 <% show_schema_validation = not is_nil(@resource.schema_name) %>
-<% show_gtfs_rt_validation = DB.Resource.is_gtfs_rt?(@resource) and has_errors_details?(@resource) %>
-
-<%= show_schema_validation %>
-<%= show_gtfs_rt_validation %>
+<% show_gtfs_rt_validation = DB.Resource.is_gtfs_rt?(@resource) and not is_nil(@multi_validation) %>
 
 <%= if show_schema_validation or show_gtfs_rt_validation do %>
 <h2 id="validation-report"><%= dgettext("validations", "Validation details")%></h2>
@@ -10,6 +7,6 @@
     <%= render "_validation_report_schema.html" , resource: @resource, conn: @conn %>
   <% end %>
   <%= if show_gtfs_rt_validation do %>
-    <%= render "_validation_report_gtfs_rt.html" , resource: @resource, conn: @conn %>
+    <%= render "_validation_report_gtfs_rt.html" , resource: @resource, conn: @conn, multi_validation: @multi_validation %>
   <% end %>
 <% end %>
