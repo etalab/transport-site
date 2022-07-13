@@ -54,7 +54,7 @@ defmodule SIRIQueries do
               element("siri:RequestTimestamp", [], timestamp),
               element("siri:MessageIdentifier", [], message_id),
               element("siri:MonitoringRef", [], stop_ref),
-              element("siri:StopVisitTypes", [], "all")
+              element("siri:StopVisitTypes", [], ["all"])
             ])
           ])
         ])
