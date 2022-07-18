@@ -99,7 +99,7 @@ defmodule Unlock.Controller do
   # RAM consumption
   @max_allowed_cached_byte_size 20 * 1024 * 1024
 
-  defp process_resource(conn, %Unlock.Config.Item.GTFS.RT{} = item) when conn.method == "GET" do
+  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.GTFS.RT{} = item) do
     Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
 
@@ -117,7 +117,7 @@ defmodule Unlock.Controller do
   # NOTE: this code is designed for private use for now. I have tracked
   # what is required or useful for public opening later here:
   # https://github.com/etalab/transport-site/issues/2476
-  defp process_resource(conn, %Unlock.Config.Item.SIRI{} = item) when conn.method == "POST" do
+  defp process_resource(%{method: "POST"} = conn, %Unlock.Config.Item.SIRI{} = item) do
     {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
 
     parsed = Unlock.SIRI.parse_incoming(body)
@@ -135,7 +135,8 @@ defmodule Unlock.Controller do
     end
   end
 
-  defp process_resource(conn, %Unlock.Config.Item.SIRI{}) when conn.method == "GET", do: send_not_allowed(conn)
+  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.SIRI{}),
+    do: send_not_allowed(conn)
 
   defp send_not_allowed(conn) do
     conn
