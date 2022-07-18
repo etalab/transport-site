@@ -143,7 +143,8 @@ defmodule Unlock.Controller do
     |> send_resp(405, "Method Not Allowed")
   end
 
-  defp handle_authorized_siri_call(conn, item, xml) do
+  @spec handle_authorized_siri_call(Plug.Conn.t(), %Unlock.Config.Item.SIRI{}, Saxy.XML.element()) :: Plug.Conn.t()
+  defp handle_authorized_siri_call(conn, %Unlock.Config.Item.SIRI{} = item, xml) do
     body = Saxy.encode_to_iodata!(xml)
 
     response = Unlock.HTTP.Client.impl().post!(item.target_url, item.request_headers, body)
