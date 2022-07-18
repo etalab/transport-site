@@ -14,24 +14,37 @@ defmodule Unlock.SIRI do
 
   defmodule RequestorRefReplacer do
     @moduledoc """
-    A module able to replace `RequestorRef` tag in a "simple form" XML document
+    A module able to replace `RequestorRef` tags found in a
+    [simple form](https://www.erlang.org/doc/man/xmerl.html#export_simple-3) xmerl document,
+    all while returning the replaced values.
     """
 
     @doc """
-    Newline must not cause a crash:
-    iex> input = Unlock.SIRI.parse_incoming("<root>\\n<hello/></root>")
-    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(input, "ok")
-    {
-      {"root", [], ["\n", {"hello", [], []}]},
-      []
-    }
+    The `RequestorRef` inner value must be replaced, and the replaced ones must be returned for verification:
 
-    Otherwise, the ref must be replaced, and the replaced ones must be returned for verification:
     iex> input = Unlock.SIRI.parse_incoming("<root><RequestorRef>before</RequestorRef></root>")
     iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(input, "after")
     {
       {"root", [], [{"RequestorRef", [], ["after"]}]},
       ["before"]
+    }
+
+    The replacement must occur even if the tag is namespaced:
+
+    iex> input = Unlock.SIRI.parse_incoming("<root><siri:RequestorRef>before</siri:RequestorRef></root>")
+    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(input, "after")
+    {
+      {"root", [], [{"siri:RequestorRef", [], ["after"]}]},
+      ["before"]
+    }
+
+    Newline must not cause a crash:
+
+    iex> input = Unlock.SIRI.parse_incoming("<root>\\n<hello/></root>")
+    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(input, "ok")
+    {
+      {"root", [], ["\n", {"hello", [], []}]},
+      []
     }
     """
 
