@@ -7,6 +7,7 @@ defmodule Unlock.SIRI do
   iex> Unlock.SIRI.parse_incoming("<elem attr='value'>text</elem>")
   {"elem", [{"attr", "value"}], ["text"]}
   """
+  @spec parse_incoming(binary()) :: Saxy.XML.element()
   def parse_incoming(body) do
     {:ok, parsed_request} = Saxy.SimpleForm.parse_string(body, cdata_as_characters: false)
     parsed_request
@@ -48,6 +49,7 @@ defmodule Unlock.SIRI do
     }
     """
 
+    @spec replace_requestor_ref(Saxy.XML.element(), binary(), list(binary())) :: {Saxy.XML.element(), list(binary())}
     def replace_requestor_ref(_node, _new_requestor_ref, seen_requestor_refs \\ [])
 
     def replace_requestor_ref({tag, attributes, [text]} = node, new_requestor_ref, seen_requestor_refs)
