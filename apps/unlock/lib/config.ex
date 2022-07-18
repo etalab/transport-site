@@ -20,6 +20,8 @@ defmodule Unlock.Config do
     Intermediate structure for SIRI configured items.
     """
     @enforce_keys [:identifier, :target_url, :requestor_ref]
+
+    @type t :: %__MODULE__{identifier: binary(), target_url: binary(), requestor_ref: binary(), request_headers: list()}
     defstruct [:identifier, :target_url, :requestor_ref, request_headers: []]
   end
 
