@@ -24,7 +24,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   describe "ResourceHistoryDispatcherJob" do
     test "resources_to_historise" do
       ids = create_resources_for_history()
-      assert 6 == count_resources()
+      assert 7 == count_resources()
       assert ids == ResourceHistoryDispatcherJob.resources_to_historise()
     end
 
@@ -551,6 +551,16 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       format: "GTFS",
       title: "Ignored because is not available over HTTP",
       datagouv_id: "6",
+      is_community_resource: false
+    )
+
+    insert(:resource,
+      url: "https://example.com/doc",
+      dataset_id: active_dataset_id,
+      format: "html",
+      type: "documentation",
+      title: "Ignored because it's a documentation",
+      datagouv_id: "7",
       is_community_resource: false
     )
 
