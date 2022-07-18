@@ -48,12 +48,14 @@ defmodule Datagouvfr.Client.CommunityResources.APITest do
       |> given_request_return_response_with_next_page(@data_containing_1_element)
       |> given_request_return_an_error("community resource error")
 
-      {res, logs} = with_log(fn -> a_dataset_id
-      |> CommunityResourcesAPI.get()
-    end)
+      {res, logs} =
+        with_log(fn ->
+          a_dataset_id
+          |> CommunityResourcesAPI.get()
+        end)
 
-    res |> assert_is_an_error_response
-    assert logs =~ "community resource error"
+      res |> assert_is_an_error_response
+      assert logs =~ "community resource error"
     end
   end
 
