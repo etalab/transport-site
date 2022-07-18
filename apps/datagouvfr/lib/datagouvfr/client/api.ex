@@ -135,7 +135,7 @@ defmodule Datagouvfr.Client.API do
           raise reason
 
         {:error, error} ->
-          raise error
+          raise inspect(error)
       end
     end)
     |> Enum.to_list()
