@@ -4,6 +4,7 @@ defmodule Datagouvfr.Client.CommunityResources.APITest do
 
   import Datagouvfr.ApiFixtures
   import Mox
+  import ExUnit.CaptureLog
 
   alias Datagouvfr.Client.CommunityResources.API, as: CommunityResourcesAPI
 
@@ -47,9 +48,12 @@ defmodule Datagouvfr.Client.CommunityResources.APITest do
       |> given_request_return_response_with_next_page(@data_containing_1_element)
       |> given_request_return_an_error("community resource error")
 
-      a_dataset_id
+      {res, logs} = with_log(fn -> a_dataset_id
       |> CommunityResourcesAPI.get()
-      |> assert_is_an_error_response
+    end)
+
+    res |> assert_is_an_error_response
+    assert logs =~ "community resource error"
     end
   end
 
