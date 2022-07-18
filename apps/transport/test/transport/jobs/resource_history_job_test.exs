@@ -434,7 +434,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  "download_datetime" => _download_datetime,
                  "schema_name" => ^schema_name,
                  "schema_version" => ^schema_version,
-                 "latest_schema_version" => ^latest_schema_version
+                 "latest_schema_version_to_date" => ^latest_schema_version
                },
                last_up_to_date_at: last_up_to_date_at
              } = DB.ResourceHistory |> DB.Repo.one!()

@@ -92,7 +92,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
           dataset_id: resource.dataset_id,
           schema_name: resource.schema_name,
           schema_version: resource.schema_version,
-          latest_schema_version: latest_schema_version(resource)
+          latest_schema_version_to_date: latest_schema_version_to_date(resource)
         }
 
         data =
@@ -290,9 +290,9 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     Repo.reload(resource)
   end
 
-  defp latest_schema_version(%Resource{schema_name: nil}), do: nil
+  defp latest_schema_version_to_date(%Resource{schema_name: nil}), do: nil
 
-  defp latest_schema_version(%Resource{schema_name: schema_name}) do
+  defp latest_schema_version_to_date(%Resource{schema_name: schema_name}) do
     Schemas.latest_version(schema_name)
   end
 end
