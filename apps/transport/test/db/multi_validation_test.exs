@@ -219,13 +219,34 @@ defmodule DB.MultiValidationTest do
     other_resource = insert(:resource, dataset_id: dataset.id)
 
     # old
-    insert(:multi_validation, resource_id: resource.id, validation_timestamp: DateTime.utc_now() |> DateTime.add(-120), validator: validator_name)
+    insert(:multi_validation,
+      resource_id: resource.id,
+      validation_timestamp: DateTime.utc_now() |> DateTime.add(-120),
+      validator: validator_name
+    )
+
     # bad validator
-    insert(:multi_validation, resource_id: resource.id, validation_timestamp: DateTime.utc_now() |> DateTime.add(-30), validator: "xxx")
+    insert(:multi_validation,
+      resource_id: resource.id,
+      validation_timestamp: DateTime.utc_now() |> DateTime.add(-30),
+      validator: "xxx"
+    )
+
     # good
-    %{id: mv_id} = insert(:multi_validation, resource_id: resource.id, validation_timestamp: DateTime.utc_now() |> DateTime.add(-60), validator: validator_name)
+    %{id: mv_id} =
+      insert(:multi_validation,
+        resource_id: resource.id,
+        validation_timestamp: DateTime.utc_now() |> DateTime.add(-60),
+        validator: validator_name
+      )
+
     # other resource
-    %{id: other_mv_id} = insert(:multi_validation, resource_id: other_resource.id, validation_timestamp: DateTime.utc_now(), validator: validator_name)
+    %{id: other_mv_id} =
+      insert(:multi_validation,
+        resource_id: other_resource.id,
+        validation_timestamp: DateTime.utc_now(),
+        validator: validator_name
+      )
 
     assert %{id: ^mv_id} = DB.MultiValidation.resource_latest_validation(resource.id, validator)
 
