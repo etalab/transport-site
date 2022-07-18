@@ -52,9 +52,7 @@ defmodule Unlock.SIRI do
 
     def replace_requestor_ref({tag, attributes, [text]} = node, new_requestor_ref, seen_requestor_refs)
         when is_binary(text) do
-      [unnamespaced_tag | _] = tag |> String.split(":") |> Enum.reverse()
-
-      if unnamespaced_tag == "RequestorRef" do
+      if tag_without_namespace(tag) == "RequestorRef" do
         {{tag, attributes, [new_requestor_ref]}, [text | seen_requestor_refs]}
       else
         {node, seen_requestor_refs}
@@ -74,6 +72,22 @@ defmodule Unlock.SIRI do
         end)
 
       {{tag, attributes, children}, seen_requestor_refs}
+    end
+
+    @doc """
+    The current version just ignores XML namespaces for now. This method helps extracting
+    the tag name without its namespace, to achieve comparison based on that.
+
+    iex> Unlock.SIRI.RequestorRefReplacer.tag_without_namespace("siri:RequestorRef")
+    "RequestorRef"
+
+    iex> Unlock.SIRI.RequestorRefReplacer.tag_without_namespace("Hello")
+    "Hello"
+    """
+    def tag_without_namespace(tag) do
+      tag
+      |> String.split(":")
+      |> List.last()
     end
   end
 end
