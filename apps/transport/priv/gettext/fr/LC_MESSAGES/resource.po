@@ -106,10 +106,6 @@ msgid "Option 1: Directly add the resource"
 msgstr "Option 1 : ajouter la ressource simplement"
 
 #, elixir-autogen, elixir-format
-msgid "This option allows you to add the resource on data.gouv.fr, directly from here."
-msgstr "Cette option vous permet d'ajouter la ressource sur data.gouv.fr depuis ici, sans avoir à vous y rendre."
-
-#, elixir-autogen, elixir-format
 msgid "Example : Paris GTFS dataset"
 msgstr "exemple : Horaires au format GTFS"
 
@@ -124,3 +120,7 @@ msgstr "La ressource n'est pas disponible sur le serveur distant"
 #, elixir-autogen, elixir-format
 msgid "This resource belongs to a dataset that has been deleted from data.gouv.fr"
 msgstr "Cette ressource appartient à un jeu de données qui a été supprimé de data.gouv.fr"
+
+#, elixir-autogen, elixir-format
+msgid "This option allows you to add the resource on data.gouv.fr, directly from here. Do you want to publish a more up-to-date version of a resource? <a href=\"%{url}\">Update the resource</a> instead."
+msgstr "Cette option vous permet d'ajouter la ressource sur data.gouv.fr depuis ici, sans avoir à vous y rendre. Vous souhaitez remplacer une ressource par une version plus à jour ? <a href=\"%{url}\">Mettez à jour la ressource</a> plutôt."

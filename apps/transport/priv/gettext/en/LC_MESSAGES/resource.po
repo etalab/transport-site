@@ -106,10 +106,6 @@ msgid "Option 1: Directly add the resource"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "This option allows you to add the resource on data.gouv.fr, directly from here."
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Example : Paris GTFS dataset"
 msgstr ""
 
@@ -123,4 +119,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "This resource belongs to a dataset that has been deleted from data.gouv.fr"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "This option allows you to add the resource on data.gouv.fr, directly from here. Do you want to publish a more up-to-date version of a resource? <a href=\"%{url}\">Update the resource</a> instead."
 msgstr ""
