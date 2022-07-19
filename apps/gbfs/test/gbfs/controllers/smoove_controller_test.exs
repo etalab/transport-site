@@ -3,6 +3,7 @@ defmodule GBFS.SmooveControllerTest do
   alias GBFS.Router.Helpers, as: Routes
   import Mox
   import GBFS.Checker
+  import ExUnit.CaptureLog
 
   setup :verify_on_exit!
 
@@ -38,8 +39,9 @@ defmodule GBFS.SmooveControllerTest do
     test "on invalid response", %{conn: conn} do
       Transport.HTTPoison.Mock |> expect(:get, fn _url -> {:ok, %HTTPoison.Response{status_code: 500}} end)
 
-      conn = conn |> get(Routes.strasbourg_path(conn, :station_status))
+      {conn, logs} = with_log(fn -> conn |> get(Routes.strasbourg_path(conn, :station_status)) end)
       assert %{"error" => "smoove service unavailable"} == json_response(conn, 502)
+      assert logs =~ "impossible to query smoove"
     end
 
     defp setup_stations_response do
