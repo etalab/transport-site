@@ -24,11 +24,13 @@ defmodule Transport.Validators.EXJSONSchemaTest do
       insert(:resource_history,
         payload: %{
           "permanent_url" => permanent_url = "https://example.com/permanent",
-          "schema_name" => schema_name = "etalab/schema-zfe"
+          "schema_name" => schema_name = "etalab/schema-zfe",
+          "schema_version" => nil,
+          "latest_schema_version_to_date" => schema_version = "0.4.2"
         }
       )
 
-    mock_load_jsonschema(schema_name)
+    mock_load_jsonschema(schema_name, schema_version)
 
     Shared.Validation.JSONSchemaValidator.Mock
     |> expect(:validate, fn _schema, ^permanent_url ->
@@ -52,19 +54,21 @@ defmodule Transport.Validators.EXJSONSchemaTest do
 
   test "perform_validation when validator returns nil" do
     schema_name = "etalab/schema-zfe"
+    schema_version = "0.1.2"
     permanent_url = "https://example.com/permanent_url"
 
-    mock_load_jsonschema(schema_name)
+    mock_load_jsonschema(schema_name, schema_version)
 
     Shared.Validation.JSONSchemaValidator.Mock
     |> expect(:validate, fn _schema, ^permanent_url -> nil end)
 
-    assert %{"validation_performed" => false} == EXJSONSchema.perform_validation(schema_name, permanent_url)
+    assert %{"validation_performed" => false} ==
+             EXJSONSchema.perform_validation(schema_name, schema_version, permanent_url)
   end
 
-  defp mock_load_jsonschema(schema_name) do
+  defp mock_load_jsonschema(schema_name, schema_version) do
     Shared.Validation.JSONSchemaValidator.Mock
-    |> expect(:load_jsonschema_for_schema, fn ^schema_name ->
+    |> expect(:load_jsonschema_for_schema, fn ^schema_name, ^schema_version ->
       %ExJsonSchema.Schema.Root{
         schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
         version: 7

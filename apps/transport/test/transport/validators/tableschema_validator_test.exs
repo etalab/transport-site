@@ -55,7 +55,8 @@ defmodule Transport.Validators.TableSchemaTest do
         payload: %{
           "permanent_url" => permanent_url = "https://example.com/permanent",
           "schema_name" => schema_name = "etalab/schema-lieux-covoiturage",
-          "schema_version" => schema_version = "0.4.2"
+          "schema_version" => nil,
+          "latest_schema_version_to_date" => schema_version = "0.4.2"
         }
       )
 
