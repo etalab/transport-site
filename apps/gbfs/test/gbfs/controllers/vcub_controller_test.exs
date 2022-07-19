@@ -3,6 +3,7 @@ defmodule GBFS.VCubControllerTest do
   alias GBFS.Router.Helpers, as: Routes
   import Mox
   import GBFS.Checker
+  import ExUnit.CaptureLog
 
   setup :verify_on_exit!
 
@@ -73,8 +74,9 @@ defmodule GBFS.VCubControllerTest do
     test "on invalid VCub response", %{conn: conn} do
       Transport.HTTPoison.Mock |> expect(:get, fn _url -> {:ok, %HTTPoison.Response{status_code: 500}} end)
 
-      conn = conn |> get(Routes.v_cub_path(conn, :station_status))
+      {conn, logs} = with_log(fn -> conn |> get(Routes.v_cub_path(conn, :station_status)) end)
       assert %{"error" => "VCub service unavailable"} == json_response(conn, 502)
+      assert logs =~ "impossible to query VCub"
     end
   end
 

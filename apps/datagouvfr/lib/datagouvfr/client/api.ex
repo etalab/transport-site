@@ -135,7 +135,7 @@ defmodule Datagouvfr.Client.API do
           raise reason
 
         {:error, error} ->
-          raise error
+          raise inspect(error)
       end
     end)
     |> Enum.to_list()
@@ -146,7 +146,7 @@ defmodule Datagouvfr.Client.API do
     {:ok, fetch_all_pages!(path, method)}
   rescue
     error ->
-      Logger.error(error)
+      Logger.warn(error)
       {:error, error}
   end
 end

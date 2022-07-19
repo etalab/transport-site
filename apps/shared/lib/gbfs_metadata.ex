@@ -39,7 +39,7 @@ defmodule Transport.Shared.GBFSMetadata do
     }
   rescue
     e ->
-      Logger.error(inspect(e))
+      Logger.warn("Could not compute GBFS feed metadata. Reason: #{inspect(e)}")
       %{}
   end
 
