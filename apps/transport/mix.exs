@@ -44,6 +44,14 @@ defmodule Transport.Mixfile do
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
+  # see https://github.com/etalab/transport-site/issues/2520
+  defp apple_silicon? do
+    :system_architecture
+    |> :erlang.system_info()
+    |> List.to_string()
+    |> String.starts_with?("aarch64-apple-darwin")
+  end
+
   defp deps do
     [
       {:csv, "~> 2.1"},
