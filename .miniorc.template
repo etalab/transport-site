@@ -8,9 +8,10 @@ export MINIO_ROOT_PASSWORD=apoi8761876bbazeriouy
 # https://docs.min.io/minio/baremetal/quickstart/container.html#quickstart-container
 # which means at time of writing:
 # mkdir -p ~/minio/data
-# NOTE: -name removed for simplicity
+# NOTE: -name removed for simplicity, and "quayio" removed since the container appeared outdated
 # docker run -p 9000:9000 -p 9090:9090 -v ~/minio/data:/data -e "MINIO_ROOT_USER=$MINIO_ROOT_USER" -e "MINIO_ROOT_PASSWORD=$MINIO_ROOT_PASSWORD" minio/minio server /data --console-address ":9090"
 
 # 4. setup `dev.secret.exs` from `dev.secret.template.exs`
 # 5. source `.miniorc`
 # 6. go to console at http://127.0.0.1:9090 and create bucket `transport-data-gouv-fr-resource-history-dev`
+# 7. start `mix phx.server`
