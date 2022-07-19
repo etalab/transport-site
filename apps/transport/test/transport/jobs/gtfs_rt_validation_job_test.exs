@@ -10,6 +10,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
   import Mox
   alias Transport.Jobs.{GTFSRTValidationDispatcherJob, GTFSRTValidationJob}
   alias Transport.Test.S3TestUtils
+  import ExUnit.CaptureLog
 
   @gtfs_rt_report_path "#{__DIR__}/../../fixture/files/gtfs-rt-validator-errors.json"
   @validator_filename "gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
@@ -360,7 +361,8 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTValidationDispatcherJobTest do
         {:error, validator_message}
       end)
 
-      assert :ok == perform_job(GTFSRTValidationJob, %{"dataset_id" => dataset.id})
+      {:ok, logs} = with_log(fn -> perform_job(GTFSRTValidationJob, %{"dataset_id" => dataset.id}) end)
+      assert logs =~ "error while calling the validator"
 
       gtfs_rt = DB.Resource |> preload([:validation, :logs_validation]) |> DB.Repo.get!(gtfs_rt.id)
 
