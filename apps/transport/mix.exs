@@ -95,6 +95,8 @@ defmodule Transport.Mixfile do
       if apple_silicon?() do
         # branch is "aarch64-apple" but we're hardcoding the ref for security, especially since `mix.lock`
         # must not be committed in that case.
+        # NOTE: this is not enough, and a manual `mix compile.rambo` must be issued manually in order
+        # for this to work (https://github.com/jayjun/rambo/pull/13#issuecomment-1189194040).
         {:rambo, "~> 0.3.4", github: "myobie/rambo", ref: "e321db8e4f035f2a295ee2a5310dcb75034677ce"}
       else
         {:rambo, "~> 0.3.4"}
