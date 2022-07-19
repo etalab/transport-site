@@ -48,6 +48,17 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJobTest do
     assert "0." <> _ = validator_version
   end
 
+  test "discards job if already validated" do
+    rh = insert(:resource_history, %{payload: %{"schema_name" => Ecto.UUID.generate()}})
+
+    insert(:multi_validation, %{
+      resource_history_id: rh.id,
+      validator: Transport.Validators.EXJSONSchema.validator_name()
+    })
+
+    assert {:discard, _} = perform_job(ResourceHistoryJSONSchemaValidationJob, %{resource_history_id: rh.id})
+  end
+
   test "enqueues jobs for all ResourceHistory with a JSON Schema schema that have not been validated" do
     sample_json_schema_name = "sample_json_schema"
     # needs validation: no MultiValidation

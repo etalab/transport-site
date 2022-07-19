@@ -5,6 +5,7 @@ defmodule GBFS.PageCacheTest do
   use GBFS.ExternalCase
   import Mox
   import AppConfigHelper
+  import ExUnit.CaptureLog
 
   setup :verify_on_exit!
 
@@ -75,9 +76,11 @@ defmodule GBFS.PageCacheTest do
     Transport.HTTPoison.Mock |> expect(:get, 1, fn _url -> {:ok, %HTTPoison.Response{status_code: 500}} end)
 
     # first call must result in call to third party
-    r = conn |> get(url)
+    {r, logs} = with_log(fn -> conn |> get(url) end)
+
     assert_received ^internal_telemetry_event
     assert_received ^external_telemetry_event
+    assert logs =~ "impossible to query jcdecaux"
 
     # an underlying 500 will result of a 502
     assert r.status == 502

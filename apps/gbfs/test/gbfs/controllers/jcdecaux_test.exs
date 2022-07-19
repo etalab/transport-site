@@ -3,6 +3,7 @@ defmodule GBFS.JCDecauxControllerTest do
   alias GBFS.Router.Helpers, as: Routes
   import Mox
   import GBFS.Checker
+  import ExUnit.CaptureLog
 
   setup :verify_on_exit!
 
@@ -36,8 +37,9 @@ defmodule GBFS.JCDecauxControllerTest do
     test "on invalid jcdecaux response", %{conn: conn} do
       Transport.HTTPoison.Mock |> expect(:get, fn _url -> {:ok, %HTTPoison.Response{status_code: 500}} end)
 
-      conn = conn |> get(Routes.toulouse_path(conn, :station_status))
+      {conn, logs} = with_log(fn -> conn |> get(Routes.toulouse_path(conn, :station_status)) end)
       assert %{"error" => "jcdecaux service unavailable"} == json_response(conn, 502)
+      assert logs =~ "impossible to query jcdecaux"
     end
   end
 
