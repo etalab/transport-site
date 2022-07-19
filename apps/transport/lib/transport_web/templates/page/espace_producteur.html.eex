@@ -13,7 +13,10 @@
             <img height=40 src="<%= static_path(@conn, "/images/producteurs/picto-maj.png") %>" alt="">
             <div>
               <h4 class="with-link"><%= dgettext("espace-producteurs", "Update a dataset") %></h4>
-              <a href="https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"><%= dgettext("espace-producteurs", "updating a dataset guidelines") %></a>
+              <p>
+                <%= dgettext("espace-producteurs", ~s(If you need to replace a resource with a more up-to-date one, choose "Update a resource".)) %>
+              </p>
+              <a href="https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"><%= dgettext("espace-producteurs", "Updating a dataset guidelines") %></a>
             </div>
           </div>
           <div class="resource-list">
