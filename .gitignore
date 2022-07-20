@@ -47,3 +47,4 @@ config/dev.secret.exs
 scripts/siri/config.yml
 transport-tools
 apps/transport/client/yarn-error.log
+.miniorc
