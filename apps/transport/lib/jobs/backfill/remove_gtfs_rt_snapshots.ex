@@ -7,6 +7,16 @@ defmodule Transport.Jobs.Backfill.RemoveGTFSRTSnapshots do
 
   @impl true
   def perform(%{}) do
+    relevant_file_keys()
+    |> Stream.each(&Transport.S3.delete_object!(@bucket_feature, &1))
+    |> Stream.run()
+  end
+
+  def count_relevant_files do
+    relevant_file_keys() |> Enum.to_list() |> Enum.count()
+  end
+
+  def relevant_file_keys do
     @bucket_feature
     |> Transport.S3.bucket_name()
     |> ExAws.S3.list_objects()
@@ -16,7 +26,5 @@ defmodule Transport.Jobs.Backfill.RemoveGTFSRTSnapshots do
     # See https://github.com/etalab/transport-site/blob/3c870a42d0e6212f181cc69818755b5871f7f62c/apps/transport/lib/jobs/gtfs_rt_validation_job.ex#L207-L211
     |> Stream.filter(&String.match?(&1.key, ~r/\.2022(\d){4}\.(\d){6}\.(\d){6}\.bin$/))
     |> Stream.map(& &1.key)
-    |> Stream.each(&Transport.S3.delete_object!(@bucket_feature, &1))
-    |> Stream.run()
   end
 end
