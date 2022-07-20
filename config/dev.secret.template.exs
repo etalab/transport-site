@@ -27,3 +27,13 @@ config :transport, TransportWeb.Endpoint,
     # NOTE: unsure if this is actually great to reuse the same value
     signing_salt: secret_key_base
   ]
+
+# for minio local S3 support. See `.miniorc`
+config :ex_aws,
+  access_key_id: System.fetch_env!("MINIO_ROOT_USER"),
+  secret_access_key: System.fetch_env!("MINIO_ROOT_PASSWORD"),
+  s3: [
+    scheme: "http://",
+    host: "127.0.0.1",
+    port: 9000
+  ]
