@@ -274,6 +274,37 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
     end
 
+    test "handles HEAD /resource/:slug" do
+      slug = "an-existing-identifier"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.GTFS.RT{
+          identifier: slug,
+          target_url: target_url = "http://localhost/some-remote-resource",
+          ttl: 30
+        }
+      })
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, fn url, _headers = [] ->
+        assert url == target_url
+
+        %Unlock.HTTP.Response{
+          body: "OK",
+          status: 200,
+          headers: []
+        }
+      end)
+
+      resp =
+        build_conn()
+        |> head("/resource/an-existing-identifier")
+
+      # head = empty body
+      assert resp.resp_body == ""
+      assert resp.status == 200
+    end
+
     test "handles 404" do
       # such empty
       setup_proxy_config(%{})
