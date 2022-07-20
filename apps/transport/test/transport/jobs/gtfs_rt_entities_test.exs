@@ -4,6 +4,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTEntitiesJobTest do
   import DB.Factory
   import Mox
   alias Transport.Jobs.{GTFSRTEntitiesDispatcherJob, GTFSRTEntitiesJob}
+  import ExUnit.CaptureLog
 
   @url "https://example.com/gtfs-rt"
   @sample_file "#{__DIR__}/../../fixture/files/bibus-brest-gtfs-rt-alerts.pb"
@@ -135,8 +136,9 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTEntitiesJobTest do
     test "perform with a decode error" do
       setup_http_response(@url, {:ok, %HTTPoison.Response{status_code: 502}})
       resource = insert(:resource, is_available: true, format: "gtfs-rt", url: @url, datagouv_id: "foo")
-      assert :ok == perform_job(GTFSRTEntitiesJob, %{"resource_id" => resource.id})
+      {:ok, logs} = with_log(fn -> perform_job(GTFSRTEntitiesJob, %{"resource_id" => resource.id}) end)
       assert %{metadata: nil} = DB.Repo.reload(resource)
+      assert logs =~ "Cannot decode GTFS-RT feed"
     end
   end
 
