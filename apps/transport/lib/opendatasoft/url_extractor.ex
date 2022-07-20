@@ -28,6 +28,7 @@ defmodule Opendatasoft.UrlExtractor do
     resources
     |> filter_csv()
     |> get_resources_inside_csv()
+    |> Enum.map(fn r -> r |> Map.put("is_ods_csv", true) end)
   end
 
   @spec get_resources_inside_csv([any]) :: [any]

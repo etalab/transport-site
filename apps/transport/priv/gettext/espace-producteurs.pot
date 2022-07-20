@@ -67,7 +67,7 @@ msgid "You can test your data online and check its validity."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "updating a dataset guidelines"
+msgid "Updating a dataset guidelines"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -92,4 +92,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "our documentation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "If you need to replace a resource with a more up-to-date one, choose \"Update a resource\"."
 msgstr ""

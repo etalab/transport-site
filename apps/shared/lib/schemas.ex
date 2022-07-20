@@ -26,6 +26,23 @@ defmodule Transport.Shared.Schemas.Wrapper do
   def is_jsonschema?(schema_name) do
     Map.has_key?(schemas_by_type("jsonschema"), schema_name)
   end
+
+  @doc """
+  Get the latest version for a given schema name.
+  """
+  def latest_version(schema_name) when is_binary(schema_name) do
+    schema_name |> schema_versions() |> Enum.at(-1)
+  end
+
+  @doc """
+  Fetches all the version numbers for a given schema name.
+  """
+  def schema_versions(schema_name) when is_binary(schema_name) do
+    transport_schemas()
+    |> Map.fetch!(schema_name)
+    |> Map.fetch!("versions")
+    |> Enum.map(& &1["version_name"])
+  end
 end
 
 defmodule Transport.Shared.Schemas do
@@ -41,9 +58,9 @@ defmodule Transport.Shared.Schemas do
   def schema_url(schema_name, schema_version) do
     schema = Map.fetch!(Wrapper.transport_schemas(), schema_name)
 
-    schema_version = if schema_version == "latest", do: latest_version(schema), else: schema_version
+    schema_version = if schema_version == "latest", do: Wrapper.latest_version(schema_name), else: schema_version
 
-    unless Enum.member?(schema_versions(schema), schema_version) do
+    unless Enum.member?(Wrapper.schema_versions(schema_name), schema_version) do
       raise KeyError, "#{schema_version} is not a valid version for #{schema_name}"
     end
 
@@ -85,10 +102,6 @@ defmodule Transport.Shared.Schemas do
         result
     end
   end
-
-  defp latest_version(schema), do: schema |> schema_versions() |> Enum.at(-1)
-
-  defp schema_versions(schema), do: schema |> Map.fetch!("versions") |> Enum.map(& &1["version_name"])
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 end
