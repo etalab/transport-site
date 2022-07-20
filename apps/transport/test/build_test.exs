@@ -25,6 +25,10 @@ defmodule TransportWeb.BuildTest do
     version
   end
 
+  test "rambo rust wrapper compiles and runs" do
+    {:ok, %{out: "hello\n"}} = Rambo.run("echo", ["hello"])
+  end
+
   test "make sure Elixir version is same for asdf & CI" do
     assert System.version() == asdf_elixir_version()
   end
