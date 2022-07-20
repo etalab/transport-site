@@ -416,7 +416,7 @@ defmodule DB.Resource do
     |> Enum.concat(has_pathways_tag(metadata))
   end
 
-  def existing_gtfs_tags(), do: ["tarifs", "tracés de lignes", "transport à la demande", "couleurs des lignes", "description des correspondances"]
+  def existing_gtfs_tags, do: ["tarifs", "tracés de lignes", "transport à la demande", "couleurs des lignes", "description des correspondances"]
 
   @spec find_modes(map()) :: [binary()]
   def find_modes(%{"modes" => modes}), do: modes
