@@ -337,6 +337,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     test "a simple successful case for a CSV" do
       resource_url = "https://example.com/file.csv"
       csv_content = "col1,col2\nval1,val2"
+      latest_schema_version = "0.4.2"
 
       %{
         id: resource_id,
@@ -344,7 +345,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
         dataset_id: dataset_id,
         metadata: resource_metadata,
         title: title,
-        schema_name: schema_name
+        schema_name: schema_name,
+        schema_version: schema_version
       } =
         resource =
         insert(:resource,
@@ -355,7 +357,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
           is_community_resource: false,
           datagouv_id: Ecto.UUID.generate(),
           metadata: %{"foo" => "bar"},
-          schema_name: "etalab/schema-lieux-covoiturage"
+          schema_name: "etalab/schema-lieux-covoiturage",
+          schema_version: "0.4.1"
         )
 
       Transport.HTTPoison.Mock
@@ -389,7 +392,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
 
       # Validation according to the schema
       Transport.Shared.Schemas.Mock
-      |> expect(:transport_schemas, 1, fn -> %{schema_name => %{}} end)
+      |> expect(:transport_schemas, 2, fn ->
+        %{schema_name => %{"versions" => [%{"version_name" => latest_schema_version}]}}
+      end)
 
       Transport.Shared.Schemas.Mock
       |> expect(:schemas_by_type, 1, fn "tableschema" -> %{schema_name => %{}} end)
@@ -397,7 +402,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       validation_result = %{"fake_validation" => "fake_result"}
 
       Shared.Validation.TableSchemaValidator.Mock
-      |> expect(:validate, fn ^schema_name, ^resource_url, nil -> validation_result end)
+      |> expect(:validate, fn ^schema_name, ^resource_url, ^schema_version -> validation_result end)
 
       assert 0 == count_resource_history()
       assert :ok == perform_job(ResourceHistoryJob, %{resource_id: resource_id})
@@ -428,11 +433,14 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                  "uuid" => _uuid,
                  "download_datetime" => _download_datetime,
                  "schema_name" => ^schema_name,
-                 "schema_version" => nil
+                 "schema_version" => ^schema_version,
+                 "latest_schema_version_to_date" => ^latest_schema_version
                },
                last_up_to_date_at: last_up_to_date_at
              } = DB.ResourceHistory |> DB.Repo.one!()
 
+      # Prevent a potential mistake when test data or code mix up schema versions
+      assert schema_version != latest_schema_version
       assert permanent_url == Transport.S3.permanent_url(:history, filename)
       refute is_nil(last_up_to_date_at)
 

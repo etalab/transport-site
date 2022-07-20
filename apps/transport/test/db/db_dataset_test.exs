@@ -5,6 +5,7 @@ defmodule DB.DatasetDBTest do
   use DB.DatabaseCase, cleanup: [:datasets]
   alias DB.Repo
   import DB.Factory
+  import ExUnit.CaptureLog
 
   test "delete_parent_dataset" do
     parent_dataset = Repo.insert!(%Dataset{})
@@ -46,11 +47,13 @@ defmodule DB.DatasetDBTest do
     end
 
     test "slug is required" do
-      assert {:error, _} = Dataset.changeset(%{"datagouv_id" => "1"})
+      {{:error, _}, logs} = with_log(fn -> Dataset.changeset(%{"datagouv_id" => "1"}) end)
+      assert logs =~ "error while importing dataset"
     end
 
     test "some geographic link is required" do
-      assert {:error, _} = Dataset.changeset(%{"datagouv_id" => "1", "slug" => "ma_limace"})
+      {{:error, _}, logs} = with_log(fn -> Dataset.changeset(%{"datagouv_id" => "1", "slug" => "ma_limace"}) end)
+      assert logs =~ "error while importing dataset"
     end
 
     test "with insee code of a commune linked to an aom, it works" do
@@ -58,12 +61,16 @@ defmodule DB.DatasetDBTest do
     end
 
     test "with datagouv_zone only, it fails" do
-      assert {:error, _} =
-               Dataset.changeset(%{
-                 "datagouv_id" => "1",
-                 "slug" => "ma_limace",
-                 "zones" => ["38185"]
-               })
+      {{:error, _}, logs} =
+        with_log(fn ->
+          Dataset.changeset(%{
+            "datagouv_id" => "1",
+            "slug" => "ma_limace",
+            "zones" => ["38185"]
+          })
+        end)
+
+      assert logs =~ "error while importing dataset"
     end
 
     test "with datagouv_zone and territory name, it works" do
@@ -86,13 +93,17 @@ defmodule DB.DatasetDBTest do
     end
 
     test "territory mutual exclusion" do
-      assert {:error, _} =
-               Dataset.changeset(%{
-                 "datagouv_id" => "1",
-                 "slug" => "ma_limace",
-                 "national_dataset" => "true",
-                 "insee" => "38185"
-               })
+      {{:error, _}, logs} =
+        with_log(fn ->
+          Dataset.changeset(%{
+            "datagouv_id" => "1",
+            "slug" => "ma_limace",
+            "national_dataset" => "true",
+            "insee" => "38185"
+          })
+        end)
+
+      assert logs =~ "error while importing dataset"
     end
 
     test "territory mutual exclusion with nil INSEE code resets AOM" do

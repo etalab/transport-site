@@ -23,7 +23,7 @@
             <%= if new_resource do %>
             <h4> <%= dgettext("resource", "Option 1: Directly add the resource") %> </h4>
             <p>
-              <%= dgettext("resource", "This option allows you to add the resource on data.gouv.fr, directly from here.") %>
+              <%= raw dgettext("resource", ~s(This option allows you to add the resource on data.gouv.fr, directly from here. Do you want to publish a more up-to-date version of a resource? <a href="%{url}">Update the resource</a> instead.), url: resource_path(@conn, :resources_list, @dataset["id"])) %>
             </p>
             <% else %>
             <h4> <%= dgettext("resource", "Option 1: Directly update the resource") %> </h4>

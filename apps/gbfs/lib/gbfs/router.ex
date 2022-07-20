@@ -34,8 +34,7 @@ defmodule GBFS.Router do
     "nancy" => "vélOstan'lib",
     "nantes" => "Bicloo",
     "rouen" => "cy'clic",
-    "toulouse" => "Vélô",
-    "valence" => "Libélo"
+    "toulouse" => "Vélô"
   }
 
   @reseaux_smoove [
