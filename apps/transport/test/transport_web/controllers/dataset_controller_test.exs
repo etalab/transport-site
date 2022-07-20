@@ -202,7 +202,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
   test "GTFS-RT without validation", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug"})
-    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, format: "gtfs-rt", url: "url"})
+    insert(:resource, %{dataset_id: dataset_id, format: "gtfs-rt", url: "url"})
 
     set_empty_mocks()
 
