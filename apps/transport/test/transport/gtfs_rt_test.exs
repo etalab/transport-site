@@ -3,7 +3,7 @@ defmodule Transport.GTFSRTTest do
   alias TransitRealtime.{TimeRange, TranslatedString}
   use ExUnit.Case, async: true
   import Mox
-
+  import ExUnit.CaptureLog
   setup :verify_on_exit!
 
   @sample_file "#{__DIR__}/../fixture/files/bibus-brest-gtfs-rt-alerts.pb"
@@ -27,7 +27,7 @@ defmodule Transport.GTFSRTTest do
     test "cannot decode Protobuf" do
       setup_http_response(@url, {:ok, %HTTPoison.Response{status_code: 200, body: ~s({"foo": 42})}})
 
-      assert {:error, "Could not decode Protobuf"} == GTFSRT.decode_remote_feed(@url)
+      {{:error, "Could not decode Protobuf"}, _} = with_log(fn -> GTFSRT.decode_remote_feed(@url) end)
     end
 
     test "502 HTTP status code" do

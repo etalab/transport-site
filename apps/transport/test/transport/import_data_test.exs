@@ -20,7 +20,7 @@ defmodule Transport.ImportDataTest do
   setup do
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
     Mox.stub_with(Transport.AvailabilityChecker.Mock, Transport.AvailabilityChecker)
-    Mox.stub_with(Hasher.Mock, Hasher)
+    Mox.stub_with(Hasher.Mock, Hasher.Dummy)
     :ok
   end
 
@@ -121,11 +121,9 @@ defmodule Transport.ImportDataTest do
 
           assert_called_exactly(HTTPoison.get!(:_, :_, :_), 1)
 
-          # for each resource, 2 head requests are potentially made
-          # one to check for availability, one to compute the resource hash.
-          assert_called_exactly(HTTPoison.head(:_, :_, :_), 2)
+          # for each resource, 1 head request is made to check for availability
+          assert_called_exactly(HTTPoison.head(:_, :_, :_), 1)
           assert_called_exactly(Datagouvfr.Client.CommunityResources.get(:_), 1)
-          assert_called_exactly(HTTPStreamV2.fetch_status_and_hash(:_), 1)
 
           # import is a success
           assert logs =~ "all datasets have been reimported (0 failures / 1)"
