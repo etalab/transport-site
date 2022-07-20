@@ -149,9 +149,7 @@ defmodule Unlock.Controller do
 
     response = Unlock.HTTP.Client.impl().post!(item.target_url, item.request_headers, body)
 
-    headers =
-      response.headers
-      |> lowercase_headers()
+    headers = response.headers |> lowercase_headers()
 
     # NOTE: for now, we unzip systematically. This will make it easier
     # to analyse payloads & later remove sensitive data, even if we
