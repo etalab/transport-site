@@ -16,12 +16,13 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJobTest do
       insert(:resource_history, %{
         payload: %{
           "schema_name" => sample_json_schema_name = "sample_json_schema",
+          "schema_version" => schema_version = "0.4.2",
           "permanent_url" => permanent_url = "https://example.com/permanent_url"
         }
       })
 
     Shared.Validation.JSONSchemaValidator.Mock
-    |> expect(:load_jsonschema_for_schema, fn ^sample_json_schema_name ->
+    |> expect(:load_jsonschema_for_schema, fn ^sample_json_schema_name, ^schema_version ->
       %ExJsonSchema.Schema.Root{
         schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
         version: 7
@@ -49,7 +50,7 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJobTest do
   end
 
   test "discards job if already validated" do
-    rh = insert(:resource_history, %{payload: %{"schema_name" => Ecto.UUID.generate()}})
+    rh = insert(:resource_history, %{payload: %{"schema_name" => Ecto.UUID.generate(), "schema_version" => "0.1.2"}})
 
     insert(:multi_validation, %{
       resource_history_id: rh.id,
