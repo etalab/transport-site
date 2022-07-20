@@ -11,13 +11,15 @@ defmodule Transport.Validators.EXJSONSchema do
   @impl Transport.Validators.Validator
   def validate_and_save(%DB.ResourceHistory{
         id: resource_history_id,
-        payload: %{"permanent_url" => url, "schema_name" => schema_name}
+        payload: %{"permanent_url" => url, "schema_name" => schema_name, "schema_version" => schema_version} = payload
       })
       when is_binary(schema_name) do
+    schema_version = schema_version || Map.get(payload, "latest_schema_version_to_date", "latest")
+
     %DB.MultiValidation{
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
-      result: perform_validation(schema_name, url),
+      result: perform_validation(schema_name, schema_version, url),
       resource_history_id: resource_history_id,
       validator_version: validator_version()
     }
@@ -26,9 +28,9 @@ defmodule Transport.Validators.EXJSONSchema do
     :ok
   end
 
-  def perform_validation(schema_name, url) do
+  def perform_validation(schema_name, schema_version, url) do
     schema_name
-    |> JSONSchemaValidator.load_jsonschema_for_schema()
+    |> JSONSchemaValidator.load_jsonschema_for_schema(schema_version)
     |> JSONSchemaValidator.validate(url)
     |> normalize_validation_result()
   end
