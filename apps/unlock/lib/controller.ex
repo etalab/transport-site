@@ -154,18 +154,7 @@ defmodule Unlock.Controller do
     # NOTE: for now, we unzip systematically. This will make it easier
     # to analyse payloads & later remove sensitive data, even if we
     # re-zip afterwards.
-    # The Mint documentation contains useful bits to deal with more scenarios here
-    # https://github.com/elixir-mint/mint/blob/main/pages/Decompression.md#decompressing-the-response-body
-    gzipped = get_header(headers, "content-encoding") == ["gzip"]
-
-    body = response.body
-
-    body =
-      if gzipped do
-        :zlib.gunzip(body)
-      else
-        body
-      end
+    body = maybe_gunzip(response.body, headers)
 
     headers
     |> filter_response_headers()
@@ -231,6 +220,19 @@ defmodule Unlock.Controller do
 
   defp bad_gateway_response do
     %Unlock.HTTP.Response{status: 502, body: "Bad Gateway", headers: [{"content-type", "text/plain"}]}
+  end
+
+  # Decompress (gzip only) if needed. More algorithms can be added later based on real-life testing
+  # The Mint documentation contains useful bits to deal with more scenarios here
+  # https://github.com/elixir-mint/mint/blob/main/pages/Decompression.md#decompressing-the-response-body
+  defp maybe_gunzip(body, headers) do
+    is_gzipped? = get_header(headers, "content-encoding") == ["gzip"]
+
+    if is_gzipped? do
+      :zlib.gunzip(body)
+    else
+      body
+    end
   end
 
   # Inspiration https://github.com/elixir-plug/plug/blob/v1.13.6/lib/plug/conn.ex#L615
