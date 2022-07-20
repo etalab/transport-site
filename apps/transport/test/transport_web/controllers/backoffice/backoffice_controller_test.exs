@@ -3,6 +3,7 @@ defmodule TransportWeb.BackofficeControllerTest do
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   alias DB.{Repo, Resource}
+  import ExUnit.CaptureLog
 
   import Mox
   setup :verify_on_exit!
@@ -75,11 +76,12 @@ defmodule TransportWeb.BackofficeControllerTest do
       |> init_test_session(redirect_path: "/datasets")
       |> get(session_path(conn, :create, %{"code" => "secret"}))
 
-    conn =
+    {conn, logs} =
       use_cassette "dataset/dataset-region-ao.json" do
-        post(conn, backoffice_dataset_path(conn, :post), @dataset)
+        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), @dataset) end)
       end
 
+    assert logs =~ "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 0
 
@@ -95,11 +97,12 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     dataset = @dataset |> Map.put("region_id", nil) |> Map.put("insee", nil)
 
-    conn =
+    {conn, logs} =
       use_cassette "dataset/dataset-no-region-nor-ao.json" do
-        post(conn, backoffice_dataset_path(conn, :post), dataset)
+        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), dataset) end)
       end
 
+    assert logs =~ "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 0
 
@@ -238,13 +241,14 @@ defmodule TransportWeb.BackofficeControllerTest do
       |> Map.put("associated_territory_name", "pouet")
       |> Map.put("national_dataset", "true")
 
-    conn =
+    {conn, logs} =
       use_cassette "dataset/dataset-with-multiple-cities-and-country.json" do
-        post(conn, backoffice_dataset_path(conn, :post), dataset)
+        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), dataset) end)
       end
 
     # It should not be possible to link a dataset to either
     # a list of cities and to the whole country
+    assert logs =~ "Vous devez remplir soit une région soit une AOM"
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 0
     flash = get_flash(conn, :error)
@@ -289,16 +293,17 @@ defmodule TransportWeb.BackofficeControllerTest do
       |> Map.put("insee", nil)
       |> Map.put("national_dataset", "true")
 
-    conn =
+    {conn, logs} =
       use_cassette "dataset/dataset-region-and-country.json" do
-        post(conn, backoffice_dataset_path(conn, :post), dataset)
+        with_log(fn -> post(conn, backoffice_dataset_path(conn, :post), dataset) end)
       end
 
     # It should not be possible to link a dataset to either a region and to the whole country
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 0
     flash = get_flash(conn, :error)
-    assert flash =~ "Un jeu de données ne pas pas être à la fois régional et national"
+    assert logs =~ "Un jeu de données ne peut pas être à la fois régional et national"
+    assert flash =~ "Un jeu de données ne peut pas être à la fois régional et national"
   end
 
   test "Add a dataset twice", %{conn: conn} do
