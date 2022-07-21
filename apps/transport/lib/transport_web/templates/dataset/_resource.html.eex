@@ -72,6 +72,7 @@
       </span>
     </div>
   <% end %>
+
   <%= if Resource.is_gtfs?(@resource) do %>
     <% [validation] = Map.get(validations, @resource.id) %>
     <%= if GTFSTransport.is_mine?(validation) do %>
@@ -89,29 +90,32 @@
         <span><%= dgettext("page-dataset-details", "during validation") %></span>
       </div>
     <% end %>
-  <% end %>
-
-  <%= if has_associated_geojson or is_geojson_with_viz do %>
-    <div>
-      <a class="light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#visualization" %>">
-        <%= dgettext("page-dataset-details", "Data visualization available!") %>
-      </a>
-    </div>
-  <% end %>
-
-  <%= if Resource.is_gtfs_rt?(@resource) do %>
-    <% [validation] = Map.get(validations, @resource.id) %>
-    <%= unless is_nil(validation) do %>
-      <% nb_warnings = 0 %>
-      <% nb_errors = validation.result["errors_count"] %>
-      <%= render TransportWeb.DatasetView, "_resource_validation_summary.html",  conn: @conn, resource: @resource, nb_warnings: nb_warnings, nb_errors: nb_errors %>
+    <%= if has_associated_geojson or is_geojson_with_viz do %>
+      <div>
+        <a class="light-grey-link" href="<%= resource_path(@conn, :details, @resource.id)<>"#visualization" %>">
+          <%= dgettext("page-dataset-details", "Data visualization available!") %>
+        </a>
+      </div>
     <% end %>
   <% end %>
 
-  <%= if Resource.has_errors_details?(@resource) and not Resource.is_gtfs_rt?(@resource) do %>
-    <% nb_errors = errors_count(@resource) %>
-    <% nb_warnings = warnings_count(@resource) %>
-    <%= render TransportWeb.DatasetView, "_resource_validation_summary.html",  conn: @conn, resource: @resource, nb_warnings: nb_warnings, nb_errors: nb_errors %>
+
+  <%= unless Resource.is_gtfs?(@resource) do %>
+    <% [validation] = Map.get(validations, @resource.id) %>
+    <%= if multi_validation_plugged?(@resource) do %>
+      <%= if not is_nil(validation) do %>
+        <% nb_warnings = warnings_count(validation) %>
+        <% nb_errors = errors_count(validation) %>
+        <%= render TransportWeb.DatasetView, "_resource_validation_summary.html",  conn: @conn, resource: @resource, validation: validation, nb_warnings: nb_warnings, nb_errors: nb_errors %>
+      <% end %>
+    <% else %>
+      <%# legacy validations %>
+      <%= if Resource.has_errors_details?(@resource) do %>
+        <% nb_errors = errors_count(@resource) %>
+        <% nb_warnings = warnings_count(@resource) %>
+        <%= render TransportWeb.DatasetView, "_resource_validation_summary.html",  conn: @conn, resource: @resource, validation: @resource.validation, nb_warnings: nb_warnings, nb_errors: nb_errors %>
+      <% end %>
+    <% end %>
   <% end %>
 
   <div class="resource-panel-bottom">
