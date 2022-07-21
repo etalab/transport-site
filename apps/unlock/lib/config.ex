@@ -20,7 +20,9 @@ defmodule Unlock.Config do
     Intermediate structure for SIRI configured items.
     """
     @enforce_keys [:identifier, :target_url, :requestor_ref]
-    defstruct [:identifier, :target_url, :requestor_ref]
+
+    @type t :: %__MODULE__{identifier: binary(), target_url: binary(), requestor_ref: binary(), request_headers: list()}
+    defstruct [:identifier, :target_url, :requestor_ref, request_headers: []]
   end
 
   defmodule Fetcher do
@@ -34,7 +36,8 @@ defmodule Unlock.Config do
       %Item.SIRI{
         identifier: Map.fetch!(item, "identifier"),
         target_url: Map.fetch!(item, "target_url"),
-        requestor_ref: Map.fetch!(item, "requestor_ref")
+        requestor_ref: Map.fetch!(item, "requestor_ref"),
+        request_headers: parse_config_request_headers(Map.get(item, "request_headers", []))
       }
     end
 
