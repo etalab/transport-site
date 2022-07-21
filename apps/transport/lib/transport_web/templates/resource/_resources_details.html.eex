@@ -28,11 +28,11 @@
     <div>
     <% found_tags = DB.Resource.find_tags_from_metadata(@metadata) %>
     <%= for tag <- found_tags do %>
-      <span class="label mode"><%= tag %></span>
+      <span class="label mode">✅ <%=tag %></span>
     <% end %>
 
     <%= for tag <- DB.Resource.existing_gtfs_tags() -- found_tags do %>
-      <span class="label"><%= tag %></span>
+      <span class="label">❌ <%=tag %></span>
     <% end %>
     </div>
     </ul>
