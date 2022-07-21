@@ -74,6 +74,23 @@ defmodule TransportWeb.ResourceController do
     DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.GTFSRT)
   end
 
+  defp latest_validation(%{id: resource_id, schema_name: schema_name})
+       when not is_nil(schema_name) do
+    validator =
+      cond do
+        Schemas.is_tableschema?(schema_name) ->
+          Transport.Validators.TableSchema
+
+        Schemas.is_jsonschema?(schema_name) ->
+          Transport.Validators.EXJSONSchema
+
+        true ->
+          nil
+      end
+
+    DB.MultiValidation.resource_latest_validation(resource_id, validator)
+  end
+
   defp latest_validation(_), do: nil
 
   defp render_gtfs_details(conn, params, resource) do
