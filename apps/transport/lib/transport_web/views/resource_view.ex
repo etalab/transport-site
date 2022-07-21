@@ -98,7 +98,14 @@ defmodule TransportWeb.ResourceView do
   def get_associated_netex(%{netex: netex_url}), do: netex_url
   def get_associated_netex(_), do: nil
 
+  # the past ⬇️
+  # # https://github.com/etalab/transport-site/issues/2390
   def errors_sample(%DB.Resource{metadata: %{"validation" => %{"errors" => errors}}}) do
+    Enum.take(errors, max_display_errors())
+  end
+
+  # the future ⬇️
+  def errors_sample(%DB.MultiValidation{result: %{"errors" => errors}}) do
     Enum.take(errors, max_display_errors())
   end
 
