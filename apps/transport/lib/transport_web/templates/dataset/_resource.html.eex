@@ -99,30 +99,21 @@
     </div>
   <% end %>
 
-  <%= if Resource.has_errors_details?(@resource) do %>
+  <%= if Resource.is_gtfs_rt?(@resource) do %>
+    <% [validation] = Map.get(validations, @resource.id) %>
+    <%= unless is_nil(validation) do %>
+      <% nb_warnings = 0 %>
+      <% nb_errors = validation.result["errors_count"] %>
+      <%= render TransportWeb.DatasetView, "_resource_validation_summary.html",  conn: @conn, resource: @resource, nb_warnings: nb_warnings, nb_errors: nb_errors %>
+    <% end %>
+  <% end %>
+
+  <%= if Resource.has_errors_details?(@resource) and not Resource.is_gtfs_rt?(@resource) do %>
     <% nb_errors = errors_count(@resource) %>
     <% nb_warnings = warnings_count(@resource) %>
-    <div class="pb-24">
-      <%= if Resource.is_gbfs?(@resource) do %>
-        <a href="<%= gbfs_validation_link(@resource) %>" target="_blank">
-      <% else %>
-        <a href="<%= resource_path(@conn, :details, @resource.id)<>"#validation-report" %>">
-      <% end %>
-        <span class="<%= summary_class(@resource) %>">
-          <%= if nb_errors + (nb_warnings || 0) == 0 do %>
-            <%= dgettext("page-dataset-details", "No error detected") %>
-          <% end %>
-          <%= if nb_errors == 0 and is_integer(nb_warnings) and nb_warnings > 0 do %>
-            <%= "#{format_number(nb_warnings)} #{dpngettext("validations", "warnings", "warning", "warnings", nb_warnings)}" %>
-          <% end %>
-          <%= if nb_errors > 0 do %>
-            <%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
-          <% end %>
-        </span>
-      </a>
-      <span><%= dgettext("page-dataset-details", "during validation") %></span>
-    </div>
+    <%= render TransportWeb.DatasetView, "_resource_validation_summary.html",  conn: @conn, resource: @resource, nb_warnings: nb_warnings, nb_errors: nb_errors %>
   <% end %>
+
   <div class="resource-panel-bottom">
     <div class="resource-features">
       <%= if length(@resource.modes) > 0 do %>

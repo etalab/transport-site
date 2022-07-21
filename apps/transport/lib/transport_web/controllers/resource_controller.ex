@@ -21,6 +21,7 @@ defmodule TransportWeb.ResourceController do
       |> assign(:uptime_per_day, DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days()))
       |> assign(:resource_history_infos, DB.ResourceHistory.latest_resource_history_infos(id))
       |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
+      |> assign(:multi_validation, latest_validation(resource))
       |> put_resource_flash(resource.dataset.is_active)
 
     if Resource.is_gtfs?(resource) do
@@ -65,12 +66,20 @@ defmodule TransportWeb.ResourceController do
 
   defp put_resource_flash(conn, _), do: conn
 
+  defp latest_validation(%{id: resource_id, format: "GTFS"}) do
+    DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.GTFSTransport)
+  end
+
+  defp latest_validation(%{id: resource_id, format: "gtfs-rt"}) do
+    DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.GTFSRT)
+  end
+
+  defp latest_validation(_), do: nil
+
   defp render_gtfs_details(conn, params, resource) do
     config = make_pagination_config(params)
 
-    validation =
-      resource.id
-      |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)
+    validation = resource |> latest_validation()
 
     {validation_summary, severities_count, metadata, issues} =
       case validation do
