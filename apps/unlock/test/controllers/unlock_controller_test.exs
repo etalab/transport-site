@@ -86,6 +86,12 @@ defmodule Unlock.ControllerTest do
       # later that we always add it with explicit version ourselves (see note below)
       refute incoming_query |> String.contains?("<?xml")
 
+      expected_forwarded_response_headers = [
+        {"content-type", "application/soap+xml"},
+        {"content-length", "7350"},
+        {"date", "Thu, 10 Jun 2021 19:45:14 GMT"}
+      ]
+
       expect(Unlock.HTTP.Client.Mock, :post!, fn remote_url, headers, body_sent_to_remote_server ->
         assert remote_url == target_url
         assert headers == configured_request_headers
@@ -108,10 +114,18 @@ defmodule Unlock.ControllerTest do
                    version: "1.0"
                  )
 
-        # NOTE: testing the edge case where the response is gzipped
         %{
           body: "<Everything></Everything>" |> :zlib.gzip(),
-          headers: [{"Content-Encoding", "gzip"}],
+          headers:
+            expected_forwarded_response_headers ++
+              [
+                # some headers we do not want to forward to the client
+                {"x-amzn-request-id", "11111111-2222-3333-4444-f4c5846f0a85"},
+                {"x-cache", "Miss from cloudfront"},
+                # NOTE: testing the edge case where the response is gzipped ;
+                # the header should be interpreted and the response decompressed
+                {"Content-Encoding", "gzip"}
+              ],
           status: 200
         }
       end)
@@ -125,7 +139,21 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 200
       # unzipped for now
       assert resp.resp_body == "<Everything></Everything>"
-      # we should test headers too here
+
+      our_headers = [
+        "x-request-id",
+        "cache-control",
+        "content-disposition",
+        "access-control-allow-origin",
+        "access-control-expose-headers",
+        "access-control-allow-credentials"
+      ]
+
+      remaining_headers =
+        resp.resp_headers
+        |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
+
+      assert remaining_headers == expected_forwarded_response_headers
     end
 
     test "forbids query when incorrect input requestor ref is provided" do
@@ -198,6 +226,12 @@ defmodule Unlock.ControllerTest do
         }
       })
 
+      expected_forwarded_response_headers = [
+        {"content-type", "application/json"},
+        {"content-length", "7350"},
+        {"date", "Thu, 10 Jun 2021 19:45:14 GMT"}
+      ]
+
       Unlock.HTTP.Client.Mock
       |> expect(:get!, fn url, _headers = [] ->
         assert url == target_url
@@ -205,14 +239,13 @@ defmodule Unlock.ControllerTest do
         %Unlock.HTTP.Response{
           body: "somebody-to-love",
           status: 207,
-          headers: [
-            {"content-type", "application/json"},
-            {"content-length", "7350"},
-            {"date", "Thu, 10 Jun 2021 19:45:14 GMT"},
-            # unwanted headers
-            {"x-amzn-request-id", "11111111-2222-3333-4444-f4c5846f0a85"},
-            {"x-cache", "Miss from cloudfront"}
-          ]
+          headers:
+            expected_forwarded_response_headers ++
+              [
+                # unwanted headers
+                {"x-amzn-request-id", "11111111-2222-3333-4444-f4c5846f0a85"},
+                {"x-cache", "Miss from cloudfront"}
+              ]
         }
       end)
 
@@ -238,20 +271,20 @@ defmodule Unlock.ControllerTest do
       # due to incorrect content-type headers from the remote
       assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment"]
 
-      our_headers = ["x-request-id", "cache-control", "content-disposition"]
+      our_headers = [
+        "x-request-id",
+        "cache-control",
+        "content-disposition",
+        "access-control-allow-origin",
+        "access-control-expose-headers",
+        "access-control-allow-credentials"
+      ]
 
       remaining_headers =
         resp.resp_headers
         |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
 
-      assert remaining_headers == [
-               {"access-control-allow-origin", "*"},
-               {"access-control-expose-headers", "*"},
-               {"access-control-allow-credentials", "true"},
-               {"content-type", "application/json"},
-               {"content-length", "7350"},
-               {"date", "Thu, 10 Jun 2021 19:45:14 GMT"}
-             ]
+      assert remaining_headers == expected_forwarded_response_headers
 
       verify!(Unlock.HTTP.Client.Mock)
 
@@ -278,14 +311,7 @@ defmodule Unlock.ControllerTest do
         resp.resp_headers
         |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
 
-      assert remaining_headers == [
-               {"access-control-allow-origin", "*"},
-               {"access-control-expose-headers", "*"},
-               {"access-control-allow-credentials", "true"},
-               {"content-type", "application/json"},
-               {"content-length", "7350"},
-               {"date", "Thu, 10 Jun 2021 19:45:14 GMT"}
-             ]
+      assert remaining_headers == expected_forwarded_response_headers
 
       verify!(Unlock.HTTP.Client.Mock)
     end
