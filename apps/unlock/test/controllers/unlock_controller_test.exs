@@ -74,8 +74,6 @@ defmodule Unlock.ControllerTest do
       message_id = "Test::Message::#{Ecto.UUID.generate()}"
       stop_ref = "SomeStopRef"
 
-      prolog = "<?xml version=\"1.0\"?>"
-
       incoming_query =
         SIRIQueries.siri_query_from_builder(
           timestamp,
@@ -84,13 +82,31 @@ defmodule Unlock.ControllerTest do
           stop_ref
         )
 
-      expect(Unlock.HTTP.Client.Mock, :post!, fn url, headers, body ->
-        assert url == target_url
+      # we simulate an incoming payload where the caller did not provide a prolog, to verify
+      # later that we always add it with explicit version ourselves (see note below)
+      refute incoming_query |> String.contains?("<?xml")
+
+      expect(Unlock.HTTP.Client.Mock, :post!, fn remote_url, headers, body_sent_to_remote_server ->
+        assert remote_url == target_url
         assert headers == [{"Content-Type", "text/xml; charset=utf-8"}]
 
-        # NOTE: I'll need to verify why the prolog isn't there ???
-        assert prolog <> (body |> IO.iodata_to_binary()) ==
-                 incoming_query |> String.replace(incoming_requestor_ref, target_requestor_ref)
+        # We have decided to always add the prolog with explicit version
+        # when forwarding to the remote server.
+        # See https://github.com/etalab/transport-site/pull/2459#discussion_r925613234 for in-depth discussion.
+        body_sent_to_remote_server = body_sent_to_remote_server |> IO.iodata_to_binary()
+
+        assert body_sent_to_remote_server |> String.contains?(~s(<?xml version="1.0"))
+
+        assert body_sent_to_remote_server ==
+                 SIRIQueries.siri_query_from_builder(
+                   timestamp,
+                   # requestor_ref must have been changed from the incoming one
+                   target_requestor_ref,
+                   message_id,
+                   stop_ref,
+                   # prolog must be there with explicit version
+                   version: "1.0"
+                 )
 
         # NOTE: testing the edge case where the response is gzipped
         %{

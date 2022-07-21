@@ -40,7 +40,7 @@ defmodule SIRIQueries do
   end
 
   # a more flexible way to build SIRI queries
-  def siri_query_from_builder(timestamp, requestor_ref, message_id, stop_ref) do
+  def siri_query_from_builder(timestamp, requestor_ref, message_id, stop_ref, prolog \\ nil) do
     root =
       element("S:Envelope", @top_level_namespaces, [
         element("S:Body", [], [
@@ -60,7 +60,7 @@ defmodule SIRIQueries do
         ])
       ])
 
-    Saxy.encode!(root, version: "1.0")
+    Saxy.encode!(root, prolog)
   end
 
   def filter_newlines_from_model({element, tags, children}) do
