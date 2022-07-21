@@ -63,19 +63,18 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     response = html_response(conn, 200)
     assert response =~ "Configuration du Proxy"
 
-    assert [first_item, second_item] = extract_data_from_html(response)
-
-    assert %{
-             "Identifiant" => "siri-slug",
-             "Req ext 7j" => "0",
-             "Req int 7j" => "0"
-           } = second_item
-
-    assert %{
-             "Identifiant" => "gtfs-rt-slug",
-             "Req ext 7j" => "2",
-             "Req int 7j" => "1"
-           } = first_item
+    assert [
+             %{
+               "Identifiant" => "gtfs-rt-slug",
+               "Req ext 7j" => "2",
+               "Req int 7j" => "1"
+             },
+             %{
+               "Identifiant" => "siri-slug",
+               "Req ext 7j" => "0",
+               "Req int 7j" => "0"
+             }
+           ] = extract_data_from_html(response)
 
     {:ok, view, _html} = live(conn)
 
@@ -83,12 +82,13 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
 
     send(view.pid, :update_data)
 
-    [first_item, _second_item] = extract_data_from_html(render(view))
-
-    assert %{
-             "Identifiant" => "gtfs-rt-slug",
-             "Req ext 7j" => "4",
-             "Req int 7j" => "2"
-           } = first_item
+    assert [
+             %{
+               "Identifiant" => "gtfs-rt-slug",
+               "Req ext 7j" => "4",
+               "Req int 7j" => "2"
+             },
+             _second_item
+           ] = extract_data_from_html(render(view))
   end
 end
