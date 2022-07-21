@@ -17,7 +17,8 @@ defmodule TransportWeb.LiveCase do
         |> Floki.find("table tbody tr")
         |> Enum.map(fn row ->
           cells =
-            Floki.find(row, "td")
+            row
+            |> Floki.find("td")
             |> Enum.map(&Floki.text/1)
 
           headers
