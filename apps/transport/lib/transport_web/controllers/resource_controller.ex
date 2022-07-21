@@ -4,6 +4,7 @@ defmodule TransportWeb.ResourceController do
   alias DB.{Dataset, Repo, Resource}
   alias Transport.DataVisualization
   alias Transport.ImportData
+  alias Transport.Shared.Schemas.Wrapper, as: Schemas
   require Logger
 
   import TransportWeb.ResourceView, only: [issue_type: 1]
