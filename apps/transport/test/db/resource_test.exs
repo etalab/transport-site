@@ -195,9 +195,6 @@ defmodule DB.ResourceTest do
     assert ["transport à la demande"] == Resource.find_tags_from_metadata(%{"some_stops_need_phone_agency" => true})
     assert ["transport à la demande"] == Resource.find_tags_from_metadata(%{"some_stops_need_phone_driver" => true})
 
-    assert ["couleurs des lignes"] ==
-             Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 10, "lines_count" => 2})
-
     refute ["couleurs des lignes"] == Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0})
 
     assert ["tarifs"] == Resource.find_tags_from_metadata(%{"has_fares" => true})
