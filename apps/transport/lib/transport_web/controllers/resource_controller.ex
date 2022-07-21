@@ -19,7 +19,10 @@ defmodule TransportWeb.ResourceController do
 
     conn =
       conn
-      |> assign(:uptime_per_day, DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days()))
+      |> assign(
+        :uptime_per_day,
+        DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days())
+      )
       |> assign(:resource_history_infos, DB.ResourceHistory.latest_resource_history_infos(id))
       |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
       |> assign(:multi_validation, latest_validation(resource))
@@ -59,7 +62,10 @@ defmodule TransportWeb.ResourceController do
     conn
     |> put_flash(
       :error,
-      dgettext("resource", "This resource belongs to a dataset that has been deleted from data.gouv.fr")
+      dgettext(
+        "resource",
+        "This resource belongs to a dataset that has been deleted from data.gouv.fr"
+      )
     )
   end
 
