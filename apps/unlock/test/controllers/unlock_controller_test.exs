@@ -65,7 +65,7 @@ defmodule Unlock.ControllerTest do
           identifier: slug,
           target_url: target_url = "http://localhost/some-remote-resource",
           requestor_ref: target_requestor_ref = "the-secret-ref",
-          request_headers: [{"Content-Type", "text/xml; charset=utf-8"}]
+          request_headers: configured_request_headers = [{"Content-Type", "text/xml; charset=utf-8"}]
         }
       })
 
@@ -88,7 +88,7 @@ defmodule Unlock.ControllerTest do
 
       expect(Unlock.HTTP.Client.Mock, :post!, fn remote_url, headers, body_sent_to_remote_server ->
         assert remote_url == target_url
-        assert headers == [{"Content-Type", "text/xml; charset=utf-8"}]
+        assert headers == configured_request_headers
 
         # We have decided to always add the prolog with explicit version
         # when forwarding to the remote server.
