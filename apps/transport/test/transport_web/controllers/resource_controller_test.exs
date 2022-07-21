@@ -162,15 +162,54 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "gtfs-rt resource with error details sends back a 200", %{conn: conn} do
-    %{url: url} = resource = Resource |> preload(:validation) |> Repo.get_by(datagouv_id: "5")
+    resource_url = "xxx"
+
+    validation_result = %{
+      "errors_count" => 2,
+      "warnings_count" => 3,
+      "files" => %{
+        "gtfs_permanent_url" => "https://example.com/gtfs.zip",
+        "gtfs_rt_permanent_url" => "https://example.com/gtfs-rt"
+      },
+      "errors" => [
+        %{
+          "title" => "error title",
+          "description" => "error description",
+          "severity" => "ERROR",
+          "error_id" => "E001",
+          "errors_count" => 2,
+          "errors" => ["sample 1", "foo"]
+        },
+        %{
+          "title" => "warning title",
+          "description" => "warning description",
+          "severity" => "WARNING",
+          "error_id" => "W001",
+          "errors_count" => 3,
+          "errors" => ["sample 2", "bar", "baz"]
+        }
+      ]
+    }
+
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset_id: dataset.id, url: resource_url, format: "gtfs-rt")
+
+    insert(:multi_validation,
+      validator: Transport.Validators.GTFSRT.validator_name(),
+      resource_id: resource.id,
+      validation_timestamp: DateTime.utc_now(),
+      result: validation_result
+    )
+
+    resource = Resource |> preload(:dataset) |> DB.Repo.get!(resource.id)
 
     Transport.HTTPoison.Mock
-    |> expect(:get, fn ^url, [], [follow_redirect: true] ->
+    |> expect(:get, fn ^resource_url, [], [follow_redirect: true] ->
       {:ok, %HTTPoison.Response{status_code: 200, body: File.read!(@service_alerts_file)}}
     end)
 
     assert Resource.is_gtfs_rt?(resource)
-    assert Resource.has_errors_details?(resource)
+
     content = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
 
     [
@@ -182,8 +221,8 @@ defmodule TransportWeb.ResourceControllerTest do
       "W001",
       "sample 1",
       "sample 2",
-      resource.validation.details["files"]["gtfs_permanent_url"],
-      resource.validation.details["files"]["gtfs_rt_permanent_url"],
+      validation_result["files"]["gtfs_permanent_url"],
+      validation_result["files"]["gtfs_rt_permanent_url"],
       "Prolongation des travaux rue de Kermaria"
     ]
     |> Enum.each(&assert content =~ &1)
