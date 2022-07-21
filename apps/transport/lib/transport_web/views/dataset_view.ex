@@ -230,6 +230,12 @@ defmodule TransportWeb.DatasetView do
 
   def summary_class(%{metadata: %{"validation" => _}}), do: "resource__summary--Error"
 
+  def warnings_count(%DB.MultiValidation{result: %{"warnings_count" => warnings_count}})
+      when is_integer(warnings_count) and warnings_count >= 0,
+      do: warnings_count
+
+  # will be deprecated
+  # https://github.com/etalab/transport-site/issues/2390
   def warnings_count(%Resource{metadata: %{"validation" => %{"warnings_count" => warnings_count}}})
       when is_integer(warnings_count) and warnings_count >= 0,
       do: warnings_count
@@ -237,10 +243,18 @@ defmodule TransportWeb.DatasetView do
   def warnings_count(%Resource{format: "gtfs-rt"}), do: 0
   def warnings_count(%Resource{}), do: nil
 
+  def errors_count(%DB.MultiValidation{result: %{"errors_count" => errors_count}})
+      when is_integer(errors_count) and errors_count >= 0,
+      do: errors_count
+
+  # will be deprecated
+  # https://github.com/etalab/transport-site/issues/2390
   def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => errors_count}}})
       when is_integer(errors_count) and errors_count >= 0,
       do: errors_count
 
+  # will be deprecated
+  # https://github.com/etalab/transport-site/issues/2390
   def errors_count(%Resource{}), do: nil
 
   def availability_number_days, do: 30
