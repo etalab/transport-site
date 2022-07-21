@@ -144,7 +144,7 @@ defmodule TransportWeb.ResourceControllerTest do
     refute is_nil(resource.schema_name)
 
     Transport.Shared.Schemas.Mock
-    |> expect(:transport_schemas, fn -> %{resource.schema_name => %{"title" => "foo"}} end)
+    |> expect(:schemas_by_type, 1, fn _type -> %{resource.schema_name => %{}} end)
 
     assert Resource.has_errors_details?(resource)
     conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) |> assert =~ "this is an error"
@@ -154,7 +154,7 @@ defmodule TransportWeb.ResourceControllerTest do
     resource = Resource |> Repo.get_by(datagouv_id: "4")
 
     Transport.Shared.Schemas.Mock
-    |> expect(:transport_schemas, fn -> %{resource.schema_name => %{"title" => "foo"}} end)
+    |> expect(:schemas_by_type, 1, fn _type -> %{resource.schema_name => %{}} end)
 
     html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
 
