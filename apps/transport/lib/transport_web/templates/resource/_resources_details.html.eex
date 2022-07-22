@@ -31,7 +31,7 @@
       <span class="label mode"><%=tag %></span>
     <% end %>
 
-    <li><%= dgettext("page-dataset-details", "Features absent but possible to model in GTFS :") %></li>
+    <li><%= dgettext("page-dataset-details", "Missing features that can be specified in GTFS :") %></li>
     <%= for tag <- DB.Resource.existing_gtfs_tags() -- found_tags do %>
         <span class="label"><%=tag %></span>
     <% end %>

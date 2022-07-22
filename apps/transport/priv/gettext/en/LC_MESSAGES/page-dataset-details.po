@@ -339,7 +339,7 @@ msgid "Features available in the resource :"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Features absent but possible to model in GTFS :"
+msgid "Missing features that can be specified in GTFS :"
 msgstr ""
 
 #, elixir-autogen, elixir-format
