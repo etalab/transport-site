@@ -10,5 +10,6 @@ defmodule Unlock.Router do
 
     get("/", Unlock.Controller, :index)
     get("/resource/:id", Unlock.Controller, :fetch, as: :resource)
+    post("/resource/:id", Unlock.Controller, :fetch, as: :resource)
   end
 end

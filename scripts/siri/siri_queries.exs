@@ -58,13 +58,21 @@ defmodule SIRI do
     """
   end
 
-  def get_estimated_timetable(timestamp, requestor_ref, message_identifier, line_refs) do
+  def build_line_refs(line_refs) do
     # NOTE: we'll switch to proper well-escaped XML building later, this is research code
     line_refs =
       line_refs
       |> Enum.map(&"<siri:LineRef>#{&1}</siri:LineRef>")
       |> Enum.join("\n")
 
+    """
+    <siri:Lines>
+      #{line_refs}
+    </siri:Lines>
+    """
+  end
+
+  def get_estimated_timetable(timestamp, requestor_ref, message_identifier, line_refs) do
     """
     #{prolog()}
     <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
@@ -78,9 +86,7 @@ defmodule SIRI do
             <Request>
                 <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
                 <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-                <siri:Lines>
-                  #{line_refs}
-                </siri:Lines>
+                #{build_line_refs(line_refs)}
             </Request>
             <RequestExtension/>
         </sw:GetEstimatedTimetable>
