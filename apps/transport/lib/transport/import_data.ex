@@ -566,10 +566,6 @@ defmodule Transport.ImportData do
 
   @spec is_netex?(binary() | map()) :: boolean()
   def is_netex?(%{} = params) do
-    IO.inspect(params)
-    IO.inspect(is_format?(params["format"], "NeTEx"))
-    IO.inspect(is_format?(params["description"], "NeTEx"))
-
     cond do
       is_format?(params["format"], "NeTEx") -> true
       is_format?(params["description"], "NeTEx") -> true
