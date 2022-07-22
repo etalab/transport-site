@@ -7,8 +7,89 @@ defmodule Unlock.SIRI do
   iex> Unlock.SIRI.parse_incoming("<elem attr='value'>text</elem>")
   {"elem", [{"attr", "value"}], ["text"]}
   """
+  @spec parse_incoming(binary()) :: Saxy.XML.element()
   def parse_incoming(body) do
     {:ok, parsed_request} = Saxy.SimpleForm.parse_string(body, cdata_as_characters: false)
     parsed_request
+  end
+
+  defmodule RequestorRefReplacer do
+    @moduledoc """
+    A module able to replace `RequestorRef` tags found in a
+    [simple form](https://www.erlang.org/doc/man/xmerl.html#export_simple-3) xmerl document,
+    all while returning the replaced values.
+    """
+
+    @doc """
+    The `RequestorRef` inner value must be replaced, and the replaced ones must be returned for verification:
+
+    iex> input = Unlock.SIRI.parse_incoming("<root><RequestorRef>before</RequestorRef></root>")
+    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(input, "after")
+    {
+      {"root", [], [{"RequestorRef", [], ["after"]}]},
+      ["before"]
+    }
+
+    The replacement must occur even if the tag is namespaced:
+
+    iex> input = Unlock.SIRI.parse_incoming("<root><siri:RequestorRef>before</siri:RequestorRef></root>")
+    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(input, "after")
+    {
+      {"root", [], [{"siri:RequestorRef", [], ["after"]}]},
+      ["before"]
+    }
+
+    Newline must not cause a crash:
+
+    iex> input = Unlock.SIRI.parse_incoming("<root>\\n<hello/></root>")
+    iex> Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(input, "ok")
+    {
+      {"root", [], ["\n", {"hello", [], []}]},
+      []
+    }
+    """
+
+    @spec replace_requestor_ref(Saxy.XML.element(), binary(), list(binary())) :: {Saxy.XML.element(), list(binary())}
+    def replace_requestor_ref(_node, _new_requestor_ref, seen_requestor_refs \\ [])
+
+    def replace_requestor_ref({tag, attributes, [text]} = node, new_requestor_ref, seen_requestor_refs)
+        when is_binary(text) do
+      if tag_without_namespace(tag) == "RequestorRef" do
+        {{tag, attributes, [new_requestor_ref]}, [text | seen_requestor_refs]}
+      else
+        {node, seen_requestor_refs}
+      end
+    end
+
+    # required to support non-semantic newline (\n) characters in the XML
+    def replace_requestor_ref(node, _, seen_requestor_refs) when is_binary(node) do
+      {node, seen_requestor_refs}
+    end
+
+    def replace_requestor_ref({tag, attributes, children}, new_requestor_ref, seen_requestor_refs)
+        when is_list(children) do
+      {children, seen_requestor_refs} =
+        Enum.map_reduce(children, seen_requestor_refs, fn e, acc ->
+          replace_requestor_ref(e, new_requestor_ref, acc)
+        end)
+
+      {{tag, attributes, children}, seen_requestor_refs}
+    end
+
+    @doc """
+    The current version just ignores XML namespaces for now. This method helps extracting
+    the tag name without its namespace, to achieve comparison based on that.
+
+    iex> Unlock.SIRI.RequestorRefReplacer.tag_without_namespace("siri:RequestorRef")
+    "RequestorRef"
+
+    iex> Unlock.SIRI.RequestorRefReplacer.tag_without_namespace("Hello")
+    "Hello"
+    """
+    def tag_without_namespace(tag) do
+      tag
+      |> String.split(":")
+      |> List.last()
+    end
   end
 end
