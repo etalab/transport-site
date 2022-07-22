@@ -335,7 +335,7 @@ msgid "Dataset modes"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Features available in the resource:"
+msgid "Features available in the resource :"
 msgstr ""
 
 #, elixir-autogen, elixir-format

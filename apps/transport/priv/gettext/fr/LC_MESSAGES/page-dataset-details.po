@@ -335,8 +335,8 @@ msgid "Dataset modes"
 msgstr "Modes présents dans le jeu de données"
 
 #, elixir-autogen, elixir-format
-msgid "Features available in the resource:"
-msgstr "Données présentes dans la ressource:"
+msgid "Features available in the resource :"
+msgstr "Données présentes dans la ressource :"
 
 #, elixir-autogen, elixir-format
 msgid "unavailable resources"
