@@ -525,3 +525,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid ", in accordance with the share-alike clause (article 4.4) of <a href=\"%{doc_link}\" target=\"_blank\">the ODbL License</a>"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Features available in the resource:"
+msgstr ""
