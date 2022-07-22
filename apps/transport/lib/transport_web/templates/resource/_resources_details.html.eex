@@ -28,13 +28,12 @@
     <div>
     <% found_tags = DB.Resource.find_tags_from_metadata(@metadata) %>
     <%= for tag <- found_tags do %>
-      <span class="label mode">✅ <%=tag %></span>
+      <span class="label mode"><%=tag %></span>
     <% end %>
 
+    <li><%= dgettext("page-dataset-details", "Features absent but possible to model in GTFS :") %></li>
     <%= for tag <- DB.Resource.existing_gtfs_tags() -- found_tags do %>
-      <%=if tag != "transport à la demande" do %>
-          <span class="label"><%=tag %></span>
-      <% end %>
+        <span class="label"><%=tag %></span>
     <% end %>
     </div>
     </ul>
