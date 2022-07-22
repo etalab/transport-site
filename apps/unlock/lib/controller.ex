@@ -77,8 +77,17 @@ defmodule Unlock.Controller do
       # NOTE: handling this here for now because the main endpoint
       # will otherwise send a full HTML error page. We will have to
       # hook an unlock-specific handling for this instead.
-      # W
       Logger.error("An exception occurred (#{exception |> inspect}")
+
+      cond do
+        # give a bit more context
+        Mix.env() == :dev ->
+          Logger.error(Exception.format_stacktrace())
+
+        # avoid swallowed Mox expectations & ExUnit assertions
+        Mix.env() == :test ->
+          reraise exception, __STACKTRACE__
+      end
 
       conn
       |> send_resp(500, "Internal Error")
@@ -90,7 +99,7 @@ defmodule Unlock.Controller do
   # RAM consumption
   @max_allowed_cached_byte_size 20 * 1024 * 1024
 
-  defp process_resource(conn, %Unlock.Config.Item.GTFS.RT{} = item) do
+  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.GTFS.RT{} = item) do
     Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
 
@@ -103,10 +112,55 @@ defmodule Unlock.Controller do
     |> send_resp(response.status, response.body)
   end
 
-  defp process_resource(conn, %Unlock.Config.Item.SIRI{}) do
+  defp process_resource(conn, %Unlock.Config.Item.GTFS.RT{}), do: send_not_allowed(conn)
+
+  # NOTE: this code is designed for private use for now. I have tracked
+  # what is required or useful for public opening later here:
+  # https://github.com/etalab/transport-site/issues/2476
+  defp process_resource(%{method: "POST"} = conn, %Unlock.Config.Item.SIRI{} = item) do
+    {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
+
+    parsed = Unlock.SIRI.parse_incoming(body)
+
+    {modified_xml, external_requestor_refs} =
+      Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(parsed, item.requestor_ref)
+
+    # NOTE: here we assert both that the requestor ref is what is expected, but also that it
+    # is met once only. I am not deduping them at the moment on purpose, maybe we'll do that
+    # later based on experience.
+    if external_requestor_refs == [Application.fetch_env!(:unlock, :siri_public_requestor_ref)] do
+      handle_authorized_siri_call(conn, item, modified_xml)
+    else
+      send_resp(conn, 403, "Forbidden")
+    end
+  end
+
+  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.SIRI{}),
+    do: send_not_allowed(conn)
+
+  defp send_not_allowed(conn) do
     conn
-    |> put_status(501)
-    |> text("Not Implemented")
+    |> send_resp(405, "Method Not Allowed")
+  end
+
+  @spec handle_authorized_siri_call(Plug.Conn.t(), Unlock.Config.Item.SIRI.t(), Saxy.XML.element()) :: Plug.Conn.t()
+  defp handle_authorized_siri_call(conn, %Unlock.Config.Item.SIRI{} = item, xml) do
+    body = Saxy.encode_to_iodata!(xml, version: "1.0")
+
+    response = Unlock.HTTP.Client.impl().post!(item.target_url, item.request_headers, body)
+
+    headers = response.headers |> lowercase_headers()
+
+    # NOTE: for now, we unzip systematically. This will make it easier
+    # to analyse payloads & later remove sensitive data, even if we
+    # re-zip afterwards.
+    body = maybe_gunzip(response.body, headers)
+
+    headers
+    |> filter_response_headers()
+    |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
+    # No content-disposition as attachment for now
+    |> send_resp(response.status, body)
   end
 
   defp fetch_remote(item) do
@@ -168,10 +222,38 @@ defmodule Unlock.Controller do
     %Unlock.HTTP.Response{status: 502, body: "Bad Gateway", headers: [{"content-type", "text/plain"}]}
   end
 
-  # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug
-  defp prepare_response_headers(headers) do
+  # Decompress (gzip only) if needed. More algorithms can be added later based on real-life testing
+  # The Mint documentation contains useful bits to deal with more scenarios here
+  # https://github.com/elixir-mint/mint/blob/main/pages/Decompression.md#decompressing-the-response-body
+  defp maybe_gunzip(body, headers) do
+    is_gzipped? = get_header(headers, "content-encoding") == ["gzip"]
+
+    if is_gzipped? do
+      :zlib.gunzip(body)
+    else
+      body
+    end
+  end
+
+  # Inspiration https://github.com/elixir-plug/plug/blob/v1.13.6/lib/plug/conn.ex#L615
+  defp get_header(headers, key) do
+    for {^key, value} <- headers, do: value
+  end
+
+  defp lowercase_headers(headers) do
     headers
     |> Enum.map(fn {h, v} -> {String.downcase(h), v} end)
+  end
+
+  # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug
+  defp filter_response_headers(headers) do
+    headers
     |> Enum.filter(fn {h, _v} -> Enum.member?(@forwarded_headers_whitelist, h) end)
+  end
+
+  defp prepare_response_headers(headers) do
+    headers
+    |> lowercase_headers()
+    |> filter_response_headers()
   end
 end
