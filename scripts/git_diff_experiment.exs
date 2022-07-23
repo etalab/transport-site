@@ -8,3 +8,9 @@ base =
 
 new =
   "https://transport-data-gouv-fr-resource-history-prod.cellar-c2.services.clever-cloud.com/b5873d02-043e-447a-8433-0a3be706efc8/b5873d02-043e-447a-8433-0a3be706efc8.20220608.180932.003492.zip"
+
+%{status: 200, body: body} = Req.get!(base, decode_body: false)
+File.write!("base.zip", body)
+
+%{status: 200, body: body} = Req.get!(new, decode_body: false)
+File.write!("new.zip", body)
