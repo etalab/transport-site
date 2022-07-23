@@ -14,6 +14,13 @@ defmodule GTFSCompare do
       File.write!(local_file, body)
     end
   end
+
+  def maybe_unpack(local_file, local_folder) do
+    unless File.exists?(local_folder), do: File.mkdir!(local_folder)
+
+    {output, 0} =
+      System.cmd("unzip", ["../" <> local_file], cd: local_folder, stderr_to_stdout: true)
+  end
 end
 
 base =
@@ -25,3 +32,7 @@ new =
 unless File.exists?("downloads"), do: File.mkdir!("downloads")
 GTFSCompare.maybe_download(base, "downloads/base.zip")
 GTFSCompare.maybe_download(new, "downloads/new.zip")
+GTFSCompare.maybe_unpack("base.zip", "downloads/base.zip.unpacked")
+GTFSCompare.maybe_unpack("new.zip", "downloads/new.zip.unpacked")
+
+IO.puts("ok")
