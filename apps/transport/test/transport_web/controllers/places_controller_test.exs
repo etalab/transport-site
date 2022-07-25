@@ -3,7 +3,10 @@ defmodule TransportWeb.API.PlacesControllerTest do
   use TransportWeb.ConnCase, async: false
   alias TransportWeb.API.Router.Helpers
   alias DB.{AOM, Commune, Dataset, Region, Repo}
+  import Ecto.Query, only: [from: 2]
 
+  # NOTE: we're now fixating the ids in `database_case.ex`, so the comment below
+  # will have to be revised (and the tests too, to ensure they lock the behaviour a bit more)
   defp cleanup(value) do
     # we cannot compare the urls as they can contain internal unstable db id
     # so we strip the id, the last fragment of the url
@@ -99,5 +102,45 @@ defmodule TransportWeb.API.PlacesControllerTest do
       |> json_response(200)
 
     assert sort_and_clean(r) == []
+  end
+
+  test "Search a place via the API (no query)", %{conn: conn} do
+    response =
+      conn
+      |> get(TransportWeb.API.Router.Helpers.places_path(conn, :places))
+      |> json_response(200)
+
+    # NOTE: we could add a better test here, but this requires a bit of
+    # refactoring, and the next test with a query covers a part of this
+    assert is_list(response)
+  end
+
+  test "Search a place via the API (with query)", %{conn: conn} do
+    response =
+      conn
+      |> get(TransportWeb.API.Router.Helpers.places_path(conn, :places, q: "chateau"))
+      |> json_response(200)
+
+    aom = from(aom in DB.AOM, where: aom.nom == "Châteauroux") |> DB.Repo.one!()
+    # safeguard
+    assert aom.id == 1005
+
+    commune = from(c in DB.Commune, where: c.nom == "Châteauroux") |> DB.Repo.one!()
+
+    # NOTE: API results could be unsorted, but this is something to be improved
+    assert response |> Enum.sort() == [
+             %{
+               "name" => "Châteauroux",
+               "type" => "aom",
+               # for aoms, the link is made of the primary key
+               "url" => "/datasets/aom/#{aom.id}"
+             },
+             %{
+               "name" => "Châteauroux (#{commune.insee})",
+               "type" => "commune",
+               # for communes, the link is made of the insee identifier
+               "url" => "/datasets/commune/#{commune.insee}"
+             }
+           ]
   end
 end
