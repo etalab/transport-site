@@ -28,14 +28,10 @@ defmodule TransportWeb.API.PlacesController do
   end
 
   @spec places(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def places(conn, %{} = params) do
-    autocomplete(conn, %{"q" => Map.get(params, "q", "")})
-  end
-
-  @spec autocomplete(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def autocomplete(%Plug.Conn{} = conn, %{"q" => query}) do
+  def places(%Plug.Conn{} = conn, %{} = params) do
     query =
-      query
+      params
+      |> Map.get("q", "")
       # we replace '-' to ' ' because we also did this transformation for indexed_name
       |> String.replace("-", " ")
       # we replace ' ' to '%' to search for composite name to be easily searchable
