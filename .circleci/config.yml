@@ -175,19 +175,8 @@ jobs:
 
       - run:
           name: Run tests
-          # Why running `mix cmd mix test` ? The answer is at
-          # https://github.com/smartlogic/smartlogic.io/blob/main/podcast/elixir-wizards/transcripts/s4e11_Johanna_Larsson.txt
-          #
-          # "One great trick is using ‘mix CMD mix test’. So normally in an umbrella, if you run
-          # mix tests, it loads all of the apps and the runs of tests for each app through all of the apps.
-          # The problem there is that all of the apps are loaded and each app will load all of its dependencies.
-          # So a dependency of one app is available to another app even if it doesn’t explicitly find it.
-          # If you use mix CMD mix test’, it loads each app separately into its own relying VM.
-          # So it doesn’t have access to the other apps or the other apps dependencies. And that sort of 
-          # enforces the separation of the apps. You can’t accidentally call into a different app, at least
-          # not in your test and lose that separation of concern.
           command: |
-            mix cmd mix test --warnings-as-errors
+            mix test --warnings-as-errors
 
 workflows:
   version: 2
