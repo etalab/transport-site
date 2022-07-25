@@ -210,6 +210,24 @@ defmodule TransportWeb.DatasetControllerTest do
     assert conn |> html_response(200) =~ "Ressources temps réel"
   end
 
+  test "ODbL licence with specific conditions", %{conn: conn} do
+    insert(:dataset, %{slug: slug = "dataset-slug", licence: "odc-odbl"})
+
+    set_empty_mocks()
+
+    conn = conn |> get(dataset_path(conn, :details, slug))
+    assert conn |> html_response(200) =~ "Conditions Particulières"
+  end
+
+  test "ODbL licence with openstreetmap tag", %{conn: conn} do
+    insert(:dataset, %{slug: slug = "dataset-slug", licence: "odc-odbl", tags: ["openstreetmap"]})
+
+    set_empty_mocks()
+
+    conn = conn |> get(dataset_path(conn, :details, slug))
+    refute conn |> html_response(200) =~ "Conditions Particulières"
+  end
+
   defp set_empty_mocks do
     Datagouvfr.Client.Reuses.Mock |> expect(:get, fn _ -> {:ok, []} end)
     Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _ -> %{} end)
