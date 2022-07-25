@@ -16,7 +16,7 @@ defaults: &defaults
       type: string
     # useful to invalidate the build cache manually by bumping the version
     build_cache_key:
-      default: build-v2
+      default: build-v3
       type: string
     plt_cache_key:
       default: plt-v3
