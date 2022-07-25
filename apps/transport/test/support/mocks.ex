@@ -1,5 +1,4 @@
 Mox.defmock(Transport.ExAWS.Mock, for: ExAws.Behaviour)
-Mox.defmock(Transport.HTTPoison.Mock, for: HTTPoison.Base)
 Mox.defmock(Shared.Validation.Validator.Mock, for: Shared.Validation.Validator)
 Mox.defmock(Transport.Rambo.Mock, for: Transport.RamboLauncher)
 Mox.defmock(Transport.Notifications.FetcherMock, for: Transport.Notifications.Fetcher)
