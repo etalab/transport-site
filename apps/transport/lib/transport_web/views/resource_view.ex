@@ -215,11 +215,11 @@ defmodule TransportWeb.ResourceView do
 
   def nb_days_entities, do: Transport.Jobs.GTFSRTEntitiesJob.days_to_keep()
 
+  @spec display_gtfs_rt_feed(map()) :: binary()
   def display_gtfs_rt_feed(gtfs_rt_feed) do
     gtfs_rt_feed.feed
     |> Protobuf.JSON.encode!()
-    |> Jason.decode!()
-    |> inspect(pretty: true, width: 120)
+    |> Jason.Formatter.pretty_print()
   rescue
     _ -> dgettext("page-dataset-details", "Feed decoding failed")
   end
