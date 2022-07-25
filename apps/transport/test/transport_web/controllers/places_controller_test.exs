@@ -18,7 +18,7 @@ defmodule TransportWeb.API.PlacesControllerTest do
       |> Enum.map(&Map.update!(&1, "url", fn v -> cleanup(v) end))
 
   test "Search a place", %{conn: conn} do
-    path = Helpers.places_path(conn, :autocomplete, q: "chat")
+    path = Helpers.places_path(conn, :places, q: "chat")
     conn = conn |> get(path)
     r = conn |> json_response(200)
 
@@ -48,7 +48,7 @@ defmodule TransportWeb.API.PlacesControllerTest do
   test "Search a place with accent", %{conn: conn} do
     r =
       conn
-      |> get(Helpers.places_path(conn, :autocomplete, q: "cha"))
+      |> get(Helpers.places_path(conn, :places, q: "cha"))
       |> json_response(200)
 
     assert sort_and_clean(r) ==
@@ -74,7 +74,7 @@ defmodule TransportWeb.API.PlacesControllerTest do
   test "Search a place with multiple word", %{conn: conn} do
     r =
       conn
-      |> get(Helpers.places_path(conn, :autocomplete, q: "ile de fr"))
+      |> get(Helpers.places_path(conn, :places, q: "ile de fr"))
       |> json_response(200)
 
     assert sort_and_clean(r) ==
@@ -95,7 +95,7 @@ defmodule TransportWeb.API.PlacesControllerTest do
   test "Search a unknown place", %{conn: conn} do
     r =
       conn
-      |> get(Helpers.places_path(conn, :autocomplete, q: "pouet"))
+      |> get(Helpers.places_path(conn, :places, q: "pouet"))
       |> json_response(200)
 
     assert sort_and_clean(r) == []
