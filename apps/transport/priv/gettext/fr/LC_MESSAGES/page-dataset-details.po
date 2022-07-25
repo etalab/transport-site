@@ -529,3 +529,7 @@ msgstr "Les réutilisateurs peuvent partager dans cette section les modification
 #, elixir-autogen, elixir-format
 msgid ", in accordance with the share-alike clause (article 4.4) of <a href=\"%{doc_link}\" target=\"_blank\">the ODbL License</a>"
 msgstr ", conformément à la clause de partage à l’identique (article 4.4) de la <a href=\"%{doc_link}\" target=\"_blank\">licence ODbL</a>"
+
+#, elixir-autogen, elixir-format
+msgid "Feed decoding failed"
+msgstr "Le décodage du flux a échoué"
