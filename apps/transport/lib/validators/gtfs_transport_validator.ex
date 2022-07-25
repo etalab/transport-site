@@ -3,7 +3,7 @@ defmodule Transport.Validators.GTFSTransport do
   Validate a GTFS with transport-validator (https://github.com/etalab/transport-validator/)
   """
   @behaviour Transport.Validators.Validator
-  import DB.Gettext, only: [dgettext: 2]
+  import TransportWeb.Gettext, only: [dgettext: 2]
 
   @no_error "NoError"
 
