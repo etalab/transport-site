@@ -38,7 +38,7 @@ defmodule TransportWeb.API.Router do
     scope "/places" do
       pipe_through(:public_cache)
 
-      get("/", TransportWeb.API.PlacesController, :autocomplete)
+      get("/", TransportWeb.API.PlacesController, :places)
     end
 
     scope "/datasets" do

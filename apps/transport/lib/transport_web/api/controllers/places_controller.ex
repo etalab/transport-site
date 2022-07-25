@@ -27,6 +27,11 @@ defmodule TransportWeb.API.PlacesController do
     |> Repo.all()
   end
 
+  @spec places(Plug.Conn.t(), map) :: Plug.Conn.t()
+  def places(conn, %{} = params) do
+    autocomplete(conn, %{"q" => Map.get(params, "q", "")})
+  end
+
   @spec autocomplete(Plug.Conn.t(), map) :: Plug.Conn.t()
   def autocomplete(%Plug.Conn{} = conn, %{"q" => query}) do
     query =
