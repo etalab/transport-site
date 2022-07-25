@@ -12,5 +12,7 @@
 <% end %>
 
 <%= if not show_schema_validation and not show_gtfs_rt_validation do %>
+<div class="panel">
   <%= dgettext("validations", "No validation available") %>
+</div>
 <% end %>
