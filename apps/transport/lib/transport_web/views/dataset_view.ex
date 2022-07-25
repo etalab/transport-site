@@ -12,7 +12,7 @@ defmodule TransportWeb.DatasetView do
   alias Shared.DateTimeDisplay
   alias Transport.Validators.GTFSTransport
 
-  @gtfsrtValidatorName Transport.Validators.GTFSRT.validator_name()
+  @gtfs_rt_validator_name Transport.Validators.GTFSRT.validator_name()
 
   @doc """
   Count the number of resources (official + community), excluding resources with a `documentation` type.
@@ -252,7 +252,7 @@ defmodule TransportWeb.DatasetView do
       when is_integer(warnings_count) and warnings_count >= 0,
       do: warnings_count
 
-  def warnings_count(%DB.MultiValidation{validator: @gtfsrtValidatorName}), do: 0
+  def warnings_count(%DB.MultiValidation{validator: @gtfs_rt_validator_name}), do: 0
 
   def warnings_count(%DB.MultiValidation{}), do: nil
 
