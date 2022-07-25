@@ -75,12 +75,16 @@ defmodule TransportWeb.API.PlacesController do
     |> render()
   end
 
+  # TODO: amend this declaration & verify Swagger presentation. I have the feeling
+  # the metadata here is not completely correct
   @spec autocomplete_operation() :: Operation.t()
   def autocomplete_operation do
     %Operation{
       tags: ["datasets"],
+      # This seems incorrect (maybe?)
       summary: "Autocomplete search for datasets",
       description: "Given a search input, return potentialy corresponding results with the associated url",
+      # This seems incorrect (maybe?)
       operationId: "API.DatasetController.datasets_autocomplete",
       parameters: [Operation.parameter(:q, :query, :string, "query")],
       responses: %{
