@@ -221,6 +221,8 @@ defmodule TransportWeb.DatasetView do
   def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
 
   # For other resources
+  # The past ⬇️
+  # # https://github.com/etalab/transport-site/issues/2390
   def summary_class(%{metadata: %{"validation" => %{"has_errors" => false}}}),
     do: "resource__summary--Success"
 
@@ -230,9 +232,25 @@ defmodule TransportWeb.DatasetView do
 
   def summary_class(%{metadata: %{"validation" => _}}), do: "resource__summary--Error"
 
+  # The future ⬇️
+  # https://github.com/etalab/transport-site/issues/2390
+  def summary_class(%DB.MultiValidation{result: %{"errors_count" => errors_count}})
+      when is_integer(errors_count) and errors_count > 0 do
+    "resource__summary--Error"
+  end
+
+  def summary_class(%DB.MultiValidation{result: %{"warnings_count" => warnings_count}})
+      when is_integer(warnings_count) and warnings_count > 0 do
+    "resource__summary--Warning"
+  end
+
+  def summary_class(%DB.MultiValidation{}), do: "resource__summary--Success"
+
   def warnings_count(%DB.MultiValidation{result: %{"warnings_count" => warnings_count}})
       when is_integer(warnings_count) and warnings_count >= 0,
       do: warnings_count
+
+  def warnings_count(%DB.MultiValidation{}), do: 0
 
   # will be deprecated
   # https://github.com/etalab/transport-site/issues/2390
@@ -492,6 +510,21 @@ defmodule TransportWeb.DatasetView do
     |> Application.fetch_env!(:datagouvfr_site)
     |> Path.join("/admin/community-resource/new/?dataset_id=#{datagouv_id}")
   end
+  
+  @doc """
+  Temporary function to ease multi_validation transition
+  """
+  def multi_validation_plugged?(%Resource{format: format}) when format in ["GTFS", "gtfs-rt"], do: true
+
+  def multi_validation_plugged?(%Resource{schema_name: schema_name}) when not is_nil(schema_name) do
+    cond do
+      Transport.Shared.Schemas.Wrapper.is_tableschema?(schema_name) -> true
+      Transport.Shared.Schemas.Wrapper.is_jsonschema?(schema_name) -> true
+      true -> false
+    end
+  end
+
+  def multi_validation_plugged?(%Resource{}), do: false
 
   @doc """
   Determines if we should display "specific usage conditions" for a dataset.
