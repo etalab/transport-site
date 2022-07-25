@@ -6,10 +6,10 @@
       )
     ) %>
   </p>
-  <%= if has_errors_details?(@resource) do %>
+  <%= unless is_nil(@multi_validation) do %>
     <p>
       <b>
-        <% nb_errors = errors_count(@resource) %>
+        <% nb_errors = errors_count(@multi_validation) %>
         <%= if nb_errors == 0 do %>
           <span class="icon--validation">✅</span><%= dgettext("validations", "No error detected") %>
         <% else %>
@@ -28,16 +28,16 @@
         ) %>
       </p>
       <p><%= dgettext("validations", "Errors:") %></p>
-      <% is_jsonschema = @resource.metadata["validation"]["schema_type"] == "jsonschema" %>
+      <% is_jsonschema = @multi_validation.result["schema_type"] == "jsonschema" %>
       <ul lang={if is_jsonschema, do: "en"}>
-        <%= for error <- errors_sample(@resource) do %>
+        <%= for error <- errors_sample(@multi_validation) do %>
           <li><%= error %></li>
         <% end %>
       </ul>
       <%= if nb_errors > max_display_errors() do %>
         <p class="notification">
           <%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors()) %>
-          <%= if @resource.metadata["validation"]["schema_type"] == "tableschema" do %>
+          <%= if @multi_validation.result["schema_type"] == "tableschema" do %>
             <%= raw(
               dgettext(
                 "validations",

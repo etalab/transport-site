@@ -5,7 +5,6 @@ defmodule TransportWeb.ResourceView do
   import Phoenix.Controller, only: [current_url: 2]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
   import TransportWeb.DatasetView, only: [schema_url: 1, errors_count: 1, warnings_count: 1]
-  import DB.Resource, only: [has_errors_details?: 1]
   import DB.ResourceUnavailability, only: [floor_float: 2]
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
   import Shared.Validation.TableSchemaValidator, only: [validata_web_url: 1]
@@ -98,7 +97,14 @@ defmodule TransportWeb.ResourceView do
   def get_associated_netex(%{netex: netex_url}), do: netex_url
   def get_associated_netex(_), do: nil
 
+  # the past ⬇️
+  # # https://github.com/etalab/transport-site/issues/2390
   def errors_sample(%DB.Resource{metadata: %{"validation" => %{"errors" => errors}}}) do
+    Enum.take(errors, max_display_errors())
+  end
+
+  # the future ⬇️
+  def errors_sample(%DB.MultiValidation{result: %{"errors" => errors}}) do
     Enum.take(errors, max_display_errors())
   end
 
