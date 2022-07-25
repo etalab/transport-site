@@ -536,9 +536,11 @@ defmodule Transport.ImportData do
   "gtfsrt"
   iex> ImportData.clean_format("SIRI Lite")
   "sirilite"
+  iex> ImportData.clean_format("Ne[-tex")
+  "ne[tex"
   """
   def clean_format(format),
-    do: format |> String.downcase() |> String.replace(~r/[^0-9a-zA-Z]/, "")
+    do: format |> String.downcase() |> String.replace(~r/[^0-9a-zA-Z\[\]]/, "")
 
   @doc """
   Is the ressource a zip file?
@@ -704,10 +706,21 @@ defmodule Transport.ImportData do
   def get_title(%{"url" => url}), do: Helpers.filename_from_url(url)
 
   @spec get_existing_resource(map(), binary()) :: Resource.t() | nil
+  # ODS CSV resources are identified only with their URL, as their resource datagouv id is not unique.
+  # For regular resources, we can identify them by resource datagouv id or by their url.
+  defp get_existing_resource(%{"is_ods_csv" => true, "url" => url}, dataset_datagouv_id) do
+    Resource
+    |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
+    |> where([r], r.url == ^url)
+    |> where([_r, d], d.datagouv_id == ^dataset_datagouv_id)
+    |> select([r], map(r, [:id, :metadata]))
+    |> Repo.one()
+  end
+
   defp get_existing_resource(%{"url" => url, "id" => datagouv_id}, dataset_datagouv_id) do
     Resource
     |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
-    |> where([r, _d], (r.datagouv_id == ^datagouv_id and r.filetype == "file") or r.url == ^url)
+    |> where([r, _d], r.datagouv_id == ^datagouv_id or r.url == ^url)
     |> where([_r, d], d.datagouv_id == ^dataset_datagouv_id)
     |> select([r], map(r, [:id, :metadata]))
     |> Repo.one()

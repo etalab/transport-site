@@ -66,7 +66,7 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  def validators_to_use, do: [Transport.Validators.GTFSTransport]
+  def validators_to_use, do: [Transport.Validators.GTFSTransport, Transport.Validators.GTFSRT]
 
   def resources_infos(dataset) do
     # multi validations assign

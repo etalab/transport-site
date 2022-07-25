@@ -16,12 +16,13 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJobTest do
       insert(:resource_history, %{
         payload: %{
           "schema_name" => sample_json_schema_name = "sample_json_schema",
+          "schema_version" => schema_version = "0.4.2",
           "permanent_url" => permanent_url = "https://example.com/permanent_url"
         }
       })
 
     Shared.Validation.JSONSchemaValidator.Mock
-    |> expect(:load_jsonschema_for_schema, fn ^sample_json_schema_name ->
+    |> expect(:load_jsonschema_for_schema, fn ^sample_json_schema_name, ^schema_version ->
       %ExJsonSchema.Schema.Root{
         schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
         version: 7
@@ -46,6 +47,17 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJobTest do
            } = DB.MultiValidation |> DB.Repo.get_by!(resource_history_id: resource_history_id)
 
     assert "0." <> _ = validator_version
+  end
+
+  test "discards job if already validated" do
+    rh = insert(:resource_history, %{payload: %{"schema_name" => Ecto.UUID.generate(), "schema_version" => "0.1.2"}})
+
+    insert(:multi_validation, %{
+      resource_history_id: rh.id,
+      validator: Transport.Validators.EXJSONSchema.validator_name()
+    })
+
+    assert {:discard, _} = perform_job(ResourceHistoryJSONSchemaValidationJob, %{resource_history_id: rh.id})
   end
 
   test "enqueues jobs for all ResourceHistory with a JSON Schema schema that have not been validated" do

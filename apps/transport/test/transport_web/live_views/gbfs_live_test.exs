@@ -39,11 +39,13 @@ defmodule TransportWeb.Backoffice.GBFSLiveTest do
     response = html_response(conn, 200)
     assert response =~ "Statistiques des requêtes GBFS"
 
-    assert %{
-             "Réseau" => ^network_name,
-             "Req int 7j" => "1",
-             "Req ext 7j" => "2"
-           } = extract_data_from_html(response)
+    assert [
+             %{
+               "Réseau" => ^network_name,
+               "Req int 7j" => "1",
+               "Req ext 7j" => "2"
+             }
+           ] = extract_data_from_html(response)
 
     {:ok, view, _html} = live(conn)
 
@@ -51,10 +53,12 @@ defmodule TransportWeb.Backoffice.GBFSLiveTest do
 
     send(view.pid, :update_data)
 
-    assert %{
-             "Réseau" => ^network_name,
-             "Req int 7j" => "2",
-             "Req ext 7j" => "4"
-           } = extract_data_from_html(render(view))
+    assert [
+             %{
+               "Réseau" => ^network_name,
+               "Req int 7j" => "2",
+               "Req ext 7j" => "4"
+             }
+           ] = extract_data_from_html(render(view))
   end
 end

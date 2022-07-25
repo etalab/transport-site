@@ -12,8 +12,19 @@ defmodule TransportWeb.LiveCase do
       def extract_data_from_html(html) do
         doc = Floki.parse_document!(html)
         headers = doc |> Floki.find("table thead tr th") |> Enum.map(&Floki.text/1)
-        row = doc |> Floki.find("table tbody tr td") |> Enum.map(&Floki.text/1)
-        headers |> Enum.zip(row) |> Enum.into(%{})
+
+        doc
+        |> Floki.find("table tbody tr")
+        |> Enum.map(fn row ->
+          cells =
+            row
+            |> Floki.find("td")
+            |> Enum.map(&Floki.text/1)
+
+          headers
+          |> Enum.zip(cells)
+          |> Enum.into(%{})
+        end)
       end
 
       def setup_admin_in_session(conn) do

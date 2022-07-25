@@ -1,4 +1,4 @@
-defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJob do
+defmodule Transport.Jobs.ResourceHistoryTableSchemaValidationJob do
   @moduledoc """
   Validate a `DB.ResourceHistory` and stores the result in the database.
   """
@@ -7,10 +7,10 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJob do
 
   @doc """
   `perform/1` can:
-  - Validate a single `DB.ResourceHistory` using the JSON Schema validator.
-    Make sure the `DB.ResourceHistory` has a JSON Schema schema otherwise the
+  - Validate a single `DB.ResourceHistory` using the Table Schema validator.
+    Make sure the `DB.ResourceHistory` has a Table Schema schema otherwise the
     validator will raise an error.
-  - Enqueue validation jobs for all `DB.ResourceHistory` with a JSON Schema
+  - Enqueue validation jobs for all `DB.ResourceHistory` with a Table Schema
     that have not been validated yet.
   """
   @impl Oban.Worker
@@ -20,8 +20,8 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    ResourceHistorySchemaValidation.enqueue_jobs_for_schema_type("jsonschema", __MODULE__, validator())
+    ResourceHistorySchemaValidation.enqueue_jobs_for_schema_type("tableschema", __MODULE__, validator())
   end
 
-  def validator, do: Transport.Validators.EXJSONSchema
+  def validator, do: Transport.Validators.TableSchema
 end

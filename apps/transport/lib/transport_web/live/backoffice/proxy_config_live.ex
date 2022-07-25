@@ -81,15 +81,29 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     |> Map.values()
     |> Enum.sort_by(& &1.identifier)
     |> Enum.map(fn resource ->
-      %{
-        unique_slug: resource.identifier,
-        proxy_url: get_proxy_resource_url(proxy_base_url, resource.identifier),
-        original_url: resource.target_url,
-        ttl: resource.ttl
-      }
+      proxy_base_url
+      |> extract_config(resource)
       |> add_cache_state()
       |> add_stats(stats)
     end)
+  end
+
+  defp extract_config(proxy_base_url, %Unlock.Config.Item.GTFS.RT{} = resource) do
+    %{
+      unique_slug: resource.identifier,
+      proxy_url: get_proxy_resource_url(proxy_base_url, resource.identifier),
+      original_url: resource.target_url,
+      ttl: resource.ttl
+    }
+  end
+
+  defp extract_config(proxy_base_url, %Unlock.Config.Item.SIRI{} = resource) do
+    %{
+      unique_slug: resource.identifier,
+      proxy_url: get_proxy_resource_url(proxy_base_url, resource.identifier),
+      original_url: resource.target_url,
+      ttl: nil
+    }
   end
 
   defp event_names do

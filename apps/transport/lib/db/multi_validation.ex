@@ -84,11 +84,12 @@ defmodule DB.MultiValidation do
     validator_name = validator.validator_name()
 
     DB.MultiValidation
-    |> join(:inner, [mv], rh in DB.ResourceHistory,
+    |> join(:left, [mv], rh in DB.ResourceHistory,
       on: rh.id == mv.resource_history_id and rh.resource_id == ^resource_id
     )
-    |> where([mv], mv.validator == ^validator_name)
-    |> order_by([mv, rh], desc: rh.inserted_at, desc: mv.validation_timestamp)
+    |> join(:left, [mv, rh], r in DB.Resource, on: r.id == mv.resource_id and r.id == ^resource_id)
+    |> where([mv, rh, r], mv.validator == ^validator_name and (not is_nil(rh.id) or not is_nil(r.id)))
+    |> order_by([mv, rh, r], desc: rh.inserted_at, desc: r.id, desc: mv.validation_timestamp)
     |> preload(:metadata)
     |> limit(1)
     |> DB.Repo.one()
@@ -100,8 +101,13 @@ defmodule DB.MultiValidation do
 
     latest_validations =
       DB.MultiValidation
-      |> distinct([mv], [mv.resource_history_id, mv.validator])
-      |> order_by([mv], desc: mv.resource_history_id, desc: mv.validator, desc: mv.validation_timestamp)
+      |> distinct([mv], [mv.resource_history_id, mv.resource_id, mv.validator])
+      |> order_by([mv],
+        desc: mv.resource_history_id,
+        desc: mv.resource_id,
+        desc: mv.validator,
+        desc: mv.validation_timestamp
+      )
       |> where([mv], mv.validator in ^validators_names)
 
     latest_resource_history =
@@ -111,7 +117,9 @@ defmodule DB.MultiValidation do
 
     DB.Resource
     |> join(:left, [r], rh in subquery(latest_resource_history), on: rh.resource_id == r.id)
-    |> join(:left, [r, rh], mv in subquery(latest_validations), on: rh.id == mv.resource_history_id)
+    |> join(:left, [r, rh], mv in subquery(latest_validations),
+      on: rh.id == mv.resource_history_id or r.id == mv.resource_id
+    )
     |> where([r, rh, mv], r.dataset_id == ^dataset_id)
     |> select([r, rh, mv], {r.id, mv})
     |> DB.Repo.all()

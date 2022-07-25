@@ -33,7 +33,7 @@ msgstr "Lieux d'intérêts"
 
 #, elixir-autogen, elixir-format
 msgid "A dataset cannot be national and regional"
-msgstr "Un jeu de données ne pas pas être à la fois régional et national"
+msgstr "Un jeu de données ne peut pas être à la fois régional et national"
 
 #, elixir-autogen, elixir-format
 msgid "Unable to find INSEE code '%{insee}'"

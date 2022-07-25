@@ -8,7 +8,7 @@
         <span class="tooltiptext">
           <div><%= DateTimeDisplay.format_date(day_data["day"], locale) %></div>
           <div class="<%= download_availability_class_text(uptime) %>">
-            <strong><%= round_float(uptime, 1) %>%</strong>
+            <strong><%= floor_float(uptime, 1) %>%</strong>
           </div>
         </span>
       </div>

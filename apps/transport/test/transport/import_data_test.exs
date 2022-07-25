@@ -20,7 +20,7 @@ defmodule Transport.ImportDataTest do
   setup do
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
     Mox.stub_with(Transport.AvailabilityChecker.Mock, Transport.AvailabilityChecker)
-    Mox.stub_with(Hasher.Mock, Hasher)
+    Mox.stub_with(Hasher.Mock, Hasher.Dummy)
     :ok
   end
 
@@ -121,11 +121,9 @@ defmodule Transport.ImportDataTest do
 
           assert_called_exactly(HTTPoison.get!(:_, :_, :_), 1)
 
-          # for each resource, 2 head requests are potentially made
-          # one to check for availability, one to compute the resource hash.
-          assert_called_exactly(HTTPoison.head(:_, :_, :_), 2)
+          # for each resource, 1 head request is made to check for availability
+          assert_called_exactly(HTTPoison.head(:_, :_, :_), 1)
           assert_called_exactly(Datagouvfr.Client.CommunityResources.get(:_), 1)
-          assert_called_exactly(HTTPStreamV2.fetch_status_and_hash(:_), 1)
 
           # import is a success
           assert logs =~ "all datasets have been reimported (0 failures / 1)"
@@ -191,10 +189,7 @@ defmodule Transport.ImportDataTest do
         generate_resources_payload(
           new_title = "new title !!! fresh !!!",
           "http://localhost:4321/resource1",
-          new_datagouv_id = "resource2_id",
-          _schema_name = nil,
-          _schema_version = nil,
-          _filetype = "file"
+          new_datagouv_id = "resource2_id"
         )
       )
 
@@ -212,9 +207,6 @@ defmodule Transport.ImportDataTest do
     # assert that the resource has been updated with a new title and a new datagouv_id
     # but its id is still the same
     assert Map.get(resource_updated, :title) == new_title
-    # Resource needs to be a file if we want to find it back
-    # with its datagouv_id afterwards
-    assert Map.get(resource_updated, :filetype) == "file"
     assert Map.get(resource_updated, :id) == resource_id
     assert Map.get(resource_updated, :datagouv_id) == new_datagouv_id
 
@@ -228,10 +220,7 @@ defmodule Transport.ImportDataTest do
         generate_resources_payload(
           new_title,
           _new_url = "https://example.com/" <> Ecto.UUID.generate(),
-          new_datagouv_id,
-          _schema_name = nil,
-          _schema_version = nil,
-          _filetype = "file"
+          new_datagouv_id
         )
       )
 
@@ -254,7 +243,6 @@ defmodule Transport.ImportDataTest do
     assert Map.get(resource_updated, :display_position) == 0
 
     # and the internal resource.id did not change
-    assert Map.get(resource_updated, :filetype) == "file"
     assert Map.get(resource_updated, :id) == resource_id
   end
 

@@ -29,7 +29,7 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
     |> where([r], not r.is_community_resource)
     |> where([r], like(r.url, "http%"))
     |> Repo.all()
-    |> Enum.reject(&Resource.is_real_time?/1)
+    |> Enum.reject(&(Resource.is_real_time?(&1) or Resource.is_documentation?(&1)))
     |> Enum.map(& &1.id)
   end
 end
@@ -41,6 +41,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   use Oban.Worker, unique: [period: 60 * 60 * 5, fields: [:args, :queue, :worker]], tags: ["history"], max_attempts: 5
   require Logger
   import Ecto.Query
+  alias Transport.Shared.Schemas.Wrapper, as: Schemas
   alias DB.{Repo, Resource, ResourceHistory}
 
   @impl Oban.Worker
@@ -90,7 +91,8 @@ defmodule Transport.Jobs.ResourceHistoryJob do
           format: resource.format,
           dataset_id: resource.dataset_id,
           schema_name: resource.schema_name,
-          schema_version: resource.schema_version
+          schema_version: resource.schema_version,
+          latest_schema_version_to_date: latest_schema_version_to_date(resource)
         }
 
         data =
@@ -286,5 +288,11 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     resource = resource |> Ecto.Changeset.change(%{content_hash: to_content_hash(new_hash)}) |> Repo.update!()
     {:ok, _} = Resource.validate_and_save(resource, false)
     Repo.reload(resource)
+  end
+
+  defp latest_schema_version_to_date(%Resource{schema_name: nil}), do: nil
+
+  defp latest_schema_version_to_date(%Resource{schema_name: schema_name}) do
+    Schemas.latest_version(schema_name)
   end
 end

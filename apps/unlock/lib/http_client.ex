@@ -29,6 +29,7 @@ defmodule Unlock.HTTP do
     @type headers() :: [{header_name :: String.t(), header_value :: String.t()}]
 
     @callback get!(url :: binary, headers :: headers()) :: any()
+    @callback post!(url :: binary, headers :: headers(), body :: binary) :: any()
 
     def impl, do: Application.fetch_env!(:unlock, :http_client)
   end
@@ -43,6 +44,19 @@ defmodule Unlock.HTTP do
       {:ok, response} =
         :get
         |> Finch.build(url, headers)
+        |> Finch.request(Unlock.Finch)
+
+      %Response{
+        body: response.body,
+        status: response.status,
+        headers: response.headers
+      }
+    end
+
+    def post!(url, headers, body) do
+      {:ok, response} =
+        :post
+        |> Finch.build(url, headers, body)
         |> Finch.request(Unlock.Finch)
 
       %Response{

@@ -194,11 +194,25 @@ defmodule TransportWeb.DatasetControllerTest do
       metadata: %{metadata: %{}}
     })
 
-    Datagouvfr.Client.Reuses.Mock |> expect(:get, fn _ -> {:ok, []} end)
-    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _ -> %{} end)
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
+    set_empty_mocks()
 
     conn = conn |> get(dataset_path(conn, :details, slug))
     assert conn |> html_response(200) =~ "1 information"
+  end
+
+  test "GTFS-RT without validation", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug"})
+    insert(:resource, %{dataset_id: dataset_id, format: "gtfs-rt", url: "url"})
+
+    set_empty_mocks()
+
+    conn = conn |> get(dataset_path(conn, :details, slug))
+    assert conn |> html_response(200) =~ "Ressources temps réel"
+  end
+
+  defp set_empty_mocks do
+    Datagouvfr.Client.Reuses.Mock |> expect(:get, fn _ -> {:ok, []} end)
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _ -> %{} end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
   end
 end
