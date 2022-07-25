@@ -510,7 +510,7 @@ defmodule TransportWeb.DatasetView do
     |> Application.fetch_env!(:datagouvfr_site)
     |> Path.join("/admin/community-resource/new/?dataset_id=#{datagouv_id}")
   end
-  
+
   @doc """
   Temporary function to ease multi_validation transition
   """
