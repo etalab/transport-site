@@ -93,7 +93,12 @@ defmodule TransportWeb.ResourceController do
           nil
       end
 
-    DB.MultiValidation.resource_latest_validation(resource_id, validator)
+    validation = DB.MultiValidation.resource_latest_validation(resource_id, validator)
+
+    case validation do
+      %{result: %{"validation_performed" => false}} -> nil
+      validation -> validation
+    end
   end
 
   defp latest_validation(_), do: nil
