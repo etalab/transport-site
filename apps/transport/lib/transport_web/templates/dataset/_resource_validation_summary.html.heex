@@ -6,7 +6,8 @@
       resource_path(@conn, :details, @resource.id) <> "#validation-report"
     end %>
   <a href={link} target="_blank">
-    <span class={summary_class(@validation)}>
+    <% summary_class = if Resource.is_gbfs?(@resource), do: summary_class(@resource), else: summary_class(@validation) %>
+    <span class={summary_class}>
       <%= if @nb_errors + (@nb_warnings || 0) == 0 do %>
         <%= dgettext("page-dataset-details", "No error detected") %>
       <% end %>
