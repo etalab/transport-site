@@ -4,6 +4,7 @@ defmodule TransportWeb.ResourceController do
   alias DB.{Dataset, Repo, Resource}
   alias Transport.DataVisualization
   alias Transport.ImportData
+  alias Transport.Shared.Schemas.Wrapper, as: Schemas
   require Logger
 
   import TransportWeb.ResourceView, only: [issue_type: 1]
@@ -18,7 +19,10 @@ defmodule TransportWeb.ResourceController do
 
     conn =
       conn
-      |> assign(:uptime_per_day, DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days()))
+      |> assign(
+        :uptime_per_day,
+        DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days())
+      )
       |> assign(:resource_history_infos, DB.ResourceHistory.latest_resource_history_infos(id))
       |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
       |> assign(:multi_validation, latest_validation(resource))
@@ -31,36 +35,37 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  defp gtfs_rt_feed(conn, %Resource{} = resource) do
+  defp gtfs_rt_feed(conn, %Resource{format: "gtfs-rt", url: url, id: id}) do
     lang = get_session(conn, :locale)
 
     Transport.Cache.API.fetch(
-      "gtfs_rt_feed_#{resource.id}_#{lang}",
+      "gtfs_rt_feed_#{id}_#{lang}",
       fn ->
-        if Resource.is_gtfs_rt?(resource) do
-          case Transport.GTFSRT.decode_remote_feed(resource.url) do
-            {:ok, feed} ->
-              %{
-                alerts: Transport.GTFSRT.service_alerts_for_display(feed, lang),
-                feed: feed
-              }
+        case Transport.GTFSRT.decode_remote_feed(url) do
+          {:ok, feed} ->
+            %{
+              alerts: Transport.GTFSRT.service_alerts_for_display(feed, lang),
+              feed: feed
+            }
 
-            {:error, _} ->
-              :error
-          end
-        else
-          nil
+          {:error, _} ->
+            :error
         end
       end,
       :timer.minutes(5)
     )
   end
 
+  defp gtfs_rt_feed(_conn, %Resource{}), do: nil
+
   defp put_resource_flash(conn, false = _dataset_active) do
     conn
     |> put_flash(
       :error,
-      dgettext("resource", "This resource belongs to a dataset that has been deleted from data.gouv.fr")
+      dgettext(
+        "resource",
+        "This resource belongs to a dataset that has been deleted from data.gouv.fr"
+      )
     )
   end
 
@@ -72,6 +77,23 @@ defmodule TransportWeb.ResourceController do
 
   defp latest_validation(%{id: resource_id, format: "gtfs-rt"}) do
     DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.GTFSRT)
+  end
+
+  defp latest_validation(%{id: resource_id, schema_name: schema_name})
+       when not is_nil(schema_name) do
+    validator =
+      cond do
+        Schemas.is_tableschema?(schema_name) ->
+          Transport.Validators.TableSchema
+
+        Schemas.is_jsonschema?(schema_name) ->
+          Transport.Validators.EXJSONSchema
+
+        true ->
+          nil
+      end
+
+    DB.MultiValidation.resource_latest_validation(resource_id, validator)
   end
 
   defp latest_validation(_), do: nil

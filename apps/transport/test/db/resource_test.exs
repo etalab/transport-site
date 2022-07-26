@@ -343,7 +343,7 @@ defmodule DB.ResourceTest do
     end
   end
 
-  test "download url", %{conn: conn} do
+  test "download url" do
     # Files hosted on data.gouv.fr
     assert Resource.download_url(%Resource{
              filetype: "file",
@@ -370,7 +370,7 @@ defmodule DB.ResourceTest do
              id: id = 1,
              url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/refDir.csv",
              latest_url: "https://data.gouv.fr/fake_stable_url"
-           }) == resource_path(conn, :download, id)
+           }) == resource_url(TransportWeb.Endpoint, :download, id)
 
     # File not hosted on data.gouv.fr
     assert Resource.download_url(%Resource{filetype: "file", url: url = "https://data.example.com/voies.geojson"}) ==
@@ -380,7 +380,7 @@ defmodule DB.ResourceTest do
     assert Resource.download_url(%Resource{filetype: "remote", url: url = "https://data.example.com/data"}) == url
     # http URL
     assert Resource.download_url(%Resource{id: id = 1, filetype: "remote", url: "http://data.example.com/data"}) ==
-             resource_path(conn, :download, id)
+             resource_url(TransportWeb.Endpoint, :download, id)
 
     # file hosted on GitHub
     assert Resource.download_url(%Resource{
@@ -388,6 +388,6 @@ defmodule DB.ResourceTest do
              filetype: "remote",
              url:
                "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/898dc67fb19fae2464c24a85a0557e8ccce18791/bnlc-.csv"
-           }) == resource_path(conn, :download, id)
+           }) == resource_url(TransportWeb.Endpoint, :download, id)
   end
 end

@@ -5,7 +5,7 @@ defmodule DB.Validation do
   use Ecto.Schema
   use TypedEctoSchema
   alias DB.Resource
-  import DB.Gettext, only: [dgettext: 2]
+  import TransportWeb.Gettext, only: [dgettext: 2]
 
   typed_schema "validations" do
     field(:details, :map)

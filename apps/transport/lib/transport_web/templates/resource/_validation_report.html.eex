@@ -1,12 +1,18 @@
-<% show_schema_validation = not is_nil(@resource.schema_name) %>
-<% show_gtfs_rt_validation = DB.Resource.is_gtfs_rt?(@resource) and not is_nil(@multi_validation) %>
+<% show_schema_validation = not is_nil(@resource.schema_name) and multi_validation_performed?(@multi_validation) %>
+<% show_gtfs_rt_validation = DB.Resource.is_gtfs_rt?(@resource) and multi_validation_performed?(@multi_validation) %>
 
-<%= if show_schema_validation or show_gtfs_rt_validation do %>
 <h2 id="validation-report"><%= dgettext("validations", "Validation details")%></h2>
-  <%= if show_schema_validation do %>
-    <%= render "_validation_report_schema.html" , resource: @resource, conn: @conn %>
-  <% end %>
-  <%= if show_gtfs_rt_validation do %>
-    <%= render "_validation_report_gtfs_rt.html" , resource: @resource, conn: @conn, multi_validation: @multi_validation %>
-  <% end %>
+
+<%= if show_schema_validation do %>
+  <%= render "_validation_report_schema.html", resource: @resource, conn: @conn, multi_validation: @multi_validation %>
+<% end %>
+
+<%= if show_gtfs_rt_validation do %>
+  <%= render "_validation_report_gtfs_rt.html", resource: @resource, conn: @conn, multi_validation: @multi_validation %>
+<% end %>
+
+<%= if not show_schema_validation and not show_gtfs_rt_validation do %>
+  <div class="panel">
+    <%= dgettext("validations", "No validation available") %>
+  </div>
 <% end %>

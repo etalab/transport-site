@@ -191,14 +191,6 @@ msgid "License"
 msgstr "Licence"
 
 #, elixir-autogen, elixir-format
-msgid "Specific usage conditions"
-msgstr "Conditions Particulières d'utilisation"
-
-#, elixir-autogen, elixir-format
-msgid "and "
-msgstr "et "
-
-#, elixir-autogen, elixir-format
 msgid "You're using this dataset? %{a_start}Send an email!%{a_end}"
 msgstr "Vous réutilisez ce jeu de données ? %{a_start}Envoyez-nous un message%{a_end} afin que l’on puisse en discuter et mettre en avant votre réutilisation."
 
@@ -261,10 +253,6 @@ msgstr "Fichier"
 #, elixir-autogen, elixir-format
 msgid "Get details about this dataset via an %{start_link}API call%{end_link}"
 msgstr "Récupérer des détails sur ce jeu de données via un %{start_link}appel à l'API%{end_link}"
-
-#, elixir-autogen, elixir-format
-msgid "compatible with"
-msgstr "compatible avec"
 
 #, elixir-autogen, elixir-format
 msgid "dataset"
@@ -529,3 +517,15 @@ msgstr "Les réutilisateurs peuvent partager dans cette section les modification
 #, elixir-autogen, elixir-format
 msgid ", in accordance with the share-alike clause (article 4.4) of <a href=\"%{doc_link}\" target=\"_blank\">the ODbL License</a>"
 msgstr ", conformément à la clause de partage à l’identique (article 4.4) de la <a href=\"%{doc_link}\" target=\"_blank\">licence ODbL</a>"
+
+#, elixir-autogen, elixir-format
+msgid "Feed decoding failed"
+msgstr "Le décodage du flux a échoué"
+
+#, elixir-autogen, elixir-format
+msgid "Specific usage conditions"
+msgstr "Conditions Particulières d'utilisation"
+
+#, elixir-autogen, elixir-format
+msgid "and "
+msgstr "et "
