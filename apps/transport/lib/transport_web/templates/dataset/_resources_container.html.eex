@@ -1,6 +1,11 @@
-<%= unless is_nil(@resources) or @resources == [] do %>
-  <section class="dataset__resources white">
+<% has_resources = not Enum.empty?(@resources || []) %>
+<% has_reuser_message = not is_nil(assigns[:reuser_message]) %>
+<%= if has_resources or has_reuser_message  do %>
+  <section class="dataset__resources white"<%= if assigns[:section_id] do %> id="<%= assigns[:section_id] %>"<% end %>>
     <h2><%= @title %></h2>
+    <%= if has_reuser_message do %>
+      <div class="reuser-message"><%= assigns[:reuser_message] %></div>
+    <% end %>
     <%= unless is_nil(assigns[:message]) do %>
       <div class="resources-message">
         <i class="fa fa-exclamation-triangle warning-red"></i>
