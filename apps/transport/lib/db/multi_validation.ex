@@ -80,6 +80,8 @@ defmodule DB.MultiValidation do
   end
 
   @spec resource_latest_validation(integer(), atom) :: __MODULE__.t() | nil
+  def resource_latest_validation(_, nil), do: nil
+
   def resource_latest_validation(resource_id, validator) do
     validator_name = validator.validator_name()
 

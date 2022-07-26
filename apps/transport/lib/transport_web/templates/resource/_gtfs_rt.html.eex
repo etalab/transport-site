@@ -86,9 +86,9 @@
           <i class="fa fa-copy"></i>
           <%= dgettext("page-dataset-details", "Copy to clipboard") %>
         </button>
-        <code id="feed_payload">
-          <%= inspect(@gtfs_rt_feed.feed, pretty: true, width: 120) %>
-        </code>
+          <code id="feed_payload">
+            <%= @gtfs_rt_feed |> display_gtfs_rt_feed() %>
+          </code>
     </details>
   <% end %>
 </div>

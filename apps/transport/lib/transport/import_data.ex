@@ -536,9 +536,11 @@ defmodule Transport.ImportData do
   "gtfsrt"
   iex> ImportData.clean_format("SIRI Lite")
   "sirilite"
+  iex> ImportData.clean_format("Ne[-tex")
+  "ne[tex"
   """
   def clean_format(format),
-    do: format |> String.downcase() |> String.replace(~r/[^0-9a-zA-Z]/, "")
+    do: format |> String.downcase() |> String.replace(~r/[^0-9a-zA-Z\[\]]/, "")
 
   @doc """
   Is the ressource a zip file?
