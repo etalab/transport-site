@@ -472,6 +472,40 @@ defmodule TransportWeb.ResourceControllerTest do
     refute conn2 |> html_response(200) =~ "Pas de validation disponible"
   end
 
+  test "does not crash when validation_performed is false", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset)
+
+    %{id: resource_id} =
+      insert(:resource, %{
+        dataset_id: dataset_id,
+        format: "csv",
+        schema_name: schema_name = "etalab/zfe",
+        url: "https://example.com/file"
+      })
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:schemas_by_type, 4, fn type ->
+      case type do
+        "tableschema" -> %{}
+        "jsonschema" -> %{schema_name => %{}}
+      end
+    end)
+
+    conn1 = conn |> get(resource_path(conn, :details, resource_id))
+    assert conn1 |> html_response(200) =~ "Pas de validation disponible"
+
+    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id,
+      validator: Transport.Validators.EXJSONSchema.validator_name(),
+      result: %{"validation_performed" => false}
+    })
+
+    conn2 = conn |> get(resource_path(conn, :details, resource_id))
+    assert conn2 |> html_response(200) =~ "Pas de validation disponible"
+  end
+
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
     resource = Resource |> Repo.get_by(datagouv_id: "2")
     refute Resource.can_direct_download?(resource)
