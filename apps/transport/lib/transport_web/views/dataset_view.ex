@@ -12,6 +12,8 @@ defmodule TransportWeb.DatasetView do
   alias Shared.DateTimeDisplay
   alias Transport.Validators.GTFSTransport
 
+  @gtfs_rt_validator_name Transport.Validators.GTFSRT.validator_name()
+
   @doc """
   Count the number of resources (official + community), excluding resources with a `documentation` type.
   """
@@ -250,7 +252,9 @@ defmodule TransportWeb.DatasetView do
       when is_integer(warnings_count) and warnings_count >= 0,
       do: warnings_count
 
-  def warnings_count(%DB.MultiValidation{}), do: 0
+  def warnings_count(%DB.MultiValidation{validator: @gtfs_rt_validator_name}), do: 0
+
+  def warnings_count(%DB.MultiValidation{}), do: nil
 
   # will be deprecated
   # https://github.com/etalab/transport-site/issues/2390
@@ -525,4 +529,8 @@ defmodule TransportWeb.DatasetView do
   end
 
   def multi_validation_plugged?(%Resource{}), do: false
+
+  def multi_validation_performed?(%DB.MultiValidation{result: %{"validation_performed" => false}}), do: false
+  def multi_validation_performed?(%DB.MultiValidation{}), do: true
+  def multi_validation_performed?(nil), do: false
 end
