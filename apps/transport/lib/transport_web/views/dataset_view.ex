@@ -269,8 +269,6 @@ defmodule TransportWeb.DatasetView do
       when is_integer(errors_count) and errors_count >= 0,
       do: errors_count
 
-  def errors_count(%DB.MultiValidation{}), do: nil
-
   # will be deprecated
   # https://github.com/etalab/transport-site/issues/2390
   def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => errors_count}}})
@@ -531,4 +529,8 @@ defmodule TransportWeb.DatasetView do
   end
 
   def multi_validation_plugged?(%Resource{}), do: false
+
+  def multi_validation_performed?(%DB.MultiValidation{result: %{"validation_performed" => false}}), do: false
+  def multi_validation_performed?(%DB.MultiValidation{}), do: true
+  def multi_validation_performed?(nil), do: false
 end
