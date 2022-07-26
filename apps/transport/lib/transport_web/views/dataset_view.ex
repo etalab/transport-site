@@ -533,6 +533,7 @@ defmodule TransportWeb.DatasetView do
   def multi_validation_performed?(%DB.MultiValidation{result: %{"validation_performed" => false}}), do: false
   def multi_validation_performed?(%DB.MultiValidation{}), do: true
   def multi_validation_performed?(nil), do: false
+
   @doc """
   Determines if we should display "specific usage conditions" for a dataset.
   We displays it only for datasets under the ODbL license that are not OSM exports. We use the `openstreetmap` tag as a proxy of "this is an export from OSM".
