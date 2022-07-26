@@ -47,7 +47,6 @@ new =
 
 unless File.exists?("downloads"), do: File.mkdir!("downloads")
 
-# TODO: clean-up stuff (handle proper temp folders etc)
 GTFSCompare.maybe_download(base, "downloads/base.zip")
 GTFSCompare.maybe_download(new, "downloads/new.zip")
 GTFSCompare.maybe_unpack("base.zip", base_folder = "downloads/base.zip.unpacked")
