@@ -62,10 +62,31 @@ IO.puts("Comparing...")
   )
 
 if output do
-  GitDiff.parse_patch(output, relative_from: base_stop, relative_to: new_stop)
-  |> IO.inspect(IEx.inspect_opts())
+  {:ok, result} = GitDiff.parse_patch(output, relative_from: base_stop, relative_to: new_stop)
+
+  # see https://github.com/mononym/git_diff/tree/master/lib
+  result
+  |> Enum.each(fn patch ->
+    IO.puts("===== patch =====")
+
+    patch.chunks
+    |> Enum.each(fn chunk ->
+      IO.puts("===== chunk =====")
+
+      chunk.lines
+      |> Enum.each(fn line ->
+        color =
+          %{
+            add: :green,
+            remove: :red,
+            context: :white
+          }
+          |> Map.fetch!(line.type)
+
+        IO.puts(IO.ANSI.format([color, line.text, IO.ANSI.reset()]))
+      end)
+    end)
+  end)
 else
   IO.puts("No diff in stop times")
 end
-
-IO.puts("Done compare...")
