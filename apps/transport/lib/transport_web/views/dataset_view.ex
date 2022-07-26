@@ -383,13 +383,13 @@ defmodule TransportWeb.DatasetView do
   Builds a licence.
   It looks like fr-lo has been deprecrated by data.gouv and replaced by "lov2"
   If it is confirmed, we can remove it in the future.
+
   ## Examples
-      iex> %Dataset{licence: "fr-lo"}
-      ...> |> TransportWeb.DatasetView.licence
-      "fr-lo"
-      iex> %Dataset{licence: "Libertarian"}
-      ...> |> TransportWeb.DatasetView.licence
-      "Libertarian"
+
+  iex> licence(%Dataset{licence: "fr-lo"})
+  "fr-lo"
+  iex> licence(%Dataset{licence: "Libertarian"})
+  "Libertarian"
   """
   @spec licence(Dataset.t()) :: String.t()
   def licence(%Dataset{licence: licence}) do
@@ -516,7 +516,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   @doc """
-    Temporary function to ease multi_validation transition
+  Temporary function to ease multi_validation transition
   """
   def multi_validation_plugged?(%Resource{format: format}) when format in ["GTFS", "gtfs-rt"], do: true
 
@@ -533,4 +533,21 @@ defmodule TransportWeb.DatasetView do
   def multi_validation_performed?(%DB.MultiValidation{result: %{"validation_performed" => false}}), do: false
   def multi_validation_performed?(%DB.MultiValidation{}), do: true
   def multi_validation_performed?(nil), do: false
+
+  @doc """
+  Determines if we should display "specific usage conditions" for a dataset.
+  We displays it only for datasets under the ODbL license that are not OSM exports. We use the `openstreetmap` tag as a proxy of "this is an export from OSM".
+
+  ## Examples
+
+  iex> displays_odbl_specific_usage_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo"]})
+  true
+  iex> displays_odbl_specific_usage_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo", "openstreetmap"]})
+  false
+  """
+  def displays_odbl_specific_usage_conditions?(%Dataset{licence: "odc-odbl", tags: tags}) do
+    "openstreetmap" not in tags
+  end
+
+  def displays_odbl_specific_usage_conditions?(%Dataset{}), do: false
 end
