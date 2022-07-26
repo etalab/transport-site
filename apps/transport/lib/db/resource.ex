@@ -10,7 +10,7 @@ defmodule DB.Resource do
   alias Transport.DataVisualization
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
   import Ecto.{Changeset, Query}
-  import TransportWeb.Router.Helpers, only: [resource_path: 3]
+  import TransportWeb.Router.Helpers, only: [resource_url: 3]
   require Logger
 
   typed_schema "resource" do
@@ -737,7 +737,7 @@ defmodule DB.Resource do
     cond do
       needs_stable_url?(resource) -> resource.latest_url
       can_direct_download?(resource) -> resource.url
-      true -> resource_path(conn_or_endpoint, :download, resource.id)
+      true -> resource_url(conn_or_endpoint, :download, resource.id)
     end
   end
 
