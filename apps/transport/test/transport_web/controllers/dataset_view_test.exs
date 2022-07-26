@@ -5,7 +5,7 @@ defmodule TransportWeb.DatasetViewTest do
   import DB.Factory
   import TransportWeb.DatasetView
 
-  doctest TransportWeb.DatasetView
+  doctest TransportWeb.DatasetView, import: true
 
   test "the html content of a markdown description" do
     content = "# coucou"
