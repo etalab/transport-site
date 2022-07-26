@@ -191,14 +191,6 @@ msgid "License"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Specific usage conditions"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "and "
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "You're using this dataset? %{a_start}Send an email!%{a_end}"
 msgstr ""
 
@@ -260,10 +252,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Get details about this dataset via an %{start_link}API call%{end_link}"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "compatible with"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -532,4 +520,12 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Feed decoding failed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Specific usage conditions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "and "
 msgstr ""

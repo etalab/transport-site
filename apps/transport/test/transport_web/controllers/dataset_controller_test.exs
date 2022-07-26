@@ -210,6 +210,54 @@ defmodule TransportWeb.DatasetControllerTest do
     assert conn |> html_response(200) =~ "Ressources temps réel"
   end
 
+  test "ODbL licence with specific conditions", %{conn: conn} do
+    insert(:dataset, %{slug: slug = "dataset-slug", licence: "odc-odbl"})
+
+    set_empty_mocks()
+
+    conn = conn |> get(dataset_path(conn, :details, slug))
+    assert conn |> html_response(200) =~ "Conditions Particulières"
+  end
+
+  test "ODbL licence with openstreetmap tag", %{conn: conn} do
+    insert(:dataset, %{slug: slug = "dataset-slug", licence: "odc-odbl", tags: ["openstreetmap"]})
+
+    set_empty_mocks()
+
+    conn = conn |> get(dataset_path(conn, :details, slug))
+    refute conn |> html_response(200) =~ "Conditions Particulières"
+  end
+
+  test "does not crash when validation_performed is false", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug"})
+
+    %{id: resource_id} =
+      insert(:resource, %{
+        dataset_id: dataset_id,
+        format: "geojson",
+        schema_name: schema_name = "etalab/zfe",
+        url: "https://example.com/file"
+      })
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:schemas_by_type, 2, fn type ->
+      case type do
+        "tableschema" -> %{}
+        "jsonschema" -> %{schema_name => %{}}
+      end
+    end)
+
+    insert(:multi_validation, %{
+      resource_history: insert(:resource_history, %{resource_id: resource_id}),
+      validator: Transport.Validators.EXJSONSchema.validator_name(),
+      result: %{"validation_performed" => false}
+    })
+
+    set_empty_mocks()
+
+    conn |> get(dataset_path(conn, :details, slug)) |> html_response(200)
+  end
+
   defp set_empty_mocks do
     Datagouvfr.Client.Reuses.Mock |> expect(:get, fn _ -> {:ok, []} end)
     Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _ -> %{} end)
