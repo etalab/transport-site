@@ -19,8 +19,7 @@ defmodule GTFSCompare do
     unless File.exists?(local_folder) do
       File.mkdir!(local_folder)
 
-      {output, 0} =
-        System.cmd("unzip", ["../" <> local_file], cd: local_folder, stderr_to_stdout: true)
+      {output, 0} = System.cmd("unzip", ["../" <> local_file], cd: local_folder, stderr_to_stdout: true)
     end
   end
 
