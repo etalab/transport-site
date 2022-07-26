@@ -8,8 +8,8 @@
     <% end %>
     <div class="pb-24"><%= description(@resource) %></div>
   </div>
-  <div class="community-resource-download">
-    <a href="<%= DB.Resource.download_url(@resource) %>">
+  <div class="community-resource-download">coucou
+    <a href={DB.Resource.download_url(@resource)}>
       <button class="button-outline primary small"><i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %></button>
     </a>
   </div>
