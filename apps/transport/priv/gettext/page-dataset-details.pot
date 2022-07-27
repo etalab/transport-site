@@ -323,11 +323,11 @@ msgid "Dataset modes"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Features available in the resource :"
+msgid "Features available in the resource:"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Missing features that can be specified in GTFS :"
+msgid "Missing features that can be specified in GTFS:"
 msgstr ""
 
 #, elixir-autogen, elixir-format
