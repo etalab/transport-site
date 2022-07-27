@@ -197,9 +197,18 @@ defmodule DB.ResourceTest do
 
     refute ["couleurs des lignes"] == Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0})
 
+    refute ["couleurs des lignes"] == Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => nil})
+
+    refute ["couleurs des lignes"] == Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0, "lines_count" => 5})
+
+    assert ["couleurs des lignes"] == Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 5, "lines_count" => 5})
+
+
+
     assert ["tarifs"] == Resource.find_tags_from_metadata(%{"has_fares" => true})
     assert ["tracés de lignes"] == Resource.find_tags_from_metadata(%{"has_shapes" => true})
     assert ["description des correspondances"] == Resource.find_tags_from_metadata(%{"has_pathways" => true})
+
   end
 
   test "get resource related geojson infos" do
