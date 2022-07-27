@@ -529,3 +529,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "and "
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Producers can share in this section design guidelines, documentation, etc. Use the <a href=\"%{url}\" target=\"_blank\">documentation type</a> on data.gouv.fr."
+msgstr ""
