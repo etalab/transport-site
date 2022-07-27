@@ -206,7 +206,7 @@ defmodule DB.ResourceTest do
         "lines_with_custom_color_count" => 0,
         "has_fares" => false,
         "has_pathways" => true
-      }) == ["has_pathways"]
+      }) == ["description des correspondances"]
     )
 
     assert(Resource.find_tags_from_metadata(%{}) == [])
