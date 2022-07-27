@@ -199,15 +199,11 @@ defmodule DB.ResourceTest do
     assert ["couleurs des lignes"] ==
              Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 5, "lines_count" => 5})
 
-    asert(Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0, "has_fares" => false} == []))
+    asert Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0, "has_fares" => false}) == []
 
-    asert(
-      Resource.find_tags_from_metadata(
-        %{"lines_with_custom_color_count" => 0, "has_fares" => false, "has_pathways" => true} == ["has_pathways"]
-      )
-    )
+    asert Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0, "has_fares" => false, "has_pathways" => true}) == ["has_pathways"]
 
-    asert(Resource.find_tags_from_metadata(%{} == []))
+    asert Resource.find_tags_from_metadata(%{}) == []
 
     refute ["couleurs des lignes"] == Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => nil})
 
