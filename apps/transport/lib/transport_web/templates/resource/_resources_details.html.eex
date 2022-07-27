@@ -24,14 +24,14 @@
       <li><%= dgettext("validations", "number of stop areas")%> : <strong><%= @metadata["stop_areas_count"]%></strong></li>
     <% end %>
 
-    <li><%= dgettext("page-dataset-details", "Features available in the resource :") %></li>
+    <li><%= dgettext("page-dataset-details", "Features available in the resource:") %></li>
     <div>
     <% found_tags = DB.Resource.find_tags_from_metadata(@metadata) %>
     <%= for tag <- found_tags do %>
       <span class="label mode"><%=tag %></span>
     <% end %>
 
-    <li><%= dgettext("page-dataset-details", "Missing features that can be specified in GTFS :") %></li>
+    <li><%= dgettext("page-dataset-details", "Missing features that can be specified in GTFS:") %></li>
     <%= for tag <- DB.Resource.existing_gtfs_tags() -- found_tags do %>
         <span class="label"><%=tag %></span>
     <% end %>
