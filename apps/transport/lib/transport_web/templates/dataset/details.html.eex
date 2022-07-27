@@ -64,19 +64,13 @@
       </section>
     <% end %>
     <section id="dataset-resources" class="pt-48">
-
       <% gtfs_official_resources= gtfs_official_resources(@dataset) %>
-      <% show_history_section_link= @history_resources !== [] and gtfs_official_resources !== [] %>
-
-      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: gtfs_official_resources, resources_related_files: @resources_related_files, dataset: @dataset, title: dgettext("page-dataset-details", "GTFS resources"), show_history_section_link: show_history_section_link %>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: gtfs_official_resources, resources_related_files: @resources_related_files, dataset: @dataset, title: dgettext("page-dataset-details", "GTFS resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: real_time_official_resources(@dataset), title: dgettext("page-dataset-details", "Real time resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: netex_official_resources(@dataset), title: dgettext("page-dataset-details", "NeTEx resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: other_official_resources(@dataset), title: dgettext("page-dataset-details", "Resources"), latest_resources_history_infos: @latest_resources_history_infos %>
-      <%= if count_documentation_resources(@dataset) > 0 do %>
-        <section id="dataset-documentation" class="pt-48">
-          <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: official_documentation_resources(@dataset), title: dgettext("page-dataset-details", "Documentation"), latest_resources_history_infos: @latest_resources_history_infos %>
-        </section>
-      <% end %>
+      <%= render "_history_message.html", count_history_resources: Enum.count(@history_resources) %>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: official_documentation_resources(@dataset), title: dgettext("page-dataset-details", "Documentation"), latest_resources_history_infos: @latest_resources_history_infos, reuser_message: dgettext("page-dataset-details", ~s(Producers can share in this section design guidelines, documentation, etc. Use the <a href="%{url}" target="_blank">documentation type</a> on data.gouv.fr.), url: "https://doc.data.gouv.fr/jeux-de-donnees/publier-un-jeu-de-donnees/#type") |> raw(), section_id: "dataset-documentation" %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: unavailable_resources(@dataset), dataset: @dataset, title: dgettext("page-dataset-details", "unavailable resources"), message: dgettext("page-dataset-details", "Those resources are listed by the provider but are unreachable for now"), latest_resources_history_infos: @latest_resources_history_infos%>
 
       <%= render "_reuser_message.html" %>
