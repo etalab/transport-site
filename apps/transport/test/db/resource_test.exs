@@ -194,20 +194,22 @@ defmodule DB.ResourceTest do
   test "find_tags_from_metadata" do
     assert ["transport à la demande"] == Resource.find_tags_from_metadata(%{"some_stops_need_phone_agency" => true})
     assert ["transport à la demande"] == Resource.find_tags_from_metadata(%{"some_stops_need_phone_driver" => true})
-
-    asert(Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0, "has_fares" => false}) == [])
+    assert ["description des correspondances"] == Resource.find_tags_from_metadata(%{"has_pathways" => true})
+    assert ["couleurs des lignes"] ==
+      Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 5, "lines_count" => 5})
+    asert Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0, "has_fares" => false} == [])
+    asert Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0, "has_fares" => false,"has_pathways" => true } == ["has_pathways"])
+    asert Resource.find_tags_from_metadata(%{} == [])
 
     refute ["couleurs des lignes"] == Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => nil})
 
     refute ["couleurs des lignes"] ==
              Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0, "lines_count" => 5})
 
-    assert ["couleurs des lignes"] ==
-             Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 5, "lines_count" => 5})
 
     assert ["tarifs"] == Resource.find_tags_from_metadata(%{"has_fares" => true})
     assert ["tracés de lignes"] == Resource.find_tags_from_metadata(%{"has_shapes" => true})
-    assert ["description des correspondances"] == Resource.find_tags_from_metadata(%{"has_pathways" => true})
+
   end
 
   test "get resource related geojson infos" do
