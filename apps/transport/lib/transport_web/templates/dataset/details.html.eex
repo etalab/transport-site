@@ -64,14 +64,12 @@
       </section>
     <% end %>
     <section id="dataset-resources" class="pt-48">
-
       <% gtfs_official_resources= gtfs_official_resources(@dataset) %>
-      <% show_history_section_link= @history_resources !== [] and gtfs_official_resources !== [] %>
-
-      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: gtfs_official_resources, resources_related_files: @resources_related_files, dataset: @dataset, title: dgettext("page-dataset-details", "GTFS resources"), show_history_section_link: show_history_section_link %>
+      <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: gtfs_official_resources, resources_related_files: @resources_related_files, dataset: @dataset, title: dgettext("page-dataset-details", "GTFS resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: real_time_official_resources(@dataset), title: dgettext("page-dataset-details", "Real time resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: netex_official_resources(@dataset), title: dgettext("page-dataset-details", "NeTEx resources") %>
       <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: other_official_resources(@dataset), title: dgettext("page-dataset-details", "Resources"), latest_resources_history_infos: @latest_resources_history_infos %>
+      <%= render "_history_message.html", count_history_resources: Enum.count(@history_resources) %>
       <%= if count_documentation_resources(@dataset) > 0 do %>
         <section id="dataset-documentation" class="pt-48">
           <%= render TransportWeb.DatasetView, "_resources_container.html", conn: @conn, resources_infos: @resources_infos, resources: official_documentation_resources(@dataset), title: dgettext("page-dataset-details", "Documentation"), latest_resources_history_infos: @latest_resources_history_infos %>
