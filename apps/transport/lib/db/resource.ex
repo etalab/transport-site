@@ -408,12 +408,21 @@ defmodule DB.Resource do
   end
 
   def find_tags_from_metadata(metadata) do
-    metadata
-    |> has_fares_tag()
-    |> Enum.concat(has_shapes_tag(metadata))
-    |> Enum.concat(has_odt_tag(metadata))
-    |> Enum.concat(has_route_colors_tag(metadata))
-    |> Enum.concat(has_pathways_tag(metadata))
+    tags =
+      metadata
+      |> has_fares_tag()
+      |> Enum.concat(has_shapes_tag(metadata))
+      |> Enum.concat(has_odt_tag(metadata))
+      |> Enum.concat(has_route_colors_tag(metadata))
+      |> Enum.concat(has_pathways_tag(metadata))
+
+    Enum.each(tags, fn tag ->
+      if tag not in existing_gtfs_tags() do
+        raise "`#{tag}` is not a known tag"
+      end
+    end)
+
+    tags
   end
 
   def existing_gtfs_tags,
