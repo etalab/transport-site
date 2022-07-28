@@ -17,7 +17,7 @@ defmodule Transport.Validators.GBFSValidatorTest do
     assert GBFSValidator.validator_version() == sha
   end
 
-  test "inserts the expected data in the database" do
+  test "validate_and_save inserts the expected data in the database" do
     %DB.Resource{id: resource_id} =
       resource = insert(:resource, url: url = "https://example.com/gbfs.json", format: "gbfs")
 
@@ -71,6 +71,7 @@ defmodule Transport.Validators.GBFSValidatorTest do
                "version_validated" => "1.1"
              },
              validated_data_name: ^url,
+             command: "https://gbfs-validator.netlify.app/.netlify/functions/validator",
              validator: "MobilityData/gbfs-validator",
              validator_version: ^validator_version
            } = DB.MultiValidation |> DB.Repo.one!() |> DB.Repo.preload(:metadata)
