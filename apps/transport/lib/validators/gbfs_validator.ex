@@ -1,6 +1,6 @@
 defmodule Transport.Validators.GBFSValidator do
   @moduledoc """
-  Validate a file against a Table Schema schema using [the Validata API](https://validata.fr).
+  Validate and extract metadata for GBFS feed using [the MobilityData GBFS validator](https://gbfs-validator.netlify.app) and our own metadata extractor.
   """
   # https://github.com/etalab/transport-site/issues/2390
   # Plan to move the other validator here as we deprecate
