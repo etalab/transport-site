@@ -11,7 +11,7 @@ defmodule Transport.Validators.GBFSValidator do
   @behaviour Transport.Validators.Validator
 
   @impl Transport.Validators.Validator
-  def validate_and_save(%DB.Resource{url: url, type: "gbfs", id: resource_id}) do
+  def validate_and_save(%DB.Resource{url: url, format: "gbfs", id: resource_id}) do
     result = GBFSMetadata.compute_feed_metadata(url, "https://#{Application.fetch_env!(:transport, :domain_name)}")
 
     %DB.MultiValidation{
@@ -20,7 +20,10 @@ defmodule Transport.Validators.GBFSValidator do
       validated_data_name: url,
       validator: validator_name(),
       result: Map.fetch!(result, :validation),
-      metadata: Map.reject(result, fn {key, _val} -> key == :validation end),
+      metadata: %DB.ResourceMetadata{
+        metadata: Map.reject(result, fn {key, _val} -> key == :validation end),
+        resource_id: resource_id
+      },
       resource_id: resource_id,
       validator_version: validator_version()
     }
@@ -30,7 +33,7 @@ defmodule Transport.Validators.GBFSValidator do
   end
 
   @impl Transport.Validators.Validator
-  def validator_name, do: "validata-api"
+  def validator_name, do: @github_repository
 
   defp validator_command, do: Application.fetch_env!(:transport, :gbfs_validator_url)
 
