@@ -2,8 +2,8 @@ defmodule Transport.Validators.GBFSValidatorTest do
   use ExUnit.Case, async: true
   import DB.Factory
   import Mox
-  alias Transport.Validators.GBFSValidator
   alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
+  alias Transport.Validators.GBFSValidator
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
