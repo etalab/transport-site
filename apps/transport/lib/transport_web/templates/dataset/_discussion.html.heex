@@ -1,5 +1,5 @@
 <% locale = get_session(@conn, :locale) %>
-<div class="discussion" id="discussion-<%= @discussion["id"] %>">
+<div class="discussion" id="discussion-{@discussion["id"]}">
   <h4><i class="fas fa-comments"></i> <%= @discussion["title"] %> </h4>
 
   <%= for comment <- @discussion["discussion"] do %>
