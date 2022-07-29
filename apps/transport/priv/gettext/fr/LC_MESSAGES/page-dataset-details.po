@@ -327,8 +327,8 @@ msgid "Features available in the resource:"
 msgstr "Données présentes dans la ressource :"
 
 #, elixir-autogen, elixir-format
-msgid "Modes available in the resource:"
-msgstr "Modes de transport disponibles dans la ressource :"
+msgid "Missing features that can be specified in GTFS:"
+msgstr "Données absentes mais possibles à modéliser en GTFS :"
 
 #, elixir-autogen, elixir-format
 msgid "unavailable resources"
@@ -529,3 +529,7 @@ msgstr "Conditions Particulières d'utilisation"
 #, elixir-autogen, elixir-format
 msgid "and "
 msgstr "et "
+
+#, elixir-autogen, elixir-format
+msgid "Producers can share in this section design guidelines, documentation, etc. Use the <a href=\"%{url}\" target=\"_blank\">documentation type</a> on data.gouv.fr."
+msgstr "Les producteurs peuvent partager dans cette section : charte graphique, documentation, etc. Utilisez <a href=\"%{url}\" target=\"_blank\">le type documentation</a> sur data.gouv.fr."
