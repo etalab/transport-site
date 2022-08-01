@@ -55,7 +55,7 @@
             <div class="is-centered"><%= dgettext("page-dataset-details", "Visualization of the resource")%> "<%= displayResource.title %>".</div>
           <% end %>
         </div>
-        <script src="<%= static_path(@conn, "/js/resourceviz.js") %>"></script>
+        <script src={static_path(@conn, "/js/resourceviz.js")}></script> coucou
         <script>
           document.addEventListener("DOMContentLoaded", function() {
             createMap('map', "<%= displayResource.url %>", "<%= displayResource.format %>", "<%= get_session(@conn, :locale) %>")
@@ -87,7 +87,7 @@
         <div class="reuses">
           <%= for reuse <- @reuses do %>
             <div class="panel reuse">
-              <img src="<%= reuse["image"] %>" alt="<%= reuse["title"] %>">
+              <img src={reuse["image"]} alt={reuse["title"]}> coucou
               <div class="reuse__links">
                 <%= link(
                   dgettext("page-dataset-details", "Website"),
@@ -276,7 +276,7 @@
   </div>
 </div>
 </div>
-<script src="<%= static_path(@conn, "/js/datasetmap.js") %>"></script>
+<script src={static_path(@conn, "/js/datasetmap.js")}></script> coucou
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     createDatasetMap('dataset-covered-area-map', "<%= @dataset.datagouv_id %>")
