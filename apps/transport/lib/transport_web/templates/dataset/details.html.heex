@@ -77,7 +77,6 @@
         </div>
         <script src={static_path(@conn, "/js/resourceviz.js")}>
         </script>
-        coucou
         <script>
           document.addEventListener("DOMContentLoaded", function() {
             createMap('map', "<%= displayResource.url %>", "<%= displayResource.format %>", "<%= get_session(@conn, :locale) %>")
@@ -155,7 +154,7 @@
         <div class="reuses">
           <%= for reuse <- @reuses do %>
             <div class="panel reuse">
-              <img src={reuse["image"]} alt={reuse["title"]} /> coucou
+              <img src={reuse["image"]} alt={reuse["title"]} />
               <div class="reuse__links">
                 <%= link(
                   dgettext("page-dataset-details", "Website"),
@@ -373,7 +372,6 @@
 </div>
 <script src={static_path(@conn, "/js/datasetmap.js")}>
 </script>
-coucou
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     createDatasetMap('dataset-covered-area-map', "<%= @dataset.datagouv_id %>")
