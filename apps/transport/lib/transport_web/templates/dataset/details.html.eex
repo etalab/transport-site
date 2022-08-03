@@ -28,6 +28,11 @@
       <%= unless is_nil(@reuses) or @reuses == [] do %>
         <div class="menu-item"><a href="#dataset-reuses"><%= dgettext("page-dataset-details", "Reuses")%></a></div>
       <% end %>
+
+      <%= unless community_resources(@dataset) == 0 do %>
+      <div class="menu-item"><a href="#Community-resources"><%= dgettext("page-dataset-details", "Community resources")%></a></div>
+      <% end %>
+
       <div class="menu-item"><a href="#dataset-discussions">Discussions (<%= count_discussions(@discussions) %>)</a></div>
       <%= unless @history_resources == [] do %>
         <div class="menu-item"><a href="#backed-up-resources"><%= dgettext("page-dataset-details", "Backed up resources")%></a></div>
