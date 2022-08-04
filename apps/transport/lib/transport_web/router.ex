@@ -60,6 +60,7 @@ defmodule TransportWeb.Router do
     scope "/explore" do
       get("/", ExploreController, :index)
       get("/vehicle-positions", ExploreController, :vehicle_positions)
+      get("/siri", ExploreController, :siri)
     end
 
     scope "/datasets" do

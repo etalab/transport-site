@@ -10,4 +10,9 @@ defmodule TransportWeb.ExploreController do
     conn
     |> redirect(to: explore_path(conn, :index))
   end
+
+  def siri(conn, _params) do
+    conn
+    |> render("siri.html")
+  end
 end
