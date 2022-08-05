@@ -29,7 +29,9 @@
         </a>
       </div>
       <%= unless community_resources(@dataset) == 0 do %>
-      <div class="menu-item"><a href="#Community-resources"><%= dgettext("page-dataset-details", "Community resources")%></a></div>
+        <div class="menu-item">
+          <a href="#Community-resources"><%= dgettext("page-dataset-details", "Community resources") %></a>
+        </div>
       <% end %>
       <%= unless count_documentation_resources(@dataset) == 0 do %>
         <div class="menu-item">
