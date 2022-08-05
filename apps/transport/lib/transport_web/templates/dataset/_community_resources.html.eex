@@ -1,4 +1,4 @@
-<section class="dataset__resources white">
+<section class="dataset__resources white" id="Community-resources">
   <h3><%= dgettext("page-dataset-details", "Community resources" )%></h3>
   <section class="dataset__resources">
     <div class="reuser-message">
