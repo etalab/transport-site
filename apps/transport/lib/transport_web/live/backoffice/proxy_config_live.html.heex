@@ -1,41 +1,53 @@
 <section class="container pt-48 pb-48">
-    <h1>Configuration du Proxy</h1>
-    <a class="button" phx-click="refresh_proxy_config">Recharger la configuration</a>
-    <p>Attention: il faut attendre 5 minutes après le dernier commit sur la <a href="https://github.com/etalab/transport-proxy-config/blob/master/proxy-config.yml">configuration GitHub</a> pour recharger, car GitHub met en cache ses propre fichiers.</p>
-    <p>Les items SIRI sont affichés mais sans métriques et avec des informations manquantes (ex: requestor_ref) pour l'instant</p>
-    <table class="table mt-48">
-        <thead>
-            <tr>
-                <th>Identifiant</th>
-                <th>URL proxy</th>
-                <th>Donnée cible</th>
-                <th title="Time To Live (durée en secondes de conservation dans le cache">TTL</th>
-                <th>Taille RAM</th>
-                <th>Statut HTTP</th>
-                <th><abbr title="Time to Live">TTL</abbr></th>
-                <th title="Requêtes reçues par le proxy sur les {@stats_days } derniers jours">Req ext <%= @stats_days %>j</th>
-                <th title="Requêtes envoyées au serveur du producteur sur les { @stats_days } derniers jours">Req int <%= @stats_days %>j</th>
-            </tr>
-        </thead>
-        <tbody>
-            <%= for resource <- @proxy_configuration do %>
-            <tr>
-                <td><%= resource.unique_slug %></td>
-                <% # TODO: use regular link helper %>
-                <td><a href={resource.proxy_url}>lien</a></td>
-                <td><a href={resource.original_url }>lien</a></td>
-                <td><%= resource.ttl %></td>
-                <!-- optional stuff, only available when cache is loaded -->
-                <td><%= resource[:cache_size] %></td>
-                <td><%= resource[:cache_status] %></td>
-                <td><%= resource[:cache_ttl] %></td>
-                <!-- computed stuff -->
-                <td><%= Helpers.format_number(resource[:stats_external_requests]) %></td>
-                <td><%= Helpers.format_number(resource[:stats_internal_requests]) %></td>
-            </tr>
-            <% end %>
-        </tbody>
-    </table>
-    <p class="small">Dernière mise à jour: <%= @last_updated_at %></p>
+  <h1>Configuration du Proxy</h1>
+  <a class="button" phx-click="refresh_proxy_config">Recharger la configuration</a>
+  <p>
+    Attention: il faut attendre 5 minutes après le dernier commit sur la
+    <a href="https://github.com/etalab/transport-proxy-config/blob/master/proxy-config.yml">configuration GitHub</a>
+    pour recharger, car GitHub met en cache ses propre fichiers.
+  </p>
+  <p>
+    Les items SIRI sont affichés mais sans métriques et avec des informations manquantes (ex: requestor_ref) pour l'instant
+  </p>
+  <table class="table mt-48">
+    <thead>
+      <tr>
+        <th>Identifiant</th>
+        <th>URL proxy</th>
+        <th>Donnée cible</th>
+        <th title="Time To Live (durée en secondes de conservation dans le cache">TTL</th>
+        <th>Taille RAM</th>
+        <th>Statut HTTP</th>
+        <th><abbr title="Time to Live">TTL</abbr></th>
+        <th title="Requêtes reçues par le proxy sur les {@stats_days } derniers jours">
+          Req ext <%= @stats_days %>j
+        </th>
+        <th title="Requêtes envoyées au serveur du producteur sur les { @stats_days } derniers jours">
+          Req int <%= @stats_days %>j
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for resource <- @proxy_configuration do %>
+        <tr>
+          <td><%= resource.unique_slug %></td>
+          <% # TODO: use regular link helper %>
+          <td><a href={resource.proxy_url}>lien</a></td>
+          <td><a href={resource.original_url}>lien</a></td>
+          <td><%= resource.ttl %></td>
+          <!-- optional stuff, only available when cache is loaded -->
+          <td><%= resource[:cache_size] %></td>
+          <td><%= resource[:cache_status] %></td>
+          <td><%= resource[:cache_ttl] %></td>
+          <!-- computed stuff -->
+          <td><%= Helpers.format_number(resource[:stats_external_requests]) %></td>
+          <td><%= Helpers.format_number(resource[:stats_internal_requests]) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <p class="small">Dernière mise à jour: <%= @last_updated_at %></p>
 </section>
-<script defer type="text/javascript" src="/js/app.js") %>></script>
+<script defer type="text/javascript" src="/js/app.js" ) %>
+  >
+</script>
