@@ -13,8 +13,8 @@
                 <th>Taille RAM</th>
                 <th>Statut HTTP</th>
                 <th><abbr title="Time to Live">TTL</abbr></th>
-                <th title="Requêtes reçues par le proxy sur les <%= @stats_days %> derniers jours">Req ext <%= @stats_days %>j</th>
-                <th title="Requêtes envoyées au serveur du producteur sur les <%= @stats_days %> derniers jours">Req int <%= @stats_days %>j</th>
+                <th title="Requêtes reçues par le proxy sur les {@stats_days } derniers jours">Req ext <%= @stats_days %>j</th>
+                <th title="Requêtes envoyées au serveur du producteur sur les { @stats_days } derniers jours">Req int <%= @stats_days %>j</th>
             </tr>
         </thead>
         <tbody>
@@ -22,8 +22,8 @@
             <tr>
                 <td><%= resource.unique_slug %></td>
                 <% # TODO: use regular link helper %>
-                <td><a href="<%= resource.proxy_url %>">lien</a></td>
-                <td><a href="<%= resource.original_url %>">lien</a></td>
+                <td><a href={resource.proxy_url}>lien</a></td>
+                <td><a href={resource.original_url }>lien</a></td>
                 <td><%= resource.ttl %></td>
                 <!-- optional stuff, only available when cache is loaded -->
                 <td><%= resource[:cache_size] %></td>
