@@ -1,11 +1,11 @@
 <footer class="footer" id="footer">
-  <a href="#mail_form" class="mail__button" aria-label="<%= dgettext("page-index", "Ask for help") %>">
+  <a href="#mail_form" class="mail__button" aria-label={dgettext("page-index", "Ask for help")}>
     <i class="fas icon--envelope"></i>
     <span><%= dgettext("page-index", "Ask for help") %></span>
   </a>
   <div class="modal__backdrop" id="mail_form">
     <div class="footer__contact">
-      <a class="footer__contact--close" href="#" aria-label="<%= dgettext("page-index", "Close the form") %>">
+      <a class="footer__contact--close" href="#" aria-label={ dgettext("page-index", "Close the form")}>
         <i class="fas icon--times-circle"></i>
       </a>
       <%= form_for @conn, contact_path(@conn, :send_mail), fn f -> %>
@@ -26,7 +26,7 @@
   <ul class="footer__links">
     <%= if assigns[:contact_email] do %>
       <li>
-        <a class="footer__link footer__link--contact" href='mailto:<%= @contact_email %>'>
+        <a class="footer__link footer__link--contact" href='mailto:{ @contact_email}'>
           <%= gettext "Contact" %>
         </a>
       </li>
@@ -46,7 +46,7 @@
       </a>
     </li>
     <li>
-      <a class="footer__link" href="<%= page_path(@conn, :accessibility) %>">
+      <a class="footer__link" href={ page_path(@conn, :accessibility)}>
         <%= gettext "Accessibility: non-compliant" %>
       </a>
     </li>
