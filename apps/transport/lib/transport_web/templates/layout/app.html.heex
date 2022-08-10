@@ -1,31 +1,31 @@
 <!DOCTYPE html>
-<html lang="<%= get_session(@conn, :locale) %>">
+<html lang={get_session(@conn, :locale)}>
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="DINSIC">
-    <meta name="csrf" content="<%= get_csrf_token() %>">
+    <meta name="csrf" content={get_csrf_token()}>
 
     <% seo = metadata(Phoenix.Controller.view_module(@conn), assigns) %>
     <% title = seo[:title] || dgettext("seo", "National Access Point for transport open data") %>
     <% description = seo[:description] || dgettext("seo", "Publish, improve and reuse French public transport data") %>
-    <meta name="description" content="<%= description %>">
+    <meta name="description" content={description}>
     <title><%= title  %></title>
 
-    <meta property="og:title" content="<%= title %>" />
-    <meta property="og:image" content="<%= static_url(@conn, "/images/transport-social-share.png") %>" />
+    <meta property="og:title" content={title} />
+    <meta property="og:image" content={static_url(@conn, "/images/transport-social-share.png")}/>
     <meta property="og:type" content="website" />
-    <meta property="og:description" content="<%= description %>" />
-    <meta property="og:locale" content="<%= get_session(@conn, :locale) %>" />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content={get_session(@conn, :locale)} />
 
     <meta name="twitter:card" content="summary" />
-    <meta property="twitter:title" content="<%= title %>" />
-    <meta property="twitter:image" content="<%= static_url(@conn, "/images/transport-social-share.png") %>" />
-    <meta property="twitter:description" content="<%= description %>" />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:image" content={static_url(@conn, "/images/transport-social-share.png")} />
+    <meta property="twitter:description" content={description} />
 
-    <link rel="stylesheet" media="all" href="<%= static_path(@conn, "/css/app.css") %>">
-    <link rel="alternate" type="application/atom+xml" href="<%= atom_url(@conn, :index) %>" title="Resources feed" >
+    <link rel="stylesheet" media="all" href={static_path(@conn, "/css/app.css")}>
+    <link rel="alternate" type="application/atom+xml" href={atom_url(@conn, :index)} title="Resources feed" >
     <%= if assigns[:mix_env] == :prod do %>
     <!-- Polyfill for css grid-->
     <script type="text/javascript">
