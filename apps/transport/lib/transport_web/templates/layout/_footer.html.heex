@@ -1,0 +1,63 @@
+<footer class="footer" id="footer">
+  <a href="#mail_form" class="mail__button" aria-label={dgettext("page-index", "Ask for help")}>
+    <i class="fas icon--envelope"></i>
+    <span><%= dgettext("page-index", "Ask for help") %></span>
+  </a>
+  <div class="modal__backdrop" id="mail_form">
+    <div class="footer__contact">
+      <a class="footer__contact--close" href="#" aria-label={dgettext("page-index", "Close the form")}>
+        <i class="fas icon--times-circle"></i>
+      </a>
+      <%= form_for @conn, contact_path(@conn, :send_mail), fn f -> %>
+        <h3>Contact</h3>
+        <%= email_input(f, :email, placeholder: gettext("Email address")) %>
+        <%= text_input(f, :name,
+          placeholder: "your name",
+          class: "form-special-field",
+          tabindex: "-1",
+          autocomplete: "off"
+        ) %>
+        <%= text_input(f, :topic, value: gettext("Question about transport.data.gouv.fr")) %>
+        <%= textarea(f, :demande, placeholder: gettext("Ask for help")) %>
+        <%= submit(gettext("Send email")) %>
+      <% end %>
+    </div>
+  </div>
+  <div class="container">
+    <div class="footer__logo">
+      <%= link("Ministère chargé des transports",
+        to: "https://www.ecologique-solidaire.gouv.fr/",
+        class: "ministere-link"
+      ) %>
+      <%= link(img_tag("/images/logo-footer.svg", alt: "transport.data.gouv.fr"), to: "/") %>
+    </div>
+    <ul class="footer__links">
+      <%= if assigns[:contact_email] do %>
+        <li>
+          <a class="footer__link footer__link--contact" href="mailto:{ @contact_email}">
+            <%= gettext("Contact") %>
+          </a>
+        </li>
+      <% end %>
+      <li>
+        <a class="footer__link" href="https://doc.transport.data.gouv.fr/reutilisateurs/apis/">API</a>
+      </li>
+      <li>
+        <a class="footer__link" href="https://doc.transport.data.gouv.fr/foire-aux-questions-1/generalites">FAQ</a>
+      </li>
+      <li>
+        <a class="footer__link" href="https://github.com/etalab/transport-site/"><%= gettext("Source code") %></a>
+      </li>
+      <li>
+        <a class="footer__link" href="/legal">
+          <%= gettext("Legal Information") %>
+        </a>
+      </li>
+      <li>
+        <a class="footer__link" href={page_path(@conn, :accessibility)}>
+          <%= gettext("Accessibility: non-compliant") %>
+        </a>
+      </li>
+    </ul>
+  </div>
+</footer>
