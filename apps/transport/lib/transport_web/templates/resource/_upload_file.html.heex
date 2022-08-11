@@ -5,5 +5,5 @@
       <%= dgettext("resource", "Current file: %{current_file}", current_file: Path.basename(@resource["url"])) %>
     </p>
   <% end %>
-  <%= file_input @f, :resource_file %>
+  <%= file_input(@f, :resource_file) %>
 </div>

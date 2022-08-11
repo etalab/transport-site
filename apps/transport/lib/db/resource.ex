@@ -629,7 +629,7 @@ defmodule DB.Resource do
   def is_siri?(_), do: false
 
   @spec is_siri_lite?(__MODULE__.t()) :: boolean
-  def is_siri_lite?(%__MODULE__{format: "SIRI lite"}), do: true
+  def is_siri_lite?(%__MODULE__{format: "SIRI Lite"}), do: true
   def is_siri_lite?(_), do: false
 
   @spec is_documentation?(__MODULE__.t()) :: boolean
