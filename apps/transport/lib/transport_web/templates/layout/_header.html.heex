@@ -13,7 +13,7 @@
         </div>
       </a>
       <div id="menu">
-        <a id="close-menu" href="#" aria-label="<%= dgettext("page-index", "Close the menu") %>">
+        <a id="close-menu" href="#" aria-label={dgettext("page-index", "Close the menu")}>
           <i class="fas icon--times-circle"></i>&nbsp
         </a>
         <ul class="nav__links top-nav-links">
@@ -24,7 +24,9 @@
             <div class="dropdown">
               <%= gettext("Tools") %>
               <div class="dropdown-content">
-                <%= link(gettext("Check the quality of a file or a feed"), to: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)) %>
+                <%= link(gettext("Check the quality of a file or a feed"),
+                  to: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)
+                ) %>
                 <%= link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank") %>
                 <%= link(gettext("GTFS-RT vehicle positions"), to: explore_path(@conn, :vehicle_positions)) %>
               </div>
@@ -38,7 +40,11 @@
               <%= gettext("Regulation") %>
               <div class="dropdown-content">
                 <%= link(gettext("Standards"), to: "https://normes.transport.data.gouv.fr", target: "_blank") %>
-                <%= link(gettext("Declaration of conformity"), to: "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/declaration-de-conformite", target: "_blank") %>
+                <%= link(gettext("Declaration of conformity"),
+                  to:
+                    "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/declaration-de-conformite",
+                  target: "_blank"
+                ) %>
               </div>
             </div>
           </li>
@@ -51,40 +57,46 @@
                 <div class="user-name-display">
                   <span class="nav__username">
                     <%= if assigns[:current_user]["first_name"] && assigns[:current_user]["last_name"] do %>
-                        <%= assigns[:current_user]["first_name"] %> <%= assigns[:current_user]["last_name"] %>
+                      <%= assigns[:current_user]["first_name"] %> <%= assigns[:current_user]["last_name"] %>
                     <% else %>
-                        <%= gettext("My account") %>
+                      <%= gettext("My account") %>
                     <% end %>
                   </span>
                   <%= if assigns[:current_user]["avatar_thumbnail"] do %>
-                    <img src="<%= assigns[:current_user]["avatar_thumbnail"] %>" alt="" class="nav__avatar"> </img>
+                    <img src={assigns[:current_user]["avatar_thumbnail"]} alt="" class="nav__avatar" />
                   <% end %>
                 </div>
-              <div class="dropdown-content">
-                <%= if admin?(assigns[:current_user]) do %>
-                  <%= link("Administration", to: "/backoffice") %>
-                <% end %>
-                <a class="navigation__link nagivation__link--logout" href="<%= session_path @conn, :delete, redirect_path: current_path(@conn) %>">
-                  <i class="icon icon--logout" aria-hidden="true"></i>
-                  <span><%= gettext "Sign Out" %></span>
-                </a>
+                <div class="dropdown-content">
+                  <%= if admin?(assigns[:current_user]) do %>
+                    <%= link("Administration", to: "/backoffice") %>
+                  <% end %>
+                  <a
+                    class="navigation__link nagivation__link--logout"
+                    href={session_path(@conn, :delete, redirect_path: current_path(@conn))}
+                  >
+                    <i class="icon icon--logout" aria-hidden="true"></i>
+                    <span><%= gettext("Sign Out") %></span>
+                  </a>
+                </div>
               </div>
-            </div>
-          </li>
-        <% else %>
-          <li class="nav__item">
-            <a class="navigation__link navigation__link--login" href="<%= page_path @conn, :login, redirect_path: current_path(@conn) %>">
-              <i class="icon icon--login" aria-hidden="true"></i>
-              <span><%= gettext "Sign In" %></span>
-            </a>
-          </li>
-        <% end %>
+            </li>
+          <% else %>
+            <li class="nav__item">
+              <a
+                class="navigation__link navigation__link--login"
+                href={page_path(@conn, :login, redirect_path: current_path(@conn))}
+              >
+                <i class="icon icon--login" aria-hidden="true"></i>
+                <span><%= gettext("Sign In") %></span>
+              </a>
+            </li>
+          <% end %>
           <li class="nav__item">
             <div class="dropdown">
               <%= if get_session(@conn, :locale) == "fr" do %>
-                <img src="<%= static_path(@conn, "/images/icons/fr.png") %>" alt="Français" height=24 >
+                <img src={static_path(@conn, "/images/icons/fr.png")} alt="Français" height="24" />
               <% else %>
-                <img src="<%= static_path(@conn, "/images/icons/en.png") %>" alt="English" height=24 >
+                <img src={static_path(@conn, "/images/icons/en.png")} alt="English" height="24" />
               <% end %>
               <div class="dropdown-content">
                 <%= link(to: add_locale_to_url(@conn, "fr")) do %>
@@ -96,8 +108,8 @@
               </div>
             </div>
           </li>
-      </ul>
-    </div>
-  </nav>
-</div>
+        </ul>
+      </div>
+    </nav>
+  </div>
 </header>
