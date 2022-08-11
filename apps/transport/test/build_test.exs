@@ -103,4 +103,17 @@ defmodule TransportWeb.BuildTest do
     assert phoenix_yarn_live_view_version == :phoenix_live_view |> Application.spec(:vsn) |> to_string(),
            js_out_of_date_message(:phoenix_live_view)
   end
+
+  @tag :focus
+  test "http links" do
+    regexp = ~r/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/
+    {output, 0} = System.shell("grep -r doc.transport.data.gouv ../../apps/transport/lib")
+
+    regexp
+    |> Regex.scan(output)
+    |> Enum.map(fn [global_match | _] -> global_match end)
+    |> Enum.uniq()
+    |> Enum.map(fn url -> {url, HTTPoison.head!(url).status_code} end)
+    |> IO.inspect()
+  end
 end
