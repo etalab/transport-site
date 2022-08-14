@@ -38,8 +38,7 @@ defmodule Transport.Validators.GBFSValidator do
   defp validator_command, do: Application.fetch_env!(:transport, :gbfs_validator_url)
 
   @doc """
-  Fetches the latest commit sha from the `gbfs-validator` GitHub repository to known
-  the validator version.
+  Fetches the latest commit sha from the `gbfs-validator` GitHub repository to know the validator version.
 
   May be solved by https://github.com/MobilityData/gbfs-validator/issues/77 in the future.
   """
