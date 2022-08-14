@@ -1,0 +1,19 @@
+<p>
+  <%= dgettext("validations-explanations", "Impacted file") %>: <tt>stops.txt</tt>
+</p>
+<p>
+  <%= dgettext("validations-explanations", "CoordinatesIssue") %>
+</p>
+<table class="table">
+  <tr>
+    <th><%= dgettext("validations-explanations", "Stop ID") %></th>
+    <th><%= dgettext("validations-explanations", "Stop name") %></th>
+  </tr>
+
+  <%= for issue <- @issues do %>
+    <tr>
+      <td><%= issue["object_id"] %></td>
+      <td><%= issue["object_name"] %></td>
+    </tr>
+  <% end %>
+</table>
