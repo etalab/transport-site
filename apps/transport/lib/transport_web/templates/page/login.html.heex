@@ -20,7 +20,10 @@
           </div>
 
           <div class="list__item--content">
-            <%= dgettext("page-login", "transport.data.gouv.fr belongs to the data.gouv.fr network, and share the same user account") %>
+            <%= dgettext(
+              "page-login",
+              "transport.data.gouv.fr belongs to the data.gouv.fr network, and share the same user account"
+            ) %>
           </div>
         </li>
 
@@ -30,7 +33,10 @@
           </div>
 
           <div class="list__item--content">
-            <%= dgettext("page-login", "By clicking this button, you'll be able to create an account or use your existing data.gouv.fr account to log in") %>
+            <%= dgettext(
+              "page-login",
+              "By clicking this button, you'll be able to create an account or use your existing data.gouv.fr account to log in"
+            ) %>
           </div>
         </li>
 
@@ -40,13 +46,16 @@
           </div>
 
           <div class="list__item--content">
-            <%= dgettext("page-login", "After having clicked this button, you should click on 'accepter' to authorise transport.data.gouv.fr to access your data.gouv.fr account details") %>
+            <%= dgettext(
+              "page-login",
+              "After having clicked this button, you should click on 'accepter' to authorise transport.data.gouv.fr to access your data.gouv.fr account details"
+            ) %>
           </div>
         </li>
       </ul>
 
       <div class="is-centered">
-        <a class="button button--large" href="<%= session_path @conn, :new %>" role="link">
+        <a class="button button--large" href={session_path(@conn, :new)} role="link">
           <i class="icon icon--login" aria-hidden="true"></i>
           <%= gettext("Sign In") %>
         </a>
