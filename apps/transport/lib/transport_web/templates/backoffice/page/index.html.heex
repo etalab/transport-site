@@ -3,25 +3,25 @@
   <h2>Outils d'observation</h2>
 
   <% # See path explanation at https://elixirforum.com/t/scoped-live-view-does-not-seem-to-generate-a-live-path-helper/31162/4?u=thbar %>
-  <a class="button" href="<%= backoffice_live_path(@conn, TransportWeb.Backoffice.ProxyConfigLive) %>">
+  <a class="button" href={ backoffice_live_path(@conn, TransportWeb.Backoffice.ProxyConfigLive)}>
     <%= dgettext("backoffice", "Proxy configuration") %>
   </a>
 
-  <a class="button" href="<%= backoffice_live_path(@conn, TransportWeb.Backoffice.JobsLive) %>">
+  <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.JobsLive)}>
     <%= dgettext("backoffice", "Jobs") %>
   </a>
 
-  <a class="button" href="<%= backoffice_live_path(@conn, TransportWeb.Backoffice.GBFSLive) %>">
+  <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.GBFSLive)}>
     <%= dgettext("backoffice", "GBFS requests") %>
   </a>
 
-  <a class="button" href="<%= backoffice_dashboard_path(@conn, :index) %>">
+  <a class="button" href={backoffice_dashboard_path(@conn, :index)}>
     <%= dgettext("backoffice", "Rapport de complétude des imports") %>
   </a>
 
   <h2>Actions</h2>
 
-  <a class="button" href="<%= backoffice_page_path(@conn, :new) %>">
+  <a class="button" href={backoffice_page_path(@conn, :new)}>
     <i class="fas fa-plus"></i> <%= dgettext("backoffice", "Add a dataset") %>
   </a>
   <div class="import-all">
@@ -32,11 +32,11 @@
     <%= submit dgettext("backoffice", "validate all") %>
     <% end %>
   </div>
-  <a class="button warning-light" href="<%= backoffice_page_path(@conn, :import_all_aoms) %>" title="Télécharge depuis data.gouv la dernière version de la liste des AOMs, puis les importe dans notre base.">
+  <a class="button warning-light" href={backoffice_page_path(@conn, :import_all_aoms)} title="Télécharge depuis data.gouv la dernière version de la liste des AOMs, puis les importe dans notre base.">
     <%= dgettext("backoffice", "Update all AOMs") %>
   </a>
   <div>
-    <a class="button warning-light" href="<%= backoffice_breaking_news_path(@conn, :index) %>" title="Afficher un message sur la home du site">
+    <a class="button warning-light" href={backoffice_breaking_news_path(@conn, :index)} title="Afficher un message sur la home du site">
       Publier une Breaking News
     </a>
   </div>
@@ -92,7 +92,7 @@
       <th>data.gouv.fr</th>
       <th>Region</th>
       <th>Commune principale</th>
-      <th class=sortable><%= backoffice_sort_link(@conn, "Fin de validité", :end_date, @order_by) %>
+      <th class="sortable"><%= backoffice_sort_link(@conn, "Fin de validité", :end_date, @order_by) %>
       </th>
       <th class="bo_dataset_button"></th>
       <th class="bo_dataset_button"></th>
