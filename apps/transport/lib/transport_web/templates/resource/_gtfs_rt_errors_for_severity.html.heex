@@ -5,7 +5,7 @@
       <b lang="en">
         <%= Map.fetch!(error, "title") %>
         <span class="small">
-          <a href="<%= gtfs_rt_validator_rule_url(error)%>" target="_blank"><%= Map.fetch!(error, "error_id")%></a>
+          <a href={gtfs_rt_validator_rule_url(error)} target="_blank"><%= Map.fetch!(error, "error_id") %></a>
         </span>
       </b>
 
@@ -19,7 +19,7 @@
     </p>
 
     <details>
-      <summary><%= dgettext("validations", "Sample errors")%></summary>
+      <summary><%= dgettext("validations", "Sample errors") %></summary>
       <ul lang="en">
         <%= for error_detail <- Map.fetch!(error, "errors") do %>
           <li><%= error_detail %></li>
