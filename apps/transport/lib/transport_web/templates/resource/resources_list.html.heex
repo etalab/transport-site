@@ -1,6 +1,6 @@
 <section class="pt-48">
   <div class="container pb-24">
-    <%= breadcrumbs [@conn, :select_resource, @dataset["id"]] %>
+    <%= breadcrumbs([@conn, :select_resource, @dataset["id"]]) %>
   </div>
 </section>
 <section class="resource-update-section">
@@ -18,12 +18,12 @@
     </div>
     <div class="resources-update-list pt-24">
       <%= for resource <- @dataset["resources"] do %>
-      <a href="<%= resource_path(@conn, :form, @conn.params["dataset_id"], resource["id"]) %>">
-        <div class="panel">
-          <img height=20 src="<%= static_path(@conn, "/images/producteurs/picto-maj.png") %>" alt="">
-          <strong><%= resource["title"] %></strong>
-        </div>
-      </a>
+        <a href={resource_path(@conn, :form, @conn.params["dataset_id"], resource["id"])}>
+          <div class="panel">
+            <img height="20" src={static_path(@conn, "/images/producteurs/picto-maj.png")} alt="" />
+            <strong><%= resource["title"] %></strong>
+          </div>
+        </a>
       <% end %>
     </div>
   </div>
