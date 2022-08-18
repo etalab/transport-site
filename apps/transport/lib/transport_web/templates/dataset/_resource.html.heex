@@ -125,7 +125,6 @@
         ) %>
       <% end %>
     <% else %>
-      
       <%= if Resource.has_errors_details?(@resource) do %>
         <% nb_errors = errors_count(@resource) %>
         <% nb_warnings = warnings_count(@resource) %>
