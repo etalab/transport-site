@@ -1,32 +1,31 @@
 <section class="dataset__resources white" id="community-resources">
-  <h3><%= dgettext("page-dataset-details", "Community resources" )%></h3>
+  <h3><%= dgettext("page-dataset-details", "Community resources") %></h3>
   <section class="dataset__resources">
     <div class="reuser-message">
-      <%
-      odbl_text =
-      if @dataset.licence == "odc-odbl" do
-        dgettext(
-          "page-dataset-details",
-          ", in accordance with the share-alike clause (article 4.4) of <a href=\"%{doc_link}\" target=\"_blank\">the ODbL License</a>",
-          doc_link: "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/conditions-dutilisation-des-donnees/licence-odbl#conditions-particulieres-dutilisation"
+      <% odbl_text =
+        if @dataset.licence == "odc-odbl" do
+          dgettext(
+            "page-dataset-details",
+            ", in accordance with the share-alike clause (article 4.4) of <a href=\"%{doc_link}\" target=\"_blank\">the ODbL License</a>",
+            doc_link:
+              "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/conditions-dutilisation-des-donnees/licence-odbl#conditions-particulieres-dutilisation"
           )
-      else
-        ""
-      end
-      %>
+        else
+          ""
+        end %>
       <%= dgettext(
         "page-dataset-details",
         "Reusers can share in this section edits made on resources%{odbl_text}. <a href=\"%{datagouv_link}\" target=\"_blank\">Publish your own ressource</a> on data.gouv.fr or <a href=\"%{doc_link}\" target=\"_blank\">browse our documentation.</a>",
         datagouv_link: publish_community_resource_url(@dataset),
-        doc_link: "https://doc.transport.data.gouv.fr/reutilisateurs/utilisation-par-les-reutilisateurs-de-donnees/repartager-les-modifications-apportees-a-une-ressource",
+        doc_link:
+          "https://doc.transport.data.gouv.fr/reutilisateurs/utilisation-par-les-reutilisateurs-de-donnees/repartager-les-modifications-apportees-a-une-ressource",
         odbl_text: odbl_text
-        )
-      |> raw()
-      %>
+      )
+      |> raw() %>
     </div>
   </section>
 
   <div class="ressources-list">
-    <%= render_many community_resources(@dataset), TransportWeb.DatasetView, "_community_ressource.html", as: :resource %>
+    <%= render_many(community_resources(@dataset), TransportWeb.DatasetView, "_community_ressource.html", as: :resource) %>
   </div>
 </section>

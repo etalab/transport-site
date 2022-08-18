@@ -4,13 +4,16 @@
   </h4>
   <div class="light-grey">
     <%= if @resource.community_resource_publisher do %>
-      <%= dgettext("community_resource", "by") %> <strong class="community-resource-source"><%= @resource.community_resource_publisher %></strong>
+      <%= dgettext("community_resource", "by") %>
+      <strong class="community-resource-source"><%= @resource.community_resource_publisher %></strong>
     <% end %>
     <div class="pb-24"><%= description(@resource) %></div>
   </div>
   <div class="community-resource-download">
     <a href={DB.Resource.download_url(@resource)}>
-      <button class="button-outline primary small"><i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %></button>
+      <button class="button-outline primary small">
+        <i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %>
+      </button>
     </a>
   </div>
 </div>
