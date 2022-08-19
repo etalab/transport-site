@@ -8,13 +8,21 @@ defmodule TransportWeb.Live.CommuneField do
   def render(assigns) do
     ~H"""
     <div class="form__group">
-        <input type="text" phx-keyup="suggest" list="matches" name="insee" value={@insee }
-         autocomplete="off" id="communes_q" placeholder="Commune faisant partie de l'AOM (code INSEE ou nom)">
-        <datalist id="matches">
+      <input
+        type="text"
+        phx-keyup="suggest"
+        list="matches"
+        name="insee"
+        value={@insee}
+        autocomplete="off"
+        id="communes_q"
+        placeholder="Commune faisant partie de l'AOM (code INSEE ou nom)"
+      />
+      <datalist id="matches">
         <%= for match <- @matches do %>
-            <option value={match.insee}><%= "#{match.nom} #{match.insee}" %></option>
+          <option value={match.insee}><%= "#{match.nom} #{match.insee}" %></option>
         <% end %>
-        </datalist>
+      </datalist>
     </div>
     """
   end
