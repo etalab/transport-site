@@ -43,8 +43,6 @@ defmodule Transport.Test.Transport.Jobs.GBFSMultiValidationDispatcherJobTest do
 
     assert DB.Resource.is_gbfs?(resource)
 
-    validator_version = setup_validator_version_mocks()
-
     Transport.Shared.GBFSMetadata.Mock
     |> expect(:compute_feed_metadata, fn ^url, "https://transport.data.gouv.fr" ->
       %{
@@ -59,6 +57,7 @@ defmodule Transport.Test.Transport.Jobs.GBFSMultiValidationDispatcherJobTest do
           has_errors: false,
           version_detected: "1.1",
           version_validated: "1.1",
+          validator_version: "31c5325",
           validator: :validator_module
         },
         has_cors: true,
@@ -93,23 +92,7 @@ defmodule Transport.Test.Transport.Jobs.GBFSMultiValidationDispatcherJobTest do
              validated_data_name: ^url,
              command: "https://gbfs-validator.netlify.app/.netlify/functions/validator",
              validator: "MobilityData/gbfs-validator",
-             validator_version: ^validator_version
+             validator_version: "31c5325"
            } = DB.MultiValidation |> DB.Repo.one!() |> DB.Repo.preload(:metadata)
-  end
-
-  defp setup_validator_version_mocks(default_branch \\ "master", sha \\ Ecto.UUID.generate()) do
-    Transport.HTTPoison.Mock
-    |> expect(:get!, fn "https://api.github.com/repos/MobilityData/gbfs-validator" ->
-      %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"default_branch" => default_branch})}
-    end)
-
-    commits_url = "https://api.github.com/repos/MobilityData/gbfs-validator/commits/#{default_branch}"
-
-    Transport.HTTPoison.Mock
-    |> expect(:get!, fn ^commits_url ->
-      %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"sha" => sha})}
-    end)
-
-    sha
   end
 end
