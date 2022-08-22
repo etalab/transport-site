@@ -143,18 +143,18 @@ if config_env() == :dev do
     watchers: if(webserver, do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]], else: [])
 end
 
-email_host_name =
+website_hostname =
   case config_env() do
     :dev ->
       "localhost"
 
     :test ->
-      # used to make sure we are replacing the app host name by the email host name
-      # when it is different, in some email testing
-      "email.localhost"
+      # used to make sure we are replacing the app host name by the website host name
+      # when it is different, in some email testing or when building URLs on workers
+      "website.localhost"
 
     :prod ->
-      # NOTE: it would be best to configure this via EMAIL_HOST_NAME var instead,
+      # NOTE: it would be best to configure this via an env var instead,
       # but that will do for today.
       case app_env do
         :staging -> "prochainement.transport.data.gouv.fr"
@@ -162,7 +162,7 @@ email_host_name =
       end
   end
 
-config :transport, :email_host_name, email_host_name
+config :transport, :website_hostname, website_hostname
 
 if config_env() == :prod do
   pool_size =

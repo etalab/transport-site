@@ -167,7 +167,7 @@ defmodule Transport.DataCheckerTest do
   test "link_and_name relies on proper email host name" do
     dataset = build(:dataset)
     link = Transport.DataChecker.link(dataset)
-    assert URI.parse(link).host == "email.localhost"
+    assert URI.parse(link).host == "website.localhost"
   end
 
   describe "send_outdated_data_notifications" do
