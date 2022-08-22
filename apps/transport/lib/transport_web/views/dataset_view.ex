@@ -472,12 +472,8 @@ defmodule TransportWeb.DatasetView do
 
   def order_resources_by_format(resources), do: resources |> Enum.sort_by(& &1.format, &>=/2)
 
-  def schema_url(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do
-    "https://schema.data.gouv.fr/#{schema_name}/#{schema_version}/"
-  end
-
-  def schema_url(%{schema_name: schema_name}) do
-    "https://schema.data.gouv.fr/#{schema_name}/latest.html"
+  def schema_url(%Resource{schema_name: schema_name, schema_version: schema_version}) do
+    Transport.Shared.Schemas.documentation_url(schema_name, schema_version)
   end
 
   def schema_label(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do
