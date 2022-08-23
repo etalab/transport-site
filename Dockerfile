@@ -7,6 +7,8 @@ RUN mv  /transport-tools /phoenixapp
 
 RUN mix hex.info
 RUN mix hex.config
+RUN elixir -e ":inets_trace.enable(:max, 'trace.txt', :httpc)" -S mix deps.get
+RUN cat trace.txt
 RUN HEX_MIRROR=https://hexpm.upyun.com mix do deps.get --only prod
 
 RUN elixir --version
