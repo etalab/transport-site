@@ -1,5 +1,5 @@
 defmodule Transport.Jobs.Backfill.ResourceMetadataNonGTFSTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import Transport.Jobs.Backfill.ResourceMetadataNonGTFS
   import DB.Factory
 
