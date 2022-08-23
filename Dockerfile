@@ -7,7 +7,7 @@ RUN mv  /transport-tools /phoenixapp
 
 RUN mix hex.info
 RUN mix hex.config
-RUN mix do deps.get --only prod
+RUN mix do deps.get
 
 RUN elixir --version
 RUN erl -noshell -eval 'erlang:display(erlang:system_info(system_version))' -eval 'init:stop()'
