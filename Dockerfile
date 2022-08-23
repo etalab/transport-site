@@ -5,7 +5,9 @@ WORKDIR /phoenixapp
 COPY ./ /phoenixapp
 RUN mv  /transport-tools /phoenixapp
 
-RUN mix do deps.get --only prod
+RUN mix hex.info
+RUN mix hex.config
+RUN HEX_HTTP_CONCURRENCY=1 HEX_HTTP_TIMEOUT=120 mix do deps.get --only prod
 
 RUN elixir --version
 RUN erl -noshell -eval 'erlang:display(erlang:system_info(system_version))' -eval 'init:stop()'
