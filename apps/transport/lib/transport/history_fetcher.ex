@@ -5,6 +5,7 @@ defmodule Transport.History.Fetcher do
   for tests which have no interest in it (that is: most of the tests).
   """
   @callback history_resources(DB.Dataset.t()) :: [map()]
+  @callback history_resources(DB.Dataset.t(), integer() | nil) :: [map()]
 
   def impl, do: Application.get_env(:transport, :history_impl)
 
