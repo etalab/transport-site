@@ -4,7 +4,7 @@ defmodule TransportWeb.DatasetController do
   alias Datagouvfr.Client.Datasets
   alias DB.{AOM, Commune, Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
-  import TransportWeb.DatasetView, only: [availability_number_days: 0]
+  import TransportWeb.DatasetView, only: [availability_number_days: 0, max_nb_history_resources: 0]
   import Phoenix.HTML
   require Logger
 
@@ -52,7 +52,7 @@ defmodule TransportWeb.DatasetController do
       |> merge_assigns(reuses_assign)
       |> assign(:other_datasets, Dataset.get_other_datasets(dataset))
       |> assign(:resources_infos, resources_infos(dataset))
-      |> assign(:history_resources, Transport.History.Fetcher.history_resources(dataset))
+      |> assign(:history_resources, Transport.History.Fetcher.history_resources(dataset, max_nb_history_resources()))
       |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset.id))
       |> put_status(if dataset.is_active, do: :ok, else: :not_found)
       |> render("details.html")
