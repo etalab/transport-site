@@ -30,8 +30,9 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
     |> where([r], like(r.url, "http%"))
     |> preload(:dataset)
     |> Repo.all()
-    |> Enum.reject(&(Resource.is_real_time?(&1) or Resource.is_documentation?(&1)))
-    |> Enum.reject(&Dataset.should_skip_history?(&1.dataset))
+    |> Enum.reject(
+      &(Resource.is_real_time?(&1) or Resource.is_documentation?(&1) or Dataset.should_skip_history?(&1.dataset))
+    )
     |> Enum.map(& &1.id)
   end
 end
