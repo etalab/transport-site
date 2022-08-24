@@ -123,7 +123,9 @@
       <th class="bo_dataset_button"></th>
       <th class="bo_dataset_button"></th>
     </tr>
-    <%= render_many(@datasets, TransportWeb.Backoffice.PageView, "_dataset.html", as: :dataset, conn: @conn) %>
+    <%= for dataset <- @datasets do %>
+      <%= render(TransportWeb.Backoffice.PageView, "_dataset.html", dataset: dataset, conn: @conn) %>
+    <% end %>
   </table>
   <div class="pt-48">
     <%= pagination_links(@conn, @datasets) %>
