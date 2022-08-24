@@ -2,7 +2,7 @@
   <p>
     <%= raw(
       dgettext("validations", ~s(This resource should follow its schema %{link}.),
-        link: safe_to_string(link(@resource.schema_name, to: schema_url(@resource), target: "_blank"))
+        link: safe_to_string(link(@resource.schema_name, to: documentation_url(@resource), target: "_blank"))
       )
     ) %>
   </p>

@@ -412,7 +412,7 @@ defmodule TransportWeb.ResourceControllerTest do
     end)
 
     Transport.Shared.Schemas.Mock
-    |> expect(:transport_schemas, 1, fn -> %{schema_name => %{"title" => "foo"}} end)
+    |> expect(:transport_schemas, 2, fn -> %{schema_name => %{"title" => "foo"}} end)
 
     conn1 = conn |> get(resource_path(conn, :details, resource_id))
     assert conn1 |> html_response(200) =~ "Pas de validation disponible"
@@ -452,7 +452,7 @@ defmodule TransportWeb.ResourceControllerTest do
     end)
 
     Transport.Shared.Schemas.Mock
-    |> expect(:transport_schemas, 1, fn -> %{schema_name => %{"title" => "foo"}} end)
+    |> expect(:transport_schemas, 2, fn -> %{schema_name => %{"title" => "foo"}} end)
 
     conn1 = conn |> get(resource_path(conn, :details, resource_id))
     assert conn1 |> html_response(200) =~ "Pas de validation disponible"

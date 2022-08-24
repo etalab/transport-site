@@ -70,6 +70,23 @@ defmodule Transport.Shared.Schemas do
     )
   end
 
+  def documentation_url(schema_name), do: documentation_url(schema_name, nil)
+
+  def documentation_url(schema_name, nil = _schema_version) do
+    _ = Map.fetch!(Wrapper.transport_schemas(), schema_name)
+    "https://schema.data.gouv.fr/#{schema_name}/"
+  end
+
+  def documentation_url(schema_name, schema_version) when not is_nil(schema_version) do
+    _ = Map.fetch!(Wrapper.transport_schemas(), schema_name)
+
+    unless Enum.member?(Wrapper.schema_versions(schema_name), schema_version) do
+      raise KeyError, "#{schema_version} is not a valid version for #{schema_name}"
+    end
+
+    "https://schema.data.gouv.fr/#{schema_name}/#{schema_version}/"
+  end
+
   @impl true
   def schemas_by_type(schema_type) when schema_type in ["tableschema", "jsonschema"] do
     :maps.filter(fn _, v -> v["schema_type"] == schema_type end, Wrapper.transport_schemas())

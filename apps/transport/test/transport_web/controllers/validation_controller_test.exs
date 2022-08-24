@@ -313,7 +313,7 @@ defmodule TransportWeb.ValidationControllerTest do
       schema_name = "etalab/foo"
 
       Transport.Shared.Schemas.Mock
-      |> expect(:transport_schemas, 3, fn ->
+      |> expect(:transport_schemas, 1, fn ->
         %{
           schema_name => %{
             "versions" => [%{"version_name" => "0.1.0", "schema_url" => "http://example.com/schema.json"}]
