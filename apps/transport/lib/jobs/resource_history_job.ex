@@ -5,7 +5,7 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
   use Oban.Worker, unique: [period: 60 * 60 * 5], tags: ["history"], max_attempts: 5
   require Logger
   import Ecto.Query
-  alias DB.{Repo, Resource}
+  alias DB.{Dataset, Repo, Resource}
 
   @impl Oban.Worker
   def perform(_job) do
@@ -28,8 +28,10 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
     |> where([r], not is_nil(r.url) and not is_nil(r.title))
     |> where([r], not r.is_community_resource)
     |> where([r], like(r.url, "http%"))
+    |> preload(:dataset)
     |> Repo.all()
     |> Enum.reject(&(Resource.is_real_time?(&1) or Resource.is_documentation?(&1)))
+    |> Enum.reject(&Dataset.should_skip_history?(&1.dataset))
     |> Enum.map(& &1.id)
   end
 end
