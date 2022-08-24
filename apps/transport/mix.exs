@@ -117,6 +117,7 @@ defmodule Transport.Mixfile do
       {:ecto_interval, "~> 0.2.5"},
       {:scrivener_ecto, "~> 2.7.0"},
       {:typed_ecto_schema, ">= 0.1.1"},
+      {:ymlr, "~> 2.0"},
       {:ex_machina, "~> 2.4", only: :test}
     ]
   end

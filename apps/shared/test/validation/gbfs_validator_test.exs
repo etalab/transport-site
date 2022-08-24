@@ -19,7 +19,7 @@ defmodule GBFSValidatorTest do
        %HTTPoison.Response{
          status_code: 200,
          body: """
-          {"summary":{"version":{"detected":"1.1","validated":"1.1"},"hasErrors":false,"errorsCount":0}}
+          {"summary":{"version":{"detected":"1.1","validated":"1.1"},"hasErrors":false,"errorsCount":0,"validatorVersion":"31c5325"}}
          """,
          headers: [{"Content-Type", "application/json"}]
        }}
@@ -30,6 +30,7 @@ defmodule GBFSValidatorTest do
       has_errors: false,
       version_detected: "1.1",
       version_validated: "1.1",
+      validator_version: "31c5325",
       validator: Shared.Validation.GBFSValidator.HTTPValidatorClient
     }
 
@@ -45,13 +46,14 @@ defmodule GBFSValidatorTest do
 
   test "can encode summary" do
     assert """
-           {"errors_count":0,"has_errors":false,"validator":"validator_module","version_detected":"1.1","version_validated":"1.1"}\
+           {"errors_count":0,"has_errors":false,"validator":"validator_module","validator_version":"31c5325","version_detected":"1.1","version_validated":"1.1"}\
            """ ==
              Jason.encode!(%Summary{
                errors_count: 0,
                has_errors: false,
                version_detected: "1.1",
                version_validated: "1.1",
+               validator_version: "31c5325",
                validator: :validator_module
              })
   end
