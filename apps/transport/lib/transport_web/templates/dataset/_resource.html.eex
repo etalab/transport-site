@@ -14,7 +14,7 @@
   <%= unless is_nil(@resource.schema_name) do %>
     <div title="<%= dgettext("page-dataset-details", "Resource declared schema") %>">
       <i class="icon icon--table" aria-hidden="true"></i>
-      <%= link(schema_label(@resource), to: schema_url(@resource), target: "_blank") %>
+      <%= link(schema_label(@resource), to: documentation_url(@resource), target: "_blank") %>
     </div>
   <% end %>
 
