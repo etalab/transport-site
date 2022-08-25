@@ -81,3 +81,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Yes"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "validation was not performed"
+msgstr ""

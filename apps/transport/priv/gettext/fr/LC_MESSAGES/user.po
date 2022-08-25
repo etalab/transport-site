@@ -10,9 +10,6 @@ msgid ""
 msgstr ""
 "Language: fr\n"
 
-msgid "The dataset has been sent for review, it'll be added to transport.data.gouv.fr shortly."
-msgstr "Votre fichier va maintenant être vérifié avant d'être ajouté."
-
 msgid "First step"
 msgstr "Première étape"
 

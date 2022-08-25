@@ -1,1 +1,0 @@
-<%= dgettext("user", "The dataset has been sent for review, it'll be added to transport.data.gouv.fr shortly.") %>
