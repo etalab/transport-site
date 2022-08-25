@@ -34,7 +34,7 @@ defmodule TransportWeb.NavTest do
   end
 
   test "I can list available datasets to find and download transport data", %{conn: conn} do
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
     # NOTE: we cannot easily mock the API exchanges, so just stubbing the known bits for now, and
     # we'll later use a proper stubbed implementation for all tests.
     with_mock Datagouvfr.Client.Discussions, get: fn _ -> [] end do

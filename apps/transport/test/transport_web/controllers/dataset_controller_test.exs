@@ -23,7 +23,7 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "Datasets details page loads even when data.gouv is down", %{conn: conn} do
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
     # NOTE: we just want a dataset, but the factory setup is not finished, so
     # we have to provide an already built aom
     dataset = insert(:dataset, aom: insert(:aom, composition_res_id: 157))
@@ -48,7 +48,7 @@ defmodule TransportWeb.DatasetControllerTest do
     assert Enum.empty?(TransportWeb.DatasetView.other_official_resources(dataset))
     assert 1 == Enum.count(TransportWeb.DatasetView.official_documentation_resources(dataset))
 
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
 
     with_mocks [
       {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:ok, []} end]},
@@ -102,7 +102,7 @@ defmodule TransportWeb.DatasetControllerTest do
       }
       |> DB.Repo.insert!()
 
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
 
     path = TransportWeb.API.Router.Helpers.dataset_path(conn, :by_id, dataset.datagouv_id)
 
@@ -264,6 +264,6 @@ defmodule TransportWeb.DatasetControllerTest do
   defp set_empty_mocks do
     Datagouvfr.Client.Reuses.Mock |> expect(:get, fn _ -> {:ok, []} end)
     Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _ -> %{} end)
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
   end
 end
