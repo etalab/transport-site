@@ -339,6 +339,7 @@ defmodule TransportWeb.DatasetView do
     dataset
     |> official_available_resources()
     |> Enum.filter(&Resource.has_schema?/1)
+    |> Enum.sort_by(& &1.display_position)
   end
 
   def other_official_resources(dataset) do
