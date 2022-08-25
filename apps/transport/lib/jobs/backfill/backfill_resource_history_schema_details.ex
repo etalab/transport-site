@@ -17,7 +17,7 @@ defmodule Transport.Jobs.Backfill.ResourceHistorySchemaDetails do
           rh.id resource_history_id,
           r.dataset_id,
           rh.payload,
-          rh.payload || jsonb_set(jsonb_object_agg('schema_version', r.schema_version), '{schema_name}', to_jsonb(r.schema_name)) new_payload,
+          rh.payload || jsonb_build_object('schema_name', r.schema_name, 'schema_version', r.schema_version) new_payload,
           rh.inserted_at
         from resource r
         join resource_history rh on rh.resource_id = r.id and not rh.payload ? 'schema_name'
