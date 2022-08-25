@@ -16,6 +16,7 @@ defmodule TransportWeb.LiveCase do
           doc
           |> Floki.find("table thead tr th")
           |> Enum.map(&Floki.text/1)
+          # delete newline and additional spaces (caused by formatting)
           |> Enum.map(&String.replace(&1, ~r/\n\s*/, ""))
 
         doc
