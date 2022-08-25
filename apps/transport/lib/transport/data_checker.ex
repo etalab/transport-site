@@ -141,10 +141,7 @@ defmodule Transport.DataChecker do
   defp delay_str(0), do: "demain"
   defp delay_str(d), do: "dans #{d} jours"
 
-  def link(dataset) do
-    base = Transport.RuntimeConfig.WebsiteHost.website_host()
-    dataset_url(base, :details, dataset.slug)
-  end
+  def link(%Dataset{slug: slug}), do: dataset_url(TransportWeb.Endpoint, :details, slug)
 
   def link_and_name(dataset) do
     link = link(dataset)
