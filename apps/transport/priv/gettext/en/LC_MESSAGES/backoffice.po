@@ -204,3 +204,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "See dataset on website"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This dataset is not historicized on purpose."
+msgstr ""

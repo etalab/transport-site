@@ -25,6 +25,7 @@ defmodule Transport.History.FetcherTest do
       insert(:resource_history, resource_id: other_resource.id, payload: %{})
 
       assert Enum.count(Transport.History.Fetcher.Database.history_resources(dataset)) == 3
+      assert Enum.count(Transport.History.Fetcher.Database.history_resources(dataset, 1)) == 1
       assert Transport.History.Fetcher.Database.history_resources(insert(:dataset)) == []
     end
   end

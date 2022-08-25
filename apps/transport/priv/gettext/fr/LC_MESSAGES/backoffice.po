@@ -204,3 +204,7 @@ msgstr "Ayant une ressource sous les 90% de disponibilité"
 #, elixir-autogen, elixir-format
 msgid "See dataset on website"
 msgstr "Voir le jeu de données sur le site"
+
+#, elixir-autogen, elixir-format
+msgid "This dataset is not historicized on purpose."
+msgstr "Ce jeu de données n'est pas historisé intentionnellement."
