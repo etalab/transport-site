@@ -265,6 +265,7 @@ defmodule TransportWeb.DatasetView do
   def errors_count(%Resource{}), do: nil
 
   def availability_number_days, do: 30
+  def max_nb_history_resources, do: 25
 
   def availability_ratio_class(ratio) when ratio >= 0 and ratio <= 100 do
     cond do

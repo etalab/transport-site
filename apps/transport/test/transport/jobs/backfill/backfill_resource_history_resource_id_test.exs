@@ -1,5 +1,5 @@
 defmodule Transport.Jobs.Backfill.ResourceHistoryResourceIdTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   alias Transport.Jobs.Backfill.ResourceHistoryResourceId
   import DB.Factory

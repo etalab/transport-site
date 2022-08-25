@@ -1,5 +1,5 @@
 defmodule Transport.Jobs.Backfill.ResourceHistoryFileSizeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import Transport.Jobs.Backfill.ResourceHistoryFileSize
   import DB.Factory
   import Mox
