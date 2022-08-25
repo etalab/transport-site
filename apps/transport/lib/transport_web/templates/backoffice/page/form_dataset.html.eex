@@ -110,6 +110,13 @@
           <% end %>
         </div>
       </div>
+      <%= if Dataset.should_skip_history?(@dataset) do %>
+        <div class="dashboard-description mt-48">
+          <p class="notification">
+            <%= dgettext("backoffice", "This dataset is not historicized on purpose.") %>
+          </p>
+        </div>
+      <% end %>
       <div class="dataset_import_validations_logs" id="imports_history">
         <h3><%= dgettext("backoffice", "Imports history") %></h3>
         <table>
