@@ -73,6 +73,28 @@ defmodule TransportWeb.DatasetViewTest do
 
   test "other_official_resources is sorted by display position" do
     dataset = %DB.Dataset{
+      type: "xxx",
+      resources: [
+        %DB.Resource{
+          id: 1,
+          url: "https://example.com/resource_a.geojson",
+          format: "geojson",
+          display_position: 1
+        },
+        %DB.Resource{
+          id: 2,
+          url: "https://example.com/resource_b.geojson",
+          format: "geojson",
+          display_position: 0
+        }
+      ]
+    }
+
+    assert [{0, 2}, {1, 1}] == dataset |> other_official_resources() |> Enum.map(&{&1.display_position, &1.id})
+  end
+
+  test "schemas_resources is sorted by display position" do
+    dataset = %DB.Dataset{
       type: "low-emission-zones",
       resources: [
         %DB.Resource{
@@ -92,7 +114,7 @@ defmodule TransportWeb.DatasetViewTest do
       ]
     }
 
-    assert [{0, 2}, {1, 1}] == dataset |> other_official_resources() |> Enum.map(&{&1.display_position, &1.id})
+    assert [{0, 2}, {1, 1}] == dataset |> schemas_resources() |> Enum.map(&{&1.display_position, &1.id})
   end
 
   test "count_resources and count_documentation_resources" do
