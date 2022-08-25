@@ -4,7 +4,8 @@
       dgettext(
         "validations",
         ~s(Validation carried out the %{date} using the <a href="%{validator_url}" target="_blank">MobilityData validator</a>.),
-        date: DateTimeDisplay.format_datetime_to_paris(@multi_validation.validation_timestamp, get_session(@conn, :locale)),
+        date:
+          DateTimeDisplay.format_datetime_to_paris(@multi_validation.validation_timestamp, get_session(@conn, :locale)),
         validator_url: gbfs_validator_url()
       )
     ) %>
@@ -14,12 +15,12 @@
   <%= if nb_errors > 0 do %>
     <p>
       <%= raw(
-      dgettext(
-        "validations",
-        ~s(See <a href="%{report_url}" target="_blank">the validation report</a> online.),
-        report_url: gbfs_validation_link(@resource)
-      )
-    ) %>
+        dgettext(
+          "validations",
+          ~s(See <a href="%{report_url}" target="_blank">the validation report</a> online.),
+          report_url: gbfs_validation_link(@resource)
+        )
+      ) %>
     </p>
 
     <%= render("_on_demand_validation_hint.html", conn: @conn, resource: @resource) %>
