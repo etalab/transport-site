@@ -82,3 +82,7 @@ msgstr "Non"
 #, elixir-autogen, elixir-format
 msgid "Yes"
 msgstr "Oui"
+
+#, elixir-autogen, elixir-format
+msgid "validation was not performed"
+msgstr "La validation n'a pas effectuée. Il peut y avoir une erreur fatale dans votre flux ou le validateur GBFS est temporairement indisponible."

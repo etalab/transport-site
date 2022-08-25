@@ -6,7 +6,7 @@ defmodule TransportWeb.ResourceView do
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   import TransportWeb.DatasetView,
-    only: [schema_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1]
+    only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1]
 
   import DB.ResourceUnavailability, only: [floor_float: 2]
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]

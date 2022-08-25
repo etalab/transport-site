@@ -98,6 +98,7 @@ oban_crontab_all_envs =
         {"30 */6 * * *", Transport.Jobs.BNLCToGeoData},
         {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob},
         {"0 7 * * *", Transport.Jobs.GTFSRTMultiValidationDispatcherJob},
+        {"30 7 * * *", Transport.Jobs.GBFSMultiValidationDispatcherJob},
         {"45 */3 * * *", Transport.Jobs.ResourceHistoryJSONSchemaValidationJob},
         {"15 */3 * * *", Transport.Jobs.ResourceHistoryTableSchemaValidationJob}
       ]
