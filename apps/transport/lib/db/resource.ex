@@ -646,8 +646,7 @@ defmodule DB.Resource do
   end
 
   @spec has_schema?(__MODULE__.t()) :: boolean
-  def has_schema?(%__MODULE__{schema_name: schema_name}) when not is_nil(schema_name), do: true
-  def has_schema?(_), do: false
+  def has_schema?(%__MODULE__{schema_name: schema_name}), do: not is_nil(schema_name)
 
   @spec ttl(__MODULE__.t()) :: integer() | nil
   def ttl(%__MODULE__{format: "gbfs", metadata: %{"ttl" => ttl}})
