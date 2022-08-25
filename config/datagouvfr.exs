@@ -23,7 +23,7 @@ config :oauth2, Authentication,
   site: System.get_env("DATAGOUVFR_SITE"),
   client_id: System.get_env("DATAGOUVFR_CLIENT_ID"),
   client_secret: System.get_env("DATAGOUVFR_CLIENT_SECRET"),
-  redirect_uri: System.get_env("DATAGOUVFR_REDIRECT_URI")
+  redirect_uri: URI.to_string(%URI{scheme: "https", host: System.get_env("DOMAIN_NAME"), path: "/login/callback"})
 
 config :oauth2,
   serializers: %{
