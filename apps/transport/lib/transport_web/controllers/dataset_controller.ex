@@ -71,17 +71,15 @@ defmodule TransportWeb.DatasetController do
       Transport.Validators.GTFSTransport,
       Transport.Validators.GTFSRT,
       Transport.Validators.TableSchema,
-      Transport.Validators.EXJSONSchema
+      Transport.Validators.EXJSONSchema,
+      Transport.Validators.GBFSValidator
     ]
 
   def resources_infos(dataset) do
-    # multi validations assign
-    validations = DB.MultiValidation.dataset_latest_validation(dataset.id, validators_to_use())
-
     %{
       unavailabilities: unavailabilities(dataset),
       resources_updated_at: DB.Dataset.resources_content_updated_at(dataset),
-      validations: validations
+      validations: DB.MultiValidation.dataset_latest_validation(dataset.id, validators_to_use())
     }
   end
 

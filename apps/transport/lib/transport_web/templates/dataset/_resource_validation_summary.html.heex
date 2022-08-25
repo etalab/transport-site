@@ -1,14 +1,8 @@
 <%= unless is_nil(@nb_errors) and is_nil(@nb_warnings) do %>
   <div class="pb-24">
-    <% link =
-      if Resource.is_gbfs?(@resource) do
-        gbfs_validation_link(@resource)
-      else
-        resource_path(@conn, :details, @resource.id) <> "#validation-report"
-      end %>
+    <% link = resource_path(@conn, :details, @resource.id) <> "#validation-report" %>
     <a href={link} target="_blank">
-      <% summary_class = if Resource.is_gbfs?(@resource), do: summary_class(@resource), else: summary_class(@validation) %>
-      <span class={summary_class}>
+      <span class={summary_class(@validation)}>
         <%= if @nb_errors + (@nb_warnings || 0) == 0 do %>
           <%= dgettext("page-dataset-details", "No error detected") %>
         <% end %>

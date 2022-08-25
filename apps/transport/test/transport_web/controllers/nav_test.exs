@@ -22,6 +22,7 @@ defmodule TransportWeb.NavTest do
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
     Mox.stub_with(Datagouvfr.Client.Reuses.Mock, Datagouvfr.Client.Reuses.Dummy)
     Mox.stub_with(Datagouvfr.Client.Discussions.Mock, Datagouvfr.Client.Discussions.Dummy)
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
 
     :ok
   end

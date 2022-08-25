@@ -11,11 +11,7 @@ defmodule TransportWeb.ResourceController do
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
 
   def details(conn, %{"id" => id} = params) do
-    resource =
-      Resource
-      |> Repo.get!(id)
-      # loading the v1 validation (to be removed later)
-      |> Repo.preload([:validation, dataset: [:resources]])
+    resource = Resource |> Repo.get!(id) |> Repo.preload(dataset: [:resources])
 
     conn =
       conn
@@ -71,32 +67,31 @@ defmodule TransportWeb.ResourceController do
 
   defp put_resource_flash(conn, _), do: conn
 
-  defp latest_validation(%{id: resource_id, format: "GTFS"}) do
-    DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.GTFSTransport)
-  end
+  defp latest_validation(%Resource{id: resource_id, format: format, schema_name: schema_name}) do
+    validators_for_format = Transport.ValidatorsSelection.validators(format)
 
-  defp latest_validation(%{id: resource_id, format: "gtfs-rt"}) do
-    DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.GTFSRT)
-  end
-
-  defp latest_validation(%{id: resource_id, schema_name: schema_name})
-       when not is_nil(schema_name) do
-    validator =
+    validators =
       cond do
-        Schemas.is_tableschema?(schema_name) ->
-          Transport.Validators.TableSchema
-
-        Schemas.is_jsonschema?(schema_name) ->
-          Transport.Validators.EXJSONSchema
-
-        true ->
-          nil
+        not Enum.empty?(validators_for_format) -> validators_for_format
+        not is_nil(schema_name) -> validator_for_schema(schema_name)
+        true -> nil
       end
 
-    DB.MultiValidation.resource_latest_validation(resource_id, validator)
+    DB.MultiValidation.resource_latest_validation(resource_id, validators)
   end
 
-  defp latest_validation(_), do: nil
+  defp validator_for_schema(schema_name) when not is_nil(schema_name) do
+    cond do
+      Schemas.is_tableschema?(schema_name) ->
+        Transport.Validators.TableSchema
+
+      Schemas.is_jsonschema?(schema_name) ->
+        Transport.Validators.EXJSONSchema
+
+      true ->
+        nil
+    end
+  end
 
   defp render_gtfs_details(conn, params, resource) do
     config = make_pagination_config(params)

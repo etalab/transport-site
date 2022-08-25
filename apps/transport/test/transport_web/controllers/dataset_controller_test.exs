@@ -12,6 +12,7 @@ defmodule TransportWeb.DatasetControllerTest do
   setup do
     Mox.stub_with(Datagouvfr.Client.Reuses.Mock, Datagouvfr.Client.Reuses)
     Mox.stub_with(Datagouvfr.Client.Discussions.Mock, Datagouvfr.Client.Discussions)
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     :ok
   end
 
@@ -198,6 +199,26 @@ defmodule TransportWeb.DatasetControllerTest do
 
     conn = conn |> get(dataset_path(conn, :details, slug))
     assert conn |> html_response(200) =~ "1 information"
+  end
+
+  test "show number of errors for a GBFS", %{conn: conn} do
+    dataset = insert(:dataset, %{slug: "dataset-slug"})
+
+    resource = insert(:resource, %{dataset_id: dataset.id, format: "gbfs", url: "url"})
+
+    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource.id})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id,
+      validator: Transport.Validators.GBFSValidator.validator_name(),
+      result: %{"errors_count" => 1},
+      metadata: %{metadata: %{}}
+    })
+
+    set_empty_mocks()
+
+    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+    assert conn |> html_response(200) =~ "1 erreur"
   end
 
   test "GTFS-RT without validation", %{conn: conn} do
