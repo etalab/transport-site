@@ -331,13 +331,4 @@ defmodule Transport.ImportDataTest do
              "siri lite" => 1
            }
   end
-
-  test "maybe_filter_resources" do
-    assert Enum.empty?(ImportData.maybe_filter_resources([%{"schema_name" => nil}], "low-emission-zones"))
-    refute Enum.empty?(ImportData.maybe_filter_resources([%{"schema_name" => nil}], "public-transit"))
-
-    assert Enum.count(
-             ImportData.maybe_filter_resources([%{"schema_name" => "etalab/schema-zfe"}], "low-emission-zones")
-           ) == 1
-  end
 end
