@@ -442,20 +442,10 @@ defmodule TransportWeb.DatasetView do
   def resource_span_class(%DB.Resource{is_available: false}), do: "span-unavailable"
   def resource_span_class(%DB.Resource{}), do: nil
 
-  def resource_class(%DB.Resource{is_available: false}), do: "resource--unavailable"
-
-  def resource_class(%DB.Resource{} = r) do
-    case DB.Resource.valid_and_available?(r) do
-      false ->
-        "resource--notvalid"
-
-      _ ->
-        case DB.Resource.is_outdated?(r) do
-          true -> "resource--outdated"
-          false -> "resource--valid"
-        end
-    end
-  end
+  def resource_class(_is_available = false, _), do: "resource--unavailable"
+  def resource_class(_, _is_outdated = true), do: "resource--outdated"
+  def resource_class(_, _is_outdated = false), do: "resource--valid"
+  def resource_class(_, _), do: ""
 
   def order_resources_by_validity(resources) do
     resources

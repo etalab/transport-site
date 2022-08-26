@@ -58,7 +58,7 @@
   </div>
 
   <%= if Resource.is_gtfs?(@resource) or not @resource.is_available do %>
-    <div class="resource-status-corner <%= resource_class(@resource) %>">
+    <div class="resource-status-corner <%= resource_class(@resource.is_available, is_gtfs_outdated) %>">
       <span class="<%= resource_span_class(@resource) %>">
         <%= unless @resource.is_available do %>
           <%= dgettext("page-dataset-details", "Not") %> <br>
