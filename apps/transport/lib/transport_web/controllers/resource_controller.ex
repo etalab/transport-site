@@ -68,16 +68,20 @@ defmodule TransportWeb.ResourceController do
   defp put_resource_flash(conn, _), do: conn
 
   defp latest_validation(%Resource{id: resource_id, format: format, schema_name: schema_name}) do
-    validators_for_format = Transport.ValidatorsSelection.validators(format)
+    validators = Transport.ValidatorsSelection.validators(format)
 
-    validators =
+    if is_list(validators) and Enum.count(validators) > 1 do
+      raise "does not handle multiple validators for #{format}"
+    end
+
+    validator =
       cond do
-        not Enum.empty?(validators_for_format) -> validators_for_format
         not is_nil(schema_name) -> validator_for_schema(schema_name)
+        Enum.count(validators) == 1 -> hd(validators)
         true -> nil
       end
 
-    DB.MultiValidation.resource_latest_validation(resource_id, validators)
+    DB.MultiValidation.resource_latest_validation(resource_id, validator)
   end
 
   defp validator_for_schema(schema_name) when not is_nil(schema_name) do

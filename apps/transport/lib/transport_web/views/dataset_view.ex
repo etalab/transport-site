@@ -505,23 +505,6 @@ defmodule TransportWeb.DatasetView do
     |> Path.join("/admin/community-resource/new/?dataset_id=#{datagouv_id}")
   end
 
-  @doc """
-  Temporary function to ease multi_validation transition
-  """
-  def multi_validation_plugged?(%Resource{format: format, schema_name: schema_name}) do
-    format_is_handled = format in Map.keys(Transport.ValidatorsSelection.formats_and_validators())
-    format_is_handled or schema_is_handled_by_multi_validation?(schema_name)
-  end
-
-  defp schema_is_handled_by_multi_validation?(schema_name) do
-    cond do
-      is_nil(schema_name) -> false
-      Transport.Shared.Schemas.Wrapper.is_tableschema?(schema_name) -> true
-      Transport.Shared.Schemas.Wrapper.is_jsonschema?(schema_name) -> true
-      true -> false
-    end
-  end
-
   def multi_validation_performed?(%DB.MultiValidation{result: %{"validation_performed" => false}}), do: false
   def multi_validation_performed?(%DB.MultiValidation{}), do: true
   def multi_validation_performed?(nil), do: false

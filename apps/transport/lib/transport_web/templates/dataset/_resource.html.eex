@@ -102,12 +102,10 @@
 
   <%= unless Resource.is_gtfs?(@resource) do %>
     <% [validation] = Map.get(validations, @resource.id) %>
-    <%= if multi_validation_plugged?(@resource) do %>
-      <%= if multi_validation_performed?(validation) do %>
-        <% nb_warnings = warnings_count(validation) %>
-        <% nb_errors = errors_count(validation) %>
-        <%= render TransportWeb.DatasetView, "_resource_validation_summary.html", conn: @conn, resource: @resource, validation: validation, nb_warnings: nb_warnings, nb_errors: nb_errors %>
-      <% end %>
+    <%= if multi_validation_performed?(validation) do %>
+      <% nb_warnings = warnings_count(validation) %>
+      <% nb_errors = errors_count(validation) %>
+      <%= render TransportWeb.DatasetView, "_resource_validation_summary.html", conn: @conn, resource: @resource, validation: validation, nb_warnings: nb_warnings, nb_errors: nb_errors %>
     <% end %>
   <% end %>
 
