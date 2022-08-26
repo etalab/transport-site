@@ -64,15 +64,12 @@
           <%= dgettext("page-dataset-details", "Not") %> <br>
           <%= dgettext("page-dataset-details", "available") %>
         <% else %>
-          <%= unless Resource.valid_and_available?(@resource) do %>
-            <%= dgettext("page-dataset-details", "Impossible to read") %>
-          <% else %>
-            <%= if Resource.is_outdated?(@resource) do %>
+            <%= if is_gtfs_outdated == true do %>
               <%= dgettext("page-dataset-details", "Outdated") %>
-            <% else %>
+            <% end %>
+            <%= if is_gtfs_outdated == false do %>
               <%= dgettext("page-dataset-details", "Up to date") %>
             <% end %>
-          <% end %>
         <% end %>
       </span>
     </div>
