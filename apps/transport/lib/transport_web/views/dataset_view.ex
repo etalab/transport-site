@@ -8,7 +8,6 @@ defmodule TransportWeb.DatasetView do
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
-  import Transport.GbfsUtils, only: [gbfs_validation_link: 1]
   alias Shared.DateTimeDisplay
   alias Transport.Validators.GTFSTransport
 
@@ -222,20 +221,6 @@ defmodule TransportWeb.DatasetView do
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
   def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
 
-  # For other resources
-  # The past ⬇️
-  # # https://github.com/etalab/transport-site/issues/2390
-  def summary_class(%{metadata: %{"validation" => %{"has_errors" => false}}}),
-    do: "resource__summary--Success"
-
-  def summary_class(%{metadata: %{"validation" => %{"errors_count" => 0, "warnings_count" => warnings_count}}})
-      when warnings_count > 0,
-      do: "resource__summary--Warning"
-
-  def summary_class(%{metadata: %{"validation" => _}}), do: "resource__summary--Error"
-
-  # The future ⬇️
-  # https://github.com/etalab/transport-site/issues/2390
   def summary_class(%DB.MultiValidation{result: %{"errors_count" => errors_count}})
       when is_integer(errors_count) and errors_count > 0 do
     "resource__summary--Error"
@@ -519,21 +504,6 @@ defmodule TransportWeb.DatasetView do
     |> Application.fetch_env!(:datagouvfr_site)
     |> Path.join("/admin/community-resource/new/?dataset_id=#{datagouv_id}")
   end
-
-  @doc """
-  Temporary function to ease multi_validation transition
-  """
-  def multi_validation_plugged?(%Resource{format: format}) when format in ["GTFS", "gtfs-rt"], do: true
-
-  def multi_validation_plugged?(%Resource{schema_name: schema_name}) when not is_nil(schema_name) do
-    cond do
-      Transport.Shared.Schemas.Wrapper.is_tableschema?(schema_name) -> true
-      Transport.Shared.Schemas.Wrapper.is_jsonschema?(schema_name) -> true
-      true -> false
-    end
-  end
-
-  def multi_validation_plugged?(%Resource{}), do: false
 
   def multi_validation_performed?(%DB.MultiValidation{result: %{"validation_performed" => false}}), do: false
   def multi_validation_performed?(%DB.MultiValidation{}), do: true
