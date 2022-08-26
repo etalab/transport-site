@@ -79,10 +79,10 @@ defmodule DB.MultiValidation do
     |> DB.Repo.exists?()
   end
 
-  @spec resource_latest_validation(integer(), atom) :: __MODULE__.t() | nil
+  @spec resource_latest_validation(integer(), atom | nil) :: __MODULE__.t() | nil
   def resource_latest_validation(_, nil), do: nil
 
-  def resource_latest_validation(resource_id, validator) do
+  def resource_latest_validation(resource_id, validator) when is_atom(validator) do
     validator_name = validator.validator_name()
 
     DB.MultiValidation
