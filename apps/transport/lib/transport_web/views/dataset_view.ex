@@ -283,11 +283,13 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def valid_panel_class(%Resource{} = r) do
-    case {Resource.is_gtfs?(r), Resource.valid_and_available?(r), Resource.is_outdated?(r)} do
-      {true, false, _} -> "invalid-resource-panel"
-      {true, _, true} -> "invalid-resource-panel"
-      _ -> ""
+  def valid_panel_class(%DB.Resource{is_available: false}, _), do: "invalid-resource-panel"
+
+  def valid_panel_class(%DB.Resource{} = r, is_outdated) do
+    if Resource.is_gtfs?(r) && is_outdated do
+      "invalid-resource-panel"
+    else
+      ""
     end
   end
 

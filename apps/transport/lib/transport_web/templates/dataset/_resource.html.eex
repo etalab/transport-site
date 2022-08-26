@@ -1,12 +1,13 @@
 <% locale = get_session(@conn, :locale) %>
-<div class="panel resource <%= valid_panel_class(@resource) %>" title="<%= resource_tooltip_content(@resource) %>">
-  <% has_associated_geojson = ResourceView.has_associated_geojson(@resources_related_files, @resource.id) %>
-  <% has_associated_netex = ResourceView.has_associated_netex(@resources_related_files, @resource.id) %>
-  <% is_geojson_with_viz = ResourceView.is_geojson_with_viz(@resource, Map.get(@latest_resources_history_infos || %{}, @resource.id)) %>
-  <% unavailabilities = @resources_infos.unavailabilities %>
-  <% resources_updated_at = @resources_infos.resources_updated_at %>
-  <% [validation] = @resources_infos.validations |> Map.get(@resource.id) %>
+<% has_associated_geojson = ResourceView.has_associated_geojson(@resources_related_files, @resource.id) %>
+<% has_associated_netex = ResourceView.has_associated_netex(@resources_related_files, @resource.id) %>
+<% is_geojson_with_viz = ResourceView.is_geojson_with_viz(@resource, Map.get(@latest_resources_history_infos || %{}, @resource.id)) %>
+<% unavailabilities = @resources_infos.unavailabilities %>
+<% resources_updated_at = @resources_infos.resources_updated_at %>
+<% [validation] = @resources_infos.validations |> Map.get(@resource.id) %>
+<% is_gtfs_outdated =  Transport.Validators.GTFSTransport.is_gtfs_outdated(validation) %>
 
+<div class="panel resource <%= valid_panel_class(@resource, is_gtfs_outdated) %>" title="<%= resource_tooltip_content(@resource) %>">
   <h4>
     <%= @resource.title %>
   </h4>
