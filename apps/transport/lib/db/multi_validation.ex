@@ -122,9 +122,18 @@ defmodule DB.MultiValidation do
     |> join(:left, [r, rh], mv in subquery(latest_validations),
       on: rh.id == mv.resource_history_id or r.id == mv.resource_id
     )
+    |> join(:left, [r, rh, mv], metadata in DB.ResourceMetadata, on: metadata.resource_history_id == mv.id)
     |> where([r, rh, mv], r.dataset_id == ^dataset_id)
-    |> select([r, rh, mv], {r.id, mv})
+    |> select([r, rh, mv, metadata], {r.id, mv, metadata})
     |> DB.Repo.all()
-    |> Enum.group_by(fn {k, _} -> k end, fn {_, v} -> v end)
+    |> Enum.group_by(fn {k, _, _} -> k end, fn {_, mv, metadata} ->
+      if is_nil(mv) do
+        nil
+      else
+        # you cannot preload in a subquery, so we cannot preload the multi-validation associated metadata easily
+        # we do the work manually, with a join and then put the metadata in the multi-validation
+        Map.put(mv, :metadata, metadata)
+      end
+    end)
   end
 end
