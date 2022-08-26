@@ -276,12 +276,8 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def outdated_class(resource) do
-    case Resource.is_outdated?(resource) do
-      true -> "resource__summary--Error"
-      false -> ""
-    end
-  end
+  def outdated_class(_is_outdated = true), do: "resource__summary--Error"
+  def outdated_class(_is_outdated = _), do: ""
 
   def valid_panel_class(%DB.Resource{is_available: false}, _), do: "invalid-resource-panel"
 

@@ -19,15 +19,17 @@
     </div>
   <% end %>
 
-  <% start_date = validation |> get_metadata_info("start_date") %>
-  <% end_date = validation |> get_metadata_info("end_date") %>
-  <%= if start_date && end_date do %>
-    <div title="<%= dgettext("page-dataset-details", "Validity period") %>">
-      <i class="icon icon--calendar-alt" aria-hidden="true"></i>
-      <span><%= start_date |> DateTimeDisplay.format_date(locale) %></span>
-      <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
-      <span class="<%= outdated_class(@resource) %>"><%= end_date |> DateTimeDisplay.format_date(locale) %></span>
-    </div>
+  <%= if Resource.is_gtfs?(@resource) do %>
+    <% start_date = validation |> get_metadata_info("start_date") %>
+    <% end_date = validation |> get_metadata_info("end_date") %>
+    <%= if start_date && end_date do %>
+      <div title="<%= dgettext("page-dataset-details", "Validity period") %>">
+        <i class="icon icon--calendar-alt" aria-hidden="true"></i>
+        <span><%= start_date |> DateTimeDisplay.format_date(locale) %></span>
+        <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
+        <span class="<%= outdated_class(is_gtfs_outdated) %>"><%= end_date |> DateTimeDisplay.format_date(locale) %></span>
+      </div>
+    <% end %>
   <% end %>
 
   <div class="pb-24 light-gry">
