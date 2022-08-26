@@ -146,10 +146,14 @@ defmodule DB.MultiValidation do
   nil
   iex> get_metadata_info(nil, :foo)
   nil
+  iex> get_metadata_info(nil, :foo, [])
+  []
   """
-  def get_metadata_info(%__MODULE__{metadata: %{metadata: metadata}}, metadata_key) do
-    Map.get(metadata, metadata_key)
+  def get_metadata_info(multi_validation, metadata_key, default \\ nil)
+
+  def get_metadata_info(%__MODULE__{metadata: %{metadata: metadata}}, metadata_key, default) do
+    Map.get(metadata, metadata_key, default)
   end
 
-  def get_metadata_info(_, _), do: nil
+  def get_metadata_info(_, _, default), do: default
 end
