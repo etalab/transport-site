@@ -5,7 +5,7 @@
   <% is_geojson_with_viz = ResourceView.is_geojson_with_viz(@resource, Map.get(@latest_resources_history_infos || %{}, @resource.id)) %>
   <% unavailabilities = @resources_infos.unavailabilities %>
   <% resources_updated_at = @resources_infos.resources_updated_at %>
-  <% validations = @resources_infos.validations %>
+  <% [validation] = @resources_infos.validations |> Map.get(@resource.id) %>
 
   <h4>
     <%= @resource.title %>
@@ -18,16 +18,18 @@
     </div>
   <% end %>
 
-  <%= if Resource.valid_and_available?(@resource) do %>
+  <% start_date = validation |> get_metadata_info("start_date") %>
+  <% end_date = validation |> get_metadata_info("end_date") %>
+  <%= if start_date && end_date do %>
     <div title="<%= dgettext("page-dataset-details", "Validity period") %>">
       <i class="icon icon--calendar-alt" aria-hidden="true"></i>
-      <span><%= DateTimeDisplay.format_date(@resource.metadata["start_date"], locale) %></span>
+      <span><%= start_date |> DateTimeDisplay.format_date(locale) %></span>
       <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
-      <span class="<%= outdated_class(@resource) %>"><%= DateTimeDisplay.format_date(@resource.metadata["end_date"], locale) %></span>
+      <span class="<%= outdated_class(@resource) %>"><%= end_date |> DateTimeDisplay.format_date(locale) %></span>
     </div>
   <% end %>
-  <div class="pb-24 light-gry">
 
+  <div class="pb-24 light-gry">
     <span title="<%= dgettext("page-dataset-details", "last content modification") %>">
       <i class="icon icon--sync-alt" aria-hidden="true"></i>
         <%= show_resource_last_update(resources_updated_at, @resource, locale) %>
@@ -74,7 +76,6 @@
   <% end %>
 
   <%= if Resource.is_gtfs?(@resource) do %>
-    <% [validation] = Map.get(validations, @resource.id) %>
     <%= if GTFSTransport.is_mine?(validation) do %>
       <div class="pb-24">
         <a href="<%= resource_path(@conn, :details, @resource.id)<>"#validation-report" %>">
@@ -101,7 +102,6 @@
 
 
   <%= unless Resource.is_gtfs?(@resource) do %>
-    <% [validation] = Map.get(validations, @resource.id) %>
     <%= if multi_validation_performed?(validation) do %>
       <% nb_warnings = warnings_count(validation) %>
       <% nb_errors = errors_count(validation) %>

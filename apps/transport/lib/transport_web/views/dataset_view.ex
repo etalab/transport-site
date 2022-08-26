@@ -8,6 +8,7 @@ defmodule TransportWeb.DatasetView do
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
+  import DB.MultiValidation, only: [get_metadata_info: 2]
   alias Shared.DateTimeDisplay
   alias Transport.Validators.GTFSTransport
 
