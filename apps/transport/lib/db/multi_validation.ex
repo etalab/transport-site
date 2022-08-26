@@ -82,15 +82,15 @@ defmodule DB.MultiValidation do
   @spec resource_latest_validation(integer(), atom | nil) :: __MODULE__.t() | nil
   def resource_latest_validation(_, nil), do: nil
 
-  def resource_latest_validation(resource_id, validator) do
-    validators_name = validator.validator_name()
+  def resource_latest_validation(resource_id, validator) when is_atom(validator) do
+    validator_name = validator.validator_name()
 
     DB.MultiValidation
     |> join(:left, [mv], rh in DB.ResourceHistory,
       on: rh.id == mv.resource_history_id and rh.resource_id == ^resource_id
     )
     |> join(:left, [mv, rh], r in DB.Resource, on: r.id == mv.resource_id and r.id == ^resource_id)
-    |> where([mv, rh, r], mv.validator == ^validators_name and (not is_nil(rh.id) or not is_nil(r.id)))
+    |> where([mv, rh, r], mv.validator == ^validator_name and (not is_nil(rh.id) or not is_nil(r.id)))
     |> order_by([mv, rh, r], desc: rh.inserted_at, desc: r.id, desc: mv.validation_timestamp)
     |> preload(:metadata)
     |> limit(1)
