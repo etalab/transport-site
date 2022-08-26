@@ -136,4 +136,20 @@ defmodule DB.MultiValidation do
       end
     end)
   end
+
+  @doc """
+  Get a metadata field, given a preloaded multi_validation struct. Returns nil if it fails.
+
+  iex> get_metadata_info(%DB.MultiValidation{metadata: %DB.ResourceMetadata{metadata: %{age: 11}}}, :age)
+  11
+  iex> get_metadata_info(%DB.MultiValidation{metadata: %DB.ResourceMetadata{metadata: %{age: 11}}}, :foo)
+  nil
+  iex> get_metadata_info(nil, :foo)
+  nil
+  """
+  def get_metadata_info(%__MODULE__{metadata: %{metadata: metadata}}, metadata_key) do
+    Map.get(metadata, metadata_key)
+  end
+
+  def get_metadata_info(_, _), do: nil
 end

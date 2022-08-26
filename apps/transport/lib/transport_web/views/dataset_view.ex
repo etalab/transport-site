@@ -9,6 +9,7 @@ defmodule TransportWeb.DatasetView do
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
   import Transport.GbfsUtils, only: [gbfs_validation_link: 1]
+  import DB.MultiValidation, only: [get_metadata_info: 2]
   alias Shared.DateTimeDisplay
   alias Transport.Validators.GTFSTransport
 

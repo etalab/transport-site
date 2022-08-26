@@ -1,6 +1,6 @@
 defmodule DB.MultiValidationTest do
   use ExUnit.Case, async: true
-  doctest DB.MultiValidation
+  doctest DB.MultiValidation, import: true
   import DB.Factory
   import Ecto.Query
 
