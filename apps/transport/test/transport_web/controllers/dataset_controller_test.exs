@@ -261,14 +261,6 @@ defmodule TransportWeb.DatasetControllerTest do
       })
 
     Transport.Shared.Schemas.Mock
-    |> expect(:schemas_by_type, 2, fn type ->
-      case type do
-        "tableschema" -> %{}
-        "jsonschema" -> %{schema_name => %{}}
-      end
-    end)
-
-    Transport.Shared.Schemas.Mock
     |> expect(:transport_schemas, 1, fn -> %{schema_name => %{"title" => "foo"}} end)
 
     insert(:multi_validation, %{
