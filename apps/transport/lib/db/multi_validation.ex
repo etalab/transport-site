@@ -122,7 +122,7 @@ defmodule DB.MultiValidation do
     |> join(:left, [r, rh], mv in subquery(latest_validations),
       on: rh.id == mv.resource_history_id or r.id == mv.resource_id
     )
-    |> join(:left, [r, rh, mv], metadata in DB.ResourceMetadata, on: metadata.resource_history_id == mv.id)
+    |> join(:left, [r, rh, mv], metadata in DB.ResourceMetadata, on: metadata.multi_validation_id == mv.id)
     |> where([r, rh, mv], r.dataset_id == ^dataset_id)
     |> select([r, rh, mv, metadata], {r.id, mv, metadata})
     |> DB.Repo.all()
