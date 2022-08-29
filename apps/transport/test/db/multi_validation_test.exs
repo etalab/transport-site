@@ -206,6 +206,34 @@ defmodule DB.MultiValidationTest do
 
       assert [nil] = validations |> Map.get(resource_id_3)
     end
+
+    test "dataset_latest_validation with ResourceMetadata joined by multi_validation_id" do
+      validator_1 = Transport.Validators.GTFSTransport
+
+      %{id: dataset_id} = insert(:dataset)
+      %{id: resource_id_1} = insert(:resource, %{dataset_id: dataset_id})
+      %{id: resource_history_id_1} = insert(:resource_history, %{resource_id: resource_id_1})
+
+      %{id: multi_validation_id} =
+        insert(:multi_validation, %{
+          resource_history_id: resource_history_id_1,
+          validator: validator_1.validator_name(),
+          metadata: %DB.ResourceMetadata{metadata: %{"foo" => "bar"}}
+        })
+
+      validations = DB.MultiValidation.dataset_latest_validation(dataset_id, [validator_1])
+
+      resource_1_validations = validations |> Map.get(resource_id_1)
+
+      assert Enum.count(resource_1_validations) == 1
+      latest_multi_validation = hd(resource_1_validations)
+
+      assert %{metadata: %{"foo" => "bar"}, multi_validation_id: ^multi_validation_id} =
+               latest_multi_validation.metadata
+
+      assert DB.MultiValidation.get_metadata_info(latest_multi_validation, "foo") == "bar"
+      assert is_nil(DB.MultiValidation.get_metadata_info(latest_multi_validation, "baz"))
+    end
   end
 
   test "latest resource validation (no resource history)" do
