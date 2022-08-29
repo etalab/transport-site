@@ -276,18 +276,16 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def outdated_class(resource) do
-    case Resource.is_outdated?(resource) do
-      true -> "resource__summary--Error"
-      false -> ""
-    end
-  end
+  def outdated_class(true = _is_outdated), do: "resource__summary--Error"
+  def outdated_class(_), do: ""
 
-  def valid_panel_class(%Resource{} = r) do
-    case {Resource.is_gtfs?(r), Resource.valid_and_available?(r), Resource.is_outdated?(r)} do
-      {true, false, _} -> "invalid-resource-panel"
-      {true, _, true} -> "invalid-resource-panel"
-      _ -> ""
+  def valid_panel_class(%DB.Resource{is_available: false}, _), do: "invalid-resource-panel"
+
+  def valid_panel_class(%DB.Resource{} = r, is_outdated) do
+    if Resource.is_gtfs?(r) && is_outdated do
+      "invalid-resource-panel"
+    else
+      ""
     end
   end
 
@@ -444,20 +442,10 @@ defmodule TransportWeb.DatasetView do
   def resource_span_class(%DB.Resource{is_available: false}), do: "span-unavailable"
   def resource_span_class(%DB.Resource{}), do: nil
 
-  def resource_class(%DB.Resource{is_available: false}), do: "resource--unavailable"
-
-  def resource_class(%DB.Resource{} = r) do
-    case DB.Resource.valid_and_available?(r) do
-      false ->
-        "resource--notvalid"
-
-      _ ->
-        case DB.Resource.is_outdated?(r) do
-          true -> "resource--outdated"
-          false -> "resource--valid"
-        end
-    end
-  end
+  def resource_class(false = _is_available, _), do: "resource--unavailable"
+  def resource_class(_, true = _is_outdated), do: "resource--outdated"
+  def resource_class(_, false = _is_outdated), do: "resource--valid"
+  def resource_class(_, _), do: ""
 
   def order_resources_by_validity(resources) do
     resources

@@ -1,12 +1,13 @@
 <% locale = get_session(@conn, :locale) %>
-<div class="panel resource <%= valid_panel_class(@resource) %>" title="<%= resource_tooltip_content(@resource) %>">
-  <% has_associated_geojson = ResourceView.has_associated_geojson(@resources_related_files, @resource.id) %>
-  <% has_associated_netex = ResourceView.has_associated_netex(@resources_related_files, @resource.id) %>
-  <% is_geojson_with_viz = ResourceView.is_geojson_with_viz(@resource, Map.get(@latest_resources_history_infos || %{}, @resource.id)) %>
-  <% unavailabilities = @resources_infos.unavailabilities %>
-  <% resources_updated_at = @resources_infos.resources_updated_at %>
-  <% [validation] = @resources_infos.validations |> Map.get(@resource.id) %>
+<% has_associated_geojson = ResourceView.has_associated_geojson(@resources_related_files, @resource.id) %>
+<% has_associated_netex = ResourceView.has_associated_netex(@resources_related_files, @resource.id) %>
+<% is_geojson_with_viz = ResourceView.is_geojson_with_viz(@resource, Map.get(@latest_resources_history_infos || %{}, @resource.id)) %>
+<% unavailabilities = @resources_infos.unavailabilities %>
+<% resources_updated_at = @resources_infos.resources_updated_at %>
+<% [validation] = @resources_infos.validations |> Map.get(@resource.id) %>
+<% is_gtfs_outdated =  Transport.Validators.GTFSTransport.is_gtfs_outdated(validation) %>
 
+<div class="panel resource <%= valid_panel_class(@resource, is_gtfs_outdated) %>" title="<%= resource_tooltip_content(@resource) %>">
   <h4>
     <%= @resource.title %>
   </h4>
@@ -18,15 +19,17 @@
     </div>
   <% end %>
 
-  <% start_date = validation |> get_metadata_info("start_date") %>
-  <% end_date = validation |> get_metadata_info("end_date") %>
-  <%= if start_date && end_date do %>
-    <div title="<%= dgettext("page-dataset-details", "Validity period") %>">
-      <i class="icon icon--calendar-alt" aria-hidden="true"></i>
-      <span><%= start_date |> DateTimeDisplay.format_date(locale) %></span>
-      <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
-      <span class="<%= outdated_class(@resource) %>"><%= end_date |> DateTimeDisplay.format_date(locale) %></span>
-    </div>
+  <%= if Resource.is_gtfs?(@resource) do %>
+    <% start_date = validation |> get_metadata_info("start_date") %>
+    <% end_date = validation |> get_metadata_info("end_date") %>
+    <%= if start_date && end_date do %>
+      <div title="<%= dgettext("page-dataset-details", "Validity period") %>">
+        <i class="icon icon--calendar-alt" aria-hidden="true"></i>
+        <span><%= start_date |> DateTimeDisplay.format_date(locale) %></span>
+        <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
+        <span class="<%= outdated_class(is_gtfs_outdated) %>"><%= end_date |> DateTimeDisplay.format_date(locale) %></span>
+      </div>
+    <% end %>
   <% end %>
 
   <div class="pb-24 light-gry">
@@ -55,20 +58,17 @@
   </div>
 
   <%= if Resource.is_gtfs?(@resource) or not @resource.is_available do %>
-    <div class="resource-status-corner <%= resource_class(@resource) %>">
+    <div class="resource-status-corner <%= resource_class(@resource.is_available, is_gtfs_outdated) %>">
       <span class="<%= resource_span_class(@resource) %>">
         <%= unless @resource.is_available do %>
           <%= dgettext("page-dataset-details", "Not") %> <br>
           <%= dgettext("page-dataset-details", "available") %>
         <% else %>
-          <%= unless Resource.valid_and_available?(@resource) do %>
-            <%= dgettext("page-dataset-details", "Impossible to read") %>
-          <% else %>
-            <%= if Resource.is_outdated?(@resource) do %>
-              <%= dgettext("page-dataset-details", "Outdated") %>
-            <% else %>
-              <%= dgettext("page-dataset-details", "Up to date") %>
-            <% end %>
+          <%= if is_gtfs_outdated == true do %>
+            <%= dgettext("page-dataset-details", "Outdated") %>
+          <% end %>
+          <%= if is_gtfs_outdated == false do %>
+            <%= dgettext("page-dataset-details", "Up to date") %>
           <% end %>
         <% end %>
       </span>
@@ -126,7 +126,7 @@
           <% end %>
         </div>
       <% end %>
-      <%= if Resource.has_metadata?(@resource) and Resource.is_gbfs?(@resource) do %>
+      <%= if Resource.is_gbfs?(@resource) do %>
         <%= for version <- validation |> get_metadata_info("versions", []) do %>
           <a href="<%= gbfs_documentation_link(version) %>" target="_blank">
             <span class="label version"><%= dgettext("page-dataset-details", "Version %{version}", version: version) %></span>

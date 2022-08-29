@@ -6,6 +6,7 @@ defmodule Transport.Validators.GTFSTransport do
   import TransportWeb.Gettext, only: [dgettext: 2]
 
   @no_error "NoError"
+  @validator_name "GTFS transport-validator"
 
   @doc """
   Validates a resource history and extract metadata from it.
@@ -51,7 +52,7 @@ defmodule Transport.Validators.GTFSTransport do
   def validate(url), do: Shared.Validation.GtfsValidator.Wrapper.impl().validate_from_url(url)
 
   @impl Transport.Validators.Validator
-  def validator_name, do: "GTFS transport-validator"
+  def validator_name, do: @validator_name
 
   def command(url), do: Shared.Validation.GtfsValidator.remote_gtfs_validation_query(url)
 
@@ -214,4 +215,36 @@ defmodule Transport.Validators.GTFSTransport do
       "InvalidStopParent" => dgettext("gtfs-transport-validator", "Invalid stop parent"),
       "IdNotAscii" => dgettext("gtfs-transport-validator", "ID is not ASCII-encoded")
     }
+
+  @spec is_gtfs_outdated(any()) :: boolean | nil
+  @doc """
+  true if the gtfs is outdated
+  false if not
+  nil if we don't know
+
+  iex> validation = %DB.MultiValidation{validator: validator_name(), metadata: %DB.ResourceMetadata{metadata: %{"end_date" => "1900-01-01"}}}
+  iex> is_gtfs_outdated(validation)
+  true
+  iex> validation = %DB.MultiValidation{validator: validator_name(), metadata: %DB.ResourceMetadata{metadata: %{"end_date" => "2900-01-01"}}}
+  iex> is_gtfs_outdated(validation)
+  false
+  iex> is_gtfs_outdated(%DB.MultiValidation{})
+  nil
+  iex> validation = %DB.MultiValidation{validator: validator_name(), metadata: %DB.ResourceMetadata{metadata: %{"end_date" => Date.utc_today() |> Date.to_iso8601()}}}
+  iex> is_gtfs_outdated(validation)
+  true
+  """
+  def is_gtfs_outdated(%DB.MultiValidation{validator: @validator_name} = multi_validation) do
+    multi_validation
+    |> DB.MultiValidation.get_metadata_info("end_date")
+    |> case do
+      nil ->
+        nil
+
+      end_date ->
+        end_date |> Date.from_iso8601!() |> Date.compare(Date.utc_today()) !== :gt
+    end
+  end
+
+  def is_gtfs_outdated(_), do: nil
 end

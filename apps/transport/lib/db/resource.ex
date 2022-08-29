@@ -515,9 +515,6 @@ defmodule DB.Resource do
     |> validate_required([:url, :datagouv_id])
   end
 
-  @spec has_metadata?(__MODULE__.t()) :: boolean()
-  def has_metadata?(%__MODULE__{} = r), do: r.metadata != nil
-
   @spec valid_and_available?(__MODULE__.t()) :: boolean()
   def valid_and_available?(%__MODULE__{
         is_available: available,
