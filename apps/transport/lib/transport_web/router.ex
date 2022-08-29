@@ -8,6 +8,7 @@ defmodule TransportWeb.Router do
   end
 
   pipeline :browser do
+    plug(PlugCanonicalHost, if: {Transport.Application, :webserver_only? && Mix.env() == :prod}, canonical_host: System.get_env("DOMAIN_NAME"))
     plug(:accepts, ["html"])
     plug(:fetch_session)
     plug(:fetch_live_flash)
