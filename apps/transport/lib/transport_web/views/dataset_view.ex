@@ -276,8 +276,8 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def outdated_class(_is_outdated = true), do: "resource__summary--Error"
-  def outdated_class(_is_outdated = _), do: ""
+  def outdated_class(true = _is_outdated), do: "resource__summary--Error"
+  def outdated_class(_), do: ""
 
   def valid_panel_class(%DB.Resource{is_available: false}, _), do: "invalid-resource-panel"
 
@@ -442,9 +442,9 @@ defmodule TransportWeb.DatasetView do
   def resource_span_class(%DB.Resource{is_available: false}), do: "span-unavailable"
   def resource_span_class(%DB.Resource{}), do: nil
 
-  def resource_class(_is_available = false, _), do: "resource--unavailable"
-  def resource_class(_, _is_outdated = true), do: "resource--outdated"
-  def resource_class(_, _is_outdated = false), do: "resource--valid"
+  def resource_class(false = _is_available, _), do: "resource--unavailable"
+  def resource_class(_, true = _is_outdated), do: "resource--outdated"
+  def resource_class(_, false = _is_outdated), do: "resource--valid"
   def resource_class(_, _), do: ""
 
   def order_resources_by_validity(resources) do
