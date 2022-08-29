@@ -533,3 +533,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Resources with a schema"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Browse the API"
+msgstr ""

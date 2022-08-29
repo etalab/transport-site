@@ -533,3 +533,7 @@ msgstr "Les producteurs peuvent partager dans cette section : charte graphique, 
 #, elixir-autogen, elixir-format
 msgid "Resources with a schema"
 msgstr "Ressources avec schéma"
+
+#, elixir-autogen, elixir-format
+msgid "Browse the API"
+msgstr "Lien vers l'API"
