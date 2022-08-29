@@ -1,0 +1,27 @@
+<section class="container pt-48 pb-48">
+  <h1>Statistiques des requêtes GBFS</h1>
+  <table class="table mt-48">
+    <thead>
+      <tr>
+        <th>Réseau</th>
+        <th title="Requêtes reçues par le PAN sur les {@stats_days} derniers jours">Req ext <%= @stats_days %>j</th>
+        <th title="Requêtes envoyées au serveur du producteur sur les {@stats_days} derniers jours">
+          Req int <%= @stats_days %>j
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for item <- @stats do %>
+        <tr>
+          <td><%= item.network_name %></td>
+          <td><%= Helpers.format_number(item[:stats_external_requests]) %></td>
+          <td><%= Helpers.format_number(item[:stats_internal_requests]) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <p class="small">Dernière mise à jour: <%= @last_updated_at %></p>
+</section>
+<script defer type="text/javascript" src="/js/app.js" ) %>
+  >
+</script>

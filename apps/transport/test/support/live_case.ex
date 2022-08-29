@@ -11,7 +11,13 @@ defmodule TransportWeb.LiveCase do
 
       def extract_data_from_html(html) do
         doc = Floki.parse_document!(html)
-        headers = doc |> Floki.find("table thead tr th") |> Enum.map(&Floki.text/1)
+
+        headers =
+          doc
+          |> Floki.find("table thead tr th")
+          |> Enum.map(&Floki.text/1)
+          # delete newline and additional spaces (caused by formatting)
+          |> Enum.map(&String.replace(&1, ~r/\n\s*/, ""))
 
         doc
         |> Floki.find("table tbody tr")
