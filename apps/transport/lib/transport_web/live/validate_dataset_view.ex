@@ -8,7 +8,7 @@ defmodule TransportWeb.Live.ValidateDatasetView do
 
   def render(assigns) do
     ~H"""
-    <button class={@button_class} phx-click="validate_dataset" { @button_disabled}>
+    <button class={@button_class} phx-click="validate_dataset" disabled={@button_disabled}>
       <%= @button_text %>
     </button>
     """
@@ -55,7 +55,7 @@ defmodule TransportWeb.Live.ValidateDatasetView do
       socket,
       button_text: button_texts(step),
       button_class: button_classes(step),
-      button_disabled: if(step in @button_disabled, do: "disabled", else: "")
+      button_disabled: step in @button_disabled
     )
   end
 
