@@ -64,12 +64,12 @@
           <%= dgettext("page-dataset-details", "Not") %> <br>
           <%= dgettext("page-dataset-details", "available") %>
         <% else %>
-            <%= if is_gtfs_outdated == true do %>
-              <%= dgettext("page-dataset-details", "Outdated") %>
-            <% end %>
-            <%= if is_gtfs_outdated == false do %>
-              <%= dgettext("page-dataset-details", "Up to date") %>
-            <% end %>
+          <%= if is_gtfs_outdated == true do %>
+            <%= dgettext("page-dataset-details", "Outdated") %>
+          <% end %>
+          <%= if is_gtfs_outdated == false do %>
+            <%= dgettext("page-dataset-details", "Up to date") %>
+          <% end %>
         <% end %>
       </span>
     </div>
@@ -126,7 +126,7 @@
           <% end %>
         </div>
       <% end %>
-      <%= if Resource.has_metadata?(@resource) and Resource.is_gbfs?(@resource) do %>
+      <%= if Resource.is_gbfs?(@resource) do %>
         <%= for version <- validation |> get_metadata_info("versions", []) do %>
           <a href="<%= gbfs_documentation_link(version) %>" target="_blank">
             <span class="label version"><%= dgettext("page-dataset-details", "Version %{version}", version: version) %></span>

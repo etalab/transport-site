@@ -279,10 +279,6 @@ msgid "Covered area"
 msgstr "Couverture spatiale"
 
 #, elixir-autogen, elixir-format
-msgid "Impossible to read"
-msgstr "Illisible"
-
-#, elixir-autogen, elixir-format
 msgid "during validation"
 msgstr "lors de la validation"
 
