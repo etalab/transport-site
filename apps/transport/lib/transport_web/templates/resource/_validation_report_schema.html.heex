@@ -7,26 +7,10 @@
     ) %>
   </p>
   <%= unless is_nil(@multi_validation) do %>
-    <p>
-      <b>
-        <% nb_errors = errors_count(@multi_validation) %>
-        <%= if nb_errors == 0 do %>
-          <span class="icon--validation">✅</span><%= dgettext("validations", "No error detected") %>
-        <% else %>
-          <span class="icon--validation">❌</span><%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
-        <% end %>
-      </b>
-    </p>
+    <% nb_errors = errors_count(@multi_validation) %>
+    <%= render("_errors_warnings_count.html", nb_errors: nb_errors, nb_warnings: 0) %>
     <%= if nb_errors > 0 do %>
-      <p class="notification">
-        <%= raw(
-          dgettext(
-            "validations",
-            ~s(Are you the producer of this data? Once you have fixed your errors, you can verify that your file is valid <a href="%{link}" target="_blank">using our validators</a>.),
-            link: on_demand_validation_link(@conn, @resource)
-          )
-        ) %>
-      </p>
+      <%= render("_on_demand_validation_hint.html", conn: @conn, resource: @resource) %>
       <p><%= dgettext("validations", "Errors:") %></p>
       <% is_jsonschema = @multi_validation.result["schema_type"] == "jsonschema" %>
       <ul lang={if is_jsonschema, do: "en"}>

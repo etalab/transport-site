@@ -8,7 +8,7 @@ defmodule TransportWeb.DatasetView do
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
-  import Transport.GbfsUtils, only: [gbfs_validation_link: 1]
+  import DB.MultiValidation, only: [get_metadata_info: 2, get_metadata_info: 3]
   alias Shared.DateTimeDisplay
   alias Transport.Validators.GTFSTransport
 
@@ -222,20 +222,6 @@ defmodule TransportWeb.DatasetView do
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
   def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
 
-  # For other resources
-  # The past ⬇️
-  # # https://github.com/etalab/transport-site/issues/2390
-  def summary_class(%{metadata: %{"validation" => %{"has_errors" => false}}}),
-    do: "resource__summary--Success"
-
-  def summary_class(%{metadata: %{"validation" => %{"errors_count" => 0, "warnings_count" => warnings_count}}})
-      when warnings_count > 0,
-      do: "resource__summary--Warning"
-
-  def summary_class(%{metadata: %{"validation" => _}}), do: "resource__summary--Error"
-
-  # The future ⬇️
-  # https://github.com/etalab/transport-site/issues/2390
   def summary_class(%DB.MultiValidation{result: %{"errors_count" => errors_count}})
       when is_integer(errors_count) and errors_count > 0 do
     "resource__summary--Error"
@@ -290,18 +276,16 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def outdated_class(resource) do
-    case Resource.is_outdated?(resource) do
-      true -> "resource__summary--Error"
-      false -> ""
-    end
-  end
+  def outdated_class(true = _is_outdated), do: "resource__summary--Error"
+  def outdated_class(_), do: ""
 
-  def valid_panel_class(%Resource{} = r) do
-    case {Resource.is_gtfs?(r), Resource.valid_and_available?(r), Resource.is_outdated?(r)} do
-      {true, false, _} -> "invalid-resource-panel"
-      {true, _, true} -> "invalid-resource-panel"
-      _ -> ""
+  def valid_panel_class(%DB.Resource{is_available: false}, _), do: "invalid-resource-panel"
+
+  def valid_panel_class(%DB.Resource{} = r, is_outdated) do
+    if Resource.is_gtfs?(r) && is_outdated do
+      "invalid-resource-panel"
+    else
+      ""
     end
   end
 
@@ -335,6 +319,13 @@ defmodule TransportWeb.DatasetView do
       |> official_available_resources()
       |> Enum.filter(&Resource.is_netex?/1)
 
+  def schemas_resources(dataset) do
+    dataset
+    |> official_available_resources()
+    |> Enum.filter(&Resource.has_schema?/1)
+    |> Enum.sort_by(& &1.display_position)
+  end
+
   def other_official_resources(dataset) do
     dataset
     |> official_available_resources()
@@ -342,6 +333,7 @@ defmodule TransportWeb.DatasetView do
     |> Stream.reject(&Resource.is_netex?/1)
     |> Stream.reject(&Resource.is_real_time?/1)
     |> Stream.reject(&Resource.is_documentation?/1)
+    |> Stream.reject(&Resource.has_schema?/1)
     |> Enum.to_list()
     |> Enum.sort_by(& &1.display_position)
   end
@@ -450,20 +442,10 @@ defmodule TransportWeb.DatasetView do
   def resource_span_class(%DB.Resource{is_available: false}), do: "span-unavailable"
   def resource_span_class(%DB.Resource{}), do: nil
 
-  def resource_class(%DB.Resource{is_available: false}), do: "resource--unavailable"
-
-  def resource_class(%DB.Resource{} = r) do
-    case DB.Resource.valid_and_available?(r) do
-      false ->
-        "resource--notvalid"
-
-      _ ->
-        case DB.Resource.is_outdated?(r) do
-          true -> "resource--outdated"
-          false -> "resource--valid"
-        end
-    end
-  end
+  def resource_class(false = _is_available, _), do: "resource--unavailable"
+  def resource_class(_, true = _is_outdated), do: "resource--outdated"
+  def resource_class(_, false = _is_outdated), do: "resource--valid"
+  def resource_class(_, _), do: ""
 
   def order_resources_by_validity(resources) do
     resources
@@ -511,21 +493,6 @@ defmodule TransportWeb.DatasetView do
     |> Application.fetch_env!(:datagouvfr_site)
     |> Path.join("/admin/community-resource/new/?dataset_id=#{datagouv_id}")
   end
-
-  @doc """
-  Temporary function to ease multi_validation transition
-  """
-  def multi_validation_plugged?(%Resource{format: format}) when format in ["GTFS", "gtfs-rt"], do: true
-
-  def multi_validation_plugged?(%Resource{schema_name: schema_name}) when not is_nil(schema_name) do
-    cond do
-      Transport.Shared.Schemas.Wrapper.is_tableschema?(schema_name) -> true
-      Transport.Shared.Schemas.Wrapper.is_jsonschema?(schema_name) -> true
-      true -> false
-    end
-  end
-
-  def multi_validation_plugged?(%Resource{}), do: false
 
   def multi_validation_performed?(%DB.MultiValidation{result: %{"validation_performed" => false}}), do: false
   def multi_validation_performed?(%DB.MultiValidation{}), do: true

@@ -22,7 +22,11 @@ defmodule Transport.ValidatorsSelection.Impl do
   @impl Transport.ValidatorsSelection
   @spec formats_and_validators :: map()
   def formats_and_validators do
-    %{"GTFS" => [Validators.GTFSTransport]}
+    %{
+      "GTFS" => [Validators.GTFSTransport],
+      "gtfs-rt" => [Validators.GTFSRT],
+      "gbfs" => [Validators.GBFSValidator]
+    }
   end
 
   @doc """

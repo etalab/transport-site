@@ -279,10 +279,6 @@ msgid "Covered area"
 msgstr "Couverture spatiale"
 
 #, elixir-autogen, elixir-format
-msgid "Impossible to read"
-msgstr "Illisible"
-
-#, elixir-autogen, elixir-format
 msgid "during validation"
 msgstr "lors de la validation"
 
@@ -533,3 +529,7 @@ msgstr "et "
 #, elixir-autogen, elixir-format
 msgid "Producers can share in this section design guidelines, documentation, etc. Use the <a href=\"%{url}\" target=\"_blank\">documentation type</a> on data.gouv.fr."
 msgstr "Les producteurs peuvent partager dans cette section : charte graphique, documentation, etc. Utilisez <a href=\"%{url}\" target=\"_blank\">le type documentation</a> sur data.gouv.fr."
+
+#, elixir-autogen, elixir-format
+msgid "Resources with a schema"
+msgstr "Ressources avec schéma"

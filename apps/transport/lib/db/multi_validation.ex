@@ -79,10 +79,10 @@ defmodule DB.MultiValidation do
     |> DB.Repo.exists?()
   end
 
-  @spec resource_latest_validation(integer(), atom) :: __MODULE__.t() | nil
+  @spec resource_latest_validation(integer(), atom | nil) :: __MODULE__.t() | nil
   def resource_latest_validation(_, nil), do: nil
 
-  def resource_latest_validation(resource_id, validator) do
+  def resource_latest_validation(resource_id, validator) when is_atom(validator) do
     validator_name = validator.validator_name()
 
     DB.MultiValidation
@@ -122,9 +122,38 @@ defmodule DB.MultiValidation do
     |> join(:left, [r, rh], mv in subquery(latest_validations),
       on: rh.id == mv.resource_history_id or r.id == mv.resource_id
     )
+    |> join(:left, [r, rh, mv], metadata in DB.ResourceMetadata, on: metadata.multi_validation_id == mv.id)
     |> where([r, rh, mv], r.dataset_id == ^dataset_id)
-    |> select([r, rh, mv], {r.id, mv})
+    |> select([r, rh, mv, metadata], {r.id, mv, metadata})
     |> DB.Repo.all()
-    |> Enum.group_by(fn {k, _} -> k end, fn {_, v} -> v end)
+    |> Enum.group_by(fn {k, _, _} -> k end, fn {_, mv, metadata} ->
+      if is_nil(mv) do
+        nil
+      else
+        # you cannot preload in a subquery, so we cannot preload the multi-validation associated metadata easily
+        # we do the work manually, with a join and then put the metadata in the multi-validation
+        Map.put(mv, :metadata, metadata)
+      end
+    end)
   end
+
+  @doc """
+  Get a metadata field, given a preloaded multi_validation struct. Returns nil if it fails.
+
+  iex> get_metadata_info(%DB.MultiValidation{metadata: %DB.ResourceMetadata{metadata: %{age: 11}}}, :age)
+  11
+  iex> get_metadata_info(%DB.MultiValidation{metadata: %DB.ResourceMetadata{metadata: %{age: 11}}}, :foo)
+  nil
+  iex> get_metadata_info(nil, :foo)
+  nil
+  iex> get_metadata_info(nil, :foo, [])
+  []
+  """
+  def get_metadata_info(multi_validation, metadata_key, default \\ nil)
+
+  def get_metadata_info(%__MODULE__{metadata: %{metadata: metadata}}, metadata_key, default) do
+    Map.get(metadata, metadata_key, default)
+  end
+
+  def get_metadata_info(_, _, default), do: default
 end

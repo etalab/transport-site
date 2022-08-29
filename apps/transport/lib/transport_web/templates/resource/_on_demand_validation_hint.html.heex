@@ -1,0 +1,9 @@
+<p class="notification">
+  <%= raw(
+    dgettext(
+      "validations",
+      ~s(Are you the producer of this data? Once you have fixed your errors, you can verify that your file is valid <a href="%{link}" target="_blank">using our validators</a>.),
+      link: on_demand_validation_link(@conn, @resource)
+    )
+  ) %>
+</p>
