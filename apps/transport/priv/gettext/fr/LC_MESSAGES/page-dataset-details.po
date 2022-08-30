@@ -533,3 +533,7 @@ msgstr "Les producteurs peuvent partager dans cette section : charte graphique, 
 #, elixir-autogen, elixir-format
 msgid "Resources with a schema"
 msgstr "Ressources avec schéma"
+
+#, elixir-autogen, elixir-format
+msgid "This feed appears to be too old. Try to update your feed at most every 30 seconds."
+msgstr "Ce flux semble périmé. Essayez de mettre à jour le flux toutes les 30 secondes au plus."
