@@ -104,9 +104,13 @@
       </p>
       <%= if @gtfs_rt_feed.feed_is_too_old do %>
         <p class="notification message--error">
-          <%= dgettext(
-            "page-dataset-details",
-            "This feed appears to be too old. Try to update your feed at most every 30 seconds."
+          <%= raw(
+            dgettext(
+              "page-dataset-details",
+              ~s(The <a href="%{link}" target="_blank">timestamp field</a> appears to be too old compared to the current time: the delay is %{seconds} seconds. Try to update your feed at most every 30 seconds.),
+              link: "https://developers.google.com/transit/gtfs-realtime/reference#message-feedheader",
+              seconds: format_number(@gtfs_rt_feed.feed_timestamp_delay)
+            )
           ) %>
         </p>
       <% end %>

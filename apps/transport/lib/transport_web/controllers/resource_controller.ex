@@ -42,6 +42,7 @@ defmodule TransportWeb.ResourceController do
             %{
               alerts: Transport.GTFSRT.service_alerts_for_display(feed, lang),
               feed_is_too_old: Transport.GTFSRT.feed_is_too_old?(feed),
+              feed_timestamp_delay: Transport.GTFSRT.feed_timestamp_delay(feed),
               feed: feed
             }
 
