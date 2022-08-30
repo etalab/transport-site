@@ -98,6 +98,7 @@
             <%= TransportWeb.ResourceView.render("_gtfs_rt.html",
               gtfs_rt_feed: @gtfs_rt_feed,
               entities_seen_recently: nil,
+              conn: @socket,
               locale: @locale
             ) %>
           <% end %>
