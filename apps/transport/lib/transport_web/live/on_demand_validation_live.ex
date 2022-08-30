@@ -86,6 +86,7 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
           {:ok, feed} ->
             %{
               alerts: Transport.GTFSRT.service_alerts_for_display(feed, lang),
+              feed_is_too_old: Transport.GTFSRT.feed_is_too_old?(feed),
               feed: feed
             }
 
