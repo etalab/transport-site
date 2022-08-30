@@ -19,5 +19,11 @@
 <%= if not Enum.any?([show_schema_validation, show_gtfs_rt_validation, show_gbfs_validation]) do %>
   <div class="panel">
     <%= dgettext("validations", "No validation available") %>
+    <%= if DB.Resource.is_gtfs_rt?(@resource) do %>
+      <%= render("_validate_gtfs_rt_now.html", conn: @conn, resource: @resource) %>
+    <% end %>
+    <%= if DB.Resource.is_gbfs?(@resource) do %>
+      <%= render("_validate_gbfs_now.html", conn: @conn, resource: @resource) %>
+    <% end %>
   </div>
 <% end %>

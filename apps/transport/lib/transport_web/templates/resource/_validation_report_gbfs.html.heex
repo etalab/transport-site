@@ -12,15 +12,7 @@
   </p>
   <% nb_errors = errors_count(@multi_validation) %>
   <%= render("_errors_warnings_count.html", nb_errors: nb_errors, nb_warnings: 0) %>
-  <% validation_path =
-    live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive,
-      type: "gbfs",
-      url: @resource.url
-    ) %>
-  <a class="button" href={validation_path} target="_blank" role="link">
-    <i class="icon fa-check" aria-hidden="true"></i>
-    <%= dgettext("validations", "Validate this GBFS now") %>
-  </a>
+  <%= render("_validate_gbfs_now.html", conn: @conn, resource: @resource) %>
 
   <%= if nb_errors > 0 do %>
     <p>
