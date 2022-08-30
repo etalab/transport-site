@@ -65,6 +65,10 @@ if config_env() == :prod and not app_env_is_valid do
   raise("APP_ENV must be set to production or staging while in production")
 end
 
+if config_env() == :prod do
+  config :transport, domain_name: System.fetch_env!("DOMAIN_NAME")
+end
+
 config :transport,
   app_env: app_env
 

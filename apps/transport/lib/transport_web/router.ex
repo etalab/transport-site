@@ -10,7 +10,7 @@ defmodule TransportWeb.Router do
   pipeline :browser do
     plug(PlugCanonicalHost,
       if: {Transport.Application, :webserver_only? && Mix.env() == :prod},
-      canonical_host: System.get_env("DOMAIN_NAME")
+      canonical_host: Application.fetch_env!(:transport, :domain_name)
     )
 
     plug(:accepts, ["html"])
