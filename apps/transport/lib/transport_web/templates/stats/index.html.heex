@@ -12,7 +12,9 @@
         Retrouvez l’état de l’ouverture des données de transport (nombre de jeux de données ouverts et carte des territoires à avoir référencé des données en open data),
         par mode de transport, et par la nature des données mises à disposition (statiques ou dynamiques, et par format).
         Les informations transmises par ces cartes sont mises à jour en temps réel, en fonction des données référencées sur la plateforme transport.data.gouv.fr.
-        <p>Nous publions également des informations sur le nombre de réutilisations faites des données mises à disposition sur la plateforme, ainsi que le nombre de réutilisateurs uniques (pouvant être auteurs de multiples réutilisations).</p>
+        <p>
+          Nous publions également des informations sur le nombre de réutilisations faites des données mises à disposition sur la plateforme, ainsi que le nombre de réutilisateurs uniques (pouvant être auteurs de multiples réutilisations).
+        </p>
       </p>
       <div class="domain-stats general">
         <div class="tile">
@@ -62,18 +64,23 @@
             <span class="stat-link">
               <a href="#public-transport-by-aom"><i class="fa fa-link fa-small"></i></a>
             </span>
-            <p>L'offre de transport en commun urbain, disponible par <acronym title="autorité organisatrice de mobilité">AOM</acronym>.</p><br>
-            <p>Ces données peuvent être disponibles pour l'<acronym title="autorité organisatrice de mobilité">AOM</acronym> spécifiquement, ou au sein d'un jeu de données plus large.</p>
+            <p>
+              L'offre de transport en commun urbain, disponible par <acronym title="autorité organisatrice de mobilité">AOM</acronym>.
+            </p>
+            <br />
+            <p>
+              Ces données peuvent être disponibles pour l'<acronym title="autorité organisatrice de mobilité">AOM</acronym> spécifiquement, ou au sein d'un jeu de données plus large.
+            </p>
           </div>
           <div class="tile">
             <h3><%= @nb_aoms_with_data %></h3>
             <div>autorités organisatrices de la mobilité couvertes (sur <%= @nb_aoms %>)</div>
           </div>
           <div class="tile">
-            <h3><%= @population_couverte %> </h3>millions
+            <h3><%= @population_couverte %></h3>
+            millions
             <div>de personnes peuvent en bénéficier
-              sur les <%= @population_totale %> millions de Français·e·s vivant dans une AOM
-            </div>
+              sur les <%= @population_totale %> millions de Français·e·s vivant dans une AOM</div>
           </div>
         </div>
       </div>
@@ -87,8 +94,11 @@
             <span class="stat-link" id="public-transport-format">
               <a href="#public-transport-format"><i class="fa fa-link fa-small"></i></a>
             </span>
-            <p>Les données de transport en commun sont disponibles sur le site dans 2 formats,
-              <a href="https://gtfs.org/">GTFS</a> et <a href="http://netex-cen.eu/">NeTEx</a>.</p>
+            <p>
+              Les données de transport en commun sont disponibles sur le site dans 2 formats,
+              <a href="https://gtfs.org/">GTFS</a>
+              et <a href="http://netex-cen.eu/">NeTEx</a>.
+            </p>
           </div>
           <div class="tile-numbers">
             <div class="tile">
@@ -121,11 +131,11 @@
               <a href="#public-transport-freshness"><i class="fa fa-link fa-small"></i></a>
             </span>
             <p>
-            Les données GTFS de la plateforme sont analysées pour connaitre leur periode de validité,
-            qui correspond à la période de circulation des différents services du jeu de donnés.
+              Les données GTFS de la plateforme sont analysées pour connaitre leur periode de validité,
+              qui correspond à la période de circulation des différents services du jeu de donnés.
             </p>
             <p>
-            Note : on ne peut calculer une période de validité que pour les jeux de données respectants les spécifications GTFS.
+              Note : on ne peut calculer une période de validité que pour les jeux de données respectants les spécifications GTFS.
             </p>
           </div>
         </div>
@@ -141,33 +151,44 @@
               <a href="#public-transport-quality"><i class="fa fa-link fa-small"></i></a>
             </span>
             <p>
-            Cette carte représente la qualité des données GTFS actuellement valides.
+              Cette carte représente la qualité des données GTFS actuellement valides.
             </p>
             <p>
-            Pour contrôler la qualité des jeux de données de transport, la plateforme transport.data.gouv.fr utilise des outils de validation.          .
+              Pour contrôler la qualité des jeux de données de transport, la plateforme transport.data.gouv.fr utilise des outils de validation.          .
             </p>
             <p>
-            Retrouvez plus d'informations sur ces outils dans la <a href="https://doc.transport.data.gouv.fr/reutilisateurs/qualite-de-donnee#validateur-de-fichiers-gtfs">documentation</a>.
+              Retrouvez plus d'informations sur ces outils dans la <a href="https://doc.transport.data.gouv.fr/reutilisateurs/qualite-de-donnee#validateur-de-fichiers-gtfs">documentation</a>.
             </p>
           </div>
-            <div class="tile">
-              <h3> <%= round(@ratio_aom_with_at_most_warnings * 100) %>%</h3>
-              <div><acronym title="autorité organisatrice de mobilité">AOM</acronym> urbaines avec des jeux de données de
-              qualité satisfaisante (sans aucune erreur)</div>
+          <div class="tile">
+            <h3><%= round(@ratio_aom_with_at_most_warnings * 100) %>%</h3>
+            <div>
+              <acronym title="autorité organisatrice de mobilité">AOM</acronym> urbaines avec des jeux de données de
+              qualité satisfaisante (sans aucune erreur)
             </div>
-            <div class="tile">
-              <h3> <%= round(@ratio_aom_good_quality * 100) %>%</h3>
-              <div><acronym title="autorité organisatrice de mobilité">AOM</acronym> urbaines avec des jeux de données de bonne qualité
-              (sans erreurs ni avertissements)</div>
+          </div>
+          <div class="tile">
+            <h3><%= round(@ratio_aom_good_quality * 100) %>%</h3>
+            <div>
+              <acronym title="autorité organisatrice de mobilité">AOM</acronym>
+              urbaines avec des jeux de données de bonne qualité
+              (sans erreurs ni avertissements)
             </div>
-            <div class="tile">
-              <h3> <%= @aom_with_errors %> </h3>
-              <div><acronym title="autorité organisatrice de mobilité">AOM</acronym> urbaines avec des jeux de données en erreur</div>
+          </div>
+          <div class="tile">
+            <h3><%= @aom_with_errors %></h3>
+            <div>
+              <acronym title="autorité organisatrice de mobilité">AOM</acronym>
+              urbaines avec des jeux de données en erreur
             </div>
-            <div class="tile">
-              <h3> <%= @aom_with_fatal %> </h3>
-              <div><acronym title="autorité organisatrice de mobilité">AOM</acronym> urbaines avec des jeux de données ne respectant pas les spécifications GTFS</div>
+          </div>
+          <div class="tile">
+            <h3><%= @aom_with_fatal %></h3>
+            <div>
+              <acronym title="autorité organisatrice de mobilité">AOM</acronym>
+              urbaines avec des jeux de données ne respectant pas les spécifications GTFS
             </div>
+          </div>
         </div>
       </div>
     </div>
@@ -176,69 +197,72 @@
 
       <div class="domain quality">
         <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "rt_map") %>
-        <div class="panel">
-          <div class="description">
-            <span class="stat-link">
-              <a href="#public-transport-real-time"><i class="fa fa-link fa-small"></i></a>
-            </span>
-            <p>
-              Le site recense des données temps réel pour les transports en commun.<br>
-              Pour être référencée sur le PAN, les données doivent être accessibles sans authentification
-              et dans le format GTFS-RT, SIRI ou SIRI Lite.<br>
-              Les données temps réel qui ne respectent pas ces conditions sont référencées sur <a href="/real_time">une page à part</a>.<br>
-              <a href="<%= explore_path(@conn, :vehicle_positions) %>">Une carte temps réel</a> présentant la position des véhicules contenus dans les flux GTFS-RT est disponible.<br><br>
-              Retrouvez plus d’informations concernant le temps réel <a href="https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/temps-reel-des-transports-en-commun">dans la documentation</a>.
-            </p>
-          </div>
-          <div class="tile-numbers">
-            <div class="tile">
-              <h3><%= @nb_official_public_transit_realtime %></h3>
-              <div> <a href="/datasets?filter=has_realtime">Jeux de données standardisés et librement accessibles</a></div>
+          <%= render("_maps.html", droms: @droms, prefix: "rt_map") %>
+          <div class="panel">
+            <div class="description">
+              <span class="stat-link">
+                <a href="#public-transport-real-time"><i class="fa fa-link fa-small"></i></a>
+              </span>
+              <p>
+                Le site recense des données temps réel pour les transports en commun.<br />
+                Pour être référencée sur le PAN, les données doivent être accessibles sans authentification
+                et dans le format GTFS-RT, SIRI ou SIRI Lite.<br />
+                Les données temps réel qui ne respectent pas ces conditions sont référencées sur <a href="/real_time">une page à part</a>.<br />
+                <a href={explore_path(@conn, :vehicle_positions)}>Une carte temps réel</a>
+                présentant la position des véhicules contenus dans les flux GTFS-RT est disponible.<br /><br />
+                Retrouvez plus d’informations concernant le temps réel <a href="https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/temps-reel-des-transports-en-commun">dans la documentation</a>.
+              </p>
             </div>
-            <div class="tile">
-              <h3><%= @nb_unofficial_public_transit_realtime %></h3>
-              <div> <a href="/real_time">Jeux de données non officiellement référencés</a></div>
-            </div>
-            <div class="rt-viz">
-              <%= for _i <- 1..@nb_official_public_transit_realtime do %>
-                <div class="item standard"></div>
-              <% end %>
-              <%= for _i <- 1..@nb_unofficial_public_transit_realtime do %>
-                <div class="item non-standard"></div>
-              <% end %>
+            <div class="tile-numbers">
+              <div class="tile">
+                <h3><%= @nb_official_public_transit_realtime %></h3>
+                <div>
+                  <a href="/datasets?filter=has_realtime">Jeux de données standardisés et librement accessibles</a>
+                </div>
+              </div>
+              <div class="tile">
+                <h3><%= @nb_unofficial_public_transit_realtime %></h3>
+                <div><a href="/real_time">Jeux de données non officiellement référencés</a></div>
+              </div>
+              <div class="rt-viz">
+                <%= for _i <- 1..@nb_official_public_transit_realtime do %>
+                  <div class="item standard"></div>
+                <% end %>
+                <%= for _i <- 1..@nb_unofficial_public_transit_realtime do %>
+                  <div class="item non-standard"></div>
+                <% end %>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      </div>
-      </div>
-      <div class="domain quality">
-        <div class="domain-stats">
-          <%= render("_maps.html", droms: @droms, prefix: "rt_pt_format_map") %>
-          <div class="panel">
-             <div class=tile>
-               <h3><%= @nb_gtfs_rt %></h3>
-               <div>jeux de données<br>en <strong>GTFS-RT</strong></div>
-               <div>
-                 <ul class="small">
-                  <%= for el <- @gtfs_rt_types do %>
-                    <li>
-                      <span title="<%= el.type %>"><%= friendly_gtfs_type(el.type) %></span> : <%= format_number(el.count) %>
-                    </li>
-                  <% end %>
-                 </ul>
-               </div>
-             </div>
-             <div class=tile>
-               <h3><%= @nb_siri %></h3>
-               <div>jeux de données<br>en <strong>SIRI</strong></div>
-             </div>
-             <div class=tile>
-               <h3><%= @nb_siri_lite %></h3>
-               <div>jeux de données<br>en <strong>SIRI Lite</strong></div>
-             </div>
+    </div>
+    <div class="domain quality">
+      <div class="domain-stats">
+        <%= render("_maps.html", droms: @droms, prefix: "rt_pt_format_map") %>
+        <div class="panel">
+          <div class="tile">
+            <h3><%= @nb_gtfs_rt %></h3>
+            <div>jeux de données<br />en <strong>GTFS-RT</strong></div>
+            <div>
+              <ul class="small">
+                <%= for el <- @gtfs_rt_types do %>
+                  <li>
+                    <span title={el.type}><%= friendly_gtfs_type(el.type) %></span> : <%= format_number(el.count) %>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
           </div>
+          <div class="tile">
+            <h3><%= @nb_siri %></h3>
+            <div>jeux de données<br />en <strong>SIRI</strong></div>
+          </div>
+          <div class="tile">
+            <h3><%= @nb_siri_lite %></h3>
+            <div>jeux de données<br />en <strong>SIRI Lite</strong></div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="domain vehicles" id="real-time-vehicles">
@@ -278,21 +302,33 @@
     </div>
     <div class="domain carpooling">
       <h2>Lieux de covoiturage</h2>
-      <p><a href="/datasets/base-nationale-des-lieux-de-covoiturage/">La base nationale des lieux de covoiturage</a> est consolidée par l'équipe du Point d’Accès National.</p>
-      <p>La Fabrique des Mobilités a également ouvert un <a href="/datasets/aires-de-covoiturage-base-de-donnees-commune-des-lieux-et/">fichier</a> relatif à des lieux de rendez-vous de covoiturage (grande variété de points, fichier non consolidé).
+      <p>
+        <a href="/datasets/base-nationale-des-lieux-de-covoiturage/">La base nationale des lieux de covoiturage</a>
+        est consolidée par l'équipe du Point d’Accès National.
+      </p>
+      <p>
+        La Fabrique des Mobilités a également ouvert un
+        <a href="/datasets/aires-de-covoiturage-base-de-donnees-commune-des-lieux-et/">fichier</a>
+        relatif à des lieux de rendez-vous de covoiturage (grande variété de points, fichier non consolidé).
       </p>
     </div>
     <div class="domain irve">
       <h2>Infrastructures de recharge pour véhicules électriques (IRVE)</h2>
       <p>
-        La <a href="/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/">base nationale des bornes de Recharge pour véhicules électriques </a> est consolidée de manière automatique par Etalab.
+        La
+        <a href="/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/">
+          base nationale des bornes de Recharge pour véhicules électriques
+        </a> est consolidée de manière automatique par Etalab.
       </p>
     </div>
     <div class="domain parking">
       <h2>Lieux de stationnement</h2>
-      <p><a href="datasets/base-nationale-des-lieux-de-stationnement/">La base nationale des lieux de stationnement</a> est consolidée par l'équipe du Point d’Accès National.
+      <p>
+        <a href="datasets/base-nationale-des-lieux-de-stationnement/">La base nationale des lieux de stationnement</a>
+        est consolidée par l'équipe du Point d’Accès National.
       </p>
     </div>
   </div>
 </section>
-<script src="<%= static_path(@conn, "/js/map.js") %>"></script>
+<script src={static_path(@conn, "/js/map.js")}>
+</script>
