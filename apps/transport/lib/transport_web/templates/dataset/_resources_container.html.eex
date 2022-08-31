@@ -1,8 +1,7 @@
 <% has_resources = not Enum.empty?(@resources || []) %>
 <% has_reuser_message = not is_nil(assigns[:reuser_message]) %>
-<% _attrs = if assigns[:section_id], do: %{id: assigns[:section_id]}, else: %{} %>
 <%= if has_resources or has_reuser_message  do %>
-  <section class="dataset__resources white" {@attrs}>
+  <section class="dataset__resources white"<%= if assigns[:section_id] do %> id="<%= assigns[:section_id] %>"<% end %>>
     <h2><%= @title %></h2>
     <%= if has_reuser_message do %>
       <div class="reuser-message"><%= assigns[:reuser_message] %></div>
@@ -16,14 +15,7 @@
     <div>
       <div class="ressources-list">
         <%= for resource <- @resources |> order_resources_by_validity() |> order_resources_by_format() do %>
-          <%= render(TransportWeb.DatasetView, "_resource.html",
-            conn: @conn,
-            resource: resource,
-            resources_related_files: assigns[:resources_related_files],
-            dataset: assigns[:dataset],
-            resources_infos: assigns[:resources_infos],
-            latest_resources_history_infos: assigns[:latest_resources_history_infos]
-          ) %>
+          <%= render TransportWeb.DatasetView, "_resource.html", conn: @conn, resource: resource, resources_related_files: assigns[:resources_related_files], dataset: assigns[:dataset], resources_infos: assigns[:resources_infos], latest_resources_history_infos: assigns[:latest_resources_history_infos] %>
         <% end %>
       </div>
     </div>
