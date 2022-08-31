@@ -52,6 +52,7 @@
       <%= if DB.Resource.is_gtfs_rt?(@resource) do %>
         <%= render("_gtfs_rt.html",
           gtfs_rt_feed: @gtfs_rt_feed,
+          conn: @conn,
           locale: get_session(@conn, :locale),
           entities_seen_recently: @resource.features
         ) %>
