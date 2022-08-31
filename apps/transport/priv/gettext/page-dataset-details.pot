@@ -533,3 +533,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Resources with a schema"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The <a href=\"%{link}\" target=\"_blank\">timestamp field</a> appears to be too old compared to the current time: the delay is %{seconds} seconds. Try to update your feed at most every 30 seconds."
+msgstr ""
