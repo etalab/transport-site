@@ -34,7 +34,7 @@
     <ul class="footer__links">
       <%= if assigns[:contact_email] do %>
         <li>
-          <a class="footer__link footer__link--contact" href="mailto:{ @contact_email}">
+          <a class="footer__link footer__link--contact" href={"mailto:#{@contact_email}"}>
             <%= gettext("Contact") %>
           </a>
         </li>

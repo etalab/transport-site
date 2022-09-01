@@ -208,12 +208,14 @@
             <% end %>
           </div>
           <%= unless @discussions == nil do %>
-            <%= render_many(@discussions, TransportWeb.DatasetView, "_discussion.html",
-              as: :discussion,
-              current_user: @current_user,
-              conn: @conn,
-              dataset: @dataset
-            ) %>
+            <%= for discussion <- @discussions do %>
+              <%= render("_discussion.html",
+                discussion: discussion,
+                current_user: @current_user,
+                conn: @conn,
+                dataset: @dataset
+              ) %>
+            <% end %>
           <% else %>
             <%= dgettext("page-dataset-details", "Unable to retrieve discussions from data.gouv.fr") %>
           <% end %>
