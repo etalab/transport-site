@@ -255,6 +255,9 @@ defmodule DB.Dataset do
   defp filter_by_active(query, _), do: where(query, [d], d.is_active)
 
   @spec filter_by_licence(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),
+    do: where(query, [d], d.licence in ["fr-lo", "lov2"])
+
   defp filter_by_licence(query, %{"licence" => licence}), do: where(query, [d], d.licence == ^licence)
   defp filter_by_licence(query, _), do: query
 
