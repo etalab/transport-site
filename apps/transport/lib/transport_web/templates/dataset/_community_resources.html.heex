@@ -26,6 +26,8 @@
   </section>
 
   <div class="ressources-list">
-    <%= render_many(community_resources(@dataset), TransportWeb.DatasetView, "_community_ressource.html", as: :resource) %>
+    <%= for community_resource <- community_resources(@dataset) do %>
+      <%= render("_community_ressource.html", resource: community_resource) %>
+    <% end %>
   </div>
 </section>
