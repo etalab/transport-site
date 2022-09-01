@@ -35,8 +35,9 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     {:ok, _} =
       %Dataset{
         description: "Un autre jeu de données",
-        licence: "odc-odbl",
+        licence: "lov2",
         datagouv_title: "offre de transport du réseau de LAVAL Agglomération (GTFS)",
+        custom_title: "Horaires Laval",
         slug: "offre-de-transport-du-reseau-de-laval-agglomeration-gtfs",
         type: "public-transit",
         datagouv_id: "5bc493d08b4c416c84a69500",
@@ -80,6 +81,13 @@ defmodule TransportWeb.DatasetSearchControllerTest do
   test "GET /datasets?type=public-transit", %{conn: conn} do
     conn = conn |> get(dataset_path(conn, :index), %{type: "public-transit"})
     assert html_response(conn, 200) =~ "Jeux de données"
+  end
+
+  test "GET /datasets?type=public-transit&licence=odc-odbl", %{conn: conn} do
+    conn = conn |> get(dataset_path(conn, :index), %{type: "public-transit", licence: "odc-odbl"})
+    assert html_response(conn, 200) =~ "Transport public collectif - horaires théoriques (1)"
+    assert html_response(conn, 200) =~ "Horaires Angers"
+    refute html_response(conn, 200) =~ "Horaires Laval"
   end
 
   test "GET /datasets/aom/4242", %{conn: conn} do
