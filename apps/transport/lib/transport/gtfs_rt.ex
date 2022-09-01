@@ -35,6 +35,28 @@ defmodule Transport.GTFSRT do
   end
 
   @doc """
+  Determines if a `FeedMessage` is too old, ie older than 5 minutes.
+
+  iex> feed_is_too_old?(%TransitRealtime.FeedMessage{header: %TransitRealtime.FeedHeader{timestamp: 1661847898}}, DateTime.from_unix!(1661847899))
+  false
+  iex> feed_is_too_old?(%TransitRealtime.FeedMessage{header: %TransitRealtime.FeedHeader{timestamp: 1661847898}}, DateTime.from_unix!(1661848199))
+  true
+  """
+  def feed_is_too_old?(%FeedMessage{} = feed, comparison \\ DateTime.utc_now()) do
+    feed_timestamp_delay(feed, comparison) > 60 * 5
+  end
+
+  @doc """
+  Number of seconds between the current datetime and the timestamp field of a feed.
+
+  iex> feed_timestamp_delay(%TransitRealtime.FeedMessage{header: %TransitRealtime.FeedHeader{timestamp: 1661847898}}, DateTime.from_unix!(1661847899))
+  1
+  """
+  def feed_timestamp_delay(%FeedMessage{} = feed, comparison \\ DateTime.utc_now()) do
+    DateTime.diff(comparison, timestamp(feed), :second)
+  end
+
+  @doc """
   Count the number of entities in the feed.
 
   Example:

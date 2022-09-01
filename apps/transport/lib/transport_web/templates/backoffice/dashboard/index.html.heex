@@ -1,0 +1,41 @@
+<h2 class="is-centered">
+  Rapport de complétude des imports (<%= @import_count_by_dataset_and_by_day |> length %> datasets).
+</h2>
+
+<div class="container pt-24">
+  <div class="dashboard-description">
+    <ul>
+      <li>
+        La couleur rouge foncée dénote l'absence de trace d'au moins 1 log d'import pour une date donnée, c'est à dire:
+        <ul>
+          <li>
+            qu'une erreur non gérée s'est produite (ex: <a href="https://sentry.io/organizations/betagouv-f7/issues/?environment=prod&project=5687467&query=is%3Aunresolved+unmanaged_exception_during_import&statsPeriod=14d">unmanaged_exception_during_import</a>)
+          </li>
+          <li>que le dataset n'existait pas encore à l'instant t</li>
+          <li>que les imports n'ont pas tourné du tout à une date donnée</li>
+        </ul>
+      </li>
+      <li>La couleur rouge signifie qu'au moins un import a tourné et que tous ont donné lieu à une erreur</li>
+      <li>La couleur orange indique la présence d'au moins un succès et un échec d'import au cours de la journée</li>
+      <li>La couleur verte indique que tous les imports de la journée sont des succès !</li>
+    </ul>
+  </div>
+</div>
+
+<table class="dashboard-heatmap mt-48">
+  <tbody>
+    <%= for {dataset_id, counts} <- @import_count_by_dataset_and_by_day do %>
+      <tr class="dataset">
+        <th class="heatmap-header">
+          <%= link to: "#{backoffice_page_path(@conn, :edit, dataset_id)}#imports_history" ,target: "_blank" do %>
+            <%= dataset_id %>
+          <% end %>
+        </th>
+        <%= for {date, import_count, success_count} <- counts do %>
+          <%= content_tag :td, title: date, class: cell_class({import_count, success_count}) do %>
+          <% end %>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

@@ -108,3 +108,11 @@ nav.validation {
   background-color: var(--theme-background-grey);
   padding: 4px 0 4px 25px;
 }
+
+details .button {
+  display: block;
+}
+
+details > code {
+  width: 100%;
+}
