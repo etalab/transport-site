@@ -1,6 +1,0 @@
-<div id="<%=@prefix%>_metropole" class="map"></div>
-<div class="drom_maps">
-<%= for drom <- @droms do %>
-  <div id="<%=@prefix%>_<%=drom%>" class="drom_map"></div>
-<% end %>
-</div>
