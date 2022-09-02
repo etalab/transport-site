@@ -301,7 +301,7 @@ defmodule TransportWeb.API.Schemas do
         |> Map.put(:original_resource_url, %Schema{
           type: :string,
           description: """
-          some community resources have been generated from another dataset (like the generated NeTEx / GeoJson). 
+          some community resources have been generated from another dataset (like the generated NeTEx / GeoJson).
           Those resources have a `original_resource_url` equals to the original resource's `original_url`
           """
         })
@@ -319,6 +319,7 @@ defmodule TransportWeb.API.Schemas do
       properties: %{
         updated: %Schema{type: :string, description: "The last update of any resource of that dataset"},
         name: %Schema{type: :string},
+        licence: %Schema{type: :string, description: "The licence of the dataset"},
         created_at: %Schema{type: :string, description: "Date of creation of the dataset"},
         aom: %Schema{type: :string, description: "Transit authority responsible of this authority"},
         resources: %Schema{
