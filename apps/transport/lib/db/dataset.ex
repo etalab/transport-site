@@ -62,7 +62,7 @@ defmodule DB.Dataset do
   datasets <> Resource <> ResourceHistory <> MultiValidation <> ResourceMetadata
   """
   def join_from_dataset_to_metadata(validator_name) do
-    DB.Dataset.base_query()
+    __MODULE__.base_query()
     |> DB.Resource.join_dataset_with_resource()
     |> DB.ResourceHistory.join_resource_with_latest_resource_history()
     |> DB.MultiValidation.join_resource_history_with_latest_validation(validator_name)
@@ -424,14 +424,14 @@ defmodule DB.Dataset do
 
   @spec get_other_datasets(__MODULE__.t()) :: [__MODULE__.t()]
   def get_other_datasets(%__MODULE__{id: id, aom_id: aom_id}) when not is_nil(aom_id) do
-    __MODULE__
+    __MODULE__.base_query()
     |> where([d], d.id != ^id)
     |> where([d], d.aom_id == ^aom_id)
     |> Repo.all()
   end
 
   def get_other_datasets(%__MODULE__{id: id, region_id: region_id}) when not is_nil(region_id) do
-    __MODULE__
+    __MODULE__.base_query()
     |> where([d], d.id != ^id)
     |> where([d], d.region_id == ^region_id)
     |> Repo.all()
@@ -442,7 +442,7 @@ defmodule DB.Dataset do
   # to get the other_datasets
   # This way we can control which datasets to link to
   def get_other_datasets(%__MODULE__{id: id, associated_territory_name: associated_territory_name}) do
-    __MODULE__
+    __MODULE__.base_query()
     |> where([d], d.id != ^id)
     |> where([d], d.associated_territory_name == ^associated_territory_name)
     |> Repo.all()
