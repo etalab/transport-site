@@ -78,6 +78,7 @@ defmodule TransportWeb.DatasetControllerTest do
       %DB.Dataset{
         custom_title: "title",
         type: "public-transit",
+        licence: "lov2",
         datagouv_id: "datagouv",
         slug: "slug-1",
         resources: [
@@ -149,6 +150,7 @@ defmodule TransportWeb.DatasetControllerTest do
              "slug" => "slug-1",
              "title" => "title",
              "type" => "public-transit",
+             "licence" => "lov2",
              "updated" => ""
            } == conn |> get(path) |> json_response(200)
   end
