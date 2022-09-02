@@ -4,11 +4,12 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
   """
 
   use Mix.Task
+  import Ecto.Query
   alias Ecto.Changeset
   alias DB.{EPCI, Repo}
   require Logger
 
-  @epci_file "https://unpkg.com/@etalab/decoupage-administratif@0.7.0/data/epci.json"
+  @epci_file "https://unpkg.com/@etalab/decoupage-administratif@2.0.0/data/epci.json"
 
   def run(params) do
     Logger.info("importing epci")
@@ -21,8 +22,11 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(@epci_file),
          {:ok, json} <- Jason.decode(body) do
-      json
-      |> Enum.each(&insert_epci/1)
+      json |> Enum.each(&insert_epci/1)
+
+      # Remove EPCIs that have been removed
+      epci_codes = Enum.map(json, & &1["code"])
+      EPCI |> where([e], e.code not in ^epci_codes) |> Repo.delete_all()
 
       nb_epci = Repo.aggregate(EPCI, :count, :id)
       Logger.info("#{nb_epci} are now in database")
