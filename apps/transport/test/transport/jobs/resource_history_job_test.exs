@@ -37,7 +37,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert [%{args: %{"resource_id" => first_id}}, %{args: %{"resource_id" => second_id}}] =
                all_enqueued(worker: ResourceHistoryJob)
 
-      assert MapSet.new([second_id, first_id]) == MapSet.new(ids)
+      assert Enum.sort([second_id, first_id]) == Enum.sort(ids)
 
       refute_enqueued(worker: ResourceHistoryDispatcherJob)
     end
