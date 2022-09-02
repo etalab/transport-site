@@ -157,6 +157,7 @@ defmodule TransportWeb.API.DatasetController do
       "aom" => transform_aom(dataset.aom),
       "covered_area" => covered_area(dataset),
       "type" => dataset.type,
+      "licence" => dataset.licence,
       "publisher" => get_publisher(dataset)
     }
 
