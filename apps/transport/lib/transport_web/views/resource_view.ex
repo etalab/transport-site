@@ -6,11 +6,12 @@ defmodule TransportWeb.ResourceView do
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   import TransportWeb.DatasetView,
-    only: [schema_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1]
+    only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1]
 
   import DB.ResourceUnavailability, only: [floor_float: 2]
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
   import Shared.Validation.TableSchemaValidator, only: [validata_web_url: 1]
+  import Transport.GBFSUtils, only: [gbfs_validation_link: 1]
   alias Shared.DateTimeDisplay
   def format_related_objects(nil), do: ""
 
@@ -100,25 +101,9 @@ defmodule TransportWeb.ResourceView do
   def get_associated_netex(%{netex: netex_url}), do: netex_url
   def get_associated_netex(_), do: nil
 
-  # the past ⬇️
-  # # https://github.com/etalab/transport-site/issues/2390
-  def errors_sample(%DB.Resource{metadata: %{"validation" => %{"errors" => errors}}}) do
-    Enum.take(errors, max_display_errors())
-  end
-
-  # the future ⬇️
   def errors_sample(%DB.MultiValidation{result: %{"errors" => errors}}) do
     Enum.take(errors, max_display_errors())
   end
-
-  # GBFS resources do not have `errors` in the `validation` dict
-  # in the metadata because we send people to an external
-  # website to see errors.
-  #
-  # It would be better to have a shared model for validations.
-  # See https://github.com/etalab/transport-site/issues/2047
-  # See DB.Resource.has_errors_details?/1
-  def errors_sample(%DB.Resource{format: "gbfs"}), do: []
 
   def max_display_errors, do: 50
 
@@ -161,6 +146,7 @@ defmodule TransportWeb.ResourceView do
 
   def download_availability_class_text(ratio), do: download_availability_class(ratio) <> "_text"
 
+  def gbfs_validator_url, do: "https://github.com/MobilityData/gbfs-validator"
   def gtfs_rt_validator_url, do: "https://github.com/CUTR-at-USF/gtfs-realtime-validator"
 
   def gtfs_rt_validator_rule_url(%{"error_id" => error_id}) do

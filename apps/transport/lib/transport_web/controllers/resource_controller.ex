@@ -11,11 +11,7 @@ defmodule TransportWeb.ResourceController do
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
 
   def details(conn, %{"id" => id} = params) do
-    resource =
-      Resource
-      |> Repo.get!(id)
-      # loading the v1 validation (to be removed later)
-      |> Repo.preload([:validation, dataset: [:resources]])
+    resource = Resource |> Repo.get!(id) |> Repo.preload(dataset: [:resources])
 
     conn =
       conn
@@ -45,6 +41,8 @@ defmodule TransportWeb.ResourceController do
           {:ok, feed} ->
             %{
               alerts: Transport.GTFSRT.service_alerts_for_display(feed, lang),
+              feed_is_too_old: Transport.GTFSRT.feed_is_too_old?(feed),
+              feed_timestamp_delay: Transport.GTFSRT.feed_timestamp_delay(feed),
               feed: feed
             }
 
@@ -71,32 +69,35 @@ defmodule TransportWeb.ResourceController do
 
   defp put_resource_flash(conn, _), do: conn
 
-  defp latest_validation(%{id: resource_id, format: "GTFS"}) do
-    DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.GTFSTransport)
-  end
+  defp latest_validation(%Resource{id: resource_id, format: format, schema_name: schema_name}) do
+    validators = Transport.ValidatorsSelection.validators(format)
 
-  defp latest_validation(%{id: resource_id, format: "gtfs-rt"}) do
-    DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.GTFSRT)
-  end
+    if is_list(validators) and Enum.count(validators) > 1 do
+      raise "does not handle multiple validators for #{format}"
+    end
 
-  defp latest_validation(%{id: resource_id, schema_name: schema_name})
-       when not is_nil(schema_name) do
     validator =
       cond do
-        Schemas.is_tableschema?(schema_name) ->
-          Transport.Validators.TableSchema
-
-        Schemas.is_jsonschema?(schema_name) ->
-          Transport.Validators.EXJSONSchema
-
-        true ->
-          nil
+        not is_nil(schema_name) -> validator_for_schema(schema_name)
+        Enum.count(validators) == 1 -> hd(validators)
+        true -> nil
       end
 
     DB.MultiValidation.resource_latest_validation(resource_id, validator)
   end
 
-  defp latest_validation(_), do: nil
+  defp validator_for_schema(schema_name) when not is_nil(schema_name) do
+    cond do
+      Schemas.is_tableschema?(schema_name) ->
+        Transport.Validators.TableSchema
+
+      Schemas.is_jsonschema?(schema_name) ->
+        Transport.Validators.EXJSONSchema
+
+      true ->
+        nil
+    end
+  end
 
   defp render_gtfs_details(conn, params, resource) do
     config = make_pagination_config(params)

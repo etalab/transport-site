@@ -24,8 +24,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   describe "ResourceHistoryDispatcherJob" do
     test "resources_to_historise" do
       ids = create_resources_for_history()
-      assert 7 == count_resources()
-      assert ids == ResourceHistoryDispatcherJob.resources_to_historise()
+      assert 9 == count_resources()
+      assert MapSet.new(ids) == MapSet.new(ResourceHistoryDispatcherJob.resources_to_historise())
     end
 
     test "a simple successful case" do
@@ -37,7 +37,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       assert [%{args: %{"resource_id" => first_id}}, %{args: %{"resource_id" => second_id}}] =
                all_enqueued(worker: ResourceHistoryJob)
 
-      assert [second_id, first_id] == ids
+      assert Enum.sort([second_id, first_id]) == Enum.sort(ids)
 
       refute_enqueued(worker: ResourceHistoryDispatcherJob)
     end
@@ -512,8 +512,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   end
 
   defp create_resources_for_history do
-    %{id: active_dataset_id} = insert(:dataset, is_active: true)
-    %{id: inactive_dataset_id} = insert(:dataset, is_active: false)
+    %{id: active_dataset_id} = insert(:dataset, is_active: true, type: "public-transit")
+    %{id: inactive_dataset_id} = insert(:dataset, is_active: false, type: "public-transit")
 
     %{id: id_gtfs} =
       insert(:resource,
@@ -569,6 +569,29 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       type: "documentation",
       title: "Ignored because it's a documentation",
       datagouv_id: "7",
+      is_community_resource: false
+    )
+
+    insert(:resource,
+      url: "https://example.com/file",
+      dataset: insert(:dataset, is_active: true, type: "bike-scooter-sharing"),
+      format: "GTFS",
+      title: "Ignored because the dataset type is bike-scooter-sharing",
+      datagouv_id: "8",
+      is_community_resource: false
+    )
+
+    insert(:resource,
+      url: "https://example.com/file",
+      dataset:
+        insert(:dataset,
+          is_active: true,
+          type: "charging-stations",
+          slug: "prix-des-carburants-en-france-flux-quotidien"
+        ),
+      format: "GTFS",
+      title: "Ignored because the dataset slug is skipped",
+      datagouv_id: "9",
       is_community_resource: false
     )
 

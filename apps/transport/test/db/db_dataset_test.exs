@@ -232,4 +232,19 @@ defmodule DB.DatasetDBTest do
       assert Dataset.resources_content_updated_at(dataset) == %{resource_id => expected_last_update_time}
     end
   end
+
+  test "get_other_datasets" do
+    aom = insert(:aom)
+    dataset = insert(:dataset, aom: aom, is_active: true)
+
+    assert Dataset.get_other_datasets(dataset) == []
+
+    _inactive_dataset = insert(:dataset, aom: aom, is_active: false)
+
+    assert Dataset.get_other_datasets(dataset) == []
+
+    other_dataset = insert(:dataset, aom: aom, is_active: true)
+
+    assert dataset |> Dataset.get_other_datasets() |> Enum.map(& &1.id) == [other_dataset.id]
+  end
 end

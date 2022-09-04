@@ -62,7 +62,7 @@ defmodule DB.Dataset do
   datasets <> Resource <> ResourceHistory <> MultiValidation <> ResourceMetadata
   """
   def join_from_dataset_to_metadata(validator_name) do
-    DB.Dataset.base_query()
+    __MODULE__.base_query()
     |> DB.Resource.join_dataset_with_resource()
     |> DB.ResourceHistory.join_resource_with_latest_resource_history()
     |> DB.MultiValidation.join_resource_history_with_latest_validation(validator_name)
@@ -254,6 +254,13 @@ defmodule DB.Dataset do
   defp filter_by_active(query, %{"list_inactive" => true}), do: query
   defp filter_by_active(query, _), do: where(query, [d], d.is_active)
 
+  @spec filter_by_licence(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),
+    do: where(query, [d], d.licence in ["fr-lo", "lov2"])
+
+  defp filter_by_licence(query, %{"licence" => licence}), do: where(query, [d], d.licence == ^licence)
+  defp filter_by_licence(query, _), do: query
+
   @spec list_datasets(map()) :: Ecto.Query.t()
   def list_datasets(%{} = params) do
     preload_without_validations()
@@ -265,6 +272,7 @@ defmodule DB.Dataset do
     |> filter_by_type(params)
     |> filter_by_aom(params)
     |> filter_by_commune(params)
+    |> filter_by_licence(params)
     |> filter_by_fulltext(params)
     |> order_datasets(params)
   end
@@ -416,14 +424,14 @@ defmodule DB.Dataset do
 
   @spec get_other_datasets(__MODULE__.t()) :: [__MODULE__.t()]
   def get_other_datasets(%__MODULE__{id: id, aom_id: aom_id}) when not is_nil(aom_id) do
-    __MODULE__
+    __MODULE__.base_query()
     |> where([d], d.id != ^id)
     |> where([d], d.aom_id == ^aom_id)
     |> Repo.all()
   end
 
   def get_other_datasets(%__MODULE__{id: id, region_id: region_id}) when not is_nil(region_id) do
-    __MODULE__
+    __MODULE__.base_query()
     |> where([d], d.id != ^id)
     |> where([d], d.region_id == ^region_id)
     |> Repo.all()
@@ -434,7 +442,7 @@ defmodule DB.Dataset do
   # to get the other_datasets
   # This way we can control which datasets to link to
   def get_other_datasets(%__MODULE__{id: id, associated_territory_name: associated_territory_name}) do
-    __MODULE__
+    __MODULE__.base_query()
     |> where([d], d.id != ^id)
     |> where([d], d.associated_territory_name == ^associated_territory_name)
     |> Repo.all()
@@ -758,5 +766,16 @@ defmodule DB.Dataset do
       end
     end)
     |> Enum.into(%{})
+  end
+
+  @doc """
+  Should this dataset not be historicized?
+  """
+  def should_skip_history?(%__MODULE__{slug: slug, type: type}) do
+    type in ["bike-scooter-sharing", "road-data"] or
+      slug in [
+        "prix-des-carburants-en-france-flux-instantane",
+        "prix-des-carburants-en-france-flux-quotidien"
+      ]
   end
 end

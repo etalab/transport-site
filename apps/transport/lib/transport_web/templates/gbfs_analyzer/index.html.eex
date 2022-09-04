@@ -17,8 +17,8 @@
     <% else %>
 
     <% validation = Map.get(@metadata, :validation) %>
-    <%= unless is_nil(validation) do %>
     <h2><%= dgettext("gbfs_analyzer", "Validation") %></h2>
+    <%= unless is_nil(validation) do %>
     <table class="table">
       <tr>
         <td><%= dgettext("gbfs_analyzer", "Number of detected errors") %></td>
@@ -62,6 +62,10 @@
         </td>
       </tr>
     </table>
+    <% else %>
+      <div class="notification">
+        <%= dgettext("gbfs_analyzer", "validation was not performed") %>
+      </div>
     <% end %>
 
     <h2><%= dgettext("gbfs_analyzer", "Metadata") %></h2>

@@ -47,6 +47,26 @@ defmodule Transport.Shared.SchemasTest do
     end
   end
 
+  describe "documentation_url" do
+    test "with only a schema_name" do
+      assert "https://schema.data.gouv.fr/etalab/schema-zfe/" == documentation_url("etalab/schema-zfe")
+    end
+
+    test "with a schema_name and a schema_version" do
+      assert "https://schema.data.gouv.fr/etalab/schema-zfe/0.7.2/" == documentation_url("etalab/schema-zfe", "0.7.2")
+    end
+
+    test "makes sure schema and version are valid" do
+      assert_raise KeyError, ~r(^key "foo" not found in), fn ->
+        documentation_url("foo", "latest")
+      end
+
+      assert_raise KeyError, "foo is not a valid version for etalab/schema-zfe", fn ->
+        documentation_url("etalab/schema-zfe", "foo")
+      end
+    end
+  end
+
   defp setup_schemas_response do
     url = "https://schema.data.gouv.fr/schemas.json"
 

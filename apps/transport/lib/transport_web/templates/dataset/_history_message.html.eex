@@ -1,8 +1,0 @@
-<%= if @count_history_resources > 0 do %>
-  <% link_history =  safe_to_string(link(dgettext("page-dataset-details", "Backed up resources"), to: "#backed-up-resources")) %>
-  <section class="dataset__resources">
-    <p>
-      <%= raw(dgettext("page-dataset-details", "Past versions of the dataset resources are available in the %{link} section.", link: link_history)) %>
-    </p>
-  </section>
-<% end %>

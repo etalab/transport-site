@@ -279,10 +279,6 @@ msgid "Covered area"
 msgstr "Couverture spatiale"
 
 #, elixir-autogen, elixir-format
-msgid "Impossible to read"
-msgstr "Illisible"
-
-#, elixir-autogen, elixir-format
 msgid "during validation"
 msgstr "lors de la validation"
 
@@ -533,3 +529,15 @@ msgstr "et "
 #, elixir-autogen, elixir-format
 msgid "Producers can share in this section design guidelines, documentation, etc. Use the <a href=\"%{url}\" target=\"_blank\">documentation type</a> on data.gouv.fr."
 msgstr "Les producteurs peuvent partager dans cette section : charte graphique, documentation, etc. Utilisez <a href=\"%{url}\" target=\"_blank\">le type documentation</a> sur data.gouv.fr."
+
+#, elixir-autogen, elixir-format
+msgid "Resources with a schema"
+msgstr "Ressources avec schéma"
+
+#, elixir-autogen, elixir-format
+msgid "Browse the API"
+msgstr "Lien vers l'API"
+
+#, elixir-autogen, elixir-format
+msgid "The <a href=\"%{link}\" target=\"_blank\">timestamp field</a> appears to be too old compared to the current time: the delay is %{seconds} seconds. Try to update your feed at most every 30 seconds."
+msgstr "Le <a href=\"%{link}\">champ timestamp</a> contient une valeur ancienne par rapport à la date courante : l'écart est de %{seconds} secondes. Essayez de mettre à jour le flux toutes les 30 secondes au plus."

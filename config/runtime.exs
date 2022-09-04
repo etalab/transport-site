@@ -98,6 +98,7 @@ oban_crontab_all_envs =
         {"30 */6 * * *", Transport.Jobs.BNLCToGeoData},
         {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob},
         {"0 7 * * *", Transport.Jobs.GTFSRTMultiValidationDispatcherJob},
+        {"30 7 * * *", Transport.Jobs.GBFSMultiValidationDispatcherJob},
         {"45 */3 * * *", Transport.Jobs.ResourceHistoryJSONSchemaValidationJob},
         {"15 */3 * * *", Transport.Jobs.ResourceHistoryTableSchemaValidationJob}
       ]
@@ -142,27 +143,6 @@ if config_env() == :dev do
     #  We also make sure to start the assets watcher only if the webserver is up, to avoid cluttering the logs.
     watchers: if(webserver, do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]], else: [])
 end
-
-email_host_name =
-  case config_env() do
-    :dev ->
-      "localhost"
-
-    :test ->
-      # used to make sure we are replacing the app host name by the email host name
-      # when it is different, in some email testing
-      "email.localhost"
-
-    :prod ->
-      # NOTE: it would be best to configure this via EMAIL_HOST_NAME var instead,
-      # but that will do for today.
-      case app_env do
-        :staging -> "prochainement.transport.data.gouv.fr"
-        :production -> "transport.data.gouv.fr"
-      end
-  end
-
-config :transport, :email_host_name, email_host_name
 
 if config_env() == :prod do
   pool_size =

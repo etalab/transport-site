@@ -515,9 +515,6 @@ defmodule DB.Resource do
     |> validate_required([:url, :datagouv_id])
   end
 
-  @spec has_metadata?(__MODULE__.t()) :: boolean()
-  def has_metadata?(%__MODULE__{} = r), do: r.metadata != nil
-
   @spec valid_and_available?(__MODULE__.t()) :: boolean()
   def valid_and_available?(%__MODULE__{
         is_available: available,
@@ -629,7 +626,7 @@ defmodule DB.Resource do
   def is_siri?(_), do: false
 
   @spec is_siri_lite?(__MODULE__.t()) :: boolean
-  def is_siri_lite?(%__MODULE__{format: "SIRI lite"}), do: true
+  def is_siri_lite?(%__MODULE__{format: "SIRI Lite"}), do: true
   def is_siri_lite?(_), do: false
 
   @spec is_documentation?(__MODULE__.t()) :: boolean
@@ -644,6 +641,9 @@ defmodule DB.Resource do
   def is_real_time?(%__MODULE__{} = resource) do
     is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource) or is_siri?(resource)
   end
+
+  @spec has_schema?(__MODULE__.t()) :: boolean
+  def has_schema?(%__MODULE__{schema_name: schema_name}), do: not is_nil(schema_name)
 
   @spec ttl(__MODULE__.t()) :: integer() | nil
   def ttl(%__MODULE__{format: "gbfs", metadata: %{"ttl" => ttl}})

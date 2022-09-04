@@ -13,6 +13,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
   setup do
     Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
 
     {:ok, _} =
       %Dataset{
@@ -35,7 +36,6 @@ defmodule TransportWeb.ResourceControllerTest do
           %Resource{
             url: "http://link.to/gbfs",
             datagouv_id: "3",
-            metadata: %{"versions" => ["2.2"], "validation" => %{"errors_count" => 1, "has_errors" => true}},
             format: "gbfs"
           },
           %Resource{
@@ -131,12 +131,21 @@ defmodule TransportWeb.ResourceControllerTest do
     assert html_response =~ url
   end
 
-  test "GBFS resource with metadata but no errors sends back a 200", %{conn: conn} do
+  test "GBFS resource with multi-validation sends back 200", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "3")
-    assert resource.format == "gbfs"
-    assert Resource.has_errors_details?(resource)
-    refute Map.has_key?(resource.metadata["validation"], "errors")
-    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+    assert Resource.is_gbfs?(resource)
+
+    insert(:multi_validation, %{
+      resource_history: insert(:resource_history, %{resource_id: resource.id}),
+      validator: Transport.Validators.GBFSValidator.validator_name(),
+      result: %{"errors_count" => 1},
+      metadata: %{metadata: %{}}
+    })
+
+    Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+
+    conn = conn |> get(resource_path(conn, :details, resource.id))
+    assert conn |> html_response(200) =~ "1 erreur"
   end
 
   test "resource with error details sends back a 200", %{conn: conn} do
@@ -412,7 +421,7 @@ defmodule TransportWeb.ResourceControllerTest do
     end)
 
     Transport.Shared.Schemas.Mock
-    |> expect(:transport_schemas, 1, fn -> %{schema_name => %{"title" => "foo"}} end)
+    |> expect(:transport_schemas, 2, fn -> %{schema_name => %{"title" => "foo"}} end)
 
     conn1 = conn |> get(resource_path(conn, :details, resource_id))
     assert conn1 |> html_response(200) =~ "Pas de validation disponible"
@@ -452,7 +461,7 @@ defmodule TransportWeb.ResourceControllerTest do
     end)
 
     Transport.Shared.Schemas.Mock
-    |> expect(:transport_schemas, 1, fn -> %{schema_name => %{"title" => "foo"}} end)
+    |> expect(:transport_schemas, 2, fn -> %{schema_name => %{"title" => "foo"}} end)
 
     conn1 = conn |> get(resource_path(conn, :details, resource_id))
     assert conn1 |> html_response(200) =~ "Pas de validation disponible"

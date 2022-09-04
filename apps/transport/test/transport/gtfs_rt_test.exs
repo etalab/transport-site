@@ -9,6 +9,8 @@ defmodule Transport.GTFSRTTest do
   @sample_file "#{__DIR__}/../fixture/files/bibus-brest-gtfs-rt-alerts.pb"
   @url "https://example.com/gtfs-rt"
 
+  doctest GTFSRT, import: true
+
   describe "decode_remote_feed" do
     test "it works" do
       setup_gtfs_rt_feed(@url)

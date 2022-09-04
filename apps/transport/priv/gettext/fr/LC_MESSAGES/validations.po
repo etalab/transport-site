@@ -264,3 +264,11 @@ msgstr "Aucune erreur de validation"
 #, elixir-autogen, elixir-format
 msgid "See all your errors <a href=\"%{url}\" target=\"_blank\">using the web interface</a>."
 msgstr "Consultez toutes les erreurs <a href=\"%{url}\" target=\"_blank\">sur ce site web</a>."
+
+#, elixir-autogen, elixir-format
+msgid "See <a href=\"%{report_url}\" target=\"_blank\">the validation report</a> online."
+msgstr "Consultez le <a href=\"%{report_url}\" target=\"_blank\">rapport de validation</a> en ligne."
+
+#, elixir-autogen, elixir-format
+msgid "Validation carried out the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">MobilityData validator</a>."
+msgstr "Validation effectuée le %{date} en utilisant le <a href=\"%{validator_url}\" target=\"_blank\">validateur GBFS de MobilityData</a>."

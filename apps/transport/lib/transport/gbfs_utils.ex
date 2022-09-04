@@ -1,4 +1,4 @@
-defmodule Transport.GbfsUtils do
+defmodule Transport.GBFSUtils do
   @moduledoc """
   Useful functions for GBFS data
   """

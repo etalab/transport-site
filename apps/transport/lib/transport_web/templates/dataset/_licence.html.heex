@@ -1,0 +1,15 @@
+<span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "License") %></span><br />
+<b>
+  <%= if licence_url(@dataset.licence) do %>
+    <%= link(licence(@dataset), to: licence_url(@dataset.licence)) %>
+  <% else %>
+    <%= licence(@dataset) %>
+  <% end %>
+  <%= if displays_odbl_specific_usage_conditions?(@dataset) do %>
+    &#32 <%= dgettext("page-dataset-details", "and ") %>
+    <%= link(dgettext("page-dataset-details", "Specific usage conditions"),
+      to:
+        "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/conditions-dutilisation-des-donnees/licence-odbl"
+    ) %>
+  <% end %>
+</b>
