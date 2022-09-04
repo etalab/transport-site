@@ -164,5 +164,4 @@
     </div>
   </div>
 </section>
-<script defer type="text/javascript" src="/js/app.js">
-</script>
+<%= tag(:script, defer: true, type: "text/javascript", src: static_path(@socket, "/js/app.js")) %>
