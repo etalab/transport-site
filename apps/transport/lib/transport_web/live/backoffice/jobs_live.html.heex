@@ -49,4 +49,5 @@
   <%= live_component(JobsTableComponent, jobs: @last_discarded_jobs, state: "discarded") %>
   <p class="small">Total: <%= Helpers.format_number(@count_discarded_jobs, locale: "en") %></p>
 </section>
-<%= tag(:script, defer: true, type: "text/javascript", src: static_path(@conn, "/js/app.js")) %>
+<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
+</script>
