@@ -3,7 +3,6 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   A view able to display the current running configuration of the proxy.
   """
   use Phoenix.LiveView
-  use Phoenix.HTML
   alias Transport.Telemetry
   import TransportWeb.Router.Helpers
 
