@@ -48,4 +48,5 @@
   </table>
   <p class="small">Dernière mise à jour: <%= @last_updated_at %></p>
 </section>
-<%= tag(:script, defer: true, type: "text/javascript", src: static_path(@socket, "/js/app.js")) %>
+<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
+</script>
