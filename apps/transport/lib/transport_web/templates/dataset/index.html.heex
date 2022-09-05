@@ -1,0 +1,194 @@
+<div class="container dataset-page-top">
+  <div class="form__group">
+    <%= form_for @conn, dataset_path(@conn, :index), [method: "get", class: "shortlist-form"], fn f -> %>
+      <div class="searchBar">
+        <%= search_input(f, :q,
+          id: "autoComplete",
+          autocomplete: "off",
+          value: assigns[:q] || "",
+          placeholder: dgettext("page-index", "Find dataset"),
+          "aria-label": dgettext("page-index", "Find dataset")
+        ) %>
+        <div class="autoCompleteResultsField">
+          <div id="autoCompleteResults"></div>
+        </div>
+      </div>
+    <% end %>
+    <div class="dataset-page-title">
+      <%= if @conn.assigns[:page_title] do %>
+        <%= @page_title.type %>
+        <h1><%= @page_title.name %></h1>
+      <% else %>
+        <%= if @conn.assigns[:q] do %>
+          <h1>
+            <%= @datasets.total_entries %> <%= dngettext("page-shortlist", "result", "results", @datasets.total_entries) %> pour "<%= @q %>"
+          </h1>
+        <% else %>
+          <h1><%= dgettext("page-index", "Datasets") %></h1>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<%= if @conn.assigns[:category_custom_message] do %>
+  <%= render(TransportWeb.DatasetView, "_custom_message.html", conn: @conn, msg: @category_custom_message) %>
+<% end %>
+
+<%= if is_nil(@conn.assigns[:q]) or @datasets.total_entries > 0  do %>
+  <section id="datasets-results" class="section-grey">
+    <div class="container">
+      <div class="shortlist">
+        <nav class="side-pane" role="navigation">
+          <div class="pt-48">
+            <ul class="side-pane__menu">
+              <li class="side-pane__title">
+                <h3><%= dgettext("page-shortlist", "Data type") %></h3>
+                <li class="side-pane__dropdown unfolded">
+                  <ul class="side-pane__submenu">
+                    <li>
+                      <%= type_link(@conn, %{
+                        msg: dgettext("page-shortlist", "All"),
+                        type: nil,
+                        count: @types |> Enum.map(& &1.count) |> Enum.sum()
+                      }) %>
+                    </li>
+                    <%= for type <- @types do %>
+                      <li><%= type_link(@conn, type) %></li>
+                    <% end %>
+                  </ul>
+                </li>
+              </li>
+
+              <li class="side-pane__title">
+                <h3><%= dgettext("page-shortlist", "Real Time") %></h3>
+                <li class="side-pane__dropdown unfolded">
+                  <ul class="side-pane__submenu">
+                    <li>
+                      <%= real_time_link(@conn, %{
+                        only_realtime: false,
+                        msg: dgettext("page-shortlist", "Any"),
+                        count: @number_realtime_datasets.all
+                      }) %>
+                    </li>
+                    <li>
+                      <%= real_time_link(@conn, %{
+                        only_realtime: true,
+                        msg: dgettext("page-shortlist", "with real time"),
+                        count: @number_realtime_datasets.true
+                      }) %>
+                    </li>
+                  </ul>
+                </li>
+              </li>
+
+              <%= if assigns[:regions] do %>
+                <li class="side-pane__title">
+                  <h3><%= dgettext("page-shortlist", "Regions") %></h3>
+                  <li class="side-pane__dropdown unfolded">
+                    <ul class="side-pane__submenu">
+                      <li>
+                        <%= region_link(@conn, %{
+                          nom: dgettext("page-shortlist", "All"),
+                          count: @regions |> Enum.map(& &1.count) |> Enum.sum(),
+                          id: nil
+                        }) %>
+                      </li>
+                      <%= for region <- @regions do %>
+                        <%= unless region.count == 0 do %>
+                          <li><%= region_link(@conn, region) %></li>
+                        <% end %>
+                      <% end %>
+                    </ul>
+                  </li>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </nav>
+        <div class="main-pane transparent">
+          <%= if @conn.assigns[:empty_message] do %>
+            <div class="container pt-48">
+              <div class="notification">
+                <%= @empty_message %>
+              </div>
+            </div>
+          <% else %>
+            <div class="order-by">
+              <span class="order-by__title"><%= dgettext("page-shortlist", "Order by") %></span>
+              <span class="order-by-option"><%= order_link(@conn, "alpha") %></span>
+              <span class="order-by-option"><%= order_link(@conn, "most_recent") %></span>
+            </div>
+
+            <%= for dataset <- @datasets do %>
+              <div class="panel dataset__panel">
+                <div class="panel__content">
+                  <div class="dataset__description">
+                    <div class="dataset__image" data-provider={dataset.custom_title}>
+                      <%= img_tag(dataset.logo, alt: dataset.custom_title) %>
+                    </div>
+                    <div class="dataset__infos">
+                      <h3 class="dataset__title">
+                        <a href={dataset_path(@conn, :details, dataset.slug)}>
+                          <%= dataset.custom_title %>
+                        </a>
+                        <%= if admin?(assigns[:current_user]) do %>
+                          <span class="dataset-backoffice-link">
+                            <i class="fa fa-external-link-alt"></i>
+                            <%= link("backoffice", to: backoffice_page_path(@conn, :edit, dataset.id)) %>
+                          </span>
+                        <% end %>
+                      </h3>
+                      <div class="dataset-localization">
+                        <i class="fa fa-map-marker-alt" /><%= Dataset.get_territory_or_nil(dataset) %>
+                      </div>
+                    </div>
+                  </div>
+                  <%= unless is_nil(icon_type_path(dataset)) do %>
+                    <div class="dataset__type">
+                      <%= img_tag(icon_type_path(dataset), alt: dataset.type) %>
+                    </div>
+                  <% end %>
+                </div>
+                <div class="panel__extra">
+                  <div class="dataset__info">
+                    <div class="shortlist__notices">
+                      <div class="dataset-udpate-date ml-1em">
+                        <%= dgettext("page-shortlist", "added on") %> <%= DateTimeDisplay.format_date(
+                          dataset.created_at,
+                          get_session(@conn, :locale)
+                        ) %>
+                      </div>
+                      <dl class="dataset-format shortlist__notice">
+                        <%= unless Dataset.formats(dataset) == [] do %>
+                          <dt class="shortlist__label"><%= dgettext("page-shortlist", "Format") %></dt>
+                          <%= for format <- Dataset.formats(dataset) do %>
+                            <dd class="label"><%= format %></dd>
+                          <% end %>
+                        <% end %>
+                      </dl>
+                      <div class="dataset-type-text">
+                        <%= Dataset.type_to_str(dataset.type) %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+      <div class="shortlist__pagination">
+        <%= pagination_links(@conn, @datasets) %>
+      </div>
+      <div class="api-link">
+        <i class="fas fa-cogs"></i>
+        <%= link(
+          dgettext("page-shortlist", "Get dataset list via an API"),
+          to: "#{swagger_ui_path(@conn, path: "/api/openapi")}#/datasets/API.DatasetController.datasets"
+        ) %> -
+      </div>
+    </div>
+  </section>
+<% end %>
+<script src={static_path(@conn, "/js/autocomplete.js")} />
