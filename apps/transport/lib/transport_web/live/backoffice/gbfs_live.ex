@@ -5,6 +5,7 @@ defmodule TransportWeb.Backoffice.GBFSLive do
   use Phoenix.LiveView
   alias Transport.Telemetry
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
+  import TransportWeb.Router.Helpers
 
   @stats_days 7
 
