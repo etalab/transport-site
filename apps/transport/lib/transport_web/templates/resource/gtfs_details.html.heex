@@ -1,0 +1,137 @@
+<section>
+  <% associated_geojson = get_associated_geojson(@related_files) %>
+  <% associated_netex = get_associated_netex(@related_files) %>
+  <div class="grey-background">
+    <div class="container">
+      <h2 class="mt-48"><%= dgettext("validations", "Resource details") %></h2>
+      <div class="panel">
+        <p>
+          <%= dgettext("validations", "File name") %> :
+          <a href={DB.Resource.download_url(@resource)}>
+            <strong><%= @resource.title %></strong>
+          </a>
+        </p>
+        <p>
+          <%= dgettext("validations", "This resource file is part of the dataset") %> <%= link(
+            @resource.dataset.custom_title,
+            to: dataset_path(@conn, :details, @resource.dataset.slug)
+          ) %>.
+        </p>
+        <%= render("_resources_details.html", conn: @conn, metadata: @metadata) %>
+        <%= if !is_nil(associated_geojson) or !is_nil(associated_netex) do %>
+          <div id="other-formats">
+            <%= dgettext("validations", "This resource is also available in the following formats:") %>
+            <ul>
+              <%= unless is_nil(associated_geojson) do %>
+                <li>
+                  <a href={associated_geojson.url}>GeoJSON</a>*
+                </li>
+              <% end %>
+              <%= unless is_nil(associated_netex) do %>
+                <li><a href={associated_netex.url}>NeTEx</a></li>
+              <% end %>
+            </ul>
+            * <%= dgettext(
+              "validations",
+              "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)
+              It corresponds to the data you can see on the map below."
+            ) %>
+            <%= unless is_nil(associated_geojson) or is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
+              <%= dgettext("validations", "This GeoJSON was up-to-date with the GTFS resource %{hours} ago.",
+                hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at)
+              ) %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <h2 id="download-availability"><%= dgettext("page-dataset-details", "Download availability") %></h2>
+      <%= render("_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn) %>
+
+      <%= unless is_nil(associated_geojson) do %>
+        <h2 class="mt-48" id="visualization">
+          <%= dgettext("validations", "Stops and routes visualization of the GTFS file") %>
+        </h2>
+        <div class="panel no-padding">
+          <div id="resource-geojson-info" class="p-24"></div>
+          <div id="resource-geojson"></div>
+          <script src={static_path(@conn, "/js/mapgeojson.js")}>
+          </script>
+          <script>
+            document.addEventListener("DOMContentLoaded", function() {
+              GTFSGeojsonMap(
+                'resource-geojson',
+                'resource-geojson-info',
+                "<%= associated_geojson.url %>",
+                "<%= associated_geojson.filesize || 0 %>",
+                "<%= dgettext("validations", "Stops visualization is quite big") %>",
+                "<%= dgettext("validations", "Show anyway") %>"
+                )
+              })
+              
+          </script>
+        </div>
+        <%= unless is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
+          <div class="is-centered no-margin">
+            <%= dgettext("validations", "Visualization up-to-date %{hours} ago.",
+              hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at)
+            ) %>
+          </div>
+        <% end %>
+      <% end %>
+      <h2 id="validation-report" class="mt-48"><%= dgettext("validations", "Validation report") %></h2>
+      <div class="panel" id="issues">
+        <%= unless @validation_summary do %>
+          <%= dgettext("validations", "No validation available") %>
+        <% else %>
+          <%= if @issues.total_entries == 0 do %>
+            <%= dgettext("validations", "No validation error") %>.
+          <% else %>
+            <nav class="issues-list validation" role="navigation">
+              <%= render("_validation_summary.html",
+                validation_summary: @validation_summary,
+                severities_count: @severities_count,
+                issues: @issues,
+                conn: @conn,
+                data_vis: @data_vis,
+                token: nil
+              ) %>
+            </nav>
+            <div class="main-pane">
+              <%= pagination_links(@conn, @issues, [@resource.id],
+                issue_type: issue_type(@issues.entries),
+                path: &resource_path/4,
+                action: :details
+              ) %>
+              <%= render(template(@issues), issues: @issues || [], conn: @conn) %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+      <%= if length(@other_resources) > 0 do %>
+        <h2><%= TransportWeb.Gettext.dgettext("validations", "Other resources") %></h2>
+        <div class="panel">
+          <ul>
+            <%= for resource <- @other_resources do %>
+              <li>
+                <%= link(resource.title,
+                  to: resource_path(@conn, :details, resource.id)
+                ) %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+<script src={static_path(@conn, "/js/utils.js")} />
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    addSeeMore("3em",
+      ".networks-list",
+      "<%= dgettext("page-dataset-details", "Display more") %>",
+      "<%= dgettext("page-dataset-details", "Display less") %>"
+    )
+  })
+</script>
