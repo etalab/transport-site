@@ -55,8 +55,7 @@
         <div class="panel no-padding">
           <div id="resource-geojson-info" class="p-24"></div>
           <div id="resource-geojson"></div>
-          <script src={static_path(@conn, "/js/mapgeojson.js")}>
-          </script>
+          <script src={static_path(@conn, "/js/mapgeojson.js")} />
           <script>
             document.addEventListener("DOMContentLoaded", function() {
               GTFSGeojsonMap(
@@ -68,7 +67,6 @@
                 "<%= dgettext("validations", "Show anyway") %>"
                 )
               })
-              
           </script>
         </div>
         <%= unless is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
