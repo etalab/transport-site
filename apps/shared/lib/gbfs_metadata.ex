@@ -28,8 +28,7 @@ defmodule Transport.Shared.GBFSMetadata do
 
     %{
       validation: validation(url),
-      has_cors: has_cors?(response),
-      is_cors_allowed: cors_headers_allows_self?(cors_base_url, response),
+      cors_header_value: cors_header_value(response),
       feeds: feeds(json),
       versions: versions(json),
       languages: languages(json),
