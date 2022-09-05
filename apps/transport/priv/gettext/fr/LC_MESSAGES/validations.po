@@ -272,3 +272,7 @@ msgstr "Consultez le <a href=\"%{report_url}\" target=\"_blank\">rapport de vali
 #, elixir-autogen, elixir-format
 msgid "Validation carried out the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">MobilityData validator</a>."
 msgstr "Validation effectuée le %{date} en utilisant le <a href=\"%{validator_url}\" target=\"_blank\">validateur GBFS de MobilityData</a>."
+
+#, elixir-autogen, elixir-format
+msgid "Validate this GBFS now"
+msgstr "Valider ce GBFS maintenant"
