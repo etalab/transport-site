@@ -30,10 +30,10 @@ defmodule Transport.ValidatorsSelection.Impl do
   end
 
   @doc """
-  Get a list of validators to run for a `DB.ResourceHistory` or a format
+  Get a list of validators to run for a `DB.ResourceHistory`, `DB.Resource`, a map of format and schema or just a format
   """
   @impl Transport.ValidatorsSelection
-  @spec validators(DB.ResourceHistory.t()) :: list()
+  @spec validators(binary() | DB.ResourceHistory.t() | DB.Resource.t() | map()) :: list()
   def validators(%DB.ResourceHistory{payload: payload}) do
     validators(%{format: Map.get(payload, "format"), schema_name: Map.get(payload, "schema_name")})
   end
@@ -52,8 +52,6 @@ defmodule Transport.ValidatorsSelection.Impl do
     end
   end
 
-  @impl Transport.ValidatorsSelection
-  @spec validators(binary()) :: list()
   def validators(format) do
     format |> get_validators(formats_and_validators())
   end
