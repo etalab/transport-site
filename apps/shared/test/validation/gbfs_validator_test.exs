@@ -13,7 +13,12 @@ defmodule GBFSValidatorTest do
     Transport.HTTPoison.Mock
     |> expect(:post, fn url, body, headers ->
       assert %{"url" => "https://example.com/gbfs.json"} = Jason.decode!(body)
-      assert [{"content-type", "application/json"}, {"user-agent", "contact@transport.beta.gouv.fr"}] == headers
+
+      assert [
+               {"content-type", "application/json"},
+               {"user-agent", "contact@transport.beta.gouv.fr"}
+             ] == headers
+
       assert String.starts_with?(url, "https://gbfs-validator.netlify.app")
 
       {:ok,
