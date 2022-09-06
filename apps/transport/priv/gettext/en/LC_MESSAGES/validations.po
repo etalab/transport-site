@@ -272,3 +272,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Validation carried out the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">MobilityData validator</a>."
 msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Validate this GBFS now"
+msgstr ""
