@@ -536,9 +536,10 @@ defmodule DB.Dataset do
   def community_resources(%__MODULE__{}), do: []
 
   @spec formats(__MODULE__.t()) :: [binary]
-  def formats(%__MODULE__{resources: resources}) when is_list(resources) do
-    resources
-    |> Enum.map(fn r -> r.format end)
+  def formats(%__MODULE__{} = dataset) do
+    dataset
+    |> official_resources()
+    |> Enum.map(& &1.format)
     |> Enum.sort()
     |> Enum.dedup()
   end

@@ -34,8 +34,7 @@ defmodule Transport.Validators.GBFSValidatorTest do
           validator_version: "31c5325",
           validator: :validator_module
         },
-        has_cors: true,
-        is_cors_allowed: true
+        cors_header_value: "*"
       }
     end)
 
@@ -45,8 +44,7 @@ defmodule Transport.Validators.GBFSValidatorTest do
              metadata: %DB.ResourceMetadata{
                metadata: %{
                  "feeds" => ["system_information", "station_information", "station_status"],
-                 "has_cors" => true,
-                 "is_cors_allowed" => true,
+                 "cors_header_value" => "*",
                  "languages" => ["fr"],
                  "system_details" => %{"name" => "velhop", "timezone" => "Europe/Paris"},
                  "ttl" => 3600,
