@@ -3,6 +3,7 @@ defmodule GBFSValidatorTest do
   doctest Shared.Validation.GBFSValidator
 
   import Mox
+  import ExUnit.CaptureLog
 
   alias Shared.Validation.GBFSValidator.{HTTPValidatorClient, Summary}
 
@@ -12,7 +13,12 @@ defmodule GBFSValidatorTest do
     Transport.HTTPoison.Mock
     |> expect(:post, fn url, body, headers ->
       assert %{"url" => "https://example.com/gbfs.json"} = Jason.decode!(body)
-      assert [{"content-type", "application/json"}, {"user-agent", "contact@transport.beta.gouv.fr"}] == headers
+
+      assert [
+               {"content-type", "application/json"},
+               {"user-agent", "contact@transport.beta.gouv.fr"}
+             ] == headers
+
       assert String.starts_with?(url, "https://gbfs-validator.netlify.app")
 
       {:ok,
@@ -38,10 +44,13 @@ defmodule GBFSValidatorTest do
   end
 
   test "on invalid server response" do
-    Transport.HTTPoison.Mock |> expect(:post, fn _url, _, _ -> {:ok, %HTTPoison.Response{status_code: 500}} end)
+    Transport.HTTPoison.Mock
+    |> expect(:post, fn _url, _, _ -> {:ok, %HTTPoison.Response{status_code: 500}} end)
 
-    {:error, error} = HTTPValidatorClient.validate("https://example.com/gbfs.json")
+    {{:error, error}, logs} = with_log(fn -> HTTPValidatorClient.validate("https://example.com/gbfs.json") end)
+
     assert String.starts_with?(error, "impossible to query GBFS Validator")
+    assert logs =~ "impossible to query GBFS Validator"
   end
 
   test "can encode summary" do
