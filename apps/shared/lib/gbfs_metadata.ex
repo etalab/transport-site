@@ -75,41 +75,6 @@ defmodule Transport.Shared.GBFSMetadata do
     Map.get(headers, "access-control-allow-origin")
   end
 
-  @doc """
-  Find the value of the `Access-Control-Allow-Origin` header
-
-  iex> Transport.Shared.GBFSMetadata.has_cors?(%HTTPoison.Response{headers: []})
-  false
-
-  iex> Transport.Shared.GBFSMetadata.has_cors?(%HTTPoison.Response{headers: [{"access-control-allow-origin", "*"}]})
-  true
-
-  iex> Transport.Shared.GBFSMetadata.has_cors?(%HTTPoison.Response{headers: [{"Access-Control-Allow-Origin", "*"}]})
-  true
-  """
-  def has_cors?(%HTTPoison.Response{} = response) do
-    not is_nil(cors_header_value(response))
-  end
-
-  @doc """
-  Determines if the CORS header allows transport.data.gouv.fr
-
-  iex> Transport.Shared.GBFSMetadata.cors_headers_allows_self?("http://example.com", %HTTPoison.Response{headers: []})
-  false
-
-  iex> Transport.Shared.GBFSMetadata.cors_headers_allows_self?("http://example.com", %HTTPoison.Response{headers: [{"access-control-allow-origin", "*"}]})
-  true
-
-  iex> Transport.Shared.GBFSMetadata.cors_headers_allows_self?("http://example.com", %HTTPoison.Response{headers: [{"Access-Control-Allow-Origin", "*"}]})
-  true
-
-  iex> Transport.Shared.GBFSMetadata.cors_headers_allows_self?("http://example.com", %HTTPoison.Response{headers: [{"Access-Control-Allow-Origin", "http://example.com"}]})
-  true
-  """
-  def cors_headers_allows_self?(cors_base_url, %HTTPoison.Response{} = response) do
-    Enum.member?([cors_base_url, "*"], cors_header_value(response))
-  end
-
   defp ttl(%{"data" => _data} = payload) do
     feed_name = feed_to_use_for_ttl(types(payload))
 
