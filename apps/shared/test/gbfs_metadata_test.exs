@@ -31,8 +31,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
           validator_version: "31c5325",
           validator: :validator_module
         },
-        has_cors: true,
-        is_cors_allowed: true
+        cors_header_value: "*"
       }
 
       assert expected == compute_feed_metadata(@gbfs_url, "http://example.com")
@@ -71,8 +70,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
           "geofencing_zones",
           "gbfs_versions"
         ],
-        has_cors: true,
-        is_cors_allowed: true
+        cors_header_value: "*"
       }
 
       assert expected == compute_feed_metadata(@gbfs_url, "http://example.com")

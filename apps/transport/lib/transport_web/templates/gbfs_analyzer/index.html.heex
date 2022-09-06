@@ -120,37 +120,19 @@
             </tr>
           <% end %>
 
-          <% has_cors = Map.get(@metadata, :has_cors) %>
-          <%= unless is_nil(has_cors) do %>
-            <tr>
-              <td>
-                <%= dgettext("gbfs_analyzer", "CORS headers available") %>
-              </td>
-              <td>
-                <%= if @metadata.has_cors do %>
-                  <%= dgettext("gbfs_analyzer", "Yes") %>
-                <% else %>
-                  <%= dgettext("gbfs_analyzer", "No") %>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-
-          <% is_cors_allowed = Map.get(@metadata, :has_cors) %>
-          <%= unless is_nil(is_cors_allowed) do %>
-            <tr>
-              <td>
-                <%= dgettext("gbfs_analyzer", "CORS allowed") %>
-              </td>
-              <td>
-                <%= if @metadata.is_cors_allowed do %>
-                  <%= dgettext("gbfs_analyzer", "Yes") %>
-                <% else %>
-                  <%= dgettext("gbfs_analyzer", "No") %>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
+          <% cors_header_value = Map.get(@metadata, :cors_header_value) %>
+          <tr>
+            <td>
+              <%= dgettext("gbfs_analyzer", "CORS headers") %>
+            </td>
+            <td>
+              <%= if cors_header_value do %>
+                Access-Control-Allow-Origin: <%= cors_header_value %>
+              <% else %>
+                <%= dgettext("gbfs_analyzer", "None") %>
+              <% end %>
+            </td>
+          </tr>
         </table>
 
         <h2><%= dgettext("gbfs_analyzer", "Visualization") %></h2>
