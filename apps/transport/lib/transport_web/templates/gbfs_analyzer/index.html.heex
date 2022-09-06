@@ -121,18 +121,18 @@
           <% end %>
 
           <% cors_header_value = Map.get(@metadata, :cors_header_value) %>
-            <tr>
-              <td>
-                <%= dgettext("gbfs_analyzer", "CORS headers") %>
-              </td>
-              <td>
-                <%= if cors_header_value do %>
-                  Access-Control-Allow-Origin: <%= cors_header_value %>
-                <% else %>
-                  <%= dgettext("gbfs_analyzer", "None") %>
-                <% end %>
-              </td>
-            </tr>
+          <tr>
+            <td>
+              <%= dgettext("gbfs_analyzer", "CORS headers") %>
+            </td>
+            <td>
+              <%= if cors_header_value do %>
+                Access-Control-Allow-Origin: <%= cors_header_value %>
+              <% else %>
+                <%= dgettext("gbfs_analyzer", "None") %>
+              <% end %>
+            </td>
+          </tr>
         </table>
 
         <h2><%= dgettext("gbfs_analyzer", "Visualization") %></h2>
