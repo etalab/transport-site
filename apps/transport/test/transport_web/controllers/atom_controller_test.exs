@@ -66,4 +66,45 @@ defmodule TransportWeb.AtomControllerTest do
     doc = conn |> response(200) |> Floki.parse_document!()
     assert {"updated", [], [last_update_paris]} == doc |> Floki.find("updated") |> Enum.at(0)
   end
+
+  test "doc is rendered as expected", %{conn: conn} do
+    last_update_utc = days_ago(5)
+
+    %{id: resource_id} =
+      insert(:resource,
+        title: "title",
+        last_update: last_update_utc |> to_string(),
+        dataset: insert(:dataset, description: "<p>Hello</p>", organization: "BusCorp", custom_title: "Custom Title")
+      )
+
+    last_update_paris = last_update_utc |> Timex.Timezone.convert("Europe/Paris") |> Formatter.format!("{ISO:Extended}")
+
+    content = conn |> get(atom_path(conn, :index)) |> response(200)
+
+    assert content =~ ~s(<link href="http://127.0.0.1:5100/atom.xml" rel="self" />)
+
+    # This assertion is intense, but HEEx + XML is not great so it's a bit too much
+    # to be safe.
+    assert [
+             {:pi, "xml", [{"version", "1.0"}, {"encoding", "utf-8"}]},
+             {"feed", [{"xmlns", "http://www.w3.org/2005/Atom"}],
+              [
+                {"title", [], ["transport.data.gouv.fr"]},
+                {"subtitle", [], ["Jeux de données GTFS"]},
+                {"link", [{"href", "http://127.0.0.1:5100/atom.xml"}, {"rel", "self"}], []},
+                {"id", [], ["tag:transport.data.gouv.fr,2019-02-27:/20190227161047181"]},
+                {"updated", [], [last_update_paris]},
+                {"entry", [],
+                 [
+                   {"title", [], ["Custom Title — title"]},
+                   {"link", [{"href", "url"}], []},
+                   {"id", [], ["http://127.0.0.1:5100/resources/#{resource_id}"]},
+                   {"updated", [], [last_update_paris]},
+                   {"summary", [], ["Cette ressource fait partie du jeux de données Custom Title"]},
+                   {"content", [{"type", "html"}], ["\n<p>\n  Hello</p>\n\n      "]},
+                   {"author", [], [{"name", [], ["BusCorp"]}]}
+                 ]}
+              ]}
+           ] == Floki.parse_document!(content)
+  end
 end

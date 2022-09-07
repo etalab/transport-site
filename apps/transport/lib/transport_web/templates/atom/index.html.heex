@@ -3,14 +3,14 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>transport.data.gouv.fr</title>
   <subtitle>Jeux de données GTFS</subtitle>
-  <link href={atom_url(@conn, :index)} rel="self" />
+  <%= raw(~s(<link href="#{atom_url(@conn, :index)}" rel="self" />)) %>
   <id>tag:transport.data.gouv.fr,2019-02-27:/20190227161047181</id>
   <updated><%= last_updated(@resources) %></updated>
 
   <%= for resource <- @resources do %>
     <entry>
       <title><%= resource.dataset.custom_title %> — <%= resource.title %></title>
-      <link href={resource.latest_url} />
+      <%= raw(~s(<link href="#{resource.latest_url}" />)) %>
       <id><%= resource_url(@conn, :details, resource.id) %></id>
       <updated><%= DateTimeDisplay.format_naive_datetime_to_paris_tz(resource.last_update) %></updated>
       <summary>Cette ressource fait partie du jeux de données <%= resource.dataset.custom_title %></summary>
