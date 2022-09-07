@@ -323,7 +323,7 @@
         <%= img_tag(@dataset.full_logo, alt: @dataset.custom_title) %>
       </div>
       <div>
-        <i class="fa fa-map-marker-alt"></i> <%= Dataset.get_territory_or_nil(@dataset) %>
+        <i class="icon fa fa-map-marker-alt" /><%= Dataset.get_territory_or_nil(@dataset) %>
       </div>
       <div class="pt-12">
         <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Data producer") %></span>
