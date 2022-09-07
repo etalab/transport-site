@@ -247,4 +247,13 @@ defmodule DB.DatasetDBTest do
 
     assert dataset |> Dataset.get_other_datasets() |> Enum.map(& &1.id) == [other_dataset.id]
   end
+
+  test "formats" do
+    dataset = insert(:dataset)
+    insert(:resource, format: "GTFS", dataset: dataset)
+    insert(:resource, format: "zip", dataset: dataset, is_community_resource: true)
+    insert(:resource, format: "csv", dataset: dataset)
+
+    assert ["GTFS", "csv"] == dataset |> DB.Repo.preload(:resources) |> Dataset.formats()
+  end
 end
