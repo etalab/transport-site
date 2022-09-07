@@ -164,7 +164,7 @@ msgstr "Site internet"
 
 #, elixir-autogen, elixir-format
 msgid "tags: "
-msgstr "Mots-clef"
+msgstr "Mots-clefs"
 
 #, elixir-autogen, elixir-format
 msgid "Outdated"
