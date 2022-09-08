@@ -3,6 +3,7 @@ defmodule DB.DatasetDBTest do
   Tests on the Dataset schema
   """
   use DB.DatabaseCase, cleanup: [:datasets]
+  use Oban.Testing, repo: DB.Repo
   alias DB.Repo
   import DB.Factory
   import ExUnit.CaptureLog
@@ -255,5 +256,37 @@ defmodule DB.DatasetDBTest do
     insert(:resource, format: "csv", dataset: dataset)
 
     assert ["GTFS", "csv"] == dataset |> DB.Repo.preload(:resources) |> Dataset.formats()
+  end
+
+  test "validate" do
+    dataset = insert(:dataset)
+    %{id: gtfs_resource_id} = insert(:resource, format: "GTFS", dataset: dataset)
+    insert(:resource, format: "gbfs", dataset: dataset)
+
+    Dataset.validate(dataset)
+
+    assert [
+             %Oban.Job{
+               args: %{"resource_id" => ^gtfs_resource_id},
+               worker: "Transport.Jobs.ResourceHistoryJob",
+               conflict?: false
+             }
+           ] = all_enqueued()
+
+    # Executing again does not create a conflict, even if the job has `unique` params
+    Dataset.validate(dataset)
+
+    assert [
+             %Oban.Job{
+               args: %{"resource_id" => ^gtfs_resource_id},
+               worker: "Transport.Jobs.ResourceHistoryJob",
+               conflict?: false
+             },
+             %Oban.Job{
+               args: %{"resource_id" => ^gtfs_resource_id},
+               worker: "Transport.Jobs.ResourceHistoryJob",
+               conflict?: false
+             }
+           ] = all_enqueued()
   end
 end

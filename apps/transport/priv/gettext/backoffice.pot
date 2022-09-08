@@ -138,10 +138,6 @@ msgid "Imports history"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Validations history"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "date / time"
 msgstr ""
 
@@ -150,15 +146,7 @@ msgid "error message"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "explanation"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "success"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "validation needed"
 msgstr ""
 
 #, elixir-autogen, elixir-format
