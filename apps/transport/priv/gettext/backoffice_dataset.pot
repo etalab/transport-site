@@ -43,10 +43,6 @@ msgid "Dataset edited with success"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Error"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Validate"
 msgstr ""
 

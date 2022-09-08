@@ -119,84 +119,54 @@
         <%= link(dgettext("backoffice", "Cancel"), to: backoffice_page_path(@conn, :index)) %>
       </div>
     </div>
-    <%= unless is_nil(@dataset) do %>
-      <div class="is-centered mt-48">
-        <%= dgettext("backoffice", "Other actions on the dataset") %>
-      </div>
-      <div class="backoffice_dataset_actions_buttons">
-        <div>
-          <%= form_for @conn, backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, Map.put(@conn.params, "stay_on_page", true)), [nodiv: true], fn _ -> %>
-            <%= submit("Importer", class: "button", nodiv: true) %>
-          <% end %>
-        </div>
-
-        <div>
-          <%= live_render(@conn, TransportWeb.Live.ValidateDatasetView,
-            session: %{"dataset_id" => @dataset.id, "locale" => get_session(@conn, :locale)}
-          ) %>
-        </div>
-
-        <div>
-          <%= form_for @conn, backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
-            <%= submit("Supprimer", class: "button", nodiv: true) %>
-          <% end %>
-        </div>
-      </div>
-      <%= if Dataset.should_skip_history?(@dataset) do %>
-        <div class="dashboard-description mt-48">
-          <p class="notification">
-            <%= dgettext("backoffice", "This dataset is not historicized on purpose.") %>
-          </p>
-        </div>
-      <% end %>
-      <div class="dataset_import_validations_logs" id="imports_history">
-        <h3><%= dgettext("backoffice", "Imports history") %></h3>
-        <table>
-          <tr>
-            <th><%= dgettext("backoffice", "date / time") %></th>
-            <th><%= dgettext("backoffice", "success") %></th>
-            <th><%= dgettext("backoffice", "error message") %></th>
-          </tr>
-          <%= for row <- @import_logs do %>
-            <tr>
-              <td><%= row.timestamp %></td>
-              <td><%= if row.is_success, do: "✔", else: "" %></td>
-              <td><%= row.error_msg %></td>
-            </tr>
-          <% end %>
-        </table>
-      </div>
-      <div class="dataset_import_validations_logs">
-        <h3><%= dgettext("backoffice", "Validations history") %></h3>
-        <%= for {resource, validations} <- @validation_logs do %>
-          <%= if resource.format == "GTFS" do %>
-            <h2>
-              <a href={resource_path(@conn, :details, resource.id)}><%= resource.title %></a> (#<%= resource.id %>)
-            </h2>
-          <% else %>
-            <h2><%= resource.title %> (#<%= resource.id %>)</h2>
-          <% end %>
-          <table>
-            <tr>
-              <th><%= dgettext("backoffice", "date / time") %></th>
-              <th><%= dgettext("backoffice", "success") %></th>
-              <th><%= dgettext("backoffice", "error message") %></th>
-              <th><%= dgettext("backoffice", "validation needed") %></th>
-              <th><%= dgettext("backoffice", "explanation") %></th>
-            </tr>
-            <%= for row <- validations do %>
-              <tr>
-                <td><%= row.timestamp %></td>
-                <td><%= if row.is_success, do: "✔", else: "" %></td>
-                <td><%= row.error_msg %></td>
-                <td><%= if !row.skipped, do: "✔", else: "" %></td>
-                <td><%= row.skipped_reason %></td>
-              </tr>
-            <% end %>
-          </table>
+  <% end %>
+  <%= unless is_nil(@dataset) do %>
+    <div class="is-centered mt-48">
+      <%= dgettext("backoffice", "Other actions on the dataset") %>
+    </div>
+    <div class="backoffice_dataset_actions_buttons">
+      <div>
+        <%= form_for @conn, backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, Map.put(@conn.params, "stay_on_page", true)), [nodiv: true], fn _ -> %>
+          <%= submit("Importer", class: "button", nodiv: true) %>
         <% end %>
       </div>
+
+      <div>
+        <%= live_render(@conn, TransportWeb.Live.ValidateDatasetView,
+          session: %{"dataset_id" => @dataset.id, "locale" => get_session(@conn, :locale)}
+        ) %>
+      </div>
+
+      <div>
+        <%= form_for @conn, backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
+          <%= submit("Supprimer", class: "button", nodiv: true) %>
+        <% end %>
+      </div>
+    </div>
+    <%= if Dataset.should_skip_history?(@dataset) do %>
+      <div class="dashboard-description mt-48">
+        <p class="notification">
+          <%= dgettext("backoffice", "This dataset is not historicized on purpose.") %>
+        </p>
+      </div>
     <% end %>
+    <div class="dataset_import_validations_logs" id="imports_history">
+      <h3><%= dgettext("backoffice", "Imports history") %></h3>
+      <table>
+        <tr>
+          <th><%= dgettext("backoffice", "date / time") %></th>
+          <th><%= dgettext("backoffice", "success") %></th>
+          <th><%= dgettext("backoffice", "error message") %></th>
+        </tr>
+        <%= for row <- @import_logs do %>
+          <tr>
+            <td><%= row.timestamp %></td>
+            <td><%= if row.is_success, do: "✔", else: "" %></td>
+            <td><%= row.error_msg %></td>
+          </tr>
+        <% end %>
+      </table>
+    </div>
   <% end %>
 </div>
 <script src={static_path(@conn, "/js/app.js")} />

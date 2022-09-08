@@ -80,10 +80,10 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
   end
 
   test "all validations for one resource history" do
-    %{id: resource_history_id} = insert(:resource_history, %{payload: %{"format" => "GTFS"}})
+    %{id: resource_history_id} = resource_history = insert(:resource_history, %{payload: %{"format" => "GTFS"}})
 
     Transport.ValidatorsSelection.Mock
-    |> expect(:validators, 1, fn "GTFS" ->
+    |> expect(:validators, 1, fn ^resource_history ->
       [Transport.Validators.Dummy, Transport.Validators.Dummy]
     end)
 

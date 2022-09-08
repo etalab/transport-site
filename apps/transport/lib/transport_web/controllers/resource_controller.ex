@@ -4,11 +4,18 @@ defmodule TransportWeb.ResourceController do
   alias DB.{Dataset, Repo, Resource}
   alias Transport.DataVisualization
   alias Transport.ImportData
-  alias Transport.Shared.Schemas.Wrapper, as: Schemas
   require Logger
 
   import TransportWeb.ResourceView, only: [issue_type: 1]
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
+
+  @enabled_validators MapSet.new([
+                        Transport.Validators.GTFSTransport,
+                        Transport.Validators.GTFSRT,
+                        Transport.Validators.GBFSValidator,
+                        Transport.Validators.TableSchema,
+                        Transport.Validators.EXJSONSchema
+                      ])
 
   def details(conn, %{"id" => id} = params) do
     resource = Resource |> Repo.get!(id) |> Repo.preload(dataset: [:resources])
@@ -69,34 +76,16 @@ defmodule TransportWeb.ResourceController do
 
   defp put_resource_flash(conn, _), do: conn
 
-  defp latest_validation(%Resource{id: resource_id, format: format, schema_name: schema_name}) do
-    validators = Transport.ValidatorsSelection.validators(format)
-
-    if is_list(validators) and Enum.count(validators) > 1 do
-      raise "does not handle multiple validators for #{format}"
-    end
+  defp latest_validation(%Resource{id: resource_id} = resource) do
+    validators = resource |> Transport.ValidatorsSelection.validators() |> Enum.filter(&(&1 in @enabled_validators))
 
     validator =
       cond do
-        not is_nil(schema_name) -> validator_for_schema(schema_name)
         Enum.count(validators) == 1 -> hd(validators)
-        true -> nil
+        Enum.empty?(validators) -> nil
       end
 
     DB.MultiValidation.resource_latest_validation(resource_id, validator)
-  end
-
-  defp validator_for_schema(schema_name) when not is_nil(schema_name) do
-    cond do
-      Schemas.is_tableschema?(schema_name) ->
-        Transport.Validators.TableSchema
-
-      Schemas.is_jsonschema?(schema_name) ->
-        Transport.Validators.EXJSONSchema
-
-      true ->
-        nil
-    end
   end
 
   defp render_gtfs_details(conn, params, resource) do
