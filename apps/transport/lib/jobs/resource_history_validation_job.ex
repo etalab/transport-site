@@ -56,9 +56,9 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
   # validate one resource history with all validators
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id}}) when is_integer(resource_history_id) do
-    %{payload: %{"format" => format}} = resource_history = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
+    resource_history = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
 
-    format
+    resource_history
     |> Transport.ValidatorsSelection.validators()
     |> Enum.reject(fn validator -> resource_history |> DB.MultiValidation.already_validated?(validator) end)
     |> Enum.each(fn validator -> validator.validate_and_save(resource_history) end)
