@@ -9,6 +9,14 @@ defmodule TransportWeb.ResourceController do
   import TransportWeb.ResourceView, only: [issue_type: 1]
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
 
+  @enabled_validators MapSet.new([
+                        Transport.Validators.GTFSTransport,
+                        Transport.Validators.GTFSRT,
+                        Transport.Validators.GBFSValidator,
+                        Transport.Validators.TableSchema,
+                        Transport.Validators.EXJSONSchema
+                      ])
+
   def details(conn, %{"id" => id} = params) do
     resource = Resource |> Repo.get!(id) |> Repo.preload(dataset: [:resources])
 
@@ -69,7 +77,7 @@ defmodule TransportWeb.ResourceController do
   defp put_resource_flash(conn, _), do: conn
 
   defp latest_validation(%Resource{id: resource_id} = resource) do
-    validators = Transport.ValidatorsSelection.validators(resource)
+    validators = resource |> Transport.ValidatorsSelection.validators() |> Enum.filter(&(&1 in @enabled_validators))
 
     validator =
       cond do
