@@ -3,20 +3,20 @@ defmodule Transport.ValidatorsSelection do
   behavior for Transport.ValidatorsSelection.Impl
   """
   @callback formats_and_validators() :: map()
-  @callback validators(binary()) :: list()
+  @callback validators(binary() | DB.ResourceHistory.t() | DB.Resource.t() | map()) :: list()
 
   def impl, do: Application.get_env(:transport, :validator_selection)
   def formats_and_validators, do: impl().formats_and_validators()
 
-  def validators(format), do: impl().validators(format)
+  def validators(value), do: impl().validators(value)
 end
 
 defmodule Transport.ValidatorsSelection.Impl do
   @moduledoc """
-  Lists which validators should run for each resource format (GBFS, GTFS, NeTEx, etc)
-  Give tools to fetch the validators list for a format
+  Lists which validators should run for a `DB.Resource` or `DB.ResourceHistory`
   """
   @behaviour Transport.ValidatorsSelection
+  alias Transport.Shared.Schemas.Wrapper, as: Schemas
   alias Transport.Validators
 
   @impl Transport.ValidatorsSelection
@@ -30,13 +30,43 @@ defmodule Transport.ValidatorsSelection.Impl do
   end
 
   @doc """
-  get a list of validators to run for a given format
+  Get a list of validators to run for a `DB.ResourceHistory`, `DB.Resource`, a map of format and schema or just a format
   """
   @impl Transport.ValidatorsSelection
-  @spec validators(binary()) :: list()
+  @spec validators(binary() | DB.ResourceHistory.t() | DB.Resource.t() | map()) :: list()
+  def validators(%DB.ResourceHistory{payload: payload}) do
+    validators(%{format: Map.get(payload, "format"), schema_name: Map.get(payload, "schema_name")})
+  end
+
+  def validators(%DB.Resource{format: format, schema_name: schema_name}) do
+    validators(%{format: format, schema_name: schema_name})
+  end
+
+  def validators(%{format: format, schema_name: schema_name}) do
+    validators = validators(format)
+
+    if Enum.empty?(validators) and not is_nil(schema_name) do
+      validators_for_schema(schema_name)
+    else
+      validators
+    end
+  end
+
   def validators(format) do
-    format
-    |> get_validators(formats_and_validators())
+    format |> get_validators(formats_and_validators())
+  end
+
+  defp validators_for_schema(schema_name) do
+    cond do
+      Schemas.is_tableschema?(schema_name) ->
+        [Transport.Validators.TableSchema]
+
+      Schemas.is_jsonschema?(schema_name) ->
+        [Transport.Validators.EXJSONSchema]
+
+      true ->
+        []
+    end
   end
 
   @doc """
@@ -46,7 +76,6 @@ defmodule Transport.ValidatorsSelection.Impl do
   []
   """
   def get_validators(format, formats_and_validators) do
-    formats_and_validators
-    |> Map.get(format, [])
+    formats_and_validators |> Map.get(format, [])
   end
 end
