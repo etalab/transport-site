@@ -56,10 +56,10 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
   defguard is_gtfs_rt(format) when format in ["gtfs-rt", "gtfsrt"]
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do
+  def perform(%Oban.Job{args: %{"dataset_id" => dataset_id} = args}) do
     gtfs = up_to_date_gtfs_resources(dataset_id)
 
-    gtfs_rts = gtfs_rt_resources(dataset_id)
+    gtfs_rts = gtfs_rt_resources(args)
 
     if Enum.empty?(gtfs_rts) do
       raise "Should have gtfs-rt resources for Dataset #{dataset_id}"
@@ -116,7 +116,11 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
     |> Repo.one()
   end
 
-  def gtfs_rt_resources(dataset_id) do
+  def gtfs_rt_resources(%{"dataset_id" => dataset_id, "resource_id" => resource_id}) do
+    %{"dataset_id" => dataset_id} |> gtfs_rt_resources() |> Enum.filter(&(&1.id == resource_id))
+  end
+
+  def gtfs_rt_resources(%{"dataset_id" => dataset_id}) do
     Resource.base_query()
     |> where([resource: r], r.format == "gtfs-rt" and r.is_available and r.dataset_id == ^dataset_id)
     |> Repo.all()

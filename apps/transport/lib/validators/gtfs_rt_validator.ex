@@ -2,11 +2,22 @@ defmodule Transport.Validators.GTFSRT do
   @moduledoc """
   Validate a GTFS-RT with gtfs-realtime-validato (https://github.com/CUTR-at-USF/gtfs-realtime-validator/)
   """
+  @behaviour Transport.Validators.Validator
 
   @validator_filename "gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
   @max_errors_per_section 5
 
+  @impl Transport.Validators.Validator
   def validator_name, do: "gtfs-realtime-validator"
+
+  @impl Transport.Validators.Validator
+  def validate_and_save(%DB.Resource{id: resource_id, dataset_id: dataset_id, format: "gtfs-rt"}) do
+    %{"dataset_id" => dataset_id, "resource_id" => resource_id}
+    |> Transport.Jobs.GTFSRTMultiValidationJob.new()
+    |> Oban.insert!()
+
+    :ok
+  end
 
   defp validator_arguments(gtfs_path, gtfs_rt_path) do
     binary_path = "java"

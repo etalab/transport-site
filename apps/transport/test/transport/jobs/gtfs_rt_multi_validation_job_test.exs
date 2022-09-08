@@ -211,6 +211,117 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTMultiValidationDispatcherJobTest d
       refute File.exists?(Path.dirname(gtfs_rt_no_errors_path))
     end
 
+    test "with a GTFS, 2 GTFS-rt and a resource_id filter" do
+      gtfs_permanent_url = "https://example.com/gtfs.zip"
+      gtfs_rt_url = "https://example.com/gtfs-rt"
+      gtfs_rt_no_errors_url = "https://example.com/gtfs-rt-no-errors"
+
+      resource_history_uuid = Ecto.UUID.generate()
+
+      %{dataset: dataset, resource_history: %{id: resource_history_id}, resource: gtfs} =
+        insert_up_to_date_resource_and_friends(
+          resource_history_payload: %{
+            "format" => "GTFS",
+            "permanent_url" => gtfs_permanent_url,
+            "uuid" => resource_history_uuid
+          }
+        )
+
+      %{id: gtfs_rt_id} =
+        gtfs_rt =
+        insert(:resource,
+          dataset_id: dataset.id,
+          is_available: true,
+          format: "gtfs-rt",
+          url: gtfs_rt_url
+        )
+
+      gtfs_rt_no_errors =
+        insert(:resource,
+          dataset_id: dataset.id,
+          is_available: true,
+          format: "gtfs-rt",
+          url: gtfs_rt_no_errors_url
+        )
+
+      Transport.HTTPoison.Mock
+      |> expect(:get!, fn ^gtfs_permanent_url, [], [follow_redirect: true] ->
+        %HTTPoison.Response{status_code: 200, body: "gtfs"}
+      end)
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^gtfs_rt_url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200, body: "gtfs-rt"}}
+      end)
+
+      S3TestUtils.s3_mocks_upload_file(gtfs_rt.id |> to_string())
+
+      gtfs_path = GTFSRTMultiValidationJob.download_path(gtfs)
+      gtfs_rt_path = GTFSRTMultiValidationJob.download_path(gtfs_rt)
+
+      Transport.Rambo.Mock
+      |> expect(:run, fn binary, args, [log: false] ->
+        assert binary == "java"
+        assert File.exists?(gtfs_path)
+        assert File.exists?(gtfs_rt_path)
+
+        assert [
+                 "-jar",
+                 validator_path(),
+                 "-gtfs",
+                 gtfs_path,
+                 "-gtfsRealtimePath",
+                 Path.dirname(gtfs_rt_path)
+               ] == args
+
+        File.write!(GTFSRTMultiValidationJob.gtfs_rt_result_path(gtfs_rt), File.read!(@gtfs_rt_report_path))
+        {:ok, nil}
+      end)
+
+      assert :ok == perform_job(GTFSRTMultiValidationJob, %{"dataset_id" => dataset.id, "resource_id" => gtfs_rt_id})
+      {:ok, report} = GTFSRT.convert_validator_report(@gtfs_rt_report_path)
+      expected_errors = Map.fetch!(report, "errors")
+
+      gtfs_rt_validation =
+        DB.MultiValidation
+        |> where([mv], mv.resource_id == ^gtfs_rt.id and mv.validator == ^GTFSRT.validator_name())
+        |> order_by([mv], desc: mv.inserted_at)
+        |> limit(1)
+        |> DB.Repo.one!()
+
+      validator_name = GTFSRT.validator_name()
+
+      assert %{
+               validator: ^validator_name,
+               result: %{
+                 "errors" => ^expected_errors,
+                 "warnings_count" => 26,
+                 "errors_count" => 4,
+                 "files" => %{
+                   "gtfs_permanent_url" => ^gtfs_permanent_url,
+                   "gtfs_resource_history_uuid" => ^resource_history_uuid,
+                   "gtfs_rt_filename" => gtfs_rt_filename,
+                   "gtfs_rt_permanent_url" => gtfs_rt_permanent_url
+                 },
+                 "has_errors" => true,
+                 "uuid" => _uuid
+               },
+               resource_id: ^gtfs_rt_id,
+               secondary_resource_history_id: ^resource_history_id,
+               max_error: "ERROR"
+             } = gtfs_rt_validation
+
+      assert gtfs_rt_permanent_url == Transport.S3.permanent_url(:history, gtfs_rt_filename)
+
+      refute DB.MultiValidation
+             |> where([mv], mv.resource_id == ^gtfs_rt_no_errors.id and mv.validator == ^GTFSRT.validator_name())
+             |> DB.Repo.exists?()
+
+      # No temporary files left
+      refute File.exists?(Path.dirname(gtfs_path))
+      refute File.exists?(Path.dirname(gtfs_rt_path))
+    end
+
     test "with a validator error" do
       gtfs_permanent_url = "https://example.com/gtfs.zip"
       gtfs_rt_url = "https://example.com/gtfs-rt"

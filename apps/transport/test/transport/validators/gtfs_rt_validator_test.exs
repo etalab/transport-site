@@ -1,8 +1,14 @@
 defmodule Transport.Validators.GTFSRTTest do
   use ExUnit.Case, async: true
+  use Oban.Testing, repo: DB.Repo
+  import DB.Factory
   alias Transport.Validators.GTFSRT
 
   @gtfs_rt_report_path "#{__DIR__}/../../fixture/files/gtfs-rt-validator-errors.json"
+
+  setup do
+    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+  end
 
   test "get_max_severity_error" do
     assert nil == GTFSRT.get_max_severity_error([])
@@ -68,5 +74,20 @@ defmodule Transport.Validators.GTFSRTTest do
 
   test "convert_validator_report when file does not exist" do
     assert :error == GTFSRT.convert_validator_report(Ecto.UUID.generate())
+  end
+
+  test "validate_and_save" do
+    %{id: gtfs_rt_id, dataset_id: dataset_id} =
+      gtfs_rt = insert(:resource, format: "gtfs-rt", dataset: insert(:dataset))
+
+    GTFSRT.validate_and_save(gtfs_rt)
+
+    assert [
+             %Oban.Job{
+               args: %{"resource_id" => ^gtfs_rt_id, "dataset_id" => ^dataset_id},
+               worker: "Transport.Jobs.GTFSRTMultiValidationJob",
+               conflict?: false
+             }
+           ] = all_enqueued()
   end
 end

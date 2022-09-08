@@ -261,11 +261,16 @@ defmodule DB.DatasetDBTest do
   test "validate" do
     dataset = insert(:dataset)
     %{id: gtfs_resource_id} = insert(:resource, format: "GTFS", dataset: dataset)
-    insert(:resource, format: "gbfs", dataset: dataset)
+    %{id: gbfs_resource_id} = insert(:resource, format: "gbfs", dataset: dataset)
 
     Dataset.validate(dataset)
 
     assert [
+             %Oban.Job{
+               args: %{"resource_id" => ^gbfs_resource_id},
+               worker: "Transport.Jobs.ResourceValidationJob",
+               conflict?: false
+             },
              %Oban.Job{
                args: %{"resource_id" => ^gtfs_resource_id},
                worker: "Transport.Jobs.ResourceHistoryJob",
@@ -278,8 +283,18 @@ defmodule DB.DatasetDBTest do
 
     assert [
              %Oban.Job{
+               args: %{"resource_id" => ^gbfs_resource_id},
+               worker: "Transport.Jobs.ResourceValidationJob",
+               conflict?: false
+             },
+             %Oban.Job{
                args: %{"resource_id" => ^gtfs_resource_id},
                worker: "Transport.Jobs.ResourceHistoryJob",
+               conflict?: false
+             },
+             %Oban.Job{
+               args: %{"resource_id" => ^gbfs_resource_id},
+               worker: "Transport.Jobs.ResourceValidationJob",
                conflict?: false
              },
              %Oban.Job{
