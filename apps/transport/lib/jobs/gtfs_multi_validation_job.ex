@@ -3,7 +3,6 @@ defmodule Transport.Jobs.GTFSValidationJob do
   Multi validation of all GTFS resources
   """
   use Oban.Worker, max_attempts: 3, queue: :resource_validation, tags: ["validation"]
-  import Ecto.Query
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
