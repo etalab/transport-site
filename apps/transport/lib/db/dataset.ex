@@ -623,6 +623,7 @@ defmodule DB.Dataset do
     |> Repo.all()
   end
 
+  @spec get_resources_related_files(any()) :: map()
   def get_resources_related_files(%__MODULE__{resources: resources}) when is_list(resources) do
     to_atom = %{"GeoJSON" => :geojson, "NeTEx" => :netex}
 
@@ -644,6 +645,10 @@ defmodule DB.Dataset do
           }}}
       )
       |> Repo.all()
+      # transform from
+      # [{id1, {"GeoJSON", %{infos}}}, {id1, {"NeTEx", %{infos}}}, {id2, {"NeTEx", %{infos}}}]
+      # to
+      # %{id1 => %{geojson: %{infos}, netex: %{infos}}, id2 => %{geojson: nil, netex: %{infos}}}
       |> Enum.group_by(fn {id, _} -> id end, fn {_, v} -> v end)
       |> Enum.map(fn {id, l} ->
         map_results =
