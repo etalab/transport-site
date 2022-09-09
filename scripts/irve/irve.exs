@@ -58,5 +58,5 @@ end
   end
 end)
 |> Stream.concat()
-|> Stream.map(fn x -> IO.inspect(x, IEx.inspect_opts()) end)
+|> Stream.each(fn x -> IO.inspect(x, IEx.inspect_opts()) end)
 |> Stream.run()
