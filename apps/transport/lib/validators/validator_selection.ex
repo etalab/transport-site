@@ -34,7 +34,7 @@ defmodule Transport.ValidatorsSelection.Impl do
   def validators(%{format: "gtfs-rt"}), do: [Validators.GTFSRT]
   def validators(%{format: "gbfs"}), do: [Validators.GBFSValidator]
 
-  def validators(%{schema_name: schema_name}) do
+  def validators(%{schema_name: schema_name}) when not is_nil(schema_name) do
     cond do
       Schemas.is_tableschema?(schema_name) ->
         [Transport.Validators.TableSchema]
@@ -46,4 +46,6 @@ defmodule Transport.ValidatorsSelection.Impl do
         []
     end
   end
+
+  def validators(_), do: []
 end
