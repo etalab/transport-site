@@ -93,8 +93,7 @@ oban_crontab_all_envs =
         {"0 3,9,15,21 * * *", Transport.Jobs.GtfsToNetexConverterJob},
         {"20 8 * * *", Transport.Jobs.CleanOrphanConversionsJob},
         {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
-        {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob,
-         args: %{only_unavailable: true}},
+        {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}},
         {"20 */2 * * *", Transport.Jobs.GTFSRTEntitiesDispatcherJob},
         {"30 */6 * * *", Transport.Jobs.BNLCToGeoData},
         {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob},
@@ -128,8 +127,7 @@ extra_oban_conf =
       queues: [default: 2, heavy: 1, on_demand_validation: 1, resource_validation: 1],
       plugins: [
         {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
-        {Oban.Plugins.Cron,
-         crontab: List.flatten(oban_crontab_all_envs, production_server_crontab)}
+        {Oban.Plugins.Cron, crontab: List.flatten(oban_crontab_all_envs, production_server_crontab)}
       ]
     ]
   end
@@ -143,8 +141,7 @@ if config_env() == :dev do
     # optionally allowing to override the port is useful to play with 2 nodes locally, without conflict
     http: [port: System.get_env("PORT", "5000")],
     #  We also make sure to start the assets watcher only if the webserver is up, to avoid cluttering the logs.
-    watchers:
-      if(webserver, do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]], else: [])
+    watchers: if(webserver, do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]], else: [])
 end
 
 if config_env() == :prod do
