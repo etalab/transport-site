@@ -2,11 +2,9 @@ defmodule Transport.ValidatorsSelection do
   @moduledoc """
   behavior for Transport.ValidatorsSelection.Impl
   """
-  @callback formats_and_validators() :: map()
-  @callback validators(binary() | DB.ResourceHistory.t() | DB.Resource.t() | map()) :: list()
+  @callback validators(DB.ResourceHistory.t() | DB.Resource.t() | map()) :: list()
 
   def impl, do: Application.get_env(:transport, :validator_selection)
-  def formats_and_validators, do: impl().formats_and_validators()
 
   def validators(value), do: impl().validators(value)
 end
@@ -19,7 +17,6 @@ defmodule Transport.ValidatorsSelection.Impl do
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
   alias Transport.Validators
 
-  @impl Transport.ValidatorsSelection
   @spec formats_and_validators :: map()
   def formats_and_validators do
     %{
