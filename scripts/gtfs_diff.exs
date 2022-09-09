@@ -330,8 +330,7 @@ defmodule GTFS do
       diff
       |> Enum.filter(fn d -> d["action"] == "update" end)
       |> Enum.map(fn d ->
-        {d["row_identifier"] |> Jason.decode!() |> Map.fetch!(primary_key),
-         d["arg"] |> Jason.decode!()}
+        {d["row_identifier"] |> Jason.decode!() |> Map.fetch!(primary_key), d["arg"] |> Jason.decode!()}
       end)
       |> Enum.into(%{})
 
