@@ -16,8 +16,9 @@ defmodule Transport.ValidatorsSelectionTest do
     test "for a ResourceHistory with only a format" do
       resource_history = insert(:resource_history, payload: %{"format" => "GTFS"})
 
-      assert ValidatorsSelection.validators(resource_history) == ValidatorsSelection.validators("GTFS")
-      assert [Transport.Validators.GTFSTransport] == ValidatorsSelection.validators(resource_history)
+      assert ValidatorsSelection.validators(resource_history) == [
+               Transport.Validators.GTFSTransport
+             ]
     end
 
     test "for a ResourceHistory with a schema" do
