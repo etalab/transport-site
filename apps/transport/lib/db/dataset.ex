@@ -655,8 +655,7 @@ defmodule DB.Dataset do
       end)
       |> Enum.into(%{})
 
-    empty_results =
-      resource_ids |> Enum.map(fn id -> {id, %{geojson: nil, netex: nil}} end) |> Enum.into(%{})
+    empty_results = resource_ids |> Enum.map(fn id -> {id, %{geojson: nil, netex: nil}} end) |> Enum.into(%{})
 
     Map.merge(empty_results, results)
   end
