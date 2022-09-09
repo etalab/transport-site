@@ -41,13 +41,16 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
 
   # validate one resource history with one validator
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id, "validator" => validator_string}})
+  def perform(%Oban.Job{
+        args: %{"resource_history_id" => resource_history_id, "validator" => validator_string}
+      })
       when is_integer(resource_history_id) do
     validator = String.to_existing_atom(validator_string)
     resource_history = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
 
     if resource_history |> DB.MultiValidation.already_validated?(validator) do
-      {:discard, "resource history #{resource_history_id} is already validated by #{validator_string}"}
+      {:discard,
+       "resource history #{resource_history_id} is already validated by #{validator_string}"}
     else
       :ok = validator.validate_and_save(resource_history)
     end
@@ -55,25 +58,16 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
 
   # validate one resource history with all validators
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id}}) when is_integer(resource_history_id) do
+  def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id}})
+      when is_integer(resource_history_id) do
     resource_history = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
 
     resource_history
     |> Transport.ValidatorsSelection.validators()
-    |> Enum.reject(fn validator -> resource_history |> DB.MultiValidation.already_validated?(validator) end)
-    |> Enum.each(fn validator -> validator.validate_and_save(resource_history) end)
-
-    :ok
-  end
-
-  # validate all resource history with all validators
-  @impl Oban.Worker
-  def perform(%Oban.Job{}) do
-    Transport.ValidatorsSelection.formats_and_validators()
-    |> Enum.flat_map(fn {format, validators} -> Enum.zip(Stream.cycle([format]), validators) end)
-    |> Enum.each(fn {format, validator} ->
-      %{format: format, validator: validator} |> Transport.Jobs.ResourceHistoryValidationJob.new() |> Oban.insert!()
+    |> Enum.reject(fn validator ->
+      resource_history |> DB.MultiValidation.already_validated?(validator)
     end)
+    |> Enum.each(fn validator -> validator.validate_and_save(resource_history) end)
 
     :ok
   end

@@ -45,38 +45,16 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
   test "validate a resource history with one validator" do
     rh1 = insert(:resource_history)
 
-    %Oban.Job{args: %{"resource_history_id" => rh1.id, "validator" => Transport.Validators.Dummy |> to_string()}}
+    %Oban.Job{
+      args: %{
+        "resource_history_id" => rh1.id,
+        "validator" => Transport.Validators.Dummy |> to_string()
+      }
+    }
     |> Transport.Jobs.ResourceHistoryValidationJob.perform()
 
     # dummy validator sends a message for testing
     assert_received :validate!
-  end
-
-  test "validate all resource history" do
-    Transport.ValidatorsSelection.Mock
-    |> expect(:formats_and_validators, 1, fn ->
-      %{
-        "GTFS" => [Transport.Validators.GTFSTransport, Transport.Validators.Dummy],
-        "SIRI" => [Transport.Validators.Dummy]
-      }
-    end)
-
-    Transport.Jobs.ResourceHistoryValidationJob.perform(%Oban.Job{})
-
-    assert_enqueued(
-      worker: Transport.Jobs.ResourceHistoryValidationJob,
-      args: %{"format" => "GTFS", "validator" => Transport.Validators.GTFSTransport}
-    )
-
-    assert_enqueued(
-      worker: Transport.Jobs.ResourceHistoryValidationJob,
-      args: %{"format" => "GTFS", "validator" => Transport.Validators.Dummy}
-    )
-
-    assert_enqueued(
-      worker: Transport.Jobs.ResourceHistoryValidationJob,
-      args: %{"format" => "SIRI", "validator" => Transport.Validators.Dummy}
-    )
   end
 
   test "all validations for one resource history" do
