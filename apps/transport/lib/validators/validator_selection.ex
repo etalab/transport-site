@@ -17,15 +17,6 @@ defmodule Transport.ValidatorsSelection.Impl do
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
   alias Transport.Validators
 
-  @spec formats_and_validators :: map()
-  def formats_and_validators do
-    %{
-      "GTFS" => [Validators.GTFSTransport],
-      "gtfs-rt" => [Validators.GTFSRT],
-      "gbfs" => [Validators.GBFSValidator]
-    }
-  end
-
   @doc """
   Get a list of validators to run for a `DB.ResourceHistory`, `DB.Resource`, a map of format and schema
   """
