@@ -7,7 +7,10 @@ defmodule Transport.Jobs.GTFSValidationJob do
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
     Transport.Jobs.ResourceHistoryValidationJob.perform(%Oban.Job{
-      args: %{"format" => "GTFS", "validator" => Transport.Validators.GTFSTransport}
+      args: %{
+        "format" => "GTFS",
+        "validator" => Transport.Validators.GTFSTransport |> to_string()
+      }
     })
 
     :ok
