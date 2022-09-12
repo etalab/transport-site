@@ -244,11 +244,10 @@ defmodule TransportWeb.Router do
   end
 
   defp put_custom_secure_browser_headers(conn, _) do
-    csp_headers =
+    csp_content =
       case Application.fetch_env!(:transport, :app_env) do
         :prod ->
-          %{
-            "content-security-policy" => """
+         """
             default-src 'none';
             connect-src 'self' https://static.data.gouv.fr/ https://raw.githubusercontent.com/etalab/ https://transport-data-gouv-fr-resource-history-prod.cellar-c2.services.clever-cloud.com/;
             font-src 'self';
@@ -256,11 +255,9 @@ defmodule TransportWeb.Router do
             script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
             style-src 'self' 'unsafe-inline'
             """
-          }
 
         :staging ->
-          %{
-            "content-security-policy" => """
+         """
               default-src 'none';
               connect-src 'self' https://static.data.gouv.fr/ https://demo-static.data.gouv.fr/ https://raw.githubusercontent.com/etalab/ https://transport-data-gouv-fr-resource-history-staging.cellar-c2.services.clever-cloud.com/;
               font-src 'self';
@@ -268,10 +265,15 @@ defmodule TransportWeb.Router do
               script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
               style-src 'self' 'unsafe-inline'
             """
-          }
+
 
         _ ->
-          %{}
+          nil
+      end
+
+      csp_headers = case csp_content do
+        nil -> %{}
+        csp_content ->  %{"content-security-policy" => csp_content |> String.replace("\n", "")}
       end
 
     Phoenix.Controller.put_secure_browser_headers(conn, csp_headers)
