@@ -9,17 +9,12 @@ defmodule TransportWeb.Router do
       do: [%{label: "Not found", handler: {IO, :puts, ["Template not found: #{inspect(e)}"]}}]
   end
 
-  @csp_headers %{
-    "content-security-policy" =>
-      "default-src 'none'; connect-src 'self' https://raw.githubusercontent.com/etalab/ https://transport-data-gouv-fr-resource-history-prod.cellar-c2.services.clever-cloud.com/; font-src 'self'; img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js; style-src 'self' 'unsafe-inline'"
-  }
-
   pipeline :browser do
     plug(:accepts, ["html"])
     plug(:fetch_session)
     plug(:fetch_live_flash)
     plug(:protect_from_forgery)
-    plug(:put_secure_browser_headers, @csp_headers)
+    plug(:put_custom_secure_browser_headers)
     plug(:put_locale)
     plug(:assign_current_user)
     plug(:assign_contact_email)
@@ -246,6 +241,40 @@ defmodule TransportWeb.Router do
 
   defp assign_contact_email(conn, _) do
     assign(conn, :contact_email, Application.get_env(:transport, :contact_email))
+  end
+
+  defp put_custom_secure_browser_headers(conn, _) do
+    csp_headers =
+      case Application.fetch_env!(:transport, :app_env) do
+        :prod ->
+          %{
+            "content-security-policy" => """
+            default-src 'none';
+            connect-src 'self' https://static.data.gouv.fr/ https://raw.githubusercontent.com/etalab/ https://transport-data-gouv-fr-resource-history-prod.cellar-c2.services.clever-cloud.com/;
+            font-src 'self';
+            img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr;
+            script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
+            style-src 'self' 'unsafe-inline'
+            """
+          }
+
+        :staging ->
+          %{
+            "content-security-policy" => """
+              default-src 'none';
+              connect-src 'self' https://static.data.gouv.fr/ https://demo-static.data.gouv.fr/ https://raw.githubusercontent.com/etalab/ https://transport-data-gouv-fr-resource-history-staging.cellar-c2.services.clever-cloud.com/;
+              font-src 'self';
+              img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr;
+              script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
+              style-src 'self' 'unsafe-inline'
+            """
+          }
+
+        _ ->
+          %{}
+      end
+
+    Phoenix.Controller.put_secure_browser_headers(conn, csp_headers)
   end
 
   defp assign_token(conn, _) do
