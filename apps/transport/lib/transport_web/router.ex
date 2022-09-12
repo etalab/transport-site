@@ -248,9 +248,9 @@ defmodule TransportWeb.Router do
   %{}
   iex> csp_headers("test")
   %{}
-  iex> match?(%{"content-security-policy" => csp_content}, csp_headers(:prod))
+  iex> match?(%{"content-security-policy" => _csp_content}, csp_headers(:prod))
   true
-  iex> match?(%{"content-security-policy" => csp_content}, csp_headers(:staging))
+  iex> match?(%{"content-security-policy" => _csp_content}, csp_headers(:staging))
   true
   """
   def csp_headers(app_env) do
