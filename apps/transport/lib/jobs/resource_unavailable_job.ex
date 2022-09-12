@@ -53,14 +53,32 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     Logger.info("Running ResourceUnavailableJob for #{resource_id}")
     resource = Repo.get!(Resource, resource_id)
 
-    resource |> check_availability() |> update_data(resource)
+    resource |> check_availability() |> update_availability(resource)
   end
 
   defp check_availability(%Resource{} = resource) do
-    resource |> Resource.download_url() |> Transport.AvailabilityChecker.Wrapper.available?()
+    resource |> relevant_url() |> Transport.AvailabilityChecker.Wrapper.available?()
   end
 
-  def update_data(is_available, %Resource{} = resource) do
+  defp relevant_url(%Resource{filetype: "file", url: url, latest_url: latest_url} = resource) do
+    case follow(latest_url) do
+      {:ok, final_url} ->
+        # If the resource's URL has changed, update it and historicise the new resource
+        if final_url != url do
+          resource |> Ecto.Changeset.change(%{url: final_url}) |> Repo.update!()
+          %{resource_id: resource.id} |> Transport.Jobs.ResourceHistoryJob.new() |> Oban.insert!()
+        end
+
+        final_url
+
+      _ ->
+        Resource.download_url(resource)
+    end
+  end
+
+  defp relevant_url(%Resource{} = resource), do: Resource.download_url(resource)
+
+  defp update_availability(is_available, %Resource{} = resource) do
     resource |> Resource.changeset(%{is_available: is_available}) |> DB.Repo.update!()
     create_resource_unavailability(is_available, resource)
   end
@@ -92,7 +110,48 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     end
   end
 
+  @doc """
+  Given a URL, follow potential redirections and returns the final URL.
+
+  HTTPoison doesn't give the final URL when following redirects: https://github.com/edgurgel/httpoison/issues/90.
+
+  Inspired from https://github.com/edgurgel/httpoison/issues/90#issuecomment-359951901.
+  """
+  def follow(url) when is_binary(url), do: follow(url, 5)
+
+  def follow(url, max_redirect) when is_binary(url) and is_integer(max_redirect) and max_redirect > 0 do
+    case http_client().get(url) do
+      {:ok, %HTTPoison.Response{status_code: status_code, headers: headers}}
+      when status_code > 300 and status_code < 400 ->
+        case location_header(headers) do
+          [url] when is_binary(url) ->
+            follow(url, max_redirect - 1)
+
+          _ ->
+            {:error, :no_location_header}
+        end
+
+      {:ok, %HTTPoison.Response{}} ->
+        {:ok, url}
+
+      reason ->
+        {:error, reason}
+    end
+  end
+
+  def follow(url, 0 = _max_redirect) when is_binary(url) do
+    {:error, :too_many_redirects}
+  end
+
+  defp location_header(headers) do
+    for {key, value} <- headers, String.downcase(key) == "location" do
+      value
+    end
+  end
+
   defp now, do: DateTime.utc_now() |> DateTime.truncate(:second)
+
+  defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 
   @impl Oban.Worker
   def timeout(_job), do: :timer.seconds(30)
