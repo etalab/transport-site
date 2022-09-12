@@ -43,6 +43,10 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   @moduledoc """
   Job checking if a resource is available over HTTP or not and
   storing unavailabilities in that case.
+
+  It also updates the relevant resource and keeps up to the following fields:
+  - is_available (if the availability of the resource changes)
+  - url (if lastest_url points to a new URL)
   """
   use Oban.Worker, max_attempts: 5
   require Logger
