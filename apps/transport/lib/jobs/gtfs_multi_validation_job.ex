@@ -12,7 +12,5 @@ defmodule Transport.Jobs.GTFSValidationJob do
         "validator" => Transport.Validators.GTFSTransport |> to_string()
       }
     })
-
-    :ok
   end
 end
