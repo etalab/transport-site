@@ -26,7 +26,7 @@
                 <%= unless is_nil(errorsN) do %>
                   <%= errorsN %>
                   <%= if errorsN == 0 do %>
-                    <span style="padding-left: 24px;">🎉</span>
+                    <span class="pl-24">🎉</span>
                   <% end %>
                 <% end %>
               </td>
@@ -136,7 +136,7 @@
         </table>
 
         <h2><%= dgettext("gbfs_analyzer", "Visualization") %></h2>
-        <div id="map" class="leaflet-map" style="height: 400px;"></div>
+        <div id="map" class="leaflet-map"></div>
 
         <%= unless is_nil(Map.get(@metadata, :feeds)) do %>
           <h2 class="pb-12"><%= dgettext("gbfs_analyzer", "GeoJSONs") %></h2>
