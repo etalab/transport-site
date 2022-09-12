@@ -4,9 +4,7 @@ defmodule TransportWeb.Router do
 
   defimpl Plug.Exception, for: Phoenix.Template.UndefinedError do
     def status(_exception), do: 404
-
-    def actions(e),
-      do: [%{label: "Not found", handler: {IO, :puts, ["Template not found: #{inspect(e)}"]}}]
+    def actions(e), do: [%{label: "Not found", handler: {IO, :puts, ["Template not found: #{inspect(e)}"]}}]
   end
 
   pipeline :browser do
@@ -302,10 +300,7 @@ defmodule TransportWeb.Router do
     case conn.assigns[:token] do
       %OAuth2.AccessToken{expires_at: expires_at} ->
         if DateTime.compare(DateTime.from_unix!(expires_at), DateTime.utc_now()) == :lt do
-          conn
-          |> configure_session(drop: true)
-          |> assign(:current_user, nil)
-          |> authentication_required(nil)
+          conn |> configure_session(drop: true) |> assign(:current_user, nil) |> authentication_required(nil)
         else
           conn
         end
@@ -340,10 +335,7 @@ defmodule TransportWeb.Router do
       conn
     else
       conn
-      |> put_flash(
-        :error,
-        dgettext("alert", "You need to be a member of the transport.data.gouv.fr team.")
-      )
+      |> put_flash(:error, dgettext("alert", "You need to be a member of the transport.data.gouv.fr team."))
       |> redirect(to: Helpers.page_path(conn, :login, redirect_path: current_path(conn)))
       |> halt()
     end
