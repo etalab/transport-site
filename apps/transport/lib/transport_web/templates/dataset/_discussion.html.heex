@@ -30,7 +30,7 @@
       <a href={"#reply-#{@discussion["id"]}"}>
         <%= dgettext("page-dataset-details", "Respond") %>
       </a>
-      <div id={"reply-#{@discussion["id"]} "} class="discussion-modal">
+      <div id={"reply-#{@discussion["id"]}"} class="discussion-modal">
         <%= form_for @conn, discussion_path(@conn, :post_answer, @dataset.datagouv_id, @discussion["id"]), fn f -> %>
           <%= textarea(f, :comment) %>
           <%= hidden_input(f, :dataset_slug, value: @dataset.slug) %>
