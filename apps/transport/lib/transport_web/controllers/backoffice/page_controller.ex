@@ -1,7 +1,7 @@
 defmodule TransportWeb.Backoffice.PageController do
   use TransportWeb, :controller
 
-  alias DB.{Dataset, LogsImport, LogsValidation, Region, Repo, Resource}
+  alias DB.{Dataset, LogsImport, Region, Repo, Resource}
   import Ecto.Query
   require Logger
 
@@ -165,16 +165,6 @@ defmodule TransportWeb.Backoffice.PageController do
       |> where([v], v.dataset_id == ^dataset_id)
       |> order_by([v], desc: v.timestamp)
       |> Repo.all()
-    )
-    |> assign(
-      :validation_logs,
-      LogsValidation
-      |> preload(:resource)
-      |> join(:left, [v, r], r in Resource, on: r.id == v.resource_id)
-      |> where([_v, r], r.dataset_id == ^dataset_id)
-      |> order_by([v, _r], desc: v.timestamp)
-      |> Repo.all()
-      |> Enum.group_by(fn v -> v.resource end)
     )
     |> render("form_dataset.html")
   end

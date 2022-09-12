@@ -3,6 +3,7 @@ defmodule DB.DatasetDBTest do
   Tests on the Dataset schema
   """
   use DB.DatabaseCase, cleanup: [:datasets]
+  use Oban.Testing, repo: DB.Repo
   alias DB.Repo
   import DB.Factory
   import ExUnit.CaptureLog
@@ -246,5 +247,46 @@ defmodule DB.DatasetDBTest do
     other_dataset = insert(:dataset, aom: aom, is_active: true)
 
     assert dataset |> Dataset.get_other_datasets() |> Enum.map(& &1.id) == [other_dataset.id]
+  end
+
+  test "formats" do
+    dataset = insert(:dataset)
+    insert(:resource, format: "GTFS", dataset: dataset)
+    insert(:resource, format: "zip", dataset: dataset, is_community_resource: true)
+    insert(:resource, format: "csv", dataset: dataset)
+
+    assert ["GTFS", "csv"] == dataset |> DB.Repo.preload(:resources) |> Dataset.formats()
+  end
+
+  test "validate" do
+    dataset = insert(:dataset)
+    %{id: gtfs_resource_id} = insert(:resource, format: "GTFS", dataset: dataset)
+    insert(:resource, format: "gbfs", dataset: dataset)
+
+    Dataset.validate(dataset)
+
+    assert [
+             %Oban.Job{
+               args: %{"resource_id" => ^gtfs_resource_id},
+               worker: "Transport.Jobs.ResourceHistoryJob",
+               conflict?: false
+             }
+           ] = all_enqueued()
+
+    # Executing again does not create a conflict, even if the job has `unique` params
+    Dataset.validate(dataset)
+
+    assert [
+             %Oban.Job{
+               args: %{"resource_id" => ^gtfs_resource_id},
+               worker: "Transport.Jobs.ResourceHistoryJob",
+               conflict?: false
+             },
+             %Oban.Job{
+               args: %{"resource_id" => ^gtfs_resource_id},
+               worker: "Transport.Jobs.ResourceHistoryJob",
+               conflict?: false
+             }
+           ] = all_enqueued()
   end
 end

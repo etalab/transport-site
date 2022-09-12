@@ -113,8 +113,8 @@ oban_crontab_all_envs =
 # Oban Jobs that only run on the production server.
 production_server_crontab =
   if app_env == :production and config_env() == :prod do
-    # those validations can be heavy for the validators, we run them only on the production server
-    [{"0 2,8,14,20 * * *", Transport.Jobs.ResourceHistoryValidationJob}]
+    # GTFS validations can be heavy for the validator, we run them only on the production server
+    [{"0 2,8,14,20 * * *", Transport.Jobs.GTFSValidationJob}]
   else
     []
   end

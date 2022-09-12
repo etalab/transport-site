@@ -44,10 +44,6 @@ msgid "Dataset edited with success"
 msgstr "Jeu de données édité"
 
 #, elixir-autogen, elixir-format
-msgid "Error"
-msgstr "Erreur"
-
-#, elixir-autogen, elixir-format
 msgid "Validate"
 msgstr "Valider"
 

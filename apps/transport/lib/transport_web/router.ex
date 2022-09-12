@@ -17,6 +17,7 @@ defmodule TransportWeb.Router do
     plug(:assign_current_user)
     plug(:assign_contact_email)
     plug(:assign_token)
+    plug(:maybe_login_again)
     plug(:assign_mix_env)
     plug(Sentry.PlugContext)
   end
@@ -243,6 +244,20 @@ defmodule TransportWeb.Router do
 
   defp assign_token(conn, _) do
     assign(conn, :token, get_session(conn, :token))
+  end
+
+  defp maybe_login_again(conn, _) do
+    case conn.assigns[:token] do
+      %OAuth2.AccessToken{expires_at: expires_at} ->
+        if DateTime.compare(DateTime.from_unix!(expires_at), DateTime.utc_now()) == :lt do
+          conn |> configure_session(drop: true) |> assign(:current_user, nil) |> authentication_required(nil)
+        else
+          conn
+        end
+
+      _ ->
+        conn
+    end
   end
 
   defp authentication_required(conn, _) do

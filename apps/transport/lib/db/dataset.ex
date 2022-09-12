@@ -536,9 +536,10 @@ defmodule DB.Dataset do
   def community_resources(%__MODULE__{}), do: []
 
   @spec formats(__MODULE__.t()) :: [binary]
-  def formats(%__MODULE__{resources: resources}) when is_list(resources) do
-    resources
-    |> Enum.map(fn r -> r.format end)
+  def formats(%__MODULE__{} = dataset) do
+    dataset
+    |> official_resources()
+    |> Enum.map(& &1.format)
     |> Enum.sort()
     |> Enum.dedup()
   end
@@ -551,17 +552,16 @@ defmodule DB.Dataset do
   def validate(id) when is_binary(id), do: id |> String.to_integer() |> validate()
 
   def validate(id) when is_integer(id) do
-    Resource
-    |> preload(:validation)
-    |> where([r], r.dataset_id == ^id)
-    |> Repo.all()
-    |> Enum.map(fn r -> Resource.validate_and_save(r, true) end)
-    |> Enum.any?(fn r -> match?({:error, _}, r) end)
-    |> if do
-      {:error, "Unable to validate dataset #{id}"}
-    else
-      {:ok, nil}
-    end
+    dataset = __MODULE__ |> Repo.get!(id) |> Repo.preload(:resources)
+
+    {_real_time_resources, static_resources} = Enum.split_with(dataset.resources, &Resource.is_real_time?/1)
+
+    # Oban.insert_all does not enforce `unique` params
+    # https://hexdocs.pm/oban/Oban.html#insert_all/3
+    # This is something we rely on
+    static_resources |> Enum.map(&Transport.Jobs.ResourceHistoryJob.new(%{"resource_id" => &1.id})) |> Oban.insert_all()
+
+    {:ok, nil}
   end
 
   @doc """
