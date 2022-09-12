@@ -4,15 +4,22 @@ defmodule TransportWeb.Router do
 
   defimpl Plug.Exception, for: Phoenix.Template.UndefinedError do
     def status(_exception), do: 404
-    def actions(e), do: [%{label: "Not found", handler: {IO, :puts, ["Template not found: #{inspect(e)}"]}}]
+
+    def actions(e),
+      do: [%{label: "Not found", handler: {IO, :puts, ["Template not found: #{inspect(e)}"]}}]
   end
+
+  @csp_headers %{
+    "content-security-policy" =>
+      "default-src 'none'; connect-src 'self' https://raw.githubusercontent.com/etalab/ https://transport-data-gouv-fr-resource-history-prod.cellar-c2.services.clever-cloud.com/; font-src 'self'; img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js; style-src 'self' 'unsafe-inline'"
+  }
 
   pipeline :browser do
     plug(:accepts, ["html"])
     plug(:fetch_session)
     plug(:fetch_live_flash)
     plug(:protect_from_forgery)
-    plug(:put_secure_browser_headers)
+    plug(:put_secure_browser_headers, @csp_headers)
     plug(:put_locale)
     plug(:assign_current_user)
     plug(:assign_contact_email)
@@ -174,7 +181,9 @@ defmodule TransportWeb.Router do
     end
 
     # old static pages that have been moved to doc.transport
-    get("/faq", Redirect, external: "https://doc.transport.data.gouv.fr/foire-aux-questions-1/generalites")
+    get("/faq", Redirect,
+      external: "https://doc.transport.data.gouv.fr/foire-aux-questions-1/generalites"
+    )
 
     get("/guide", Redirect,
       external:
@@ -249,7 +258,10 @@ defmodule TransportWeb.Router do
     case conn.assigns[:token] do
       %OAuth2.AccessToken{expires_at: expires_at} ->
         if DateTime.compare(DateTime.from_unix!(expires_at), DateTime.utc_now()) == :lt do
-          conn |> configure_session(drop: true) |> assign(:current_user, nil) |> authentication_required(nil)
+          conn
+          |> configure_session(drop: true)
+          |> assign(:current_user, nil)
+          |> authentication_required(nil)
         else
           conn
         end
@@ -284,7 +296,10 @@ defmodule TransportWeb.Router do
       conn
     else
       conn
-      |> put_flash(:error, dgettext("alert", "You need to be a member of the transport.data.gouv.fr team."))
+      |> put_flash(
+        :error,
+        dgettext("alert", "You need to be a member of the transport.data.gouv.fr team.")
+      )
       |> redirect(to: Helpers.page_path(conn, :login, redirect_path: current_path(conn)))
       |> halt()
     end
