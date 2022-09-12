@@ -26,8 +26,9 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
 
     rh4 = insert(:resource_history, %{payload: %{"format" => "GTFS"}})
 
-    %Oban.Job{args: %{"format" => "GTFS", "validator" => validator_string}}
-    |> Transport.Jobs.ResourceHistoryValidationJob.perform()
+    assert :ok =
+             Transport.Jobs.ResourceHistoryValidationJob
+             |> perform_job(%{"format" => "GTFS", "validator" => validator_string})
 
     assert_enqueued(
       worker: Transport.Jobs.ResourceHistoryValidationJob,
@@ -45,13 +46,12 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
   test "validate a resource history with one validator" do
     rh1 = insert(:resource_history)
 
-    %Oban.Job{
-      args: %{
-        "resource_history_id" => rh1.id,
-        "validator" => Transport.Validators.Dummy |> to_string()
-      }
-    }
-    |> Transport.Jobs.ResourceHistoryValidationJob.perform()
+    assert :ok =
+             Transport.Jobs.ResourceHistoryValidationJob
+             |> perform_job(%{
+               "resource_history_id" => rh1.id,
+               "validator" => Transport.Validators.Dummy |> to_string()
+             })
 
     # dummy validator sends a message for testing
     assert_received :validate!
@@ -65,8 +65,9 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
       [Transport.Validators.Dummy, Transport.Validators.Dummy]
     end)
 
-    %Oban.Job{args: %{"resource_history_id" => resource_history_id}}
-    |> Transport.Jobs.ResourceHistoryValidationJob.perform()
+    assert :ok =
+             Transport.Jobs.ResourceHistoryValidationJob
+             |> perform_job(%{"resource_history_id" => resource_history_id})
 
     # validation has been launched twice
     assert_received :validate!
