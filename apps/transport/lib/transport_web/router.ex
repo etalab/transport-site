@@ -181,9 +181,7 @@ defmodule TransportWeb.Router do
     end
 
     # old static pages that have been moved to doc.transport
-    get("/faq", Redirect,
-      external: "https://doc.transport.data.gouv.fr/foire-aux-questions-1/generalites"
-    )
+    get("/faq", Redirect, external: "https://doc.transport.data.gouv.fr/foire-aux-questions-1/generalites")
 
     get("/guide", Redirect,
       external:
