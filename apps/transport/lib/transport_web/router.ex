@@ -243,39 +243,54 @@ defmodule TransportWeb.Router do
     assign(conn, :contact_email, Application.get_env(:transport, :contact_email))
   end
 
-  defp put_custom_secure_browser_headers(conn, _) do
+  @doc """
+  Returns content-security-policy headers, depending on the APP_ENV value
+
+  iex> csp_headers("")
+  %{}
+  iex> csp_headers("test")
+  %{}
+  iex> match?(%{"content-security-policy" => csp_content}, csp_headers(:prod))
+  true
+  iex> match?(%{"content-security-policy" => csp_content}, csp_headers(:staging))
+  true
+  """
+  def csp_headers(app_env) do
     csp_content =
-      case Application.fetch_env!(:transport, :app_env) do
+      case app_env do
         :prod ->
-         """
-            default-src 'none';
-            connect-src 'self' https://static.data.gouv.fr/ https://raw.githubusercontent.com/etalab/ https://transport-data-gouv-fr-resource-history-prod.cellar-c2.services.clever-cloud.com/;
-            font-src 'self';
-            img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr;
-            script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
-            style-src 'self' 'unsafe-inline'
-            """
+          """
+          default-src 'none';
+          connect-src 'self' https://static.data.gouv.fr/ https://raw.githubusercontent.com/etalab/ https://transport-data-gouv-fr-resource-history-prod.cellar-c2.services.clever-cloud.com/;
+          font-src 'self';
+          img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr;
+          script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
+          style-src 'self' 'unsafe-inline'
+          """
 
         :staging ->
-         """
-              default-src 'none';
-              connect-src 'self' https://static.data.gouv.fr/ https://demo-static.data.gouv.fr/ https://raw.githubusercontent.com/etalab/ https://transport-data-gouv-fr-resource-history-staging.cellar-c2.services.clever-cloud.com/;
-              font-src 'self';
-              img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr;
-              script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
-              style-src 'self' 'unsafe-inline'
-            """
-
+          # prochainement is currently making calls to both data.gouv.fr and demo.data.gouv.fr, which is probably not expected
+          """
+            default-src 'none';
+            connect-src 'self' https://static.data.gouv.fr/ https://demo-static.data.gouv.fr/ https://raw.githubusercontent.com/etalab/ https://transport-data-gouv-fr-resource-history-staging.cellar-c2.services.clever-cloud.com/;
+            font-src 'self';
+            img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr;
+            script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
+            style-src 'self' 'unsafe-inline'
+          """
 
         _ ->
           nil
       end
 
-      csp_headers = case csp_content do
-        nil -> %{}
-        csp_content ->  %{"content-security-policy" => csp_content |> String.replace("\n", "")}
-      end
+    case csp_content do
+      nil -> %{}
+      csp_content -> %{"content-security-policy" => csp_content |> String.replace("\n", "")}
+    end
+  end
 
+  defp put_custom_secure_browser_headers(conn, _) do
+    csp_headers = csp_headers(Application.fetch_env!(:transport, :app_env))
     Phoenix.Controller.put_secure_browser_headers(conn, csp_headers)
   end
 
