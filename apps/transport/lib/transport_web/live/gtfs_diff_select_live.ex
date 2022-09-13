@@ -4,10 +4,7 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
   """
   use Phoenix.LiveView
   use TransportWeb.InputHelpers
-  import TransportWeb.Gettext
-  import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
-  import TransportWeb.ValidationController, only: [select_options: 0]
 
   def mount(_params, %{"locale" => locale} = _session, socket) do
     Gettext.put_locale(locale)
@@ -23,7 +20,7 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
      )}
   end
 
-  def handle_event("validate", params, socket) do
+  def handle_event("validate", _params, socket) do
     {:noreply, socket}
   end
 
