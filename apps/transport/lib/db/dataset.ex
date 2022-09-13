@@ -554,12 +554,18 @@ defmodule DB.Dataset do
   def validate(id) when is_integer(id) do
     dataset = __MODULE__ |> Repo.get!(id) |> Repo.preload(:resources)
 
-    {_real_time_resources, static_resources} = Enum.split_with(dataset.resources, &Resource.is_real_time?/1)
+    {real_time_resources, static_resources} = Enum.split_with(dataset.resources, &Resource.is_real_time?/1)
 
     # Oban.insert_all does not enforce `unique` params
     # https://hexdocs.pm/oban/Oban.html#insert_all/3
     # This is something we rely on
-    static_resources |> Enum.map(&Transport.Jobs.ResourceHistoryJob.new(%{"resource_id" => &1.id})) |> Oban.insert_all()
+    static_resources
+    |> Enum.map(&Transport.Jobs.ResourceHistoryJob.new(%{"resource_id" => &1.id}))
+    |> Oban.insert_all()
+
+    real_time_resources
+    |> Enum.map(&Transport.Jobs.ResourceValidationJob.new(%{"resource_id" => &1.id}))
+    |> Oban.insert_all()
 
     {:ok, nil}
   end
