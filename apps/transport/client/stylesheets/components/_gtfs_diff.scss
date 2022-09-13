@@ -1,0 +1,28 @@
+#gtfs-diff-input {
+  display: flex;
+  justify-content:left;
+  align-items:stretch;
+  #upload-form {
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 0 60px 0 0;
+    .drop-zone {
+      padding: 10px;
+      min-height: 100px;
+      background-color: white;
+    }
+    button {
+      margin-top: 50px;
+    }
+  }
+  .entry-name {
+    padding-bottom: 10px;
+    display: inline-block;
+    width: 250px;
+  }
+.upload-entry {
+      padding-bottom: 30px;
+    }
+}
