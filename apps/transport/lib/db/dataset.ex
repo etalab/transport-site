@@ -626,6 +626,7 @@ defmodule DB.Dataset do
   @spec get_resources_related_files(any()) :: map()
   def get_resources_related_files(%__MODULE__{resources: resources}) when is_list(resources) do
     to_atom = %{"GeoJSON" => :geojson, "NeTEx" => :netex}
+    filler = to_atom |> Map.new(fn {_a, b} -> {b, nil} end)
 
     resource_ids = resources |> Enum.map(& &1.id)
 
