@@ -2,63 +2,58 @@
   <div class="container" style="min-height: 50vh;">
     <h1><%= TransportWeb.Gettext.dgettext("validations", "See what changed between 2 GTFS files") %></h1>
     <div class="pb-48">
-
       <section id="gtfs-diff-input" phx-drop-target={@uploads.gtfs.ref}>
         <form id="upload-form" phx-submit="gtfs_diff" phx-change="validate">
           <div class="drop-zone panel">
-            Drop your files here or browse your local drive
-            <%= live_file_input(@uploads.gtfs) %>
+            Drop your files here or browse your local drive <%= live_file_input(@uploads.gtfs) %>
           </div>
           <%= if uploads_are_valid(@uploads) do %>
             <button class="button" type="submit">See diff</button>
           <% end %>
         </form>
 
-          <div id="uploaded-files">
-            <%= for entry <- @uploads.gtfs.entries do %>
-              <article class="upload-entry">
-                  <span class="entry-name">
-                    <%= entry.client_name %>
-                    <%= if entry.valid? do %>
-                      ✅
-                    <% else %>
-                      ❌
-                    <% end %>
-                  </span>
-                <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
-                <button phx-click="cancel-upload" phx-value-ref={entry.ref} aria-label="cancel">&times;</button>
-                <div>
-                  <%= for err <- upload_errors(@uploads.gtfs, entry) do %>
-                    <%= error_to_string(err) %>
-                  <% end %>
-                </div>
-              </article>
-            <% end %>
-            <%= for err <- upload_errors(@uploads.gtfs) do %>
-              <p class="alert alert-danger">❌ <%= error_to_string(err) %></p>
-            <% end %>
-          </div>
-
-
+        <div id="uploaded-files">
+          <%= for entry <- @uploads.gtfs.entries do %>
+            <article class="upload-entry">
+              <span class="entry-name">
+                <%= entry.client_name %>
+                <%= if entry.valid? do %>
+                  ✅
+                <% else %>
+                  ❌
+                <% end %>
+              </span>
+              <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
+              <button phx-click="cancel-upload" phx-value-ref={entry.ref} aria-label="cancel">&times;</button>
+              <div>
+                <%= for err <- upload_errors(@uploads.gtfs, entry) do %>
+                  <%= error_to_string(err) %>
+                <% end %>
+              </div>
+            </article>
+          <% end %>
+          <%= for err <- upload_errors(@uploads.gtfs) do %>
+            <p class="alert alert-danger">❌ <%= error_to_string(err) %></p>
+          <% end %>
+        </div>
       </section>
-
     </div>
     <%= if assigns[:diff_summary] do %>
-    <h2>Summary of found differences</h2>
-    <ul>
-      <%= for diff <- @diff_summary do %>
-        <li><%= diff %></li>
-      <% end %>
-    </ul>
+      <h2>Summary of found differences</h2>
+      <ul>
+        <%= for diff <- @diff_summary do %>
+          <li><%= diff %></li>
+        <% end %>
+      </ul>
     <% end %>
 
     <%= if assigns[:diff_output] do %>
-    <h2>GTFS Diff (csv)</h2>
-    <div class="panel">
-      <%= for diff <- @diff_output do %>
+      <h2>GTFS Diff (csv)</h2>
+      <div class="panel">
+        <%= for diff <- @diff_output do %>
           <div><%= diff %></div>
         <% end %>
-    </div>
+      </div>
     <% end %>
   </div>
 </section>
