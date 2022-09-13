@@ -7,6 +7,7 @@ defmodule DB.DatasetDBTest do
   alias DB.Repo
   import DB.Factory
   import ExUnit.CaptureLog
+  import Ecto.Query
 
   test "delete_parent_dataset" do
     parent_dataset = Repo.insert!(%Dataset{})
@@ -303,5 +304,74 @@ defmodule DB.DatasetDBTest do
                conflict?: false
              }
            ] = all_enqueued()
+  end
+
+  test "get resources related files (GeoJSON, NeTEx,...)" do
+    %{id: dataset_id} = insert(:dataset)
+
+    r1 = insert(:resource, dataset_id: dataset_id)
+    r2 = insert(:resource, dataset_id: dataset_id)
+    r3 = insert(:resource, dataset_id: dataset_id)
+
+    insert(:resource_history,
+      resource_id: r1.id,
+      payload: %{"uuid" => uuid1 = Ecto.UUID.generate()},
+      last_up_to_date_at: dt1 = DateTime.utc_now()
+    )
+
+    insert(:resource_history,
+      resource_id: r2.id,
+      payload: %{"uuid" => uuid2 = Ecto.UUID.generate()},
+      last_up_to_date_at: dt2 = DateTime.utc_now()
+    )
+
+    insert(:data_conversion,
+      resource_history_uuid: uuid1,
+      convert_from: "GTFS",
+      convert_to: "GeoJSON",
+      payload: %{"permanent_url" => "url1", "filesize" => "size1"}
+    )
+
+    insert(:data_conversion,
+      resource_history_uuid: uuid1,
+      convert_from: "GTFS",
+      convert_to: "NeTEx",
+      payload: %{"permanent_url" => "url11", "filesize" => "size11"}
+    )
+
+    insert(:data_conversion,
+      resource_history_uuid: uuid2,
+      convert_from: "GTFS",
+      convert_to: "GeoJSON",
+      payload: %{"permanent_url" => "url2", "filesize" => "size2"}
+    )
+
+    dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get(dataset_id)
+
+    related_resources = DB.Dataset.get_resources_related_files(dataset)
+
+    assert %{
+             r1.id => %{
+               geojson: %{
+                 url: "url1",
+                 filesize: "size1",
+                 resource_history_last_up_to_date_at: dt1
+               },
+               netex: %{
+                 url: "url11",
+                 filesize: "size11",
+                 resource_history_last_up_to_date_at: dt1
+               }
+             },
+             r2.id => %{
+               geojson: %{
+                 url: "url2",
+                 filesize: "size2",
+                 resource_history_last_up_to_date_at: dt2
+               },
+               netex: nil
+             },
+             r3.id => %{geojson: nil, netex: nil}
+           } == related_resources
   end
 end
