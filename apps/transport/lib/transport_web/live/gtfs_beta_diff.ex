@@ -1,16 +1,16 @@
-# A script to find differences between two GTFS files
-# And express the result in human and computer interpretable way
+# # A script to find differences between two GTFS files
+# # And express the result in human and computer interpretable way
 
-Mix.install([
-  {:nimble_csv, "~> 1.1"},
-  {:jason, "~> 1.3"},
-  {:unzip, "~> 0.7.1"}
-])
+# Mix.install([
+#   {:nimble_csv, "~> 1.1"},
+#   {:jason, "~> 1.3"},
+#   {:unzip, "~> 0.7.1"}
+# ])
 
-alias NimbleCSV.RFC4180, as: CSV
-require Logger
+defmodule Transport.Beta.GTFS do
+  alias NimbleCSV.RFC4180, as: CSV
+  require Logger
 
-defmodule GTFS do
   def unzip(file_path) do
     zip_file = Unzip.LocalFile.open(file_path)
     {:ok, unzip} = Unzip.new(zip_file)
@@ -270,7 +270,7 @@ defmodule GTFS do
         #   IO.inspect(file_1)
         # end
 
-        GTFS.diff_file(file_name, file_1, file_2)
+        diff_file(file_name, file_1, file_2)
       else
         Logger.info("file #{file_name} not handled")
         []
@@ -330,7 +330,8 @@ defmodule GTFS do
       diff
       |> Enum.filter(fn d -> d["action"] == "update" end)
       |> Enum.map(fn d ->
-        {d["row_identifier"] |> Jason.decode!() |> Map.fetch!(primary_key), d["arg"] |> Jason.decode!()}
+        {d["row_identifier"] |> Jason.decode!() |> Map.fetch!(primary_key),
+         d["arg"] |> Jason.decode!()}
       end)
       |> Enum.into(%{})
 
@@ -384,8 +385,8 @@ end
 
 # usage
 
-# unzip_1 = GTFS.unzip("path/to/gtfs_1.zip")
-# unzip_2 = GTFS.unzip("path/to/gtfs_2.zip")
+# unzip_1 = Transport.Beta.GTFS.unzip("path/to/gtfs_1.zip")
+# unzip_2 = Transport.Beta.GTFS.unzip("path/to/gtfs_2.zip")
 
-# diff = GTFS.diff(unzip_1, unzip_2)
-# File.write!("diff_output.txt", diff |> GTFS.dump_diff())
+# diff = Transport.Beta.GTFS.diff(unzip_1, unzip_2)
+# File.write!("diff_output.txt", diff |> Transport.Beta.GTFS.dump_diff())
