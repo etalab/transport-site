@@ -543,5 +543,5 @@ msgid "The <a href=\"%{link}\" target=\"_blank\">timestamp field</a> appears to 
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Displaying the last %{nb} backed up ressources."
+msgid "Displaying the last %{nb} backed up resources."
 msgstr ""
