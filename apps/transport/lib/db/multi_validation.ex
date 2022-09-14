@@ -70,7 +70,7 @@ defmodule DB.MultiValidation do
     |> where([mv], mv.validator == ^validator_name)
   end
 
-  @spec already_validated?(map(), module()) :: boolean()
+  @spec already_validated?(DB.ResourceHistory.t(), module()) :: boolean()
   def already_validated?(%DB.ResourceHistory{id: id}, validator) do
     validator_name = validator.validator_name()
 

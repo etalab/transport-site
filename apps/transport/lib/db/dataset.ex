@@ -554,12 +554,18 @@ defmodule DB.Dataset do
   def validate(id) when is_integer(id) do
     dataset = __MODULE__ |> Repo.get!(id) |> Repo.preload(:resources)
 
-    {_real_time_resources, static_resources} = Enum.split_with(dataset.resources, &Resource.is_real_time?/1)
+    {real_time_resources, static_resources} = Enum.split_with(dataset.resources, &Resource.is_real_time?/1)
 
     # Oban.insert_all does not enforce `unique` params
     # https://hexdocs.pm/oban/Oban.html#insert_all/3
     # This is something we rely on
-    static_resources |> Enum.map(&Transport.Jobs.ResourceHistoryJob.new(%{"resource_id" => &1.id})) |> Oban.insert_all()
+    static_resources
+    |> Enum.map(&Transport.Jobs.ResourceHistoryJob.new(%{"resource_id" => &1.id}))
+    |> Oban.insert_all()
+
+    real_time_resources
+    |> Enum.map(&Transport.Jobs.ResourceValidationJob.new(%{"resource_id" => &1.id}))
+    |> Oban.insert_all()
 
     {:ok, nil}
   end
@@ -625,9 +631,39 @@ defmodule DB.Dataset do
 
   @spec get_resources_related_files(any()) :: map()
   def get_resources_related_files(%__MODULE__{resources: resources}) when is_list(resources) do
-    resources
-    |> Enum.map(fn %{id: id} = r -> {id, DB.Resource.get_related_files(r)} end)
-    |> Enum.into(%{})
+    to_atom = %{"GeoJSON" => :geojson, "NeTEx" => :netex}
+    filler = to_atom |> Map.new(fn {_a, b} -> {b, nil} end)
+
+    resource_ids = resources |> Enum.map(& &1.id)
+
+    results =
+      DB.Resource.base_query()
+      |> where([resource: r], r.id in ^resource_ids)
+      |> DB.ResourceHistory.join_resource_with_latest_resource_history()
+      |> DB.DataConversion.join_resource_history_with_data_conversion(["GeoJSON", "NeTEx"])
+      |> select(
+        [resource: r, resource_history: rh, data_conversion: dc],
+        {r.id,
+         {dc.convert_to,
+          %{
+            url: fragment("? ->> 'permanent_url'", dc.payload),
+            filesize: fragment("? ->> 'filesize'", dc.payload),
+            resource_history_last_up_to_date_at: rh.last_up_to_date_at
+          }}}
+      )
+      |> Repo.all()
+      # transform from
+      # [{id1, {"GeoJSON", %{infos}}}, {id1, {"NeTEx", %{infos}}}, {id2, {"NeTEx", %{infos}}}]
+      # to
+      # %{id1 => %{geojson: %{infos}, netex: %{infos}}, id2 => %{geojson: nil, netex: %{infos}}}
+      |> Enum.map(fn {id, {c_to, infos}} -> {id, {Map.fetch!(to_atom, c_to), infos}} end)
+      |> Enum.group_by(fn {id, _} -> id end, fn {_, v} -> v end)
+      |> Enum.map(fn {id, l} -> {id, Map.merge(filler, Enum.into(l, %{}))} end)
+      |> Enum.into(%{})
+
+    empty_results = resource_ids |> Enum.map(fn id -> {id, %{geojson: nil, netex: nil}} end) |> Enum.into(%{})
+
+    Map.merge(empty_results, results)
   end
 
   def get_resources_related_files(_), do: %{}
