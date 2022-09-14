@@ -22,6 +22,16 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
       "nom" => "Ville de Paris",
       "siren" => "217500016",
       "forme_juridique" => "Autre collectivité territoriale"
+    },
+    "Métropole de Lyon" => %{
+      "nom" => "Métropole de Lyon",
+      "siren" => "200046977",
+      "forme_juridique" => "Métropole"
+    },
+    "Saint-Etienne Métropole" => %{
+      "nom" => "Saint-Etienne Métropole",
+      "siren" => "244200770",
+      "forme_juridique" => "Métropole"
     }
   }
 
@@ -148,13 +158,13 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     publisher |> Map.put("zfe_id", zfe_id(Map.fetch!(publisher, "siren")))
   end
 
-  def zfe_id(siren_or_code) do
+  def zfe_id(siren) do
     zfe_id =
       CSVDocuments.zfe_ids()
-      |> Enum.find_value(fn el -> if el["siren_or_code"] == siren_or_code, do: el["zfe_id"] end)
+      |> Enum.find_value(fn el -> if el["siren"] == siren, do: el["code"] end)
 
     if is_nil(zfe_id) do
-      Logger.error("Could not find zfe_id for SIREN or code #{siren_or_code}")
+      Logger.error("Could not find zfe_id for SIREN #{siren}")
     end
 
     zfe_id

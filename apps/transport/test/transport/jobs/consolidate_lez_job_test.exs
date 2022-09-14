@@ -114,7 +114,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
                    "forme_juridique" => "Métropole",
                    "nom" => "SMM de l’Aire Grenobloise",
                    "siren" => "253800825",
-                   "zfe_id" => "ZFE_01"
+                   "zfe_id" => "GRENOBLE"
                  }
                },
                %{
@@ -123,7 +123,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
                    "forme_juridique" => "Métropole",
                    "nom" => "SMM de l’Aire Grenobloise",
                    "siren" => "253800825",
-                   "zfe_id" => "ZFE_01"
+                   "zfe_id" => "GRENOBLE"
                  }
                }
              ],
@@ -144,7 +144,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
                        "forme_juridique" => "Métropole",
                        "nom" => "SMM de l’Aire Grenobloise",
                        "siren" => "253800825",
-                       "zfe_id" => "ZFE_01"
+                       "zfe_id" => "GRENOBLE"
                      }
                    }
                  ],
@@ -161,7 +161,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
                        "forme_juridique" => "Métropole",
                        "nom" => "SMM de l’Aire Grenobloise",
                        "siren" => "253800825",
-                       "zfe_id" => "ZFE_01"
+                       "zfe_id" => "GRENOBLE"
                      }
                    }
                  ],
@@ -188,7 +188,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
                "forme_juridique" => "Métropole",
                "nom" => "SMM de l’Aire Grenobloise",
                "siren" => "253800825",
-               "zfe_id" => "ZFE_01"
+               "zfe_id" => "GRENOBLE"
              } == ConsolidateLEZsJob.publisher_details(zfe_aire)
     end
 
@@ -207,7 +207,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
                "forme_juridique" => "Autre collectivité territoriale",
                "nom" => "Ville de Paris",
                "siren" => "217500016",
-               "zfe_id" => "ZFE_11"
+               "zfe_id" => "PARIS"
              } == ConsolidateLEZsJob.publisher_details(zfe_aire)
     end
   end
