@@ -369,7 +369,6 @@ defmodule Transport.ImportData do
        }, display_position + 1}
     end)
     |> elem(0)
-    |> maybe_filter_resources(type)
   end
 
   @spec get_valid_resources(map(), binary()) :: [map()]
@@ -385,12 +384,6 @@ defmodule Transport.ImportData do
   def get_valid_resources(%{"resources" => resources}, _type) do
     resources
   end
-
-  def maybe_filter_resources(resources, "low-emission-zones") do
-    resources |> Enum.filter(&(&1["schema_name"] == "etalab/schema-zfe"))
-  end
-
-  def maybe_filter_resources(resources, _), do: resources
 
   @spec get_valid_gtfs_resources([map()]) :: [map()]
   def get_valid_gtfs_resources(resources) do
@@ -496,8 +489,18 @@ defmodule Transport.ImportData do
   @spec is_siri?(binary() | map()) :: boolean()
   def is_siri?(str), do: is_format?(str, "siri") and not is_siri_lite?(str)
 
+  @doc """
+  iex> ImportData.is_siri_lite?("siri lite")
+  true
+  iex> ImportData.is_siri_lite?("siri-lite")
+  true
+  iex> ImportData.is_siri_lite?("SIRI Lite")
+  true
+  iex> ImportData.is_siri_lite?("SIRI")
+  false
+  """
   @spec is_siri_lite?(binary() | map()) :: boolean()
-  def is_siri_lite?(str), do: is_format?(str, "siri lite")
+  def is_siri_lite?(str), do: is_format?(str, "SIRI Lite")
 
   @doc """
   check the format
@@ -517,7 +520,20 @@ defmodule Transport.ImportData do
   def is_format?(_, []), do: false
 
   def is_format?(str, expected),
-    do: str |> String.downcase() |> String.contains?(String.downcase(expected))
+    do: String.contains?(clean_format(str), clean_format(expected))
+
+  @doc """
+  iex> ImportData.clean_format("GTFS-RT")
+  "gtfsrt"
+  iex> ImportData.clean_format("GTFS RT")
+  "gtfsrt"
+  iex> ImportData.clean_format("SIRI Lite")
+  "sirilite"
+  iex> ImportData.clean_format("Ne[-tex")
+  "ne[tex"
+  """
+  def clean_format(format),
+    do: format |> String.downcase() |> String.replace(~r/[^0-9a-zA-Z\[\]]/, "")
 
   @doc """
   Is the ressource a zip file?
@@ -627,6 +643,9 @@ defmodule Transport.ImportData do
 
       iex> ImportData.formated_format(%{"format" => "GeoJSON"}, "low-emission-zones", false)
       "geojson"
+
+      iex> ImportData.formated_format(%{"format" => "siri-lite"}, "public-transit", false)
+      "SIRI Lite"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
   # credo:disable-for-next-line
@@ -680,11 +699,22 @@ defmodule Transport.ImportData do
   def get_title(%{"url" => url}), do: Helpers.filename_from_url(url)
 
   @spec get_existing_resource(map(), binary()) :: Resource.t() | nil
-  defp get_existing_resource(%{"url" => url}, dataset_id) do
+  # ODS CSV resources are identified only with their URL, as their resource datagouv id is not unique.
+  # For regular resources, we can identify them by resource datagouv id or by their url.
+  defp get_existing_resource(%{"is_ods_csv" => true, "url" => url}, dataset_datagouv_id) do
     Resource
     |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
-    |> where([r, _d], r.url == ^url)
-    |> where([_r, d], d.datagouv_id == ^dataset_id)
+    |> where([r], r.url == ^url)
+    |> where([_r, d], d.datagouv_id == ^dataset_datagouv_id)
+    |> select([r], map(r, [:id, :metadata]))
+    |> Repo.one()
+  end
+
+  defp get_existing_resource(%{"url" => url, "id" => datagouv_id}, dataset_datagouv_id) do
+    Resource
+    |> join(:left, [r], d in Dataset, on: r.dataset_id == d.id)
+    |> where([r, _d], r.datagouv_id == ^datagouv_id or r.url == ^url)
+    |> where([_r, d], d.datagouv_id == ^dataset_datagouv_id)
     |> select([r], map(r, [:id, :metadata]))
     |> Repo.one()
   end

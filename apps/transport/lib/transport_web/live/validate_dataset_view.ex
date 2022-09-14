@@ -4,12 +4,12 @@ defmodule TransportWeb.Live.ValidateDatasetView do
   import TransportWeb.Gettext, only: [dgettext: 2]
   require Logger
 
-  @button_disabled [:validated, :error, :validating]
+  @button_disabled [:validated, :validating]
 
   def render(assigns) do
-    ~L"""
-    <button class="<%= @button_class %>" phx-click="validate_dataset" <%= @button_disabled%>>
-    <%= @button_text %>
+    ~H"""
+    <button class={@button_class} phx-click="validate_dataset" disabled={@button_disabled}>
+      <%= @button_text %>
     </button>
     """
   end
@@ -36,10 +36,6 @@ defmodule TransportWeb.Live.ValidateDatasetView do
       case Dataset.validate(dataset_id) do
         {:ok, _} ->
           assign_step(socket, :validated)
-
-        {:error, error} ->
-          Logger.error(error)
-          assign_step(socket, :error)
       end
 
     Process.send_after(self(), :display_form, 30_000)
@@ -55,7 +51,7 @@ defmodule TransportWeb.Live.ValidateDatasetView do
       socket,
       button_text: button_texts(step),
       button_class: button_classes(step),
-      button_disabled: if(step in @button_disabled, do: "disabled", else: "")
+      button_disabled: step in @button_disabled
     )
   end
 
@@ -63,7 +59,6 @@ defmodule TransportWeb.Live.ValidateDatasetView do
     Map.get(
       %{
         validated: dgettext("backoffice_dataset", "Validated"),
-        error: dgettext("backoffice_dataset", "Error"),
         validating: dgettext("backoffice_dataset", "Validating")
       },
       step,
@@ -75,7 +70,6 @@ defmodule TransportWeb.Live.ValidateDatasetView do
     Map.get(
       %{
         validated: "button success",
-        error: "button secondary",
         validating: "button-outlined secondary"
       },
       step,

@@ -8,9 +8,11 @@ defmodule TransportWeb.DatasetView do
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
-  import Transport.GbfsUtils, only: [gbfs_validation_link: 1]
+  import DB.MultiValidation, only: [get_metadata_info: 2, get_metadata_info: 3]
   alias Shared.DateTimeDisplay
   alias Transport.Validators.GTFSTransport
+
+  @gtfs_rt_validator_name Transport.Validators.GTFSRT.validator_name()
 
   @doc """
   Count the number of resources (official + community), excluding resources with a `documentation` type.
@@ -220,16 +222,28 @@ defmodule TransportWeb.DatasetView do
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
   def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
 
-  # For other resources
-  def summary_class(%{metadata: %{"validation" => %{"has_errors" => false}}}),
-    do: "resource__summary--Success"
+  def summary_class(%DB.MultiValidation{result: %{"errors_count" => errors_count}})
+      when is_integer(errors_count) and errors_count > 0 do
+    "resource__summary--Error"
+  end
 
-  def summary_class(%{metadata: %{"validation" => %{"errors_count" => 0, "warnings_count" => warnings_count}}})
-      when warnings_count > 0,
-      do: "resource__summary--Warning"
+  def summary_class(%DB.MultiValidation{result: %{"warnings_count" => warnings_count}})
+      when is_integer(warnings_count) and warnings_count > 0 do
+    "resource__summary--Warning"
+  end
 
-  def summary_class(%{metadata: %{"validation" => _}}), do: "resource__summary--Error"
+  def summary_class(%DB.MultiValidation{}), do: "resource__summary--Success"
 
+  def warnings_count(%DB.MultiValidation{result: %{"warnings_count" => warnings_count}})
+      when is_integer(warnings_count) and warnings_count >= 0,
+      do: warnings_count
+
+  def warnings_count(%DB.MultiValidation{validator: @gtfs_rt_validator_name}), do: 0
+
+  def warnings_count(%DB.MultiValidation{}), do: nil
+
+  # will be deprecated
+  # https://github.com/etalab/transport-site/issues/2390
   def warnings_count(%Resource{metadata: %{"validation" => %{"warnings_count" => warnings_count}}})
       when is_integer(warnings_count) and warnings_count >= 0,
       do: warnings_count
@@ -237,13 +251,22 @@ defmodule TransportWeb.DatasetView do
   def warnings_count(%Resource{format: "gtfs-rt"}), do: 0
   def warnings_count(%Resource{}), do: nil
 
+  def errors_count(%DB.MultiValidation{result: %{"errors_count" => errors_count}})
+      when is_integer(errors_count) and errors_count >= 0,
+      do: errors_count
+
+  # will be deprecated
+  # https://github.com/etalab/transport-site/issues/2390
   def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => errors_count}}})
       when is_integer(errors_count) and errors_count >= 0,
       do: errors_count
 
+  # will be deprecated
+  # https://github.com/etalab/transport-site/issues/2390
   def errors_count(%Resource{}), do: nil
 
   def availability_number_days, do: 30
+  def max_nb_history_resources, do: 25
 
   def availability_ratio_class(ratio) when ratio >= 0 and ratio <= 100 do
     cond do
@@ -253,18 +276,16 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def outdated_class(resource) do
-    case Resource.is_outdated?(resource) do
-      true -> "resource__summary--Error"
-      false -> ""
-    end
-  end
+  def outdated_class(true = _is_outdated), do: "resource__summary--Error"
+  def outdated_class(_), do: ""
 
-  def valid_panel_class(%Resource{} = r) do
-    case {Resource.is_gtfs?(r), Resource.valid_and_available?(r), Resource.is_outdated?(r)} do
-      {true, false, _} -> "invalid-resource-panel"
-      {true, _, true} -> "invalid-resource-panel"
-      _ -> ""
+  def valid_panel_class(%DB.Resource{is_available: false}, _), do: "invalid-resource-panel"
+
+  def valid_panel_class(%DB.Resource{} = r, is_outdated) do
+    if Resource.is_gtfs?(r) && is_outdated do
+      "invalid-resource-panel"
+    else
+      ""
     end
   end
 
@@ -298,6 +319,13 @@ defmodule TransportWeb.DatasetView do
       |> official_available_resources()
       |> Enum.filter(&Resource.is_netex?/1)
 
+  def schemas_resources(dataset) do
+    dataset
+    |> official_available_resources()
+    |> Enum.filter(&Resource.has_schema?/1)
+    |> Enum.sort_by(& &1.display_position)
+  end
+
   def other_official_resources(dataset) do
     dataset
     |> official_available_resources()
@@ -305,6 +333,7 @@ defmodule TransportWeb.DatasetView do
     |> Stream.reject(&Resource.is_netex?/1)
     |> Stream.reject(&Resource.is_real_time?/1)
     |> Stream.reject(&Resource.is_documentation?/1)
+    |> Stream.reject(&Resource.has_schema?/1)
     |> Enum.to_list()
     |> Enum.sort_by(& &1.display_position)
   end
@@ -347,13 +376,13 @@ defmodule TransportWeb.DatasetView do
   Builds a licence.
   It looks like fr-lo has been deprecrated by data.gouv and replaced by "lov2"
   If it is confirmed, we can remove it in the future.
+
   ## Examples
-      iex> %Dataset{licence: "fr-lo"}
-      ...> |> TransportWeb.DatasetView.licence
-      "fr-lo"
-      iex> %Dataset{licence: "Libertarian"}
-      ...> |> TransportWeb.DatasetView.licence
-      "Libertarian"
+
+  iex> licence(%Dataset{licence: "fr-lo"})
+  "fr-lo"
+  iex> licence(%Dataset{licence: "Libertarian"})
+  "Libertarian"
   """
   @spec licence(Dataset.t()) :: String.t()
   def licence(%Dataset{licence: licence}) do
@@ -413,20 +442,10 @@ defmodule TransportWeb.DatasetView do
   def resource_span_class(%DB.Resource{is_available: false}), do: "span-unavailable"
   def resource_span_class(%DB.Resource{}), do: nil
 
-  def resource_class(%DB.Resource{is_available: false}), do: "resource--unavailable"
-
-  def resource_class(%DB.Resource{} = r) do
-    case DB.Resource.valid_and_available?(r) do
-      false ->
-        "resource--notvalid"
-
-      _ ->
-        case DB.Resource.is_outdated?(r) do
-          true -> "resource--outdated"
-          false -> "resource--valid"
-        end
-    end
-  end
+  def resource_class(false = _is_available, _), do: "resource--unavailable"
+  def resource_class(_, true = _is_outdated), do: "resource--outdated"
+  def resource_class(_, false = _is_outdated), do: "resource--valid"
+  def resource_class(_, _), do: ""
 
   def order_resources_by_validity(resources) do
     resources
@@ -436,12 +455,8 @@ defmodule TransportWeb.DatasetView do
 
   def order_resources_by_format(resources), do: resources |> Enum.sort_by(& &1.format, &>=/2)
 
-  def schema_url(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do
-    "https://schema.data.gouv.fr/#{schema_name}/#{schema_version}/"
-  end
-
-  def schema_url(%{schema_name: schema_name}) do
-    "https://schema.data.gouv.fr/#{schema_name}/latest.html"
+  def documentation_url(%Resource{schema_name: schema_name, schema_version: schema_version}) do
+    Transport.Shared.Schemas.documentation_url(schema_name, schema_version)
   end
 
   def schema_label(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do
@@ -449,37 +464,6 @@ defmodule TransportWeb.DatasetView do
   end
 
   def schema_label(%{schema_name: schema_name}), do: schema_name
-
-  def download_url(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
-    cond do
-      needs_stable_url?(resource) -> resource.latest_url
-      Resource.can_direct_download?(resource) -> resource.url
-      true -> resource_path(conn, :download, resource.id)
-    end
-  end
-
-  defp needs_stable_url?(%DB.Resource{latest_url: nil}), do: false
-
-  defp needs_stable_url?(%DB.Resource{url: url}) do
-    parsed_url = URI.parse(url)
-
-    hosted_on_static_datagouv =
-      Enum.member?(Application.fetch_env!(:transport, :datagouv_static_hosts), parsed_url.host)
-
-    hosted_on_bison_fute = parsed_url.host == Application.fetch_env!(:transport, :bison_fute_host)
-
-    cond do
-      hosted_on_bison_fute -> is_link_to_folder?(parsed_url)
-      hosted_on_static_datagouv -> true
-      true -> false
-    end
-  end
-
-  defp needs_stable_url?(%DB.Resource{}), do: false
-
-  defp is_link_to_folder?(%URI{path: path}) do
-    path |> Path.basename() |> :filename.extension() == ""
-  end
 
   def has_validity_period?(history_resources) when is_list(history_resources) do
     history_resources |> Enum.map(&has_validity_period?/1) |> Enum.any?()
@@ -503,4 +487,31 @@ defmodule TransportWeb.DatasetView do
       end
     end
   end
+
+  def publish_community_resource_url(%DB.Dataset{datagouv_id: datagouv_id}) do
+    :transport
+    |> Application.fetch_env!(:datagouvfr_site)
+    |> Path.join("/admin/community-resource/new/?dataset_id=#{datagouv_id}")
+  end
+
+  def multi_validation_performed?(%DB.MultiValidation{result: %{"validation_performed" => false}}), do: false
+  def multi_validation_performed?(%DB.MultiValidation{}), do: true
+  def multi_validation_performed?(nil), do: false
+
+  @doc """
+  Determines if we should display "specific usage conditions" for a dataset.
+  We displays it only for datasets under the ODbL license that are not OSM exports. We use the `openstreetmap` tag as a proxy of "this is an export from OSM".
+
+  ## Examples
+
+  iex> displays_odbl_specific_usage_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo"]})
+  true
+  iex> displays_odbl_specific_usage_conditions?(%Dataset{licence: "odc-odbl", tags: ["foo", "openstreetmap"]})
+  false
+  """
+  def displays_odbl_specific_usage_conditions?(%Dataset{licence: "odc-odbl", tags: tags}) do
+    "openstreetmap" not in tags
+  end
+
+  def displays_odbl_specific_usage_conditions?(%Dataset{}), do: false
 end

@@ -164,14 +164,14 @@ msgstr "Site internet"
 
 #, elixir-autogen, elixir-format
 msgid "tags: "
-msgstr "Mots-clef"
+msgstr "Mots-clefs"
 
 #, elixir-autogen, elixir-format
 msgid "Outdated"
 msgstr "Périmé"
 
 #, elixir-autogen, elixir-format
-msgid "Community ressources"
+msgid "Community resources"
 msgstr "Ressources communautaires"
 
 #, elixir-autogen, elixir-format
@@ -189,14 +189,6 @@ msgstr "Réutilisations"
 #, elixir-autogen, elixir-format
 msgid "License"
 msgstr "Licence"
-
-#, elixir-autogen, elixir-format
-msgid "Specific usage conditions"
-msgstr "Conditions Particulières d'utilisation"
-
-#, elixir-autogen, elixir-format
-msgid "and "
-msgstr "et "
 
 #, elixir-autogen, elixir-format
 msgid "You're using this dataset? %{a_start}Send an email!%{a_end}"
@@ -263,10 +255,6 @@ msgid "Get details about this dataset via an %{start_link}API call%{end_link}"
 msgstr "Récupérer des détails sur ce jeu de données via un %{start_link}appel à l'API%{end_link}"
 
 #, elixir-autogen, elixir-format
-msgid "compatible with"
-msgstr "compatible avec"
-
-#, elixir-autogen, elixir-format
 msgid "dataset"
 msgstr "jeu de données"
 
@@ -289,10 +277,6 @@ msgstr "Type de données"
 #, elixir-autogen, elixir-format
 msgid "Covered area"
 msgstr "Couverture spatiale"
-
-#, elixir-autogen, elixir-format
-msgid "Impossible to read"
-msgstr "Illisible"
 
 #, elixir-autogen, elixir-format
 msgid "during validation"
@@ -339,8 +323,8 @@ msgid "Features available in the resource:"
 msgstr "Données présentes dans la ressource :"
 
 #, elixir-autogen, elixir-format
-msgid "Modes available in the resource:"
-msgstr "Modes de transport disponibles dans la ressource :"
+msgid "Missing features that can be specified in GTFS:"
+msgstr "Données absentes mais possibles à modéliser en GTFS :"
 
 #, elixir-autogen, elixir-format
 msgid "unavailable resources"
@@ -399,8 +383,8 @@ msgid "Learn more"
 msgstr "En savoir plus"
 
 #, elixir-autogen, elixir-format
-msgid "We test this resource download availability every hour. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online."
-msgstr "Nous testons la disponibilité de cette ressource au téléchargement toutes les heures. Si nous détectons une indisponibilité, nous effectuons un nouveau test toutes les 10 minutes, jusqu'à ce que la ressource soit à nouveau disponible."
+msgid "We test this resource download availability every hour by making an HTTP <code>HEAD</code> request with a timeout of 5 seconds. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online."
+msgstr "Nous testons la disponibilité de cette ressource au téléchargement toutes les heures, en effectuant une requête HTTP de type <code>HEAD</code> dont le temps de réponse doit être inférieur à 5 secondes. Si nous détectons une indisponibilité, nous effectuons un nouveau test toutes les 10 minutes, jusqu'à ce que la ressource soit à nouveau disponible."
 
 #, elixir-autogen, elixir-format
 msgid "last content modification"
@@ -521,3 +505,39 @@ msgstr "Entités présentes dans ce flux lors des %{nb} derniers jours."
 #, elixir-autogen, elixir-format
 msgid "Documentation"
 msgstr "Documentation"
+
+#, elixir-autogen, elixir-format
+msgid "Reusers can share in this section edits made on resources%{odbl_text}. <a href=\"%{datagouv_link}\" target=\"_blank\">Publish your own ressource</a> on data.gouv.fr or <a href=\"%{doc_link}\" target=\"_blank\">browse our documentation.</a>"
+msgstr "Les réutilisateurs peuvent partager dans cette section les modifications apportées à une ressource%{odbl_text}. <a href=\"%{datagouv_link}\" target=\"_blank\">Publiez votre ressource</a> sur data.gouv.fr ou <a href=\"%{doc_link}\" target=\"_blank\">consultez la documentation.</a>"
+
+#, elixir-autogen, elixir-format
+msgid ", in accordance with the share-alike clause (article 4.4) of <a href=\"%{doc_link}\" target=\"_blank\">the ODbL License</a>"
+msgstr ", conformément à la clause de partage à l’identique (article 4.4) de la <a href=\"%{doc_link}\" target=\"_blank\">licence ODbL</a>"
+
+#, elixir-autogen, elixir-format
+msgid "Feed decoding failed"
+msgstr "Le décodage du flux a échoué"
+
+#, elixir-autogen, elixir-format
+msgid "Specific usage conditions"
+msgstr "Conditions Particulières d'utilisation"
+
+#, elixir-autogen, elixir-format
+msgid "and "
+msgstr "et "
+
+#, elixir-autogen, elixir-format
+msgid "Producers can share in this section design guidelines, documentation, etc. Use the <a href=\"%{url}\" target=\"_blank\">documentation type</a> on data.gouv.fr."
+msgstr "Les producteurs peuvent partager dans cette section : charte graphique, documentation, etc. Utilisez <a href=\"%{url}\" target=\"_blank\">le type documentation</a> sur data.gouv.fr."
+
+#, elixir-autogen, elixir-format
+msgid "Resources with a schema"
+msgstr "Ressources avec schéma"
+
+#, elixir-autogen, elixir-format
+msgid "Browse the API"
+msgstr "Lien vers l'API"
+
+#, elixir-autogen, elixir-format
+msgid "The <a href=\"%{link}\" target=\"_blank\">timestamp field</a> appears to be too old compared to the current time: the delay is %{seconds} seconds. Try to update your feed at most every 30 seconds."
+msgstr "Le <a href=\"%{link}\">champ timestamp</a> contient une valeur ancienne par rapport à la date courante : l'écart est de %{seconds} secondes. Essayez de mettre à jour le flux toutes les 30 secondes au plus."

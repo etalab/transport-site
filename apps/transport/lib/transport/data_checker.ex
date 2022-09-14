@@ -8,7 +8,7 @@ defmodule Transport.DataChecker do
   import Ecto.Query
   require Logger
 
-  @update_data_doc_link "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
+  @update_data_doc_link "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees#remplacer-un-jeu-de-donnees-existant-plutot-quen-creer-un-nouveau"
   @default_outdated_data_delays [0, 7, 14]
 
   @doc """
@@ -107,7 +107,9 @@ defmodule Transport.DataChecker do
 
           #{link_and_name(dataset)}
 
-          Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour. Veuillez anticiper vos prochaines mises à jour. N'hésitez pas à consulter la documentation pour mettre à jour vos données #{@update_data_doc_link}.
+          Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour. Pour cela, veuillez remplacer la ressource périmée par la nouvelle ressource : #{@update_data_doc_link}.
+
+          Veuillez également anticiper vos prochaines mises à jour, au moins 7 jours avant l'expiration de votre fichier.
 
           L’équipe transport.data.gouv.fr
 
@@ -139,10 +141,7 @@ defmodule Transport.DataChecker do
   defp delay_str(0), do: "demain"
   defp delay_str(d), do: "dans #{d} jours"
 
-  def link(dataset) do
-    base = Transport.RuntimeConfig.EmailHost.email_host()
-    dataset_url(base, :details, dataset.slug)
-  end
+  def link(%Dataset{slug: slug}), do: dataset_url(TransportWeb.Endpoint, :details, slug)
 
   def link_and_name(dataset) do
     link = link(dataset)

@@ -10,7 +10,7 @@ defmodule DB.Resource do
   alias Transport.DataVisualization
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
   import Ecto.{Changeset, Query}
-  import DB.Gettext
+  import TransportWeb.Router.Helpers, only: [resource_url: 3]
   require Logger
 
   typed_schema "resource" do
@@ -70,6 +70,25 @@ defmodule DB.Resource do
       on_replace: :delete,
       on_delete: :delete_all
     )
+
+    has_many(:resource_history, DB.ResourceHistory)
+  end
+
+  def base_query, do: from(r in DB.Resource, as: :resource)
+
+  def join_dataset_with_resource(query) do
+    query
+    |> join(:inner, [dataset: d], r in DB.Resource, on: d.id == r.dataset_id, as: :resource)
+  end
+
+  def filter_on_resource_id(query, resource_id) do
+    query
+    |> where([resource: r], r.id == ^resource_id)
+  end
+
+  def filter_on_dataset_id(query, dataset_id) do
+    query
+    |> where([resource: r], r.dataset_id == ^dataset_id)
   end
 
   defp gtfs_validator, do: Shared.Validation.GtfsValidator.Wrapper.impl()
@@ -311,8 +330,11 @@ defmodule DB.Resource do
          schema_type
        ) do
     case schema_type do
-      "tableschema" -> TableSchemaValidator.validate(schema_name, url, schema_version)
-      "jsonschema" -> JSONSchemaValidator.validate(JSONSchemaValidator.load_jsonschema_for_schema(schema_name), url)
+      "tableschema" ->
+        TableSchemaValidator.validate(schema_name, url, schema_version)
+
+      "jsonschema" ->
+        JSONSchemaValidator.validate(JSONSchemaValidator.load_jsonschema_for_schema(schema_name), url)
     end
   end
 
@@ -381,13 +403,36 @@ defmodule DB.Resource do
   def find_tags(%__MODULE__{} = r, metadata) do
     r
     |> base_tag()
-    |> Enum.concat(has_fares_tag(metadata))
-    |> Enum.concat(has_shapes_tag(metadata))
-    |> Enum.concat(has_odt_tag(metadata))
-    |> Enum.concat(has_route_colors_tag(metadata))
-    |> Enum.concat(has_pathways_tag(metadata))
+    |> Enum.concat(find_tags_from_metadata(metadata))
     |> Enum.uniq()
   end
+
+  def find_tags_from_metadata(metadata) do
+    tags =
+      metadata
+      |> has_fares_tag()
+      |> Enum.concat(has_shapes_tag(metadata))
+      |> Enum.concat(has_odt_tag(metadata))
+      |> Enum.concat(has_route_colors_tag(metadata))
+      |> Enum.concat(has_pathways_tag(metadata))
+
+    Enum.each(tags, fn tag ->
+      if tag not in existing_gtfs_tags() do
+        raise "`#{tag}` is not a known tag"
+      end
+    end)
+
+    tags
+  end
+
+  def existing_gtfs_tags,
+    do: [
+      "tarifs",
+      "tracés de lignes",
+      "transport à la demande",
+      "couleurs des lignes",
+      "description des correspondances"
+    ]
 
   @spec find_modes(map()) :: [binary()]
   def find_modes(%{"modes" => modes}), do: modes
@@ -470,46 +515,6 @@ defmodule DB.Resource do
     |> validate_required([:url, :datagouv_id])
   end
 
-  @spec issues_short_translation() :: %{binary() => binary()}
-  def issues_short_translation,
-    do: %{
-      "UnusedStop" => dgettext("db-validations", "Unused stops"),
-      "Slow" => dgettext("db-validations", "Slow"),
-      "ExcessiveSpeed" => dgettext("db-validations", "Excessive speed between two stops"),
-      "NegativeTravelTime" => dgettext("db-validations", "Negative travel time between two stops"),
-      "CloseStops" => dgettext("db-validations", "Close stops"),
-      "NullDuration" => dgettext("db-validations", "Null duration between two stops"),
-      "InvalidReference" => dgettext("db-validations", "Invalid reference"),
-      "InvalidArchive" => dgettext("db-validations", "Invalid archive"),
-      "MissingRouteName" => dgettext("db-validations", "Missing route name"),
-      "MissingId" => dgettext("db-validations", "Missing id"),
-      "MissingCoordinates" => dgettext("db-validations", "Missing coordinates"),
-      "MissingName" => dgettext("db-validations", "Missing name"),
-      "InvalidCoordinates" => dgettext("db-validations", "Invalid coordinates"),
-      "InvalidRouteType" => dgettext("db-validations", "Invalid route type"),
-      "MissingUrl" => dgettext("db-validations", "Missing url"),
-      "InvalidUrl" => dgettext("db-validations", "Invalid url"),
-      "InvalidTimezone" => dgettext("db-validations", "Invalid timezone"),
-      "DuplicateStops" => dgettext("db-validations", "Duplicate stops"),
-      "MissingPrice" => dgettext("db-validations", "Missing price"),
-      "InvalidCurrency" => dgettext("db-validations", "Invalid currency"),
-      "InvalidTransfers" => dgettext("db-validations", "Invalid transfers"),
-      "InvalidTransferDuration" => dgettext("db-validations", "Invalid transfer duration"),
-      "MissingLanguage" => dgettext("db-validations", "Missing language"),
-      "InvalidLanguage" => dgettext("db-validations", "Invalid language"),
-      "DuplicateObjectId" => dgettext("db-validations", "Duplicate object id"),
-      "UnloadableModel" => dgettext("db-validations", "Not compliant with the GTFS specification"),
-      "MissingMandatoryFile" => dgettext("db-validations", "Missing mandatory file"),
-      "ExtraFile" => dgettext("db-validations", "Extra file"),
-      "ImpossibleToInterpolateStopTimes" => dgettext("db-validations", "Impossible to interpolate stop times"),
-      "InvalidStopLocationTypeInTrip" => dgettext("db-validations", "Invalid stop location type in trip"),
-      "InvalidStopParent" => dgettext("db-validations", "Invalid stop parent"),
-      "IdNotAscii" => dgettext("db-validations", "ID is not ASCII-encoded")
-    }
-
-  @spec has_metadata?(__MODULE__.t()) :: boolean()
-  def has_metadata?(%__MODULE__{} = r), do: r.metadata != nil
-
   @spec valid_and_available?(__MODULE__.t()) :: boolean()
   def valid_and_available?(%__MODULE__{
         is_available: available,
@@ -571,7 +576,7 @@ defmodule DB.Resource do
         # credo:disable-for-next-line
         with %Validation{details: details} when details == %{} <-
                Repo.get_by(Validation, resource_id: id) do
-          %{severity: "Irrevelant", count_errors: 0}
+          %{severity: "NoError", count_errors: 0}
         else
           _ ->
             Logger.error("Unable to get validation of resource #{id}")
@@ -586,6 +591,9 @@ defmodule DB.Resource do
 
   def get_max_severity_validation_number(_), do: nil
 
+  # I duplicate this function in Transport.Validators.GTFSTransport
+  # this one should be deleted later
+  # https://github.com/etalab/transport-site/issues/2390
   @spec get_max_severity_error(any) :: binary()
   defp get_max_severity_error(%{} = validations) do
     validations
@@ -618,7 +626,7 @@ defmodule DB.Resource do
   def is_siri?(_), do: false
 
   @spec is_siri_lite?(__MODULE__.t()) :: boolean
-  def is_siri_lite?(%__MODULE__{format: "SIRI lite"}), do: true
+  def is_siri_lite?(%__MODULE__{format: "SIRI Lite"}), do: true
   def is_siri_lite?(_), do: false
 
   @spec is_documentation?(__MODULE__.t()) :: boolean
@@ -633,6 +641,9 @@ defmodule DB.Resource do
   def is_real_time?(%__MODULE__{} = resource) do
     is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource) or is_siri?(resource)
   end
+
+  @spec has_schema?(__MODULE__.t()) :: boolean
+  def has_schema?(%__MODULE__{schema_name: schema_name}), do: not is_nil(schema_name)
 
   @spec ttl(__MODULE__.t()) :: integer() | nil
   def ttl(%__MODULE__{format: "gbfs", metadata: %{"ttl" => ttl}})
@@ -693,19 +704,19 @@ defmodule DB.Resource do
   def has_errors_details?(%__MODULE__{}), do: false
 
   @spec get_related_files(__MODULE__.t()) :: map()
-  def get_related_files(%__MODULE__{datagouv_id: resource_datagouv_id}) do
+  def get_related_files(%__MODULE__{id: resource_id}) do
     %{}
-    |> Map.put(:geojson, get_related_geojson_info(resource_datagouv_id))
-    |> Map.put(:netex, get_related_netex_info(resource_datagouv_id))
+    |> Map.put(:geojson, get_related_geojson_info(resource_id))
+    |> Map.put(:netex, get_related_netex_info(resource_id))
   end
 
-  def get_related_geojson_info(resource_datagouv_id), do: get_related_conversion_info(resource_datagouv_id, "GeoJSON")
-  def get_related_netex_info(resource_datagouv_id), do: get_related_conversion_info(resource_datagouv_id, "NeTEx")
+  def get_related_geojson_info(resource_id), do: get_related_conversion_info(resource_id, "GeoJSON")
+  def get_related_netex_info(resource_id), do: get_related_conversion_info(resource_id, "NeTEx")
 
-  @spec get_related_conversion_info(binary() | nil, binary()) :: %{url: binary(), filesize: binary()} | nil
+  @spec get_related_conversion_info(integer() | nil, binary()) :: %{url: binary(), filesize: binary()} | nil
   def get_related_conversion_info(nil, _), do: nil
 
-  def get_related_conversion_info(resource_datagouv_id, format) when format in ["GeoJSON", "NeTEx"] do
+  def get_related_conversion_info(resource_id, format) when format in ["GeoJSON", "NeTEx"] do
     DB.ResourceHistory
     |> join(:inner, [rh], dc in DB.DataConversion,
       as: :dc,
@@ -716,7 +727,7 @@ defmodule DB.Resource do
       filesize: fragment("? ->> 'filesize'", dc.payload),
       resource_history_last_up_to_date_at: rh.last_up_to_date_at
     })
-    |> where([rh, dc], rh.datagouv_id == ^resource_datagouv_id and dc.convert_to == ^format)
+    |> where([rh, dc], rh.resource_id == ^resource_id and dc.convert_to == ^format)
     |> order_by([rh, _], desc: rh.inserted_at)
     |> limit(1)
     |> DB.Repo.one()
@@ -728,8 +739,8 @@ defmodule DB.Resource do
   def content_updated_at(resource_id) do
     resource_history_list =
       DB.ResourceHistory
-      |> join(:inner, [rh], r in DB.Resource, on: r.datagouv_id == rh.datagouv_id)
-      |> where([_, r], r.id == ^resource_id and fragment("payload \\? 'download_datetime'"))
+      |> where([rh], rh.resource_id == ^resource_id)
+      |> where([rh], fragment("payload \\? 'download_datetime'"))
       |> select([rh], fragment("payload ->>'download_datetime'"))
       |> order_by([rh], desc: fragment("payload ->>'download_datetime'"))
       |> limit(2)
@@ -743,5 +754,36 @@ defmodule DB.Resource do
         {:ok, updated_at, 0} = resource_history_list |> Enum.at(0) |> DateTime.from_iso8601()
         updated_at
     end
+  end
+
+  def download_url(%__MODULE__{} = resource, conn_or_endpoint \\ TransportWeb.Endpoint) do
+    cond do
+      needs_stable_url?(resource) -> resource.latest_url
+      can_direct_download?(resource) -> resource.url
+      true -> resource_url(conn_or_endpoint, :download, resource.id)
+    end
+  end
+
+  defp needs_stable_url?(%__MODULE__{latest_url: nil}), do: false
+
+  defp needs_stable_url?(%__MODULE__{url: url}) do
+    parsed_url = URI.parse(url)
+
+    hosted_on_static_datagouv =
+      Enum.member?(Application.fetch_env!(:transport, :datagouv_static_hosts), parsed_url.host)
+
+    hosted_on_bison_fute = parsed_url.host == Application.fetch_env!(:transport, :bison_fute_host)
+
+    cond do
+      hosted_on_bison_fute -> is_link_to_folder?(parsed_url)
+      hosted_on_static_datagouv -> true
+      true -> false
+    end
+  end
+
+  defp needs_stable_url?(%__MODULE__{}), do: false
+
+  defp is_link_to_folder?(%URI{path: path}) do
+    path |> Path.basename() |> :filename.extension() == ""
   end
 end

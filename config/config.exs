@@ -14,7 +14,8 @@ config :unlock,
   config_fetcher: Unlock.Config.GitHub,
   http_client: Unlock.HTTP.FinchImpl,
   github_config_url: "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml",
-  github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN")
+  github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN"),
+  siri_public_requestor_ref: "transport-data-gouv-fr"
 
 # NOTE: the config is unused by the app (because the endpoint is not used, the
 # unlock router is directly wired into the main transport endpoint). The config key

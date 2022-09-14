@@ -17,13 +17,28 @@ defmodule DB.ResourceHistory do
     belongs_to(:resource, DB.Resource)
     has_many(:geo_data_import, DB.GeoDataImport)
     has_many(:validations, DB.MultiValidation)
+    has_many(:metadata, DB.ResourceMetadata)
+  end
+
+  def base_query, do: from(rh in DB.ResourceHistory, as: :resource_history)
+
+  def join_resource_with_latest_resource_history(query) do
+    last_resource_history =
+      DB.ResourceHistory
+      |> where([rh], rh.resource_id == parent_as(:resource).id)
+      |> order_by([rh], desc: :inserted_at)
+      |> select([rh], rh.id)
+      |> limit(1)
+
+    query
+    |> join(:inner, [resource: r], rh in DB.ResourceHistory, on: rh.resource_id == r.id, as: :resource_history)
+    |> join(:inner_lateral, [resource_history: rh], latest in subquery(last_resource_history), on: latest.id == rh.id)
   end
 
   defp latest_resource_history_query(resource_id) do
-    DB.Resource
-    |> join(:left, [r], rh in DB.ResourceHistory, on: r.datagouv_id == rh.datagouv_id)
-    |> where([r, rh], r.id == ^resource_id)
-    |> order_by([_r, rh], desc: rh.inserted_at)
+    DB.ResourceHistory
+    |> where([rh], rh.resource_id == ^resource_id)
+    |> order_by([rh], desc: rh.inserted_at)
     |> limit(1)
   end
 
@@ -32,14 +47,13 @@ defmodule DB.ResourceHistory do
   def latest_resource_history(resource_id) do
     resource_id
     |> latest_resource_history_query
-    |> select([_r, rh], rh)
     |> DB.Repo.one()
   end
 
   def latest_resource_history_payload(resource_id) do
     resource_id
     |> latest_resource_history_query
-    |> select([_r, rh], rh.payload)
+    |> select([rh], rh.payload)
     |> DB.Repo.one()
   end
 
@@ -54,14 +68,11 @@ defmodule DB.ResourceHistory do
 
   @spec latest_dataset_resources_history_infos(integer()) :: map()
   def latest_dataset_resources_history_infos(dataset_id) do
-    DB.Resource
-    |> join(:left, [r], d in DB.Dataset, on: r.dataset_id == d.id, as: :d)
-    |> join(:left, [r], rh in DB.ResourceHistory, on: rh.datagouv_id == r.datagouv_id, as: :rh)
-    |> where([r, d: d], d.id == ^dataset_id)
-    |> order_by([rh: rh], desc: rh.inserted_at)
-    |> distinct([r, rh: rh], rh.datagouv_id)
+    DB.Resource.base_query()
+    |> DB.ResourceHistory.join_resource_with_latest_resource_history()
+    |> DB.Resource.filter_on_dataset_id(dataset_id)
     |> select(
-      [r, rh: rh],
+      [resource: r, resource_history: rh],
       {r.id, %{url: fragment("payload->>'permanent_url'"), filesize: fragment("payload->>'filesize'")}}
     )
     |> DB.Repo.all()

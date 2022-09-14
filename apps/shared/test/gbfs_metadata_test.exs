@@ -4,6 +4,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
   import Mox
   alias Shared.Validation.GBFSValidator.Summary, as: GBFSValidationSummary
   import Transport.Shared.GBFSMetadata
+  import ExUnit.CaptureLog
   doctest Transport.Shared.GBFSMetadata
 
   @gbfs_url "https://example.com/gbfs.json"
@@ -27,10 +28,10 @@ defmodule Transport.Shared.GBFSMetadataTest do
           has_errors: false,
           version_detected: "1.1",
           version_validated: "1.1",
+          validator_version: "31c5325",
           validator: :validator_module
         },
-        has_cors: true,
-        is_cors_allowed: true
+        cors_header_value: "*"
       }
 
       assert expected == compute_feed_metadata(@gbfs_url, "http://example.com")
@@ -47,6 +48,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
              has_errors: false,
              version_detected: "2.2",
              version_validated: "2.2",
+             validator_version: "31c5325",
              validator: :validator_module
            }}
       )
@@ -68,8 +70,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
           "geofencing_zones",
           "gbfs_versions"
         ],
-        has_cors: true,
-        is_cors_allowed: true
+        cors_header_value: "*"
       }
 
       assert expected == compute_feed_metadata(@gbfs_url, "http://example.com")
@@ -78,14 +79,20 @@ defmodule Transport.Shared.GBFSMetadataTest do
     test "for feed with a 500 error on the root URL" do
       setup_feeds([:gbfs_with_server_error])
 
-      assert %{} == compute_feed_metadata(@gbfs_url, "http://example.com")
+      {res, logs} = with_log(fn -> compute_feed_metadata(@gbfs_url, "http://example.com") end)
+
+      assert %{} == res
+      assert logs =~ "Could not compute GBFS feed metadata"
     end
 
     test "for feed with an invalid JSON response" do
       setup_feeds([:gbfs_with_invalid_gbfs_json])
       setup_validation_result({:error, nil})
 
-      assert %{} == compute_feed_metadata(@gbfs_url, "http://example.com")
+      {res, logs} = with_log(fn -> compute_feed_metadata(@gbfs_url, "http://example.com") end)
+
+      assert %{} == res
+      assert logs =~ "Could not compute GBFS feed metadata"
     end
   end
 
@@ -101,6 +108,7 @@ defmodule Transport.Shared.GBFSMetadataTest do
            errors_count: 0,
            version_detected: "1.1",
            version_validated: "1.1",
+           validator_version: "31c5325",
            validator: :validator_module
          }}
 

@@ -5,6 +5,7 @@ defmodule TransportWeb.ResourceControllerTest do
   import Plug.Test
   import Mox
   import DB.Factory
+  import ExUnit.CaptureLog
 
   setup :verify_on_exit!
 
@@ -12,6 +13,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
   setup do
     Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
 
     {:ok, _} =
       %Dataset{
@@ -34,7 +36,6 @@ defmodule TransportWeb.ResourceControllerTest do
           %Resource{
             url: "http://link.to/gbfs",
             datagouv_id: "3",
-            metadata: %{"versions" => ["2.2"], "validation" => %{"errors_count" => 1, "has_errors" => true}},
             format: "gbfs"
           },
           %Resource{
@@ -116,7 +117,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
   test "GTFS resource with associated NeTEx", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "2")
-    insert(:resource_history, datagouv_id: "2", payload: %{"uuid" => uuid = Ecto.UUID.generate()})
+    insert(:resource_history, resource_id: resource.id, payload: %{"uuid" => uuid = Ecto.UUID.generate()})
 
     insert(:data_conversion,
       resource_history_uuid: uuid,
@@ -130,12 +131,21 @@ defmodule TransportWeb.ResourceControllerTest do
     assert html_response =~ url
   end
 
-  test "GBFS resource with metadata but no errors sends back a 200", %{conn: conn} do
+  test "GBFS resource with multi-validation sends back 200", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "3")
-    assert resource.format == "gbfs"
-    assert Resource.has_errors_details?(resource)
-    refute Map.has_key?(resource.metadata["validation"], "errors")
-    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
+    assert Resource.is_gbfs?(resource)
+
+    insert(:multi_validation, %{
+      resource_history: insert(:resource_history, %{resource_id: resource.id}),
+      validator: Transport.Validators.GBFSValidator.validator_name(),
+      result: %{"errors_count" => 1},
+      metadata: %{metadata: %{}}
+    })
+
+    Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+
+    conn = conn |> get(resource_path(conn, :details, resource.id))
+    assert conn |> html_response(200) =~ "1 erreur"
   end
 
   test "resource with error details sends back a 200", %{conn: conn} do
@@ -143,7 +153,7 @@ defmodule TransportWeb.ResourceControllerTest do
     refute is_nil(resource.schema_name)
 
     Transport.Shared.Schemas.Mock
-    |> expect(:transport_schemas, fn -> %{resource.schema_name => %{"title" => "foo"}} end)
+    |> expect(:schemas_by_type, 1, fn _type -> %{resource.schema_name => %{}} end)
 
     assert Resource.has_errors_details?(resource)
     conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) |> assert =~ "this is an error"
@@ -153,7 +163,7 @@ defmodule TransportWeb.ResourceControllerTest do
     resource = Resource |> Repo.get_by(datagouv_id: "4")
 
     Transport.Shared.Schemas.Mock
-    |> expect(:transport_schemas, fn -> %{resource.schema_name => %{"title" => "foo"}} end)
+    |> expect(:schemas_by_type, 1, fn _type -> %{resource.schema_name => %{}} end)
 
     html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
 
@@ -162,15 +172,54 @@ defmodule TransportWeb.ResourceControllerTest do
   end
 
   test "gtfs-rt resource with error details sends back a 200", %{conn: conn} do
-    %{url: url} = resource = Resource |> preload(:validation) |> Repo.get_by(datagouv_id: "5")
+    resource_url = "xxx"
+
+    validation_result = %{
+      "errors_count" => 2,
+      "warnings_count" => 3,
+      "files" => %{
+        "gtfs_permanent_url" => "https://example.com/gtfs.zip",
+        "gtfs_rt_permanent_url" => "https://example.com/gtfs-rt"
+      },
+      "errors" => [
+        %{
+          "title" => "error title",
+          "description" => "error description",
+          "severity" => "ERROR",
+          "error_id" => "E001",
+          "errors_count" => 2,
+          "errors" => ["sample 1", "foo"]
+        },
+        %{
+          "title" => "warning title",
+          "description" => "warning description",
+          "severity" => "WARNING",
+          "error_id" => "W001",
+          "errors_count" => 3,
+          "errors" => ["sample 2", "bar", "baz"]
+        }
+      ]
+    }
+
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset_id: dataset.id, url: resource_url, format: "gtfs-rt")
+
+    insert(:multi_validation,
+      validator: Transport.Validators.GTFSRT.validator_name(),
+      resource_id: resource.id,
+      validation_timestamp: DateTime.utc_now(),
+      result: validation_result
+    )
+
+    resource = Resource |> preload(:dataset) |> DB.Repo.get!(resource.id)
 
     Transport.HTTPoison.Mock
-    |> expect(:get, fn ^url, [], [follow_redirect: true] ->
+    |> expect(:get, fn ^resource_url, [], [follow_redirect: true] ->
       {:ok, %HTTPoison.Response{status_code: 200, body: File.read!(@service_alerts_file)}}
     end)
 
     assert Resource.is_gtfs_rt?(resource)
-    assert Resource.has_errors_details?(resource)
+
     content = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
 
     [
@@ -182,8 +231,8 @@ defmodule TransportWeb.ResourceControllerTest do
       "W001",
       "sample 1",
       "sample 2",
-      resource.validation.details["files"]["gtfs_permanent_url"],
-      resource.validation.details["files"]["gtfs_rt_permanent_url"],
+      validation_result["files"]["gtfs_permanent_url"],
+      validation_result["files"]["gtfs_rt_permanent_url"],
       "Prolongation des travaux rue de Kermaria"
     ]
     |> Enum.each(&assert content =~ &1)
@@ -263,7 +312,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
   test "flash message when parent dataset is inactive", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset, %{is_active: false})
-    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, url: "https://example.com/file"})
 
     conn = conn |> get(resource_path(conn, :details, resource_id))
     assert conn |> html_response(200) =~ "supprimé de data.gouv.fr"
@@ -271,7 +320,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
   test "no flash message when parent dataset is active", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset, %{is_active: true})
-    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id})
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, url: "https://example.com/file"})
 
     conn = conn |> get(resource_path(conn, :details, resource_id))
     refute conn |> html_response(200) =~ "supprimé de data.gouv.fr"
@@ -281,7 +330,12 @@ defmodule TransportWeb.ResourceControllerTest do
     %{id: dataset_id} = insert(:dataset)
 
     %{id: resource_id} =
-      insert(:resource, %{dataset_id: dataset_id, format: "GTFS", datagouv_id: datagouv_id = "datagouv_id"})
+      insert(:resource, %{
+        dataset_id: dataset_id,
+        format: "GTFS",
+        datagouv_id: datagouv_id = "datagouv_id",
+        url: "https://example.com/file"
+      })
 
     conn1 = conn |> get(resource_path(conn, :details, resource_id))
     assert conn1 |> html_response(200) =~ "Pas de validation disponible"
@@ -297,6 +351,168 @@ defmodule TransportWeb.ResourceControllerTest do
 
     conn2 = conn |> get(resource_path(conn, :details, resource_id))
     assert conn2 |> html_response(200) =~ "Rapport de validation"
+  end
+
+  test "GTFS-RT validation is shown", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset)
+
+    %{id: resource_id} =
+      insert(:resource, %{
+        dataset_id: dataset_id,
+        format: "gtfs-rt",
+        url: "https://example.com/file"
+      })
+
+    Transport.HTTPoison.Mock
+    |> expect(:get, 2, fn _, _, _ -> {:ok, %HTTPoison.Response{status_code: 200, body: ""}} end)
+
+    {conn1, _} = with_log(fn -> conn |> get(resource_path(conn, :details, resource_id)) end)
+    assert conn1 |> html_response(200) =~ "Pas de validation disponible"
+
+    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id,
+      validator: Transport.Validators.GTFSRT.validator_name(),
+      result: %{
+        "errors" => [
+          %{
+            "title" => "oops",
+            "severity" => "ERROR",
+            "error_id" => "id",
+            "errors_count" => 1,
+            "description" => "oops",
+            "errors" => ["oops"]
+          }
+        ],
+        "has_errors" => true,
+        "errors_count" => 1,
+        "files" => %{
+          "gtfs_permanent_url" => "url",
+          "gtfs_rt_permanent_url" => "url"
+        }
+      },
+      metadata: %{metadata: %{}}
+    })
+
+    {conn2, _} = with_log(fn -> conn |> get(resource_path(conn, :details, resource_id)) end)
+    assert conn2 |> html_response(200) =~ "Rapport de validation"
+    assert conn2 |> html_response(200) =~ "1 erreur"
+    refute conn2 |> html_response(200) =~ "Pas de validation disponible"
+  end
+
+  test "Table Schema validation is shown", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset)
+
+    %{id: resource_id} =
+      insert(:resource, %{
+        dataset_id: dataset_id,
+        format: "csv",
+        schema_name: schema_name = "etalab/schema-lieux-covoiturage",
+        url: "https://example.com/file"
+      })
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:schemas_by_type, 2, fn type ->
+      case type do
+        "tableschema" -> %{schema_name => %{}}
+        "jsonschema" -> %{}
+      end
+    end)
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:transport_schemas, 2, fn -> %{schema_name => %{"title" => "foo"}} end)
+
+    conn1 = conn |> get(resource_path(conn, :details, resource_id))
+    assert conn1 |> html_response(200) =~ "Pas de validation disponible"
+
+    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id,
+      validator: Transport.Validators.TableSchema.validator_name(),
+      result: %{"has_errors" => true, "errors_count" => 1, "validation_performed" => true, "errors" => ["oops"]},
+      metadata: %{metadata: %{}}
+    })
+
+    conn2 = conn |> get(resource_path(conn, :details, resource_id))
+    assert conn2 |> html_response(200) =~ "Rapport de validation"
+    assert conn2 |> html_response(200) =~ "1 erreur"
+    refute conn2 |> html_response(200) =~ "Pas de validation disponible"
+  end
+
+  test "JSON Schema validation is shown", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset)
+
+    %{id: resource_id} =
+      insert(:resource, %{
+        dataset_id: dataset_id,
+        format: "csv",
+        schema_name: schema_name = "etalab/zfe",
+        url: "https://example.com/file"
+      })
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:schemas_by_type, 4, fn type ->
+      case type do
+        "tableschema" -> %{}
+        "jsonschema" -> %{schema_name => %{}}
+      end
+    end)
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:transport_schemas, 2, fn -> %{schema_name => %{"title" => "foo"}} end)
+
+    conn1 = conn |> get(resource_path(conn, :details, resource_id))
+    assert conn1 |> html_response(200) =~ "Pas de validation disponible"
+
+    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id,
+      validator: Transport.Validators.EXJSONSchema.validator_name(),
+      result: %{"has_errors" => true, "errors_count" => 1, "validation_performed" => true, "errors" => ["oops"]},
+      metadata: %{metadata: %{}}
+    })
+
+    conn2 = conn |> get(resource_path(conn, :details, resource_id))
+    assert conn2 |> html_response(200) =~ "Rapport de validation"
+    assert conn2 |> html_response(200) =~ "1 erreur"
+    refute conn2 |> html_response(200) =~ "Pas de validation disponible"
+  end
+
+  test "does not crash when validation_performed is false", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset)
+
+    %{id: resource_id} =
+      insert(:resource, %{
+        dataset_id: dataset_id,
+        format: "csv",
+        schema_name: schema_name = "etalab/zfe",
+        url: "https://example.com/file"
+      })
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:schemas_by_type, 4, fn type ->
+      case type do
+        "tableschema" -> %{}
+        "jsonschema" -> %{schema_name => %{}}
+      end
+    end)
+
+    conn1 = conn |> get(resource_path(conn, :details, resource_id))
+    assert conn1 |> html_response(200) =~ "Pas de validation disponible"
+
+    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id,
+      validator: Transport.Validators.EXJSONSchema.validator_name(),
+      result: %{"validation_performed" => false}
+    })
+
+    conn2 = conn |> get(resource_path(conn, :details, resource_id))
+    assert conn2 |> html_response(200) =~ "Pas de validation disponible"
   end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do

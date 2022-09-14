@@ -62,10 +62,6 @@ defmodule TransportWeb.PageController do
     |> single_page(%{"page" => "real_time"})
   end
 
-  def conditions(conn, _params) do
-    single_page(conn, %{"page" => "conditions"})
-  end
-
   def accessibility(conn, _params) do
     single_page(conn, %{"page" => "accessibility"})
   end

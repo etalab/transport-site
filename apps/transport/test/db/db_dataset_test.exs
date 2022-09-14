@@ -3,8 +3,11 @@ defmodule DB.DatasetDBTest do
   Tests on the Dataset schema
   """
   use DB.DatabaseCase, cleanup: [:datasets]
+  use Oban.Testing, repo: DB.Repo
   alias DB.Repo
   import DB.Factory
+  import ExUnit.CaptureLog
+  import Ecto.Query
 
   test "delete_parent_dataset" do
     parent_dataset = Repo.insert!(%Dataset{})
@@ -46,11 +49,13 @@ defmodule DB.DatasetDBTest do
     end
 
     test "slug is required" do
-      assert {:error, _} = Dataset.changeset(%{"datagouv_id" => "1"})
+      {{:error, _}, logs} = with_log(fn -> Dataset.changeset(%{"datagouv_id" => "1"}) end)
+      assert logs =~ "error while importing dataset"
     end
 
     test "some geographic link is required" do
-      assert {:error, _} = Dataset.changeset(%{"datagouv_id" => "1", "slug" => "ma_limace"})
+      {{:error, _}, logs} = with_log(fn -> Dataset.changeset(%{"datagouv_id" => "1", "slug" => "ma_limace"}) end)
+      assert logs =~ "error while importing dataset"
     end
 
     test "with insee code of a commune linked to an aom, it works" do
@@ -58,12 +63,16 @@ defmodule DB.DatasetDBTest do
     end
 
     test "with datagouv_zone only, it fails" do
-      assert {:error, _} =
-               Dataset.changeset(%{
-                 "datagouv_id" => "1",
-                 "slug" => "ma_limace",
-                 "zones" => ["38185"]
-               })
+      {{:error, _}, logs} =
+        with_log(fn ->
+          Dataset.changeset(%{
+            "datagouv_id" => "1",
+            "slug" => "ma_limace",
+            "zones" => ["38185"]
+          })
+        end)
+
+      assert logs =~ "error while importing dataset"
     end
 
     test "with datagouv_zone and territory name, it works" do
@@ -86,13 +95,17 @@ defmodule DB.DatasetDBTest do
     end
 
     test "territory mutual exclusion" do
-      assert {:error, _} =
-               Dataset.changeset(%{
-                 "datagouv_id" => "1",
-                 "slug" => "ma_limace",
-                 "national_dataset" => "true",
-                 "insee" => "38185"
-               })
+      {{:error, _}, logs} =
+        with_log(fn ->
+          Dataset.changeset(%{
+            "datagouv_id" => "1",
+            "slug" => "ma_limace",
+            "national_dataset" => "true",
+            "insee" => "38185"
+          })
+        end)
+
+      assert logs =~ "error while importing dataset"
     end
 
     test "territory mutual exclusion with nil INSEE code resets AOM" do
@@ -138,22 +151,22 @@ defmodule DB.DatasetDBTest do
     test "for a dataset, get resources last update times" do
       %{id: dataset_id} = insert(:dataset, %{datagouv_id: "xxx", datagouv_title: "coucou"})
 
-      %{id: resource_id_1} = insert(:resource, %{datagouv_id: datagouv_id_1 = "datagouv_id_1", dataset_id: dataset_id})
-      %{id: resource_id_2} = insert(:resource, %{datagouv_id: datagouv_id_2 = "datagouv_id_2", dataset_id: dataset_id})
+      %{id: resource_id_1} = insert(:resource, dataset_id: dataset_id)
+      %{id: resource_id_2} = insert(:resource, dataset_id: dataset_id)
 
       # resource 1
       insert(:resource_history, %{
-        datagouv_id: datagouv_id_1,
+        resource_id: resource_id_1,
         payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
       })
 
       insert(:resource_history, %{
-        datagouv_id: datagouv_id_1,
+        resource_id: resource_id_1,
         payload: %{download_datetime: resource_1_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
       })
 
       # resource 2
-      insert(:resource_history, %{datagouv_id: datagouv_id_2, payload: %{}})
+      insert(:resource_history, %{resource_id: resource_id_2, payload: %{}})
 
       dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get!(dataset_id)
 
@@ -162,24 +175,22 @@ defmodule DB.DatasetDBTest do
     end
 
     defp insert_dataset_resource do
-      dataset = %{id: dataset_id} = insert(:dataset)
+      dataset = insert(:dataset)
+      %{id: resource_id} = insert(:resource, dataset: dataset)
 
-      %{id: resource_id} =
-        insert(:resource, %{dataset_id: dataset_id, datagouv_id: resource_datagouv_id = "datagouv_id"})
-
-      {dataset, resource_id, resource_datagouv_id}
+      {dataset, resource_id}
     end
 
     test "1 resource, basic case" do
-      {dataset, resource_id, resource_datagouv_id} = insert_dataset_resource()
+      {dataset, resource_id} = insert_dataset_resource()
 
       insert(:resource_history, %{
-        datagouv_id: resource_datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
       })
 
       insert(:resource_history, %{
-        datagouv_id: resource_datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
       })
 
@@ -187,40 +198,180 @@ defmodule DB.DatasetDBTest do
     end
 
     test "only one resource history, we don't know the resource last content update time" do
-      {dataset, resource_id, resource_datagouv_id} = insert_dataset_resource()
+      {dataset, resource_id} = insert_dataset_resource()
 
       insert(:resource_history, %{
-        datagouv_id: resource_datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
       })
 
       assert Dataset.resources_content_updated_at(dataset) == %{resource_id => nil}
     end
 
-    test "last content update time, download_datime not in payload" do
-      {dataset, resource_id, resource_datagouv_id} = insert_dataset_resource()
+    test "last content update time, download_datetime not in payload" do
+      {dataset, resource_id} = insert_dataset_resource()
 
-      insert(:resource_history, %{datagouv_id: resource_datagouv_id, payload: %{}})
+      insert(:resource_history, %{resource_id: resource_id, payload: %{}})
 
       assert Dataset.resources_content_updated_at(dataset) == %{resource_id => nil}
     end
 
-    test "last content update time, some download_datime not in payload" do
-      {dataset, resource_id, resource_datagouv_id} = insert_dataset_resource()
+    test "last content update time, some download_datetime not in payload" do
+      {dataset, resource_id} = insert_dataset_resource()
 
-      insert(:resource_history, %{datagouv_id: resource_datagouv_id, payload: %{}})
+      insert(:resource_history, %{resource_id: resource_id, payload: %{}})
 
       insert(:resource_history, %{
-        datagouv_id: resource_datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
       })
 
       insert(:resource_history, %{
-        datagouv_id: resource_datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
       })
 
       assert Dataset.resources_content_updated_at(dataset) == %{resource_id => expected_last_update_time}
     end
+  end
+
+  test "get_other_datasets" do
+    aom = insert(:aom)
+    dataset = insert(:dataset, aom: aom, is_active: true)
+
+    assert Dataset.get_other_datasets(dataset) == []
+
+    _inactive_dataset = insert(:dataset, aom: aom, is_active: false)
+
+    assert Dataset.get_other_datasets(dataset) == []
+
+    other_dataset = insert(:dataset, aom: aom, is_active: true)
+
+    assert dataset |> Dataset.get_other_datasets() |> Enum.map(& &1.id) == [other_dataset.id]
+  end
+
+  test "formats" do
+    dataset = insert(:dataset)
+    insert(:resource, format: "GTFS", dataset: dataset)
+    insert(:resource, format: "zip", dataset: dataset, is_community_resource: true)
+    insert(:resource, format: "csv", dataset: dataset)
+
+    assert ["GTFS", "csv"] == dataset |> DB.Repo.preload(:resources) |> Dataset.formats()
+  end
+
+  test "validate" do
+    dataset = insert(:dataset)
+    %{id: gtfs_resource_id} = insert(:resource, format: "GTFS", dataset: dataset)
+    %{id: gbfs_resource_id} = insert(:resource, format: "gbfs", dataset: dataset)
+
+    Dataset.validate(dataset)
+
+    assert [
+             %Oban.Job{
+               args: %{"resource_id" => ^gbfs_resource_id},
+               worker: "Transport.Jobs.ResourceValidationJob",
+               conflict?: false
+             },
+             %Oban.Job{
+               args: %{"resource_id" => ^gtfs_resource_id},
+               worker: "Transport.Jobs.ResourceHistoryJob",
+               conflict?: false
+             }
+           ] = all_enqueued()
+
+    # Executing again does not create a conflict, even if the job has `unique` params
+    Dataset.validate(dataset)
+
+    assert [
+             %Oban.Job{
+               args: %{"resource_id" => ^gbfs_resource_id},
+               worker: "Transport.Jobs.ResourceValidationJob",
+               conflict?: false
+             },
+             %Oban.Job{
+               args: %{"resource_id" => ^gtfs_resource_id},
+               worker: "Transport.Jobs.ResourceHistoryJob",
+               conflict?: false
+             },
+             %Oban.Job{
+               args: %{"resource_id" => ^gbfs_resource_id},
+               worker: "Transport.Jobs.ResourceValidationJob",
+               conflict?: false
+             },
+             %Oban.Job{
+               args: %{"resource_id" => ^gtfs_resource_id},
+               worker: "Transport.Jobs.ResourceHistoryJob",
+               conflict?: false
+             }
+           ] = all_enqueued()
+  end
+
+  test "get resources related files (GeoJSON, NeTEx,...)" do
+    %{id: dataset_id} = insert(:dataset)
+
+    r1 = insert(:resource, dataset_id: dataset_id)
+    r2 = insert(:resource, dataset_id: dataset_id)
+    r3 = insert(:resource, dataset_id: dataset_id)
+
+    insert(:resource_history,
+      resource_id: r1.id,
+      payload: %{"uuid" => uuid1 = Ecto.UUID.generate()},
+      last_up_to_date_at: dt1 = DateTime.utc_now()
+    )
+
+    insert(:resource_history,
+      resource_id: r2.id,
+      payload: %{"uuid" => uuid2 = Ecto.UUID.generate()},
+      last_up_to_date_at: dt2 = DateTime.utc_now()
+    )
+
+    insert(:data_conversion,
+      resource_history_uuid: uuid1,
+      convert_from: "GTFS",
+      convert_to: "GeoJSON",
+      payload: %{"permanent_url" => "url1", "filesize" => "size1"}
+    )
+
+    insert(:data_conversion,
+      resource_history_uuid: uuid1,
+      convert_from: "GTFS",
+      convert_to: "NeTEx",
+      payload: %{"permanent_url" => "url11", "filesize" => "size11"}
+    )
+
+    insert(:data_conversion,
+      resource_history_uuid: uuid2,
+      convert_from: "GTFS",
+      convert_to: "GeoJSON",
+      payload: %{"permanent_url" => "url2", "filesize" => "size2"}
+    )
+
+    dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get(dataset_id)
+
+    related_resources = DB.Dataset.get_resources_related_files(dataset)
+
+    assert %{
+             r1.id => %{
+               geojson: %{
+                 url: "url1",
+                 filesize: "size1",
+                 resource_history_last_up_to_date_at: dt1
+               },
+               netex: %{
+                 url: "url11",
+                 filesize: "size11",
+                 resource_history_last_up_to_date_at: dt1
+               }
+             },
+             r2.id => %{
+               geojson: %{
+                 url: "url2",
+                 filesize: "size2",
+                 resource_history_last_up_to_date_at: dt2
+               },
+               netex: nil
+             },
+             r3.id => %{geojson: nil, netex: nil}
+           } == related_resources
   end
 end

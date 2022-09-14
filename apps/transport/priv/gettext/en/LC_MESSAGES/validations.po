@@ -260,3 +260,19 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "No validation error"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "See all your errors <a href=\"%{url}\" target=\"_blank\">using the web interface</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "See <a href=\"%{report_url}\" target=\"_blank\">the validation report</a> online."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Validation carried out the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">MobilityData validator</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Validate this GBFS now"
+msgstr ""

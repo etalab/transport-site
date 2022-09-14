@@ -1,0 +1,42 @@
+<% locale = get_session(@conn, :locale) %>
+<div class="discussion" id={"discussion-#{@discussion["id"]}"}>
+  <h4><i class="fas fa-comments"></i><%= @discussion["title"] %></h4>
+
+  <%= for comment <- @discussion["discussion"] do %>
+    <div class="discussion-comment">
+      <div>
+        <img src={
+          comment["posted_by"]["avatar_thumbnail"] ||
+            "https://www.data.gouv.fr/api/1/avatars/#{comment["posted_by"]["id"]}/52"
+        } />
+      </div>
+      <div>
+        <div class="discussion-comment__header">
+          <a href={comment["posted_by"]["page"]}>
+            <%= comment["posted_by"]["first_name"] %> <%= comment["posted_by"]["last_name"] %>
+          </a>
+          <span><%= dgettext("page-dataset-details", "Posted on") %></span>
+          <span><%= DateTimeDisplay.format_datetime_to_paris(comment["posted_on"], locale) %></span>
+        </div>
+        <div class="discussion-comment__content">
+          <%= MarkdownHandler.markdown_to_safe_html!(comment["content"]) %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="discussion-form">
+    <%= if @current_user do %>
+      <a href={"#reply-#{@discussion["id"]}"}>
+        <%= dgettext("page-dataset-details", "Respond") %>
+      </a>
+      <div id={"reply-#{@discussion["id"]}"} class="discussion-modal">
+        <%= form_for @conn, discussion_path(@conn, :post_answer, @dataset.datagouv_id, @discussion["id"]), fn f -> %>
+          <%= textarea(f, :comment) %>
+          <%= hidden_input(f, :dataset_slug, value: @dataset.slug) %>
+          <%= submit(dgettext("page-dataset-details", "Respond")) %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

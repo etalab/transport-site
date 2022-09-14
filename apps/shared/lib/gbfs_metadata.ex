@@ -28,8 +28,7 @@ defmodule Transport.Shared.GBFSMetadata do
 
     %{
       validation: validation(url),
-      has_cors: has_cors?(response),
-      is_cors_allowed: cors_headers_allows_self?(cors_base_url, response),
+      cors_header_value: cors_header_value(response),
       feeds: feeds(json),
       versions: versions(json),
       languages: languages(json),
@@ -39,7 +38,7 @@ defmodule Transport.Shared.GBFSMetadata do
     }
   rescue
     e ->
-      Logger.error(inspect(e))
+      Logger.warn("Could not compute GBFS feed metadata. Reason: #{inspect(e)}")
       %{}
   end
 
@@ -74,41 +73,6 @@ defmodule Transport.Shared.GBFSMetadata do
   defp cors_header_value(%HTTPoison.Response{headers: headers}) do
     headers = headers |> Enum.into(%{}, fn {h, v} -> {String.downcase(h), v} end)
     Map.get(headers, "access-control-allow-origin")
-  end
-
-  @doc """
-  Find the value of the `Access-Control-Allow-Origin` header
-
-  iex> Transport.Shared.GBFSMetadata.has_cors?(%HTTPoison.Response{headers: []})
-  false
-
-  iex> Transport.Shared.GBFSMetadata.has_cors?(%HTTPoison.Response{headers: [{"access-control-allow-origin", "*"}]})
-  true
-
-  iex> Transport.Shared.GBFSMetadata.has_cors?(%HTTPoison.Response{headers: [{"Access-Control-Allow-Origin", "*"}]})
-  true
-  """
-  def has_cors?(%HTTPoison.Response{} = response) do
-    not is_nil(cors_header_value(response))
-  end
-
-  @doc """
-  Determines if the CORS header allows transport.data.gouv.fr
-
-  iex> Transport.Shared.GBFSMetadata.cors_headers_allows_self?("http://example.com", %HTTPoison.Response{headers: []})
-  false
-
-  iex> Transport.Shared.GBFSMetadata.cors_headers_allows_self?("http://example.com", %HTTPoison.Response{headers: [{"access-control-allow-origin", "*"}]})
-  true
-
-  iex> Transport.Shared.GBFSMetadata.cors_headers_allows_self?("http://example.com", %HTTPoison.Response{headers: [{"Access-Control-Allow-Origin", "*"}]})
-  true
-
-  iex> Transport.Shared.GBFSMetadata.cors_headers_allows_self?("http://example.com", %HTTPoison.Response{headers: [{"Access-Control-Allow-Origin", "http://example.com"}]})
-  true
-  """
-  def cors_headers_allows_self?(cors_base_url, %HTTPoison.Response{} = response) do
-    Enum.member?([cors_base_url, "*"], cors_header_value(response))
   end
 
   defp ttl(%{"data" => _data} = payload) do

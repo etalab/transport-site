@@ -5,7 +5,7 @@ defmodule TransportWeb.DatasetViewTest do
   import DB.Factory
   import TransportWeb.DatasetView
 
-  doctest TransportWeb.DatasetView
+  doctest TransportWeb.DatasetView, import: true
 
   test "the html content of a markdown description" do
     content = "# coucou"
@@ -71,55 +71,29 @@ defmodule TransportWeb.DatasetViewTest do
     assert "tipi.bison-fute.gouv.fr" == Application.fetch_env!(:transport, :bison_fute_host)
   end
 
-  test "download url", %{conn: conn} do
-    # Files hosted on data.gouv.fr
-    assert download_url(conn, %DB.Resource{
-             filetype: "file",
-             url: "https://demo-static.data.gouv.fr/resources/base-nationale-zfe/20220412-121638/voies.geojson",
-             latest_url: latest_url = "https://demo.data.gouv.fr/fake_stable_url"
-           }) == latest_url
+  test "other_official_resources is sorted by display position" do
+    dataset = %DB.Dataset{
+      type: "xxx",
+      resources: [
+        %DB.Resource{
+          id: 1,
+          url: "https://example.com/resource_a.geojson",
+          format: "geojson",
+          display_position: 1
+        },
+        %DB.Resource{
+          id: 2,
+          url: "https://example.com/resource_b.geojson",
+          format: "geojson",
+          display_position: 0
+        }
+      ]
+    }
 
-    assert download_url(conn, %DB.Resource{
-             filetype: "file",
-             url: "https://static.data.gouv.fr/resources/base-nationale-zfe/20220412-121638/voies.geojson",
-             latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
-           }) == latest_url
-
-    # Bison Futé folder
-    assert download_url(conn, %DB.Resource{
-             filetype: "remote",
-             url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/",
-             latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
-           }) == latest_url
-
-    # Bison Futé files
-    assert download_url(conn, %DB.Resource{
-             filetype: "remote",
-             id: id = 1,
-             url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/refDir.csv",
-             latest_url: "https://data.gouv.fr/fake_stable_url"
-           }) == resource_path(conn, :download, id)
-
-    # File not hosted on data.gouv.fr
-    assert download_url(conn, %DB.Resource{filetype: "file", url: url = "https://data.example.com/voies.geojson"}) ==
-             url
-
-    # Remote filetype / can direct download
-    assert download_url(conn, %DB.Resource{filetype: "remote", url: url = "https://data.example.com/data"}) == url
-    # http URL
-    assert download_url(conn, %DB.Resource{id: id = 1, filetype: "remote", url: "http://data.example.com/data"}) ==
-             resource_path(conn, :download, id)
-
-    # file hosted on GitHub
-    assert download_url(conn, %DB.Resource{
-             id: id = 1,
-             filetype: "remote",
-             url:
-               "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/898dc67fb19fae2464c24a85a0557e8ccce18791/bnlc-.csv"
-           }) == resource_path(conn, :download, id)
+    assert [{0, 2}, {1, 1}] == dataset |> other_official_resources() |> Enum.map(&{&1.display_position, &1.id})
   end
 
-  test "other_official_resources is sorted by display position" do
+  test "schemas_resources is sorted by display position" do
     dataset = %DB.Dataset{
       type: "low-emission-zones",
       resources: [
@@ -140,7 +114,7 @@ defmodule TransportWeb.DatasetViewTest do
       ]
     }
 
-    assert [{0, 2}, {1, 1}] == dataset |> other_official_resources() |> Enum.map(&{&1.display_position, &1.id})
+    assert [{0, 2}, {1, 1}] == dataset |> schemas_resources() |> Enum.map(&{&1.display_position, &1.id})
   end
 
   test "count_resources and count_documentation_resources" do

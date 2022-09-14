@@ -96,7 +96,11 @@ oban_crontab_all_envs =
         {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}},
         {"20 */2 * * *", Transport.Jobs.GTFSRTEntitiesDispatcherJob},
         {"30 */6 * * *", Transport.Jobs.BNLCToGeoData},
-        {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob}
+        {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob},
+        {"0 7 * * *", Transport.Jobs.GTFSRTMultiValidationDispatcherJob},
+        {"30 7 * * *", Transport.Jobs.GBFSMultiValidationDispatcherJob},
+        {"45 */3 * * *", Transport.Jobs.ResourceHistoryJSONSchemaValidationJob},
+        {"15 */3 * * *", Transport.Jobs.ResourceHistoryTableSchemaValidationJob}
       ]
 
     :dev ->
@@ -109,8 +113,8 @@ oban_crontab_all_envs =
 # Oban Jobs that only run on the production server.
 production_server_crontab =
   if app_env == :production and config_env() == :prod do
-    # those validations can be heavy for the validators, we run them only on the production server
-    [{"0 2,8,14,20 * * *", Transport.Jobs.ResourceHistoryValidationJob}]
+    # GTFS validations can be heavy for the validator, we run them only on the production server
+    [{"0 2,8,14,20 * * *", Transport.Jobs.GTFSValidationJob}]
   else
     []
   end
@@ -120,7 +124,7 @@ extra_oban_conf =
     [queues: false, plugins: false]
   else
     [
-      queues: [default: 2, heavy: 1, on_demand_validation: 1, resource_history_validation: 1],
+      queues: [default: 2, heavy: 1, on_demand_validation: 1, resource_validation: 1],
       plugins: [
         {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
         {Oban.Plugins.Cron, crontab: List.flatten(oban_crontab_all_envs, production_server_crontab)}
@@ -139,27 +143,6 @@ if config_env() == :dev do
     #  We also make sure to start the assets watcher only if the webserver is up, to avoid cluttering the logs.
     watchers: if(webserver, do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]], else: [])
 end
-
-email_host_name =
-  case config_env() do
-    :dev ->
-      "localhost"
-
-    :test ->
-      # used to make sure we are replacing the app host name by the email host name
-      # when it is different, in some email testing
-      "email.localhost"
-
-    :prod ->
-      # NOTE: it would be best to configure this via EMAIL_HOST_NAME var instead,
-      # but that will do for today.
-      case app_env do
-        :staging -> "prochainement.transport.data.gouv.fr"
-        :production -> "transport.data.gouv.fr"
-      end
-  end
-
-config :transport, :email_host_name, email_host_name
 
 if config_env() == :prod do
   pool_size =

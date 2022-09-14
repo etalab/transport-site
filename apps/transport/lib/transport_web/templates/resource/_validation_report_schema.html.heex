@@ -1,0 +1,37 @@
+<div class="panel">
+  <p>
+    <%= raw(
+      dgettext("validations", ~s(This resource should follow its schema %{link}.),
+        link: safe_to_string(link(@resource.schema_name, to: documentation_url(@resource), target: "_blank"))
+      )
+    ) %>
+  </p>
+  <%= unless is_nil(@multi_validation) do %>
+    <% nb_errors = errors_count(@multi_validation) %>
+    <%= render("_errors_warnings_count.html", nb_errors: nb_errors, nb_warnings: 0) %>
+    <%= if nb_errors > 0 do %>
+      <%= render("_on_demand_validation_hint.html", conn: @conn, resource: @resource) %>
+      <p><%= dgettext("validations", "Errors:") %></p>
+      <% is_jsonschema = @multi_validation.result["schema_type"] == "jsonschema" %>
+      <ul lang={if is_jsonschema, do: "en"}>
+        <%= for error <- errors_sample(@multi_validation) do %>
+          <li><%= error %></li>
+        <% end %>
+      </ul>
+      <%= if nb_errors > max_display_errors() do %>
+        <p class="notification">
+          <%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors()) %>
+          <%= if @multi_validation.result["schema_type"] == "tableschema" do %>
+            <%= raw(
+              dgettext(
+                "validations",
+                ~s(See all your errors <a href="%{url}" target="_blank">using the web interface</a>.),
+                url: validata_web_url(@resource.schema_name)
+              )
+            ) %>
+          <% end %>
+        </p>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

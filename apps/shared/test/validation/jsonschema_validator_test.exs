@@ -11,12 +11,14 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
     test "schema-zfe" do
       setup_schemas_response()
       setup_zfe_schema()
-      schema = load_jsonschema_for_schema("etalab/schema-zfe")
+      schema = load_jsonschema_for_schema(schema_name = "etalab/schema-zfe")
 
       assert %ExJsonSchema.Schema.Root{
                schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
                version: 7
              } = schema
+
+      assert_cache_key_has_ttl("jsonschema_#{schema_name}_latest")
 
       assert ExJsonSchema.Validator.valid?(schema, %{"name" => "foo"})
     end
@@ -27,6 +29,20 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
       assert_raise RuntimeError, fn ->
         load_jsonschema_for_schema("etalab/foo")
       end
+    end
+
+    test "with a specific version" do
+      schema_version = "0.7.1"
+      setup_schemas_response()
+      setup_zfe_schema(schema_version)
+      schema = load_jsonschema_for_schema(schema_name = "etalab/schema-zfe", schema_version)
+
+      assert %ExJsonSchema.Schema.Root{
+               schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
+               version: 7
+             } = schema
+
+      assert_cache_key_has_ttl("jsonschema_#{schema_name}_#{schema_version}")
     end
   end
 
@@ -161,8 +177,8 @@ defmodule Shared.Validation.JSONSchemaValidatorTest do
     }
   end
 
-  defp setup_zfe_schema do
-    url = "https://schema.data.gouv.fr/schemas/etalab/schema-zfe/0.7.2/schema.json"
+  defp setup_zfe_schema(version \\ "0.7.2") do
+    url = "https://schema.data.gouv.fr/schemas/etalab/schema-zfe/#{version}/schema.json"
 
     Transport.HTTPoison.Mock
     |> expect(:get!, fn ^url ->

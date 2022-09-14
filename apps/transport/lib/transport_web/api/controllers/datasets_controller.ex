@@ -157,6 +157,7 @@ defmodule TransportWeb.API.DatasetController do
       "aom" => transform_aom(dataset.aom),
       "covered_area" => covered_area(dataset),
       "type" => dataset.type,
+      "licence" => dataset.licence,
       "publisher" => get_publisher(dataset)
     }
 
@@ -171,7 +172,10 @@ defmodule TransportWeb.API.DatasetController do
   defp transform_dataset_with_detail(%Plug.Conn{} = conn, dataset) do
     conn
     |> transform_dataset(dataset)
-    |> Map.put("history", Transport.History.Fetcher.history_resources(dataset))
+    |> Map.put(
+      "history",
+      Transport.History.Fetcher.history_resources(dataset, TransportWeb.DatasetView.max_nb_history_resources())
+    )
   end
 
   @spec transform_resource(Resource.t()) :: map()

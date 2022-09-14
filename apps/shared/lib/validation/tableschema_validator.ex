@@ -4,10 +4,15 @@ defmodule Shared.Validation.TableSchemaValidator.Wrapper do
   """
   defp impl, do: Application.get_env(:transport, :tableschema_validator_impl)
 
-  @callback validate(binary(), binary()) :: map()
-  @callback validate(binary(), binary(), binary()) :: map()
+  @callback validate(binary(), binary()) :: map() | nil
+  @callback validate(binary(), binary(), binary()) :: map() | nil
   def validate(schema_name, url), do: impl().validate(schema_name, url)
   def validate(schema_name, url, schema_version), do: impl().validate(schema_name, url, schema_version)
+
+  @callback validator_api_url(binary(), binary(), binary()) :: binary()
+  def validator_api_url(schema_name, url, schema_version) do
+    impl().validator_api_url(schema_name, url, schema_version)
+  end
 end
 
 defmodule Shared.Validation.TableSchemaValidator do
@@ -18,23 +23,18 @@ defmodule Shared.Validation.TableSchemaValidator do
   """
   import Transport.Shared.Schemas
   @behaviour Shared.Validation.TableSchemaValidator.Wrapper
+  @timeout 180_000
+  @validata_web_url URI.parse("https://validata.etalab.studio/table-schema")
   @validata_api_url URI.parse("https://validata-api.app.etalab.studio/validate")
   # https://git.opendatafrance.net/validata/validata-core/-/blob/75ee5258010fc43b6a164122eff2579c2adc01a7/validata_core/helpers.py#L152
   @structure_tags ["#head", "#structure"]
 
   @impl true
   def validate(schema_name, url, schema_version \\ "latest") when is_binary(schema_name) and is_binary(url) do
-    ensure_schema_is_tableschema!(schema_name)
+    api_url = validator_api_url(schema_name, url, schema_version)
 
-    schema_url = schema_url(schema_name, schema_version || "latest")
-
-    # See https://go.validata.fr/api/v1/apidocs
-    api_url =
-      @validata_api_url
-      |> Map.put(:query, URI.encode_query(%{schema: schema_url, url: url}))
-      |> URI.to_string()
-
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client().get(api_url, []),
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
+           http_client().get(api_url, [], recv_timeout: @timeout),
          {:ok, json} <- Jason.decode(body) do
       build_report(json)
     else
@@ -42,14 +42,37 @@ defmodule Shared.Validation.TableSchemaValidator do
     end
   end
 
-  defp build_report(%{"report" => %{"stats" => stats, "tasks" => tasks}} = report) do
-    nb_errors = Map.fetch!(stats, "errors")
+  @impl true
+  def validator_api_url(schema_name, url, schema_version \\ "latest") when is_binary(schema_name) and is_binary(url) do
+    ensure_schema_is_tableschema!(schema_name)
 
+    schema_url = schema_url(schema_name, schema_version || "latest")
+
+    # See https://go.validata.fr/api/v1/apidocs
+    @validata_api_url
+    |> Map.put(:query, URI.encode_query(%{schema: schema_url, url: url}))
+    |> URI.to_string()
+  end
+
+  def validata_web_url(schema_name) do
+    ensure_schema_is_tableschema!(schema_name)
+
+    @validata_web_url
+    |> Map.put(:query, URI.encode_query(%{schema_name: "schema-transport.#{schema_name}"}))
+    |> URI.to_string()
+  end
+
+  defp build_report(
+         %{"report" => %{"tasks" => tasks}, "_meta" => %{"validata-api-version" => validata_api_version}} = payload
+       ) do
     if Enum.count(tasks) != 1 do
-      raise "tasks should have a length of 1 for report #{report}"
+      raise "tasks should have a length of 1 for response #{payload}"
     end
 
     raw_errors = hd(tasks)["errors"]
+    # We count the errors on our side, because the error count given by the report can be wrong
+    # see https://git.opendatafrance.net/validata/validata-core/-/issues/37
+    nb_errors = Enum.count(raw_errors)
 
     {row_errors, structure_errors} =
       raw_errors |> Enum.split_with(&MapSet.disjoint?(MapSet.new(&1["tags"]), MapSet.new(@structure_tags)))
@@ -64,7 +87,13 @@ defmodule Shared.Validation.TableSchemaValidator do
 
     errors = (structure_errors ++ row_errors) |> Enum.take(100)
 
-    %{"has_errors" => nb_errors > 0, "errors_count" => nb_errors, "errors" => errors, "validator" => __MODULE__}
+    %{
+      "has_errors" => nb_errors > 0,
+      "errors_count" => nb_errors,
+      "errors" => errors,
+      "validator" => __MODULE__,
+      "validata_api_version" => validata_api_version
+    }
   end
 
   defp build_report(_), do: nil

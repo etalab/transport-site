@@ -11,6 +11,25 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
     :ok
   end
 
+  describe "validator_api_url" do
+    test "with a specific schema version" do
+      setup_schemas_response()
+      schema_version = "0.2.2"
+      query = URI.encode_query(%{schema: schema_url(@schema_name, schema_version), url: @url})
+      expected_url = "https://validata-api.app.etalab.studio/validate?#{query}"
+
+      assert validator_api_url(@schema_name, @url, schema_version) == expected_url
+    end
+
+    test "with latest version" do
+      setup_schemas_response()
+      query = URI.encode_query(%{schema: schema_url(@schema_name, "latest"), url: @url})
+      expected_url = "https://validata-api.app.etalab.studio/validate?#{query}"
+
+      assert validator_api_url(@schema_name, @url) == expected_url
+    end
+  end
+
   describe "validate" do
     test "ensures schema is a tableschema" do
       schema_name = "foo"
@@ -62,7 +81,8 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
                ],
                "errors_count" => 32,
                "has_errors" => true,
-               "validator" => Shared.Validation.TableSchemaValidator
+               "validator" => Shared.Validation.TableSchemaValidator,
+               "validata_api_version" => "0.6.1"
              } == validate(@schema_name, @url)
     end
 
@@ -74,7 +94,8 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
                "errors" => [],
                "errors_count" => 0,
                "has_errors" => false,
-               "validator" => Shared.Validation.TableSchemaValidator
+               "validator" => Shared.Validation.TableSchemaValidator,
+               "validata_api_version" => "0.6.1"
              } == validate(@schema_name, @url)
     end
 
@@ -101,8 +122,42 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
                ],
                "errors_count" => 1,
                "has_errors" => true,
-               "validator" => Shared.Validation.TableSchemaValidator
+               "validator" => Shared.Validation.TableSchemaValidator,
+               "validata_api_version" => "0.6.1"
              } == validate(@schema_name, @url)
+    end
+
+    test "when the custom check is unknown and stats.errors is wrong" do
+      setup_schemas_response()
+      "validata_unknown_custom_check_error.json" |> setup_validata_response()
+
+      assert %{
+               "errors" => [
+                 "Check Error : colonne , ligne . Check is not valid: 'french_gps_coordinates': custom check inconnu."
+               ],
+               "errors_count" => 1,
+               "has_errors" => true,
+               "validator" => Shared.Validation.TableSchemaValidator,
+               "validata_api_version" => "0.6.1"
+             } == validate(@schema_name, @url)
+    end
+  end
+
+  describe "validata_web_url" do
+    test "it works" do
+      setup_schemas_response()
+
+      assert "https://validata.etalab.studio/table-schema?schema_name=schema-transport.etalab%2Fschema-lieux-covoiturage" ==
+               validata_web_url(@schema_name)
+    end
+
+    test "with an unknown schema" do
+      schema_name = "foo"
+
+      assert_raise RuntimeError, "#{schema_name} is not a tableschema", fn ->
+        setup_schemas_response()
+        validata_web_url(schema_name)
+      end
     end
   end
 
@@ -115,7 +170,7 @@ defmodule Shared.Validation.TableSchemaValidatorTest do
     url = "https://validata-api.app.etalab.studio/validate?#{query}"
 
     Transport.HTTPoison.Mock
-    |> expect(:get, fn ^url, [] ->
+    |> expect(:get, fn ^url, [] = _headers, [recv_timeout: 180_000] = _options ->
       {:ok, %HTTPoison.Response{body: body, status_code: status_code}}
     end)
   end

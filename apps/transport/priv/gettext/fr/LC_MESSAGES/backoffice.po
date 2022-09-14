@@ -138,10 +138,6 @@ msgid "Imports history"
 msgstr "Historique des imports"
 
 #, elixir-autogen, elixir-format
-msgid "Validations history"
-msgstr "Historique des validations"
-
-#, elixir-autogen, elixir-format
 msgid "date / time"
 msgstr "date / heure"
 
@@ -150,16 +146,8 @@ msgid "error message"
 msgstr "message d'erreur"
 
 #, elixir-autogen, elixir-format
-msgid "explanation"
-msgstr "raison"
-
-#, elixir-autogen, elixir-format
 msgid "success"
 msgstr "succès"
-
-#, elixir-autogen, elixir-format
-msgid "validation needed"
-msgstr "validation nécessaire"
 
 #, elixir-autogen, elixir-format
 msgid "Rapport de complétude des imports"
@@ -204,3 +192,7 @@ msgstr "Ayant une ressource sous les 90% de disponibilité"
 #, elixir-autogen, elixir-format
 msgid "See dataset on website"
 msgstr "Voir le jeu de données sur le site"
+
+#, elixir-autogen, elixir-format
+msgid "This dataset is not historicized on purpose."
+msgstr "Ce jeu de données n'est pas historisé intentionnellement."

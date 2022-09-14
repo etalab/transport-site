@@ -52,6 +52,9 @@
   flex-shrink: 1;
   padding: 0 12px 48px 12px;
   font-style: normal;
+  .icon {
+    margin-right: .2em;
+  }
   .dataset-metas-info-title {
     color: var(--theme-label-text);
   }
@@ -280,10 +283,6 @@
 
 .resource--outdated {
   border-top: 75px solid var(--theme-background-grey);
-}
-
-.resource--notvalid {
-  border-top: 75px solid var(--theme-error-bg);
 }
 
 .resource--unavailable {

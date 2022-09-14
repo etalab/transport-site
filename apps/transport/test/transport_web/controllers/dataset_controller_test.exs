@@ -12,6 +12,7 @@ defmodule TransportWeb.DatasetControllerTest do
   setup do
     Mox.stub_with(Datagouvfr.Client.Reuses.Mock, Datagouvfr.Client.Reuses)
     Mox.stub_with(Datagouvfr.Client.Discussions.Mock, Datagouvfr.Client.Discussions)
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     :ok
   end
 
@@ -23,7 +24,7 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "Datasets details page loads even when data.gouv is down", %{conn: conn} do
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
     # NOTE: we just want a dataset, but the factory setup is not finished, so
     # we have to provide an already built aom
     dataset = insert(:dataset, aom: insert(:aom, composition_res_id: 157))
@@ -48,7 +49,7 @@ defmodule TransportWeb.DatasetControllerTest do
     assert Enum.empty?(TransportWeb.DatasetView.other_official_resources(dataset))
     assert 1 == Enum.count(TransportWeb.DatasetView.official_documentation_resources(dataset))
 
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
 
     with_mocks [
       {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:ok, []} end]},
@@ -77,6 +78,7 @@ defmodule TransportWeb.DatasetControllerTest do
       %DB.Dataset{
         custom_title: "title",
         type: "public-transit",
+        licence: "lov2",
         datagouv_id: "datagouv",
         slug: "slug-1",
         resources: [
@@ -102,7 +104,7 @@ defmodule TransportWeb.DatasetControllerTest do
       }
       |> DB.Repo.insert!()
 
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
 
     path = TransportWeb.API.Router.Helpers.dataset_path(conn, :by_id, dataset.datagouv_id)
 
@@ -148,6 +150,7 @@ defmodule TransportWeb.DatasetControllerTest do
              "slug" => "slug-1",
              "title" => "title",
              "type" => "public-transit",
+             "licence" => "lov2",
              "updated" => ""
            } == conn |> get(path) |> json_response(200)
   end
@@ -183,9 +186,9 @@ defmodule TransportWeb.DatasetControllerTest do
   test "show GTFS number of errors", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
 
-    insert(:resource, %{dataset_id: dataset_id, format: "GTFS", datagouv_id: datagouv_id = "datagouv_id", url: "url"})
+    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, format: "GTFS", url: "url"})
 
-    %{id: resource_history_id} = insert(:resource_history, %{datagouv_id: datagouv_id})
+    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
 
     insert(:multi_validation, %{
       resource_history_id: resource_history_id,
@@ -194,11 +197,88 @@ defmodule TransportWeb.DatasetControllerTest do
       metadata: %{metadata: %{}}
     })
 
-    Datagouvfr.Client.Reuses.Mock |> expect(:get, fn _ -> {:ok, []} end)
-    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _ -> %{} end)
-    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _ -> [] end)
+    set_empty_mocks()
 
     conn = conn |> get(dataset_path(conn, :details, slug))
     assert conn |> html_response(200) =~ "1 information"
+  end
+
+  test "show number of errors for a GBFS", %{conn: conn} do
+    dataset = insert(:dataset, %{slug: "dataset-slug"})
+
+    resource = insert(:resource, %{dataset_id: dataset.id, format: "gbfs", url: "url"})
+
+    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource.id})
+
+    insert(:multi_validation, %{
+      resource_history_id: resource_history_id,
+      validator: Transport.Validators.GBFSValidator.validator_name(),
+      result: %{"errors_count" => 1},
+      metadata: %{metadata: %{}}
+    })
+
+    set_empty_mocks()
+
+    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+    assert conn |> html_response(200) =~ "1 erreur"
+  end
+
+  test "GTFS-RT without validation", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug"})
+    insert(:resource, %{dataset_id: dataset_id, format: "gtfs-rt", url: "url"})
+
+    set_empty_mocks()
+
+    conn = conn |> get(dataset_path(conn, :details, slug))
+    assert conn |> html_response(200) =~ "Ressources temps réel"
+  end
+
+  test "ODbL licence with specific conditions", %{conn: conn} do
+    insert(:dataset, %{slug: slug = "dataset-slug", licence: "odc-odbl"})
+
+    set_empty_mocks()
+
+    conn = conn |> get(dataset_path(conn, :details, slug))
+    assert conn |> html_response(200) =~ "Conditions Particulières"
+  end
+
+  test "ODbL licence with openstreetmap tag", %{conn: conn} do
+    insert(:dataset, %{slug: slug = "dataset-slug", licence: "odc-odbl", tags: ["openstreetmap"]})
+
+    set_empty_mocks()
+
+    conn = conn |> get(dataset_path(conn, :details, slug))
+    refute conn |> html_response(200) =~ "Conditions Particulières"
+  end
+
+  test "does not crash when validation_performed is false", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug"})
+
+    %{id: resource_id} =
+      insert(:resource, %{
+        dataset_id: dataset_id,
+        format: "geojson",
+        schema_name: schema_name = "etalab/zfe",
+        url: "https://example.com/file"
+      })
+
+    Transport.Shared.Schemas.Mock
+    |> expect(:transport_schemas, 1, fn -> %{schema_name => %{"title" => "foo"}} end)
+
+    insert(:multi_validation, %{
+      resource_history: insert(:resource_history, %{resource_id: resource_id}),
+      validator: Transport.Validators.EXJSONSchema.validator_name(),
+      result: %{"validation_performed" => false}
+    })
+
+    set_empty_mocks()
+
+    conn |> get(dataset_path(conn, :details, slug)) |> html_response(200)
+  end
+
+  defp set_empty_mocks do
+    Datagouvfr.Client.Reuses.Mock |> expect(:get, fn _ -> {:ok, []} end)
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _ -> %{} end)
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
   end
 end

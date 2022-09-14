@@ -1,0 +1,9 @@
+<% validation_path =
+  live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive,
+    type: "gbfs",
+    url: @resource.url
+  ) %>
+<a class="button" href={validation_path} target="_blank" role="link">
+  <i class="icon fa-check" aria-hidden="true"></i>
+  <%= dgettext("validations", "Validate this GBFS now") %>
+</a>

@@ -9,18 +9,26 @@ defmodule TransportWeb.ResourceController do
   import TransportWeb.ResourceView, only: [issue_type: 1]
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
 
+  @enabled_validators MapSet.new([
+                        Transport.Validators.GTFSTransport,
+                        Transport.Validators.GTFSRT,
+                        Transport.Validators.GBFSValidator,
+                        Transport.Validators.TableSchema,
+                        Transport.Validators.EXJSONSchema
+                      ])
+
   def details(conn, %{"id" => id} = params) do
-    resource =
-      Resource
-      |> Repo.get!(id)
-      # loading the v1 validation (to be removed later)
-      |> Repo.preload([:validation, dataset: [:resources]])
+    resource = Resource |> Repo.get!(id) |> Repo.preload(dataset: [:resources])
 
     conn =
       conn
-      |> assign(:uptime_per_day, DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days()))
+      |> assign(
+        :uptime_per_day,
+        DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days())
+      )
       |> assign(:resource_history_infos, DB.ResourceHistory.latest_resource_history_infos(id))
       |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
+      |> assign(:multi_validation, latest_validation(resource))
       |> put_resource_flash(resource.dataset.is_active)
 
     if Resource.is_gtfs?(resource) do
@@ -30,47 +38,60 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  defp gtfs_rt_feed(conn, %Resource{} = resource) do
+  defp gtfs_rt_feed(conn, %Resource{format: "gtfs-rt", url: url, id: id}) do
     lang = get_session(conn, :locale)
 
     Transport.Cache.API.fetch(
-      "gtfs_rt_feed_#{resource.id}_#{lang}",
+      "gtfs_rt_feed_#{id}_#{lang}",
       fn ->
-        if Resource.is_gtfs_rt?(resource) do
-          case Transport.GTFSRT.decode_remote_feed(resource.url) do
-            {:ok, feed} ->
-              %{
-                alerts: Transport.GTFSRT.service_alerts_for_display(feed, lang),
-                feed: feed
-              }
+        case Transport.GTFSRT.decode_remote_feed(url) do
+          {:ok, feed} ->
+            %{
+              alerts: Transport.GTFSRT.service_alerts_for_display(feed, lang),
+              feed_is_too_old: Transport.GTFSRT.feed_is_too_old?(feed),
+              feed_timestamp_delay: Transport.GTFSRT.feed_timestamp_delay(feed),
+              feed: feed
+            }
 
-            {:error, _} ->
-              :error
-          end
-        else
-          nil
+          {:error, _} ->
+            :error
         end
       end,
       :timer.minutes(5)
     )
   end
 
+  defp gtfs_rt_feed(_conn, %Resource{}), do: nil
+
   defp put_resource_flash(conn, false = _dataset_active) do
     conn
     |> put_flash(
       :error,
-      dgettext("resource", "This resource belongs to a dataset that has been deleted from data.gouv.fr")
+      dgettext(
+        "resource",
+        "This resource belongs to a dataset that has been deleted from data.gouv.fr"
+      )
     )
   end
 
   defp put_resource_flash(conn, _), do: conn
 
+  defp latest_validation(%Resource{id: resource_id} = resource) do
+    validators = resource |> Transport.ValidatorsSelection.validators() |> Enum.filter(&(&1 in @enabled_validators))
+
+    validator =
+      cond do
+        Enum.count(validators) == 1 -> hd(validators)
+        Enum.empty?(validators) -> nil
+      end
+
+    DB.MultiValidation.resource_latest_validation(resource_id, validator)
+  end
+
   defp render_gtfs_details(conn, params, resource) do
     config = make_pagination_config(params)
 
-    validation =
-      resource.id
-      |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)
+    validation = resource |> latest_validation()
 
     {validation_summary, severities_count, metadata, issues} =
       case validation do

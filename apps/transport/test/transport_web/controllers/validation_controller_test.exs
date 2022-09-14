@@ -313,7 +313,7 @@ defmodule TransportWeb.ValidationControllerTest do
       schema_name = "etalab/foo"
 
       Transport.Shared.Schemas.Mock
-      |> expect(:transport_schemas, fn ->
+      |> expect(:transport_schemas, 1, fn ->
         %{
           schema_name => %{
             "versions" => [%{"version_name" => "0.1.0", "schema_url" => "http://example.com/schema.json"}]
@@ -369,7 +369,7 @@ defmodule TransportWeb.ValidationControllerTest do
       {:ok, view, _html} = live(conn)
 
       # Validation is displayed
-      {:ok, report} = Transport.Jobs.GTFSRTValidationJob.convert_validator_report(@gtfs_rt_report_path)
+      {:ok, report} = Transport.Validators.GTFSRT.convert_validator_report(@gtfs_rt_report_path)
 
       validation
       |> Ecto.Changeset.change(

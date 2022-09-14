@@ -12,14 +12,6 @@ msgstr ""
 "Plural-Forms: nplurals=2\n"
 
 #, elixir-autogen, elixir-format
-msgid "CORS allowed"
-msgstr "CORS autorisé"
-
-#, elixir-autogen, elixir-format
-msgid "CORS headers available"
-msgstr "Headers CORS présents"
-
-#, elixir-autogen, elixir-format
 msgid "Detailed validation"
 msgstr "Rapport de validation"
 
@@ -76,9 +68,13 @@ msgid "Link"
 msgstr "Lien"
 
 #, elixir-autogen, elixir-format
-msgid "No"
-msgstr "Non"
+msgid "validation was not performed"
+msgstr "La validation n'a pas effectuée. Il peut y avoir une erreur fatale dans votre flux ou le validateur GBFS est temporairement indisponible."
 
 #, elixir-autogen, elixir-format
-msgid "Yes"
-msgstr "Oui"
+msgid "CORS headers"
+msgstr "Headers CORS"
+
+#, elixir-autogen, elixir-format
+msgid "None"
+msgstr "Aucun"

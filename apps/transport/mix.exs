@@ -44,6 +44,14 @@ defmodule Transport.Mixfile do
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
+  # see https://github.com/etalab/transport-site/issues/2520
+  defp apple_silicon? do
+    :system_architecture
+    |> :erlang.system_info()
+    |> List.to_string()
+    |> String.starts_with?("aarch64-apple-darwin")
+  end
+
   defp deps do
     [
       {:csv, "~> 2.1"},
@@ -81,7 +89,18 @@ defmodule Transport.Mixfile do
       {:phoenix_ecto, "~> 4.0"},
       {:sizeable, "~> 1.0"},
       {:mox, "~> 1.0.0", only: :test},
-      {:rambo, "~> 0.3"},
+      # temporary fix until https://github.com/jayjun/rambo/pull/13 is merged
+      # see https://github.com/etalab/transport-site/issues/2520.
+      # Not perfect since this will impact `mix.lock`
+      if apple_silicon?() do
+        # branch is "aarch64-apple" but we're hardcoding the ref for security, especially since `mix.lock`
+        # must not be committed in that case.
+        # NOTE: this is not enough, and a manual `mix compile.rambo` must be issued manually in order
+        # for this to work (https://github.com/jayjun/rambo/pull/13#issuecomment-1189194040).
+        {:rambo, "~> 0.3.4", github: "myobie/rambo", ref: "e321db8e4f035f2a295ee2a5310dcb75034677ce"}
+      else
+        {:rambo, "~> 0.3.4"}
+      end,
       {:etag_plug, "~> 1.0"},
       # conservatively waiting for https://github.com/sorentwo/oban/issues/652
       # to be fixed before upgrading
@@ -98,6 +117,7 @@ defmodule Transport.Mixfile do
       {:ecto_interval, "~> 0.2.5"},
       {:scrivener_ecto, "~> 2.7.0"},
       {:typed_ecto_schema, ">= 0.1.1"},
+      {:ymlr, "~> 2.0"},
       {:ex_machina, "~> 2.4", only: :test}
     ]
   end

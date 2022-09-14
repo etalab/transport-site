@@ -17,6 +17,7 @@ defmodule TransportWeb.Router do
     plug(:assign_current_user)
     plug(:assign_contact_email)
     plug(:assign_token)
+    plug(:maybe_login_again)
     plug(:assign_mix_env)
     plug(Sentry.PlugContext)
   end
@@ -43,7 +44,6 @@ defmodule TransportWeb.Router do
     get("/", PageController, :index)
     get("/real_time", PageController, :real_time)
     get("/accessibilite", PageController, :accessibility)
-    get("/conditions", PageController, :conditions)
     get("/infos_producteurs", PageController, :infos_producteurs)
     get("/.well-known/security.txt", PageController, :security_txt)
 
@@ -186,6 +186,11 @@ defmodule TransportWeb.Router do
         "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/mentions-legales-et-conditions-generales-dutilisation"
     )
 
+    get("/conditions", Redirect,
+      external:
+        "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/conditions-dutilisation-des-donnees/licence-odbl"
+    )
+
     # old static pages that have been moved to blog.transport
     get("/blog/2019_04_26_interview_my_bus", Redirect,
       external:
@@ -238,6 +243,20 @@ defmodule TransportWeb.Router do
 
   defp assign_token(conn, _) do
     assign(conn, :token, get_session(conn, :token))
+  end
+
+  defp maybe_login_again(conn, _) do
+    case conn.assigns[:token] do
+      %OAuth2.AccessToken{expires_at: expires_at} ->
+        if DateTime.compare(DateTime.from_unix!(expires_at), DateTime.utc_now()) == :lt do
+          conn |> configure_session(drop: true) |> assign(:current_user, nil) |> authentication_required(nil)
+        else
+          conn
+        end
+
+      _ ->
+        conn
+    end
   end
 
   defp authentication_required(conn, _) do

@@ -7,15 +7,21 @@ defmodule Shared.Validation.GBFSValidator do
     @moduledoc """
     A structure holding validation results for a GBFS feed
     """
-    @enforce_keys [:has_errors, :errors_count, :version_detected, :version_validated, :validator]
+    @enforce_keys [:has_errors, :errors_count, :version_detected, :version_validated, :validator_version, :validator]
     @derive Jason.Encoder
-    defstruct has_errors: false, errors_count: nil, version_detected: nil, version_validated: nil, validator: nil
+    defstruct has_errors: false,
+              errors_count: nil,
+              version_detected: nil,
+              version_validated: nil,
+              validator_version: nil,
+              validator: nil
 
     @type t :: %__MODULE__{
             has_errors: boolean,
             errors_count: integer,
             version_detected: binary,
             version_validated: binary,
+            validator_version: binary,
             validator: module
           }
   end
@@ -46,6 +52,7 @@ defmodule Shared.Validation.GBFSValidator do
            errors_count: json["summary"]["errorsCount"],
            version_detected: json["summary"]["version"]["detected"],
            version_validated: json["summary"]["version"]["validated"],
+           validator_version: json["summary"]["validatorVersion"],
            validator: __MODULE__
          }}
       else

@@ -98,6 +98,7 @@
             <%= TransportWeb.ResourceView.render("_gtfs_rt.html",
               gtfs_rt_feed: @gtfs_rt_feed,
               entities_seen_recently: nil,
+              conn: @socket,
               locale: @locale
             ) %>
           <% end %>
@@ -110,7 +111,7 @@
                   link:
                     safe_to_string(
                       link(oban_args["schema_name"],
-                        to: Transport.Shared.Schemas.schema_url(oban_args["schema_name"], "latest"),
+                        to: Transport.Shared.Schemas.documentation_url(oban_args["schema_name"]),
                         target: "_blank"
                       )
                     )
@@ -138,7 +139,18 @@
               </ul>
 
               <%= if nb_errors > max_display_errors do %>
-                <p><%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors) %></p>
+                <p class="notification">
+                  <%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors) %>
+                  <%= if oban_args["type"] == "tableschema" do %>
+                    <%= raw(
+                      dgettext(
+                        "validations",
+                        ~s(See all your errors <a href="%{url}" target="_blank">using the web interface</a>.),
+                        url: validata_web_url(oban_args["schema_name"])
+                      )
+                    ) %>
+                  <% end %>
+                </p>
               <% end %>
             <% end %>
           <% end %>
@@ -152,5 +164,5 @@
     </div>
   </div>
 </section>
-<script defer type="text/javascript" src="/js/app.js">
+<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
 </script>

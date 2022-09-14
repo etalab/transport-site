@@ -5,7 +5,7 @@ defmodule DB.Validation do
   use Ecto.Schema
   use TypedEctoSchema
   alias DB.Resource
-  import DB.Gettext, only: [dgettext: 2]
+  import TransportWeb.Gettext, only: [dgettext: 2]
 
   typed_schema "validations" do
     field(:details, :map)
@@ -28,11 +28,11 @@ defmodule DB.Validation do
   @spec severities_map() :: map()
   def severities_map,
     do: %{
-      "Fatal" => %{level: 0, text: dgettext("db-validations", "Fatal failures")},
-      "Error" => %{level: 1, text: dgettext("db-validations", "Errors")},
-      "Warning" => %{level: 2, text: dgettext("db-validations", "Warnings")},
-      "Information" => %{level: 3, text: dgettext("db-validations", "Informations")},
-      "Irrelevant" => %{level: 4, text: dgettext("db-validations", "Passed validations")}
+      "Fatal" => %{level: 0, text: dgettext("gtfs-transport-validator", "Fatal failures")},
+      "Error" => %{level: 1, text: dgettext("gtfs-transport-validator", "Errors")},
+      "Warning" => %{level: 2, text: dgettext("gtfs-transport-validator", "Warnings")},
+      "Information" => %{level: 3, text: dgettext("gtfs-transport-validator", "Informations")},
+      "Irrelevant" => %{level: 4, text: dgettext("gtfs-transport-validator", "Passed validations")}
     }
 
   @spec severities(binary()) :: %{level: integer(), text: binary()}
@@ -62,13 +62,13 @@ defmodule DB.Validation do
         {key,
          %{
            count: Enum.count(issues),
-           title: Resource.issues_short_translation()[key],
+           title: Transport.Validators.GTFSTransport.issues_short_translation()[key],
            severity: issues |> List.first() |> Map.get("severity")
          }}
       end)
       |> Map.new()
 
-    Resource.issues_short_translation()
+    Transport.Validators.GTFSTransport.issues_short_translation()
     |> Enum.map(fn {key, title} -> {key, %{count: 0, title: title, severity: "Irrelevant"}} end)
     |> Map.new()
     |> Map.merge(existing_issues)

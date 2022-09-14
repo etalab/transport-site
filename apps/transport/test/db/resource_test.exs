@@ -1,5 +1,5 @@
 defmodule DB.ResourceTest do
-  use ExUnit.Case, async: true
+  use TransportWeb.ConnCase, async: true
   alias Shared.Validation.Validator.Mock, as: ValidatorMock
   alias DB.{LogsValidation, Repo, Resource, Validation}
   import Mox
@@ -191,16 +191,46 @@ defmodule DB.ResourceTest do
     assert reasons == %{"content hash has changed" => 1, "no previous validation" => 1}
   end
 
+  test "find_tags_from_metadata" do
+    # Can detect all available tags
+    assert ["transport à la demande"] == Resource.find_tags_from_metadata(%{"some_stops_need_phone_agency" => true})
+    assert ["transport à la demande"] == Resource.find_tags_from_metadata(%{"some_stops_need_phone_driver" => true})
+    assert ["description des correspondances"] == Resource.find_tags_from_metadata(%{"has_pathways" => true})
+    assert ["tracés de lignes"] == Resource.find_tags_from_metadata(%{"has_shapes" => true})
+
+    assert ["couleurs des lignes"] ==
+             Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 5, "lines_count" => 5})
+
+    assert Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0, "has_fares" => false}) == []
+
+    # Can find multiple tags
+    assert Resource.find_tags_from_metadata(%{"has_fares" => true, "has_pathways" => true}) == [
+             "tarifs",
+             "description des correspondances"
+           ]
+
+    assert Resource.find_tags_from_metadata(%{
+             "some_stops_need_phone_driver" => true,
+             "some_stops_need_phone_agency" => true
+           }) == ["transport à la demande"]
+
+    # Does not crash when map is empty or some keys are not recognised
+    assert Resource.find_tags_from_metadata(%{}) == []
+    assert Resource.find_tags_from_metadata(%{"foo" => "bar"}) == []
+  end
+
   test "get resource related geojson infos" do
     now = DateTime.now!("Etc/UTC")
 
-    # we insert 3 resource history for datagouv_id_1
-    insert_resource_history("datagouv_id_1", uuid1 = Ecto.UUID.generate(), now, -3600)
-    insert_resource_history("datagouv_id_1", uuid2 = Ecto.UUID.generate(), now)
-    insert_resource_history("datagouv_id_1", uuid3 = Ecto.UUID.generate(), now, -3601)
+    # we insert 3 resource history for a resource
+    %{id: resource_id_1} = insert(:resource)
+    insert_resource_history(resource_id_1, uuid1 = Ecto.UUID.generate(), now, -3600)
+    insert_resource_history(resource_id_1, uuid2 = Ecto.UUID.generate(), now)
+    insert_resource_history(resource_id_1, uuid3 = Ecto.UUID.generate(), now, -3601)
 
-    # and one for datagouv_id_2
-    insert_resource_history("datagouv_id_2", uuid4 = Ecto.UUID.generate(), now)
+    # and one for another resource
+    %{id: resource_id_2} = insert(:resource)
+    insert_resource_history(resource_id_2, uuid4 = Ecto.UUID.generate(), now)
 
     # we insert 1 conversion for each resource history
     insert_data_conversion(uuid1, "url1", 10)
@@ -209,17 +239,17 @@ defmodule DB.ResourceTest do
     insert_data_conversion(uuid4, "url4", 10)
 
     assert %{url: "url2", filesize: "12", resource_history_last_up_to_date_at: _} =
-             DB.Resource.get_related_geojson_info("datagouv_id_1")
+             Resource.get_related_geojson_info(resource_id_1)
 
-    assert nil == DB.Resource.get_related_geojson_info("other_id")
+    assert nil == Resource.get_related_geojson_info(resource_id_1 - 10)
 
     assert %{geojson: %{url: "url2", filesize: "12", resource_history_last_up_to_date_at: _}} =
-             DB.Resource.get_related_files(%DB.Resource{datagouv_id: "datagouv_id_1"})
+             Resource.get_related_files(%Resource{id: resource_id_1})
   end
 
-  defp insert_resource_history(datagouv_id, uuid, datetime, time_delta_seconds \\ 0) do
+  defp insert_resource_history(resource_id, uuid, datetime, time_delta_seconds \\ 0) do
     insert(:resource_history, %{
-      datagouv_id: datagouv_id,
+      resource_id: resource_id,
       payload: %{uuid: uuid},
       inserted_at: DateTime.add(datetime, time_delta_seconds, :second)
     })
@@ -290,15 +320,15 @@ defmodule DB.ResourceTest do
 
   describe "resource last content update time" do
     test "basic case" do
-      %{id: resource_id} = insert(:resource, %{datagouv_id: datagouv_id = "datagouv_id"})
+      %{id: resource_id} = insert(:resource)
 
       insert(:resource_history, %{
-        datagouv_id: datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
       })
 
       insert(:resource_history, %{
-        datagouv_id: datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
       })
 
@@ -323,21 +353,69 @@ defmodule DB.ResourceTest do
       assert Resource.content_updated_at(resource_id) == nil
     end
 
-    test "last content update time, some download_datime not in payload" do
-      %{id: resource_id} = insert(:resource, %{datagouv_id: datagouv_id = "datagouv_id"})
-      insert(:resource_history, %{datagouv_id: datagouv_id, payload: %{}})
+    test "last content update time, some download_datetime not in payload" do
+      %{id: resource_id} = insert(:resource)
+      insert(:resource_history, %{payload: %{}})
 
       insert(:resource_history, %{
-        datagouv_id: datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
       })
 
       insert(:resource_history, %{
-        datagouv_id: datagouv_id,
+        resource_id: resource_id,
         payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
       })
 
       assert expected_last_update_time == resource_id |> Resource.content_updated_at()
     end
+  end
+
+  test "download url" do
+    # Files hosted on data.gouv.fr
+    assert Resource.download_url(%Resource{
+             filetype: "file",
+             url: "https://demo-static.data.gouv.fr/resources/base-nationale-zfe/20220412-121638/voies.geojson",
+             latest_url: latest_url = "https://demo.data.gouv.fr/fake_stable_url"
+           }) == latest_url
+
+    assert Resource.download_url(%Resource{
+             filetype: "file",
+             url: "https://static.data.gouv.fr/resources/base-nationale-zfe/20220412-121638/voies.geojson",
+             latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
+           }) == latest_url
+
+    # Bison Futé folder
+    assert Resource.download_url(%Resource{
+             filetype: "remote",
+             url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/",
+             latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
+           }) == latest_url
+
+    # Bison Futé files
+    assert Resource.download_url(%Resource{
+             filetype: "remote",
+             id: id = 1,
+             url: "http://tipi.bison-fute.gouv.fr/bison-fute-ouvert/publicationsDIR/QTV-DIR/refDir.csv",
+             latest_url: "https://data.gouv.fr/fake_stable_url"
+           }) == resource_url(TransportWeb.Endpoint, :download, id)
+
+    # File not hosted on data.gouv.fr
+    assert Resource.download_url(%Resource{filetype: "file", url: url = "https://data.example.com/voies.geojson"}) ==
+             url
+
+    # Remote filetype / can direct download
+    assert Resource.download_url(%Resource{filetype: "remote", url: url = "https://data.example.com/data"}) == url
+    # http URL
+    assert Resource.download_url(%Resource{id: id = 1, filetype: "remote", url: "http://data.example.com/data"}) ==
+             resource_url(TransportWeb.Endpoint, :download, id)
+
+    # file hosted on GitHub
+    assert Resource.download_url(%Resource{
+             id: id = 1,
+             filetype: "remote",
+             url:
+               "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/898dc67fb19fae2464c24a85a0557e8ccce18791/bnlc-.csv"
+           }) == resource_url(TransportWeb.Endpoint, :download, id)
   end
 end

@@ -171,7 +171,7 @@ msgid "Outdated"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Community ressources"
+msgid "Community resources"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -188,14 +188,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "License"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Specific usage conditions"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "and "
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -263,10 +255,6 @@ msgid "Get details about this dataset via an %{start_link}API call%{end_link}"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "compatible with"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "dataset"
 msgstr ""
 
@@ -288,10 +276,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Covered area"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Impossible to read"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -339,7 +323,7 @@ msgid "Features available in the resource:"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Modes available in the resource:"
+msgid "Missing features that can be specified in GTFS:"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -399,7 +383,7 @@ msgid "Learn more"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "We test this resource download availability every hour. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online."
+msgid "We test this resource download availability every hour by making an HTTP <code>HEAD</code> request with a timeout of 5 seconds. If we detect a downtime, we perform subsequent tests every 10 minutes, until the resource is back online."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -520,4 +504,40 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Documentation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Reusers can share in this section edits made on resources%{odbl_text}. <a href=\"%{datagouv_link}\" target=\"_blank\">Publish your own ressource</a> on data.gouv.fr or <a href=\"%{doc_link}\" target=\"_blank\">browse our documentation.</a>"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid ", in accordance with the share-alike clause (article 4.4) of <a href=\"%{doc_link}\" target=\"_blank\">the ODbL License</a>"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Feed decoding failed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Specific usage conditions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "and "
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Producers can share in this section design guidelines, documentation, etc. Use the <a href=\"%{url}\" target=\"_blank\">documentation type</a> on data.gouv.fr."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Resources with a schema"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Browse the API"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The <a href=\"%{link}\" target=\"_blank\">timestamp field</a> appears to be too old compared to the current time: the delay is %{seconds} seconds. Try to update your feed at most every 30 seconds."
 msgstr ""

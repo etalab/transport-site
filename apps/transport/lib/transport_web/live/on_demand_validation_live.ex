@@ -7,7 +7,9 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
   use TransportWeb.InputHelpers
   import TransportWeb.Gettext
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 3]
+  import Shared.Validation.TableSchemaValidator, only: [validata_web_url: 1]
   import Ecto.Query
+  import TransportWeb.Router.Helpers
 
   def mount(
         _params,
@@ -85,6 +87,8 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
           {:ok, feed} ->
             %{
               alerts: Transport.GTFSRT.service_alerts_for_display(feed, lang),
+              feed_is_too_old: Transport.GTFSRT.feed_is_too_old?(feed),
+              feed_timestamp_delay: Transport.GTFSRT.feed_timestamp_delay(feed),
               feed: feed
             }
 
