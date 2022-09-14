@@ -55,34 +55,40 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"resource_id" => resource_id}}) do
     Logger.info("Running ResourceUnavailableJob for #{resource_id}")
-    resource = Repo.get!(Resource, resource_id)
 
-    resource |> check_availability() |> update_availability(resource)
+    Resource
+    |> Repo.get!(resource_id)
+    |> update_url()
+    |> historize_resource()
+    |> check_availability()
+    |> update_availability()
   end
 
-  defp check_availability(%Resource{} = resource) do
-    resource |> relevant_url() |> Transport.AvailabilityChecker.Wrapper.available?()
+  defp check_availability({check_url, %Resource{} = resource}) do
+    {Transport.AvailabilityChecker.Wrapper.available?(check_url), resource}
   end
 
-  defp relevant_url(%Resource{filetype: "file", url: url, latest_url: latest_url} = resource) do
+  defp update_url(%Resource{filetype: "file", url: url, latest_url: latest_url} = resource) do
     case follow(latest_url) do
-      {:ok, final_url} ->
-        # If the resource's URL has changed, update it and historicise the new resource
-        if final_url != url do
-          resource |> Ecto.Changeset.change(%{url: final_url}) |> Repo.update!()
-          %{resource_id: resource.id} |> Transport.Jobs.ResourceHistoryJob.new() |> Oban.insert!()
-        end
-
-        final_url
+      {:ok, final_url} when final_url != url ->
+        resource = resource |> Ecto.Changeset.change(%{url: final_url}) |> Repo.update!()
+        {:updated, resource}
 
       _ ->
-        Resource.download_url(resource)
+        {:noop, resource}
     end
   end
 
-  defp relevant_url(%Resource{} = resource), do: Resource.download_url(resource)
+  defp update_url(%Resource{} = resource), do: {:noop, resource}
 
-  defp update_availability(is_available, %Resource{} = resource) do
+  defp historize_resource({:noop, resource}), do: {Resource.download_url(resource), resource}
+
+  defp historize_resource({:updated, %Resource{id: resource_id} = resource}) do
+    %{resource_id: resource_id} |> Transport.Jobs.ResourceHistoryJob.new() |> Oban.insert!()
+    {resource.url, resource}
+  end
+
+  defp update_availability({is_available, %Resource{} = resource}) do
     resource |> Resource.changeset(%{is_available: is_available}) |> DB.Repo.update!()
     create_resource_unavailability(is_available, resource)
   end
@@ -154,7 +160,6 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   end
 
   defp now, do: DateTime.utc_now() |> DateTime.truncate(:second)
-
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 
   @impl Oban.Worker
