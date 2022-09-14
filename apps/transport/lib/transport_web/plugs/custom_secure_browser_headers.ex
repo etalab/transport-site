@@ -2,7 +2,6 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
   @moduledoc """
     Call the put_secure_browser_headers Plug and add some CSP headers
   """
-  import Plug.Conn
 
   def init(options), do: options
 

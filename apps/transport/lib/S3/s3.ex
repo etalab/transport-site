@@ -14,8 +14,9 @@ defmodule Transport.S3 do
     host |> to_string() |> URI.merge(path) |> URI.to_string()
   end
 
-  def all_permanent_urls_domains() do
-    Application.fetch_env!(:transport, :s3_buckets)
+  def all_permanent_urls_domains do
+    :transport
+    |> Application.fetch_env!(:s3_buckets)
     |> Map.keys()
     |> Enum.map(&Transport.S3.permanent_url(&1, "/"))
   end
