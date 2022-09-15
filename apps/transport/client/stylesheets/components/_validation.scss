@@ -45,6 +45,9 @@ nav.validation {
     display: inline-block;
   }
   .validation-content-details {
+    .panel {
+      overflow-x: auto;
+    }
     table {
       table-layout: fixed;
       width: 100%;
