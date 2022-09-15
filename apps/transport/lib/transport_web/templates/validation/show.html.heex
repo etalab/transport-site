@@ -32,7 +32,7 @@
       <% end %>
 
       <div class="validation-content-details">
-        <div class="panel" style="overflow-x:auto;">
+        <div class="panel">
           <%= if has_errors?(@validation_summary) do %>
             <%= pagination_links(@conn, @issues, [@validation_id],
               issue_type: issue_type(@issues.entries),
