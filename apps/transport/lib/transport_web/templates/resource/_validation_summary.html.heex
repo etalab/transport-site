@@ -25,7 +25,7 @@
 </div>
 
 <%= unless is_nil(@data_vis) do %>
-  <div class="panel p-6" style="width:100%;">
+  <div class="panel p-6 full-width">
     <div id="map" class="leaflet-map"></div>
     <script src={static_path(@conn, "/js/validationmap.js")}>
     </script>
