@@ -28,7 +28,6 @@
         <%= "#{entity} (#{format_number(count)})" %>
       </span>
     <% end %>
-
     <%= if @gtfs_rt_feed.feed_is_too_old do %>
       <p class="notification message--error">
         <%= raw(
@@ -41,7 +40,6 @@
         ) %>
       </p>
     <% end %>
-
     <%= unless is_nil(@entities_seen_recently) or Enum.empty?(@entities_seen_recently) do %>
       <p>
         <%= dgettext("page-dataset-details", "Entities seen in the last %{nb} days.", nb: nb_days_entities()) %>
