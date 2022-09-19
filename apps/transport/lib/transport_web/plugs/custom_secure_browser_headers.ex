@@ -43,7 +43,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
           # prochainement is currently making calls to both data.gouv.fr and demo.data.gouv.fr, which is probably not expected
           """
             default-src 'none';
-            connect-src 'self' https://static.data.gouv.fr/ https://demo-static.data.gouv.fr/ https://raw.githubusercontent.com/etalab/ #{s3_domains};
+            connect-src 'self' https://static.data.gouv.fr/ https://demo-static.data.gouv.fr/ https://raw.githubusercontent.com/etalab/ #{s3_domains} https://*.ingest.sentry.io;
             font-src 'self';
             img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr;
             script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
