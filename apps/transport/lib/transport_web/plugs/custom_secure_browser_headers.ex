@@ -27,7 +27,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
 
     csp_content =
       case app_env do
-        :prod ->
+        :production ->
           """
           default-src 'none';
           connect-src 'self' https://static.data.gouv.fr/ https://raw.githubusercontent.com/etalab/ #{s3_domains} https://*.ingest.sentry.io;
