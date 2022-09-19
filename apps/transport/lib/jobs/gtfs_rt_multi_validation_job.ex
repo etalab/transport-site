@@ -2,7 +2,7 @@ defmodule Transport.Jobs.GTFSRTMultiValidationDispatcherJob do
   @moduledoc """
   Job in charge of dispatching multiple `GTFSRTMultiValidationJob`.
   """
-  use Oban.Worker, max_attempts: 3, tags: ["validation"]
+  use Oban.Worker, max_attempts: 3, queue: :resource_validation, tags: ["validation"]
   import Ecto.Query
   alias DB.{Repo, Resource}
   alias Transport.Validators.GTFSTransport
@@ -45,7 +45,7 @@ defmodule Transport.Jobs.GTFSRTMultiValidationJob do
   Job validating gtfs-rt resources and saving validation
   results.
   """
-  use Oban.Worker, max_attempts: 5, tags: ["validation"]
+  use Oban.Worker, max_attempts: 5, queue: :resource_validation, tags: ["validation"]
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"dataset_id" => dataset_id}}) do

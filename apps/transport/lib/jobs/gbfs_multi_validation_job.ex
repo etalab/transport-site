@@ -2,7 +2,7 @@ defmodule Transport.Jobs.GBFSMultiValidationDispatcherJob do
   @moduledoc """
   Job in charge of validating multiple GBFS resources.
   """
-  use Oban.Worker, max_attempts: 3, tags: ["validation"]
+  use Oban.Worker, max_attempts: 3, queue: :resource_validation, tags: ["validation"]
   alias Transport.Jobs.GBFSMultiValidationJob
   import Ecto.Query
 
@@ -27,7 +27,7 @@ defmodule Transport.Jobs.GBFSMultiValidationJob do
   @moduledoc """
   Job in charge of validating a GBFS resource.
   """
-  use Oban.Worker, max_attempts: 3, tags: ["validation"]
+  use Oban.Worker, max_attempts: 3, queue: :resource_validation, tags: ["validation"]
   alias Transport.Validators.GBFSValidator
 
   @impl Oban.Worker
