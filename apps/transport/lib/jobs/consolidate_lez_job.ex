@@ -12,10 +12,28 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   require Logger
   import DB.ResourceHistory, only: [latest_resource_history: 1]
   import Ecto.Query
-  alias DB.{Dataset, Repo, Resource, ResourceHistory}
+  alias DB.{AOM, Dataset, Repo, Resource, ResourceHistory}
+  alias Transport.CSVDocuments
 
   @schema_name "etalab/schema-zfe"
   @lez_dataset_type "low-emission-zones"
+  @dataset_org_to_publisher %{
+    "Mairie de Paris" => %{
+      "nom" => "Ville de Paris",
+      "siren" => "217500016",
+      "forme_juridique" => "Autre collectivité territoriale"
+    },
+    "Métropole de Lyon" => %{
+      "nom" => "Métropole de Lyon",
+      "siren" => "200046977",
+      "forme_juridique" => "Métropole"
+    },
+    "Saint-Etienne Métropole" => %{
+      "nom" => "Saint-Etienne Métropole",
+      "siren" => "244200770",
+      "forme_juridique" => "Métropole"
+    }
+  }
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
@@ -98,7 +116,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
       [r],
       r.schema_name == @schema_name and fragment("(metadata->'validation'->>'has_errors')::bool = false")
     )
-    |> preload(:dataset)
+    |> preload(dataset: [:aom])
     |> Repo.all()
   end
 
@@ -115,7 +133,41 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
       latest_resource_history(resource)
 
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, [], follow_redirect: true)
-    body |> Jason.decode!() |> Map.fetch!("features")
+
+    body
+    |> Jason.decode!()
+    |> Map.fetch!("features")
+    |> Enum.map(&add_publisher(&1, publisher_details(resource)))
+  end
+
+  defp add_publisher(features, publisher_details) do
+    Map.put(features, "publisher", publisher_details)
+  end
+
+  def publisher_details(%Resource{dataset: %Dataset{aom: %AOM{} = aom}}) do
+    %{
+      "nom" => aom.nom,
+      "siren" => aom.siren,
+      "forme_juridique" => aom.forme_juridique,
+      "zfe_id" => zfe_id(aom.siren)
+    }
+  end
+
+  def publisher_details(%Resource{dataset: %Dataset{organization: organization}}) do
+    publisher = Map.fetch!(@dataset_org_to_publisher, organization)
+    publisher |> Map.put("zfe_id", zfe_id(Map.fetch!(publisher, "siren")))
+  end
+
+  def zfe_id(siren) do
+    zfe_id =
+      CSVDocuments.zfe_ids()
+      |> Enum.find_value(fn el -> if el["siren"] == siren, do: el["code"] end)
+
+    if is_nil(zfe_id) do
+      Logger.error("Could not find zfe_id for SIREN #{siren}")
+    end
+
+    zfe_id
   end
 
   def pan_publisher do

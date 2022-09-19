@@ -69,7 +69,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
   end
 
   test "consolidate_features and consolidate" do
-    dataset = insert(:dataset, type: "low-emission-zones", organization: "Sample")
+    aom = insert(:aom, siren: "253800825", nom: "SMM de l’Aire Grenobloise", forme_juridique: "Métropole")
+    dataset = insert(:dataset, type: "low-emission-zones", organization: "Sample", aom: aom)
 
     zfe_aire =
       insert(:resource,
@@ -105,15 +106,110 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
 
     setup_http_mocks(permanent_url_aires, permanent_url_voies)
 
-    assert %{features: [["foo", "bar"], ["bar", "baz"]], type: "FeatureCollection"} ==
+    assert %{
+             features: [
+               %{
+                 "properties" => %{"foo" => "bar"},
+                 "publisher" => %{
+                   "forme_juridique" => "Métropole",
+                   "nom" => "SMM de l’Aire Grenobloise",
+                   "siren" => "253800825",
+                   "zfe_id" => "GRENOBLE"
+                 }
+               },
+               %{
+                 "properties" => %{"bar" => "baz"},
+                 "publisher" => %{
+                   "forme_juridique" => "Métropole",
+                   "nom" => "SMM de l’Aire Grenobloise",
+                   "siren" => "253800825",
+                   "zfe_id" => "GRENOBLE"
+                 }
+               }
+             ],
+             type: "FeatureCollection"
+           } ==
              ConsolidateLEZsJob.consolidate_features([zfe_aire, zfe_voies])
 
     setup_http_mocks(permanent_url_aires, permanent_url_voies)
 
     assert [
-             {"aires", %{features: [["foo", "bar"]], type: "FeatureCollection"}},
-             {"voies", %{features: [["bar", "baz"]], type: "FeatureCollection"}}
+             {
+               "aires",
+               %{
+                 features: [
+                   %{
+                     "properties" => %{"foo" => "bar"},
+                     "publisher" => %{
+                       "forme_juridique" => "Métropole",
+                       "nom" => "SMM de l’Aire Grenobloise",
+                       "siren" => "253800825",
+                       "zfe_id" => "GRENOBLE"
+                     }
+                   }
+                 ],
+                 type: "FeatureCollection"
+               }
+             },
+             {
+               "voies",
+               %{
+                 features: [
+                   %{
+                     "properties" => %{"bar" => "baz"},
+                     "publisher" => %{
+                       "forme_juridique" => "Métropole",
+                       "nom" => "SMM de l’Aire Grenobloise",
+                       "siren" => "253800825",
+                       "zfe_id" => "GRENOBLE"
+                     }
+                   }
+                 ],
+                 type: "FeatureCollection"
+               }
+             }
            ] == ConsolidateLEZsJob.consolidate()
+  end
+
+  describe "publisher_details" do
+    test "with an AOM" do
+      aom = insert(:aom, siren: "253800825", nom: "SMM de l’Aire Grenobloise", forme_juridique: "Métropole")
+      dataset = insert(:dataset, type: "low-emission-zones", organization: "Sample", aom: aom)
+
+      zfe_aire =
+        insert(:resource,
+          datagouv_id: Ecto.UUID.generate(),
+          dataset: dataset,
+          url: "https://example.com/aires.geojson",
+          schema_name: "etalab/schema-zfe"
+        )
+
+      assert %{
+               "forme_juridique" => "Métropole",
+               "nom" => "SMM de l’Aire Grenobloise",
+               "siren" => "253800825",
+               "zfe_id" => "GRENOBLE"
+             } == ConsolidateLEZsJob.publisher_details(zfe_aire)
+    end
+
+    test "without an AOM" do
+      dataset = insert(:dataset, type: "low-emission-zones", organization: "Mairie de Paris", aom: nil)
+
+      zfe_aire =
+        insert(:resource,
+          datagouv_id: Ecto.UUID.generate(),
+          dataset: dataset,
+          url: "https://example.com/aires.geojson",
+          schema_name: "etalab/schema-zfe"
+        )
+
+      assert %{
+               "forme_juridique" => "Autre collectivité territoriale",
+               "nom" => "Ville de Paris",
+               "siren" => "217500016",
+               "zfe_id" => "PARIS"
+             } == ConsolidateLEZsJob.publisher_details(zfe_aire)
+    end
   end
 
   test "update_files" do
@@ -155,12 +251,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
   defp setup_http_mocks(url_aires, url_voies) do
     Transport.HTTPoison.Mock
     |> expect(:get!, fn ^url_aires, [], follow_redirect: true ->
-      %HTTPoison.Response{status_code: 200, body: ~s({"features": [["foo", "bar"]]})}
+      %HTTPoison.Response{status_code: 200, body: ~s({"features": [{"properties": {"foo": "bar"}}]})}
     end)
 
     Transport.HTTPoison.Mock
     |> expect(:get!, fn ^url_voies, [], follow_redirect: true ->
-      %HTTPoison.Response{status_code: 200, body: ~s({"features": [["bar", "baz"]]})}
+      %HTTPoison.Response{status_code: 200, body: ~s({"features": [{"properties": {"bar": "baz"}}]})}
     end)
   end
 end
