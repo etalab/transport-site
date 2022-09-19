@@ -93,6 +93,7 @@ sentry_env_as_atom =
 # check out https://sentry.io/settings/transport-data-gouv-fr/projects/transport-site/install/elixir/
 config :sentry,
   dsn: System.get_env("SENTRY_DSN"),
+  csp_url: System.get_env("SENTRY_CSP_URL"),
   environment_name: sentry_env_as_atom,
   included_environments: [:prod, :staging],
   enable_source_code_context: true,
