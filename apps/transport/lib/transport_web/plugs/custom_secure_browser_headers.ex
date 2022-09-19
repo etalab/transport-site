@@ -24,7 +24,6 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
   """
   def csp_headers(app_env) do
     s3_domains = Transport.S3.all_permanent_urls_domains() |> Enum.join(" ")
-    inspect(s3_domains)
 
     csp_content =
       case app_env do
