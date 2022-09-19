@@ -28,7 +28,18 @@
         <%= "#{entity} (#{format_number(count)})" %>
       </span>
     <% end %>
-
+    <%= if @gtfs_rt_feed.feed_is_too_old do %>
+      <p class="notification message--error">
+        <%= raw(
+          dgettext(
+            "page-dataset-details",
+            ~s(The <a href="%{link}" target="_blank">timestamp field</a> appears to be too old compared to the current time: the delay is %{seconds} seconds. Try to update your feed at most every 30 seconds.),
+            link: "https://developers.google.com/transit/gtfs-realtime/reference#message-feedheader",
+            seconds: format_number(@gtfs_rt_feed.feed_timestamp_delay)
+          )
+        ) %>
+      </p>
+    <% end %>
     <%= unless is_nil(@entities_seen_recently) or Enum.empty?(@entities_seen_recently) do %>
       <p>
         <%= dgettext("page-dataset-details", "Entities seen in the last %{nb} days.", nb: nb_days_entities()) %>
@@ -102,18 +113,6 @@
           )
         ) %>
       </p>
-      <%= if @gtfs_rt_feed.feed_is_too_old do %>
-        <p class="notification message--error">
-          <%= raw(
-            dgettext(
-              "page-dataset-details",
-              ~s(The <a href="%{link}" target="_blank">timestamp field</a> appears to be too old compared to the current time: the delay is %{seconds} seconds. Try to update your feed at most every 30 seconds.),
-              link: "https://developers.google.com/transit/gtfs-realtime/reference#message-feedheader",
-              seconds: format_number(@gtfs_rt_feed.feed_timestamp_delay)
-            )
-          ) %>
-        </p>
-      <% end %>
       <button class="button" data-clipboard-target="#feed_payload">
         <i class="fa fa-copy"></i>
         <%= dgettext("page-dataset-details", "Copy to clipboard") %>
