@@ -1,6 +1,6 @@
 siren;code;epci_principal
-248000531;AMIENS;Communaute Agglo Amiens Métropole
-244900015;ANGERS;Communaute Urbaine Angers Loire Métropole
+248000531;AMIENS;Amiens Métropole
+244900015;ANGERS;Angers Loire Métropole
 200066793;ANNECY;Grand Annecy
 200011773;ANNEMASSE;Annemasse agglo
 248400251;AVIGNON;Grand Avignon
@@ -11,7 +11,7 @@ siren;code;epci_principal
 200051183;CAEN;Caen Normandie Métropole
 200069110;CHAMBERY;Grand Chambéry
 246300701;CLERMONT-FERRAND;Clermont Auvergne métropole
-242100410;DIJON;Dijon métropole
+242100410;DIJON;Dijon Métropole
 ;DOUAI-LENS;
 245900428;DUNKERQUE;Communauté Urbaine de Dunkerque
 253800825;GRENOBLE;Grenoble Alpes métropole
@@ -27,18 +27,18 @@ siren;code;epci_principal
 245400676;NANCY;Métropole du Grand Nancy
 200035335;NANTES;Pôle métropolitain Nantes Saint-Nazaire
 200030195;NICE;Métropole Nice Côte d'Azur
-243000643;NIMES;Nimes métropole
+243000643;NIMES;Nîmes métropole
 244500468;ORLEANS;Orléans métropole
-217500016;PARIS;Métropole du Grand Paris
+217500016;PARIS;Ville de Paris
 200067254;PAU;Agglomération de Pau Béarn Pyrénées
-200027183;PERPIGNAN;Perpignan méditerrannée métropole
+200027183;PERPIGNAN;Perpignan méditerranée métropole
 200067213;REIMS;Grand Reims
 243500139;RENNES;Rennes métropole
 200023414;ROUEN;Métropole Rouen Normandie
 214401846;SAINT-NAZAIRE;Commune de Saint-Nazaire
-244200770;SAINT-ETIENNE;Saint-Etienne Métropole
+244200770;SAINT-ETIENNE;Saint-Étienne Métropole
 246700488;STRASBOURG;Eurométropole de Strasbourg
-248300543;TOULON;Métropole Toulon Provence méditerrannée
+248300543;TOULON;Métropole Toulon Provence Méditerranée
 253100986;TOULOUSE;Toulouse métropole
-243700754;TOURS;Tours métropole Val-de-Loire
+243700754;TOURS;Tours Métropole Val de Loire
 245901160;VALENCIENNES;Valenciennes métropole
