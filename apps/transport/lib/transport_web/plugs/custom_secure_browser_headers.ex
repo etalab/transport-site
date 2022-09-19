@@ -47,7 +47,8 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
             font-src 'self';
             img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr;
             script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
-            style-src 'self'
+            style-src 'self';
+            report-uri #{Application.fetch_env!(:sentry, :csp_url)}
           """
 
         _ ->
