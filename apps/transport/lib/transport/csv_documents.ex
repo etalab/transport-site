@@ -1,9 +1,7 @@
 defmodule Transport.CSVDocuments do
   @moduledoc """
-  Reads the CSV file of:
-    * Real Time Providers
-    * Reusers
-  and caches them
+  Reads various CSV files (including reusers, real time providers)
+  and caches them.
   """
   use Agent
 
@@ -26,12 +24,18 @@ defmodule Transport.CSVDocuments do
     Agent.get(__MODULE__, & &1.facilitators)
   end
 
+  @spec zfe_ids :: [binary()]
+  def zfe_ids do
+    Agent.get(__MODULE__, & &1.zfe_ids)
+  end
+
   @spec load_documents :: map()
   defp load_documents do
     %{
       real_time_providers: read_csv("real_time_providers.csv"),
       reusers: read_csv("reusers.csv"),
-      facilitators: read_csv("facilitators.csv")
+      facilitators: read_csv("facilitators.csv"),
+      zfe_ids: read_csv("zfe_ids.csv")
     }
   end
 

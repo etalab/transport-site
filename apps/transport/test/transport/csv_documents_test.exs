@@ -12,4 +12,14 @@ defmodule Transport.CSVDocumentsTest do
       assert File.exists?(path)
     end)
   end
+
+  test "CSV for ZFE looks okay" do
+    zfe = Transport.CSVDocuments.zfe_ids()
+
+    # No duplicates
+    assert zfe |> Enum.map(& &1["code"]) |> Enum.uniq() |> Enum.count() == Enum.count(zfe)
+    assert zfe |> Enum.map(& &1["siren"]) |> Enum.uniq() |> Enum.count() == Enum.count(zfe)
+    # No empty code
+    assert zfe |> Enum.map(& &1["code"]) |> Enum.filter(&is_nil(&1)) |> Enum.empty?()
+  end
 end
