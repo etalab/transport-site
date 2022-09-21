@@ -5,9 +5,11 @@ defmodule NoCSSInlineStyleTest do
   use ExUnit.Case, async: true
 
   test "Do not use inline CSS styles, except for emails" do
+    heex_files = "../../apps/**/*.heex" |> Path.wildcard()
+    js_files = "../../apps/transport/client/javascripts/*.js" |> Path.wildcard()
+
     files =
-      "../../apps/**/*.heex"
-      |> Path.wildcard()
+      (heex_files ++ js_files)
       |> Enum.reject(&ignore_filepath?/1)
       |> Enum.filter(&potential_css_inline?/1)
       |> Enum.map(&Path.relative_to(&1, "../.."))
