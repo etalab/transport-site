@@ -2,3 +2,49 @@
   height: 600px;
   max-height: 80vh;
 }
+
+$light-green: #bce954;
+
+.map-legend-green {
+  background-color: green;
+}
+
+.map-legend-light-green {
+  background-color: $light-green;
+}
+
+.map-legend-grey {
+  background-color: grey;
+}
+
+.map-legend-stripes-green-light-green {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    green,
+    green 3px,
+    $light-green 3px,
+    $light-green 6px
+  );
+}
+
+.map-legend-orange {
+  background-color: orange;
+}
+
+.map-legend-red {
+  background-color: red;
+}
+
+.map-legend-blue {
+  background-color: blue;
+}
+
+.map-legend-stripes-blue-light-green {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    blue,
+    blue 3px,
+    $light-green 3px,
+    $light-green 6px
+  );
+}
