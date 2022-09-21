@@ -7,7 +7,7 @@ defmodule TransportWeb.API.Router do
   end
 
   pipeline :api do
-    plug(CORSPlug, origin: "*")
+    plug(CORSPlug, origin: "*", credentials: false)
     plug(OpenApiSpex.Plug.PutApiSpec, module: TransportWeb.API.Spec)
     plug(Sentry.PlugContext)
     plug(ETag.Plug)
