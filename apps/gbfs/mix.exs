@@ -41,7 +41,7 @@ defmodule GBFS.MixProject do
       {:phoenix, "~> 1.6.2"},
       {:sweet_xml, ">= 0.0.0"},
       {:jason, ">= 0.0.0"},
-      {:cors_plug, "~> 2.0"},
+      {:cors_plug, "~> 3.0"},
       {:sentry, "~> 8.0"},
       # Required for ConditionalJSONEncoder which is referenced by global config,
       # otherwise the tests won't run. Not sure if there's a better way for this,
