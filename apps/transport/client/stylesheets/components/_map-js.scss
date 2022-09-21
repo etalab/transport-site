@@ -5,19 +5,23 @@
 
 $light-green: #bce954;
 
-.map-legend-green {
+.map-bg-green {
   background-color: green;
 }
 
-.map-legend-light-green {
+.map-color-green {
+  color: green;
+}
+
+.map-bg-light-green {
   background-color: $light-green;
 }
 
-.map-legend-grey {
+.map-bg-grey {
   background-color: grey;
 }
 
-.map-legend-stripes-green-light-green {
+.map-bg-stripes-green-light-green {
   background-image: repeating-linear-gradient(
     -45deg,
     green,
@@ -27,19 +31,31 @@ $light-green: #bce954;
   );
 }
 
-.map-legend-orange {
+.map-bg-orange {
   background-color: orange;
 }
 
-.map-legend-red {
+.map-color-orange {
+  color: orange;
+}
+
+.map-bg-red {
   background-color: red;
 }
 
-.map-legend-blue {
+.map-color-red {
+  color: red;
+}
+
+.map-bg-blue {
   background-color: blue;
 }
 
-.map-legend-stripes-blue-light-green {
+.map-color-blue {
+  color: blue;
+}
+
+.map-bg-stripes-blue-light-green {
   background-image: repeating-linear-gradient(
     -45deg,
     blue,

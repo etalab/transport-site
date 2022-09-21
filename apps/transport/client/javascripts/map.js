@@ -45,7 +45,7 @@ const getLegend = (title, colorClasses, labels) => {
         div.innerHTML += title
         // loop through our density intervals and generate a label with a colored square for each interval
         for (let i = 0; i < colorClasses.length; i++) {
-            div.innerHTML += `<i class="map-legend-${colorClasses[i]}"></i>${labels[i]}<br/>`
+            div.innerHTML += `<i class="map-bg-${colorClasses[i]}"></i>${labels[i]}<br/>`
         }
         return div
     }
