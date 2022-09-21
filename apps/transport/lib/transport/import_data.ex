@@ -382,12 +382,10 @@ defmodule Transport.ImportData do
   def cleaned_url(url) do
     uri = URI.parse(url)
 
-    cond do
-      is_binary(uri.host) and String.match?(uri.host, ~r/^exs\.(\w)+\.cityway\.fr$/) ->
-        URI.to_string(%{uri | scheme: "https", query: uri.query |> String.replace("&amp;", "&"), port: 443})
-
-      true ->
-        url
+    if is_binary(uri.host) and String.match?(uri.host, ~r/^exs\.(\w)+\.cityway\.fr$/) do
+      URI.to_string(%{uri | scheme: "https", query: uri.query |> String.replace("&amp;", "&"), port: 443})
+    else
+      url
     end
   end
 
