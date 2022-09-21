@@ -454,18 +454,19 @@ defmodule DB.Resource do
   def has_odt_tag(_), do: []
 
   @doc """
-  Outputs a tag if all GTFS routes have a custom color
+  Outputs a tag if at least 80% of GTFS routes have a custom color.
 
-  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 10, "lines_count" => 10})
-  ["couleurs des lignes"]
   iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 8, "lines_count" => 10})
+  ["couleurs des lignes"]
+  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 7, "lines_count" => 10})
   []
   iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 0, "lines_count" => 0})
   []
   """
   @spec has_route_colors_tag(map()) :: [binary()]
-  def has_route_colors_tag(%{"lines_with_custom_color_count" => n, "lines_count" => n}) when n > 0,
-    do: ["couleurs des lignes"]
+  def has_route_colors_tag(%{"lines_with_custom_color_count" => with_colors_count, "lines_count" => lines_count})
+      when with_colors_count / lines_count * 100 >= 80,
+      do: ["couleurs des lignes"]
 
   def has_route_colors_tag(_), do: []
 
