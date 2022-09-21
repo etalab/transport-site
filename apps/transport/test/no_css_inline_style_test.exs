@@ -9,7 +9,7 @@ defmodule NoCSSInlineStyleTest do
     js_files = "../../apps/transport/client/javascripts/*.js" |> Path.wildcard()
 
     files =
-      heex_files ++ js_files
+      (heex_files ++ js_files)
       |> Enum.reject(&ignore_filepath?/1)
       |> Enum.filter(&potential_css_inline?/1)
       |> Enum.map(&Path.relative_to(&1, "../.."))
