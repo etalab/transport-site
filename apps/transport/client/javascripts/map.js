@@ -551,11 +551,11 @@ function addRealTimePtFormatMap (id, view) {
             return null
         }
 
-        let bind = `<div style="padding-bottom: 6px;"><strong>${name}</strong><br/>${type}</div>`
+        let bind = `<div class="pb-6"><strong>${name}</strong><br/>${type}</div>`
         if (countOfficial) {
             const text = countOfficial === 1 ? 'Une ressource standardisée' : `${countOfficial} ressources standardisées`
             const commune = feature.properties.id
-            bind += `<div style="padding-bottom: 6px;"><a href="/datasets/aom/${commune}">${text}</a>`
+            bind += `<div class="pb-6"><a href="/datasets/aom/${commune}">${text}</a>`
             bind += '<br/>formats :'
             const formats = []
             if (gtfsRT) {
