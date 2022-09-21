@@ -193,13 +193,13 @@ defmodule Transport.ImportData do
 
     ## Examples
 
-      iex> ImportData.license(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Lyon"}})
+      iex> license(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Lyon"}})
       "mobility-license"
 
-      iex> ImportData.license(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Rouen"}})
+      iex> license(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Rouen"}})
       "notspecified"
 
-      iex> ImportData.license(%{"license" => "odc-odbl"})
+      iex> license(%{"license" => "odc-odbl"})
       "odc-odbl"
 
   """
@@ -221,10 +221,10 @@ defmodule Transport.ImportData do
 
   ## Examples
 
-      iex> ImportData.get_logo(%{"organization" => %{"logo" => "logo"}})
+      iex> get_logo(%{"organization" => %{"logo" => "logo"}})
       "logo"
 
-      iex> ImportData.get_logo(%{"organization" => nil, "owner" => %{"avatar" => "logo"}})
+      iex> get_logo(%{"organization" => nil, "owner" => %{"avatar" => "logo"}})
       "logo"
 
   """
@@ -238,10 +238,10 @@ defmodule Transport.ImportData do
 
   ## Examples
 
-      iex> ImportData.get_logo_thumbnail(%{"organization" => %{"logo_thumbnail" => "logo"}})
+      iex> get_logo_thumbnail(%{"organization" => %{"logo_thumbnail" => "logo"}})
       "logo"
 
-      iex> ImportData.get_logo_thumbnail(%{"organization" => nil, "owner" => %{"avatar_thumbnail" => "logo"}})
+      iex> get_logo_thumbnail(%{"organization" => nil, "owner" => %{"avatar_thumbnail" => "logo"}})
       "logo"
 
   """
@@ -343,7 +343,7 @@ defmodule Transport.ImportData do
       resource = Map.put(resource, "metadata", existing_resource[:metadata])
 
       {%{
-         "url" => resource["url"],
+         "url" => cleaned_url(resource["url"]),
          "format" => formated_format(resource, type, is_community_resource),
          "title" => get_title(resource),
          "last_import" => DateTime.utc_now() |> DateTime.to_string(),
@@ -369,6 +369,24 @@ defmodule Transport.ImportData do
        }, display_position + 1}
     end)
     |> elem(0)
+  end
+
+  @doc """
+  Clean or replace some resource' URLs.
+
+  iex> cleaned_url("http://exs.sismo2.cityway.fr/GTFS.aspx?key=SISMO&amp;OperatorCode=CG60L3")
+  "https://exs.sismo2.cityway.fr/GTFS.aspx?key=SISMO&OperatorCode=CG60L3"
+  iex> cleaned_url("http://example.com/file.zip")
+  "http://example.com/file.zip"
+  """
+  def cleaned_url(url) do
+    uri = URI.parse(url)
+
+    if is_binary(uri.host) and String.match?(uri.host, ~r/^exs\.(\w)+\.cityway\.fr$/) do
+      URI.to_string(%{uri | scheme: "https", query: uri.query |> String.replace("&amp;", "&"), port: 443})
+    else
+      url
+    end
   end
 
   @spec get_valid_resources(map(), binary()) :: [map()]
@@ -420,7 +438,7 @@ defmodule Transport.ImportData do
   end
 
   @doc """
-    iex> ImportData.get_valid_siri_resources([%{"format" => "siri", id: 1}, %{"format" => "xxx", id: 2}])
+    iex> get_valid_siri_resources([%{"format" => "siri", id: 1}, %{"format" => "xxx", id: 2}])
     [%{"format" => "siri", id: 1}]
   """
   @spec get_valid_siri_resources([map()]) :: [map()]
@@ -448,16 +466,16 @@ defmodule Transport.ImportData do
 
   ## Examples
 
-      iex> ImportData.is_gtfs?("NeTEx")
+      iex> is_gtfs?("NeTEx")
       false
 
-      iex> ImportData.is_gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
+      iex> is_gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
       true
 
-      iex> ImportData.is_gtfs?(%{"format" => "neptune"})
+      iex> is_gtfs?(%{"format" => "neptune"})
       false
 
-      iex> ImportData.is_gtfs?(%{"format" => "gtfs-rt"})
+      iex> is_gtfs?(%{"format" => "gtfs-rt"})
       false
 
   """
@@ -481,22 +499,22 @@ defmodule Transport.ImportData do
   def is_gtfs_rt?(str), do: is_format?(str, "gtfs-rt") or is_format?(str, "gtfsrt")
 
   @doc """
-  iex> ImportData.is_siri?("siri lite")
+  iex> is_siri?("siri lite")
   false
-  iex> ImportData.is_siri?("SIRI")
+  iex> is_siri?("SIRI")
   true
   """
   @spec is_siri?(binary() | map()) :: boolean()
   def is_siri?(str), do: is_format?(str, "siri") and not is_siri_lite?(str)
 
   @doc """
-  iex> ImportData.is_siri_lite?("siri lite")
+  iex> is_siri_lite?("siri lite")
   true
-  iex> ImportData.is_siri_lite?("siri-lite")
+  iex> is_siri_lite?("siri-lite")
   true
-  iex> ImportData.is_siri_lite?("SIRI Lite")
+  iex> is_siri_lite?("SIRI Lite")
   true
-  iex> ImportData.is_siri_lite?("SIRI")
+  iex> is_siri_lite?("SIRI")
   false
   """
   @spec is_siri_lite?(binary() | map()) :: boolean()
@@ -504,13 +522,13 @@ defmodule Transport.ImportData do
 
   @doc """
   check the format
-      iex> ImportData.is_format?("NeTEx", ["GTFS", "NeTEx"])
+      iex> is_format?("NeTEx", ["GTFS", "NeTEx"])
       true
 
-      iex> ImportData.is_format?("pouet", ["GTFS", "NeTEx"])
+      iex> is_format?("pouet", ["GTFS", "NeTEx"])
       false
 
-      iex> ImportData.is_format?(%{"format" => "NeTEx"}, "NeTEx")
+      iex> is_format?(%{"format" => "NeTEx"}, "NeTEx")
       true
   """
   @spec is_format?(binary() | map(), binary() | [binary()]) :: boolean
@@ -523,13 +541,13 @@ defmodule Transport.ImportData do
     do: String.contains?(clean_format(str), clean_format(expected))
 
   @doc """
-  iex> ImportData.clean_format("GTFS-RT")
+  iex> clean_format("GTFS-RT")
   "gtfsrt"
-  iex> ImportData.clean_format("GTFS RT")
+  iex> clean_format("GTFS RT")
   "gtfsrt"
-  iex> ImportData.clean_format("SIRI Lite")
+  iex> clean_format("SIRI Lite")
   "sirilite"
-  iex> ImportData.clean_format("Ne[-tex")
+  iex> clean_format("Ne[-tex")
   "ne[tex"
   """
   def clean_format(format),
@@ -539,16 +557,16 @@ defmodule Transport.ImportData do
   Is the ressource a zip file?
 
   ## Examples
-      iex> ImportData.is_zip?(%{"mime" => "application/zip", "format" => nil})
+      iex> is_zip?(%{"mime" => "application/zip", "format" => nil})
       true
 
-      iex> ImportData.is_zip?(%{"mime" => nil, "format" => "zip"})
+      iex> is_zip?(%{"mime" => nil, "format" => "zip"})
       true
 
-      iex> ImportData.is_zip?(%{"mime" => nil, "format" => "ZIP"})
+      iex> is_zip?(%{"mime" => nil, "format" => "ZIP"})
       true
 
-      iex> ImportData.is_zip?(%{"mime" => "application/exe", "format" => nil})
+      iex> is_zip?(%{"mime" => "application/exe", "format" => nil})
       false
   """
   @spec is_zip?(binary() | map()) :: boolean()
@@ -576,10 +594,10 @@ defmodule Transport.ImportData do
 
   ## Examples
 
-      iex> ImportData.check_download_url(%{"download_url" => nil})
+      iex> check_download_url(%{"download_url" => nil})
       false
 
-      iex> ImportData.check_download_url(%{"download_url" => "http"})
+      iex> check_download_url(%{"download_url" => "http"})
       true
 
   """
@@ -592,7 +610,7 @@ defmodule Transport.ImportData do
 
   ## Examples
 
-      iex> ImportData.parse_date("2018-09-28T13:37:00")
+      iex> parse_date("2018-09-28T13:37:00")
       "2018-09-28"
   """
   @spec parse_date(binary()) :: binary()
@@ -635,16 +653,16 @@ defmodule Transport.ImportData do
       ...> |> ImportData.formated_format("bike-scooter-sharing", false)
       "json"
 
-      iex> ImportData.formated_format(%{"title" => "Export au format GeoJSON", "format" => "json"}, "low-emission-zones", false)
+      iex> formated_format(%{"title" => "Export au format GeoJSON", "format" => "json"}, "low-emission-zones", false)
       "geojson"
 
-      iex> ImportData.formated_format(%{"url" => "https://data.strasbourg.eu/api/datasets/1.0/zfe_voie_exception/alternative_exports/zfe_voie_speciale_eurometropole_strasbourg_geojson", "format" => "a"}, "low-emission-zones", false)
+      iex> formated_format(%{"url" => "https://data.strasbourg.eu/api/datasets/1.0/zfe_voie_exception/alternative_exports/zfe_voie_speciale_eurometropole_strasbourg_geojson", "format" => "a"}, "low-emission-zones", false)
       "geojson"
 
-      iex> ImportData.formated_format(%{"format" => "GeoJSON"}, "low-emission-zones", false)
+      iex> formated_format(%{"format" => "GeoJSON"}, "low-emission-zones", false)
       "geojson"
 
-      iex> ImportData.formated_format(%{"format" => "siri-lite"}, "public-transit", false)
+      iex> formated_format(%{"format" => "siri-lite"}, "public-transit", false)
       "SIRI Lite"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
@@ -685,13 +703,13 @@ defmodule Transport.ImportData do
 
   ## Examples
 
-      iex> ImportData.get_title(%{"title" => "Timetables", "url" => "https://example.com/bus.gtfs.zip"})
+      iex> get_title(%{"title" => "Timetables", "url" => "https://example.com/bus.gtfs.zip"})
       "Timetables"
 
-      iex> ImportData.get_title(%{"title" => nil, "url" => "https://example.com/bus.gtfs.zip"})
+      iex> get_title(%{"title" => nil, "url" => "https://example.com/bus.gtfs.zip"})
       "bus.gtfs.zip"
 
-      iex> ImportData.get_title(%{"url" => "https://example.com/bus.gtfs.zip"})
+      iex> get_title(%{"url" => "https://example.com/bus.gtfs.zip"})
       "bus.gtfs.zip"
   """
   @spec get_title(map()) :: binary()
