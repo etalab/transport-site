@@ -34,36 +34,13 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
       insert(:dataset, type: "low-emission-zones", organization: "Point d'Accès National transport.data.gouv.fr")
 
     zfe_aire =
-      insert(:resource,
-        dataset: dataset,
-        url: "https://example.com/aires.geojson",
-        schema_name: "etalab/schema-zfe",
-        metadata: %{"validation" => %{"has_errors" => false}}
-      )
+      insert(:resource, dataset: dataset, url: "https://example.com/aires.geojson", schema_name: "etalab/schema-zfe")
 
     zfe_voies =
-      insert(:resource,
-        dataset: dataset,
-        url: "https://example.com/voies.geojson",
-        schema_name: "etalab/schema-zfe",
-        metadata: %{"validation" => %{"has_errors" => false}}
-      )
+      insert(:resource, dataset: dataset, url: "https://example.com/voies.geojson", schema_name: "etalab/schema-zfe")
 
     _zfe_pan =
-      insert(:resource,
-        dataset: pan_dataset,
-        url: "https://example.com/aires.geojson",
-        schema_name: "etalab/schema-zfe",
-        metadata: %{"validation" => %{"has_errors" => false}}
-      )
-
-    _zfe_aire_errors =
-      insert(:resource,
-        dataset: dataset,
-        url: "https://example.com/aires.geojson",
-        schema_name: "etalab/schema-zfe",
-        metadata: %{"validation" => %{"has_errors" => true}}
-      )
+      insert(:resource, dataset: pan_dataset, url: "https://example.com/aires.geojson", schema_name: "etalab/schema-zfe")
 
     assert [zfe_aire.id, zfe_voies.id] == ConsolidateLEZsJob.relevant_resources() |> Enum.map(& &1.id)
   end
@@ -76,33 +53,44 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
       insert(:resource,
         dataset: dataset,
         url: "https://example.com/aires.geojson",
-        schema_name: "etalab/schema-zfe",
-        metadata: %{"validation" => %{"has_errors" => false}}
+        schema_name: "etalab/schema-zfe"
       )
 
     zfe_voies =
       insert(:resource,
         dataset: dataset,
         url: "https://example.com/voies.geojson",
-        schema_name: "etalab/schema-zfe",
-        metadata: %{"validation" => %{"has_errors" => false}}
+        schema_name: "etalab/schema-zfe"
       )
 
-    insert(:resource_history,
-      resource_id: zfe_aire.id,
-      payload: %{
-        "permanent_url" => permanent_url_aires = "https://example.com/permanent_url/aires",
-        "resource_metadata" => %{"validation" => %{"has_errors" => false}}
-      }
-    )
+    resource_history_aire =
+      insert(:resource_history,
+        resource_id: zfe_aire.id,
+        payload: %{
+          "permanent_url" => permanent_url_aires = "https://example.com/permanent_url/aires"
+        }
+      )
 
-    insert(:resource_history,
-      resource_id: zfe_voies.id,
-      payload: %{
-        "permanent_url" => permanent_url_voies = "https://example.com/permanent_url/voies",
-        "resource_metadata" => %{"validation" => %{"has_errors" => false}}
-      }
-    )
+    # Should be ignored as we will create an invalid MultiValidation linked to it
+    resource_history_aire_invalid =
+      insert(:resource_history,
+        resource_id: zfe_aire.id,
+        payload: %{
+          "permanent_url" => "#{permanent_url_aires}##{Ecto.UUID.generate()}"
+        }
+      )
+
+    resource_history_voies =
+      insert(:resource_history,
+        resource_id: zfe_voies.id,
+        payload: %{
+          "permanent_url" => permanent_url_voies = "https://example.com/permanent_url/voies"
+        }
+      )
+
+    insert(:multi_validation, resource_history_id: resource_history_aire.id, result: %{"has_errors" => false})
+    insert(:multi_validation, resource_history_id: resource_history_aire_invalid.id, result: %{"has_errors" => true})
+    insert(:multi_validation, resource_history_id: resource_history_voies.id, result: %{"has_errors" => false})
 
     setup_http_mocks(permanent_url_aires, permanent_url_voies)
 
