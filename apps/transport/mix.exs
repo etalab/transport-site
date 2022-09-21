@@ -80,7 +80,7 @@ defmodule Transport.Mixfile do
       {:unlock, in_umbrella: true},
       {:castore, "~> 0.1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:cors_plug, "~> 2.0"},
+      {:cors_plug, "~> 3.0"},
       {:exvcr, "~> 0.13", only: :test},
       {:credo, "~> 1.6.0", only: [:dev, :test], runtime: false},
       {:ex_aws, "~> 2.1"},
