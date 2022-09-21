@@ -23,15 +23,13 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
   true
   """
   def csp_headers(app_env) do
-    s3_domains = Transport.S3.all_permanent_urls_domains() |> Enum.join(" ")
-
     csp_content =
       case app_env do
         :production ->
           """
           default-src 'none';
-          connect-src 'self' https://static.data.gouv.fr/ https://raw.githubusercontent.com/etalab/ #{s3_domains} https://*.ingest.sentry.io;
-          font-src 'self';
+          connect-src *;
+          font-src *;
           img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://www.data.gouv.fr;
           script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
           style-src 'self';
@@ -42,8 +40,8 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
           # prochainement is currently making calls to both data.gouv.fr and demo.data.gouv.fr, which is probably not expected
           """
             default-src 'none';
-            connect-src 'self' https://static.data.gouv.fr/ https://demo-static.data.gouv.fr/ https://raw.githubusercontent.com/etalab/ #{s3_domains} https://*.ingest.sentry.io;
-            font-src 'self';
+            connect-src *;
+            font-src *;
             img-src 'self' data: https://api.mapbox.com https://static.data.gouv.fr https://demo-static.data.gouv.fr https://www.data.gouv.fr https://demo.data.gouv.fr;
             script-src 'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js;
             style-src 'self';
