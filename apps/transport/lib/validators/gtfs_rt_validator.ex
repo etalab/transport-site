@@ -1,6 +1,6 @@
 defmodule Transport.Validators.GTFSRT do
   @moduledoc """
-  Validate a GTFS-RT with gtfs-realtime-validato (https://github.com/CUTR-at-USF/gtfs-realtime-validator/)
+  Validate a GTFS-RT with gtfs-realtime-validato (https://github.com/MobilityData/gtfs-realtime-validator/)
   """
   import Ecto.Query
   alias DB.{Dataset, MultiValidation, Repo, Resource, ResourceHistory, ResourceMetadata}
@@ -85,7 +85,7 @@ defmodule Transport.Validators.GTFSRT do
   def command(gtfs_path, gtfs_rt_path), do: inspect(validator_arguments(gtfs_path, gtfs_rt_path))
 
   def run_validator(gtfs_path, gtfs_rt_path) do
-    # See https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#batch-processing
+    # See https://github.com/MobilityData/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#batch-processing
 
     {binary_path, args} = validator_arguments(gtfs_path, gtfs_rt_path)
 
@@ -286,7 +286,7 @@ defmodule Transport.Validators.GTFSRT do
   end
 
   def gtfs_rt_result_path(%Resource{format: format} = resource) when format == "gtfs-rt" do
-    # https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#output
+    # https://github.com/MobilityData/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#output
     "#{download_path(resource)}.results.json"
   end
 

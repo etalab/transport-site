@@ -188,7 +188,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   end
 
   def gtfs_rt_result_path(gtfs_rt_path) do
-    # https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#output
+    # https://github.com/MobilityData/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#output
     gtfs_rt_path <> ".results.json"
   end
 
