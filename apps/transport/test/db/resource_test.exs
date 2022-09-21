@@ -199,7 +199,7 @@ defmodule DB.ResourceTest do
     assert ["tracés de lignes"] == Resource.find_tags_from_metadata(%{"has_shapes" => true})
 
     assert ["couleurs des lignes"] ==
-             Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 5, "lines_count" => 5})
+             Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 4, "lines_count" => 5})
 
     assert Resource.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0, "has_fares" => false}) == []
 
