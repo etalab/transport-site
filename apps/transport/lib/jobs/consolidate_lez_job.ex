@@ -10,9 +10,8 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   """
   use Oban.Worker, max_attempts: 3
   require Logger
-  import DB.ResourceHistory, only: [latest_resource_history: 1]
   import Ecto.Query
-  alias DB.{AOM, Dataset, Repo, Resource, ResourceHistory}
+  alias DB.{AOM, Dataset, MultiValidation, Repo, Resource, ResourceHistory}
   alias Transport.CSVDocuments
 
   @schema_name "etalab/schema-zfe"
@@ -112,10 +111,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
         r.dataset_id == d.id and d.type == @lez_dataset_type and
           d.organization != ^own_publisher
     )
-    |> where(
-      [r],
-      r.schema_name == @schema_name and fragment("(metadata->'validation'->>'has_errors')::bool = false")
-    )
+    |> where([r], r.schema_name == @schema_name)
     |> preload(dataset: [:aom])
     |> Repo.all()
   end
@@ -128,9 +124,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   end
 
   defp content_features(%Resource{} = resource) do
-    # TO DO: enforce `has_errors` to `false`
-    %ResourceHistory{payload: %{"permanent_url" => url, "resource_metadata" => %{"validation" => %{"has_errors" => _}}}} =
-      latest_resource_history(resource)
+    %ResourceHistory{payload: %{"permanent_url" => url}} = latest_valid_resource_history(resource)
 
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, [], follow_redirect: true)
 
@@ -138,6 +132,17 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     |> Jason.decode!()
     |> Map.fetch!("features")
     |> Enum.map(&add_publisher(&1, publisher_details(resource)))
+  end
+
+  defp latest_valid_resource_history(%Resource{id: resource_id}) do
+    ResourceHistory
+    |> join(:inner, [rh], mv in MultiValidation,
+      on: mv.resource_history_id == rh.id and fragment("(result->>'has_errors')::bool = false")
+    )
+    |> where([rh, _mv], rh.resource_id == ^resource_id)
+    |> order_by([rh, _mv], desc: :inserted_at)
+    |> select([rh, _mv], rh)
+    |> Repo.one()
   end
 
   defp add_publisher(features, publisher_details) do

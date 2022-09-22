@@ -2,7 +2,7 @@ defmodule Unlock.Router do
   use Phoenix.Router
 
   pipeline :api do
-    plug(CORSPlug, origin: "*", expose: ["*"])
+    plug(CORSPlug, origin: "*", expose: ["*"], credentials: false)
   end
 
   scope "/" do
