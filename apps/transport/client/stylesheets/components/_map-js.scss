@@ -3,7 +3,7 @@
   max-height: 80vh;
 }
 
-$light-green: #bce954 !default;
+$light-green-map: #bce954 !default;
 
 .map-bg-green {
   background-color: green;
@@ -14,7 +14,7 @@ $light-green: #bce954 !default;
 }
 
 .map-bg-light-green {
-  background-color: $light-green;
+  background-color: $light-green-map;
 }
 
 .map-bg-grey {
@@ -26,8 +26,8 @@ $light-green: #bce954 !default;
     -45deg,
     green,
     green 3px,
-    $light-green 3px,
-    $light-green 6px
+    $light-green-map 3px,
+    $light-green-map 6px
   );
 }
 
@@ -60,7 +60,7 @@ $light-green: #bce954 !default;
     -45deg,
     blue,
     blue 3px,
-    $light-green 3px,
-    $light-green 6px
+    $light-green-map 3px,
+    $light-green-map 6px
   );
 }
