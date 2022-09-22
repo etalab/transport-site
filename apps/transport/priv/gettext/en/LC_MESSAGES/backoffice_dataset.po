@@ -66,3 +66,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Check the dataset page"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "GTFS Transport Validator has been force launched on all GTFS resources"
+msgstr ""
