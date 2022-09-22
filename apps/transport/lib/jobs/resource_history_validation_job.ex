@@ -25,16 +25,34 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
     validator = String.to_existing_atom(validator)
     validator_name = validator.validator_name()
 
+    filter_force_validation = fn query ->
+      case force_validation do
+        true ->
+          query |> where([rh, mv], fragment("payload->>'format' = ?", ^format))
+
+        false ->
+          query |> where([rh, mv], fragment("payload->>'format' = ?", ^format) and is_nil(mv.id))
+      end
+    end
+
+    filter_only_latest_resource_history = fn query ->
+      case only_latest_resource_history do
+        true -> query |> distinct([rh], rh.resource_id)
+        false -> query
+      end
+    end
+
     DB.ResourceHistory
     |> join(:left, [rh], mv in DB.MultiValidation,
       on: rh.id == mv.resource_history_id and mv.validator == ^validator_name
     )
-    |> where([rh, mv], fragment("payload->>'format' = ?", ^format) and is_nil(mv.id))
+    |> filter_force_validation.()
+    |> filter_only_latest_resource_history.()
     |> order_by([rh], desc: rh.inserted_at)
     |> select([rh], rh.id)
     |> DB.Repo.all()
     |> Enum.each(fn id ->
-      %{resource_history_id: id, validator: validator}
+      %{resource_history_id: id, validator: validator, force_validation: force_validation}
       |> Transport.Jobs.ResourceHistoryValidationJob.new()
       |> Oban.insert!()
     end)
