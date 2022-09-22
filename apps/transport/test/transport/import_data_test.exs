@@ -6,7 +6,7 @@ defmodule Transport.ImportDataTest do
   import DB.Factory
   import ExUnit.CaptureLog
   import Ecto.Query
-  doctest ImportData
+  doctest ImportData, import: true
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -260,7 +260,14 @@ defmodule Transport.ImportDataTest do
       head: http_head_mock() do
       with_mock Datagouvfr.Client.CommunityResources,
         get: fn _ ->
-          {:ok, generate_resources_payload(community_resource_title, "url", "1", schema_name, schema_version)}
+          {:ok,
+           generate_resources_payload(
+             community_resource_title,
+             "http://example.com/file",
+             "1",
+             schema_name,
+             schema_version
+           )}
         end do
         with_mock HTTPStreamV2, fetch_status_and_hash: http_stream_mock() do
           ImportData.import_all_datasets()

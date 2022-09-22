@@ -179,7 +179,7 @@ msgid "Sample errors"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> and the <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>."
+msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> and the <a href=\"%{gtfs_rt_link}\">GTFS-RT</a> the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">MobilityData GTFS-RT validator</a>."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -246,7 +246,7 @@ msgid "GTFS-RT feeds change in real-time. This validation report shows the valid
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "This validation concerns the given GTFS-RT feed and GTFS file and has been carried out using the <a href=\"%{validator_url}\" target=\"_blank\">CUTR GTFS-RT validator</a>. It does not validate the GTFS itself. You can validate your GTFS file <a href=\"%{gtfs_validator}\">using our GTFS validator</a>."
+msgid "This validation concerns the given GTFS-RT feed and GTFS file and has been carried out using the <a href=\"%{validator_url}\" target=\"_blank\">MobilityData GTFS-RT validator</a>. It does not validate the GTFS itself. You can validate your GTFS file <a href=\"%{gtfs_validator}\">using our GTFS validator</a>."
 msgstr ""
 
 #, elixir-autogen, elixir-format
