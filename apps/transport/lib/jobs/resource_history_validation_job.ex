@@ -18,7 +18,10 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
   # select all resource history with given format
   # validate them with one validator
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"format" => format, "validator" => validator}}) do
+  def perform(%Oban.Job{args: %{"format" => format, "validator" => validator} = args}) do
+    force_validation = args |> Map.get("force_validation", false)
+    only_latest_resource_history = args |> Map.get("only_latest_resource_history", false)
+
     validator = String.to_existing_atom(validator)
     validator_name = validator.validator_name()
 
