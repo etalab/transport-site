@@ -486,7 +486,7 @@ defmodule DB.Resource do
 
   @spec has_wheelchair_accessibility(map()) :: [binary()]
   def has_wheelchair_accessibility(%{"trips_with_wheelchair_info_count" => n1, "stops_with_wheelchair_info_count" => n2})
-      when (is_integer(n1) and is_integer(n2)) and (n1 > 0 or n2 > 0),
+      when is_integer(n1) and is_integer(n2) and (n1 > 0 or n2 > 0),
       do: ["informations sur l'accessibilité en fauteuil roulant"]
 
   def has_wheelchair_accessibility(_), do: []
