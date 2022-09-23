@@ -63,8 +63,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
   # validate one resource history with one validator
   @impl Oban.Worker
   def perform(%Oban.Job{
-        args:
-          %{"resource_history_id" => resource_history_id, "validator" => validator_string} = args
+        args: %{"resource_history_id" => resource_history_id, "validator" => validator_string} = args
       })
       when is_integer(resource_history_id) do
     force_validation = args |> Map.get("force_validation", false)
@@ -83,8 +82,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
           DB.Repo.delete(latest_validation)
           :ok
         else
-          {:discard,
-           "resource history #{resource_history_id} is already validated by #{validator_string}"}
+          {:discard, "resource history #{resource_history_id} is already validated by #{validator_string}"}
         end
     end
   end
