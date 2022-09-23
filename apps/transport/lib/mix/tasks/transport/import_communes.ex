@@ -96,16 +96,6 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     Logger.info("#{nb_new} new communes")
     Logger.info("#{nb_removed} communes should be removed")
 
-    duplicates_insee =
-      Commune
-      |> group_by([c], c.insee)
-      |> having([c], count(c.id) > 1)
-      |> select([c], c.insee)
-      |> Repo.all()
-
-    Logger.info("#{Enum.count(duplicates_insee)} communes are duplicates by INSEE code")
-
-    Commune |> where([c], c.insee in ^duplicates_insee) |> Repo.delete_all()
     Commune |> where([c], c.insee in ^removed_communes) |> Repo.delete_all()
 
     disable_trigger()
