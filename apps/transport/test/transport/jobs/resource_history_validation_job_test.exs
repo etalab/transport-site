@@ -32,12 +32,12 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
 
     assert_enqueued(
       worker: Transport.Jobs.ResourceHistoryValidationJob,
-      args: %{"resource_history_id" => rh3.id, "validator" => validator}
+      args: %{"resource_history_id" => rh3.id, "validator" => validator, "force_validation" => false}
     )
 
     assert_enqueued(
       worker: Transport.Jobs.ResourceHistoryValidationJob,
-      args: %{"resource_history_id" => rh4.id, "validator" => validator}
+      args: %{"resource_history_id" => rh4.id, "validator" => validator, "force_validation" => false}
     )
 
     assert 2 == Enum.count(all_enqueued(worker: Transport.Jobs.ResourceHistoryValidationJob))
