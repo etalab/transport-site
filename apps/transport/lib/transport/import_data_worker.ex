@@ -71,10 +71,11 @@ defmodule Transport.ImportDataWorker do
 
   @impl true
   def handle_cast({:force_validate_gtfs_transport}, state) do
-    Transport.Jobs.GTFSValidationJob.new(%{
+    %{
       "force_validation" => true,
       "only_latest_resource_history" => true
-    })
+    }
+    |> Transport.Jobs.GTFSValidationJob.new()
     |> Oban.insert()
 
     {:noreply, state}
