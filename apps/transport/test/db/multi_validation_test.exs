@@ -322,4 +322,39 @@ defmodule DB.MultiValidationTest do
              |> select([multi_validation: mv], mv)
              |> DB.Repo.one!()
   end
+
+  test "latest validation for a resource history" do
+    rh = insert(:resource_history)
+    other_rh = insert(:resource_history)
+
+    gtfs_validator = Transport.Validators.GTFSTransport
+    gtfs_rt_validator = Transport.Validators.GTFSRT
+
+    %{id: mv_id_1} =
+      insert(:multi_validation,
+        resource_history_id: rh.id,
+        validator: gtfs_rt_validator.validator_name(),
+        inserted_at: DateTime.utc_now()
+      )
+
+    _mv2 =
+      insert(:multi_validation,
+        resource_history_id: other_rh.id,
+        validator: gtfs_validator.validator_name(),
+        inserted_at: DateTime.utc_now()
+      )
+
+    %{id: mv_id_3} =
+      insert(:multi_validation,
+        resource_history_id: rh.id,
+        validator: gtfs_validator.validator_name(),
+        inserted_at: DateTime.utc_now() |> DateTime.add(-600)
+      )
+
+    assert is_nil(DB.MultiValidation.resource_history_latest_validation(rh.id, nil))
+
+    assert %{id: ^mv_id_3} = DB.MultiValidation.resource_history_latest_validation(rh.id, gtfs_validator)
+
+    assert %{id: ^mv_id_1} = DB.MultiValidation.resource_history_latest_validation(rh.id, gtfs_rt_validator)
+  end
 end
