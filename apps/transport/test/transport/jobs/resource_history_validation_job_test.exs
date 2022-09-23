@@ -151,6 +151,47 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
     assert_received :validate!
   end
 
+  test "single resource history validation" do
+    rh = insert(:resource_history)
+    validator = Transport.Validators.Dummy
+    validator_string = validator |> to_string()
+    validator_name = validator.validator_name()
+
+    assert :ok =
+             Transport.Jobs.ResourceHistoryValidationJob
+             |> perform_job(%{"resource_history_id" => rh.id, "validator" => validator_string})
+
+    # validation is performed
+    assert_received :validate!
+
+    # we insert manually a mv
+    mv = insert(:multi_validation, resource_history_id: rh.id, validator: validator_name)
+    md = insert(:resource_metadata, multi_validation_id: mv.id)
+
+    # validation is skipped
+    assert {:discard, msg} =
+             Transport.Jobs.ResourceHistoryValidationJob
+             |> perform_job(%{"resource_history_id" => rh.id, "validator" => validator_string})
+
+    assert msg =~ "already validated"
+
+    # we force the validation
+    assert :ok =
+             Transport.Jobs.ResourceHistoryValidationJob
+             |> perform_job(%{
+               "resource_history_id" => rh.id,
+               "validator" => validator_string,
+               "force_validation" => true
+             })
+
+    # existing validation & metadata has been deleted
+    assert DB.MultiValidation |> DB.Repo.get(mv.id) |> is_nil()
+    assert DB.ResourceMetadata |> DB.Repo.get(md.id) |> is_nil()
+
+    # validation is called
+    assert_received :validate!
+  end
+
   # wait for https://github.com/sorentwo/oban/issues/704 response
   # test "job uniqueness for a resource_history validation" do
   #   %{"resource_history_id" => 1, "validator" => "Elixir.Transport.Validators.Dummy"}
