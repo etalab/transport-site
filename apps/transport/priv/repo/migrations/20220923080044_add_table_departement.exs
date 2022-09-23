@@ -2,6 +2,7 @@ defmodule DB.Repo.Migrations.AddTableDepartement do
   use Ecto.Migration
 
   def change do
+    drop index(:commune, [:insee])
     create unique_index(:commune, [:insee])
 
     create table(:departement) do
