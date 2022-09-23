@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Transport.ImportCommunes do
   @moduledoc """
-  Import the EPCI file to get the relation between the cities and the EPCI
+  Import the communes
   """
   use Mix.Task
   import Ecto.Query
@@ -8,12 +8,18 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
   alias DB.{Commune, Region, Repo}
   require Logger
 
-  @communes_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/latest/geojson/communes-1000m.geojson"
+  @communes_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/latest/geojson/communes-100m.geojson"
   # See https://github.com/etalab/decoupage-administratif
   @communes_url "https://unpkg.com/@etalab/decoupage-administratif@2.2.1/data/communes.json"
 
   def insert_or_update_commune(
-        %{"code" => insee, "nom" => nom, "region" => region_insee},
+        %{
+          "code" => insee,
+          "nom" => nom,
+          "region" => region_insee,
+          "population" => population,
+          "departement" => departement_insee
+        } = params,
         regions,
         geojsons
       ) do
@@ -23,9 +29,13 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
       insee: insee,
       nom: nom,
       region_id: Map.fetch!(regions, region_insee),
-      geom: build_geometry(geojsons, insee)
+      geom: build_geometry(geojsons, insee),
+      population: population,
+      siren: Map.get(params, "siren"),
+      arrondissement_insee: Map.get(params, "arrondissement"),
+      departement_insee: departement_insee
     })
-    |> Repo.insert_or_update(force: true)
+    |> Repo.insert_or_update!()
   end
 
   defp regions_by_insee do
@@ -34,7 +44,7 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
 
   defp geojson_by_insee do
     @communes_geojson_url
-    |> HTTPoison.get!()
+    |> HTTPoison.get!(timeout: 15_000, recv_timeout: 15_000)
     |> Map.fetch!(:body)
     |> Jason.decode!()
     |> Map.fetch!("features")
@@ -60,7 +70,7 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
 
   defp load_etalab_communes(region_insees) do
     @communes_url
-    |> HTTPoison.get!()
+    |> HTTPoison.get!(timeout: 15_000, recv_timeout: 15_000)
     |> Map.fetch!(:body)
     |> Jason.decode!()
     |> Enum.filter(&(&1["type"] == "commune-actuelle" and &1["region"] in region_insees))
