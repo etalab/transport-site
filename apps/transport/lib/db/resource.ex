@@ -434,7 +434,7 @@ defmodule DB.Resource do
       "transport à la demande",
       "couleurs des lignes",
       "description des correspondances",
-      "informations sur l'accessilibité à vélo",
+      "informations sur l'accessibilité à vélo",
       "informations sur l'accessibilité en fauteuil roulant"
     ]
 
@@ -480,7 +480,7 @@ defmodule DB.Resource do
 
   @spec has_bike_accessibility(map()) :: [binary()]
   def has_bike_accessibility(%{"trips_with_bike_info_count" => n}) when is_integer(n) and n > 0,
-    do: ["informations sur l'accessilibité à vélo"]
+    do: ["informations sur l'accessibilité à vélo"]
 
   def has_bike_accessibility(_), do: []
 
