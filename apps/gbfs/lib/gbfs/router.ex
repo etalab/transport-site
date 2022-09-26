@@ -11,10 +11,6 @@ defmodule GBFS.Router do
     plug(:assign_jcdecaux)
   end
 
-  pipeline :smoove do
-    plug(:assign_smoove)
-  end
-
   pipeline :redirect_reseau do
     plug(:assign_redirect)
   end
@@ -37,14 +33,6 @@ defmodule GBFS.Router do
     "toulouse" => "Vélô"
   }
 
-  @reseaux_smoove [
-    %{
-      contract_id: "strasbourg",
-      nom: "velhop",
-      url: "http://velhop.strasbourg.eu/tvcstations.xml"
-    }
-  ]
-
   @reseaux_redirects [
     %{
       contract_id: "montpellier",
@@ -53,6 +41,15 @@ defmodule GBFS.Router do
         "system_information.json" => "https://montpellier-fr-smoove.klervi.net/gbfs/en/system_information.json",
         "station_information.json" => "https://montpellier-fr-smoove.klervi.net/gbfs/en/station_information.json",
         "station_status.json" => "https://montpellier-fr-smoove.klervi.net/gbfs/en/station_status.json"
+      }
+    },
+    %{
+      contract_id: "strasbourg",
+      redirects: %{
+        "gbfs.json" => "https://strasbourg-fr-smoove.klervi.net/gbfs/gbfs.json",
+        "system_information.json" => "https://strasbourg-fr-smoove.klervi.net/gbfs/en/system_information.json",
+        "station_information.json" => "https://strasbourg-fr-smoove.klervi.net/gbfs/en/station_information.json",
+        "station_status.json" => "https://strasbourg-fr-smoove.klervi.net/gbfs/en/station_status.json"
       }
     }
   ]
@@ -64,18 +61,6 @@ defmodule GBFS.Router do
       pipe_through(:index_pipeline)
       get("/", IndexController, :index)
     end
-
-    @reseaux_smoove
-    |> Enum.map(fn %{contract_id: contract_id} ->
-      scope "/" <> contract_id do
-        pipe_through(:smoove)
-
-        get("/gbfs.json", SmooveController, :index, as: contract_id)
-        get("/system_information.json", SmooveController, :system_information, as: contract_id)
-        get("/station_information.json", SmooveController, :station_information, as: contract_id)
-        get("/station_status.json", SmooveController, :station_status, as: contract_id)
-      end
-    end)
 
     @reseaux_redirects
     |> Enum.map(fn %{contract_id: contract_id} ->
@@ -122,13 +107,6 @@ defmodule GBFS.Router do
     |> assign(:contract_name, @reseaux_jcdecaux[contract_id])
   end
 
-  defp assign_smoove(conn, _) do
-    [_, contract_id, _] = conn.path_info
-
-    conn
-    |> assign(:smoove_params, Enum.find(@reseaux_smoove, &(&1.contract_id == contract_id)))
-  end
-
   defp assign_redirect(conn, _) do
     [_, contract_id, _] = conn.path_info
 
@@ -141,8 +119,7 @@ defmodule GBFS.Router do
     |> assign(
       :networks,
       ["vcub", "vlille"] ++
-        (@reseaux_jcdecaux |> Map.keys()) ++
-        (@reseaux_smoove |> Enum.map(& &1.contract_id)) ++ (@reseaux_redirects |> Enum.map(& &1.contract_id))
+        (@reseaux_jcdecaux |> Map.keys()) ++ (@reseaux_redirects |> Enum.map(& &1.contract_id))
     )
   end
 end
