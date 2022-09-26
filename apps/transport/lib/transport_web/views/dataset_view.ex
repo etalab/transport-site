@@ -213,7 +213,7 @@ defmodule TransportWeb.DatasetView do
     "https://github.com/NABSA/gbfs/blob/v#{version}/gbfs.md"
   end
 
-  def gbfs_feed_source_for_ttl(%Resource{format: "gbfs", metadata: %{"types" => types}}) do
+  def gbfs_feed_source_for_ttl(types) do
     feed_name = Transport.Shared.GBFSMetadata.feed_to_use_for_ttl(types)
     if feed_name, do: feed_name, else: "root"
   end
@@ -239,31 +239,11 @@ defmodule TransportWeb.DatasetView do
       do: warnings_count
 
   def warnings_count(%DB.MultiValidation{validator: @gtfs_rt_validator_name}), do: 0
-
   def warnings_count(%DB.MultiValidation{}), do: nil
-
-  # will be deprecated
-  # https://github.com/etalab/transport-site/issues/2390
-  def warnings_count(%Resource{metadata: %{"validation" => %{"warnings_count" => warnings_count}}})
-      when is_integer(warnings_count) and warnings_count >= 0,
-      do: warnings_count
-
-  def warnings_count(%Resource{format: "gtfs-rt"}), do: 0
-  def warnings_count(%Resource{}), do: nil
 
   def errors_count(%DB.MultiValidation{result: %{"errors_count" => errors_count}})
       when is_integer(errors_count) and errors_count >= 0,
       do: errors_count
-
-  # will be deprecated
-  # https://github.com/etalab/transport-site/issues/2390
-  def errors_count(%Resource{metadata: %{"validation" => %{"errors_count" => errors_count}}})
-      when is_integer(errors_count) and errors_count >= 0,
-      do: errors_count
-
-  # will be deprecated
-  # https://github.com/etalab/transport-site/issues/2390
-  def errors_count(%Resource{}), do: nil
 
   def availability_number_days, do: 30
   def max_nb_history_resources, do: 25
@@ -447,9 +427,9 @@ defmodule TransportWeb.DatasetView do
   def resource_class(_, false = _is_outdated), do: "resource--valid"
   def resource_class(_, _), do: ""
 
-  def order_resources_by_validity(resources) do
+  def order_resources_by_validity(resources, %{validations: validations}) do
     resources
-    |> Enum.sort_by(& &1.metadata["end_date"], &>=/2)
+    |> Enum.sort_by(&(validations |> Map.get(&1.id) |> hd() |> get_metadata_info("end_date")), &>=/2)
     |> Enum.sort_by(&Resource.valid_and_available?(&1), &>=/2)
   end
 
