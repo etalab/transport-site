@@ -1,14 +1,13 @@
 defmodule Mix.Tasks.Transport.ImportCommunes do
-  @moduledoc """
-  Import the communes
-  """
+  @moduledoc "Import the communes"
+  @shortdoc "Refreshes the database table `commune` with the latest data"
   use Mix.Task
   import Ecto.Query
   alias Ecto.Changeset
   alias DB.{Commune, Region, Repo}
   require Logger
 
-  @communes_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/latest/geojson/communes-100m.geojson"
+  @communes_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2022/geojson/communes-100m.geojson"
   # See https://github.com/etalab/decoupage-administratif
   @communes_url "https://unpkg.com/@etalab/decoupage-administratif@2.2.1/data/communes.json"
 

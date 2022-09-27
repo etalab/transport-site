@@ -1,14 +1,14 @@
 defmodule Mix.Tasks.Transport.ImportDepartements do
-  @moduledoc """
-  Import the departements
-  """
+  @moduledoc "Import the departements"
+  @shortdoc "Refreshes the database table `commune` with the latest data"
+
   use Mix.Task
   import Ecto.Query
   alias Ecto.Changeset
   alias DB.{Departement, Repo}
   require Logger
 
-  @departements_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/latest/geojson/departements-100m.geojson"
+  @departements_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2022/geojson/departements-100m.geojson"
   # See https://github.com/etalab/decoupage-administratif
   @departements_url "https://unpkg.com/@etalab/decoupage-administratif@2.2.1/data/departements.json"
 
