@@ -185,8 +185,8 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
              })
 
     # existing validation & metadata have been deleted
-    assert DB.MultiValidation |> DB.Repo.get(mv.id) |> is_nil()
-    assert DB.ResourceMetadata |> DB.Repo.get(md.id) |> is_nil()
+    assert is_nil(DB.Repo.reload(mv))
+    assert is_nil(DB.Repo.reload(md))
 
     # validation is called
     assert_received :validate!
