@@ -340,10 +340,14 @@ defmodule Transport.ImportData do
       is_community_resource = resource["is_community_resource"] == true
 
       existing_resource = get_existing_resource(resource, dataset["id"]) || %{}
-      resource = Map.put(resource, "metadata", existing_resource[:metadata])
+
+      resource =
+        resource
+        |> Map.put("metadata", existing_resource[:metadata])
+        |> Map.put("url", cleaned_url(resource["url"]))
 
       {%{
-         "url" => cleaned_url(resource["url"]),
+         "url" => resource["url"],
          "format" => formated_format(resource, type, is_community_resource),
          "title" => get_title(resource),
          "last_import" => DateTime.utc_now() |> DateTime.to_string(),
@@ -355,7 +359,7 @@ defmodule Transport.ImportData do
          "type" => resource["type"],
          "id" => existing_resource[:id],
          "datagouv_id" => resource["id"],
-         "is_available" => availability_checker().available?(resource),
+         "is_available" => availability_checker().available?(resource["url"]),
          "is_community_resource" => is_community_resource,
          "community_resource_publisher" => get_publisher(resource),
          "description" => resource["description"],

@@ -3,7 +3,7 @@ defmodule Transport.AvailabilityChecker.Wrapper do
   Defines a behavior
   """
 
-  @callback available?(map() | binary()) :: boolean
+  @callback available?(binary()) :: boolean
   def impl, do: Application.get_env(:transport, :availability_checker_impl)
   def available?(x), do: impl().available?(x)
 end
@@ -28,10 +28,8 @@ defmodule Transport.AvailabilityChecker do
   @behaviour Transport.AvailabilityChecker.Wrapper
 
   @impl Transport.AvailabilityChecker.Wrapper
-  @spec available?(map() | binary()) :: boolean
+  @spec available?(binary()) :: boolean
   def available?(target, use_http_streaming \\ false)
-
-  def available?(%{"url" => url}, use_http_streaming), do: available?(url, use_http_streaming)
 
   def available?(url, false) when is_binary(url) do
     case HTTPoison.head(url, [], follow_redirect: true) do
