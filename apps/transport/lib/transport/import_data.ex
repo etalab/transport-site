@@ -340,28 +340,31 @@ defmodule Transport.ImportData do
       is_community_resource = resource["is_community_resource"] == true
 
       existing_resource = get_existing_resource(resource, dataset["id"]) || %{}
-      resource = Map.put(resource, "metadata", existing_resource[:metadata])
-      resource_url = cleaned_url(resource["url"])
+
+      resource =
+        resource
+        |> Map.put("metadata", existing_resource[:metadata])
+        |> Map.put("url", cleaned_url(resource["url"]))
 
       {%{
-         "url" => resource_url,
+         "url" => resource["url"],
          "format" => formated_format(resource, type, is_community_resource),
          "title" => get_title(resource),
          "last_import" => DateTime.utc_now() |> DateTime.to_string(),
          "last_update" => resource["last_modified"],
          # For ODS gtfs as csv we do not have a 'latest' field
          # (the 'latest' field is the stable data.gouv.fr url)
-         "latest_url" => resource["latest"] || resource_url,
+         "latest_url" => resource["latest"] || resource["url"],
          "filetype" => resource["filetype"],
          "type" => resource["type"],
          "id" => existing_resource[:id],
          "datagouv_id" => resource["id"],
-         "is_available" => availability_checker().available?(resource_url),
+         "is_available" => availability_checker().available?(resource["url"]),
          "is_community_resource" => is_community_resource,
          "community_resource_publisher" => get_publisher(resource),
          "description" => resource["description"],
          "filesize" => resource["filesize"],
-         "content_hash" => hasher().get_content_hash(resource_url),
+         "content_hash" => hasher().get_content_hash(resource["url"]),
          "original_resource_url" => get_original_resource_url(resource),
          "schema_name" => ResourceSchema.guess_name(resource, type),
          "schema_version" => ResourceSchema.guess_version(resource),
