@@ -184,7 +184,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
                "force_validation" => true
              })
 
-    # existing validation & metadata has been deleted
+    # existing validation & metadata have been deleted
     assert DB.MultiValidation |> DB.Repo.get(mv.id) |> is_nil()
     assert DB.ResourceMetadata |> DB.Repo.get(md.id) |> is_nil()
 
