@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Transport.ImportDepartements do
   @moduledoc "Import the departements"
-  @shortdoc "Refreshes the database table `commune` with the latest data"
+  @shortdoc "Refreshes the database table `departement` with the latest data"
 
   use Mix.Task
   import Ecto.Query
