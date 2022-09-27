@@ -9,7 +9,7 @@ defmodule Transport.AvailabilityCheckerTest do
     end
 
     with_mock HTTPoison, head: mock do
-      assert AvailabilityChecker.available?(%{"url" => "url200"})
+      assert AvailabilityChecker.available?("url200")
       assert_called_exactly(HTTPoison.head(:_, :_, :_), 1)
     end
   end
@@ -20,7 +20,7 @@ defmodule Transport.AvailabilityCheckerTest do
     end
 
     with_mock HTTPoison, head: mock do
-      refute AvailabilityChecker.available?(%{"url" => "url400"})
+      refute AvailabilityChecker.available?("url400")
       assert_called_exactly(HTTPoison.head(:_, :_, :_), 1)
     end
   end
@@ -31,7 +31,7 @@ defmodule Transport.AvailabilityCheckerTest do
     end
 
     with_mock HTTPoison, head: mock do
-      refute AvailabilityChecker.available?(%{"url" => "url500"})
+      refute AvailabilityChecker.available?("url500")
       assert_called_exactly(HTTPoison.head(:_, :_, :_), 1)
     end
   end
@@ -56,7 +56,7 @@ defmodule Transport.AvailabilityCheckerTest do
 
     with_mock HTTPoison, head: httpoison_mock do
       with_mock HTTPStreamV2, fetch_status_follow_redirect: streamer_mock do
-        assert AvailabilityChecker.available?(%{"url" => "url"})
+        assert AvailabilityChecker.available?("url")
         assert_called_exactly(HTTPoison.head(:_, :_, :_), 1)
         assert_called_exactly(HTTPStreamV2.fetch_status_follow_redirect(:_), 1)
       end
