@@ -646,13 +646,6 @@ defmodule DB.Resource do
   @spec has_schema?(__MODULE__.t()) :: boolean
   def has_schema?(%__MODULE__{schema_name: schema_name}), do: not is_nil(schema_name)
 
-  @spec ttl(__MODULE__.t()) :: integer() | nil
-  def ttl(%__MODULE__{format: "gbfs", metadata: %{"ttl" => ttl}})
-      when is_integer(ttl) and ttl >= 0,
-      do: ttl
-
-  def ttl(_), do: nil
-
   @spec can_direct_download?(__MODULE__.t()) :: boolean
   def can_direct_download?(resource) do
     # raw.githubusercontent.com does not put `Content-Disposition: attachment`
@@ -697,12 +690,6 @@ defmodule DB.Resource do
       where: resource.id == ^id
     )
   end
-
-  def has_errors_details?(%__MODULE__{metadata: %{"validation" => %{"errors_count" => nb_errors}}})
-      when is_integer(nb_errors) and nb_errors >= 0,
-      do: true
-
-  def has_errors_details?(%__MODULE__{}), do: false
 
   @spec get_related_files(__MODULE__.t()) :: map()
   def get_related_files(%__MODULE__{id: resource_id}) do

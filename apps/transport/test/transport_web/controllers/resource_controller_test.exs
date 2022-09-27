@@ -30,7 +30,6 @@ defmodule TransportWeb.ResourceControllerTest do
               details: %{},
               max_error: "Info"
             },
-            metadata: %{"networks" => [], "modes" => []},
             format: "GTFS"
           },
           %Resource{
@@ -41,14 +40,12 @@ defmodule TransportWeb.ResourceControllerTest do
           %Resource{
             url: "http://link.to/file",
             datagouv_id: "4",
-            metadata: %{"validation" => %{"errors_count" => 1, "has_errors" => true, "errors" => ["this is an error"]}},
             schema_name: "etalab/foo",
             format: "json"
           },
           %Resource{
             url: "http://link.to/gtfs-rt",
             datagouv_id: "5",
-            metadata: %{"validation" => %{"errors_count" => 2, "warnings_count" => 3}},
             validation: %Validation{
               date: DateTime.utc_now() |> DateTime.to_string(),
               details: %{
@@ -101,20 +98,6 @@ defmodule TransportWeb.ResourceControllerTest do
     end
   end
 
-  test "resource without metadata sends back a 200", %{conn: conn} do
-    resource = Resource |> Repo.get_by(datagouv_id: "1")
-    refute is_nil(resource)
-    assert is_nil(resource.metadata)
-    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
-  end
-
-  test "GTFS resource with metadata sends back a 200", %{conn: conn} do
-    resource = Resource |> Repo.get_by(datagouv_id: "2")
-    assert resource.format == "GTFS"
-    refute is_nil(resource.metadata)
-    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
-  end
-
   test "GTFS resource with associated NeTEx", %{conn: conn} do
     resource = Resource |> Repo.get_by(datagouv_id: "2")
     insert(:resource_history, resource_id: resource.id, payload: %{"uuid" => uuid = Ecto.UUID.generate()})
@@ -146,17 +129,6 @@ defmodule TransportWeb.ResourceControllerTest do
 
     conn = conn |> get(resource_path(conn, :details, resource.id))
     assert conn |> html_response(200) =~ "1 erreur"
-  end
-
-  test "resource with error details sends back a 200", %{conn: conn} do
-    resource = Resource |> Repo.get_by(datagouv_id: "4")
-    refute is_nil(resource.schema_name)
-
-    Transport.Shared.Schemas.Mock
-    |> expect(:schemas_by_type, 1, fn _type -> %{resource.schema_name => %{}} end)
-
-    assert Resource.has_errors_details?(resource)
-    conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200) |> assert =~ "this is an error"
   end
 
   test "resource has download availability displayed", %{conn: conn} do
