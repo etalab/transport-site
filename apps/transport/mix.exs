@@ -60,7 +60,7 @@ defmodule Transport.Mixfile do
       {:phoenix, "~> 1.6.2"},
       {:phoenix_html, "~> 3.1"},
       {:phoenix_markdown, "~> 1.0"},
-      {:phoenix_live_view, "~> 0.17.5"},
+      {:phoenix_live_view, "~> 0.18.0"},
       {:html_sanitize_ex, "~> 1.4"},
       {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 2.3"},
