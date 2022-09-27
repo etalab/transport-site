@@ -8,7 +8,7 @@
         action={validation_path(@socket, :validate)}
         class="no-margin"
         multipart={true}
-        as="upload"
+        as={:upload}
         phx-change="form_changed"
       >
         <%= select(f, :type, @select_options, label: dgettext("validations", "Data type"), required: true) %>
