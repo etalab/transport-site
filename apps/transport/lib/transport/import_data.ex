@@ -340,10 +340,14 @@ defmodule Transport.ImportData do
       is_community_resource = resource["is_community_resource"] == true
 
       existing_resource = get_existing_resource(resource, dataset["id"]) || %{}
-      resource = Map.put(resource, "metadata", existing_resource[:metadata])
+
+      resource =
+        resource
+        |> Map.put("metadata", existing_resource[:metadata])
+        |> Map.put("url", cleaned_url(resource["url"]))
 
       {%{
-         "url" => cleaned_url(resource["url"]),
+         "url" => resource["url"],
          "format" => formated_format(resource, type, is_community_resource),
          "title" => get_title(resource),
          "last_import" => DateTime.utc_now() |> DateTime.to_string(),
@@ -355,7 +359,7 @@ defmodule Transport.ImportData do
          "type" => resource["type"],
          "id" => existing_resource[:id],
          "datagouv_id" => resource["id"],
-         "is_available" => availability_checker().available?(resource),
+         "is_available" => availability_checker().available?(resource["url"]),
          "is_community_resource" => is_community_resource,
          "community_resource_publisher" => get_publisher(resource),
          "description" => resource["description"],
@@ -486,7 +490,7 @@ defmodule Transport.ImportData do
       is_gtfs?(params["format"]) -> true
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
       is_format?(params["format"], ["NeTEx", "neptune"]) -> false
-      is_format?(params["title"], "NeTEx") -> false
+      is_netex?(params["title"]) -> false
       is_gtfs?(params["description"]) -> true
       is_gtfs?(params["title"]) -> true
       true -> false
@@ -575,11 +579,28 @@ defmodule Transport.ImportData do
   def is_zip?(%{"mime" => mime, "format" => format}), do: is_zip?(mime) || is_zip?(format)
   def is_zip?(str), do: is_format?(str, "zip")
 
+  @doc """
+  Is the ressource a NeTEx file?
+
+  ## Examples
+  iex> is_netex?(%{"format" => "netex"})
+  true
+  iex> is_netex?(%{"description" => "Un super fichier NeTEx.", "format" => "zip"})
+  true
+  iex> is_netex?(%{"url" => "https://example.com/netex.zip", "format" => "zip"})
+  true
+  iex> is_netex?(%{"url" => "https://example.com/export.zip", "format" => "zip", "title" => "Export NeTEx été"})
+  true
+  iex> is_netex?(%{"url" => "https://example.com/gtfs.zip", "format" => "zip"})
+  false
+  """
   @spec is_netex?(binary() | map()) :: boolean()
   def is_netex?(%{} = params) do
     cond do
-      is_format?(params["format"], "NeTEx") -> true
-      is_format?(params["description"], "NeTEx") -> true
+      is_netex?(params["format"]) -> true
+      is_netex?(params["title"]) -> true
+      is_netex?(params["description"]) -> true
+      is_netex?(params["url"]) -> true
       true -> false
     end
   end
