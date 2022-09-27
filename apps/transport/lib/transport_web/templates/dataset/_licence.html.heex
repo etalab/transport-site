@@ -1,4 +1,5 @@
-<span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "License") %></span><br />
+<span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "License") %></span>
+<br />
 <b>
   <%= if licence_url(@dataset.licence) do %>
     <%= link(licence(@dataset), to: licence_url(@dataset.licence)) %>
