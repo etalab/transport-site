@@ -25,7 +25,7 @@ defmodule Transport.MixProject do
       # locally, you can use :dialyxir in :dev mode, and we also add
       # :test to ensure CI can run it with a single compilation (in test target),
       # to reduce build time
-      {:dialyxir, "~> 1.1.0", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.2.0", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: :test}
     ]
   end
