@@ -42,13 +42,18 @@
       <%= show_resource_last_update(resources_updated_at, @resource, locale) %>
     </span>
 
-    <%= unless is_nil(Resource.ttl(@resource)) do %>
+    <% resource_ttl = validation |> get_metadata_info("ttl") %>
+    <%= unless is_nil(resource_ttl) do %>
       <span
         class="ml-05-em"
-        title={dgettext("page-dataset-details", "time to live (%{feed})", feed: gbfs_feed_source_for_ttl(@resource))}
+        title={
+          dgettext("page-dataset-details", "time to live (%{feed})",
+            feed: gbfs_feed_source_for_ttl(validation |> get_metadata_info("types"))
+          )
+        }
       >
         <i class="icon fa fa-history" aria-hidden="true"></i>
-        <%= Resource.ttl(@resource) %>s
+        <%= resource_ttl %>s
       </span>
     <% end %>
     <%= if Map.has_key?(unavailabilities, @resource.id) do %>
