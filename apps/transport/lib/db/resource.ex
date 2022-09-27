@@ -415,6 +415,8 @@ defmodule DB.Resource do
       |> Enum.concat(has_odt_tag(metadata))
       |> Enum.concat(has_route_colors_tag(metadata))
       |> Enum.concat(has_pathways_tag(metadata))
+      |> Enum.concat(has_bike_accessibility(metadata))
+      |> Enum.concat(has_wheelchair_accessibility(metadata))
 
     Enum.each(tags, fn tag ->
       if tag not in existing_gtfs_tags() do
@@ -431,7 +433,9 @@ defmodule DB.Resource do
       "tracés de lignes",
       "transport à la demande",
       "couleurs des lignes",
-      "description des correspondances"
+      "description des correspondances",
+      "informations sur l'accessibilité à vélo",
+      "informations sur l'accessibilité en fauteuil roulant"
     ]
 
   @spec find_modes(map()) :: [binary()]
@@ -473,6 +477,19 @@ defmodule DB.Resource do
   @spec has_pathways_tag(map()) :: [binary()]
   def has_pathways_tag(%{"has_pathways" => true}), do: ["description des correspondances"]
   def has_pathways_tag(_), do: []
+
+  @spec has_bike_accessibility(map()) :: [binary()]
+  def has_bike_accessibility(%{"trips_with_bike_info_count" => n}) when is_integer(n) and n > 0,
+    do: ["informations sur l'accessibilité à vélo"]
+
+  def has_bike_accessibility(_), do: []
+
+  @spec has_wheelchair_accessibility(map()) :: [binary()]
+  def has_wheelchair_accessibility(%{"trips_with_wheelchair_info_count" => n1, "stops_with_wheelchair_info_count" => n2})
+      when is_integer(n1) and is_integer(n2) and (n1 > 0 or n2 > 0),
+      do: ["informations sur l'accessibilité en fauteuil roulant"]
+
+  def has_wheelchair_accessibility(_), do: []
 
   @spec base_tag(__MODULE__.t()) :: [binary()]
   def base_tag(%__MODULE__{format: "GTFS"}),
