@@ -284,7 +284,8 @@ defmodule DB.Dataset do
   def order_datasets(datasets, %{"q" => q}),
     do:
       order_by(datasets,
-        desc: fragment("ts_rank_cd(search_vector, plainto_tsquery('custom_french', ?), 32) DESC, population", ^q)
+        desc: fragment("ts_rank_cd(search_vector, plainto_tsquery('custom_french', ?), 32) DESC, population", ^q),
+        asc: :custom_title
       )
 
   def order_datasets(datasets, _params), do: datasets
