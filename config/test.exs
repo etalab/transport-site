@@ -80,8 +80,13 @@ config :exvcr,
   filter_request_headers: ["authorization"]
 
 config :transport, DB.Repo,
-  url: System.get_env("PG_URL_TEST") || System.get_env("PG_URL") || "ecto://postgres:postgres@localhost/transport_test",
-  pool: Ecto.Adapters.SQL.Sandbox
+  url:
+    System.get_env("PG_URL_TEST") || System.get_env("PG_URL") ||
+      "ecto://postgres:postgres@localhost/transport_test",
+  pool: Ecto.Adapters.SQL.Sandbox,
+  # https://hexdocs.pm/db_connection/DBConnection.html#start_link/2-queue-config
+  # fix for https://github.com/etalab/transport-site/issues/2539
+  queue_target: 5000
 
 # temporary stuff, yet this is not DRY
 config :transport,
