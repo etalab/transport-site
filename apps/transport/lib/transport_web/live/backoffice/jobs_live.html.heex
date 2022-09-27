@@ -3,7 +3,7 @@
   <p class="small">Dernière mise à jour: <%= @last_updated_at %></p>
 
   <div class="pb-24">
-    <.form let={f} for={@search_worker} phx-change="filter" class="no-margin">
+    <.form :let={f} for={@search_worker} phx-change="filter" class="no-margin">
       <%= label(f, "Filter by worker label") %>
       <%= text_input(f, :worker, value: @worker) %>
     </.form>
