@@ -1,9 +1,13 @@
 defmodule DB.ResourceUnavailabilityTest do
-  use DB.DatabaseCase, cleanup: []
+  use ExUnit.Case, async: true
   alias DB.{Repo, ResourceUnavailability}
   import DB.Factory
 
   doctest DB.ResourceUnavailability, import: true
+
+  setup do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+  end
 
   describe "ongoing_unavailability" do
     test "it works" do
@@ -58,34 +62,40 @@ defmodule DB.ResourceUnavailabilityTest do
     end
 
     test "with an ongoing unavailability starting in period" do
-      resource = insert(:resource)
+      %{id: resource_id} = resource = insert(:resource)
       insert(:resource_unavailability, resource: resource, start: hours_ago(5))
 
-      assert %{hours: 5, resource_id: resource.id, nb_periods: 1} ==
+      assert %{hours: hours, resource_id: ^resource_id, nb_periods: 1} =
                ResourceUnavailability.unavailabilities_over_last_days(resource, 1)
+
+      assert_in_delta hours, 5, 0.1
 
       assert_in_delta ResourceUnavailability.availability_over_last_days(resource, 1), 100 - 5 / 24 * 100, 0.1
     end
 
     test "with an unavailability starting before and ending in period" do
-      resource = insert(:resource)
+      %{id: resource_id} = resource = insert(:resource)
       insert(:resource_unavailability, resource: resource, start: hours_ago(26), end: hours_ago(22))
 
-      assert %{hours: 2, resource_id: resource.id, nb_periods: 1} ==
+      assert %{hours: hours, resource_id: ^resource_id, nb_periods: 1} =
                ResourceUnavailability.unavailabilities_over_last_days(resource, 1)
+
+      assert_in_delta hours, 2, 0.1
 
       assert_in_delta ResourceUnavailability.availability_over_last_days(resource, 1), 100 - 2 / 24 * 100, 0.1
     end
 
     test "with multiple unavailabilities" do
-      resource = insert(:resource)
+      %{id: resource_id} = resource = insert(:resource)
       insert(:resource_unavailability, resource: resource, start: hours_ago(26), end: hours_ago(22))
       insert(:resource_unavailability, resource: resource, start: hours_ago(2), end: hours_ago(1))
 
-      assert %{hours: 3, resource_id: resource.id, nb_periods: 2} ==
+      assert %{hours: hours, resource_id: ^resource_id, nb_periods: 2} =
                ResourceUnavailability.unavailabilities_over_last_days(resource, 1)
 
-      assert 87.5 == ResourceUnavailability.availability_over_last_days(resource, 1)
+      assert_in_delta hours, 3, 0.1
+
+      assert_in_delta ResourceUnavailability.availability_over_last_days(resource, 1), 87.5, 0.01
     end
 
     test "with an unavailability starting before and ending before period" do
@@ -95,24 +105,29 @@ defmodule DB.ResourceUnavailabilityTest do
       assert %{hours: 0, resource_id: resource.id, nb_periods: 0} ==
                ResourceUnavailability.unavailabilities_over_last_days(resource, 1)
 
-      assert 100 == ResourceUnavailability.availability_over_last_days(resource, 1)
+      assert ResourceUnavailability.availability_over_last_days(resource, 1) <= 100
+      assert_in_delta ResourceUnavailability.availability_over_last_days(resource, 1), 100, 0.01
     end
 
     test "scopes to specific resource" do
-      resource = insert(:resource)
+      %{id: resource_id} = resource = insert(:resource)
       insert(:resource_unavailability, resource: resource, start: hours_ago(10), end: hours_ago(8))
       insert(:resource_unavailability, resource: insert(:resource), start: hours_ago(10), end: hours_ago(8))
 
-      assert %{hours: 2, resource_id: resource.id, nb_periods: 1} ==
+      assert %{hours: hours, resource_id: ^resource_id, nb_periods: 1} =
                ResourceUnavailability.unavailabilities_over_last_days(resource, 1)
+
+      assert_in_delta hours, 2, 0.01
     end
 
     test "computes appropriate ratio" do
-      resource = insert(:resource)
+      %{id: resource_id} = resource = insert(:resource)
       insert(:resource_unavailability, resource: resource, start: hours_ago(7), end: hours_ago(1))
 
-      assert %{hours: 6, resource_id: resource.id, nb_periods: 1} ==
+      assert %{hours: hours, resource_id: ^resource_id, nb_periods: 1} =
                ResourceUnavailability.unavailabilities_over_last_days(resource, 1)
+
+      assert_in_delta hours, 6, 0.01
 
       assert_in_delta ResourceUnavailability.availability_over_last_days(resource, 1), 100 - 6 / 24 * 100, 0.1
       assert_in_delta ResourceUnavailability.availability_over_last_days(resource, 2), 100 - 6 / 48 * 100, 0.1
