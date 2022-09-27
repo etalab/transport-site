@@ -115,7 +115,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
       args: %{"resource_history_id" => rh3.id, "validator" => validator, "force_validation" => true}
     )
 
-    # rh4 is not enqued, because rh3 is the latest resource history for that resource
+    # rh4 is not enqueued, because rh3 is the latest resource history for that resource
 
     assert 2 == Enum.count(all_enqueued(worker: Transport.Jobs.ResourceHistoryValidationJob))
   end
