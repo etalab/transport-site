@@ -195,7 +195,7 @@ msgstr "Ce jeu de données n'est pas historisé intentionnellement."
 
 #, elixir-autogen, elixir-format
 msgid "GTFS Transport validator - Force validation"
-msgstr "GTFS Transport validator - Validation forcée"
+msgstr "Validateur GTFS Transport - Validation forcée"
 
 #, elixir-autogen, elixir-format
 msgid "Validations"
