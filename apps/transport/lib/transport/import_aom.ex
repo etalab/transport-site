@@ -20,12 +20,13 @@ defmodule Transport.ImportAOMs do
   require Logger
 
   # The 2 community resources stable urls
-  @aom_file "https://www.data.gouv.fr/fr/datasets/r/2668b0eb-2cfb-4f96-a359-d1b7876c13f4"
-  @aom_insee_file "https://www.data.gouv.fr/fr/datasets/r/00635634-065f-4008-b032-f5d5f7ba8617"
+  @aom_file "https://gist.github.com/AntoineAugusti/cc20763ee572508c6785666908c2a8de/raw/1dca321bcf08fcbece4db5a8a303ff98de84ea6f/aoms_2022.csv"
+  @aom_insee_file "https://gist.github.com/AntoineAugusti/cc20763ee572508c6785666908c2a8de/raw/1dca321bcf08fcbece4db5a8a303ff98de84ea6f/aom_insee_fix.csv"
 
   @spec to_int(binary()) :: number() | nil
   def to_int(""), do: nil
   def to_int("#N/D"), do: nil
+  def to_int("#ERROR!"), do: nil
 
   def to_int(str) do
     str
@@ -38,13 +39,10 @@ defmodule Transport.ImportAOMs do
   @spec changeset(AOM.t(), map()) :: {integer(), Ecto.Changeset.t()}
   def changeset(aom, line) do
     # some names have been manually set, we want to keep them
-    insee =
-      case aom.insee_commune_principale do
-        nil -> line["Code INSEE Commune Principale"]
-        n -> n
-      end
+    IO.inspect(line)
+    insee = (Repo.get_by(Commune, siren: line["Code INSEE Commune principale"]) || Repo.get_by(Commune, insee: line["Code INSEE Commune principale"])).insee
 
-    nom = line["Nom de l’AOM pour transport.data.gouv.fr"]
+    nom = line["Nom de l’AOM"]
 
     new_region = Repo.get_by(Region, nom: normalize_region(line["Régions"]))
 
@@ -63,8 +61,8 @@ defmodule Transport.ImportAOMs do
        nom: nom,
        forme_juridique: normalize_forme(line["Forme juridique"]),
        nombre_communes: to_int(line["Nombre de communes du RT"]),
-       population_muni_2014: to_int(line["Population municipale 2017"]),
-       population_totale_2014: to_int(line["Population totale calculée"]),
+       population_muni_2014: to_int(line["Population municipale 2018"]),
+       population_totale_2014: to_int(line["Population totale 2018"]),
        surface: line["Surface (km²)"],
        commentaire: line["Commentaire"],
        region: new_region
@@ -98,15 +96,13 @@ defmodule Transport.ImportAOMs do
       |> Enum.map(fn aom -> {aom.composition_res_id, aom} end)
       |> Map.new()
 
-    # some external ids have changed, we manually update them
-    update_modified_ids()
-
     # get all the aom to import, outside of the transaction to reduce the time in the transaction
     aom_to_add = get_aom_to_import()
 
     {:ok, _} =
       Repo.transaction(
         fn ->
+          disable_trigger()
           # we load all aoms
           import_aoms(aom_to_add)
 
@@ -114,6 +110,7 @@ defmodule Transport.ImportAOMs do
 
           # we load the join on cities
           import_insee_aom()
+          enable_trigger()
         end,
         timeout: 400_000
       )
@@ -137,7 +134,7 @@ defmodule Transport.ImportAOMs do
     |> CSV.decode(separator: ?,, headers: true)
     |> Enum.reject(fn {:ok, line} -> is_nil(line["Id réseau"]) end)
     # credo:disable-for-next-line
-    |> Enum.reject(fn {:ok, line} -> line["Id réseau"] == "" end)
+    |> Enum.reject(fn {:ok, line} -> line["Id réseau"] in ["", "312"] end)
     |> Enum.map(fn {:ok, line} ->
       AOM
       |> Repo.get_by(composition_res_id: to_int(line["Id réseau"]))
@@ -187,13 +184,15 @@ defmodule Transport.ImportAOMs do
 
     {:ok, stream} = StringIO.open(body)
 
+    aom_ids = AOM |> select([a], a.composition_res_id) |> Repo.all()
+
     stream
     |> IO.binstream(:line)
     |> CSV.decode(separator: ?,, headers: true)
     |> Enum.map(fn {:ok, line} -> {String.to_integer(line["Id réseau"]), line["N° INSEE"]} end)
-    |> Enum.reject(fn {aom, insee} -> aom == "" || insee == "" end)
+    |> Enum.reject(fn {aom, insee} -> aom == "" || insee == "" || aom not in aom_ids end)
     |> Enum.flat_map(fn {aom, insee} ->
-      # To reduce the number of UPADTE in the DB, we first check which city needs to be updated
+      # To reduce the number of UPDATE in the DB, we first check which city needs to be updated
       Commune
       |> where([c], c.insee == ^insee and (c.aom_res_id != ^aom or is_nil(c.aom_res_id)))
       |> select([c], c.id)
@@ -239,19 +238,76 @@ defmodule Transport.ImportAOMs do
     )
   end
 
-  defp update_modified_ids do
-    Logger.info("updating modified external ids")
-    # The AOM redon has seen its id changed, so we update it before hand
-    # (if that has not been already done)
-    redon =
-      AOM
-      |> where([a], a.composition_res_id == 462 and a.nom == "Redon Agglomération")
-      |> Repo.one()
+  defp disable_trigger, do: Repo.query!("ALTER TABLE aom DISABLE TRIGGER refresh_places_aom_trigger;")
 
-    unless is_nil(redon) do
-      redon
-      |> Ecto.Changeset.change(%{composition_res_id: 470})
-      |> Repo.update!()
-    end
+  defp enable_trigger do
+    Repo.query!("ALTER TABLE aom DISABLE TRIGGER refresh_places_aom_trigger;")
+    Repo.query!("REFRESH MATERIALIZED VIEW places;")
   end
 end
+# [info] trying to delete old aom: 121 - Sainte-Menehould
+# [info] trying to delete old aom: 126 - Vierzon
+# [info] trying to delete old aom: 130 - Honfleur
+# [info] trying to delete old aom: 137 - Sablé-sur-Sarthe
+# [info] trying to delete old aom: 144 - Sainte-Marie-aux-Mines
+# [info] trying to delete old aom: 149 - Langres
+# [info] trying to delete old aom: 157 - Saint-Claude
+# [info] trying to delete old aom: 170 - Pontarlier
+# [info] trying to delete old aom: 172 - Fontenay-le-Comte
+# [info] trying to delete old aom: 173 - Mayenne
+# [info] trying to delete old aom: 174 - Sarlat-la-Caneda
+# [info] trying to delete old aom: 175 - Douarnenez
+# [info] trying to delete old aom: 176 - Châteaudun
+# [info] trying to delete old aom: 179 - Argentan
+# [info] trying to delete old aom: 180 - Bellegarde-sur-Valserine
+# [info] trying to delete old aom: 182 - Orange
+# [info] trying to delete old aom: 193 - Bollène
+# [info] trying to delete old aom: 195 - Bouzonville
+# [info] trying to delete old aom: 198 - Crépy-en-Valois
+# [info] trying to delete old aom: 203 - L’Île d’Yeu
+# [info] trying to delete old aom: 206 - Vire Normandie
+# [info] trying to delete old aom: 209 - Senlis
+# [info] trying to delete old aom: 210 - Obernai
+# [info] trying to delete old aom: 212 - Remiremont
+# [info] trying to delete old aom: 215 - Nogent-le-Rotrou
+# [info] trying to delete old aom: 218 - Landernau
+# [info] trying to delete old aom: 222 - Mende
+# [info] trying to delete old aom: 223 - Figeac
+# [info] trying to delete old aom: 234 - Saint Amand Montrond
+# [info] trying to delete old aom: 237 - Péronne
+# [info] trying to delete old aom: 240 - CC Cœur de Maurienne Arvan
+# [info] trying to delete old aom: 242 - Tignes
+# [info] trying to delete old aom: 243 - Pont-Audemer
+# [info] trying to delete old aom: 245 - Bernay
+# [info] trying to delete old aom: 246 - Sud Estuaire
+# [info] trying to delete old aom: 247 - Sorgues
+# [info] trying to delete old aom: 248 - Oloron Sainte-Marie
+# [info] trying to delete old aom: 249 - Ambérieu-en-Bugey
+# [info] trying to delete old aom: 253 - Val d’Isère
+# [info] trying to delete old aom: 254 - Bourg-saint-Maurice
+# [info] trying to delete old aom: 255 - Aime-la-plagne
+# [info] trying to delete old aom: 256 - La Plagne – Tarentaise
+# [info] trying to delete old aom: 257 - Montmélian
+# [info] trying to delete old aom: 259 - CC de Cœur de Tarentaise
+# [info] trying to delete old aom: 260 - Noyon
+# [info] trying to delete old aom: 261 - Luxeuil les Bains
+# [info] trying to delete old aom: 262 - Yvetot
+# [info] trying to delete old aom: 264 - La Tour du Pin
+# [info] trying to delete old aom: 268 - Les Avanchers–Valmorel
+# [info] trying to delete old aom: 276 - Saint-Hilaire-de-Riez
+# [info] trying to delete old aom: 277 - Sorède
+# [info] trying to delete old aom: 282 - Saint-Gilles-Croix-de-Vie
+# [info] trying to delete old aom: 285 - Challans
+# [info] trying to delete old aom: 293 - Luçon
+# [info] trying to delete old aom: 296 - Les Deux Alpes
+# [info] trying to delete old aom: 298 - Argelès-sur-Mer
+# [info] trying to delete old aom: 299 - Bagnoles de l’Orne
+# [info] trying to delete old aom: 3 - CC de Belle-Île-en-Mer
+# [info] trying to delete old aom: 304 - Neufchâteau
+# [info] trying to delete old aom: 305 - Granville
+# [info] trying to delete old aom: 306 - Nyons
+# [info] trying to delete old aom: 307 - Liancourt
+# [info] trying to delete old aom: 308 - Paray-le-Monial
+# [info] trying to delete old aom: 327 - Collectivité de Saint-Martin Antilles Françaises
+# [info] trying to delete old aom: 400 - Porto Vecchio
+# [info] trying to delete old aom: 86 - Briançon
