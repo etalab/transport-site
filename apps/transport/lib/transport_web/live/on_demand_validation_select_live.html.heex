@@ -10,6 +10,7 @@
         multipart={true}
         as={:upload}
         phx-change="form_changed"
+        phx-trigger-action={@trigger_submit}
       >
         <%= select(f, :type, @select_options, label: dgettext("validations", "Data type"), required: true) %>
         <%= if @input_type == "file" do %>
