@@ -18,9 +18,9 @@ defmodule Transport.ImportDataWorker do
     GenServer.cast(__MODULE__, {:validate_all})
   end
 
-  @spec force_validate_all :: :ok
-  def force_validate_all do
-    GenServer.cast(__MODULE__, {:force_validate_all})
+  @spec force_validate_gtfs_transport :: :ok
+  def force_validate_gtfs_transport do
+    GenServer.cast(__MODULE__, {:force_validate_gtfs_transport})
   end
 
   def start_link([]) do
@@ -55,13 +55,15 @@ defmodule Transport.ImportDataWorker do
   end
 
   @impl true
-  def handle_cast({:force_validate_all}, state) do
-    ImportData.validate_all_resources(true)
+  def handle_cast({:force_validate_gtfs_transport}, state) do
+    %{
+      "force_validation" => true,
+      "only_latest_resource_history" => true
+    }
+    |> Transport.Jobs.GTFSValidationJob.new()
+    |> Oban.insert()
+
     {:noreply, state}
-  rescue
-    e ->
-      Logger.error("error in the validation data worker : #{inspect(e)}")
-      Sentry.capture_exception(e)
   end
 
   @impl true

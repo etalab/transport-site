@@ -97,6 +97,23 @@ defmodule DB.MultiValidation do
     |> DB.Repo.one()
   end
 
+  @spec resource_history_latest_validation(integer(), atom | nil) :: __MODULE__.t() | nil
+  def resource_history_latest_validation(_, nil), do: nil
+
+  def resource_history_latest_validation(resource_history_id, validator) when is_atom(validator) do
+    validator_name = validator.validator_name()
+
+    DB.MultiValidation
+    |> join(:inner, [mv], rh in DB.ResourceHistory,
+      on: rh.id == mv.resource_history_id and rh.id == ^resource_history_id
+    )
+    |> where([mv, rh], mv.validator == ^validator_name)
+    |> order_by([mv, _rh], desc: mv.validation_timestamp)
+    |> preload(:metadata)
+    |> limit(1)
+    |> DB.Repo.one()
+  end
+
   @spec dataset_latest_validation(integer(), [module()]) :: map
   def dataset_latest_validation(dataset_id, validators) do
     validators_names = validators |> Enum.map(fn v -> v.validator_name() end)

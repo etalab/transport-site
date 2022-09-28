@@ -134,7 +134,7 @@ defmodule TransportWeb.Router do
         post("/:id/_delete", DatasetController, :delete)
         post("/_all_/_import_validate", DatasetController, :import_validate_all)
         post("/_all_/_validate", DatasetController, :validate_all)
-        post("/_all_/_force_validate", DatasetController, :force_validate_all)
+        post("/_all_/_force_validate_gtfs_transport", DatasetController, :force_validate_gtfs_transport)
         post("/:id/_import_validate", DatasetController, :import_validate_all)
         post("/:id/_validate", DatasetController, :validation)
       end

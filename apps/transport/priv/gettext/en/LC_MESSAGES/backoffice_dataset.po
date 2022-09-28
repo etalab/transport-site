@@ -60,9 +60,9 @@ msgid "validation of all datasets has been launched"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "validation of all datasets has been launch"
+msgid "Check the dataset page"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Check the dataset page"
+msgid "GTFS Transport Validator has been force launched on all GTFS resources"
 msgstr ""
