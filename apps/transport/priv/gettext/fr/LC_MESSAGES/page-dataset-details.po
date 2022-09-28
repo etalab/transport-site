@@ -164,7 +164,7 @@ msgstr "Site internet"
 
 #, elixir-autogen, elixir-format
 msgid "tags: "
-msgstr "Mots-clef"
+msgstr "Mots-clefs"
 
 #, elixir-autogen, elixir-format
 msgid "Outdated"
@@ -541,3 +541,7 @@ msgstr "Lien vers l'API"
 #, elixir-autogen, elixir-format
 msgid "The <a href=\"%{link}\" target=\"_blank\">timestamp field</a> appears to be too old compared to the current time: the delay is %{seconds} seconds. Try to update your feed at most every 30 seconds."
 msgstr "Le <a href=\"%{link}\">champ timestamp</a> contient une valeur ancienne par rapport à la date courante : l'écart est de %{seconds} secondes. Essayez de mettre à jour le flux toutes les 30 secondes au plus."
+
+#, elixir-autogen, elixir-format
+msgid "Displaying the last %{nb} backed up resources."
+msgstr "Affiche les %{nb} dernières ressources historisées."

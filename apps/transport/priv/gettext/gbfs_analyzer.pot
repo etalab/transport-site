@@ -11,14 +11,6 @@ msgid ""
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "CORS allowed"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "CORS headers available"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Detailed validation"
 msgstr ""
 
@@ -75,13 +67,13 @@ msgid "Link"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "No"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Yes"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "validation was not performed"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "CORS headers"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "None"
 msgstr ""

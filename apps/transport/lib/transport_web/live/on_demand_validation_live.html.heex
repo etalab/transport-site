@@ -64,7 +64,7 @@
                 <%= raw(
                   dgettext(
                     "validations",
-                    ~s(This validation concerns the given GTFS-RT feed and GTFS file and has been carried out using the <a href="%{validator_url}" target="_blank">CUTR GTFS-RT validator</a>. It does not validate the GTFS itself. You can validate your GTFS file <a href="%{gtfs_validator}">using our GTFS validator</a>.),
+                    ~s(This validation concerns the given GTFS-RT feed and GTFS file and has been carried out using the <a href="%{validator_url}" target="_blank">MobilityData GTFS-RT validator</a>. It does not validate the GTFS itself. You can validate your GTFS file <a href="%{gtfs_validator}">using our GTFS validator</a>.),
                     gtfs_validator:
                       TransportWeb.Router.Helpers.live_path(@socket, TransportWeb.Live.OnDemandValidationSelectLive,
                         type: "gtfs"
@@ -164,5 +164,5 @@
     </div>
   </div>
 </section>
-<script defer type="text/javascript" src="/js/app.js">
+<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
 </script>

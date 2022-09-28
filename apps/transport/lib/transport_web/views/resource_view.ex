@@ -147,10 +147,10 @@ defmodule TransportWeb.ResourceView do
   def download_availability_class_text(ratio), do: download_availability_class(ratio) <> "_text"
 
   def gbfs_validator_url, do: "https://github.com/MobilityData/gbfs-validator"
-  def gtfs_rt_validator_url, do: "https://github.com/CUTR-at-USF/gtfs-realtime-validator"
+  def gtfs_rt_validator_url, do: "https://github.com/MobilityData/gtfs-realtime-validator"
 
   def gtfs_rt_validator_rule_url(%{"error_id" => error_id}) do
-    "https://github.com/CUTR-at-USF/gtfs-realtime-validator/blob/master/RULES.md##{error_id}"
+    "https://github.com/MobilityData/gtfs-realtime-validator/blob/master/RULES.md##{error_id}"
   end
 
   def on_demand_validation_link(conn, %DB.Resource{} = resource) do

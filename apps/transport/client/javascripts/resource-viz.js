@@ -129,21 +129,21 @@ function setGBFSFreeFloatingStyle (feature, layer) {
         layer
             .unbindTooltip()
             .setStyle({ fillColor: color })
-        popupContent = JSON.stringify(properties, null, 2).replace('"is_disabled": true', `<strong style="color: ${color};">"is_disabled": true</strong>`)
+        popupContent = JSON.stringify(properties, null, 2).replace('"is_disabled": true', `<strong class="map-color-${color}">"is_disabled": true</strong>`)
     } else if (properties.is_reserved) {
         const color = 'orange'
         layer
             .unbindTooltip()
             .setStyle({ fillColor: color })
-        popupContent = JSON.stringify(properties, null, 2).replace('"is_reserved": true', `<strong style="color: ${color};">"is_reserved": true</strong>`)
+        popupContent = JSON.stringify(properties, null, 2).replace('"is_reserved": true', `<strong class="map-color-${color}">"is_reserved": true</strong>`)
     } else {
         const color = 'blue'
         layer
             .unbindTooltip()
             .setStyle({ fillColor: 'blue' })
         popupContent = JSON.stringify(properties, null, 2)
-            .replace('"is_reserved": false', `<strong style="color: ${color};">"is_reserved": false</strong>`)
-            .replace('"is_disabled": false', `<strong style="color: ${color};">"is_disabled": false</strong>`)
+            .replace('"is_reserved": false', `<strong class="map-color-${color}">"is_reserved": false</strong>`)
+            .replace('"is_disabled": false', `<strong class="map-color-${color}">"is_disabled": false</strong>`)
     }
     layer.bindPopup(`<pre>${popupContent}</pre>`)
 }
@@ -157,17 +157,17 @@ function setGBFSGeofencingStyle (feature, layer) {
         if (rule.ride_through_allowed === false) {
             color = 'red'
             opacity = 0.6
-            popupContent = JSON.stringify(feature.properties, null, 2).replace('"ride_through_allowed": false', `<strong style="color: ${color};">"ride_through_allowed": false</strong>`)
+            popupContent = JSON.stringify(feature.properties, null, 2).replace('"ride_through_allowed": false', `<strong class="map-color-${color}">"ride_through_allowed": false</strong>`)
         } else if (rule.ride_allowed === false) {
             color = 'orange'
             opacity = 0.6
-            popupContent = JSON.stringify(feature.properties, null, 2).replace('"ride_allowed": false', `<strong style="color: ${color};">"ride_allowed": false</strong>`)
+            popupContent = JSON.stringify(feature.properties, null, 2).replace('"ride_allowed": false', `<strong class="map-color-${color}">"ride_allowed": false</strong>`)
         } else {
             color = 'green'
             opacity = 0.4
             popupContent = JSON.stringify(feature.properties, null, 2)
-                .replace('"ride_through_allowed": true', `<strong style="color: ${color};">"ride_through_allowed": true</strong>`)
-                .replace('"ride_allowed": true', `<strong style="color: ${color};">"ride_allowed": true</strong>`)
+                .replace('"ride_through_allowed": true', `<strong class="map-color-${color}">"ride_through_allowed": true</strong>`)
+                .replace('"ride_allowed": true', `<strong class="map-color-${color}">"ride_allowed": true</strong>`)
         }
     }
     layer

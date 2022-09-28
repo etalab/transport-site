@@ -3,9 +3,11 @@ defmodule DB.DatasetDBTest do
   Tests on the Dataset schema
   """
   use DB.DatabaseCase, cleanup: [:datasets]
+  use Oban.Testing, repo: DB.Repo
   alias DB.Repo
   import DB.Factory
   import ExUnit.CaptureLog
+  import Ecto.Query
 
   test "delete_parent_dataset" do
     parent_dataset = Repo.insert!(%Dataset{})
@@ -231,5 +233,145 @@ defmodule DB.DatasetDBTest do
 
       assert Dataset.resources_content_updated_at(dataset) == %{resource_id => expected_last_update_time}
     end
+  end
+
+  test "get_other_datasets" do
+    aom = insert(:aom)
+    dataset = insert(:dataset, aom: aom, is_active: true)
+
+    assert Dataset.get_other_datasets(dataset) == []
+
+    _inactive_dataset = insert(:dataset, aom: aom, is_active: false)
+
+    assert Dataset.get_other_datasets(dataset) == []
+
+    other_dataset = insert(:dataset, aom: aom, is_active: true)
+
+    assert dataset |> Dataset.get_other_datasets() |> Enum.map(& &1.id) == [other_dataset.id]
+  end
+
+  test "formats" do
+    dataset = insert(:dataset)
+    insert(:resource, format: "GTFS", dataset: dataset)
+    insert(:resource, format: "zip", dataset: dataset, is_community_resource: true)
+    insert(:resource, format: "csv", dataset: dataset)
+
+    assert ["GTFS", "csv"] == dataset |> DB.Repo.preload(:resources) |> Dataset.formats()
+  end
+
+  test "validate" do
+    dataset = insert(:dataset)
+    %{id: gtfs_resource_id} = insert(:resource, format: "GTFS", dataset: dataset)
+    %{id: gbfs_resource_id} = insert(:resource, format: "gbfs", dataset: dataset)
+
+    Dataset.validate(dataset)
+
+    assert [
+             %Oban.Job{
+               args: %{"resource_id" => ^gbfs_resource_id},
+               worker: "Transport.Jobs.ResourceValidationJob",
+               conflict?: false
+             },
+             %Oban.Job{
+               args: %{"resource_id" => ^gtfs_resource_id},
+               worker: "Transport.Jobs.ResourceHistoryJob",
+               conflict?: false
+             }
+           ] = all_enqueued()
+
+    # Executing again does not create a conflict, even if the job has `unique` params
+    Dataset.validate(dataset)
+
+    assert [
+             %Oban.Job{
+               args: %{"resource_id" => ^gbfs_resource_id},
+               worker: "Transport.Jobs.ResourceValidationJob",
+               conflict?: false
+             },
+             %Oban.Job{
+               args: %{"resource_id" => ^gtfs_resource_id},
+               worker: "Transport.Jobs.ResourceHistoryJob",
+               conflict?: false
+             },
+             %Oban.Job{
+               args: %{"resource_id" => ^gbfs_resource_id},
+               worker: "Transport.Jobs.ResourceValidationJob",
+               conflict?: false
+             },
+             %Oban.Job{
+               args: %{"resource_id" => ^gtfs_resource_id},
+               worker: "Transport.Jobs.ResourceHistoryJob",
+               conflict?: false
+             }
+           ] = all_enqueued()
+  end
+
+  test "get resources related files (GeoJSON, NeTEx,...)" do
+    %{id: dataset_id} = insert(:dataset)
+
+    r1 = insert(:resource, dataset_id: dataset_id)
+    r2 = insert(:resource, dataset_id: dataset_id)
+    r3 = insert(:resource, dataset_id: dataset_id)
+
+    insert(:resource_history,
+      resource_id: r1.id,
+      payload: %{"uuid" => uuid1 = Ecto.UUID.generate()},
+      last_up_to_date_at: dt1 = DateTime.utc_now()
+    )
+
+    insert(:resource_history,
+      resource_id: r2.id,
+      payload: %{"uuid" => uuid2 = Ecto.UUID.generate()},
+      last_up_to_date_at: dt2 = DateTime.utc_now()
+    )
+
+    insert(:data_conversion,
+      resource_history_uuid: uuid1,
+      convert_from: "GTFS",
+      convert_to: "GeoJSON",
+      payload: %{"permanent_url" => "url1", "filesize" => "size1"}
+    )
+
+    insert(:data_conversion,
+      resource_history_uuid: uuid1,
+      convert_from: "GTFS",
+      convert_to: "NeTEx",
+      payload: %{"permanent_url" => "url11", "filesize" => "size11"}
+    )
+
+    insert(:data_conversion,
+      resource_history_uuid: uuid2,
+      convert_from: "GTFS",
+      convert_to: "GeoJSON",
+      payload: %{"permanent_url" => "url2", "filesize" => "size2"}
+    )
+
+    dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get(dataset_id)
+
+    related_resources = DB.Dataset.get_resources_related_files(dataset)
+
+    assert %{
+             r1.id => %{
+               geojson: %{
+                 url: "url1",
+                 filesize: "size1",
+                 resource_history_last_up_to_date_at: dt1
+               },
+               netex: %{
+                 url: "url11",
+                 filesize: "size11",
+                 resource_history_last_up_to_date_at: dt1
+               }
+             },
+             r2.id => %{
+               geojson: %{
+                 url: "url2",
+                 filesize: "size2",
+                 resource_history_last_up_to_date_at: dt2
+               },
+               netex: nil
+             },
+             r3.id => %{geojson: nil, netex: nil}
+           } == related_resources
   end
 end

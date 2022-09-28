@@ -4,6 +4,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   """
   use Phoenix.LiveView
   alias Transport.Telemetry
+  import TransportWeb.Router.Helpers
 
   # The number of past days we want to report on (as a positive integer).
   # This is a DRYed ref we are using in multiple places.

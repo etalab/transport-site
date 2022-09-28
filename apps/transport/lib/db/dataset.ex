@@ -62,7 +62,7 @@ defmodule DB.Dataset do
   datasets <> Resource <> ResourceHistory <> MultiValidation <> ResourceMetadata
   """
   def join_from_dataset_to_metadata(validator_name) do
-    DB.Dataset.base_query()
+    __MODULE__.base_query()
     |> DB.Resource.join_dataset_with_resource()
     |> DB.ResourceHistory.join_resource_with_latest_resource_history()
     |> DB.MultiValidation.join_resource_history_with_latest_validation(validator_name)
@@ -254,6 +254,13 @@ defmodule DB.Dataset do
   defp filter_by_active(query, %{"list_inactive" => true}), do: query
   defp filter_by_active(query, _), do: where(query, [d], d.is_active)
 
+  @spec filter_by_licence(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),
+    do: where(query, [d], d.licence in ["fr-lo", "lov2"])
+
+  defp filter_by_licence(query, %{"licence" => licence}), do: where(query, [d], d.licence == ^licence)
+  defp filter_by_licence(query, _), do: query
+
   @spec list_datasets(map()) :: Ecto.Query.t()
   def list_datasets(%{} = params) do
     preload_without_validations()
@@ -265,6 +272,7 @@ defmodule DB.Dataset do
     |> filter_by_type(params)
     |> filter_by_aom(params)
     |> filter_by_commune(params)
+    |> filter_by_licence(params)
     |> filter_by_fulltext(params)
     |> order_datasets(params)
   end
@@ -276,7 +284,8 @@ defmodule DB.Dataset do
   def order_datasets(datasets, %{"q" => q}),
     do:
       order_by(datasets,
-        desc: fragment("ts_rank_cd(search_vector, plainto_tsquery('custom_french', ?), 32) DESC, population", ^q)
+        desc: fragment("ts_rank_cd(search_vector, plainto_tsquery('custom_french', ?), 32) DESC, population", ^q),
+        asc: :custom_title
       )
 
   def order_datasets(datasets, _params), do: datasets
@@ -416,14 +425,14 @@ defmodule DB.Dataset do
 
   @spec get_other_datasets(__MODULE__.t()) :: [__MODULE__.t()]
   def get_other_datasets(%__MODULE__{id: id, aom_id: aom_id}) when not is_nil(aom_id) do
-    __MODULE__
+    __MODULE__.base_query()
     |> where([d], d.id != ^id)
     |> where([d], d.aom_id == ^aom_id)
     |> Repo.all()
   end
 
   def get_other_datasets(%__MODULE__{id: id, region_id: region_id}) when not is_nil(region_id) do
-    __MODULE__
+    __MODULE__.base_query()
     |> where([d], d.id != ^id)
     |> where([d], d.region_id == ^region_id)
     |> Repo.all()
@@ -434,7 +443,7 @@ defmodule DB.Dataset do
   # to get the other_datasets
   # This way we can control which datasets to link to
   def get_other_datasets(%__MODULE__{id: id, associated_territory_name: associated_territory_name}) do
-    __MODULE__
+    __MODULE__.base_query()
     |> where([d], d.id != ^id)
     |> where([d], d.associated_territory_name == ^associated_territory_name)
     |> Repo.all()
@@ -528,9 +537,10 @@ defmodule DB.Dataset do
   def community_resources(%__MODULE__{}), do: []
 
   @spec formats(__MODULE__.t()) :: [binary]
-  def formats(%__MODULE__{resources: resources}) when is_list(resources) do
-    resources
-    |> Enum.map(fn r -> r.format end)
+  def formats(%__MODULE__{} = dataset) do
+    dataset
+    |> official_resources()
+    |> Enum.map(& &1.format)
     |> Enum.sort()
     |> Enum.dedup()
   end
@@ -543,17 +553,22 @@ defmodule DB.Dataset do
   def validate(id) when is_binary(id), do: id |> String.to_integer() |> validate()
 
   def validate(id) when is_integer(id) do
-    Resource
-    |> preload(:validation)
-    |> where([r], r.dataset_id == ^id)
-    |> Repo.all()
-    |> Enum.map(fn r -> Resource.validate_and_save(r, true) end)
-    |> Enum.any?(fn r -> match?({:error, _}, r) end)
-    |> if do
-      {:error, "Unable to validate dataset #{id}"}
-    else
-      {:ok, nil}
-    end
+    dataset = __MODULE__ |> Repo.get!(id) |> Repo.preload(:resources)
+
+    {real_time_resources, static_resources} = Enum.split_with(dataset.resources, &Resource.is_real_time?/1)
+
+    # Oban.insert_all does not enforce `unique` params
+    # https://hexdocs.pm/oban/Oban.html#insert_all/3
+    # This is something we rely on
+    static_resources
+    |> Enum.map(&Transport.Jobs.ResourceHistoryJob.new(%{"resource_id" => &1.id}))
+    |> Oban.insert_all()
+
+    real_time_resources
+    |> Enum.map(&Transport.Jobs.ResourceValidationJob.new(%{"resource_id" => &1.id}))
+    |> Oban.insert_all()
+
+    {:ok, nil}
   end
 
   @doc """
@@ -617,9 +632,39 @@ defmodule DB.Dataset do
 
   @spec get_resources_related_files(any()) :: map()
   def get_resources_related_files(%__MODULE__{resources: resources}) when is_list(resources) do
-    resources
-    |> Enum.map(fn %{id: id} = r -> {id, DB.Resource.get_related_files(r)} end)
-    |> Enum.into(%{})
+    to_atom = %{"GeoJSON" => :geojson, "NeTEx" => :netex}
+    filler = to_atom |> Map.new(fn {_a, b} -> {b, nil} end)
+
+    resource_ids = resources |> Enum.map(& &1.id)
+
+    results =
+      DB.Resource.base_query()
+      |> where([resource: r], r.id in ^resource_ids)
+      |> DB.ResourceHistory.join_resource_with_latest_resource_history()
+      |> DB.DataConversion.join_resource_history_with_data_conversion(["GeoJSON", "NeTEx"])
+      |> select(
+        [resource: r, resource_history: rh, data_conversion: dc],
+        {r.id,
+         {dc.convert_to,
+          %{
+            url: fragment("? ->> 'permanent_url'", dc.payload),
+            filesize: fragment("? ->> 'filesize'", dc.payload),
+            resource_history_last_up_to_date_at: rh.last_up_to_date_at
+          }}}
+      )
+      |> Repo.all()
+      # transform from
+      # [{id1, {"GeoJSON", %{infos}}}, {id1, {"NeTEx", %{infos}}}, {id2, {"NeTEx", %{infos}}}]
+      # to
+      # %{id1 => %{geojson: %{infos}, netex: %{infos}}, id2 => %{geojson: nil, netex: %{infos}}}
+      |> Enum.map(fn {id, {c_to, infos}} -> {id, {Map.fetch!(to_atom, c_to), infos}} end)
+      |> Enum.group_by(fn {id, _} -> id end, fn {_, v} -> v end)
+      |> Enum.map(fn {id, l} -> {id, Map.merge(filler, Enum.into(l, %{}))} end)
+      |> Enum.into(%{})
+
+    empty_results = resource_ids |> Enum.map(fn id -> {id, %{geojson: nil, netex: nil}} end) |> Enum.into(%{})
+
+    Map.merge(empty_results, results)
   end
 
   def get_resources_related_files(_), do: %{}

@@ -415,6 +415,8 @@ defmodule DB.Resource do
       |> Enum.concat(has_odt_tag(metadata))
       |> Enum.concat(has_route_colors_tag(metadata))
       |> Enum.concat(has_pathways_tag(metadata))
+      |> Enum.concat(has_bike_accessibility(metadata))
+      |> Enum.concat(has_wheelchair_accessibility(metadata))
 
     Enum.each(tags, fn tag ->
       if tag not in existing_gtfs_tags() do
@@ -431,7 +433,9 @@ defmodule DB.Resource do
       "tracés de lignes",
       "transport à la demande",
       "couleurs des lignes",
-      "description des correspondances"
+      "description des correspondances",
+      "informations sur l'accessibilité à vélo",
+      "informations sur l'accessibilité en fauteuil roulant"
     ]
 
   @spec find_modes(map()) :: [binary()]
@@ -454,24 +458,38 @@ defmodule DB.Resource do
   def has_odt_tag(_), do: []
 
   @doc """
-  Outputs a tag if all GTFS routes have a custom color
+  Outputs a tag if at least 80% of GTFS routes have a custom color.
 
-  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 10, "lines_count" => 10})
-  ["couleurs des lignes"]
   iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 8, "lines_count" => 10})
+  ["couleurs des lignes"]
+  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 7, "lines_count" => 10})
   []
   iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 0, "lines_count" => 0})
   []
   """
   @spec has_route_colors_tag(map()) :: [binary()]
-  def has_route_colors_tag(%{"lines_with_custom_color_count" => n, "lines_count" => n}) when n > 0,
-    do: ["couleurs des lignes"]
+  def has_route_colors_tag(%{"lines_with_custom_color_count" => with_colors_count, "lines_count" => lines_count})
+      when with_colors_count / lines_count * 100 >= 80,
+      do: ["couleurs des lignes"]
 
   def has_route_colors_tag(_), do: []
 
   @spec has_pathways_tag(map()) :: [binary()]
   def has_pathways_tag(%{"has_pathways" => true}), do: ["description des correspondances"]
   def has_pathways_tag(_), do: []
+
+  @spec has_bike_accessibility(map()) :: [binary()]
+  def has_bike_accessibility(%{"trips_with_bike_info_count" => n}) when is_integer(n) and n > 0,
+    do: ["informations sur l'accessibilité à vélo"]
+
+  def has_bike_accessibility(_), do: []
+
+  @spec has_wheelchair_accessibility(map()) :: [binary()]
+  def has_wheelchair_accessibility(%{"trips_with_wheelchair_info_count" => n1, "stops_with_wheelchair_info_count" => n2})
+      when is_integer(n1) and is_integer(n2) and (n1 > 0 or n2 > 0),
+      do: ["informations sur l'accessibilité en fauteuil roulant"]
+
+  def has_wheelchair_accessibility(_), do: []
 
   @spec base_tag(__MODULE__.t()) :: [binary()]
   def base_tag(%__MODULE__{format: "GTFS"}),
@@ -645,13 +663,6 @@ defmodule DB.Resource do
   @spec has_schema?(__MODULE__.t()) :: boolean
   def has_schema?(%__MODULE__{schema_name: schema_name}), do: not is_nil(schema_name)
 
-  @spec ttl(__MODULE__.t()) :: integer() | nil
-  def ttl(%__MODULE__{format: "gbfs", metadata: %{"ttl" => ttl}})
-      when is_integer(ttl) and ttl >= 0,
-      do: ttl
-
-  def ttl(_), do: nil
-
   @spec can_direct_download?(__MODULE__.t()) :: boolean
   def can_direct_download?(resource) do
     # raw.githubusercontent.com does not put `Content-Disposition: attachment`
@@ -696,12 +707,6 @@ defmodule DB.Resource do
       where: resource.id == ^id
     )
   end
-
-  def has_errors_details?(%__MODULE__{metadata: %{"validation" => %{"errors_count" => nb_errors}}})
-      when is_integer(nb_errors) and nb_errors >= 0,
-      do: true
-
-  def has_errors_details?(%__MODULE__{}), do: false
 
   @spec get_related_files(__MODULE__.t()) :: map()
   def get_related_files(%__MODULE__{id: resource_id}) do

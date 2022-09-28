@@ -1,0 +1,66 @@
+.geojson-map {
+  height: 600px;
+  max-height: 80vh;
+}
+
+$light-green-map: #bce954 !default;
+
+.map-bg-green {
+  background-color: green;
+}
+
+.map-color-green {
+  color: green;
+}
+
+.map-bg-light-green {
+  background-color: $light-green-map;
+}
+
+.map-bg-grey {
+  background-color: grey;
+}
+
+.map-bg-stripes-green-light-green {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    green,
+    green 3px,
+    $light-green-map 3px,
+    $light-green-map 6px
+  );
+}
+
+.map-bg-orange {
+  background-color: orange;
+}
+
+.map-color-orange {
+  color: orange;
+}
+
+.map-bg-red {
+  background-color: red;
+}
+
+.map-color-red {
+  color: red;
+}
+
+.map-bg-blue {
+  background-color: blue;
+}
+
+.map-color-blue {
+  color: blue;
+}
+
+.map-bg-stripes-blue-light-green {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    blue,
+    blue 3px,
+    $light-green-map 3px,
+    $light-green-map 6px
+  );
+}

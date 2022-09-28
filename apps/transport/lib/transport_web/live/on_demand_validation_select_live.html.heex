@@ -1,14 +1,14 @@
 <section class="single-page section section-grey">
-  <div class="container" style="min-height: 50vh;">
+  <div class="container container_min_height">
     <h1><%= TransportWeb.Gettext.dgettext("validations", "Check the quality of a file or a feed") %></h1>
     <div class="pb-48">
       <.form
-        let={f}
+        :let={f}
         for={@changeset}
         action={validation_path(@socket, :validate)}
         class="no-margin"
         multipart={true}
-        as="upload"
+        as={:upload}
         phx-change="form_changed"
       >
         <%= select(f, :type, @select_options, label: dgettext("validations", "Data type"), required: true) %>
@@ -42,4 +42,5 @@
     </div>
   </div>
 </section>
-<script defer type="text/javascript" src="/js/app.js" />
+<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
+</script>

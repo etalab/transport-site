@@ -14,6 +14,13 @@ defmodule Transport.S3 do
     host |> to_string() |> URI.merge(path) |> URI.to_string()
   end
 
+  def all_permanent_urls_domains do
+    :transport
+    |> Application.fetch_env!(:s3_buckets)
+    |> Map.keys()
+    |> Enum.map(&Transport.S3.permanent_url(&1, "/"))
+  end
+
   def bucket_names do
     buckets_response = ExAws.S3.list_buckets() |> Transport.Wrapper.ExAWS.impl().request!()
     buckets_response.body.buckets |> Enum.map(& &1.name)

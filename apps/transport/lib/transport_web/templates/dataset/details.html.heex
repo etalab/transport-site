@@ -246,56 +246,64 @@
       <% has_validity_period_col = has_validity_period?(@history_resources) %>
       <section class="white pt-48" id="backed-up-resources">
         <h3><%= dgettext("page-dataset-details", "Backed up resources") %></h3>
-        <div class="">
-          <div class="panel">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th><%= dgettext("page-dataset-details", "File") %></th>
-                  <th><%= dgettext("page-dataset-details", "Publication date") %></th>
-                  <%= if has_validity_period_col do %>
-                    <th>
-                      <%= dgettext("page-dataset-details", "Validity period") %>
-                    </th>
-                  <% end %>
-                  <th><%= dgettext("page-dataset-details", "Format") %></th>
-                </tr>
-              </thead>
-              <tbody>
-                <%= for resource_history <- @history_resources do %>
-                  <tr>
-                    <td>
-                      <%= link(resource_history.payload["title"], to: resource_history.payload["permanent_url"]) %>
-                    </td>
-                    <td><%= resource_history.inserted_at |> DateTimeDisplay.format_datetime_to_date(locale) %></td>
-                    <%= if has_validity_period_col do %>
-                      <%= if has_validity_period?(resource_history) do %>
-                        <td>
-                          <%= dgettext(
-                            "page-dataset-details",
-                            "%{start} to %{end}",
-                            start:
-                              DateTimeDisplay.format_date(
-                                resource_history.payload["resource_metadata"]["start_date"],
-                                locale
-                              ),
-                            end:
-                              DateTimeDisplay.format_date(
-                                resource_history.payload["resource_metadata"]["end_date"],
-                                locale
-                              )
-                          ) %>
-                        </td>
-                      <% else %>
-                        <td></td>
-                      <% end %>
-                    <% end %>
-                    <td><span class="label"><%= resource_history.payload["format"] %></span></td>
-                  </tr>
+        <div class="panel">
+          <table class="table">
+            <thead>
+              <tr>
+                <th><%= dgettext("page-dataset-details", "File") %></th>
+                <th><%= dgettext("page-dataset-details", "Publication date") %></th>
+                <%= if has_validity_period_col do %>
+                  <th>
+                    <%= dgettext("page-dataset-details", "Validity period") %>
+                  </th>
                 <% end %>
-              </tbody>
-            </table>
-          </div>
+                <th><%= dgettext("page-dataset-details", "Format") %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <%= for resource_history <- @history_resources do %>
+                <tr>
+                  <td>
+                    <%= link(resource_history.payload["title"],
+                      to: resource_history.payload["permanent_url"],
+                      rel: "nofollow"
+                    ) %>
+                  </td>
+                  <td><%= resource_history.inserted_at |> DateTimeDisplay.format_datetime_to_date(locale) %></td>
+                  <%= if has_validity_period_col do %>
+                    <%= if has_validity_period?(resource_history) do %>
+                      <td>
+                        <%= dgettext(
+                          "page-dataset-details",
+                          "%{start} to %{end}",
+                          start:
+                            DateTimeDisplay.format_date(
+                              resource_history.payload["resource_metadata"]["start_date"],
+                              locale
+                            ),
+                          end:
+                            DateTimeDisplay.format_date(
+                              resource_history.payload["resource_metadata"]["end_date"],
+                              locale
+                            )
+                        ) %>
+                      </td>
+                    <% else %>
+                      <td></td>
+                    <% end %>
+                  <% end %>
+                  <td><span class="label"><%= resource_history.payload["format"] %></span></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+          <%= if Enum.count(@history_resources) == max_nb_history_resources() do %>
+            <p class="small">
+              <%= dgettext("page-dataset-details", "Displaying the last %{nb} backed up resources.",
+                nb: max_nb_history_resources()
+              ) %>
+            </p>
+          <% end %>
         </div>
       </section>
     <% end %>
@@ -323,7 +331,7 @@
         <%= img_tag(@dataset.full_logo, alt: @dataset.custom_title) %>
       </div>
       <div>
-        <i class="fa fa-map-marker-alt"></i> <%= Dataset.get_territory_or_nil(@dataset) %>
+        <i class="icon fa fa-map-marker-alt" /><%= Dataset.get_territory_or_nil(@dataset) %>
       </div>
       <div class="pt-12">
         <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Data producer") %></span>
