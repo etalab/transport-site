@@ -44,7 +44,7 @@ defmodule Transport.Test.Transport.Jobs.GBFSMultiValidationDispatcherJobTest do
     assert DB.Resource.is_gbfs?(resource)
 
     Transport.Shared.GBFSMetadata.Mock
-    |> expect(:compute_feed_metadata, fn ^url, "https://example.com" ->
+    |> expect(:compute_feed_metadata, fn ^url, "https://www.example.com" ->
       %{
         languages: ["fr"],
         system_details: %{name: "velhop", timezone: "Europe/Paris"},
