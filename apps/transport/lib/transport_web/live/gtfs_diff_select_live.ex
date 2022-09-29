@@ -29,31 +29,14 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
   end
 
   def handle_event("gtfs_diff", _, socket) do
-    [_path_gtfs_1, _path_gtfs_2] =
+    [gtfs_url_1, gtfs_url_2] =
       consume_uploaded_entries(socket, :gtfs, fn %{path: path}, _entry ->
         file_name = Path.basename(path)
         upload_to_s3(path, file_name)
-        {:ok, file_name}
+        {:ok, Transport.S3.permanent_url(:gtfs_diff, file_name)}
       end)
 
-    # unzip_1 = Transport.Beta.GTFS.unzip(path_gtfs_1)
-    # unzip_2 = Transport.Beta.GTFS.unzip(path_gtfs_2)
-
-    # diff = Transport.Beta.GTFS.diff(unzip_1, unzip_2)
-
-    # diff_summary =
-    #   diff
-    #   |> diff_summary()
-
-    # diff_output = diff |> Transport.Beta.GTFS.dump_diff() |> String.split("\r\n")
-
-    # socket =
-    #   socket
-    #   |> assign(:diff_summary, diff_summary)
-    #   |> assign(:diff_output, diff_output)
-
-    # File.rm!(path_gtfs_1)
-    # File.rm!(path_gtfs_2)
+    Transport.Jobs.GtfsDiff.new(%{gtfs_url_1: gtfs_url_1, gtfs_url_2: gtfs_url_2}) |> Oban.insert()
 
     {:noreply, socket}
   end
