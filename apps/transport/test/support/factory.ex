@@ -120,79 +120,26 @@ defmodule DB.Factory do
   # somewhere with common API calls
   def datagouv_api_get_dataset do
     %{
-      "acronym" => nil,
-      "archived" => nil,
-      "badges" => [],
       "created_at" => "2014-11-14T14:55:13.264000",
-      "deleted" => nil,
       "description" => "Données GTFS",
-      "extras" => %{},
-      "frequency" => "semiannual",
-      "frequency_date" => nil,
       "id" => "546609c1c751df1a6f6c8d07",
       "last_modified" => "2018-10-10T13:57:49.993000",
       "last_update" => "2018-09-18T00:00:00",
       "license" => "fr-lo",
-      "metrics" => %{
-        "discussions" => 10,
-        "followers" => 8,
-        "issues" => 0,
-        "nb_hits" => 0,
-        "nb_uniq_visitors" => 0,
-        "nb_visits" => 0,
-        "reuses" => 4,
-        "views" => 78
-      },
-      "organization" => %{
-        "acronym" => "MM",
-        "class" => "Organization",
-        "id" => "53fd1263a3a729390ba568a4",
-        "logo" => "https://next-static.data.gouv.fr/avatars/e2/4c0d8652d6455aaae8bc6b24662ac8-original.png",
-        "logo_thumbnail" => "https://next-static.data.gouv.fr/avatars/e2/4c0d8652d6455aaae8bc6b24662ac8-100.png",
-        "name" => "Metz Métropole",
-        "page" => "https://demo.data.gouv.fr/fr/organizations/metz-metropole/",
-        "slug" => "metz-metropole",
-        "uri" => "https://demo.data.gouv.fr/api/1/organizations/metz-metropole/"
-      },
-      "owner" => nil,
-      "page" => "https://demo.data.gouv.fr/fr/datasets/transport-donnees-gtfs/",
-      "private" => false,
       "resources" => [
         %{
-          "checksum" => nil,
-          "created_at" => "2015-06-25T10:36:55.107000",
-          "description" => "Fichier ZIP",
-          "extras" => %{
-            "check:available" => true,
-            "check:count-availability" => 186,
-            "check:date" => "2019-08-09T12:00:16.718000",
-            "check:status" => 200,
-            "check:url" => "https://si.metzmetropole.fr/fiches/opendata/gtfs_current.zip"
-          },
-          "filesize" => 549_932,
           "filetype" => "remote",
           "format" => "gtfs",
           "id" => "9bff120f-d1ba-4753-83cb-6d598ebe2e60",
-          "last_modified" => "2018-10-10T13:57:49.993000",
-          "latest" => "https://demo.data.gouv.fr/fr/datasets/r/9bff120f-d1ba-4753-83cb-6d598ebe2e60",
-          "metrics" => %{
-            "nb_hits" => 0,
-            "nb_uniq_visitors" => 0,
-            "nb_visits" => 0,
-            "views" => 180
-          },
           "mime" => "application/zip",
           "preview_url" => nil,
           "published" => "2018-09-18T00:00:00",
           "title" => "Transport - Données GTFS",
           "type" => "main",
-          "url" => "https://si.metzmetropole.fr/fiches/opendata/gtfs_current.zip"
+          "url" => "https://example.com/open-data/gtfs.zip"
         }
       ],
       "slug" => "transport-donnees-gtfs",
-      "spatial" => %{"geom" => nil, "granularity" => "other", "zones" => []},
-      "tags" => ["gtfs", "le-met", "metz-metropole", "tamm", "territoires-et-transport", "urbain"],
-      "temporal_coverage" => nil,
       "title" => "Transport - Données GTFS",
       "uri" => "https://demo.data.gouv.fr/api/1/datasets/transport-donnees-gtfs/"
     }
