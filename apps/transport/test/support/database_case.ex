@@ -59,7 +59,6 @@ defmodule TransportWeb.DatabaseCase do
         Repo.insert(%Commune{
           insee: "38185",
           nom: "Grenoble",
-          wikipedia: "fr:Grenoble",
           surf_ha: 200_554.0,
           aom_res_id: 2
         })
@@ -67,7 +66,6 @@ defmodule TransportWeb.DatabaseCase do
         Repo.insert(%Commune{
           insee: "36044",
           nom: "Châteauroux",
-          wikipedia: "fr:Châteauroux",
           surf_ha: 2554.0,
           aom_res_id: 3
         })
@@ -75,7 +73,6 @@ defmodule TransportWeb.DatabaseCase do
         Repo.insert(%Commune{
           insee: "63096",
           nom: "Chas",
-          wikipedia: "fr:Chas",
           surf_ha: 254.0,
           aom_res_id: 3
         })
@@ -90,7 +87,6 @@ defmodule TransportWeb.DatabaseCase do
         Repo.insert(%Commune{
           insee: "36063",
           nom: "Déols",
-          wikipedia: "fr:Déols",
           surf_ha: 3177.0,
           aom_res_id: 3
         })

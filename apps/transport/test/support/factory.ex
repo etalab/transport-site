@@ -10,7 +10,7 @@ defmodule DB.Factory do
 
   def region_factory do
     %DB.Region{
-      nom: "Pays de la Loire"
+      nom: sequence("region_nom")
     }
   end
 
