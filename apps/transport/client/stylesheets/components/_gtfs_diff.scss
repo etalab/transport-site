@@ -1,7 +1,7 @@
 #gtfs-diff-input {
   display: flex;
-  justify-content:left;
-  align-items:stretch;
+  justify-content: left;
+  align-items: stretch;
   #upload-form {
     max-width: 300px;
     display: flex;
@@ -22,7 +22,24 @@
     display: inline-block;
     width: 250px;
   }
-.upload-entry {
-      padding-bottom: 30px;
+  .upload-entry {
+    padding-bottom: 30px;
+  }
+}
+
+.gtfs-diff {
+  min-height: 90vh;
+  .summary {
+    display: flex;
+    justify-content: space-around;
+    .green {
+      color: green;
     }
+    .red {
+      color: red;
+    }
+    .orange {
+      color: orange;
+    }
+  }
 }

@@ -1,6 +1,6 @@
 <section class="single-page section section-grey">
-  <div class="container" style="min-height: 50vh;">
-    <h1><%= TransportWeb.Gettext.dgettext("validations", "See what changed between 2 GTFS files") %></h1>
+  <div class="container gtfs-diff">
+    <h1>GTFS Diff Playground</h1>
     <div class="pb-48">
       <section id="gtfs-diff-input" phx-drop-target={@uploads.gtfs.ref}>
         <form id="upload-form" phx-submit="gtfs_diff" phx-change="validate">
@@ -8,7 +8,11 @@
             Drop your files here or browse your local drive <%= live_file_input(@uploads.gtfs) %>
           </div>
           <%= if uploads_are_valid(@uploads) do %>
-            <button class="button" type="submit">See diff</button>
+            <%= if assigns[:job_running] do %>
+              <button class="button">Job is running...</button>
+            <% else %>
+              <button class="button" type="submit">Compute GTFS Diff</button>
+            <% end %>
           <% end %>
         </form>
 
@@ -40,16 +44,34 @@
     </div>
 
     <%= if assigns[:diff_file_url] do %>
-      <%= link("download diff", to: @diff_file_url) %>
+      <h2>Diff is complete, <%= link("download it", to: @diff_file_url) %></h2>
     <% end %>
 
     <%= if assigns[:diff_summary] do %>
-      <h2>Summary of found differences</h2>
-      <ul>
-        <%= for diff <- @diff_summary do %>
-          <li><%= diff %></li>
-        <% end %>
-      </ul>
+      Here is an an overview of the differences found:
+      <div class="summary">
+        <div>
+          <ul>
+            <%= for {{file, "add", target}, n} <- @diff_summary["add"] do %>
+              <li><span class="green">add </span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %></li>
+            <% end %>
+          </ul>
+        </div>
+        <div>
+          <ul>
+            <%= for {{file, "delete", target}, n} <- @diff_summary["delete"] do %>
+              <li><span class="red">delete </span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %></li>
+            <% end %>
+          </ul>
+        </div>
+        <div>
+          <ul>
+            <%= for {{file, "update", target}, n} <- @diff_summary["update"] do %>
+              <li><span class="orange">update </span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
     <% end %>
 
     <%= if assigns[:diff_output] do %>

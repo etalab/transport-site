@@ -29,6 +29,11 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
   end
 
   def handle_event("gtfs_diff", _, socket) do
+    send(self(), :enqueue_job)
+    {:noreply, socket |> assign(:job_running, true)}
+  end
+
+  def handle_info(:enqueue_job, socket) do
     [gtfs_file_name_1, gtfs_file_name_2] =
       consume_uploaded_entries(socket, :gtfs, fn %{path: path}, _entry ->
         file_name = Path.basename(path)
@@ -49,19 +54,24 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
     socket =
       receive do
         {:notification, :gossip, %{"complete" => ^job_id, "diff_file_url" => diff_file_url}} ->
-          IO.puts("Other job complete!")
+          send(self(), {:generate_diff_summary, diff_file_url})
           socket |> assign(:diff_file_url, diff_file_url)
       after
-        30_000 ->
-          IO.puts("Other job didn't finish in 30 seconds!")
-          socket
+        60_000 ->
+          socket |> assign(:error_msg, "job aborted, the diff is taking too long (>60sec)")
       end
 
-    {:noreply, socket}
+    {:noreply, socket |> assign(:job_running, false)}
   end
 
-  defp upload_to_s3(file_path, path) do
-    Transport.S3.upload_to_s3!(:gtfs_diff, File.read!(file_path), path)
+  def handle_info({:generate_diff_summary, diff_file_url}, socket) do
+    http_client = Transport.Shared.Wrapper.HTTPoison.impl()
+
+    %{status_code: 200, body: body} = http_client.get!(diff_file_url)
+    diff = Transport.Beta.GTFS.parse_diff_output(body)
+    diff_summary = diff |> diff_summary()
+
+    {:noreply, socket |> assign(:diff_summary, diff_summary)}
   end
 
   def diff_summary(diff) do
@@ -69,12 +79,14 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
 
     diff
     |> Enum.frequencies_by(fn r ->
-      {Map.get(r, :file), Map.get(r, :action), Map.get(r, :target)}
+      {Map.get(r, "file"), Map.get(r, "action"), Map.get(r, "target")}
     end)
     |> Enum.sort_by(fn {{_, _, target}, _} -> order |> Map.fetch!(target) end)
-    |> Enum.map(fn {{file, action, target}, n} ->
-      "file #{file}, #{action} #{n} #{target}"
-    end)
+    |> Enum.group_by(fn {{_file, action, _target}, n} -> action end)
+  end
+
+  defp upload_to_s3(file_path, path) do
+    Transport.S3.upload_to_s3!(:gtfs_diff, File.read!(file_path), path)
   end
 
   def uploads_are_valid(%{gtfs: %{entries: gtfs}}) do

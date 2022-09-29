@@ -72,6 +72,23 @@ defmodule Transport.Beta.GTFS do
     end
   end
 
+  def parse_diff_output(binary) do
+    {l, _headers} =
+      binary
+      |> CSV.parse_string(skip_headers: false)
+      |> Enum.reduce([], fn r, acc ->
+        if acc == [] do
+          {[], r |> Enum.map(fn h -> h |> String.replace_prefix("\uFEFF", "") end)}
+        else
+          {l, headers} = acc
+          new_row = headers |> Enum.zip(r) |> Enum.into(%{})
+          {[new_row | l], headers}
+        end
+      end)
+
+    l |> Enum.reverse()
+  end
+
   def get_headers(unzip, file_name) do
     if unzip_contains_file?(unzip, file_name) do
       unzip
