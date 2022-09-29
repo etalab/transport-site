@@ -123,14 +123,17 @@ defmodule TransportWeb.Backoffice.DatasetController do
     |> redirect_to_index()
   end
 
-  @spec force_validate_all(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def force_validate_all(%Plug.Conn{} = conn, _args) do
-    ImportDataWorker.force_validate_all()
+  @spec force_validate_gtfs_transport(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def force_validate_gtfs_transport(%Plug.Conn{} = conn, _args) do
+    ImportDataWorker.force_validate_gtfs_transport()
 
     conn
     |> put_flash(
       :info,
-      dgettext("backoffice_dataset", "validation of all datasets has been launch")
+      dgettext(
+        "backoffice_dataset",
+        "GTFS Transport Validator has been force launched on all GTFS resources"
+      )
     )
     |> redirect_to_index()
   end
