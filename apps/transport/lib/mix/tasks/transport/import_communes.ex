@@ -107,7 +107,7 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
   end
 
   defp ensure_valid_geometries,
-    do: Repo.query!("UPDATE departement SET geom = ST_MakeValid(geom) WHERE NOT ST_IsValid(geom);")
+    do: Repo.query!("UPDATE commune SET geom = ST_MakeValid(geom) WHERE NOT ST_IsValid(geom);")
 
   defp disable_trigger, do: Repo.query!("ALTER TABLE commune DISABLE TRIGGER refresh_places_commune_trigger;")
 
