@@ -3,10 +3,10 @@ defmodule Transport.ImportDataServiceTest do
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   use TransportWeb.ExternalCase
   alias Transport.ImportData
+  import Mox
 
   setup do
     Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
-    Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
     Mox.stub_with(Transport.AvailabilityChecker.Mock, Transport.AvailabilityChecker.Dummy)
     Mox.stub_with(Hasher.Mock, Hasher.Dummy)
     :ok
@@ -28,12 +28,18 @@ defmodule Transport.ImportDataServiceTest do
     end
 
     test "import dataset with GTFS format" do
-      url = "https://si.metzmetropole.fr/fiches/opendata/gtfs_current.zip"
+      payload = DB.Factory.datagouv_api_get_dataset()
+      url = (payload["resources"] |> Enum.at(0))["url"]
 
-      use_cassette "client/datasets/metz" do
-        assert {:ok, dataset} = ImportData.import_from_data_gouv("transport-donnees-gtfs", "public-transit")
-        assert List.first(dataset["resources"])["url"] == url
-      end
+      Transport.HTTPoison.Mock
+      |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/transport-donnees-gtfs/",
+                          [],
+                          [hackney: [follow_redirect: true]] ->
+        %HTTPoison.Response{status_code: 200, body: payload |> Jason.encode!()}
+      end)
+
+      assert {:ok, dataset} = ImportData.import_from_data_gouv("transport-donnees-gtfs", "public-transit")
+      assert List.first(dataset["resources"])["url"] == url
     end
 
     test "import dataset with CSV" do
