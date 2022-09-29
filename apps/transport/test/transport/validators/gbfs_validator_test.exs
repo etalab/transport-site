@@ -18,7 +18,7 @@ defmodule Transport.Validators.GBFSValidatorTest do
     assert DB.Resource.is_gbfs?(resource)
 
     Transport.Shared.GBFSMetadata.Mock
-    |> expect(:compute_feed_metadata, fn ^url, "https://transport.data.gouv.fr" ->
+    |> expect(:compute_feed_metadata, fn ^url, "https://www.example.com" ->
       %{
         languages: ["fr"],
         system_details: %{name: "velhop", timezone: "Europe/Paris"},
