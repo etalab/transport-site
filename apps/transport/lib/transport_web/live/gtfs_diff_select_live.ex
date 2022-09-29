@@ -21,6 +21,12 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
   end
 
   def handle_event("validate", _params, socket) do
+    socket =
+      socket
+      |> assign(:diff_file_url, nil)
+      |> assign(:error_msg, nil)
+      |> assign(:diff_summary, nil)
+
     {:noreply, socket}
   end
 
