@@ -87,6 +87,7 @@ defmodule Transport.Mixfile do
       {:unidecode, "~> 1.0.0"},
       {:phoenix_ecto, "~> 4.0"},
       {:sizeable, "~> 1.0"},
+      {:plug_canonical_host, "~> 2.0"},
       {:mox, "~> 1.0.0", only: :test},
       # temporary fix until https://github.com/jayjun/rambo/pull/13 is merged
       # see https://github.com/etalab/transport-site/issues/2520.
