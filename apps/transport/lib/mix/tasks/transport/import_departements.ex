@@ -57,6 +57,8 @@ defmodule Mix.Tasks.Transport.ImportDepartements do
   end
 
   defp build_geometry(geojsons, insee) do
+    # Consider using `ST_MakeValid` when it will be available
+    # https://github.com/bryanjos/geo_postgis/pull/146
     {:ok, geom} = Geo.PostGIS.Geometry.cast(Map.fetch!(geojsons, insee))
     %{geom | srid: 4326}
   end
@@ -93,5 +95,10 @@ defmodule Mix.Tasks.Transport.ImportDepartements do
     Departement |> where([c], c.insee in ^removed_departements) |> Repo.delete_all()
 
     etalab_departements |> Enum.each(&insert_or_update_departement(&1, geojsons))
+
+    ensure_valid_geometries()
   end
+
+  defp ensure_valid_geometries,
+    do: Repo.query!("UPDATE departement SET geom = ST_MakeValid(geom) WHERE NOT ST_IsValid(geom);")
 end

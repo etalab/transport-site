@@ -63,6 +63,8 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
   end
 
   defp build_geometry(geojsons, insee) do
+    # Consider using `ST_MakeValid when it will be available
+    # https://github.com/bryanjos/geo_postgis/pull/146
     {:ok, geom} = Geo.PostGIS.Geometry.cast(Map.fetch!(geojsons, insee))
     %{geom | srid: 4326}
   end
@@ -100,8 +102,12 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     disable_trigger()
     etalab_communes |> Enum.each(&insert_or_update_commune(&1, regions, geojsons))
     Logger.info("Finished. Enabling trigger and refreshing views.")
+    ensure_valid_geometries()
     enable_trigger()
   end
+
+  defp ensure_valid_geometries,
+    do: Repo.query!("UPDATE departement SET geom = ST_MakeValid(geom) WHERE NOT ST_IsValid(geom);")
 
   defp disable_trigger, do: Repo.query!("ALTER TABLE commune DISABLE TRIGGER refresh_places_commune_trigger;")
 
