@@ -29,14 +29,33 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
   end
 
   def handle_event("gtfs_diff", _, socket) do
-    [gtfs_url_1, gtfs_url_2] =
+    [gtfs_file_name_1, gtfs_file_name_2] =
       consume_uploaded_entries(socket, :gtfs, fn %{path: path}, _entry ->
         file_name = Path.basename(path)
         upload_to_s3(path, file_name)
-        {:ok, Transport.S3.permanent_url(:gtfs_diff, file_name)}
+        {:ok, file_name}
       end)
 
-    Transport.Jobs.GtfsDiff.new(%{gtfs_url_1: gtfs_url_1, gtfs_url_2: gtfs_url_2}) |> Oban.insert()
+    :ok = Oban.Notifier.listen([:gossip])
+
+    %{id: job_id} =
+      Transport.Jobs.GtfsDiff.new(%{
+        gtfs_file_name_1: gtfs_file_name_1,
+        gtfs_file_name_2: gtfs_file_name_2,
+        bucket: Transport.S3.bucket_name(:gtfs_diff)
+      })
+      |> Oban.insert!()
+
+    socket =
+      receive do
+        {:notification, :gossip, %{"complete" => ^job_id, "diff_file_url" => diff_file_url}} ->
+          IO.puts("Other job complete!")
+          socket |> assign(:diff_file_url, diff_file_url)
+      after
+        30_000 ->
+          IO.puts("Other job didn't finish in 30 seconds!")
+          socket
+      end
 
     {:noreply, socket}
   end
