@@ -8,6 +8,9 @@
 # ])
 
 defmodule Transport.Beta.GTFS do
+  @moduledoc """
+  Compute Diff between two GTFS files
+  """
   alias NimbleCSV.RFC4180, as: CSV
   require Logger
 
@@ -155,6 +158,14 @@ defmodule Transport.Beta.GTFS do
   end
 
   def get_update_messages(update_ids, file_a, file_b, file_name) do
+    check_value = fn value, key, b_value ->
+      case value do
+        nil -> nil
+        ^b_value -> nil
+        _new_value -> {key, b_value}
+      end
+    end
+
     update_ids
     |> Enum.map(fn identifier ->
       row_a = file_a |> Map.fetch!(identifier)
@@ -167,13 +178,7 @@ defmodule Transport.Beta.GTFS do
         |> Enum.map(fn key ->
           b_value = row_b |> Map.fetch!(key)
 
-          row_a
-          |> Map.get(key)
-          |> case do
-            nil -> nil
-            ^b_value -> nil
-            _new_value -> {key, b_value}
-          end
+          row_a |> Map.get(key) |> check_value.(key, b_value)
         end)
         |> Enum.reject(&is_nil/1)
 
@@ -313,13 +318,15 @@ defmodule Transport.Beta.GTFS do
           Map.get(m, :file),
           Map.get(m, :action),
           Map.get(m, :target),
-          Map.get(m, :identifier) |> Jason.encode!(),
-          Map.get(m, :arg) |> Jason.encode!(),
+          m |> Map.get(:identifier) |> Jason.encode!(),
+          m |> Map.get(:arg) |> Jason.encode!(),
           Map.get(m, :note)
         ]
       end)
 
-    ([headers] ++ body)
+    res = [headers | body]
+
+    res
     |> CSV.dump_to_iodata()
     |> IO.iodata_to_binary()
   end

@@ -50,11 +50,12 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
     :ok = Oban.Notifier.listen([:gossip])
 
     %{id: job_id} =
-      Transport.Jobs.GtfsDiff.new(%{
+      %{
         gtfs_file_name_1: gtfs_file_name_1,
         gtfs_file_name_2: gtfs_file_name_2,
         bucket: Transport.S3.bucket_name(:gtfs_diff)
-      })
+      }
+      |> Transport.Jobs.GtfsDiff.new()
       |> Oban.insert!()
 
     socket =
