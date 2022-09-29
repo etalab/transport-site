@@ -89,7 +89,7 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
       {Map.get(r, "file"), Map.get(r, "action"), Map.get(r, "target")}
     end)
     |> Enum.sort_by(fn {{_, _, target}, _} -> order |> Map.fetch!(target) end)
-    |> Enum.group_by(fn {{_file, action, _target}, n} -> action end)
+    |> Enum.group_by(fn {{_file, action, _target}, _n} -> action end)
   end
 
   defp upload_to_s3(file_path, path) do
