@@ -29,34 +29,37 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
   end
 
   def handle_event("gtfs_diff", _, socket) do
-    [path_gtfs_1, path_gtfs_2] =
+    [_path_gtfs_1, _path_gtfs_2] =
       consume_uploaded_entries(socket, :gtfs, fn %{path: path}, _entry ->
         file_name = Path.basename(path)
-        dest = Path.join(System.tmp_dir!(), file_name)
-        File.cp!(path, dest)
-        {:ok, dest}
+        upload_to_s3(path, file_name)
+        {:ok, file_name}
       end)
 
-    unzip_1 = Transport.Beta.GTFS.unzip(path_gtfs_1)
-    unzip_2 = Transport.Beta.GTFS.unzip(path_gtfs_2)
+    # unzip_1 = Transport.Beta.GTFS.unzip(path_gtfs_1)
+    # unzip_2 = Transport.Beta.GTFS.unzip(path_gtfs_2)
 
-    diff = Transport.Beta.GTFS.diff(unzip_1, unzip_2)
+    # diff = Transport.Beta.GTFS.diff(unzip_1, unzip_2)
 
-    diff_summary =
-      diff
-      |> diff_summary()
+    # diff_summary =
+    #   diff
+    #   |> diff_summary()
 
-    diff_output = diff |> Transport.Beta.GTFS.dump_diff() |> String.split("\r\n")
+    # diff_output = diff |> Transport.Beta.GTFS.dump_diff() |> String.split("\r\n")
 
-    socket =
-      socket
-      |> assign(:diff_summary, diff_summary)
-      |> assign(:diff_output, diff_output)
+    # socket =
+    #   socket
+    #   |> assign(:diff_summary, diff_summary)
+    #   |> assign(:diff_output, diff_output)
 
-    File.rm!(path_gtfs_1)
-    File.rm!(path_gtfs_2)
+    # File.rm!(path_gtfs_1)
+    # File.rm!(path_gtfs_2)
 
     {:noreply, socket}
+  end
+
+  defp upload_to_s3(file_path, path) do
+    Transport.S3.upload_to_s3!(:gtfs_diff, File.read!(file_path), path)
   end
 
   def diff_summary(diff) do
