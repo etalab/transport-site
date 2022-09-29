@@ -38,6 +38,11 @@
         </div>
       </section>
     </div>
+
+    <%= if assigns[:diff_file_url] do %>
+      <%= link("download diff", to: @diff_file_url) %>
+    <% end %>
+
     <%= if assigns[:diff_summary] do %>
       <h2>Summary of found differences</h2>
       <ul>
