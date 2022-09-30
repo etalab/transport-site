@@ -249,10 +249,9 @@ defmodule Transport.Validators.GTFSTransport do
   def is_gtfs_outdated(_), do: nil
 
   # all those functions come from resource.ex, but now live here as they are related to this validator
-  @spec find_tags(__MODULE__.t(), map()) :: [binary()]
-  def find_tags(%__MODULE__{} = r, metadata) do
-    r
-    |> base_tag()
+  @spec find_tags(map()) :: [binary()]
+  def find_tags(metadata) do
+    gtfs_base_tags()
     |> Enum.concat(find_tags_from_metadata(metadata))
     |> Enum.uniq()
   end
@@ -341,12 +340,7 @@ defmodule Transport.Validators.GTFSTransport do
 
   def has_wheelchair_accessibility(_), do: []
 
-  @spec base_tag(__MODULE__.t()) :: [binary()]
-  def base_tag(%__MODULE__{format: "GTFS"}),
+  @spec gtfs_base_tags() :: [binary()]
+  def gtfs_base_tags(),
     do: ["position des stations", "horaires théoriques", "topologie du réseau"]
-
-  def base_tag(%__MODULE__{format: "NeTEx"}),
-    do: ["position des stations", "horaires théoriques", "topologie du réseau"]
-
-  def base_tag(_), do: []
 end
