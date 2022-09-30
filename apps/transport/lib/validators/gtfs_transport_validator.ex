@@ -247,4 +247,106 @@ defmodule Transport.Validators.GTFSTransport do
   end
 
   def is_gtfs_outdated(_), do: nil
+
+  # all those functions come from resource.ex, but now live here as they are related to this validator
+  @spec find_tags(__MODULE__.t(), map()) :: [binary()]
+  def find_tags(%__MODULE__{} = r, metadata) do
+    r
+    |> base_tag()
+    |> Enum.concat(find_tags_from_metadata(metadata))
+    |> Enum.uniq()
+  end
+
+  def find_tags_from_metadata(metadata) do
+    tags =
+      metadata
+      |> has_fares_tag()
+      |> Enum.concat(has_shapes_tag(metadata))
+      |> Enum.concat(has_odt_tag(metadata))
+      |> Enum.concat(has_route_colors_tag(metadata))
+      |> Enum.concat(has_pathways_tag(metadata))
+      |> Enum.concat(has_bike_accessibility(metadata))
+      |> Enum.concat(has_wheelchair_accessibility(metadata))
+
+    Enum.each(tags, fn tag ->
+      if tag not in existing_gtfs_tags() do
+        raise "`#{tag}` is not a known tag"
+      end
+    end)
+
+    tags
+  end
+
+  def existing_gtfs_tags,
+    do: [
+      "tarifs",
+      "tracés de lignes",
+      "transport à la demande",
+      "couleurs des lignes",
+      "description des correspondances",
+      "informations sur l'accessibilité à vélo",
+      "informations sur l'accessibilité en fauteuil roulant"
+    ]
+
+  @spec find_modes(map()) :: [binary()]
+  def find_modes(%{"modes" => modes}), do: modes
+  def find_modes(_), do: []
+
+  # These tags are not translated because we'll need to be able to search for those tags
+  @spec has_fares_tag(map()) :: [binary()]
+  def has_fares_tag(%{"has_fares" => true}), do: ["tarifs"]
+  def has_fares_tag(_), do: []
+
+  @spec has_shapes_tag(map()) :: [binary()]
+  def has_shapes_tag(%{"has_shapes" => true}), do: ["tracés de lignes"]
+  def has_shapes_tag(_), do: []
+
+  # check if the resource contains some On Demand Transport (odt) tags
+  @spec has_odt_tag(map()) :: [binary()]
+  def has_odt_tag(%{"some_stops_need_phone_agency" => true}), do: ["transport à la demande"]
+  def has_odt_tag(%{"some_stops_need_phone_driver" => true}), do: ["transport à la demande"]
+  def has_odt_tag(_), do: []
+
+  @doc """
+  Outputs a tag if at least 80% of GTFS routes have a custom color.
+
+  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 8, "lines_count" => 10})
+  ["couleurs des lignes"]
+  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 7, "lines_count" => 10})
+  []
+  iex> has_route_colors_tag(%{"lines_with_custom_color_count" => 0, "lines_count" => 0})
+  []
+  """
+  @spec has_route_colors_tag(map()) :: [binary()]
+  def has_route_colors_tag(%{"lines_with_custom_color_count" => with_colors_count, "lines_count" => lines_count})
+      when with_colors_count / lines_count * 100 >= 80,
+      do: ["couleurs des lignes"]
+
+  def has_route_colors_tag(_), do: []
+
+  @spec has_pathways_tag(map()) :: [binary()]
+  def has_pathways_tag(%{"has_pathways" => true}), do: ["description des correspondances"]
+  def has_pathways_tag(_), do: []
+
+  @spec has_bike_accessibility(map()) :: [binary()]
+  def has_bike_accessibility(%{"trips_with_bike_info_count" => n}) when is_integer(n) and n > 0,
+    do: ["informations sur l'accessibilité à vélo"]
+
+  def has_bike_accessibility(_), do: []
+
+  @spec has_wheelchair_accessibility(map()) :: [binary()]
+  def has_wheelchair_accessibility(%{"trips_with_wheelchair_info_count" => n1, "stops_with_wheelchair_info_count" => n2})
+      when is_integer(n1) and is_integer(n2) and (n1 > 0 or n2 > 0),
+      do: ["informations sur l'accessibilité en fauteuil roulant"]
+
+  def has_wheelchair_accessibility(_), do: []
+
+  @spec base_tag(__MODULE__.t()) :: [binary()]
+  def base_tag(%__MODULE__{format: "GTFS"}),
+    do: ["position des stations", "horaires théoriques", "topologie du réseau"]
+
+  def base_tag(%__MODULE__{format: "NeTEx"}),
+    do: ["position des stations", "horaires théoriques", "topologie du réseau"]
+
+  def base_tag(_), do: []
 end
