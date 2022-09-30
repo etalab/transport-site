@@ -35,6 +35,12 @@ defmodule DB.ResourceHistory do
     |> join(:inner_lateral, [resource_history: rh], latest in subquery(last_resource_history), on: latest.id == rh.id)
   end
 
+  def join_dataset_with_latest_resource_history(query) do
+    query
+    |> join(:inner, [dataset: d], r in DB.Resource, on: r.dataset_id == d.id, as: :resource)
+    |> join_resource_with_latest_resource_history()
+  end
+
   defp latest_resource_history_query(resource_id) do
     DB.ResourceHistory
     |> where([rh], rh.resource_id == ^resource_id)

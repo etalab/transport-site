@@ -124,7 +124,7 @@ defmodule DB.Dataset do
   @spec preload_without_validations() :: Ecto.Query.t()
   defp preload_without_validations do
     s = no_validations_query()
-    preload(__MODULE__, resources: ^s)
+    base_query() |> preload(resources: ^s)
   end
 
   @spec filter_by_fulltext(Ecto.Query.t(), map()) :: Ecto.Query.t()
@@ -175,10 +175,12 @@ defmodule DB.Dataset do
   @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_mode(query, %{"modes" => mode}) do
     query
-    |> where(
-      [d],
-      fragment("(? IN (SELECT DISTINCT(dataset_id) FROM resource r where r.modes @> ?::varchar[]))", d.id, ^mode)
+    |> DB.ResourceHistory.join_dataset_with_latest_resource_history()
+    |> DB.MultiValidation.join_resource_history_with_latest_validation(
+      Transport.Validators.GTFSTransport.validator_name()
     )
+    |> DB.ResourceMetadata.join_validation_with_metadata()
+    |> where([metadata: rm], fragment("? @> ?::varchar[]", rm.modes, ^mode))
   end
 
   defp filter_by_mode(query, _), do: query

@@ -165,8 +165,8 @@ defmodule TransportWeb.DatasetController do
       params
       |> clean_datasets_query("region")
       |> exclude(:order_by)
-      |> join(:left, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
-      |> select([d, d_geo], %{id: d.id, region_id: d_geo.region_id})
+      |> join(:left, [dataset: d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id, as: :geo_view)
+      |> select([dataset: d, geo_view: d_geo], %{id: d.id, region_id: d_geo.region_id})
 
     Region
     |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
