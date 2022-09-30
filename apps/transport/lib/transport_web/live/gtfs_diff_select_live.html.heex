@@ -50,21 +50,21 @@
     <%= if assigns[:diff_summary] do %>
       Here is an an overview of the differences found:
       <div class="summary">
-        <div>
+        <div :if={@diff_summary["add"]}>
           <ul>
             <%= for {{file, "add", target}, n} <- @diff_summary["add"] do %>
               <li><span class="green">add </span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %></li>
             <% end %>
           </ul>
         </div>
-        <div>
+        <div :if={@diff_summary["delete"]}>
           <ul>
             <%= for {{file, "delete", target}, n} <- @diff_summary["delete"] do %>
               <li><span class="red">delete </span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %></li>
             <% end %>
           </ul>
         </div>
-        <div>
+        <div :if={@diff_summary["update"]}>
           <ul>
             <%= for {{file, "update", target}, n} <- @diff_summary["update"] do %>
               <li><span class="orange">update </span><%= "#{n} #{target}#{if n > 1, do: "s"} - #{file}" %></li>
