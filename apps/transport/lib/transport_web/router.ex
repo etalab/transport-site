@@ -8,6 +8,8 @@ defmodule TransportWeb.Router do
   end
 
   pipeline :browser do
+    plug(:canonical_host)
+
     plug(:accepts, ["html"])
     plug(:fetch_session)
     plug(:fetch_live_flash)
@@ -292,5 +294,12 @@ defmodule TransportWeb.Router do
       |> redirect(to: Helpers.page_path(conn, :login, redirect_path: current_path(conn)))
       |> halt()
     end
+  end
+
+  # see https://github.com/remi/plug_canonical_host#usage
+  defp canonical_host(conn, _) do
+    host = Application.fetch_env!(:transport, :domain_name)
+    opts = PlugCanonicalHost.init(canonical_host: host)
+    PlugCanonicalHost.call(conn, opts)
   end
 end
