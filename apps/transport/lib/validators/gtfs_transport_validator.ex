@@ -25,7 +25,9 @@ defmodule Transport.Validators.GTFSTransport do
          data_vis <- Transport.DataVisualization.validation_data_vis(validations) do
       resource_metadata = %DB.ResourceMetadata{
         resource_history_id: resource_history_id,
-        metadata: metadata
+        metadata: metadata,
+        modes: find_modes(metadata),
+        features: find_tags(metadata)
       }
 
       %DB.MultiValidation{
