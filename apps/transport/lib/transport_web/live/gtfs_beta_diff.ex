@@ -229,13 +229,13 @@ defmodule Transport.Beta.GTFS do
     added_files_diff =
       added_files
       |> Enum.map(fn file ->
-        %{file: file, action: "add", target: "file", identifier: %{file_name: file}}
+        %{file: file, action: "add", target: "file", identifier: %{filename: file}}
       end)
 
     deleted_files_diff =
       deleted_files
       |> Enum.map(fn file ->
-        %{file: file, action: "delete", target: "file", identifier: %{file_name: file}}
+        %{file: file, action: "delete", target: "file", identifier: %{filename: file}}
       end)
 
     added_files_diff ++ deleted_files_diff
@@ -257,7 +257,7 @@ defmodule Transport.Beta.GTFS do
             file: file_name,
             action: "add",
             target: "column",
-            identifier: %{column_name: column_name}
+            identifier: %{column: column_name}
           }
         end)
 
@@ -268,7 +268,7 @@ defmodule Transport.Beta.GTFS do
             file: file_name,
             action: "delete",
             target: "column",
-            identifier: %{column_name: column_name}
+            identifier: %{column: column_name}
           }
         end)
 
@@ -288,10 +288,6 @@ defmodule Transport.Beta.GTFS do
         file_1 = parse_from_unzip(unzip_1, file_name)
         file_2 = parse_from_unzip(unzip_2, file_name)
 
-        # if file_name == "calendar_dates.txt" do
-        #   IO.inspect(file_1)
-        # end
-
         diff_file(file_name, file_1, file_2)
       else
         Logger.info("file #{file_name} not handled")
@@ -305,21 +301,28 @@ defmodule Transport.Beta.GTFS do
     column_diff = column_diff(unzip_1, unzip_2)
     row_diff = row_diff(unzip_1, unzip_2)
 
-    file_diff ++ column_diff ++ row_diff
+    diff = file_diff ++ column_diff ++ row_diff
+    id_range = 0..(Enum.count(diff) - 1)
+
+    diff |> Enum.zip_with(id_range, &Map.merge(&1, %{id: &2}))
   end
 
   def dump_diff(diff) do
-    headers = ["file", "action", "target", "identifier", "arg", "note"]
+    headers = ["id", "file", "action", "target", "identifier", "arg", "note"]
 
     body =
       diff
       |> Enum.map(fn m ->
         [
+          Map.get(m, :id),
           Map.get(m, :file),
           Map.get(m, :action),
           Map.get(m, :target),
           m |> Map.get(:identifier) |> Jason.encode!(),
-          m |> Map.get(:arg) |> Jason.encode!(),
+          case m |> Map.get(:arg) do
+            nil -> nil
+            arg -> arg |> Jason.encode!()
+          end,
           Map.get(m, :note)
         ]
       end)
