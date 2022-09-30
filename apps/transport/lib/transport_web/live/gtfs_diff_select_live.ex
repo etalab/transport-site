@@ -5,6 +5,7 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
   use Phoenix.LiveView
   use TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
+  import TransportWeb.Gettext
 
   def mount(_params, %{"locale" => locale} = _session, socket) do
     Gettext.put_locale(locale)

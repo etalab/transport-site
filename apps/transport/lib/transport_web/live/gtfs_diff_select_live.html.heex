@@ -1,17 +1,19 @@
 <section class="single-page section section-grey">
   <div class="container gtfs-diff">
-    <h1>GTFS Diff Playground</h1>
+    <h1><%= dgettext("validations", "GTFS Diff Playground (BETA!)") %></h1>
     <div class="pb-48">
       <section id="gtfs-diff-input" phx-drop-target={@uploads.gtfs.ref}>
         <form id="upload-form" phx-submit="gtfs_diff" phx-change="validate">
           <div class="drop-zone panel">
-            Drop your files here or browse your local drive <%= live_file_input(@uploads.gtfs) %>
+            <%= dgettext("validations", "Drop your files here or browse your local drive") %> <%= live_file_input(
+              @uploads.gtfs
+            ) %>
           </div>
           <%= if uploads_are_valid(@uploads) do %>
             <%= if assigns[:job_running] do %>
               <button class="button">Job is running...</button>
             <% else %>
-              <button class="button" type="submit">Compute GTFS Diff</button>
+              <button class="button" type="submit"><%= dgettext("validations", "Compute GTFS Diff") %></button>
             <% end %>
           <% end %>
         </form>
@@ -44,11 +46,15 @@
     </div>
 
     <%= if assigns[:diff_file_url] do %>
-      <h2>Diff is complete, <%= link("download it", to: @diff_file_url) %>.</h2>
+      <h2>
+        <%= dgettext("validations", "Diff is complete") %>, <%= link(dgettext("validations", "download it"),
+          to: @diff_file_url
+        ) %>.
+      </h2>
     <% end %>
 
     <%= if assigns[:diff_summary] do %>
-      Here is an an overview of the differences found:
+      <%= dgettext("validations", "Here is an an overview of the differences found:") %>
       <div class="summary">
         <div :if={@diff_summary["add"]}>
           <ul>
