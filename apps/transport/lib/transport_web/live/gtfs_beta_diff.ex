@@ -153,16 +153,16 @@ defmodule Transport.Beta.GTFS do
     added_ids
     |> Enum.map(fn identifier ->
       added = file_b |> Map.fetch!(identifier)
-      %{file: file_name, action: "add", target: "row", identifier: identifier, arg: added}
+      %{file: file_name, action: "add", target: "row", identifier: identifier, new_value: added}
     end)
   end
 
   def get_update_messages(update_ids, file_a, file_b, file_name) do
-    check_value = fn value, key, b_value ->
-      case value do
+    check_value = fn a_value, key, b_value ->
+      case a_value do
         nil -> nil
         ^b_value -> nil
-        _new_value -> {key, b_value}
+        _new_value -> %{initial_value: {key, a_value}, new_value: {key, b_value}}
       end
     end
 
@@ -188,7 +188,8 @@ defmodule Transport.Beta.GTFS do
           action: "update",
           target: "row",
           identifier: identifier,
-          arg: arg |> Enum.into(%{})
+          initial_value: arg |> Enum.map(fn m -> m.initial_value end) |> Enum.into(%{}),
+          new_value: arg |> Enum.map(fn m -> m.new_value end) |> Enum.into(%{})
         }
       end
     end)
@@ -308,7 +309,7 @@ defmodule Transport.Beta.GTFS do
   end
 
   def dump_diff(diff) do
-    headers = ["id", "file", "action", "target", "identifier", "arg", "note"]
+    headers = ["id", "file", "action", "target", "identifier", "initial_value", "new_value", "note"]
 
     body =
       diff
@@ -319,7 +320,11 @@ defmodule Transport.Beta.GTFS do
           Map.get(m, :action),
           Map.get(m, :target),
           m |> Map.get(:identifier) |> Jason.encode!(),
-          case m |> Map.get(:arg) do
+          case m |> Map.get(:initial_value) do
+            nil -> nil
+            arg -> arg |> Jason.encode!()
+          end,
+          case m |> Map.get(:new_value) do
             nil -> nil
             arg -> arg |> Jason.encode!()
           end,
