@@ -1,12 +1,3 @@
-# # A script to find differences between two GTFS files
-# # And express the result in human and computer interpretable way
-
-# Mix.install([
-#   {:nimble_csv, "~> 1.1"},
-#   {:jason, "~> 1.3"},
-#   {:unzip, "~> 0.7.1"}
-# ])
-
 defmodule Transport.Beta.GTFS do
   @moduledoc """
   Compute Diff between two GTFS files
