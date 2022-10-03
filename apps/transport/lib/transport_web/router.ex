@@ -63,7 +63,12 @@ defmodule TransportWeb.Router do
     scope "/explore" do
       get("/", ExploreController, :index)
       get("/vehicle-positions", ExploreController, :vehicle_positions)
-      get("/siri", ExploreController, :siri)
+
+      # TODO: move layout selection to the view level if possible
+      # (https://hexdocs.pm/phoenix_live_view/live-layouts.html)
+      live_session :siri, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/siri-querier", Live.SIRIQuerierLive)
+      end
     end
 
     scope "/datasets" do
