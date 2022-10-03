@@ -81,15 +81,6 @@
         </div>
       </div>
     <% end %>
-
-    <%= if assigns[:diff_output] do %>
-      <h2>GTFS Diff (csv)</h2>
-      <div class="panel">
-        <%= for diff <- @diff_output do %>
-          <div><%= diff %></div>
-        <% end %>
-      </div>
-    <% end %>
   </div>
 </section>
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
