@@ -323,10 +323,6 @@ msgid "Features available in the resource:"
 msgstr "Données présentes dans la ressource :"
 
 #, elixir-autogen, elixir-format
-msgid "Missing features that can be specified in GTFS:"
-msgstr "Données absentes mais possibles à modéliser en GTFS :"
-
-#, elixir-autogen, elixir-format
 msgid "unavailable resources"
 msgstr "Ressources non disponibles"
 
@@ -545,3 +541,7 @@ msgstr "Le <a href=\"%{link}\">champ timestamp</a> contient une valeur ancienne 
 #, elixir-autogen, elixir-format
 msgid "Displaying the last %{nb} backed up resources."
 msgstr "Affiche les %{nb} dernières ressources historisées."
+
+#, elixir-autogen, elixir-format
+msgid "Missing features that <a href=\"%{doc_link}\" target=\"_blank\">can be specified in GTFS</a>:"
+msgstr "Données absentes mais <a href=\"%{doc_link}\" target=\"_blank\">possibles à modéliser en GTFS</a> :"
