@@ -28,9 +28,6 @@
     <%= form_for @conn, backoffice_dataset_path(@conn, :import_validate_all), [method: "post"], fn _f -> %>
       <%= submit(dgettext("backoffice", "Import and validate all")) %>
     <% end %>
-    <%= form_for @conn, backoffice_dataset_path(@conn, :force_validate_all), fn _f -> %>
-      <%= submit(dgettext("backoffice", "validate all")) %>
-    <% end %>
   </div>
   <a
     class="button warning-light"
@@ -47,6 +44,13 @@
     >
       Publier une Breaking News
     </a>
+  </div>
+
+  <h2><%= dgettext("backoffice", "Validations") %></h2>
+  <div>
+    <%= form_for @conn, backoffice_dataset_path(@conn, :force_validate_gtfs_transport), [class: "no-margin"], fn _f -> %>
+      <%= submit(dgettext("backoffice", "GTFS Transport validator - Force validation")) %>
+    <% end %>
   </div>
   <h1 class="pt-48">
     <a name="list_datasets" href="#list_datasets" class="anchor"></a>
@@ -65,7 +69,7 @@
     <%= if is_nil(@conn.params["filter"]) or @conn.params["filter"] == "" do %>
       -- ou -- <br />
       <%= dgettext("backoffice", "Show only datasets") %> :
-      <div style="padding-left: 12px;">
+      <div class="pl-12">
         <div>
           <%= link(dgettext("backoffice", "Outdated"),
             to: backoffice_page_path(@conn, :index, %{"filter" => "outdated"}) <> "#list_datasets"

@@ -38,14 +38,14 @@ const makeMapOnView = (id, view) => {
 }
 
 // helper function to add legends
-const getLegend = (title, colors, labels) => {
+const getLegend = (title, colorClasses, labels) => {
     const legend = Leaflet.control({ position: 'bottomright' })
     legend.onAdd = (_map) => {
         const div = Leaflet.DomUtil.create('div', 'info legend')
         div.innerHTML += title
         // loop through our density intervals and generate a label with a colored square for each interval
-        for (let i = 0; i < colors.length; i++) {
-            div.innerHTML += `<i style="background:${colors[i]}"></i>${labels[i]}<br/>`
+        for (let i = 0; i < colorClasses.length; i++) {
+            div.innerHTML += `<i class="map-bg-${colorClasses[i]}"></i>${labels[i]}<br/>`
         }
         return div
     }
@@ -191,7 +191,7 @@ function addStaticPTMapRegions (id, view) {
     if (view.display_legend) {
         getLegend(
             '<h4>Disponibilité des horaires théoriques</h4>',
-            ['green', lightGreen, 'grey'],
+            ['green', 'light-green', 'grey'],
             ['Données publiées et région partenaire', 'Données publiées', 'Aucune donnée publiée']
         ).addTo(map)
     }
@@ -278,7 +278,7 @@ function addStaticPTMapAOMS (id, view) {
     if (view.display_legend) {
         getLegend(
             '<h4>Disponibilité des horaires théoriques :</h4>',
-            ['green', lightGreen, `repeating-linear-gradient(-45deg,green,green 3px,${lightGreen} 3px,${lightGreen} 6px)`, 'grey'],
+            ['green', 'light-green', 'stripes-green-light-green', 'grey'],
             ['Pour l\'AOM spécifiquement', 'Dans un jeu de données agrégé', 'Pour l\'AOM <strong>et</strong> dans un jeu de données agrégé', 'Aucune donnée disponible']
         ).addTo(map)
     }
@@ -429,7 +429,7 @@ function addStaticPTQuality (id, view) {
     if (view.display_legend) {
         getLegend(
             '<h4>Qualité des données courantes</h4>',
-            ['red', 'orange', lightGreen, 'green', 'grey'],
+            ['red', 'orange', 'light-green', 'green', 'grey'],
             ['Non conforme', 'Erreur', 'Satisfaisante', 'Bonne', 'Pas de données à jour']
         ).addTo(map)
     }
@@ -519,7 +519,7 @@ function addRealTimePTMap (id, view) {
     if (view.display_legend) {
         const legend = getLegend(
             '<h4>Disponibilité des horaires temps réel</h4>',
-            ['green', lightGreen, 'red'],
+            ['green', 'light-green', 'red'],
             [
                 'Données intégralement ouvertes sur transport.data.gouv.fr',
                 'Données partiellement ouvertes sur transport.data.gouv.fr',
@@ -551,11 +551,11 @@ function addRealTimePtFormatMap (id, view) {
             return null
         }
 
-        let bind = `<div style="padding-bottom: 6px;"><strong>${name}</strong><br/>${type}</div>`
+        let bind = `<div class="pb-6"><strong>${name}</strong><br/>${type}</div>`
         if (countOfficial) {
             const text = countOfficial === 1 ? 'Une ressource standardisée' : `${countOfficial} ressources standardisées`
             const commune = feature.properties.id
-            bind += `<div style="padding-bottom: 6px;"><a href="/datasets/aom/${commune}">${text}</a>`
+            bind += `<div class="pb-6"><a href="/datasets/aom/${commune}">${text}</a>`
             bind += '<br/>formats :'
             const formats = []
             if (gtfsRT) {
@@ -582,8 +582,8 @@ function addRealTimePtFormatMap (id, view) {
     bigStripes.addTo(map)
     const legends = {
         gtfs_rt: { label: 'GTFS RT', color: 'blue' },
-        siri: { label: 'SIRI', color: lightGreen },
-        gtfs_rt_siri: { label: 'GTFS RT + SIRI', color: `repeating-linear-gradient(-45deg,blue,blue 3px,${lightGreen} 3px,${lightGreen} 6px)` },
+        siri: { label: 'SIRI', color: 'light-green' },
+        gtfs_rt_siri: { label: 'GTFS RT + SIRI', color: 'stripes-green-light-green' },
         siri_lite: { label: 'SIRI Lite', color: 'green' },
         non_standard_rt: { label: 'Non standard', color: 'red' },
         multiple: { label: 'Multiple', color: 'orange' }

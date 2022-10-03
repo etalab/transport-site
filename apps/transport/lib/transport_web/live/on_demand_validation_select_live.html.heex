@@ -1,15 +1,16 @@
 <section class="single-page section section-grey">
-  <div class="container" style="min-height: 50vh;">
+  <div class="container container_min_height">
     <h1><%= TransportWeb.Gettext.dgettext("validations", "Check the quality of a file or a feed") %></h1>
     <div class="pb-48">
       <.form
-        let={f}
+        :let={f}
         for={@changeset}
         action={validation_path(@socket, :validate)}
         class="no-margin"
         multipart={true}
-        as="upload"
+        as={:upload}
         phx-change="form_changed"
+        phx-trigger-action={@trigger_submit}
       >
         <%= select(f, :type, @select_options, label: dgettext("validations", "Data type"), required: true) %>
         <%= if @input_type == "file" do %>

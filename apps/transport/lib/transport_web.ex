@@ -48,8 +48,7 @@ defmodule TransportWeb do
       import TransportWeb.SeoMetadata
       import Helpers
 
-      import Phoenix.LiveView.Helpers,
-        only: [live_render: 2, live_render: 3]
+      import Phoenix.Component, only: [live_render: 3]
 
       import Plug.Conn, only: [get_session: 2]
     end

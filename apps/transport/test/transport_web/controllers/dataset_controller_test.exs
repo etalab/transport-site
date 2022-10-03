@@ -94,7 +94,6 @@ defmodule TransportWeb.DatasetControllerTest do
           %DB.Resource{
             url: "http://link.to/file.zip?foo=bar",
             datagouv_id: "2",
-            metadata: %{"has_errors" => false},
             type: "main",
             format: "geojson",
             schema_name: "etalab/schema-zfe"
@@ -140,7 +139,6 @@ defmodule TransportWeb.DatasetControllerTest do
                  "features" => [],
                  "type" => "main",
                  "format" => "geojson",
-                 "metadata" => %{"has_errors" => false},
                  "modes" => [],
                  "original_url" => "http://link.to/file.zip?foo=bar",
                  "schema_name" => "etalab/schema-zfe",

@@ -12,7 +12,6 @@ defmodule Transport.Mixfile do
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       gettext: [{:write_reference_comments, false}],
-      compilers: [:gettext] ++ Mix.compilers(),
       preferred_cli_env: [
         vcr: :test,
         "vcr.delete": :test,
@@ -61,7 +60,7 @@ defmodule Transport.Mixfile do
       {:phoenix, "~> 1.6.2"},
       {:phoenix_html, "~> 3.1"},
       {:phoenix_markdown, "~> 1.0"},
-      {:phoenix_live_view, "~> 0.17.5"},
+      {:phoenix_live_view, "~> 0.18.0"},
       {:html_sanitize_ex, "~> 1.4"},
       {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 2.3"},
@@ -80,7 +79,7 @@ defmodule Transport.Mixfile do
       {:unlock, in_umbrella: true},
       {:castore, "~> 0.1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:cors_plug, "~> 2.0"},
+      {:cors_plug, "~> 3.0"},
       {:exvcr, "~> 0.13", only: :test},
       {:credo, "~> 1.6.0", only: [:dev, :test], runtime: false},
       {:ex_aws, "~> 2.1"},
@@ -88,6 +87,7 @@ defmodule Transport.Mixfile do
       {:unidecode, "~> 1.0.0"},
       {:phoenix_ecto, "~> 4.0"},
       {:sizeable, "~> 1.0"},
+      {:plug_canonical_host, "~> 2.0"},
       {:mox, "~> 1.0.0", only: :test},
       # temporary fix until https://github.com/jayjun/rambo/pull/13 is merged
       # see https://github.com/etalab/transport-site/issues/2520.
@@ -106,7 +106,7 @@ defmodule Transport.Mixfile do
       # to be fixed before upgrading
       {:oban, "~> 2.10.1"},
       {:unzip, "~> 0.7.0"},
-      {:protobuf, "~> 0.10.0"},
+      {:protobuf, "~> 0.11.0"},
       {:nimble_csv, "~> 1.2.0"},
       {:kino, "~> 0.6", only: :dev},
       # db

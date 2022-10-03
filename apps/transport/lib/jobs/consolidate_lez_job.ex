@@ -10,12 +10,29 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   """
   use Oban.Worker, max_attempts: 3
   require Logger
-  import DB.ResourceHistory, only: [latest_resource_history: 1]
   import Ecto.Query
-  alias DB.{Dataset, Repo, Resource, ResourceHistory}
+  alias DB.{AOM, Dataset, MultiValidation, Repo, Resource, ResourceHistory}
+  alias Transport.CSVDocuments
 
   @schema_name "etalab/schema-zfe"
   @lez_dataset_type "low-emission-zones"
+  @dataset_org_to_publisher %{
+    "Mairie de Paris" => %{
+      "nom" => "Ville de Paris",
+      "siren" => "217500016",
+      "forme_juridique" => "Autre collectivité territoriale"
+    },
+    "Métropole de Lyon" => %{
+      "nom" => "Métropole de Lyon",
+      "siren" => "200046977",
+      "forme_juridique" => "Métropole"
+    },
+    "Saint-Etienne Métropole" => %{
+      "nom" => "Saint-Etienne Métropole",
+      "siren" => "244200770",
+      "forme_juridique" => "Métropole"
+    }
+  }
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
@@ -94,11 +111,8 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
         r.dataset_id == d.id and d.type == @lez_dataset_type and
           d.organization != ^own_publisher
     )
-    |> where(
-      [r],
-      r.schema_name == @schema_name and fragment("(metadata->'validation'->>'has_errors')::bool = false")
-    )
-    |> preload(:dataset)
+    |> where([r], r.schema_name == @schema_name)
+    |> preload(dataset: [:aom])
     |> Repo.all()
   end
 
@@ -110,12 +124,55 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   end
 
   defp content_features(%Resource{} = resource) do
-    # TO DO: enforce `has_errors` to `false`
-    %ResourceHistory{payload: %{"permanent_url" => url, "resource_metadata" => %{"validation" => %{"has_errors" => _}}}} =
-      latest_resource_history(resource)
+    %ResourceHistory{payload: %{"permanent_url" => url}} = latest_valid_resource_history(resource)
 
     %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(url, [], follow_redirect: true)
-    body |> Jason.decode!() |> Map.fetch!("features")
+
+    body
+    |> Jason.decode!()
+    |> Map.fetch!("features")
+    |> Enum.map(&add_publisher(&1, publisher_details(resource)))
+  end
+
+  defp latest_valid_resource_history(%Resource{id: resource_id}) do
+    ResourceHistory
+    |> join(:inner, [rh], mv in MultiValidation,
+      on: mv.resource_history_id == rh.id and fragment("(result->>'has_errors')::bool = false")
+    )
+    |> where([rh, _mv], rh.resource_id == ^resource_id)
+    |> order_by([rh, _mv], desc: :inserted_at)
+    |> select([rh, _mv], rh)
+    |> Repo.one()
+  end
+
+  defp add_publisher(features, publisher_details) do
+    Map.put(features, "publisher", publisher_details)
+  end
+
+  def publisher_details(%Resource{dataset: %Dataset{aom: %AOM{} = aom}}) do
+    %{
+      "nom" => aom.nom,
+      "siren" => aom.siren,
+      "forme_juridique" => aom.forme_juridique,
+      "zfe_id" => zfe_id(aom.siren)
+    }
+  end
+
+  def publisher_details(%Resource{dataset: %Dataset{organization: organization}}) do
+    publisher = Map.fetch!(@dataset_org_to_publisher, organization)
+    publisher |> Map.put("zfe_id", zfe_id(Map.fetch!(publisher, "siren")))
+  end
+
+  def zfe_id(siren) do
+    zfe_id =
+      CSVDocuments.zfe_ids()
+      |> Enum.find_value(fn el -> if el["siren"] == siren, do: el["code"] end)
+
+    if is_nil(zfe_id) do
+      Logger.error("Could not find zfe_id for SIREN #{siren}")
+    end
+
+    zfe_id
   end
 
   def pan_publisher do

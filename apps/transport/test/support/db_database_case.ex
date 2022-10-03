@@ -43,7 +43,6 @@ defmodule DB.DatabaseCase do
         Repo.insert(%Commune{
           insee: "38185",
           nom: "Grenoble",
-          wikipedia: "fr:Grenoble",
           surf_ha: 200_554.0,
           aom_res_id: 100
         })

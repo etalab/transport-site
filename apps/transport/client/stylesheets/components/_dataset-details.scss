@@ -450,6 +450,10 @@
   padding-bottom: 24px;
 }
 
+.pb-6 {
+  padding-bottom: 6px;
+}
+
 .pt-48 {
   padding-top: 48px;
 }
@@ -484,6 +488,10 @@
 
 .mr-24 {
   margin-right: 24px;
+}
+
+.my-\.5 {
+  margin: .5em 0;
 }
 
 .no-padding {
@@ -537,4 +545,8 @@
 
 .reuses_not_available {
   font-style: italic;
+}
+
+.container_max_700px {
+  max-width: 700px;
 }
