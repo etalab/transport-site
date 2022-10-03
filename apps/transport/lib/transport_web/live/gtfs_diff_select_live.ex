@@ -41,7 +41,7 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
   end
 
   def handle_info(:enqueue_job, socket) do
-    [gtfs_file_name_1, gtfs_file_name_2] =
+    [gtfs_file_name_2, gtfs_file_name_1] =
       consume_uploaded_entries(socket, :gtfs, fn %{path: path}, _entry ->
         file_name = Path.basename(path)
         upload_to_s3(path, file_name)
