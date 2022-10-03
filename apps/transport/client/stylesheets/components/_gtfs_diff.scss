@@ -29,17 +29,17 @@
 
 .gtfs-diff {
   min-height: 90vh;
+  .green {
+    color: green;
+  }
+  .red {
+    color: red;
+  }
+  .orange {
+    color: orange;
+  }
   .summary {
     display: flex;
     justify-content: space-around;
-    .green {
-      color: green;
-    }
-    .red {
-      color: red;
-    }
-    .orange {
-      color: orange;
-    }
   }
 }

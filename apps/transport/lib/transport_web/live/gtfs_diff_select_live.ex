@@ -65,8 +65,8 @@ defmodule TransportWeb.Live.GtfsDiffSelectLive do
           send(self(), {:generate_diff_summary, diff_file_url})
           socket |> assign(:diff_file_url, diff_file_url)
       after
-        60_000 ->
-          socket |> assign(:error_msg, "job aborted, the diff is taking too long (>60sec)")
+        120_000 ->
+          socket |> assign(:error_msg, "Job aborted, the diff is taking too long (>120sec).")
       end
 
     {:noreply, socket |> assign(:job_running, false)}

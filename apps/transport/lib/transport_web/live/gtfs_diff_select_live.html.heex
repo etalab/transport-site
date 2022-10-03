@@ -45,13 +45,15 @@
       </section>
     </div>
 
-    <%= if assigns[:diff_file_url] do %>
-      <h2>
-        <%= dgettext("validations", "Diff is complete") %>, <%= link(dgettext("validations", "download it"),
-          to: @diff_file_url
-        ) %>.
-      </h2>
-    <% end %>
+    <div :if={assigns[:error_msg]}>
+      <span class="red"><%= @error_msg %></span>
+    </div>
+
+    <h2 :if={assigns[:diff_file_url]}>
+      <%= dgettext("validations", "Diff is complete") %>, <%= link(dgettext("validations", "download it"),
+        to: @diff_file_url
+      ) %>.
+    </h2>
 
     <%= if assigns[:diff_summary] do %>
       <%= dgettext("validations", "Here is an an overview of the differences found:") %>
