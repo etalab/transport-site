@@ -2,10 +2,7 @@ defmodule Transport.Jobs.GtfsDiff do
   @moduledoc """
   Job in charge of computing a diff between two GTFS files
   """
-  use Oban.Worker, max_attempts: 1
-  # require Logger
-  # import Ecto.Query
-  # alias DB.{Dataset, Repo, Resource}
+  use Oban.Worker, max_attempts: 1, queue: :on_demand_validation
 
   @impl Oban.Worker
   def perform(
