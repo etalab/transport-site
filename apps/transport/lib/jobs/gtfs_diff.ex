@@ -7,7 +7,11 @@ defmodule Transport.Jobs.GtfsDiff do
   @impl Oban.Worker
   def perform(
         %Oban.Job{
-          args: %{"gtfs_file_name_1" => gtfs_file_name_1, "gtfs_file_name_2" => gtfs_file_name_2, "bucket" => bucket}
+          args: %{
+            "gtfs_file_name_1" => gtfs_file_name_1,
+            "gtfs_file_name_2" => gtfs_file_name_2,
+            "bucket" => bucket
+          }
         } = job
       ) do
     {:ok, unzip_1} = Transport.Unzip.S3.get_unzip(gtfs_file_name_1, bucket)
