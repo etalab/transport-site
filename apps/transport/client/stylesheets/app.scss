@@ -20,3 +20,19 @@
 // Prism for syntax coloring ; TODO: cherry-pick from the npm package instead
 // (and remove the manual download)
 @import 'prism';
+
+.siri_xml {
+    pre {
+        padding-top: 0em;
+        padding-left: 1em;
+        padding-bottom: 0em;
+        // TODO: investigate; without this, a big space on left is appearing
+        white-space: normal;
+    }
+
+    code {
+        font-size: 1em;
+        margin: 0;
+        padding: 0;
+    }
+}
