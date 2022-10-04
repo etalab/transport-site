@@ -39,9 +39,6 @@ defmodule Transport.ImportAOMs do
 
   @spec changeset(AOM.t(), map()) :: {integer(), Ecto.Changeset.t()}
   def changeset(aom, line) do
-    # some names have been manually set, we want to keep them
-    IO.inspect(line)
-
     insee =
       (Repo.get_by(Commune, siren: line["N°SIREN Commune principale"]) ||
          Repo.get_by(Commune, insee: line["N°SIREN Commune principale"])).insee
