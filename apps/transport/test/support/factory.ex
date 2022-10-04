@@ -156,11 +156,15 @@ defmodule DB.Factory do
 
     %{id: resource_id} =
       resource =
-      insert(:resource,
-        dataset_id: dataset.id,
-        is_available: Keyword.get(opts, :resource_available),
-        format: "GTFS",
-        datagouv_id: Ecto.UUID.generate()
+      Keyword.get(
+        opts,
+        :resource,
+        insert(:resource,
+          dataset_id: dataset.id,
+          is_available: Keyword.get(opts, :resource_available),
+          format: "GTFS",
+          datagouv_id: Ecto.UUID.generate()
+        )
       )
 
     resource_history =
