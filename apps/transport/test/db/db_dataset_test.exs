@@ -374,46 +374,4 @@ defmodule DB.DatasetDBTest do
              r3.id => %{geojson: nil, netex: nil}
            } == related_resources
   end
-
-  describe "list datasets" do
-    test "with modes" do
-      %{dataset: dataset_1} = insert_resource_and_friends(Date.utc_today(), modes: ["rollerblades"])
-
-      # we insert a dataset + resource + resource_history, and "modes" contains "rollerblades"
-      %{dataset: dataset_2, resource: resource} = insert_resource_and_friends(Date.utc_today(), modes: ["rollerblades"])
-
-      # we insert a more recent resource_history for the same resource, but modes is now empty. This dataset should appear in the results!
-      insert_resource_and_friends(Date.utc_today(), modes: nil, dataset: dataset_2, resource: resource)
-
-      %{dataset: dataset_3} = insert_resource_and_friends(Date.utc_today(), modes: ["rollerblades", "bus"])
-
-      datasets = DB.Dataset.list_datasets(%{"modes" => ["rollerblades"]}) |> DB.Repo.all()
-      assert datasets |> Enum.map(& &1.id) |> Enum.sort() == [dataset_1.id, dataset_3.id]
-
-      [dataset] = DB.Dataset.list_datasets(%{"modes" => ["bus"]}) |> DB.Repo.all()
-      assert dataset.id == dataset_3.id
-    end
-
-    test "with features" do
-      %{dataset: dataset_1} = insert_resource_and_friends(Date.utc_today(), features: ["repose pieds en velour"])
-
-      # we insert a dataset + resource + resource_history, and "features" contains "repose pieds en velour"
-      %{dataset: dataset_2, resource: resource} =
-        insert_resource_and_friends(Date.utc_today(), features: ["repose pieds en velour"])
-
-      # we insert a more recent resource_history for the same resource, but features is now empty. This dataset should appear in the results!
-      insert_resource_and_friends(Date.utc_today(), features: nil, dataset: dataset_2, resource: resource)
-
-      %{dataset: _dataset_2} = insert_resource_and_friends(Date.utc_today(), features: nil)
-
-      %{dataset: dataset_3} =
-        insert_resource_and_friends(Date.utc_today(), features: ["repose pieds en velour", "DJ à bord"])
-
-      datasets = DB.Dataset.list_datasets(%{"features" => ["repose pieds en velour"]}) |> DB.Repo.all()
-      assert datasets |> Enum.map(& &1.id) |> Enum.sort() == [dataset_1.id, dataset_3.id]
-
-      [dataset] = DB.Dataset.list_datasets(%{"features" => ["DJ à bord"]}) |> DB.Repo.all()
-      assert dataset.id == dataset_3.id
-    end
-  end
 end

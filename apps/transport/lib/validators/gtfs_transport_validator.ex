@@ -343,6 +343,6 @@ defmodule Transport.Validators.GTFSTransport do
   def has_wheelchair_accessibility(_), do: []
 
   @spec gtfs_base_tags() :: [binary()]
-  def gtfs_base_tags(),
+  def gtfs_base_tags,
     do: ["position des stations", "horaires théoriques", "topologie du réseau"]
 end

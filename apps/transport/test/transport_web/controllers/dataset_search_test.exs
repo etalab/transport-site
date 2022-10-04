@@ -3,6 +3,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   alias DB.{AOM, Dataset, Repo, Resource, Validation}
+  import DB.Factory
 
   doctest TransportWeb.DatasetController
 
@@ -68,14 +69,48 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     assert html_response(conn, 200) =~ "Transport public collectif - horaires théoriques (2)"
   end
 
-  test "GET /datasets?modes[]=ferry", %{conn: conn} do
-    conn = conn |> get(dataset_path(conn, :index), %{modes: ["ferry"]})
-    assert html_response(conn, 200) =~ "Transport public collectif - horaires théoriques (1)"
-  end
+  describe "list datasets" do
+    test "with modes" do
+      %{dataset: dataset_1} = insert_resource_and_friends(Date.utc_today(), modes: ["rollerblades"])
 
-  test "GET /datasets?features[]=tarifs", %{conn: conn} do
-    conn = conn |> get(dataset_path(conn, :index), %{features: ["tarifs"]})
-    assert html_response(conn, 200) =~ "Transport public collectif - horaires théoriques (1)"
+      # we insert a dataset + resource + resource_history, and "modes" contains "rollerblades"
+      %{dataset: dataset_2, resource: resource} = insert_resource_and_friends(Date.utc_today(), modes: ["rollerblades"])
+
+      # we insert a more recent resource_history for the same resource, but modes is now empty.
+      # This dataset should appear in the results!
+      insert_resource_and_friends(Date.utc_today(), modes: nil, dataset: dataset_2, resource: resource)
+
+      %{dataset: dataset_3} = insert_resource_and_friends(Date.utc_today(), modes: ["rollerblades", "bus"])
+
+      datasets = %{"modes" => ["rollerblades"]} |> DB.Dataset.list_datasets() |> DB.Repo.all()
+      assert datasets |> Enum.map(& &1.id) |> Enum.sort() == [dataset_1.id, dataset_3.id]
+
+      [dataset] = %{"modes" => ["bus"]} |> DB.Dataset.list_datasets() |> DB.Repo.all()
+      assert dataset.id == dataset_3.id
+    end
+
+    test "with features" do
+      %{dataset: dataset_1} = insert_resource_and_friends(Date.utc_today(), features: ["repose pieds en velour"])
+
+      # we insert a dataset + resource + resource_history, and "features" contains "repose pieds en velour"
+      %{dataset: dataset_2, resource: resource} =
+        insert_resource_and_friends(Date.utc_today(), features: ["repose pieds en velour"])
+
+      # we insert a more recent resource_history for the same resource, but features is now empty.
+      # This dataset should appear in the results!
+      insert_resource_and_friends(Date.utc_today(), features: nil, dataset: dataset_2, resource: resource)
+
+      %{dataset: _dataset_2} = insert_resource_and_friends(Date.utc_today(), features: nil)
+
+      %{dataset: dataset_3} =
+        insert_resource_and_friends(Date.utc_today(), features: ["repose pieds en velour", "DJ à bord"])
+
+      datasets = %{"features" => ["repose pieds en velour"]} |> DB.Dataset.list_datasets() |> DB.Repo.all()
+      assert datasets |> Enum.map(& &1.id) |> Enum.sort() == [dataset_1.id, dataset_3.id]
+
+      [dataset] = %{"features" => ["DJ à bord"]} |> DB.Dataset.list_datasets() |> DB.Repo.all()
+      assert dataset.id == dataset_3.id
+    end
   end
 
   test "GET /datasets?type=public-transit", %{conn: conn} do
