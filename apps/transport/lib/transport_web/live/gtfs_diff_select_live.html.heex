@@ -51,7 +51,8 @@
 
     <h2 :if={assigns[:diff_file_url]}>
       <%= dgettext("validations", "Diff is complete") %>, <%= link(dgettext("validations", "download it"),
-        to: @diff_file_url
+        to: @diff_file_url,
+        target: "_blank"
       ) %>.
     </h2>
 
