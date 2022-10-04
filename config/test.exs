@@ -43,7 +43,8 @@ config :transport,
   notifications_api_token: "secret",
   s3_buckets: %{
     history: "resource-history-test",
-    on_demand_validation: "on-demand-validation-test"
+    on_demand_validation: "on-demand-validation-test",
+    gtfs_diff: "gtfs-diff-test"
   }
 
 config :ex_aws,
