@@ -88,6 +88,7 @@ defmodule Transport.ImportAOMs do
   defp normalize_forme("SMO"), do: "Syndicat mixte ouvert"
   defp normalize_forme("EPA"), do: "Établissement public administratif"
   defp normalize_forme("EPL"), do: "Établissement public local"
+  defp normalize_forme("PETR"), do: "Pôle d'équilibre territorial et rural"
   defp normalize_forme(f), do: f
 
   def run do
