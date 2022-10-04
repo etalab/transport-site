@@ -6,7 +6,7 @@ Mix.install([
   {:yaml_elixir, "~> 2.8"}
 ])
 
-Code.require_file("siri_queries.exs")
+Code.require_file("../../apps/transport/lib/siri_queries.exs")
 
 {args, _rest} =
   OptionParser.parse!(System.argv(),
