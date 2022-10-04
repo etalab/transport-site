@@ -292,7 +292,17 @@ defmodule DB.Dataset do
         asc: :custom_title
       )
 
-  def order_datasets(datasets, _params), do: datasets
+  def order_datasets(datasets, _params) do
+    pan_publisher = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+
+    order_by(datasets,
+      desc:
+        fragment(
+          "case when organization = ? and custom_title ilike 'base nationale%' then 1 else 0 end",
+          ^pan_publisher
+        )
+    )
+  end
 
   @spec changeset(map()) :: {:error, binary()} | {:ok, Ecto.Changeset.t()}
   def changeset(%{"datagouv_id" => datagouv_id} = params) when is_binary(datagouv_id) do
