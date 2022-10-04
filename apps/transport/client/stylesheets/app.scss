@@ -16,3 +16,7 @@
 @import 'datasets';
 @import 'producteurs';
 @import 'espace_producteur';
+
+// Prism for syntax coloring ; TODO: cherry-pick from the npm package instead
+// (and remove the manual download)
+@import 'prism';
