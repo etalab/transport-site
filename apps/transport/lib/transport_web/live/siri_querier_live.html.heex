@@ -1,14 +1,27 @@
 <section>
   <div class="container">
+    <%= if assigns[:debug_log] do %>
+      <code>
+        <%= @debug_log %>
+      </code>
+    <% end %>
     <h2>SIRI query generator</h2>
     <.form :let={_f} for={:nothing} phx-submit="generate">
-      <select id="query-template" name="query-template">
+      <select name="query_template">
         <option value="CheckStatus">CheckStatus</option>
         <option value="LinesDiscovery">LinesDiscovery</option>
         <option value="StopPointsDiscovery">StopPointsDiscovery</option>
       </select>
       <%= submit("Generate") %>
     </.form>
+    <%= if assigns[:siri_query] do %>
+      <h2>SIRI query</h2>
+      <div>
+        <xmp>
+          <%= raw(@siri_query) %>
+        </xmp>
+      </div>
+    <% end %>
   </div>
 </section>
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
