@@ -65,6 +65,15 @@ if config_env() == :prod and not app_env_is_valid do
   raise("APP_ENV must be set to production or staging while in production")
 end
 
+domain_name =
+  case config_env() do
+    :prod -> System.fetch_env!("DOMAIN_NAME")
+    :test -> "www.example.com"
+    :dev -> "localhost"
+  end
+
+config :transport, domain_name: domain_name
+
 config :transport,
   app_env: app_env
 
@@ -73,7 +82,8 @@ if app_env == :staging do
   config :transport,
     s3_buckets: %{
       history: "resource-history-staging",
-      on_demand_validation: "on-demand-validation-staging"
+      on_demand_validation: "on-demand-validation-staging",
+      gtfs_diff: "gtfs-diff-staging"
     }
 end
 

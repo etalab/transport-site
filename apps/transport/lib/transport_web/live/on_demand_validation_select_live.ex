@@ -18,6 +18,7 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
     {:ok,
      socket
      |> socket_data(%{
+       trigger_submit: false,
        select_options: select_options(),
        changeset: cast(%{})
      })}
@@ -50,8 +51,8 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   def determine_input_type(type) when type in ["gtfs-rt"], do: "gtfs-rt"
   def determine_input_type(_), do: "file"
 
-  def handle_event("form_changed", %{"upload" => params}, socket) do
-    socket = socket |> socket_data(%{changeset: cast(params)})
+  def handle_event("form_changed", %{"upload" => params, "_target" => target}, socket) do
+    socket = socket |> socket_data(%{changeset: cast(params), trigger_submit: "file" in target})
     {:noreply, socket |> push_patch(to: self_path(socket))}
   end
 

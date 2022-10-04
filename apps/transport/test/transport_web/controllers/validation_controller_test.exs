@@ -29,17 +29,17 @@ defmodule TransportWeb.ValidationControllerTest do
       assert view |> has_element?("input[name='upload[file]']")
       refute view |> has_element?("input[name='upload[url]']")
 
-      render_change(view, "form_changed", %{"upload" => %{"type" => "gbfs"}})
+      render_change(view, "form_changed", %{"upload" => %{"type" => "gbfs"}, "_target" => ["upload", "type"]})
       assert_patched(view, live_path(conn, OnDemandValidationSelectLive, type: "gbfs"))
       assert view |> has_element?("input[name='upload[url]']")
       refute view |> has_element?("input[name='upload[file]']")
 
-      render_change(view, "form_changed", %{"upload" => %{"type" => "gtfs"}})
+      render_change(view, "form_changed", %{"upload" => %{"type" => "gtfs"}, "_target" => ["upload", "type"]})
       assert_patched(view, live_path(conn, OnDemandValidationSelectLive, type: "gtfs"))
       refute view |> has_element?("input[name='upload[url]']")
       assert view |> has_element?("input[name='upload[file]']")
 
-      render_change(view, "form_changed", %{"upload" => %{"type" => "gtfs-rt"}})
+      render_change(view, "form_changed", %{"upload" => %{"type" => "gtfs-rt"}, "_target" => ["upload", "type"]})
       assert view |> has_element?("input[name='upload[url]']")
       assert view |> has_element?("input[name='upload[feed_url]']")
     end

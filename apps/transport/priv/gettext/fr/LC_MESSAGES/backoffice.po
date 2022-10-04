@@ -126,10 +126,6 @@ msgid "Cancel"
 msgstr "Annuler"
 
 #, elixir-autogen, elixir-format
-msgid "validate all"
-msgstr "Valider tous les jeux de données"
-
-#, elixir-autogen, elixir-format
 msgid "Other actions on the dataset"
 msgstr "Autres actions associées au dataset"
 
@@ -196,3 +192,11 @@ msgstr "Voir le jeu de données sur le site"
 #, elixir-autogen, elixir-format
 msgid "This dataset is not historicized on purpose."
 msgstr "Ce jeu de données n'est pas historisé intentionnellement."
+
+#, elixir-autogen, elixir-format
+msgid "GTFS Transport validator - Force validation"
+msgstr "Validateur GTFS Transport - Validation forcée"
+
+#, elixir-autogen, elixir-format
+msgid "Validations"
+msgstr "Validations"

@@ -8,6 +8,8 @@ defmodule TransportWeb.Router do
   end
 
   pipeline :browser do
+    plug(:canonical_host)
+
     plug(:accepts, ["html"])
     plug(:fetch_session)
     plug(:fetch_live_flash)
@@ -134,7 +136,7 @@ defmodule TransportWeb.Router do
         post("/:id/_delete", DatasetController, :delete)
         post("/_all_/_import_validate", DatasetController, :import_validate_all)
         post("/_all_/_validate", DatasetController, :validate_all)
-        post("/_all_/_force_validate", DatasetController, :force_validate_all)
+        post("/_all_/_force_validate_gtfs_transport", DatasetController, :force_validate_gtfs_transport)
         post("/:id/_import_validate", DatasetController, :import_validate_all)
         post("/:id/_validate", DatasetController, :validation)
       end
@@ -166,6 +168,10 @@ defmodule TransportWeb.Router do
     scope "/tools" do
       get("/gbfs/geojson_convert", GbfsToGeojsonController, :convert)
       get("/gbfs/analyze", GbfsAnalyzerController, :index)
+
+      live_session :gtfs_diff, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/beta/gtfs_diff", Live.GtfsDiffSelectLive)
+      end
     end
 
     scope "/gtfs-geojson-conversion-#{System.get_env("TRANSPORT_TOOLS_SECRET_TOKEN")}" do
@@ -288,5 +294,12 @@ defmodule TransportWeb.Router do
       |> redirect(to: Helpers.page_path(conn, :login, redirect_path: current_path(conn)))
       |> halt()
     end
+  end
+
+  # see https://github.com/remi/plug_canonical_host#usage
+  defp canonical_host(conn, _) do
+    host = Application.fetch_env!(:transport, :domain_name)
+    opts = PlugCanonicalHost.init(canonical_host: host)
+    PlugCanonicalHost.call(conn, opts)
   end
 end
