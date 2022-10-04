@@ -14,14 +14,18 @@
       </select>
       <%= submit("Generate") %>
     </.form>
-    <%= if assigns[:siri_query] do %>
-      <h2>SIRI query</h2>
-      <div>
-        <xmp>
-          <%= raw(@siri_query) %>
-        </xmp>
-      </div>
-    <% end %>
+    <div id="siri_query_wrapper" phx-hook="SyntaxColoring">
+      <%= if assigns[:siri_query] do %>
+        <h2>SIRI query</h2>
+        <div>
+          <pre>
+            <code class="language-xml">
+              <%= @siri_query %>
+            </code>
+          </pre>
+        </div>
+      <% end %>
+    </div>
   </div>
 </section>
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>

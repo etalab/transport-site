@@ -5,15 +5,15 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   require Logger
 
   def mount(_params, _session, socket) do
-    socket =
-      socket
-      |> assign(:siri_query, generate_query("check_status"))
-
     {:ok, socket}
   end
 
   def handle_event("generate", params, socket) do
-    %{"query_template" => template} = params
+    socket =
+      socket
+      |> assign(:siri_query, generate_query("check_status"))
+
+    %{"query_template" => _template} = params
     {:noreply, socket}
   end
 
