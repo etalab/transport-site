@@ -176,7 +176,9 @@ defmodule DB.Factory do
     resource_metadata =
       insert(:resource_metadata,
         multi_validation_id: multi_validation.id,
-        metadata: %{"start_date" => Date.utc_today() |> Date.add(-30), "end_date" => end_date}
+        metadata: %{"start_date" => Date.utc_today() |> Date.add(-30), "end_date" => end_date},
+        modes: Keyword.get(opts, :modes),
+        features: Keyword.get(opts, :features)
       )
 
     %{
