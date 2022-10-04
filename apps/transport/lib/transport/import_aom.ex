@@ -1,18 +1,19 @@
 defmodule Transport.ImportAOMs do
   @moduledoc """
-  Import the AOM files and updates the database
+  Import the AOM files and updates the database.
 
-  The aom files are custom made from an excel file from the Cerema
+  The AOM files are custom made from an Excel file from the Cerema
   https://www.data.gouv.fr/fr/datasets/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/
+  https://www.cerema.fr/fr/actualites/liste-composition-autorites-organisatrices-mobilite-au-1er-4
 
-  and pushed as community ressource on data.gouv.
+  and pushed as community resources on data.gouv.fr.
   There are 2 files:
-  - one with the description of each aom
-  - one with the list of cities that are part of each aom
+  - one with the description of each AOM
+  - one with the list of cities that are part of each AOM
 
-  This is a one shot import task, run when the aom have changed.
+  This is a one shot import task, run when the AOM have changed, at least every year.
 
-  The import can be launched from the site backoffice
+  The import can be launched from the site backoffice.
   """
 
   import Ecto.{Query}
@@ -20,8 +21,8 @@ defmodule Transport.ImportAOMs do
   require Logger
 
   # The 2 community resources stable urls
-  @aom_file "https://gist.github.com/AntoineAugusti/cc20763ee572508c6785666908c2a8de/raw/1dca321bcf08fcbece4db5a8a303ff98de84ea6f/aoms_2022.csv"
-  @aom_insee_file "https://gist.github.com/AntoineAugusti/cc20763ee572508c6785666908c2a8de/raw/1dca321bcf08fcbece4db5a8a303ff98de84ea6f/aom_insee_fix.csv"
+  @aom_file "https://gist.github.com/AntoineAugusti/8daac155f4d12b32ccd4e0a75bb964c7/raw/4f4f378bcab161c9df9520867e167b1ce77b7138/aoms.csv"
+  @aom_insee_file "https://gist.github.com/AntoineAugusti/8daac155f4d12b32ccd4e0a75bb964c7/raw/e8da730c6f81984323694f6a28a24f3ed90c3d79/aoms_insee.csv"
 
   @spec to_int(binary()) :: number() | nil
   def to_int(""), do: nil
@@ -40,9 +41,12 @@ defmodule Transport.ImportAOMs do
   def changeset(aom, line) do
     # some names have been manually set, we want to keep them
     IO.inspect(line)
-    insee = (Repo.get_by(Commune, siren: line["Code INSEE Commune principale"]) || Repo.get_by(Commune, insee: line["Code INSEE Commune principale"])).insee
 
-    nom = line["Nom de l’AOM"]
+    insee =
+      (Repo.get_by(Commune, siren: line["N°SIREN Commune principale"]) ||
+         Repo.get_by(Commune, insee: line["N°SIREN Commune principale"])).insee
+
+    nom = String.trim(line["Nom de l’AOM"])
 
     new_region = Repo.get_by(Region, nom: normalize_region(line["Régions"]))
 
@@ -106,6 +110,7 @@ defmodule Transport.ImportAOMs do
           # we load all aoms
           import_aoms(aom_to_add)
 
+          migrate_aoms()
           delete_old_aoms(aom_to_add, aoms)
 
           # we load the join on cities
@@ -152,8 +157,7 @@ defmodule Transport.ImportAOMs do
   end
 
   defp import_aoms(aom_to_add) do
-    aom_to_add
-    |> Enum.each(fn {_id, aom} -> Repo.insert_or_update!(aom) end)
+    aom_to_add |> Enum.each(fn {_id, aom} -> Repo.insert_or_update!(aom) end)
   end
 
   defp delete_old_aoms(aom_added, old_aoms) do
@@ -184,13 +188,14 @@ defmodule Transport.ImportAOMs do
 
     {:ok, stream} = StringIO.open(body)
 
-    aom_ids = AOM |> select([a], a.composition_res_id) |> Repo.all()
+    aom_ids = AOM |> select([a], {a.siren, a.composition_res_id}) |> Repo.all() |> Enum.into(%{})
 
     stream
     |> IO.binstream(:line)
     |> CSV.decode(separator: ?,, headers: true)
-    |> Enum.map(fn {:ok, line} -> {String.to_integer(line["Id réseau"]), line["N° INSEE"]} end)
-    |> Enum.reject(fn {aom, insee} -> aom == "" || insee == "" || aom not in aom_ids end)
+    |> Enum.map(fn {:ok, line} -> {line["siren_aom"], line["insee"]} end)
+    |> Enum.reject(fn {aom_siren, insee} -> aom_siren == "" || insee == "" || aom_siren not in Map.keys(aom_ids) end)
+    |> Enum.map(fn {aom_siren, insee} -> {aom_ids[aom_siren], insee} end)
     |> Enum.flat_map(fn {aom, insee} ->
       # To reduce the number of UPDATE in the DB, we first check which city needs to be updated
       Commune
@@ -212,7 +217,7 @@ defmodule Transport.ImportAOMs do
   end
 
   defp compute_geom do
-    Logger.info("computing aom geometries")
+    Logger.info("computing AOM geometries")
 
     Repo.update_all(
       from(a in AOM,
@@ -234,80 +239,53 @@ defmodule Transport.ImportAOMs do
         ]
       ),
       [],
-      timeout: 240_000
+      timeout: 400_000
     )
   end
 
-  defp disable_trigger, do: Repo.query!("ALTER TABLE aom DISABLE TRIGGER refresh_places_aom_trigger;")
+  defp disable_trigger do
+    Repo.query!("ALTER TABLE aom DISABLE TRIGGER refresh_places_aom_trigger;")
+    Repo.query!("ALTER TABLE aom DISABLE TRIGGER aom_update_trigger;")
+  end
 
   defp enable_trigger do
-    Repo.query!("ALTER TABLE aom DISABLE TRIGGER refresh_places_aom_trigger;")
+    Repo.query!("ALTER TABLE aom ENABLE TRIGGER refresh_places_aom_trigger;")
+    Repo.query!("ALTER TABLE aom ENABLE TRIGGER aom_update_trigger;")
     Repo.query!("REFRESH MATERIALIZED VIEW places;")
   end
+
+  defp migrate_aoms do
+    queries = """
+    -- Sainte-Menehould to CC de l'Argonne Champenoise
+    update dataset set aom_id = (select id from aom where composition_res_id = 1163) where aom_id = 121;
+    -- Vierzon to région CVL
+    update dataset set aom_id = null, region_id = (select id from region where nom = 'Centre-Val de Loire') where aom_id = 126;
+    -- Sablé-sur-Sarthe to Communauté de communes du Pays Sabolien
+    update dataset set aom_id = (select id from aom where composition_res_id = 1290) where aom_id = 137;
+    -- Langres to PETR du Pays de Langres
+    update dataset set aom_id = (select id from aom where composition_res_id = 1172) where aom_id = 149;
+    -- Mayenne to CC Mayenne Communauté
+    update dataset set aom_id = (select id from aom where composition_res_id = 1277) where aom_id = 173;
+    -- Douarnenez to CC Douarnenez Communauté
+    update dataset set aom_id = (select id from aom where composition_res_id = 1375) where aom_id = 175;
+    -- Obernai to CC du Pays de Sainte-Odile
+    update dataset set aom_id = (select id from aom where composition_res_id = 1235) where aom_id = 210;
+    -- Nogent-le-Rotrou to CVL region
+    update dataset set aom_id = null, region_id = (select id from region where nom = 'Centre-Val de Loire') where aom_id = 215;
+    -- Mende, Figeac to Occitanie region
+    update dataset set aom_id = null, region_id = (select id from region where nom = 'Occitanie') where aom_id in (222, 223);
+    -- Tignes to Auvergne-Rhône-Alpes region
+    update dataset set aom_id = null, region_id = (select id from region where nom = 'Auvergne-Rhône-Alpes') where aom_id = 242;
+    -- Bernay to CC Intercom Bernay Terres de Normandie
+    update dataset set aom_id = (select id from aom where composition_res_id = 1108) where aom_id = 245;
+    -- Sud Estuaire to CC du Sud Estuaire
+    update dataset set aom_id = (select id from aom where composition_res_id = 1268) where aom_id = 246;
+    -- Oloron Sainte-Marie to CC du Haut Béarn
+    update dataset set aom_id = (select id from aom where composition_res_id = 1434) where aom_id = 248;
+    -- Granville to CC de Granville, Terre et Mer
+    update dataset set aom_id = (select id from aom where composition_res_id = 1114) where aom_id = 305;
+    """
+
+    queries |> String.split(";") |> Enum.each(&Repo.query!/1)
+  end
 end
-# [info] trying to delete old aom: 121 - Sainte-Menehould
-# [info] trying to delete old aom: 126 - Vierzon
-# [info] trying to delete old aom: 130 - Honfleur
-# [info] trying to delete old aom: 137 - Sablé-sur-Sarthe
-# [info] trying to delete old aom: 144 - Sainte-Marie-aux-Mines
-# [info] trying to delete old aom: 149 - Langres
-# [info] trying to delete old aom: 157 - Saint-Claude
-# [info] trying to delete old aom: 170 - Pontarlier
-# [info] trying to delete old aom: 172 - Fontenay-le-Comte
-# [info] trying to delete old aom: 173 - Mayenne
-# [info] trying to delete old aom: 174 - Sarlat-la-Caneda
-# [info] trying to delete old aom: 175 - Douarnenez
-# [info] trying to delete old aom: 176 - Châteaudun
-# [info] trying to delete old aom: 179 - Argentan
-# [info] trying to delete old aom: 180 - Bellegarde-sur-Valserine
-# [info] trying to delete old aom: 182 - Orange
-# [info] trying to delete old aom: 193 - Bollène
-# [info] trying to delete old aom: 195 - Bouzonville
-# [info] trying to delete old aom: 198 - Crépy-en-Valois
-# [info] trying to delete old aom: 203 - L’Île d’Yeu
-# [info] trying to delete old aom: 206 - Vire Normandie
-# [info] trying to delete old aom: 209 - Senlis
-# [info] trying to delete old aom: 210 - Obernai
-# [info] trying to delete old aom: 212 - Remiremont
-# [info] trying to delete old aom: 215 - Nogent-le-Rotrou
-# [info] trying to delete old aom: 218 - Landernau
-# [info] trying to delete old aom: 222 - Mende
-# [info] trying to delete old aom: 223 - Figeac
-# [info] trying to delete old aom: 234 - Saint Amand Montrond
-# [info] trying to delete old aom: 237 - Péronne
-# [info] trying to delete old aom: 240 - CC Cœur de Maurienne Arvan
-# [info] trying to delete old aom: 242 - Tignes
-# [info] trying to delete old aom: 243 - Pont-Audemer
-# [info] trying to delete old aom: 245 - Bernay
-# [info] trying to delete old aom: 246 - Sud Estuaire
-# [info] trying to delete old aom: 247 - Sorgues
-# [info] trying to delete old aom: 248 - Oloron Sainte-Marie
-# [info] trying to delete old aom: 249 - Ambérieu-en-Bugey
-# [info] trying to delete old aom: 253 - Val d’Isère
-# [info] trying to delete old aom: 254 - Bourg-saint-Maurice
-# [info] trying to delete old aom: 255 - Aime-la-plagne
-# [info] trying to delete old aom: 256 - La Plagne – Tarentaise
-# [info] trying to delete old aom: 257 - Montmélian
-# [info] trying to delete old aom: 259 - CC de Cœur de Tarentaise
-# [info] trying to delete old aom: 260 - Noyon
-# [info] trying to delete old aom: 261 - Luxeuil les Bains
-# [info] trying to delete old aom: 262 - Yvetot
-# [info] trying to delete old aom: 264 - La Tour du Pin
-# [info] trying to delete old aom: 268 - Les Avanchers–Valmorel
-# [info] trying to delete old aom: 276 - Saint-Hilaire-de-Riez
-# [info] trying to delete old aom: 277 - Sorède
-# [info] trying to delete old aom: 282 - Saint-Gilles-Croix-de-Vie
-# [info] trying to delete old aom: 285 - Challans
-# [info] trying to delete old aom: 293 - Luçon
-# [info] trying to delete old aom: 296 - Les Deux Alpes
-# [info] trying to delete old aom: 298 - Argelès-sur-Mer
-# [info] trying to delete old aom: 299 - Bagnoles de l’Orne
-# [info] trying to delete old aom: 3 - CC de Belle-Île-en-Mer
-# [info] trying to delete old aom: 304 - Neufchâteau
-# [info] trying to delete old aom: 305 - Granville
-# [info] trying to delete old aom: 306 - Nyons
-# [info] trying to delete old aom: 307 - Liancourt
-# [info] trying to delete old aom: 308 - Paray-le-Monial
-# [info] trying to delete old aom: 327 - Collectivité de Saint-Martin Antilles Françaises
-# [info] trying to delete old aom: 400 - Porto Vecchio
-# [info] trying to delete old aom: 86 - Briançon
