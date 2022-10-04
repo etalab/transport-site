@@ -164,10 +164,12 @@ defmodule DB.Dataset do
   defp filter_by_feature(query, %{"features" => feature}) do
     # Note: @> is the 'contains' operator
     query
-    |> where(
-      [d],
-      fragment("(? IN (SELECT DISTINCT(dataset_id) FROM resource r where r.features @> ?::varchar[]))", d.id, ^feature)
+    |> DB.ResourceHistory.join_dataset_with_latest_resource_history()
+    |> DB.MultiValidation.join_resource_history_with_latest_validation(
+      Transport.Validators.GTFSTransport.validator_name()
     )
+    |> DB.ResourceMetadata.join_validation_with_metadata()
+    |> where([metadata: rm], fragment("? @> ?::varchar[]", rm.features, ^feature))
   end
 
   defp filter_by_feature(query, _), do: query
