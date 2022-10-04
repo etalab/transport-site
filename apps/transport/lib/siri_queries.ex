@@ -1,5 +1,5 @@
 # Ref: http://www.normes-donnees-tc.org/wp-content/uploads/2021/09/BNTRA-CN03-GT7_NF-Profil-SIRI-FR_v1.2_20210308.pdf
-defmodule SIRI do
+defmodule Transport.SIRI do
   def prolog() do
     ~S(<?xml version="1.0" encoding="UTF-8"?>)
   end
