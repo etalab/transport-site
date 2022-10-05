@@ -1,16 +1,10 @@
-# A script to find differences between two GTFS files
-# And express the result in human and computer interpretable way
+defmodule Transport.Beta.GTFS do
+  @moduledoc """
+  Compute Diff between two GTFS files
+  """
+  alias NimbleCSV.RFC4180, as: CSV
+  require Logger
 
-Mix.install([
-  {:nimble_csv, "~> 1.1"},
-  {:jason, "~> 1.3"},
-  {:unzip, "~> 0.7.1"}
-])
-
-alias NimbleCSV.RFC4180, as: CSV
-require Logger
-
-defmodule GTFS do
   def unzip(file_path) do
     zip_file = Unzip.LocalFile.open(file_path)
     {:ok, unzip} = Unzip.new(zip_file)
@@ -70,6 +64,23 @@ defmodule GTFS do
 
       res
     end
+  end
+
+  def parse_diff_output(binary) do
+    {l, _headers} =
+      binary
+      |> CSV.parse_string(skip_headers: false)
+      |> Enum.reduce([], fn r, acc ->
+        if acc == [] do
+          {[], r |> Enum.map(fn h -> h |> String.replace_prefix("\uFEFF", "") end)}
+        else
+          {l, headers} = acc
+          new_row = headers |> Enum.zip(r) |> Enum.into(%{})
+          {[new_row | l], headers}
+        end
+      end)
+
+    l |> Enum.reverse()
   end
 
   def get_headers(unzip, file_name) do
@@ -133,11 +144,19 @@ defmodule GTFS do
     added_ids
     |> Enum.map(fn identifier ->
       added = file_b |> Map.fetch!(identifier)
-      %{file: file_name, action: "add", target: "row", identifier: identifier, arg: added}
+      %{file: file_name, action: "add", target: "row", identifier: identifier, new_value: added}
     end)
   end
 
   def get_update_messages(update_ids, file_a, file_b, file_name) do
+    check_value = fn a_value, key, b_value ->
+      case a_value do
+        nil -> nil
+        ^b_value -> nil
+        _new_value -> %{initial_value: {key, a_value}, new_value: {key, b_value}}
+      end
+    end
+
     update_ids
     |> Enum.map(fn identifier ->
       row_a = file_a |> Map.fetch!(identifier)
@@ -150,13 +169,7 @@ defmodule GTFS do
         |> Enum.map(fn key ->
           b_value = row_b |> Map.fetch!(key)
 
-          row_a
-          |> Map.get(key)
-          |> case do
-            nil -> nil
-            ^b_value -> nil
-            _new_value -> {key, b_value}
-          end
+          row_a |> Map.get(key) |> check_value.(key, b_value)
         end)
         |> Enum.reject(&is_nil/1)
 
@@ -166,7 +179,8 @@ defmodule GTFS do
           action: "update",
           target: "row",
           identifier: identifier,
-          arg: arg |> Enum.into(%{})
+          initial_value: arg |> Enum.map(fn m -> m.initial_value end) |> Enum.into(%{}),
+          new_value: arg |> Enum.map(fn m -> m.new_value end) |> Enum.into(%{})
         }
       end
     end)
@@ -207,13 +221,13 @@ defmodule GTFS do
     added_files_diff =
       added_files
       |> Enum.map(fn file ->
-        %{file: file, action: "add", target: "file", identifier: %{file_name: file}}
+        %{file: file, action: "add", target: "file", identifier: %{filename: file}}
       end)
 
     deleted_files_diff =
       deleted_files
       |> Enum.map(fn file ->
-        %{file: file, action: "delete", target: "file", identifier: %{file_name: file}}
+        %{file: file, action: "delete", target: "file", identifier: %{filename: file}}
       end)
 
     added_files_diff ++ deleted_files_diff
@@ -235,7 +249,7 @@ defmodule GTFS do
             file: file_name,
             action: "add",
             target: "column",
-            identifier: %{column_name: column_name}
+            identifier: %{column: column_name}
           }
         end)
 
@@ -246,7 +260,7 @@ defmodule GTFS do
             file: file_name,
             action: "delete",
             target: "column",
-            identifier: %{column_name: column_name}
+            identifier: %{column: column_name}
           }
         end)
 
@@ -266,11 +280,7 @@ defmodule GTFS do
         file_1 = parse_from_unzip(unzip_1, file_name)
         file_2 = parse_from_unzip(unzip_2, file_name)
 
-        # if file_name == "calendar_dates.txt" do
-        #   IO.inspect(file_1)
-        # end
-
-        GTFS.diff_file(file_name, file_1, file_2)
+        diff_file(file_name, file_1, file_2)
       else
         Logger.info("file #{file_name} not handled")
         []
@@ -283,26 +293,39 @@ defmodule GTFS do
     column_diff = column_diff(unzip_1, unzip_2)
     row_diff = row_diff(unzip_1, unzip_2)
 
-    file_diff ++ column_diff ++ row_diff
+    diff = file_diff ++ column_diff ++ row_diff
+    id_range = 0..(Enum.count(diff) - 1)
+
+    diff |> Enum.zip_with(id_range, &Map.merge(&1, %{id: &2}))
   end
 
   def dump_diff(diff) do
-    headers = ["file", "action", "target", "identifier", "arg", "note"]
+    headers = ["id", "file", "action", "target", "identifier", "initial_value", "new_value", "note"]
 
     body =
       diff
       |> Enum.map(fn m ->
         [
+          Map.get(m, :id),
           Map.get(m, :file),
           Map.get(m, :action),
           Map.get(m, :target),
-          Map.get(m, :identifier) |> Jason.encode!(),
-          Map.get(m, :arg) |> Jason.encode!(),
+          m |> Map.get(:identifier) |> Jason.encode!(),
+          case m |> Map.get(:initial_value) do
+            nil -> nil
+            arg -> arg |> Jason.encode!()
+          end,
+          case m |> Map.get(:new_value) do
+            nil -> nil
+            arg -> arg |> Jason.encode!()
+          end,
           Map.get(m, :note)
         ]
       end)
 
-    ([headers] ++ body)
+    res = [headers | body]
+
+    res
     |> CSV.dump_to_iodata()
     |> IO.iodata_to_binary()
   end
@@ -384,8 +407,8 @@ end
 
 # usage
 
-# unzip_1 = GTFS.unzip("path/to/gtfs_1.zip")
-# unzip_2 = GTFS.unzip("path/to/gtfs_2.zip")
+# unzip_1 = Transport.Beta.GTFS.unzip("path/to/gtfs_1.zip")
+# unzip_2 = Transport.Beta.GTFS.unzip("path/to/gtfs_2.zip")
 
-# diff = GTFS.diff(unzip_1, unzip_2)
-# File.write!("diff_output.txt", diff |> GTFS.dump_diff())
+# diff = Transport.Beta.GTFS.diff(unzip_1, unzip_2)
+# File.write!("diff_output.txt", diff |> Transport.Beta.GTFS.dump_diff())
