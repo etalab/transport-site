@@ -76,6 +76,7 @@ defmodule Transport.ImportAOMs do
   defp normalize_region("Provence-Alpes-Côte d'Azur"), do: "Région Sud — Provence-Alpes-Côte d’Azur"
   defp normalize_region("Nouvelle Aquitaine"), do: "Nouvelle-Aquitaine"
   defp normalize_region("Auvergne-Rhône Alpes"), do: "Auvergne-Rhône-Alpes"
+  defp normalize_region("Nouvelle Calédonie"), do: "Nouvelle-Calédonie"
   defp normalize_region(region), do: region
 
   @spec normalize_forme(binary()) :: binary()
