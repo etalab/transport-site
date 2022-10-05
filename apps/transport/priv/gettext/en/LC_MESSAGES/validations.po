@@ -300,3 +300,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "download it"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Upload in progress"
+msgstr ""
