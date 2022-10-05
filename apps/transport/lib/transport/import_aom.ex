@@ -21,8 +21,8 @@ defmodule Transport.ImportAOMs do
   require Logger
 
   # The 2 community resources stable urls
-  @aom_file "https://gist.github.com/AntoineAugusti/8daac155f4d12b32ccd4e0a75bb964c7/raw/4f4f378bcab161c9df9520867e167b1ce77b7138/aoms.csv"
-  @aom_insee_file "https://gist.github.com/AntoineAugusti/8daac155f4d12b32ccd4e0a75bb964c7/raw/e8da730c6f81984323694f6a28a24f3ed90c3d79/aoms_insee.csv"
+  @aom_file "https://gist.githubusercontent.com/AntoineAugusti/8daac155f4d12b32ccd4e0a75bb964c7/raw/aoms.csv"
+  @aom_insee_file "https://gist.githubusercontent.com/AntoineAugusti/8daac155f4d12b32ccd4e0a75bb964c7/raw/aoms_insee.csv"
 
   @spec to_int(binary()) :: number() | nil
   def to_int(""), do: nil
@@ -115,7 +115,7 @@ defmodule Transport.ImportAOMs do
           import_insee_aom()
           enable_trigger()
         end,
-        timeout: 400_000
+        timeout: 1_000_000
       )
 
     # we can then compute the aom geometries (the union of each cities geometries)
@@ -237,18 +237,18 @@ defmodule Transport.ImportAOMs do
         ]
       ),
       [],
-      timeout: 400_000
+      timeout: 1_000_000
     )
   end
 
   defp disable_trigger do
     Repo.query!("ALTER TABLE aom DISABLE TRIGGER refresh_places_aom_trigger;")
-    Repo.query!("ALTER TABLE aom DISABLE TRIGGER aom_update_trigger;")
+    Repo.query!("ALTER TABLE commune DISABLE TRIGGER refresh_places_commune_trigger;")
   end
 
   defp enable_trigger do
     Repo.query!("ALTER TABLE aom ENABLE TRIGGER refresh_places_aom_trigger;")
-    Repo.query!("ALTER TABLE aom ENABLE TRIGGER aom_update_trigger;")
+    Repo.query!("ALTER TABLE commune ENABLE TRIGGER refresh_places_commune_trigger;")
     Repo.query!("REFRESH MATERIALIZED VIEW places;")
   end
 
@@ -282,6 +282,8 @@ defmodule Transport.ImportAOMs do
     update dataset set aom_id = (select id from aom where composition_res_id = 1434) where aom_id = 248;
     -- Granville to CC de Granville, Terre et Mer
     update dataset set aom_id = (select id from aom where composition_res_id = 1114) where aom_id = 305;
+    -- Neufchâteau to CC de l'Ouest Vosgien
+    update dataset set aom_id = (select id from aom where composition_res_id = 1254) where aom_id = 304;
     """
 
     queries |> String.split(";") |> Enum.each(&Repo.query!/1)
