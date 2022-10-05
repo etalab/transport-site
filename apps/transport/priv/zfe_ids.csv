@@ -12,7 +12,7 @@ siren;code;epci_principal
 200069110;CHAMBERY;Grand Chambéry
 246300701;CLERMONT-FERRAND;Clermont Auvergne métropole
 242100410;DIJON;Dijon Métropole
-;DOUAI-LENS;
+246200364;DOUAI-LENS;Communauté d'agglomération de Lens-Lievin
 245900428;DUNKERQUE;Communauté Urbaine de Dunkerque
 253800825;GRENOBLE;Grenoble Alpes métropole
 200084952;LE HAVRE;Le Havre Seine Métropole
@@ -25,7 +25,7 @@ siren;code;epci_principal
 243400017;MONTPELLIER;Montpellier Méditerranée Métropole
 200066009;MULHOUSE;Mulhouse Alsace Agglomération
 245400676;NANCY;Métropole du Grand Nancy
-200035335;NANTES;Pôle métropolitain Nantes Saint-Nazaire
+244400404;NANTES;Métropole Nantes Métropole
 200030195;NICE;Métropole Nice Côte d'Azur
 243000643;NIMES;Nîmes métropole
 244500468;ORLEANS;Orléans métropole
