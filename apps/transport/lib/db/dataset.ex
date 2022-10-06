@@ -176,9 +176,9 @@ defmodule DB.Dataset do
       on:
         rm.resource_id == r.id and
           fragment(
-            "? @> ?::varchar[]",
-            rm.features,
-            [^feature]
+            "? = ANY (?)",
+            ^feature,
+            rm.features
           ) and
           rm.inserted_at > ^recent_limit
     )
