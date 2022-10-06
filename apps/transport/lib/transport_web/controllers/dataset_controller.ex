@@ -79,9 +79,28 @@ defmodule TransportWeb.DatasetController do
     %{
       unavailabilities: unavailabilities(dataset),
       resources_updated_at: DB.Dataset.resources_content_updated_at(dataset),
-      validations: DB.MultiValidation.dataset_latest_validation(dataset.id, validators_to_use())
+      validations: DB.MultiValidation.dataset_latest_validation(dataset.id, validators_to_use()),
+      gtfs_rt_entities: gtfs_rt_entities(dataset)
     }
   end
+
+  def gtfs_rt_entities(%Dataset{id: dataset_id, type: "public-transit"}) do
+    recent_limit =
+      DateTime.utc_now()
+      |> DateTime.add(-Transport.Jobs.GTFSRTEntitiesJob.days_to_keep() * 24 * 60 * 60)
+
+    DB.Dataset.base_query()
+    |> DB.Resource.join_dataset_with_resource()
+    |> join(:inner, [resource: r], rm in DB.ResourceMetadata, on: r.id == rm.resource_id, as: :metadata)
+    |> where(
+      [dataset: d, resource: r, metadata: rm],
+      d.id == ^dataset_id and r.format == "gtfs-rt" and rm.inserted_at > ^recent_limit
+    )
+    |> select([metadata: rm], fragment("DISTINCT(UNNEST(?))", rm.features))
+    |> DB.Repo.all()
+  end
+
+  def gtfs_rt_entities(%Dataset{}), do: []
 
   @spec by_aom(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def by_aom(%Plug.Conn{} = conn, %{"aom" => id} = params) do

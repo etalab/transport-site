@@ -5,6 +5,7 @@ defmodule TransportWeb.ResourceController do
   alias Transport.DataVisualization
   alias Transport.ImportData
   require Logger
+  import Ecto.Query
 
   import TransportWeb.ResourceView, only: [issue_type: 1]
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
@@ -28,6 +29,7 @@ defmodule TransportWeb.ResourceController do
       )
       |> assign(:resource_history_infos, DB.ResourceHistory.latest_resource_history_infos(id))
       |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
+      |> assign(:gtfs_rt_entities, gtfs_rt_entities(resource))
       |> assign(:multi_validation, latest_validation(resource))
       |> put_resource_flash(resource.dataset.is_active)
 
@@ -37,6 +39,19 @@ defmodule TransportWeb.ResourceController do
       conn |> assign(:resource, resource) |> render("details.html")
     end
   end
+
+  defp gtfs_rt_entities(%Resource{format: "gtfs-rt", id: id}) do
+    recent_limit =
+      DateTime.utc_now()
+      |> DateTime.add(-Transport.Jobs.GTFSRTEntitiesJob.days_to_keep() * 24 * 60 * 60)
+
+    DB.ResourceMetadata
+    |> where([rm], rm.resource_id == ^id and rm.inserted_at > ^recent_limit)
+    |> select([rm], fragment("DISTINCT(UNNEST(features))"))
+    |> DB.Repo.all()
+  end
+
+  defp gtfs_rt_entities(%Resource{}), do: nil
 
   defp gtfs_rt_feed(conn, %Resource{format: "gtfs-rt", url: url, id: id}) do
     lang = get_session(conn, :locale)
