@@ -112,7 +112,7 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
   defp disable_trigger, do: Repo.query!("ALTER TABLE commune DISABLE TRIGGER refresh_places_commune_trigger;")
 
   defp enable_trigger do
-    Repo.query!("ALTER TABLE commune DISABLE TRIGGER refresh_places_commune_trigger;")
+    Repo.query!("ALTER TABLE commune ENABLE TRIGGER refresh_places_commune_trigger;")
     Repo.query!("REFRESH MATERIALIZED VIEW places;")
   end
 end
