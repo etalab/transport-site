@@ -138,7 +138,7 @@ defmodule Transport.ImportAOMs do
     |> CSV.decode(separator: ?,, headers: true)
     |> Enum.reject(fn {:ok, line} -> is_nil(line["Id réseau"]) end)
     # credo:disable-for-next-line
-    |> Enum.reject(fn {:ok, line} -> line["Id réseau"] in ["", "312"] end)
+    |> Enum.reject(fn {:ok, line} -> line["Id réseau"] == "" end)
     |> Enum.map(fn {:ok, line} ->
       AOM
       |> Repo.get_by(composition_res_id: to_int(line["Id réseau"]))
