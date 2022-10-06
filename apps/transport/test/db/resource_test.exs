@@ -191,6 +191,8 @@ defmodule DB.ResourceTest do
     assert reasons == %{"content hash has changed" => 1, "no previous validation" => 1}
   end
 
+  # to be deleted later, when validation v1 has disappeared
+  # ⬇️⬇️⬇️
   test "find_tags_from_metadata" do
     # Can detect all available tags
     assert ["transport à la demande"] == Resource.find_tags_from_metadata(%{"some_stops_need_phone_agency" => true})
@@ -218,6 +220,9 @@ defmodule DB.ResourceTest do
     assert Resource.find_tags_from_metadata(%{}) == []
     assert Resource.find_tags_from_metadata(%{"foo" => "bar"}) == []
   end
+
+  # ⬆️⬆️⬆️
+  # end of deprecation notice
 
   test "get resource related geojson infos" do
     now = DateTime.now!("Etc/UTC")

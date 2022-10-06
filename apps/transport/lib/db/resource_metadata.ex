@@ -12,6 +12,8 @@ defmodule DB.ResourceMetadata do
     belongs_to(:resource_history, DB.ResourceHistory)
     belongs_to(:multi_validation, DB.MultiValidation)
     field(:metadata, :map)
+    field(:modes, {:array, :string}, default: [])
+    field(:features, {:array, :string}, default: [])
 
     timestamps(type: :utc_datetime_usec)
   end
