@@ -112,6 +112,29 @@ defmodule TransportWeb.DatasetSearchControllerTest do
       [dataset] = %{"features" => ["DJ à bord"]} |> DB.Dataset.list_datasets() |> DB.Repo.all()
       assert dataset.id == dataset_3.id
     end
+
+    test "with gtfs-rt features" do
+      %{id: dataset_id} = insert(:dataset)
+      %{id: resource_id} = insert(:resource, dataset_id: dataset_id)
+      insert(:resource_metadata, resource_id: resource_id, features: ["vehicle_positions"])
+
+      %{id: dataset_id_2} = insert(:dataset)
+      %{id: resource_id_2} = insert(:resource, dataset_id: dataset_id_2)
+
+      # feature has been seen, but too long ago
+      insert(:resource_metadata,
+        resource_id: resource_id_2,
+        features: ["vehicle_positions"],
+        inserted_at: ~U[2020-01-01 00:00:00Z]
+      )
+
+      %{id: dataset_id_3} = insert(:dataset)
+      %{id: resource_id_3} = insert(:resource, dataset_id: dataset_id_3)
+      insert(:resource_metadata, resource_id: resource_id_3, features: ["repose pieds en velour"])
+
+      assert [%{id: ^dataset_id}] =
+               %{"features" => ["vehicle_positions"]} |> DB.Dataset.list_datasets() |> DB.Repo.all()
+    end
   end
 
   test "GET /datasets?type=public-transit", %{conn: conn} do

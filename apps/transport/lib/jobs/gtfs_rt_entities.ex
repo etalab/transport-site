@@ -49,11 +49,17 @@ defmodule Transport.Jobs.GTFSRTEntitiesJob do
 
   def process_feed({:ok, feed}, %Resource{metadata: metadata} = resource) do
     metadata = metadata || %{}
+    count_entities = feed |> GTFSRT.count_entities()
 
+    present_entities =
+      count_entities |> Map.filter(fn {_key, value} -> value > 0 end) |> Map.keys() |> Enum.map(&Atom.to_string(&1))
+
+    # this will be deleted later
+    # ⬇️⬇️⬇️
     new_entities =
       compute_new_entities(
         Map.get(metadata, @entities_metadata_key, %{}),
-        feed |> GTFSRT.count_entities(),
+        count_entities,
         DateTime.utc_now()
       )
 
@@ -63,6 +69,15 @@ defmodule Transport.Jobs.GTFSRTEntitiesJob do
       features: Map.keys(new_entities)
     })
     |> Repo.update!()
+
+    # ⬆️⬆️⬆️
+
+    %DB.ResourceMetadata{
+      resource_id: resource.id,
+      metadata: count_entities,
+      features: present_entities
+    }
+    |> Repo.insert!()
   end
 
   def process_feed({:error, _}, %Resource{id: id}) do

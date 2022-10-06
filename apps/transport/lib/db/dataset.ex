@@ -161,6 +161,29 @@ defmodule DB.Dataset do
   defp filter_by_category(query, _), do: query
 
   @spec filter_by_feature(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_feature(query, %{"features" => [feature]})
+       when feature in ["service_alerts", "trip_updates", "vehicle_positions"] do
+    recent_limit =
+      DateTime.utc_now()
+      |> DateTime.add(-Transport.Jobs.GTFSRTEntitiesJob.days_to_keep() * 24 * 60 * 60)
+
+    query
+    |> join(:inner, [dataset: d], r in DB.Resource, on: r.dataset_id == d.id, as: :resource)
+    |> join(
+      :inner,
+      [resource: r],
+      rm in DB.ResourceMetadata,
+      on:
+        rm.resource_id == r.id and
+          fragment(
+            "? @> ?::varchar[]",
+            rm.features,
+            [^feature]
+          ) and
+          rm.inserted_at > ^recent_limit
+    )
+  end
+
   defp filter_by_feature(query, %{"features" => feature}) do
     # Note: @> is the 'contains' operator
     query
