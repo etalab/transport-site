@@ -47,12 +47,13 @@ defmodule Transport.Jobs.GTFSRTEntitiesJob do
     :ok
   end
 
+  defp present_entities(count_entities) do
+    count_entities |> Map.filter(fn {_, v} -> v > 0 end) |> Enum.map(fn {k, _} -> Atom.to_string(k) end)
+  end
+
   def process_feed({:ok, feed}, %Resource{metadata: metadata} = resource) do
     metadata = metadata || %{}
     count_entities = feed |> GTFSRT.count_entities()
-
-    present_entities =
-      count_entities |> Map.filter(fn {_key, value} -> value > 0 end) |> Map.keys() |> Enum.map(&Atom.to_string(&1))
 
     # this will be deleted later
     # ⬇️⬇️⬇️
@@ -75,7 +76,7 @@ defmodule Transport.Jobs.GTFSRTEntitiesJob do
     %DB.ResourceMetadata{
       resource_id: resource.id,
       metadata: count_entities,
-      features: present_entities
+      features: present_entities(count_entities)
     }
     |> Repo.insert!()
   end
@@ -93,8 +94,7 @@ defmodule Transport.Jobs.GTFSRTEntitiesJob do
   Will return the same type as `existing_entities`.
   """
   def compute_new_entities(existing_entities, entities_in_feed, now) do
-    entities_present =
-      entities_in_feed |> Map.filter(fn {_, v} -> v > 0 end) |> Enum.map(fn {k, _} -> Atom.to_string(k) end)
+    entities_present = present_entities(entities_in_feed)
 
     entities_still_valid =
       existing_entities
