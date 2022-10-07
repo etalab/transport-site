@@ -89,7 +89,8 @@ function getRegionsFG (featureFunction, style) {
         .then(response => {
             const geoJSON = Leaflet.geoJSON(response, {
                 onEachFeature: featureFunction,
-                style: style
+                style: style,
+                pointToLayer: (_point, _) => null
             })
             regionsFeatureGroup.addLayer(geoJSON)
         })
@@ -146,6 +147,7 @@ function addStaticPTMapRegions (id, view) {
     const nbBaseSchedule = (feature) => feature.properties.dataset_types.pt
 
     function onEachRegionFeature (feature, layer) {
+        console.log('feature:', feature)
         const name = feature.properties.nom
         const id = feature.properties.id
         const count = nbBaseSchedule(feature)
