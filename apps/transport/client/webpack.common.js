@@ -28,11 +28,11 @@ module.exports = {
         modules: [resolve('./node_modules')],
         // https://github.com/Leaflet/Leaflet/issues/4849#issuecomment-307436996
         alias: {
-            './images/layers.png$': resolve('./node_modules/leaflet/dist/images/layers.png'),
-            './images/layers-2x.png$': resolve('./node_modules/leaflet/dist/images/layers-2x.png'),
-            './images/marker-icon.png$': resolve('./node_modules/leaflet/dist/images/marker-icon.png'),
-            './images/marker-icon-2x.png$': resolve('./node_modules/leaflet/dist/images/marker-icon-2x.png'),
-            './images/marker-shadow.png$': resolve('./node_modules/leaflet/dist/images/marker-shadow.png')
+            'images/layers.png$': resolve('./node_modules/leaflet/dist/images/layers.png'),
+            'images/layers-2x.png$': resolve('./node_modules/leaflet/dist/images/layers-2x.png'),
+            'images/marker-icon.png$': resolve('./node_modules/leaflet/dist/images/marker-icon.png'),
+            'images/marker-icon-2x.png$': resolve('./node_modules/leaflet/dist/images/marker-icon-2x.png'),
+            'images/marker-shadow.png$': resolve('./node_modules/leaflet/dist/images/marker-shadow.png')
         }
     },
     plugins: [
