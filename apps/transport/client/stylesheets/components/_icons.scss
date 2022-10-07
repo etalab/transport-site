@@ -1,89 +1,89 @@
 .icon {
-  @extend .fas;
+  @extend .fas !optional;
 }
 
 .icon--badge {
-  @extend .fa-id-badge;
+  @extend .fa-id-badge !optional;
 }
 
 .icon--cubes {
-  @extend .fa-cubes;
+  @extend .fa-cubes !optional;
 }
 
 .icon--download {
-  @extend .fa-download;
+  @extend .fa-download !optional;
 }
 
 .icon--hand-up {
-  @extend .fa-hand-point-up;
+  @extend .fa-hand-point-up !optional;
 }
 
 .icon--link {
-  @extend .fa-external-link-alt;
+  @extend .fa-external-link-alt !optional;
 }
 
 .icon--login {
-  @extend .fa-sign-in-alt;
+  @extend .fa-sign-in-alt !optional;
 }
 
 .icon--logout {
-  @extend .fa-sign-out-alt;
+  @extend .fa-sign-out-alt !optional;
 }
 
 .icon--open {
-  @extend .fa-folder-open;
+  @extend .fa-folder-open !optional;
 }
 
 .icon--reuse {
-  @extend .fa-mobile-alt;
+  @extend .fa-mobile-alt !optional;
 }
 
 .icon--user-plus {
-  @extend .fa-user-plus;
+  @extend .fa-user-plus !optional;
 }
 
 .icon--book {
-  @extend .fa-book;
+  @extend .fa-book !optional;
 }
 
 .icon--file {
-  @extend .fa-file;
+  @extend .fa-file !optional;
 }
 
 .icon--envelope {
-  @extend .fa-envelope;
+  @extend .fa-envelope !optional;
 }
 
 .icon--magnifier {
-  @extend .fa-search;
+  @extend .fa-search !optional;
 }
 
 .icon--times-circle {
-  @extend .fa-times-circle;
+  @extend .fa-times-circle !optional;
 }
 
 .icon--chart-line {
-  @extend .fa-chart-line;
+  @extend .fa-chart-line !optional;
 }
 
 .icon--right-arrow {
-  @extend .fa-long-arrow-alt-right;
+  @extend .fa-long-arrow-alt-right !optional;
 }
 
 .icon--calendar-alt {
-  @extend .fa-calendar-alt;
+  @extend .fa-calendar-alt !optional;
 }
 
 .icon--plus {
-  @extend .fa-plus;
+  @extend .fa-plus !optional;
 }
 
 .icon--sync-alt {
-  @extend .fa-sync-alt;
+  @extend .fa-sync-alt !optional;
 }
 
 .icon--table {
-  @extend .fa-table;
+  @extend .fa-table !optional;
 }
 
 .icon--uptime {
