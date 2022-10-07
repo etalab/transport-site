@@ -147,7 +147,6 @@ function addStaticPTMapRegions (id, view) {
     const nbBaseSchedule = (feature) => feature.properties.dataset_types.pt
 
     function onEachRegionFeature (feature, layer) {
-        console.log('feature:', feature)
         const name = feature.properties.nom
         const id = feature.properties.id
         const count = nbBaseSchedule(feature)
