@@ -8,12 +8,17 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     {:ok, socket}
   end
 
-  def handle_event("generate", params, socket) do
+  def handle_event("generate_query", params, socket) do
     socket =
       socket
       |> assign(:siri_query, generate_query("check_status"))
 
-    %{"query_template" => _template} = params
+    {:noreply, socket}
+  end
+
+  def handle_event("execute_query", params, socket) do
+    query = socket.assigns[:siri_query]
+    IO.puts(query)
     {:noreply, socket}
   end
 
