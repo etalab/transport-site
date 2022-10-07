@@ -286,7 +286,7 @@ defmodule TransportWeb.DatasetControllerTest do
     %{id: resource_id_3} = insert(:resource, dataset_id: dataset_id, format: "gtfs-rt")
     insert(:resource_metadata, resource_id: resource_id_3, features: ["e"], inserted_at: ~U[2020-01-01 00:00:00Z])
 
-    assert ["a", "b", "c", "d"] = TransportWeb.DatasetController.gtfs_rt_entities(dataset) |> Enum.sort()
+    assert ["a", "b", "c", "d"] = dataset |> TransportWeb.DatasetController.gtfs_rt_entities() |> Enum.sort()
   end
 
   defp set_empty_mocks do
