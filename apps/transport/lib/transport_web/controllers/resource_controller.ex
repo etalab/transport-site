@@ -41,9 +41,7 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp gtfs_rt_entities(%Resource{format: "gtfs-rt", id: id}) do
-    recent_limit =
-      DateTime.utc_now()
-      |> DateTime.add(-Transport.Jobs.GTFSRTEntitiesJob.days_to_keep() * 24 * 60 * 60)
+    recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
 
     DB.ResourceMetadata
     |> where([rm], rm.resource_id == ^id and rm.inserted_at > ^recent_limit)

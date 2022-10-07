@@ -85,9 +85,7 @@ defmodule TransportWeb.DatasetController do
   end
 
   def gtfs_rt_entities(%Dataset{id: dataset_id, type: "public-transit"}) do
-    recent_limit =
-      DateTime.utc_now()
-      |> DateTime.add(-Transport.Jobs.GTFSRTEntitiesJob.days_to_keep() * 24 * 60 * 60)
+    recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
 
     DB.Dataset.base_query()
     |> DB.Resource.join_dataset_with_resource()
