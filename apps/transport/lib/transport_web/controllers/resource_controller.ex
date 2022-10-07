@@ -40,7 +40,7 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  defp gtfs_rt_entities(%Resource{format: "gtfs-rt", id: id}) do
+  def gtfs_rt_entities(%Resource{format: "gtfs-rt", id: id}) do
     recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
 
     DB.ResourceMetadata
@@ -49,7 +49,7 @@ defmodule TransportWeb.ResourceController do
     |> DB.Repo.all()
   end
 
-  defp gtfs_rt_entities(%Resource{}), do: nil
+  def gtfs_rt_entities(%Resource{}), do: nil
 
   defp gtfs_rt_feed(conn, %Resource{format: "gtfs-rt", url: url, id: id}) do
     lang = get_session(conn, :locale)
