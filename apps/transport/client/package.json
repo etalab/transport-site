@@ -44,7 +44,7 @@
     "import-glob-loader": "^1.1.0",
     "mini-css-extract-plugin": "^2.5.3",
     "sass": "^1.32.8",
-    "sass-loader": "^11.0.1",
+    "sass-loader": "^13.1.0",
     "style-loader": "^2.0.0",
     "stylelint": "^13.3.1",
     "stylelint-scss": "^3.16.1",
