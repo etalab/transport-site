@@ -76,23 +76,16 @@ module.exports = {
                 ]
             }, {
                 test: /\.(jpe?g|png|gif|svg)$/,
-                exclude: [/font-awesome/],
-                use: [{
-                    loader: 'file-loader',
-                    options: {
-                        name: '[name].[ext]',
-                        outputPath: '../images/'
-                    }
-                }]
+                type: 'asset/resource',
+                generator: {
+                    filename: '[name][ext]'
+                }
             }, {
                 test: /\.(eot|ttf|otf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
-                use: [{
-                    loader: 'file-loader',
-                    options: {
-                        name: '[name].[ext]',
-                        outputPath: '../fonts/'
-                    }
-                }]
+                type: 'asset/resource',
+                generator: {
+                    filename: '[name][ext]'
+                }
             }]
     }
 }
