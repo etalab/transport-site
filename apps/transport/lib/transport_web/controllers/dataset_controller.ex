@@ -163,11 +163,12 @@ defmodule TransportWeb.DatasetController do
   end
 
   @spec get_datasets(map()) :: Scrivener.Page.t()
-  defp get_datasets(params) do
+  def get_datasets(params) do
     config = make_pagination_config(params)
 
     params
     |> Dataset.list_datasets()
+    |> distinct([dataset: d], d.id)
     |> preload([:aom, :region])
     |> Repo.paginate(page: config.page_number)
   end
@@ -177,7 +178,7 @@ defmodule TransportWeb.DatasetController do
     do: params |> Map.delete(key_to_delete) |> Dataset.list_datasets() |> exclude(:preload)
 
   @spec get_regions(map()) :: [Region.t()]
-  defp get_regions(params) do
+  def get_regions(params) do
     sub =
       params
       |> clean_datasets_query("region")
@@ -188,18 +189,18 @@ defmodule TransportWeb.DatasetController do
     Region
     |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
     |> group_by([r], [r.id, r.nom])
-    |> select([r, d], %{nom: r.nom, id: r.id, count: count(d.id)})
+    |> select([r, d], %{nom: r.nom, id: r.id, count: count(d.id, :distinct)})
     |> order_by([r], r.nom)
     |> Repo.all()
   end
 
   @spec get_types(map()) :: [%{type: binary(), msg: binary(), count: integer}]
-  defp get_types(params) do
+  def get_types(params) do
     params
     |> clean_datasets_query("type")
     |> exclude(:order_by)
     |> group_by([d], [d.type])
-    |> select([d], %{type: d.type, count: count(d.type)})
+    |> select([d], %{type: d.type, count: count(d.id, :distinct)})
     |> Repo.all()
     |> Enum.reject(&is_nil/1)
     |> Enum.map(fn res ->
@@ -223,7 +224,7 @@ defmodule TransportWeb.DatasetController do
       |> clean_datasets_query("filter")
       |> exclude(:order_by)
       |> group_by([d], d.has_realtime)
-      |> select([d], %{has_realtime: d.has_realtime, count: count()})
+      |> select([d], %{has_realtime: d.has_realtime, count: count(d.id, :distinct)})
       |> Repo.all()
       |> Enum.reduce(%{}, fn r, acc -> Map.put(acc, r.has_realtime, r.count) end)
 
