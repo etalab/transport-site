@@ -274,6 +274,21 @@ defmodule TransportWeb.DatasetControllerTest do
     conn |> get(dataset_path(conn, :details, slug)) |> html_response(200)
   end
 
+  test "gtfs-rt entities" do
+    dataset = %{id: dataset_id} = insert(:dataset, type: "public-transit")
+    %{id: resource_id_1} = insert(:resource, dataset_id: dataset_id, format: "gtfs-rt")
+    insert(:resource_metadata, resource_id: resource_id_1, features: ["a", "b"])
+    %{id: resource_id_2} = insert(:resource, dataset_id: dataset_id, format: "gtfs-rt")
+    insert(:resource_metadata, resource_id: resource_id_2, features: ["a", "c"])
+    insert(:resource_metadata, resource_id: resource_id_2, features: ["d"])
+
+    # too old
+    %{id: resource_id_3} = insert(:resource, dataset_id: dataset_id, format: "gtfs-rt")
+    insert(:resource_metadata, resource_id: resource_id_3, features: ["e"], inserted_at: ~U[2020-01-01 00:00:00Z])
+
+    assert ["a", "b", "c", "d"] = dataset |> TransportWeb.DatasetController.gtfs_rt_entities() |> Enum.sort()
+  end
+
   defp set_empty_mocks do
     Datagouvfr.Client.Reuses.Mock |> expect(:get, fn _ -> {:ok, []} end)
     Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _ -> %{} end)

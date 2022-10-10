@@ -3,7 +3,7 @@ html {
 }
 
 .hero.home-hero {
-  background: #fff url("/images/transport.svg") center bottom no-repeat;
+  background: #fff url('/images/transport.svg') center bottom no-repeat;
   background-size: cover;
 }
 
@@ -170,7 +170,7 @@ a.tile:hover {
 
 .home-top-content {
   display: flex;
-  flex-wrap: nowrap; //wrapping is done with media queries
+  flex-wrap: nowrap; // wrapping is done with media queries
   .home-title {
     flex-basis: 50%;
     padding-right: 96px;
@@ -228,7 +228,7 @@ a.tile:hover {
     .home-search {
       max-width: 100%;
       border: none;
-      padding-left: 0px;
+      padding-left: 0;
       padding-top: 48px;
       text-align: center;
       form {

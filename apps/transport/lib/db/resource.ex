@@ -398,7 +398,9 @@ defmodule DB.Resource do
     Sentry.capture_message("validation_save_failed", extra: url)
   end
 
-  # for the moment the tag detection is very simple, we only add the modes
+  # Deprecation notice, all the tags and modes related functions now live in gtfs_transport_validator.ex
+  # Function here will be deleted when validation v1 will be unpluged
+  # ⬇️⬇️⬇️
   @spec find_tags(__MODULE__.t(), map()) :: [binary()]
   def find_tags(%__MODULE__{} = r, metadata) do
     r
@@ -499,6 +501,9 @@ defmodule DB.Resource do
     do: ["position des stations", "horaires théoriques", "topologie du réseau"]
 
   def base_tag(_), do: []
+
+  # ⬆️⬆️⬆️
+  # end of deprecation notice
 
   def changeset(resource, params) do
     resource

@@ -16,7 +16,7 @@
       background-color: $light-grey;
     }
 
-    &:after {
+    &::after {
       content: '';
       height: 30px;
       width: 15px;
@@ -27,12 +27,12 @@
       background-size: cover;
     }
 
-    &.asc:after {
+    &.asc::after {
       background: url('/images/icons/sorted_asc.svg');
       background-size: cover;
     }
 
-    &.desc:after {
+    &.desc::after {
       background: url('/images/icons/sorted_desc.svg');
       background-size: cover;
     }
