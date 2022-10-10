@@ -163,9 +163,7 @@ defmodule DB.Dataset do
   @spec filter_by_feature(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_feature(query, %{"features" => [feature]})
        when feature in ["service_alerts", "trip_updates", "vehicle_positions"] do
-    recent_limit =
-      DateTime.utc_now()
-      |> DateTime.add(-Transport.Jobs.GTFSRTEntitiesJob.days_to_keep() * 24 * 60 * 60)
+    recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
 
     query
     |> join(:inner, [dataset: d], r in DB.Resource, on: r.dataset_id == d.id, as: :resource)

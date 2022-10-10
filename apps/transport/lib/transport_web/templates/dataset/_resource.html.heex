@@ -141,11 +141,11 @@
           <% end %>
         </div>
       <% end %>
-      <%= if Resource.is_gtfs_rt?(@resource) and length(@resource.features) > 0 do %>
+      <%= if Resource.is_gtfs_rt?(@resource) and length(@resources_infos.gtfs_rt_entities) > 0 do %>
         <%= dgettext("page-dataset-details", "Features available in the resource:") %>
         <div>
-          <%= for feature <- @resource.features do %>
-            <span class="label mode"><%= feature %></span>
+          <%= for entity <- @resources_infos.gtfs_rt_entities do %>
+            <span class="label mode"><%= entity %></span>
           <% end %>
         </div>
       <% end %>

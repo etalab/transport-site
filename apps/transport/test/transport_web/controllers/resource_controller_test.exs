@@ -487,6 +487,16 @@ defmodule TransportWeb.ResourceControllerTest do
     assert conn2 |> html_response(200) =~ "Pas de validation disponible"
   end
 
+  test "gtfs-rt entities" do
+    resource = %{id: resource_id} = insert(:resource, format: "gtfs-rt")
+    insert(:resource_metadata, resource_id: resource_id, features: ["a", "b"])
+    insert(:resource_metadata, resource_id: resource_id, features: ["c"])
+    # too old
+    insert(:resource_metadata, resource_id: resource_id, features: ["d"], inserted_at: ~U[2020-01-01 00:00:00Z])
+
+    assert ["a", "b", "c"] = TransportWeb.ResourceController.gtfs_rt_entities(resource)
+  end
+
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
     resource = Resource |> Repo.get_by(datagouv_id: "2")
     refute Resource.can_direct_download?(resource)
