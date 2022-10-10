@@ -83,14 +83,14 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   # TODO: instead of using the string-based XML generation, use the safer "builder-based" approach,
   # and keep our string-based XMLs as test fixtures to lock down the builder behaviour.
   defp generate_query("CheckStatus", requestor_ref) do
-    Transport.SIRI.check_status(build_timestamp(), build_message_id(), requestor_ref)
+    Transport.SIRI.check_status(build_timestamp(), requestor_ref, build_message_id())
   end
 
   defp generate_query("StopPointsDiscovery", requestor_ref) do
-    Transport.SIRI.stop_points_discovery(build_timestamp(), build_message_id(), requestor_ref)
+    Transport.SIRI.stop_points_discovery(build_timestamp(), requestor_ref, build_message_id())
   end
 
   defp generate_query("LinesDiscovery", requestor_ref) do
-    Transport.SIRI.lines_discovery(build_timestamp(), build_message_id(), requestor_ref)
+    Transport.SIRI.lines_discovery(build_timestamp(), requestor_ref, build_message_id())
   end
 end
