@@ -5,18 +5,51 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   require Logger
 
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    {:ok, socket |> get_some_test_config_in_there}
   end
 
-  def handle_event("generate_query", params, socket) do
+  def get_some_test_config_in_there(socket) do
+    # temporary code used to feed something in there
+    config = Application.fetch_env!(:unlock, :config_fetcher).fetch_config!() |> Map.values()
+    config = Enum.filter(config, fn x -> %Unlock.Config.Item.SIRI{} = x end)
+
+    base_url = TransportWeb.Backoffice.ProxyConfigLive.proxy_base_url(socket)
+    # TODO: create a double list from both proxied & non proxied elements, setting the requestor_ref automatically
+    # TODO: do not fill anything unless we have a "transport" member
+    config =
+      config
+      |> Enum.map(fn item ->
+        %{
+          endpoint_url: TransportWeb.Backoffice.ProxyConfigLive.get_proxy_resource_url(base_url, item.identifier)
+        }
+      end)
+
+    urls = config |> Enum.map(& &1.endpoint_url)
+
+    socket
+    |> assign(:endpoint_url, urls |> List.first())
+    |> assign(:endpoint_urls, urls)
+    |> assign(:requestor_ref, Application.fetch_env!(:unlock, :siri_public_requestor_ref))
+  end
+
+  def handle_event("change_form", params, socket) do
     socket =
       socket
-      |> assign(:siri_query, generate_query("check_status"))
+      |> assign(:requestor_ref, params["config"]["requestor_ref"])
+      |> assign(:endpoint_url, params["config"]["endpoint_url"])
 
     {:noreply, socket}
   end
 
-  def handle_event("execute_query", params, socket) do
+  def handle_event("generate_query", _params, socket) do
+    socket =
+      socket
+      |> assign(:siri_query, generate_query("check_status", socket.assigns[:requestor_ref]))
+
+    {:noreply, socket}
+  end
+
+  def handle_event("execute_query", _params, socket) do
     query = socket.assigns[:siri_query]
     IO.puts(query)
     {:noreply, socket}
