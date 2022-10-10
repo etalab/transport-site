@@ -100,7 +100,7 @@ defmodule Transport.Jobs.GTFSRTEntitiesJob do
       existing_entities
       |> Map.filter(fn {_, v} ->
         {:ok, dt, 0} = DateTime.from_iso8601(v)
-        period_start = DateTime.add(now, -1 * 60 * 60 * 24 * days_to_keep(), :second)
+        period_start = datetime_limit()
         DateTime.compare(dt, period_start) == :gt
       end)
 
@@ -108,4 +108,6 @@ defmodule Transport.Jobs.GTFSRTEntitiesJob do
   end
 
   def days_to_keep, do: 7
+
+  def datetime_limit, do: DateTime.utc_now() |> DateTime.add(-days_to_keep() * 24 * 60 * 60)
 end
