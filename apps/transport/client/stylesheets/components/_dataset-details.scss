@@ -514,11 +514,11 @@
   height: 400px;
   margin: 0 auto;
   z-index: 0;
-  input[type="radio"] {
+  input[type='radio'] {
     width: 16px;
     height: 16px;
   }
-  input[type="radio"]::before {
+  input[type='radio']::before {
     top: 15%;
     left: 15%;
     width: 10px;

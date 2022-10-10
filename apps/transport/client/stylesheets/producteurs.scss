@@ -63,7 +63,7 @@
 }
 
 .section-why {
-  background-image: url("/images/producteurs/chariot-donnees.svg");
+  background-image: url('/images/producteurs/chariot-donnees.svg');
   background-repeat: no-repeat;
   background-position: bottom 10px left 20px;
   background-size: 15%;
@@ -196,7 +196,7 @@
   }
   .breadcrumbs-element + .breadcrumbs-element {
     &::before {
-      content: ">";
+      content: '>';
       padding-right: 0.5em;
     }
   }
