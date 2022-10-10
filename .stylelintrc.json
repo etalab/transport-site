@@ -43,6 +43,8 @@
       "font-family-no-missing-generic-family-keyword": null,
       "declaration-colon-newline-after": null,
       "scss/at-extend-no-missing-placeholder": null,
-      "selector-id-pattern": null
+      "selector-id-pattern": null,
+      "declaration-block-no-redundant-longhand-properties": null,
+      "scss/double-slash-comment-empty-line-before": null
   }
 }
