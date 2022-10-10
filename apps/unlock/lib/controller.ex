@@ -14,6 +14,7 @@ defmodule Unlock.Controller do
 
   use Phoenix.Controller
   require Logger
+  import Transport.Shared.GunzipTools
 
   defmodule ProxyCacheEntry do
     @moduledoc """
@@ -220,29 +221,6 @@ defmodule Unlock.Controller do
 
   defp bad_gateway_response do
     %Unlock.HTTP.Response{status: 502, body: "Bad Gateway", headers: [{"content-type", "text/plain"}]}
-  end
-
-  # Decompress (gzip only) if needed. More algorithms can be added later based on real-life testing
-  # The Mint documentation contains useful bits to deal with more scenarios here
-  # https://github.com/elixir-mint/mint/blob/main/pages/Decompression.md#decompressing-the-response-body
-  defp maybe_gunzip(body, headers) do
-    is_gzipped? = get_header(headers, "content-encoding") == ["gzip"]
-
-    if is_gzipped? do
-      :zlib.gunzip(body)
-    else
-      body
-    end
-  end
-
-  # Inspiration https://github.com/elixir-plug/plug/blob/v1.13.6/lib/plug/conn.ex#L615
-  defp get_header(headers, key) do
-    for {^key, value} <- headers, do: value
-  end
-
-  defp lowercase_headers(headers) do
-    headers
-    |> Enum.map(fn {h, v} -> {String.downcase(h), v} end)
   end
 
   # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug
