@@ -2,6 +2,8 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   use Phoenix.LiveView
   use Phoenix.HTML, only: [text_input: 2]
   import TransportWeb.Router.Helpers, only: [static_path: 2]
+  import Transport.Shared.GunzipTools, only: [maybe_gunzip: 2, lowercase_headers: 1]
+
   require Logger
 
   def mount(_params, _session, socket) do
@@ -53,9 +55,13 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     client = Transport.Shared.Wrapper.HTTPoison.impl()
     response = client.post!(socket.assigns[:endpoint_url], socket.assigns[:siri_query])
 
+    # "LV do not allows binary payloads. We can work-around that by using Base64, or using
+    # a custom channel" (comment kept here in case useful later). Make sure to unzip!
+    response_body = maybe_gunzip(response.body, lowercase_headers(response.headers))
+
     socket =
       socket
-      |> assign(:siri_response_body, response.body)
+      |> assign(:siri_response_body, response_body)
       |> assign(:siri_response_status_code, response.status_code)
 
     {:noreply, socket}
