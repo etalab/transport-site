@@ -192,13 +192,14 @@ defmodule TransportWeb.DatasetControllerTest do
       resource_history_id: resource_history_id,
       validator: Transport.Validators.GTFSTransport.validator_name(),
       result: %{"Slow" => [%{"severity" => "Information"}]},
-      metadata: %{metadata: %{}}
+      metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry", "bus"]}
     })
 
     set_empty_mocks()
 
     conn = conn |> get(dataset_path(conn, :details, slug))
     assert conn |> html_response(200) =~ "1 information"
+    assert conn |> html_response(200) =~ "ferry"
   end
 
   test "show number of errors for a GBFS", %{conn: conn} do
