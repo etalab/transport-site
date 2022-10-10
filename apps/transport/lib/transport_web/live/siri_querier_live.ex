@@ -24,11 +24,11 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
 
   # TODO: instead of using the string-based XML generation, use the safer "builder-based" approach,
   # and keep our string-based XMLs as test fixtures to lock down the builder behaviour.
-  defp generate_query("check_status") do
+  defp generate_query("check_status", requestor_ref) do
     # must conform to https://www.w3.org/TR/xmlschema-2/#dateTime
     timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
     message_id = "Test::Message::#{Ecto.UUID.generate()}"
-    requestor_ref = "$$YOUR_REQUESTOR_REF$$"
+    requestor_ref = requestor_ref
     Transport.SIRI.check_status(timestamp, message_id, requestor_ref)
   end
 end
