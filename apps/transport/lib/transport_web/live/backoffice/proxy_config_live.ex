@@ -171,7 +171,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     }
   end
 
-  defp get_proxy_resource_url(proxy_base_url, slug) do
+  # TODO: make centrally available
+  def get_proxy_resource_url(proxy_base_url, slug) do
     Path.join(
       proxy_base_url,
       Unlock.Router.Helpers.resource_path(Unlock.Endpoint, :fetch, slug)
