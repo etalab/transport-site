@@ -70,8 +70,8 @@ function getAomsFG (featureFunction, style, filter = null) {
         .then(response => {
             const geoJSON = Leaflet.geoJSON(response, {
                 onEachFeature: featureFunction,
-                style: style,
-                filter: filter,
+                style,
+                filter,
                 pane: 'aoms'
             })
             aomsFeatureGroup.addLayer(geoJSON)
@@ -89,7 +89,7 @@ function getRegionsFG (featureFunction, style) {
         .then(response => {
             const geoJSON = Leaflet.geoJSON(response, {
                 onEachFeature: featureFunction,
-                style: style,
+                style,
                 pointToLayer: (_point, _) => null
             })
             regionsFeatureGroup.addLayer(geoJSON)
@@ -129,7 +129,7 @@ function displayQuality (featureFunction, style) {
         .then(response => {
             const geoJSON = Leaflet.geoJSON(response, {
                 onEachFeature: featureFunction,
-                style: style
+                style
             })
             qualityFeatureGroup.addLayer(geoJSON)
         })
