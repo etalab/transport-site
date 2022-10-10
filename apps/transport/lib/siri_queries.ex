@@ -9,16 +9,15 @@ defmodule Transport.SIRI do
     """
     #{prolog()}
     <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-    <S:Body>
+      <S:Body>
         <sw:CheckStatus xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
-            <Request>
-                <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-                <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
-                <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-            </Request>
-            <RequestExtension/>
+          <Request>
+            <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+            <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
+            <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+          </Request>
         </sw:CheckStatus>
-    </S:Body>
+      </S:Body>
     </S:Envelope>
     """
   end
@@ -27,15 +26,15 @@ defmodule Transport.SIRI do
     """
     #{prolog()}
     <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-    <S:Body>
+      <S:Body>
         <sw:LinesDiscovery xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
-            <Request>
-                <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-                <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
-                <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-          	</Request>
+          <Request>
+            <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+            <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
+            <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+          </Request>
         </sw:LinesDiscovery>
-    </S:Body>
+      </S:Body>
     </S:Envelope>
     """
   end
@@ -44,16 +43,15 @@ defmodule Transport.SIRI do
     """
     #{prolog()}
     <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-        <S:Body>
-          <sw:StopPointsDiscovery xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
+      <S:Body>
+        <sw:StopPointsDiscovery xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
           <Request>
             <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
             <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
             <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
           </Request>
-          <RequestExtension/>
         </sw:StopPointsDiscovery>
-        </S:Body>
+      </S:Body>
     </S:Envelope>
     """
   end
@@ -76,7 +74,7 @@ defmodule Transport.SIRI do
     """
     #{prolog()}
     <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-    <S:Body>
+      <S:Body>
         <sw:GetEstimatedTimetable xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
             <ServiceRequestInfo>
               <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
@@ -88,9 +86,8 @@ defmodule Transport.SIRI do
                 <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
                 #{build_line_refs(line_refs)}
             </Request>
-            <RequestExtension/>
         </sw:GetEstimatedTimetable>
-    </S:Body>
+      </S:Body>
     </S:Envelope>
     """
   end
