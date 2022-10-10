@@ -5,18 +5,21 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   require Logger
 
   def mount(_params, _session, socket) do
-    socket = socket |> get_some_test_config_in_there()
+    socket = socket |> prepare_initial_assigns()
 
     {:ok, socket}
   end
 
-  @doc """
-  Temporary code to auto-fill one access point based on proxy config
-  """
-  def get_some_test_config_in_there(socket) do
-    socket
-    |> assign(:endpoint_url, get_one_siri_proxy_url(socket))
-    |> assign(:requestor_ref, Application.fetch_env!(:unlock, :siri_public_requestor_ref))
+  def prepare_initial_assigns(socket) do
+    if Mix.env() == :dev do
+      socket
+      |> assign(:endpoint_url, get_one_siri_proxy_url(socket))
+      |> assign(:requestor_ref, Application.fetch_env!(:unlock, :siri_public_requestor_ref))
+    else
+      socket
+      |> assign(:endpoint_url, nil)
+      |> assign(:requestor_ref, nil)
+    end
     |> assign(:query_template, "CheckStatus")
     |> assign(:query_template_choices, ["CheckStatus", "LinesDiscovery", "StopPointsDiscovery"])
   end
@@ -41,6 +44,19 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
         :siri_query,
         generate_query(socket.assigns[:query_template], socket.assigns[:requestor_ref])
       )
+
+    {:noreply, socket}
+  end
+
+  # TODO: make sure to set proper limits to avoid DOS ; also use a form of timeout?
+  def handle_event("execute_query", _params, socket) do
+    client = Transport.Shared.Wrapper.HTTPoison.impl()
+    response = client.post!(socket.assigns[:endpoint_url], socket.assigns[:siri_query])
+
+    socket =
+      socket
+      |> assign(:siri_response_body, response.body)
+      |> assign(:siri_response_status_code, response.status_code)
 
     {:noreply, socket}
   end
