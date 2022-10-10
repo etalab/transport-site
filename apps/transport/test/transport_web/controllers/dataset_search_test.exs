@@ -114,11 +114,16 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     end
 
     test "with gtfs-rt features" do
-      %{id: dataset_id} = insert(:dataset)
+      %{id: region_id} = insert(:region)
+      %{id: dataset_id} = insert(:dataset, type: "public-transit", region_id: region_id)
       %{id: resource_id} = insert(:resource, dataset_id: dataset_id)
       insert(:resource_metadata, resource_id: resource_id, features: ["vehicle_positions"])
 
-      %{id: dataset_id_2} = insert(:dataset)
+      # insert a second matching resource, to check "distinct" on dataset_id works (no duplicate result)
+      %{id: resource_id_again} = insert(:resource, dataset_id: dataset_id)
+      insert(:resource_metadata, resource_id: resource_id_again, features: ["vehicle_positions"])
+
+      %{id: dataset_id_2} = insert(:dataset, type: "public-transit", region_id: region_id)
       %{id: resource_id_2} = insert(:resource, dataset_id: dataset_id_2)
 
       # feature has been seen, but too long ago
@@ -128,12 +133,20 @@ defmodule TransportWeb.DatasetSearchControllerTest do
         inserted_at: ~U[2020-01-01 00:00:00Z]
       )
 
-      %{id: dataset_id_3} = insert(:dataset)
+      %{id: dataset_id_3} = insert(:dataset, type: "public-transit", region_id: region_id)
       %{id: resource_id_3} = insert(:resource, dataset_id: dataset_id_3)
       insert(:resource_metadata, resource_id: resource_id_3, features: ["repose pieds en velour"])
 
       assert [%{id: ^dataset_id}] =
-               %{"features" => ["vehicle_positions"]} |> DB.Dataset.list_datasets() |> DB.Repo.all()
+               %{"features" => ["vehicle_positions"]}
+               |> TransportWeb.DatasetController.get_datasets()
+               |> Map.fetch!(:entries)
+
+      assert [%{count: 1, type: "public-transit"}] =
+               %{"features" => ["vehicle_positions"]} |> TransportWeb.DatasetController.get_types()
+
+      regions_count = %{"features" => ["vehicle_positions"]} |> TransportWeb.DatasetController.get_regions()
+      assert [%{count: 1, id: ^region_id}] = regions_count |> Enum.filter(&(&1.id == region_id))
     end
   end
 
