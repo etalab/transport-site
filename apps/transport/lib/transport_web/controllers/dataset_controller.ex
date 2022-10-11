@@ -168,7 +168,6 @@ defmodule TransportWeb.DatasetController do
 
     params
     |> Dataset.list_datasets()
-    |> distinct([dataset: d], d.id)
     |> preload([:aom, :region])
     |> Repo.paginate(page: config.page_number)
   end
