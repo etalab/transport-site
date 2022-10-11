@@ -23,6 +23,7 @@ defmodule Transport.ImportAOMs do
   # The 2 community resources stable urls
   @aom_file "https://gist.githubusercontent.com/AntoineAugusti/8daac155f4d12b32ccd4e0a75bb964c7/raw/aoms.csv"
   @aom_insee_file "https://gist.githubusercontent.com/AntoineAugusti/8daac155f4d12b32ccd4e0a75bb964c7/raw/aoms_insee.csv"
+  @ignored_aoms ["Saint-Martin"]
 
   @spec to_int(binary()) :: number() | nil
   def to_int(""), do: nil
@@ -136,9 +137,7 @@ defmodule Transport.ImportAOMs do
     stream
     |> IO.binstream(:line)
     |> CSV.decode(separator: ?,, headers: true)
-    |> Enum.reject(fn {:ok, line} -> is_nil(line["Id réseau"]) end)
-    # credo:disable-for-next-line
-    |> Enum.reject(fn {:ok, line} -> line["Id réseau"] == "" end)
+    |> Enum.reject(fn {:ok, line} -> line["Id réseau"] in ["", nil] or line["Nom de l’AOM"] in @ignored_aoms end)
     |> Enum.map(fn {:ok, line} ->
       AOM
       |> Repo.get_by(composition_res_id: to_int(line["Id réseau"]))
