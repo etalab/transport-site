@@ -1,11 +1,21 @@
 import { Socket } from 'phoenix'
 import { LiveSocket } from 'phoenix_live_view'
 import Prism from 'prismjs'
+import format from 'xml-formatter'
 
 let Hooks = {}
 Hooks.SyntaxColoring = {
     updated () {
-        Prism.highlightElement(this.el.querySelector('code'))
+        // TODO: avoid re-render if the response has not changed. Currently it is always called, generating
+        // very slow pages on Safari at least
+        var element = this.el.querySelector('code')
+        element.textContent = format(element.textContent, {
+            indentation: '  ',
+            filter: (node) => node.type !== 'Comment',
+            collapseContent: true,
+            lineSeparator: '\n'
+        })
+        Prism.highlightElement(element)
     }
 }
 
