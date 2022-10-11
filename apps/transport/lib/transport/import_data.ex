@@ -480,12 +480,14 @@ defmodule Transport.ImportData do
   false
   iex> is_gtfs?(%{"format" => "pb", "url" => "https://example.com/GtfsRt/GtfsRT.TCRA.pb"})
   false
+  iex> is_gtfs?(%{"format" => "gtfs", "description" => "Lien vers le fichier GTFS utilisé avec le GTFS-RT."})
+  true
   """
   @spec is_gtfs?(map()) :: boolean()
   def is_gtfs?(%{} = params) do
     cond do
-      is_gtfs_rt?(params) -> false
       is_gtfs?(params["format"]) -> true
+      is_gtfs_rt?(params) -> false
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
       is_format?(params["format"], ["NeTEx", "neptune"]) -> false
       is_netex?(params["title"]) -> false
@@ -495,7 +497,7 @@ defmodule Transport.ImportData do
     end
   end
 
-  def is_gtfs?(str), do: is_format?(str, "gtfs")
+  def is_gtfs?(str), do: is_format?(str, "gtfs") and not is_format?(str, "gtfs-rt")
 
   @doc """
   Is it a GTFS-RT feed?
