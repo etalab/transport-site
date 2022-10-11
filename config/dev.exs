@@ -8,6 +8,10 @@ config :unlock,
 config :transport, TransportWeb.Endpoint,
   # http: is configured via config/runtime.exs (PORT)
   debug_errors: true,
+  # If you want to test persistence of forms across deploys in development,
+  # make sure to set code_reloader to false.
+  # see https://hexdocs.pm/phoenix_live_view/form-bindings.html#recovery-following-crashes-or-disconnects
+  # for the detailed explanation.
   code_reloader: true,
   check_origin: false,
   # NOTE: this is required to ensure code reloading will work.
