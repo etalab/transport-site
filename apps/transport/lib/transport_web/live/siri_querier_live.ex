@@ -2,7 +2,7 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   use Phoenix.LiveView
   use Phoenix.HTML, only: [text_input: 2]
   import TransportWeb.Router.Helpers, only: [static_path: 2]
-  import Transport.Shared.GunzipTools, only: [maybe_gunzip: 2, lowercase_headers: 1]
+  import Unlock.GunzipTools, only: [maybe_gunzip: 2, lowercase_headers: 1]
 
   require Logger
 

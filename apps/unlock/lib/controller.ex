@@ -14,7 +14,7 @@ defmodule Unlock.Controller do
 
   use Phoenix.Controller
   require Logger
-  import Transport.Shared.GunzipTools
+  import Unlock.GunzipTools
 
   defmodule ProxyCacheEntry do
     @moduledoc """

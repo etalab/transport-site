@@ -1,4 +1,4 @@
-defmodule Transport.Shared.GunzipTools do
+defmodule Unlock.GunzipTools do
   # Decompress (gzip only) if needed. More algorithms can be added later based on real-life testing
   # The Mint documentation contains useful bits to deal with more scenarios here
   # https://github.com/elixir-mint/mint/blob/main/pages/Decompression.md#decompressing-the-response-body
