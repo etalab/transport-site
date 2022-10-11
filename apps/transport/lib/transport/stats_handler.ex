@@ -19,8 +19,8 @@ defmodule Transport.StatsHandler do
   end
 
   defp store_stat_history(:gtfs_rt_types = key, values, %DateTime{} = timestamp) do
-    Enum.map(values, fn item ->
-      store_stat_history("#{key}::#{Map.fetch!(item, :type)}", Map.fetch!(item, :count), timestamp)
+    Enum.map(values, fn {feed_type, count} ->
+      store_stat_history("#{key}::#{feed_type}", count, timestamp)
     end)
   end
 
@@ -87,13 +87,18 @@ defmodule Transport.StatsHandler do
     }
   end
 
-  defp count_feed_types_gtfs_rt do
-    Resource
-    |> select([r], %{type: fragment("unnest(?) as gtfs_rt_type", r.features), count: count(r.id)})
-    |> where([r], r.format == "gtfs-rt")
-    |> group_by([r], fragment("gtfs_rt_type"))
-    |> order_by([r], desc: count(r.id))
-    |> Repo.all()
+  def count_feed_types_gtfs_rt do
+    recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
+
+    DB.ResourceMetadata
+    |> join(:inner, [rm], r in DB.Resource, on: r.id == rm.resource_id and r.format == "gtfs-rt")
+    |> where([rm, _r], rm.inserted_at > ^recent_limit and not is_nil(rm.features))
+    |> select([rm, _r], %{resource_id: rm.resource_id, features: rm.features})
+    |> DB.Repo.all()
+    |> Enum.group_by(& &1.resource_id, &Enum.uniq(&1.features))
+    |> Map.values()
+    |> List.flatten()
+    |> Enum.frequencies()
   end
 
   defp get_population(datasets) do
