@@ -41,6 +41,9 @@ defmodule Transport.StatsHandlerTest do
     resource = insert(:resource, format: "gtfs-rt")
     insert(:resource_metadata, features: ["vehicle_positions"], resource_id: resource.id)
     insert(:resource_metadata, features: ["trip_updates"], resource_id: resource.id)
+
+    insert(:resource_metadata, features: ["vehicle_positions"], resource: insert(:resource, format: "gtfs-rt"))
+
     stats = compute_stats()
     store_stats()
     assert DB.Repo.aggregate(DB.StatsHistory, :count, :id) >= Enum.count(stats)
@@ -53,6 +56,9 @@ defmodule Transport.StatsHandlerTest do
     assert MapSet.subset?(MapSet.new(stats_metrics), MapSet.new(all_metrics))
     assert Enum.member?(all_metrics, "gtfs_rt_types::vehicle_positions")
     assert Enum.member?(all_metrics, "gtfs_rt_types::trip_updates")
+
+    expected = Decimal.new("2")
+    assert %{value: ^expected} = DB.Repo.get_by!(DB.StatsHistory, metric: "gtfs_rt_types::vehicle_positions")
   end
 
   test "count dataset per format" do
