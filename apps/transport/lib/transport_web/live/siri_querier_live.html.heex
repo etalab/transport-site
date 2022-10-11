@@ -1,14 +1,7 @@
 <section>
   <div class="container">
     <h2>SIRI query generator</h2>
-    <.form
-      :let={f}
-      id="siri_querier"
-      for={:config}
-      phx-change="change_form"
-      phx-submit="generate_query"
-      style="margin: 0;"
-    >
+    <.form :let={f} id="siri_querier" for={:config} phx-change="change_form" phx-submit="generate_query">
       <%= text_input(f, :endpoint_url, value: @endpoint_url, placeholder: "endpoint URL") %>
       <%= text_input(f, :requestor_ref,
         value: @requestor_ref,
@@ -20,13 +13,13 @@
       <%= submit("Generate", class: "button") %>
       <button class="button" phx-click="execute_query">Execute</button>
     </.form>
-    <div class="siri_xml" id="siri_query_wrapper" phx-hook="SyntaxColoring" style="margin-top: 1em;">
+    <div class="siri_xml" id="siri_query_wrapper" phx-hook="SyntaxColoring">
       <%= if assigns[:siri_query] do %>
         <h4>SIRI query</h4>
         <pre><code class="language-xml"><%= @siri_query %></code></pre>
       <% end %>
     </div>
-    <div class="siri_xml" id="siri_response_wrapper" phx-hook="SyntaxColoring" style="margin-top: 1em;">
+    <div class="siri_xml" id="siri_response_wrapper" phx-hook="SyntaxColoring">
       <%= if assigns[:siri_response_status_code] do %>
         <h4>SIRI response (HTTP status <%= @siri_response_status_code %>)</h4>
         <pre><code class="language-xml"><%= @siri_response_body %></code></pre>
