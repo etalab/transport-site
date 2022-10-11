@@ -168,9 +168,21 @@ defmodule DB.MultiValidation do
   """
   def get_metadata_info(multi_validation, metadata_key, default \\ nil)
 
-  def get_metadata_info(%__MODULE__{metadata: %{metadata: metadata}}, metadata_key, default) do
+  def get_metadata_info(%__MODULE__{metadata: %DB.ResourceMetadata{metadata: metadata}}, metadata_key, default) do
     Map.get(metadata, metadata_key, default)
   end
 
   def get_metadata_info(_, _, default), do: default
+
+  @doc """
+  Get modes from the metadata, given a preloaded multi_validation struct. Returns nil if it fails.
+
+  iex> get_metadata_modes(%DB.MultiValidation{metadata: %DB.ResourceMetadata{modes: ["foo"]}}, :default)
+  ["foo"]
+  iex> get_metadata_modes(%DB.MultiValidation{metadata: nil}, :foo)
+  :foo
+  """
+  def get_metadata_modes(multi_validation, default \\ nil)
+  def get_metadata_modes(%__MODULE__{metadata: %DB.ResourceMetadata{modes: modes}}, _), do: modes
+  def get_metadata_modes(_, default), do: default
 end

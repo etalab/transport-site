@@ -17,7 +17,7 @@
             to: dataset_path(@conn, :details, @resource.dataset.slug)
           ) %>.
         </p>
-        <%= render("_resources_details.html", conn: @conn, metadata: @metadata) %>
+        <%= render("_resources_details.html", conn: @conn, metadata: @metadata, modes: @modes) %>
         <%= if !is_nil(associated_geojson) or !is_nil(associated_netex) do %>
           <div id="other-formats">
             <%= dgettext("validations", "This resource is also available in the following formats:") %>

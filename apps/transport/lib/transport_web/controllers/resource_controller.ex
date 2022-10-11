@@ -106,15 +106,15 @@ defmodule TransportWeb.ResourceController do
 
     validation = resource |> latest_validation()
 
-    {validation_summary, severities_count, metadata, issues} =
+    {validation_summary, severities_count, metadata, modes, issues} =
       case validation do
-        %{result: validation_result, metadata: %{metadata: metadata}} ->
+        %{result: validation_result, metadata: %DB.ResourceMetadata{metadata: metadata, modes: modes}} ->
           {Transport.Validators.GTFSTransport.summary(validation_result),
-           Transport.Validators.GTFSTransport.count_by_severity(validation_result), metadata,
+           Transport.Validators.GTFSTransport.count_by_severity(validation_result), metadata, modes,
            Transport.Validators.GTFSTransport.get_issues(validation_result, params)}
 
         nil ->
-          {nil, nil, nil, []}
+          {nil, nil, nil, [], []}
       end
 
     issue_type =
@@ -132,6 +132,7 @@ defmodule TransportWeb.ResourceController do
     |> assign(:validation_summary, validation_summary)
     |> assign(:severities_count, severities_count)
     |> assign(:metadata, metadata)
+    |> assign(:modes, modes)
     |> render("gtfs_details.html")
   end
 

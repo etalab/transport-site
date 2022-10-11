@@ -11,10 +11,10 @@
       </p>
     <% end %>
     <ul>
-      <%= if Map.get(@metadata, "modes", []) != [] do %>
+      <%= if length(@modes) > 0 do %>
         <li>
-          <%= dngettext("validations", "transport mode", "transport modes", length(@metadata["networks"])) %> :
-          <strong><%= Enum.join(@metadata["modes"], ", ") %></strong>
+          <%= dngettext("validations", "transport mode", "transport modes", length(@modes)) %> :
+          <strong><%= Enum.join(@modes, ", ") %></strong>
         </li>
       <% end %>
       <%= if Map.get(@metadata, "networks", []) != [] do %>

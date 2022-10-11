@@ -8,7 +8,7 @@ defmodule TransportWeb.DatasetView do
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
   import Phoenix.Component, only: [sigil_H: 2]
-  import DB.MultiValidation, only: [get_metadata_info: 2, get_metadata_info: 3]
+  import DB.MultiValidation, only: [get_metadata_info: 2, get_metadata_info: 3, get_metadata_modes: 2]
   alias Shared.DateTimeDisplay
   alias Transport.Validators.GTFSTransport
 
@@ -62,7 +62,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def pagination_links(%{path_info: ["datasets", "region", region]} = conn, datasets) do
-    kwargs = [path: &Helpers.dataset_path/4, action: :by_region] |> add_order_by(conn.params)
+    kwargs = [path: &Helpers.dataset_path/4, action: :by_region] |> add_query_params(conn.query_params)
 
     PaginationHelpers.pagination_links(
       conn,
@@ -73,7 +73,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def pagination_links(%{path_info: ["datasets", "aom", aom]} = conn, datasets) do
-    kwargs = [path: &Helpers.dataset_path/4, action: :by_aom] |> add_order_by(conn.params)
+    kwargs = [path: &Helpers.dataset_path/4, action: :by_aom] |> add_query_params(conn.query_params)
 
     PaginationHelpers.pagination_links(
       conn,
@@ -206,8 +206,9 @@ defmodule TransportWeb.DatasetView do
   def display_all_types_links?(%{params: %{"type" => type}}) when not is_nil(type), do: true
   def display_all_types_links?(_), do: false
 
-  defp add_order_by(kwargs, %{"order_by" => order}), do: Keyword.put(kwargs, :order_by, order)
-  defp add_order_by(kwargs, _), do: kwargs
+  defp add_query_params(kwargs, params) do
+    kwargs |> Keyword.merge(for {key, value} <- params, do: {String.to_atom(key), value})
+  end
 
   def gbfs_documentation_link(version) when is_binary(version) do
     "https://github.com/NABSA/gbfs/blob/v#{version}/gbfs.md"
