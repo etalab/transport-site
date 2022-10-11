@@ -108,6 +108,7 @@ defmodule TransportWeb.API.StatsController do
           "parent_dataset_slug" => Map.get(aom, :parent_dataset_slug, ""),
           "parent_dataset_name" => Map.get(aom, :parent_dataset_name, ""),
           "quality" => %{
+            "created_in_2022" => Map.get(aom, :created_in_2022, false),
             "expired_from" => %{
               # negative values are up to date datasets, we filter them
               "nb_days" => aom |> Map.get(:quality, %{}) |> Map.get(:expired_from) |> filter_neg,
@@ -116,8 +117,9 @@ defmodule TransportWeb.API.StatsController do
                   # if no validity period has been found, it's either that there was no data
                   # or that we were not able to read them
                   nil ->
-                    case dataset_types[:pt] do
-                      0 -> "no_data"
+                    case {dataset_types[:pt], Map.get(aom, :created_in_2022, false)} do
+                      {0, false} -> "no_data"
+                      {0, true} -> "no_data_new_aom"
                       _ -> "unreadable"
                     end
 
@@ -259,7 +261,7 @@ defmodule TransportWeb.API.StatsController do
           )
       },
       parent_dataset_slug: parent_dataset.slug,
-      parent_dataset_name: parent_dataset.datagouv_title
+      parent_dataset_name: parent_dataset.custom_title
     })
   end
 
@@ -346,6 +348,7 @@ defmodule TransportWeb.API.StatsController do
       %{
         geometry: aom.geom,
         id: aom.id,
+        created_in_2022: aom.composition_res_id >= 1_000,
         insee_commune_principale: aom.insee_commune_principale,
         nom: aom.nom,
         forme_juridique: aom.forme_juridique,

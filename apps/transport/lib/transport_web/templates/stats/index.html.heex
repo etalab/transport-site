@@ -65,7 +65,7 @@
               <a href="#public-transport-by-aom"><i class="fa fa-link fa-small"></i></a>
             </span>
             <p>
-              L'offre de transport en commun urbain, disponible par <acronym title="autorité organisatrice de mobilité">AOM</acronym>.
+              L'offre de transport en commun, disponible par <acronym title="autorité organisatrice de mobilité">AOM</acronym>.
             </p>
             <br />
             <p>
@@ -154,7 +154,7 @@
               Cette carte représente la qualité des données GTFS actuellement valides.
             </p>
             <p>
-              Pour contrôler la qualité des jeux de données de transport, la plateforme transport.data.gouv.fr utilise des outils de validation.          .
+              Pour contrôler la qualité des jeux de données de transport, la plateforme transport.data.gouv.fr utilise des outils de validation.
             </p>
             <p>
               Retrouvez plus d'informations sur ces outils dans la <a href="https://doc.transport.data.gouv.fr/reutilisateurs/qualite-de-donnee#validateur-de-fichiers-gtfs">documentation</a>.
@@ -163,7 +163,7 @@
           <div class="tile">
             <h3><%= round(@ratio_aom_with_at_most_warnings * 100) %>%</h3>
             <div>
-              <acronym title="autorité organisatrice de mobilité">AOM</acronym> urbaines avec des jeux de données de
+              <acronym title="autorité organisatrice de mobilité">AOM</acronym> avec des jeux de données de
               qualité satisfaisante (sans aucune erreur)
             </div>
           </div>
@@ -171,22 +171,21 @@
             <h3><%= round(@ratio_aom_good_quality * 100) %>%</h3>
             <div>
               <acronym title="autorité organisatrice de mobilité">AOM</acronym>
-              urbaines avec des jeux de données de bonne qualité
+              avec des jeux de données de bonne qualité
               (sans erreurs ni avertissements)
             </div>
           </div>
           <div class="tile">
             <h3><%= @aom_with_errors %></h3>
             <div>
-              <acronym title="autorité organisatrice de mobilité">AOM</acronym>
-              urbaines avec des jeux de données en erreur
+              <acronym title="autorité organisatrice de mobilité">AOM</acronym> avec des jeux de données en erreur
             </div>
           </div>
           <div class="tile">
             <h3><%= @aom_with_fatal %></h3>
             <div>
               <acronym title="autorité organisatrice de mobilité">AOM</acronym>
-              urbaines avec des jeux de données ne respectant pas les spécifications GTFS
+              avec des jeux de données ne respectant pas les spécifications GTFS
             </div>
           </div>
         </div>
