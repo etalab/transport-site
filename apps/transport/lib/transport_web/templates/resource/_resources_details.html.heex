@@ -46,7 +46,15 @@
           <span class="label mode"><%= tag %></span>
         <% end %>
 
-        <li><%= dgettext("page-dataset-details", "Missing features that can be specified in GTFS:") %></li>
+        <li>
+          <%= dgettext(
+            "page-dataset-details",
+            "Missing features that <a href=\"%{doc_link}\" target=\"_blank\">can be specified in GTFS</a>:",
+            doc_link:
+              "https://doc.transport.data.gouv.fr/producteurs/operateurs-de-transport-regulier-de-personnes/mise-en-qualite-des-donnees-gtfs"
+          )
+          |> raw() %>
+        </li>
         <%= for tag <- DB.Resource.existing_gtfs_tags() -- found_tags do %>
           <span class="label"><%= tag %></span>
         <% end %>

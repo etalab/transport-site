@@ -108,6 +108,10 @@ defmodule Transport.Test.Transport.Jobs.GTFSRTEntitiesJobTest do
 
       assert %{metadata: %{"entities_last_seen" => %{"service_alerts" => _}}, features: ["service_alerts"]} =
                DB.Repo.reload(resource)
+
+      %{metadata: metadata, features: features} = DB.ResourceMetadata |> DB.Repo.get_by!(resource_id: resource.id)
+      assert %{"service_alerts" => _} = metadata
+      assert ["service_alerts"] == features
     end
 
     test "perform with stuff in the metadata" do

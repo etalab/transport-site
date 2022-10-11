@@ -38,10 +38,14 @@
             type: "url"
           ) %>
         <% end %>
-        <%= submit(dgettext("validations", "Validate"), nodiv: true) %>
+        <%= unless @input_type == "file" do %>
+          <%= submit(dgettext("validations", "Validate"), nodiv: true) %>
+        <% end %>
       </.form>
+      <p :if={@trigger_submit} class="small">
+        <%= TransportWeb.Gettext.dgettext("validations", "Upload in progress") %>
+      </p>
     </div>
   </div>
 </section>
-<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
-</script>
+<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")} />

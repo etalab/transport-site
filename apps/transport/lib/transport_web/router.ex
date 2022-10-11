@@ -174,6 +174,10 @@ defmodule TransportWeb.Router do
     scope "/tools" do
       get("/gbfs/geojson_convert", GbfsToGeojsonController, :convert)
       get("/gbfs/analyze", GbfsAnalyzerController, :index)
+
+      live_session :gtfs_diff, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/beta/gtfs_diff", Live.GtfsDiffSelectLive)
+      end
     end
 
     scope "/gtfs-geojson-conversion-#{System.get_env("TRANSPORT_TOOLS_SECRET_TOKEN")}" do

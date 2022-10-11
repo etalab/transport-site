@@ -2,6 +2,7 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
   use ExUnit.Case, async: true
   import Mox
   import DB.Factory
+  alias Transport.Validators.GTFSTransport
 
   doctest Transport.Validators.GTFSTransport, import: true
 
@@ -48,5 +49,37 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
 
     assert %{metadata: ^metadata_content, resource_history_id: ^resource_history_id} =
              DB.ResourceMetadata |> DB.Repo.get_by!(multi_validation_id: validation_id)
+  end
+
+  test "find_tags_from_metadata" do
+    # Can detect all available tags
+    assert ["transport à la demande"] ==
+             GTFSTransport.find_tags_from_metadata(%{"some_stops_need_phone_agency" => true})
+
+    assert ["transport à la demande"] ==
+             GTFSTransport.find_tags_from_metadata(%{"some_stops_need_phone_driver" => true})
+
+    assert ["description des correspondances"] == GTFSTransport.find_tags_from_metadata(%{"has_pathways" => true})
+    assert ["tracés de lignes"] == GTFSTransport.find_tags_from_metadata(%{"has_shapes" => true})
+
+    assert ["couleurs des lignes"] ==
+             GTFSTransport.find_tags_from_metadata(%{"lines_with_custom_color_count" => 4, "lines_count" => 5})
+
+    assert GTFSTransport.find_tags_from_metadata(%{"lines_with_custom_color_count" => 0, "has_fares" => false}) == []
+
+    # Can find multiple tags
+    assert GTFSTransport.find_tags_from_metadata(%{"has_fares" => true, "has_pathways" => true}) == [
+             "tarifs",
+             "description des correspondances"
+           ]
+
+    assert GTFSTransport.find_tags_from_metadata(%{
+             "some_stops_need_phone_driver" => true,
+             "some_stops_need_phone_agency" => true
+           }) == ["transport à la demande"]
+
+    # Does not crash when map is empty or some keys are not recognised
+    assert GTFSTransport.find_tags_from_metadata(%{}) == []
+    assert GTFSTransport.find_tags_from_metadata(%{"foo" => "bar"}) == []
   end
 end

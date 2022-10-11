@@ -54,7 +54,7 @@
           gtfs_rt_feed: @gtfs_rt_feed,
           conn: @conn,
           locale: get_session(@conn, :locale),
-          entities_seen_recently: @resource.features
+          entities_seen_recently: @gtfs_rt_entities
         ) %>
       <% end %>
     </div>

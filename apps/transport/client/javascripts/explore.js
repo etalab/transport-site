@@ -58,7 +58,7 @@ const deckGLLayer = new LeafletLayer({
         })
     ],
     layers: [],
-    getTooltip: getTooltip
+    getTooltip
 })
 map.addLayer(deckGLLayer)
 

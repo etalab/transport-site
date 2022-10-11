@@ -1,4 +1,4 @@
-defmodule Transport.Unzip.S3File do
+defmodule Transport.Unzip.S3 do
   @moduledoc """
   Read a remote zip file stored on a S3 bucket, as explained here
   https://hexdocs.pm/unzip/readme.html
@@ -8,23 +8,32 @@ defmodule Transport.Unzip.S3File do
   alias __MODULE__
 
   def new(path, bucket, s3_config) do
-    %S3File{path: path, bucket: bucket, s3_config: s3_config}
+    %S3{path: path, bucket: bucket, s3_config: s3_config}
   end
 
-  def get_file_stream(file_name, zip_name, bucket_name) do
-    aws_s3_config =
+  defp aws_s3_config,
+    do:
       ExAws.Config.new(:s3,
         access_key_id: [Application.fetch_env!(:ex_aws, :access_key_id), :instance_role],
         secret_access_key: [Application.fetch_env!(:ex_aws, :secret_access_key), :instance_role]
       )
 
+  def get_file_stream(file_name, zip_name, bucket_name) do
+    aws_s3_config = aws_s3_config()
     file = new(zip_name, bucket_name, aws_s3_config)
     {:ok, unzip} = Unzip.new(file)
+
     Unzip.file_stream!(unzip, file_name)
+  end
+
+  def get_unzip(zip_name, bucket_name) do
+    aws_s3_config = aws_s3_config()
+    file = new(zip_name, bucket_name, aws_s3_config)
+    Unzip.new(file)
   end
 end
 
-defimpl Unzip.FileAccess, for: Transport.Unzip.S3File do
+defimpl Unzip.FileAccess, for: Transport.Unzip.S3 do
   alias ExAws.S3
 
   def size(file) do

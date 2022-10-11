@@ -172,7 +172,7 @@ function setGBFSGeofencingStyle (feature, layer) {
     }
     layer
         .bindPopup(`<pre>${popupContent}</pre>`)
-        .setStyle({ fillColor: color, color: color, fillOpacity: opacity, stroke: false })
+        .setStyle({ fillColor: color, color, fillOpacity: opacity, stroke: false })
 }
 
 function fillStations (stationsGeojson, bikesAvailable, docksAvailable) {
