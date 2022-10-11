@@ -103,7 +103,7 @@ defmodule Transport.StatsHandler do
       Ecto.Adapters.SQL.query!(DB.Repo, query, [Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()])
 
     # rows example value: [["trip_updates", 63], ["service_alerts", 12]]
-    Enum.into(rows, %{}, fn r -> {List.first(r), List.last(r)} end)
+    Enum.into(rows, %{}, &List.to_tuple/1)
   end
 
   defp get_population(datasets) do
