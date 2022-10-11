@@ -79,9 +79,26 @@ defmodule TransportWeb.DatasetController do
     %{
       unavailabilities: unavailabilities(dataset),
       resources_updated_at: DB.Dataset.resources_content_updated_at(dataset),
-      validations: DB.MultiValidation.dataset_latest_validation(dataset.id, validators_to_use())
+      validations: DB.MultiValidation.dataset_latest_validation(dataset.id, validators_to_use()),
+      gtfs_rt_entities: gtfs_rt_entities(dataset)
     }
   end
+
+  def gtfs_rt_entities(%Dataset{id: dataset_id, type: "public-transit"}) do
+    recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
+
+    DB.Dataset.base_query()
+    |> DB.Resource.join_dataset_with_resource()
+    |> join(:inner, [resource: r], rm in DB.ResourceMetadata, on: r.id == rm.resource_id, as: :metadata)
+    |> where(
+      [dataset: d, resource: r, metadata: rm],
+      d.id == ^dataset_id and r.format == "gtfs-rt" and rm.inserted_at > ^recent_limit
+    )
+    |> select([metadata: rm], fragment("DISTINCT(UNNEST(?))", rm.features))
+    |> DB.Repo.all()
+  end
+
+  def gtfs_rt_entities(%Dataset{}), do: []
 
   @spec by_aom(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def by_aom(%Plug.Conn{} = conn, %{"aom" => id} = params) do
@@ -146,11 +163,12 @@ defmodule TransportWeb.DatasetController do
   end
 
   @spec get_datasets(map()) :: Scrivener.Page.t()
-  defp get_datasets(params) do
+  def get_datasets(params) do
     config = make_pagination_config(params)
 
     params
     |> Dataset.list_datasets()
+    |> distinct([dataset: d], d.id)
     |> preload([:aom, :region])
     |> Repo.paginate(page: config.page_number)
   end
@@ -160,29 +178,29 @@ defmodule TransportWeb.DatasetController do
     do: params |> Map.delete(key_to_delete) |> Dataset.list_datasets() |> exclude(:preload)
 
   @spec get_regions(map()) :: [Region.t()]
-  defp get_regions(params) do
+  def get_regions(params) do
     sub =
       params
       |> clean_datasets_query("region")
       |> exclude(:order_by)
-      |> join(:left, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
-      |> select([d, d_geo], %{id: d.id, region_id: d_geo.region_id})
+      |> join(:left, [dataset: d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id, as: :geo_view)
+      |> select([dataset: d, geo_view: d_geo], %{id: d.id, region_id: d_geo.region_id})
 
     Region
     |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
     |> group_by([r], [r.id, r.nom])
-    |> select([r, d], %{nom: r.nom, id: r.id, count: count(d.id)})
+    |> select([r, d], %{nom: r.nom, id: r.id, count: count(d.id, :distinct)})
     |> order_by([r], r.nom)
     |> Repo.all()
   end
 
   @spec get_types(map()) :: [%{type: binary(), msg: binary(), count: integer}]
-  defp get_types(params) do
+  def get_types(params) do
     params
     |> clean_datasets_query("type")
     |> exclude(:order_by)
     |> group_by([d], [d.type])
-    |> select([d], %{type: d.type, count: count(d.type)})
+    |> select([d], %{type: d.type, count: count(d.id, :distinct)})
     |> Repo.all()
     |> Enum.reject(&is_nil/1)
     |> Enum.map(fn res ->
@@ -206,7 +224,7 @@ defmodule TransportWeb.DatasetController do
       |> clean_datasets_query("filter")
       |> exclude(:order_by)
       |> group_by([d], d.has_realtime)
-      |> select([d], %{has_realtime: d.has_realtime, count: count()})
+      |> select([d], %{has_realtime: d.has_realtime, count: count(d.id, :distinct)})
       |> Repo.all()
       |> Enum.reduce(%{}, fn r, acc -> Map.put(acc, r.has_realtime, r.count) end)
 

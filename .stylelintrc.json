@@ -1,14 +1,11 @@
 {
-  "plugins": [
-    "stylelint-scss"
-  ],
+  "extends": "stylelint-config-standard-scss",
   "rules": {
       "scss/at-import-no-partial-leading-underscore": true,
       "scss/dollar-variable-colon-space-after": "at-least-one-space",
       "scss/dollar-variable-default": true,
 
       "color-no-invalid-hex": true,
-      "function-calc-no-invalid": true,
       "function-calc-no-unspaced-operator": true,
       "unit-no-unknown": true,
       "property-no-unknown": true,
@@ -30,6 +27,24 @@
       "block-opening-brace-newline-after": "always-multi-line",
       "max-empty-lines": 1,
       "no-empty-first-line": true,
-      "indentation": 2
+      "indentation": 2,
+      "string-quotes": "single",
+      "rule-empty-line-before": null,
+      "selector-class-pattern": null,
+      "hue-degree-notation": null,
+      "color-function-notation": null,
+      "scss/dollar-variable-empty-line-before": null,
+      "alpha-value-notation": null,
+      "number-leading-zero": null,
+      "at-rule-empty-line-before": null,
+      "value-keyword-case": null,
+      "no-missing-end-of-source-newline": null,
+      "comment-empty-line-before": null,
+      "font-family-no-missing-generic-family-keyword": null,
+      "declaration-colon-newline-after": null,
+      "scss/at-extend-no-missing-placeholder": null,
+      "selector-id-pattern": null,
+      "declaration-block-no-redundant-longhand-properties": null,
+      "scss/double-slash-comment-empty-line-before": null
   }
 }

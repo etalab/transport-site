@@ -275,3 +275,31 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Validate this GBFS now"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Compute GTFS Diff"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Diff is complete"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Drop your files here or browse your local drive"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "GTFS Diff Playground (BETA!)"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Here is an an overview of the differences found:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "download it"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Upload in progress"
+msgstr ""

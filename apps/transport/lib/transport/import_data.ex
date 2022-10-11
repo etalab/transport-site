@@ -466,27 +466,25 @@ defmodule Transport.ImportData do
   end
 
   @doc """
-  Is it a gtfs file?
+  Is it a GTFS file?
 
   ## Examples
 
-      iex> is_gtfs?("NeTEx")
-      false
-
-      iex> is_gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
-      true
-
-      iex> is_gtfs?(%{"format" => "neptune"})
-      false
-
-      iex> is_gtfs?(%{"format" => "gtfs-rt"})
-      false
-
+  iex> is_gtfs?("NeTEx")
+  false
+  iex> is_gtfs?("sncf.tgv.GtFs.zip.tar.gz.7z")
+  true
+  iex> is_gtfs?(%{"format" => "neptune"})
+  false
+  iex> is_gtfs?(%{"format" => "gtfs-rt"})
+  false
+  iex> is_gtfs?(%{"format" => "pb", "url" => "https://example.com/GtfsRt/GtfsRT.TCRA.pb"})
+  false
   """
   @spec is_gtfs?(map()) :: boolean()
   def is_gtfs?(%{} = params) do
     cond do
-      is_gtfs_rt?(params["format"]) -> false
+      is_gtfs_rt?(params) -> false
       is_gtfs?(params["format"]) -> true
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
       is_format?(params["format"], ["NeTEx", "neptune"]) -> false
@@ -499,8 +497,30 @@ defmodule Transport.ImportData do
 
   def is_gtfs?(str), do: is_format?(str, "gtfs")
 
+  @doc """
+  Is it a GTFS-RT feed?
+
+  ## Examples
+
+  iex> is_gtfs_rt?(%{"format" => "pb", "url" => "https://example.com/GtfsRt/GtfsRT.TCRA.pb"})
+  true
+  iex> is_gtfs_rt?(%{"format" => "pb", "url" => "https://example.com/feed.pb", "title" => "GTFS-RT réseau ORIZO"})
+  true
+  iex> is_gtfs_rt?(%{"format" => "gtfs-rt"})
+  true
+  """
   @spec is_gtfs_rt?(binary() | map()) :: boolean()
-  def is_gtfs_rt?(str), do: is_format?(str, "gtfs-rt") or is_format?(str, "gtfsrt")
+  def is_gtfs_rt?(%{} = params) do
+    cond do
+      is_gtfs_rt?(params["format"]) -> true
+      is_gtfs_rt?(params["description"]) -> true
+      is_gtfs_rt?(params["title"]) -> true
+      is_gtfs_rt?(params["url"]) -> true
+      true -> false
+    end
+  end
+
+  def is_gtfs_rt?(str), do: is_format?(str, "gtfs-rt")
 
   @doc """
   iex> is_siri?("siri lite")

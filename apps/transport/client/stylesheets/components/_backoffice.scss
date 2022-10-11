@@ -5,7 +5,7 @@
   padding-top: 48px;
   th,
   td {
-    padding: 0 3px 0 3px;
+    padding: 0 3px;
     text-align: center;
   }
   table,
@@ -19,13 +19,13 @@
 .backoffice-datasets {
   width: 100%;
   border-collapse: collapse;
-  border: 0px solid black;
+  border: 0 solid black;
   th {
     text-align: left;
-    border: 0px solid black;
+    border: 0 solid black;
   }
   td {
-    border: 0px solid black;
+    border: 0 solid black;
     padding: 2px;
   }
   tr {
@@ -44,10 +44,10 @@
   form > button,
   div > button {
     padding: 2px;
-    margin: 0px;
+    margin: 0;
     &:hover {
       padding: 2px;
-      margin: 0px;
+      margin: 0;
     }
   }
 }
@@ -68,7 +68,7 @@
   justify-content: center;
   align-items: flex-end;
   div {
-    padding: 0 12px 0 12px;
+    padding: 0 12px;
   }
 }
 
@@ -142,7 +142,7 @@
     background-color: red;
   }
   .some_failures {
-    background-color:orange;
+    background-color: orange;
   }
   .only_successes {
     background-color: rgb(0, 255, 0);

@@ -16,7 +16,7 @@ defmodule Transport.Jobs.GtfsToDB do
   def file_stream(resource_history_id, gtfs_file_name) do
     %{payload: %{"filename" => filename}} = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)
     bucket_name = Transport.S3.bucket_name(:history)
-    Transport.Unzip.S3File.get_file_stream(gtfs_file_name, filename, bucket_name)
+    Transport.Unzip.S3.get_file_stream(gtfs_file_name, filename, bucket_name)
   end
 
   def fill_stops_from_resource_history(resource_history_id, data_import_id) do
