@@ -88,17 +88,22 @@ defmodule Transport.StatsHandler do
   end
 
   def count_feed_types_gtfs_rt do
-    recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
+    query = """
+    select gtfs_rt_feature, count(1)
+    from (
+      select distinct resource_id, unnest(rm.features) as gtfs_rt_feature
+      from resource_metadata rm
+      join resource r on r.id = rm.resource_id and r.format = 'gtfs-rt'
+      where inserted_at > $1
+    ) t
+    group by gtfs_rt_feature
+    """
 
-    DB.ResourceMetadata
-    |> join(:inner, [rm], r in DB.Resource, on: r.id == rm.resource_id and r.format == "gtfs-rt")
-    |> where([rm, _r], rm.inserted_at > ^recent_limit and not is_nil(rm.features))
-    |> select([rm, _r], %{resource_id: rm.resource_id, features: rm.features})
-    |> DB.Repo.all()
-    |> Enum.group_by(& &1.resource_id, &Enum.uniq(&1.features))
-    |> Map.values()
-    |> List.flatten()
-    |> Enum.frequencies()
+    %Postgrex.Result{rows: rows} =
+      Ecto.Adapters.SQL.query!(DB.Repo, query, [Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()])
+
+    # rows example value: [["trip_updates", 63], ["service_alerts", 12]]
+    Enum.into(rows, %{}, fn r -> {List.first(r), List.last(r)} end)
   end
 
   defp get_population(datasets) do
