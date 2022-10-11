@@ -7,6 +7,7 @@
 <% resources_updated_at = @resources_infos.resources_updated_at %>
 <% [validation] = @resources_infos.validations |> Map.get(@resource.id) %>
 <% is_gtfs_outdated = Transport.Validators.GTFSTransport.is_gtfs_outdated(validation) %>
+<% resource_modes = get_metadata_modes(validation, []) %>
 
 <div
   class={"panel resource #{valid_panel_class(@resource, is_gtfs_outdated)}"}
@@ -134,9 +135,9 @@
 
   <div class="resource-panel-bottom">
     <div class="resource-features">
-      <%= if length(@resource.modes) > 0 do %>
+      <%= if length(resource_modes) > 0 do %>
         <div title={dgettext("page-dataset-details", "Dataset modes")}>
-          <%= for mode <- @resource.modes do %>
+          <%= for mode <- resource_modes do %>
             <span class="label mode"><%= mode %></span>
           <% end %>
         </div>

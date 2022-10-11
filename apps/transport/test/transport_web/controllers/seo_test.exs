@@ -36,9 +36,7 @@ defmodule TransportWeb.SeoMetadataTest do
             },
             description: "blabla on resource",
             format: "GTFS",
-            metadata: %{"networks" => [], "modes" => []},
             title: "angers.zip",
-            modes: ["ferry"],
             id: 1234
           }
         ],
