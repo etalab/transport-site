@@ -122,7 +122,7 @@ defmodule TransportWeb.ResourceControllerTest do
       resource_history: insert(:resource_history, %{resource_id: resource.id}),
       validator: Transport.Validators.GBFSValidator.validator_name(),
       result: %{"errors_count" => 1},
-      metadata: %{metadata: %{}}
+      metadata: %DB.ResourceMetadata{metadata: %{}}
     })
 
     Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
@@ -305,24 +305,24 @@ defmodule TransportWeb.ResourceControllerTest do
       insert(:resource, %{
         dataset_id: dataset_id,
         format: "GTFS",
-        datagouv_id: datagouv_id = "datagouv_id",
         url: "https://example.com/file"
       })
 
     conn1 = conn |> get(resource_path(conn, :details, resource_id))
     assert conn1 |> html_response(200) =~ "Pas de validation disponible"
 
-    %{id: resource_history_id} = insert(:resource_history, %{datagouv_id: datagouv_id})
+    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
 
     insert(:multi_validation, %{
       resource_history_id: resource_history_id,
       validator: Transport.Validators.GTFSTransport.validator_name(),
       result: %{},
-      metadata: %{metadata: %{}}
+      metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry"]}
     })
 
     conn2 = conn |> get(resource_path(conn, :details, resource_id))
     assert conn2 |> html_response(200) =~ "Rapport de validation"
+    assert conn2 |> html_response(200) =~ "ferry"
   end
 
   test "GTFS-RT validation is shown", %{conn: conn} do
@@ -364,7 +364,7 @@ defmodule TransportWeb.ResourceControllerTest do
           "gtfs_rt_permanent_url" => "url"
         }
       },
-      metadata: %{metadata: %{}}
+      metadata: %DB.ResourceMetadata{metadata: %{}}
     })
 
     {conn2, _} = with_log(fn -> conn |> get(resource_path(conn, :details, resource_id)) end)
@@ -404,7 +404,7 @@ defmodule TransportWeb.ResourceControllerTest do
       resource_history_id: resource_history_id,
       validator: Transport.Validators.TableSchema.validator_name(),
       result: %{"has_errors" => true, "errors_count" => 1, "validation_performed" => true, "errors" => ["oops"]},
-      metadata: %{metadata: %{}}
+      metadata: %DB.ResourceMetadata{metadata: %{}}
     })
 
     conn2 = conn |> get(resource_path(conn, :details, resource_id))
@@ -444,7 +444,7 @@ defmodule TransportWeb.ResourceControllerTest do
       resource_history_id: resource_history_id,
       validator: Transport.Validators.EXJSONSchema.validator_name(),
       result: %{"has_errors" => true, "errors_count" => 1, "validation_performed" => true, "errors" => ["oops"]},
-      metadata: %{metadata: %{}}
+      metadata: %DB.ResourceMetadata{metadata: %{}}
     })
 
     conn2 = conn |> get(resource_path(conn, :details, resource_id))
