@@ -94,7 +94,7 @@ defmodule Transport.StatsHandler do
       select distinct resource_id, unnest(rm.features) as gtfs_rt_feature
       from resource_metadata rm
       join resource r on r.id = rm.resource_id and r.format = 'gtfs-rt'
-      where inserted_at > $1
+      where inserted_at > $1 and rm.features is not null
     ) t
     group by gtfs_rt_feature
     """
