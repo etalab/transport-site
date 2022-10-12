@@ -482,6 +482,8 @@ defmodule Transport.ImportData do
   false
   iex> is_gtfs?(%{"format" => "gtfs", "description" => "Lien vers le fichier GTFS utilisé avec le GTFS-RT."})
   true
+  iex> is_gtfs?(%{"format" => "zip", "title" => "GTFS RTM", "url" => "https://example.com/api/Export/v1/GetExportedDataFile?ExportFormat=Gtfs&OperatorCode=RTM"})
+  true
   """
   @spec is_gtfs?(map()) :: boolean()
   def is_gtfs?(%{} = params) do
@@ -497,7 +499,7 @@ defmodule Transport.ImportData do
     end
   end
 
-  def is_gtfs?(str), do: is_format?(str, "gtfs") and not is_format?(str, "gtfs-rt")
+  def is_gtfs?(str), do: is_format?(str, "gtfs") and not is_gtfs_rt?(str)
 
   @doc """
   Is it a GTFS-RT feed?
@@ -509,6 +511,10 @@ defmodule Transport.ImportData do
   iex> is_gtfs_rt?(%{"format" => "pb", "url" => "https://example.com/feed.pb", "title" => "GTFS-RT réseau ORIZO"})
   true
   iex> is_gtfs_rt?(%{"format" => "gtfs-rt"})
+  true
+  iex> Enum.all?(["GTFS RT", "gtfs rt", "GTFS-RT"], &is_gtfs_rt?/1)
+  true
+  iex> Enum.all?(["GTFS RTM", "gtfs théorique", "ZIP GTFS"], &(! is_gtfs_rt?(&1)))
   true
   """
   @spec is_gtfs_rt?(binary() | map()) :: boolean()
@@ -522,7 +528,8 @@ defmodule Transport.ImportData do
     end
   end
 
-  def is_gtfs_rt?(str), do: is_format?(str, "gtfs-rt")
+  def is_gtfs_rt?(str) when is_binary(str), do: String.match?(str, ~r/\b(gtfs-rt|gtfsrt|gtfs rt)\b/i)
+  def is_gtfs_rt?(_), do: false
 
   @doc """
   iex> is_siri?("siri lite")
