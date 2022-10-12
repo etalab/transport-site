@@ -19,8 +19,8 @@ defmodule Transport.StatsHandler do
   end
 
   defp store_stat_history(:gtfs_rt_types = key, values, %DateTime{} = timestamp) do
-    Enum.map(values, fn item ->
-      store_stat_history("#{key}::#{Map.fetch!(item, :type)}", Map.fetch!(item, :count), timestamp)
+    Enum.map(values, fn {feed_type, count} ->
+      store_stat_history("#{key}::#{feed_type}", count, timestamp)
     end)
   end
 
@@ -87,13 +87,29 @@ defmodule Transport.StatsHandler do
     }
   end
 
-  defp count_feed_types_gtfs_rt do
-    Resource
-    |> select([r], %{type: fragment("unnest(?) as gtfs_rt_type", r.features), count: count(r.id)})
-    |> where([r], r.format == "gtfs-rt")
-    |> group_by([r], fragment("gtfs_rt_type"))
-    |> order_by([r], desc: count(r.id))
-    |> Repo.all()
+  @doc """
+  Count the number of gtfs-rt entities seen in the last 7 days on our resources
+  Output example: %{"service_alerts" => 12, "trip_updates" => 63, "vehicle_positions" => 42}
+  """
+  @spec count_feed_types_gtfs_rt :: map()
+  def count_feed_types_gtfs_rt do
+    features =
+      DB.ResourceMetadata.base_query()
+      |> distinct(true)
+      |> join(:inner, [metadata: m], r in DB.Resource, on: r.id == m.resource_id, as: :resource)
+      |> where(
+        [metadata: m, resource: r],
+        r.format == "gtfs-rt" and m.inserted_at > ^Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
+      )
+      |> select([metadata: m], %{resource_id: m.resource_id, feature: fragment("unnest(?)", m.features)})
+
+    q = from(f in subquery(features))
+
+    q
+    |> group_by([f], f.feature)
+    |> select([f], {f.feature, count(f.feature)})
+    |> DB.Repo.all()
+    |> Enum.into(%{})
   end
 
   defp get_population(datasets) do
