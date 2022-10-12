@@ -96,7 +96,7 @@ defmodule TransportWeb.ValidationControllerTest do
                  "secret_url_token" => token
                },
                id: validation_id
-             } = DB.Repo.one!(DB.MultiValidation)
+             } = multi_validation = DB.MultiValidation |> DB.Repo.one!() |> DB.Repo.preload(:metadata)
 
       assert [
                %Oban.Job{
@@ -112,6 +112,28 @@ defmodule TransportWeb.ValidationControllerTest do
 
       assert permanent_url == Transport.S3.permanent_url(:on_demand_validation, filename)
       assert redirected_to(conn, 302) == validation_path(conn, :show, validation_id, token: token)
+
+      # Validation is completed, ensure that the validation's result page can be displayed
+      multi_validation
+      |> Ecto.Changeset.change(%{
+        oban_args: %{multi_validation.oban_args | "state" => "completed"},
+        result: %{
+          "NullDuration" => [%{"severity" => "Information"}],
+          "MissingCoordinates" => [%{"severity" => "Warning"}]
+        },
+        max_error: "Warning",
+        data_vis: %{},
+        metadata: %DB.ResourceMetadata{modes: ["bus", "ferry"], metadata: %{"networks" => ["SuperRéseau"]}}
+      })
+      |> DB.Repo.update!()
+
+      Transport.DataVisualization.Mock |> expect(:has_features, fn _ -> false end)
+
+      conn2 = conn |> get(validation_path(conn, :show, validation_id, token: token))
+      assert conn2 |> html_response(200) =~ "bus, ferry"
+      assert conn2 |> html_response(200) =~ "SuperRéseau"
+      assert conn2 |> html_response(200) =~ "1 Avertissement"
+      assert conn2 |> html_response(200) =~ "1 Information"
     end
 
     test "with a schema", %{conn: conn} do
