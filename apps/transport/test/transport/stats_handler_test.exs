@@ -26,6 +26,7 @@ defmodule Transport.StatsHandlerTest do
     insert(:resource_metadata, features: nil, resource_id: resource.id)
 
     # latest metadata for the resource
+    insert(:resource_metadata, features: ["vehicle_positions", "trap"], resource_id: resource.id)
     insert(:resource_metadata, features: ["vehicle_positions", "trip_updates"], resource_id: resource.id)
 
     # another resource linked to a single metadata
