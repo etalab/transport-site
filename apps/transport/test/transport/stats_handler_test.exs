@@ -35,7 +35,8 @@ defmodule Transport.StatsHandlerTest do
       resource: insert(:resource, format: "gtfs-rt")
     )
 
-    assert %{"service_alerts" => 1, "trip_updates" => 1, "vehicle_positions" => 2, "entity" => 1} == count_feed_types_gtfs_rt()
+    assert %{"service_alerts" => 1, "trip_updates" => 1, "vehicle_positions" => 2, "entity" => 1} ==
+             count_feed_types_gtfs_rt()
   end
 
   test "store_stats" do

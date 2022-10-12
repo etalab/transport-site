@@ -91,15 +91,21 @@ defmodule Transport.StatsHandler do
   Count the number of gtfs-rt entities seen in the last 7 days on our resources
   Output example: %{"service_alerts" => 12, "trip_updates" => 63, "vehicle_positions" => 42}
   """
-  @spec count_feed_types_gtfs_rt::map()
+  @spec count_feed_types_gtfs_rt :: map()
   def count_feed_types_gtfs_rt do
-    features = DB.ResourceMetadata.base_query()
-    |> distinct(true)
-    |> join(:inner, [metadata: m], r in DB.Resource, on: r.id == m.resource_id, as: :resource)
-    |> where([metadata: m, resource: r], r.format == "gtfs-rt" and m.inserted_at > ^Transport.Jobs.GTFSRTEntitiesJob.datetime_limit())
-    |> select([metadata: m], %{resource_id: m.resource_id, feature: fragment("unnest(?)", m.features)})
+    features =
+      DB.ResourceMetadata.base_query()
+      |> distinct(true)
+      |> join(:inner, [metadata: m], r in DB.Resource, on: r.id == m.resource_id, as: :resource)
+      |> where(
+        [metadata: m, resource: r],
+        r.format == "gtfs-rt" and m.inserted_at > ^Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
+      )
+      |> select([metadata: m], %{resource_id: m.resource_id, feature: fragment("unnest(?)", m.features)})
 
-    from(f in subquery(features))
+    q = from(f in subquery(features))
+
+    q
     |> group_by([f], f.feature)
     |> select([f], {f.feature, count(f.feature)})
     |> DB.Repo.all()
