@@ -25,8 +25,8 @@ defmodule Transport.StatsHandlerTest do
     insert(:resource_metadata, features: [], resource_id: resource.id)
     insert(:resource_metadata, features: nil, resource_id: resource.id)
 
-    # latest metadata for the resource
-    insert(:resource_metadata, features: ["vehicle_positions", "trap"], resource_id: resource.id)
+    # recent metadata for the resource
+    insert(:resource_metadata, features: ["vehicle_positions", "entity"], resource_id: resource.id)
     insert(:resource_metadata, features: ["vehicle_positions", "trip_updates"], resource_id: resource.id)
 
     # another resource linked to a single metadata
@@ -35,7 +35,7 @@ defmodule Transport.StatsHandlerTest do
       resource: insert(:resource, format: "gtfs-rt")
     )
 
-    assert %{"service_alerts" => 1, "trip_updates" => 1, "vehicle_positions" => 2} == count_feed_types_gtfs_rt()
+    assert %{"service_alerts" => 1, "trip_updates" => 1, "vehicle_positions" => 2, "entity" => 1} == count_feed_types_gtfs_rt()
   end
 
   test "store_stats" do

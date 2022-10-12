@@ -87,23 +87,23 @@ defmodule Transport.StatsHandler do
     }
   end
 
+  @doc """
+  Count the number of gtfs-rt entities seen in the last 7 days on our resources
+  Output example: %{"service_alerts" => 12, "trip_updates" => 63, "vehicle_positions" => 42}
+  """
+  @spec count_feed_types_gtfs_rt::map()
   def count_feed_types_gtfs_rt do
-    query = """
-    select gtfs_rt_feature, count(1)
-    from (
-      select distinct resource_id, unnest(rm.features) as gtfs_rt_feature
-      from resource_metadata rm
-      join resource r on r.id = rm.resource_id and r.format = 'gtfs-rt'
-      where inserted_at > $1 and rm.features is not null
-    ) t
-    group by gtfs_rt_feature
-    """
+    features = DB.ResourceMetadata.base_query()
+    |> distinct(true)
+    |> join(:inner, [metadata: m], r in DB.Resource, on: r.id == m.resource_id, as: :resource)
+    |> where([metadata: m, resource: r], r.format == "gtfs-rt" and m.inserted_at > ^Transport.Jobs.GTFSRTEntitiesJob.datetime_limit())
+    |> select([metadata: m], %{resource_id: m.resource_id, feature: fragment("unnest(?)", m.features)})
 
-    %Postgrex.Result{rows: rows} =
-      Ecto.Adapters.SQL.query!(DB.Repo, query, [Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()])
-
-    # rows example value: [["trip_updates", 63], ["service_alerts", 12]]
-    Enum.into(rows, %{}, &List.to_tuple/1)
+    from(f in subquery(features))
+    |> group_by([f], f.feature)
+    |> select([f], {f.feature, count(f.feature)})
+    |> DB.Repo.all()
+    |> Enum.into(%{})
   end
 
   defp get_population(datasets) do
