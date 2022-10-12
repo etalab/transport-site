@@ -116,6 +116,7 @@ defmodule TransportWeb.ValidationController do
         # to be updated when PR 2371 is merged
         |> assign(:severities_count, DB.Validation.count_by_severity(%{details: validation.result}))
         |> assign(:metadata, validation.metadata.metadata)
+        |> assign(:modes, validation.metadata.modes)
         |> assign(:data_vis, data_vis(validation, issue_type))
         |> assign(:token, token)
         |> render("show.html")
