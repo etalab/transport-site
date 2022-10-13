@@ -192,13 +192,14 @@ defmodule TransportWeb.DatasetControllerTest do
       resource_history_id: resource_history_id,
       validator: Transport.Validators.GTFSTransport.validator_name(),
       result: %{"Slow" => [%{"severity" => "Information"}]},
-      metadata: %{metadata: %{}}
+      metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry", "bus"]}
     })
 
     set_empty_mocks()
 
     conn = conn |> get(dataset_path(conn, :details, slug))
     assert conn |> html_response(200) =~ "1 information"
+    assert conn |> html_response(200) =~ "ferry"
   end
 
   test "show number of errors for a GBFS", %{conn: conn} do
@@ -284,9 +285,15 @@ defmodule TransportWeb.DatasetControllerTest do
 
     # too old
     %{id: resource_id_3} = insert(:resource, dataset_id: dataset_id, format: "gtfs-rt")
-    insert(:resource_metadata, resource_id: resource_id_3, features: ["e"], inserted_at: ~U[2020-01-01 00:00:00Z])
 
-    assert ["a", "b", "c", "d"] = dataset |> TransportWeb.DatasetController.gtfs_rt_entities() |> Enum.sort()
+    insert(:resource_metadata,
+      resource_id: resource_id_3,
+      features: ["e"],
+      inserted_at: Transport.Jobs.GTFSRTEntitiesJob.datetime_limit() |> DateTime.add(-5)
+    )
+
+    assert %{resource_id_1 => MapSet.new(["a", "b"]), resource_id_2 => MapSet.new(["a", "c", "d"])} ==
+             dataset |> TransportWeb.DatasetController.gtfs_rt_entities()
   end
 
   defp set_empty_mocks do

@@ -245,9 +245,9 @@
             <div>jeux de données<br />en <strong>GTFS-RT</strong></div>
             <div>
               <ul class="small">
-                <%= for el <- @gtfs_rt_types do %>
+                <%= for {type, count} <- @gtfs_rt_types do %>
                   <li>
-                    <span title={el.type}><%= friendly_gtfs_type(el.type) %></span> : <%= format_number(el.count) %>
+                    <span title={type}><%= friendly_gtfs_type(type) %></span> : <%= format_number(count) %>
                   </li>
                 <% end %>
               </ul>

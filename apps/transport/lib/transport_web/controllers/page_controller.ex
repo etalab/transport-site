@@ -128,7 +128,7 @@ defmodule TransportWeb.PageController do
 
   defp count_aoms_with_dataset, do: Repo.aggregate(aoms_with_dataset(), :count, :id)
 
-  defp population_with_dataset, do: Repo.aggregate(aoms_with_dataset(), :sum, :population_totale)
+  defp population_with_dataset, do: Repo.aggregate(aoms_with_dataset(), :sum, :population_totale) || 0
 
   defp population_totale, do: Repo.aggregate(AOM, :sum, :population_totale)
 

@@ -127,6 +127,12 @@ defmodule DB.Dataset do
     base_query() |> preload(resources: ^s)
   end
 
+  @spec preload_without_validations(Ecto.Query.t()) :: Ecto.Query.t()
+  defp preload_without_validations(query) do
+    s = no_validations_query()
+    query |> preload(resources: ^s)
+  end
+
   @spec filter_by_fulltext(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_fulltext(query, %{"q" => ""}), do: query
 
@@ -288,17 +294,24 @@ defmodule DB.Dataset do
 
   @spec list_datasets(map()) :: Ecto.Query.t()
   def list_datasets(%{} = params) do
-    preload_without_validations()
-    |> filter_by_active(params)
-    |> filter_by_region(params)
-    |> filter_by_feature(params)
-    |> filter_by_mode(params)
-    |> filter_by_category(params)
-    |> filter_by_type(params)
-    |> filter_by_aom(params)
-    |> filter_by_commune(params)
-    |> filter_by_licence(params)
-    |> filter_by_fulltext(params)
+    q =
+      base_query()
+      |> distinct([dataset: d], d.id)
+      |> filter_by_active(params)
+      |> filter_by_region(params)
+      |> filter_by_feature(params)
+      |> filter_by_mode(params)
+      |> filter_by_category(params)
+      |> filter_by_type(params)
+      |> filter_by_aom(params)
+      |> filter_by_commune(params)
+      |> filter_by_licence(params)
+      |> filter_by_fulltext(params)
+      |> select([dataset: d], d.id)
+
+    base_query()
+    |> where([dataset: d], d.id in subquery(q))
+    |> preload_without_validations()
     |> order_datasets(params)
   end
 

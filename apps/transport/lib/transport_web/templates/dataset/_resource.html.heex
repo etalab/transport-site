@@ -1,12 +1,13 @@
 <% locale = get_session(@conn, :locale) %>
 <% has_associated_geojson = ResourceView.has_associated_geojson(@resources_related_files, @resource.id) %>
 <% has_associated_netex = ResourceView.has_associated_netex(@resources_related_files, @resource.id) %>
-<% is_geojson_with_viz =
-  ResourceView.is_geojson_with_viz(@resource, Map.get(@latest_resources_history_infos || %{}, @resource.id)) %>
+<% geojson_with_viz? =
+  ResourceView.geojson_with_viz?(@resource, Map.get(@latest_resources_history_infos || %{}, @resource.id)) %>
 <% unavailabilities = @resources_infos.unavailabilities %>
 <% resources_updated_at = @resources_infos.resources_updated_at %>
 <% [validation] = @resources_infos.validations |> Map.get(@resource.id) %>
 <% is_gtfs_outdated = Transport.Validators.GTFSTransport.is_gtfs_outdated(validation) %>
+<% resource_modes = get_metadata_modes(validation, []) %>
 
 <div
   class={"panel resource #{valid_panel_class(@resource, is_gtfs_outdated)}"}
@@ -109,13 +110,6 @@
         <span><%= dgettext("page-dataset-details", "during validation") %></span>
       </div>
     <% end %>
-    <%= if has_associated_geojson or is_geojson_with_viz do %>
-      <div>
-        <a class="light-grey-link" href={resource_path(@conn, :details, @resource.id) <> "#visualization"}>
-          <%= dgettext("page-dataset-details", "Data visualization available!") %>
-        </a>
-      </div>
-    <% end %>
   <% end %>
 
   <%= unless Resource.is_gtfs?(@resource) do %>
@@ -132,19 +126,27 @@
     <% end %>
   <% end %>
 
+  <%= if has_associated_geojson or geojson_with_viz? do %>
+    <div>
+      <a class="light-grey-link" href={resource_path(@conn, :details, @resource.id) <> "#visualization"}>
+        <%= dgettext("page-dataset-details", "Data visualization available!") %>
+      </a>
+    </div>
+  <% end %>
+
   <div class="resource-panel-bottom">
     <div class="resource-features">
-      <%= if length(@resource.modes) > 0 do %>
+      <%= if length(resource_modes) > 0 do %>
         <div title={dgettext("page-dataset-details", "Dataset modes")}>
-          <%= for mode <- @resource.modes do %>
+          <%= for mode <- resource_modes do %>
             <span class="label mode"><%= mode %></span>
           <% end %>
         </div>
       <% end %>
-      <%= if Resource.is_gtfs_rt?(@resource) and length(@resources_infos.gtfs_rt_entities) > 0 do %>
+      <%= if Resource.is_gtfs_rt?(@resource) and not Enum.empty?(Map.get(@resources_infos.gtfs_rt_entities, @resource.id, [])) do %>
         <%= dgettext("page-dataset-details", "Features available in the resource:") %>
         <div>
-          <%= for entity <- @resources_infos.gtfs_rt_entities do %>
+          <%= for entity <- Map.fetch!(@resources_infos.gtfs_rt_entities, @resource.id) do %>
             <span class="label mode"><%= entity %></span>
           <% end %>
         </div>
