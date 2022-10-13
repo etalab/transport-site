@@ -143,10 +143,10 @@
           <% end %>
         </div>
       <% end %>
-      <%= if Resource.is_gtfs_rt?(@resource) and length(@resources_infos.gtfs_rt_entities) > 0 do %>
+      <%= if Resource.is_gtfs_rt?(@resource) and not Enum.empty?(Map.get(@resources_infos.gtfs_rt_entities, @resource.id, [])) do %>
         <%= dgettext("page-dataset-details", "Features available in the resource:") %>
         <div>
-          <%= for entity <- @resources_infos.gtfs_rt_entities do %>
+          <%= for entity <- Map.fetch!(@resources_infos.gtfs_rt_entities, @resource.id) do %>
             <span class="label mode"><%= entity %></span>
           <% end %>
         </div>
