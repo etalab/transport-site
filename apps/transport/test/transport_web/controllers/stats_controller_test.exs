@@ -167,4 +167,16 @@ defmodule TransportWeb.API.StatsControllerTest do
                TransportWeb.API.StatsController.quality_features_query() |> DB.Repo.get(aom1.id)
     end
   end
+
+  test "can load the /stats page", %{conn: conn} do
+    insert(:resource_metadata, features: ["service_alerts"], resource: insert(:resource, format: "gtfs-rt"))
+
+    insert(:resource_metadata,
+      features: ["service_alerts", "vehicle_positions"],
+      resource: insert(:resource, format: "gtfs-rt")
+    )
+
+    conn2 = conn |> get(TransportWeb.Router.Helpers.stats_path(conn, :index))
+    assert conn2 |> html_response(200) =~ ~s(<span title="service_alerts">Info trafic</span> : 2)
+  end
 end
