@@ -39,7 +39,7 @@ defmodule TransportWeb.DatabaseCase do
           insee_commune_principale: "53130",
           nom: "Laval",
           region: Repo.get_by(Region, nom: "Pays de la Loire"),
-          population_totale_2014: 42,
+          population_totale: 42,
           composition_res_id: 1
         })
 
@@ -47,7 +47,7 @@ defmodule TransportWeb.DatabaseCase do
           insee_commune_principale: "38185",
           nom: "Grenoble",
           region: Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes"),
-          population_totale_2014: 43,
+          population_totale: 43,
           composition_res_id: 2
         })
 
@@ -55,7 +55,7 @@ defmodule TransportWeb.DatabaseCase do
           insee_commune_principale: "36044",
           nom: "Châteauroux",
           region: Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes"),
-          population_totale_2014: 44,
+          population_totale: 44,
           composition_res_id: 3
         })
 
@@ -84,7 +84,7 @@ defmodule TransportWeb.DatabaseCase do
           insee_commune_principale: "75056",
           nom: "Île-de-France Mobilités",
           region: Repo.get_by(Region, nom: "Île-de-France"),
-          population_totale_2014: 45,
+          population_totale: 45,
           composition_res_id: 4
         })
 
