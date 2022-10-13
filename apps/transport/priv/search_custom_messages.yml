@@ -244,3 +244,21 @@
         The datasets referenced in this category contain Low Emission Zones enforced in France. These zones are represented according to the [national schema](https://schema.data.gouv.fr/etalab/schema-zfe/).
 
         A [national database](https://transport.data.gouv.fr/datasets/base-nationale-consolidee-des-zones-a-faibles-emissions/) is available. As soon as a new compliant dataset is available, the NAP team is in charge of updating the national database.
+
+- category: air-transport
+  search_params:
+    - key: type
+      value: air-transport
+  msg:
+    fr: |
+        Les jeux de données référencés dans cette catégorie contiennent des informations permettant de décrire les horaires et plans de vols des compagnies aériennes.
+
+        Ils nous renseignent notamment sur la localisation des aéroports, les parcours, les horaires de passage des véhicules.
+
+        Un standard peut être utilisé : le format [GTFS](https://developers.google.com/transit/gtfs?hl=fr).
+    en: |
+        The datasets referenced in this category contain information for describing schedules and flight plans of airlines.
+
+        They inform us in particular about the position of airports, the routes, the times of passage of the airplanes.
+
+        One data standards can be used: the [GTFS format](https://developers.google.com/transit/gtfs).
