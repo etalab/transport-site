@@ -1,8 +1,8 @@
 <% locale = get_session(@conn, :locale) %>
 <% has_associated_geojson = ResourceView.has_associated_geojson(@resources_related_files, @resource.id) %>
 <% has_associated_netex = ResourceView.has_associated_netex(@resources_related_files, @resource.id) %>
-<% is_geojson_with_viz =
-  ResourceView.is_geojson_with_viz(@resource, Map.get(@latest_resources_history_infos || %{}, @resource.id)) %>
+<% geojson_with_viz? =
+  ResourceView.geojson_with_viz?(@resource, Map.get(@latest_resources_history_infos || %{}, @resource.id)) %>
 <% unavailabilities = @resources_infos.unavailabilities %>
 <% resources_updated_at = @resources_infos.resources_updated_at %>
 <% [validation] = @resources_infos.validations |> Map.get(@resource.id) %>
@@ -110,13 +110,6 @@
         <span><%= dgettext("page-dataset-details", "during validation") %></span>
       </div>
     <% end %>
-    <%= if has_associated_geojson or is_geojson_with_viz do %>
-      <div>
-        <a class="light-grey-link" href={resource_path(@conn, :details, @resource.id) <> "#visualization"}>
-          <%= dgettext("page-dataset-details", "Data visualization available!") %>
-        </a>
-      </div>
-    <% end %>
   <% end %>
 
   <%= unless Resource.is_gtfs?(@resource) do %>
@@ -131,6 +124,14 @@
         nb_errors: nb_errors
       ) %>
     <% end %>
+  <% end %>
+
+  <%= if has_associated_geojson or geojson_with_viz? do %>
+    <div>
+      <a class="light-grey-link" href={resource_path(@conn, :details, @resource.id) <> "#visualization"}>
+        <%= dgettext("page-dataset-details", "Data visualization available!") %>
+      </a>
+    </div>
   <% end %>
 
   <div class="resource-panel-bottom">
