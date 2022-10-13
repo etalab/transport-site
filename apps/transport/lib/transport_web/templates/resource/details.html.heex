@@ -27,7 +27,7 @@
 
       <%= render("_validation_report.html", resource: @resource, multi_validation: @multi_validation, conn: @conn) %>
 
-      <%= if is_geojson_with_viz(@resource, @resource_history_infos) do %>
+      <%= if geojson_with_viz?(@resource, @resource_history_infos) do %>
         <h2 class="mt-48" id="visualization"><%= dgettext("validations", "Visualization") %></h2>
         <div class="panel no-padding">
           <div id="resource-geojson-info" class="p-24"></div>

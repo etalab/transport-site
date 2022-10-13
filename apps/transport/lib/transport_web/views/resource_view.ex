@@ -169,11 +169,11 @@ defmodule TransportWeb.ResourceView do
     live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: type)
   end
 
-  def is_geojson_with_viz(%{format: "geojson"}, %{url: url, filesize: filesize})
+  def geojson_with_viz?(%{format: "geojson"}, %{url: url, filesize: filesize})
       when not is_nil(filesize) and not is_nil(url),
       do: true
 
-  def is_geojson_with_viz(_, _), do: false
+  def geojson_with_viz?(_, _), do: false
 
   # credo:disable-for-next-line
   def service_alert_icon(%{cause: cause}) do
