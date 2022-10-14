@@ -45,25 +45,20 @@ defmodule Transport.Beta.GTFS do
   def parse_to_map(parsed_csv, file_name) do
     primary_key = primary_key(file_name)
 
-    if is_nil(primary_key) do
-      Logger.info("file #{file_name} not handled yet")
-      %{}
-    else
-      {res, _headers} =
-        parsed_csv
-        |> Enum.reduce({}, fn r, acc ->
-          if acc == {} do
-            {%{}, r |> Enum.map(fn h -> h |> String.replace_prefix("\uFEFF", "") end)}
-          else
-            {m, headers} = acc
-            new_row = headers |> Enum.zip(r) |> Enum.into(%{})
-            key = new_row |> row_key(primary_key)
-            {m |> Map.put(key, new_row), headers}
-          end
-        end)
+    {res, _headers} =
+      parsed_csv
+      |> Enum.reduce({}, fn r, acc ->
+        if acc == {} do
+          {%{}, r |> Enum.map(fn h -> h |> String.replace_prefix("\uFEFF", "") end)}
+        else
+          {m, headers} = acc
+          new_row = headers |> Enum.zip(r) |> Enum.into(%{})
+          key = new_row |> row_key(primary_key)
+          {m |> Map.put(key, new_row), headers}
+        end
+      end)
 
-      res
-    end
+    res
   end
 
   def parse_diff_output(binary) do
@@ -127,6 +122,11 @@ defmodule Transport.Beta.GTFS do
     }
 
     Map.get(keys, file_name)
+  end
+
+  def row_key(row, nil) do
+    # without a primary_key, the primary_key is the entire row
+    row
   end
 
   def row_key(row, primary_key) do
@@ -193,11 +193,18 @@ defmodule Transport.Beta.GTFS do
 
     deleted_ids = ids_a -- ids_b
     added_ids = ids_b -- ids_a
-    update_ids = ids_a -- deleted_ids
+
+    update_messages =
+      if file_name |> file_is_handled?() do
+        update_ids = ids_a -- deleted_ids
+        update_ids |> get_update_messages(file_a, file_b, file_name)
+      else
+        # if file is not handled, only add and delete can be detected.
+        []
+      end
 
     delete_messages = deleted_ids |> get_delete_messages(file_name)
     add_messages = added_ids |> get_add_messages(file_b, file_name)
-    update_messages = update_ids |> get_update_messages(file_a, file_b, file_name)
 
     delete_messages ++ add_messages ++ update_messages
   end
@@ -275,16 +282,10 @@ defmodule Transport.Beta.GTFS do
 
     file_names_2
     |> Enum.flat_map(fn file_name ->
-      if file_name |> file_is_handled?() do
-        Logger.info("computing diff for #{file_name}")
-        file_1 = parse_from_unzip(unzip_1, file_name)
-        file_2 = parse_from_unzip(unzip_2, file_name)
-
-        diff_file(file_name, file_1, file_2)
-      else
-        Logger.info("file #{file_name} not handled")
-        []
-      end
+      Logger.info("computing diff for #{file_name}")
+      file_1 = parse_from_unzip(unzip_1, file_name)
+      file_2 = parse_from_unzip(unzip_2, file_name)
+      diff_file(file_name, file_1, file_2)
     end)
   end
 
