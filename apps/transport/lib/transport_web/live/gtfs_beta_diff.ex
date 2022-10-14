@@ -156,7 +156,6 @@ defmodule Transport.Beta.GTFS do
   def get_update_messages(update_ids, file_a, file_b, file_name) do
     check_value = fn a_value, key, b_value ->
       case a_value do
-        nil -> nil
         ^b_value -> nil
         _new_value -> %{initial_value: {key, a_value}, new_value: {key, b_value}}
       end
@@ -174,7 +173,7 @@ defmodule Transport.Beta.GTFS do
         |> Enum.map(fn key ->
           b_value = row_b |> Map.fetch!(key)
 
-          row_a |> Map.get(key) |> check_value.(key, b_value)
+          row_a |> Map.get(key, "") |> check_value.(key, b_value)
         end)
         |> Enum.reject(&is_nil/1)
 
