@@ -245,9 +245,9 @@ defmodule Transport.Beta.GTFS do
   end
 
   def column_diff(unzip_1, unzip_2) do
-    %{same_files: same_files} = compare_files(unzip_1, unzip_2)
+    %{same_files: same_files, added_files: added_files} = compare_files(unzip_1, unzip_2)
 
-    same_files
+    (same_files ++ added_files)
     |> Enum.flat_map(fn file_name ->
       column_name_1 = get_headers(unzip_1, file_name)
 
