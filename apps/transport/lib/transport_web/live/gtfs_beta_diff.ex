@@ -112,7 +112,7 @@ defmodule Transport.Beta.GTFS do
       "agency.txt" => ["agency_id", "agency_name"],
       "stops.txt" => ["stop_id"],
       "routes.txt" => ["route_id"],
-      # "trips.txt" => ["trip_id"],
+      "trips.txt" => ["trip_id"],
       "stop_times.txt" => ["trip_id", "stop_id", "stop_sequence"],
       "calendar.txt" => ["service_id"],
       "calendar_dates.txt" => ["service_id", "date"],
