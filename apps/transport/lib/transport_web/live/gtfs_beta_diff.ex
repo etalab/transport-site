@@ -109,16 +109,21 @@ defmodule Transport.Beta.GTFS do
 
   def primary_key(file_name) do
     keys = %{
-      "agency.txt" => ["agency_id"],
+      "agency.txt" => ["agency_id", "agency_name"],
+      "stops.txt" => ["stop_id"],
+      "routes.txt" => ["route_id"],
+      # "trips.txt" => ["trip_id"],
+      "stop_times.txt" => ["trip_id", "stop_id", "stop_sequence"],
       "calendar.txt" => ["service_id"],
       "calendar_dates.txt" => ["service_id", "date"],
-      "levels.txt" => ["level_id"],
-      "routes.txt" => ["route_id"],
-      "shapes.txt" => ["shape_id"],
-      "stops.txt" => ["stop_id"],
-      "stop_times.txt" => ["trip_id", "stop_id", "stop_sequence"],
+      "shapes.txt" => ["shape_id", "shape_pt_sequence"],
+      "frequencies.txt" => ["trip_id", "start_time", "end_time"],
       "transfers.txt" => ["from_stop_id", "to_stop_id"],
-      "trips.txt" => ["trip_id"]
+      "pathways.txt" => ["pathway_id"],
+      "levels.txt" => ["level_id"],
+      "feed_info.txt" => ["feed_publisher_name"],
+      "translations.txt" => ["table_name", "field_name", "language", "record_id", "record_sub_id", "field_value"],
+      "attributions.txt" => ["organization_name"]
     }
 
     Map.get(keys, file_name)
