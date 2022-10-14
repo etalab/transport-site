@@ -1,6 +1,6 @@
 defmodule Transport.Jobs.BNLCToGeoDataTest do
-  use ExUnit.Case
-  alias Transport.Jobs.BNLCToGeoData
+  use ExUnit.Case, async: true
+  alias Transport.Jobs.{BaseGeoData, BNLCToGeoData}
   import DB.Factory
   import Mox
 
@@ -14,7 +14,7 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
 
   test "import a BNLC to the DB" do
     geo_data_import = %{id: id} = insert(:geo_data_import)
-    BNLCToGeoData.insert_bnlc_data(@bnlc_content, id)
+    BaseGeoData.insert_data(@bnlc_content, id, &BNLCToGeoData.prepare_data_for_insert/2)
 
     [row1, row2] = DB.GeoData |> DB.Repo.all()
 
@@ -36,7 +36,6 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
   end
 
   test "bnlc data update logic" do
-    dataset_id = 253
     now = DateTime.utc_now()
     now_100 = now |> DateTime.add(-100)
     now_50 = now |> DateTime.add(-50)
@@ -46,11 +45,11 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
     assert [] = DB.GeoDataImport |> DB.Repo.all()
 
     # insert bnlc dataset
-    insert(:dataset, %{
-      id: dataset_id,
-      type: "carpooling-areas",
-      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-    })
+    %DB.Dataset{id: dataset_id} =
+      insert(:dataset, %{
+        type: "carpooling-areas",
+        organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+      })
 
     # insert bnlc resources
     insert(:resource, %{dataset_id: dataset_id, is_community_resource: true})
@@ -64,7 +63,7 @@ defmodule Transport.Jobs.BNLCToGeoDataTest do
       })
 
     # another random resource history, just in case
-    insert(:resource_history, %{inserted_at: now_25, payload: %{"dataset_id" => 99}})
+    insert(:resource_history, %{inserted_at: now_25, payload: %{"dataset_id" => dataset_id + 5}})
 
     # download BNLC Mock
     Transport.HTTPoison.Mock
