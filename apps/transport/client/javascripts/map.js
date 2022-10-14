@@ -301,7 +301,6 @@ function addStaticPTUpToDate (id, view) {
         } else {
             text = {
                 no_data: "Aucune données pour l'AOM",
-                no_data_new_aom: "Aucune données pour l'AOM créée en 2022",
                 unreadable: 'données illisibles',
                 up_to_date: 'Les données sont à jour'
             }[expiredFrom.status]
@@ -328,11 +327,6 @@ function addStaticPTUpToDate (id, view) {
         },
         no_data: {
             weight: 1,
-            color: 'blue',
-            fillOpacity: 0.6
-        },
-        no_data_new_aom: {
-            weight: 1,
             color: 'grey',
             fillOpacity: 0.6
         }
@@ -348,8 +342,8 @@ function addStaticPTUpToDate (id, view) {
     if (view.display_legend) {
         getLegend(
             '<h4>Fraicheur des données</h4>',
-            ['green', 'orange', 'red', 'blue', 'grey'],
-            ['Données à jour', 'Données pas à jour', 'Données illisibles', 'Pas de données', 'Pas de données - AOM créée en 2022']
+            ['green', 'orange', 'red', 'grey'],
+            ['Données à jour', 'Données pas à jour', 'Données illisibles', 'Pas de données']
         ).addTo(map)
     }
 }
@@ -397,14 +391,9 @@ function addStaticPTQuality (id, view) {
             color: 'green',
             fillOpacity: 0.6
         },
-        unavailable_new_aom: {
-            weight: 1,
-            color: 'grey',
-            fillOpacity: 0.6
-        },
         unavailable: {
             weight: 1,
-            color: 'blue',
+            color: 'grey',
             fillOpacity: 0.6
         }
     }
@@ -419,8 +408,6 @@ function addStaticPTQuality (id, view) {
             return styles.warning
         } else if (quality === 'Information' || quality === 'NoError') {
             return styles.good
-        } else if (feature.properties.quality.created_in_2022) {
-            return styles.unavailable_new_aom
         } else {
             return styles.unavailable
         }
@@ -432,8 +419,8 @@ function addStaticPTQuality (id, view) {
     if (view.display_legend) {
         getLegend(
             '<h4>Qualité des données courantes</h4>',
-            ['red', 'orange', 'light-green', 'green', 'blue', 'grey'],
-            ['Non conforme', 'Erreur', 'Satisfaisante', 'Bonne', 'Pas de données à jour', 'Pas de données à jour - AOM créée en 2022']
+            ['red', 'orange', 'light-green', 'green', 'grey'],
+            ['Non conforme', 'Erreur', 'Satisfaisante', 'Bonne', 'Pas de données à jour']
         ).addTo(map)
     }
 }

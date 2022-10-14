@@ -166,6 +166,37 @@ defmodule TransportWeb.API.StatsControllerTest do
       assert %{quality: %{error_level: "Information"}} =
                TransportWeb.API.StatsController.quality_features_query() |> DB.Repo.get(aom1.id)
     end
+
+    test "AOMs created in 2022 without datasets are not included" do
+      aom =
+        insert(:aom,
+          nom: aom_nom = "aom",
+          composition_res_id: 1_200,
+          geom: "SRID=4326;LINESTRING(1 1,2 2)" |> Geo.WKT.decode!()
+        )
+
+      assert DB.AOM.created_in_2022?(aom)
+
+      assert [] ==
+               TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
+
+      # If created before 2022, it is present even without a dataset
+      aom = aom |> Ecto.Changeset.change(%{composition_res_id: 500}) |> DB.Repo.update!()
+
+      refute DB.AOM.created_in_2022?(aom)
+
+      assert [%{"properties" => %{"dataset_count" => 0, "nom" => ^aom_nom}}] =
+               TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
+
+      # Created in 2022 but with a dataset
+      aom = aom |> Ecto.Changeset.change(%{composition_res_id: 1_200}) |> DB.Repo.update!()
+      insert(:dataset, is_active: true, aom: aom, type: "public-transit")
+
+      assert DB.AOM.created_in_2022?(aom)
+
+      assert [%{"properties" => %{"dataset_types" => %{pt: 1}, "nom" => ^aom_nom}}] =
+               TransportWeb.API.StatsController.quality_features_query() |> TransportWeb.API.StatsController.features()
+    end
   end
 
   test "can load the /stats page", %{conn: conn} do

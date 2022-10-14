@@ -84,11 +84,15 @@ defmodule TransportWeb.API.StatsController do
   defp filter_neg(val) when val < 0, do: nil
   defp filter_neg(val) when val >= 0, do: val
 
+  def new_aom_without_datasets?(%{created_in_2022: true, nb_datasets: 0}), do: true
+  def new_aom_without_datasets?(%{created_in_2022: true, dataset_types: %{pt: 0}}), do: true
+  def new_aom_without_datasets?(_), do: false
+
   @spec features(Ecto.Query.t()) :: [map()]
   def features(q) do
     q
     |> Repo.all()
-    |> Enum.filter(fn aom -> !is_nil(aom.geometry) end)
+    |> Enum.reject(fn aom -> is_nil(aom.geometry) or new_aom_without_datasets?(aom) end)
     |> Enum.map(fn aom ->
       dataset_types =
         aom
@@ -108,7 +112,6 @@ defmodule TransportWeb.API.StatsController do
           "parent_dataset_slug" => Map.get(aom, :parent_dataset_slug, ""),
           "parent_dataset_name" => Map.get(aom, :parent_dataset_name, ""),
           "quality" => %{
-            "created_in_2022" => Map.get(aom, :created_in_2022, false),
             "expired_from" => %{
               # negative values are up to date datasets, we filter them
               "nb_days" => aom |> Map.get(:quality, %{}) |> Map.get(:expired_from) |> filter_neg,
@@ -117,9 +120,8 @@ defmodule TransportWeb.API.StatsController do
                   # if no validity period has been found, it's either that there was no data
                   # or that we were not able to read them
                   nil ->
-                    case {dataset_types[:pt], Map.get(aom, :created_in_2022, false)} do
-                      {0, false} -> "no_data"
-                      {0, true} -> "no_data_new_aom"
+                    case dataset_types[:pt] do
+                      0 -> "no_data"
                       _ -> "unreadable"
                     end
 
@@ -239,6 +241,7 @@ defmodule TransportWeb.API.StatsController do
     |> select([aom, parent_dataset], %{
       geometry: aom.geom,
       id: aom.id,
+      created_in_2022: aom.composition_res_id >= 1_000,
       insee_commune_principale: aom.insee_commune_principale,
       nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND is_active=TRUE ", aom.id),
       dataset_formats: %{
