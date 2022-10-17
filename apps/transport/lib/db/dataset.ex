@@ -604,9 +604,9 @@ defmodule DB.Dataset do
 
     # Oban.insert_all does not enforce `unique` params
     # https://hexdocs.pm/oban/Oban.html#insert_all/3
-    # This is something we rely on
+    # This is something we rely on to force the job execution
     static_resources
-    |> Enum.map(&Transport.Jobs.ResourceHistoryJob.new(%{"resource_id" => &1.id}))
+    |> Enum.map(&Transport.Jobs.ResourceHistoryJob.historize_and_validate_job(%{resource_id: &1.id}))
     |> Oban.insert_all()
 
     real_time_resources
