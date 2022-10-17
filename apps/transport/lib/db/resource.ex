@@ -681,7 +681,7 @@ defmodule DB.Resource do
     do:
       from(
         r in __MODULE__,
-        where: r.dataset_id == ^resource.dataset_id and r.id != ^resource.id and not is_nil(r.metadata)
+        where: r.dataset_id == ^resource.dataset_id and r.id != ^resource.id
       )
 
   @spec other_resources(__MODULE__.t()) :: [__MODULE__.t()]
