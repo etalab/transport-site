@@ -15,7 +15,7 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
 
     resource_ids
     |> Enum.map(fn resource_id ->
-      %{resource_id: resource_id} |> Transport.Jobs.ResourceHistoryJob.new()
+      %{resource_id: resource_id} |> Transport.Jobs.ResourceHistoryJob.historize_and_validate_job()
     end)
     |> Oban.insert_all()
 
