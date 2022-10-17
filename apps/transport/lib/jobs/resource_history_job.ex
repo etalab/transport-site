@@ -46,20 +46,26 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   import Ecto.Query
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
   alias DB.{Repo, Resource, ResourceHistory}
+  import Transport.Jobs.Workflow, only: [notify_workflow: 1]
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"resource_id" => resource_id}}) do
+  def perform(%Oban.Job{args: %{"resource_id" => resource_id}} = job) do
     Logger.info("Running ResourceHistoryJob for resource##{resource_id}")
     resource = Repo.get!(Resource, resource_id)
 
     path = download_path(resource)
 
-    try do
-      resource |> download_resource(path) |> process_download(resource)
-    after
-      remove_file(path)
-    end
+    output =
+      try do
+        %{resource_history_id: resource_history_id} = resource |> download_resource(path) |> process_download(resource)
+        %{success: true, resource_history_id: resource_history_id}
+      rescue
+        _ -> %{success: false}
+      after
+        remove_file(path)
+      end
 
+    notify_workflow(%{complete: job.id, output: output})
     :ok
   end
 
@@ -124,10 +130,13 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         |> Transport.Jobs.ResourceHistoryValidationJob.new()
         |> Oban.insert()
 
+        %{resource_history_id: resource_history_id}
+
       {false, history} ->
         # Good opportunity to add a :telemetry event
         Logger.debug("skipping historization for resource##{resource.id} because resource did not change")
         touch_resource_history!(history)
+        %{resource_history_id: history.id}
     end
   end
 
