@@ -31,17 +31,15 @@ defmodule Transport.Jobs.BaseGeoData do
     needs_import = needs_import?(latest_resource_history, current_geo_data_import)
 
     DB.Repo.transaction(fn ->
-      if needs_import and not is_nil(current_geo_data_import) do
-        # thanks to cascading delete, it will also clean geo_data table corresponding entries
-        current_geo_data_import |> DB.Repo.delete!()
-      end
+      if needs_import do
+        unless is_nil(current_geo_data_import) do
+          # thanks to cascading delete, it will also clean geo_data table corresponding entries
+          current_geo_data_import |> DB.Repo.delete!()
+        end
 
-      if needs_import or is_nil(current_geo_data_import) do
         %{id: geo_data_import_id} = DB.Repo.insert!(%DB.GeoDataImport{resource_history_id: latest_resource_history_id})
-
         http_client = Transport.Shared.Wrapper.HTTPoison.impl()
         %{status_code: 200, body: body} = http_client.get!(permanent_url)
-
         insert_data(body, geo_data_import_id, prepare_data_for_insert_fn)
       end
     end)
