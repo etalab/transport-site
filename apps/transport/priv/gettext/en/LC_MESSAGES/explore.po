@@ -38,3 +38,11 @@ msgstr "Real time vehicle positions (GTFS-RT)"
 #, elixir-autogen, elixir-format
 msgid "dataset"
 msgstr "dataset"
+
+#, elixir-autogen, elixir-format
+msgid "Park and ride database"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "park-and-ride-explanation"
+msgstr ""

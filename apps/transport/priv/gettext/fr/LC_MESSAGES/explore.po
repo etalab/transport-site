@@ -38,3 +38,11 @@ msgstr "Position en temps-réel des vehicules (GTFS-RT)"
 #, elixir-autogen, elixir-format
 msgid "dataset"
 msgstr "jeu de données"
+
+#, elixir-autogen, elixir-format
+msgid "Park and ride database"
+msgstr "P+R issus de la Base Nationale des Lieux de Stationnement"
+
+#, elixir-autogen, elixir-format
+msgid "park-and-ride-explanation"
+msgstr "Données des parkings relais présents au sein du %{link} de la Base Nationale des Lieux de Stationnement"
