@@ -1,18 +1,19 @@
 defmodule Transport.ImportAOMs do
   @moduledoc """
-  Import the AOM files and updates the database
+  Import the AOM files and updates the database.
 
-  The aom files are custom made from an excel file from the Cerema
+  The AOM files are custom made from an Excel file from the Cerema
   https://www.data.gouv.fr/fr/datasets/liste-et-composition-des-autorites-organisatrices-de-la-mobilite-aom/
+  https://www.cerema.fr/fr/actualites/liste-composition-autorites-organisatrices-mobilite-au-1er-4
 
-  and pushed as community ressource on data.gouv.
+  and pushed as community resources on data.gouv.fr.
   There are 2 files:
-  - one with the description of each aom
-  - one with the list of cities that are part of each aom
+  - one with the description of each AOM
+  - one with the list of cities that are part of each AOM
 
-  This is a one shot import task, run when the aom have changed.
+  This is a one shot import task, run when the AOM have changed, at least every year.
 
-  The import can be launched from the site backoffice
+  The import can be launched from the site backoffice.
   """
 
   import Ecto.{Query}
@@ -20,12 +21,14 @@ defmodule Transport.ImportAOMs do
   require Logger
 
   # The 2 community resources stable urls
-  @aom_file "https://www.data.gouv.fr/fr/datasets/r/2668b0eb-2cfb-4f96-a359-d1b7876c13f4"
-  @aom_insee_file "https://www.data.gouv.fr/fr/datasets/r/00635634-065f-4008-b032-f5d5f7ba8617"
+  @aom_file "https://gist.githubusercontent.com/AntoineAugusti/8daac155f4d12b32ccd4e0a75bb964c7/raw/aoms.csv"
+  @aom_insee_file "https://gist.githubusercontent.com/AntoineAugusti/8daac155f4d12b32ccd4e0a75bb964c7/raw/aoms_insee.csv"
+  @ignored_aoms ["Saint-Martin"]
 
   @spec to_int(binary()) :: number() | nil
   def to_int(""), do: nil
   def to_int("#N/D"), do: nil
+  def to_int("#ERROR!"), do: nil
 
   def to_int(str) do
     str
@@ -37,14 +40,11 @@ defmodule Transport.ImportAOMs do
 
   @spec changeset(AOM.t(), map()) :: {integer(), Ecto.Changeset.t()}
   def changeset(aom, line) do
-    # some names have been manually set, we want to keep them
     insee =
-      case aom.insee_commune_principale do
-        nil -> line["Code INSEE Commune Principale"]
-        n -> n
-      end
+      (Repo.get_by(Commune, siren: line["N°SIREN Commune principale"]) ||
+         Repo.get_by(Commune, insee: line["N°SIREN Commune principale"])).insee
 
-    nom = line["Nom de l’AOM pour transport.data.gouv.fr"]
+    nom = String.trim(line["Nom de l’AOM"])
 
     new_region = Repo.get_by(Region, nom: normalize_region(line["Régions"]))
 
@@ -63,8 +63,8 @@ defmodule Transport.ImportAOMs do
        nom: nom,
        forme_juridique: normalize_forme(line["Forme juridique"]),
        nombre_communes: to_int(line["Nombre de communes du RT"]),
-       population_muni_2014: to_int(line["Population municipale 2017"]),
-       population_totale_2014: to_int(line["Population totale calculée"]),
+       population_municipale: to_int(line["Population municipale 2018"]),
+       population_totale: to_int(line["Population totale 2018"]),
        surface: line["Surface (km²)"],
        commentaire: line["Commentaire"],
        region: new_region
@@ -77,6 +77,7 @@ defmodule Transport.ImportAOMs do
   defp normalize_region("Provence-Alpes-Côte d'Azur"), do: "Région Sud — Provence-Alpes-Côte d’Azur"
   defp normalize_region("Nouvelle Aquitaine"), do: "Nouvelle-Aquitaine"
   defp normalize_region("Auvergne-Rhône Alpes"), do: "Auvergne-Rhône-Alpes"
+  defp normalize_region("Nouvelle Calédonie"), do: "Nouvelle-Calédonie"
   defp normalize_region(region), do: region
 
   @spec normalize_forme(binary()) :: binary()
@@ -89,6 +90,7 @@ defmodule Transport.ImportAOMs do
   defp normalize_forme("SMO"), do: "Syndicat mixte ouvert"
   defp normalize_forme("EPA"), do: "Établissement public administratif"
   defp normalize_forme("EPL"), do: "Établissement public local"
+  defp normalize_forme("PETR"), do: "Pôle d'équilibre territorial et rural"
   defp normalize_forme(f), do: f
 
   def run do
@@ -98,24 +100,24 @@ defmodule Transport.ImportAOMs do
       |> Enum.map(fn aom -> {aom.composition_res_id, aom} end)
       |> Map.new()
 
-    # some external ids have changed, we manually update them
-    update_modified_ids()
-
     # get all the aom to import, outside of the transaction to reduce the time in the transaction
     aom_to_add = get_aom_to_import()
 
     {:ok, _} =
       Repo.transaction(
         fn ->
+          disable_trigger()
           # we load all aoms
           import_aoms(aom_to_add)
 
+          migrate_aoms()
           delete_old_aoms(aom_to_add, aoms)
 
           # we load the join on cities
           import_insee_aom()
+          enable_trigger()
         end,
-        timeout: 400_000
+        timeout: 1_000_000
       )
 
     # we can then compute the aom geometries (the union of each cities geometries)
@@ -135,9 +137,7 @@ defmodule Transport.ImportAOMs do
     stream
     |> IO.binstream(:line)
     |> CSV.decode(separator: ?,, headers: true)
-    |> Enum.reject(fn {:ok, line} -> is_nil(line["Id réseau"]) end)
-    # credo:disable-for-next-line
-    |> Enum.reject(fn {:ok, line} -> line["Id réseau"] == "" end)
+    |> Enum.reject(fn {:ok, line} -> line["Id réseau"] in ["", nil] or line["Nom de l’AOM"] in @ignored_aoms end)
     |> Enum.map(fn {:ok, line} ->
       AOM
       |> Repo.get_by(composition_res_id: to_int(line["Id réseau"]))
@@ -155,8 +155,7 @@ defmodule Transport.ImportAOMs do
   end
 
   defp import_aoms(aom_to_add) do
-    aom_to_add
-    |> Enum.each(fn {_id, aom} -> Repo.insert_or_update!(aom) end)
+    aom_to_add |> Enum.each(fn {_id, aom} -> Repo.insert_or_update!(aom) end)
   end
 
   defp delete_old_aoms(aom_added, old_aoms) do
@@ -187,13 +186,16 @@ defmodule Transport.ImportAOMs do
 
     {:ok, stream} = StringIO.open(body)
 
+    aom_ids = AOM |> select([a], {a.siren, a.composition_res_id}) |> Repo.all() |> Enum.into(%{})
+
     stream
     |> IO.binstream(:line)
     |> CSV.decode(separator: ?,, headers: true)
-    |> Enum.map(fn {:ok, line} -> {String.to_integer(line["Id réseau"]), line["N° INSEE"]} end)
-    |> Enum.reject(fn {aom, insee} -> aom == "" || insee == "" end)
+    |> Enum.map(fn {:ok, line} -> {line["siren_aom"], line["insee"]} end)
+    |> Enum.reject(fn {aom_siren, insee} -> aom_siren == "" || insee == "" || aom_siren not in Map.keys(aom_ids) end)
+    |> Enum.map(fn {aom_siren, insee} -> {aom_ids[aom_siren], insee} end)
     |> Enum.flat_map(fn {aom, insee} ->
-      # To reduce the number of UPADTE in the DB, we first check which city needs to be updated
+      # To reduce the number of UPDATE in the DB, we first check which city needs to be updated
       Commune
       |> where([c], c.insee == ^insee and (c.aom_res_id != ^aom or is_nil(c.aom_res_id)))
       |> select([c], c.id)
@@ -213,7 +215,7 @@ defmodule Transport.ImportAOMs do
   end
 
   defp compute_geom do
-    Logger.info("computing aom geometries")
+    Logger.info("computing AOM geometries")
 
     Repo.update_all(
       from(a in AOM,
@@ -235,23 +237,55 @@ defmodule Transport.ImportAOMs do
         ]
       ),
       [],
-      timeout: 240_000
+      timeout: 1_000_000
     )
   end
 
-  defp update_modified_ids do
-    Logger.info("updating modified external ids")
-    # The AOM redon has seen its id changed, so we update it before hand
-    # (if that has not been already done)
-    redon =
-      AOM
-      |> where([a], a.composition_res_id == 462 and a.nom == "Redon Agglomération")
-      |> Repo.one()
+  defp disable_trigger do
+    Repo.query!("ALTER TABLE aom DISABLE TRIGGER refresh_places_aom_trigger;")
+    Repo.query!("ALTER TABLE commune DISABLE TRIGGER refresh_places_commune_trigger;")
+  end
 
-    unless is_nil(redon) do
-      redon
-      |> Ecto.Changeset.change(%{composition_res_id: 470})
-      |> Repo.update!()
-    end
+  defp enable_trigger do
+    Repo.query!("ALTER TABLE aom ENABLE TRIGGER refresh_places_aom_trigger;")
+    Repo.query!("ALTER TABLE commune ENABLE TRIGGER refresh_places_commune_trigger;")
+    Repo.query!("REFRESH MATERIALIZED VIEW places;")
+  end
+
+  defp migrate_aoms do
+    queries = """
+    -- Sainte-Menehould to CC de l'Argonne Champenoise
+    update dataset set aom_id = (select id from aom where composition_res_id = 1163) where aom_id = 121;
+    -- Vierzon to région CVL
+    update dataset set aom_id = null, region_id = (select id from region where nom = 'Centre-Val de Loire') where aom_id = 126;
+    -- Sablé-sur-Sarthe to Communauté de communes du Pays Sabolien
+    update dataset set aom_id = (select id from aom where composition_res_id = 1290) where aom_id = 137;
+    -- Langres to PETR du Pays de Langres
+    update dataset set aom_id = (select id from aom where composition_res_id = 1172) where aom_id = 149;
+    -- Mayenne to CC Mayenne Communauté
+    update dataset set aom_id = (select id from aom where composition_res_id = 1277) where aom_id = 173;
+    -- Douarnenez to CC Douarnenez Communauté
+    update dataset set aom_id = (select id from aom where composition_res_id = 1375) where aom_id = 175;
+    -- Obernai to CC du Pays de Sainte-Odile
+    update dataset set aom_id = (select id from aom where composition_res_id = 1235) where aom_id = 210;
+    -- Nogent-le-Rotrou to CVL region
+    update dataset set aom_id = null, region_id = (select id from region where nom = 'Centre-Val de Loire') where aom_id = 215;
+    -- Mende, Figeac to Occitanie region
+    update dataset set aom_id = null, region_id = (select id from region where nom = 'Occitanie') where aom_id in (222, 223);
+    -- Tignes to Auvergne-Rhône-Alpes region
+    update dataset set aom_id = null, region_id = (select id from region where nom = 'Auvergne-Rhône-Alpes') where aom_id = 242;
+    -- Bernay to CC Intercom Bernay Terres de Normandie
+    update dataset set aom_id = (select id from aom where composition_res_id = 1108) where aom_id = 245;
+    -- Sud Estuaire to CC du Sud Estuaire
+    update dataset set aom_id = (select id from aom where composition_res_id = 1268) where aom_id = 246;
+    -- Oloron Sainte-Marie to CC du Haut Béarn
+    update dataset set aom_id = (select id from aom where composition_res_id = 1434) where aom_id = 248;
+    -- Granville to CC de Granville, Terre et Mer
+    update dataset set aom_id = (select id from aom where composition_res_id = 1114) where aom_id = 305;
+    -- Neufchâteau to CC de l'Ouest Vosgien
+    update dataset set aom_id = (select id from aom where composition_res_id = 1254) where aom_id = 304;
+    """
+
+    queries |> String.split(";") |> Enum.each(&Repo.query!/1)
   end
 end
