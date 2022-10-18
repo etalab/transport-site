@@ -41,8 +41,8 @@ msgstr "dataset"
 
 #, elixir-autogen, elixir-format
 msgid "Park and ride database"
-msgstr ""
+msgstr "Park and ride database"
 
 #, elixir-autogen, elixir-format
 msgid "park-and-ride-explanation"
-msgstr ""
+msgstr "Park and rike data coming from the National parking database %{link}"
