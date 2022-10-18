@@ -18,8 +18,8 @@ defmodule DB.AOM do
     field(:nom, :string)
     field(:forme_juridique, :string)
     field(:nombre_communes, :integer)
-    field(:population_muni_2014, :integer)
-    field(:population_totale_2014, :integer)
+    field(:population_municipale, :integer)
+    field(:population_totale, :integer)
     field(:surface, :string)
     field(:commentaire, :string)
     field(:geom, Geo.PostGIS.Geometry) :: MultiPolygon.t()
@@ -32,4 +32,6 @@ defmodule DB.AOM do
   @spec get(insee_commune_principale: binary()) :: __MODULE__ | nil
   def get(insee_commune_principale: nil), do: nil
   def get(insee_commune_principale: insee), do: Repo.get_by(AOM, insee_commune_principale: insee)
+
+  def created_in_2022?(%__MODULE__{composition_res_id: composition_res_id}), do: composition_res_id >= 1_000
 end
