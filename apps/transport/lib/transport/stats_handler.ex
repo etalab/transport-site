@@ -37,7 +37,7 @@ defmodule Transport.StatsHandler do
       Repo.all(
         from(a in AOM,
           select: %{
-            population: a.population_totale_2014,
+            population: a.population_totale,
             region_id: a.region_id,
             nb_datasets: fragment("SELECT count(*) FROM dataset where aom_id = ?", a.id),
             parent_dataset_id: a.parent_dataset_id

@@ -84,11 +84,15 @@ defmodule TransportWeb.API.StatsController do
   defp filter_neg(val) when val < 0, do: nil
   defp filter_neg(val) when val >= 0, do: val
 
+  def new_aom_without_datasets?(%{created_in_2022: true, nb_datasets: 0}), do: true
+  def new_aom_without_datasets?(%{created_in_2022: true, dataset_types: %{pt: 0}}), do: true
+  def new_aom_without_datasets?(_), do: false
+
   @spec features(Ecto.Query.t()) :: [map()]
   def features(q) do
     q
     |> Repo.all()
-    |> Enum.filter(fn aom -> !is_nil(aom.geometry) end)
+    |> Enum.reject(fn aom -> is_nil(aom.geometry) or new_aom_without_datasets?(aom) end)
     |> Enum.map(fn aom ->
       dataset_types =
         aom
@@ -237,6 +241,7 @@ defmodule TransportWeb.API.StatsController do
     |> select([aom, parent_dataset], %{
       geometry: aom.geom,
       id: aom.id,
+      created_in_2022: aom.composition_res_id >= 1_000,
       insee_commune_principale: aom.insee_commune_principale,
       nb_datasets: fragment("SELECT COUNT(*) FROM dataset WHERE aom_id=? AND is_active=TRUE ", aom.id),
       dataset_formats: %{
@@ -259,7 +264,7 @@ defmodule TransportWeb.API.StatsController do
           )
       },
       parent_dataset_slug: parent_dataset.slug,
-      parent_dataset_name: parent_dataset.datagouv_title
+      parent_dataset_name: parent_dataset.custom_title
     })
   end
 
@@ -346,6 +351,7 @@ defmodule TransportWeb.API.StatsController do
       %{
         geometry: aom.geom,
         id: aom.id,
+        created_in_2022: aom.composition_res_id >= 1_000,
         insee_commune_principale: aom.insee_commune_principale,
         nom: aom.nom,
         forme_juridique: aom.forme_juridique,
