@@ -1,12 +1,9 @@
-defmodule Transport.Jobs.BNLCToGeoData do
+defmodule Transport.Jobs.ParkingsRelaisToGeoData do
   @moduledoc """
-  Job in charge of taking the content of the BNLC (Base Nationale de Covoiturage) and storing it
-  in the geo_data table
+  Job in charge of taking the parking relais stored in the BNLS (Base nationale des lieux de stationnement) and storing the result in the `geo_data` table.
   """
   use Oban.Worker, max_attempts: 3
   import Ecto.Query
-  alias NimbleCSV.RFC4180, as: CSV
-  require Logger
 
   @impl Oban.Worker
   def perform(%{}) do
@@ -16,26 +13,27 @@ defmodule Transport.Jobs.BNLCToGeoData do
     dataset =
       DB.Dataset
       |> preload(:resources)
-      |> where([d], d.type == "carpooling-areas" and d.organization == ^transport_publisher_label)
+      |> where([d], d.type == "private-parking" and d.organization == ^transport_publisher_label)
       |> DB.Repo.one!()
 
-    [%DB.Resource{} = resource] = DB.Dataset.official_resources(dataset)
+    [%{title: "bnls.csv"} = resource] = DB.Dataset.official_resources(dataset)
 
     Transport.Jobs.BaseGeoData.import_replace_data(resource, &prepare_data_for_insert/2)
+
     :ok
   end
 
+  defp pr_count(""), do: 0
+  defp pr_count(str), do: String.to_integer(str)
+
   def prepare_data_for_insert(body, geo_data_import_id) do
-    body
-    |> CSV.parse_string(skip_headers: false)
-    |> Stream.transform([], fn r, acc ->
-      if acc == [] do
-        {%{}, r}
-      else
-        {[acc |> Enum.zip(r) |> Enum.into(%{})], acc}
-      end
-    end)
-    |> Stream.map(fn m ->
+    {:ok, stream} = StringIO.open(body)
+
+    stream
+    |> IO.binstream(:line)
+    |> CSV.decode(separator: ?;, headers: true)
+    |> Stream.filter(fn {:ok, line} -> pr_count(line["nb_pr"]) > 0 end)
+    |> Stream.map(fn {:ok, m} ->
       %{
         geo_data_import_id: geo_data_import_id,
         geom: %Geo.Point{
