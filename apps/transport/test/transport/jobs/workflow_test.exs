@@ -16,7 +16,7 @@ defmodule Transport.Jobs.WorkflowTest do
   test "a simple workflow" do
     parent_process = self()
 
-    jobs = [Transport.Jobs.JobATest, Elixir.Transport.Jobs.JobBTest]
+    jobs = [Transport.Jobs.Dummy.JobA, Transport.Jobs.Dummy.JobB]
     some_id = 1
 
     spawn(fn ->
@@ -36,7 +36,7 @@ defmodule Transport.Jobs.WorkflowTest do
 
     # we expect the first job to be enqueued
     assert_enqueued(
-      [worker: Transport.Jobs.JobATest, args: %{"some_id" => some_id}],
+      [worker: Transport.Jobs.Dummy.JobA, args: %{"some_id" => some_id}],
       50
     )
 
@@ -45,7 +45,7 @@ defmodule Transport.Jobs.WorkflowTest do
 
     # after job A is done, we expect job B to be enqueued
     assert_enqueued(
-      [worker: Transport.Jobs.JobBTest, args: %{"some_id" => some_id + 1}],
+      [worker: Transport.Jobs.Dummy.JobB, args: %{"some_id" => some_id + 1}],
       50
     )
   end
@@ -53,7 +53,7 @@ defmodule Transport.Jobs.WorkflowTest do
   test "a workflow with custom arguments" do
     parent_process = self()
 
-    jobs = [Transport.Jobs.JobATest, [Elixir.Transport.Jobs.JobBTest, %{"forced" => true}, []]]
+    jobs = [Transport.Jobs.Dummy.JobA, [Elixir.Transport.Jobs.Dummy.JobB, %{"forced" => true}, []]]
     some_id = 1
 
     spawn(fn ->
@@ -67,7 +67,7 @@ defmodule Transport.Jobs.WorkflowTest do
     end)
 
     assert_enqueued(
-      [worker: Transport.Jobs.JobATest, args: %{"some_id" => some_id}],
+      [worker: Transport.Jobs.Dummy.JobA, args: %{"some_id" => some_id}],
       50
     )
 
@@ -75,7 +75,7 @@ defmodule Transport.Jobs.WorkflowTest do
 
     # after job A is done, we expect job B to be enqueued with custom arguments provided ("forced")
     assert_enqueued(
-      [worker: Transport.Jobs.JobBTest, args: %{"some_id" => some_id + 1, "forced" => true}],
+      [worker: Transport.Jobs.Dummy.JobB, args: %{"some_id" => some_id + 1, "forced" => true}],
       50
     )
   end
@@ -84,8 +84,8 @@ defmodule Transport.Jobs.WorkflowTest do
     parent_process = self()
 
     jobs = [
-      Transport.Jobs.JobATest,
-      [Elixir.Transport.Jobs.JobBTest, %{}, kw_m(queue: :super_heavy, unique: [period: 1])]
+      Transport.Jobs.Dummy.JobA,
+      [Elixir.Transport.Jobs.Dummy.JobB, %{}, kw_m(queue: :super_heavy, unique: [period: 1])]
     ]
 
     some_id = 1
@@ -101,7 +101,7 @@ defmodule Transport.Jobs.WorkflowTest do
     end)
 
     assert_enqueued(
-      [worker: Transport.Jobs.JobATest, args: %{"some_id" => some_id}],
+      [worker: Transport.Jobs.Dummy.JobA, args: %{"some_id" => some_id}],
       50
     )
 
@@ -110,7 +110,7 @@ defmodule Transport.Jobs.WorkflowTest do
     # after job A is done, we expect job B to be enqueued with on a custom queue
     # I couldn't find a way to test for uniqueness, as the information seems to be erased when the job is enqueued.
     assert_enqueued(
-      [worker: Transport.Jobs.JobBTest, args: %{"some_id" => some_id + 1}, queue: :super_heavy],
+      [worker: Transport.Jobs.Dummy.JobB, args: %{"some_id" => some_id + 1}, queue: :super_heavy],
       50
     )
   end

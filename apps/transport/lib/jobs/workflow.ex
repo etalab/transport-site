@@ -32,11 +32,11 @@ defmodule Transport.Jobs.Workflow do
     args = Map.merge(args, custom_args)
     options = m_kw(options)
 
-    String.to_existing_atom(job_name).new(args, options) |> Oban.insert!()
+    args |> String.to_existing_atom(job_name).new(options) |> Oban.insert!()
   end
 
   def insert_job(job_name, args) do
-    String.to_existing_atom(job_name).new(args) |> Oban.insert!()
+    args |> String.to_existing_atom(job_name).new() |> Oban.insert!()
   end
 
   def notify_workflow(args) do
