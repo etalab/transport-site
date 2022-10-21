@@ -55,17 +55,17 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
     path = download_path(resource)
 
-    output =
+    notification =
       try do
         %{resource_history_id: resource_history_id} = resource |> download_resource(path) |> process_download(resource)
-        %{success: true, resource_history_id: resource_history_id}
+        %{success: true, job_id: job.id, output: %{resource_history_id: resource_history_id}}
       rescue
-        _ -> %{success: false}
+        _ -> %{success: false, job_id: job.id}
       after
         remove_file(path)
       end
 
-    notify_workflow(%{complete: job.id, output: output})
+    notify_workflow(notification)
     :ok
   end
 

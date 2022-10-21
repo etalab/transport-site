@@ -31,8 +31,7 @@ defmodule Transport.Jobs.WorkflowTest do
       # the workflow is launched
       perform_job(Transport.Jobs.Workflow, %{
         "jobs" => jobs,
-        "first_job_args" => %{"some_id" => some_id},
-        "timeout" => 10_000
+        "first_job_args" => %{"some_id" => some_id}
       })
     end)
 
@@ -55,7 +54,7 @@ defmodule Transport.Jobs.WorkflowTest do
   test "a workflow with custom arguments" do
     parent_process = self()
 
-    jobs = [Transport.Jobs.Dummy.JobA, [Elixir.Transport.Jobs.Dummy.JobB, %{"forced" => true}, []]]
+    jobs = [Transport.Jobs.Dummy.JobA, [Transport.Jobs.Dummy.JobB, %{"forced" => true}, []]]
     some_id = 1
 
     spawn(fn ->

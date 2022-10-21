@@ -5,38 +5,59 @@ defmodule Transport.Jobs.Workflow do
   use Oban.Worker, tags: ["workflow"], max_attempts: 3
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"jobs" => jobs, "first_job_args" => first_job_args} = workflow_args}) do
-    timeout = workflow_args |> Map.get("timeout", 30_000)
+  def perform(%Oban.Job{
+        args: %{"jobs" => jobs, "first_job_args" => first_job_args}
+      }) do
     :ok = Oban.Notifier.listen([:gossip])
-    execute_jobs(jobs, first_job_args, timeout)
+    execute_jobs(jobs, first_job_args)
     :ok
   end
 
-  defp execute_jobs([job], args, _), do: insert_job(job, args)
+  defp execute_jobs([job], args), do: insert_job(job, args)
 
-  defp execute_jobs([job | tail], args, timeout) do
+  defp execute_jobs([job | tail], args) do
     %{id: job_id} = insert_job(job, args)
 
     receive do
       # each job produces an output than can be used by the next job in the workflow
-      {:notification, :gossip, %{"complete" => ^job_id, "output" => job_output}} ->
-        execute_jobs(tail, job_output, timeout)
-    after
-      timeout -> {:timeout, job}
+      {:notification, :gossip, %{"success" => true, "job_id" => ^job_id, "output" => job_output}} ->
+        execute_jobs(tail, job_output)
+
+      {:notification, :gossip, %{"success" => false, "job_id" => ^job_id} = notif} ->
+        reason = notif |> Map.get("reason", "unknown reason")
+        {:error, "Job #{job_id} has failed: #{reason}. Workflow is stopping here"}
     end
+  end
+
+  def handle_event(
+        [:oban, :engine, :discard_job, :exception],
+        _,
+        %{id: job_id, error: error, job: %{meta: %{"workflow" => true}}},
+        nil
+      ) do
+    notify_workflow(%{"success" => false, "job_id" => job_id, "reason" => error})
   end
 
   def insert_job([job_name, custom_args, options], args) do
     # if custom args are given they are merged with the job arguments
     # options are job options (unique, ...)
     args = Map.merge(args, custom_args)
-    options = m_kw(options)
+    options = options |> m_kw()
+
+    # we add a meta information to show the job is part of a workflow
+    # and to track a possible failure
+    meta =
+      options
+      |> Keyword.get(:meta, %{})
+      |> Map.put(:workflow, true)
+
+    options = options |> Keyword.put(:meta, meta)
 
     args |> String.to_existing_atom(job_name).new(options) |> Oban.insert!()
   end
 
   def insert_job(job_name, args) do
-    args |> String.to_existing_atom(job_name).new() |> Oban.insert!()
+    args |> String.to_existing_atom(job_name).new(meta: %{workflow: true}) |> Oban.insert!()
   end
 
   def notify_workflow(args) do
