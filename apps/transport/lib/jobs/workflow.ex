@@ -5,10 +5,10 @@ defmodule Transport.Jobs.Workflow do
   use Oban.Worker, tags: ["workflow"], max_attempts: 3
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"jobs" => jobs, "args" => args} = workflow_args}) do
+  def perform(%Oban.Job{args: %{"jobs" => jobs, "first_job_args" => first_job_args} = workflow_args}) do
     timeout = workflow_args |> Map.get("timeout", 30_000)
     :ok = Oban.Notifier.listen([:gossip])
-    execute_jobs(jobs, args, timeout)
+    execute_jobs(jobs, first_job_args, timeout)
     :ok
   end
 
@@ -49,6 +49,8 @@ defmodule Transport.Jobs.Workflow do
 
   def m_kw(v) when is_binary(v), do: String.to_existing_atom(v)
   def m_kw(v), do: v
+
+  def kw_m([]), do: %{}
 
   def kw_m([{k, v}]) when is_list(v) do
     [{k, kw_m(v)}] |> Enum.into(%{})

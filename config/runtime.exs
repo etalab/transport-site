@@ -97,7 +97,7 @@ oban_crontab_all_envs =
   case config_env() do
     :prod ->
       [
-        {"0 */6 * * *", Transport.Jobs.ResourceHistoryDispatcherJob},
+        {"0 */6 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob},
         {"30 */6 * * *", Transport.Jobs.GtfsToGeojsonConverterJob},
         # every 6 hours but not at the same time as other jobs
         {"0 3,9,15,21 * * *", Transport.Jobs.GtfsToNetexConverterJob},

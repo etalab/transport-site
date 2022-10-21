@@ -1,4 +1,4 @@
-defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
+defmodule Transport.Jobs.ResourceHistoryAndValidationDispatcherJob do
   @moduledoc """
   Job in charge of dispatching multiple `ResourceHistoryJob`
   """
@@ -309,10 +309,10 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   end
 
   def historize_and_validate_job(%{resource_id: resource_id}, options \\ []) do
-    history_options = Keyword.get(options, :history_options, [])
+    history_options = options |> Keyword.get(:history_options, []) |> Transport.Jobs.Workflow.kw_m()
     # some validation custom arguments/options could be supplied too with a tuple.
     jobs = [[Transport.Jobs.ResourceHistoryJob, %{}, history_options], Transport.Jobs.ResourceHistoryValidationJob]
 
-    Transport.Jobs.Workflow.new(%{jobs: jobs, args: %{resource_id: resource_id}}, options)
+    Transport.Jobs.Workflow.new(%{jobs: jobs, first_job_args: %{resource_id: resource_id}}, options)
   end
 end
