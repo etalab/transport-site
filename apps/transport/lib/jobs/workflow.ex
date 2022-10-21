@@ -43,6 +43,19 @@ defmodule Transport.Jobs.Workflow do
     Oban.Notifier.notify(Oban, :gossip, args)
   end
 
+  @doc """
+  Converts nested maps to nested lists of keywords
+  map keys are binaries
+
+  iex> m_kw(%{})
+  []
+
+  iex> m_kw(%{"a" => 1})
+  [a: 1]
+
+  iex> m_kw(%{"a" => %{"b" => %{"c" => 1}}, "d" => 1})
+  [a: [b: [c: 1]], d: 1]
+  """
   def m_kw(%{} = m) do
     m |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), m_kw(v)} end)
   end
@@ -50,6 +63,19 @@ defmodule Transport.Jobs.Workflow do
   def m_kw(v) when is_binary(v), do: String.to_existing_atom(v)
   def m_kw(v), do: v
 
+  @doc """
+  Converts nested lists of keywords to nested maps
+  map keys are atoms
+
+  iex> kw_m([])
+  %{}
+
+  iex> kw_m([a: 1])
+  %{a: 1}
+
+  iex> kw_m([a: [b: [c: 1]], d: 1])
+  %{a: %{b: %{c: 1}}, d: 1}
+  """
   def kw_m([]), do: %{}
 
   def kw_m([{k, v}]) when is_list(v) do

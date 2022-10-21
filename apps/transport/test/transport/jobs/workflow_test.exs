@@ -9,6 +9,8 @@ defmodule Transport.Jobs.WorkflowTest do
   import Transport.Jobs.Workflow
   import Ecto.Adapters.SQL.Sandbox
 
+  doctest Transport.Jobs.Workflow, import: true
+
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
