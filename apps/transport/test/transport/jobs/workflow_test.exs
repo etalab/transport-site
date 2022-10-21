@@ -115,4 +115,38 @@ defmodule Transport.Jobs.WorkflowTest do
       50
     )
   end
+
+  # could not make it work for the moment
+  # test "a workflow with a failing job" do
+  #   parent_process = self()
+
+  #   jobs = [
+  #     Transport.Jobs.Dummy.FailingJob,
+  #     Transport.Jobs.Dummy.JobA
+  #   ]
+
+  #   some_id = 1
+
+  #   spawn(fn ->
+  #     Process.register(self(), :workflow_process)
+  #     allow(DB.Repo, parent_process, self())
+
+  #     res =
+  #       perform_job(Transport.Jobs.Workflow, %{
+  #         "jobs" => jobs,
+  #         "first_job_args" => %{"some_id" => some_id}
+  #       })
+
+  #     send(parent_process, res)
+  #   end)
+
+  #   assert_enqueued(
+  #     [worker: Transport.Jobs.Dummy.FailingJob, args: %{"some_id" => some_id}],
+  #     50
+  #   )
+
+  #   Oban.drain_queue(queue: :default)
+
+  #   assert_receive({:error, _})
+  # end
 end

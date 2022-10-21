@@ -43,6 +43,15 @@ defmodule Transport.Jobs.Dummy do
     end
   end
 
+  defmodule FailingJob do
+    @moduledoc """
+    a dummy job that can fail
+    """
+    use Oban.Worker, max_attempts: 1
+
+    @impl Oban.Worker
+    def perform(%Oban.Job{args: %{"some_id" => some_id}}) do
+      if some_id > 0, do: raise("job fails")
       :ok
     end
   end
