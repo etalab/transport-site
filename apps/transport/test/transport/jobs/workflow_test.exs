@@ -29,7 +29,7 @@ defmodule Transport.Jobs.WorkflowTest do
       # the workflow is launched
       perform_job(Transport.Jobs.Workflow, %{
         "jobs" => jobs,
-        "args" => %{"some_id" => some_id},
+        "first_job_args" => %{"some_id" => some_id},
         "timeout" => 10_000
       })
     end)
@@ -62,7 +62,7 @@ defmodule Transport.Jobs.WorkflowTest do
 
       perform_job(Transport.Jobs.Workflow, %{
         "jobs" => jobs,
-        "args" => %{"some_id" => some_id}
+        "first_job_args" => %{"some_id" => some_id}
       })
     end)
 
@@ -96,7 +96,7 @@ defmodule Transport.Jobs.WorkflowTest do
 
       perform_job(Transport.Jobs.Workflow, %{
         "jobs" => jobs,
-        "args" => %{"some_id" => some_id}
+        "first_job_args" => %{"some_id" => some_id}
       })
     end)
 

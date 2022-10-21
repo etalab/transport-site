@@ -6,7 +6,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   import Mox
   import Transport.Test.TestUtils
 
-  alias Transport.Jobs.{ResourceHistoryDispatcherJob, ResourceHistoryJob}
+  alias Transport.Jobs.{ResourceHistoryAndValidationDispatcherJob, ResourceHistoryJob}
 
   doctest ResourceHistoryJob, import: true
 
@@ -21,25 +21,27 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
   @gtfs_path "#{__DIR__}/../../../../shared/test/validation/gtfs.zip"
   @gtfs_content File.read!(@gtfs_path)
 
-  describe "ResourceHistoryDispatcherJob" do
+  describe "ResourceHistoryAndValidationDispatcherJob" do
     test "resources_to_historise" do
       ids = create_resources_for_history()
       assert 9 == count_resources()
-      assert MapSet.new(ids) == MapSet.new(ResourceHistoryDispatcherJob.resources_to_historise())
+      assert MapSet.new(ids) == MapSet.new(ResourceHistoryAndValidationDispatcherJob.resources_to_historise())
     end
 
     test "a simple successful case" do
       ids = create_resources_for_history()
 
       assert count_resources() > 1
-      assert :ok == perform_job(ResourceHistoryDispatcherJob, %{})
+      assert :ok == perform_job(ResourceHistoryAndValidationDispatcherJob, %{})
 
-      assert [%{args: %{"resource_id" => first_id}}, %{args: %{"resource_id" => second_id}}] =
-               all_enqueued(worker: ResourceHistoryJob)
+      assert [
+               %{args: %{"first_job_args" => %{"resource_id" => first_id}}},
+               %{args: %{"first_job_args" => %{"resource_id" => second_id}}}
+             ] = all_enqueued(worker: Transport.Jobs.Workflow)
 
       assert Enum.sort([second_id, first_id]) == Enum.sort(ids)
 
-      refute_enqueued(worker: ResourceHistoryDispatcherJob)
+      refute_enqueued(worker: ResourceHistoryAndValidationDispatcherJob)
     end
   end
 
