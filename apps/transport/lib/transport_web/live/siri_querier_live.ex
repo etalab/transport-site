@@ -1,7 +1,7 @@
 defmodule TransportWeb.Live.SIRIQuerierLive do
   use Phoenix.LiveView
   use Phoenix.HTML, only: [text_input: 2]
-  import TransportWeb.Router.Helpers, only: [static_path: 2]
+  import TransportWeb.Router.Helpers, only: [live_path: 3, static_path: 2]
   import Unlock.GunzipTools, only: [maybe_gunzip: 2, lowercase_headers: 1]
 
   require Logger
@@ -12,16 +12,19 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     {:ok, socket}
   end
 
-  def prepare_initial_assigns(socket) do
+  def prepare_initial_assigns(socket, params \\ %{}) do
     socket =
       if Mix.env() == :dev do
         socket
-        |> assign(:endpoint_url, get_one_siri_proxy_url(socket))
-        |> assign(:requestor_ref, Application.fetch_env!(:unlock, :siri_public_requestor_ref))
+        |> assign(:endpoint_url, params["endpoint_url"] || get_one_siri_proxy_url(socket))
+        |> assign(
+          :requestor_ref,
+          params["requestor_ref"] || Application.fetch_env!(:unlock, :siri_public_requestor_ref)
+        )
       else
         socket
-        |> assign(:endpoint_url, nil)
-        |> assign(:requestor_ref, nil)
+        |> assign(:endpoint_url, params["endpoint_url"])
+        |> assign(:requestor_ref, params["requestor_ref"])
       end
 
     socket
@@ -29,6 +32,10 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     |> assign(:siri_response_status_code, nil)
     |> assign(:query_template, "CheckStatus")
     |> assign(:query_template_choices, ["CheckStatus", "LinesDiscovery", "StopPointsDiscovery"])
+  end
+
+  def handle_params(params, _uri, socket) do
+    {:noreply, prepare_initial_assigns(socket, params)}
   end
 
   def get_one_siri_proxy_url(socket) do
@@ -76,7 +83,12 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
       |> assign(:requestor_ref, params["config"]["requestor_ref"])
       |> assign(:query_template, params["config"]["query_template"])
 
-    {:noreply, socket}
+    {:noreply, socket |> push_patch(to: self_path(socket))}
+  end
+
+  def self_path(socket) do
+    fields = Map.take(socket.assigns, [:endpoint_url])
+    live_path(socket, __MODULE__, fields |> Map.reject(fn {_, v} -> v in ["", nil] end))
   end
 
   def build_timestamp, do: DateTime.utc_now() |> DateTime.to_iso8601()
