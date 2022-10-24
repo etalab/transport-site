@@ -64,8 +64,6 @@ defmodule TransportWeb.Router do
       get("/", ExploreController, :index)
       get("/vehicle-positions", ExploreController, :vehicle_positions)
 
-      # TODO: move layout selection to the view level if possible
-      # (https://hexdocs.pm/phoenix_live_view/live-layouts.html)
       live_session :siri, root_layout: {TransportWeb.LayoutView, :app} do
         live("/siri-querier", Live.SIRIQuerierLive)
       end
@@ -108,11 +106,7 @@ defmodule TransportWeb.Router do
     scope "/backoffice", Backoffice, as: :backoffice do
       pipe_through([:admin_rights])
       get("/", PageController, :index)
-
       get("/dashboard", DashboardController, :index)
-      # NOTE: by default no layout are automatically picked at time of writing
-      # for live views, so an explicit call is needed
-      # See https://hexdocs.pm/phoenix_live_view/live-layouts.html
 
       live_session :backoffice_proxy_config,
         root_layout: {TransportWeb.LayoutView, :app},
