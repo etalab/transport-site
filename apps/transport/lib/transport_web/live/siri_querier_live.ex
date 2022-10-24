@@ -12,22 +12,9 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     {:ok, socket}
   end
 
-  def prepare_initial_assigns(socket, params \\ %{}) do
-    socket =
-      if Mix.env() == :dev do
-        socket
-        |> assign(:endpoint_url, params["endpoint_url"] || get_one_siri_proxy_url(socket))
-        |> assign(
-          :requestor_ref,
-          params["requestor_ref"] || Application.fetch_env!(:unlock, :siri_public_requestor_ref)
-        )
-      else
-        socket
-        |> assign(:endpoint_url, params["endpoint_url"])
-        |> assign(:requestor_ref, params["requestor_ref"])
-      end
-
+  def prepare_initial_assigns(socket) do
     socket
+    |> assign(default_params(socket))
     |> assign(:siri_query, nil)
     |> assign(:siri_response_status_code, nil)
     |> assign(:query_template, "CheckStatus")
@@ -35,7 +22,28 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   end
 
   def handle_params(params, _uri, socket) do
-    {:noreply, prepare_initial_assigns(socket, params)}
+    {:noreply,
+     socket
+     |> assign(
+       Map.merge(
+         %{
+           endpoint_url: params["endpoint_url"],
+           requestor_ref: socket.assigns[:requestor_ref] || params["requestor_ref"]
+         },
+         default_params(socket)
+       )
+     )}
+  end
+
+  defp default_params(socket) do
+    if Mix.env() == :dev do
+      %{
+        endpoint_url: socket.assigns[:endpoint_url] || get_one_siri_proxy_url(socket),
+        requestor_ref: socket.assigns[:requestor_ref] || Application.fetch_env!(:unlock, :siri_public_requestor_ref)
+      }
+    else
+      %{}
+    end
   end
 
   def get_one_siri_proxy_url(socket) do
