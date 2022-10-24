@@ -9,9 +9,7 @@ defmodule TransportWeb.Backoffice.GBFSLive do
 
   @stats_days 7
 
-  def mount(_params, session, socket) do
-    %{"current_user" => current_user} = session
-
+  def mount(_params, %{"current_user" => current_user} = _session, socket) do
     {:ok,
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
        if connected?(socket), do: schedule_next_update_data()
@@ -72,9 +70,5 @@ defmodule TransportWeb.Backoffice.GBFSLive do
       stats_external_requests: Map.get(counts, db_filter_for_event(:external), 0),
       stats_internal_requests: Map.get(counts, db_filter_for_event(:internal), 0)
     })
-  end
-
-  def build_session(conn) do
-    %{"current_user" => conn.assigns[:current_user]}
   end
 end

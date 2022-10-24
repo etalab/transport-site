@@ -62,7 +62,7 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
 
     # Clicking on execute
     Transport.HTTPoison.Mock
-    |> expect(:post!, fn ^endpoint_url, _body ->
+    |> expect(:post!, fn ^endpoint_url, _body, [recv_timeout: _] ->
       %HTTPoison.Response{
         status_code: 200,
         body: """

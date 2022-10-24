@@ -12,19 +12,11 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
   # Authentication is assumed to happen in regular HTTP land. Here we verify
   # the user presence + belonging to admin team, or redirect immediately.
-  def mount(_params, session, socket) do
-    %{
-      "current_user" => current_user,
-      "proxy_base_url" => proxy_base_url
-    } = session
-
+  def mount(_params, %{"current_user" => current_user} = _session, socket) do
     {:ok,
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
        if connected?(socket), do: schedule_next_update_data()
-
-       socket
-       |> assign(proxy_base_url: proxy_base_url)
-       |> update_data()
+       socket |> update_data()
      end)}
   end
 
@@ -55,7 +47,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     assign(socket,
       last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
       stats_days: @stats_days,
-      proxy_configuration: get_proxy_configuration(socket.assigns.proxy_base_url, @stats_days)
+      proxy_configuration: get_proxy_configuration(Transport.Proxy.base_url(socket), @stats_days)
     )
   end
 
@@ -92,7 +84,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   defp extract_config(proxy_base_url, %Unlock.Config.Item.GTFS.RT{} = resource) do
     %{
       unique_slug: resource.identifier,
-      proxy_url: get_proxy_resource_url(proxy_base_url, resource.identifier),
+      proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
       original_url: resource.target_url,
       ttl: resource.ttl
     }
@@ -101,7 +93,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   defp extract_config(proxy_base_url, %Unlock.Config.Item.SIRI{} = resource) do
     %{
       unique_slug: resource.identifier,
-      proxy_url: get_proxy_resource_url(proxy_base_url, resource.identifier),
+      proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
       original_url: resource.target_url,
       ttl: nil
     }
@@ -151,31 +143,5 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     else
       item
     end
-  end
-
-  # TODO: make centrally available
-  def proxy_base_url(conn) do
-    conn
-    |> TransportWeb.Router.Helpers.url()
-    |> String.replace("127.0.0.1", "localhost")
-    |> String.replace("://", "://proxy.")
-  end
-
-  # This method is currently referenced in the proxy router, which
-  # uses it to create initialisation data for the code to work (aka session)
-  # It would be better to use a well-defined variable instead of this hack.
-  def build_session(conn) do
-    %{
-      "current_user" => conn.assigns[:current_user],
-      "proxy_base_url" => proxy_base_url(conn)
-    }
-  end
-
-  # TODO: make centrally available
-  def get_proxy_resource_url(proxy_base_url, slug) do
-    Path.join(
-      proxy_base_url,
-      Unlock.Router.Helpers.resource_path(Unlock.Endpoint, :fetch, slug)
-    )
   end
 end

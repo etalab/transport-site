@@ -49,7 +49,7 @@ msgstr "Générer"
 
 #, elixir-autogen, elixir-format
 msgid "HTTP body"
-msgstr "Corps de la requête HTTP"
+msgstr "Corps de la réponse HTTP"
 
 #, elixir-autogen, elixir-format
 msgid "HTTP headers"

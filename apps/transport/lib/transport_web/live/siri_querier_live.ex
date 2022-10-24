@@ -57,22 +57,23 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
         _ -> false
       end)
 
-    base_url = TransportWeb.Backoffice.ProxyConfigLive.proxy_base_url(socket)
-    TransportWeb.Backoffice.ProxyConfigLive.get_proxy_resource_url(base_url, item.identifier)
+    socket
+    |> Transport.Proxy.base_url()
+    |> Transport.Proxy.resource_url(item.identifier)
   end
 
   def handle_event("generate_query", _params, socket) do
     {:noreply, socket |> assign(:siri_query, generate_query(socket))}
   end
 
-  # TODO: make sure to set proper limits to avoid DOS ; also use a form of timeout?
   def handle_event("execute_query", _params, socket) do
     client = Transport.Shared.Wrapper.HTTPoison.impl()
     socket = socket |> assign(:siri_query, generate_query(socket))
-    response = client.post!(socket.assigns[:endpoint_url], socket.assigns[:siri_query])
+    # Improvement opportunity: make sure to set proper limits to avoid DOS?
+    response = client.post!(socket.assigns[:endpoint_url], socket.assigns[:siri_query], recv_timeout: 5_000)
 
-    # "LV do not allows binary payloads. We can work-around that by using Base64, or using
-    # a custom channel" (comment kept here in case useful later). Make sure to unzip!
+    # LiveView does not allow binary payloads. We can work-around that by using Base64, or using a custom channel.
+    # Make sure to unzip!
     response_body = maybe_gunzip(response.body, lowercase_headers(response.headers))
 
     socket =
@@ -104,8 +105,6 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   def build_timestamp, do: DateTime.utc_now() |> DateTime.to_iso8601()
   def build_message_id, do: "Test::Message::#{Ecto.UUID.generate()}"
 
-  # TODO: instead of using the string-based XML generation, use the safer "builder-based" approach,
-  # and keep our string-based XMLs as test fixtures to lock down the builder behaviour.
   defp generate_query(%Phoenix.LiveView.Socket{assigns: assigns}) do
     generate_query(assigns[:query_template], assigns[:requestor_ref])
   end

@@ -108,21 +108,15 @@ defmodule TransportWeb.Router do
       get("/", PageController, :index)
       get("/dashboard", DashboardController, :index)
 
-      live_session :backoffice_proxy_config,
-        root_layout: {TransportWeb.LayoutView, :app},
-        session: {TransportWeb.Backoffice.ProxyConfigLive, :build_session, []} do
+      live_session :backoffice_proxy_config, root_layout: {TransportWeb.LayoutView, :app} do
         live("/proxy-config", ProxyConfigLive)
       end
 
-      live_session :backoffice_jobs,
-        root_layout: {TransportWeb.LayoutView, :app},
-        session: {TransportWeb.Backoffice.JobsLive, :build_session, []} do
+      live_session :backoffice_jobs, root_layout: {TransportWeb.LayoutView, :app} do
         live("/jobs", JobsLive)
       end
 
-      live_session :gbfs,
-        root_layout: {TransportWeb.LayoutView, :app},
-        session: {TransportWeb.Backoffice.GBFSLive, :build_session, []} do
+      live_session :gbfs, root_layout: {TransportWeb.LayoutView, :app} do
         live("/gbfs", GBFSLive)
       end
 
