@@ -45,19 +45,13 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   end
 
   def handle_event("generate_query", _params, socket) do
-    socket =
-      socket
-      |> assign(
-        :siri_query,
-        generate_query(socket.assigns[:query_template], socket.assigns[:requestor_ref])
-      )
-
-    {:noreply, socket}
+    {:noreply, socket |> assign(:siri_query, generate_query(socket))}
   end
 
   # TODO: make sure to set proper limits to avoid DOS ; also use a form of timeout?
   def handle_event("execute_query", _params, socket) do
     client = Transport.Shared.Wrapper.HTTPoison.impl()
+    socket = socket |> assign(:siri_query, generate_query(socket))
     response = client.post!(socket.assigns[:endpoint_url], socket.assigns[:siri_query])
 
     # "LV do not allows binary payloads. We can work-around that by using Base64, or using
@@ -90,6 +84,10 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
 
   # TODO: instead of using the string-based XML generation, use the safer "builder-based" approach,
   # and keep our string-based XMLs as test fixtures to lock down the builder behaviour.
+  defp generate_query(%Phoenix.LiveView.Socket{assigns: assigns}) do
+    generate_query(assigns[:query_template], assigns[:requestor_ref])
+  end
+
   defp generate_query("CheckStatus", requestor_ref) do
     Transport.SIRI.check_status(build_timestamp(), requestor_ref, build_message_id())
   end
