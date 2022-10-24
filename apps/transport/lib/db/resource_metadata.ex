@@ -18,6 +18,8 @@ defmodule DB.ResourceMetadata do
     timestamps(type: :utc_datetime_usec)
   end
 
+  def base_query, do: from(rm in DB.ResourceMetadata, as: :metadata)
+
   def join_validation_with_metadata(query) do
     query
     |> join(:left, [multi_validation: mv], m in DB.ResourceMetadata, on: m.multi_validation_id == mv.id, as: :metadata)

@@ -12,8 +12,40 @@ defmodule Transport.StatsHandlerTest do
     assert is_map(compute_stats())
   end
 
+  test "count_feed_types_gtfs_rt" do
+    resource = insert(:resource, format: "gtfs-rt")
+    # should not be used as this is too old
+    insert(:resource_metadata,
+      features: ["foo"],
+      resource_id: resource.id,
+      inserted_at: Transport.Jobs.GTFSRTEntitiesJob.datetime_limit() |> DateTime.add(-5)
+    )
+
+    # Empty cases, should not crash
+    insert(:resource_metadata, features: [], resource_id: resource.id)
+    insert(:resource_metadata, features: nil, resource_id: resource.id)
+
+    # recent metadata for the resource
+    insert(:resource_metadata, features: ["vehicle_positions", "entity"], resource_id: resource.id)
+    insert(:resource_metadata, features: ["vehicle_positions", "trip_updates"], resource_id: resource.id)
+
+    # another resource linked to a single metadata
+    insert(:resource_metadata,
+      features: ["vehicle_positions", "service_alerts"],
+      resource: insert(:resource, format: "gtfs-rt")
+    )
+
+    assert %{"service_alerts" => 1, "trip_updates" => 1, "vehicle_positions" => 2, "entity" => 1} ==
+             count_feed_types_gtfs_rt()
+  end
+
   test "store_stats" do
-    insert(:resource, format: "gtfs-rt", features: ["trip_updates", "vehicle_positions"])
+    resource = insert(:resource, format: "gtfs-rt")
+    insert(:resource_metadata, features: ["vehicle_positions"], resource_id: resource.id)
+    insert(:resource_metadata, features: ["trip_updates"], resource_id: resource.id)
+
+    insert(:resource_metadata, features: ["vehicle_positions"], resource: insert(:resource, format: "gtfs-rt"))
+
     stats = compute_stats()
     store_stats()
     assert DB.Repo.aggregate(DB.StatsHistory, :count, :id) >= Enum.count(stats)
@@ -26,6 +58,9 @@ defmodule Transport.StatsHandlerTest do
     assert MapSet.subset?(MapSet.new(stats_metrics), MapSet.new(all_metrics))
     assert Enum.member?(all_metrics, "gtfs_rt_types::vehicle_positions")
     assert Enum.member?(all_metrics, "gtfs_rt_types::trip_updates")
+
+    expected = Decimal.new("2")
+    assert %{value: ^expected} = DB.Repo.get_by!(DB.StatsHistory, metric: "gtfs_rt_types::vehicle_positions")
   end
 
   test "count dataset per format" do

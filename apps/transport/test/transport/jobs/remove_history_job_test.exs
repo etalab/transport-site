@@ -37,6 +37,26 @@ defmodule Transport.Test.Transport.Jobs.RemoveHistoryJobTest do
     assert {:discard, _} = perform_job(RemoveHistoryJob, %{"dataset_id" => dataset.id})
   end
 
+  test "marks for deletion relevant rows" do
+    %{id: dataset_id} = dataset = insert(:dataset, type: "bike-scooter-sharing")
+    resource = insert(:resource, dataset_id: dataset.id)
+
+    rh1 = insert(:resource_history, resource_id: resource.id, payload: %{"dataset_id" => dataset.id})
+    rh2 = insert(:resource_history, resource_id: resource.id, payload: %{"dataset_id" => dataset.id})
+
+    assert DB.Dataset.should_skip_history?(dataset)
+    assert :ok == perform_job(RemoveHistoryJob, %{"dataset_id" => dataset.id})
+
+    rh1_payload = Map.put(rh1.payload, "mark_for_deletion", true)
+    rh2_payload = Map.put(rh2.payload, "mark_for_deletion", true)
+
+    assert [%DB.ResourceHistory{payload: ^rh1_payload}, %DB.ResourceHistory{payload: ^rh2_payload}] =
+             DB.Repo.reload([rh1, rh2])
+
+    assert [%Oban.Job{args: %{"dataset_id" => ^dataset_id, "action" => "remove"}}] =
+             all_enqueued(worker: RemoveHistoryJob)
+  end
+
   test "removes rows and deletes objects for a given dataset_id" do
     public_transit_dataset = insert(:dataset, type: "public-transit")
     public_transit_resource = insert(:resource, dataset_id: public_transit_dataset.id)
@@ -47,26 +67,44 @@ defmodule Transport.Test.Transport.Jobs.RemoveHistoryJobTest do
         payload: %{"filename" => Ecto.UUID.generate(), "dataset_id" => public_transit_dataset.id}
       )
 
-    dataset = insert(:dataset, type: "bike-scooter-sharing")
+    %{id: dataset_id} = dataset = insert(:dataset, type: "bike-scooter-sharing")
     resource = insert(:resource, dataset_id: dataset.id)
 
     rh1 =
       insert(:resource_history,
         resource_id: resource.id,
-        payload: %{"filename" => rh1_filename = Ecto.UUID.generate(), "dataset_id" => dataset.id}
+        payload: %{
+          "filename" => rh1_filename = Ecto.UUID.generate(),
+          "dataset_id" => dataset.id,
+          "mark_for_deletion" => true
+        }
       )
 
     rh2 =
       insert(:resource_history,
         resource_id: resource.id,
-        payload: %{"filename" => rh2_filename = Ecto.UUID.generate(), "dataset_id" => dataset.id}
+        payload: %{
+          "filename" => rh2_filename = Ecto.UUID.generate(),
+          "dataset_id" => dataset.id,
+          "mark_for_deletion" => true
+        }
       )
 
     S3TestUtils.s3_mocks_delete_object(Transport.S3.bucket_name(:history), rh1_filename)
     S3TestUtils.s3_mocks_delete_object(Transport.S3.bucket_name(:history), rh2_filename)
 
-    assert :ok = perform_job(RemoveHistoryJob, %{"dataset_id" => dataset.id})
+    assert :ok == perform_job(RemoveHistoryJob, %{"dataset_id" => dataset.id, "action" => "remove"})
 
     assert [nil, nil, %DB.ResourceHistory{}] = DB.Repo.reload([rh1, rh2, public_transit_resource_history])
+
+    assert [%Oban.Job{args: %{"dataset_id" => ^dataset_id, "action" => "remove"}, scheduled_at: scheduled_at}] =
+             all_enqueued(worker: RemoveHistoryJob)
+
+    refute is_nil(scheduled_at)
+  end
+
+  test "does not enqueue a job when there is nothing left" do
+    assert :ok == perform_job(RemoveHistoryJob, %{"dataset_id" => 42, "action" => "remove"})
+    assert [] == all_enqueued(worker: RemoveHistoryJob)
   end
 end

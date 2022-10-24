@@ -65,11 +65,20 @@
               <a href="#public-transport-by-aom"><i class="fa fa-link fa-small"></i></a>
             </span>
             <p>
-              L'offre de transport en commun urbain, disponible par <acronym title="autorité organisatrice de mobilité">AOM</acronym>.
+              L'offre de transport en commun, disponible par <acronym title="autorité organisatrice de mobilité">AOM</acronym>.
             </p>
             <br />
             <p>
               Ces données peuvent être disponibles pour l'<acronym title="autorité organisatrice de mobilité">AOM</acronym> spécifiquement, ou au sein d'un jeu de données plus large.
+            </p>
+            <br />
+            <p>
+              Les <acronym title="autorité organisatrice de mobilité">AOM</acronym>
+              créées en 2022 suite à la
+              <a href="https://www.cerema.fr/fr/actualites/prise-competence-organisation-mobilites-communautes-communes">
+                prise de la compétence d’organisation des mobilités par les communautés de communes
+              </a>
+              sont affichées dès lors que des données sont publiées.
             </p>
           </div>
           <div class="tile">
@@ -132,8 +141,9 @@
             </span>
             <p>
               Les données GTFS de la plateforme sont analysées pour connaitre leur periode de validité,
-              qui correspond à la période de circulation des différents services du jeu de donnés.
+              qui correspond à la période de circulation des différents services du jeu de données.
             </p>
+            <br />
             <p>
               Note : on ne peut calculer une période de validité que pour les jeux de données respectants les spécifications GTFS.
             </p>
@@ -154,7 +164,7 @@
               Cette carte représente la qualité des données GTFS actuellement valides.
             </p>
             <p>
-              Pour contrôler la qualité des jeux de données de transport, la plateforme transport.data.gouv.fr utilise des outils de validation.          .
+              Pour contrôler la qualité des jeux de données de transport, la plateforme transport.data.gouv.fr utilise des outils de validation.
             </p>
             <p>
               Retrouvez plus d'informations sur ces outils dans la <a href="https://doc.transport.data.gouv.fr/reutilisateurs/qualite-de-donnee#validateur-de-fichiers-gtfs">documentation</a>.
@@ -163,7 +173,7 @@
           <div class="tile">
             <h3><%= round(@ratio_aom_with_at_most_warnings * 100) %>%</h3>
             <div>
-              <acronym title="autorité organisatrice de mobilité">AOM</acronym> urbaines avec des jeux de données de
+              <acronym title="autorité organisatrice de mobilité">AOM</acronym> avec des jeux de données de
               qualité satisfaisante (sans aucune erreur)
             </div>
           </div>
@@ -171,22 +181,21 @@
             <h3><%= round(@ratio_aom_good_quality * 100) %>%</h3>
             <div>
               <acronym title="autorité organisatrice de mobilité">AOM</acronym>
-              urbaines avec des jeux de données de bonne qualité
+              avec des jeux de données de bonne qualité
               (sans erreurs ni avertissements)
             </div>
           </div>
           <div class="tile">
             <h3><%= @aom_with_errors %></h3>
             <div>
-              <acronym title="autorité organisatrice de mobilité">AOM</acronym>
-              urbaines avec des jeux de données en erreur
+              <acronym title="autorité organisatrice de mobilité">AOM</acronym> avec des jeux de données en erreur
             </div>
           </div>
           <div class="tile">
             <h3><%= @aom_with_fatal %></h3>
             <div>
               <acronym title="autorité organisatrice de mobilité">AOM</acronym>
-              urbaines avec des jeux de données ne respectant pas les spécifications GTFS
+              avec des jeux de données ne respectant pas les spécifications GTFS
             </div>
           </div>
         </div>
@@ -246,9 +255,9 @@
             <div>jeux de données<br />en <strong>GTFS-RT</strong></div>
             <div>
               <ul class="small">
-                <%= for el <- @gtfs_rt_types do %>
+                <%= for {type, count} <- @gtfs_rt_types do %>
                   <li>
-                    <span title={el.type}><%= friendly_gtfs_type(el.type) %></span> : <%= format_number(el.count) %>
+                    <span title={type}><%= friendly_gtfs_type(type) %></span> : <%= format_number(count) %>
                   </li>
                 <% end %>
               </ul>

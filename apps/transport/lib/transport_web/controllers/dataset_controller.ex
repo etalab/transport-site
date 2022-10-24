@@ -84,21 +84,28 @@ defmodule TransportWeb.DatasetController do
     }
   end
 
+  @spec gtfs_rt_entities(Dataset.t()) :: map()
   def gtfs_rt_entities(%Dataset{id: dataset_id, type: "public-transit"}) do
     recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
 
-    DB.Dataset.base_query()
-    |> DB.Resource.join_dataset_with_resource()
+    DB.Resource.base_query()
     |> join(:inner, [resource: r], rm in DB.ResourceMetadata, on: r.id == rm.resource_id, as: :metadata)
     |> where(
-      [dataset: d, resource: r, metadata: rm],
-      d.id == ^dataset_id and r.format == "gtfs-rt" and rm.inserted_at > ^recent_limit
+      [resource: r, metadata: rm],
+      r.dataset_id == ^dataset_id and r.format == "gtfs-rt" and rm.inserted_at > ^recent_limit
     )
-    |> select([metadata: rm], fragment("DISTINCT(UNNEST(?))", rm.features))
+    |> select([metadata: rm], %{resource_id: rm.resource_id, feed_type: fragment("UNNEST(?)", rm.features)})
+    |> distinct(true)
     |> DB.Repo.all()
+    |> Enum.reduce(%{}, fn %{resource_id: resource_id, feed_type: feed_type}, acc ->
+      # See https://hexdocs.pm/elixir/Map.html#update/4
+      # > If key is not present in map, default is inserted as the value of key.
+      # The default value **will not be passed through the update function**.
+      Map.update(acc, resource_id, MapSet.new([feed_type]), fn old_val -> MapSet.put(old_val, feed_type) end)
+    end)
   end
 
-  def gtfs_rt_entities(%Dataset{}), do: []
+  def gtfs_rt_entities(%Dataset{}), do: %{}
 
   @spec by_aom(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def by_aom(%Plug.Conn{} = conn, %{"aom" => id} = params) do
@@ -168,7 +175,6 @@ defmodule TransportWeb.DatasetController do
 
     params
     |> Dataset.list_datasets()
-    |> distinct([dataset: d], d.id)
     |> preload([:aom, :region])
     |> Repo.paginate(page: config.page_number)
   end

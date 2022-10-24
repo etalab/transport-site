@@ -299,13 +299,11 @@ function addStaticPTUpToDate (id, view) {
                 text += 's'
             }
         } else {
-            if (expiredFrom.status === 'no_data') {
-                text = "Aucune données pour l'AOM"
-            } else if (expiredFrom.status === 'unreadable') {
-                text = 'données illisibles'
-            } else {
-                text = 'Les données sont à jour'
-            }
+            text = {
+                no_data: "Aucune données pour l'AOM",
+                unreadable: 'données illisibles',
+                up_to_date: 'Les données sont à jour'
+            }[expiredFrom.status]
         }
         const id = feature.properties.id
         layer.bindPopup(`<a href="/datasets/aom/${id}">${name}</a><br>(${type})<br/>${text}`)
@@ -335,16 +333,7 @@ function addStaticPTUpToDate (id, view) {
     }
 
     const style = feature => {
-        const expiredFrom = feature.properties.quality.expired_from
-        if (expiredFrom.status === 'up_to_date') {
-            return styles.up_to_date
-        } else if (expiredFrom.status === 'outdated') {
-            return styles.outdated
-        } else if (expiredFrom.status === 'unreadable') {
-            return styles.unreadable
-        } else {
-            return styles.no_data
-        }
+        return styles[feature.properties.quality.expired_from.status]
     }
     const qualityFG = displayQuality(onEachAomFeature, style)
 

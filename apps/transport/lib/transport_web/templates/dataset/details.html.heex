@@ -113,7 +113,8 @@
         conn: @conn,
         resources_infos: @resources_infos,
         resources: schemas_resources(@dataset),
-        title: dgettext("page-dataset-details", "Resources with a schema")
+        title: dgettext("page-dataset-details", "Resources with a schema"),
+        latest_resources_history_infos: @latest_resources_history_infos
       ) %>
       <%= render(TransportWeb.DatasetView, "_resources_container.html",
         conn: @conn,

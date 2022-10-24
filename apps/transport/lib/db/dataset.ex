@@ -100,7 +100,6 @@ defmodule DB.Dataset do
         format: r.format,
         title: r.title,
         url: r.url,
-        metadata: r.metadata,
         id: r.id,
         datagouv_id: r.datagouv_id,
         last_update: r.last_update,
@@ -111,8 +110,6 @@ defmodule DB.Dataset do
         description: r.description,
         community_resource_publisher: r.community_resource_publisher,
         original_resource_url: r.original_resource_url,
-        features: r.features,
-        modes: r.modes,
         schema_name: r.schema_name,
         schema_version: r.schema_version,
         type: r.type,
@@ -125,6 +122,12 @@ defmodule DB.Dataset do
   defp preload_without_validations do
     s = no_validations_query()
     base_query() |> preload(resources: ^s)
+  end
+
+  @spec preload_without_validations(Ecto.Query.t()) :: Ecto.Query.t()
+  defp preload_without_validations(query) do
+    s = no_validations_query()
+    query |> preload(resources: ^s)
   end
 
   @spec filter_by_fulltext(Ecto.Query.t(), map()) :: Ecto.Query.t()
@@ -288,17 +291,24 @@ defmodule DB.Dataset do
 
   @spec list_datasets(map()) :: Ecto.Query.t()
   def list_datasets(%{} = params) do
-    preload_without_validations()
-    |> filter_by_active(params)
-    |> filter_by_region(params)
-    |> filter_by_feature(params)
-    |> filter_by_mode(params)
-    |> filter_by_category(params)
-    |> filter_by_type(params)
-    |> filter_by_aom(params)
-    |> filter_by_commune(params)
-    |> filter_by_licence(params)
-    |> filter_by_fulltext(params)
+    q =
+      base_query()
+      |> distinct([dataset: d], d.id)
+      |> filter_by_active(params)
+      |> filter_by_region(params)
+      |> filter_by_feature(params)
+      |> filter_by_mode(params)
+      |> filter_by_category(params)
+      |> filter_by_type(params)
+      |> filter_by_aom(params)
+      |> filter_by_commune(params)
+      |> filter_by_licence(params)
+      |> filter_by_fulltext(params)
+      |> select([dataset: d], d.id)
+
+    base_query()
+    |> where([dataset: d], d.id in subquery(q))
+    |> preload_without_validations()
     |> order_datasets(params)
   end
 
