@@ -66,3 +66,11 @@ msgstr "Générateur de requête SIRI"
 #, elixir-autogen, elixir-format
 msgid "SIRI response"
 msgstr "Réponse SIRI"
+
+#, elixir-autogen, elixir-format
+msgid "Endpoint URL"
+msgstr "URL de l'API SIRI"
+
+#, elixir-autogen, elixir-format
+msgid "Requestor ref"
+msgstr "Requestor ref"

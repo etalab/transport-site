@@ -2,10 +2,14 @@
   <div class="container">
     <h2><%= dgettext("explore", "SIRI query generator") %></h2>
     <.form :let={f} id="siri_querier" for={:config} phx-change="change_form" phx-submit="generate_query">
-      <%= text_input(f, :endpoint_url, value: @endpoint_url, placeholder: "Endpoint URL") %>
+      <%= text_input(f, :endpoint_url,
+        value: @endpoint_url,
+        placeholder: dgettext("explore", "Endpoint URL"),
+        type: "url"
+      ) %>
       <%= text_input(f, :requestor_ref,
         value: @requestor_ref,
-        placeholder: "Requestor ref",
+        placeholder: dgettext("explore", "Requestor ref"),
         autocomplete: "off",
         spellcheck: "false"
       ) %>

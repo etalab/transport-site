@@ -65,3 +65,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "SIRI response"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Endpoint URL"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Requestor ref"
+msgstr ""
