@@ -1,6 +1,10 @@
 # Ref: http://www.normes-donnees-tc.org/wp-content/uploads/2021/09/BNTRA-CN03-GT7_NF-Profil-SIRI-FR_v1.2_20210308.pdf
 defmodule Transport.SIRI do
-  def prolog() do
+  @moduledoc """
+  A module to build SIRI queries.
+  """
+
+  def prolog do
     ~S(<?xml version="1.0" encoding="UTF-8"?>)
   end
 
@@ -58,10 +62,7 @@ defmodule Transport.SIRI do
 
   def build_line_refs(line_refs) do
     # NOTE: we'll switch to proper well-escaped XML building later, this is research code
-    line_refs =
-      line_refs
-      |> Enum.map(&"<siri:LineRef>#{&1}</siri:LineRef>")
-      |> Enum.join("\n")
+    line_refs = line_refs |> Enum.map_join("\n", &"<siri:LineRef>#{&1}</siri:LineRef>")
 
     """
     <siri:Lines>

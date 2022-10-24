@@ -13,15 +13,20 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   end
 
   def prepare_initial_assigns(socket) do
-    if Mix.env() == :dev do
-      socket
-      |> assign(:endpoint_url, get_one_siri_proxy_url(socket))
-      |> assign(:requestor_ref, Application.fetch_env!(:unlock, :siri_public_requestor_ref))
-    else
-      socket
-      |> assign(:endpoint_url, nil)
-      |> assign(:requestor_ref, nil)
-    end
+    socket =
+      if Mix.env() == :dev do
+        socket
+        |> assign(:endpoint_url, get_one_siri_proxy_url(socket))
+        |> assign(:requestor_ref, Application.fetch_env!(:unlock, :siri_public_requestor_ref))
+      else
+        socket
+        |> assign(:endpoint_url, nil)
+        |> assign(:requestor_ref, nil)
+      end
+
+    socket
+    |> assign(:siri_query, nil)
+    |> assign(:siri_response_status_code, nil)
     |> assign(:query_template, "CheckStatus")
     |> assign(:query_template_choices, ["CheckStatus", "LinesDiscovery", "StopPointsDiscovery"])
   end
@@ -61,8 +66,11 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
 
     socket =
       socket
-      |> assign(:siri_response_body, response_body)
-      |> assign(:siri_response_status_code, response.status_code)
+      |> assign(%{
+        siri_response_body: response_body,
+        siri_response_status_code: response.status_code,
+        siri_response_headers: response.headers
+      })
 
     {:noreply, socket}
   end
