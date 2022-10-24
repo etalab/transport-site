@@ -63,10 +63,6 @@ defmodule TransportWeb.Router do
     scope "/explore" do
       get("/", ExploreController, :index)
       get("/vehicle-positions", ExploreController, :vehicle_positions)
-
-      live_session :siri, root_layout: {TransportWeb.LayoutView, :app} do
-        live("/siri-querier", Live.SIRIQuerierLive)
-      end
     end
 
     scope "/datasets" do
@@ -162,9 +158,11 @@ defmodule TransportWeb.Router do
     scope "/tools" do
       get("/gbfs/geojson_convert", GbfsToGeojsonController, :convert)
       get("/gbfs/analyze", GbfsAnalyzerController, :index)
-
       live_session :gtfs_diff, root_layout: {TransportWeb.LayoutView, :app} do
         live("/beta/gtfs_diff", Live.GtfsDiffSelectLive)
+      end
+      live_session :siri, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/siri-querier", Live.SIRIQuerierLive)
       end
     end
 
