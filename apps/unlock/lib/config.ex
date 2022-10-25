@@ -21,8 +21,27 @@ defmodule Unlock.Config do
     """
     @enforce_keys [:identifier, :target_url, :requestor_ref]
 
-    @type t :: %__MODULE__{identifier: binary(), target_url: binary(), requestor_ref: binary(), request_headers: list()}
-    defstruct [:identifier, :target_url, :requestor_ref, request_headers: []]
+    @type t :: %__MODULE__{
+            identifier: binary(),
+            target_url: binary(),
+            requestor_ref: binary(),
+            request_headers: list(),
+            allowed_queries: list()
+          }
+    defstruct [:identifier, :target_url, :requestor_ref, request_headers: [], allowed_queries: []]
+
+    @spec request_is_allowed?(__MODULE__.t(), Saxy.XML.element()) :: boolean()
+    def request_is_allowed?(%__MODULE__{allowed_queries: []}, _), do: true
+
+    def request_is_allowed?(%__MODULE__{allowed_queries: allowed_queries}, request) do
+      services = Unlock.SIRI.ServicesFinder.parse(request)
+
+      if Enum.count(services) != 1 do
+        false
+      else
+        (services |> hd()) in allowed_queries
+      end
+    end
   end
 
   defmodule Fetcher do
@@ -37,7 +56,8 @@ defmodule Unlock.Config do
         identifier: Map.fetch!(item, "identifier"),
         target_url: Map.fetch!(item, "target_url"),
         requestor_ref: Map.fetch!(item, "requestor_ref"),
-        request_headers: parse_config_request_headers(Map.get(item, "request_headers", []))
+        request_headers: parse_config_request_headers(Map.get(item, "request_headers", [])),
+        allowed_queries: Map.get(item, "allowed_queries", [])
       }
     end
 
@@ -70,8 +90,7 @@ defmodule Unlock.Config do
     (e.g. `Mint.Types.headers()` in https://github.com/elixir-mint/mint/blob/main/lib/mint/types.ex)
     """
     def parse_config_request_headers(list) do
-      list
-      |> Enum.map(fn [k, v] -> {k, v} end)
+      list |> Enum.map(fn [k, v] -> {k, v} end)
     end
 
     # for easy access, we're indexing items by identifier
