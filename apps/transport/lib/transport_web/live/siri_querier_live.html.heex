@@ -1,4 +1,4 @@
-<section>
+<section class="pb-48">
   <div class="container">
     <h2><%= dgettext("explore", "SIRI query generator") %></h2>
     <.form :let={f} id="siri_querier" for={:config} phx-change="change_form" phx-submit="generate_query">
@@ -29,6 +29,10 @@
       <div id="query_code_wrapper" phx-update="ignore">
         <pre><code class="language-xml" id="query_code_id"></code></pre>
       </div>
+      <button class="button" data-clipboard-target="#query_code_wrapper">
+        <i class="fa fa-copy"></i>
+        <%= dgettext("page-dataset-details", "Copy to clipboard") %>
+      </button>
     </div>
     <div :if={@siri_response_status_code} class="mt-48 siri_xml">
       <h4><%= dgettext("explore", "SIRI response") %> (HTTP status <%= @siri_response_status_code %>)</h4>
@@ -51,7 +55,12 @@
         <h5><%= dgettext("explore", "HTTP body") %></h5>
         <pre><code class="language-xml" id="response_code_id"></code></pre>
       </div>
+      <button class="button" data-clipboard-target="#response_code_wrapper">
+        <i class="fa fa-copy"></i>
+        <%= dgettext("page-dataset-details", "Copy to clipboard") %>
+      </button>
     </div>
   </div>
 </section>
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")} />
+<script defer type="text/javascript" src={static_path(@socket, "/js/clipboard.js")} />
