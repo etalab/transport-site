@@ -50,9 +50,9 @@ defmodule Unlock.Controller do
     text(conn, "Unlock Proxy")
   end
 
-  # for now we use a whitelist which we'll gradually expand.
+  # for now we use an allowlist which we'll gradually expand.
   # make sure to avoid including "hop-by-hop" headers here.
-  @forwarded_headers_whitelist [
+  @forwarded_headers_allowlist [
     "content-type",
     "content-length",
     "date",
@@ -66,11 +66,9 @@ defmodule Unlock.Controller do
     resource = Map.get(config, id)
 
     if resource do
-      conn
-      |> process_resource(resource)
+      conn |> process_resource(resource)
     else
-      conn
-      |> send_resp(404, "Not Found")
+      conn |> send_resp(404, "Not Found")
     end
   rescue
     exception ->
@@ -89,8 +87,7 @@ defmodule Unlock.Controller do
           reraise exception, __STACKTRACE__
       end
 
-      conn
-      |> send_resp(500, "Internal Error")
+      conn |> send_resp(500, "Internal Error")
   end
 
   # We put a hard limit on what can be cached, and otherwise will just
@@ -122,16 +119,20 @@ defmodule Unlock.Controller do
 
     parsed = Unlock.SIRI.parse_incoming(body)
 
-    {modified_xml, external_requestor_refs} =
-      Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(parsed, item.requestor_ref)
+    if Unlock.Config.Item.SIRI.request_is_allowed?(item, parsed) do
+      {modified_xml, external_requestor_refs} =
+        Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(parsed, item.requestor_ref)
 
-    # NOTE: here we assert both that the requestor ref is what is expected, but also that it
-    # is met once only. I am not deduping them at the moment on purpose, maybe we'll do that
-    # later based on experience.
-    if external_requestor_refs == [Application.fetch_env!(:unlock, :siri_public_requestor_ref)] do
-      handle_authorized_siri_call(conn, item, modified_xml)
+      # NOTE: here we assert both that the requestor ref is what is expected, but also that it
+      # is met once only. I am not deduping them at the moment on purpose, maybe we'll do that
+      # later based on experience.
+      if external_requestor_refs == [Application.fetch_env!(:unlock, :siri_public_requestor_ref)] do
+        handle_authorized_siri_call(conn, item, modified_xml)
+      else
+        send_resp(conn, 403, "Forbidden")
+      end
     else
-      send_resp(conn, 403, "Forbidden")
+      send_resp(conn, 403, "Request not allowed. Available services: #{Enum.join(item.allowed_queries, ", ")}")
     end
   end
 
@@ -139,8 +140,7 @@ defmodule Unlock.Controller do
     do: send_not_allowed(conn)
 
   defp send_not_allowed(conn) do
-    conn
-    |> send_resp(405, "Method Not Allowed")
+    conn |> send_resp(405, "Method Not Allowed")
   end
 
   @spec handle_authorized_siri_call(Plug.Conn.t(), Unlock.Config.Item.SIRI.t(), Saxy.XML.element()) :: Plug.Conn.t()
@@ -241,19 +241,16 @@ defmodule Unlock.Controller do
   end
 
   defp lowercase_headers(headers) do
-    headers
-    |> Enum.map(fn {h, v} -> {String.downcase(h), v} end)
+    headers |> Enum.map(fn {h, v} -> {String.downcase(h), v} end)
   end
 
   # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug
   defp filter_response_headers(headers) do
     headers
-    |> Enum.filter(fn {h, _v} -> Enum.member?(@forwarded_headers_whitelist, h) end)
+    |> Enum.filter(fn {h, _v} -> Enum.member?(@forwarded_headers_allowlist, h) end)
   end
 
   defp prepare_response_headers(headers) do
-    headers
-    |> lowercase_headers()
-    |> filter_response_headers()
+    headers |> lowercase_headers() |> filter_response_headers()
   end
 end

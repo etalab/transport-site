@@ -190,6 +190,37 @@ defmodule Unlock.ControllerTest do
       assert resp.status == 403
       assert resp.resp_body == "Forbidden"
     end
+
+    test "403 when query is not allowed for a SIRI item" do
+      slug = Ecto.UUID.generate()
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.SIRI{
+          identifier: slug,
+          target_url: "http://localhost/some-remote-resource",
+          requestor_ref: "the-secret-ref",
+          request_headers: [{"Content-Type", "text/xml; charset=utf-8"}],
+          allowed_queries: ["CheckStatus", "GetEstimatedTimetable"]
+        }
+      })
+
+      query =
+        SIRIQueries.siri_query_from_builder(
+          DateTime.utc_now() |> DateTime.to_iso8601(),
+          @the_good_requestor_ref,
+          "Test::Message::#{Ecto.UUID.generate()}",
+          "SomeStopRef"
+        )
+
+      resp =
+        build_conn()
+        # NOTE: required due to plug testing, not by the actual server
+        |> put_req_header("content-type", "application/soap+xml")
+        |> post("/resource/#{slug}", query)
+
+      assert resp.status == 403
+      assert resp.resp_body == "Request not allowed. Available services: CheckStatus, GetEstimatedTimetable"
+    end
   end
 
   describe "GTFS-RT item support" do
