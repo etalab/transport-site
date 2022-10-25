@@ -48,11 +48,7 @@ defmodule Unlock.ControllerTest do
         }
       })
 
-      resp =
-        build_conn()
-        # NOTE: required due to plug testing, not by the actual server
-        |> put_req_header("content-type", "application/soap+xml")
-        |> get("/resource/#{slug}", "Test")
+      resp = siri_request() |> get("/resource/#{slug}", "Test")
 
       assert resp.status == 405
     end
@@ -130,11 +126,7 @@ defmodule Unlock.ControllerTest do
         }
       end)
 
-      resp =
-        build_conn()
-        # NOTE: required due to plug testing, not by the actual server
-        |> put_req_header("content-type", "application/soap+xml")
-        |> post("/resource/an-existing-identifier", incoming_query)
+      resp = siri_request() |> post("/resource/#{slug}", incoming_query)
 
       assert resp.status == 200
       # unzipped for now
@@ -181,11 +173,7 @@ defmodule Unlock.ControllerTest do
           stop_ref
         )
 
-      resp =
-        build_conn()
-        # NOTE: required due to plug testing, not by the actual server
-        |> put_req_header("content-type", "application/soap+xml")
-        |> post("/resource/an-existing-identifier", query)
+      resp = siri_request() |> post("/resource/#{slug}", query)
 
       assert resp.status == 403
       assert resp.resp_body == "Forbidden"
@@ -212,11 +200,9 @@ defmodule Unlock.ControllerTest do
           "SomeStopRef"
         )
 
-      resp =
-        build_conn()
-        # NOTE: required due to plug testing, not by the actual server
-        |> put_req_header("content-type", "application/soap+xml")
-        |> post("/resource/#{slug}", query)
+      assert ["GetStopMonitoring"] = query |> Unlock.SIRI.parse_incoming() |> Unlock.SIRI.ServicesFinder.parse()
+
+      resp = siri_request() |> post("/resource/#{slug}", query)
 
       assert resp.status == 403
       assert resp.resp_body == "Request not allowed. Available services: CheckStatus, GetEstimatedTimetable"
@@ -226,7 +212,6 @@ defmodule Unlock.ControllerTest do
   describe "GTFS-RT item support" do
     test "denies POST query" do
       slug = "an-existing-identifier"
-
       ttl_in_seconds = 30
 
       setup_proxy_config(%{
@@ -237,23 +222,18 @@ defmodule Unlock.ControllerTest do
         }
       })
 
-      resp =
-        build_conn()
-        |> post("/resource/#{slug}")
-
+      resp = build_conn() |> post("/resource/#{slug}")
       assert resp.status == 405
     end
 
     test "handles GET /resource/:slug" do
       slug = "an-existing-identifier"
 
-      ttl_in_seconds = 30
-
       setup_proxy_config(%{
         slug => %Unlock.Config.Item.GTFS.RT{
           identifier: slug,
           target_url: target_url = "http://localhost/some-remote-resource",
-          ttl: ttl_in_seconds
+          ttl: ttl_in_seconds = 30
         }
       })
 
@@ -280,9 +260,7 @@ defmodule Unlock.ControllerTest do
         }
       end)
 
-      resp =
-        build_conn()
-        |> get("/resource/an-existing-identifier")
+      resp = build_conn() |> get("/resource/#{slug}")
 
       assert resp.resp_body == "somebody-to-love"
       assert resp.status == 207
@@ -326,9 +304,7 @@ defmodule Unlock.ControllerTest do
       {:ok, ttl} = Cachex.ttl(Unlock.Cachex, "resource:an-existing-identifier")
       assert_in_delta ttl / 1000.0, ttl_in_seconds, 1
 
-      resp =
-        build_conn()
-        |> get("/resource/an-existing-identifier")
+      resp = build_conn() |> get("/resource/#{slug}")
 
       assert resp.resp_body == "somebody-to-love"
       assert resp.status == 207
@@ -369,9 +345,7 @@ defmodule Unlock.ControllerTest do
         }
       end)
 
-      resp =
-        build_conn()
-        |> head("/resource/an-existing-identifier")
+      resp = build_conn() |> head("/resource/#{slug}")
 
       # head = empty body
       assert resp.resp_body == ""
@@ -382,18 +356,18 @@ defmodule Unlock.ControllerTest do
       # such empty
       setup_proxy_config(%{})
 
-      resp =
-        build_conn()
-        |> get("/resource/unknown")
+      resp = build_conn() |> get("/resource/unknown")
 
       assert resp.resp_body == "Not Found"
       assert resp.status == 404
     end
 
     test "handles optional hardcoded request headers" do
+      slug = "some-identifier"
+
       setup_proxy_config(%{
         "some-identifier" => %Unlock.Config.Item.GTFS.RT{
-          identifier: "some-identifier",
+          identifier: slug,
           target_url: "http://localhost/some-remote-resource",
           ttl: 10,
           request_headers: [
@@ -411,9 +385,7 @@ defmodule Unlock.ControllerTest do
         %Unlock.HTTP.Response{body: request_headers |> inspect, status: 200, headers: []}
       end)
 
-      resp =
-        build_conn()
-        |> get("/resource/some-identifier")
+      resp = build_conn() |> get("/resource/#{slug}")
 
       assert resp.resp_body == ~s([{"SomeHeader", "SomeValue"}])
       assert resp.status == 200
@@ -422,13 +394,12 @@ defmodule Unlock.ControllerTest do
     end
 
     test "handles remote error" do
-      url = "http://localhost/some-remote-resource"
       identifier = "foo"
 
       setup_proxy_config(%{
         identifier => %Unlock.Config.Item.GTFS.RT{
           identifier: identifier,
-          target_url: url,
+          target_url: url = "http://localhost/some-remote-resource",
           ttl: 10
         }
       })
@@ -479,5 +450,11 @@ defmodule Unlock.ControllerTest do
       end,
       nil
     )
+  end
+
+  defp siri_request do
+    build_conn()
+    # NOTE: required due to plug testing, not by the actual server
+    |> put_req_header("content-type", "application/soap+xml")
   end
 end
