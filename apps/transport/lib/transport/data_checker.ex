@@ -81,6 +81,33 @@ defmodule Transport.DataChecker do
     |> Enum.sort()
   end
 
+  def send_new_dataset_notifications(%Dataset{} = dataset) do
+    Transport.Notifications.config()
+    |> Transport.Notifications.emails_for_reason(:new_dataset)
+    |> Enum.each(fn email ->
+      Transport.EmailSender.impl().send_mail(
+        "transport.data.gouv.fr",
+        Application.get_env(:transport, :contact_email),
+        email,
+        Application.get_env(:transport, :contact_email),
+        "Nouveau jeu de données référencé",
+        """
+        Bonjour,
+
+        Un jeu de données vient d'être référencé :
+
+        #{link_and_name(dataset)}
+
+        L’équipe transport.data.gouv.fr
+
+        ---
+        Si vous souhaitez modifier ou supprimer ces alertes, vous pouvez répondre à cet e-mail.
+        """,
+        ""
+      )
+    end)
+  end
+
   def send_outdated_data_notifications({delay, datasets} = payload) do
     notifications_config = Transport.Notifications.config()
 

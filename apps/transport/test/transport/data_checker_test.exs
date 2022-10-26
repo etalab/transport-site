@@ -247,6 +247,40 @@ defmodule Transport.DataCheckerTest do
     end
   end
 
+  test "send_new_dataset_notifications" do
+    Transport.EmailSender.Mock
+    |> expect(:send_mail, fn "transport.data.gouv.fr" = _subject,
+                             "contact@transport.beta.gouv.fr",
+                             "foo@example.com" = _to,
+                             "contact@transport.beta.gouv.fr",
+                             "Nouveau jeu de données référencé",
+                             plain_text_body,
+                             "" = _html_part ->
+      assert plain_text_body =~ ~r/Bonjour/
+      :ok
+    end)
+
+    dataset_slug = "slug"
+
+    Transport.Notifications.FetcherMock
+    |> expect(:fetch_config!, fn ->
+      [
+        %Transport.Notifications.Item{
+          dataset_slug: nil,
+          emails: ["foo@example.com"],
+          reason: :new_dataset,
+          extra_delays: []
+        }
+      ]
+    end)
+
+    dataset = %DB.Dataset{slug: dataset_slug, datagouv_title: "title"}
+
+    Transport.DataChecker.send_new_dataset_notifications(dataset)
+
+    verify!(Transport.EmailSender.Mock)
+  end
+
   test "possible_delays" do
     Transport.Notifications.FetcherMock
     |> expect(:fetch_config!, fn ->
