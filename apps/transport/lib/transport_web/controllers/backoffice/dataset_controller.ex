@@ -27,7 +27,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
          {:ok, changeset} <- Dataset.changeset(params),
          {:ok, dataset} <- insert_dataset(changeset) do
       if params["action"] == "new" do
-        %{"dataset_id" => dataset.id} |> Transport.Jobs.NewDatasetJob.new() |> Oban.insert!()
+        %{"dataset_id" => dataset.id} |> Transport.Jobs.NewDatasetJob.new(schedule_in: 60 * 5) |> Oban.insert!()
       end
 
       dataset
