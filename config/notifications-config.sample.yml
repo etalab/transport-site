@@ -1,5 +1,7 @@
-# can be useful in some occasions ; must be kept in sync with the format at 
+# can be useful in some occasions ; must be kept in sync with the format at
 # https://github.com/etalab/transport-notifications/
+new_dataset:
+  - hello@example.com
 expiration:
   offre-2022-de-transport-du-reseau-urbain-agglobus-et-de-transports-scolaires-gtfs:
     emails:
