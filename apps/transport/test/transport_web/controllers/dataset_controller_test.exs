@@ -73,10 +73,105 @@ defmodule TransportWeb.DatasetControllerTest do
     conn |> recycle() |> put_req_header("if-none-match", etag) |> get(path) |> response(304)
   end
 
+  test "GET /api/datasets", %{conn: conn} do
+    dataset =
+      insert(:dataset,
+        custom_title: "title",
+        type: "public-transit",
+        licence: "lov2",
+        datagouv_id: "datagouv",
+        slug: "slug-1",
+        is_active: true,
+        aom: insert(:aom, nom: "Angers Métropole", siren: "siren")
+      )
+
+    resource =
+      insert(:resource,
+        dataset_id: dataset.id,
+        url: "https://link.to/file.zip",
+        latest_url: "https://static.data.gouv.fr/foo",
+        content_hash: "hash",
+        datagouv_id: "1",
+        type: "main",
+        format: "GTFS",
+        filesize: 42
+      )
+
+    _gbfs_resource =
+      insert(:resource,
+        dataset_id: dataset.id,
+        url: "https://link.to/gbfs.json",
+        datagouv_id: "2",
+        type: "main",
+        format: "gbfs"
+      )
+
+    insert(:resource_metadata,
+      multi_validation:
+        insert(:multi_validation,
+          resource_history: insert(:resource_history, resource_id: resource.id),
+          validator: Transport.Validators.GTFSTransport.validator_name()
+        ),
+      modes: ["bus"],
+      features: ["couleurs des lignes"],
+      metadata: %{"foo" => "bar"}
+    )
+
+    path = TransportWeb.API.Router.Helpers.dataset_path(conn, :datasets)
+
+    assert [
+             %{
+               "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
+               "community_resources" => [],
+               "covered_area" => %{
+                 "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
+                 "name" => "Angers Métropole",
+                 "type" => "aom"
+               },
+               "created_at" => nil,
+               "datagouv_id" => "datagouv",
+               "id" => "datagouv",
+               "licence" => "lov2",
+               "page_url" => "http://127.0.0.1:5100/datasets/slug-1",
+               "publisher" => %{"name" => nil, "type" => "organization"},
+               "resources" => [
+                 %{
+                   "content_hash" => "hash",
+                   "datagouv_id" => "1",
+                   "features" => ["couleurs des lignes"],
+                   "filesize" => 42,
+                   "format" => "GTFS",
+                   "metadata" => %{"foo" => "bar"},
+                   "modes" => ["bus"],
+                   "original_url" => "https://link.to/file.zip",
+                   "title" => "GTFS.zip",
+                   "type" => "main",
+                   "updated" => "",
+                   "url" => "https://static.data.gouv.fr/foo"
+                 },
+                 %{
+                   "datagouv_id" => "2",
+                   "format" => "gbfs",
+                   "original_url" => "https://link.to/gbfs.json",
+                   "title" => "GTFS.zip",
+                   "type" => "main",
+                   "updated" => "",
+                   "url" => "url"
+                 }
+               ],
+               "slug" => "slug-1",
+               "title" => "title",
+               "type" => "public-transit",
+               "updated" => ""
+             }
+           ] == conn |> get(path) |> json_response(200)
+  end
+
   test "GET /api/datasets/:id", %{conn: conn} do
     dataset =
       %DB.Dataset{
         custom_title: "title",
+        is_active: true,
         type: "public-transit",
         licence: "lov2",
         datagouv_id: "datagouv",
@@ -125,21 +220,17 @@ defmodule TransportWeb.DatasetControllerTest do
                %{
                  "content_hash" => "hash",
                  "datagouv_id" => "1",
-                 "features" => [],
                  "filesize" => 42,
                  "type" => "main",
                  "format" => "GTFS",
-                 "modes" => [],
                  "original_url" => "https://link.to/file.zip",
                  "updated" => "",
                  "url" => "https://static.data.gouv.fr/foo"
                },
                %{
                  "datagouv_id" => "2",
-                 "features" => [],
                  "type" => "main",
                  "format" => "geojson",
-                 "modes" => [],
                  "original_url" => "http://link.to/file.zip?foo=bar",
                  "schema_name" => "etalab/schema-zfe",
                  "updated" => ""
