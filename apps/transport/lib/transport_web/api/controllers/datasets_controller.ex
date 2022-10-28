@@ -25,7 +25,7 @@ defmodule TransportWeb.API.DatasetController do
 
   @spec datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def datasets(%Plug.Conn{} = conn, _params) do
-    data =
+    datasets_with_metadata =
       Transport.Validators.GTFSTransport.validator_name()
       |> Dataset.join_from_dataset_to_metadata()
       |> preload([:resources, :aom, :region, :communes])
@@ -36,6 +36,16 @@ defmodule TransportWeb.API.DatasetController do
         resource_history: {rh.id, rh.resource_id}
       })
       |> Repo.all()
+
+    existing_ids = datasets_with_metadata |> Enum.map(& &1.dataset.id)
+
+    data =
+      %{}
+      |> Dataset.list_datasets()
+      |> where([dataset: d], d.id not in ^existing_ids)
+      |> preload([:resources, :aom, :region, :communes])
+      |> Repo.all()
+      |> Enum.concat(datasets_with_metadata)
       |> Enum.map(&transform_dataset(conn, &1))
 
     render(conn, %{data: data})
