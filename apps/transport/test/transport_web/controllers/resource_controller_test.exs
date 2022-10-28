@@ -311,18 +311,26 @@ defmodule TransportWeb.ResourceControllerTest do
     conn1 = conn |> get(resource_path(conn, :details, resource_id))
     assert conn1 |> html_response(200) =~ "Pas de validation disponible"
 
-    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+    %{id: resource_history_id} =
+      insert(:resource_history, %{
+        resource_id: resource_id,
+        payload: %{"permanent_url" => permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
+      })
 
     insert(:multi_validation, %{
       resource_history_id: resource_history_id,
       validator: Transport.Validators.GTFSTransport.validator_name(),
       result: %{},
-      metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry"]}
+      metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry"]},
+      validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
     })
 
     conn2 = conn |> get(resource_path(conn, :details, resource_id))
     assert conn2 |> html_response(200) =~ "Rapport de validation"
     assert conn2 |> html_response(200) =~ "ferry"
+
+    assert conn2 |> html_response(200) =~
+             ~s{Validation effectuée en utilisant <a href="#{permanent_url}">le fichier GTFS en vigueur</a> le 28/10/2022 à 16h12 Europe/Paris}
   end
 
   test "GTFS-RT validation is shown", %{conn: conn} do

@@ -148,6 +148,7 @@ defmodule TransportWeb.ResourceView do
 
   def gbfs_validator_url, do: "https://github.com/MobilityData/gbfs-validator"
   def gtfs_rt_validator_url, do: "https://github.com/MobilityData/gtfs-realtime-validator"
+  def gtfs_validator_url, do: "https://github.com/etalab/transport-validator"
 
   def gtfs_rt_validator_rule_url(%{"error_id" => error_id}) do
     "https://github.com/MobilityData/gtfs-realtime-validator/blob/master/RULES.md##{error_id}"
