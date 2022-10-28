@@ -17,7 +17,13 @@
       ) %>
       <%= select(f, :query_template, @query_template_choices, selected: @query_template) %>
       <button class="button" phx-click="generate_query"><%= dgettext("explore", "Generate") %></button>
-      <button :if={@siri_query} class="button" phx-click="execute_query"><%= dgettext("explore", "Execute") %></button>
+      <button
+        :if={[@siri_query, @endpoint_url, @requestor_ref] |> Enum.filter(&(&1 in ["", nil])) |> Enum.empty?()}
+        class="button"
+        phx-click="execute_query"
+      >
+        <%= dgettext("explore", "Execute") %>
+      </button>
     </.form>
     <div :if={@siri_query} class="siri_xml">
       <h4><%= dgettext("explore", "SIRI query") %></h4>
