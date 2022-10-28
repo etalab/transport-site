@@ -5,13 +5,15 @@
       <%= text_input(f, :endpoint_url,
         value: @endpoint_url,
         placeholder: dgettext("explore", "Endpoint URL"),
-        type: "url"
+        type: "url",
+        required: true
       ) %>
       <%= text_input(f, :requestor_ref,
         value: @requestor_ref,
         placeholder: dgettext("explore", "Requestor ref"),
         autocomplete: "off",
-        spellcheck: "false"
+        spellcheck: "false",
+        required: true
       ) %>
       <%= select(f, :query_template, @query_template_choices, selected: @query_template) %>
       <button class="button" phx-click="generate_query"><%= dgettext("explore", "Generate") %></button>
