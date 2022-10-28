@@ -16,7 +16,7 @@ msgid "DuplicateStops"
 msgstr "Some stops are very close. This could mean that they are a duplicate"
 
 #, elixir-autogen, elixir-format
-msgid "Impacted file"
+msgid "Impacted file:"
 msgstr ""
 
 #, elixir-autogen, elixir-format
