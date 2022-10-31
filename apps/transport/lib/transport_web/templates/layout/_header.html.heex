@@ -28,7 +28,8 @@
                   to: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)
                 ) %>
                 <%= link(gettext("Service status"), to: "https://stats.uptimerobot.com/q7nqyiO9yQ", target: "_blank") %>
-                <%= link(gettext("GTFS-RT vehicle positions"), to: explore_path(@conn, :index)) %>
+                <%= link(gettext("SIRI query generator"), to: live_path(@conn, TransportWeb.Live.SIRIQuerierLive)) %>
+                <%= link(gettext("GTFS-RT vehicle positions"), to: explore_path(@conn, :vehicle_positions)) %>
               </div>
             </div>
           </li>

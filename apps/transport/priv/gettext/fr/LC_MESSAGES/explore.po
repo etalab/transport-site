@@ -46,3 +46,39 @@ msgstr "P+R issus de la Base Nationale des Lieux de Stationnement"
 #, elixir-autogen, elixir-format
 msgid "park-and-ride-explanation"
 msgstr "Données des parkings relais présents au sein du %{link} de la Base Nationale des Lieux de Stationnement"
+
+#, elixir-autogen, elixir-format
+msgid "Execute"
+msgstr "Exécuter"
+
+#, elixir-autogen, elixir-format
+msgid "Generate"
+msgstr "Générer"
+
+#, elixir-autogen, elixir-format
+msgid "HTTP body"
+msgstr "Corps de la réponse HTTP"
+
+#, elixir-autogen, elixir-format
+msgid "HTTP headers"
+msgstr "En-têtes HTTP"
+
+#, elixir-autogen, elixir-format
+msgid "SIRI query"
+msgstr "Requête SIRI"
+
+#, elixir-autogen, elixir-format
+msgid "SIRI query generator"
+msgstr "Générateur de requête SIRI"
+
+#, elixir-autogen, elixir-format
+msgid "SIRI response"
+msgstr "Réponse SIRI"
+
+#, elixir-autogen, elixir-format
+msgid "Endpoint URL"
+msgstr "URL de l'API SIRI"
+
+#, elixir-autogen, elixir-format
+msgid "Requestor ref"
+msgstr "Requestor ref"

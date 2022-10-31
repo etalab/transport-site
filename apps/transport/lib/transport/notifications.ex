@@ -6,16 +6,20 @@ defmodule Transport.Notifications do
   alias Transport.Notifications.Item
   @type configuration :: list(Item)
 
-  @reasons [:expiration]
+  @reasons [:expiration, :new_dataset]
+
+  @spec emails_for_reason(configuration, atom()) :: list(binary())
+  def emails_for_reason(config, reason) when reason in [:new_dataset] do
+    Enum.find_value(config, [], fn item ->
+      if item.reason == reason, do: item.emails
+    end)
+  end
 
   @spec emails_for_reason(configuration, atom(), DB.Dataset.t()) :: list(binary())
-  def emails_for_reason(config, reason, %DB.Dataset{slug: slug}) do
-    if not Enum.member?(@reasons, reason) do
-      raise ArgumentError, message: "#{reason} is not a valid reason"
-    end
-
-    result = config |> Enum.find(fn item -> item.reason == reason and item.dataset_slug == slug end)
-    if is_nil(result), do: [], else: result.emails
+  def emails_for_reason(config, :expiration = reason, %DB.Dataset{slug: slug}) do
+    Enum.find_value(config, [], fn item ->
+      if item.reason == reason and item.dataset_slug == slug, do: item.emails
+    end)
   end
 
   def is_valid_extra_delay?(config, :expiration = reason, %DB.Dataset{slug: slug}, delay)
@@ -34,7 +38,7 @@ defmodule Transport.Notifications do
     An intermediate structure to add a bit of typing to the
     external YAML configuration.
     """
-    @enforce_keys [:reason, :dataset_slug, :emails]
+    @enforce_keys [:reason, :emails]
     defstruct [:reason, :dataset_slug, :emails, :extra_delays]
 
     @type t :: %__MODULE__{
@@ -56,18 +60,29 @@ defmodule Transport.Notifications do
       content = body |> YamlElixir.read_from_string!()
 
       Transport.Notifications.valid_reasons()
-      |> Enum.flat_map(fn reason ->
-        content
-        |> Map.fetch!(Atom.to_string(reason))
-        |> Enum.map(fn {slug, data} ->
-          %Item{
-            reason: reason,
-            dataset_slug: slug,
-            emails: Map.fetch!(data, "emails"),
-            extra_delays: Map.get(data, "extra_delays", [])
-          }
-        end)
+      |> Enum.flat_map(&create_items(&1, content))
+    end
+
+    defp create_items(:expiration = reason, content) do
+      content
+      |> Map.get(Atom.to_string(reason), [])
+      |> Enum.map(fn {slug, data} ->
+        %Item{
+          reason: reason,
+          dataset_slug: slug,
+          emails: Map.fetch!(data, "emails"),
+          extra_delays: Map.get(data, "extra_delays", [])
+        }
       end)
+    end
+
+    defp create_items(:new_dataset = reason, content) do
+      [
+        %Item{
+          reason: reason,
+          emails: content |> Map.get(Atom.to_string(reason), [])
+        }
+      ]
     end
   end
 
