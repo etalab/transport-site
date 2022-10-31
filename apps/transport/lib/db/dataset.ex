@@ -40,6 +40,7 @@ defmodule DB.Dataset do
     # we ask in the backoffice for a name to display
     # (used in the long title of a dataset and to find the associated datasets)
     field(:associated_territory_name, :string)
+    timestamps(type: :utc_datetime_usec)
 
     # A Dataset can be linked to *either*:
     # - a Region (and there is a special Region 'national' that represents the national datasets);
