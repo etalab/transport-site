@@ -26,10 +26,6 @@ defmodule TransportWeb.Backoffice.DatasetController do
          params <- Map.merge(params, dg_dataset),
          {:ok, changeset} <- Dataset.changeset(params),
          {:ok, dataset} <- insert_dataset(changeset) do
-      if params["action"] == "new" do
-        %{"dataset_id" => dataset.id} |> Transport.Jobs.NewDatasetJob.new(schedule_in: 60 * 5) |> Oban.insert!()
-      end
-
       dataset
       |> Dataset.validate()
       |> flash(
