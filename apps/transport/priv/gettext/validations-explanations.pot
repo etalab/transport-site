@@ -15,7 +15,7 @@ msgid "DuplicateStops"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Impacted file"
+msgid "Impacted file:"
 msgstr ""
 
 #, elixir-autogen, elixir-format
