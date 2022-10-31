@@ -37,3 +37,39 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "dataset"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Execute"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Generate"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "HTTP body"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "HTTP headers"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "SIRI query"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "SIRI query generator"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "SIRI response"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Endpoint URL"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Requestor ref"
+msgstr ""
