@@ -1,4 +1,4 @@
-defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJob do
+defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
   use ExUnit.Case, async: true
   import DB.Factory
   import Mox
