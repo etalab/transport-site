@@ -497,12 +497,14 @@ defmodule TransportWeb.ResourceControllerTest do
 
   test "gtfs-rt entities" do
     resource = %{id: resource_id} = insert(:resource, format: "gtfs-rt")
-    insert(:resource_metadata, resource_id: resource_id, features: ["a", "b"])
+    insert(:resource_metadata, resource_id: resource_id, features: ["b"])
+    insert(:resource_metadata, resource_id: resource_id, features: ["a", "d"])
     insert(:resource_metadata, resource_id: resource_id, features: ["c"])
     # too old
-    insert(:resource_metadata, resource_id: resource_id, features: ["d"], inserted_at: ~U[2020-01-01 00:00:00Z])
+    insert(:resource_metadata, resource_id: resource_id, features: ["e"], inserted_at: ~U[2020-01-01 00:00:00Z])
 
-    assert ["a", "b", "c"] = TransportWeb.ResourceController.gtfs_rt_entities(resource)
+    # we want a sorted list in the output!
+    assert ["a", "b", "c", "d"] = TransportWeb.ResourceController.gtfs_rt_entities(resource)
   end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do

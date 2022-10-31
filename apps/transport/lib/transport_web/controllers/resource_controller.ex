@@ -47,6 +47,7 @@ defmodule TransportWeb.ResourceController do
     |> where([rm], rm.resource_id == ^id and rm.inserted_at > ^recent_limit)
     |> select([rm], fragment("DISTINCT(UNNEST(features))"))
     |> DB.Repo.all()
+    |> Enum.sort()
   end
 
   def gtfs_rt_entities(%Resource{}), do: nil
