@@ -118,3 +118,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "GTFS-RT vehicle positions"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "SIRI query generator"
+msgstr ""
