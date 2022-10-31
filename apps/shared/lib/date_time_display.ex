@@ -111,8 +111,20 @@ defmodule Shared.DateTimeDisplay do
 
   def format_datetime_to_paris(nil, _, _), do: ""
 
-  defp convert_to_paris_time(%DateTime{} = dt), do: dt |> Timex.Timezone.convert("Europe/Paris")
-  defp convert_to_paris_time(%NaiveDateTime{} = ndt), do: ndt |> Timex.Timezone.convert("Europe/Paris")
+  @spec convert_to_paris_time(DateTime.t() | NaiveDateTime.t()) :: DateTime.t()
+  defp convert_to_paris_time(%DateTime{} = dt) do
+    case Timex.Timezone.convert(dt, "Europe/Paris") do
+      %Timex.AmbiguousDateTime{after: dt} -> dt
+      %DateTime{} = dt -> dt
+    end
+  end
+
+  defp convert_to_paris_time(%NaiveDateTime{} = ndt) do
+    case Timex.Timezone.convert(ndt, "Europe/Paris") do
+      %Timex.AmbiguousDateTime{after: dt} -> dt
+      %DateTime{} = dt -> dt
+    end
+  end
 
   @doc """
   Converts a binary naive date time to a binary date time having the Paris timezone.
@@ -120,6 +132,8 @@ defmodule Shared.DateTimeDisplay do
 
   iex> format_naive_datetime_to_paris_tz("2022-03-01T15:30:00")
   "2022-03-01T15:30:00+01:00"
+  iex> format_naive_datetime_to_paris_tz("2022-10-30T02:03:54")
+  "2022-10-30T02:03:54+01:00"
   """
   @spec format_naive_datetime_to_paris_tz(nil | binary) :: binary
   def format_naive_datetime_to_paris_tz(nil), do: ""
