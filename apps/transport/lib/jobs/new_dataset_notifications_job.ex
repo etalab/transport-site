@@ -12,7 +12,7 @@ defmodule Transport.Jobs.NewDatasetNotificationsJob do
   end
 
   def relevant_datasets(%DateTime{} = inserted_at) do
-    datetime_limit = inserted_at |> DateTime.add(-24 * 60 * 60, :second)
+    datetime_limit = inserted_at |> DateTime.add(-1, :day)
 
     DB.Dataset.base_query()
     |> where([dataset: d], d.inserted_at >= ^datetime_limit)
