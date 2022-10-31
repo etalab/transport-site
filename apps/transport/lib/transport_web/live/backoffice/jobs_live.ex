@@ -10,11 +10,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
   # Authentication is assumed to happen in regular HTTP land. Here we verify
   # the user presence + belonging to admin team, or redirect immediately.
   @impl true
-  def mount(params, session, socket) do
-    %{
-      "current_user" => current_user
-    } = session
-
+  def mount(params, %{"current_user" => current_user} = _session, socket) do
     worker = params |> Map.get("worker", nil)
 
     {:ok,
@@ -135,11 +131,5 @@ defmodule TransportWeb.Backoffice.JobsLive do
       |> push_patch(to: backoffice_live_path(socket, TransportWeb.Backoffice.JobsLive, worker: worker))
 
     {:noreply, socket}
-  end
-
-  def build_session(conn) do
-    %{
-      "current_user" => conn.assigns[:current_user]
-    }
   end
 end

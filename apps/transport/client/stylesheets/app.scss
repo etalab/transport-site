@@ -16,3 +16,23 @@
 @import 'datasets';
 @import 'producteurs';
 @import 'espace_producteur';
+
+// Prism for syntax coloring ; TODO: cherry-pick from the npm package instead
+// (and remove the manual download)
+@import 'prism';
+
+.siri_xml {
+  pre {
+    padding-top: 0;
+    padding-left: 1em;
+    padding-bottom: 0;
+    // TODO: investigate; without this, a big space on left is appearing
+    white-space: normal;
+  }
+
+  code {
+    font-size: 1em;
+    margin: 0;
+    padding: 0;
+  }
+}
