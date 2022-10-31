@@ -19,6 +19,9 @@ Hooks.SyntaxColoring = {
                 lineSeparator: '\n'
             })
         } catch (_) {
+            /* in some cases, the returned content is not XML, in which case the
+               attempt to format fails. We use a catch-all exception to make sure
+               we still display the response properly */
             target.textContent = element.value
         }
         Prism.highlightElement(target)
