@@ -33,19 +33,17 @@ defmodule Unlock.SIRI do
     """
 
     @spec parse(Saxy.XML.element()) :: list(binary())
-    def parse({"S:Body", _attributes, children} = _node) do
-      children
-      |> Enum.reject(&is_binary(&1))
-      |> Enum.map(fn {tag, _attributes, _childen} -> Unlock.SIRI.tag_without_namespace(tag) end)
-    end
-
-    def parse({_tag, _attributes, children}) do
+    def parse({tag, _attributes, children}) do
       children = children |> Enum.reject(&is_binary(&1))
 
       if Enum.empty?(children) do
         []
       else
-        children |> hd() |> parse()
+        if tag |> Unlock.SIRI.tag_without_namespace() |> String.downcase() == "body" do
+          Enum.map(children, fn {tag, _attributes, _childen} -> Unlock.SIRI.tag_without_namespace(tag) end)
+        else
+          children |> hd() |> parse()
+        end
       end
     end
   end

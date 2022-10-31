@@ -33,7 +33,7 @@ defmodule Unlock.SIRITests do
     xml = """
     <?xml version="1.0" encoding="UTF-8"?>
     <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-    <S:Body>
+    <S:body>
         <sw:CheckStatus xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
             <Request>
                 <siri:RequestTimestamp>#{DateTime.utc_now() |> DateTime.to_iso8601()}</siri:RequestTimestamp>
@@ -42,7 +42,7 @@ defmodule Unlock.SIRITests do
             </Request>
             <RequestExtension/>
         </sw:CheckStatus>
-    </S:Body>
+    </S:body>
     </S:Envelope>
     """
 
