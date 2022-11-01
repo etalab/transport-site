@@ -167,11 +167,11 @@ defmodule Transport.DataCheckerTest do
   describe "send_outdated_data_notifications" do
     test "with a default delay" do
       Transport.EmailSender.Mock
-      |> expect(:send_mail, fn "transport.data.gouv.fr" = _subject,
+      |> expect(:send_mail, fn "transport.data.gouv.fr",
                                "contact@transport.beta.gouv.fr",
                                "foo@example.com" = _to,
                                "contact@transport.beta.gouv.fr",
-                               "Jeu de données arrivant à expiration",
+                               "Jeu de données arrivant à expiration" = _subject,
                                plain_text_body,
                                "" = _html_part ->
         assert plain_text_body =~ ~r/Bonjour/
@@ -247,38 +247,44 @@ defmodule Transport.DataCheckerTest do
     end
   end
 
-  test "send_new_dataset_notifications" do
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr" = _subject,
-                             "contact@transport.beta.gouv.fr",
-                             "foo@example.com" = _to,
-                             "contact@transport.beta.gouv.fr",
-                             "Nouveau jeu de données référencé",
-                             plain_text_body,
-                             "" = _html_part ->
-      assert plain_text_body =~ ~r/Bonjour/
-      :ok
-    end)
+  describe "send_new_dataset_notifications" do
+    test "no datasets" do
+      assert Transport.DataChecker.send_new_dataset_notifications([]) == :ok
+    end
 
-    dataset_slug = "slug"
+    test "with datasets" do
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, fn "transport.data.gouv.fr",
+                               "contact@transport.beta.gouv.fr",
+                               "foo@example.com" = _to,
+                               "contact@transport.beta.gouv.fr",
+                               "Nouveaux jeux de données référencés" = _subject,
+                               plain_text_body,
+                               "" = _html_part ->
+        assert plain_text_body =~ ~r/Bonjour/
+        :ok
+      end)
 
-    Transport.Notifications.FetcherMock
-    |> expect(:fetch_config!, fn ->
-      [
-        %Transport.Notifications.Item{
-          dataset_slug: nil,
-          emails: ["foo@example.com"],
-          reason: :new_dataset,
-          extra_delays: []
-        }
-      ]
-    end)
+      dataset_slug = "slug"
 
-    dataset = %DB.Dataset{slug: dataset_slug, datagouv_title: "title"}
+      Transport.Notifications.FetcherMock
+      |> expect(:fetch_config!, fn ->
+        [
+          %Transport.Notifications.Item{
+            dataset_slug: nil,
+            emails: ["foo@example.com"],
+            reason: :new_dataset,
+            extra_delays: []
+          }
+        ]
+      end)
 
-    Transport.DataChecker.send_new_dataset_notifications(dataset)
+      dataset = %DB.Dataset{slug: dataset_slug, datagouv_title: "title"}
 
-    verify!(Transport.EmailSender.Mock)
+      Transport.DataChecker.send_new_dataset_notifications([dataset])
+
+      verify!(Transport.EmailSender.Mock)
+    end
   end
 
   test "possible_delays" do

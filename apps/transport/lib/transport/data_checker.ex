@@ -81,7 +81,10 @@ defmodule Transport.DataChecker do
     |> Enum.sort()
   end
 
-  def send_new_dataset_notifications(%Dataset{} = dataset) do
+  @spec send_new_dataset_notifications([Dataset.t()] | []) :: no_return() | :ok
+  def send_new_dataset_notifications([]), do: :ok
+
+  def send_new_dataset_notifications(datasets) do
     Transport.Notifications.config()
     |> Transport.Notifications.emails_for_reason(:new_dataset)
     |> Enum.each(fn email ->
@@ -90,13 +93,13 @@ defmodule Transport.DataChecker do
         Application.get_env(:transport, :contact_email),
         email,
         Application.get_env(:transport, :contact_email),
-        "Nouveau jeu de données référencé",
+        "Nouveaux jeux de données référencés",
         """
         Bonjour,
 
-        Un jeu de données vient d'être référencé :
+        Les jeux de données suivants ont été référencés récemment :
 
-        #{link_and_name(dataset)}
+        #{datasets |> Enum.map_join("\n", &link_and_name/1)}
 
         L’équipe transport.data.gouv.fr
 
@@ -152,11 +155,7 @@ defmodule Transport.DataChecker do
   end
 
   defp make_str({delay, datasets}) do
-    r_str =
-      datasets
-      |> Enum.map(&link_and_name/1)
-      # credo:disable-for-next-line
-      |> Enum.join("\n")
+    r_str = datasets |> Enum.map_join("\n", &link_and_name/1)
 
     """
     Jeux de données expirant #{delay_str(delay)}:
@@ -208,11 +207,7 @@ defmodule Transport.DataChecker do
   defp fmt_inactive_dataset([]), do: ""
 
   defp fmt_inactive_dataset(inactive_datasets) do
-    datasets_str =
-      inactive_datasets
-      |> Enum.map(&link_and_name/1)
-      # credo:disable-for-next-line
-      |> Enum.join("\n")
+    datasets_str = inactive_datasets |> Enum.map_join("\n", &link_and_name/1)
 
     """
     Certains jeux de données ont disparus de data.gouv.fr :
@@ -223,11 +218,7 @@ defmodule Transport.DataChecker do
   defp fmt_reactivated_dataset([]), do: ""
 
   defp fmt_reactivated_dataset(reactivated_datasets) do
-    datasets_str =
-      reactivated_datasets
-      |> Enum.map(&link_and_name/1)
-      # credo:disable-for-next-line
-      |> Enum.join("\n")
+    datasets_str = reactivated_datasets |> Enum.map_join("\n", &link_and_name/1)
 
     """
     Certains jeux de données disparus sont réapparus sur data.gouv.fr :
