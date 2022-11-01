@@ -22,7 +22,7 @@ defmodule Transport.DataCheckerTest do
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
-        assert to_email == "contact@transport.beta.gouv.fr"
+        assert to_email == "deploiement@transport.beta.gouv.fr"
         assert subject == "Jeux de données qui disparaissent"
         assert body =~ ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/
         :ok
@@ -55,7 +55,7 @@ defmodule Transport.DataCheckerTest do
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
-        assert to_email == "contact@transport.beta.gouv.fr"
+        assert to_email == "deploiement@transport.beta.gouv.fr"
         assert subject == "Jeux de données qui disparaissent"
         assert body =~ ~r/Certains jeux de données ont disparus de data.gouv.fr/
         :ok
@@ -117,7 +117,7 @@ defmodule Transport.DataCheckerTest do
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
-        assert to_email == "contact@transport.beta.gouv.fr"
+        assert to_email == "deploiement@transport.beta.gouv.fr"
         assert subject == "Jeux de données arrivant à expiration"
         assert body =~ ~r/Jeux de données expirant demain:/
         :ok
