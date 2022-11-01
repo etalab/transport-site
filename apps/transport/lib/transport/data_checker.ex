@@ -65,11 +65,23 @@ defmodule Transport.DataChecker do
   def outdated_data do
     for delay <- possible_delays(),
         date = Date.add(Date.utc_today(), delay) do
-      {delay, Dataset.get_expire_at(date)}
+      {delay, gtfs_datasets_expiring_on(date)}
     end
     |> Enum.reject(fn {_, d} -> d == [] end)
     |> send_outdated_data_mail()
     |> Enum.map(fn x -> send_outdated_data_notifications(x) end)
+  end
+
+  def gtfs_datasets_expiring_on(%Date{} = date) do
+    Transport.Validators.GTFSTransport.validator_name()
+    |> DB.Dataset.join_from_dataset_to_metadata()
+    |> where(
+      [metadata: m, resource: r],
+      fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata) == ^date and r.format == "GTFS"
+    )
+    |> select([dataset: d], d)
+    |> distinct(true)
+    |> DB.Repo.all()
   end
 
   def possible_delays do

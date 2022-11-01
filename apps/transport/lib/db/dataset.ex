@@ -664,18 +664,6 @@ defmodule DB.Dataset do
     end
   end
 
-  @spec get_expire_at(Date.t() | binary()) :: binary()
-  def get_expire_at(%Date{} = date), do: get_expire_at("#{date}")
-
-  def get_expire_at(date) do
-    __MODULE__
-    |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
-    |> group_by([d, r], d.id)
-    |> having([d, r], fragment("max(?->>'end_date') = ?", r.metadata, ^date))
-    |> preload([:resources])
-    |> Repo.all()
-  end
-
   @spec get_resources_related_files(any()) :: map()
   def get_resources_related_files(%__MODULE__{resources: resources}) when is_list(resources) do
     to_atom = %{"GeoJSON" => :geojson, "NeTEx" => :netex}
