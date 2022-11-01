@@ -180,8 +180,8 @@ defmodule TransportWeb.API.DatasetController do
   defp transform_dataset(%Plug.Conn{} = conn, %{dataset: dataset, metadata: metadata} = result) do
     # Plug DB.ResourceMetadata into its associated DB.Resource
     metadata =
-      metadata
-      |> maybe_list()
+      [metadata]
+      |> List.flatten()
       |> Enum.into(%{}, fn metadata ->
         resource_id =
           result.resource_history
@@ -221,12 +221,9 @@ defmodule TransportWeb.API.DatasetController do
     }
   end
 
-  defp maybe_list(el) when is_list(el), do: el
-  defp maybe_list(el), do: [el]
-
   defp maybe_map(el) when is_map(el), do: el
-  defp maybe_map(el) when is_list(el), do: el |> Enum.into(%{})
-  defp maybe_map(el) when is_tuple(el), do: el |> maybe_list() |> Enum.into(%{})
+  defp maybe_map(el) when is_list(el), do: Enum.into(el, %{})
+  defp maybe_map(el) when is_tuple(el), do: Enum.into([el], %{})
 
   @spec get_publisher(Dataset.t()) :: map()
   defp get_publisher(dataset),

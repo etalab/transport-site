@@ -7,13 +7,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
   setup :verify_on_exit!
 
-  setup do
-    Mox.stub_with(Datagouvfr.Client.Reuses.Mock, Datagouvfr.Client.Reuses)
-    Mox.stub_with(Datagouvfr.Client.Discussions.Mock, Datagouvfr.Client.Discussions)
-    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
-    :ok
-  end
-
   test "GET /api/datasets has HTTP cache headers set", %{conn: conn} do
     path = Helpers.dataset_path(conn, :datasets)
     conn = conn |> get(path)
