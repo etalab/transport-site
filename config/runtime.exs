@@ -111,6 +111,7 @@ oban_crontab_all_envs =
         {"30 7 * * *", Transport.Jobs.GBFSMultiValidationDispatcherJob},
         {"45 */3 * * *", Transport.Jobs.ResourceHistoryJSONSchemaValidationJob},
         {"15 */3 * * *", Transport.Jobs.ResourceHistoryTableSchemaValidationJob},
+        {"5 6 * * *", Transport.Jobs.NewDatagouvDatasetsJob},
         {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob}
       ]
 
