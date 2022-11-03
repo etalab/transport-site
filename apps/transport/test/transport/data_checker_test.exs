@@ -315,7 +315,11 @@ defmodule Transport.DataCheckerTest do
                                "Nouveaux jeux de données référencés" = _subject,
                                plain_text_body,
                                "" = _html_part ->
-        assert plain_text_body =~ ~r/Bonjour/
+        assert plain_text_body =~ ~r/^Bonjour/
+
+        assert plain_text_body =~
+                 "* Super JDD - (Transport public collectif - horaires théoriques) - http://127.0.0.1:5100/datasets/slug"
+
         :ok
       end)
 
@@ -333,7 +337,7 @@ defmodule Transport.DataCheckerTest do
         ]
       end)
 
-      dataset = %DB.Dataset{slug: dataset_slug, datagouv_title: "title"}
+      dataset = %DB.Dataset{slug: dataset_slug, custom_title: "Super JDD", type: "public-transit"}
 
       Transport.DataChecker.send_new_dataset_notifications([dataset])
 
