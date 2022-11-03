@@ -1,0 +1,100 @@
+defmodule Transport.SIRITest do
+  use ExUnit.Case
+
+  # see https://github.com/qcam/saxy/issues/103
+  defmodule XMLNewlinesRemover do
+    def filter_newlines_from_model({element, tags, children}) do
+      {
+        element,
+        tags,
+        children
+        |> Enum.map(&filter_newlines_from_model/1)
+        |> Enum.reject(&is_nil/1)
+      }
+    end
+
+    def filter_newlines_from_model(content) when is_binary(content) do
+      if content |> String.trim() == "", do: nil, else: content
+    end
+  end
+
+  @doc """
+  To make it easier to compare XML strings during test, we parse them as
+  Elixir structures, and removing the non-significant newlines.
+  """
+  def parse_xml(payload) do
+    payload
+    |> Unlock.SIRI.parse_incoming()
+    |> XMLNewlinesRemover.filter_newlines_from_model()
+  end
+
+  test "CheckStatus" do
+    timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
+    requestor_ref = "the-ref"
+    message_identifier = "Test::Message::#{Ecto.UUID.generate()}"
+    request = Transport.SIRI.check_status(timestamp, requestor_ref, message_identifier)
+
+    expected_response = """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+      <S:Body>
+        <sw:CheckStatus xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
+          <Request>
+            <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+            <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
+            <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+          </Request>
+        </sw:CheckStatus>
+      </S:Body>
+    </S:Envelope>
+    """
+
+    assert parse_xml(request) == parse_xml(expected_response)
+  end
+
+  @tag :skip
+  test "LinesDiscovery"
+
+  @tag :skip
+  test "StopPointsDiscovery"
+
+  test "GetEstimatedTimetable" do
+    timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
+    requestor_ref = "the-ref"
+    message_identifier = "Test::Message::#{Ecto.UUID.generate()}"
+    line_001 = "LINE:001"
+    line_002 = "LINE:002"
+    request = Transport.SIRI.get_estimated_timetable(timestamp, requestor_ref, message_identifier, [line_001, line_002])
+
+    expected_response = """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+      <S:Body>
+        <sw:GetEstimatedTimetable xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
+            <ServiceRequestInfo>
+              <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+              <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
+              <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+            </ServiceRequestInfo>
+            <Request>
+              <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+              <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+              <siri:Lines>
+                <siri:LineRef>#{line_001}</siri:LineRef>
+                <siri:LineRef>#{line_002}</siri:LineRef>
+              </siri:Lines>
+            </Request>
+        </sw:GetEstimatedTimetable>
+      </S:Body>
+    </S:Envelope>
+    """
+
+    assert parse_xml(request) == parse_xml(expected_response)
+  end
+
+  @tag :skip
+  test "GetGeneralMessage"
+
+  @tag :skip
+  test "GetStopMonitoring"
+end
