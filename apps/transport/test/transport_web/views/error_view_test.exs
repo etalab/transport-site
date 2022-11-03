@@ -4,6 +4,6 @@ defmodule TransportWeb.ErrorViewTest do
   alias TransportWeb.ErrorView
 
   test "render 500.html" do
-    assert render_to_string(ErrorView, "500.html", []) =~ "End of the road!"
+    assert render_to_string(ErrorView, "500.html", []) =~ "Erreur sur la ligne 500 !"
   end
 end
