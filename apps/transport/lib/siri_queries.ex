@@ -82,7 +82,7 @@ defmodule Transport.SIRI do
     """
   end
 
-  def line_refs_element(_line_refs = []), do: nil
+  def line_refs_element([] = _line_refs), do: nil
 
   def line_refs_element(line_refs) do
     line_refs = line_refs |> Enum.map(&element("siri:LineRef", [], &1))
