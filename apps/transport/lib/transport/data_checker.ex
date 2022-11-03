@@ -65,11 +65,23 @@ defmodule Transport.DataChecker do
   def outdated_data do
     for delay <- possible_delays(),
         date = Date.add(Date.utc_today(), delay) do
-      {delay, Dataset.get_expire_at(date)}
+      {delay, gtfs_datasets_expiring_on(date)}
     end
     |> Enum.reject(fn {_, d} -> d == [] end)
     |> send_outdated_data_mail()
     |> Enum.map(fn x -> send_outdated_data_notifications(x) end)
+  end
+
+  def gtfs_datasets_expiring_on(%Date{} = date) do
+    Transport.Validators.GTFSTransport.validator_name()
+    |> DB.Dataset.join_from_dataset_to_metadata()
+    |> where(
+      [metadata: m, resource: r],
+      fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata) == ^date and r.format == "GTFS"
+    )
+    |> select([dataset: d], d)
+    |> distinct(true)
+    |> DB.Repo.all()
   end
 
   def possible_delays do
@@ -85,6 +97,10 @@ defmodule Transport.DataChecker do
   def send_new_dataset_notifications([]), do: :ok
 
   def send_new_dataset_notifications(datasets) do
+    dataset_link_fn = fn %Dataset{} = dataset ->
+      "* #{dataset.custom_title} - (#{Dataset.type_to_str(dataset.type)}) - #{link(dataset)}"
+    end
+
     Transport.Notifications.config()
     |> Transport.Notifications.emails_for_reason(:new_dataset)
     |> Enum.each(fn email ->
@@ -99,7 +115,7 @@ defmodule Transport.DataChecker do
 
         Les jeux de données suivants ont été référencés récemment :
 
-        #{datasets |> Enum.map_join("\n", &link_and_name/1)}
+        #{datasets |> Enum.sort_by(& &1.type) |> Enum.map_join("\n", &dataset_link_fn.(&1))}
 
         L’équipe transport.data.gouv.fr
 

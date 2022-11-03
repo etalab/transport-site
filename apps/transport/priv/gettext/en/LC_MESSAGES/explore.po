@@ -48,10 +48,6 @@ msgid "Generate"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "HTTP body"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "HTTP headers"
 msgstr ""
 
@@ -73,4 +69,12 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Requestor ref"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "HTTP request body"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "HTTP response body"
 msgstr ""

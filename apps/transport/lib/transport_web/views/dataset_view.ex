@@ -361,7 +361,7 @@ defmodule TransportWeb.DatasetView do
   ## Examples
 
   iex> licence(%Dataset{licence: "fr-lo"})
-  "fr-lo"
+  "Licence ouverte"
   iex> licence(%Dataset{licence: "Libertarian"})
   "Libertarian"
   """
