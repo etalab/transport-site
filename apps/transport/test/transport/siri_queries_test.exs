@@ -137,6 +137,34 @@ defmodule Transport.SIRITest do
   @tag :skip
   test "GetGeneralMessage"
 
-  @tag :skip
-  test "GetStopMonitoring"
+  test "GetStopMonitoring" do
+    timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
+    requestor_ref = "the-ref"
+    message_identifier = "Test::Message::#{Ecto.UUID.generate()}"
+    stop_ref = "STOP:001"
+    request = Transport.SIRI.get_stop_monitoring(timestamp, requestor_ref, message_identifier, stop_ref)
+
+    expected_response = """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <S:Body>
+      <sw:GetStopMonitoring xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
+        <ServiceRequestInfo>
+          <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+          <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
+          <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+        </ServiceRequestInfo>
+        <Request>
+          <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+          <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+          <siri:MonitoringRef>#{stop_ref}</siri:MonitoringRef>
+          <siri:StopVisitTypes>all</siri:StopVisitTypes>
+        </Request>
+      </sw:GetStopMonitoring>
+    </S:Body>
+    </S:Envelope>
+    """
+
+    assert parse_xml(request) == parse_xml(expected_response)
+  end
 end

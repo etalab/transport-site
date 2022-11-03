@@ -113,7 +113,7 @@ defmodule Transport.SIRI do
                 <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
                 <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
             </ServiceRequestInfo>
-            <Request version="2.0:FR-IDF-2.4">
+            <Request>
                 <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
                 <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
                 <siri:MonitoringRef>#{stop_ref}</siri:MonitoringRef>
