@@ -31,6 +31,11 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
       "nom" => "Saint-Etienne Métropole",
       "siren" => "244200770",
       "forme_juridique" => "Métropole"
+    },
+    "Toulouse métropole" => %{
+      "nom" => "Toulouse Métropole",
+      "siren" => "243100518",
+      "forme_juridique" => "Métropole"
     }
   }
 
@@ -141,6 +146,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
     )
     |> where([rh, _mv], rh.resource_id == ^resource_id)
     |> order_by([rh, _mv], desc: :inserted_at)
+    |> limit(1)
     |> select([rh, _mv], rh)
     |> Repo.one()
   end
@@ -159,14 +165,18 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
   end
 
   def publisher_details(%Resource{dataset: %Dataset{organization: organization}}) do
-    publisher = Map.fetch!(@dataset_org_to_publisher, organization)
+    publisher =
+      @dataset_org_to_publisher
+      |> Enum.into(%{}, fn {k, v} -> {String.downcase(k), v} end)
+      |> Map.fetch!(String.downcase(organization))
+
     publisher |> Map.put("zfe_id", zfe_id(Map.fetch!(publisher, "siren")))
   end
 
   def zfe_id(siren) do
     zfe_id =
       CSVDocuments.zfe_ids()
-      |> Enum.find_value(fn el -> if el["siren"] == siren, do: el["code"] end)
+      |> Enum.find_value(&if siren == &1["siren"] or String.contains?(&1["autres_siren"], siren), do: &1["code"])
 
     if is_nil(zfe_id) do
       Logger.error("Could not find zfe_id for SIREN #{siren}")
