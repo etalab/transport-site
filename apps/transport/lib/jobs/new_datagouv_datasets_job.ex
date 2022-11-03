@@ -36,7 +36,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   def perform(%Oban.Job{inserted_at: %DateTime{} = inserted_at}) do
     %HTTPoison.Response{status_code: 200, body: body} =
       Transport.Shared.Wrapper.HTTPoison.impl().get!(
-        "https://www.data.gouv.fr/api/1/datasets/?sort=-created&page_size=500",
+        Path.join(Application.fetch_env!(:transport, :datagouvfr_site), "/api/1/datasets/?sort=-created&page_size=500"),
         [],
         timeout: 30_000,
         recv_timeout: 30_000
@@ -84,7 +84,9 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   end
 
   def after_datetime?(created_at, %DateTime{} = dt_limit) when is_binary(created_at) do
-    {:ok, datetime, 0} = DateTime.from_iso8601(created_at <> "Z")
+    # data.gouv.fr does not include the timezone (trailing Z) but these are UTC datetimes
+    created_at = String.replace_trailing(created_at, "Z", "") <> "Z"
+    {:ok, datetime, 0} = DateTime.from_iso8601(created_at)
     DateTime.compare(datetime, dt_limit) == :gt
   end
 

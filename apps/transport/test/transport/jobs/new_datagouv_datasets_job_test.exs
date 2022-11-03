@@ -74,7 +74,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
   describe "perform" do
     test "no datasets" do
       Transport.HTTPoison.Mock
-      |> expect(:get!, fn "https://www.data.gouv.fr/api/1/datasets/?sort=-created&page_size=500",
+      |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/?sort=-created&page_size=500",
                           [],
                           [timeout: 30_000, recv_timeout: 30_000] ->
         %HTTPoison.Response{status_code: 200, body: ~s({"data":[]})}
@@ -98,7 +98,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
       assert NewDatagouvDatasetsJob.dataset_is_relevant?(dataset)
 
       Transport.HTTPoison.Mock
-      |> expect(:get!, fn "https://www.data.gouv.fr/api/1/datasets/?sort=-created&page_size=500",
+      |> expect(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/?sort=-created&page_size=500",
                           [],
                           [timeout: 30_000, recv_timeout: 30_000] ->
         %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"data" => [dataset]})}
