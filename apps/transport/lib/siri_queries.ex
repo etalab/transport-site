@@ -21,48 +21,54 @@ defmodule Transport.SIRI do
   end
 
   def check_status(timestamp, requestor_ref, message_identifier) do
-    element("S:Envelope", @top_level_namespaces, [
-      element("S:Body", [], [
-        element("sw:CheckStatus", @request_namespaces, [
-          element("Request", [], [
-            element("siri:RequestTimestamp", [], timestamp),
-            element("siri:RequestorRef", [], requestor_ref),
-            element("siri:MessageIdentifier", [], message_identifier)
+    doc =
+      element("S:Envelope", @top_level_namespaces, [
+        element("S:Body", [], [
+          element("sw:CheckStatus", @request_namespaces, [
+            element("Request", [], [
+              element("siri:RequestTimestamp", [], timestamp),
+              element("siri:RequestorRef", [], requestor_ref),
+              element("siri:MessageIdentifier", [], message_identifier)
+            ])
           ])
         ])
       ])
-    ])
-    |> Saxy.encode!()
+
+    Saxy.encode!(doc)
   end
 
   def lines_discovery(timestamp, requestor_ref, message_identifier) do
-    element("S:Envelope", @top_level_namespaces, [
-      element("S:Body", [], [
-        element("sw:LinesDiscovery", @request_namespaces, [
-          element("Request", [], [
-            element("siri:RequestTimestamp", [], timestamp),
-            element("siri:RequestorRef", [], requestor_ref),
-            element("siri:MessageIdentifier", [], message_identifier)
+    doc =
+      element("S:Envelope", @top_level_namespaces, [
+        element("S:Body", [], [
+          element("sw:LinesDiscovery", @request_namespaces, [
+            element("Request", [], [
+              element("siri:RequestTimestamp", [], timestamp),
+              element("siri:RequestorRef", [], requestor_ref),
+              element("siri:MessageIdentifier", [], message_identifier)
+            ])
           ])
         ])
       ])
-    ])
-    |> Saxy.encode!()
+
+    Saxy.encode!(doc)
   end
 
   def stop_points_discovery(timestamp, requestor_ref, message_identifier) do
-    element("S:Envelope", @top_level_namespaces, [
-      element("S:Body", [], [
-        element("sw:StopPointsDiscovery", @request_namespaces, [
-          element("Request", [], [
-            element("siri:RequestTimestamp", [], timestamp),
-            element("siri:RequestorRef", [], requestor_ref),
-            element("siri:MessageIdentifier", [], message_identifier)
+    doc =
+      element("S:Envelope", @top_level_namespaces, [
+        element("S:Body", [], [
+          element("sw:StopPointsDiscovery", @request_namespaces, [
+            element("Request", [], [
+              element("siri:RequestTimestamp", [], timestamp),
+              element("siri:RequestorRef", [], requestor_ref),
+              element("siri:MessageIdentifier", [], message_identifier)
+            ])
           ])
         ])
       ])
-    ])
-    |> Saxy.encode!()
+
+    Saxy.encode!(doc)
   end
 
   def build_line_refs(line_refs) do
