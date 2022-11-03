@@ -100,7 +100,7 @@ defmodule Transport.SIRITest do
     assert parse_xml(request) == parse_xml(expected_response)
   end
 
-  test "GetEstimatedTimetable" do
+  test "GetEstimatedTimetable (with line references)" do
     timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
     requestor_ref = "the-ref"
     message_identifier = "Test::Message::#{Ecto.UUID.generate()}"
@@ -125,6 +125,36 @@ defmodule Transport.SIRITest do
                 <siri:LineRef>#{line_001}</siri:LineRef>
                 <siri:LineRef>#{line_002}</siri:LineRef>
               </siri:Lines>
+            </Request>
+        </sw:GetEstimatedTimetable>
+      </S:Body>
+    </S:Envelope>
+    """
+
+    assert parse_xml(request) == parse_xml(expected_response)
+  end
+
+  # NOTE: there are apparently differently ways to create this ("ALL" vs "nothing")
+  # and different servers exhibit different behaviours (to be verified).
+  test "GetEstimatedTimetable (without line references)" do
+    timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
+    requestor_ref = "the-ref"
+    message_identifier = "Test::Message::#{Ecto.UUID.generate()}"
+    request = Transport.SIRI.get_estimated_timetable(timestamp, requestor_ref, message_identifier, [])
+
+    expected_response = """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+      <S:Body>
+        <sw:GetEstimatedTimetable xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
+            <ServiceRequestInfo>
+              <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+              <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
+              <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+            </ServiceRequestInfo>
+            <Request>
+              <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+              <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
             </Request>
         </sw:GetEstimatedTimetable>
       </S:Body>

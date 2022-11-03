@@ -82,26 +82,40 @@ defmodule Transport.SIRI do
     """
   end
 
+  def line_refs_element(_line_refs = []), do: nil
+
+  def line_refs_element(line_refs) do
+    line_refs = line_refs |> Enum.map(&element("siri:LineRef", [], &1))
+    element("siri:Lines", [], line_refs)
+  end
+
+  def append_if_not_nil(list, nil), do: list
+  def append_if_not_nil(list, item), do: list ++ [item]
+
   def get_estimated_timetable(timestamp, requestor_ref, message_identifier, line_refs) do
-    """
-    #{prolog()}
-    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-      <S:Body>
-        <sw:GetEstimatedTimetable xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
-            <ServiceRequestInfo>
-              <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-              <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
-              <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-            </ServiceRequestInfo>
-            <Request>
-                <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-                <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-                #{build_line_refs(line_refs)}
-            </Request>
-        </sw:GetEstimatedTimetable>
-      </S:Body>
-    </S:Envelope>
-    """
+    doc =
+      element("S:Envelope", @top_level_namespaces, [
+        element("S:Body", [], [
+          element("sw:GetEstimatedTimetable", @request_namespaces, [
+            element("ServiceRequestInfo", [], [
+              element("siri:RequestTimestamp", [], timestamp),
+              element("siri:RequestorRef", [], requestor_ref),
+              element("siri:MessageIdentifier", [], message_identifier)
+            ]),
+            element(
+              "Request",
+              [],
+              [
+                element("siri:RequestTimestamp", [], timestamp),
+                element("siri:MessageIdentifier", [], message_identifier)
+              ]
+              |> append_if_not_nil(line_refs_element(line_refs))
+            )
+          ])
+        ])
+      ])
+
+    Saxy.encode!(doc)
   end
 
   def get_stop_monitoring(timestamp, requestor_ref, message_identifier, stop_ref) do
