@@ -36,20 +36,18 @@ defmodule Transport.SIRI do
   end
 
   def lines_discovery(timestamp, requestor_ref, message_identifier) do
-    """
-    #{prolog()}
-    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-      <S:Body>
-        <sw:LinesDiscovery xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
-          <Request>
-            <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-            <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
-            <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-          </Request>
-        </sw:LinesDiscovery>
-      </S:Body>
-    </S:Envelope>
-    """
+    element("S:Envelope", @top_level_namespaces, [
+      element("S:Body", [], [
+        element("sw:LinesDiscovery", @request_namespaces, [
+          element("Request", [], [
+            element("siri:RequestTimestamp", [], timestamp),
+            element("siri:RequestorRef", [], requestor_ref),
+            element("siri:MessageIdentifier", [], message_identifier)
+          ])
+        ])
+      ])
+    ])
+    |> Saxy.encode!()
   end
 
   def stop_points_discovery(timestamp, requestor_ref, message_identifier) do
