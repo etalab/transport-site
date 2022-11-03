@@ -48,10 +48,6 @@ msgid "Generate"
 msgstr "Générer"
 
 #, elixir-autogen, elixir-format
-msgid "HTTP body"
-msgstr "Corps de la réponse HTTP"
-
-#, elixir-autogen, elixir-format
 msgid "HTTP headers"
 msgstr "En-têtes HTTP"
 
@@ -74,3 +70,11 @@ msgstr "URL de l'API SIRI"
 #, elixir-autogen, elixir-format
 msgid "Requestor ref"
 msgstr "Requestor ref"
+
+#, elixir-autogen, elixir-format
+msgid "HTTP request body"
+msgstr "Corps de la requête HTTP"
+
+#, elixir-autogen, elixir-format
+msgid "HTTP response body"
+msgstr "Corps de la réponse HTTP"
