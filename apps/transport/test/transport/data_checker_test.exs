@@ -90,6 +90,47 @@ defmodule Transport.DataCheckerTest do
     end
   end
 
+  test "gtfs_datasets_expiring_on" do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+
+    {today, tomorrow, yesterday} = {Date.utc_today(), Date.add(Date.utc_today(), 1), Date.add(Date.utc_today(), -1)}
+    assert [] == today |> Transport.DataChecker.gtfs_datasets_expiring_on()
+
+    insert_fn = fn %Date{} = expiration_date, %DB.Dataset{} = dataset ->
+      multi_validation =
+        insert(:multi_validation,
+          validator: Transport.Validators.GTFSTransport.validator_name(),
+          resource_history: insert(:resource_history, resource: insert(:resource, dataset: dataset, format: "GTFS"))
+        )
+
+      insert(:resource_metadata,
+        multi_validation_id: multi_validation.id,
+        metadata: %{"end_date" => expiration_date}
+      )
+    end
+
+    # 2 resources expiring on the same day
+    dataset = insert(:dataset, is_active: true)
+    insert_fn.(today, dataset)
+    insert_fn.(today, dataset)
+
+    assert [dataset.id] == today |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id)
+    assert [] == tomorrow |> Transport.DataChecker.gtfs_datasets_expiring_on()
+    assert [] == yesterday |> Transport.DataChecker.gtfs_datasets_expiring_on()
+
+    insert_fn.(tomorrow, dataset)
+    assert [dataset.id] == today |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id)
+    assert [dataset.id] == tomorrow |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id)
+    assert [] == yesterday |> Transport.DataChecker.gtfs_datasets_expiring_on()
+
+    # Multiple datasets
+    d2 = insert(:dataset, is_active: true)
+    insert_fn.(today, d2)
+
+    assert [dataset.id, d2.id] |> Enum.sort() ==
+             today |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id) |> Enum.sort()
+  end
+
   describe "outdated_data job" do
     test "sends email to our team + relevant contact before expiry" do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -98,8 +139,21 @@ defmodule Transport.DataCheckerTest do
       producer_email = "hello@example.com"
 
       dataset = insert(:dataset, is_active: true, slug: dataset_slug)
-      # fake one resource expiring today
-      _resource = insert(:resource, dataset: dataset, metadata: %{end_date: Date.utc_today()})
+      # fake a resource expiring today
+      resource = insert(:resource, dataset: dataset, format: "GTFS")
+
+      multi_validation =
+        insert(:multi_validation,
+          validator: Transport.Validators.GTFSTransport.validator_name(),
+          resource_history: insert(:resource_history, resource_id: resource.id)
+        )
+
+      insert(:resource_metadata,
+        multi_validation_id: multi_validation.id,
+        metadata: %{"end_date" => Date.utc_today()}
+      )
+
+      assert [dataset.id] == Date.utc_today() |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id)
 
       Transport.Notifications.FetcherMock
       |> expect(:fetch_config!, 2, fn ->
