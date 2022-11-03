@@ -134,8 +134,33 @@ defmodule Transport.SIRITest do
     assert parse_xml(request) == parse_xml(expected_response)
   end
 
-  @tag :skip
-  test "GetGeneralMessage"
+  test "GetGeneralMessage" do
+    timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
+    requestor_ref = "the-ref"
+    message_identifier = "Test::Message::#{Ecto.UUID.generate()}"
+    request = Transport.SIRI.get_general_message(timestamp, requestor_ref, message_identifier)
+
+    expected_response = """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <S:Body>
+     	<sw:GetGeneralMessage xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri" xmlns:sws="http://wsdl.siri.org.uk/siri">
+        <ServiceRequestInfo>
+          <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+          <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
+          <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+        </ServiceRequestInfo>
+        <Request>
+          <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
+          <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
+        </Request>
+      </sw:GetGeneralMessage>
+    </S:Body>
+    </S:Envelope>
+    """
+
+    assert parse_xml(request) == parse_xml(expected_response)
+  end
 
   test "GetStopMonitoring" do
     timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
