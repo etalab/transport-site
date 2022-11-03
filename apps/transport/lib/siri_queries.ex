@@ -146,23 +146,27 @@ defmodule Transport.SIRI do
   end
 
   def get_general_message(timestamp, requestor_ref, message_identifier) do
-    """
-    #{prolog()}
-    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-    <S:Body>
-     	<sw:GetGeneralMessage xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri" xmlns:sws="http://wsdl.siri.org.uk/siri">
-        	<ServiceRequestInfo>
-    		      <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-    		      <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
-            	<siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-         </ServiceRequestInfo>
-         <Request>
-                <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-                <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-      			</Request>
-    		</sw:GetGeneralMessage>
-    </S:Body>
-    </S:Envelope>
-    """
+    doc =
+      element("S:Envelope", @top_level_namespaces, [
+        element("S:Body", [], [
+          element("sw:GetGeneralMessage", @request_namespaces, [
+            element("ServiceRequestInfo", [], [
+              element("siri:RequestTimestamp", [], timestamp),
+              element("siri:RequestorRef", [], requestor_ref),
+              element("siri:MessageIdentifier", [], message_identifier)
+            ]),
+            element(
+              "Request",
+              [],
+              [
+                element("siri:RequestTimestamp", [], timestamp),
+                element("siri:MessageIdentifier", [], message_identifier)
+              ]
+            )
+          ])
+        ])
+      ])
+
+    Saxy.encode!(doc)
   end
 end

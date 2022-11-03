@@ -174,7 +174,7 @@ defmodule Transport.SIRITest do
     <?xml version="1.0" encoding="UTF-8"?>
     <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
     <S:Body>
-     	<sw:GetGeneralMessage xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri" xmlns:sws="http://wsdl.siri.org.uk/siri">
+     	<sw:GetGeneralMessage xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
         <ServiceRequestInfo>
           <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
           <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
