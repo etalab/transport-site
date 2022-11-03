@@ -4,26 +4,35 @@ defmodule Transport.SIRI do
   A module to build SIRI queries.
   """
 
+  import Saxy.XML
+
+  @top_level_namespaces [
+    {"xmlns:S", "http://schemas.xmlsoap.org/soap/envelope/"},
+    {"xmlns:SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/"}
+  ]
+
+  @request_namespaces [
+    {"xmlns:sw", "http://wsdl.siri.org.uk"},
+    {"xmlns:siri", "http://www.siri.org.uk/siri"}
+  ]
+
   def prolog do
     ~S(<?xml version="1.0" encoding="UTF-8"?>)
   end
 
   def check_status(timestamp, requestor_ref, message_identifier) do
-    # NOTE: we'll need to properly escape & encode the dynamic parts to avoid injection issues (à la XSS).
-    """
-    #{prolog()}
-    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-      <S:Body>
-        <sw:CheckStatus xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
-          <Request>
-            <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-            <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
-            <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-          </Request>
-        </sw:CheckStatus>
-      </S:Body>
-    </S:Envelope>
-    """
+    element("S:Envelope", @top_level_namespaces, [
+      element("S:Body", [], [
+        element("sw:CheckStatus", @request_namespaces, [
+          element("Request", [], [
+            element("siri:RequestTimestamp", [], timestamp),
+            element("siri:RequestorRef", [], requestor_ref),
+            element("siri:MessageIdentifier", [], message_identifier)
+          ])
+        ])
+      ])
+    ])
+    |> Saxy.encode!()
   end
 
   def lines_discovery(timestamp, requestor_ref, message_identifier) do
