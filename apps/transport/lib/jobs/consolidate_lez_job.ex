@@ -32,7 +32,7 @@ defmodule Transport.Jobs.ConsolidateLEZsJob do
       "siren" => "244200770",
       "forme_juridique" => "Métropole"
     },
-    "Toulouse métropole" => %{
+    "Toulouse Métropole" => %{
       "nom" => "Toulouse Métropole",
       "siren" => "243100518",
       "forme_juridique" => "Métropole"
