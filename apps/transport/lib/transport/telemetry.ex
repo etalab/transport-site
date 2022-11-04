@@ -107,7 +107,7 @@ defmodule Transport.Telemetry do
     :ok =
       :telemetry.attach(
         "oban-workflow-failures",
-        [:oban, :engine, :discard_job, :exception],
+        [:oban, :job, :exception],
         &Transport.Jobs.Workflow.handle_event/4,
         nil
       )
