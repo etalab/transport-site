@@ -311,6 +311,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
     history_options = options |> Keyword.get(:history_options, []) |> Transport.Jobs.Workflow.kw_m()
     jobs = [[Transport.Jobs.ResourceHistoryJob, %{}, history_options], Transport.Jobs.ResourceHistoryValidationJob]
 
-    Transport.Jobs.Workflow.new(%{jobs: jobs, first_job_args: %{resource_id: resource_id}}, options)
+    Transport.Jobs.Workflow.new(%{jobs: jobs, first_job_args: %{resource_id: resource_id}})
   end
 end
