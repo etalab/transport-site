@@ -21,7 +21,7 @@ datasets
         status
     end
   end,
-  max_concurrency: 50
+  max_concurrency: 30
 )
 |> Enum.map(fn {:ok, id} -> id end)
 |> Enum.group_by(& &1)
