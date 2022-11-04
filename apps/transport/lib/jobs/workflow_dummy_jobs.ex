@@ -45,14 +45,23 @@ defmodule Transport.Jobs.Dummy do
 
   defmodule FailingJob do
     @moduledoc """
-    a dummy job that can fail
+    a dummy job that fails if the input is not 0
     """
     use Oban.Worker, max_attempts: 1
 
     @impl Oban.Worker
-    def perform(%Oban.Job{args: %{"some_id" => some_id}}) do
-      if some_id > 0, do: raise("job fails")
-      :ok
+    def perform(%Oban.Job{args: %{"some_id" => some_id}} = job) do
+      if some_id != 0 do
+        {:error, "job fails"}
+      else
+        Transport.Jobs.Workflow.Notifier.notify_workflow(%{
+          "success" => true,
+          "job_id" => job.id,
+          "output" => %{"some_id" => some_id}
+        })
+
+        :ok
+      end
     end
   end
 end
