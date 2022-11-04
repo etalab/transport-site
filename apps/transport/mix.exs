@@ -35,7 +35,10 @@ defmodule Transport.Mixfile do
       extra_applications: [
         :logger,
         :unidecode,
-        :phoenix_ecto
+        :phoenix_ecto,
+        # for memsup memory tracking
+        :sasl,
+        :os_mon
       ]
     ]
   end

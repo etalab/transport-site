@@ -12,18 +12,26 @@ defmodule TransportWeb.Plugs.HealthCheck do
   def call(conn, opts) do
     path = opts[:at]
 
-    if conn.request_path == path do
-      conn = fetch_query_params(conn)
-      {global_success, messages} = run_checks(conn.query_params)
+    cond do
+      conn.request_path == path ->
+        conn = fetch_query_params(conn)
+        {global_success, messages} = run_checks(conn.query_params)
 
-      status = if global_success, do: 200, else: 500
+        status = if global_success, do: 200, else: 500
 
-      conn
-      |> put_resp_content_type("text/plain")
-      |> send_resp(status, messages |> Enum.join("\n"))
-      |> halt()
-    else
-      conn
+        conn
+        |> put_resp_content_type("text/plain")
+        |> send_resp(status, messages |> Enum.join("\n"))
+        |> halt()
+
+      conn.request_path == path <> "/metrics" ->
+        conn
+        |> put_resp_content_type("text/plain")
+        |> send_resp(200, get_metrics() |> Enum.join("\n"))
+        |> halt()
+
+      true ->
+        conn
     end
   end
 
@@ -32,6 +40,15 @@ defmodule TransportWeb.Plugs.HealthCheck do
       %{name: "db", check: &database_up?/0},
       %{name: "http", check: fn -> true end}
     ]
+  end
+
+  # experimental at the moment, in order to help
+  # get more insights at what's happening inside
+  # the worker container.
+  # see https://www.erlang.org/doc/man/memsup.html#get_system_memory_data-0
+  defp get_metrics do
+    :memsup.get_system_memory_data()
+    |> Enum.map(fn {k, v} -> "#{k}: #{v} (#{Sizeable.filesize(v)})" end)
   end
 
   @spec run_checks(map()) :: {boolean(), list()}
