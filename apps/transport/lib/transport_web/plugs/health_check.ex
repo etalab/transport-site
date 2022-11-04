@@ -34,6 +34,15 @@ defmodule TransportWeb.Plugs.HealthCheck do
     ]
   end
 
+  # experimental at the moment, in order to help
+  # get more insights at what's happening inside
+  # the worker container.
+  # see https://www.erlang.org/doc/man/memsup.html#get_system_memory_data-0
+  defp get_metrics do
+    :memsup.get_system_memory_data()
+    |> Enum.map(fn {k, v} -> "#{k}: #{v} (#{Sizeable.filesize(v)})" end)
+  end
+
   @spec run_checks(map()) :: {boolean(), list()}
   defp run_checks(params) do
     checks()
