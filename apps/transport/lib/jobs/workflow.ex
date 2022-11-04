@@ -1,6 +1,55 @@
 defmodule Transport.Jobs.Workflow do
   @moduledoc """
    Handle a simple workflow of jobs.
+
+   # Usage
+    ```
+    Transport.Jobs.Workflow.new(%{
+      "jobs" => jobs,
+      "first_job_args" => first_job_args
+    })
+    ```
+    Where `jobs` is a list of jobs, and `first_job_args` are the arguments passed to the first job of the list.
+    Each job of the list is expected to "notify" upon completion:
+
+    ```
+    defmodule JobA do
+    use Oban.Worker
+
+    @impl Oban.Worker
+    def perform(%Oban.Job{args: %{"some_id" => some_id}} = job) do
+      # perform job here
+      # ...
+
+      Transport.Jobs.Workflow.Notifier.notify_workflow(%{
+        "success" => true,
+        "job_id" => job.id,
+        "output" => %{"some_id" => some_id}
+      })
+
+      :ok
+    end
+  end
+    ```
+  The `output` map will be passed to the next job of the workflow as its arguments.
+
+  ## Note :
+  It is possible to create a workflow of jobs with a simple list:
+  `jobs = [JobA, JobB]`
+
+  Or to specify custom arguments and/or custom job options:
+  `jobs = [JobA, [JobB, custom_arguments, custom_options]]`
+
+  `custom_arguments` is expected to be a map of arguments, that get merged with the previous job output.
+
+  For example:
+  `jobs = [JobA, [JobB, %{"forced" => true}, %{}]]`
+
+  `custom_options` is expected to be a map:
+  `jobs = [JobA, [JobB, %{}, %{queue: :heavy}]]`
+
+  It would have been more natural for `custom_options` to be a keyword list, but Oban can just accept maps as job arguments, as keyword list cannot
+  be Jason encoded. There is the kw_m helper function to transform a a keword list to a map if needed.
   """
   use Oban.Worker, tags: ["workflow"], max_attempts: 3
 
