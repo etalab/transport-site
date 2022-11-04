@@ -47,6 +47,7 @@ defmodule TransportWeb.ResourceController do
     |> where([rm], rm.resource_id == ^id and rm.inserted_at > ^recent_limit)
     |> select([rm], fragment("DISTINCT(UNNEST(features))"))
     |> DB.Repo.all()
+    |> Enum.sort()
   end
 
   def gtfs_rt_entities(%Resource{}), do: nil
@@ -131,6 +132,7 @@ defmodule TransportWeb.ResourceController do
     |> assign(:data_vis, encoded_data_vis(issue_type, validation))
     |> assign(:validation_summary, validation_summary)
     |> assign(:severities_count, severities_count)
+    |> assign(:validation, validation)
     |> assign(:metadata, metadata)
     |> assign(:modes, modes)
     |> render("gtfs_details.html")

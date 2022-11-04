@@ -1,0 +1,84 @@
+<section class="pb-48">
+  <div class="container">
+    <h2><%= dgettext("explore", "SIRI query generator") %></h2>
+    <.form :let={f} id="siri_querier" for={:config} phx-change="change_form" phx-submit="ignore">
+      <%= text_input(f, :endpoint_url,
+        value: @endpoint_url,
+        placeholder: dgettext("explore", "Endpoint URL"),
+        type: "url",
+        required: true
+      ) %>
+      <%= text_input(f, :requestor_ref,
+        value: @requestor_ref,
+        placeholder: dgettext("explore", "Requestor ref"),
+        autocomplete: "off",
+        spellcheck: "false",
+        required: true
+      ) %>
+      <%= select(f, :query_template, @query_template_choices, selected: @query_template) %>
+      <button class="button" phx-click="generate_query"><%= dgettext("explore", "Generate") %></button>
+      <button
+        :if={[@siri_query, @endpoint_url, @requestor_ref] |> Enum.filter(&(&1 in ["", nil])) |> Enum.empty?()}
+        class="button"
+        phx-click="execute_query"
+      >
+        <%= dgettext("explore", "Execute") %>
+      </button>
+    </.form>
+    <div :if={@siri_query} class="siri_xml">
+      <h4><%= dgettext("explore", "SIRI query") %></h4>
+      <h5><%= dgettext("explore", "HTTP headers") %></h5>
+      <pre>
+        <%= for {header, value} <- @siri_request_headers |> Enum.sort_by(fn {k, _} -> k end) do %>
+          <%= header %>: <%= value %><br>
+        <% end %>
+        </pre>
+      <input
+        type="hidden"
+        value={@siri_query}
+        data-code="query_code_id"
+        id="siri_query_wrapper"
+        phx-hook="SyntaxColoring"
+      />
+      <div id="query_code_wrapper" phx-update="ignore">
+        <h5><%= dgettext("explore", "HTTP request body") %></h5>
+        <pre><code class="language-xml" id="query_code_id"></code></pre>
+      </div>
+      <button class="button" data-clipboard-target="#query_code_wrapper">
+        <i class="fa fa-copy"></i>
+        <%= dgettext("page-dataset-details", "Copy to clipboard") %>
+      </button>
+    </div>
+    <div :if={@siri_response_status_code} class="mt-48 siri_xml">
+      <h4><%= dgettext("explore", "SIRI response") %> (HTTP status <%= @siri_response_status_code %>)</h4>
+      <input
+        type="hidden"
+        value={@siri_response_body}
+        data-code="response_code_id"
+        id="siri_response_wrapper"
+        phx-hook="SyntaxColoring"
+      />
+      <div :if={@siri_response_headers}>
+        <h5><%= dgettext("explore", "HTTP headers") %></h5>
+        <pre>
+        <%= for {header, value} <- @siri_response_headers |> Enum.sort_by(fn {k, _} -> k end) do %>
+          <%= header %>: <%= value %><br>
+        <% end %>
+        </pre>
+      </div>
+      <div id="response_code_wrapper" phx-update="ignore">
+        <h5><%= dgettext("explore", "HTTP response body") %></h5>
+        <pre><code class="language-xml" id="response_code_id"></code></pre>
+      </div>
+      <button class="button" data-clipboard-target="#response_code_wrapper">
+        <i class="fa fa-copy"></i>
+        <%= dgettext("page-dataset-details", "Copy to clipboard") %>
+      </button>
+    </div>
+    <div :if={@siri_response_error} id="siri_response_error" class="notification error full-width mt-48">
+      <p lang="en"><%= @siri_response_error %></p>
+    </div>
+  </div>
+</section>
+<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")} />
+<script defer type="text/javascript" src={static_path(@socket, "/js/clipboard.js")} />

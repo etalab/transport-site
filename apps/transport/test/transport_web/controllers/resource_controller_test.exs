@@ -311,18 +311,26 @@ defmodule TransportWeb.ResourceControllerTest do
     conn1 = conn |> get(resource_path(conn, :details, resource_id))
     assert conn1 |> html_response(200) =~ "Pas de validation disponible"
 
-    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+    %{id: resource_history_id} =
+      insert(:resource_history, %{
+        resource_id: resource_id,
+        payload: %{"permanent_url" => permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
+      })
 
     insert(:multi_validation, %{
       resource_history_id: resource_history_id,
       validator: Transport.Validators.GTFSTransport.validator_name(),
       result: %{},
-      metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry"]}
+      metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry"]},
+      validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
     })
 
     conn2 = conn |> get(resource_path(conn, :details, resource_id))
     assert conn2 |> html_response(200) =~ "Rapport de validation"
     assert conn2 |> html_response(200) =~ "ferry"
+
+    assert conn2 |> html_response(200) =~
+             ~s{Validation effectuée en utilisant <a href="#{permanent_url}">le fichier GTFS en vigueur</a> le 28/10/2022 à 16h12 Europe/Paris}
   end
 
   test "GTFS-RT validation is shown", %{conn: conn} do
@@ -489,12 +497,14 @@ defmodule TransportWeb.ResourceControllerTest do
 
   test "gtfs-rt entities" do
     resource = %{id: resource_id} = insert(:resource, format: "gtfs-rt")
-    insert(:resource_metadata, resource_id: resource_id, features: ["a", "b"])
+    insert(:resource_metadata, resource_id: resource_id, features: ["b"])
+    insert(:resource_metadata, resource_id: resource_id, features: ["a", "d"])
     insert(:resource_metadata, resource_id: resource_id, features: ["c"])
     # too old
-    insert(:resource_metadata, resource_id: resource_id, features: ["d"], inserted_at: ~U[2020-01-01 00:00:00Z])
+    insert(:resource_metadata, resource_id: resource_id, features: ["e"], inserted_at: ~U[2020-01-01 00:00:00Z])
 
-    assert ["a", "b", "c"] = TransportWeb.ResourceController.gtfs_rt_entities(resource)
+    # we want a sorted list in the output!
+    assert ["a", "b", "c", "d"] = TransportWeb.ResourceController.gtfs_rt_entities(resource)
   end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do

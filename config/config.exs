@@ -174,12 +174,16 @@ config :ex_aws, :database_backup_destination,
   host: System.get_env("DATABASE_BACKUP_DESTINATION_HOST"),
   region: System.get_env("DATABASE_BACKUP_DESTINATION_REGION")
 
+# https://hexdocs.pm/gettext/Gettext.html#module-default-locale
+config :gettext, :default_locale, "fr"
+
 config :transport,
   domain_name: System.get_env("DOMAIN_NAME", "transport.data.gouv.fr"),
   max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer(),
   nb_days_to_keep_validations: 60,
   join_our_slack_link: "https://join.slack.com/t/transportdatagouvfr/shared_invite/zt-2n1n92ye-sdGQ9SeMh5BkgseaIzV8kA",
   contact_email: "contact@transport.beta.gouv.fr",
+  bizdev_email: "deploiement@transport.beta.gouv.fr",
   security_email: "contact@transport.beta.gouv.fr",
   transport_tools_folder: Path.absname("transport-tools/"),
   notifications_impl: Transport.Notifications.GitHub,

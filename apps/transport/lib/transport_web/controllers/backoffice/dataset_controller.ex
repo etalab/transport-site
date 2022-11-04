@@ -56,7 +56,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
     |> redirect_to_index()
   end
 
-  @spec insert_dataset(Ecto.Changeset.t()) :: {:ok, binary} | {:error, binary}
+  @spec insert_dataset(Ecto.Changeset.t()) :: {:ok, Dataset.t()} | {:error, binary}
   defp insert_dataset(changeset) do
     Repo.insert_or_update(changeset)
   rescue

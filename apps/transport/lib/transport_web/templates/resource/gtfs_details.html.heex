@@ -104,6 +104,21 @@
               <%= render(template(@issues), issues: @issues || [], conn: @conn) %>
             </div>
           <% end %>
+          <p>
+            <%= raw(
+              dgettext(
+                "validations",
+                ~s(Validation carried out using the <a href="%{gtfs_link}">current GTFS file</a> the %{date} using the <a href="%{validator_url}" target="_blank">PAN GTFS validator</a>.),
+                gtfs_link: Map.fetch!(@validation.resource_history.payload, "permanent_url"),
+                date:
+                  DateTimeDisplay.format_datetime_to_paris(
+                    @validation.validation_timestamp,
+                    get_session(@conn, :locale)
+                  ),
+                validator_url: gtfs_validator_url()
+              )
+            ) %>
+          </p>
         <% end %>
       </div>
       <%= if length(@other_resources) > 0 do %>

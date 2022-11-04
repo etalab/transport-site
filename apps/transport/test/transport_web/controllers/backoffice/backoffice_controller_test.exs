@@ -1,4 +1,5 @@
 defmodule TransportWeb.BackofficeControllerTest do
+  use Oban.Testing, repo: DB.Repo
   use TransportWeb.ConnCase, async: false
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
@@ -87,6 +88,8 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     assert get_flash(conn, :error) ==
              "%{region: [\"Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv\"]}"
+
+    assert [] == all_enqueued()
   end
 
   test "Add a dataset without a region nor aom", %{conn: conn} do
@@ -108,6 +111,8 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     assert get_flash(conn, :error) ==
              "%{region: [\"Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv\"]}"
+
+    assert [] == all_enqueued()
   end
 
   test "Add a dataset linked to a region", %{conn: conn} do
@@ -255,6 +260,8 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     assert flash =~
              "Vous devez remplir soit une région soit une AOM soit utiliser les zones data.gouv"
+
+    assert [] == all_enqueued()
   end
 
   test "Add a dataset linked to an AO and with an empty territory name", %{conn: conn} do
@@ -279,6 +286,11 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 1
     assert ["Dataset ajouté" | _] = conn |> get_flash(:info)
+    %Resource{id: resource_id} = Resource |> Repo.one!()
+
+    assert [
+             %Oban.Job{args: %{"resource_id" => ^resource_id}, worker: "Transport.Jobs.ResourceHistoryJob"}
+           ] = all_enqueued()
   end
 
   test "Add a dataset linked to a region and to the country", %{conn: conn} do

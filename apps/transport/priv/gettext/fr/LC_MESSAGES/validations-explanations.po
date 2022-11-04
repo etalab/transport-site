@@ -16,8 +16,8 @@ msgid "DuplicateStops"
 msgstr "Certains arrêts sont très proches. Cela pourrait indiquer une duplication du même arrêt."
 
 #, elixir-autogen, elixir-format
-msgid "Impacted file"
-msgstr "Fichier concerné"
+msgid "Impacted file:"
+msgstr "Fichier concerné :"
 
 #, elixir-autogen, elixir-format
 msgid "Close stop"
