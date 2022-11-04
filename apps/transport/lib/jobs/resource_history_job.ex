@@ -132,6 +132,10 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         Logger.debug("skipping historization for resource##{resource.id} because resource did not change")
         touch_resource_history!(history)
         %{resource_history_id: history.id}
+
+      false ->
+        Logger.debug("Failed historization for resource##{resource.id}")
+        {:error, "historization failed"}
     end
   end
 
