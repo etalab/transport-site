@@ -52,6 +52,7 @@ defmodule Transport.Jobs.Workflow do
   be Jason encoded. There is the kw_m helper function to transform a a keword list to a map if needed.
   """
   use Oban.Worker, tags: ["workflow"], max_attempts: 3
+  alias Transport.Jobs.Workflow.Notifier
 
   @impl Oban.Worker
   def perform(%Oban.Job{
@@ -59,35 +60,34 @@ defmodule Transport.Jobs.Workflow do
       }) do
     :ok = Oban.Notifier.listen([:gossip])
     execute_jobs(jobs, first_job_args)
+  end
+
+  defp execute_jobs([job], args) do
+    insert_job(job, args)
     :ok
   end
 
-  defp execute_jobs([job], args), do: insert_job(job, args)
-
   defp execute_jobs([job | tail], args) do
-    %{id: job_id} = insert_job(job, args)
+    case insert_job(job, args) do
+      %{id: job_id, worker: worker, conflict?: true} ->
+        {:error, "Job #{job_id} (#{worker}) has a conflict. Workflow is stopping here"}
 
-    receive do
-      # each job produces an output than can be used by the next job in the workflow
-      {:notification, :gossip, %{"success" => true, "job_id" => ^job_id, "output" => job_output}} ->
-        execute_jobs(tail, job_output)
+      %{id: job_id} ->
+        receive do
+          # each job produces an output than can be used by the next job in the workflow
+          {:notification, :gossip, %{"success" => true, "job_id" => ^job_id, "output" => job_output}} ->
+            execute_jobs(tail, job_output)
 
-      {:notification, :gossip, %{"success" => false, "job_id" => ^job_id} = notif} ->
-        reason = notif |> Map.get("reason", "unknown reason")
-        {:error, "Job #{job_id} has failed: #{reason}. Workflow is stopping here"}
+          {:notification, :gossip, %{"success" => false, "job_id" => ^job_id} = notif} ->
+            reason = notif |> Map.get("reason", "unknown reason")
+            {:error, "Job #{job_id} has failed: #{inspect(reason)}. Workflow is stopping here"}
+        end
     end
   end
 
-  def handle_event(
-        [:oban, :engine, :discard_job, :exception],
-        _,
-        %{id: job_id, error: error, job: %{meta: %{"workflow" => true}}},
-        nil
-      ) do
-    notify_workflow(%{"success" => false, "job_id" => job_id, "reason" => error})
-  end
-
-  def insert_job([job_name, custom_args, options], args) do
+  @spec insert_job(binary | [...], map()) :: Oban.Job.t()
+  def insert_job([job_name, custom_args, options], args)
+      when is_map(custom_args) and is_map(options) do
     # if custom args are given they are merged with the job arguments
     # options are job options (unique, ...)
     args = Map.merge(args, custom_args)
