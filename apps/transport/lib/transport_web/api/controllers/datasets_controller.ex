@@ -87,7 +87,7 @@ defmodule TransportWeb.API.DatasetController do
     if is_nil(dataset) do
       conn |> put_status(404) |> render(%{errors: "dataset not found"})
     else
-      # TODO: proper fix for https://github.com/etalab/transport-site/issues/2752
+      # This is just a temporary hotfix for https://github.com/etalab/transport-site/issues/2752
       records =
         Transport.Validators.GTFSTransport.validator_name()
         |> Dataset.join_from_dataset_to_metadata()
