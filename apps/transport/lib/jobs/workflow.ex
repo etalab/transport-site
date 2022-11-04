@@ -155,6 +155,14 @@ defmodule Transport.Jobs.Workflow do
     Notifier.notify_workflow(%{"success" => false, "job_id" => job_id, "reason" => error})
   end
 
+  def handle_event(
+        [:oban, :job, :exception],
+        _,
+        _,
+        nil
+      ),
+      do: nil
+
   @doc """
   Converts nested maps to nested lists of keywords
   map keys are binaries
