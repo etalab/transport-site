@@ -1,13 +1,9 @@
 defmodule Transport.Jobs.WorkflowTest do
-  @moduledoc """
-  Testing the workflow is tricky because Oban.Notifier.notify does not work in a sandboxed db.
-  See https://hexdocs.pm/oban/Oban.Notifiers.Postgres.html#module-caveats
-  But we can create dummy jobs sending messages that mimick a Oban Notification
-  """
   use ExUnit.Case, async: true
   use Oban.Testing, repo: DB.Repo
   import Transport.Jobs.Workflow
   import Ecto.Adapters.SQL.Sandbox
+  import ExUnit.CaptureLog
 
   doctest Transport.Jobs.Workflow, import: true
 
@@ -25,6 +21,7 @@ defmodule Transport.Jobs.WorkflowTest do
       # the workflow is spawned in a different process
       # we give it a name
       Process.register(self(), :workflow_process)
+
       # we allow the process to use the same db sandbox as the main process
       allow(DB.Repo, parent_process, self())
 
@@ -33,6 +30,8 @@ defmodule Transport.Jobs.WorkflowTest do
         "jobs" => jobs,
         "first_job_args" => %{"some_id" => some_id}
       })
+
+      Process.unregister(:workflow_process)
     end)
 
     # we expect the first job to be enqueued
@@ -99,6 +98,8 @@ defmodule Transport.Jobs.WorkflowTest do
         "jobs" => jobs,
         "first_job_args" => %{"some_id" => some_id}
       })
+
+      Process.unregister(:workflow_process)
     end)
 
     assert_enqueued(
@@ -116,37 +117,42 @@ defmodule Transport.Jobs.WorkflowTest do
     )
   end
 
-  # could not make it work for the moment
-  # test "a workflow with a failing job" do
-  #   parent_process = self()
+  test "a workflow with a failing job" do
+    parent_process = self()
 
-  #   jobs = [
-  #     Transport.Jobs.Dummy.FailingJob,
-  #     Transport.Jobs.Dummy.JobA
-  #   ]
+    jobs = [
+      Transport.Jobs.Dummy.FailingJob,
+      Transport.Jobs.Dummy.JobA
+    ]
 
-  #   some_id = 1
+    # this id will make FailingJob fail
+    some_id = 1
 
-  #   spawn(fn ->
-  #     Process.register(self(), :workflow_process)
-  #     allow(DB.Repo, parent_process, self())
+    spawn(fn ->
+      Process.register(self(), :workflow_process)
+      allow(DB.Repo, parent_process, self())
 
-  #     res =
-  #       perform_job(Transport.Jobs.Workflow, %{
-  #         "jobs" => jobs,
-  #         "first_job_args" => %{"some_id" => some_id}
-  #       })
+      {res, logs} =
+        with_log(fn ->
+          perform_job(Transport.Jobs.Workflow, %{
+            "jobs" => jobs,
+            "first_job_args" => %{"some_id" => some_id}
+          })
+        end)
 
-  #     send(parent_process, res)
-  #   end)
+      assert logs =~ "job fails"
+      Process.unregister(:workflow_process)
 
-  #   assert_enqueued(
-  #     [worker: Transport.Jobs.Dummy.FailingJob, args: %{"some_id" => some_id}],
-  #     50
-  #   )
+      send(parent_process, res)
+    end)
 
-  #   Oban.drain_queue(queue: :default)
+    assert_enqueued(
+      [worker: Transport.Jobs.Dummy.FailingJob, args: %{"some_id" => some_id}],
+      50
+    )
 
-  #   assert_receive({:error, _})
-  # end
+    Oban.drain_queue(queue: :default, with_recursion: true)
+
+    assert_receive({:error, _})
+  end
 end
