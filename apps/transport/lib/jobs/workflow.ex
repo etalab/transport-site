@@ -60,8 +60,50 @@ defmodule Transport.Jobs.Workflow do
     args |> String.to_existing_atom(job_name).new(meta: %{workflow: true}) |> Oban.insert!()
   end
 
-  def notify_workflow(args) do
-    Oban.Notifier.notify(Oban, :gossip, args)
+  defmodule Notifier do
+    @callback notify_workflow([map] | map) :: :ok
+
+    def impl, do: Application.fetch_env!(:transport, :workflow_notifier)
+
+    def notify_workflow(args), do: impl().notify_workflow(args)
+  end
+
+  defmodule ObanNotifier do
+    @behaviour Transport.Jobs.Workflow.Notifier
+
+    @impl Transport.Jobs.Workflow.Notifier
+    def notify_workflow(args) do
+      Oban.Notifier.notify(Oban, :gossip, args)
+    end
+  end
+
+  defmodule ProcessNotifier do
+    @behaviour Transport.Jobs.Workflow.Notifier
+
+    @impl Transport.Jobs.Workflow.Notifier
+    def notify_workflow(args) do
+      send(
+        :workflow_process,
+        {:notification, :gossip, args}
+      )
+
+      :ok
+    end
+  end
+
+  def handle_event(
+        [:oban, :job, :exception],
+        _,
+        # check max_attempts is reached
+        %{
+          attempt: n,
+          id: job_id,
+          error: error,
+          job: %{max_attempts: n, meta: %{"workflow" => true}}
+        },
+        nil
+      ) do
+    Notifier.notify_workflow(%{"success" => false, "job_id" => job_id, "reason" => error})
   end
 
   @doc """

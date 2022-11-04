@@ -116,7 +116,8 @@ config :transport,
   schemas_impl: Transport.Shared.Schemas,
   hasher_impl: Hasher,
   validator_selection: Transport.ValidatorsSelection.Impl,
-  data_visualization: Transport.DataVisualization.Impl
+  data_visualization: Transport.DataVisualization.Impl,
+  workflow_notifier: Transport.Jobs.Workflow.ObanNotifier
 
 # Datagouv IDs for national databases created automatically.
 # These are IDs used in staging, demo.data.gouv.fr

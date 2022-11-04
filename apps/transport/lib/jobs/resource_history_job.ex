@@ -46,7 +46,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   import Ecto.Query
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
   alias DB.{Repo, Resource, ResourceHistory}
-  import Transport.Jobs.Workflow, only: [notify_workflow: 1]
+  import Transport.Jobs.Workflow.Notifier, only: [notify_workflow: 1]
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"resource_id" => resource_id}} = job) do
