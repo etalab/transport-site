@@ -11,8 +11,7 @@ datasets
 |> Enum.map(& &1["id"])
 |> Task.async_stream(
   fn id ->
-    %{body: body, status: status} =
-      Req.get!("http://localhost:5000/api/datasets/#{id}", retry: :never)
+    %{body: body, status: status} = Req.get!("http://localhost:5000/api/datasets/#{id}", retry: :never)
 
     cond do
       status == 500 ->
