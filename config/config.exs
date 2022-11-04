@@ -10,6 +10,12 @@
 #
 import Config
 
+# see health-check ; manually cutting unused ports for now
+config :os_mon,
+  start_cpu_sup: false,
+  start_disksup: false,
+  start_memsup: true
+
 config :unlock,
   config_fetcher: Unlock.Config.GitHub,
   http_client: Unlock.HTTP.FinchImpl,
