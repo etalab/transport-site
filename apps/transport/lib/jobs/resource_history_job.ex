@@ -125,11 +125,6 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         Transport.S3.upload_to_s3!(:history, body, filename)
         %{id: resource_history_id} = store_resource_history!(resource, data)
 
-        # validate the resource history
-        %{resource_history_id: resource_history_id}
-        |> Transport.Jobs.ResourceHistoryValidationJob.new()
-        |> Oban.insert()
-
         %{resource_history_id: resource_history_id}
 
       {false, history} ->
