@@ -110,12 +110,18 @@ defmodule Transport.Jobs.Workflow do
   end
 
   defmodule Notifier do
+    @moduledoc """
+    a behavior that let us choose the method to send notifications
+    """
     @callback notify_workflow(map(), [map] | map) :: :ok
     def impl, do: Application.fetch_env!(:transport, :workflow_notifier)
     def notify_workflow(job, args), do: impl().notify_workflow(job, args)
   end
 
   defmodule ObanNotifier do
+    @moduledoc """
+    a wrapper around Oban.Notifier.notify
+    """
     @behaviour Transport.Jobs.Workflow.Notifier
 
     @impl Transport.Jobs.Workflow.Notifier
@@ -127,6 +133,11 @@ defmodule Transport.Jobs.Workflow do
   end
 
   defmodule ProcessNotifier do
+    @moduledoc """
+    Used when testing, because Oban.Notifier.notify do not work in sandboxed environment
+    see https://hexdocs.pm/oban/Oban.Notifiers.Postgres.html#module-caveats
+    So we just send the message manually
+    """
     @behaviour Transport.Jobs.Workflow.Notifier
 
     @impl Transport.Jobs.Workflow.Notifier
