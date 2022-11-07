@@ -32,7 +32,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         aom: insert(:aom, nom: "Angers Métropole", siren: "siren")
       )
 
-    resource =
+    resource_1 =
       insert(:resource,
         dataset_id: dataset.id,
         url: "https://link.to/file.zip",
@@ -43,6 +43,18 @@ defmodule TransportWeb.API.DatasetControllerTest do
         format: "GTFS",
         filesize: 42
       )
+
+    # resource_2 =
+    #   insert(:resource,
+    #     dataset_id: dataset.id,
+    #     url: "https://link.to/file2.zip",
+    #     latest_url: "https://static.data.gouv.fr/foo2",
+    #     content_hash: "hash2",
+    #     datagouv_id: "2",
+    #     type: "main",
+    #     format: "GTFS",
+    #     filesize: 43
+    #   )
 
     _gbfs_resource =
       insert(:resource,
@@ -56,7 +68,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     insert(:resource_metadata,
       multi_validation:
         insert(:multi_validation,
-          resource_history: insert(:resource_history, resource_id: resource.id),
+          resource_history: insert(:resource_history, resource_id: resource_1.id),
           validator: Transport.Validators.GTFSTransport.validator_name()
         ),
       modes: ["bus"],
@@ -64,7 +76,19 @@ defmodule TransportWeb.API.DatasetControllerTest do
       metadata: %{"foo" => "bar"}
     )
 
+    # insert(:resource_metadata,
+    #   multi_validation:
+    #     insert(:multi_validation,
+    #       resource_history: insert(:resource_history, resource_id: resource_2.id),
+    #       validator: Transport.Validators.GTFSTransport.validator_name()
+    #     ),
+    #   modes: ["skate"],
+    #   features: ["clim"],
+    #   metadata: %{"foo" => "bar2"}
+    # )
+
     path = Helpers.dataset_path(conn, :datasets)
+    IO.inspect(path)
 
     assert [
              %{
@@ -96,6 +120,20 @@ defmodule TransportWeb.API.DatasetControllerTest do
                    "updated" => "",
                    "url" => "https://static.data.gouv.fr/foo"
                  },
+                 #  %{
+                 #    "content_hash" => "hash2",
+                 #    "datagouv_id" => "2",
+                 #    "features" => ["clim"],
+                 #    "filesize" => 43,
+                 #    "format" => "GTFS",
+                 #    "metadata" => %{"foo" => "bar2"},
+                 #    "modes" => ["skate"],
+                 #    "original_url" => "https://link.to/file2.zip",
+                 #    "title" => "GTFS.zip",
+                 #    "type" => "main",
+                 #    "updated" => "",
+                 #    "url" => "https://static.data.gouv.fr/foo"
+                 #  },
                  %{
                    "datagouv_id" => "2",
                    "format" => "gbfs",
