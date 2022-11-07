@@ -9,6 +9,14 @@ defmodule TransportWeb.HealthCheckTest do
     assert body |> String.split("\n") == ["db: OK", "http: OK"]
   end
 
+  test "GET /health-check/metrics", %{conn: conn} do
+    with_mock :memsup, get_system_memory_data: fn -> [free_memory: 1_127_345_667] end do
+      conn = get(conn, "/health-check/metrics")
+      body = text_response(conn, 200)
+      assert body |> String.split("\n") == ["free_memory: 1127345667 (1.05 GB)"]
+    end
+  end
+
   test "GET /health-check (with db not available)", %{conn: conn} do
     with_mock Ecto.Adapters.SQL, query!: fn _, _, _ -> raise DBConnection.ConnectionError end do
       conn = get(conn, "/health-check")
