@@ -21,7 +21,7 @@ defmodule Transport.Jobs.Workflow do
       # perform job here
       # ...
 
-      Transport.Jobs.Workflow.Notifier.notify_workflow(%{
+      Transport.Jobs.Workflow.Notifier.notify_workflow(job, %{
         "success" => true,
         "job_id" => job.id,
         "output" => %{"some_id" => some_id}
@@ -110,27 +110,27 @@ defmodule Transport.Jobs.Workflow do
   end
 
   defmodule Notifier do
-    @callback notify_workflow([map] | map) :: :ok
-
+    @callback notify_workflow(map(), [map] | map) :: :ok
     def impl, do: Application.fetch_env!(:transport, :workflow_notifier)
-
-    def notify_workflow(args), do: impl().notify_workflow(args)
+    def notify_workflow(job, args), do: impl().notify_workflow(job, args)
   end
 
   defmodule ObanNotifier do
     @behaviour Transport.Jobs.Workflow.Notifier
 
     @impl Transport.Jobs.Workflow.Notifier
-    def notify_workflow(args) do
+    def notify_workflow(%{meta: %{"workflow" => true}}, args) do
       Oban.Notifier.notify(Oban, :gossip, args)
     end
+
+    def notify_workflow(_job, _args), do: nil
   end
 
   defmodule ProcessNotifier do
     @behaviour Transport.Jobs.Workflow.Notifier
 
     @impl Transport.Jobs.Workflow.Notifier
-    def notify_workflow(args) do
+    def notify_workflow(%{meta: %{"workflow" => true}}, args) do
       send(
         :workflow_process,
         {:notification, :gossip, args}
@@ -138,6 +138,8 @@ defmodule Transport.Jobs.Workflow do
 
       :ok
     end
+
+    def notify_workflow(_job, _args), do: nil
   end
 
   def handle_event(
@@ -152,7 +154,11 @@ defmodule Transport.Jobs.Workflow do
         },
         nil
       ) do
-    Notifier.notify_workflow(%{"success" => false, "job_id" => job_id, "reason" => error})
+    Notifier.notify_workflow(%{meta: %{"workflow" => true}}, %{
+      "success" => false,
+      "job_id" => job_id,
+      "reason" => error
+    })
   end
 
   def handle_event(

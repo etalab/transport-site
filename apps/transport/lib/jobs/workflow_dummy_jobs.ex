@@ -13,7 +13,7 @@ defmodule Transport.Jobs.Dummy do
       # this job increments an id
       some_id = some_id + 1
 
-      Transport.Jobs.Workflow.Notifier.notify_workflow(%{
+      Transport.Jobs.Workflow.Notifier.notify_workflow(job, %{
         "success" => true,
         "job_id" => job.id,
         "output" => %{"some_id" => some_id}
@@ -33,7 +33,7 @@ defmodule Transport.Jobs.Dummy do
     def perform(%Oban.Job{args: %{"some_id" => some_id}} = job) do
       some_id = some_id + 1
 
-      Transport.Jobs.Workflow.Notifier.notify_workflow(%{
+      Transport.Jobs.Workflow.Notifier.notify_workflow(job, %{
         "success" => true,
         "job_id" => job.id,
         "output" => %{"some_id" => some_id}
@@ -54,7 +54,7 @@ defmodule Transport.Jobs.Dummy do
       if some_id != 0 do
         {:error, "job fails"}
       else
-        Transport.Jobs.Workflow.Notifier.notify_workflow(%{
+        Transport.Jobs.Workflow.Notifier.notify_workflow(job, %{
           "success" => true,
           "job_id" => job.id,
           "output" => %{"some_id" => some_id}

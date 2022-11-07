@@ -46,7 +46,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   import Ecto.Query
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
   alias DB.{Repo, Resource, ResourceHistory}
-  import Transport.Jobs.Workflow.Notifier, only: [notify_workflow: 1]
+  import Transport.Jobs.Workflow.Notifier, only: [notify_workflow: 2]
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"resource_id" => resource_id}} = job) do
@@ -65,7 +65,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         remove_file(path)
       end
 
-    notify_workflow(notification)
+    notify_workflow(job, notification)
     :ok
   end
 
