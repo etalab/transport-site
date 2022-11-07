@@ -206,7 +206,8 @@ defmodule TransportWeb.ResourceControllerTest do
       validation_result["files"]["gtfs_permanent_url"],
       validation_result["files"]["gtfs_rt_permanent_url"],
       "Prolongation des travaux rue de Kermaria",
-      "comme il n'y a aucun fichier GTFS"
+      "Impossible de déterminer le fichier GTFS à utiliser",
+      "a aucun fichier GTFS"
     ]
     |> Enum.each(&assert content =~ &1)
   end
