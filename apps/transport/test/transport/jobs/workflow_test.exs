@@ -53,7 +53,7 @@ defmodule Transport.Jobs.WorkflowTest do
   test "a workflow with custom arguments" do
     parent_process = self()
 
-    jobs = [Transport.Jobs.Dummy.JobA, [Transport.Jobs.Dummy.JobB, %{"forced" => true}, []]]
+    jobs = [Transport.Jobs.Dummy.JobA, [Transport.Jobs.Dummy.JobB, %{"forced" => true}, %{}]]
     some_id = 1
 
     spawn(fn ->
