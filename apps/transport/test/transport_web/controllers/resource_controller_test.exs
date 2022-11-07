@@ -205,7 +205,8 @@ defmodule TransportWeb.ResourceControllerTest do
       "sample 2",
       validation_result["files"]["gtfs_permanent_url"],
       validation_result["files"]["gtfs_rt_permanent_url"],
-      "Prolongation des travaux rue de Kermaria"
+      "Prolongation des travaux rue de Kermaria",
+      "comme il n'y a aucun fichier GTFS"
     ]
     |> Enum.each(&assert content =~ &1)
   end
@@ -335,6 +336,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
   test "GTFS-RT validation is shown", %{conn: conn} do
     %{id: dataset_id} = insert(:dataset)
+    insert(:resource, format: "GTFS", dataset_id: dataset_id)
 
     %{id: resource_id} =
       insert(:resource, %{
@@ -378,6 +380,7 @@ defmodule TransportWeb.ResourceControllerTest do
     {conn2, _} = with_log(fn -> conn |> get(resource_path(conn, :details, resource_id)) end)
     assert conn2 |> html_response(200) =~ "Rapport de validation"
     assert conn2 |> html_response(200) =~ "1 erreur"
+    assert conn2 |> html_response(200) =~ "Valider ce GTFS-RT maintenant"
     refute conn2 |> html_response(200) =~ "Pas de validation disponible"
   end
 

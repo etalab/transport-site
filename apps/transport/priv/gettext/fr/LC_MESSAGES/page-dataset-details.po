@@ -547,5 +547,9 @@ msgid "Missing features that <a href=\"%{doc_link}\" target=\"_blank\">can be sp
 msgstr "Données absentes mais <a href=\"%{doc_link}\" target=\"_blank\">possibles à modéliser en GTFS</a> :"
 
 #, elixir-autogen, elixir-format
-msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation because there are multiple GTFS."
+msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation because there are multiple GTFS files."
 msgstr "Impossible de déterminer le fichier GTFS à utiliser pour effectuer une validation du GTFS-RT comme il y a plusieurs fichiers GTFS."
+
+#, elixir-autogen, elixir-format
+msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation because there are no GTFS files."
+msgstr "Impossible de déterminer le fichier GTFS à utiliser pour effectuer une validation du GTFS-RT comme il n'y a aucun fichier GTFS."
