@@ -295,7 +295,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       expected_zip_metadata = zip_metadata()
 
       assert %DB.ResourceHistory{
-               id: resource_history_id,
+               id: _resource_history_id,
                resource_id: ^resource_id,
                datagouv_id: ^datagouv_id,
                payload: %{
