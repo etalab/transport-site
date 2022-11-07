@@ -545,3 +545,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Missing features that <a href=\"%{doc_link}\" target=\"_blank\">can be specified in GTFS</a>:"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation because there are multiple GTFS."
+msgstr ""
