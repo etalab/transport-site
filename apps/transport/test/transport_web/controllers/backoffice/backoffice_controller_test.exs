@@ -169,8 +169,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert Resource |> where([r], not r.is_community_resource) |> Repo.all() |> length() == 1
     assert Resource |> where([r], r.is_community_resource) |> Repo.all() |> length() == 2
     assert ["Dataset ajouté" | _] = get_flash(conn, :info)
-    %Dataset{id: dataset_id} = Dataset |> Repo.one!()
-    assert [%Oban.Job{args: %{"dataset_id" => ^dataset_id}}] = all_enqueued(worker: Transport.Jobs.NewDatasetJob)
   end
 
   test "Add a dataset linked to aom", %{conn: conn} do
@@ -211,8 +209,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert Resource |> where([r], not r.is_community_resource) |> Repo.all() |> length() == 1
     assert Resource |> where([r], r.is_community_resource) |> Repo.all() |> length() == 2
     assert ["Dataset ajouté" | _] = get_flash(conn, :info)
-    %Dataset{id: dataset_id} = Dataset |> Repo.one!()
-    assert [%Oban.Job{args: %{"dataset_id" => ^dataset_id}}] = all_enqueued(worker: Transport.Jobs.NewDatasetJob)
   end
 
   test "Add a dataset linked to cities", %{conn: conn} do
@@ -235,8 +231,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 1
     assert ["Dataset ajouté" | _] = get_flash(conn, :info)
-    %Dataset{id: dataset_id} = Dataset |> Repo.one!()
-    assert [%Oban.Job{args: %{"dataset_id" => ^dataset_id}}] = all_enqueued(worker: Transport.Jobs.NewDatasetJob)
   end
 
   test "Add a dataset linked to cities and to the country", %{conn: conn} do
@@ -292,12 +286,10 @@ defmodule TransportWeb.BackofficeControllerTest do
     assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
     assert Resource |> Repo.all() |> length() == 1
     assert ["Dataset ajouté" | _] = conn |> get_flash(:info)
-    %Dataset{id: dataset_id} = Dataset |> Repo.one!()
     %Resource{id: resource_id} = Resource |> Repo.one!()
 
     assert [
-             %Oban.Job{args: %{"resource_id" => ^resource_id}, worker: "Transport.Jobs.ResourceHistoryJob"},
-             %Oban.Job{worker: "Transport.Jobs.NewDatasetJob", args: %{"dataset_id" => ^dataset_id}}
+             %Oban.Job{args: %{"resource_id" => ^resource_id}, worker: "Transport.Jobs.ResourceHistoryJob"}
            ] = all_enqueued()
   end
 
@@ -324,7 +316,6 @@ defmodule TransportWeb.BackofficeControllerTest do
     flash = get_flash(conn, :error)
     assert logs =~ "Un jeu de données ne peut pas être à la fois régional et national"
     assert flash =~ "Un jeu de données ne peut pas être à la fois régional et national"
-    assert [] = all_enqueued(worker: Transport.Jobs.NewDatasetJob)
   end
 
   test "Add a dataset twice", %{conn: conn} do
@@ -347,8 +338,5 @@ defmodule TransportWeb.BackofficeControllerTest do
       assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
       assert query |> Repo.all() |> length() == 1
     end
-
-    %Dataset{id: dataset_id} = Dataset |> Repo.one!()
-    assert [%Oban.Job{args: %{"dataset_id" => ^dataset_id}}] = all_enqueued(worker: Transport.Jobs.NewDatasetJob)
   end
 end

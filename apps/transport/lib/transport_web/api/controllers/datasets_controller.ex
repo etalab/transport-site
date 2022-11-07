@@ -1,5 +1,6 @@
 defmodule TransportWeb.API.DatasetController do
   use TransportWeb, :controller
+  import Ecto.Query
   alias Helpers
   alias OpenApiSpex.Operation
   alias DB.{AOM, Dataset, Repo, Resource}
@@ -24,12 +25,28 @@ defmodule TransportWeb.API.DatasetController do
 
   @spec datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def datasets(%Plug.Conn{} = conn, _params) do
+    datasets_with_metadata =
+      Transport.Validators.GTFSTransport.validator_name()
+      |> Dataset.join_from_dataset_to_metadata()
+      |> preload([:resources, :aom, :region, :communes])
+      |> select([metadata: rm, dataset: d, multi_validation: mv, resource_history: rh], %{
+        dataset: d,
+        metadata: rm,
+        multi_validation: {mv.id, mv.resource_history_id},
+        resource_history: {rh.id, rh.resource_id}
+      })
+      |> Repo.all()
+
+    existing_ids = datasets_with_metadata |> Enum.map(& &1.dataset.id)
+
     data =
       %{}
       |> Dataset.list_datasets()
+      |> where([dataset: d], d.id not in ^existing_ids)
+      |> preload([:resources, :aom, :region, :communes])
       |> Repo.all()
-      |> Repo.preload([:resources, :aom, :region, :communes])
-      |> Enum.map(fn d -> transform_dataset(conn, d) end)
+      |> Enum.concat(datasets_with_metadata)
+      |> Enum.map(&transform_dataset(conn, &1))
 
     render(conn, %{data: data})
   end
@@ -62,19 +79,35 @@ defmodule TransportWeb.API.DatasetController do
 
   @spec by_id(Plug.Conn.t(), map) :: Plug.Conn.t()
   def by_id(%Plug.Conn{} = conn, %{"id" => id}) do
-    Dataset
-    |> Repo.get_by(datagouv_id: id)
-    |> Repo.preload([:resources, :aom, :region, :communes])
-    |> case do
-      %Dataset{} = dataset ->
-        conn
-        |> assign(:data, transform_dataset_with_detail(conn, dataset))
-        |> render()
+    dataset =
+      Dataset
+      |> preload([:resources, :aom, :region, :communes])
+      |> Repo.get_by(datagouv_id: id)
 
-      nil ->
-        conn
-        |> put_status(404)
-        |> render(%{errors: "dataset not found"})
+    if is_nil(dataset) do
+      conn |> put_status(404) |> render(%{errors: "dataset not found"})
+    else
+      result =
+        Transport.Validators.GTFSTransport.validator_name()
+        |> Dataset.join_from_dataset_to_metadata()
+        |> where([dataset: d], d.datagouv_id == ^id)
+        |> preload([:resources, :aom, :region, :communes])
+        |> select([metadata: rm, dataset: d, multi_validation: mv, resource_history: rh], %{
+          dataset: d,
+          metadata: rm,
+          multi_validation: {mv.id, mv.resource_history_id},
+          resource_history: {rh.id, rh.resource_id}
+        })
+        |> Repo.one()
+
+      data =
+        if is_nil(result) do
+          transform_dataset_with_detail(conn, dataset)
+        else
+          transform_dataset_with_detail(conn, %{result | dataset: dataset})
+        end
+
+      conn |> assign(:data, data) |> render()
     end
   end
 
@@ -139,9 +172,35 @@ defmodule TransportWeb.API.DatasetController do
       "features" => features
     }
 
-  @spec transform_dataset(Plug.Conn.t(), Dataset.t()) :: map()
-  defp transform_dataset(%Plug.Conn{} = conn, dataset),
-    do: %{
+  @spec transform_dataset(Plug.Conn.t(), Dataset.t() | map()) :: map()
+  defp transform_dataset(%Plug.Conn{} = conn, %Dataset{} = dataset) do
+    transform_dataset(conn, %{dataset: dataset, metadata: []})
+  end
+
+  defp transform_dataset(%Plug.Conn{} = conn, %{dataset: dataset, metadata: metadata} = result) do
+    # Plug DB.ResourceMetadata into its associated DB.Resource
+    metadata =
+      [metadata]
+      |> List.flatten()
+      |> Enum.into(%{}, fn metadata ->
+        resource_id =
+          result.resource_history
+          |> maybe_map()
+          |> Map.fetch!(Map.fetch!(result.multi_validation |> maybe_map(), metadata.multi_validation_id))
+
+        {resource_id, metadata}
+      end)
+
+    resources =
+      dataset
+      |> Dataset.official_resources()
+      |> Enum.map(fn resource ->
+        metadata = Map.get(metadata, resource.id, %{})
+        fields = Enum.into([:modes, :features, :metadata], %{}, &{&1, Map.get(metadata, &1)})
+        Map.merge(resource, fields)
+      end)
+
+    %{
       "datagouv_id" => dataset.datagouv_id,
       # to help discoverability, we explicitly add the datagouv_id as the id
       # (since it's used in /dataset/:id)
@@ -151,7 +210,7 @@ defmodule TransportWeb.API.DatasetController do
       "page_url" => TransportWeb.Router.Helpers.dataset_url(conn, :details, dataset.slug),
       "slug" => dataset.slug,
       "updated" => Helpers.last_updated(Dataset.official_resources(dataset)),
-      "resources" => Enum.map(Dataset.official_resources(dataset), &transform_resource/1),
+      "resources" => Enum.map(resources, &transform_resource/1),
       "community_resources" => Enum.map(Dataset.community_resources(dataset), &transform_resource/1),
       # DEPRECATED, only there for retrocompatibility, use covered_area instead
       "aom" => transform_aom(dataset.aom),
@@ -160,6 +219,11 @@ defmodule TransportWeb.API.DatasetController do
       "licence" => dataset.licence,
       "publisher" => get_publisher(dataset)
     }
+  end
+
+  defp maybe_map(el) when is_map(el), do: el
+  defp maybe_map(el) when is_list(el), do: Enum.into(el, %{})
+  defp maybe_map(el) when is_tuple(el), do: Enum.into([el], %{})
 
   @spec get_publisher(Dataset.t()) :: map()
   defp get_publisher(dataset),
@@ -168,10 +232,14 @@ defmodule TransportWeb.API.DatasetController do
       "type" => "organization"
     }
 
-  @spec transform_dataset_with_detail(Plug.Conn.t(), Dataset.t()) :: map()
-  defp transform_dataset_with_detail(%Plug.Conn{} = conn, dataset) do
+  @spec transform_dataset_with_detail(Plug.Conn.t(), Dataset.t() | map()) :: map()
+  defp transform_dataset_with_detail(%Plug.Conn{} = conn, %Dataset{} = dataset) do
+    transform_dataset_with_detail(conn, %{dataset: dataset, metadata: []})
+  end
+
+  defp transform_dataset_with_detail(%Plug.Conn{} = conn, %{dataset: %DB.Dataset{} = dataset} = result) do
     conn
-    |> transform_dataset(dataset)
+    |> transform_dataset(result)
     |> Map.put(
       "history",
       Transport.History.Fetcher.history_resources(dataset, TransportWeb.DatasetView.max_nb_history_resources())

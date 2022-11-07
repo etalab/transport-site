@@ -114,3 +114,7 @@ config :transport, Mailjet.Client,
   mailjet_key: "TEST_MJ_APIKEY_PRIVATE"
 
 config :transport, :email_sender_impl, Transport.EmailSender.Mock
+
+# avoid logging
+config :os_mon,
+  start_memsup: false

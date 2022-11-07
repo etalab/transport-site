@@ -40,6 +40,7 @@ defmodule DB.Dataset do
     # we ask in the backoffice for a name to display
     # (used in the long title of a dataset and to find the associated datasets)
     field(:associated_territory_name, :string)
+    timestamps(type: :utc_datetime_usec)
 
     # A Dataset can be linked to *either*:
     # - a Region (and there is a special Region 'national' that represents the national datasets);
@@ -666,18 +667,6 @@ defmodule DB.Dataset do
       error ->
         error
     end
-  end
-
-  @spec get_expire_at(Date.t() | binary()) :: binary()
-  def get_expire_at(%Date{} = date), do: get_expire_at("#{date}")
-
-  def get_expire_at(date) do
-    __MODULE__
-    |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
-    |> group_by([d, r], d.id)
-    |> having([d, r], fragment("max(?->>'end_date') = ?", r.metadata, ^date))
-    |> preload([:resources])
-    |> Repo.all()
   end
 
   @spec get_resources_related_files(any()) :: map()

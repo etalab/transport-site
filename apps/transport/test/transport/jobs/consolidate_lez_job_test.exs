@@ -63,6 +63,15 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
         schema_name: "etalab/schema-zfe"
       )
 
+    # Should be ignored as this is not the most recent ResourceHistory / MultiValidation
+    old_resource_history_aire =
+      insert(:resource_history,
+        resource_id: zfe_aire.id,
+        payload: %{
+          "permanent_url" => "https://example.com/permanent_url/aires##{Ecto.UUID.generate()}"
+        }
+      )
+
     resource_history_aire =
       insert(:resource_history,
         resource_id: zfe_aire.id,
@@ -88,6 +97,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
         }
       )
 
+    insert(:multi_validation, resource_history_id: old_resource_history_aire.id, result: %{"has_errors" => false})
     insert(:multi_validation, resource_history_id: resource_history_aire.id, result: %{"has_errors" => false})
     insert(:multi_validation, resource_history_id: resource_history_aire_invalid.id, result: %{"has_errors" => true})
     insert(:multi_validation, resource_history_id: resource_history_voies.id, result: %{"has_errors" => false})
@@ -196,6 +206,25 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
                "nom" => "Ville de Paris",
                "siren" => "217500016",
                "zfe_id" => "PARIS"
+             } == ConsolidateLEZsJob.publisher_details(zfe_aire)
+    end
+
+    test "using autres_siren" do
+      dataset = insert(:dataset, type: "low-emission-zones", organization: "Toulouse métropole", aom: nil)
+
+      zfe_aire =
+        insert(:resource,
+          datagouv_id: Ecto.UUID.generate(),
+          dataset: dataset,
+          url: "https://example.com/aires.geojson",
+          schema_name: "etalab/schema-zfe"
+        )
+
+      assert %{
+               "forme_juridique" => "Métropole",
+               "nom" => "Toulouse Métropole",
+               "siren" => "243100518",
+               "zfe_id" => "TOULOUSE"
              } == ConsolidateLEZsJob.publisher_details(zfe_aire)
     end
   end
