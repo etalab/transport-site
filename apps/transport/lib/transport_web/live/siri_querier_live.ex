@@ -23,8 +23,8 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     |> assign(:siri_query, nil)
     |> assign(:siri_response_status_code, nil)
     |> assign(:siri_response_error, nil)
-    |> assign(:query_template, "CheckStatus")
-    |> assign(:query_template_choices, ["CheckStatus", "LinesDiscovery", "StopPointsDiscovery"])
+    |> assign(:query_template, "GetEstimatedTimetable")
+    |> assign(:query_template_choices, ["CheckStatus", "LinesDiscovery", "StopPointsDiscovery", "GetEstimatedTimetable"])
   end
 
   def handle_params(params, _uri, socket) do
@@ -131,5 +131,9 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
 
   defp generate_query("LinesDiscovery", requestor_ref) do
     Transport.SIRI.lines_discovery(build_timestamp(), requestor_ref, build_message_id())
+  end
+
+  defp generate_query("GetEstimatedTimetable", requestor_ref) do
+    Transport.SIRI.get_estimated_timetable(build_timestamp(), requestor_ref, build_message_id(), ["VILX", "100"])
   end
 end
