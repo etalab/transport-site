@@ -140,19 +140,26 @@ defmodule Transport.Jobs.WorkflowTest do
           })
         end)
 
+      # catch the logs from the failing job
       assert logs =~ "job fails"
       Process.unregister(:workflow_process)
 
+      # {:error, } response from the workflow is sent from here
       send(parent_process, res)
     end)
 
+    # FailingJob is enqueued
     assert_enqueued(
       [worker: Transport.Jobs.Dummy.FailingJob, args: %{"some_id" => some_id}],
       200
     )
 
+    refute_receive({:error, _})
+
+    # FailingJob is executed and fails (max_attempts = 1) => the workflow fails as well
     Oban.drain_queue(queue: :default, with_recursion: true)
 
+    # {:error, } workflow response is received here
     assert_receive({:error, _}, 200)
   end
 end

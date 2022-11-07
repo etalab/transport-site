@@ -153,10 +153,13 @@ defmodule Transport.Jobs.Workflow do
     def notify_workflow(_job, _args), do: nil
   end
 
+  @doc """
+  This function is triggered by Oban Telemetry events when a job fails
+  """
   def handle_event(
         [:oban, :job, :exception],
         _,
-        # check max_attempts is reached
+        # max_attempts is reached
         %{
           attempt: n,
           id: job_id,
