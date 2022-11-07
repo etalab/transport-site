@@ -37,7 +37,7 @@ defmodule Transport.Jobs.WorkflowTest do
     # we expect the first job to be enqueued
     assert_enqueued(
       [worker: Transport.Jobs.Dummy.JobA, args: %{"some_id" => some_id}],
-      50
+      200
     )
 
     # we drain the queue : jobA is effectively executed
@@ -46,7 +46,7 @@ defmodule Transport.Jobs.WorkflowTest do
     # after job A is done, we expect job B to be enqueued
     assert_enqueued(
       [worker: Transport.Jobs.Dummy.JobB, args: %{"some_id" => some_id + 1}],
-      50
+      200
     )
   end
 
@@ -68,7 +68,7 @@ defmodule Transport.Jobs.WorkflowTest do
 
     assert_enqueued(
       [worker: Transport.Jobs.Dummy.JobA, args: %{"some_id" => some_id}],
-      50
+      200
     )
 
     Oban.drain_queue(queue: :default)
@@ -76,7 +76,7 @@ defmodule Transport.Jobs.WorkflowTest do
     # after job A is done, we expect job B to be enqueued with custom arguments provided ("forced")
     assert_enqueued(
       [worker: Transport.Jobs.Dummy.JobB, args: %{"some_id" => some_id + 1, "forced" => true}],
-      50
+      200
     )
   end
 
@@ -104,7 +104,7 @@ defmodule Transport.Jobs.WorkflowTest do
 
     assert_enqueued(
       [worker: Transport.Jobs.Dummy.JobA, args: %{"some_id" => some_id}],
-      50
+      200
     )
 
     Oban.drain_queue(queue: :default)
@@ -148,11 +148,11 @@ defmodule Transport.Jobs.WorkflowTest do
 
     assert_enqueued(
       [worker: Transport.Jobs.Dummy.FailingJob, args: %{"some_id" => some_id}],
-      50
+      200
     )
 
     Oban.drain_queue(queue: :default, with_recursion: true)
 
-    assert_receive({:error, _})
+    assert_receive({:error, _}, 200)
   end
 end
