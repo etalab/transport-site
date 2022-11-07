@@ -120,7 +120,15 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   def build_message_id, do: "Test::Message::#{Ecto.UUID.generate()}"
 
   defp generate_query(%Phoenix.LiveView.Socket{assigns: assigns}) do
-    generate_query(assigns[:query_template], assigns[:requestor_ref])
+    cond do
+      assigns[:query_template] == "GetEstimatedTimetable" ->
+        # NOTE: this splitting could be handled in `change_form`
+        line_refs = assigns[:line_refs] |> String.split(",") |> Enum.map(&String.trim/1)
+        generate_query(assigns[:query_template], assigns[:requestor_ref], line_refs)
+
+      true ->
+        generate_query(assigns[:query_template], assigns[:requestor_ref])
+    end
   end
 
   defp generate_query("CheckStatus", requestor_ref) do
@@ -135,7 +143,7 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     Transport.SIRI.lines_discovery(build_timestamp(), requestor_ref, build_message_id())
   end
 
-  defp generate_query("GetEstimatedTimetable", requestor_ref) do
-    Transport.SIRI.get_estimated_timetable(build_timestamp(), requestor_ref, build_message_id(), ["VILX", "100"])
+  defp generate_query("GetEstimatedTimetable", requestor_ref, line_refs) do
+    Transport.SIRI.get_estimated_timetable(build_timestamp(), requestor_ref, build_message_id(), line_refs)
   end
 end
