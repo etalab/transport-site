@@ -330,10 +330,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       refute is_nil(last_up_to_date_at)
       %DB.Resource{content_hash: content_hash} = DB.Repo.reload(resource)
       refute content_hash == first_content_hash
-
-      # assert a resource validation is launched
-      assert [%{args: %{"resource_history_id" => ^resource_history_id}}] =
-               all_enqueued(worker: Transport.Jobs.ResourceHistoryValidationJob)
     end
 
     test "a simple successful case for a CSV" do
