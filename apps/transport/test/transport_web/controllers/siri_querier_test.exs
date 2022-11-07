@@ -106,4 +106,40 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
     assert view |> has_element?("#siri_response_error")
     assert view |> element("#siri_response_error") |> render() =~ "Got an error"
   end
+
+  test "choosing GetEstimatedTimetable allows to input line references", %{conn: conn} do
+    {:ok, view, _html} =
+      conn
+      |> get(live_path(conn, SIRIQuerierLive))
+      |> live()
+
+    # By default, we're on CheckStatus
+    assert view
+           |> element("select option:checked")
+           |> render() =~ "CheckStatus"
+
+    # And the user cannot input line references
+    refute view |> has_element?("#siri_querier_line_refs")
+
+    # Select GetEstimatedTimetable
+    assert view
+           |> element("form")
+           |> render_change(%{config: %{"query_template" => "GetEstimatedTimetable"}})
+
+    # Should be selected
+    assert view
+           |> element("select option:checked")
+           |> render() =~ "GetEstimatedTimetable"
+
+    # The user should be offered a way to type line references
+    assert view |> has_element?("#siri_querier_line_refs")
+
+    # Simulate user typing in
+    view
+    |> form("#siri_querier")
+    |> render_change(%{config: %{"line_refs" => "VILX,101"}})
+
+    # TODO: introduce a behaviour for `Transport.SIRI`, in order to make it trivial
+    # to test query generation (i.e. the mapping between the form and the querier)
+  end
 end

@@ -25,6 +25,7 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     |> assign(:siri_response_error, nil)
     |> assign(:query_template, "CheckStatus")
     |> assign(:query_template_choices, ["CheckStatus", "LinesDiscovery", "StopPointsDiscovery", "GetEstimatedTimetable"])
+    |> assign(:line_refs, "")
   end
 
   def handle_params(params, _uri, socket) do
@@ -105,6 +106,7 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
       |> assign(:endpoint_url, params["config"]["endpoint_url"])
       |> assign(:requestor_ref, params["config"]["requestor_ref"])
       |> assign(:query_template, params["config"]["query_template"])
+      |> assign(:line_refs, params["config"]["line_refs"])
 
     {:noreply, socket |> push_patch(to: self_path(socket))}
   end

@@ -16,6 +16,14 @@
         required: true
       ) %>
       <%= select(f, :query_template, @query_template_choices, selected: @query_template) %>
+      <%= if @query_template == "GetEstimatedTimetable" do %>
+        <%= text_input(f, :line_refs,
+          value: @line_refs,
+          placeholder: dgettext("explore", "Line References"),
+          spellcheck: false,
+          required: true
+        ) %>
+      <% end %>
       <button class="button" phx-click="generate_query"><%= dgettext("explore", "Generate") %></button>
       <button
         :if={[@siri_query, @endpoint_url, @requestor_ref] |> Enum.filter(&(&1 in ["", nil])) |> Enum.empty?()}
