@@ -86,7 +86,10 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
     case should_store_resource?(resource, hash) do
       true ->
+        # to be deleted later when validation v1 is unplugged
+        # https://github.com/etalab/transport-site/issues/2390
         resource = validate_resource(resource, hash)
+
         filename = upload_filename(resource, download_datetime)
 
         base = %{
