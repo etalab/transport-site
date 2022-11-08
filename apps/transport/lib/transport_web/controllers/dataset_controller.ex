@@ -12,7 +12,10 @@ defmodule TransportWeb.DatasetController do
   def index(%Plug.Conn{} = conn, %{"licence" => license}) do
     # Handle legacy "licence" query param in French
     query_params = conn.query_params |> Map.delete("licence") |> Map.put("license", license)
-    redirect(conn, to: current_path(conn, query_params))
+
+    conn
+    |> put_status(:moved_permanently)
+    |> redirect(to: current_path(conn, query_params))
   end
 
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params, true)

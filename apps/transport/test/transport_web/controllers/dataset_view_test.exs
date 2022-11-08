@@ -128,4 +128,40 @@ defmodule TransportWeb.DatasetViewTest do
     assert count_resources(dataset) == 2
     assert count_documentation_resources(dataset) == 1
   end
+
+  describe "license_link" do
+    test "inactive filter", %{conn: conn} do
+      conn = conn |> get(dataset_path(conn, :index))
+
+      assert ~s{<a href="http://127.0.0.1:5100/datasets?license=licence-ouverte">Licence Ouverte Version 2.0 (3)</a>} ==
+               conn |> license_link(%{license: "lov2", count: 3}) |> to_html()
+    end
+
+    test "active filter", %{conn: conn} do
+      conn = conn |> get(dataset_path(conn, :index, license: "licence-ouverte"))
+
+      assert ~s{<span class="activefilter">Licence Ouverte Version 2.0 (3)</span>} ==
+               conn |> license_link(%{license: "lov2", count: 3}) |> to_html()
+    end
+
+    test "all unselected", %{conn: conn} do
+      conn = conn |> get(dataset_path(conn, :index))
+
+      assert ~s{<span class="activefilter">Toutes (3)</span>} ==
+               conn |> license_link(%{license: "all", count: 3}) |> to_html()
+    end
+
+    test "all resets filter", %{conn: conn} do
+      conn = conn |> get(dataset_path(conn, :index, license: "odc-odbl", type: "public-transit"))
+
+      assert ~s{<a href="http://127.0.0.1:5100/datasets?type=public-transit">Toutes (3)</a>} ==
+               conn |> license_link(%{license: "all", count: 3}) |> to_html()
+    end
+  end
+
+  defp to_html(%Phoenix.LiveView.Rendered{} = rendered) do
+    rendered |> Phoenix.HTML.Safe.to_iodata() |> IO.iodata_to_binary()
+  end
+
+  defp to_html({:safe, _} = content), do: Phoenix.HTML.safe_to_string(content)
 end
