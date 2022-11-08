@@ -76,12 +76,7 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
 
   def handle_event("generate_query", _params, socket) do
     {:noreply,
-     socket
-     |> assign(%{
-       siri_query: generate_query(socket),
-       siri_response_status_code: nil,
-       siri_response_error: nil
-     })}
+     socket |> assign(%{siri_query: generate_query(socket), siri_response_status_code: nil, siri_response_error: nil})}
   end
 
   def handle_event("execute_query", _params, socket) do
@@ -89,12 +84,7 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     socket = socket |> assign(:siri_query, generate_query(socket))
     # Improvement opportunity: make sure to set proper limits to avoid DOS?
     socket =
-      case client.post(
-             socket.assigns[:endpoint_url],
-             socket.assigns[:siri_query],
-             @request_headers,
-             recv_timeout: 5_000
-           ) do
+      case client.post(socket.assigns[:endpoint_url], socket.assigns[:siri_query], @request_headers, recv_timeout: 5_000) do
         {:ok, %HTTPoison.Response{} = response} ->
           # LiveView does not allow binary payloads. We can work-around that by using Base64, or using a custom channel.
           # Make sure to unzip!
