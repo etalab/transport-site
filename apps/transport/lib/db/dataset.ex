@@ -603,11 +603,11 @@ defmodule DB.Dataset do
 
     {real_time_resources, static_resources} = Enum.split_with(dataset.resources, &Resource.is_real_time?/1)
 
-    # we set a unique period to 1ms, to force the resource history job to be executed
+    # unique period is set to nil, to force the resource history job to be executed
     static_resources
     |> Enum.map(
       &Transport.Jobs.ResourceHistoryJob.historize_and_validate_job(%{resource_id: &1.id},
-        history_options: [unique: [period: 1]]
+        history_options: [unique: nil]
       )
     )
     |> Oban.insert_all()

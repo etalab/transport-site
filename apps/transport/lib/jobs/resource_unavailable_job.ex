@@ -85,7 +85,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
 
   defp historize_resource({:updated, %Resource{id: resource_id} = resource}) do
     %{resource_id: resource_id}
-    |> Transport.Jobs.ResourceHistoryJob.historize_and_validate_job(history_options: [unique: [period: 1]])
+    |> Transport.Jobs.ResourceHistoryJob.historize_and_validate_job(history_options: [unique: nil])
     |> Oban.insert!()
 
     {resource.url, resource}
