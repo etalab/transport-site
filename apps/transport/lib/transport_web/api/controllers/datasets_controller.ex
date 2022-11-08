@@ -111,7 +111,9 @@ defmodule TransportWeb.API.DatasetController do
           Transport.Validators.GTFSTransport.validator_name()
         )
         |> DB.ResourceMetadata.join_validation_with_metadata()
-        |> preload(resource_history: [validations: :metadata])
+        |> preload([resource_history: rh, multi_validation: mv, metadata: m],
+          resource_history: {rh, validations: {mv, metadata: m}}
+        )
         |> where([resource: r], r.dataset_id == ^dataset.id)
         |> select([resource: r], {r.id, r})
         |> DB.Repo.all()
