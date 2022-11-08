@@ -311,7 +311,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   end
 
   def historize_and_validate_job(%{resource_id: resource_id}, options \\ []) do
-    history_options = options |> Keyword.get(:history_options, []) |> Transport.Jobs.Workflow.kw_m()
+    history_options = options |> Keyword.get(:history_options, []) |> Transport.Jobs.Workflow.kw_to_map()
 
     # jobs is a list of jobs that will be enqueued as a workflow.
     # if ResourceHistoryJob is a success, ResourceHistoryValidationJob will be enqueued.

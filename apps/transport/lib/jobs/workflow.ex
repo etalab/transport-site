@@ -49,7 +49,7 @@ defmodule Transport.Jobs.Workflow do
   `jobs = [JobA, [JobB, %{}, %{queue: :heavy}]]`
 
   It would have been more natural for `custom_options` to be a keyword list, but Oban can just accept maps as job arguments, as keyword list cannot
-  be Jason encoded. There is the kw_m helper function to transform a a keword list to a map if needed.
+  be Jason encoded. There is the kw_to_map helper function to transform a keword list to a map if needed.
   """
   use Oban.Worker, tags: ["workflow"], max_attempts: 3
   alias Transport.Jobs.Workflow.Notifier
@@ -91,7 +91,7 @@ defmodule Transport.Jobs.Workflow do
     # if custom args are given they are merged with the job arguments
     # options are job options (unique, ...)
     args = Map.merge(args, custom_args)
-    options = options |> m_kw()
+    options = options |> map_to_kw()
 
     # we add a meta information to show the job is part of a workflow
     # and to track a possible failure
@@ -187,46 +187,46 @@ defmodule Transport.Jobs.Workflow do
   Converts nested maps to nested lists of keywords
   map keys are binaries
 
-  iex> m_kw(%{})
+  iex> map_to_kw(%{})
   []
 
-  iex> m_kw(%{"a" => 1})
+  iex> map_to_kw(%{"a" => 1})
   [a: 1]
 
-  iex> m_kw(%{"a" => %{"b" => %{"c" => 1}}, "d" => 1})
+  iex> map_to_kw(%{"a" => %{"b" => %{"c" => 1}}, "d" => 1})
   [a: [b: [c: 1]], d: 1]
   """
-  def m_kw(%{} = m) do
-    m |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), m_kw(v)} end)
+  def map_to_kw(%{} = m) do
+    m |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), map_to_kw(v)} end)
   end
 
-  def m_kw(v) when is_binary(v), do: String.to_existing_atom(v)
-  def m_kw(v), do: v
+  def map_to_kw(v) when is_binary(v), do: String.to_existing_atom(v)
+  def map_to_kw(v), do: v
 
   @doc """
   Converts nested lists of keywords to nested maps
   map keys are atoms
 
-  iex> kw_m([])
+  iex> kw_to_map([])
   %{}
 
-  iex> kw_m([a: 1])
+  iex> kw_to_map([a: 1])
   %{a: 1}
 
-  iex> kw_m([a: [b: [c: 1]], d: 1])
+  iex> kw_to_map([a: [b: [c: 1]], d: 1])
   %{a: %{b: %{c: 1}}, d: 1}
   """
-  def kw_m([]), do: %{}
+  def kw_to_map([]), do: %{}
 
-  def kw_m([{k, v}]) when is_list(v) do
-    [{k, kw_m(v)}] |> Enum.into(%{})
+  def kw_to_map([{k, v}]) when is_list(v) do
+    [{k, kw_to_map(v)}] |> Enum.into(%{})
   end
 
-  def kw_m([{_, _}] = kw) do
+  def kw_to_map([{_, _}] = kw) do
     kw |> Enum.into(%{})
   end
 
-  def kw_m([head | tail]) do
-    [head] |> kw_m() |> Map.merge(kw_m(tail))
+  def kw_to_map([head | tail]) do
+    [head] |> kw_to_map() |> Map.merge(kw_to_map(tail))
   end
 end

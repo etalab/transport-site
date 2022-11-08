@@ -85,7 +85,7 @@ defmodule Transport.Jobs.WorkflowTest do
 
     jobs = [
       Transport.Jobs.Dummy.JobA,
-      [Elixir.Transport.Jobs.Dummy.JobB, %{}, kw_m(queue: :super_heavy, unique: [period: 1])]
+      [Elixir.Transport.Jobs.Dummy.JobB, %{}, kw_to_map(queue: :super_heavy, unique: [period: 1])]
     ]
 
     some_id = 1
