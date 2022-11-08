@@ -9,6 +9,12 @@ defmodule TransportWeb.DatasetController do
   require Logger
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def index(%Plug.Conn{} = conn, %{"licence" => license}) do
+    # Handle legacy "licence" query param in French
+    query_params = conn.query_params |> Map.delete("licence") |> Map.put("license", license)
+    redirect(conn, to: current_path(conn, query_params))
+  end
+
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params, true)
 
   @spec list_datasets(Plug.Conn.t(), map(), boolean) :: Plug.Conn.t()
@@ -22,6 +28,7 @@ defmodule TransportWeb.DatasetController do
     conn
     |> assign(:datasets, get_datasets(params))
     |> assign(:types, get_types(params))
+    |> assign(:licenses, get_licenses(params))
     |> assign(:number_realtime_datasets, get_realtime_count(params))
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
@@ -197,6 +204,19 @@ defmodule TransportWeb.DatasetController do
     |> group_by([r], [r.id, r.nom])
     |> select([r, d], %{nom: r.nom, id: r.id, count: count(d.id, :distinct)})
     |> order_by([r], r.nom)
+    |> Repo.all()
+  end
+
+  @spec get_licenses(map()) :: [%{license: binary(), count: integer}]
+  def get_licenses(params) do
+    params
+    |> clean_datasets_query("license")
+    |> exclude(:order_by)
+    |> group_by([d], fragment("cleaned_licence"))
+    |> select([d], %{
+      license: fragment("case when licence = 'fr-lo' then 'lov2' else licence end as cleaned_licence"),
+      count: count(d.id, :distinct)
+    })
     |> Repo.all()
   end
 

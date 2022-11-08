@@ -155,13 +155,13 @@ defmodule TransportWeb.DatasetSearchControllerTest do
     assert html_response(conn, 200) =~ "Jeux de données"
   end
 
-  test "GET /datasets?type=public-transit&licence=odc-odbl", %{conn: conn} do
-    conn = conn |> get(dataset_path(conn, :index), %{type: "public-transit", licence: "odc-odbl"})
+  test "GET /datasets?type=public-transit&license=odc-odbl", %{conn: conn} do
+    conn = conn |> get(dataset_path(conn, :index), %{type: "public-transit", license: "odc-odbl"})
     assert html_response(conn, 200) =~ "Transport public collectif - horaires théoriques (1)"
     assert html_response(conn, 200) =~ "Horaires Angers"
     refute html_response(conn, 200) =~ "Horaires Laval"
 
-    conn = conn |> get(dataset_path(conn, :index), %{type: "public-transit", licence: "licence-ouverte"})
+    conn = conn |> get(dataset_path(conn, :index), %{type: "public-transit", license: "licence-ouverte"})
     assert html_response(conn, 200) =~ "Horaires Laval"
     refute html_response(conn, 200) =~ "Horaires Angers"
   end
