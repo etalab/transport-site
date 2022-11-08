@@ -66,7 +66,6 @@ defmodule TransportWeb.API.DatasetController do
       |> Enum.map(&transform_dataset(conn, &1))
 
     render(conn, %{data: data})
-    # render(conn, %{data: %{}})
   end
 
   @spec by_id_operation() :: Operation.t()
@@ -105,6 +104,28 @@ defmodule TransportWeb.API.DatasetController do
     if is_nil(dataset) do
       conn |> put_status(404) |> render(%{errors: "dataset not found"})
     else
+      resources_with_metadata =
+        DB.Resource.base_query()
+        |> DB.ResourceHistory.join_resource_with_latest_resource_history()
+        |> DB.MultiValidation.join_resource_history_with_latest_validation(
+          Transport.Validators.GTFSTransport.validator_name()
+        )
+        |> DB.ResourceMetadata.join_validation_with_metadata()
+        |> preload(resource_history: [validations: :metadata])
+        |> where([resource: r], r.dataset_id == ^dataset.id)
+        |> select([resource: r], {r.id, r})
+        |> DB.Repo.all()
+        |> Enum.into(%{})
+
+      enriched_resources =
+        dataset
+        |> Dataset.official_resources()
+        |> Enum.map(fn r ->
+          resources_with_metadata |> Map.get(r.id, r)
+        end)
+
+      dataset = dataset |> Map.put(:resources, enriched_resources)
+
       data = transform_dataset_with_detail(conn, dataset)
       conn |> assign(:data, data) |> render()
     end
@@ -172,30 +193,8 @@ defmodule TransportWeb.API.DatasetController do
     }
 
   @spec transform_dataset(Plug.Conn.t(), Dataset.t() | map()) :: map()
-  defp transform_dataset(%Plug.Conn{} = conn, %Dataset{} = dataset) do
-    # resource_with_metadata =
-    #   DB.Resource.base_query()
-    #   |> DB.ResourceHistory.join_resource_with_latest_resource_history()
-    #   |> DB.MultiValidation.join_resource_history_with_latest_validation(
-    #     Transport.Validators.GTFSTransport.validator_name()
-    #   )
-    #   |> DB.ResourceMetadata.join_validation_with_metadata()
-    #   |> preload(resource_history: [validations: :metadata])
-    #   |> where([resource: r], r.dataset_id == ^dataset.id)
-    #   |> select([resource: r], {r.id, r})
-    #   |> DB.Repo.all()
-    #   |> Enum.into(%{})
-
-    # # IO.inspect(resource_with_metadata)
-
-    # enriched_resources =
-    #   dataset
-    #   |> Dataset.official_resources()
-    #   |> Enum.map(fn r ->
-    #     resource_with_metadata |> Map.get(r.id, r)
-    #   end)
-
-    %{
+  defp transform_dataset(%Plug.Conn{} = conn, %Dataset{} = dataset),
+    do: %{
       "datagouv_id" => dataset.datagouv_id,
       # to help discoverability, we explicitly add the datagouv_id as the id
       # (since it's used in /dataset/:id)
@@ -214,7 +213,6 @@ defmodule TransportWeb.API.DatasetController do
       "licence" => dataset.licence,
       "publisher" => get_publisher(dataset)
     }
-  end
 
   @spec get_publisher(Dataset.t()) :: map()
   defp get_publisher(dataset),
@@ -239,7 +237,6 @@ defmodule TransportWeb.API.DatasetController do
     |> Map.get(:validations)
     |> Enum.at(0)
     |> Map.get(:metadata)
-    |> Map.get(:metadata)
   rescue
     _ -> nil
   end
@@ -248,24 +245,30 @@ defmodule TransportWeb.API.DatasetController do
   defp transform_resource(resource) do
     metadata = get_metadata(resource)
 
+    metadata_content =
+      case metadata do
+        nil -> nil
+        %{metadata: metadata_content} -> metadata_content
+      end
+
     %{
       "datagouv_id" => resource.datagouv_id,
       "title" => resource.title,
       "updated" => Shared.DateTimeDisplay.format_naive_datetime_to_paris_tz(resource.last_update),
       "url" => resource.latest_url,
       "original_url" => resource.url,
-      "end_calendar_validity" => metadata && Map.get(metadata, "end_date"),
-      "start_calendar_validity" => metadata && Map.get(metadata, "start_date"),
+      "end_calendar_validity" => metadata_content && Map.get(metadata, "end_date"),
+      "start_calendar_validity" => metadata_content && Map.get(metadata, "start_date"),
       "type" => resource.type,
       "format" => resource.format,
-      # ooops => hash pas dispo au niveau de la resource_history ?
+      # hash should come from the resource history instead
       "content_hash" => resource.content_hash,
       "community_resource_publisher" => resource.community_resource_publisher,
-      "metadata" => metadata,
+      "metadata" => metadata_content,
       "original_resource_url" => resource.original_resource_url,
       "filesize" => resource.filesize,
-      "modes" => metadata && Map.get(metadata, "modes"),
-      "features" => metadata && Map.get(metadata, "features"),
+      "modes" => metadata && Map.get(metadata, :modes),
+      "features" => metadata && Map.get(metadata, :features),
       "schema_name" => resource.schema_name,
       "schema_version" => resource.schema_version
     }
