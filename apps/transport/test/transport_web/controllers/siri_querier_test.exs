@@ -124,7 +124,12 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
     # Select GetEstimatedTimetable
     assert view
            |> element("form")
-           |> render_change(%{config: %{"query_template" => "GetEstimatedTimetable"}})
+           |> render_change(%{
+             config: %{
+               "requestor_ref" => "test-ref",
+               "query_template" => "GetEstimatedTimetable"
+             }
+           })
 
     # Should be selected
     assert view
