@@ -24,12 +24,7 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     |> assign(:siri_response_status_code, nil)
     |> assign(:siri_response_error, nil)
     |> assign(:query_template, "CheckStatus")
-    |> assign(:query_template_choices, [
-      "CheckStatus",
-      "LinesDiscovery",
-      "StopPointsDiscovery",
-      "GetEstimatedTimetable"
-    ])
+    |> assign(:query_template_choices, ["CheckStatus", "LinesDiscovery", "StopPointsDiscovery", "GetEstimatedTimetable"])
     |> assign(:line_refs, "")
   end
 
