@@ -51,7 +51,9 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     if Mix.env() == :dev do
       %{
         endpoint_url: socket.assigns[:endpoint_url] || get_one_siri_proxy_url(socket),
-        requestor_ref: socket.assigns[:requestor_ref] || Application.fetch_env!(:unlock, :siri_public_requestor_ref)
+        requestor_ref:
+          socket.assigns[:requestor_ref] ||
+            Application.fetch_env!(:unlock, :siri_public_requestor_ref)
       }
     else
       %{}
