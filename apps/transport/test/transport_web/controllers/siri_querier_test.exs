@@ -5,6 +5,13 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
   import Phoenix.LiveViewTest
   alias TransportWeb.Live.SIRIQuerierLive
 
+  setup do
+    # Ensure the query generated properly marshalls the input and propagate them
+    Mox.stub_with(Transport.SIRIQueryGenerator.Mock, Transport.SIRIQueryGenerator)
+
+    :ok
+  end
+
   setup :verify_on_exit!
 
   test "renders form", %{conn: conn} do
@@ -142,9 +149,28 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
     # Simulate user typing in
     view
     |> form("#siri_querier")
-    |> render_change(%{config: %{"line_refs" => "VILX,101"}})
+    |> render_change(%{config: %{"line_refs" => " VILX, 101"}})
 
-    # TODO: introduce a behaviour for `Transport.SIRI`, in order to make it trivial
-    # to test query generation (i.e. the mapping between the form and the querier)
+    xml_query = "<payload></payload>"
+
+    Transport.SIRIQueryGenerator.Mock
+    |> expect(:generate_query, fn params ->
+      # comma-separated split, trimmed
+      assert params[:line_refs] == ["VILX", "101"]
+      assert params[:template] == "GetEstimatedTimetable"
+      assert params[:requestor_ref] == "test-ref"
+      assert params[:message_id] =~ "Test::Message"
+
+      xml_query
+    end)
+
+    # Clicking on "Generate" makes the "Execute" button show up
+    view |> element(~s{button[phx-click="generate_query"}) |> render_click()
+
+    # The payload should come back
+    assert element(view, "#siri_query_wrapper")
+           |> render()
+           |> Floki.parse_document!()
+           |> Floki.attribute("value") == [xml_query]
   end
 end
