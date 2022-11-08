@@ -137,30 +137,23 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   def build_message_id, do: "Test::Message::#{Ecto.UUID.generate()}"
 
   defp generate_query(%Phoenix.LiveView.Socket{assigns: assigns}) do
-    cond do
-      assigns[:query_template] == "GetEstimatedTimetable" ->
-        # NOTE: this splitting could be handled in `change_form`
-        line_refs = assigns[:line_refs] |> String.split(",") |> Enum.map(&String.trim/1)
-        generate_query(assigns[:query_template], assigns[:requestor_ref], line_refs)
+    query_generator = Transport.SIRIQueryGenerator.impl()
 
-      true ->
-        generate_query(assigns[:query_template], assigns[:requestor_ref])
-    end
-  end
+    line_refs =
+      if assigns[:line_refs] do
+        assigns[:line_refs] |> String.split(",") |> Enum.map(&String.trim(&1))
+      else
+        nil
+      end
 
-  defp generate_query("CheckStatus", requestor_ref) do
-    Transport.SIRI.check_status(build_timestamp(), requestor_ref, build_message_id())
-  end
+    params = %{
+      template: assigns[:query_template],
+      requestor_ref: assigns[:requestor_ref],
+      message_id: build_message_id(),
+      timestamp: build_timestamp(),
+      line_refs: line_refs
+    }
 
-  defp generate_query("StopPointsDiscovery", requestor_ref) do
-    Transport.SIRI.stop_points_discovery(build_timestamp(), requestor_ref, build_message_id())
-  end
-
-  defp generate_query("LinesDiscovery", requestor_ref) do
-    Transport.SIRI.lines_discovery(build_timestamp(), requestor_ref, build_message_id())
-  end
-
-  defp generate_query("GetEstimatedTimetable", requestor_ref, line_refs) do
-    Transport.SIRI.get_estimated_timetable(build_timestamp(), requestor_ref, build_message_id(), line_refs)
+    query_generator.generate_query(params)
   end
 end
