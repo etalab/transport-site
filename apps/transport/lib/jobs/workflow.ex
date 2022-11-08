@@ -55,20 +55,22 @@ defmodule Transport.Jobs.Workflow do
   alias Transport.Jobs.Workflow.Notifier
 
   @impl Oban.Worker
-  def perform(%Oban.Job{
-        args: %{"jobs" => jobs, "first_job_args" => first_job_args}
-      }) do
+  def perform(
+        %Oban.Job{
+          args: %{"jobs" => jobs, "first_job_args" => first_job_args}
+        } = workflow_job
+      ) do
     :ok = Oban.Notifier.listen([:gossip])
-    execute_jobs(jobs, first_job_args)
+    execute_jobs(jobs, first_job_args, workflow_job)
   end
 
-  defp execute_jobs([job], args) do
-    insert_job(job, args)
+  defp execute_jobs([job], args, workflow_job) do
+    insert_job(job, args, workflow_job)
     :ok
   end
 
-  defp execute_jobs([job | tail], args) do
-    case insert_job(job, args) do
+  defp execute_jobs([job | tail], args, workflow_job) do
+    case insert_job(job, args, workflow_job) do
       %{id: job_id, worker: worker, conflict?: true} ->
         {:error, "Job #{job_id} (#{worker}) has a conflict. Workflow is stopping here"}
 
@@ -76,7 +78,7 @@ defmodule Transport.Jobs.Workflow do
         receive do
           # each job produces an output than can be used by the next job in the workflow
           {:notification, :gossip, %{"success" => true, "job_id" => ^job_id, "output" => job_output}} ->
-            execute_jobs(tail, job_output)
+            execute_jobs(tail, job_output, workflow_job)
 
           {:notification, :gossip, %{"success" => false, "job_id" => ^job_id} = notif} ->
             reason = notif |> Map.get("reason", "unknown reason")
@@ -85,8 +87,8 @@ defmodule Transport.Jobs.Workflow do
     end
   end
 
-  @spec insert_job(binary | [...], map()) :: Oban.Job.t()
-  def insert_job([job_name, custom_args, options], args)
+  @spec insert_job(binary | [...], map(), Oban.Job.t()) :: Oban.Job.t()
+  def insert_job([job_name, custom_args, options], args, workflow_job)
       when is_map(custom_args) and is_map(options) do
     # if custom args are given they are merged with the job arguments
     # options are job options (unique, ...)
@@ -99,14 +101,17 @@ defmodule Transport.Jobs.Workflow do
       options
       |> Keyword.get(:meta, %{})
       |> Map.put(:workflow, true)
+      |> Map.put(:workflow_job_id, workflow_job.id)
 
     options = options |> Keyword.put(:meta, meta)
 
     args |> String.to_existing_atom(job_name).new(options) |> Oban.insert!()
   end
 
-  def insert_job(job_name, args) do
-    args |> String.to_existing_atom(job_name).new(meta: %{workflow: true}) |> Oban.insert!()
+  def insert_job(job_name, args, workflow_job) do
+    args
+    |> String.to_existing_atom(job_name).new(meta: %{workflow: true, workflow_job_id: workflow_job.id})
+    |> Oban.insert!()
   end
 
   defmodule Notifier do
