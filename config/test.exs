@@ -112,7 +112,11 @@ config :transport, Mailjet.Client,
   mailjet_user: "TEST_MJ_APIKEY_PUBLIC",
   mailjet_key: "TEST_MJ_APIKEY_PRIVATE"
 
-config :transport, :email_sender_impl, Transport.EmailSender.Mock
+config(
+  :transport,
+  email_sender_impl: Transport.EmailSender.Mock,
+  siri_query_generator_impl: Transport.SIRIQueryGenerator.Mock
+)
 
 # avoid logging
 config :os_mon,
