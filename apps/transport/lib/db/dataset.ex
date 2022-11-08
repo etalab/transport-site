@@ -285,7 +285,7 @@ defmodule DB.Dataset do
 
   @spec filter_by_license(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_license(query, %{"license" => "licence-ouverte"}),
-    do: where(query, [d], d.licence in @licences_ouverte)
+    do: where(query, [d], d.licence in ["fr-lo", "lov2"])
 
   defp filter_by_license(query, %{"license" => licence}), do: where(query, [d], d.licence == ^licence)
   defp filter_by_license(query, _), do: query
