@@ -36,7 +36,20 @@ defmodule Transport.SIRIQueryGenerator do
           line_refs
         ])
 
-      method_name in ["check_status", "lines_discovery", "stop_points_discovery"] ->
+      method_name == "get_stop_monitoring" ->
+        apply(Transport.SIRI, method_name |> String.to_atom(), [
+          timestamp,
+          requestor_ref,
+          message_id,
+          Map.fetch!(params, :stop_ref)
+        ])
+
+      method_name in [
+        "check_status",
+        "lines_discovery",
+        "stop_points_discovery",
+        "get_general_message"
+      ] ->
         apply(Transport.SIRI, method_name |> String.to_atom(), [
           timestamp,
           requestor_ref,

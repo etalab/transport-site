@@ -25,6 +25,14 @@
             required: true
           ) %>
         <% end %>
+        <%= if @query_template == "GetStopMonitoring" do %>
+          <%= text_input(f, :stop_ref,
+            value: @stop_ref,
+            placeholder: dgettext("explore", "Stop Reference (only one)"),
+            spellcheck: false,
+            required: true
+          ) %>
+        <% end %>
       </div>
       <button class="button" phx-click="generate_query"><%= dgettext("explore", "Generate") %></button>
       <button

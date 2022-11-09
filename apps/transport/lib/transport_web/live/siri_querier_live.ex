@@ -24,8 +24,16 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     |> assign(:siri_response_status_code, nil)
     |> assign(:siri_response_error, nil)
     |> assign(:query_template, "CheckStatus")
-    |> assign(:query_template_choices, ["CheckStatus", "LinesDiscovery", "StopPointsDiscovery", "GetEstimatedTimetable"])
+    |> assign(:query_template_choices, [
+      "CheckStatus",
+      "LinesDiscovery",
+      "StopPointsDiscovery",
+      "GetEstimatedTimetable",
+      "GetGeneralMessage",
+      "GetStopMonitoring"
+    ])
     |> assign(:line_refs, "")
+    |> assign(:stop_ref, "")
   end
 
   def handle_params(params, _uri, socket) do
@@ -107,6 +115,7 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
       |> assign(:requestor_ref, params["config"]["requestor_ref"])
       |> assign(:query_template, params["config"]["query_template"])
       |> assign(:line_refs, params["config"]["line_refs"])
+      |> assign(:stop_ref, params["config"]["stop_ref"])
 
     {:noreply, socket |> push_patch(to: self_path(socket))}
   end
@@ -129,12 +138,20 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
         nil
       end
 
+    stop_ref =
+      if assigns[:stop_ref] do
+        assigns[:stop_ref] |> String.trim()
+      else
+        nil
+      end
+
     params = %{
       template: assigns[:query_template],
       requestor_ref: assigns[:requestor_ref],
       message_id: build_message_id(),
       timestamp: build_timestamp(),
-      line_refs: line_refs
+      line_refs: line_refs,
+      stop_ref: stop_ref
     }
 
     query_generator.generate_query(params)

@@ -173,4 +173,59 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
            |> Floki.parse_document!()
            |> Floki.attribute("value") == [xml_query]
   end
+
+  test "choosing GetStopMonitoring allows to input stop reference", %{conn: conn} do
+    {:ok, view, _html} =
+      conn
+      |> get(live_path(conn, SIRIQuerierLive))
+      |> live()
+
+    # And the user cannot input stop reference
+    refute view |> has_element?("#siri_querier_stop_ref")
+
+    # Select GetStopMonitoring
+    assert view
+           |> element("form")
+           |> render_change(%{
+             config: %{
+               "requestor_ref" => "test-ref",
+               "query_template" => "GetStopMonitoring"
+             }
+           })
+
+    # Should be selected
+    assert view
+           |> element("select option:checked")
+           |> render() =~ "GetStopMonitoring"
+
+    # The user should be offered a way to type stop reference
+    assert view |> has_element?("#siri_querier_stop_ref")
+
+    # Simulate user typing in
+    view
+    |> form("#siri_querier")
+    |> render_change(%{config: %{"stop_ref" => " Test:StopPoint "}})
+
+    xml_query = "<payload></payload>"
+
+    Transport.SIRIQueryGenerator.Mock
+    |> expect(:generate_query, fn params ->
+      # trimmed
+      assert params[:stop_ref] == "Test:StopPoint"
+      assert params[:template] == "GetStopMonitoring"
+      assert params[:requestor_ref] == "test-ref"
+      assert params[:message_id] =~ "Test::Message"
+
+      xml_query
+    end)
+
+    # Clicking on "Generate" makes the "Execute" button show up
+    view |> element(~s{button[phx-click="generate_query"}) |> render_click()
+
+    # The payload should come back
+    assert element(view, "#siri_query_wrapper")
+           |> render()
+           |> Floki.parse_document!()
+           |> Floki.attribute("value") == [xml_query]
+  end
 end
