@@ -36,17 +36,9 @@ defmodule TransportWeb.DatasetView do
   def count_discussions(nil), do: '-'
   def count_discussions(discussions), do: Enum.count(discussions)
 
-  # NOTE: this method (and more here) are unused and
-  # were referred to by unused partials
-  def first_gtfs(dataset) do
-    dataset
-    |> Dataset.valid_gtfs()
-    |> List.first()
-  end
-
   def end_date(dataset) do
-    dataset
-    |> Dataset.valid_gtfs()
+    dataset.resources
+    |> Enum.filter(&Resource.is_gtfs?/1)
     |> Enum.max_by(
       fn
         %{metadata: nil} -> ""
@@ -453,9 +445,7 @@ defmodule TransportWeb.DatasetView do
   def resource_class(_, _), do: ""
 
   def order_resources_by_validity(resources, %{validations: validations}) do
-    resources
-    |> Enum.sort_by(&(validations |> Map.get(&1.id) |> hd() |> get_metadata_info("end_date")), &>=/2)
-    |> Enum.sort_by(&Resource.valid_and_available?(&1), &>=/2)
+    Enum.sort_by(resources, &(validations |> Map.get(&1.id) |> hd() |> get_metadata_info("end_date")), &>=/2)
   end
 
   def order_resources_by_format(resources), do: resources |> Enum.sort_by(& &1.format, &>=/2)

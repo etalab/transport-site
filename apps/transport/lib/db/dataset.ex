@@ -398,14 +398,6 @@ defmodule DB.Dataset do
   @spec format_error(any()) :: binary()
   defp format_error(changeset), do: "#{inspect(Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end))}"
 
-  @spec valid_gtfs(DB.Dataset.t()) :: [Resource.t()]
-  def valid_gtfs(%__MODULE__{resources: nil}), do: []
-
-  def valid_gtfs(%__MODULE__{resources: r, type: "public-transit"}),
-    do: Enum.filter(r, &Resource.valid_and_available?/1)
-
-  def valid_gtfs(%__MODULE__{resources: r}), do: r
-
   @spec link_to_datagouv(DB.Dataset.t()) :: any()
   def link_to_datagouv(%__MODULE__{} = dataset) do
     Link.link(
