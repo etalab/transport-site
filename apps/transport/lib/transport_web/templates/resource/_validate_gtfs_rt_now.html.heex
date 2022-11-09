@@ -1,10 +1,29 @@
-<% current_gtfs =
-  @resource.dataset |> DB.Dataset.valid_gtfs() |> Enum.reject(&DB.Resource.is_outdated?/1) |> List.first() %>
-<%= unless is_nil(current_gtfs) do %>
+<% gtfs_resources = Enum.filter(@resource.dataset.resources, &DB.Resource.is_gtfs?/1) %>
+<%= if Enum.empty?(gtfs_resources) do %>
+  <div class="notification error full-width">
+    <p>
+      <%= dgettext(
+        "page-dataset-details",
+        "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation because there is no GTFS file."
+      ) %>
+    </p>
+  </div>
+<% end %>
+<%= if Enum.count(gtfs_resources) > 1 do %>
+  <div class="notification error full-width">
+    <p>
+      <%= dgettext(
+        "page-dataset-details",
+        "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation because there are multiple GTFS files."
+      ) %>
+    </p>
+  </div>
+<% end %>
+<%= if Enum.count(gtfs_resources) == 1 do %>
   <% validation_path =
     live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive,
       type: "gtfs-rt",
-      url: current_gtfs.url,
+      url: List.first(gtfs_resources).url,
       feed_url: DB.Resource.download_url(@resource)
     ) %>
   <a class="button" href={validation_path} target="_blank" role="link">

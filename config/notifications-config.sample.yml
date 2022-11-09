@@ -2,6 +2,8 @@
 # https://github.com/etalab/transport-notifications/
 new_dataset:
   - hello@example.com
+dataset_now_licence_ouverte:
+  - hello@example.com
 expiration:
   offre-2022-de-transport-du-reseau-urbain-agglobus-et-de-transports-scolaires-gtfs:
     emails:

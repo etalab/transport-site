@@ -28,24 +28,39 @@ defmodule TransportWeb.API.DatasetController do
     datasets_with_metadata =
       Transport.Validators.GTFSTransport.validator_name()
       |> Dataset.join_from_dataset_to_metadata()
-      |> preload([:resources, :aom, :region, :communes])
-      |> select([metadata: rm, dataset: d, multi_validation: mv, resource_history: rh], %{
-        dataset: d,
-        metadata: rm,
-        multi_validation: {mv.id, mv.resource_history_id},
-        resource_history: {rh.id, rh.resource_id}
-      })
+      |> preload([resource: r, resource_history: rh, multi_validation: mv, metadata: m], [
+        :aom,
+        :region,
+        :communes,
+        resources: {r, resource_history: {rh, validations: {mv, metadata: m}}}
+      ])
       |> Repo.all()
 
-    existing_ids = datasets_with_metadata |> Enum.map(& &1.dataset.id)
+    existing_ids =
+      datasets_with_metadata
+      |> Enum.map(fn dataset ->
+        {dataset.id, dataset.resources |> Enum.map(fn resource -> {resource.id, resource} end) |> Enum.into(%{})}
+      end)
+      |> Enum.into(%{})
 
     data =
       %{}
       |> Dataset.list_datasets()
-      |> where([dataset: d], d.id not in ^existing_ids)
       |> preload([:resources, :aom, :region, :communes])
       |> Repo.all()
-      |> Enum.concat(datasets_with_metadata)
+      |> Enum.map(fn dataset ->
+        enriched_dataset = Map.get(existing_ids, dataset.id)
+
+        if enriched_dataset do
+          enriched_resources =
+            dataset.resources
+            |> Enum.map(fn r -> enriched_dataset |> Map.get(r.id, r) end)
+
+          Map.put(dataset, :resources, enriched_resources)
+        else
+          dataset
+        end
+      end)
       |> Enum.map(&transform_dataset(conn, &1))
 
     render(conn, %{data: data})
@@ -87,26 +102,29 @@ defmodule TransportWeb.API.DatasetController do
     if is_nil(dataset) do
       conn |> put_status(404) |> render(%{errors: "dataset not found"})
     else
-      result =
-        Transport.Validators.GTFSTransport.validator_name()
-        |> Dataset.join_from_dataset_to_metadata()
-        |> where([dataset: d], d.datagouv_id == ^id)
-        |> preload([:resources, :aom, :region, :communes])
-        |> select([metadata: rm, dataset: d, multi_validation: mv, resource_history: rh], %{
-          dataset: d,
-          metadata: rm,
-          multi_validation: {mv.id, mv.resource_history_id},
-          resource_history: {rh.id, rh.resource_id}
-        })
-        |> Repo.one()
+      resources_with_metadata =
+        DB.Resource.base_query()
+        |> DB.ResourceHistory.join_resource_with_latest_resource_history()
+        |> DB.MultiValidation.join_resource_history_with_latest_validation(
+          Transport.Validators.GTFSTransport.validator_name()
+        )
+        |> DB.ResourceMetadata.join_validation_with_metadata()
+        |> preload([resource_history: rh, multi_validation: mv, metadata: m],
+          resource_history: {rh, validations: {mv, metadata: m}}
+        )
+        |> where([resource: r], r.dataset_id == ^dataset.id)
+        |> select([resource: r], {r.id, r})
+        |> DB.Repo.all()
+        |> Enum.into(%{})
 
-      data =
-        if is_nil(result) do
-          transform_dataset_with_detail(conn, dataset)
-        else
-          transform_dataset_with_detail(conn, %{result | dataset: dataset})
-        end
+      enriched_resources =
+        dataset
+        |> Dataset.official_resources()
+        |> Enum.map(fn r -> resources_with_metadata |> Map.get(r.id, r) end)
 
+      dataset = dataset |> Map.put(:resources, enriched_resources)
+
+      data = transform_dataset_with_detail(conn, dataset)
       conn |> assign(:data, data) |> render()
     end
   end
@@ -173,34 +191,8 @@ defmodule TransportWeb.API.DatasetController do
     }
 
   @spec transform_dataset(Plug.Conn.t(), Dataset.t() | map()) :: map()
-  defp transform_dataset(%Plug.Conn{} = conn, %Dataset{} = dataset) do
-    transform_dataset(conn, %{dataset: dataset, metadata: []})
-  end
-
-  defp transform_dataset(%Plug.Conn{} = conn, %{dataset: dataset, metadata: metadata} = result) do
-    # Plug DB.ResourceMetadata into its associated DB.Resource
-    metadata =
-      [metadata]
-      |> List.flatten()
-      |> Enum.into(%{}, fn metadata ->
-        resource_id =
-          result.resource_history
-          |> maybe_map()
-          |> Map.fetch!(Map.fetch!(result.multi_validation |> maybe_map(), metadata.multi_validation_id))
-
-        {resource_id, metadata}
-      end)
-
-    resources =
-      dataset
-      |> Dataset.official_resources()
-      |> Enum.map(fn resource ->
-        metadata = Map.get(metadata, resource.id, %{})
-        fields = Enum.into([:modes, :features, :metadata], %{}, &{&1, Map.get(metadata, &1)})
-        Map.merge(resource, fields)
-      end)
-
-    %{
+  defp transform_dataset(%Plug.Conn{} = conn, %Dataset{} = dataset),
+    do: %{
       "datagouv_id" => dataset.datagouv_id,
       # to help discoverability, we explicitly add the datagouv_id as the id
       # (since it's used in /dataset/:id)
@@ -210,7 +202,7 @@ defmodule TransportWeb.API.DatasetController do
       "page_url" => TransportWeb.Router.Helpers.dataset_url(conn, :details, dataset.slug),
       "slug" => dataset.slug,
       "updated" => Helpers.last_updated(Dataset.official_resources(dataset)),
-      "resources" => Enum.map(resources, &transform_resource/1),
+      "resources" => Enum.map(dataset.resources, &transform_resource/1),
       "community_resources" => Enum.map(Dataset.community_resources(dataset), &transform_resource/1),
       # DEPRECATED, only there for retrocompatibility, use covered_area instead
       "aom" => transform_aom(dataset.aom),
@@ -219,11 +211,6 @@ defmodule TransportWeb.API.DatasetController do
       "licence" => dataset.licence,
       "publisher" => get_publisher(dataset)
     }
-  end
-
-  defp maybe_map(el) when is_map(el), do: el
-  defp maybe_map(el) when is_list(el), do: Enum.into(el, %{})
-  defp maybe_map(el) when is_tuple(el), do: Enum.into([el], %{})
 
   @spec get_publisher(Dataset.t()) :: map()
   defp get_publisher(dataset),
@@ -234,43 +221,58 @@ defmodule TransportWeb.API.DatasetController do
 
   @spec transform_dataset_with_detail(Plug.Conn.t(), Dataset.t() | map()) :: map()
   defp transform_dataset_with_detail(%Plug.Conn{} = conn, %Dataset{} = dataset) do
-    transform_dataset_with_detail(conn, %{dataset: dataset, metadata: []})
-  end
-
-  defp transform_dataset_with_detail(%Plug.Conn{} = conn, %{dataset: %DB.Dataset{} = dataset} = result) do
     conn
-    |> transform_dataset(result)
+    |> transform_dataset(dataset)
     |> Map.put(
       "history",
       Transport.History.Fetcher.history_resources(dataset, TransportWeb.DatasetView.max_nb_history_resources())
     )
   end
 
+  defp get_metadata(resource) do
+    resource.resource_history
+    |> Enum.at(0)
+    |> Map.get(:validations)
+    |> Enum.at(0)
+    |> Map.get(:metadata)
+  rescue
+    _ -> nil
+  end
+
   @spec transform_resource(Resource.t()) :: map()
-  defp transform_resource(resource),
-    do:
-      %{
-        "datagouv_id" => resource.datagouv_id,
-        "title" => resource.title,
-        "updated" => Shared.DateTimeDisplay.format_naive_datetime_to_paris_tz(resource.last_update),
-        "url" => resource.latest_url,
-        "original_url" => resource.url,
-        "end_calendar_validity" => resource.metadata["end_date"],
-        "start_calendar_validity" => resource.metadata["start_date"],
-        "type" => resource.type,
-        "format" => resource.format,
-        "content_hash" => resource.content_hash,
-        "community_resource_publisher" => resource.community_resource_publisher,
-        "metadata" => resource.metadata,
-        "original_resource_url" => resource.original_resource_url,
-        "filesize" => resource.filesize,
-        "modes" => resource.modes,
-        "features" => resource.features,
-        "schema_name" => resource.schema_name,
-        "schema_version" => resource.schema_version
-      }
-      |> Enum.filter(fn {_, v} -> !is_nil(v) end)
-      |> Enum.into(%{})
+  defp transform_resource(resource) do
+    metadata = get_metadata(resource)
+
+    metadata_content =
+      case metadata do
+        nil -> nil
+        %{metadata: metadata_content} -> metadata_content
+      end
+
+    %{
+      "datagouv_id" => resource.datagouv_id,
+      "title" => resource.title,
+      "updated" => Shared.DateTimeDisplay.format_naive_datetime_to_paris_tz(resource.last_update),
+      "url" => resource.latest_url,
+      "original_url" => resource.url,
+      "end_calendar_validity" => metadata_content && Map.get(metadata, "end_date"),
+      "start_calendar_validity" => metadata_content && Map.get(metadata, "start_date"),
+      "type" => resource.type,
+      "format" => resource.format,
+      # hash should come from the resource history instead
+      "content_hash" => resource.content_hash,
+      "community_resource_publisher" => resource.community_resource_publisher,
+      "metadata" => metadata_content,
+      "original_resource_url" => resource.original_resource_url,
+      "filesize" => resource.filesize,
+      "modes" => metadata && Map.get(metadata, :modes),
+      "features" => metadata && Map.get(metadata, :features),
+      "schema_name" => resource.schema_name,
+      "schema_version" => resource.schema_version
+    }
+    |> Enum.filter(fn {_, v} -> !is_nil(v) end)
+    |> Enum.into(%{})
+  end
 
   @spec transform_aom(AOM.t() | nil) :: map()
   defp transform_aom(nil), do: %{"name" => nil}
