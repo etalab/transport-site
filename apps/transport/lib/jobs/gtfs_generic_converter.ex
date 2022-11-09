@@ -6,11 +6,15 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   import Ecto.Query
   require Logger
 
+  @allowed_formats ["GeoJSON", "NeTEx"]
+
   @doc """
   Enqueues conversion jobs for all resource history that need one.
   """
   @spec enqueue_all_conversion_jobs(binary(), module()) :: :ok
-  def enqueue_all_conversion_jobs(format, conversion_job_module) when format in ["GeoJSON", "NeTEx"] do
+  def enqueue_all_conversion_jobs(format, conversion_job_module) when format in @allowed_formats do
+    fatal_error_key = fatal_error_key(format)
+
     query =
       ResourceHistory
       |> where(
@@ -18,10 +22,12 @@ defmodule Transport.Jobs.GTFSGenericConverter do
         fragment(
           """
           payload ->>'format'='GTFS'
+          AND NOT payload \\? ?
           AND
           payload ->>'uuid' NOT IN
           (SELECT resource_history_uuid::text FROM data_conversion WHERE convert_from='GTFS' and convert_to=?)
           """,
+          ^fatal_error_key,
           ^format
         )
       )
@@ -42,12 +48,14 @@ defmodule Transport.Jobs.GTFSGenericConverter do
     :ok
   end
 
+  defp fatal_error_key(format) when format in @allowed_formats, do: "conversion_#{format}_fatal_error"
+
   defp is_resource_gtfs?(%{payload: %{"format" => "GTFS"}}), do: true
 
   defp is_resource_gtfs?(_), do: false
 
   @spec format_exists?(any(), binary()) :: boolean
-  defp format_exists?(%{payload: %{"uuid" => resource_uuid}}, format) do
+  defp format_exists?(%{payload: %{"uuid" => resource_uuid}}, format) when format in @allowed_formats do
     DataConversion
     |> Repo.get_by(convert_from: "GTFS", convert_to: format, resource_history_uuid: resource_uuid) !== nil
   end
@@ -58,7 +66,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   Converts a resource_history to the targeted format, using a converter module
   """
   @spec perform_single_conversion_job(integer(), binary(), module()) :: :ok
-  def perform_single_conversion_job(resource_history_id, format, converter_module) do
+  def perform_single_conversion_job(resource_history_id, format, converter_module) when format in @allowed_formats do
     resource_history = ResourceHistory |> Repo.get(resource_history_id)
 
     case is_resource_gtfs?(resource_history) and not format_exists?(resource_history, format) do
@@ -70,15 +78,16 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   end
 
   defp generate_and_upload_conversion(
-         %{
+         %ResourceHistory{
            id: resource_history_id,
            resource_id: resource_id,
            datagouv_id: resource_datagouv_id,
            payload: %{"uuid" => resource_uuid, "permanent_url" => resource_url, "filename" => resource_filename}
-         },
+         } = resource_history,
          format,
          converter_module
-       ) do
+       )
+       when format in @allowed_formats do
     format_lower = format |> String.downcase()
     Logger.info("Starting conversion of download uuid #{resource_uuid}, from GTFS to #{format}")
 
@@ -94,44 +103,55 @@ defmodule Transport.Jobs.GTFSGenericConverter do
 
       File.write!(gtfs_file_path, body)
 
-      # credo:disable-for-next-line
-      :ok = apply(converter_module, :convert, [gtfs_file_path, conversion_output_path])
+      case converter_module.convert(gtfs_file_path, conversion_output_path) do
+        :ok ->
+          # gtfs2netex converter outputs a folder, we need to zip it
+          zip_conversion? = File.dir?(conversion_output_path)
 
-      # gtfs2netex converter outputs a folder, we need to zip it
-      zip_conversion? = File.dir?(conversion_output_path)
+          file =
+            zip_conversion?
+            |> case do
+              true ->
+                :ok = Transport.FolderZipper.zip(conversion_output_path, zip_path)
+                zip_path
 
-      file =
-        zip_conversion?
-        |> case do
-          true ->
-            :ok = Transport.FolderZipper.zip(conversion_output_path, zip_path)
-            zip_path
+              false ->
+                conversion_output_path
+            end
+            |> File.read!()
 
-          false ->
-            conversion_output_path
-        end
-        |> File.read!()
+          conversion_file_name =
+            resource_filename |> conversion_file_name(format_lower) |> add_zip_extension(zip_conversion?)
 
-      conversion_file_name =
-        resource_filename |> conversion_file_name(format_lower) |> add_zip_extension(zip_conversion?)
+          Transport.S3.upload_to_s3!(:history, file, conversion_file_name)
 
-      Transport.S3.upload_to_s3!(:history, file, conversion_file_name)
+          {:ok, %{size: filesize}} = File.stat(conversion_output_path)
 
-      {:ok, %{size: filesize}} = File.stat(conversion_output_path)
+          %DataConversion{
+            convert_from: "GTFS",
+            convert_to: format,
+            resource_history_uuid: resource_uuid,
+            payload: %{
+              filename: conversion_file_name,
+              permanent_url: Transport.S3.permanent_url(:history, conversion_file_name),
+              resource_id: resource_id,
+              resource_datagouv_id: resource_datagouv_id,
+              filesize: filesize
+            }
+          }
+          |> Repo.insert!()
 
-      %DataConversion{
-        convert_from: "GTFS",
-        convert_to: format,
-        resource_history_uuid: resource_uuid,
-        payload: %{
-          filename: conversion_file_name,
-          permanent_url: Transport.S3.permanent_url(:history, conversion_file_name),
-          resource_id: resource_id,
-          resource_datagouv_id: resource_datagouv_id,
-          filesize: filesize
-        }
-      }
-      |> Repo.insert!()
+        {:error, reason} ->
+          resource_history
+          |> Ecto.Changeset.change(%{
+            payload:
+              Map.merge(resource_history.payload, %{
+                fatal_error_key(format) => true,
+                "conversion_#{format}_error" => reason
+              })
+          })
+          |> Repo.update!()
+      end
     after
       File.rm(gtfs_file_path)
       File.rm_rf(conversion_output_path)
