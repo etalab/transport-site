@@ -4,60 +4,71 @@ defmodule Transport.SIRI do
   A module to build SIRI queries.
   """
 
+  import Saxy.XML
+
+  @top_level_namespaces [
+    {"xmlns:S", "http://schemas.xmlsoap.org/soap/envelope/"},
+    {"xmlns:SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/"}
+  ]
+
+  @request_namespaces [
+    {"xmlns:sw", "http://wsdl.siri.org.uk"},
+    {"xmlns:siri", "http://www.siri.org.uk/siri"}
+  ]
+
   def prolog do
     ~S(<?xml version="1.0" encoding="UTF-8"?>)
   end
 
   def check_status(timestamp, requestor_ref, message_identifier) do
-    # NOTE: we'll need to properly escape & encode the dynamic parts to avoid injection issues (à la XSS).
-    """
-    #{prolog()}
-    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-      <S:Body>
-        <sw:CheckStatus xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
-          <Request>
-            <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-            <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
-            <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-          </Request>
-        </sw:CheckStatus>
-      </S:Body>
-    </S:Envelope>
-    """
+    doc =
+      element("S:Envelope", @top_level_namespaces, [
+        element("S:Body", [], [
+          element("sw:CheckStatus", @request_namespaces, [
+            element("Request", [], [
+              element("siri:RequestTimestamp", [], timestamp),
+              element("siri:RequestorRef", [], requestor_ref),
+              element("siri:MessageIdentifier", [], message_identifier)
+            ])
+          ])
+        ])
+      ])
+
+    Saxy.encode!(doc)
   end
 
   def lines_discovery(timestamp, requestor_ref, message_identifier) do
-    """
-    #{prolog()}
-    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-      <S:Body>
-        <sw:LinesDiscovery xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
-          <Request>
-            <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-            <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
-            <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-          </Request>
-        </sw:LinesDiscovery>
-      </S:Body>
-    </S:Envelope>
-    """
+    doc =
+      element("S:Envelope", @top_level_namespaces, [
+        element("S:Body", [], [
+          element("sw:LinesDiscovery", @request_namespaces, [
+            element("Request", [], [
+              element("siri:RequestTimestamp", [], timestamp),
+              element("siri:RequestorRef", [], requestor_ref),
+              element("siri:MessageIdentifier", [], message_identifier)
+            ])
+          ])
+        ])
+      ])
+
+    Saxy.encode!(doc)
   end
 
   def stop_points_discovery(timestamp, requestor_ref, message_identifier) do
-    """
-    #{prolog()}
-    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-      <S:Body>
-        <sw:StopPointsDiscovery xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
-          <Request>
-            <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-            <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
-            <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-          </Request>
-        </sw:StopPointsDiscovery>
-      </S:Body>
-    </S:Envelope>
-    """
+    doc =
+      element("S:Envelope", @top_level_namespaces, [
+        element("S:Body", [], [
+          element("sw:StopPointsDiscovery", @request_namespaces, [
+            element("Request", [], [
+              element("siri:RequestTimestamp", [], timestamp),
+              element("siri:RequestorRef", [], requestor_ref),
+              element("siri:MessageIdentifier", [], message_identifier)
+            ])
+          ])
+        ])
+      ])
+
+    Saxy.encode!(doc)
   end
 
   def build_line_refs(line_refs) do
@@ -71,69 +82,91 @@ defmodule Transport.SIRI do
     """
   end
 
+  def line_refs_element([] = _line_refs), do: nil
+
+  def line_refs_element(line_refs) do
+    line_refs = line_refs |> Enum.map(&element("siri:LineRef", [], &1))
+    element("siri:Lines", [], line_refs)
+  end
+
+  def append_if_not_nil(list, nil), do: list
+  def append_if_not_nil(list, item), do: list ++ [item]
+
   def get_estimated_timetable(timestamp, requestor_ref, message_identifier, line_refs) do
-    """
-    #{prolog()}
-    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-      <S:Body>
-        <sw:GetEstimatedTimetable xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
-            <ServiceRequestInfo>
-              <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-              <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
-              <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-            </ServiceRequestInfo>
-            <Request>
-                <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-                <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-                #{build_line_refs(line_refs)}
-            </Request>
-        </sw:GetEstimatedTimetable>
-      </S:Body>
-    </S:Envelope>
-    """
+    doc =
+      element("S:Envelope", @top_level_namespaces, [
+        element("S:Body", [], [
+          element("sw:GetEstimatedTimetable", @request_namespaces, [
+            element("ServiceRequestInfo", [], [
+              element("siri:RequestTimestamp", [], timestamp),
+              element("siri:RequestorRef", [], requestor_ref),
+              element("siri:MessageIdentifier", [], message_identifier)
+            ]),
+            element(
+              "Request",
+              [],
+              [
+                element("siri:RequestTimestamp", [], timestamp),
+                element("siri:MessageIdentifier", [], message_identifier)
+              ]
+              |> append_if_not_nil(line_refs_element(line_refs))
+            )
+          ])
+        ])
+      ])
+
+    Saxy.encode!(doc)
   end
 
   def get_stop_monitoring(timestamp, requestor_ref, message_identifier, stop_ref) do
-    """
-    #{prolog()}
-    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-    <S:Body>
-        <sw:GetStopMonitoring xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri">
-            <ServiceRequestInfo>
-                <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-                <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
-                <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-            </ServiceRequestInfo>
-            <Request version="2.0:FR-IDF-2.4">
-                <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-                <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-                <siri:MonitoringRef>#{stop_ref}</siri:MonitoringRef>
-                <siri:StopVisitTypes>all</siri:StopVisitTypes>
-            </Request>
-        </sw:GetStopMonitoring>
-    </S:Body>
-    </S:Envelope>
-    """
+    doc =
+      element("S:Envelope", @top_level_namespaces, [
+        element("S:Body", [], [
+          element("sw:GetStopMonitoring", @request_namespaces, [
+            element("ServiceRequestInfo", [], [
+              element("siri:RequestTimestamp", [], timestamp),
+              element("siri:RequestorRef", [], requestor_ref),
+              element("siri:MessageIdentifier", [], message_identifier)
+            ]),
+            element(
+              "Request",
+              [],
+              [
+                element("siri:RequestTimestamp", [], timestamp),
+                element("siri:MessageIdentifier", [], message_identifier),
+                element("siri:MonitoringRef", [], stop_ref),
+                element("siri:StopVisitTypes", [], "all")
+              ]
+            )
+          ])
+        ])
+      ])
+
+    Saxy.encode!(doc)
   end
 
   def get_general_message(timestamp, requestor_ref, message_identifier) do
-    """
-    #{prolog()}
-    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-    <S:Body>
-     	<sw:GetGeneralMessage xmlns:sw="http://wsdl.siri.org.uk" xmlns:siri="http://www.siri.org.uk/siri" xmlns:sws="http://wsdl.siri.org.uk/siri">
-        	<ServiceRequestInfo>
-    		      <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-    		      <siri:RequestorRef>#{requestor_ref}</siri:RequestorRef>
-            	<siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-         </ServiceRequestInfo>
-         <Request version="2.0:FR-IDF-2.4">
-                <siri:RequestTimestamp>#{timestamp}</siri:RequestTimestamp>
-                <siri:MessageIdentifier>#{message_identifier}</siri:MessageIdentifier>
-      			</Request>
-    		</sw:GetGeneralMessage>
-    </S:Body>
-    </S:Envelope>
-    """
+    doc =
+      element("S:Envelope", @top_level_namespaces, [
+        element("S:Body", [], [
+          element("sw:GetGeneralMessage", @request_namespaces, [
+            element("ServiceRequestInfo", [], [
+              element("siri:RequestTimestamp", [], timestamp),
+              element("siri:RequestorRef", [], requestor_ref),
+              element("siri:MessageIdentifier", [], message_identifier)
+            ]),
+            element(
+              "Request",
+              [],
+              [
+                element("siri:RequestTimestamp", [], timestamp),
+                element("siri:MessageIdentifier", [], message_identifier)
+              ]
+            )
+          ])
+        ])
+      ])
+
+    Saxy.encode!(doc)
   end
 end
