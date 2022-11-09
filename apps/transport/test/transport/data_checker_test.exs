@@ -22,7 +22,7 @@ defmodule Transport.DataCheckerTest do
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
-        assert to_email == "contact@transport.beta.gouv.fr"
+        assert to_email == "deploiement@transport.beta.gouv.fr"
         assert subject == "Jeux de données qui disparaissent"
         assert body =~ ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/
         :ok
@@ -55,7 +55,7 @@ defmodule Transport.DataCheckerTest do
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
-        assert to_email == "contact@transport.beta.gouv.fr"
+        assert to_email == "deploiement@transport.beta.gouv.fr"
         assert subject == "Jeux de données qui disparaissent"
         assert body =~ ~r/Certains jeux de données ont disparus de data.gouv.fr/
         :ok
@@ -90,6 +90,47 @@ defmodule Transport.DataCheckerTest do
     end
   end
 
+  test "gtfs_datasets_expiring_on" do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+
+    {today, tomorrow, yesterday} = {Date.utc_today(), Date.add(Date.utc_today(), 1), Date.add(Date.utc_today(), -1)}
+    assert [] == today |> Transport.DataChecker.gtfs_datasets_expiring_on()
+
+    insert_fn = fn %Date{} = expiration_date, %DB.Dataset{} = dataset ->
+      multi_validation =
+        insert(:multi_validation,
+          validator: Transport.Validators.GTFSTransport.validator_name(),
+          resource_history: insert(:resource_history, resource: insert(:resource, dataset: dataset, format: "GTFS"))
+        )
+
+      insert(:resource_metadata,
+        multi_validation_id: multi_validation.id,
+        metadata: %{"end_date" => expiration_date}
+      )
+    end
+
+    # 2 resources expiring on the same day
+    dataset = insert(:dataset, is_active: true)
+    insert_fn.(today, dataset)
+    insert_fn.(today, dataset)
+
+    assert [dataset.id] == today |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id)
+    assert [] == tomorrow |> Transport.DataChecker.gtfs_datasets_expiring_on()
+    assert [] == yesterday |> Transport.DataChecker.gtfs_datasets_expiring_on()
+
+    insert_fn.(tomorrow, dataset)
+    assert [dataset.id] == today |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id)
+    assert [dataset.id] == tomorrow |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id)
+    assert [] == yesterday |> Transport.DataChecker.gtfs_datasets_expiring_on()
+
+    # Multiple datasets
+    d2 = insert(:dataset, is_active: true)
+    insert_fn.(today, d2)
+
+    assert [dataset.id, d2.id] |> Enum.sort() ==
+             today |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id) |> Enum.sort()
+  end
+
   describe "outdated_data job" do
     test "sends email to our team + relevant contact before expiry" do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -98,8 +139,21 @@ defmodule Transport.DataCheckerTest do
       producer_email = "hello@example.com"
 
       dataset = insert(:dataset, is_active: true, slug: dataset_slug)
-      # fake one resource expiring today
-      _resource = insert(:resource, dataset: dataset, metadata: %{end_date: Date.utc_today()})
+      # fake a resource expiring today
+      resource = insert(:resource, dataset: dataset, format: "GTFS")
+
+      multi_validation =
+        insert(:multi_validation,
+          validator: Transport.Validators.GTFSTransport.validator_name(),
+          resource_history: insert(:resource_history, resource_id: resource.id)
+        )
+
+      insert(:resource_metadata,
+        multi_validation_id: multi_validation.id,
+        metadata: %{"end_date" => Date.utc_today()}
+      )
+
+      assert [dataset.id] == Date.utc_today() |> Transport.DataChecker.gtfs_datasets_expiring_on() |> Enum.map(& &1.id)
 
       Transport.Notifications.FetcherMock
       |> expect(:fetch_config!, 2, fn ->
@@ -117,7 +171,7 @@ defmodule Transport.DataCheckerTest do
       Transport.EmailSender.Mock
       |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
-        assert to_email == "contact@transport.beta.gouv.fr"
+        assert to_email == "deploiement@transport.beta.gouv.fr"
         assert subject == "Jeux de données arrivant à expiration"
         assert body =~ ~r/Jeux de données expirant demain:/
         :ok
@@ -167,11 +221,11 @@ defmodule Transport.DataCheckerTest do
   describe "send_outdated_data_notifications" do
     test "with a default delay" do
       Transport.EmailSender.Mock
-      |> expect(:send_mail, fn "transport.data.gouv.fr" = _subject,
+      |> expect(:send_mail, fn "transport.data.gouv.fr",
                                "contact@transport.beta.gouv.fr",
                                "foo@example.com" = _to,
                                "contact@transport.beta.gouv.fr",
-                               "Jeu de données arrivant à expiration",
+                               "Jeu de données arrivant à expiration" = _subject,
                                plain_text_body,
                                "" = _html_part ->
         assert plain_text_body =~ ~r/Bonjour/
@@ -247,38 +301,48 @@ defmodule Transport.DataCheckerTest do
     end
   end
 
-  test "send_new_dataset_notifications" do
-    Transport.EmailSender.Mock
-    |> expect(:send_mail, fn "transport.data.gouv.fr" = _subject,
-                             "contact@transport.beta.gouv.fr",
-                             "foo@example.com" = _to,
-                             "contact@transport.beta.gouv.fr",
-                             "Nouveau jeu de données référencé",
-                             plain_text_body,
-                             "" = _html_part ->
-      assert plain_text_body =~ ~r/Bonjour/
-      :ok
-    end)
+  describe "send_new_dataset_notifications" do
+    test "no datasets" do
+      assert Transport.DataChecker.send_new_dataset_notifications([]) == :ok
+    end
 
-    dataset_slug = "slug"
+    test "with datasets" do
+      Transport.EmailSender.Mock
+      |> expect(:send_mail, fn "transport.data.gouv.fr",
+                               "contact@transport.beta.gouv.fr",
+                               "foo@example.com" = _to,
+                               "contact@transport.beta.gouv.fr",
+                               "Nouveaux jeux de données référencés" = _subject,
+                               plain_text_body,
+                               "" = _html_part ->
+        assert plain_text_body =~ ~r/^Bonjour/
 
-    Transport.Notifications.FetcherMock
-    |> expect(:fetch_config!, fn ->
-      [
-        %Transport.Notifications.Item{
-          dataset_slug: nil,
-          emails: ["foo@example.com"],
-          reason: :new_dataset,
-          extra_delays: []
-        }
-      ]
-    end)
+        assert plain_text_body =~
+                 "* Super JDD - (Transport public collectif - horaires théoriques) - http://127.0.0.1:5100/datasets/slug"
 
-    dataset = %DB.Dataset{slug: dataset_slug, datagouv_title: "title"}
+        :ok
+      end)
 
-    Transport.DataChecker.send_new_dataset_notifications(dataset)
+      dataset_slug = "slug"
 
-    verify!(Transport.EmailSender.Mock)
+      Transport.Notifications.FetcherMock
+      |> expect(:fetch_config!, fn ->
+        [
+          %Transport.Notifications.Item{
+            dataset_slug: nil,
+            emails: ["foo@example.com"],
+            reason: :new_dataset,
+            extra_delays: []
+          }
+        ]
+      end)
+
+      dataset = %DB.Dataset{slug: dataset_slug, custom_title: "Super JDD", type: "public-transit"}
+
+      Transport.DataChecker.send_new_dataset_notifications([dataset])
+
+      verify!(Transport.EmailSender.Mock)
+    end
   end
 
   test "possible_delays" do

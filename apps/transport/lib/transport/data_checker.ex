@@ -65,11 +65,23 @@ defmodule Transport.DataChecker do
   def outdated_data do
     for delay <- possible_delays(),
         date = Date.add(Date.utc_today(), delay) do
-      {delay, Dataset.get_expire_at(date)}
+      {delay, gtfs_datasets_expiring_on(date)}
     end
     |> Enum.reject(fn {_, d} -> d == [] end)
     |> send_outdated_data_mail()
     |> Enum.map(fn x -> send_outdated_data_notifications(x) end)
+  end
+
+  def gtfs_datasets_expiring_on(%Date{} = date) do
+    Transport.Validators.GTFSTransport.validator_name()
+    |> DB.Dataset.join_from_dataset_to_metadata()
+    |> where(
+      [metadata: m, resource: r],
+      fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata) == ^date and r.format == "GTFS"
+    )
+    |> select([dataset: d], d)
+    |> distinct(true)
+    |> DB.Repo.all()
   end
 
   def possible_delays do
@@ -81,7 +93,14 @@ defmodule Transport.DataChecker do
     |> Enum.sort()
   end
 
-  def send_new_dataset_notifications(%Dataset{} = dataset) do
+  @spec send_new_dataset_notifications([Dataset.t()] | []) :: no_return() | :ok
+  def send_new_dataset_notifications([]), do: :ok
+
+  def send_new_dataset_notifications(datasets) do
+    dataset_link_fn = fn %Dataset{} = dataset ->
+      "* #{dataset.custom_title} - (#{Dataset.type_to_str(dataset.type)}) - #{link(dataset)}"
+    end
+
     Transport.Notifications.config()
     |> Transport.Notifications.emails_for_reason(:new_dataset)
     |> Enum.each(fn email ->
@@ -90,13 +109,13 @@ defmodule Transport.DataChecker do
         Application.get_env(:transport, :contact_email),
         email,
         Application.get_env(:transport, :contact_email),
-        "Nouveau jeu de données référencé",
+        "Nouveaux jeux de données référencés",
         """
         Bonjour,
 
-        Un jeu de données vient d'être référencé :
+        Les jeux de données suivants ont été référencés récemment :
 
-        #{link_and_name(dataset)}
+        #{datasets |> Enum.sort_by(& &1.type) |> Enum.map_join("\n", &dataset_link_fn.(&1))}
 
         L’équipe transport.data.gouv.fr
 
@@ -152,11 +171,7 @@ defmodule Transport.DataChecker do
   end
 
   defp make_str({delay, datasets}) do
-    r_str =
-      datasets
-      |> Enum.map(&link_and_name/1)
-      # credo:disable-for-next-line
-      |> Enum.join("\n")
+    r_str = datasets |> Enum.map_join("\n", &link_and_name/1)
 
     """
     Jeux de données expirant #{delay_str(delay)}:
@@ -195,7 +210,7 @@ defmodule Transport.DataChecker do
     Transport.EmailSender.impl().send_mail(
       "transport.data.gouv.fr",
       Application.get_env(:transport, :contact_email),
-      Application.get_env(:transport, :contact_email),
+      Application.get_env(:transport, :bizdev_email),
       Application.get_env(:transport, :contact_email),
       "Jeux de données arrivant à expiration",
       make_outdated_data_body(datasets),
@@ -208,11 +223,7 @@ defmodule Transport.DataChecker do
   defp fmt_inactive_dataset([]), do: ""
 
   defp fmt_inactive_dataset(inactive_datasets) do
-    datasets_str =
-      inactive_datasets
-      |> Enum.map(&link_and_name/1)
-      # credo:disable-for-next-line
-      |> Enum.join("\n")
+    datasets_str = inactive_datasets |> Enum.map_join("\n", &link_and_name/1)
 
     """
     Certains jeux de données ont disparus de data.gouv.fr :
@@ -223,11 +234,7 @@ defmodule Transport.DataChecker do
   defp fmt_reactivated_dataset([]), do: ""
 
   defp fmt_reactivated_dataset(reactivated_datasets) do
-    datasets_str =
-      reactivated_datasets
-      |> Enum.map(&link_and_name/1)
-      # credo:disable-for-next-line
-      |> Enum.join("\n")
+    datasets_str = reactivated_datasets |> Enum.map_join("\n", &link_and_name/1)
 
     """
     Certains jeux de données disparus sont réapparus sur data.gouv.fr :
@@ -255,7 +262,7 @@ defmodule Transport.DataChecker do
     Transport.EmailSender.impl().send_mail(
       "transport.data.gouv.fr",
       Application.get_env(:transport, :contact_email),
-      Application.get_env(:transport, :contact_email),
+      Application.get_env(:transport, :bizdev_email),
       Application.get_env(:transport, :contact_email),
       "Jeux de données qui disparaissent",
       make_inactive_dataset_body(reactivated_datasets, inactive_datasets),

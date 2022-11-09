@@ -41,7 +41,7 @@
         phx-hook="SyntaxColoring"
       />
       <div id="query_code_wrapper" phx-update="ignore">
-        <h5><%= dgettext("explore", "HTTP body") %></h5>
+        <h5><%= dgettext("explore", "HTTP request body") %></h5>
         <pre><code class="language-xml" id="query_code_id"></code></pre>
       </div>
       <button class="button" data-clipboard-target="#query_code_wrapper">
@@ -67,7 +67,7 @@
         </pre>
       </div>
       <div id="response_code_wrapper" phx-update="ignore">
-        <h5><%= dgettext("explore", "HTTP body") %></h5>
+        <h5><%= dgettext("explore", "HTTP response body") %></h5>
         <pre><code class="language-xml" id="response_code_id"></code></pre>
       </div>
       <button class="button" data-clipboard-target="#response_code_wrapper">
