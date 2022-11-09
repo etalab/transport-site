@@ -18,6 +18,8 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
     conn |> get(live_path(conn, SIRIQuerierLive)) |> html_response(200)
   end
 
+  # NOTE: currently we do not marshall other parameters (template type, template parameters)
+  # but this could be added later and would be useful to share queries around.
   test "uses query params to set input values", %{conn: conn} do
     {:ok, view, _html} =
       conn
