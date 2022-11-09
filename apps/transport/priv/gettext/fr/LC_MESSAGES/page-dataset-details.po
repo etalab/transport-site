@@ -548,8 +548,8 @@ msgstr "Données absentes mais <a href=\"%{doc_link}\" target=\"_blank\">possibl
 
 #, elixir-autogen, elixir-format
 msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation because there are multiple GTFS files."
-msgstr "Impossible de déterminer le fichier GTFS à utiliser pour effectuer une validation du GTFS-RT comme il y a plusieurs fichiers GTFS."
+msgstr "Impossible de déterminer le fichier GTFS à utiliser pour effectuer une validation du GTFS-RT car il y a plusieurs fichiers GTFS."
 
 #, elixir-autogen, elixir-format
-msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation because there are no GTFS files."
-msgstr "Impossible de déterminer le fichier GTFS à utiliser pour effectuer une validation du GTFS-RT comme il n'y a aucun fichier GTFS."
+msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation because there is no GTFS file."
+msgstr "Impossible de déterminer le fichier GTFS à utiliser pour effectuer une validation du GTFS-RT car il n'y a aucun fichier GTFS."
