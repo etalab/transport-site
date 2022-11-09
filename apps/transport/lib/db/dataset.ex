@@ -15,7 +15,7 @@ defmodule DB.Dataset do
   use Ecto.Schema
   use TypedEctoSchema
 
-  @licences_ouverte ["fr-lo", "lov2"]
+  @licences_ouvertes ["fr-lo", "lov2"]
 
   typed_schema "dataset" do
     field(:datagouv_id, :string)
@@ -287,7 +287,7 @@ defmodule DB.Dataset do
 
   @spec filter_by_licence(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),
-    do: where(query, [d], d.licence in @licences_ouverte)
+    do: where(query, [d], d.licence in @licences_ouvertes)
 
   defp filter_by_licence(query, %{"licence" => licence}), do: where(query, [d], d.licence == ^licence)
   defp filter_by_licence(query, _), do: query
@@ -820,7 +820,7 @@ defmodule DB.Dataset do
          id: dataset_id,
          licence: old_licence
        })
-       when new_licence in @licences_ouverte and old_licence not in @licences_ouverte and not is_nil(dataset_id) do
+       when new_licence in @licences_ouvertes and old_licence not in @licences_ouvertes and not is_nil(dataset_id) do
     %{"dataset_id" => dataset_id} |> Transport.Jobs.DatasetNowLicenceOuverteJob.new() |> Oban.insert!()
     changeset
   end
