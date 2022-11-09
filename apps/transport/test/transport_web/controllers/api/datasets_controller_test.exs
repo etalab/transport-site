@@ -26,13 +26,13 @@ defmodule TransportWeb.API.DatasetControllerTest do
         custom_title: "title",
         type: "public-transit",
         licence: "lov2",
-        datagouv_id: "datagouv",
+        datagouv_id: datagouv_id = "datagouv",
         slug: "slug-1",
         is_active: true,
         aom: insert(:aom, nom: "Angers Métropole", siren: "siren")
       )
 
-    resource =
+    resource_1 =
       insert(:resource,
         dataset_id: dataset.id,
         url: "https://link.to/file.zip",
@@ -42,6 +42,18 @@ defmodule TransportWeb.API.DatasetControllerTest do
         type: "main",
         format: "GTFS",
         filesize: 42
+      )
+
+    resource_2 =
+      insert(:resource,
+        dataset_id: dataset.id,
+        url: "https://link.to/file2.zip",
+        latest_url: "https://static.data.gouv.fr/foo2",
+        content_hash: "hash2",
+        datagouv_id: "2",
+        type: "main",
+        format: "GTFS",
+        filesize: 43
       )
 
     _gbfs_resource =
@@ -56,7 +68,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     insert(:resource_metadata,
       multi_validation:
         insert(:multi_validation,
-          resource_history: insert(:resource_history, resource_id: resource.id),
+          resource_history: insert(:resource_history, resource_id: resource_1.id),
           validator: Transport.Validators.GTFSTransport.validator_name()
         ),
       modes: ["bus"],
@@ -64,54 +76,85 @@ defmodule TransportWeb.API.DatasetControllerTest do
       metadata: %{"foo" => "bar"}
     )
 
+    insert(:resource_metadata,
+      multi_validation:
+        insert(:multi_validation,
+          resource_history: insert(:resource_history, resource_id: resource_2.id),
+          validator: Transport.Validators.GTFSTransport.validator_name()
+        ),
+      modes: ["skate"],
+      features: ["clim"],
+      metadata: %{"foo" => "bar2"}
+    )
+
     path = Helpers.dataset_path(conn, :datasets)
 
-    assert [
-             %{
-               "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
-               "community_resources" => [],
-               "covered_area" => %{
-                 "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
-                 "name" => "Angers Métropole",
-                 "type" => "aom"
-               },
-               "created_at" => nil,
-               "datagouv_id" => "datagouv",
-               "id" => "datagouv",
-               "licence" => "lov2",
-               "page_url" => "http://127.0.0.1:5100/datasets/slug-1",
-               "publisher" => %{"name" => nil, "type" => "organization"},
-               "resources" => [
-                 %{
-                   "content_hash" => "hash",
-                   "datagouv_id" => "1",
-                   "features" => ["couleurs des lignes"],
-                   "filesize" => 42,
-                   "format" => "GTFS",
-                   "metadata" => %{"foo" => "bar"},
-                   "modes" => ["bus"],
-                   "original_url" => "https://link.to/file.zip",
-                   "title" => "GTFS.zip",
-                   "type" => "main",
-                   "updated" => "",
-                   "url" => "https://static.data.gouv.fr/foo"
-                 },
-                 %{
-                   "datagouv_id" => "2",
-                   "format" => "gbfs",
-                   "original_url" => "https://link.to/gbfs.json",
-                   "title" => "GTFS.zip",
-                   "type" => "main",
-                   "updated" => "",
-                   "url" => "url"
-                 }
-               ],
-               "slug" => "slug-1",
-               "title" => "title",
-               "type" => "public-transit",
-               "updated" => ""
-             }
-           ] == conn |> get(path) |> json_response(200)
+    dataset_res = %{
+      "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
+      "community_resources" => [],
+      "covered_area" => %{
+        "aom" => %{"name" => "Angers Métropole", "siren" => "siren"},
+        "name" => "Angers Métropole",
+        "type" => "aom"
+      },
+      "created_at" => nil,
+      "datagouv_id" => "datagouv",
+      "id" => "datagouv",
+      "licence" => "lov2",
+      "page_url" => "http://127.0.0.1:5100/datasets/slug-1",
+      "publisher" => %{"name" => nil, "type" => "organization"},
+      "resources" => [
+        %{
+          "content_hash" => "hash",
+          "datagouv_id" => "1",
+          "features" => ["couleurs des lignes"],
+          "filesize" => 42,
+          "format" => "GTFS",
+          "metadata" => %{"foo" => "bar"},
+          "modes" => ["bus"],
+          "original_url" => "https://link.to/file.zip",
+          "title" => "GTFS.zip",
+          "type" => "main",
+          "updated" => "",
+          "url" => "https://static.data.gouv.fr/foo"
+        },
+        %{
+          "content_hash" => "hash2",
+          "datagouv_id" => "2",
+          "features" => ["clim"],
+          "filesize" => 43,
+          "format" => "GTFS",
+          "metadata" => %{"foo" => "bar2"},
+          "modes" => ["skate"],
+          "original_url" => "https://link.to/file2.zip",
+          "title" => "GTFS.zip",
+          "type" => "main",
+          "updated" => "",
+          "url" => "https://static.data.gouv.fr/foo2"
+        },
+        %{
+          "datagouv_id" => "2",
+          "format" => "gbfs",
+          "original_url" => "https://link.to/gbfs.json",
+          "title" => "GTFS.zip",
+          "type" => "main",
+          "updated" => "",
+          "url" => "url"
+        }
+      ],
+      "slug" => "slug-1",
+      "title" => "title",
+      "type" => "public-transit",
+      "updated" => ""
+    }
+
+    assert [dataset_res] == conn |> get(path) |> json_response(200)
+
+    # check the result is in line with a query on this dataset
+    # only difference: individual dataset call has the resource history
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
+    dataset_res = dataset_res |> Map.put("history", [])
+    assert dataset_res == conn |> get(Helpers.dataset_path(conn, :by_id, datagouv_id)) |> json_response(200)
   end
 
   test "GET /api/datasets *without* history, multi_validation and resource_metadata", %{conn: conn} do
