@@ -273,8 +273,14 @@ defmodule DB.DatasetDBTest do
                conflict?: false
              },
              %Oban.Job{
-               args: %{"resource_id" => ^gtfs_resource_id},
-               worker: "Transport.Jobs.ResourceHistoryJob",
+               args: %{
+                 "first_job_args" => %{"resource_id" => ^gtfs_resource_id},
+                 "jobs" => [
+                   ["Elixir.Transport.Jobs.ResourceHistoryJob", %{}, %{}],
+                   "Elixir.Transport.Jobs.ResourceHistoryValidationJob"
+                 ]
+               },
+               worker: "Transport.Jobs.Workflow",
                conflict?: false
              }
            ] = all_enqueued()
@@ -289,8 +295,14 @@ defmodule DB.DatasetDBTest do
                conflict?: false
              },
              %Oban.Job{
-               args: %{"resource_id" => ^gtfs_resource_id},
-               worker: "Transport.Jobs.ResourceHistoryJob",
+               args: %{
+                 "first_job_args" => %{"resource_id" => gtfs_resource_id},
+                 "jobs" => [
+                   ["Elixir.Transport.Jobs.ResourceHistoryJob", %{}, %{}],
+                   "Elixir.Transport.Jobs.ResourceHistoryValidationJob"
+                 ]
+               },
+               worker: "Transport.Jobs.Workflow",
                conflict?: false
              },
              %Oban.Job{
@@ -299,8 +311,14 @@ defmodule DB.DatasetDBTest do
                conflict?: false
              },
              %Oban.Job{
-               args: %{"resource_id" => ^gtfs_resource_id},
-               worker: "Transport.Jobs.ResourceHistoryJob",
+               args: %{
+                 "first_job_args" => %{"resource_id" => gtfs_resource_id},
+                 "jobs" => [
+                   ["Elixir.Transport.Jobs.ResourceHistoryJob", %{}, %{}],
+                   "Elixir.Transport.Jobs.ResourceHistoryValidationJob"
+                 ]
+               },
+               worker: "Transport.Jobs.Workflow",
                conflict?: false
              }
            ] = all_enqueued()
