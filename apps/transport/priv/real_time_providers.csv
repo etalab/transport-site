@@ -6,7 +6,6 @@ Nantes TAN;44109;Spécifique;n;y;ODbL;;https://data.nantesmetropole.fr/explore/d
 Strasbourg CTS;67482;Siri-lite;y;n;Inconnue;;https://api.cts-strasbourg.eu/index.html;;
 Lyon TCL;69123;Spécifique;n;n;Associée;;https://data.grandlyon.com/jeux-de-donnees/prochains-passages-reseau-transports-commun-lyonnais-disponibilites-temps-reel/info;;
 Lyon Rhône Express;69123;Spécifique;n;n;Associée;;https://data.grandlyon.com/jeux-de-donnees/prochains-passages-service-rhonexpress-metropole-lyon-departement-rhone-disponibilites-temps-reel/info;;
-Lille Ilévia;59350;Spécifique;n;y;LO;;https://opendata.lillemetropole.fr/explore/dataset/ilevia-prochainspassages/;;https://opendata.lillemetropole.fr/explore/dataset/ilevia-perturbations/
 Angers Irigo;49007;Spécifique;n;y;ODbL;;https://data.angers.fr/explore/dataset/bus-tram-circulation-passages/api/;https://data.angers.fr/explore/dataset/bus-tram-position-tr/api/;
 Toulouse Tisséo;31555;Spécifique;n;n;ODbL;;https://data.toulouse-metropole.fr/explore/dataset/api-temps-reel-tisseo/information/;;
 Île-de-France Mobilités;75056;Siri-lite;y;n;ODbL;https://prim.iledefrance-mobilites.fr/fr/centre-aide;https://prim.iledefrance-mobilites.fr/fr/catalogue-data?type=REST;;https://prim.iledefrance-mobilites.fr/fr/donnees-dynamiques/2edc0361-1c3c-41ea-a5e5-21b28f4828e1
@@ -14,6 +13,5 @@ Nice Lignes d’Azur;6088;Spécifique;n;n;LO;;http://opendata.nicecotedazur.org/
 Besancon Ginko;25056;Spécifique;n;n;LO;;https://api.ginko.voyage/#tr;;https://api.ginko.voyage/#tr
 Saint-Etienne STAS;42218;Spécifique;y;n;Inconnue;;https://data.saint-etienne-metropole.fr/;;
 Bordeaux TBM;33063;Spécifique;y;n;LO;;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_horai_a/information/;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_vehic_p/information/;https://opendata.bordeaux-metropole.fr/explore/dataset/sv_messa_a/information/
-SNCF;;Spécifique;n;n;LO;https://www.digital.sncf.com/startup/api;http://doc.navitia.io/#next-departures-and-arrivals;;http://doc.navitia.io/#traffic-reports
 Poitiers Vitalis;86194;GTFS-RT;y;n;ODbL;;https://grandpoitiers.opendatasoft.com/explore/dataset/mobilite-horaires-de-bus-temps-reel-gtfs-rt-vitalis-inscription/;;
 Grenoble SMMAG;38185;Spécifique;n;y;ODbL;;https://data.mobilites-m.fr/doc/api#temps-reel;;https://data.mobilites-m.fr/api/dyn/evtTC/json
