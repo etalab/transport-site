@@ -54,9 +54,7 @@ defmodule TransportWeb.API.DatasetController do
         if enriched_dataset do
           enriched_resources =
             dataset.resources
-            |> Enum.map(fn r ->
-              enriched_dataset |> Map.get(r.id, r)
-            end)
+            |> Enum.map(fn r -> enriched_dataset |> Map.get(r.id, r) end)
 
           Map.put(dataset, :resources, enriched_resources)
         else
@@ -122,9 +120,7 @@ defmodule TransportWeb.API.DatasetController do
       enriched_resources =
         dataset
         |> Dataset.official_resources()
-        |> Enum.map(fn r ->
-          resources_with_metadata |> Map.get(r.id, r)
-        end)
+        |> Enum.map(fn r -> resources_with_metadata |> Map.get(r.id, r) end)
 
       dataset = dataset |> Map.put(:resources, enriched_resources)
 
