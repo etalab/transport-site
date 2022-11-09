@@ -168,7 +168,8 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
     view |> element(~s{button[phx-click="generate_query"}) |> render_click()
 
     # The payload should come back
-    assert element(view, "#siri_query_wrapper")
+    assert view
+           |> element("#siri_query_wrapper")
            |> render()
            |> Floki.parse_document!()
            |> Floki.attribute("value") == [xml_query]
@@ -223,7 +224,8 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
     view |> element(~s{button[phx-click="generate_query"}) |> render_click()
 
     # The payload should come back
-    assert element(view, "#siri_query_wrapper")
+    assert view
+           |> element("#siri_query_wrapper")
            |> render()
            |> Floki.parse_document!()
            |> Floki.attribute("value") == [xml_query]
