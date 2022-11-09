@@ -1,4 +1,4 @@
-defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
+defmodule Transport.Jobs.ResourceHistoryAndValidationDispatcherJob do
   @moduledoc """
   Job in charge of dispatching multiple `ResourceHistoryJob`
   """
@@ -15,7 +15,7 @@ defmodule Transport.Jobs.ResourceHistoryDispatcherJob do
 
     resource_ids
     |> Enum.map(fn resource_id ->
-      %{resource_id: resource_id} |> Transport.Jobs.ResourceHistoryJob.new()
+      %{resource_id: resource_id} |> Transport.Jobs.ResourceHistoryJob.historize_and_validate_job()
     end)
     |> Oban.insert_all()
 
@@ -46,20 +46,26 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   import Ecto.Query
   alias Transport.Shared.Schemas.Wrapper, as: Schemas
   alias DB.{Repo, Resource, ResourceHistory}
+  import Transport.Jobs.Workflow.Notifier, only: [notify_workflow: 2]
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"resource_id" => resource_id}}) do
+  def perform(%Oban.Job{args: %{"resource_id" => resource_id}} = job) do
     Logger.info("Running ResourceHistoryJob for resource##{resource_id}")
     resource = Repo.get!(Resource, resource_id)
 
     path = download_path(resource)
 
-    try do
-      resource |> download_resource(path) |> process_download(resource)
-    after
-      remove_file(path)
-    end
+    notification =
+      try do
+        %{resource_history_id: resource_history_id} = resource |> download_resource(path) |> process_download(resource)
+        %{"success" => true, "job_id" => job.id, "output" => %{resource_history_id: resource_history_id}}
+      rescue
+        e -> %{"success" => false, "job_id" => job.id, "reason" => inspect(e)}
+      after
+        remove_file(path)
+      end
 
+    notify_workflow(job, notification)
     :ok
   end
 
@@ -80,7 +86,10 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
     case should_store_resource?(resource, hash) do
       true ->
+        # to be deleted later when validation v1 is unplugged
+        # https://github.com/etalab/transport-site/issues/2390
         resource = validate_resource(resource, hash)
+
         filename = upload_filename(resource, download_datetime)
 
         base = %{
@@ -119,15 +128,17 @@ defmodule Transport.Jobs.ResourceHistoryJob do
         Transport.S3.upload_to_s3!(:history, body, filename)
         %{id: resource_history_id} = store_resource_history!(resource, data)
 
-        # validate the resource history
         %{resource_history_id: resource_history_id}
-        |> Transport.Jobs.ResourceHistoryValidationJob.new()
-        |> Oban.insert()
 
       {false, history} ->
         # Good opportunity to add a :telemetry event
         Logger.debug("skipping historization for resource##{resource.id} because resource did not change")
         touch_resource_history!(history)
+        %{resource_history_id: history.id}
+
+      false ->
+        Logger.debug("Failed historization for resource##{resource.id}")
+        {:error, "historization failed"}
     end
   end
 
@@ -297,5 +308,15 @@ defmodule Transport.Jobs.ResourceHistoryJob do
 
   defp latest_schema_version_to_date(%Resource{schema_name: schema_name}) do
     Schemas.latest_version(schema_name)
+  end
+
+  def historize_and_validate_job(%{resource_id: resource_id}, options \\ []) do
+    history_options = options |> Keyword.get(:history_options, []) |> Transport.Jobs.Workflow.kw_to_map()
+
+    # jobs is a list of jobs that will be enqueued as a workflow.
+    # if ResourceHistoryJob is a success, ResourceHistoryValidationJob will be enqueued.
+    jobs = [[Transport.Jobs.ResourceHistoryJob, %{}, history_options], Transport.Jobs.ResourceHistoryValidationJob]
+
+    Transport.Jobs.Workflow.new(%{jobs: jobs, first_job_args: %{resource_id: resource_id}})
   end
 end

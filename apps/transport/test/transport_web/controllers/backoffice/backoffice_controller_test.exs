@@ -289,7 +289,16 @@ defmodule TransportWeb.BackofficeControllerTest do
     %Resource{id: resource_id} = Resource |> Repo.one!()
 
     assert [
-             %Oban.Job{args: %{"resource_id" => ^resource_id}, worker: "Transport.Jobs.ResourceHistoryJob"}
+             %Oban.Job{
+               args: %{
+                 "first_job_args" => %{"resource_id" => ^resource_id},
+                 "jobs" => [
+                   ["Elixir.Transport.Jobs.ResourceHistoryJob", %{}, %{}],
+                   "Elixir.Transport.Jobs.ResourceHistoryValidationJob"
+                 ]
+               },
+               worker: "Transport.Jobs.Workflow"
+             }
            ] = all_enqueued()
   end
 
