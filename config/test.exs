@@ -45,7 +45,8 @@ config :transport,
     history: "resource-history-test",
     on_demand_validation: "on-demand-validation-test",
     gtfs_diff: "gtfs-diff-test"
-  }
+  },
+  workflow_notifier: Transport.Jobs.Workflow.ProcessNotifier
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"

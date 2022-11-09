@@ -598,13 +598,18 @@ defmodule DB.Dataset do
 
     {real_time_resources, static_resources} = Enum.split_with(dataset.resources, &Resource.is_real_time?/1)
 
-    # Oban.insert_all does not enforce `unique` params
-    # https://hexdocs.pm/oban/Oban.html#insert_all/3
-    # This is something we rely on
+    # unique period is set to nil, to force the resource history job to be executed
     static_resources
-    |> Enum.map(&Transport.Jobs.ResourceHistoryJob.new(%{"resource_id" => &1.id}))
+    |> Enum.map(
+      &Transport.Jobs.ResourceHistoryJob.historize_and_validate_job(%{resource_id: &1.id},
+        history_options: [unique: nil]
+      )
+    )
     |> Oban.insert_all()
 
+    # Oban.insert_all does not enforce `unique` params
+    # https://hexdocs.pm/oban/Oban.html#insert_all/3
+    # This is something we rely on to force the job execution
     real_time_resources
     |> Enum.map(&Transport.Jobs.ResourceValidationJob.new(%{"resource_id" => &1.id}))
     |> Oban.insert_all()
