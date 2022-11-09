@@ -15,6 +15,8 @@ defmodule DB.Dataset do
   use Ecto.Schema
   use TypedEctoSchema
 
+  @licences_ouvertes ["fr-lo", "lov2"]
+
   typed_schema "dataset" do
     field(:datagouv_id, :string)
     field(:custom_title, :string)
@@ -285,7 +287,7 @@ defmodule DB.Dataset do
 
   @spec filter_by_licence(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),
-    do: where(query, [d], d.licence in ["fr-lo", "lov2"])
+    do: where(query, [d], d.licence in @licences_ouvertes)
 
   defp filter_by_licence(query, %{"licence" => licence}), do: where(query, [d], d.licence == ^licence)
   defp filter_by_licence(query, _), do: query
@@ -377,6 +379,7 @@ defmodule DB.Dataset do
     |> cast_assoc(:region)
     |> cast_assoc(:aom)
     |> validate_territory_mutual_exclusion()
+    |> maybe_dataset_now_licence_ouverte(dataset)
     |> has_real_time()
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
@@ -397,14 +400,6 @@ defmodule DB.Dataset do
 
   @spec format_error(any()) :: binary()
   defp format_error(changeset), do: "#{inspect(Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end))}"
-
-  @spec valid_gtfs(DB.Dataset.t()) :: [Resource.t()]
-  def valid_gtfs(%__MODULE__{resources: nil}), do: []
-
-  def valid_gtfs(%__MODULE__{resources: r, type: "public-transit"}),
-    do: Enum.filter(r, &Resource.valid_and_available?/1)
-
-  def valid_gtfs(%__MODULE__{resources: r}), do: r
 
   @spec link_to_datagouv(DB.Dataset.t()) :: any()
   def link_to_datagouv(%__MODULE__{} = dataset) do
@@ -603,13 +598,18 @@ defmodule DB.Dataset do
 
     {real_time_resources, static_resources} = Enum.split_with(dataset.resources, &Resource.is_real_time?/1)
 
-    # Oban.insert_all does not enforce `unique` params
-    # https://hexdocs.pm/oban/Oban.html#insert_all/3
-    # This is something we rely on
+    # unique period is set to nil, to force the resource history job to be executed
     static_resources
-    |> Enum.map(&Transport.Jobs.ResourceHistoryJob.new(%{"resource_id" => &1.id}))
+    |> Enum.map(
+      &Transport.Jobs.ResourceHistoryJob.historize_and_validate_job(%{resource_id: &1.id},
+        history_options: [unique: nil]
+      )
+    )
     |> Oban.insert_all()
 
+    # Oban.insert_all does not enforce `unique` params
+    # https://hexdocs.pm/oban/Oban.html#insert_all/3
+    # This is something we rely on to force the job execution
     real_time_resources
     |> Enum.map(&Transport.Jobs.ResourceValidationJob.new(%{"resource_id" => &1.id}))
     |> Oban.insert_all()
@@ -812,6 +812,17 @@ defmodule DB.Dataset do
     |> change
     |> put_assoc(:communes, communes)
   end
+
+  defp maybe_dataset_now_licence_ouverte(%Ecto.Changeset{changes: %{licence: new_licence}} = changeset, %__MODULE__{
+         id: dataset_id,
+         licence: old_licence
+       })
+       when new_licence in @licences_ouvertes and old_licence not in @licences_ouvertes and not is_nil(dataset_id) do
+    %{"dataset_id" => dataset_id} |> Transport.Jobs.DatasetNowLicenceOuverteJob.new() |> Oban.insert!()
+    changeset
+  end
+
+  defp maybe_dataset_now_licence_ouverte(%Ecto.Changeset{} = changeset, %__MODULE__{}), do: changeset
 
   defp has_real_time(changeset) do
     has_realtime = changeset |> get_field(:resources) |> Enum.any?(&Resource.is_real_time?/1)
