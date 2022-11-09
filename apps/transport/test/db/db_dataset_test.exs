@@ -145,6 +145,34 @@ defmodule DB.DatasetDBTest do
 
       assert {:ok, %Ecto.Changeset{changes: %{has_realtime: false}}} = changeset
     end
+
+    test "when license changes from lov2 to fr-lo (both licence ouverte)" do
+      %{datagouv_id: datagouv_id} = insert(:dataset, licence: "lov2", datagouv_id: Ecto.UUID.generate())
+      assert {:ok, _} = Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
+      assert [] == all_enqueued()
+    end
+
+    test "when license changes from odbl to licence ouverte" do
+      %{datagouv_id: datagouv_id, id: dataset_id} =
+        insert(:dataset, licence: "odc-odbl", datagouv_id: Ecto.UUID.generate())
+
+      assert {:ok, _} = Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
+
+      assert [%Oban.Job{worker: "Transport.Jobs.DatasetNowLicenceOuverteJob", args: %{"dataset_id" => ^dataset_id}}] =
+               all_enqueued()
+    end
+
+    test "when dataset does not exist yet and the license is licence ouverte" do
+      assert {:ok, _} =
+               Dataset.changeset(%{
+                 "datagouv_id" => Ecto.UUID.generate(),
+                 "licence" => "fr-lo",
+                 "national_dataset" => "true",
+                 "slug" => "ma_limace"
+               })
+
+      assert [] == all_enqueued()
+    end
   end
 
   describe "resources last content update time" do
