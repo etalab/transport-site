@@ -87,7 +87,8 @@ defmodule TransportWeb.API.DatasetController do
     if is_nil(dataset) do
       conn |> put_status(404) |> render(%{errors: "dataset not found"})
     else
-      result =
+      # This is just a temporary hotfix for https://github.com/etalab/transport-site/issues/2752
+      records =
         Transport.Validators.GTFSTransport.validator_name()
         |> Dataset.join_from_dataset_to_metadata()
         |> where([dataset: d], d.datagouv_id == ^id)
@@ -98,7 +99,11 @@ defmodule TransportWeb.API.DatasetController do
           multi_validation: {mv.id, mv.resource_history_id},
           resource_history: {rh.id, rh.resource_id}
         })
-        |> Repo.one()
+        |> DB.Repo.all()
+
+      # the query above returns more than one record ; for now and without proper time
+      # to fix the code to return the correct one, I'm returning nothing
+      result = if records |> Enum.count() > 1, do: nil, else: records |> Enum.at(0)
 
       data =
         if is_nil(result) do
