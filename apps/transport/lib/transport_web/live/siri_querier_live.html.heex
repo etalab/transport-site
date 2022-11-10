@@ -2,20 +2,38 @@
   <div class="container">
     <h2><%= dgettext("explore", "SIRI query generator") %></h2>
     <.form :let={f} id="siri_querier" for={:config} phx-change="change_form" phx-submit="ignore">
-      <%= text_input(f, :endpoint_url,
-        value: @endpoint_url,
-        placeholder: dgettext("explore", "Endpoint URL"),
-        type: "url",
-        required: true
-      ) %>
-      <%= text_input(f, :requestor_ref,
-        value: @requestor_ref,
-        placeholder: dgettext("explore", "Requestor ref"),
-        autocomplete: "off",
-        spellcheck: "false",
-        required: true
-      ) %>
-      <%= select(f, :query_template, @query_template_choices, selected: @query_template) %>
+      <div>
+        <%= text_input(f, :endpoint_url,
+          value: @endpoint_url,
+          placeholder: dgettext("explore", "Endpoint URL"),
+          type: "url",
+          required: true
+        ) %>
+        <%= text_input(f, :requestor_ref,
+          value: @requestor_ref,
+          placeholder: dgettext("explore", "Requestor ref"),
+          autocomplete: "off",
+          spellcheck: "false",
+          required: true
+        ) %>
+        <%= select(f, :query_template, @query_template_choices, selected: @query_template) %>
+        <%= if @query_template == "GetEstimatedTimetable" do %>
+          <%= text_input(f, :line_refs,
+            value: @line_refs,
+            placeholder: dgettext("explore", "Line References (comma separated list)"),
+            spellcheck: false,
+            required: true
+          ) %>
+        <% end %>
+        <%= if @query_template == "GetStopMonitoring" do %>
+          <%= text_input(f, :stop_ref,
+            value: @stop_ref,
+            placeholder: dgettext("explore", "Stop Reference (only one)"),
+            spellcheck: false,
+            required: true
+          ) %>
+        <% end %>
+      </div>
       <button class="button" phx-click="generate_query"><%= dgettext("explore", "Generate") %></button>
       <button
         :if={[@siri_query, @endpoint_url, @requestor_ref] |> Enum.filter(&(&1 in ["", nil])) |> Enum.empty?()}

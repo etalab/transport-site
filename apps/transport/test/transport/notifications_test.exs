@@ -18,6 +18,8 @@ defmodule Transport.NotificationsTest do
     new_dataset:
       - bar@baz.com
       - foo@baz.com
+    dataset_now_licence_ouverte:
+      - bar@foo.com
     expiration:
       my_slug:
         emails:
@@ -32,7 +34,8 @@ defmodule Transport.NotificationsTest do
     expected = [
       %Item{reason: :expiration, dataset_slug: "my_slug", emails: ["foo@bar.com", "foo@bar.fr"], extra_delays: []},
       %Item{reason: :expiration, dataset_slug: "other", emails: ["foo@example.com"], extra_delays: [30]},
-      %Item{reason: :new_dataset, dataset_slug: nil, emails: ["bar@baz.com", "foo@baz.com"], extra_delays: nil}
+      %Item{reason: :new_dataset, dataset_slug: nil, emails: ["bar@baz.com", "foo@baz.com"], extra_delays: nil},
+      %Item{reason: :dataset_now_licence_ouverte, dataset_slug: nil, emails: ["bar@foo.com"], extra_delays: nil}
     ]
 
     assert expected == parse_config(yaml_config)
@@ -42,7 +45,8 @@ defmodule Transport.NotificationsTest do
     config = [
       %Item{reason: :expiration, dataset_slug: "my_slug", emails: ["foo@bar.com", "foo@bar.fr"], extra_delays: []},
       %Item{reason: :expiration, dataset_slug: "other", emails: ["foo@example.com"], extra_delays: []},
-      %Item{reason: :new_dataset, dataset_slug: nil, emails: ["foo@baz.com", "nope@baz.com"], extra_delays: nil}
+      %Item{reason: :new_dataset, dataset_slug: nil, emails: ["foo@baz.com", "nope@baz.com"], extra_delays: nil},
+      %Item{reason: :dataset_now_licence_ouverte, dataset_slug: nil, emails: ["bar@foo.com"], extra_delays: nil}
     ]
 
     assert ["foo@bar.com", "foo@bar.fr"] ==
@@ -55,6 +59,7 @@ defmodule Transport.NotificationsTest do
     assert [] == Notifications.emails_for_reason(config, :expiration, %DB.Dataset{slug: "nope"})
 
     assert ["foo@baz.com", "nope@baz.com"] == Notifications.emails_for_reason(config, :new_dataset)
+    assert ["bar@foo.com"] == Notifications.emails_for_reason(config, :dataset_now_licence_ouverte)
   end
 
   test "is_valid_extra_delay?" do
@@ -79,7 +84,8 @@ defmodule Transport.NotificationsTest do
 
     expected = [
       %Item{dataset_slug: "my_slug", emails: ["foo@bar.com", "foo@bar.fr"], reason: :expiration, extra_delays: []},
-      %Item{reason: :new_dataset, dataset_slug: nil, emails: ["foo@baz.com", "nope@baz.com"], extra_delays: nil}
+      %Item{reason: :new_dataset, dataset_slug: nil, emails: ["foo@baz.com", "nope@baz.com"], extra_delays: nil},
+      %Item{reason: :dataset_now_licence_ouverte, dataset_slug: nil, emails: ["bar@foo.com"], extra_delays: nil}
     ]
 
     assert expected == data
@@ -100,6 +106,8 @@ defmodule Transport.NotificationsTest do
          new_dataset:
           - foo@baz.com
           - nope@baz.com
+         dataset_now_licence_ouverte:
+          - bar@foo.com
          expiration:
            my_slug:
              emails:

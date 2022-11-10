@@ -15,6 +15,8 @@ defmodule DB.Dataset do
   use Ecto.Schema
   use TypedEctoSchema
 
+  @licences_ouvertes ["fr-lo", "lov2"]
+
   typed_schema "dataset" do
     field(:datagouv_id, :string)
     field(:custom_title, :string)
@@ -283,9 +285,9 @@ defmodule DB.Dataset do
   defp filter_by_active(query, %{"list_inactive" => true}), do: query
   defp filter_by_active(query, _), do: where(query, [d], d.is_active)
 
-  @spec filter_by_license(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_license(query, %{"license" => "licence-ouverte"}),
-    do: where(query, [d], d.licence in ["fr-lo", "lov2"])
+  @spec filter_by_licence(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),
+    do: where(query, [d], d.licence in @licences_ouvertes)
 
   defp filter_by_license(query, %{"license" => licence}), do: where(query, [d], d.licence == ^licence)
   defp filter_by_license(query, _), do: query
@@ -377,6 +379,7 @@ defmodule DB.Dataset do
     |> cast_assoc(:region)
     |> cast_assoc(:aom)
     |> validate_territory_mutual_exclusion()
+    |> maybe_dataset_now_licence_ouverte(dataset)
     |> has_real_time()
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
@@ -809,6 +812,17 @@ defmodule DB.Dataset do
     |> change
     |> put_assoc(:communes, communes)
   end
+
+  defp maybe_dataset_now_licence_ouverte(%Ecto.Changeset{changes: %{licence: new_licence}} = changeset, %__MODULE__{
+         id: dataset_id,
+         licence: old_licence
+       })
+       when new_licence in @licences_ouvertes and old_licence not in @licences_ouvertes and not is_nil(dataset_id) do
+    %{"dataset_id" => dataset_id} |> Transport.Jobs.DatasetNowLicenceOuverteJob.new() |> Oban.insert!()
+    changeset
+  end
+
+  defp maybe_dataset_now_licence_ouverte(%Ecto.Changeset{} = changeset, %__MODULE__{}), do: changeset
 
   defp has_real_time(changeset) do
     has_realtime = changeset |> get_field(:resources) |> Enum.any?(&Resource.is_real_time?/1)
