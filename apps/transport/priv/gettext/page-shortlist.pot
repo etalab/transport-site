@@ -223,3 +223,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "category"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "All (feminine)"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Licences"
+msgstr ""

@@ -88,7 +88,31 @@ defmodule TransportWeb.DatasetView do
 
     case assigns = conn.assigns do
       %{order_by: ^order_by} -> ~H"<span class=\"activefilter\"><%= msg %></span>"
-      _ -> link(msg, to: "#{current_url(conn, Map.put(conn.query_params, "order_by", order_by))}")
+      _ -> link(msg, to: current_url(conn, Map.put(conn.query_params, "order_by", order_by)))
+    end
+  end
+
+  def licence_link(%Plug.Conn{} = conn, %{licence: "all", count: count}) do
+    assigns = conn.assigns
+
+    if Map.has_key?(conn.query_params, "licence") do
+      link("#{dgettext("page-shortlist", "All (feminine)")} (#{count})",
+        to: current_url(conn, Map.reject(conn.query_params, fn {k, _v} -> k == "licence" end))
+      )
+    else
+      ~H{<span class="activefilter"><%= dgettext("page-shortlist", "All (feminine)") %> (<%= count %>)</span>}
+    end
+  end
+
+  def licence_link(%Plug.Conn{} = conn, %{licence: licence, count: count}) do
+    licence_param = Map.get(%{"lov2" => "licence-ouverte"}, licence, licence)
+    name = licence(%Dataset{licence: licence})
+    assigns = conn.assigns
+
+    if Map.get(conn.query_params, "licence") == licence_param do
+      ~H{<span class="activefilter"><%= name %> (<%= count %>)</span>}
+    else
+      link("#{name} (#{count})", to: current_url(conn, Map.put(conn.query_params, "licence", licence_param)))
     end
   end
 
