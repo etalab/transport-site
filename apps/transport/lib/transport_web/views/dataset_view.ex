@@ -356,7 +356,7 @@ defmodule TransportWeb.DatasetView do
 
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
 
-  def licence_url("mobility-license"),
+  def licence_url("mobility-licence"),
     do: "https://download.data.grandlyon.com/licences/Licence_mobilit%C3%A9s_V_02_2021.pdf"
 
   def licence_url(_), do: nil
@@ -389,7 +389,7 @@ defmodule TransportWeb.DatasetView do
       "other-open" -> dgettext("dataset", "other-open")
       "lov2" -> dgettext("dataset", "lov2")
       "notspecified" -> dgettext("dataset", "notspecified")
-      "mobility-license" -> dgettext("dataset", "Mobility license")
+      "mobility-licence" -> dgettext("dataset", "Mobility licence")
       other -> other
     end
   end
