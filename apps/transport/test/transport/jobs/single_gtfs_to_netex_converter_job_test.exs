@@ -11,6 +11,17 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
 
   setup :verify_on_exit!
 
+  test "existing conversion" do
+    uuid = Ecto.UUID.generate()
+    insert(:data_conversion, convert_from: "GTFS", convert_to: "NeTEx", resource_history_uuid: uuid, payload: %{})
+
+    %{id: resource_history_id} = insert(:resource_history, payload: %{"uuid" => uuid, "format" => "GTFS"})
+
+    # no mox expectation set, and the test passes => conversion is properly skipped
+    assert {:discard, "Conversion is not needed"} ==
+             perform_job(SingleGtfsToNetexConverterJob, %{"resource_history_id" => resource_history_id})
+  end
+
   test "launch a NeTEx conversion" do
     permanent_url = "https://resource.fr"
     uuid = Ecto.UUID.generate()
@@ -100,7 +111,7 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
       {:error, "conversion failed"}
     end)
 
-    assert :ok == perform_job(SingleGtfsToNetexConverterJob, %{"resource_history_id" => resource_history_id})
+    assert {:discard, _} = perform_job(SingleGtfsToNetexConverterJob, %{"resource_history_id" => resource_history_id})
 
     # ResourceHistory's payload is updated with the error information
     expected_payload =

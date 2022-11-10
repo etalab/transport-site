@@ -70,11 +70,13 @@ defmodule Transport.Jobs.GTFSGenericConverter do
     resource_history = ResourceHistory |> Repo.get(resource_history_id)
 
     case is_resource_gtfs?(resource_history) and not format_exists?(resource_history, format) do
-      true -> generate_and_upload_conversion(resource_history, format, converter_module)
-      false -> Logger.info("Skipping #{format} conversion of resource history #{resource_history_id}")
-    end
+      true ->
+        generate_and_upload_conversion(resource_history, format, converter_module)
 
-    :ok
+      false ->
+        Logger.info("Skipping #{format} conversion of resource history #{resource_history_id}")
+        {:discard, "Conversion is not needed"}
+    end
   end
 
   defp generate_and_upload_conversion(
@@ -141,6 +143,8 @@ defmodule Transport.Jobs.GTFSGenericConverter do
           }
           |> Repo.insert!()
 
+          :ok
+
         {:error, reason} ->
           resource_history
           |> Ecto.Changeset.change(%{
@@ -151,6 +155,8 @@ defmodule Transport.Jobs.GTFSGenericConverter do
               })
           })
           |> Repo.update!()
+
+          {:discard, "Converter returned an error: #{reason}"}
       end
     after
       File.rm(gtfs_file_path)
