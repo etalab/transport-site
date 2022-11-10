@@ -389,7 +389,7 @@ defmodule TransportWeb.DatasetView do
       "other-open" -> dgettext("dataset", "other-open")
       "lov2" -> dgettext("dataset", "lov2")
       "notspecified" -> dgettext("dataset", "notspecified")
-      "mobility-licence" -> dgettext("dataset", "Mobility licence")
+      "mobility-licence" -> dgettext("dataset", "Mobility Licence")
       other -> other
     end
   end
