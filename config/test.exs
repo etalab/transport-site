@@ -45,7 +45,8 @@ config :transport,
     history: "resource-history-test",
     on_demand_validation: "on-demand-validation-test",
     gtfs_diff: "gtfs-diff-test"
-  }
+  },
+  workflow_notifier: Transport.Jobs.Workflow.ProcessNotifier
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"
@@ -112,7 +113,11 @@ config :transport, Mailjet.Client,
   mailjet_user: "TEST_MJ_APIKEY_PUBLIC",
   mailjet_key: "TEST_MJ_APIKEY_PRIVATE"
 
-config :transport, :email_sender_impl, Transport.EmailSender.Mock
+config(
+  :transport,
+  email_sender_impl: Transport.EmailSender.Mock,
+  siri_query_generator_impl: Transport.SIRIQueryGenerator.Mock
+)
 
 # avoid logging
 config :os_mon,

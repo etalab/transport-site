@@ -6,10 +6,11 @@ defmodule Transport.Notifications do
   alias Transport.Notifications.Item
   @type configuration :: list(Item)
 
-  @reasons [:expiration, :new_dataset]
+  @reasons [:expiration, :new_dataset, :dataset_now_licence_ouverte]
+  @emails_list_reasons [:new_dataset, :dataset_now_licence_ouverte]
 
   @spec emails_for_reason(configuration, atom()) :: list(binary())
-  def emails_for_reason(config, reason) when reason in [:new_dataset] do
+  def emails_for_reason(config, reason) when reason in @emails_list_reasons do
     Enum.find_value(config, [], fn item ->
       if item.reason == reason, do: item.emails
     end)
@@ -76,7 +77,7 @@ defmodule Transport.Notifications do
       end)
     end
 
-    defp create_items(:new_dataset = reason, content) do
+    defp create_items(reason, content) do
       [
         %Item{
           reason: reason,
