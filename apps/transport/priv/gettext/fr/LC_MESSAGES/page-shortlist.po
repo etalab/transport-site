@@ -199,8 +199,8 @@ msgid "Any"
 msgstr "Peu importe"
 
 #, elixir-autogen, elixir-format
-msgid "added on"
-msgstr "ajouté le"
+msgid "created on"
+msgstr "créé le"
 
 #, elixir-autogen, elixir-format
 msgid "region"
