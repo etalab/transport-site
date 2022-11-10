@@ -77,3 +77,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "HTTP response body"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Line References (comma separated list)"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Stop Reference (only one)"
+msgstr ""
