@@ -14,7 +14,7 @@ msgid "Download"
 msgstr "Télécharger"
 
 msgid "Licence"
-msgstr "License"
+msgstr "Licence"
 
 msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
@@ -229,5 +229,5 @@ msgid "All (feminine)"
 msgstr "Toutes"
 
 #, elixir-autogen, elixir-format
-msgid "Licenses"
+msgid "Licences"
 msgstr "Licences"

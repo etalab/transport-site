@@ -203,22 +203,17 @@ defmodule TransportWeb.DatasetControllerTest do
              dataset |> TransportWeb.DatasetController.gtfs_rt_entities()
   end
 
-  test "get_licenses" do
+  test "get_licences" do
     insert(:dataset, licence: "lov2", type: "low-emission-zones")
     insert(:dataset, licence: "fr-lo", type: "low-emission-zones")
     insert(:dataset, licence: "odc-odbl", type: "low-emission-zones")
     insert(:dataset, licence: "odc-odbl", type: "public-transit")
 
-    assert [%{count: 1, license: "odc-odbl"}] ==
-             TransportWeb.DatasetController.get_licenses(%{"type" => "public-transit"})
+    assert [%{count: 1, licence: "odc-odbl"}] ==
+             TransportWeb.DatasetController.get_licences(%{"type" => "public-transit"})
 
-    assert [%{count: 2, license: "lov2"}, %{count: 1, license: "odc-odbl"}] ==
-             TransportWeb.DatasetController.get_licenses(%{"type" => "low-emission-zones"})
-  end
-
-  test "redirects when using old licence query param", %{conn: conn} do
-    conn = conn |> get(dataset_path(conn, :index, licence: "licence-ouverte", type: "public-transit"))
-    assert redirected_to(conn, 301) =~ dataset_path(conn, :index, license: "licence-ouverte", type: "public-transit")
+    assert [%{count: 2, licence: "lov2"}, %{count: 1, licence: "odc-odbl"}] ==
+             TransportWeb.DatasetController.get_licences(%{"type" => "low-emission-zones"})
   end
 
   defp set_empty_mocks do

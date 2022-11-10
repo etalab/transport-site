@@ -187,7 +187,7 @@ msgid "Reuses"
 msgstr "Réutilisations"
 
 #, elixir-autogen, elixir-format
-msgid "License"
+msgid "Licence"
 msgstr "Licence"
 
 #, elixir-autogen, elixir-format

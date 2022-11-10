@@ -229,5 +229,5 @@ msgid "All (feminine)"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Licenses"
+msgid "Licences"
 msgstr ""

@@ -289,8 +289,8 @@ defmodule DB.Dataset do
   defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),
     do: where(query, [d], d.licence in @licences_ouvertes)
 
-  defp filter_by_license(query, %{"license" => licence}), do: where(query, [d], d.licence == ^licence)
-  defp filter_by_license(query, _), do: query
+  defp filter_by_licence(query, %{"licence" => licence}), do: where(query, [d], d.licence == ^licence)
+  defp filter_by_licence(query, _), do: query
 
   @spec list_datasets(map()) :: Ecto.Query.t()
   def list_datasets(%{} = params) do
@@ -305,7 +305,7 @@ defmodule DB.Dataset do
       |> filter_by_type(params)
       |> filter_by_aom(params)
       |> filter_by_commune(params)
-      |> filter_by_license(params)
+      |> filter_by_licence(params)
       |> filter_by_fulltext(params)
       |> select([dataset: d], d.id)
 

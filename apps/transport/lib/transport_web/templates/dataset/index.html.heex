@@ -104,20 +104,20 @@
                 </li>
               <% end %>
 
-              <%= unless Enum.empty?(@licenses) do %>
+              <%= unless Enum.empty?(@licences) do %>
                 <li class="side-pane__title">
-                  <h3><%= dgettext("page-shortlist", "Licenses") %></h3>
+                  <h3><%= dgettext("page-shortlist", "Licences") %></h3>
                   <li class="side-pane__dropdown unfolded">
                     <ul class="side-pane__submenu">
                       <li>
-                        <%= license_link(@conn, %{
-                          license: "all",
-                          count: @licenses |> Enum.map(& &1.count) |> Enum.sum()
+                        <%= licence_link(@conn, %{
+                          licence: "all",
+                          count: @licences |> Enum.map(& &1.count) |> Enum.sum()
                         }) %>
                       </li>
-                      <%= for license <- @licenses do %>
-                        <%= unless license.count == 0 do %>
-                          <li><%= license_link(@conn, license) %></li>
+                      <%= for licence <- @licences do %>
+                        <%= unless licence.count == 0 do %>
+                          <li><%= licence_link(@conn, licence) %></li>
                         <% end %>
                       <% end %>
                     </ul>
