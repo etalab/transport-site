@@ -36,17 +36,9 @@ defmodule TransportWeb.DatasetView do
   def count_discussions(nil), do: '-'
   def count_discussions(discussions), do: Enum.count(discussions)
 
-  # NOTE: this method (and more here) are unused and
-  # were referred to by unused partials
-  def first_gtfs(dataset) do
-    dataset
-    |> Dataset.valid_gtfs()
-    |> List.first()
-  end
-
   def end_date(dataset) do
-    dataset
-    |> Dataset.valid_gtfs()
+    dataset.resources
+    |> Enum.filter(&Resource.is_gtfs?/1)
     |> Enum.max_by(
       fn
         %{metadata: nil} -> ""
@@ -96,7 +88,31 @@ defmodule TransportWeb.DatasetView do
 
     case assigns = conn.assigns do
       %{order_by: ^order_by} -> ~H"<span class=\"activefilter\"><%= msg %></span>"
-      _ -> link(msg, to: "#{current_url(conn, Map.put(conn.query_params, "order_by", order_by))}")
+      _ -> link(msg, to: current_url(conn, Map.put(conn.query_params, "order_by", order_by)))
+    end
+  end
+
+  def licence_link(%Plug.Conn{} = conn, %{licence: "all", count: count}) do
+    assigns = conn.assigns
+
+    if Map.has_key?(conn.query_params, "licence") do
+      link("#{dgettext("page-shortlist", "All (feminine)")} (#{count})",
+        to: current_url(conn, Map.reject(conn.query_params, fn {k, _v} -> k == "licence" end))
+      )
+    else
+      ~H{<span class="activefilter"><%= dgettext("page-shortlist", "All (feminine)") %> (<%= count %>)</span>}
+    end
+  end
+
+  def licence_link(%Plug.Conn{} = conn, %{licence: licence, count: count}) do
+    licence_param = Map.get(%{"lov2" => "licence-ouverte"}, licence, licence)
+    name = licence(%Dataset{licence: licence})
+    assigns = conn.assigns
+
+    if Map.get(conn.query_params, "licence") == licence_param do
+      ~H{<span class="activefilter"><%= name %> (<%= count %>)</span>}
+    else
+      link("#{name} (#{count})", to: current_url(conn, Map.put(conn.query_params, "licence", licence_param)))
     end
   end
 
@@ -429,9 +445,7 @@ defmodule TransportWeb.DatasetView do
   def resource_class(_, _), do: ""
 
   def order_resources_by_validity(resources, %{validations: validations}) do
-    resources
-    |> Enum.sort_by(&(validations |> Map.get(&1.id) |> hd() |> get_metadata_info("end_date")), &>=/2)
-    |> Enum.sort_by(&Resource.valid_and_available?(&1), &>=/2)
+    Enum.sort_by(resources, &(validations |> Map.get(&1.id) |> hd() |> get_metadata_info("end_date")), &>=/2)
   end
 
   def order_resources_by_format(resources), do: resources |> Enum.sort_by(& &1.format, &>=/2)

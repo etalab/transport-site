@@ -14,7 +14,7 @@ msgid "Download"
 msgstr "Télécharger"
 
 msgid "Licence"
-msgstr "License"
+msgstr "Licence"
 
 msgid "See on data.gouv.fr"
 msgstr "Voir sur data.gouv.fr"
@@ -223,3 +223,11 @@ msgstr "Régions"
 #, elixir-autogen, elixir-format
 msgid "category"
 msgstr "catégorie"
+
+#, elixir-autogen, elixir-format
+msgid "All (feminine)"
+msgstr "Toutes"
+
+#, elixir-autogen, elixir-format
+msgid "Licences"
+msgstr "Licences"

@@ -24,7 +24,16 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     |> assign(:siri_response_status_code, nil)
     |> assign(:siri_response_error, nil)
     |> assign(:query_template, "CheckStatus")
-    |> assign(:query_template_choices, ["CheckStatus", "LinesDiscovery", "StopPointsDiscovery"])
+    |> assign(:query_template_choices, [
+      "CheckStatus",
+      "LinesDiscovery",
+      "StopPointsDiscovery",
+      "GetEstimatedTimetable",
+      "GetGeneralMessage",
+      "GetStopMonitoring"
+    ])
+    |> assign(:line_refs, "")
+    |> assign(:stop_ref, "")
   end
 
   def handle_params(params, _uri, socket) do
@@ -105,6 +114,8 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
       |> assign(:endpoint_url, params["config"]["endpoint_url"])
       |> assign(:requestor_ref, params["config"]["requestor_ref"])
       |> assign(:query_template, params["config"]["query_template"])
+      |> assign(:line_refs, params["config"]["line_refs"])
+      |> assign(:stop_ref, params["config"]["stop_ref"])
 
     {:noreply, socket |> push_patch(to: self_path(socket))}
   end
@@ -118,18 +129,31 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   def build_message_id, do: "Test::Message::#{Ecto.UUID.generate()}"
 
   defp generate_query(%Phoenix.LiveView.Socket{assigns: assigns}) do
-    generate_query(assigns[:query_template], assigns[:requestor_ref])
-  end
+    query_generator = Transport.SIRIQueryGenerator.impl()
 
-  defp generate_query("CheckStatus", requestor_ref) do
-    Transport.SIRI.check_status(build_timestamp(), requestor_ref, build_message_id())
-  end
+    line_refs =
+      if assigns[:line_refs] do
+        assigns[:line_refs] |> String.split(",") |> Enum.map(&String.trim(&1))
+      else
+        nil
+      end
 
-  defp generate_query("StopPointsDiscovery", requestor_ref) do
-    Transport.SIRI.stop_points_discovery(build_timestamp(), requestor_ref, build_message_id())
-  end
+    stop_ref =
+      if assigns[:stop_ref] do
+        assigns[:stop_ref] |> String.trim()
+      else
+        nil
+      end
 
-  defp generate_query("LinesDiscovery", requestor_ref) do
-    Transport.SIRI.lines_discovery(build_timestamp(), requestor_ref, build_message_id())
+    params = %{
+      template: assigns[:query_template],
+      requestor_ref: assigns[:requestor_ref],
+      message_id: build_message_id(),
+      timestamp: build_timestamp(),
+      line_refs: line_refs,
+      stop_ref: stop_ref
+    }
+
+    query_generator.generate_query(params)
   end
 end

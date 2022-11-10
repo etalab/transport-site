@@ -154,7 +154,18 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
 
       assert 1 == count_resource_unavailabilities()
       assert %{is_available: false, url: ^new_url} = Repo.reload(resource)
-      assert [%{args: %{"resource_id" => ^resource_id}}] = all_enqueued(worker: Transport.Jobs.ResourceHistoryJob)
+
+      assert [
+               %{
+                 args: %{
+                   "first_job_args" => %{"resource_id" => ^resource_id},
+                   "jobs" => [
+                     ["Elixir.Transport.Jobs.ResourceHistoryJob", _, _],
+                     "Elixir.Transport.Jobs.ResourceHistoryValidationJob"
+                   ]
+                 }
+               }
+             ] = all_enqueued(worker: Transport.Jobs.Workflow)
     end
   end
 
