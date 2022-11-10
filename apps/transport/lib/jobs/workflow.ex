@@ -51,7 +51,7 @@ defmodule Transport.Jobs.Workflow do
   It would have been more natural for `custom_options` to be a keyword list, but Oban can just accept maps as job arguments, as keyword list cannot
   be Jason encoded. There is the kw_to_map helper function to transform a keword list to a map if needed.
   """
-  use Oban.Worker, tags: ["workflow"], max_attempts: 3
+  use Oban.Worker, tags: ["workflow"], max_attempts: 3, queue: :workflow
   alias Transport.Jobs.Workflow.Notifier
 
   @impl Oban.Worker
