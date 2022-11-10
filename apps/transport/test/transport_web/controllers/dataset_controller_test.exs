@@ -203,6 +203,19 @@ defmodule TransportWeb.DatasetControllerTest do
              dataset |> TransportWeb.DatasetController.gtfs_rt_entities()
   end
 
+  test "get_licences" do
+    insert(:dataset, licence: "lov2", type: "low-emission-zones")
+    insert(:dataset, licence: "fr-lo", type: "low-emission-zones")
+    insert(:dataset, licence: "odc-odbl", type: "low-emission-zones")
+    insert(:dataset, licence: "odc-odbl", type: "public-transit")
+
+    assert [%{count: 1, licence: "odc-odbl"}] ==
+             TransportWeb.DatasetController.get_licences(%{"type" => "public-transit"})
+
+    assert [%{count: 2, licence: "lov2"}, %{count: 1, licence: "odc-odbl"}] ==
+             TransportWeb.DatasetController.get_licences(%{"type" => "low-emission-zones"})
+  end
+
   defp set_empty_mocks do
     Datagouvfr.Client.Reuses.Mock |> expect(:get, fn _ -> {:ok, []} end)
     Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _ -> %{} end)

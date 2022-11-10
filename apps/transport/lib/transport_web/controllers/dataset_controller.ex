@@ -22,6 +22,7 @@ defmodule TransportWeb.DatasetController do
     conn
     |> assign(:datasets, get_datasets(params))
     |> assign(:types, get_types(params))
+    |> assign(:licences, get_licences(params))
     |> assign(:number_realtime_datasets, get_realtime_count(params))
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
@@ -197,6 +198,19 @@ defmodule TransportWeb.DatasetController do
     |> group_by([r], [r.id, r.nom])
     |> select([r, d], %{nom: r.nom, id: r.id, count: count(d.id, :distinct)})
     |> order_by([r], r.nom)
+    |> Repo.all()
+  end
+
+  @spec get_licences(map()) :: [%{licence: binary(), count: integer}]
+  def get_licences(params) do
+    params
+    |> clean_datasets_query("licence")
+    |> exclude(:order_by)
+    |> group_by([d], fragment("cleaned_licence"))
+    |> select([d], %{
+      licence: fragment("case when licence = 'fr-lo' then 'lov2' else licence end as cleaned_licence"),
+      count: count(d.id, :distinct)
+    })
     |> Repo.all()
   end
 
