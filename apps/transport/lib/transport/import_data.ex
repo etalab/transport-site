@@ -176,7 +176,7 @@ defmodule Transport.ImportData do
       |> Map.put("organization", data_gouv_resp["organization"]["name"])
       |> Map.put("resources", get_resources(data_gouv_resp, type))
       |> Map.put("nb_reuses", get_nb_reuses(data_gouv_resp))
-      |> Map.put("licence", license(data_gouv_resp))
+      |> Map.put("licence", licence(data_gouv_resp))
       |> Map.put("zones", get_associated_zones_insee(data_gouv_resp))
 
     case Map.get(data_gouv_resp, "resources") do
@@ -186,35 +186,35 @@ defmodule Transport.ImportData do
   end
 
   @doc """
-  Set the license according to the datagouv response with possible overrides.
+  Set the licence according to the datagouv response with possible overrides.
   Context: we're doing this directly on transport.data.gouv.fr because data.gouv.fr does
-  not handle licenses that have not been homologated. Some custom licenses will be
+  not handle licences that have not been homologated. Some custom licences will be
   classified as `notspecified` on the datagouv API response as a result.
 
     ## Examples
 
-      iex> license(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Lyon"}})
-      "mobility-license"
+      iex> licence(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Lyon"}})
+      "mobility-licence"
 
-      iex> license(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Rouen"}})
+      iex> licence(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Rouen"}})
       "notspecified"
 
-      iex> license(%{"license" => "odc-odbl"})
+      iex> licence(%{"license" => "odc-odbl"})
       "odc-odbl"
 
   """
-  def license(%{"license" => "notspecified", "organization" => %{"name" => org_name}}) do
-    orgs_with_mobility_license = ["Métropole de Lyon"]
+  def licence(%{"license" => "notspecified", "organization" => %{"name" => org_name}}) do
+    orgs_with_mobility_licence = ["Métropole de Lyon"]
 
-    if org_name in orgs_with_mobility_license do
-      "mobility-license"
+    if org_name in orgs_with_mobility_licence do
+      "mobility-licence"
     else
       "notspecified"
     end
   end
 
-  def license(%{"license" => datagouv_license}), do: datagouv_license
-  def license(_), do: nil
+  def licence(%{"license" => datagouv_licence}), do: datagouv_licence
+  def licence(_), do: nil
 
   @doc """
   Get logo from datagouv dataset
