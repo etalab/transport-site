@@ -13,7 +13,6 @@ defmodule Transport.Jobs.ResourcesUnavailableDispatcherJob do
 
     Logger.debug("Dispatching #{Enum.count(resource_ids)} ResourceUnavailableJob jobs")
 
-
     Enum.each(resource_ids, fn resource_id ->
       %{resource_id: resource_id}
       |> Transport.Jobs.ResourceUnavailableJob.new()
