@@ -17,7 +17,7 @@ defmodule Transport.Jobs.ResourcesUnavailableDispatcherJob do
     Enum.each(resource_ids, fn resource_id ->
       %{resource_id: resource_id}
       |> Transport.Jobs.ResourceUnavailableJob.new()
-      |> Oban.insert()
+      |> Oban.insert!()
     end)
 
     :ok
