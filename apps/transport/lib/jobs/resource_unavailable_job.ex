@@ -13,11 +13,12 @@ defmodule Transport.Jobs.ResourcesUnavailableDispatcherJob do
 
     Logger.debug("Dispatching #{Enum.count(resource_ids)} ResourceUnavailableJob jobs")
 
-    resource_ids
-    |> Enum.map(fn resource_id ->
-      %{resource_id: resource_id} |> Transport.Jobs.ResourceUnavailableJob.new()
+
+    Enum.each(resource_ids, fn resource_id ->
+      %{resource_id: resource_id}
+      |> Transport.Jobs.ResourceUnavailableJob.new()
+      |> Oban.insert()
     end)
-    |> Oban.insert_all()
 
     :ok
   end
@@ -48,7 +49,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
   - is_available (if the availability of the resource changes)
   - url (if lastest_url points to a new URL)
   """
-  use Oban.Worker, max_attempts: 5
+  use Oban.Worker, unique: [period: 60 * 9], max_attempts: 5
   require Logger
   alias DB.{Repo, Resource, ResourceUnavailability}
 
