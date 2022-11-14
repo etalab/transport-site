@@ -133,14 +133,26 @@ defmodule TransportWeb.DatasetViewTest do
     test "inactive filter", %{conn: conn} do
       conn = conn |> get(dataset_path(conn, :index))
 
-      assert ~s{<a href="http://127.0.0.1:5100/datasets?licence=licence-ouverte">Licence Ouverte Version 2.0 (3)</a>} ==
+      assert ~s{<a href="http://127.0.0.1:5100/datasets?licence=licence-ouverte">Licence Ouverte — version 2.0 (3)</a>} ==
                conn |> licence_link(%{licence: "lov2", count: 3}) |> to_html()
     end
 
-    test "active filter", %{conn: conn} do
+    test "active filter for licence-ouverte", %{conn: conn} do
       conn = conn |> get(dataset_path(conn, :index, licence: "licence-ouverte"))
 
-      assert ~s{<span class="activefilter">Licence Ouverte Version 2.0 (3)</span>} ==
+      assert ~s{<span class="activefilter">Licence Ouverte — version 2.0 (3)</span>} ==
+               conn |> licence_link(%{licence: "lov2", count: 3}) |> to_html()
+    end
+
+    test "active filter for lov2 by name", %{conn: conn} do
+      conn = conn |> get(dataset_path(conn, :index, licence: "lov2"))
+
+      assert ~s{<span class="activefilter">Licence Ouverte — version 2.0 (3)</span>} ==
+               conn |> licence_link(%{licence: "lov2", count: 3}) |> to_html()
+
+      conn = conn |> get(dataset_path(conn, :index, licence: "fr-lo"))
+
+      assert ~s{<a href="http://127.0.0.1:5100/datasets?licence=licence-ouverte">Licence Ouverte — version 2.0 (3)</a>} ==
                conn |> licence_link(%{licence: "lov2", count: 3}) |> to_html()
     end
 

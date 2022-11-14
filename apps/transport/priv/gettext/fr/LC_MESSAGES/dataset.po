@@ -54,7 +54,7 @@ msgstr "Votre version a été ajoutée"
 
 #, elixir-autogen, elixir-format
 msgid "fr-lo"
-msgstr "Licence ouverte"
+msgstr "Licence Ouverte"
 
 #, elixir-autogen, elixir-format
 msgid "notspecified"
@@ -74,7 +74,7 @@ msgstr "La ressource est indisponible (peut-être temporairement)"
 
 #, elixir-autogen, elixir-format
 msgid "lov2"
-msgstr "Licence Ouverte Version 2.0"
+msgstr "Licence Ouverte — version 2.0"
 
 #, elixir-autogen, elixir-format
 msgid "Mobility Licence"

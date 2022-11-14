@@ -212,7 +212,7 @@ defmodule TransportWeb.DatasetControllerTest do
     assert [%{count: 1, licence: "odc-odbl"}] ==
              TransportWeb.DatasetController.get_licences(%{"type" => "public-transit"})
 
-    assert [%{count: 2, licence: "lov2"}, %{count: 1, licence: "odc-odbl"}] ==
+    assert [%{count: 1, licence: "lov2"}, %{count: 1, licence: "fr-lo"}, %{count: 1, licence: "odc-odbl"}] ==
              TransportWeb.DatasetController.get_licences(%{"type" => "low-emission-zones"})
   end
 

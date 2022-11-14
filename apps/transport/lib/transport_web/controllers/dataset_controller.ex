@@ -206,11 +206,9 @@ defmodule TransportWeb.DatasetController do
     params
     |> clean_datasets_query("licence")
     |> exclude(:order_by)
-    |> group_by([d], fragment("cleaned_licence"))
-    |> select([d], %{
-      licence: fragment("case when licence = 'fr-lo' then 'lov2' else licence end as cleaned_licence"),
-      count: count(d.id, :distinct)
-    })
+    |> group_by([d], d.licence)
+    |> select([d], %{licence: d.licence, count: count(d.id)})
+    |> order_by([d], desc: fragment("case when licence = 'lov2' then 2 when licence = 'fr-lo' then 1 else 0 end"))
     |> Repo.all()
   end
 
