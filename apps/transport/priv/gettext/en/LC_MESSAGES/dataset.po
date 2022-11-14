@@ -77,5 +77,5 @@ msgid "lov2"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Mobility license"
+msgid "Mobility Licence"
 msgstr ""
