@@ -24,32 +24,26 @@ defmodule Transport.Jobs.GtfsToGeojsonConverterJobTest do
       payload: %{"format" => "NeTEx", "uuid" => Ecto.UUID.generate()}
     )
 
+    insert(:resource_history, datagouv_id: "3", payload: %{})
+
+    # Ignored because it previously had a fatal conversion error
     insert(:resource_history,
-      datagouv_id: "3",
-      payload: %{}
+      datagouv_id: "4",
+      payload: %{"format" => "GTFS", "uuid" => Ecto.UUID.generate(), "conversion_GeoJSON_fatal_error" => true}
     )
 
     # this resource_history should not get enqueued for conversion,
     # as a matching data_conversion already exists
-    %{id: not_enqueued_resource_history_id} =
-      insert(:resource_history,
-        datagouv_id: "4",
-        payload: %{"format" => "GTFS", uuid: uuid = Ecto.UUID.generate()}
-      )
+    insert(:resource_history,
+      datagouv_id: "4",
+      payload: %{"format" => "GTFS", uuid: uuid = Ecto.UUID.generate()}
+    )
 
-    # here is the matching data conversion
     insert(:data_conversion, convert_from: "GTFS", convert_to: "GeoJSON", resource_history_uuid: uuid, payload: %{})
 
     :ok = perform_job(GtfsToGeojsonConverterJob, %{})
 
-    assert_enqueued(
-      [worker: SingleGtfsToGeojsonConverterJob, args: %{"resource_history_id" => resource_history_id}],
-      100
-    )
-
-    refute_enqueued(
-      [worker: SingleGtfsToGeojsonConverterJob, args: %{"resource_history_id" => not_enqueued_resource_history_id}],
-      100
-    )
+    assert [%Oban.Job{args: %{"resource_history_id" => ^resource_history_id}}] =
+             all_enqueued(worker: SingleGtfsToGeojsonConverterJob)
   end
 end
