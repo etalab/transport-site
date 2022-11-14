@@ -199,7 +199,7 @@ msgid "Any"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "added on"
+msgid "created on"
 msgstr ""
 
 #, elixir-autogen, elixir-format
