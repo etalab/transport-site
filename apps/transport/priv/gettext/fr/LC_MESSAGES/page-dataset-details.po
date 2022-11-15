@@ -347,10 +347,6 @@ msgid "Reuses are temporarily unavailable"
 msgstr "Les réutilisations sont temporairement indisponibles"
 
 #, elixir-autogen, elixir-format
-msgid "Data producer"
-msgstr "Producteur de la donnée"
-
-#, elixir-autogen, elixir-format
 msgid "Resource declared schema"
 msgstr "La ressource déclare utiliser ce schéma"
 
@@ -553,3 +549,7 @@ msgstr "Impossible de déterminer le fichier GTFS à utiliser pour effectuer une
 #, elixir-autogen, elixir-format
 msgid "Cannot determine the relevant GTFS file to use to perform a GTFS-RT validation because there are multiple GTFS files."
 msgstr "Impossible de déterminer le fichier GTFS à utiliser pour effectuer une validation du GTFS-RT car il y a plusieurs fichiers GTFS."
+
+#, elixir-autogen, elixir-format
+msgid "Data published by"
+msgstr "Données publiées par"
