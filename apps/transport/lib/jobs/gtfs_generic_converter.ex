@@ -110,24 +110,21 @@ defmodule Transport.Jobs.GTFSGenericConverter do
           # gtfs2netex converter outputs a folder, we need to zip it
           zip_conversion? = File.dir?(conversion_output_path)
 
-          file =
-            zip_conversion?
-            |> case do
-              true ->
-                :ok = Transport.FolderZipper.zip(conversion_output_path, zip_path)
-                zip_path
-
-              false ->
-                conversion_output_path
+          path =
+            if zip_conversion? do
+              :ok = Transport.FolderZipper.zip(conversion_output_path, zip_path)
+              zip_path
+            else
+              conversion_output_path
             end
-            |> File.read!()
+
+          file = File.read!(path)
+          %File.Stat{size: filesize} = File.stat!(path)
 
           conversion_file_name =
             resource_filename |> conversion_file_name(format_lower) |> add_zip_extension(zip_conversion?)
 
           Transport.S3.upload_to_s3!(:history, file, conversion_file_name)
-
-          {:ok, %{size: filesize}} = File.stat(conversion_output_path)
 
           %DataConversion{
             convert_from: "GTFS",
