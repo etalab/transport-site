@@ -17,16 +17,35 @@
           <strong><%= Enum.join(@modes, ", ") %></strong>
         </li>
       <% end %>
-      <%= if Map.get(@metadata, "networks", []) != [] do %>
+      <%= if Map.get(@metadata, "networks_start_end_dates", %{}) != %{} do %>
         <li>
           <div>
             <div class="networks-list">
-              <%= dngettext("validations", "network", "networks", length(@metadata["networks"])) %> :
-              <strong><%= Enum.join(@metadata["networks"], ", ") %></strong>
+              <%= dngettext("validations", "network", "networks", length(@metadata["networks"])) %> : <% networks =
+                Map.get(@metadata, "networks_start_end_dates", %{}) %><br />
+              <div style="display: grid; grid-template-columns: minmax(100px, max-content) minmax(100px, max-content) minmax(100px, max-content);">
+                <%= for {network, %{"start_date" => start_date, "end_date" => end_date}} <- networks do %>
+                  <span><%= network %></span>
+                  <span> <strong><%= start_date %></strong></span>
+                  <span>=> <strong><%= end_date %></strong></span>
+                <% end %>
+              </div>
             </div>
           </div>
         </li>
+      <% else %>
+        <%= if Map.get(@metadata, "networks", []) != [] do %>
+          <li>
+            <div>
+              <div class="networks-list">
+                <%= dngettext("validations", "network", "networks", length(@metadata["networks"])) %> :
+                <strong><%= Enum.join(@metadata["networks"], ", ") %></strong>
+              </div>
+            </div>
+          </li>
+        <% end %>
       <% end %>
+
       <%= if @metadata["stop_points_count"] != nil do %>
         <li>
           <%= dgettext("validations", "number of stop points") %> :
