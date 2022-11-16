@@ -69,12 +69,12 @@ defmodule Transport.Jobs.SingleGtfsToNetexConverterJobTest do
              perform_job(SingleGtfsToNetexConverterJob, %{"resource_history_id" => resource_history_id})
 
     # a data_conversion row is recorded ✌️‍
-    DB.DataConversion
-    |> DB.Repo.get_by!(
-      convert_from: "GTFS",
-      convert_to: "NeTEx",
-      resource_history_uuid: uuid
-    )
+    assert %DB.DataConversion{payload: %{"filesize" => 41, "filename" => "conversions/gtfs-to-netex/fff.netex.zip"}} =
+             DB.Repo.get_by!(DB.DataConversion,
+               convert_from: "GTFS",
+               convert_to: "NeTEx",
+               resource_history_uuid: uuid
+             )
 
     Transport.Test.TestUtils.ensure_no_tmp_files!("conversion_gtfs_netex_")
   end
