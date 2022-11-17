@@ -7,3 +7,20 @@
 .full-width {
   width: 100%;
 }
+
+.networks-list div {
+  padding-left: 12px;
+}
+
+.networks-start-end {
+  display: grid;
+  grid-template-columns: minmax(0, 200px) repeat(4, max-content);
+  column-gap: 10px;
+  row-gap: 3px;
+  .outdated {
+    color: $red;
+  }
+  .valid-not-for-long {
+    color: $orange;
+  }
+}
