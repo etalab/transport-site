@@ -241,7 +241,7 @@ defmodule TransportWeb.ResourceView do
       case Date.diff(end_date, Date.utc_today()) do
         n when n > 7 -> "valid"
         n when n > 0 -> "valid-not-for-long"
-        n -> "outdated"
+        _ -> "outdated"
       end
     end
 
