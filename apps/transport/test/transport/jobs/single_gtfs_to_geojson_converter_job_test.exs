@@ -63,12 +63,12 @@ defmodule Transport.Jobs.SingleGtfsToGeojsonConverterJobTest do
              perform_job(SingleGtfsToGeojsonConverterJob, %{"resource_history_id" => resource_history_id})
 
     # a data_conversion row is recorded ✌️‍
-    DB.DataConversion
-    |> DB.Repo.get_by!(
-      convert_from: "GTFS",
-      convert_to: "GeoJSON",
-      resource_history_uuid: uuid
-    )
+    assert %DB.DataConversion{payload: %{"filesize" => 23, "filename" => "conversions/gtfs-to-geojson/fff.geojson"}} =
+             DB.Repo.get_by!(DB.DataConversion,
+               convert_from: "GTFS",
+               convert_to: "GeoJSON",
+               resource_history_uuid: uuid
+             )
 
     Transport.Test.TestUtils.ensure_no_tmp_files!("conversion_gtfs_geojson_")
   end
