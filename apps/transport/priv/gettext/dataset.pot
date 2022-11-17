@@ -79,3 +79,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Mobility Licence"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "licence-ouverte"
+msgstr ""

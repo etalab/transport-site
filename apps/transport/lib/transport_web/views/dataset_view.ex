@@ -104,15 +104,14 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def licence_link(%Plug.Conn{} = conn, %{licence: licence, count: count}) do
-    licence_param = Map.get(%{"lov2" => "licence-ouverte"}, licence, licence)
+  def licence_link(%Plug.Conn{} = conn, %{licence: licence, count: count}) when licence not in ["fr-lo", "lov2"] do
     name = licence(%Dataset{licence: licence})
     assigns = conn.assigns
 
-    if Map.get(conn.query_params, "licence") == licence_param do
+    if Map.get(conn.query_params, "licence") == licence do
       ~H{<span class="activefilter"><%= name %> (<%= count %>)</span>}
     else
-      link("#{name} (#{count})", to: current_url(conn, Map.put(conn.query_params, "licence", licence_param)))
+      link("#{name} (#{count})", to: current_url(conn, Map.put(conn.query_params, "licence", licence)))
     end
   end
 
@@ -349,10 +348,8 @@ defmodule TransportWeb.DatasetView do
 
   def community_resources(dataset), do: Dataset.community_resources(dataset)
 
-  def licence_url("fr-lo"),
-    do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
-
-  def licence_url("lov2"), do: "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"
+  def licence_url(licence) when licence in ["fr-lo", "lov2"],
+    do: "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
 
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
 
@@ -371,13 +368,13 @@ defmodule TransportWeb.DatasetView do
 
   @doc """
   Builds a licence.
-  It looks like fr-lo has been deprecrated by data.gouv and replaced by "lov2"
-  If it is confirmed, we can remove it in the future.
 
   ## Examples
 
   iex> licence(%Dataset{licence: "fr-lo"})
-  "Licence ouverte"
+  "Licence Ouverte — version 1.0"
+  iex> licence(%Dataset{licence: "lov2"})
+  "Licence Ouverte — version 2.0"
   iex> licence(%Dataset{licence: "Libertarian"})
   "Libertarian"
   """
@@ -385,6 +382,7 @@ defmodule TransportWeb.DatasetView do
   def licence(%Dataset{licence: licence}) do
     case licence do
       "fr-lo" -> dgettext("dataset", "fr-lo")
+      "licence-ouverte" -> dgettext("dataset", "licence-ouverte")
       "odc-odbl" -> dgettext("dataset", "odc-odbl")
       "other-open" -> dgettext("dataset", "other-open")
       "lov2" -> dgettext("dataset", "lov2")

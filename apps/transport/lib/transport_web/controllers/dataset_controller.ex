@@ -208,10 +208,13 @@ defmodule TransportWeb.DatasetController do
     |> exclude(:order_by)
     |> group_by([d], fragment("cleaned_licence"))
     |> select([d], %{
-      licence: fragment("case when licence = 'fr-lo' then 'lov2' else licence end as cleaned_licence"),
-      count: count(d.id, :distinct)
+      licence:
+        fragment("case when licence in ('fr-lo', 'lov2') then 'licence-ouverte' else licence end as cleaned_licence"),
+      count: count(d.id)
     })
     |> Repo.all()
+    # Licence ouverte should be first
+    |> Enum.sort_by(&Map.get(%{"licence-ouverte" => 1}, &1.licence, 0), &>=/2)
   end
 
   @spec get_types(map()) :: [%{type: binary(), msg: binary(), count: integer}]

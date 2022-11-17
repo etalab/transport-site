@@ -54,7 +54,7 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "fr-lo"
-msgstr ""
+msgstr "Licence Ouverte — version 1.0"
 
 #, elixir-autogen, elixir-format
 msgid "notspecified"
@@ -74,8 +74,12 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "lov2"
-msgstr ""
+msgstr "Licence Ouverte — version 2.0"
 
 #, elixir-autogen, elixir-format
 msgid "Mobility Licence"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "licence-ouverte"
+msgstr "Licence Ouverte"
