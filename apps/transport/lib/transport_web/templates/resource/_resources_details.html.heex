@@ -17,16 +17,33 @@
           <strong><%= Enum.join(@modes, ", ") %></strong>
         </li>
       <% end %>
-      <%= if Map.get(@metadata, "networks", []) != [] do %>
+      <% networks_start_end_dates = Map.get(@metadata, "networks_start_end_dates", %{}) %>
+      <% networks = Map.get(@metadata, "networks", []) %>
+      <%= if Enum.count(networks) > 1 && networks_start_end_dates != %{} do %>
         <li>
           <div>
             <div class="networks-list">
-              <%= dngettext("validations", "network", "networks", length(@metadata["networks"])) %> :
-              <strong><%= Enum.join(@metadata["networks"], ", ") %></strong>
+              <%= dgettext("validations", "calendar span by network") %> :
+              <.networks_start_end_dates
+                networks_start_end_dates={networks_start_end_dates}
+                locale={get_session(@conn, :locale)}
+              />
             </div>
           </div>
         </li>
+      <% else %>
+        <%= if networks != [] do %>
+          <li>
+            <div>
+              <div class="networks-list">
+                <%= dngettext("validations", "network", "networks", length(@metadata["networks"])) %> :
+                <strong><%= Enum.join(@metadata["networks"], ", ") %></strong>
+              </div>
+            </div>
+          </li>
+        <% end %>
       <% end %>
+
       <%= if @metadata["stop_points_count"] != nil do %>
         <li>
           <%= dgettext("validations", "number of stop points") %> :
