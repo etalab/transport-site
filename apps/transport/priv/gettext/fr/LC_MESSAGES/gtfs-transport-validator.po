@@ -158,3 +158,11 @@ msgstr "Type d'arrêt invalide dans un trajet"
 #, elixir-autogen, elixir-format
 msgid "Invalid stop parent"
 msgstr "Arrêt parent invalide"
+
+#, elixir-autogen, elixir-format
+msgid "Invalid shape ID"
+msgstr "Shape ID invalide"
+
+#, elixir-autogen, elixir-format
+msgid "Unused shape ID"
+msgstr "Shape ID inutilisé"

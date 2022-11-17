@@ -158,3 +158,11 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Invalid stop parent"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Invalid shape ID"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Unused shape ID"
+msgstr ""
