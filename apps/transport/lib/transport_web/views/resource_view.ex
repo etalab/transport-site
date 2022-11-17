@@ -35,7 +35,9 @@ defmodule TransportWeb.ResourceView do
         "Slow" => "_speed_issue.html",
         "UnusedStop" => "_unused_stop_issue.html",
         "InvalidCoordinates" => "_coordinates_issue.html",
-        "MissingCoordinates" => "_coordinates_issue.html"
+        "MissingCoordinates" => "_coordinates_issue.html",
+        "UnusedShapeId" => "_unused_shape_issue.html",
+        "InvalidShapeId" => "_invalid_shape_id_issue.html"
       },
       issue_type(issues.entries),
       "_generic_issue.html"

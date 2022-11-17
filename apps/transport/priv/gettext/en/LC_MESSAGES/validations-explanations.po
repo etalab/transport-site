@@ -79,6 +79,22 @@ msgstr ""
 msgid "Error on file"
 msgstr ""
 
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Details"
+msgstr ""
+
 #, elixir-autogen, elixir-format
-msgid "details"
+msgid "Shape ID"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Some shape id used in trips.txt are not defined in shapes.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Some shapes defined in shapes.txt are not used in trips.txt"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Trip ID"
 msgstr ""
