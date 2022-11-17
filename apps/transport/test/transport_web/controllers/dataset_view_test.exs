@@ -144,15 +144,15 @@ defmodule TransportWeb.DatasetViewTest do
                conn |> licence_link(%{licence: "licence-ouverte", count: 3}) |> to_html()
     end
 
-    test "active filter for fr-lo and lov2 by name", %{conn: conn} do
+    test "filter for fr-lo and lov2 by name", %{conn: conn} do
       conn = conn |> get(dataset_path(conn, :index, licence: "lov2"))
 
-      assert ~s{<span class="activefilter">Licence Ouverte (3)</span>} ==
+      assert ~s{<a href="http://127.0.0.1:5100/datasets?licence=licence-ouverte">Licence Ouverte (3)</a>} ==
                conn |> licence_link(%{licence: "licence-ouverte", count: 3}) |> to_html()
 
       conn = conn |> get(dataset_path(conn, :index, licence: "fr-lo"))
 
-      assert ~s{<span class="activefilter">Licence Ouverte (3)</span>} ==
+      assert ~s{<a href="http://127.0.0.1:5100/datasets?licence=licence-ouverte">Licence Ouverte (3)</a>} ==
                conn |> licence_link(%{licence: "licence-ouverte", count: 3}) |> to_html()
     end
 

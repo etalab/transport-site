@@ -108,18 +108,10 @@ defmodule TransportWeb.DatasetView do
     name = licence(%Dataset{licence: licence})
     assigns = conn.assigns
 
-    if licence_is_active?(conn.query_params, licence) do
+    if Map.get(conn.query_params, "licence") == licence do
       ~H{<span class="activefilter"><%= name %> (<%= count %>)</span>}
     else
       link("#{name} (#{count})", to: current_url(conn, Map.put(conn.query_params, "licence", licence)))
-    end
-  end
-
-  defp licence_is_active?(query_params, licence) do
-    if licence == "licence-ouverte" do
-      Map.get(query_params, "licence") in ["licence-ouverte", "fr-lo", "lov2"]
-    else
-      Map.get(query_params, "licence") == licence
     end
   end
 
