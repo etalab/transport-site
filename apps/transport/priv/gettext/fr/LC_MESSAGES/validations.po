@@ -308,3 +308,11 @@ msgstr "Envoi en cours"
 #, elixir-autogen, elixir-format
 msgid "Validation carried out using the <a href=\"%{gtfs_link}\">current GTFS file</a> the %{date} using the <a href=\"%{validator_url}\" target=\"_blank\">PAN GTFS validator</a>."
 msgstr "Validation effectuée en utilisant <a href=\"%{gtfs_link}\">le fichier GTFS en vigueur</a> le %{date} avec <a href=\"%{validator_url}\" target=\"_blank\">le validateur GTFS du <abbr title=\"Point d'Accès National\">PAN</abbr></a>."
+
+#, elixir-autogen, elixir-format
+msgid "calendar span by network"
+msgstr "couverture calendaire par réseau"
+
+#, elixir-autogen, elixir-format
+msgid "from"
+msgstr "du"

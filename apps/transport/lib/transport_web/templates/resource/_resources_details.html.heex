@@ -17,19 +17,16 @@
           <strong><%= Enum.join(@modes, ", ") %></strong>
         </li>
       <% end %>
-      <%= if Map.get(@metadata, "networks_start_end_dates", %{}) != %{} do %>
+      <% networks_start_end_dates = Map.get(@metadata, "networks_start_end_dates", %{}) %>
+      <%= if networks_start_end_dates != %{} do %>
         <li>
           <div>
             <div class="networks-list">
-              <%= dngettext("validations", "network", "networks", length(@metadata["networks"])) %> : <% networks =
-                Map.get(@metadata, "networks_start_end_dates", %{}) %><br />
-              <div style="display: grid; grid-template-columns: minmax(100px, max-content) minmax(100px, max-content) minmax(100px, max-content);">
-                <%= for {network, %{"start_date" => start_date, "end_date" => end_date}} <- networks do %>
-                  <span><%= network %></span>
-                  <span> <strong><%= start_date %></strong></span>
-                  <span>=> <strong><%= end_date %></strong></span>
-                <% end %>
-              </div>
+              <%= dgettext("validations", "calendar span by network") %> :
+              <.networks_start_end_dates
+                networks_start_end_dates={networks_start_end_dates}
+                locale={get_session(@conn, :locale)}
+              />
             </div>
           </div>
         </li>
