@@ -2,7 +2,6 @@ defmodule Transport.Validators.ValidataLot2Test do
   use ExUnit.Case, async: true
   import DB.Factory
   import Mox
-  alias Transport.Validators.EXJSONSchema
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
