@@ -25,7 +25,7 @@ defmodule TransportWeb.API.DatasetController do
 
   @spec datasets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def datasets(%Plug.Conn{} = conn, _params) do
-    datasets_with_metadata =
+    datasets_with_gtfs_metadata =
       Transport.Validators.GTFSTransport.validator_name()
       |> Dataset.join_from_dataset_to_metadata()
       |> preload([resource: r, resource_history: rh, multi_validation: mv, metadata: m], [
@@ -36,10 +36,31 @@ defmodule TransportWeb.API.DatasetController do
       ])
       |> Repo.all()
 
+    recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
+
+    datasets_with_gtfs_rt_metadata =
+      DB.Dataset.base_query()
+      |> DB.Resource.join_dataset_with_resource()
+      |> DB.ResourceMetadata.join_resource_with_metadata()
+      |> where([resource: r], r.format == "gtfs-rt")
+      |> where([metadata: rm], rm.inserted_at > ^recent_limit)
+      |> preload([resource: r, metadata: m], resources: {r, resource_metadata: m})
+      |> DB.Repo.all()
+
+    datasets_with_metadata =
+      datasets_with_gtfs_metadata
+      |> Kernel.++(datasets_with_gtfs_rt_metadata)
+      |> Enum.group_by(& &1.id, & &1.resources)
+      |> Enum.map(fn {dataset_id, resources} -> {dataset_id, List.flatten(resources)} end)
+      |> Enum.into(%{})
+
     existing_ids =
       datasets_with_metadata
-      |> Enum.map(fn dataset ->
-        {dataset.id, dataset.resources |> Enum.map(fn resource -> {resource.id, resource} end) |> Enum.into(%{})}
+      |> Enum.map(fn {dataset_id, resources} ->
+        {dataset_id,
+         resources
+         |> Enum.map(fn resource -> {resource.id, resource} end)
+         |> Enum.into(%{})}
       end)
       |> Enum.into(%{})
 
@@ -102,7 +123,7 @@ defmodule TransportWeb.API.DatasetController do
     if is_nil(dataset) do
       conn |> put_status(404) |> render(%{errors: "dataset not found"})
     else
-      resources_with_metadata =
+      gtfs_resources_with_metadata =
         DB.Resource.base_query()
         |> DB.ResourceHistory.join_resource_with_latest_resource_history()
         |> DB.MultiValidation.join_resource_history_with_latest_validation(
@@ -115,7 +136,19 @@ defmodule TransportWeb.API.DatasetController do
         |> where([resource: r], r.dataset_id == ^dataset.id)
         |> select([resource: r], {r.id, r})
         |> DB.Repo.all()
-        |> Enum.into(%{})
+
+      recent_limit = Transport.Jobs.GTFSRTEntitiesJob.datetime_limit()
+
+      gtfs_rt_resources_with_metadata =
+        DB.Resource.base_query()
+        |> DB.ResourceMetadata.join_resource_with_metadata()
+        |> where([metadata: rm], rm.inserted_at > ^recent_limit)
+        |> where([resource: r], r.dataset_id == ^dataset.id)
+        |> preload([metadata: m], resource_metadata: m)
+        |> select([resource: r], {r.id, r})
+        |> DB.Repo.all()
+
+      resources_with_metadata = Enum.into(gtfs_resources_with_metadata ++ gtfs_rt_resources_with_metadata, %{})
 
       enriched_resources =
         dataset
@@ -229,8 +262,8 @@ defmodule TransportWeb.API.DatasetController do
     )
   end
 
-  defp get_metadata(resource) do
-    resource.resource_history
+  defp get_metadata(%{format: "GTFS", resource_history: resource_history}) do
+    resource_history
     |> Enum.at(0)
     |> Map.get(:validations)
     |> Enum.at(0)
@@ -239,14 +272,28 @@ defmodule TransportWeb.API.DatasetController do
     _ -> nil
   end
 
+  defp get_metadata(%{format: "gtfs-rt", resource_metadata: resource_metadata}) do
+    features =
+      resource_metadata
+      |> Enum.map(& &1.features)
+      |> Enum.concat()
+      |> Enum.uniq()
+
+    %{features: features}
+  rescue
+    _ -> nil
+  end
+
+  defp get_metadata(_), do: nil
+
   @spec transform_resource(Resource.t()) :: map()
   defp transform_resource(resource) do
     metadata = get_metadata(resource)
 
     metadata_content =
       case metadata do
-        nil -> nil
         %{metadata: metadata_content} -> metadata_content
+        _ -> nil
       end
 
     %{
