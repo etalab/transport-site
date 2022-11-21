@@ -40,6 +40,8 @@ defmodule Transport.Validators.ValidataLot2 do
     base_url() <> "/url_validation_job?data=#{url}&schema=#{schema_url}"
   end
 
+  def poll_url(job_id), do: base_url() <> "/job/#{job_id}"
+
   def perform_validation(schema_name, schema_version, url) do
     http_client = Transport.Shared.Wrapper.HTTPoison.impl()
 
@@ -59,8 +61,7 @@ defmodule Transport.Validators.ValidataLot2 do
   end
 
   def get_api_result(job_id) do
-    poll_url = "https://json.validator.validata.fr/job/#{job_id}"
-    poll_api_result(poll_url, 0)
+    job_id |> poll_url() |> poll_api_result(0)
   end
 
   def poll_api_result(_url, nb_tries) when nb_tries > 30 do
