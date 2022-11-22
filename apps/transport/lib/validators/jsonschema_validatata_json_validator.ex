@@ -83,8 +83,12 @@ defmodule Transport.Validators.ValidataJson do
       {:ok, %HTTPoison.Response{status_code: 303, headers: headers}} ->
         # result is available
         [location] = Transport.Http.Utils.location_header(headers)
-        result_address = base_url() |> URI.new!() |> Map.put(:path, location) |> URI.to_string()
-        get_results(result_address)
+
+        base_url()
+        |> URI.new!()
+        |> Map.put(:path, location)
+        |> URI.to_string()
+        |> get_results()
 
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         if body =~ "FAILURE" do

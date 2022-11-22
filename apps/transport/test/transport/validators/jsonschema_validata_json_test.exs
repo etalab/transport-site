@@ -15,7 +15,7 @@ defmodule Transport.Validators.ValidataJsonTest do
     job_id = Ecto.UUID.generate()
 
     Transport.Shared.Schemas.Mock
-    |> expect(:transport_schemas, 4, fn ->
+    |> expect(:transport_schemas, 2, fn ->
       %{
         "etalab/schema_name" => %{
           "versions" => [
@@ -30,32 +30,20 @@ defmodule Transport.Validators.ValidataJsonTest do
 
     Transport.HTTPoison.Mock
     |> expect(:post, 1, fn _url, "" ->
-      {:ok,
-       %HTTPoison.Response{
-         status_code: 201,
-         body: job_id
-       }}
+      {:ok, %HTTPoison.Response{status_code: 201, body: job_id}}
     end)
 
     poll_url = "https://json.validator.validata.fr/job/#{job_id}"
-
-    Transport.HTTPoison.Mock
-    |> expect(:get, 1, fn ^poll_url ->
-      {:ok,
-       %HTTPoison.Response{
-         status_code: 303
-       }}
-    end)
-
     output_url = poll_url <> "/output"
 
     Transport.HTTPoison.Mock
+    |> expect(:get, 1, fn ^poll_url ->
+      {:ok, %HTTPoison.Response{status_code: 303, headers: [{"location", "/job/#{job_id}/output"}]}}
+    end)
+
+    Transport.HTTPoison.Mock
     |> expect(:get, 1, fn ^output_url ->
-      {:ok,
-       %HTTPoison.Response{
-         status_code: 200,
-         body: "{\"validated\": true}"
-       }}
+      {:ok, %HTTPoison.Response{status_code: 200, body: "{\"validated\": true}"}}
     end)
 
     rh =
