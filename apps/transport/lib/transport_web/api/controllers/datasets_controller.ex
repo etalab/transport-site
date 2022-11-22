@@ -272,7 +272,7 @@ defmodule TransportWeb.API.DatasetController do
     _ -> nil
   end
 
-  defp get_metadata(%{format: "gtfs-rt", resource_metadata: resource_metadata}) do
+  defp get_metadata(%Resource{format: "gtfs-rt", resource_metadata: %DB.ResourceMetadata{} = resource_metadata}) do
     features =
       resource_metadata
       |> Enum.map(& &1.features)
