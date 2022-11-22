@@ -14,21 +14,13 @@ defmodule Transport.Jobs.ResourceHistoryValidataJSONJob do
     that have not been validated yet.
   """
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id}})
-      when is_integer(resource_history_id) do
-    ResourceHistorySchemaValidation.validate_resource_history_for_schema(
-      resource_history_id,
-      validator()
-    )
+  def perform(%Oban.Job{args: %{"resource_history_id" => resource_history_id}}) when is_integer(resource_history_id) do
+    ResourceHistorySchemaValidation.validate_resource_history_for_schema(resource_history_id, validator())
   end
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    ResourceHistorySchemaValidation.enqueue_jobs_for_schema_type(
-      "jsonschema",
-      __MODULE__,
-      validator()
-    )
+    ResourceHistorySchemaValidation.enqueue_jobs_for_schema_type("jsonschema", __MODULE__, validator())
   end
 
   def validator, do: Transport.Validators.ValidataJson
