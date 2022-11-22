@@ -63,7 +63,12 @@ defmodule DB.Resource do
     field(:display_position, :integer)
 
     belongs_to(:dataset, Dataset)
+    # validation v1, to be deleted later
+    # https://github.com/etalab/transport-site/issues/2390
     has_one(:validation, Validation, on_replace: :delete)
+    has_many(:validations, DB.MultiValidation)
+    has_many(:resource_metadata, DB.ResourceMetadata)
+
     has_many(:logs_validation, LogsValidation, on_replace: :delete, on_delete: :delete_all)
 
     has_many(:resource_unavailabilities, ResourceUnavailability,
