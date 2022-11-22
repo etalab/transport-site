@@ -1,4 +1,4 @@
-defmodule Transport.Validators.ValidataLot2 do
+defmodule Transport.Validators.ValidataJson do
   @moduledoc """
   Validate JSON files with Validata JSON API
   https://git.opendatafrance.net/validata/validata-json
@@ -18,7 +18,9 @@ defmodule Transport.Validators.ValidataLot2 do
       })
       when is_binary(schema_name) do
     schema_version = schema_version || Map.get(payload, "latest_schema_version_to_date", "latest")
-    {:ok, validation} = perform_validation(schema_name, schema_version, url)
+    schema_url = Transport.Shared.Schemas.schema_url(schema_name, schema_version)
+
+    {:ok, validation} = perform_validation(schema_url, url)
 
     %DB.MultiValidation{
       validation_timestamp: DateTime.utc_now(),
@@ -26,7 +28,7 @@ defmodule Transport.Validators.ValidataLot2 do
       result: validation,
       resource_history_id: resource_history_id,
       validator_version: validator_version(),
-      command: validation_url(schema_name, schema_version, url)
+      command: validation_url(schema_url, url)
     }
     |> DB.Repo.insert!()
 
@@ -35,24 +37,30 @@ defmodule Transport.Validators.ValidataLot2 do
 
   def base_url, do: "https://json.validator.validata.fr"
 
-  def validation_url(schema_name, schema_version, url) do
-    schema_url = Transport.Shared.Schemas.schema_url(schema_name, schema_version)
-    base_url() <> "/url_validation_job?data=#{url}&schema=#{schema_url}"
+  @doc """
+  build the validation url
+
+  iex> validation_url("sss", "ddd")
+  "https://json.validator.validata.fr/url_validation_job?data=ddd&schema=sss"
+  """
+  def validation_url(schema_url, data_url) do
+    base_url()
+    |> URI.new!()
+    |> URI.merge("/url_validation_job")
+    |> URI.append_query(URI.encode_query(data: data_url, schema: schema_url))
+    |> URI.to_string()
   end
 
-  def poll_url(job_id), do: base_url() <> "/job/#{job_id}"
+  def poll_url(job_id),
+    do: base_url() |> URI.new!() |> URI.merge("/job/#{job_id}") |> URI.to_string()
 
-  def perform_validation(schema_name, schema_version, url) do
+  def perform_validation(schema_url, url) do
     http_client = Transport.Shared.Wrapper.HTTPoison.impl()
 
-    validation_url = validation_url(schema_name, schema_version, url)
+    validation_url = validation_url(schema_url, url)
 
     case http_client.post(validation_url, "") do
-      {:ok,
-       %HTTPoison.Response{
-         status_code: 201,
-         body: job_id
-       }} ->
+      {:ok, %HTTPoison.Response{status_code: 201, body: job_id}} ->
         job_id |> String.replace("\"", "") |> get_api_result()
 
       _ ->
@@ -72,21 +80,20 @@ defmodule Transport.Validators.ValidataLot2 do
     http_client = Transport.Shared.Wrapper.HTTPoison.impl()
 
     case http_client.get(url) do
-      {:ok,
-       %HTTPoison.Response{
-         status_code: 303
-       }} ->
+      {:ok, %HTTPoison.Response{status_code: 303, headers: headers}} ->
         # result is available
-        result_address = url <> "/output"
+        [location] = Transport.Http.Utils.location_header(headers)
+        result_address = base_url() |> URI.new!() |> Map.put(:path, location) |> URI.to_string()
         get_results(result_address)
 
-      {:ok,
-       %HTTPoison.Response{
-         status_code: 200
-       }} ->
-        # validation is processing, try again later
-        nb_tries |> poll_interval() |> :timer.sleep()
-        poll_api_result(url, nb_tries + 1)
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        if body =~ "FAILURE" do
+          {:error, "validation failure"}
+        else
+          # validation is processing, try again later
+          nb_tries |> poll_interval() |> :timer.sleep()
+          poll_api_result(url, nb_tries + 1)
+        end
     end
   end
 
@@ -97,15 +104,12 @@ defmodule Transport.Validators.ValidataLot2 do
   def get_results(result_address) do
     http_client = Transport.Shared.Wrapper.HTTPoison.impl()
 
-    with {:ok,
-          %HTTPoison.Response{
-            status_code: 200,
-            body: body
-          }} <- http_client.get(result_address),
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- http_client.get(result_address),
          {:ok, validation} <- Jason.decode(body) do
       {:ok, validation}
     else
-      e -> {:error, "validation is done, but there was an error fetching the results. #{inspect(e)}"}
+      e ->
+        {:error, "validation is done, but there was an error fetching the results. #{inspect(e)}"}
     end
   end
 

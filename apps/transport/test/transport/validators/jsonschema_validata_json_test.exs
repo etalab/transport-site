@@ -1,7 +1,9 @@
-defmodule Transport.Validators.ValidataLot2Test do
+defmodule Transport.Validators.ValidataJsonTest do
   use ExUnit.Case, async: true
   import DB.Factory
   import Mox
+
+  doctest Transport.Validators.ValidataJson, import: true
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -9,7 +11,7 @@ defmodule Transport.Validators.ValidataLot2Test do
 
   setup :verify_on_exit!
 
-  test "test data is up to date" do
+  test "a validata json validation" do
     job_id = Ecto.UUID.generate()
 
     Transport.Shared.Schemas.Mock
@@ -65,10 +67,10 @@ defmodule Transport.Validators.ValidataLot2Test do
         }
       )
 
-    assert :ok = Transport.Validators.ValidataLot2.validate_and_save(rh)
+    assert :ok = Transport.Validators.ValidataJson.validate_and_save(rh)
     mv = DB.MultiValidation |> DB.Repo.get_by!(resource_history_id: rh.id)
 
-    assert mv.validator == Transport.Validators.ValidataLot2.validator_name()
+    assert mv.validator == Transport.Validators.ValidataJson.validator_name()
     assert mv.result == %{"validated" => true}
     assert mv.resource_history_id == rh.id
   end
