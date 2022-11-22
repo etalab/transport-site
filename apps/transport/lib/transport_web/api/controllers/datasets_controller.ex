@@ -262,7 +262,7 @@ defmodule TransportWeb.API.DatasetController do
     )
   end
 
-  defp get_metadata(%{format: "GTFS", resource_history: resource_history}) do
+  defp get_metadata(%Resource{format: "GTFS", resource_history: %DB.ResourceHistory{} = resource_history}) do
     resource_history
     |> Enum.at(0)
     |> Map.get(:validations)
