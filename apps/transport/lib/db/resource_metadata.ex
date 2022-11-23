@@ -25,6 +25,11 @@ defmodule DB.ResourceMetadata do
     |> join(:left, [multi_validation: mv], m in DB.ResourceMetadata, on: m.multi_validation_id == mv.id, as: :metadata)
   end
 
+  def join_resource_with_metadata(query) do
+    query
+    |> join(:left, [resource: r], m in DB.ResourceMetadata, on: r.id == m.resource_id, as: :metadata)
+  end
+
   def where_gtfs_up_to_date(query) do
     today = Date.utc_today()
 

@@ -382,4 +382,44 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "updated" => ""
            } == conn |> get(path) |> json_response(200)
   end
+
+  test "gtfs-rt features are filled", %{conn: conn} do
+    dataset_1 = insert(:dataset, datagouv_id: datagouv_id_1 = Ecto.UUID.generate())
+    resource_1 = insert(:resource, dataset_id: dataset_1.id, format: "gtfs-rt")
+    insert(:resource_metadata, resource_id: resource_1.id, features: ["a"])
+    insert(:resource_metadata, resource_id: resource_1.id, features: ["a", "b"])
+    insert(:resource_metadata, resource_id: resource_1.id, features: ["c"])
+
+    Transport.History.Fetcher.Mock |> expect(:history_resources, fn _, _ -> [] end)
+
+    # call to specific dataset
+    path = Helpers.dataset_path(conn, :by_id, datagouv_id_1)
+    %{"resources" => [%{"features" => features}]} = conn |> get(path) |> json_response(200)
+    assert features |> Enum.sort() == ["a", "b", "c"]
+
+    # add another dataset
+    dataset_2 = insert(:dataset, datagouv_id: datagouv_id_2 = Ecto.UUID.generate())
+    resource_2 = insert(:resource, dataset_id: dataset_2.id, format: "gtfs-rt")
+    insert(:resource_metadata, resource_id: resource_2.id, features: ["x"])
+
+    # call for all datasets
+    path = Helpers.dataset_path(conn, :datasets)
+    datasets = conn |> get(path) |> json_response(200)
+
+    assert ["a", "b", "c"] ==
+             datasets
+             |> Enum.find(fn d -> Map.get(d, "datagouv_id") == datagouv_id_1 end)
+             |> Map.get("resources")
+             |> Enum.at(0)
+             |> Map.get("features")
+             |> Enum.sort()
+
+    assert ["x"] ==
+             datasets
+             |> Enum.find(fn d -> Map.get(d, "datagouv_id") == datagouv_id_2 end)
+             |> Map.get("resources")
+             |> Enum.at(0)
+             |> Map.get("features")
+             |> Enum.sort()
+  end
 end
