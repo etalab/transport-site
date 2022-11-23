@@ -775,7 +775,7 @@ defmodule DB.Resource do
       Enum.member?(Application.fetch_env!(:transport, :datagouv_static_hosts), parsed_url.host)
 
     object_storage_regex =
-      ~r{(https://\w+\.blob\.core\.windows\.net)|(https://\w+\.s3\.\w+\.amazonaws\.com|https://.*\.s3\.\w+\.scw\.cloud|https://\w+\.cellar-c2\.services\.clever-cloud.com|https://s3\.\w+\.cloud\.ovh\.net)}
+      ~r{(https://.*\.blob\.core\.windows\.net)|(https://.*\.s3\..*\.amazonaws\.com)|(https://.*\.s3\..*\.scw\.cloud)|(https://.*\.cellar-c2\.services\.clever-cloud\.com)|(https://s3\..*\.cloud\.ovh\.net)}
 
     hosted_on_bison_fute = parsed_url.host == Application.fetch_env!(:transport, :bison_fute_host)
 
