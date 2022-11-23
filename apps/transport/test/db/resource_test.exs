@@ -397,6 +397,22 @@ defmodule DB.ResourceTest do
              latest_url: latest_url = "https://data.gouv.fr/fake_stable_url"
            }) == latest_url
 
+    # URLs on major object storage providers
+    [
+      "https://thapaasblobsuat.blob.core.windows.net/datagouv/gtfs_static.zip",
+      "https://download.mywebsite.com.s3.fr-par.scw.cloud/gtfs_static.zip",
+      "https://download.mywebsite.com.s3.us-east-1.amazonaws.com/gtfs_static.zip",
+      "https://transport-data-gouv-fr-resource-history-prod.cellar-c2.services.clever-cloud.com/gtfs_static.zip",
+      "https://s3.gra.cloud.ovh.net/gtfs_static.zip"
+    ]
+    |> Enum.each(fn url ->
+      assert Resource.download_url(%Resource{
+               filetype: "remote",
+               url: url,
+               latest_url: latest_url = "https://data.gouv.fr/#{Ecto.UUID.generate()}"
+             }) == latest_url
+    end)
+
     # Bison Futé files
     assert Resource.download_url(%Resource{
              filetype: "remote",
