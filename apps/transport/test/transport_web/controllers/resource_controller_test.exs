@@ -354,7 +354,10 @@ defmodule TransportWeb.ResourceControllerTest do
              ~s{Validation effectuée en utilisant <a href="#{permanent_url}">le fichier GTFS en vigueur</a> le 28/10/2022 à 16h12 Europe/Paris}
 
     # we remove "networks_start_end_dates" content
-    DB.Repo.update!(Ecto.Changeset.change(metadata, %{metadata: %{"networks_start_end_dates" => nil, "networks" => ["foo", "bar"]}}))
+    DB.Repo.update!(
+      Ecto.Changeset.change(metadata, %{metadata: %{"networks_start_end_dates" => nil, "networks" => ["foo", "bar"]}})
+    )
+
     conn3 = conn |> get(resource_path(conn, :details, resource_id))
     refute conn3 |> html_response(200) =~ "couverture calendaire par réseau"
   end
