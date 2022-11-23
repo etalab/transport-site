@@ -35,7 +35,8 @@ defmodule Transport.Validators.ValidataJson do
     :ok
   end
 
-  def base_url, do: "https://json.validator.validata.fr"
+  @spec base_url :: URI.t()
+  def base_url, do: "https://json.validator.validata.fr" |> URI.new!()
 
   @doc """
   build the validation url
@@ -45,14 +46,13 @@ defmodule Transport.Validators.ValidataJson do
   """
   def validation_url(schema_url, data_url) do
     base_url()
-    |> URI.new!()
     |> URI.merge("/url_validation_job")
     |> URI.append_query(URI.encode_query(data: data_url, schema: schema_url))
     |> URI.to_string()
   end
 
   def poll_url(job_id),
-    do: base_url() |> URI.new!() |> URI.merge("/job/#{job_id}") |> URI.to_string()
+    do: base_url() |> URI.merge("/job/#{job_id}") |> URI.to_string()
 
   def perform_validation(schema_url, url) do
     http_client = Transport.Shared.Wrapper.HTTPoison.impl()
@@ -85,7 +85,6 @@ defmodule Transport.Validators.ValidataJson do
         [location] = Transport.Http.Utils.location_header(headers)
 
         base_url()
-        |> URI.new!()
         |> Map.put(:path, location)
         |> URI.to_string()
         |> get_results()
