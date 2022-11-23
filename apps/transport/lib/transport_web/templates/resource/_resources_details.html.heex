@@ -19,7 +19,7 @@
       <% end %>
       <% networks_start_end_dates = Map.get(@metadata, "networks_start_end_dates", %{}) %>
       <% networks = Map.get(@metadata, "networks", []) %>
-      <%= if Enum.count(networks) > 1 && networks_start_end_dates != %{} do %>
+      <%= if Enum.count(networks) > 1 and networks_start_end_dates not in [nil, %{}] do %>
         <li>
           <div>
             <div class="networks-list">
