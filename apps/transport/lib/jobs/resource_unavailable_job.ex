@@ -136,7 +136,7 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     case http_client().get(url) do
       {:ok, %HTTPoison.Response{status_code: status_code, headers: headers}}
       when status_code > 300 and status_code < 400 ->
-        case location_header(headers) do
+        case Transport.Http.Utils.location_header(headers) do
           [url] when is_binary(url) ->
             follow(url, max_redirect - 1)
 
@@ -154,12 +154,6 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
 
   def follow(url, 0 = _max_redirect) when is_binary(url) do
     {:error, :too_many_redirects}
-  end
-
-  defp location_header(headers) do
-    for {key, value} <- headers, String.downcase(key) == "location" do
-      value
-    end
   end
 
   defp now, do: DateTime.utc_now() |> DateTime.truncate(:second)
