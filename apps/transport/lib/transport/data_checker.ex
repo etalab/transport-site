@@ -28,10 +28,10 @@ defmodule Transport.DataChecker do
       |> Enum.filter(fn {%Dataset{is_active: is_active}, status} -> not is_active and status == :active end)
       |> Enum.map(fn {%Dataset{} = dataset, _status} -> dataset end)
 
-    reactivated_ids = Enum.map(to_reactivate_datasets, & &1.datagouv_id)
+    reactivated_ids = Enum.map(to_reactivate_datasets, & &1.id)
 
     Dataset
-    |> where([d], d.datagouv_id in ^reactivated_ids)
+    |> where([d], d.id in ^reactivated_ids)
     |> Repo.update_all(set: [is_active: true])
 
     # Some datasets marked as active in our database may have disappeared
@@ -41,10 +41,10 @@ defmodule Transport.DataChecker do
       |> Enum.filter(fn {%Dataset{is_active: is_active}, status} -> is_active and status == :inactive end)
       |> Enum.map(fn {%Dataset{} = dataset, _status} -> dataset end)
 
-    inactive_ids = Enum.map(inactive_datasets, & &1.datagouv_id)
+    inactive_ids = Enum.map(inactive_datasets, & &1.id)
 
     Dataset
-    |> where([d], d.datagouv_id in ^inactive_ids)
+    |> where([d], d.id in ^inactive_ids)
     |> Repo.update_all(set: [is_active: false])
 
     send_inactive_dataset_mail(to_reactivate_datasets, inactive_datasets)
