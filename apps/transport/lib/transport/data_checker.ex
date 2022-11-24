@@ -41,14 +41,14 @@ defmodule Transport.DataChecker do
   end
 
   @doc """
-  Return all the datasets locally marked as active, but active on data gouv.
+  Return all the datasets locally marked as active, but inactive on data gouv.
   """
   def get_inactive_datasets do
     Dataset
     |> where([d], d.is_active == true)
     |> Repo.all()
     # NOTE: this method issues a HTTP call to datagouv
-    |> Enum.reject(&Datasets.is_active?/1)
+    |> Enum.filter(&(dataset_status(&1) == :inactive))
   end
 
   @doc """
@@ -59,7 +59,21 @@ defmodule Transport.DataChecker do
     |> where([d], d.is_active == false)
     |> Repo.all()
     # NOTE: this method issues a HTTP call to datagouv
-    |> Enum.filter(&Datasets.is_active?/1)
+    |> Enum.filter(&(dataset_status(&1) == :active))
+  end
+
+  @spec dataset_status(Dataset.t()) :: :active | :inactive | :archived
+  defp dataset_status(%Dataset{datagouv_id: datagouv_id}) do
+    case Datasets.get(datagouv_id) do
+      {:ok, %{"archived" => nil}} ->
+        :active
+
+      {:ok, %{"archived" => _}} ->
+        :archived
+
+      {:error, _} ->
+        :inactive
+    end
   end
 
   def outdated_data do
