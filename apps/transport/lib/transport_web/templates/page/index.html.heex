@@ -101,12 +101,12 @@
           <%= img_tag(icon_type_path("car-motorbike-sharing"), class: "tile__icon", alt: "") %>
           <h3 class="text-center"><%= dgettext("page-index", "Car and motorbike sharing") %></h3>
         </div>
-        <div class="tile">
+        <a class="tile" href="https://doc.transport.data.gouv.fr/producteurs/comptage-des-mobilites" target="_blank">
           <%= img_tag(icon_type_path("mobility-counting"), class: "tile__icon", alt: "") %>
           <h3 class="text-center"><%= dgettext("page-index", "Mobility counting") %></h3>
-        </div>
+        </a>
       </div>
-      <a href="#mailing-list"><%= dgettext("page-index", "I'd like to be informed") %></a>
+      <a class="mailing-list" href="#mailing-list"><%= dgettext("page-index", "I'd like to be informed") %></a>
     </div>
   </div>
 </section>
