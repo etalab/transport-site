@@ -21,7 +21,13 @@ defmodule Transport.DataChecker do
   def inactive_data do
     # Some datasets marked as inactive in our database may have reappeared
     # on the data gouv side, we'll mark them back as active.
-    to_reactivate_datasets = get_to_reactivate_datasets()
+    datasets_statuses = datasets_datagouv_statuses()
+
+    to_reactivate_datasets =
+      datasets_statuses
+      |> Enum.filter(fn {%Dataset{is_active: is_active}, status} -> not is_active and status == :active end)
+      |> Enum.map(fn {%Dataset{} = dataset, _status} -> dataset end)
+
     reactivated_ids = Enum.map(to_reactivate_datasets, & &1.datagouv_id)
 
     Dataset
@@ -30,7 +36,11 @@ defmodule Transport.DataChecker do
 
     # Some datasets marked as active in our database may have disappeared
     # on the data gouv side, mark them as inactive.
-    inactive_datasets = get_inactive_datasets()
+    inactive_datasets =
+      datasets_statuses
+      |> Enum.filter(fn {%Dataset{is_active: is_active}, status} -> is_active and status == :inactive end)
+      |> Enum.map(fn {%Dataset{} = dataset, _status} -> dataset end)
+
     inactive_ids = Enum.map(inactive_datasets, & &1.datagouv_id)
 
     Dataset
@@ -40,36 +50,20 @@ defmodule Transport.DataChecker do
     send_inactive_dataset_mail(to_reactivate_datasets, inactive_datasets)
   end
 
-  @doc """
-  Return all the datasets locally marked as active, but inactive on data gouv.
-  """
-  def get_inactive_datasets do
-    Dataset
-    |> where([d], d.is_active == true)
-    |> Repo.all()
-    # NOTE: this method issues a HTTP call to datagouv
-    |> Enum.filter(&(dataset_status(&1) == :inactive))
+  def datasets_datagouv_statuses do
+    Dataset |> Repo.all() |> Enum.map(&{&1, dataset_status(&1)})
   end
 
-  @doc """
-  Return all the datasets locally marked as inactive, but active on data gouv.
-  """
-  def get_to_reactivate_datasets do
-    Dataset
-    |> where([d], d.is_active == false)
-    |> Repo.all()
-    # NOTE: this method issues a HTTP call to datagouv
-    |> Enum.filter(&(dataset_status(&1) == :active))
-  end
-
-  @spec dataset_status(Dataset.t()) :: :active | :inactive | :archived
+  @spec dataset_status(Dataset.t()) :: :active | :inactive | {:archived, DateTime.t()}
   defp dataset_status(%Dataset{datagouv_id: datagouv_id}) do
     case Datasets.get(datagouv_id) do
       {:ok, %{"archived" => nil}} ->
         :active
 
-      {:ok, %{"archived" => _}} ->
-        :archived
+      {:ok, %{"archived" => archived}} ->
+        # data.gouv.fr does not include the timezone
+        {:ok, datetime, 0} = DateTime.from_iso8601(String.replace_suffix(archived, "Z", "") <> "Z")
+        {:archived, datetime}
 
       {:error, _} ->
         :inactive

@@ -14,11 +14,7 @@ defmodule Transport.DataCheckerTest do
 
       # but which is found (= active?) on data gouv side
       Transport.HTTPoison.Mock
-      |> expect(:request, 2, fn :get,
-                                "https://demo.data.gouv.fr/api/1/datasets/123/",
-                                "",
-                                [],
-                                [follow_redirect: true] ->
+      |> expect(:request, fn :get, "https://demo.data.gouv.fr/api/1/datasets/123/", "", [], [follow_redirect: true] ->
         # the dataset is found on datagouv
         {:ok, %HTTPoison.Response{status_code: 200, body: ~s({"archived":null})}}
       end)
