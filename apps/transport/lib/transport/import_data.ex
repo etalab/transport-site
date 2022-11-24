@@ -465,6 +465,9 @@ defmodule Transport.ImportData do
     end
   end
 
+  def is_ods_title?(%{"title" => title}) when title in ["Export au format CSV", "Export au format JSON"], do: true
+  def is_ods_title?(_), do: false
+
   @doc """
   Is it a GTFS file?
 
@@ -484,10 +487,13 @@ defmodule Transport.ImportData do
   true
   iex> is_gtfs?(%{"format" => "zip", "title" => "GTFS RTM", "url" => "https://example.com/api/Export/v1/GetExportedDataFile?ExportFormat=Gtfs&OperatorCode=RTM"})
   true
+  iex> is_gtfs?(%{"description" => "gtfs", "title" => "Export au format CSV"})
+  false
   """
   @spec is_gtfs?(map()) :: boolean()
   def is_gtfs?(%{} = params) do
     cond do
+      is_ods_title?(params) -> false
       is_gtfs?(params["format"]) -> true
       is_gtfs_rt?(params) -> false
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
@@ -516,10 +522,13 @@ defmodule Transport.ImportData do
   true
   iex> Enum.all?(["GTFS RTM", "gtfs théorique", "ZIP GTFS"], &(! is_gtfs_rt?(&1)))
   true
+  iex> is_gtfs_rt?(%{"description" => "gtfs-rt", "title" => "Export au format CSV"})
+  false
   """
   @spec is_gtfs_rt?(binary() | map()) :: boolean()
   def is_gtfs_rt?(%{} = params) do
     cond do
+      is_ods_title?(params) -> false
       is_gtfs_rt?(params["format"]) -> true
       is_gtfs_rt?(params["description"]) -> true
       is_gtfs_rt?(params["title"]) -> true
@@ -536,9 +545,19 @@ defmodule Transport.ImportData do
   false
   iex> is_siri?("SIRI")
   true
+  iex> is_siri?(%{"format" => "SIRI"})
+  true
+  iex> is_siri?(%{"title" => "Export au format CSV", "format" => "SIRI"})
+  false
   """
   @spec is_siri?(binary() | map()) :: boolean()
-  def is_siri?(str), do: is_format?(str, "siri") and not is_siri_lite?(str)
+  def is_siri?(params) do
+    cond do
+      is_ods_title?(params) -> false
+      is_format?(params, "siri") and not is_siri_lite?(params) -> true
+      true -> false
+    end
+  end
 
   @doc """
   iex> is_siri_lite?("siri lite")
@@ -551,7 +570,14 @@ defmodule Transport.ImportData do
   false
   """
   @spec is_siri_lite?(binary() | map()) :: boolean()
-  def is_siri_lite?(str), do: is_format?(str, "SIRI Lite")
+  def is_siri_lite?(params) do
+    cond do
+      is_ods_title?(params) -> false
+      is_format?(params, "SIRI Lite") -> true
+      true -> false
+    end
+  end
+
 
   @doc """
   check the format
@@ -626,6 +652,7 @@ defmodule Transport.ImportData do
   @spec is_netex?(binary() | map()) :: boolean()
   def is_netex?(%{} = params) do
     cond do
+      is_ods_title?(params) -> false
       is_netex?(params["format"]) -> true
       is_netex?(params["title"]) -> true
       is_netex?(params["description"]) -> true
@@ -637,7 +664,13 @@ defmodule Transport.ImportData do
   def is_netex?(s), do: is_format?(s, "NeTEx")
 
   @spec is_neptune?(binary() | map()) :: boolean()
-  def is_neptune?(s), do: is_format?(s, "neptune")
+  def is_neptune?(params) do
+    cond do
+      is_ods_title?(params) -> false
+      is_format?(params, "neptune") -> true
+      true -> false
+    end
+  end
 
   @doc """
   Check for download uri, returns ["no_download_url"] if there's no download_url
