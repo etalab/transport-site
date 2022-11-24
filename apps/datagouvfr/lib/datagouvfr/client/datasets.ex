@@ -140,7 +140,7 @@ defmodule Datagouvfr.Client.Datasets do
   Call to GET /api/1/datasets/:id/
   You can see documentation here: http://www.data.gouv.fr/fr/apidoc/#!/datasets/put_dataset
   """
-  @spec get(String.t()) :: {atom, [map]}
+  @spec get(String.t()) :: {atom, map}
   def get(id) do
     @endpoint
     |> Path.join(id)
