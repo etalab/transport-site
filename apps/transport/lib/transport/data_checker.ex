@@ -175,7 +175,7 @@ defmodule Transport.DataChecker do
 
           Une ressource associée au jeu de données expire #{delay_str(delay)} :
 
-          #{link_and_name(dataset)}
+          #{link_and_name(dataset, :datagouv_title)}
 
           Afin qu’il puisse continuer à être utilisé par les différents acteurs, il faut qu’il soit mis à jour. Pour cela, veuillez remplacer la ressource périmée par la nouvelle ressource : #{@update_data_doc_link}.
 
@@ -195,7 +195,7 @@ defmodule Transport.DataChecker do
   end
 
   defp make_str({delay, datasets}) do
-    r_str = datasets |> Enum.map_join("\n", &link_and_name/1)
+    r_str = Enum.map_join(datasets, "\n", &link_and_name(&1, :custom_title))
 
     """
     Jeux de données expirant #{delay_str(delay)}:
@@ -209,9 +209,10 @@ defmodule Transport.DataChecker do
 
   def link(%Dataset{slug: slug}), do: dataset_url(TransportWeb.Endpoint, :details, slug)
 
-  def link_and_name(dataset) do
+  @spec link_and_name(Dataset.t(), :datagouv_title | :custom_title) :: binary()
+  def link_and_name(%Dataset{} = dataset, title_field) do
     link = link(dataset)
-    name = dataset.datagouv_title
+    name = Map.fetch!(dataset, title_field)
 
     " * #{name} - #{link}"
   end
@@ -247,7 +248,7 @@ defmodule Transport.DataChecker do
   defp fmt_inactive_dataset([]), do: ""
 
   defp fmt_inactive_dataset(inactive_datasets) do
-    datasets_str = inactive_datasets |> Enum.map_join("\n", &link_and_name/1)
+    datasets_str = Enum.map_join(inactive_datasets, "\n", &link_and_name(&1, :custom_title))
 
     """
     Certains jeux de données ont disparus de data.gouv.fr :
@@ -258,7 +259,7 @@ defmodule Transport.DataChecker do
   defp fmt_reactivated_dataset([]), do: ""
 
   defp fmt_reactivated_dataset(reactivated_datasets) do
-    datasets_str = reactivated_datasets |> Enum.map_join("\n", &link_and_name/1)
+    datasets_str = Enum.map_join(reactivated_datasets, "\n", &link_and_name(&1, :custom_title))
 
     """
     Certains jeux de données disparus sont réapparus sur data.gouv.fr :
@@ -282,7 +283,7 @@ defmodule Transport.DataChecker do
   defp send_archived_datasets_mail([]), do: nil
 
   defp send_archived_datasets_mail(archived_datasets) do
-    datasets_str = Enum.map_join(archived_datasets, "\n", &link_and_name/1)
+    datasets_str = Enum.map_join(archived_datasets, "\n", &link_and_name(&1, :custom_title))
 
     body = """
     Bonjour,
