@@ -48,6 +48,22 @@ defmodule Transport.DataChecker do
     |> Repo.update_all(set: [is_active: false])
 
     send_inactive_dataset_mail(to_reactivate_datasets, inactive_datasets)
+
+    # Some datasets may be archived on data.gouv.fr
+    recent_limit = DateTime.add(DateTime.utc_now(), -1, :day)
+
+    datasets_statuses
+    |> Enum.filter(fn {%Dataset{is_active: is_active}, status} ->
+      case {is_active, status} do
+        {true, {:archived, datetime}} ->
+          DateTime.compare(datetime, recent_limit) == :gt
+
+        _ ->
+          false
+      end
+    end)
+    |> Enum.map(fn {%Dataset{} = dataset, _status} -> dataset end)
+    |> send_archived_datasets_mail()
   end
 
   def datasets_datagouv_statuses do
@@ -261,6 +277,32 @@ defmodule Transport.DataChecker do
 
     Il faut peut être creuser pour savoir si c'est normal.
     """
+  end
+
+  defp send_archived_datasets_mail([]), do: nil
+
+  defp send_archived_datasets_mail(archived_datasets) do
+    datasets_str = Enum.map_join(archived_datasets, "\n", &link_and_name/1)
+
+    body = """
+    Bonjour,
+
+    Certains jeux de données sont indiqués comme archivés sur data.gouv.fr :
+    #{datasets_str}
+
+
+    Il faudrait creuser ces problèmes de moissonnage.
+    """
+
+    Transport.EmailSender.impl().send_mail(
+      "transport.data.gouv.fr",
+      Application.get_env(:transport, :contact_email),
+      Application.get_env(:transport, :bizdev_email),
+      Application.get_env(:transport, :contact_email),
+      "Jeux de données archivés",
+      body,
+      ""
+    )
   end
 
   # Do nothing if both lists are empty
