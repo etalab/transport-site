@@ -465,7 +465,10 @@ defmodule Transport.ImportData do
     end
   end
 
-  def is_ods_title?(%{"title" => title}) when title in ["Export au format CSV", "Export au format JSON"], do: true
+  def is_ods_title?(%{"title" => title})
+      when title in ["Export au format CSV", "Export au format JSON"],
+      do: true
+
   def is_ods_title?(_), do: false
 
   @doc """
@@ -491,6 +494,7 @@ defmodule Transport.ImportData do
   false
   """
   @spec is_gtfs?(map()) :: boolean()
+  # credo:disable-for-next-line
   def is_gtfs?(%{} = params) do
     cond do
       is_ods_title?(params) -> false
@@ -577,7 +581,6 @@ defmodule Transport.ImportData do
       true -> false
     end
   end
-
 
   @doc """
   check the format
