@@ -41,7 +41,7 @@ defmodule Transport.DataChecker do
   end
 
   @doc """
-  Return all the datasets locally marked as active, but active on data gouv.
+  Return all the datasets locally marked as active, but inactive on data gouv.
   """
   def get_inactive_datasets do
     Dataset
