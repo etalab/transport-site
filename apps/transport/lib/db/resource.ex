@@ -774,11 +774,15 @@ defmodule DB.Resource do
     hosted_on_static_datagouv =
       Enum.member?(Application.fetch_env!(:transport, :datagouv_static_hosts), parsed_url.host)
 
+    object_storage_regex =
+      ~r{(https://.*\.blob\.core\.windows\.net)|(https://.*\.s3\..*\.amazonaws\.com)|(https://.*\.s3\..*\.scw\.cloud)|(https://.*\.cellar-c2\.services\.clever-cloud\.com)|(https://s3\..*\.cloud\.ovh\.net)}
+
     hosted_on_bison_fute = parsed_url.host == Application.fetch_env!(:transport, :bison_fute_host)
 
     cond do
       hosted_on_bison_fute -> is_link_to_folder?(parsed_url)
       hosted_on_static_datagouv -> true
+      String.match?(url, object_storage_regex) -> true
       true -> false
     end
   end
