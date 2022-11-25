@@ -382,12 +382,21 @@ defmodule Transport.ImportData do
   "https://exs.sismo2.cityway.fr/GTFS.aspx?key=SISMO&OperatorCode=CG60L3"
   iex> cleaned_url("http://example.com/file.zip")
   "http://example.com/file.zip"
+  iex> cleaned_url("http://exs.sismo2.cityway.fr")
+  "https://exs.sismo2.cityway.fr"
   """
   def cleaned_url(url) do
     uri = URI.parse(url)
 
     if is_binary(uri.host) and String.match?(uri.host, ~r/^exs\.(\w)+\.cityway\.fr$/) do
-      URI.to_string(%{uri | scheme: "https", query: uri.query |> String.replace("&amp;", "&"), port: 443})
+      cleaned_query =
+        if is_nil(uri.query) do
+          nil
+        else
+          uri.query |> String.replace("&amp;", "&")
+        end
+
+      %{uri | scheme: "https", query: cleaned_query, port: 443} |> URI.to_string()
     else
       url
     end

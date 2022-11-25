@@ -155,9 +155,17 @@ a.tile:hover {
         height: 3em;
       }
     }
+
+    a {
+      color: $grey;
+    }
+
+    a .text-center {
+      margin-top: .5em;
+    }
   }
 
-  a {
+  a.mailing-list {
     margin-top: 2em;
     display: inline-block;
   }
