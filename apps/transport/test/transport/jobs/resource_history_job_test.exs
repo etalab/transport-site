@@ -332,30 +332,22 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     end
 
     test "a simple successful case for a CSV" do
-      resource_url = "https://example.com/file.csv"
       csv_content = "col1,col2\nval1,val2"
       latest_schema_version = "0.4.2"
 
-      %{
-        id: resource_id,
-        datagouv_id: datagouv_id,
-        dataset_id: dataset_id,
-        metadata: resource_metadata,
-        title: title,
-        schema_name: schema_name,
-        schema_version: schema_version
-      } =
+      %DB.Resource{id: resource_id, dataset_id: dataset_id} =
         resource =
         insert(:resource,
-          url: resource_url,
+          url: resource_url = "https://example.com/file.csv",
+          latest_url: resource_latest_url = "https://example.com/#{Ecto.UUID.generate()}",
           dataset: insert(:dataset, is_active: true),
           format: "csv",
-          title: "title",
+          title: title = "title",
           is_community_resource: false,
-          datagouv_id: Ecto.UUID.generate(),
-          metadata: %{"foo" => "bar"},
-          schema_name: "etalab/schema-lieux-covoiturage",
-          schema_version: "0.4.1"
+          datagouv_id: datagouv_id = Ecto.UUID.generate(),
+          metadata: resource_metadata = %{"foo" => "bar"},
+          schema_name: schema_name = "etalab/schema-lieux-covoiturage",
+          schema_version: schema_version = "0.4.1"
         )
 
       Transport.HTTPoison.Mock
@@ -420,6 +412,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
                datagouv_id: ^datagouv_id,
                payload: %{
                  "dataset_id" => ^dataset_id,
+                 "resource_url" => ^resource_url,
+                 "resource_latest_url" => ^resource_latest_url,
                  "format" => "csv",
                  "content_hash" => ^content_hash,
                  "http_headers" => %{"content-type" => "application/octet-stream"},
