@@ -24,9 +24,7 @@ defmodule Transport.DataChecker do
     datasets_statuses = datasets_datagouv_statuses()
 
     to_reactivate_datasets =
-      datasets_statuses
-      |> Enum.filter(fn {%Dataset{is_active: is_active}, status} -> not is_active and status == :active end)
-      |> Enum.map(fn {%Dataset{} = dataset, _status} -> dataset end)
+    for {%Dataset{is_active: false} = dataset, :active} <- datasets_statuses, do: dataset
 
     reactivated_ids = Enum.map(to_reactivate_datasets, & &1.id)
 
@@ -37,9 +35,7 @@ defmodule Transport.DataChecker do
     # Some datasets marked as active in our database may have disappeared
     # on the data gouv side, mark them as inactive.
     inactive_datasets =
-      datasets_statuses
-      |> Enum.filter(fn {%Dataset{is_active: is_active}, status} -> is_active and status == :inactive end)
-      |> Enum.map(fn {%Dataset{} = dataset, _status} -> dataset end)
+      for {%Dataset{is_active: true} = dataset, :inactive} <- datasets_statuses, do: dataset
 
     inactive_ids = Enum.map(inactive_datasets, & &1.id)
 
@@ -52,18 +48,12 @@ defmodule Transport.DataChecker do
     # Some datasets may be archived on data.gouv.fr
     recent_limit = DateTime.add(DateTime.utc_now(), -1, :day)
 
-    datasets_statuses
-    |> Enum.filter(fn {%Dataset{is_active: is_active}, status} ->
-      case {is_active, status} do
-        {true, {:archived, datetime}} ->
-          DateTime.compare(datetime, recent_limit) == :gt
+    archived_datasets =
+      for {%Dataset{is_active: true} = dataset, {:archived, datetime}} <- datasets_statuses,
+          DateTime.compare(datetime, recent_limit) == :gt,
+          do: dataset
 
-        _ ->
-          false
-      end
-    end)
-    |> Enum.map(fn {%Dataset{} = dataset, _status} -> dataset end)
-    |> send_archived_datasets_mail()
+    archived_datasets |> send_archived_datasets_mail()
   end
 
   def datasets_datagouv_statuses do
