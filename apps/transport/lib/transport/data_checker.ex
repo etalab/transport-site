@@ -23,8 +23,7 @@ defmodule Transport.DataChecker do
     # on the data gouv side, we'll mark them back as active.
     datasets_statuses = datasets_datagouv_statuses()
 
-    to_reactivate_datasets =
-    for {%Dataset{is_active: false} = dataset, :active} <- datasets_statuses, do: dataset
+    to_reactivate_datasets = for {%Dataset{is_active: false} = dataset, :active} <- datasets_statuses, do: dataset
 
     reactivated_ids = Enum.map(to_reactivate_datasets, & &1.id)
 
@@ -34,8 +33,7 @@ defmodule Transport.DataChecker do
 
     # Some datasets marked as active in our database may have disappeared
     # on the data gouv side, mark them as inactive.
-    inactive_datasets =
-      for {%Dataset{is_active: true} = dataset, :inactive} <- datasets_statuses, do: dataset
+    inactive_datasets = for {%Dataset{is_active: true} = dataset, :inactive} <- datasets_statuses, do: dataset
 
     inactive_ids = Enum.map(inactive_datasets, & &1.id)
 
