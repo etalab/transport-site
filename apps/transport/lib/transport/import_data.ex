@@ -786,11 +786,15 @@ defmodule Transport.ImportData do
 
       iex> formated_format(%{"format" => "siri-lite"}, "public-transit", false)
       "SIRI Lite"
+
+      iex> formated_format(%{"format" => "pdf", "type" => "documentation"}, "public-transit", false)
+      "pdf"
   """
   @spec formated_format(map(), binary(), bool()) :: binary()
   # credo:disable-for-next-line
   def formated_format(resource, type, is_community_resource) do
     format = Map.get(resource, "format", "")
+    is_documentation = Map.get(resource, "type", "") == "documentation"
 
     cond do
       is_gtfs_rt?(format) -> "gtfs-rt"
@@ -800,7 +804,7 @@ defmodule Transport.ImportData do
       is_siri_lite?(format) -> "SIRI Lite"
       is_siri?(format) -> "SIRI"
       is_geojson?(resource, format) -> "geojson"
-      type == "public-transit" and not is_community_resource -> "GTFS"
+      type == "public-transit" and not is_documentation and not is_community_resource -> "GTFS"
       type == "bike-scooter-sharing" and is_gbfs?(resource) -> "gbfs"
       true -> format
     end
