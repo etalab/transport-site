@@ -410,10 +410,18 @@ defmodule Transport.ImportData do
     |> Enum.concat(get_valid_gtfs_rt_resources(resources))
     |> Enum.concat(get_valid_siri_resources(resources))
     |> Enum.concat(get_valid_siri_lite_resources(resources))
+    |> Enum.concat(get_valid_documentation_resources(resources))
   end
 
   def get_valid_resources(%{"resources" => resources}, _type) do
     resources
+  end
+
+  @spec get_valid_documentation_resources([map()]) :: [map()]
+  def get_valid_documentation_resources(resources) do
+    resources
+    |> Enum.filter(&is_documentation?/1)
+    |> Enum.map(fn resource -> %{resource | "type" => "documentation"} end)
   end
 
   @spec get_valid_gtfs_resources([map()]) :: [map()]
@@ -552,6 +560,25 @@ defmodule Transport.ImportData do
 
   def is_gtfs_rt?(str) when is_binary(str), do: String.match?(str, ~r/\b(gtfs-rt|gtfsrt|gtfs rt)\b/i)
   def is_gtfs_rt?(_), do: false
+
+  @doc """
+  iex> is_documentation?(%{"format" => "gtfs"})
+  false
+  iex> is_documentation?(%{"format" => "csv"})
+  false
+  iex> is_documentation?(%{"format" => "PDF"})
+  true
+  iex> is_documentation?(%{"type" => "documentation", "format" => "docx"})
+  true
+  """
+  @spec is_documentation?(map()) :: boolean()
+  def is_documentation?(%{} = params) do
+    cond do
+      params["type"] == "documentation" -> true
+      is_format?(params["format"], ["pdf", "svg", "html"]) -> true
+      true -> false
+    end
+  end
 
   @doc """
   iex> is_siri?("siri lite")
