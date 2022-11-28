@@ -553,3 +553,7 @@ msgstr "Impossible de déterminer le fichier GTFS à utiliser pour effectuer une
 #, elixir-autogen, elixir-format
 msgid "Data published by"
 msgstr "Données publiées par"
+
+#, elixir-autogen, elixir-format
+msgid "Try me!"
+msgstr "Essayez-moi !"

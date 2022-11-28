@@ -200,7 +200,7 @@
           ] %>
 
           <a href={live_path(@conn, TransportWeb.Live.SIRIQuerierLive, siri_querier_params)}>
-            Try me!
+            <button class="button-outline primary small"><%= dgettext("page-dataset-details", "Try me!") %></button>
           </a>
         <% end %>
       </div>
