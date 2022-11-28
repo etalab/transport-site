@@ -614,6 +614,22 @@ defmodule DB.Resource do
     is_gtfs_rt?(resource) or is_gbfs?(resource) or is_siri_lite?(resource) or is_siri?(resource)
   end
 
+  @doc """
+  Ultimately, requestor_refs should be imported as data gouv meta-data. For now though, we're guessing them
+  based on a public configuration + the host name.
+  """
+  def guess_requestor_ref(%__MODULE__{} = resource) do
+    cond do
+      URI.parse(resource.url).host == "ara-api.enroute.mobi" ->
+        public_siri_requestor_refs = Application.fetch_env!(:transport, :public_siri_requestor_refs)
+
+        Map.get(public_siri_requestor_refs, :enroute)
+
+      true ->
+        nil
+    end
+  end
+
   @spec has_schema?(__MODULE__.t()) :: boolean
   def has_schema?(%__MODULE__{schema_name: schema_name}), do: not is_nil(schema_name)
 
