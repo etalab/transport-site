@@ -45,7 +45,9 @@ defmodule DB.Resource do
     field(:datagouv_id, :string)
 
     # we add 2 fields, that are already in the metadata json, in order to be able to add some indices
+    ###!
     field(:start_date, :date)
+    ###!
     field(:end_date, :date)
 
     field(:filesize, :integer)
@@ -368,7 +370,9 @@ defmodule DB.Resource do
           validation_latest_content_hash: r.content_hash,
           data_vis: data_vis
         },
+        ###!
         start_date: str_to_date(metadata["start_date"]),
+        ###!
         end_date: str_to_date(metadata["end_date"])
       )
       |> Repo.update()
@@ -428,6 +432,7 @@ defmodule DB.Resource do
     |> validate_required([:url, :datagouv_id])
   end
 
+  ###!
   @spec is_outdated?(__MODULE__.t()) :: boolean
   def is_outdated?(%__MODULE__{
         metadata: %{

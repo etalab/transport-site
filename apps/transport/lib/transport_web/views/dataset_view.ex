@@ -36,6 +36,7 @@ defmodule TransportWeb.DatasetView do
   def count_discussions(nil), do: '-'
   def count_discussions(discussions), do: Enum.count(discussions)
 
+  ###!
   def end_date(dataset) do
     dataset.resources
     |> Enum.filter(&Resource.is_gtfs?/1)

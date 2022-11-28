@@ -66,7 +66,8 @@ defmodule TransportWeb.AOMSController do
 
   @spec valid_dataset?(Dataset.t()) :: boolean()
   defp valid_dataset?(dataset),
-    do: Enum.any?(Dataset.official_resources(dataset), fn r -> !Resource.is_outdated?(r) end)
+    do: ###!
+    Enum.any?(Dataset.official_resources(dataset), fn r -> !Resource.is_outdated?(r) end)
 
   @spec up_to_date?([Dataset.t()], Dataset.t() | nil) :: boolean()
   defp up_to_date?([], nil), do: false
@@ -77,6 +78,7 @@ defmodule TransportWeb.AOMSController do
     |> Enum.filter(fn d -> d.type == "public-transit" end)
     |> case do
       [] -> false
+      ###!
       transit_datasets -> Enum.any?(transit_datasets, &valid_dataset?/1)
     end
   end

@@ -23,10 +23,13 @@ defmodule TransportWeb.Backoffice.PageController do
 
     sub =
       Resource
+      ###!
       |> where([r], fragment("metadata->>'end_date' IS NOT NULL"))
       |> group_by([r], r.dataset_id)
+      ###!
       |> having([_q], fragment("max(metadata->>'end_date') <= ?", ^dt))
       |> distinct([r], r.dataset_id)
+      ###!
       |> select([r], %{dataset_id: r.dataset_id, end_date: fragment("max(metadata->>'end_date')")})
 
     Dataset
@@ -43,6 +46,7 @@ defmodule TransportWeb.Backoffice.PageController do
         fragment("SUM(CASE WHEN format='GTFS' or format='gbfs' or format='NeTEx' THEN 1 ELSE 0 END) > 0")
       )
       |> group_by([r], r.dataset_id)
+      ###!
       |> select([r], %{dataset_id: r.dataset_id, end_date: fragment("max(metadata->>'end_date')")})
 
     Dataset
@@ -56,6 +60,7 @@ defmodule TransportWeb.Backoffice.PageController do
       Resource
       |> having([r], fragment("MAX(CAST(metadata->'issues_count'->>'UnloadableModel' as INT)) > 0"))
       |> group_by([r], r.dataset_id)
+      ###!
       |> select([r], %{dataset_id: r.dataset_id, end_date: fragment("max(metadata->>'end_date')")})
 
     Dataset
@@ -129,6 +134,7 @@ defmodule TransportWeb.Backoffice.PageController do
     resources =
       Resource
       |> group_by([r], r.dataset_id)
+      ###!
       |> select([r], %{dataset_id: r.dataset_id, end_date: fragment("max(metadata->>'end_date')")})
 
     Dataset
@@ -227,6 +233,7 @@ defmodule TransportWeb.Backoffice.PageController do
 
     order_by =
       case params do
+        ###!
         %{"order_by" => "end_date"} -> :end_date
         %{"order_by" => "custom_title"} -> :custom_title
         _ -> nil
@@ -240,6 +247,7 @@ defmodule TransportWeb.Backoffice.PageController do
     %{direction: dir, field: field} = get_order_by_from_params(params)
 
     case field do
+      ###!
       :end_date -> order_by(query, [d, r], {^dir, field(r, :end_date)})
       :custom_title -> order_by(query, [d, r], {^dir, field(d, :custom_title)})
       _ -> query

@@ -193,6 +193,7 @@ defmodule Transport.StatsHandler do
     |> join(:left, [_, dataset], _r in assoc(dataset, :resources))
     |> join(:left, [_, _, r], v in subquery(validations), on: v.resource_id == r.id)
     |> where([_a, _d, r, _v], r.format == "GTFS")
+    ###!
     |> where([_a, _d, r, _v], r.end_date >= ^dt)
     |> group_by([a, _d, _r, v], a.id)
     |> select([a, d, r, v], %{
