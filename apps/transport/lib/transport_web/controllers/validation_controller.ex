@@ -98,8 +98,7 @@ defmodule TransportWeb.ValidationController do
         unauthorized(conn)
 
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "gtfs"}} = validation ->
-        # to be updated when PR 2371 is merged
-        current_issues = DB.Validation.get_issues(%{details: validation.result}, params)
+        current_issues = Transport.Validators.GTFSTransport.get_issues(validation.result, params)
 
         issue_type =
           case params["issue_type"] do
@@ -111,10 +110,14 @@ defmodule TransportWeb.ValidationController do
         |> assign(:validation_id, params["id"])
         |> assign(:other_resources, [])
         |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
-        # to be updated when PR 2371 is merged
-        |> assign(:validation_summary, DB.Validation.summary(%{details: validation.result}))
-        # to be updated when PR 2371 is merged
-        |> assign(:severities_count, DB.Validation.count_by_severity(%{details: validation.result}))
+        |> assign(
+          :validation_summary,
+          Transport.Validators.GTFSTransport.summary(validation.result)
+        )
+        |> assign(
+          :severities_count,
+          Transport.Validators.GTFSTransport.count_by_severity(validation.result)
+        )
         |> assign(:metadata, validation.metadata.metadata)
         |> assign(:modes, validation.metadata.modes)
         |> assign(:data_vis, data_vis(validation, issue_type))
