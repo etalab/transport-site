@@ -9,56 +9,51 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
 
   @request_headers [{"content-type", "text/xml"}]
 
-  def mount(_params, %{"locale" => locale} = _session, socket) do
+  def mount(params, %{"locale" => locale} = _session, socket) do
     Gettext.put_locale(locale)
-    socket = socket |> prepare_initial_assigns()
+
+    socket =
+      socket
+      |> assign(base_assigns())
+      |> maybe_assign(params["endpoint_url"], :endpoint_url)
+      |> maybe_assign(params["requestor_ref"], :requestor_ref)
+      |> maybe_assign(params["query_template"], :query_template)
 
     {:ok, socket}
   end
 
-  def prepare_initial_assigns(socket) do
-    socket
-    |> assign(default_params(socket))
-    |> assign(:siri_request_headers, @request_headers)
-    |> assign(:siri_query, nil)
-    |> assign(:siri_response_status_code, nil)
-    |> assign(:siri_response_error, nil)
-    |> assign(:query_template, "CheckStatus")
-    |> assign(:query_template_choices, [
-      "CheckStatus",
-      "LinesDiscovery",
-      "StopPointsDiscovery",
-      "GetEstimatedTimetable",
-      "GetGeneralMessage",
-      "GetStopMonitoring"
-    ])
-    |> assign(:line_refs, "")
-    |> assign(:stop_ref, "")
+  def maybe_assign(socket, value, assign_key) do
+    if value, do: socket |> assign(assign_key, value), else: socket
+  end
+
+  def base_assigns() do
+    %{
+      siri_request_headers: @request_headers,
+      siri_query: nil,
+      siri_response_status_code: nil,
+      siri_response_error: nil,
+      query_template: "CheckStatus",
+      query_template_choices: [
+        "CheckStatus",
+        "LinesDiscovery",
+        "StopPointsDiscovery",
+        "GetEstimatedTimetable",
+        "GetGeneralMessage",
+        "GetStopMonitoring"
+      ],
+      line_refs: "",
+      stop_ref: ""
+    }
   end
 
   def handle_params(params, _uri, socket) do
     {:noreply,
      socket
-     |> assign(
-       Map.merge(
-         %{
-           endpoint_url: params["endpoint_url"],
-           requestor_ref: socket.assigns[:requestor_ref] || params["requestor_ref"]
-         },
-         default_params(socket)
-       )
-     )}
-  end
-
-  defp default_params(socket) do
-    if Mix.env() == :dev do
-      %{
-        endpoint_url: socket.assigns[:endpoint_url] || get_one_siri_proxy_url(socket),
-        requestor_ref: socket.assigns[:requestor_ref] || Application.fetch_env!(:unlock, :siri_public_requestor_ref)
-      }
-    else
-      %{}
-    end
+     |> assign(%{
+       endpoint_url: params["endpoint_url"],
+       requestor_ref: params["requestor_ref"],
+       query_template: params["query_template"]
+     })}
   end
 
   def get_one_siri_proxy_url(socket) do
