@@ -26,7 +26,6 @@ defmodule TransportWeb.DatasetSearchControllerTest do
             validation: %Validation{},
             metadata: %{},
             title: "angers.zip",
-            modes: ["ferry"],
             features: ["tarifs"]
           }
         ],

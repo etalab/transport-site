@@ -27,8 +27,6 @@ defmodule DB.Resource do
     field(:content_hash, :string)
     # automatically discovered tags
     field(:features, {:array, :string}, default: [])
-    # all the detected modes of the ressource
-    field(:modes, {:array, :string}, default: [])
 
     field(:is_community_resource, :boolean)
 
@@ -373,7 +371,6 @@ defmodule DB.Resource do
           data_vis: data_vis
         },
         features: find_tags(r, metadata),
-        modes: find_modes(metadata),
         start_date: str_to_date(metadata["start_date"]),
         end_date: str_to_date(metadata["end_date"])
       )
@@ -444,10 +441,6 @@ defmodule DB.Resource do
       "informations sur l'accessibilité à vélo",
       "informations sur l'accessibilité en fauteuil roulant"
     ]
-
-  @spec find_modes(map()) :: [binary()]
-  def find_modes(%{"modes" => modes}), do: modes
-  def find_modes(_), do: []
 
   # These tags are not translated because we'll need to be able to search for those tags
   @spec has_fares_tag(map()) :: [binary()]
@@ -526,7 +519,6 @@ defmodule DB.Resource do
         :latest_url,
         :is_available,
         :features,
-        :modes,
         :is_community_resource,
         :schema_name,
         :schema_version,
