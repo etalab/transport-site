@@ -563,49 +563,6 @@ defmodule DB.Resource do
 
   def is_outdated?(_), do: true
 
-  @spec get_max_severity_validation_number(__MODULE__) :: map() | nil
-  def get_max_severity_validation_number(%__MODULE__{id: id}) do
-    """
-      SELECT json_data.value#>'{0,severity}', json_array_length(json_data.value)
-      FROM validations, json_each(validations.details::json) json_data
-      WHERE validations.resource_id = $1
-    """
-    |> Repo.query([id])
-    |> case do
-      {:ok, %{rows: rows}} when rows != [] ->
-        [max_severity | _] =
-          Enum.min_by(
-            rows,
-            fn [severity | _] -> Validation.severities(severity)[:level] end,
-            fn -> nil end
-          )
-
-        count_errors =
-          rows
-          |> Enum.filter(fn [severity, _] -> severity == max_severity end)
-          |> Enum.reduce(0, fn [_, nb], acc -> acc + nb end)
-
-        %{severity: max_severity, count_errors: count_errors}
-
-      {:ok, _} ->
-        # credo:disable-for-next-line
-        with %Validation{details: details} when details == %{} <-
-               Repo.get_by(Validation, resource_id: id) do
-          %{severity: "NoError", count_errors: 0}
-        else
-          _ ->
-            Logger.error("Unable to get validation of resource #{id}")
-            nil
-        end
-
-      {:error, error} ->
-        Logger.error(error)
-        nil
-    end
-  end
-
-  def get_max_severity_validation_number(_), do: nil
-
   # I duplicate this function in Transport.Validators.GTFSTransport
   # this one should be deleted later
   # https://github.com/etalab/transport-site/issues/2390

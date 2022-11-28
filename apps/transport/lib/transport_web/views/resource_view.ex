@@ -2,7 +2,7 @@ defmodule TransportWeb.ResourceView do
   use TransportWeb, :view
   use Phoenix.Component
   import TransportWeb.PaginationHelpers
-  import DB.Validation
+  import Transport.Validators.GTFSTransport
   import Phoenix.Controller, only: [current_url: 2]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
