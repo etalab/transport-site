@@ -417,21 +417,20 @@ defmodule DB.Dataset do
 
   @spec count_by_mode(binary()) :: number()
   def count_by_mode(tag) do
-    __MODULE__
-    |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
-    |> where([d, r], d.is_active and ^tag in r.modes)
-    |> distinct([d], d.id)
+    Transport.Validators.GTFSTransport.validator_name()
+    |> join_from_dataset_to_metadata()
+    |> where([metadata: m], ^tag in m.modes)
+    |> distinct([dataset: d], d.id)
     |> Repo.aggregate(:count, :id)
   end
 
   @spec count_coach() :: number()
   def count_coach do
-    __MODULE__
-    |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
-    |> join(:inner, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
-    |> distinct([d], d.id)
-    |> where([d, r, d_geo], d.is_active and "bus" in r.modes and d_geo.region_id == 14)
+    Transport.Validators.GTFSTransport.validator_name()
+    |> join_from_dataset_to_metadata()
     # 14 is the national "region". It means that it is not bound to a region or local territory
+    |> where([metadata: m, dataset: d], d.region_id == 14 and "bus" in m.modes)
+    |> distinct([dataset: d], d.id)
     |> Repo.aggregate(:count, :id)
   end
 
