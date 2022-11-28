@@ -25,8 +25,7 @@ defmodule TransportWeb.DatasetSearchControllerTest do
             url: "https://link.to/angers.zip",
             validation: %Validation{},
             metadata: %{},
-            title: "angers.zip",
-            modes: ["ferry"]
+            title: "angers.zip"
           }
         ],
         aom: %AOM{id: 4242, nom: "Angers Métropôle"}

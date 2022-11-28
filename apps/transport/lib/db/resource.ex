@@ -25,8 +25,6 @@ defmodule DB.Resource do
     field(:latest_url, :string)
     field(:is_available, :boolean, default: true)
     field(:content_hash, :string)
-    # all the detected modes of the ressource
-    field(:modes, {:array, :string}, default: [])
 
     field(:is_community_resource, :boolean)
 
@@ -414,7 +412,6 @@ defmodule DB.Resource do
         :last_update,
         :latest_url,
         :is_available,
-        :modes,
         :is_community_resource,
         :schema_name,
         :schema_version,
