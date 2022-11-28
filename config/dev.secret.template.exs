@@ -28,6 +28,12 @@ config :transport, TransportWeb.Endpoint,
     signing_salt: secret_key_base
   ]
 
+config :transport,
+  public_siri_requestor_refs: %{
+    # fake one in the template
+    enroute: "abcdef"
+  }
+
 # for minio local S3 support. See `.miniorc`
 config :ex_aws,
   access_key_id: System.fetch_env!("MINIO_ROOT_USER"),

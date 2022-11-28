@@ -142,6 +142,15 @@ config :transport,
   datagouv_static_hosts: ["static.data.gouv.fr", "demo-static.data.gouv.fr"],
   bison_fute_host: "tipi.bison-fute.gouv.fr"
 
+# A list of publicly transmissible requestor refs for open data SIRI. Currently
+# just a mapping list to allow guessing the provider based on urls, until this data
+# can be properly embedded in the data gouv
+config :transport,
+  public_siri_requestor_refs: %{
+    # enroute one is empty for now, until we have an agreement on this
+    enroute: "test-will-not-work"
+  }
+
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API,
   authentication_impl: Datagouvfr.Authentication,
