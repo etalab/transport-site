@@ -596,7 +596,7 @@ defmodule DB.Dataset do
     dataset = __MODULE__ |> Repo.get!(id) |> Repo.preload(:resources)
 
     {real_time_resources, static_resources} =
-      dataset.resources
+      dataset
       |> official_resources()
       |> Enum.split_with(&Resource.is_real_time?/1)
 
