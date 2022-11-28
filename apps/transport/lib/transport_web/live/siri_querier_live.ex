@@ -121,7 +121,7 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   end
 
   def self_path(socket) do
-    fields = Map.take(socket.assigns, [:endpoint_url])
+    fields = Map.take(socket.assigns, [:endpoint_url, :requestor_ref, :query_template])
     live_path(socket, __MODULE__, fields |> Map.reject(fn {_, v} -> v in ["", nil] end))
   end
 
