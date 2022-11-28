@@ -74,7 +74,12 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
 
   def handle_event("generate_query", _params, socket) do
     {:noreply,
-     socket |> assign(%{siri_query: generate_query(socket), siri_response_status_code: nil, siri_response_error: nil})}
+     socket
+     |> assign(%{
+       siri_query: generate_query(socket),
+       siri_response_status_code: nil,
+       siri_response_error: nil
+     })}
   end
 
   def handle_event("execute_query", _params, socket) do
