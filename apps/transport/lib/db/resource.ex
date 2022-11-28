@@ -370,7 +370,6 @@ defmodule DB.Resource do
           validation_latest_content_hash: r.content_hash,
           data_vis: data_vis
         },
-        modes: find_modes(metadata),
         start_date: str_to_date(metadata["start_date"]),
         end_date: str_to_date(metadata["end_date"])
       )
