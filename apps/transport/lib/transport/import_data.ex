@@ -215,6 +215,12 @@ defmodule Transport.ImportData do
       iex> licence(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Lyon"}})
       "mobility-licence"
 
+      iex> licence(%{"license" => "notspecified", "organization" => %{"name" => "Île-de-France Mobilités"}})
+      "mobility-licence"
+
+      iex> licence(%{"license" => "odc-odbl", "organization" => %{"name" => "Île-de-France Mobilités"}})
+      "odc-odbl"
+
       iex> licence(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Rouen"}})
       "notspecified"
 
@@ -223,9 +229,7 @@ defmodule Transport.ImportData do
 
   """
   def licence(%{"license" => "notspecified", "organization" => %{"name" => org_name}}) do
-    orgs_with_mobility_licence = ["Métropole de Lyon"]
-
-    if org_name in orgs_with_mobility_licence do
+    if org_name in Application.fetch_env!(:transport, :orgs_with_mobility_licence) do
       "mobility-licence"
     else
       "notspecified"
