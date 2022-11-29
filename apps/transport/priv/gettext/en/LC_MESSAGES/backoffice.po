@@ -200,3 +200,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Validations"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Archived"
+msgstr ""

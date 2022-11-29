@@ -200,3 +200,7 @@ msgstr "Validateur GTFS Transport - Validation forcée"
 #, elixir-autogen, elixir-format
 msgid "Validations"
 msgstr "Validations"
+
+#, elixir-autogen, elixir-format
+msgid "Archived"
+msgstr "Archivés"
