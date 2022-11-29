@@ -575,6 +575,7 @@ defmodule Transport.ImportData do
   """
   @spec is_documentation?(map() | binary()) :: boolean()
   def is_documentation?(str) when is_binary(str), do: false
+
   def is_documentation?(%{} = params) do
     cond do
       params["type"] == "documentation" -> true
