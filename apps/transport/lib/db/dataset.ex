@@ -597,7 +597,10 @@ defmodule DB.Dataset do
   def validate(id) when is_integer(id) do
     dataset = __MODULE__ |> Repo.get!(id) |> Repo.preload(:resources)
 
-    {real_time_resources, static_resources} = Enum.split_with(dataset.resources, &Resource.is_real_time?/1)
+    {real_time_resources, static_resources} =
+      dataset
+      |> official_resources()
+      |> Enum.split_with(&Resource.is_real_time?/1)
 
     # unique period is set to nil, to force the resource history job to be executed
     static_resources
