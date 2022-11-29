@@ -291,6 +291,8 @@ defmodule DB.DatasetDBTest do
     dataset = insert(:dataset)
     %{id: gtfs_resource_id} = insert(:resource, format: "GTFS", dataset: dataset)
     %{id: gbfs_resource_id} = insert(:resource, format: "gbfs", dataset: dataset)
+    # Ignored because it's a community resource
+    insert(:resource, format: "GTFS", dataset: dataset, is_community_resource: true)
 
     Dataset.validate(dataset)
 
