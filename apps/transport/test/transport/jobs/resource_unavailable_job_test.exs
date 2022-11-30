@@ -115,7 +115,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
           datagouv_id: "foo"
         )
 
-      Transport.AvailabilityChecker.Mock |> expect(:available?, fn ^latest_url -> true end)
+      Transport.AvailabilityChecker.Mock |> expect(:available?, fn _format, ^latest_url -> true end)
 
       assert DB.Resource.download_url(resource) == latest_url
 
@@ -148,7 +148,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
         {:ok, %HTTPoison.Response{status_code: 500}}
       end)
 
-      Transport.AvailabilityChecker.Mock |> expect(:available?, fn ^new_url -> false end)
+      Transport.AvailabilityChecker.Mock |> expect(:available?, fn _format, ^new_url -> false end)
 
       assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
 
@@ -178,10 +178,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
           datagouv_id: "foo"
         )
 
-      Transport.HTTPoison.Mock
-      |> expect(:get, fn ^url ->
-        {:ok, %HTTPoison.Response{status_code: 401}}
-      end)
+      Transport.AvailabilityChecker.Mock
+      |> expect(:available?, fn "SIRI", ^url -> true end)
 
       assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
 
@@ -201,14 +199,14 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
     url = @resource_url
 
     Transport.AvailabilityChecker.Mock
-    |> expect(:available?, fn ^url -> false end)
+    |> expect(:available?, fn _format, ^url -> false end)
   end
 
   defp setup_mock_available do
     url = @resource_url
 
     Transport.AvailabilityChecker.Mock
-    |> expect(:available?, fn ^url -> true end)
+    |> expect(:available?, fn _format, ^url -> true end)
   end
 
   defp count_resources do
