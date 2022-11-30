@@ -32,7 +32,7 @@ defmodule Transport.AvailabilityChecker do
   def available?(format, target, use_http_streaming \\ false)
 
   def available?("SIRI", url, _) when is_binary(url) do
-    case HTTPoison.get(url, [], follow_redirect: true) do
+    case http_client().get(url, [], follow_redirect: true) do
       {:ok, %Response{status_code: code}} when (code >= 200 and code < 300) or code == 401 ->
         true
 
@@ -42,7 +42,7 @@ defmodule Transport.AvailabilityChecker do
   end
 
   def available?(format, url, false) when is_binary(url) do
-    case HTTPoison.head(url, [], follow_redirect: true) do
+    case http_client().head(url, [], follow_redirect: true) do
       {:ok, %Response{status_code: code}} when code >= 200 and code < 300 ->
         true
 
@@ -60,4 +60,6 @@ defmodule Transport.AvailabilityChecker do
       _ -> false
     end
   end
+
+  defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 end
