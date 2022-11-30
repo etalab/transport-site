@@ -420,7 +420,7 @@ defmodule Transport.ImportData do
   @spec get_valid_documentation_resources([map()]) :: [map()]
   def get_valid_documentation_resources(resources) do
     resources
-    |> Enum.filter(&is_documentation?/1)
+    |> Enum.filter(&(is_documentation?(&1) or is_documentation_format?(&1)))
     |> Enum.map(fn resource -> %{resource | "type" => "documentation"} end)
   end
 
@@ -569,7 +569,7 @@ defmodule Transport.ImportData do
   iex> is_documentation?(%{"format" => "csv"})
   false
   iex> is_documentation?(%{"format" => "PDF"})
-  true
+  false
   iex> is_documentation?(%{"type" => "documentation", "format" => "docx"})
   true
   """
@@ -577,11 +577,23 @@ defmodule Transport.ImportData do
   def is_documentation?(str) when is_binary(str), do: false
 
   def is_documentation?(%{} = params) do
-    cond do
-      params["type"] == "documentation" -> true
-      is_format?(params["format"], ["pdf", "svg", "html"]) -> true
-      true -> false
-    end
+    Map.get(params, "type") == "documentation"
+  end
+
+  @doc """
+  Determines if a format is likely a documentation format.
+  Only used for the `public-transit` type, other types use
+  `is_documentation?/1` which is stricter.
+
+  iex> is_documentation_format?("PDF")
+  true
+  iex> is_documentation_format?("GTFS")
+  false
+  """
+  def is_documentation_format?(%{"format" => format}), do: is_documentation_format?(format)
+
+  def is_documentation_format?(format) do
+    is_format?(format, ["pdf", "svg", "html"])
   end
 
   @doc """
