@@ -167,6 +167,27 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
                }
              ] = all_enqueued(worker: Transport.Jobs.Workflow)
     end
+
+    test "performs a GET request and allows a 401 response for a SIRI resource" do
+      resource =
+        insert(:resource,
+          url: url = "https://example.com/stop-monitoring",
+          latest_url: "https://static.data.gouv.fr/latest_url",
+          is_available: true,
+          format: "SIRI",
+          datagouv_id: "foo"
+        )
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn ^url ->
+        {:ok, %HTTPoison.Response{status_code: 401}}
+      end)
+
+      assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
+
+      assert 0 == count_resource_unavailabilities()
+      assert %{is_available: true} = Repo.reload(resource)
+    end
   end
 
   defp unavailable_resource, do: new_resource(false)
