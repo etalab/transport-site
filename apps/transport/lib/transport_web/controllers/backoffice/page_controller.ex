@@ -110,8 +110,7 @@ defmodule TransportWeb.Backoffice.PageController do
   end
 
   def index(%Plug.Conn{} = conn, %{"filter" => "archived"} = params) do
-    Dataset.base_query()
-    |> where([dataset: d], not is_nil(d.archived_at))
+    Dataset.archived()
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end

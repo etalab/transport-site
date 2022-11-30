@@ -60,6 +60,7 @@ defmodule DB.Dataset do
   end
 
   def base_query, do: from(d in DB.Dataset, as: :dataset, where: d.is_active == true)
+  def archived, do: base_query() |> where([dataset: d], not is_nil(d.archived_at))
 
   @doc """
   Creates a query with the following inner joins:
