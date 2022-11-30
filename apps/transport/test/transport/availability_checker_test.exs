@@ -4,7 +4,7 @@ defmodule Transport.AvailabilityCheckerTest do
   alias Transport.AvailabilityChecker
 
   test "head supported, 200", _ do
-    mock = fn _url, [], _options ->
+    mock = fn _url, [], [follow_redirect: true] ->
       {:ok, %HTTPoison.Response{body: "{}", status_code: 200}}
     end
 
@@ -15,7 +15,7 @@ defmodule Transport.AvailabilityCheckerTest do
   end
 
   test "head supported, 400", _ do
-    mock = fn _url, [], _options ->
+    mock = fn _url, [], [follow_redirect: true] ->
       {:ok, %HTTPoison.Response{body: "{}", status_code: 400}}
     end
 
@@ -26,13 +26,24 @@ defmodule Transport.AvailabilityCheckerTest do
   end
 
   test "head supported, 500", _ do
-    mock = fn _url, [], _options ->
+    mock = fn _url, [], [follow_redirect: true] ->
       {:ok, %HTTPoison.Response{body: "{}", status_code: 500}}
     end
 
     with_mock HTTPoison, head: mock do
       refute AvailabilityChecker.available?("GTFS", "url500")
       assert_called_exactly(HTTPoison.head(:_, :_, :_), 1)
+    end
+  end
+
+  test "SIRI resource, 401", _ do
+    mock = fn _url, [], [follow_redirect: true] ->
+      {:ok, %HTTPoison.Response{status_code: 401}}
+    end
+
+    with_mock HTTPoison, get: mock do
+      assert AvailabilityChecker.available?("SIRI", "url401")
+      assert_called_exactly(HTTPoison.get(:_, :_, :_), 1)
     end
   end
 
@@ -46,7 +57,7 @@ defmodule Transport.AvailabilityCheckerTest do
   end
 
   defp test_fallback_to_stream(status_code) do
-    httpoison_mock = fn _url, [], _options ->
+    httpoison_mock = fn _url, [], [follow_redirect: true] ->
       {:ok, %HTTPoison.Response{body: "{}", status_code: status_code}}
     end
 
