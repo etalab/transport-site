@@ -37,6 +37,7 @@ defmodule DB.Dataset do
     field(:population, :integer)
     field(:nb_reuses, :integer)
     field(:latest_data_gouv_comment_timestamp, :naive_datetime_usec)
+    field(:archived_at, :utc_datetime_usec)
 
     # When the dataset is linked to some cities
     # we ask in the backoffice for a name to display
@@ -369,7 +370,8 @@ defmodule DB.Dataset do
       :nb_reuses,
       :is_active,
       :associated_territory_name,
-      :latest_data_gouv_comment_timestamp
+      :latest_data_gouv_comment_timestamp,
+      :archived_at
     ])
     |> cast_aom(params)
     |> cast_datagouv_zone(params, territory_name)
@@ -595,7 +597,10 @@ defmodule DB.Dataset do
   def validate(id) when is_integer(id) do
     dataset = __MODULE__ |> Repo.get!(id) |> Repo.preload(:resources)
 
-    {real_time_resources, static_resources} = Enum.split_with(dataset.resources, &Resource.is_real_time?/1)
+    {real_time_resources, static_resources} =
+      dataset
+      |> official_resources()
+      |> Enum.split_with(&Resource.is_real_time?/1)
 
     # unique period is set to nil, to force the resource history job to be executed
     static_resources

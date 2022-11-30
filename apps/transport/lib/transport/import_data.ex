@@ -177,12 +177,31 @@ defmodule Transport.ImportData do
       |> Map.put("resources", get_resources(data_gouv_resp, type))
       |> Map.put("nb_reuses", get_nb_reuses(data_gouv_resp))
       |> Map.put("licence", licence(data_gouv_resp))
+      |> Map.put("archived_at", archived(data_gouv_resp["archived"]))
       |> Map.put("zones", get_associated_zones_insee(data_gouv_resp))
 
     case Map.get(data_gouv_resp, "resources") do
       nil -> {:error, "dataset #{data_gouv_resp["id"]} has no resource"}
       _ -> {:ok, dataset}
     end
+  end
+
+  @spec archived(nil | binary()) :: DateTime.t() | nil
+  @doc """
+  Set the `archived_at` field from the `archived` API key.
+
+  iex>archived(nil)
+  nil
+  iex>archived("2022-09-28T03:08:59.782000")
+  ~U[2022-09-28 03:08:59.782000Z]
+  iex>archived("2022-09-28T03:08:59.782000Z")
+  ~U[2022-09-28 03:08:59.782000Z]
+  """
+  def archived(nil), do: nil
+
+  def archived(datetime_str) when is_binary(datetime_str) do
+    {:ok, datetime, 0} = DateTime.from_iso8601(String.replace_suffix(datetime_str, "Z", "") <> "Z")
+    datetime
   end
 
   @doc """
@@ -196,6 +215,12 @@ defmodule Transport.ImportData do
       iex> licence(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Lyon"}})
       "mobility-licence"
 
+      iex> licence(%{"license" => "notspecified", "organization" => %{"name" => "Île-de-France Mobilités"}})
+      "mobility-licence"
+
+      iex> licence(%{"license" => "odc-odbl", "organization" => %{"name" => "Île-de-France Mobilités"}})
+      "odc-odbl"
+
       iex> licence(%{"license" => "notspecified", "organization" => %{"name" => "Métropole de Rouen"}})
       "notspecified"
 
@@ -204,9 +229,7 @@ defmodule Transport.ImportData do
 
   """
   def licence(%{"license" => "notspecified", "organization" => %{"name" => org_name}}) do
-    orgs_with_mobility_licence = ["Métropole de Lyon"]
-
-    if org_name in orgs_with_mobility_licence do
+    if org_name in Application.fetch_env!(:transport, :orgs_with_mobility_licence) do
       "mobility-licence"
     else
       "notspecified"
