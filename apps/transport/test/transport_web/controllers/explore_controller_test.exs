@@ -6,6 +6,11 @@ defmodule TransportWeb.ExploreControllerTest do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
 
     insert(:dataset, %{
+      type: "carpooling-areas",
+      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+    })
+
+    insert(:dataset, %{
       type: "private-parking",
       custom_title: "Base nationale des parcs relais",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)

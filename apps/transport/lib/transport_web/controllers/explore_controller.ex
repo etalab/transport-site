@@ -3,6 +3,7 @@ defmodule TransportWeb.ExploreController do
 
   def index(conn, _params) do
     conn
+    |> assign(:bnlc_dataset, Transport.Jobs.BNLCToGeoData.relevant_dataset())
     |> assign(:parcs_relais_dataset, Transport.Jobs.ParkingsRelaisToGeoData.relevant_dataset())
     |> render("explore.html")
   end
