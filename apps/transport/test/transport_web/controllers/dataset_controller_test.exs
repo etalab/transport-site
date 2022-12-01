@@ -182,6 +182,24 @@ defmodule TransportWeb.DatasetControllerTest do
     conn |> get(dataset_path(conn, :details, slug)) |> html_response(200)
   end
 
+  test "with an inactive dataset", %{conn: conn} do
+    insert(:dataset, is_active: false, slug: slug = "dataset-slug")
+
+    set_empty_mocks()
+
+    assert conn |> get(dataset_path(conn, :details, slug)) |> html_response(404) =~
+             "Ce jeu de données a été supprimé de data.gouv.fr"
+  end
+
+  test "with an archived dataset", %{conn: conn} do
+    insert(:dataset, is_active: true, slug: slug = "dataset-slug", archived_at: DateTime.utc_now())
+
+    set_empty_mocks()
+
+    assert conn |> get(dataset_path(conn, :details, slug)) |> html_response(200) =~
+             "Ce jeu de données a été archivé de data.gouv.fr"
+  end
+
   test "gtfs-rt entities" do
     dataset = %{id: dataset_id} = insert(:dataset, type: "public-transit")
     %{id: resource_id_1} = insert(:resource, dataset_id: dataset_id, format: "gtfs-rt")
