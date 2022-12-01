@@ -64,8 +64,8 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     |> update_availability()
   end
 
-  defp check_availability({check_url, %Resource{} = resource}) do
-    {Transport.AvailabilityChecker.Wrapper.available?(check_url), resource}
+  defp check_availability({check_url, %Resource{format: format} = resource}) do
+    {Transport.AvailabilityChecker.Wrapper.available?(format, check_url), resource}
   end
 
   defp update_url(%Resource{filetype: "file", url: url, latest_url: latest_url} = resource) do
