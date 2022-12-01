@@ -61,6 +61,10 @@ defmodule DB.Dataset do
 
   def base_query, do: from(d in DB.Dataset, as: :dataset, where: d.is_active == true)
 
+  @spec is_archived?(__MODULE__.t()) :: boolean()
+  def is_archived?(%__MODULE__{archived_at: nil}), do: false
+  def is_archived?(%__MODULE__{archived_at: %DateTime{}}), do: true
+
   @doc """
   Creates a query with the following inner joins:
   datasets <> Resource <> ResourceHistory <> MultiValidation <> ResourceMetadata
@@ -125,7 +129,7 @@ defmodule DB.Dataset do
   @spec preload_without_validations() :: Ecto.Query.t()
   defp preload_without_validations do
     s = no_validations_query()
-    base_query() |> preload(resources: ^s)
+    __MODULE__ |> preload(resources: ^s)
   end
 
   @spec preload_without_validations(Ecto.Query.t()) :: Ecto.Query.t()
