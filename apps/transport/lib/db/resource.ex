@@ -504,14 +504,11 @@ defmodule DB.Resource do
   our backoffice. For now though, we're guessing them based on a public configuration + the host name.
   """
   def guess_requestor_ref(%__MODULE__{} = resource) do
-    cond do
-      URI.parse(resource.url).host == "ara-api.enroute.mobi" ->
-        public_siri_requestor_refs = Application.fetch_env!(:transport, :public_siri_requestor_refs)
-
-        Map.get(public_siri_requestor_refs, :enroute)
-
-      true ->
-        nil
+    if URI.parse(resource.url).host == "ara-api.enroute.mobi" do
+      public_siri_requestor_refs = Application.fetch_env!(:transport, :public_siri_requestor_refs)
+      Map.get(public_siri_requestor_refs, :enroute)
+    else
+      nil
     end
   end
 

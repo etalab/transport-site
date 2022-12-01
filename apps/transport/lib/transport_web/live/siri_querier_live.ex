@@ -21,7 +21,7 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     {:ok, socket |> assign(base_assigns())}
   end
 
-  def base_assigns() do
+  def base_assigns do
     %{
       siri_request_headers: @request_headers,
       siri_query: nil,
