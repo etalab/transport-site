@@ -8,78 +8,71 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   require Logger
 
   @request_headers [{"content-type", "text/xml"}]
+  @supported_url_parameters [
+    :endpoint_url,
+    :requestor_ref,
+    :query_template,
+    :stop_ref,
+    :line_refs
+  ]
+  @default_query_template "CheckStatus"
+  @supported_query_templates [
+    @default_query_template,
+    "LinesDiscovery",
+    "StopPointsDiscovery",
+    "GetEstimatedTimetable",
+    "GetGeneralMessage",
+    "GetStopMonitoring"
+  ]
 
   def mount(_params, %{"locale" => locale} = _session, socket) do
     Gettext.put_locale(locale)
-    socket = socket |> prepare_initial_assigns()
-
-    {:ok, socket}
+    {:ok, socket |> assign(base_assigns())}
   end
 
-  def prepare_initial_assigns(socket) do
-    socket
-    |> assign(default_params(socket))
-    |> assign(:siri_request_headers, @request_headers)
-    |> assign(:siri_query, nil)
-    |> assign(:siri_response_status_code, nil)
-    |> assign(:siri_response_error, nil)
-    |> assign(:query_template, "CheckStatus")
-    |> assign(:query_template_choices, [
-      "CheckStatus",
-      "LinesDiscovery",
-      "StopPointsDiscovery",
-      "GetEstimatedTimetable",
-      "GetGeneralMessage",
-      "GetStopMonitoring"
-    ])
-    |> assign(:line_refs, "")
-    |> assign(:stop_ref, "")
+  def base_assigns do
+    %{
+      siri_request_headers: @request_headers,
+      siri_query: nil,
+      siri_response_status_code: nil,
+      siri_response_error: nil,
+      query_template: @default_query_template,
+      query_template_choices: @supported_query_templates,
+      line_refs: "",
+      stop_ref: ""
+    }
   end
 
-  def handle_params(params, _uri, socket) do
-    {:noreply,
-     socket
-     |> assign(
-       Map.merge(
-         %{
-           endpoint_url: params["endpoint_url"],
-           requestor_ref: socket.assigns[:requestor_ref] || params["requestor_ref"]
-         },
-         default_params(socket)
-       )
-     )}
-  end
-
-  defp default_params(socket) do
-    if Mix.env() == :dev do
-      %{
-        endpoint_url: socket.assigns[:endpoint_url] || get_one_siri_proxy_url(socket),
-        requestor_ref: socket.assigns[:requestor_ref] || Application.fetch_env!(:unlock, :siri_public_requestor_ref)
-      }
+  @doc """
+  Given a map with string keys, extract a map with atom keys with only the supported parameters.
+  """
+  def extract_allowed_parameters(params) do
+    output = Map.new(@supported_url_parameters, fn p -> {p, params[Atom.to_string(p)]} end)
+    # allow-list for QueryTemplate
+    if output[:query_template] in @supported_query_templates do
+      output
     else
-      %{}
+      output |> Map.replace!(:query_template, @default_query_template)
     end
   end
 
-  def get_one_siri_proxy_url(socket) do
-    item =
-      Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
-      |> Map.values()
-      |> Enum.find(fn
-        %Unlock.Config.Item.SIRI{} -> true
-        _ -> false
-      end)
-
-    socket
-    |> Transport.Proxy.base_url()
-    |> Transport.Proxy.resource_url(item.identifier)
+  # called at mount to hydrate our assigns based on supported url parameters
+  def handle_params(params, _uri, socket) do
+    {:noreply,
+     socket
+     |> assign(extract_allowed_parameters(params))}
   end
 
   def handle_event("ignore", _params, socket), do: {:noreply, socket}
 
   def handle_event("generate_query", _params, socket) do
     {:noreply,
-     socket |> assign(%{siri_query: generate_query(socket), siri_response_status_code: nil, siri_response_error: nil})}
+     socket
+     |> assign(%{
+       siri_query: generate_query(socket),
+       siri_response_status_code: nil,
+       siri_response_error: nil
+     })}
   end
 
   def handle_event("execute_query", _params, socket) do
@@ -87,7 +80,12 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     socket = socket |> assign(:siri_query, generate_query(socket))
     # Improvement opportunity: make sure to set proper limits to avoid DOS?
     socket =
-      case client.post(socket.assigns[:endpoint_url], socket.assigns[:siri_query], @request_headers, recv_timeout: 5_000) do
+      case client.post(
+             socket.assigns[:endpoint_url],
+             socket.assigns[:siri_query],
+             @request_headers,
+             recv_timeout: 5_000
+           ) do
         {:ok, %HTTPoison.Response{} = response} ->
           # LiveView does not allow binary payloads. We can work-around that by using Base64, or using a custom channel.
           # Make sure to unzip!
@@ -111,18 +109,25 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   def handle_event("change_form", params, socket) do
     socket =
       socket
-      |> assign(:endpoint_url, params["config"]["endpoint_url"])
-      |> assign(:requestor_ref, params["config"]["requestor_ref"])
-      |> assign(:query_template, params["config"]["query_template"])
-      |> assign(:line_refs, params["config"]["line_refs"])
-      |> assign(:stop_ref, params["config"]["stop_ref"])
+      |> assign(extract_allowed_parameters(params["config"]))
 
     {:noreply, socket |> push_patch(to: self_path(socket))}
   end
 
+  @doc """
+  Recreate a proper url with all supported parameters, and tell LiveView
+  to set it in the browser, in order to make it easy to copy-paste the current state.
+  """
   def self_path(socket) do
-    fields = Map.take(socket.assigns, [:endpoint_url])
-    live_path(socket, __MODULE__, fields |> Map.reject(fn {_, v} -> v in ["", nil] end))
+    params =
+      Enum.reduce(@supported_url_parameters, [], fn param, acc ->
+        value = socket.assigns[param]
+        # NOTE: not using Keyword functions because they do not guarantee
+        # order, and it makes the `assert_patched` test brittle at the moment
+        if value in ["", nil], do: acc, else: acc ++ [{param, value}]
+      end)
+
+    live_path(socket, __MODULE__, params)
   end
 
   def build_timestamp, do: DateTime.utc_now() |> DateTime.to_iso8601()

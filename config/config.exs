@@ -143,6 +143,17 @@ config :transport,
   orgs_with_mobility_licence: ["Métropole de Lyon", "Île-de-France Mobilités"],
   bison_fute_host: "tipi.bison-fute.gouv.fr"
 
+# A list of publicly transmissible requestor refs for open data SIRI. Currently
+# just a mapping list to allow guessing the provider based on urls, until this data
+# can be properly embedded in the data gouv
+config :transport,
+  public_siri_requestor_refs:
+    %{
+      # commented out, so that the feature is muted in production for now,
+      # until we have a GO from enroute & AOM
+      # enroute: "open-data"
+    }
+
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API,
   authentication_impl: Datagouvfr.Authentication,

@@ -557,3 +557,7 @@ msgstr "Données publiées par"
 #, elixir-autogen, elixir-format
 msgid "This dataset has been archived from data.gouv.fr on %{date}"
 msgstr "Ce jeu de données a été archivé de data.gouv.fr le %{date}"
+
+#, elixir-autogen, elixir-format
+msgid "Try me!"
+msgstr "Essayez-moi !"
