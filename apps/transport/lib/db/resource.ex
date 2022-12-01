@@ -615,8 +615,8 @@ defmodule DB.Resource do
   end
 
   @doc """
-  Ultimately, requestor_refs should be imported as data gouv meta-data. For now though, we're guessing them
-  based on a public configuration + the host name.
+  Ultimately, requestor_refs should be imported as data gouv meta-data, or maybe just set via
+  our backoffice. For now though, we're guessing them based on a public configuration + the host name.
   """
   def guess_requestor_ref(%__MODULE__{} = resource) do
     cond do
