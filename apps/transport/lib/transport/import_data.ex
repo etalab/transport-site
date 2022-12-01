@@ -361,7 +361,6 @@ defmodule Transport.ImportData do
     |> Enum.uniq_by(fn resource -> resource["url"] end)
     |> Enum.map_reduce(0, fn resource, display_position ->
       is_community_resource = resource["is_community_resource"] == true
-
       existing_resource = get_existing_resource(resource, dataset["id"]) || %{}
 
       resource =
@@ -369,9 +368,11 @@ defmodule Transport.ImportData do
         |> Map.put("metadata", existing_resource[:metadata])
         |> Map.put("url", cleaned_url(resource["url"]))
 
+      format = formated_format(resource, type, is_community_resource)
+
       {%{
          "url" => resource["url"],
-         "format" => formated_format(resource, type, is_community_resource),
+         "format" => format,
          "title" => get_title(resource),
          "last_import" => DateTime.utc_now() |> DateTime.to_string(),
          "last_update" => resource["last_modified"],
@@ -382,7 +383,7 @@ defmodule Transport.ImportData do
          "type" => resource["type"],
          "id" => existing_resource[:id],
          "datagouv_id" => resource["id"],
-         "is_available" => availability_checker().available?(resource["url"]),
+         "is_available" => availability_checker().available?(format, resource["url"]),
          "is_community_resource" => is_community_resource,
          "community_resource_publisher" => get_publisher(resource),
          "description" => resource["description"],

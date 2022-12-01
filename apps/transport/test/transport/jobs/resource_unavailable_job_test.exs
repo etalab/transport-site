@@ -115,7 +115,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
           datagouv_id: "foo"
         )
 
-      Transport.AvailabilityChecker.Mock |> expect(:available?, fn ^latest_url -> true end)
+      Transport.AvailabilityChecker.Mock |> expect(:available?, fn _format, ^latest_url -> true end)
 
       assert DB.Resource.download_url(resource) == latest_url
 
@@ -148,7 +148,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
         {:ok, %HTTPoison.Response{status_code: 500}}
       end)
 
-      Transport.AvailabilityChecker.Mock |> expect(:available?, fn ^new_url -> false end)
+      Transport.AvailabilityChecker.Mock |> expect(:available?, fn _format, ^new_url -> false end)
 
       assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
 
@@ -167,6 +167,25 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
                }
              ] = all_enqueued(worker: Transport.Jobs.Workflow)
     end
+
+    test "performs a GET request and allows a 401 response for a SIRI resource" do
+      resource =
+        insert(:resource,
+          url: url = "https://example.com/stop-monitoring",
+          latest_url: "https://static.data.gouv.fr/latest_url",
+          is_available: true,
+          format: "SIRI",
+          datagouv_id: "foo"
+        )
+
+      Transport.AvailabilityChecker.Mock
+      |> expect(:available?, fn "SIRI", ^url -> true end)
+
+      assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
+
+      assert 0 == count_resource_unavailabilities()
+      assert %{is_available: true} = Repo.reload(resource)
+    end
   end
 
   defp unavailable_resource, do: new_resource(false)
@@ -180,14 +199,14 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
     url = @resource_url
 
     Transport.AvailabilityChecker.Mock
-    |> expect(:available?, fn ^url -> false end)
+    |> expect(:available?, fn _format, ^url -> false end)
   end
 
   defp setup_mock_available do
     url = @resource_url
 
     Transport.AvailabilityChecker.Mock
-    |> expect(:available?, fn ^url -> true end)
+    |> expect(:available?, fn _format, ^url -> true end)
   end
 
   defp count_resources do
