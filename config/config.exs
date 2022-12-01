@@ -146,10 +146,12 @@ config :transport,
 # just a mapping list to allow guessing the provider based on urls, until this data
 # can be properly embedded in the data gouv
 config :transport,
-  public_siri_requestor_refs: %{
-    # enroute one is empty for now, until we have an agreement on this
-    enroute: "test-will-not-work"
-  }
+  public_siri_requestor_refs:
+    %{
+      # commented out, so that the feature is muted in production for now,
+      # until we have a GO from enroute & AOM
+      # enroute: "open-data"
+    }
 
 config :datagouvfr,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API,
