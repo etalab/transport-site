@@ -25,7 +25,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
     test "resources_to_historise" do
       ids = create_resources_for_history()
       assert 9 == count_resources()
-      assert MapSet.new(ids) == MapSet.new(ResourceHistoryAndValidationDispatcherJob.resources_to_historise())
+
+      assert MapSet.new(ids) ==
+               ResourceHistoryAndValidationDispatcherJob.resources_to_historise() |> Enum.map(& &1.id) |> MapSet.new()
     end
 
     test "a simple successful case" do
@@ -438,6 +440,23 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       # No validation but content hash should be set to the file hash
       %DB.Resource{content_hash: content_hash} = DB.Repo.reload(resource)
       assert content_hash == "580fb39789859f7dc29aebe6bdec9666fc8311739a8705fda0916e2907449e17"
+    end
+
+    test "discards the job when the resource should not be historicised" do
+      %DB.Resource{} =
+        resource =
+        insert(:resource,
+          url: "https://example.com/gtfs.zip",
+          dataset: insert(:dataset, is_active: true),
+          format: "GTFS",
+          title: "title",
+          is_community_resource: true
+        )
+
+      assert DB.Resource.is_community_resource?(resource)
+
+      assert {:discard, "Resource should not be historicised"} ==
+               perform_job(ResourceHistoryJob, %{resource_id: resource.id})
     end
 
     test "does not store resource again when it did not change" do

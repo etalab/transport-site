@@ -109,6 +109,12 @@ defmodule TransportWeb.Backoffice.PageController do
     |> render_index(conn, params)
   end
 
+  def index(%Plug.Conn{} = conn, %{"filter" => "archived"} = params) do
+    Dataset.archived()
+    |> query_order_by_from_params(params)
+    |> render_index(conn, params)
+  end
+
   def index(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id} = params) do
     conn =
       Dataset

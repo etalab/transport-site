@@ -291,6 +291,8 @@ defmodule DB.DatasetDBTest do
     dataset = insert(:dataset)
     %{id: gtfs_resource_id} = insert(:resource, format: "GTFS", dataset: dataset)
     %{id: gbfs_resource_id} = insert(:resource, format: "gbfs", dataset: dataset)
+    # Ignored because it's a community resource
+    insert(:resource, format: "GTFS", dataset: dataset, is_community_resource: true)
 
     Dataset.validate(dataset)
 
@@ -419,5 +421,23 @@ defmodule DB.DatasetDBTest do
              },
              r3.id => %{geojson: nil, netex: nil}
            } == related_resources
+  end
+
+  test "count dataset by mode" do
+    insert(:region, id: 14, nom: "France")
+    region = insert(:region)
+
+    %{dataset: dataset} = insert_resource_and_friends(Date.utc_today(), region_id: region.id, modes: ["bus"])
+    insert_resource_and_friends(Date.utc_today(), dataset: dataset, modes: ["ski"])
+
+    %{dataset: dataset_2} = insert_resource_and_friends(Date.utc_today(), region_id: 14, modes: ["bus"])
+    insert_resource_and_friends(Date.utc_today(), dataset: dataset_2, modes: ["ski"])
+
+    insert_resource_and_friends(Date.utc_today(), region_id: 14)
+
+    assert DB.Dataset.count_by_mode("bus") == 2
+    assert DB.Dataset.count_by_mode("ski") == 2
+    # this counts national datasets (region id = 14) with bus resources
+    assert DB.Dataset.count_coach() == 1
   end
 end
