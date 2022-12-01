@@ -45,7 +45,7 @@ msgstr "Park and ride database"
 
 #, elixir-autogen, elixir-format
 msgid "park-and-ride-explanation"
-msgstr "Park and ride data coming from the national parking database %{link}"
+msgstr "Park and ride data coming from the national park and ride database %{link}"
 
 #, elixir-autogen, elixir-format
 msgid "Execute"

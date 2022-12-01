@@ -1,6 +1,6 @@
 <% real_time_datasets = dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime") %>
 <% bnlc_link = dataset_path(@conn, :details, "base-nationale-des-lieux-de-covoiturage") %>
-<% bnls_link = dataset_path(@conn, :details, "base-nationale-des-lieux-de-stationnement") %>
+<% parcs_relais_link = dataset_path(@conn, :details, "base-nationale-des-parkings-relais-en-cours-de-consolidation") %>
 <div class="container dataset-page-top">
   <h2><%= dgettext("explore", "Transport Explore") %></h2>
 
@@ -40,7 +40,7 @@
       </summary>
       <%= raw(
         dgettext("explore", "park-and-ride-explanation",
-          link: safe_to_string(link(dgettext("explore", "dataset"), to: bnls_link))
+          link: safe_to_string(link(dgettext("explore", "dataset"), to: parcs_relais_link))
         )
       ) %>
     </details>

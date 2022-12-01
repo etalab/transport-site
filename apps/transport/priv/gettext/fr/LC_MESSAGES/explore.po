@@ -45,7 +45,7 @@ msgstr "P+R issus de la Base Nationale des Lieux de Stationnement"
 
 #, elixir-autogen, elixir-format
 msgid "park-and-ride-explanation"
-msgstr "Données des parkings relais présents au sein du %{link} de la Base Nationale des Lieux de Stationnement"
+msgstr "Données des parkings relais présents au sein du %{link} de la Base nationale des parcs relais"
 
 #, elixir-autogen, elixir-format
 msgid "Execute"
