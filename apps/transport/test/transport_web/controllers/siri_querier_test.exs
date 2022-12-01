@@ -254,7 +254,7 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
       live_path(conn, SIRIQuerierLive,
         requestor_ref: "test-ref",
         query_template: "GetStopMonitoring",
-        line_refs: "Test:StopPoint"
+        stop_ref: " Test:StopPoint "
       )
     )
   end
