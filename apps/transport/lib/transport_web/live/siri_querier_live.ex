@@ -8,22 +8,17 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   require Logger
 
   @request_headers [{"content-type", "text/xml"}]
+  @supported_url_parameters [
+    :endpoint_url,
+    :requestor_ref,
+    :query_template,
+    :stop_ref,
+    :line_refs
+  ]
 
-  def mount(params, %{"locale" => locale} = _session, socket) do
+  def mount(_params, %{"locale" => locale} = _session, socket) do
     Gettext.put_locale(locale)
-
-    socket =
-      socket
-      |> assign(base_assigns())
-      |> maybe_assign(params["endpoint_url"], :endpoint_url)
-      |> maybe_assign(params["requestor_ref"], :requestor_ref)
-      |> maybe_assign(params["query_template"], :query_template)
-
-    {:ok, socket}
-  end
-
-  def maybe_assign(socket, value, assign_key) do
-    if value, do: socket |> assign(assign_key, value), else: socket
+    {:ok, socket |> assign(base_assigns())}
   end
 
   def base_assigns() do
@@ -46,28 +41,18 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
     }
   end
 
+  @doc """
+  Given a map with string keys, extract a map with atom keys with only the supported parameters.
+  """
+  def extract_allowed_parameters(params) do
+    Map.new(@supported_url_parameters, fn p -> {p, params[Atom.to_string(p)]} end)
+  end
+
+  # called at mount to hydrate our assigns based on supported url parameters
   def handle_params(params, _uri, socket) do
     {:noreply,
      socket
-     |> assign(%{
-       endpoint_url: params["endpoint_url"],
-       requestor_ref: params["requestor_ref"],
-       query_template: params["query_template"]
-     })}
-  end
-
-  def get_one_siri_proxy_url(socket) do
-    item =
-      Application.fetch_env!(:unlock, :config_fetcher).fetch_config!()
-      |> Map.values()
-      |> Enum.find(fn
-        %Unlock.Config.Item.SIRI{} -> true
-        _ -> false
-      end)
-
-    socket
-    |> Transport.Proxy.base_url()
-    |> Transport.Proxy.resource_url(item.identifier)
+     |> assign(extract_allowed_parameters(params))}
   end
 
   def handle_event("ignore", _params, socket), do: {:noreply, socket}
@@ -116,18 +101,25 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   def handle_event("change_form", params, socket) do
     socket =
       socket
-      |> assign(:endpoint_url, params["config"]["endpoint_url"])
-      |> assign(:requestor_ref, params["config"]["requestor_ref"])
-      |> assign(:query_template, params["config"]["query_template"])
-      |> assign(:line_refs, params["config"]["line_refs"])
-      |> assign(:stop_ref, params["config"]["stop_ref"])
+      |> assign(extract_allowed_parameters(params["config"]))
 
     {:noreply, socket |> push_patch(to: self_path(socket))}
   end
 
+  @doc """
+  Recreate a proper url with all supported parameters, and tell LiveView
+  to set it in the browser, in order to make it easy to copy-paste the current state.
+  """
   def self_path(socket) do
-    fields = Map.take(socket.assigns, [:endpoint_url, :requestor_ref, :query_template])
-    live_path(socket, __MODULE__, fields |> Map.reject(fn {_, v} -> v in ["", nil] end))
+    params =
+      Enum.reduce(@supported_url_parameters, [], fn param, acc ->
+        value = socket.assigns[param]
+        # NOTE: not using Keyword functions because they do not guarantee
+        # order, and it makes the `assert_patched` test brittle at the moment
+        if value in ["", nil], do: acc, else: acc ++ [{param, value}]
+      end)
+
+    live_path(socket, __MODULE__, params)
   end
 
   def build_timestamp, do: DateTime.utc_now() |> DateTime.to_iso8601()
