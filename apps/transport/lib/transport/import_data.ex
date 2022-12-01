@@ -444,7 +444,7 @@ defmodule Transport.ImportData do
   @spec get_valid_documentation_resources([map()]) :: [map()]
   def get_valid_documentation_resources(resources) do
     resources
-    |> Enum.filter(&is_documentation?/1)
+    |> Enum.filter(&(is_documentation?(&1) or is_documentation_format?(&1)))
     |> Enum.map(fn resource -> %{resource | "type" => "documentation"} end)
   end
 
@@ -533,12 +533,14 @@ defmodule Transport.ImportData do
   true
   iex> is_gtfs?(%{"description" => "gtfs", "title" => "Export au format CSV"})
   false
+  iex> is_gtfs?(%{"url" => "https://example.com/documentation-gtfs.pdf", "type" => "documentation"})
+  false
   """
   @spec is_gtfs?(map()) :: boolean()
   # credo:disable-for-next-line
   def is_gtfs?(%{} = params) do
     cond do
-      is_ods_title?(params) -> false
+      is_ods_title?(params) or is_documentation?(params) -> false
       is_gtfs?(params["format"]) -> true
       is_gtfs_rt?(params) -> false
       is_format?(params["url"], ["json", "csv", "shp", "pdf", "7z"]) -> false
@@ -573,7 +575,7 @@ defmodule Transport.ImportData do
   @spec is_gtfs_rt?(binary() | map()) :: boolean()
   def is_gtfs_rt?(%{} = params) do
     cond do
-      is_ods_title?(params) -> false
+      is_ods_title?(params) or is_documentation?(params) -> false
       is_gtfs_rt?(params["format"]) -> true
       is_gtfs_rt?(params["description"]) -> true
       is_gtfs_rt?(params["title"]) -> true
@@ -591,17 +593,31 @@ defmodule Transport.ImportData do
   iex> is_documentation?(%{"format" => "csv"})
   false
   iex> is_documentation?(%{"format" => "PDF"})
-  true
+  false
   iex> is_documentation?(%{"type" => "documentation", "format" => "docx"})
   true
   """
-  @spec is_documentation?(map()) :: boolean()
+  @spec is_documentation?(map() | binary()) :: boolean()
+  def is_documentation?(str) when is_binary(str), do: false
+
   def is_documentation?(%{} = params) do
-    cond do
-      params["type"] == "documentation" -> true
-      is_format?(params["format"], ["pdf", "svg", "html"]) -> true
-      true -> false
-    end
+    Map.get(params, "type") == "documentation"
+  end
+
+  @doc """
+  Determines if a format is likely a documentation format.
+  Only used for the `public-transit` type, other types use
+  `is_documentation?/1` which is stricter.
+
+  iex> is_documentation_format?("PDF")
+  true
+  iex> is_documentation_format?("GTFS")
+  false
+  """
+  def is_documentation_format?(%{"format" => format}), do: is_documentation_format?(format)
+
+  def is_documentation_format?(format) do
+    is_format?(format, ["pdf", "svg", "html"])
   end
 
   @doc """
@@ -617,7 +633,7 @@ defmodule Transport.ImportData do
   @spec is_siri?(binary() | map()) :: boolean()
   def is_siri?(params) do
     cond do
-      is_ods_title?(params) -> false
+      is_ods_title?(params) or is_documentation?(params) -> false
       is_format?(params, "siri") and not is_siri_lite?(params) -> true
       true -> false
     end
@@ -636,7 +652,7 @@ defmodule Transport.ImportData do
   @spec is_siri_lite?(binary() | map()) :: boolean()
   def is_siri_lite?(params) do
     cond do
-      is_ods_title?(params) -> false
+      is_ods_title?(params) or is_documentation?(params) -> false
       is_format?(params, "SIRI Lite") -> true
       true -> false
     end
@@ -711,11 +727,13 @@ defmodule Transport.ImportData do
   true
   iex> is_netex?(%{"url" => "https://example.com/gtfs.zip", "format" => "zip"})
   false
+  iex> is_netex?(%{"url" => "https://example.com/doc-netex.pdf", "type" => "documentation"})
+  false
   """
   @spec is_netex?(binary() | map()) :: boolean()
   def is_netex?(%{} = params) do
     cond do
-      is_ods_title?(params) -> false
+      is_ods_title?(params) or is_documentation?(params) -> false
       is_netex?(params["format"]) -> true
       is_netex?(params["title"]) -> true
       is_netex?(params["description"]) -> true
@@ -729,7 +747,7 @@ defmodule Transport.ImportData do
   @spec is_neptune?(binary() | map()) :: boolean()
   def is_neptune?(params) do
     cond do
-      is_ods_title?(params) -> false
+      is_ods_title?(params) or is_documentation?(params) -> false
       is_format?(params, "neptune") -> true
       true -> false
     end

@@ -9,7 +9,7 @@ defmodule Transport.Jobs.ResourceHistoryAndValidationDispatcherJob do
 
   @impl Oban.Worker
   def perform(_job) do
-    resource_ids = resources_to_historise()
+    resource_ids = Enum.map(resources_to_historise(), & &1.id)
 
     Logger.debug("Dispatching #{Enum.count(resource_ids)} ResourceHistoryJob jobs")
 
@@ -22,18 +22,22 @@ defmodule Transport.Jobs.ResourceHistoryAndValidationDispatcherJob do
     :ok
   end
 
-  def resources_to_historise do
-    Resource
-    |> join(:inner, [r], d in DB.Dataset, on: r.dataset_id == d.id and d.is_active)
-    |> where([r], not is_nil(r.url) and not is_nil(r.title))
-    |> where([r], not r.is_community_resource)
-    |> where([r], like(r.url, "http%"))
-    |> preload(:dataset)
+  def resources_to_historise(resource_id \\ nil) do
+    base_query =
+      Resource.base_query()
+      |> join(:inner, [resource: r], d in DB.Dataset, on: d.id == r.dataset_id and d.is_active, as: :dataset)
+      |> where([resource: r], not is_nil(r.url) and not is_nil(r.title))
+      |> where([resource: r], not r.is_community_resource)
+      |> where([resource: r], like(r.url, "http%"))
+      |> preload(:dataset)
+
+    query = if is_nil(resource_id), do: base_query, else: where(base_query, [resource: r], r.id == ^resource_id)
+
+    query
     |> Repo.all()
     |> Enum.reject(
       &(Resource.is_real_time?(&1) or Resource.is_documentation?(&1) or Dataset.should_skip_history?(&1.dataset))
     )
-    |> Enum.map(& &1.id)
   end
 end
 
@@ -51,8 +55,19 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"resource_id" => resource_id}} = job) do
     Logger.info("Running ResourceHistoryJob for resource##{resource_id}")
-    resource = Repo.get!(Resource, resource_id)
 
+    resource_id
+    |> Transport.Jobs.ResourceHistoryAndValidationDispatcherJob.resources_to_historise()
+    |> handle_history(job)
+  end
+
+  defp handle_history([], %Oban.Job{} = job) do
+    reason = "Resource should not be historicised"
+    notify_workflow(job, %{"success" => false, "job_id" => job.id, "reason" => reason})
+    {:discard, reason}
+  end
+
+  defp handle_history([%Resource{} = resource], %Oban.Job{} = job) do
     path = download_path(resource)
 
     notification =
