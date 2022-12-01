@@ -7,11 +7,8 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
   end
 
   test "a BNLC geo query", %{conn: conn} do
-    %{id: dataset_id} =
-      insert(:dataset, %{
-        type: "carpooling-areas",
-        organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-      })
+    insert_parcs_relais_dataset()
+    %{id: dataset_id} = insert_bnlc_dataset()
 
     %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
     %{id: geo_data_import_id} = insert(:geo_data_import, %{resource_history_id: resource_history_id})
@@ -47,11 +44,8 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
   end
 
   test "a parkings relais geo query", %{conn: conn} do
-    %{id: dataset_id} =
-      insert(:dataset, %{
-        type: "private-parking",
-        organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-      })
+    insert_bnlc_dataset()
+    %{id: dataset_id} = insert_parcs_relais_dataset()
 
     %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
     %{id: geo_data_import_id} = insert(:geo_data_import, %{resource_history_id: resource_history_id})
@@ -99,6 +93,9 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
   end
 
   test "404 cases", %{conn: conn} do
+    insert_bnlc_dataset()
+    insert_parcs_relais_dataset()
+
     conn
     |> get(TransportWeb.API.Router.Helpers.geo_query_path(conn, :index))
     |> json_response(404)
@@ -106,5 +103,20 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
     conn
     |> get(TransportWeb.API.Router.Helpers.geo_query_path(conn, :index, data: Ecto.UUID.generate()))
     |> json_response(404)
+  end
+
+  defp insert_bnlc_dataset do
+    insert(:dataset, %{
+      type: "carpooling-areas",
+      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+    })
+  end
+
+  defp insert_parcs_relais_dataset do
+    insert(:dataset, %{
+      type: "private-parking",
+      custom_title: "Base nationale des parcs relais",
+      organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+    })
   end
 end

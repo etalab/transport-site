@@ -28,7 +28,7 @@ Leaflet.tileLayer(Mapbox.url, {
     maxZoom: Mapbox.maxZoom
 }).addTo(map)
 
-const visibility = { gtfsrt: true, bnlc: false }
+const visibility = { gtfsrt: true }
 
 function prepareLayer (layerId, layerData) {
     return new ScatterplotLayer({
@@ -66,17 +66,20 @@ function getTooltip ({ object, layer }) {
     if (object) {
         if (layer.id === 'bnlc-layer') {
             return { html: `<strong>Aire de covoiturage</strong><br>${object.properties.nom_lieu}` }
+        } else if (layer.id === 'parkings_relais-layer') {
+            return { html: `<strong>Parking relai</strong><br>${object.properties.nom}<br>Capacité : ${object.properties.nb_pr} places` }
         } else {
             return { html: `<strong>Position temps-réel</strong><br>transport_resource: ${object.transport.resource_id}<br>id: ${object.vehicle.id}` }
         }
     }
 }
 // internal dictionary were all layers are stored
-const layers = { gtfsrt: {}, bnlc: undefined }
+const layers = { gtfsrt: {}, bnlc: undefined, parkings_relais: undefined }
 
 function getLayers (layers) {
     const layersArray = Object.values(layers.gtfsrt)
     layersArray.push(layers.bnlc)
+    layersArray.push(layers.parkings_relais)
     return layersArray
 }
 
@@ -103,47 +106,55 @@ gtfsrtCheckbox.addEventListener('change', (event) => {
     }
 })
 
-let bnlcGeoJSON
-const checkbox = document.getElementById('bnlc-check')
-checkbox.addEventListener('change', (event) => {
+// Handle BNLC toggle
+document.getElementById('bnlc-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
-        visibility.bnlc = true
-        if (bnlcGeoJSON) {
-            updateBNLCLayer(bnlcGeoJSON)
-        } else {
-            fetch('/api/geo-query?data=bnlc')
-                .then(data => data.json())
-                .then(geojson => {
-                    updateBNLCLayer(geojson)
-                })
-        }
+        fetch('/api/geo-query?data=bnlc')
+            .then(data => updateBNLCLayer(data.json()))
     } else {
-        visibility.bnlc = false
-        updateBNLCLayer(bnlcGeoJSON)
+        updateBNLCLayer(null)
+    }
+})
+
+// Handle Parkings Relais toggle
+document.getElementById('parkings_relais-check').addEventListener('change', (event) => {
+    if (event.currentTarget.checked) {
+        fetch('/api/geo-query?data=parkings-relais')
+            .then(data => updateParkingsRelaisLayer(data.json()))
+    } else {
+        updateParkingsRelaisLayer(null)
     }
 })
 
 function updateBNLCLayer (geojson) {
-    const geojsonLayer = createBNLCLayer(geojson)
-    layers.bnlc = geojsonLayer
+    layers.bnlc = createPointsLayer(geojson, 'bnlc-layer')
+    deckGLLayer.setProps({ layers: getLayers(layers) })
+}
+function updateParkingsRelaisLayer (geojson) {
+    layers.parkings_relais = createPointsLayer(geojson, 'parkings_relais-layer')
     deckGLLayer.setProps({ layers: getLayers(layers) })
 }
 
-function createBNLCLayer (geojson) {
+function createPointsLayer (geojson, id) {
+    const fillColor = {
+        'bnlc-layer': [255, 174, 0, 100],
+        'parkings_relais-layer': [0, 33, 70, 100]
+    }[id]
+
     return new GeoJsonLayer({
-        id: 'bnlc-layer',
+        id,
         data: geojson,
         pickable: true,
         stroked: false,
         filled: true,
         extruded: true,
         pointType: 'circle',
-        getFillColor: [255, 174, 0, 100],
+        getFillColor: fillColor,
         getPointRadius: 1000,
         pointRadiusUnits: 'meters',
         pointRadiusMinPixels: 2,
         pointRadiusMaxPixels: 10,
-        visible: visibility.bnlc
+        visible: geojson !== null
     })
 }
 
