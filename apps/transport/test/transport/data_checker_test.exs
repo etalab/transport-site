@@ -23,7 +23,7 @@ defmodule Transport.DataCheckerTest do
       |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
         assert to_email == "deploiement@transport.beta.gouv.fr"
-        assert subject == "Jeux de données qui disparaissent"
+        assert subject == "Jeux de données supprimés ou archivés"
         assert body =~ ~r/Certains jeux de données disparus sont réapparus sur data.gouv.fr/
         :ok
       end)
@@ -55,7 +55,7 @@ defmodule Transport.DataCheckerTest do
       |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
         assert to_email == "deploiement@transport.beta.gouv.fr"
-        assert subject == "Jeux de données qui disparaissent"
+        assert subject == "Jeux de données supprimés ou archivés"
         assert body =~ ~r/Certains jeux de données ont disparus de data.gouv.fr/
         :ok
       end)
@@ -87,7 +87,7 @@ defmodule Transport.DataCheckerTest do
       |> expect(:send_mail, fn _from_name, from_email, to_email, _reply_to, subject, body, _html_body ->
         assert from_email == "contact@transport.beta.gouv.fr"
         assert to_email == "deploiement@transport.beta.gouv.fr"
-        assert subject == "Jeux de données archivés"
+        assert subject == "Jeux de données supprimés ou archivés"
         assert body =~ ~r/Certains jeux de données sont indiqués comme archivés/
         :ok
       end)
@@ -391,5 +391,15 @@ defmodule Transport.DataCheckerTest do
     end)
 
     assert [0, 7, 14, 30, 42] == Transport.DataChecker.possible_delays()
+  end
+
+  test "count_archived_datasets" do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+
+    insert(:dataset, is_active: true, archived_at: nil)
+    insert(:dataset, is_active: true, archived_at: DateTime.utc_now())
+    insert(:dataset, is_active: false, archived_at: DateTime.utc_now())
+
+    assert 1 == Transport.DataChecker.count_archived_datasets()
   end
 end

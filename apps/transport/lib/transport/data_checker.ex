@@ -16,7 +16,7 @@ defmodule Transport.DataChecker do
   - locally re-activates disabled datasets which are actually active on data gouv
   - locally disables datasets which are actually inactive on data gouv
 
-  It also sends an email to the team via `fmt_inactive_dataset` and `fmt_reactivated_dataset`.
+  It also sends an email to the team via `fmt_inactive_datasets` and `fmt_reactivated_datasets`.
   """
   def inactive_data do
     # Some datasets marked as inactive in our database may have reappeared
@@ -41,8 +41,6 @@ defmodule Transport.DataChecker do
     |> where([d], d.id in ^inactive_ids)
     |> Repo.update_all(set: [is_active: false])
 
-    send_inactive_dataset_mail(to_reactivate_datasets, inactive_datasets)
-
     # Some datasets may be archived on data.gouv.fr
     recent_limit = DateTime.add(DateTime.utc_now(), -1, :day)
 
@@ -51,7 +49,7 @@ defmodule Transport.DataChecker do
           DateTime.compare(datetime, recent_limit) == :gt,
           do: dataset
 
-    archived_datasets |> send_archived_datasets_mail()
+    send_inactive_datasets_mail(to_reactivate_datasets, inactive_datasets, archived_datasets)
   end
 
   def datasets_datagouv_statuses do
@@ -233,9 +231,9 @@ defmodule Transport.DataChecker do
     datasets
   end
 
-  defp fmt_inactive_dataset([]), do: ""
+  defp fmt_inactive_datasets([]), do: ""
 
-  defp fmt_inactive_dataset(inactive_datasets) do
+  defp fmt_inactive_datasets(inactive_datasets) do
     datasets_str = Enum.map_join(inactive_datasets, "\n", &link_and_name(&1, :custom_title))
 
     """
@@ -244,9 +242,9 @@ defmodule Transport.DataChecker do
     """
   end
 
-  defp fmt_reactivated_dataset([]), do: ""
+  defp fmt_reactivated_datasets([]), do: ""
 
-  defp fmt_reactivated_dataset(reactivated_datasets) do
+  defp fmt_reactivated_datasets(reactivated_datasets) do
     datasets_str = Enum.map_join(reactivated_datasets, "\n", &link_and_name(&1, :custom_title))
 
     """
@@ -255,56 +253,54 @@ defmodule Transport.DataChecker do
     """
   end
 
-  defp make_inactive_dataset_body(reactivated_datasets, inactive_datasets) do
-    reactivated_datasets_str = fmt_reactivated_dataset(reactivated_datasets)
-    inactive_datasets_str = fmt_inactive_dataset(inactive_datasets)
+  defp fmt_archived_datasets([]), do: ""
+
+  defp fmt_archived_datasets(archived_datasets) do
+    datasets_str = Enum.map_join(archived_datasets, "\n", &link_and_name(&1, :custom_title))
+
+    """
+    Certains jeux de données sont indiqués comme archivés sur data.gouv.fr :
+    #{datasets_str}
+
+    #{count_archived_datasets()} jeux de données sont archivés. Retrouvez-les dans le backoffice : #{backoffice_archived_datasets_url()}
+    """
+  end
+
+  defp backoffice_archived_datasets_url do
+    backoffice_page_url(TransportWeb.Endpoint, :index, %{"filter" => "archived"}) <> "#list_datasets"
+  end
+
+  def count_archived_datasets do
+    Dataset.archived() |> Repo.aggregate(:count, :id)
+  end
+
+  defp make_inactive_datasets_body(reactivated_datasets, inactive_datasets, archived_datasets) do
+    reactivated_datasets_str = fmt_reactivated_datasets(reactivated_datasets)
+    inactive_datasets_str = fmt_inactive_datasets(inactive_datasets)
+    archived_datasets_str = fmt_archived_datasets(archived_datasets)
 
     """
     Bonjour,
     #{inactive_datasets_str}
     #{reactivated_datasets_str}
+    #{archived_datasets_str}
 
     Il faut peut être creuser pour savoir si c'est normal.
     """
   end
 
-  defp send_archived_datasets_mail([]), do: nil
+  # Do nothing if all lists are empty
+  defp send_inactive_datasets_mail([] = _reactivated_datasets, [] = _inactive_datasets, [] = _archived_datasets),
+    do: nil
 
-  defp send_archived_datasets_mail(archived_datasets) do
-    datasets_str = Enum.map_join(archived_datasets, "\n", &link_and_name(&1, :custom_title))
-
-    body = """
-    Bonjour,
-
-    Certains jeux de données sont indiqués comme archivés sur data.gouv.fr :
-    #{datasets_str}
-
-
-    Il faudrait creuser ces problèmes de moissonnage.
-    """
-
+  defp send_inactive_datasets_mail(reactivated_datasets, inactive_datasets, archived_datasets) do
     Transport.EmailSender.impl().send_mail(
       "transport.data.gouv.fr",
       Application.get_env(:transport, :contact_email),
       Application.get_env(:transport, :bizdev_email),
       Application.get_env(:transport, :contact_email),
-      "Jeux de données archivés",
-      body,
-      ""
-    )
-  end
-
-  # Do nothing if both lists are empty
-  defp send_inactive_dataset_mail([] = _reactivated_datasets, [] = _inactive_datasets), do: nil
-
-  defp send_inactive_dataset_mail(reactivated_datasets, inactive_datasets) do
-    Transport.EmailSender.impl().send_mail(
-      "transport.data.gouv.fr",
-      Application.get_env(:transport, :contact_email),
-      Application.get_env(:transport, :bizdev_email),
-      Application.get_env(:transport, :contact_email),
-      "Jeux de données qui disparaissent",
-      make_inactive_dataset_body(reactivated_datasets, inactive_datasets),
+      "Jeux de données supprimés ou archivés",
+      make_inactive_datasets_body(reactivated_datasets, inactive_datasets, archived_datasets),
       ""
     )
   end
