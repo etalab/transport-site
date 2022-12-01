@@ -39,6 +39,14 @@ msgid "dataset"
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "Park and ride database"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "park-and-ride-explanation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "Execute"
 msgstr ""
 

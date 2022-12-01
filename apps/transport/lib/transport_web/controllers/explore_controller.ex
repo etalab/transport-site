@@ -2,7 +2,9 @@ defmodule TransportWeb.ExploreController do
   use TransportWeb, :controller
 
   def index(conn, _params) do
-    conn |> render("explore.html")
+    conn
+    |> assign(:parcs_relais_dataset, Transport.Jobs.ParkingsRelaisToGeoData.relevant_dataset())
+    |> render("explore.html")
   end
 
   def vehicle_positions(conn, _params) do
