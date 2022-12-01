@@ -37,6 +37,7 @@ defmodule DB.Dataset do
     field(:population, :integer)
     field(:nb_reuses, :integer)
     field(:latest_data_gouv_comment_timestamp, :naive_datetime_usec)
+    field(:archived_at, :utc_datetime_usec)
 
     # When the dataset is linked to some cities
     # we ask in the backoffice for a name to display
@@ -59,6 +60,11 @@ defmodule DB.Dataset do
   end
 
   def base_query, do: from(d in DB.Dataset, as: :dataset, where: d.is_active == true)
+  def archived, do: base_query() |> where([dataset: d], not is_nil(d.archived_at))
+
+  @spec is_archived?(__MODULE__.t()) :: boolean()
+  def is_archived?(%__MODULE__{archived_at: nil}), do: false
+  def is_archived?(%__MODULE__{archived_at: %DateTime{}}), do: true
 
   @doc """
   Creates a query with the following inner joins:
@@ -124,7 +130,7 @@ defmodule DB.Dataset do
   @spec preload_without_validations() :: Ecto.Query.t()
   defp preload_without_validations do
     s = no_validations_query()
-    base_query() |> preload(resources: ^s)
+    __MODULE__ |> preload(resources: ^s)
   end
 
   @spec preload_without_validations(Ecto.Query.t()) :: Ecto.Query.t()
@@ -369,7 +375,8 @@ defmodule DB.Dataset do
       :nb_reuses,
       :is_active,
       :associated_territory_name,
-      :latest_data_gouv_comment_timestamp
+      :latest_data_gouv_comment_timestamp,
+      :archived_at
     ])
     |> cast_aom(params)
     |> cast_datagouv_zone(params, territory_name)
@@ -417,21 +424,20 @@ defmodule DB.Dataset do
 
   @spec count_by_mode(binary()) :: number()
   def count_by_mode(tag) do
-    __MODULE__
-    |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
-    |> where([d, r], d.is_active and ^tag in r.modes)
-    |> distinct([d], d.id)
+    Transport.Validators.GTFSTransport.validator_name()
+    |> join_from_dataset_to_metadata()
+    |> where([metadata: m], ^tag in m.modes)
+    |> distinct([dataset: d], d.id)
     |> Repo.aggregate(:count, :id)
   end
 
   @spec count_coach() :: number()
   def count_coach do
-    __MODULE__
-    |> join(:inner, [d], r in Resource, on: r.dataset_id == d.id)
-    |> join(:inner, [d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id)
-    |> distinct([d], d.id)
-    |> where([d, r, d_geo], d.is_active and "bus" in r.modes and d_geo.region_id == 14)
+    Transport.Validators.GTFSTransport.validator_name()
+    |> join_from_dataset_to_metadata()
     # 14 is the national "region". It means that it is not bound to a region or local territory
+    |> where([metadata: m, dataset: d], d.region_id == 14 and "bus" in m.modes)
+    |> distinct([dataset: d], d.id)
     |> Repo.aggregate(:count, :id)
   end
 
@@ -596,7 +602,10 @@ defmodule DB.Dataset do
   def validate(id) when is_integer(id) do
     dataset = __MODULE__ |> Repo.get!(id) |> Repo.preload(:resources)
 
-    {real_time_resources, static_resources} = Enum.split_with(dataset.resources, &Resource.is_real_time?/1)
+    {real_time_resources, static_resources} =
+      dataset
+      |> official_resources()
+      |> Enum.split_with(&Resource.is_real_time?/1)
 
     # unique period is set to nil, to force the resource history job to be executed
     static_resources

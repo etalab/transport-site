@@ -76,6 +76,11 @@
           ) %>
         </div>
         <div>
+          <%= link(dgettext("backoffice", "Archived"),
+            to: backoffice_page_path(@conn, :index, %{"filter" => "archived"}) <> "#list_datasets"
+          ) %>
+        </div>
+        <div>
           <%= link(dgettext("backoffice", "With unidentified resources"),
             to: backoffice_page_path(@conn, :index, %{"filter" => "other_resources"}) <> "#list_datasets"
           ) %>

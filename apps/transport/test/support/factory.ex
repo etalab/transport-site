@@ -144,7 +144,7 @@ defmodule DB.Factory do
     def_opts = [resource_available: true, is_active: true, resource_history_payload: %{}]
     opts = Keyword.merge(def_opts, opts)
 
-    dataset_opts = [is_active: Keyword.get(opts, :is_active)]
+    dataset_opts = [is_active: Keyword.get(opts, :is_active), region_id: Keyword.get(opts, :region_id)]
 
     dataset_opts =
       case Keyword.get(opts, :aom) do

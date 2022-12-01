@@ -106,6 +106,7 @@ oban_crontab_all_envs =
         {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}},
         {"20 */2 * * *", Transport.Jobs.GTFSRTEntitiesDispatcherJob},
         {"30 */6 * * *", Transport.Jobs.BNLCToGeoData},
+        {"30 */6 * * *", Transport.Jobs.ParkingsRelaisToGeoData},
         {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob},
         {"0 7 * * *", Transport.Jobs.GTFSRTMultiValidationDispatcherJob},
         {"30 7 * * *", Transport.Jobs.GBFSMultiValidationDispatcherJob},

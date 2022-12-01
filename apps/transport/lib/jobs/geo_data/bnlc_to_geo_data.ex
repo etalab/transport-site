@@ -10,19 +10,19 @@ defmodule Transport.Jobs.BNLCToGeoData do
 
   @impl Oban.Worker
   def perform(%{}) do
-    transport_publisher_label = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
-
-    # get the relevant dataset and its resource
-    dataset =
-      DB.Dataset
-      |> preload(:resources)
-      |> where([d], d.type == "carpooling-areas" and d.organization == ^transport_publisher_label)
-      |> DB.Repo.one!()
-
-    [%DB.Resource{} = resource] = DB.Dataset.official_resources(dataset)
+    [%DB.Resource{} = resource] = relevant_dataset() |> DB.Dataset.official_resources()
 
     Transport.Jobs.BaseGeoData.import_replace_data(resource, &prepare_data_for_insert/2)
     :ok
+  end
+
+  def relevant_dataset do
+    transport_publisher_label = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label)
+
+    DB.Dataset
+    |> preload(:resources)
+    |> where([d], d.type == "carpooling-areas" and d.organization == ^transport_publisher_label)
+    |> DB.Repo.one!()
   end
 
   def prepare_data_for_insert(body, geo_data_import_id) do

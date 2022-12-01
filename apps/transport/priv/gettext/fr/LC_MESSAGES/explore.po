@@ -40,6 +40,14 @@ msgid "dataset"
 msgstr "jeu de données"
 
 #, elixir-autogen, elixir-format
+msgid "Park and ride database"
+msgstr "Base nationale des parcs relais"
+
+#, elixir-autogen, elixir-format
+msgid "park-and-ride-explanation"
+msgstr "Données des parkings relais présents au sein du %{link} de la Base nationale des parcs relais"
+
+#, elixir-autogen, elixir-format
 msgid "Execute"
 msgstr "Exécuter"
 
